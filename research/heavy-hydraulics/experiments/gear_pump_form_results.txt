@@ -1,0 +1,36 @@
+Milestone 6t: functional-form robustness of 6r's one curve (index 2, 29 committed sweep points)
+(inputs: the same three results files as gear_pump_evidence.py; no simulation rerun)
+forms parametrised so E50 is the 50% crossing; grid least squares, final step 1e-4
+
+logistic: E50 0.8212, scale 0.0270; pooled RMS 5.62 points (casappa 4.19, danfoss 5.60, marzocchi 6.75); 10% at E 0.7619, 90% at E 0.8805
+  without casappa: E50 0.8193, scale 0.0281; casappa crossing error -0.0091, casappa RMS 5.05 points
+  without danfoss: E50 0.8191, scale 0.0274; danfoss crossing error -0.0118, danfoss RMS 6.83 points
+  without marzocchi: E50 0.8250, scale 0.0259; marzocchi crossing error +0.0062, marzocchi RMS 8.91 points
+probit: E50 0.8211, scale 0.0447; pooled RMS 5.47 points (casappa 4.02, danfoss 5.41, marzocchi 6.63); 10% at E 0.7638, 90% at E 0.8784
+  without casappa: E50 0.8192, scale 0.0464; casappa crossing error -0.0092, casappa RMS 4.89 points
+  without danfoss: E50 0.8189, scale 0.0456; danfoss crossing error -0.0120, danfoss RMS 6.75 points
+  without marzocchi: E50 0.8250, scale 0.0428; marzocchi crossing error +0.0062, marzocchi RMS 8.93 points
+cloglog: E50 0.8229, scale 0.0398; pooled RMS 4.33 points (casappa 2.93, danfoss 4.17, marzocchi 5.47); 10% at E 0.7479, 90% at E 0.8707
+  without casappa: E50 0.8209, scale 0.0419; casappa crossing error -0.0075, casappa RMS 4.11 points
+  without danfoss: E50 0.8210, scale 0.0405; danfoss crossing error -0.0099, danfoss RMS 5.44 points
+  without marzocchi: E50 0.8267, scale 0.0378; marzocchi crossing error +0.0079, marzocchi RMS 7.85 points
+loglog: E50 0.8191, scale 0.0384; pooled RMS 7.19 points (casappa 5.91, danfoss 7.04, marzocchi 8.36); 10% at E 0.7730, 90% at E 0.8914
+  without casappa: E50 0.8171, scale 0.0398; casappa crossing error -0.0113, casappa RMS 6.62 points
+  without danfoss: E50 0.8165, scale 0.0394; danfoss crossing error -0.0144, danfoss RMS 8.48 points
+  without marzocchi: E50 0.8232, scale 0.0362; marzocchi crossing error +0.0044, marzocchi RMS 10.61 points
+
+model-free isotonic fit (pooled): 50% crossing E 0.8250; RMS 2.02 points (16 monotone levels)
+
+exact maker-level bootstrap, logistic (27 draws of three makers with replacement):
+  E50 min 0.8128 (marzocchi+marzocchi+marzocchi), median 0.8212, max 0.8260 (danfoss+danfoss+danfoss)
+  2nd and 26th of 27 (a ~93% range): 0.8171 to 0.8253
+
+across forms: E50 0.8191 to 0.8229; 10% threshold 0.7479 to 0.7730 (span 0.0251); 90% threshold 0.8707 to 0.8914 (span 0.0208)
+
+Predictions (LOG.md 6t):
+  FF1 every form's E50 within 0.005 of logistic: held (largest 0.0021)
+  FF2 an asymmetric form beats logistic RMS by >= 0.5: held (best gain +1.28)
+  FF3 every form, every left-out crossing within 0.015: held (worst 0.0144)
+  FF4 10% and 90% thresholds each span <= 0.010: refuted (larger span 0.0251)
+  FF5 all 27 bootstrap E50 in 0.810-0.835: held (0.8128 to 0.8260)
+  FF6 isotonic crossing within 0.005 of logistic E50: held (0.0038)

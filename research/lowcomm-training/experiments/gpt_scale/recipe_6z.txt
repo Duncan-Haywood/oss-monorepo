@@ -1,0 +1,37 @@
+
+  Traceback (most recent call last):
+    File "<frozen site>", line 201, in addpackage
+    File "<string>", line 1, in <module>
+
+Remainder of file ignored
+H6z-i reproduction: the full arm against the stored fully-noised run (std batches)
+  rk4     seed 0: 1.5931439698 vs 1.5931439698 (+0.0e+00)
+  rk4     seed 1: 1.5893372372 vs 1.5893372372 (+0.0e+00)
+  rk4     seed 2: 1.5886686072 vs 1.5886686072 (+0.0e+00)
+  rk4     seed 3: 1.5932954401 vs 1.5932954401 (+0.0e+00)
+  rk16    seed 0: 1.6614440382 vs 1.6614440382 (+0.0e+00)
+  rk16    seed 1: 1.6340537965 vs 1.6340537965 (+0.0e+00)
+  rk16    seed 2: 1.6461300477 vs 1.6461300477 (+0.0e+00)
+  rk16    seed 3: 1.6448662132 vs 1.6448662132 (+0.0e+00)
+  rk32    seed 0: 1.7427773699 vs 1.7427773699 (+0.0e+00)
+  rk32    seed 1: 1.7265324295 vs 1.7265324295 (+0.0e+00)
+  rk32    seed 2: 1.7389299348 vs 1.7389299348 (+0.0e+00)
+  rk32    seed 3: 1.7355142459 vs 1.7355142459 (+0.0e+00)
+  shaped7 seed 0: 1.6059988663 vs 1.6059988663 (+0.0e+00)
+  shaped7 seed 1: 1.6165930778 vs 1.6165930778 (+0.0e+00)
+  shaped7 seed 2: 1.5999096483 vs 1.5999096483 (+0.0e+00)
+  shaped7 seed 3: 1.5886445940 vs 1.5886445940 (+0.0e+00)
+H6z-i (bit-exact): held
+
+per noise, paired by seed against unc (6y): T = clean - unc, C = full - unc, b = full - clean (std); fresh T
+  rk4     omega  3 n 4: T -0.0180 (0.0020)  C -0.0127 (0.0027)  b +0.0053 (0.0008)  | fresh T -0.0185 (0.0020) per seed -0.0232 -0.0207 -0.0150 -0.0151  theta2 14,929
+  rk8     omega  7 n 4: T -0.0136 (0.0035)  C -0.0016 (0.0038)  b +0.0120 (0.0004)  | fresh T -0.0141 (0.0063) per seed -0.0261 -0.0215 +0.0024 -0.0113  theta2 20,571
+  shaped7 omega  7 n 4: T -0.0141 (0.0048)  C -0.0010 (0.0053)  b +0.0130 (0.0010)  | fresh T -0.0142 (0.0042) per seed -0.0144 -0.0027 -0.0166 -0.0231  theta2 20,448
+  rk16    omega 15 n 4: T +0.0137 (0.0067)  C +0.0428 (0.0064)  b +0.0291 (0.0013)  | fresh T +0.0113 (0.0072) per seed +0.0309 -0.0032 +0.0116 +0.0058  theta2 33,430
+  rk32    omega 31 n 4: T +0.0845 (0.0030)  C +0.1321 (0.0041)  b +0.0476 (0.0027)  | fresh T +0.0807 (0.0059) per seed +0.0893 +0.0669 +0.0752 +0.0916  theta2 62,777
+  unc theta2 11,377
+
+H6z-ii  (shaped Gaussian recipe below unc on fresh by > 2 se): held (-0.0142, -3.3 se)
+H6z-iii (omega 3 recipe below unc on fresh by > 2 se): held (-0.0185, -9.0 se)
+H6z-iv  (omega 15 recipe not above unc on fresh by > 2 se): held (+0.0113, +1.6 se)
+H6z-v   (last-round cost b rises with omega, seed means, rk4, rk8, rk16, rk32): held (+0.0053, +0.0120, +0.0291, +0.0476)

@@ -3,7 +3,11 @@
 // them: each <test> holds one document and <assert> lines naming a rule that must
 // pass (<success>), fail as an error (<error>) or fail as a warning (<warning>).
 //
-//   node eval/peppol-unit-tests.mjs <peppol-bis-invoice-3 checkout> [plain-dir]
+//   node eval/peppol-unit-tests.mjs <peppol-bis-invoice-3 checkout> [plain-dir] [--next]
+//
+// A Self-Billing branch's unit-UBL-PEPPOL-SB folder runs against peppol-sb-ubl.json
+// (with --next, peppol-sb-next-ubl.json; added 2026-11-18). Billing folders run against
+// peppol-ubl.json / peppol-cii.json as before.
 //
 // Needs `npm i --no-save slimdom fontoxpath`. Only the Peppol add-on runs (not the
 // EN 16931 base), since the unit snippets are deliberately partial documents.
@@ -18,11 +22,16 @@ const { parseXmlDocument, serializeToWellFormedString } = require("slimdom");
 const fontoxpath = require("fontoxpath");
 const { runRules } = createPlainRunner({ fontoxpath, parseXml: parseXmlDocument });
 
-const [checkout, plainDir = new URL("../plain/", import.meta.url).pathname] = process.argv.slice(2);
+const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+const next = process.argv.includes("--next");
+const [checkout, plainDir = new URL("../plain/", import.meta.url).pathname] = args;
 if (!checkout) { console.error("usage: node eval/peppol-unit-tests.mjs <peppol-bis-invoice-3 checkout> [plain-dir]"); process.exit(2); }
-const rules = {
-  ubl: JSON.parse(readFileSync(join(plainDir, "peppol-ubl.json"), "utf8")),
-  cii: JSON.parse(readFileSync(join(plainDir, "peppol-cii.json"), "utf8")),
+const read = (f) => JSON.parse(readFileSync(join(plainDir, f), "utf8"));
+const cache = {};
+const rulesFor = (dir) => {
+  const file = /-SB$/.test(dir) ? (next ? "peppol-sb-next-ubl.json" : "peppol-sb-ubl.json")
+    : dir.startsWith("unit-UBL") ? "peppol-ubl.json" : "peppol-cii.json";
+  return (cache[file] ||= read(file));
 };
 const unitRoot = resolve(checkout, "rules");
 const kids = (n, name) => [...n.childNodes].filter((c) => c.nodeType === 1 && (!name || c.localName === name));
@@ -30,7 +39,7 @@ const kids = (n, name) => [...n.childNodes].filter((c) => c.nodeType === 1 && (!
 let bad = 0;
 const totals = {};
 for (const dir of readdirSync(unitRoot).filter((d) => /^unit-(UBL|CII)-/.test(d)).sort()) {
-  const syntax = dir.startsWith("unit-UBL") ? "ubl" : "cii";
+  const rules = rulesFor(dir);
   const t = (totals[dir] = { asserts: 0, agree: 0, skipped: 0 });
   for (const file of readdirSync(join(unitRoot, dir)).filter((f) => f.endsWith(".xml")).sort()) {
     const set = parseXmlDocument(readFileSync(join(unitRoot, dir, file), "utf8")).documentElement;
@@ -39,7 +48,7 @@ for (const dir of readdirSync(unitRoot).filter((d) => /^unit-(UBL|CII)-/.test(d)
       if (!body) return;
       // Re-parse the document on its own so absolute paths (/*/cbc:...) start at it.
       const doc = parseXmlDocument(serializeToWellFormedString(body));
-      const raw = runRules(rules[syntax], doc);
+      const raw = runRules(rules, doc);
       const fired = new Map();
       for (const f of raw) fired.set(f.rule, f.flag);
       for (const a of kids(test, "assert")) {

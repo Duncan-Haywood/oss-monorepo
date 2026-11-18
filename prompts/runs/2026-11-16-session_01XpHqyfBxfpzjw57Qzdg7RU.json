@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyfBxfpzjw57Qzdg7RU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T03:39:10Z",
+  "ended": "2026-11-16T03:44:22Z",
+  "wall_minutes": 9.83,
+  "tokens_in": 4673092,
+  "tokens_out": 23694,
+  "cost_usd": 2.217,
+  "tool_calls": 49,
+  "task": "league-schedule-generator (flagship 9): three-session wait-free designs at 40 and 46 teams",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16440",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First `git checkout -b` failed because the harness had already created the branch; the claim commit still landed on it (piped `tail` hid the exit code).",
+      "impact": "none"
+    },
+    {
+      "what": "python-sat was installed for /usr/local/bin/python3 3.13 but a later `python3` in another cwd resolved to a different interpreter without it; reinstalling with `python3 -m pip` fixed it.",
+      "impact": "one wasted command"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/eval/write-session-designs.mjs",
+      "issue": "It rewrites session-designs.mjs from a list of solver JSON files, but those files are not kept in the tree, so adding one design would have dropped the 32 stored ones; added --append."
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "Printed 'HOLD' with exit 1 while its own message said no older PR claimed the item; unclear whether HOLD meant stop. Proceeded since no competing PR was named."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml (league-schedule-generator next:)",
+      "why": "The first item, 29 teams on 5x9, had just absorbed a full run that proved the established method cannot work and left hours-long SAT runs as the remaining route; the second item (3-session designs at 14, 38, 40, 46) was tractable with the same group idea.",
+      "did": "Took the second item: 40 and 46 (14 and 38 already reach 0 waits without designs).",
+      "result": "Both solved in 0.1 s; 794 and 1,201 waits to 0."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-forty-team-league-three-sessions-one-night.md",
+    "ventures/league-schedule-generator/README.md (Three sessions at 40 and 46 teams)"
+  ],
+  "goal": null,
+  "notes": "eval/session-orbit.py: n = 3k+1, k odd; g = +3 mod 3k fixing one team has order k with every pair orbit of size k, 3n/2 orbits = one night of three rounds. SAT on one night (10k vars) solves 40 (7 courts) and 46 (8 courts) in 0.1 s each (repeated 3x); also 22, 28, 34, 52, 58, 64 (not stored beyond 48). Season builds with designs: 40 teams 794 waits -> 0, 18.5 s -> 1.5 s; 46 teams 1,201 -> 0, 11.8 s -> 2.1 s (seeds 1-3). node --test doubleheader.test.mjs: 33/33 pass. Full eval/three-game-nights.mjs rerun: Part 5 40 and 46 teams now 'yes | 794 | 0' and 'yes | 1201 | 0', no invalid season; the rerun overwrote a hand-kept 'Part 7 before' block, restored by hand. run_venture_tests.py league-schedule-generator: ok, 555 tests, 208 s.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3546f1bd-2757-5f7a-8dae-edf772b4ad5e",
+    "transcripts": 1,
+    "first": "2026-11-16T03:39:10Z",
+    "last": "2026-11-16T03:49:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 86,
+        "output": 23694,
+        "thinking": 4800,
+        "cache_read": 4569388,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103618,
+        "api_equivalent_usd": 2.217,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 86,
+      "output": 23694,
+      "thinking": 4800,
+      "cache_read": 4569388,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103618,
+      "api_equivalent_usd": 2.217,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 44,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.83,
+      "active_minutes": 9.83,
+      "model_minutes": 3.95,
+      "tool_minutes": 5.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer with combinatorial-design background: derive the orbit argument, write and test the SAT model, integrate and measure",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 270.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

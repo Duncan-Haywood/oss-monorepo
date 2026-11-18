@@ -371,3 +371,36 @@ ${urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n')}
 </urlset>
 `;
 }
+
+/** "1 to 19", "1 to 3, 5 and 8 to 9" for sorted episode numbers. */
+export function numberRanges(numbers) {
+  const runs = [];
+  for (const n of numbers) {
+    const last = runs[runs.length - 1];
+    if (last && n === last[1] + 1) last[1] = n;
+    else runs.push([n, n]);
+  }
+  const parts = runs.map(([a, b]) => (a === b ? `${a}` : `${a} to ${b}`));
+  return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}` : parts[0] || 'none';
+}
+
+export const AUDIO_STATUS_START = '<!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->';
+export const AUDIO_STATUS_END = '<!-- /audio-status -->';
+
+/** The one-line audio summary PRODUCTION.md carries, derived from the episodes and the manifest. */
+export function audioStatusLine(episodes, audio = {}) {
+  const voiced = episodes.filter((ep) => audio[ep.slug]).map((ep) => ep.number);
+  const silent = episodes.filter((ep) => !audio[ep.slug]).map((ep) => ep.number);
+  const minutes = voiced.map((n) => Math.round((audio[episodes[n - 1].slug].seconds || 0) / 60)).filter((m) => m > 0);
+  const span = minutes.length ? ` (${Math.min(...minutes)} to ${Math.max(...minutes)} minutes each)` : '';
+  return `Audio: ${voiced.length} of ${episodes.length} episodes, number${voiced.length === 1 ? '' : 's'} ${numberRanges(voiced)}${span}. ` +
+    `Text only: ${silent.length ? `episode${silent.length === 1 ? '' : 's'} ${numberRanges(silent)}` : 'none'}.`;
+}
+
+/** PRODUCTION.md with the text between the audio-status markers replaced by audioStatusLine. */
+export function withAudioStatus(production, episodes, audio = {}) {
+  const start = production.indexOf(AUDIO_STATUS_START);
+  const end = production.indexOf(AUDIO_STATUS_END);
+  if (start < 0 || end < start) throw new Error('PRODUCTION.md: audio-status markers missing');
+  return `${production.slice(0, start + AUDIO_STATUS_START.length)}\n${audioStatusLine(episodes, audio)}\n${production.slice(end)}`;
+}

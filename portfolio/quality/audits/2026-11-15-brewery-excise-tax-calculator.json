@@ -1,0 +1,270 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/brewery-excise-tax-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-15-efb6",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a brewery excise-tax compliance specialist (the bookkeeper or CPA who prepares TTB F 5000.24 Excise Tax Returns for craft breweries). They would check first: that the $3.50 / $16 / $18 tiers are applied cumulatively per calendar year with the 60,000 reduced-rate barrels counted inside the 6 million (26 U.S.C. 5051(a)(1)(C), (a)(2)(A)); that the $3.50 rate is limited to domestic brewers producing 2,000,000 barrels or fewer and shared across a controlled group; that package conversions to 31-gallon barrels are exact; and that the return-frequency hint matches 26 U.S.C. 5061(d)(4) / 27 CFR 25.164 (quarterly at <= $50,000, annual at <= $1,000, both on prior-year AND expected current-year liability)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Recomputed in an independent Python function written from 26 U.S.C. 5051(a) as amended by the CBMA (statute text cited from the auditor's knowledge; marisstella.app and government hosts were refused by the session proxy). Pass: sample input 101,175 gal / 31 = 3,263.7097 bbl, tax $11,422.98 (node plan(sampleInput()) identical); 70,000 bbl small brewer $370,000; 6.5M bbl small brewer $104,250,000 (60,000 x 3.50 + 5,940,000 x 16 + 500,000 x 18); 2.5M bbl non-small $40,000,000; FAQ per-package figures ($1.75/half keg, $0.254 and $1.161 per 24x12oz case, 4.57x ratio, 1.41 cents/pint) all reproduce; filing thresholds at $1,000.00/$1,000.01 and $50,000.00/$50,000.01 switch at the right edge. Fail: (1) the growth table keeps the $3.50 rate after volume passes 2M barrels: plan({otherBarrels:1000000, small:true}).growth at 3x shows $47,250,000 for 3,000,000 bbl where a brewer producing 3M bbl loses eligibility and owes $48,000,000 (calc.mjs:72); (2) a blank allotment field becomes 0, so plan({halfKegs:200, allotment:''}) returns $1,600 instead of $350 (4.6x) with only an advice line saying the share is 0 (calc.mjs:21,61). Core tier arithmetic is right in every recomputed case, so 3; the two failures are on secondary paths.",
+  "completeness": "README/page features checked by running plan(): package-to-barrel conversion (works), three-tier tax (works), controlled-group allotment share (works, clamped to 60,000), per-package tax table (works, average rate), growth table (works, but see 2M defect), filing-frequency hint (works), CSV export via toCsv (works, labels with commas quoted), example loader (sampleInput works), usage counter local-only (usage.test.mjs passes). No TODOs or stubs. Served page not loadable from this session (proxy 403 on marisstella.app); sibling links (craft-brewery-batch-margin-calculator, brewery-tank-schedule-optimizer, self-employment-tax-calculator, distillery- and winery-excise-tax-calculator) all exist in ventures/.",
+  "verification": "`cd ventures/brewery-excise-tax-calculator && node --test '*.test.mjs'`: 22 tests, 22 pass. Eight seeded mutations via platform/ci/quality_mutate.py: 1 caught (t1 ignoring the allotment), 7 survived: quarterly threshold <= -> <, annual threshold x10, 12-oz case gallons 24*12/128 -> /124, marginal-rate boundary < -> <=, t2 cap 6M-t1 -> 6M (double-counts 60,000 bbl for a small brewer over 6M), t3 subtracting t1, and dropping the 60,000 allotment clamp. Tests assert one point per rule and nothing at the boundaries; no test covers a small brewer above 6M, any package other than half kegs, or the threshold edges.",
+  "craft": "Read calc.mjs (96 lines), index.html (181), page.test.mjs, calc.test.mjs, usage.mjs head. Pure, small, readable module with input validation and an error path. Defects: blank number fields silently become 0 (num(), calc.mjs:21) which for the allotment removes the reduced rate; allotment above 60,000 silently clamped with no message (calc.mjs:31); dead CSS copied from an hours-of-service tool (tr.drive/.break/.dwell/.off/.restart, textarea, index.html:25,33-35); advice prints '$3.5' rather than '$3.50' (calc.mjs:76,79).",
+  "claims": "Checked: rates and thresholds in FAQ/JSON-LD and the 'rates this applies' list match 5051(a) (pass); '2 million barrels or fewer' matches 'not more than 2,000,000' (pass); per-keg/case FAQ numbers recomputed (pass); 'nothing is uploaded' backed by page.test.mjs (no fetch/XHR/sendBeacon) and usage.mjs localStorage-only (pass); not-modelled list (state tax, importers, contract brewing, tax-free removals, losses, refunds, actual return) present on page and README (pass); disclaimer and no-warranty footer present (pass). Partial: the filing FAQ says eligibility depends on expected liability only, omitting the prior-year condition, though hedged with 'generally' and 'confirm with TTB'. llms.txt links the github.io host, which the Pages build rewrites at deploy (source-only).",
+  "fitness": "Walked the owner's job: enter a year's kegs/cases, read tax per keg and the 60,000-bbl cliff, export CSV. That works and is useful for pricing and expansion planning. The compliance specialist's actual job (a per-period F 5000.24: semimonthly or quarterly removals, running count against the 60,000 allotment across periods, netting beer returned to the brewery under 26 U.S.C. 5056, tax-free removals, transfer-in-bond receipts) is out of scope and stated as such; a professional would hit the lack of per-period allocation in the first hour. Hence 2.",
+  "domain": "Compared with 26 U.S.C. 5051(a)(1)(A),(C) and (a)(2)(A) (CBMA rates, made permanent by the Taxpayer Certainty and Disaster Tax Relief Act of 2020), 26 U.S.C. 5061(d)(4) / 27 CFR 25.164 return periods, and the 31-gallon barrel (5051(a)(1)). Method matches: 60,000 reduced barrels counted inside the 6M, cumulative per calendar year, $18 above 6M, $3.50 limited to domestic producers <= 2M and shared in a controlled group, tax on removal not production. Departures: growth projection ignores loss of the reduced rate above 2M production; filing hint tests current-year liability only; the 6M $16 tier is also apportioned across a controlled group (5051(a)(1)(C) with the controlled-group rules) but the tool gives every non-small brewer the full 6M; the $16 rate assignment by foreign producers to importers and CBMA transfer-in-bond (26 U.S.C. 5414) are not modelled and transfer-in-bond is not named in the not-modelled list. Within its stated limits a practitioner would sign the method off."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Sample input: package gallons to barrels and tax",
+   "method": "independent Python from 5051(a)(2)(A): gallons/31 x $3.50",
+   "command": "node -e 'plan(sampleInput())' vs python3 recompute",
+   "expected": "3,263.71 bbl, $11,422.98",
+   "observed": "3,263.71 bbl, $11,422.98",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Small brewer at 70,000 bbl",
+   "method": "5051(a)(1)(C)+(a)(2)(A): 60,000 x 3.50 + 10,000 x 16",
+   "command": "node -e 'exciseTax({barrels:70000})'",
+   "expected": "370,000",
+   "observed": "370,000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Small brewer at 6.5M bbl (60,000 counted inside the 6M)",
+   "method": "5051(a)(1)(C): $16 on first 6M including the reduced barrels; $18 above",
+   "command": "node -e 'exciseTax({barrels:6500000})'",
+   "expected": "104,250,000",
+   "observed": "104,250,000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Non-small brewer at 2.5M bbl",
+   "method": "5051(a)(1)(C): 2.5M x $16",
+   "command": "node -e 'exciseTax({barrels:2500000,small:false})'",
+   "expected": "40,000,000",
+   "observed": "40,000,000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "FAQ per-package tax (half keg, 24x12oz case at $3.50 and $16, cents per pint)",
+   "method": "hand: 15.5/31x3.5; 2.25/31x3.5; 2.25/31x16; 0.125/31x3.5",
+   "command": "python3 -c '24*12/128/31*3.5 ...'",
+   "expected": "$1.75; $0.254; $1.161; 1.41 c",
+   "observed": "page: $1.75; about 25 c; about $1.16; tool 1.4 c",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Growth table row at 3x for a 1M bbl small brewer (crosses 2M production)",
+   "method": "5051(a)(2)(A): reduced rate only for a brewer producing <= 2M bbl in the year; 3M x $16",
+   "command": "node -e 'plan({otherBarrels:1000000,small:true}).growth[4]'",
+   "expected": "48,000,000 (or a warning that the reduced rate is lost)",
+   "observed": "47,250,000 at the reduced status, no warning",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Blank allotment field",
+   "method": "page default and statute: an absent share should mean the full 60,000 (or an error), not 0",
+   "command": "node -e \"plan({halfKegs:200,allotment:''}).tax\"",
+   "expected": "350 (or an input error)",
+   "observed": "1,600",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Return-frequency thresholds",
+   "method": "26 U.S.C. 5061(d)(4), 27 CFR 25.164: quarterly <= $50,000, annual <= $1,000, prior AND expected year",
+   "command": "node -e 'filingFrequency(1000);filingFrequency(1000.01);filingFrequency(50000);filingFrequency(50000.01)'",
+   "expected": "annual / quarterly / quarterly / semi-monthly, with prior-year condition",
+   "observed": "annual / quarterly / quarterly / semi-monthly; prior-year condition not mentioned",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "22/22 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Nothing uploaded",
+   "method": "page.test.mjs bans fetch/XHR/sendBeacon; usage.mjs reads/writes localStorage only",
+   "command": "grep -n 'fetch\\|sendBeacon' index.html usage.mjs",
+   "expected": "no network calls",
+   "observed": "none",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, no-warranty and not-modelled list",
+   "method": "read index.html:96,122-123 and README",
+   "command": "grep -n 'Not modelled\\|No warranty' index.html README.md",
+   "expected": "present",
+   "observed": "present",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Sibling links resolve",
+   "method": "ls the linked ventures",
+   "command": "ls ../distillery-excise-tax-calculator/index.html ../winery-excise-tax-calculator/index.html",
+   "expected": "exist",
+   "observed": "exist",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Small brewer flag with > 2M barrels removed",
+   "method": "5051(a)(2)(A) production test",
+   "command": "node -e 'plan({otherBarrels:3000000,small:true}).advice'",
+   "expected": "a warning that removals exceed the 2M production ceiling",
+   "observed": "accepted silently, $47,250,000",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:32",
+   "change": "const t1 = Math.min(barrels, reducedCap); -> Math.min(barrels, TIERS.reducedBarrels)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:33",
+   "change": "t2 cap TIERS.standardCap - t1 -> TIERS.standardCap (double-counts 60,000 bbl above 6M)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:34",
+   "change": "t3 = barrels - standardCap -> barrels - standardCap - t1",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:31",
+   "change": "drop Math.min(allotment, 60000) clamp",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:41",
+   "change": "marginal barrels < reducedCap -> <=",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:47",
+   "change": "tax <= QUARTERLY_LIMIT -> tax < QUARTERLY_LIMIT",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:46",
+   "change": "tax <= ANNUAL_LIMIT -> tax <= ANNUAL_LIMIT * 10",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:14",
+   "change": "cases12 gal 24*12/128 -> 24*12/124",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Growth table multiplies volume up to 3x but keeps the small-brewer status, so a brewer projected past 2,000,000 barrels still gets $3.50 on 60,000 barrels: 1M bbl x3 shows $47,250,000 instead of $48,000,000, and the 'cost of growing' the tool is built to show understates the loss of the reduced rate. No warning either.",
+   "where": "ventures/brewery-excise-tax-calculator/calc.mjs:72",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+  },
+  {
+   "severity": "medium",
+   "what": "A cleared allotment field is read as 0 (num('') = 0), so a small brewer silently loses the reduced rate: plan({halfKegs:200, allotment:''}) gives $1,600 instead of $350. The only signal is an advice line saying the share is 0.",
+   "where": "ventures/brewery-excise-tax-calculator/calc.mjs:61",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+  },
+  {
+   "severity": "medium",
+   "what": "Seven of eight seeded mutations survive: no test at the $1,000/$50,000 filing edges, at the marginal-rate boundary, for a small brewer above 6M barrels (t2 cap), for the 60,000 clamp, or for any package size other than half kegs.",
+   "where": "ventures/brewery-excise-tax-calculator/calc.test.mjs:1",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+  },
+  {
+   "severity": "low",
+   "what": "small=true is accepted with removals above 2,000,000 barrels and no warning that the reduced rate requires production of 2M or fewer.",
+   "where": "ventures/brewery-excise-tax-calculator/calc.mjs:57",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+  },
+  {
+   "severity": "low",
+   "what": "Filing hint tests only the current-year estimate; 26 U.S.C. 5061(d)(4) / 27 CFR 25.164 also require prior-year liability under the threshold. Hedged with 'may be available' and 'confirm with TTB'.",
+   "where": "ventures/brewery-excise-tax-calculator/calc.mjs:45",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "The $16 tier's 6,000,000 barrels is shared across a controlled group like the 60,000, but only the 60,000 share is an input; transfer in bond (26 U.S.C. 5414), returns to the brewery (5056) and foreign-producer assignment of the $16 rate to importers are not modelled, and transfer in bond is not named in the not-modelled list.",
+   "where": "ventures/brewery-excise-tax-calculator/calc.mjs:33",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Allotment above 60,000 is silently clamped with no message to the user.",
+   "where": "ventures/brewery-excise-tax-calculator/calc.mjs:31",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Dead CSS copied from another tool (tr.drive/.break/.dwell/.off/.restart, textarea) and advice prints '$3.5' instead of '$3.50'.",
+   "where": "ventures/brewery-excise-tax-calculator/index.html:33",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt links the duncan-haywood.github.io host; the Pages build rewrites it at deploy (served page not loadable from this session to confirm).",
+   "where": "ventures/brewery-excise-tax-calculator/llms.txt:9",
+   "category": "source-only",
+   "origin": "audit"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+ ],
+ "verdict": "A small, honest planning calculator whose core arithmetic is right: every recomputed tier total (70,000 bbl, 6.5M small, 2.5M non-small, the sample mix) and every FAQ per-package figure matches 26 U.S.C. 5051(a) as amended by the CBMA, and the page states its limits and disclaimer. It misses the bar on verification: 22 tests pass but 7 of 8 seeded bugs in the tier caps, boundaries, filing thresholds and package sizes survive. Two secondary outputs are wrong: the growth table keeps the $3.50 rate past 2M barrels of production, and a cleared allotment field silently becomes 0. Finished for what it claims; not a per-period F 5000.24 tool, which it says."
+}

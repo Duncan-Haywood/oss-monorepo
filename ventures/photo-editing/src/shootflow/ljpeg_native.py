@@ -27,7 +27,9 @@ decoders of ``shootflow.srw`` (``shootflow_samsung_rows_run``, ``_huffman_run``,
 ``tests/test_srw.py`` runs both), and ``shootflow_pentax_run``, the Pentax PEF decode of
 ``shootflow.pef`` (``tests/test_pef.py`` runs both), and ``shootflow_fuji_strip``, one strip of a
 Fujifilm lossless compressed RAF (``shootflow.raf_compressed``; ``tests/test_raf_compressed.py`` runs both),
-and ``shootflow_crx_band``, one band of a Canon CR3 (``shootflow.cr3``; ``tests/test_cr3.py`` runs both).
+and ``shootflow_crx_band``, one band of a Canon CR3 (``shootflow.cr3``; ``tests/test_cr3.py`` runs both),
+and ``shootflow_craw_plane``, one plane of a C-RAW CR3 (``shootflow.cr3_wavelet``; ``tests/test_cr3_wavelet.py``
+runs both).
 
 Nothing here downloads or runs anything but the system compiler on the
 source below. ``SHOOTFLOW_NATIVE=0`` turns it off.
@@ -408,6 +410,83 @@ long shootflow_panasonic_run(const uint8_t *d, long len, long width, long height
         }
     }
 #undef PANA_BITS
+    return 0;
+}
+
+/* Panasonic RW2 RawFormat 5 and 7 (shootflow.rw2._packed_python): each 16-byte line, as a
+   little-endian 128-bit number, holds 128 / bits sensels from its lowest bit up. d is already in
+   reading order (RawFormat 5's blocks rotated). Returns 0, or -1 when d is short. */
+long shootflow_panasonic_packed_run(const uint8_t *d, long len, long width, long height, int bits, uint16_t *out)
+{
+    int per = 128 / bits;
+    long lines = width / per;
+    if (len < lines * 16 * height) return -1;
+    uint32_t mask = (1u << bits) - 1;
+    for (long row = 0; row < height; row++) {
+        uint16_t *o = out + row * width;
+        for (long l = 0; l < lines; l++, d += 16) {
+            uint64_t lo = 0, hi = 0;
+            for (int b = 7; b >= 0; b--) { lo = lo << 8 | d[b]; hi = hi << 8 | d[8 + b]; }
+            for (int i = 0; i < per; i++) {
+                int at = i * bits;
+                uint64_t v;
+                if (at >= 64) v = hi >> (at - 64);
+                else if (at + bits <= 64) v = lo >> at;
+                else v = (lo >> at) | (hi << (64 - at));
+                *o++ = (uint16_t)(v & mask);
+            }
+        }
+    }
+    return 0;
+}
+
+/* Panasonic RW2 RawFormat 6 (shootflow.rw2._c6_python): 11 sensels a 16-byte line, fields read
+   from the top bit down. Returns 0, or -1 when d is short. */
+long shootflow_panasonic_c6_run(const uint8_t *d, long len, long width, long height, uint16_t *out)
+{
+    static const int widths[14] = {14, 14, 2, 10, 10, 10, 2, 10, 10, 10, 2, 10, 10, 10};
+    long lines = width / 11;
+    if (len < lines * 16 * height) return -1;
+    for (long row = 0; row < height; row++) {
+        uint16_t *o = out + row * width;
+        for (long l = 0; l < lines; l++, d += 16) {
+            uint64_t lo = 0, hi = 0;
+            for (int b = 7; b >= 0; b--) { lo = lo << 8 | d[b]; hi = hi << 8 | d[8 + b]; }
+            uint32_t vals[14];
+            int pos = 128;
+            for (int f = 0; f < 14; f++) {
+                int w = widths[f];
+                pos -= w;
+                uint64_t v;
+                if (pos >= 64) v = hi >> (pos - 64);
+                else if (pos + w <= 64) v = lo >> pos;
+                else v = (lo >> pos) | (hi << (64 - pos));
+                vals[f] = (uint32_t)(v & ((1u << w) - 1));
+            }
+            int k = 0;
+            int64_t first[2] = {0, 0}, prev[2] = {0, 0}, mul = 0, base = 0;
+            for (int pix = 0; pix < 11; pix++) {
+                if (pix % 3 == 2) {
+                    int code = (int)vals[k++];
+                    if (code == 3) code = 4;
+                    mul = (int64_t)1 << code;
+                    base = (int64_t)0x200 << code;
+                }
+                int64_t e = vals[k++];
+                int p = pix & 1;
+                if (first[p]) {
+                    e *= mul;
+                    if (base < 0x2000 && prev[p] > base) e += prev[p] - base;
+                    prev[p] = e;
+                } else {
+                    first[p] = e;
+                    if (e) prev[p] = e; else e = prev[p];
+                }
+                e -= 15;
+                *o++ = (uint16_t)(e < 0 ? 0 : (e <= 0xFFFF ? e : 0x3FFF));
+            }
+        }
+    }
     return 0;
 }
 
@@ -894,7 +973,8 @@ static void crx_store(const int32_t *line, long width, int bits, uint16_t *out)
         out[2 * x] = (uint16_t)((v < lo ? lo : (v > hi ? hi : v)) + mid);
     }
 }
-long shootflow_crx_band(const uint8_t *d, long len, long width, long height, int bits, uint16_t *out, long stride)
+/* The median-predicted band as signed values, row-major into dst (width * height). */
+static long crx_median_band(const uint8_t *d, long len, long width, long height, int32_t *dst)
 {
     crx_bits b = {d, len, 0, 0, 0};
     int32_t *bufs = (int32_t *)calloc((size_t)(2 * (width + 2)), sizeof(int32_t));
@@ -926,7 +1006,7 @@ long shootflow_crx_band(const uint8_t *d, long len, long width, long height, int
         k = crx_next_k(k, (uint32_t)code); i++;
     }
     cur[i + 1] = cur[i] + 1;
-    crx_store(cur + 1, width, bits, out);
+    memcpy(dst, cur + 1, (size_t)width * sizeof(int32_t));
     for (long line = 1; line < height; line++) {
         int32_t *t = prev; prev = cur; cur = t;
         cur[0] = prev[1];
@@ -960,13 +1040,344 @@ long shootflow_crx_band(const uint8_t *d, long len, long width, long height, int
             k = crx_next_k(k, (uint32_t)code); i++; length--;
         }
         cur[i + 1] = cur[i] + 1;
-        crx_store(cur + 1, width, bits, out + line * stride);
+        memcpy(dst + line * width, cur + 1, (size_t)width * sizeof(int32_t));
     }
     free(bufs);
     return 0;
 bad:
     free(bufs);
     return -1;
+}
+
+long shootflow_crx_band(const uint8_t *d, long len, long width, long height, int bits, uint16_t *out, long stride)
+{
+    int32_t *vals = (int32_t *)malloc((size_t)width * (size_t)height * sizeof(int32_t));
+    if (!vals) return -1;
+    if (crx_median_band(d, len, width, height, vals) < 0) { free(vals); return -1; }
+    for (long line = 0; line < height; line++) crx_store(vals + line * width, width, bits, out + line * stride);
+    free(vals);
+    return 0;
+}
+
+/* Canon CR3 C-RAW (CMP1 version 0x200), the twin of shootflow.cr3_wavelet: the bands other than the
+   deepest LL are coded with no value prediction (crx_highpass, cr3_wavelet.decode_highpass), every
+   coefficient is multiplied by its quantisation step, and the reversible 5/3 inverse rebuilds each
+   level, deepest first. */
+static inline int crx_next_k_cap(int k, uint32_t code, int cap) {
+    int nk = k - (code < (uint32_t)((1 << k) >> 1)) + ((code >> k) > 2) + ((code >> k) > 5);
+    return (!cap || nk < cap) ? nk : cap;
+}
+static inline int crx_bump(int k, const int32_t *kcol, long i) {
+    if (kcol[i + 1] - k <= 1) return k >= 15 ? 15 : k;
+    return k + 1;
+}
+#define ZIG(c) (-(int32_t)((c) & 1) ^ (int32_t)((c) >> 1))
+#define ZIG1(c) (-(int32_t)(((c) + 1) & 1) ^ (int32_t)(((c) + 1) >> 1))
+static long crx_highpass(const uint8_t *d, long len, long width, long height, int32_t *dst)
+{
+    crx_bits b = {d, len, 0, 0, 0};
+    int32_t *mem = (int32_t *)calloc((size_t)(3 * (width + 2)), sizeof(int32_t));
+    if (!mem) return -1;
+    int32_t *above = mem, *cur = mem + width + 2, *kcol = mem + 2 * (width + 2);
+    int s = 0, k = 0;
+    long i = 0, length = width, code, n;
+    while (length > 1) {
+        if (cur[i]) {
+            if ((code = crx_error(&b, k)) < 0) goto bad;
+            cur[i + 1] = ZIG(code);
+            k = crx_next_k_cap(k, (uint32_t)code, 15);
+        } else {
+            n = crx_run(&b, &s, length);
+            if (n < 0) goto bad;
+            length -= n;
+            while (n-- > 0) { kcol[i] = 0; cur[i + 1] = 0; i++; }
+            if (length <= 0) break;
+            if ((code = crx_error(&b, k)) < 0) goto bad;
+            cur[i + 1] = ZIG1(code);
+            k = crx_next_k_cap(k, (uint32_t)code, 15);
+        }
+        kcol[i] = k; i++; length--;
+    }
+    if (length == 1) {
+        if ((code = crx_error(&b, k)) < 0) goto bad;
+        cur[i + 1] = ZIG(code);
+        k = crx_next_k_cap(k, (uint32_t)code, 15);
+        kcol[i] = k;
+    }
+    memcpy(dst, cur + 1, (size_t)width * sizeof(int32_t));
+    for (long line = 1; line < height; line++) {
+        int32_t *t = above; above = cur; cur = t;
+        memset(cur, 0, (size_t)(width + 2) * sizeof(int32_t));
+        above[width + 1] = 0;
+        long last = width - 1;
+        i = 0;
+        while (i < last) {
+            if (above[i + 2] | above[i + 1] | cur[i]) {
+                if ((code = crx_error(&b, k)) < 0) goto bad;
+                cur[i + 1] = ZIG(code);
+                k = crx_bump(crx_next_k_cap(k, (uint32_t)code, 0), kcol, i);
+            } else {
+                n = crx_run(&b, &s, width - i);
+                if (n < 0) goto bad;
+                for (long j = i; j < i + n; j++) kcol[j] = 0;
+                i += n;
+                if (i >= last) {
+                    if (i == last) {
+                        if ((code = crx_error(&b, k)) < 0) goto bad;
+                        cur[i + 1] = ZIG1(code);
+                        k = crx_next_k_cap(k, (uint32_t)code, 15);
+                        kcol[i] = k;
+                    }
+                    i++;
+                    continue;
+                }
+                if ((code = crx_error(&b, k)) < 0) goto bad;
+                cur[i + 1] = ZIG1(code);
+                k = crx_bump(crx_next_k_cap(k, (uint32_t)code, 0), kcol, i);
+            }
+            kcol[i] = k; i++;
+        }
+        if (i == last) {
+            if ((code = crx_error(&b, k)) < 0) goto bad;
+            cur[i + 1] = ZIG(code);
+            k = crx_next_k_cap(k, (uint32_t)code, 15);
+            kcol[i] = k;
+        }
+        memcpy(dst + line * width, cur + 1, (size_t)width * sizeof(int32_t));
+    }
+    free(mem);
+    return 0;
+bad:
+    free(mem);
+    return -1;
+}
+#undef ZIG
+#undef ZIG1
+
+/* The 5/3 inverse's even samples (cr3_wavelet._evens): for even sample k, the high coefficients before (ia)
+   and after (ib). first: the high band opens with a coefficient borrowed from a neighbour before; last: the
+   bands run on past the end (a neighbour after). Returns the count of evens computed. */
+static long crx_evens(long n, long nh, int first, int last, long *ia, long *ib)
+{
+    long hoff = first ? 1 : 0, ne = (n + 1) >> 1;
+    long count = ne + ((last && !(n & 1)) ? 1 : 0);
+    for (long k = 0; k < count; k++) {
+        long a = k - 1 + hoff, b = k + hoff;
+        int a_ok = a >= 0, b_ok = b < nh && (last || 2 * k + 1 < n);
+        if (!a_ok) a = b;
+        if (!b_ok) b = a;
+        ia[k] = a; ib[k] = b;
+    }
+    return count;
+}
+
+/* One line of the 5/3 inverse: n samples from low and high (nh coefficients); even, ia, ib are scratch of
+   n / 2 + 2. Low and high must hold every coefficient crx_evens names. */
+static int crx_inv53(const int32_t *low, long nl, const int32_t *high, long nh, long n, int first, int last,
+                     int32_t *out, int32_t *even, long *ia, long *ib)
+{
+    if (n <= 1) { if (nl < 1) return -1; out[0] = low[0]; return 0; }
+    long hoff = first ? 1 : 0;
+    long count = crx_evens(n, nh, first, last, ia, ib);
+    if (count > nl || ia[count - 1] >= nh || ib[count - 1] >= nh || (n >> 1) + hoff > nh) return -1;
+    for (long k = 0; k < count; k++) even[k] = low[k] - ((high[ia[k]] + high[ib[k]] + 2) >> 2);
+    for (long k = 0; k < (n >> 1); k++) {
+        int32_t h = high[k + hoff];
+        out[2 * k] = even[k];
+        out[2 * k + 1] = k + 1 < count ? h + ((even[k] + even[k + 1]) >> 1) : h + even[k];
+    }
+    if (n & 1) out[n - 1] = even[n >> 1];
+    return 0;
+}
+
+/* The step-table row and column of a coefficient (cr3_wavelet.step_row, step_col): borrowed edge
+   coefficients take the nearest own row or column's step. */
+static inline long crx_step_row(long r, long h, long rs, long re, long rows)
+{
+    long i = r < rs ? 0 : (r < h - re ? r - re : h - re - rs - 1);
+    return i < 0 ? 0 : (i >= rows ? rows - 1 : i);
+}
+static inline long crx_step_col(long x, long w, long cs, long ce, long shift, long cols)
+{
+    long c = x < cs ? 0 : (x < w - ce ? (x - cs) >> shift : (w - ce - cs - 1) >> shift);
+    return c < 0 ? 0 : (c >= cols ? cols - 1 : c);
+}
+
+/* One plane of one C-RAW tile. bands: 3 * levels + 1 subbands in coded order; for each: offset and size in
+   sample, width, height, step multiplier, step base, column shift, then the borrowed edge coefficients
+   (columns at the start and end, rows at the start and end). level_out: each level's output width and
+   height, deepest first (the last is the tile's). flags: neighbouring tiles (1 right, 2 left, 4 below,
+   8 above). steps: each level's step table (rows of qw), at step_off[level]. Writes
+   out[2y * stride + 2x] for the tile's width x height. */
+long shootflow_craw_plane(const uint8_t *sample, long sample_len, int levels, const long *band_info,
+                          const long *level_out, int flags, const int32_t *steps, const long *step_off,
+                          const long *step_rows, long qw, long width, long height, int bits, uint16_t *out,
+                          long stride)
+{
+    int nb = 3 * levels + 1;
+    int32_t *coef[10] = {0};
+    long bw[10], bh[10];
+    long rc = -1;
+    int left = (flags & 2) != 0, right = (flags & 1) != 0, top = (flags & 8) != 0, bottom = (flags & 4) != 0;
+    int32_t *rows_lo = NULL, *rows_hi = NULL, *scratch = NULL, *cur = NULL;
+    long *ia = NULL, *ib = NULL;
+    if (levels < 1 || levels > 3) return -1;
+    for (int bi = 0; bi < nb; bi++) {
+        const long *f = band_info + 11 * bi;
+        long off = f[0], size = f[1], w = f[2], h = f[3], mult = f[4], base = f[5], shift = f[6];
+        long cs = f[7], ce = f[8], rs = f[9], re = f[10];
+        long level = bi == 0 ? 0 : (bi - 1) / 3;
+        if (w < 1 || h < 1) goto done;
+        bw[bi] = w; bh[bi] = h;
+        coef[bi] = (int32_t *)calloc((size_t)(w * h), sizeof(int32_t));
+        if (!coef[bi] || off < 0 || size < 0 || off + size > sample_len || step_rows[level] < 1) goto done;
+        if (size) {
+            long r = bi == 0 ? crx_median_band(sample + off, size, w, h, coef[bi]) : crx_highpass(sample + off, size, w, h, coef[bi]);
+            if (r < 0) goto done;
+        }
+        for (long y = 0; y < h; y++) {
+            const int32_t *st = steps + step_off[level] + crx_step_row(y, h, rs, re, step_rows[level]) * qw;
+            int32_t *row = coef[bi] + y * w;
+            for (long x = 0; x < w; x++) {
+                if (!row[x]) continue;
+                long col = crx_step_col(x, w, cs, ce, shift, qw);
+                int64_t q = base + (((int64_t)(uint32_t)st[col] * mult) >> 3);
+                if (q < 1) q = 1;
+                if (q > 0x168000) q = 0x168000;
+                row[x] = (int32_t)(row[x] * q);
+            }
+        }
+    }
+    {
+        long maxw = 0, maxh = 0;
+        for (int l = 0; l < levels; l++) {
+            if (level_out[2 * l] > maxw) maxw = level_out[2 * l];
+            if (level_out[2 * l + 1] > maxh) maxh = level_out[2 * l + 1];
+        }
+        if (maxw < 1 || maxh < 1 || level_out[2 * (levels - 1)] != width || level_out[2 * levels - 1] != height) goto done;
+        long maxn = maxw > maxh ? maxw : maxh;
+        rows_lo = (int32_t *)malloc((size_t)(maxh + 2) * (size_t)maxw * sizeof(int32_t));
+        rows_hi = (int32_t *)malloc((size_t)(maxh + 2) * (size_t)maxw * sizeof(int32_t));
+        scratch = (int32_t *)malloc((size_t)(maxn / 2 + 2) * sizeof(int32_t));
+        ia = (long *)malloc((size_t)(maxn / 2 + 2) * sizeof(long));
+        ib = (long *)malloc((size_t)(maxn / 2 + 2) * sizeof(long));
+        if (!rows_lo || !rows_hi || !scratch || !ia || !ib) goto done;
+    }
+    {
+        int32_t *ll = coef[0];
+        long llw = bw[0], llh = bh[0];
+        for (int l = 0; l < levels; l++) {
+            int32_t *hl = coef[3 * l + 1], *lh = coef[3 * l + 2], *hh = coef[3 * l + 3];
+            long ow = level_out[2 * l], oh = level_out[2 * l + 1];
+            long hlw = bw[3 * l + 1], lhw = bw[3 * l + 2], hhw = bw[3 * l + 3];
+            long nlo = llh < bh[3 * l + 1] ? llh : bh[3 * l + 1];
+            long nhi = bh[3 * l + 2] < bh[3 * l + 3] ? bh[3 * l + 2] : bh[3 * l + 3];
+            if (nlo > oh + 2 || nhi > oh + 2) goto done;
+            for (long y = 0; y < nlo; y++)
+                if (crx_inv53(ll + y * llw, llw, hl + y * hlw, hlw, ow, left, right, rows_lo + y * ow, scratch, ia, ib) < 0) goto done;
+            for (long y = 0; y < nhi; y++)
+                if (crx_inv53(lh + y * lhw, lhw, hh + y * hhw, hhw, ow, left, right, rows_hi + y * ow, scratch, ia, ib) < 0) goto done;
+            int32_t *res = (int32_t *)malloc((size_t)(ow * oh) * sizeof(int32_t));
+            if (!res) goto done;
+            if (oh <= 1) memcpy(res, rows_lo, (size_t)ow * sizeof(int32_t));
+            else {
+                long hoff = top ? 1 : 0;
+                long count = crx_evens(oh, nhi, top, bottom, ia, ib);
+                int32_t *ev = (int32_t *)malloc((size_t)count * (size_t)ow * sizeof(int32_t));
+                if (!ev || count > nlo || ia[count - 1] >= nhi || ib[count - 1] >= nhi || (oh >> 1) + hoff > nhi) {
+                    free(ev); free(res); goto done;
+                }
+                for (long k = 0; k < count; k++) {
+                    const int32_t *a = rows_lo + k * ow, *p = rows_hi + ia[k] * ow, *q = rows_hi + ib[k] * ow;
+                    int32_t *e = ev + k * ow;
+                    for (long x = 0; x < ow; x++) e[x] = a[x] - ((p[x] + q[x] + 2) >> 2);
+                }
+                for (long r = 0; r < (oh >> 1); r++) {
+                    memcpy(res + 2 * r * ow, ev + r * ow, (size_t)ow * sizeof(int32_t));
+                    const int32_t *hr = rows_hi + (r + hoff) * ow, *e0 = ev + r * ow;
+                    int32_t *o = res + (2 * r + 1) * ow;
+                    if (r + 1 < count) { const int32_t *e1 = ev + (r + 1) * ow; for (long x = 0; x < ow; x++) o[x] = hr[x] + ((e0[x] + e1[x]) >> 1); }
+                    else for (long x = 0; x < ow; x++) o[x] = hr[x] + e0[x];
+                }
+                if (oh & 1) memcpy(res + (oh - 1) * ow, ev + (oh >> 1) * ow, (size_t)ow * sizeof(int32_t));
+                free(ev);
+            }
+            if (cur) free(cur);
+            cur = res; ll = res; llw = ow; llh = oh;
+        }
+        int32_t mid = 1 << (bits - 1), topv = (1 << bits) - 1;
+        for (long y = 0; y < height; y++) {
+            const int32_t *r = cur + y * width;
+            uint16_t *o = out + 2 * y * stride;
+            for (long x = 0; x < width; x++) { int32_t v = r[x] + mid; o[2 * x] = (uint16_t)(v < 0 ? 0 : (v > topv ? topv : v)); }
+        }
+    }
+    rc = 0;
+done:
+    for (int bi = 0; bi < nb; bi++) free(coef[bi]);
+    free(rows_lo); free(rows_hi); free(scratch); free(cur); free(ia); free(ib);
+    return rc;
+}
+/* Panasonic RW2 RawFormat 8 (shootflow.rw2._c8_tile_python): one tile of Huffman-coded 2x2 blocks.
+   lookup: symbol for each value of the next 16 bits (17 = none). meta: lengths[17], shifts[17],
+   initial[4] (TL, TR, BL, BR), top. Decodes min(pairs, height / 2) row pairs into out (width a row).
+   Returns 0, or -2 on a code that matches no symbol. Bytes are read from their lowest bit. */
+long shootflow_panasonic_c8_tile(const uint8_t *d, long len, long width, long height, long pairs,
+                                 const uint8_t *lookup, const int32_t *meta, uint16_t *out)
+{
+    static uint8_t rev[256];
+    static int rev_ready = 0;
+    if (!rev_ready) {
+        for (int b = 0; b < 256; b++) {
+            int r = 0;
+            for (int k = 0; k < 8; k++) if (b >> k & 1) r |= 0x80 >> k;
+            rev[b] = (uint8_t)r;
+        }
+        rev_ready = 1;
+    }
+    const int32_t *lengths = meta, *shifts = meta + 17, *initial = meta + 34;
+    int32_t top = meta[38];
+    static const int order[4] = {0, 2, 1, 3};
+    long rows = height / 2;
+    if (pairs >= 0 && pairs < rows) rows = pairs;
+    uint64_t acc = 0;
+    int have = 0;
+    long p = 0;
+    int32_t first[4] = {initial[0], initial[1], initial[2], initial[3]};
+    for (long pair = 0; pair < rows; pair++) {
+        int32_t base[4] = {first[0], first[1], first[2], first[3]};
+        uint16_t *o0 = out + 2 * pair * width, *o1 = o0 + width;
+        for (long col = 0; col < width; col += 2) {
+            int32_t block[4];
+            for (int k = 0; k < 4; k++) {
+                int slot = order[k];
+                while (have <= 56) { acc = acc << 8 | (p < len ? rev[d[p]] : 0); p++; have += 8; }
+                int sym = lookup[(acc >> (have - 16)) & 0xFFFF];
+                if (sym >= 17) return -2;
+                have -= lengths[sym];
+                int s = shifts[sym];
+                int extra = sym - s;
+                int32_t step;
+                if (extra > 0) {
+                    have -= extra;
+                    int32_t raw = (int32_t)((acc >> have) & ((1u << extra) - 1));
+                    step = (raw >> (extra - 1)) ? raw << s : (raw << s) - (1 << sym) + (s ? 0 : 1);
+                } else if (sym && !((acc >> (have - 1)) & 1)) {
+                    step = -(1 << sym);
+                } else {
+                    step = 0;
+                }
+                if (s) step += 1 << (s - 1);
+                int32_t v = base[slot] + step;
+                block[slot] = v < 0 ? 0 : v > top ? top : v;
+            }
+            base[0] = block[0]; base[1] = block[1]; base[2] = block[2]; base[3] = block[3];
+            if (col == 0) { first[0] = block[0]; first[1] = block[1]; first[2] = block[2]; first[3] = block[3]; }
+            o0[col] = (uint16_t)block[0]; o0[col + 1] = (uint16_t)block[1];
+            o1[col] = (uint16_t)block[2]; o1[col + 1] = (uint16_t)block[3];
+        }
+    }
+    return 0;
 }
 """
 
@@ -1081,6 +1492,19 @@ def _load():
     panasonic.restype = ctypes.c_long
     panasonic.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_void_p]
     _STATE["panasonic"] = panasonic
+    packed = lib.shootflow_panasonic_packed_run
+    packed.restype = ctypes.c_long
+    packed.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_int, ctypes.c_void_p]
+    _STATE["panasonic_packed"] = packed
+    c6 = lib.shootflow_panasonic_c6_run
+    c6.restype = ctypes.c_long
+    c6.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_void_p]
+    _STATE["panasonic_c6"] = c6
+    c8 = lib.shootflow_panasonic_c8_tile
+    c8.restype = ctypes.c_long
+    c8.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_char_p,
+                   ctypes.c_void_p, ctypes.c_void_p]
+    _STATE["panasonic_c8"] = c8
     for name, args in (
         ("samsung_rows", [ctypes.c_char_p] + [ctypes.c_long] * 5 + [ctypes.c_void_p]),
         ("samsung_huffman", [ctypes.c_char_p] + [ctypes.c_long] * 3 + [ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]),
@@ -1100,6 +1524,12 @@ def _load():
     crx.restype = ctypes.c_long
     crx.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_int, ctypes.c_void_p, ctypes.c_long]
     _STATE["crx"] = crx
+    craw = lib.shootflow_craw_plane
+    craw.restype = ctypes.c_long
+    craw.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int,
+                     ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_long, ctypes.c_long, ctypes.c_long,
+                     ctypes.c_int, ctypes.c_void_p, ctypes.c_long]
+    _STATE["craw"] = craw
     return fn
 
 
@@ -1313,6 +1743,59 @@ def panasonic_run(data: bytes, width: int, height: int) -> array | None:
     return out
 
 
+def panasonic_packed_run(data: bytes, width: int, height: int, bits: int) -> array | None:
+    """``shootflow.rw2._packed_python`` (RawFormat 5 and 7) in C: an ``array('H')``, or None without the
+    native library."""
+
+    fn: Any = _STATE.get("panasonic_packed") if reader() is not None else None
+    if fn is None:
+        return None
+    data = data if isinstance(data, bytes) else bytes(data)
+    out = array("H", [0]) * max(1, width * height)
+    if fn(data, len(data), width, height, bits, out.buffer_info()[0]) < 0:
+        from shootflow.raw_develop import DevelopError
+
+        raise DevelopError("RW2: the sensor data is cut short")
+    del out[width * height :]
+    return out
+
+
+def panasonic_c6_run(data: bytes, width: int, height: int) -> array | None:
+    """``shootflow.rw2._c6_python`` (RawFormat 6) in C: an ``array('H')``, or None without the native library."""
+
+    fn: Any = _STATE.get("panasonic_c6") if reader() is not None else None
+    if fn is None:
+        return None
+    data = data if isinstance(data, bytes) else bytes(data)
+    out = array("H", [0]) * max(1, width * height)
+    if fn(data, len(data), width, height, out.buffer_info()[0]) < 0:
+        from shootflow.raw_develop import DevelopError
+
+        raise DevelopError("RW2: the sensor data is cut short")
+    del out[width * height :]
+    return out
+
+
+def panasonic_c8_tile(data: bytes, params, width: int, height: int, pairs: int | None = None) -> array | None:
+    """``shootflow.rw2._c8_tile_python`` (RawFormat 8, one tile) in C: an ``array('H')`` of
+    ``width`` x (2 x row pairs) sensels, or None without the native library."""
+
+    fn: Any = _STATE.get("panasonic_c8") if reader() is not None else None
+    if fn is None:
+        return None
+    data = data if isinstance(data, bytes) else bytes(data)
+    rows = height // 2 if pairs is None else min(height // 2, pairs)
+    meta = array("i", list(params.lengths) + list(params.shifts) + list(params.initial) + [params.top])
+    out = array("H", [0]) * max(1, width * rows * 2)
+    if fn(data, len(data), width, height, -1 if pairs is None else pairs, params.lookup, meta.buffer_info()[0],
+          out.buffer_info()[0]) < 0:
+        from shootflow.raw_develop import DevelopError
+
+        raise DevelopError("RW2 RawFormat 8: a code matches no symbol (corrupt data)")
+    del out[width * rows * 2 :]
+    return out
+
+
 def _srw_call(name: str):
     return _STATE.get(name) if reader() is not None else None
 
@@ -1398,3 +1881,9 @@ def crx_function():
     """``shootflow_crx_band`` (one band of a Canon CR3, ``shootflow.cr3``), or None."""
 
     return _STATE.get("crx") if reader() is not None else None
+
+
+def craw_function():
+    """``shootflow_craw_plane`` (one plane of a Canon C-RAW CR3, ``shootflow.cr3_wavelet``), or None."""
+
+    return _STATE.get("craw") if reader() is not None else None

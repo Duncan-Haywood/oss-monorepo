@@ -1,0 +1,61 @@
+# Candidate subjects for new Next up proposals. `node overlap.mjs --unused`
+# draws the ones no finished story, DONE.md entry or open proposal uses yet,
+# so this list never needs pruning: a used subject drops out by itself.
+# A line is a start, not a proposal: the run that picks it checks the angle,
+# works the numbers (or, for a saint, the sources and the feast day), then
+# writes the proposal in BIBLE.md under Next up.
+# Add candidates freely; check each with `node overlap.mjs <terms>` first.
+#
+# shelf | terms (comma-separated; a hit on any of them means taken) | angle
+
+hearth-and-horizon | Venturi | a carburettor, a paint sprayer or a wind-catcher in a hot schoolroom: where the narrow throat speeds the air and drops the pressure, and why the fix someone wants (a bigger opening) does the opposite
+hearth-and-horizon | inrush current | the parish hall's breaker that trips only when the old fridge, the urn and the projector all start together; steady load is fine, the first tenth of a second is not
+hearth-and-horizon | earth leakage | a damp outbuilding where the residual-current device trips every wet morning; tens of milliamps of leakage add up across old cables and heaters, and switching the protection off is the reasonable-sounding wrong answer
+hearth-and-horizon | tuned mass, mass damper | a footbridge or a bell tower that sways at one step rate or ring; a small hung weight tuned to the same frequency takes the motion out of it
+hearth-and-horizon | buckling | a slender steel prop, a tent pole or a scaffold tube that holds twice its load in tension and folds at a fraction of it in compression; length squared in the Euler load
+hearth-and-horizon | evaporative cooler, swamp cooler | cooling a clinic in a dry heatwave with wet pads and a fan; it works by the wet-bulb gap and fails the week the air turns humid
+hearth-and-horizon | salt crystallisation, salt weathering | a sandstone church wall that crumbles above a de-iced pavement; salt carried up in the wet crystallises in the pores as it dries
+hearth-and-horizon | rising damp, damp-proof course | a tide mark on a chapel's plaster that a cement render made worse by stopping the wall drying out
+hearth-and-horizon | slow sand filter, schmutzdecke | a village filter that cleans water through a living top layer weeks old; scraping it too keenly makes the water worse for a fortnight
+hearth-and-horizon | ceramic filter, ceramic pot filter | a household clay filter with silver: flow rate falls as it clogs, and scrubbing it cracks the thing that does the work
+hearth-and-horizon | terminal velocity, Stokes's law, settling velocity | how long fine silt takes to settle in a still tank: radius squared, so half the grain size means four times the wait
+hearth-and-horizon | pitot | a volunteer glider club or a weather mast: a tube facing the wind reads speed from pressure, and an insect in the hole reads zero
+hearth-and-horizon | hydraulic jump | the standing wave below a weir or a sluice where fast shallow water turns slow and deep; it eats energy and drowns the unwary
+hearth-and-horizon | Listeria | a soft cheese for a parish fair kept cold: unlike most food bugs Listeria grows in the fridge, so cold buys time, not safety
+hearth-and-horizon | UV-C | an ultraviolet lamp in a ventilation duct of a crowded hall; dose is intensity times time, and dust on the tube halves it
+hearth-and-horizon | heat island, urban heat island | a town square that stays several degrees warmer than the fields at night; stone and tarmac give back the day's heat
+hearth-and-horizon | thermal bridge, cold bridge | one steel beam through an insulated wall that grows mould in a line; heat takes the shortest conductive path
+hearth-and-horizon | hysteresis | a thermostat or a pump float switch that must not switch on and off at the same point, or it chatters itself to death
+
+for-other-minds | p-hacking, forking paths | an agent asked to "find what helps attendance" tries forty cuts of the data and one comes out significant; the honest report says how many were tried
+for-other-minds | confounding, confounder | the parish that installs a coffee rota and sees attendance rise the same year the new estate opened next door
+for-other-minds | overfitting, overfit | a model that predicts last year's harvest festival takings to the penny and next year's badly
+for-other-minds | Kalman | two imperfect clocks, or two imperfect counts, blended by how much each is trusted; an agent learns to weigh a handoff note against its own reading
+for-other-minds | Monte Carlo | simulating a thousand Sundays to see how often the car park overflows, and saying the answer is only as good as the guesses fed in
+for-other-minds | lognormal | waiting times or donation sizes where the mean is dragged far above the typical case by a few large ones
+for-other-minds | regression discontinuity | children just either side of a school-year birthday cut-off, compared to see what one extra year of age does
+for-other-minds | difference in differences | two towns, one gets a new bus route; compare each town's change, not the two towns' levels
+for-other-minds | instrumental variable | distance to the nearest clinic as a lever on whether people go, to separate the clinic's effect from who chooses to go
+for-other-minds | Lindy | a society that has met for eighty years versus one founded last spring: how long each is likely to last, and where the rule breaks
+for-other-minds | Fermi estimate, Fermi problem | an agent asked how many piano tuners a diocese needs, answering with stated guesses rather than a confident number
+for-other-minds | Condorcet, Borda | a parish council choosing between three hall designs where each voting method names a different winner
+for-other-minds | Shapley | splitting the credit for a fundraiser three groups ran together, fairly, when each would have raised less alone
+for-other-minds | tragedy of the commons, common-pool | the shared allotment water butt that runs dry because no one plot's use seems to matter
+for-other-minds | Allee | a choir or a rare plant colony that does worse, not better, as it shrinks below a threshold
+for-other-minds | Lotka, predator-prey | slugs and the hedgehogs in a community garden rising and falling a season apart
+
+little-lamps | Bonaventure | Franciscan teacher (15 July, memorial); the story that Francis healed him as a child and named him is legend: say so
+little-lamps | Joachim | Mary's parents, Joachim and Anne (26 July, memorial); their story is from the Protoevangelium of James, tradition rather than Scripture
+little-lamps | Barnabas | "son of encouragement" (Acts 4:36), who spoke up for Saul when no one trusted him (Acts 9:27) (11 June, memorial)
+little-lamps | Pius X | the pope who let little children come to Holy Communion at the age of reason (Quam singulari, 1910) (21 August, memorial)
+little-lamps | Romuald | hermit who gathered monks at Camaldoli, each in his own small house (19 June, optional memorial)
+little-lamps | Norbert | the knight who changed his life after a thunderstorm and founded the canons at Prémontré (6 June, optional memorial); check the storm account's source
+little-lamps | Bruno | the monks of the Grande Chartreuse, silence and a valley in the snow, 1084 (6 October, optional memorial)
+little-lamps | Bridget of Sweden | mother of eight children who became a pilgrim and founded an order (23 July)
+little-lamps | Leo the Great | the pope who went out to meet Attila near the Mincio in 452 (10 November, memorial); the apostles appearing beside him is later legend
+little-lamps | Basil, Gregory Nazianzen | two friends from school in Athens; Basil's houses for the sick and poor at Caesarea (2 January, memorial)
+little-lamps | Ephrem | deacon who wrote hymns and taught them to choirs, the "harp of the Spirit" (9 June, optional memorial)
+little-lamps | Irenaeus | bishop of Lyon who learned from Polycarp, who had learned from John (28 June, memorial)
+little-lamps | Faustina | a convent cook, gardener and porter, and "Jesus, I trust in you" (5 October, optional memorial since 2020)
+little-lamps | Mary Magdalene | the garden on Easter morning and "Rabboni" (John 20) (22 July, feast)
+little-lamps | Martha | a busy kitchen in Bethany, Luke 10:38-42, with Mary and Lazarus (29 July, memorial)

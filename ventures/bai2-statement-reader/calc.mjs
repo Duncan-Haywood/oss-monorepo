@@ -16,7 +16,7 @@
 
 const num = (s) => (/^-?\d+$/.test(s) ? Number(s) : NaN);
 const pad = (n, w) => String(n).padStart(w, "0");
-const cents = (n) => (n < 0 ? "-" : "") + "$" + (Math.abs(n) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const cents = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + (Math.abs(n) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 const mask = (a) => { const t = String(a).trim(); return t.length <= 4 ? t : "…" + t.slice(-4); };
 
 // A selection of common type codes. Unlisted codes fall back to their range.
@@ -57,7 +57,7 @@ function fundsExtra(fields, i) {
 }
 
 export function splitRecords(text) {
-  let raw = String(text).replace(/^﻿/, "");
+  let raw = String(text).replace(/^\uFEFF/, "");
   let lines = raw.split(/\r\n|\n|\r/).map((l) => l.trim()).filter((l) => l.length);
   // A file delivered as one unbroken string: cut after each slash that precedes a record code.
   if (lines.length === 1 && /\/\s*(01|02|03|16|49|88|98|99),/.test(lines[0])) {
@@ -72,7 +72,7 @@ export function validate(text, opts = {}) {
   const { lines, eol } = splitRecords(text);
   const findings = [];
   const add = (sev, code, line, title, detail) => findings.push(newFinding(sev, code, line, title, detail));
-  const summary = { records: lines.length, groups: 0, accounts: 0, transactions: 0, credit: 0, debit: 0, header: null, accountList: [] };
+  const summary = { records: lines.length, groups: 0, accounts: 0, transactions: 0, credit: 0, debit: 0, header: null, accountList: [], transactionList: [] };
   if (!lines.length) {
     add("error", "EMPTY", 0, "The file is empty", "Paste or choose a BAI2 file: comma-separated records beginning 01, 02, 03, 16, 49, 98 and 99.");
     return { findings, summary, eol, parsed: [] };

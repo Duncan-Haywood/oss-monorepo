@@ -32,6 +32,11 @@ class Unwired(unittest.TestCase):
         self.assertNotIn("check_pages_links.py", names)
         self.assertNotIn("check_markup_basics.py", names)  # portfolio-validate.yml runs it
 
+    def test_a_check_that_reads_the_built_site_is_left_out(self):
+        # check_orphan_pages.py walks _site/: with none it passed vacuously,
+        # and with a leftover local build it failed a sweep CI never fails.
+        self.assertNotIn("check_orphan_pages.py", [p.name for p in u.unwired()])
+
     def test_main_exits_1_when_any_is_red_and_0_when_all_pass(self):
         """The exit code is the whole contract run_venture_tests.py and CI read."""
         cases = {
@@ -191,12 +196,26 @@ class PullRequestTrigger(unittest.TestCase):
             t = Path(d) / "test_plain.py"
             t.write_text("def test_x():\n    assert 1 == 2\n")
             name, rc, out = u.run_suite(t)
-            if u.has_module("pytest"):
+            if u.pytest_python():
                 self.assertNotEqual(rc, 0)
             else:
                 self.assertTrue(out.startswith(u.SKIPPED))
 
 
+    def test_a_plain_suite_runs_under_another_python_that_has_pytest(self):
+        # 2026-11-17: this python3 lacked pytest, /usr/bin/python3.x had it,
+        # and every plain suite showed as a skip.
+        u.pytest_python.cache_clear()
+        try:
+            with mock.patch.object(u, "has_module", side_effect=lambda n, py=sys.executable: py == "/other/python3"), \
+                    mock.patch("pyenv.candidates", return_value=[sys.executable, "/other/python3"]):
+                self.assertEqual(u.pytest_python(), "/other/python3")
+            with mock.patch.object(u, "has_module", return_value=False), \
+                    mock.patch("pyenv.candidates", return_value=[sys.executable]):
+                u.pytest_python.cache_clear()
+                self.assertIsNone(u.pytest_python())
+        finally:
+            u.pytest_python.cache_clear()
 
     def test_node_suites_resolve_globs_from_the_steps_working_directory(self):
         """2026-11-14: platform/proposal/term-ids.test.mjs was red on main and
@@ -226,6 +245,24 @@ class PullRequestTrigger(unittest.TestCase):
         self.assertIn("platform/devlog/devlog.test.mjs", names)
         self.assertIn("platform/proposal/term-ids.test.mjs", names)
         self.assertNotIn("platform/pages/home.test.mjs", names)  # portfolio-pages.yml runs it
+
+    def test_underscore_named_node_suites_count(self):
+        """2026-11-17: the six platform/ci/test_check_*.mjs suites matched no
+        workflow and not the `*.test.mjs` glob, so no pull request ran them."""
+        with tempfile.TemporaryDirectory() as d:
+            root, wf = Path(d), Path(d) / "wf"
+            wf.mkdir()
+            (root / "platform/ci").mkdir(parents=True)
+            for f in ("test_check_a.mjs", "test_check_b.mjs", "check_a.mjs", "test_x.py"):
+                (root / "platform/ci" / f).write_text("")
+            (wf / "t.yml").write_text(
+                "jobs:\n  t:\n    steps:\n      - run: node --test platform/ci/test_check_b.mjs\n")
+            names = [u.node_name(p, root) for p in u.unwired_node_suites(root, wf)]
+            self.assertEqual(names, ["platform/ci/test_check_a.mjs"])
+        self.assertIn("platform/ci/test_check_enter_reload.mjs",
+                      [u.node_name(p) for p in u.unwired_node_suites()])
+        self.assertIn("cd platform/ci && node --test test_check_a.mjs",
+                      u.report([("platform/ci/test_check_a.mjs", 1, "boom")]))
 
     def test_run_node_suite_reports_red_green_and_a_named_slow_skip(self):
         with tempfile.TemporaryDirectory() as d:

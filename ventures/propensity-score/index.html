@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23314f86'/%3E%3Ctext%20x='16'%20y='22'%20font-size='14'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EPS%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Propensity Score Calculator Online: Matching, IPW and Doubly Robust ATE, ATT</title>
+  <meta name="description" content="Free propensity score tool. Upload a CSV with a 0/1 treatment, an outcome and covariates and get inverse probability weighting, regression adjustment, doubly robust AIPW and nearest-neighbour matching for the ATE, ATT and ATC, with standard errors that count the estimated score, a covariate balance table and love plot, an overlap histogram and trimming. Matches statsmodels within 1e-6. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Propensity score analysis in your browser: weighting, matching and doubly robust estimates">
+  <meta property="og:description" content="What did the treatment do, once you account for who chose it? IPW, regression adjustment, AIPW and matching side by side, with the balance and overlap checks a reviewer asks for. Free and private.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Propensity score analysis: weighting, matching and doubly robust estimates", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Upload a CSV with a 0/1 treatment, an outcome and pre-treatment covariates, and get a logistic propensity score model, inverse probability weighting, regression adjustment, the doubly robust AIPW estimate and nearest-neighbour matching for the ATE, ATT and ATC, with standard errors that count the estimated score, covariate balance before and after, an overlap histogram, effective sample sizes and optional trimming. Runs in your browser.", "featureList": "propensity score calculator, propensity score matching online, inverse probability weighting, IPW, IPTW, doubly robust estimator, AIPW, average treatment effect, ATT, standardized mean difference, covariate balance, love plot, overlap, common support, Crump trimming, effective sample size, CSV download", "citation": ["https://doi.org/10.1093/biomet/70.1.41", "https://doi.org/10.1002/sim.1903", "https://doi.org/10.1080/01621459.1994.10476818", "https://doi.org/10.1002/pst.433", "https://doi.org/10.1111/j.1468-0262.2006.00655.x", "https://doi.org/10.1002/sim.3697", "https://doi.org/10.1093/biomet/asn055"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does a propensity score analysis answer?", "acceptedAnswer": {"@type": "Answer", "text": "What a treatment did when it was not randomly assigned: a training programme people chose to join, a drug some doctors prescribed, a feature some customers switched on. Treated and untreated units differ in ways that also drive the outcome, so the raw difference in means mixes the effect with those differences. The propensity score is each unit's estimated chance of being treated given its measured covariates; weighting or matching on it compares like with like on those covariates."}}, {"@type": "Question", "name": "What is the difference between the ATE, the ATT and the ATC?", "acceptedAnswer": {"@type": "Answer", "text": "The ATE (average treatment effect) is the effect averaged over everyone in the data. The ATT is the effect for the units that were actually treated, which is the usual question for a programme people opted into. The ATC is what the treatment would have done for the units that were not treated. When the effect differs by person and the treated differ from the controls, the three differ, and the example shows that."}}, {"@type": "Question", "name": "Which estimator should I report?", "acceptedAnswer": {"@type": "Answer", "text": "When they roughly agree, any of them, and the agreement is itself evidence. Inverse probability weighting relies on the propensity model, regression adjustment on the outcome model, and the doubly robust AIPW estimator is consistent if either one is right, so it is the usual headline for the ATE. Matching with replacement is easy to explain and makes few modelling assumptions about the outcome. If they disagree, the answer depends on modelling choices, and you should say so."}}, {"@type": "Question", "name": "How do I know the propensity model is good enough?", "acceptedAnswer": {"@type": "Answer", "text": "By balance, not by how well it predicts treatment. After weighting or matching, each covariate's standardised mean difference between the arms should be small, under 0.1 by the usual rule of thumb (Austin 2009). The page shows the difference before and after for every covariate. If one stays imbalanced, add a square or an interaction of it to the data as a new column and run again."}}, {"@type": "Question", "name": "What does poor overlap mean?", "acceptedAnswer": {"@type": "Answer", "text": "Some units have an estimated propensity score near 0 or 1: they look like nobody in the other arm. Their weights are huge and the effect for them is extrapolated. The histogram shows where the two arms' scores sit. Trimming to scores between 0.1 and 0.9 (Crump, Hotz, Imbens and Mitnik 2009) drops those units, which makes the estimate steadier but changes the population it describes."}}, {"@type": "Question", "name": "Does it match statsmodels or Stata?", "acceptedAnswer": {"@type": "Answer", "text": "On three test specifications of the example data, the inverse probability weighting, regression adjustment and AIPW estimates and standard errors for the ATE, ATT and ATC agree with statsmodels 0.15.0's TreatmentEffect within 1e-6, and the logistic coefficients within 1e-12. statsmodels documents that its standard errors match Stata's teffects. Matching is checked by a simulation study instead."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b2536; background: #f2f4f8; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #314f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f3560; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f3560; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4d5868; }
+    .card { background: #fff; border: 1px solid #d5dbe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f356010; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6e7a8f; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #314f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3e8f1; color: #1f3560; }
+    button:disabled { opacity: .6; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e8ecf2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4d5868; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.bad { color: #a33b1f; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #6e7a8f; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+    .summary { font-size: 1.02rem; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .legend { font-size: .82rem; color: #4d5868; margin: 4px 0 0; }
+    .sw { display: inline-block; width: 12px; height: 12px; vertical-align: middle; margin: 0 4px 0 10px; border-radius: 2px; }
+    pre { background: #f4f6fa; border: 1px solid #dfe4ec; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PROPENSITY SCORES · WEIGHTING · MATCHING · DOUBLY ROBUST · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What did the treatment do, once you account for who chose it?</h1>
+    <p>People who join a training programme, patients a doctor puts on a drug, customers who switch on a feature: they differ from the rest in ways that also drive the outcome, so the raw difference in means mixes the effect with who signed up. Upload one row per unit with a 0/1 treatment, the outcome and the things measured <em>before</em> treatment that drove both.</p>
+    <p>You get four estimators side by side: <strong>inverse probability weighting</strong>, <strong>regression adjustment</strong>, the <strong>doubly robust AIPW</strong> estimate and <strong>nearest-neighbour matching</strong>, for the effect on everyone (ATE), on the treated (ATT) and on the controls (ATC), with standard errors that count the estimated score. And the checks a reviewer asks for: a <strong>covariate balance</strong> table and love plot, an <strong>overlap</strong> histogram, <strong>effective sample sizes</strong> and optional <strong>trimming</strong>.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice, and not medical or policy advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">CSV with a header row: one row per unit (for example <code>treated,outcome,age,income</code>)</label>
+    <textarea id="csv" spellcheck="false" placeholder="treated,outcome,age,income&#10;1,42.1,34,28000&#10;0,39.5,51,61000&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: 2,000 simulated job-training records (true ATE 1.33, ATT 1.64)</button>
+    <p class="note" id="data-status">Paste data or load the example.</p>
+
+    <div class="grid">
+      <div><label for="treatment">Treatment column (0/1 or yes/no)</label><select id="treatment"></select></div>
+      <div><label for="outcome">Outcome</label><select id="outcome"></select></div>
+      <div><label for="estimand">Effect to target</label><select id="estimand"><option value="ate" selected>ATE: everyone</option><option value="att">ATT: the treated</option><option value="atc">ATC: the controls</option></select></div>
+      <div><label for="trim">Trim extreme scores</label><select id="trim"><option value="none" selected>No trimming</option><option value="crump">Crump rule: keep 0.1 to 0.9</option><option value="0.05">Keep 0.05 to 0.95</option><option value="0.01">Keep 0.01 to 0.99</option></select></div>
+      <div><label for="caliper">Matching caliper (SDs of the logit score; 0 for none)</label><input id="caliper" type="number" step="any" min="0" value="0.2" inputmode="decimal"></div>
+      <div><label for="replace">Matching</label><select id="replace"><option value="true" selected>With replacement</option><option value="false">Without replacement (greedy)</option></select></div>
+    </div>
+    <label for="covariates">Covariates measured before treatment (comma-separated; text columns become indicators)</label>
+    <input id="covariates" type="text" placeholder="age, education_years, prior_earnings">
+    <p class="note" id="covariate-hint"></p>
+    <button type="button" id="analyze">Estimate</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div id="warnings"></div>
+    <h3>Estimates</h3>
+    <div class="scroll"><table id="est-table"><thead><tr><th>Effect</th><th>Method</th><th class="n">Estimate</th><th class="n">SE</th><th class="n">95% CI</th><th class="n">p</th></tr></thead><tbody></tbody></table></div>
+    <div class="charts">
+      <div>
+        <h3>Balance: standardised mean differences</h3>
+        <div id="love-chart" role="img" aria-label="Standardised mean difference of each covariate before and after weighting and matching"></div>
+        <p class="legend"><span class="sw" style="background:#a9b3c4"></span>before <span class="sw" style="background:#314f86"></span>after weighting <span class="sw" style="background:#c46a2f"></span>after matching; dashed lines at &plusmn;0.1</p>
+      </div>
+      <div>
+        <h3>Overlap: propensity scores by arm</h3>
+        <div id="overlap-chart" role="img" aria-label="Histogram of estimated propensity scores, treated above the axis and controls below"></div>
+        <p class="legend"><span class="sw" style="background:#314f86"></span>treated (above) <span class="sw" style="background:#8a96aa"></span>control (below)</p>
+      </div>
+    </div>
+    <h3>Covariate balance</h3>
+    <div class="scroll"><table id="balance-table"><thead><tr><th>Covariate</th><th class="n">Treated mean</th><th class="n">Control mean</th><th class="n">SMD before</th><th class="n">SMD weighted</th><th class="n">SMD matched</th><th class="n">Variance ratio weighted</th></tr></thead><tbody></tbody></table></div>
+    <div class="charts">
+      <div>
+        <h3>Propensity model (logistic regression)</h3>
+        <div class="scroll"><table id="model-table"><thead><tr><th>Term</th><th class="n">Coefficient</th><th class="n">SE</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div>
+        <h3>Sample</h3>
+        <div class="scroll"><table id="sample-table"><thead><tr><th>Quantity</th><th class="n">Treated</th><th class="n">Control</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+    <button type="button" class="secondary" id="download">Download the estimates and each row's score and weight (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>The <strong>propensity score</strong> <em>e</em>(<em>x</em>) is the probability of treatment given the covariates (Rosenbaum &amp; Rubin 1983). The tool estimates it by a logistic regression of the treatment on the covariates you list (maximum likelihood by Newton-Raphson). If treatment depends only on those covariates (no unmeasured confounding) and every unit had some chance of either arm (overlap), comparing units with the same score compares like with like.</p>
+    <p><strong>Inverse probability weighting</strong> gives each treated unit weight 1/<em>e</em> and each control 1/(1&minus;<em>e</em>) for the ATE; for the ATT treated units weigh 1 and controls <em>e</em>/(1&minus;<em>e</em>); for the ATC treated units weigh (1&minus;<em>e</em>)/<em>e</em> and controls 1. Each arm's weights are normalised to sum to one. <strong>Regression adjustment</strong> fits a linear regression of the outcome on the covariates in each arm and averages the two predictions over the target group. The <strong>doubly robust AIPW</strong> estimator (Robins, Rotnitzky &amp; Zhao 1994) adds the inverse-probability-weighted residuals to those predictions, so it is consistent if either model is right. Standard errors for all three stack the logistic model's, the outcome models' and the means' estimating equations and use the sandwich variance (Lunceford &amp; Davidian 2004), so they include the noise of the estimated score.</p>
+    <p><strong>Matching</strong> pairs each treated unit (ATT) or control (ATC) with the nearest unit of the other arm on the logit of the score, within a caliper of 0.2 standard deviations of the logit (Austin 2011). With replacement, the default, a unit can be used more than once and the standard error is Abadie &amp; Imbens's (2006); without replacement it is greedy, hardest-to-match first, with the paired standard error. <strong>Balance</strong> is the standardised mean difference of each covariate, the difference in means over the pooled standard deviation before adjustment, with |SMD| &gt; 0.1 flagged (Austin 2009). <strong>Trimming</strong> drops units with scores outside [0.1, 0.9] (Crump, Hotz, Imbens &amp; Mitnik 2009) or a range you choose, then refits everything.</p>
+    <p>Verified by tests in the source against <strong>statsmodels 0.15.0</strong>'s <code>TreatmentEffect</code> (run only as an external program to record reference numbers): on three covariate specifications of the example data, the IPW and regression adjustment estimates for the ATE, ATT and ATC and the AIPW estimate of the ATE, with their potential-outcome means and standard errors, agree within 1e-6, and the logistic coefficients within 1e-12. On 1,000 simulated samples of 2,000 from the example's design, the 95% intervals covered the true effect in 92.5% (IPW), 94.3% (regression adjustment) and 94.0% (AIPW) of samples for the ATE, and 93.4%, 94.6% and 95.2% (matching with replacement) for the ATT; greedy matching without replacement was biased by &minus;0.53 and covered only 54.0%, which is why it is not the default.</p>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>No unmeasured confounding.</strong> Every estimate here assumes the covariates include every common cause of treatment and outcome. Balance on measured covariates says nothing about unmeasured ones; a sensitivity analysis is the next step for a serious claim.</li>
+      <li><strong>Pre-treatment covariates only.</strong> A covariate the treatment itself changed (a mediator) biases the estimate; leave it out.</li>
+      <li><strong>Main-effects models.</strong> The propensity and outcome models are linear in the columns you give. Add squares or interactions as new columns if balance is poor.</li>
+      <li><strong>Matching's standard error ignores the estimated score</strong> (Abadie &amp; Imbens 2016 show this can matter), and matching is 1:1 with no bias correction.</li>
+      <li><strong>Binary treatment, one time point.</strong> No continuous doses, no time-varying treatments, no clustered standard errors.</li>
+    </ul>
+    <h3>BibTeX</h3>
+    <pre>@article{rosenbaum1983central,
+  author  = {Rosenbaum, Paul R. and Rubin, Donald B.},
+  title   = {The Central Role of the Propensity Score in Observational Studies for Causal Effects},
+  journal = {Biometrika},
+  volume  = {70}, number = {1}, pages = {41--55}, year = {1983},
+  doi     = {10.1093/biomet/70.1.41}
+}
+@article{lunceford2004stratification,
+  author  = {Lunceford, Jared K. and Davidian, Marie},
+  title   = {Stratification and Weighting via the Propensity Score in Estimation of Causal Treatment Effects: A Comparative Study},
+  journal = {Statistics in Medicine},
+  volume  = {23}, number = {19}, pages = {2937--2960}, year = {2004},
+  doi     = {10.1002/sim.1903}
+}
+@article{robins1994estimation,
+  author  = {Robins, James M. and Rotnitzky, Andrea and Zhao, Lue Ping},
+  title   = {Estimation of Regression Coefficients When Some Regressors Are Not Always Observed},
+  journal = {Journal of the American Statistical Association},
+  volume  = {89}, number = {427}, pages = {846--866}, year = {1994},
+  doi     = {10.1080/01621459.1994.10476818}
+}
+@article{abadie2006large,
+  author  = {Abadie, Alberto and Imbens, Guido W.},
+  title   = {Large Sample Properties of Matching Estimators for Average Treatment Effects},
+  journal = {Econometrica},
+  volume  = {74}, number = {1}, pages = {235--267}, year = {2006},
+  doi     = {10.1111/j.1468-0262.2006.00655.x}
+}
+@article{austin2011optimal,
+  author  = {Austin, Peter C.},
+  title   = {Optimal Caliper Widths for Propensity-Score Matching When Estimating Differences in Means and Differences in Proportions in Observational Studies},
+  journal = {Pharmaceutical Statistics},
+  volume  = {10}, number = {2}, pages = {150--161}, year = {2011},
+  doi     = {10.1002/pst.433}
+}
+@article{austin2009balance,
+  author  = {Austin, Peter C.},
+  title   = {Balance Diagnostics for Comparing the Distribution of Baseline Covariates Between Treatment Groups in Propensity-Score Matched Samples},
+  journal = {Statistics in Medicine},
+  volume  = {28}, number = {25}, pages = {3083--3107}, year = {2009},
+  doi     = {10.1002/sim.3697}
+}
+@article{crump2009dealing,
+  author  = {Crump, Richard K. and Hotz, V. Joseph and Imbens, Guido W. and Mitnik, Oscar A.},
+  title   = {Dealing with Limited Overlap in Estimation of Average Treatment Effects},
+  journal = {Biometrika},
+  volume  = {96}, number = {1}, pages = {187--199}, year = {2009},
+  doi     = {10.1093/biomet/asn055}
+}</pre>
+    <p class="note">Example data: 2,000 people simulated by <code>eval/simulate.py</code>, not a real study. Younger people, people with less schooling, the recently unemployed and low earners were more likely to join, and the same things drive later earnings, so the raw difference in means is &minus;3.6 thousand dollars while the true sample average effect is +1.33 (+1.64 for those who joined). The effect is larger for the unemployed and for low earners, which is why the ATT exceeds the ATE.</p>
+  </section>
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What does a propensity score analysis answer?</h3>
+    <p>What a treatment did when it was not randomly assigned: a training programme people chose to join, a drug some doctors prescribed, a feature some customers switched on. Treated and untreated units differ in ways that also drive the outcome, so the raw difference in means mixes the effect with those differences. The propensity score is each unit's estimated chance of being treated given its measured covariates; weighting or matching on it compares like with like on those covariates.</p>
+    <h3>What is the difference between the ATE, the ATT and the ATC?</h3>
+    <p>The ATE (average treatment effect) is the effect averaged over everyone in the data. The ATT is the effect for the units that were actually treated, which is the usual question for a programme people opted into. The ATC is what the treatment would have done for the units that were not treated. When the effect differs by person and the treated differ from the controls, the three differ, and the example shows that.</p>
+    <h3>Which estimator should I report?</h3>
+    <p>When they roughly agree, any of them, and the agreement is itself evidence. Inverse probability weighting relies on the propensity model, regression adjustment on the outcome model, and the doubly robust AIPW estimator is consistent if either one is right, so it is the usual headline for the ATE. Matching with replacement is easy to explain and makes few modelling assumptions about the outcome. If they disagree, the answer depends on modelling choices, and you should say so.</p>
+    <h3>How do I know the propensity model is good enough?</h3>
+    <p>By balance, not by how well it predicts treatment. After weighting or matching, each covariate's standardised mean difference between the arms should be small, under 0.1 by the usual rule of thumb (Austin 2009). The page shows the difference before and after for every covariate. If one stays imbalanced, add a square or an interaction of it to the data as a new column and run again.</p>
+    <h3>What does poor overlap mean?</h3>
+    <p>Some units have an estimated propensity score near 0 or 1: they look like nobody in the other arm. Their weights are huge and the effect for them is extrapolated. The histogram shows where the two arms' scores sit. Trimming to scores between 0.1 and 0.9 (Crump, Hotz, Imbens and Mitnik 2009) drops those units, which makes the estimate steadier but changes the population it describes.</p>
+    <h3>Does it match statsmodels or Stata?</h3>
+    <p>On three test specifications of the example data, the inverse probability weighting, regression adjustment and AIPW estimates and standard errors for the ATE, ATT and ATC agree with statsmodels 0.15.0's TreatmentEffect within 1e-6, and the logistic coefficients within 1e-12. statsmodels documents that its standard errors match Stata's teffects. Matching is checked by a simulation study instead.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician or epidemiologist. Results are statistical estimates from the data you enter; they do not by themselves establish what caused any outcome, and they are not medical or policy advice. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the statsmodels, MatchIt, WeightIt or cobalt projects, Stata, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs data.csv --treatment trained --outcome earnings --covariates age,education</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/propensity-score" rel="noopener">source</a>.</p>
+    <p>More causal and research tools on your own data: <a href="../regression-discontinuity/">regression discontinuity</a> for a treatment that switches on at a cutoff, <a href="../difference-in-differences/">difference-in-differences</a> for changes adopted at different times, <a href="../synthetic-control/">synthetic control</a> for a single treated unit, and <a href="../meta-analysis/">meta-analysis</a> to pool studies.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv } from "./engine.mjs";
+    import { EXAMPLE_CSV, EXAMPLE_SPEC } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const fmt = (x, d = 3) => (Number.isFinite(x) ? x.toFixed(d) : "n/a");
+    const pfmt = (p) => (!Number.isFinite(p) ? "n/a" : p < 0.0001 ? "< 0.0001" : p.toFixed(3));
+    let parsed = null;
+    let last = null;
+    const opts = (list) => list.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+    const values = (col) => parsed.records.slice(0, 500).map((r) => String(r[col] ?? "").trim()).filter((v) => v !== "");
+    const isBinary = (col) => { const v = new Set(values(col).map((s) => s.toLowerCase())); return v.size === 2 && [...v].every((s) => /^(0|1|yes|no|y|n|true|false|t|f|treated|control|untreated)$/.test(s)); };
+    const isNum = (col) => values(col).every((v) => Number.isFinite(Number(v.replace(/,/g, ""))));
+    function refreshColumns() {
+      const text = $("#csv").value;
+      if (!text.trim()) { parsed = null; $("#data-status").textContent = "Paste data or load the example."; return; }
+      try { parsed = parseCsv(text); } catch (e) { parsed = null; $("#data-status").textContent = e.message; return; }
+      const binary = parsed.header.filter(isBinary), numeric = parsed.header.filter(isNum);
+      const prev = { d: $("#treatment").value, y: $("#outcome").value };
+      $("#treatment").innerHTML = opts(binary.length ? binary : parsed.header);
+      $("#outcome").innerHTML = opts(numeric);
+      $("#treatment").value = binary.includes(prev.d) ? prev.d : binary.find((c) => /(treat|trained|exposed|program|intervention|group)/i.test(c)) || binary[0] || "";
+      $("#outcome").value = numeric.includes(prev.y) ? prev.y : numeric.find((c) => /(outcome|after|post|^y$|result|earn|score)/i.test(c) && c !== $("#treatment").value) || numeric.find((c) => c !== $("#treatment").value) || "";
+      $("#covariate-hint").textContent = `Columns: ${parsed.header.join(", ")}`;
+      $("#data-status").textContent = `${parsed.records.length} rows, ${parsed.header.length} columns.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+    function inputs() {
+      return { csv: $("#csv").value, treatment: $("#treatment").value, outcome: $("#outcome").value, covariates: $("#covariates").value, estimand: $("#estimand").value, trim: $("#trim").value, caliper: $("#caliper").value, replace: $("#replace").value === "true" };
+    }
+    function loveChart(el, weighted, matched) {
+      const W = 480, rowH = 26, T = 14, B = 34, L = 150, R = 14, H = T + B + rowH * weighted.length;
+      const all = weighted.flatMap((b) => [b.smdBefore, b.smdAfter]).concat(matched ? matched.map((b) => b.smdAfter) : [], [0.25, -0.25]);
+      const lim = Math.max(...all.map(Math.abs)) * 1.08;
+      const x = (v) => L + ((v + lim) / (2 * lim)) * (W - L - R);
+      let g = "";
+      for (const v of [-0.1, 0.1]) g += `<line x1="${x(v)}" x2="${x(v)}" y1="${T}" y2="${H - B}" stroke="#c46a2f" stroke-dasharray="4 3" stroke-width="1"/>`;
+      g += `<line x1="${x(0)}" x2="${x(0)}" y1="${T}" y2="${H - B}" stroke="#6e7a8f"/>`;
+      const step = lim > 1 ? 0.5 : lim > 0.4 ? 0.2 : 0.1;
+      for (let v = -Math.floor(lim / step) * step; v <= lim + 1e-9; v += step) g += `<text x="${x(v)}" y="${H - B + 16}" font-size="11" text-anchor="middle" fill="#4d5868">${esc(fmt(v, 1))}</text>`;
+      g += `<text x="${(L + W - R) / 2}" y="${H - 4}" font-size="11" text-anchor="middle" fill="#4d5868">standardised mean difference (treated minus control)</text>`;
+      weighted.forEach((b, i) => {
+        const yy = T + rowH * i + rowH / 2;
+        g += `<text x="${L - 8}" y="${yy + 4}" font-size="11" text-anchor="end" fill="#1b2536">${esc(b.name.length > 22 ? b.name.slice(0, 21) + "…" : b.name)}</text>`;
+        g += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}" stroke="#eef1f6"/>`;
+        g += `<circle cx="${x(b.smdBefore)}" cy="${yy}" r="5" fill="#a9b3c4"><title>${esc(b.name)} before: ${esc(fmt(b.smdBefore))}</title></circle>`;
+        if (matched) g += `<rect x="${x(matched[i].smdAfter) - 4.5}" y="${yy - 4.5}" width="9" height="9" fill="#c46a2f"><title>${esc(b.name)} matched: ${esc(fmt(matched[i].smdAfter))}</title></rect>`;
+        g += `<circle cx="${x(b.smdAfter)}" cy="${yy}" r="5" fill="#314f86"><title>${esc(b.name)} weighted: ${esc(fmt(b.smdAfter))}</title></circle>`;
+      });
+      el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+    }
+    function overlapChart(el, ov) {
+      const W = 480, H = 280, L = 44, R = 12, T = 12, B = 36, mid = T + (H - T - B) / 2;
+      const max = Math.max(1, ...ov.treated, ...ov.control);
+      const bw = (W - L - R) / ov.bins, sc = (H - T - B) / 2 / max;
+      let g = `<line x1="${L}" x2="${W - R}" y1="${mid}" y2="${mid}" stroke="#6e7a8f"/>`;
+      ov.treated.forEach((c, i) => { if (c) g += `<rect x="${L + i * bw + 1}" y="${mid - c * sc}" width="${bw - 2}" height="${c * sc}" fill="#314f86"><title>treated, score ${(i / ov.bins).toFixed(2)}-${((i + 1) / ov.bins).toFixed(2)}: ${c}</title></rect>`; });
+      ov.control.forEach((c, i) => { if (c) g += `<rect x="${L + i * bw + 1}" y="${mid}" width="${bw - 2}" height="${c * sc}" fill="#8a96aa"><title>control, score ${(i / ov.bins).toFixed(2)}-${((i + 1) / ov.bins).toFixed(2)}: ${c}</title></rect>`; });
+      for (const v of [0, 0.2, 0.4, 0.6, 0.8, 1]) g += `<text x="${L + v * (W - L - R)}" y="${H - B + 16}" font-size="11" text-anchor="middle" fill="#4d5868">${v.toFixed(1)}</text>`;
+      g += `<text x="${L - 6}" y="${T + 10}" font-size="11" text-anchor="end" fill="#4d5868">${max}</text><text x="${L - 6}" y="${H - B}" font-size="11" text-anchor="end" fill="#4d5868">${max}</text>`;
+      g += `<text x="${(L + W - R) / 2}" y="${H - 4}" font-size="11" text-anchor="middle" fill="#4d5868">estimated propensity score</text>`;
+      el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+    }
+    const METHOD = { naive: "Difference in means (no adjustment)", ipw: "Inverse probability weighting", ra: "Regression adjustment", aipw: "Doubly robust (AIPW)", match: "Nearest-neighbour matching" };
+    function render(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      $("#warnings").innerHTML = r.notes.map((n) => `<p class="warn">${esc(n)}</p>`).join("");
+      const row = (eff, m, e) => `<tr><td>${eff}</td><td>${esc(METHOD[m])}${m === "match" && e && !e.error ? ` <span class="note">(${e.matched} pairs)</span>` : ""}</td>${!e || e.error ? `<td colspan="4" class="note">${esc(e ? e.error : "")}</td>` : `<td class="n">${esc(fmt(e.estimate))}</td><td class="n">${esc(fmt(e.se))}</td><td class="n">${esc(fmt(e.ci[0]))} to ${esc(fmt(e.ci[1]))}</td><td class="n">${pfmt(e.pValue)}</td>`}</tr>`;
+      let rows = row("Raw", "naive", r.naive);
+      for (const [k, label] of [["ate", "ATE"], ["att", "ATT"], ["atc", "ATC"]]) for (const m of ["ipw", "ra", "aipw", "match"]) if (r.estimates[k][m]) rows += row(label, m, r.estimates[k][m]);
+      $("#est-table").querySelector("tbody").innerHTML = rows;
+      loveChart($("#love-chart"), r.balance.weighted, r.balance.matched);
+      overlapChart($("#overlap-chart"), r.overlap);
+      const cell = (v) => `<td class="n${Number.isFinite(v) && Math.abs(v) > 0.1 ? " bad" : ""}">${esc(fmt(v))}</td>`;
+      $("#balance-table").querySelector("tbody").innerHTML = r.balance.weighted.map((b, i) => `<tr><td>${esc(b.name)}</td><td class="n">${esc(fmt(b.treatedMean))}</td><td class="n">${esc(fmt(b.controlMean))}</td>${cell(b.smdBefore)}${cell(b.smdAfter)}${r.balance.matched ? cell(r.balance.matched[i].smdAfter) : "<td class=\"n\">n/a</td>"}<td class="n">${esc(fmt(b.varianceRatioAfter, 2))}</td></tr>`).join("");
+      $("#model-table").querySelector("tbody").innerHTML = r.propensityModel.terms.map((t, i) => `<tr><td>${esc(t)}</td><td class="n">${esc(fmt(r.propensityModel.coefficients[i], 4))}</td><td class="n">${esc(fmt(r.propensityModel.se[i], 4))}</td></tr>`).join("");
+      const ov = r.overlap;
+      $("#sample-table").querySelector("tbody").innerHTML = [
+        ["Units", r.n.treated, r.n.control],
+        [`Effective sample size (${r.options.estimand.toUpperCase()} weights)`, fmt(r.effectiveSampleSize.treated, 1), fmt(r.effectiveSampleSize.control, 1)],
+        ["Score: minimum", fmt(ov.treatedSummary.min), fmt(ov.controlSummary.min)],
+        ["Score: median", fmt(ov.treatedSummary.median), fmt(ov.controlSummary.median)],
+        ["Score: maximum", fmt(ov.treatedSummary.max), fmt(ov.controlSummary.max)],
+      ].map(([a, b, c]) => `<tr><td>${esc(a)}</td><td class="n">${esc(b)}</td><td class="n">${esc(c)}</td></tr>`).join("") + (r.trimmed ? `<tr><td colspan="3" class="note">Trimmed ${r.trimmed.dropped} units outside [${r.trimmed.bounds.map((v) => v.toFixed(2)).join(", ")}].</td></tr>` : "");
+    }
+    function runAnalysis() {
+      $("#status").textContent = "";
+      try {
+        last = analyze(inputs());
+        render(last);
+        $("#status").textContent = `Done: ${last.n.total} units, ${last.propensityModel.terms.length - 1} covariate terms.`;
+        return true;
+      } catch (e) {
+        $("#results").hidden = true;
+        $("#status").textContent = e.message;
+        return false;
+      }
+    }
+    $("#analyze").addEventListener("click", () => {
+      $("#analyze").disabled = true;
+      $("#status").textContent = "Fitting the propensity model and estimating...";
+      setTimeout(() => { if (runAnalysis()) record("analysis_run"); $("#analyze").disabled = false; }, 20);
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshColumns();
+      $("#treatment").value = EXAMPLE_SPEC.treatment;
+      $("#outcome").value = EXAMPLE_SPEC.outcome;
+      $("#covariates").value = EXAMPLE_SPEC.covariates;
+      $("#estimand").value = "ate";
+      $("#trim").value = "none";
+      if (runAnalysis()) { record("example_loaded"); $("#data-status").textContent = "Example: 2,000 simulated people. The raw comparison says training lowered earnings by 3.6; the true sample effect is +1.33 for everyone and +1.64 for those who joined."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const f = (v) => (Number.isFinite(v) ? v : "");
+      const lines = ["estimand,method,estimate,se,ci_low,ci_high,p_value", ["none", "naive", f(last.naive.estimate), f(last.naive.se), f(last.naive.ci[0]), f(last.naive.ci[1]), f(last.naive.pValue)].join(",")];
+      for (const k of ["ate", "att", "atc"]) for (const m of ["ipw", "ra", "aipw", "match"]) { const e = last.estimates[k][m]; if (e && !e.error) lines.push([k, m, f(e.estimate), f(e.se), f(e.ci[0]), f(e.ci[1]), f(e.pValue)].join(",")); }
+      lines.push("", "row_used,treated,propensity_score");
+      last.scores.forEach((p, i) => lines.push(`${i + 1},${last.treated[i]},${p}`));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lines.join("\n") + "\n"], { type: "text/csv" }));
+      a.download = "propensity-score.csv";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

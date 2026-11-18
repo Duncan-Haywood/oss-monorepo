@@ -51,11 +51,21 @@ export async function fetchSource([, repo, sha, path], dir) {
 const csvCell = (v) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
 // Blank one column (the owner's labels) and return the CSV text plus the labels by file line.
 export function hideColumn(text, name) {
-  const rows = parseCsv(text.replace(/^﻿/, ""));
+  const rows = parseCsv(text.replace(/^\uFEFF/, ""));
   const ix = rows[0].findIndex((h) => h.trim().toLowerCase() === name.toLowerCase());
-  const labels = rows.map((r) => (ix === -1 ? "" : String(r[ix] ?? "").trim()));
-  if (ix !== -1) for (const r of rows.slice(1)) if (r.length > ix) r[ix] = "";
-  return { text: rows.map((r) => r.map(csvCell).join(",")).join("\n") + "\n", labels };
+  // labels[k - 1] is the label of the row that starts on line k of the returned text, the line
+  // number the reader gives each row. A quoted cell holding a line break (a Copilot Money note,
+  // 2026-11-15) makes a row span two lines, so a row's index is not its line.
+  const labels = [], out = [];
+  let line = 1;
+  for (const r of rows) {
+    labels[line - 1] = ix === -1 ? "" : String(r[ix] ?? "").trim();
+    if (ix !== -1 && r !== rows[0] && r.length > ix) r[ix] = "";
+    const t = r.map(csvCell).join(",");
+    out.push(t);
+    line += 1 + (t.match(/\r\n|\r|\n/g) ?? []).length;
+  }
+  return { text: out.join("\n") + "\n", labels };
 }
 
 // Chart code for each account a Mercury file names: the card is a liability, the first

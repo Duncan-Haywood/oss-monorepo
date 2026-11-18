@@ -295,7 +295,7 @@ class DevelopTests(unittest.TestCase):
     def test_numpy_gives_the_pure_bytes(self):
         blob = make_dng(self.sensor, self.W, self.H)
         a = rd.develop(rd.parse_raw(blob), self.settings())
-        b = rd.develop(rd.parse_raw(blob), rd.DevelopSettings(engine="numpy", lens_db=self.db, lens_name="TC 18-55mm",
+        b = rd.develop(rd.parse_raw(blob), rd.DevelopSettings(engine="numpy", demosaic="bilinear", lens_db=self.db, lens_name="TC 18-55mm",
                                                               lens_focal=18.0, lens_crop=1.5))
         self.assertEqual(a[2].tobytes(), b[2].tobytes())
 

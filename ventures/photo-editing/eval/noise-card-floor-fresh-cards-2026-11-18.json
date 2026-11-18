@@ -1,0 +1,3080 @@
+{
+ "Canon_Canon_EOS_M200___MG_2231.CR3": {
+  "card": "Canon/Canon EOS M200",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_Canon_EOS_M200___MG_2233.CR3": {
+  "card": "Canon/Canon EOS M200",
+  "keep": false,
+  "r": 0.8816,
+  "scene": 0
+ },
+ "Canon_Canon_EOS_R100___MG_2195[1].CR3": {
+  "card": "Canon/Canon EOS R100",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_Canon_EOS_R100___MG_2205[1].CR3": {
+  "card": "Canon/Canon EOS R100",
+  "keep": true,
+  "r": 0.5215,
+  "scene": 1
+ },
+ "Canon_Canon_EOS_R5m2__APS-C_CRAW.CR3": {
+  "card": "Canon/Canon EOS R5m2",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_Canon_EOS_R5m2__APS-C_RAW.CR3": {
+  "card": "Canon/Canon EOS R5m2",
+  "keep": false,
+  "r": 0.9998,
+  "scene": 0
+ },
+ "Canon_Canon_EOS_R5m2__CRAW.CR3": {
+  "card": "Canon/Canon EOS R5m2",
+  "keep": true,
+  "r": 0.4077,
+  "scene": 1
+ },
+ "Canon_EOS-1D_Mark_IV__IMG_5391.CR2": {
+  "card": "Canon/EOS-1D Mark IV",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS-1D_Mark_IV__IMG_5395.CR2": {
+  "card": "Canon/EOS-1D Mark IV",
+  "keep": true,
+  "r": 0.1922,
+  "scene": 1
+ },
+ "Canon_EOS-1D_Mark_IV__IMG_5398.CR2": {
+  "card": "Canon/EOS-1D Mark IV",
+  "keep": true,
+  "r": 0.2034,
+  "scene": 2
+ },
+ "Canon_EOS-1D_X_Mark_III__Canon_EOS-1D_X_Mark_III_CRAW_ISO_100_nocrop_nodual.CR3": {
+  "card": "Canon/EOS-1D X Mark III",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS-1D_X_Mark_III__Canon_EOS-1D_X_Mark_III_RAW_ISO_100_nocrop_nodual.CR3": {
+  "card": "Canon/EOS-1D X Mark III",
+  "keep": true,
+  "r": 0.1469,
+  "scene": 1
+ },
+ "Canon_EOS-1D_X_Mark_II__AZ1I2270.CR2": {
+  "card": "Canon/EOS-1D X Mark II",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS-1D_X_Mark_II__AZ1I2271.CR2": {
+  "card": "Canon/EOS-1D X Mark II",
+  "keep": true,
+  "r": 0.1753,
+  "scene": 1
+ },
+ "Canon_EOS-1D_X_Mark_II__AZ1I2272.CR2": {
+  "card": "Canon/EOS-1D X Mark II",
+  "keep": true,
+  "r": 0.1674,
+  "scene": 2
+ },
+ "Canon_EOS_250D__Canon250D_RAW-19:9.CR3": {
+  "card": "Canon/EOS 250D",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_250D__Canon250D_RAW-1:1.CR3": {
+  "card": "Canon/EOS 250D",
+  "keep": false,
+  "r": 1.0,
+  "scene": 0
+ },
+ "Canon_EOS_250D__Canon250D_RAW-2:3.CR3": {
+  "card": "Canon/EOS 250D",
+  "keep": false,
+  "r": 0.9999,
+  "scene": 0
+ },
+ "Canon_EOS_250D__Canon250D_RAW-4:3.CR3": {
+  "card": "Canon/EOS 250D",
+  "keep": false,
+  "r": 0.9998,
+  "scene": 0
+ },
+ "Canon_EOS_40D___MG_0153.CR2": {
+  "card": "Canon/EOS 40D",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_40D___MG_0154.CR2": {
+  "card": "Canon/EOS 40D",
+  "keep": true,
+  "r": 0.1363,
+  "scene": 1
+ },
+ "Canon_EOS_50D__IMG_9516.CR2": {
+  "card": "Canon/EOS 50D",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_50D__IMG_9517.CR2": {
+  "card": "Canon/EOS 50D",
+  "keep": true,
+  "r": 0.2648,
+  "scene": 1
+ },
+ "Canon_EOS_50D__IMG_9518.CR2": {
+  "card": "Canon/EOS 50D",
+  "keep": true,
+  "r": 0.2063,
+  "scene": 2
+ },
+ "Canon_EOS_5D_Mark_III__5G4A9394.CR2": {
+  "card": "Canon/EOS 5D Mark III",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_5D_Mark_III__5G4A9395.CR2": {
+  "card": "Canon/EOS 5D Mark III",
+  "keep": true,
+  "r": 0.1741,
+  "scene": 1
+ },
+ "Canon_EOS_5D_Mark_III__5G4A9396.CR2": {
+  "card": "Canon/EOS 5D Mark III",
+  "keep": true,
+  "r": 0.1847,
+  "scene": 2
+ },
+ "Canon_EOS_5D_Mark_II__08.canon.raw.cr2": {
+  "card": "Canon/EOS 5D Mark II",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_5D_Mark_II__09.canon.sraw1.cr2": {
+  "card": "Canon/EOS 5D Mark II",
+  "keep": true,
+  "r": 0.5612,
+  "scene": 1
+ },
+ "Canon_EOS_5D_Mark_II__10.canon.sraw2.cr2": {
+  "card": "Canon/EOS 5D Mark II",
+  "keep": true,
+  "r": 0.4847,
+  "scene": 2
+ },
+ "Canon_EOS_5D_Mark_II__IMG_0051.CR2": {
+  "card": "Canon/EOS 5D Mark II",
+  "keep": true,
+  "r": -0.0981,
+  "scene": 3
+ },
+ "Canon_EOS_60D__IMG_2014.CR2": {
+  "card": "Canon/EOS 60D",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_60D__IMG_2015.CR2": {
+  "card": "Canon/EOS 60D",
+  "keep": true,
+  "r": 0.261,
+  "scene": 1
+ },
+ "Canon_EOS_60D__IMG_2016.CR2": {
+  "card": "Canon/EOS 60D",
+  "keep": true,
+  "r": 0.2173,
+  "scene": 2
+ },
+ "Canon_EOS_6D_Mark_II__6DII-RAW.CR2": {
+  "card": "Canon/EOS 6D Mark II",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_6D_Mark_II__6DII-mRAW.CR2": {
+  "card": "Canon/EOS 6D Mark II",
+  "keep": true,
+  "r": 0.2561,
+  "scene": 1
+ },
+ "Canon_EOS_6D_Mark_II__6DII-sRAW.CR2": {
+  "card": "Canon/EOS 6D Mark II",
+  "keep": true,
+  "r": 0.1679,
+  "scene": 2
+ },
+ "Canon_EOS_6D__EOS_6D_RAW.CR2": {
+  "card": "Canon/EOS 6D",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_6D__EOS_6D_mRAW.CR2": {
+  "card": "Canon/EOS 6D",
+  "keep": true,
+  "r": 0.6428,
+  "scene": 1
+ },
+ "Canon_EOS_6D__EOS_6D_sRAW.CR2": {
+  "card": "Canon/EOS 6D",
+  "keep": true,
+  "r": 0.4436,
+  "scene": 2
+ },
+ "Canon_EOS_6D__IMG_0001.CR2": {
+  "card": "Canon/EOS 6D",
+  "keep": true,
+  "r": 0.1119,
+  "scene": 3
+ },
+ "Canon_EOS_70D__RAW_CANON_EOS70D_01.CR2": {
+  "card": "Canon/EOS 70D",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_70D__mRAW_CANON_EOS70D_01.CR2": {
+  "card": "Canon/EOS 70D",
+  "keep": true,
+  "r": 0.4375,
+  "scene": 1
+ },
+ "Canon_EOS_70D__sRAW_CANON_EOS70D_01.CR2": {
+  "card": "Canon/EOS 70D",
+  "keep": true,
+  "r": 0.626,
+  "scene": 2
+ },
+ "Canon_EOS_7D_Mark_II__capture000106.cr2": {
+  "card": "Canon/EOS 7D Mark II",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_7D_Mark_II__capture000107.cr2": {
+  "card": "Canon/EOS 7D Mark II",
+  "keep": true,
+  "r": 0.7633,
+  "scene": 1
+ },
+ "Canon_EOS_7D_Mark_II__capture000108.cr2": {
+  "card": "Canon/EOS 7D Mark II",
+  "keep": true,
+  "r": 0.6989,
+  "scene": 2
+ },
+ "Canon_EOS_7D__RAW_CANON_EOS_7D-mraw.CR2": {
+  "card": "Canon/EOS 7D",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_7D__RAW_CANON_EOS_7D-raw.CR2": {
+  "card": "Canon/EOS 7D",
+  "keep": true,
+  "r": 0.1039,
+  "scene": 1
+ },
+ "Canon_EOS_7D__RAW_CANON_EOS_7D-sraw.CR2": {
+  "card": "Canon/EOS 7D",
+  "keep": true,
+  "r": 0.3364,
+  "scene": 2
+ },
+ "Canon_EOS_7D___MG_0001.CR2": {
+  "card": "Canon/EOS 7D",
+  "keep": true,
+  "r": 0.1374,
+  "scene": 3
+ },
+ "Canon_EOS_80D__IMG_0096.CR2": {
+  "card": "Canon/EOS 80D",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_80D__IMG_0097.CR2": {
+  "card": "Canon/EOS 80D",
+  "keep": true,
+  "r": 0.0155,
+  "scene": 1
+ },
+ "Canon_EOS_80D__IMG_0098.CR2": {
+  "card": "Canon/EOS 80D",
+  "keep": true,
+  "r": 0.3013,
+  "scene": 2
+ },
+ "Canon_EOS_850D__IMG_1837.CR3": {
+  "card": "Canon/EOS 850D",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_850D__IMG_1906.CR3": {
+  "card": "Canon/EOS 850D",
+  "keep": true,
+  "r": -0.2406,
+  "scene": 1
+ },
+ "Canon_EOS_90D__Canon-90D-RAW-ISO-100.CR3": {
+  "card": "Canon/EOS 90D",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_90D__Canon-90D-cRAW-ISO-100.CR3": {
+  "card": "Canon/EOS 90D",
+  "keep": true,
+  "r": 0.4415,
+  "scene": 1
+ },
+ "Canon_EOS_M50__Canon-EOS_M50_-CRAW_(1:1).CR3": {
+  "card": "Canon/EOS M50",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_M50__Canon_EOS_M50_CRAW_ISO_100_nocrop_nodual.CR3": {
+  "card": "Canon/EOS M50",
+  "keep": true,
+  "r": 0.0374,
+  "scene": 1
+ },
+ "Canon_EOS_M50__Canon_EOS_M50_RAW_ISO_100_nocrop_nodual.CR3": {
+  "card": "Canon/EOS M50",
+  "keep": true,
+  "r": 0.2636,
+  "scene": 2
+ },
+ "Canon_EOS_M6_Mark_II__IMG_CRAW_16_9.CR3": {
+  "card": "Canon/EOS M6 Mark II",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_M6_Mark_II__IMG_CRAW_1_1.CR3": {
+  "card": "Canon/EOS M6 Mark II",
+  "keep": true,
+  "r": 0.0485,
+  "scene": 1
+ },
+ "Canon_EOS_M6_Mark_II__IMG_CRAW_3_2.CR3": {
+  "card": "Canon/EOS M6 Mark II",
+  "keep": true,
+  "r": -0.0336,
+  "scene": 2
+ },
+ "Canon_EOS_M6_Mark_II__IMG_CRAW_4_3.CR3": {
+  "card": "Canon/EOS M6 Mark II",
+  "keep": true,
+  "r": 0.0192,
+  "scene": 3
+ },
+ "Canon_EOS_R10__IMG_4276.CR3": {
+  "card": "Canon/EOS R10",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_R10__IMG_4279.CR3": {
+  "card": "Canon/EOS R10",
+  "keep": true,
+  "r": -0.1879,
+  "scene": 1
+ },
+ "Canon_EOS_R10__IMG_4361.CR3": {
+  "card": "Canon/EOS R10",
+  "keep": true,
+  "r": -0.0226,
+  "scene": 2
+ },
+ "Canon_EOS_R50__Canon_R50_ISO100_RAW_electronicShutter.CR3": {
+  "card": "Canon/EOS R50",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_R50__Canon_R50_ISO100_RAW_mechanicShutter.CR3": {
+  "card": "Canon/EOS R50",
+  "keep": false,
+  "r": 0.9564,
+  "scene": 0
+ },
+ "Canon_EOS_R50__Canon_R50_ISO100_cRAW_electronicShutter.CR3": {
+  "card": "Canon/EOS R50",
+  "keep": false,
+  "r": 0.9552,
+  "scene": 0
+ },
+ "Canon_EOS_R50__Canon_R50_ISO100_cRAW_mechanicShutter.CR3": {
+  "card": "Canon/EOS R50",
+  "keep": false,
+  "r": 0.9517,
+  "scene": 0
+ },
+ "Canon_EOS_R5__Canon_EOS_R5_CRAW_ISO_100_crop_dual.CR3": {
+  "card": "Canon/EOS R5",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_R5__Canon_EOS_R5_CRAW_ISO_100_crop_nodual.CR3": {
+  "card": "Canon/EOS R5",
+  "keep": false,
+  "r": 0.9967,
+  "scene": 0
+ },
+ "Canon_EOS_R5__Canon_EOS_R5_CRAW_ISO_100_nocrop_dual.CR3": {
+  "card": "Canon/EOS R5",
+  "keep": false,
+  "r": 0.9995,
+  "scene": 0
+ },
+ "Canon_EOS_R5__Canon_EOS_R5_CRAW_ISO_100_nocrop_nodual.CR3": {
+  "card": "Canon/EOS R5",
+  "keep": false,
+  "r": 0.9972,
+  "scene": 0
+ },
+ "Canon_EOS_R6_Mark_II__canon-r6m2-img_0346-raw-normal-full.cr3": {
+  "card": "Canon/EOS R6 Mark II",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_R6_Mark_II__canon-r6m2-img_0347-raw-normal-crop.cr3": {
+  "card": "Canon/EOS R6 Mark II",
+  "keep": false,
+  "r": 0.9866,
+  "scene": 0
+ },
+ "Canon_EOS_R6_Mark_II__canon-r6m2-img_0349-raw-dual-crop.cr3": {
+  "card": "Canon/EOS R6 Mark II",
+  "keep": false,
+  "r": 0.9775,
+  "scene": 0
+ },
+ "Canon_EOS_R6_Mark_II__canon-r6m2-img_0355-craw-dual-full.cr3": {
+  "card": "Canon/EOS R6 Mark II",
+  "keep": false,
+  "r": 0.979,
+  "scene": 0
+ },
+ "Canon_EOS_R6__Canon_EOS_R6_CRAW_ISO_100_crop_nodual.CR3": {
+  "card": "Canon/EOS R6",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_R6__Canon_EOS_R6_CRAW_ISO_100_nocrop_nodual.CR3": {
+  "card": "Canon/EOS R6",
+  "keep": false,
+  "r": 0.9491,
+  "scene": 0
+ },
+ "Canon_EOS_R6__Canon_EOS_R6_RAW_ISO_100_crop_nodual.CR3": {
+  "card": "Canon/EOS R6",
+  "keep": false,
+  "r": 0.9806,
+  "scene": 0
+ },
+ "Canon_EOS_R6__Canon_EOS_R6_RAW_ISO_100_nocrop_nodual.CR3": {
+  "card": "Canon/EOS R6",
+  "keep": false,
+  "r": 0.8952,
+  "scene": 0
+ },
+ "Canon_EOS_R8__CRAW_FULL_FRAME.CR3": {
+  "card": "Canon/EOS R8",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_R8__CRAW_FULL_FRAME_DUAL_PIXEL.CR3": {
+  "card": "Canon/EOS R8",
+  "keep": true,
+  "r": 0.45,
+  "scene": 1
+ },
+ "Canon_EOS_R8__RAW_FULL_FRAME.CR3": {
+  "card": "Canon/EOS R8",
+  "keep": true,
+  "r": 0.4244,
+  "scene": 2
+ },
+ "Canon_EOS_RP__Canon_EOS_RP_CRAW_ISO_100_crop_nodual.CR3": {
+  "card": "Canon/EOS RP",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_RP__Canon_EOS_RP_CRAW_ISO_100_nocrop_nodual.CR3": {
+  "card": "Canon/EOS RP",
+  "keep": false,
+  "r": 0.9978,
+  "scene": 0
+ },
+ "Canon_EOS_RP__Canon_EOS_RP_RAW_ISO_100_crop_nodual.CR3": {
+  "card": "Canon/EOS RP",
+  "keep": false,
+  "r": 0.9998,
+  "scene": 0
+ },
+ "Canon_EOS_RP__Canon_EOS_RP_RAW_ISO_100_nocrop_nodual.CR3": {
+  "card": "Canon/EOS RP",
+  "keep": false,
+  "r": 0.9961,
+  "scene": 0
+ },
+ "Canon_EOS_R__Canon_EOS_R_CRAW_ISO_100.CR3": {
+  "card": "Canon/EOS R",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_EOS_R__Canon_EOS_R_CRAW_ISO_100_crop_dual.CR3": {
+  "card": "Canon/EOS R",
+  "keep": true,
+  "r": 0.5863,
+  "scene": 1
+ },
+ "Canon_EOS_R__Canon_EOS_R_CRAW_ISO_100_crop_nodual.CR3": {
+  "card": "Canon/EOS R",
+  "keep": false,
+  "r": 0.9284,
+  "scene": 1
+ },
+ "Canon_EOS_R__Canon_EOS_R_CRAW_ISO_100_dual_pixel_on.CR3": {
+  "card": "Canon/EOS R",
+  "keep": false,
+  "r": 0.8673,
+  "scene": 0
+ },
+ "Canon_PowerShot_G5_X_Mark_II__Canon_-_PowerShot_G5_X_Mark_II_-_CRAW_(16:9).CR3": {
+  "card": "Canon/PowerShot G5 X Mark II",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_PowerShot_G5_X_Mark_II__Canon_-_PowerShot_G5_X_Mark_II_-_CRAW_(1:1).CR3": {
+  "card": "Canon/PowerShot G5 X Mark II",
+  "keep": false,
+  "r": 0.9684,
+  "scene": 0
+ },
+ "Canon_PowerShot_G5_X_Mark_II__Canon_-_PowerShot_G5_X_Mark_II_-_CRAW_(3:2).CR3": {
+  "card": "Canon/PowerShot G5 X Mark II",
+  "keep": false,
+  "r": 0.9639,
+  "scene": 0
+ },
+ "Canon_PowerShot_G5_X_Mark_II__Canon_-_PowerShot_G5_X_Mark_II_-_CRAW_(4:3).CR3": {
+  "card": "Canon/PowerShot G5 X Mark II",
+  "keep": false,
+  "r": 0.9646,
+  "scene": 0
+ },
+ "Canon_PowerShot_G7_X_Mark_III__IMG_0253.CR3": {
+  "card": "Canon/PowerShot G7 X Mark III",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Canon_PowerShot_G7_X_Mark_III__IMG_0254.CR3": {
+  "card": "Canon/PowerShot G7 X Mark III",
+  "keep": false,
+  "r": 0.9913,
+  "scene": 0
+ },
+ "Nikon_1_J1___DSC0355.NEF": {
+  "card": "Nikon/1 J1",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_1_J1___DSC7434.NEF": {
+  "card": "Nikon/1 J1",
+  "keep": true,
+  "r": -0.0047,
+  "scene": 1
+ },
+ "Nikon_1_J1___DSC8140.NEF": {
+  "card": "Nikon/1 J1",
+  "keep": true,
+  "r": 0.0613,
+  "scene": 2
+ },
+ "Nikon_1_J5__20151027-10311989-NIKON_1_J5.nef": {
+  "card": "Nikon/1 J5",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_1_J5__20151027-10431071-NIKON_1_J5.nef": {
+  "card": "Nikon/1 J5",
+  "keep": true,
+  "r": 0.2851,
+  "scene": 1
+ },
+ "Nikon_1_V1__DSC_4157.NEF": {
+  "card": "Nikon/1 V1",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_1_V1__DSC_4167.NEF": {
+  "card": "Nikon/1 V1",
+  "keep": true,
+  "r": 0.2571,
+  "scene": 1
+ },
+ "Nikon_D1X__D1x_20040730_ub20_035.NEF": {
+  "card": "Nikon/D1X",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_D1X__DSC_0494.NEF": {
+  "card": "Nikon/D1X",
+  "keep": true,
+  "r": 0.1393,
+  "scene": 1
+ },
+ "Nikon_D2H__D2A_0005.NEF": {
+  "card": "Nikon/D2H",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_D2H__D2H_3957.NEF": {
+  "card": "Nikon/D2H",
+  "keep": true,
+  "r": -0.1085,
+  "scene": 1
+ },
+ "Nikon_D3400__DSC_0202.NEF": {
+  "card": "Nikon/D3400",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_D3400__DSC_0330_bad.NEF": {
+  "card": "Nikon/D3400",
+  "keep": true,
+  "r": 0.1895,
+  "scene": 1
+ },
+ "Nikon_D5000__2017-03-30T14-24-27+0800_DSC_3614.NEF": {
+  "card": "Nikon/D5000",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_D5000__DSC_5349.NEF": {
+  "card": "Nikon/D5000",
+  "keep": true,
+  "r": -0.0993,
+  "scene": 1
+ },
+ "Nikon_D500__Nikon_D500_RAWL_12bit_Compressed.NEF": {
+  "card": "Nikon/D500",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_D500__Nikon_D500_RAWL_12bit_LosslessCompressed.NEF": {
+  "card": "Nikon/D500",
+  "keep": false,
+  "r": 0.9662,
+  "scene": 0
+ },
+ "Nikon_D500__Nikon_D500_RAWL_12bit_Uncompressed.NEF": {
+  "card": "Nikon/D500",
+  "keep": false,
+  "r": 0.9726,
+  "scene": 0
+ },
+ "Nikon_D500__Nikon_D500_RAWL_14bit_Compressed.NEF": {
+  "card": "Nikon/D500",
+  "keep": true,
+  "r": 0.705,
+  "scene": 1
+ },
+ "Nikon_D5100__00.nikon.12b-lossy-raw.nef": {
+  "card": "Nikon/D5100",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_D5100__01.nikonhackers.12b-lossless-raw.nef": {
+  "card": "Nikon/D5100",
+  "keep": false,
+  "r": 0.9675,
+  "scene": 0
+ },
+ "Nikon_D5100__02.nikonhackers.12b-uncompressed-raw.nef": {
+  "card": "Nikon/D5100",
+  "keep": false,
+  "r": 0.9483,
+  "scene": 0
+ },
+ "Nikon_D5200__NIKON_D5200_14_bit_compressed.NEF": {
+  "card": "Nikon/D5200",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_D5200___DSC7535.NEF": {
+  "card": "Nikon/D5200",
+  "keep": true,
+  "r": 0.2433,
+  "scene": 1
+ },
+ "Nikon_D5500__DSC_0258.NEF": {
+  "card": "Nikon/D5500",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_D5500__DSC_5097.NEF": {
+  "card": "Nikon/D5500",
+  "keep": true,
+  "r": -0.0109,
+  "scene": 1
+ },
+ "Nikon_D5500__DSC_5098.NEF": {
+  "card": "Nikon/D5500",
+  "keep": false,
+  "r": 0.9927,
+  "scene": 1
+ },
+ "Nikon_D7000__Compressed_12-bit_D7000_NIK_3876.NEF": {
+  "card": "Nikon/D7000",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_D7000__Compressed_14-bit_D7000_NIK_3875.NEF": {
+  "card": "Nikon/D7000",
+  "keep": true,
+  "r": 0.0579,
+  "scene": 1
+ },
+ "Nikon_D7000__DSE61507.nef": {
+  "card": "Nikon/D7000",
+  "keep": true,
+  "r": 0.019,
+  "scene": 2
+ },
+ "Nikon_D7000__Lossless_compressed_12-bit_D7000_NIK_3877.NEF": {
+  "card": "Nikon/D7000",
+  "keep": true,
+  "r": 0.6908,
+  "scene": 3
+ },
+ "Nikon_D7500__RAW_NIKON_D7500_12BIT_COMPRESSED.NEF": {
+  "card": "Nikon/D7500",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_D7500__RAW_NIKON_D7500_12BIT_LOSSLESS_COMPRESSED.NEF": {
+  "card": "Nikon/D7500",
+  "keep": true,
+  "r": 0.2853,
+  "scene": 1
+ },
+ "Nikon_D7500__RAW_NIKON_D7500_14BIT_COMPRESSED.NEF": {
+  "card": "Nikon/D7500",
+  "keep": true,
+  "r": 0.2757,
+  "scene": 2
+ },
+ "Nikon_D7500__RAW_NIKON_D7500_14BIT_LOSSLESS_COMPRESSED.NEF": {
+  "card": "Nikon/D7500",
+  "keep": true,
+  "r": 0.5824,
+  "scene": 3
+ },
+ "Nikon_D750__compressed_12_bit.NEF": {
+  "card": "Nikon/D750",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_D750__compressed_14_bit.NEF": {
+  "card": "Nikon/D750",
+  "keep": true,
+  "r": 0.6793,
+  "scene": 1
+ },
+ "Nikon_D750__lossless_compressed_12_bit.NEF": {
+  "card": "Nikon/D750",
+  "keep": true,
+  "r": 0.2844,
+  "scene": 2
+ },
+ "Nikon_D750__lossless_compressed_14_bit.NEF": {
+  "card": "Nikon/D750",
+  "keep": true,
+  "r": 0.6155,
+  "scene": 3
+ },
+ "Nikon_D800__D800-12b-comp.NEF": {
+  "card": "Nikon/D800",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_D800__D800-12b-lossless-comp.NEF": {
+  "card": "Nikon/D800",
+  "keep": false,
+  "r": 0.9584,
+  "scene": 0
+ },
+ "Nikon_D800__D800-14b-comp.NEF": {
+  "card": "Nikon/D800",
+  "keep": false,
+  "r": 0.8024,
+  "scene": 0
+ },
+ "Nikon_D850__Nikon-D850-12bit-compressed.NEF": {
+  "card": "Nikon/D850",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_D850__Nikon-D850-medium.NEF": {
+  "card": "Nikon/D850",
+  "keep": true,
+  "r": 0.7563,
+  "scene": 1
+ },
+ "Nikon_D850__Nikon-D850-small.NEF": {
+  "card": "Nikon/D850",
+  "keep": true,
+  "r": 0.7616,
+  "scene": 2
+ },
+ "Nikon_Df__DSC_6792_Df12compr.NEF": {
+  "card": "Nikon/Df",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_Df__DSC_6793_Df12uncompr.NEF": {
+  "card": "Nikon/Df",
+  "keep": false,
+  "r": 0.9532,
+  "scene": 0
+ },
+ "Nikon_Df__DSC_6794_Df12losslesscompr.NEF": {
+  "card": "Nikon/Df",
+  "keep": false,
+  "r": 0.9333,
+  "scene": 0
+ },
+ "Nikon_Df__DSC_6795_Df14compr.NEF": {
+  "card": "Nikon/Df",
+  "keep": false,
+  "r": 0.9487,
+  "scene": 0
+ },
+ "Nikon_Z_30__NIKON_Z30_12BIT.NEF": {
+  "card": "Nikon/Z 30",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_Z_30__NIKON_Z30_14BIT.NEF": {
+  "card": "Nikon/Z 30",
+  "keep": true,
+  "r": 0.0616,
+  "scene": 1
+ },
+ "Nikon_Z_30___DSC0028.NEF": {
+  "card": "Nikon/Z 30",
+  "keep": true,
+  "r": 0.0303,
+  "scene": 2
+ },
+ "Nikon_Z_30___DSC0029.NEF": {
+  "card": "Nikon/Z 30",
+  "keep": true,
+  "r": 0.591,
+  "scene": 3
+ },
+ "Nikon_Z_50__DSC_0441.NEF": {
+  "card": "Nikon/Z 50",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_Z_50__DSC_0450.NEF": {
+  "card": "Nikon/Z 50",
+  "keep": true,
+  "r": 0.5092,
+  "scene": 1
+ },
+ "Nikon_Z_6_2__CZP_0299.NEF": {
+  "card": "Nikon/Z 6_2",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_Z_6_2__CZP_0300.NEF": {
+  "card": "Nikon/Z 6_2",
+  "keep": false,
+  "r": 0.9673,
+  "scene": 0
+ },
+ "Nikon_Z_6_2__CZP_0302.NEF": {
+  "card": "Nikon/Z 6_2",
+  "keep": false,
+  "r": 0.9717,
+  "scene": 0
+ },
+ "Nikon_Z_6_2__CZP_0303.NEF": {
+  "card": "Nikon/Z 6_2",
+  "keep": false,
+  "r": 0.9117,
+  "scene": 0
+ },
+ "Nikon_Z_7__5-Nikon-Z7-RAW-12bit-compressed-L.NEF": {
+  "card": "Nikon/Z 7",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_Z_7__7-Nikon-Z7-RAW-12bit-lossless-compressed-M.NEF": {
+  "card": "Nikon/Z 7",
+  "keep": true,
+  "r": 0.727,
+  "scene": 1
+ },
+ "Nikon_Z_7__8-Nikon-Z7-RAW-12bit-lossless-compressed-S.NEF": {
+  "card": "Nikon/Z 7",
+  "keep": true,
+  "r": 0.767,
+  "scene": 2
+ },
+ "Nikon_Z_f__DSC_0040.NEF": {
+  "card": "Nikon/Z f",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_Z_fc___DSC0018.nef": {
+  "card": "Nikon/Z fc",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Nikon_Z_fc___DSC0070.nef": {
+  "card": "Nikon/Z fc",
+  "keep": true,
+  "r": 0.0345,
+  "scene": 1
+ },
+ "Olympus_E-M10_Mark_IV__PA040002.ORF": {
+  "card": "Olympus/E-M10 Mark IV",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Olympus_E-M10_Mark_IV___A180042.ORF": {
+  "card": "Olympus/E-M10 Mark IV",
+  "keep": true,
+  "r": 0.0872,
+  "scene": 1
+ },
+ "Olympus_E-M1MarkIII___3160530.ORF": {
+  "card": "Olympus/E-M1MarkIII",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Olympus_E-M1MarkIII___3160531.ORF": {
+  "card": "Olympus/E-M1MarkIII",
+  "keep": true,
+  "r": 0.3787,
+  "scene": 1
+ },
+ "Olympus_E-M1MarkII__Olympus_EM1mk2_Standard_20MP.ORF": {
+  "card": "Olympus/E-M1MarkII",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Olympus_E-M1MarkII__Olympus_EM1mk2_Standard_20MP_ColorChecker.ORF": {
+  "card": "Olympus/E-M1MarkII",
+  "keep": true,
+  "r": -0.0388,
+  "scene": 1
+ },
+ "Panasonic_DC-FZ10002__P1015595.RW2": {
+  "card": "Panasonic/DC-FZ10002",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-FZ10002__P1015596.RW2": {
+  "card": "Panasonic/DC-FZ10002",
+  "keep": true,
+  "r": 0.6869,
+  "scene": 1
+ },
+ "Panasonic_DC-FZ10002__P1015597.RW2": {
+  "card": "Panasonic/DC-FZ10002",
+  "keep": true,
+  "r": 0.4372,
+  "scene": 2
+ },
+ "Panasonic_DC-FZ10002__P1015598.RW2": {
+  "card": "Panasonic/DC-FZ10002",
+  "keep": true,
+  "r": 0.6227,
+  "scene": 3
+ },
+ "Panasonic_DC-FZ82__P1000052.RW2": {
+  "card": "Panasonic/DC-FZ82",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-FZ82__P1000053.RW2": {
+  "card": "Panasonic/DC-FZ82",
+  "keep": true,
+  "r": 0.3203,
+  "scene": 1
+ },
+ "Panasonic_DC-FZ82__P1000054.RW2": {
+  "card": "Panasonic/DC-FZ82",
+  "keep": true,
+  "r": 0.7436,
+  "scene": 2
+ },
+ "Panasonic_DC-FZ82__P1000055.RW2": {
+  "card": "Panasonic/DC-FZ82",
+  "keep": false,
+  "r": 0.8591,
+  "scene": 0
+ },
+ "Panasonic_DC-FZ83__DC-FZ83_ISO125_16x9.RW2": {
+  "card": "Panasonic/DC-FZ83",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-FZ83__DC-FZ83_ISO125_3x2.RW2": {
+  "card": "Panasonic/DC-FZ83",
+  "keep": true,
+  "r": 0.0722,
+  "scene": 1
+ },
+ "Panasonic_DC-FZ83__DC-FZ83_ISO125_4x3.RW2": {
+  "card": "Panasonic/DC-FZ83",
+  "keep": true,
+  "r": 0.1288,
+  "scene": 2
+ },
+ "Panasonic_DC-FZ83__LC-FZ83_ISO125_1x1.RW2": {
+  "card": "Panasonic/DC-FZ83",
+  "keep": true,
+  "r": 0.3552,
+  "scene": 3
+ },
+ "Panasonic_DC-G100__P1000346.RW2": {
+  "card": "Panasonic/DC-G100",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-G100__P1000347.RW2": {
+  "card": "Panasonic/DC-G100",
+  "keep": false,
+  "r": 0.9998,
+  "scene": 0
+ },
+ "Panasonic_DC-G100__P1000348.RW2": {
+  "card": "Panasonic/DC-G100",
+  "keep": false,
+  "r": 0.9995,
+  "scene": 0
+ },
+ "Panasonic_DC-G100__P1000349.RW2": {
+  "card": "Panasonic/DC-G100",
+  "keep": false,
+  "r": 0.9992,
+  "scene": 0
+ },
+ "Panasonic_DC-G110__DC-G110-16:9.RW2": {
+  "card": "Panasonic/DC-G110",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-G110__DC-G110-1:1.RW2": {
+  "card": "Panasonic/DC-G110",
+  "keep": true,
+  "r": 0.1317,
+  "scene": 1
+ },
+ "Panasonic_DC-G110__DC-G110-3:2.RW2": {
+  "card": "Panasonic/DC-G110",
+  "keep": true,
+  "r": 0.4522,
+  "scene": 2
+ },
+ "Panasonic_DC-G110__DC-G110-4:3.RW2": {
+  "card": "Panasonic/DC-G110",
+  "keep": true,
+  "r": 0.1043,
+  "scene": 3
+ },
+ "Panasonic_DC-G95___1000563.RW2": {
+  "card": "Panasonic/DC-G95",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-G95___1000565.RW2": {
+  "card": "Panasonic/DC-G95",
+  "keep": true,
+  "r": 0.5278,
+  "scene": 1
+ },
+ "Panasonic_DC-G95___1000573.RW2": {
+  "card": "Panasonic/DC-G95",
+  "keep": false,
+  "r": 0.9159,
+  "scene": 1
+ },
+ "Panasonic_DC-G95___1000574.RW2": {
+  "card": "Panasonic/DC-G95",
+  "keep": true,
+  "r": 0.2781,
+  "scene": 2
+ },
+ "Panasonic_DC-G9M2__P1000019.RW2": {
+  "card": "Panasonic/DC-G9M2",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-G9M2__P1000024.RW2": {
+  "card": "Panasonic/DC-G9M2",
+  "keep": false,
+  "r": 0.9807,
+  "scene": 0
+ },
+ "Panasonic_DC-G9M2__P1000029.RW2": {
+  "card": "Panasonic/DC-G9M2",
+  "keep": false,
+  "r": 0.9678,
+  "scene": 0
+ },
+ "Panasonic_DC-G9M2__P1000034.RW2": {
+  "card": "Panasonic/DC-G9M2",
+  "keep": false,
+  "r": 0.979,
+  "scene": 0
+ },
+ "Panasonic_DC-G9__P1000476.RW2": {
+  "card": "Panasonic/DC-G9",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-G9__P1000951.RW2": {
+  "card": "Panasonic/DC-G9",
+  "keep": true,
+  "r": -0.0948,
+  "scene": 1
+ },
+ "Panasonic_DC-G9__PANA2370_1x1.RW2": {
+  "card": "Panasonic/DC-G9",
+  "keep": true,
+  "r": 0.197,
+  "scene": 2
+ },
+ "Panasonic_DC-G9__PANA2371_16x9.RW2": {
+  "card": "Panasonic/DC-G9",
+  "keep": false,
+  "r": 0.9985,
+  "scene": 2
+ },
+ "Panasonic_DC-GH5M2__Panasonic_-_DC-GH5M2_-_16:9.RW2": {
+  "card": "Panasonic/DC-GH5M2",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-GH5M2__Panasonic_-_DC-GH5M2_-_1:1.RW2": {
+  "card": "Panasonic/DC-GH5M2",
+  "keep": true,
+  "r": 0.2875,
+  "scene": 1
+ },
+ "Panasonic_DC-GH5M2__Panasonic_-_DC-GH5M2_-_3:2.RW2": {
+  "card": "Panasonic/DC-GH5M2",
+  "keep": true,
+  "r": 0.2983,
+  "scene": 2
+ },
+ "Panasonic_DC-GH5M2__Panasonic_-_DC-GH5M2_-_4:3.RW2": {
+  "card": "Panasonic/DC-GH5M2",
+  "keep": true,
+  "r": -0.096,
+  "scene": 3
+ },
+ "Panasonic_DC-GH5___T012010.RW2": {
+  "card": "Panasonic/DC-GH5",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-GH5___T012012.RW2": {
+  "card": "Panasonic/DC-GH5",
+  "keep": true,
+  "r": -0.0992,
+  "scene": 1
+ },
+ "Panasonic_DC-GH5___T012013.RW2": {
+  "card": "Panasonic/DC-GH5",
+  "keep": true,
+  "r": 0.5401,
+  "scene": 2
+ },
+ "Panasonic_DC-GH5___T012014.RW2": {
+  "card": "Panasonic/DC-GH5",
+  "keep": false,
+  "r": 0.8595,
+  "scene": 2
+ },
+ "Panasonic_DC-GH7__P1002296.RW2": {
+  "card": "Panasonic/DC-GH7",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-GH7__P1002297.RW2": {
+  "card": "Panasonic/DC-GH7",
+  "keep": true,
+  "r": 0.4715,
+  "scene": 1
+ },
+ "Panasonic_DC-GH7__P1002298.RW2": {
+  "card": "Panasonic/DC-GH7",
+  "keep": false,
+  "r": 0.9749,
+  "scene": 1
+ },
+ "Panasonic_DC-GH7__P1002299.RW2": {
+  "card": "Panasonic/DC-GH7",
+  "keep": false,
+  "r": 0.8389,
+  "scene": 1
+ },
+ "Panasonic_DC-GX7MK3__P2010097.RW2": {
+  "card": "Panasonic/DC-GX7MK3",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-GX7MK3__P2010098.RW2": {
+  "card": "Panasonic/DC-GX7MK3",
+  "keep": false,
+  "r": 0.999,
+  "scene": 0
+ },
+ "Panasonic_DC-GX7MK3__P2010099.RW2": {
+  "card": "Panasonic/DC-GX7MK3",
+  "keep": false,
+  "r": 0.9984,
+  "scene": 0
+ },
+ "Panasonic_DC-GX7MK3__P2010100.RW2": {
+  "card": "Panasonic/DC-GX7MK3",
+  "keep": false,
+  "r": 0.9963,
+  "scene": 0
+ },
+ "Panasonic_DC-GX800__P1000091.RW2": {
+  "card": "Panasonic/DC-GX800",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-GX800__P1000092.RW2": {
+  "card": "Panasonic/DC-GX800",
+  "keep": true,
+  "r": 0.7203,
+  "scene": 1
+ },
+ "Panasonic_DC-GX800__P1000093.RW2": {
+  "card": "Panasonic/DC-GX800",
+  "keep": false,
+  "r": 0.8374,
+  "scene": 1
+ },
+ "Panasonic_DC-GX800__P1000094.RW2": {
+  "card": "Panasonic/DC-GX800",
+  "keep": true,
+  "r": 0.1413,
+  "scene": 2
+ },
+ "Panasonic_DC-GX850__P1000287.RW2": {
+  "card": "Panasonic/DC-GX850",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-GX850__P1000288.RW2": {
+  "card": "Panasonic/DC-GX850",
+  "keep": false,
+  "r": 0.9672,
+  "scene": 0
+ },
+ "Panasonic_DC-GX850__P1000289.RW2": {
+  "card": "Panasonic/DC-GX850",
+  "keep": false,
+  "r": 0.9416,
+  "scene": 0
+ },
+ "Panasonic_DC-GX850__P1000290.RW2": {
+  "card": "Panasonic/DC-GX850",
+  "keep": false,
+  "r": 0.9098,
+  "scene": 0
+ },
+ "Panasonic_DC-GX880__Panasonic_-_DC-GX880_-_16_9.RW2": {
+  "card": "Panasonic/DC-GX880",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-GX880__Panasonic_-_DC-GX880_-_1_1.RW2": {
+  "card": "Panasonic/DC-GX880",
+  "keep": true,
+  "r": 0.5893,
+  "scene": 1
+ },
+ "Panasonic_DC-GX880__Panasonic_-_DC-GX880_-_3_2.RW2": {
+  "card": "Panasonic/DC-GX880",
+  "keep": false,
+  "r": 0.8892,
+  "scene": 0
+ },
+ "Panasonic_DC-GX880__Panasonic_-_DC-GX880_-_4_3.RW2": {
+  "card": "Panasonic/DC-GX880",
+  "keep": true,
+  "r": 0.7957,
+  "scene": 2
+ },
+ "Panasonic_DC-GX9__gx9_16_9.RW2": {
+  "card": "Panasonic/DC-GX9",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-GX9__gx9_1_1.RW2": {
+  "card": "Panasonic/DC-GX9",
+  "keep": true,
+  "r": 0.1706,
+  "scene": 1
+ },
+ "Panasonic_DC-GX9__gx9_3_2.RW2": {
+  "card": "Panasonic/DC-GX9",
+  "keep": true,
+  "r": 0.433,
+  "scene": 2
+ },
+ "Panasonic_DC-GX9__gx9_4_3.RW2": {
+  "card": "Panasonic/DC-GX9",
+  "keep": true,
+  "r": 0.6,
+  "scene": 3
+ },
+ "Panasonic_DC-LX100M2__P1020077.RW2": {
+  "card": "Panasonic/DC-LX100M2",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-LX100M2__P1020078.RW2": {
+  "card": "Panasonic/DC-LX100M2",
+  "keep": true,
+  "r": 0.3921,
+  "scene": 1
+ },
+ "Panasonic_DC-LX100M2__P1020079.RW2": {
+  "card": "Panasonic/DC-LX100M2",
+  "keep": true,
+  "r": 0.3378,
+  "scene": 2
+ },
+ "Panasonic_DC-LX100M2__P1020080.RW2": {
+  "card": "Panasonic/DC-LX100M2",
+  "keep": true,
+  "r": 0.1427,
+  "scene": 3
+ },
+ "Panasonic_DC-S5M2X__P1055415.RW2": {
+  "card": "Panasonic/DC-S5M2X",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-S5M2X__P1055421.RW2": {
+  "card": "Panasonic/DC-S5M2X",
+  "keep": true,
+  "r": 0.4558,
+  "scene": 1
+ },
+ "Panasonic_DC-S5M2__P1126458_mechanical.RW2": {
+  "card": "Panasonic/DC-S5M2",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-S5M2__P1126460_burst_electronic.RW2": {
+  "card": "Panasonic/DC-S5M2",
+  "keep": false,
+  "r": 0.9851,
+  "scene": 0
+ },
+ "Panasonic_DC-TZ200D__TZ200D_16_9_1000230.RW2": {
+  "card": "Panasonic/DC-TZ200D",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-TZ200D__TZ200D_1_1_1000231.RW2": {
+  "card": "Panasonic/DC-TZ200D",
+  "keep": true,
+  "r": 0.7733,
+  "scene": 1
+ },
+ "Panasonic_DC-TZ200D__TZ200D_3_2_1000232.RW2": {
+  "card": "Panasonic/DC-TZ200D",
+  "keep": true,
+  "r": 0.6684,
+  "scene": 2
+ },
+ "Panasonic_DC-TZ200D__TZ200D_4_3_1000233.RW2": {
+  "card": "Panasonic/DC-TZ200D",
+  "keep": false,
+  "r": 0.909,
+  "scene": 1
+ },
+ "Panasonic_DC-TZ200__P1000416.RW2": {
+  "card": "Panasonic/DC-TZ200",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-TZ200__P1000417.RW2": {
+  "card": "Panasonic/DC-TZ200",
+  "keep": true,
+  "r": 0.5382,
+  "scene": 1
+ },
+ "Panasonic_DC-TZ200__P1000418.RW2": {
+  "card": "Panasonic/DC-TZ200",
+  "keep": true,
+  "r": 0.4315,
+  "scene": 2
+ },
+ "Panasonic_DC-TZ202__P1000582.RW2": {
+  "card": "Panasonic/DC-TZ202",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-TZ202__P1000583.RW2": {
+  "card": "Panasonic/DC-TZ202",
+  "keep": true,
+  "r": 0.1758,
+  "scene": 1
+ },
+ "Panasonic_DC-TZ202__P1000584.RW2": {
+  "card": "Panasonic/DC-TZ202",
+  "keep": true,
+  "r": 0.7997,
+  "scene": 2
+ },
+ "Panasonic_DC-TZ202__P1000585.RW2": {
+  "card": "Panasonic/DC-TZ202",
+  "keep": true,
+  "r": 0.3341,
+  "scene": 3
+ },
+ "Panasonic_DC-TZ90__P1010053.RW2": {
+  "card": "Panasonic/DC-TZ90",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-TZ90__P1010055.RW2": {
+  "card": "Panasonic/DC-TZ90",
+  "keep": false,
+  "r": 0.8542,
+  "scene": 0
+ },
+ "Panasonic_DC-TZ90__P1010058.RW2": {
+  "card": "Panasonic/DC-TZ90",
+  "keep": false,
+  "r": 0.8045,
+  "scene": 0
+ },
+ "Panasonic_DC-TZ90__P1010059.RW2": {
+  "card": "Panasonic/DC-TZ90",
+  "keep": true,
+  "r": 0.7795,
+  "scene": 1
+ },
+ "Panasonic_DC-TZ96__TZ96-16:9.RW2": {
+  "card": "Panasonic/DC-TZ96",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-TZ96__TZ96-1:1.RW2": {
+  "card": "Panasonic/DC-TZ96",
+  "keep": true,
+  "r": 0.6101,
+  "scene": 1
+ },
+ "Panasonic_DC-TZ96__TZ96-3:2.RW2": {
+  "card": "Panasonic/DC-TZ96",
+  "keep": true,
+  "r": 0.3561,
+  "scene": 2
+ },
+ "Panasonic_DC-TZ96__TZ96-4:3.RW2": {
+  "card": "Panasonic/DC-TZ96",
+  "keep": true,
+  "r": 0.3865,
+  "scene": 3
+ },
+ "Panasonic_DC-ZS200D__P1000631.RW2": {
+  "card": "Panasonic/DC-ZS200D",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DC-ZS200D__P1000632.RW2": {
+  "card": "Panasonic/DC-ZS200D",
+  "keep": true,
+  "r": 0.4794,
+  "scene": 1
+ },
+ "Panasonic_DC-ZS200D__P1000633.RW2": {
+  "card": "Panasonic/DC-ZS200D",
+  "keep": true,
+  "r": 0.313,
+  "scene": 2
+ },
+ "Panasonic_DC-ZS200D__P1000634.RW2": {
+  "card": "Panasonic/DC-ZS200D",
+  "keep": true,
+  "r": 0.3996,
+  "scene": 3
+ },
+ "Panasonic_DMC-CM1___1010508_4:3.RW2": {
+  "card": "Panasonic/DMC-CM1",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-CM1___1010509_3:2.RW2": {
+  "card": "Panasonic/DMC-CM1",
+  "keep": false,
+  "r": 0.8166,
+  "scene": 0
+ },
+ "Panasonic_DMC-CM1___1010510_16:9.RW2": {
+  "card": "Panasonic/DMC-CM1",
+  "keep": false,
+  "r": 0.81,
+  "scene": 0
+ },
+ "Panasonic_DMC-CM1___1010511_1:1.RW2": {
+  "card": "Panasonic/DMC-CM1",
+  "keep": false,
+  "r": 0.846,
+  "scene": 0
+ },
+ "Panasonic_DMC-FX150__1.1-Panasonic-DMC-FX150-1.33-P1040340.RW2": {
+  "card": "Panasonic/DMC-FX150",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-FX150__1.2-Panasonic-DMC-FX150-1.50-P1040341.RW2": {
+  "card": "Panasonic/DMC-FX150",
+  "keep": false,
+  "r": 0.8269,
+  "scene": 0
+ },
+ "Panasonic_DMC-FX150__1.3-Panasonic-DMC-FX150-1.78-P1040342.RW2": {
+  "card": "Panasonic/DMC-FX150",
+  "keep": false,
+  "r": 0.8315,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ1000__Panasonic_FZ1000_16_9.RW2": {
+  "card": "Panasonic/DMC-FZ1000",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ1000__Panasonic_FZ1000_1_1.RW2": {
+  "card": "Panasonic/DMC-FZ1000",
+  "keep": true,
+  "r": 0.7167,
+  "scene": 1
+ },
+ "Panasonic_DMC-FZ1000__Panasonic_FZ1000_3_2.RW2": {
+  "card": "Panasonic/DMC-FZ1000",
+  "keep": true,
+  "r": 0.5616,
+  "scene": 2
+ },
+ "Panasonic_DMC-FZ1000__Panasonic_FZ1000_4_3.RW2": {
+  "card": "Panasonic/DMC-FZ1000",
+  "keep": true,
+  "r": 0.534,
+  "scene": 3
+ },
+ "Panasonic_DMC-FZ100__P1080626.RW2": {
+  "card": "Panasonic/DMC-FZ100",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ100__P1080627.RW2": {
+  "card": "Panasonic/DMC-FZ100",
+  "keep": true,
+  "r": 0.3282,
+  "scene": 1
+ },
+ "Panasonic_DMC-FZ100__P1080628.RW2": {
+  "card": "Panasonic/DMC-FZ100",
+  "keep": true,
+  "r": 0.1071,
+  "scene": 2
+ },
+ "Panasonic_DMC-FZ100__P1080629.RW2": {
+  "card": "Panasonic/DMC-FZ100",
+  "keep": true,
+  "r": 0.3418,
+  "scene": 3
+ },
+ "Panasonic_DMC-FZ150__Panasonic_FZ150_16:9.RW2": {
+  "card": "Panasonic/DMC-FZ150",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ150__Panasonic_FZ150_1:1.RW2": {
+  "card": "Panasonic/DMC-FZ150",
+  "keep": true,
+  "r": 0.5994,
+  "scene": 1
+ },
+ "Panasonic_DMC-FZ150__Panasonic_FZ150_3:2.RW2": {
+  "card": "Panasonic/DMC-FZ150",
+  "keep": true,
+  "r": 0.7214,
+  "scene": 2
+ },
+ "Panasonic_DMC-FZ150__Panasonic_FZ150_4:3.RW2": {
+  "card": "Panasonic/DMC-FZ150",
+  "keep": true,
+  "r": 0.5815,
+  "scene": 3
+ },
+ "Panasonic_DMC-FZ2000___1000029.RW2": {
+  "card": "Panasonic/DMC-FZ2000",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ2000__fz2000-11.RW2": {
+  "card": "Panasonic/DMC-FZ2000",
+  "keep": false,
+  "r": 0.989,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ2000__fz2000-32.RW2": {
+  "card": "Panasonic/DMC-FZ2000",
+  "keep": false,
+  "r": 0.9915,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ2000__fz2000-43.RW2": {
+  "card": "Panasonic/DMC-FZ2000",
+  "keep": false,
+  "r": 0.9659,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ200__P1040142.RW2": {
+  "card": "Panasonic/DMC-FZ200",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ200__Panasonic_DMC-FZ200_Ratio_1-1.RW2": {
+  "card": "Panasonic/DMC-FZ200",
+  "keep": true,
+  "r": -0.0242,
+  "scene": 1
+ },
+ "Panasonic_DMC-FZ200__Panasonic_DMC-FZ200_Ratio_3-2.RW2": {
+  "card": "Panasonic/DMC-FZ200",
+  "keep": false,
+  "r": 0.9999,
+  "scene": 1
+ },
+ "Panasonic_DMC-FZ200__Panasonic_DMC-FZ200_Ratio_4-3.RW2": {
+  "card": "Panasonic/DMC-FZ200",
+  "keep": false,
+  "r": 0.9996,
+  "scene": 1
+ },
+ "Panasonic_DMC-FZ2500__P1030343.RW2": {
+  "card": "Panasonic/DMC-FZ2500",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ2500__P1030344.RW2": {
+  "card": "Panasonic/DMC-FZ2500",
+  "keep": true,
+  "r": 0.5897,
+  "scene": 1
+ },
+ "Panasonic_DMC-FZ2500__P1030345.RW2": {
+  "card": "Panasonic/DMC-FZ2500",
+  "keep": true,
+  "r": 0.5263,
+  "scene": 2
+ },
+ "Panasonic_DMC-FZ2500__P1030346.RW2": {
+  "card": "Panasonic/DMC-FZ2500",
+  "keep": true,
+  "r": 0.6634,
+  "scene": 3
+ },
+ "Panasonic_DMC-FZ28__P1120635.RW2": {
+  "card": "Panasonic/DMC-FZ28",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ28__P1120636.RW2": {
+  "card": "Panasonic/DMC-FZ28",
+  "keep": true,
+  "r": 0.577,
+  "scene": 1
+ },
+ "Panasonic_DMC-FZ28__P1120637.RW2": {
+  "card": "Panasonic/DMC-FZ28",
+  "keep": true,
+  "r": 0.7824,
+  "scene": 2
+ },
+ "Panasonic_DMC-FZ300__RAW_PANASONIC_FZ300_1-1.RW2": {
+  "card": "Panasonic/DMC-FZ300",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ300__RAW_PANASONIC_FZ300_16-9.RW2": {
+  "card": "Panasonic/DMC-FZ300",
+  "keep": true,
+  "r": 0.0649,
+  "scene": 1
+ },
+ "Panasonic_DMC-FZ300__RAW_PANASONIC_FZ300_3-2.RW2": {
+  "card": "Panasonic/DMC-FZ300",
+  "keep": true,
+  "r": -0.0735,
+  "scene": 2
+ },
+ "Panasonic_DMC-FZ300__RAW_PANASONIC_FZ300_4-3.RW2": {
+  "card": "Panasonic/DMC-FZ300",
+  "keep": true,
+  "r": 0.5161,
+  "scene": 3
+ },
+ "Panasonic_DMC-FZ330___1350161.RW2": {
+  "card": "Panasonic/DMC-FZ330",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ330___1350162.RW2": {
+  "card": "Panasonic/DMC-FZ330",
+  "keep": false,
+  "r": 0.9993,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ330___1350164.RW2": {
+  "card": "Panasonic/DMC-FZ330",
+  "keep": false,
+  "r": 0.9992,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ330___1350168.RW2": {
+  "card": "Panasonic/DMC-FZ330",
+  "keep": false,
+  "r": 0.9915,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ35__Panasonic_-_DMC-FZ35_-_16:9.RW2": {
+  "card": "Panasonic/DMC-FZ35",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ35__Panasonic_-_DMC-FZ35_-_3:2.RW2": {
+  "card": "Panasonic/DMC-FZ35",
+  "keep": false,
+  "r": 0.9795,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ35__Panasonic_-_DMC-FZ35_-_4:3.RW2": {
+  "card": "Panasonic/DMC-FZ35",
+  "keep": false,
+  "r": 0.9612,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ38__Panasonic_DMC-FZ38_-4_3.RW2": {
+  "card": "Panasonic/DMC-FZ38",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ45__Panasonic_DMC-FZ45_16:9.RW2": {
+  "card": "Panasonic/DMC-FZ45",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ45__Panasonic_DMC-FZ45_1:1.RW2": {
+  "card": "Panasonic/DMC-FZ45",
+  "keep": false,
+  "r": 0.951,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ45__Panasonic_DMC-FZ45_3:2.RW2": {
+  "card": "Panasonic/DMC-FZ45",
+  "keep": false,
+  "r": 0.9017,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ45__Panasonic_DMC-FZ45_4:3.RW2": {
+  "card": "Panasonic/DMC-FZ45",
+  "keep": false,
+  "r": 0.8909,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ72__Panasonic_FZ72_11.RW2": {
+  "card": "Panasonic/DMC-FZ72",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ72__Panasonic_FZ72_169.RW2": {
+  "card": "Panasonic/DMC-FZ72",
+  "keep": false,
+  "r": 0.8268,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ72__Panasonic_FZ72_32.RW2": {
+  "card": "Panasonic/DMC-FZ72",
+  "keep": false,
+  "r": 0.8024,
+  "scene": 0
+ },
+ "Panasonic_DMC-FZ72__Panasonic_FZ72_43.RW2": {
+  "card": "Panasonic/DMC-FZ72",
+  "keep": true,
+  "r": 0.6919,
+  "scene": 1
+ },
+ "Panasonic_DMC-G10__P1030392.RW2": {
+  "card": "Panasonic/DMC-G10",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-G10__P1030393.RW2": {
+  "card": "Panasonic/DMC-G10",
+  "keep": false,
+  "r": 0.9997,
+  "scene": 0
+ },
+ "Panasonic_DMC-G10__P1030394.RW2": {
+  "card": "Panasonic/DMC-G10",
+  "keep": false,
+  "r": 0.9996,
+  "scene": 0
+ },
+ "Panasonic_DMC-G10__P1030395.RW2": {
+  "card": "Panasonic/DMC-G10",
+  "keep": false,
+  "r": 0.9995,
+  "scene": 0
+ },
+ "Panasonic_DMC-G2__LumixG216x9.RW2": {
+  "card": "Panasonic/DMC-G2",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-G2__LumixG21x1.RW2": {
+  "card": "Panasonic/DMC-G2",
+  "keep": true,
+  "r": 0.7198,
+  "scene": 1
+ },
+ "Panasonic_DMC-G2__LumixG23x2.RW2": {
+  "card": "Panasonic/DMC-G2",
+  "keep": true,
+  "r": 0.6073,
+  "scene": 2
+ },
+ "Panasonic_DMC-G2__LumixG24x3.RW2": {
+  "card": "Panasonic/DMC-G2",
+  "keep": true,
+  "r": 0.5394,
+  "scene": 3
+ },
+ "Panasonic_DMC-G3__P1350398.RW2": {
+  "card": "Panasonic/DMC-G3",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-G3__P1350399.RW2": {
+  "card": "Panasonic/DMC-G3",
+  "keep": true,
+  "r": 0.1678,
+  "scene": 1
+ },
+ "Panasonic_DMC-G3__P1350400.RW2": {
+  "card": "Panasonic/DMC-G3",
+  "keep": true,
+  "r": 0.365,
+  "scene": 2
+ },
+ "Panasonic_DMC-G3__P1350401.RW2": {
+  "card": "Panasonic/DMC-G3",
+  "keep": true,
+  "r": 0.4305,
+  "scene": 3
+ },
+ "Panasonic_DMC-G6__Panasonic_DMC_G6_16x9.RW2": {
+  "card": "Panasonic/DMC-G6",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-G6__Panasonic_DMC_G6_1x1.RW2": {
+  "card": "Panasonic/DMC-G6",
+  "keep": false,
+  "r": 0.9995,
+  "scene": 0
+ },
+ "Panasonic_DMC-G6__Panasonic_DMC_G6_3x2.RW2": {
+  "card": "Panasonic/DMC-G6",
+  "keep": false,
+  "r": 0.9988,
+  "scene": 0
+ },
+ "Panasonic_DMC-G6__Panasonic_DMC_G6_4x3.RW2": {
+  "card": "Panasonic/DMC-G6",
+  "keep": false,
+  "r": 0.9961,
+  "scene": 0
+ },
+ "Panasonic_DMC-G70__Panasonic-DMC-G70-16_9-Kuerbis22.RW2": {
+  "card": "Panasonic/DMC-G70",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-G70__Panasonic-DMC-G70-1_1-Kuerbis22.RW2": {
+  "card": "Panasonic/DMC-G70",
+  "keep": true,
+  "r": 0.6707,
+  "scene": 1
+ },
+ "Panasonic_DMC-G70__Panasonic-DMC-G70-3_2-Kuerbis22.RW2": {
+  "card": "Panasonic/DMC-G70",
+  "keep": false,
+  "r": 0.9504,
+  "scene": 0
+ },
+ "Panasonic_DMC-G70__Panasonic-DMC-G70-4_3-Kuerbis22.RW2": {
+  "card": "Panasonic/DMC-G70",
+  "keep": false,
+  "r": 0.8802,
+  "scene": 0
+ },
+ "Panasonic_DMC-G80__P1000403.RW2": {
+  "card": "Panasonic/DMC-G80",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-G80__P1000404.RW2": {
+  "card": "Panasonic/DMC-G80",
+  "keep": false,
+  "r": 0.9999,
+  "scene": 0
+ },
+ "Panasonic_DMC-G80__P1000405.RW2": {
+  "card": "Panasonic/DMC-G80",
+  "keep": false,
+  "r": 0.9999,
+  "scene": 0
+ },
+ "Panasonic_DMC-G80__P1000406.RW2": {
+  "card": "Panasonic/DMC-G80",
+  "keep": false,
+  "r": 1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-G81__P1000128.RW2": {
+  "card": "Panasonic/DMC-G81",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-G81__P1000129.RW2": {
+  "card": "Panasonic/DMC-G81",
+  "keep": false,
+  "r": 0.9996,
+  "scene": 0
+ },
+ "Panasonic_DMC-G81__P1000130.RW2": {
+  "card": "Panasonic/DMC-G81",
+  "keep": false,
+  "r": 0.9994,
+  "scene": 0
+ },
+ "Panasonic_DMC-G81__P1000131.RW2": {
+  "card": "Panasonic/DMC-G81",
+  "keep": false,
+  "r": 0.9994,
+  "scene": 0
+ },
+ "Panasonic_DMC-G85___1030981.RW2": {
+  "card": "Panasonic/DMC-G85",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-G85___1030982.RW2": {
+  "card": "Panasonic/DMC-G85",
+  "keep": true,
+  "r": 0.0984,
+  "scene": 1
+ },
+ "Panasonic_DMC-G85___1030983.RW2": {
+  "card": "Panasonic/DMC-G85",
+  "keep": true,
+  "r": 0.0538,
+  "scene": 2
+ },
+ "Panasonic_DMC-G85___1030984.RW2": {
+  "card": "Panasonic/DMC-G85",
+  "keep": true,
+  "r": 0.0792,
+  "scene": 3
+ },
+ "Panasonic_DMC-GF1__panasonic_1-1.RW2": {
+  "card": "Panasonic/DMC-GF1",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF1__panasonic_16-9.RW2": {
+  "card": "Panasonic/DMC-GF1",
+  "keep": true,
+  "r": 0.6289,
+  "scene": 1
+ },
+ "Panasonic_DMC-GF1__panasonic_3-2.RW2": {
+  "card": "Panasonic/DMC-GF1",
+  "keep": false,
+  "r": 0.9999,
+  "scene": 1
+ },
+ "Panasonic_DMC-GF1__panasonic_4-3.RW2": {
+  "card": "Panasonic/DMC-GF1",
+  "keep": false,
+  "r": 0.996,
+  "scene": 1
+ },
+ "Panasonic_DMC-GF2__P1090462.rw2": {
+  "card": "Panasonic/DMC-GF2",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF2__P1090463.rw2": {
+  "card": "Panasonic/DMC-GF2",
+  "keep": false,
+  "r": 0.9022,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF2__P1090464.rw2": {
+  "card": "Panasonic/DMC-GF2",
+  "keep": false,
+  "r": 0.8498,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF2__P1090465.rw2": {
+  "card": "Panasonic/DMC-GF2",
+  "keep": true,
+  "r": 0.7483,
+  "scene": 1
+ },
+ "Panasonic_DMC-GF3__RAW_PANASONIC_GF3_1-1.RW2": {
+  "card": "Panasonic/DMC-GF3",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF3__RAW_PANASONIC_GF3_16-9.RW2": {
+  "card": "Panasonic/DMC-GF3",
+  "keep": false,
+  "r": 0.9493,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF3__RAW_PANASONIC_GF3_3-2.RW2": {
+  "card": "Panasonic/DMC-GF3",
+  "keep": false,
+  "r": 0.9465,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF3__RAW_PANASONIC_GF3_4-3.RW2": {
+  "card": "Panasonic/DMC-GF3",
+  "keep": false,
+  "r": 0.9192,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF5__RAW_PANASONIC_GF5_16x9.RW2": {
+  "card": "Panasonic/DMC-GF5",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF5__RAW_PANASONIC_GF5_1x1.RW2": {
+  "card": "Panasonic/DMC-GF5",
+  "keep": false,
+  "r": 0.9997,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF5__RAW_PANASONIC_GF5_3x2.RW2": {
+  "card": "Panasonic/DMC-GF5",
+  "keep": false,
+  "r": 0.999,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF5__RAW_PANASONIC_GF5_4x3.RW2": {
+  "card": "Panasonic/DMC-GF5",
+  "keep": false,
+  "r": 0.9824,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF6__P1060736_4x3.RW2": {
+  "card": "Panasonic/DMC-GF6",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF6__P1060737_3x2.RW2": {
+  "card": "Panasonic/DMC-GF6",
+  "keep": false,
+  "r": 0.9947,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF6__P1060738_16x9.RW2": {
+  "card": "Panasonic/DMC-GF6",
+  "keep": false,
+  "r": 0.9923,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF6__P1060740_1x1.RW2": {
+  "card": "Panasonic/DMC-GF6",
+  "keep": true,
+  "r": 0.7361,
+  "scene": 1
+ },
+ "Panasonic_DMC-GF7__P1040726.RW2": {
+  "card": "Panasonic/DMC-GF7",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF7__P1040727.RW2": {
+  "card": "Panasonic/DMC-GF7",
+  "keep": true,
+  "r": 0.7808,
+  "scene": 1
+ },
+ "Panasonic_DMC-GF7__P1040728.RW2": {
+  "card": "Panasonic/DMC-GF7",
+  "keep": true,
+  "r": 0.4421,
+  "scene": 2
+ },
+ "Panasonic_DMC-GF7__P1040729.RW2": {
+  "card": "Panasonic/DMC-GF7",
+  "keep": true,
+  "r": 0.5225,
+  "scene": 3
+ },
+ "Panasonic_DMC-GF8__P1190098.RW2": {
+  "card": "Panasonic/DMC-GF8",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GF8__P1190099.RW2": {
+  "card": "Panasonic/DMC-GF8",
+  "keep": true,
+  "r": 0.3594,
+  "scene": 1
+ },
+ "Panasonic_DMC-GF8__P1190100.RW2": {
+  "card": "Panasonic/DMC-GF8",
+  "keep": true,
+  "r": 0.2202,
+  "scene": 2
+ },
+ "Panasonic_DMC-GF8__P1190101.RW2": {
+  "card": "Panasonic/DMC-GF8",
+  "keep": true,
+  "r": 0.3506,
+  "scene": 3
+ },
+ "Panasonic_DMC-GH1__P1040796.RW2": {
+  "card": "Panasonic/DMC-GH1",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GH1__P1040797.RW2": {
+  "card": "Panasonic/DMC-GH1",
+  "keep": true,
+  "r": 0.0812,
+  "scene": 1
+ },
+ "Panasonic_DMC-GH1__P1040798.RW2": {
+  "card": "Panasonic/DMC-GH1",
+  "keep": true,
+  "r": 0.0789,
+  "scene": 2
+ },
+ "Panasonic_DMC-GH1__P1040799.RW2": {
+  "card": "Panasonic/DMC-GH1",
+  "keep": true,
+  "r": 0.1084,
+  "scene": 3
+ },
+ "Panasonic_DMC-GH3__P1090819.RW2": {
+  "card": "Panasonic/DMC-GH3",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GH3__P1090820.RW2": {
+  "card": "Panasonic/DMC-GH3",
+  "keep": true,
+  "r": -0.0025,
+  "scene": 1
+ },
+ "Panasonic_DMC-GH3__P1090821.RW2": {
+  "card": "Panasonic/DMC-GH3",
+  "keep": true,
+  "r": 0.2655,
+  "scene": 2
+ },
+ "Panasonic_DMC-GH3__P1090822.RW2": {
+  "card": "Panasonic/DMC-GH3",
+  "keep": true,
+  "r": 0.2986,
+  "scene": 3
+ },
+ "Panasonic_DMC-GH4__P1010607.RW2": {
+  "card": "Panasonic/DMC-GH4",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GH4__P1010608.RW2": {
+  "card": "Panasonic/DMC-GH4",
+  "keep": true,
+  "r": -0.0513,
+  "scene": 1
+ },
+ "Panasonic_DMC-GH4__P1010609.RW2": {
+  "card": "Panasonic/DMC-GH4",
+  "keep": true,
+  "r": 0.3177,
+  "scene": 2
+ },
+ "Panasonic_DMC-GH4__P1010610.RW2": {
+  "card": "Panasonic/DMC-GH4",
+  "keep": true,
+  "r": 0.4763,
+  "scene": 3
+ },
+ "Panasonic_DMC-GM1S__P1020344.RW2": {
+  "card": "Panasonic/DMC-GM1S",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GM1S__P1020345.RW2": {
+  "card": "Panasonic/DMC-GM1S",
+  "keep": true,
+  "r": 0.6037,
+  "scene": 1
+ },
+ "Panasonic_DMC-GM1S__P1020346.RW2": {
+  "card": "Panasonic/DMC-GM1S",
+  "keep": true,
+  "r": 0.5384,
+  "scene": 2
+ },
+ "Panasonic_DMC-GM1S__P1020347.RW2": {
+  "card": "Panasonic/DMC-GM1S",
+  "keep": true,
+  "r": 0.6938,
+  "scene": 3
+ },
+ "Panasonic_DMC-GM1__P1360674.RW2": {
+  "card": "Panasonic/DMC-GM1",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GM1__P1360675.RW2": {
+  "card": "Panasonic/DMC-GM1",
+  "keep": true,
+  "r": 0.0022,
+  "scene": 1
+ },
+ "Panasonic_DMC-GM1__P1360676.RW2": {
+  "card": "Panasonic/DMC-GM1",
+  "keep": true,
+  "r": 0.6769,
+  "scene": 2
+ },
+ "Panasonic_DMC-GM1__P1360677.RW2": {
+  "card": "Panasonic/DMC-GM1",
+  "keep": true,
+  "r": 0.4935,
+  "scene": 3
+ },
+ "Panasonic_DMC-GM5__P1080762.RW2": {
+  "card": "Panasonic/DMC-GM5",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GM5__P1080764.RW2": {
+  "card": "Panasonic/DMC-GM5",
+  "keep": false,
+  "r": 0.9951,
+  "scene": 0
+ },
+ "Panasonic_DMC-GM5__P1080766.RW2": {
+  "card": "Panasonic/DMC-GM5",
+  "keep": false,
+  "r": 0.9957,
+  "scene": 0
+ },
+ "Panasonic_DMC-GM5__P1080768.RW2": {
+  "card": "Panasonic/DMC-GM5",
+  "keep": false,
+  "r": 0.9847,
+  "scene": 0
+ },
+ "Panasonic_DMC-GX7MK2__P1010411.RW2": {
+  "card": "Panasonic/DMC-GX7MK2",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GX7MK2__P1010412.RW2": {
+  "card": "Panasonic/DMC-GX7MK2",
+  "keep": true,
+  "r": 0.2678,
+  "scene": 1
+ },
+ "Panasonic_DMC-GX7MK2__P1010413.RW2": {
+  "card": "Panasonic/DMC-GX7MK2",
+  "keep": true,
+  "r": 0.603,
+  "scene": 2
+ },
+ "Panasonic_DMC-GX7MK2__P1010414.RW2": {
+  "card": "Panasonic/DMC-GX7MK2",
+  "keep": true,
+  "r": 0.4139,
+  "scene": 3
+ },
+ "Panasonic_DMC-GX7__RAW_PANASONIC_DMC-GX-7_11.RW2": {
+  "card": "Panasonic/DMC-GX7",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GX7__RAW_PANASONIC_DMC-GX-7_169.RW2": {
+  "card": "Panasonic/DMC-GX7",
+  "keep": false,
+  "r": 1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GX7__RAW_PANASONIC_DMC-GX-7_32.RW2": {
+  "card": "Panasonic/DMC-GX7",
+  "keep": false,
+  "r": 1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GX7__RAW_PANASONIC_DMC-GX-7_43.RW2": {
+  "card": "Panasonic/DMC-GX7",
+  "keep": false,
+  "r": 0.9998,
+  "scene": 0
+ },
+ "Panasonic_DMC-GX80__P1010041.RW2": {
+  "card": "Panasonic/DMC-GX80",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GX80__P1010042.RW2": {
+  "card": "Panasonic/DMC-GX80",
+  "keep": true,
+  "r": 0.5133,
+  "scene": 1
+ },
+ "Panasonic_DMC-GX80__P1010043.RW2": {
+  "card": "Panasonic/DMC-GX80",
+  "keep": true,
+  "r": 0.6398,
+  "scene": 2
+ },
+ "Panasonic_DMC-GX80__P1010044.RW2": {
+  "card": "Panasonic/DMC-GX80",
+  "keep": true,
+  "r": 0.6242,
+  "scene": 3
+ },
+ "Panasonic_DMC-GX85__Panasonic_-_DMC-GX85_-_16:9.RW2": {
+  "card": "Panasonic/DMC-GX85",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GX85__Panasonic_-_DMC-GX85_-_1:1.RW2": {
+  "card": "Panasonic/DMC-GX85",
+  "keep": false,
+  "r": 0.9972,
+  "scene": 0
+ },
+ "Panasonic_DMC-GX85__Panasonic_-_DMC-GX85_-_3:2.RW2": {
+  "card": "Panasonic/DMC-GX85",
+  "keep": false,
+  "r": 0.9974,
+  "scene": 0
+ },
+ "Panasonic_DMC-GX85__Panasonic_-_DMC-GX85_-_4:3.RW2": {
+  "card": "Panasonic/DMC-GX85",
+  "keep": false,
+  "r": 0.992,
+  "scene": 0
+ },
+ "Panasonic_DMC-GX8__P1020809.RW2": {
+  "card": "Panasonic/DMC-GX8",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-GX8__P1020810.RW2": {
+  "card": "Panasonic/DMC-GX8",
+  "keep": false,
+  "r": 0.9996,
+  "scene": 0
+ },
+ "Panasonic_DMC-GX8__P1020811.RW2": {
+  "card": "Panasonic/DMC-GX8",
+  "keep": false,
+  "r": 0.9994,
+  "scene": 0
+ },
+ "Panasonic_DMC-GX8__P1020812.RW2": {
+  "card": "Panasonic/DMC-GX8",
+  "keep": false,
+  "r": 0.9991,
+  "scene": 0
+ },
+ "Panasonic_DMC-LF1__RAW_PANASONIC_DMC_LF1.RW2": {
+  "card": "Panasonic/DMC-LF1",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-LF1__image-20170106_111000-1.rw2": {
+  "card": "Panasonic/DMC-LF1",
+  "keep": true,
+  "r": -0.2758,
+  "scene": 1
+ },
+ "Panasonic_DMC-LX100__Lumix_DMC-LX100_1.RW2": {
+  "card": "Panasonic/DMC-LX100",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-LX100__Lumix_DMC-LX100_2.RW2": {
+  "card": "Panasonic/DMC-LX100",
+  "keep": true,
+  "r": 0.4454,
+  "scene": 1
+ },
+ "Panasonic_DMC-LX100__Lumix_DMC-LX100_3.RW2": {
+  "card": "Panasonic/DMC-LX100",
+  "keep": true,
+  "r": 0.4481,
+  "scene": 2
+ },
+ "Panasonic_DMC-LX100__Lumix_DMC-LX100_4.RW2": {
+  "card": "Panasonic/DMC-LX100",
+  "keep": true,
+  "r": 0.614,
+  "scene": 3
+ },
+ "Panasonic_DMC-LX10__pana_DMC-LX10_16x19.RW2": {
+  "card": "Panasonic/DMC-LX10",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-LX10__pana_DMC-LX10_1x1.RW2": {
+  "card": "Panasonic/DMC-LX10",
+  "keep": true,
+  "r": 0.6839,
+  "scene": 1
+ },
+ "Panasonic_DMC-LX10__pana_DMC-LX10_3x2.RW2": {
+  "card": "Panasonic/DMC-LX10",
+  "keep": true,
+  "r": 0.1354,
+  "scene": 2
+ },
+ "Panasonic_DMC-LX10__pana_DMC-LX10_4x3.RW2": {
+  "card": "Panasonic/DMC-LX10",
+  "keep": true,
+  "r": -0.0089,
+  "scene": 3
+ },
+ "Panasonic_DMC-LX15__P1000926_3_by_2.RW2": {
+  "card": "Panasonic/DMC-LX15",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-LX15__P1000927_4_by_3.RW2": {
+  "card": "Panasonic/DMC-LX15",
+  "keep": true,
+  "r": 0.2268,
+  "scene": 1
+ },
+ "Panasonic_DMC-LX15__P1000928_16_by_9.RW2": {
+  "card": "Panasonic/DMC-LX15",
+  "keep": true,
+  "r": 0.4519,
+  "scene": 2
+ },
+ "Panasonic_DMC-LX15__P1000929_1_by_1.RW2": {
+  "card": "Panasonic/DMC-LX15",
+  "keep": true,
+  "r": 0.6069,
+  "scene": 3
+ },
+ "Panasonic_DMC-LX3__Lumix_LX3_16_9.rw2": {
+  "card": "Panasonic/DMC-LX3",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-LX3__Lumix_LX3_3_2.rw2": {
+  "card": "Panasonic/DMC-LX3",
+  "keep": true,
+  "r": 0.6439,
+  "scene": 1
+ },
+ "Panasonic_DMC-LX3__Lumix_LX3_4_3.rw2": {
+  "card": "Panasonic/DMC-LX3",
+  "keep": true,
+  "r": 0.6483,
+  "scene": 2
+ },
+ "Panasonic_DMC-LX3__P1010600.RW2": {
+  "card": "Panasonic/DMC-LX3",
+  "keep": true,
+  "r": -0.1968,
+  "scene": 3
+ },
+ "Panasonic_DMC-LX5__LX5-16_9.rw2": {
+  "card": "Panasonic/DMC-LX5",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-LX5__LX5-1_1.rw2": {
+  "card": "Panasonic/DMC-LX5",
+  "keep": false,
+  "r": 0.8036,
+  "scene": 0
+ },
+ "Panasonic_DMC-LX5__LX5-3_2.rw2": {
+  "card": "Panasonic/DMC-LX5",
+  "keep": false,
+  "r": 0.9316,
+  "scene": 0
+ },
+ "Panasonic_DMC-LX5__LX5-4_3.rw2": {
+  "card": "Panasonic/DMC-LX5",
+  "keep": false,
+  "r": 0.8909,
+  "scene": 0
+ },
+ "Panasonic_DMC-LX7__1-1.RW2": {
+  "card": "Panasonic/DMC-LX7",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-LX7__16-9.RW2": {
+  "card": "Panasonic/DMC-LX7",
+  "keep": false,
+  "r": 0.9128,
+  "scene": 0
+ },
+ "Panasonic_DMC-LX7__3-2.RW2": {
+  "card": "Panasonic/DMC-LX7",
+  "keep": true,
+  "r": 0.5024,
+  "scene": 1
+ },
+ "Panasonic_DMC-LX7__4-3.RW2": {
+  "card": "Panasonic/DMC-LX7",
+  "keep": true,
+  "r": 0.4653,
+  "scene": 2
+ },
+ "Panasonic_DMC-TZ100__PanasonicTZ100_AR1-1_1000360.rw2": {
+  "card": "Panasonic/DMC-TZ100",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-TZ100__PanasonicTZ100_AR16-9_1000359.rw2": {
+  "card": "Panasonic/DMC-TZ100",
+  "keep": false,
+  "r": 0.9859,
+  "scene": 0
+ },
+ "Panasonic_DMC-TZ100__PanasonicTZ100_AR3-2_1000357.rw2": {
+  "card": "Panasonic/DMC-TZ100",
+  "keep": false,
+  "r": 0.939,
+  "scene": 0
+ },
+ "Panasonic_DMC-TZ100__PanasonicTZ100_AR4-3_1000358.rw2": {
+  "card": "Panasonic/DMC-TZ100",
+  "keep": false,
+  "r": 0.9609,
+  "scene": 0
+ },
+ "Panasonic_DMC-TZ110__P1000488.RW2": {
+  "card": "Panasonic/DMC-TZ110",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-TZ110__P1000489.RW2": {
+  "card": "Panasonic/DMC-TZ110",
+  "keep": true,
+  "r": -0.1533,
+  "scene": 1
+ },
+ "Panasonic_DMC-TZ110__P1000490.RW2": {
+  "card": "Panasonic/DMC-TZ110",
+  "keep": true,
+  "r": 0.3666,
+  "scene": 2
+ },
+ "Panasonic_DMC-TZ110__P1000491.RW2": {
+  "card": "Panasonic/DMC-TZ110",
+  "keep": true,
+  "r": 0.6577,
+  "scene": 3
+ },
+ "Panasonic_DMC-TZ60__P1010281.RW2": {
+  "card": "Panasonic/DMC-TZ60",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-TZ60__P1010792.RW2": {
+  "card": "Panasonic/DMC-TZ60",
+  "keep": true,
+  "r": -0.1742,
+  "scene": 1
+ },
+ "Panasonic_DMC-TZ61__P1000165_aspect_ratio_4_3.RW2": {
+  "card": "Panasonic/DMC-TZ61",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-TZ61__P1000166_aspect_ratio_3_2.RW2": {
+  "card": "Panasonic/DMC-TZ61",
+  "keep": true,
+  "r": 0.4741,
+  "scene": 1
+ },
+ "Panasonic_DMC-TZ61__P1000167_aspect_ratio_16_9.RW2": {
+  "card": "Panasonic/DMC-TZ61",
+  "keep": true,
+  "r": 0.5135,
+  "scene": 2
+ },
+ "Panasonic_DMC-TZ61__P1000168_aspect_ratio_1_1.RW2": {
+  "card": "Panasonic/DMC-TZ61",
+  "keep": true,
+  "r": 0.6212,
+  "scene": 3
+ },
+ "Panasonic_DMC-TZ70__raw_panasonic_dmc_tz70_aspect_16_9.RW2": {
+  "card": "Panasonic/DMC-TZ70",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-TZ70__raw_panasonic_dmc_tz70_aspect_1_1.RW2": {
+  "card": "Panasonic/DMC-TZ70",
+  "keep": false,
+  "r": 0.8884,
+  "scene": 0
+ },
+ "Panasonic_DMC-TZ70__raw_panasonic_dmc_tz70_aspect_3_2.RW2": {
+  "card": "Panasonic/DMC-TZ70",
+  "keep": true,
+  "r": 0.638,
+  "scene": 1
+ },
+ "Panasonic_DMC-TZ70__raw_panasonic_dmc_tz70_aspect_4_3.RW2": {
+  "card": "Panasonic/DMC-TZ70",
+  "keep": true,
+  "r": 0.7194,
+  "scene": 2
+ },
+ "Panasonic_DMC-TZ71__RAW_PANASONIC_DMC_TZ71_1-1.RW2": {
+  "card": "Panasonic/DMC-TZ71",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-TZ71__RAW_PANASONIC_DMC_TZ71_16-9.RW2": {
+  "card": "Panasonic/DMC-TZ71",
+  "keep": false,
+  "r": 0.8538,
+  "scene": 0
+ },
+ "Panasonic_DMC-TZ71__RAW_PANASONIC_DMC_TZ71_3-2.RW2": {
+  "card": "Panasonic/DMC-TZ71",
+  "keep": true,
+  "r": 0.687,
+  "scene": 1
+ },
+ "Panasonic_DMC-TZ71__RAW_PANASONIC_DMC_TZ71_4-3.RW2": {
+  "card": "Panasonic/DMC-TZ71",
+  "keep": true,
+  "r": 0.7426,
+  "scene": 2
+ },
+ "Panasonic_DMC-TZ80__P1010762.RW2": {
+  "card": "Panasonic/DMC-TZ80",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-TZ80__P1010763.RW2": {
+  "card": "Panasonic/DMC-TZ80",
+  "keep": true,
+  "r": 0.5095,
+  "scene": 1
+ },
+ "Panasonic_DMC-TZ80__P1010764.RW2": {
+  "card": "Panasonic/DMC-TZ80",
+  "keep": true,
+  "r": 0.4302,
+  "scene": 2
+ },
+ "Panasonic_DMC-TZ80__P1010765.RW2": {
+  "card": "Panasonic/DMC-TZ80",
+  "keep": true,
+  "r": 0.6529,
+  "scene": 3
+ },
+ "Panasonic_DMC-TZ81__P1010554.RW2": {
+  "card": "Panasonic/DMC-TZ81",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-TZ81__P1010555.RW2": {
+  "card": "Panasonic/DMC-TZ81",
+  "keep": false,
+  "r": 0.9926,
+  "scene": 0
+ },
+ "Panasonic_DMC-TZ81__P1010556.RW2": {
+  "card": "Panasonic/DMC-TZ81",
+  "keep": false,
+  "r": 0.9924,
+  "scene": 0
+ },
+ "Panasonic_DMC-TZ81__P1010557.RW2": {
+  "card": "Panasonic/DMC-TZ81",
+  "keep": false,
+  "r": 0.9447,
+  "scene": 0
+ },
+ "Panasonic_DMC-ZS100__P1010048.RW2": {
+  "card": "Panasonic/DMC-ZS100",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Panasonic_DMC-ZS100__P1010049.RW2": {
+  "card": "Panasonic/DMC-ZS100",
+  "keep": false,
+  "r": 0.995,
+  "scene": 0
+ },
+ "Panasonic_DMC-ZS100__P1010050.RW2": {
+  "card": "Panasonic/DMC-ZS100",
+  "keep": false,
+  "r": 0.9903,
+  "scene": 0
+ },
+ "Panasonic_DMC-ZS100__P1010051.RW2": {
+  "card": "Panasonic/DMC-ZS100",
+  "keep": false,
+  "r": 0.9904,
+  "scene": 0
+ },
+ "Sony_DSC-RX100M6__sony_rx100m6_arw-compressed_16:9.arw": {
+  "card": "Sony/DSC-RX100M6",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Sony_DSC-RX100M6__sony_rx100m6_arw-compressed_1:1.arw": {
+  "card": "Sony/DSC-RX100M6",
+  "keep": false,
+  "r": 0.9992,
+  "scene": 0
+ },
+ "Sony_DSC-RX100M6__sony_rx100m6_arw-compressed_3:2.arw": {
+  "card": "Sony/DSC-RX100M6",
+  "keep": false,
+  "r": 0.9866,
+  "scene": 0
+ },
+ "Sony_DSC-RX100M6__sony_rx100m6_arw-compressed_4:3.arw": {
+  "card": "Sony/DSC-RX100M6",
+  "keep": false,
+  "r": 1.0,
+  "scene": 0
+ },
+ "Sony_ILCE-6300__AST05226.ARW": {
+  "card": "Sony/ILCE-6300",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Sony_ILCE-6300__DDL06913.ARW": {
+  "card": "Sony/ILCE-6300",
+  "keep": true,
+  "r": -0.1003,
+  "scene": 1
+ },
+ "Sony_ILCE-6400__DSC00087.ARW": {
+  "card": "Sony/ILCE-6400",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Sony_ILCE-6400__DSC00475.ARW": {
+  "card": "Sony/ILCE-6400",
+  "keep": true,
+  "r": -0.1731,
+  "scene": 1
+ },
+ "Sony_ILCE-6500___DSC6914.ARW": {
+  "card": "Sony/ILCE-6500",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Sony_ILCE-6500___DSC6916.ARW": {
+  "card": "Sony/ILCE-6500",
+  "keep": false,
+  "r": 0.9958,
+  "scene": 0
+ },
+ "Sony_ILCE-7M2__SONY_ILCE-7M2_daylight.arw": {
+  "card": "Sony/ILCE-7M2",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Sony_ILCE-7M2__SONY_ILCE-7M2_tungsten.arw": {
+  "card": "Sony/ILCE-7M2",
+  "keep": true,
+  "r": 0.079,
+  "scene": 1
+ },
+ "Sony_ILCE-7M3___DSC0009.ARW": {
+  "card": "Sony/ILCE-7M3",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Sony_ILCE-7M3___DSC0010.ARW": {
+  "card": "Sony/ILCE-7M3",
+  "keep": false,
+  "r": 0.916,
+  "scene": 0
+ },
+ "Sony_ILCE-7M4__ILCE-7M4_DSC06675_FullFrame-LossLess-Compressed-Medium.ARW": {
+  "card": "Sony/ILCE-7M4",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Sony_ILCE-7M4__ILCE-7M4_DSC06676_FullFrame-LossLess-Compressed-Small.ARW": {
+  "card": "Sony/ILCE-7M4",
+  "keep": true,
+  "r": 0.3523,
+  "scene": 1
+ },
+ "Sony_ILCE-7M4__ILCE-7M4_DSC06677_FullFrame-Raw-Compressed.ARW": {
+  "card": "Sony/ILCE-7M4",
+  "keep": true,
+  "r": 0.1606,
+  "scene": 2
+ },
+ "Sony_ILCE-7M4__ILCE-7M4_DSC06678_APS-C-Raw-Uncompressed.ARW": {
+  "card": "Sony/ILCE-7M4",
+  "keep": true,
+  "r": 0.1921,
+  "scene": 3
+ },
+ "Sony_ILCE-7RM5__7RM5-LosslessCompressedSmall.ARW": {
+  "card": "Sony/ILCE-7RM5",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Sony_ILCE-7RM5__7RM5-S35-LosslessCompressedMedium.ARW": {
+  "card": "Sony/ILCE-7RM5",
+  "keep": true,
+  "r": 0.7366,
+  "scene": 1
+ },
+ "Sony_ILCE-7RM5__7RM5-S35-LosslessCompressedSmall.ARW": {
+  "card": "Sony/ILCE-7RM5",
+  "keep": false,
+  "r": 0.8479,
+  "scene": 0
+ },
+ "Sony_ILCE-7RM5__7RM5-S35-LossyCompressed.ARW": {
+  "card": "Sony/ILCE-7RM5",
+  "keep": true,
+  "r": 0.7929,
+  "scene": 2
+ },
+ "Sony_ILCE-7SM3__DSC01568.ARW": {
+  "card": "Sony/ILCE-7SM3",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Sony_ILCE-7SM3__DSC01569.ARW": {
+  "card": "Sony/ILCE-7SM3",
+  "keep": true,
+  "r": 0.3775,
+  "scene": 1
+ },
+ "Sony_ILCE-7S__DSC04125.ARW": {
+  "card": "Sony/ILCE-7S",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Sony_ILCE-7S__DSC04126.ARW": {
+  "card": "Sony/ILCE-7S",
+  "keep": true,
+  "r": 0.6659,
+  "scene": 1
+ },
+ "Sony_ILCE-9M2__SONY_A9II_(ILCE-9M2)_-_compressed_(3:2)_12bit.ARW": {
+  "card": "Sony/ILCE-9M2",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Sony_ILCE-9M2__SONY_A9II_(ILCE-9M2)_-_compressed_(3:2)_14bit.ARW": {
+  "card": "Sony/ILCE-9M2",
+  "keep": true,
+  "r": -0.0065,
+  "scene": 1
+ }
+}

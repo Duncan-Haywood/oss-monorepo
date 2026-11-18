@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtGbiWGJYLDG8udH4k3",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T00:06:51Z",
+  "ended": "2026-11-18T00:09:31Z",
+  "wall_minutes": 2.89,
+  "tokens_in": 2012165,
+  "tokens_out": 11591,
+  "cost_usd": 1.1392,
+  "tool_calls": 28,
+  "task": "process critique: doc_friction on quality_audit.py sample vs mode",
+  "projects": [
+    "platform/ci",
+    "portfolio/quality"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17109",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Backlog held only owner rows again (13 open, all owner or blocked), so the run went straight to Critique; the quality-prompt friction cluster was the top live one but its natural fix (prompts/quality/prompt-0.md) is owner-held, so the fix had to go into the tool."
+    },
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "The 2026-11-14 NOTE fix for the same clash was recorded as done, but five runs on 2026-11-17 still reported it; nothing flagged that a fixed friction kept recurring."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-a-note-above-the-draw-was-not-enough.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (no agent-owned backlog item). Lens: recent doc_friction. Five quality runs on 2026-11-17 reported sample printing a draw under a one-line mode NOTE. quality_audit.py sample now withholds the draw on a non-sample day and prints the mode's command and post name (--anyway/--seed/--json still draw). Verification: cd platform/ci && python3 -m unittest test_quality_audit -> 19 tests OK; main_health.py -> 268/268 checks pass; check_post_frontmatter ok. Metric: quality-track doc_friction about sample-vs-mode from 2026-11-18 on. No backlog ids touched (prompts/process/backlog is owner-held).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0097f34d-15df-5b00-b19b-175225fe63be",
+    "transcripts": 1,
+    "first": "2026-11-18T00:06:51Z",
+    "last": "2026-11-18T00:09:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 27,
+        "input": 53,
+        "output": 11591,
+        "thinking": 1875,
+        "cache_read": 1947399,
+        "cache_write_5m": 0,
+        "cache_write_1h": 64713,
+        "api_equivalent_usd": 1.1392,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 53,
+      "output": 11591,
+      "thinking": 1875,
+      "cache_read": 1947399,
+      "cache_write_5m": 0,
+      "cache_write_1h": 64713,
+      "api_equivalent_usd": 1.1392,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 28,
+    "tools": {
+      "Bash": 26,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.89,
+      "active_minutes": 2.89,
+      "model_minutes": 2.55,
+      "tool_minutes": 0.34,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "read 5 friction reports, change a CLI path with 2 tests, a README note and a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 131.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

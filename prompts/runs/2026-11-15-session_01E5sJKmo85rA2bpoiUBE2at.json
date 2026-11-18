@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKmo85rA2bpoiUBE2at",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T08:09:27Z",
+  "ended": "2026-11-15T08:29:38Z",
+  "wall_minutes": 26.86,
+  "tokens_in": 8311843,
+  "tokens_out": 46145,
+  "cost_usd": 3.5924,
+  "tool_calls": 79,
+  "task": "perf: next item from the 2026-11-15 pages-build not-changed list (metaContent memo); found the cost in the content= regex instead",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16151",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "First full platform/pages suite run had 2 failures in build.test.mjs because I wrote the post and history doc under docs/ while it ran (the test names this cause); build.test.mjs re-run on an unedited tree: 313/313.",
+    "A first synthetic V8 repro built 100,000 separate 120 kB strings and ran out of memory; rewritten to slice 100 tags from each of 1,000 pages."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/history/pages-build-perf-2026-11-15-writing-sync-writes.md",
+      "issue": "Not-changed item 2 blamed metaContent's one-slot memo for about 2 s; the memo was worth nothing measurable. The time was the content= regex's /i backreference on two-byte strings. Line-level positionTicks found it; per-function totals did not."
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both perf backlog items (P063, P064) are still owner-gated, as three earlier runs reported; step 1 is a no-op until the owner acts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "No ci_profile.py reading this run; the previous perf run took one about 2 hours earlier, and the next not-changed item was already ranked.",
+      "did": "Went straight to the listed item and measured the share step on 9,983 captured pages.",
+      "result": "Found and fixed a hot regex; the CI effect is left to the next reading."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-one-em-dash-made-a-regex-twenty-times-slower.md",
+    "docs/history/pages-build-perf-2026-11-15-meta-content-backreference.md"
+  ],
+  "goal": null,
+  "notes": "Metric: shareTagsFor over all 9,983 pages of one full build (inputs captured with a temporary hook, removed before commit), 4 rounds per process, outputs hashed. Before: 3.83-4.79 s (16 rounds). After: 2.40-2.86 s (8 rounds). Same sha256 digest 8b4c0fefe9c75876. Isolated regex over 117,458 real tags: 462-513 ms before, 15-24 ms after. Synthetic repro (Node 22.23.4, 100k tags): backref /i 412 ms on two-byte slices vs 21.6 ms one-byte; alternatives 21.2 ms. Full build, warm card cache, interleaved new/old/new/old: new 47.4 and 55.1 s, old 53.9 and 61.0 s (the container drifted slower over the runs). Full-build diff -rq over 29,463 files: only version.json differs. Tests: share.test.mjs 31/31; full platform/pages suite 1658 pass / 26 skip / 2 fail (both caused by my mid-run docs edits, as the test message says); build.test.mjs re-run 313/313. CI on the PR: Pages build and check green at the time of writing. Tried and dropped: keeping the meta memo in step across setContent edits (no measurable gain once the regex was fixed).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "134e0392-bd4e-53c9-82da-c4f94625ba32",
+    "transcripts": 1,
+    "first": "2026-11-15T08:09:27Z",
+    "last": "2026-11-15T08:36:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 144,
+        "output": 46145,
+        "thinking": 13245,
+        "cache_read": 8182651,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129048,
+        "api_equivalent_usd": 3.5924,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 144,
+      "output": 46145,
+      "thinking": 13245,
+      "cache_read": 8182651,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129048,
+      "api_equivalent_usd": 3.5924,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 65,
+      "Monitor": 6,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.86,
+      "active_minutes": 26.86,
+      "model_minutes": 8.85,
+      "tool_minutes": 18.01,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "profiling a build step, isolating a V8 regex slowdown with a repro, equivalence argument and full-build diff, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 111.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

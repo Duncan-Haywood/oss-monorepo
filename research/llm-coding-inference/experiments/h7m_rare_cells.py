@@ -15,6 +15,8 @@ sys.path.insert(0, str(HERE.parent))
 import h3_llm_width as H3  # noqa: E402
 import h7l_fixed_lambda as L  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
+A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 REPS = int(ARGS[0]) if ARGS else 500
 SEED = 20261103

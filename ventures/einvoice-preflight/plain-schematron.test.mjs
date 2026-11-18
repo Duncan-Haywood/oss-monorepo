@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import { runPlain, plainAvailable } from "./plain-node.mjs";
-import { createPlainRunner } from "./plain-schematron.mjs";
+import { createPlainRunner, specNormalizeSpace, xmlWhitespaceRewrite } from "./plain-schematron.mjs";
 import { runSchematron, schematronAvailable } from "./schematron.mjs";
 import { hasSpecificFix } from "./schematron-fixes.mjs";
 
@@ -72,6 +72,55 @@ test("a failed money equation is cleared when it is only floating-point noise", 
   assert.deepEqual(out.map((f) => f.rule), ["REAL", "OR"], "0.1+0.2=0.3 is noise; a real cent is not; a compound test is left alone");
 });
 
+test("normalize-space and \\s patterns are rewritten to XML whitespace, strings and names left alone", () => {
+  const NS = "Q{urn:einvoice-preflight:xml-whitespace}normalize-space";
+  assert.equal(xmlWhitespaceRewrite("normalize-space(cbc:ID) = 'VAT'"), `${NS}(cbc:ID) = 'VAT'`);
+  assert.equal(xmlWhitespaceRewrite("string-length(fn:normalize-space( )) > 0"), `string-length(${NS}(.)) > 0`);
+  assert.equal(xmlWhitespaceRewrite("replace(cbc:ID, '([ \\n\\r\\t\\s])', '')"), "replace(cbc:ID, '([ \\n\\r\\t \\t\\n\\r])', '')");
+  assert.equal(xmlWhitespaceRewrite("tokenize('49 59', '\\s')"), "tokenize('49 59', '[ \\t\\n\\r]')");
+  assert.equal(xmlWhitespaceRewrite("replace(x, '\\S+', '\\s')"), "replace(x, '[^ \\t\\n\\r]+', '\\s')", "only the pattern argument");
+  for (const same of ["matches(., '\\s')", "tokenize(., '\\|')", "concat('normalize-space(', x)", "my-normalize-space(x)", "x (: normalize-space( :) = 1"]) assert.equal(xmlWhitespaceRewrite(same), same);
+  assert.equal(specNormalizeSpace("\u00A0 a \t\n b\u00A0 "), "\u00A0 a b\u00A0");
+  assert.equal(specNormalizeSpace(null), "");
+});
+
+test("a no-break space is a character, not whitespace, as Saxon reads it", { skip }, () => {
+  const req = createRequire(import.meta.url);
+  const runner = createPlainRunner({ fontoxpath: req("fontoxpath"), parseXml: () => ({}) });
+  const check = (id, test) => ({ kind: "assert", id, flag: "warning", test, text: `[${id}]-w` });
+  const rules = { ns: {}, prolog: "", patterns: [{ id: "p", rules: [{ context: "v[normalize-space(.) != '']", checks: [
+    check("NL-VAT", "matches(normalize-space(), '^NL[0-9]{9}B[0-9]{2}$')"),
+    check("IBAN", "string-length(replace(., '\\s', '')) = 14"),
+  ] }] }] };
+  const doc = req("slimdom").parseXmlDocument("<a><v>NL123456782B01&#160;</v><v> NL123456782B01\t</v><v>&#160;</v></a>");
+  const out = runner.runRules(rules, doc);
+  assert.deepEqual(out.map((f) => `${f.rule} ${f.path}`), ["NL-VAT /a[1]/v[1]", "IBAN /a[1]/v[1]", "NL-VAT /a[1]/v[3]", "IBAN /a[1]/v[3]"], "the trailing U+00A0 stays; XML whitespace is trimmed; a lone U+00A0 is not empty");
+  const old = createPlainRunner({ fontoxpath: req("fontoxpath"), parseXml: () => ({}), xmlWhitespace: false }).runRules(rules, doc);
+  assert.deepEqual([...old], [], "fontoxpath's own normalize-space and \\s take U+00A0");
+});
+
+test("a number or date with a no-break space is XML-VALUE-01, where Saxon stops on the file", { skip }, async () => {
+  const xml = read("peppol-credit-note.xml");
+  const clean = await runPlain(xml);
+  assert.ok(!clean.findings.some((f) => f.rule === "XML-VALUE-01"));
+  assert.ok(!("castFailed" in clean));
+  const cases = [
+    [xml.replace(/(<cbc:PayableAmount[^>]*>)/, "$1\u00A0"), "/CreditNote[1]/LegalMonetaryTotal[1]/PayableAmount[1]"],
+    [xml.replace(/(<cbc:PayableAmount[^>]*>[^<]+)/, "$1&#160;"), "/CreditNote[1]/LegalMonetaryTotal[1]/PayableAmount[1]"],
+    [xml.replace(/(<cbc:Percent>[^<]+)/, "$1\u202F"), "/CreditNote[1]/TaxTotal[1]/TaxSubtotal[1]/TaxCategory[1]/Percent[1]"],
+  ];
+  for (const [mutant, path] of cases) {
+    const r = await runPlain(mutant);
+    const f = r.findings.filter((x) => x.rule === "XML-VALUE-01");
+    assert.deepEqual(f.map((x) => [x.path, x.severity, x.source]), [[path, "fatal", "en16931-schematron"]], path);
+    assert.match(f[0].message, /U\+(00A0|202F)/);
+    assert.ok(!("castFailed" in r));
+  }
+  // A name with a no-break space is text, not a cast: nothing to report.
+  const name = await runPlain(xml.replace(/(<cbc:RegistrationName>[^<]+)/, "$1\u00A0"));
+  assert.ok(!name.findings.some((x) => x.rule === "XML-VALUE-01"));
+});
+
 // ---- the compiler -------------------------------------------------------------------
 const compileReady = (() => { try { createRequire(import.meta.url)("slimdom"); return true; } catch { return false; } })();
 
@@ -107,6 +156,35 @@ test("compiler: rewrites xsl:function as XQuery and refuses what it cannot trans
   assert.equal(r.patterns[0].rules[0].checks[0].xq, true);
   await assert.rejects(compileText({ "main.sch": SCH(`<pattern abstract="true" id="p"><rule context="/a"><assert test="true()">x</assert></rule></pattern>`) }), /abstract patterns/);
   await assert.rejects(compileText({ "main.sch": SCH(`<pattern id="p"><rule context="/a"><extends rule="r"/></rule></pattern>`) }), /unsupported <extends>/);
+});
+
+test("compiler: XSLT scoping that FNFE-MPE's BR-FR rules rely on", { skip: skip || (!compileReady && "slimdom") }, async () => {
+  const r = await compileText({
+    "main.sch": SCH(`<ns prefix="c" uri="urn:c"/>
+      <x:function name="c:in-list" as="xs:boolean"><x:param name="v" as="xs:string?"/><x:variable name="c:codes" select="'A B'"/><x:sequence select="$v = tokenize($c:codes, ' ')"/></x:function>
+      <pattern id="p1"><let name="docId" value="/r/@id"/><rule context="/r"><assert id="L-1" test="c:in-list(@code)">[L-1]-code</assert></rule></pattern>
+      <pattern id="p2"><rule context="g"><assert id="L-2" test="@ref = $docId">[L-2]-ref</assert></rule></pattern>
+      <pattern id="p3"><rule context="g">
+        <let name="cur" value="../@cur"/><let name="gid" value="@id"/>
+        <let name="sum" value="sum(../i[@parent = $gid]/@n)"/>
+        <assert id="L-3" test="@n = $sum">[L-3]-sum</assert>
+        <assert id="L-4" test="exists(t[@cur = $cur])">[L-4]-cur</assert>
+        <assert id="L-5" test="$cur = 'EUR'">[L-5]-eur</assert></rule></pattern>`),
+  });
+  // a prefixed local variable is renamed (fontoxpath has no namespaced let)
+  assert.match(r.prolog, /let \$c_codes := \('A B'\) return \(\$v = tokenize\(\$c_codes, ' '\)\)/);
+  const checks = Object.fromEntries(r.patterns.flatMap((p) => p.rules.flatMap((x) => x.checks)).map((c) => [c.id, c.test]));
+  assert.match(checks["L-2"], /\/r\/@id/, "a later pattern reads an earlier pattern's let, as the ISO skeleton's top-level variable");
+  assert.match(checks["L-3"], /^let \$gid := \(@id\) return let \$sum := /, "a let read inside another let's predicate is bound at the context node");
+  assert.match(checks["L-4"], /^let \$cur := \(\.\.\/@cur\) return \(/);
+  assert.equal(checks["L-5"], "(../@cur) = 'EUR'", "outside a predicate the text is substituted as before");
+  const req = createRequire(import.meta.url);
+  const runner = createPlainRunner({ fontoxpath: req("fontoxpath"), parseXml: () => ({}) });
+  const doc = (xml) => req("slimdom").parseXmlDocument(xml);
+  const ok = `<r id="D1" code="A" cur="EUR"><g id="G" ref="D1" n="5"><t cur="EUR"/></g><i parent="G" n="2"/><i parent="G" n="3"/><i parent="X" n="9"/></r>`;
+  assert.deepEqual(runner.runRules(r, doc(ok)).map((f) => f.rule), []);
+  const bad = `<r id="D1" code="Z" cur="USD"><g id="G" ref="D2" n="6"><t cur="EUR"/></g><i parent="G" n="2"/><i parent="G" n="3"/></r>`;
+  assert.deepEqual(runner.runRules(r, doc(bad)).map((f) => f.rule).sort(), ["L-1", "L-2", "L-3", "L-4", "L-5"]);
 });
 
 test("compiler: an IBAN-style mod 97 on a 24-digit string runs digit by digit", { skip: skip || (!compileReady && "slimdom") }, async () => {

@@ -1,0 +1,198 @@
+# Milestone 30: backlash at the nailer's nose, and which joints gravity and the press preload
+quantisation 1 sigma: 11 bits 3.045 arcmin, 12 bits 1.522 arcmin, 13 bits 0.761 arcmin, 14 bits 0.381 arcmin; a uniform gap of b arcmin adds b/sqrt(12) on a loose joint
+
+## A. Geometry
+general offset at r = 0 against milestone 29's rows (G1, 11 bits, L 0.3): largest sigma difference 4.34e-19 m; y surface 1.312 mm (milestone 29: 1.312)
+G1 11-bit stack at L 0.3 through the new rows: 0.2637 (milestone 29: 0.2637)
+axial bracket (r = 0), G1: L (m) | 11 bits | 12 bits
+  0.29 | 0.2792 | 0.9366
+  0.30 | 0.2637 | 0.9344
+  0.32 | 0.2354 | 0.9292
+handle offset from the drive axis, L 0.3 m: robot dir r (m) | y surf (mm) z surf (mm) | 11 bits (pts vs r 0) | 12 bits
+  g1  up   0.05 | 1.337 1.456 | 0.2402 (-2.34) | 0.9301 (-0.43)
+  g1  up   0.10 | 1.366 1.456 | 0.2140 (-4.97) | 0.9249 (-0.95)
+  g1  up   0.15 | 1.401 1.456 | 0.1835 (-8.02) | 0.9188 (-1.56)
+  g1  up   0.20 | 1.440 1.456 | 0.1558 (-10.79) | 0.9100 (-2.44)
+  g1  down 0.05 | 1.293 1.456 | 0.2838 (+2.02) | 0.9373 (+0.29)
+  g1  down 0.10 | 1.281 1.456 | 0.2973 (+3.36) | 0.9395 (+0.51)
+  g1  down 0.15 | 1.274 1.456 | 0.3044 (+4.08) | 0.9412 (+0.68)
+  g1  down 0.20 | 1.273 1.456 | 0.3054 (+4.17) | 0.9413 (+0.69)
+  g1  side 0.05 | 1.312 1.449 | 0.2637 (+0.00) | 0.9344 (+0.00)
+  g1  side 0.10 | 1.312 1.448 | 0.2637 (+0.00) | 0.9344 (+0.00)
+  g1  side 0.15 | 1.312 1.452 | 0.2637 (+0.00) | 0.9344 (+0.00)
+  g1  side 0.20 | 1.312 1.461 | 0.2637 (+0.00) | 0.9344 (+0.00)
+  h1  up   0.05 | 1.039 1.106 | 0.6002 (+2.97) | 0.9708 (+0.26)
+  h1  up   0.10 | 1.017 1.106 | 0.6306 (+6.00) | 0.9725 (+0.44)
+  h1  up   0.15 | 0.997 1.106 | 0.6545 (+8.40) | 0.9739 (+0.58)
+  h1  up   0.20 | 0.981 1.106 | 0.6732 (+10.27) | 0.9754 (+0.73)
+  h1  down 0.05 | 1.092 1.106 | 0.5366 (-3.40) | 0.9655 (-0.27)
+  h1  down 0.10 | 1.122 1.106 | 0.4993 (-7.12) | 0.9623 (-0.58)
+  h1  down 0.15 | 1.154 1.106 | 0.4569 (-11.37) | 0.9584 (-0.98)
+  h1  down 0.20 | 1.187 1.106 | 0.4142 (-15.63) | 0.9544 (-1.37)
+  h1  side 0.05 | 1.064 1.104 | 0.5706 (+0.00) | 0.9681 (+0.00)
+  h1  side 0.10 | 1.064 1.105 | 0.5706 (+0.00) | 0.9681 (+0.00)
+  h1  side 0.15 | 1.064 1.109 | 0.5706 (+0.00) | 0.9681 (+0.00)
+  h1  side 0.20 | 1.064 1.116 | 0.5706 (+0.00) | 0.9681 (+0.00)
+
+## B. Static joint torques at the pose (N m): gravity + nailer, and at a 50 N press
+g1: joint | tau F 0 | tau F 50 | nose motion per rad (m, |y,z|)
+  left_hip_pitch_joint            22.66    14.63   0.425
+  left_hip_roll_joint             -0.44    -1.80   0.087
+  left_hip_yaw_joint               0.13    -4.03   0.436
+  left_knee_joint                 17.31     1.12   0.401
+  left_ankle_pitch_joint           6.16   -17.19   0.367
+  left_ankle_roll_joint           -0.00    -0.00   0.476
+  right_hip_pitch_joint           22.66    15.36   0.428
+  right_hip_roll_joint             0.40    -0.99   0.089
+  right_hip_yaw_joint             -0.13    -4.39   0.436
+  right_knee_joint                17.31     1.50   0.403
+  right_ankle_pitch_joint          6.16   -17.12   0.368
+  right_ankle_roll_joint          -0.00    -0.00   0.476
+  waist_yaw_joint                  0.01     8.62   0.727
+  waist_roll_joint                 0.04    -2.56   0.429
+  waist_pitch_joint              -38.03   -29.77   0.812
+  right_shoulder_pitch_joint     -12.66   -17.20   0.735
+  right_shoulder_roll_joint       -4.21    -3.51   0.658
+  right_shoulder_yaw_joint        -1.02    -0.74   0.321
+  right_elbow_joint               -6.04    -5.95   0.564
+  right_wrist_roll_joint           0.01     0.01   0.006
+  right_wrist_pitch_joint         -2.40    -1.96   0.426
+  right_wrist_yaw_joint           -0.41    -0.25   0.379
+h1: joint | tau F 0 | tau F 50 | nose motion per rad (m, |y,z|)
+  left_hip_yaw                   -10.86   -13.12   0.352
+  left_hip_roll                  -22.59   -21.51   0.228
+  left_hip_pitch                  26.84    22.47   0.405
+  left_knee                       30.47    16.54   0.408
+  left_ankle                      10.46   -12.86   0.369
+  right_hip_yaw                   10.51     3.03   0.359
+  right_hip_roll                  22.59    26.13   0.270
+  right_hip_pitch                 27.02    24.48   0.410
+  right_knee                      31.27    18.31   0.415
+  right_ankle                     10.46   -12.71   0.371
+  torso                            0.34    10.26   0.712
+  right_shoulder_pitch            -4.80   -25.12   0.590
+  right_shoulder_roll             -1.39    -5.16   0.410
+  right_shoulder_yaw              -0.47    -2.09   0.583
+  right_elbow                     -5.34   -10.03   0.562
+(left-arm joints do not move the right hand and are left out)
+
+held joints (of those that move the nose): torque one sign over the press range [F/2, F] and |tau| >= tau_f
+robot F (N) tau_f | held / moving | loose joints
+  g1     0 0.05 | 17 / 22 | left_ankle_roll, right_ankle_roll, waist_yaw, waist_roll, right_wrist_roll
+  g1     0 0.20 | 15 / 22 | left_hip_yaw, left_ankle_roll, right_hip_yaw, right_ankle_roll, waist_yaw, waist_roll, right_wrist_roll
+  g1     0 0.50 | 12 / 22 | left_hip_roll, left_hip_yaw, left_ankle_roll, right_hip_roll, right_hip_yaw, right_ankle_roll, waist_yaw, waist_roll, right_wrist_roll, right_wrist_yaw
+  g1    25 0.05 | 16 / 22 | left_ankle_pitch, left_ankle_roll, right_hip_roll, right_ankle_pitch, right_ankle_roll, right_wrist_roll
+  g1    25 0.20 | 16 / 22 | left_ankle_pitch, left_ankle_roll, right_hip_roll, right_ankle_pitch, right_ankle_roll, right_wrist_roll
+  g1    25 0.50 | 15 / 22 | left_ankle_pitch, left_ankle_roll, right_hip_roll, right_ankle_pitch, right_ankle_roll, right_wrist_roll, right_wrist_yaw
+  g1    50 0.05 | 19 / 22 | left_ankle_roll, right_ankle_roll, right_wrist_roll
+  g1    50 0.20 | 19 / 22 | left_ankle_roll, right_ankle_roll, right_wrist_roll
+  g1    50 0.50 | 17 / 22 | left_ankle_roll, right_hip_roll, right_ankle_roll, right_wrist_roll, right_wrist_yaw
+  g1   100 0.05 | 17 / 22 | left_knee, left_ankle_roll, right_knee, right_ankle_roll, right_wrist_roll
+  g1   100 0.20 | 16 / 22 | left_knee, left_ankle_roll, right_knee, right_ankle_roll, right_wrist_roll, right_wrist_yaw
+  g1   100 0.50 | 15 / 22 | left_knee, left_ankle_roll, right_knee, right_ankle_roll, right_shoulder_yaw, right_wrist_roll, right_wrist_yaw
+  h1     0 0.05 | 15 / 15 | 
+  h1     0 0.20 | 15 / 15 | 
+  h1     0 0.50 | 13 / 15 | torso, right_shoulder_yaw
+  h1    25 0.05 | 13 / 15 | left_ankle, right_ankle
+  h1    25 0.20 | 13 / 15 | left_ankle, right_ankle
+  h1    25 0.50 | 13 / 15 | left_ankle, right_ankle
+  h1    50 0.05 | 15 / 15 | 
+  h1    50 0.20 | 15 / 15 | 
+  h1    50 0.50 | 15 / 15 | 
+  h1   100 0.05 | 14 / 15 | right_hip_yaw
+  h1   100 0.20 | 14 / 15 | right_hip_yaw
+  h1   100 0.50 | 14 / 15 | right_hip_yaw
+
+## C. Check: uniform backlash draws against the Gaussian model, one nail, G1 12 bits, 5 arcmin, all loose
+  surface >= -1.0 mm, depth <= +1.0 mm: uniform Monte Carlo 0.7195 (200,000), Gaussian 0.7200
+  surface >= -0.5 mm, depth <= +1.5 mm: uniform Monte Carlo 0.6517 (200,000), Gaussian 0.6532
+  surface >= -2.0 mm, depth <= +0.6 mm: uniform Monte Carlo 0.7235 (200,000), Gaussian 0.7232
+
+## D. Best single-2x stack with backlash (L 0.3 m; preloaded: press 25-50 N, tau_f 0.2 N m)
+g1 unpreloaded: gap (arcmin) | 11 bits | 12 bits | 13 bits | 14 bits
+     0 | 0.2637 | 0.9344 | 0.9910 | 0.9966
+     1 | 0.2579 | 0.9301 | 0.9901 | 0.9958
+     3 | 0.2135 | 0.8871 | 0.9755 | 0.9862
+     5 | 0.1434 | 0.7646 | 0.9157 | 0.9392
+     7 | 0.0770 | 0.5423 | 0.7386 | 0.7812
+    10 | 0.0174 | 0.1759 | 0.2919 | 0.3287
+    17 | 0.0001 | 0.0008 | 0.0014 | 0.0016
+    25 | 0.0000 | 0.0000 | 0.0000 | 0.0000
+g1 preloaded: gap (arcmin) | 11 bits | 12 bits | 13 bits | 14 bits
+     0 | 0.2637 | 0.9344 | 0.9910 | 0.9966
+     1 | 0.2628 | 0.9335 | 0.9908 | 0.9964
+     3 | 0.2541 | 0.9271 | 0.9892 | 0.9953
+     5 | 0.2351 | 0.9134 | 0.9852 | 0.9919
+     7 | 0.2117 | 0.8864 | 0.9756 | 0.9862
+    10 | 0.1668 | 0.8169 | 0.9450 | 0.9630
+    17 | 0.0665 | 0.4896 | 0.6893 | 0.7363
+    25 | 0.0107 | 0.1090 | 0.1862 | 0.2107
+g1 preloaded, legs loose: gap (arcmin) | 11 bits | 12 bits | 13 bits | 14 bits
+     0 | 0.2637 | 0.9344 | 0.9910 | 0.9966
+     1 | 0.2619 | 0.9327 | 0.9908 | 0.9963
+     3 | 0.2445 | 0.9207 | 0.9869 | 0.9933
+     5 | 0.2130 | 0.8870 | 0.9756 | 0.9864
+     7 | 0.1714 | 0.8253 | 0.9480 | 0.9658
+    10 | 0.1058 | 0.6631 | 0.8448 | 0.8823
+    17 | 0.0151 | 0.1545 | 0.2567 | 0.2907
+    25 | 0.0005 | 0.0046 | 0.0094 | 0.0109
+g1 preloaded, ankle rolls biased: gap (arcmin) | 11 bits | 12 bits | 13 bits | 14 bits
+     0 | 0.2637 | 0.9344 | 0.9910 | 0.9966
+     1 | 0.2637 | 0.9344 | 0.9910 | 0.9966
+     3 | 0.2637 | 0.9344 | 0.9910 | 0.9966
+     5 | 0.2637 | 0.9344 | 0.9910 | 0.9966
+     7 | 0.2637 | 0.9344 | 0.9910 | 0.9966
+    10 | 0.2636 | 0.9344 | 0.9910 | 0.9966
+    17 | 0.2636 | 0.9344 | 0.9910 | 0.9966
+    25 | 0.2636 | 0.9344 | 0.9910 | 0.9966
+h1 unpreloaded: gap (arcmin) | 11 bits | 12 bits | 13 bits | 14 bits
+     0 | 0.5706 | 0.9681 |    -   |    -  
+     1 | 0.5639 | 0.9659 |    -   |    -  
+     3 | 0.5158 | 0.9483 |    -   |    -  
+     5 | 0.4194 | 0.8998 |    -   |    -  
+     7 | 0.2975 | 0.7793 |    -   |    -  
+    10 | 0.1318 | 0.4679 |    -   |    -  
+    17 | 0.0035 | 0.0181 |    -   |    -  
+    25 | 0.0000 | 0.0000 |    -   |    -  
+h1 preloaded: gap (arcmin) | 11 bits | 12 bits | 13 bits | 14 bits
+     0 | 0.5706 | 0.9681 |    -   |    -  
+     1 | 0.5706 | 0.9681 |    -   |    -  
+     3 | 0.5706 | 0.9681 |    -   |    -  
+     5 | 0.5706 | 0.9681 |    -   |    -  
+     7 | 0.5706 | 0.9681 |    -   |    -  
+    10 | 0.5706 | 0.9681 |    -   |    -  
+    17 | 0.5706 | 0.9681 |    -   |    -  
+    25 | 0.5706 | 0.9681 |    -   |    -  
+h1 preloaded, legs loose: gap (arcmin) | 11 bits | 12 bits | 13 bits | 14 bits
+     0 | 0.5706 | 0.9681 |    -   |    -  
+     1 | 0.5687 | 0.9676 |    -   |    -  
+     3 | 0.5564 | 0.9636 |    -   |    -  
+     5 | 0.5320 | 0.9545 |    -   |    -  
+     7 | 0.4960 | 0.9397 |    -   |    -  
+    10 | 0.4199 | 0.8998 |    -   |    -  
+    17 | 0.2072 | 0.6438 |    -   |    -  
+    25 | 0.0488 | 0.2051 |    -   |    -  
+
+## E. Tool-point spec, G1 at L 0.3 m: the largest backlash (arcmin) that keeps the single-2x stack at
+mode | bits | 0.90 | 0.95   (0 = the bits alone miss it; > 60 = not binding below a degree)
+  unpreloaded            | 12 | 2.67 | 0.00
+  unpreloaded            | 13 | 5.30 | 4.13
+  unpreloaded            | 14 | 5.77 | 4.72
+  preloaded              | 12 | 6.24 | 0.00
+  preloaded              | 13 | 12.28 | 9.64
+  preloaded              | 14 | 13.33 | 10.99
+  preloaded, legs loose  | 12 | 4.48 | 0.00
+  preloaded, legs loose  | 13 | 8.82 | 6.94
+  preloaded, legs loose  | 14 | 9.58 | 7.88
+  preloaded, ankle rolls biased | 12 | > 60 | 0.00
+  preloaded, ankle rolls biased | 13 | > 60 | > 60
+  preloaded, ankle rolls biased | 14 | > 60 | > 60
+
+## F. Hypotheses (registered in LOG.md before this run)
+H112 (5 arcmin on every G1 joint, unpreloaded, costs the 12-bit G1 > 5 points): 0.7646 against 0.9344 (-16.98) -> held
+  press 25 N: loose left_ankle_pitch, left_ankle_roll, right_hip_roll, right_ankle_pitch, right_ankle_roll, left_wrist_roll, right_wrist_roll; along-wall sigma surface 0.7126 mm (no backlash 0.6561)
+  press 50 N: loose left_ankle_roll, right_ankle_roll, left_wrist_roll, right_wrist_roll; along-wall sigma surface 0.7126 mm (no backlash 0.6561)
+H113 (preloaded, press 25-50 N, tau_f 0.2: the same 5 arcmin costs <= 2 points): losses F 25 N 2.10, F 50 N 2.10 points -> refuted
+H114 (a 0.15 m handle offset moves the 11-bit G1 stack < 2 points): worst up -8.02, side +0.00 -> refuted (registered on up and side; down, not registered: +4.08)
+
+(run time 125 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

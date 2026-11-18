@@ -149,7 +149,7 @@ export function worthSuing(o) {
 
 export function verdictText(w) {
   const usd = (n) => "$" + money(Math.abs(n));
-  const sign = (n) => (n < 0 ? "-" : "") + usd(n);
+  const sign = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(usd(n));
   const lines = [];
   if (w.overLimit) lines.push(`Over the limit: the balance is above the ${usd(w.limit)} small-claims limit, so you would waive ${usd(w.excess)} or file in a higher court (usually needing a lawyer).`);
   const head = {
@@ -179,7 +179,12 @@ export function buildLetters(inputs, steps, payByDays = 10) {
   const consumer = inputs.clientType === "consumer";
   const f = fill(inputs);
   const pay = inputs.paymentInfo ? `\nHow to pay: ${inputs.paymentInfo}` : "";
-  const amt = (n) => "$" + money(n);
+  const amt = (n) => {
+    const format = (n) => "$" + money(n);
+    if (!(Number(n) < 0)) return format(n);
+    const text = format(Math.abs(n));
+    return /[1-9]/.test(text) ? `-${text}` : text;
+  };
   return steps.map((s, i) => {
     const a = accrual(inputs, s.date);
     const balance = a.total;

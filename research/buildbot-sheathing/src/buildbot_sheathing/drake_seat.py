@@ -16,7 +16,8 @@ compliant normal (stiffness ``k_contact`` N/m) and either
   stiction tolerance (``stiction_tol``, m/s) under which surfaces creep.
 
 Both are discrete at ``time_step`` (Drake's default 1 ms). Requires ``pip install drake``
-(checked with 1.51.1).
+(checked with 1.51.1; drake 1.58.0 no longer accepts `discrete_contact_approximation="tamsi"`,
+so the TAMSI rows need 1.51.1: `pip install drake==1.51.1`).
 """
 import math
 

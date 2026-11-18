@@ -12,8 +12,9 @@ through ``rawpy``:
 * the CFA pattern at the crop's origin against ``raw_pattern``.
 
 The crop is reported, not gated: ShootFlow uses SensorInfo (the same rectangle
-as IAD1's crop), LibRaw a wider visible area. A C-RAW (wavelet) file is
-reported as refused and does not fail the run.
+as IAD1's crop), LibRaw a wider visible area. C-RAW (wavelet) files are read
+since 2026-11-15 (``eval/canon-cr3-craw-2026-11-15.md``); a file the reader
+refuses (several tiles) is reported as refused and does not fail the run.
 
 Usage (from ``ventures/photo-editing``)::
 

@@ -15,6 +15,7 @@ its marker), so a live job is told apart from a quiet, stuck or dead one.
 
 A job that prints no marker (a `pip install`, a writer of a jsonl) can be waited on by
 a condition instead: `--until "python3 -c 'import torch'"` returns 0 once that command exits 0.
+Given a log too, it waits for both (the condition, then the log's marker) and prints the log's tail.
 
 A job with a known pid: `--pid 12345` returns once that process has exited. Do not
 use `--until "pgrep -f name"`: the shell running it matches its own command line, so it
@@ -23,7 +24,9 @@ returns at once (friction 2026-11-06); use `--pid`, or bracket the first letter,
 `echo EXIT $?` works as a marker line too: with no `--marker`, a `DONE` line or an
 `EXIT 0` line both end the wait (friction 2026-11-11: runs guessed `--pattern` or
 waited out the timeout on an EXIT log), and the printed tail shows the exit code.
-`--marker X` waits for X alone. The default also accepts the line the harness
+`--marker X` waits for X alone. A marker followed by more output, in a log a
+process still has open, is an earlier phase's (a second `>>` phase): the wait
+goes on until a marker ends the log or the writer closes it. The default also accepts the line the harness
 ends a `run_in_background` task's own output file with, `[exited with code N]`,
 so the file the task notification names can be waited on as it stands (a wait
 on one ran its full 110 s past that line, 2026-11-12), and a `-` after the
@@ -51,11 +54,13 @@ def is_marker(line, marker):
     inside a line (`not DONE yet`) does not count (friction 2026-11-11: `--marker
     EXIT` waited its full 540 s timeout on a log that ended `EXIT 0`). A marker
     that ends in `=` or `:` is a prefix: `rc=` matches `rc=0` (an `echo rc=$?`
-    line; friction 2026-11-13, the same 540 s wait)."""
+    line; friction 2026-11-13, the same 540 s wait). A bare word followed by `=`
+    counts too: `--marker BUILD_EXIT` matches `BUILD_EXIT=0` (friction 2026-11-16,
+    a full timeout on a log whose last line was exactly that)."""
     s = line.strip()
     if marker[-1] in "=:" and s.startswith(marker):
         return True
-    return s == marker or (s.startswith(marker) and s[len(marker)] in " \t:-")
+    return s == marker or (s.startswith(marker) and s[len(marker)] in " \t:-=")
 
 
 DEFAULT_MARKERS = ("DONE", "EXIT", "[exited with code")
@@ -73,12 +78,31 @@ def boot_time(stat="/proc/stat"):
     return None
 
 
+def stale_marker(lines, markers, held):
+    """True when every marker line is an earlier phase's: output follows the last
+    one and a process still has the log open, so the job is still writing.
+
+    A second phase appended to the same log (`>> out.log`) left phase one's DONE
+    in place, and two 10-minute waits on phase two returned at once (friction
+    2026-11-15). A finished job holds no descriptor, and a marker that is the
+    last line still ends the wait, so a wait called after the job is unchanged.
+    """
+    idx = [i for i, l in enumerate(lines) if any(is_marker(l, m) for m in markers)]
+    if not idx or not any(l.strip() for l in lines[idx[-1] + 1:]):
+        return False
+    return bool(held())
+
+
 def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.sleep,
-         boot=None, grace=20.0):
+         boot=None, grace=20.0, held=None):
     """(True, lines) once a marker line appears; (False, []) on timeout; (None, lines)
     when the log was last written before `boot` (the machine's boot time) and stays
     so for `grace` seconds: the job died in a restart. The grace covers a job
-    started after the boot that appends (`>>`) and has not written yet."""
+    started after the boot that appends (`>>`) and has not written yet.
+    `held()` says whether a process still has the log open (default: /proc);
+    a marker with output after it in a held log is stale (`stale_marker`)."""
+    if held is None:
+        held = lambda: holders(path)
     start = clock()
     end = start + timeout
     while True:
@@ -86,7 +110,7 @@ def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.m
             with open(path, errors="replace") as f:
                 lines = f.read().splitlines()
             markers = (marker,) if isinstance(marker, str) else marker
-            if any(is_marker(l, m) for l in lines for m in markers):
+            if any(is_marker(l, m) for l in lines for m in markers) and not stale_marker(lines, markers, held):
                 return True, lines
             if boot is not None and os.stat(path).st_mtime < boot and clock() - start >= min(grace, timeout):
                 return None, lines
@@ -168,6 +192,18 @@ def holders(path, proc="/proc"):
     return found
 
 
+def short_cmd(cmd, width=80):
+    """The holder's command line, cut in the middle so its arguments survive.
+
+    A head-only cut at 60 characters showed 'run.py --draws 10' for
+    '--draws 1000', which read as the wrong job running (friction 2026-11-17).
+    The interpreter path at the front is what a reader can spare."""
+    if len(cmd) <= width:
+        return cmd
+    head = width // 3
+    return cmd[:head] + "..." + cmd[-(width - head - 3):]
+
+
 def progress(path, now=time.time, who=holders):
     """What a timed-out wait can say about the job, so "call again" is not a guess.
 
@@ -188,7 +224,7 @@ def progress(path, now=time.time, who=holders):
     open_by = who(path)
     if open_by:
         pid, cmd = max(open_by)  # the newest holder is the job itself, not the shell that started it
-        hint = (f"pid {pid} ({cmd[:60]!r}) still has it open, so the job is running"
+        hint = (f"pid {pid} ({short_cmd(cmd)!r}) still has it open, so the job is running"
                 + ("" if idle < 60 else ", quietly (it may print only at the end, or buffer: python3 -u)")
                 + "; call again")
     elif open_by is not None:
@@ -237,16 +273,24 @@ def main(argv=None):
             return 0
         print(f"wait_for: pid {a.pid} still running after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
         return 1
+    timeout = a.timeout
     if a.until:
-        if wait_until(a.until, a.timeout):
+        started = time.monotonic()
+        if not wait_until(a.until, a.timeout):
+            print(f"wait_for: '{a.until}' still failing after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
+            return 1
+        if not a.log:
             print("wait_for: condition met")
             return 0
-        print(f"wait_for: '{a.until}' still failing after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
-        return 1
+        # A log given with --until was ignored, so a wait returned "condition met" with no
+        # output before the job had written its last line (friction 2026-11-16). Both
+        # given means both: the condition, then the log's marker, in what time is left.
+        print("wait_for: condition met; now waiting for the log's marker", file=sys.stderr)
+        timeout = max(0.0, a.timeout - (time.monotonic() - started))
     if not a.log:
         ap.error("give a log file, --until or --pid")
     boot = None if a.ignore_restart else boot_time()
-    ok, lines = wait(a.log, a.marker or DEFAULT_MARKERS, a.timeout, boot=boot)
+    ok, lines = wait(a.log, a.marker or DEFAULT_MARKERS, timeout, boot=boot)
     if ok is None:
         last = next((l for l in reversed(lines) if l.strip()), "(empty)")[:120]
         when = time.strftime("%H:%M:%S UTC", time.gmtime(boot))

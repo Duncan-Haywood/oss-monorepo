@@ -348,7 +348,7 @@ function splitLine(line, delim) {
 
 /** Parse a CSV with a header row, or a bare list of numbers. */
 export function parseCsv(text) {
-  const raw = String(text ?? "").replace(/^﻿/, "");
+  const raw = String(text ?? "").replace(/^\uFEFF/, "");
   const lines = raw.split(/\r\n|\n|\r/).filter((l) => l.trim() !== "");
   if (!lines.length) return { error: "The data is empty. Paste a CSV with a date column and a value column, or a list of numbers." };
   if (lines.every((l) => l.split(/[\s;,\t]+/).filter(Boolean).every((t) => isNum(t) || isMissing(t))) && !lines[0].includes(",")) {
@@ -382,7 +382,7 @@ const DAY = 86400000;
 export function parseDate(s) {
   const t = String(s ?? "").trim();
   let m;
-  if ((m = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[T ](\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(t))) {
+  if ((m = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?!\d)(?:[T ](\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(t))) {
     const v = Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
     // Round-trip the day so 2026-02-30 is refused rather than rolled into March.
     return +m[2] >= 1 && +m[2] <= 12 && new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDate() === +m[3] ? v : null;

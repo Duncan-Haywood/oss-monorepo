@@ -15,7 +15,7 @@ test("estimate prints products, credit, total and ranked levers", async () => {
 });
 
 test("reads stdin with - and template prints a CSV", async () => {
-  assert.match((await run(["estimate", "-"], io)).output, /Egress/);
+  assert.match((await run(["estimate", "-"], io)).output, /Uncached egress/);
   assert.match((await run(["template"], io)).output, /^product,usage/);
 });
 

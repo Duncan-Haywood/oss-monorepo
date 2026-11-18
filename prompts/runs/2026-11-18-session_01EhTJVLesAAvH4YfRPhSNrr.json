@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVLesAAvH4YfRPhSNrr",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (owner's standing ventures brief)",
+  "input_sha256": "f4c02cac69d0551e09d3bb37a41f8fac737466532a98a9824fc2a5dac1b34c2c",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T04:05:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 10): open-tennis-robots, a flag the Pi can trust for long ESC lags",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17168",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "open-tennis-robots buildable named 'a flag the Pi can trust for long ESC lags' as the item; the stored rows showed the misses were bias (split halves agreed on the wrong lag), so the item as worded was unbuildable and the fix was the fit window instead. Wording an item as a symptom rather than a solution would have saved a detour."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The listed item asked for a confidence flag; the evidence showed a flag on the survey's spread cannot catch a bias.",
+      "did": "Tested split-half disagreement (failed: wrong picks had agreeing halves), then tested and shipped a longer refit window (16 revolutions), pre-registered and held out.",
+      "result": "Held out 28 of 28 drills within 15% (was 21 of 28); grid-end picks now advise scoping the ESC rather than a number."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-the-tennis-feeders-long-esc-lags-needed-a-longer-look.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (Long ESC lags: the survey read too little of the recovery)",
+    "ventures/open-tennis-robots/eval/esc-survey-window-2026-11-18.txt"
+  ],
+  "goal": null,
+  "notes": "Design capture 42 drills (seed 7, launcher 0): within 15% after 8/12/16/24 revolutions = 31/41/42/42. Pre-registration committed in 3893f7c26 before the held-out capture (28 drills, seed 11, launcher 2, ESC 0-230 ms, wheel lags 0.4/0.55): 16 -> 28/28, 8 -> 21/28. Shipped controller.ESC_SURVEY_AFTER = 16; host esc_survey_advice/esc_lag_check treat a 400 ms grid-end pick as unnamed. Venture tests: python3 platform/ci/run_venture_tests.py open-tennis-robots (result in PR). Simulated only; ESP32 step timing of a 21-row refit unmeasured.",
+  "corrections": [],
+  "redteam": null
+}

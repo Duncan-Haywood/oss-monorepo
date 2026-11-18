@@ -22,7 +22,7 @@ side's conclusion rests on, so a reader can change one entry and see what follow
 **Evidence** ([E2 results](experiments/e2_ledger/results.md); ledger in [`src/ledger.py`](src/ledger.py)):
 
 - Unwin's published 67% (*The Probability of God*, 2003) reproduces exactly from his 50% prior and six factors.
-- **Christianity vs everything else:** the resurrection testimony carries **98.5%** of the variance of the log odds. The Bayes factor it needs to make Christianity more likely than not is only **7.3** under even priors, and 0.5 to 294 across a 3 × 3 grid of priors. The published endpoints are about 1 (a Humean sceptic) and of order 10^44 (reported for the McGrews). The case for Christianity stands or falls on one contested number, and the bar is far lower than either side usually implies.
+- **Christianity vs everything else:** the resurrection testimony carries **98.5%** of the variance of the log odds. The Bayes factor it needs to make Christianity more likely than not is only **7.3** under even priors, and 0.5 to 294 across a 3 × 3 grid of priors. The published endpoints are about 1 (a Humean sceptic) and 10^44 (the McGrews' own product of 10^2, 10^39 and 10^3, read from their text in E26). The case for Christianity stands or falls on one contested number, and the bar is far lower than either side usually implies.
 - **Theism vs naturalism:** the prior carries **54%** of the variance and fine-tuning (a swept range) **31%**. Every item with a published figure carries under 6%. Taking the midpoint of every range except the resurrection item, P(naturalism) = 0.76. In a Monte Carlo over the ranges and priors, P(naturalism) has a median of 0.69 and a 5–95% range of 0.004 to 0.999.
 - **Catholic vs Orthodox:** no one has published likelihood ratios for primacy, canon 28, Honorius, the Filioque or doctrinal development. The ledger holds symmetric placeholders until an elicitation from scholars on both sides (milestone M3). The prior choice (Pew's head-count shares or equal shares) is so far the only thing that separates them.
 
@@ -30,7 +30,7 @@ side's conclusion rests on, so a reader can change one entry and see what follow
 Most ranges are swept, not sourced, and each entry says which (`basis`). The ledger treats items
 as independent. A crude ρ = 0.5 discount barely moves the theism result: the share of draws with
 P(N) > 0.5 goes from 58% to 55%. The Lean files were first compiled on 2026-11-11 (E11 below);
-they built unchanged. The McGrews' figure is a secondary report.
+they built unchanged. The McGrews' 10^44 was a secondary report until E26 read it in their own text.
 
 **M2 results (2026-11-07).** *Leave-one-out (E3):* at the midpoints P(naturalism) is 0.76, and
 dropping any one of three theism-level items flips it below 0.5: natural evil (to 0.09),
@@ -49,12 +49,12 @@ large to enumerate) are not covered, and general models are not excluded by sear
 Unwin's formula. They multiply to 2.5×10^−4, so P(God) = 0.025%, not the 2% the column states; the
 stated bottom line is about 82 times too large in odds for its own inputs. Unwin's 67% does reproduce.
 Which side is a slip is not knowable from the column; no claim is made. Order of application is
-irrelevant. Swinburne's four inputs remain untranscribed (the book is not reachable).
+irrelevant. Swinburne's four inputs are transcribed in E25 below.
 
 **M4 (part), shared-cause dependence (E5, 2026-11-07).** Replacing the crude ρ discount, the
 resurrection testimony items share one latent source reliability. The combined Bayes factor is
-then BF = 1 + ω(L − 1), with L the independent product (10^44, the McGrews' figure as reported
-secondarily) and ω the credence a sceptic still gives the source after the reports; the formula
+then BF = 1 + ω(L − 1), with L the independent product (10^44, the McGrews' figure, confirmed
+in their own text by E26) and ω the credence a sceptic still gives the source after the reports; the formula
 agrees with direct enumeration of the joint model. Dependence acts on log BF only by log ω, not
 per item: ω = 10^−12 still leaves BF ≈ 10^32. At even priors the testimony stops lifting
 P(Christian) to 0.5 only if ω < 10^−43.2 (10^−41.5 at 0.1/0.1 priors). E2's ρ would have to be
@@ -225,14 +225,61 @@ worlds the separable pairs are exactly E21's 36 block-algebra failures; at 4 wor
 against E23's 14,688 for general collections. A definition-level check passes at all 11,628
 separable cases up to 4 worlds ([results](experiments/e24_block_separation/results.md)).
 
+**M2 (part), separability has no closed-form condition: it is NP-complete (E27, 2026-11-15).**
+E24's condition quantifies over two sets of worlds. Is there a simple graph test for it, as
+there is (E23's back witness, polynomial) when properties need not have complements? No, unless
+P = NP. A hypergraph becomes a serial frame (w sees v; v sees one world per edge; each edge world
+sees v and its points; each point sees only itself), and v is separable from w **iff** the
+hypergraph can be 2-coloured with no one-coloured edge (`NP.sep_iff`,
+`lean/TheismFormal/AndersonNP.lean`, no `sorry`). That problem is NP-complete (set splitting,
+Garey &amp; Johnson SP4), so deciding separability is NP-complete and deciding whether
+GodIsEssential holds at w in every block-algebra model is coNP-complete. Complements change not
+only the condition but its complexity. Checks: a new decider matches exhaustive search on every
+serial relation up to 4 worlds (11,628 separable triples, E24's count) and 2-colourability on
+all 2,046 hypergraphs with up to 4 points and 4 edges; the Fano plane gives a 16-world frame where
+GodIsEssential holds in every block-algebra model but not in every general one. Open: whether
+hardness survives in reflexive or transitive frames
+([results](experiments/e27_separability_np/results.md)).
+
+**M2 (part), Swinburne's 0.97 reproduced (E25, 2026-11-15).** Swinburne's Bayesian case for the
+incarnation and resurrection (*The Resurrection of God Incarnate*, 2003) has four inputs, quoted
+with the book's page numbers in Otte's NDPR review: P(theism) = 1/2, P(divided incarnation | God)
+= 1/2, P(evidence | incarnation) = 1/10 (p. 212), P(evidence | no incarnation) = 1/1000 (p. 213).
+Exact arithmetic gives **100/103 = 0.9709**, so the published "around .97" follows from its
+inputs (Shermer's 2% did not, E6). The whole historical case enters as a likelihood ratio of
+100, two orders of magnitude, against up to 10^44 claimed for the testimony elsewhere (E5). The
+posterior falls to 1/2 if the evidence-without-incarnation input rises from 1/1000 to 1/30, if
+the two priors multiply to less than 1/101 (P(theism) below about 1/50), or if more than 97/101 of the
+incarnation probability goes to a unified rather than divided incarnation (Otte's coherence
+point). Otte's own suggestion of 1/3 for incarnation leaves it at 20/21 = 0.952. The "0.97 to
+0.33" sensitivity the proposal attributed to critics is not in Otte's review and is withdrawn
+until sourced ([results](experiments/e25_swinburne/results.md)). The book itself has not been
+read; the inputs rest on the review's quotations.
+
+**M2 (part), the McGrews' 10^44 from their own text (E26, 2026-11-15).** The largest number in
+the resurrection debate, the McGrews' Bayes factor of 10^44 (*The Argument from Miracles*,
+Blackwell Companion to Natural Theology, 2009), read in the authors' draft: the women's testimony
+10^2, each of thirteen disciples 10^3 multiplied "under the assumption of independence" to 10^39,
+Paul's conversion 10^3. The product is exactly 10^44, and against their illustrative prior of
+10^-40 it gives 0.99990001, so "in excess of .9999" holds (by 10^-8). The disciples carry 88.6% of
+the log factor. What carries the 10^39 is the multiplication: a mixture bound shows that if, given
+no resurrection, one explanation covering the whole group (shared vision, a common source, the
+"general reliability" premise every factor assumes) has probability q, the disciples' factor is at
+most 1/q. The McGrews put their own modified vision theory below 10^-3 per disciple; read at group
+level that caps the whole case at 10^8, which overcomes priors down to 10^-8 but not 10^-40. The
+10^39 needs q ≤ 10^-39. Under independence, 12 disciples at 10^3 each would do and 11 would not
+([results](experiments/e26_mcgrew/results.md)). Martin's alternative of 1/500, which the
+McGrews report, gives Swinburne's model 50/53 = 0.943. Page numbers are the draft's, not yet
+matched to the Blackwell pages.
+
 ## Layout
 
 - `src/logic.py`: decision procedures (S5 exact, K/T/B/S4 by certified countermodels, monadic first-order exact), minimal inconsistent and maximal consistent subsets.
 - `src/arguments.py`: the 11 arguments, each with its published source.
 - `src/ledger.py`, `src/bayes.py`: hypotheses, priors, the 13 evidence items, and the posterior arithmetic.
-- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) E12's varying-domain theorems (`TheismFormal/Varying.lean`) E13's actualist ones (`TheismFormal/Actualist.lean`) E14's plain-necessity ones (`TheismFormal/Plain.lean`) E15's closure condition and 8-cell countermodel (`TheismFormal/Closure.lean`) E16's model characterisations (`TheismFormal/Models.lean`) E17's theorems on Fitting's variant (`TheismFormal/Fitting.lean`) E18's K-logic corollaries (`TheismFormal/AFP.lean`) E19's frame-condition theorems for Anderson's variant (`TheismFormal/AndersonK.lean`) E20's separating-algebra theorems and certified S4 countermodel (`TheismFormal/AndersonFull.lean`) E21's frame-condition theorems (`TheismFormal/AndersonFrames.lean`) E22's countermodel and exact characterisation (`TheismFormal/AndersonTransient.lean`) E23's no-A4a characterisation (`TheismFormal/AndersonHorn.lean`) and E24's block-algebra one (`TheismFormal/AndersonSep.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
-- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`, `experiments/e12_varying_domains/run.py`, `experiments/e13_actualist_necessity/run.py`, `experiments/e14_plain_necessity/run.py`, `experiments/e15_a5z_not_a5/run.py`, `experiments/e17_fitting/run.py`, `experiments/e18_afp_crosscheck/run.py`, `experiments/e19_afp_anderson/run.py`, `experiments/e20_full_semantics/run.py`, `experiments/e21_frame_characterisation/run.py`, `experiments/e22_transient_countermodel/run.py`, `experiments/e23_horn_countermodel/run.py`: these regenerate `results.md` and `results.json`.
-- `test_theism.py`: 29 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
+- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) E12's varying-domain theorems (`TheismFormal/Varying.lean`) E13's actualist ones (`TheismFormal/Actualist.lean`) E14's plain-necessity ones (`TheismFormal/Plain.lean`) E15's closure condition and 8-cell countermodel (`TheismFormal/Closure.lean`) E16's model characterisations (`TheismFormal/Models.lean`) E17's theorems on Fitting's variant (`TheismFormal/Fitting.lean`) E18's K-logic corollaries (`TheismFormal/AFP.lean`) E19's frame-condition theorems for Anderson's variant (`TheismFormal/AndersonK.lean`) E20's separating-algebra theorems and certified S4 countermodel (`TheismFormal/AndersonFull.lean`) E21's frame-condition theorems (`TheismFormal/AndersonFrames.lean`) E22's countermodel and exact characterisation (`TheismFormal/AndersonTransient.lean`) E23's no-A4a characterisation (`TheismFormal/AndersonHorn.lean`), E24's block-algebra one (`TheismFormal/AndersonSep.lean`) and E27's NP-hardness reduction (`TheismFormal/AndersonNP.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
+- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`, `experiments/e12_varying_domains/run.py`, `experiments/e13_actualist_necessity/run.py`, `experiments/e14_plain_necessity/run.py`, `experiments/e15_a5z_not_a5/run.py`, `experiments/e17_fitting/run.py`, `experiments/e18_afp_crosscheck/run.py`, `experiments/e19_afp_anderson/run.py`, `experiments/e20_full_semantics/run.py`, `experiments/e21_frame_characterisation/run.py`, `experiments/e22_transient_countermodel/run.py`, `experiments/e23_horn_countermodel/run.py`, `experiments/e25_swinburne/run.py`, `experiments/e26_mcgrew/run.py`: these regenerate `results.md` and `results.json`. `experiments/e27_separability_np/run.py` (35 s) regenerates `results.json`; its `results.md` is written by hand from it.
+- `test_theism.py`: 36 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
 
 ## Run
 
@@ -244,6 +291,8 @@ python3 research/theism-formal-evidence/experiments/e3_leave_one_out/run.py
 python3 research/theism-formal-evidence/experiments/e4_godel_scott/run.py
 python3 research/theism-formal-evidence/experiments/e5_shared_cause/run.py
 python3 research/theism-formal-evidence/experiments/e6_shermer_check/run.py
+python3 research/theism-formal-evidence/experiments/e26_mcgrew/run.py
+python3 research/theism-formal-evidence/experiments/e27_separability_np/run.py   # about 35 s
 python3 research/theism-formal-evidence/experiments/e10_theorem/run.py   # about 6 s
 python3 research/theism-formal-evidence/experiments/e11_anderson_a2/run.py   # about 5 s
 python3 research/theism-formal-evidence/experiments/e12_varying_domains/run.py   # about 2 min

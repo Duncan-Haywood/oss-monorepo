@@ -48,7 +48,7 @@ three-foot      low   2x, three, no push        0.5602 [0.553,0.567]  0.79
 three-foot      low   2x, three, mid pinned     0.7095 [0.703,0.716]  0.47
 three-foot      low   2x, three, mid fixed      0.7001 [0.694,0.706]  0.48
 three-foot      low   2x, three, nails pinned   0.7094 [0.703,0.716]  0.47
-three-foot      low   2x, three, nails fixed    0.7063 [0.700,0.713]  0.48
+three-foot      low   2x, three, nails fixed    0.7063 [0.700,0.713]  0.47
 three-foot      low   2x, three, three pinned   0.7063 [0.700,0.713]  0.47
 three-foot      low   2x, three, three fixed    0.7022 [0.696,0.708]  0.48
 three-foot      low   2x2x, single              0.9994 [0.999,1.000]  0.00
@@ -100,4 +100,4 @@ H44: base, 100 houses a year, low warp: single 2x + nail-by-nail cheaper than do
   low warp: the median draw stops favouring the push over doubled joints at 925.0 s of pushing a sheet (searched 0-3600 s; below the machine's capacity extra seconds cost only supervision)
   high warp: the median draw stops favouring the push over doubled joints at 930.0 s of pushing a sheet (searched 0-3600 s; below the machine's capacity extra seconds cost only supervision)
 
-wall time 48 s
+wall time 37 s

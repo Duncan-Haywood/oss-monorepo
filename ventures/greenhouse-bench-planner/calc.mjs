@@ -13,7 +13,7 @@ export const DEFAULTS = { benchSqft: 400, germSqft: 30, germDensity: 60, maxHold
 
 export function money(n) {
   const v = Math.round(Number(n) || 0);
-  return (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 }));
 }
 
 export function parseDate(s) {
@@ -68,7 +68,7 @@ export function parseCrops(text) {
   return { crops, errors };
 }
 
-function planCore(crops, o) {
+function planCore(crops, o, order) {
   const germUsed = new Map(), benchUsed = new Map();
   const get = (m, w) => m.get(w) || 0;
   const jobs = crops.map((c) => {
@@ -79,7 +79,9 @@ function planCore(crops, o) {
     const germSq = Math.ceil(c.units / surv) / o.germDensity;
     const spaceWeeks = benchSq * c.grow + germSq * c.germ;
     return { c, surv, unitMargin, margin, density: margin / Math.max(spaceWeeks, 1e-9) };
-  }).sort((a, b) => b.density - a.density || a.c.sale - b.c.sale || a.c.id - b.c.id);
+  });
+  if (order) { const at = new Map(order.map((id, i) => [id, i])); jobs.sort((a, b) => at.get(a.c.id) - at.get(b.c.id)); }
+  else jobs.sort((a, b) => b.density - a.density || a.c.sale - b.c.sale || a.c.id - b.c.id);
 
   const rows = [];
   for (const j of jobs) {
@@ -116,13 +118,56 @@ function planCore(crops, o) {
       margin: best.sold * j.unitMargin - best.penalty, fullMargin: j.margin, id: c.id, germ: c.germ, grow: c.grow, sowTime: saleDate - (c.germ + c.grow + best.early) * WEEK,
     });
   }
+  const order0 = jobs.map((j) => j.c.id);
   rows.sort((a, b) => a.sowTime - b.sowTime || a.id - b.id);
   const weeks = [...new Set([...germUsed.keys(), ...benchUsed.keys()])].sort((a, b) => a - b);
   const table = weeks.length ? Array.from({ length: weeks[weeks.length - 1] - weeks[0] + 1 }, (_, i) => {
     const w = weeks[0] + i;
     return { week: weekStart(w), germ: get(germUsed, w), bench: get(benchUsed, w), germCap: o.germSqft, benchCap: o.benchSqft, util: get(benchUsed, w) / o.benchSqft };
   }) : [];
-  return { rows, weeks: table };
+  return { rows, weeks: table, order: order0 };
+}
+
+// Booking crops one at a time in margin-per-square-foot order can strand a whole order: the worked example once sold
+// 0 of 200 peppers because basil took the peak week on time, when selling basil one week late made room for both.
+// So the planner also tries three other booking orders and then moves single crops to other places in the queue
+// (short crops first), keeping a plan only when it earns more (then sells more). On the worked example this finds
+// the best plan any of the 5,040 booking orders gives ($4,548 against $3,802 for the plain pass). Every plan tried is a valid one, so the result is never worse
+// than the plain greedy pass. Replans are capped (fewer for a long list) so the page stays quick.
+export const MAX_REPLANS = 150;
+const planValue = (p) => p.rows.reduce((s, r) => s + r.margin, 0);
+const planSold = (p) => p.rows.reduce((s, r) => s + r.sold, 0);
+const beats = (a, b) => planValue(a) > planValue(b) + 1e-6 || (Math.abs(planValue(a) - planValue(b)) <= 1e-6 && planSold(a) > planSold(b));
+
+function plan(crops, o) {
+  let best = planCore(crops, o);
+  if (best.rows.every((r) => r.short === 0)) return best;
+  let budget = Math.max(10, Math.min(MAX_REPLANS, Math.floor(3000 / crops.length)));
+  const byKey = (f) => [...crops].sort((a, b) => f(a, b) || a.id - b.id).map((c) => c.id);
+  const area = (c) => (c.units / c.density) * c.grow;
+  for (const order of [byKey((a, b) => a.sale - b.sale), byKey((a, b) => (b.units * (b.price - b.cost)) - (a.units * (a.price - a.cost))), byKey((a, b) => area(a) - area(b))]) {
+    if (budget-- <= 0) break;
+    const p = planCore(crops, o, order);
+    if (beats(p, best)) best = p;
+  }
+  // Local search: move one crop to another place in the queue (each short crop first, then any crop), keep the first move
+  // that earns more, and repeat until no move helps or the budget runs out.
+  for (let improved = true; improved && budget > 0;) {
+    improved = false;
+    const short = best.rows.filter((x) => x.short > 0).sort((a, b) => b.fullMargin - a.fullMargin).map((x) => x.id);
+    const movers = [...short, ...best.order.filter((id) => !short.includes(id))];
+    search: for (const id of movers) {
+      const rest = best.order.filter((x) => x !== id);
+      for (let at = 0; at <= rest.length; at++) {
+        const order = [...rest.slice(0, at), id, ...rest.slice(at)];
+        if (order.every((x, i) => x === best.order[i])) continue;
+        if (budget-- <= 0) break search;
+        const p = planCore(crops, o, order);
+        if (beats(p, best)) { best = p; improved = true; break search; }
+      }
+    }
+  }
+  return best;
 }
 
 export function analyze(text, options = {}) {
@@ -136,7 +181,7 @@ export function analyze(text, options = {}) {
   const { crops, errors } = parseCrops(text);
   if (!crops.length) return { summary: null, rows: [], weeks: [], warnings: [], errors: errors.length ? errors : ["No crops found. Use lines of crop, sale date, units, germination weeks, growing weeks, units per sq ft."], sweep: [], economics: [] };
 
-  const base = planCore(crops, o);
+  const base = plan(crops, o);
   const unlimited = planCore(crops, { ...o, benchSqft: 1e9, germSqft: 1e9 });
   const peak = (t, k) => t.weeks.reduce((m, w) => Math.max(m, w[k]), 0);
   const need = { bench: peak(unlimited, "bench"), germ: peak(unlimited, "germ") };
@@ -148,7 +193,7 @@ export function analyze(text, options = {}) {
   // So each row keeps the best plan found at or below its size.
   const sweep = [];
   for (const extra of [0, 50, 100, 200, 400]) {
-    const p = extra ? planCore(crops, { ...o, benchSqft: o.benchSqft + extra }) : base;
+    const p = extra ? plan(crops, { ...o, benchSqft: o.benchSqft + extra }) : base;
     const row = { extra, benchSqft: o.benchSqft + extra, sold: sum(p.rows, "sold"), margin: sum(p.rows, "margin") };
     const prev = sweep[sweep.length - 1];
     if (prev && prev.margin > row.margin) { row.sold = prev.sold; row.margin = prev.margin; }

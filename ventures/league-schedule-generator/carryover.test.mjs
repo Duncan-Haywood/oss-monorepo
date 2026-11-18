@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { carryOverFromOpponents, carryOver, lowCarryOverRounds, circleOpp, assignVenues, venueCost, PROVEN_LEAST, bestCarryOverRounds, carryOverPure } from "./carryover.mjs";
+import { carryOverFromOpponents, carryOver, lowCarryOverRounds, circleOpp, assignVenues, venueCost, PROVEN_LEAST, bestCarryOverRounds, carryOverPure, carryOverTry, combineCarryOverTries, withSearchMemo } from "./carryover.mjs";
 import { roundRobin, buildSchedule, validateSchedule, countBreaks, readSpec, encodeFields, decodeFields } from "./calc.mjs";
 
 const teams = (n) => Array.from({ length: n }, (_, i) => `T${i + 1}`);
@@ -317,12 +317,43 @@ test("the carry-over-only season: 'the most even carry-over' reaches the proved 
   const fair = bestCarryOverRounds(10, { ...opts, pick: 0, pure: true });
   assert.equal(fair.coe, PROVEN_LEAST[10].least, "kept the proved least");
   assert.ok(fair.tries.length === 11 && fair.chosen === 10, "the pure season is numbered last and kept");
-  assert.ok(bestCarryOverRounds(10, { ...opts, pick: 0 }).coe > fair.coe, "without it the weighted tries stop above 94");
+  // The ten tries depend on neither the pick nor `pure` (carryOverTry takes neither), so the other
+  // five seasons are the same tries combined as bestCarryOverRounds combines them, searched once:
+  // five more full calls were 45 of this test's 54 s (docs/history/ci-perf-2026-11-15-league-tests-shared-tries.md).
+  // The fair season pins that this is what bestCarryOverRounds returns.
+  const searched = Array.from({ length: 10 }, (_, i) => carryOverTry(10, i, { seed: 1, effort: opts.effort, weighted: opts.tries }));
+  const withPure = [...searched, ...carryOverPure(10, searched, { seed: 1, effort: opts.effort })];
+  assert.deepEqual(combineCarryOverTries(withPure, 0, { among: Infinity }), fair, "the shared tries are bestCarryOverRounds' own");
+  // bestCarryOverRounds' own choice among the tries for a pick above 0, on a small search: at pick 1
+  // the pure season (94 / 14, score 108) would beat every try (110 / 10 at best, 120) if it could be
+  // kept, so this fails if a pick other than 0 ever chooses among the pure season
+  const small = { tries: 2, capped: 1, effort: 0.05 };
+  const smallTries = Array.from({ length: 3 }, (_, i) => carryOverTry(10, i, { seed: 1, effort: small.effort, weighted: small.tries }));
+  const smallPure = carryOverPure(10, smallTries, { seed: 1, effort: small.effort });
+  assert.equal(smallPure.length, 1);
+  const one = bestCarryOverRounds(10, { ...small, pick: 1, pure: true });
+  assert.deepEqual(one, combineCarryOverTries([...smallTries, ...smallPure], 1, { among: 3 }));
+  assert.ok(one.chosen < 3 && combineCarryOverTries([...smallTries, ...smallPure], 1).chosen === 3, "pick 1 does not keep the pure season");
+  const best = (pick, pure) => combineCarryOverTries(pure ? withPure : searched, pick, { among: pick === 0 && pure ? Infinity : opts.tries + opts.capped });
+  assert.ok(best(0, false).coe > fair.coe, "without it the weighted tries stop above 94");
   for (const pick of [10, 40]) {
-    const a = bestCarryOverRounds(10, { ...opts, pick, pure: true }), b = bestCarryOverRounds(10, { ...opts, pick });
+    const a = best(pick, true), b = best(pick, false);
     assert.deepEqual([a.coe, a.breaks, a.chosen], [b.coe, b.breaks, b.chosen], `pick ${pick} keeps what it kept`);
     assert.ok(a.frontier.some((f) => f.coe === 94), "but the list offers the 94 season");
   }
   // nothing new: an earlier season at or under the pure one's carry-over means no extra season
   assert.deepEqual(carryOverPure(10, [{ ...fair, pure: undefined, index: 0 }]), []);
+});
+
+test("withSearchMemo: a repeated search is a fresh copy of the unmemoised answer", () => {
+  const opts = { effort: 0.05, breakWeight: 10 };
+  const plain = lowCarryOverRounds(6, opts);
+  const [a, b, c] = withSearchMemo(() => {
+    const first = lowCarryOverRounds(6, opts);
+    first.rounds[0].matches[0][0] = -1; // a caller changing its copy does not reach the memo
+    return [first, lowCarryOverRounds(6, opts), lowCarryOverRounds(6, { ...opts, seed: 2 })];
+  });
+  assert.equal(a.rounds[0].matches[0][0], -1);
+  assert.deepEqual(b, plain);
+  assert.deepEqual(c, lowCarryOverRounds(6, { ...opts, seed: 2 }));
 });

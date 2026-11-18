@@ -1,0 +1,75 @@
+# water-leaks step 23: step 21's tracker on the demand-oracle residual D, unchanged; candidates = atoms
+# active on day k with onset in [k - 30, k]; each candidate's daily flow over [k - 29, k] fitted by a
+# one-change step or ramp; estimate = the candidate whose change (step: its day; ramp: its half-level day)
+# is nearest the alarm t/24 (fallback: latest onset); rule 300 m along pipes
+
+chance: expected 1.40 of 32 within 300 m
+
+## within 300 m (P(chance >=); median error m)
+  C30, primary                                 13 of 32 (0.0000;   394); abrupt 10 of 15, incipient 3 of 17
+  ref: S30 steepest (step 22)                  14 of 32 (0.0000;   517); abrupt 8 of 15, incipient 6 of 17
+  ref: T-D latest onset (step 21)              13 of 32 (0.0000;   521); abrupt 10 of 15, incipient 3 of 17
+  ref: A on D1 regression (step 11)            15 of 32 (0.0000;   436); abrupt 10 of 15, incipient 5 of 17
+  ref: one-leak oracle (step 17)               28 of 32 (0.0000;    68); abrupt 13 of 15, incipient 15 of 17
+
+## variants (no verdicts)
+  C30-start (change = start for both shapes)   12 of 32 (0.0000;   430); abrupt 10 of 15, incipient 2 of 17
+  C30-step (every candidate a step)            13 of 32 (0.0000;   394); abrupt 10 of 15, incipient 3 of 17
+  C30-ramp (every candidate a ramp)            13 of 32 (0.0000;   394); abrupt 10 of 15, incipient 3 of 17
+  C14 (onset within 14 days)                   14 of 32 (0.0000;   388); abrupt 11 of 15, incipient 3 of 17
+  C60 (onset within 60 days)                   13 of 32 (0.0000;   394); abrupt 10 of 15, incipient 3 of 17
+
+## paired, 300 m hits (exact sign test on discordant leaks)
+  C30 only 1, TD only 1: P = 1.000
+  C30 only 3, S30 only 4: P = 1.000
+  C30 only 5, d1 only 7: P = 0.774
+  C30 only 1, C30start only 0: P = 1.000
+  C30 only 1, or17 only 16: P = 0.000
+  for reference: S30 or T-D hits 18; C30 hits 13 of those and 0 others
+
+## shapes (C30's fits)
+  candidates per leak median 6, of which ramps median 1
+  a candidate within 300 m: 20 of 32; its fitted shape matches the leak type for 15
+    abrupt fitted step 7 of 12; incipient fitted ramp 8 of 8
+  its change time minus the alarm, days: median -0.7, |.| median 0.7 (abrupt -0.4, incipient -4.2)
+
+  pipe  kind       t                 |  k  |  C30 |  S30 |  T-D | cand | ramps | near shape, dt | pick
+   p232 incipient  2018-02-02T15    |  33 |  102 |  102 |  102 |    4 |     4 | ramp, -1.1     | ramp
+   p673 abrupt     2018-03-05T16    |  64 |  267 |  267 |  267 |    6 |     5 | ramp, -0.7     | ramp
+   p461 incipient  2018-03-09T04    |  68 | 2414 | 2414 | 2414 |    5 |     2 | ramp, -12.7    | step
+   p427 incipient  2018-04-18T21    | 108 | 1062 | 1328 | 1062 |    2 |     0 | -              | step
+   p628 incipient  2018-05-12T08    | 132 |  399 |  208 | 1576 |    6 |     3 | ramp, -3.3     | ramp
+   p538 abrupt     2018-05-18T09    | 138 |  426 |  989 |  218 |    9 |     5 | ramp, -0.4     | step
+   p866 abrupt     2018-06-01T09    | 152 |  198 |  198 | 2299 |    9 |     0 | step, -0.4     | step
+    p31 incipient  2018-07-23T18    | 204 |  666 |  666 |  666 |    1 |     0 | -              | step
+   p183 abrupt     2018-08-07T03    | 219 |  128 |  128 |  128 |    2 |     0 | step, -0.1     | step
+   p654 incipient  2018-08-26T14    | 238 |  171 |  171 |  171 |    6 |     1 | ramp, -4.1     | ramp
+   p810 incipient  2018-10-05T14    | 278 |  918 |  918 |  918 |    4 |     0 | -              | step
+   p158 abrupt     2018-10-06T03    | 279 |   83 |   83 |   83 |    4 |     0 | step, -0.1     | step
+   p369 abrupt     2018-10-26T02    | 299 |  435 |  435 |  435 |    2 |     0 | -              | step
+   p523 abrupt     2019-01-15T23    | 380 |   86 |   86 |   86 |    9 |     0 | step, +0.0     | step
+   p827 abrupt     2019-01-24T19    | 389 |  242 | 2801 |  242 |   12 |     1 | ramp, -0.8     | step
+   p280 abrupt     2019-02-10T13    | 406 | 1254 | 1254 | 1254 |    4 |     0 | -              | step
+   p710 abrupt     2019-03-24T14    | 448 |  141 |  142 |  142 |    6 |     1 | ramp, -0.6     | ramp
+   p514 abrupt     2019-04-02T21    | 457 |   77 | 1005 |   77 |    8 |     1 | step, +0.1     | step
+   p653 incipient  2019-04-07T12    | 462 |  323 |  896 |  323 |   11 |     2 | ramp, -14.5    | step
+   p331 abrupt     2019-04-20T10    | 475 |  277 | 1266 |  277 |    7 |     2 | ramp, -0.4     | ramp
+   p142 abrupt     2019-06-12T20    | 528 |  483 |  281 |  482 |    5 |     0 | step, -28.8    | step
+   p193 incipient  2019-07-05T22    | 551 | 2451 | 2682 | 2682 |    5 |     0 | -              | step
+   p680 abrupt     2019-07-10T09    | 556 |  109 |  109 |  109 |    2 |     0 | step, +0.6     | step
+   p277 incipient  2019-07-21T22    | 567 | 1602 | 2153 | 1602 |    6 |     0 | -              | step
+   p586 incipient  2019-08-18T21    | 595 |  571 |  193 | 1551 |    9 |     1 | ramp, -3.4     | step
+   p800 incipient  2019-09-01T10    | 609 |  389 |   97 | 2836 |    9 |     4 | ramp, -4.4     | step
+   p721 incipient  2019-09-08T03    | 616 | 1364 | 1140 |  559 |    7 |     2 | -              | step
+   p426 abrupt     2019-10-25T13    | 663 |  387 |  387 | 1523 |    3 |     0 | -              | step
+   p123 incipient  2019-11-07T22    | 676 | 2115 |  599 |  563 |    6 |     2 | -              | step
+   p762 incipient  2019-11-17T03    | 686 | 2428 | 1523 | 2428 |    4 |     1 | -              | ramp
+   p455 incipient  2019-11-24T22    | 693 |  137 |  137 |  137 |    3 |     1 | ramp, -9.9     | ramp
+   p879 incipient  2019-12-19T21    | 718 | 1741 | 1741 | 1741 |    2 |     0 | -              | step
+
+## pre-registered predictions (LOG.md, step 23 plan)
+  (a) C30 puts more than 14 of 32 within 300 m: 13: FAILED
+  (b) C30 keeps at least 10 of 15 abrupt leaks: 10: HELD
+  (c) C30 puts at least 6 of 17 incipient leaks within 300 m: 3: FAILED
+  (d) the near candidate's shape matches the leak type for at least 15 of the 20: 15: HELD
+  (e) C30 beats T-D at P < 0.05: C30 only 1, T-D only 1, P = 1.000: FAILED

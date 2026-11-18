@@ -35,7 +35,7 @@ export const customerKey = (s) => norm(s).replace(SUFFIX, " ").replace(/\s+/g, "
 export function parseCsv(text) {
   const rows = [];
   let row = [], cur = "", q = false, line = 1, rowLine = 1;
-  const src = String(text).replace(/^﻿/, "");
+  const src = String(text).replace(/^\uFEFF/, "");
   const push = () => { row.push(cur); cur = ""; };
   const endRow = () => { push(); if (row.some((c) => c.trim() !== "")) rows.push({ line: rowLine, cells: row }); row = []; };
   for (let i = 0; i < src.length; i++) {
@@ -93,7 +93,7 @@ export const addYears = (n, years) => {
   d.setUTCFullYear(d.getUTCFullYear() + years);
   return Math.round(d.getTime() / DAY);
 };
-export const dollars = (cents) => (cents < 0 ? "-" : "") + "$" + (Math.abs(cents) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const dollars = (cents) => ((t) => (cents < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + (Math.abs(cents) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
 const STATES = {
   AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California", CO: "Colorado", CT: "Connecticut", DE: "Delaware", DC: "District of Columbia",

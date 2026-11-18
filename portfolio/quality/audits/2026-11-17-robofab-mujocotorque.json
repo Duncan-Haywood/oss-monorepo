@@ -1,0 +1,245 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/robofab-mujocotorque",
+ "stratum": "research",
+ "seed": "2026-11-17-1d50",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a robotics simulation researcher who validates analytic manipulator dynamics against a physics engine (recursive Newton-Euler, MuJoCo MJCF and mj_inverse semantics); first checks: does the closed form match an independent derivation, does the engine model contain anything the closed form lacks (passive forces, armature, regularising inertias), and do the reported discrepancies have an explained source",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Outputs reproduce exactly and are right against sources the author did not write. (1) `pip install mujoco numpy` gave mujoco 4.0.1 (README says 3.x; unpinned); the full experiment rerun in a scratch copy (`PYTHONPATH=src /usr/bin/python3.13 experiments/run.py`, 70 s) produced a results.txt with zero diff lines and a results.json whose 108 rows match to 2.5e-15 relative (T) and exactly elsewhere. (2) Closed-form static gravity torque (moment of the weights about each hinge, rods at mid-length) for the test arm at q = (0,0): 0.887315 / 0.404662 N m; hand model and mj_inverse agree to 1e-6; at q = (0.7, -1.1) closed form 0.741871456 = MuJoCo 0.741871456. (3) My own Lagrangian (COM velocities, rod inertia m l^2/12 about the COM, point payload) differentiated numerically (Euler-Lagrange by central differences) at 50 random states with |qd| <= 8, |qdd| <= 80: max |EL - hand| 3.4e-7, max |EL - MuJoCo| 4.8e-7 N m (finite-difference noise), so both codes implement the right equations. (4) The 1.8e-5 N m headline 'difference', whose source README:52 says was not investigated, is entirely the author's own regulariser: mj.py:21 gives the wrist payload diaginertia 1e-9 on all axes, and its y component enters both joints as 1e-9 (qdd1 + qdd2). Subtracting that term leaves a residual of 6.5e-13 N m at |qdd| up to 5e4; with the payload inertia set to 1e-15 the max |MuJoCo - hand| is 9.4e-11. Not a 4: the reported agreement figure is correct as measured but misattributed by five orders of magnitude, and the replay metric conflates sample-hold and integration error (stated).",
+  "completeness": "Claimed and checked: '5 tests, < 5 s' (5 passed in 0.06 s unittest, 0.23 s pytest); 'about 2 min' (70 s); 108 profiles = 3 L x 3 k x 6 parts x 2 profiles (108 rows in results.json); the nine rows rebuilt from robofab-torquebound (six-part totals for L = 0.08, k = none: trapezoid 0.146 s and time-optimal 0.1225 s, matching torquebound's Ttrap160 0.146 and T@1600 0.1224); every number in the Results table matches results.json (per-row worst diff, peak, deviation, end error); live page https://marisstella.app/research/robofab-mujocotorque/ returns 200. figure.py not regenerated (matplotlib not installed; it reads only results.json). No stubs or TODOs; all Next steps (PD replay, contact test of the jaw bound, motor line, jerk limit) are stated as open.",
+  "verification": "`cd research/robofab-mujocotorque && PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests -v`: 5 tests OK in 0.06 s. The hand-vs-MuJoCo test at 300 random states is a real oracle: it caught two of five seeded mutants (Coriolis factor 2 d1 d2 -> d1 d2 at model.py:52; rod inertia /12 -> /3 at mj.py:15). Three survived: replay() applying torque without the acceleration term (mj.py:64), replay end error measured against the start pose instead of the target (mj.py:68), and the time-optimal plan's joint acceleration halved (experiments/run.py:44). Both replay tests use a static plan (qd = qdd = 0), so nothing about a moving replay or the end-error metric is tested, and run.py (plan construction, compare()) has no test and is not importable (top-level script).",
+  "craft": "Read mj.py, model.py, trap.py, topp.py, run.py, figure.py, tests/test_mj.py. Short and readable; mj.py is a clean 69-line MJCF builder. Defects: model.py, topp.py, trap.py and geometry.py are verbatim copies (model.py identical in 11 robofab-* projects, geometry.py in 14), so a fix must be repeated; mj.py:5 docstring says the small regularising inertia 'does not enter a planar motion' but mj.py:21 sets the payload's Iyy (the hinge axis) to 1e-9 too, which does enter and is the whole measured discrepancy; run.py is a top-level script with no main guard, and run.py:93 writes results.json via an unclosed open(); replay() (mj.py:60-66) holds the plan sample at the start of each 0.1 ms step and compares the post-step state with that pre-step sample (a one-step offset; I measured it changes the deviation by 0.3 to 6%, so it is minor).",
+  "claims": "Checked against results.json and my rerun: max diff 1.8e-5 (opt) and 4.8e-6 (trap) true; trapezoid torque-only peaks 4.97-5.04 with 5 of 18 above 5 N m by at most 0.731% true; time-optimal 5.0002-5.0106, 18 of 18 above 5, at most 0.21% true; replay 0.023 / 0.009 rad and 1.43 / 0.70 mm true; table rows all true. Inaccurate: README:8 says the 36 jaw-capped profiles per type have torque peaks 0.38 to 1.9 N m, but the per-profile minimum is 0.248 N m (0.38 is the smallest per-row maximum); README:46 says the jaw-capped rows' worst differences run from 1.5e-7, actual per-row minimum 8.6e-8 (L = 0.2, k = 2, trapezoid); README:7 says 'at any of 4,000 samples' for all 108 profiles, but the time-optimal profiles are compared at the 1,601 solver nodes (README:31 says so correctly); the 'wrist agrees to 1e-9 m' claim rests on a test at 3 poses, not on the profiles. Disclaimers present: 'stylised', 'Simulated results are not claims about physical arms', 'Produced with AI assistance', a Limitations section that says agreement of two implementations does not validate the toy against a real arm. Scored 3: every headline conclusion is backed and the slips are secondary bounds.",
+  "fitness": "Job: a researcher on the robofab track wants to know whether the torque-bound edges rest on a dynamics bug, and to reuse a MuJoCo arm. It answers that, reruns in 70 s after one pip install, and mj.py is reusable. Nearest prior work: closed-form two-link dynamics is the textbook example (Spong, Hutchinson and Vidyasagar, Robot Modeling and Control, 2nd ed. 2020, ch. 6-7) and checking a hand-derived model against a recursive Newton-Euler implementation (Featherstone, Rigid Body Dynamics Algorithms, 2008; MuJoCo's mj_inverse, Pinocchio, RBDL) is a standard unit-level verification, not a research result. The 108-profile sweep adds nothing to the unit test's 300 random states for the torque comparison: compare() evaluates both codes at whatever (q, qd, qdd) the plan lists, and the surviving run.py:44 mutant (plan acceleration halved) would leave the 'max diff' column unchanged. Only the open-loop replay ties the comparison to the plans, and it does not separate hold error from integration error. Sound, useful as an appendix to robofab-torquebound; not new.",
+  "domain": "Compared against MuJoCo documentation (API reference mj_inverse: qfrc_inverse is the generalised force for the given qacc, i.e. M qacc + qfrc_bias - qfrc_passive - qfrc_constraint; Modeling, inertial/diaginertia) and the textbook two-link equations. Departures checked: hinge axis 0 -1 0 makes positive q lift towards +z (FK test, and my gravity values); qfrc_passive, qfrc_constraint, armature and damping are all zero in the built model (checked), so qfrc_inverse is directly comparable to the rigid-body torque. A practitioner would first ask why two exact rigid-body codes disagree at 1e-5 N m instead of ~1e-12; the answer is the 1e-9 kg m^2 payload Iyy the author added for positive-definiteness, which the README leaves unexplained. The open-loop replay with a 0.1 ms zero-order hold on 17-30 ms moves (170-300 steps) is coarse for a tracking claim but is labelled an upper bound, not a tracking measure."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Static gravity torque at horizontal pose for Arm(0.12, 0.15, 0.12, 0.15, 0.2)",
+   "method": "closed form: tau1 = g[m1 l1/2 + m2 (l1 + l2/2) + mp (l1 + l2)], tau2 = g[m2 l2/2 + mp l2] (moment of weights about each hinge)",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/7a221d65-0203-5521-aacd-e90e19e27620/scratchpad/mjt && /usr/bin/python3.13 -I recompute.py /home/user/oss-monorepo/research/robofab-mujocotorque",
+   "expected": "0.887315, 0.404662 N m",
+   "observed": "hand 0.887315, 0.404662; MuJoCo 0.887315, 0.404663",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Shoulder gravity torque at q = (0.7, -1.1)",
+   "method": "closed form g[(m1 l1/2 + (m2+mp) l1) cos q1 + (m2 l2/2 + mp l2) cos(q1+q2)]",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/7a221d65-0203-5521-aacd-e90e19e27620/scratchpad/mjt && /usr/bin/python3.13 -I recompute.py /home/user/oss-monorepo/research/robofab-mujocotorque",
+   "expected": "0.741871456 N m",
+   "observed": "MuJoCo 0.741871456 N m",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Full dynamic torques at 50 random states (|qd| <= 8, |qdd| <= 80)",
+   "method": "auditor's own Lagrangian (COM kinematics, rod inertia m l^2/12, point payload), Euler-Lagrange by central differences",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/7a221d65-0203-5521-aacd-e90e19e27620/scratchpad/mjt && /usr/bin/python3.13 -I recompute.py /home/user/oss-monorepo/research/robofab-mujocotorque",
+   "expected": "agreement to finite-difference noise (~1e-6)",
+   "observed": "max |EL - hand| 3.39e-7, max |EL - MuJoCo| 4.75e-7 N m",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Source of the 1.8e-5 N m hand-vs-MuJoCo difference that README:52 leaves uninvestigated",
+   "method": "MuJoCo MJCF semantics: payload diaginertia Iyy = 1e-9 (mj.py:21) about the hinge axis adds 1e-9 (qdd1 + qdd2) to both joint torques",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/7a221d65-0203-5521-aacd-e90e19e27620/scratchpad/mjt && /usr/bin/python3.13 -I recompute.py /home/user/oss-monorepo/research/robofab-mujocotorque",
+   "expected": "residual at machine precision after subtracting 1e-9 (a1 + a2)",
+   "observed": "residual 6.53e-13 N m at |qdd| up to 5e4; with Iyy = 1e-15 max |MuJoCo - hand| 9.41e-11",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Headline experiment rerun (108 profiles, compare and replay)",
+   "method": "rerun in a scratch copy with mujoco 4.0.1, diff against committed files",
+   "command": "cp -r /home/user/oss-monorepo/research/robofab-mujocotorque /tmp/claude-0/-home-user-oss-monorepo/7a221d65-0203-5521-aacd-e90e19e27620/scratchpad/mjt/copy && cd /tmp/claude-0/-home-user-oss-monorepo/7a221d65-0203-5521-aacd-e90e19e27620/scratchpad/mjt/copy && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py > ../results_rerun.txt && diff /home/user/oss-monorepo/research/robofab-mujocotorque/experiments/results.txt ../results_rerun.txt",
+   "expected": "same numbers",
+   "observed": "0 differing lines in results.txt; results.json max relative change 2.5e-15 (T), 0 elsewhere; 70 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Rows rebuilt match robofab-torquebound (L = 0.08, k = none, six-part totals)",
+   "method": "sum of per-part T in results.json vs research/robofab-torquebound/experiments/results.txt (Ttrap160, T@1600)",
+   "command": "python3 -c \"import json;a=json.load(open('research/robofab-mujocotorque/experiments/results.json'));print([round(sum(r['T'] for r in a if r['L']==0.08 and r['k'] is None and r['profile']==p),4) for p in ('trap','opt')])\"",
+   "expected": "0.146, 0.1224",
+   "observed": "0.146, 0.1225",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Replay deviation includes a one-step timing offset (post-step state vs pre-step sample, mj.py:66)",
+   "method": "same torque schedule, deviation measured against the trapezoid evaluated in closed form at t + dt",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/7a221d65-0203-5521-aacd-e90e19e27620/scratchpad/mjt && /usr/bin/python3.13 -I replay_align.py /home/user/oss-monorepo/research/robofab-mujocotorque",
+   "expected": "small change if the offset is negligible",
+   "observed": "rail_r 8.96e-3 -> 8.93e-3 rad; finger_b 8.19e-3 -> 7.66e-3 rad (0.3-6%)",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "qfrc_inverse comparable to rigid-body torque (no passive, constraint, armature, damping)",
+   "method": "MuJoCo docs, mj_inverse: qfrc_inverse = M qacc + bias - passive - constraint; inspected built model",
+   "command": "/usr/bin/python3.13 -c '... MjArm(...).torque(...); print(d.qfrc_passive, d.qfrc_constraint, m.dof_armature, m.dof_damping)'",
+   "expected": "all zero",
+   "observed": "passive [0 0], constraint [0 0], nefc 0, armature [0 0], damping [0 0]",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run as the README says and with pytest",
+   "command": "cd research/robofab-mujocotorque && PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests -v",
+   "expected": "5 tests pass < 5 s",
+   "observed": "5 OK in 0.056 s; pytest 5 passed in 0.23 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:7, README:8 headline numbers (1.8e-5, 4.8e-6, 4.97-5.04, 5 of 18, 0.73%, 5.000-5.011, 18 of 18, 0.21%)",
+   "method": "recomputed from results.json (cmpjson.py)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/7a221d65-0203-5521-aacd-e90e19e27620/scratchpad/mjt/cmpjson.py research/robofab-mujocotorque/experiments/results.json /tmp/claude-0/-home-user-oss-monorepo/7a221d65-0203-5521-aacd-e90e19e27620/scratchpad/mjt/copy/experiments/results.json",
+   "expected": "as README",
+   "observed": "1.77e-5, 4.75e-6, 4.9738-5.0365, 5, 0.731%, 5.0002-5.0106, 18, 0.211%",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:8 'In the 36 jaw-capped profiles per type ... the torque peak is 0.38 to 1.9 N m'",
+   "method": "min and max peak_mujoco over the 36 capped rows per profile type",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/7a221d65-0203-5521-aacd-e90e19e27620/scratchpad/mjt/cmpjson.py research/robofab-mujocotorque/experiments/results.json /tmp/claude-0/-home-user-oss-monorepo/7a221d65-0203-5521-aacd-e90e19e27620/scratchpad/mjt/copy/experiments/results.json",
+   "expected": "0.38 to 1.9",
+   "observed": "trap 0.248 to 1.56; opt 0.250 to 1.92",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:46 jaw-capped rows' worst differences 1.5e-7 to 2.8e-6 N m",
+   "method": "per (L, k, profile) worst max_diff for k = 2, 5",
+   "command": "python3 (per-row grouping of results.json)",
+   "expected": "1.5e-7 to 2.8e-6",
+   "observed": "8.6e-8 (L 0.2, k 2, trap) to 2.8e-6",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:7 'at any of 4,000 samples' for all 108 profiles",
+   "method": "read run.py opt_plan: time-optimal plan is the n = 1600 solver nodes",
+   "command": "grep -n 'prof\\[\"n\"\\] + 1' research/robofab-mujocotorque/experiments/run.py",
+   "expected": "4,000 samples per profile",
+   "observed": "trapezoid 4,006 samples; time-optimal 1,601 nodes (README:31 says so)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Live page served with disclaimers",
+   "method": "curl the served page",
+   "command": "curl -s https://marisstella.app/research/robofab-mujocotorque/",
+   "expected": "200, stylised, AI assistance",
+   "observed": "200; 'stylised' x12, 'AI assistance' x1, 1.8e-5 x3",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/robofab_mujocotorque/model.py:52",
+   "change": "h * (2 * d1 * d2 + d2 * d2) -> h * (d1 * d2 + d2 * d2)",
+   "caught": true,
+   "test_cmd": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/robofab_mujocotorque/mj.py:15",
+   "change": "i = m * l * l / 12.0 -> i = m * l * l / 3.0",
+   "caught": true,
+   "test_cmd": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/robofab_mujocotorque/mj.py:64",
+   "change": "d.qfrc_applied[:] = arm.torque(qs[k], qds[k], qdds[k]) -> d.qfrc_applied[:] = arm.torque(qs[k], qds[k], (0.0, 0.0))",
+   "caught": false,
+   "test_cmd": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/robofab_mujocotorque/mj.py:68",
+   "change": "xe = arm.fk(*qs[-1]) -> xe = arm.fk(*qs[0])",
+   "caught": false,
+   "test_cmd": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/run.py:44",
+   "change": "qdds.append((dq[0] * sdd[k], dq[1] * sdd[k])) -> qdds.append((dq[0] * sdd[k] * 0.5, dq[1] * sdd[k] * 0.5))",
+   "caught": false,
+   "test_cmd": "env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The headline 1.8e-5 N m hand-vs-MuJoCo difference, which README:52 says was not investigated, is the author's own regularising payload inertia: mj.py:21 sets the payload diaginertia to 1e-9 on all three axes, including Iyy about the hinge axis, which adds exactly 1e-9 (qdd1 + qdd2) N m to both joints (residual 6.5e-13 after subtracting it; 9.4e-11 with Iyy = 1e-15). The mj.py:5 docstring says the small inertia 'does not enter a planar motion', true only for the links' axial Ixx. The two codes actually agree to ~1e-10; the README reports and leaves unexplained a discrepancy five orders larger that it introduced.",
+   "where": "research/robofab-mujocotorque/src/robofab_mujocotorque/mj.py:21",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"
+  },
+  {
+   "severity": "medium",
+   "what": "Replay logic is untested on a moving plan: both replay tests use qd = qdd = 0, so dropping the acceleration term from the applied torque (mj.py:64) or measuring end error against the start pose (mj.py:68) leaves the suite green; experiments/run.py (plan construction, compare()) has no test and the halved-acceleration mutant at run.py:44 survives.",
+   "where": "research/robofab-mujocotorque/tests/test_mj.py:33",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "README says the 36 jaw-capped profiles per type have torque peaks 0.38 to 1.9 N m; results.json gives 0.248 to 1.92 (0.38 is the smallest per-row maximum).",
+   "where": "research/robofab-mujocotorque/README.md:8",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"
+  },
+  {
+   "severity": "low",
+   "what": "README says the jaw-capped rows' worst differences run from 1.5e-7 N m; the per-row minimum in results.json is 8.6e-8 (L 0.2, k 2, trapezoid).",
+   "where": "research/robofab-mujocotorque/README.md:46",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"
+  },
+  {
+   "severity": "low",
+   "what": "Headline says all 108 profiles were compared 'at any of 4,000 samples'; the 54 time-optimal profiles are compared at their 1,601 solver nodes (the Method section, README:31, is correct). The 'wrist agrees to 1e-9 m' claim rests on a test at 3 poses, not on the profiles.",
+   "where": "research/robofab-mujocotorque/README.md:7",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"
+  },
+  {
+   "severity": "low",
+   "what": "The 108-profile torque comparison is plan-independent: compare() evaluates both codes at the listed (q, qd, qdd), so it adds nothing to the unit test's random-state check (the run.py:44 mutant halving the plan acceleration would leave 'max diff' unchanged); only the replay connects the check to the plans. Closed-form-vs-RNE agreement is a standard verification step (Spong et al.; Featherstone 2008), not a new result.",
+   "where": "research/robofab-mujocotorque/experiments/run.py:48",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "model.py, topp.py, trap.py and geometry.py are verbatim copies of sibling projects (model.py identical in 11 robofab-* projects, geometry.py in 14); run.py:93 writes results.json through an unclosed open() and run.py has no main guard; mujoco is unpinned while the README says 3.x (4.0.1 reproduced identically).",
+   "where": "research/robofab-mujocotorque/experiments/run.py:93",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"],
+ "verdict": "A careful, honest, small model-verification study. Rerunning the full experiment with mujoco 4.0.1 reproduced results.txt line for line; the hand-written two-link torques match the auditor's own Euler-Lagrange derivation (3.4e-7 N m, finite-difference noise) and closed-form gravity torques, and MuJoCo's mj_inverse agrees with them. The one unexplained number in the README, the 1.8e-5 N m difference, is the author's own 1e-9 kg m^2 payload inertia about the hinge axis (mj.py:21): removing it the codes agree to 1e-10. Misses the bar on verification (2): the equivalence test is a real oracle and caught 2 of 5 seeded bugs, but replay and the experiment script are untested and 3 mutants survived. A few secondary README numbers are wrong (README:8, :46) and the work is a standard verification step rather than a new result, so fitness is 2."
+}

@@ -385,7 +385,7 @@ export function analyze(tableRows, partyRows, shared) {
 
 export function money(x) {
   const v = Math.round(x);
-  return (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US");
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US"));
 }
 export function one(x) { return (Math.round(x * 10) / 10).toLocaleString("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
 

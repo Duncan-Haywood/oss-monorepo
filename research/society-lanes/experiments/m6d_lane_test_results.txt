@@ -1,0 +1,80 @@
+Milestone 6d: registered test of the lane-order gain from crowd-side robots, with a same-bodies (lateral-goal robot) control
+HERMES 3.6 m corridor, 16 m; 40 seeds per cell (SEED0 20300000); 120 s runs, the first 40 s warm-up; robots 1.2 m/s; beta = multiplier x fitted (social force 0.1, collision-free speed 0.2); bootstrap B = 2000 over seeds; runs pooled by the mean of their cell means
+
+== Cells, pooled over the two runs (people only; 95% bootstrap interval)
+  sf   x0.25 none     0.00  transit 9.974 [9.516, 10.428]  lane 0.698 [0.676, 0.720]  share 0.663 [0.626, 0.700]
+  sf   x0.25 control  0.20  transit 8.604 [8.319, 8.875]  lane 0.765 [0.745, 0.787]  share 0.638 [0.589, 0.683]
+  sf   x0.25 crowd    0.20  transit 8.533 [8.030, 9.058]  lane 0.803 [0.777, 0.829]  share 0.848 [0.822, 0.872]
+  sf   x0.25 goal     0.20  transit 10.322 [9.959, 10.687]  lane 0.688 [0.669, 0.707]  share 0.600 [0.567, 0.633]
+  sf   x0.25 control  0.30  transit 8.075 [7.863, 8.283]  lane 0.791 [0.774, 0.809]  share 0.659 [0.620, 0.700]
+  sf   x0.25 crowd    0.30  transit 7.663 [7.354, 8.014]  lane 0.859 [0.837, 0.880]  share 0.899 [0.877, 0.919]
+  sf   x0.25 goal     0.30  transit 10.598 [10.310, 10.896]  lane 0.691 [0.677, 0.705]  share 0.602 [0.571, 0.633]
+  sf   x0.5  none     0.00  transit 8.660 [8.218, 9.091]  lane 0.778 [0.750, 0.808]  share 0.780 [0.734, 0.822]
+  sf   x0.5  control  0.20  transit 7.716 [7.437, 8.024]  lane 0.830 [0.806, 0.854]  share 0.828 [0.791, 0.861]
+  sf   x0.5  crowd    0.20  transit 7.405 [7.111, 7.682]  lane 0.880 [0.859, 0.903]  share 0.925 [0.909, 0.941]
+  sf   x0.5  goal     0.20  transit 9.889 [9.525, 10.235]  lane 0.727 [0.711, 0.745]  share 0.728 [0.696, 0.760]
+  sf   x0.5  control  0.30  transit 7.510 [7.249, 7.785]  lane 0.855 [0.833, 0.878]  share 0.834 [0.798, 0.869]
+  sf   x0.5  crowd    0.30  transit 6.825 [6.636, 7.057]  lane 0.927 [0.909, 0.943]  share 0.952 [0.938, 0.965]
+  sf   x0.5  goal     0.30  transit 10.441 [10.020, 10.872]  lane 0.720 [0.701, 0.740]  share 0.709 [0.681, 0.737]
+  sf   x0.75 none     0.00  transit 7.515 [7.187, 7.847]  lane 0.864 [0.840, 0.889]  share 0.908 [0.884, 0.930]
+  sf   x0.75 control  0.20  transit 7.098 [6.883, 7.332]  lane 0.893 [0.872, 0.912]  share 0.925 [0.909, 0.941]
+  sf   x0.75 crowd    0.20  transit 6.645 [6.511, 6.794]  lane 0.945 [0.931, 0.957]  share 0.971 [0.963, 0.978]
+  sf   x0.75 goal     0.20  transit 9.007 [8.646, 9.367]  lane 0.772 [0.751, 0.793]  share 0.827 [0.807, 0.847]
+  sf   x0.75 control  0.30  transit 6.889 [6.718, 7.084]  lane 0.907 [0.889, 0.923]  share 0.920 [0.896, 0.940]
+  sf   x0.75 crowd    0.30  transit 6.561 [6.444, 6.681]  lane 0.952 [0.940, 0.962]  share 0.974 [0.964, 0.982]
+  sf   x0.75 goal     0.30  transit 9.452 [9.078, 9.827]  lane 0.761 [0.742, 0.780]  share 0.779 [0.753, 0.803]
+  cfsm x0.25 none     0.00  transit 9.673 [9.565, 9.779]  lane 0.948 [0.938, 0.958]  share 0.768 [0.691, 0.838]
+  cfsm x0.25 control  0.20  transit 8.729 [8.641, 8.824]  lane 0.939 [0.929, 0.949]  share 0.739 [0.655, 0.811]
+  cfsm x0.25 crowd    0.20  transit 9.307 [9.140, 9.535]  lane 0.951 [0.940, 0.960]  share 0.945 [0.925, 0.962]
+  cfsm x0.25 goal     0.20  transit 9.712 [9.593, 9.835]  lane 0.886 [0.874, 0.898]  share 0.695 [0.648, 0.735]
+  cfsm x0.25 control  0.30  transit 8.204 [8.122, 8.291]  lane 0.951 [0.944, 0.957]  share 0.831 [0.762, 0.888]
+  cfsm x0.25 crowd    0.30  transit 9.086 [8.957, 9.230]  lane 0.945 [0.935, 0.955]  share 0.949 [0.935, 0.962]
+  cfsm x0.25 goal     0.30  transit 9.781 [9.666, 9.903]  lane 0.873 [0.861, 0.884]  share 0.655 [0.619, 0.687]
+  cfsm x0.5  none     0.00  transit 9.386 [9.279, 9.494]  lane 0.961 [0.951, 0.971]  share 0.937 [0.905, 0.966]
+  cfsm x0.5  control  0.20  transit 8.540 [8.452, 8.627]  lane 0.965 [0.958, 0.972]  share 0.931 [0.896, 0.963]
+  cfsm x0.5  crowd    0.20  transit 9.037 [8.958, 9.132]  lane 0.972 [0.963, 0.980]  share 0.972 [0.957, 0.985]
+  cfsm x0.5  goal     0.20  transit 9.330 [9.225, 9.442]  lane 0.918 [0.908, 0.928]  share 0.844 [0.815, 0.874]
+  cfsm x0.5  control  0.30  transit 8.211 [8.130, 8.297]  lane 0.969 [0.964, 0.974]  share 0.971 [0.947, 0.991]
+  cfsm x0.5  crowd    0.30  transit 8.925 [8.849, 9.001]  lane 0.977 [0.970, 0.983]  share 0.985 [0.977, 0.992]
+  cfsm x0.5  goal     0.30  transit 9.567 [9.410, 9.720]  lane 0.898 [0.887, 0.909]  share 0.809 [0.783, 0.835]
+
+== Effects (seed = crowd - control, side = crowd - goal, body = goal - control, density = control - none)
+  sf   x0.25 share 0.20 transit seed -0.070 [-0.642, +0.515]  side -1.788 [-2.377, -1.163]  body +1.718 [+1.255, +2.180]  density -1.371 [-1.940, -0.839]
+  sf   x0.25 share 0.20 lane    seed +0.038 [+0.004, +0.072]  side +0.115 [+0.083, +0.147]  body -0.077 [-0.106, -0.048]  density +0.067 [+0.036, +0.098]
+  sf   x0.25 share 0.20 share   seed +0.210 [+0.158, +0.267]  side +0.247 [+0.207, +0.288]  body -0.038 [-0.097, +0.022]  density -0.025 [-0.088, +0.036]
+  sf   x0.25 share 0.30 transit seed -0.412 [-0.779, +0.004]  side -2.935 [-3.365, -2.498]  body +2.523 [+2.162, +2.874]  density -1.900 [-2.420, -1.413]
+  sf   x0.25 share 0.30 lane    seed +0.068 [+0.039, +0.094]  side +0.168 [+0.142, +0.194]  body -0.100 [-0.123, -0.078]  density +0.093 [+0.065, +0.121]
+  sf   x0.25 share 0.30 share   seed +0.240 [+0.196, +0.281]  side +0.297 [+0.259, +0.335]  body -0.057 [-0.110, -0.007]  density -0.004 [-0.057, +0.050]
+  sf   x0.5  share 0.20 transit seed -0.311 [-0.748, +0.094]  side -2.485 [-2.938, -2.038]  body +2.174 [+1.691, +2.614]  density -0.944 [-1.471, -0.404]
+  sf   x0.5  share 0.20 lane    seed +0.050 [+0.018, +0.085]  side +0.153 [+0.125, +0.182]  body -0.103 [-0.133, -0.072]  density +0.052 [+0.012, +0.089]
+  sf   x0.5  share 0.20 share   seed +0.098 [+0.061, +0.138]  side +0.197 [+0.162, +0.231]  body -0.099 [-0.146, -0.050]  density +0.048 [-0.007, +0.105]
+  sf   x0.5  share 0.30 transit seed -0.685 [-1.019, -0.345]  side -3.616 [-4.076, -3.153]  body +2.931 [+2.430, +3.433]  density -1.150 [-1.651, -0.626]
+  sf   x0.5  share 0.30 lane    seed +0.072 [+0.043, +0.102]  side +0.206 [+0.180, +0.232]  body -0.135 [-0.164, -0.103]  density +0.077 [+0.040, +0.114]
+  sf   x0.5  share 0.30 share   seed +0.118 [+0.081, +0.157]  side +0.243 [+0.213, +0.274]  body -0.125 [-0.170, -0.079]  density +0.054 [-0.001, +0.109]
+  sf   x0.75 share 0.20 transit seed -0.454 [-0.733, -0.194]  side -2.363 [-2.756, -1.976]  body +1.909 [+1.490, +2.338]  density -0.417 [-0.812, +0.004]
+  sf   x0.75 share 0.20 lane    seed +0.052 [+0.028, +0.075]  side +0.173 [+0.148, +0.198]  body -0.121 [-0.149, -0.092]  density +0.029 [-0.004, +0.060]
+  sf   x0.75 share 0.20 share   seed +0.046 [+0.029, +0.063]  side +0.144 [+0.122, +0.165]  body -0.098 [-0.125, -0.071]  density +0.017 [-0.012, +0.046]
+  sf   x0.75 share 0.30 transit seed -0.328 [-0.555, -0.122]  side -2.891 [-3.285, -2.502]  body +2.563 [+2.142, +2.983]  density -0.626 [-0.990, -0.263]
+  sf   x0.75 share 0.30 lane    seed +0.045 [+0.026, +0.065]  side +0.191 [+0.169, +0.212]  body -0.146 [-0.171, -0.121]  density +0.043 [+0.013, +0.072]
+  sf   x0.75 share 0.30 share   seed +0.054 [+0.032, +0.078]  side +0.195 [+0.169, +0.222]  body -0.141 [-0.172, -0.106]  density +0.012 [-0.021, +0.044]
+  cfsm x0.25 share 0.20 transit seed +0.578 [+0.383, +0.805]  side -0.405 [-0.614, -0.156]  body +0.983 [+0.833, +1.133]  density -0.944 [-1.087, -0.799]
+  cfsm x0.25 share 0.20 lane    seed +0.012 [-0.002, +0.026]  side +0.065 [+0.050, +0.082]  body -0.054 [-0.069, -0.037]  density -0.008 [-0.024, +0.006]
+  cfsm x0.25 share 0.20 share   seed +0.206 [+0.129, +0.293]  side +0.250 [+0.202, +0.298]  body -0.044 [-0.130, +0.045]  density -0.029 [-0.143, +0.075]
+  cfsm x0.25 share 0.30 transit seed +0.882 [+0.722, +1.047]  side -0.695 [-0.872, -0.509]  body +1.577 [+1.428, +1.725]  density -1.469 [-1.601, -1.337]
+  cfsm x0.25 share 0.30 lane    seed -0.005 [-0.017, +0.006]  side +0.073 [+0.058, +0.089]  body -0.078 [-0.092, -0.065]  density +0.003 [-0.010, +0.015]
+  cfsm x0.25 share 0.30 share   seed +0.118 [+0.059, +0.190]  side +0.294 [+0.260, +0.331]  body -0.176 [-0.244, -0.100]  density +0.063 [-0.036, +0.161]
+  cfsm x0.5  share 0.20 transit seed +0.497 [+0.373, +0.624]  side -0.293 [-0.427, -0.151]  body +0.790 [+0.650, +0.934]  density -0.845 [-0.988, -0.703]
+  cfsm x0.5  share 0.20 lane    seed +0.007 [-0.004, +0.018]  side +0.054 [+0.041, +0.066]  body -0.047 [-0.059, -0.035]  density +0.004 [-0.008, +0.017]
+  cfsm x0.5  share 0.20 share   seed +0.041 [+0.007, +0.078]  side +0.128 [+0.095, +0.159]  body -0.087 [-0.128, -0.040]  density -0.006 [-0.053, +0.039]
+  cfsm x0.5  share 0.30 transit seed +0.715 [+0.594, +0.827]  side -0.642 [-0.817, -0.469]  body +1.357 [+1.183, +1.531]  density -1.175 [-1.316, -1.036]
+  cfsm x0.5  share 0.30 lane    seed +0.008 [-0.000, +0.016]  side +0.078 [+0.066, +0.091]  body -0.071 [-0.082, -0.059]  density +0.008 [-0.003, +0.019]
+  cfsm x0.5  share 0.30 share   seed +0.015 [-0.007, +0.040]  side +0.176 [+0.149, +0.203]  body -0.161 [-0.194, -0.126]  density +0.033 [-0.006, +0.072]
+
+Predictions (LOG.md, milestone 6d):
+T1 (social force, 20%: crowd - control lane order, interval above 0 at x0.25 and x0.75): held (x0.25 +0.038 [+0.004, +0.072]; x0.75 +0.052 [+0.028, +0.075])
+T2 (social force, 20%: crowd - goal lane order, interval above 0 at all three multipliers): held (x0.25 +0.115 [+0.083, +0.147]; x0.5 +0.153 [+0.125, +0.182]; x0.75 +0.173 [+0.148, +0.198])
+T3 (social force: crowd - control lane order larger at 30% than at 20%, each multiplier, point): refuted (x0.25 +0.038 -> +0.068; x0.5 +0.050 -> +0.072; x0.75 +0.052 -> +0.045)
+T4 (social force, 20%: no crowd - control transit interval wholly below 0, replicating 6c): refuted (x0.25 -0.070 [-0.642, +0.515]; x0.5 -0.311 [-0.748, +0.094]; x0.75 -0.454 [-0.733, -0.194])
+T5 (social force, 30%: crowd - control transit interval below 0 at one multiplier or more): held (x0.25 -0.412 [-0.779, +0.004]; x0.5 -0.685 [-1.019, -0.345]; x0.75 -0.328 [-0.555, -0.122])
+T6 (collision-free speed, x0.25, no robots: share on own right above 0.85): refuted (0.768)
+T7 (collision-free speed: crowd - control lane order interval contains 0 in all 4 cells): held (x0.25 0.20 +0.012 [-0.002, +0.026]; x0.25 0.30 -0.005 [-0.017, +0.006]; x0.5 0.20 +0.007 [-0.004, +0.018]; x0.5 0.30 +0.008 [-0.000, +0.016])

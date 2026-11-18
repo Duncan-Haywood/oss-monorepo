@@ -24,8 +24,8 @@ export const EXAMPLE_PRODUCTS = [
   { name: "Trail mix", price: "2.25", cost: "1.20", weekly: "6", perCoil: "8", perishable: "no", minCoils: "0", maxCoils: "4", now: "4" },
 ];
 
-export const money = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-export const money2 = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toFixed(2);
+export const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 }));
+export const money2 = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toFixed(2));
 export const one = (x) => (Math.round(x * 10) / 10).toString();
 
 export function num(v) {

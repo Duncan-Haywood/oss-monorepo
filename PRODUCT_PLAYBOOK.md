@@ -91,7 +91,7 @@ feature that exists yet.
 
 The model here is that we don't host anything. Each app is an open-source
 business that anyone can host in one click. The code is already MIT, at the
-root and in all <!-- count:ventures -->1,366<!-- /count --> ventures. MIT lets anyone copy, modify, host and sell
+root and in all <!-- count:ventures -->1,394<!-- /count --> ventures. MIT lets anyone copy, modify, host and sell
 it, so no license change is needed. The deployer keeps the copyright notice,
 and the license's no-warranty clause protects us. Whoever clicks Deploy
 becomes the operator of their copy. They are responsible for its domain,
@@ -553,6 +553,22 @@ Ship when every line is true:
       offline copy).
 - [ ] Discoverability checklist above is done.
 - [ ] The venture's tests and linter pass, and you ran the product itself.
+- [ ] **The rules come from a named source, and one test pins it.** The
+      README's "Spec sources" line names the professional who would sign the
+      tool off and the standard, publication or rate card its rules follow,
+      and at least one test checks a headline output against a worked
+      example from that source (or a hand calculation shown in the test),
+      not against the code's own output. In venture audits a departure
+      from the practitioner's rule (`domain-rule`) is the defect auditors
+      name most (126 since 2026-11-11), and 209 of 657 outputs they
+      recomputed from an outside source did not match
+      ([reflection 2](portfolio/quality/reflections/2026-11-17-the-fix-loop-is-open.md)).
+- [ ] **Seed one bug before you merge.** Change one comparison or constant
+      in the core calculation and check that a test fails:
+      `python3 platform/ci/quality_mutate.py <file> --old "<text>" --new "<text>" -- <test command>`
+      (it works on a private copy). If the mutant survives, add the test that
+      kills it. Only 342 of the 647 bugs auditors seeded in venture code
+      failed a test, so nearly half would have shipped unnoticed.
 - [ ] The §5b **no-warranty** clause is on every page the venture publishes,
       and any `vs-<competitor>.html` page carries the §5f **not-affiliated**
       disclaimer — `node platform/pages/clauses.mjs <slug>` checks both (the
@@ -568,6 +584,10 @@ Ship when every line is true:
       commit** with `python3 platform/ci/publish_surface.py --write`, and say
       in the PR what it can publish (`none` for a test-only workflow);
       `--check` fails until the snapshot names it, by design.
+- [ ] `node platform/pages/register-tool.mjs <slug>` (about 10 s, once the
+      page exists): adds the launch date and opt-out switch line, names
+      the missing sibling link and the CSV-guard and row-spread hits for
+      this slug; `--research` for a research-algorithm tool.
 - [ ] `node platform/pages/venture-preflight.mjs <slug>` is clean (add
       `--skip-build` for the one-minute pass). It runs the repository-wide
       gates a new venture trips in CI that its own tests cannot see:

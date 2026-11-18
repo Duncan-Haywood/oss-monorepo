@@ -1,0 +1,417 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtGcjH9qYuwWymSYA95",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T01:06:25Z",
+  "ended": "2026-11-17T01:07:08Z",
+  "wall_minutes": 13.08,
+  "tokens_in": 6085334,
+  "tokens_out": 26941,
+  "cost_usd": 2.5771,
+  "tool_calls": 61,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16767",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix every open entry first, but all 10 are control-plane and 7 already have owner-gated PRs; the list gives no hint which ones have a PR, so checking cost a PR listing per run."
+    },
+    {
+      "file": "platform/ci/unwired_checks.py",
+      "issue": "It skips pytest-style suites when bare python3 lacks pytest, so 4 of the touched suites showed as 'skip' and needed a separate pytest run; python3 here did have pytest via -m pytest."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-redteam-a-scan-of-nothing-is-not-a-pass.md"
+  ],
+  "goal": null,
+  "notes": "Guard added (4b): platform/ci/test_checks_refuse_empty_root.py plus empty_root_baseline.txt (30 entries). Every check_*.py taking --root runs on an empty dir in about 0.5 s; on its first run it found 40 offenders and 11 were fixed in this PR. Verification: rrule-explainer node --test 46/46; pytest on 12 platform/ci suites 57 passed; unwired_checks.py 191/207 with 15 pytest skips (one failure, test_build_output_skipped, fixed to accept exit 2). Step 0: all 10 open entries are control-plane; PRs #14612 #14698 #14877 #15561 #15728 #15945 cover 7 of them.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/rrule-explainer/rrule.mjs",
+        "test": "node --test ventures/rrule-explainer/**/*.test.mjs  (in .)",
+        "seed": 590657867,
+        "commit": "ef336de3e",
+        "sites": 931,
+        "baseline_seconds": 9.1,
+        "mutants": [
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 29,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return era * 146097 + doe - 719468;",
+            "after": "return era * 146098 + doe - 719468;",
+            "line_text": "  return era * 146097 + doe - 719468;",
+            "caught": true,
+            "seconds": 8.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 42,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "return { y: yoe + era * 400 + (m <= 2 ? 1 : 0), m, d };",
+            "after": "return { y: yoe + era * 400 + (m <= 3 ? 1 : 0), m, d };",
+            "line_text": "  return { y: yoe + era * 400 + (m <= 2 ? 1 : 0), m, d };",
+            "caught": true,
+            "seconds": 9.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 98,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "const mi = Math.floor((sec % 3600) / 60);",
+            "after": "const mi = Math.floor((sec % 3601) / 60);",
+            "line_text": "  const mi = Math.floor((sec % 3600) / 60);",
+            "caught": true,
+            "seconds": 9.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 392,
+            "col": 49,
+            "operator": "and-to-or",
+            "before": "if (mode === \"intersect\" && r.plainDays.size && r.nthDays.length) {",
+            "after": "if (mode === \"intersect\" && r.plainDays.size || r.nthDays.length) {",
+            "line_text": "    if (mode === \"intersect\" && r.plainDays.size && r.nthDays.length) {",
+            "caught": true,
+            "seconds": 32.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 394,
+            "col": 43,
+            "operator": "or-to-and",
+            "before": "const inMonth = r.freq === \"MONTHLY\" || r.monthSet.size > 0;",
+            "after": "const inMonth = r.freq === \"MONTHLY\" && r.monthSet.size > 0;",
+            "line_text": "      const inMonth = r.freq === \"MONTHLY\" || r.monthSet.size > 0;",
+            "caught": true,
+            "seconds": 9.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 547,
+            "col": 53,
+            "operator": "plus-to-minus",
+            "before": "const afterW = opts.after ? opts.after.day * 86400 + opts.after.sec : -Infinity;",
+            "after": "const afterW = opts.after ? opts.after.day * 86400 - opts.after.sec : -Infinity;",
+            "line_text": "  const afterW = opts.after ? opts.after.day * 86400 + opts.after.sec : -Infinity;",
+            "caught": false,
+            "seconds": 8.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test gave 'Show from' a time of day; new test with HOURLY from 12:00"
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 604,
+            "col": 87,
+            "operator": "const-plus-one",
+            "before": "if (rule.until) until = rule.until.utc && tz && zoneOk ? { instant: rule.until.day * 86400 + rule.until.sec } : { wall: rule.until.day * 86400 + rule.until.sec };",
+            "after": "if (rule.until) until = rule.until.utc && tz && zoneOk ? { instant: rule.until.day * 86401 + rule.until.sec } : { wall: rule.until.day * 86400 + rule.until.sec };",
+            "line_text": "  if (rule.until) until = rule.until.utc && tz && zoneOk ? { instant: rule.until.day * 86400 + rule.until.sec } : { wall: rule.until.day * 86400 + rule.until.sec };",
+            "caught": true,
+            "seconds": 9.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 742,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "const d = Math.floor(first[0] / 86400);",
+            "after": "const d = Math.floor(first[1] / 86400);",
+            "line_text": "    const d = Math.floor(first[0] / 86400);",
+            "caught": false,
+            "seconds": 9.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "dtstart-not-in-rule text never asserted; test checks it names 2026-01-06 09:00"
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 765,
+            "col": 363,
+            "operator": "const-plus-one",
+            "before": "if (a.join() !== b.join()) F(\"warning\", \"mixed-byday\", \"BYDAY mixes plain weekdays with numbered ones (like MO with 2TU)\", `RFC 5545 reads the list as either kind matching, which is what this tool lists. python-dateutil 4.0.0 requires both kinds to match the same day${b.length ? `, so it gives a different set of dates` : `, so it gives no dates in the next 50 years for this rule`} (on 100 random rules of this shape it gave none for 92). Split it into two RRULEs, or two events, if other software has to read it.`);",
+            "after": "if (a.join() !== b.join()) F(\"warning\", \"mixed-byday\", \"BYDAY mixes plain weekdays with numbered ones (like MO with 2TU)\", `RFC 5545 reads the list as either kind matching, which is what this tool lists. python-dateutil 4.0.0 requires both kinds to match the same day${b.length ? `, so it gives a different set of dates` : `, so it gives no dates in the next 51 years for this rule`} (on 100 random rules of this shape it gave none for 92). Split it into two RRULEs, or two events, if other software has to read it.`);",
+            "line_text": "    if (a.join() !== b.join()) F(\"warning\", \"mixed-byday\", \"BYDAY mixes plain weekdays with numbered ones (like MO with 2TU)\", `RFC 5545 reads the list as either kind matching, which is what this tool lists. python-dateutil 4.0.0 requires both kinds to match the same day${b.length ? `, so it gives a different set of dates` : `, so it gives no dates in the next 50 years for this rule`} (on 100 random rules of this shape it gave none for 92). Split it into two RRULEs, or two events, if other software has to read it.`);",
+            "caught": false,
+            "seconds": 8.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "user-visible window claim; test asserts 'next 50 years' with MO,1TU"
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 789,
+            "col": 52,
+            "operator": "eq-flip",
+            "before": "const gaps = exp.occurrences.filter((o) => o.zone === \"gap\");",
+            "after": "const gaps = exp.occurrences.filter((o) => o.zone !== \"gap\");",
+            "line_text": "  const gaps = exp.occurrences.filter((o) => o.zone === \"gap\");",
+            "caught": false,
+            "seconds": 8.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test of a zoned rule without DST occurrences; test asserts no dst-gap and the gap count wording"
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/check_local_assets.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_local_assets  (in platform/ci)",
+        "seed": 785156490,
+        "commit": "ef336de3e",
+        "sites": 13,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "platform/ci/check_local_assets.py",
+            "line": 16,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "ROOT = Path(__file__).resolve().parents[2]",
+            "after": "ROOT = Path(__file__).resolve().parents[3]",
+            "line_text": "ROOT = Path(__file__).resolve().parents[2]",
+            "caught": false,
+            "seconds": 0.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "default-root test accepted 0 pages; now asserts ROOT and >100 pages, and main exits 2 on zero pages"
+          },
+          {
+            "file": "platform/ci/check_local_assets.py",
+            "line": 29,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "u = m.group(1).strip()",
+            "after": "u = m.group(2).strip()",
+            "line_text": "        u = m.group(1).strip()",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_local_assets.py",
+            "line": 30,
+            "col": 47,
+            "operator": "or-to-and",
+            "before": "if not u or SKIP.match(u) or \"${\" in u or \"{{\" in u or u.startswith(BUNDLED):",
+            "after": "if not u or SKIP.match(u) or \"${\" in u and \"{{\" in u or u.startswith(BUNDLED):",
+            "line_text": "        if not u or SKIP.match(u) or \"${\" in u or \"{{\" in u or u.startswith(BUNDLED):",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_local_assets.py",
+            "line": 30,
+            "col": 60,
+            "operator": "or-to-and",
+            "before": "if not u or SKIP.match(u) or \"${\" in u or \"{{\" in u or u.startswith(BUNDLED):",
+            "after": "if not u or SKIP.match(u) or \"${\" in u or \"{{\" in u and u.startswith(BUNDLED):",
+            "line_text": "        if not u or SKIP.match(u) or \"${\" in u or \"{{\" in u or u.startswith(BUNDLED):",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_local_assets.py",
+            "line": 32,
+            "col": 30,
+            "operator": "div-to-times",
+            "before": "target = (page.parent / u) if not u.startswith(\"/\") else None",
+            "after": "target = (page.parent * u) if not u.startswith(\"/\") else None",
+            "line_text": "        target = (page.parent / u) if not u.startswith(\"/\") else None",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_local_assets.py",
+            "line": 40,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "after": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[1])",
+            "line_text": "    ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "--help text never checked; test asserts the docstring's first line"
+          },
+          {
+            "file": "platform/ci/check_local_assets.py",
+            "line": 48,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "pages += 1",
+            "after": "pages += 2",
+            "line_text": "        pages += 1",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_local_assets.py",
+            "line": 53,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 1 if bad else 1",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/rrule-explainer/rrule.mjs",
+        "issue": "'Show from' rejected '2026-01-01 12:00' (the format the date list prints and the Start field accepts): its normaliser dropped colons but never padded seconds. Both fields now use parseFieldDate.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16767"
+      },
+      {
+        "file": "platform/ci/check_local_assets.py",
+        "issue": "With a stale ROOT or wrong --root it scanned 0 pages and exited 0; its test accepted that. 40 of 48 check_*.py with --root do the same. Fixed 11 (exit 2 on zero pages); the other 30 sit in platform/ci/empty_root_baseline.txt, a ratchet enforced by test_checks_refuse_empty_root.py.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16767"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c118905a-cdcd-53e7-8a5f-30c11c02db37",
+    "transcripts": 1,
+    "first": "2026-11-17T01:06:25Z",
+    "last": "2026-11-17T01:19:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 117,
+        "output": 26941,
+        "thinking": 6349,
+        "cache_read": 5979992,
+        "cache_write_5m": 0,
+        "cache_write_1h": 105225,
+        "api_equivalent_usd": 2.5771,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 117,
+      "output": 26941,
+      "thinking": 6349,
+      "cache_read": 5979992,
+      "cache_write_5m": 0,
+      "cache_write_1h": 105225,
+      "api_equivalent_usd": 2.5771,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 57,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.08,
+      "active_minutes": 13.08,
+      "model_minutes": 5.32,
+      "tool_minutes": 7.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior engineer: mutation triage, two fixes with failing tests, a 48-check sweep and ratchet test, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 194.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

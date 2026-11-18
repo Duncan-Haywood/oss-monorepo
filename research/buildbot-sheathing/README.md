@@ -95,13 +95,13 @@ rework.** One steady-state cycle along a row: a lift stands the sheet on a laser
 robot slides and presses it so it seats, tacks it, reads the three new studs and both edges, and
 nails the 62 nails with edge aim (timed by [`buildbot-mobilebase`](../buildbot-mobilebase));
 every missed nail is found and re-driven. With **two 2x at the joint**, a **single read** a stud
-gives **0.9997** first-pass clean sheets at the lower published stud warp (three reads 1.0000),
+gives **0.9994** first-pass clean sheets at the lower published stud warp (three reads 1.0000),
 and it is the fastest choice in all 108 swept time cells. On **single 2x** joints no sensing
 policy passes 0.59 (single read 0.42, three 0.56, dense 0.58; 0.7–2.2 nails missed a sheet),
-three reads are fastest everywhere, and the best single-2x sheet is **17.8–65.2 s slower**
+three reads are fastest everywhere, and the best single-2x sheet is **17.9–65.5 s slower**
 before the extra stud is charged: at 30 s of rework a nail, framing the extra joint stud may
 take **30–42 s a sheet** and still win. Firing the next nail without waiting out a 4 N s recoil
-costs **up to 7.6 points** of clean sheets on single 2x (a conservative model) and nothing on
+costs **up to 7.4 points** of clean sheets on single 2x (a conservative model) and nothing on
 doubled joints. On doubled joints even a lift that hangs and tacks the sheet to 0.25° and 5 mm
 without a ledger gives 0.978. Every stage time except the nailing is swept, not measured.
 
@@ -130,14 +130,14 @@ correlation ±0.58), both unsourced.
 ![Dollars per clean sheet by robot class and house volume; which way is cheapest](experiments/m7_cost/figure.png)
 
 **Milestone 6 headline: do the MuJoCo results survive a second physics engine? Yes for clean
-sheets: Drake moves no ledger pipeline by more than 0.06 points.** Every simulated number above
+sheets: Drake moves no ledger pipeline by more than 0.05 points.** Every simulated number above
 came from one contact model, MuJoCo's soft contact. Milestone 6 rebuilt the ledger seat and the
 ledger slide in **Drake** (Toyota Research Institute's `MultibodyPlant`, point contact, the SAP
 solver of Castro et al. 2022) with the same sheet, contacts and holder law. A sheet released
 under a light press seats in both: Drake leaves **0.0014° (1σ, 0.0047° at most)** over 2,000
 random seats, a hundred times MuJoCo's 0.00001° but twenty times under the 0.03° a sheet may hang
 on single 2x joints, so all 24 of milestone 5's ledger pipelines keep their clean-sheet rates
-within **0.06 points** (the bar was 10). The press at which wall friction stops the ledger working
+within **0.05 points** (the bar was 10). The press at which wall friction stops the ledger working
 is **97–100%** of the closed form m g W / (2 μ r̄) in Drake and **87–99%** in MuJoCo: in MuJoCo wall
 friction starts holding the sheet at up to 13% less press, the cautious side for a press limit. The
 push height that tips a sliding sheet matches W / (2 μ_l) within 0.7% in Drake (1.6% in MuJoCo). Two things do depend on
@@ -356,6 +356,271 @@ Weiss's 3 in wall to 34% has to single out the decayed wall: tear-out of the nai
 edge, the middle stud splitting, or genuinely weak end nails.
 
 ![Decayed walls' share kept against the degradation rate for three end-nail strengths; intact walls' cyclic peak over monotonic peak against the same rate](experiments/m21_degrading/figure.png)
+
+**Milestone 27: what does sliding the sheet along the ledger actually leave? About 0.26 mm if the robot lets go
+within 20 ms of the sheet moving, 4 mm at 100 ms.** Milestones 10–13 credited the slide with a 0.5 mm residual. A
+seated sheet breaks away on static friction and runs on kinetic friction, and a hand that can only push its edge
+stops it by letting go. Along the wall the stock G1 hand is a 63 N/m spring (one hand, Unitree's gains, MuJoCo
+Menagerie model), soft enough to act as a force source, so how far the sheet runs is set by the time from slip to
+release and by the gap between static and kinetic friction. Tapping from either edge until the sheet sits within
+half a tap leaves 0.05–0.64 mm rms at 2–20 ms and 0.66–10 mm at 50–100 ms (μ_s 0.4, μ_k/μ_s 0.5–0.9). The best
+single-2x stack on measured studs (0.771 with 0.5 mm) gives 0.79 at 20 ms and 0.32 at 100 ms (μ_k/μ_s 0.8). The
+slide is a 20 ms control requirement, not a free 0.5 mm. The OSB friction pair is swept, not measured.
+
+![Slide residual against the reaction time for four friction ratios; the best single-2x stack's clean sheets against the same](experiments/m27_slide_mech/figure.png)
+
+**Milestone 28: and the shim? A stack of 1/16 in shims is as good as assumed, and a stock G1 cannot drive a
+wedge.** Milestones 10–13 also credited the shim (lift the sheet's low bottom corner until its edge is plumb) with
+0.5 mm. The lift needed is a median 0.95 mm, a 99th percentile 3.0 mm. Stacking 1/16 in plastic horseshoe shims
+rounds it to a step: 0.458 mm rms, and the best single-2x stack gives 0.796 against 0.791 with 0.5 mm (20 ms slide).
+A tapered composite shim (1:32) driven under the corner carries half the sheet plus wall friction: at μ 0.4 it needs
+a 118.5 N push, and the stock G1 gives 65.6 N into the wall at a 0.5 m ledger (waist pitch limits it), enough only
+for faces at μ ≤ 0.25; the H1 gives 132 N. A hand weighs under 1 kg along the push, so stick-slip throws the wedge
+12.7 mm a tap at 20 ms, and the taper leaves 0.13 mm rms, not the hoped-for under 0.1 mm.
+
+![Push to drive a 1:32 wedge against the friction on its faces, with the stock G1 and H1 pushes; the corner height a wedge leaves against the reaction time, with the 1/16 in shim stack's](experiments/m28_shim_mech/figure.png)
+
+**Milestone 29: the nailer's length decides more than any remedy.** Every figure above takes the tool error as 0.9 mm:
+the G1's 11-bit joint sensors carried to the *hand*. A nailer's nose sits ahead of the grip, so the hand's 0.1° of
+rotation error moves it, and the nail must stay in the stud 44 mm below the surface, where a leaning nail has moved
+again. With the nose 0.3 m ahead, the G1's scatter along the wall is 1.31 mm at the surface and 1.38 mm at depth, and
+the best single-2x stack falls from **0.796 to 0.264** (H1: 0.571). The stack is a knife-edge on tool scatter: 0.96 at
+0.6 mm, 0.69 at 1.0, 0.32 at 1.3. A **12-bit** joint sensor at the same nose gives 0.934, so the spec is accuracy at
+the tool point. An independent nail lean of 0.43° (1σ) costs 2 points more; doubled joint studs stay at 1.000 at every
+length and at a 2° lean.
+
+![Clean sheets of the best single-2x stack against the nailer's length for the stock G1 and H1; against an independent nail lean, single and doubled joints](experiments/m29_tool_lean/figure.png)
+
+**Milestone 30: gear backlash matters only where nothing holds the joint.** No G1 backlash figure is published, so it is
+swept (0–25 arcmin; catalogue precision planetaries are 1–7). A joint that gravity, the 3.4 kg nailer and the press into the
+wall load one way at every nail sits at the same side of its gap each time, a bias that calibration removes. At the stud
+pose (MuJoCo, feet planted) 16–19 of the G1's 22 joints that move the nose are held; the two **ankle rolls** carry no torque
+under an even ground reaction. 5 arcmin on every joint takes the 12-bit G1's best single-2x stack from **0.934 to 0.765**;
+counting the held joints, 0.913; with the ankle rolls biased one way by the balance controller (a case added after the first run, not a registered hypothesis), 0.934 at every gap up to 25
+arcmin. The nailer's 12-11/16 in height (Metabo HPT) puts the grip 0.29–0.32 m behind the nose, so milestone 29's 0.3 m stands;
+a handle 0.15 m above the drive axis costs the 11-bit G1 8 points, below it gains 4.
+
+![Clean sheets of the 12-bit G1's best single-2x stack against gear backlash, unpreloaded, preloaded and with the ankle rolls biased; against the handle's offset from the drive axis, G1 and H1](experiments/m30_backlash/figure.png)
+
+**Milestone 31: one calibration does not cover the wall.** Milestone 30's backlash bias was removed by a calibration at one
+pose. Over the 15 poses a stock G1 reaches from one stance (hand heights 0.4–1.2 m, shifted 0.15 m either way along the wall;
+MuJoCo, 25–50 N press, 3.4 kg nailer), 13–20 of the 22 joints that move the nose stay held, fewest at the top of the reach.
+Calibrated at every pose, 5 arcmin costs the 12-bit G1 **0.3 to 9.9 points** (H115 refuted; worst at 1.2 m, 0.913 to 0.814).
+Both **hip yaws and the waist roll** are held everywhere but **change the sign of their torque** across the grid (H116 held), so
+they rest on the other side of their gaps: one tool-frame calibration at the 1.0 m pose leaves every nail offset along the
+wall by up to **3.4 mm** (H117 held), and the single-2x stack falls to 0 at the worst pose. To stay within 2 points of each
+pose's own stack, 12-bit joints tolerate **2.5 arcmin calibrated per pose but 0.44 arcmin calibrated once** (13 bits: 4.1 and
+0.8). The H1 loses at most 1.4 points per pose, and up to 75 points with one calibration. The remedy is a bias predicted
+from the static torques at every pose (they give the side of each gap), not one tool offset. Swept, not measured: the
+backlash, the holding threshold (0.05–0.5 N m: worst losses 9.9–10.0 points, offsets 3.4–3.7 mm), and the least-norm
+ground-reaction split, which sets the hip-yaw and waist torques.
+
+![Clean sheets of the 12-bit G1 and H1 best single-2x stack with 5 arcmin backlash against hand height, three shifts along the wall, calibrated per pose and once](experiments/m31_pose_range/figure.png)
+
+**Milestone 32: through real soles, the robot must lean into the wall.** Milestones 30–31 let each foot apply any wrench
+at one point. With each sole pushing only through its contact points (the Menagerie model's collision spheres and capsules,
+friction cones at mu 0.5), the upright poses balance a press of at most **39 N at 0.8 m, 31 N at 1.0 m and 26 N at 1.2 m**
+(G1; H1 25 N at 1.6 m): above chest height the 50 N press tips the robot onto its heels. Leaning the centre of mass
+0.04–0.12 m towards the wall restores the 25–50 N range at all 36 poses. On those leaned poses **neither hip yaw nor the
+waist roll flips** under any ground-reaction model (H118 refuted); waist and arm torques are the same under every model,
+since no foot is in their subtree, and the only G1 joint that flips is the right wrist pitch. Holding all 12 leg joints one
+way is infeasible everywhere (H119 refuted, so H120 is not testable). Holding only the hip rolls, hip yaws and ankle rolls
+(added after the first run) is feasible at every pose and cuts the worst per-pose 5-arcmin loss from 8.6 to **3.7 points**,
+but one calibration still leaves **1.4 mm** (1.1 mm at the best calibration pose; least-norm 2.0, torque-minimising 2.6).
+A controller makes the press possible; it does not replace compensating backlash pose by pose. Statics only, contact points
+from the model's geoms, mu swept 0.3–0.8.
+
+![Press the G1 and H1 soles can balance, upright and leaned into the wall, against hand height; the G1's nail offset along the wall after one calibration under four ground-reaction models](experiments/m32_grf_qp/figure.png)
+
+**Milestone 33: compensate backlash with the robot's own controller model.** The remedy milestones 31–32 named, predicting
+each held joint's side from the static torques at every pose and subtracting its bias, leaves **nothing** when the
+compensator runs the robot's own balance controller. A compensator that assumes a different ground-reaction split leaves
+**1.16–1.92 mm** on the G1, little better than one calibration (1.40–2.63 mm; H121 held). With the controller modelled, a
+full 64-nail magazine left out of the model (0.30–0.41 kg of nails, computed) costs **0.017 mm** and +1 kg 0.057 mm when the
+controller holds the light leg joints, but 0.41–0.84 mm under a torque-minimising controller; H122 is refuted on its
+strict count (2 joint-pose cases mispredicted at +0.4 kg). Compensating only joints with |tau| above a guard band does not
+help: each joint left out costs half a gap (H123 refuted). The rule: pair a sign-holding controller with compensation
+computed from it. Statics only; the robot is still the model.
+
+![Worst G1 nail offset along the wall after model-based backlash compensation against unmodelled tool mass, for each compensator model and two balance controllers, and against a guard band](experiments/m33_compensate/figure.png)
+
+**Milestone 34: how stiff must a nailing robot's joints be under the press?** Between the nose touching the sheet and
+the shot, the press grows (anywhere in 25–50 N) and every joint winds up elastically. No torsional stiffness is
+published for the G1 or H1, so it is swept. If the nose can slide on the sheet, the windup lands in the nail's entry
+point: **3.2 mm** at the worst G1 pose at k_t 1e4 N m/rad, **5.5 points** of clean sheets lost (H125 held), and staying
+within 2 points needs **k_t ≥ 1.8e4 N m/rad** on every joint. If friction holds the nose, the windup only tilts the
+tool about it, 0.02 mm at the nail's tip (H126 held). Whether it holds is a property of the pose, not of the stiffness:
+the G1 needs a friction coefficient of 0.07–0.79, so at mu 0.4 it sticks at **10 of 15 poses** (H124 refuted), and
+friction-limited sliding brings the requirement down to about 1e4. The windup's mean is a pose bias a model computes
+(12 mm vertically after one calibration at 1e4). The servo is far softer: a full magazine left out of the feedforward
+droops the G1's nose by **32–51 mm** under Unitree's PD gains (H127 held), which the joint encoders see and a re-targeting
+loop removes. The rules: grip the sheet with the nose, ask for joints stiffer than about 1e4 N m/rad behind the encoder,
+and close the loop on the encoders. Statics only; stiffness and friction swept.
+
+![Clean sheets lost to the press window against joint stiffness, the friction each leaned pose needs for the nose to stick, and the windup at the nose and the nail's tip](experiments/m34_windup/figure.png)
+
+**Milestone 35: does a nail gun's air hose throw a robot off the stud?** Earlier milestones counted the hose as mass, if
+at all. A 3/8 in × 50 ft hose (listed at 5.1 lb hybrid, 9.21 lb rubber) hangs from the tool to the floor and, once the
+robot has walked along the wall, drags behind it: a downward pull of 0.6–4.3 N from the hanging length plus a horizontal
+tension of up to 1–22 N that floor friction holds (friction and dragged length swept), in whatever direction the hose
+runs. Neither the balance controller nor milestone 33's compensator knows it. At a joint stiffness of 1e4 N m/rad a
+**5 N** pull winds the G1's nose up **1.25 mm** (H130 held), worst when it pulls towards the wall, where it acts like a
+change of press (H131 refuted). It leaves the matched backlash compensator **1.0 mm** along the wall (H129 held); even
+the hanging hose leaves 0.47 mm, because its weight changes with grip height (H128 refuted). With the tension anywhere
+in 0–5 N the worst G1 pose loses **2.2 points** of clean sheets; in 0–10 N, **21 points**. Under Unitree's PD gains the
+same 5 N droops the servo by 175–205 mm, which the encoders see. The rule: take the hose off the tool (a boom or balancer
+from above), measure the tool's wrench, or keep the drag to a few newtons. Statics only; hose weights from listings,
+floor friction swept.
+
+![Nose windup and the matched compensator's residual against the hose's horizontal tension, and the stack points lost when the tension is unknown](experiments/m35_hose/figure.png)
+
+**Milestone 36: does a wrist force-torque sensor fix the hose?** The compensator now predicts each joint's load from the
+measured wrench instead of a no-hose model. With a Robotiq FT 300's listed noise (0.1 N, so 0.2 N at 2σ) the G1's worst
+residual along the wall at a 20 N drag falls from **2.34 to 0.29 mm**, and with the drag anywhere in 0–20 N the worst
+pose loses **1.6 points** instead of 91.6 (H135 held). Misjudging the joints' stiffness by 25% costs little (0.06–0.10 mm
+at 5 N; H134 refuted). But the residual does not fall below about **0.3–0.5 mm** whatever the sensor: at a 5 N drag a
+0.01 N error already leaves 0.27 mm and 0.2 N leaves **0.82 mm** (H132 refuted), because a held joint sitting within
+0.0014–0.05 N m of the 0.2 N m holding threshold gets predicted on the wrong side of its gap. The pre-2017 FT 300
+(1.2 N noise) is worse than no sensor (H133 held). The rule: measure the wrench for the windup, and keep held joints away
+from the threshold (a preload) before trusting model-based backlash compensation. The sharp threshold is milestone 30's
+model, not a measurement; statics only.
+
+![Residual along the wall with and without a wrist F/T sensor, the floor set by joints at the friction threshold, and the stack points lost](experiments/m36_wrist_ft/figure.png)
+
+**Milestone 37: does a held-joint preload remove the sensor's floor?** Here the controller plans once from the measured
+wrench and the robot then settles under the true load, a stricter error model than milestone 36's. Without a preload
+that leaves the G1 **1.38 mm** at a 5 N drag and costs **56.5 points** over 0–20 N, because the balance controller holds
+its chosen leg joints exactly at the friction threshold: 92% of the mispredicted joints are those (H136 held).
+Commanding every leg joint at least **0.1 N m** clear of the threshold removes every one of them and gives back milestone
+36's figures: **0.83 mm** at 5 N and **1.64 points** over 0–20 N, for 1.7% more leg torque and one of 15 G1 poses lost
+(H138 refuted). It does not reach the target of 0.1 mm (H137 refuted): what is left comes from waist and arm joints at the
+threshold, which no choice of ground reaction can move. A hedged compensator (a quarter gap near the threshold) does not
+halve the error (H140 refuted), and the pre-2017 FT 300 still leaves 1.35 mm (H139 held). The rule: hold leg joints a
+margin clear of the threshold; the arms need a different preload (a two-handed squeeze) or less backlash. The settle
+model and the 0.2 N m threshold are modelled, not measured; statics only.
+
+![Worst residual along the wall against the preload margin for two sensors, and the hedged compensator](experiments/m37_preload/figure.png)
+
+**Milestone 38: can a two-hand squeeze preload the arms?** A force pair along the line between the two grip points
+pushes the hands together (or apart) without changing the tool's wrench, so it moves only the arm joints: the base,
+legs and waist see at most 1e-16 N m per newton (H141 held). Chosen by the controller from its plan, a squeeze of up to
+**10 N** clears all 14 arm flips (H143 held). With milestone 37's leg preload and the FT 300, the G1's worst residual at a
+5 N drag falls from 0.83 to **0.49 mm** (H144 held) and at 20 N from 0.29 to 0.01 mm, and the 0–20 N stack loss from
+**1.64 to 0.05 points** (H1: 2.19 to 0.02). The G1's arm margin at 20 N is 0.07 N m at its worst pose, not the 0.1
+registered (H142 refuted). What is left, up to **0.50 mm**, is in the waist (the H1's torso), which no squeeze or ground
+reaction can move (H145 held). With the pre-2017 sensor the squeeze makes some cells worse. Side finding: holding the
+3.4 kg nailer, the G1's right wrist pitch already exceeds its 5 N m model rating at 7 of 14 poses, so the squeeze is
+not allowed to push any joint further past its limit. Grip force is swept (no hand publishes one), the squeeze is an
+ideal force pair, statics only.
+
+![Worst residual along the wall against the squeeze bound for two sensors, and which joints still flip](experiments/m38_squeeze/figure.png)
+
+**Milestone 39: what does the waist's backlash cost, and does a brake fix it?** Milestone 38 left up to 0.50 mm in the
+waist joints, whose torque only the tool's load sets. With its 10 N squeeze, milestone 37's leg preload and the FT 300,
+a **braked waist** (no gap) takes the G1's worst residual at a 5 N hose drag from 0.485 to **0.012 mm** (H146 held) and
+its 0–10 N stack loss from 5.80 to **0.04 points**; the H1 at 5 N goes from 0.501 to 0.019 mm. A **1 arcmin** waist
+gearbox gives 0.106 mm and 0.11 points (H148 held). Locking waist roll and pitch, as on the base G1 (one waist joint,
+unitree.com/g1), **changes nothing**: the joint that flips is the yaw (H147 held). With the pre-2017 sensor a braked
+waist still leaves 0.87 mm (H150 held). All five registered hypotheses held. The brake is ideal and locks at the posed
+angle (poses not re-solved); waist backlash is swept, not published; statics only.
+
+![Worst residual along the wall for each waist case and two sensors, and the clean-sheet loss over a drag range](experiments/m39_waist/figure.png)
+
+**Milestone 40: does the nailer's recoil undo the spec?** No figure for a framing nailer's recoil had been found, so
+it is bracketed from published measurements: an 8d nail at chronograph speeds (29.8–36.9 m/s, Buchalter et al. 2002)
+carries 0.13–0.16 N s, a floor, and Lowe et al. (2014)'s force-plate data give at most about 8.7 N s per nail. That
+straddles the 0.25–1 N s at which [`buildbot-recoil`](../buildbot-recoil)'s nose leaves the wall, so each nail
+starts from a lifted nose and a press that rises again. That rise **sets none** of the joints milestones 30–39 scored
+as loose (H151 refuted): of 56 loose nose-moving joints, 36 change sign and 7 rise through the holding threshold
+inside the 25–50 N window, so where they sit depends on the firing force, and the 11 below it peak at 0.16 N m on the
+rise against a 0.2 N m threshold. With the spec (FT 300, leg preload, 10 N squeeze, braked waist) the G1's worst
+residual at a 5 N drag stays **0.012 mm** (H152 refuted, H153 held); only at a 20 N drag does the rise set one wrist
+joint, leaving 0.203 mm unless the compensator plans the rise. The finding with consequences is the stance: at
+**12 of 35 poses** (the G1 at 1.0–1.2 m, milestone 30's calibration pose among them; the H1 at 1.4–1.6 m) the leaned
+stance balances only above 3.7–11.8 N of press, so a recoil that lifts the nose leaves the robot leaning on nothing.
+Quasi-static rise, no recoil transient simulated; the holding threshold is unsourced.
+
+![Lowest press each leaned stance balances at, and how close the loose joints come to the holding threshold on the re-press](experiments/m40_liftoff/figure.png)
+
+**Milestone 41: can every stance stand when the nose lifts?** Yes, by leaning less, but near the top of the wall
+only just. Each of milestone 40's 12 press-dependent poses was re-leaned to the furthest-forward lean that still stands
+at zero press: the centre of mass moves back 10–39 mm and every one then balances over the whole 0–50 N (H156 held;
+H157, "at most 20 mm", refuted). The window's width is exactly (m + m_tool) g × sole length / grip height, so the
+ceiling is a formula: a zero-press stance that still takes a 50 N press exists only below a **1.225 m** grip on the
+G1 and **1.883 m** on the H1, and the G1 at 1.2 m keeps **1.6 N** to spare. With milestone 38's setup rebuilt on the
+new poses, the braked spec holds (G1 **0.011 mm**, H1 0.019 mm at a 5 N drag; H159 held), one H1 pose loses its
+controller (H158 refuted), and the G1's worst no-hose stack falls **1.3 points**, 0.9160 to 0.9030 (H160 refuted).
+Statics; the lean's and the controller's side choice's shares of that loss are not separated.
+
+![Press range each stance balances, before and after re-leaning to stand at zero press, against the rigid-body width](experiments/m41_stance0/figure.png)
+
+**Milestone 42: is that 1.3-point loss the stance or the controller?** The stance. Re-leaning flipped four of the
+G1's six held leg-joint sides (both hip rolls, both ankle rolls), so a 2 × 2 (leans × sides) separates them: at the
+G1's worst pose the lean costs **1.30 points** and the sides **0.00**, with no interaction (H161–H163 held), and at
+every pose where both side choices solve they give the same stack to the printed digit, because a side says which way
+a joint is held, not whether. The flip still matters: with the old sides one re-leaned G1 pose has no controller
+solution (H164 refuted). A post hoc check also corrects milestone 41's per-pose figures, which compared stacks from
+two torque conventions: like for like, the re-lean costs the H1 **0.09–0.29 points** per pose (not 0.1–0.9), and the
+G1 loses 0.31–1.30 at four poses and gains 0.60–0.79 at two. Statics, 'hold-min' torques without the leg preload.
+
+![The no-hose clean-sheet stack at each re-leaned pose in the four lean × sides cells: the sides never move a bar](experiments/m42_sides/figure.png)
+
+**Milestone 43: what does the zero-press stance cost in the spec's own plan?** On the G1, nothing: it gains. Milestones
+41 and 42 used the controller's 'hold-min' torques; the spec re-plans its 0.1 N m leg preload and 10 N squeeze for each
+stance, and with those the G1's worst no-hose stack rises from 0.9160 to **0.9257** with the braked waist (+0.97
+points) and from 0.9081 to 0.9257 with the stock one, over the same poses plus one the old lean could not plan. At the
+worst pose the two conventions now differ by 2.70 points (0.9300 against 0.9030). The cost moves to the H1 near the top
+of its reach: two re-leaned poses keep a controller but cannot carry the 0.1 N m leg preload at a 50 N press (the
+stance allows 0.033 and 0.095 N m), so only 3 of its 6 re-leaned poses have a spec plan; those lose 0.09–0.22 points.
+H166–H168 held, H165 and H169 refuted. Statics, zero hose force, exact sensor.
+
+![The no-hose clean-sheet stack at each re-leaned pose, spec plan against 'hold-min' torques, before and after the re-lean](experiments/m43_specstack/figure.png)
+
+**Milestone 44: can a smaller leg preload rescue the H1's two dropped poses?** One of them. Preloading each leg to 0.9
+of what the stance allows (0.030 and 0.085 N m instead of 0.1) gives both poses a spec plan, and the clean-sheet stack
+does not move at all between 0 and 0.085 N m (0.9715 and 0.9668, 0.08 and 0.27 points under the old lean). But with a
+0.2 N sensor error the worst residual along the wall becomes **0.172 mm** (0.241 mm at 20 N of hose drag), against
+0.019 mm on the other poses. Post hoc, all of it is at (1.4 m, −0.15 m), where a joint in the controller's hold set
+flips under the sensor error and the leg preload cannot reach it; at (1.6 m, 0) the residual is 0.003 mm. So the
+zero-press stance keeps a spec-grade plan at 4 of the H1's 6 re-leaned poses. H170, H172 and H173 held, H171 and H174
+refuted. Statics.
+
+![The H1's worst residual along the wall: 0.010 to 0.032 mm on the other poses, 0.17 to 0.24 mm on the re-planned ones](experiments/m44_legpreload/figure.png)
+
+**Milestone 45: can a hold-first preload rescue (1.4 m, −0.15 m)?** No; the pose needs a better wrist sensor instead.
+The joint that flips there is the right hip roll, a joint the controller holds and one the leg preload already
+reached (milestone 44's post hoc was wrong to say otherwise): planned 0.030 N m above its friction threshold, a 0.2 N
+sensor error moves it 0.033. Giving the hold set its own margin first, with every other leg allowed down to its
+threshold, raises it only to **0.0339 N m** (from 0.0333): the stance itself caps that joint, while the other legs
+had 0.19 N m to spare. So the residual stays **0.172 mm** at 0, 5 and 20 N of hose drag (20 N falls from 0.241), at
+no stack cost. Post hoc, the joint moves 0.163 N m per newton of sensor z error, so the pose meets the spec only
+with a z error under about 0.19 N: 0.001–0.004 mm at 0.05–0.15 N (an ATI Mini45-class sensor), 0.172 mm at an FT
+300's 0.2 N. H176, H179 and H180 held, H175, H177 and H178 refuted. Statics.
+
+![Where the margin is at H1 (1.4 m, −0.15 m), and the worst residual along the wall with the hold-first tiers](experiments/m45_tiered/figure.png)
+
+**Milestone 46: was the right hip roll held on the wrong side?** Yes, and with it on the other side the pose meets the
+spec with an FT 300. Milestones 32 to 45 chose each held joint's side once per robot. At (1.4 m, −0.15 m) that side
+pins the right hip roll at exactly its friction threshold, while the torque-minimising controller wants −3.8 N m.
+Held on the other side, the stance allows a common leg margin of **2.29 N m** at 50 N (from 0.033), the pose takes the
+spec's full 0.1 N m preload, and its worst residual along the wall falls from 0.172 to **0.005 mm** at 0, 5 and 20 N
+of hose drag with a 0.2 N sensor error. The H1's worst over all 19 poses returns to 0.010 / 0.019 / 0.032 mm, at no
+stack cost (0.9716). Milestone 45's sensor bound belonged to the wrong side. The per-robot side is also wrong at both
+window ends at four other H1 poses, which still meet the spec, so per-pose sides are the next step. H181 to H185
+held, H186 refuted. Statics.
+
+![The right hip roll's hold side at H1 (1.4 m, −0.15 m): the margin the stance allows and the worst residual along the wall](experiments/m46_holdside/figure.png)
+
+**Milestone 47: should each pose choose its own hold sides?** For the H1 yes, for the G1 not by this score. Each pose
+took the hold-side combination with the largest common leg margin at zero hose force. Every pose of both robots then
+clears the spec preload's goal (smallest margin 0.886 N m, from 0.033), the two H1 poses that had no plan on the
+per-robot sides get one (margins 12.8 and 6.6 N m), and the H1's worst residual along the wall with a 0.2 N sensor
+error falls to 0.010 / 0.014 / **0.010 mm** at 0 / 5 / 20 N of hose drag (from 0.010 / 0.019 / 0.032), at no stack
+cost. The G1 goes the other way: 0.011 / 0.025 / **0.037 mm** (from 0.016 / 0.011 / 0.011), over the 0.03 mm spec at
+20 N, because at three poses a leg joint the zero-drag score never looked at flips under drag. Sides should be scored
+at the loads the robot meets. H187 to H189, H191 and H192 held, H190 refuted. Statics.
+
+![Common leg margin at every pose on one side per robot against per-pose sides, and each robot's worst residual along the wall](experiments/m47_poseside/figure.png)
 
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
@@ -842,11 +1107,47 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
 - **Checks.** γ = ∞ equals milestone 20 exactly; on the envelope the force is s × E(d) to 4e-16 FU; lower γ always
   degrades more; γ survives scaling and stacking (`tests/test_wall_degrading.py`).
 
+## Milestone 27 method (`src/buildbot_sheathing/slide_mech.py`)
+- **Friction.** Breakaway F_s = μ_s (m g + F_n) and sliding F_k = (μ_k/μ_s) F_s, the ledger and wall at the same
+  coefficients (milestone 3b's P = μ_l m g + μ_w F_n), F_n 50 N. μ_s 0.3–0.7 and μ_k/μ_s 0.5–0.9 are swept: a review
+  of timber friction gives static 0.25–0.7 and kinetic 0.15–0.4 (Preprints 202404.0050, seen in a search excerpt),
+  and an EPFL study of OSB on OSB and on glulam (Materials and Structures 51, 2, 2018, doi:10.1617/s11527-017-1124-5)
+  finds static above kinetic and more variable; its full text (link.springer.com, infoscience.epfl.ch) was not
+  reachable from this session, so neither gives the OSB-on-lumber pair used here. Breakaway varies 10% tap to tap
+  (0 and 20% shown), not sourced.
+- **Hand.** The pushing hand's stiffness along the wall is 1 / C_yy of the hands' compliance J K⁻¹ Jᵀ at milestone
+  3b's press pose (feet planted, point grip, Unitree's published kp); damping is kd/kp = 1.5/60 s times that,
+  with and without a velocity command. The force ramps at 200 N/s (100–500 swept) while the sheet sticks.
+- **Control.** The sheet's motion is seen at 0.1 mm (0.05–0.2 swept); τ later the push is gone (instantly: no arm
+  inertia, no force-rate limit). Kinetic friction then stops the sheet. Force-source closed form: with
+  dF = F_s − F_k, x(t) = (dF t²/2 + Ḟ t³/6)/m to release at T = t_det + τ, then v(T)² m / (2 F_k).
+- **Loop.** 2,000 sheets start U(−3, 3) mm off; each tap pushes from the edge that moves the sheet toward the
+  target, and the robot stops once the error is within max(0.1 mm, half the last tap). Section E puts the loop's
+  rms residual into milestone 12's grid as the slide's Gaussian residual (`ceiling.slide_sx`, edge reads added
+  as before).
+- **Checks.** The time-stepped tap matches the closed form to within 0.3% (tests: 5).
+
 ## Reproduce
+One command per experiment, and a check that a re-run gives the committed numbers (milestone 25):
+
+```bash
+python3 reproduce.py --list                 # every experiment, what it needs, how long it takes
+python3 reproduce.py m5_cycle               # re-run one in place: run.py > results.txt, then figure.py
+python3 reproduce.py --check --quick        # re-run the ten numpy-only experiments in a temporary copy
+                                            # (~6 min) and diff each results.txt against the committed one
+```
+
+`--check` copies this project and its sibling `buildbot-*` projects to a temporary directory, so
+nothing committed is overwritten; it leaves out only wall-clock timings, and exits 1 if any other
+character of a results file differs. As of milestone 26 all 22 experiments have been through it: every results
+file reproduces character for character under numpy 2.5.3, scipy 1.18.1 and MuJoCo 4.0.1, except
+that m6 needs Drake 1.51.1 (`pip install drake==1.51.1`; Drake 1.58 no longer has the TAMSI solver
+its section D compares). m6b and the Drake tests also pass on Drake 1.58. The per-experiment commands it wraps:
+
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 106 test functions; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake, eight scipy
+python -m pytest -q tests                                    # 142 test functions; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake, eight scipy
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
@@ -898,7 +1199,14 @@ python experiments/m20_cyclic/figure.py
 python experiments/m21_degrading/run.py > experiments/m21_degrading/results.txt   # ~35 min on 4 CPUs
 python experiments/m21_degrading/check_diag.py --walls > experiments/m21_degrading/check_diag.txt
 python experiments/m21_degrading/figure.py
+python experiments/m27_slide_mech/run.py > experiments/m27_slide_mech/results.txt # ~1 min; mujoco, Menagerie G1/H1
+python experiments/m27_slide_mech/figure.py
+python experiments/m28_shim_mech/run.py > experiments/m28_shim_mech/results.txt   # ~30 s; mujoco, Menagerie G1/H1
+python experiments/m28_shim_mech/figure.py
+python experiments/m29_tool_lean/run.py > experiments/m29_tool_lean/results.txt   # ~30 s; mujoco, Menagerie G1/H1
+python experiments/m29_tool_lean/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
+python paper/build_latex.py --pdf                            # the elsarticle manuscript in paper/latex/ (pandoc, pdflatex, bibtex, texlive-publishers)
 ```
 
 ## Milestone 1 results (`experiments/m1_gap_placement/results.txt`)
@@ -1027,21 +1335,21 @@ python paper/check_numbers.py                                # every number the 
 
 ## Milestone 5 results (`experiments/m5_cycle/results.txt`)
 - **A. First-pass clean sheets** (lower warp, ledger, 1 mm after the slide; single / three /
-  dense reads). Single 2x: 0.417 / 0.560 / 0.583 (2.16 / 0.79 / 0.70 nails missed); 3 mm after
-  the slide 0.250 / 0.295 / 0.309; higher warp 0.314 / 0.308 / 0.323. Two 2x: 0.9997 / 1.0000 /
-  1.0000; higher warp 0.938 / 1.0000 / 1.0000. Lift-tack (0.25°, 5 mm): single 2x 0.079–0.092,
+  dense reads). Single 2x: 0.417 / 0.560 / 0.581 (2.17 / 0.79 / 0.71 nails missed); 3 mm after
+  the slide 0.243 / 0.299 / 0.311; higher warp 0.312 / 0.307 / 0.322. Two 2x: 0.9994 / 1.0000 /
+  1.0000; higher warp 0.940 / 1.0000 / 1.0000. Lift-tack (0.25°, 5 mm): single 2x 0.079–0.092,
   two 2x 0.978 / 0.996 / 0.997. Wilson intervals are in the file.
 - **B. Fastest policy** by seconds a sheet including rework: single read on two 2x and three
   reads on single 2x in all 108 cells. At nailing 54 s, place 30 s, ledger 10 s, 1 s reads and
   30 s rework: two 2x single 101 s, single 2x three 131 s (of which 24 s rework), single 2x
   single 166 s (65 s rework).
-- **C. Break-even framing time** for the extra joint stud: 17.8–29.8 s at 15 s rework,
-  29.6–41.6 s at 30 s, 53.2–65.2 s at 60 s (the lower figure at 1 s reads, the higher at 3 s);
-  higher warp 33.8–129.2 s.
+- **C. Break-even framing time** for the extra joint stud: 17.9–29.9 s at 15 s rework,
+  29.7–41.7 s at 30 s, 53.5–65.5 s at 60 s (the lower figure at 1 s reads, the higher at 3 s);
+  higher warp 33.8–129.3 s.
 - **D. Stages** (two 2x, single read): place 10–57%, sensing 2–17%, nailing 37–86% of the sheet;
-  76–216 s a sheet (median 146) against 94–281 s (median 183) for the best single-2x pipeline.
+  76–216 s a sheet (median 146) against 94–282 s (median 184) for the best single-2x pipeline.
 - **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): H22, H23, H24, H25 held; **H26 refuted**
-  (fire-at-once recoil costs up to 7.6 points on single 2x, at most 0.12 on two 2x); **H27
+  (fire-at-once recoil costs up to 7.4 points on single 2x, at most 0.12 on two 2x); **H27
   refuted** (placing the sheet outweighs fast nailing in 18 of 108 cells).
 
 ## Milestone 6 results (`experiments/m6_drake/results.txt`)
@@ -1062,13 +1370,13 @@ python paper/check_numbers.py                                # every number the 
   ledger** (1–3 mm over the sheet): the sheet follows it within 0.004° (Drake) and 0.0000°
   (MuJoCo). **Creep** under a stuck 400 N press: 4×10⁻⁵ °/s in Drake, 4×10⁻⁸ in MuJoCo.
 - **F. H-E:** seated residual sd 0.00142° (Drake) against 0.00001° (MuJoCo); the 24 ledger
-  pipelines' first-pass clean sheets differ by at most **0.06 points**. Cost: 0.11 s a Drake
-  seat, 0.025 s a MuJoCo seat (four processes).
+  pipelines' first-pass clean sheets differ by at most **0.05 points** (0.06 before milestone 26's re-run). Cost: 0.080 s a Drake
+  seat, 0.020 s a MuJoCo seat (four processes).
 - **G. Tip height:** Drake/closed form 0.995–1.007, MuJoCo 0.984–1.007.
 - **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): H32 held (worst Drake/MuJoCo 12.7% at
   μ 0.5); H33 held (0.0025° at most, bar 0.005°); **H34 refuted** (70% of held-wrist cells within
   max(0.005°, 10%), bar 90%: the misses are Drake's 0.005–0.016° where the closed form says
-  zero); H35 held (0.06 points, bar 10); H36 held.
+  zero); H35 held (0.05 points, bar 10); H36 held.
 
 ## Milestone 7 results (`experiments/m7_cost/results.txt`)
 - **A. Dollars per clean sheet** (median [5%, 95%]) at 10 / 30 / 100 / 300 / 1,000 houses a year.
@@ -1084,7 +1392,7 @@ python paper/check_numbers.py                                # every number the 
 - **C. Sensitivity** of the base at 100 houses a year: life −0.58, base price +0.58, upkeep
   +0.29, supervision +0.26, hand minutes +0.19 (Spearman).
 - **D. Higher warp** raises the medians by $0.14–0.53 a sheet (100 and 1,000 houses a year).
-- **E. Break-even** for doubled joints on the base: a missed nail must cost $6.51 [5.21, 7.88]
+- **E. Break-even** for doubled joints on the base: a missed nail must cost $6.47 [5.17, 7.83]
   more than its re-drive.
 - **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): H28 held (the base beats the H1 in every
   draw); **H29 refuted** (the median crossing is at about 500 houses a year, outside 30–300;
@@ -1203,7 +1511,7 @@ python paper/check_numbers.py                                # every number the 
   cheaper in **every** draw at 100, 300 and 1,000 houses a year (median saving $5.13).
 - **Break-even.** Doubling pays only if a missed nail costs a median **$5.51** more than its re-drive
   [5–95%: $3.91, $8.55], 8.8 loaded person-minutes ($5.83 with the common part removed). Measured
-  studs lower milestone 7's $6.51 (the three-read pipeline now misses 1.095 nails a sheet, not
+  studs lower milestone 7's $6.47 (the three-read pipeline now misses 1.095 nails a sheet, not
   0.79), but less than that rise suggests: in about half the draws the cheapest pipeline is one that
   misses fewer nails.
 - **Line laser or point reads.** Per-nail reads by point (31 + 2 a sheet) cost 15 cents more than
@@ -1353,7 +1661,120 @@ python paper/check_numbers.py                                # every number the 
 - **Fits** (H102 held): no m ≥ 0.75 point within 10 points of both; the best point at every γ is m 0.25, rms 2.1
   (γ ∞), 2.5, 3.1, 4.3, 6.4, 8.7 points. At m 0.25, γ 5 the 6-12 share rises from 57.9% to 68.1%, because the
   intact walls' sheathing nails keep 71–77% of their strength and the decayed walls' 86–96%.
+## Milestone 25 results (`reproduce.py`)
+- **What was checked.** Every numpy-only experiment of two minutes or less (m1, m2, m4, m5, m7,
+  m10–m14) and two scipy ones (m17, m18), each re-run from the committed code in a
+  temporary copy and compared character for character with its committed `results.txt`, timings
+  masked. The m6/m6b/m9/m3 runs need MuJoCo or Drake and m16/m20/m21 take 25–70 min; they were not
+  re-run, and m15 and m19 were started but stopped at this session's 30-minute limit for a
+  background job.
+- **Two experiments had drifted, both from later edits to shared code, neither from a bug.**
+  (1) Milestone 9 rewrote `cycle.ledger_draw` and in doing so drew the panel tilt from the random
+  stream before the ledger tilt (milestone 5 drew the ledger first). Same distributions, different
+  draws: re-running milestone 5's own commit gives its committed 0.5833 exactly; every commit from
+  milestone 9 on gives 0.5814 (bisected over the five commits that touched `tack.py`). (2) Milestone
+  14 changed the mean missed-nail count from (1 − mean hit rate) × 62 to a per-sheet sum: the same
+  quantity, which moves three of milestone 12's values in the third decimal (0.549 to 0.548). m7
+  and m13 read those files, so they moved with them.
+- **What moved.** m5: H22's best single-2x pipeline 0.5833 to **0.5814** [0.574, 0.588]; two 2x
+  with one read 0.9997 to **0.9994**; H26's largest recoil loss 7.64 to **7.39** points (now at three
+  reads, not dense); the single-2x penalty 17.8–65.2 to **17.9–65.5 s**. m7: the break-even
+  $6.51 [5.21, 7.88] to **$6.47 [5.17, 7.83]**. Each is well inside the Monte Carlo interval it was
+  quoted with, and every hypothesis verdict is unchanged. The four results files, the paper
+  (every moved number, among them the abstract's and a highlight's 99.97%, now 99.94%), this README and
+  the homepage card are updated.
+- **What the number check missed.** `paper/check_numbers.py` tied "0.9997" to its results line
+  but not the same number written as a percentage, so a stale 99.97% sat in the abstract, a
+  highlight and the conclusion. Four checks now bind it (194 of 194).
+- **After the refresh,** all ten quick experiments reproduce, and m17 and m18 reproduce as committed.
+- **Checks** (`tests/test_reproduce.py`, 4 tests): every experiment directory is listed, only
+  timings are masked, a changed number is reported, and milestone 7 reproduces from its committed
+  inputs.
+
+## Milestone 27 results (`experiments/m27_slide_mech/results.txt`)
+
+- **The stock hands are soft along the wall.** One hand: G1 35–102 N/m, H1 286–590 N/m; both together: G1 128–134,
+  H1 596–1,394 N/m. Against a force source a tap travels at most 1.9% less with a G1 hand and up to 17.4% less with both H1
+  hands at 100 ms, so **H103 is refuted** (bar 10%), only by the stiffest H1 pose at the slowest reactions.
+- **One tap** (μ_s 0.4, μ_k/μ_s 0.8): 0.17 mm at 2 ms, 0.81 mm at 20 ms, 3.2 mm at 50 ms, 12.3 mm at 100 ms. Across
+  the friction grid at 20 ms: 0.51–3.2 mm. A coarser motion threshold (0.2 mm) and a faster ramp (500 N/s) together add
+  0.54 mm at 20 ms (1.35 against 0.81 mm).
+- **The loop** leaves 0.054–0.090 mm rms at 2 ms (5–10 taps, 3–6 s), 0.19–0.64 mm at 20 ms (1.5–3 taps, about 1–2 s),
+  0.66–2.9 mm at 50 ms and 2.5–10 mm at 100 ms. **H104 held**: 3.855 mm at 100 ms (bar 0.5 mm).
+- **Back in milestone 12's best stack** (0.7707 with 0.5 mm, reproduced): 0.79–0.80 at 2–10 ms, 0.754–0.795 at
+  20 ms, 0.40–0.75 at 50 ms, 0.13–0.45 at 100 ms. **H105 held**: 0.7912 at 20 ms, ratio 0.8 (+2.04 points).
+- **What it means.** The pose fix of milestones 10–13 stands if the slide is a closed loop that drops the push within
+  about 20 ms of the sheet moving (or 50 ms if kinetic friction is within 10% of static); a robot that reacts at
+  human-like 100 ms loses most of what the slide was for. A grasp that can also brake, or a slower creep with
+  vibration, is not modelled.
+
+## Milestone 29 results (`experiments/m29_tool_lean/results.txt`)
+
+Module `src/buildbot_sheathing/tool_lean.py`; tests `tests/test_tool_lean.py` (6); `tack.simulate(tool=...)` and
+`ceiling.clean(tool=...)` take a (surface, depth) error pair per nail (the old path is unchanged and reproduces 0.7964).
+H109–H111 were registered in `LOG.md` before the run; a probe of section A's G1 row ran first and is disclosed there.
+
+- **Model.** The panel-edge bound is checked where the nail enters the sheathing; the stud (or plate) bound 44.4 mm
+  deeper (7/16 in OSB plus the 10 shank diameters milestone 2's band requires inside the member). A joint error moves
+  the nose by the hand's translation plus its rotation times the tool length L, and the depth point by the rotation
+  times L + 44.4 mm, so the pair is bivariate normal and correlated (ρ ≥ 0.998 here). An independent lean adds
+  44.4 mm × tan(lean) at depth only.
+- **Checks.** At L 0 the G1's surface scatter is 0.931/0.873 mm (y/z), `buildbot-fasten`'s 0.93/0.87. One-nail Monte
+  Carlo against the bivariate normal: 0.8632/0.8633, 0.6387/0.6393, 0.7069/0.7085 (the last at ρ ≈ 1, where scipy's
+  integration is least accurate). The old 0.9 mm model through the new path gives 0.7969 (old path 0.7964, interval
+  0.7908–0.8019).
+- **The robots** (11-bit, stud-height pose, feet planted): hand rotation 0.10/0.12/0.10° (G1) and 0.07/0.09/0.08° (H1)
+  about x/y/z. Along-wall scatter at the surface: G1 0.93, 1.11, 1.31, 1.53 mm at L 0, 0.15, 0.3, 0.45 m; H1 0.70,
+  0.88, 1.06, 1.26.
+- **Best single-2x stack** (milestone 28's: measured studs, per-nail reads, mid push, 20 ms slide, 1/16 in shims):
+  G1 0.7346, 0.5118, **0.2637**, 0.0993 at those lengths; H1 0.9117, 0.7830, 0.5706, 0.3247. At twice the quantisation
+  the G1 gives 0.0119 even at L 0. Doubled joints: 1.0000 at 11 bits, 0.9997 at twice, 0.9570/0.3952 at four times
+  (L 0/0.3). **H109 held** (−53.3 points).
+- **Resolution at L 0.3 m (G1):** 11 bits 0.2637 (1.43 missed nails a sheet), 12 bits 0.9344 (0.08), 13 bits 0.9910,
+  14 bits 0.9966.
+- **Independent lean** on top of the G1 at L 0.3: 0.25° −0.6, 0.5° −2.6, 1° −9.3, 2° −22.1 points; the stack
+  tolerates **0.434°** (1σ) for 2 points. **H110 held** (1°: −9.28). Doubled joints 1.0000 up to 2°, 0.9998 at 3°.
+  **H111 held.**
+- **What it means.** The paper's single-2x numbers hold only if the tool point, not the hand, is held to about
+  0.9 mm along the wall at the stud's depth: a stock G1 with a 0.3 m nailer misses it by half, a 12-bit G1 meets it.
+  Doubled joints carry any tool the programme has modelled.
+
+## Milestone 28 results (`experiments/m28_shim_mech/results.txt`)
+
+Module `src/buildbot_sheathing/shim_mech.py`; tests `tests/test_shim_mech.py` (6). Shim sizes from supplier listings:
+composite taper shims 8 in long, 1/16 to 5/16 in thick (slope 1:32); plastic horseshoe shims 1/16, 1/8 and 1/4 in.
+H106–H108 were registered in `LOG.md` before the run.
+
+- **The lift needed** (|ledger + panel tilt| × 48 in): median 0.946 mm, p99 3.018 mm, max 4.7 mm on milestone 6b's rock
+  draws (1.215 and 4.709 mm with the PS 2 bow draw); 43% of sheets need less than half a 1/16 in step.
+- **Shim stack.** Rounding to whole steps leaves 0.229 mm rms at 1/32 in shim stock, 0.458 at 1/16 in, 0.934 at 1/8 in
+  (step/√12 to within 2%). In milestone 12's best stack with milestone 27's 20 ms slide (0.262 mm): 0.8042, 0.7964 and
+  0.7653 against 0.7912 with a Gaussian 0.5 mm and 0.8059 with a perfect shim. **H106 held** (+0.52 points).
+- **Wedge statics.** The wedge carries 112–223 N (half the sheet plus the wall friction that resists its turn) and needs
+  49–53 N at μ 0.2, 108–129 N at μ 0.4 and 217–277 N at μ 0.6 on every face; it self-locks at every μ swept, and backing
+  it out takes a 36–124 N pull. A slick ledger face (μ 0.15, others 0.4) cuts the push to 83 N.
+- **The robots** (both hands into the wall, MuJoCo Menagerie, milestone 3b's whole-body check): G1 40.6 N at 0.35 m,
+  65.6 N at 0.5 m (waist pitch), 118.0 N at 0.7 m (wrist pitch); H1 130–135 N (elbow). The largest common friction the G1
+  can drive is 0.16, 0.25 and 0.40 at those heights; the H1's 0.43–0.44. **H107 refuted**: 118.5 N needed at μ 0.4, the
+  G1 gives 65.6 N at the model's 0.5 m ledger.
+- **Stick-slip on a light mass.** One hand's effective mass along the push is 0.78–1.17 kg (G1) and 0.80–0.97 kg (H1);
+  the sheet adds 35 g. A tap therefore runs far: at μ_s 0.4, μ_k/μ_s 0.8, 0.46 mm at 2 ms, 12.7 mm at 20 ms, 76 mm at
+  50 ms, and 337 mm at 100 ms, past the wedge's 8 in. The loop leaves 0.013 mm rms at 2 ms (70 taps), 0.041 at 10 ms,
+  **0.132 at 20 ms** and 0.578 at 50 ms; across ratios 0.5–0.9 at 20 ms 0.08–0.35 mm, and across μ_s 0.2–0.6 0.06–0.29 mm.
+  **H108 refuted** (bar 0.1 mm). In the stack, a 20 ms wedge gives 0.8023, a 50 ms one 0.7872, a 100 ms one 0.6208.
+- **What it means.** The shim the paper credited is a 1/16 in stack: a pick-and-place job with no force or timing
+  requirement, which a G1 can do, and it is as good as the 0.5 mm assumed. A wedge buys about one point more only for a
+  robot that can push 120 N low on the wall (an H1) or slick shims, and with a 10–20 ms release.
+
 ## Limitations
+- **The tool point (milestone 29).** Only joint quantisation is carried to the nose; backlash, link and mount
+  deflection under the push, and calibration would add to it, so the robot rows are best cases. The 0.3 m nose is
+  `buildbot-fasten`'s figure, not a maker's; the 44.4 mm depth uses milestone 2's 10-diameter penetration rule, not a
+  code clause. One pose (stud height) stands for every nail.
+- **The shim (milestone 28).** Face frictions of the composite shim on OSB and lumber are swept (0.2–0.6), not
+  measured; the stack is placed at exactly its rounded height (no shim crush, no debris); the wedge's stroke is a flag,
+  not a simulated end stop; backing a wedge out pulls the sheet's foot off the wall (36–124 N), which the press is
+  assumed to resist; the 0.5 m ledger height that sets the G1's push is the model's, and lower ledgers make it weaker.
 - **The cyclic wall (milestone 20).** SAWS has no cumulative damage: the envelope a spring reaches under cycles is
   its monotonic envelope, so nail fatigue and tear-out, which Anderson et al. and Weiss saw, are outside it.
   Anderson's nails are 0.113 in, Weiss's 8d common 0.131 in (only shares are compared); the oriented pair
@@ -1442,6 +1863,10 @@ python paper/check_numbers.py                                # every number the 
   results (APA pages, a manufacturer's guide, a trade Q&A), not in APA E30 or the code.
 
 ## Next steps
+Milestone 27 turned the slide into a reaction-time requirement (release within about 20 ms of the sheet moving).
+What would pin it: the static and kinetic friction of OSB on a lumber ledger and on framing (the EPFL OSB data
+set, or a tilt-table test), a G1's measured latency from hand displacement to zero push, and the same model for
+the shim (a wedge driven under the low corner), which still carries an assumed 0.5 mm.
 Milestone 2 left two checks: measured stud profiles (the Adel et al. 2024 data set, or a scan of
 real studs in a wall) in place of means and assumed shapes, and how far sheathing nails pull a
 bowed stud straight. Milestone 3 is done for a static robot; what is left is dynamic: a
@@ -1495,7 +1920,7 @@ tested 16d end-nail ultimate, and a degrading (cumulative-damage) nail model or 
 unsupported panel edge, to test fatigue and tear-out. Milestone 21 added energy-based strength degradation to every nail: it lowers intact
 and decayed walls together and lifts the decayed shares by up to 2.9 points, so spread damage is ruled out. Next:
 a local failure model for the nails left along the unnailed bottom edge (edge distance and cycle count, from
-tested curves of nails at an unsupported panel edge), the middle stud splitting, and a tested 16d end-nail ultimate. Milestone 22 wrote milestones 14 to 21 into the paper draft (sections 4.9–4.10, 5.13–5.14).
+tested curves of nails at an unsupported panel edge), the middle stud splitting, and a tested 16d end-nail ultimate. Milestone 22 wrote milestones 14 to 21 into the paper draft (sections 4.9–4.10, 5.13–5.14). Milestone 23 builds the draft into Elsevier's `elsarticle` template (`paper/build_latex.py`, a 27-page PDF with every citation resolved), completes two references and cuts the highlights to Elsevier's five bullets of 85 characters. Milestone 24 cuts the abstract from 469 words to the journal's 150 (26 pages, 24 works cited) and makes the build fail on a longer abstract, a single-author citation left as plain text and an unused reference. Milestone 25 re-runs the committed experiments (`reproduce.py --check`): milestones 5 and 12 had drifted from later edits to shared code (a reordered random draw, a rounding change), now refreshed, with the paper's numbers updated and no verdict changed.
 The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 

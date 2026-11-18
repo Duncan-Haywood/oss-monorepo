@@ -9,5 +9,10 @@ description = "How far above the exact minimum gate count does Yosys/ABC land on
 requires-python = ">=3.9"
 license = { text = "MIT" }
 
+[project.optional-dependencies]
+# The SAT and ABC tests skip without these; install them to run the full suite.
+sat = ["python-sat"]
+plot = ["matplotlib"]
+
 [tool.setuptools.packages.find]
 where = ["src"]

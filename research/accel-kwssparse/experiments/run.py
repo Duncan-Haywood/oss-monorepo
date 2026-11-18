@@ -75,18 +75,20 @@ def report():
     lines.append('')
     lines.append('sensitivity: multiplier energy scaled by f; cheapest design within 2 points of float32 (all / multiplier-free only)')
     base_e = S.C.E_MULT_8X8_PJ
-    for f in (1, 3, 10, 30):
-        S.C.E_MULT_8X8_PJ = base_e * f
-        best = {}
-        for n, v in r.items():
-            if base.mean() - np.mean([q['test'] for q in v]) > 0.02:
-                continue
-            qk, wb, sp = [(d[1], d[2], d[3]) for d in S.DESIGNS if d[0] == n][0]
-            best[n] = (np.mean([S.energy_nj(q['nnz'], qk, wb, sp is not None, inputs, HIDDEN) for q in v]), S.kind_of(qk))
-        a = min((e, n) for n, (e, k) in best.items())
-        m = min((e, n) for n, (e, k) in best.items() if k == 'signadd') if any(k == 'signadd' for e, k in best.values()) else None
-        lines.append('f=%g: %s %.2f nJ / %s' % (f, a[1], a[0], '%s %.2f nJ' % (m[1], m[0]) if m else 'no multiplier-free design within 2 points'))
-    S.C.E_MULT_8X8_PJ = base_e
+    try:
+        for f in (1, 3, 10, 30):
+            S.C.E_MULT_8X8_PJ = base_e * f
+            best = {}
+            for n, v in r.items():
+                if base.mean() - np.mean([q['test'] for q in v]) > 0.02:
+                    continue
+                qk, wb, sp = [(d[1], d[2], d[3]) for d in S.DESIGNS if d[0] == n][0]
+                best[n] = (np.mean([S.energy_nj(q['nnz'], qk, wb, sp is not None, inputs, HIDDEN) for q in v]), S.kind_of(qk))
+            a = min((e, n) for n, (e, k) in best.items())
+            m = min((e, n) for n, (e, k) in best.items() if k == 'signadd') if any(k == 'signadd' for e, k in best.values()) else None
+            lines.append('f=%g: %s %.2f nJ / %s' % (f, a[1], a[0], '%s %.2f nJ' % (m[1], m[0]) if m else 'no multiplier-free design within 2 points'))
+    finally:
+        S.C.E_MULT_8X8_PJ = base_e
     open(os.path.join(HERE, 'results.txt'), 'w').write('\n'.join(lines) + '\n')
     print('\n'.join(lines))
 

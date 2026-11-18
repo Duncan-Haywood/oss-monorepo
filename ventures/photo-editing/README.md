@@ -80,7 +80,7 @@ gets its proxy and its scores from a half-size development instead of failing. S
 2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
 from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
 2026-11-14 a Sony ARW, a Nikon NEF, an Olympus ORF, a Panasonic RW2, a Samsung SRW and a Pentax PEF the same way ("Sony ARW", "Nikon NEF",
-"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a full-quality Canon CR3 ("Canon CR3" below). Other RAW formats (a C-RAW CR3, ...) are still scored from their preview but stop at the grade
+"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a Canon CR3, full quality and C-RAW ("Canon CR3" below). Since 2026-11-15 the GH6-era RawFormat 8 RW2 too ("Lumix bodies from 2022 on" below). Since 2026-11-16 a C-RAW CR3 stored in several tiles too ("C-RAW in tiles" below). Other RAW formats (a CR3 with an unknown codec version, ...) are still scored from their preview but stop at the grade
 stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
@@ -106,7 +106,7 @@ through a detector you supply: set `SHOOTFLOW_FACE_DETECTOR` to a command that
 takes an image path and prints `{"faces": [{"size": 0.1, "eyes_open": 0.9}]}`
 (`src/shootflow/faces.py`). A prominent face (1% of the frame or more) with eyes
 open adds 0.03 to `story_score`; the least-open eye costs up to 0.25; off by
-default, run without a shell, and any failure keeps the measured score. `tools/opencv_face_detector.py` (2026-10-29) is a reference detector for that contract: OpenCV Haar
+default, run without a shell, and any failure keeps the measured score. Since 2026-11-16 the recommended detector is `tools/mediapipe_face_detector.py`: Google's MediaPipe Face Landmarker (Apache 2.0, a 3.8 MB model you download once, path in `SHOOTFLOW_FACE_LANDMARKER`; on Linux `apt-get install libegl1 libgles2`) reads each lid's blink score, searches the frame in tiles so group shots' small faces are found, and averages the score over every view of a face. On 105 real CC0 photos it flagged 5 of 6 closed-eye photos and none of the other 99; the Haar detector below flagged 3 of 6 and 8 of 99 (open eyes behind sunglasses or narrowed by a smile, a sleeping cat). The labels are an agent's, not a photographer's, and the open/shut margin was thin (blink 0.44 against 0.50): `eval/blink-landmarker-2026-11-16.md`. A face cut in half by the frame edge, which no face finder sees, is searched for in each edge's strip mirrored across the edge (later on 2026-11-16): the set's one miss is now flagged (6 of 6, still 0 of 99), and of 40 half faces cut from the set's own faces 20 are found instead of none, 19 reading the same as the whole face (16 of 18 faces over 100 px wide; `eval/blink-edge-mirror-2026-11-16.md`). `tools/opencv_face_detector.py` (2026-10-29) is the older reference detector for that contract: OpenCV Haar
 cascades (`pip install "opencv-python-headless<5"`; 5.x dropped the cascade classifier), on your machine, nothing
 uploaded. `eyes_open` is 0.95, 0.5 or 0.1 for two, one or no eyes found in the upper face, and null under 70 px wide.
 It is a classical detector, not a blink classifier: the eye cascade was trained on open eyes, so sunglasses,
@@ -360,7 +360,31 @@ This repo currently contains the first testable core utilities:
   RAW+JPEG pairs (same folder and stem) count as one shot: the JPEG is scored, the RAW is listed as a companion, one sidecar covers both (2026-11-04, made-up files only).
   is the standalone culling pass: it scores each still (JPEG, PNG, TIFF, or a
   RAW file's embedded preview), groups near-identical frames by dHash (Hamming
-  distance 8 or less, single linkage), keeps the best frame per group as the
+  distance 8 or less, single linkage, or, since 2026-11-17, a crop-tolerant match:
+  frames up to 24 apart also group when two of their 88% windows on a 5 x 5 grid
+  are within 6 and at least 5 closer than the whole frames, so a burst the
+  camera panned or zoomed a few percent through stays one group; on burst-like
+  pairs cut from 166 held-out real photos, pair recall 0.40 to 0.72 for 2 more
+  false merges in 13,695 pairs of distinct photos,
+  `eval/cull-crop-grouping-2026-11-17.md`; since 2026-11-18 also a zoom match:
+  frames up to 28 apart group when one frame's whole hash is within 6 of a
+  90-96% window of the other (4 sizes x 5 x 5 positions) and at least 6 closer
+  than the whole frames, so a frame zoomed 3-10% tighter stays in its burst;
+  held-out pair recall 0.72 to 0.91, zooms 0.36-0.64 to 0.98-1.00 at 10%, for 2
+  more false merges in 13,695, `eval/cull-zoom-windows-2026-11-18.md`; and a wide-pan match the same day:
+  frames up to 44 apart group when two 88% windows offset further than the centre
+  window reaches (9-12% of the frame) are within 5 and at least 6 closer than the
+  whole frames, so a burst panned 8-10% stays together; held-out pair recall 0.91
+  to 0.985, those pans 0.07-0.77 to 0.86-1.00, for 1 more false merge in 13,695,
+  `eval/cull-pan-windows-2026-11-18.md`; and later that day the crop match's gate
+  rose from 24 to 44, the wide-pan match's, because every 6% pan it still split had
+  windows within 0-7 bits but whole frames 25-33 apart: held-out pair recall 0.985
+  to 0.991, 6% pans 0.85-0.86 to 1.00, no added false merge in 13,695; both window
+  matches now run as one packed comparison,
+  `eval/cull-crop-gate-2026-11-18.md`; since the same day, from 500 photos up, a
+  chunked hash index finds the only pairs any match could link instead of comparing
+  every pair, with identical groups: 2,000 frames 10.0 to 3.6 s, 10,000 frames 251
+  to 42 s, `eval/cull-grouping-index-2026-11-18.md`), keeps the best frame per group as the
   keeper, and rejects blurred, badly exposed or (with `SHOOTFLOW_FACE_DETECTOR`)
   closed-eye frames. It writes `cull_report.json` and `cull_report.html`, and
   with `--write-xmp` a Lightroom/Bridge sidecar per photo (keeper 4 stars,
@@ -916,7 +940,7 @@ white balance with camera multipliers. Stdlib only, like the rest of ShootFlow
 the same arithmetic and writes the same bytes (`src/shootflow/raw_develop_np.py`, below;
 `--engine python|numpy` to choose, default `auto`).
 
-What it reads: DNG, and Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF and Canon CR3 with a `.dcp` profile (CR2 since 2026-11-12, ARW, NEF, ORF, RW2, SRW, PEF and RAF since 2026-11-14, CR3 since 2026-11-15, "Sony ARW", "Nikon NEF", "Olympus ORF", "Panasonic RW2", "Samsung SRW", "Pentax PEF", "Fujifilm RAF" and "Canon CR3" below; convert a C-RAW CR3 with Adobe's free DNG Converter first), raw
+What it reads: DNG, and Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF and Canon CR3 with a `.dcp` profile (CR2 since 2026-11-12, ARW, NEF, ORF, RW2, SRW, PEF and RAF since 2026-11-14, CR3 since 2026-11-15, C-RAW included, "Sony ARW", "Nikon NEF", "Olympus ORF", "Panasonic RW2", "Samsung SRW", "Pentax PEF", "Fujifilm RAF" and "Canon CR3" below), raw
 data in IFD0 or a SubIFD, in strips or tiles, uncompressed 8/16-bit or packed 10-14-bit, or
 lossless JPEG (SOF3, all seven predictors, restart markers, multi-component tiles); 2x2
 RGB colour filter arrays in any phase, and LinearRaw. It applies the linearization table,
@@ -1031,6 +1055,22 @@ How it was checked:
   and on the CR2, and still 0 of 22,032,768 sensels different from LibRaw. No compiler, Windows
   or `SHOOTFLOW_NATIVE=0`: the pure loop runs. `raw_develop.HUFFMAN_ENGINE` (`auto`, `python`,
   `native`) chooses; an invalid code falls back to the pure loop, which raises as before.
+
+## The sRGB encode, interpolated (2026-11-17)
+
+The develop's last step, linear light to sRGB, read a 4,096-entry table at the nearest entry, so a 16-bit
+master held at most 4,096 levels per channel and sat up to 104 codes (of 65,535) off the curve in the
+shadows. It now reads a 16,384-entry table with linear interpolation (`raw_develop.srgb_table`,
+`SRGB_TABLE_SIZE`), in both engines with the same arithmetic. On five public camera DNGs the output holds
+45,014-65,536 levels per channel (was 2,239-4,096), every value is within 1 code of a near-exact reference,
+the two engines still write identical bytes, and the gap to LibRaw's render shrinks (p99 in 8-bit steps:
+Leica T 0.136 to 0.035, Pentax Q-S1 0.160 to 0.047). Every develop's bytes change. How it was checked:
+`eval/srgb-table-interp-2026-11-17.md` (`tools/srgb_table_check.py`).
+
+What it buys in an edit (`eval/shadow-lift-banding-2026-11-17.md`, `tools/shadow_lift_check.py`): pushed +3
+stops in linear light and shown in 8 bits, the old masters never reached 1-39 of the codes a near-exact
+encode reaches per channel (up to 129 at +5 stops); the new ones miss none, on the same five DNGs. On a
+noise-free shadow ramp the old encode, lifted 3 stops, jumped 2-7 codes at a time below code 70: bands.
 
 ## Develop a Canon CR2 directly (2026-11-12)
 
@@ -1161,10 +1201,69 @@ reference and C through the same optional ctypes library as the other readers.
 Checked on the five CR3s in the public metadata-extractor-images collection (`tools/cr3_libraw_check.py`,
 `eval/canon-cr3-reader-2026-11-15.md`): on both full-quality EOS R8 files every one of 25.5 M sensels
 equals LibRaw 0.22's, with both decoders, and the white balance, CFA and white level match; black is
-within 1 level of LibRaw's stated figure. 0.5 s per file with the C decoder, 35 s in pure Python. The
-other three files (an R3 and two R8s) are C-RAW, the smaller wavelet-coded quality; they are refused
-with that reason and a pointer to the DNG Converter. C-RAW and sensors stored in several tiles are the
-next steps.
+within 1 level of LibRaw's stated figure. 0.5 s per file with the C decoder, 35 s in pure Python.
+
+**C-RAW (later on 2026-11-15).** The other three files (an R3 and two R8s) are C-RAW, the smaller
+quality (about 40% smaller files), and are read directly too (`src/shootflow/cr3_wavelet.py`): each
+plane is a three-level reversible 5/3 wavelet whose subbands are quantised by a per-tile QP grid; the
+deepest low band is coded like a lossless band and the others with a zero-run Rice code that does not
+predict values. On all three files every one of 25.5-25.7 M sensels equals LibRaw 0.22's with both
+decoders, and the white balance, CFA and white level match; 0.6-0.7 s per file with the C decoder
+(each plane on its own thread), 25-28 s in pure Python. The R3 frame develops to a median 0.24 of an
+8-bit step from LibRaw's render (`eval/canon-cr3-craw-2026-11-15.md`).
+
+**Sensors stored in several tiles (later on 2026-11-15).** Canon's widest sensors (the R5 class) can
+store a frame as tiles side by side, and those files were refused. A full-quality CR3 in tiles is now
+read: CMP1's tile size cuts each plane into a grid (every tile that size except the last of each row and
+column, which takes the rest, at least 22 plane sensels, as LibRaw requires); the sample header lists each
+tile's header (0xFF01, carrying its index) and its four planes' headers in turn, and the data follows tile
+after tile, each tile's plane an independent band at the tile's width. The C decoder writes each tile
+straight into its place in the frame, so speed is unchanged (0.53 s for 25.5 M sensels in two tiles).
+
+No public tiled CR3 could be fetched (raw.pixls.us refuses this container's proxy; every CR3 in the
+metadata-extractor-images collection is one tile). So `tools/cr3_tiled_libraw_check.py` makes them: it
+re-stores a real one-tile EOS R8 frame as tiles with the repository's own CRX encoder, splices the sample
+into a copy of the real file, and asks LibRaw 0.22 to read it. LibRaw is an independent reader: it gave back
+every original sensel on six such files (two real R8 frames, each as two tiles across in two splits
+and as a 4 x 3 grid whose last column is 22 plane sensels, the narrowest LibRaw allows), and so did both of
+our engines. A deliberately wrong layout (the same tiles written column by column) comes back from LibRaw
+with 21.4 M of 25.5 M sensels wrong and is refused by ours, so the check can fail. What it cannot prove: the layout comes from this
+repository's reading of LibRaw, not from a Canon body, so a real R5 file is still the stronger test
+(`eval/canon-cr3-tiled-2026-11-15.md`). C-RAW in tiles is read since 2026-11-16 (next section).
+
+**C-RAW in tiles (2026-11-16).** The smaller C-RAW quality in tiles was the last CR3 layout ShootFlow
+refused. It is harder than full quality: a C-RAW tile is not an independent picture but a wavelet
+decomposition, and the 5/3 filter reaches across the seam. Each tile is coded as its own three-level
+decomposition (its first sample even at every level), and its subbands carry a few coefficients lent by
+its neighbours: one more high-pass coefficient before a left (or top) neighbour, and after a right (or
+bottom) one 0-2 per band and level, as LibRaw's `exCoefNumTbl` gives them for the tile's size mod 8. With
+them the inverse runs straight across the seam, and each level rebuilds the next level's low band with its
+own borrowed edge. Each tile has its own QP grid; a borrowed coefficient takes the step of the nearest own
+column. `cr3_wavelet.tile_geometry` sizes the bands, `inverse_53` and `inverse_level` take the
+neighbour flags, and the C decoder (`shootflow_craw_plane`) does the same per tile and plane.
+
+No public tiled C-RAW exists to test with, so `tools/cr3_craw_tiled_libraw_check.py` makes them from real
+one-tile files: each tile's decomposition is computed from the real sensels around it
+(`tests/craw_tiled.py`), the sample is spliced into a copy of the real file, and LibRaw 0.22 reads it.
+On all 20 side-by-side layouts tried (two R8 frames and an R3 frame, two to five tiles across, plane tiles
+from 22 sensels, the narrowest LibRaw allows, to 2,048, and an odd 619), LibRaw and both of our engines return
+the same sensels: equal to the original when every step is 1, and equal to each other when the file's own
+steps are used (`eval/canon-cr3-craw-tiled-libraw-2026-11-16.jsonl`). Reading a tiled file takes as long as a
+one-tile one, 0.6-0.9 s with the C decoder.
+
+**Where LibRaw and ShootFlow part: tiles stacked one above another.** A grid with more than one row of
+tiles does not come back from LibRaw: on the same R8 frame cut 1 x 2 it returns 160,305 of 25.5 M sensels
+different from the original (rows next to the seam only), 1 x 3 gives 370,013, and the 4 x 3 grid fails to
+decode at all. Our reader returns every original sensel on all three. Reading LibRaw's `crx.cpp` shows one
+cause: in `crxIdwt53FilterTransform` the test for a tile below is nested inside the end-of-tile test, so a
+tile with a neighbour below never computes its last rows (and the branch written for that case is dead
+code; `crxIdwt53FilterDecode` uses the combined test). Rebuilt with the two tests combined, LibRaw gives the
+upper tile back exactly, but the first 8 rows of the lower tile still differ, and this run could not trace
+that second difference. So side-by-side tiles (the layout of the wide R5-class sensors) are checked by an
+independent reader; stacked tiles are read by the same seamless rule, which nothing independent confirms
+yet, and a developed frame carries a note saying so. The QP row rule LibRaw uses for borrowed rows (row
+minus the bottom count, where columns subtract the left count) is followed but likewise unconfirmed
+(`eval/canon-cr3-craw-tiled-2026-11-16.md`).
 
 ## Fujifilm RAF (2026-11-14)
 
@@ -1262,6 +1361,301 @@ two of the three (X-E2 46.5, sheet 25.9; X-E1 37.5) and trails its three-pass me
 for a 16 MP frame on four cores (bilinear 0.9 s; LibRaw's three-pass 1.7 s in C). Not done: a C path,
 LibRaw's three-pass quality, a noisy known truth (on real sensor data our luminance is further from
 LibRaw's render than bilinear's is, unexplained), Bayer files (they keep bilinear).
+
+**2026-11-15: within half a dB of LibRaw's three-pass.** Two changes, both found by measuring where
+the error was (`eval/xtrans-clamp-gradient-2026-11-15.md`). First, the L\*a\*b\* homogeneity choice
+turned out to be no better than averaging all four directions on the X-E1 frame (36.38 against 36.39
+dB) and worse on the sheet, while the best direction per pixel would have reached 40.0: the choice
+was the weak step. It is replaced by a blend weighted by each direction's smoothness along its own
+line (second difference, 3x3 window, weights (D_min/D)^4). Second, each directional green is now
+held between the two greens it was interpolated from; the colour-difference estimate overshot where
+the 3x3 estimate of the sensel's own colour was off. Colour PSNR, old rule to new: X-E1 frame 36.60
+to 38.56 dB (LibRaw three-pass 39.27), held-out X-E2 frame 47.88 to 49.43 (LibRaw 49.89), sheet 33.51
+to 35.00 (LibRaw 39.37); 99th-percentile false colour down 20-33%. Half size: X-E1 40.07 to 42.27.
+Tuned on the X-E1 frame and the sheet; the X-E2 was looked at once, with the final settings. On the real
+frames' sensor data the output is nearer LibRaw's three-pass render than before (X-E1 colour 45.72 to
+47.52 dB, luma 47.41 to 49.44), and the luma gap to bilinear's closeness (51.22) is the median's: without
+it, 52.40. `directional(...,
+clamp=False, select="homogeneity")` reproduces the 2026-11-14 numbers exactly. With sensor-like
+noise added to the mosaic (`--noise-snr 60 --noise-snr 25`, scored against the clean truth, LibRaw given
+the same noisy mosaic) the gap narrows: X-E1 0.65 and 0.43 dB short, X-E2 0.09 dB short and 0.12 dB
+ahead. Still open: the sheet's 4.4 dB gap to LibRaw's three passes (fine rings near the sampling limit),
+whether the median should leave green alone (+0.4 dB on the frames, -2.4 on the sheet; needs a real
+noisy frame with a known answer), a C path, Bayer.
+
+**In C since 2026-11-15** (`src/shootflow/xtrans_native.py`, `eval/xtrans-native-2026-11-15.md`). The
+whole X-Trans demosaic (estimates, four clamped directional greens, red and blue, the gradient blend,
+passes and median) in one C function per band, built with the system compiler on first use and loaded
+through `ctypes`; numpy stays the reference and the fallback. On the real X-E1 and X-E2 frames the output
+is equal to numpy's bit for bit, and a 16 MP frame takes 1.3 s on four cores (numpy 5.0 s; LibRaw's
+single-threaded three-pass `postprocess` 2.5 s). To make that exact on every machine the blend's
+`** 4` became two squarings: numpy's float32 power follows the CPU's SIMD library and differed from libm
+on a fifth of values here (output moved by at most 0.02 of a 16-bit step). `SHOOTFLOW_NATIVE=0` turns it off.
+
+**2026-11-16: checked on seven held-out truths; ahead of LibRaw's three passes under noise on all seven**
+(`eval/xtrans-fresh-truths-2026-11-16.md`). Only two X-Trans frames are in the public sample set, so the
+check tool now borrows scenes: `tools/xtrans_demosaic_check.py --truth-from FILE` renders any raw LibRaw
+reads (here six Bayer frames from Sony, Nikon, Canon, Panasonic, Samsung and OM System bodies), bins it
+4 x 4 and mosaics it with the RAF's own X-Trans layout, LibRaw getting the same mosaic. On those six and the
+X-E2, none used to tune it, the shipped default has higher colour PSNR than LibRaw 0.22.2's three-pass
+Markesteijn on four of seven noise-free (-0.46 to +2.41 dB) and all seven at SNR 25 (+0.07 to +2.3), higher
+luma on six of seven noise-free, and lower 99th-percentile false colour at SNR 25 on all seven. Under noise
+its luma trails by 0.01-0.6 dB on six (the median's cost). Two changes that gained on the X-E1 were
+refused: keeping green out of the median (now `directional(..., median_green=False)`, numpy only: worse on
+six of seven noise-free, up to 1.4 dB, a wash at SNR 25) and a green-guided red/blue step. The default is
+unchanged.
+
+### Noise-aware demosaic: bilinear where edge-keeping only adds noise (2026-11-16)
+
+`shootflow develop FILE.dng --demosaic noise-aware` (opt-in, numpy, Bayer and X-Trans) blends the
+directional result toward bilinear block by block (24 x 24). Each block's weight comes from how far
+directional departs from bilinear there, against the noise the sensor has at that brightness. The noise
+comes from the DNG's own NoiseProfile tag, which phones and converted DNGs write. Without the tag the
+noise is read from the frame itself (the default since 2026-11-17, below; `--no-noise-from-frame` develops such a file as directional, and the notes say so). On 25 held-out sample files (scenes from 41 bodies,
+noise drawn at three levels), colour PSNR rises +0.43 dB on X-Trans and +0.31 dB on Bayer over the
+directional default on average, +0.93 / +0.68 dB at SNR 12, and no tile is worse by more than 0.01 dB.
+That beats the best single blend weight per frame chosen with the truth in hand (+0.41 / +0.26). The
+answer to "which frames want less edge-keeping" is "parts of every frame".
+
+Measured, not shipped: the same blend with the noise estimated from the mosaic, which reads texture as
+noise on detailed frames and lost up to 5 dB. Also measured, not shipped: one weight per frame, worst
+-2.6 dB. It stays opt-in because a profile that overstates the noise by about 1.5x starts to cost detail,
+and only one real profile (an LG Nexus 5X's, about 20% above the in-frame estimate) has been checked.
+4.4 s against 2.0 s for 12 MP. How it was checked:
+`tools/xtrans_frame_choice.py`, `eval/xtrans-noise-aware-blend-2026-11-16.md`.
+
+**Since the same day every profile is checked against the frame before the blend uses it.** On 83 real CFA
+DNGs from 80 bodies (raw.pixls.us), 43 profiles state more than 1.25x the noise their own sensels show, 25
+more than 2x and 11 more than 5x, up to 77x (third-party iPhone apps 14-32x; Adobe-written profiles 0.94-1.20).
+The check (`xtrans_demosaic.profile_ratio`) compares the profile with the quietest blocks at each brightness.
+It reads an honest synthetic profile as 0.95-1.02 and a k-times-overstated one as k within 5%, and texture can
+only make it read low. A profile over 1.25x is scaled to 1.25x, and the develop notes say so. On a synthetic
+scene where a 4x-16x overstated profile cost 1.4-10.6 dB, the guarded blend is within 0.02 dB of the true
+profile's at every overstatement from 2x to 100x, on Bayer and X-Trans. The guard adds a median 2.7 s per file.
+The same check found that the reader refused profiles with a read-noise term of exactly 0, which DNG 1.7.1.0
+allows and 14 of the 83 files write (Samsung, OnePlus, Xiaomi, LG, asus). They are read now. The mode stays
+opt-in: its gains are still measured on synthetic noise. `tools/noise_profile_check.py`,
+`tools/noise_profile_guard_synth.py`, `eval/noise-profile-real-dngs-2026-11-16.md`.
+
+**Since the same day the blend's luma is scored, under noise drawn as a sensor draws it, and the guard reads each
+colour plane on its own.** On 25 held-out files the blend raises luma PSNR over the directional default by
++0.61 dB (Bayer) and +0.92 dB (X-Trans), and by +0.91 / +1.31 dB when the noise is drawn before white balance
+with each file's own gains. No tile in 522 per layout is worse in luma by more than 0.01 dB. Under that
+white-balanced noise the old guard, which carried a profile by one mean gain, read honest profiles as high as
+1.55x and trimmed them on up to 33 of 174 tiles, at a cost of up to 0.68 dB luma on a tile. The guard now carries
+each plane's pair by its own gain and checks it against that colour's sensels. Honest profiles then read at most
+1.03 at the 95th percentile in every scenario, a trim costs at most 0.12 dB, and a profile overstated on one
+plane is scaled on that plane alone. NoiseProfiles with one pair per plane are read through CFAPlaneColor.
+On 24 real DNGs only a Pixel 4 XL's green plane read differently from the old check (1.34). The blend itself
+keeps the one-gain carry it was tuned with: a per-colour noise model in the blend gained 0.01-0.05 dB colour and
+lost 0.05-0.07 dB luma. Still opt-in, still synthetic noise. `tools/noise_aware_planes.py`,
+`eval/noise-aware-planes-luma-2026-11-16.md`.
+
+**Since 2026-11-17 luma has its own ramp.** The blend's ramp had been fitted on colour, and one ramp re-fitted
+on luma only traded colour for luma. Now the output keeps the colour difference (R-G, B-G) of the colour ramp
+and takes its luma from a second, later ramp that leans further to bilinear (`LUMA_RAMPS`: Bayer q 0.8-1.5,
+X-Trans 0.8-2.0, fitted on 21 tune files). On 25 held-out files luma over directional rises from +0.76 to
++0.99 dB (Bayer) and +1.12 to +1.28 dB (X-Trans), RGB PSNR from +0.35 to +0.48 and +0.51 to +0.61 dB, and no
+tile is worse than directional by more than 0.08 dB. The Bayer ramp was chosen with a rule added after seeing
+held-out results (the note says how). Sensels no longer keep their raw value under the luma shift; putting it
+back gave back most of the gain. `noise_aware(luma_ramp=False)` gives the old blend.
+`tools/noise_aware_ramp_refit.py`, `eval/noise-aware-luma-ramp-2026-11-17.md`.
+
+**Since 2026-11-17 a raw with no NoiseProfile can use the blend too, opt-in: `--noise-from-frame`.** Every raw
+read directly (ARW, NEF, CR2, RW2, RAF and the rest) and many DNGs carry no profile, so `--demosaic noise-aware`
+fell back to directional on them. With the flag, the noise model is read from the frame itself
+(`xtrans_demosaic.frame_noise`: the in-frame estimate, sigma scaled by 0.8, then the profile guard). On held-out
+tiles whose noise is at least as loud as their finest detail, it keeps 80-94% of the true model's luma gain:
++0.79 to +1.72 dB (Bayer) and +0.99 to +1.94 dB (X-Trans) over directional, against +0.84 to +1.94 and +1.09 to
++2.42. On clean, finely textured tiles the estimate reads texture as noise, and it is 0.3 dB below directional
+on average, down to -4 to -6 dB on single tiles. No in-frame estimator tried (lower percentiles, a wavelet
+residual, a two-scale reading that cancels self-similar texture) removed that tail, so the flag is meant for
+high-ISO frames and is not the default fallback. About 2-5x the directional demosaic's time.
+`tools/noise_aware_estimated.py`, `tools/noise_estimator_accuracy.py`, `eval/noise-aware-estimated-2026-11-17.md`.
+
+**Since the afternoon of 2026-11-17 `--noise-from-frame` reads the noise with patch PCA, and fine texture no
+longer reads as noise on Bayer files.** `src/shootflow/noise_pca.py` keeps only patches whose gradients are
+no bigger than noise alone would give (Liu, Tanaka and Okutomi 2013) and reads sigma from their smallest
+covariance eigenvalues (Chen, Zhu and Heng 2015), on 6 x 6 patches of the mosaic itself: scene texture is
+nearly the same in every colour while noise is independent sensel to sensel, so texture falls out of the small
+eigenvalues. On 240 held-out Bayer tiles no tile is now worse than directional by over 0.03 dB (the block-spread
+estimate: 43 tiles over 0.1 dB, down to 4.17 dB), at the same mean luma gain (+0.52 dB against +0.53). On
+X-Trans, 17 of 248 tiles still lose over 0.1 dB (worst 1.48 dB, from 45 and 5.65 dB), so the flag stays
+opt-in. The 0.8 scale was picked after seeing held-out Bayer rows; on X-Trans the tune-only rule picked it.
+`frame_noise(..., estimator="spread")` gives the old model. `tools/noise_estimator_accuracy.py`,
+`tools/noise_aware_estimated.py sweep --pca`, `eval/noise-pca-estimator-2026-11-17.md`.
+
+**Since the evening of 2026-11-17 X-Trans files no longer lose detail to it either.** On X-Trans a colour's next
+copy is six sensels away, so the afternoon's texture test saw the scene at a six-sensel scale and kept textured
+patches; two-period (12 x 12) patches were worse, not better. The test now takes the differences of touching
+same-colour sensels (every X-Trans green touches another), reading texture at one sensel. On 248 held-out
+X-Trans tiles no tile is now worse than directional by over 0.1 dB (was 17, worst -0.04 dB against -1.48), and
+the mean luma gain rose from +0.45 to +0.53 dB. Bayer is unchanged. `estimate_noise_pca(..., texture="colour")`
+gives the afternoon's model. `eval/xtrans-noise-pca-12-2026-11-17.md`.
+
+**Since the night of 2026-11-17 it is the default: `--demosaic noise-aware` on a file with no NoiseProfile reads
+the noise from the frame** (`--no-noise-from-frame` gives the old fallback to directional). Checked on whole
+real frames from the public sample set: all 52 files without a profile that develop (ARW, CR2, NEF, ORF, RW2,
+SRW, RAF, PEF and DNG; four Bayer phases and two X-Trans) took the frame-read model, and the one DNG with a
+profile kept it. With no truth on those frames the check is behavioural: at ISO 50-200 the blend moves a median
+1.5% of pixel values (PSNR 58 dB against directional), at ISO 800-6400 a median 23% (48 dB). It cost about
+0.5 s per megapixel and up to 6.4 GB on a 36 MP frame, which is why the default demosaic (`auto`) stays
+directional. `tools/noise_fallback_real.py`, `eval/noise-fallback-real-2026-11-17.md`.
+
+**Since late on 2026-11-17 it costs a third of that, with the same output bytes.** The guard's residual, the
+per-block detail, the blend and the final clip run in bands of rows on every core instead of as whole-frame
+float64 arrays, and the blend writes over the bilinear image. On the 14 largest public sample raws (12-36 MP,
+Bayer and X-Trans) the noise-aware develop is a median 2.2x faster (1.7-2.8x), its extra time over directional
+fell from 0.49 to 0.16 s per megapixel (8.6 s in all on a 36 MP D810, was 21.6 s), and the memory it adds fell
+41% (2.9 GB on the D810, was 5.1 GB). All 14 outputs are byte-identical to before. `auto` still picks
+directional. `tools/noise_aware_cost.py`, `eval/noise-aware-full-frame-cost-2026-11-17.md`.
+
+**The bilinear image is float32 since 2026-11-17 (night): another 15% less memory, no visible change.** The
+largest array the noise-aware develop holds, the bilinear image the blend writes over, is now float32 as the
+Bayer directional image already was (each band's arithmetic stays float64). On the same 14 raws the memory the
+develop adds fell a median 15% more (0.086 to 0.073 GB per megapixel; 3.85 to 2.45 GB on the Sony A7 IV, 2.86 to
+2.44 GB on the D810); time is unchanged (median 1.00x). 13 of 14 outputs change, in at most 4 in 100,000 values
+(1,446 of 36 million on the Nexus 5X), and every changed value is exactly one step of the develop's 4,096-entry
+tone table: values that sat within float32 rounding of a step boundary, which the float64 develop rounds just
+as arbitrarily. `tools/noise_aware_cost.py --keep/--codes`, `eval/noise-aware-float32-2026-11-17.md`.
+
+**A higher scale was tried and did not ship (2026-11-17, evening).** The frame-read model is scaled to 0.8 of
+what patch PCA reads, which keeps 41-71% of the true model's gain on noisy tiles. A scale picked on tune
+rows only, constant or switched per frame by three frame statistics (block spread over PCA, patches the texture
+test keeps, and how much the reading drops when the mosaic is binned), always climbs to 1.25 and loses up to
+2.51 dB on held tiles. Even 0.9 loses 0.21 dB. Every loss at 0.9-1.1 is on one fine-grained crop that the
+frame statistics cannot tell from noise, so 0.8 stays. `tools/noise_aware_estimated.py adapt`,
+`eval/noise-scale-per-frame-2026-11-17.md`.
+
+**A card-level noise floor was tested on real cards and did not ship (2026-11-18).** Frames from one body at one
+ISO share the sensor's noise and not their texture, so the lowest reading across a card should expose a frame
+that reads its own fine detail as noise. On 454 scenes from 182 bodies on raw.pixls.us, three rules were each
+committed before the rows they judged existed, and none passed: the floor alone understates noisy frames, and
+capping what ships at 1.5x the floor, on 153 bodies no rule had seen, removed 17 of 24 rows worse than
+directional (none added) but cost 0.015 dB of mean luma against a 0.01 bar. The run also found that what ships
+is worse than directional by over 0.1 dB on 0.8% of real full-size rows (worst -0.53 dB, all near clean), and
+that most raw.pixls.us multi-file sets are one scene saved several ways (`tools/card_scenes.py` finds them).
+`eval/noise-card-floor-real-2026-11-18.md`.
+
+**The card floor's last two fixes failed too, and the line is closed (2026-11-18).** Taking the floor on the
+pre-white-balance scale changed nothing (a card's frames carry similar as-shot gains). Taking it from the
+second-lowest scene halved the cost and was tested, rule first, on 24 raw.pixls.us bodies no earlier rule had read
+(Pentax, Leica, Leaf, Kodak, Samsung, Fujifilm's Bayer X-M5, OM System, newer Nikon and Sony folders): it still
+cost 0.020 dB of mean luma (bar 0.01) and fixed none of the 5 losing rows. On all 5, the true noise model loses
+as much as what ships (-0.58 dB on a Pentax K-3 Mark III tile at SNR 200): the blend loses near clean, not the
+estimate. `eval/noise-card-floor-rank-2026-11-18.md`.
+
+## A directional demosaic for Bayer files (2026-11-15)
+
+Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
+CR3, NEF, ARW, ORF, RW2, SRW, PEF, the GFX's RAF) was demosaiced bilinearly, which leaves zipper
+patterns and false colour along every sharp line. `src/shootflow/bayer_demosaic.py` builds green along
+the row and the column (Hamilton-Adams), decides which way each edge runs from how fast the colour
+difference changes along each (the test Menon, Andriani and Calvagno published in 2007) and blends the
+two, then fills red and blue as weighted colour differences. It is the default with numpy installed
+(`--demosaic auto`); `--demosaic bilinear` gives the old bytes on both engines.
+
+Checked with `tools/bayer_demosaic_check.py` against known truth (five real frames binned 4x4, and a
+synthetic zone plate and colour-edge sheet) and against LibRaw's own seven Bayer methods run on the same
+mosaics (`eval/bayer-directional-demosaic-2026-11-15.md`). Tuned on a Canon 70D, a Nikon D810 and the
+sheet; a Sony A7 III, an Olympus E-M10 and a Pentax K-1 Mark II were held out. Against bilinear: +0.25
+to +14 dB colour PSNR and 9-78% less false colour (99th percentile) on every truth. Against LibRaw's
+VNG, PPG, AHD, DCB, DHT and AAHD: the highest colour PSNR on five of the six truths (second on the A7
+III, 0.07 dB behind VNG) and the least false colour on five of six. Not better everywhere: on the two
+finest, most aliased frames (A7 III, K-1 II) its luma trails bilinear, DCB or VNG by 0.8-1 dB, and with
+heavy noise (SNR 25) a plain average has the higher colour PSNR on two frames while leaving 1.2-1.9x the
+false colour. A 24 MP frame takes 1.8 s on four cores (bilinear 0.6 s, LibRaw's AHD 1.0 s).
+
+**In C since 2026-11-15** (`src/shootflow/bayer_native.py`, `eval/bayer-native-2026-11-15.md`). The same
+steps in one C function per band, built with the system compiler on first use and loaded through
+`ctypes` like the raw decoders; numpy stays the reference and the fallback. On the five real frames
+above the output is equal to numpy's bit for bit, and it runs 4.2-4.9x faster on four cores: a 24 MP
+A7 III frame in 0.44 s (numpy 2.13 s; LibRaw's single-threaded AHD `postprocess` 0.99 s), a 36 MP D810
+or K-1 II in 0.6-0.7 s. The median clean-up stays numpy-only; `SHOOTFLOW_NATIVE=0` turns it off.
+
+**Less Laplacian, 2026-11-15** (`eval/bayer-laplace-weight-2026-11-15.md`). The row and column greens
+now carry 3/16 of the sensel's own second difference instead of Hamilton and Adams' quarter (an eighth
+is what a smooth green gives; the quarter assumes a linear colour difference, which fine aliased texture
+is not). Picked on the tuning truths only, then run once on the held-out frames: luma on the A7 III
+goes from 0.99 dB behind bilinear to 0.08 behind, on the K-1 II from 0.77 behind VNG to 0.17 behind;
+colour PSNR rises on all six truths (+0.10 to +4.28 dB), so ours now has the highest colour PSNR of
+LibRaw's seven methods and bilinear on all six; the sheet goes from 35.59 to 39.87 dB with false colour
+119 to 42, without the median. `directional(..., laplace=0.25)` gives the earlier output.
+
+**Per-sensel weight, and a fresh held-out set, 2026-11-16** (`eval/bayer-adaptive-laplace-2026-11-16.md`).
+`directional(..., laplace="adaptive")` picks the weight per sensel in [1/8, 1/4] as the least-squares
+weight that makes the colour difference closest to linear over a 3 x 3 window. It is an option, not the
+default: on five frames no earlier note used (Sony A7 IV, Nikon D800E, Canon 7D, Panasonic GF7,
+Samsung NX1) it adds 0.10 dB colour PSNR on average (-0.03 to +0.37), and on the sheet false colour
+falls from 42 to 9.6, but it loses luma on the A7 III and K-1 II (-0.33, -0.24), takes about twice the
+time and runs in numpy only. The same five frames are the first independent check of the 3/16
+default: it beats all seven LibRaw methods on colour PSNR on every one, by 0.5-1.5 dB noise-free and
+0.2-1.1 dB at SNR 25.
+
+**A learned weight, 2026-11-16** (`eval/bayer-learned-laplace-2026-11-16.md`). `--demosaic learned`
+(`directional(..., laplace="learned")`) sets the weight per sensel from a quadratic in eight scale-free
+local features (45 weights). It is fitted by weighted least squares on 40 sample frames, and the ten
+frames above were never in the fit. On those ten, colour PSNR is equal or higher than the 3/16 default
+on every one (+0.01 to +0.39 dB, mean +0.14). Luma is higher on every one (+0.02 to +0.66, mean +0.29),
+and that includes the A7 III and K-1 II, where the least-squares weight lost luma. It is opt-in: it
+loses on the synthetic sheet (colour -0.45 dB, false colour 42 to 59) and takes longer.
+`tools/bayer_laplace_train.py` refits it. Since the same day it runs in C when a compiler is present
+(`eval/bayer-learned-native-2026-11-16.md`). On seven real frames the output equals numpy's bit for
+bit. It is 1.9-2.8x faster than numpy, and 2.6-3.3x the default's time instead of 4-6x: 2.0 s for
+24 MP on four cores. Later the same day its feature passes were fused into one row pipeline over 8-row
+rings and vectorized (`eval/bayer-learned-fused-2026-11-16.md`). It is still bit for bit with numpy on
+the same seven frames, 1.8-2.2x faster than the morning's C, and 1.5-2.0x the default's time: 0.73 s for
+24 MP on four cores, faster than LibRaw's AHD on every frame.
+
+**Refitted on noisy mosaics, 2026-11-16** (`eval/bayer-learned-noisy-nyquist-2026-11-16.md`). The
+weights now come from the same 40 frames plus a noisy copy of each at SNR 25 and 50, scored against
+the clean green (`bayer_laplace_train.py --noise-snr`). This passed a test written before it was run.
+At SNR 25 colour is +0.014 dB and luma +0.07 dB over the first fit, and colour beats the 3/16 default
+on all ten frames, noisy and noise-free. Noise-free colour is 0.023 dB lower. Fixed 1/8 still leads
+on three frames at SNR 25, but by 0.01-0.02 dB, down from 0.04-0.06. The model's form and speed are
+unchanged. Adding synthetic near-Nyquist gratings (`--synthetic`) made the sheet worse (38.64 dB): on
+gratings between unrelated colours 1/8 is right, while on the grey zone plate 3/16 beats it by 5 dB.
+So the weight should follow how strongly the channels' fine detail is correlated, not only how fine
+the detail is. That is the next feature to try.
+
+**Channel correlation tried, not shipped, 2026-11-16** (`eval/bayer-channel-correlation-2026-11-16.md`).
+Four correlation features (`bayer_demosaic.CORRELATION_FEATURES`: how strongly the sensel's own second
+difference and the other colour's move together over a 3 x 3 or 5 x 5 window) and synthetic frames
+matched to real photographs' correlation went through a pre-registered test. The best set gained only
++0.012 dB in cross-validation (the bar was 0.02), and the matched frames lowered that, so nothing reached
+the test frames and `LEARNED_LAPLACE` is unchanged. On real frames the hypothesis runs backwards: weakly
+correlated detail wants *more* borrowing (1/4 comes within 0.1-0.2 dB of 3/16, 1/8 stays 0.5-0.7 dB
+behind). Scored afterwards, as exploration only, the features also made the sheet worse (39.24 dB). A
+model with these features runs through `directional(..., laplace=<10-feature weights>,
+laplace_extra=(...))` in numpy. `bayer_laplace_train.py --extra` and `--synthetic-kind matched` fit one.
+
+**How much is left: the oracle ceiling, 2026-11-16** (`eval/bayer-oracle-ceiling-2026-11-16.md`,
+`tools/bayer_oracle_ceiling.py`). On whole frames of the 40 training raws (clean, SNR 50, SNR 25), the
+best weight per sensel gains +1.91 dB of green over 3/16. The best single weight per 4 x 4 tile gains only
++0.83, and per 32 x 32 tile +0.41, which is what B already reaches in sample (+0.405). So more than half
+of the per-sensel oracle is choice that changes inside four sensels. Under the pre-registered rule, a
+richer model is still worth one try, with +0.83 as its realistic ceiling against B's +0.385 held out.
+Fitting B's model to a 4 x 4 box-averaged target lost 0.062 dB in cross-validation, so nothing changed in
+the shipped demosaic.
+
+**Boosted trees, 2026-11-16** (`eval/bayer-boosted-weight-2026-11-16.md`, `tools/bayer_boosted_weight.py`;
+pre-registered in its own commit before any score). LightGBM on 29 features (the eight, the four
+correlation features, log|D| and the 5 x 5 mean and spread of the eight) gains +0.527 dB in five-fold CV
+against +0.386 for B's model on the same folds, better on 108 of 120 copies, and +0.451 against B's +0.406
+on the ten test frames (22 of 30 copies). Both bars passed, about 31% of the way from B to the 4 x 4
+ceiling. Not shipped: on the Pentax K-1 Mark II it falls below the 3/16 default at every noise level
+(-0.21 to -0.29 dB, where B gains +0.25), and the A7 III loses to B too. Next: a guarded variant judged
+per frame, then tree inference in numpy and C.
+
+**Guarded trees and numpy inference, 2026-11-16** (`eval/bayer-boosted-guard-2026-11-16.md`,
+`tools/bayer_boosted_guard.py`, `src/shootflow/tree_ensemble.py`; pre-registered in its own commit). Four
+fallbacks to B were scored in CV. The rule picked a frame guard: B for the whole frame when any of the
+eight feature means falls outside the training range. It gains +0.518 dB in CV and +0.398 against B's
++0.242 on six fresh cameras no note had used (Canon R3, R8, 10D, Kodak DCS Pro SLR/n, Leica D-LUX 109 and
+V-LUX 114). No fresh frame does worse than B, and the guard catches the R8, where unguarded trees lose
+0.65 dB to B. Still not shipped: on the ten test frames the K-1 II (-0.49) and A7 III (-0.12) look
+ordinary to the guard and stay below B. `shootflow.tree_ensemble` evaluates a LightGBM model from flattened
+arrays in numpy, matching `Booster.predict` exactly on the full model. It is a reference, not yet a developer path: 58 s against lightgbm's 3.7 s on 0.6 million sensels, so shipping one would need the walk in C.
 
 ## Pentax PEF (2026-11-14)
 
@@ -1368,8 +1762,104 @@ the fixed-lens LX7 uses lensfun's camera entry as before.
 
 Not done: colour is only as good as the profile you supply; the GF7's own colour matrix (tags
 0x11C-0x120) is not read yet. The GF1's white level is 4095, where LibRaw takes 3986 from a
-per-model table. RawFormat 5 and later (the 14-bit and newer 12-bit blocks of the GH5 era on) and
-older 16-bit RW2s are refused for want of a test file.
+per-model table. Older 16-bit RW2s (RawFormat 2 and 3) are refused for want of a test file.
+
+### Lumix bodies from 2017 on: RawFormat 5, 6 and 7 (2026-11-15)
+
+Until today the reader stopped at the G9, GH5S, S1, S1R, S1H and S5: they write newer layouts,
+and a photographer on one of them still had to convert to DNG first. Now three of those layouts
+are read (`eval/panasonic-rw2-newer-2026-11-15.md`):
+
+| RawFormat | bodies checked | how it is stored |
+|---|---|---|
+| 5 | G9 (12-bit, an 82 MP high-resolution frame), GH5S (14-bit) | the same rotated 0x4000-byte blocks as RawFormat 4, but no prediction: each 16-byte line holds 10 sensels of 12 bits or 9 of 14, from the line's lowest bit up |
+| 6 | S1, S1R, S1H (14-bit) | 11 sensels a 16-byte line, read from the top bit down: two absolute 14-bit values, then three groups of a 2-bit shift and 10-bit values that step from the previous value of the same column parity; 15 is taken off every sensel |
+| 7 | S5 (14-bit) | RawFormat 5's packing, stored in order with no block rotation |
+
+Two fixes came with it, both found on the new files. The crop is now the camera's own (tags
+0x2F-0x32): a GH5 frame shot at 1:1 develops 3888 x 3888, as the camera framed it and as LibRaw
+crops it, where it used to develop the whole 5184-wide sensor; the GX9 and TZ200 frames are the
+same story at 1:1 and 4:3. And on formats 5 to 7 the black-level tags are used as stored (RawFormat
+4 adds 15) and a 14-bit body's white level is no longer held at 4095.
+
+Checked against LibRaw 0.22 (`tools/rw2_libraw_check.py`, rows in
+`eval/panasonic-rw2-newer-libraw-2026-11-15.jsonl`) on 12 public CC0 files from raw.pixls.us, one
+per body: every one of 331.7 M sensels is equal, and so are the as-shot white balance, the black
+level at each CFA position, the CFA pattern and the crop on all twelve. That includes six RawFormat
+4 bodies newer than the first set (GH5, G90, G100, GX9, LX100 II, TZ200), which already read
+sensel for sensel. The C decoder takes 0.06-0.6 s a file; the Python reference gives the same
+sensels on the S1, S5 and GH5S (1-8 s). The white level equals LibRaw's too, but not on the first
+try: we first used the hard clip (16368 on the S1), and counting the sensels near the top showed
+the S1-family bodies saturate at several levels from 16320 up (144,576 sensels of one S1 frame at
+16352-16355), which would have tinted blown highlights. RawFormat 6 and 7 now take LibRaw's 64-level
+margin (16319).
+
+Not done: a RawFormat 5-7 row that is not whole 16-byte lines is refused (no file has one).
+
+### Lumix bodies from 2022 on: RawFormat 8 (2026-11-15)
+
+Every Lumix announced since 2022 (GH6, GH7, G9 II, S5 II, S1 II, S9) writes RawFormat 8, and until
+today a photographer on one of them had to convert to DNG before the pipeline would develop a
+frame. Now `shootflow develop P1000001.RW2 --dcp PROFILE.dcp` and the grade stage read it
+(`eval/panasonic-rw2-format8-2026-11-15.md`).
+
+How it is stored: the frame is split into 2 or 3 tiles across, each its own bit stream (bytes read
+from their lowest bit). Sensels come in 2x2 blocks, each sensel a Huffman symbol from the file's own
+17-entry table (tag 0x40) and that many raw bits, a lossless-JPEG style step from the same sensel
+of the block to its left. The decode runs in C through the same optional library (0.5-0.6 s for a
+24 MP file, 1.6-1.9 s for the 96-100 MP high-resolution modes), with a pure-Python reference that
+gives the same sensels (12-14 s for 24 MP).
+
+Checked against LibRaw 0.22 (`tools/rw2_libraw_check.py`, rows in
+`eval/panasonic-rw2-format8-libraw-2026-11-15.jsonl`) on ten public CC0 files from raw.pixls.us,
+all six bodies, 12-, 14- and 16-bit, including the GH6's 100 MP and the S1 II's and S9's 96 MP
+high-resolution frames: every one of 464.6 M sensels is equal, and so are the as-shot white
+balance, the black level at each CFA position, the CFA pattern and the crop on all ten.
+
+White level: 12- and 14-bit files take LibRaw's 16- and 64-level margin under the clip, as
+RawFormat 6 and 7 do. Measured before choosing: on the S1 II's 96 MP frame 474,477 blown sensels
+sit at 16381-16382, one or two levels under the 16383 clip, and would have developed as not quite
+saturated. 16-bit files (GH6, GH7, G9 II) keep 65535, as LibRaw does.
+
+`tests/test_rw2_c8.py` (7 tests) writes RawFormat 8 files with an encoder of its own and checks
+both decoders sensel for sensel, a hand-worked stream through the per-symbol shift, tile grids,
+the levels and the refusals.
+
+Not done: no checked file uses a tone curve (tags 0x39/0x3A), per-symbol shifts or starting
+values. A file with a curve is refused with the reason; shifts and starting values are read as
+LibRaw reads them, tested on synthetic streams only. Colour needs the camera's `.dcp`, as for every
+RW2 here.
+
+### Leica RWL, and a card copy that leaves no raw behind (2026-11-16)
+
+Leica's D-LUX, V-LUX and C-LUX are Lumix bodies, and their `.RWL` files are RW2 under another
+name. They now develop like any RW2 (`shootflow develop L1000001.RWL --dcp DIR`): on a real
+D-LUX (Typ 109) and V-LUX (Typ 114) every one of 32.7 M sensels, the white balance, black
+level, CFA, crop and white level equal LibRaw 0.22's.
+
+The card copy used to take only the ten raw formats the developer reads and say nothing about
+the rest, so a `.RWL`, `.NRW`, `.CRW` or `.X3F` stayed on the card. It now copies 27 raw
+formats, HEIF/HIF stills, MXF and M2TS video and XMP sidecars, skips the hidden `._` files a Mac
+writes on a card (which carry the raw's extension and used to be copied as photos), and lists
+every other file it leaves behind as `left_on_card` in the preview, the result and
+`ingest_manifest.json`. On the 71 camera raw files in the public metadata-extractor-images
+corpus the old copy left 6 behind; the new one leaves none. Formats with no reader are culled
+from their embedded preview and stop at the grade with the "convert to DNG" message. Details:
+`eval/leica-rwl-and-card-formats-2026-11-16.md`; tests: `tests/test_card_formats.py`.
+
+### Canon CRW, the 2000-2004 bodies (2026-11-16)
+
+Canon's CIFF raw files (`.CRW`: the EOS D30, D60, 10D and 300D, the PowerShot G2 to G6, Pro1 and
+S30 to S70) now develop directly: `shootflow develop CRW_0001.CRW --dcp DIR`, and the grade stage
+takes them like any CR2 (`src/shootflow/crw.py`). It reads the CIFF heap, Canon's 64-sensel block
+coder with its three tree pairs, the 12-bit bodies' stored low bits, SensorInfo's picture area and
+masked rectangle (black level), the as-shot white balance from whichever of the three colour
+records the body writes, and the camera's rotation. On 20 real files from 15 bodies every one of
+114.0 M sensels and the CFA equal LibRaw 0.22's, the white balance too wherever the file records
+one, black within 2; 2-4 s a file in Python. A PowerShot on Auto white balance keeps no levels for
+the shot, so none is applied and the report says so. The four-colour G1, Pro70 and Pro90 IS are
+refused. Details: `eval/canon-crw-reader-2026-11-16.md`; check: `tools/crw_libraw_check.py`;
+tests: `tests/test_crw.py`.
 
 ## Olympus ORF (2026-11-14)
 
@@ -1438,11 +1928,72 @@ values the camera stored). `tests/test_nef.py` (11 tests) writes NEFs with an en
 every storage, including a split row coded with the scaling table, and runs the profile chooser,
 the CLI and both decoders.
 
-Not done: colour is only as good as the profile you supply (no profile ships here); none of the
-seven real files has a non-zero split row, so the after-split tables are checked on synthetic files
-only; masked columns LibRaw trims by a per-model table are developed (D800E: 7,424 stored, 7,378
-visible); Nikon's high-efficiency NEF (Z bodies) and Coolpix NEFs are refused with a message to
-convert to DNG.
+Not done: colour is only as good as the profile you supply (no profile ships here); Nikon's
+high-efficiency NEF (Z bodies) is refused with a message to convert to DNG. (This line used to say
+Coolpix NEFs were refused too; they were not, they were misread: see "Coolpix NRW" below.)
+
+### Real split rows, the Z 6II's lossy curve and 12-bit black levels (2026-11-15)
+
+Eleven more NEFs from raw.pixls.us (CC0), found by probing all 235 for a non-zero split row in the
+maker note: 1 J5, D3400, D5000, D5200, D5500, D5600 x2, D5, D7000 and two Z 6II frames. The split
+rows were already right (every sensel equal to LibRaw's on all nine 0x44 0x20 files). Three other
+faults were not: the Z 6II's lossy form (0x44 0x40, a curve with its step and range quartered) fell
+to the full-curve branch and got 99.3% of sensels wrong; a 12-bit file's black level was read 4x too
+high (tag 0x003D is on a 14-bit scale), which put 82-95% of a frame's sensels at or under black, so
+every 12-bit NEF from a 2014-on body developed nearly black; and the edge-column rule cut two picture
+columns from busy D3400 and D5600 frames (its correlation bar is now 0.5, not 0.8, after measuring
+every masked column on 18 bodies). All three fixed: 18 of 18 real NEFs now equal LibRaw in every
+decoded sensel, black level, balance, CFA and visible area (the J5 keeps 2 picture rows LibRaw does
+not decode). `eval/nikon-nef-split-row-2026-11-15.md`, `tests/test_nef.py` (21 tests).
+
+### The edge columns that hold no picture (2026-11-15)
+
+Five of the seven bodies store columns at the right edge that are not picture: optically masked
+sensels, then padding of one value (D800E: 46 of 7,424, ending in a column of 16,382 and thirty of
+1). Developed whole, a D800E came out with a grey band, a white line and fifteen black columns down
+its right side. Nothing in a NEF marks the edge, and dcraw and LibRaw trim by a per-model table, so
+`nef.masked_margins` reads it from the sensels: a picture column varies as much as a tenth of the
+middle of the frame and moves with its same-colour neighbour two columns in (correlation 0.5 or
+more since 2026-11-15; it was 0.8, which cut two picture columns of busy lossy frames); a masked or padding column does neither. The result becomes the ActiveArea, and the report's
+notes say how many columns were left out. Against LibRaw's table: seven of seven bodies equal
+(D800E 46, D300 32, D5100 44, D90 42, D70 1, D200 2 left and 3 right, D810 none). Run on the picture
+alone at 0, 3 and 6 stops under, it cut nothing in 21 of 21 cases; on a very dark frame it keeps a
+margin rather than guess. `eval/nikon-nef-visible-area-2026-11-15.md`, `tools/nef_libraw_check.py`
+(now gates on the visible area too), `tests/test_nef.py` `VisibleAreaTests`.
+
+### Coolpix NRW and the E-series NEFs (2026-11-18)
+
+Nikon's compacts write raws too: `.NRW` from the P6000 (2008) on, `.NEF` before that (E5400 to
+E8800). They are TIFFs laid out like a NEF, so the reader took them, but not one of twelve real
+files read right: their sensors are stored in layouts no D-series body uses, and the reader
+decoded them as if they were D-series data. 8.0 to 20.1 M sensels wrong per frame (a picture of
+noise), no white balance on four bodies, black 0 on seven, and the P6000's CFA tag puts
+green on the wrong diagonal. Nothing errored, and the card copy keeps `.NRW` files (2026-11-16),
+so a Coolpix shooter got a confident, wrong develop.
+
+What is read now (`src/shootflow/nef.py`, "Coolpix NRW"): 12-bit samples packed MSB first (P330
+and P340, though their raw IFD says Nikon-compressed; E8800, its even rows stored before its odd
+ones); the same packing inside little-endian 32-bit words (P6000, P7000, P7100, P950, P1000, B700);
+one 16-bit word per sensel, little-endian (A1000) or big-endian with the value in the top 12 bits
+(P330, P7700, P7800). The byte count tells packed from 16-bit, and the byte order is chosen from
+the sensels: decoded each way, a band of rows from the middle of the frame is a picture in one
+and noise in the other. The black level and the as-shot balance come from the maker note's NRW
+colour block (tag 0x0014) when tag 0x000C is missing; the 4032-wide bodies carry no level and take
+200 (on the 12-bit scale). When the CFA tag's green diagonal disagrees with the sensels' (the
+P6000), the sensels win. `.nrw` is now a developable path for `shootflow develop` and the
+pipeline's grade stage (with the camera's `.dcp`, as for every NEF).
+
+How it was checked (`eval/nikon-nrw-reader-2026-11-18.md`, `tools/nef_libraw_check.py`): thirteen
+Coolpix files from raw.pixls.us (CC0), twelve bodies plus the Coolpix A (a DX NEF the reader
+already got right), against LibRaw 0.22. Before: 12 of 13 wrong. After: 13 of 13 equal in every
+sensel on both decoders, and in black level, white balance, CFA pattern and visible area (the
+P330 at LibRaw's scale: LibRaw drops the low 4 bits of its words and keeps the P7700's and
+P7800's; here all three keep them). The seven D-series NEFs of 2026-11-14 still read equal.
+`tests/test_nef.py` `CoolpixTests` (8 tests) writes each layout.
+
+Not done: no Coolpix colour profile ships (Adobe's DNG Converter installs them). One file per
+body was checked; P7000 and P7100 frames at ISO 400 and over (where dcraw assumed a black of 255,
+which LibRaw now calls "probably obsolete") and bodies with no public sample are unchecked.
 
 ## The CR2 brightness gap was the check (2026-11-12)
 

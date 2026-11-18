@@ -21,7 +21,7 @@ export const SAMPLE = {
   afr: 4.5,
 };
 
-export const dollars = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
+export const dollars = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
 const pct = (n) => `${Math.round(n * 10) / 10}%`;
 
 const num = (v) => {

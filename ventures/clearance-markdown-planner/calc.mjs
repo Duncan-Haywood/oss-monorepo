@@ -43,7 +43,7 @@ const realUtc = (y, mo, d, h = 0, mi = 0) => {
 };
 function parseDate(s) {
   const t = s.trim();
-  let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/);
   if (m) { const v = realUtc(+m[1], +m[2], +m[3]); return Number.isNaN(v) ? null : v; }
   m = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/);
   if (m) { const v = realUtc(m[3].length === 2 ? 2000 + +m[3] : +m[3], +m[1], +m[2]); return Number.isNaN(v) ? null : v; }

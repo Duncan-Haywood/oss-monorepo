@@ -1,0 +1,14 @@
+plant          n  loop err mean/worst %   rms median/max x1e-4  parabola worst %  marked (se > LOOP_SE_MAX)  worst unmarked %
+first         24       0.21 /     0.72       0.85 /     2.32         4.47                    0/24            0.72
+hall 5us      24       0.74 /     2.27       3.91 /    13.63         5.92                   11/24            2.27
+hall 20us     22       6.72 /    48.19      15.37 /   147.67        30.67                   22/22            0.00
+hall 50us     19      10.61 /    53.00      36.65 /   182.76        34.01                   19/19            0.00
+torque 20k    24       0.20 /     0.69       0.94 /     2.32         4.47                    0/24            0.69
+torque 8k     24       0.19 /     0.56       0.89 /     2.32         3.53                    0/24            0.56
+esc 30ms      24       2.80 /     8.50       3.74 /    11.74         5.20                   11/24            2.42
+esc 80ms      24       3.34 /    16.30       3.52 /    19.80        24.85                   10/24            5.16
+curve 1.25    24       0.25 /     0.89       0.88 /     2.08         4.99                    0/24            0.89
+slip x3       20     105.52 /   140.58      71.68 /   124.09       171.88                   20/20            0.00
+torque 3k     24       0.31 /     1.20       1.16 /     6.35         2.85                    1/24            1.20
+
+drops more than 2% off: 72, marked 67; drops within 1%: 152, marked 14; no fit (too little to fit or out of range): 11 of 264

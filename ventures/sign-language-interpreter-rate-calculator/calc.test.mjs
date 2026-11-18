@@ -58,7 +58,7 @@ test("an evening/weekend differential scales the interpreting fee", () => {
 test("a holiday differential scales the interpreting fee more than evening/weekend", () => {
   const holiday = computeAssignmentQuote({ hoursRequested: 3, hourlyRate: 60, differential: "holiday" });
   assert.equal(holiday.differentialMultiplier, HOLIDAY_MULTIPLIER);
-  assert.equal(holiday.interpretingFee, 3 * 60 * HOLIDAY_MULTIPLIER);
+  assert.equal(holiday.interpretingFee, 360); // 3 h x $60 x 2 (double time), a literal so a changed multiplier fails
 });
 
 test("an unrecognized differential falls back to standard (no surcharge)", () => {

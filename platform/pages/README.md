@@ -7,8 +7,17 @@ that lists and searches them.
 ```
 node platform/pages/build.mjs                    # build into platform/pages/dist
 node platform/pages/check.mjs                    # check that artifact (--dist=DIR for another)
+node platform/pages/served-copy.mjs <slug>      # one product as the deploy writes it, in under a second
+node platform/pages/build.mjs --only=<slug>[,<slug>] --out=DIR   # preview: those pages in full site chrome, ~30 s
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
+
+`--only` is for looking at a page edit (screenshots before and after) without
+two full builds: 28 s for two ventures against 2 min 15 s for the full build
+on the same container (2026-11-17; two polish runs on 2026-11-16 saw 5 to 12
+min per full build). The hub, sitemap and search then list only those slugs,
+links to other ventures point at the repository and no share cards are drawn,
+so never deploy it or run `check.mjs` on it; it says so when it finishes.
 
 The site's experiments live in the lab (`lab/`, built by `lab.mjs`); its charter, roadmap and log are in [`LAB.md`](LAB.md).
 
@@ -278,7 +287,7 @@ node --test platform/pages/updates.test.mjs
   it, or if it names one that did not ship.
 
 - **`feed.xml`.** An Atom feed of tools as they are published, newest first,
-  capped at the 40 most recent. Every other surface here answers *what exists*;
+  capped at the 20 most recent (`FEED_MAX_ENTRIES`). Every other surface here answers *what exists*;
   this is the only one that answers *what changed*, which is the question every
   distribution channel the portfolio is allowed to use actually asks. Ad spend
   is ruled out by `portfolio/DIRECTION.md` and posting into communities
@@ -305,7 +314,11 @@ in-cluster build clones `--depth 1` (`gitops/prod/portfolio-site.yaml`), so the
 build container has one commit and no history.
 
 So the dates are derived once on a machine that has the history and committed
-to `platform/pages/launched.json`. After landing a new tool:
+to `platform/pages/launched.json`. In a shallow clone (agent sessions, CI) a
+tool whose add lies beyond the clone's horizon is dated today rather than with
+the boundary commit's date, which git would otherwise report as the add of
+every file; deepen first (`git fetch --deepen=500 origin main`) when dating
+older tools. After landing a new tool:
 
 ```
 node platform/pages/launched.mjs --write     # or without --write to preview
@@ -2041,6 +2054,21 @@ and `ONLY_SLUGS`. Not in CI (Playwright).
 
 ```
 node platform/pages/sticky-fit-check.mjs
+```
+
+### Checking every audience page shows a tool on a phone's first screen
+
+`fold-check.mjs` loads every audience page (`c/for-*/`) at 390×844 and exits 1
+listing any page whose first tool card (`.start-grid li`, else `main .card`)
+starts later than 828 px, i.e. with less than 16 px of it on screen. The rule
+lives in `fold.mjs` (tested by `fold.test.mjs`); its header says why the card,
+not the "Start here" heading and not a word count, is what gets measured. Same
+`BASE_URL` / `DIST` / `PLAYWRIGHT` variables as `sideways.mjs`, plus `WIDTH`,
+`HEIGHT` and `ONLY_SLUGS` (`for-retirees,for-parents`). Not in CI (Playwright);
+waiting with `framerate` for the control-plane PR that registers browser checks.
+
+```
+node platform/pages/fold-check.mjs
 ```
 
 ### Lighthouse on the pages a visitor sees first

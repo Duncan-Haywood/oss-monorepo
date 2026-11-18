@@ -52,14 +52,15 @@ export function esc(s) {
 export function num(v) {
   if (typeof v === "number") return Number.isFinite(v) ? v : NaN;
   const s = String(v ?? "").replace(/[$,\s]/g, "");
-  if (s === "") return NaN;
+  // Plain decimals only: Number() would also read "0x10" as 16 and "1e3" as 1000.
+  if (!/^-?(\d+\.?\d*|\.\d+)$/.test(s)) return NaN;
   const n = Number(s);
   return Number.isFinite(n) ? n : NaN;
 }
 
 export function money(n) {
   const v = Math.round(Number.isFinite(n) ? n : 0);
-  return (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US");
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US"));
 }
 
 const sevRank = (id) => (SEVERITIES.find((s) => s.id === id) || { rank: 3 }).rank;
@@ -74,18 +75,35 @@ export function newFinding(libId, overrides = {}) {
   return { id: "f" + Date.now().toString(36) + (counter++).toString(36), note: "", costLow: 0, costHigh: 0, ...base, ...overrides };
 }
 
-// Clean one finding: unknown severity falls to "info", costs are non-negative, and low never exceeds high.
-export function normalise(f) {
-  const sev = SEVERITIES.some((s) => s.id === f.severity) ? f.severity : "info";
-  let lo = num(f.costLow), hi = num(f.costHigh);
-  lo = Number.isFinite(lo) && lo > 0 ? lo : 0;
-  hi = Number.isFinite(hi) && hi > 0 ? hi : 0;
+// Clean one finding. A severity matching an id or label in any case is kept; an unknown one falls
+// to "info" and, like a cost that is not a plain non-negative number, is reported in `issues`
+// (when given) so a corrupt or hand-edited saved file never downgrades an item silently.
+// Blank or zero costs mean "no figure" and are not reported. When only one cost is usable it is
+// used for both ends, so a bad high figure never turns "$300" into "$0 to $300".
+export function normalise(f, issues) {
+  // Only a real list collects issues: findings.map(normalise) would pass the array index here.
+  const note = (msg) => { if (Array.isArray(issues)) issues.push(`"${String(f.title || "untitled").trim() || "untitled"}": ${msg}`); };
+  const raw = String(f.severity ?? "").trim().toLowerCase();
+  const known = SEVERITIES.find((s) => s.id === raw || s.label.toLowerCase() === raw);
+  const sev = known ? known.id : "info";
+  if (!known) note(`severity "${String(f.severity ?? "")}" is not one of ${SEVERITIES.map((s) => s.id).join(", ")}; set to "info", please check it`);
+  const cost = (v, label) => {
+    if (v === undefined || v === null || String(v).trim() === "") return null;
+    const n = num(v);
+    if (Number.isFinite(n) && n >= 0) return n > 0 ? n : null;
+    note(`${label} cost "${String(v)}" is not a non-negative number; ignored`);
+    return null;
+  };
+  let lo = cost(f.costLow, "low"), hi = cost(f.costHigh, "high");
+  if (lo === null && hi !== null) lo = hi;
+  if (hi === null && lo !== null) hi = lo;
+  lo ??= 0; hi ??= 0;
   if (hi < lo) [lo, hi] = [hi, lo];
   return { ...f, severity: sev, system: String(f.system || ""), title: String(f.title || "").trim(), text: String(f.text || ""), recommend: String(f.recommend || ""), note: String(f.note || ""), costLow: lo, costHigh: hi };
 }
 
 export function summarize(findings) {
-  const list = findings.map(normalise).filter((f) => f.title);
+  const list = findings.map((f) => normalise(f)).filter((f) => f.title);
   const counts = Object.fromEntries(SEVERITIES.map((s) => [s.id, 0]));
   for (const f of list) counts[f.severity]++;
   const sorted = [...list].sort((a, b) => sevRank(a.severity) - sevRank(b.severity) || SYSTEMS.indexOf(a.system) - SYSTEMS.indexOf(b.system));
@@ -106,6 +124,12 @@ export function summarize(findings) {
   };
 }
 
+// Header fields every saved file and report carries. scope and notInspected are free text the
+// inspector writes: what the inspection covered and what was not inspected or was restricted, and why.
+export const HEADER_FIELDS = ["property", "client", "date", "inspector", "license", "scope", "notInspected"];
+const LIMITS_NOTE = "Limitations are set by the inspector's agreement and standards of practice. This document was drafted with a free template tool and the inspector is responsible for every statement in it.";
+const NOT_INSPECTED_BLANK = "None recorded by the inspector.";
+
 export function toText(header, findings) {
   const s = summarize(findings);
   const out = [];
@@ -113,6 +137,8 @@ export function toText(header, findings) {
   for (const [k, l] of [["property", "Property"], ["client", "Client"], ["date", "Inspection date"], ["inspector", "Inspector"], ["license", "License / ID"]]) if (header[k]) out.push(`${l}: ${header[k]}`);
   out.push("", `SUMMARY: ${s.total} finding(s) - ` + SEVERITIES.map((v) => `${s.counts[v.id]} ${v.label.toLowerCase()}`).join(", "));
   if (s.hasCosts) out.push(`Inspector's repair cost range, as entered: ${money(s.costLow)} to ${money(s.costHigh)}`);
+  out.push("", "NOT INSPECTED OR RESTRICTED", String(header.notInspected || "").trim() || NOT_INSPECTED_BLANK);
+  if (String(header.scope || "").trim()) out.push("", "SCOPE AND LIMITATIONS", String(header.scope).trim());
   if (s.priority.length) {
     out.push("", "SAFETY AND MAJOR ITEMS (details under each system below)");
     for (const f of s.priority) out.push(`- [${sevLabel(f.severity)}] ${f.title} (${f.system || "Other"})`);
@@ -127,7 +153,7 @@ export function toText(header, findings) {
       if (f.costHigh > 0) out.push(`  Estimated cost (inspector's figure): ${money(f.costLow)} to ${money(f.costHigh)}`);
     }
   }
-  out.push("", "Limitations are set by the inspector's agreement and standards of practice. This document was drafted with a free template tool and the inspector is responsible for every statement in it.");
+  out.push("", LIMITS_NOTE);
   return out.join("\n");
 }
 
@@ -138,6 +164,9 @@ export function toHtml(header, findings) {
   let h = `<h2>Home inspection report</h2><table class="meta">${meta}</table>`;
   h += `<p><strong>${s.total}</strong> finding(s): ` + SEVERITIES.map((v) => `${s.counts[v.id]} ${esc(v.label.toLowerCase())}`).join(", ") + ".</p>";
   if (s.hasCosts) h += `<p>Inspector's repair cost range, as entered: <strong>${money(s.costLow)} to ${money(s.costHigh)}</strong></p>`;
+  const multi = (t) => esc(String(t).trim()).replace(/\n/g, "<br>");
+  h += `<h3>Not inspected or restricted</h3><p>${multi(header.notInspected || "") || NOT_INSPECTED_BLANK}</p>`;
+  if (String(header.scope || "").trim()) h += `<h3>Scope and limitations</h3><p>${multi(header.scope)}</p>`;
   if (s.priority.length) {
     h += `<h3>Safety and major items</h3><p>Details under each system below.</p><ul class="priority">` +
       s.priority.map((f) => `<li><span class="pill">${esc(sevLabel(f.severity))}</span> ${esc(f.title)} (${esc(f.system || "Other")})</li>`).join("") + `</ul>`;
@@ -153,6 +182,7 @@ export function toHtml(header, findings) {
       h += `</div>`;
     }
   }
+  h += `<p class="note">${esc(LIMITS_NOTE)}</p>`;
   return h;
 }
 
@@ -166,7 +196,10 @@ export function parseImport(text) {
   try { d = JSON.parse(text); } catch { return { error: "That file is not valid JSON." }; }
   if (!d || d.app !== "home-inspection-report-builder" || !Array.isArray(d.findings)) return { error: "That file was not saved by this tool." };
   const header = {};
-  for (const k of ["property", "client", "date", "inspector", "license"]) header[k] = typeof d.header?.[k] === "string" ? d.header[k] : "";
-  const findings = d.findings.filter((f) => f && typeof f === "object").slice(0, 500).map((f) => normalise({ id: "f" + Date.now().toString(36) + (counter++).toString(36), ...f }));
-  return { header, findings };
+  for (const k of HEADER_FIELDS) header[k] = typeof d.header?.[k] === "string" ? d.header[k] : "";
+  const warnings = [];
+  const objs = d.findings.filter((f) => f && typeof f === "object");
+  if (objs.length > 500) warnings.push(`The file holds ${objs.length} findings; only the first 500 were loaded.`);
+  const findings = objs.slice(0, 500).map((f) => normalise({ id: "f" + Date.now().toString(36) + (counter++).toString(36), ...f }, warnings));
+  return { header, findings, warnings };
 }

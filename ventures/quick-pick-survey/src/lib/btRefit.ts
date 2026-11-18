@@ -151,11 +151,22 @@ function priorTerms(m: number, { scale, df }: ItemPrior): { grad: number; curv: 
  * (rating 1500, rd 350). Answers naming an id outside `ids` are rejected, not
  * skipped: a silently dropped answer would make the intervals too wide with no
  * sign of why.
+ *
+ * `priorMean` (one number per id, internal logit scale; default all 0) centres
+ * each item's prior somewhere other than the middle, and `priorScale` (one
+ * positive number per id; default `priorPhi` for all) gives each its own
+ * width: the rank page's "sort into piles first" step puts what a person's
+ * own pile placement says about an item there (site/rank-core.mjs,
+ * pilePrior). The prior's shape (Gaussian or t) is unchanged.
  */
-export function refitRatings(ids: readonly string[], answers: readonly RefitAnswer[], { priorPhi = REFIT_PRIOR_PHI, priorDf = Infinity, maxIterations = 50, tolerance = 1e-9 } = {}): RefitResult {
+export function refitRatings(ids: readonly string[], answers: readonly RefitAnswer[], { priorPhi = REFIT_PRIOR_PHI, priorDf = Infinity, priorMean = undefined as readonly number[] | undefined, priorScale = undefined as readonly number[] | undefined, maxIterations = 50, tolerance = 1e-9 } = {}): RefitResult {
   if (!(priorPhi > 0)) throw new RangeError("priorPhi must be positive");
+  if (priorMean !== undefined && (priorMean.length !== ids.length || !priorMean.every(Number.isFinite))) throw new RangeError("priorMean must give one finite number per id");
+  if (priorScale !== undefined && (priorScale.length !== ids.length || !priorScale.every((v) => v > 0 && Number.isFinite(v)))) throw new RangeError("priorScale must give one positive finite number per id");
+  const centre = (i: number) => (priorMean ? priorMean[i] : 0);
   if (!(priorDf > 0)) throw new RangeError("priorDf must be positive (Infinity for the Gaussian prior)");
   const prior: ItemPrior = { scale: priorPhi, df: priorDf };
+  const itemPrior: ItemPrior[] = ids.map((_, i) => (priorScale ? { scale: priorScale[i], df: priorDf } : prior));
   const n = ids.length;
   const index = new Map(ids.map((id, i) => [id, i]));
   if (index.size !== n) throw new RangeError("ids must be distinct");
@@ -167,7 +178,7 @@ export function refitRatings(ids: readonly string[], answers: readonly RefitAnsw
   });
   const logPost = (mu: number[]) => {
     let s = 0;
-    for (const m of mu) s += priorLogDensity(m, prior);
+    mu.forEach((m, i) => (s += priorLogDensity(m - centre(i), itemPrior[i])));
     for (const [w, l, score] of games) {
       const d = mu[w] - mu[l];
       s -= score * Math.log1p(Math.exp(-d)) + (1 - score) * Math.log1p(Math.exp(d));
@@ -180,7 +191,7 @@ export function refitRatings(ids: readonly string[], answers: readonly RefitAnsw
     const h = new Float64Array(n * n);
     const grad = new Array<number>(n);
     for (let i = 0; i < n; i++) {
-      const t = priorTerms(mu[i], prior);
+      const t = priorTerms(mu[i] - centre(i), itemPrior[i]);
       grad[i] = t.grad;
       h[i * n + i] = major ? t.major : t.curv;
     }
@@ -197,7 +208,7 @@ export function refitRatings(ids: readonly string[], answers: readonly RefitAnsw
     return { h, grad };
   };
 
-  let mu = new Array<number>(n).fill(0);
+  let mu = Array.from({ length: n }, (_, i) => centre(i));
   let iterations = 0;
   let current = logPost(mu);
   for (; iterations < maxIterations; iterations++) {

@@ -152,3 +152,235 @@ def visible_from(D, on, n_hours, drop=0.05, run_len=3):
         if run == run_len:
             return h - run_len + 1
     return None
+
+
+def lagged_change(X, t, lag, span=24):
+    """Step 18: mean of X over hours [t, t + span) minus its mean over [t - lag, t - lag + span).
+
+    A tracking baseline: whatever changed before t - lag drops out, and so does any part of the
+    target leak's own effect that was already there. X is [hours, sensors]."""
+    if t - lag < 0:
+        raise ValueError(f"hour {t}: lag {lag} reaches before the data")
+    return X[t:t + span].mean(axis=0) - X[t - lag:t - lag + span].mean(axis=0)
+
+
+def nn_pursuit(r, S, support=(), rel=0.05, floor=0.005, kmax=24):
+    """Step 19: non-negative greedy pursuit of r ([sensors]) over atoms S ([atoms, sensors]).
+
+    Both are centred across sensors (a common pressure shift is not fitted). Leaks lower pressure,
+    so each atom is a signature per unit flow and its flow is fitted non-negative. Starting from
+    `support` (refitted), add the atom with the largest positive normalised correlation with the
+    current residual and refit all flows by NNLS; stop when the last addition cut the RMS by less
+    than `rel` of the previous RMS (that atom is dropped), the RMS is under `floor`, or `kmax`
+    atoms are in. Returns (support list, flows array aligned with it, final RMS)."""
+    from scipy.optimize import nnls  # noqa: PLC0415
+
+    rc = r - r.mean()
+    Sc = S - S.mean(axis=1, keepdims=True)
+    nS = np.linalg.norm(Sc, axis=1)
+    nS[nS == 0] = np.inf
+
+    def fit(sup):
+        if not sup:
+            return np.zeros(0), rc.copy()
+        x, _ = nnls(Sc[sup].T, rc)
+        return x, rc - Sc[sup].T @ x
+
+    sup = list(dict.fromkeys(int(j) for j in support))
+    x, res = fit(sup)
+    rms = float(np.sqrt(np.mean(res ** 2)))
+    while len(sup) < kmax and rms >= floor:
+        c = (Sc @ res) / nS
+        c[sup] = -np.inf
+        j = int(np.argmax(c))
+        if c[j] <= 0:
+            break
+        x2, res2 = fit(sup + [j])
+        rms2 = float(np.sqrt(np.mean(res2 ** 2)))
+        if rms - rms2 < rel * rms:
+            break
+        sup, x, res, rms = sup + [j], x2, res2, rms2
+    return sup, x, rms
+
+
+def rise(sup_b, x_b, sup_t, x_t):
+    """Step 19: the atom whose fitted flow rose most from the baseline fit to the window fit."""
+    b = dict(zip(sup_b, x_b))
+    d = {j: q - b.get(j, 0.0) for j, q in zip(sup_t, x_t)}
+    for j in b:
+        d.setdefault(j, -b[j])
+    return max(d, key=d.get)
+
+
+def track(R, S, rel=0.05, qmin=0.5, link=0.95, gap=2, floor=0.005, kmax=24):
+    """Step 20: a daily tracker. R is [days, sensors] (daily mean residuals), S [atoms, sensors].
+
+    Day 0 is fitted by `nn_pursuit` from an empty set; each later day from the previous day's
+    active atoms (flow >= qmin). Each active atom carries an onset day: kept if the atom was
+    active within the last gap + 1 days, else inherited from a track dropped within that span
+    whose centred signature correlates at least `link` with it (link=None: never), else today.
+    Returns a list, per day, of {atom: (flow, onset day)} and a list of per-day fit RMS."""
+    Sc = S - S.mean(axis=1, keepdims=True)
+    nS = np.linalg.norm(Sc, axis=1)
+    nS[nS == 0] = np.inf
+    Sn = Sc / nS[:, None]
+    out, rmss = [], []
+    prev = {}      # atom -> onset, active on the previous day
+    lost = {}      # atom -> (onset, last active day), dropped within the gap
+    for k, r in enumerate(R):
+        sup, x, rms = nn_pursuit(r, S, support=list(prev), rel=rel, floor=floor, kmax=kmax)
+        act = {j: float(q) for j, q in zip(sup, x) if q >= qmin}
+        for j, o in prev.items():
+            if j not in act:
+                lost[j] = (o, k - 1)
+        lost = {j: v for j, v in lost.items() if k - v[1] <= gap + 1}
+        cur = {}
+        for j in act:
+            if j in prev:
+                cur[j] = prev[j]
+            elif j in lost:
+                cur[j] = lost.pop(j)[0]
+        if link is not None:
+            for j in sorted((j for j in act if j not in cur), key=lambda j: (-act[j], j)):
+                best, bc = None, link
+                for i in sorted(lost):
+                    c = float(Sn[i] @ Sn[j])
+                    if c >= bc:
+                        best, bc = i, c
+                if best is not None:
+                    cur[j] = lost.pop(best)[0]
+        for j in act:
+            cur.setdefault(j, k)
+        prev = cur
+        out.append({j: (act[j], cur[j]) for j in act})
+        rmss.append(rms)
+    return out, rmss
+
+
+def latest_onset(state):
+    """Step 20: the active atom with the latest onset, ties by the larger flow (None if empty)."""
+    if not state:
+        return None
+    return max(state, key=lambda j: (state[j][1], state[j][0], -j))
+
+
+def nearest_onset(state, day):
+    """Step 20: the active atom whose onset is nearest `day`, ties by the larger flow."""
+    if not state:
+        return None
+    return min(state, key=lambda j: (abs(state[j][1] - day), -state[j][0], j))
+
+
+def steepest_dated(states, k, window=30, span=14):
+    """Step 22: among atoms active on day k with onset in [k - window, k] (window=None: any),
+    the one whose daily fitted flow over days [k - span + 1, k] (0 where inactive) has the largest
+    least-squares slope, ties by the larger flow on day k. `states` is `track`'s per-day output.
+    Falls back to `latest_onset` when no atom qualifies; None if nothing is active."""
+    st = states[k]
+    cand = [j for j in st if window is None or st[j][1] >= k - window]
+    if not cand:
+        return latest_onset(st)
+    days = np.arange(max(0, k - span + 1), k + 1)
+    xc = days - days.mean()
+    den = float(xc @ xc)
+
+    def slope(j):
+        if den == 0:
+            return 0.0
+        f = np.array([states[d][j][0] if j in states[d] else 0.0 for d in days])
+        return float(xc @ f) / den
+
+    return max(cand, key=lambda j: (slope(j), st[j][0], -j))
+
+
+def shape_fit(f):
+    """Step 23: fit a one-change step or ramp to a daily flow series f (index 0 = first day).
+
+    Both models are 0 before a change day tau; a step is a >= 0 from tau on, a ramp is
+    b (d - tau + 1), b >= 0. Each tau and amplitude is fitted by least squares. Returns
+    (shape, tau, amplitude, sse) for the better one, shape "step" or "ramp", ties to the step."""
+    a, b = _one_shape(f, "step"), _one_shape(f, "ramp")
+    return b if b[3] < a[3] - 1e-12 else a
+
+
+def change_time(shape, tau, n, half=True):
+    """Step 23: the change time, in days from the series start, of a `shape_fit` result on a
+    series of length n. A step's is tau; a ramp's (half=True) is the day it reaches half its
+    fitted level on the last day, tau - 1 + (n - tau) / 2; with half=False it is tau."""
+    if shape == "step" or not half:
+        return float(tau)
+    return tau - 1 + (n - tau) / 2
+
+
+def shape_timed(states, k, alarm, window=30, fit_days=30, force=None, half=True):
+    """Step 23: among atoms active on day k with onset in [k - window, k], fit each atom's daily
+    flow over [k - fit_days + 1, k] (0 where inactive) with `shape_fit` (force="step"/"ramp":
+    one shape only), time its change with `change_time`, and return the atom whose change time
+    is nearest `alarm` (a fractional day), ties by the larger flow on day k. Falls back to
+    `latest_onset` when no atom qualifies. Also returns {atom: (shape, change day)}."""
+    st = states[k]
+    cand = [j for j in st if window is None or st[j][1] >= k - window]
+    if not cand:
+        return latest_onset(st), {}
+    d0 = max(0, k - fit_days + 1)
+    days = range(d0, k + 1)
+    n = k + 1 - d0
+    info = {}
+    for j in cand:
+        f = [states[d][j][0] if j in states[d] else 0.0 for d in days]
+        if force is None:
+            shape, tau, _, _ = shape_fit(f)
+        else:
+            shape, tau, _, _ = _one_shape(f, force)
+        info[j] = (shape, d0 + change_time(shape, tau, n, half))
+    pick = min(cand, key=lambda j: (abs(info[j][1] - alarm), -st[j][0], j))
+    return pick, info
+
+
+def shape_chosen(states, k, window=30, fit_days=30, score="slope", span=14):
+    """Step 24: among atoms active on day k with onset in [k - window, k], fit each atom's daily
+    flow over [k - fit_days + 1, k] (0 where inactive) with `shape_fit`. If any fits as a ramp,
+    return the ramp with the largest score, ties by the larger flow on day k: score="slope" the
+    fitted slope b, "level" its fitted level on day k, b (n - tau), "ls" the least-squares slope
+    over the last `span` days (as `steepest_dated`). Otherwise the candidate with the latest
+    onset (ties by flow). Falls back to `latest_onset` when no atom qualifies. Also returns
+    {atom: (shape, tau day, amplitude)}."""
+    st = states[k]
+    cand = [j for j in st if window is None or st[j][1] >= k - window]
+    if not cand:
+        return latest_onset(st), {}
+    d0 = max(0, k - fit_days + 1)
+    n = k + 1 - d0
+    info = {}
+    for j in cand:
+        f = [states[d][j][0] if j in states[d] else 0.0 for d in range(d0, k + 1)]
+        shape, tau, amp, _ = shape_fit(f)
+        info[j] = (shape, d0 + tau, amp)
+    ramps = [j for j in cand if info[j][0] == "ramp"]
+    if not ramps:
+        return max(cand, key=lambda j: (st[j][1], st[j][0], -j)), info
+    if score == "slope":
+        val = {j: info[j][2] for j in ramps}
+    elif score == "level":
+        val = {j: info[j][2] * (k + 1 - info[j][1]) for j in ramps}
+    else:
+        days = np.arange(max(0, k - span + 1), k + 1)
+        xc = days - days.mean()
+        den = float(xc @ xc) or 1.0
+        val = {j: float(xc @ np.array([states[d][j][0] if j in states[d] else 0.0 for d in days])) / den
+               for j in ramps}
+    return max(ramps, key=lambda j: (val[j], st[j][0], -j)), info
+
+
+def _one_shape(f, shape):
+    f = np.asarray(f, dtype=float)
+    n = len(f)
+    best = None
+    for tau in range(n):
+        g = np.zeros(n)
+        g[tau:] = 1.0 if shape == "step" else np.arange(1, n - tau + 1)
+        amp = max(0.0, float(g @ f) / float(g @ g))
+        sse = float(np.sum((f - amp * g) ** 2))
+        if best is None or sse < best[3] - 1e-12:
+            best = (shape, tau, amp, sse)
+    return best

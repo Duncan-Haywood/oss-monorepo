@@ -28,7 +28,7 @@ export const CLASSES = {
 
 export function fmt(n) {
   const r = Math.round(n);
-  return (r < 0 ? "-$" : "$") + Math.abs(r).toLocaleString("en-US");
+  return ((t) => (r < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(r).toLocaleString("en-US"));
 }
 
 const capFor = (limits, i, bonus) => {

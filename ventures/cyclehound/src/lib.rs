@@ -481,6 +481,9 @@ pub struct Options {
     pub kinds: BTreeSet<ImportKind>,
     /// Follow resolved imports into files outside the starting directories.
     pub follow_outside: bool,
+    /// Resolve bare specifiers through the nearest tsconfig.json or
+    /// jsconfig.json (`paths`, `baseUrl`).
+    pub tsconfig: bool,
 }
 
 impl Default for Options {
@@ -496,6 +499,7 @@ impl Default for Options {
             .into_iter()
             .collect(),
             follow_outside: true,
+            tsconfig: true,
         }
     }
 }
@@ -571,10 +575,65 @@ pub fn resolve(from: &Path, spec: &str, exts: &[String]) -> Resolve {
 
 /// [`resolve`] against any [`Files`].
 pub fn resolve_in(fs: &dyn Files, from: &Path, spec: &str, exts: &[String]) -> Resolve {
-    if !(spec.starts_with("./") || spec.starts_with("../") || spec == "." || spec == "..") {
+    if !is_relative(spec) {
         return Resolve::External;
     }
-    let spec = spec.split(['?', '#']).next().unwrap_or(spec);
+    let spec = strip_query(spec);
+    let base = normalize(&from.parent().unwrap_or(Path::new("")).join(spec));
+    match resolve_target(fs, &base, exts) {
+        Some(p) => Resolve::File(p),
+        None => Resolve::Missing,
+    }
+}
+
+/// [`resolve_in`], and bare specifiers through the tsconfig or jsconfig
+/// `paths` and `baseUrl` in effect for `from` (see [`tsconfig`]). A bare
+/// specifier nothing maps stays `External`; one a project alias matches
+/// but no file answers is `Missing`.
+pub fn resolve_with(
+    fs: &dyn Files,
+    configs: &Configs,
+    from: &Path,
+    spec: &str,
+    exts: &[String],
+) -> Resolve {
+    if is_relative(spec) {
+        return resolve_in(fs, from, spec, exts);
+    }
+    let Some(map) = configs.for_file(fs, from) else {
+        return Resolve::External;
+    };
+    let look = map.lookup(strip_query(spec));
+    for t in &look.tries {
+        if let Some(p) = resolve_target(fs, t, exts) {
+            return Resolve::File(p);
+        }
+    }
+    if look.strict {
+        Resolve::Missing
+    } else {
+        Resolve::External
+    }
+}
+
+fn is_relative(spec: &str) -> bool {
+    spec.starts_with("./") || spec.starts_with("../") || spec == "." || spec == ".."
+}
+
+/// Drop a bundler query or fragment (`./x.svg?raw`, `./x#y`). A leading
+/// `#` is a name (`#lib/x`, package.json's subpath imports), not a fragment.
+fn strip_query(spec: &str) -> &str {
+    let cut = spec
+        .char_indices()
+        .find(|&(i, c)| c == '?' || (c == '#' && i > 0))
+        .map(|(i, _)| i);
+    cut.map_or(spec, |i| &spec[..i])
+}
+
+/// The file a path names the way Node and bundlers read an extensionless
+/// import: the exact file, each extension, TypeScript's `./x.js` for
+/// `x.ts`, then `index.<ext>`.
+fn resolve_target(fs: &dyn Files, base: &Path, exts: &[String]) -> Option<PathBuf> {
     // The wanted extensions first, then every other module type, the way a
     // resolver finds "./x" whatever the reader was asked to scan.
     let mut tries: Vec<&str> = exts.iter().map(|s| s.as_str()).collect();
@@ -584,15 +643,14 @@ pub fn resolve_in(fs: &dyn Files, from: &Path, spec: &str, exts: &[String]) -> R
         }
     }
     let exts = &tries;
-    let base = normalize(&from.parent().unwrap_or(Path::new("")).join(spec));
-    if fs.is_file(&base) {
-        return Resolve::File(base);
+    if fs.is_file(base) {
+        return Some(base.to_path_buf());
     }
     let s = base.as_os_str().to_string_lossy();
     for e in exts {
         let p = PathBuf::from(format!("{s}.{e}"));
         if fs.is_file(&p) {
-            return Resolve::File(p);
+            return Some(p);
         }
     }
     // TypeScript's convention: "./x.js" written for a file that is x.ts.
@@ -600,17 +658,17 @@ pub fn resolve_in(fs: &dyn Files, from: &Path, spec: &str, exts: &[String]) -> R
         for e in ["ts", "tsx", "mts"] {
             let p = PathBuf::from(format!("{stem}.{e}"));
             if fs.is_file(&p) {
-                return Resolve::File(p);
+                return Some(p);
             }
         }
     }
     for e in exts {
         let p = base.join(format!("index.{e}"));
         if fs.is_file(&p) {
-            return Resolve::File(p);
+            return Some(p);
         }
     }
-    Resolve::Missing
+    None
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -645,6 +703,8 @@ pub struct Graph {
     pub unresolved: Vec<Unresolved>,
     /// Files that could not be read (not UTF-8, permissions).
     pub unreadable: Vec<PathBuf>,
+    /// The tsconfig lookups made while building, reused by later passes.
+    pub configs: Configs,
 }
 
 impl Graph {
@@ -667,7 +727,10 @@ pub fn build_graph(start: Vec<PathBuf>, opts: &Options) -> Graph {
 /// [`build_graph`] against any [`Files`].
 pub fn build_graph_in(fs: &dyn Files, start: Vec<PathBuf>, opts: &Options) -> Graph {
     let mut index: HashMap<PathBuf, usize> = HashMap::new();
-    let mut g = Graph::default();
+    let mut g = Graph {
+        configs: Configs::new(opts.tsconfig),
+        ..Graph::default()
+    };
     let mut frontier: Vec<usize> = Vec::new();
     for p in start {
         let p = normalize(&p);
@@ -692,7 +755,7 @@ pub fn build_graph_in(fs: &dyn Files, start: Vec<PathBuf>, opts: &Options) -> Gr
                             .into_iter()
                             .filter(|im| opts.kinds.contains(&im.kind))
                             .map(|im| {
-                                let r = resolve_in(fs, path, &im.spec, &opts.exts);
+                                let r = resolve_with(fs, &g.configs, path, &im.spec, &opts.exts);
                                 (im, r)
                             })
                             .collect();
@@ -1051,6 +1114,12 @@ pub fn cycles_json(
     s.push_str(&format!("  \"unresolved\": [{}]\n}}", un.join(", ")));
     s
 }
+
+pub mod tsconfig;
+pub use tsconfig::{parse_jsonc, Configs, PathMap};
+
+pub mod exports;
+pub use exports::{extract_shape, unused_exports, Export, ModImport, Shape, Unused, Uses};
 
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;

@@ -136,3 +136,135 @@ def mondrian_accept(score, feature, floor, inner, lams):
     b = np.digitize(feature, inner)
     lam = np.asarray(lams, float)[b]
     return (feature >= floor) & (score >= lam)
+
+
+# ---- Step 3d: a noise-class gate --------------------------------------------------------------------------
+
+def frame_kurtosis(x, frame=512):
+    """Impulsiveness of a window: log10 of the kurtosis (m4 / m2^2, about the mean) of its 32 ms frame
+    energies. A steady noise floor gives frames of nearly equal energy (low kurtosis); keystrokes, bites and
+    door slams put most of the energy in a few frames (high kurtosis). Needs no clean reference."""
+    x = np.asarray(x, float)
+    n = len(x) // frame
+    if n < 4:
+        raise ValueError("window shorter than four frames")
+    e = np.mean(x[:n * frame].reshape(n, frame) ** 2, axis=1)
+    c = e - e.mean()
+    m2 = np.mean(c ** 2)
+    if m2 <= 0:
+        return 0.0
+    return float(np.log10(np.mean(c ** 4) / m2 ** 2))
+
+
+def spectral_flatness_db(x, fs=16000, nper=512, band=(100.0, 4000.0)):
+    """Wiener entropy of the window's Welch spectrum in the GCC band, in dB (0 dB for white noise, very
+    negative for tonal or strongly coloured sound). Hann windows of nper samples, half overlap."""
+    x = np.asarray(x, float)
+    hop = nper // 2
+    n = (len(x) - nper) // hop + 1
+    if n < 1:
+        raise ValueError("window shorter than one segment")
+    w = np.hanning(nper)
+    idx = np.arange(nper)[None, :] + hop * np.arange(n)[:, None]
+    p = np.mean(np.abs(np.fft.rfft(x[idx] * w, axis=1)) ** 2, axis=0)
+    f = np.fft.rfftfreq(nper, 1.0 / fs)
+    p = p[(f >= band[0]) & (f <= band[1])] + 1e-30
+    return float(10 * np.log10(np.exp(np.mean(np.log(p))) / np.mean(p)))
+
+
+class Novelty:
+    """Conformal novelty refusal (split conformal outlier test, Bates et al. 2023, arXiv:2104.08279).
+    Features are scaled by the calibration median and interquartile range; the novelty score of a window is
+    its distance to the k-th nearest window of a reference half of the calibration set; the refusal
+    threshold is the (1 - q) empirical quantile (finite-sample corrected) of the scores of the other half.
+    A window from the calibration distribution is then refused with probability at most about q."""
+
+    def __init__(self, feats, ref_mask, k=5, q=0.01):
+        from scipy.spatial import cKDTree
+        f = np.asarray(feats, float)
+        ref_mask = np.asarray(ref_mask, bool)
+        self.med = np.median(f, axis=0)
+        iqr = np.subtract(*np.percentile(f, [75, 25], axis=0))
+        self.scale = np.where(iqr > 0, iqr, 1.0)
+        self.k = k
+        self.tree = cKDTree((f[ref_mask] - self.med) / self.scale)
+        s = np.sort(self.score(f[~ref_mask]))
+        m = len(s)
+        j = min(m - 1, int(np.ceil((1 - q) * (m + 1))) - 1)
+        self.thr = float(s[j])
+
+    def score(self, feats):
+        z = (np.asarray(feats, float) - self.med) / self.scale
+        d, _ = self.tree.query(z, k=self.k)
+        return d[:, -1] if self.k > 1 else d
+
+    def inside(self, feats):
+        return self.score(feats) <= self.thr
+
+
+def binned_ltt(score, bad, bins, n_bins, grid, alpha=0.01, delta=0.1):
+    """One Learn-then-Test threshold per bin label 0..n_bins-1 (bins computed from features only)."""
+    score = np.asarray(score, float)
+    bad = np.asarray(bad, bool)
+    bins = np.asarray(bins, int)
+    return [ltt_threshold(score[bins == k], bad[bins == k], grid, alpha, delta) for k in range(n_bins)]
+
+
+# ---- Step 3e: a level estimate from the seconds before the window ----------------------------------------
+
+def min_stats_snr_db(x, n_win, fs=16000, frame=512, hop=256, alpha=0.7, span_s=1.5, band=(100.0, 4000.0)):
+    """Blind SNR of the last `n_win` samples of `x`, with the noise floor tracked by minimum statistics over
+    all of `x` (the seconds before the window plus the window itself).
+
+    A simplified form of Martin's (2001) minimum-statistics noise tracker: Hann frames of `frame` samples,
+    hop `hop`; each bin's periodogram in the GCC band is smoothed recursively with a fixed `alpha` (0.7, a 45 ms time constant at a 16 ms hop, short enough to reach the floor in a 200 ms speech pause; Martin
+    uses a time-varying optimal alpha) and the noise power of a frame is the minimum of the smoothed
+    periodogram over the preceding `span_s` seconds, summed over bins. No bias compensation is applied, so
+    the noise power is underestimated by a roughly constant factor and the SNR reads high: a ranking of
+    noise levels, like `blind_snr_db`, not a calibrated SNR. Returns 10 log10((Y - N) / N), Y the mean band
+    power of the window's frames and N their mean tracked noise power, floored at -30 dB."""
+    from scipy.signal import lfilter
+    x = np.asarray(x, float)
+    nf = (len(x) - frame) // hop + 1
+    if nf < 2 or n_win < frame:
+        raise ValueError("signal too short")
+    idx = np.arange(frame)[None, :] + hop * np.arange(nf)[:, None]
+    f = np.fft.rfftfreq(frame, 1.0 / fs)
+    keep = (f >= band[0]) & (f <= band[1])
+    p = np.abs(np.fft.rfft(x[idx] * np.hanning(frame), axis=1))[:, keep] ** 2
+    s = lfilter([1 - alpha], [1, -alpha], p, axis=0, zi=alpha * p[:1])[0]
+    d = max(1, int(round(span_s * fs / hop)))
+    pad = np.vstack([np.full((d - 1, s.shape[1]), np.inf), s])
+    nmin = np.lib.stride_tricks.sliding_window_view(pad, d, axis=0).min(axis=-1)
+    win = hop * np.arange(nf) >= len(x) - n_win  # frames that start inside the window
+    if not win.any():
+        win[-1] = True
+    y = float(np.mean(p[win].sum(axis=1)))
+    nn = float(np.mean(nmin[win].sum(axis=1))) + 1e-30
+    return float(10 * np.log10(max(y - nn, 1e-3 * nn) / nn))
+
+
+# ---- Step 3g: a periodic-content flag -----------------------------------------------------------------------
+
+def self_periodicity(x, fs=16000, min_lag_s=1 / 30, max_lag_s=1.5, band=(100.0, 4000.0)):
+    """How much a window repeats itself: the highest normalised autocorrelation in the GCC band at lags from
+    min_lag_s to max_lag_s (at most 3/4 of the window), unbiased (lag L divided by its overlap n - L, then by
+    the zero-lag value). A looped recording or a machine with a steady period reads near its repeat's
+    correlation (0.9+); speech reads low. One device's window only: it needs neither the other device nor any
+    label."""
+    x = np.asarray(x, float)
+    x = x - x.mean()
+    n = len(x)
+    nfft = 1 << (2 * n - 1).bit_length()
+    X = np.fft.rfft(x, nfft)
+    p = np.abs(X) ** 2
+    f = np.fft.rfftfreq(nfft, 1.0 / fs)
+    p[(f < band[0]) | (f > band[1])] = 0
+    r = np.fft.irfft(p, nfft)
+    if r[0] <= 0:
+        return 0.0
+    lo, hi = int(round(min_lag_s * fs)), min(int(round(max_lag_s * fs)), (3 * n) // 4)
+    if hi < lo:
+        return 0.0
+    lag = np.arange(lo, hi + 1)
+    return float(np.clip((r[lo:hi + 1] * n / (n - lag)).max() / r[0], 0.0, 1.0))

@@ -10,7 +10,7 @@ export const LONG_TERM_SHARE = 0.6;
 export const SHORT_TERM_SHARE = 0.4;
 export const NIIT_RATE = 0.038;
 
-export const money = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+export const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 const r2 = (x) => Math.round(x * 100) / 100;
 // One amount: "$1,200.00", "(1,200)", "-$1,200", "$-1,200", "USD -500", "1200-", "1.5E+04". Anything that is not
 // exactly one number ("12-34", "1.2.3") is NaN, so the row is refused rather than read as a different amount.

@@ -1,10 +1,202 @@
 # When does rotor cant pay on a small quadrotor co-designed with its motors and controller?
 
-Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.md`](PROPOSAL.md), log: [`LOG.md`](LOG.md)). It gathers seven earlier single-step projects on canted-rotor quadrotors (`codesign-aero-cant`, `-bound`, `-kappa`, `-propdata`, `-twr`, `-twrceil`, `-poshold`) into one question aimed at *IEEE RA-L*. Produced with AI assistance (Claude). **Simulated. The propeller torque ratio c comes from measured UIUC data; the mass, cost and motor fits, the plant ranges and the gust model are inherited assumptions.**
+Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.md`](PROPOSAL.md), log: [`LOG.md`](LOG.md)). It gathers seven earlier single-step projects on canted-rotor quadrotors (`codesign-aero-cant`, `-bound`, `-kappa`, `-propdata`, `-twr`, `-twrceil`, `-poshold`) into one question aimed at *IEEE RA-L*. Produced with AI assistance (Claude). **Simulated. The propeller torque ratio c comes from measured UIUC data; the motor lag comes from two published system identifications (milestone 7t; tuned at the slower one since milestone 7u, which beats randomising across both, milestone 7v); the cost fit, the plant ranges and the gust model are inherited assumptions.**
 
 **Live page:** https://marisstella.app/research/codesign-cant/
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
+
+## Milestone 7y: what does tuning a drone for a slower motor cost in step response and wind drift? A 10-20% slower rise, half the overshoot, millimetres of drift
+
+**Question.** Milestones 7u-7x found that tuning for a slower motor lag than the one flown keeps cutting crashes in a stress test (twice the centre-of-pressure lever, 45° tilt limit), with no knee by 60 ms. That test rewards a slow, heavy vehicle by construction. What does the slower tune cost in the units a builder writes into a requirement? 7x's 48 lever-aware designs (39.1, 45, 52 and 60 ms floors) were flown, without retraining, through a **1 m position step** and a **calm-to-wind step (3 and 6 m/s)** at the design lever, under the three identified lags (33, 36, 39.1 ms), with turbulence and yaw steps off.
+
+**Headline (`experiments/m7y_response/results.txt`, `verdicts.txt`, `posthoc.txt`; 137 s on 4 cores; simulated; 6 predictions committed first, 4 held).**
+
+- **The trade is rise time for overshoot.** Rise time to 90% of a 1 m step grows with every slower floor (1.44, 1.58, 1.64, 1.74 s with the centre of pressure above; 1.39, 1.47, 1.61, 1.77 s below), while overshoot shrinks (6.4, 5.9, 3.8, 3.2 cm; 9.7, 7.6, 5.5, 2.7 cm). Both orderings are monotone in all six cells. The 60 ms tune rises 10-20% slower than the 45 ms tune and overshoots a half to a third as much.
+- **Settle time barely moves:** to stay within 5 cm, 2.04 against 2.37 s above (+16%) and 2.56 against 1.95 s below (−24%). The slower rise is paid back by the smaller overshoot.
+- **Wind drift grows by millimetres:** peak drift after a 6 m/s wind step is 2.3, 1.9 cm (45 ms) against 2.8, 2.4 cm (60 ms), not separated at six seeds.
+- **The motor lag itself does not matter in calm air at the design lever** (every metric the same to three decimals at 33, 36 and 39.1 ms); it only matters near the torque limit, where the stress test lives. No flight diverged.
+- **A slow tail whatever the floor:** 8 of 48 designs (one to three per set) never settle inside 5 cm in 6 s; they park 5-8 cm short with position gains of 4.5-9.7 s⁻² against a set mean near 20. The stress objective never asks for a fast final approach.
+- **For a builder:** read along the four floors, each slower step trades about 0.1 s of rise time for 30-50 fewer stress-test crashes of 1152. If your mission can live with a 1.7-1.8 s rise to 90% on a 1 m step, the 60 ms tune is the recommendation; check the final approach (position gain) separately.
+
+![Left: stress-test crashes over the identified lags (of 1152) against rise time to 90% of a 1 m step, one point per tuning floor: centre of pressure above, 170 crashes at 1.44 s (39.1 ms tune) down to 36 at 1.74 s (60 ms); below, 178 at 1.39 s down to 51 at 1.77 s. Right: step overshoot falls from 6.4 and 9.7 cm (39.1 ms) to 3.2 and 2.7 cm (60 ms) while peak drift after a 6 m/s wind step stays between 1.9 and 2.8 cm.](experiments/m7y_response/m7y_response.png)
+
+## Milestone 7x: is there a motor-lag tuning floor past which a drone stops gaining? Not by 60 ms: crashes keep falling; mass and gain pay
+
+**Question.** Milestone 7w found that tuning a 5-inch quadrotor for a 45 ms motor lag, slower than either published identification (33 and 39.1 ms), crashes less than tuning at 39.1 ms even when flown at 33 ms. Where is the knee? 7w's lever-aware objective was retuned at **52 ms** and **60 ms** (not sourced: tuning floors chosen to bracket a knee; training plants floor × U(1, 2)), with the stability certificate also required at 33 ms, and scored next to 7w's 45 ms and 7u's 39.1 ms designs under seven lag laws.
+
+**Headline (`experiments/m7x_knee/results.txt`, `verdicts.txt`, `posthoc.txt`, `corner_bind.txt`; 48 CMA-ES runs, about 2.6 h on 4 cores; simulated; 7 predictions committed first, 4 held).**
+
+- **No knee by 60 ms.** At twice the centre-of-pressure lever and a 45° tilt limit, crashes over the identified range (33, 36, 39.1 ms; both geometries; of 2304 flights) fall with every slower floor: **348, 236, 162, 87** for 39.1, 45, 52 and 60 ms tunes. At the fast 33 ms end: 27, 34 crashes for the 45 ms tune against 8, 12 for the 60 ms tune. Monotone in 13 of 14 law × geometry cells.
+- **A measured gap this time:** 60 ms against 45 ms, Mann-Whitney p = 0.004-0.014 in all six identified cells (post hoc, six seeds). 52 against 45 ms is not separated (p 0.14-0.87).
+- **All 24 new designs are certified across 33-39.1 ms.** The extra 33 ms certificate corner was slack on 22 of 24 designs (the radius is set by a mode the lag does not move), so the gain is the floor, not the constraint.
+- **The price is a heavier vehicle and a softer loop:** at 60 ms the designs are 4-8% heavier, take a larger propeller and a 20% lower position gain, and track about 5% worse at lever 1. The 52 ms tune has no mass cost and about 3% worse tracking.
+- **For a builder:** in this simulator the crash count never sets the tuning floor; slower keeps buying robustness. Pick the floor from what you will give up (mass, endurance, tracking), and keep the certificate checked at the fastest measured lag.
+
+![Two panels, centre of pressure above and below the centre of mass: diverged flights of 384 at lever 2, 45 degrees, against the motor lag flown (33 to 60 ms), one line per tuning floor. The 60 ms line (red) is lowest everywhere, then 52 ms (orange), 45 ms (purple) and 39.1 ms (green): at 39.1 ms, 17, 30, 52 and 72 crashes with the centre of pressure above.](experiments/m7x_knee/m7x_knee.png)
+
+## Milestone 7w: how slow should you tune a drone's motor lag? Slower than the slowest measurement, and it still pays at the fast end
+
+**Question.** Milestones 7u and 7v found that a tuner that knows the 5-inch quadrotor motor lag only as a range (33-39.1 ms, two published identifications) should train on plants no faster than its slow end. Where does tuning slower stop paying? 7u's two objectives were retuned at **45 ms** (not sourced: 15% beyond the slower identification, chosen on purpose to bracket the knee from above; training plants 45-90 ms, certificate corners 45 and 90 ms) and scored next to 7u's 39.1 ms and 7t's 36 ms designs.
+
+**Headline (`experiments/m7w_slow45/results.txt`, `verdicts.txt`, `posthoc.txt`; 48 CMA-ES runs, about 1.7 h on 4 cores; simulated; 7 predictions committed first, 4 held).**
+
+- **Tuning at 45 ms beats tuning at 39.1 ms in 19 of 20 law × arm-geometry cells (one tie), including all four at 33 ms**, the fast end it never trains on: at twice the centre-of-pressure lever and a 45° tilt limit, 75, 77, 27, 34 against 80, 107, 37, 46 crashes of 384 at 33 ms, and 123, 108, 52, 46 against 150, 167, 72, 73 at 39.1 ms. Over the identified range, 21-29% fewer crashes than the slow-end tune and 37-45% fewer than the midpoint tune.
+- **No knee yet:** the predicted cost at the fast end did not appear. Mass, propeller and position gain barely move, and tracking is no worse.
+- **The price is at the certificate, on its boundary:** 22 of 24 designs stay certified across 33-39.1 ms (7u: 24); the two that fail sit at ρ = 1.0000-1.0002 against a strict ρ < 1. All 24 are certified at 45 ms (7u: 15).
+- **Not significant per cell** at six seeds (Mann-Whitney p 0.05-0.47 inside the identified range; all four arm-geometries agree at every lag, sign test p = 0.125). Lever-aware training still halves crashes by buying mass (+9% and +25%).
+- **For a builder:** if you know your motor lag only as a range, tune for a motor slower than its slow end, and keep the stability certificate checked at the fast end as the limit on how slow; in this simulator the knee lies beyond 45 ms.
+
+![Two panels, centre of pressure above and below the centre of mass: diverged flights of 384 at lever 2, 45 degrees, under five lag laws, for designs tuned at 36 ms, 39.1 ms and 45 ms. In every group the 45 ms bars (orange, purple) are shorter than the 39.1 ms bars (dark blue, green), for example 46 against 73 for the lever-aware designs at 39.1 ms, centre of pressure below.](experiments/m7w_slow45/m7w_slow45.png)
+
+## Milestone 7v: should you randomise motor lag across its measured range when tuning a drone? No: train at the slow end only
+
+**Question.** Milestone 7u found that tuning at 39.1 ms, the slow end of the measured 33-39 ms motor lag of 5-inch quadrotors, beats tuning at the 36 ms midpoint. Is that the slow value, or would domain randomisation across the whole range do as well or better? In these controllers the lag has no internal model; it sets only the fastest plants the tuner trains on and the corners of the stability certificate. 7u's two objectives were retrained with the lag drawn per episode across 33-39.1 ms (times the usual plant randomisation) and certified at both ends, then scored next to 7u's and 7t's designs.
+
+**Headline (`experiments/m7v_lag_rand/results.txt`, `verdicts.txt`, `posthoc.txt`; 48 CMA-ES runs, about 1.5 h on 4 cores; simulated; 7 predictions committed first, 4 held).**
+
+- **Randomising across the range is worse in 11 of 12 identified cells, including all four at the fast end it added.** At twice the centre-of-pressure lever and a 45° tilt limit, the range-trained designs crash on more flights than the slow-end designs at 33 ms (101, 112, 61, 53 against 80, 107, 37, 46 of 384) and at 39.1 ms (191, 177, 132, 90 against 150, 167, 72, 73), and in 3 of 4 cells at 36 ms.
+- **They land between the midpoint and slow-end tunes** (post hoc): the draw's mean lag is 36 ms, and the designs behave like a slightly better midpoint tune. So 7u's gain comes from never training on a plant faster than the slow end, not from the width of the draw.
+- **Same vehicles, no fast-end payoff:** mass, propeller and position gain barely move; the extra certificate corner at 33 ms keeps 21 of 24 designs certified at the old 15 ms law against 20 of 24, and loses at the 45 ms stress value (8 against 15 of 24).
+- **Not significant per cell** at six seeds (Mann-Whitney p 0.05-0.94; all four arm-geometries agree at 33 and 39.1 ms, sign test p = 0.125). Lever-aware training still halves crashes by buying mass (+12% and +25%).
+- **For a builder:** if you know your motor lag only as a range, tune on plants no faster than its slow end; uniform randomisation over the range gives robustness back.
+
+![Two panels, centre of pressure above and below the centre of mass: diverged flights of 384 at lever 2, 45 degrees, under five lag laws, for designs tuned at 36 ms, at 39.1 ms, and trained across 33-39.1 ms. In the shaded identified range the range-trained bars (orange, purple) are taller than the 39.1 ms bars (dark blue, green) in every group, for example 132 against 72 for the lever-aware designs at 39.1 ms, centre of pressure above.](experiments/m7v_lag_rand/m7v_lag_rand.png)
+
+## Milestone 7u: tune a drone at the fast or the slow end of its measured motor lag? The slow end: certified across the range and never worse
+
+**Question.** Milestone 7t sourced the motor lag of 5-inch quadrotors at 33-39 ms (two published identifications) and tuned at the 36 ms midpoint. It found the lag error one-sided: tuning for a slower motor than the real one costs little, tuning for a faster one fails. So should a tuner that knows only the range tune at its slow end? 7t's two objectives were retuned at **39.1 ms** (the slower identification, Foehn et al. 2022) and scored with 7t's 36 ms designs at 33, 36 and 39.1 ms, at an unsourced 45 ms stress value and at the inherited 15 ms law.
+
+**Headline (`experiments/m7u_slow_end/results.txt`, `verdicts.txt`, `posthoc.txt`; 48 CMA-ES runs, about 1.4 h on 4 cores; simulated; 8 predictions committed first, 7 held).**
+
+- **The slow-end tune is never worse inside the identified range.** At twice the centre-of-pressure lever and a 45° tilt limit, the 39.1 ms designs crash less than the 36 ms ones under all three identified lags in all four arm-geometries, including at 36 ms, the midpoint designs' own training lag (109, 132, 61, 59 against 149, 161, 63, 82 of 384).
+- **Its stability certificate covers the range:** all 24 slow-end designs pass the margin test at 33, 36 and 39.1 ms, against 20 of 24 midpoint designs; at 45 ms, 15 against 10.
+- **The gain is consistent but not yet measured:** every cell leans the same way, but with six seeds per set no single comparison is significant (Mann-Whitney p 0.08-0.81, post hoc). Same mass, similar propellers, and better tracking at 36 ms.
+- **The cost sits at the far fast end:** at the old 15 ms law the crash counts tie, but 4 of 6 lever-aware `above` slow-end designs lose the margin certificate.
+- **For a builder:** with only a range for your motor lag, tune at its slow end. **For this programme:** the tuning law is now 39.1 ms; lever-aware training still halves crashes by buying mass (+9% and +29%).
+
+![Two panels, centre of pressure above and below the centre of mass: diverged flights of 384 at lever 2, 45 degrees, for designs tuned at 36 ms (light bars) and at 39.1 ms (dark bars), under five lag laws. In the shaded identified range (33, 36, 39.1 ms) the dark bars are lower in every group: for example 150 against 198 and 72 against 93 at 39.1 ms, centre of pressure above.](experiments/m7u_slow_end/m7u_slow_end.png)
+
+## Milestone 7t: what motor lag does a 5-inch quadrotor have, and do the co-designs survive it? 33-39 ms, 2.4× the assumed value: the old tunes fail, retuned ones fly
+
+**Question.** Milestone 7s showed the programme's counts and stability margins hang on a motor lag nobody had sourced (15 ms at 5 inches). What lag do real 5-inch quadrotors have, and what happens to the co-designs at that value? Two published system identifications of 5-5.1 inch, 2306-motor racing quadrotors give **33 ms** (Bauersfeld et al. 2021, NeuroBEM, arXiv:2106.08015) and **39.1 ms** (Foehn et al. 2022, Agilicious, arXiv:2307.06100); the rows read, used and excluded (brushed Crazyflie motors, a platform with no propeller stated, simulator defaults) are in [`data/motor_lag/identified.csv`](data/motor_lag/identified.csv). 7r's two arms were retuned at 36 ms (their midpoint, the same for every propeller) and scored under five laws.
+
+**Headline (`experiments/m7t_lag_src/results.txt`, `verdicts.txt`; 48 CMA-ES runs, about 1.7 h on 4 cores; simulated; 8 predictions committed first, 6 held).**
+
+- **The 15 ms tunes do not fly at the identified lag.** None of 7r's 24 retuned designs passes the stability-margin test at 33, 36 or 39.1 ms, and they crash on 359-384 of 384 flights at twice the centre-of-pressure lever and a 45° tilt limit.
+- **Retuned at 36 ms, all 24 designs are certified and fly:** 149 and 161 crashes of 384 for the lever-1 objective, 63 and 82 for the lever-aware one, 17-41% more than 7r's designs at their own 15 ms. The tuners pay with a softer position loop (kp 21-25 against 27-31 s⁻²) and 6-10% more mass.
+- **The programme's findings hold at the sourced lag.** Lever-aware training still halves the crashes by buying mass (+14% and +28%); ρ(mass, crashes) is −0.50 to −0.94 under every scoring law.
+- **The risk is one-sided.** Tuned for 36 ms, the designs crash less than the 15 ms tunes even at 15 ms (8-59 against 54-131 of 384, at nearly the same tracking), and 21 of 24 stay certified at 39.1 ms. Tuned for 15 ms, they fail at 36 ms.
+- **For a builder:** if you tune in simulation without a measured motor step response, assume the slow end (about 35-40 ms for a 5-inch 2306 setup, from these two identifications); a too-fast lag model is the expensive mistake. **For this programme:** the tuning law is now 36 ms; earlier counts describe vehicles with motors 2.4 times faster than the identified ones.
+
+![Two panels, centre of pressure above and below the centre of mass: diverged flights of 384 at lever 2, 45 degrees, for 7r's designs tuned at 15 ms (light bars) and the designs retuned at 36 ms (dark bars), under five lag laws. Under the inherited 15 ms law the 7r designs crash on 54-131 and the 36 ms designs on 8-59; at 33, 36 and 39.1 ms the 7r designs crash on 359-384 while the retuned ones crash on 53-198.](experiments/m7t_lag_src/m7t_lag_src.png)
+
+## Milestone 7s: does a quadrotor co-design result depend on the motor lag model? The orderings survive a 4× range; the counts and the stability margins do not
+
+**Question.** Every design in this programme flies a first-order motor-propeller lag of 0.015 (D / 0.127 m)<sup>1.5</sup> s, inherited and never sourced. Milestone 7r's retuned designs shrank their propellers to 0.106-0.115 m, which under that law makes their motors 3-4 ms faster than the published designs'. Are 7r's findings an artefact of the lag law? The law could not be sourced from this session (the retailer catalogues are unreachable through its proxy), so the milestone sweeps it: lag at 5 inches K ∈ {7.5, 15, 30} ms × diameter exponent b ∈ {0, 1.5, 3}, over 7r's 72 designs, not retuned.
+
+**Headline (`experiments/m7s_lag/results.txt`, `verdicts.txt`; 72 designs × 9 laws; simulated; 6 predictions committed first, all held).**
+
+- **The orderings survive.** Lever-aware training beats lever-1 training at twice the centre-of-pressure lever under all nine laws, and heavier designs crash less under every law up to 15 ms (Spearman ρ −0.68 to −0.93).
+- **The exponent made the retuned designs look as good as the published ones.** With a 15 ms lag for every propeller, the retuned lever-aware designs crash on 85 and 92 of 384 flights against 51 and 53 for the published ones (54 and 64 under the inherited law).
+- **Each design's stability margin holds only at the lag it was tuned for.** At b 0 only 5 of the 24 retuned designs pass the margin test (24 of 24 under the inherited law); at b 3 only 4 of 12 published lever-1 designs do.
+- **The lag constant dominates.** At 30 ms at most one design of 72 passes the margin test, and at b 1.5 every set crashes on 244-378 of 384 flights; at 7.5 ms the published and retuned sets' crashes fall 26-44%.
+- **For a builder:** measure your motor-propeller step response before trusting a tuned gain set; a tuner that assumed faster motors puts you on the edge of stability. **For this programme:** report counts as orderings until K and b are sourced, and retune with the lag randomised over its plausible range.
+
+![Two panels, centre of pressure above and below the centre of mass: diverged flights of 384 at lever 2, 45 degrees, against the motor lag each set flies under nine lag laws. Every set's crashes rise with lag, from 30-90 at 5-8 ms to 250-380 at 30-35 ms; the not-retuned sourced designs sit highest throughout; at a common 15 ms the retuned designs (blue, green) sit above the published ones (grey).](experiments/m7s_lag/m7s_lag.png)
+
+## Milestone 7r: retuned for a sourced battery and motor model, does a quadrotor still buy gust robustness with mass? Yes: the tuner shrinks the propeller and gets heavy again
+
+**Question.** Milestone 7q found that the programme's sizing closure was solved by a truncated iteration and built on component constants 12-72% off listed data. On the sourced Li-ion closure every published design shrinks to about 0.75 kg, and on its old gains it crashes far more. Those gains were tuned for vehicles that do not exist. Retuned on the sourced, exactly solved closure, does training across centre-of-pressure levers still buy robustness (milestone 7i), and is it still bought with mass?
+
+**Headline (`experiments/m7r_retune/results.txt`, `verdicts.txt`; 48 CMA-ES runs; simulated; 7 predictions committed first).**
+
+- **The tuner buys the mass back.** None of the 24 retuned designs is the 0.75 kg vehicle 7q sized. Both objectives shrink the propeller (set means 0.129-0.134 → 0.106-0.115 m), which raises hover power (set means: lever-1 objective 313-402 W, lever-aware 455-495 W), and the closure grows the battery and motors until the vehicle weighs 0.99-1.29 kg (set means; designs 0.94-1.50 kg) and sits on the closure's edge again (longest closing endurance 15.0-16.7 min, against 19-21 min for the published designs on the same closure).
+- **Robustness still follows mass, on one curve.** At twice the centre-of-pressure lever and a 45° tilt limit, the retuned designs crash on 106 and 131 (lever-1 objective) and 54 and 64 (lever-aware) of 384 flights, against 260 and 263 for the old gains on the sourced closure. Plotted against mass, retuned and published designs fall on the same curve (figure).
+- **Training across levers still pays, at the same price.** The lever-aware designs crash on half as many flights as the lever-1 designs and are 14-24% heavier, matching the published lever-aware designs (53 and 52). Predictions R1, R3-R6 held; R2 (retuned mass 0.65-0.90 kg) was refuted, R7 held in one geometry.
+- **For a builder:** on this model a quadrotor tuned for gust robustness with a hover-power price and a fixed flight time will trade propeller size for mass; if you want the light, efficient vehicle, put a price on mass or a requirement on flight time, not only on power.
+- **For this programme:** the mass-robustness relation from 7i is not an artefact of the truncated solve; it reappears under the sourced closure. The objective's power price and the fixed endurance, both inherited, are now what set the vehicle's mass.
+
+![Two panels, centre of pressure above and below the centre of mass: diverged flights of 64 at lever 2, 45 degrees, against sized mass for each design. Published designs (grey, 1.0 to 2.0 kg) and designs retuned on the sourced Li-ion closure (blue and green, 0.94 to 1.50 kg) fall on one falling curve from about 23 crashes at 0.95 kg to 0 at 2 kg; the published designs re-sized on the sourced closure without retuning (orange) sit apart at 0.73 to 0.80 kg and 36 to 48 crashes.](experiments/m7r_retune/m7r_retune.png)
+
+## Milestone 7q: can a 5-inch quadrotor fly 15 minutes on LiPo? The sizing closure, checked against listed batteries and motor bench data
+
+**Question.** Every mass in this programme comes from an endurance sizing closure: the battery for 15 minutes of hover, the motors for a thrust-to-weight of 2, the frame, payload and electronics, iterated until the mass stops changing. Its three component constants (150 Wh/kg battery, motor mass 0.045 (T<sub>max</sub>/9 N)<sup>1.2</sup> kg, propulsive efficiency FM·η = 0.4875) were inherited and assumed, and milestone 7p found the closure multiplies any mass change 6-15 times. What do listed components say, and what happens to the 48 tuned designs when the closure is sourced? Data ([`data/components/`](data/components/), accessed 2026-11-16, each row with its URL): 405 battery listings from six FPV retailers (195 in class), 29 SunnySky motor pages with the manufacturer's bench tables (5,292 rows of propeller, thrust and watts), 16 FPV motor listings with a stated maximum thrust.
+
+**Headline (`experiments/m7q_closure/closure.txt`, `results.txt`, `verdicts.txt`; simulated; 6 predictions committed first).**
+
+- **The solver stopped before the answer.** `aero.size` iterated the mass 60 times from 1 kg and returned wherever it was. Solved exactly, 28 of the 48 tuned designs have **no fixed point at 15 minutes**: no vehicle of that arm, propeller and cant can carry its own battery that long. All six heavy (≥ 1.7 kg), near-crash-free designs of milestones 7i, 7m and 7n are among them. Every design's longest closing endurance is 14.6-15.8 min, so the tuners sat every design on the edge of the closure.
+- **Listed components move every constant.** LiPo packs store a median **132 Wh/kg** (140 packs, 3-6S; assumed 150); Li-ion 210 Wh/kg (24 packs). At half maximum thrust on 5-inch propellers, the motor, ESC and propeller turn **0.426** of electrical power into ideal momentum power (assumed 0.4875; 0.52-0.56 on 11-29 inch propellers). Motors weigh **0.0290 (T<sub>max</sub>/9 N)<sup>1.04</sup> kg**, 0.58 of the assumed law at the median of 33 motors.
+- **A 15-minute 5-inch quadrotor does not close on LiPo.** With all three sourced constants, no design closes on LiPo (longest endurance 11.9-13.0 min). On Li-ion every design closes at about 0.75 kg (19-21 min possible), half the mass the tuners settled at.
+- **On their old tunes the sourced vehicles crash far more.** Paired by design, at twice the centre-of-pressure lever and a 45° tilt limit: lighter motors alone add 4-20 crashes of 64 per design in every set (e.g. 73 → 160 of 384 for the lever-1 designs, `above`); the full Li-ion closure adds 20-33. The designs are not retuned, so this measures the old gains on the new vehicles.
+- **What survives.** Where a fixed point exists the exact mass is within 7% and the crash counts within 3 flights per design. The arm's monotone effect (7o) holds under the sourced closure: crashes fall from 210 to 157 of 320 between 105 and 145 mm for the lever-1 designs (`below`).
+- **For a builder:** budget about 132 Wh/kg for LiPo packs and 0.43 for 5-inch propulsive efficiency at cruise thrust, not the textbook 150 and 0.49; at 5 inches, 15 minutes of hover with a 250 g payload is a Li-ion job.
+- **For this programme:** robustness bought with mass (7i onward) came from an unconverged, unsourced closure. `aero.SIZE_SOLVE = "exact"` and the sourced constants are now available; earlier results keep the default and reproduce bit for bit. Predictions Q1-Q5 held, Q6 refuted (`LOG.md`).
+
+![Left: listed motor mass against maximum thrust per motor on log axes, 27 SunnySky bench motors and 6 FPV listings, with the inherited law (dashed) about 1.7 times above the fitted line through the data. Right: the longest endurance each of 48 tuned designs can be sized for, under six closures: inherited constants 14.6 to 15.8 minutes, straddling the 15-minute mission line; LiPo at 132 Wh/kg or efficiency 0.426 alone, 12.8 to 13.9; the motor fit alone, 15.4 to 16.8; all three on LiPo, 11.9 to 13.0; all three on Li-ion, 18.9 to 20.6.](experiments/m7q_closure/m7q_closure.png)
+
+## Milestone 7p: how much does a quadrotor frame weigh per millimetre of arm, and does milestone 7o survive the real figure?
+
+**Question.** Milestone 7o's arm sweep ran on an inherited, assumed frame-mass law (0.05 + 0.8 L kg, L the centre-to-rotor arm). What do listed commercial frames say, and do 7o's conclusions hold under it? Data: 39 open-propeller frame listings (3-10 inch, 7 brands; [`data/frames/frames_hobbyrc.csv`](data/frames/frames_hobbyrc.csv), each with its verbatim spec line and URL, accessed 2026-11-15). Then 7o's 48 fixed designs re-swept from 85 to 150 mm under each law, with no retraining.
+
+**Headline (`experiments/m7p_frame_law/frame_law.txt`, `analysis.txt`, `posthoc.txt`; simulated; 7 predictions committed first).**
+
+- **Two sourced slopes bracket the assumed one.** Stretching one frame design (GEPRC Mark4 5/6/7 inch, Foxeer Aura V2 Pro 5/6) adds 0.26 g per mm of wheelbase, i.e. **0.51 kg per metre of arm**, 64% of the assumed 0.8. Across 30 frames from 162 to 342 mm, a frame designed for a larger size weighs −131 + 1.14 W g (**2.27 kg/m of arm**, residual SD 47 g; weight grows about as W<sup>2</sup>).
+- **The frame slope decides where the arm stops.** The longest arm at which all six lever-1 designs stay valid moves from 130 mm (assumed slope) to 150 mm (stretched design) or 110 mm (cross-brand) with the centre of pressure above.
+- **With the stretched-design slope, a longer arm buys less.** At twice the centre-of-pressure lever the lever-1 designs crash on 48 of 384 flights at 115 mm instead of 31, and on 66 at 135 mm instead of 44 (below). Crashes still fall monotonically with the arm.
+- **Part of 7o's arm effect was mass.** At the same arm, the heavier frame law crashes less on 253 of 350 design-points and more on 5. A fixed-effects fit gives −0.14 to −0.18 flights (of 64) per mm of arm *and* −0.15 to −0.89 per 100 g.
+- **The sizing model amplifies frame mass 6-15 times.** A frame 20-43 g lighter at the tuned arm makes the sized vehicle 0.18-0.64 kg lighter through the battery-and-motor closure. On the same tunes the lighter vehicles crash on 160 and 151 of 384 flights instead of 73 and 105. Every mass-dependent result in this programme carries that sensitivity until the closure is checked against built quadrotors.
+- **For a builder:** stretching your frame's arms costs about 0.26 g per mm of wheelbase in carbon. The robustness a longer arm buys on a fixed tune is smaller than 7o reported, because 7o's model added more mass with the arm than a real stretched frame does.
+- Predictions: P1, P2, P3 (above only) and P6 held; P4, P5 and P7 refuted (`LOG.md`).
+
+![Left: listed frame weights against wheelbase from 150 to 350 mm, with the assumed law (a shallow line from 110 to 190 g), the cross-brand fit (steeper, 40 to 270 g) and the stretched-design slope (dashed, 85 to 135 g) through the GEPRC Mark4 and Foxeer Aura points. Middle and right: diverged flights of 384 at lever 2, 45 degrees, for the lever-1 designs against arm length under four frame laws. With the stretched-design slope the curve falls more slowly and runs to 150 mm; with the cross-brand slope it falls fast but ends at 110-115 mm; with the cross-brand law itself the designs start from 136-139 crashes at 105 mm.](experiments/m7p_frame_law/m7p_frame_law.png)
+
+## Milestone 7o: how long should a quadrotor's arms be for gust robustness on a fixed tune? Longer keeps helping until the design stops being valid
+
+**Question.** Milestone 7n found that a few millimetres more arm cuts a fixed design's crashes at twice the centre-of-pressure lever. Does that keep going, is there a best arm length once the extra frontal area and lever (more gust torque) are counted, and what limits it? No training: the arm of each of 48 fixed designs (7e, 7l `t45 cap wide`, 7m `aware cap wide`, 7n `aware cap wide fixL`; 6 seeds × 2 rigid geometries) swept from 85 to 135 mm, with the full sizing model and with the gust exposure held at its own-L value, scored on the same 64 held-out flights with the proportional-request cap.
+
+**Headline (`experiments/m7o_arm_sweep/results.txt`, `analysis.txt`; simulated; 7 predictions committed first).**
+
+- **Crashes fall monotonically with the arm, with no interior optimum.** At twice the lever and a 45° tilt limit, the lever-1 designs go from 62 to 6 of 384 flights between 105 and 130 mm (`above`) and from 103 to 44 between 105 and 135 mm (`below`); no design of 46 has a curve that turns back up.
+- **Validity is the limit, not robustness.** Below its tuned length a design fails the stability-margin test (47 of 48 fail at 85 mm; none at or above its own length). Above, the frame mass feeds the battery and motors: the lever-1 `above` designs gain 26% mass and 42% hover power by 120 mm and 98% and 188% by 135 mm, and 7e's heavier designs run into the cost cap from 110-120 mm.
+- **The extra gust exposure costs up to a third of the gain.** With frontal area and centre-of-pressure lever held fixed, the lever-1 `below` designs drop to 12 crashes at 135 mm instead of 44.
+- **A longer arm alone matches the lever-aware co-design.** The lever-1 tune at 110 mm (`above`) or 135 mm (`below`) crashes no more than 7m's lever-aware designs (52 against 53; 44 against 52) at slightly lower mass and hover power (1.41 against 1.45 kg; 1.38 against 1.40 kg) and the same tracking. The tuners stop short because their scores barely see the doubled lever or price mass through hover power, not because longer arms stop helping.
+- **For a builder:** on an existing tune, lengthen arms rather than shorten them (shorter can fail the stability margin), and stop where hover power starts to climb steeply.
+- **Method note:** a sub-micron change in a design's arm flipped one marginal flight in a first run; single-flight differences between nearby designs are noise.
+- Predictions: O1, O2, O4, O5, O6 held; O3 (an interior optimum) and O7 (flat tracking) refuted (`LOG.md`).
+
+![Left: diverged flights out of 384 at lever 2, 45 degrees, with the cap, against frame arm length, drawn where all six seeds are valid. Every curve falls: lever-1 designs above from 62 at 105 mm to 6 at 130 mm, below from 103 at 105 mm to 44 at 135 mm; 7e below from 55 at 100 mm to 5 at 135 mm. Middle: the same with frontal area and centre-of-pressure lever held at each design's own values; curves fall further, to 1 and 12. Right: seeds that pass the stability margin test and feasibility at each length: none at 85 mm, all six from about 105 mm, and 7e above falls to none by 120 mm as its mass runs away.](experiments/m7o_arm_sweep/m7o_arm_sweep.png)
+
+## Milestone 7n: does a longer frame arm make a quadrotor co-design robust to an uncertain centre of pressure? A little, on a given design; it is not why the robust designs are robust
+
+**Question.** Milestone 7m's lever-aware designs (trained across centre-of-pressure levers 0-2, with the capped proportional request and the wide position-gain box) crashed less at twice the lever than 7l's lever-1 designs and had longer frame arms, which 7m read as the handle that buys torque per weight. Here that reading gets a control: 7m's training repeated with the arm pinned at 7l's length (0.102 and 0.103 m; 6 seeds, 2 starts, both rigid geometries), and an arm swap with no training: each 7l design given 7m's arm, and each 7m design given 7l's.
+
+**Headline (`experiments/m7n_fixed_arm/results.txt`; simulated; 8 predictions committed first).**
+
+- **Pinning the arm costs no robustness.** At lever 2, 45°, with the cap, the pinned-arm designs crash on 39 and 46 of 384 flights, against 53 and 52 with the arm free and 73 and 105 for 7l. Per seed they crash less or equally in 11 of 12. The tuner gets there through mass and gains instead (1.50 and 1.40 kg; position kp 22 s⁻²), with one heavy basin per geometry as in 7i and 7m.
+- **On a fixed design, a longer arm helps a little.** Raising only the arm of each 7l design by 4-7 mm cuts the lever-2, 45° crashes from 73 to 59 and from 105 to 87 (fewer in 11 of 12 seeds) and does not hurt tracking. It is not free: on this sizing model the frame mass grows with the arm, so the swap adds 4% mass and 6-7% hover power while torque per weight rises 5-7%.
+- **Shortening an arm can break the design.** Half of the 7m designs given 7l's shorter arm fail the stability-margin test the tuner trained under (rho up to 1.0008), and one no longer clears its propellers.
+- **Correction to 7m:** the arm was read there as raising torque "without mass"; on this model it raises torque faster than mass, not without it.
+- **For a builder:** a few millimetres more arm is a cheap robustness margin on an existing tune. It is not what makes a robustly-trained co-design robust, and shortening the arm of a tune that sits on its stability margin can push it over.
+- Predictions: N1, N2, N3, N4 (in one geometry), N7, N8 held; N5 and N6 refuted (`LOG.md`).
+
+![Left: diverged flights out of 768 with the cap. Lever 2 at 20 degrees: 7e 50, 7l t45 cap wide 94, 7l long arm 79, aware cap wide 53, 7m short arm 66, aware cap wide with the arm fixed 52. Lever 2 at 45 degrees: 64, 178, 146, 105, 132, 85. Lever 3 at 20 degrees: 227, 365, 311, 234, 295, 227. Right: each design's lever-2, 45-degree crash count before and after only its arm changes: lengthening 7l's arms moves every arrow down or level; shortening 7m's arms moves most by minus 2 to plus 1, one design that no longer clears its propellers from 13 to 20, and two heavy designs at 116 and 122 mm from 0 to 8.](experiments/m7n_fixed_arm/m7n_fixed_arm.png)
+
+## Milestone 7m: if a quadrotor co-design is asked to survive an uncertain centre of pressure, what does it do with a wider position-gain box? It takes most of the stiffness, keeps part of the mass, and lengthens the arms
+
+**Question.** Milestone 7l gave a lever-1 tuner a capped proportional request (3.5 m/s²) and a position-gain box widened from 10 to 31.6 s⁻²; it took about 27 s⁻² and spent it on a 11-19% lighter airframe that crashed more at twice the centre-of-pressure lever. Milestone 7i's lever-aware objective (levers 0, 1 and 2 in the training score) pulled the other way and bought mass, which on this sizing model is torque authority. With both present, which wins? Two arms, trained at 45° with the cap and the lever-aware objective: `aware cap` (box 10 s⁻²) and `aware cap wide` (box 31.6 s⁻²); 6 seeds, 2 starts, both rigid geometries, scored on the same 64 held-out flights (26 conditions, including lever 3, outside all training) against 7e, 7i's lever-aware designs and 7l's `t45 cap wide`.
+
+**Headline (`experiments/m7m_aware_wide/results.txt`; simulated; 7 predictions committed first).**
+
+- **The lever-aware objective does not undo the stiffness.** `aware cap wide` picks a mean position kp of 23.8 (`above`) and 24.3 s⁻² (`below`), against 7l's 27.5 and 27.2; with the old box (`aware cap`) every seed stays at 9.95-10.00 s⁻², as in every earlier arm.
+- **It keeps part of the mass and lengthens the arms.** `aware cap wide` weighs 1.45 kg (`above`) and 1.40 kg (`below`): heavier than 7l's 1.29 and 1.10, lighter than the lever-aware designs at the old box (1.60 and 1.53). Its frame arm grows (0.106 and 0.110 m against 0.094-0.103 for every other set), so roll/pitch torque per newton of weight is the highest of any set (0.070 and 0.073 m against 0.062-0.068).
+- **It tracks best at the trained levers.** At lever 1 with the cap its held-out cost beats 7e by 0.030 (`above`, 5 of 6 seeds) and 0.044 (`below`, 6 of 6), the largest gains of the five sets.
+- **Robustness lands in between.** At lever 2, 45°, with the cap: 53 and 52 crashes of 384 against 7l's 73 and 105 (7e: 12 and 52; `aware cap`: 19 and 26). At lever 2, 20°, `below`: 32 against the lever-aware 7i designs' 20. At lever 3: 107 and 127 against 7l's 142 and 223.
+- **It still needs the cap.** Without it at 45°, 231-250 of 384 flights crash (7l: 267-284).
+- **For a builder:** asking for robustness to the centre of pressure doesn't stop the tuner from using a higher position gain behind a cap. It makes the tuner pay for the gain partly in arm length, not only in lost mass. You still give up some robustness at twice the lever, and the cap stays safety-critical.
+- Predictions: M1, M2, M3, M5, M7 held; M4 (`above` lighter than 7e) and M6 refuted (`LOG.md`).
+
+![Left: diverged flights out of 768 (12 designs times 64) with the cap. At lever 2 and 20 degrees: 7e 50, 7i aware 26, 7l t45 cap wide 94, aware cap 29, aware cap wide 53. At lever 2 and 45 degrees: 64, 40, 178, 45, 105. At lever 3 and 20 degrees: 227, 153, 365, 159, 234. Right: each design's mass against its chosen position gain: 7e, 7i and aware cap at 10 per second squared and 1.1 to 2.0 kg; 7l t45 cap wide at 21 to 31 and 1.0 to 1.4 kg; aware cap wide at 20 to 31 and 1.15 to 1.99 kg.](experiments/m7m_aware_wide/m7m_aware_wide.png)
 
 ## Milestone 7l: should you retune a quadrotor at a 45° tilt limit, and does a wider gain box help? Retuning buys nothing; a wider box buys a lighter, fragile vehicle
 
@@ -326,6 +518,33 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
 "$PY" experiments/m7k_fixes/figure.py          # m7k_fixes.png
 "$PY" experiments/m7l_train45/run.py           # about 100 minutes on 4 cores: retrain at 45 deg; SMOKE=1 for a 2-minute check (never the held-out seed)
 "$PY" experiments/m7l_train45/figure.py        # m7l_train45.png
+"$PY" experiments/m7m_aware_wide/run.py        # about 2 h 10 min on 4 cores (resumable from .cache): lever-aware objective with the cap and the wide box; SMOKE=1 for a 4-minute check
+"$PY" experiments/m7m_aware_wide/figure.py     # m7m_aware_wide.png
+"$PY" experiments/m7n_fixed_arm/run.py         # about 70 min on 4 cores (resumable from .cache): 7m with the arm pinned, plus arm swaps; SMOKE=1 for a 3-minute check
+"$PY" experiments/m7n_fixed_arm/figure.py      # m7n_fixed_arm.png
+"$PY" experiments/m7p_frame_law/fit_frames.py  # seconds: frame-mass laws from data/frames/frames_hobbyrc.csv -> frame_law.json/.txt
+"$PY" experiments/m7p_frame_law/run.py         # about 12 minutes on 4 cores: 7o's sweep under four frame laws (SIZING_ONLY=1: sizing table, no flights)
+"$PY" experiments/m7p_frame_law/analyse.py && "$PY" experiments/m7p_frame_law/posthoc.py && "$PY" experiments/m7p_frame_law/figure.py
+python3 experiments/m7q_closure/collect.py <cache>  # downloads the retailers' public catalogues; rewrites data/components/ (listings change: a new snapshot, not a reproduction)
+python3 experiments/m7q_closure/fit.py         # seconds, stdlib: closure constants -> closure.json/.txt
+"$PY" experiments/m7q_closure/run.py           # about 16 minutes on 4 cores: 48 designs under seven closures (SIZING_ONLY=1: sizing and emax only, seconds)
+"$PY" experiments/m7q_closure/analyse.py && "$PY" experiments/m7q_closure/verdicts.py && "$PY" experiments/m7q_closure/figure.py
+"$PY" experiments/m7r_retune/run.py           # about 2 h on 4 cores (48 CMA-ES runs, cached in .cache/; then 11 min of held-out flights)
+"$PY" experiments/m7r_retune/verdicts.py && "$PY" experiments/m7r_retune/figure.py
+"$PY" experiments/m7s_lag/run.py              # about 15 min on 4 cores (72 designs x 9 lag laws x 4 conditions; no training)
+"$PY" experiments/m7s_lag/verdicts.py && "$PY" experiments/m7s_lag/figure.py
+"$PY" experiments/m7t_lag_src/run.py          # about 1.7 h on 4 cores (48 CMA-ES runs at the sourced 36 ms lag, cached in .cache/; then 5 min of held-out flights)
+"$PY" experiments/m7t_lag_src/verdicts.py && "$PY" experiments/m7t_lag_src/figure.py
+"$PY" experiments/m7u_slow_end/run.py         # about 1.4 h on 4 cores (48 CMA-ES runs at 39.1 ms, cached in .cache/; then 4 min of held-out flights)
+"$PY" experiments/m7u_slow_end/verdicts.py && "$PY" experiments/m7u_slow_end/posthoc.py && "$PY" experiments/m7u_slow_end/figure.py
+"$PY" experiments/m7v_lag_rand/run.py         # about 1.6 h on 4 cores (48 CMA-ES runs across 33-39.1 ms, cached in .cache/; then 6 min of held-out flights)
+"$PY" experiments/m7v_lag_rand/verdicts.py && "$PY" experiments/m7v_lag_rand/posthoc.py && "$PY" experiments/m7v_lag_rand/figure.py
+"$PY" experiments/m7w_slow45/run.py           # about 1.8 h on 4 cores (48 CMA-ES runs at 45 ms, cached in .cache/; then 7 min of held-out flights)
+"$PY" experiments/m7w_slow45/verdicts.py && "$PY" experiments/m7w_slow45/posthoc.py && "$PY" experiments/m7w_slow45/figure.py
+"$PY" experiments/m7x_knee/run.py             # about 2.6 h on 4 cores (48 CMA-ES runs at 52 and 60 ms, cached in .cache/; then 7 min of held-out flights)
+"$PY" experiments/m7x_knee/verdicts.py && "$PY" experiments/m7x_knee/posthoc.py && "$PY" experiments/m7x_knee/corner_bind.py && "$PY" experiments/m7x_knee/figure.py
+"$PY" experiments/m7y_response/run.py         # about 2.5 min on 4 cores (7x's 48 designs, no retraining; step and wind-step tests)
+"$PY" experiments/m7y_response/verdicts.py && "$PY" experiments/m7y_response/posthoc.py && "$PY" experiments/m7y_response/figure.py
 python3 paper/check_numbers.py                  # stdlib; every number the paper draft quotes against its results file
 ```
 
@@ -337,11 +556,11 @@ python3 paper/check_numbers.py                  # stdlib; every number the paper
 - Milestones 7 and 7b use a feed-forward of fixed gain 1. Milestone 7b's explanation of which designs diverge (the integral-to-proportional gain ratio) is post hoc and rests on two design families; milestone 7c's linear analysis is a necessary test only: it is linearised about hover, and the clips and mixer saturation where divergence happens are outside it (milestone 7d found that the 20° tilt-command limit, not the integrator clip, is what contains its false alarms, from a post-hoc sweep on one geometry); its ki/kp ceiling is numerical, per design, with no closed form yet.
 - Milestone 6's translation model (drag, noise, perfect altitude hold, one wind state driving both the drag and the disturbance torque) is inherited and assumed. Milestone 6b derives the rigid-frame signs and retrains under them, but the centre-of-pressure lever is still assumed (0.05 + 0.3 L, swept 0–2×), the gust torque goes from world-frame wind straight to body axes, and lever 2 was not retrained. Six seeds, two starts.
 - Milestone 5 re-scores designs without retuning them in RotorPy; its aerodynamic coefficients are the Hummingbird's scaled by momentum-theory exponents, not measured for these propellers; the altitude loop is assumed; 32 episodes.
-- Attitude steps only (milestones 1–4), 2 s episodes, five seeds (ten in milestone 4), one κ. The mass, cost and motor fits and the plant ranges are inherited assumptions, not catalogue data. No hardware.
+- Attitude steps only (milestones 1–4), 2 s episodes, five seeds (ten in milestone 4), one κ. The cost fit and the plant ranges are inherited assumptions. Milestone 7q sourced the battery, motor-mass and propulsive-efficiency constants from listings and found the 60-step closure unconverged near its edge; milestones before 7q ran on the inherited closure (`SIZE_SOLVE = "iter60"`). No hardware.
 
 ## Next steps
 
-Milestone 7i follow-up: an objective that weights the crash rate directly (or more lever-2 training episodes), so the `above` geometry gets a signal; torque per unit gust torque as the design variable, checked against the sizing (7i: mass, not thrust-to-weight, tracks robustness); the widened position-gain box under milestone 7i's lever-aware objective, to see whether the stiffness 7l found the tuner wants is then spent on torque rather than on a lighter airframe, and a sweep of the 3.5 m/s² cap with the wide box (7l: retraining at 45° buys nothing over 7k's cap, and with the cap and a wider box kp rises to 22-31 s⁻² and the vehicle gets lighter and fragile); map that cap onto a velocity-setpoint limit in a two-loop cascade; a retrofit that keeps the battery and gives up endurance. Milestone 7d follow-up: a describing-function prediction of the oscillation the 20° tilt-command limit contains, to say when a linear instability stays bounded; milestone 7e follow-up: a margin sweep (0.6–1.0× the ceiling) to price the margin against tilt-limit robustness, the same constraint for milestone 7's commanded-torque feed-forward, and a lever-2 divergence analysis for the `below` geometry, where the linear gain test does not bind; a closed-form approximation of the ceiling in lat, motor lag and the position gains. Milestone 6b follow-up: a mixer feed-forward that cancels the counter-torque's side force (the mixer knows lat), or a cant pattern whose side-force map is a rotation, so neither axis is singled out; a measured centre-of-pressure height for a real frame (wind-tunnel or CFD literature) to pin the lever. Milestone 3: motor catalogue data replacing the inherited fits, with TWR free under the polytope mixer. It needs a source this session could not reach (T-Motor's thrust tables are images and its store blocks the proxy); a transcription of a dozen datasheets with the source of each row would unblock it. Milestone 5 follow-up: retune the top designs inside RotorPy to separate model mismatch from overfitting to the stylised simulator, and give INDI a speed-lag actuator model. Then the paper draft (milestone 7) (`PROPOSAL.md`, "Milestones").
+Milestone 7w follow-up: 52 ms and 60 ms tuning floors to find where slower stops paying, with the certificate also checked at the fast identified corner (33 ms) as a constraint; separate the slower floor from the higher training ceiling (39.1 ms × U(1, 2.3)); 12 seeds for the best floor against 7u; a slow-weighted or worst-case objective over the range; redo 7r's two open steps (a flight-time requirement instead of a fixed 15 min, LiPo at about 12 min) at the chosen floor; a measured step response for one 4-inch and one 6-inch motor-propeller pair to source the diameter exponent.
 
 ## Owner steps
 

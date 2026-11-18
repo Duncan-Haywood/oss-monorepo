@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqygFGsDaWFQBg6pDRLk",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T11:39:28Z",
+  "ended": "2026-11-17T11:52:53Z",
+  "wall_minutes": 13.84,
+  "tokens_in": 16703243,
+  "tokens_out": 131720,
+  "cost_usd": 9.0903,
+  "tool_calls": 180,
+  "task": "quality census (mode drawn by quality_audit.py), seed 2026-11-17-1d50",
+  "projects": [
+    "ventures/ppp-pricing-table-generator",
+    "ventures/reseller-books",
+    "ventures/irrigation-winterization-bid-calculator",
+    "research/robofab-mujocotorque",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16925",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "The track prompt describes only the sample round (step 1 'sample', step 5 round-N post); the README's five modes and `sample`'s NOTE that today is census mode are the real instructions. Cost a re-read; the prompt could say 'run `quality_audit.py mode` first'."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "census mode says `census --n 6`; with the 90-day skip and four parallel auditors, four was the size that fit one session's review budget. Fine as a default, but the README does not say how many subjects a session is expected to verify by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "census --n 4 instead of --n 6, so every audit could be spot-checked by rerunning its headline check and every high/medium fix could land with a test in one session",
+      "did": "audited 4, rerun-checked all 4, fixed the worst defect in each",
+      "result": "4 audits validated, 4 subject fixes plus a repo-wide page fix landed"
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "step 4 says fix what is small and safe; the irrigation audit's low-severity 'agent-process text on a public page' turned out to be on 184 pages in 162 products, too repeated to leave as one low defect",
+      "did": "rewrote the sentences mechanically (regex over whitespace-wrapped variants, hand edits for 25 other phrasings), ran every affected product's page/vs tests (0 fails), added platform/ci/check_agent_text_on_pages.py (+ test), picked up by main_health.py",
+      "result": "check passes on the tree; one test that pinned the old wording updated"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-quality-census-pages-that-talked-about-the-agent.md"
+  ],
+  "goal": null,
+  "notes": "Mode census (seeded draw), seed 2026-11-17-1d50. Subjects: ventures/ppp-pricing-table-generator (2/3/2/3/2/3/2), ventures/reseller-books (2/2/1/2/2/2/2), ventures/irrigation-winterization-bid-calculator (3/3/2/2/3/2/2), research/robofab-mujocotorque (3/3/2/2/3/2/3). Share meeting the bar: 0 of 4 (census; sampled share unchanged 33 of 306, Wilson 8%-15%). Finished 3 of 4. Seeded mutations caught 11 of 24. Spot-checks rerun by the orchestrator: irrigation indep.py vs run.mjs (76.3125/77.55/96.9375 match), reseller run3.mjs (profit 117.44 with partial costs, confirmed), PPP PK 9.99 < 10.15 floor (confirmed), MuJoCo recompute.py (residual 6.53e-13 after subtracting 1e-9(a1+a2), confirmed); jaw-capped ranges recomputed from results.json (0.248-1.92 N m; per-row worst diff 8.6e-8 to 2.8e-6 over 12 rows, README had said six). Fix PRs: #16925 (all fixes in this PR: reseller eBay partial-cost profit, PPP floor/cap after rounding, irrigation blank field + 2 mutant-killing tests, mujocotorque README, 184 venture pages' agent-session text + check). Tests: reseller 30/30, ppp 31/31, irrigation 119/119, mujocotorque 5/5, page/vs tests of all 162+ touched products 0 fails, platform test_check_agent_text_on_pages 3/3, research homepage build ok, check_md_links ok, post front matter ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7a221d65-0203-5521-aacd-e90e19e27620",
+    "transcripts": 5,
+    "first": "2026-11-17T11:39:28Z",
+    "last": "2026-11-17T11:53:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 172,
+        "input": 345,
+        "output": 131720,
+        "thinking": 34712,
+        "cache_read": 16136563,
+        "cache_write_5m": 434478,
+        "cache_write_1h": 131857,
+        "api_equivalent_usd": 9.0903,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 172,
+      "input": 345,
+      "output": 131720,
+      "thinking": 34712,
+      "cache_read": 16136563,
+      "cache_write_5m": 434478,
+      "cache_write_1h": 131857,
+      "api_equivalent_usd": 9.0903,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.966,
+    "tool_calls": 180,
+    "tools": {
+      "Bash": 161,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Read": 2,
+      "ReadNotifications": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.84,
+      "active_minutes": 9.91,
+      "model_minutes": 5.77,
+      "tool_minutes": 4.15,
+      "waiting_on_human_minutes": 3.93,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 20.22
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "four first audits with independent recomputation (~2.5 h each) plus four fixes with tests and a 184-page copy sweep with a lint",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 154.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

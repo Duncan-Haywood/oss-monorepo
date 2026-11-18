@@ -40,6 +40,8 @@ HERE = Path(__file__).resolve().parent
 ARGS, sys.argv = sys.argv[1:], sys.argv[:1]
 sys.path.insert(0, str(HERE)); sys.path.insert(0, str(HERE.parent))
 from llmci import audit_design as A  # noqa: E402
+A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 import h7ak_width_forecast as K  # noqa: E402
 
 CATS = ("gratitude", "curiosity", "disapproval", "anger")

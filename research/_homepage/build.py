@@ -13,7 +13,9 @@ research/<slug>/. Directories under research/ starting with `_` or `.` are not p
 projects.json or README.md, or if either lists a project that does not exist.
 """
 import argparse
+import fnmatch
 import html
+import os
 import json
 import re
 import shutil
@@ -39,10 +41,50 @@ def readme_ledes():
     return ledes
 
 
+_TREE = None
+
+
+def research_tree():
+    """One walk of research/ for the three readers that each used to rglob it (2026-11-17: 2,161
+    rglob walks of the 456 MB tree were a third of the build). Returns (py, dirs, files_by_slug):
+    `py` is every entry anywhere under research/ whose name matches *.py, `dirs` every directory
+    name below research/, and files_by_slug[slug] every file under research/<slug>/ as relative
+    parts. Same match rules as Path.rglob: hidden entries included, symlinked dirs not entered."""
+    global _TREE
+    if _TREE is None:
+        py, dirs, by_slug = [], set(), {}
+        stack = [((), RESEARCH)]
+        while stack:
+            rel, path = stack.pop()
+            try:
+                with os.scandir(path) as it:
+                    entries = list(it)
+            except PermissionError:
+                continue
+            for e in entries:
+                is_dir = e.is_dir(follow_symlinks=False)
+                if fnmatch.fnmatchcase(e.name, "*.py"):
+                    py.append(e.name)
+                if is_dir:
+                    dirs.add(e.name)
+                    stack.append((rel + (e.name,), e.path))
+                elif rel and e.is_file():
+                    by_slug.setdefault(rel[0], []).append(rel[1:] + (e.name,))
+        _TREE = (py, dirs, by_slug)
+    return _TREE
+
+
+def slug_files(slug, pattern):
+    """Path.rglob(pattern) over research/<slug>/, files only, from the shared walk."""
+    root = RESEARCH / slug
+    return [root.joinpath(*parts) for parts in research_tree()[2].get(slug, ())
+            if fnmatch.fnmatchcase(parts[-1], pattern)]
+
+
 def test_count(slug):
     return sum(
         len(re.findall(r"^\s*def test_", f.read_text(errors="ignore"), re.M))
-        for f in (RESEARCH / slug).rglob("test*.py")
+        for f in slug_files(slug, "test*.py")
     )
 
 
@@ -58,8 +100,8 @@ _OWN = None
 def own_modules():
     global _OWN
     if _OWN is None:
-        _OWN = ({f.stem for f in RESEARCH.rglob("*.py")}
-                | {d.name for d in RESEARCH.rglob("*") if d.is_dir()})
+        py, dirs, _ = research_tree()
+        _OWN = {Path(n).stem for n in py} | dirs
     return _OWN
 
 
@@ -67,7 +109,7 @@ def third_party_imports(slug):
     std = set(sys.stdlib_module_names) | {"__future__"}
     found = set()
     root = RESEARCH / slug
-    for f in root.rglob("*.py"):
+    for f in slug_files(slug, "*.py"):
         parts = f.relative_to(root).parts
         if "tests" in parts or "__pycache__" in parts:
             continue
@@ -106,7 +148,26 @@ def validate(data, ledes):
             for k in ("slug", "title", "summary"):
                 if not p.get(k):
                     errors.append(f"projects.json: research/{p.get('slug')} has no {k}")
+            errors += [f"research/{p.get('slug')}: {e}" for e in card_text_errors(p.get("summary", ""))]
     return errors
+
+
+# A sed replacement containing `&` expands each `&` to the matched text, which
+# turned "4&ndash;5" into "4<old phrase>ndash;5" in 11 summaries and pasted
+# 70 KB of other cards into one (quality audit 2026-11-17, ambient-startcount).
+BARE_ENTITY_RE = re.compile(r"(?<=[\w)%])(?:nbsp|ndash|mdash|minus|times|thinsp|plusmn|rsquo|radic|le|ge|lt|gt);(?=\S)")
+
+
+def card_text_errors(summary):
+    """Signs of a corrupted card summary: an HTML entity whose `&` was eaten,
+    or other cards' markup pasted in."""
+    errs = []
+    m = BARE_ENTITY_RE.search(summary)
+    if m:
+        errs.append(f"summary has an entity without its '&' near {summary[max(0, m.start() - 40):m.end() + 10]!r}")
+    if "<h2>" in summary:
+        errs.append(f"summary holds page markup ({len(summary)} characters)")
+    return errs
 
 
 # One page per theme at research/topics/<id>/: the level between the index and a project.
@@ -364,8 +425,11 @@ def with_site_chrome(page, chrome, root, replace_topbar, header_key="header", fi
 
     `chrome` is the JSON platform/pages/build.mjs writes from site-nav.mjs, so the
     markup is defined once, in JavaScript, for every page on the site. On the
-    research index the site header replaces this page's own top bar; on a project
-    page it sits above it, and the bar stays as the "← All projects" sub-nav.
+    research index, a topic page and a project page the site header replaces the
+    page's own top bar. (Until 2026-11-15 topic and project pages kept the bar under
+    the header as a "← All projects | GitHub" row: 56 px that repeated the trail's
+    Research link, led to the topic index rather than a project list, and pointed
+    GitHub at the whole repository. The project's own code links sit in "Links".)
 
     Topic and project pages take the breadcrumb variants (`topic_header`, `project_header`);
     `fill` supplies their other placeholders as already-escaped text."""
@@ -402,15 +466,31 @@ def text(s):
     return html.escape(plain(s).strip(), quote=True)
 
 
-def shared_title(p, themes):
+def title_index(themes):
+    """({title: slugs}, {clipped <title> text: slugs}) over every project in `themes`.
+
+    Built once per build and handed to each project page. Until 2026-11-16 each of the 1,080
+    pages re-clipped every other project's title to compare (1.16 M `plain` calls), about
+    half of a build; tests build the site four times
+    (docs/history/ci-perf-2026-11-16-research-title-index.md)."""
+    full, clipped = {}, {}
+    for t in themes:
+        for q in t["projects"]:
+            full.setdefault(q["title"], set()).add(q["slug"])
+            clipped.setdefault(title_tag(plain(q["title"])), set()).add(q["slug"])
+    return full, clipped
+
+
+def shared_title(p, themes, index=None):
     """Whether another project has the same title, so the page title needs the slug to be unique."""
-    return any(q["title"] == p["title"] and q["slug"] != p["slug"] for t in themes for q in t["projects"])
+    full, _ = index or title_index(themes)
+    return bool(full.get(p["title"], set()) - {p["slug"]})
 
 
-def clipped_title_taken(p, themes):
+def clipped_title_taken(p, themes, index=None):
     """True when another project's <title> clips to the same text as this one's."""
-    mine = title_tag(plain(p["title"]))
-    return any(title_tag(plain(q["title"])) == mine and q["slug"] != p["slug"] for t in themes for q in t["projects"])
+    _, clipped = index or title_index(themes)
+    return bool(clipped.get(title_tag(plain(p["title"])), set()) - {p["slug"]})
 
 
 def topic_chips(themes, current, root):
@@ -446,7 +526,7 @@ def more_in_topic(theme, i, ledes):
 
 
 def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=None, chrome=None,
-                 themes=(), index=0, ledes=None):
+                 themes=(), index=0, ledes=None, titles=None):
     slug = p["slug"]
     if not (RESEARCH / slug / "README.md").is_file():
         raise ValueError(f"research/{slug} has no README.md")
@@ -488,8 +568,8 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
         "TOKENS": tokens, "THEME_VARS": theme_vars, "SLUG": slug, "TITLE": p["title"], "LEDE": lede, "SUMMARY": p["summary"],
         "DESC": html.escape(plain(p["summary"])[:240]), "THEME_ID": theme["id"], "THEME_NAME": theme["name"],
         "STATS": stats, "FIGURE": figure, "LOG": log_html(slug), "LINKS": links, "REPO_URL": REPO_URL, "REPO": REPO,
-        "TITLE_TEXT": text(p["title"]) + (f" (research/{slug})" if shared_title(p, themes) else ""),
-        "TITLE_TAG": html.escape(title_tag(plain(p["title"]))) + (f" (research/{slug})" if shared_title(p, themes) or clipped_title_taken(p, themes) else ""), "THEME_COUNT": str(len(theme["projects"])),
+        "TITLE_TEXT": text(p["title"]) + (f" (research/{slug})" if shared_title(p, themes, titles) else ""),
+        "TITLE_TAG": html.escape(title_tag(plain(p["title"]))) + (f" (research/{slug})" if shared_title(p, themes, titles) or clipped_title_taken(p, themes, titles) else ""), "THEME_COUNT": str(len(theme["projects"])),
         "PAGER": pager(theme, index), "MORE": more_in_topic(theme, index, ledes or {}),
         "TOPICS": topic_chips(themes, theme["id"], "../"),
     }.items():
@@ -501,7 +581,7 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
         page = published_page(page, slug, base_url, chrome is None)
         page = page.replace("</head>", project_ld(p, theme, base_url) + "</head>", 1)
     if chrome:
-        page = with_site_chrome(page, chrome, "../../", replace_topbar=False, header_key="project_header",
+        page = with_site_chrome(page, chrome, "../../", replace_topbar=True, header_key="project_header",
                                 fill={"TOPIC_ID": theme["id"], "TOPIC": text(theme["name"]), "TITLE": text(p["title"])})
     (d / "index.html").write_text(page)
 
@@ -539,7 +619,7 @@ def topic_page(theme, themes, ledes, tests, tokens, theme_vars, tmpl, out, base_
             [(text(p["title"]), f"research/{p['slug']}/") for p in theme["projects"]],
             [("Research", "research/"), (text(theme["name"]), f"research/{TOPICS_DIR}/{theme['id']}/")]) + "</head>", 1)
     if chrome:
-        page = with_site_chrome(page, chrome, "../../../", replace_topbar=False, header_key="topic_header",
+        page = with_site_chrome(page, chrome, "../../../", replace_topbar=True, header_key="topic_header",
                                 fill={"TOPIC": text(theme["name"])})
     (d / "index.html").write_text(page)
 
@@ -731,11 +811,12 @@ def build(out, base_url=None, chrome=None):
     head = (HERE / "template.html").read_text()
     tokens = head[head.index("<style>") + len("<style>"):head.index("*{box-sizing")].strip()
     failures = []
+    titles = title_index(data["themes"])
     for t in data["themes"]:
         for i, p in enumerate(t["projects"]):
             try:
                 project_page(p, t, ledes[p["slug"]], tests[p["slug"]], tokens, theme_vars, tmpl, out, base_url, chrome,
-                             data["themes"], i, ledes)
+                             data["themes"], i, ledes, titles)
             except Exception as e:  # noqa: BLE001
                 failures.append(f"project page for research/{p['slug']}: {e}")
     # One page per topic: research/topics/<id>/index.html.

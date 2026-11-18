@@ -39,11 +39,14 @@ cyclehound src/                          # every circular import; exit 1 if any 
 cyclehound --no-type --no-dynamic src/   # only loops that run when the files load
 cyclehound --json src/ > cycles.json     # components, cycles, edges with line numbers
 cyclehound --graph --json src/           # whole graph, madge --json shape
-cyclehound --unresolved src/             # relative imports that point at no file
+cyclehound --unresolved src/             # relative or alias imports that point at no file
 cyclehound --orphans src/                # files nothing imports
+cyclehound --unused-exports src/         # exports no file imports; exit 1 if any
 ```
 
-Options: `--ext a,b,c` (default `js,mjs,cjs,jsx,ts,mts,cts,tsx`),
+Options: `--entries` (with `--unused-exports`, also report the exports of
+files nothing imports, which are skipped by default as entry points),
+`--ext a,b,c` (default `js,mjs,cjs,jsx,ts,mts,cts,tsx`),
 `--no-type`, `--no-dynamic`, `--no-require`, `--no-follow` (stay inside the
 given paths), `--ignore-dir NAME`, `--no-gitignore`, `--base DIR`, `--warn`
 (report but exit 0). It respects `.gitignore` and always skips
@@ -66,7 +69,8 @@ Component 4 (4 files):
    matched for `import ... from "x"`, `import "x"`, `export ... from "x"`,
    `import("x")` and `require("x")`; `import type` and `export type` are
    tagged so `--no-type` can drop them.
-2. **Resolve** relative specifiers: the exact file, each extension, a
+2. **Resolve** relative specifiers, and aliases through `tsconfig.json`
+   (see "Path aliases" below): the exact file, each extension, a
    TypeScript `./x.js` that means `x.ts`, then `index.<ext>`. Package names
    are left out. Files reached outside the given folder are read too (madge
    does the same), unless `--no-follow`.
@@ -76,11 +80,60 @@ Component 4 (4 files):
 4. **List** a shortest cycle (breadth-first, inside the component) through
    each file, duplicates removed.
 
+## Unused exports
+
+`--unused-exports` does the job of `ts-unused-exports` (or knip's unused
+exports check) on the same lexer. On this repository's 11,736 `.mjs` files it
+took 0.3 s and 30 MB where ts-unused-exports 11.0.1 took 11 s and 380 MB, and
+the two agree on 5,419 findings; every difference is explained in
+[`BENCHMARK.md`](BENCHMARK.md). What counts as taking an export:
+
+- `import d, { a, b as c } from "./x"` takes `default`, `a` and `b`;
+  `const { a, b: c } = await import("./x")` takes `a` and `b`.
+- `import * as ns`, a dynamic import kept whole, and `require()` take every
+  export (member reads on the namespace are not followed); `import "./x"`
+  takes none.
+- `export { a as b } from "./x"` passes a request for `b` on to `a` in x;
+  `export * from "./x"` passes on every name the file does not export
+  itself (never `default`).
+- A name used only inside its own file is still reported: the `export`
+  keyword is what is unused.
+
+Files nothing imports are entry points (a page script, a CLI, a test, a
+package's public API), so their exports are skipped unless `--entries`.
+CommonJS `module.exports` is not read.
+
+## Path aliases
+
+`import x from "@/lib/x"` goes through the `paths` and `baseUrl` of the
+nearest `tsconfig.json` above the importing file (or a `jsconfig.json` in a
+directory with no tsconfig), by TypeScript's own rules:
+
+- `extends` (a relative path or an array of them) is followed; each of
+  `paths` and `baseUrl` comes whole from the nearest config that sets it.
+  Package configs (`"extends": "@tsconfig/node18"`) are not read.
+- `paths` targets are relative to `baseUrl`, or with none, to the config
+  that sets `paths`. An exact pattern beats a wildcard; among wildcards the
+  longest prefix wins; targets are tried in order.
+- With `baseUrl` set, a bare specifier no pattern matched is tried as
+  `baseUrl/<spec>`; when that is not a file it stays a package.
+- Targets in `node_modules` or ending `.d.ts` are package typings and stay
+  out of the graph.
+- An alias whose pattern matched but no target exists (`@/lib/gone`) is
+  listed by `--unresolved`; a `"*"` pattern's miss is taken as a package.
+
+`--no-tsconfig` turns this off. On this repository the 16 tsconfigs in
+`ventures/` add 1,436 alias edges (11,560 to 12,996), and TypeScript 5.9.3's
+`resolveModuleName` sends the same 1,436 imports to the same files
+([`BENCHMARK.md`](BENCHMARK.md), "Path aliases").
+
 ## Limits
 
-- No path aliases yet (`tsconfig.json` `paths`, webpack `resolve.alias`):
-  `@/lib/x` is treated as a package. On this repository that leaves 360
-  alias imports in a few Next.js apps unchecked. The next slice.
+- No bundler aliases (webpack `resolve.alias`, Vite `resolve.alias`): those
+  live in JavaScript config files, not JSON.
+- The tsconfig search walks up the paths as given: run from the project root
+  or above it (`cyclehound src` finds `./tsconfig.json`; running inside
+  `src/` does not look above the working directory).
 - No `package.json` `exports`/`imports` maps, and no workspace packages: an
   import of a sibling package by name is not followed.
 - A lexer, not a parser: JSX text containing a quote on the same line as an
@@ -90,7 +143,7 @@ Component 4 (4 files):
 
 ## Browser build
 
-[`web/cyclehound.wasm`](web/cyclehound.wasm) (249 KB, plain C ABI, no
+[`web/cyclehound.wasm`](web/cyclehound.wasm) (274 KB, plain C ABI, no
 wasm-bindgen) with [`web/cyclehound.mjs`](web/cyclehound.mjs) as the loader.
 Rebuild it after changing `src/`:
 
@@ -103,7 +156,7 @@ cp target/wasm32-unknown-unknown/release/cyclehound.wasm web/
 ## Tests
 
 ```sh
-cargo test --release                      # lexer, resolver, components, cycles (13 tests)
+cargo test --release                      # lexer, resolver, aliases, components, cycles, exports (26 tests)
 cargo clippy --release --all-targets -- -D warnings
 node --test web/cyclehound.test.mjs page.test.mjs usage.test.mjs
 ```

@@ -19,6 +19,21 @@ BASE = "https://example.test/site/"
 LD = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.S)
 
 
+_BARE = []
+
+
+def bare_build():
+    """One build with no base URL or site chrome, shared by the classes that only read it
+    (2026-11-16: two classes each built the same site, a fifth of this module's time)."""
+    if not _BARE:
+        tmp = tempfile.TemporaryDirectory()
+        unittest.addModuleCleanup(tmp.cleanup)
+        out = Path(tmp.name) / "research"
+        subprocess.run([sys.executable, str(BUILD), "--out", str(out)], check=True, capture_output=True, text=True)
+        _BARE.append(out)
+    return _BARE[0]
+
+
 def graph(html):
     nodes = []
     for block in LD.findall(html):
@@ -106,8 +121,50 @@ class ResearchPublishTest(unittest.TestCase):
         self.assertLess(len(html), 2_000 * len(self.projects))
 
 
-if __name__ == "__main__":
-    unittest.main()
+class ResearchSiteChromeTest(unittest.TestCase):
+    """With the parent site's header (as platform/pages/build.mjs publishes it), a topic or project
+    page carries that header and its trail only: the page's own "← All projects | GitHub" bar used
+    to sit under it, 56 px repeating the trail's Research link (polish, 2026-11-15)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        tmp = Path(cls.tmp.name)
+        chrome = tmp / "chrome.json"
+        chrome.write_text(json.dumps({
+            "header": '<header class="pfs-test">site</header>',
+            "topic_header": '<header class="pfs-test">site › {{TOPIC}}</header>',
+            "project_header": '<header class="pfs-test">site › {{TOPIC}} › {{TITLE}}</header>',
+            "footer": "<p>links</p>", "style_file": "pf-site.css"}))
+        cls.out = tmp / "research"
+        subprocess.run([sys.executable, str(BUILD), "--out", str(cls.out), "--base-url", BASE,
+                        "--site-chrome", str(chrome)], check=True, capture_output=True, text=True)
+        cls.bare = bare_build()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def pages(self, root):
+        topics = [t / "index.html" for t in (root / "topics").iterdir()]
+        projects = [p / "index.html" for p in root.iterdir()
+                    if (p / "index.html").is_file() and p.name not in ("topics", "fonts")]
+        return topics, projects
+
+    def test_site_header_replaces_the_page_bar(self):
+        topics, projects = self.pages(self.out)
+        self.assertGreater(len(projects), 100)
+        for f in [self.out / "index.html", *topics, *projects]:
+            html = f.read_text()
+            self.assertEqual(html.count('<header class="pfs-test">'), 1, f)
+            self.assertNotIn('<header class="topbar">', html, f)
+
+    def test_standalone_project_bar_names_where_it_goes(self):
+        topics, projects = self.pages(self.bare)
+        for f in projects:
+            bar = re.search(r'<header class="topbar">(.*?)</header>', f.read_text(), re.S).group(1)
+            self.assertIn("← All research", bar, f)
+            self.assertIn(f"/tree/main/research/{f.parent.name}\"", bar, f)
 
 
 class ResearchIndexLengthTest(unittest.TestCase):
@@ -116,13 +173,7 @@ class ResearchIndexLengthTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.tmp = tempfile.TemporaryDirectory()
-        cls.out = Path(cls.tmp.name)
-        subprocess.run([sys.executable, str(BUILD), "--out", str(cls.out)], check=True, capture_output=True, text=True)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.tmp.cleanup()
+        cls.out = bare_build()
 
     def test_logs_newest_cards_then_every_log_listed(self):
         index = (self.out / "index.html").read_text()
@@ -211,6 +262,47 @@ class InlineMarkdownTest(unittest.TestCase):
         self.assertEqual(self.b.inline_md("[t](https://e.x)"), '<a href="https://e.x">t</a>')
 
 
+class TitleIndexTest(unittest.TestCase):
+    """title_index (2026-11-16) replaced a scan of every other project per page; the
+    answers must match that scan on the real registry and on made-up clashes."""
+
+    @classmethod
+    def setUpClass(cls):
+        InlineMarkdownTest.setUpClass.__func__(cls)
+
+    def check(self, themes, without_index=False):
+        b = self.b
+        # The old answer: compare with every other project (each clipped title computed once here).
+        every = [(q["slug"], q["title"], b.title_tag(b.plain(q["title"]))) for t in themes for q in t["projects"]]
+        index = b.title_index(themes)
+        for t in themes:
+            for p in t["projects"]:
+                clip = b.title_tag(b.plain(p["title"]))
+                old = (any(s != p["slug"] and title == p["title"] for s, title, _ in every),
+                       any(s != p["slug"] and c == clip for s, _, c in every))
+                got = (b.shared_title(p, themes, index), b.clipped_title_taken(p, themes, index))
+                self.assertEqual(got, old, p["slug"])
+                if without_index:
+                    self.assertEqual((b.shared_title(p, themes), b.clipped_title_taken(p, themes)), old)
+
+    def test_matches_the_pairwise_scan_on_the_registry(self):
+        sys.path.insert(0, str(BUILD.parent))
+        try:
+            import registry
+            themes = registry.load(ROOT / "research")["themes"]
+        finally:
+            sys.path.remove(str(BUILD.parent))
+        self.check(themes)
+
+    def test_matches_the_pairwise_scan_on_clashes(self):
+        long = "Does a very long question title clip to the same forty-eight characters"
+        self.check([
+            {"projects": [{"slug": "a", "title": "Same"}, {"slug": "b", "title": "Same"},
+                          {"slug": "c", "title": long + " here?"}, {"slug": "d", "title": long + " there?"}]},
+            {"projects": [{"slug": "a", "title": "Same"}, {"slug": "e", "title": "<em>Alone</em> &amp; unique"}]},
+        ], without_index=True)
+
+
 class LogFormatTest(unittest.TestCase):
     """A research LOG.md with no `## <date> · <title>` entry is silently dropped from its project page
     and from the index (2026-11-12: research/marine-colregs fell out that way)."""
@@ -220,3 +312,43 @@ class LogFormatTest(unittest.TestCase):
                  if not p.parent.name.startswith(("_", "."))
                  and not any(l.startswith("## ") for l in p.read_text().splitlines())]
         self.assertEqual(empty, [], "these LOG.md files need `## <date> · <title>` entry headings")
+
+
+class ResearchTreeTest(unittest.TestCase):
+    """research_tree (2026-11-17) replaced 2,161 Path.rglob walks of research/ with one;
+    the three readers must see the same files the rglob calls saw."""
+
+    @classmethod
+    def setUpClass(cls):
+        InlineMarkdownTest.setUpClass.__func__(cls)
+
+    def test_matches_rglob_on_a_made_up_tree(self):
+        b = self.b
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for rel in ("alpha/src/pkg/core.py", "alpha/tests/test_core.py", "alpha/test_top.py",
+                        "alpha/__pycache__/core.cpython-311.py", "alpha/.hidden/secret.py",
+                        "alpha/data/notes.txt", "alpha/deep/a/b/c/leaf.py", "beta/run.py",
+                        "beta/test_x.PY", "_shared/linefig.py", "top.py", "README.md"):
+                f = root / rel
+                f.parent.mkdir(parents=True, exist_ok=True)
+                f.write_text("import numpy\nfrom pkg import x\ndef test_a():\n    pass\n")
+            (root / "empty").mkdir()
+            saved = b.RESEARCH, b._TREE, b._OWN
+            b.RESEARCH, b._TREE, b._OWN = root, None, None
+            try:
+                for slug in ("alpha", "beta", "_shared", "empty", "missing"):
+                    for pattern in ("*.py", "test*.py"):
+                        self.assertEqual(sorted(b.slug_files(slug, pattern)),
+                                         sorted(f for f in (root / slug).rglob(pattern) if f.is_file()),
+                                         (slug, pattern))
+                self.assertEqual(b.own_modules(),
+                                 {f.stem for f in root.rglob("*.py")} | {d.name for d in root.rglob("*") if d.is_dir()})
+                self.assertEqual(b.test_count("alpha"), 2)
+                self.assertEqual(b.third_party_imports("alpha"), {"numpy"})
+            finally:
+                b.RESEARCH, b._TREE, b._OWN = saved
+
+
+if __name__ == "__main__":
+    unittest.main()

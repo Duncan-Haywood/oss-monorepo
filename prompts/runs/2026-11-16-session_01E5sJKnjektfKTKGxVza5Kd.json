@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKnjektfKTKGxVza5Kd",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T22:09:49Z",
+  "ended": "2026-11-16T22:15:24Z",
+  "wall_minutes": 5.76,
+  "tokens_in": 4660962,
+  "tokens_out": 29198,
+  "cost_usd": 2.3818,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16720",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "TUM RGB-D host refused the proxy (CONNECT 403, three probes), so the planned re-solve with k1/k2 pinned could not run; did the first-order version on stored solves instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/sensing-selfcal/experiments/m3e_axis/run.py",
+      "issue": "stores corr(f,k1) and corr(f,k2) but not corr(k1,k2) or the full intrinsics covariance, so two-term conditioning could not be done from stored results; next runs that solve should store the full covariance"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py chose /usr/bin/python3.13 which lacks cv2, so the project's older tests (test_m3b etc.) fail to collect locally; requirements.txt has opencv but the doc suggests listing packages by hand"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/sensing-selfcal/README.md",
+      "why": "the next step named there (re-solve with k1,k2 fixed) needs the TUM video and the host refused the proxy",
+      "did": "pre-registered and ran a first-order conditioning on stored solves (milestone 3f) and labelled the re-solve as 3g",
+      "result": "two of four predictions held; found that pinning k1 alone worsens fr1, a useful result that sharpens what 3g must test"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-pin-a-cameras-whole-lens-model-not-one-coefficient.md",
+    "research/sensing-selfcal/LOG.md (3f plan + result)",
+    "research/sensing-selfcal/paper/draft.md (Section 4: milestones 3c-3f)"
+  ],
+  "goal": null,
+  "notes": "Local checks: tests/test_m3f.py, test_m3e.py, test_m3d.py 14 passed (/usr/bin/python3.13); paper/check_numbers.py 288 of 288; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; post front matter, links and similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "17eddb10-09bd-5fa4-b007-4f6a8b83443c",
+    "transcripts": 1,
+    "first": "2026-11-16T22:09:49Z",
+    "last": "2026-11-16T22:15:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 88,
+        "output": 29198,
+        "thinking": 6430,
+        "cache_read": 4549941,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110933,
+        "api_equivalent_usd": 2.3818,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 88,
+      "output": 29198,
+      "thinking": 6430,
+      "cache_read": 4549941,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110933,
+      "api_equivalent_usd": 2.3818,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 44,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.76,
+      "active_minutes": 5.76,
+      "model_minutes": 4.58,
+      "tool_minutes": 1.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "pre-registration, analysis script and tests, write-up of one milestone plus a paper section by a PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 251.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -165,5 +165,5 @@ export function estimate(input) {
   return { o, here, zones, day, days, findings };
 }
 
-export const money = (x) => (x < 0 ? "-" : "") + "$" + Math.abs(Math.round(x * 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(x * 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 export const pct = (x) => (Math.round(x * 1000) / 10).toFixed(1) + "%";

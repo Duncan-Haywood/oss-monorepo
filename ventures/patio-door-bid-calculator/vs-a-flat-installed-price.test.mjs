@@ -110,6 +110,11 @@ test('the worked-example table figures match calc.mjs run against the shipped pr
   assert.match(html, /\$7,975\.38/);
   assert.match(html, /\$23,344\.28/);
   assert.match(html, /\$970\.12/);
+  // These are bids at the target margin, not walk-away (break-even) prices:
+  // the default job's walk-away is $1,883.68, so $1,800 loses $83.68, not $970.12.
+  assert.equal(cheapest.breakEvenPrice.toFixed(2), '1883.68');
+  assert.doesNotMatch(html, /walks away at \$(2,770\.12|7,975\.38|23,344\.28)/);
+  assert.doesNotMatch(html, />Walk-away price</);
   assert.match(html, /\$6,175\.38/);
   assert.match(html, /\$21,544\.28/);
 });

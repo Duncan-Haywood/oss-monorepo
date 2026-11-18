@@ -498,3 +498,29 @@ test("error and sale line numbers count blank lines, so they match the file", ()
   assert.deepEqual(r.sales.map((s) => s.line), [6]);
   assert.match(r.errors[0], /^Line 8: date not readable/);
 });
+
+// Red team 2026-11-15 (second campaign): three mutants escaped this suite.
+test("ISO dates with one-digit month and day are read", () => {
+  assert.equal(isoDate(parseDate("2025-3-5")), "2025-03-05");
+  assert.equal(isoDate(parseDate("2025-03-5")), "2025-03-05");
+});
+
+test("a summary line with only a total above the header is skipped, not taken as the header", () => {
+  const r = evaluate(["Statement summary,Total value", "Date,Symbol,Action,Quantity,Price",
+    "2025-01-02,AAPL,buy,10,100", "2025-06-01,AAPL,sell,10,80"].join("\n"));
+  assert.equal(r.error, undefined);
+  assert.equal(r.summary.grossLoss, 200);
+});
+
+test("a wash under one dollar still counts as a washed sale", () => {
+  const r = evaluate(csv("2025-01-02,AAPL,buy,1,100,Taxable", "2025-06-01,AAPL,sell,1,99.5,Taxable", "2025-06-05,AAPL,buy,1,99,Taxable"));
+  assert.equal(r.summary.disallowed, 0.5);
+  assert.equal(r.summary.washed, 1);
+});
+
+test("a date with a stray digit is refused, not read as a nearby day (red team 2026-11-15)", () => {
+  // "2025-03-091" read as 9 March could move a sale in or out of the 30-day window without a word.
+  assert.equal(parseDate("2025-03-091"), null);
+  assert.equal(parseDate("03/09/20251"), null);
+  assert.equal(isoDate(parseDate("2025-03-09T10:00")), "2025-03-09");
+});

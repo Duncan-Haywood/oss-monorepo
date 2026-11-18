@@ -19,8 +19,8 @@ const num = (v) => {
   return Number.isFinite(n) ? n : NaN;
 };
 const opt = (v, d) => (String(v ?? "").trim() === "" ? d : num(v));
-const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
-const money2 = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(2);
+const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
+const money2 = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toFixed(2));
 const DAYS = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 export function parseMonths(text) {
@@ -150,7 +150,7 @@ export function summaryText(r) {
   return L.join("\n");
 }
 
-const csvCell = (v) => { const s = String(v); return /^[=+\-@\t\r]/.test(s) || /[",\n]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) ? "'" : "") + s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { const s = String(v); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) || /[",\n]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" : "") + s.replace(/"/g, '""')}"` : s; };
 export function monthsCsv(r) {
   const head = ["month", "days_open", "customers_per_day", "revenue", "product_cost", "card_fees", "labor", "utilities", "fixed", "profit", "break_even_customers_per_day", "verdict"];
   const lines = [head.join(",")];

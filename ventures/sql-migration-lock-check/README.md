@@ -38,7 +38,7 @@ another statement in the file:
 
 | Check | Why a statement-at-a-time rule cannot see it |
 |---|---|
-| `no-lock-timeout` | Whether an exclusive-lock statement is protected depends on whether a `SET lock_timeout` appears **above** it. |
+| `no-lock-timeout` | Whether an exclusive-lock statement is protected depends on whether a `SET lock_timeout` appears **above** it and is still in force: `SET LOCAL` ends at `COMMIT`/`ROLLBACK`, a `ROLLBACK` undoes a `SET` made inside the block, and `SET ... = 0`, `TO DEFAULT`, `RESET lock_timeout` and `RESET ALL` turn it off. |
 | `validate-in-same-transaction` | `ADD CONSTRAINT ... NOT VALID` and `VALIDATE CONSTRAINT` are each individually correct and idiomatic. Together inside one `BEGIN` block they hold the lock for the whole validation, so the two-step split buys nothing. |
 | `create-index-concurrently-in-tx` | `CREATE INDEX CONCURRENTLY` is the *fix* — unless it sits inside a transaction block, where PostgreSQL refuses it outright. |
 | `set-not-null-full-scan` | On PostgreSQL 12+ this is either a metadata change or a full scan under an exclusive lock, and which one depends entirely on whether something earlier added a **validated** `CHECK`. |
@@ -116,7 +116,7 @@ against the PostgreSQL version you actually run.
 
 | File | What it is |
 |---|---|
-| `sql.mjs` | Statement splitter: comments (nesting block comments included), string literals, dollar-quoted bodies, transaction depth |
+| `sql.mjs` | Statement splitter: comments (nesting block comments included), string literals, dollar-quoted bodies, explicit transaction blocks (flat, as in PostgreSQL: `ROLLBACK TO SAVEPOINT` leaves one open, `ABORT` closes one, `AND CHAIN` reopens one) |
 | `engine.mjs` | The fifteen checks. Pure functions over text; no I/O |
 | `check.mjs` | CLI |
 | `usage.mjs` | Anonymous local-storage feature counts, opt-out, DNT/GPC honoured |

@@ -14,7 +14,7 @@ export const YEARS = { 2025: "2025/26", 2026: "2026/27" };
 export const PA = 12570, TAPER_START = 100000, PA_GONE = 125140, BASIC_BAND = 37700, NI_PT = 12570, NI_UEL = 50270;
 export const PENSION_ALLOWANCE = 60000;
 
-const money = (n) => "GBP " + Number(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const money = (n) => "GBP " + Number(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0");
 const r2 = (n) => Math.round(n * 100) / 100;
 const pct = (x) => Math.round(x * 1000) / 10 + "%";
 

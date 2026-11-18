@@ -205,7 +205,7 @@ test("donors with missing outcome data are dropped with a note; bad input gives 
 });
 
 test("parseCsv handles quotes, CRLF and a BOM", () => {
-  const p = parseCsv('﻿unit,"time",y\r\n"A, Inc",1,"2"\r\nB,1,3\r\n');
+  const p = parseCsv('\uFEFFunit,"time",y\r\n"A, Inc",1,"2"\r\nB,1,3\r\n');
   assert.deepEqual(p.header, ["unit", "time", "y"]);
   assert.equal(p.records[0].unit, "A, Inc");
   assert.equal(p.records.length, 2);

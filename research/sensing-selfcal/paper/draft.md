@@ -141,6 +141,31 @@ neither σ is usable as an error bar; from about 10 views the plain jackknife is
 one. On the right camera the two real references disagree (1.22–1.66 at 4–6 views), so its views do not
 add independent offsets and its figures above 6 views are less certain.
 
+**Natural features (milestone 3b, pre-registered).** Every result above uses a board's corners. On ordinary
+hand-held video with SIFT tracks (Lowe 2004) instead (three TUM RGB-D sequences, two cameras, 57 counted windows of 12
+keyframes over 1.2 s, soft-L1 loss, k<sub>1</sub> + k<sub>2</sub>), the solver's σ is far less honest: rms z
+against the board calibration is 9.31, and the scatter of f across windows is 4.20, 8.38 and 11.74 times the
+median σ (desk sweep, translation along three axes, sideways pass), so the gap is not the reference's. A single
+window's f is off by a median 2.80% on the desk sweep and 7.24% on the sideways pass, and the σ hardly reacts to
+near-critical, translation-only motion (1.28× the desk's). The median of a sequence's windows is within 1.5% of
+the board calibration on all three. Natural features turn the 2× of board corners into 4–12×, so a field robot
+should take its uncertainty from the scatter of many short solves, not from one solve's covariance.
+
+**An honest bar for natural features, and what does not fix the bias (milestones 3c–3f, pre-registered).** A
+delete-one-keyframe jackknife (12 warm-started re-solves per window) brings rms z from 9.31 to 1.76 over the 57
+windows, while a sandwich clustered by track does not (6.63), so the missing error enters per keyframe, not per track.
+The honest bar is wide: a median 6.45% of f for one 1.2 s window. Pooling windows by DerSimonian&ndash;Laird random
+effects (DerSimonian and Laird 1986) keeps it honest (rms z 1.10 over five-window blocks), whereas treating windows as
+independent overstates precision (2.79) and grows worse with every window added; about eight windows (10 s of
+hand-held video) reach a 2.5% sd. Two candidate fixes for the bias that remains failed their predictions. The swing of
+the optical axis, which the solved poses read as well as motion capture does, does not predict a window's error
+(Spearman +0.08). And although a window's k<sub>1</sub> tracks its focal error (Spearman +0.59), conditioning f on the
+board's k<sub>1</sub> with k<sub>2</sub> free raises the median error from 5.25% to 7.01%: the windows draw nearly the board's
+distortion curve over the inner image but split it differently between k<sub>1</sub> and k<sub>2</sub>. Pinning both terms,
+from the full covariances the solves stored, is worse still: the median error rises to 8.72% and the conditional bar
+narrows by about 40%, so pooled windows become confidently wrong (rms z 3.07). At first order a past board calibration's
+distortion is not a usable prior for a 1.2 s window; the re-solve with it pinned is the open test.
+
 ## 5. An accept/reject test on disjoint view sets
 
 **Protocol.** For k = 3–6, 60 splits per k and camera draw an *old* set of 7 views and a disjoint
@@ -336,6 +361,72 @@ in the quarter it rates lowest. The twin's sd of f<sub>new</sub> − f<sub>old</
 views the ranking fails on the Kinect (AUC 0.42). A unit can therefore use its twin to choose when to test,
 not to promise a detection rate.
 
+**Waiting for better views (milestone 4m, pre-registered).** Choosing a split chooses its old set too,
+which a robot cannot do. Holding each old set fixed and letting the twin pick among the disjoint candidate
+new sets, its pick catches ±2% in 9.7% of old sets on the TUM cameras against 7.3% for a blind pick
+(×1.33, 7 candidates at 6 + 6) and ×1.63 among 28 candidates (5 + 6); on OpenCV's cameras ×1.17. The
+chosen splits' false alarms stay at 0.06–1.40%. The twin's predicted gain matches the real one within
+0.11 on 7 of 8 unit-designs, though its level is high, and the sd rule does as well. Some candidate would
+have caught the change in 19.2–55.1% of old sets, so most of what makes one new set luckier than another
+is not foreseeable from the twin.
+
+**Fitting the lens the camera has (milestone 4n, pre-registered).** Every TUM result above fits k<sub>1</sub>
+alone, which the Kinect's lens (TUM's d<sub>1</sub> = −0.95) does not follow. Re-solving the 5-, 6- and 7-view
+sets with k<sub>1</sub> + k<sub>2</sub> and re-scoring every 7 + 6 split with a k<sub>1</sub> + k<sub>2</sub> twin
+(same draws, solver and start) raised the pooled ±2% detection from 10.0% to 14.8%, all of it on the
+Kinect (fr1: 21.9% and 16.6% at −2% and +2%, against 11.0% and 8.6%), with its false alarms at 0.59% (k<sub>1</sub>:
+0.76%). The Kinect's 6-view focal lengths scatter less (robust spread ×0.81), and a real unit swap is
+caught in 16.3% and 17.0% of splits, against 6.3% and 7.9%. On the Xtion, whose images arrive
+undistorted, the second term changed nothing measurable (spread ×0.97). We had predicted the opposite, a
+precision cost and lower power. The unmodelled distortion was not inert: each view set absorbed a different
+share of it into f. The Kinect's target-free f stays +1.60% above TUM's with k<sub>2</sub>, while flat-board
+Zhang on the same corners falls to +0.09% once k<sub>2</sub> and k<sub>3</sub> are fitted, so the remaining bias
+belongs to the free board points, not to the lens order.
+
+**Fitting the lens, then waiting (milestone 4o, pre-registered).** With the k<sub>1</sub> + k<sub>2</sub> twin, milestone
+4l's ranking and milestone 4m's waiting rule were re-run on the stored solves (7 + 6 and 6 + 6; same draws).
+On the Kinect the twin's predicted power now matches the real ±2% rate (mean π over real 0.995, against
+1.34 with k<sub>1</sub>), it ranks splits slightly better (AUC 0.775 against 0.749), and the top quarter it
+rates highest catches 38.9% (k<sub>1</sub>: 20.3%). With the old set held fixed, its pick among 7 candidate new
+sets catches ±2% in 15.2% of old sets on the TUM units against 11.3% blind (×1.35), so the two gains multiply:
+on the Kinect, 6.2% blind with k<sub>1</sub> becomes 17.9% chosen with k<sub>1</sub> + k<sub>2</sub>, at 0.59% false
+alarms. On the Xtion the twin still overstates its power 1.96×, so an unmodelled lens term is one source of
+the twin's optimism, not the only one.
+
+**On views the test has never seen (milestone 4p, pre-registered).** Every figure above scores splits of one
+pool of 13 views. A second, disjoint pool of 13 was picked from each TUM sequence by the same rule (each
+frame at least 1 s from the first pool's), solved with k<sub>1</sub> + k<sub>2</sub> (9,440 solves), and the 7 + 6 test
+scored with the old set from one pool and the new set from the other, in both directions, against the
+per-split threshold of the two pools' twins. False alarms stay under the 2.5% bar (0.91% on the Kinect,
+1.90% on the Xtion) but not at nominal (1.40% pooled), against 0.59% and 0.12% in-sample, and ±2% is caught
+in 7.96% of splits against 14.76% in-sample. The second pool is flatter (median tilt 0.147 against 0.268 and
+0.063 against 0.101), its 6-view solves scatter twice as much (1.23% of f against 0.59% and 0.50%), and
+within it alone the Xtion's false alarms reach 4.44%; the across-pool power lies between the two pools' own
+(14.8% and 5.7%). The two 13-view calibrations agree to +0.17% and +0.58%, 0.98 and 2.71 of the twins' sd
+taken as iid noise; with the twins' own residual-pattern sd (std over their draws) the gaps are 0.29 and 1.59
+(milestone 4r), so the two calibrations are consistent.
+The in-sample false-alarm rates of this section are therefore lower bounds, and the test's safety depends on
+the geometry of the new views as well as on the threshold.
+
+**A per-view error in the twin (milestone 4r, pre-registered).** The twin's noise resamples each view's
+residual pattern and so carries no error shared by a whole view. Giving each view its own effective focal
+length, f + δf<sub>v</sub> with δf<sub>v</sub> ~ N(0, τ²), and fitting τ per pool so that the twin's robust spread of 6-view f
+matches the real one (only the pool's own solves are used) gives τ of 0.75% and 0.22% of f on the tilted
+pools and 1.88% and 1.80% on the flat ones. With that twin's per-split threshold every unit and pairing stays
+at or below 0.58% false alarms (the flat Xtion pool from 4.44%; 0.37% pooled), but ±2% is caught in 4.07% of
+splits against 9.08% (×0.45). A per-view f offset is the most costly shape the missing error could take; the
+safe threshold with the least lost power is open.
+
+**A third pool of views (milestone 4s, pre-registered).** A third disjoint 13 views per unit, picked by the same
+rule at least 0.5 s from the first two pools' frames, tests the jitter on views that did not suggest it. On the
+Xtion every pairing that holds the third pool stays at or below 0.53% false alarms. On the Kinect the third pool
+is well tilted, fits a small jitter (0.77% of f), and over-alarms at up to 7.47% (CC); borrowing the other two
+pools' mean τ leaves it at 7.18%, and pooled over the ten pairings the rate is 2.60%. That pool's 7-view solves
+hold 62 far solutions against one in the first pool, an error the robust 6-view spread the jitter is fitted to does
+not register. The three 13-view calibrations of each unit agree within 1.38 of the jittered twin's sd. A per-view
+jitter is therefore necessary on flat pools but not sufficient: the threshold must also account for far small-set
+solves.
+
 ## 8. Recommendations
 
 1. **Gate on a view-level jackknife, not the solver's covariance.** The reported covariance and a
@@ -375,9 +466,9 @@ One stereo rig, one board, one tutorial image set for Sections 3–7; two more u
 the update test, each one hand-held sequence of about 50 s; 13 views per camera, so the splits reuse views
 and the intervals are too narrow, and a 99th percentile from 180 statistics rests on about two of
 them (Section 7 shows how far that moved one result). Scoring every split removes the sampling of
-splits, not the reuse of views: it says nothing about a fresh set of views. The focal and principal-point changes are exact model transforms; the swaps (here and between the
-two TUM units) are the only real changes. The corners are checkerboard corners without mismatches; natural features (SIFT) are not yet
-tested. The renders leave out the bend, the clipboard and background clutter, vignetting and the
+splits, not the reuse of views; a second pool of 13 views per TUM unit (milestone 4p) shows the in-sample false alarms understate the fresh-view rate (1.40% against 0.35%), but both pools come from one session. The focal and principal-point changes are exact model transforms; the swaps (here and between the
+two TUM units) are the only real changes. The corners are checkerboard corners without mismatches; natural features (SIFT) are tested only on
+short windows of three TUM RGB-D sequences (Section 4). The renders leave out the bend, the clipboard and background clutter, vignetting and the
 sensor's own noise. Several findings (the half-width cause, the f-alone power figures in Section 5)
 were found after a pre-registered prediction failed and are labelled so in the log.
 
@@ -386,13 +477,21 @@ were found after a pre-registered prediction failed and are labelled so in the l
 - A second camera and board captured for this purpose (programme milestone 6, an owner step): a
   physically changed lens (zoom or refocus) for a real focal change, and enough views per unit to
   estimate each unit's own tail on views the test never touches.
-- Natural-feature correspondences (milestone 3b) on an openly licensed multi-view set with a target
-  calibration of the same camera.
+- Done for natural features on two cameras (milestones 3b–3g, Section 4): σ is 4–12× too small per 1.2 s window,
+  a keyframe jackknife makes it honest and random-effects pooling keeps it honest across windows; neither axis swing
+  nor a one- or two-coefficient distortion prior (first order) explains the remaining bias. Still needed: a re-solve with the whole prior
+  distortion model pinned, rolling shutter, and longer windows with loop closures.
 - Done for two units (Section 7, TUM RGB-D): the twin reference stays at or below nominal at 5–6 new
   views. Warm-started subset solves do not recover the power (milestone 4k: the far minima are real).
-  Choosing view sets by the twin's predicted power works as a ranking (milestone 4l); still needed: the
-  gain for a robot that holds one old set and waits for new views (more than 13 views per unit), and a twin that models the right camera's extra spread (a per-view offset
+  Choosing view sets by the twin's predicted power works as a ranking (milestone 4l), and with the old set
+  held fixed it gains ×1.33–1.63 on the TUM cameras (milestone 4m); fitting k<sub>2</sub> on the Kinect
+  doubles its power at 7 + 6 (milestone 4n), and waiting multiplies with it (milestone 4o: 6.2% to 17.9% on the Kinect); still needed: a stopping rule over
+  a longer stream of views (more than 13 per unit), and a twin that models the right camera's extra spread (a per-view offset
   term fitted to the unit's own jackknife) to bring that camera up to 1%.
+- Done for one session per unit (milestone 4p): a disjoint second pool of views keeps false alarms under 2.5%
+  but halves the power and shows the threshold must match the new views' geometry. Still needed: a reference
+  that conditions on the new set's own geometry (a twin of the new views, or a tilt gate), checked on a
+  third pool, and views from a different session of the same camera.
 - The robust-jackknife test (Section 7) pre-registered on a second unit's views, with both references:
   the model reference to confirm it stays conservative, and χ²<sub>1</sub> to see whether its 2–3%
   false alarms survive a unit with more views, where the model says they should rise. Every split of

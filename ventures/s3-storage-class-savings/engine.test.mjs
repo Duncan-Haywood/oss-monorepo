@@ -144,3 +144,13 @@ test("empty input and helpers", () => {
   assert.equal(money(-1234.5), "-$1,234.50");
   assert.equal(lifecycleConfig({ id: "STANDARD_IA", minAgeDays: 30 }, false).Rules[0].Filter.Prefix, "");
 });
+
+test("a custom retrieval price reaches the per-GB retrieval cost (red team 2026-11-18)", () => {
+  const text = csv(many(20, 10 * GIB));
+  const dflt = run(text), custom = run(text, { prices: { retrievalPerGB: { GLACIER: 0.05 } } });
+  assert.equal(custom.assumptions.prices.retrievalPerGB.GLACIER, 0.05);
+  assert.equal(custom.assumptions.prices.retrievalPerGB.DEEP_ARCHIVE, 0.02, "unnamed classes keep the default");
+  const a = cand(dflt, "GLACIER").unfiltered.retrieval12, b = cand(custom, "GLACIER").unfiltered.retrieval12;
+  assert.ok(a > 0);
+  near(b, a * 5, "five times the price, five times the retrieval cost");
+});

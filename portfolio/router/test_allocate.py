@@ -23,6 +23,8 @@ from allocate import (
     load_flagships,
     load_flagship_field,
     load_inputs_only,
+    load_flagship_hosts,
+    row_hosts,
     start_here,
     load_merit_scores,
     load_ventures as _load_ventures,
@@ -711,9 +713,6 @@ class ReexecTests(unittest.TestCase):
             ex.assert_not_called()
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 class FlagshipTests(unittest.TestCase):
     def flag(self, name, rank_, next_="Build the thing."):
@@ -779,6 +778,46 @@ class FlagshipTests(unittest.TestCase):
         self.assertIn("Context: Long history", task)
         self.assertIn("buildable here: (1) a second reader", venture_report("deep", [v]))
         self.assertNotIn("BUILDABLE", next_task(self.flag("plain", 1, "x")))
+        self.assertIn("--field buildable", task)
+        self.assertNotIn("--field buildable", next_task(self.flag("plain", 1, "x")))
+
+    def test_row_hosts_reads_the_hosts_field_then_the_prose(self):
+        v = self.flag("deep", 0, "Scans on archive.org; see README.md and calc.mjs, eval/x.jsonl.")
+        v.flagship_hosts = ["https://raw.pixls.us/"]
+        v.flagship_buildable = "samples from raw.pixls.us and omawww.sat.gob.mx (SAT)"
+        self.assertEqual(row_hosts(v), ["https://raw.pixls.us/", "https://omawww.sat.gob.mx/",
+                                        "https://archive.org/"])
+        self.assertEqual(row_hosts(self.flag("plain", 1, "README.md, flagships.yaml, v1.40")), [])
+
+    def test_row_hosts_reads_the_hosts_a_named_script_fetches(self):
+        # friction 2026-11-17: the row named eval/cord_images.py, not huggingface.co
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "books"
+            (root / "eval").mkdir(parents=True)
+            (root / "eval" / "cord_images.py").write_text(
+                "# Licence: https://creativecommons.org/licenses/by/4.0/\n"
+                "#   https://huggingface.co/datasets/x/resolve/abc/test.parquet\n"
+                "LOCAL = 'http://localhost:8000/'\n")
+            v = self.flag("books", 0, "x")
+            v.flagship_buildable = "CORD photos (eval/cord_images.py); eval/missing.py; ../../etc/passwd.sh"
+            self.assertEqual(row_hosts(v, ventures_dir=Path(d)), ["https://huggingface.co/"])
+            v.flagship_hosts = ["https://huggingface.co/x"]
+            self.assertEqual(row_hosts(v, ventures_dir=Path(d)), ["https://huggingface.co/x"])
+
+    def test_venture_report_probes_the_row_hosts_only_when_asked(self):
+        v = self.flag("deep", 0, "history")
+        v.flagship_hosts = ["https://archive.org/", "https://github.com/"]
+        out = venture_report("deep", [v], probe=lambda url: "github" in url)
+        self.assertIn("archive.org REFUSED; github.com answers", out)
+        self.assertNotIn("probed just now", venture_report("deep", [v]))
+
+    def test_load_flagship_hosts_takes_a_list_or_a_string(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "flagships.yaml"
+            p.write_text("flagships:\n  - venture: a\n    hosts: [https://a.org/]\n"
+                         "  - venture: b\n    hosts: https://b.org/ https://c.org/\n  - venture: c\n")
+            self.assertEqual(load_flagship_hosts(p), {"a": ["https://a.org/"],
+                                                      "b": ["https://b.org/", "https://c.org/"]})
 
     def test_load_flagship_field_folds_whitespace(self):
         with tempfile.TemporaryDirectory() as d:
@@ -814,6 +853,42 @@ class OpenPrClaimTest(unittest.TestCase):
         (14701, "league-schedule-generator: even carry-over + post", "2026-11-11T06:30:00Z"),
         (14000, "process: allocate.py notes", "2026-11-11T06:00:00Z"),
     ]
+
+    def test_reads_the_pulls_list_first_and_drops_fork_prs(self):
+        """The search index lagged new claims by 10+ minutes on 2026-11-15
+        (#16190, #16173); the REST pulls list does not lag."""
+        from unittest import mock
+        import allocate
+        repo = {"full_name": allocate.REPO}
+        pulls = [
+            {"number": 16190, "title": "shift-roster-builder: claim", "created_at": "2026-11-15T10:58:20Z",
+             "head": {"repo": repo, "ref": "claude/x"}},
+            {"number": 16191, "title": "shift-roster-builder: from a fork", "created_at": "2026-11-15T10:59:00Z",
+             "head": {"repo": {"full_name": "someone/oss-monorepo"}, "ref": "main"}},
+            {"number": 16192, "title": "deleted fork", "created_at": "2026-11-15T11:00:00Z",
+             "head": {"repo": None, "ref": "main"}},
+        ]
+        with mock.patch.object(allocate, "_search_pr_titles") as search:
+            got = allocate.open_pr_titles(pulls=lambda: pulls)
+        search.assert_not_called()
+        self.assertEqual(got, [(16190, "shift-roster-builder: claim", "2026-11-15T10:58:20Z")])
+
+    def test_drops_prs_already_squashed_or_merged_on_main(self):
+        """#16521 showed as an OPEN PR while its squash commit sat on main (2026-11-17)."""
+        import allocate
+        prs = [(16521, "a: landed", "x"), (16522, "b: open", "x"), (16523, "c: merged", "x")]
+        subjects = ["a: thing (#16521)", "Merge pull request #16523 from x/y", "mentions (#16522) mid-line only"]
+        self.assertEqual(allocate.drop_landed(prs, subjects), [(16522, "b: open", "x")])
+        self.assertIsNone(allocate.drop_landed(None, subjects))
+        self.assertEqual(allocate.drop_landed(prs, []), prs)
+
+    def test_falls_back_to_search_when_the_pulls_list_is_unreadable(self):
+        from unittest import mock
+        import allocate
+        rows = [(1, "t", "2026-11-15T00:00:00Z")]
+        with mock.patch.object(allocate, "_search_pr_titles", return_value=rows) as search:
+            self.assertEqual(allocate.open_pr_titles(pulls=lambda: None), rows)
+        search.assert_called_once()
 
     def test_matches_whole_slug_only(self):
         claims = claims_by_venture(["ai-bookkeeper", "bookkeeper", "league-schedule-generator", "sales-agent"], self.PRS)
@@ -871,6 +946,96 @@ class StartHereTests(unittest.TestCase):
         self.assertEqual(start_here(queue[:2], {}, now=now, session="abc"), (1, "v0"))
 
 
+class LeastClaimedTests(unittest.TestCase):
+    def test_names_the_row_whose_newest_claim_is_oldest_when_none_is_free(self):
+        from datetime import datetime, timezone
+        from allocate import least_claimed
+        now = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+        queue = [
+            {"venture": "a", "flagship": True, "task": "Deepen (flagship 1): x"},
+            {"venture": "stuck", "flagship": True, "task": "Inputs only (flagship 2): x"},
+            {"venture": "b", "flagship": True, "task": "Deepen (flagship 3): x"},
+            {"venture": "c", "flagship": True, "task": "Deepen (flagship 4): x"},
+        ]
+        claims = {"a": [(10, "a: x", "2026-11-17T11:30:00Z")],
+                  "b": [(11, "b: x", "2026-11-17T07:00:00Z"), (12, "b: y", "2026-11-17T10:00:00Z")],
+                  "c": [(13, "c: x", "2026-11-17T11:00:00Z"), (9, "c: old", "2026-11-01T00:00:00Z")]}
+        self.assertIsNone(start_here(queue, claims, now=now))
+        # b's newest claim (#12, 2 h) is older than c's (1 h) and a's (0.5 h).
+        self.assertEqual(least_claimed(queue, claims, now=now), (3, "b", 12, 2.0))
+        # Sessions spread over the least contested rows, never the inputs-only one.
+        picks = {least_claimed(queue, claims, now=now, session=f"s{n}", spread=2)[:2] for n in range(40)}
+        self.assertEqual(picks, {(3, "b"), (4, "c")})
+        # A free row means start_here answers, so there is no fallback.
+        self.assertIsNone(least_claimed(queue, {"a": claims["a"]}, now=now))
+        self.assertIsNone(least_claimed(queue, None, now=now))
+
+
+class LeftRowsTests(unittest.TestCase):
+    def _runs(self, records):
+        d = tempfile.TemporaryDirectory()
+        self.addCleanup(d.cleanup)
+        for i, (date, rec) in enumerate(records):
+            Path(d.name, f"{date}-session_{i}.json").write_text(json.dumps(rec))
+        return Path(d.name)
+
+    def test_counts_departures_not_claim_races_or_old_records(self):
+        from datetime import datetime, timezone
+        from allocate import left_rows, left_note
+        now = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+        dev = lambda why, f="portfolio/router/allocate.py": {"file": f, "why": why}
+        runs = self._runs([
+            ("2026-11-17", {"projects": ["ids-model-check"], "deviations": [
+                dev("Start here named roster; nothing buildable, ids-model-check had an item")]}),
+            ("2026-11-16", {"projects": ["ventures/ids-model-check"], "deviations": [
+                dev("roster's next: is solver tuning", "prompts/ventures/prompt-2.md")]}),
+            # A claim race, an unrelated file, and a record too old are not departures.
+            ("2026-11-17", {"projects": ["bk"], "deviations": [
+                dev("roster was claimed by PR #1 a minute earlier")]}),
+            ("2026-11-17", {"projects": ["bk"], "deviations": [
+                dev("roster: skipped the post", "docs/posts")]}),
+            ("2026-11-14", {"projects": ["bk"], "deviations": [dev("roster had nothing")]}),
+            # Worked the row it names: not a departure.
+            ("2026-11-17", {"projects": ["roster"], "deviations": [dev("roster first, then bk")]}),
+            ("2026-11-17", "not a record"),
+        ])
+        left = left_rows(["roster", "ids-model-check", "bk"], runs, now=now)
+        self.assertEqual([(d, t) for d, t, _ in left["roster"]],
+                         [("2026-11-16", "ids-model-check"), ("2026-11-17", "ids-model-check")])
+        self.assertEqual(set(left), {"roster"})
+        note = left_note("roster", left)
+        self.assertIn("2 session(s)", note)
+        self.assertIn("ids-model-check (2)", note)
+        self.assertIn("nothing buildable", note)  # the newest reason
+        self.assertIsNone(left_note("bk", left))
+
+    def test_worked_count_puts_leaves_in_proportion(self):
+        from datetime import datetime, timezone
+        from allocate import left_rows, left_note, worked_rows
+        now = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+        dev = {"file": "portfolio/router/allocate.py", "why": "roster had nothing buildable"}
+        runs = self._runs([
+            ("2026-11-17", {"projects": ["bk"], "deviations": [dev]}),
+            ("2026-11-17", {"projects": ["roster"]}),
+            ("2026-11-16", {"projects": ["ventures/roster"]}),
+            ("2026-11-14", {"projects": ["roster"]}),  # outside the window
+        ])
+        worked = worked_rows(["roster", "bk"], runs, now=now)
+        self.assertEqual(worked, {"roster": 2, "bk": 1})
+        left = left_rows(["roster", "bk"], runs, now=now)
+        note = left_note("roster", left, worked=worked["roster"], has_buildable=True)
+        self.assertIn("2 record(s) worked roster", note)
+        self.assertIn("Most sessions sent here found work", note)
+        self.assertIn("refresh its `buildable:`", note)
+        note = left_note("roster", left, worked=0)
+        self.assertNotIn("Most sessions", note)
+        self.assertIn("add `buildable:` or `inputs_only:`", note)
+
+    def test_no_runs_dir_means_no_hint(self):
+        from allocate import left_rows
+        self.assertEqual(left_rows(["x"], Path("/nonexistent-runs-dir")), {})
+
+
 class VentureReportTests(unittest.TestCase):
     def test_prints_the_full_next_open_prs_and_last_landing(self):
         from datetime import datetime, timezone
@@ -893,6 +1058,7 @@ class VentureReportTests(unittest.TestCase):
         import validate
         import allocate
         self.assertEqual(allocate.FLAGSHIP_NEXT_MAX, validate.FLAGSHIP_NEXT_MAX)
+        self.assertEqual(allocate.FLAGSHIP_BUILDABLE_MAX, validate.FLAGSHIP_BUILDABLE_MAX)
         deep = make("deep")
         deep.flagship_rank, deep.flagship_next = 0, "y" * 1990
         self.assertIn("1990 of 2000 characters", venture_report("deep", [deep]))
@@ -990,10 +1156,129 @@ class ClaimCheckTest(unittest.TestCase):
         from claim_check import report
         now = self.NOW
         lines = report(self.decide([], "x"), "x", now, 24)
-        self.assertTrue(any("--allow-empty" in l and "'x'" in l for l in lines), lines)
+        self.assertTrue(any("--allow-empty" in l and "'x: <item>'" in l for l in lines), lines)
         mine = [self.pr(3, "x: mine", "2026-11-12T14:05:00Z")]
         lines = report(self.decide(mine, "x", mine=3), "x", now, 24)
         self.assertFalse(any("--allow-empty" in l for l in lines), lines)
+
+    def test_item_lets_a_different_item_share_the_flagship(self):
+        # The 2026-11-13 changepoint-detector pair: #15407 and #15411 both merged.
+        prs = [self.pr(15407, "changepoint-detector: watch several metrics in one run (--columns)",
+                       "2026-11-12T14:00:00Z"),
+               self.pr(15411, "changepoint-detector: round 10 on NAB's 47 real series",
+                       "2026-11-12T14:04:00Z")]
+        r = self.decide(prs, "changepoint-detector", mine=15411, item="round 10 on NAB real series")
+        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual([x["number"] for x in r["sharing"]], [15407])
+        # Without --item the check stays slug-only.
+        self.assertEqual(self.decide(prs, "changepoint-detector", mine=15411)["verdict"], "YIELD")
+
+    def test_item_still_yields_to_the_same_item_or_a_bare_claim(self):
+        same = [self.pr(1, "x: deferred revenue register", "2026-11-12T14:00:00Z"),
+                self.pr(2, "x: mine", "2026-11-12T14:05:00Z")]
+        r = self.decide(same, "x", mine=2, item="deferred revenue waterfall")
+        self.assertEqual(r["verdict"], "YIELD")
+        bare = [self.pr(15717, "ai-bookkeeper: claim (WIP)", "2026-11-12T14:00:00Z"),
+                self.pr(15718, "ai-bookkeeper: deferred revenue", "2026-11-12T14:01:00Z")]
+        r = self.decide(bare, "ai-bookkeeper", mine=15718, item="deferred revenue")
+        self.assertEqual(r["verdict"], "YIELD")
+        self.assertEqual(r["sharing"], [])
+
+    def test_item_words_drop_slug_and_claim_vocabulary(self):
+        from claim_check import item_words, overlap
+        self.assertEqual(item_words("ai-bookkeeper: claim (WIP) + post", "ai-bookkeeper"), set())
+        self.assertEqual(overlap("x: a slice", "x", "anything"), "bare")
+        self.assertEqual(overlap("x: OCR totals", "x", "receipt totals"), "same")
+
+    def test_report_prints_share_and_the_item_in_the_recipe(self):
+        from claim_check import report, claim_recipe
+        prs = [self.pr(1, "x: solver gap", "2026-11-12T14:00:00Z"),
+               self.pr(2, "x: sales reader", "2026-11-12T14:05:00Z")]
+        r = self.decide(prs, "x", mine=2, item="sales reader")
+        lines = report(r, "x", self.NOW, 24, "sales reader")
+        self.assertTrue(any(l.startswith("SHARE:") for l in lines), lines)
+        self.assertTrue(any("#1 " in l for l in lines), lines)
+        self.assertIn('--item "sales reader"', claim_recipe("x", "sales reader"))
+        slug_only = report(self.decide(prs, "x", mine=2), "x", self.NOW, 24)
+        self.assertTrue(any("--item" in l for l in slug_only), slug_only)
+
+    @staticmethod
+    def merged_pr(n, title, created, merged, repo="duncan-haywood/oss-monorepo"):
+        return {"number": n, "title": title, "created_at": created, "merged_at": merged,
+                "head": {"ref": f"b{n}", "repo": {"full_name": repo}}}
+
+    def test_a_just_merged_pr_on_the_item_is_landed(self):
+        # 2026-11-16: #16574 merged the edge-time drop fit at 12:59; #16579 claimed it at 13:00.
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 16, 13, 5, tzinfo=timezone.utc)
+        mine = [self.pr(16579, "open-tennis-robots: edge-time drop fit on the whole drill",
+                        "2026-11-16T13:00:32Z")]
+        merged = [self.merged_pr(16574, "open-tennis-robots: the board surveys its own ESC lag "
+                                 "(ESC_SURVEY frame); edge-time drop fit tried, kept off + post",
+                                 "2026-11-16T12:41:37Z", "2026-11-16T12:59:41Z"),
+                  self.merged_pr(16467, "open-tennis-robots: empty-hopper verdict from the pre-ball speed",
+                                 "2026-11-16T05:20:03Z", "2026-11-16T05:49:39Z"),
+                  self.merged_pr(16600, "chant-forge: edge-time thing", "2026-11-16T12:00:00Z",
+                                 "2026-11-16T12:30:00Z"),
+                  {**self.merged_pr(16601, "open-tennis-robots: edge-time fit, closed unmerged",
+                                    "2026-11-16T12:00:00Z", None)}]
+        from claim_check import decide, report
+        r = decide(mine, "open-tennis-robots", mine=16579, now=now, item="edge-time drop fit",
+                   merged=merged)
+        self.assertEqual(r["verdict"], "LANDED")
+        self.assertEqual([x["number"] for x in r["landed"]], [16574])
+        self.assertEqual([x["number"] for x in r["merged"]], [16467])
+        lines = report(r, "open-tennis-robots", now, 24, "edge-time drop fit")
+        self.assertTrue(any(l.startswith("LANDED:") for l in lines), lines)
+        self.assertTrue(any("#16574 (merged 2026-11-16T12:59:41Z, 5 min ago)" in l for l in lines), lines)
+        # A merge on another item, or a slug-only check, never blocks: busy flagships land daily.
+        other = decide(mine, "open-tennis-robots", mine=16579, now=now, item="hopper refill alarm",
+                       merged=merged[:1])
+        self.assertEqual(other["verdict"], "HOLD")
+        self.assertEqual(decide(mine, "open-tennis-robots", mine=16579, now=now,
+                                merged=merged)["verdict"], "HOLD")
+
+    def test_merges_the_clone_already_holds_and_one_word_overlaps_do_not_land(self):
+        from datetime import datetime, timezone
+        from claim_check import decide, shares_item
+        now = datetime(2026, 11, 16, 18, 45, tzinfo=timezone.utc)
+        merged = [self.merged_pr(16635, "open-tennis-robots: the 1.48x wheel was a 3-revolution snapshot; "
+                                 "HOLD_RPM 3,000; fixed-time tach built, off + post",
+                                 "2026-11-16T17:00:00Z", "2026-11-16T17:42:41Z"),
+                  self.merged_pr(16574, "open-tennis-robots: edge-time drop fit tried, kept off",
+                                 "2026-11-16T12:41:37Z", "2026-11-16T12:59:41Z")]
+        # "fixed-time" shares only "time" with the item: listed, not LANDED.
+        self.assertFalse(shares_item(merged[0]["title"], "open-tennis-robots", "edge-time drop fit"))
+        self.assertTrue(shares_item("x: OCR totals", "x", "totals"))
+        clone = datetime(2026, 11, 16, 13, 30, tzinfo=timezone.utc)  # main already holds #16574
+        r = decide([], "open-tennis-robots", now=now, item="edge-time drop fit", merged=merged,
+                   main_at=clone)
+        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual([x["number"] for x in r["merged"]], [16635])
+        r = decide([], "open-tennis-robots", now=now, item="edge-time drop fit", merged=merged,
+                   main_at=datetime(2026, 11, 16, 12, 0, tzinfo=timezone.utc))
+        self.assertEqual(r["verdict"], "LANDED")
+
+    def test_merged_stale_fork_and_my_own_pr_do_not_land(self):
+        from datetime import datetime, timezone
+        from claim_check import decide
+        now = datetime(2026, 11, 16, 17, 0, tzinfo=timezone.utc)
+        merged = [self.merged_pr(1, "x: closure anchor", "2026-11-14T09:00:00Z", "2026-11-14T10:00:00Z"),
+                  self.merged_pr(2, "x: closure anchor", "2026-11-16T16:00:00Z", "2026-11-16T16:56:00Z",
+                                 repo="someone/fork"),
+                  self.merged_pr(3, "x: closure anchor", "2026-11-16T16:00:00Z", "2026-11-16T16:58:00Z")]
+        r = decide([], "x", mine=3, now=now, item="closure anchor", merged=merged)
+        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual(r["landed"] + r["merged"], [])
+
+    def test_an_open_older_claim_still_wins_over_landed(self):
+        from claim_check import decide
+        prs = [self.pr(1, "x: closure anchor", "2026-11-12T14:00:00Z"),
+               self.pr(2, "x: closure anchor", "2026-11-12T14:05:00Z")]
+        merged = [self.merged_pr(0, "x: closure anchor v1", "2026-11-12T13:00:00Z", "2026-11-12T13:30:00Z")]
+        r = self.decide(prs, "x", mine=2, item="closure anchor", merged=merged)
+        self.assertEqual(r["verdict"], "YIELD")
+        self.assertEqual([x["number"] for x in r["landed"]], [0])
 
 
 class RequestsLineTest(unittest.TestCase):
@@ -1030,3 +1315,114 @@ class RequestsLineTest(unittest.TestCase):
     def test_missing_or_empty_file_prints_nothing(self):
         self.assertEqual(requests_line(self.queue, Path("/nonexistent/requests.json")), "")
         self.assertEqual(requests_line(self.queue, self.write([])), "")
+
+
+class PostLimitsLineTests(unittest.TestCase):
+    def test_line_carries_the_checker_caps(self):
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "platform" / "ci"))
+        import check_post_frontmatter as cpf
+        from allocate import post_limits_line
+        line = post_limits_line()
+        self.assertTrue(line.startswith("post front matter:"))
+        self.assertIn(f"seo_title <= {cpf.LIMITS['seo_title']}", line)
+
+
+class MainFlagshipsTest(unittest.TestCase):
+    """refresh_tip + main_flagships: rows come from origin/main when a sibling's merge
+    changed flagships.yaml after this clone (four claims of just-merged items, 2026-11-16/17)."""
+
+    def git(self, cwd, *args):
+        import subprocess
+        subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *args], cwd=cwd,
+                       check=True, capture_output=True, text=True)
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        t = Path(self.tmp.name)
+        self.remote, self.sibling, self.clone = t / "remote.git", t / "sibling", t / "clone"
+        self.git(t, "init", "-q", "--bare", "-b", "main", str(self.remote))
+        self.git(t, "clone", "-q", str(self.remote), str(self.sibling))
+        (self.sibling / "portfolio").mkdir()
+        self.write(self.sibling, "flagships:\n- venture: a\n  next: old item\n")
+        self.git(self.sibling, "add", "-A")
+        self.git(self.sibling, "commit", "-qm", "first")
+        self.git(self.sibling, "push", "-q", "origin", "HEAD:main")
+        self.git(t, "clone", "-q", str(self.remote), str(self.clone))
+        # A sibling session merges a change to the row after this clone was made.
+        self.write(self.sibling, "flagships:\n- venture: a\n  next: new item\n")
+        self.git(self.sibling, "commit", "-qam", "a: old item landed (#9)")
+        self.git(self.sibling, "push", "-q", "origin", "HEAD:main")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def write(self, repo, text):
+        (repo / "portfolio" / "flagships.yaml").write_text(text)
+
+    def test_reads_main_after_a_sibling_merge(self):
+        from allocate import main_flagships, refresh_tip
+        self.assertEqual(main_flagships(self.clone), (None, ""))  # origin/main not fetched yet
+        self.assertTrue(refresh_tip(self.clone))
+        self.assertFalse(refresh_tip(self.clone))  # already the tip: no second fetch
+        text, note = main_flagships(self.clone)
+        self.assertIn("new item", text)
+        self.assertIn("1 commit(s)", note)
+        self.assertIn("old item landed (#9)", note)
+
+    def test_keeps_a_sessions_own_edits(self):
+        from allocate import main_flagships, refresh_tip
+        refresh_tip(self.clone)
+        self.write(self.clone, "flagships:\n- venture: a\n  next: my claim\n")
+        text, note = main_flagships(self.clone)
+        self.assertIsNone(text)
+        self.assertIn("uncommitted edits", note)
+        self.git(self.clone, "commit", "-qam", "mine")
+        text, note = main_flagships(self.clone)
+        self.assertIsNone(text)
+        self.assertIn("git merge origin/main", note)
+
+    def test_override_reaches_the_loaders(self):
+        import allocate
+        allocate._FLAGSHIPS_TEXT = "flagships:\n- venture: zz\n  next: from main\n"
+        try:
+            self.assertEqual(load_flagships(FLAGSHIPS_PATH), {"zz": (0, "from main")})
+        finally:
+            allocate._FLAGSHIPS_TEXT = None
+        self.assertNotIn("zz", load_flagships(FLAGSHIPS_PATH))
+
+
+class FoldedRowsTests(unittest.TestCase):
+    """The default table folds rows whose task is shared advice (2026-11-18: 1,326
+    such rows were 545 KB of a 578 KB table, past the tool output cap)."""
+
+    def test_kinds(self):
+        from allocate import folded_kind, MAINTAIN_TASK, NO_HYPOTHESIS_PREFIX
+        self.assertIsNotNone(folded_kind(MAINTAIN_TASK))
+        self.assertIsNotNone(folded_kind(NO_HYPOTHESIS_PREFIX + " -- add one"))
+        self.assertIsNotNone(folded_kind('Explore (awaiting visitors; x): "y"'))
+        self.assertIsNone(folded_kind("Deepen (flagship 1): BUILDABLE HERE: z"))
+        self.assertIsNone(folded_kind('Explore: test the untested hypothesis -- "q"'))
+
+    def test_real_table_stays_small_and_all_lists_every_row(self):
+        import contextlib
+        import io
+        from allocate import main
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(main(["--no-deepen", "--no-claims"]), 0)
+        text = out.getvalue()
+        self.assertLess(len(text), 120_000, "default table grew past the fold")
+        self.assertIn("Deepen (flagship", text)
+        folded = sum(int(line.split()[2]) for line in text.splitlines()
+                     if line.startswith("... and "))
+        full = io.StringIO()
+        with contextlib.redirect_stdout(full):
+            main(["--no-deepen", "--no-claims", "--all"])
+        self.assertNotIn("\n... and ", full.getvalue())
+        self.assertEqual(len(full.getvalue().splitlines()) - len(text.splitlines()),
+                         folded - sum(1 for l in text.splitlines() if l.startswith("... and ")))
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -326,7 +326,7 @@ export function calculateBid(input) {
   // 30% margin is the arithmetic error that makes a shop's year disappear.
   const bidPrice = round2(costFloor / (1 - targetMargin / 100));
 
-  const proposedPrice = input.proposedPrice === '' || input.proposedPrice == null
+  const proposedPrice = String(input.proposedPrice ?? '').trim() === ''
     ? null
     : number(input.proposedPrice, 'Proposed price');
   const proposedMarginPercent = proposedPrice && proposedPrice > 0

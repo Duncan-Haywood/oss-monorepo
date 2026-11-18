@@ -1,0 +1,18 @@
+| file | MP | CFA | noise-aware s, old | new | speed-up | added peak GB, old | new | per MP, new | same bytes |
+|---|---|---|---|---|---|---|---|---|---|
+| nef/Nikon D810.nef | 36.4 | RGGB | 21.58 | 8.57 | 2.52x | 5.09 | 2.89 | 0.080 | yes |
+| nef/Nikon 800E.nef | 36.3 | RGGB | 18.84 | 8.18 | 2.30x | 5.09 | 2.85 | 0.078 | yes |
+| pef/Pentax K-1 Mark II.pef | 36.1 | RGGB | 18.82 | 8.25 | 2.28x | 5.12 | 2.88 | 0.080 | yes |
+| arw/Sony ILCE-7M4 (A7M4).ARW | 32.7 | RGGB | 26.35 | 15.89 | 1.66x | 5.14 | 3.83 | 0.117 | yes |
+| srw/Samsung NX1.srw | 28.0 | GRBG | 16.23 | 6.32 | 2.57x | 3.94 | 2.26 | 0.081 | yes |
+| arw/Sony NEX-7.arw | 24.3 | RGGB | 13.52 | 5.90 | 2.29x | 3.41 | 1.96 | 0.081 | yes |
+| arw/Sony ILCE-7M3 (A7M3).arw | 24.0 | RGGB | 18.97 | 11.00 | 1.72x | 3.41 | 2.60 | 0.108 | yes |
+| srw/Samsung NX20.srw | 20.0 | GRBG | 10.21 | 4.39 | 2.33x | 2.94 | 1.73 | 0.086 | yes |
+| srw/Samsung NX3000.srw | 20.0 | GRBG | 11.06 | 5.07 | 2.18x | 2.91 | 1.69 | 0.085 | yes |
+| srw/Samsung EK-GN120 (Galaxy NX).srw | 19.9 | GRBG | 11.83 | 4.26 | 2.78x | 2.89 | 1.72 | 0.086 | yes |
+| dng/Leica T (Typ 701).dng | 16.1 | RGGB | 10.98 | 6.17 | 1.78x | 2.27 | 1.79 | 0.111 | yes |
+| raf/FujiFilm EX-2.raf | 16.0 | RBGBRGGGRGGBGGBGGRBRGRBGGGBGGRGGRGGB | 10.51 | 5.39 | 1.95x | 2.50 | 1.54 | 0.096 | yes |
+| raf/Fujifilm X-E1.raf | 16.0 | GGRGGBGGBGGRBRGRBGGGBGGRGGRGGBRBGBRG | 12.43 | 5.93 | 2.10x | 2.56 | 1.56 | 0.098 | yes |
+| dng/LG Nexus 5X.dng | 12.1 | RGGB | 8.31 | 4.21 | 1.97x | 1.71 | 1.05 | 0.087 | yes |
+
+14 of 14 outputs byte-identical

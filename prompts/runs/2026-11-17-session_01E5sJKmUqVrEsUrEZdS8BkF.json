@@ -1,0 +1,597 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKmUqVrEsUrEZdS8BkF",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T16:18:16Z",
+  "ended": "2026-11-17T16:18:45Z",
+  "wall_minutes": 5.7,
+  "tokens_in": 4770715,
+  "tokens_out": 29462,
+  "cost_usd": 2.34,
+  "tool_calls": 48,
+  "task": "redteam: merchant-feed-check engine.mjs (random draw), 3 campaigns",
+  "projects": [
+    "merchant-feed-check",
+    "deal-keeper",
+    "cost-sharing-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16995",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [
+    "First guard run flagged deal-keeper falsely: its parser drops a record missing id/created, so the generic fixture text never came back; added a per-parser fixture."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 lists 11 open defects, all control-plane, most already in owner-gated PRs (#15945, #15728, #14612, #14698, #15561, #14877); the open list does not show which already have a PR, so each run re-checks the PR list by hand."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 1 suggests targeting files changed in the last 3 days via git log, but the clone is shallow (depth 1 history), so git log --since returns nothing useful; fell back to the random draw."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix open defects first; all 11 are control-plane edits whose fixes already sit in owner-gated PRs or need owner approval, so another PR would only add to the stalled queue.",
+      "did": "Left them open, spent the run on seeding and hunting.",
+      "result": "3 real defects found and patched plus a class guard."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-redteam-a-line-break-inside-a-quoted-csv-cell.md"
+  ],
+  "goal": null,
+  "notes": "Catch rate 20/28 (0.714) before, 28/28 after rerun. Guard added: platform/ci/csv_quoted_newlines.mjs + test_csv_quoted_newlines.py, a ratchet over 156 exported parseCsv-style functions fed a quoted field spanning four lines; 19 known splitters listed (numeric-series and id/date tools), verified to fail with the merchant-feed fix reverted; unwired_checks.py --list includes it. Verification: merchant-feed-check node --test 97 pass, deal-keeper 45 pass, cost-sharing-calculator 40 pass, test_csv_quoted_newlines OK, check_post_frontmatter OK. deal-keeper error lines changed from data-row index to file line (test Line 4 -> Line 5).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/merchant-feed-check/engine.mjs",
+        "test": "node --test ventures/merchant-feed-check/**/*.test.mjs  (in .)",
+        "seed": 870611607,
+        "commit": "d98b08bcb",
+        "sites": 112,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 44,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "export const TITLE_MAX_LENGTH = 150;",
+            "after": "export const TITLE_MAX_LENGTH = 151;",
+            "line_text": "export const TITLE_MAX_LENGTH = 150;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 110,
+            "col": 49,
+            "operator": "minus-to-plus",
+            "before": "const checkDigit = Number(digits[digits.length - 1]);",
+            "after": "const checkDigit = Number(digits[digits.length + 1]);",
+            "line_text": "  const checkDigit = Number(digits[digits.length - 1]);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 158,
+            "col": 73,
+            "operator": "and-to-or",
+            "before": "if (found && raw[found[1]] !== undefined && raw[found[1]] !== null && String(raw[found[1]]).trim() !== \"\") {",
+            "after": "if (found && raw[found[1]] !== undefined && raw[found[1]] !== null || String(raw[found[1]]).trim() !== \"\") {",
+            "line_text": "      if (found && raw[found[1]] !== undefined && raw[found[1]] !== null && String(raw[found[1]]).trim() !== \"\") {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 216,
+            "col": 57,
+            "operator": "or-to-and",
+            "before": "const list = Array.isArray(data) ? data : data.items || data.entries || data.products;",
+            "after": "const list = Array.isArray(data) ? data : data.items && data.entries || data.products;",
+            "line_text": "    const list = Array.isArray(data) ? data : data.items || data.entries || data.products;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 226,
+            "col": 42,
+            "operator": "const-plus-one",
+            "before": "const header = splitDelimitedLine(lines[0], delimiter);",
+            "after": "const header = splitDelimitedLine(lines[1], delimiter);",
+            "line_text": "  const header = splitDelimitedLine(lines[0], delimiter);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 283,
+            "col": 14,
+            "operator": "and-to-or",
+            "before": "if (item.id && item.id.length > ID_MAX_LENGTH) {",
+            "after": "if (item.id || item.id.length > ID_MAX_LENGTH) {",
+            "line_text": "  if (item.id && item.id.length > ID_MAX_LENGTH) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 310,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "if (item.description.length < 20) {",
+            "after": "if (item.description.length < 21) {",
+            "line_text": "    if (item.description.length < 20) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a boundary/totals test added to engine.test.mjs (red-team 2026-11-17 block)"
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 419,
+            "col": 71,
+            "operator": "plus-to-minus",
+            "before": "const totalErrors = perItem.reduce((n, r) => n + r.errors.length, 0) + feedErrors.length;",
+            "after": "const totalErrors = perItem.reduce((n, r) => n + r.errors.length, 0) - feedErrors.length;",
+            "line_text": "  const totalErrors = perItem.reduce((n, r) => n + r.errors.length, 0) + feedErrors.length;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a boundary/totals test added to engine.test.mjs (red-team 2026-11-17 block)"
+          }
+        ]
+      },
+      {
+        "target": "ventures/merchant-feed-check/engine.mjs",
+        "test": "node --test ventures/merchant-feed-check/**/*.test.mjs  (in .)",
+        "seed": 2,
+        "commit": "d98b08bcb",
+        "sites": 112,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 109,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "if (![8, 12, 13, 14].includes(digits.length)) return false;",
+            "after": "if (![8, 13, 13, 14].includes(digits.length)) return false;",
+            "line_text": "  if (![8, 12, 13, 14].includes(digits.length)) return false;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a boundary/totals test added to engine.test.mjs (red-team 2026-11-17 block)"
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 110,
+            "col": 49,
+            "operator": "minus-to-plus",
+            "before": "const checkDigit = Number(digits[digits.length - 1]);",
+            "after": "const checkDigit = Number(digits[digits.length + 1]);",
+            "line_text": "  const checkDigit = Number(digits[digits.length - 1]);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 110,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "const checkDigit = Number(digits[digits.length - 1]);",
+            "after": "const checkDigit = Number(digits[digits.length - 2]);",
+            "line_text": "  const checkDigit = Number(digits[digits.length - 1]);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 116,
+            "col": 23,
+            "operator": "minus-to-plus",
+            "before": "const computed = (10 - (sum % 10)) % 10;",
+            "after": "const computed = (10 + (sum % 10)) % 10;",
+            "line_text": "  const computed = (10 - (sum % 10)) % 10;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 175,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < line.length; i += 1) {",
+            "after": "for (let i = 0; i < line.length; i += 2) {",
+            "line_text": "  for (let i = 0; i < line.length; i += 1) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 372,
+            "col": 54,
+            "operator": "or-to-and",
+            "before": "const hasIdentifierPair = (item.brand && item.gtin) || (item.brand && item.mpn);",
+            "after": "const hasIdentifierPair = (item.brand && item.gtin) && (item.brand && item.mpn);",
+            "line_text": "  const hasIdentifierPair = (item.brand && item.gtin) || (item.brand && item.mpn);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 408,
+            "col": 81,
+            "operator": "const-plus-one",
+            "before": "const reusedImages = [...imageCounts.entries()].filter(([, ids]) => ids.size > 4);",
+            "after": "const reusedImages = [...imageCounts.entries()].filter(([, ids]) => ids.size > 5);",
+            "line_text": "  const reusedImages = [...imageCounts.entries()].filter(([, ids]) => ids.size > 4);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a boundary/totals test added to engine.test.mjs (red-team 2026-11-17 block)"
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 419,
+            "col": 68,
+            "operator": "const-plus-one",
+            "before": "const totalErrors = perItem.reduce((n, r) => n + r.errors.length, 0) + feedErrors.length;",
+            "after": "const totalErrors = perItem.reduce((n, r) => n + r.errors.length, 1) + feedErrors.length;",
+            "line_text": "  const totalErrors = perItem.reduce((n, r) => n + r.errors.length, 0) + feedErrors.length;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 420,
+            "col": 75,
+            "operator": "plus-to-minus",
+            "before": "const totalWarnings = perItem.reduce((n, r) => n + r.warnings.length, 0) + feedWarnings.length;",
+            "after": "const totalWarnings = perItem.reduce((n, r) => n + r.warnings.length, 0) - feedWarnings.length;",
+            "line_text": "  const totalWarnings = perItem.reduce((n, r) => n + r.warnings.length, 0) + feedWarnings.length;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a boundary/totals test added to engine.test.mjs (red-team 2026-11-17 block)"
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 421,
+            "col": 64,
+            "operator": "gt-to-ge",
+            "before": "const itemsWithErrors = perItem.filter((r) => r.errors.length > 0).length;",
+            "after": "const itemsWithErrors = perItem.filter((r) => r.errors.length >= 0).length;",
+            "line_text": "  const itemsWithErrors = perItem.filter((r) => r.errors.length > 0).length;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/merchant-feed-check/engine.mjs",
+        "test": "node --test ventures/merchant-feed-check/**/*.test.mjs  (in .)",
+        "seed": 3,
+        "commit": "d98b08bcb",
+        "sites": 112,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 109,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "if (![8, 12, 13, 14].includes(digits.length)) return false;",
+            "after": "if (![8, 12, 14, 14].includes(digits.length)) return false;",
+            "line_text": "  if (![8, 12, 13, 14].includes(digits.length)) return false;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 114,
+            "col": 21,
+            "operator": "times-to-div",
+            "before": "sum += Number(d) * (i % 2 === 0 ? 3 : 1);",
+            "after": "sum += Number(d) / (i % 2 === 0 ? 3 : 1);",
+            "line_text": "    sum += Number(d) * (i % 2 === 0 ? 3 : 1);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 122,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "return [8, 12, 13, 14].includes(digits.length);",
+            "after": "return [8, 12, 14, 14].includes(digits.length);",
+            "line_text": "  return [8, 12, 13, 14].includes(digits.length);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 178,
+            "col": 13,
+            "operator": "eq-flip",
+            "before": "if (ch === '\"' && line[i + 1] === '\"') {",
+            "after": "if (ch !== '\"' && line[i + 1] === '\"') {",
+            "line_text": "      if (ch === '\"' && line[i + 1] === '\"') {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 227,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "return lines.slice(1).map((line) => {",
+            "after": "return lines.slice(2).map((line) => {",
+            "line_text": "  return lines.slice(1).map((line) => {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 256,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "return { amount: Number(m[1]), currency: m[2] };",
+            "after": "return { amount: Number(m[1]), currency: m[3] };",
+            "line_text": "  return { amount: Number(m[1]), currency: m[2] };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 263,
+            "col": 22,
+            "operator": "div-to-times",
+            "before": "return upper.length / letters.length > 0.85;",
+            "after": "return upper.length * letters.length > 0.85;",
+            "line_text": "  return upper.length / letters.length > 0.85;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 283,
+            "col": 32,
+            "operator": "gt-to-ge",
+            "before": "if (item.id && item.id.length > ID_MAX_LENGTH) {",
+            "after": "if (item.id && item.id.length >= ID_MAX_LENGTH) {",
+            "line_text": "  if (item.id && item.id.length > ID_MAX_LENGTH) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a boundary/totals test added to engine.test.mjs (red-team 2026-11-17 block)"
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 288,
+            "col": 26,
+            "operator": "gt-to-ge",
+            "before": "if (item.title.length > TITLE_MAX_LENGTH) {",
+            "after": "if (item.title.length >= TITLE_MAX_LENGTH) {",
+            "line_text": "    if (item.title.length > TITLE_MAX_LENGTH) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a boundary/totals test added to engine.test.mjs (red-team 2026-11-17 block)"
+          },
+          {
+            "file": "ventures/merchant-feed-check/engine.mjs",
+            "line": 310,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "if (item.description.length < 20) {",
+            "after": "if (item.description.length < 21) {",
+            "line_text": "    if (item.description.length < 20) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "guarded by a boundary/totals test added to engine.test.mjs (red-team 2026-11-17 block)"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/merchant-feed-check/engine.mjs",
+        "issue": "CSV split into lines before quotes were read: a quoted multi-line description (Shopify/Excel export) became a truncated item plus a phantom item with every required field missing.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16995"
+      },
+      {
+        "file": "ventures/merchant-feed-check/engine.mjs",
+        "issue": "availability 'in_stock'/'out_of_stock' (Google's documented spelling) reported as invalid-availability on every item.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16995"
+      },
+      {
+        "file": "ventures/merchant-feed-check/engine.mjs",
+        "issue": "JSON feed with a null entry ([null]) threw a raw TypeError instead of a readable error.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16995"
+      },
+      {
+        "file": "ventures/deal-keeper/engine.mjs",
+        "issue": "parseCsv split quoted multi-line name/next_step into bogus deals, ignored \"\" escapes, and reported data-row index as 'Line N' (off by the header).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16995"
+      },
+      {
+        "file": "ventures/cost-sharing-calculator/engine.mjs",
+        "issue": "parseCsv split a quoted multi-line cell into separate rows.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16995"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0a90cb32-435c-57f1-8c9c-2e07d98cb4fb",
+    "transcripts": 1,
+    "first": "2026-11-17T16:18:16Z",
+    "last": "2026-11-17T16:23:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 92,
+        "output": 29462,
+        "thinking": 5784,
+        "cache_read": 4668537,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102086,
+        "api_equivalent_usd": 2.34,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 92,
+      "output": 29462,
+      "thinking": 5784,
+      "cache_read": 4668537,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102086,
+      "api_equivalent_usd": 2.34,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 45,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.7,
+      "active_minutes": 5.7,
+      "model_minutes": 4.5,
+      "tool_minutes": 1.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior engineer: mutation triage, 3 parser fixes with tests, cross-repo scan guard, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 213.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

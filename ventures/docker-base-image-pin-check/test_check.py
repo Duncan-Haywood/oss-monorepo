@@ -65,9 +65,10 @@ class ClassifyFrom(unittest.TestCase):
         self.assertIsNone(tag)
         self.assertEqual(digest, DIGEST)
 
-    def test_uppercase_digest_hex_is_still_pinned(self):
+    def test_uppercase_sha256_hex_is_not_a_valid_pin(self):
+        # go-digest validates sha256 as ^[a-f0-9]{64}$; Docker rejects upper case.
         classification, _, _, _ = dbc.classify_from(f"node@sha256:{'A' * 64}", set())
-        self.assertEqual(classification, dbc.PINNED)
+        self.assertEqual(classification, dbc.MUTABLE)
 
     def test_specific_version_tag_is_still_mutable(self):
         """The one distinction this tool exists to draw: node:18 looks
@@ -164,10 +165,88 @@ class ScanText(unittest.TestCase):
         findings = dbc.scan_text(text, filename="Dockerfile")
         self.assertEqual(findings, [])
 
-    def test_variable_reference_is_skipped_entirely(self):
+    def test_arg_default_is_substituted_and_classified(self):
+        # Quality audit 2026-11-17 defect 0: this used to be dropped silently.
         text = "ARG BASE_IMAGE=node:18\nFROM ${BASE_IMAGE}\n"
         findings = dbc.scan_text(text, filename="Dockerfile")
-        self.assertEqual(findings, [])
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0]["classification"], dbc.MUTABLE)
+        self.assertEqual((findings[0]["image"], findings[0]["tag"]), ("node", "18"))
+        self.assertEqual(findings[0]["from_arg"], "${BASE_IMAGE}")
+
+    def test_docker_reference_build_arg_pattern_is_flagged(self):
+        text = "ARG NODE_VERSION=18\nFROM node:${NODE_VERSION}-alpine\n"
+        [finding] = dbc.scan_text(text, filename="Dockerfile")
+        self.assertEqual(finding["classification"], dbc.MUTABLE)
+        self.assertEqual(finding["tag"], "18-alpine")
+        self.assertEqual(finding["remediation"], "docker buildx imagetools inspect node:18-alpine")
+
+    def test_arg_default_pinned_to_digest_is_pinned(self):
+        text = f"ARG BASE=node@{DIGEST}\nFROM $BASE\n"
+        [finding] = dbc.scan_text(text, filename="Dockerfile")
+        self.assertEqual(finding["classification"], dbc.PINNED)
+
+    def test_arg_with_no_default_is_unresolved_and_a_risk(self):
+        text = "ARG NODE_VERSION\nFROM node:${NODE_VERSION}\n"
+        findings = dbc.scan_text(text, filename="Dockerfile")
+        self.assertEqual([f["classification"] for f in findings], [dbc.UNRESOLVED])
+        self.assertEqual(findings[0]["unresolved_args"], ["NODE_VERSION"])
+        self.assertTrue(dbc.has_unresolved_risk(findings))
+
+    def test_arg_declared_inside_a_stage_does_not_reach_a_later_from(self):
+        # Docker: only ARGs before the first FROM are in scope for FROM lines.
+        text = "FROM alpine@" + DIGEST + "\nARG V=18\nFROM node:${V}\n"
+        findings = dbc.scan_text(text, filename="Dockerfile")
+        self.assertEqual(findings[1]["classification"], dbc.UNRESOLVED)
+
+    def test_literal_digest_with_variable_registry_is_pinned(self):
+        text = f"ARG REG\nFROM ${{REG}}/app@{DIGEST}\n"
+        [finding] = dbc.scan_text(text, filename="Dockerfile")
+        self.assertEqual(finding["classification"], dbc.PINNED)
+
+    def test_default_operators(self):
+        args = {"SET": "x", "EMPTY": "", "UNSET": None}
+        self.assertEqual(dbc.expand_args("${UNSET:-d}", args), ("d", []))
+        self.assertEqual(dbc.expand_args("${EMPTY:-d}", args), ("d", []))
+        self.assertEqual(dbc.expand_args("${EMPTY-d}", args), ("", []))
+        self.assertEqual(dbc.expand_args("${SET:+w}", args), ("w", []))
+        self.assertEqual(dbc.expand_args("${UNSET+w}", args), ("", []))
+        self.assertEqual(dbc.expand_args("$UNSET", args)[1], ["UNSET"])
+
+    def test_cli_fails_on_an_arg_built_mutable_image(self):
+        with tempfile.TemporaryDirectory() as root:
+            with open(os.path.join(root, "Dockerfile"), "w") as fh:
+                fh.write("ARG NODE_VERSION=18\nFROM node:${NODE_VERSION}-alpine\n")
+            with unittest.mock.patch("sys.stdout", new_callable=io.StringIO):
+                self.assertEqual(dbc.main([root, "--fail-on-risk"]), 2)
+
+    def test_scratch_only_file_does_not_claim_no_from_lines(self):
+        # Audit defect 2: "no FROM lines found" was printed for files with FROM lines.
+        with tempfile.TemporaryDirectory() as root:
+            with open(os.path.join(root, "Dockerfile"), "w") as fh:
+                fh.write("FROM scratch\nCOPY app /app\n")
+            out = io.StringIO()
+            with unittest.mock.patch("sys.stdout", out):
+                dbc.main([root])
+            self.assertNotIn("no FROM lines", out.getvalue())
+            self.assertIn("all 1 FROM line(s) are scratch", out.getvalue())
+
+    def test_truncated_or_uppercase_sha256_is_not_pinned(self):
+        # Audit defect 3: OCI fixes sha256 at 64 lowercase hex characters.
+        for ref in ("node@sha256:" + "a" * 40, "node@sha256:" + "A" * 64):
+            self.assertEqual(dbc.classify_from(ref, set())[0], dbc.MUTABLE, ref)
+        self.assertEqual(dbc.classify_from("node@sha512:" + "b" * 128, set())[0], dbc.PINNED)
+
+    def test_malformed_digest_on_tagged_image_suggests_the_tag(self):
+        # Audit defect 4: used to print `node:18:latest`.
+        [finding] = dbc.scan_text("FROM node:18@sha256:abc\n", filename="Dockerfile")
+        self.assertEqual(finding["remediation"], "docker buildx imagetools inspect node:18")
+
+    def test_blank_line_inside_continuation_is_skipped(self):
+        # Audit defect 5: no test covered it.
+        text = "FROM \\\n\n    node:18\n"
+        [finding] = dbc.scan_text(text, filename="Dockerfile")
+        self.assertEqual((finding["image"], finding["tag"], finding["line"]), ("node", "18", 1))
 
     def test_commented_out_from_line_is_ignored(self):
         text = f"# FROM node:18\nFROM node@{DIGEST}\n"
@@ -325,6 +404,44 @@ class Main(unittest.TestCase):
             finally:
                 os.chdir(cwd)
 
+
+class RedTeam20261116(unittest.TestCase):
+    """Digest-grammar edges (three escaped mutants of _DIGEST_RE) and two real
+    false positives: case-insensitive stage names and backslash continuations."""
+
+    def test_digest_using_every_hex_digit_is_pinned(self):
+        hexd = "0123456789abcdef" * 4
+        self.assertEqual(dbc.classify_from(f"node@sha256:{hexd}", set())[0], dbc.PINNED)
+
+    def test_32_hex_digest_is_shortest_pinned(self):
+        self.assertEqual(dbc.classify_from("node@md5:" + "a" * 32, set())[0], dbc.PINNED)
+        self.assertEqual(dbc.classify_from("node@md5:" + "a" * 31, set())[0], dbc.MUTABLE)
+
+    def test_algorithm_with_separator_and_digits_is_pinned(self):
+        self.assertEqual(dbc.classify_from("node@multihash+sha256:" + "a" * 64, set())[0], dbc.PINNED)
+
+    def test_stage_name_matches_case_insensitively(self):
+        findings = dbc.scan_text("FROM node:18 AS Build\nRUN make\nFROM build\nFROM B\n")
+        self.assertEqual([f["image"] for f in findings], ["node", "B"])
+        self.assertEqual(len(dbc.scan_text("FROM node:18 AS b\nFROM B\n")), 1)
+
+    def test_backslash_continuation_is_one_instruction(self):
+        text = (
+            "FROM --platform=linux/amd64 \\\n    node:20 \\\n    AS build\nFROM build\n"
+            "FROM \\\r\n  # a comment inside the continuation\n  ubuntu@" + DIGEST + "\r\n"
+        )
+        findings = dbc.scan_text(text, filename="Dockerfile")
+        self.assertEqual(len(findings), 2)
+        f0, f1 = findings
+        self.assertEqual((f0["line"], f0["image"], f0["tag"], f0["classification"]), (1, "node", "20", dbc.MUTABLE))
+        self.assertEqual(f0["remediation"], "docker buildx imagetools inspect node:20")
+        self.assertEqual((f1["line"], f1["image"], f1["classification"]), (5, "ubuntu", dbc.PINNED))
+
+
+    def test_backslash_right_after_the_tag_drops_only_the_backslash(self):
+        findings = dbc.scan_text("FROM node:20\\\n  AS build\nFROM build\n", filename="Dockerfile")
+        self.assertEqual(len(findings), 1)
+        self.assertEqual((findings[0]["line"], findings[0]["image"], findings[0]["tag"]), (1, "node", "20"))
 
 if __name__ == "__main__":
     unittest.main()

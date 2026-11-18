@@ -2,12 +2,19 @@ import { parseIsdocInvoice } from "./isdoc.mjs";
 import { checkInvoice, flagDuplicateInvoiceNumbers } from "./checks.mjs";
 import { inspectCreditLinks } from "./creditlink.mjs";
 import { steppedAside } from "./aside.mjs";
-import { inspectXrechnungProfile, inspectPeppolProfile, inspectFrenchProfile } from "./profile.mjs";
+import { inspectXrechnungProfile, inspectPeppolProfile, inspectFrenchProfile, inspectSlovakProfile } from "./profile.mjs";
 import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
 import { checkPdfEnvelope } from "./pdf-envelope.mjs";
 import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
 import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
+import { checkFacturae, looksLikeFacturae } from "./facturae.mjs";
+import { budapestToday, checkNavInvoice, looksLikeNavInvoice } from "./hungary-nav.mjs";
+import { checkNavChains } from "./hungary-nav-chain.mjs";
+import { looksLikeVerifactu, readVerifactu, verifactuReport } from "./verifactu.mjs";
+import { looksLikeAeatResponse, readAeatResponse, responseEnvelope, responseFindings } from "./verifactu-response.mjs";
+import { cdarEnvelope, cdarFindings, cdarJourneys, looksLikeCdar, readCdar, statusName } from "./cdar.mjs";
+import { flux10Envelope, flux10Findings, flux10Kinds, looksLikeFlux10, readFlux10 } from "./flux10.mjs";
 import { looksLikeSdiReceipt, pairReceipt, readSdiReceipt, receiptEnvelope, receiptFindings } from "./sdi-receipt.mjs";
 import { checkFa3, fa3DuplicateKey, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
@@ -30,7 +37,7 @@ export function looksLikeIsdoc(text) {
   return /xmlns(?::\w+)?\s*=\s*["']http:\/\/isdoc\.cz\/namespace\/2013["']/.test(String(text).slice(0, 4096));
 }
 
-export const ISDOC_MESSAGE = "This is an ISDOC invoice (the Czech national format). The checker reads UBL, CII, Factur-X, FatturaPA, FA(3), CFDI 4.0, NF-e 4.00 and the national NFS-e, not ISDOC, and applies no Czech national rules. Export the invoice from your accounting software as Peppol BIS (UBL) or EN 16931 and check that file instead.";
+export const ISDOC_MESSAGE = "This is an ISDOC invoice (the Czech national format). The checker reads UBL, CII, Factur-X, FatturaPA, Facturae, FA(3), CFDI 4.0, NF-e 4.00 and the national NFS-e, not ISDOC, and applies no Czech national rules. Export the invoice from your accounting software as Peppol BIS (UBL) or EN 16931 and check that file instead.";
 
 export async function inspectInvoiceSource(name, source) {
   let payload = source;
@@ -59,7 +66,7 @@ export async function parseInvoiceSource(name, source) {
   return (await inspectInvoiceSource(name, source)).invoice;
 }
 
-export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFiles = DEFAULT_MAX_FILES, profile = "", schematron = false } = {}) {
+export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFiles = DEFAULT_MAX_FILES, profile = "", schematron = false, peppolNext = false } = {}) {
   const reports = [];
   const readErrors = [];
   const parsed = [];
@@ -76,6 +83,49 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
 
   const zatcaStamps = []; // { file, meta } for the PIH chain across the batch
   const fa3Seen = new Map(); // KSeF duplicate key (seller NIP, RodzajFaktury, P_2) -> first file name
+  // Hungarian NAV files dropped together: a base invoice and its modifications are checked as a
+  // chain (what NAV checks against its invoice store; hungary-nav-chain.mjs).
+  const navInputs = inputs.filter((o) => {
+    const s = o.source ?? "";
+    const bytes = typeof s === "string" ? s.length : s.length;
+    return bytes <= maxBytes && !looksLikePdf(o.name || "", s) && looksLikeNavInvoice(typeof s === "string" ? s.slice(0, 4096) : new TextDecoder().decode(s.slice(0, 4096)));
+  });
+  // Spanish VERI*FACTU records: the fingerprint chain runs across every file in the batch.
+  const vfBatch = [];
+  const vfByFile = new Map();
+  for (const o of inputs) {
+    const s = o.source ?? "";
+    if ((typeof s === "string" ? s.length : s.length) > maxBytes || looksLikePdf(o.name || "", s)) continue;
+    const text = typeof s === "string" ? s : new TextDecoder().decode(s);
+    if (!looksLikeVerifactu(text)) continue;
+    try {
+      const records = readVerifactu(text);
+      vfByFile.set(o, records);
+      for (const record of records) vfBatch.push({ record, file: o.name || "records.xml" });
+    } catch { /* reported in the loop */ }
+  }
+  const navChain = navInputs.length > 1 ? checkNavChains(navInputs.map((o) => ({ name: o.name || "invoice.json", source: o.source }))) : null;
+  // French CDAR status messages: the batch's invoices (to compare each status with its invoice)
+  // and every status per invoice number, read once on the first CDAR file.
+  let cdarBatchCache;
+  const cdarBatch = async () => {
+    if (cdarBatchCache) return cdarBatchCache;
+    const invoices = [];
+    const messages = [];
+    for (const o of inputs) {
+      const s = o.source ?? "";
+      if ((typeof s === "string" ? s.length : s.length) > maxBytes || looksLikePdf(o.name || "", s)) continue;
+      const t = typeof s === "string" ? s : new TextDecoder().decode(s);
+      if (looksLikeFlux10(t)) continue;
+      if (looksLikeCdar(t)) {
+        try { messages.push({ file: o.name || "status.xml", msg: readCdar(t) }); } catch { /* reported in the loop */ }
+      } else if (looksLikeXml(o.name || "", t) || looksLikeCii(t)) {
+        try { invoices.push({ name: o.name || "invoice.xml", invoice: (await inspectInvoiceSource(o.name || "invoice.xml", s)).invoice }); } catch { /* not an invoice this reader takes */ }
+      }
+    }
+    cdarBatchCache = { invoices, journeys: cdarJourneys(messages) };
+    return cdarBatchCache;
+  };
   for (const input of inputs) {
     const name = input.name || "invoice.json";
     const source = input.source ?? "";
@@ -100,6 +150,17 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         }
         continue;
       }
+      if (!looksLikePdf(name, source) && looksLikeAeatResponse(peek)) {
+        // The AEAT's reply to a VERI*FACTU submission (or its SOAP fault): each code explained
+        // from the AEAT's own list, and checked against the records when they are in the batch.
+        const resp = readAeatResponse(peek);
+        reports.push({ file: name, errors: responseFindings(resp, vfBatch), envelope: responseEnvelope(resp, vfBatch), aeatResponse: { status: resp.status ?? null, csv: resp.csv ?? null, codes: resp.kind === "fault" ? [resp.code] : resp.lines.filter((l) => l.code).map((l) => l.code) } });
+        continue;
+      }
+      if (vfByFile.has(input)) {
+        reports.push(verifactuReport(name, vfByFile.get(input), vfBatch));
+        continue;
+      }
       if (!looksLikePdf(name, source) && looksLikeSdiReceipt(peek)) {
         // A receipt or notice SdI sent back for a FatturaPA file (NS, RC, MC, NE, DT, AT, ...):
         // each rejection code explained, and checked against the invoice when it is in the batch.
@@ -121,10 +182,70 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         reports.push({ file: name, errors: receiptFindings(receipt, pair), envelope: receiptEnvelope(receipt, pair), receipt: { type: receipt.type, identificativoSdI: receipt.identificativoSdI, fileName: receipt.fileName, codes: receipt.errors.map((e) => e.code), ...(receipt.outcome ? { outcome: receipt.outcome } : {}), ...(pair ? { pairedWith: pair.name, pairedBy: pair.by } : {}) } });
         continue;
       }
+      if (!looksLikePdf(name, source) && looksLikeCdar(peek)) {
+        // France's life-cycle status message (CDAR, "CDV" 200-228): the status named, compared
+        // with its invoice when that is in the batch, and FNFE-MPE's BR-FR-CDV rules on the plain route.
+        const batch = await cdarBatch();
+        const msg = readCdar(peek);
+        const { findings, pairs } = cdarFindings(msg, batch.invoices);
+        for (const ref of msg.refs) {
+          const journey = batch.journeys.find((j) => j.invoiceId === ref.invoiceId);
+          if (journey && journey.steps.length > 1) {
+            findings.push({ rule: "FR-CDV-104", message: `Statuses in this batch for invoice ${ref.invoiceId}, in time order: ${journey.steps.map((st) => `${st.at || "(no time)"} ${statusName(st.status)} [${st.file}]`).join(" -> ")}.`, fix: "", severity: "information", source: "cdar" });
+          }
+        }
+        let schematronStatus;
+        if (schematron) {
+          try {
+            const { runPlain } = await import("./plain-node.mjs");
+            const plain = await runPlain(peek, { profile, peppolNext });
+            schematronStatus = plain.status;
+            if (plain.status === "ok") findings.push(...plain.findings);
+          } catch { schematronStatus = "unavailable"; }
+        }
+        reports.push({ file: name, errors: findings, envelope: cdarEnvelope(msg, pairs), cdar: { id: msg.id, statusAt: msg.statusAt, refs: msg.refs.map((r) => ({ invoiceId: r.invoiceId, status: r.status, reasons: r.reasons.map((x) => x.code) })), ...(pairs.length ? { pairedWith: pairs.map((x) => x.name) } : {}) }, ...(schematronStatus ? { schematron: schematronStatus } : {}) });
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeFlux10(peek)) {
+        // France's e-reporting file (Flux 10: international B2B invoices, B2C transactions and the
+        // payments on them): its own reader and gap checks, and FNFE-MPE's Flux 10 controls on the plain route.
+        const rep = readFlux10(peek);
+        const findings = flux10Findings(rep);
+        let schematronStatus;
+        if (schematron) {
+          try {
+            const { runPlain } = await import("./plain-node.mjs");
+            const plain = await runPlain(peek, { profile, peppolNext });
+            schematronStatus = plain.status;
+            if (plain.status === "ok") findings.push(...plain.findings);
+          } catch { schematronStatus = "unavailable"; }
+        }
+        reports.push({ file: name, errors: findings, envelope: flux10Envelope(rep), flux10: { id: rep.id, type: rep.typeCode, kinds: flux10Kinds(rep), period: rep.period, invoices: rep.invoices.length, transactions: rep.transactions.length }, ...(schematronStatus ? { schematron: schematronStatus } : {}) });
+        continue;
+      }
       if (!looksLikePdf(name, source) && looksLikeFatturaPa(peek)) {
         // Italy's FatturaPA is its own schema, not EN 16931: own rules, no UBL/CII reading.
         const italian = checkFatturaPa(peek);
         reports.push({ file: name, errors: italian.findings, envelope: "Read as Italian FatturaPA (SdI), not EN 16931", ...(italian.skipped.length ? { skipped: italian.skipped } : {}) });
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeNavInvoice(peek)) {
+        // Hungary's NAV Online Számla 3.0 data report (InvoiceData, or a manageInvoice request carrying
+        // it in Base64) is its own schema, not EN 16931: NAV's blocking codes and WARN arithmetic.
+        // A preflight runs before the report is sent, so today (in Budapest) stands in for the day NAV receives it.
+        const hungarian = checkNavInvoice(peek, { reportDate: budapestToday() });
+        const m = hungarian.meta;
+        const chainFindings = navChain?.byFile.get(name) || [];
+        const chainSkipped = navChain ? navChain.skipped.filter((s) => s.file === name).map(({ file, ...rest }) => rest) : [];
+        const chain = navChain?.chains.find((c) => c.base === name || c.members.some((x) => x.file === name));
+        const skipped = [...hungarian.skipped, ...chainSkipped];
+        reports.push({ file: name, errors: [...hungarian.findings, ...chainFindings], envelope: `Read as a Hungarian NAV Online Számla 3.0 ${m.request ? `manageInvoice request (${m.operations} operation${m.operations === 1 ? "" : "s"})` : "invoice data report"}${m.category ? `, ${m.category}` : ""}${m.modification ? " modifying document" : ""}, not EN 16931${chain ? `; checked as a chain with base invoice ${chain.base} and ${chain.members.length} modification${chain.members.length === 1 ? "" : "s"}` : ""}`, ...(skipped.length ? { skipped } : {}) });
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeFacturae(peek)) {
+        // Spain's Facturae (3.2.1, 3.2.2) is its own schema, not EN 16931: own rules, no UBL/CII reading.
+        const spanish = checkFacturae(peek);
+        reports.push({ file: name, errors: spanish.findings, envelope: `Read as Spanish Facturae ${spanish.version || ""} (FACe), not EN 16931; ${spanish.signature ? `XAdES signature checked (${spanish.signature.signatureValid === true ? "SignatureValue verifies" : spanish.signature.signatureValid === false ? "SignatureValue does not verify" : "SignatureValue not verified"}; certificate chain not checked)` : "unsigned"}`.replace("  ", " "), ...(spanish.skipped.length ? { skipped: spanish.skipped } : {}), ...(spanish.signature ? { signature: spanish.signature } : {}) });
         continue;
       }
       if (!looksLikePdf(name, source) && looksLikeFa3(peek)) {
@@ -204,6 +325,8 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       if (profile === "xrechnung") errors.push(...inspectXrechnungProfile(invoice));
       if (profile === "peppol") errors.push(...inspectPeppolProfile(invoice));
       if (profile === "france") errors.push(...inspectFrenchProfile(invoice));
+      // Slovak invoices travel over Peppol, so the Slovak fields come on top of the Peppol rules.
+      if (profile === "slovakia") errors.push(...inspectPeppolProfile(invoice), ...inspectSlovakProfile(invoice));
       let schematronStatus = "";
       if (schematron) {
         // The official rules, beside the built-in ones. JSON drafts have no XML to check.
@@ -216,12 +339,12 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         let official = { status: "unavailable", findings: [] };
         let own = false;
         if (xml) {
-          const plain = await runPlain(xml);
+          const plain = await runPlain(xml, { profile, peppolNext });
           own = plain.status === "ok" && (plain.sets || []).some((s) => /^(pint|zatca)/.test(s));
-          // The national add-ons (CIUS-RO, CIUS-PT, CIUS-HR, NLCIUS) have no Saxon form either, and
+          // The national add-ons (CIUS-RO, CIUS-PT, CIUS-HR, NLCIUS, BR-FR) have no Saxon form either, and
           // CIUS-RO runs on an older EU base: the Saxon route would check a Romanian file
           // against the current base alone, so the plain route takes those files too.
-          const national = plain.status === "ok" && (plain.sets || []).some((s) => /^(cius-ro|cius-pt|cius-hr|nlcius)$/.test(s));
+          const national = plain.status === "ok" && (plain.sets || []).some((s) => /^(cius-ro|cius-pt|cius-hr|nlcius|cius-fr|peppol-next)$/.test(s));
           official = own || national ? plain : runSchematron(xml);
           if (!own && official.status !== "ok" && plain.status === "ok") official = plain;
         }

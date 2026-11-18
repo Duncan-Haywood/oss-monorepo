@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKo53KSiojgyQaRKfnW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T09:18:52Z",
+  "ended": null,
+  "wall_minutes": 12.64,
+  "tokens_in": 5996125,
+  "tokens_out": 28055,
+  "cost_usd": 2.8079,
+  "tool_calls": 50,
+  "task": "Deepen (flagship 11) chant-forge: /i/ read as a voiced fricative; landed as an out-of-sample check of the rule PR #16518 merged for the same item",
+  "projects": [
+    "ventures/chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16526",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [
+    {
+      "what": "Ran `git checkout` on eval/coda-check-report.md while fixing a label, which reverted part M's section; regenerated the full report.",
+      "impact": "about 10 min"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "allocate.py fetched main for its table, but the flagship row text it printed (chant-forge next:) came from the stale local checkout, so it named an item PR #16518 had merged 2 minutes before I claimed it. 'last landed on main: 0.0h ago' was the only hint. When main has moved, it should print the row from origin/main, or warn that the row changed there."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The work branch already existed locally (git checkout -b failed); a note that the harness pre-creates it would save a step."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "chant-forge next: at 1994-1998 of 2000 characters refuses even a 20-character addition, so this run's result is in README/ROADMAP only."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md (Duplicate PRs)",
+      "why": "My reader change duplicated PR #16518, merged first. I did not close my PR as superseded, because its held-out set was an independent check of the merged rule.",
+      "did": "Reset the branch to main, dropped my rule (VFRIC_RISE), added my pre-registered set as part M of eval/coda-check.mjs, and ran it unchanged against main's VFRIC_HI5.",
+      "result": "Main's rule holds out of sample (/i/ 62 to 105 of 120, control 228 to 288 of 288, v 23 kept) and beats mine (99, v 16). Every other part's report is byte-identical."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Did not rewrite chant-forge next: because the item had already landed and the row is at its character cap.",
+      "did": "Recorded the result in README and ROADMAP.",
+      "result": "The next item is unchanged."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-two-fixes-for-one-chant-reader-bug.md",
+    "ventures/chant-forge/README.md (\"/i/ checked out of sample\")"
+  ],
+  "goal": "Fix the /i/-as-voiced-fricative fault part K found; on finding PR #16518 had merged the same fix, test that rule on this run's independent held-out set.",
+  "notes": "The duplicate (my VFRIC_RISE rule, pre-registered in commit 643f4b367 on this branch before the reset) passed its own six predictions on its own part L, but lost to main's VFRIC_HI5 on that same set. Landed: part M (my set) in eval/coda-check.mjs, the regenerated report (only M added), and the README/ROADMAP notes and post. Local checks: chant-forge node --test 262/262 and venture-preflight clean, both on the pre-reset branch. After the reset the change is eval/docs only; I re-ran the full coda-check; post front matter, links and similarity are clean. CI started no check runs on the PR at the first merge attempt. Not listened to.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "61a33b53-01af-5312-a36c-ecd7cd96f2be",
+    "transcripts": 1,
+    "first": "2026-11-16T09:18:52Z",
+    "last": "2026-11-16T09:48:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 80,
+        "input": 157,
+        "output": 42792,
+        "thinking": 8430,
+        "cache_read": 11211331,
+        "cache_write_5m": 0,
+        "cache_write_1h": 164419,
+        "api_equivalent_usd": 4.4141,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 80,
+      "input": 157,
+      "output": 42792,
+      "thinking": 8430,
+      "cache_read": 11211331,
+      "cache_write_5m": 0,
+      "cache_write_1h": 164419,
+      "api_equivalent_usd": 4.4141,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 73,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.38,
+      "active_minutes": 22.6,
+      "model_minutes": 9.06,
+      "tool_minutes": 13.54,
+      "waiting_on_human_minutes": 6.79,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "a DSP diagnosis and pre-registered held-out set, then an out-of-sample comparison of two rules, docs and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 90.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

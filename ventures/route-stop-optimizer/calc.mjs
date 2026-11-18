@@ -5,7 +5,12 @@
 // stops on one route; above that, multi-start nearest-neighbour + 2-opt +
 // Or-opt with a lateness penalty. Travel time is straight-line distance
 // (haversine) times a circuity factor at an average speed: an estimate, not
-// a road network. No network calls, no imports.
+// a road network. No network calls; the one import is the CVRPTW engine
+// (vrptw.mjs, string-removal ruin and recreate, benchmarked on Solomon in
+// eval/solomon.mjs), which runs as a second candidate on every heuristic plan
+// and alone when a vehicle capacity is set.
+
+import { solve as solveVrptw } from "./vrptw.mjs";
 
 export const EXACT_MAX = 12;
 export const MAX_STOPS = 200;
@@ -13,7 +18,12 @@ const EARTH_MI = 3958.8;
 const LATE_WEIGHT = 1000; // one late minute outweighs any drive-time saving
 
 export const num = (x, d = 0) => Number(x).toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d });
-export const money = (x) => "$" + Number(x).toLocaleString("en-US", { maximumFractionDigits: 0 });
+export const money = (x) => {
+  const format = (x) => "$" + Number(x).toLocaleString("en-US", { maximumFractionDigits: 0 });
+  if (!(Number(x) < 0)) return format(x);
+  const text = format(Math.abs(x));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export const pct = (x, d = 0) => (x * 100).toFixed(d) + "%";
 
 export function fmtTime(min) {
@@ -49,7 +59,7 @@ function splitLine(line) {
   return line.split(d).map((x) => x.trim().replace(/^"|"$/g, ""));
 }
 
-// Rows: [name,] lat, lng [, service_min [, open [, close]]].
+// Rows: [name,] lat, lng [, service_min [, open [, close [, load]]]].
 export function parseStops(text) {
   const lines = String(text || "").split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith("#"));
   const stops = [];
@@ -71,7 +81,10 @@ export function parseStops(text) {
     const open = parseClock(f[o + 3]), close = parseClock(f[o + 4]);
     if (Number.isNaN(open) || Number.isNaN(close)) { errors.push(`Line ${i + 1}: could not read the time window (try 9:00 or 9am).`); return; }
     if (open !== null && close !== null && close < open) { errors.push(`Line ${i + 1}: the window closes before it opens.`); return; }
-    stops.push({ name: name || `Stop ${stops.length + 1}`, lat, lng, service, open, close });
+    const loadRaw = f[o + 5];
+    const load = loadRaw === undefined || loadRaw === "" ? 0 : Number(loadRaw);
+    if (!Number.isFinite(load) || load < 0) { errors.push(`Line ${i + 1}: load must be a number of 0 or more.`); return; }
+    stops.push({ name: name || `Stop ${stops.length + 1}`, lat, lng, service, open, close, load });
   });
   if (errors.length) return { error: errors.slice(0, 4).join(" ") };
   return { stops };
@@ -289,9 +302,63 @@ const planScore = (routes, ctx) => {
   return sum + 2 * max;
 };
 
+// The CVRPTW engine's view of the stops in `ids`: drive minutes as both
+// cost and travel time, hard windows, optional capacity.
+export function vrptwInstance(ids, ctx, vehicles, capacity) {
+  const map = [0, ...ids];
+  const n = map.length;
+  const dist = new Float64Array(n * n);
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    dist[i * n + j] = j === 0 && !ctx.back ? 0 : ctx.mins[map[i]][map[j]];
+  }
+  const st = map.map((k) => ctx.nodes[k]);
+  return {
+    map,
+    inst: {
+      n, dist, time: dist,
+      service: st.map((s, i) => (i === 0 ? 0 : s.service)),
+      ready: st.map((s, i) => (i === 0 ? ctx.start : s.open ?? 0)),
+      due: st.map((s, i) => (i === 0 ? Infinity : s.close ?? Infinity)),
+      demand: st.map((s, i) => (i === 0 ? 0 : s.load || 0)),
+      capacity: capacity ?? Infinity,
+      maxVehicles: vehicles,
+    },
+  };
+}
+
+export const vrptwIterations = (n) => Math.min(12000, 3000 + 80 * n);
+
+// Run the engine; routes come back in the tool's node ids, padded to `k`.
+function vrptwPlan(ids, ctx, k, capacity, initial) {
+  const { map, inst } = vrptwInstance(ids, ctx, k, capacity);
+  const back = new Map(map.map((g, i) => [g, i]));
+  const res = solveVrptw(inst, {
+    iterations: ctx.vrptwIterations ?? vrptwIterations(ids.length),
+    seed: 7 + ids.length,
+    initial: initial ? initial.map((r) => r.map((g) => back.get(g))) : undefined,
+  });
+  const routes = res.routes.map((r) => r.map((i) => map[i]));
+  while (routes.length < k) routes.push([]);
+  return { routes, missing: res.missing.map((i) => map[i]) };
+}
+
 // Split stops across `vehicles` drivers and order each route.
 export function solvePlan(ids, ctx, vehicles, opts = {}) {
   const k = Math.max(1, Math.min(vehicles, ids.length || 1));
+  if (opts.capacity) {
+    const v = vrptwPlan(ids, ctx, k, opts.capacity, null);
+    return { routes: v.routes, exact: false, missing: v.missing, engine: "vrptw" };
+  }
+  const base = solvePlanLocal(ids, ctx, k, opts);
+  if (base.exact || opts.noVrptw || ids.length < 3) return { ...base, missing: [], engine: "local" };
+  const v = vrptwPlan(ids, ctx, k, null, base.routes.filter((r) => r.length));
+  if (!v.missing.length && planScore(v.routes, ctx) < planScore(base.routes, ctx) - 1e-9) {
+    return { routes: v.routes, exact: false, missing: [], engine: "vrptw" };
+  }
+  return { ...base, missing: [], engine: "local" };
+}
+
+function solvePlanLocal(ids, ctx, k, opts) {
   if (k === 1) {
     const r = solveSingle(ids, ctx, opts);
     return { routes: [r.order], exact: r.exact };
@@ -337,17 +404,18 @@ function summarise(routes, ctx, o) {
     miles: a.miles + e.miles, elapsed: a.elapsed + e.elapsed, drive: a.drive + e.drive,
     wait: a.wait + e.wait, late: a.late + e.late,
   }), { miles: 0, elapsed: 0, drive: 0, wait: 0, late: 0 });
+  const loads = routes.map((r) => r.reduce((a, k) => a + (ctx.nodes[k].load || 0), 0));
   const fuel = o.mpg > 0 ? (tot.miles / o.mpg) * o.fuelPrice : 0;
   const labor = (tot.elapsed / 60) * o.wage;
   const lateStops = evals.reduce((a, e) => a + e.visits.filter((v) => v.lateBy > 0).length, 0);
-  return { routes, evals, ...tot, fuel, labor, cost: fuel + labor, lateStops, longest: Math.max(0, ...evals.map((e) => e.elapsed)) };
+  return { routes, evals, loads, ...tot, fuel, labor, cost: fuel + labor, lateStops, longest: Math.max(0, ...evals.map((e) => e.elapsed)) };
 }
 
 export function optimize(input, raw = {}) {
   const o = {
     circuity: raw.circuity ?? 1.3, mph: raw.mph ?? 30, back: raw.returnToDepot !== false,
     start: raw.startMinute ?? 480, vehicles: raw.vehicles ?? 1, mpg: raw.mpg ?? 0, fuelPrice: raw.fuelPrice ?? 0,
-    wage: raw.wage ?? 0, daysPerYear: raw.daysPerYear ?? 0,
+    wage: raw.wage ?? 0, daysPerYear: raw.daysPerYear ?? 0, capacity: raw.capacity ?? null,
   };
   const { depot, stops } = input;
   if (!depot) return { error: "Add a depot (start) location as latitude, longitude." };
@@ -358,6 +426,11 @@ export function optimize(input, raw = {}) {
   if (!Number.isInteger(o.vehicles) || o.vehicles < 1 || o.vehicles > 20) return { error: "Drivers must be a whole number from 1 to 20." };
   if (!(o.start >= 0 && o.start < 1440)) return { error: "Start time must be within a day." };
   for (const v of [o.mpg, o.fuelPrice, o.wage, o.daysPerYear]) if (!(v >= 0)) return { error: "Cost fields must be 0 or more." };
+  if (o.capacity !== null) {
+    if (!(o.capacity > 0)) return { error: "Vehicle capacity must be a number above 0, or left blank." };
+    const big = stops.find((s) => (s.load || 0) > o.capacity);
+    if (big) return { error: `${big.name} needs ${num(big.load, 1)}, more than one vehicle holds (${num(o.capacity, 1)}).` };
+  }
 
   const nodes = [depot, ...stops];
   const { miles, mins } = buildMatrices(nodes, o.circuity, o.mph);
@@ -368,8 +441,10 @@ export function optimize(input, raw = {}) {
   const far = Math.max(...stops.map((s) => haversineMiles(depot, s)));
   if (far > 300) warnings.push(`One stop is about ${num(far)} miles in a straight line from the depot; check the coordinates, since a straight-line estimate gets worse over long distances.`);
 
-  const plan = solvePlan(ids, ctx, o.vehicles);
+  const plan = solvePlan(ids, ctx, o.vehicles, { capacity: o.capacity });
   const best = summarise(plan.routes, ctx, o);
+  best.missing = plan.missing;
+  if (plan.missing.length) warnings.push(`${plan.missing.length} stop${plan.missing.length === 1 ? "" : "s"} could not fit any driver's load and time windows and ${plan.missing.length === 1 ? "is" : "are"} left out: ${plan.missing.slice(0, 6).map((k) => nodes[k].name).join(", ")}${plan.missing.length > 6 ? ", ..." : ""}. Add a driver, a bigger vehicle or an earlier start.`);
   if (best.lateStops) warnings.push(`${best.lateStops} stop${best.lateStops === 1 ? " is" : "s are"} still late: the windows cannot all be met from this start time with this many drivers. Try an earlier start or another driver.`);
 
   const listed = summarise(o.vehicles === 1 ? [ids] : chunkContiguous(ids, Math.min(o.vehicles, ids.length)), ctx, o);
@@ -380,14 +455,14 @@ export function optimize(input, raw = {}) {
   if (hasWindows) {
     const freeNodes = nodes.map((s, i) => (i === 0 ? s : { ...s, open: null, close: null }));
     const fctx = { ...ctx, nodes: freeNodes };
-    const free = summarise(solvePlan(ids, fctx, o.vehicles).routes, fctx, o);
+    const free = summarise(solvePlan(ids, fctx, o.vehicles, { capacity: o.capacity }).routes, fctx, o);
     const freeOnOriginal = summarise(free.routes, ctx, o);
     windowCost = { elapsed: Math.max(0, best.elapsed - free.elapsed), miles: Math.max(0, best.miles - free.miles), freeLate: freeOnOriginal.late };
   }
 
   const saveMiles = listed.miles - best.miles, saveMin = listed.elapsed - best.elapsed, saveCost = listed.cost - best.cost;
   return {
-    options: o, nodes, exact: plan.exact, best, listed, windowCost, warnings,
+    options: o, nodes, exact: plan.exact, engine: plan.engine, best, listed, windowCost, warnings,
     saveMiles, saveMin, saveCost, saveYear: o.daysPerYear ? saveCost * o.daysPerYear : 0,
     savePct: listed.elapsed > 0 ? saveMin / listed.elapsed : 0,
   };

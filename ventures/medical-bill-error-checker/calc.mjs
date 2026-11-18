@@ -8,9 +8,9 @@ const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 export const money = (n) => {
   const v = Math.round((Number(n) + Number.EPSILON) * 100) / 100;
   const [i, f] = Math.abs(v).toFixed(2).split(".");
-  return (v < 0 ? "-" : "") + i.replace(/\B(?=(\d{3})+$)/g, ",") + "." + f;
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(i.replace(/\B(?=(\d{3})+$)/g, ",") + "." + f);
 };
-const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(money(Math.abs(n)));
 const pct = (n, d) => (d > 0 ? (n / d) * 100 : null);
 
 // ---------- text decoding and CSV ----------
@@ -27,7 +27,7 @@ export function decodeBuffer(buf) {
 // Comma, semicolon, tab or pipe: whichever appears most in the first non-empty
 // line outside quotes.
 export function detectDelimiter(text) {
-  const first = String(text).replace(/^﻿/, "").split(/\r\n|\n|\r/).find((l) => l.trim()) || "";
+  const first = String(text).replace(/^\uFEFF/, "").split(/\r\n|\n|\r/).find((l) => l.trim()) || "";
   const counts = { ",": 0, ";": 0, "\t": 0, "|": 0 };
   let inQ = false;
   for (const ch of first) {
@@ -43,7 +43,7 @@ export function detectDelimiter(text) {
 // Blank lines are dropped. Returns { rows, lines } where lines[i] is the
 // 1-based source line row i started on.
 export function parseCsv(text, delimiter = ",") {
-  const s = String(text).replace(/^﻿/, "");
+  const s = String(text).replace(/^\uFEFF/, "");
   const rows = [], lines = [];
   let row = [], field = "", inQ = false, line = 1, rowLine = 1, touched = false;
   const endField = () => { row.push(field); field = ""; };
@@ -144,7 +144,7 @@ export const DISTINCT_MODIFIERS = ["59", "XE", "XS", "XP", "XU", "91"];
 // 2026-03-04 are the same day. Unparsed text is kept as it is.
 export function dayKey(text) {
   const s = String(text ?? "").trim();
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/);
   if (m) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
   m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2}|\d{4})$/);
   if (m) {

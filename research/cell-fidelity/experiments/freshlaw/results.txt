@@ -1,0 +1,23 @@
+cell-fidelity milestone 5u: the balance map with a per-pool lithium law (median ten-cycle exponent >= 0.6 -> a + b sqrt(n), else a n^b)
+on fresh pools: 64 Sobol designs (seed 14) x 4 conditions, DFN (SEI + plating) to cycle 100, screen reads cycles 1 to 10
+
+condition              n drop b_med   law rho raw  sqrtE    law    alt  trueL |fade| sqrtE   law trueL  gap 5n    law    tri   raw8 rank raw/sqrtE/law Llaw/L  fade
+Ai2020@0.3x           53   11  0.86  sqrt   0.364  0.667  0.641  0.403  0.974        0.075 0.080 0.024  0.0000 0.0000 0.0000 0.0274       25/4/2       1.05 0.524
+Ai2020@0.4x           60    4  0.88  sqrt   0.777  0.745  0.662  0.282  0.968        0.079 0.103 0.027  0.0000 0.0125 0.0000 0.0144       18/1/22      0.99 0.479
+Ai2020@0.5x           64    0  0.90  sqrt   0.863  0.666  0.764  0.425  0.961        0.107 0.123 0.033  0.0087 0.0000 0.0000 0.0000        5/14/2       0.94 0.446
+NCA_Kim2011@0.625x    64    0  0.25 power   0.914 -0.157 -0.352 -0.486  0.952        0.704 0.400 0.016  0.0000 0.0000 0.0000 0.0000        1/36/34      1.32 0.345
+
+H117 (chosen-law map ranks DFN@100 better than 5n's sqrt energy fit on >= 3 of 4): refuted (1 of 4; sign test p = 0.62)
+H118 (union raw top 4 + map top 4 within 1% of the pool's DFN best on every pool): mixed (worst 0.0125)
+H119 (that union no worse than 5n's union on every pool): refuted (worst excess +0.0125)
+H120 (map's median |fade error| below the sqrt fit's on >= 3 of 4): refuted (1 of 4)
+H121 (selector picks power on NCA_Kim2011, sqrt on Ai2020, and the Ai2020 median L_law(99)/L_DFN(99) is within 0.8 to 1.25): supported (selector as predicted; ratios 1.05, 0.99, 0.94)
+
+Descriptive: 'alt' is the map with the law the selector did not pick; 'trueL' the map fed DFN's own cycle-99 loss; 'raw8' the top 8 by raw cycle-10 Wh/kg (a cost-matched list with no fade model); 'tri' raw + sqrtE + law, 4 each.
+resumed designs, mean: 5n 7.8, law 8.0, tri 11.0
+
+Post hoc (after the verdicts): spread of the per-design L_law(99) / L_DFN(99), 10th / 50th / 90th percentile
+  Ai2020@0.3x           0.89  1.05  1.40; median E2 / E_ocv 0.85
+  Ai2020@0.4x           0.82  0.98  1.45; median E2 / E_ocv 0.81
+  Ai2020@0.5x           0.77  0.94  1.28; median E2 / E_ocv 0.76
+  NCA_Kim2011@0.625x    1.19  1.31  1.50; median E2 / E_ocv 0.79

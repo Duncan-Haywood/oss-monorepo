@@ -17,7 +17,7 @@ export const DEFAULT_SCENARIOS = [
 
 export function fmt(n) {
   const r = Math.round(n);
-  return (r < 0 ? "-$" : "$") + Math.abs(r).toLocaleString("en-US");
+  return ((t) => (r < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(r).toLocaleString("en-US"));
 }
 
 const num = (v, d = 0) => {

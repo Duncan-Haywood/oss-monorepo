@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtHqPZNpWwKu35XH8Qi",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T22:06:51Z",
+  "ended": "2026-11-15T22:12:53Z",
+  "wall_minutes": 6.2,
+  "tokens_in": 2682837,
+  "tokens_out": 26883,
+  "cost_usd": 1.7205,
+  "tool_calls": 32,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16358",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/creative_due.py",
+      "issue": "Drew hearth-and-horizon, whose only waiting proposal was already being written in open PR #16355; the draw cannot see open PRs, so the run had to search and fall back by hand."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The For Other Minds proposal specified a 'six-week reading log' as the second look; in the story's timeline (letters 2 Oct, half-term, second look to 11 Dec) a fixed six weeks did not fit, so the story uses the term-long reading record instead."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searched open PRs before drafting and found none on the screener proposal, but another session (PR #16360) opened and merged it while this run drafted; a bible proposal has no claim marker, so two sessions can pick the same 'next up' entry within an hour. A claim line in BIBLE.md (or a draft PR opened before drafting) would prevent it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/creative_due.py",
+      "why": "Its 'then:' fallback listed saints-by-candlelight first, but For Other Minds had the highest draw weight (35%) and a fully specified bible proposal, while Saints had just landed episode 125 an hour earlier.",
+      "did": "Wrote the For Other Minds proposal instead of a Saints episode.",
+      "result": "Story landed with numbers checked; no open PR overlapped."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "After the merge conflict showed #16360 had landed the same proposal, merging a second story on the same premise would have duplicated the shelf.",
+      "did": "Dropped 'Nine Letters Home' before merging and wrote 'Ninety-Seven Visits' (Goodhart's law) from the For Other Minds proposal this run had added to the bible.",
+      "result": "Second story landed; the first draft cost about a story's worth of tokens and is not in the tree."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-ninety-seven-visits-goodharts-law.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, For Other Minds shelf. Piece: ninety-seven-visits (Goodhart's law: visits target, then minutes target, then four figures plus notes). A first draft, nine-letters-home (reading screener), was dropped unmerged because PR #16360 merged the same bible proposal meanwhile. Text only (audio 474 MB > 400 MB cap). node --test 17/17; run_workflow_locally --for-changes 12/12 on the first draft's diff.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "51f32a10-193b-56b1-b9a0-64cd6bf9195d",
+    "transcripts": 1,
+    "first": "2026-11-15T22:06:51Z",
+    "last": "2026-11-15T22:13:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 60,
+        "output": 26883,
+        "thinking": 10920,
+        "cache_read": 2599945,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82832,
+        "api_equivalent_usd": 1.7205,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 60,
+      "output": 26883,
+      "thinking": 10920,
+      "cache_read": 2599945,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82832,
+      "api_equivalent_usd": 1.7205,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 32,
+    "tools": {
+      "Bash": 28,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.2,
+      "active_minutes": 6.2,
+      "model_minutes": 5.7,
+      "tool_minutes": 0.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a writer drafting and fact-checking a 2,900-word statistics short story plus a blog post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 348.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

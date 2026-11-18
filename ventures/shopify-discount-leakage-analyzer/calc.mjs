@@ -41,24 +41,26 @@ export function detectDelimiter(text) {
 
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
@@ -68,7 +70,7 @@ export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
   s = s.replace(/^[<>]\s*/, "");
-  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−]/.test(s);
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -117,7 +119,7 @@ export function normalizeOrders(table, { decimalComma = false } = {}) {
     if (!name) continue;
     let o = byName.get(name);
     if (!o) {
-      o = { name, line: r + 1, email: "", created: null, cancelled: false, status: "", subtotal: null, total: null, discount: null, refunded: null, codes: "", lines: 0, bad: "" };
+      o = { name, line: table[r].line ?? r + 1, email: "", created: null, cancelled: false, status: "", subtotal: null, total: null, discount: null, refunded: null, shipping: null, taxes: null, codes: "", lines: 0, bad: "" };
       byName.set(name, o);
     }
     const num = (f) => { const v = get(f); if (v === "") return null; const n = parseNumber(v, decimalComma); return Number.isFinite(n) ? n : NaN; };
@@ -125,7 +127,7 @@ export function normalizeOrders(table, { decimalComma = false } = {}) {
     if (!o.status) o.status = get("status").toLowerCase();
     if (get("cancelled")) o.cancelled = true;
     if (o.created === null && get("created")) { const t = Date.parse(get("created").replace(/^(\d{4}-\d{2}-\d{2}) /, "$1T").replace(/ ([+-]\d{2}):?(\d{2})$/, "$1:$2")); if (Number.isFinite(t)) o.created = t; }
-    for (const f of ["subtotal", "total", "discount", "refunded"]) {
+    for (const f of ["subtotal", "total", "discount", "refunded", "shipping", "taxes"]) {
       if (o[f] === null) { const v = num(f); if (v !== null) o[f] = v; }
     }
     if (!o.codes && get("code")) o.codes = get("code");
@@ -141,7 +143,10 @@ export function normalizeOrders(table, { decimalComma = false } = {}) {
     if (o.bad) { skipped.push({ line: o.line, reason: `unreadable ${o.bad} on ${o.name}` }); continue; }
     if (o.cancelled || /^(voided|cancelled|canceled)$/.test(o.status)) { cancelled++; continue; }
     const discount = Math.abs(o.discount ?? 0);
-    const subtotal = o.subtotal ?? (o.total !== null ? o.total : null);
+    // Total includes shipping and tax; with no Subtotal column take them back
+    // out where the export has them (red team 2026-11-16: they read as list price).
+    const extra = (f) => (Number.isFinite(o[f]) ? o[f] : 0);
+    const subtotal = o.subtotal ?? (o.total !== null ? o.total - extra("shipping") - extra("taxes") : null);
     const gross = o.subtotal !== null ? o.subtotal + discount : o.lines > 0 ? o.lines : subtotal !== null ? subtotal + discount : null;
     if (gross === null) { skipped.push({ line: o.line, reason: `no subtotal or total on ${o.name}` }); continue; }
     const codes = o.codes ? o.codes.split(/[,;]/).map((c) => c.trim().toUpperCase()).filter(Boolean) : [];
@@ -269,7 +274,7 @@ export function codesCsv(result) {
   return [head].concat(result.byCode.map((c) => [q(c.key), c.orders, c.gross.toFixed(2), c.discount.toFixed(2), c.rate.toFixed(4), c.aov.toFixed(2), c.refundRate.toFixed(4), c.breakEven === null ? "" : c.breakEven === Infinity ? "never" : c.breakEven.toFixed(4)].join(","))).join("\n");
 }
 
-export function money(v) { return (v < 0 ? "-" : "") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+export function money(v) { return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })); }
 export function pct(v) { return v === null || v === undefined ? "–" : `${(v * 100).toFixed(1)}%`; }
 
 // Deterministic synthetic store in Shopify's own export layout (one row per line

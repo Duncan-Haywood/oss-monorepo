@@ -49,6 +49,9 @@ def main(argv=None):
     for page, t in bad:
         print(f"{page}: {t[:120]}")
     print(f"{pages} pages, {len(bad)} _blank links without rel=noopener")
+    if not pages:
+        print(f"no pages under {args.root}: wrong --root? A scan of nothing is not a pass.")
+        return 2
     return 1 if bad else 0
 
 

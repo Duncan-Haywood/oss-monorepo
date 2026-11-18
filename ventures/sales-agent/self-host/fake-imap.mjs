@@ -1,23 +1,32 @@
-// A tiny in-memory IMAP server for tests (plain, or implicit TLS with tlsOpts): LOGIN, LIST, EXAMINE, UID SEARCH,
+// A tiny in-memory IMAP server for tests (plain, implicit TLS with tlsOpts, or plain with STARTTLS when starttls: true): LOGIN, LIST, EXAMINE, UID SEARCH,
 // UID FETCH (BODY.PEEK[] and BODY.PEEK[HEADER.FIELDS (...)]), LOGOUT. Records every command.
 // messages is INBOX; boxes adds other mailboxes: { "Sent Items": { flags: "\\Sent", messages: { uid: raw }, uidValidity } }.
 import net from "node:net";
 import tls from "node:tls";
-export function fakeImap({ user = "me@example.com", pass = "pw", token = null, messages = {}, boxes = {}, tlsOpts = null } = {}) {
+export function fakeImap({ user = "me@example.com", pass = "pw", token = null, messages = {}, boxes = {}, tlsOpts = null, starttls = false, inject = null, preauth = false } = {}) {
+  // starttls: offers STARTTLS (needs tlsOpts) and refuses LOGIN until it. inject: text written right after the STARTTLS OK in the
+  // same packet (an attacker's or a buggy server's). preauth: greets "* PREAUTH" instead of "* OK".
   const log = [];
   const all = { INBOX: { flags: "", messages, uidValidity: 1 }, ...boxes };
-  const onConn = (s) => {
+  const onConn = (s0) => {
+    let s = s0, secured = !!tlsOpts && !starttls;
     s.on("error", () => {});
-    s.write("* OK fake ready\r\n");
+    s.write(preauth ? "* PREAUTH fake\r\n" : `* OK [CAPABILITY IMAP4rev1${starttls ? " STARTTLS LOGINDISABLED" : ""}] fake ready\r\n`);
     let buf = "", pendingFail = null, box = all.INBOX;
-    s.on("data", (d) => {
+    const onData = (d) => {
       buf += d;
       for (let i; (i = buf.indexOf("\r\n")) >= 0;) {
         const line = buf.slice(0, i); buf = buf.slice(i + 2);
         if (pendingFail) { s.write(`${pendingFail} NO [AUTHENTICATIONFAILED] invalid token\r\n`); pendingFail = null; continue; } // client answered the XOAUTH2 error challenge
         const [tag, cmd, ...rest] = line.split(" "), arg = rest.join(" "); log.push(line);
         const C = cmd.toUpperCase();
-        if (C === "AUTHENTICATE" && token) {
+        if (C === "CAPABILITY") s.write(`* CAPABILITY IMAP4rev1${starttls && !secured ? " STARTTLS LOGINDISABLED" : " AUTH=PLAIN"}\r\n${tag} OK done\r\n`);
+        else if (C === "STARTTLS" && starttls && !secured) {
+          s.write(`${tag} OK begin TLS\r\n${inject || ""}`); s.removeAllListeners("data"); buf = ""; secured = true;
+          s = new tls.TLSSocket(s, { isServer: true, ...tlsOpts }); s.on("error", () => {}); s.on("data", onData); return;
+        }
+        else if ((C === "LOGIN" || C === "AUTHENTICATE") && starttls && !secured) s.write(`${tag} NO [PRIVACYREQUIRED] STARTTLS first\r\n`);
+        else if (C === "AUTHENTICATE" && token) {
           log.push("(auth " + arg.split(" ")[0] + ")");
           if (Buffer.from(arg.split(" ")[1] || "", "base64").toString() === `user=${user}\x01auth=Bearer ${token}\x01\x01`) s.write(`${tag} OK authenticated\r\n`);
           else { pendingFail = tag; s.write(`+ ${Buffer.from('{"status":"401","schemes":"Bearer","scope":"https://mail.google.com/"}').toString("base64")}\r\n`); }
@@ -35,8 +44,9 @@ export function fakeImap({ user = "me@example.com", pass = "pw", token = null, m
         else if (C === "LOGOUT") { s.write(`* BYE\r\n${tag} OK bye\r\n`); s.end(); }
         else s.write(`${tag} BAD unknown\r\n`);
       }
-    });
+    };
+    s.on("data", onData);
   };
-  const server = tlsOpts ? tls.createServer(tlsOpts, onConn) : net.createServer(onConn); // tlsOpts = { key, cert }: implicit TLS, like port 993
+  const server = tlsOpts && !starttls ? tls.createServer(tlsOpts, onConn) : net.createServer(onConn); // tlsOpts = { key, cert }: implicit TLS, like port 993
   return { server, log, listen: () => new Promise((r) => server.listen(0, "127.0.0.1", () => r(server.address().port))), close: () => new Promise((r) => server.close(r)) };
 }

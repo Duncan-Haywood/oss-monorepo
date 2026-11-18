@@ -80,13 +80,13 @@ function splitRow(line, sep) {
 // and `section` are optional. Blank lines and lines starting with # are skipped. Returns
 // { singers: [{ row, name, section, low, high }], sectioned } or throws with the row number.
 export function parseSingers(text) {
-  const lines = String(text ?? '').replace(/^﻿/, '').split(/\r?\n/).map((l, i) => ({ l, row: i + 1 })).filter((x) => x.l.trim() && !x.l.trim().startsWith('#'));
+  const lines = String(text ?? '').replace(/^\uFEFF/, '').split(/\r?\n/).map((l, i) => ({ l, row: i + 1 })).filter((x) => x.l.trim() && !x.l.trim().startsWith('#'));
   if (!lines.length) throw new Error('singers file: no rows');
   const head = lines[0].l;
   const sep = head.includes('\t') ? '\t' : head.includes(';') && !head.includes(',') ? ';' : ',';
   const cols = splitRow(head, sep).map((h) => h.toLowerCase().replace(/[\s_\-]/g, ''));
   const at = {};
-  for (const [k, names] of Object.entries(COLUMNS)) at[k] = cols.findIndex((c) => names.includes(c));
+  for (const [k, names] of Object.entries(COLUMNS)) at[k] = (names.map((n) => cols.indexOf(n)).find((i) => i >= 0) ?? -1);
   if (at.low < 0 || at.high < 0) throw new Error('singers file: the header row needs a "low" and a "high" column (also optional "name" and "section")');
   const singers = [];
   for (const { l, row } of lines.slice(1)) {

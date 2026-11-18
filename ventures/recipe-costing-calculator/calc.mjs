@@ -57,7 +57,7 @@ export function num(s) {
   if (m) return Number(m[1]) / Number(m[2]);
   return /^-?(\d+\.?\d*|\.\d+)$/.test(t) ? Number(t) : NaN;
 }
-export const money = (n, d = 2) => (Number.isFinite(n) ? (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }) : "—");
+export const money = (n, d = 2) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d })) : "—");
 export const pct = (n, d = 1) => (Number.isFinite(n) ? (n * 100).toFixed(d) + "%" : "—");
 
 export function normUnit(u) {

@@ -10,34 +10,79 @@ from datetime import date
 from pathlib import Path
 
 
-MEDIA_EXTENSIONS = {
+# Raw formats a camera writes to its card. The copy keeps every one of them,
+# developable here or not: a raw left on the card by a copy that ignored its
+# extension is a frame lost when the card is formatted. Only some develop
+# (``raw_preview.is_developable_path``); the rest are copied, catalogued and culled
+# from their embedded preview.
+RAW_PHOTO_EXTENSIONS = frozenset(
+    {
+        ".3fr",  # Hasselblad
+        ".arw",  # Sony
+        ".cr2",  # Canon
+        ".cr3",  # Canon
+        ".crw",  # Canon, 2000-2004 (D30, D60, 10D, 300D, PowerShot G)
+        ".dcr",  # Kodak
+        ".dng",
+        ".erf",  # Epson
+        ".fff",  # Hasselblad / Imacon
+        ".gpr",  # GoPro
+        ".iiq",  # Phase One
+        ".kdc",  # Kodak
+        ".mef",  # Mamiya
+        ".mos",  # Leaf
+        ".mrw",  # Minolta
+        ".nef",  # Nikon
+        ".nrw",  # Nikon Coolpix
+        ".orf",  # Olympus / OM System
+        ".pef",  # Pentax
+        ".raf",  # Fujifilm
+        ".raw",  # Panasonic and Leica compacts before RW2
+        ".rw2",  # Panasonic
+        ".rwl",  # Leica bodies built by Panasonic (D-LUX, V-LUX, C-LUX)
+        ".sr2",  # Sony
+        ".srf",  # Sony
+        ".srw",  # Samsung
+        ".x3f",  # Sigma
+    }
+)
+
+# Edits a photographer or another tool already made, kept next to the frame they
+# describe (Lightroom, Capture One, darktable and the cameras that write XMP).
+SIDECAR_EXTENSIONS = frozenset({".xmp"})
+
+MEDIA_EXTENSIONS = RAW_PHOTO_EXTENSIONS | SIDECAR_EXTENSIONS | {
     ".3gp",
     ".ari",
-    ".arw",
     ".avi",
     ".braw",
-    ".cr2",
-    ".cr3",
-    ".dng",
+    ".crm",  # Canon Cinema RAW Light
     ".heic",
+    ".heif",
+    ".hif",  # Canon and Fujifilm 10-bit HEIF
+    ".insp",  # Insta360 photo
+    ".insv",  # Insta360 video
     ".jpeg",
     ".jpg",
+    ".lrv",  # GoPro / Insta360 low-resolution proxy
+    ".m2ts",
     ".m4v",
     ".mov",
     ".mp4",
     ".mts",
-    ".nef",
-    ".orf",
-    ".pef",
-    ".raf",
+    ".mxf",  # Sony XAVC, Canon Cinema EOS, Panasonic P2
     ".r3d",
-    ".rw2",
-    ".srw",
     ".tif",
     ".tiff",
     ".wav",
     ".xavc",
 }
+
+# Files a card or an operating system writes that hold no picture or sound; they
+# are neither copied nor reported as left behind.
+_CARD_HOUSEKEEPING = frozenset(
+    {".bin", ".bnp", ".ctg", ".dat", ".db", ".ind", ".ini", ".lck", ".log", ".thm", ".tmp", ".bdm", ".cpi", ".mpl", ".smi"}
+)
 
 _SHOOT_SLUG_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$")
 
@@ -71,6 +116,9 @@ class CopyPlan:
     shoot_slug: str
     shoot_folder: Path
     items: tuple[CopyItem, ...]
+    # Files on the card that are not copied (their extension is not media), as
+    # paths relative to ``source_root``, so nothing is left behind unseen.
+    left_on_card: tuple[Path, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -125,6 +173,7 @@ def plan_import(
         shoot_slug=shoot_slug,
         shoot_folder=shoot_folder,
         items=tuple(items),
+        left_on_card=_files_left_on_card(source),
     )
 
 
@@ -195,10 +244,36 @@ def _iter_media_files(root: Path) -> tuple[Path, ...]:
             continue
         if not path.is_file() or path.suffix.lower() not in MEDIA_EXTENSIONS:
             continue
+        # Hidden files are never pictures: a Mac writes '._IMG_0001.CR3' (AppleDouble,
+        # 4 KB of Finder metadata) beside each file on an exFAT or FAT card, which has the
+        # raw's extension and would otherwise be copied and fail to develop.
+        if any(part.startswith(".") for part in path.relative_to(root).parts):
+            continue
         if path.is_symlink():
             raise UnsafePathError(f"Refusing source media symlink: {path}")
         files.append(path)
     return tuple(sorted(files, key=lambda path: path.as_posix().lower()))
+
+
+def _files_left_on_card(root: Path) -> tuple[Path, ...]:
+    """Files under ``root`` the copy will not take, minus hidden files and card housekeeping.
+
+    A raw format nobody listed, an audio memo, a cinema camera's clip metadata: the
+    photographer sees each before formatting the card, rather than finding out later.
+    """
+
+    left: list[Path] = []
+    for path in root.rglob("*"):
+        if _any_parent_is_symlink(path, root) or path.is_symlink() or not path.is_file():
+            continue
+        relative = path.relative_to(root)
+        if any(part.startswith(".") for part in relative.parts):
+            continue
+        suffix = path.suffix.lower()
+        if suffix in MEDIA_EXTENSIONS or suffix in _CARD_HOUSEKEEPING:
+            continue
+        left.append(relative)
+    return tuple(sorted(left, key=lambda path: path.as_posix().lower()))
 
 
 def _validate_shoot_identity(*, shoot_date: str, shoot_slug: str) -> None:
@@ -291,6 +366,8 @@ def _write_manifest(plan: CopyPlan) -> Path:
             }
             for item in plan.items
         ],
+        # Not copied: review before formatting the card (ingest._files_left_on_card).
+        "left_on_card": [path.as_posix() for path in plan.left_on_card],
     }
     temp_path = manifest_path.with_name(".ingest_manifest.json.tmp")
     if temp_path.exists() or temp_path.is_symlink():

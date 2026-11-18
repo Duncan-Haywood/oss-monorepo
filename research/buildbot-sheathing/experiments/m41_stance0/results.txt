@@ -1,0 +1,89 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 41: a stance that stands at zero press
+## A. Leaned poses (milestone 32's set): robot z dy | lean dx0 (mm), window (N) | re-lean dx1 (mm), window | covers 0-50 | analytic width vs simulated
+  g1 0.4 -0.15 |   40.1 [  0.0,   73.4] | kept |  159.1 vs   73.4
+  g1 0.4 +0.00 |   40.1 [  0.0,   94.3] | kept |  159.1 vs   94.3
+  g1 0.4 +0.15 |   40.1 [  0.0,  117.1] | kept |  159.1 vs  117.1
+  g1 0.6 -0.15 |   60.9 [  0.0,   68.6] | kept |  104.7 vs   68.6
+  g1 0.6 +0.00 |   60.9 [  0.0,   84.8] | kept |  104.7 vs   84.8
+  g1 0.6 +0.15 |   60.9 [  0.0,   89.9] | kept |  104.7 vs   89.9
+  g1 0.8 -0.15 |   81.7 [  0.0,   64.9] | kept |   78.1 vs   64.9
+  g1 0.8 +0.00 |   81.7 [  0.0,   76.5] | kept |   78.1 vs   76.5
+  g1 0.8 +0.15 |   81.7 [  0.0,   76.5] | kept |   78.1 vs   76.5
+  g1 1.0 -0.15 |  102.5 [  6.4,   61.9] |   84.9 [ 0.0,   58.6] | yes |   62.2 vs   55.6
+  g1 1.0 +0.00 |  102.5 [  6.4,   68.6] |   84.9 [ 0.0,   62.2] | yes |   62.2 vs   62.2
+  g1 1.0 +0.15 |  102.5 [  6.4,   68.6] |   84.9 [ 0.0,   62.2] | yes |   62.2 vs   62.2
+  g1 1.2 -0.15 |  123.6 [ 11.8,   59.7] |   84.5 [ 0.0,   51.6] | yes |   51.7 vs   47.9
+  g1 1.2 +0.00 |  123.3 [ 11.6,   63.4] |   84.8 [ 0.0,   51.6] | yes |   51.7 vs   51.7
+  g1 1.2 +0.15 |  123.5 [ 11.7,   63.4] |   84.9 [ 0.0,   51.7] | yes |   51.7 vs   51.7
+  h1 0.4 -0.15 |   40.0 [  0.0,  114.2] | kept |  235.3 vs  114.2
+  h1 0.4 +0.00 |   40.0 [  0.0,  139.0] | kept |  235.4 vs  139.0
+  h1 0.4 +0.15 |   40.0 [  0.0,  154.7] | kept |  235.3 vs  154.7
+  h1 0.6 -0.15 |   54.0 [  0.0,  103.7] | kept |  156.9 vs  103.7
+  h1 0.6 +0.00 |   54.0 [  0.0,  115.6] | kept |  156.9 vs  115.6
+  h1 0.6 +0.15 |   54.0 [  0.0,  115.6] | kept |  156.9 vs  115.6
+  h1 0.8 -0.15 |   67.9 [  0.0,   95.7] | kept |  117.7 vs   95.7
+  h1 0.8 +0.00 |   67.9 [  0.0,   96.1] | kept |  117.7 vs   96.1
+  h1 0.8 +0.15 |   67.9 [  0.0,   96.1] | kept |  117.7 vs   96.1
+  h1 1.0 -0.15 |   81.9 [  0.0,   84.4] | kept |   94.1 vs   84.4
+  h1 1.0 +0.00 |   81.9 [  0.0,   84.4] | kept |   94.1 vs   84.4
+  h1 1.0 +0.15 |   81.9 [  0.0,   84.4] | kept |   94.1 vs   84.4
+  h1 1.2 -0.15 |   95.8 [  0.0,   76.6] | kept |   78.5 vs   76.6
+  h1 1.2 +0.00 |   95.8 [  0.0,   76.6] | kept |   78.5 vs   76.6
+  h1 1.2 +0.15 |   95.8 [  0.0,   76.6] | kept |   78.5 vs   76.6
+  h1 1.4 -0.15 |  109.8 [  3.7,   71.0] |   99.9 [ 0.0,   67.2] | yes |   67.2 vs   67.2
+  h1 1.4 +0.00 |  109.8 [  3.7,   71.0] |   99.9 [ 0.0,   67.2] | yes |   67.2 vs   67.2
+  h1 1.4 +0.15 |  109.8 [  3.7,   71.0] |   99.9 [ 0.0,   67.2] | yes |   67.2 vs   67.2
+  h1 1.6 -0.15 |  123.7 [  8.0,   66.8] |   99.5 [ 0.0,   58.7] | yes |   58.8 vs   58.8
+  h1 1.6 +0.00 |  123.7 [  8.0,   66.8] |   99.5 [ 0.0,   58.7] | yes |   58.8 vs   58.8
+  h1 1.6 +0.15 |  123.7 [  8.0,   66.8] |   99.5 [ 0.0,   58.7] | yes |   58.8 vs   58.8
+re-leaned 12 of 36 poses; 12 cover 0-50 N; lean moved back 9.9-39.1 mm
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+re-leaned poses with a 'hold-min' solution: 11 of 12 (none at [['h1', 1.6, -0.15]]); controller's chosen sides changed: {'g1': True, 'h1': False}
+(section B tasks: h1 H 0 12 s, h1 H 5 95 s, h1 H 20 77 s, g1 H 0 4 s, g1 H 5 31 s, g1 H 20 26 s)
+## B. Worst residual along the wall (mm), 'braked' waist, |e| 0.2 N, S 10 N, m 0.1 N m: robot | H | all poses (milestone 40 'uniform') | re-leaned poses only (where)
+  g1   0.0 | 0.016 (0.021) | 0.016 at [1.2, 0.15] phi 0
+  g1   5.0 | 0.011 (0.012) | 0.007 at [1.0, -0.15] phi 180
+  g1  20.0 | 0.011 (0.012) | 0.006 at [1.2, 0.15] phi 315
+  h1   0.0 | 0.010 (0.010) | 0.010 at [1.6, 0.15] phi 0
+  h1   5.0 | 0.019 (0.019) | 0.014 at [1.6, 0.0] phi 270
+  h1  20.0 | 0.032 (0.032) | 0.010 at [1.6, 0.15] phi 270
+
+## C. No-hose clean-sheet stack, 'braked': robot | pose | re-leaned stack | milestone 40 (same pose)
+  h1 [1.4, -0.15] | 0.9620 | 0.9723
+  h1 [1.4, 0.0] | 0.9734 | 0.9744
+  h1 [1.4, 0.15] | 0.9756 | 0.9765
+  h1 [1.6, 0.0] | 0.9610 | 0.9695
+  h1 [1.6, 0.15] | 0.9655 | 0.9677
+  g1 [1.0, -0.15] | 0.9503 | 0.9534
+  g1 [1.0, 0.0] | 0.9484 | 0.9464
+  g1 [1.0, 0.15] | 0.9547 | -
+  g1 [1.2, -0.15] | 0.9418 | 0.9358
+  g1 [1.2, 0.0] | 0.9030 | 0.9160
+  g1 [1.2, 0.15] | 0.9363 | 0.9480
+  g1: worst pose over all 0.9030 (milestone 40 0.9160), loss +1.30 points
+  h1: worst pose over all 0.9610 (milestone 40 0.9564), loss -0.46 points
+
+## D. Hypotheses (registered in LOG.md before this run)
+H156 (every pose that needs a press has a zero-press lean covering 0-50 N): 12 of 12 -> held
+H157 (the re-lean moves the balanced CoM back by at most 20 mm): largest 39.1 mm -> refuted
+H158 (every re-leaned pose keeps a 'hold-min' solution): 11 of 12 -> refuted
+H159 (braked, |e| 0.2 N, 5 N drag: worst residual at most 0.1 mm on both robots): G1 0.011, H1 0.019 -> held
+H160 (the worst-pose no-hose stack loses at most 0.5 points): G1 +1.30, H1 -0.46 -> refuted
+
+(run time 165 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

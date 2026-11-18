@@ -175,15 +175,29 @@ def landed_by_content(probe, tip_ref, base_ref):
     if not changes:
         return True
 
-    def blob(ref, path):
-        return git(["rev-parse", "-q", "--verify", f"{ref}:{path}"], probe,
-                   check=False).strip()
+    # Every blob id this needs, from one `cat-file --batch-check` rather than
+    # a `rev-parse` per path (two per modified path): a squash-landed branch
+    # touching 30 files cost 31 processes, now 2 (2026-11-18,
+    # docs/history/ci-perf-2026-11-18-stranded-blob-batch.md).
+    specs = [f"{base_ref}:{path}" for _, path in changes]
+    specs += [f"{tip_ref}:{path}" for status, path in changes if status[0] == "M"]
+    proc = subprocess.run(
+        ["git", "cat-file", "--batch-check=%(objectname)"],
+        cwd=probe, capture_output=True, text=True, input="\n".join(specs) + "\n",
+        env=dict(os.environ, GIT_TERMINAL_PROMPT="0"),
+    )
+    answers = proc.stdout.splitlines()
+    if proc.returncode != 0 or len(answers) != len(specs):
+        return False  # could not read the trees: not provably landed
+    # A name cat-file cannot resolve comes back as "<name> missing" (or
+    # "ambiguous"); an object id has no space in it.
+    oid = {spec: ("" if " " in answer else answer) for spec, answer in zip(specs, answers)}
 
     for status, path in changes:
-        on_base = blob(base_ref, path)
+        on_base = oid[f"{base_ref}:{path}"]
         if status[0] == "A" and on_base:
             continue
-        if status[0] == "M" and on_base and on_base == blob(tip_ref, path):
+        if status[0] == "M" and on_base and on_base == oid[f"{tip_ref}:{path}"]:
             continue
         if status[0] == "D" and not on_base:
             continue

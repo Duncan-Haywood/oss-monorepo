@@ -10,7 +10,7 @@ const DAY = 1440;
 // Whole words only: "Reserved - Holden Smith" and "Ann Downer" are guests, not blocks (quality audit 2026-11-15).
 const BLOCKED = /\b(?:not available|unavailable|blocked|closed|owner|hold)\b/i;
 
-export const money = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 const pad = (n) => String(n).padStart(2, "0");
 
 export function dayIndex(s) {

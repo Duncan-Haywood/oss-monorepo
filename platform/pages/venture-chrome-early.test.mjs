@@ -2,15 +2,12 @@
 // header is full width, in the right palette, before anything below it is
 // parsed. Skip when Playwright cannot load (PLAYWRIGHT / CHROME_PATH, as in
 // bar-align.test.mjs).
+import { loadPlaywright } from './load-playwright.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { VENTURE_CHROME_CSS, VENTURE_CHROME_EARLY_JS, VENTURE_CHROME_JS } from './site-nav.mjs';
 
-let chromium = null;
-try {
-  const mod = await import(process.env.PLAYWRIGHT || 'playwright');
-  chromium = mod.chromium ?? mod.default?.chromium;
-} catch { /* skipped below */ }
+const chromium = (await loadPlaywright())?.chromium ?? null;
 const skip = !chromium && 'playwright not installed';
 
 // A venture with a centred 780 px body. The script after the venture's first
@@ -72,10 +69,13 @@ test('a dark venture gets the dark header before first paint, not after', { skip
   assert.equal(m.first.theme, 'dark');
 });
 
-test('on a phone-width body that already fills the window it changes nothing', { skip }, async () => {
+test('on a phone-width body that already fills the window it keeps the box and adds only the 16px gutter', { skip }, async () => {
+  // PR #16239 gave a full-width host with no side padding the site's 16px
+  // inset (the brand sat at x = 0 on 49 tools). This test expected 0 until
+  // 2026-11-16: it had skipped in every session since, so nobody saw it go stale.
   const m = await run(page('max-width:none;padding:0'), 390);
   assert.equal(m.first.left, 0);
   assert.equal(m.first.width, 390);
-  assert.equal(m.first.pad, 0);
+  assert.equal(m.first.pad, 16);
   assert.equal(m.sideways, false);
 });

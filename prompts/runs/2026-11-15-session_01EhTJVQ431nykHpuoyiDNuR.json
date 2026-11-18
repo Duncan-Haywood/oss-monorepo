@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVQ431nykHpuoyiDNuR",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (owner's standing ventures brief)",
+  "input_sha256": "ab838dcdaa366e9a871897ade0296bc3024049aa8fb7f554a6b72a674dcf5c17",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T06:03:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 8): quick-pick-survey, item (r) get the rank page seen",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16113",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "`git checkout -b` on the designated branch failed because the harness had already created and checked it out; harmless but the land-your-work steps assume a fresh branch."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "quick-pick-survey next: sits at 1998/2000 chars, so landing anything means trimming the existing text to fit a one-phrase note; the cap pushes history into the README, which is right, but costs a rewrite each run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Most open quick-pick-survey items need a real survey's answers (c, d11, h) or are more simulation micro-studies (d8); none were product-visible. Took (r) 'get the rank page seen' in a new direction: a picture mode and landing page widen who the page serves.",
+      "did": "Picture lists on rank.html, site/image-items.mjs, pick-the-best-photo.html landing page",
+      "result": "Shipped and browser-checked; usage unmeasured"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-rank-pictures-without-uploading-them.md",
+    "ventures/quick-pick-survey/docs/RANK-PAGE.md (Pictures)"
+  ],
+  "goal": "Widen what the free rank page can rank to pictures (photo culling, logo/design review) without any upload, as a new use case and landing page",
+  "notes": "Checks run here: node --test site/*.test.mjs (91 pass, 7 new in image-items.test.mjs); run_venture_tests.py quick-pick-survey ok; Playwright at 390 px through select 5 PNG + 1 txt, 15 picks, thumbnails, second person in a fresh context attaches 3 then 2 files, opposite picks combine to agreement -1.00, reload asks for pictures again, no console errors, scrollWidth 390. post front matter/links/similarity clean; validate.py ok. venture-preflight: first run failed on &darr; missing from the shared entity table (fixed with &#8595;); rerun clean (exit 0).",
+  "corrections": [],
+  "redteam": null
+}

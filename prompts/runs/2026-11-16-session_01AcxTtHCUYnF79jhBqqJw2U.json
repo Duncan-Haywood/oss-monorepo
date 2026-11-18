@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtHCUYnF79jhBqqJw2U",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T09:05:53Z",
+  "ended": "2026-11-16T09:27:30Z",
+  "wall_minutes": 21.97,
+  "tokens_in": 6535402,
+  "tokens_out": 38709,
+  "cost_usd": 3.1455,
+  "tool_calls": 59,
+  "task": "changepoint-detector (flagship 4): known-date round 5, the rho upper bound gated on the line rho",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16521",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "venture-preflight failed once: percent-float.test.mjs flagged `${frac * 100}%` in the new eval/known-date-cut-admitted.mjs",
+      "fix": "Math.round(frac * 100); preflight rerun"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "issue": "The gate value 0.5 was chosen on an exploratory run, so it was picked by looking at data",
+      "handling": "disclosed in the pre-registration and README; the exploratory seeds (21000) differ from the confirmatory ones (25000); the pre-registration was committed on its own (fcfb3c548) before the confirmatory run"
+    },
+    {
+      "issue": "An unbarred cell (n 60 rho 0.9) rejected 23.6% of tested series after every bar held",
+      "handling": "the pre-registered ship rule was not changed after the fact; a diagnosis (eval/known-date-cut-admitted.*) found the cause (series admitted only by the cut guard: 17 of 26 false alarms), and the CLI marks those results calibrated: false; reported in the README, the post and the PR"
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "Round 4's 'next round' note said to state the 2% floor for every cell again, but a max-of-two-p test is conservative by design where it fires, so that bar would be set to fail; it cost a pre-registration rewrite (see deviations)"
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "the percent-float site test also scans eval/ scripts, which only write .out.txt files; reasonable, but it only shows up in the 5-minute preflight, not in the venture's own tests"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "why": "the round-4 note asked for the 2% size floor in every cell; the exploratory run showed 1.0-1.2% in two rho 0.8 cells under any useful gate, because the test takes a maximum of two p-values there",
+      "did": "kept the floor on the eight rho 0 / 0.4 cells (as round 4 did) and added a power bar on short rho 0.4 series (3b) in its place, stated in the pre-registration before the run",
+      "result": "all bars held; 3b at 10.4% against 5%"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-changepoint-known-date-round-five-ships.md",
+    "ventures/changepoint-detector/README.md (A date you name, Round 5)",
+    "ventures/changepoint-detector/eval/known-date-prereg-round5-2026-11-16.md"
+  ],
+  "goal": "flagship depth: a pre-registered statistical test shipped in the CLI",
+  "notes": "Verification: venture suite `python3 platform/ci/run_venture_tests.py changepoint-detector` ok (791 tests, 242.9 s); known-date.test.mjs 8 pass, known-date-cli.test.mjs 5 pass; post front matter, links and similarity checks clean; validate.py ok. Confirmatory sim eval/known-date-sim-round5.out.txt (seed base 25000, 400 series, 199 reps): size 1.0-5.8%, walks 0.3/0.5% of all, power 64.0/24.3% (n 120), 10.4% (n 40 rho 0.4). Real A-D met (eval/known-date-real-round5.out.txt). venture-preflight clean after the percent-float fix.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fc90bb4e-921b-5448-998b-6f257031519a",
+    "transcripts": 1,
+    "first": "2026-11-16T09:05:53Z",
+    "last": "2026-11-16T09:27:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 105,
+        "output": 38709,
+        "thinking": 8242,
+        "cache_read": 6398904,
+        "cache_write_5m": 0,
+        "cache_write_1h": 136393,
+        "api_equivalent_usd": 3.1455,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 105,
+      "output": 38709,
+      "thinking": 8242,
+      "cache_read": 6398904,
+      "cache_write_5m": 0,
+      "cache_write_1h": 136393,
+      "api_equivalent_usd": 3.1455,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 55,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.97,
+      "active_minutes": 21.97,
+      "model_minutes": 7.16,
+      "tool_minutes": 14.82,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician designing, pre-registering and running one simulation round plus CLI wiring and a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 317.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

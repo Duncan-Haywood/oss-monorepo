@@ -26,6 +26,21 @@ class ParseSign(unittest.TestCase):
         ]:
             self.assertEqual(c.scan_text(text), [], text)
 
+    def test_flags_a_minus_class_without_the_en_and_em_dash(self):
+        # Red-team 2026-11-16: "–12.50" (en dash) read as +12.50 in 45 parsers.
+        for text in [
+            'const neg = /^\\(.*\\)$/.test(s) || /^[^0-9]*[-−]/.test(s);',
+            'const negative = /^[^\\d]*[-−]/.test(raw);',
+        ]:
+            self.assertEqual(c.scan_dashes(text), [1], text)
+        for text in [
+            'const neg = /^\\(.*\\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);',
+            'const neg = /^[^0-9]*[-−–—]/.test(t) || /[-−]$/.test(t);',
+        ]:
+            self.assertEqual(c.scan_dashes(text), [], text)
+        # The tightened class still passes the symbol test.
+        self.assertEqual(c.scan_text('const neg = /^[^0-9]*[-−–—]/.test(s);\ns = s.replace(/[^0-9.,]/g, "");'), [])
+
     def test_leaves_a_parser_that_refuses_symbols_alone(self):
         # sepa-pain001-validator: a leading "-" is split off and anything but
         # digits is refused, so "$-5" is a format error, not +5.

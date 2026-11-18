@@ -1,0 +1,27 @@
+control (H 16, seed 0, identity in both forks): D = [0.0, 0.0, 0.0, 0.0, 0.0] -> pass
+per run: D_0 (injected energy), D_0 / ||theta||^2, survival s_k = D_k / D_0 at 64, 128, 256 inner steps after the injection round
+  H 16 seed 0: D_0 3.1037e+01 (5.67e-03);  s @64 1.007  @128 1.023  @256 1.068;  after 1 round 0.997;  702 s (2.15.0+cpu)
+  H 16 seed 1: D_0 3.1884e+01 (5.90e-03);  s @64 1.005  @128 1.019  @256 1.066;  after 1 round 0.997;  697 s (2.15.0+cpu)
+  H 16 seed 2: D_0 3.1154e+01 (5.65e-03);  s @64 1.006  @128 1.021  @256 1.073;  after 1 round 0.997;  685 s (2.15.0+cpu)
+  H 16 seed 3: D_0 3.1611e+01 (5.78e-03);  s @64 1.006  @128 1.023  @256 1.075;  after 1 round 0.998;  690 s (2.15.0+cpu)
+  H 64 seed 0: D_0 1.3300e+02 (2.01e-02);  s @64 0.998  @128 1.013  @256 1.054;  after 1 round 0.998;  725 s (2.15.0+cpu)
+  H 64 seed 1: D_0 1.3281e+02 (2.01e-02);  s @64 0.999  @128 1.016  @256 1.062;  after 1 round 0.999;  726 s (2.15.0+cpu)
+  H 64 seed 2: D_0 1.3043e+02 (2.01e-02);  s @64 1.000  @128 1.016  @256 1.065;  after 1 round 1.000;  708 s (2.15.0+cpu)
+  H 64 seed 3: D_0 1.3246e+02 (2.01e-02);  s @64 1.001  @128 1.015  @256 1.064;  after 1 round 1.001;  701 s (2.15.0+cpu)
+seed mean of log s (se), back-transformed in brackets:
+  after one round, H 16: -0.003 (0.000)  [s 0.997]
+  after one round, H 64: -0.000 (0.001)  [s 1.000]
+  after 64 inner steps, H 16: +0.006 (0.000)  [s 1.006]
+  after 64 inner steps, H 64: -0.000 (0.001)  [s 1.000]
+H6w-i   (after one round, log s lower at H = 64 by more than 2 se): refuted (difference +0.002, se 0.001, +4.2 se)
+H6w-ii  (after 64 inner steps, log s lower at H = 64 by more than 2 se): held (difference -0.006, se 0.001, -9.2 se)
+H6w-iii (s < 1 after 256 inner steps in every run): refuted
+exploratory: validation loss, fork minus reference (nats), right after injection and 256 inner steps later
+  H 16: at injection +0.0063 (0.0011); after 256 steps -0.0000 (0.0009)
+  H 64: at injection +0.0121 (0.0011); after 256 steps +0.0023 (0.0007)
+exploratory: accumulated load per inner step, A(H) = (D_0 / H) x sum_k s_k over the window's rounds (injected energy per step times how many rounds it persists, measured over 256 steps); seed mean (se)
+  H 16: 3.4267e+01 (2.0e-01)
+  H 64: 1.0557e+01 (4.1e-02)
+seed-mean trajectory of s_k per round:
+  H 16: 1.000 0.997 0.999 1.002 1.006 1.010 1.013 1.017 1.022 1.027 1.032 1.038 1.044 1.050 1.057 1.064 1.071
+  H 64: 1.000 1.000 1.015 1.036 1.061

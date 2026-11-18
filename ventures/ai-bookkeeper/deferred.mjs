@@ -272,7 +272,7 @@ export function importDeferralsCsv(booksIn, text, { method = "daily", endExclusi
   const problems = [];
   if (!rows.length) return { books, added: 0, problems: ["The file is empty."] };
   const head = rows[0].map((h) => h.trim().toLowerCase().replace(/\s*\(.*\)\s*$/, "").replace(/[_-]+/g, " "));
-  const col = (...names) => head.findIndex((h) => names.includes(h));
+  const col = (...names) => (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   const c = {
     name: col("name", "description", "product", "plan", "item"),
     amount: col("amount", "total", "price", "amount paid"),
@@ -315,7 +315,7 @@ export function importDeferralsCsv(booksIn, text, { method = "daily", endExclusi
 // customers are typed by the user, so a cell starting =, +, -, @, tab or CR gets an
 // apostrophe (spreadsheet formula injection).
 export function waterfallCsv(w) {
-  const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   const c = (n) => (n / 100).toFixed(2);
   const lines = [["id", "name", "customer", ...w.months, "later", "unearned"].map(cell).join(",")];
   for (const r of w.rows) lines.push([r.id, r.name, r.customer ?? "", ...r.byMonth.map(c), c(r.later), c(r.unearned)].map(cell).join(","));

@@ -53,3 +53,36 @@ test('a cleared field is an error, not a silent $0 (blank current price once rea
   // A typed 0 is still a real answer.
   assert.equal(calculateImpact({ ...base, monthlyCosts: '0' }).monthlyCosts, 0);
 });
+
+test('contribution before and after the change nets fixed costs out of revenue', () => {
+  const result = calculateImpact({ customers: 100, currentPrice: 20, proposedPrice: 25, monthlyCosts: 500 });
+  assert.equal(result.currentContribution, 1500);
+  assert.equal(result.proposedContribution, 2000);
+});
+
+test('the scenario table prints exactly the 0, 5, 10, 15 and 20% churn rows the page promises', () => {
+  // The FAQ names these five columns; a row silently moved to 1% or 21%
+  // would make the page disagree with its own text.
+  const result = calculateImpact({ customers: 100, currentPrice: 20, proposedPrice: 25, monthlyCosts: 500 });
+  assert.deepEqual(result.scenarios.map(s => s.churn), [0, 5, 10, 15, 20]);
+  assert.deepEqual(result.scenarios.map(s => s.customers), [100, 95, 90, 85, 80]);
+  assert.equal(result.scenarios[0].contribution, 2000);
+  assert.equal(result.scenarios[4].contribution, 1500);
+});
+
+test('zero subscribers has zero churn headroom, not a made-up rate', () => {
+  const result = calculateImpact({ customers: 0, currentPrice: 20, proposedPrice: 25, monthlyCosts: 500 });
+  assert.equal(result.maxChurnRate, 0);
+  assert.equal(result.breakEvenCustomers, 0);
+});
+
+test('inputs too large to multiply are an error, not a price increase read as a revenue loss', () => {
+  // 1e200 subscribers x $1e200 overflows to Infinity, and Infinity - Infinity
+  // is NaN: a price doubling then read "0.0%, this price change lowers
+  // revenue before churn" with break-even "not achievable".
+  assert.throws(
+    () => calculateImpact({ customers: '1e200', currentPrice: '1e200', proposedPrice: '2e200', monthlyCosts: '0' }),
+    /too large/,
+  );
+  assert.throws(() => calculateImpact({ customers: 1, currentPrice: 1, proposedPrice: 1, monthlyCosts: '1e400' }), /Monthly costs/);
+});

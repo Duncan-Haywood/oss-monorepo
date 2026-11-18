@@ -141,6 +141,27 @@ EVENT_MUTANTS = {
 }
 
 
+# The third design (recordUsage(storage, optedOut, event), readOptOut,
+# writeOptOut; 195 copies). These are the four mutants of
+# mini-split-bid-calculator's copy that escaped its suite on 2026-11-17, plus
+# Do Not Track ignored.
+PARAM_GOOD = (Path(__file__).resolve().parents[2] / "ventures" / "mini-split-bid-calculator" / "usage.mjs").read_text()
+PARAM_MUTANTS = {
+    "stored opt-out ignored without a browser signal": (
+        "readOptOut(storage) || honorsBrowserSignal()", "readOptOut(storage) && honorsBrowserSignal()"),
+    "a stored array kept": (
+        "typeof current !== 'object' || Array.isArray(current)", "typeof current !== 'object' && Array.isArray(current)"),
+    "a throwing navigator read as opted out": (
+        "globalThis.navigator?.globalPrivacyControl === true;\n  } catch {\n    return false;",
+        "globalThis.navigator?.globalPrivacyControl === true;\n  } catch {\n    return true;"),
+    "a blocked store read as an opt-out": (
+        "    // A blocked or full store must never be read as consent.\n    return false;",
+        "    // A blocked or full store must never be read as consent.\n    return true;"),
+    "Do Not Track ignored": ("globalThis.navigator?.doNotTrack === '1' || ", ""),
+    "opt-out keeps counters": (
+        "try { storage.removeItem('mini-split-bid-usage'); } catch { /* storage is optional */ }", ""),
+}
+
 class Contract(unittest.TestCase):
     def tree(self, d, src, name="a"):
         v = Path(d) / name
@@ -173,6 +194,21 @@ class Contract(unittest.TestCase):
             self.assertIn(old, EVENT_GOOD, label)
             with self.subTest(label), tempfile.TemporaryDirectory() as d:
                 self.tree(d, EVENT_GOOD.replace(old, new))
+                code, out = run_contract(d)
+                self.assertEqual(code, 1, out)
+
+    def test_a_correct_param_counter_passes(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.tree(d, PARAM_GOOD)
+            code, out = run_contract(d)
+            self.assertEqual(code, 0, out)
+            self.assertIn("1 files OK", out)
+
+    def test_each_param_counter_mutant_fails(self):
+        for label, (old, new) in PARAM_MUTANTS.items():
+            self.assertIn(old, PARAM_GOOD, label)
+            with self.subTest(label), tempfile.TemporaryDirectory() as d:
+                self.tree(d, PARAM_GOOD.replace(old, new))
                 code, out = run_contract(d)
                 self.assertEqual(code, 1, out)
 

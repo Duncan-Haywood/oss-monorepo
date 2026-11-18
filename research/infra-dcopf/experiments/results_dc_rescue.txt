@@ -1,0 +1,22 @@
+The five held-out cases the one protocol left unscored, with a second-solver DC start (plan: LOG.md 2026-11-16).
+Start: PIPS DC OPF, else Clarabel (MP-x0 then PM, with angle limits then without). Then run_heldout_slack.phase_j
+unchanged. Final cell: branches over 100 %, worst loading %, slack MW outside limits, angle violations, buses out
+of V band, units outside Q limits. Cost against PGLib's published AC objective.
+
+case           kind                    start S clean    mu*     J  J best: nOv  maxLd%   slkMW nAng    V    Q       cost      s
+case1803_snem  typ        Clarabel MP-x0+ang       -  0.000  no power flow at mu = 1                                    3
+case1803_snem  api        Clarabel MP-x0+ang       -  0.000  no power flow at mu = 1                                    4
+case1803_snem  sad    Clarabel MP-x0, no ang       -  0.000  no power flow at mu = 1                                    4
+case1951_rte   api           Clarabel PM+ang       -  1.000    no    1  104.49     0.0    0    1    0            +1.035%    189
+                    J+R: did not finish within the 45-minute wall limit (counts as not clean)
+case2000_goc   api        Clarabel MP-x0+ang       -  1.000    no    0   99.99     0.4    0    0    1            +0.287%     99
+                    J+R fully clean at +0.193%
+Declared after the first run (--x0-angles): warm-start angles from the MP-x0 network, AC network unchanged.
+case1803_snem  typ        Clarabel MP-x0+ang       -  0.839  no power flow at mu = 1                                    7
+case1803_snem  api        Clarabel MP-x0+ang       -  0.747  no power flow at mu = 1                                    9
+case1803_snem  sad    Clarabel MP-x0, no ang       -  0.837  no power flow at mu = 1                                    8
+
+5 cases: DC start on 5, full-load power flow on 2, J fully clean within 20 rounds on 0.
+J or J+R fully clean on 1.
+Held-out tally under the one protocol (J, 20 rounds): 10 of 24 before; 10 of 24 with this start rule.
+J or J+R: 12 of 24 before; 13 of 24 with this start rule (J+R run after the plan, once IPOPT built).

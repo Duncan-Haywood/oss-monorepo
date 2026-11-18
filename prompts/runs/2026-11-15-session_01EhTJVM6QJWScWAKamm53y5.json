@@ -1,0 +1,243 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVM6QJWScWAKamm53y5",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell revenue software)",
+  "input_sha256": "57f59c27e4f8712c28234a884c5a192092da099591d7f9028e32e416c0da6a22",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T08:58:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "redteam campaign on ventures/einvoice-preflight/hungary-nav.mjs (new on main 2026-11-15)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16159",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The duplicate-PR search found #16157 as an empty claim PR with no files, so its scope overlap (schema gate covering non-decimal amounts) was invisible until it merged mid-run; a claim PR listing intended rule ranges would have avoided writing HU-019 twice."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-hungary-nav-hex-amounts-redteam.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: all 8 open entries are control-plane fixes needing their own owner-approved PRs; none touched. Campaign: 12 mutants, 8 caught; gaps at 66 (1e-9 slack: 6702x310x1.01 lands 1.9e-10 past 1%), 520, 547 guarded; 506 equivalent. rerun: 3/3 caught_after_fix. Guard added (4b): ventures/einvoice-preflight/number-lexical.test.mjs runs 0x10/1e3/12,50 through HU/PL/IT/ES/MX readers expecting HU-030/PL-015/IT-021/ES-021/MX-003; it failed on the pre-run hungary-nav.mjs (checked by restoring that copy) and passes on every reader now. Verification: node --test in ventures/einvoice-preflight 1919 pass 0 fail 106 skipped (16 s); eval/hungary-nav-mutations.mjs on NAV's 30 samples (sparse clone of nav-gov-hu/Online-Invoice sample/) byte-identical before and after. XSD facts read from nav-gov-hu/Online-Invoice invoiceData.xsd: all 20 *Amount/*AmountHUF elements are base:MonetaryType, ExchangeRateType minExclusive 0; SCHEMA_VIOLATION is a ValidatorFaultType in validations_en_public.properties. Siblings fa3/fatturapa still emit a follow-on sum warning quoting Number('0x10')=16 next to their schema finding (minor, not fixed). Mid-run, PR #16157 (Hungary XSD gate, HU-027..032) merged and covered the reporting half of both defects; after merging main, HU-019 and the extra HU-012 were removed as duplicates, keeping the sum suppression and the rate<=0 conversion skip. After the merge: einvoice-preflight node --test 1934 pass 0 fail 106 skipped; rerun still 3/3 gaps caught; NAV 30-sample eval identical to main's.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/hungary-nav.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 141161255,
+        "commit": "875e8a5b9",
+        "sites": 447,
+        "baseline_seconds": 22.2,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/hungary-nav.mjs",
+            "line": 66,
+            "col": 89,
+            "operator": "const-plus-one",
+            "before": "const off = (stated, computed) => Math.abs(stated - computed) > tolerance(computed) + 1e-9;",
+            "after": "const off = (stated, computed) => Math.abs(stated - computed) > tolerance(computed) + 1e-10;",
+            "line_text": "const off = (stated, computed) => Math.abs(stated - computed) > tolerance(computed) + 1e-9;",
+            "caught": false,
+            "seconds": 15.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: an amount exactly 1% off (6702 x 310 vs 2098396.20, 1.9e-10 past the tolerance in floats) must not warn"
+          },
+          {
+            "file": "ventures/einvoice-preflight/hungary-nav.mjs",
+            "line": 86,
+            "col": 64,
+            "operator": "const-plus-one",
+            "before": "return [...id].reduce((s, d, i) => s + Number(d) * w[i], 0) % 10 === 0;",
+            "after": "return [...id].reduce((s, d, i) => s + Number(d) * w[i], 0) % 11 === 0;",
+            "line_text": "  return [...id].reduce((s, d, i) => s + Number(d) * w[i], 0) % 10 === 0;",
+            "caught": true,
+            "seconds": 13.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/hungary-nav.mjs",
+            "line": 132,
+            "col": 41,
+            "operator": "and-to-or",
+            "before": "if (limit === \"2024\" && deliveryDate && deliveryDate < \"2024-01-01\") {",
+            "after": "if (limit === \"2024\" && deliveryDate || deliveryDate < \"2024-01-01\") {",
+            "line_text": "    if (limit === \"2024\" && deliveryDate && deliveryDate < \"2024-01-01\") {",
+            "caught": true,
+            "seconds": 13.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/hungary-nav.mjs",
+            "line": 316,
+            "col": 19,
+            "operator": "and-to-or",
+            "before": "if (!modifying && mod) {",
+            "after": "if (!modifying || mod) {",
+            "line_text": "    if (!modifying && mod) {",
+            "caught": true,
+            "seconds": 14.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/hungary-nav.mjs",
+            "line": 398,
+            "col": 58,
+            "operator": "neq-flip",
+            "before": "if (vatStatus && exemption === \"KBAET\" && vatStatus !== \"OTHER\") {",
+            "after": "if (vatStatus && exemption === \"KBAET\" && vatStatus === \"OTHER\") {",
+            "line_text": "      if (vatStatus && exemption === \"KBAET\" && vatStatus !== \"OTHER\") {",
+            "caught": true,
+            "seconds": 13.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/hungary-nav.mjs",
+            "line": 406,
+            "col": 20,
+            "operator": "and-to-or",
+            "before": "if (vatStatus && (oos === \"EUFAD37\" || oos === \"EUFADE\") && vatStatus !== \"OTHER\") {",
+            "after": "if (vatStatus || (oos === \"EUFAD37\" || oos === \"EUFADE\") && vatStatus !== \"OTHER\") {",
+            "line_text": "      if (vatStatus && (oos === \"EUFAD37\" || oos === \"EUFADE\") && vatStatus !== \"OTHER\") {",
+            "caught": true,
+            "seconds": 13.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/hungary-nav.mjs",
+            "line": 459,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "const b = byKey.get(key) || { gross: 0, grossHUF: 0, n: 0, ok: true };",
+            "after": "const b = byKey.get(key) && { gross: 0, grossHUF: 0, n: 0, ok: true };",
+            "line_text": "        const b = byKey.get(key) || { gross: 0, grossHUF: 0, n: 0, ok: true };",
+            "caught": true,
+            "seconds": 13.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/hungary-nav.mjs",
+            "line": 506,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "summed.net += net || 0; summed.netHUF += netHUF || 0; summed.vat += vat || 0; summed.vatHUF += vatHUF || 0;",
+            "after": "summed.net += net || 0; summed.netHUF += netHUF || 1; summed.vat += vat || 0; summed.vatHUF += vatHUF || 0;",
+            "line_text": "    summed.net += net || 0; summed.netHUF += netHUF || 0; summed.vat += vat || 0; summed.vatHUF += vatHUF || 0;",
+            "caught": false,
+            "seconds": 13.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "netHUF || 1 only runs when netHUF is null, which sets rowsComplete=false, and summed.netHUF is read only inside `if (rows.length && rowsComplete)`; the sum is never used"
+          },
+          {
+            "file": "ventures/einvoice-preflight/hungary-nav.mjs",
+            "line": 520,
+            "col": 16,
+            "operator": "neq-flip",
+            "before": "if (pctRate !== null && net !== null && vat !== null && off(vat, net * pctRate)) {",
+            "after": "if (pctRate === null && net !== null && vat !== null && off(vat, net * pctRate)) {",
+            "line_text": "    if (pctRate !== null && net !== null && vat !== null && off(vat, net * pctRate)) {",
+            "caught": false,
+            "seconds": 14.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: a 27% summary row with VAT 4000.00 on net 16120.00 must raise INCORRECT_SUMMARY_CALCULATION_VAT_RATE_VAT_AMOUNT"
+          },
+          {
+            "file": "ventures/einvoice-preflight/hungary-nav.mjs",
+            "line": 538,
+            "col": 36,
+            "operator": "and-to-or",
+            "before": "if (lines.length && !ctx.merged && b && b.ok) {",
+            "after": "if (lines.length && !ctx.merged || b && b.ok) {",
+            "line_text": "    if (lines.length && !ctx.merged && b && b.ok) {",
+            "caught": true,
+            "seconds": 13.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/hungary-nav.mjs",
+            "line": 547,
+            "col": 14,
+            "operator": "neq-flip",
+            "before": "if (vat !== null && b.vatOk && off(vat, b.vat)) {",
+            "after": "if (vat === null && b.vatOk && off(vat, b.vat)) {",
+            "line_text": "      if (vat !== null && b.vatOk && off(vat, b.vat)) {",
+            "caught": false,
+            "seconds": 13.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same new test: the row's VAT against its two lines must raise ..._VAT_RATE_VAT_AMOUNT_LINE"
+          },
+          {
+            "file": "ventures/einvoice-preflight/hungary-nav.mjs",
+            "line": 739,
+            "col": 29,
+            "operator": "eq-flip",
+            "before": "const text = typeof source === \"string\" ? source : new TextDecoder().decode(source);",
+            "after": "const text = typeof source !== \"string\" ? source : new TextDecoder().decode(source);",
+            "line_text": "  const text = typeof source === \"string\" ? source : new TextDecoder().decode(source);",
+            "caught": true,
+            "seconds": 14.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/hungary-nav.mjs",
+        "issue": "num() used Number(): 0x10FE and 1e3 read as numbers, 4352,40 / NaN / 1e400 read as missing; a comma-decimal row VAT gave 'rows add up to 150.00' (a wrong sum blamed on a correct total) and a hex amount passed clean, though NAV's XSD (MonetaryType, xs:decimal) rejects all of them. PR #16157's schema gate (merged mid-run) now reports the amount as HU-030 but still emitted the misleading HU-025 beside it. Fixed here: xs:decimal-only parse; when any decimal leaf is unreadable, HU-020..026 are dropped for that invoice and listed in skipped. The HU-019 rule first written for it was removed after merging main, as a duplicate of HU-030.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16159"
+      },
+      {
+        "file": "ventures/einvoice-preflight/hungary-nav.mjs",
+        "issue": "exchangeRate 0 or negative (XSD ExchangeRateType minExclusive 0) on a currency outside RATE_LIMITS gave 19 HU-023 conversion warnings. The schema gate from PR #16157 now names the rate; fixed here: conversions are not checked at a rate <= 0, so that one finding is the report.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16159"
+      }
+    ]
+  }
+}

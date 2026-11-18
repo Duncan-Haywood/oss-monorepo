@@ -90,8 +90,10 @@
  *   shift-drop-nNN `--net-share 0.NN`: the shipped reading whose split must also leave a step net of the person's own line (stepNetOfTrend) of at least 0.NN x the gap threshold
  *   (since 2026-11-14 shift-drop includes the wander test, FAST_BLOCK_WALK_Q; the qNN, tfNN, lNN and nNN schemes run without it, so their rows reproduce)
  *   shift-drop-wQQ-fFF[-eEEE] `--walk 0.QQ:FF[:engage]`: the shipped reading whose split must also reach the 0.QQ quantile (at least FF) of the panel's slow-turn stepOverWalk scores
- *   shift-drop-azZZ[-only] `--agree z[:only]`: the shipped reading given the picks too, with agreeZ z (z = 2.5 is the default
- *     since 2026-11-14, so shift-drop-az25 is what the ranking route does; shift-drop itself passes times only)
+ *   shift-drop-azZZ[-only][-lw] `--agree z[:only][:lapse]`: the shipped reading given the picks too, with agreeZ z (flat z = 2.5
+ *     was the default from 2026-11-14; since 2026-11-15 it is z = 3 with the lapse weighting, so shift-drop-az30-lw is what the
+ *     ranking route does; shift-drop itself passes times only)
+ *   `--anchors N`: every N-th answer a check pair (the most lopsided by the person's own ratings); 0 by default
  *   `--person-walk sd`: each person's pace also wanders as a random walk, N(0, sd) log per answer
  *
  * `--onset-spread s` (2026-11-13): each careless person's onset is drawn
@@ -100,9 +102,10 @@
  *
  *   npx tsx scripts/answer-time-sweep.ts [--onset 0] [--drift 0] [--warmup 0] [--min-seg 8] [--shift-min 0.5] [--shift-t 4] [--q 1] [--fast-at 0.5] [--share-min 0.3] [--items 15,30] [--per-item 4] [--respondents 20] [--careless 0.25,0.4,0.5] [--patterns salience,random,dissent] [--ratio 1,0.6,0.4] [--gamma 0.6] [--careless-gamma 0] [--person-sd 0.4] [--pace-min 0.6] [--slope-min 0.05] [--surveys 20] [--seed-base 4000] [--selector staged|standard]
  */
-import { selectNextPair, selectNextPairHybrid, type PairingInput } from "../src/lib/pairing";
+import { selectNextPair, selectNextPairHybrid, pairKey, type PairingInput } from "../src/lib/pairing";
 import { DEFAULT_GLICKO_STATE, applyComparison, type GlickoState } from "../src/lib/glicko2";
 import { simulate, spearman, type Chooser, type Policy } from "../src/lib/infoGainSim";
+import { pickProbability } from "../src/lib/lapseEstimate";
 import { autoFastBlockMinLog, autoWalkMin, FAST_BLOCK_WALK_ENGAGE, FAST_BLOCK_WALK_FLOOR, FAST_BLOCK_WALK_Q, FAST_BLOCK_LATER_Q, FAST_BLOCK_NET_SHARE, FAST_BLOCK_AUTO_CAP, FAST_BLOCK_AUTO_FLOOR, FAST_BLOCK_AUTO_Q, FAST_BLOCK_TREND_F, FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, fastBlockSplit, fastBlockStarts, groupRanking, type RatingRow } from "../src/lib/groupRanking";
 
 const argv = process.argv;
@@ -164,7 +167,14 @@ const walks = opt("--walk", "").split(",").filter(Boolean).map((t) => { const [q
 // (wander bar on) where, once the bar is engaged, a timing split that fails it still counts when the person's later picks
 // agree with the rest of the panel z standard errors less than their earlier ones (blockAgreementDrop); `only` drops the
 // walk bar and uses the pick test alone once engaged.
-const agrees = opt("--agree", "").split(",").filter(Boolean).map((t) => { const [z, m] = t.split(":"); const mode = m === "only" ? "only" as const : "or" as const; return { z: Number(z), mode, key: `shift-drop-az${Math.round(Number(z) * 10)}${mode === "only" ? "-only" : ""}` }; }).filter((a) => a.z > 0);
+// `--agree z[:only][:lapse],...`: `lapse` (2026-11-15, flagship item d8) reads the pick test weighted by how clear each pair
+// is (blockAgreementDrop's "lapse" weighting), key suffix -lw.
+const agrees = opt("--agree", "").split(",").filter(Boolean).map((t) => { const [z, ...flags] = t.split(":"); const mode = flags.includes("only") ? "only" as const : "or" as const; const weighting = flags.includes("lapse") ? "lapse" as const : "flat" as const; return { z: Number(z), mode, weighting, key: `shift-drop-az${Math.round(Number(z) * 10)}${mode === "only" ? "-only" : ""}${weighting === "lapse" ? "-lw" : ""}` }; }).filter((a) => a.z > 0);
+// `--anchors N` (2026-11-15, flagship item d8): every N-th answer (N > 0) is a check pair instead of the selector's: the
+// pair this person's own ratings call most lopsided, both items shown at least twice, not a recent pair, sides at random
+// (scripts/anchor-lapse-sweep.ts's rule). 0 (the default) asks none, so earlier rows reproduce.
+const anchorEvery = Number(opt("--anchors", "0"));
+if (!(anchorEvery >= 0) || !Number.isInteger(anchorEvery)) throw new Error(`--anchors takes a whole number, got ${anchorEvery}`);
 const LOO_MIN = 0.2;
 
 /** Person-relative split (each person's log times against their own start), kept to show why the shipped rule reads against the panel. */
@@ -224,8 +234,19 @@ const selectorName = opt("--selector", "staged");
 if (selectorName !== "staged" && selectorName !== "standard") throw new Error(`--selector must be staged or standard, got ${selectorName}`);
 const choose = selectorName === "standard" ? selectNextPair : selectNextPairHybrid;
 
-/** The chosen selector with the route's slot shuffle (src/app/api/trials/next/route.ts). */
+/** The chosen selector with the route's slot shuffle (src/app/api/trials/next/route.ts), and `--anchors` check pairs. */
 const routeStaged: Policy = (input: PairingInput) => {
+  const n = input.answeredCount ?? 0;
+  if (anchorEvery > 0 && n > 0 && n % anchorEvery === 0) {
+    const pool = input.items.filter((it) => (input.timesShown.get(it.id) ?? 0) >= 2);
+    let best: [string, string] | null = null, bestGap = -1;
+    for (let i = 0; i < pool.length; i++) for (let j = i + 1; j < pool.length; j++) {
+      if (input.recentPairKeys.has(pairKey(pool[i].id, pool[j].id))) continue;
+      const gap = Math.abs(pickProbability({ ...DEFAULT_GLICKO_STATE, ...pool[i] }, { ...DEFAULT_GLICKO_STATE, ...pool[j] }) - 0.5);
+      if (gap > bestGap) { bestGap = gap; best = [pool[i].id, pool[j].id]; }
+    }
+    if (best) return (input.rand ?? Math.random)() < 0.5 ? best : [best[1], best[0]];
+  }
   const [a, b] = choose({ ...input, answerAgreement: undefined });
   return (input.rand ?? Math.random)() < 0.5 ? [a, b] : [b, a];
 };
@@ -384,7 +405,7 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                 }
                 for (const ag of agrees) {
                   const withPicks = people.flatMap((p, i) => p.shown.map((s, k) => ({ participantId: `p${i}`, ms: s.ms, itemAId: s.a, itemBId: s.b, result: p.answers[k].picked === s.a ? "A" : "B" })));
-                  const st = fastBlockStarts(withPicks, FAST_BLOCK_CURVE_Q, "auto", FAST_BLOCK_TREND_F, FAST_BLOCK_LATER_Q, FAST_BLOCK_NET_SHARE, FAST_BLOCK_WALK_Q, FAST_BLOCK_WALK_FLOOR, FAST_BLOCK_WALK_ENGAGE, ag.z, ag.mode);
+                  const st = fastBlockStarts(withPicks, FAST_BLOCK_CURVE_Q, "auto", FAST_BLOCK_TREND_F, FAST_BLOCK_LATER_Q, FAST_BLOCK_NET_SHARE, FAST_BLOCK_WALK_Q, FAST_BLOCK_WALK_FLOOR, FAST_BLOCK_WALK_ENGAGE, ag.z, ag.mode, ag.weighting);
                   people.forEach((p, i) => (p.qBlockAt[ag.key] = st.get(`p${i}`) ?? null));
                 }
                 for (const a of autos) {
@@ -465,7 +486,7 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                 }
               }
               if (replayMismatch) throw new Error(`replay did not reproduce simulate's states (${replayMismatch} people)`);
-              const cell: Record<string, unknown> = { pattern, q: pattern === "dissent" ? null : q, onset: pattern === "dissent" ? null : onset, ...(onsetSpread > 0 ? { onsetSpread } : {}), ...(personDrift > 0 ? { personDrift } : {}), ...(personWalk > 0 ? { personWalk } : {}), drift, warmup, ratio, gamma, carelessGamma, personSd, items, perItem: k, respondents: nResp, careless: frac, surveys: nSurveys };
+              const cell: Record<string, unknown> = { pattern, q: pattern === "dissent" ? null : q, onset: pattern === "dissent" ? null : onset, ...(onsetSpread > 0 ? { onsetSpread } : {}), ...(personDrift > 0 ? { personDrift } : {}), ...(personWalk > 0 ? { personWalk } : {}), ...(anchorEvery > 0 ? { anchors: anchorEvery } : {}), drift, warmup, ratio, gamma, carelessGamma, personSd, items, perItem: k, respondents: nResp, careless: frac, surveys: nSurveys };
               const base = acc["shipped"].rho;
               for (const [name, a] of Object.entries(acc)) {
                 const d = a.rho.map((x, i) => x - base[i]);

@@ -1410,16 +1410,16 @@ URL:https://example.invalid/einvoice-preflight/portugal-e-invoice-mandate
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:646c30cbec0487ef@einvoice-preflight
+UID:ecceb67099730224@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20270101
 DTEND;VALUE=DATE:20270102
-SUMMARY:Slovakia: 1 Jan 2027 for domestic B2B and B2G (vendor guides\; vo
- luntary in 2026)
-DESCRIPTION:Slovakia (Upcoming). 1 Jan 2027 for domestic B2B and B2G (ven
- dor guides\; voluntary in 2026). Detail and sources: https://example.inv
- alid/einvoice-preflight/slovakia-e-invoice-mandate.html. Not legal or ta
- x advice.
+SUMMARY:Slovakia: 1 Jan 2027 for domestic B2B and B2G (Act 385/2025\, § 
+ 85o\; voluntary in 2026)
+DESCRIPTION:Slovakia (Upcoming). 1 Jan 2027 for domestic B2B and B2G (Act
+  385/2025\, § 85o\; voluntary in 2026). Detail and sources: https://exa
+ mple.invalid/einvoice-preflight/slovakia-e-invoice-mandate.html. Not leg
+ al or tax advice.
 URL:https://example.invalid/einvoice-preflight/slovakia-e-invoice-mandate
  .html
 TRANSP:TRANSPARENT
@@ -1852,6 +1852,21 @@ DESCRIPTION:Malta (B2G receive-side\; B2B voluntary). EU-wide ViDA from 1
  invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/malta-e-invoice-mandate.ht
  ml
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e806454f91ed0465@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20300701
+DTEND;VALUE=DATE:20300702
+SUMMARY:Slovakia: 1 Jul 2030 every invoice electronic\, with domestic and
+  cross-border reporting
+DESCRIPTION:Slovakia (Upcoming). 1 Jul 2030 every invoice electronic\, wi
+ th domestic and cross-border reporting. Detail and sources: https://exam
+ ple.invalid/einvoice-preflight/slovakia-e-invoice-mandate.html. Not lega
+ l or tax advice.
+URL:https://example.invalid/einvoice-preflight/slovakia-e-invoice-mandate
+ .html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT

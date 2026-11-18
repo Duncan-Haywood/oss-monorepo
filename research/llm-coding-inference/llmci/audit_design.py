@@ -21,6 +21,15 @@ PILOT_SHARE = 0.7  # suggested pilot share (no function reads it). LOG.md 7ar (p
 PILOT_SHARE_PRE7AR = 0.3  # the suggested share before 7ar; experiments before 7ar read it so each replays as committed
 BUDGET_CAP = True  # plan_audit's default: a cells plan never labels more than n items (`cap_to_budget`; LOG.md 7ar found an
 #                   uncapped plan up to 20% over budget at a 0.7n pilot). Experiments before 7ar call `plan_audit_pre7ar`.
+RARE_FALLBACK = 3  # audit_interval's default rare_fallback (LOG.md 7aw, pre-registered): a pooled plan whose labels hold
+# fewer than 3 human positives is closed by a Wilson interval on the labels alone. It covered 93.6% or more in all 47
+# cells under 1% prevalence or at n 200 / 300, and kept 97.0% of the shipped rule's width gain where its interval was
+# valid. Experiments before 7aw set A.RARE_FALLBACK = None so each replays as committed.
+NEG_FLOOR = (5, 0.40, 2)  # plan_audit's default neg_floor (LOG.md 7az, pre-registered): a one-phase cells plan whose pilot
+# holds fewer than 5 coder misses (human 1, coder 0) and has J_hat under 0.40 floors the coder-negative cell's variance in
+# `audit_interval` at the plus-two `pseudo_var`. Over 130 cells it kept 94.6% of the unfloored rule's width gain (97.9% for
+# coders with J >= 0.40) and cut the cells with 30+ admitted draws under 88% from 10 to 6. Experiments before 7az set
+# A.NEG_FLOOR = None so each replays as committed.
 NEG_GUARD = 3  # minimum pilot positives in the coder-negative cell (7r to 7w); the default since 7w, neg_guard=0 turns it off
 FLOOR = 0.35  # each coder cell gets at least this share of n (6ai)
 WIDTH_MARGIN = 0.0  # keep cells only if the pilot's `predicted_ratio` <= 1 - WIDTH_MARGIN (LOG.md 7ak: removed all 7 cells
@@ -232,7 +241,7 @@ def priced_two_phase(n, cells, pilot_y, s2, floor=FLOOR, neg_only=False, pseudo=
 
 def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=NEG_GUARD, width_margin=WIDTH_MARGIN,
                pseudo=PSEUDO, fallback_pseudo=FALLBACK_PSEUDO, two_phase=False, fallback_two_phase=FALLBACK_TWO_PHASE,
-               price_floor=PRICE_FLOOR, no_info=1.0, budget_cap=BUDGET_CAP):
+               price_floor=PRICE_FLOOR, no_info=1.0, budget_cap=BUDGET_CAP, neg_floor="default"):
     """One call from a hand-coded pilot to the rest of the audit. f_all: the coder's 0/1 codes on every corpus item;
     pilot_y: {item index: human 0/1} for a simple random pilot (about PILOT_SHARE * n items); n: total audit budget.
     Returns {"design", "cells", "to_label"}: design is "pooled" or "cells" (`screen`); cells are lists of item
@@ -259,7 +268,13 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=N
     per cell. no_info (LOG.md 7ap, post hoc): passed to `predicted_ratio`; float("inf") sends a pilot the forecast cannot
     read to pooled instead of letting the margin-0 gate accept it. budget_cap (LOG.md 7ar, default BUDGET_CAP = True): a one-phase
     cells plan never labels more than n items in all (`cap_to_budget`); without it a pilot larger than a cell's
-    allocation overspends."""
+    allocation overspends. neg_floor (LOG.md 7az, default NEG_FLOOR; None is off): (m, j, k): a one-phase cells plan
+    whose pilot holds fewer than m coder misses and has J_hat below j carries "neg_pseudo": k, and `audit_interval`
+    floors the coder-negative cell's variance at `pseudo_var(y, k)`. It targets the draws 7at found undercovering given
+    the design (a weak coder whose pilot under-saw its misses) while sparing good coders, whose pilots show few misses
+    but a high J_hat. It does not reach weak-coder draws whose pilot holds many misses (1.5B disapproval, lr approval)."""
+    if neg_floor == "default":
+        neg_floor = NEG_FLOOR
     idx = sorted(pilot_y)
     y = [pilot_y[i] for i in idx]
     f = [f_all[i] for i in idx]
@@ -295,7 +310,10 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=N
     need = [max(0, a - sum(1 for i in c if i in pilot_y)) for a, c in zip(alloc, cells)]
     if budget_cap:
         need = cap_to_budget(need, n - len(pilot_y))
-    return {"design": "cells", "cells": cells, "pseudo": pseudo, "to_label": need, "ceiling": pilot_ceiling(y, f)}
+    plan = {"design": "cells", "cells": cells, "pseudo": pseudo, "to_label": need, "ceiling": pilot_ceiling(y, f)}
+    if neg_floor and sum(1 for a, b in zip(y, f) if a and not b) < neg_floor[0] and informedness(y, f) < neg_floor[1]:
+        plan["neg_pseudo"] = neg_floor[2]
+    return plan
 
 
 def cap_to_budget(need, rest):
@@ -320,14 +338,37 @@ def plan_audit_pre7ar(*args, **kw):
     return plan_audit(*args, **kw)
 
 
-def audit_interval(plan, f_all, labels, z=1.959964):
+def audit_interval(plan, f_all, labels, z=1.959964, rare_fallback="default"):
     """The interval that closes `plan_audit`: (estimate, low, high) for the corpus prevalence. labels: {item index:
     human 0/1} for the pilot plus the items drawn from `to_label`. Estimator of 6ac and 6ad: one control-variate weight
     lambda = cov(y, f) / var(f) clipped to [0, 1], pooled over the audited items, applied in every cell; the stratified
     variance (with finite-population correction); then a Wilson interval on n_eff = p(1-p) / se^2 labels. Needs at
     least two labelled items in each cell. A cells plan made with pseudo > 0 floors each cell's variance at
-    `pseudo_var` of its audited labels (LOG.md 7am); a pooled plan never does."""
+    `pseudo_var` of its audited labels (LOG.md 7am); a pooled plan never does. A cells plan carrying "neg_pseudo"
+    (`plan_audit`'s neg_floor, LOG.md 7az) also floors the coder-negative cell at `pseudo_var(y, neg_pseudo)`.
+
+    Rare categories (LOG.md 7av): with a handful of human positives in the audit the pooled interval is not valid
+    (GoEmotions grief, 0.09%, covered 1.6% at n 200 and 58% at n 1,000; nervousness, 0.28%, 72% at n 500), because
+    se is estimated from those few positives and collapses when there are none. rare_fallback=m (off by default; the
+    7av decision rule kept it off because it costs 4% of the width gain where the interval was already valid) closes a
+    pooled plan whose labels hold fewer than m positives with a Wilson interval on the labels alone (x of a, no coder,
+    no finite-population correction), point estimate unchanged; m = 5 covered 93.6% or more in all 21 cells under 1%
+    prevalence. 7aw (pre-registered, 139 cells, 22 fresh at n 200 and 300): m = 3 kept validity in all 47 rare or
+    fresh cells (lowest 93.6%) and 97.0% of the gain where the shipped interval was valid (m = 5: 90.6%), so it is now
+    the default (`RARE_FALLBACK`); pass rare_fallback=None for the bare control-variate interval, or 5 for more margin."""
     import math
+    if rare_fallback == "default":
+        rare_fallback = RARE_FALLBACK
+    if rare_fallback and not plan.get("two_phase") and len(plan["cells"]) == 1:
+        est, lo, hi = audit_interval(plan, f_all, labels, z, rare_fallback=None)
+        y = [labels[i] for i in plan["cells"][0] if i in labels]
+        x, a = sum(y), len(y)
+        if x < rare_fallback:
+            q, z2 = x / a, z * z
+            d = 1 + z2 / a
+            mid, half = (q + z2 / (2 * a)) / d, z * math.sqrt(q * (1 - q) / a + z2 / (4 * a * a)) / d
+            return est, max(0.0, mid - half), min(1.0, mid + half)
+        return est, lo, hi
     if plan.get("two_phase"):
         return _two_phase_interval(plan, labels, z)
     cells = plan["cells"]
@@ -344,12 +385,15 @@ def audit_interval(plan, f_all, labels, z=1.959964):
     total = sum(len(c) for c in cells)
     pseudo = plan.get("pseudo", 0.0) if len(cells) > 1 else 0.0
     value = var = 0.0
-    for c, y, f in zip(cells, ys, fs):
+    neg_pseudo = plan.get("neg_pseudo", 0.0) if len(cells) > 1 else 0.0
+    for h, (c, y, f) in enumerate(zip(cells, ys, fs)):
         r = [a - lam * b for a, b in zip(y, f)]
         mr = sum(r) / len(r)
         v = sum((x - mr) ** 2 for x in r) / (len(r) - 1)
         if pseudo:
             v = max(v, pseudo_var(y, pseudo))
+        if neg_pseudo and h == 0:
+            v = max(v, pseudo_var(y, neg_pseudo))  # LOG.md 7az: the coder-negative cell, when the plan says so
         w = len(c) / total
         value += w * (lam * sum(f_all[i] for i in c) / len(c) + mr)
         var += w * w * (1 - len(y) / len(c)) * v / len(y)

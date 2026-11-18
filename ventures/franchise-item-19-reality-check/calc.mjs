@@ -196,7 +196,7 @@ export function analyze({ text, costs }) {
   return out;
 }
 
-const usd = (n) => (n == null || !Number.isFinite(n) ? "n/a" : (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US"));
+const usd = (n) => (n == null || !Number.isFinite(n) ? "n/a" : ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US")));
 const yrs = (n) => (n == null ? "never at this level" : round(n, 1) + " years");
 
 export function toCsv(r) {

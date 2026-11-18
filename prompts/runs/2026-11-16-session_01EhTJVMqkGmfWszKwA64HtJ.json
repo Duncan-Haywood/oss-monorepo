@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVMqkGmfWszKwA64HtJ",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products; merge when done",
+  "input_sha256": "f587293492381bdaac35b9cbf39cd438d9d7f586354aa12abd4807c32618d77b",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T02:12:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: open-tennis-robots flagship buildable item, sense an empty hopper (FLAG_HOPPER_EMPTY) and have the runner report it",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": 16413,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The buildable item named a break-beam sensor, but the feeder's ESP32 (WROOM-32) has no free GPIO besides UART0; nobody had checked the pin map against the item. The item was done instead from the existing tachometers."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The flagship row asked for a break-beam over the column (CAD and firmware). No pin is free for it (hardware/electronics.md), so the empty hopper is read from the launcher wheels' speed drop instead, with no CAD change.",
+      "did": "controller.LaunchCheck judges each stroke by momentum-predicted wheel speed drop; no new hardware",
+      "result": "27-build simulated sweep: loaded strokes >= 1.26x threshold, dry <= 0.17x; drill runner stops on the first dry stroke"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-the-tennis-feeder-notices-an-empty-hopper-from-its-wheels.md"
+  ],
+  "goal": "Close the open-tennis-robots item where an empty tub ended a drill on a release timeout",
+  "notes": "Explore idea: pinless empty-hopper detection. Every exposed GPIO on the feeder's ESP32 is taken, so a break-beam cannot be wired; a ball takes its momentum from the launcher wheels (8.8% per wheel flat, CAD figures), so the tachometers judge each stroke. Two failed variants recorded in firmware/esp32/README.md (4-rev mean + share 0.4: loaded down to 0.47x threshold at 1500 rpm on a heavy wheel; the Pi's final stop faked a launch until targets-change froze the watch). Verification: PYTHONPATH=src python3 -m unittest discover -s tests -> 138 tests OK (56 s); node --test sim/page/usage 21 pass; fixtures unchanged; cad tests touching firmware config 3 passed (build123d 0.13.0 venv); tests/launch_check_sweep.py worst loaded 1.26, worst dry 0.167; check_post_frontmatter, check_post_links, post_similarity clean; portfolio/router/validate.py clean. Simulator-only; not measured on real wheels.",
+  "corrections": [],
+  "redteam": null
+}

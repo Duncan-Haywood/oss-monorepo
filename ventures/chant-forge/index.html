@@ -9,7 +9,7 @@
   <meta property="og:description" content="Paste GABC, get a men's-range MIDI choir line with lyrics and a drums, bass and chords backing. Free, MIT, private.">
   <link rel="canonical" href="./index.html">
   <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2333302a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20text-anchor='middle'%20fill='%23f3f1ec'%3E%E2%99%AF%3C/text%3E%3C/svg%3E">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I turn Gregorian chant into MIDI?","acceptedAnswer":{"@type":"Answer","text":"Chant is published as GABC text. Paste it above, pick a tempo and a final note for your singers, and download the MIDI file. Each syllable becomes a lyric event on its note, so a DAW or notation program shows the Latin under the melody."}},{"@type":"Question","name":"Is the chant free to use?","acceptedAnswer":{"@type":"Answer","text":"Melodies from editions published before 1929 are in the public domain in the United States, but a modern transcription or recording can carry its own rights. Check the licence of every source you paste. The tool does not decide that for you."}},{"@type":"Question","name":"Does the preview sound like a real choir?","acceptedAnswer":{"@type":"Answer","text":"No. It is a plain synthesiser so you can judge the arrangement. Set the choir voice to sing and it sings the vowel of each Latin syllable, still with no consonants. For a real sound, take the MIDI and cue sheet to singers; the recording guide has a protocol."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I turn Gregorian chant into MIDI?","acceptedAnswer":{"@type":"Answer","text":"Chant is published as GABC text. Paste it above, pick a tempo and a final note for your singers, and download the MIDI file. Each syllable becomes a lyric event on its note, so a DAW or notation program shows the Latin under the melody."}},{"@type":"Question","name":"Is the chant free to use?","acceptedAnswer":{"@type":"Answer","text":"Melodies from editions published before 1929 are in the public domain in the United States, but a modern transcription or recording can carry its own rights. Check the licence of every source you paste. The tool does not decide that for you."}},{"@type":"Question","name":"Does the preview sound like a real choir?","acceptedAnswer":{"@type":"Answer","text":"No. It is a plain synthesiser so you can judge the arrangement. Set the choir voice to sing and it sings each Latin syllable's opening consonants, its vowel and its final consonants. Nobody has listened to it yet. For a real sound, take the MIDI and cue sheet to singers; the recording guide has a protocol."}}]}</script>
   <style>
     :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
     body { max-width: 820px; margin: auto; padding: 24px 16px; }
@@ -24,6 +24,13 @@
     button, .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; border: 0; font-size: 1rem; cursor: pointer; margin: 8px 8px 0 0; }
     button:disabled { opacity: .5; cursor: default; }
     pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    fieldset { border: 1px solid #dcd7cb; border-radius: 8px; margin: 14px 0 4px; padding: 4px 12px 10px; min-width: 0; }
+    legend { font-weight: 700; padding: 0 4px; }
+    .hint { font-size: .86rem; margin: 4px 0; color: #555044; }
+    #eplist { padding-left: 1.4em; margin: 6px 0; }
+    #eplist li { margin: 4px 0; }
+    #eplist li span { display: block; font-size: .86rem; color: #555044; }
+    #eplist button { padding: 3px 9px; margin: 2px 4px 0 0; font-size: .86rem; font-weight: 600; }
     footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
   </style>
   <!-- select-track:start -->
@@ -53,17 +60,37 @@
       <div><label for="choir">Choir ranges</label><select id="choir"><option value="" selected>Default: unison E2-E4, textbook sections</option><option value="textbook">Textbook (T C3-A4, B E2-E4; unison C3-E4)</option><option value="amateur">Amateur (T D3-F4, B G2-C4; unison D3-C4)</option><option value="octave">Octave a section, beginners (T E3-E4, B A2-A3; unison E3-A3)</option></select></div>
       <div><label for="stretch">Bar fit</label><select id="stretch"><option value="stretch" selected>Lengthen long notes to fill bars</option><option value="pad">Pad with rests</option><option value="none">No fitting</option></select></div>
       <div><label for="half">Chant speed</label><select id="half"><option value="">Normal</option><option value="1">Half-time over the backing (metal)</option></select></div>
+      <div><label for="organum">Second voice</label><select id="organum"><option value="">None: the chant in unison</option><option value="1">Organum: a fourth below, as in the Musica enchiriadis</option></select></div>
       <div><label for="sections">Song sections</label><select id="sections"><option value="">One groove all the way</option><option value="1">Intro, verses, builds, breakdown and drops (from the double bars)</option></select></div>
       <div><label for="acap">First verse (with sections)</label><select id="acap"><option value="">With the band</option><option value="1">A cappella: choir alone until the first build</option></select></div>
       <div><label for="lift">Last drop (with sections)</label><select id="lift"><option value="0">Same key</option><option value="2">Up a whole tone</option><option value="1">Up a semitone</option></select></div>
       <div><label for="drone">Drone</label><select id="drone"><option value="">No</option><option value="1">Organ drone on the final</option></select></div>
-      <div><label for="voice">Choir voice</label><select id="voice"><option value="">Pad (one "ah" for every note)</option><option value="sing">Sing the vowels of the Latin</option></select></div>
+      <div><label for="voice">Choir voice</label><select id="voice"><option value="">Pad (one "ah" for every note)</option><option value="sing">Sing the Latin (consonants and vowels)</option></select></div>
       <div><label for="markers">Phrase markers</label><select id="markers"><option value="">No</option><option value="1">A DAW locator at each phrase</option></select></div>
     </div>
     <label for="singers">Or your choir's own range test (optional CSV: one row per singer, columns name, section, low, high; section may be left out and the singers are divided by range)</label>
     <textarea id="singers" spellcheck="false" rows="4" placeholder="name,section,low,high&#10;Singer A,T,D3,G4&#10;Singer B,B,A2,D4"></textarea>
     <label for="sitout">With a range test: how many singers may sit out a note (so one short range does not set the whole section's limit; the result lists who sits out what)</label>
     <select id="sitout"><option value="0" selected>None: every singer reaches every note</option><option value="1">1 singer a section</option><option value="2">2 singers a section</option></select>
+    <fieldset id="relbox">
+      <legend>Release folder (optional)</legend>
+      <p class="hint">One button builds what a distributor upload is made from, the same folder as the command line's <code>ep-cli.mjs</code>: the track as a -14 LUFS WAV, its MIDI, timed lyrics, the GABC source, a 3000 px cover drawn from the chant's opening notes, <code>release.json</code> with the source edition and the AI disclosure, and a report of the release check. Rendering takes a few seconds to a minute.</p>
+      <div class="grid">
+        <div><label for="reltitle">Release title</label><input id="reltitle" type="text" placeholder="the chant's name"></div>
+        <div><label for="relartist">Artist (leave empty until you choose one)</label><input id="relartist" type="text"></div>
+        <div><label for="reldate">Release date</label><input id="reldate" type="date"></div>
+        <div><label for="relisrc">ISRC for this track (if you have one)</label><input id="relisrc" type="text" placeholder="CC-XXX-YY-NNNNN"></div>
+      </div>
+    </fieldset>
+    <fieldset id="epbox">
+      <legend>EP queue (optional)</legend>
+      <p class="hint">For several tracks in one release: convert a chant, press <strong>Add this track to the EP</strong>, change the chant or any setting, convert and add again. Each track keeps the settings it was converted with (genre, tempo, sections, voice) and the ISRC typed above. <strong>Build the EP folder</strong> renders every track at -14 LUFS and writes one folder with the release title, artist and date above, the cover drawn from track 1, the same files and the same check as the command line's <code>ep-cli.mjs</code>. The queue stays in this browser until you clear it. Rendering takes a few seconds a sung track.</p>
+      <ol id="eplist"></ol>
+      <p id="epinfo" class="hint">The queue is empty.</p>
+      <button id="epadd" type="button" disabled>Add this track to the EP</button>
+      <button id="dlep" type="button" disabled>Build the EP folder (ZIP)</button>
+      <button id="epclear" type="button" disabled>Clear the queue</button>
+    </fieldset>
     <button id="go" type="submit">Convert</button>
     <button id="play" type="button" disabled>Play preview</button>
     <button id="stop" type="button" disabled>Stop</button>
@@ -74,6 +101,7 @@
     <button id="dlxml" type="button" disabled>Download the score (MusicXML)</button>
     <button id="dlstems" type="button" disabled>Download stems (ZIP of WAVs)</button>
     <button id="dllearn" type="button" disabled>Download rehearsal tracks (ZIP, two per section)</button>
+    <button id="dlrel" type="button" disabled>Build the release folder (ZIP)</button>
   </form>
   <pre id="out" aria-live="polite">Press Convert.</pre>
 
@@ -84,10 +112,11 @@
     <li><strong>Fits the bar:</strong> pads or stretches phrases so each starts on a downbeat over a drum grid.</li>
     <li><strong>Arranges:</strong> deep house, EDM, hard rock or metal drums, bass and chords in the chant's mode.</li>
     <li><strong>Exports:</strong> a MIDI file with lyrics, plus a plain synthesised WAV to hear tempo and range. The preview is not a release master and the "choir" is a synthesiser.</li>
-    <li><strong>Sings the vowels:</strong> with the choir voice set to sing, each note is sung on the vowel of its Latin syllable (a, e, i, o, u, with ae and oe as e, qu and gu read as consonants, and au and eu gliding), by five detuned synthetic men's voices through formant filters set to measured men's vowels. There are no consonants: it is a vocalise on the right vowels, so you can hear which syllables fall on which notes. Measured from the audio on the five corpus pieces, 95% of notes read back as the written vowel (the pad: 18%). Nobody has listened to it yet.</li>
+    <li><strong>Sings the Latin:</strong> with the choir voice set to sing, each note is sung on the vowel of its Latin syllable (a, e, i, o, u, with ae and oe as e, qu and gu read as consonants, and au and eu gliding), by five detuned synthetic men's voices through formant filters set to measured men's vowels. Each syllable's opening consonants are sung too (t, d, k, the soft c of <em>caeli</em>, s, the sc of <em>descendit</em>, m, n, a tapped r and the rest), just before the beat as choirs place them, so the vowel lands on the beat, and its final consonants close the syllable's last note (the s of <em>Dies</em>, the n of <em>sunt</em> before its t). Measured from the audio on the five corpus pieces, 98% of measurable notes read back as the written vowel (the pad: 18%) and 75% of syllable openings as the written consonant. Nobody has listened to it yet.</li>
     <li><strong>Cues the singers:</strong> a plain-text cue sheet with the bar, beat, time, note and syllable of every sung note, and timed lyrics (LRC) for a lyric display. With song sections on, a line above each section says what the band does under it, the first note to pitch from and how far it is from the last one, when the band comes in after an a cappella verse, and the new key's first note after a key lift. The same sheet as the command line's <code>--cues</code>.</li>
     <li><strong>Prints the parts:</strong> the score download is a MusicXML file with one part per section (tenors, second tenors, baritones, basses when the choir is split), the Latin under the notes, the same pitches and timing as the MIDI in 4/4, and the song sections as rehearsal marks. MuseScore (free), Dorico, Sibelius and Finale open it, so a director can print each section's part. The same file as the command line's <code>--musicxml</code>.</li>
     <li><strong>Teaches each section its part:</strong> the rehearsal tracks download holds two WAVs per choir section (one for a unison chant, two each for tenors, baritones and basses when it is split): a part track with that section loud on the left and the other sections 12 dB down on the right, the band 6 dB down, and a minus track with everything but that section to sing the part against. These are the learning tracks choirs usually buy per part. The same files as the command line's <code>render-cli.mjs --learn</code>.</li>
+    <li><strong>Builds the release folder:</strong> one button renders the track limited to -14 LUFS, draws a 3000 x 3000 cover from the chant's own opening notes (square notation on a red staff, no text), writes <code>release.json</code> with the source edition, year, transcriber and rights note read from the GABC header, the AI disclosure ("assisted", naming the tools and parts) and the credits, then runs the release check over all of it. The ZIP's <code>REPORT.md</code> separates build faults (a GABC with no source edition, a cover too small, loudness off) from the steps only you can take (artist name, p- and c-lines, ISRC). The same files and the same check as the command line's <code>ep-cli.mjs</code> for an EP.</li>
     <li><strong>Hands the session to a DAW:</strong> with phrase markers on, the MIDI carries a locator at the start of each phrase (and at each song section), and the stems download is one WAV per part (choir, bass, chords, drums, organ drone) in a ZIP. The stems sum to the preview mix, so they line up from one start point. The same files as the command line's <code>--markers</code> and <code>render-cli.mjs --stems</code>.</li>
   </ol>
 
@@ -97,7 +126,7 @@
   <h3>Is the chant free to use?</h3>
   <p>Melodies from editions published before 1929 are in the public domain in the United States, but a modern transcription or recording can carry its own rights. Check the licence of every source you paste. The tool does not decide that for you.</p>
   <h3>Does the preview sound like a real choir?</h3>
-  <p>No. It is a plain synthesiser so you can judge the arrangement. Set the choir voice to sing and it sings the vowel of each Latin syllable, still with no consonants. For a real sound, take the MIDI and cue sheet to singers; the <a href="RECORDING-GUIDE.md">recording guide</a> has a protocol.</p>
+  <p>No. It is a plain synthesiser so you can judge the arrangement. Set the choir voice to sing and it sings each Latin syllable's opening consonants, its vowel and its final consonants. Nobody has listened to it yet. For a real sound, take the MIDI and cue sheet to singers; the <a href="RECORDING-GUIDE.md">recording guide</a> has a protocol.</p>
 
   </main>
   <footer>
@@ -116,9 +145,12 @@
     import { sectionPlan, liftEvents } from "./sections.mjs";
     import { cueSheet, sectionCues } from "./cues.mjs";
     import { lrc } from "./lrc.mjs";
+    import { addOrganum, describeIntervals } from "./organum.mjs";
     import { eventsToMusicXml } from "./musicxml.mjs";
     import { parseSingers, singersChoir, fewestSectionsForSingers, sitOutNotes, SECTION_LABEL } from "./singers.mjs";
     import { wavBytes, zipStored } from "./files.mjs";
+    import { releaseKit, EP_TARGET_LUFS, slugify } from "./ep-core.mjs";
+    import { addTrack, removeTrack, moveTrack, buildQueue, trackTitle, releaseType, queueToJson, queueFromJson, QUEUE_MAX } from "./ep-queue.mjs";
 
     const $ = (id) => document.getElementById(id);
     const SAMPLE = `name: Dies irae (first line only);
@@ -130,13 +162,18 @@ mode: 1;
     $("src").value = SAMPLE;
     for (const g of GENRE_NAMES) $("genre").add(new Option(g, g));
     for (const k of Object.keys(PIECES)) $("piece").add(new Option(k, k));
+    // a corpus piece keeps its file name in the release's sources/, as ep-cli.mjs copies it, while its text is unedited
+    let loaded = null;
     $("piece").onchange = async () => {
       const k = $("piece").value;
-      if (!k) { $("src").value = SAMPLE; return; }
-      try { $("src").value = await (await fetch(PIECES[k])).text(); } catch { $("out").textContent = "Could not load that sample here; paste GABC instead."; }
+      if (!k) { $("src").value = SAMPLE; loaded = null; return; }
+      try { $("src").value = await (await fetch(PIECES[k])).text(); loaded = { text: $("src").value, file: PIECES[k].split("/").pop() }; } catch { $("out").textContent = "Could not load that sample here; paste GABC instead."; }
     };
 
-    let midi = null, wav = null, cues = null, lyrics = null, score = null, ctx = null, node = null;
+    let midi = null, wav = null, cues = null, lyrics = null, score = null, ctx = null, node = null, built = null;
+    // a release date four weeks out: distributors ask for lead time for playlist pitching
+    const isoDay = (d) => d.toISOString().slice(0, 10);
+    $("reldate").value = isoDay(new Date(Date.now() + 28 * 864e5));
     const download = (bytes, name, type) => {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([bytes], { type }));
@@ -209,6 +246,15 @@ mode: 1;
         const tracks = [sung("tenor2") ? "a First tenors, a Second tenors" : "a Tenors", ...(sung("baritone") ? ["a Baritones"] : [])].join(", ") + " and a Basses track";
         lines.push(`Voices: ${describeSplit(r)}.${r.split ? ` The MIDI has ${tracks}; the cue sheet says who sings each note.` : ""}`);
       }
+      if ($("organum").value) {
+        if (events.some((e) => e.type === "note" && e.voice)) lines.push("Note: the organum is left out when the chant is split between sections.");
+        else {
+          const o = addOrganum(events, { from: 1, lift });
+          events = o.events;
+          const low = Math.min(...events.filter((e) => e.organal !== undefined).map((e) => e.organal));
+          lines.push(`Organum: ${o.notes} notes (${describeIntervals(o.intervals)}), lowest ${noteName(low)}; the MIDI has an Organal voice track.${low < 40 ? " Below E2: pick a higher final for a men's choir." : ""}`);
+        }
+      }
       const sum = summarize({ ...parsed, events }, { bpm, pulsesPerBar: 8 });
       let backing = null;
       if (g) {
@@ -235,6 +281,9 @@ mode: 1;
       const title = parsed.header.name || "chant";
       cues = cueSheet(events, { bpm, pulsesPerBar: 8, plan });
       lyrics = lrc(events, { bpm }, title);
+      built = { header: parsed.header, gabcText: $("src").value, warnings: sum.warnings.slice(), coverMidis: events.filter((e) => e.type === "note").map((e) => e.midi),
+        gabcName: loaded && loaded.text === $("src").value ? loaded.file : null,
+        settings: [g || "no backing", `${bpm} BPM`, useSections ? `sections${$("acap").value ? ", a cappella verse" : ""}${lift ? `, key up ${lift}` : ""}` : "", $("half").value ? "half-time" : "", $("organum").value ? "organum" : "", sung() ? "sung Latin" : "pad choir", `${len.seconds.toFixed(0)} s`].filter(Boolean).join(", ") };
       score = eventsToMusicXml(events, { title, bpm, plan });
       const guides = plan ? sectionCues(events, { bpm, pulsesPerBar: 8, plan }) : [];
       lines.unshift(`${sum.name || "Chant"}: ${sum.notes} notes, ${sum.lowest}-${sum.highest} (ambitus ${sum.ambitus} semitones), final ${sum.final}`,
@@ -248,11 +297,12 @@ mode: 1;
     }
     // the choir sings each syllable's vowel (sing.mjs) instead of the pad's fixed "ah"; as render-cli.mjs --sing
     const sung = () => $("voice").value === "sing";
-    const BUTTONS = ["play", "dlmid", "dlwav", "dlcues", "dllrc", "dlxml", "dlstems", "dllearn"];
+    const BUTTONS = ["play", "dlmid", "dlwav", "dlcues", "dllrc", "dlxml", "dlstems", "dllearn", "dlrel", "epadd"];
     $("go").onclick = () => {
       stop();
       try { $("out").textContent = convert(); for (const id of BUTTONS) $(id).disabled = false; }
-      catch (e) { $("out").textContent = e.message; for (const id of BUTTONS) $(id).disabled = true; midi = wav = cues = lyrics = score = null; }
+      catch (e) { $("out").textContent = e.message; for (const id of BUTTONS) $(id).disabled = true; midi = wav = cues = lyrics = score = built = null; }
+      showQueue();
     };
     $("play").onclick = () => {
       if (!wav) return;
@@ -284,6 +334,98 @@ mode: 1;
       if (!midi) return;
       download(zipStored(learningTracks(midi, { sing: sung() }).map((t) => ({ name: `chant-${t.slug}-${t.mode}.wav`, bytes: wavBytes(t.wav) }))), "chant-rehearsal.zip", "application/zip");
     };
+    // the release folder: the same release.json, cover, check and REPORT.md as `node ep-cli.mjs plan.json -o DIR`
+    // (ep-core.mjs), for this one track. The audio is rendered again, limited to -14 LUFS as ep-cli.mjs does.
+    $("dlrel").onclick = async () => {
+      if (!midi || !built) return;
+      $("dlrel").disabled = true;
+      const before = $("out").textContent;
+      $("out").textContent = "Building the release folder: rendering at -14 LUFS, drawing the cover, checking...";
+      await new Promise((r) => setTimeout(r, 30)); // let the message paint before the render holds the thread
+      try {
+        const name = (built.header.name || "Chant").replace(/\s*\(.*?\)\s*$/, "").trim();
+        const master = renderMidi(midi, { rate: 44100, targetLufs: EP_TARGET_LUFS, limit: true, sing: sung() });
+        const today = isoDay(new Date());
+        const plan = { title: $("reltitle").value.trim() || name, artist: $("relartist").value.trim(), releaseDate: $("reldate").value, type: "single" };
+        const k = await releaseKit(plan, [{ title: name, header: built.header, gabcText: built.gabcText, gabcName: `${slugify(name)}.gabc`,
+          midi, wav: master, lrc: lyrics, isrc: $("relisrc").value.trim(), warnings: built.warnings }], { today, coverMidis: built.coverMidis, wavBytes });
+        download(zipStored(k.files), `${slugify(plan.title)}-release.zip`, "application/zip");
+        const t = k.tracks[0];
+        $("out").textContent = [
+          `Release folder: ${k.files.length} files, ${t.title}, ${t.analysis.lufs.toFixed(1)} LUFS, ${t.analysis.truePeakDb.toFixed(2)} dBTP.`,
+          `Release check: ${k.check.checks.length - k.check.fail - k.check.warn} pass, ${k.check.warn} warn, ${k.check.fail} fail.`,
+          ...(k.buildFaults.length ? ["Fix before upload:", ...k.buildFaults.map((c) => `  ${c.name}: ${c.note}`)] : ["No build faults."]),
+          ...(k.ownerSteps.length ? ["Yours to fill in (release.json, or the boxes above and build again):", ...k.ownerSteps.map((c) => `  ${c.name}: ${c.note}`)] : ["No owner steps left."]),
+          ...(sung() ? [] : ["Note: the choir voice is the pad; set it to sing the Latin for a release render."]),
+          "REPORT.md in the ZIP has the full list. Listen to the track before any upload.",
+          "", before,
+        ].join("\n");
+      } catch (e) { $("out").textContent = "Release folder: " + e.message + "\n\n" + before; }
+      finally { $("dlrel").disabled = false; }
+    };
+
+    // ---- the EP queue (ep-queue.mjs): several tracks into one release folder through the same releaseKit
+    const QKEY = "chant-forge-ep-queue";
+    let queue = [];
+    try { queue = queueFromJson(localStorage.getItem(QKEY) || ""); } catch {}
+    const saveQueue = () => { try { localStorage.setItem(QKEY, queueToJson(queue)); } catch {} };
+    function showQueue() {
+      const ol = $("eplist");
+      ol.replaceChildren(...queue.map((t, i) => {
+        const li = document.createElement("li");
+        li.append(document.createTextNode(trackTitle(t)));
+        const s = document.createElement("span");
+        s.textContent = t.settings + (t.isrc ? `, ISRC ${t.isrc}` : "");
+        li.append(s);
+        const btn = (label, aria, fn, off) => { const b = document.createElement("button"); b.type = "button"; b.textContent = label; b.setAttribute("aria-label", `${aria} ${trackTitle(t)}`); b.disabled = Boolean(off); b.onclick = () => { queue = fn(); saveQueue(); showQueue(); }; li.append(b); };
+        btn("Up", "Move up", () => moveTrack(queue, t.id, -1), i === 0);
+        btn("Down", "Move down", () => moveTrack(queue, t.id, 1), i === queue.length - 1);
+        btn("Remove", "Remove", () => removeTrack(queue, t.id));
+        return li;
+      }));
+      const n = queue.length;
+      $("epinfo").textContent = n ? `${n} track${n > 1 ? "s" : ""}, about ${Math.round(queue.reduce((a, t) => a + (t.seconds || 0), 0) / 60)} min: released as ${releaseType(n) === "ep" ? "an EP" : `a ${releaseType(n)}`} (1-3 tracks a single, 4-6 an EP, more an album, as distributors count them).` : "The queue is empty.";
+      $("dlep").disabled = !n; $("epclear").disabled = !n;
+      $("epadd").disabled = !midi || !built || n >= QUEUE_MAX;
+    }
+    $("epadd").onclick = () => {
+      if (!midi || !built) return;
+      try {
+        const seconds = wav ? wav.channels[0].length / wav.rate : 0;
+        queue = addTrack(queue, { title: (built.header.name || "Chant"), header: built.header, gabcText: built.gabcText, gabcName: built.gabcName, midi: new Uint8Array(midi),
+          lrc: lyrics, isrc: $("relisrc").value.trim(), warnings: built.warnings, coverMidis: built.coverMidis, sing: sung(), settings: built.settings, seconds });
+        saveQueue(); showQueue();
+        $("relisrc").value = "";
+        $("out").textContent = `Added to the EP queue as track ${queue.length}: ${trackTitle(queue[queue.length - 1])}.\n\n` + $("out").textContent;
+      } catch (e) { $("out").textContent = "EP queue: " + e.message; }
+    };
+    $("epclear").onclick = () => { queue = []; saveQueue(); showQueue(); };
+    $("dlep").onclick = async () => {
+      if (!queue.length) return;
+      $("dlep").disabled = true;
+      const before = $("out").textContent;
+      try {
+        const plan = { title: $("reltitle").value.trim() || trackTitle(queue[0]), artist: $("relartist").value.trim(), releaseDate: $("reldate").value };
+        const k = await buildQueue(plan, queue, { render: renderMidi, wavBytes, today: isoDay(new Date()), onTrack: async (i, n, title) => {
+          $("out").textContent = `Building the EP folder: rendering track ${i + 1} of ${n} (${title}) at -14 LUFS...`;
+          await new Promise((r) => setTimeout(r, 30)); // let the message paint before the render holds the thread
+        } });
+        download(zipStored(k.files), `${slugify(plan.title)}-release.zip`, "application/zip");
+        const total = k.tracks.reduce((a, t) => a + t.seconds, 0);
+        $("out").textContent = [
+          `EP folder: ${k.release.type}, ${k.tracks.length} tracks, ${Math.floor(total / 60)}:${String(Math.round(total % 60)).padStart(2, "0")}, ${k.files.length} files.`,
+          ...k.tracks.map((t, i) => `  ${i + 1}. ${t.title}: ${t.analysis.lufs.toFixed(1)} LUFS, ${t.analysis.truePeakDb.toFixed(2)} dBTP`),
+          `Release check: ${k.check.checks.length - k.check.fail - k.check.warn} pass, ${k.check.warn} warn, ${k.check.fail} fail.`,
+          ...(k.buildFaults.length ? ["Fix before upload:", ...k.buildFaults.map((c) => `  ${c.name}: ${c.note}`)] : ["No build faults."]),
+          ...(k.ownerSteps.length ? ["Yours to fill in (release.json, or the boxes above and build again):", ...k.ownerSteps.map((c) => `  ${c.name}: ${c.note}`)] : ["No owner steps left."]),
+          ...(queue.some((t) => !t.sing) ? ["Note: a track with the pad choir is queued; set the choir voice to sing the Latin, convert and add it again for a release render."] : []),
+          "REPORT.md in the ZIP has the full list. Listen to every track before any upload.",
+          "", before,
+        ].join("\n");
+      } catch (e) { $("out").textContent = "EP folder: " + e.message + "\n\n" + before; }
+      finally { $("dlep").disabled = !queue.length; }
+    };
+    showQueue();
   </script>
 </body>
 </html>

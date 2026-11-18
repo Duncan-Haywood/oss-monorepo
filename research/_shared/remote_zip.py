@@ -128,7 +128,10 @@ def fetch(url, info, out, log=print):
     start = h + 30 + n + m
     dec = zlib.decompressobj(-15) if info.compress_type == zipfile.ZIP_DEFLATED else None
     crc, size = 0, 0
-    with open(dst + ".part", "wb") as g:
+    # One temp file per process: two jobs fetching the same member used to share dst + ".part"
+    # and could rename the other's half-written bytes into place (doc_friction, 2026-11-15).
+    part = f"{dst}.{os.getpid()}.part"
+    with open(part, "wb") as g:
         if info.compress_size:
             with _open(url, start, start + info.compress_size - 1, timeout=600) as r:
                 while True:
@@ -143,10 +146,10 @@ def fetch(url, info, out, log=print):
             g.write(d)
             crc, size = zlib.crc32(d, crc), size + len(d)
     if size != info.file_size or crc != info.CRC:
-        os.remove(dst + ".part")
+        os.remove(part)
         raise ValueError(f"{info.filename}: got {size} bytes crc {crc:08x}, "
                          f"expected {info.file_size} crc {info.CRC:08x}")
-    os.replace(dst + ".part", dst)
+    os.replace(part, dst)
     log(f"got {info.filename} ({size} bytes)")
     return dst
 

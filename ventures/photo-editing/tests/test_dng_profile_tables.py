@@ -314,7 +314,7 @@ class ProfileEngineTests(unittest.TestCase):
             for settings in ({}, {"half": True}, {"exposure_ev": 1.3}, {"exposure_ev": -0.7}):
                 raw = rd.parse_raw(dng(case["extra"], sensor))
                 py = rd.develop(raw, rd.DevelopSettings(engine="python", **settings))
-                npy = rd.develop(raw, rd.DevelopSettings(engine="numpy", **settings))
+                npy = rd.develop(raw, rd.DevelopSettings(engine="numpy", demosaic="bilinear", **settings))
                 self.assertEqual(py[:2], npy[:2])
                 self.assertEqual(py[2].tobytes(), npy[2].tobytes(), msg=str(settings))
                 self.assertEqual(py[3].profile, npy[3].profile)

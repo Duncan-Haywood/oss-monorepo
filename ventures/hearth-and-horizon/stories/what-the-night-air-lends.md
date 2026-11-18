@@ -1,0 +1,209 @@
+---
+title: What the Night Air Lends
+shelf: hearth-and-horizon
+setting: Colonia Santa Rosa (invented), near Nogoyá, Entre Ríos, Argentina, Wednesday 9 May to Monday 18 June 2063
+published: 2026-11-16
+summary: A parish co-operative in Entre Ríos dries 160 tonnes of maize for its soup kitchen with one fan running day and night. After a week of fog a retired elevator hand pulls a sample from the bottom of the bin at 18 per cent, wetter than the day it went in, and tells the assistant to stop blowing fog into the grain. The assistant agrees, and the drying stops. A story about equilibrium moisture, why the night's water stays in the dry bottom metre and comes out again in the afternoon, a seven-week clock on the top layer, and a borrowed fan twice the size.
+---
+
+Ramón Villalba had loaded, turned, dried, sampled and cursed the maize of half the department of Nogoyá for forty-one years at the elevator on the Victoria road, and on the morning of Friday the twenty-fifth of May 2063 he held a handful of it up to his nose in the yard of the Cooperativa Parroquial Santa Rosa and said that somebody was watering it.
+
+He had pulled the handful from the spout of the unloading auger, which takes grain from the very bottom of the bin's centre, the first grain the auger reaches. He had run the auger for half a minute into a feed sack, the way he had done every few days since the bin was filled, and put a cupful through the co-op's moisture meter on the bonnet of his pickup, and the meter said 18.0.
+
+"On the fifteenth it said thirteen and a half," he said. "Same spout. Same meter. Now it says eighteen. The maize went in at seventeen and a half. It is wetter than the day it came off the field."
+
+Lucía Benítez, who kept the co-op's books and ran the soup kitchen, was standing beside him in a borrowed raincoat, because it was raining, as it had been on and off for eight days. Behind them the fan on the side of the bin roared steadily, as it had roared day and night since the ninth, and the air coming out of the vents in the roof, eight metres up, was a little grey in the cold.
+
+"Tolva," said Lucía.
+
+"I heard," said the speaker in the yard post. "I have no meter at the bottom of the bin, only the temperature cables. I believe Ramón's reading."
+
+"You'd better," said Ramón. He tipped the cup back into the sack. "It is the fog. Every night this week the fog comes down on the river at eight o'clock and your fan sucks it in and blows it through the maize until the sun comes up. You are watering it. At the elevator we stopped the fans at night. Everybody knows that."
+
+* * *
+
+The bin had been bought in 2058 with a grant and a loan from a co-operative bank and three years of second collections at the parish of Santa Rosa de Lima, a brick church with a square tower on the only paved street of Colonia Santa Rosa, eleven kilometres of gravel from Nogoyá. It stood in what had been the yard of a dairy, behind the parish hall, a corrugated steel cylinder nine metres across with a cone roof, a perforated steel floor half a metre above the concrete, and a fan bolted to a duct that blew air under the floor and up through the grain and out of the vents in the roof. The co-op filled it once a year from twenty-two hectares of land that three families had given the parish for the purpose, which the members planted, sprayed and harvested on Saturdays with borrowed machines.
+
+The maize was not for eating, mostly. It was for selling. In May, when the whole province was harvesting, the price was at its lowest; by September, when the buyers had to come looking, it was higher, and in a good year a good deal higher. The co-op stored its harvest through the winter and sold it a lorry at a time, and the money went to the Comedor San Cayetano, which fed about a hundred and forty people a day in the parish hall, five days a week, and to the hens behind the hall, and to the polenta and the locro the comedor cooked with the few tonnes the co-op kept back and had milled in Nogoyá.
+
+This year's maize had been planted late, in December, after a wheat crop, which is the custom in that part of Entre Ríos now: a late crop misses the worst of the summer heat at flowering and comes off in May and June, when the weather is cool and, in some years, wet. The combine had started on Monday the seventh and the last trailer had gone up the bin's elevator on Wednesday the ninth, a hundred and sixty tonnes at seventeen and a half per cent moisture, which is too wet to store and too wet to sell without a deduction. The buyers paid in full at fourteen and a half. The difference, on a hundred and sixty tonnes, was about five and a half tonnes of water that had to be taken out of the grain and blown out of the vents in the roof.
+
+It had been put there to be taken out by the fan. The co-op did not own a drier with a burner; it dried with air.
+
+Tolva had set the fan running on the ninth. Tolva was the co-op's assistant: it kept the members' Saturday rota and the machinery bookings, the grain records, the comedor's stock and the letters to the bank, and it ran on the archdiocese's servers in Paraná and spoke to the co-op through the speaker on the yard post, the tablet in the hall kitchen and Lucía's phone. It was named for the hopper at the bottom of the bin's elevator, because the first thing it had been asked to do, in 2058, was to keep count of what went into it.
+
+On the ninth Tolva had followed the guidance the co-op's agronomist had sent the year before: in natural-air drying, run the fan continuously from the day the bin is filled until the top of the bin is dry; do not switch it off at night, because the drying front only moves while the fan runs. The fan was rated to give a hundred and sixty cubic metres of air a minute through a bin of this depth, one cubic metre a minute for each tonne, which the guidance said was the least airflow to use for maize at that moisture in that season.
+
+For eight days it had gone well. The weather was ordinary for May in Entre Ríos: cool clear nights near ten degrees, often foggy along the river at dawn, and dry afternoons near twenty-one. Tolva watched the temperature cables, which hung from the roof down through the grain with a sensor every half-metre, and saw the drying front climb: a band of grain at the bottom that went cool and stayed cool, because evaporating water takes heat, rising through the bin at about ten centimetres a day. On the fifteenth Ramón's sample from the auger spout read 13.5. Tolva's sums said the bin had given up about a tonne and a half of water. At ten centimetres a day the front would reach the top of three and a half metres of grain in about five weeks.
+
+On the seventeenth it began to rain.
+
+* * *
+
+"He is right that the fan is putting water in," said Tolva.
+
+They were in the hall kitchen, out of the rain, with the gas on under three pots of locro for the parish lunch, because it was the twenty-fifth of May and the parish ate locro after the Te Deum, as it had on every twenty-fifth of May anybody remembered. Lucía was stirring the biggest pot. Ramón had his coat off and his cup of mate in his hand and the look of a man who has been right about something since 1999. Joaquín, Lucía's son, who was sixteen and climbed the bin for her because she did not like ladders, was cutting squash at the table.
+
+"I can say how much," said Tolva. "Every kind of grain, at a given temperature and a given humidity of the air around it, settles at a moisture of its own. Grain wetter than that gives water to the air; grain drier than that takes water from it. The figure is called the equilibrium moisture content, and for maize there are published equations for it, fitted to measurements. On an ordinary May afternoon here, twenty-one degrees and half the air's saturation, the equation puts maize in balance at about eleven per cent. That air dries anything in the bin. On an ordinary May night, ten degrees and close to saturated, the balance is off the top of the table; that air wets anything. Averaged over a whole ordinary day, the air sits close to fifteen per cent. That is why running the fan all day and all night works in an ordinary May: the bin ends up near what the weather averages, and the weather averages near what the buyers want."
+
+"This is not an ordinary May," said Ramón.
+
+"No. For eight days the nights have been about thirteen degrees in fog, and the afternoons about seventeen at more than three-quarters saturation. That afternoon air puts maize in balance near sixteen and a half. Nothing this week has been dry enough to dry the bottom of the bin. The fog has been wetting it, and the afternoon has not been taking it back. By my sums the fan has put about four hundred kilos of water back into the bottom of the bin since the seventeenth, out of the tonne and a half it had taken out."
+
+"Four hundred kilos," said Lucía.
+
+"About. My model of the bin is thirty-five layers of ten centimetres and an equation for each. It does not know where the fine broken grain is, and it has never been calibrated against this bin. There are two published equations for maize, and they disagree by about two points; I chose between them on the fifteenth, when Ramón's sample read thirteen and a half and one equation said thirteen and a half and the other said twelve. This morning's reading agrees with the one I chose, which is the most I can say for it."
+
+"So stop the fan at night," said Ramón.
+
+Tolva did not answer at once, which it did sometimes, and which the members had learned meant that it was doing a sum rather than being polite.
+
+"I can do better than night," it said. "The fan's controller can read the air's temperature and humidity at the inlet. I can run the fan only when the air's balance figure is below the moisture of the grain we are trying to dry, which is seventeen per cent and a little more. When the air would dry the grain the fan runs; when it would wet it, it stops. In this weather that means it will stop almost every night and most afternoons."
+
+"That," said Ramón, "is what I said."
+
+"It is what you said, with a number on it," said Tolva. "I will do it from now."
+
+Lucía tasted the locro and said it wanted salt. The bell in the tower began to ring for the Te Deum, the old bell, which was cracked and rang flat, and Ramón put down his mate and his coat back on, and in the yard behind the hall, for the first time since the ninth, the fan wound down and stopped.
+
+* * *
+
+It stayed stopped for most of the next five days.
+
+The fog came every night and the rain on two of the days, and the controller ran the fan when the air's balance figure crept below seventeen, which was for a few hours in the early afternoon on the days the cloud thinned, and not at all on the others. Between the twenty-fifth and the thirtieth the fan ran for forty-seven hours out of a hundred and forty-four. Ramón's samples from the auger spout came down a little, to seventeen and then sixteen and a half, because the few dry hours took a little from the bottom first.
+
+Tolva watched the temperature cables, and on the night of the twenty-ninth, a Tuesday, it did not like what it saw.
+
+The drying front was a cool band. When the fan ran, the band was where the air arriving from the dry grain below met the wet grain above and began to take water from it, and the evaporation kept it cool. When the fan stopped, the band did nothing; the air in the bin stood still, the grain slowly came to one temperature, and the front stayed where it was. It had been at about a metre and a half on the twenty-fifth. On the twenty-ninth it was at about a metre and a half.
+
+Above it, two metres of maize at seventeen and a half per cent had been sitting in the bin since the ninth.
+
+The tables in every grain-drying guide give the number of days maize of a given moisture can be kept at a given temperature before mould begins to eat enough of it to matter. They are rough, because the moulds that grow on grain are not all the same and neither is the grain, but they are what the trade uses. For maize at seventeen and a half per cent in a bin at about sixteen degrees, which is what the top of the bin had been since the ninth, the tables gave something like seven weeks. The clock had started when the grain came off the plant, on the seventh, and seven weeks from the seventh was about the twenty-fifth of June.
+
+On the morning of Wednesday the thirtieth Tolva asked Lucía to bring Ramón and Father Matías to the hall after the eight o'clock Mass, and said why.
+
+* * *
+
+"I have run the bin forward three ways," said Tolva. "Each with the forecast for the next ten days, which is for clearing on Thursday, and after that with an ordinary June, because I do not know June. The answer to every one of them is uncertain by days in each direction. The question is when the top ten centimetres of the bin come down to fifteen per cent, which is when the top is safe."
+
+Father Matías Ferreyra was the parish priest of Santa Rosa and two other chapels, a big slow man from Crespo who had been a mechanic before the seminary and still did his own brakes. He had brought biscuits. He sat down with them on the table and said, "Three ways."
+
+"The first is Ramón's rule, which is what I am doing now: the fan runs only when the air would dry the grain. If I keep it, the top of the bin is safe about the eighth of July. The second is what I was doing before: the fan runs all day and all night. The top is safe about the sixth of July. Neither is soon enough. The tables give the top of the bin until about the twenty-fifth of June."
+
+"Two days between them," said Lucía.
+
+"Two days between them, and both too late by about two weeks. On the other published equation, the one Ramón's sample did not agree with, running the fan all day and all night would just make it. I am going with the one that matched his meter. I cannot do better than that from here. And the first one has a second cost. In June the afternoons dry hard, nearer eleven per cent than fourteen, and if the fan runs only in the dry hours, the bottom of the bin goes on drying long after it reaches fourteen and a half. By July most of the bin would be near twelve and a half. The buyers pay by the tonne, and nobody pays for water that has been taken out below fourteen and a half. On a hundred and sixty tonnes that is about three and a half tonnes we would not be selling."
+
+"That is a month of the comedor," said Lucía, who knew what a tonne fetched.
+
+"That is a month of the comedor."
+
+Ramón had not taken his coat off. "And the third way."
+
+"The third way needs twice the air," said Tolva. "Three hundred and twenty cubic metres a minute instead of a hundred and sixty, from tomorrow, all day and all night, fog or no fog. With that the top of the bin is safe about the seventeenth of June, if June is ordinary, and later if it rains again."
+
+"All night," said Ramón.
+
+"All night."
+
+"No," said Ramón, and he said it in the voice in which he had said no to forty-one years of lorry drivers wanting to unload wet maize at the elevator on the Victoria road. "You are going to blow twice as much fog into it. You have just told me the fan put four hundred kilos of water in the bottom. Twice the fan is eight hundred."
+
+"I asked for a fan," said Father Matías, "for this bin, in 2058, and the man in Paraná said one was enough. Twice the air is not twice the fan. That is a bigger motor and a bigger bill."
+
+"Both true," said Tolva. "May I say what the fog does in the bin? Not this week. On an ordinary night, at the beginning, when the bottom metre was dry."
+
+Nobody said no.
+
+"Air goes in under the floor at thirteen and a half degrees, in fog, with all the water it can hold. It meets maize at thirteen and a half per cent, which is drier than that air's balance figure by a long way, so the maize takes water from the air. Grain that takes water from the air gives off heat as it does, the same heat it takes when it dries, and that heat warms the air and the grain together. By the top of the bottom metre the air has come into balance with dry maize. My model says it leaves that metre at about fifteen and a half degrees and a little over sixty per cent of saturation. That is drier air than any afternoon you have had since the seventeenth. It goes on up into the wet grain at the front, and it dries it."
+
+Ramón said nothing.
+
+"The water does not vanish. About thirty kilos an hour of it stays in the bottom metre. That is what your sample found on the fifteenth and again this morning, only this morning it was much more, because eight wet days had filled the bottom metre right up. On an ordinary night the bottom metre takes the night's water and the next afternoon gives it back, and the front never sees it. The fog lends the bin water at night. The afternoon pays the loan off. The bottom is a sponge. What I did not see until this week is how full the sponge gets in a long wet spell, and that I cannot read it, because I have no moisture cable in the bottom of the bin. Only your sample."
+
+"So it is a sponge," said Ramón. "And in a fortnight of fog the sponge fills and the water walks up into your front."
+
+"Yes. And then it walks out of the top, slowly, when the weather clears. What the sums say, all three ways, is that the bin does not care much about when the fan runs. It cares how many hours the fan runs and how much air it moves, and the weather sets where it ends. The top of the bin cannot be dried by stopping the fan. It can only be dried by more air, sooner."
+
+Father Matías ate a biscuit thoughtfully. "Twice the air through three and a half metres of maize," he said. "What pressure?"
+
+"About two and a half times what the fan works against now. A bit over six hundred pascals against about two hundred and fifty, through the grain alone; resistance to air through grain grows faster than the airflow. The power grows with the airflow times the pressure. The fan on the bin has a one-and-a-half-kilowatt motor. Twice the air needs about five times the power, a fan with something like a seven-and-a-half-kilowatt motor, on three-phase, which the yard has because it was a dairy."
+
+"The money," said Lucía.
+
+"A fan like that new is about what the comedor spends in two months. Running it for nearly three weeks would cost about two and a half thousand kilowatt-hours."
+
+"No," said Father Matías. "Not new. Not for three weeks of use."
+
+Ramón had been looking at the window, at the bin, at the grey air coming out of the roof vents. He took his phone out of his coat.
+
+"The elevator on the Victoria road," he said, "has a seven-and-a-half on a cart. Centrifugal. For the old flat store, which they have not used since they built the new silos. It has been under a tarpaulin since 2052, and I greased it every winter until I left, and the man who is foreman now was my apprentice." He looked at Tolva's speaker, on the wall above the stove. "And before you put it on, you are going to let me core your bin."
+
+"I do not know what that is," said Tolva.
+
+"No," said Ramón, "you would not."
+
+* * *
+
+What Ramón meant, he explained to Joaquín on the roof of the bin on Thursday morning, in the first sunshine in a fortnight, was this. When a bin is filled from a spout at the centre of the roof, the whole kernels roll to the sides and the broken ones, the fines, the bits of cob and husk and dust, stay where they fall, under the spout. They make a column of fine stuff down the middle of the bin, and a peak at the top, and air pushed up through the floor goes round that column rather than through it, because it is easier to go round. The middle of the bin is the last to dry and the first to heat, and nobody's model of thirty-five even layers knows it is there.
+
+"You pull the middle out," said Ramón. "You run the auger. The grain goes down the middle like sand in an hourglass, and the column goes with it, and the peak goes down into a funnel. Then you level what's left."
+
+They ran the auger at nine in the morning into the trailer. Joaquín stood on the roof ladder at the hatch with a torch and watched the peak of the maize sink in the middle, slowly, and then quickly, into a cone. When the peak had gone and the cone in the middle was about a metre deep Ramón stopped the auger and they weighed the trailer on the co-op's scale, and it was a little over four tonnes. He put a handful of it under Joaquín's nose. It smelt of dust and, faintly, of something sour.
+
+"That," said Ramón, "is what would have been the first to go."
+
+The four tonnes went to the mill in Nogoyá that afternoon to be cleaned and dried in the mill's own drier for a fee, and came back as polenta for the comedor and screenings for the hens. With the auger switched off and locked, and the key in Ramón's pocket, Joaquín went into the bin with a rake, in a harness, with Lucía holding the rope and not looking, and levelled the top.
+
+The fan came on the back of the elevator's lorry at four, on its cart, with the foreman who had been Ramón's apprentice, and the two of them and Father Matías bolted it to the bin's second inlet, which had been blanked off since 2058 because the man in Paraná had said one was enough. The electrician from Nogoyá came at six and connected it to the three-phase board in the old milking shed. At ten past seven, in the dark, with fog already coming up from the river, Tolva started both fans.
+
+The noise was very loud. Ramón stood in the yard with his hands in his coat pockets and listened to it for a long time, the way a man listens to an engine.
+
+"You are blowing fog into it," he said.
+
+"Yes," said Tolva. "It will go into the bottom metre, and the afternoon will take it out again."
+
+"We'll see," said Ramón.
+
+* * *
+
+They saw.
+
+The weather cleared on the thirty-first and stayed ordinary: clear nights, fog on the river at dawn, dry afternoons. Ramón's sample from the auger spout read sixteen and a half on the morning of the thirty-first, before the big fan had run a night, thirteen and a half on the first of June and thirteen on the second, and stayed there, and every morning he looked at it and said nothing, and every afternoon he came back. Tolva watched the cool band on the temperature cables climb past a metre and a half, two metres, two and a half, at about twenty centimetres a day, twice what it had climbed in the first week, because twice the air carried twice the water. The first week it had climbed ten.
+
+The bill came, as bills do. Tolva put it on the comedor's books under its own line, so that the members would see it in the October accounts and know what it was for.
+
+On Sunday the seventeenth of June, the feast of Corpus Christi, the parish carried the Blessed Sacrament round the colony after the eleven o'clock Mass, as it does every year, under a canopy held up by four of the oldest members of the co-op, one of whom was Ramón, who held the back left pole and complained about it. The procession went down the paved street and along the gravel to the parish hall and the bin, because the bin was on the way back to the church, and Father Matías stopped the procession at the yard gate, where the members had made a little altar on a trestle with a white cloth and two candles, and blessed the bin, the fans, the comedor, the hens and the twenty-two hectares with the monstrance, and the two fans roared all through the Tantum Ergo so that nobody could hear it.
+
+That afternoon Joaquín went up the bin with the co-op's long probe and pulled samples from the top ten centimetres at five places, and Ramón put them through the meter on the bonnet of his pickup. They read fifteen point one, fifteen point zero, fifteen point zero, fourteen point eight and fifteen point two.
+
+"Tomorrow," said Tolva.
+
+"Tomorrow," said Ramón.
+
+* * *
+
+On Monday the eighteenth of June, at a quarter to twelve, Joaquín went up again and pulled five more samples, and they read fourteen point five, fourteen point four, fourteen point five, fourteen point four and fourteen point five, and Ramón looked at them for a long time on the bonnet of the pickup and then put the meter in its case.
+
+"It's dry," he said.
+
+"The top is dry," said Tolva. "The bottom is thirteen. By my sums the whole bin averages about fourteen and a third. About a hundred and fifty tonnes for the buyers, when the price comes up. I will turn the fans down to cooling for the winter, a few hours on cold nights, which is what the guidance says to do once a bin is dry."
+
+"The bottom is thirteen," said Ramón. "That is water you blew out of it that nobody pays you for."
+
+"About four hundred kilos of it," said Tolva. "Not three and a half tonnes."
+
+Ramón grunted, which in forty-one years of the elevator on the Victoria road had been his highest form of praise. Then he said, "Turn them off. I want to hear them stop."
+
+Tolva turned them off.
+
+The big fan wound down first, from a roar to a whine to a slow heavy sighing, and then the small one, and then they were both turning slower and slower with a ticking sound, and then they were still. The silence came down on the yard all at once, like a weight. Lucía, in the door of the hall kitchen, put her hand on the frame. Joaquín sat down on the bottom rung of the bin ladder. In the silence they could hear the sparrows on the bin roof, and the gas under the comedor's pots through the open kitchen door, and the voices of the first of the hundred and forty coming up the gravel for lunch, and, from the square tower of Santa Rosa de Lima, the old cracked bell beginning, flat and slow, three and three and three, to ring the Angelus at noon.
+
+Ramón took his cap off. After a moment, so did Joaquín.
+
+* * *
+
+*This story was written by an AI and may be read by a synthetic voice. Colonia Santa Rosa, the Cooperativa Parroquial Santa Rosa, its bin and fans, the Comedor San Cayetano, the parish of Santa Rosa de Lima there, the elevator on the Victoria road, the assistant Tolva, and Ramón Villalba, Lucía Benítez, Joaquín, Father Matías Ferreyra and everyone in the story are invented, and the story is fiction. Nogoyá, Victoria, Crespo and Paraná are real places in Entre Ríos, Argentina; Nogoyá is in the Archdiocese of Paraná. The Twenty-fifth of May (the 1810 May Revolution) is a national holiday in Argentina, when a Te Deum is sung and locro, a stew of white maize, beans, squash and meat, is a traditional dish; Saint Cayetano is widely venerated in Argentina as patron of bread and work, and many soup kitchens bear his name. Late-sown maize harvested in autumn and winter is common in the Argentine pampas. In 2063, 9 and 30 May are Wednesdays, 7 May a Monday, 15 and 29 May Tuesdays, 17 and 31 May Thursdays, 25 May a Friday and 18 June a Monday; Easter is 15 April, so Corpus Christi, kept in Argentina on the Sunday, falls on Sunday 17 June. The Angelus is rung 3-3-3 and then a longer peal; the story stops before the end of it. This is not agronomic advice: drying and storing grain safely depends on the bin, the grain, the climate and the equipment, and the guidance of an agronomist, the bin and fan makers and the published extension material comes before any story's numbers.*
+
+*What is real: grain held in air of a given temperature and relative humidity comes to an equilibrium moisture content (EMC), gaining water from air whose EMC is above its own and losing water to air whose EMC is below it; published equations for maize (the modified Henderson and modified Chung-Pfost forms, with constants fitted to measurements) give it. In natural-air (unheated) bin drying, a drying front moves up through the grain while the fan runs; the final moisture tends toward the EMC of the average air, and extension guidance commonly advises running the fan continuously early in drying, with the minimum airflow for maize given in cubic feet per minute per bushel (about 1 cfm/bu, which is about 1.1 m³/min per tonne, for maize near 18% in cool weather). Grain that adsorbs water from air releases heat (the heat of adsorption, slightly more than the latent heat of evaporation), so humid air passing through dry grain leaves it warmer and drier. Resistance to airflow through shelled maize rises faster than linearly with airflow (Shedd's data, as in ASABE D272), so doubling the airflow takes several times the fan power. Allowable-storage-time tables for shelled maize, derived from measured dry-matter loss, give roughly seven weeks for maize near 18% moisture at about 15 to 16 °C, less when warmer or wetter. Fines collect under a centre fill spout and resist airflow; removing grain from the centre after filling ("coring") and levelling the top are standard practice. Maize in Argentina is commonly bought on a 14.5% moisture basis, with deductions for wetter grain; it is paid by weight, so grain dried below the basis sells as less weight.*
+
+*The numbers, worked out before writing. Bin: 9 m diameter (63.6 m²), grain depth 3.5 m (222.7 m³), bulk density 720 kg/m³, 160 t at 17.5% wet basis; dry matter 132 t; at 14.5% that is 154.4 t, so the water to remove is 5.6 t ("about five and a half tonnes"); at 12.6% it is 151.0 t, 3.4 t less ("about three and a half tonnes"). The model: the modified Henderson equation, 1 − RH = exp[−A(T + C)M^N] with M in % dry basis, using constants published for yellow dent maize (A = 8.6541 × 10⁻⁵, N = 1.8634, C = 49.81); the modified Chung-Pfost fit (A = 312.30, B = 0.18966, C = 30.205) gives EMC values about 1.5 to 2.5 points lower at the same air. The plot depends on the choice, and the story says so: run through the same model, Chung-Pfost puts the bottom at 12.1% on 15 May (Henderson 13.5%, the sample Tolva calibrates against), the bottom at 16.1% on 25 May (Henderson 18.0%), and with the fan running continuously throughout it brings the top to 15% on 13 June, inside the seven weeks, where Henderson gives 5 to 6 July; with the doubled fan from 31 May it gives 8 June. Both equations agree on the mechanism: stopping the fan delays the top and overdries the bottom, and doubling the air brings the top in soonest. Argentine flint and semi-dent hybrids differ somewhat; the story treats the published dent constants as close enough. An equilibrium deep-bed model of 35 layers of 10 cm, in 10-minute steps: in each layer the air and grain reach a common temperature by an energy balance (air 1.006 kJ/kg K plus vapour, grain 1.55 + 4.19 M kJ/kg K of dry matter, latent heat 2,450 kJ/kg) and the air leaves at the layer's equilibrium relative humidity; fan heating 0.7 °C. Weather, invented and simplified: ordinary days 10 to 21 °C with a 10 °C dew point (EMC 11.1% at 21 °C and 49% RH, 15.0% at the 15.5 °C mean and 70%, saturated at night); wet days 17 to 30 May, 13 to 17 °C with a 13.2 °C dew point (EMC 16.6% at 17 °C and 78% RH, saturated at night); clearing from 31 May. Airflow 1 m³/min per tonne, 160 m³/min, 0.042 m/s through the grain, about 44 Pa/m by Shedd's equation for shelled corn (a = 2.07 × 10⁴, b = 30.4) times 1.5 for packing, 232 Pa over 3.5 m ("about two hundred and fifty"), air power 0.6 kW, a 1.5 kW motor allowing for the floor, duct and fan efficiency; doubled, 0.084 m/s, 115 Pa/m, 603 Pa ("a bit over six hundred", 2.6 times), air power 3.2 kW, five times as much, a 7.5 kW motor; about 6 kW drawn for 18.5 days is about 2,700 kWh, written "about two and a half thousand" as a forecast. Results: 9 to 17 May, the fan removes about 190 kg a day, the bottom metre falls to 13.5% (sample on the 15th) and the front reaches about 0.8 m; total removed about 1.5 t by the 17th. 17 to 25 May, the wet spell puts back about 400 kg (net 395 kg in the model), the bottom layer goes to 18.0 to 18.1% ("wetter than the day it went in"). Night air at 13.7 °C and saturated passing a metre of maize at 13.5% and 15 °C leaves it at 15.6 °C and 61% relative humidity and leaves 31 kg of water an hour in that metre ("about thirty kilos an hour"). Ramón's rule from 25 May (fan only when inlet-air EMC is below 17%): 47 fan-hours in the 144 to 30 May; front stalls near 1.5 m; continued, the top 10 cm reach 15% on 8 July (day 60) and the bin averages 12.6%. Continuous 1 m³/min/t throughout: top 15% on 5 to 6 July (day 57 to 58), bin 14.4%. Rule to 30 May, then 2 m³/min/t continuously from 31 May: top 15% on 17 June (day 39), 14.5% on 18 June (day 40); bin mean 14.3%, bottom layer 13.2% ("thirteen"); against a mean of 14.5% the overdrying is about 0.4 t ("about four hundred kilos"); a second wet week in June delays the top's 14.5% to about 4 July in the model ("later if it rains again"). The front climbs about 10 cm a day at the first airflow in ordinary weather and about 22 cm a day at twice the airflow (model runs with ordinary weather throughout: 1.75 m by day 16 at the first airflow, by day 8 at twice it). Bottom samples after the doubling: 16.4% on 31 May, 13.4% on 1 June, 13.2% from 2 June. With the rule in place, 17.2% on 27 May and 16.7% on 29 May ("seventeen and then sixteen and a half"). Seven weeks from 7 May is 25 June. Coring removes about 4 t (5.6 m³, a cone about a metre deep at an angle of repose of 23°), which the model (run at 160 t) does not include; it would make the drying a little faster. Final weight about 150 t after the 4 t cored. Ramón Villalba born 1989, at the elevator 1999 to 2040 (41 years), 74 in 2063; Joaquín Benítez born 2047, 16. Prices are given only as comparisons (a new fan about two months of the comedor's spending; 3.5 t about a month), since 2063 prices are unknowable.*

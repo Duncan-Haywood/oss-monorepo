@@ -48,7 +48,7 @@ test('shipped setting is off: catchUp never fires and the text is unchanged', ()
 
 test('a forced setting writes the catch-up sentence (the text a passing round would have shipped)', () => {
   const u = { changes: [{ index: 3, from: 3, to: 3, shareBefore: 0.1, shareAfter: 0.6, direction: 'less often', rounding: false, catchUp: true, catchUpRatio: 2.5, tick: 0.1 }] };
-  assert.match(updateRateLines(u)[0], /2\.5x the mean square of a move after a move\), as a stale figure catching up would be/);
+  assert.match(updateRateLines(u)[0], /2\.5x the mean square of a move after a move\), so those repeats read as staleness/);
 });
 
 test('both rounds fail as committed', () => {

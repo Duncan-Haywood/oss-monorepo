@@ -58,7 +58,8 @@ export function plan(input) {
   const barrels = toBarrels(v);
   if (barrels <= 0) return { error: "Enter what you remove from the brewery in a year: kegs, cases or barrels." };
   if (barrels > 2e7) return { error: "That is over 20 million barrels. Check the units." };
-  const allotment = num(v.allotment);
+  // A cleared allotment field means "not apportioned": the statutory 60,000, not 0 (audit 2026-11-15).
+  const allotment = v.allotment === "" || v.allotment === null || v.allotment === undefined ? TIERS.reducedBarrels : num(v.allotment);
   const base = exciseTax({ barrels, allotment, small });
   const saved = base.atTopRate - base.tax;
 
@@ -69,10 +70,14 @@ export function plan(input) {
   const headroom = base.reducedCap - barrels;
   const growth = [1, 1.25, 1.5, 2, 3].map((m) => {
     const b = barrels * m;
-    const t = exciseTax({ barrels: b, allotment, small });
-    return { multiple: m, barrels: b, tax: t.tax, effective: t.effective, marginal: t.marginal };
+    // 26 U.S.C. 5051(a)(2): the reduced rate is only for brewers producing 2 million barrels or less a year.
+    const eligible = small && b <= TIERS.smallBrewerCap;
+    const t = exciseTax({ barrels: b, allotment, small: eligible });
+    return { multiple: m, barrels: b, tax: t.tax, effective: t.effective, marginal: t.marginal, small: eligible };
   });
   const advice = [];
+  if (small && barrels > TIERS.smallBrewerCap) advice.push("Warning: the $3.50 reduced rate is only for brewers producing 2 million barrels or less a year (26 U.S.C. 5051(a)(2)). Above that, untick the small-brewer box unless your production is lower than your removals.");
+  if (small && growth.some((g) => !g.small)) advice.push("In the growth table, rows above 2 million barrels lose the reduced rate.");
   advice.push(`Estimated federal beer excise tax: $${r2(base.tax).toLocaleString("en-US")} on ${r2(barrels).toLocaleString("en-US")} barrels, an effective $${r2(base.effective)} per barrel.`);
   advice.push(`That is about $${r2(perUnit(15.5))} per half-barrel keg and about ${(perPint * 100).toFixed(1)} cents per pint.`);
   if (small) advice.push(`The reduced rate saves about $${r2(saved).toLocaleString("en-US")} compared with the $${RATES.top} top rate.`);

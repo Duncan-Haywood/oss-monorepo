@@ -33,9 +33,6 @@ const REPO_ROOT = new URL("../../", import.meta.url).pathname;
 // A key is an opt-out key if it says so. Counter keys, draft keys and share
 // keys are none of this check's business -- a module may have as many of those
 // as it likes.
-// A key is an opt-out key if it says so. Counter keys, draft keys and share
-// keys are none of this check's business -- a module may have as many of those
-// as it likes.
 //
 // `disable` and `usage-preference` are in the list because the two page-level
 // spellings this catalogue actually uses are `<venture>-disable` and

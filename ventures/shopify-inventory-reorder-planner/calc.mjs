@@ -33,7 +33,7 @@ const STOCK_ALIASES = {
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−]/.test(s);
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -82,10 +82,10 @@ export function parseWhen(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   let y, mo, d, rest = "";
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(.*)$/);
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
   else {
-    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(.*)$/);
+    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)(.*)$/);
     if (!m) return null;
     const a = +m[1], b = +m[2];
     y = +m[3]; if (y < 100) y += 2000;

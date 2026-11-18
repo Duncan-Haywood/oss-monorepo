@@ -3,7 +3,12 @@
 // or in cash, with exceptions listed). It is not the official wording and not a signed statement: copy the signed version from DOL's form or your
 // agency's. Pure functions, no network, no storage.
 
-const usd = (x) => "$" + x.toFixed(2);
+const usd = (x) => {
+  const format = (x) => "$" + x.toFixed(2);
+  if (!(Number(x) < 0)) return format(x);
+  const text = format(Math.abs(x));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 export function buildCompliance(report) {
   const h = report.header;

@@ -38,7 +38,7 @@ test("schema layer: unknown, missing, out-of-order elements, bad values, attribu
   const order = swap("<Numero>77</Numero>\n      <CodigoVerificacao>AB12CD34</CodigoVerificacao>", "<CodigoVerificacao>AB12CD34</CodigoVerificacao><Numero>77</Numero>");
   assert.deepEqual(rules(order), ["ABR-003"]);
   assert.deepEqual(rules(swap("<ItemListaServico>01.07</ItemListaServico>", "<ItemListaServico>1.07</ItemListaServico>")), ["ABR-005"]);
-  assert.deepEqual(rules(swap("<Aliquota>5.00</Aliquota>\n        <ValorIss>42.50", "<Aliquota>5,00</Aliquota>\n        <ValorIss>42.50")), ["ABR-005"]);
+  assert.deepEqual(rules(swap("<Aliquota>2.90</Aliquota>\n        <ValorIss>24.65", "<Aliquota>2,90</Aliquota>\n        <ValorIss>24.65")), ["ABR-005"]);
   assert.deepEqual(rules(swap('<Nfse versao="2.04">', '<Nfse versao="2.04" lote="1">')), ["ABR-006"]);
   // A space around an xs:date: XSD trims it, libxml2 (xmllint, PHP) does not.
   const f = checkAbrasf(swap("<Competencia>2026-11-10</Competencia>", "<Competencia> 2026-11-10</Competencia>")).findings;
@@ -81,11 +81,11 @@ test("CNPJ and CPF check digits", () => {
 test("values: base, ISS, net amount, deductions over the service value", () => {
   assert.deepEqual(rules(swap("<BaseCalculo>850.00</BaseCalculo>", "<BaseCalculo>900.00</BaseCalculo>")), ["ABR-020"]);
   // The issued ISS and the RPS's own are both checked.
-  assert.deepEqual(rules(swap("<ValorIss>42.50</ValorIss>\n        <ValorLiquidoNfse>", "<ValorIss>45.00</ValorIss>\n        <ValorLiquidoNfse>")), ["ABR-021"]);
-  assert.deepEqual(rules(swap("<ValorIss>42.50</ValorIss>", "<ValorIss>40.00</ValorIss>", rps)), ["ABR-021"]);
+  assert.deepEqual(rules(swap("<ValorIss>24.65</ValorIss>\n        <ValorLiquidoNfse>", "<ValorIss>45.00</ValorIss>\n        <ValorLiquidoNfse>")), ["ABR-021"]);
+  assert.deepEqual(rules(swap("<ValorIss>24.65</ValorIss>", "<ValorIss>40.00</ValorIss>", rps)), ["ABR-021"]);
   assert.deepEqual(rules(swap("<ValorLiquidoNfse>913.50</ValorLiquidoNfse>", "<ValorLiquidoNfse>871.00</ValorLiquidoNfse>")), ["ABR-022"]);
   // ISS retained: the net amount deducts it.
-  const ret = swap("<ValorLiquidoNfse>913.50</ValorLiquidoNfse>", "<ValorLiquidoNfse>871.00</ValorLiquidoNfse>", swap("<IssRetido>2</IssRetido>", "<IssRetido>1</IssRetido>"));
+  const ret = swap("<ValorLiquidoNfse>913.50</ValorLiquidoNfse>", "<ValorLiquidoNfse>888.85</ValorLiquidoNfse>", swap("<IssRetido>2</IssRetido>", "<IssRetido>1</IssRetido>"));
   assert.deepEqual(rules(ret), []);
   assert.deepEqual(rules(swap("<ValorDeducoes>100.00</ValorDeducoes>", "<ValorDeducoes>990.00</ValorDeducoes>", rps)), ["ABR-023", "ABR-021"]);
   // A conditional discount does not lower the base, but does lower the net amount.
@@ -95,9 +95,9 @@ test("values: base, ISS, net amount, deductions over the service value", () => {
 });
 
 test("a zero ISS beside a rate on an RPS is read as not computed and said, not flagged", () => {
-  const r = checkAbrasf(swap("<ValorIss>42.50</ValorIss>", "<ValorIss>0.00</ValorIss>", rps));
+  const r = checkAbrasf(swap("<ValorIss>24.65</ValorIss>", "<ValorIss>0.00</ValorIss>", rps));
   assert.deepEqual(r.findings, []);
-  assert.match(r.skipped.join(" "), /ValorIss: 0\.00 beside Aliquota 5\.00 on an RPS/);
+  assert.match(r.skipped.join(" "), /ValorIss: 0\.00 beside Aliquota 2\.90 on an RPS/);
 });
 
 test("1.00 files (fraction rates, InfRps) skip the schema and still check values", () => {
@@ -116,7 +116,7 @@ test("an RPS escaped inside a SOAP parameter is found and checked", () => {
   const r = checkAbrasf(soap);
   assert.deepEqual(r.findings, []);
   assert.match(r.skipped.join(" "), /escaped text \(a SOAP parameter\)/);
-  assert.deepEqual(rules(soap.replace("&lt;ValorIss&gt;42.50", "&lt;ValorIss&gt;40.00")), ["ABR-021"]);
+  assert.deepEqual(rules(soap.replace("&lt;ValorIss&gt;24.65", "&lt;ValorIss&gt;40.00")), ["ABR-021"]);
 });
 
 test("not well-formed or not ABRASF", () => {

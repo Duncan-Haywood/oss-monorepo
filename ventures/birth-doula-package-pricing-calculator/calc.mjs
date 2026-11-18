@@ -37,7 +37,7 @@ export const num = (s) => {
   return t === "" ? NaN : Number(t);
 };
 export const money = (x) => `${x < 0 ? "-" : ""}$${Math.abs(Math.round(x)).toLocaleString("en-US")}`;
-export const money2 = (x) => `${x < 0 ? "-" : ""}$${Math.abs(x).toFixed(2)}`;
+export const money2 = (x) => `${x < 0 && Math.abs(x).toFixed(2) !== "0.00" ? "-" : ""}$${Math.abs(x).toFixed(2)}`;
 
 export function hours(o) {
   const trips = o.prenatalVisits + o.postpartumVisits + 1; // one round trip per visit plus the birth

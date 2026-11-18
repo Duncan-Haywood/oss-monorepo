@@ -26,14 +26,14 @@ Singing (`sing: true`):
 
 | pitch | /a/ F1, F2 (read) | /e/ F1, F2 (read) | /i/ F1, F2 (read) | /o/ F1, F2 (read) | /u/ F1, F2 (read) |
 |---|---|---|---|---|---|
-| E2 | 740, 1083 (a) | 528, 1826 (e) | 274, 2299 (i) | 571, 837 (o) | 320, 877 (u) |
-| A2 | 698, 1089 (a) | 545, 1833 (e) | 301, 2305 (i) | 568, 871 (o) | 329, 885 (u) |
-| D3 | 734, 1091 (a) | 541, 1834 (e) | 296, 2323 (i) | 576, 864 (o) | 301, 865 (u) |
-| G3 | 756, 1079 (a) | 543, 1787 (e) | 350, 2327 (i) | 581, 833 (o) | 384, 891 (u) |
-| C4 | 750, 1061 (a) | 524, 1825 (e) | 272, 2344 (i) | 518, 801 (o) | 276, 841 (u) |
-| E4 | 659, 1022 (a) | 612, 1967 (e) | 343, 2296 (i) | 654, 987 (a) | 338, 918 (u) |
+| E2 | 740, 1083 (a) | 533, 1850 (e) | 266, 2302 (i) | 568, 846 (o) | 296, 864 (u) |
+| A2 | 698, 1089 (a) | 536, 1840 (e) | 261, 2293 (i) | 569, 867 (o) | 310, 875 (u) |
+| D3 | 734, 1091 (a) | 539, 1845 (e) | 294, 2273 (i) | 584, 892 (o) | 295, 875 (u) |
+| G3 | 756, 1079 (a) | 575, 1797 (e) | 237, 2327 (i) | 589, 853 (o) | 306, 839 (u) |
+| C4 | 750, 1061 (a) | 527, 1836 (e) | 290, 2334 (i) | 536, 811 (o) | 314, 833 (u) |
+| E4 | 659, 1022 (a) | 639, 1952 (e) | 344, 2306 (i) | 654, 989 (a) | 351, 951 (u) |
 
-Vowel read right: 29 of 30 (96.7%). E2 to C4 (25 notes): F1 off by 5.6% on average (worst 29.8%), F2 1.5% (worst 4.7%), F3 0.7% (worst 2.2%).
+Vowel read right: 29 of 30 (96.7%). E2 to C4 (25 notes): F1 off by 3.4% on average (worst 12.1%), F2 1.5% (worst 6.2%), F3 1.1% (worst 3.1%).
 
 The pad (`sing` off, the control):
 
@@ -50,26 +50,28 @@ Vowel read right: 6 of 30 (20.0%).
 
 ## C. The corpus pieces (final D3, fitted to 4/4 at 124 BPM, every choir note of 0.2 s or more)
 
-The window is the note from 60 ms in to 10 ms before its end (a diphthong's last note: up to where the glide starts), so the previous note's 0.25 s release still sounds under the first part of it, as it would in a hall.
+The window is the note from 60 ms in to 10 ms before its end (a diphthong's last note: up to where the glide starts), so the previous note's 50 ms legato crossfade has ended. On a syllable's first note the window starts later by the part of its consonant sung after the beat plus the 45 ms formant transition (the consonant goes before the beat where the previous note has room; `eval/consonant-check-report.md`), and it ends where the next syllable's consonant starts (up to half the note before the next beat). Notes left with under 0.1 s are skipped.
 
 | piece | notes measured | singing: vowel read right | pad (control): read right | pad reads everything as |
 |---|---|---|---|---|
-| dies-irae | 611 | 600 of 611 (98.2%) | 103 of 611 (16.9%) | /a/ 428, /o/ 143, /e/ 40 |
-| pange-lingua | 53 | 50 of 53 (94.3%) | 4 of 53 (7.5%) | /a/ 46, /o/ 6, /e/ 1 |
-| veni-creator | 43 | 41 of 43 (95.3%) | 5 of 43 (11.6%) | /a/ 34, /o/ 7, /e/ 2 |
-| te-deum | 633 | 584 of 633 (92.3%) | 127 of 633 (20.1%) | /a/ 599, /o/ 24, /e/ 10 |
-| salve-regina | 231 | 222 of 231 (96.1%) | 41 of 231 (17.7%) | /a/ 160, /o/ 56, /e/ 15 |
-| all | 1571 | 1497 of 1571 (95.3%) | 280 of 1571 (17.8%) | |
+| dies-irae | 335 | 317 of 335 (94.6%) | 103 of 611 (16.9%) | /a/ 428, /o/ 143, /e/ 40 |
+| pange-lingua | 20 | 19 of 20 (95.0%) | 4 of 53 (7.5%) | /a/ 46, /o/ 6, /e/ 1 |
+| veni-creator | 24 | 23 of 24 (95.8%) | 5 of 43 (11.6%) | /a/ 34, /o/ 7, /e/ 2 |
+| te-deum | 367 | 345 of 367 (94.0%) | 127 of 633 (20.1%) | /a/ 599, /o/ 24, /e/ 10 |
+| salve-regina | 174 | 161 of 174 (92.5%) | 41 of 231 (17.7%) | /a/ 160, /o/ 56, /e/ 15 |
+| all | 920 | 865 of 920 (94.0%) | 280 of 1571 (17.8%) | |
+
+This window runs on into a syllable's final consonant, which since the second round of codas (per-phone floors, up to half a short note; README "Final consonants, second round") takes more of a short note: with the first round's codas it read 895 of 920. Ending the window where the final consonant's formant transition starts (`codaPlan`), on the 715 notes left with 0.1 s or more: 698 of 715 (97.6%).
 
 Singing, written vowel (rows) against vowel read (columns):
 
 | written | /a/ | /e/ | /i/ | /o/ | /u/ |
 |---|---|---|---|---|---|
-| /a/ | 291 | 0 | 0 | 0 | 0 |
-| /e/ | 0 | 464 | 0 | 0 | 0 |
-| /i/ | 0 | 73 | 261 | 0 | 0 |
-| /o/ | 0 | 0 | 0 | 213 | 0 |
-| /u/ | 0 | 0 | 0 | 1 | 268 |
+| /a/ | 168 | 3 | 0 | 1 | 7 |
+| /e/ | 0 | 262 | 7 | 0 | 0 |
+| /i/ | 1 | 13 | 168 | 0 | 0 |
+| /o/ | 0 | 5 | 0 | 120 | 5 |
+| /u/ | 0 | 5 | 1 | 7 | 147 |
 
 ## E. The short /i/ on G3 (0.24 s, the corpus's eighth note at 124 BPM)
 

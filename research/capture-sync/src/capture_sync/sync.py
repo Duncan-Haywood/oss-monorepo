@@ -18,9 +18,8 @@ FS = 16000
 EXCL = 12  # samples either side of the peak left out of the sidelobe statistics (as capture-syncgate)
 
 
-def gcc(a, b, gamma=1.0, fs=FS, max_lag_s=1.0, band=(100.0, 4000.0), centre_s=0.0):
-    """Delay of b behind a (s) and PSR. `b` may be longer than `a`; lags are searched in
-    centre_s +- max_lag_s, where lag 0 means a[0] lines up with b[0]."""
+def gcc_curve(a, b, gamma=1.0, fs=FS, max_lag_s=1.0, band=(100.0, 4000.0), centre_s=0.0):
+    """The partially whitened cross-correlation over the searched lags: (lags in samples, values)."""
     a = np.asarray(a, float)
     b = np.asarray(b, float)
     a = a - a.mean()
@@ -36,7 +35,10 @@ def gcc(a, b, gamma=1.0, fs=FS, max_lag_s=1.0, band=(100.0, 4000.0), centre_s=0.
     lo = int(round((centre_s - max_lag_s) * fs))
     hi = int(round((centre_s + max_lag_s) * fs))
     lags = np.arange(lo, hi + 1)
-    vals = cc[lags % nfft]
+    return lags, cc[lags % nfft]
+
+
+def _peak(lags, vals, fs):
     k = int(np.argmax(vals))
     rest = np.concatenate((vals[:max(0, k - EXCL)], vals[k + EXCL + 1:]))
     sd = rest.std()
@@ -47,7 +49,34 @@ def gcc(a, b, gamma=1.0, fs=FS, max_lag_s=1.0, band=(100.0, 4000.0), centre_s=0.
         den = y0 - 2 * y1 + y2
         if den != 0:
             off = 0.5 * (y0 - y2) / den
-    return (lags[k] + off) / fs, psr
+    return k, (lags[k] + off) / fs, psr
+
+
+def gcc(a, b, gamma=1.0, fs=FS, max_lag_s=1.0, band=(100.0, 4000.0), centre_s=0.0):
+    """Delay of b behind a (s) and PSR. `b` may be longer than `a`; lags are searched in
+    centre_s +- max_lag_s, where lag 0 means a[0] lines up with b[0]."""
+    lags, vals = gcc_curve(a, b, gamma, fs, max_lag_s, band, centre_s)
+    _, d, psr = _peak(lags, vals, fs)
+    return d, psr
+
+
+def second_peak_ratio(vals, k, excl):
+    """Height of the highest correlation value more than `excl` lags from the peak at index k, over the peak's
+    height (step 3g). Near 1 when another lag explains the data almost as well (a repeating sound, a second
+    source); clipped to [0, 1]; 1 when the peak is not positive or nothing lies outside the exclusion."""
+    vals = np.asarray(vals, float)
+    top = vals[k]
+    out = np.concatenate((vals[:max(0, k - excl)], vals[k + excl + 1:]))
+    if top <= 0 or len(out) == 0:
+        return 1.0
+    return float(np.clip(out.max() / top, 0.0, 1.0))
+
+
+def gcc_peaks(a, b, gamma=1.0, fs=FS, max_lag_s=1.0, band=(100.0, 4000.0), centre_s=0.0, excl_s=1 / 30):
+    """gcc's delay and PSR (identical numbers) plus the second-peak ratio outside +-excl_s of the peak."""
+    lags, vals = gcc_curve(a, b, gamma, fs, max_lag_s, band, centre_s)
+    k, d, psr = _peak(lags, vals, fs)
+    return d, psr, second_peak_ratio(vals, k, int(round(excl_s * fs)))
 
 
 def theil_sen(t, y):
@@ -149,3 +178,32 @@ def pick_threshold(psr, bad, max_fail=0.01, min_keep=20):
         if bad[keep].mean() <= max_fail:
             return float(th)
     return float("inf")
+
+
+def envelope_normalise(x, fs=FS, win_s=0.032, floor_rel=1e-3):
+    """Divide a signal by its own short-time RMS envelope (a centred moving RMS over win_s), step 3h.
+
+    An impulse (a key click, a door, a bite) is a short stretch far louder than its surroundings; after
+    division every stretch of win_s has about unit power, so one burst can no longer dominate the
+    correlation. The fine structure inside each stretch, which carries the delay, is kept. The floor
+    (floor_rel times the signal's overall RMS) stops digital silence from being blown up."""
+    x = np.asarray(x, float)
+    w = max(1, int(round(win_s * fs)))
+    p = np.convolve(x * x, np.ones(w) / w, mode="same")
+    env = np.sqrt(np.maximum(p, 0.0))
+    floor = floor_rel * np.sqrt(np.mean(x * x)) + 1e-20
+    return x / np.maximum(env, floor)
+
+
+def subwindow_delays(a, b, gamma, starts_s, sub_s, max_lag_s, centre_s, fs=FS):
+    """Delays (s) of sub-windows of a, each against the matching stretch of b, on the same lag axis as
+    gcc(a, b, ..., centre_s=centre_s): sub-window [s, s + sub_s) of a is searched in b[s, s + sub_s + 2 G),
+    G = centre_s * fs, so its delay is directly comparable with the full window's (step 3h)."""
+    m = int(round(sub_s * fs))
+    G = int(round(centre_s * fs))
+    out = []
+    for s in starts_s:
+        i = int(round(s * fs))
+        d, _ = gcc(a[i:i + m], b[i:i + m + 2 * G], gamma=gamma, fs=fs, max_lag_s=max_lag_s, centre_s=centre_s)
+        out.append(d)
+    return out

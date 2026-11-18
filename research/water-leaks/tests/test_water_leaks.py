@@ -478,3 +478,219 @@ def test_realsig_rank_and_near_ties():
     assert realsig.rank_of(s, [3]) == 1 and realsig.rank_of(s, [0, 2]) == 3
     far = np.array([True, True, True, False, True])
     assert realsig.near_ties(s, far) == 1 and realsig.near_ties(s, far, tol=1e-5) == 0
+
+
+def test_replay_splits_the_pipe_and_draws_the_flow_at_its_midpoint(tmp_path):
+    """Step 17's leak replay: a leak on P2 (1 km, J1 to J2) drawn at its midpoint lowers J1 by the
+    Hazen-Williams loss over P1 and J2 (downstream of the midpoint, no flow beyond it) by 1.5 times
+    that; the flow is reset every 5 minutes, so a leak starting at step 144 shows from step 144."""
+    import pytest
+    pytest.importorskip("wntr")
+    from water_leaks import realsig, replay
+    inp = tmp_path / "tank.inp"
+    inp.write_text(TANK_INP)
+    r = replay.Replay(inp, ["J1", "J2"], ["P2"])
+    fl = np.zeros((realsig.DAY_STEPS, 1))
+    fl[144:] = 36.0
+    out = r.run(0, 3.0, False, fl)
+    hl = 10.67 * 1000 * (36 / 3600) ** 1.852 / (100 ** 1.852 * 0.3 ** 4.87)
+    assert np.allclose(out[:144], 103.0, atol=1e-3)
+    assert abs(out[200, 0] - (103 - hl)) < 0.01
+    assert abs(out[200, 1] - (103 - 1.5 * hl)) < 0.01
+    none = replay.Replay(inp, ["J1", "J2"], []).run(0, 3.0, False, np.zeros((realsig.DAY_STEPS, 0)))
+    assert np.allclose(none, 103.0, atol=1e-3)
+
+
+def test_fetch_uses_a_per_process_temp_file(tmp_path, monkeypatch):
+    """A second job's half-written <name>.part must not be renamed into place (doc_friction
+    2026-11-15: two processes fetching one file shared the .part path)."""
+    import hashlib
+    import io
+    import os
+
+    body = b"Timestamp;n1\n2018-01-01 00:00;1,0\n"
+    monkeypatch.setenv("WATER_LEAKS_CACHE", str(tmp_path))
+    monkeypatch.setitem(data.SHA256, "fake.csv", hashlib.sha256(body).hexdigest())
+    (tmp_path / "fake.csv.part").write_bytes(b"half")  # the other job's partial file
+    seen = []
+
+    def fake_urlopen(url, timeout):
+        seen.append(url)
+        return io.BytesIO(body)
+
+    monkeypatch.setattr(data.urllib.request, "urlopen", fake_urlopen)
+    assert data.fetch("fake.csv").read_bytes() == body
+    assert len(seen) == 1
+    assert (tmp_path / "fake.csv.part").read_bytes() == b"half"
+    assert not (tmp_path / f"fake.csv.{os.getpid()}.part").exists()
+
+
+def test_lagged_change_drops_what_was_already_there():
+    """Step 18: a step before the baseline window cancels; a step between the windows is kept in
+    full; a lag reaching before hour 0 is refused."""
+    from water_leaks import localise
+    X = np.zeros((400, 2))
+    X[50:, 1] = -0.4              # an older leak, steady before both windows
+    X[300:, 0] = -0.1             # the target, starting after the baseline window
+    r = localise.lagged_change(X, 300, 168)
+    assert np.allclose(r, [-0.1, 0.0])
+    X[290:, 0] = -0.1             # started 10 h before t: a 24 h lag keeps only the part not yet in the baseline
+    assert np.allclose(localise.lagged_change(X, 300, 24), [-0.1 * 14 / 24, 0.0])
+    try:
+        localise.lagged_change(X, 100, 168)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("expected ValueError")
+
+
+def test_nn_pursuit_recovers_two_sources_and_rise():
+    import numpy as np
+    from water_leaks import localise
+    rng = np.random.default_rng(0)
+    S = -np.abs(rng.normal(size=(40, 33)))          # 40 atoms, pressure drops per unit flow
+    r_b = 2.0 * S[3]
+    r_t = 2.0 * S[3] + 1.5 * S[17] + 0.3           # a common shift is ignored by the centring
+    sb, xb, rmsb = localise.nn_pursuit(r_b, S)
+    st, xt, rmst = localise.nn_pursuit(r_t, S, support=sb)
+    assert sb == [3] and abs(xb[0] - 2.0) < 1e-9 and rmsb < 1e-9
+    assert set(st) == {3, 17} and rmst < 1e-9
+    assert localise.rise(sb, xb, st, xt) == 17
+
+
+def test_nn_pursuit_stops_on_kmax_and_ignores_positive_atoms():
+    import numpy as np
+    from water_leaks import localise
+    rng = np.random.default_rng(1)
+    S = -np.abs(rng.normal(size=(50, 33)))
+    r = S[:10].sum(axis=0)
+    sup, x, _ = localise.nn_pursuit(r, S, kmax=4)
+    assert len(sup) == 4 and (x >= 0).all()
+    sup0, _, _ = localise.nn_pursuit(-r, S)            # a pressure rise has no non-negative fit
+    assert sup0 == []
+
+
+def test_track_dates_onsets_and_links_a_hop():
+    import numpy as np
+    from water_leaks import localise
+    rng = np.random.default_rng(2)
+    S = -np.abs(rng.normal(size=(40, 33)))
+    S[21] = S[20] + 0.2 * rng.normal(size=33)          # centred correlation 0.92 with 20
+    R = []
+    for k in range(10):
+        r = 3.0 * S[5]                                   # running from day 0
+        if k >= 4:
+            r = r + 2.0 * (S[20] if k < 7 else S[21])    # starts on day 4, hops on day 7
+        R.append(r)
+    out, rms = localise.track(np.array(R), S, link=0.9)
+    assert out[0] == {5: (out[0][5][0], 0)} and max(rms) < 0.005
+    assert out[5][20][1] == 4
+    assert 21 in out[8] and out[8][21][1] == 4           # the hop keeps day 4
+    assert localise.latest_onset(out[8]) == 21
+    assert localise.nearest_onset(out[8], 0) == 5
+    out_nl, _ = localise.track(np.array(R), S, link=None)
+    assert out_nl[8][21][1] == 7                         # without linking the hop looks new
+
+
+def test_track_rejoins_after_a_short_gap():
+    import numpy as np
+    from water_leaks import localise
+    rng = np.random.default_rng(3)
+    S = -np.abs(rng.normal(size=(30, 33)))
+    R = [2.0 * S[4] + (1.5 * S[9] if k not in (3, 4) else 0) for k in range(8)]
+    out, _ = localise.track(np.array(R), S, link=None)
+    assert 9 not in out[3] and out[5][9][1] == 0         # back after 2 days: same track
+
+
+def test_steepest_dated_prefers_a_rising_recent_atom():
+    from water_leaks import localise
+    # atom 1: old and flat; atom 2: dated day 5, ramping; atom 3: newest (day 9), flat at 4.
+    states = []
+    for d in range(10):
+        s = {1: (6.0, 0)}
+        if d >= 5:
+            s[2] = (0.5 * (d - 4), 5)
+        if d >= 9:
+            s[3] = (4.0, 9)
+        states.append(s)
+    assert localise.latest_onset(states[9]) == 3
+    assert localise.steepest_dated(states, 9, window=30, span=14) == 2
+    # with a window that excludes 2 (onset 5 < 9 - 3), the newest atom is the only candidate
+    assert localise.steepest_dated(states, 9, window=3, span=14) == 3
+    # no candidate in the window: falls back to the latest onset
+    assert localise.steepest_dated([{1: (6.0, 0)}] * 50, 49, window=10) == 1
+    assert localise.steepest_dated([{}], 0) is None
+
+
+def test_shape_fit_tells_a_step_from_a_ramp():
+    from water_leaks import localise
+    step = [0.0] * 10 + [3.0] * 20
+    ramp = [0.0] * 10 + [0.5 * (i + 1) for i in range(20)]
+    s = localise.shape_fit(step)
+    r = localise.shape_fit(ramp)
+    assert s[0] == "step" and s[1] == 10 and abs(s[2] - 3.0) < 1e-9
+    assert r[0] == "ramp" and r[1] == 10 and abs(r[2] - 0.5) < 1e-9
+    assert localise.shape_fit([0.0] * 5)[0] == "step"   # all zero: tie goes to the step
+    # change times: a step at tau; a ramp at its half level on the last day
+    assert localise.change_time("step", 10, 30) == 10.0
+    assert localise.change_time("ramp", 10, 30) == 9 + 10.0
+    assert localise.change_time("ramp", 10, 30, half=False) == 10.0
+
+
+def test_shape_timed_picks_the_change_nearest_the_alarm():
+    from water_leaks import localise
+    # atom 2: a ramp starting day 10 (half level near day 19); atom 3: a step on day 25.
+    states = []
+    for d in range(30):
+        s = {}
+        if d >= 10:
+            s[2] = (0.3 * (d - 9), 10)
+        if d >= 25:
+            s[3] = (2.0, 25)
+        states.append(s)
+    pick, info = localise.shape_timed(states, 29, alarm=19.5)
+    assert pick == 2 and info[2][0] == "ramp" and info[3][0] == "step"
+    assert localise.shape_timed(states, 29, alarm=25.2)[0] == 3
+    # start-timed, the ramp's change is day 10, far from an alarm at 19.5: the step is nearer
+    assert localise.shape_timed(states, 29, alarm=19.5, half=False)[0] == 3
+    assert localise.shape_timed([{1: (6.0, 0)}] * 50, 49, alarm=49, window=10)[0] == 1
+
+
+def test_shape_chosen_prefers_the_steepest_ramp_else_the_newest():
+    from water_leaks import localise
+    # atom 2: slow ramp from day 5; atom 4: steeper ramp from day 15; atom 3: step on day 25.
+    states = []
+    for d in range(30):
+        s = {}
+        if d >= 5:
+            s[2] = (0.1 * (d - 4), 5)
+        if d >= 15:
+            s[4] = (0.4 * (d - 14), 15)
+        if d >= 25:
+            s[3] = (9.0, 25)
+        states.append(s)
+    pick, info = localise.shape_chosen(states, 29)
+    assert pick == 4 and info[3][0] == "step" and info[2][0] == "ramp"
+    assert abs(info[4][2] - 0.4) < 1e-9 and info[4][1] == 15
+    assert localise.shape_chosen(states, 29, score="level")[0] == 4
+    assert localise.shape_chosen(states, 29, score="ls")[0] == 4
+    # no ramps: the newest step
+    steps = [{1: (2.0, 3), 5: (1.0, 8)} if d >= 8 else {1: (2.0, 3)} for d in range(20)]
+    assert localise.shape_chosen(steps, 19)[0] == 5
+    # nothing dated in the window: latest onset of whatever is active
+    assert localise.shape_chosen([{1: (6.0, 0)}] * 50, 49, window=10)[0] == 1
+
+
+def test_injected_leak_shape_and_size():
+    """Step 25's emitter schedule: an incipient leak's coefficient is a quarter of full at mid-rise
+    (diameter linear in time, as BattLeDIM's published flows show), and an orifice of 15 mm at
+    Cd 0.75 leaks about 15 m3/h at 49 m of pressure (checked against an EPANET run, LOG.md)."""
+    from water_leaks import simulate
+    assert simulate.leak_shape(99, 100, 200, 300, "incipient") == 0.0
+    assert abs(simulate.leak_shape(150, 100, 200, 300, "incipient") - 0.25) < 1e-12
+    assert simulate.leak_shape(250, 100, 200, 300, "incipient") == 1.0
+    assert simulate.leak_shape(300, 100, 200, 300, "incipient") == 0.0
+    assert simulate.leak_shape(100, 100, 100, 300, "abrupt") == 1.0
+    c = simulate.emitter_coef(0.015)
+    assert abs(c - 2.1134) < 1e-3
+    assert 14.5 < c * np.sqrt(49.2) < 15.1

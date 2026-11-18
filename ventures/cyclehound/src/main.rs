@@ -17,7 +17,11 @@ OPTIONS:
     --graph            print the whole import graph instead (madge --json shape:
                        {\"file\": [\"dep\", ...]})
     --orphans          list files nothing imports (madge --orphans)
-    --unresolved       list relative imports that point at no file; exit 1 if any
+    --unresolved       list relative imports and tsconfig aliases that point at
+                       no file; exit 1 if any
+    --unused-exports   list exports no file in the graph imports; exit 1 if any
+                       (files nothing imports are entry points and skipped;
+                       --entries reports theirs too)
     --json             JSON output (cycles: components, cycles and edges with
                        line numbers; with --graph, the adjacency map)
     --ext a,b,c        extensions to read and to try on extensionless imports
@@ -27,6 +31,9 @@ OPTIONS:
     --no-type          ignore TypeScript `import type` / `export type`, which
                        are erased before the code runs
     --no-follow        do not follow imports out of the given paths
+    --no-tsconfig      treat every bare specifier as a package (by default
+                       `paths` and `baseUrl` in the nearest tsconfig.json or
+                       jsconfig.json resolve aliases such as \"@/lib/x\")
     --ignore-dir NAME  skip directories with this name (repeatable;
                        node_modules, .git and target are always skipped)
     --no-gitignore     read files .gitignore would skip
@@ -41,6 +48,7 @@ enum Mode {
     Graph,
     Orphans,
     Unresolved,
+    UnusedExports,
 }
 
 struct Args {
@@ -52,6 +60,7 @@ struct Args {
     gitignore: bool,
     base: Option<PathBuf>,
     warn: bool,
+    entries: bool,
 }
 
 fn parse_args() -> Result<Option<Args>, String> {
@@ -64,6 +73,7 @@ fn parse_args() -> Result<Option<Args>, String> {
         gitignore: true,
         base: None,
         warn: false,
+        entries: false,
     };
     let mut it = std::env::args().skip(1);
     while let Some(arg) = it.next() {
@@ -80,6 +90,8 @@ fn parse_args() -> Result<Option<Args>, String> {
             "--graph" => a.mode = Mode::Graph,
             "--orphans" => a.mode = Mode::Orphans,
             "--unresolved" => a.mode = Mode::Unresolved,
+            "--unused-exports" => a.mode = Mode::UnusedExports,
+            "--entries" => a.entries = true,
             "--circular" => a.mode = Mode::Cycles,
             "--json" => a.json = true,
             "--ext" | "--extensions" => {
@@ -102,6 +114,7 @@ fn parse_args() -> Result<Option<Args>, String> {
                 a.opts.kinds.remove(&ImportKind::Require);
             }
             "--no-follow" => a.opts.follow_outside = false,
+            "--no-tsconfig" => a.opts.tsconfig = false,
             "--ignore-dir" => a.ignore_dirs.push(val(&arg)?),
             "--no-gitignore" => a.gitignore = false,
             "--base" => a.base = Some(PathBuf::from(val(&arg)?)),
@@ -179,7 +192,18 @@ fn main() -> ExitCode {
         }
     };
     let started = files.len();
-    let g = build_graph(files, &a.opts);
+    let mut opts = a.opts.clone();
+    if a.mode == Mode::UnusedExports {
+        // A type-only or dynamic import takes names too, whatever the
+        // cycle filters say.
+        opts = Options {
+            exts: opts.exts,
+            follow_outside: opts.follow_outside,
+            tsconfig: opts.tsconfig,
+            ..Options::default()
+        };
+    }
+    let g = build_graph(files, &opts);
     let base = normalize(a.base.as_deref().unwrap_or_else(|| {
         let r = &a.roots[0];
         if r.is_file() {
@@ -240,6 +264,40 @@ fn main() -> ExitCode {
             }
             ExitCode::SUCCESS
         }
+        Mode::UnusedExports => {
+            let u = unused_exports(&Disk, &g, started, &opts.exts, a.entries);
+            if a.json {
+                let v: Vec<String> = u
+                    .iter()
+                    .map(|x| {
+                        format!(
+                            "{{\"file\": {}, \"line\": {}, \"name\": {}}}",
+                            json_str(&rel(x.file)),
+                            x.line,
+                            json_str(&x.name)
+                        )
+                    })
+                    .collect();
+                println!("[{}]", v.join(",\n "));
+            } else {
+                for x in &u {
+                    println!("{}:{}: {}", rel(x.file), x.line, x.name);
+                }
+                let files: BTreeSet<usize> = u.iter().map(|x| x.file).collect();
+                eprintln!(
+                    "{} unused exports in {} files ({} files read, {:.2}s)",
+                    u.len(),
+                    files.len(),
+                    g.files.len(),
+                    t0.elapsed().as_secs_f64()
+                );
+            }
+            if u.is_empty() || a.warn {
+                ExitCode::SUCCESS
+            } else {
+                ExitCode::from(1)
+            }
+        }
         Mode::Unresolved => {
             let mut u: Vec<(String, u32, String)> = g
                 .unresolved
@@ -265,7 +323,7 @@ fn main() -> ExitCode {
                     println!("{f}:{l}: cannot resolve {s}");
                 }
                 eprintln!(
-                    "{} unresolved relative imports in {} files",
+                    "{} unresolved imports in {} files",
                     u.len(),
                     g.files.len()
                 );

@@ -1,0 +1,87 @@
+Milestone 6zzza: the Wave Glider's payload on its own deck-solar budget, against the 4 m solar boat
+SV3 deck 225 W nameplate x derate 0.85 (boat deck 230.4 W x 0.85), pack 6800 Wh (boat 10000), payload 30 W, bus B swept (0.0, 3.0, 5.0, 10.0) W (not sourced);
+NASA POWER 2015 to 2024, 30 points x 10 years = 300 point-years, launch full on 1 January each year
+
+A  per point, mean over ten years: payload down days/yr for the boat idle vehicle and the Wave Glider (G) at each B, (K) at B = 5;
+   bus dark hours/yr (G, B = 5); largest dark-free payload (median W): boat 30-W-hotel equivalent, WG B = 0, WG B = 5
+   point             lat | idle  G0   G3   G5  G10   K5 | busdark G5 | maxW boat WG0 WG5
+   P-60              -60 |  210  223  245  257  288  269 |       1433 |         6   4   0
+   P-50              -50 |  168  180  199  211  237  223 |        124 |        11   9   4
+   P-40              -40 |  116  129  146  158  187  170 |         12 |        18  17  12
+   P-30              -30 |   51   70   95  110  142  124 |          7 |        25  23  18
+   P-20              -20 |    0    0    1   13   77   33 |          0 |        36  34  28
+   P-10              -10 |    0    0    0    0    0    0 |          0 |        47  44  40
+   P+0                 0 |    0    0    0    0    0    0 |          0 |        54  52  47
+   P+10               10 |    0    0    0    0   12    3 |          0 |        41  38  34
+   P+20               20 |    0    0    0    0   16    6 |          0 |        40  38  32
+   P+30               30 |    3   21   50   68  109   95 |          2 |        31  28  22
+   P+40               40 |   92  114  134  147  189  166 |         34 |        19  17  12
+   P+50               50 |  151  171  212  247  308  255 |        176 |        13  11   6
+   P+60               60 |  180  197  214  228  280  241 |       1120 |         8   6   1
+   A-50              -50 |  177  190  207  220  251  232 |        193 |        10   9   4
+   A-40              -40 |  119  132  150  161  187  174 |         33 |        17  15  10
+   A-30              -30 |   29   53   80   97  136  112 |          1 |        27  25  20
+   A-20              -20 |    0    0    0    0   42    0 |          0 |        39  37  32
+   A-10              -10 |    0    0    0    0    0    0 |          0 |        47  44  40
+   A+0                 0 |    0    0    0    0    0    0 |          0 |        46  44  38
+   A+10               10 |    0    0    0    0    3    0 |          0 |        44  40  36
+   A+20               20 |    0    0    0    0    5    2 |          0 |        43  40  35
+   A+30               30 |    0    3   24   46   91   79 |          0 |        32  30  24
+   A+40               40 |   82  104  123  134  163  153 |          9 |        20  18  13
+   A+50               50 |  153  173  198  226  290  236 |        188 |        13  10   6
+   A+60               60 |  193  211  240  264  314  273 |       1331 |         8   6   1
+   Equator-Pacific     0 |    0    0    0    0   12    0 |          0 |        42  40  35
+   Florida-Straits    25 |    0    0    4   18   61   44 |          0 |        35  32  28
+   Gulf-of-Maine      42 |   83  106  126  137  166  156 |         64 |        19  16  11
+   North-Sea          55 |  150  165  180  189  214  204 |        626 |        10   8   3
+   Gulf-of-Alaska     60 |  179  196  211  222  271  237 |       1185 |         8   6   1
+
+B  by |lat| band (all point-years): mean payload down days/yr
+   |lat|  0-10 ( 70): idle boat   0.0; WG G B0   0.0, B3   0.0, B5   0.0, B10   3.9; K B5   0.4; G B5 bus dark h/yr    0.0
+   |lat| 11-30 ( 90): idle boat   9.2; WG G B0  16.3, B3  28.2, B5  39.2, B10  75.5; K B5  55.0; G B5 bus dark h/yr    1.1
+   |lat| 31-45 ( 50): idle boat  98.4; WG G B0 117.0, B3 135.8, B5 147.3, B10 178.5; K B5 163.7; G B5 bus dark h/yr   30.5
+   |lat| 46-60 ( 90): idle boat 173.4; WG G B0 189.5, B3 211.8, B5 229.1, B10 272.4; K B5 241.2; G B5 bus dark h/yr  708.4
+
+C  2024 distance: Wave Glider best state (total, steering, payload-on with G B = 5) against the boat (R) (total, payload-on)
+   point             lat |  WG km  steer  pay-on  dn |  boat R  pay-on  dn | lead total  lead pay-on
+   P-60              -60 |  28068  23361   12126 257 |    2923    2923 216 |         WG           WG
+   P-50              -50 |  27081  26831   15561 209 |    7233    7233 172 |         WG           WG
+   P-40              -40 |  24835  24783   18249 149 |   14871   14871 121 |         WG           WG
+   P-30              -30 |  23063  23044   19826 108 |   18960   18960  58 |         WG           WG
+   P-20              -20 |  21803  21803   21750   3 |   27289   27289   0 |       boat         boat
+   P-10              -10 |  20907  20907   20907   0 |   36259   36259   0 |       boat         boat
+   P+0                 0 |  21073  21073   21073   0 |   38771   38771   0 |       boat         boat
+   P+10               10 |  23335  23335   23335   0 |   30461   30461   0 |       boat         boat
+   P+20               20 |  22922  22922   22922   0 |   33689   33689   0 |       boat         boat
+   P+30               30 |  21723  21718   19866  72 |   21373   21373   0 |         WG         boat
+   P+40               40 |  23910  23822   16945 150 |    9969    9969 102 |         WG           WG
+   P+50               50 |  25866  25369   13604 269 |     540     540 155 |         WG           WG
+   P+60               60 |  14749  12945    7210 210 |    7057    7057 174 |         WG           WG
+   A-50              -50 |  27583  26993   14851 220 |    5201    5201 178 |         WG           WG
+   A-40              -40 |  26012  25867   18058 164 |   14245   14245 133 |         WG           WG
+   A-30              -30 |  22924  22921   20352 101 |   16831   16831  33 |         WG           WG
+   A-20              -20 |  20326  20326   20326   0 |   34524   34524   0 |       boat         boat
+   A-10              -10 |  21673  21673   21673   0 |   36593   36593   0 |       boat         boat
+   A+0                 0 |  20195  20195   20195   0 |   35220   35220   0 |       boat         boat
+   A+10               10 |  20645  20645   20645   0 |   32229   32229   0 |       boat         boat
+   A+20               20 |  21534  21534   21534   0 |   32754   32754   0 |       boat         boat
+   A+30               30 |  20847  20847   19559  54 |   24477   24477   4 |       boat         boat
+   A+40               40 |  23568  23547   17976 148 |   14938   14938  86 |         WG           WG
+   A+50               50 |  26577  25977   15284 205 |    3892    3892 137 |         WG           WG
+   A+60               60 |  26715  22359   11674 254 |    1671    1671 191 |         WG           WG
+   Equator-Pacific     0 |  16407  16407   16407   0 |   30466   30466   0 |       boat         boat
+   Florida-Straits    25 |  18284  18281   17828  27 |   24394   24394   0 |       boat         boat
+   Gulf-of-Maine      42 |  19205  19041   14102 150 |   13594   13594  79 |         WG           WG
+   North-Sea          55 |  22808  20879   12278 191 |    7860    7860 154 |         WG           WG
+   Gulf-of-Alaska     60 |  19942  17167    9492 215 |    5939    5939 186 |         WG           WG
+
+Predictions
+W1 matched WG down days >= idle boat in >= 95% of point-years: held (100.0%)
+W2 WG B5 >= 30 down days in every point-year at |lat| >= 40 (140): held (min 123)
+W3 WG B5 no down day in >= 90% of point-years within 10 deg (70): held (98.6%)
+W4 WG B5 band-mean down days >= 1.1 x idle boat at |lat| >= 40: held (199.9 vs 146.6, ratio 1.36)
+W5 WG B5 dark-free payload >= 10 W at all 16 pts <= 30 deg and < 10 W at all 9 pts >= 50: held (<= 30: min 18; >= 50: max 6)
+W6 B3 -> B10 adds < 25 down days/yr at |lat| >= 40: refuted (54.2)
+W7 (K) B5 no bus dark point-year, (G) B5 some at 60 deg: refuted ((K) 38 point-years with bus dark; (G) at 60 deg 40)
+W8 boat leads payload-on km at >= half of the 14 pts >= 40 deg where WG leads total km: refuted (0 of 14)
+W9 boat payload-on km >= 1.2 x WG's at every pt within 20 deg (11): held (min ratio 1.25)

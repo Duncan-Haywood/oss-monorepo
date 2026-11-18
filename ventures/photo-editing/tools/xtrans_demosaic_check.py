@@ -31,8 +31,15 @@ Usage (from ``ventures/photo-editing``)::
     python3 -m venv /tmp/v && /tmp/v/bin/pip install rawpy numpy
     PYTHONPATH=src /tmp/v/bin/python tools/xtrans_demosaic_check.py FILE.RAF [...] > rows.jsonl
 
+**Other cameras' frames as truth** (``--truth-from FILE``, repeatable, 2026-11-16). Only two X-Trans
+frames are in the public sample set, so any LibRaw-readable raw (a Bayer frame from another camera)
+can be rendered, binned 4 x 4 the same way, cropped to ``--truth-crop`` (default 800 x 1200) and
+mosaicked with each RAF's own X-Trans layout. The scene is real; only the layout is borrowed. These
+are scored like the RAF's own binned frame, LibRaw included (the mosaic is written into the RAF).
+
 Real files used on 2026-11-14: the X-E1 and X-E2 RAFs in drewnoakes/metadata-extractor-images
-(``raf/``); ``eval/xtrans-directional-demosaic-2026-11-14.md``.
+(``raf/``; the X-E2 is the file named ``FujiFilm EX-2.raf``); ``eval/xtrans-directional-demosaic-2026-11-14.md``
+and, for the clamp and the gradient choice, ``eval/xtrans-clamp-gradient-2026-11-15.md``.
 """
 
 from __future__ import annotations
@@ -170,8 +177,21 @@ def binned_truth(path: str, factor: int = 4) -> np.ndarray:
     return np.clip(b / max(float(np.percentile(b, 99.5)), 1e-6) * 0.8, 0.0, 0.95)
 
 
-def known_truth_rows(path: str, name: str, truth: np.ndarray, pat, variants) -> list[dict]:
+def add_noise(c: np.ndarray, snr: float, seed: int = 0) -> np.ndarray:
+    """Poisson-Gaussian sensor-like noise on a mosaic (values 0..1): variance a*x + b, with signal-to-noise
+    ``snr`` at 18% grey, 80% of the variance there from shot noise and 20% from read noise."""
+
+    sigma = 0.18 / snr
+    a, b = 0.8 * sigma**2 / 0.18, 0.2 * sigma**2
+    rng = np.random.default_rng(seed)
+    return c + rng.normal(size=c.shape) * np.sqrt(a * np.clip(c, 0.0, None) + b)
+
+
+def known_truth_rows(path: str, name: str, truth: np.ndarray, pat, variants, snr: float | None = None) -> list[dict]:
     c = mosaic(truth, pat)
+    if snr:  # scored against the clean truth; LibRaw is given the noisy mosaic clipped to 0..1
+        c = add_noise(c, snr)
+        name = f"{name}, noise SNR {snr:g}"
     rows = []
     t0 = time.perf_counter()
     for label, fn in variants:
@@ -180,7 +200,7 @@ def known_truth_rows(path: str, name: str, truth: np.ndarray, pat, variants) -> 
         rows.append({"truth": name, "method": label, **scores(test, truth), "s": round(time.perf_counter() - t, 2)})
     for q, label in ((0, "libraw linear"), (1, "libraw markesteijn 1-pass"), (3, "libraw markesteijn 3-pass")):
         t = time.perf_counter()
-        test = _fit(libraw_demosaic(path, c, q), truth)
+        test = _fit(libraw_demosaic(path, np.clip(c, 0.0, 1.0), q), truth)
         rows.append({"truth": name, "method": label, **scores(test, truth), "s": round(time.perf_counter() - t, 2)})
     del t0
     return rows
@@ -243,14 +263,36 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("raf", nargs="+")
     ap.add_argument("--skip-real", action="store_true")
+    ap.add_argument(
+        "--noise-snr", type=float, action="append", default=[],
+        help="also score each known truth with sensor-like noise of this SNR at 18%% grey (repeatable)",
+    )
+    ap.add_argument(
+        "--truth-from", action="append", default=[],
+        help="also use this raw file's frame (any camera LibRaw reads), binned 4x4, as a known truth (repeatable)",
+    )
+    ap.add_argument("--truth-crop", default="800x1200", help="rows x columns kept of each --truth-from frame")
+    ap.add_argument("--skip-own", action="store_true", help="skip the RAF's own frame and the sheet")
     args = ap.parse_args(argv)
     import rawpy
 
+    crop_h, crop_w = (int(v) for v in args.truth_crop.lower().split("x"))
+    borrowed = [
+        (f"{t.rsplit('/', 1)[-1]} binned 4x4", binned_truth(t)[:crop_h, :crop_w].copy()) for t in args.truth_from
+    ]
+
     variants = [
         ("ours bilinear", ours_bilinear),
+        (
+            "ours directional, 2026-11-14 rule (no clamp, homogeneity)",
+            lambda c, p: ours_directional(c, p, clamp=False, select="homogeneity"),
+        ),
+        ("ours directional, no clamp", lambda c, p: ours_directional(c, p, clamp=False)),
+        ("ours directional, homogeneity choice", lambda c, p: ours_directional(c, p, select="homogeneity")),
         ("ours directional, no median", lambda c, p: ours_directional(c, p, median_passes=0)),
         ("ours directional (default: one pass, one median)", lambda c, p: ours_directional(c, p)),
         ("ours directional, three passes", lambda c, p: ours_directional(c, p, passes=3)),
+        ("ours directional, median sets red and blue only", lambda c, p: ours_directional(c, p, median_green=False)),
     ]
     for path in args.raf:
         raw = rawpy.imread(path)
@@ -260,11 +302,15 @@ def main(argv=None) -> int:
             continue
         name = path.rsplit("/", 1)[-1]
         sheet = synthetic_sheet()
-        for truth_name, truth in ((f"{name} binned 4x4", binned_truth(path)), ("synthetic sheet", sheet)):
+        own = [] if args.skip_own else [(f"{name} binned 4x4", binned_truth(path)), ("synthetic sheet", sheet)]
+        for truth_name, truth in own + [(f"{t} ({name} layout)", tr) for t, tr in borrowed]:
             for row in known_truth_rows(path, truth_name, truth, pat, variants):
                 print(json.dumps({"file": name, **row}), flush=True)
             for row in half_size_rows(truth_name, truth, pat):
                 print(json.dumps({"file": name, **row}), flush=True)
+            for snr in args.noise_snr:
+                for row in known_truth_rows(path, truth_name, truth, pat, variants, snr):
+                    print(json.dumps({"file": name, **row}), flush=True)
         if not args.skip_real:
             for row in real_frame_rows(path, variants):
                 print(json.dumps({"file": name, **row}), flush=True)

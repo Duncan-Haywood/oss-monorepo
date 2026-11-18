@@ -65,8 +65,8 @@ export const SAMPLE_PRICES = [
 
 export const SAMPLE_ECON = { eggs: 6, hatch: 85, raise: 25, fee: 8, overhead: 60, rankBy: "profit" };
 
-export const money2 = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-export const money0 = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
+export const money2 = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+export const money0 = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
 export const pct = (p, d = 1) => (p * 100).toFixed(d).replace(/\.0+$/, "") + "%";
 export function fmt(n, d = 0) {
   return Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });

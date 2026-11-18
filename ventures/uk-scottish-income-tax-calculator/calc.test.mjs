@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compute, summaryText, SAMPLE, VERIFY, parse, annual, taxOn, SCOT_BANDS } from "./calc.mjs";
+import { compute, summaryText, SAMPLE, VERIFY, parse, annual, taxOn, SCOT_BANDS, PLANS } from "./calc.mjs";
 
 const plain = (salary, extra = {}) => compute({ salary, pensionPct: 0, method: "none", plan: "none", pgl: "no", ...extra });
 
@@ -62,6 +62,58 @@ test("relief at source extends the Scottish bands by the gross contribution", ()
   assert.equal(r.pensionFromPay, 4800);
   const noExt = taxOn(r.taxable, SCOT_BANDS).tax;
   assert.ok(r.tax < noExt);
+  // Finance Act 2004 s.192(4A): the basic rate limit and those above it widen, the 19% starter band does not.
+  // No extension: 753.73 + 2,597.80 + 2,968.56 + 6,861.96 = 13,182.05. Relief above 20%: 6,000 x (42% - 20%) = 1,320.
+  assert.equal(noExt, 13182.05);
+  assert.equal(r.tax, 11862.05);
+  // GBP 30,000 at 5%: GBP 474 sits at 21%, so the extension is worth 1% of 474, not 1% of the 1,500 contribution as well.
+  assert.equal(annual(30000, 5, "ras", "none", false).tax, 3446.33);
+  assert.equal(r.parts[0].amount, 3967);
+});
+
+test("relief at source reduces adjusted net income for the allowance taper", () => {
+  // 110,000 with 10% RAS: adjusted net income 99,000, so the full allowance is kept.
+  assert.equal(annual(110000, 10, "ras", "none", false).allowance, 12570);
+  assert.equal(annual(110000, 0, "none", "none", false).allowance, 7570);
+});
+
+test("student loan is charged on pay after salary sacrifice, not on gross", () => {
+  // 40,000 with 10% sacrifice on Plan 4: (36,000 - 33,795) x 9% = 198.45; net pay leaves NI pay, so (40,000 - 33,795) x 9% = 558.45.
+  assert.equal(annual(40000, 10, "sacrifice", "4", false).sl, 198.45);
+  assert.equal(annual(40000, 10, "netpay", "4", false).sl, 558.45);
+});
+
+test("the marginal rate keeps the user's pension, so a sacrifice below the taper is not shown 69.5%", () => {
+  // 110,000 with 10% sacrifice: adjusted net 99,000; the next 1,000 reaches 100,000 at 45% tax + 2% NI.
+  const r = compute({ salary: 110000, pensionPct: 10, method: "sacrifice", plan: "none", pgl: "no" });
+  assert.equal(r.marginal, 47);
+  assert.ok(!r.findings.some((f) => f.severity === "high" && f.title.includes("1,000 more")));
+  assert.equal(plain(110000).marginal, 69.5);
+});
+
+test("the top-rate finding follows taxable income in the top band, not gross salary", () => {
+  // 130,000 with 10% sacrifice: adjusted net 117,000, allowance 4,070, taxable 112,930: no income at 48%.
+  const r = compute({ salary: 130000, pensionPct: 10, method: "sacrifice", plan: "none", pgl: "no" });
+  assert.ok(!r.findings.some((f) => f.title.includes("48% top rate")));
+  // 150,000 with no pension: taxable 150,000, of which 24,860 is above 125,140.
+  assert.ok(plain(150000).findings.some((f) => f.title.includes("GBP 24,860") && f.title.includes("no personal allowance")));
+});
+
+test("the same pension three ways: net pay and relief at source cost the same, sacrifice also saves NI", () => {
+  const c = compute(SAMPLE).compare;
+  assert.deepEqual(c.map((x) => x.method), ["sacrifice", "netpay", "ras"]);
+  assert.ok(c.every((x) => x.intoPension === 2250));
+  // 45,000, 2,250 into the pension: 1,338 relieved at 42% and 912 at 21% = 753.48 of tax relief.
+  assert.equal(c[1].costToYou, 1496.52);
+  assert.equal(c[2].costToYou, 1496.52);
+  // Sacrifice also saves 8% NI on 2,250 = 180, plus the Plan 4 loan at 9% on 2,250 = 202.50.
+  assert.equal(c[0].costToYou, 1114.02);
+  assert.deepEqual(plain(45000).compare, []);
+});
+
+test("the Scotland-cheaper crossover is about 33,500, as the page says", () => {
+  assert.ok(plain(33493).taxDiff <= 0);
+  assert.ok(plain(33495).taxDiff > 0);
 });
 
 test("a pension percentage with no method changes nothing", () => {
@@ -69,7 +121,7 @@ test("a pension percentage with no method changes nothing", () => {
 });
 
 test("student loan Plan 4 and postgraduate loan", () => {
-  assert.equal(plain(40000, { plan: "4" }).sl, 652.95);
+  assert.equal(plain(40000, { plan: "4" }).sl, 558.45); // (40,000 - 33,795) x 9%, 2026/27
   assert.equal(plain(40000, { pgl: "yes" }).pg, 1140);
   assert.equal(plain(20000, { plan: "4" }).sl, 0);
 });
@@ -96,4 +148,14 @@ test("summary names the source, the comparison and the disclaimer", () => {
   assert.match(s, /rest of the UK/);
   assert.match(s, /Not tax advice\. No warranty\./);
   assert.match(s, /Starter rate 19%/);
+});
+
+test("student loan thresholds are the 2026/27 figures (GOV.UK, Rates and thresholds for employers 2026 to 2027)", () => {
+  assert.equal(PLANS[1].threshold, 26900);
+  assert.equal(PLANS[2].threshold, 29385);
+  assert.equal(PLANS[4].threshold, 33795);
+  assert.equal(PLANS[5].threshold, 25000);
+  // GBP 45,000 with 5% salary sacrifice on Plan 4: (42,750 - 33,795) x 9% = 805.95
+  const r = compute({ salary: 45000, pensionPct: 5, method: "sacrifice", plan: "4", pgl: "no" });
+  assert.equal(Math.round(r.sl * 100) / 100, 805.95);
 });

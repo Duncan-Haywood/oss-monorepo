@@ -2,7 +2,7 @@
 // square heads at known positions, written as a PGM and read back.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readPgm, readPage, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves, trimLine, estimateSkew, shearColumns, staffSkew, headShape, isQuilisma, QUILISMA_MAX_FALL, RHOMBUS_MIN_H, STROKE_TOP_FALL } from './scan.mjs';
+import { readPgm, readPage, readStaff, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves, trimLine, estimateSkew, shearColumns, staffSkew, headShape, isQuilisma, QUILISMA_MAX_FALL, RHOMBUS_MIN_H, STROKE_TOP_FALL } from './scan.mjs';
 
 const S = 36; // staff space in pixels
 const H = 21; // head height
@@ -236,6 +236,104 @@ test('a small note on a short thick stem is a liquescent, read after its head at
   const [st] = readPage(readPgm(toPgm(img)));
   assert.deepEqual(st.notes.map((n) => n.rel + 6), [2, 3, 4, 3, 4, 2, 4, 3]);
   assert.deepEqual(st.notes.map((n) => n.shape), ['square', 'liquescent', 'square', 'liquescent', 'square', 'square', 'square', 'square']);
+});
+
+// A liquescent whose small note sits on a staff line (GregoBase 3464, leaf
+// 604: a cephalicus `fd~` whose hook straddles the bottom line). On a line
+// crowded with heads the line is measured thicker than its ink, and its rows
+// count as ink only where ink runs out past them, so the hook was traced only
+// to the line's near edge and read a step too close to its head. LIQ.onLine
+// moves the end to the line's far edge when the small note's ink crosses the
+// line further than the line's own ink beside it; a small note in the space
+// that only touches the line is left alone (eval/hook-on-line-check.md).
+test('a liquescent whose small note straddles a staff line is read on that line; one that only touches it is not moved', () => {
+  const img = canvas(1600, 400);
+  const bottom = 120 + 3 * S;
+  const cy = (pos) => bottom - (pos * S) / 2;
+  drawStaff(img, 120, [[300, 4], [900, 4]]);
+  // cephalicus: the hook runs down from the head on the third line (pos 4) to 4 px past the second (pos 2)
+  rect(img, 300 + 14, cy(4), 8, cy(2) - cy(4) + 6);
+  // cephalicus whose hook only touches the second line from above (small note in the space, pos 3)
+  rect(img, 900 + 14, cy(4), 8, cy(2) - cy(4) - 1);
+  const bin = binarize(readPgm(toPgm(img)));
+  const [staff] = findStaves(bin);
+  // the second line measured 6 px thicker than its ink, on the side away from the heads
+  staff.lines[2] = { ...staff.lines[2], bottom: staff.lines[2].bottom + 6 };
+  const read = (o) => readStaff(bin, staff, o).filter((h) => h.liq).map((h) => h.liq.pos);
+  assert.deepEqual(read(), [2, 3]);
+  assert.deepEqual(read({ hookOnLine: false }), [3, 3]);
+});
+
+// A one-step cephalicus (GregoBase 3490 con- and 3508 et, both gf~): the
+// head in a space, a hairline stem down its left side, and the small note on
+// the line just below, joined under the head's right half. Head and small
+// note are about a space tall together, so the reader took them for one
+// head (or two plain heads read bottom-up) and lost the liquescent.
+// oneStepCephalicus reads the small note one step under the head; two full
+// heads stacked a step apart, and the same shape with no stem, are left alone
+// (eval/one-step-cephalicus-check.md).
+test('a one-step cephalicus is read as its head and then the small note a step below', () => {
+  const img = canvas(1600, 400);
+  const bottom = 120 + 3 * S;
+  const cy = (pos) => bottom - (pos * S) / 2;
+  drawStaff(img, 120, []);
+  const ceph = (x, stem) => {
+    rect(img, x, cy(3) - 0.38 * S, 22, 0.72 * S); // head in the space (pos 3)
+    if (stem) rect(img, x, cy(3), 3, 1.3 * S); // hairline stem down the left side
+    rect(img, x + 11, cy(3), 11, cy(2) - cy(3) + 0.2 * S); // small note on the line below, under the right half
+  };
+  ceph(300, true);
+  ceph(700, false);
+  // two full heads stacked a step apart (a podatus f-g), touching
+  rect(img, 1100, cy(3) - 0.38 * S, 22, 0.72 * S);
+  rect(img, 1100, cy(2) - 0.3 * S, 22, 0.6 * S);
+  rect(img, 1100 + 19, cy(3), 3, cy(2) - cy(3));
+  const pgm = readPgm(toPgm(img));
+  const [st] = readPage(pgm);
+  const at = (x0) => st.notes.filter((n) => n.x >= x0 - 10 && n.x <= x0 + 40).map((n) => `${n.rel + 6}${n.shape === 'liquescent' ? '~' : ''}`);
+  assert.deepEqual(at(300), ['3', '2~']);
+  assert.ok(!at(700).some((n) => n.endsWith('~')), `no stem, no liquescent: ${at(700)}`);
+  assert.ok(!at(1100).some((n) => n.endsWith('~')), `two full heads: ${at(1100)}`);
+  const [off] = readPage(pgm, { oneStep: false });
+  assert.ok(!off.notes.some((n) => n.shape === 'liquescent' && n.x < 400), 'the reader before the rule finds no liquescent there');
+});
+
+// The same, with the small note drawn hollow (GregoBase 3478 e kj~, 3481
+// cer- ed~, 3448 in gf~): its upper rows are two bars either side of a white
+// counter and only its bottom rows are solid, too few for the rule until the
+// counter is bridged (ONE_STEP.gap; eval/one-step-hollow-check.md).
+test('a one-step cephalicus whose small note has a white counter is read', () => {
+  const img = canvas(1600, 400);
+  const bottom = 120 + 3 * S;
+  const cy = (pos) => bottom - (pos * S) / 2;
+  drawStaff(img, 120, []);
+  const x = 300;
+  rect(img, x, cy(3) - 0.38 * S, 22, 0.72 * S); // head in the space (pos 3)
+  rect(img, x, cy(3), 3, 1.3 * S); // hairline stem
+  rect(img, x + 11, cy(3), 11, cy(2) - cy(3) + 0.3 * S); // small note, solid
+  rect(img, x + 14, cy(3) + 0.38 * S, 3, 0.32 * S, 225); // its white counter
+  const pgm = readPgm(toPgm(img));
+  const at = (st) => st.notes.filter((n) => n.x >= x - 10 && n.x <= x + 40).map((n) => `${n.rel + 6}${n.shape === 'liquescent' ? '~' : ''}`);
+  assert.deepEqual(at(readPage(pgm)[0]), ['3', '2~']);
+  const off = at(readPage(pgm, { oneStepGap: false })[0]); assert.ok(!off.some((n) => n.endsWith('~')), `without the bridge the counter hides it: ${off}`);
+});
+
+// A worn square on a line, split by a white fleck below the line into two
+// halves each narrower than the 0.25-space cut: the halves are joined
+// (FLECK; GregoBase 3439 nae, leaf 598; eval/fleck-check.md).
+test('a head split by a white fleck is read', () => {
+  const img = canvas(1600, 400);
+  const bottom = 120 + 3 * S;
+  const cy = (pos) => bottom - (pos * S) / 2;
+  drawStaff(img, 120, [[200, 4]]);
+  const x = 300;
+  rect(img, x, cy(2) - H / 2, 20, H); // a narrow square on the second line
+  rect(img, x + 8, cy(2) + 2, 4, 5, 225); // the fleck: 4 white columns under the line
+  rect(img, 420, cy(3) - H / 2, 22, H); // a plain head after it, one step up
+  const pgm = readPgm(toPgm(img));
+  const rels = (st) => st.notes.map((n) => n.rel + 6);
+  assert.deepEqual(rels(readPage(pgm)[0]), [4, 2, 3]);
+  assert.deepEqual(rels(readPage(pgm, { fleck: false })[0]), [4, 3], 'without the join the halves are both too narrow');
 });
 
 // turn a drawn page by `deg` degrees about its centre (bilinear, as a

@@ -91,12 +91,13 @@ def area(poly):
                      for i in range(len(poly)))
 
 
-def bbox_fits(d, bed, step=5, half=False):
+def bbox_fits(d, bed, step=1, half=False):
     """True if the part, turned about the vertical axis by some angle, fits a bed x bed square (mm).
-    `half` checks one arm with its hub (a two-piece hanger). Returns (fits, best_angle_deg, bbox_w, bbox_h) for the angle with the smallest longer side."""
+    `half` checks one arm with its hub, post and loop (the half of a two-piece hanger that
+    carries the rail loop). `step` is 1 degree: a 5-degree grid misread the XXL half by 2.6 mm. Returns (fits, best_angle_deg, bbox_w, bbox_h) for the angle with the smallest longer side."""
     pts = []
     for s in shells(d):
-        if half and s["name"] not in ("arm_right", "hub"):
+        if half and s["name"] not in ("arm_right", "hub", "post", "loop"):
             continue
         pts += s["outline"]
     best = None

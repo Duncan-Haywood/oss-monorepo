@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVKQtW2nRDFisxLgc7V",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue products); merge when done",
+  "input_sha256": "c008369ff7f6bb1c9312f89c067345da62e288c7e2fdfd845bbb3668d6069ff1",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T07:08:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality census, seed 2026-11-15-b: six never-audited subjects, fixes for the worst defects",
+  "projects": [
+    "ventures/gumroad-sales-fee-analyzer",
+    "ventures/vpat-acr-generator",
+    "ventures/private-chef-service-price-calculator",
+    "ventures/adu-payback-calculator",
+    "research/energy-thermal",
+    "research/selfrep-coverscale"
+  ],
+  "pr": 16129,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "a heredoc-based python edit was refused by the rm safety check (no rm in it); rewrote the edit as a script file"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "census has no claim check like sample's: it prints the same draw to every session on a date and does not list open census PRs, so a second session must notice the duplicate by searching PR titles"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "the date-seeded census draw was already claimed by open PR #16116, so this run used census --seed 2026-11-15-b",
+      "did": "audited the -b draw",
+      "result": "six new subjects, no overlap"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-quality-census-the-gumroad-tool-that-could-not-read-gumroad.md"
+  ],
+  "goal": null,
+  "notes": "Mode census (quality_audit.py mode). Seed 2026-11-15-b. Subjects: ventures/vpat-acr-generator, research/energy-thermal, ventures/adu-payback-calculator, research/selfrep-coverscale, ventures/private-chef-service-price-calculator, ventures/gumroad-sales-fee-analyzer. Meeting the bar: 0 of 6 (census, not in the sampled share; sampled share unchanged 33/306). Finished 5 of 6. Seeded bugs caught 13 of 29. Spot-checks I reran myself: chef markup prices 539.84/536.54/517.84 (reproduced), ADU loanYears:0 IRR 59.949% (reproduced), Gumroad real-header probe 'No header row found' (reproduced; after the fix the same probe gives fee 26.83, rate 17.887%, take-home 115.26, matching the auditor's independent figures). Fix PR: #16129 (this PR) fixes gumroad (header, fee schedule 12.9%+$0.80 / Discover 30% from Gumroad's open-source purchase.rb, break-even fixed fee, refund/dispute flags, Fiverr heading), vpat (A/AA Not Evaluated flagged, guide corrected), chef markup formula, ADU zero-term loan, and README claim fixes in the two research projects. Checks: node --test '*.test.mjs' in all four ventures (37, 37, 25, 33 pass); quality_audit.py validate 356 files 0 problems; post front matter, links and similarity checks clean; gumroad page smoke-tested in headless Chromium (example runs, no console errors). marisstella.app was unreachable through the proxy (403), so served pages were not checked.",
+  "corrections": [],
+  "redteam": null
+}

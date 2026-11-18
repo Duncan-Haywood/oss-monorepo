@@ -25,11 +25,14 @@ Then it:
 2. replaces `--old` (which must occur exactly once in the file, or name
    `--occurrence`) with `--new` in the copy, and runs the command again;
 3. prints a `mutations` row for the audit file and exits 0 when the tests
-   caught the bug, 1 when it survived (a timeout counts as caught, and says so).
+   caught the bug, 1 when it survived (a timeout counts as caught, and says so;
+   the mutant run times out at 4x the baseline's time plus 30 s, so a test
+   that hangs on the mutant is not waited out for the full --timeout).
 
 The command runs in the subject root (or `--cwd`). One that starts with
 `cd <path> &&`, the shape audit files record as `test_cmd`, runs through bash
 from the repository root instead, so a row copied from an audit works as is.
+One led by `VAR=value` also runs through bash, so an environment prefix works.
 
 PYTHONDONTWRITEBYTECODE=1 is set, and the copy starts without `__pycache__`,
 so a stale `.pyc` cannot run the mutant or hide it (round 45).
@@ -37,11 +40,13 @@ so a stale `.pyc` cannot run the mutant or hide it (round 45).
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import json
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -109,28 +114,77 @@ def mutate_text(text: str, old: str, new: str, occurrence: int | None) -> tuple[
     return text[:at] + new + text[at + len(old):], text.count("\n", 0, at) + 1
 
 
+ENV_ASSIGN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=")
+
+
 def is_shell(cmd: list[str]) -> bool:
-    """A command written for a shell: `cd x && ...` (an audit's own `test_cmd` shape), or one quoted string."""
-    return cmd[0] == "cd" or (len(cmd) == 1 and any(c in cmd[0] for c in " &|;"))
+    """A command written for a shell: `cd x && ...` (an audit's own `test_cmd` shape), one quoted string,
+    or one led by `VAR=value` (`PYTHONPATH=src python3 -m pytest`), which exec without a shell takes for
+    the program name (two run records, 2026-11-16, each lost a retry to it)."""
+    return (cmd[0] == "cd" or bool(ENV_ASSIGN.match(cmd[0]))
+            or (len(cmd) == 1 and any(c in cmd[0] for c in " &|;")))
 
 
 def starts_with_cd(cmd: list[str]) -> bool:
     return " ".join(cmd).lstrip().startswith("cd ")
 
 
-def run(cmd: list[str], cwd: Path, timeout: int) -> tuple[str, float, str]:
-    """Run `cmd`; return ('pass'|'fail'|'timeout', seconds, output tail)."""
+def repo_relative_args(cmd: list[str], cwd: Path) -> list[tuple[str, str]]:
+    """[(arg, the same path written from `cwd`)] for test-command words that name a
+    path under `cwd` from the repository root (`ventures/x/tests` run inside
+    `ventures/x`). Such a path does not exist where the command runs, so the
+    baseline fails with only "the suite is red" (three run records, 2026-11-13
+    and 11-14, each lost a round of mutants to it)."""
+    prefix = cwd.as_posix().rstrip("/") + "/"
+    out = []
+    for word in " ".join(cmd).split():
+        bare = word.strip("'\"")
+        for opt in ("", "--rootdir=", "--start-directory="):
+            if opt and bare.startswith(opt):
+                bare = bare[len(opt):]
+        if bare.removeprefix("./").rstrip("/") + "/" == prefix:
+            out.append((bare, "."))
+        elif bare.startswith(prefix) or bare.startswith("./" + prefix):
+            out.append((bare, bare.split(prefix, 1)[1] or "."))
+    return out
+
+
+def run(cmd: list[str], cwd: Path, timeout: float) -> tuple[str, float, str]:
+    """Run `cmd`; return ('pass'|'fail'|'timeout', seconds, output tail).
+
+    The command gets its own process group and a timeout kills the whole group:
+    `subprocess.run` kills only the direct child, so when a `bash -c` wrapper
+    (a `cd ... &&` command) timed out, the hung `node --test` under it was
+    orphaned and kept running, holding its CPU and any port it had bound."""
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
     start = time.monotonic()
     argv = ["bash", "-c", " ".join(cmd)] if is_shell(cmd) else cmd
+    p = subprocess.Popen(argv, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                         text=True, errors="replace", start_new_session=True)
     try:
-        p = subprocess.run(argv, cwd=cwd, env=env, capture_output=True, text=True,
-                           timeout=timeout, errors="replace")
-    except subprocess.TimeoutExpired as e:
-        out = (e.stdout or "") if isinstance(e.stdout, str) else ""
-        return "timeout", time.monotonic() - start, out[-1500:]
-    out = (p.stdout or "") + (p.stderr or "")
-    return ("pass" if p.returncode == 0 else "fail"), time.monotonic() - start, out[-1500:]
+        out, _ = p.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        with contextlib.suppress(ProcessLookupError, PermissionError):
+            os.killpg(p.pid, signal.SIGKILL)
+        try:
+            out, _ = p.communicate(timeout=10)
+        except subprocess.TimeoutExpired:
+            out = ""
+        return "timeout", time.monotonic() - start, (out or "")[-1500:]
+    return ("pass" if p.returncode == 0 else "fail"), time.monotonic() - start, (out or "")[-1500:]
+
+
+def mutant_timeout(baseline_secs: float | None, cap: int) -> float:
+    """How long the mutant run may take. A suite that passed in `baseline_secs`
+    and runs much longer on the mutant has hung on it (a server test with no
+    `t.after` close never exits once an assertion fails), and a hang counts as
+    caught, so waiting out the full --timeout only costs time: on 2026-11-17 a
+    link-keeper mutant sat out 900 s (run-record doc_friction on
+    portfolio/quality/README.md). Allow 4x the baseline plus 30 s, never more
+    than `cap`, and `cap` itself when no baseline ran."""
+    if baseline_secs is None:
+        return cap
+    return min(cap, 4 * baseline_secs + 30)
 
 
 # A runner that found no tests still exits 0 under node (`# tests 0`) and
@@ -151,7 +205,9 @@ def digest(path: Path) -> str:
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else list(argv)
     if "--" not in argv:
-        print("usage: quality_mutate.py FILE --old TEXT --new TEXT [options] -- TEST COMMAND...", file=sys.stderr)
+        print("usage: quality_mutate.py FILE --old TEXT --new TEXT [options] -- TEST COMMAND...\n"
+              "TEST COMMAND runs in the subject root (ventures/<slug>), so its paths are relative "
+              "to it; or start it with `cd <path> &&` to run from the repository root.", file=sys.stderr)
         return 2
     split = argv.index("--")
     cmd = argv[split + 1:]
@@ -162,7 +218,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--occurrence", type=int, default=None, help="which match of --old, 1-based")
     ap.add_argument("--root", default=None, help="directory copied for real (default: first two path parts)")
     ap.add_argument("--cwd", default=None, help="repo-relative directory to run the tests in (default: --root)")
-    ap.add_argument("--timeout", type=int, default=TIMEOUT)
+    ap.add_argument("--timeout", type=int, default=TIMEOUT,
+                    help="cap in seconds per run; the mutant run gets 4x the baseline + 30 s, "
+                         "up to this cap, since a hang there counts as caught")
     ap.add_argument("--no-baseline", action="store_true", help="skip the unmutated run (only if you just ran it)")
     ap.add_argument("--keep", action="store_true", help="keep the shadow tree and print its path")
     ap.add_argument("--json", action="store_true", help="print only the mutations row")
@@ -203,8 +261,10 @@ def main(argv: list[str] | None = None) -> int:
         # (run-record doc_friction, 2026-11-12).
         from_top = starts_with_cd(cmd) and not args.cwd
         shadow_cwd = tmp / "repo" if from_top else tmp / "repo" / cwd
+        baseline_secs = None
         if not args.no_baseline:
             state, secs, tail = run(cmd, shadow_cwd, args.timeout)
+            baseline_secs = secs
             say(f"baseline (unmutated copy): {state} in {secs:.1f} s")
             if state == "pass" and ran_no_tests(tail):
                 print(tail, file=sys.stderr)
@@ -213,17 +273,26 @@ def main(argv: list[str] | None = None) -> int:
                 return 2
             if state != "pass":
                 print(tail, file=sys.stderr)
+                hints = [] if from_top else repo_relative_args(cmd, cwd)
+                for arg, local in hints:
+                    print(f"hint: the command runs in {cwd.as_posix()}/, so `{arg}` is written from the "
+                          f"repository root; write `{local}` (or prefix the command with "
+                          f"`cd {cwd.as_posix()} &&`).", file=sys.stderr)
                 print("baseline failed: the suite is red without the mutant, so it cannot "
                       "grade one. Fix or narrow the test command first.", file=sys.stderr)
                 return 2
         (tmp / "repo" / rel).write_text(mutated, encoding="utf-8")
-        state, secs, tail = run(cmd, shadow_cwd, args.timeout)
+        limit = mutant_timeout(baseline_secs, args.timeout)
+        state, secs, tail = run(cmd, shadow_cwd, limit)
         caught = state != "pass"
         row = {"where": f"{rel.relative_to(root).as_posix()}:{line}",
                "change": f"{args.old} -> {args.new}", "caught": caught,
                "test_cmd": " ".join(cmd)}
         if state == "timeout":
-            row["note"] = f"tests timed out after {args.timeout} s on the mutant"
+            row["note"] = (f"tests timed out after {limit:.0f} s on the mutant (the unmutated "
+                           f"suite took {baseline_secs:.1f} s): a hang, counted as caught"
+                           if baseline_secs is not None else
+                           f"tests timed out after {limit:.0f} s on the mutant")
         if not args.json:
             print(f"mutant at {rel}:{line}: tests {state} in {secs:.1f} s -> "
                   f"{'CAUGHT' if caught else 'SURVIVED'}")

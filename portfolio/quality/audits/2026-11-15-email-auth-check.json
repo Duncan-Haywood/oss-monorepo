@@ -1,0 +1,331 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/email-auth-check",
+ "stratum": "venture",
+ "seed": "2026-11-15-7988",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior email deliverability engineer (the person an ESP or MSP sends a client's 'our mail goes to spam' ticket to). They would check first that every SPF PermError path in RFC 7208 is reported (lookup count over 10, void lookups, an include: or redirect= target with no or broken SPF), that DMARC is evaluated as a receiver would (RFC 7489 organizational-domain fallback for subdomains, multiple records meaning no policy), and that DKIM keys found are actually usable, before reading any wording",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed against RFC 7208/7489/6376 and live DNS. Right: an auditor-written RFC 7208 s4.6.4 counter (scratchpad indep.mjs, own DoH walker) and the tool's resolveSpfChain (toolcount.mjs) agree on 7 real domains (google.com 1, microsoft.com 6, salesforce.com 4, hubspot.com 4, shopify.com 4, zendesk.com 6, atlassian.com 6). The 10/11 boundary is right (10 includes: notice 10 of 10; 10 includes + mx: danger 11). Qualifiers +all, bare all, -all, ~all, ?all map correctly (bare all = +all per RFC 7208 s4.6.2). Three void a: terms give the danger void-lookup PermError. pct=150 and missing p= are flagged. Wrong (probes.mjs): (1) an include: whose target publishes no SPF record (RFC 7208 s5.2: permerror) gives ok=true with only 'spf-hardfail-all'; (2) an included record with two SPF records or a syntax error (permerror) is not reported, since multiple/malformed are only checked on the root; (3) 'v=spf1 include:_spf.ex.net -all redirect=other.ex.net' is counted as 11 lookups and flagged PermError, but RFC 7208 s6.1 says redirect is ignored when an all mechanism is present (real cost 1); (4) live: `node cli.mjs mail.zendesk.com` reports DANGER 'No DMARC record found' and exits 1, but zendesk.com publishes p=reject, which RFC 7489 s6.6.3 applies to the subdomain; (5) two DMARC records are flagged but the report still says 'DMARC policy is p=reject', although s6.6.3 says no policy applies; (6) DKIM p=garbage, v=DKIM2 and k=dsa are all reported 'valid public key'; adkim=x, aspf=q, sp=bogus and pct=50abc pass silently. The core lookup count is right; several PermError and DMARC-evaluation outcomes are not.",
+  "completeness": "Checked each README/page feature end to end. Recursive include:/redirect= walk: works (7 live domains). +all, multiple SPF records, malformed syntax, all-not-last, near-limit: work on fixtures. Void lookups: work. DKIM at nine selectors, revoked empty p=: work (K2 revoked=true; live mail.zendesk.com finds k1). DMARC p/pct/rua/ruf/adkim/aspf read: works (D1). BIMI presence and pct=100 enforcement test: works. CLI exit codes: google.com exit 0, docs.google.com exit 1 on missing SPF. Served page https://marisstella.app/email-auth-check/ HTTP 200 with the disclaimer; served llms.txt carries marisstella.app links (source github.io links are rewritten at deploy, source-only). 124/124 tests. No stubs or TODOs. Every claimed feature exists and runs, so 3; the wrong outcomes are scored under correctness.",
+  "verification": "`cd ventures/email-auth-check && node --test`: 124 tests, 124 pass, 0.24 s. Seven mutants via platform/ci/quality_mutate.py: 3 caught (BIMI pct===100 -> >=50 :392, void limit >2 -> >3 :485, bare-all default qualifier '+' -> '~' :135), 4 survived: the RFC 7208 10-lookup boundary `totalLookups > 10` -> `>= 10` (:264; the only chain test uses 11, so the headline check is untested at its edge), redirect= no longer counted toward the total (:251), the near-limit threshold >=8 -> >=9 (:476), and the DMARC pct-partial threshold <100 -> <50 (:641). No test covers an include target without SPF, a subdomain DMARC lookup, or redirect-with-all.",
+  "craft": "Read analyze.mjs (737 lines), lookup.mjs (258), cli.mjs (100), and the test files' SPF/DMARC sections. A clean split: pure analysis on plain data, one network module with injectable fetchTxt/queryCount, transport failure kept distinct from absence (null vs []), DoH RCODE handling, cycle detection by ancestor path rather than a global seen-set (correct for RFC counting). Defects: per-record checks (multiple, malformed, all qualifier) run on walk.root only, so included and redirected records are never checked (analyze.mjs:448-462, :514; for a redirect-only root like hubspot.com no all finding is shown at all); pct uses parseInt, so '50abc' is 50 (analyze.mjs:352); adkim/aspf/sp values are not validated (:348, :360); DKIM p= is not checked as base64 nor v=/k= values (:294-298). A senior JS reviewer would accept the structure; the gaps are domain rules, scored there.",
+  "claims": "Disclaimer, no-warranty and 'not deliverability advice' text present in README, index.html:248-251 and on the served page (2 matches). 'Nothing uploaded': lookup.mjs is the only fetch, to cloudflare-dns.com. Usage counter is local and opt-out (index.html:203, :245). 'Recursively follows every include:/redirect=': backed (7 live domains match an independent count). Unbacked or wrong: index.html:147 and how-to-fix page :150 say over-10 means 'SPF fails for every message ... for every receiver'; RFC 7208 s4.6.4 counts lookups during evaluation, so a message matched by an earlier mechanism still passes. SCOPE_NOTE (analyze.mjs:27) and README say an mx with several servers 'may cost slightly more than shown', but RFC 7208 s4.6.4 keeps those address lookups out of the 10 (they have their own 10-per-mx cap), so the stated limit is itself wrong. analyze.mjs:678 tells a user BIMI 'would be honored once published' with only DMARC at enforcement; Gmail displays BIMI logos only with a VMC or CMC. llms.txt:5 says 'Results are estimates from the numbers typed in, not legal, tax, financial' advice, boilerplate that does not describe a DNS checker.",
+  "fitness": "Walked an MSP's job: check a client apex domain, then the subdomain their ESP sends from. Apex: the report is accurate on 7 real domains and the CLI gates CI by exit code. Subdomain: mail.zendesk.com (live) gets DANGER 'No DMARC record found ... completely spoofable' and exit 1 although the org-domain p=reject protects it, so a CI gate on an ESP subdomain fails falsely; ESP sending subdomains are the common case. A retired vendor's include: whose SPF record was removed (a common real PermError) passes clean. Not covered and not claimed: DKIM key length (Google's bulk-sender guidance asks for 1024-bit minimum, 2048 recommended), From-domain alignment, MX/MTA-STS/TLS-RPT. Usable for an apex sanity check; a deliverability engineer would hit the subdomain false alarm and the missed include PermError in the first hour.",
+  "domain": "Compared with RFC 7208 (s4.6.4 lookup and void limits, s5.2 include results, s6.1 redirect), RFC 7489 (s6.3 tags, s6.6.3 record discovery and org-domain fallback) and RFC 6376 s3.6.1 (key record tags). Matches: the lookup set and recursion, void-lookup limit, qualifier semantics, revoked-key meaning, DMARC policy and pct defaults. Departs: include/redirect target with no SPF or a broken SPF (permerror) not detected; redirect counted when all is present; no organizational-domain DMARC fallback; multiple DMARC records still treated as a policy in force; DKIM record validity reduced to 'has p='; ptr not flagged although RFC 7208 s5.5 says SHOULD NOT (the tool's own how-to page says so). A deliverability engineer would trust the lookup count but not the PASS/DANGER verdicts as receiver-equivalent."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Total RFC 7208 lookup count on 7 real domains",
+   "method": "auditor-written RFC 7208 s4.6.4 counter over Cloudflare DoH (independent of lookup.mjs)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/email-auth/indep.mjs google.com microsoft.com salesforce.com hubspot.com shopify.com zendesk.com atlassian.com; node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/email-auth/toolcount.mjs <same>",
+   "expected": "1, 6, 4, 4, 4, 6, 6",
+   "observed": "1, 6, 4, 4, 4, 6, 6",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "10-lookup boundary",
+   "method": "RFC 7208 s4.6.4: at most 10; the 11th is permerror",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/email-auth/probes.mjs (P1a, P1b)",
+   "expected": "10 includes: no PermError; 10 includes + mx: PermError (11)",
+   "observed": "notice 10 of 10, ok=true; danger spf-too-many-lookups (11 found)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "all qualifiers",
+   "method": "RFC 7208 s4.6.2 (default qualifier +) and s2.6",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/email-auth/probes.mjs (P5)",
+   "expected": "+all and bare all danger; -all hardfail; ~all softfail; ?all neutral",
+   "observed": "as expected",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "include: target with no SPF record",
+   "method": "RFC 7208 s5.2: include of a domain returning none -> permerror",
+   "command": "cd ventures/email-auth-check && node --input-type=module -e \"import {walkSpfChain,buildReport,analyzeDkim,analyzeDmarc,analyzeBimi} from './analyze.mjs'; const w=walkSpfChain('ex.com',{'ex.com':['v=spf1 include:retired-vendor.example -all'],'retired-vendor.example':[]}); const d=analyzeDmarc(['v=DMARC1; p=reject; rua=mailto:a@ex.com']); const r=buildReport('ex.com',{spfWalk:w,dkim:analyzeDkim([]),dmarc:d,bimi:analyzeBimi([],d)}); console.log(r.ok, r.findings.filter(f=>f.id.startsWith('spf')).map(f=>f.id))\"",
+   "expected": "ok false, a PermError finding",
+   "observed": "true [ 'spf-hardfail-all' ]",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Included record with two SPF records, or a syntax error",
+   "method": "RFC 7208 s4.5 / s4.6: permerror inside an include propagates (s5.2)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/email-auth/probes.mjs (P4, P4b)",
+   "expected": "PermError reported",
+   "observed": "ok=true, only spf-hardfail-all",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "redirect= alongside an all mechanism",
+   "method": "RFC 7208 s6.1: redirect is ignored if the record contains all",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/email-auth/probes.mjs (P3)",
+   "expected": "1 lookup, no PermError",
+   "observed": "danger spf-too-many-lookups (11 found)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Subdomain DMARC on a real domain",
+   "method": "RFC 7489 s6.6.3: no record at _dmarc.<sub> -> query the organizational domain; live _dmarc.zendesk.com is 'v=DMARC1; p=reject'",
+   "command": "cd ventures/email-auth-check && node cli.mjs mail.zendesk.com; echo $?",
+   "expected": "DMARC p=reject (inherited), no DMARC danger",
+   "observed": "!! [DANGER] No DMARC record found; exit 1",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Two DMARC records",
+   "method": "RFC 7489 s6.6.3: more than one record -> DMARC processing terminates, no policy",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/email-auth/probes.mjs (D11)",
+   "expected": "danger only; no policy reported as in force",
+   "observed": "danger dmarc-multiple-records AND info 'DMARC policy is p=reject'",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "DKIM key record validity",
+   "method": "RFC 6376 s3.6.1: p= is base64; v= if present must be DKIM1; unknown k= unusable",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/email-auth/probes.mjs (K3, K4, K6)",
+   "expected": "p=garbage, v=DKIM2, k=dsa not 'valid'",
+   "observed": "hasPublicKey=true, malformed=[] for all three",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "DMARC tag syntax",
+   "method": "RFC 7489 s6.3: adkim/aspf r|s; sp none|quarantine|reject; pct integer 0-100",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/email-auth/probes.mjs (D2, D3, D4, D6, D9)",
+   "expected": "pct=150, missing p, adkim=x, sp=bogus, pct=50abc all flagged",
+   "observed": "pct=150 and missing p flagged; adkim=x, aspf=q, sp=bogus, pct=50abc silent",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Void lookup limit",
+   "method": "RFC 7208 s4.6.4: more than 2 void lookups -> permerror",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/email-auth/probes.mjs (P6)",
+   "expected": "3 void a: -> danger",
+   "observed": "danger spf-too-many-void-lookups",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/email-auth-check && node --test",
+   "expected": "all pass",
+   "observed": "124/124 pass, 0.24 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Served page and llms.txt",
+   "method": "curl",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/email-auth-check/; curl -sS https://marisstella.app/email-auth-check/llms.txt",
+   "expected": "200, marisstella.app links",
+   "observed": "200; llms.txt links are marisstella.app (source github.io links rewritten at deploy)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "CLI exit code as a CI gate",
+   "method": "run on live domains",
+   "command": "node cli.mjs google.com; node cli.mjs docs.google.com",
+   "expected": "0 when no danger; 1 when SPF missing",
+   "observed": "exit 0; exit 1 (No SPF record found)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Over 10 lookups: SPF fails for every message, for every receiver' (index.html:147)",
+   "method": "RFC 7208 s4.6.4 counts lookups as evaluation proceeds; a match before the 11th term returns pass",
+   "command": "grep -n 'for every message' index.html how-to-fix-spf-too-many-dns-lookups.html",
+   "expected": "a qualified statement",
+   "observed": "unqualified 'every message ... every receiver'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "SCOPE_NOTE: mx with several servers may cost more than shown",
+   "method": "RFC 7208 s4.6.4: address lookups for mx/ptr results do not count toward the 10 (separate 10-per-mechanism cap)",
+   "command": "grep -n 'SCOPE_NOTE =' -A4 analyze.mjs",
+   "expected": "no such undercount",
+   "observed": "the note claims an undercount that the RFC does not define",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer and privacy",
+   "method": "read page and served page",
+   "command": "curl -sS https://marisstella.app/email-auth-check/ | grep -c -i 'not email deliverability'",
+   "expected": ">=1",
+   "observed": "2; only fetch is to cloudflare-dns.com (lookup.mjs:23)",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "analyze.mjs:264",
+   "change": "totalLookups > 10 -> totalLookups >= 10",
+   "caught": false,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "analyze.mjs:392",
+   "change": "dmarc.pct === 100 -> dmarc.pct >= 50 (BIMI sufficiency)",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "analyze.mjs:485",
+   "change": "voids.length > 2 -> voids.length > 3",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "analyze.mjs:135",
+   "change": "default qualifier '+' -> '~'",
+   "caught": true,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "analyze.mjs:641",
+   "change": "dmarc.pct < 100 -> dmarc.pct < 50 (pct-partial finding)",
+   "caught": false,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "analyze.mjs:476",
+   "change": "walk.totalLookups >= 8 -> >= 9 (near-limit notice)",
+   "caught": false,
+   "test_cmd": "node --test"
+  },
+  {
+   "where": "analyze.mjs:251",
+   "change": "redirect= no longer counted toward totalLookups",
+   "caught": false,
+   "test_cmd": "node --test"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "An include: (or redirect=) whose target publishes no SPF record, more than one, or a malformed one is a PermError (RFC 7208 s5.2, s6.1), but the tool only checks found/multiple/malformed on the root record, so the report is ok=true. A retired vendor's include is a common real cause of SPF PermError.",
+   "where": "ventures/email-auth-check/analyze.mjs:448",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16236"
+  },
+  {
+   "severity": "high",
+   "what": "No RFC 7489 s6.6.3 organizational-domain fallback: a subdomain with no _dmarc record of its own is reported DANGER 'No DMARC record found ... completely spoofable' and the CLI exits 1, although the parent's policy applies. Live: mail.zendesk.com (zendesk.com is p=reject).",
+   "where": "ventures/email-auth-check/lookup.mjs:218",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16260"
+  },
+  {
+   "severity": "medium",
+   "what": "redirect= is counted and walked even when the record has an all mechanism; RFC 7208 s6.1 says it is then ignored, so the tool can report a false lookup-limit PermError.",
+   "where": "ventures/email-auth-check/analyze.mjs:249",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
+  },
+  {
+   "severity": "medium",
+   "what": "With two DMARC records the report flags the duplicate but still says 'DMARC policy is p=reject' from records[0]; RFC 7489 s6.6.3 says no policy applies.",
+   "where": "ventures/email-auth-check/analyze.mjs:340",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16260"
+  },
+  {
+   "severity": "medium",
+   "what": "The RFC 7208 10-lookup boundary, the redirect= count, the near-limit and pct-partial thresholds all survive seeded mutation: the only chain test uses 11 lookups.",
+   "where": "ventures/email-auth-check/analyze.test.mjs:119",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
+  },
+  {
+   "severity": "medium",
+   "what": "DKIM 'valid public key' only means p= is non-empty: non-base64 p=, v=DKIM2 and k=dsa are reported valid; key length (Google bulk-sender guidance: 1024-bit minimum) is not read.",
+   "where": "ventures/email-auth-check/analyze.mjs:297",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
+  },
+  {
+   "severity": "low",
+   "what": "Page and how-to say exceeding 10 lookups fails SPF 'for every message, for every receiver'; lookups are counted during evaluation, so a message matched before the 11th lookup still passes.",
+   "where": "ventures/email-auth-check/index.html:147",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
+  },
+  {
+   "severity": "low",
+   "what": "SCOPE_NOTE and README claim an mx with several servers may cost more lookups than shown; RFC 7208 s4.6.4 keeps those address lookups out of the 10-term count, so the stated limitation is wrong.",
+   "where": "ventures/email-auth-check/analyze.mjs:27",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
+  },
+  {
+   "severity": "low",
+   "what": "BIMI-absent finding says enforcement means BIMI 'would be honored once published'; Gmail shows BIMI logos only with a VMC or CMC.",
+   "where": "ventures/email-auth-check/analyze.mjs:678",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16260"
+  },
+  {
+   "severity": "low",
+   "what": "DMARC adkim/aspf/sp values are not validated (adkim=x silently relaxed, sp=bogus accepted) and pct uses parseInt so '50abc' reads as 50.",
+   "where": "ventures/email-auth-check/analyze.mjs:352",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
+  },
+  {
+   "severity": "low",
+   "what": "ptr is not flagged although RFC 7208 s5.5 says SHOULD NOT (the venture's own how-to page says so); all-qualifier is read from the root only, so a redirect-only root (hubspot.com) shows no all finding.",
+   "where": "ventures/email-auth-check/analyze.mjs:514",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt carries 'Results are estimates from the numbers typed in, not legal, tax, financial or professional advice', boilerplate that does not describe a DNS-record checker.",
+   "where": "ventures/email-auth-check/llms.txt:5",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16236",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16260",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16713"
+ ],
+ "verdict": "A well-structured, private, zero-dependency checker whose headline feature works: its recursive RFC 7208 lookup count matches an independent counter on 7 real domains, the 10/11 boundary, qualifiers and void-lookup limit are right, 124/124 tests pass and the served page loads with its disclaimer. It does not meet the bar. Its PASS/DANGER verdicts are not what a receiver computes: an include: to a domain with no or broken SPF (a real PermError) passes clean; a subdomain covered by its parent's p=reject (live: mail.zendesk.com) gets a DANGER 'no DMARC' and a failing exit code; redirect= is counted beside all; two DMARC records still show a policy in force; and any non-empty p= is a 'valid' DKIM key. Four of seven seeded mutants survive, including the 10-lookup boundary itself. Scores: correctness 2, completeness 3, verification 2, craft 3, claims 2, fitness 2, domain 2. Finished (completeness 3), not at the bar."
+}

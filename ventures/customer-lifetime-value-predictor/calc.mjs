@@ -116,10 +116,10 @@ function splitLine(line, d) {
 
 export function parseDay(s) {
   s = String(s ?? "").trim();
-  let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?!\d)/);
   let y, mo, d;
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; }
-  else if ((m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})/))) {
+  else if ((m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)/))) {
     let a = +m[1], b = +m[2]; y = +m[3]; if (y < 100) y += 2000;
     if (a > 12) { d = a; mo = b; } else { mo = a; d = b; }
   } else return NaN;
@@ -138,7 +138,7 @@ function pickColumn(headers, rules) {
 }
 
 export function parseOrders(text) {
-  const lines = String(text ?? "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
+  const lines = String(text ?? "").replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim());
   if (lines.length < 2) return { error: "Paste or upload an order list with one row per order: customer, date, amount." };
   const first = lines[0];
   const d = [",", "\t", ";"].map((c) => [c, first.split(c).length]).sort((a, b) => b[1] - a[1])[0][0];
@@ -548,6 +548,11 @@ function buildFindings({ summary, params, gg, bt, corr, newCustomer, seg }) {
 // ---------- output helpers ----------
 
 export function money(v) {
+  // The sign goes outside the symbol, and only on a nonzero amount: -$9.24, never $-9.24.
+  if (Number(v) < 0) {
+    const text = money(Math.abs(v));
+    return /[1-9]/.test(text) ? `-${text}` : text;
+  }
   if (!Number.isFinite(v)) return "n/a";
   return "$" + v.toLocaleString("en-US", { maximumFractionDigits: v < 100 ? 2 : 0, minimumFractionDigits: v < 100 ? 2 : 0 });
 }

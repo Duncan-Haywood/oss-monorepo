@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKj7vqURWDsHHeBSgHP",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T00:14:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 4 changepoint-detector: does the synthetic control's placebo warning hold when a covariate's shock is a slope or a fading pulse (flagships next: 'next non-step shocks')",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17110",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "Exploratory run's P2 cell (50 panels) showed 0 false finds; the confirmatory 400 showed 15 of 79 warned. Reported in README as a small-sample lesson, not hidden."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "changepoint-detector's next: is a 1,800-character run-on list of shipped and failed items; the concrete open item ('next non-step shocks') was easiest to find from the README section's own 'Next:' line, not from next:."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-synthetic-control-placebo-warning-slope-and-pulse-shocks.md",
+    "ventures/changepoint-detector/README.md (Shocks that are not steps)"
+  ],
+  "goal": null,
+  "notes": "Pre-registration committed alone (212ea8812) before the confirmatory run at base 63000, 400 panels x 5 cells. All four bars passed: base rate 18.5%, size 1.8-3.8%; slope/pulse warned bias 2.2-2.7x unwarned, p<=0.05 share +7.9 to +19.0 points; W-alone 0 of 253 false finds. 42 of 43 false finds warned. CLI, page note and llms.txt text extended. Verification: node --test synth-shape.test.mjs 3/3; run_venture_tests changepoint-detector and venture-preflight (outputs summarised in the PR body). The confirmatory run took about 40 min on 4 cores (about 50 panels a minute), so it ran in the background with a Monitor until-loop.",
+  "corrections": [],
+  "redteam": null
+}

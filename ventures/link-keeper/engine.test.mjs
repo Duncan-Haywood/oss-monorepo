@@ -125,3 +125,12 @@ test("planBatch tags every URL, keeps chosen slugs and reports bad lines", () =>
   assert.match(out[3].error, /used twice/);
   assert.match(out[4].error, /reserved/);
 });
+
+test("planBatch keeps a comma inside the URL instead of splitting there (quality audit 2026-11-17)", () => {
+  const [r] = E.planBatch("https://x.com/s?ids=1,2", { source: "news" }, () => 0);
+  assert.ok(!r.error);
+  assert.match(r.url, /ids=1(,|%2C)2/);
+  assert.notEqual(r.slug, "2");
+  const [t] = E.planBatch("https://x.com/s?ids=1,2\tpromo", {}, () => 0);
+  assert.equal(t.slug, "promo");
+});

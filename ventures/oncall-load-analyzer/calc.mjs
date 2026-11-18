@@ -13,24 +13,26 @@ const ALIASES = {
 
 export function parseCsv(text) {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === ",") { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
@@ -64,12 +66,17 @@ export function normalizeRows(table) {
   if (!table.length) return { error: "No rows found. Paste the CSV text including its header row.", incidents: [], skipped: [] };
   const header = table[0].map(HEADER_KEY);
   const idx = {};
-  for (const [k, names] of Object.entries(ALIASES)) idx[k] = header.findIndex((h) => names.includes(h));
+  // Each alias list is in priority order: an export with both service_id and
+  // service_name (or team and service) must group by the name, wherever it sits.
+  for (const [k, names] of Object.entries(ALIASES)) {
+    const hit = names.find((name) => header.includes(name));
+    idx[k] = hit === undefined ? -1 : header.indexOf(hit);
+  }
   if (idx.time < 0) return { error: `No timestamp column. Expected one of: ${ALIASES.time.slice(0, 5).join(", ")}. Found: ${header.join(", ")}.`, incidents: [], skipped: [] };
   if (idx.person < 0) return { error: `No responder column. Expected one of: ${ALIASES.person.slice(0, 5).join(", ")}. Found: ${header.join(", ")}.`, incidents: [], skipped: [] };
   const incidents = [], skipped = [];
   table.slice(1).forEach((r, n) => {
-    const line = n + 2;
+    const line = r.line ?? n + 2;
     const t = parseTime(r[idx.time]);
     if (t === null) { skipped.push({ line, reason: "unreadable timestamp" }); return; }
     const person = String(r[idx.person] ?? "").split(/[;|]/)[0].trim();

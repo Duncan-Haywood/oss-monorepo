@@ -842,7 +842,7 @@ export const STAY = { low: 1.5, medium: 4, high: 12 };
 function splitDelimited(text, delim) {
   const rows = [];
   let row = [], cur = "", q = false;
-  const src = String(text || "").replace(/^﻿/, "");
+  const src = String(text || "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (q) { if (c === '"' && src[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; }

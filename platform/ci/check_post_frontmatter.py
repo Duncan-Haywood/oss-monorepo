@@ -6,15 +6,17 @@ Five posts shipped without `tags` (2026-10-24 and 2026-10-26) and nothing
 noticed, because no check read post front matter. Also checks that `date`
 matches the filename's date prefix, is not in the future (77 posts were dated
 up to three weeks ahead on 2026-10-25, so they topped the feed and carried a
-false `datePublished`) and that `tags` is a non-empty list.
+false `datePublished`), that `tags` is a non-empty list, and that the body
+never holds the literal placeholder origin the site check refuses.
 
     python3 platform/ci/check_post_frontmatter.py [--root DIR]   # exit 1 if any
     python3 platform/ci/check_post_frontmatter.py docs/posts/NEW.md   # just these
     python3 platform/ci/check_post_frontmatter.py --limits   # the caps, before you write
     python3 platform/ci/check_post_frontmatter.py --landed-since 2026-11-10   # posts that reached main broken
+    python3 platform/ci/check_post_frontmatter.py --fix docs/posts/NEW.md   # house tag spellings, then check
 
 Named posts are checked alone, and the cross-post checks (tag spellings,
-shared descriptions) report only groups that include one of them. Runs kept
+shared descriptions, shared page titles) report only groups that include one of them. Runs kept
 passing a file and getting a usage error (two friction reports, 2026-11-10).
 
 Agent reports in docs/reports/ get `doc_index.py`'s front-matter check here
@@ -57,12 +59,20 @@ REQUIRED = ("title", "date", "description", "tags")
 # hook refused a first draft (nine run records on 2026-11-12 alone).
 LIMITS = {"title": 110, "description": 160, "seo_title": 70}
 MIN_DESCRIPTION = 60
+PLACEHOLDER = "https://example.invalid"  # platform/pages/check.mjs PLACEHOLDER_ORIGIN
+# build.test.mjs's "no paywall language" test runs this on the hub, which shows
+# the three newest posts' title and description (home.mjs renderLatestWriting).
+# A post titled "A free trial is not churn" passed every post check and turned
+# PR #17115's site build red (2026-11-18). Kept in step by test_check_post_frontmatter.py.
+PAYWALL = re.compile(r"\bsubscribe\b|upgrade to|paid plan|\bfree trial\b", re.I)
+ENTITY = re.compile(r"&(#\d+|#x[0-9a-f]+|[a-z][a-z0-9]*);", re.I)  # entities.mjs DOUBLE_ESCAPED, unescaped
 
 
 def limits_line():
     return (f"front matter: title <= {LIMITS['title']} chars, description {MIN_DESCRIPTION} to "
             f"{LIMITS['description']}, seo_title <= {LIMITS['seo_title']} (needed when a title over "
-            f"{LIMITS['seo_title']} has no clean cut at ': '), date = `date -u +%F`, tags: [a, b]")
+            f"{LIMITS['seo_title']} has no clean cut at ': '), date = `date -u +%F`, tags: [a, b]; "
+            f"once written: python3 platform/ci/check_posts.py (front matter, links, near-copies)")
 
 
 def problems(name, text, today=None):
@@ -101,9 +111,38 @@ def problems(name, text, today=None):
     # main_health ran it: a title over 70 with no seo_title and no clean cut to 70.
     if not seo and len(title) > 70 and not _cut(title):
         out.append(f"title is {len(title)} characters with no clean cut to 70; add `seo_title:` (70 max)")
+    for key, value in (("title", title), ("description", desc)):
+        hit = PAYWALL.search(value)
+        if hit:
+            out.append(f"{key} holds `{hit.group(0)}`, which the hub shows and build.test.mjs's "
+                       "'no paywall language' test refuses; reword it")
     tags = fields.get("tags")
     if tags and not re.fullmatch(r"\[\s*[^\]\s][^\]]*\]", tags):
         out.append("`tags` is not a non-empty [list]")
+    # platform/pages/check.mjs fails the whole site build on any served file
+    # holding the placeholder origin, and the build rewrites it only in venture
+    # files, never in posts: one run met it after a 7-minute local workflow
+    # (run record for PR #16380, 2026-11-15). Code spans and fences count too.
+    # check.mjs also fails the build on an HTML entity in a title or heading: the
+    # page escapes it, so it reads as escaped twice (a red-team post titled
+    # "yard&#x27;s" failed PR #16485's build, 2026-11-16). Prose may show one.
+    body = text[m.end():]
+    in_fence = False
+    for i, line in enumerate(body.splitlines()):
+        if line.lstrip().startswith(("```", "~~~")):
+            in_fence = not in_fence
+        heading = not in_fence and re.match(r"#{1,2}\s", line)  # check.mjs reads <title>, <h1>, <h2>
+        ent = ENTITY.search(line) if heading else None
+        if ent:
+            out.append(f"heading `{line.strip()}` holds the entity `{ent.group(0)}`, which fails the site build (check.mjs); write the character")
+    for key in ("title", "seo_title"):
+        ent = ENTITY.search(fields.get(key, ""))
+        if ent:
+            out.append(f"{key} holds the entity `{ent.group(0)}`, which fails the site build (check.mjs); write the character")
+    if PLACEHOLDER in text:
+        n = text[:text.index(PLACEHOLDER)].count("\n") + 1
+        out.append(f"line {n} holds `{PLACEHOLDER}`, which fails the site build (check.mjs); "
+                   "write the bare host `example.invalid` or the real https://marisstella.app/")
     return out
 
 
@@ -149,6 +188,35 @@ def tag_fix(spellings, limit=5):
             f"{', '.join(edit[:limit])}{more}")
 
 
+def house_tags(text, others):
+    """(new text, [(old, new)]): the post's tags respelled the way the other posts spell them.
+
+    A tag's spelling can only be learned from the 4,900 posts already there,
+    so it was the one front-matter problem a run could not avoid by reading
+    the caps first: 14 run records in three days (friction_rank.py, 2026-11-15)
+    met "tag spelled 2 ways" and edited by hand. A tag nobody else uses, or
+    one whose spellings tie, is left alone.
+    """
+    m = re.search(r"^tags:\s*\[(.*?)\]", text, re.M)
+    if not m:
+        return text, []
+    uses = tag_uses(others)
+    tags, changed = [], []
+    for raw in m.group(1).split(","):
+        t = raw.strip().strip("\"'")
+        if not t:
+            continue
+        counts = sorted(((len(v), s) for s, v in uses.get(tag_key(t), {}).items()), reverse=True)
+        if counts and (len(counts) == 1 or counts[0][0] > counts[1][0]) and counts[0][1] != t:
+            changed.append((t, counts[0][1]))
+            t = counts[0][1]
+        if t not in tags:
+            tags.append(t)
+    if not changed:
+        return text, []
+    return text[:m.start(1)] + ", ".join(tags) + text[m.end(1):], changed
+
+
 def duplicate_descriptions(texts):
     """Groups of posts sharing one description ({name: post text}); search results show them as copies."""
     seen = {}
@@ -158,6 +226,56 @@ def duplicate_descriptions(texts):
         if d:
             seen.setdefault(d, []).append(name)
     return [v for v in seen.values() if len(v) > 1]
+
+
+SITE_NAME = "Maris Stella Labs"  # platform/pages/site-nav.mjs
+
+
+_YAML_ESCAPES = {'"': '"', "\\": "\\", "/": "/", "n": "\n", "t": "\t", "r": "\r", "0": "\0"}
+
+
+def _unquote(value):
+    """writing.mjs unquoteYamlScalar: a quoted title loses its quotes and escapes as the page shows it."""
+    if len(value) >= 2 and value[0] == value[-1] == '"':
+        return re.sub(r"\\(.)", lambda m: _YAML_ESCAPES.get(m.group(1), m.group(0)), value[1:-1])
+    if len(value) >= 2 and value[0] == value[-1] == "'":
+        return value[1:-1].replace("''", "'")
+    return value
+
+
+def page_title(text):
+    """The post's <title> as writing.mjs builds it (loadPost's seoTitle, then postPageTitle), or None."""
+    m = re.match(r"---\n(.*?)\n---\n", text, re.S)
+    if not m:
+        return None
+    fields = {}
+    for line in m.group(1).splitlines():
+        kv = re.match(r"([A-Za-z_][\w-]*):\s*(.*)$", line)
+        if kv:
+            fields[kv.group(1)] = _unquote(kv.group(2).strip())
+    title, seo = fields.get("title", ""), fields.get("seo_title", "")
+    head = seo or (_cut(title) if len(title) > LIMITS["seo_title"] else None) or title
+    if not head:
+        return None
+    full = f"{head} · {SITE_NAME}"
+    return full if len(full) <= LIMITS["seo_title"] else head
+
+
+def duplicate_page_titles(texts):
+    """{page title: [post names]} for titles two posts would share ({name: post text}).
+
+    check.mjs fails a pull request's site build on a duplicate <title>, and
+    the build renames a post only when it clashes with a tool page, never
+    with another post. Runs met it after the ~10-minute local build: a
+    seo_title copied from a same-day sibling post (run record for PR #16945,
+    2026-11-17). This catches it from the files, in a second.
+    """
+    seen = {}
+    for name, text in texts.items():
+        t = page_title(text)
+        if t:
+            seen.setdefault(t, []).append(name)
+    return {t: v for t, v in seen.items() if len(v) > 1}
 
 
 def landed_broken(since, ref="origin/main", root=ROOT):
@@ -212,7 +330,11 @@ def main(argv=None):
     ap.add_argument("--limits", action="store_true", help="print the front-matter limits and exit")
     ap.add_argument("--landed-since", metavar="DATE",
                     help="list posts that failed this check in the main commit that added them (exit 0: a report)")
+    ap.add_argument("--fix", action="store_true",
+                    help="respell the named posts' tags the way other posts spell them, then check")
     args = ap.parse_args(argv)
+    if args.fix and not args.posts:
+        ap.error("--fix rewrites only the posts you name")
     if args.landed_since:
         found = landed_broken(args.landed_since, root=args.root)
         for commit, name, ps in found:
@@ -222,7 +344,7 @@ def main(argv=None):
     if args.limits:
         print(limits_line())
         return 0
-    bad, own = 0, False
+    bad, own, owned = 0, False, []
     texts = {f.name: f.read_text(encoding="utf-8") for f in sorted((Path(args.root) / "docs" / "posts").glob("*.md"))}
     named, reports = set(), []
     for p in args.posts:
@@ -236,11 +358,23 @@ def main(argv=None):
             continue
         texts[f.name] = f.read_text(encoding="utf-8")
         named.add(f.name)
+    if args.fix:
+        others = {n: t for n, t in texts.items() if n not in named}
+        for p in args.posts:
+            f = Path(p)
+            if f.name not in named:
+                continue
+            new, changed = house_tags(texts[f.name], others)
+            if changed:
+                f.write_text(new, encoding="utf-8")
+                texts[f.name] = new
+                print(f"{f.name}: tags respelled " + ", ".join(f"{a} -> {b}" for a, b in changed))
     for name, text in texts.items():
         if args.posts and name not in named:
             continue
         for p in problems(name, text):
             print(f"{name}: {p}")
+            owned.append(f"{name}: {p}")
             bad += 1
             own = True
     own_tags = set()
@@ -255,17 +389,32 @@ def main(argv=None):
         fix = tag_fix(spellings)
         if fix:
             print(fix)
+        if args.posts and not args.fix:
+            print("  `--fix <post>` respells a named post's tags the way the other posts do")
         bad += 1
     for group in duplicate_descriptions(texts):
         if args.posts and not named & set(group):
             continue
         print(f"one description on {len(group)} posts: {', '.join(group)}; word each for its own post")
         bad += 1
+    for title, group in duplicate_page_titles(texts).items():
+        if args.posts and not named & set(group):
+            continue
+        print(f"one page title on {len(group)} posts, which fails the site build (check.mjs): \"{title}\" "
+              f"on {', '.join(group)}; give the newer post its own `seo_title:` ({LIMITS['seo_title']} max)")
+        bad += 1
     for line in report_problems(Path(args.root), reports if args.posts else None):
         print(line)
         bad += 1
     if own:  # a post's own field failed: show every cap, so one rewrite fixes them all
         print(limits_line())
+        # The caps line alone was last, so `| tail -1` showed the limits but
+        # not which field failed (run-record doc friction, 2026-11-15: two
+        # fix-and-rerun rounds). End on the count and the field problems, all
+        # of them: naming only the first left a second (seo_title length) for
+        # a rerun (run-record doc friction, 2026-11-16).
+        shown = " | ".join(owned[:4]) + (f" | +{len(owned) - 4} more above" if len(owned) > 4 else "")
+        print(f"FAIL: {bad} problem(s): {shown}")
     if not bad:
         # A clean pass printed nothing, so in a tail it looked like a run that
         # never started (run-record doc friction, 2026-11-14; one re-run).

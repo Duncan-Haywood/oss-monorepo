@@ -4,7 +4,12 @@
 
 const round2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;
 const num = (v) => (v === "" || v == null ? 0 : Number(String(v).replace(/[$,%\s]/g, "")));
-const money = (x) => "$" + round2(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const money = (x) => {
+  const format = (x) => "$" + round2(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (!(Number(x) < 0)) return format(x);
+  const text = format(Math.abs(x));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 // Sale price per cwt for cattle at `outWeight`, given the quote at `baseWeight` and a slide in $/cwt per 100 lb heavier.
 export function slidePrice(basePrice, baseWeight, outWeight, slide) {

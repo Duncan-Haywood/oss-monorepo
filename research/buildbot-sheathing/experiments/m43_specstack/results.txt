@@ -1,0 +1,116 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 43: the spec's stack (leg preload 0.1 N m, squeeze over [-10, 10] N) on the zero-press poses
+check: milestone 32's leans reproduce milestone 40's section D stacks to 0.0e+00 (expect 0)
+check: 'hold-min' on the re-leans reproduces milestone 42's 'braked' cells to 0.0e+00 (expect 0)
+
+## A. No-hose clean-sheet stack, 'stock': robot | pose | spec m32 lean (milestone 40) | spec zero-press lean | change (points) | 'hold-min' change (milestone 42) | squeeze (N) | re-leaned
+  g1 [0.4, -0.15] | 0.9582 | 0.9582 | +0.00 | +0.00 | -10.00
+  g1 [0.4, 0.0] | 0.9534 | 0.9534 | +0.00 | +0.00 | +0.00
+  g1 [0.4, 0.15] | 0.9385 | 0.9385 | +0.00 | +0.00 | -10.00
+  g1 [0.6, -0.15] | 0.9609 | 0.9609 | +0.00 | +0.00 | -10.00
+  g1 [0.6, 0.0] | 0.9566 | 0.9566 | +0.00 | +0.00 | +0.00
+  g1 [0.6, 0.15] | 0.9579 | 0.9579 | +0.00 | +0.00 | -10.00
+  g1 [0.8, -0.15] | 0.9636 | 0.9636 | +0.00 | +0.00 | -10.00
+  g1 [0.8, 0.0] | 0.9597 | 0.9597 | +0.00 | +0.00 | +1.35
+  g1 [0.8, 0.15] | 0.9592 | 0.9592 | +0.00 | +0.00 | -10.00
+  g1 [1.0, -0.15] | 0.9534 | 0.9503 | -0.31 | -0.31 | -10.00 | yes
+  g1 [1.0, 0.0] | 0.9457 | 0.9543 | +0.86 | -0.24 | +7.10 | yes
+  g1 [1.0, 0.15] |    -   | 0.9547 |    -   | +0.79 | -10.00 | yes
+  g1 [1.2, -0.15] | 0.9357 | 0.9257 | -1.01 | +0.60 | -6.55 | yes
+  g1 [1.2, 0.0] | 0.9081 | 0.9300 | +2.19 | -0.51 | -4.00 | yes
+  g1 [1.2, 0.15] | 0.9480 | 0.9363 | -1.17 | -1.17 | -5.55 | yes
+  h1 [0.4, 0.0] | 0.9765 | 0.9765 | +0.00 | +0.00 | -10.00
+  h1 [0.4, 0.15] | 0.9767 | 0.9767 | +0.00 | +0.00 | -10.00
+  h1 [0.6, -0.15] | 0.9799 | 0.9799 | +0.00 | +0.00 | +10.00
+  h1 [0.6, 0.0] | 0.9766 | 0.9766 | +0.00 | +0.00 | -10.00
+  h1 [0.6, 0.15] | 0.9832 | 0.9832 | +0.00 | +0.00 | +10.00
+  h1 [0.8, -0.15] | 0.9696 | 0.9696 | +0.00 | +0.00 | +8.35
+  h1 [0.8, 0.0] | 0.9764 | 0.9764 | +0.00 | +0.00 | -10.00
+  h1 [0.8, 0.15] | 0.9837 | 0.9837 | +0.00 | +0.00 | +10.00
+  h1 [1.0, -0.15] | 0.9785 | 0.9785 | +0.00 | +0.00 | +1.90
+  h1 [1.0, 0.0] | 0.9765 | 0.9765 | +0.00 | +0.00 | -10.00
+  h1 [1.0, 0.15] | 0.9845 | 0.9845 | +0.00 | +0.00 | -10.00
+  h1 [1.2, -0.15] | 0.9765 | 0.9765 | +0.00 | +0.00 | -10.00
+  h1 [1.2, 0.0] | 0.9771 | 0.9771 | +0.00 | +0.00 | -6.00
+  h1 [1.2, 0.15] | 0.9755 | 0.9755 | +0.00 | +0.00 | -10.00
+  h1 [1.4, -0.15] | 0.9723 |    -   |    -   | -0.11 | - | yes
+  h1 [1.4, 0.0] | 0.9744 | 0.9734 | -0.10 | -0.10 | -10.00 | yes
+  h1 [1.4, 0.15] | 0.9765 | 0.9756 | -0.09 | -0.09 | +6.35 | yes
+  h1 [1.6, -0.15] | 0.9564 |    -   |    -   |    -   | - | yes
+  h1 [1.6, 0.0] | 0.9695 |    -   |    -   | -0.29 | - | yes
+  h1 [1.6, 0.15] | 0.9677 | 0.9655 | -0.22 | -0.22 | +7.80 | yes
+
+## A. No-hose clean-sheet stack, 'braked': robot | pose | spec m32 lean (milestone 40) | spec zero-press lean | change (points) | 'hold-min' change (milestone 42) | squeeze (N) | re-leaned
+  g1 [0.4, -0.15] | 0.9582 | 0.9582 | +0.00 | +0.00 | -10.00
+  g1 [0.4, 0.0] | 0.9534 | 0.9534 | +0.00 | +0.00 | +0.00
+  g1 [0.4, 0.15] | 0.9558 | 0.9558 | +0.00 | +0.00 | -10.00
+  g1 [0.6, -0.15] | 0.9609 | 0.9609 | +0.00 | +0.00 | -10.00
+  g1 [0.6, 0.0] | 0.9566 | 0.9566 | +0.00 | +0.00 | +0.00
+  g1 [0.6, 0.15] | 0.9579 | 0.9579 | +0.00 | +0.00 | -10.00
+  g1 [0.8, -0.15] | 0.9636 | 0.9636 | +0.00 | +0.00 | -10.00
+  g1 [0.8, 0.0] | 0.9597 | 0.9597 | +0.00 | +0.00 | +1.35
+  g1 [0.8, 0.15] | 0.9592 | 0.9592 | +0.00 | +0.00 | -10.00
+  g1 [1.0, -0.15] | 0.9534 | 0.9503 | -0.31 | -0.31 | -10.00 | yes
+  g1 [1.0, 0.0] | 0.9464 | 0.9543 | +0.79 | -0.32 | +7.10 | yes
+  g1 [1.0, 0.15] |    -   | 0.9547 |    -   | +0.79 | -10.00 | yes
+  g1 [1.2, -0.15] | 0.9358 | 0.9257 | -1.01 | +0.60 | -6.55 | yes
+  g1 [1.2, 0.0] | 0.9160 | 0.9300 | +1.40 | -1.30 | -4.00 | yes
+  g1 [1.2, 0.15] | 0.9480 | 0.9363 | -1.17 | -1.17 | -5.55 | yes
+  h1 [0.4, 0.0] | 0.9765 | 0.9765 | +0.00 | +0.00 | -10.00
+  h1 [0.4, 0.15] | 0.9767 | 0.9767 | +0.00 | +0.00 | -10.00
+  h1 [0.6, -0.15] | 0.9799 | 0.9799 | +0.00 | +0.00 | +10.00
+  h1 [0.6, 0.0] | 0.9766 | 0.9766 | +0.00 | +0.00 | -10.00
+  h1 [0.6, 0.15] | 0.9832 | 0.9832 | +0.00 | +0.00 | +10.00
+  h1 [0.8, -0.15] | 0.9795 | 0.9795 | +0.00 | +0.00 | +8.35
+  h1 [0.8, 0.0] | 0.9764 | 0.9764 | +0.00 | +0.00 | -10.00
+  h1 [0.8, 0.15] | 0.9837 | 0.9837 | +0.00 | +0.00 | +10.00
+  h1 [1.0, -0.15] | 0.9785 | 0.9785 | +0.00 | +0.00 | +1.90
+  h1 [1.0, 0.0] | 0.9765 | 0.9765 | +0.00 | +0.00 | -10.00
+  h1 [1.0, 0.15] | 0.9845 | 0.9845 | +0.00 | +0.00 | -10.00
+  h1 [1.2, -0.15] | 0.9765 | 0.9765 | +0.00 | +0.00 | -10.00
+  h1 [1.2, 0.0] | 0.9771 | 0.9771 | +0.00 | +0.00 | -6.00
+  h1 [1.2, 0.15] | 0.9755 | 0.9755 | +0.00 | +0.00 | -10.00
+  h1 [1.4, -0.15] | 0.9723 |    -   |    -   | -0.11 | - | yes
+  h1 [1.4, 0.0] | 0.9744 | 0.9734 | -0.10 | -0.10 | -10.00 | yes
+  h1 [1.4, 0.15] | 0.9765 | 0.9756 | -0.09 | -0.09 | +6.35 | yes
+  h1 [1.6, -0.15] | 0.9564 |    -   |    -   |    -   | - | yes
+  h1 [1.6, 0.0] | 0.9695 |    -   |    -   | -0.29 | - | yes
+  h1 [1.6, 0.15] | 0.9677 | 0.9655 | -0.22 | -0.22 | +7.80 | yes
+
+## B. Worst pose over the set (spec convention): robot | case | lean | worst | at | poses with a plan
+  g1 stock  m32  | 0.9081 | [1.2, 0.0] | 14
+  g1 stock  zero | 0.9257 | [1.2, -0.15] | 15
+  g1 stock  worst-pose change from the re-lean (positive = more clean sheets): +1.76 points
+  g1 braked m32  | 0.9160 | [1.2, 0.0] | 14
+  g1 braked zero | 0.9257 | [1.2, -0.15] | 15
+  g1 braked worst-pose change from the re-lean (positive = more clean sheets): +0.97 points
+  h1 stock  m32  | 0.9564 | [1.6, -0.15] | 20
+  h1 stock  zero | 0.9655 | [1.6, 0.15] | 17
+  h1 stock  worst-pose change from the re-lean (positive = more clean sheets): +0.91 points
+  h1 braked m32  | 0.9564 | [1.6, -0.15] | 20
+  h1 braked zero | 0.9655 | [1.6, 0.15] | 17
+  h1 braked worst-pose change from the re-lean (positive = more clean sheets): +0.91 points
+
+## C. Hypotheses (registered in LOG.md before this run)
+H165 ('braked': the G1's re-leaned spec stack at (1.2, 0) within 0.10 points of 'hold-min' 0.9030): 0.9300, 2.70 points -> refuted
+H166 ('braked': the G1's worst re-leaned spec stack at least 0.9010): 0.9257 -> held
+H167 ('braked': every re-leaned H1 pose with a plan loses at most 0.5 points): largest loss +0.22 at [1.6, 0.15] over 3 poses -> held
+H168 ('stock': the G1's worst re-leaned spec stack loses at most 1.5 points against 0.9081): 0.9257, loss -1.76 (negative = a gain) -> held
+H169 (every re-leaned pose with a 'hold-min' solution has a spec plan): none at [['h1', 1.4, -0.15], ['h1', 1.6, 0.0]] -> refuted
+
+(run time 107 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

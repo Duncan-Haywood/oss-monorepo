@@ -1,0 +1,18 @@
+{"fresh_candidate": "cr3/Canon EOS R3.cr3", "model": "Canon EOS R3", "in": true, "why_not": null}
+{"fresh_candidate": "cr3/IMG_0036.CR3", "model": "Canon EOS R8", "in": true, "why_not": null}
+{"fresh_candidate": "cr3/IMG_0041.CR3", "model": null, "in": false, "why_not": "second file of Canon EOS R8"}
+{"fresh_candidate": "cr3/_MG_0039.CR3", "model": null, "in": false, "why_not": "second file of Canon EOS R8"}
+{"fresh_candidate": "cr3/_MG_0045.CR3", "model": null, "in": false, "why_not": "second file of Canon EOS R8"}
+{"fresh_candidate": "crw/Canon EOS 10D.crw", "model": "Canon EOS 10D.crw", "in": true, "why_not": null}
+{"fresh_candidate": "dcr/Kodak DCS Pro SLRn.dcr", "model": "DCS Pro SLR/n", "in": true, "why_not": null}
+{"fresh_candidate": "nef/Issue 247-1.nef", "model": null, "in": false, "why_not": "rawpy: LibRawIOError"}
+{"fresh_candidate": "nef/Issue 247-2.nef", "model": null, "in": false, "why_not": "rawpy: LibRawIOError"}
+{"fresh_candidate": "nef/Issue 247-3.nef", "model": null, "in": false, "why_not": "rawpy: LibRawIOError"}
+{"fresh_candidate": "nef/Issue 247-4.nef", "model": null, "in": false, "why_not": "rawpy: LibRawIOError"}
+{"fresh_candidate": "raf/FujiFilm EX-2.raf", "model": null, "in": false, "why_not": "pattern (6, 6)"}
+{"fresh_candidate": "raf/FujiFilm FinePix S5500.raf", "model": null, "in": false, "why_not": "3995136 sensels"}
+{"fresh_candidate": "raf/Fujifilm X-E1.raf", "model": null, "in": false, "why_not": "pattern (6, 6)"}
+{"fresh_candidate": "rw2/Issue 419.rw2", "model": null, "in": false, "why_not": "rawpy: LibRawFileUnsupportedError"}
+{"fresh_candidate": "rwl/Leica D-LUX (Typ 109).rwl", "model": "D-LUX (Typ 109)", "in": true, "why_not": null}
+{"fresh_candidate": "rwl/Leica V-LUX (Typ 114).rwl", "model": "V-LUX (Typ 114)", "in": true, "why_not": null}
+{"fresh_set": ["cr3/Canon EOS R3.cr3", "cr3/IMG_0036.CR3", "crw/Canon EOS 10D.crw", "dcr/Kodak DCS Pro SLRn.dcr", "rwl/Leica D-LUX (Typ 109).rwl", "rwl/Leica V-LUX (Typ 114).rwl"]}

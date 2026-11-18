@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the share of segments caught by the replay referee and float32 arbiter against how many of a segment's last 20 steps the forger computes at float16 or bfloat16, for plain SGD, momentum and two Adam rates under warmup-cosine; values are in results.txt">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Low-precision forgeries of a segment's last steps (warmup-cosine, 40 seeds, 3,000 segments per line)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.4" y2="273.4" stroke="#ddd"/><text x="58" y="277.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="222.9" y2="222.9" stroke="#ddd"/><text x="58" y="226.9" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="172.3" y2="172.3" stroke="#ddd"/><text x="58" y="176.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="121.7" y2="121.7" stroke="#ddd"/><text x="58" y="125.7" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="193.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="364.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="494.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">forged steps of 20 (log scale)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">share of segments caught</text>
+<polyline points="64.0,323.7 193.6,323.2 364.9,317.4 494.4,292.1 624.0,151.8" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="323.7" r="3" fill="#c0392b"/>
+<circle cx="193.6" cy="323.2" r="3" fill="#c0392b"/>
+<circle cx="364.9" cy="317.4" r="3" fill="#c0392b"/>
+<circle cx="494.4" cy="292.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="151.8" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">float16, plain SGD</text>
+<polyline points="64.0,316.9 193.6,314.4 364.9,292.1 494.4,231.2 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="316.9" r="3" fill="#1f6fb2"/>
+<circle cx="193.6" cy="314.4" r="3" fill="#1f6fb2"/>
+<circle cx="364.9" cy="292.1" r="3" fill="#1f6fb2"/>
+<circle cx="494.4" cy="231.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">float16, momentum</text>
+<polyline points="64.0,313.4 193.6,310.6 364.9,293.4 494.4,222.1 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="313.4" r="3" fill="#2e8b57"/>
+<circle cx="193.6" cy="310.6" r="3" fill="#2e8b57"/>
+<circle cx="364.9" cy="293.4" r="3" fill="#2e8b57"/>
+<circle cx="494.4" cy="222.1" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">float16, Adam 1e-3</text>
+<polyline points="64.0,311.4 193.6,310.3 364.9,296.9 494.4,247.4 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="311.4" r="3" fill="#8e44ad"/>
+<circle cx="193.6" cy="310.3" r="3" fill="#8e44ad"/>
+<circle cx="364.9" cy="296.9" r="3" fill="#8e44ad"/>
+<circle cx="494.4" cy="247.4" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">float16, Adam 4e-3</text>
+<polyline points="64.0,321.5 193.6,320.2 364.9,316.9 494.4,311.1 624.0,293.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="321.5" r="3" fill="#c0392b"/>
+<circle cx="193.6" cy="320.2" r="3" fill="#c0392b"/>
+<circle cx="364.9" cy="316.9" r="3" fill="#c0392b"/>
+<circle cx="494.4" cy="311.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="293.2" r="3" fill="#c0392b"/>
+<rect x="744" y="32" width="14" height="10" fill="#c0392b"/><text x="764" y="41" font-family="sans-serif" font-size="11">bfloat16, plain SGD</text>
+<polyline points="64.0,317.7 193.6,315.4 364.9,307.1 494.4,292.4 624.0,257.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="317.7" r="3" fill="#1f6fb2"/>
+<circle cx="193.6" cy="315.4" r="3" fill="#1f6fb2"/>
+<circle cx="364.9" cy="307.1" r="3" fill="#1f6fb2"/>
+<circle cx="494.4" cy="292.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="257.0" r="3" fill="#1f6fb2"/>
+<rect x="914" y="32" width="14" height="10" fill="#1f6fb2"/><text x="934" y="41" font-family="sans-serif" font-size="11">bfloat16, momentum</text>
+<polyline points="64.0,315.9 193.6,313.6 364.9,303.3 494.4,287.3 624.0,239.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="315.9" r="3" fill="#2e8b57"/>
+<circle cx="193.6" cy="313.6" r="3" fill="#2e8b57"/>
+<circle cx="364.9" cy="303.3" r="3" fill="#2e8b57"/>
+<circle cx="494.4" cy="287.3" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="239.8" r="3" fill="#2e8b57"/>
+<rect x="1084" y="32" width="14" height="10" fill="#2e8b57"/><text x="1104" y="41" font-family="sans-serif" font-size="11">bfloat16, Adam 1e-3</text>
+<polyline points="64.0,319.2 193.6,317.9 364.9,312.4 494.4,302.8 624.0,271.9" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="319.2" r="3" fill="#8e44ad"/>
+<circle cx="193.6" cy="317.9" r="3" fill="#8e44ad"/>
+<circle cx="364.9" cy="312.4" r="3" fill="#8e44ad"/>
+<circle cx="494.4" cy="302.8" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="271.9" r="3" fill="#8e44ad"/>
+<rect x="1254" y="32" width="14" height="10" fill="#8e44ad"/><text x="1274" y="41" font-family="sans-serif" font-size="11">bfloat16, Adam 4e-3</text>
+</svg>

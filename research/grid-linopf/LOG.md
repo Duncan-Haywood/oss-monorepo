@@ -1,5 +1,56 @@
 # Research log
 
+## 2026-11-17 · A margin-backoff rule for an empty margin-shifted set: outcome. Development 32 of 34 (case73 API clean at round 8, +0.96 %), none lost; held-out it fires on 1 of 19 and changes no verdict
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-17); numbers in `research/infra-dcopf/experiments/results_backoff.txt`. B1, B2, B4, B5, B6 held; B3, B7 refuted.
+- Rule B fires on case73 API and case24 API (margins halved once). case73 API finishes for the first time; case24 API finishes two rounds sooner at +0.17 % instead of +0.71 %. case240 TYP and SAD stay empty at an eighth of the margins, so the rule declines and their frozen finishes stand.
+- Held-out it fires only on case588 API: same round (19), cost +0.66 % instead of +0.87 %. The two-solver panel prevented PIPS-only firings on case179 SAD and case793 API. The check costs up to 57 minutes on a 1,354-bus case, so it is a stall diagnostic, not a per-case step.
+
+## 2026-11-17 · A margin-backoff rule for an empty margin-shifted set (plan)
+- Plan, rule B (a two-solver check of the margin-shifted AC OPF before round 1; on an empty set, halve every margin up to three times) and predictions B1 to B7: `research/infra-dcopf/LOG.md` (2026-11-17); script `research/infra-dcopf/experiments/run_backoff.py`. Frozen on the 34 development cases, scored on the held-out 24.
+
+## 2026-11-17 · Do the two development stalls come from the repair's own safety margins? Outcome. case73 API: its margin-shifted AC OPF has no solution on PIPS or IPOPT; case118 API: it solves; zero margins finish neither and lose 5 to 21 finishers
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-17); numbers in `research/infra-dcopf/experiments/results_margin.txt`. A1, M2, Z3 held; M1, M3, Z1, Z2, Z4 refuted. Reproduction gate passed on all 34 cases.
+- case73 API's AC optimum sits on its voltage bounds (all 14 generator buses at the ceiling, 7 PQ buses at the floor) and 10 branch ends at their rating; pulling in thermal and voltage bounds together leaves no AC point (each alone is solvable, +0.41 % and +1.99 %). The repair stalls because it aims at an empty set.
+- The shifted OPF is empty on 4 of 34 cases by both solvers, and the repair still finishes 3 of them; the 0.001 pu voltage margin costs up to +6.9 % (case57 API) at the shifted optimum.
+
+## 2026-11-17 · Do the two development stalls come from the repair's own safety margins? (plan)
+- Plan and predictions A1, M1 to M3 (margin-shifted AC OPF) and Z1 to Z4 (the repair with margins removed): `research/infra-dcopf/LOG.md` (2026-11-17); script `research/infra-dcopf/experiments/run_margin.py`.
+
+## 2026-11-17 · What stalls the repair on case73 and case118 API: outcome. case73 API is a local infeasibility of the repair's controls (the l1 voltage violation is within 1.6 &times; 10<sup>&minus;5</sup> of stationary); case118 API is the acceptance test; acceptance on the penalty changes no verdict
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-17); numbers in `research/infra-dcopf/experiments/results_elastic.txt`. S1, S2, V1 refuted; S3, S4, V2 held.
+- On case73 API from round 22 the elastic QP can lower the margin-shifted voltage violation by at most 8.8 &times; 10<sup>&minus;6</sup> at any box scale from 1 to 10<sup>&minus;3</sup>: two PQ buses sit up to 0.002 pu below V<sub>min</sub>, 14 of 33 setpoints are on their upper bound and the lines on their margins. Proposition 2 applies; the earlier Q7 reading (not stationary, because the step scales with the box) is withdrawn: the step moves along directions that leave the violation flat.
+- On case118 API every late elastic step lowers the QP's penalty (sum of overloads) and is rejected by the merit (worst overload). Accepting elastic rounds on the penalty instead finishes neither case and loses none of the 31 development finishers (one finishes a round later, +0.68 % instead of +0.34 %).
+
+## 2026-11-17 · Is case73 API's stall a stationary point of the elastic penalty? (plan)
+- Plan and predictions S1 to S4 (arm T, the elastic QP's own penalty logged per round with a box probe) and V1, V2 (arm P, acceptance on the penalty on elastic rounds): `research/infra-dcopf/LOG.md` (2026-11-17); script `research/infra-dcopf/experiments/run_elastic.py`.
+
+## 2026-11-17 · Milestone 7, theory half: a step-based convergence statement replacing H4. Halvings bounded by a logarithm (H* &le; 12); accepted rounds, 162 of 228 misses, have no a priori bound; case73 API's stall is not first-order stationarity
+- Statement and proofs: [`theory.md`](theory.md) (Proposition 1, Theorems 1 to 3, Proposition 2; assumptions A1 smooth power flow along the steps, A2 hard-QP feasibility). Plan, predictions Q1 to Q7 and outcome: `research/infra-dcopf/LOG.md` (2026-11-17); numbers in `research/infra-dcopf/experiments/results_theory.txt` (from the 2026-11-13 traces, no new solves).
+- **Q1 to Q4 held:** halvings never exceed H&#770;* (range 1 to 12, observed 0 to 5); the finishing step is inside the worst-case radius on only 4 of 31 finishers; steps shrink before the finish on 28 of 28. **Q5 to Q7 refuted:** round 1's curvature does not predict the path (15 of 39); the path-length bound is 24x loose (median); case73 API's elastic step scales with its box over a 250-fold halving, so Proposition 2's d = 0 hypothesis is not met, which corrects the 2026-11-13 "stationary point" reading.
+- Next: log the elastic penalty decrease on case73 and case118 API; a box tied to the violation (makes the accepted-round count a priori), held-out; acceptance on the elastic QP's own penalty.
+
+## 2026-11-16 · The five unscored cases with a second-solver start: outcome. 13 of 24 with the reactive stage (was 12); J alone stays at 10
+- Plan and outcome: `research/infra-dcopf/LOG.md` (2026-11-16); numbers in `research/infra-dcopf/experiments/results_dc_rescue.txt`.
+- E1 (full-load power flow on at least 3 of 5) and E2 (J clean on at least 1) refuted: 2 of 5 and 0 of 5. case2000 API ends J one Q limit short and the IPOPT reactive stage makes it **fully feasible at +0.193 %**; case1951 API ends at one 104.5 % overload and its reactive stage hit the 45-minute limit. SNEM's warm-start angles were NaN (the x = 0 ties); with them fixed (declared variant) the continuation stalls at 75 to 84 % of load.
+- Next: a certifying DC solver for every case's start, the SNEM stall, the near misses, the post-feasibility cost phase.
+
+## 2026-11-16 · Why the DC OPF has no solution on five held-out cases: outcome. On 4 of 5 the reference DC solver fails, not the network
+- Plan, outcome and the follow-up plan: `research/infra-dcopf/LOG.md` (2026-11-16); numbers in `research/infra-dcopf/experiments/results_dc_infeasible.txt`.
+- A second solver (the same B-theta DC OPF on Clarabel) agrees with PYPOWER's PIPS on all 89 problems both solve (within 1e-5) and solves **26 that PIPS reports as having no solution**. case2000_goc API is feasible under MATPOWER's own convention; the SNEM network has two x = 0 bus ties that make MATPOWER's B infinite, and with them at 1e-4 pu its DC OPF solves; case1951_rte API is the one genuine case, infeasible by 1.61 MW on one rating row under b = 1/(x tap) and feasible under PowerModels' convention.
+- D1 (PM on PIPS matches PGLib) and D2 (ratings cause it) refuted as written; D4 held on Clarabel. Next: the five cases through the unchanged repair from a second-solver start (E1 to E3).
+
+## 2026-11-16 · Why the DC OPF has no solution on five held-out cases (plan)
+- Plan and predictions D1 to D4 with control C0: `research/infra-dcopf/LOG.md` (2026-11-16); script `research/infra-dcopf/experiments/diag_dc_infeasible.py`. The five unscored cases (case1803_snem x3, case1951_rte API, case2000_goc API): data, ratings, angle limits or the DC convention?
+
+## 2026-11-15 · Milestone 6 under one protocol: outcome. 10 of 24 fully feasible within 20 rounds, 12 of 24 with the IPOPT reactive stage, none lost against the earlier protocol
+- Plan, predictions and outcome: `research/infra-dcopf/LOG.md` (2026-11-15); numbers in `research/infra-dcopf/experiments/results_heldout_slack.txt`.
+- One protocol on all 24 held-out cases: reference at the largest live unit, DC start, continuation to the full-load power flow, frozen 20-round J-m-a, IPOPT reactive stage, cost against PGLib's published objective. Controls: identical statuses on the 6 cases whose reference does not move, and on the 5 RTE cases of the previous step.
+- **R1 to R4 and R6 held, R5 refuted.** Scored 19 of 24 (5 have no DC OPF solution: SNEM x3, case1951 API, case2000 API). J fully feasible on **10 of 24**, J or J+R on **12 of 24** (DC dispatch: 0); paired on the 19 the earlier protocol scored, 3 gained and 0 lost. Clean points +0.01 to +2.12 %, mean +0.50 %; only case588 TYP above +1 %. H2 as written stays refuted (1 of 24 within 10 rounds).
+- Next: why the DC OPF has no solution on five cases; the post-feasibility cost phase; the restated convergence theorem.
+
+## 2026-11-15 · Milestone 6 under one protocol (plan): all 24 held-out cases with the slack at the largest unit and the PGLib/IPOPT reference
+- Plan and predictions R1 to R6 with controls C0, C1: `research/infra-dcopf/LOG.md` (2026-11-15, "Held-out cases under one protocol"); script `research/infra-dcopf/experiments/run_heldout_slack.py`.
+
 ## 2026-11-14 · Milestone 6 Next (1) and (2): the stall is a fold on all six; repair-and-continue clears case300 TYP only
 - Plan, predictions and outcome: `research/infra-dcopf/LOG.md` (2026-11-14, "Past the loading limit"); numbers in `research/infra-dcopf/experiments/results_fold.txt` and `results_fold_fallback.txt`; figure `fold_sigma.svg`.
 - **Fold test, F1 to F3 held:** the Newton Jacobian's smallest singular value falls to 5 to 9 % of its no-load value at every stall, &sigma;<sub>min</sub><sup>2</sup> is linear in load near it (R<sup>2</sup> &ge; 0.996) with the fitted fold 0.001 to 0.004 past the stall, and the AC-optimum control keeps 84 % at full load. The DC dispatch at the file's voltage setpoints is past the loading limit on all six.

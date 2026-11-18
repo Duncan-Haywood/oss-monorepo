@@ -6,7 +6,7 @@
 // raw gap between bands, and is labelled an association: fast replies and good leads can travel together.
 
 export const num = (v, d = 0) => (Number.isFinite(v) ? v.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }) : "n/a");
-export const money = (v) => (Number.isFinite(v) ? (v < 0 ? "-" : "") + "$" + Math.abs(v).toLocaleString("en-US", { maximumFractionDigits: 0 }) : "n/a");
+export const money = (v) => (Number.isFinite(v) ? ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(v).toLocaleString("en-US", { maximumFractionDigits: 0 })) : "n/a");
 export const pct = (v, d = 1) => (Number.isFinite(v) ? (v * 100).toFixed(d) + "%" : "n/a");
 
 export const BANDS = [

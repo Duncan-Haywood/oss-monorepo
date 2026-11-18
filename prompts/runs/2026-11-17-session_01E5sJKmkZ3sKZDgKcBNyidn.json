@@ -1,0 +1,603 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKmkZ3sKZDgKcBNyidn",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T19:10:56Z",
+  "ended": "2026-11-17T19:13:19Z",
+  "wall_minutes": 18.89,
+  "tokens_in": 3555575,
+  "tokens_out": 19660,
+  "cost_usd": 1.7067,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17039",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Guessed the sample row count (349) in a new test before running it; the run showed 296 and the test was corrected before commit.",
+    "docs.stripe.com blocked by the proxy (CONNECT 403), so the Stripe API 'taxes'/'tax_behavior' line shape could not be checked."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix every open defect first, but all 11 open entries are control-plane edits (workflows, prompts/, platform/ci guard) needing their own owner-approved PRs, so step 0 is a no-op for an ordinary run; the list only grows."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: the 11 open defects all need control-plane PRs that wait for owner approval; several already have patches or PRs waiting.",
+      "did": "Left them as they were and spent the run on a new target.",
+      "result": "Two new real defects found and patched in rev-rec."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b (an automated guard for the class): the five sibling money parsers that strip commas belong to US-only tools (Schedule C, US contractors, US banks), so a lint for decimal-comma handling would flag correct code.",
+      "did": "Listed the siblings in notes and in the post instead of adding a lint.",
+      "result": "No new CI guard this run."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-rev-rec-decimal-comma.md"
+  ],
+  "goal": null,
+  "notes": "Targets: ventures/rev-rec revrec.mjs (9/10), stripe.mjs (7/10), csv.mjs (4/10); after the new tests all 9 gaps were caught (rerun), so the catch rate went from 0.69 to 1.0. Real defects: decimal-comma amounts read 100x too large (csv.mjs parseAmount), and the browser demo summed mixed currencies (oneCurrency, checked in Chromium with Playwright). Unverified lead for a later run: stripe.mjs reads t.inclusive on tax_amounts/taxes, but newer Stripe API versions may give line 'taxes' a tax_behavior field instead of inclusive; check against the current API docs. Siblings parsing money by stripping commas (US-only, left as they are): expense-tracker/calc.mjs toCents, bid-leveling-worksheet/calc.mjs parseMoney, contractor-wip-schedule/calc.mjs moneyNum, ai-bookkeeper/bank.mjs:1334, ai-bookkeeper/receipts.mjs:88. Local checks: rev-rec node --test 49/49; run_workflow_locally --for-changes: portfolio-validate 99/99, ventures-tests 5/5, pages 6/6, link/doc/page checks green; prompts-ci failed only on this record's unfilled outcome before it was filled in (re-run below).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/rev-rec/revrec.mjs",
+        "test": "node --test ventures/rev-rec/**/*.test.mjs  (in .)",
+        "seed": 782659759,
+        "commit": "453067ceb",
+        "sites": 90,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 7,
+            "col": 79,
+            "operator": "eq-flip",
+            "before": "const nextMonth = (m) => { const [y, mo] = m.split(\"-\").map(Number); return mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, \"0\")}`; };",
+            "after": "const nextMonth = (m) => { const [y, mo] = m.split(\"-\").map(Number); return mo !== 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, \"0\")}`; };",
+            "line_text": "const nextMonth = (m) => { const [y, mo] = m.split(\"-\").map(Number); return mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, \"0\")}`; };",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 8,
+            "col": 65,
+            "operator": "le-to-lt",
+            "before": "const monthRange = (a, b) => { const out = []; for (let m = a; m <= b; m = nextMonth(m)) out.push(m); return out; };",
+            "after": "const monthRange = (a, b) => { const out = []; for (let m = a; m < b; m = nextMonth(m)) out.push(m); return out; };",
+            "line_text": "const monthRange = (a, b) => { const out = []; for (let m = a; m <= b; m = nextMonth(m)) out.push(m); return out; };",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 15,
+            "col": 45,
+            "operator": "times-to-div",
+            "before": "const start = Math.floor(line.start / DAY) * DAY;",
+            "after": "const start = Math.floor(line.start / DAY) / DAY;",
+            "line_text": "  const start = Math.floor(line.start / DAY) * DAY;",
+            "caught": true,
+            "seconds": 4.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 18,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < days; i++) { const m = monthOf(start + i * DAY); perMonth[m] = (perMonth[m] || 0) + 1; }",
+            "after": "for (let i = 1; i < days; i++) { const m = monthOf(start + i * DAY); perMonth[m] = (perMonth[m] || 0) + 1; }",
+            "line_text": "  for (let i = 0; i < days; i++) { const m = monthOf(start + i * DAY); perMonth[m] = (perMonth[m] || 0) + 1; }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 18,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < days; i++) { const m = monthOf(start + i * DAY); perMonth[m] = (perMonth[m] || 0) + 1; }",
+            "after": "for (let i = 0; i <= days; i++) { const m = monthOf(start + i * DAY); perMonth[m] = (perMonth[m] || 0) + 1; }",
+            "line_text": "  for (let i = 0; i < days; i++) { const m = monthOf(start + i * DAY); perMonth[m] = (perMonth[m] || 0) + 1; }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 19,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const sign = amount < 0 ? -1 : 1, abs = Math.abs(amount);",
+            "after": "const sign = amount < 0 ? -1 : 2, abs = Math.abs(amount);",
+            "line_text": "  const sign = amount < 0 ? -1 : 1, abs = Math.abs(amount);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 49,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "billed[b] = (billed[b] || 0) + Math.round(l.amount);",
+            "after": "billed[b] = (billed[b] || 1) + Math.round(l.amount);",
+            "line_text": "    billed[b] = (billed[b] || 0) + Math.round(l.amount);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 75,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "const major = (n) => (Math.abs(n) / 100).toFixed(2);",
+            "after": "const major = (n) => (Math.abs(n) / 100).toFixed(3);",
+            "line_text": "  const major = (n) => (Math.abs(n) / 100).toFixed(2);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 94,
+            "col": 39,
+            "operator": "eq-flip",
+            "before": "const now = rows.find((r) => r.month === cur);",
+            "after": "const now = rows.find((r) => r.month !== cur);",
+            "line_text": "  const now = rows.find((r) => r.month === cur);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 97,
+            "col": 64,
+            "operator": "lt-to-le",
+            "before": "deferredNow: now ? now.closing : rows.filter((r) => r.month < cur).slice(-1)[0]?.closing ?? 0,",
+            "after": "deferredNow: now ? now.closing : rows.filter((r) => r.month <= cur).slice(-1)[0]?.closing ?? 0,",
+            "line_text": "    deferredNow: now ? now.closing : rows.filter((r) => r.month < cur).slice(-1)[0]?.closing ?? 0,",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "the else branch only runs when no row has month === cur, so r.month <= cur and r.month < cur select the same rows (schedule emits one row per month)"
+          }
+        ]
+      },
+      {
+        "target": "ventures/rev-rec/stripe.mjs",
+        "test": "node --test ventures/rev-rec/**/*.test.mjs  (in .)",
+        "seed": 6120223,
+        "commit": "453067ceb",
+        "sites": 61,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/rev-rec/stripe.mjs",
+            "line": 10,
+            "col": 70,
+            "operator": "plus-to-minus",
+            "before": "const inclTax = (l.tax_amounts || l.taxes || []).reduce((a, t) => a + (t.inclusive ? t.amount || 0 : 0), 0);",
+            "after": "const inclTax = (l.tax_amounts || l.taxes || []).reduce((a, t) => a - (t.inclusive ? t.amount || 0 : 0), 0);",
+            "line_text": "  const inclTax = (l.tax_amounts || l.taxes || []).reduce((a, t) => a + (t.inclusive ? t.amount || 0 : 0), 0);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/stripe.mjs",
+            "line": 10,
+            "col": 96,
+            "operator": "or-to-and",
+            "before": "const inclTax = (l.tax_amounts || l.taxes || []).reduce((a, t) => a + (t.inclusive ? t.amount || 0 : 0), 0);",
+            "after": "const inclTax = (l.tax_amounts || l.taxes || []).reduce((a, t) => a + (t.inclusive ? t.amount && 0 : 0), 0);",
+            "line_text": "  const inclTax = (l.tax_amounts || l.taxes || []).reduce((a, t) => a + (t.inclusive ? t.amount || 0 : 0), 0);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/stripe.mjs",
+            "line": 12,
+            "col": 52,
+            "operator": "or-to-and",
+            "before": "const billedAt = (inv.status_transitions?.paid_at || inv.created) * 1000;",
+            "after": "const billedAt = (inv.status_transitions?.paid_at && inv.created) * 1000;",
+            "line_text": "  const billedAt = (inv.status_transitions?.paid_at || inv.created) * 1000;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/stripe.mjs",
+            "line": 13,
+            "col": 127,
+            "operator": "times-to-div",
+            "before": "return { id: l.id, invoice: inv.id, billedAt, start: (p.start ?? inv.created) * 1000, end: (p.end ?? p.start ?? inv.created) * 1000, amount: l.amount - discount - inclTax, currency: inv.currency || l.currency || \"usd\" };",
+            "after": "return { id: l.id, invoice: inv.id, billedAt, start: (p.start ?? inv.created) * 1000, end: (p.end ?? p.start ?? inv.created) / 1000, amount: l.amount - discount - inclTax, currency: inv.currency || l.currency || \"usd\" };",
+            "line_text": "  return { id: l.id, invoice: inv.id, billedAt, start: (p.start ?? inv.created) * 1000, end: (p.end ?? p.start ?? inv.created) * 1000, amount: l.amount - discount - inclTax, currency: inv.currency || l.currency || \"usd\" };",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/stripe.mjs",
+            "line": 19,
+            "col": 91,
+            "operator": "const-plus-one",
+            "before": "const incl = (l.tax_amounts || []).reduce((a, t) => a + (t.inclusive ? t.amount || 0 : 0), 0);",
+            "after": "const incl = (l.tax_amounts || []).reduce((a, t) => a + (t.inclusive ? t.amount || 0 : 1), 0);",
+            "line_text": "    const incl = (l.tax_amounts || []).reduce((a, t) => a + (t.inclusive ? t.amount || 0 : 0), 0);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new stripe.test.mjs case: exclusive tax on a credit note line"
+          },
+          {
+            "file": "ventures/rev-rec/stripe.mjs",
+            "line": 20,
+            "col": 173,
+            "operator": "times-to-div",
+            "before": "out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, ...(l.invoice_line_item ? { credits: l.invoice_line_item } : {}), billedAt: cn.created * 1000, start: cn.created * 1000, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0) - incl), currency: cn.currency || \"usd\" });",
+            "after": "out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, ...(l.invoice_line_item ? { credits: l.invoice_line_item } : {}), billedAt: cn.created * 1000, start: cn.created / 1000, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0) - incl), currency: cn.currency || \"usd\" });",
+            "line_text": "    out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, ...(l.invoice_line_item ? { credits: l.invoice_line_item } : {}), billedAt: cn.created * 1000, start: cn.created * 1000, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0) - incl), currency: cn.currency || \"usd\" });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/stripe.mjs",
+            "line": 20,
+            "col": 175,
+            "operator": "const-plus-one",
+            "before": "out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, ...(l.invoice_line_item ? { credits: l.invoice_line_item } : {}), billedAt: cn.created * 1000, start: cn.created * 1000, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0) - incl), currency: cn.currency || \"usd\" });",
+            "after": "out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, ...(l.invoice_line_item ? { credits: l.invoice_line_item } : {}), billedAt: cn.created * 1000, start: cn.created * 1001, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0) - incl), currency: cn.currency || \"usd\" });",
+            "line_text": "    out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, ...(l.invoice_line_item ? { credits: l.invoice_line_item } : {}), billedAt: cn.created * 1000, start: cn.created * 1000, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0) - incl), currency: cn.currency || \"usd\" });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/stripe.mjs",
+            "line": 20,
+            "col": 294,
+            "operator": "const-plus-one",
+            "before": "out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, ...(l.invoice_line_item ? { credits: l.invoice_line_item } : {}), billedAt: cn.created * 1000, start: cn.created * 1000, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0) - incl), currency: cn.currency || \"usd\" });",
+            "after": "out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, ...(l.invoice_line_item ? { credits: l.invoice_line_item } : {}), billedAt: cn.created * 1000, start: cn.created * 1000, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 1), 0) - incl), currency: cn.currency || \"usd\" });",
+            "line_text": "    out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, ...(l.invoice_line_item ? { credits: l.invoice_line_item } : {}), billedAt: cn.created * 1000, start: cn.created * 1000, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0) - incl), currency: cn.currency || \"usd\" });",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new stripe.test.mjs case: a zero discount_amounts entry"
+          },
+          {
+            "file": "ventures/rev-rec/stripe.mjs",
+            "line": 20,
+            "col": 332,
+            "operator": "or-to-and",
+            "before": "out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, ...(l.invoice_line_item ? { credits: l.invoice_line_item } : {}), billedAt: cn.created * 1000, start: cn.created * 1000, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0) - incl), currency: cn.currency || \"usd\" });",
+            "after": "out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, ...(l.invoice_line_item ? { credits: l.invoice_line_item } : {}), billedAt: cn.created * 1000, start: cn.created * 1000, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0) - incl), currency: cn.currency && \"usd\" });",
+            "line_text": "    out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, ...(l.invoice_line_item ? { credits: l.invoice_line_item } : {}), billedAt: cn.created * 1000, start: cn.created * 1000, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0) - incl), currency: cn.currency || \"usd\" });",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new stripe.test.mjs case: a EUR credit note keeps its currency (as usd it would be dropped by a EUR instance's currency filter)"
+          },
+          {
+            "file": "ventures/rev-rec/stripe.mjs",
+            "line": 29,
+            "col": 68,
+            "operator": "or-to-and",
+            "before": "if (!res.ok) throw Object.assign(new Error(json?.error?.message || `stripe ${res.status}`), { status: res.status });",
+            "after": "if (!res.ok) throw Object.assign(new Error(json?.error?.message && `stripe ${res.status}`), { status: res.status });",
+            "line_text": "    if (!res.ok) throw Object.assign(new Error(json?.error?.message || `stripe ${res.status}`), { status: res.status });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/rev-rec/csv.mjs",
+        "test": "node --test ventures/rev-rec/**/*.test.mjs  (in .)",
+        "seed": 373723931,
+        "commit": "453067ceb",
+        "sites": 81,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 9,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "else if (c === '\"') q = true;",
+            "after": "else if (c !== '\"') q = true;",
+            "line_text": "    else if (c === '\"') q = true;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 17,
+            "col": 84,
+            "operator": "const-plus-one",
+            "before": "const norm = (h) => String(h).toLowerCase().replace(/\\(.*?\\)/g, \"\").replace(/[^a-z0-9]+/g, \" \").trim();",
+            "after": "const norm = (h) => String(h).toLowerCase().replace(/\\(.*?\\)/g, \"\").replace(/[^a-z0-10]+/g, \" \").trim();",
+            "line_text": "const norm = (h) => String(h).toLowerCase().replace(/\\(.*?\\)/g, \"\").replace(/[^a-z0-9]+/g, \" \").trim();",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new csv.test.mjs case: 'Amount 2' must not shadow 'net amount'"
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 50,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "if (start === null) return skipped.push({ line: i + 2, why: \"period start is not a date\" });",
+            "after": "if (start === null) return skipped.push({ line: i + 3, why: \"period start is not a date\" });",
+            "line_text": "    if (start === null) return skipped.push({ line: i + 2, why: \"period start is not a date\" });",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new csv.test.mjs case pins line numbers for every skip reason"
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 52,
+            "col": 53,
+            "operator": "const-plus-one",
+            "before": "if (end < start) return skipped.push({ line: i + 2, why: \"period end is before period start\" });",
+            "after": "if (end < start) return skipped.push({ line: i + 3, why: \"period end is before period start\" });",
+            "line_text": "    if (end < start) return skipped.push({ line: i + 2, why: \"period end is before period start\" });",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same line-number test"
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 53,
+            "col": 109,
+            "operator": "times-to-div",
+            "before": "lines.push({ id: get(\"id\") || `row${i + 2}`, billedAt, start, end, amount: Math.round((neg ? -raw : raw) * 100), currency: (get(\"currency\") || \"usd\").toLowerCase(), ...(get(\"credits\") ? { credits: get(\"credits\") } : {}) });",
+            "after": "lines.push({ id: get(\"id\") || `row${i + 2}`, billedAt, start, end, amount: Math.round((neg ? -raw : raw) / 100), currency: (get(\"currency\") || \"usd\").toLowerCase(), ...(get(\"credits\") ? { credits: get(\"credits\") } : {}) });",
+            "line_text": "    lines.push({ id: get(\"id\") || `row${i + 2}`, billedAt, start, end, amount: Math.round((neg ? -raw : raw) * 100), currency: (get(\"currency\") || \"usd\").toLowerCase(), ...(get(\"credits\") ? { credits: get(\"credits\") } : {}) });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 60,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "const f = (t) => new Date(t).toISOString().slice(0, 10);",
+            "after": "const f = (t) => new Date(t).toISOString().slice(0, 11);",
+            "line_text": "  const f = (t) => new Date(t).toISOString().slice(0, 10);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 63,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < 40; i++) {",
+            "after": "for (let i = 0; i <= 40; i++) {",
+            "line_text": "  for (let i = 0; i < 40; i++) {",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "sample test pins 296 rows (40 subscriptions); the demo's numbers change with a 41st"
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 69,
+            "col": 59,
+            "operator": "plus-to-minus",
+            "before": "const y = s0.getUTCFullYear(), mo = s0.getUTCMonth() + k * step;",
+            "after": "const y = s0.getUTCFullYear(), mo = s0.getUTCMonth() - k * step;",
+            "line_text": "      const y = s0.getUTCFullYear(), mo = s0.getUTCMonth() + k * step;",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 70,
+            "col": 29,
+            "operator": "min-to-max",
+            "before": "return Date.UTC(y, mo, Math.min(s0.getUTCDate(), new Date(Date.UTC(y, mo + 1, 0)).getUTCDate()));",
+            "after": "return Date.UTC(y, mo, Math.max(s0.getUTCDate(), new Date(Date.UTC(y, mo + 1, 0)).getUTCDate()));",
+            "line_text": "      return Date.UTC(y, mo, Math.min(s0.getUTCDate(), new Date(Date.UTC(y, mo + 1, 0)).getUTCDate()));",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "sample test checks every period end against the anchor day clamped to the month"
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 70,
+            "col": 79,
+            "operator": "plus-to-minus",
+            "before": "return Date.UTC(y, mo, Math.min(s0.getUTCDate(), new Date(Date.UTC(y, mo + 1, 0)).getUTCDate()));",
+            "after": "return Date.UTC(y, mo, Math.min(s0.getUTCDate(), new Date(Date.UTC(y, mo - 1, 0)).getUTCDate()));",
+            "line_text": "      return Date.UTC(y, mo, Math.min(s0.getUTCDate(), new Date(Date.UTC(y, mo + 1, 0)).getUTCDate()));",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same anchor test"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/rev-rec/csv.mjs",
+        "issue": "A decimal-comma amount (European export) was read 100x too large or garbled: \"29,00\" became 2,900.00 and \"1.234,50\" became 1.23, with no row skipped. Reproduced with linesFromCsv; fixed with parseAmount (a comma before one or two final digits is a decimal comma) and a failing-first test.",
+        "patched": true
+      },
+      {
+        "file": "ventures/rev-rec/index.html",
+        "issue": "The browser demo summed lines in different currencies into one schedule labelled with the first line's currency (the server already keeps one currency). Fixed with oneCurrency() in csv.mjs (keep the most common currency, report the rest in the message) and a failing-first test; checked in Chromium.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6552d261-d6f0-5bf7-80c9-c5ba250c81e3",
+    "transcripts": 1,
+    "first": "2026-11-17T19:10:56Z",
+    "last": "2026-11-17T19:29:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 83,
+        "output": 19660,
+        "thinking": 5267,
+        "cache_read": 3478300,
+        "cache_write_5m": 0,
+        "cache_write_1h": 77192,
+        "api_equivalent_usd": 1.7067,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 83,
+      "output": 19660,
+      "thinking": 5267,
+      "cache_read": 3478300,
+      "cache_write_5m": 0,
+      "cache_write_1h": 77192,
+      "api_equivalent_usd": 1.7067,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 42,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.89,
+      "active_minutes": 18.89,
+      "model_minutes": 3.16,
+      "tool_minutes": 15.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "triage of 30 mutants, two bug fixes with tests, browser check, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 234.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

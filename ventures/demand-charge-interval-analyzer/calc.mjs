@@ -59,9 +59,9 @@ const realUtc = (y, mo, d, h = 0, mi = 0) => {
 };
 export function parseTimestamp(s) {
   const str = String(s ?? "").trim().replace(/^"|"$/g, "");
-  let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s]+(\d{1,2}):(\d{2}))?/);
+  let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(?:[T\s]+(\d{1,2}):(\d{2}))?/);
   if (m) return realUtc(+m[1], +m[2], +m[3], +(m[4] || 0), +(m[5] || 0));
-  m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:[T\s]+(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?)?/i);
+  m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?!\d)(?:[T\s]+(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?)?/i);
   if (m) {
     let y = +m[3];
     if (y < 100) y += 2000;
@@ -265,7 +265,12 @@ export function analyze(rows, s) {
   return { ok: true, warnings, intervalMin, months, yearly, monthsUsed: full.length, maxPeak, hourHits, topPeaks, caps, best, ratchet, rate, readings: pts.length };
 }
 
-export const money = (n) => "$" + Math.round(n).toLocaleString("en-US");
+export const money = (n) => {
+  const format = (n) => "$" + Math.round(n).toLocaleString("en-US");
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export const kw = (n) => n.toLocaleString("en-US", { maximumFractionDigits: 1 }) + " kW";
 
 export function toCsv(a) {

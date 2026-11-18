@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyfmzoJWab5Ebw9BTnZ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T02:39:46Z",
+  "ended": "2026-11-18T02:53:28Z",
+  "wall_minutes": 13.87,
+  "tokens_in": 3955724,
+  "tokens_out": 32169,
+  "cost_usd": 2.419,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17151",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first diagnostic script tested `None not in ends` on numpy arrays (ValueError); fixed in one edit"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "none material; pyenv.py installed mujoco/scipy into /usr/bin/python3.13 in under two minutes as documented"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-humanoid-hold-sides-per-pose-help-h1-hurt-g1.md",
+    "research/buildbot-sheathing/LOG.md (milestone 47 planned and result)"
+  ],
+  "goal": null,
+  "notes": "Programme buildbot-sheathing milestone 47 (drawn by pick_track.py). Registered H187-H192 in LOG.md and pushed before running. Run 205 s, post hoc 37 s. Held: H187 (smallest S* margin 0.886 N m), H188 (two skipped H1 poses gain plans), H189 (H1 worst 0.010/0.014/0.010 mm), H191 (stack unchanged), H192 (18 of 204 missing). Refuted: H190 (G1 worst 0.011/0.025/0.037 mm vs 0.016/0.011/0.011). Post hoc reproduces m41's G1 numbers to 0.000 mm on per-robot sides and localises the regression to leg-joint flips under hose drag at 3 of 15 G1 poses. Local checks: pytest 216 passed 4 skipped; paper/check_numbers 365/365; build.py ok; check_md_links ok; check_posts ok; programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a544d2f8-7ea9-523b-a371-a5460ada7f2a",
+    "transcripts": 1,
+    "first": "2026-11-18T02:39:46Z",
+    "last": "2026-11-18T02:53:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 73,
+        "output": 32169,
+        "thinking": 6814,
+        "cache_read": 3829467,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126184,
+        "api_equivalent_usd": 2.419,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 73,
+      "output": 32169,
+      "thinking": 6814,
+      "cache_read": 3829467,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126184,
+      "api_equivalent_usd": 2.419,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.87,
+      "active_minutes": 13.87,
+      "model_minutes": 4.96,
+      "tool_minutes": 8.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a robotics PhD student designing the side search, running and checking the sweeps and writing up one milestone",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 248.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

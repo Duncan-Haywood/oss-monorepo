@@ -1,4 +1,4 @@
-# How many gallons a week does your kombucha brewery have to sell to break even, and how much cash does the ramp-up eat?
+# How many gallons a week does your kombucha brewery have to sell to break even?
 
 > Free kombucha brewery profit calculator: fermenter capacity, batch cycle, wholesale and taproom prices, packaging, labour and rent become gallons a week, monthly profit, break-even, the cash reserve for ramp-up, loan coverage and payback. Private, runs in your browser.
 

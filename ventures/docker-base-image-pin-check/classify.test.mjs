@@ -12,6 +12,7 @@ import {
   STAGE,
   SCRATCH,
   VARIABLE,
+  UNRESOLVED,
   splitNameAndRef,
   classifyFrom,
   remediationCommand,
@@ -61,8 +62,9 @@ test("classifyFrom: digest reference is pinned", () => {
   assert.equal(digest, DIGEST);
 });
 
-test("classifyFrom: uppercase digest hex is still pinned", () => {
-  assert.equal(classifyFrom(`node@sha256:${"A".repeat(64)}`, new Set()).classification, PINNED);
+// go-digest validates sha256 as ^[a-f0-9]{64}$, so Docker rejects upper case.
+test("classifyFrom: uppercase sha256 hex is not a valid pin", () => {
+  assert.equal(classifyFrom(`node@sha256:${"A".repeat(64)}`, new Set()).classification, MUTABLE);
 });
 
 test("classifyFrom: a specific version tag is still mutable", () => {
@@ -135,8 +137,40 @@ test("scanText skips FROM scratch entirely", () => {
   assert.deepEqual(scanText("FROM scratch\nCOPY app /app\n", "Dockerfile"), []);
 });
 
-test("scanText skips a variable reference entirely", () => {
-  assert.deepEqual(scanText("ARG BASE_IMAGE=node:18\nFROM ${BASE_IMAGE}\n", "Dockerfile"), []);
+test("scanText resolves a global ARG default (audit 2026-11-17 defect 0)", () => {
+  const [f] = scanText("ARG NODE_VERSION=18\nFROM node:${NODE_VERSION}-alpine\n", "Dockerfile");
+  assert.equal(f.classification, MUTABLE);
+  assert.equal(f.tag, "18-alpine");
+  assert.equal(f.from_arg, "node:${NODE_VERSION}-alpine");
+});
+
+test("scanText reports an ARG with no default as unresolved, a risk", () => {
+  const findings = scanText("ARG V\nFROM node:$V\n", "Dockerfile");
+  assert.equal(findings[0].classification, UNRESOLVED);
+  assert.deepEqual(findings[0].unresolved_args, ["V"]);
+  assert.equal(hasUnresolvedRisk(findings), true);
+});
+
+test("scanText: an ARG inside a stage does not reach a later FROM", () => {
+  const findings = scanText(`FROM alpine@${DIGEST}\nARG V=18\nFROM node:\${V}\n`, "Dockerfile");
+  assert.equal(findings[1].classification, UNRESOLVED);
+});
+
+test("truncated and upper-case sha256 digests are not pinned", () => {
+  assert.equal(classifyFrom("node@sha256:" + "a".repeat(40), new Set()).classification, MUTABLE);
+  assert.equal(classifyFrom("node@sha256:" + "A".repeat(64), new Set()).classification, MUTABLE);
+});
+
+test("remediation for a malformed digest on a tagged image keeps the tag", () => {
+  const [f] = scanText("FROM node:18@sha256:abc\n", "Dockerfile");
+  assert.equal(f.remediation, "docker buildx imagetools inspect node:18");
+});
+
+test("summaryLine with FROM lines but nothing pulled does not say there are none", () => {
+  const stats = {};
+  const findings = scanText("FROM scratch\n", "Dockerfile", stats);
+  assert.equal(stats.fromLines, 1);
+  assert.doesNotMatch(summaryLine(findings, stats.fromLines), /No FROM lines/);
 });
 
 test("scanText ignores a commented-out FROM line", () => {
@@ -220,23 +254,76 @@ COPY --from=runtime /app/dist /app/dist
 FROM \${BASE_IMAGE}
 FROM registry.example.com:5000/team/app:1.2
 FROM ubuntu@not-a-real-digest
+FROM node:18@sha256:abc
+FROM ubuntu@sha256:${"a".repeat(40)}
 `;
-  writeFileSync(path.join(dir, "Dockerfile"), dockerfileText);
-
-  const stdout = execFileSync("python3", [CLI, dir, "--format", "json"], { encoding: "utf8" });
-  const pythonFindings = JSON.parse(stdout);
-
-  const jsFindings = scanText(dockerfileText, path.join(dir, "Dockerfile"));
-
-  assert.equal(jsFindings.length, pythonFindings.length);
-  for (let i = 0; i < jsFindings.length; i++) {
-    const js = jsFindings[i];
-    const py = pythonFindings[i];
-    assert.equal(js.image, py.image, `image mismatch at index ${i}`);
-    assert.equal(js.tag ?? null, py.tag ?? null, `tag mismatch at index ${i}`);
-    assert.equal(js.digest ?? null, py.digest ?? null, `digest mismatch at index ${i}`);
-    assert.equal(js.classification, py.classification, `classification mismatch at index ${i}`);
-    assert.equal(js.line, py.line, `line mismatch at index ${i}`);
-    assert.equal(js.remediation ?? null, py.remediation ?? null, `remediation mismatch at index ${i}`);
+  const argText = `ARG NODE_VERSION=18
+ARG REG
+ARG PIN=sha256:${"c".repeat(64)}
+FROM node:\${NODE_VERSION}-alpine
+FROM \${REG}/app:1
+FROM \${REG}/app@sha256:${"d".repeat(64)}
+FROM node@\${PIN}
+FROM \${REG:-docker.io}/library/python:3.12
+`;
+  for (const [label, text] of [["plain", dockerfileText], ["build args", argText]]) {
+    writeFileSync(path.join(dir, "Dockerfile"), text);
+    const stdout = execFileSync("python3", [CLI, dir, "--format", "json"], { encoding: "utf8" });
+    const pythonFindings = JSON.parse(stdout);
+    const jsFindings = scanText(text, path.join(dir, "Dockerfile"));
+    assert.equal(jsFindings.length, pythonFindings.length, label);
+    for (let i = 0; i < jsFindings.length; i++) {
+      const js = jsFindings[i];
+      const py = pythonFindings[i];
+      for (const key of ["image", "tag", "digest", "classification", "line", "remediation", "from_arg", "note"]) {
+        assert.equal(js[key] ?? null, py[key] ?? null, `${label}: ${key} mismatch at index ${i}`);
+      }
+      assert.deepEqual(js.unresolved_args ?? null, py.unresolved_args ?? null, `${label}: unresolved_args at ${i}`);
+    }
   }
+});
+
+// Red-team 2026-11-16: the digest grammar's edges, which three escaped
+// mutants of DIGEST_RE showed no test pinned.
+test("classifyFrom: a digest using every hex digit, zeros included, is pinned", () => {
+  const hex = "0123456789abcdef".repeat(4);
+  assert.equal(classifyFrom(`node@sha256:${hex}`, new Set()).classification, PINNED);
+});
+
+test("classifyFrom: a 32-hex digest is the shortest one pinned; 31 is mutable", () => {
+  assert.equal(classifyFrom(`node@md5:${"a".repeat(32)}`, new Set()).classification, PINNED);
+  assert.equal(classifyFrom(`node@md5:${"a".repeat(31)}`, new Set()).classification, MUTABLE);
+});
+
+test("classifyFrom: an algorithm with a separator and digits (multihash+sha256) is pinned", () => {
+  assert.equal(classifyFrom(`node@multihash+sha256:${"a".repeat(64)}`, new Set()).classification, PINNED);
+});
+
+// Red-team 2026-11-16, real defect: BuildKit matches stage names
+// case-insensitively, so `FROM build` after `AS Build` is the stage, not a pull.
+test("scanText: a stage named with different case is still the stage", () => {
+  const findings = scanText("FROM node:18 AS Build\nRUN make\nFROM build\nFROM B\n", "Dockerfile");
+  assert.equal(findings.length, 2);
+  assert.equal(findings[0].image, "node");
+  assert.equal(findings[1].image, "B");
+  assert.equal(scanText("FROM node:18 AS b\nFROM B\n", "Dockerfile").length, 1);
+});
+
+// Red-team 2026-11-16, real defect: a FROM split with a backslash continuation
+// was reported as image "\" with a nonsense remediation command.
+test("scanText: a backslash right after the tag drops only the backslash", () => {
+  // No space before the continuation: only the "\\" goes, so the tag keeps
+  // its last character (node:20, not node:2) and the alias still applies.
+  const findings = scanText("FROM node:20\\\n  AS build\nFROM build\n", "Dockerfile");
+  assert.equal(findings.length, 1);
+  assert.deepEqual([findings[0].line, findings[0].image, findings[0].tag], [1, "node", "20"]);
+});
+
+test("scanText: a FROM split across lines with a backslash is read as one instruction", () => {
+  const text = `FROM --platform=linux/amd64 \\\n    node:20 \\\n    AS build\nFROM build\nFROM \\\r\n  # a comment inside the continuation\n  ubuntu@${DIGEST}\r\n`;
+  const findings = scanText(text, "Dockerfile");
+  assert.equal(findings.length, 2);
+  assert.deepEqual([findings[0].line, findings[0].image, findings[0].tag, findings[0].classification], [1, "node", "20", MUTABLE]);
+  assert.equal(findings[0].remediation, "docker buildx imagetools inspect node:20");
+  assert.deepEqual([findings[1].line, findings[1].image, findings[1].classification], [5, "ubuntu", PINNED]);
 });

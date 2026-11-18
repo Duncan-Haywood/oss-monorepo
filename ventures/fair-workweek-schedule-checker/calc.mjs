@@ -7,7 +7,7 @@ const MIN = 60000;
 export const RULE_PRESETS = {
   seattle: {
     label: "Seattle (Secure Scheduling Ordinance)",
-    fields: { noticeDays: 14, addMoveWindowHours: 336, addMoveHoursOfPay: 1, addMoveFlat: 0, cancelWindowHours: 336, cancelFractionOfLost: 0.5, cancelFlat: 0, restHours: 10, restMultiplier: 1.25 },
+    fields: { noticeDays: 14, addMoveWindowHours: 336, addMoveHoursOfPay: 1, addMoveFlat: 0, cancelWindowHours: 336, cancelFractionOfLost: 0.5, cancelFlat: 0, restHours: 10, restMultiplier: 1.5 },
   },
   chicago: {
     label: "Chicago (Fair Workweek Ordinance)",

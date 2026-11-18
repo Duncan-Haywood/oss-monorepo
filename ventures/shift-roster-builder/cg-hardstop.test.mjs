@@ -37,9 +37,14 @@ test("a stopped column generation never bounds above the proven best", () => {
     if (full.optimality.status === "bounded") continue;
     const best = full.optimality.bestScore;
     for (const ms of [0, 5]) {
-      const cut = buildRoster(staff, slots, { exact: true, scoreCGMs: ms, dayLNSMs: 50 });
+      // exactMs 300: the cut calls spent 8 s each (the default) in the exact search's tree, which runs after the column generation
+      // under test and was 90% of this test's 61 s. At 300 ms the open-hours row (a second column generation, also cut to `ms`)
+      // still runs inside it on all six calls, as at 8 s (docs/history/ci-perf-2026-11-16-shift-roster-cg-hardstop-exact-ms.md).
+      const cut = buildRoster(staff, slots, { exact: true, scoreCGMs: ms, dayLNSMs: 50, exactMs: 300 });
       const g = cut.optimality.scoreCG;
       assert.ok(g.bound <= best + 1e-6, `seed ${k}, ${ms} ms: bound ${g.bound} above the best ${best}`);
+      const row = cut.optimality.openRow;
+      if (row) assert.ok(row.bound <= best + 1e-6, `seed ${k}, ${ms} ms: open-hours row bound ${row.bound} above the best ${best}`);
       assert.ok(cut.optimality.lowerBound <= best + 1e-6, `seed ${k}, ${ms} ms: lower bound ${cut.optimality.lowerBound} above ${best}`);
     }
   }

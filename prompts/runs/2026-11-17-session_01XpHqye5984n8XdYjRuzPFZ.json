@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqye5984n8XdYjRuzPFZ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T06:38:56Z",
+  "ended": "2026-11-17T07:36:05Z",
+  "wall_minutes": 57.44,
+  "tokens_in": 7940659,
+  "tokens_out": 31840,
+  "cost_usd": 3.3212,
+  "tool_calls": 66,
+  "task": "open-tennis-robots (flagship row 6, buildable item): why the jittery tach does worse through a speed change",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16847",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Ran the first diagnostic in the foreground with a 110 s timeout; one drill takes about 2-3 min, so it was killed with nothing written",
+      "fix": "ran the sweep with run_in_background"
+    },
+    {
+      "what": "First truncation metric (last tick edge minus snapshot length) counted ticks logged after the snapshot as lost periods, so it looked like a ring overflow",
+      "fix": "measured the snapshot's own length instead: 103 periods at most, under the 128 ring; hypothesis rejected"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hint ('[n]ame' bracketed) is not enough: the hook also refuses when the same name appears unbracketed elsewhere in the command line; kill <pid> was the way out."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-the-tennis-feeders-worse-result-was-one-seeds-draw.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md ('The jittery tach through a speed change')"
+  ],
+  "goal": null,
+  "notes": "Hypotheses tested: (1) the speed change biases the drop, (2) the 128-period tach ring truncates through-change snapshots, (3) chance from shifted jitter draws. (2) rejected on the worst build (max snapshot 103 periods both modes). Six seeds x 6 builds x hold/through on the 3 us jitter plant (72 drills, 3,888 wheels, none aborted): wheels >2% off 35 hold vs 38 through; per seed 3/8, 7/7, 5/5, 5/8, 8/4, 7/6; paired mean |err| through minus hold -0.019 points over 1,944 pairs. Misses cluster on the fast partner wheel of a slow (watched) shot in both modes (5.1%/5.5% past 2%, sd 1.00%), vs 0.3%/0.5% (sd 0.6%) for a fast shot's wheels; slow wheels 0 of 360 past 2% in either mode. No firmware change. Spin-fit errors were not rerun across seeds (stated in README). Verification: check_post_frontmatter, check_post_links, post_similarity, portfolio/router/validate.py, run_venture_tests.py open-tennis-robots (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5ecdfbfb-2908-5e64-b6a4-c74eaaa16729",
+    "transcripts": 1,
+    "first": "2026-11-17T06:38:56Z",
+    "last": "2026-11-17T07:36:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 142,
+        "output": 31840,
+        "thinking": 10859,
+        "cache_read": 7800035,
+        "cache_write_5m": 0,
+        "cache_write_1h": 140482,
+        "api_equivalent_usd": 3.3212,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 142,
+      "output": 31840,
+      "thinking": 10859,
+      "cache_read": 7800035,
+      "cache_write_5m": 0,
+      "cache_write_1h": 140482,
+      "api_equivalent_usd": 3.3212,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 56,
+      "Monitor": 4,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 57.44,
+      "active_minutes": 9.16,
+      "model_minutes": 5.79,
+      "tool_minutes": 3.37,
+      "waiting_on_human_minutes": 48.28,
+      "human_prompts": 8,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer forming three hypotheses, writing a tagged multi-seed simulator sweep, reading the result and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 180.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

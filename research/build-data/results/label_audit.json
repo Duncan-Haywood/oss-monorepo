@@ -1,0 +1,335 @@
+{
+ "note": "Session 94: is a feed's completion date a finished build, or a closure?",
+ "issued_window": [
+  "2010-01-01",
+  "2022-12-31"
+ ],
+ "cure_years": [
+  2010,
+  2020
+ ],
+ "pulled": "2026-11-16T01:08:48+00:00",
+ "done_statuses": [
+  "approved to occupy",
+  "complete",
+  "completed",
+  "final",
+  "inspections completed"
+ ],
+ "dead_pattern": "^(expired|void|withdrawn|cancell?ed|revoked|aborted|disapproved|denied|rejected)",
+ "cities": {
+  "sf": {
+   "n": 420714,
+   "groups": {
+    "dead": {
+     "n": 117,
+     "share": 0.000442121730849894,
+     "median_days": 169,
+     "p90_days": 1581
+    },
+    "done": {
+     "n": 264259,
+     "share": 0.9985867219885654,
+     "median_days": 123,
+     "p90_days": 576
+    },
+    "other": {
+     "n": 257,
+     "share": 0.0009711562805848099,
+     "median_days": 2,
+     "p90_days": 550
+    }
+   },
+   "undated": {
+    "other": 140820,
+    "dead": 15239
+   },
+   "by_status_dated": {
+    "complete": 264259,
+    "suspend": 15,
+    "expired": 73,
+    "issued": 126,
+    "reinstated": 109,
+    "cancelled": 20,
+    "revoked": 24,
+    "approved": 6,
+    "incomplete": 1
+   },
+   "seattle_cai": {},
+   "cure": {
+    "otc alterations permit": {
+     "n": 343551,
+     "closes": 0.6021813355222368,
+     "dead": 0.03456546480726297,
+     "open_or_other": 0.3632531996705002
+    },
+    "additions alterations or repairs": {
+     "n": 20756,
+     "closes": 0.7701387550587782,
+     "dead": 0.06788398535363269,
+     "open_or_other": 0.16197725958758913
+    },
+    "sign - erect": {
+     "n": 4870,
+     "closes": 0.47145790554414785,
+     "dead": 0.04784394250513347,
+     "open_or_other": 0.4806981519507187
+    },
+    "new construction wood frame": {
+     "n": 1406,
+     "closes": 0.8421052631578947,
+     "dead": 0.03698435277382646,
+     "open_or_other": 0.12091038406827881
+    },
+    "demolitions": {
+     "n": 1014,
+     "closes": 0.7830374753451677,
+     "dead": 0.027613412228796843,
+     "open_or_other": 0.1893491124260355
+    }
+   },
+   "status_dated_undated": {
+    "complete|dated": 264259,
+    "reinstated|undated": 677,
+    "expired|undated": 11176,
+    "cancelled|undated": 3898,
+    "issued|undated": 139926,
+    "suspend|undated": 207,
+    "suspend|dated": 15,
+    "expired|dated": 75,
+    "revoked|undated": 131,
+    "withdrawn|undated": 26,
+    "issued|dated": 142,
+    "reinstated|dated": 109,
+    "cancelled|dated": 24,
+    "revoked|dated": 24,
+    "denied|undated": 8,
+    "approved|dated": 6,
+    "approved|undated": 7,
+    "overruled|undated": 1,
+    "incomplete|dated": 1,
+    "appeal|undated": 1,
+    "unknown|undated": 1
+   }
+  },
+  "seattle": {
+   "n": 88626,
+   "groups": {
+    "dead": {
+     "n": 282,
+     "share": 0.003990603684940424,
+     "median_days": 406.5,
+     "p90_days": 1048
+    },
+    "done": {
+     "n": 69786,
+     "share": 0.9875470523306824,
+     "median_days": 247.0,
+     "p90_days": 691
+    },
+    "other": {
+     "n": 598,
+     "share": 0.00846234398437721,
+     "median_days": 318.0,
+     "p90_days": 601
+    }
+   },
+   "undated": {
+    "other": 1386,
+    "dead": 14971,
+    "done": 1594
+   },
+   "by_status_dated": {
+    "completed": 69783,
+    "closed": 587,
+    "expired": 227,
+    "approved to occupy": 10,
+    "withdrawn": 19,
+    "reviews in process": 2,
+    "inspections completed": 29,
+    "issued": 6,
+    "reviews completed": 3
+   },
+   "seattle_cai": {
+    "completed|undated": 3876,
+    "completed|dated": 36,
+    "expired|undated": 1,
+    "application completed|undated": 1,
+    "withdrawn|undated": 2,
+    "closed|undated": 1
+   },
+   "cure": {
+    "Addition/Alteration": {
+     "n": 53354,
+     "closes": 0.796510102335345,
+     "dead": 0.1759380739963264,
+     "open_or_other": 0.027551823668328524
+    },
+    "New": {
+     "n": 11673,
+     "closes": 0.8213826779748137,
+     "dead": 0.13638310631371542,
+     "open_or_other": 0.042234215711470915
+    },
+    "Demolition": {
+     "n": 5762,
+     "closes": 0.8167303019784797,
+     "dead": 0.07948628948281847,
+     "open_or_other": 0.10378340853870184
+    },
+    "Tenant Improvment": {
+     "n": 2727,
+     "closes": 0.8797213054638797,
+     "dead": 0.11624495782911624,
+     "open_or_other": 0.004033736707004034
+    },
+    "(blank)": {
+     "n": 1174,
+     "closes": 0.5638841567291312,
+     "dead": 0.36201022146507666,
+     "open_or_other": 0.07410562180579217
+    }
+   },
+   "status_dated_undated": {
+    "completed|dated": 69790,
+    "issued|undated": 1311,
+    "expired|undated": 10589,
+    "completed|undated": 5450,
+    "canceled|undated": 210,
+    "closed|dated": 587,
+    "expired|dated": 229,
+    "approved to occupy|dated": 10,
+    "approved to occupy|undated": 3,
+    "withdrawn|undated": 294,
+    "application completed|undated": 1,
+    "withdrawn|dated": 19,
+    "inspections completed|undated": 17,
+    "reviews in process|dated": 2,
+    "closed|undated": 59,
+    "inspections completed|dated": 29,
+    "phase issued|undated": 3,
+    "issued|dated": 6,
+    "reviews completed|undated": 9,
+    "reviews completed|dated": 3,
+    "corrections required|undated": 1,
+    "additional info requested|undated": 2,
+    "reviews in process|undated": 2
+   }
+  },
+  "austin": {
+   "n": 836092,
+   "groups": {
+    "dead": {
+     "n": 11211,
+     "share": 0.014897170853049396,
+     "median_days": 140,
+     "p90_days": 1080
+    },
+    "done": {
+     "n": 741169,
+     "share": 0.9848649740419023,
+     "median_days": 102,
+     "p90_days": 379
+    },
+    "other": {
+     "n": 179,
+     "share": 0.00023785510504824206,
+     "median_days": 50,
+     "p90_days": 269
+    }
+   },
+   "undated": {
+    "dead": 82063,
+    "other": 802
+   },
+   "by_status_dated": {
+    "final": 741169,
+    "active": 77,
+    "withdrawn": 10608,
+    "expired": 206,
+    "cancelled": 14,
+    "on hold": 6,
+    "void": 338,
+    "aborted": 28,
+    "cancelled - contractor required": 11,
+    "closed": 8,
+    "(blank)": 3,
+    "inactive contractor": 1,
+    "pending": 74,
+    "revoked": 1,
+    "cancelled - new permit required": 5,
+    "pending permit": 4,
+    "inactive pending revision": 5,
+    "application incomplete": 1
+   },
+   "seattle_cai": {},
+   "cure": {
+    "Electrical Permit": {
+     "n": 192814,
+     "closes": 0.9198968954536496,
+     "dead": 0.07952742020807618,
+     "open_or_other": 0.0005756843382741917
+    },
+    "Plumbing Permit": {
+     "n": 175536,
+     "closes": 0.9019346458846048,
+     "dead": 0.09758681979764834,
+     "open_or_other": 0.00047853431774678697
+    },
+    "Building Permit": {
+     "n": 165065,
+     "closes": 0.8335080119952746,
+     "dead": 0.16514100505861326,
+     "open_or_other": 0.0013509829461121376
+    },
+    "Mechanical Permit": {
+     "n": 131215,
+     "closes": 0.8891132873528179,
+     "dead": 0.11039134245322563,
+     "open_or_other": 0.0004953701939564837
+    },
+    "Driveway / Sidewalks": {
+     "n": 26731,
+     "closes": 0.9381242751861135,
+     "dead": 0.06086566159141072,
+     "open_or_other": 0.0010100632224757772
+    }
+   },
+   "status_dated_undated": {
+    "final|dated": 741557,
+    "void|dated": 375,
+    "active|dated": 282,
+    "suspended|dated": 2,
+    "expired|undated": 70925,
+    "withdrawn|dated": 10625,
+    "aborted|dated": 31,
+    "expired|dated": 216,
+    "pending|dated": 75,
+    "cancelled - contractor required|dated": 15,
+    "void|undated": 9966,
+    "withdrawn|undated": 1068,
+    "active|undated": 724,
+    "closed|undated": 34,
+    "cancelled|dated": 14,
+    "on hold|dated": 7,
+    "cancelled - contractor required|undated": 21,
+    "new permit required|undated": 1,
+    "aborted|undated": 57,
+    "closed|dated": 8,
+    "(blank)|dated": 3,
+    "inactive contractor|dated": 1,
+    "revoked|dated": 1,
+    "cancelled - new permit required|dated": 5,
+    "pending|undated": 24,
+    "pending permit|dated": 4,
+    "pending permit|undated": 10,
+    "cancelled|undated": 26,
+    "inactive pending revision|dated": 5,
+    "application incomplete|undated": 1,
+    "application incomplete|dated": 1,
+    "on hold|undated": 7,
+    "(blank)|undated": 1
+   }
+  }
+ }
+}

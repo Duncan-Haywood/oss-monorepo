@@ -106,9 +106,10 @@ const escAttr = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"
 /**
  * Canonical XML 1.1 (no comments) of the document, leaving out every element for which
  * `omit(node)` is true together with its subtree. Text beside an omitted element stays,
- * as it does under an XPath filter transform.
+ * as it does under an XPath filter transform. With `exclusive`, `inclusivePrefixes`
+ * is the InclusiveNamespaces PrefixList ("" for #default).
  */
-export function canonicalize(doc, omit = () => false, { exclusive = false, selfClose = false } = {}) {
+export function canonicalize(doc, omit = () => false, { exclusive = false, selfClose = false, inclusivePrefixes = [] } = {}) {
   const out = [];
   // In-scope namespaces of the nearest output ancestor, as rendered.
   const walk = (node, rendered) => {
@@ -120,7 +121,8 @@ export function canonicalize(doc, omit = () => false, { exclusive = false, selfC
     for (const [p, uri] of node.nsDecls) inScope.set(p, uri);
     const emit = [];
     // Exclusive C14N renders only the prefixes this element and its attributes use.
-    const used = exclusive ? new Set([node.prefix, ...node.attrs.filter((a) => a.prefix).map((a) => a.prefix)]) : null;
+    // An InclusiveNamespaces PrefixList names prefixes rendered as inclusive C14N would.
+    const used = exclusive ? new Set([node.prefix, ...node.attrs.filter((a) => a.prefix).map((a) => a.prefix), ...inclusivePrefixes]) : null;
     for (const [p, uri] of inScope) {
       if (used && !used.has(p)) continue;
       if (p === "xml") continue;

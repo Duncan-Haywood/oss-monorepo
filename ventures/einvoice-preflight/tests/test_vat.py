@@ -79,6 +79,15 @@ class VatChecksumTest(unittest.TestCase):
         findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "NL123456783B01"}, "supplier")
         self.assertEqual([item["rule"] for item in findings], ["INV-023"])
 
+    def test_nl_btw_id_issued_since_2020_passes_on_mod97(self):
+        # python-stdnum nl.btw's own example: a sole trader's number with no BSN.
+        self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "NL002455799B11"}, "supplier"), [])
+        findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "NL002455799B12"}, "supplier")
+        self.assertEqual([item["rule"] for item in findings], ["INV-023"])
+        # A suffix of 00 is never issued, although it passes the elfproef.
+        findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "NL123456782B00"}, "supplier")
+        self.assertEqual([item["rule"] for item in findings], ["INV-023"])
+
     def test_ie_legacy_letter_second_character_shape_rearranges_before_weighing(self):
         # The 8-character Irish shape covers two different real numbers: the
         # common one is 7 digits plus a check letter (already covered by

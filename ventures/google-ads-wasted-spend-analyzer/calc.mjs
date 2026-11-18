@@ -38,24 +38,26 @@ export function detectDelimiter(text) {
 
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
@@ -65,7 +67,7 @@ export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
   s = s.replace(/^[<>]\s*/, "");
-  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−]/.test(s);
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -128,15 +130,15 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
     const cost = parseNumber(get("cost"), decimalComma);
     const clicks = parseNumber(get("clicks"), decimalComma);
     const conv = parseNumber(get("conv"), decimalComma);
-    if (!Number.isFinite(cost) || cost < 0) { skipped.push({ line: r + 1, reason: "unreadable cost" }); continue; }
-    if (!Number.isFinite(clicks) || clicks < 0) { skipped.push({ line: r + 1, reason: "unreadable clicks" }); continue; }
-    if (!Number.isFinite(conv) || conv < 0) { skipped.push({ line: r + 1, reason: "unreadable conversions" }); continue; }
+    if (!Number.isFinite(cost) || cost < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable cost" }); continue; }
+    if (!Number.isFinite(clicks) || clicks < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable clicks" }); continue; }
+    if (!Number.isFinite(conv) || conv < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable conversions" }); continue; }
     const value = cols.value === undefined ? 0 : parseNumber(get("value"), decimalComma);
     const impr = cols.impr === undefined ? 0 : parseNumber(get("impr"), decimalComma);
     const cur = get("currency").toUpperCase();
     if (cur) tally[cur] = (tally[cur] || 0) + 1;
     rows.push({
-      line: r + 1, term: term.toLowerCase().replace(/\s+/g, " "), cost, clicks, impr: Number.isFinite(impr) ? impr : 0, conv,
+      line: table[r].line ?? r + 1, term: term.toLowerCase().replace(/\s+/g, " "), cost, clicks, impr: Number.isFinite(impr) ? impr : 0, conv,
       value: Number.isFinite(value) ? value : 0, match: matchKind(get("match")), campaign: get("campaign"), adGroup: get("adGroup"),
       excluded: /exclud/i.test(get("status")),
     });
@@ -268,7 +270,7 @@ export function negativesList(result) {
   return result.negatives.map((n) => n.text).join("\n");
 }
 
-export function money(v) { return (v < 0 ? "-" : "") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+export function money(v) { return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })); }
 export function pct(v) { return v === null || v === undefined ? "–" : `${(v * 100).toFixed(1)}%`; }
 
 // Deterministic synthetic data in Google Ads' own export layout (title, date

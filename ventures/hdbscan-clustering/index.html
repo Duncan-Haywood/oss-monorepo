@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23173f4a'/%3E%3Ccircle%20cx='9'%20cy='10'%20r='2.4'%20fill='%23f2a93b'/%3E%3Ccircle%20cx='12'%20cy='13'%20r='2.4'%20fill='%23f2a93b'/%3E%3Ccircle%20cx='22'%20cy='21'%20r='2.4'%20fill='%237fd1c7'/%3E%3Ccircle%20cx='19'%20cy='24'%20r='2.4'%20fill='%237fd1c7'/%3E%3Ccircle%20cx='24'%20cy='8'%20r='1.6'%20fill='%23fff'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>HDBSCAN Online — cluster your CSV and find the noise, free</title>
+  <meta name="description" content="Free online HDBSCAN clustering (Campello, Moulavi &amp; Sander 2013). Paste a CSV with numeric columns and find the groups in it without choosing how many: each row's cluster or noise label, how firmly it belongs, a GLOSH outlier score, and what sets each cluster apart. Labels match scikit-learn's. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="HDBSCAN in your browser: which groups are in my data, and which rows belong to none?">
+  <meta property="og:description" content="Density-based clustering that finds the number of clusters itself and leaves stray rows as noise, with a profile of every cluster and an outlier score for every row. Checked row for row against scikit-learn.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "HDBSCAN clustering: find the groups in a CSV", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a CSV with numeric columns and cluster its rows with HDBSCAN (Campello, Moulavi and Sander 2013). Finds the number of clusters itself, labels stray rows as noise, scores every row's membership and GLOSH outlier score, and describes each cluster. Runs in your browser.", "featureList": "HDBSCAN online, density-based clustering, number of clusters found automatically, noise detection, GLOSH outlier scores, membership strength, excess of mass and leaf selection, cluster profiles, CSV upload, CSV download", "citation": ["https://doi.org/10.1007/978-3-642-37456-2_14", "https://doi.org/10.1145/2733381", "https://doi.org/10.1109/ICDMW.2017.12"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does HDBSCAN do?", "acceptedAnswer": {"@type": "Answer", "text": "It finds groups of rows that sit close together, however many there are and whatever their shape, and leaves rows that are not near any group as noise. It does this by measuring how crowded each row's neighbourhood is, building every possible grouping from the densest level to the sparsest, and keeping the groups that last longest as the density threshold is lowered."}}, {"@type": "Question", "name": "Do I have to choose the number of clusters?", "acceptedAnswer": {"@type": "Answer", "text": "No. Unlike k-means, HDBSCAN decides how many clusters there are. What you choose is the minimum cluster size: the smallest group you would still call a cluster. Groups smaller than that are treated as noise or as part of a bigger cluster."}}, {"@type": "Question", "name": "Why are some rows labelled noise?", "acceptedAnswer": {"@type": "Answer", "text": "Because they are not in a dense region of the data. HDBSCAN does not force every row into a cluster; a row between groups, or far from all of them, is left out. Raising min samples makes the method more conservative, so more rows become noise; lowering it does the opposite."}}, {"@type": "Question", "name": "What are membership and the outlier score?", "acceptedAnswer": {"@type": "Answer", "text": "Membership runs from 0 to 1 and says how deep inside its cluster a row sits: 1 at the cluster's densest part, lower towards its edge, 0 for noise. The GLOSH outlier score also runs from 0 to 1 and asks the opposite question for every row, clustered or not: near 0 means the row is as dense as the densest part of its region, near 1 means it is far out."}}, {"@type": "Question", "name": "Should I scale my columns first?", "acceptedAnswer": {"@type": "Answer", "text": "The page does it for you. Distances mix columns, so a column in grams would swamp one in millimetres. By default each column is turned into z-scores (mean 0, standard deviation 1). Robust scaling uses the median and interquartile range instead, which a few extreme values cannot stretch; choose none only when the columns share a unit and you want their spreads to count."}}, {"@type": "Question", "name": "Excess of mass or leaf: which selection should I use?", "acceptedAnswer": {"@type": "Answer", "text": "Excess of mass, the default, keeps the clusters that persist longest and tends to find a few large ones. Leaf keeps the smallest clusters at the bottom of the tree, giving more, tighter groups and more noise. On the penguin example, excess of mass finds two clusters (Gentoo, and Adelie with Chinstrap together); leaf with a minimum cluster size of 15 and min samples of 5 separates all three species."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and clustered by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #15282d; background: #f0f5f5; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1b5864; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #123a43; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #123a43; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #45585d; }
+    .card { background: #fff; border: 1px solid #d3e0e2; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #123a4310; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f8589; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input[type="checkbox"] { width: auto; margin: 0 6px 0 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    fieldset { border: 1px solid #d3e0e2; border-radius: 9px; margin: 14px 0 0; padding: 8px 12px 12px; }
+    legend { font-weight: 600; padding: 0 4px; }
+    #features label, label.inline { display: inline-flex; align-items: center; font-weight: 500; margin: 6px 14px 0 0; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1b5864; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2eeef; color: #123a43; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eeef; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #45585d; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d3e0e2; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    #cluster-table { min-width: 640px; }
+    #outlier-table { min-width: 480px; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #6f8589; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 12px 0; }
+    .stat { background: #eef5f5; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.35rem; color: #123a43; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .82rem; color: #45585d; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .swatch { display: inline-block; width: .8em; height: .8em; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+    pre { background: #f2f7f7; border: 1px solid #dbe6e7; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HDBSCAN · DENSITY-BASED CLUSTERING · NO NEED TO CHOOSE K · NOISE AND OUTLIER SCORES · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which groups are in my data, and which rows belong to none?</h1>
+    <p>Paste a table: customers and what they buy, measurements of specimens, survey answers on a numeric scale, sensor readings. <strong>HDBSCAN</strong> (Campello, Moulavi &amp; Sander 2013) finds the groups of rows that sit close together, <em>decides how many there are itself</em>, and leaves rows that are not near any group as <strong>noise</strong> instead of forcing them into the nearest cluster. You get each row's cluster, how firmly it belongs, an outlier score, and a profile of what sets each cluster apart, including how your text columns (a category, a region) split across the clusters.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">A CSV with a header row and numeric columns (comma, tab or semicolon separated)</label>
+    <textarea id="csv" spellcheck="false" placeholder="customer,visits,spend,basket&#10;A-104,12,1830.50,6&#10;A-105,3,240.00,2&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: 344 Palmer penguins' bill, flipper and mass measurements</button>
+    <p class="note" id="data-status">Rows with a missing value in a chosen column are left out. ID and year columns and codes with three or fewer values are left out unless you tick them.</p>
+
+    <fieldset>
+      <legend>Columns to cluster on</legend>
+      <div id="features"><span class="note">Paste data to choose columns.</span></div>
+    </fieldset>
+    <div class="grid">
+      <div><label for="mcs">Minimum cluster size</label><input id="mcs" inputmode="numeric" value="5"></div>
+      <div><label for="ms">Min samples (blank = same as the size)</label><input id="ms" inputmode="numeric" value="" placeholder="same as size"></div>
+      <div><label for="method">Cluster selection</label><select id="method"><option value="eom" selected>Excess of mass (default: fewer, larger)</option><option value="leaf">Leaf (more, tighter)</option></select></div>
+      <div><label for="scale">Scale the columns</label><select id="scale"><option value="standard" selected>z-scores (default)</option><option value="robust">Robust: median and IQR</option><option value="none">None (same units)</option></select></div>
+      <div><label for="label-col">Row label</label><select id="label-col"></select></div>
+    </div>
+    <label class="inline" for="single"><input type="checkbox" id="single">Allow the whole table to be a single cluster</label>
+    <br><button type="button" id="analyze">Find the clusters</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div class="stats" id="stats"></div>
+    <div id="warnings"></div>
+    <h3>The rows, coloured by cluster</h3>
+    <div class="grid">
+      <div><label for="view">Show</label><select id="view"></select></div>
+    </div>
+    <div id="scatter" role="img" aria-label="Scatter plot of the rows coloured by cluster, with noise rows in grey"></div>
+    <p class="note" id="view-note"></p>
+    <h3>Clusters</h3>
+    <div class="scroll">
+      <table id="cluster-table">
+        <thead><tr><th>Cluster</th><th class="n">Rows</th><th class="n">Membership</th><th>What sets it apart</th><th>Make-up</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note">“What sets it apart” lists columns whose median inside the cluster is at least half a robust standard deviation (1.4826 × the median absolute deviation) from the whole table's median. Membership is the cluster's mean.</p>
+    <h3>Strongest outliers</h3>
+    <div class="scroll">
+      <table id="outlier-table">
+        <thead><tr><th>Row</th><th class="n">GLOSH score</th><th>Cluster</th><th>Extreme columns</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note" id="settings-line"></p>
+    <button type="button" class="secondary" id="download">Download every row's cluster and scores (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>HDBSCAN (Campello, Moulavi &amp; Sander 2013) turns clustering into a question about density. A row's <em>core distance</em> is the distance to its <code>min_samples</code>-th nearest row (counting itself). The <em>mutual reachability distance</em> between two rows is <code>max(core(a), core(b), d(a, b))</code>: rows in sparse regions are pushed apart, rows in dense regions keep their true distance. The minimum spanning tree of that graph, read from its shortest edge to its longest, is a single-linkage hierarchy of every density-based clustering at every level <code>λ = 1 / distance</code>.</p>
+    <p>That tree is <em>condensed</em>: a split counts only when both sides have at least <code>min_cluster_size</code> rows; otherwise the smaller side's rows simply fall out of the cluster. Each cluster's <em>stability</em> is <code>Σ (λ<sub>leave</sub> − λ<sub>birth</sub>)</code> over its rows, and <em>excess of mass</em> selection keeps the set of non-overlapping clusters with the largest total stability (a parent is kept only if it is more stable than its children together). Rows outside every selected cluster are noise. Membership is <code>λ<sub>row</sub> / λ<sub>max</sub></code> of its cluster; the GLOSH outlier score (Campello, Moulavi, Zimek &amp; Sander 2015) is <code>1 − λ<sub>row</sub> / λ<sub>max</sub></code>, where λ<sub>max</sub> is the densest level reached anywhere below the cluster the row leaves.</p>
+    <p>Verified by tests in the source against <strong>scikit-learn 1.9.1</strong>'s <code>HDBSCAN</code> on the penguin example and two synthetic tables, at six settings each: with scikit-learn's edge sort made stable, every one of the 5,712 labels and membership values agrees, and the GLOSH scores agree with the hdbscan package's (0.8.44) to 1e-10. One thing does not: spanning-tree edges of equal weight are common (every edge out of a sparse row weighs that row's core distance) and scikit-learn sorts them with an unstable sort, so the unmodified estimator can merge them in another order. That moved up to 96 of 300 labels in “leaf” selection and up to one label in excess of mass on the test data. The same caution applies to any HDBSCAN run: a row whose label depends on tie order sits on a boundary between clusters.</p>
+    <h3>BibTeX</h3>
+    <pre>@inproceedings{campello2013density,
+  author    = {Campello, Ricardo J. G. B. and Moulavi, Davoud and Sander, Joerg},
+  title     = {Density-Based Clustering Based on Hierarchical Density Estimates},
+  booktitle = {Advances in Knowledge Discovery and Data Mining (PAKDD 2013)},
+  series    = {Lecture Notes in Computer Science}, volume = {7819},
+  pages     = {160--172}, year = {2013},
+  doi       = {10.1007/978-3-642-37456-2_14}
+}
+@article{campello2015hierarchical,
+  author  = {Campello, Ricardo J. G. B. and Moulavi, Davoud and Zimek, Arthur and Sander, Joerg},
+  title   = {Hierarchical Density Estimates for Data Clustering, Visualization, and Outlier Detection},
+  journal = {ACM Transactions on Knowledge Discovery from Data},
+  volume  = {10}, number = {1}, pages = {5:1--5:51}, year = {2015},
+  doi     = {10.1145/2733381}
+}
+@inproceedings{mcinnes2017accelerated,
+  author    = {McInnes, Leland and Healy, John},
+  title     = {Accelerated Hierarchical Density Based Clustering},
+  booktitle = {2017 IEEE International Conference on Data Mining Workshops (ICDMW)},
+  pages     = {33--42}, year = {2017},
+  doi       = {10.1109/ICDMW.2017.12}
+}</pre>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>A cluster is not a category.</strong> Clusters are groups of rows that are close in the columns you chose. They may or may not match a real-world type; on the example, Adelie and Chinstrap penguins overlap in these four measurements and land in one cluster by default.</li>
+      <li><strong>Distances depend on your columns.</strong> Which columns you include, and how they are scaled, decide what “close” means. A column that is mostly noise blurs every cluster.</li>
+      <li><strong>Varying density.</strong> HDBSCAN handles clusters of different densities better than DBSCAN, but a sparse cluster next to a dense one can still come out as noise; lower min samples to keep it.</li>
+      <li><strong>Read membership, not only the label.</strong> A lone row that bridges two clusters is attached to one of them with membership near 0 and an outlier score near 1, rather than marked noise. That is how the method works (scikit-learn does the same); treat any row with low membership as doubtful.</li>
+      <li><strong>Size.</strong> The page computes all pairwise distances, so it takes up to 10,000 complete rows (a few seconds at that size). For more, sample rows or use scikit-learn.</li>
+      <li><strong>Numbers only.</strong> Text and small code columns are not clustered on; they are shown as each cluster's make-up.</li>
+      <li>Not modelled: distances other than Euclidean, predicting the cluster of new rows, and DBSCAN-style flat cuts at a chosen distance (<code>cluster_selection_epsilon</code>). For outliers judged column by column rather than by density, see the <a href="../isolation-forest/">isolation forest</a>.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What does HDBSCAN do?</h3>
+    <p>It finds groups of rows that sit close together, however many there are and whatever their shape, and leaves rows that are not near any group as noise. It does this by measuring how crowded each row's neighbourhood is, building every possible grouping from the densest level to the sparsest, and keeping the groups that last longest as the density threshold is lowered.</p>
+    <h3>Do I have to choose the number of clusters?</h3>
+    <p>No. Unlike k-means, HDBSCAN decides how many clusters there are. What you choose is the minimum cluster size: the smallest group you would still call a cluster. Groups smaller than that are treated as noise or as part of a bigger cluster.</p>
+    <h3>Why are some rows labelled noise?</h3>
+    <p>Because they are not in a dense region of the data. HDBSCAN does not force every row into a cluster; a row between groups, or far from all of them, is left out. Raising min samples makes the method more conservative, so more rows become noise; lowering it does the opposite.</p>
+    <h3>What are membership and the outlier score?</h3>
+    <p>Membership runs from 0 to 1 and says how deep inside its cluster a row sits: 1 at the cluster's densest part, lower towards its edge, 0 for noise. The GLOSH outlier score also runs from 0 to 1 and asks the opposite question for every row, clustered or not: near 0 means the row is as dense as the densest part of its region, near 1 means it is far out.</p>
+    <h3>Should I scale my columns first?</h3>
+    <p>The page does it for you. Distances mix columns, so a column in grams would swamp one in millimetres. By default each column is turned into z-scores (mean 0, standard deviation 1). Robust scaling uses the median and interquartile range instead, which a few extreme values cannot stretch; choose none only when the columns share a unit and you want their spreads to count.</p>
+    <h3>Excess of mass or leaf: which selection should I use?</h3>
+    <p>Excess of mass, the default, keeps the clusters that persist longest and tends to find a few large ones. Leaf keeps the smallest clusters at the bottom of the tree, giving more, tighter groups and more noise. On the penguin example, excess of mass finds two clusters (Gentoo, and Adelie with Chinstrap together); leaf with a minimum cluster size of 15 and min samples of 5 separates all three species.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and clustered by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    <p class="note">Example data: <em>Palmer penguins</em>, bill length and depth, flipper length and body mass of 344 adult Adélie, Chinstrap and Gentoo penguins measured near Palmer Station, Antarctica, 2007 to 2009, by Dr Kristen Gorman and the Palmer Station Long Term Ecological Research programme (Gorman, Williams &amp; Fraser 2014, <a href="https://doi.org/10.1371/journal.pone.0090081" rel="noopener">doi:10.1371/journal.pone.0090081</a>), as packaged by Horst, Hill &amp; Gorman (2020) in <a href="https://allisonhorst.github.io/palmerpenguins/" rel="noopener">palmerpenguins</a>, under CC0, retrieved 2026-11-16. Two penguins with no measurements are left out. The species, island and sex columns are not clustered on; they show what each cluster is made of.</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter; a cluster is a group of similar rows, not proof of a real category, and a high outlier score is not proof of an error or of wrongdoing. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the Palmer Station LTER, scikit-learn, the hdbscan package, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs measurements.csv --min-cluster-size 15</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hdbscan-clustering" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../isolation-forest/">isolation forest</a> ranks unusual rows, <a href="../robust-pca/">robust PCA</a> finds the single cells of a table that break its pattern, <a href="../fuzzy-dedupe/">fuzzy dedupe</a> finds rows that are the same person, the <a href="../wasserstein-distance/">Wasserstein distance</a> says how far apart two groups' distributions are, the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed, <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> gives intervals with guaranteed coverage, the <a href="../matrix-profile-explorer/">matrix profile explorer</a> finds repeated patterns in a series, <a href="../survival-analysis/">survival analysis</a> estimates time to an event, and <a href="../gaussian-process-regression/">Gaussian process regression</a> fits a curve with an honest uncertainty band.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv, profileColumns, toCsv, fmt } from "./engine.mjs";
+    import { EXAMPLE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    // Okabe-Ito colours (distinguishable with colour-vision deficiency), then repeats.
+    const PALETTE = ["#0072b2", "#e69f00", "#009e73", "#cc79a7", "#d55e00", "#56b4e9", "#8a6d00", "#6a3d9a"];
+    const colour = (label) => (label < 0 ? "#a3adb0" : PALETTE[label % PALETTE.length]);
+    let last = null;
+    let parsed = null;
+
+    function refreshColumns() {
+      const p = parseCsv($("#csv").value);
+      if (p.error) {
+        parsed = null;
+        $("#features").innerHTML = `<span class="note">Paste data to choose columns.</span>`;
+        $("#label-col").innerHTML = "";
+        $("#data-status").textContent = $("#csv").value.trim() ? p.error : "Paste a table or load the example.";
+        return;
+      }
+      parsed = p;
+      const prof = profileColumns(p);
+      $("#features").innerHTML = prof.map((c) => {
+        const on = c.numeric && !c.idLike && !c.code;
+        const why = !c.numeric ? " (text)" : c.idLike ? " (ID or year?)" : c.code ? ` (code, ${c.distinct} values)` : "";
+        return `<label><input type="checkbox" data-col="${esc(c.name)}"${on ? " checked" : ""}${c.numeric ? "" : " disabled"}>${esc(c.name)}${esc(why)}</label>`;
+      }).join("");
+      const guess = prof.findIndex((c) => c.idLike && !c.code && !/^year$/i.test(c.name));
+      $("#label-col").innerHTML = `<option value="">Row number</option>` + p.columns.map((c, j) => `<option value="${esc(c)}"${j === guess ? " selected" : ""}>${esc(c)}</option>`).join("");
+      $("#data-status").textContent = `${p.rows.length.toLocaleString("en-US")} rows, ${p.columns.length} columns${p.headerless ? " (no header row: columns named c1, c2, ...)" : ""}.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+
+    function inputs() {
+      const cols = [...document.querySelectorAll("#features input:checked")].map((el) => el.dataset.col);
+      const ms = $("#ms").value.trim();
+      return {
+        csv: $("#csv").value,
+        columns: cols.length ? cols : undefined,
+        labelColumn: $("#label-col").value || undefined,
+        minClusterSize: $("#mcs").value.trim() === "" ? 5 : Number($("#mcs").value),
+        minSamples: ms === "" ? undefined : Number(ms),
+        method: $("#method").value,
+        scale: $("#scale").value,
+        allowSingleCluster: $("#single").checked,
+      };
+    }
+
+    function scatter(r) {
+      const v = $("#view").value;
+      let xs, ys, xName, yName;
+      if (v === "pca" || r.features.length < 2) {
+        xs = r.projection.coords.map((c) => c[0]);
+        ys = r.projection.coords.map((c) => c[1]);
+        xName = `component 1 (${(100 * r.projection.explained[0]).toFixed(0)}% of variance)`;
+        yName = `component 2 (${(100 * r.projection.explained[1]).toFixed(0)}%)`;
+      } else {
+        const [a, b] = v.split("|").map(Number);
+        xs = r.matrix.map((row) => row[a]);
+        ys = r.matrix.map((row) => row[b]);
+        xName = r.features[a];
+        yName = r.features[b];
+      }
+      const W = 920, H = 440, L = 70, R = 14, T = 14, B = 44;
+      let x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+      if (x1 === x0) { x0 -= 1; x1 += 1; }
+      if (y1 === y0) { y0 -= 1; y1 += 1; }
+      // A little room so points on the edge are not cut in half.
+      const px = (x1 - x0) * 0.03, py = (y1 - y0) * 0.03;
+      x0 -= px; x1 += px; y0 -= py; y1 += py;
+      const sx = (t) => L + ((t - x0) / (x1 - x0)) * (W - L - R);
+      const sy = (t) => T + (1 - (t - y0) / (y1 - y0)) * (H - T - B);
+      let out = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+      out += `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="none" stroke="#dde7e8"/>`;
+      for (const t of [y0, y1]) out += `<text x="${L - 6}" y="${sy(t) + 4}" text-anchor="end" font-size="11" fill="#45585d">${esc(fmt(t))}</text>`;
+      for (const t of [x0, x1]) out += `<text x="${sx(t)}" y="${H - 26}" text-anchor="${t === x0 ? "start" : "end"}" font-size="11" fill="#45585d">${esc(fmt(t))}</text>`;
+      out += `<text x="${(L + W - R) / 2}" y="${H - 8}" text-anchor="middle" font-size="12" fill="#45585d">${esc(xName)} → · ${esc(yName)} ↑ · grey rings: noise</text>`;
+      // Clusters first, noise on top as hollow rings; fainter points for weaker membership.
+      const order = r.labels.map((_, i) => i).sort((a, b) => (r.labels[a] < 0 ? 1 : 0) - (r.labels[b] < 0 ? 1 : 0) || a - b);
+      for (const i of order) {
+        const l = r.labels[i];
+        const look = l < 0 ? `fill="none" stroke="#59666a" stroke-width="1.5"` : `fill="${colour(l)}" opacity="${(0.35 + 0.65 * r.probabilities[i]).toFixed(2)}"`;
+        out += `<circle cx="${sx(xs[i]).toFixed(1)}" cy="${sy(ys[i]).toFixed(1)}" r="${l < 0 ? 4 : 3.6}" ${look}><title>${esc(r.rowLabels[i])}: ${l < 0 ? "noise" : `cluster ${l + 1}, membership ${r.probabilities[i].toFixed(2)}`}; outlier score ${r.outlierScores[i].toFixed(2)}</title></circle>`;
+      }
+      return out + "</svg>";
+    }
+
+    function makeup(m) {
+      return m.map((x) => `${esc(x.column)}: ${x.values.map((v) => `${esc(v.value)} ${v.count}`).join(", ")}`).join("<br>");
+    }
+
+    function show(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      const stat = (v, l) => `<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`;
+      $("#stats").innerHTML = stat(String(r.clusterCount), r.clusterCount === 1 ? "cluster found" : "clusters found") + stat(`${r.noiseCount} of ${r.n}`, "rows are noise") + stat(String(r.features.length), "columns clustered on") + stat(String(r.params.minClusterSize), "minimum cluster size");
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      const keep = $("#view").value;
+      let opts = `<option value="pca">Principal components 1 and 2</option>`;
+      for (let a = 0; a < r.features.length; a++) for (let b = a + 1; b < r.features.length && opts.length < 4000; b++) opts += `<option value="${a}|${b}">${esc(r.features[a])} × ${esc(r.features[b])}</option>`;
+      $("#view").innerHTML = opts;
+      if ([...$("#view").options].some((o) => o.value === keep)) $("#view").value = keep;
+      $("#scatter").innerHTML = scatter(r);
+      $("#view-note").textContent = "Principal components squeeze every column into a flat picture, so clusters that are apart in the data can overlap here. Hover a point for its row, cluster and scores.";
+      $("#cluster-table tbody").innerHTML = r.clusters.map((c) => {
+        const apart = c.distinguishing.map((d) => `${d.shift > 0 ? "high" : "low"} ${esc(d.column)} <span class="note">(median ${esc(fmt(d.median))})</span>`).join("<br>") || `<span class="note">no column far from the table's median</span>`;
+        return `<tr><td><span class="swatch" style="background:${colour(c.label)}"></span>${c.label + 1}</td><td class="n">${c.size}</td><td class="n">${c.meanStrength.toFixed(2)}</td><td>${apart}</td><td>${makeup(c.mostly)}</td></tr>`;
+      }).join("") + (r.noise ? `<tr><td><span class="swatch" style="background:${colour(-1)}"></span>noise</td><td class="n">${r.noiseCount}</td><td class="n">0</td><td><span class="note">in no dense group</span></td><td>${makeup(r.noise.mostly)}</td></tr>` : "");
+      $("#outlier-table tbody").innerHTML = r.outliers.map((o) => {
+        const why = o.standsOut.map((f) => `${esc(f.column)} ${esc(fmt(f.value))} <span class="note">(${f.z > 0 ? "+" : ""}${f.z.toFixed(1)} SD)</span>`).join("<br>") || `<span class="note">none; the combination is rare</span>`;
+        return `<tr><td>${esc(o.label)}</td><td class="n">${o.score.toFixed(3)}</td><td>${o.cluster < 0 ? "noise" : o.cluster + 1}</td><td>${why}</td></tr>`;
+      }).join("");
+      const p = r.params;
+      $("#settings-line").textContent = `Columns: ${r.features.join(", ")} (scale: ${p.scale}). Minimum cluster size ${p.minClusterSize}, min samples ${p.minSamples}, selection ${p.method === "eom" ? "excess of mass" : "leaf"}${p.allowSingleCluster ? ", single cluster allowed" : ""}. The same input always gives the same result.`;
+    }
+
+    function run() {
+      $("#status").textContent = "Clustering…";
+      // Let the status paint before the O(n²) work starts.
+      setTimeout(() => {
+        const r = analyze(inputs());
+        if (r.error) { $("#status").textContent = r.error; $("#results").hidden = true; last = null; return; }
+        $("#status").textContent = "";
+        last = r;
+        show(r);
+        record("analysis_run");
+      }, 20);
+    }
+
+    $("#analyze").addEventListener("click", () => { if (!parsed) refreshColumns(); run(); });
+    $("#view").addEventListener("change", () => { if (last) $("#scatter").innerHTML = scatter(last); });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshColumns();
+      record("example_loaded");
+      run();
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([toCsv(last)], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "hdbscan-clusters.csv";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+# Milestone 11af post hoc (vertical_transit_posthoc.py; written after the main results were seen)
+## Q1: tau = 3.05 s, own-fleet term c_ii removed. D = T - trace(c) (partition-dependent cost); D1 = all in one group; at the best stack with at most 8 groups: en = en-route weight still shared, xs = cross transits through the other band of the own group, xb = cross transits through lower groups
+M=12 medians: D_best/D1 0.1866; en 0.0260, xs 0.0001, xb 0.1565 of D1; D_best / total en-route weight 0.2111 [11ad, no transit charge: k = 8 keeps 0.029 / 0.022]
+M=16 medians: D_best/D1 0.1725; en 0.0203, xs 0.0006, xb 0.1505 of D1; D_best / total en-route weight 0.1936 [11ad, no transit charge: k = 8 keeps 0.029 / 0.022]
+
+## Q2: groups used by the best stack (at most 8) when the cross-operator transit charge is multiplied by f
+M=12 f= 1: groups used 8:24; median 8.0; median T_best/T1 0.6059
+M=12 f= 2: groups used 8:24; median 8.0; median T_best/T1 0.6584
+M=12 f= 4: groups used 8:24; median 8.0; median T_best/T1 0.7351
+M=12 f= 8: groups used 5:2 6:3 7:5 8:14; median 8.0; median T_best/T1 0.8417
+M=12 f=16: groups used 2:4 3:11 4:3 5:4 6:2; median 3.0; median T_best/T1 0.9323
+M=16 f= 1: groups used 8:24; median 8.0; median T_best/T1 0.5400
+M=16 f= 2: groups used 8:24; median 8.0; median T_best/T1 0.5915
+M=16 f= 4: groups used 8:24; median 8.0; median T_best/T1 0.6757
+M=16 f= 8: groups used 5:1 6:1 7:3 8:19; median 8.0; median T_best/T1 0.7900
+M=16 f=16: groups used 3:6 4:5 5:7 6:4 8:2; median 5.0; median T_best/T1 0.8890
+# runtime 31 s

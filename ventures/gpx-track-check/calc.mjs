@@ -6,7 +6,7 @@ export function decodeBuffer(buf) {
   const b = new Uint8Array(buf);
   if (b[0] === 0xff && b[1] === 0xfe) return new TextDecoder("utf-16le").decode(b.subarray(2));
   if (b[0] === 0xfe && b[1] === 0xff) return new TextDecoder("utf-16be").decode(b.subarray(2));
-  return new TextDecoder("utf-8").decode(b).replace(/^﻿/, "");
+  return new TextDecoder("utf-8").decode(b).replace(/^\uFEFF/, "");
 }
 
 const NS11 = "http://www.topografix.com/GPX/1/1";
@@ -60,7 +60,9 @@ export function validate(text, opts = {}) {
   const add = (severity, code, message, line) => findings.push({ severity, code, message, line: line || 0 });
   const g = parse(text);
 
-  if (!/^\s*(<\?xml[^>]*\?>\s*)?(<!--[\s\S]*?-->\s*)*<gpx\b/.test(text)) {
+  // A comment's body may not contain "-->". The old `<!--[\s\S]*?-->` could stretch one comment over
+  // the next, so a run of empty comments split 2^n ways (ReDoS: 22 took 0.2 s, each 4 more x12).
+  if (!/^\s*(<\?xml[^>]*\?>\s*)?(<!--(?:(?!-->)[\s\S])*-->\s*)*<gpx\b/.test(text)) {
     add("error", "not-gpx", "The file does not start with a <gpx> element (after an optional XML declaration). Apps will refuse it.", 1);
   }
   if (!g.root) {

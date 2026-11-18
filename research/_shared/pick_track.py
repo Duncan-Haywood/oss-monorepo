@@ -11,6 +11,8 @@ programmes in FOCUS are drawn first that often (owner, 2026-10-31: deep tech ind
 real estate development and construction, construction data; widened 2026-11-01 to chips and
 robot co-design; prompts/goals.md, "Direction: research at PhD+ level, aimed at deep tech").
 Pass a number to map a draw you already have: pick_track.py 0.11
+It starts with LAND FIRST: the open PRs titled research/... (older than 3 h: land,
+finish or close them first; newer: a sibling's live claim); --land prints only that list.
 With no number the first draw is saved in .git (keyed by branch, 12 h) and
 reused, so a re-run in the same session gives the same programme; --new redraws.
 It first brings origin/main up to date (ls-remote, then a fetch reaching 7 h back when
@@ -29,6 +31,7 @@ first), so the "Next steps" of the latest one is one `cat` away when the
 milestones in PROJECTS.md are all done. A stale checkout hides projects other
 runs landed: the WARNING line says when to merge origin/main.
 """
+import calendar
 import functools
 import math
 import re
@@ -118,6 +121,31 @@ def unreachable_hosts(slug, answers=host_answers):
     with ThreadPoolExecutor(max_workers=len(hosts)) as ex:
         ok = list(ex.map(answers, hosts))
     return [h for h, a in zip(hosts, ok) if not a]
+
+
+def host_recheck_lines(slug):
+    """stale_hosts.recheck_lines: the hosts the programme's LOG.md or README.md call refused,
+    probed again. Seven run records (2026-11-12..16) found such a note stale at the first
+    probe; HOSTS covers only the hosts a programme listed, so prose notes were trusted."""
+    try:
+        from stale_hosts import recheck_lines
+        return recheck_lines(slug, answers=host_answers)
+    except Exception as e:  # never let the recheck break the draw
+        return [f"HOSTS RECHECK {slug}: skipped ({type(e).__name__}); python3 research/_shared/stale_hosts.py {slug}"]
+
+
+def programme_label(slug, down):
+    """How the track listing names a programme: BLOCKED (its BLOCKED file), OFFLINE (a HOSTS entry did not
+    answer from this session), or the bare slug.
+
+    Friction 2026-11-16: a track draw (track 12 redrawn to 25) named heavy-hydraulics as the programme to
+    advance although its HOSTS host (huggingface.co) answered 403 at CONNECT; only the programme draw
+    (draw_programme) checked HOSTS, so the run found out by running the experiment."""
+    if is_blocked(slug):
+        return f"{slug} (BLOCKED)"
+    if down:
+        return f"{slug} (OFFLINE: needs {', '.join(down)}, research/{slug}/HOSTS)"
+    return slug
 
 
 def projects(prefix, limit=5):
@@ -235,6 +263,28 @@ def refresh_origin_main(hours=6, run=subprocess.run):
     return None
 
 
+# PR number -> head branch, filled by _open_pr_titles. A run that re-ran this script after
+# opening its own draft PR saw that PR as a sibling's claim: the draw skipped its programme
+# and the CLAIM CHECK named a different one (friction 2026-11-11..14, five reports).
+_HEADS = {}
+# PR number -> (created_at, draft), filled by _open_pr_titles for land_first_lines.
+_META = {}
+# PR number -> True when its head lives in a fork (research_log.py --prs skips those).
+_FORK = {}
+
+
+@functools.lru_cache(maxsize=None)
+def current_branch():
+    out = subprocess.run(["git", "branch", "--show-current"], cwd=RESEARCH, capture_output=True, text=True)
+    return out.stdout.strip()
+
+
+def is_own_pr(number):
+    """True when open PR `number` comes from the branch checked out here (this run's own PR)."""
+    branch = current_branch()
+    return bool(branch) and _HEADS.get(number) == branch
+
+
 @functools.lru_cache(maxsize=None)
 def _open_pr_titles(repo, limit, pages=10):
     """[(number, title)] of open PRs, fetched once per process; None when the API could not be read.
@@ -249,6 +299,10 @@ def _open_pr_titles(repo, limit, pages=10):
             with urllib.request.urlopen(url, timeout=15) as r:
                 batch = json.load(r)
             found += [(p["number"], p.get("title", "")) for p in batch]
+            _HEADS.update({p["number"]: (p.get("head") or {}).get("ref", "") for p in batch})
+            _FORK.update({p["number"]: ((p.get("head") or {}).get("repo") or {}).get("full_name", "").lower()
+                          != repo.lower() for p in batch})
+            _META.update({p["number"]: (p.get("created_at") or "", bool(p.get("draft"))) for p in batch})
             if len(batch) < limit:
                 break
     except Exception:
@@ -262,7 +316,104 @@ def open_prs_for(slug, repo="duncan-haywood/oss-monorepo", limit=100):
     The commit check cannot see a sibling that has not merged yet: two runs drew the same
     programme milestone and one trained for 2 hours before the other landed (friction
     2026-10-25). Unauthenticated REST works from cloud sessions for this public repo."""
-    return [f"#{n} {t}" for n, t in (_open_pr_titles(repo, limit) or []) if slug in t]
+    return [f"#{n} {t}" for n, t in (_open_pr_titles(repo, limit) or []) if slug in t and not is_own_pr(n)]
+
+
+LANDED_SUBJECT = re.compile(r"\(#(\d+)\)\s*$|^Merge pull request #(\d+)\b")
+
+
+@functools.lru_cache(maxsize=None)
+def _main_subjects(repo="duncan-haywood/oss-monorepo", pages=3):
+    """Subjects of main's recent commits: the local origin/main log plus up to `pages`
+    hundred from the API (the cloud clone is often depth 1). Best effort, [] on errors."""
+    out = subprocess.run(["git", "log", "origin/main", "-n", "500", "--format=%s"],
+                         cwd=RESEARCH, capture_output=True, text=True)
+    subjects = out.stdout.splitlines() if out.returncode == 0 else []
+    try:
+        for page in range(1, pages + 1):
+            url = f"https://api.github.com/repos/{repo}/commits?sha=main&per_page=100&page={page}"
+            with urllib.request.urlopen(url, timeout=15) as r:
+                batch = json.load(r)
+            subjects += [((c.get("commit") or {}).get("message") or "").split("\n")[0]
+                         for c in batch if isinstance(c, dict)]
+            if len(batch) < 100:
+                break
+    except Exception:
+        pass
+    return subjects
+
+
+def landed_on_main(numbers):
+    """The PR numbers among `numbers` whose squash or merge commit is already on main.
+
+    LAND FIRST listed #16494 as unlanded while its squash commit '(#16494)' sat on main
+    (two reports, 2026-11-16): the PR stayed open with a dirty merge state, and runs
+    tried to merge it before closing it by hand."""
+    wanted, found = set(numbers), set()
+    for subject in _main_subjects():
+        m = LANDED_SUBJECT.search(subject)
+        n = m and int(m.group(1) or m.group(2))
+        if n in wanted:
+            found.add(n)
+    return found
+
+
+RESEARCH_TITLE = re.compile(r"^\s*research[/:]|\bresearch/[a-z0-9]", re.I)
+
+
+def land_first_lines(fresh_hours=3, show=8, now=None):
+    """The open PRs research/prompt-0.md "Landing work" step 2 asks a run to land first.
+
+    That step says to work through open research PRs before building, but with 100+ open
+    PRs and no path filter in the GitHub list call, runs read every title by hand (three
+    reports in three days, 2026-11-16) to find two. Titles naming `research/<slug>` are
+    the research ones (the convention step 3 asks for). Split by age: one opened in the
+    last `fresh_hours` is a sibling's live claim (step 3's three hours), leave it; an
+    older one is what step 2 means: land it, finish it, or close it as superseded."""
+    titles = _open_pr_titles("duncan-haywood/oss-monorepo", 100)
+    if titles is None:
+        return ["LAND FIRST: could not list open PRs (GitHub API unreachable); search open PR titles "
+                "for 'research/' by hand (research prompt, 'Landing work' step 2)"]
+    now = time.time() if now is None else now
+
+    def age(n):
+        stamp = _META.get(n, ("", False))[0]
+        try:
+            return (now - calendar.timegm(time.strptime(stamp, "%Y-%m-%dT%H:%M:%SZ"))) / 3600
+        except ValueError:
+            return None
+
+    mine = [(n, t) for n, t in titles if RESEARCH_TITLE.search(t) and is_own_pr(n)]
+    ours = [(n, t, age(n)) for n, t in titles if RESEARCH_TITLE.search(t) and not is_own_pr(n)]
+    stale = sorted([x for x in ours if x[2] is None or x[2] >= fresh_hours], key=lambda x: -(x[2] or 0))
+    fresh = [x for x in ours if x[2] is not None and x[2] < fresh_hours]
+
+    landed = landed_on_main([x[0] for x in stale]) if stale else set()
+    stale = [x for x in stale if x[0] not in landed]
+
+    def fmt(n, t, a):
+        draft = ", draft" if _META.get(n, ("", False))[1] else ""
+        when = "age ?" if a is None else (f"{a:.1f}h" if a < 48 else f"{a / 24:.0f}d")
+        return f"  #{n} ({when}{draft}) {t[:110]}"
+
+    head = f"LAND FIRST ({len(ours)} other open PR(s) of {len(titles)} title research/...; research prompt, 'Landing work' step 2):"
+    if not ours:
+        return [head[:-1] + ": none, so nothing to land first; go on to the draw"]
+    lines = [head]
+    if stale:
+        lines.append(f"  {len(stale)} older than {fresh_hours}h, oldest first: land, finish, or close as superseded "
+                     "(a run-record-only branch: leave it)")
+        lines += [fmt(*x) for x in stale[:show]]
+        if len(stale) > show:
+            lines.append(f"  ... and {len(stale) - show} more (pick_track.py --land lists all)")
+    if landed:
+        lines.append(f"  {len(landed)} already on main (its squash or merge commit names it): close it, nothing to merge:")
+        lines += [fmt(*x) for x in ours if x[0] in landed]
+    if fresh:
+        lines.append(f"  {len(fresh)} opened in the last {fresh_hours}h: a sibling's live claim, leave it:")
+        lines += [fmt(*x) for x in fresh[:show]]
+    lines += [f"  #{n} is this branch's own PR" for n, _ in mine]
+    return lines
 
 
 def origin_main_age_hours():
@@ -296,7 +447,10 @@ def claim_check(slug, hours=6):
     if titles is None:
         lines.append(f"CLAIM CHECK: could not list open PRs (GitHub API unreachable); search open PRs for '{slug}' by hand")
     else:
-        prs = [f"#{n} {t}" for n, t in titles if slug in t]
+        named = [(n, t) for n, t in titles if slug in t]
+        prs = [f"#{n} {t}" for n, t in named if not is_own_pr(n)]
+        lines += [f"CLAIM CHECK: #{n} {t} is this branch's own PR ({current_branch()}), not a sibling's claim"
+                  for n, t in named if is_own_pr(n)]
         lines += [f"CLAIM CHECK: open PR names this programme (take a different milestone or help land it): {p}"
                   for p in prs]
         if recent and not prs:
@@ -304,7 +458,7 @@ def claim_check(slug, hours=6):
                          "that this check can see; a sibling that has not pushed yet is invisible to it")
         if not recent and not prs and age is not None and age <= hours:
             if history_covers(hours):
-                lines.append(f"CLAIM CHECK: clear (no origin/main commit in {hours}h; none of {len(titles)} open PRs names {slug}); "
+                lines.append(f"CLAIM CHECK: clear (no origin/main commit in {hours}h; no other open PR of {len(titles)} names {slug}); "
                              f"after opening your draft PR, `python3 portfolio/router/claim_check.py {slug}` says who keeps it if a sibling opened one too")
             else:
                 lines.append(f"CLAIM CHECK: no commit in this clone's history and no open PR names {slug}, but the shallow "
@@ -352,13 +506,46 @@ def track_programmes(t, text=None):
     return out
 
 
-def free_choice_lines(progs):
+def last_landed_hours(slug, now=None):
+    """Hours since origin/main's newest commit touching research/<slug>; None when none is
+    in this clone's history or it is the shallow edge (its date is the fetch's, not the work's)."""
+    out = subprocess.run(["git", "log", "origin/main", "-n1", "--format=%H %ct", "--", f":(top)research/{slug}"],
+                         cwd=RESEARCH, capture_output=True, text=True)
+    parts = out.stdout.split()
+    if out.returncode != 0 or len(parts) != 2 or parts[0] in shallow_edge():
+        return None
+    return max(0.0, ((now or time.time()) - int(parts[1])) / 3600)
+
+
+def contention_lines(slugs, show=5, prs=open_prs_for, recent=recent_programme_commits, last=last_landed_hours):
+    """The least contended open programmes first: open PRs naming it, then origin/main
+    commits touching it in the last 6 h, then the longest since anything landed.
+
+    Free choice listed 21 open programmes with no sign of which ones sibling runs were
+    on; every one had a LOG.md entry dated that day, so picking took several LOG reads
+    (doc friction 2026-11-16, research/_shared/pick_track.py)."""
+    rows = []
+    for s in slugs:
+        n_pr, n_recent, age = len(prs(s)), len(recent(s)), last(s)
+        rows.append(((n_pr, n_recent, -(age if age is not None else 1e9)), s, n_pr, n_recent, age))
+    rows.sort()
+    out = []
+    for _, s, n_pr, n_recent, age in rows[:show]:
+        since = "nothing in this clone's history" if age is None else f"last landed {age:.0f} h ago"
+        out.append(f"    {s}: {n_pr} open PR(s), {n_recent} commit(s) on main in 6 h, {since}")
+    return out
+
+
+def free_choice_lines(progs, contention=contention_lines):
     """What a free-choice draw means and where its work goes.
 
     The draw printed only "draw 0.022 -> free-choice", with no pointer to the
     rules for where free work lives (doc friction 2026-11-13,
     prompts/research/prompt-0.md)."""
     open_ = [s for s, _ in progs if not is_blocked(s)]
+    ranked = contention(open_) if open_ else []
+    if ranked and contention is contention_lines and _open_pr_titles("duncan-haywood/oss-monorepo", 100) is None:
+        ranked.append("    (the open-PR list could not be read, so the PR counts above are not a claim check)")
     return [
         "free choice (about 1 run in 20, prompts/research/prompt-0.md): work on the question you find most "
         "worth a session; the integrity rules and the bar are unchanged",
@@ -366,7 +553,45 @@ def free_choice_lines(progs):
         "programme (PROPOSAL.md + a row in research/PROGRAMMES.md), or a standalone project whose project.json "
         'says "programme": "none", "why_standalone": "<reason>" (PROGRAMMES.md, step 3; programme_check.py enforces it)',
         f"  {len(open_)} open programme(s) not BLOCKED; `--new` draws again",
-    ]
+    ] + (["  least contended first (open PRs, then commits in 6 h, then longest idle; a step of one of these "
+          "is least likely to collide with a sibling run):"] + ranked if ranked else [])
+
+
+def track_fallback_lines(t, progs_here, down, all_progs=None, claimed=open_prs_for,
+                         unreachable=unreachable_hosts, contention=contention_lines, show=3):
+    """When no open programme of track `t` can be taken here (each is BLOCKED, OFFLINE
+    in this session or named by an open PR), the least contended takeable programme
+    elsewhere, so the run does not hand-scan PROGRAMMES.md. [] when one is takeable.
+
+    Friction 2026-11-17 (research/_shared/pick_track.py, two reports): a track-20 draw whose
+    programmes were build-data (OFFLINE) and buildbot-sheathing (draft PR #16769) only said
+    `--new` draws again; the run scanned PROGRAMMES.md and recent PRs by hand instead.
+    A focus track's fallback stays among the FOCUS programmes while one is takeable."""
+    if not progs_here:
+        return []
+    why = {}
+    for s in progs_here:
+        if is_blocked(s):
+            why[s] = "BLOCKED"
+        elif down.get(s):
+            why[s] = "OFFLINE"
+        elif claimed(s):
+            why[s] = f"claimed by {claimed(s)[0].split(' ', 1)[0]}"
+        else:
+            return []
+    if all_progs is None:
+        all_progs = [s for s, _ in programmes()]
+    rest = [s for s in all_progs if s not in progs_here and not is_blocked(s) and not claimed(s)]
+    rest = [s for s in rest if not unreachable(s)]
+    if t != "free" and PREFIX[t - 1] in FOCUS and any(is_focus(s) for s in rest):
+        rest = [s for s in rest if is_focus(s)]
+    head = ("  no programme for track " + str(t) + " can be taken here ("
+            + ", ".join(f"{s}: {w}" for s, w in why.items()) + ")")
+    if not rest:
+        return [head + "; none elsewhere either: open a new programme for this track (PROPOSAL.md + a "
+                "PROGRAMMES.md row), or `--new` draws again"]
+    return [head + "; least contended takeable programme(s) elsewhere (open PRs, then commits in 6 h, "
+            "then longest idle), or open a new one for this track:"] + contention(rest, show=show)
 
 
 def recent_landed(slug, n=3):
@@ -406,6 +631,32 @@ def milestones(prefix):
     marked = {slug for slug, rest in found
               if re.match(r"\s*\((done|landed)\b", rest) or re.match(r"\s*\([^)]*\blanded in\b", rest)}
     return listed, [x for x in listed if x not in marked and not (RESEARCH / x).is_dir()]
+
+
+def milestone_lines(prefix, takeable=(), found=None, logs=None):
+    """The PROJECTS.md milestone line for a track draw.
+
+    When the track has an open programme this session can take, its LOG 'Next' is the
+    step to land and the milestone list is only for a run that opens a new programme:
+    the plain line ("milestones: 2/9 ... next free: aerolog-sizing") read as the next
+    step and sent runs to a new slug (doc friction 2026-11-11 and 2026-11-17,
+    research/_shared/pick_track.py). `takeable` is the track's programmes that are
+    neither BLOCKED nor OFFLINE here; `found` and `logs` replace milestones() and
+    mentioned_in_logs() in tests."""
+    listed, free = found if found is not None else milestones(prefix)
+    logs = logs or mentioned_in_logs
+    if takeable:
+        head = (f"milestones (PROJECTS.md, for a run that opens a new programme; advancing "
+                f"{', '.join(takeable[:3])} comes first, from its LOG.md 'Next'): ")
+    else:
+        head = "milestones: "
+    if not listed:
+        return [head + "no list found in PROJECTS.md; take a 'Next steps' item or ask a new question"]
+    if free:
+        named = logs(free[0])
+        seen = f" (named in {', '.join(named[:3])}: check it has not already run there)" if named else ""
+        return [head + f"{len(listed) - len(free)}/{len(listed)} on this checkout; next free: {free[0]}{seen}"]
+    return [head + f"all {len(listed)} listed are on this checkout; take a 'Next steps' item or ask a new question"]
 
 
 def mentioned_in_logs(slug):
@@ -449,7 +700,17 @@ def next_steps(name, width=400):
     if not readme.is_file():
         return ""
     m = re.search(r"^#+ *Next steps[^\n]*\n(.*?)(?=^#|\Z)", readme.read_text(), re.M | re.S)
-    text = " ".join(m.group(1).split()) if m else ""
+    if not m:
+        return ""
+    # A numbered or bulleted list shows every item's head, so a cut never hides
+    # the later items (doc friction 2026-11-17: item 6's open threads were cut off).
+    items = [" ".join(x.split()) for x in
+             re.split(r"^\s*(?:\d+[.)]|[-*]) +", m.group(1), flags=re.M)[1:] if x.strip()]
+    if len(items) > 1:
+        each = max(80, width // len(items))
+        return " | ".join(f"{i}) " + (x if len(x) <= each else x[:each].rstrip() + "...")
+                          for i, x in enumerate(items, 1))
+    text = " ".join(m.group(1).split())
     return text if len(text) <= width else text[:width].rstrip() + "..."
 
 
@@ -490,8 +751,7 @@ def session_draw(new=False, ttl=12 * 3600):
     try:
         git = subprocess.run(["git", "rev-parse", "--git-dir"], cwd=RESEARCH, capture_output=True,
                              text=True, check=True).stdout.strip()
-        branch = subprocess.run(["git", "branch", "--show-current"], cwd=RESEARCH, capture_output=True,
-                                text=True).stdout.strip()
+        branch = current_branch()
         f = (RESEARCH / git).resolve() / "pick_track_draw.json"
     except (OSError, subprocess.CalledProcessError):
         return random.random()
@@ -509,9 +769,33 @@ def session_draw(new=False, ttl=12 * 3600):
     return r
 
 
+def reproduce_gap_line(slug):
+    """reproduce_names.brief_line, or None if it cannot run here."""
+    try:
+        from reproduce_names import brief_line
+        return brief_line(slug)
+    except Exception:  # a brief line is a hint; never let it break the draw
+        return None
+
+
+def post_limits_line():
+    """The blog post front-matter caps, printed at the end of the draw: nine research
+    sessions in three days (friction_rank.py --live, 2026-11-12..15) met the 160-character
+    description cap only when CI or the pre-push hook refused a first draft."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "platform" / "ci"))
+    try:
+        from check_post_frontmatter import limits_line
+    except ImportError:  # a sparse checkout without platform/ci
+        return "post front matter: python3 platform/ci/check_post_frontmatter.py --limits"
+    return "post " + limits_line()
+
+
 if __name__ == "__main__":
     new = "--new" in sys.argv[1:]
     fetch = "--no-fetch" not in sys.argv[1:]
+    if "--land" in sys.argv[1:]:
+        print("\n".join(land_first_lines(show=10 ** 6)))
+        sys.exit(0)
     args = [a for a in sys.argv[1:] if a not in ("--new", "--no-fetch")]
     if args and args[0] in ("-h", "--help"):
         print(__doc__)
@@ -526,6 +810,8 @@ if __name__ == "__main__":
         problem = refresh_origin_main()
         if problem:
             print(f"note: {problem}; the commit checks below read the local origin/main")
+    for line in land_first_lines():
+        print(line)
     progs = programmes()
     if progs and random.Random(r).random() < PROGRAMME_SHARE:
         slug, has, skipped = draw_programme(r, progs)
@@ -540,12 +826,18 @@ if __name__ == "__main__":
                 print(f"  {line}")
         if has:
             print(f"read research/{slug}/PROPOSAL.md and the newest research/{slug}/LOG.md entries; land the next milestone")
+            gap = reproduce_gap_line(slug)
+            if gap:
+                print(gap)
             for line in newest_log_entries(slug):
                 print(f"  LOG.md {line}")
         else:
             print(f"no proposal yet: write research/{slug}/PROPOSAL.md to the bar in PROGRAMMES.md")
         for line in claim_check(slug):
             print(line)
+        for line in host_recheck_lines(slug):
+            print(line)
+        print(post_limits_line())
         sys.exit(0)
     t = pick(r)
     focus = t != "free" and PREFIX[t - 1] in FOCUS
@@ -566,22 +858,27 @@ if __name__ == "__main__":
     behind = commits_behind()
     if behind:
         print(f"WARNING: this checkout is {behind} commit(s) behind origin/main, so the lists below may "
-              "name projects that already landed. `git fetch --depth=40 origin main && git merge origin/main` first.")
+              "name projects that already landed. `python3 platform/ci/fetch_ref.py main && git merge origin/main` first.")
     if t != "free":
         print(f"track runs open a programme in this area or advance one (research/PROGRAMMES.md); "
               "the listed milestones are raw material, not separate projects")
         progs_here = track_programmes(t)
         if progs_here:
+            down = {s: unreachable_hosts(s) for s in progs_here if not is_blocked(s)}
             print(f"open programme(s) for track {t}: "
-                  + ", ".join(f"{s} (BLOCKED)" if is_blocked(s) else s for s in progs_here)
+                  + ", ".join(programme_label(s, down.get(s)) for s in progs_here)
                   + "; advancing one is the default: read research/<slug>/PROPOSAL.md and its "
                   "newest LOG.md entries, and prefer its next step over a free milestone below")
+            for line in track_fallback_lines(t, progs_here, down):
+                print(line)
             for s in progs_here:
-                if not is_blocked(s):
+                if not is_blocked(s) and not down.get(s):
                     for line in newest_log_entries(s, n=2):
                         print(f"  {s}: LOG.md {line}")
                     for line in claim_check(s):
                         print(f"  {s}: {line}")
+                    for line in host_recheck_lines(s):
+                        print(f"  {line}")
         else:
             print(f"no open programme in research/PROGRAMMES.md names track {t} or starts with "
                   f"`{PREFIX[t - 1]}-`: opening one (a PROPOSAL.md and a table row) is the default")
@@ -589,15 +886,9 @@ if __name__ == "__main__":
         shallow = is_shallow()
         label = "some (shallow clone: commit dates are flattened, so this is not newest-first)" if shallow else "newest"
         print(f"{n} `{PREFIX[t - 1]}-*` projects on this checkout; {label}: {', '.join(newest) or 'none'}")
-        listed, free = milestones(PREFIX[t - 1])
-        if not listed:
-            print("milestones: no list found in PROJECTS.md; take a 'Next steps' item or ask a new question")
-        elif free:
-            logs = mentioned_in_logs(free[0])
-            seen = f" (named in {', '.join(logs[:3])}: check it has not already run there)" if logs else ""
-            print(f"milestones: {len(listed) - len(free)}/{len(listed)} on this checkout; next free: {free[0]}{seen}")
-        else:
-            print(f"milestones: all {len(listed)} listed are on this checkout; take a 'Next steps' item or ask a new question")
+        takeable = [s for s in progs_here if not is_blocked(s) and not down.get(s)] if progs_here else []
+        for line in milestone_lines(PREFIX[t - 1], takeable):
+            print(line)
         if newest:
             note = " (shallow clone: not necessarily the newest; unshallow first for that)" if shallow else ""
             if n >= SATURATED:
@@ -605,6 +896,7 @@ if __name__ == "__main__":
                 print(f"track {t} has {n} projects (>= {SATURATED}); redrawing is fine. Fewest: "
                       + ", ".join(f"track {i} ({c})" for c, i in counts[:3]))
             print(f"next step if milestones are done: research/{newest[0]}/README.md, 'Next steps'{note}")
-            if not free:
+            if not milestones(PREFIX[t - 1])[1]:
                 for name in newest[:3]:
                     print(f"  {name}: {next_steps(name) or '(no Next steps section)'}")
+    print(post_limits_line())

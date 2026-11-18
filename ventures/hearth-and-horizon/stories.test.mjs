@@ -168,3 +168,29 @@ test('overlap.mjs finds terms in stories and DONE-only entries', async () => {
   const [sump, cap] = overlap(['sump', 'caps*'], [{ ...stories[0], body: 'an assumption' }], done);
   assert.deepEqual([sump.stories.length, cap.done], [0, ['Old One']]);
 });
+
+test('overlap.mjs --unused drops a subject a story, DONE entry or proposal uses', async () => {
+  const { parseSubjects, unusedSubjects, doneEntries, nextUpText, overlap } = await import('./overlap.mjs');
+  const pool = parseSubjects('# c\nhearth-and-horizon | winch, capstan | a\nhearth-and-horizon | weir | b\nhearth-and-horizon | sluice | c\nhearth-and-horizon | Venturi | d\nlittle-lamps | Martha | e\n');
+  assert.equal(pool.length, 5);
+  assert.deepEqual(pool[0].terms, ['winch', 'capstan']);
+  const stories = [{ title: 'S', shelf: 'hearth-and-horizon', slug: 's', setting: '', summary: '', body: 'a weir and Martha the welder' }];
+  const done = doneEntries('## Hearth & Horizon\n- *(Done: Old, X.)* a capstan\n');
+  assert.equal(done[0].shelf, 'hearth-and-horizon');
+  const next = nextUpText('## Next up\n- *Sluice* proposed\n## What not to do\n- Venturi\n');
+  // winch via synonym in DONE, weir in a story, sluice proposed; Venturi is
+  // outside Next up; Martha is a science fiction name, not a Little Lamp.
+  assert.deepEqual(unusedSubjects(pool, stories, done, next).map((c) => c.terms[0]), ['Venturi', 'Martha']);
+  assert.deepEqual(unusedSubjects(pool, stories, done, next, 'little-lamps').map((c) => c.terms[0]), ['Martha']);
+  const [inBody] = overlap(['weir'], stories, done, null, { titles: true });
+  assert.equal(inBody.stories.length, 0);
+});
+
+test('subjects.txt lines parse into a known shelf, terms and an angle', async () => {
+  const { parseSubjects } = await import('./overlap.mjs');
+  const { SHELVES } = await import('./stories.mjs');
+  const ids = new Set(SHELVES.map((s) => s.id));
+  const pool = parseSubjects(readFileSync(new URL('subjects.txt', import.meta.url), 'utf8'));
+  const bad = pool.filter((c) => !ids.has(c.shelf) || !c.terms.length || !c.angle).map((c) => c.terms.join(','));
+  assert.deepEqual(bad, []);
+});

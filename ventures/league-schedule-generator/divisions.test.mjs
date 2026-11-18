@@ -996,7 +996,7 @@ test("applyDivisionWithdrawals from a date keeps earlier matches; bad lines are 
 
 test("blackoutsFromCsv turns a coach form export into blackout lines, merges repeats and names what it cannot place", () => {
   const { divisions } = parseDivisions(example.divisions);
-  const csv = '﻿Timestamp,Division,Team name,"Dates we cannot play"\r\n' +
+  const csv = '\uFEFFTimestamp,Division,Team name,"Dates we cannot play"\r\n' +
     '11/1/2026,U10,Hawks,"2026-11-05; 2026-12-22 to 2026-12-30"\r\n' +
     '11/2/2026,U12,Hawks,none\r\n' +
     '11/2/2026,U10,Hawks,2026-11-12\r\n' +

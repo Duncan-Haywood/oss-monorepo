@@ -20,7 +20,8 @@ Prints one JSON line per file and exits 1 if any sensel, the balance, the
 black level or the CFA differs (the white level is reported, not gated: LibRaw
 takes some bodies' from a per-model table). Real files used on 2026-11-14: the
 four camera RW2s in drewnoakes/metadata-extractor-images (``rw2/``),
-``eval/panasonic-rw2-reader-2026-11-14.md``.
+``eval/panasonic-rw2-reader-2026-11-14.md``; on 2026-11-15, one file each from 12 newer bodies on
+raw.pixls.us (CC0; RawFormat 4, 5, 6 and 7), ``eval/panasonic-rw2-newer-2026-11-15.md``.
 """
 
 from __future__ import annotations

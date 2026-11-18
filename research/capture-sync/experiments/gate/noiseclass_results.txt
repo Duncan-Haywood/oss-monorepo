@@ -1,0 +1,288 @@
+capture-sync step 3d: a noise-class gate (snr_hat x frame-energy kurtosis bins, conformal novelty refusal,
+per-bin weighting) under real noise; MS-SNSD speech and noise, statistical rooms, 2 s windows;
+LTT alpha 1% failure among accepted, delta 0.1; calibrate on sessions 0-4, test on sessions 5-9
+windows: 62000. Cells: kept share, wrong among accepted ('-' = nothing accepted)
+
+== Replay: raw failure share by room, type and level, gamma 1 / gamma 0.25 ==
+  62 of 62 cells equal step 3c's noisetype_summary.json
+
+== Blind features by type, -10 dB, both rooms (median [5th, 95th pct]): kurt (log10), flat (dB) ==
+  none                  kurt  0.98 [ 0.62, 1.38]   flat   -9.2 [ -12.4,  -6.3]
+  white                 kurt  0.88 [ 0.56, 1.32]   flat   -0.2 [  -0.4,  -0.2]
+  AirConditioner        kurt  0.66 [ 0.46, 1.04]   flat   -9.5 [ -12.1,  -6.3]
+  AirportAnnouncements  kurt  0.80 [ 0.54, 1.21]   flat   -8.9 [ -10.7,  -7.4]
+  Babble                kurt  0.92 [ 0.60, 1.45]   flat   -7.5 [  -9.2,  -4.8]
+  CopyMachine           kurt  1.36 [ 0.92, 1.68]   flat   -2.7 [  -4.6,  -1.9]
+  Munching              kurt  1.42 [ 0.93, 1.77]   flat   -3.0 [  -6.4,  -1.3]
+  Neighbor              kurt  1.00 [ 0.64, 1.40]   flat   -8.4 [ -10.8,  -5.6]
+  ShuttingDoor          kurt  1.30 [ 0.68, 1.74]   flat   -5.1 [  -8.6,  -2.3]
+  Typing                kurt  1.55 [ 1.23, 1.77]   flat   -2.6 [  -6.1,  -1.6]
+  VacuumCleaner         kurt  0.89 [ 0.47, 1.47]   flat   -3.6 [  -4.6,  -2.6]
+
+== T0 in distribution: white (none, +10, 0, -10 dB) -> white, held-out sessions ==
+  RT60 0.2: (n 2000, inside 0.99) mondrian|0.25 0.99 0.0010 | class|0.25 0.87 0.0006 | class|1.0 0.74 0.0000 | select 0.00   -    | mondrian|1.0 0.75 0.0000
+  RT60 0.8: (n 2000, inside 0.99) mondrian|0.25 0.99 0.0020 | class|0.25 0.68 0.0015 | class|1.0 0.51 0.0000 | select 0.16 0.0061 | mondrian|1.0 0.75 0.0000
+
+== T1 white -> real type: calibrate none + white at all levels ==
+  RT60 0.2 AirConditioner         10.0: (n 500, inside 0.97) mondrian|0.25 1.00 0.0020 | class|0.25 0.97 0.0021 | class|1.0 0.97 0.0000 | select 0.00   -   
+  RT60 0.2 AirConditioner          0.0: (n 500, inside 0.72) mondrian|0.25 1.00 0.0020 | class|0.25 0.72 0.0000 | class|1.0 0.72 0.0000 | select 0.00   -   
+  RT60 0.2 AirConditioner        -10.0: (n 500, inside 0.07) mondrian|0.25 1.00 0.1140 | class|0.25 0.07 0.1714 | class|1.0 0.07 0.0571 | select 0.00   -   
+  RT60 0.2 AirportAnnouncements   10.0: (n 500, inside 0.98) mondrian|0.25 1.00 0.0020 | class|0.25 0.98 0.0020 | class|1.0 0.98 0.0000 | select 0.00   -   
+  RT60 0.2 AirportAnnouncements    0.0: (n 500, inside 0.90) mondrian|0.25 1.00 0.0040 | class|0.25 0.90 0.0044 | class|1.0 0.90 0.0000 | select 0.00   -   
+  RT60 0.2 AirportAnnouncements  -10.0: (n 500, inside 0.49) mondrian|0.25 1.00 0.2520 | class|0.25 0.49 0.2996 | class|1.0 0.49 0.0850 | select 0.00   -   
+  RT60 0.2 Babble                 10.0: (n 500, inside 0.99) mondrian|0.25 1.00 0.0020 | class|0.25 0.99 0.0020 | class|1.0 0.99 0.0000 | select 0.00   -   
+  RT60 0.2 Babble                  0.0: (n 500, inside 0.97) mondrian|0.25 1.00 0.0020 | class|0.25 0.97 0.0021 | class|1.0 0.97 0.0000 | select 0.00   -   
+  RT60 0.2 Babble                -10.0: (n 500, inside 0.87) mondrian|0.25 1.00 0.6080 | class|0.25 0.87 0.5968 | class|1.0 0.87 0.4424 | select 0.00   -   
+  RT60 0.2 CopyMachine            10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0020 | class|0.25 1.00 0.0020 | class|1.0 1.00 0.0000 | select 0.00   -   
+  RT60 0.2 CopyMachine             0.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0020 | class|0.25 1.00 0.0020 | class|1.0 1.00 0.0040 | select 0.00   -   
+  RT60 0.2 CopyMachine           -10.0: (n 500, inside 0.99) mondrian|0.25 1.00 0.3160 | class|0.25 0.99 0.3119 | class|1.0 0.99 0.8290 | select 0.00   -   
+  RT60 0.2 Munching               10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 1.00 0.0000 | class|1.0 1.00 0.0020 | select 0.00   -   
+  RT60 0.2 Munching                0.0: (n 500, inside 0.89) mondrian|0.25 1.00 0.0020 | class|0.25 0.89 0.0022 | class|1.0 0.89 0.0559 | select 0.00   -   
+  RT60 0.2 Munching              -10.0: (n 500, inside 0.70) mondrian|0.25 1.00 0.3000 | class|0.25 0.70 0.2479 | class|1.0 0.70 0.6638 | select 0.00   -   
+  RT60 0.2 Neighbor               10.0: (n 500, inside 0.99) mondrian|0.25 1.00 0.0000 | class|0.25 0.99 0.0000 | class|1.0 0.99 0.0000 | select 0.00   -   
+  RT60 0.2 Neighbor                0.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 1.00 0.0000 | class|1.0 1.00 0.0000 | select 0.00   -   
+  RT60 0.2 Neighbor              -10.0: (n 500, inside 0.99) mondrian|0.25 1.00 0.6820 | class|0.25 0.99 0.6788 | class|1.0 0.99 0.2990 | select 0.00   -   
+  RT60 0.2 ShuttingDoor           10.0: (n 500, inside 0.99) mondrian|0.25 1.00 0.0000 | class|0.25 0.99 0.0000 | class|1.0 0.99 0.0000 | select 0.00   -   
+  RT60 0.2 ShuttingDoor            0.0: (n 500, inside 0.94) mondrian|0.25 1.00 0.0020 | class|0.25 0.94 0.0021 | class|1.0 0.94 0.0128 | select 0.00   -   
+  RT60 0.2 ShuttingDoor          -10.0: (n 500, inside 0.75) mondrian|0.25 1.00 0.2300 | class|0.25 0.75 0.1867 | class|1.0 0.75 0.3093 | select 0.00   -   
+  RT60 0.2 Typing                 10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 1.00 0.0000 | class|1.0 1.00 0.0120 | select 0.00   -   
+  RT60 0.2 Typing                  0.0: (n 500, inside 0.83) mondrian|0.25 1.00 0.0040 | class|0.25 0.83 0.0024 | class|1.0 0.83 0.3413 | select 0.00   -   
+  RT60 0.2 Typing                -10.0: (n 500, inside 0.59) mondrian|0.25 1.00 0.7720 | class|0.25 0.59 0.6905 | class|1.0 0.59 0.8810 | select 0.00   -   
+  RT60 0.2 VacuumCleaner          10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 1.00 0.0000 | class|1.0 1.00 0.0000 | select 0.00   -   
+  RT60 0.2 VacuumCleaner           0.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0020 | class|0.25 1.00 0.0020 | class|1.0 1.00 0.0000 | select 0.00   -   
+  RT60 0.2 VacuumCleaner         -10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0260 | class|0.25 1.00 0.0261 | class|1.0 1.00 0.0661 | select 0.00   -   
+  RT60 0.8 AirConditioner         10.0: (n 500, inside 0.99) mondrian|0.25 1.00 0.0000 | class|0.25 0.64 0.0000 | class|1.0 0.64 0.0000 | select 0.00   -   
+  RT60 0.8 AirConditioner          0.0: (n 500, inside 0.94) mondrian|0.25 1.00 0.0000 | class|0.25 0.41 0.0000 | class|1.0 0.41 0.0000 | select 0.00   -   
+  RT60 0.8 AirConditioner        -10.0: (n 500, inside 0.34) mondrian|0.25 0.99 0.1498 | class|0.25 0.05 0.0833 | class|1.0 0.03 0.0000 | select 0.01 0.0000
+  RT60 0.8 AirportAnnouncements   10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.66 0.0000 | class|1.0 0.66 0.0000 | select 0.00   -   
+  RT60 0.8 AirportAnnouncements    0.0: (n 500, inside 0.99) mondrian|0.25 1.00 0.0000 | class|0.25 0.39 0.0000 | class|1.0 0.39 0.0000 | select 0.00   -   
+  RT60 0.8 AirportAnnouncements  -10.0: (n 500, inside 0.87) mondrian|0.25 1.00 0.2800 | class|0.25 0.26 0.2385 | class|1.0 0.25 0.0556 | select 0.00   -   
+  RT60 0.8 Babble                 10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.67 0.0000 | class|1.0 0.67 0.0000 | select 0.00   -   
+  RT60 0.8 Babble                  0.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0020 | class|0.25 0.39 0.0051 | class|1.0 0.39 0.0000 | select 0.00   -   
+  RT60 0.8 Babble                -10.0: (n 500, inside 0.95) mondrian|0.25 1.00 0.6160 | class|0.25 0.49 0.6337 | class|1.0 0.35 0.3143 | select 0.00   -   
+  RT60 0.8 CopyMachine            10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.69 0.0000 | class|1.0 0.69 0.0000 | select 0.00   -   
+  RT60 0.8 CopyMachine             0.0: (n 500, inside 0.99) mondrian|0.25 1.00 0.0000 | class|0.25 0.77 0.0000 | class|1.0 0.77 0.0000 | select 0.00   -   
+  RT60 0.8 CopyMachine           -10.0: (n 500, inside 0.77) mondrian|0.25 1.00 0.3640 | class|0.25 0.73 0.3489 | class|1.0 0.31 0.8497 | select 0.00   -   
+  RT60 0.8 Munching               10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.77 0.0000 | class|1.0 0.77 0.0000 | select 0.00   -   
+  RT60 0.8 Munching                0.0: (n 500, inside 0.85) mondrian|0.25 1.00 0.0000 | class|0.25 0.73 0.0000 | class|1.0 0.73 0.0328 | select 0.00   -   
+  RT60 0.8 Munching              -10.0: (n 500, inside 0.63) mondrian|0.25 1.00 0.2620 | class|0.25 0.60 0.1946 | class|1.0 0.60 0.6208 | select 0.00   -   
+  RT60 0.8 Neighbor               10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.73 0.0000 | class|1.0 0.73 0.0000 | select 0.00   -   
+  RT60 0.8 Neighbor                0.0: (n 500, inside 0.99) mondrian|0.25 1.00 0.0020 | class|0.25 0.45 0.0000 | class|1.0 0.45 0.0000 | select 0.00   -   
+  RT60 0.8 Neighbor              -10.0: (n 500, inside 0.98) mondrian|0.25 1.00 0.7380 | class|0.25 0.79 0.7305 | class|1.0 0.79 0.2872 | select 0.00   -   
+  RT60 0.8 ShuttingDoor           10.0: (n 500, inside 0.99) mondrian|0.25 1.00 0.0000 | class|0.25 0.77 0.0000 | class|1.0 0.77 0.0000 | select 0.00   -   
+  RT60 0.8 ShuttingDoor            0.0: (n 500, inside 0.89) mondrian|0.25 1.00 0.0000 | class|0.25 0.74 0.0000 | class|1.0 0.74 0.0109 | select 0.00   -   
+  RT60 0.8 ShuttingDoor          -10.0: (n 500, inside 0.67) mondrian|0.25 1.00 0.2460 | class|0.25 0.65 0.1821 | class|1.0 0.65 0.2870 | select 0.00   -   
+  RT60 0.8 Typing                 10.0: (n 500, inside 0.99) mondrian|0.25 1.00 0.0000 | class|0.25 0.77 0.0000 | class|1.0 0.77 0.0026 | select 0.00   -   
+  RT60 0.8 Typing                  0.0: (n 500, inside 0.67) mondrian|0.25 1.00 0.0000 | class|0.25 0.66 0.0000 | class|1.0 0.66 0.3110 | select 0.00   -   
+  RT60 0.8 Typing                -10.0: (n 500, inside 0.43) mondrian|0.25 1.00 0.8140 | class|0.25 0.43 0.7196 | class|1.0 0.43 0.9252 | select 0.00   -   
+  RT60 0.8 VacuumCleaner          10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.66 0.0000 | class|1.0 0.66 0.0000 | select 0.00   -   
+  RT60 0.8 VacuumCleaner           0.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.46 0.0000 | class|1.0 0.46 0.0000 | select 0.00   -   
+  RT60 0.8 VacuumCleaner         -10.0: (n 500, inside 1.00) mondrian|0.25 0.99 0.0382 | class|0.25 0.49 0.0490 | class|1.0 0.40 0.0297 | select 0.04 0.0000
+
+== T2 leave one type out: calibrate none + the other nine types at all levels ==
+  RT60 0.2 white                   all: (n 1500, inside 0.67) mondrian|0.25 0.00   -    | class|0.25 0.33 0.0000 | class|1.0 0.33 0.0000 | select 0.33 0.0000
+  RT60 0.2 white                  10.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.49 0.0000 | class|1.0 0.49 0.0000 | select 0.49 0.0000
+  RT60 0.2 white                   0.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.49 0.0000 | class|1.0 0.49 0.0000 | select 0.49 0.0000
+  RT60 0.2 white                 -10.0: (n 500, inside 0.00) mondrian|0.25 0.00   -    | class|0.25 0.00   -    | class|1.0 0.00   -    | select 0.00   -   
+  RT60 0.2 AirConditioner          all: (n 1500, inside 0.97) mondrian|0.25 0.03 0.0000 | class|0.25 0.48 0.0000 | class|1.0 0.63 0.0000 | select 0.63 0.0000
+  RT60 0.2 AirConditioner         10.0: (n 500, inside 0.98) mondrian|0.25 0.00   -    | class|0.25 0.49 0.0000 | class|1.0 0.50 0.0000 | select 0.50 0.0000
+  RT60 0.2 AirConditioner          0.0: (n 500, inside 0.98) mondrian|0.25 0.09 0.0000 | class|0.25 0.57 0.0000 | class|1.0 0.57 0.0000 | select 0.57 0.0000
+  RT60 0.2 AirConditioner        -10.0: (n 500, inside 0.93) mondrian|0.25 0.00   -    | class|0.25 0.37 0.0000 | class|1.0 0.82 0.0000 | select 0.82 0.0000
+  RT60 0.2 AirportAnnouncements    all: (n 1500, inside 0.99) mondrian|0.25 0.01 0.0000 | class|0.25 0.50 0.0120 | class|1.0 0.63 0.0000 | select 0.63 0.0000
+  RT60 0.2 AirportAnnouncements   10.0: (n 500, inside 0.98) mondrian|0.25 0.00   -    | class|0.25 0.50 0.0000 | class|1.0 0.54 0.0000 | select 0.54 0.0000
+  RT60 0.2 AirportAnnouncements    0.0: (n 500, inside 1.00) mondrian|0.25 0.02 0.0000 | class|0.25 0.64 0.0062 | class|1.0 0.64 0.0000 | select 0.64 0.0000
+  RT60 0.2 AirportAnnouncements  -10.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.36 0.0389 | class|1.0 0.69 0.0000 | select 0.69 0.0000
+  RT60 0.2 Babble                  all: (n 1500, inside 1.00) mondrian|0.25 0.00 0.0000 | class|0.25 0.40 0.0099 | class|1.0 0.50 0.0240 | select 0.50 0.0240
+  RT60 0.2 Babble                 10.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.51 0.0000 | class|1.0 0.53 0.0000 | select 0.53 0.0000
+  RT60 0.2 Babble                  0.0: (n 500, inside 1.00) mondrian|0.25 0.00 0.0000 | class|0.25 0.64 0.0000 | class|1.0 0.64 0.0000 | select 0.64 0.0000
+  RT60 0.2 Babble                -10.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.06 0.2143 | class|1.0 0.32 0.1118 | select 0.32 0.1118
+  RT60 0.2 CopyMachine             all: (n 1500, inside 1.00) mondrian|0.25 0.10 0.0256 | class|0.25 0.29 0.0023 | class|1.0 0.26 0.0076 | select 0.28 0.0048
+  RT60 0.2 CopyMachine            10.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.45 0.0000 | class|1.0 0.46 0.0000 | select 0.45 0.0000
+  RT60 0.2 CopyMachine             0.0: (n 500, inside 1.00) mondrian|0.25 0.14 0.0000 | class|0.25 0.39 0.0051 | class|1.0 0.32 0.0062 | select 0.37 0.0000
+  RT60 0.2 CopyMachine           -10.0: (n 500, inside 1.00) mondrian|0.25 0.17 0.0476 | class|0.25 0.04 0.0000 | class|1.0 0.01 0.3333 | select 0.01 0.3333
+  RT60 0.2 Munching                all: (n 1500, inside 0.99) mondrian|0.25 0.01 0.5000 | class|0.25 0.25 0.0159 | class|1.0 0.28 0.0457 | select 0.26 0.0379
+  RT60 0.2 Munching               10.0: (n 500, inside 0.99) mondrian|0.25 0.00   -    | class|0.25 0.46 0.0000 | class|1.0 0.55 0.0036 | select 0.52 0.0039
+  RT60 0.2 Munching                0.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.25 0.0081 | class|1.0 0.25 0.0325 | select 0.24 0.0165
+  RT60 0.2 Munching              -10.0: (n 500, inside 0.97) mondrian|0.25 0.02 0.5000 | class|0.25 0.05 0.2083 | class|1.0 0.04 0.7778 | select 0.03 0.7500
+  RT60 0.2 Neighbor                all: (n 1500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.54 0.1784 | class|1.0 0.50 0.0026 | select 0.58 0.1587
+  RT60 0.2 Neighbor               10.0: (n 500, inside 0.99) mondrian|0.25 0.00   -    | class|0.25 0.51 0.0000 | class|1.0 0.60 0.0000 | select 0.60 0.0000
+  RT60 0.2 Neighbor                0.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.67 0.0000 | class|1.0 0.68 0.0000 | select 0.68 0.0000
+  RT60 0.2 Neighbor              -10.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.44 0.6621 | class|1.0 0.24 0.0169 | select 0.48 0.5816
+  RT60 0.2 ShuttingDoor            all: (n 1500, inside 0.96) mondrian|0.25 0.00   -    | class|0.25 0.34 0.0058 | class|1.0 0.42 0.0241 | select 0.39 0.0221
+  RT60 0.2 ShuttingDoor           10.0: (n 500, inside 0.96) mondrian|0.25 0.00   -    | class|0.25 0.44 0.0000 | class|1.0 0.65 0.0000 | select 0.59 0.0000
+  RT60 0.2 ShuttingDoor            0.0: (n 500, inside 0.98) mondrian|0.25 0.00   -    | class|0.25 0.35 0.0057 | class|1.0 0.36 0.0055 | select 0.36 0.0056
+  RT60 0.2 ShuttingDoor          -10.0: (n 500, inside 0.95) mondrian|0.25 0.00   -    | class|0.25 0.23 0.0174 | class|1.0 0.23 0.1207 | select 0.23 0.1053
+  RT60 0.2 Typing                  all: (n 1500, inside 0.99) mondrian|0.25 0.78 0.2084 | class|0.25 0.68 0.1480 | class|1.0 0.63 0.3028 | select 0.67 0.1516
+  RT60 0.2 Typing                 10.0: (n 500, inside 0.99) mondrian|0.25 0.98 0.0000 | class|0.25 0.97 0.0000 | class|1.0 0.98 0.0102 | select 0.97 0.0021
+  RT60 0.2 Typing                  0.0: (n 500, inside 1.00) mondrian|0.25 0.76 0.0026 | class|0.25 0.73 0.0000 | class|1.0 0.56 0.4143 | select 0.73 0.0165
+  RT60 0.2 Typing                -10.0: (n 500, inside 1.00) mondrian|0.25 0.61 0.8020 | class|0.25 0.35 0.8636 | class|1.0 0.33 0.9819 | select 0.32 0.9068
+  RT60 0.2 VacuumCleaner           all: (n 1500, inside 0.98) mondrian|0.25 0.07 0.0000 | class|0.25 0.49 0.0000 | class|1.0 0.53 0.0000 | select 0.53 0.0000
+  RT60 0.2 VacuumCleaner          10.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.50 0.0000 | class|1.0 0.51 0.0000 | select 0.51 0.0000
+  RT60 0.2 VacuumCleaner           0.0: (n 500, inside 1.00) mondrian|0.25 0.21 0.0000 | class|0.25 0.55 0.0000 | class|1.0 0.55 0.0000 | select 0.55 0.0000
+  RT60 0.2 VacuumCleaner         -10.0: (n 500, inside 0.94) mondrian|0.25 0.00   -    | class|0.25 0.42 0.0000 | class|1.0 0.52 0.0000 | select 0.51 0.0000
+  RT60 0.8 white                   all: (n 1500, inside 0.67) mondrian|0.25 0.33 0.0000 | class|0.25 0.53 0.0000 | class|1.0 0.41 0.0000 | select 0.52 0.0000
+  RT60 0.8 white                  10.0: (n 500, inside 1.00) mondrian|0.25 0.00 0.0000 | class|0.25 0.61 0.0000 | class|1.0 0.61 0.0000 | select 0.61 0.0000
+  RT60 0.8 white                   0.0: (n 500, inside 1.00) mondrian|0.25 0.98 0.0000 | class|0.25 0.97 0.0000 | class|1.0 0.61 0.0000 | select 0.94 0.0000
+  RT60 0.8 white                 -10.0: (n 500, inside 0.00) mondrian|0.25 0.00   -    | class|0.25 0.00   -    | class|1.0 0.00   -    | select 0.00   -   
+  RT60 0.8 AirConditioner          all: (n 1500, inside 0.97) mondrian|0.25 0.35 0.0000 | class|0.25 0.65 0.0000 | class|1.0 0.71 0.0000 | select 0.75 0.0000
+  RT60 0.8 AirConditioner         10.0: (n 500, inside 0.99) mondrian|0.25 0.00   -    | class|0.25 0.62 0.0000 | class|1.0 0.62 0.0000 | select 0.62 0.0000
+  RT60 0.8 AirConditioner          0.0: (n 500, inside 0.98) mondrian|0.25 0.75 0.0000 | class|0.25 0.87 0.0000 | class|1.0 0.69 0.0000 | select 0.84 0.0000
+  RT60 0.8 AirConditioner        -10.0: (n 500, inside 0.93) mondrian|0.25 0.30 0.0000 | class|0.25 0.45 0.0000 | class|1.0 0.81 0.0000 | select 0.80 0.0000
+  RT60 0.8 AirportAnnouncements    all: (n 1500, inside 1.00) mondrian|0.25 0.14 0.0049 | class|0.25 0.57 0.0070 | class|1.0 0.67 0.0010 | select 0.69 0.0010
+  RT60 0.8 AirportAnnouncements   10.0: (n 500, inside 0.99) mondrian|0.25 0.00   -    | class|0.25 0.60 0.0000 | class|1.0 0.60 0.0000 | select 0.60 0.0000
+  RT60 0.8 AirportAnnouncements    0.0: (n 500, inside 1.00) mondrian|0.25 0.21 0.0000 | class|0.25 0.81 0.0000 | class|1.0 0.75 0.0000 | select 0.79 0.0000
+  RT60 0.8 AirportAnnouncements  -10.0: (n 500, inside 0.99) mondrian|0.25 0.20 0.0101 | class|0.25 0.30 0.0397 | class|1.0 0.66 0.0030 | select 0.66 0.0030
+  RT60 0.8 Babble                  all: (n 1500, inside 0.99) mondrian|0.25 0.07 0.0288 | class|0.25 0.47 0.0042 | class|1.0 0.53 0.0113 | select 0.53 0.0075
+  RT60 0.8 Babble                 10.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.62 0.0000 | class|1.0 0.62 0.0000 | select 0.62 0.0000
+  RT60 0.8 Babble                  0.0: (n 500, inside 1.00) mondrian|0.25 0.17 0.0000 | class|0.25 0.76 0.0026 | class|1.0 0.72 0.0000 | select 0.74 0.0000
+  RT60 0.8 Babble                -10.0: (n 500, inside 0.98) mondrian|0.25 0.04 0.1667 | class|0.25 0.03 0.1333 | class|1.0 0.25 0.0714 | select 0.23 0.0513
+  RT60 0.8 CopyMachine             all: (n 1500, inside 1.00) mondrian|0.25 0.12 0.0173 | class|0.25 0.35 0.0019 | class|1.0 0.30 0.0023 | select 0.33 0.0020
+  RT60 0.8 CopyMachine            10.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.58 0.0000 | class|1.0 0.58 0.0000 | select 0.58 0.0000
+  RT60 0.8 CopyMachine             0.0: (n 500, inside 1.00) mondrian|0.25 0.20 0.0000 | class|0.25 0.45 0.0000 | class|1.0 0.31 0.0000 | select 0.40 0.0000
+  RT60 0.8 CopyMachine           -10.0: (n 500, inside 1.00) mondrian|0.25 0.14 0.0423 | class|0.25 0.02 0.1000 | class|1.0 0.00 0.5000 | select 0.00 0.5000
+  RT60 0.8 Munching                all: (n 1500, inside 0.98) mondrian|0.25 0.01 0.3529 | class|0.25 0.28 0.0167 | class|1.0 0.27 0.0511 | select 0.27 0.0294
+  RT60 0.8 Munching               10.0: (n 500, inside 0.99) mondrian|0.25 0.00   -    | class|0.25 0.56 0.0000 | class|1.0 0.56 0.0000 | select 0.56 0.0000
+  RT60 0.8 Munching                0.0: (n 500, inside 1.00) mondrian|0.25 0.00 0.0000 | class|0.25 0.19 0.0000 | class|1.0 0.19 0.0104 | select 0.19 0.0104
+  RT60 0.8 Munching              -10.0: (n 500, inside 0.96) mondrian|0.25 0.03 0.3750 | class|0.25 0.09 0.1628 | class|1.0 0.07 0.5714 | select 0.06 0.3438
+  RT60 0.8 Neighbor                all: (n 1500, inside 0.99) mondrian|0.25 0.00   -    | class|0.25 0.57 0.1616 | class|1.0 0.54 0.0100 | select 0.56 0.1363
+  RT60 0.8 Neighbor               10.0: (n 500, inside 0.99) mondrian|0.25 0.00   -    | class|0.25 0.60 0.0000 | class|1.0 0.60 0.0000 | select 0.60 0.0000
+  RT60 0.8 Neighbor                0.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.75 0.0027 | class|1.0 0.75 0.0000 | select 0.75 0.0027
+  RT60 0.8 Neighbor              -10.0: (n 500, inside 0.99) mondrian|0.25 0.00   -    | class|0.25 0.37 0.7500 | class|1.0 0.26 0.0625 | select 0.34 0.6786
+  RT60 0.8 ShuttingDoor            all: (n 1500, inside 0.95) mondrian|0.25 0.00   -    | class|0.25 0.34 0.0039 | class|1.0 0.34 0.0194 | select 0.34 0.0194
+  RT60 0.8 ShuttingDoor           10.0: (n 500, inside 0.98) mondrian|0.25 0.00   -    | class|0.25 0.58 0.0000 | class|1.0 0.58 0.0000 | select 0.58 0.0000
+  RT60 0.8 ShuttingDoor            0.0: (n 500, inside 0.97) mondrian|0.25 0.00   -    | class|0.25 0.30 0.0000 | class|1.0 0.30 0.0000 | select 0.30 0.0000
+  RT60 0.8 ShuttingDoor          -10.0: (n 500, inside 0.92) mondrian|0.25 0.00   -    | class|0.25 0.15 0.0263 | class|1.0 0.15 0.1299 | select 0.15 0.1299
+  RT60 0.8 Typing                  all: (n 1500, inside 1.00) mondrian|0.25 0.38 0.1832 | class|0.25 0.44 0.1279 | class|1.0 0.39 0.1724 | select 0.45 0.1405
+  RT60 0.8 Typing                 10.0: (n 500, inside 0.99) mondrian|0.25 0.64 0.0000 | class|0.25 0.85 0.0000 | class|1.0 0.87 0.0023 | select 0.87 0.0023
+  RT60 0.8 Typing                  0.0: (n 500, inside 1.00) mondrian|0.25 0.28 0.0000 | class|0.25 0.29 0.0000 | class|1.0 0.15 0.3514 | select 0.29 0.0138
+  RT60 0.8 Typing                -10.0: (n 500, inside 1.00) mondrian|0.25 0.23 0.9292 | class|0.25 0.17 0.9655 | class|1.0 0.15 0.9867 | select 0.19 0.9684
+  RT60 0.8 VacuumCleaner           all: (n 1500, inside 0.98) mondrian|0.25 0.42 0.0000 | class|0.25 0.62 0.0000 | class|1.0 0.58 0.0000 | select 0.65 0.0000
+  RT60 0.8 VacuumCleaner          10.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.60 0.0000 | class|1.0 0.60 0.0000 | select 0.60 0.0000
+  RT60 0.8 VacuumCleaner           0.0: (n 500, inside 1.00) mondrian|0.25 0.69 0.0000 | class|0.25 0.89 0.0000 | class|1.0 0.68 0.0000 | select 0.88 0.0000
+  RT60 0.8 VacuumCleaner         -10.0: (n 500, inside 0.95) mondrian|0.25 0.57 0.0000 | class|0.25 0.37 0.0000 | class|1.0 0.47 0.0000 | select 0.46 0.0000
+
+== T3 site calibration: calibrate none + the same type at all levels ==
+  RT60 0.2 white                   all: (n 1500, inside 1.00) mondrian|0.25 0.98 0.0014 | class|0.25 0.84 0.0008 | class|1.0 0.67 0.0000 | select 0.00   -   
+  RT60 0.2 white                  10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 1.00 0.0000 | class|1.0 1.00 0.0000 | select 0.00   -   
+  RT60 0.2 white                   0.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0020 | class|0.25 1.00 0.0020 | class|1.0 1.00 0.0000 | select 0.00   -   
+  RT60 0.2 white                 -10.0: (n 500, inside 1.00) mondrian|0.25 0.95 0.0021 | class|0.25 0.53 0.0000 | class|1.0 0.00 0.0000 | select 0.00   -   
+  RT60 0.2 AirConditioner          all: (n 1500, inside 1.00) mondrian|0.25 0.84 0.0024 | class|0.25 0.59 0.0034 | class|1.0 0.71 0.0009 | select 0.51 0.0013
+  RT60 0.2 AirConditioner         10.0: (n 500, inside 0.99) mondrian|0.25 1.00 0.0020 | class|0.25 0.68 0.0029 | class|1.0 0.68 0.0000 | select 0.68 0.0000
+  RT60 0.2 AirConditioner          0.0: (n 500, inside 0.99) mondrian|0.25 1.00 0.0020 | class|0.25 0.61 0.0033 | class|1.0 0.61 0.0000 | select 0.01 0.0000
+  RT60 0.2 AirConditioner        -10.0: (n 500, inside 1.00) mondrian|0.25 0.51 0.0039 | class|0.25 0.50 0.0040 | class|1.0 0.85 0.0023 | select 0.84 0.0024
+  RT60 0.2 AirportAnnouncements    all: (n 1500, inside 1.00) mondrian|0.25 0.62 0.0043 | class|0.25 0.22 0.0030 | class|1.0 0.57 0.0023 | select 0.22 0.0000
+  RT60 0.2 AirportAnnouncements   10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0020 | class|0.25 0.66 0.0030 | class|1.0 0.67 0.0000 | select 0.66 0.0000
+  RT60 0.2 AirportAnnouncements    0.0: (n 500, inside 1.00) mondrian|0.25 0.81 0.0050 | class|0.25 0.01 0.0000 | class|1.0 0.46 0.0000 | select 0.01 0.0000
+  RT60 0.2 AirportAnnouncements  -10.0: (n 500, inside 1.00) mondrian|0.25 0.05 0.0417 | class|0.25 0.00   -    | class|1.0 0.58 0.0069 | select 0.00   -   
+  RT60 0.2 Babble                  all: (n 1500, inside 1.00) mondrian|0.25 0.61 0.0065 | class|0.25 0.36 0.0037 | class|1.0 0.36 0.0018 | select 0.00   -   
+  RT60 0.2 Babble                 10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0020 | class|0.25 0.65 0.0031 | class|1.0 0.65 0.0000 | select 0.00   -   
+  RT60 0.2 Babble                  0.0: (n 500, inside 1.00) mondrian|0.25 0.81 0.0025 | class|0.25 0.42 0.0048 | class|1.0 0.42 0.0000 | select 0.00   -   
+  RT60 0.2 Babble                -10.0: (n 500, inside 1.00) mondrian|0.25 0.02 0.3636 | class|0.25 0.01 0.0000 | class|1.0 0.02 0.0909 | select 0.00   -   
+  RT60 0.2 CopyMachine             all: (n 1500, inside 1.00) mondrian|0.25 0.61 0.0044 | class|0.25 0.21 0.0000 | class|1.0 0.21 0.0031 | select 0.21 0.0000
+  RT60 0.2 CopyMachine            10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0020 | class|0.25 0.61 0.0000 | class|1.0 0.61 0.0000 | select 0.61 0.0000
+  RT60 0.2 CopyMachine             0.0: (n 500, inside 1.00) mondrian|0.25 0.80 0.0000 | class|0.25 0.04 0.0000 | class|1.0 0.04 0.0556 | select 0.04 0.0000
+  RT60 0.2 CopyMachine           -10.0: (n 500, inside 1.00) mondrian|0.25 0.02 0.3333 | class|0.25 0.00   -    | class|1.0 0.00   -    | select 0.00   -   
+  RT60 0.2 Munching                all: (n 1500, inside 1.00) mondrian|0.25 0.31 0.0214 | class|0.25 0.18 0.0000 | class|1.0 0.19 0.0108 | select 0.06 0.0000
+  RT60 0.2 Munching               10.0: (n 500, inside 1.00) mondrian|0.25 0.67 0.0000 | class|0.25 0.48 0.0000 | class|1.0 0.48 0.0041 | select 0.16 0.0000
+  RT60 0.2 Munching                0.0: (n 500, inside 1.00) mondrian|0.25 0.18 0.0000 | class|0.25 0.06 0.0000 | class|1.0 0.06 0.0000 | select 0.01 0.0000
+  RT60 0.2 Munching              -10.0: (n 500, inside 1.00) mondrian|0.25 0.08 0.2439 | class|0.25 0.01 0.0000 | class|1.0 0.01 0.4000 | select 0.00   -   
+  RT60 0.2 Neighbor                all: (n 1500, inside 1.00) mondrian|0.25 0.64 0.0010 | class|0.25 0.03 0.0513 | class|1.0 0.26 0.0000 | select 0.00   -   
+  RT60 0.2 Neighbor               10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.07 0.0000 | class|1.0 0.37 0.0000 | select 0.00   -   
+  RT60 0.2 Neighbor                0.0: (n 500, inside 1.00) mondrian|0.25 0.91 0.0000 | class|0.25 0.01 0.0000 | class|1.0 0.30 0.0000 | select 0.00   -   
+  RT60 0.2 Neighbor              -10.0: (n 500, inside 1.00) mondrian|0.25 0.01 0.3333 | class|0.25 0.00 1.0000 | class|1.0 0.13 0.0000 | select 0.00   -   
+  RT60 0.2 ShuttingDoor            all: (n 1500, inside 0.99) mondrian|0.25 0.65 0.0103 | class|0.25 0.35 0.0135 | class|1.0 0.33 0.0141 | select 0.00   -   
+  RT60 0.2 ShuttingDoor           10.0: (n 500, inside 0.99) mondrian|0.25 0.95 0.0000 | class|0.25 0.46 0.0000 | class|1.0 0.46 0.0000 | select 0.00   -   
+  RT60 0.2 ShuttingDoor            0.0: (n 500, inside 1.00) mondrian|0.25 0.88 0.0000 | class|0.25 0.38 0.0000 | class|1.0 0.38 0.0000 | select 0.00   -   
+  RT60 0.2 ShuttingDoor          -10.0: (n 500, inside 0.99) mondrian|0.25 0.12 0.1695 | class|0.25 0.19 0.0729 | class|1.0 0.15 0.0946 | select 0.00   -   
+  RT60 0.2 Typing                  all: (n 1500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.19 0.0000 | class|1.0 0.17 0.0153 | select 0.19 0.0000
+  RT60 0.2 Typing                 10.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.52 0.0000 | class|1.0 0.51 0.0039 | select 0.52 0.0000
+  RT60 0.2 Typing                  0.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.04 0.0000 | class|1.0 0.01 0.4286 | select 0.04 0.0000
+  RT60 0.2 Typing                -10.0: (n 500, inside 0.99) mondrian|0.25 0.00   -    | class|0.25 0.00   -    | class|1.0 0.00   -    | select 0.00   -   
+  RT60 0.2 VacuumCleaner           all: (n 1500, inside 1.00) mondrian|0.25 0.89 0.0007 | class|0.25 0.55 0.0012 | class|1.0 0.71 0.0028 | select 0.00   -   
+  RT60 0.2 VacuumCleaner          10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.63 0.0000 | class|1.0 0.63 0.0000 | select 0.00   -   
+  RT60 0.2 VacuumCleaner           0.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0020 | class|0.25 0.96 0.0021 | class|1.0 0.96 0.0000 | select 0.00   -   
+  RT60 0.2 VacuumCleaner         -10.0: (n 500, inside 1.00) mondrian|0.25 0.67 0.0000 | class|0.25 0.05 0.0000 | class|1.0 0.55 0.0109 | select 0.00   -   
+  RT60 0.8 white                   all: (n 1500, inside 1.00) mondrian|0.25 0.98 0.0027 | class|0.25 0.62 0.0022 | class|1.0 0.40 0.0000 | select 0.22 0.0061
+  RT60 0.8 white                  10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.66 0.0000 | class|1.0 0.66 0.0000 | select 0.00   -   
+  RT60 0.8 white                   0.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.53 0.0000 | class|1.0 0.53 0.0000 | select 0.00   -   
+  RT60 0.8 white                 -10.0: (n 500, inside 1.00) mondrian|0.25 0.95 0.0084 | class|0.25 0.65 0.0061 | class|1.0 0.00   -    | select 0.65 0.0061
+  RT60 0.8 AirConditioner          all: (n 1500, inside 1.00) mondrian|0.25 0.83 0.0032 | class|0.25 0.40 0.0000 | class|1.0 0.63 0.0000 | select 0.45 0.0000
+  RT60 0.8 AirConditioner         10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.65 0.0000 | class|1.0 0.65 0.0000 | select 0.65 0.0000
+  RT60 0.8 AirConditioner          0.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.53 0.0000 | class|1.0 0.54 0.0000 | select 0.02 0.0000
+  RT60 0.8 AirConditioner        -10.0: (n 500, inside 1.00) mondrian|0.25 0.49 0.0165 | class|0.25 0.01 0.0000 | class|1.0 0.69 0.0000 | select 0.68 0.0000
+  RT60 0.8 AirportAnnouncements    all: (n 1500, inside 1.00) mondrian|0.25 0.60 0.0033 | class|0.25 0.20 0.0034 | class|1.0 0.56 0.0000 | select 0.05 0.0000
+  RT60 0.8 AirportAnnouncements   10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.57 0.0000 | class|1.0 0.60 0.0000 | select 0.16 0.0000
+  RT60 0.8 AirportAnnouncements    0.0: (n 500, inside 1.00) mondrian|0.25 0.75 0.0000 | class|0.25 0.02 0.0000 | class|1.0 0.53 0.0000 | select 0.00   -   
+  RT60 0.8 AirportAnnouncements  -10.0: (n 500, inside 1.00) mondrian|0.25 0.05 0.1111 | class|0.25 0.01 0.3333 | class|1.0 0.56 0.0000 | select 0.00   -   
+  RT60 0.8 Babble                  all: (n 1500, inside 1.00) mondrian|0.25 0.60 0.0078 | class|0.25 0.21 0.0032 | class|1.0 0.49 0.0027 | select 0.00   -   
+  RT60 0.8 Babble                 10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.60 0.0000 | class|1.0 0.96 0.0000 | select 0.00   -   
+  RT60 0.8 Babble                  0.0: (n 500, inside 1.00) mondrian|0.25 0.77 0.0026 | class|0.25 0.01 0.0000 | class|1.0 0.48 0.0000 | select 0.00   -   
+  RT60 0.8 Babble                -10.0: (n 500, inside 1.00) mondrian|0.25 0.03 0.4286 | class|0.25 0.01 0.2500 | class|1.0 0.04 0.1053 | select 0.00   -   
+  RT60 0.8 CopyMachine             all: (n 1500, inside 1.00) mondrian|0.25 0.58 0.0023 | class|0.25 0.24 0.0028 | class|1.0 0.23 0.0000 | select 0.24 0.0028
+  RT60 0.8 CopyMachine            10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.67 0.0000 | class|1.0 0.67 0.0000 | select 0.67 0.0000
+  RT60 0.8 CopyMachine             0.0: (n 500, inside 1.00) mondrian|0.25 0.74 0.0000 | class|0.25 0.04 0.0000 | class|1.0 0.03 0.0000 | select 0.04 0.0000
+  RT60 0.8 CopyMachine           -10.0: (n 500, inside 1.00) mondrian|0.25 0.01 0.5000 | class|0.25 0.00 1.0000 | class|1.0 0.00   -    | select 0.00 1.0000
+  RT60 0.8 Munching                all: (n 1500, inside 1.00) mondrian|0.25 0.14 0.0144 | class|0.25 0.21 0.0000 | class|1.0 0.20 0.0000 | select 0.09 0.0000
+  RT60 0.8 Munching               10.0: (n 500, inside 1.00) mondrian|0.25 0.29 0.0000 | class|0.25 0.50 0.0000 | class|1.0 0.50 0.0000 | select 0.23 0.0000
+  RT60 0.8 Munching                0.0: (n 500, inside 1.00) mondrian|0.25 0.07 0.0000 | class|0.25 0.08 0.0000 | class|1.0 0.08 0.0000 | select 0.03 0.0000
+  RT60 0.8 Munching              -10.0: (n 500, inside 1.00) mondrian|0.25 0.06 0.0968 | class|0.25 0.03 0.0000 | class|1.0 0.01 0.0000 | select 0.01 0.0000
+  RT60 0.8 Neighbor                all: (n 1500, inside 1.00) mondrian|0.25 0.65 0.0010 | class|0.25 0.16 0.0000 | class|1.0 0.24 0.0028 | select 0.00   -   
+  RT60 0.8 Neighbor               10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.12 0.0000 | class|1.0 0.24 0.0000 | select 0.00   -   
+  RT60 0.8 Neighbor                0.0: (n 500, inside 1.00) mondrian|0.25 0.94 0.0000 | class|0.25 0.36 0.0000 | class|1.0 0.39 0.0000 | select 0.00   -   
+  RT60 0.8 Neighbor              -10.0: (n 500, inside 0.99) mondrian|0.25 0.00 0.5000 | class|0.25 0.00   -    | class|1.0 0.08 0.0263 | select 0.00   -   
+  RT60 0.8 ShuttingDoor            all: (n 1500, inside 1.00) mondrian|0.25 0.65 0.0051 | class|0.25 0.35 0.0095 | class|1.0 0.34 0.0098 | select 0.00   -   
+  RT60 0.8 ShuttingDoor           10.0: (n 500, inside 1.00) mondrian|0.25 0.97 0.0000 | class|0.25 0.59 0.0000 | class|1.0 0.59 0.0000 | select 0.00   -   
+  RT60 0.8 ShuttingDoor            0.0: (n 500, inside 1.00) mondrian|0.25 0.90 0.0000 | class|0.25 0.33 0.0000 | class|1.0 0.32 0.0000 | select 0.00   -   
+  RT60 0.8 ShuttingDoor          -10.0: (n 500, inside 1.00) mondrian|0.25 0.10 0.1042 | class|0.25 0.14 0.0735 | class|1.0 0.10 0.1000 | select 0.00   -   
+  RT60 0.8 Typing                  all: (n 1500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.22 0.0031 | class|1.0 0.20 0.0065 | select 0.09 0.0071
+  RT60 0.8 Typing                 10.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.58 0.0000 | class|1.0 0.58 0.0000 | select 0.26 0.0000
+  RT60 0.8 Typing                  0.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.07 0.0000 | class|1.0 0.03 0.1250 | select 0.02 0.0000
+  RT60 0.8 Typing                -10.0: (n 500, inside 1.00) mondrian|0.25 0.00   -    | class|0.25 0.00 1.0000 | class|1.0 0.00   -    | select 0.00 1.0000
+  RT60 0.8 VacuumCleaner           all: (n 1500, inside 1.00) mondrian|0.25 0.86 0.0000 | class|0.25 0.83 0.0032 | class|1.0 0.67 0.0020 | select 0.00   -   
+  RT60 0.8 VacuumCleaner          10.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 1.00 0.0000 | class|1.0 1.00 0.0000 | select 0.00   -   
+  RT60 0.8 VacuumCleaner           0.0: (n 500, inside 1.00) mondrian|0.25 1.00 0.0000 | class|0.25 0.97 0.0000 | class|1.0 0.94 0.0000 | select 0.00   -   
+  RT60 0.8 VacuumCleaner         -10.0: (n 500, inside 1.00) mondrian|0.25 0.57 0.0000 | class|0.25 0.53 0.0150 | class|1.0 0.06 0.0645 | select 0.00   -   
+
+== Weighting chosen per bin by select (0 = PHAT, 1 = gamma 0.25; bins snr quartile x kurt low/high) ==
+  T1|0.2                         [0, 0, 0, 0, 0, 0, 0, 0]
+  T2|0.2|white                   [0, 0, 0, 0, 0, 0, 1, 0]
+  T3|0.2|white                   [0, 0, 0, 0, 0, 0, 0, 0]
+  T2|0.2|AirConditioner          [0, 0, 0, 0, 0, 0, 1, 0]
+  T3|0.2|AirConditioner          [0, 0, 0, 0, 0, 0, 0, 0]
+  T2|0.2|AirportAnnouncements    [0, 0, 0, 0, 0, 0, 1, 0]
+  T3|0.2|AirportAnnouncements    [0, 0, 0, 0, 0, 0, 0, 0]
+  T2|0.2|Babble                  [0, 0, 0, 0, 0, 0, 1, 0]
+  T3|0.2|Babble                  [0, 0, 0, 0, 0, 0, 0, 0]
+  T2|0.2|CopyMachine             [0, 1, 0, 0, 0, 0, 0, 0]
+  T3|0.2|CopyMachine             [0, 0, 0, 0, 1, 0, 0, 0]
+  T2|0.2|Munching                [0, 0, 0, 0, 0, 0, 0, 0]
+  T3|0.2|Munching                [0, 0, 0, 0, 0, 0, 1, 0]
+  T2|0.2|Neighbor                [0, 0, 0, 0, 1, 0, 1, 0]
+  T3|0.2|Neighbor                [0, 0, 0, 0, 0, 0, 0, 0]
+  T2|0.2|ShuttingDoor            [0, 0, 0, 0, 0, 0, 0, 0]
+  T3|0.2|ShuttingDoor            [0, 0, 0, 0, 0, 0, 0, 0]
+  T2|0.2|Typing                  [0, 1, 0, 0, 0, 1, 0, 1]
+  T3|0.2|Typing                  [0, 0, 0, 0, 1, 0, 1, 0]
+  T2|0.2|VacuumCleaner           [0, 0, 0, 0, 0, 0, 1, 0]
+  T3|0.2|VacuumCleaner           [0, 0, 0, 0, 0, 0, 0, 0]
+  T1|0.8                         [1, 0, 0, 0, 0, 0, 0, 0]
+  T2|0.8|white                   [0, 1, 0, 0, 0, 0, 0, 0]
+  T3|0.8|white                   [1, 0, 0, 0, 0, 0, 0, 0]
+  T2|0.8|AirConditioner          [0, 1, 0, 0, 0, 0, 0, 0]
+  T3|0.8|AirConditioner          [0, 0, 0, 0, 0, 0, 0, 0]
+  T2|0.8|AirportAnnouncements    [0, 1, 0, 0, 0, 0, 0, 0]
+  T3|0.8|AirportAnnouncements    [0, 0, 0, 0, 0, 0, 0, 0]
+  T2|0.8|Babble                  [0, 1, 0, 0, 0, 0, 0, 0]
+  T3|0.8|Babble                  [0, 0, 0, 0, 0, 0, 0, 0]
+  T2|0.8|CopyMachine             [0, 1, 0, 0, 0, 0, 0, 0]
+  T3|0.8|CopyMachine             [0, 0, 0, 0, 1, 0, 0, 0]
+  T2|0.8|Munching                [0, 1, 0, 0, 0, 0, 0, 0]
+  T3|0.8|Munching                [0, 0, 0, 0, 0, 0, 1, 0]
+  T2|0.8|Neighbor                [0, 1, 0, 0, 1, 0, 1, 0]
+  T3|0.8|Neighbor                [0, 0, 0, 0, 0, 0, 0, 0]
+  T2|0.8|ShuttingDoor            [0, 1, 0, 0, 0, 0, 0, 0]
+  T3|0.8|ShuttingDoor            [0, 0, 0, 0, 0, 0, 0, 0]
+  T2|0.8|Typing                  [0, 1, 0, 0, 0, 0, 0, 1]
+  T3|0.8|Typing                  [0, 0, 0, 0, 0, 0, 1, 0]
+  T2|0.8|VacuumCleaner           [0, 1, 0, 0, 0, 0, 0, 0]
+  T3|0.8|VacuumCleaner           [0, 0, 0, 0, 0, 0, 0, 0]

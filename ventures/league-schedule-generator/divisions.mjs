@@ -640,7 +640,7 @@ export function applyDivisionRainouts(schedule, text, { balance = false, flip = 
       const pool = options.some((o) => !o.fresh) ? options.filter((o) => !o.fresh) : options;
       if (pool.length) placed = pool.reduce((a, o) => (o.breaks < a.breaks ? o : a));
       if (!placed) { errors.push(`${label}: ${why || "no play night found"}; left where it was.`); night.matches.push(mt); continue; }
-      const rec = { ...mt, court: placed.court, time: cfg.times[placed.ti], venue: cfg.venues[placed.court] || placed.court };
+      const rec = { ...mt, court: placed.court, time: cfg.times[placed.ti], venue: cfg.venues[placed.court] || placed.court, moves: (mt.moves || 0) + 1 };
       let target = nightOf(placed.d);
       if (!target) { target = { day: placed.d, matches: [] }; s.nights.push(target); }
       target.matches.push(rec);
@@ -1251,7 +1251,7 @@ export function divisionsStandingsCsv(result) {
   for (const t of result.tables) {
     const rows = standingsCsv(t.rows).trim().split(/\r?\n/);
     if (!lines.length) lines.push(`Division,${rows[0]}`);
-    for (const r of rows.slice(1)) lines.push(`"${(/^[=+\-@\t\r]/.test(t.division) ? "'" + t.division : t.division).replace(/"/g, '""')}",${r}`);
+    for (const r of rows.slice(1)) lines.push(`"${(/^[=+\-@\t\r]/.test(t.division) && !/^-?\d+(\.\d+)?$/.test(t.division) ? "'" + t.division : t.division).replace(/"/g, '""')}",${r}`);
   }
   return lines.join("\r\n") + "\r\n";
 }
@@ -1545,7 +1545,7 @@ export function singleAsDivisions(schedule, { name = "" } = {}) {
   for (const r of schedule.rounds || []) {
     if (!byDay.has(r.day)) byDay.set(r.day, { day: r.day, matches: [], byes: [] });
     const night = byDay.get(r.day);
-    for (const m of r.matches) night.matches.push({ division: name, home: m.home, away: m.away, homeName: m.homeName, awayName: m.awayName, court: m.court, time: m.time, venue: m.court, round: r.label, ...(m.official !== undefined ? { official: m.official } : {}) });
+    for (const m of r.matches) night.matches.push({ division: name, home: m.home, away: m.away, homeName: m.homeName, awayName: m.awayName, court: m.court, time: m.time, venue: m.court, round: r.label, ...(m.fixture ? { fixture: m.fixture } : {}), ...(m.moves ? { moves: m.moves } : {}), ...(m.official !== undefined ? { official: m.official } : {}) });
     if (r.bye !== null && r.bye !== undefined && schedule.teams[r.bye] !== undefined) night.byes.push({ division: name, team: schedule.teams[r.bye] });
   }
   const nights = [...byDay.values()].sort((a, b) => a.day - b.day);
@@ -1623,7 +1623,11 @@ export function divisionsIcs(schedule, { division = null, team = null, stamp = n
       if (division !== null && m.division !== division) return;
       if (team !== null && m.homeName !== team && m.awayName !== team) return;
       const summary = team !== null ? `${team} vs ${m.homeName === team ? m.awayName : m.homeName} (${m.homeName === team ? "home" : "away"})` : `[${m.division}] ${m.homeName} vs ${m.awayName}`;
-      out.push("BEGIN:VEVENT", `UID:${m.division}-${m.homeName}-${m.awayName}-${compact(night.day)}-${i}@league-schedule-generator`.replace(/\s+/g, "_"), `DTSTAMP:${dtstamp}`);
+      // The id names the fixture (division, round, pair), not its night, so a re-sent file after a
+      // rainout updates the event instead of leaving the old night behind.
+      const lo = Math.min(m.home, m.away), hi = Math.max(m.home, m.away);
+      const uid = m.fixture ? `${m.division}-fixture-${m.fixture}` : Number.isInteger(m.round) && Number.isInteger(lo) ? `${m.division}-r${m.round}-${lo}-${hi}` : `${m.division}-${m.homeName}-${m.awayName}-${compact(night.day)}-${i}`;
+      out.push("BEGIN:VEVENT", `UID:${uid}@league-schedule-generator`.replace(/\s+/g, "_"), `DTSTAMP:${dtstamp}`, `SEQUENCE:${m.moves || 0}`);
       if (m.time) {
         const [hh, mm] = m.time.split(":").map(Number);
         const end = hh * 60 + mm + minutes;

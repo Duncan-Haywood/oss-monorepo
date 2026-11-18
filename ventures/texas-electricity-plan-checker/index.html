@@ -150,7 +150,7 @@
   <footer>
     <p><strong>No warranty. This is an estimate, not financial or legal advice, and not a bill.</strong> It applies the terms you paste or type, described on <a href="./how-it-works.html">how it works</a>, to the usage you give it. Taxes, the PUC assessment and other charges a label leaves out, billing cycles that do not match calendar months, TDU rate changes during a contract, and terms the label prints that are not read here are not counted. Read the full EFL, Terms of Service and Your Rights as a Customer before you sign.</p>
     <p>Nothing leaves your browser. <label class="check" style="display:inline-flex"><input type="checkbox" id="optOut"> Do not keep anonymous local usage counts</label></p>
-    <p>Paying a demand charge on a business meter? The <a href="../demand-charge-interval-analyzer/">demand charge interval analyzer</a> reads 15-minute data and sizes a peak-shaving battery &mdash; nothing uploaded.</p>
+    <p>Paying a demand charge on a business meter? The <a href="../demand-charge-interval-analyzer/">demand charge interval analyzer</a> reads 15-minute data and sizes a peak-shaving battery &mdash; nothing uploaded. Have solar at home? The <a href="../home-battery-planner/">home battery planner</a> shows what a battery would have saved on your Smart Meter Texas file and a time-of-use plan.</p>
     <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/texas-electricity-plan-checker">Source, CLI and README</a>. Not affiliated with any retail electric provider, Power to Choose, Smart Meter Texas or the PUCT. If it saved you money, <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the work</a>. <a href="../">More free tools</a>.</p>
   </footer>
   <script type="module">
@@ -166,7 +166,7 @@
       ['fees', 'Minimum-usage fees'], ['tou', 'Time-of-use windows'], ['touShare', 'Share in windows (%), if no interval data'],
       ['termMonths', 'Term (months)'], ['etf', 'Cancellation fee ($)'],
     ];
-    const money = (x) => (x < 0 ? '-$' : '$') + Math.abs(x).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? '-$' : '$') + t)(Math.abs(x).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     const COLORS = ['#a33a12', '#1f6f8b', '#5b8c2a', '#7a3e9d', '#c28f00', '#444'];
     let last = null;
 

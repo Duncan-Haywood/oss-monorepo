@@ -82,7 +82,7 @@ export function parse(input) {
   return { errors, birthYear, ownPia, deceasedPia, deceasedBirthYear, deceasedClaimed, deceasedClaimAge, survivorFraYears, planAge, spousePia, spousalClaimAge };
 }
 
-export const money = (v) => (v < 0 ? "-$" : "$") + Math.abs(Math.round(v)).toLocaleString("en-US");
+export const money = (v) => ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(v)).toLocaleString("en-US"));
 export const pct = (v, d = 1) => (v * 100).toFixed(d) + "%";
 const ageLabel = (m) => `${Math.floor(m / 12)}${m % 12 ? ` and ${m % 12} mo` : ""}`;
 

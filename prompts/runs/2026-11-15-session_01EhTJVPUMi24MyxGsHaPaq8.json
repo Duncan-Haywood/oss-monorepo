@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVPUMi24MyxGsHaPaq8",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T21:10:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "chant-forge flagship row: unread sung nasal openings (G 118 of 404)",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16338",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The bare `promptctl.py route` drew the process track for the scheduled ventures brief; I read the process prompt and ran its backlog and measure steps before rereading step 1 and routing with --task. Same report as several runs today."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-why-a-synthetic-choir-lost-a-third-of-its-m-and-n-sounds.md"
+  ],
+  "goal": "Deepen flagship chant-forge: find why a third of sung nasal openings read as nothing and fix it, checked on a held-out set",
+  "notes": "Read B's 54 nasal-opening misses frame by frame: the previous note's 50 ms cross-fade covered 50 of the murmur's 70 ms, and five beating voices put the murmur's level 5 dB over to 17 dB under its vowel while its tilt stayed dark. Changes: render.mjs nasalCut (15 ms cross-fade before a nasal opening) and readOnset reads a murmur by being DARK_BY 10 dB darker than both neighbours. Pre-registered in eval/consonant-check.mjs and committed (af7cec6f0) before the held-out run. Results: G 1869 to 1959 of 2349, nasals 278 to 347 of 404, control false nasals 135 to 44 (predicted <=30: failed), A 188 to 195, coda totals identical, vowel check 865 of 920 both. Verification: python3 platform/ci/run_venture_tests.py chant-forge -> ok (254 tests); main_health.py 231/231 at start; validate.py all VENTURE.yaml valid; check_post_frontmatter ok.",
+  "corrections": [],
+  "redteam": null
+}

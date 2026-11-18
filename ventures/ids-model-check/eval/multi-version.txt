@@ -1,0 +1,11 @@
+public IDS files: 18 of 65 files have a specification naming several versions; opened in another schema now 5
+  facets editable 332 -> 350 (held as written 95 -> 77); page audit same as the CLI's on 13 -> 14 of 18; page errors the CLI does not raise 18 -> 0
+  Moult__ifcbasix__BASIX (4).ids: IFC2X3 19/29 -> IFC4X3 29/29 editable; page audit errors the CLI does not raise 8 -> 0
+  OpenAEC-Foundation__OpenAEC-BIM-validator__ids-bestanden_NL_BIM_Basis_: IFC2X3 25/27 -> IFC4 26/27 editable; page audit errors the CLI does not raise 2 -> 0 (still differs: cli 1:error:prohibited-requirements)
+  OpenAEC-Foundation__OpenAEC-BIM-validator__ids-bestanden_RVB_BIM_Norm_: IFC2X3 58/65 -> IFC4 61/65 editable; page audit errors the CLI does not raise 3 -> 0 (still differs: cli 24:error:prohibited-requirements)
+  OpenAEC-Foundation__open-3d-viewer__assets_ids_NL_BIM_Basis_ILS_v2.ids: IFC2X3 25/27 -> IFC4 26/27 editable; page audit errors the CLI does not raise 2 -> 0 (still differs: cli 1:error:prohibited-requirements)
+  OpenAEC-Foundation__open-3d-viewer__assets_ids_RVB_BIM_Norm_v1.1.ids: IFC2X3 58/65 -> IFC4 61/65 editable; page audit errors the CLI does not raise 3 -> 0 (still differs: cli 24:error:prohibited-requirements)
+IDS-Audit-tool ValidFiles: 3 of 12 files have a specification naming several versions; opened in another schema now 0
+  facets editable 5 -> 5 (held as written 1 -> 1); page audit same as the CLI's on 3 -> 3 of 3; page errors the CLI does not raise 0 -> 0
+buildingSMART test cases (pass-*): 147 of 187 files have a specification naming several versions; opened in another schema now 0
+  facets editable 254 -> 254 (held as written 40 -> 40); page audit same as the CLI's on 147 -> 147 of 147; page errors the CLI does not raise 0 -> 0

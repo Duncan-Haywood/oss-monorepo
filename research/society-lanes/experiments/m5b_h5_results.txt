@@ -1,0 +1,80 @@
+H5 preview over five families (pooled over the two runs; robot speed 1.2 m/s; rank 1 = lowest human cost)
+families that passed the held-out share test with the yielding bias: sf, cfsm, orca
+
+share 0.05 delay_per_pass:
+    sf    crowd < adapt < goal < opposite   (crowd -0.110, opposite +1.896, adapt +0.156, goal +0.670)
+    avm   goal < adapt < crowd < opposite   (crowd +0.015, opposite +0.557, adapt -0.026, goal -0.064)
+    cfsm  goal < crowd < adapt < opposite   (crowd -0.103, opposite +0.075, adapt -0.077, goal -0.127)
+    orca  adapt < crowd < goal < opposite   (crowd +0.050, opposite +0.635, adapt -0.018, goal +0.194)
+    pl    crowd < adapt < goal < opposite   (crowd +0.014, opposite +0.621, adapt +0.023, goal +0.182)
+    tau sf-avm +0.00  sf-cfsm +0.33  sf-orca +0.67  sf-pl +1.00  avm-cfsm +0.67  avm-orca +0.33  avm-pl +0.00  cfsm-orca +0.00  cfsm-pl +0.33  orca-pl +0.67
+share 0.05 rp_close:
+    sf    crowd < adapt < goal < opposite   (crowd +0.081, opposite +0.699, adapt +0.181, goal +0.343)
+    avm   adapt < goal < crowd < opposite   (crowd +0.002, opposite +0.069, adapt +0.001, goal +0.001)
+    cfsm  crowd < adapt < goal < opposite   (crowd +0.018, opposite +0.603, adapt +0.038, goal +0.212)
+    orca  crowd < adapt < goal < opposite   (crowd +0.024, opposite +0.796, adapt +0.088, goal +0.502)
+    pl    crowd < adapt < goal < opposite   (crowd +0.040, opposite +0.516, adapt +0.056, goal +0.235)
+    tau sf-avm +0.33  sf-cfsm +1.00  sf-orca +1.00  sf-pl +1.00  avm-cfsm +0.33  avm-orca +0.33  avm-pl +0.33  cfsm-orca +1.00  cfsm-pl +1.00  orca-pl +1.00
+share 0.05 lane:
+    sf    crowd < adapt < goal < opposite   (crowd +0.948, opposite +0.764, adapt +0.925, goal +0.877)
+    avm   adapt < crowd < goal < opposite   (crowd +1.000, opposite +0.997, adapt +1.000, goal +1.000)
+    cfsm  adapt < crowd < goal < opposite   (crowd +0.994, opposite +0.968, adapt +0.995, goal +0.991)
+    orca  adapt < crowd < goal < opposite   (crowd +0.989, opposite +0.976, adapt +0.995, goal +0.984)
+    pl    crowd < adapt < goal < opposite   (crowd +0.995, opposite +0.967, adapt +0.993, goal +0.982)
+    tau sf-avm +0.67  sf-cfsm +0.67  sf-orca +0.67  sf-pl +1.00  avm-cfsm +1.00  avm-orca +1.00  avm-pl +0.67  cfsm-orca +1.00  cfsm-pl +0.67  orca-pl +0.67
+share 0.10 delay_per_pass:
+    sf    adapt < crowd < goal < opposite   (crowd -0.006, opposite +1.421, adapt -0.097, goal +0.654)
+    avm   crowd < adapt < goal < opposite   (crowd -0.101, opposite +0.472, adapt +0.008, goal +0.047)
+    cfsm  goal < crowd < adapt < opposite   (crowd -0.043, opposite +0.068, adapt -0.017, goal -0.085)
+    orca  crowd < adapt < goal < opposite   (crowd -0.002, opposite +0.635, adapt +0.001, goal +0.257)
+    pl    crowd < adapt < goal < opposite   (crowd +0.006, opposite +0.569, adapt +0.049, goal +0.158)
+    tau sf-avm +0.67  sf-cfsm +0.00  sf-orca +0.67  sf-pl +0.67  avm-cfsm +0.33  avm-orca +1.00  avm-pl +1.00  cfsm-orca +0.33  cfsm-pl +0.33  orca-pl +1.00
+share 0.10 rp_close:
+    sf    crowd < adapt < goal < opposite   (crowd +0.100, opposite +0.644, adapt +0.163, goal +0.361)
+    avm   goal < crowd < adapt < opposite   (crowd +0.001, opposite +0.070, adapt +0.002, goal +0.001)
+    cfsm  crowd < adapt < goal < opposite   (crowd +0.023, opposite +0.607, adapt +0.043, goal +0.213)
+    orca  crowd < adapt < goal < opposite   (crowd +0.017, opposite +0.780, adapt +0.098, goal +0.476)
+    pl    crowd < adapt < goal < opposite   (crowd +0.036, opposite +0.502, adapt +0.060, goal +0.212)
+    tau sf-avm +0.33  sf-cfsm +1.00  sf-orca +1.00  sf-pl +1.00  avm-cfsm +0.33  avm-orca +0.33  avm-pl +0.33  cfsm-orca +1.00  cfsm-pl +1.00  orca-pl +1.00
+share 0.10 lane:
+    sf    adapt < crowd < goal < opposite   (crowd +0.948, opposite +0.725, adapt +0.957, goal +0.843)
+    avm   adapt < crowd < goal < opposite   (crowd +1.000, opposite +0.998, adapt +1.000, goal +1.000)
+    cfsm  crowd < adapt < goal < opposite   (crowd +0.994, opposite +0.932, adapt +0.993, goal +0.981)
+    orca  crowd < adapt < goal < opposite   (crowd +0.994, opposite +0.959, adapt +0.994, goal +0.973)
+    pl    crowd < adapt < goal < opposite   (crowd +0.995, opposite +0.948, adapt +0.989, goal +0.977)
+    tau sf-avm +0.83  sf-cfsm +0.67  sf-orca +0.67  sf-pl +0.67  avm-cfsm +0.50  avm-orca +0.50  avm-pl +0.50  cfsm-orca +1.00  cfsm-pl +1.00  orca-pl +1.00
+share 0.20 delay_per_pass:
+    sf    crowd < adapt < goal < opposite   (crowd -0.038, opposite +0.836, adapt -0.021, goal +0.446)
+    avm   crowd < adapt < goal < opposite   (crowd -0.039, opposite +0.381, adapt +0.023, goal +0.036)
+    cfsm  goal < crowd < adapt < opposite   (crowd -0.050, opposite +0.114, adapt -0.019, goal -0.069)
+    orca  crowd < adapt < goal < opposite   (crowd -0.002, opposite +0.654, adapt +0.007, goal +0.221)
+    pl    crowd < adapt < goal < opposite   (crowd +0.005, opposite +0.385, adapt +0.020, goal +0.230)
+    tau sf-avm +1.00  sf-cfsm +0.33  sf-orca +1.00  sf-pl +1.00  avm-cfsm +0.33  avm-orca +1.00  avm-pl +1.00  cfsm-orca +0.33  cfsm-pl +0.33  orca-pl +1.00
+share 0.20 rp_close:
+    sf    crowd < adapt < goal < opposite   (crowd +0.075, opposite +0.578, adapt +0.164, goal +0.366)
+    avm   adapt < crowd < goal < opposite   (crowd +0.002, opposite +0.164, adapt +0.001, goal +0.002)
+    cfsm  crowd < adapt < goal < opposite   (crowd +0.028, opposite +0.627, adapt +0.048, goal +0.222)
+    orca  crowd < adapt < goal < opposite   (crowd +0.018, opposite +0.742, adapt +0.094, goal +0.459)
+    pl    crowd < adapt < goal < opposite   (crowd +0.038, opposite +0.445, adapt +0.062, goal +0.206)
+    tau sf-avm +0.67  sf-cfsm +1.00  sf-orca +1.00  sf-pl +1.00  avm-cfsm +0.67  avm-orca +0.67  avm-pl +0.67  cfsm-orca +1.00  cfsm-pl +1.00  orca-pl +1.00
+share 0.20 lane:
+    sf    crowd < adapt < goal < opposite   (crowd +0.961, opposite +0.685, adapt +0.946, goal +0.810)
+    avm   adapt < crowd < goal < opposite   (crowd +1.000, opposite +0.986, adapt +1.000, goal +1.000)
+    cfsm  crowd < adapt < goal < opposite   (crowd +0.994, opposite +0.897, adapt +0.994, goal +0.972)
+    orca  crowd < adapt < goal < opposite   (crowd +0.994, opposite +0.931, adapt +0.994, goal +0.965)
+    pl    crowd < adapt < opposite < goal   (crowd +0.998, opposite +0.954, adapt +0.988, goal +0.954)
+    tau sf-avm +0.67  sf-cfsm +1.00  sf-orca +1.00  sf-pl +0.67  avm-cfsm +0.67  avm-orca +0.67  avm-pl +0.33  cfsm-orca +1.00  cfsm-pl +0.67  orca-pl +0.67
+
+delay_per_pass: tau among sf/cfsm/orca min +0.00 max +1.00 (1 of 9 >= 0.8); all five min +0.00, 10 of 30 >= 0.8
+rp_close: tau among sf/cfsm/orca min +1.00 max +1.00 (9 of 9 >= 0.8); all five min +0.33, 18 of 30 >= 0.8
+lane: tau among sf/cfsm/orca min +0.67 max +1.00 (5 of 9 >= 0.8); all five min +0.33, 11 of 30 >= 0.8
+
+Predictions (LOG.md, milestone 5b):
+B1 (opposite has the highest close-pass rate, ORCA and power law, every share): held (orca 0.05: opposite; orca 0.10: opposite; orca 0.20: opposite; pl 0.05: opposite; pl 0.10: opposite; pl 0.20: opposite)
+B2 (opposite gives the lowest lane order, ORCA and power law, every share): refuted (orca 0.05: opposite; orca 0.10: opposite; orca 0.20: opposite; pl 0.05: opposite; pl 0.10: opposite; pl 0.20: goal)
+B3 (ORCA, opposite at 20% lowers lane order by at least 0.10): refuted (-0.063)
+B4 (crowd: share on own right within 0.05 of the 0% crowd, both families, every share and run): held (largest change +0.024)
+B5 (at 20% opposite delays people more per transit than crowd, both families): held (orca: +2.31 vs +0.01 s; pl: +2.21 vs +0.04 s)
+B6 (H5 on close-pass rate: tau(ORCA, social force) and tau(ORCA, collision-free speed) >= 0.8 at every share): held (+1.00, +1.00, +1.00, +1.00, +1.00, +1.00)
+B7 (H5 on delay per pass: tau >= 0.8 for every pair of sf, cfsm, orca at every share): refuted (+0.33, +0.67, +0.00, +0.00, +0.67, +0.33, +0.33, +1.00, +0.33)
+B8 (power law: lateral-goal robots at 20% delay people within 0.5 s per transit of crowd robots): refuted (+1.67 s)

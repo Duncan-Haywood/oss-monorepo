@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234b6e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EX%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>100-Year Flood and Return Level Calculator: GEV, Gumbel and Peaks Over Threshold</title>
+  <meta name="description" content="Free return level calculator for 100-year floods, design wind speeds, rainfall and peak loads. Paste annual maxima or a daily series and get GEV, Gumbel and generalized Pareto fits with profile-likelihood intervals, declustering, threshold stability and a trend test. Checked against scipy. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Extreme value analysis: 100-year levels with honest intervals, in your browser">
+  <meta property="og:description" content="GEV and Gumbel on annual maxima, peaks over a threshold with a generalized Pareto, profile-likelihood intervals and a trend test, for your own CSV.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Extreme Value Analysis: GEV, Gumbel and Peaks Over Threshold", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste annual maxima or a long series (daily river flow, hourly wind, rainfall, loads) and get return levels such as the 100-year flood from GEV, Gumbel and generalized Pareto fits, with profile-likelihood intervals, declustering, threshold stability and a trend test. Runs in the browser.", "isAccessibleForFree": true, "license": "https://opensource.org/licenses/MIT"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+    {"@type": "Question", "name": "What is a 100-year flood?", "acceptedAnswer": {"@type": "Answer", "text": "The level with a 1% chance of being exceeded in any one year. It is not a level that comes once a century: over 50 years the chance of seeing it at least once is about 39.5%, and it can happen in two years running."}},
+    {"@type": "Question", "name": "Should I use annual maxima or peaks over a threshold?", "acceptedAnswer": {"@type": "Answer", "text": "Annual maxima (the GEV) need only one number a year and are the simplest to defend. Peaks over a threshold use every large event, not just the largest each year, so they get more out of a short daily record, but they need a threshold and a rule for which peaks count as separate events."}},
+    {"@type": "Question", "name": "Why are the profile intervals lopsided?", "acceptedAnswer": {"@type": "Answer", "text": "Because the data say much less about how high a rare level could be than about how low. The delta-method interval is forced to be symmetric; in simulations on this page it covered the true 100-year level only 84 to 86% of the time for 30 to 60 years of data, against 93 to 94% for the profile interval."}},
+    {"@type": "Question", "name": "What does the shape parameter mean?", "acceptedAnswer": {"@type": "Answer", "text": "It sets how fast the tail thins out. Above zero the tail is heavy and rare levels keep climbing; zero is the Gumbel case; below zero the tail has an upper limit. Its interval matters more than its point value, because return levels far beyond the record depend on it."}},
+    {"@type": "Question", "name": "Is this a flood study I can file?", "acceptedAnswer": {"@type": "Answer", "text": "No. US federal flood frequency studies follow Bulletin 17C (log-Pearson Type III fitted by the expected moments algorithm, with regional skew and historical floods), and design values come from codes and the agencies that publish them. Use this to explore your data and check a number, not to replace a licensed engineer's study."}}
+  ]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f1f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5a85; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #183c5a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #183c5a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5562; }
+    .card { background: #fff; border: 1px solid #d5dee6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #183c5a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6b8196; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input[type="checkbox"] { width: auto; margin-right: 6px; }
+    label.check { font-weight: 500; display: flex; align-items: center; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5a85; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2ebf3; color: #183c5a; }
+    button:disabled { opacity: .6; cursor: progress; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e5ebf0; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5562; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.far td { color: #6a7480; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dee6; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #6b8196; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+    .summary li { margin: 4px 0; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    pre { background: #f3f6f9; border: 1px solid #dfe6ec; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GEV · GUMBEL · PEAKS OVER THRESHOLD · PROFILE LIKELIHOOD · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How big is the 100-year flood, and how sure can you be?</h1>
+    <p>Paste a year-by-year record of maxima (river peaks, storm rainfall, gusts, peak loads, the biggest claim each year) or a long daily or hourly series. You get <strong>return levels</strong> (the 10-, 100- or 500-year value) from a <strong>GEV</strong> and a <strong>Gumbel</strong> fit to the annual maxima and, for a long series, a <strong>generalized Pareto</strong> fit to the declustered <strong>peaks over a threshold</strong>. Every level comes with a <strong>profile-likelihood interval</strong>, which is honest about how much higher a rare level could be, beside the symmetric delta-method one most calculators show.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical estimates from data you supply, not advice. Not legal, tax, or financial advice, and not engineering advice or a regulatory flood study.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">CSV with a header row: a value column plus a year or date column (comma, tab or semicolon)</label>
+    <textarea id="csv" spellcheck="false" placeholder="year,peak&#10;1990,812&#10;1991,1045&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-annual">Load example: Potomac River annual peaks, 1931-2026 (96 years)</button>
+    <button type="button" class="secondary" id="load-daily">Load example: Potomac daily flow, water years 2007-2026</button>
+    <p class="note" id="data-status">One row a year is read as annual maxima. A longer series gets both methods.</p>
+
+    <div class="grid">
+      <div><label for="value">Value column</label><select id="value"></select></div>
+      <div><label for="date">Date column</label><select id="date"></select></div>
+      <div><label for="year">Year column</label><select id="year"></select></div>
+      <div><label for="year-start">Year starts in</label><select id="year-start">
+        <option value="1">January (calendar year)</option>
+        <option value="10">October (US water year)</option>
+        <option value="4">April</option>
+        <option value="7">July</option>
+      </select></div>
+      <div><label for="method">Method</label><select id="method">
+        <option value="auto">Automatic</option>
+        <option value="gev">Annual maxima only (GEV)</option>
+        <option value="pot">Peaks over threshold only (GPD)</option>
+      </select></div>
+      <div><label for="threshold">Threshold (blank: 98th percentile)</label><input id="threshold" inputmode="decimal" placeholder="e.g. 60000"></div>
+      <div><label for="run-length">New event after this many readings below it</label><input id="run-length" type="number" min="1" step="1" value="3"></div>
+      <div><label for="per-year">Readings a year (only if there are no dates)</label><input id="per-year" inputmode="decimal" placeholder="e.g. 365"></div>
+      <div><label for="periods">Return periods, years (comma and space between)</label><input id="periods" value="2, 5, 10, 25, 50, 100, 200, 500"></div>
+      <div><label for="confidence">Interval level</label><select id="confidence">
+        <option value="0.95">95%</option>
+        <option value="0.9">90%</option>
+        <option value="0.99">99%</option>
+        <option value="0.8">80%</option>
+      </select></div>
+      <div><label for="design-life">Design life, years</label><input id="design-life" type="number" min="1" step="1" value="50"></div>
+      <div><label class="check" for="trend"><input id="trend" type="checkbox" checked>Test for a trend over the years</label></div>
+    </div>
+    <button type="button" id="analyze">Estimate return levels</button>
+    <p class="note" id="busy" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <ul class="summary" id="summary"></ul>
+    <div id="warnings"></div>
+    <div id="block-out"></div>
+    <div id="pot-out"></div>
+    <div id="life-out"></div>
+    <button type="button" class="secondary" id="download">Download the full result (JSON)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>Annual maxima.</strong> The largest value in each year is fitted by maximum likelihood with the generalized extreme value (GEV) distribution, F(x) = exp{-[1 + &xi;(x - &mu;)/&sigma;]<sup>-1/&xi;</sup>}, which is the limit for maxima of long blocks whatever the daily distribution (Fisher &amp; Tippett 1928; Jenkinson 1955). The <em>T</em>-year level is the value with chance 1/<em>T</em> of being exceeded in one year. The Gumbel (&xi; = 0) is fitted too, with a likelihood-ratio test of whether the data need the free shape. L-moment estimates (Hosking, Wallis &amp; Wood 1985) are shown as a cross-check and seed the optimiser.</p>
+    <p><strong>Peaks over a threshold.</strong> Exceedances of a threshold <em>u</em> are grouped into events by runs declustering (an event ends after <em>r</em> readings below <em>u</em>), and the excess of each event's peak is fitted with the generalized Pareto distribution (Pickands 1975; Davison &amp; Smith 1990). With &lambda; events a year, the level exceeded on average once in <em>T</em> years is u + (&sigma;/&xi;)[(T&lambda;)<sup>&xi;</sup> - 1]. The extremal index is events per exceedance. The threshold-stability table refits over a grid of thresholds: above a good one, the shape and the modified scale &sigma; - &xi;u stop drifting (Coles 2001, section 4.3.4).</p>
+    <p><strong>Intervals.</strong> The delta-method interval uses the observed information matrix (Coles 2001, eq. 3.10 and 4.15). The profile-likelihood interval reparameterises the model by the return level and keeps every level whose likelihood-ratio statistic is below the chi-square quantile (Coles 2001, section 2.6.5). For POT levels the event rate is held at its estimate in the profile, as in Coles. <strong>Trend:</strong> a GEV whose location moves linearly with the year, tested against the stationary fit by likelihood ratio (Coles 2001, chapter 6).</p>
+    <p><strong>Checked.</strong> On the bundled data and five simulated samples the fits agree with scipy 1.18.1 (<code>genextreme</code>, <code>gumbel_r</code>, <code>genpareto</code>) to about one part in a million, and the likelihood here is never worse than scipy's. In 400 simulated records each, the 95% profile interval for the 100-year level covered the true value 93 to 97% of the time; the delta-method interval covered it 84 to 86% at 30 to 60 years of data.</p>
+    <pre>@book{coles2001introduction, author = {Coles, Stuart}, title = {An Introduction to Statistical Modeling of Extreme Values}, publisher = {Springer}, year = {2001}, doi = {10.1007/978-1-4471-3675-0}}
+@article{jenkinson1955frequency, author = {Jenkinson, A. F.}, title = {The frequency distribution of the annual maximum (or minimum) values of meteorological elements}, journal = {Quarterly Journal of the Royal Meteorological Society}, volume = {81}, number = {348}, pages = {158--171}, year = {1955}, doi = {10.1002/qj.49708134804}}
+@article{pickands1975statistical, author = {Pickands, James}, title = {Statistical inference using extreme order statistics}, journal = {Annals of Statistics}, volume = {3}, number = {1}, pages = {119--131}, year = {1975}, doi = {10.1214/aos/1176343003}}
+@article{davison1990models, author = {Davison, A. C. and Smith, R. L.}, title = {Models for exceedances over high thresholds}, journal = {Journal of the Royal Statistical Society B}, volume = {52}, number = {3}, pages = {393--442}, year = {1990}, doi = {10.1111/j.2517-6161.1990.tb01796.x}}
+@article{hosking1985estimation, author = {Hosking, J. R. M. and Wallis, J. R. and Wood, E. F.}, title = {Estimation of the generalized extreme-value distribution by the method of probability-weighted moments}, journal = {Technometrics}, volume = {27}, number = {3}, pages = {251--261}, year = {1985}, doi = {10.1080/00401706.1985.10488049}}
+@misc{usgs01646500, author = {{U.S. Geological Survey}}, title = {Annual peak streamflow and daily discharge, USGS 01646500 Potomac River near Washington, DC, Little Falls Pump Station}, howpublished = {National Water Information System}, note = {Retrieved 2026-11-16}}</pre>
+  </section>
+
+  <section class="card">
+    <h2>Limits</h2>
+    <ul>
+      <li><strong>Stationarity.</strong> The standard fits assume every year comes from the same climate and the same catchment. Dams, levees, urban growth and a changing climate break that; the trend test catches a steady drift in the location, not every kind of change.</li>
+      <li><strong>Independence.</strong> Annual maxima are usually close to independent. Daily peaks are not: the run length decides which peaks are one event, and a run length shorter than a typical flood splits one flood into several and overstates the rate.</li>
+      <li><strong>Extrapolation.</strong> Levels for return periods beyond about twice the record length are shown in grey. They follow from the shape parameter, so read the interval, not the point.</li>
+      <li><strong>Short records.</strong> A daily record of 20 years can miss the floods that set the tail entirely. On the bundled Potomac data the 20-year daily record puts the 100-year flow near 200,000 cfs, and so do the instantaneous annual peaks of the same 20 years (203,000), so the gap is the record, not daily means against peaks. The 96-year peak record puts it near 412,000 cfs and holds six floods above 300,000, none of them after 1996.</li>
+      <li>Not modelled: historical or censored floods, regional skew or pooling across sites, seasonality, covariates other than the year, and joint extremes of two variables.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is a 100-year flood?</h3>
+    <p>The level with a 1% chance of being exceeded in any one year. It is not a level that comes once a century: over 50 years the chance of seeing it at least once is about 39.5%, and it can happen in two years running.</p>
+    <h3>Should I use annual maxima or peaks over a threshold?</h3>
+    <p>Annual maxima (the GEV) need only one number a year and are the simplest to defend. Peaks over a threshold use every large event, not just the largest each year, so they get more out of a short daily record, but they need a threshold and a rule for which peaks count as separate events.</p>
+    <h3>Why are the profile intervals lopsided?</h3>
+    <p>Because the data say much less about how high a rare level could be than about how low. The delta-method interval is forced to be symmetric; in simulations on this page it covered the true 100-year level only 84 to 86% of the time for 30 to 60 years of data, against 93 to 94% for the profile interval.</p>
+    <h3>What does the shape parameter mean?</h3>
+    <p>It sets how fast the tail thins out. Above zero the tail is heavy and rare levels keep climbing; zero is the Gumbel case; below zero the tail has an upper limit. Its interval matters more than its point value, because return levels far beyond the record depend on it.</p>
+    <h3>Is this a flood study I can file?</h3>
+    <p>No. US federal flood frequency studies follow Bulletin 17C (log-Pearson Type III fitted by the expected moments algorithm, with regional skew and historical floods), and design values come from codes and the agencies that publish them. Use this to explore your data and check a number, not to replace a licensed engineer's study.</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, it is not engineering advice, and it does not replace a qualified hydrologist, engineer or statistician. Results are statistical estimates from the data you enter; they do not guarantee what will happen at any site, and they are not a flood study, a design value or a flood-insurance determination. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the U.S. Geological Survey, or any software vendor. The example data are U.S. Geological Survey records, which are in the public domain.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs data/potomac-daily-flow.csv --year-start 10 --run-length 7</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/extreme-value-analysis" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: <a href="../mann-kendall-trend/">Mann-Kendall trend test</a> for a monotone trend in the same record, the <a href="../changepoint-detector/">changepoint detector</a> for when a series shifted, <a href="../survival-analysis/">survival analysis</a> for time to failure, and the <a href="../kalman-smoother/">Kalman smoother</a> for level and trend in a noisy series.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, readSeries, parseNumberList, fmt, formatP, gevQuantileUpper, potReturnLevel } from "./engine.mjs";
+    import { ANNUAL_PEAKS_CSV, DAILY_FLOW_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    let last = null;
+
+    function refreshColumns() {
+      const text = $("#csv").value;
+      if (!text.trim()) { for (const id of ["#value", "#date", "#year"]) $(id).innerHTML = ""; $("#data-status").textContent = "Paste a CSV or load an example."; return; }
+      let s;
+      try { s = readSeries(text); } catch (e) { $("#data-status").textContent = e.message; return; }
+      const opt = (cols, pick, blank) => (blank ? `<option value="">${blank}</option>` : "") + cols.map((c) => `<option value="${esc(c)}"${c === pick ? " selected" : ""}>${esc(c)}</option>`).join("");
+      $("#value").innerHTML = opt(s.header, s.valueColumn);
+      $("#date").innerHTML = opt(s.header, s.dateColumn, "None");
+      $("#year").innerHTML = opt(s.header, s.yearColumn, "None (from the date)");
+      $("#data-status").textContent = `${s.obs.length} rows with a number in "${s.valueColumn}"${s.dropped ? `, ${s.dropped} skipped` : ""}.`;
+    }
+
+    function readInput() {
+      const periods = parseNumberList($("#periods").value).filter((t) => t > 1);
+      return {
+        csv: $("#csv").value, value: $("#value").value, date: $("#date").value, year: $("#year").value,
+        yearStart: Number($("#year-start").value), method: $("#method").value,
+        threshold: $("#threshold").value.trim() === "" ? null : Number($("#threshold").value.replace(/,/g, "")),
+        runLength: Number($("#run-length").value), perYear: $("#per-year").value.trim() === "" ? null : Number($("#per-year").value),
+        returnPeriods: periods, confidence: Number($("#confidence").value), designLife: Number($("#design-life").value), trend: $("#trend").checked,
+      };
+    }
+
+    const band = (row) => row.profile && row.profile.lower !== null ? `${fmt(row.profile.lower)} to ${row.profile.upper === null ? "open" : fmt(row.profile.upper)}` : "—";
+    function levelTable(rows, cl) {
+      return `<div class="scroll"><table><thead><tr><th class="n">Years</th><th class="n">Chance a year</th><th class="n">Level</th><th class="n">${cl} profile interval</th><th class="n">${cl} delta interval</th></tr></thead><tbody>` +
+        rows.map((r) => `<tr${r.extrapolated ? ' class="far"' : ""}><td class="n">${r.T}</td><td class="n">${fmt(r.aep * 100)}%</td><td class="n">${fmt(r.level)}</td><td class="n">${band(r)}</td><td class="n">${fmt(r.delta.lower)} to ${fmt(r.delta.upper)}</td></tr>`).join("") + "</tbody></table></div>";
+    }
+
+    // Return-level plot: log return period across, level up; model line, profile band, data points.
+    function plot(rows, curve, points, label) {
+      const W = 720, H = 330, L = 70, R = 14, T = 14, B = 44;
+      const ts = rows.map((r) => r.T), tmin = 1.05, tmax = Math.max(1000, ...ts);
+      const ys = [...rows.flatMap((r) => [r.level, r.profile?.lower ?? r.delta.lower, r.profile?.upper ?? r.delta.upper]), ...points.map((p) => p.value)].filter(Number.isFinite);
+      let ymin = Math.min(...ys), ymax = Math.max(...ys);
+      const pad = (ymax - ymin) * 0.06; ymin = Math.min(...ys) >= 0 ? Math.max(0, ymin - pad) : ymin - pad; ymax += pad;
+      const X = (t) => L + ((Math.log10(t) - Math.log10(tmin)) / (Math.log10(tmax) - Math.log10(tmin))) * (W - L - R);
+      const Y = (v) => T + (1 - (v - ymin) / (ymax - ymin)) * (H - T - B);
+      const clipY = (v) => Math.max(T, Math.min(H - B, Y(v)));
+      const withBand = rows.filter((r) => r.profile && r.profile.lower !== null && r.profile.upper !== null);
+      const poly = withBand.length > 1 ? `<polygon fill="#1f5a8522" points="${[...withBand.map((r) => `${X(r.T)},${clipY(r.profile.upper)}`), ...withBand.slice().reverse().map((r) => `${X(r.T)},${clipY(r.profile.lower)}`)].join(" ")}"/>` : "";
+      const line = `<polyline fill="none" stroke="#1f5a85" stroke-width="2.2" points="${curve.filter((c) => c.T >= tmin && c.T <= tmax).map((c) => `${X(c.T)},${clipY(c.level)}`).join(" ")}"/>`;
+      const dots = points.filter((p) => p.T >= tmin && p.T <= tmax).map((p) => `<circle cx="${X(p.T)}" cy="${Y(p.value)}" r="3" fill="#b4541b"/>`).join("");
+      const ticks = [2, 5, 10, 25, 50, 100, 200, 500, 1000].filter((t) => t <= tmax).map((t) => `<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${H - B}" stroke="#e5ebf0"/><text x="${X(t)}" y="${H - B + 16}" font-size="11" text-anchor="middle" fill="#4a5562">${t}</text>`).join("");
+      const yt = Array.from({ length: 5 }, (_, i) => ymin + ((ymax - ymin) * i) / 4).map((v) => `<text x="${L - 6}" y="${Y(v) + 4}" font-size="11" text-anchor="end" fill="#4a5562">${fmt(v)}</text>`).join("");
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)}">${ticks}${yt}${poly}${line}${dots}<text x="${(L + W - R) / 2}" y="${H - 8}" font-size="12" text-anchor="middle" fill="#1b1f2a">return period, years (log scale)</text></svg>
+        <p class="legend"><span><span class="swatch" style="background:#1f5a85"></span>fitted return level</span><span><span class="swatch" style="background:#1f5a8544"></span>profile interval</span><span><span class="swatch" style="background:#b4541b"></span>observed (plotting position)</span></p>`;
+    }
+    const curveT = Array.from({ length: 80 }, (_, i) => 1.05 * Math.pow(1000 / 1.05, i / 79));
+
+    function render(r) {
+      const cl = `${Math.round(r.input.confidence * 100)}%`;
+      $("#summary").innerHTML = r.summary.map((s) => `<li>${esc(s)}</li>`).join("");
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      if (r.block) {
+        const b = r.block, g = b.gev;
+        const xp = g.xiProfile ? ` (${cl} profile ${g.xiProfile.lower === null ? "-1" : fmt(g.xiProfile.lower)} to ${g.xiProfile.upper === null ? "3" : fmt(g.xiProfile.upper)})` : "";
+        $("#block-out").innerHTML = `<h3>Annual maxima: GEV on ${b.nYears} years</h3>
+          <p>Location ${fmt(g.mu)} (se ${fmt(g.se.mu)}), scale ${fmt(g.sigma)} (se ${fmt(g.se.sigma)}), shape ${fmt(g.xi)} (se ${fmt(g.se.xi)})${xp}. L-moment fit: ${fmt(g.lmom.mu)}, ${fmt(g.lmom.sigma)}, ${fmt(g.lmom.xi)}.</p>
+          ${plot(b.returnLevels, curveT.map((t) => ({ T: t, level: gevQuantileUpper(1 / t, g.mu, g.sigma, g.xi) })), b.diagnostics.empiricalReturn, "GEV return level plot")}
+          ${levelTable(b.returnLevels, cl)}
+          <h3>Gumbel (shape fixed at zero)</h3>
+          <p>Location ${fmt(b.gumbel.mu)}, scale ${fmt(b.gumbel.sigma)}. Against the GEV: likelihood ratio ${fmt(b.gumbelVsGev.deviance)}, p = ${formatP(b.gumbelVsGev.p)}. AIC ${b.gumbel.aic.toFixed(1)} against ${g.aic.toFixed(1)} for the GEV (lower is better).</p>
+          ${levelTable(b.gumbelReturnLevels, cl)}
+          ${b.trend ? `<h3>Trend in the location</h3><p>${fmt(b.trend.muPerDecade)} per decade (se ${fmt(b.trend.se.muPerDecade)}), likelihood ratio ${fmt(b.trend.lrt.deviance)}, p = ${formatP(b.trend.lrt.p)}.${b.trend.levelsAtEnds.map((e) => ` Under the trend model the ${e.T}-year level goes from ${fmt(e.first)} in ${b.trend.firstYear} to ${fmt(e.last)} in ${b.trend.lastYear}.`).join("")}</p>` : ""}
+          <p class="note">Largest gap between the fitted and empirical probabilities (P-P plot): ${fmt(b.diagnostics.maxPpGap)}.</p>`;
+      } else $("#block-out").innerHTML = "";
+      if (r.pot) {
+        const p = r.pot, g = p.gpd;
+        const xp = g.xiProfile ? ` (${cl} profile ${g.xiProfile.lower === null ? "-1" : fmt(g.xiProfile.lower)} to ${g.xiProfile.upper === null ? "3" : fmt(g.xiProfile.upper)})` : "";
+        $("#pot-out").innerHTML = `<h3>Peaks over ${fmt(p.threshold)}: generalized Pareto</h3>
+          <p>${p.nExceed} readings above the threshold in ${p.nClusters} events (run length ${p.runLength}), ${fmt(p.ratePerYear)} events a year over ${fmt(p.nYears)} years; extremal index ${fmt(p.extremalIndex)}. Scale ${fmt(g.sigma)} (se ${fmt(g.se.sigma)}), shape ${fmt(g.xi)} (se ${fmt(g.se.xi)})${xp}.</p>
+          ${plot(p.returnLevels, curveT.filter((t) => t * p.ratePerYear > 1).map((t) => ({ T: t, level: potReturnLevel(t, p.threshold, g.sigma, g.xi, p.ratePerYear) })), p.diagnostics.empiricalReturn, "Peaks-over-threshold return level plot")}
+          ${levelTable(p.returnLevels, cl)}
+          <h3>Threshold stability</h3>
+          <p class="note">Refits at higher thresholds. Above a good threshold the shape and the modified scale stop drifting, within their noise.</p>
+          <div class="scroll"><table><thead><tr><th class="n">Threshold</th><th class="n">Percentile</th><th class="n">Events</th><th class="n">Shape</th><th class="n">${cl} interval</th><th class="n">Modified scale</th></tr></thead><tbody>${p.stability.map((s) => `<tr><td class="n">${fmt(s.u)}</td><td class="n">${fmt(s.p * 100)}</td><td class="n">${s.clusters}</td><td class="n">${s.xi.toFixed(3)}</td><td class="n">${s.xiLower.toFixed(2)} to ${s.xiUpper.toFixed(2)}</td><td class="n">${fmt(s.sigmaStar)}</td></tr>`).join("")}</tbody></table></div>`;
+      } else $("#pot-out").innerHTML = "";
+      if (r.designLife) {
+        const d = r.designLife;
+        $("#life-out").innerHTML = `<h3>Over a ${d.years}-year design life</h3><div class="scroll"><table><thead><tr><th class="n">Level</th><th class="n">Chance of at least one exceedance</th></tr></thead><tbody>${d.risk.map((x) => `<tr><td class="n">${x.T}-year</td><td class="n">${fmt(x.chance * 100)}%</td></tr>`).join("")}</tbody></table></div><p class="note">To keep the chance to 10% over ${d.years} years, design for about the ${fmt(d.periodFor10pct)}-year level; for 1%, about the ${fmt(d.periodFor1pct)}-year level.</p>`;
+      }
+      $("#results").hidden = false;
+    }
+
+    function runAnalysis() {
+      $("#busy").textContent = "";
+      try {
+        last = analyze(readInput());
+        render(last);
+        return true;
+      } catch (e) {
+        $("#results").hidden = true;
+        $("#busy").textContent = `Could not fit: ${e.message}`;
+        return false;
+      }
+    }
+    // Profile intervals take a second or so on a long record; let the button show it first.
+    function start(after) {
+      $("#analyze").disabled = true;
+      $("#busy").textContent = "Fitting and profiling...";
+      setTimeout(() => { const ok = runAnalysis(); $("#analyze").disabled = false; if (ok && after) after(); }, 20);
+    }
+
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => { const f = event.target.files[0]; if (f) { $("#csv").value = await f.text(); refreshColumns(); } });
+    $("#analyze").addEventListener("click", () => start(() => record("analysis_run")));
+    $("#load-annual").addEventListener("click", () => {
+      $("#csv").value = ANNUAL_PEAKS_CSV; $("#year-start").value = "10"; $("#method").value = "auto"; $("#threshold").value = ""; refreshColumns();
+      start(() => { record("example_loaded"); $("#data-status").textContent = "Example: USGS 01646500, Potomac River near Washington, DC, annual peak flow in cubic feet per second, water years 1931-2026 (public domain)."; });
+    });
+    $("#load-daily").addEventListener("click", () => {
+      $("#csv").value = DAILY_FLOW_CSV; $("#year-start").value = "10"; $("#run-length").value = "7"; $("#method").value = "auto"; $("#threshold").value = ""; refreshColumns();
+      start(() => { record("example_loaded"); $("#data-status").textContent = "Example: USGS 01646500 daily mean flow in cubic feet per second, 2006-10-01 to 2026-09-30 (public domain). Run length 7 days treats peaks a week apart as one flood."; });
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([JSON.stringify(last, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "extreme-value-analysis.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

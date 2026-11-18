@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVLccyNSNRjHJuEVQ8W",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine)",
+  "input_sha256": "11e3b35e49613a6364c0c8156c62feb36e116801279806d7c7661dd70db1a697",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T22:04:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 12) ids-model-check: 'did you mean' for a property the template lacks (BUILDABLE HERE item)",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17077",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/eval/template-type-2026-11-17.md",
+      "issue": "The flagship row said '8 public facets' for Lenght-style faults; real count with editable rows included is 17 (Rotterdam's AkousticRating opened as editable rows with a blank property box, so the template-type eval never counted them)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The plain draw routed this run to research; the scheduled message asks for revenue products, so I routed with --task as prompt.md allows for a message that names a task.",
+      "did": "ventures track, flagship row allocate.py picked",
+      "result": "a landed editor feature on a flagship"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-ids-editor-did-you-mean-length.md",
+    "ventures/ids-model-check/eval/name-suggestion-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py ids-model-check -> ok, 184 tests, 0 failed. eval/audit-corpus.mjs before/after: identical tallies; only 8 Lenght messages now carry 'did you mean Length?'. eval/name-suggestion.mjs: 17 rows in 7 of 64 public files, name errors 31 -> 14, IDS-Audit-tool unchanged. Chromium (eval/name-suggestion-page.mjs) on all 7 files: did-you-mean errors to 0, page counts equal CLI counts, no page errors, no horizontal scroll at 390 px. Post front matter, links and similarity checks clean.",
+  "corrections": [],
+  "redteam": null
+}

@@ -63,7 +63,7 @@ test("start datetime / ends at style headers are read (2026-11-05)", () => {
 });
 
 // Header rows copied from two real exports (eval/real-schedule-exports.mjs); every data row below is invented.
-const WFM = "﻿Location,LocationID,Initial TM Employee Id,Initial TM First Name,Initial TM Last Name,Initial TM Job Title,Initial Shift Date,Initial Shift Start Time,Initial Shift End Time,Initial Shift Work Role,Final TM Employee Id,Final TM First Name,Final TM Last Name,Final TM Job Title,Final Shift Date,Final Shift Start Time,Final Shift End Time,Final Shift Worker Role,Initial equals Final,Location Type,LocationSubType";
+const WFM = "\uFEFFLocation,LocationID,Initial TM Employee Id,Initial TM First Name,Initial TM Last Name,Initial TM Job Title,Initial Shift Date,Initial Shift Start Time,Initial Shift End Time,Initial Shift Work Role,Final TM Employee Id,Final TM First Name,Final TM Last Name,Final TM Job Title,Final Shift Date,Final Shift Start Time,Final Shift End Time,Final Shift Worker Role,Initial equals Final,Location Type,LocationSubType";
 test("first-published and final shifts side by side: Final is read, Initial on request; a Sun-Sat file is one week (2026-11-13)", () => {
   const rows = [
     "Shop,S1,1,Ana,A,Advisor,2026/01/18,11:30,18:00,Selling,1,Ana,A,Advisor,2026/01/18,11:30,18:00,Selling,Yes,Real,Real",
@@ -164,4 +164,16 @@ test("stamps with two-digit years and seconds; a location in the first column; n
   assert.deepEqual(one.locations, [{ name: "North", rows: 1 }]);
   assert.doesNotMatch(notes, /locations/);
   assert.doesNotMatch(notes, /shift columns/);
+});
+
+// Red team 2026-11-15: `(\d{2}|\d{4})` with nothing after it took "20" of "2026" as the year, so every
+// four-digit slash date was read in 2020 and January 5, 2026 (a Monday) came out a Sunday.
+test("a four-digit year in a slash date is the year, not its first two digits", () => {
+  for (const d of ["01/05/2026", "1/5/2026", "01.05.2026", "01-05-2026", "01/05/26", "2026-01-05"]) {
+    const r = importShiftsCsv(`Date,Start,End,Position\n${d},7:00,15:00,Cook\n`);
+    assert.equal(r.rows, 1, d);
+    assert.match(r.shiftsText, /Mon, 7:00, 15:00, 1, , cook/, d);
+  }
+  assert.equal(importShiftsCsv("Date,Start,End\n01/05/20261,7:00,15:00\n").rows, 0);
+  assert.equal(importShiftsCsv("Date,Start,End\n2026-01-051,7:00,15:00\n").rows, 0);
 });

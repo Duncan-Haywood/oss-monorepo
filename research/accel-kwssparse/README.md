@@ -46,6 +46,9 @@ Test accuracy over 5 seeds; drop is paired against float32 (`experiments/results
 - Accuracies (about 72% for float32) are those of a one-hidden-layer MLP on pooled MFCCs, far below published keyword-spotting models; a larger or convolutional model might tolerate ternary weights. Only hidden width 64 was run, so "ternary fails" is for this size.
 - Ternary and binary were trained for the same 30 epochs as the others with the straight-through estimator and no tuning (no learning-rate, threshold or width search); a tuned or wider ternary net could close part of the gap. This is a negative result under an untuned recipe.
 - Energy is modelled from assumed 45 nm constants, with no RTL, synthesis or silicon. Seeds vary initialisation only, not the data split.
+- "Multiplier-free" counts only the per-weight arithmetic: the per-tensor scale multiply of a ternary or binary layer, biases and requantisation are not priced for any design (`accel-sparse/src/accel_sparse/cost.py`, `layer_energy_pj`). They are a few dozen operations per layer against thousands of weights here, so they would not move the ranking, but the label is not literal.
+- The "cheapest design within N points" lines pick on test accuracy, not validation accuracy (`experiments/run.py`, `report`), so the pick and its reported accuracy come from the same split.
+- The tests pin the energy and storage model to hand computations and recompute every figure in `results.json` from its stored nonzero counts (added 2026-11-16 after quality audit `portfolio/quality/audits/2026-11-07-accel-kwssparse.json`); the accuracies themselves are not reproduced in CI, as the features are not committed.
 
 ## Next steps
 Widen the hidden layer under ternary weights until it matches int8 accuracy and compare the energy at equal accuracy; add the lookup-table variant; synthesise the pruned int8 engine.

@@ -39,7 +39,7 @@ test("statusOf reads the aliases of each outcome", () => {
 });
 
 test("parseCsv handles quotes, escaped quotes, embedded newlines, CRLF, BOM and blank lines", () => {
-  const { rows, lines } = parseCsv('﻿a,b,c\r\n"x, y","say ""hi""","two\nlines"\r\n\r\n1,2,3', ",");
+  const { rows, lines } = parseCsv('\uFEFFa,b,c\r\n"x, y","say ""hi""","two\nlines"\r\n\r\n1,2,3', ",");
   assert.deepEqual(rows, [["a", "b", "c"], ["x, y", 'say "hi"', "two\nlines"], ["1", "2", "3"]]);
   assert.deepEqual(lines, [1, 2, 5]);
 });
@@ -284,7 +284,7 @@ test("day-first dates are detected from the data and can be forced", () => {
 });
 
 test("quoted fields, BOM, semicolons with decimal commas and currency symbols", () => {
-  const text = '﻿Client;Service;Start;Status;Price\n"Lee; Ann";"Cut, wash";2026-03-02 10:00;No Show;"$1.250,50"\nBob;Cut;2026-03-03 10:00;Completed;45,00';
+  const text = '\uFEFFClient;Service;Start;Status;Price\n"Lee; Ann";"Cut, wash";2026-03-02 10:00;No Show;"$1.250,50"\nBob;Cut;2026-03-03 10:00;Completed;45,00';
   const n = load(text);
   assert.equal(n.error, undefined);
   assert.equal(n.records[0].client, "Lee; Ann");

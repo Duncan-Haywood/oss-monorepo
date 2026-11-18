@@ -34,12 +34,15 @@ import {
   DOWNLOADABLE_CLI_FILES,
   collectPageTitles,
   copyTree,
+  localOnlyPaths,
+  parseLocalOnly,
   clampMetaDescription,
   injectFavicon,
   discoverSurfaces,
   surfaceKind,
   faqEntries,
   injectChrome,
+  toolName,
   isPublishable,
   NO_SLA_PATTERN,
   listFiles as buildListFiles,
@@ -129,6 +132,7 @@ import {
   kindPageGroups,
   SEARCH_INDEX_FILE,
   renderSearchIndex,
+  isNodeOnlyScript,
 } from './build.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER, VENTURE_CHROME_CSS } from './site-nav.mjs';
 import { STORIES_PATH, STORY_VENTURES } from './stories.mjs';
@@ -1621,7 +1625,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 16, 'the fifteen named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 18, 'the seventeen named sections (personal-tax and household joined 2026-11-17) plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -1698,6 +1702,47 @@ test('tools that belong to a named category are not left in the catch-all', () =
 // and `which-job-first` are read by the same contractor deciding whether and
 // what to bid as `contractor-bid-readiness`, already in "Getting paid & job
 // margin" — none of their slugs start with a trade-bid keyword.
+// US personal tax, pay and retirement tools have their own section (2026-11-17). They had been parked
+// for offline-bundle room in services, backoffice, solo-earner and food-service, so a retiree's
+// withdrawal-order planner had "Restaurant, bar & food truck pricing" as its breadcrumb.
+test('household tax and retirement tools file under personal-tax, business-side tax stays in backoffice', () => {
+  for (const slug of ['rmd-calculator', 'nanny-tax-calculator', 'retirement-withdrawal-sequencer',
+    'social-security-claiming-age-calculator', 'fers-retirement-planner', 'qcd-calculator', 'rsu-withholding-gap-calculator']) {
+    assert.equal(categoryFor(slug).id, 'personal-tax', slug);
+  }
+  for (const slug of ['self-employment-tax-calculator', 'quarterly-estimated-tax-calendar', 'solo-401k-contribution-calculator',
+    'rd-tax-credit-calculator', 'payroll-tax-deposit-penalty-calculator', 'us-freelancer-tax-set-aside-calculator']) {
+    assert.equal(categoryFor(slug).id, 'backoffice', slug);
+  }
+  assert.equal(categoryFor('uk-take-home-pay-calculator').id, 'uk-tax');
+});
+
+// Household money (home, loans, bills, family) has its own section too (2026-11-17): a patient's medical
+// bill and a tenant's deposit deadline had "Back-office money" as their breadcrumb.
+test('household bill and borrowing tools file under household, landlord and investor tools stay out', () => {
+  for (const slug of ['medical-bill-error-checker', 'insurance-denial-appeal-builder', 'tenant-security-deposit-deadline-checker',
+    'mortgage-escrow-analysis-checker', 'mortgage-points-break-even-calculator', 'rent-vs-buy-breakeven-calculator',
+    'student-loan-rap-ibr-standard-calculator', 'funeral-price-list-checker', 'texas-electricity-plan-checker']) {
+    assert.equal(categoryFor(slug).id, 'household', slug);
+  }
+  for (const slug of ['rent-roll-delinquency-analyzer', 'house-hack-calculator', 'rental-ledger', 'h1b-weighted-lottery-odds-calculator',
+    'business-loan-offer-comparator', 'self-employed-health-insurance-deduction-calculator']) {
+    assert.notEqual(categoryFor(slug).id, 'household', slug);
+  }
+  assert.equal(categoryFor('charity-bunching-planner').id, 'personal-tax');
+});
+
+// A new Roth, IRA, RMD, IRMAA or Social Security tool needs one line in PERSONAL_TAX_SLUGS, or it falls to
+// whichever business rule its slug happens to match. This catches the missing line on the tool's first PR.
+// SEP-IRA tools are a self-employed owner's plan (backoffice/solo-earner); `uk-` tools have their own section.
+test('every US retirement-account and Social Security tool files under personal-tax', async () => {
+  const dirs = await fs.readdir(VENTURES, { withFileTypes: true });
+  const strays = dirs.filter((d) => d.isDirectory()).map((d) => d.name)
+    .filter((slug) => /(^|-)(roth|ira|rmd|irmaa|medicare|social-security)(-|$)/.test(slug) && !/^(uk-|sep-ira)/.test(slug))
+    .filter((slug) => categoryFor(slug).id !== 'personal-tax');
+  assert.deepEqual(strays, [], 'add these to PERSONAL_TAX_SLUGS in build.mjs');
+});
+
 test('a contractor pre-bid tool and a statement-reconciliation tool are not left in the catch-all either', () => {
   assert.equal(categoryFor('equipment-lease-buyout-calculator').id, 'backoffice');
   assert.equal(categoryFor('card-processing-fee-audit').id, 'backoffice');
@@ -2005,7 +2050,7 @@ test('every page type carries the one site header, with every nav item', async (
 test('research has a topic level, and every project page routes up and sideways', async () => {
   const { outDir } = await site();
   const project = await read('research', 'accel-kws', 'index.html');
-  assert.match(project, /aria-label="Breadcrumb"><a href="\.\.\/\.\.\/" data-pf-to="hub">Home<\/a>.*href="\.\.\/\.\.\/research\/">Research<\/a>.*href="\.\.\/\.\.\/research\/topics\/accel\/">/s);
+  assert.match(project, /aria-label="Breadcrumb"><a href="\.\.\/\.\.\/" data-pf-to="hub">Home<\/a>.*href="\.\.\/\.\.\/research\/">Research<\/a>.*href="\.\.\/\.\.\/research\/topics\/accel\/" class="pfs-mid">/s);
   assert.doesNotMatch(project, /\{\{\w+\}\}/, 'no unfilled placeholder');
   assert.doesNotMatch(project, /<title>accel-kws /, 'the title is the project, not its slug');
   // "More in <topic>", previous/next, and every topic.
@@ -2466,13 +2511,39 @@ test('story pages sit under Stories in the header, the trail and the BreadcrumbL
   assert.match(html, /data-pfs-nav="stories" href="\.\.\/stories\/" aria-current="page"/);
   assert.doesNotMatch(html, /data-pfs-nav="tools"[^>]*aria-current/);
   assert.match(html, /<a href="\.\.\/stories\/">Stories<\/a>/);
-  assert.match(html, /<a href="\.\.\/hearth-and-horizon\/">Hearth &amp; Horizon<\/a>/);
+  assert.match(html, /<a href="\.\.\/hearth-and-horizon\/" class="pfs-mid">Hearth &amp; Horizon<\/a>/);
   const trail = JSON.parse(html.match(/<script type="application\/ld\+json">(\{[^<]*BreadcrumbList[^<]*\})<\/script>/)[1]);
   assert.deepEqual(trail.itemListElement.map((c) => c.name), ['Maris Stella Labs', 'Stories', 'Hearth & Horizon', 'Aim Off']);
   assert.equal(trail.itemListElement[1].item, 'https://x.test/stories/');
   // A tool keeps its category.
   const tool = injectChrome(page, { slug: 'ebay-fee-calculator', toRoot: '../', total: 2, related: [], title: 'eBay', isEntry: true });
   assert.match(tool, /data-pfs-nav="tools"[^>]*aria-current="page"/);
+});
+
+// 2026-11-15: the trail ended in the search title on 972 of 1,350 tools,
+// "Wall Framing Takeoff — free, private, in your browser" or a question.
+test('a tool crumb is its declared name, not its search title', () => {
+  const ld = (o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`;
+  const app = ld({ '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'Actions Runner Starvation Check' });
+  assert.equal(toolName(`<head>${app}</head>`, 'Is your red GitHub Actions check even real?'), 'Actions Runner Starvation Check');
+  // In a @graph, typed as a list, with an entity in the name.
+  const graph = ld({ '@graph': [{ '@type': 'FAQPage' }, { '@type': ['WebApplication'], name: 'Fees &amp; Margins' }] });
+  assert.equal(toolName(graph, 'x'), 'Fees & Margins');
+  // No application, broken JSON, or a name too long for a crumb: the title without its tagline.
+  assert.equal(toolName('<script type="application/ld+json">{oops</script>', 'Wall Framing Takeoff — free, private, in your browser'), 'Wall Framing Takeoff');
+  assert.equal(toolName(ld({ '@type': 'SoftwareApplication', name: 'x'.repeat(61) }), 'Short — tagline'), 'Short');
+  // A long "Name: tagline" keeps the name; a short colon is part of the name.
+  assert.equal(toolName('', 'Gaussian process regression in your browser: a curve, a band, and how far to trust it'), 'Gaussian process regression');
+  assert.equal(toolName(ld({ '@type': 'SoftwareApplication', name: 'GitHub Actions secrets: inherit Check' }), 'x'), 'GitHub Actions secrets: inherit Check');
+  const page = `<html><head><title>T</title>${app}</head><body><p>.</p></body></html>`;
+  const html = injectChrome(page, {
+    slug: 'actions-runner-starvation-check', toRoot: '../', total: 2, related: [], isEntry: true,
+    title: toolName(page, 'Is your red GitHub Actions check even real?'),
+    canonical: 'https://x.test/actions-runner-starvation-check/', baseUrl: 'https://x.test/',
+  });
+  assert.match(html, /<span aria-current="page">Actions Runner Starvation Check<\/span>/);
+  const trail = JSON.parse(html.match(/<script type="application\/ld\+json">(\{[^<]*BreadcrumbList[^<]*\})<\/script>/)[1]);
+  assert.equal(trail.itemListElement.at(-1).name, 'Actions Runner Starvation Check');
 });
 
 // Found 2026-09-23 on `git-exposure-check`'s own
@@ -3558,6 +3629,20 @@ test("a category's offline bundle stays small enough to fetch on mobile data", a
   }
 });
 
+test('the offline bundle leaves out Node-only eval/ and build-*.mjs scripts, keeps browser modules', async () => {
+  assert.equal(isNodeOnlyScript('eval/nav-xsd-diff.mjs'), true);
+  assert.equal(isNodeOnlyScript('eval/sub/x.js'), true);
+  assert.equal(isNodeOnlyScript('build-nav-schema.mjs'), true);
+  assert.equal(isNodeOnlyScript('nav-xsd.mjs'), false);
+  assert.equal(isNodeOnlyScript('src/build-x.mjs'), false);
+  assert.equal(isNodeOnlyScript('builder.mjs'), false);
+  assert.equal(isNodeOnlyScript('eval/data.json'), false);
+  const { offline } = await site();
+  const all = offline.categories.flatMap((c) => c.assets);
+  assert.ok(!all.some((a) => /^[^/]+\/(eval\/.*|build-[^/]+)\.m?js$/.test(a)), 'a Node-only script is in an offline bundle');
+  assert.ok(all.includes('einvoice-preflight/hu-xsd.mjs'), 'a browser module went missing from the offline bundle');
+});
+
 test('the hub tells a visitor the real offline size per category, not a stale guess', async () => {
   // The button said "about 3 MB" from ~30 tools onward while the catalog
   // grew to 174 and the real (gzipped) fetch reached 5.2 MB -- a visitor on
@@ -3807,8 +3892,33 @@ test('each tool entry page carries breadcrumb structured data', async () => {
     if (shelf) assert.equal(crumb.itemListElement[1].item, `${BASE}${STORIES_PATH}`, 'a story shelf sits under Stories');
     else assert.match(crumb.itemListElement[1].item, new RegExp(`^${BASE}c/[a-z0-9-]+/$`), 'the second crumb is the category shelf');
     assert.equal(crumb.itemListElement.at(-1).item, `${BASE}${surface.slug}/`);
-    assert.equal(crumb.itemListElement.at(-1).name, shelf ?? surface.title);
+    assert.equal(crumb.itemListElement.at(-1).name, shelf ?? toolName(html, surface.title));
   }
+});
+
+test('footer related links and the embed offer use the tool name the trail shows', async () => {
+  // Until 2026-11-15 the trail used `toolName` but the "More free tools" links
+  // and the embed iframe's title used the search `<title>`, so a link read
+  // "Wall Framing Takeoff — free, private, in your browser".
+  const { surfaces } = await site();
+  const nameOf = new Map();
+  for (const surface of surfaces) nameOf.set(surface.slug, toolName(await read(surface.slug, 'index.html'), surface.title));
+  const text = (v) => v.replace(/&(amp|lt|gt|quot|#39|#x27);/g, (_, e) => ({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", '#x27': "'" })[e]);
+  const wrong = [];
+  let links = 0;
+  for (const surface of surfaces) {
+    const html = await read(surface.slug, 'index.html');
+    const foot = /<aside class="pf-chrome pf-chrome-foot"[\s\S]*?<\/aside>/.exec(html)?.[0] ?? '';
+    for (const [, slug, label] of foot.matchAll(/<li><a href="[^"]*" data-pf-to="([^"]+)">([^<]*)<\/a><\/li>/g)) {
+      if (!nameOf.has(slug)) continue;
+      links += 1;
+      if (text(label) !== nameOf.get(slug)) wrong.push(`${surface.slug} -> ${slug}: ${label}`);
+    }
+    const embed = /data-pf-embed-title="([^"]*)"/.exec(html)?.[1];
+    if (embed !== undefined && text(embed) !== nameOf.get(surface.slug)) wrong.push(`${surface.slug} embed: ${embed}`);
+  }
+  assert.ok(links > 0, 'fixture assumption: some footer links to other tools');
+  assert.deepEqual(wrong, []);
 });
 
 test('every tool page declares the breadcrumb trail it shows', async () => {
@@ -5055,6 +5165,18 @@ test('tools whose audience browses a section are filed in it', async () => {
     'notary-trip-quote': ['services', null],
     'booth-rent-vs-commission': ['services', null],
     'translator-project-quote': ['services', null],
+    // Parked under "Marketplace seller tools" from 2026-10-11 while `services`
+    // and `backoffice` were near their offline-bundle ceiling; the breadcrumb
+    // on a driving school's page read "Marketplace seller tools" (polish,
+    // 2026-11-17). Each is back in the section its reader browses.
+    'driving-school-profit-calculator': ['services', null],
+    'barbershop-chair-profit-calculator': ['services', null],
+    'axe-throwing-bar-profit-calculator': ['services', null],
+    'tournament-pairing-manager': ['services', null],
+    'bail-bond-agency-exposure-calculator': ['services', null],
+    'commercial-lease-abstract-reader': ['backoffice', null],
+    'severance-package-calculator': ['backoffice', null],
+    'payment-processor-fee-comparison-calculator': ['backoffice', null],
   };
 
   for (const [slug, [category, subcategory]] of Object.entries(placements)) {
@@ -5062,6 +5184,20 @@ test('tools whose audience browses a section are filed in it', async () => {
     const sub = subcategoryFor(slug);
     assert.equal(sub ? sub.id : null, subcategory, `${slug} is in the wrong sub-group`);
   }
+});
+
+test('no shop, studio or salon profit calculator is filed as a marketplace seller tool', async () => {
+  // The marketplace section is for people selling through someone else's
+  // storefront. A bench, chair or studio business prices its own time; filing
+  // one there to dodge a bundle ceiling put "Marketplace seller tools" in the
+  // breadcrumb of eleven local-service pages until 2026-11-17. Raise the
+  // ceiling or split the section instead.
+  const { surfaces } = await site();
+  const misfiled = surfaces
+    .map((s) => s.slug)
+    .filter((slug) => /-(shop|studio|chair|school|salon|bar)-(service-)?profit-calculator$/.test(slug))
+    .filter((slug) => categoryFor(slug).id === 'marketplace');
+  assert.deepEqual(misfiled, []);
 });
 
 test('the catch-all holds only what no section claims', async () => {
@@ -5790,7 +5926,7 @@ function hubFixtureSite() {
     const dist = path.join(out, 'dist');
     const code = `import { buildSite } from ${JSON.stringify(BUILD_MODULE)};
       const r = await buildSite({ venturesDir: ${JSON.stringify(ventures)}, outDir: ${JSON.stringify(dist)},
-        baseUrl: 'https://example.test/', log: () => {}, disableWorker: true });
+        baseUrl: 'https://example.test/', log: () => {}, disableWorker: true, cards: false });
       process.stdout.write(JSON.stringify({ comparisons: r.comparisons }));`;
     const { stdout } = await promisify(execFile)(process.execPath, ['--input-type=module', '-e', code], {
       maxBuffer: 1 << 28,
@@ -6003,6 +6139,52 @@ test('copyTree drops dot-directory tool caches but keeps .well-known', async () 
     landed.includes('.well-known'),
     '.well-known is the one dot-directory a static site serves on purpose',
   );
+});
+
+// A local build published git-ignored files CI's fresh checkout never has
+// (ids-model-check's fetched eval/corpus, csshound's cargo target/), and
+// check.mjs failed on their types locally only: four sessions, 2026-11-16/17.
+test('parseLocalOnly keeps root ventures/ build-output rules and drops the rest', () => {
+  const out = [
+    'ventures/ids-model-check/.gitignore:1:eval/corpus/\tventures/ids-model-check/eval/corpus/',
+    'ventures/csshound/.gitignore:1:/target\tventures/csshound/target/',
+    '.gitignore:70:ventures/einvoice-preflight/browser/\tventures/einvoice-preflight/browser/',
+    '.gitignore:2:__pycache__/\tventures/x/__pycache__/',
+  ].join('\n');
+  assert.deepEqual([...parseLocalOnly(out, '/r')].sort(), [
+    '/r/ventures/csshound/target',
+    '/r/ventures/ids-model-check/eval/corpus',
+    '/r/ventures/x/__pycache__',
+  ]);
+});
+
+test('copyTree leaves out git-ignored local-only paths, and localOnlyPaths finds them', async (t) => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), 'localonly-'));
+  const git = (...args) => promisify(execFile)('git', args, { cwd: repo });
+  try { await git('init', '-q'); } catch { t.skip('git unavailable'); return; }
+  const v = path.join(repo, 'ventures', 'tool');
+  await fs.mkdir(path.join(v, 'eval', 'corpus'), { recursive: true });
+  await fs.writeFile(path.join(repo, '.gitignore'), 'ventures/tool/built/\n');
+  await fs.writeFile(path.join(v, '.gitignore'), 'eval/corpus/\nlocal.html\n');
+  await fs.writeFile(path.join(v, 'index.html'), '<!doctype html><p>tool</p>');
+  await fs.writeFile(path.join(v, 'local.html'), '<!doctype html><p>mine</p>');
+  await fs.writeFile(path.join(v, 'eval', 'corpus', 'a.html'), '<!doctype html><p>fetched</p>');
+  await fs.mkdir(path.join(v, 'built'));
+  await fs.writeFile(path.join(v, 'built', 'app.js'), 'export {};');
+  await fs.writeFile(path.join(v, 'new.html'), '<!doctype html><p>untracked, not ignored</p>');
+
+  const skip = localOnlyPaths(path.join(repo, 'ventures'));
+  assert.deepEqual([...skip].map((p) => path.relative(repo, p)).sort(),
+    ['ventures/tool/eval/corpus', 'ventures/tool/local.html']);
+
+  const to = await fs.mkdtemp(path.join(os.tmpdir(), 'localonly-out-'));
+  const copied = (await copyTree(v, to, 'https://example.test/', skip)).map((f) => path.relative(to, f)).sort();
+  assert.deepEqual(copied.filter((f) => f !== '.gitignore'), ['built/app.js', 'index.html', 'new.html']);
+
+  process.env.PAGES_KEEP_IGNORED = '1';
+  try { assert.equal(localOnlyPaths(path.join(repo, 'ventures')).size, 0); }
+  finally { delete process.env.PAGES_KEEP_IGNORED; }
+  assert.equal(localOnlyPaths(os.tmpdir()).size, 0, 'outside a git tree nothing is skipped');
 });
 
 // P019: the home page is a home for everything, not a calculator list. These

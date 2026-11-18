@@ -269,7 +269,7 @@ class DevelopTests(unittest.TestCase):
         tag = list_tag([(5, 0, list_params(pts[:3], [(0, 30, self.H, 31)])), (4, 0, constant_params(0))], L1)
         blob = make_dng(dirty, self.W, self.H, extra_raw_tags=[tag])
         a = develop(blob, engine="python")
-        b = develop(blob, engine="numpy")
+        b = develop(blob, engine="numpy", demosaic="bilinear")
         self.assertEqual(list(a[2]), list(b[2]))
 
 

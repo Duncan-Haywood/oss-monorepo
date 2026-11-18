@@ -138,6 +138,8 @@ TAG_LOOK_TABLE_DIMS = 50981
 TAG_LOOK_TABLE_DATA = 50982
 TAG_HUE_SAT_MAP_ENCODING = 51107
 TAG_LOOK_TABLE_ENCODING = 51108
+TAG_NOISE_PROFILE = 51041
+TAG_CFA_PLANE_COLOR = 50710
 TAG_BASELINE_EXPOSURE_OFFSET = 51109
 # DNG 1.6: a third calibration illuminant and custom illuminant data.
 TAG_ILLUMINANT_3 = 52529
@@ -976,7 +978,7 @@ class RawImage:
     # "nef" for a Nikon NEF read by ``shootflow.nef``, "orf" for an Olympus ORF read by ``shootflow.orf``, "rw2" for a
     # Panasonic RW2 read by ``shootflow.rw2``, "srw" for a Samsung SRW read by ``shootflow.srw`` or "pef" for a
     # Pentax PEF read by ``shootflow.pef``, "raf" for a Fujifilm RAF read by ``shootflow.raf``, "cr3" for a Canon
-    # CR3 read by ``shootflow.cr3``
+    # CR3 read by ``shootflow.cr3``, "crw" for a Canon CRW (CIFF) read by ``shootflow.crw``
     # (DNG-equivalent tags, no colour matrix).
     source: str = "dng"
     notes: list[str] = field(default_factory=list)  # what the reader inferred, carried into the report
@@ -1083,10 +1085,12 @@ def read_raw(path: Path | str, cfa: str | None = None) -> RawImage:
 
 
 def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
-    """A DNG's (or a Canon CR2's, Sony ARW's, Nikon NEF's, Olympus ORF's, Panasonic RW2's, Samsung SRW's, Pentax PEF's, Fujifilm RAF's or Canon CR3's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
+    """A DNG's (or a Canon CRW's, CR2's, Sony ARW's, Nikon NEF's, Olympus ORF's, Panasonic RW2's, Samsung SRW's, Pentax PEF's, Fujifilm RAF's or Canon CR3's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
 
-    from shootflow import arw, cr2, cr3, nef, orf, pef, raf, rw2, srw
+    from shootflow import arw, cr2, cr3, crw, nef, orf, pef, raf, rw2, srw
 
+    if crw.is_crw(data):
+        return crw.parse_crw(data)
     if cr3.is_cr3(data):
         return cr3.parse_cr3(data)
     if raf.is_raf(data):
@@ -1319,10 +1323,19 @@ class DevelopSettings:
     # padded-plane taps and threaded bands it costs less than bilinear did before.
     warp_kernel: str = "cubic"
     # How a CFA is demosaiced: "bilinear" (the 3x3 average; both engines, byte for byte), "directional"
-    # (``xtrans_demosaic``: four directional greens, the most homogeneous kept; X-Trans only, numpy engine)
-    # or "auto" (directional on X-Trans when the numpy engine runs, else bilinear). Measured against known
-    # truth and LibRaw in eval/xtrans-directional-demosaic-2026-11-14.md.
+    # (numpy engine: ``xtrans_demosaic`` on X-Trans, four directional greens blended by smoothness along each
+    # line; ``bayer_demosaic`` on Bayer, row and column greens blended by a colour-difference test) or "auto"
+    # (directional when the numpy engine runs, else bilinear). Measured against known truth and LibRaw in
+    # eval/xtrans-directional-demosaic-2026-11-14.md and eval/bayer-directional-demosaic-2026-11-15.md.
     demosaic: str = "auto"
+    # With demosaic "noise-aware" on a file with no NoiseProfile (every raw read directly, many DNGs): read the
+    # noise model from the frame (``xtrans_demosaic.frame_noise``) instead of falling back to directional.
+    # Opt-in on 2026-11-17 (eval/noise-aware-estimated-2026-11-17.md); patch PCA that afternoon
+    # (eval/noise-pca-estimator-2026-11-17.md) and the touching-neighbour X-Trans test that evening
+    # (eval/xtrans-noise-pca-12-2026-11-17.md) took held-out losses over 0.1 dB to 0 of 240 Bayer and 0 of 248
+    # X-Trans tiles, so it is the default since then (eval/noise-fallback-real-2026-11-17.md: every sample raw
+    # that develops takes it). False keeps the old fallback to directional.
+    noise_from_frame: bool = True
     # Lens distortion from a lensfun database (``lens_profiles.load_db``) for files whose opcode lists
     # carry no warp of their own (or with opcodes off): lens and focal length from EXIF unless given.
     lens_db: "LensDb | None" = None
@@ -1369,7 +1382,7 @@ class DevelopReport:
     lens: str | None = None
     lens_notes: list[str] = field(default_factory=list)
     lens_key: str | None = None  # the body's number for the lens (lens_profiles.lens_key), when it gives one
-    demosaic: str | None = None  # "bilinear" or "directional" for a CFA; None for LinearRaw
+    demosaic: str | None = None  # "bilinear", "directional" or "learned" for a CFA; None for LinearRaw
 
 
 CFA_PERIODS = (2, 6)  # Bayer 2x2 and Fujifilm X-Trans 6x6
@@ -1545,7 +1558,9 @@ def _profile(ifd0: Ifd, ifd: Ifd, dcp: Ifd | None = None, notes: list[str] | Non
     sig_prof = bytes(tag(TAG_PROFILE_CALIBRATION_SIGNATURE) or b"").rstrip(b"\0")
     if dcp is not None:
         want, have = _text(dcp.get(TAG_UNIQUE_CAMERA_MODEL)), _text(camera_tag(TAG_UNIQUE_CAMERA_MODEL))
-        if want and have and want != have:
+        # Compared as the profile chooser compares them: Leica's RWL writes its make in
+        # capitals ('LEICA D-LUX (Typ 109)'), Adobe's profile names it 'Leica D-LUX (Typ 109)'.
+        if want and have and " ".join(want.casefold().split()) != " ".join(have.casefold().split()):
             notes.append(f"camera profile is for {want!r}, the file is from {have!r}")
     hsm1, hsm2, look, hsm3 = _tables(tag, notes)
     if cm3 is None:
@@ -1749,6 +1764,20 @@ def _srgb_curve(v: float) -> float:
     return 1.055 * v ** (1 / 2.4) - 0.055
 
 
+# The sRGB encode is a table read with linear interpolation between entries (2026-11-17,
+# eval/srgb-table-interp-2026-11-17.md). It used to be a 4,096-entry table read at the nearest
+# entry, which capped a 16-bit output at 4,096 levels per channel and was off the exact curve by up
+# to 104 of 65,535 codes in the shadows; 16,384 entries interpolated are within 0.22 codes everywhere
+# and reach every 16-bit level. Entries are unrounded (x 65535); the read rounds once.
+SRGB_TABLE_SIZE = 16384
+
+
+def srgb_table(size: int = SRGB_TABLE_SIZE) -> list[float]:
+    """``size`` samples of the sRGB curve at even linear steps from 0 to 1, scaled to 65535."""
+
+    return [_srgb_curve(i / (size - 1)) * 65535.0 for i in range(size)]
+
+
 def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int, int, array, DevelopReport]:
     """Render ``raw`` to linear-light-free sRGB, 16 bits per channel.
 
@@ -1784,8 +1813,9 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     profile = _profile(ifd0, ifd, settings.dcp, notes) if settings.colour == "dng" else None
     if settings.dcp is not None and profile is None:
         raise DevelopError("the camera profile has no ColorMatrix1")
-    if raw.source in ("cr2", "cr3", "arw", "nef", "orf", "rw2", "srw", "pef", "raf") and profile is None:
+    if raw.source in ("crw", "cr2", "cr3", "arw", "nef", "orf", "rw2", "srw", "pef", "raf") and profile is None:
         example = {
+            "crw": "Canon EOS 10D",
             "cr2": "Canon EOS 5D Mark II",
             "cr3": "Canon EOS R8",
             "arw": "Sony ILCE-7M3",
@@ -1988,8 +2018,8 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     # Highlight clip: a sensel at white level, white-balanced, is clipped to the
     # smallest channel's white so blown highlights render neutral.
     hi = min(clip_r, clip_g, clip_b)
-    lut_size = 4096
-    curve = [round(_srgb_curve(i / (lut_size - 1)) * 65535) for i in range(lut_size)]
+    lut_size = SRGB_TABLE_SIZE
+    curve = srgb_table(lut_size)
 
     look_apply = look.apply if look is not None else None
 
@@ -2008,7 +2038,10 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             elif v >= 1:
                 out.append(65535)
             else:
-                out.append(curve[int(v * (lut_size - 1) + 0.5)])
+                t = v * (lut_size - 1)
+                i = int(t)
+                lo = curve[i]
+                out.append(int(lo + (t - i) * (curve[i + 1] - lo) + 0.5))
 
     # With a WarpRectilinear to run, the white-balanced linear values (clipped as
     # ``encode`` clips them) are kept, warped, and only then encoded: the warp
@@ -2030,6 +2063,18 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     if settings.engine == "numpy" and np_engine is None:
         raise DevelopError("engine 'numpy' needs numpy and an image at least 2x2")
     demosaic = _demosaic_method(settings.demosaic, pat, np_engine is not None, w, h, notes)
+    noise = None
+    if demosaic == "noise-aware":
+        noise = noise_profile_planes(ifd, ifd0)
+        if noise is None and settings.noise_from_frame:
+            # No NoiseProfile, and asked to read one from the frame (``xtrans_demosaic.frame_noise``,
+            # eval/noise-aware-estimated-2026-11-17.md); ``_directional`` does it on the white-balanced plane.
+            notes.append("no NoiseProfile in the file: noise-aware demosaic used a noise model read from the frame")
+        elif noise is None:
+            notes.append(
+                "noise-aware demosaic with no NoiseProfile and --no-noise-from-frame: used the directional one"
+            )
+            demosaic = "directional"
     if np_engine is not None:
         nw, nh, npx, report = _develop_numpy(
             np_engine, raw, settings, ifd, ifd0, notes, wb, ev, black, white, cfa_name, matrix_name,
@@ -2038,7 +2083,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             dh=dh, dv=dv, rr=rr, rc=rc, caplines=caplines, linear_raw=linear_raw, pat=pat,
             half=settings.half, mults=(wbr, wbg, wbb), hi=hi, m=m, curve=curve, lut_size=lut_size,
             look=look, gain_maps=gain_maps, warps=warps, trim=trim, warp_kernel=settings.warp_kernel,
-            demosaic=demosaic or "bilinear",
+            demosaic=demosaic or "bilinear", noise=noise,
         )
         report.lens, report.lens_notes, report.lens_key = lens_used, lens_notes, lens_key
         report.demosaic = demosaic
@@ -2118,34 +2163,95 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     return report_w, report_h, out, report
 
 
-DEMOSAICS = ("auto", "bilinear", "directional")
+DEMOSAICS = ("auto", "bilinear", "directional", "learned", "noise-aware")
+
+
+def noise_profile(ifd, ifd0=None) -> tuple[float, float] | None:
+    """The DNG NoiseProfile (tag 51041) as one (shot, read) pair, variance = shot * x + read for a signal x
+    normalised to 0..1 (black 0, white 1): the mean over the colour planes when it gives one pair per plane.
+    None when the file has none or it is malformed: an odd count, or a pair outside the DNG 1.7.1.0 rule
+    "each S_i term must be positive (S_i > 0), and each O_i term must be non-negative (O_i >= 0)". A read
+    term of exactly 0 is legal and common: 14 of the 83 CFA DNG profiles checked on raw.pixls.us write one
+    (Samsung, OnePlus, Xiaomi, LG, asus); until 2026-11-16 they were refused (eval/noise-profile-real-dngs-2026-11-16.md)."""
+
+    for d in (ifd, ifd0):
+        if d is None:
+            continue
+        v = d.get(TAG_NOISE_PROFILE)
+        if not v or len(v) % 2:
+            continue
+        pairs = [(float(v[i]), float(v[i + 1])) for i in range(0, len(v), 2)]
+        if any(not sh > 0 or not rd >= 0 for sh, rd in pairs):
+            continue
+        return sum(p[0] for p in pairs) / len(pairs), sum(p[1] for p in pairs) / len(pairs)
+    return None
+
+
+def noise_profile_planes(ifd, ifd0=None) -> list[tuple[float, float]] | None:
+    """The DNG NoiseProfile as one (shot, read) pair per colour, R, G, B (``noise_profile``'s rules). DNG 1.7.1.0
+    gives either one pair for every plane or one per CFA plane, in the order of CFAPlaneColor (tag 50710,
+    default 0, 1, 2); a single pair is repeated. Ten of 83 real CFA DNGs write pairs that differ between
+    planes (six Google Pixels, a Lightroom D80, two Xiaomis, an asus; eval/noise-profile-real-dngs-2026-11-16.md).
+    None when there is no usable profile, or its planes do not name R, G and B once each."""
+
+    for d in (ifd, ifd0):
+        if d is None:
+            continue
+        v = d.get(TAG_NOISE_PROFILE)
+        if not v or len(v) % 2:
+            continue
+        pairs = [(float(v[i]), float(v[i + 1])) for i in range(0, len(v), 2)]
+        if any(not sh > 0 or not rd >= 0 for sh, rd in pairs):
+            continue
+        if len(pairs) == 1:
+            return pairs * 3
+        plane_colours = d.get(TAG_CFA_PLANE_COLOR) or (ifd.get(TAG_CFA_PLANE_COLOR) if ifd is not None else None)
+        colours = [int(x) for x in (plane_colours or (0, 1, 2))]
+        if len(colours) != len(pairs) or sorted(colours) != [0, 1, 2]:
+            return None
+        by_colour = dict(zip(colours, pairs))
+        return [by_colour[0], by_colour[1], by_colour[2]]
+    return None
 
 
 def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes: list[str]) -> str | None:
-    """The demosaic a CFA gets ("bilinear" or "directional"); None for LinearRaw. "auto" is directional on
-    X-Trans with numpy, full and half size (X-Trans half size demosaics at full size, then averages; the
-    directional demosaic gains as much there: eval/xtrans-directional-demosaic-2026-11-14.md)."""
+    """The demosaic a CFA gets ("bilinear" or "directional"); None for LinearRaw. "auto" is directional
+    whenever the numpy engine runs: on X-Trans at full and half size (X-Trans half size demosaics at
+    full size, then averages; eval/xtrans-directional-demosaic-2026-11-14.md), and on Bayer at full size
+    since 2026-11-15 (eval/bayer-directional-demosaic-2026-11-15.md; Bayer half size bins each 2x2
+    block and demosaics nothing). "learned" (opt-in, Bayer): the directional demosaic with a per-sensel
+    Laplacian weight from a fitted model, 0.01-0.39 dB colour and 0.02-0.66 dB luma above the default on
+    ten held-out frames, at 4-6x the time (eval/bayer-learned-laplace-2026-11-16.md); in C since 2026-11-16,
+    bit-identical, 2.6-3.3x the default's time (eval/bayer-learned-native-2026-11-16.md). "noise-aware"
+    (opt-in, both CFAs, 2026-11-16): the directional result blended toward bilinear block by block where it
+    adds less than the sensor noise the DNG's NoiseProfile states (eval/xtrans-noise-aware-blend-2026-11-16.md);
+    without one, ``develop`` reads a model from the frame (``noise_from_frame``, the default since 2026-11-17:
+    eval/noise-pca-estimator-2026-11-17.md, eval/xtrans-noise-pca-12-2026-11-17.md,
+    eval/noise-fallback-real-2026-11-17.md), or falls back to directional when that is turned off."""
 
     if choice not in DEMOSAICS:
         raise DevelopError(f"unknown demosaic {choice!r} ({', '.join(DEMOSAICS)})")
     if pat is None:
         return None
     xtrans = cfa_period(pat) == 6
+    least = 6 if xtrans else 2
     if choice == "bilinear":
         return "bilinear"
-    if choice == "directional":
-        if not xtrans:
-            raise DevelopError("the directional demosaic is for X-Trans (6x6) CFAs; Bayer files use bilinear")
+    if choice in ("directional", "learned", "noise-aware"):
         if not numpy_engine:
-            raise DevelopError("the directional demosaic needs the numpy engine (numpy installed)")
-        if w < 6 or h < 6:
-            raise DevelopError("the directional demosaic needs at least 6 x 6 sensels")
-        return "directional"
+            raise DevelopError(f"the {choice} demosaic needs the numpy engine (numpy installed)")
+        if w < least or h < least:
+            raise DevelopError(f"the {choice} demosaic needs at least {least} x {least} sensels")
+        if choice == "learned" and xtrans:
+            notes.append("learned demosaic is for Bayer sensors: X-Trans uses the directional one")
+            return "directional"
+        return choice
     # auto
-    if xtrans and w >= 6 and h >= 6:
+    if w >= least and h >= least:
         if numpy_engine:
             return "directional"
-        notes.append("bilinear X-Trans demosaic: the directional one needs the numpy engine")
+        if xtrans:  # (Bayer: report.demosaic says "bilinear"; its half size demosaics nothing, so no note)
+            notes.append("bilinear X-Trans demosaic: the directional one needs the numpy engine")
     return "bilinear"
 
 
@@ -2168,7 +2274,7 @@ def _develop_numpy(eng, raw, settings, ifd, ifd0, notes, wb, ev, black, white, c
 
     black_ = kw.pop("black_")
     trim = kw.pop("trim")
-    pixels, ow, oh, clipped = eng.render(black=black_, **kw)
+    pixels, ow, oh, clipped = eng.render(black=black_, notes=notes, **kw)
     linear_raw, w, h, spp = kw["linear_raw"], kw["w"], kw["h"], kw["spp"]
     pixels, report_w, report_h = _trim_and_crop(
         pixels, ow, oh, trim, ifd, settings, linear_raw, notes, lambda p, _w, cx, cy, cw, ch: eng.crop(p, cx, cy, cw, ch)

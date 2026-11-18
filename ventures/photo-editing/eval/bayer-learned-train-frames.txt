@@ -1,0 +1,42 @@
+# The 40 Bayer training frames of the learned Laplacian weight (public sample set drewnoakes/metadata-extractor-images,
+# folder/file). Used by eval/bayer-learned-*-2026-11-16.md and eval/bayer-channel-correlation-2026-11-16.md.
+arw/Sony DSLR-A500.arw
+arw/Sony ILCE-5000 (A5000).arw
+arw/Sony NEX-5N.arw
+arw/Sony NEX-7.arw
+cr2/Canon EOS 350D.CR2
+cr2/Canon EOS 600D.CR2
+dng/DJI Phantom 4 (1).dng
+dng/DJI Phantom 4 (2).dng
+dng/LG Nexus 5X.dng
+dng/Leica T (Typ 701).dng
+dng/Leica X VARIO (Typ 107).dng
+dng/Pentax QS1.dng
+nef/Nikon D300.nef
+nef/Nikon D5100.nef
+nef/Nikon D70.nef
+nef/Nikon D90.nef
+nef/NikonD200.nef
+orf/OM System TG-7.ORF
+orf/OM Sytem OM-1.orf
+orf/Olympus C5050Z.orf
+orf/Olympus C8080.orf
+orf/Olympus E-M5.orf
+orf/Olympus E-PL7.orf
+orf/Olympus E-PM1.orf
+orf/Olympus E30.orf
+orf/Olympus E410.orf
+orf/Olympus E600.orf
+orf/Olympus PEN E-P3.orf
+orf/Olympus Pen E-PL1.orf
+orf/Olympus SP350.orf
+orf/Olympus SP500UZ.orf
+orf/Olympus TG-4.orf
+orf/Olympus TG-6.ORF
+orf/Olympus XZ1.orf
+rw2/Panasonic DMC-GF1.rw2
+rw2/Panasonic DMC-GF3.rw2
+rw2/Panasonic Lumix DMC-LX7.rw2
+srw/Samsung EK-GN120 (Galaxy NX).srw
+srw/Samsung NX20.srw
+srw/Samsung NX3000.srw

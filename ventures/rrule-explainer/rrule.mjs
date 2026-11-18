@@ -89,6 +89,11 @@ export function parseDateValue(text) {
   return { day: dayNumber(y, mo, d), sec: h * 3600 + mi * 60 + Math.min(s, 59), date: false, utc: m[7] === "Z" };
 }
 
+/** A date typed into a form field or CLI flag: 2026-01-05, 2026-01-05 09:00, 2026-01-05T09:00:00 or 20260105T090000. */
+export function parseFieldDate(text) {
+  return parseDateValue(String(text).trim().replace(/[-:\s]/g, (c) => (c === " " ? "T" : "")).replace(/T(\d{4})$/, "T$100"));
+}
+
 /** "2026-01-05 09:00" style rendering of a wall time. */
 export function formatWall(day, sec, dateOnly = false) {
   const { y, m, d } = civil(day);
@@ -273,7 +278,7 @@ export function parseInput(text, { dtstart = "", tzid = "" } = {}) {
     }
   }
   if (!out.dtstart && dtstart) {
-    const v = parseDateValue(String(dtstart).replace(/[-:\s]/g, (c) => (c === " " ? "T" : "")).replace(/T(\d{4})$/, "T$100"));
+    const v = parseFieldDate(dtstart);
     if (v) out.dtstart = v;
     else findings.push(finding("error", "bad-dtstart", `Start ${dtstart} is not a date or date-time`, "Use 2026-01-05 or 2026-01-05 09:00."));
   }
@@ -325,8 +330,10 @@ export function wallToInstant(day, sec, tz) {
   const valid = cands.filter((o) => zoneOffset(wall - o, tz) === o).map((o) => wall - o).sort((a, b) => a - b);
   if (valid.length >= 2) return { t: valid[0], offset: wall - valid[0], kind: "overlap" };
   if (valid.length === 1) return { t: valid[0], offset: wall - valid[0], kind: "ok" };
-  // In a gap: use the offset just before it.
-  const pre = zoneOffset(wall - before - 3 * 3600, tz);
+  // In a gap: use the offset just before it. Read with the later offset, the
+  // wall time lands on an instant before the shift, whatever the gap's length
+  // (a fixed look-back missed Samoa's whole skipped day, 30 Dec 2011).
+  const pre = zoneOffset(wall - after, tz);
   return { t: wall - pre, offset: pre, kind: "gap" };
 }
 
@@ -410,6 +417,99 @@ function dayMatches(n, r, mode) {
   return true;
 }
 
+const sortedUnique = (xs) => [...new Set(xs)].sort((a, b) => a - b);
+
+/**
+ * The days of month m of year y that BYMONTH and BYMONTHDAY leave open, in
+ * order: none when BYMONTH excludes the month, BYMONTHDAY's days when it has
+ * any, else the whole month.
+ */
+function monthCandidates(r, y, m, mode = null) {
+  if (r.monthSet.size && !r.monthSet.has(m)) return [];
+  const first = dayNumber(y, m, 1);
+  const len = daysInMonth(y, m);
+  const lists = [];
+  if (r.mdPos.size || r.mdNeg.size) {
+    const ds = [];
+    for (const d of r.mdPos) if (d <= len) ds.push(d);
+    for (const d of r.mdNeg) if (len + 1 + d >= 1) ds.push(len + 1 + d);
+    lists.push(sortedUnique(ds).map((d) => first + d - 1));
+  }
+  // BYDAY's ordinals count within the month only for MONTHLY rules and YEARLY
+  // ones with BYMONTH; the caller passes a mode only then.
+  const byday = mode === null ? null : bydayCandidates(r, mode, first, len);
+  if (byday) lists.push(byday);
+  if (!lists.length) return Array.from({ length: len }, (_, j) => first + j);
+  return lists.reduce((a, b) => (b.length < a.length ? b : a));
+}
+
+/**
+ * The days of [first, first + len) that can pass dayMatches' BYDAY test, in
+ * order, when ordinals (2MO, -1FR) count within that span; null without BYDAY.
+ */
+function bydayCandidates(r, mode, first, len) {
+  if (!r.plainDays.size && !r.nthDays.length) return null;
+  const nth = [];
+  for (const x of r.nthDays) {
+    let i;
+    if (x.n > 0) i = ((x.wd - weekday(first) + 7) % 7) + 7 * (x.n - 1);
+    else i = len - 1 - ((weekday(first + len - 1) - x.wd + 7) % 7) + 7 * (x.n + 1);
+    if (i >= 0 && i < len) nth.push(first + i);
+  }
+  if (mode === "intersect" && r.plainDays.size && r.nthDays.length) return sortedUnique(nth.filter((n) => r.plainDays.has(weekday(n))));
+  for (let n = first; n < first + len; n++) if (r.plainDays.has(weekday(n))) nth.push(n);
+  return sortedUnique(nth);
+}
+
+/**
+ * Days of year y worth testing with dayMatches, in order: a superset of the
+ * days that pass, taken from the most selective of BYYEARDAY, BYWEEKNO and
+ * BYMONTH/BYMONTHDAY, and BYDAY. dayMatches still checks every filter, so the result is
+ * the same as testing all 365 or 366 days; a rule that never matches (each
+ * one searches 400 years before saying so) just tests far fewer.
+ */
+function yearCandidates(r, y, mode) {
+  const jan1 = dayNumber(y, 1, 1);
+  const len = daysInYear(y);
+  const lists = [];
+  if (r.ydSet.size) {
+    const ds = [];
+    for (const v of r.ydSet) {
+      const i = v > 0 ? v : len + 1 + v;
+      if (i >= 1 && i <= len) ds.push(jan1 + i - 1);
+    }
+    lists.push(sortedUnique(ds));
+  }
+  if (r.wnSet.size) {
+    // A day's week number counts in its own week-year, which can be y - 1 or y + 1.
+    const ds = [];
+    for (let wy = y - 1; wy <= y + 1; wy++) {
+      const start = week1Start(wy, r.wkst);
+      const weeks = (week1Start(wy + 1, r.wkst) - start) / 7;
+      for (const v of r.wnSet) {
+        const w = v > 0 ? v : weeks + 1 + v;
+        if (w < 1 || w > weeks) continue;
+        for (let j = 0; j < 7; j++) {
+          const n = start + (w - 1) * 7 + j;
+          if (n >= jan1 && n < jan1 + len) ds.push(n);
+        }
+      }
+    }
+    lists.push(sortedUnique(ds));
+  }
+  if (r.monthSet.size || r.mdPos.size || r.mdNeg.size) {
+    const ds = [];
+    for (let m = 1; m <= 12; m++) for (const n of monthCandidates(r, y, m, r.monthSet.size ? mode : null)) ds.push(n);
+    lists.push(ds);
+  }
+  if (!r.monthSet.size) {
+    const byday = bydayCandidates(r, mode, jan1, len);
+    if (byday) lists.push(byday);
+  }
+  if (!lists.length) return Array.from({ length: len }, (_, j) => jan1 + j);
+  return lists.reduce((a, b) => (b.length < a.length ? b : a));
+}
+
 function product(a, b, c) {
   const out = [];
   for (const x of a) for (const y of b) for (const z of c) out.push(x * 3600 + y * 60 + z);
@@ -418,6 +518,12 @@ function product(a, b, c) {
 
 function applySetPos(list, setpos) {
   if (!setpos.length) return list;
+  if (setpos.length === 1) {
+    // One position picks at most one entry; sub-daily rules call this per step.
+    const p = setpos[0];
+    const i = p > 0 ? p - 1 : list.length + p;
+    return i >= 0 && i < list.length ? [list[i]] : [];
+  }
   const picked = new Set();
   for (const p of setpos) {
     const i = p > 0 ? p - 1 : list.length + p;
@@ -448,19 +554,20 @@ function* ruleTimes(rule, start, { mode = "union", maxYears = null, weekFromStar
       if (r.freq === "YEARLY") {
         const y = s0.y + i * k;
         first = dayNumber(y, 1, 1);
-        days = Array.from({ length: daysInYear(y) }, (_, j) => first + j);
+        days = first > lastDay ? [] : yearCandidates(r, y, mode);
       } else if (r.freq === "MONTHLY") {
         const mm = s0.m - 1 + i * k;
         const y = s0.y + Math.floor(mm / 12);
         const m = (mm % 12) + 1;
         first = dayNumber(y, m, 1);
-        days = Array.from({ length: daysInMonth(y, m) }, (_, j) => first + j);
+        days = first > lastDay ? [] : monthCandidates(r, y, m, mode);
       } else if (r.freq === "WEEKLY") {
         first = start.day - ((weekday(start.day) - r.wkst + 7) % 7) + i * 7 * k;
         days = Array.from({ length: 7 }, (_, j) => first + j);
         // python-dateutil's first week begins at DTSTART, not at WKST, which
         // changes what BYSETPOS counts in that week.
         if (weekFromStart && i === 0) days = days.filter((n) => n >= start.day);
+        if (r.plainDays.size) days = days.filter((n) => r.plainDays.has(weekday(n)));
       } else {
         first = start.day + i * k;
         days = [first];
@@ -482,6 +589,9 @@ function* ruleTimes(rule, start, { mode = "union", maxYears = null, weekFromStar
   const cap = 3_000_000;
   let cacheDay = null;
   let cacheOk = false;
+  // product([h], ...) less its hour (and minute), built once instead of per step.
+  const msWithinHour = product([0], r.byminute, r.bysecond);
+  const sWithinMinute = product([0], [0], r.bysecond);
   while (steps++ < cap) {
     const p = (base + idx * k) * unit;
     const n = Math.floor(p / 86400);
@@ -505,8 +615,14 @@ function* ruleTimes(rule, start, { mode = "union", maxYears = null, weekFromStar
     const s = sod % 60;
     let set = [];
     if (!(r.hourSet.size && !r.hourSet.has(h)) && !(unit <= 60 && r.minuteSet.size && !r.minuteSet.has(mi)) && !(unit === 1 && r.secondSet.size && !r.secondSet.has(s))) {
-      if (unit === 3600) set = product([h], r.byminute, r.bysecond).map((t) => n * 86400 + t);
-      else if (unit === 60) set = product([h], [mi], r.bysecond).map((t) => n * 86400 + t);
+      if (unit === 1 && !r.bysetpos.length) {
+        // The common SECONDLY step: one time, nothing to pick from.
+        if (p >= startW) yield { w: p };
+        idx++;
+        continue;
+      }
+      if (unit === 3600) set = msWithinHour.map((t) => n * 86400 + h * 3600 + t);
+      else if (unit === 60) set = sWithinMinute.map((t) => n * 86400 + h * 3600 + mi * 60 + t);
       else set = [p];
     }
     for (const w of applySetPos(set, r.bysetpos)) if (w >= startW) yield { w };
@@ -535,6 +651,8 @@ function genOpts(opts) {
  *     first WEEKLY period starting at DTSTART for BYSETPOS)
  * Returns { occurrences: [{ w, day, sec, source, utc?, offset?, zone? }], truncated, skipped, gaveUp, tz }.
  */
+const END_OF_9999 = dayNumber(10000, 1, 1) * 86400;
+
 export function expand(parsed, opts = {}) {
   const limit = Math.min(Math.max(1, opts.limit ?? 25), 5000);
   const start = parsed.dtstart;
@@ -542,8 +660,10 @@ export function expand(parsed, opts = {}) {
   const rfc = (opts.dtstartMode ?? (opts.flavor === "dateutil" ? "rule" : "rfc")) === "rfc";
   const tz = parsed.tzid && !start.utc ? parsed.tzid : null;
   const zoneOk = tz ? validZone(tz) : false;
-  const ex = new Set(parsed.exdates.map((e) => (e.date ? `d${e.day}` : `w${e.day * 86400 + e.sec}`)));
-  const excluded = (w) => ex.has(`w${w}`) || ex.has(`d${Math.floor(w / 86400)}`);
+  // Numbers, not strings: a sub-daily rule tests millions of candidates here.
+  const exW = new Set(parsed.exdates.filter((e) => !e.date).map((e) => e.day * 86400 + e.sec));
+  const exD = new Set(parsed.exdates.filter((e) => e.date).map((e) => e.day));
+  const excluded = (w) => (exW.size > 0 && exW.has(w)) || (exD.size > 0 && exD.has(Math.floor(w / 86400)));
   const afterW = opts.after ? opts.after.day * 86400 + opts.after.sec : -Infinity;
   const streams = parsed.rules.map((rule) => {
     // RFC: an unsynchronised DTSTART still takes one of the COUNT slots.
@@ -558,6 +678,7 @@ export function expand(parsed, opts = {}) {
   let dtPending = rfc;
   let skipped = 0;
   let truncated = false;
+  let pastYear9999 = false;
   while (true) {
     let best = Infinity;
     let src = null;
@@ -565,6 +686,12 @@ export function expand(parsed, opts = {}) {
     for (const s of streams) if (s.head !== null && s.head < best) (best = s.head), (src = "rule");
     if (ri < rdates.length && rdates[ri] < best) (best = rdates[ri]), (src = "rdate");
     if (best === Infinity) break;
+    // iCalendar years have four digits (RFC 5545 3.3.4), and Intl and Date
+    // throw near year 275760: nothing past 9999-12-31 is listed.
+    if (best >= END_OF_9999) {
+      pastYear9999 = true;
+      break;
+    }
     // A recurrence set has no duplicates: advance every source sitting on `best`.
     if (dtPending && best === dtW) dtPending = false;
     for (const s of streams) while (s.head !== null && s.head === best) s.head = s.next();
@@ -594,7 +721,7 @@ export function expand(parsed, opts = {}) {
     occurrences.push(o);
   }
   const infos = streams.map((s) => s.info).filter(Boolean);
-  return { occurrences, truncated, skipped, gaveUp: infos.find((i) => i.searched === null) ?? null, ended: infos, tz: tz && zoneOk ? tz : null };
+  return { occurrences, truncated, skipped, pastYear9999, gaveUp: infos.find((i) => i.searched === null) ?? null, ended: infos, tz: tz && zoneOk ? tz : null };
 }
 
 function makeStream(rule, start, tz, zoneOk, opts) {
@@ -613,7 +740,10 @@ function makeStream(rule, start, tz, zoneOk, opts) {
     const w = it.value.w;
     if (until) {
       if (until.wall !== undefined && w > until.wall) return null;
-      if (until.instant !== undefined) {
+      // No UTC offset exceeds 26 hours, so only a wall time within 26 hours of
+      // UNTIL needs the (slow) zone lookup; a SECONDLY rule makes millions.
+      if (until.instant !== undefined && w + 93600 > until.instant) {
+        if (w - 93600 > until.instant) return null;
         const d = Math.floor(w / 86400);
         if (wallToInstant(d, w - d * 86400, tz).t > until.instant) return null;
       }
@@ -851,11 +981,16 @@ export function analyze(input = {}) {
   for (const r of usable) findings.push(...ruleFindings(r, p));
   let after = null;
   if (o.after) {
-    after = parseDateValue(String(o.after).replace(/[-:]/g, "").replace(" ", "T"));
-    if (!after) findings.push(finding("error", "bad-after", `"Show from" ${o.after} is not a date`, "Use 2027-01-01."));
+    after = parseFieldDate(o.after);
+    if (!after) findings.push(finding("error", "bad-after", `"Show from" ${o.after} is not a date`, "Use 2027-01-01 or 2027-01-01 09:00."));
   }
   const exp = expand(p, { limit: Number(o.limit) || 25, after, dtstartMode: o.dtstartMode });
   findings.push(...zoneFindings(exp, parsed.dtstart));
+  if (exp.gaveUp) {
+    const f = rules.find((r) => FREQ_RANK[r.freq] < FREQ_RANK.DAILY)?.freq ?? "sub-daily";
+    findings.push(finding("warning", "search-stopped", "The search stopped before the list was complete", `A ${f.toLowerCase()} rule is stepped through one unit at a time, and this page stops after ${exp.gaveUp.steps.toLocaleString("en-US")} steps. More dates may follow the ones listed${o.after ? ', including from "Show from" on' : ""}. Set "Show from" or DTSTART closer together to see them.`));
+  }
+  if (exp.pastYear9999) findings.push(finding("info", "past-year-9999", "Later dates fall after the year 9999", "iCalendar writes years with four digits (RFC 5545 3.3.4), so no calendar can hold them. The list stops at 9999-12-31."));
   const occurrences = exp.occurrences.map((x) => ({
     date: formatWall(x.day, x.sec, parsed.dtstart.date),
     weekday: DAY_NAMES[weekday(x.day)],
@@ -871,6 +1006,7 @@ export function analyze(input = {}) {
     skippedBefore: exp.skipped,
     findings: sortFindings(findings),
     truncated: exp.truncated,
+    searchStopped: Boolean(exp.gaveUp),
     tz: exp.tz,
     dtstart: formatWall(parsed.dtstart.day, parsed.dtstart.sec, parsed.dtstart.date),
     allDay: parsed.dtstart.date,
@@ -884,7 +1020,7 @@ const sortFindings = (fs) => fs.slice().sort((a, b) => rank(a.level) - rank(b.le
 
 /** Spreadsheet formula-injection guard: a cell starting =, +, -, @, tab or CR (an offset like -05:00 included) gets an apostrophe. */
 export function csvSafe(s) {
-  return /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
+  return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `'${s}` : s;
 }
 
 /** CSV of the listed occurrences. */
@@ -894,3 +1030,6 @@ export function reportCsv(result) {
   for (const o of result.occurrences) rows.push([q(o.date), q(o.weekday), q(o.utc ?? ""), q(o.offset ?? ""), q(o.source), q(o.zone === "gap" ? `clock skips this time; happens at ${o.actualLocal}` : o.zone === "overlap" ? "time happens twice; first one" : "")].join(","));
   return rows.join("\n") + "\n";
 }
+
+/** For tests only: the day filter and the candidate lists that narrow it. */
+export const _scan = { normalize, dayMatches, yearCandidates, monthCandidates };

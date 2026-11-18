@@ -759,6 +759,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         preview_quality=args.preview_quality,
         warp_kernel=args.warp_kernel,
         demosaic=args.demosaic,
+        noise_from_frame=getattr(args, "noise_from_frame", True),
         lens_db=_load_lens_db(args.lens_db) if args.lens_db else None,
         lens_name=args.lens,
         lens_focal=args.lens_focal,
@@ -1330,13 +1331,28 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     develop.add_argument(
         "--demosaic",
-        choices=("auto", "bilinear", "directional"),
+        choices=("auto", "bilinear", "directional", "learned", "noise-aware"),
         default="auto",
         help=(
-            "How the sensor's colour mosaic becomes full colour: 'auto' (default) uses the directional demosaic on "
-            "Fujifilm X-Trans files when numpy is installed and bilinear otherwise; 'directional' (X-Trans, numpy) "
-            "builds green along four directions and keeps the most even, which cuts the false colour bilinear "
-            "leaves on edges; 'bilinear' averages each 3x3 window (both engines, same bytes)."
+            "How the sensor's colour mosaic becomes full colour: 'auto' (default) uses the directional demosaic "
+            "when numpy is installed and bilinear otherwise; 'directional' (numpy) builds green along the edges "
+            "(four directions on Fujifilm X-Trans, row and column on Bayer) and follows the smoother one, which cuts "
+            "the zippering and false colour bilinear leaves on edges; 'learned' (Bayer, numpy; in C when a compiler is present) is directional "
+            "with a per-pixel detail weight from a fitted model: a little sharper and truer on real photos, about 3x slower; "
+            "'noise-aware' (numpy; the DNG's NoiseProfile, else a noise model read from the frame) blends directional toward bilinear wherever the "
+            "edge-keeping adds less than the sensor noise, which helps high-ISO and smooth frames; "
+            "'bilinear' averages each 3x3 window (both engines, same bytes)."
+        ),
+    )
+    develop.add_argument(
+        "--noise-from-frame",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "With --demosaic noise-aware on a file that carries no NoiseProfile (ARW, NEF, CR2, RW2, RAF and other "
+            "raws, many DNGs): read the sensor noise from the frame itself (patch PCA on low-texture patches). On "
+            "by default since 2026-11-17: on held-out tests no Bayer or X-Trans tile lost over 0.1 dB of detail "
+            "against directional. --no-noise-from-frame falls back to the directional demosaic instead."
         ),
     )
     develop.add_argument(
@@ -1989,6 +2005,7 @@ def _preview_ingest_json(plan: CopyPlan) -> str:
                 }
                 for item in plan.items
             ],
+            "left_on_card": _left_on_card_json(plan),
             "notes": [
                 "preview only - no files were copied",
                 "source media will not be deleted",
@@ -2000,6 +2017,13 @@ def _preview_ingest_json(plan: CopyPlan) -> str:
         indent=2,
         sort_keys=True,
     ) + "\n"
+
+
+def _left_on_card_json(plan: CopyPlan) -> list[str]:
+    """Files on the card the copy does not take (not media, not card housekeeping):
+    a format nobody listed shows up here instead of being lost when the card is formatted."""
+
+    return [path.as_posix() for path in plan.left_on_card]
 
 
 def _execute_ingest_json(plan: CopyPlan, report: CopyReport) -> str:
@@ -2020,6 +2044,7 @@ def _execute_ingest_json(plan: CopyPlan, report: CopyReport) -> str:
             "skipped": report.skipped,
             "item_count": len(plan.items),
             "total_bytes": total_bytes,
+            "left_on_card": _left_on_card_json(plan),
             "notes": [
                 "no source files were deleted",
                 "all copied files were verified by SHA-256 checksum",
@@ -2473,6 +2498,7 @@ def _card_dump_preview_json(report: CardDumpWorkflowReport) -> dict[str, object]
         "shoot_slug": report.preview_plan.shoot_slug,
         "item_count": len(report.preview_plan.items),
         "total_bytes": total_bytes,
+        "left_on_card": _left_on_card_json(report.preview_plan),
         "items": [
             {
                 "relative_path": item.relative_path.as_posix(),

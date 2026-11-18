@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKktEdnyJCmDQTBAATW",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T22:17:57Z",
+  "ended": "2026-11-16T22:38:22Z",
+  "wall_minutes": 20.62,
+  "tokens_in": 2976238,
+  "tokens_out": 16650,
+  "cost_usd": 1.4791,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16723",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Local portfolio-pages 'Build the site' step failed with EMFILE: the container's hard open-file limit is 20000 and audio-cdn.mjs:119 reads ~20k built pages under one Promise.all. The site pages (including the new post) were written before that step; GitHub runners allow 65536."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/audio-cdn.mjs",
+      "issue": "moveAudioToCdn opens every built page in one Promise.all; at ~20k pages it hits EMFILE in cloud containers (hard limit 20000), so run_workflow_locally reports the Build-the-site step as FAIL for every change. A bounded-concurrency read would make the local check usable."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Defect #1 of the tip-fica audit was fixed by the cross-repo redteam sweep PR #15823 but never recorded, so the fix queue listed it as open; sweeps that touch many ventures don't mark audits."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-quality-fix-tip-credit-thousands-comma.md"
+  ],
+  "goal": null,
+  "notes": "quality track, mode=fix (quality_audit.py mode; sample would have drawn seed 2026-11-16-eaa5, round 74, not run). Queue seed 2026-11-16-c9e3. Subject: ventures/tip-fica-credit-calculator (audit 2026-11-10). Share meeting the bar: n/a (fix session, no new audit; scores unchanged). Fix PRs: #16723 (defects 0,2,3,4,5) and #15823 (defect 1, recorded retroactively). Verification: node --test '*.test.mjs' 25 pass 0 fail (was 20). Mutations re-run with quality_mutate.py: room drops notCreditable -> caught; employer FICA cap removed -> caught; years floor->ceil -> caught; negative-tips rejection removed -> caught (all four survived in the audit). A mutant removing my own join-count guard survived; the guard was redundant (each join removes one field and the four-field test covers it), so I deleted it. Hand check: Maria, 2.13, 1500, 24,000 now gives a credit of 1489.46 (before: 0). run_workflow_locally --for-changes: ventures-tests, pages, portfolio-validate and others passed their run: steps (some pytest steps were UNRUN); portfolio-pages Build the site failed on EMFILE (environment, see errors).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "384dfd8e-847d-5190-8ae5-d813c6631565",
+    "transcripts": 1,
+    "first": "2026-11-16T22:17:57Z",
+    "last": "2026-11-16T22:38:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 72,
+        "output": 16650,
+        "thinking": 4377,
+        "cache_read": 2905583,
+        "cache_write_5m": 0,
+        "cache_write_1h": 70583,
+        "api_equivalent_usd": 1.4791,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 72,
+      "output": 16650,
+      "thinking": 4377,
+      "cache_read": 2905583,
+      "cache_write_5m": 0,
+      "cache_write_1h": 70583,
+      "api_equivalent_usd": 1.4791,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.62,
+      "active_minutes": 20.62,
+      "model_minutes": 2.81,
+      "tool_minutes": 17.81,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "parser fix, five tests with a hand-computed case, mutation reruns, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 202.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -17,6 +17,12 @@
 //    42% to 62,430, 45% to 125,140, 48% above.
 //  - Personal Allowance 12,570, reduced by 1 for every 2 of adjusted income
 //    over 100,000 and gone at 125,140.
+//  - Marriage Allowance: neither partner may pay tax above the basic rate
+//    (Scotland: above the intermediate rate), so income over 12,570 + 37,700
+//    (Scotland 12,570 + 31,092) gets no M or N code.
+//  - K codes: the overriding limit stops tax deducted from exceeding 50% of
+//    the pay in a period. Modelled as a cap of 50% of pay to date, exact when
+//    pay is even across periods.
 // Approximates HMRC's exact table rounding; a payslip can differ by a few
 // pounds. Not modelled: NI, student loans, pensions, second jobs, other
 // taxable income, Gift Aid, blind person's allowance, tax-year-end timing.
@@ -26,6 +32,7 @@ export const PA = 12570;
 export const MARRIAGE = 1260;
 export const TAPER_START = 100000;
 export const TAPER_END = 125140;
+export const K_LIMIT = 0.5;
 export const RUK_BANDS = [{ rate: 0.2, upTo: 37700 }, { rate: 0.4, upTo: 125140 }, { rate: 0.45, upTo: Infinity }];
 export const SCOT_BANDS = [
   { rate: 0.19, upTo: 3967 }, { rate: 0.2, upTo: 16956 }, { rate: 0.21, upTo: 31092 },
@@ -57,7 +64,7 @@ export const SAMPLE_BUILD = {
 
 const r2 = (n) => Math.round(n * 100) / 100;
 const floor2 = (n) => Math.floor(n * 100 + 1e-6) / 100;
-export const money = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(r2(n)).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("£" + Math.abs(r2(n)).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 const num = (v) => { const s = String(v ?? "").replace(/[£,\s]/g, ""); return s === "" ? null : Number(s); };
 
 export function parseCode(raw) {
@@ -101,9 +108,12 @@ export function taxToDate(code, gross, n, per) {
     if (taxable <= 0) return 0;
     return floor2(bandTax(taxable, code.region === "Scotland" ? SCOT_BANDS : RUK_BANDS, i, per));
   };
-  if (code.nonCumulative) return r2(n * one(gross / n, 1));
-  return one(gross, n);
+  const due = code.nonCumulative ? r2(n * one(gross / n, 1)) : one(gross, n);
+  return code.type === "k" ? Math.min(due, floor2(gross * K_LIMIT)) : due;
 }
+
+// Tax a K code would give before the 50% overriding limit, for the explanation.
+export const kUncapped = (code, gross, n, per) => taxToDate({ ...code, type: "allowance" }, gross, n, per);
 
 export function compute(input) {
   const errors = [];
@@ -134,6 +144,10 @@ export function compute(input) {
   if (code.type === "zero") findings.push({ severity: "medium", title: "0T gives no allowance and taxes you on the bands from pound one. Usual for a new job with no P45, or a second job." });
   if (code.type === "nt") findings.push({ severity: "medium", title: "NT means no tax is deducted. It is only right in specific cases; check why HMRC set it." });
   if (code.type === "k") findings.push({ severity: "medium", title: `A K code means HMRC thinks you owe tax on income or benefits above your allowance, equal to ${money(code.number * 10 + 9)} a year of extra taxable income. Check your HMRC account for what it is built from.` });
+  if (code.type === "k") {
+    const uncapped = kUncapped(code, gross, n, per);
+    if (uncapped > onCode) findings.push({ severity: "medium", title: `A K code cannot take more than 50% of your pay in tax (the overriding limit), so payroll can deduct at most ${money(onCode)} by now, not the ${money(uncapped)} the code alone would give. The tax not collected is still owed: HMRC usually collects it later through your code or a year-end calculation.` });
+  }
   if (code.letter === "T") findings.push({ severity: "medium", title: "T means HMRC has items to review, such as a reduced allowance. Ask what is included." });
   if (code.letter === "M" || code.letter === "N") findings.push({ severity: "info", title: code.letter === "M" ? "M: you receive 1,260 of your partner's allowance, worth up to £252 a year in tax. Your partner should have the matching N code." : "N: you gave 1,260 of your allowance to your partner, who should have the matching M code." });
   if (/^[PVY]$/.test(code.letter || "")) findings.push({ severity: "medium", title: "P, V and Y are old age-related codes no longer issued. Ask HMRC to review it." });
@@ -173,7 +187,9 @@ export function buildCode(input) {
   const ani = income + other;
   const taperCut = Math.min(PA, Math.max(0, (ani - TAPER_START) / 2));
   const pa = PA - taperCut;
-  const marriageAdj = pa > 0 ? (marriage === "received" ? MARRIAGE : marriage === "given" ? -MARRIAGE : 0) : 0;
+  const maLimit = PA + (region === "Scotland" ? SCOT_BANDS[2].upTo : RUK_BANDS[0].upTo);
+  const maEligible = pa > 0 && ani <= maLimit;
+  const marriageAdj = maEligible ? (marriage === "received" ? MARRIAGE : marriage === "given" ? -MARRIAGE : 0) : 0;
   const underCut = under > 0 ? under / rate : 0;
   const allowance = pa + marriageAdj - benefits - other - underCut;
   let body, letter = "";
@@ -197,7 +213,8 @@ export function buildCode(input) {
   const findings = [];
   findings.push({ severity: "info", title: `Expected code: ${codeText}. Check it against the code on your payslip or in your HMRC account.` });
   if (taperCut > 0) findings.push({ severity: "medium", title: `Income over £100,000 reduces the Personal Allowance by ${money(taperCut)}, an effective 60% marginal rate between £100,000 and £125,140.` });
-  if (marriage === "received" && marriageAdj === 0) findings.push({ severity: "medium", title: "Marriage Allowance cannot be received with no Personal Allowance, and the recipient must be a basic-rate taxpayer." });
+  if (marriage !== "none" && pa > 0 && !maEligible) findings.push({ severity: "medium", title: `Marriage Allowance is not available on income above ${money(maLimit)}: neither partner may pay tax at the ${region === "Scotland" ? "higher rate (above the intermediate rate)" : "higher rate"}, so the code is worked without it.` });
+  if (marriage === "received" && pa === 0) findings.push({ severity: "medium", title: "Marriage Allowance cannot be received with no Personal Allowance, and the recipient must be a basic-rate taxpayer." });
   if (benefits > 0) findings.push({ severity: "info", title: `Benefits worth ${money(benefits)} cut your allowance, costing about ${money(benefits * 0.2)} a year at basic rate or ${money(benefits * 0.4)} at higher rate.` });
   if (under > 0) findings.push({ severity: "info", title: `Collecting ${money(under)} at ${Math.round(rate * 100)}% removes ${money(underCut)} of allowance for the year.` });
   findings.push({ severity: "info", title: "Not decided here: blind person's allowance, tax relief for expenses, pension relief, Gift Aid, and several jobs. HMRC works the real code; your account shows how." });

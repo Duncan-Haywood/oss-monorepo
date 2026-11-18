@@ -114,13 +114,13 @@ def apply_fold(frames, fold):
     return out
 
 
-def frame(path, target, classes="type"):
+def frame(path, target, classes="type", keep_open=False):
     """classes='type': permit_type only (sessions 10 to 69). 'cascade': permit_type, then
     work_class, then the loader's description class (session 70; needs a pull with desc_class).
     'cascade2': the same with the session 71 description rules (column desc_class_v2).
     'cascade2_nodemo': cascade2 with demolition folded into alteration (session 76), to test whether
     naming demolition is what carries cascade2's i2c q0.9 transfer cost."""
-    df, neg = boosted.load_frame(path, target)
+    df, neg = boosted.load_frame(path, target, keep_open=keep_open)  # keep_open: session 91
     if classes == "type":
         df["cls"] = df["permit_type"].map(harmonise)
     else:

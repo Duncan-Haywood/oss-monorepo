@@ -1,0 +1,17 @@
+# Milestone 11aj post hoc: forced segregation of the two reference classes at the aware planner's h (best of every split position and order, 40 descents each)
+
+## M = 12
+  Z     sigma  q     s_m   seg/aware_med  seg/aware_max  seg/mand_med  naive/mand_med  aware/mand_med  spacer_in_seg
+  7.62  1.00   0.50  1.0     1.0474         1.1569         1.0478        1.0004          1.0004         0 / 24
+  7.62  1.00   0.50  3.0     1.0320         1.1476         1.0593        1.0309          1.0263         0 / 24
+  7.62  1.00   0.50  5.0     1.0173         1.1043         1.0747        1.0940          1.0494         0 / 24
+  7.62  0.50   0.50  5.0     1.0154         1.1078         1.0697        1.1112          1.0460         0 / 24
+  7.62  1.00   0.25  5.0     1.0148         1.0771         1.0670        1.0754          1.0480         0 / 24
+
+## M = 16
+  Z     sigma  q     s_m   seg/aware_med  seg/aware_max  seg/mand_med  naive/mand_med  aware/mand_med  spacer_in_seg
+  7.62  1.00   0.50  1.0     1.1075         1.2142         1.1080        1.0004          1.0004         0 / 24
+  7.62  1.00   0.50  3.0     1.0802         1.1963         1.1214        1.0375          1.0345         0 / 24
+  7.62  1.00   0.50  5.0     1.0526         1.1743         1.1388        1.1165          1.0821         0 / 24
+  7.62  0.50   0.50  5.0     1.0358         1.1762         1.1286        1.1598          1.0730         0 / 24
+  7.62  1.00   0.25  5.0     1.0195         1.1078         1.0734        1.0637          1.0479         0 / 24

@@ -24,6 +24,8 @@ import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
 import { import7shifts, fetch7shifts, within, import7shiftsStaff, fetch7shiftsStaff } from "./import-7shifts.mjs";
 import { importWhenIWork, fetchWhenIWork, within as withinWiw } from "./import-wheniwork.mjs";
+import { importDeputy, fetchDeputy, within as withinDeputy } from "./import-deputy.mjs";
+import { importSquare, fetchSquare, within as withinSquare } from "./import-square.mjs";
 import { demandShifts, backtestSales, parseStandard, shutMinDays, readSales } from "./demand.mjs";
 import {
   parseStaff, parseShifts, parseTravel, parseSiteWage, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, siteSplit, siteSplitText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
@@ -75,6 +77,12 @@ Options:
   --cover-chain <n>   hand-over passes the risk check allows per shift (0-3, default 2; 0 is the first, looser check)
   --second-callout-price <$>  with --cover-price, also charge $ per hour for pairs of call-outs that are each covered alone
                       but not together (the slack one call-out's cover uses up that a second one in the week needed)
+  --second-callout-seconds <s>  time limit on the --second-callout-price search (default 10); it keeps the moves made
+  --second-callout-rank         walk each round's candidates largest room first (opt-in; mixed on seeded weeks, README)
+  --second-callout-order-free   count a pair of call-outs as covered when some set of hand-overs covers both, whatever order
+                                they are handed out in (opt-in; up to two give-ups per person, README "An order-free pair
+                                check"; played, it opened no fewer hours than the default check, README "The order-free
+                                pass played")
   --no-cover-pairs    with --cover-price, try only moves of the at-risk person's own shifts (no relief, trade or relay)
   --no-prove          skip the exact check (it runs by itself on every week)
   --prove             also run an exact search (small weeks) and say whether the roster is provably the best, or how far off
@@ -104,6 +112,16 @@ Options:
                       repeat the flag for more files) to shift lines; --location and --no-drafts as above (times are read on the shift's own clock)
   --fetch-wheniwork --from <YYYY-MM-DD> --to <YYYY-MM-DD>   the same, fetched from api.wheniwork.com with your own token in WHENIWORK_TOKEN
                       (and WHENIWORK_USER_ID when your login reaches several workplaces); --save <file> keeps the responses
+  --import-deputy <json> convert saved Deputy API responses (POST /api/v1/resource/Roster/QUERY, plus resource/OperationalUnit/QUERY
+                      and resource/Company/QUERY for area and location names; repeat the flag for more files) to shift lines; --location,
+                      --no-drafts and --tz (for rosters with only Unix times) as above
+  --fetch-deputy --from <YYYY-MM-DD> --to <YYYY-MM-DD>   the same, fetched from your own install (DEPUTY_INSTALL, like yourco.na.deputy.com)
+                      with your own token in DEPUTY_TOKEN; --save <file> keeps the responses
+  --import-square <json> convert saved Square Labor API responses (POST /v2/labor/scheduled-shifts/search, plus /v2/team-members/jobs
+                      and /v2/locations for names and zones; repeat the flag for more files) to shift lines; --location and --no-drafts
+                      as above; published shifts are read as posted, --square-latest reads every shift's latest draft instead
+  --fetch-square --from <YYYY-MM-DD> --to <YYYY-MM-DD>   the same, fetched from connect.squareup.com with your own access token in
+                      SQUARE_ACCESS_TOKEN (SQUARE_VERSION overrides the API version header); --save <file> keeps the responses
   --from-sales <csv>  build the shift lines from an hourly sales export (date-time and sales columns) at --splh <$> sales per labor hour (required):
                       the average of each weekday-hour sets the heads needed (at least --min-staff, default 1), cut into shifts of --min-shift to
                       --max-shift hours (default 4 to 8), inside the hours with sales or --open/--close (0-24). Shift lines on stdout, summary on stderr;
@@ -205,6 +223,11 @@ export function parseArgs(argv) {
     else if (a === "--fetch-7shifts") o.fetch7 = true;
     else if (a === "--import-wheniwork") { const f = argv[++i]; if (!f) throw new Error("--import-wheniwork needs a JSON file"); (o.importWiw ||= []).push(f); }
     else if (a === "--fetch-wheniwork") o.fetchWiw = true;
+    else if (a === "--import-deputy") { const f = argv[++i]; if (!f) throw new Error("--import-deputy needs a JSON file"); (o.importDeputy ||= []).push(f); }
+    else if (a === "--fetch-deputy") o.fetchDeputy = true;
+    else if (a === "--import-square") { const f = argv[++i]; if (!f) throw new Error("--import-square needs a JSON file"); (o.importSquare ||= []).push(f); }
+    else if (a === "--fetch-square") o.fetchSquare = true;
+    else if (a === "--square-latest") o.squareLatest = true;
     else if (a === "--from") { o.from7 = argv[++i]; if (!o.from7) throw new Error("--from needs a date like 2026-11-02"); }
     else if (a === "--to") { o.to7 = argv[++i]; if (!o.to7) throw new Error("--to needs a date like 2026-11-15"); }
     else if (a === "--tz") { o.tz7 = argv[++i]; if (!o.tz7) throw new Error("--tz needs a time zone like America/Toronto"); }
@@ -324,6 +347,13 @@ export function parseArgs(argv) {
       if (!Number.isFinite(v) || v < 0) throw new Error("--second-callout-price needs a number of dollars per clashing-pair hour");
       o.options.coverPairPrice = v;
     }
+    else if (a === "--second-callout-seconds") {
+      const v = Number(argv[++i]);
+      if (!(v > 0)) throw new Error("--second-callout-seconds needs a number of seconds above 0 (Infinity for no limit)");
+      o.options.coverPairMs = v * 1000;
+    }
+    else if (a === "--second-callout-rank") o.options.coverPairRank = true;
+    else if (a === "--second-callout-order-free") o.options.coverPairOrderFree = true;
     else if (a === "--no-cover-pairs") o.options.coverPairs = false;
     else if (a === "--cover-chain") {
       const v = Number(argv[++i]);
@@ -390,7 +420,12 @@ function hoursWatchReport(r, opts) {
   const head = rows.length ? `${over} at or over ${num(line)} h this week, ${rows.length - over} within ${num(within)} h under it.` : `No one is at or within ${num(within)} h of ${num(line)} h this week.`;
   return [head, ...lines, "", "Planned hours for this one week against a line you typed. Eligibility rules usually count a longer period, so this is not a statement of what any benefit or employer-mandate rule requires. Not legal advice.", ""].join("\n");
 }
-const usd = (x) => "$" + x.toFixed(2);
+const usd = (x) => {
+  const format = (x) => "$" + x.toFixed(2);
+  if (!(Number(x) < 0)) return format(x);
+  const text = format(Math.abs(x));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 function tipsReport(r, opts) {
   const t = tipPool(r, opts.tips);
   if (!t.rows.length) return "No tip split: nobody is scheduled for any hours.\n";
@@ -411,7 +446,12 @@ function longReport(r, opts) {
 }
 function budgetReport(staff, slots, r, opts) {
   const b = budgetCheck(r, opts.budget);
-  const $ = (x) => "$" + x.toFixed(2);
+  const $ = (x) => {
+    const format = (x) => "$" + x.toFixed(2);
+    if (!(Number(x) < 0)) return format(x);
+    const text = format(Math.abs(x));
+    return /[1-9]/.test(text) ? `-${text}` : text;
+  };
   if (!b) return "Nothing to compare: no payroll.\n";
   if (!b.over) return `Payroll ${$(b.payroll)} against a ${$(b.budget)} budget: ${$(b.headroom)} under (${b.pct.toFixed(1)}%).\n`;
   const need = b.payroll - b.budget;
@@ -694,6 +734,30 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
         inputs = withinWiw(got.responses, got.from, got.to);
       } else inputs = await Promise.all(o.importWiw.map((f) => readFile(f, "utf8")));
       const r = importWhenIWork(inputs, { location: o.importLocation, drafts: o.noDrafts7 ? false : undefined });
+      for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
+      if (!r.rows) process.exit(1);
+      process.stdout.write(r.shiftsText + "\n"); process.exit(0);
+    }
+    if (o.importDeputy || o.fetchDeputy) {
+      let inputs;
+      if (o.fetchDeputy) {
+        const got = await fetchDeputy({ token: process.env.DEPUTY_TOKEN, install: process.env.DEPUTY_INSTALL, from: o.from7, to: o.to7 });
+        if (o.save7) await writeFile(o.save7, got.responses.map((x) => JSON.stringify(x)).join("\n") + "\n");
+        inputs = withinDeputy(got.responses, got.from, got.to, o.tz7);
+      } else inputs = await Promise.all(o.importDeputy.map((f) => readFile(f, "utf8")));
+      const r = importDeputy(inputs, { location: o.importLocation, drafts: o.noDrafts7 ? false : undefined, timeZone: o.tz7 });
+      for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
+      if (!r.rows) process.exit(1);
+      process.stdout.write(r.shiftsText + "\n"); process.exit(0);
+    }
+    if (o.importSquare || o.fetchSquare) {
+      let inputs;
+      if (o.fetchSquare) {
+        const got = await fetchSquare({ token: process.env.SQUARE_ACCESS_TOKEN, version: process.env.SQUARE_VERSION || undefined, from: o.from7, to: o.to7 });
+        if (o.save7) await writeFile(o.save7, got.responses.map((x) => JSON.stringify(x)).join("\n") + "\n");
+        inputs = withinSquare(got.responses, got.from, got.to);
+      } else inputs = await Promise.all(o.importSquare.map((f) => readFile(f, "utf8")));
+      const r = importSquare(inputs, { location: o.importLocation, drafts: o.noDrafts7 ? false : undefined, latest: !!o.squareLatest });
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.rows) process.exit(1);
       process.stdout.write(r.shiftsText + "\n"); process.exit(0);

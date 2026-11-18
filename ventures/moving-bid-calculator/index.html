@@ -13,7 +13,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef1f6; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 740px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #9a3d16; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
@@ -39,6 +39,10 @@
     .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
     dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    dl.breakdown { margin: 8px 0 12px; }
+    table.scenarios { width: 100%; border-collapse: collapse; font-size: .85rem; font-variant-numeric: tabular-nums; }
+    table.scenarios th, table.scenarios td { text-align: right; padding: 3px 4px; border-bottom: 1px solid rgba(127,127,127,.25); }
+    table.scenarios th:first-child, table.scenarios td:first-child { text-align: left; }
     hr { border: 0; border-top: 1px solid #ffffff2b; }
     .note { font-size: .82rem; opacity: .84; }
     .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
@@ -181,6 +185,19 @@
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, and paid time off &mdash; the part of a mover&rsquo;s cost that never shows up on their pay rate. Matching a cheap &ldquo;3-bedroom for $800&rdquo; quote without seeing stairs is the most common way a Saturday loses money.</p>
       </section>
 
+      <section>
+        <h2>Hourly quote and valuation</h2>
+        <p class="hint">Most local moves are sold by the hour with a minimum. The truck, fuel and materials cost the same on a 2-hour job as on an 8-hour one, so the minimum is what keeps a short job from losing money.</p>
+        <div class="grid">
+          <label>Hourly rate you quote, crew + truck (blank = suggested) <input id="quotedHourlyRate" type="number" min="0" step="5" placeholder="suggested"></label>
+          <label>Pounds per cubic foot <input id="lbPerCuFt" type="number" min="0" step="0.5" value="7"></label>
+          <label>Released value ($ per lb per article) <input id="releasedValuePerLb" type="number" min="0" step="0.05" value="0.60"></label>
+          <label>Declared value for full value protection <input id="declaredValue" type="number" min="0" step="1000" value="0"></label>
+          <label>Your full value charge per $1,000 declared <input id="valuationRatePer1000" type="number" min="0" step="0.5" value="0"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Released value of 60 cents per pound per article is the federal figure for interstate moves (49 CFR 375.201; the &ldquo;Waiver of Full Value Protection&rdquo; option in FMCSA&rsquo;s <em>Your Rights and Responsibilities When You Move</em>). Local moves follow your state&rsquo;s rules, which may differ: check them. Seven pounds per cubic foot is a common rule of thumb for converting volume to weight, not a scale ticket. Enter the full value rate your own insurer or tariff sets; this page has no rate of its own.</p>
+      </section>
+
       <section class="faq">
         <h2>Questions movers actually type</h2>
         <details>
@@ -215,6 +232,26 @@
         <dt>Walk-away price</dt><dd id="breakEven"></dd>
       </dl>
       <div id="verdict" class="verdict" hidden></div>
+      <div id="hourlyBlock">
+        <p class="note" style="margin-bottom:4px"><strong>Quoted by the hour</strong></p>
+        <dl class="breakdown">
+          <dt id="hourlyRateLabel">Crew + truck rate</dt><dd id="hourlyQuoteRate"></dd>
+          <dt>Minimum billed hours</dt><dd id="hourlyMinimum"></dd>
+          <dt>Breaks even at</dt><dd id="hourlyBreakEven"></dd>
+          <dt>Earns your margin from</dt><dd id="hourlyMarginHours"></dd>
+        </dl>
+        <table class="scenarios" id="hourlyScenarios"></table>
+        <p class="note" id="hourlyNote"></p>
+      </div>
+      <div id="valuationBlock">
+        <p class="note" style="margin-bottom:4px"><strong>Valuation (loss or damage liability)</strong></p>
+        <dl class="breakdown">
+          <dt>Estimated weight</dt><dd id="valWeight"></dd>
+          <dt>Released value cap, whole load</dt><dd id="valReleased"></dd>
+          <dt>Full value charge to quote</dt><dd id="valCharge"></dd>
+          <dt>Extra exposure under full value</dt><dd id="valExposure"></dd>
+        </dl>
+      </div>
       <div class="summary-actions">
         <button type="button" id="copyLink">Copy bid link</button>
         <button type="button" id="clearSaved">Start a fresh bid</button>
@@ -307,6 +344,7 @@
       'packingHours','driveHours','crewSize','hourlyWage','burdenRate',
       'truckCost','fuelTolls','materials','otherCost','overheadRate',
       'targetMargin','proposedPrice',
+      'quotedHourlyRate','lbPerCuFt','releasedValuePerLb','declaredValue','valuationRatePer1000',
     ];
     const money = (value) => {
       const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -388,6 +426,8 @@
         .forEach(id => { el(id).textContent = ''; });
       el('split').innerHTML = '';
       el('verdict').hidden = true;
+      el('hourlyBlock').hidden = true;
+      el('valuationBlock').hidden = true;
     }
 
     /**
@@ -518,6 +558,8 @@
       el('perCuFt').textContent = result.pricePerCuFt === null ? 'n/a' : `$${result.pricePerCuFt.toFixed(2)}`;
       el('hourlyRate').textContent = result.effectiveHourlyPerMover === null ? 'n/a' : `${money(result.effectiveHourlyPerMover)}/h`;
       el('breakEven').textContent = money(result.breakEvenPrice);
+      renderHourly(result);
+      renderValuation(result.valuation);
 
       el('split').innerHTML = result.split.length === 0
         ? '<li class="empty">No hours yet — add inventory, access, packing, or drive time.</li>'
@@ -539,6 +581,30 @@
       }
     }
 
+    const hrs = (h) => `${(Math.round(h * 100) / 100).toFixed(2)} h`;
+    function renderHourly(result) {
+      const h = result.hourly;
+      if (!h) { el('hourlyBlock').hidden = true; return; }
+      el('hourlyBlock').hidden = false;
+      el('hourlyRateLabel').textContent = h.suggested ? 'Suggested crew + truck rate' : 'Your crew + truck rate';
+      el('hourlyQuoteRate').textContent = `${money(h.rate)}/h`;
+      el('hourlyMinimum').textContent = h.minimumHours === null ? 'none works' : hrs(h.minimumHours);
+      el('hourlyBreakEven').textContent = h.breakEvenHours === null ? 'never' : hrs(h.breakEvenHours);
+      el('hourlyMarginHours').textContent = h.marginHours === null ? 'never at this rate' : hrs(h.marginHours);
+      el('hourlyScenarios').innerHTML = '<tr><th>Job runs</th><th>Billed</th><th>Hourly profit</th><th>Flat-price profit</th></tr>' +
+        h.scenarios.map((x) => `<tr><td>${hrs(x.hours)}${x.scale === 1 ? ' (estimate)' : ''}</td><td>${money(x.billed)}</td><td>${money(x.profit)}</td><td>${money(x.flatProfit)}</td></tr>`).join('');
+      el('hourlyNote').textContent = h.belowLaborCost
+        ? `At ${money(h.rate)}/h the rate does not cover the crew's loaded labor of ${money(h.variablePerHour)}/h, so every extra hour loses more and no minimum fixes it.`
+        : `Fixed per job: ${money(h.fixedJobCost)} (truck, fuel, materials, other, with overhead). Each crew hour costs ${money(h.variablePerHour)}. Billing by the hour shifts the risk of a long day to the customer; a flat price keeps it with you.`;
+    }
+    function renderValuation(v) {
+      el('valuationBlock').hidden = false;
+      el('valWeight').textContent = `${Math.round(v.estimatedWeight).toLocaleString('en-US')} lb`;
+      el('valReleased').textContent = money(v.releasedLiabilityCap);
+      el('valCharge').textContent = v.declaredValue > 0 ? (v.ratePer1000 > 0 ? money(v.fullValueCharge) : 'enter your rate per $1,000') : 'released value only';
+      el('valExposure').textContent = v.declaredValue > 0 ? money(v.extraExposure) : '-';
+    }
+
     function summaryText(result) {
       const items = result.inventory
         .filter(item => item.cubicFeet > 0 || item.clockHours > 0)
@@ -552,6 +618,8 @@
         `Person-hours: ${result.personHours.toFixed(1)}`,
         `Access (stairs, carry, elevator): ${result.accessHours.toFixed(2)} hours (${result.accessHoursShare.toFixed(0)}% of the day)`,
         `Price per cubic foot: ${result.pricePerCuFt === null ? 'n/a' : '$' + result.pricePerCuFt.toFixed(2)}`,
+        ...(result.hourly ? [`Hourly: ${money(result.hourly.rate)}/h crew + truck, ${result.hourly.minimumHours === null ? 'no workable minimum' : result.hourly.minimumHours + '-hour minimum'}`] : []),
+        `Valuation: released value cap ${money(result.valuation.releasedLiabilityCap)} on about ${Math.round(result.valuation.estimatedWeight).toLocaleString('en-US')} lb${result.valuation.declaredValue > 0 && result.valuation.ratePer1000 > 0 ? `; full value protection on ${money(result.valuation.declaredValue)}: ${money(result.valuation.fullValueCharge)}` : ''}`,
         '',
         'INVENTORY',
         items || '- No inventory entered',

@@ -51,6 +51,9 @@ def main(argv=None):
     for rel, t in bad:
         print(f"{rel}: {t}")
     print(f"{pages} pages, {len(bad)} unrendered placeholders")
+    if not pages:
+        print(f"no pages under {args.root}: wrong --root? A scan of nothing is not a pass.")
+        return 2
     return 1 if bad else 0
 
 

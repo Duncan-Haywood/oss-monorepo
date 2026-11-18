@@ -26,7 +26,7 @@ Neither count drives ranking yet — see README.md's "Attribution honesty"
 section for why that next step is deliberately not automated.
 
 Rows that an open PR already works say so first ("OPEN PR #N (2h old)"),
-from one `gh api` search; `--no-claims` skips it.
+from the REST pulls list (search as fallback); `--no-claims` skips it.
 
 Usage:
     python3 portfolio/router/allocate.py           # table
@@ -50,7 +50,7 @@ from typing import Optional
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from claim_check import claim_recipe  # noqa: E402
+from claim_check import REPO, claim_recipe, open_prs  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES_DIR = REPO_ROOT / "ventures"
@@ -101,6 +101,12 @@ class Venture:
     # to find a tractable item (run-record doc_friction on this file,
     # 2026-11-11: seven runs read rows 1-4 in full, then took a lower row).
     flagship_buildable: Optional[str] = None
+    # flagships.yaml `hosts: [<url>, ...]`: hosts the row's buildable items
+    # need. `--venture` probes them each run, because a prose "X answers 403"
+    # or "X serves files" note goes stale between sessions (13 reports in 4
+    # friction_rank clusters on this file, 2026-11-13..15: raw.pixls.us and
+    # archive.org each read both ways within a day).
+    flagship_hosts: list = field(default_factory=list)
 
     @property
     def flagship(self) -> bool:
@@ -222,7 +228,13 @@ def _load_yaml(path: Path) -> dict:
                   "Another interpreter is ~15x faster, e.g. /usr/bin/python3.13 or a venv with "
                   "`pip install pyyaml`.)", file=sys.stderr)
         loader = yaml.SafeLoader
-    return yaml.load(path.read_text(), Loader=loader) or {}
+    text = _FLAGSHIPS_TEXT if _FLAGSHIPS_TEXT is not None and path == FLAGSHIPS_PATH else path.read_text()
+    return yaml.load(text, Loader=loader) or {}
+
+
+# portfolio/flagships.yaml as origin/main has it, when that is newer than this checkout's copy
+# (use_main_flagships). None means read the file.
+_FLAGSHIPS_TEXT: Optional[str] = None
 
 
 def count_portfolio_mentions(
@@ -319,6 +331,108 @@ def load_flagship_field(field: str, path: Path = FLAGSHIPS_PATH) -> dict[str, st
     }
 
 
+def load_flagship_hosts(path: Path = FLAGSHIPS_PATH) -> dict[str, list[str]]:
+    """{venture: [url, ...]} for flagships that set `hosts:` (a list, or URLs separated by spaces)."""
+    if not path.is_file():
+        return {}
+    out: dict[str, list[str]] = {}
+    for e in _load_yaml(path).get("flagships") or []:
+        if isinstance(e, dict) and e.get("venture") and e.get("hosts"):
+            raw = e["hosts"]
+            out[e["venture"]] = [str(h).strip() for h in (raw if isinstance(raw, list) else str(raw).split()) if str(h).strip()]
+    return out
+
+
+# Host names written into a row's prose (`buildable:`/`next:`) are probed too,
+# so a row that names a host without listing it in `hosts:` still gets a reading.
+# Only real TLDs, so file names (README.md, calc.mjs, flagships.yaml) never match.
+_HOST_RE = re.compile(
+    r"(?<![\w./@-])((?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+"
+    r"(?:org|com|net|gov|edu|io|int|eu|uk|de|fr|it|es|nl|us|ca|au|ch|mx|br|pl|pt|ro|hr|app|dev|info))(?![\w-])",
+    re.I,
+)
+
+
+# Scripts a `buildable:` names (eval/cord_images.py, eval/srd-fetch.mjs) are
+# read for the hosts they fetch from. ai-bookkeeper's row named its CORD fetch
+# script but no host, so a session learned huggingface.co was refused only when
+# the fetch failed (2 doc-friction reports, 2026-11-17).
+_SCRIPT_RE = re.compile(r"(?<![\w/.-])((?:[\w.-]+/)*[\w.-]+\.(?:py|mjs|js|sh))(?![\w-])")
+_URL_RE = re.compile(r"https?://([a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+)", re.I)
+SCRIPT_HOSTS_MAX = 4
+_NOT_FETCHED = ("localhost", "example.com", "example.org", "opensource.org", "creativecommons.org",
+                "spdx.org", "www.w3.org", "doi.org", "schema.org")
+
+
+def script_hosts(text: str, root: Path) -> list[str]:
+    """Host names fetched by the scripts `text` names that exist under `root`.
+
+    Comments count: cord_images.py names its download URL in its usage
+    comment. Licence and reference hosts (_NOT_FETCHED) are skipped, and at
+    most SCRIPT_HOSTS_MAX are returned so a probe stays a few seconds."""
+    out: list[str] = []
+    for m in _SCRIPT_RE.finditer(text):
+        path = root / m.group(1)
+        try:
+            if not path.is_file() or not path.resolve().is_relative_to(root.resolve()):
+                continue
+            lines = path.read_text(errors="replace").splitlines()
+        except OSError:
+            continue
+        for line in lines:
+            for u in _URL_RE.finditer(line):
+                name = u.group(1).lower()
+                if name not in out and not any(name == h or name.endswith("." + h) for h in _NOT_FETCHED):
+                    out.append(name)
+    return out[:SCRIPT_HOSTS_MAX]
+
+
+def row_hosts(v: "Venture", ventures_dir: Path = VENTURES_DIR) -> list[str]:
+    """Hosts to probe for flagship `v`: its `hosts:` URLs, then host names its
+    prose names, then hosts the scripts its `buildable:` names fetch from."""
+    seen: dict[str, str] = {}
+    for url in v.flagship_hosts:
+        name = re.sub(r"^[a-z]+://", "", url, flags=re.I).split("/", 1)[0].lower()
+        seen.setdefault(name, url if "://" in url else "https://" + url)
+    for text in (v.flagship_buildable or "", v.flagship_next or ""):
+        for m in _HOST_RE.finditer(text):
+            name = m.group(1).lower()
+            seen.setdefault(name, "https://" + name + "/")
+    for name in script_hosts(v.flagship_buildable or "", ventures_dir / v.name):
+        seen.setdefault(name, "https://" + name + "/")
+    return list(seen.values())
+
+
+def host_answers(url: str, timeout: float = 6, tries: int = 2) -> bool:
+    """True when `url` answers at all (any HTTP status, a 403 from the host included);
+    False when the connection or the egress proxy's CONNECT fails every try.
+    Same test as research/_shared/pick_track.py's, which the research HOSTS files use."""
+    import urllib.error
+    import urllib.request
+    for _ in range(tries):
+        try:
+            urllib.request.urlopen(urllib.request.Request(url, method="HEAD"), timeout=timeout).close()
+            return True
+        except urllib.error.HTTPError:
+            return True
+        except Exception:
+            pass
+    return False
+
+
+def hosts_line(urls: list[str], answers=host_answers) -> str:
+    """One line saying which of `urls` answer from this session right now."""
+    if not urls:
+        return ""
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=min(8, len(urls))) as ex:
+        ok = list(ex.map(answers, urls))
+    parts = [re.sub(r"^[a-z]+://", "", u, flags=re.I).rstrip("/") + (" answers" if a else " REFUSED")
+             for u, a in zip(urls, ok)]
+    return ("hosts, probed just now (trust this over any 'answers 403' or 'serves files' note "
+            "in the row; reachability changes between sessions): " + "; ".join(parts))
+
+
 def load_inputs_only(path: Path = FLAGSHIPS_PATH) -> dict[str, str]:
     """{venture: what is missing} for flagships marked `inputs_only:`."""
     return load_flagship_field("inputs_only", path)
@@ -335,6 +449,7 @@ def load_ventures(
     flagships = load_flagships(flagships_path)
     inputs_only = load_inputs_only(flagships_path)
     buildable = load_flagship_field("buildable", flagships_path)
+    hosts = load_flagship_hosts(flagships_path)
     venture_dirs = sorted(p for p in ventures_dir.iterdir() if p.is_dir())
     names = []
     parsed = []
@@ -374,6 +489,7 @@ def load_ventures(
                 flagship_next=flag_next,
                 flagship_inputs_only=inputs_only.get(name) if flag_rank is not None else None,
                 flagship_buildable=buildable.get(name) if flag_rank is not None else None,
+                flagship_hosts=hosts.get(name, []) if flag_rank is not None else [],
             )
         )
     return ventures
@@ -479,12 +595,29 @@ MAINTAIN_TASK = (
 
 NO_HYPOTHESIS_PREFIX = "Explore: no hypothesis recorded"
 NO_HYPOTHESIS_ROWS = 3
+AWAITING_PREFIX = "Explore (awaiting visitors"
+# Rows whose task is the same advice for every member print only their first few;
+# the rest fold into one count line (`--all` or `--json` lists them). On
+# 2026-11-18 the 661 Maintain-only and 665 awaiting-visitors rows were 545 KB of
+# the table's 578 KB, so a plain `allocate.py` overran the tool output cap and a
+# session saw the start-here lines plus a truncated wall of calculators.
+FOLDED_ROWS = (
+    (NO_HYPOTHESIS_PREFIX, NO_HYPOTHESIS_ROWS,
+     "more ventures with no hypothesis recorded (identical task)"),
+    (AWAITING_PREFIX, 5,
+     "more ventures awaiting visitors (each needs distribution or a usage reading, not features)"),
+    ("Maintain only", 3,
+     "more calculators on Maintain only (fix if broken, otherwise no new work)"),
+)
 FLAGSHIP_NEXT_CHARS = 500
 # validate.py's FLAGSHIP_NEXT_MAX (test_allocate pins the two together). The
 # task line prints the current length against it: nothing a flagship run read
 # named the cap, and runs that appended to a full `next:` learned it from CI
 # (three run records on 2026-11-13).
 FLAGSHIP_NEXT_MAX = 2000
+# validate.py's FLAGSHIP_BUILDABLE_MAX, pinned the same way: a run's first
+# `buildable:` edit failed on the unstated cap (run record, 2026-11-16).
+FLAGSHIP_BUILDABLE_MAX = 600
 
 
 def next_budget(v: "Venture") -> str:
@@ -508,13 +641,25 @@ def next_task(v: Venture) -> str:
                 f"outside input ({v.flagship_inputs_only}). Take it only if you hold one; "
                 "otherwise take a Deepen row above. Full list: portfolio/flagships.yaml."
             )
+        # A slice taken from `buildable:` is rewritten there, not in `next:`;
+        # saying only `next:` cost a run a retry (run records, 2026-11-14 and -16).
+        buildable_edit = ""
         if v.flagship_buildable:
             milestone = f"BUILDABLE HERE: {v.flagship_buildable} -- Context: {milestone}"
+            buildable_edit = (
+                " If you landed a BUILDABLE HERE item, rewrite it in `buildable:` instead "
+                f"(same tool with `--field buildable`, capped at {FLAGSHIP_BUILDABLE_MAX} characters; "
+                "drop the field when nothing buildable is left)."
+            )
         return (
             f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
             "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml "
             f"(now {next_budget(v)}, validate.py's cap: replace what you landed, don't append; "
-            f"`portfolio/router/flagship_field.py {v.name} --replace OLD NEW` edits it across line breaks)."
+            f"`portfolio/router/flagship_field.py {v.name} --replace OLD NEW` edits it across line breaks; "
+            "an edit that would pass the cap parks open items from the end of the row to the "
+            "venture's NEXT.md by itself, just enough to fit, and says what it moved; `--dry-run` "
+            "previews it, `--park ITEM` chooses which, `--no-make-room` refuses instead)."
+            + buildable_edit
         )
     if not v.measured:
         claim = v.untested_hypothesis
@@ -687,6 +832,73 @@ def deepen_to_window(days: int) -> bool:
         return False
 
 
+def refresh_tip(cwd: Path = REPO_ROOT, run=subprocess.run) -> bool:
+    """Fetch main when origin/main is not the remote's tip; True when it fetched.
+
+    Why: the flagship rows were read from the clone, and a clone is minutes to
+    hours old. Four sessions on 2026-11-16/17 claimed a `next:`/`buildable:`
+    item that had merged 1 to 2 minutes earlier (#16518, #16883, #17063 and a
+    service-charge item; doc_friction on this file): the table's open-PR column
+    is read live, the row text was not. ls-remote costs under a second, and the
+    fetch only the commits since the clone."""
+    def git(*args, timeout=20):
+        return run(["git", *args], capture_output=True, text=True, timeout=timeout, cwd=cwd)
+    try:
+        remote = git("ls-remote", "origin", "refs/heads/main").stdout.split()
+        local = git("rev-parse", "-q", "--verify", "origin/main").stdout.strip()
+        if not remote or remote[0] == local:
+            return False
+        return _shallow_fetch(["-q", "origin", "main"], cwd=cwd, timeout=FETCH_TIMEOUT_S).returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
+FLAGSHIPS_REL = "portfolio/flagships.yaml"
+
+
+def main_flagships(cwd: Path = REPO_ROOT, run=subprocess.run) -> tuple[Optional[str], str]:
+    """(origin/main's flagships.yaml text, note) when it is newer than this checkout's copy
+    and the session has not edited the file itself; (None, note) when the rows shown are
+    local though main's differ (the note says so); (None, "") when they agree.
+
+    A session that edits the file (a claim, a parked item) keeps its own copy: its PR
+    resolves the difference when it merges main."""
+    def git(*args):
+        done = run(["git", *args], capture_output=True, text=True, timeout=20, cwd=cwd)
+        return done.stdout if done.returncode == 0 else None
+    try:
+        theirs = git("show", f"origin/main:{FLAGSHIPS_REL}")
+        if theirs is None:
+            return None, ""
+        work = (Path(cwd) / FLAGSHIPS_REL)
+        mine = work.read_text() if work.is_file() else None
+        if mine == theirs:
+            return None, ""
+        stale = ("(portfolio/flagships.yaml differs on origin/main and this checkout {why}, so the rows "
+                 "below are this checkout's: `git merge origin/main` before taking an item.)")
+        if mine != git("show", f"HEAD:{FLAGSHIPS_REL}"):
+            return None, stale.format(why="has uncommitted edits to it")
+        base = (git("merge-base", "HEAD", "origin/main") or "").strip()
+        if not base or git("show", f"{base}:{FLAGSHIPS_REL}") != mine:
+            return None, stale.format(why="changed it too (or the shared base is outside this shallow clone)")
+        newer = (git("log", "--format=%s", f"{base}..origin/main", "--", FLAGSHIPS_REL) or "").splitlines()
+        latest = f"; newest: {newer[0][:120]}" if newer else ""
+        return theirs, (f"(flagship rows read from origin/main: {len(newer)} commit(s) to "
+                        f"portfolio/flagships.yaml landed after this checkout{latest})")
+    except (OSError, subprocess.SubprocessError, UnicodeDecodeError):
+        return None, ""
+
+
+def use_main_flagships(cwd: Path = REPO_ROOT) -> None:
+    """Refresh origin/main and read flagship rows from it when it is newer (main_flagships)."""
+    global _FLAGSHIPS_TEXT
+    refresh_tip(cwd)
+    text, note = main_flagships(cwd)
+    _FLAGSHIPS_TEXT = text
+    if note:
+        print(note, file=sys.stderr)
+
+
 def recent_commits(days: int = 7, deepen: bool = True) -> dict[str, int]:
     """Commits in the last `days` days touching each ventures/<slug>/.
 
@@ -732,14 +944,36 @@ OPEN_PR_TIMEOUT_S = 20
 OPEN_PR_TITLE_CHARS = 70
 
 
-def open_pr_titles(timeout: int = OPEN_PR_TIMEOUT_S) -> Optional[list[tuple[int, str, str]]]:
+def open_pr_titles(timeout: int = OPEN_PR_TIMEOUT_S, pulls=None) -> Optional[list[tuple[int, str, str]]]:
     """Open same-repo PRs as (number, title, created_at), or None if unreadable.
 
-    Display-only. Concurrent sessions kept taking the same top row because the
-    table did not show that an open PR already worked it (run-record
-    doc_friction on this file, 2026-11-10/11: #14628, #14678 and rows 3-5
-    found only by searching by hand). One `gh api` search call; `gh` is
-    unauthenticated in cloud sessions but search works there (CLAUDE.md)."""
+    Concurrent sessions kept taking the same top row because the table did
+    not show that an open PR already worked it (run-record doc_friction on
+    this file, 2026-11-10/11: #14628, #14678 and rows 3-5 found only by
+    searching by hand).
+
+    Read from the REST pulls list, as claim_check.py and pick_track.py do,
+    and only then from the search index: the index can lag a new PR by
+    minutes, and the claim that matters here is the one opened minutes ago.
+    On 2026-11-15 'Start here' sent sessions to shift-roster-builder and
+    league-schedule-generator while #16190 (10 min old) and #16173 (15 min
+    old) held them, both titled with the slug; the table listed only an
+    older PR for the first, so the reader had not seen the new one. Fork PRs
+    are not claims (claim_check.decide drops them too)."""
+    batch = (pulls or open_prs)()
+    if batch is not None:
+        rows = []
+        for p in batch:
+            head_repo = ((p.get("head") or {}).get("repo") or {}).get("full_name") or ""
+            if head_repo.lower() != REPO.lower():
+                continue
+            rows.append((int(p["number"]), str(p.get("title", "")), str(p.get("created_at", ""))))
+        return rows
+    return _search_pr_titles(timeout)
+
+
+def _search_pr_titles(timeout: int = OPEN_PR_TIMEOUT_S) -> Optional[list[tuple[int, str, str]]]:
+    """The fallback: one `gh api` search call (unauthenticated works in cloud sessions)."""
     try:
         remote = subprocess.run(
             ["git", "remote", "get-url", "origin"], capture_output=True, text=True,
@@ -769,6 +1003,41 @@ def open_pr_titles(timeout: int = OPEN_PR_TIMEOUT_S) -> Optional[list[tuple[int,
             continue
         rows.append((int(num), str(title), str(created)))
     return rows
+
+
+LANDED_SUBJECT = re.compile(r"\(#(\d+)\)\s*$|^Merge pull request #(\d+)\b")
+
+
+def main_subjects(n: int = 1000) -> list[str]:
+    """Subjects of the last `n` commits on origin/main (HEAD if that ref is missing); [] on errors."""
+    for ref in ("origin/main", "HEAD"):
+        try:
+            out = subprocess.run(["git", "log", ref, "-n", str(n), "--format=%s"], capture_output=True,
+                                 text=True, timeout=20, cwd=REPO_ROOT)
+        except (OSError, subprocess.SubprocessError):
+            return []
+        if out.returncode == 0:
+            return out.stdout.splitlines()
+    return []
+
+
+def drop_landed(prs: Optional[list[tuple[int, str, str]]],
+                subjects=None) -> Optional[list[tuple[int, str, str]]]:
+    """`prs` without the ones whose squash ("... (#N)") or merge commit is already on main.
+
+    The table listed #16521 as "OPEN PR (20h old): extend it or pick a different item"
+    while its content sat on main as f693694a1 (run-record doc_friction on this file,
+    2026-11-17): a squash-merged PR left open by hand, or one GitHub had not closed
+    yet, still scared runs off its row. pick_track.landed_on_main does the same for
+    research's LAND FIRST list."""
+    if not prs:
+        return prs
+    landed = set()
+    for subject in (main_subjects() if subjects is None else subjects):
+        m = LANDED_SUBJECT.search(subject)
+        if m:
+            landed.add(int(m.group(1) or m.group(2)))
+    return [pr for pr in prs if pr[0] not in landed]
 
 
 def claims_by_venture(names, prs: list[tuple[int, str, str]]) -> dict[str, list[tuple[int, str, str]]]:
@@ -842,6 +1111,162 @@ def start_here(queue: list[dict], claims: Optional[dict[str, list]],
     return free[int(hashlib.sha256(session.encode()).hexdigest(), 16) % len(free)]
 
 
+def least_claimed(queue: list[dict], claims: Optional[dict[str, list]],
+                  now: Optional[datetime] = None, session: Optional[str] = None,
+                  spread: int = START_SPREAD) -> Optional[tuple[int, str, int, float]]:
+    """(row, venture, newest PR number, its age in hours) for when every Deepen
+    row has a fresh claim, else None.
+
+    Why: start_here names nothing once each Deepen row has a PR younger than
+    CLAIM_FRESH_HOURS, and with ~16 sessions an hour that is the usual state
+    by mid-day. Three sessions between 11:12 and 11:26 UTC on 2026-11-17 found
+    rows 1-8 all holding a 0-5 h old PR and read each PR's file list to find
+    an item nobody had taken (doc_friction on this file). A claim is one item,
+    not the whole row (claim_recipe names the item), so the row whose newest
+    claim is oldest is the least contested. Picked among the `spread` least
+    contested rows by session id, as start_here does."""
+    if claims is None:
+        return None
+    now = now or datetime.now(timezone.utc)
+    rows = []
+    for i, item in enumerate(queue, 1):
+        if not (item["flagship"] and item["task"].startswith("Deepen")):
+            continue
+        hits = claims.get(item["venture"], [])
+        ages = [(_age_hours(created, now), num) for num, _, created in hits]
+        fresh = [a for a in ages if a[0] < CLAIM_FRESH_HOURS]
+        if not fresh:
+            return None  # a free row exists: start_here names it
+        age, num = min(fresh)
+        rows.append((-age, i, item["venture"], num, age))
+    if not rows:
+        return None
+    rows.sort()
+    rows = rows[:spread]
+    pick = rows[0] if session is None else \
+        rows[int(hashlib.sha256(session.encode()).hexdigest(), 16) % len(rows)]
+    return pick[1], pick[2], pick[3], pick[4]
+
+
+RUNS_DIR = REPO_ROOT / "prompts" / "runs"
+LEFT_WINDOW_DAYS = 2
+# A deviation about a claim race says the row was taken, not that it was empty.
+_COLLISION = re.compile(r"claim|YIELD|(?:seconds?|minutes?) earlier|same (?:second|minute)"
+                        r"|opened .{0,40}earlier|open PR|already", re.I)
+
+
+def left_rows(names, runs_dir: Path = RUNS_DIR, now: Optional[datetime] = None,
+              days: int = LEFT_WINDOW_DAYS) -> dict[str, list[tuple[str, str, str]]]:
+    """{flagship: [(date, row taken instead, why)]} from recent run records.
+
+    Why: 'Start here' keeps sending sessions to rows that earlier sessions
+    found nothing buildable on, and each one re-reads the full `next:` to
+    learn it. Run records' deviations say so (14 such departures from
+    2026-11-15 to 11-17, 4 from shift-roster-builder, 6 from ai-bookkeeper;
+    three doc-friction reports on this file on 2026-11-17). The same rows
+    were also worked successfully 12 to 21 times in two days, so this is a
+    hint printed with the pick, not a demotion.
+
+    A departure is a deviation filed against allocate.py or a ventures
+    prompt whose `why` names a flagship first that the record's `projects`
+    does not include (the first name is the row it was sent to); claim races (claimed, YIELD, opened earlier) are
+    skipped. Loose text matching: good enough for a hint, not for ranking."""
+    now = now or datetime.now(timezone.utc)
+    cutoff = (now - timedelta(days=days - 1)).date().isoformat()  # today and yesterday
+    names = list(names)
+    out: dict[str, list[tuple[str, str, str]]] = {}
+    for path in sorted(runs_dir.glob("*.json")):
+        date = path.name[:10]
+        if date < cutoff:
+            continue
+        try:
+            rec = json.loads(path.read_text())
+        except (OSError, ValueError):
+            continue
+        if not isinstance(rec, dict):
+            continue
+        projects = json.dumps(rec.get("projects"))
+        for dev in rec.get("deviations") or []:
+            if not isinstance(dev, dict):
+                continue
+            if not re.search(r"allocate|ventures/prompt", str(dev.get("file", ""))):
+                continue
+            why = str(dev.get("why", ""))
+            if _COLLISION.search(why):
+                continue
+            named = sorted((why.find(n), n) for n in names if n in why)
+            if not named or named[0][1] in projects:
+                continue  # names no flagship, or the session worked the row it names first
+            took = next((n for n in names if n in projects), "a non-flagship")
+            out.setdefault(named[0][1], []).append((date, took, why))
+    return out
+
+
+def worked_rows(names, runs_dir: Path = RUNS_DIR, now: Optional[datetime] = None,
+                days: int = LEFT_WINDOW_DAYS) -> dict[str, int]:
+    """{flagship: run records in the same window whose `projects` names it}.
+
+    Why: a leave count alone read as "this row is empty". On 2026-11-17
+    chant-forge showed 11 departures in three days while 39 records in the
+    same days worked it, and a run that took its buildable item reported the
+    note "overstates how little is buildable here" (doc_friction on this
+    file). The worked count puts the leaves in proportion."""
+    now = now or datetime.now(timezone.utc)
+    cutoff = (now - timedelta(days=days - 1)).date().isoformat()
+    names = list(names)
+    out: dict[str, int] = {}
+    for path in sorted(runs_dir.glob("*.json")):
+        if path.name[:10] < cutoff:
+            continue
+        try:
+            rec = json.loads(path.read_text())
+        except (OSError, ValueError):
+            continue
+        if not isinstance(rec, dict):
+            continue
+        projects = json.dumps(rec.get("projects"))
+        for n in names:
+            if n in projects:
+                out[n] = out.get(n, 0) + 1
+    return out
+
+
+def left_note(name: str, left: dict[str, list[tuple[str, str, str]]],
+              days: int = LEFT_WINDOW_DAYS, worked: Optional[int] = None,
+              has_buildable: bool = False) -> Optional[str]:
+    """One line saying how many recent sessions left this row and for what.
+
+    With `worked` (worked_rows) it also says how many worked the row, and the
+    advice follows the balance: mostly worked means check the reason, not
+    leave on the count; mostly left means mark the row. A row that already
+    has `buildable:` is told to refresh that list, not to add one (a
+    2026-11-17 report: the advice to add buildable: misfired on such a row)."""
+    hits = left.get(name) or []
+    if not hits:
+        return None
+    took: dict[str, int] = {}
+    for _, t, _ in hits:
+        took[t] = took.get(t, 0) + 1
+    where = ", ".join(f"{t} ({n})" for t, n in sorted(took.items(), key=lambda kv: -kv[1]))
+    latest = sorted(hits)[-1][2]
+    if len(latest) > 220:
+        latest = latest[:217].rstrip() + "..."
+    counted = ""
+    if worked is not None:
+        counted = f" In the same days {worked} record(s) worked {name}."
+    mark = ("refresh its `buildable:` list (it may name only items that are done or not worth doing) "
+            "or add `inputs_only:`" if has_buildable else "add `buildable:` or `inputs_only:` to the row")
+    if worked is not None and worked > len(hits):
+        advice = ("Most sessions sent here found work, so check that reason against the row "
+                  f"before leaving; if it holds, {mark} so the next pick knows.")
+    else:
+        advice = (f"Check that reason still holds before reading the whole row; if it does, {mark} "
+                  "so the next pick knows.")
+    return (f"Left recently: {len(hits)} session(s) sent to {name} in the last {days} days (record dates) "
+            f"took another row instead (prompts/runs deviations): {where}.{counted} Latest why: "
+            f"\"{latest}\" {advice}")
+
+
 def claim_note(hits: list[tuple[int, str, str]], now: Optional[datetime] = None) -> str:
     """A prefix for the task column naming the open PRs on this venture.
 
@@ -909,14 +1334,17 @@ def last_landed(name: str, boundary: Optional[set[str]] = None) -> Optional[str]
 def venture_report(name: str, ventures: list[Venture],
                    claims: Optional[dict[str, list]] = None,
                    landed: Optional[str] = None,
-                   now: Optional[datetime] = None) -> Optional[str]:
+                   now: Optional[datetime] = None,
+                   probe=None, left: Optional[dict] = None,
+                   worked: Optional[dict[str, int]] = None) -> Optional[str]:
     """One venture's row in full: rank, task with the untruncated flagship
     `next:`, open PRs with their ages and when work last landed.
 
     The table cuts each flagship's `next:` at FLAGSHIP_NEXT_CHARS, so runs
     grepped flagships.yaml for the rest, and `grep 'slug: <name>'` misses
     because the key is `venture:` (run-record doc_friction on this file,
-    2026-11-11). None when `name` is not a venture."""
+    2026-11-11). `probe(url) -> bool`, when given, is asked about each host
+    the row needs (`row_hosts`). None when `name` is not a venture."""
     now = now or datetime.now(timezone.utc)
     ranked = rank(ventures)
     pos = next((i for i, v in enumerate(ranked) if v.name == name), None)
@@ -930,11 +1358,20 @@ def venture_report(name: str, ventures: list[Venture],
                      + (f", inputs only: {v.flagship_inputs_only}" if v.flagship_inputs_only else ""))
         if v.flagship_buildable:
             lines.append("buildable here: " + v.flagship_buildable)
+        if probe is not None:
+            line = hosts_line(row_hosts(v), probe)
+            if line:
+                lines.append(line)
         lines.append(f"next: ({next_budget(v)}; portfolio/router/validate.py fails a longer one, "
                      "so replace the item you land rather than appending)")
         lines.append(v.flagship_next or "(none written)")
     else:
         lines.append("task: " + next_task(v))
+    if v.flagship and left is not None:
+        note = left_note(v.name, left, worked=None if worked is None else worked.get(v.name, 0),
+                         has_buildable=bool(v.flagship_buildable))
+        if note:
+            lines.append(note)
     if landed:
         try:
             age_h = (now - datetime.fromisoformat(landed)).total_seconds() / 3600
@@ -991,9 +1428,20 @@ def requests_line(queue: list[dict], path: Path = REQUESTS_PATH) -> str:
     return " ".join(parts)
 
 
+def folded_kind(task: str) -> Optional[int]:
+    """Index into FOLDED_ROWS for a task whose advice is shared by its whole
+    class, or None. Claim notes ("OPEN PR ...", "[older open PRs ...]") come
+    before the task in the printed row, not in `task`, so they do not hide it."""
+    for k, (prefix, _, _) in enumerate(FOLDED_ROWS):
+        if task.startswith(prefix):
+            return k
+    return None
+
+
 def print_table(ventures: list[Venture], queue: list[dict],
                 recent: Optional[dict[str, int]] = None,
-                claims: Optional[dict[str, list]] = None) -> None:
+                claims: Optional[dict[str, list]] = None,
+                show_all: bool = False) -> None:
     later_cap = sum(v.monthly_cap for v in ventures if v.later_stage)
     early_cap = sum(v.monthly_cap for v in ventures if not v.later_stage)
     total_cap = later_cap + early_cap
@@ -1040,7 +1488,7 @@ def print_table(ventures: list[Venture], queue: list[dict],
         print(
             f"Start here: row {first[0]}, {first[1]} ({how} with no PR "
             f"opened in the last {CLAIM_FRESH_HOURS} h; `allocate.py --venture {first[1]}` "
-            "prints its full `next:`; a BUILDABLE HERE note says what a session can do with "
+            "prints its full `next:` and probes the hosts it needs; a BUILDABLE HERE note says what a session can do with "
             "no outside input; if every item needs a key, account, person or blocked host, add "
             "`inputs_only:` to its portfolio/flagships.yaml row in your PR and take the next "
             "row, so later runs are not sent there). Open your draft PR with the slug in its title "
@@ -1048,7 +1496,27 @@ def print_table(ventures: list[Venture], queue: list[dict],
             f"`python3 portfolio/router/claim_check.py {first[1]}`: two sessions that opened "
             "in the same minute both see this row free, and the PR opened first keeps it."
         )
+        flag_names = [i["venture"] for i in queue if i["flagship"]]
+        note = left_note(first[1], left_rows(flag_names),
+                         worked=worked_rows(flag_names).get(first[1], 0),
+                         has_buildable=first[1] in load_flagship_field("buildable"))
+        if note:
+            print(note)
         print(claim_recipe(first[1]))
+    else:
+        busy = least_claimed(queue, claims, session=sid)
+        if busy:
+            row, name, num, age = busy
+            print(
+                f"Start here: row {row}, {name}. Every Deepen flagship has a PR opened in the last "
+                f"{CLAIM_FRESH_HOURS} h, so this is "
+                + ("one of the least contested (picked by this session's id): " if sid else "the least contested: ")
+                + f"its newest is #{num}, {age:.0f} h old. A claim covers one item, not the row: "
+                f"take a `buildable:`/`next:` item that no open {name} PR title names "
+                f"(`allocate.py --venture {name}`), and check it with "
+                f"`python3 portfolio/router/claim_check.py {name} --item \"<item>\"`."
+            )
+            print(claim_recipe(name))
     print()
     print(
         f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}{'merit':>7}"
@@ -1056,13 +1524,14 @@ def print_table(ventures: list[Venture], queue: list[dict],
     )
     if recent is None:
         recent = recent_commits()
-    empty_shown = 0
-    empty_hidden = 0
+    shown = [0] * len(FOLDED_ROWS)
+    hidden = [0] * len(FOLDED_ROWS)
     for i, item in enumerate(queue, 1):
-        if item["task"].startswith(NO_HYPOTHESIS_PREFIX):
-            empty_shown += 1
-            if empty_shown > NO_HYPOTHESIS_ROWS:
-                empty_hidden += 1
+        kind = folded_kind(item["task"]) if not show_all else None
+        if kind is not None:
+            shown[kind] += 1
+            if shown[kind] > FOLDED_ROWS[kind][1]:
+                hidden[kind] += 1
                 continue
         merit = f"{item['merit']:.2f}" if item["merit"] is not None else "-"
         print(
@@ -1074,11 +1543,9 @@ def print_table(ventures: list[Venture], queue: list[dict],
             f"{claim_note(claims[item['venture']]) if claims and item['venture'] in claims else ''}"
             f"{item['task']}"
         )
-    if empty_hidden:
-        print(
-            f"... and {empty_hidden} more ventures with no hypothesis recorded "
-            f"(identical task; `--json` lists them all)."
-        )
+    for (_, _, label), n in zip(FOLDED_ROWS, hidden):
+        if n:
+            print(f"... and {n} {label}; `--all` or `--json` lists them.")
 
     decisions = decisions_by_merit(ventures)
     if decisions:
@@ -1107,6 +1574,19 @@ def print_table(ventures: list[Venture], queue: list[dict],
         )
 
 
+def post_limits_line() -> str:
+    """The blog post front-matter caps, printed under the brief: most venture PRs
+    carry a post, and runs met the 160-character description cap only when CI or
+    the pre-push hook refused a first draft (friction_rank.py --live, 16 sessions
+    on 2026-11-12..15)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "platform" / "ci"))
+    try:
+        from check_post_frontmatter import limits_line
+    except ImportError:  # a sparse checkout without platform/ci
+        return "post front matter: python3 platform/ci/check_post_frontmatter.py --limits"
+    return "post " + limits_line()
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", action="store_true", help="emit the work queue as JSON instead of a table")
@@ -1119,10 +1599,17 @@ def main(argv: Optional[list[str]] = None) -> int:
                         help="skip the shallow-clone fetch; 7-day commit counts may be partial")
     parser.add_argument("--no-claims", action="store_true",
                         help="skip the open-PR lookup (one `gh api` search) that marks rows already being worked")
+    parser.add_argument("--no-probe", action="store_true",
+                        help="with --venture: skip probing the hosts the flagship row needs")
+    parser.add_argument("--all", action="store_true",
+                        help="print every table row (by default Maintain-only, awaiting-visitors "
+                             "and no-hypothesis rows fold into a count after their first few)")
     parser.add_argument("--venture", metavar="SLUG",
                         help="print one venture's row in full (untruncated flagship `next:`, open PRs, last landing)")
     args = parser.parse_args(argv)
 
+    if not args.no_deepen:
+        use_main_flagships()
     ventures = load_ventures()
     if not ventures:
         print("No ventures with a VENTURE.yaml found.", file=sys.stderr)
@@ -1138,22 +1625,26 @@ def main(argv: Optional[list[str]] = None) -> int:
     if args.venture:
         claims_one = None
         if not args.no_claims:
-            prs = open_pr_titles()
+            prs = drop_landed(open_pr_titles())
             if prs is not None:
                 claims_one = claims_by_venture([args.venture], prs)
         report = venture_report(args.venture, ventures, claims=claims_one,
-                                landed=last_landed(args.venture))
+                                landed=last_landed(args.venture),
+                                probe=None if args.no_probe else host_answers,
+                                left=left_rows(load_flagships()),
+                                worked=worked_rows(load_flagships()))
         if report is None:
             print(f"No venture named {args.venture!r} (ventures/<slug>/VENTURE.yaml).", file=sys.stderr)
             return 1
         print(report)
+        print(post_limits_line())
         return 0
 
     queue = work_queue(ventures)
 
     claims: Optional[dict[str, list]] = None
     if not args.no_claims:
-        prs = open_pr_titles()
+        prs = drop_landed(open_pr_titles())
         if prs is not None:
             claims = claims_by_venture([item["venture"] for item in queue], prs)
             for item in queue:
@@ -1164,7 +1655,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     else:
         if claims is None and not args.no_claims:
             print("(open PRs not read: `gh api` search failed; search PR titles before taking a row)")
-        print_table(ventures, queue, recent=recent, claims=claims)
+        print_table(ventures, queue, recent=recent, claims=claims, show_all=args.all)
+        print(post_limits_line())
     return 0
 
 

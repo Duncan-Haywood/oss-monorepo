@@ -29,7 +29,7 @@ export const RECEIPT_THRESHOLD_CENTS = 7500;
 
 export function toCents(v) {
   const s = String(v ?? "").trim();
-  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−]/.test(s);
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   const n = Number(s.replace(/[$,()\s-]/g, ""));
   if (!Number.isFinite(n) || n <= 0) return 0;
   return Math.round(n * 100) * (neg ? -1 : 1);
@@ -52,7 +52,7 @@ function validParts(y, m, d) {
 // "2026-03-04", "3/4/2026", "3/4/26", "03-04-2026" (month first). Returns ISO or null.
 export function parseDate(text) {
   const s = String(text ?? "").trim();
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/);
   if (m) return validParts(+m[1], +m[2], +m[3]);
   m = s.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2}|\d{4})$/);
   if (m) return validParts(m[3].length === 2 ? 2000 + +m[3] : +m[3], +m[1], +m[2]);
@@ -159,7 +159,7 @@ export function suggestCategory(text) {
 // Minimal RFC 4180 parser: quoted fields, doubled quotes, CRLF.
 export function parseCsv(text) {
   const rows = []; let row = [], f = "", q = false;
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (q) {
@@ -215,7 +215,7 @@ export function findDuplicates(existing, incoming) {
 
 const cell = (v) => {
   let s = String(v ?? "");
-  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 

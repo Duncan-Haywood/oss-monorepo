@@ -240,3 +240,12 @@ test("quantity breaks: a thousands comma is one quantity, not two (red team 2026
   assert.deepEqual(parseQtyList("12, 48, 144"), [12, 48, 144]);
   assert.ok(parseQtyList("1,000,2,000").some((q) => Number.isNaN(q)));
 });
+
+test("a quoted job name with a comma does not shift the columns (redteam 2026-11-17)", async () => {
+  const { parseJobs } = await import("./engine.mjs");
+  const r = parseJobs('"Team shirts, navy",24,4.5,8000,3,40');
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.jobs[0].name, "Team shirts, navy");
+  assert.equal(String(r.jobs[0].fields.quantity), "24");
+  assert.equal(String(r.jobs[0].fields.stitches), "8000");
+});

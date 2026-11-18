@@ -1,0 +1,456 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKmMRkNpZrXdD1mYhYj",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T17:18:27Z",
+  "ended": "2026-11-15T17:19:04Z",
+  "wall_minutes": 6.83,
+  "tokens_in": 2735399,
+  "tokens_out": 23089,
+  "cost_usd": 1.6053,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16288",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`redteam.py targets --probe 20` probes every target serially and ran past the 120 s tool limit; timing one candidate suite by hand (node --test, <1 s) was faster."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "rerun reports \"line changed\" when the real-defect fix rewrites a mutated line (2 of 5 gaps here); the prompt covers it, but a rerun option to apply a mutant by before/after substring on the current file would save the hand step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b (leave an automated guard): no cross-venture class emerged; the defect is specific to one keyword-negation heuristic.",
+      "did": "Guarded the instance with 7 tests instead of adding a lint.",
+      "result": "All 5 gaps and 3 defects covered; no new CI check."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-tender-checker-read-a-required-bond-as-waived.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: 8 open defects, all control-plane, still unpatched on main (grep confirmed); left for owner-approved PRs. Campaigns: ucr-fee-calculator/calc.mjs 9/10 (1 equivalent), tender-bid-readiness/check.mjs 5/10 (5 gaps, all caught after fix). run_venture_tests.py tender-bid-readiness: 29 tests ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ucr-fee-calculator/calc.mjs",
+        "test": "node --test ventures/ucr-fee-calculator/**/*.test.mjs  (in .)",
+        "seed": 970473188,
+        "commit": "de5bf5618",
+        "sites": 71,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 11,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "const round2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;",
+            "after": "const round2 = (x) => Math.round((x + Number.EPSILON) * 101) / 100;",
+            "line_text": "const round2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 19,
+            "col": 67,
+            "operator": "const-plus-one",
+            "before": "const m = /^(\\d+)\\s*(?:-\\s*(\\d+)|(\\+))\\s*:\\s*\\$?(\\d{1,3}(?:,\\d{3})+(?:\\.\\d+)?|\\d+(?:\\.\\d+)?)$/.exec(line);",
+            "after": "const m = /^(\\d+)\\s*(?:-\\s*(\\d+)|(\\+))\\s*:\\s*\\$?(\\d{1,3}(?:,\\d{4})+(?:\\.\\d+)?|\\d+(?:\\.\\d+)?)$/.exec(line);",
+            "line_text": "    const m = /^(\\d+)\\s*(?:-\\s*(\\d+)|(\\+))\\s*:\\s*\\$?(\\d{1,3}(?:,\\d{3})+(?:\\.\\d+)?|\\d+(?:\\.\\d+)?)$/.exec(line);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 28,
+            "col": 38,
+            "operator": "minus-to-plus",
+            "before": "if (brackets[i].min <= brackets[i - 1].max) errors.push(`Fee brackets ${span(brackets[i - 1])} and ${brackets[i].min}+ overlap.`);",
+            "after": "if (brackets[i].min <= brackets[i + 1].max) errors.push(`Fee brackets ${span(brackets[i - 1])} and ${brackets[i].min}+ overlap.`);",
+            "line_text": "    if (brackets[i].min <= brackets[i - 1].max) errors.push(`Fee brackets ${span(brackets[i - 1])} and ${brackets[i].min}+ overlap.`);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 31,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "const from = brackets[i - 1].max + 1;",
+            "after": "const from = brackets[i - 2].max + 1;",
+            "line_text": "    const from = brackets[i - 1].max + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 54,
+            "col": 31,
+            "operator": "or-to-and",
+            "before": "if (!p[0] || !(p[1] ?? \"\") || !Number.isInteger(n) || n < 0) return errors.push(`Line ${i + 1}: need \"name, number of vehicles, type\".`);",
+            "after": "if (!p[0] || !(p[1] ?? \"\") && !Number.isInteger(n) || n < 0) return errors.push(`Line ${i + 1}: need \"name, number of vehicles, type\".`);",
+            "line_text": "    if (!p[0] || !(p[1] ?? \"\") || !Number.isInteger(n) || n < 0) return errors.push(`Line ${i + 1}: need \"name, number of vehicles, type\".`);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 74,
+            "col": 84,
+            "operator": "const-plus-one",
+            "before": "if (!b) return { ...e, error: `No bracket covers ${effectiveN} vehicles.`, fee: 0 };",
+            "after": "if (!b) return { ...e, error: `No bracket covers ${effectiveN} vehicles.`, fee: 1 };",
+            "line_text": "    if (!b) return { ...e, error: `No bracket covers ${effectiveN} vehicles.`, fee: 0 };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "The fee on a row with no bracket is never shown: plan() returns {error} as soon as any row has an error (const bad = rows.find(r => r.error)), so 0 vs 1 cannot reach the page, the CSV or the total."
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 79,
+            "col": 41,
+            "operator": "div-to-times",
+            "before": "perVehicle: e.n > 0 ? round2(b.fee / e.n) : null,",
+            "after": "perVehicle: e.n > 0 ? round2(b.fee * e.n) : null,",
+            "line_text": "      perVehicle: e.n > 0 ? round2(b.fee / e.n) : null,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 80,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "toNext: !lowestOnly && next ? { at: next.min, extra: round2(next.fee - b.fee), headroom: b.max - e.n } : null,",
+            "after": "toNext: !lowestOnly || next ? { at: next.min, extra: round2(next.fee - b.fee), headroom: b.max - e.n } : null,",
+            "line_text": "      toNext: !lowestOnly && next ? { at: next.min, extra: round2(next.fee - b.fee), headroom: b.max - e.n } : null,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 90,
+            "col": 22,
+            "operator": "and-to-or",
+            "before": "else if (r.toNext && r.toNext.headroom === 0) advice.push(`${r.name}: at ${r.n} vehicles you are at the top of the ${r.bracket.min}-${r.bracket.max} bracket; adding one vehicle moves the fee up $${r.toNext.extra.toFixed(2)}.`);",
+            "after": "else if (r.toNext || r.toNext.headroom === 0) advice.push(`${r.name}: at ${r.n} vehicles you are at the top of the ${r.bracket.min}-${r.bracket.max} bracket; adding one vehicle moves the fee up $${r.toNext.extra.toFixed(2)}.`);",
+            "line_text": "    else if (r.toNext && r.toNext.headroom === 0) advice.push(`${r.name}: at ${r.n} vehicles you are at the top of the ${r.bracket.min}-${r.bracket.max} bracket; adding one vehicle moves the fee up $${r.toNext.extra.toFixed(2)}.`);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 90,
+            "col": 43,
+            "operator": "eq-flip",
+            "before": "else if (r.toNext && r.toNext.headroom === 0) advice.push(`${r.name}: at ${r.n} vehicles you are at the top of the ${r.bracket.min}-${r.bracket.max} bracket; adding one vehicle moves the fee up $${r.toNext.extra.toFixed(2)}.`);",
+            "after": "else if (r.toNext && r.toNext.headroom !== 0) advice.push(`${r.name}: at ${r.n} vehicles you are at the top of the ${r.bracket.min}-${r.bracket.max} bracket; adding one vehicle moves the fee up $${r.toNext.extra.toFixed(2)}.`);",
+            "line_text": "    else if (r.toNext && r.toNext.headroom === 0) advice.push(`${r.name}: at ${r.n} vehicles you are at the top of the ${r.bracket.min}-${r.bracket.max} bracket; adding one vehicle moves the fee up $${r.toNext.extra.toFixed(2)}.`);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/tender-bid-readiness/check.mjs",
+        "test": "node --test ventures/tender-bid-readiness/**/*.test.mjs  (in .)",
+        "seed": 1021192979,
+        "commit": "de5bf5618",
+        "sites": 20,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/tender-bid-readiness/check.mjs",
+            "line": 12,
+            "col": 97,
+            "operator": "const-plus-one",
+            "before": "['questions', /\\b(?:questions?|clarifications?|inquir(?:y|ies)|addend(?:um|a)|amendments?|SF\\s*30)\\b/i, 'Record the question deadline and check addenda'],",
+            "after": "['questions', /\\b(?:questions?|clarifications?|inquir(?:y|ies)|addend(?:um|a)|amendments?|SF\\s*31)\\b/i, 'Record the question deadline and check addenda'],",
+            "line_text": "  ['questions', /\\b(?:questions?|clarifications?|inquir(?:y|ies)|addend(?:um|a)|amendments?|SF\\s*30)\\b/i, 'Record the question deadline and check addenda'],",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test had SF 30 without \"amendment\" in the same sentence; added \"SF 30 alone counts as amendment wording\"."
+          },
+          {
+            "file": "ventures/tender-bid-readiness/check.mjs",
+            "line": 16,
+            "col": 107,
+            "operator": "const-plus-one",
+            "before": "const NEGATED = /\\b(?:not (?:be )?(?:required|mandatory|needed)|is waived|will not be held|no (?:\\w+\\s+){0,3}(?:will be|is) (?:held|required))\\b/i;",
+            "after": "const NEGATED = /\\b(?:not (?:be )?(?:required|mandatory|needed)|is waived|will not be held|no (?:\\w+\\s+){0,4}(?:will be|is) (?:held|required))\\b/i;",
+            "line_text": "const NEGATED = /\\b(?:not (?:be )?(?:required|mandatory|needed)|is waived|will not be held|no (?:\\w+\\s+){0,3}(?:will be|is) (?:held|required))\\b/i;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The {0,3} bound on the \"no ... will be held\" waiver was untested; added a 3-word waiver and a 4-word non-waiver. The NEGATED line was also rewritten by the real-defect fix ([\\w-]+, (?!\\s+to)), see caught_after_fix note. [rerun: line changed; triage by hand] rerun reported the line changed (the real-defect fix rewrote it); re-applied by hand on the new code ({0,3}->{0,4}; slice + -> -; 100 -> 101): check.test.mjs fails 1 test each time, file restored from a copy and suite green after."
+          },
+          {
+            "file": "ventures/tender-bid-readiness/check.mjs",
+            "line": 28,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": ": hits.find((h) => !NEGATED.test(h.sentence)) ?? hits[0];",
+            "after": ": hits.find((h) => !NEGATED.test(h.sentence)) ?? hits[1];",
+            "line_text": "    : hits.find((h) => !NEGATED.test(h.sentence)) ?? hits[0];",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/tender-bid-readiness/check.mjs",
+            "line": 29,
+            "col": 65,
+            "operator": "plus-to-minus",
+            "before": "return { evidence: hit.sentence.slice(hit.m.index, hit.m.index + hit.m[0].length + 100).trim(), negated: NEGATED.test(hit.sentence) };",
+            "after": "return { evidence: hit.sentence.slice(hit.m.index, hit.m.index - hit.m[0].length + 100).trim(), negated: NEGATED.test(hit.sentence) };",
+            "line_text": "  return { evidence: hit.sentence.slice(hit.m.index, hit.m.index + hit.m[0].length + 100).trim(), negated: NEGATED.test(hit.sentence) };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Evidence length (keyword + 100 chars) was untested beyond its start; added an exact-evidence test on a 150-char tail. [rerun: line changed; triage by hand] rerun reported the line changed (the real-defect fix rewrote it); re-applied by hand on the new code ({0,3}->{0,4}; slice + -> -; 100 -> 101): check.test.mjs fails 1 test each time, file restored from a copy and suite green after."
+          },
+          {
+            "file": "ventures/tender-bid-readiness/check.mjs",
+            "line": 29,
+            "col": 85,
+            "operator": "const-plus-one",
+            "before": "return { evidence: hit.sentence.slice(hit.m.index, hit.m.index + hit.m[0].length + 100).trim(), negated: NEGATED.test(hit.sentence) };",
+            "after": "return { evidence: hit.sentence.slice(hit.m.index, hit.m.index + hit.m[0].length + 101).trim(), negated: NEGATED.test(hit.sentence) };",
+            "line_text": "  return { evidence: hit.sentence.slice(hit.m.index, hit.m.index + hit.m[0].length + 100).trim(), negated: NEGATED.test(hit.sentence) };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Evidence length (keyword + 100 chars) was untested beyond its start; added an exact-evidence test on a 150-char tail. [rerun: line changed; triage by hand] rerun reported the line changed (the real-defect fix rewrote it); re-applied by hand on the new code ({0,3}->{0,4}; slice + -> -; 100 -> 101): check.test.mjs fails 1 test each time, file restored from a copy and suite green after."
+          },
+          {
+            "file": "ventures/tender-bid-readiness/check.mjs",
+            "line": 34,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "if (!source) return { score: 0, findings: [], warnings: ['Paste the solicitation text to begin.'] };",
+            "after": "if (!source) return { score: 1, findings: [], warnings: ['Paste the solicitation text to begin.'] };",
+            "line_text": "  if (!source) return { score: 0, findings: [], warnings: ['Paste the solicitation text to begin.'] };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/tender-bid-readiness/check.mjs",
+            "line": 39,
+            "col": 34,
+            "operator": "and-to-or",
+            "before": "const waived = Boolean(match) && key !== 'deadline' && match.negated;",
+            "after": "const waived = Boolean(match) || key !== 'deadline' && match.negated;",
+            "line_text": "    const waived = Boolean(match) && key !== 'deadline' && match.negated;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/tender-bid-readiness/check.mjs",
+            "line": 41,
+            "col": 22,
+            "operator": "false-to-true",
+            "before": "? { key, found: false, waived: true, evidence, action: `${action}. The text appears to say it is not required: confirm.` }",
+            "after": "? { key, found: true, waived: true, evidence, action: `${action}. The text appears to say it is not required: confirm.` }",
+            "line_text": "      ? { key, found: false, waived: true, evidence, action: `${action}. The text appears to say it is not required: confirm.` }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/tender-bid-readiness/check.mjs",
+            "line": 41,
+            "col": 37,
+            "operator": "true-to-false",
+            "before": "? { key, found: false, waived: true, evidence, action: `${action}. The text appears to say it is not required: confirm.` }",
+            "after": "? { key, found: false, waived: false, evidence, action: `${action}. The text appears to say it is not required: confirm.` }",
+            "line_text": "      ? { key, found: false, waived: true, evidence, action: `${action}. The text appears to say it is not required: confirm.` }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/tender-bid-readiness/check.mjs",
+            "line": 50,
+            "col": 12,
+            "operator": "lt-to-le",
+            "before": "found < rules.length ? `${rules.length - found} readiness signal(s) were not found in the pasted text.` : 'All common readiness signals were found; verify each one against the source.',",
+            "after": "found <= rules.length ? `${rules.length - found} readiness signal(s) were not found in the pasted text.` : 'All common readiness signals were found; verify each one against the source.',",
+            "line_text": "      found < rules.length ? `${rules.length - found} readiness signal(s) were not found in the pasted text.` : 'All common readiness signals were found; verify each one against the source.',",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Only the \"N not found\" branch of the warning was tested; added the all-found case."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/tender-bid-readiness/check.mjs",
+        "issue": "Waiver detection tested the whole sentence, so 'A 5% bid bond and proof of insurance are required, but a site visit is not required.' reported the bond and insurance as 'appears to say it is not required' (the same for 'X is required while Y is not required'). A bidder trusting it could skip a bond and be rejected. Fixed: negation is read in the clause holding the keyword (split at but/however/whereas/while/although/though/except that), and a stated requirement in that clause outweighs a waiver.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16288"
+      },
+      {
+        "file": "ventures/tender-bid-readiness/check.mjs",
+        "issue": "'Firms with no local office will be required to attend the mandatory site visit.' matched the 'no ... will be required' waiver, so a mandatory site visit read as waived. Fixed: that branch no longer matches when 'to' follows ('required to attend' is an obligation).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16288"
+      },
+      {
+        "file": "ventures/tender-bid-readiness/check.mjs",
+        "issue": "'No pre-bid site visit will be held.' was not read as a waiver because the word pattern \\w+ stopped at the hyphen. Fixed with [\\w-]+ (conservative direction: it showed 'found', not 'waived').",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16288"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ccf0d572-c031-5454-9088-b6fac42de010",
+    "transcripts": 1,
+    "first": "2026-11-15T17:18:27Z",
+    "last": "2026-11-15T17:25:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 68,
+        "output": 23089,
+        "thinking": 9129,
+        "cache_read": 2658896,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76435,
+        "api_equivalent_usd": 1.6053,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 68,
+      "output": 23089,
+      "thinking": 9129,
+      "cache_read": 2658896,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76435,
+      "api_equivalent_usd": 1.6053,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 32,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.83,
+      "active_minutes": 6.83,
+      "model_minutes": 4.33,
+      "tool_minutes": 2.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: two mutation campaigns, triage, a regex fix with 7 tests, a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 186.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

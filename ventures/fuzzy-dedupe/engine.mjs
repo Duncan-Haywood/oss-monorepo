@@ -68,7 +68,7 @@ export const DEFAULTS = {
 // CSV
 
 export function parseCsv(text) {
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   const firstLine = s.split(/\r?\n/, 1)[0] || "";
   const delim = [",", ";", "\t", "|"].map((d) => [d, firstLine.split(d).length]).sort((a, b) => b[1] - a[1])[0][0];
   const rows = [];
@@ -241,9 +241,9 @@ export function normPhone(s) {
 
 export function normDate(s) {
   const t = String(s ?? "").trim();
-  let m = t.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+  let m = t.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?!\d)/);
   if (m) return m[1] + m[2].padStart(2, "0") + m[3].padStart(2, "0");
-  m = t.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+  m = t.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})(?!\d)/);
   if (m) return m[3] + m[1].padStart(2, "0") + m[2].padStart(2, "0"); // read as month/day; a swap still scores as near
   const d = t.replace(/\D+/g, "");
   return d;

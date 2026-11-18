@@ -6,7 +6,7 @@ import { readStatement } from "./bank.mjs";
 // media/account_activity_example.csv; the authors' made-up rows, written out by hand here):
 // a BOM, no Balance column, m/d/yy h:mm dates, "Savings" cashback rows beside "Current" card
 // rows, and whole-number amounts without decimals. Layout only; no real Revolut account tried.
-const csv = "﻿Type,Product,Started Date,Completed Date,Description,Amount,Fee,Currency,State\n" +
+const csv = "\uFEFFType,Product,Started Date,Completed Date,Description,Amount,Fee,Currency,State\n" +
   "CASHBACK,Savings,4/29/23 9:12,4/30/23 10:24,Metal Cashback,0.02,0,EUR,COMPLETED\n" +
   "CARD_PAYMENT,Current,4/29/23 9:12,4/30/23 10:24,Cocktail bar,-15.67,0,EUR,COMPLETED\n" +
   "TOPUP,Current,4/25/23 7:00,4/25/23 7:00,Payment from Someone,750,0,EUR,COMPLETED\n" +

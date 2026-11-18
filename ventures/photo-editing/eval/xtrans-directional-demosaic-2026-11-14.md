@@ -154,6 +154,9 @@ engine-agreement test now names `demosaic="bilinear"`.
 
 ## Not done
 
+(2026-11-15: the clamp and gradient choice in `eval/xtrans-clamp-gradient-2026-11-15.md` close most of
+the first item: 0.5-0.7 dB short on the real frames, 4.4 dB on the sheet.)
+
 - LibRaw's three-pass Markesteijn is still 2-6 dB better. Our extra passes, as built, do not close
   the gap on real frames; what LibRaw's later passes refine (and how) is the next thing to read about.
 - The luma gap on real sensor data (above) needs a noisy known truth.

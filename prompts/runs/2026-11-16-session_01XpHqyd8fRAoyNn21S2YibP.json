@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyd8fRAoyNn21S2YibP",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T22:39:22Z",
+  "ended": "2026-11-16T23:03:44Z",
+  "wall_minutes": 30.49,
+  "tokens_in": 5577705,
+  "tokens_out": 27204,
+  "cost_usd": 2.657,
+  "tool_calls": 50,
+  "task": "chant-forge flagship item: a voiced g's burst read as b on F#3-A#3 (allocate.py row 8)",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16725",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/eval/coda-check.mjs",
+      "issue": "Each round adds a held-out part to the default run; the full report now takes ~9 min, longer than the 120 s tool timeout, so it has to be backgrounded. A --parts default that skips already-scored held-out parts would help."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "No agent doc in docs/reports/: the README section, coda-check header and flagships next: carry everything the next run needs.",
+      "did": "Recorded the diagnosis and next fault in the README, ROADMAP and flagships.yaml",
+      "result": "next: names the follow-on item (p's burst on A3-B3)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-chant-forge-a-rule-that-worked-and-still-failed.md",
+    "ventures/chant-forge/README.md (A g's burst read as a b)"
+  ],
+  "goal": null,
+  "notes": "Diagnosed the g-as-b fault from burst features (compact ~2 kHz bursts with <50% energy above 1 kHz; the low-labial test fires first). Rule compactVelar: +7 cells on development parts A-U, none lost. Pre-registered six predictions on new held-out part V (commit 24243e0ca) before running it. Outcome: velars 175 to 176 of 192 (+3 wanted), fails (1) and (2); (3)-(6) hold. Stays opt-in; default reader unchanged (full coda-check report A-U byte-identical, V added). V found a bigger opposite fault: 14 of 108 labials read as velar, mostly p on A3-B3. Checks: compact-velar.test.mjs 2/2; run_venture_tests chant-forge 288 tests pass (50.9 s); venture-preflight chant-forge clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6128206c-d110-56af-a7f3-273a64f767d9",
+    "transcripts": 1,
+    "first": "2026-11-16T22:39:22Z",
+    "last": "2026-11-16T23:09:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 94,
+        "output": 27204,
+        "thinking": 6271,
+        "cache_read": 5449791,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127820,
+        "api_equivalent_usd": 2.657,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 94,
+      "output": 27204,
+      "thinking": 6271,
+      "cache_read": 5449791,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127820,
+      "api_equivalent_usd": 2.657,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 30.49,
+      "active_minutes": 30.49,
+      "model_minutes": 4.37,
+      "tool_minutes": 26.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an audio/DSP engineer diagnosing a classifier fault, writing a rule, a held-out set and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 188.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

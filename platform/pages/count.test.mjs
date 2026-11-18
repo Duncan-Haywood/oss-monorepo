@@ -24,11 +24,15 @@ test('UNGROUPED_COUNT finds the counts the site writes, not years or form number
   assert.deepEqual(found('Search 1,338 tools and 1,073 research projects'), []);
   assert.deepEqual(found('the 2026 calculator'), []);
   assert.deepEqual(found('Form 1099 contractor, Form 8949 rows, $5000 tools'), []);
+  // A hex commit sha ending in digits, then a title: not a count.
+  assert.deepEqual(found('ab386540 post front matter'), []);
+  assert.deepEqual(found('e1234567 tests: fix'), []);
 });
 
 test('ungroupedCounts reads visible text, title and description, not scripts', async () => {
   const { ungroupedCounts } = await import('./count.mjs');
   const html = `<title>All 1338 tools | Site</title><meta name="description" content="1073 research projects">
-<body><p>Search 1,338 tools</p><script>var x = "9999 tools";</script><!-- 4444 posts --><span>All<span>3591</span></span></body>`;
+<body><p>Search 1,338 tools</p><script>var x = "9999 tools";</script><!-- 4444 posts --><span>All<span>3591</span></span>
+<td><code>71949322</code></td><td>post: description</td></body>`;
   assert.deepEqual(ungroupedCounts(html), ['All 1338', '1073 research projects', 'All 3591']);
 });

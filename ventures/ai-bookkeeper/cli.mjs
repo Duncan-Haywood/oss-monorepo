@@ -37,7 +37,7 @@ import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
 import { payeeReport } from "./payees.mjs";
-import { receiptTextFromFile, receiptPassesFromFile, statementTextFromFile, readStatementFile } from "./ocr.mjs";
+import { receiptTextFromFile, receiptPassesFromFile, receiptTextRapid, statementTextFromFile, readStatementFile } from "./ocr.mjs";
 import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
 import { compareProfit } from "./compare.mjs";
 import { cashBasis } from "./cashbasis.mjs";
@@ -104,7 +104,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   asset tax ID --class 5 [--s179 N] [--bonus PCT]  set the asset's US tax treatment (MACRS class 3/5/7/10/15/20 years, half-year)
   taxdepr YEAR [--income books|N] [--carry-in N] [--json]  tax depreciation worksheet beside the book depreciation, with what it cannot check
   prepaid add NAME --amount 2400 --date D [--months 12] [--into 6030]  spread an up-front payment (filed to 1400) over the months it covers
-  loan add NAME --amount 20000 --rate 6.5 --months 36 --first 2026-02-01 [--payment 612.34]  a fixed-rate loan and its schedule
+  loan add NAME --amount 20000 --rate 6.5 --months 36 --first 2026-02-01 [--payment 612.34] [--round up]  a fixed-rate loan and its schedule (--round up: the lender rounds the payment up to the cent, as LendingClub does)
   loan extra ID --amount 2000 --date 2026-06-10   extra principal on top of the schedule (it ends sooner)
   loan check ID FILE.csv  compare a lender's own schedule (date, payment, interest, principal, balance) with this loan's
   loan apply ID           split the unfiled bank lines that are its scheduled payments into interest (6040) and principal (2200)
@@ -139,7 +139,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
   forecast [--as-of D] [--days N] [--json]  expected cash day by day from the bank balance, recurring items and open invoices and bills; the lowest point
   anomalies [--json]     lines worth a second look: double charges, amounts far above a payee's usual, large first-time payees (candidates with a reason, not an audit)
- receipts [FILE (.txt, text-layer .pdf via pdftotext, or a photo via tesseract / RECEIPT_OCR_CMD; --two-pass reads a photo twice, --four-pass four times with a grey enlarged copy and a vote)|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
+ receipts [FILE (.txt, text-layer .pdf via pdftotext, or a photo via tesseract / RECEIPT_OCR_CMD; --two-pass reads a photo twice, --four-pass four times with a grey enlarged copy and a vote, --rapidocr once with RapidOCR via rapidocr_rows.py, --rapidocr --four-pass RapidOCR first and then tesseract's four, all voting; OCR_TIMEOUT=S stops a stalled read, default 120)|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
   payroll FILE.csv [--apply]  book a payroll provider's pay-run report (wages, employer taxes, 2300) and find the bank lines that paid it; --apply files them to 2300
   payroll deposits YEAR [--schedule monthly|semiweekly]  federal deposit due dates (lookback, $100,000 next-day rule, holidays) and whether the bank shows each paid on time
@@ -344,8 +344,8 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
 } else if (cmd === "loan") {
   try {
     if (rest[0] === "add") {
-      const amount = flag("--amount"), rate = flag("--rate"), months = flag("--months"), first = flag("--first"), payment = flag("--payment");
-      const r = addLoan(books, { name: argv.slice(2).join(" "), amount, rate, months, first, payment });
+      const amount = flag("--amount"), rate = flag("--rate"), months = flag("--months"), first = flag("--first"), payment = flag("--payment"), rounding = flag("--round") ?? undefined;
+      const r = addLoan(books, { name: argv.slice(2).join(" "), amount, rate, months, first, payment, rounding });
       books = r.books; save(); console.log(`${r.loan.id} ${r.loan.name}: ${fmt(r.loan.cents)} at ${r.loan.rateBp / 100}% over ${r.loan.months} months, payment ${fmt(r.loan.payment)}. Enter the proceeds as a deposit filed to 2200 (or use opening balances), then \`loan apply ${r.loan.id}\`.`);
     } else if (rest[0] === "extra") {
       const r = addLoanExtra(books, rest[1], { amount: flag("--amount"), date: flag("--date") });
@@ -562,7 +562,9 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     let text;
     // --two-pass: a photo is read twice by tesseract and the receipt's arithmetic settles the total;
     // --four-pass: twice more as a grey copy enlarged to 2,000 px (ImageMagick), and the readings vote
-    try { text = has("--four-pass") ? receiptPassesFromFile(rest[0], { grow: 2000 }) : has("--two-pass") ? receiptPassesFromFile(rest[0]) : receiptTextFromFile(rest[0]); } catch (e) { console.error(e.message); process.exit(2); }
+    // --rapidocr: read once by RapidOCR (rapidocr_rows.py; pip install rapidocr-onnxruntime);
+    // with --four-pass, RapidOCR's reading leads tesseract's four and all five vote
+    try { text = has("--rapidocr") && has("--four-pass") ? receiptPassesFromFile(rest[0], { grow: 2000, lead: (p) => receiptTextRapid(p) }) : has("--rapidocr") ? receiptTextRapid(rest[0]) : has("--four-pass") ? receiptPassesFromFile(rest[0], { grow: 2000 }) : has("--two-pass") ? receiptPassesFromFile(rest[0]) : receiptTextFromFile(rest[0]); } catch (e) { console.error(e.message); process.exit(2); }
     const r = addReceipts(books, text);
     books = r.books; save();
     console.log(`Read ${r.added.length} receipt${r.added.length === 1 ? "" : "s"}; ${r.duplicates.length} already on file; ${r.skipped.length} could not be read.`);

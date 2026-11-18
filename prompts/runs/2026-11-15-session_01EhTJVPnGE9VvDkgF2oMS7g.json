@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVPnGE9VvDkgF2oMS7g",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (owner's standing ventures brief)",
+  "input_sha256": "ab838dcdaa366e9a871897ade0296bc3024049aa8fb7f554a6b72a674dcf5c17",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T16:56:42Z",
+  "ended": "2026-11-15T17:09:12Z",
+  "wall_minutes": 25.53,
+  "tokens_in": 17628047,
+  "tokens_out": 62396,
+  "cost_usd": 6.2293,
+  "tool_calls": 124,
+  "task": "Deepen (flagship 7): photo-editing -- a tiled CR3",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16279",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "git ls-tree -l on a blob:none clone fetched blobs one by one and hung past the 120 s timeout; stopped it and used a sparse checkout instead",
+    "first mutation run timed out: assertEqual on 12,000-element lists spends minutes in difflib; tests now compare by mismatch count",
+    "CI lint (mypy) failed on the first push: my tile variable reused the name `t`, which already held the Track, and a list needed an annotation. Fixed, and checked locally with CI's pinned ruff 0.15.8 and mypy 1.19.1"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing's BUILDABLE names raw.pixls.us as serving files with curl -L; this session it answered CONNECT 403 again, the same as several earlier runs"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "a bare python3 lacks pytest (as noted), but the venture's tests run fine under python3 -m unittest with PYTHONPATH=src:tests; saying so would have saved a step"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "No real tiled CR3 was reachable, so I couldn't take the 'a tiled CR3' item as written (a real file).",
+      "did": "Implemented lossless tiles and checked them with LibRaw as an independent oracle: real R8 frames re-tiled and spliced back into the real container.",
+      "result": "0 sensels differ on 6 files; a wrong-order control is caught by both readers. A real R5 file is still listed as wanted."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-cr3-tiles-with-no-tiled-file.md",
+    "ventures/photo-editing/eval/canon-cr3-tiled-2026-11-15.md"
+  ],
+  "goal": null,
+  "notes": "Local verification: test_cr3, test_cr3_wavelet and test_ffmpeg_pipeline OK (49 tests). Full discover: 1,186 of 1,187 pass; the one error is the container's broken system PIL (_imaging import), which this change doesn't touch. LibRaw 0.22 (rawpy) tiled check exit 0, control caught. Six hand mutations of the tile code: five caught after the fixture fix; the plane-vs-subband byte count mutation is equivalent on all data seen. CI-equivalent run_venture_tests photo-editing: 1187 tests OK. venture-preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d201a12b-0f3f-58ee-9a4c-66cd92220299",
+    "transcripts": 1,
+    "first": "2026-11-15T16:56:42Z",
+    "last": "2026-11-15T17:22:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 115,
+        "input": 225,
+        "output": 62396,
+        "thinking": 14556,
+        "cache_read": 17441300,
+        "cache_write_5m": 0,
+        "cache_write_1h": 186522,
+        "api_equivalent_usd": 6.2293,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 115,
+      "input": 225,
+      "output": 62396,
+      "thinking": 14556,
+      "cache_read": 17441300,
+      "cache_write_5m": 0,
+      "cache_write_1h": 186522,
+      "api_equivalent_usd": 6.2293,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 124,
+    "tools": {
+      "Bash": 92,
+      "Monitor": 19,
+      "TaskStop": 5,
+      "ToolSearch": 3,
+      "Write": 3,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.53,
+      "active_minutes": 25.53,
+      "model_minutes": 12.99,
+      "tool_minutes": 12.54,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an experienced raw-decoder engineer: read LibRaw's tile layout, implement and test tiled CRX decode, build a splice-based oracle check: about a day and a half",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 160.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -135,6 +135,13 @@ wildcard arguments, negative `timestamp_timeout` and `!authenticate` outright,
 so what this tool reads is sudo 1.9.x syntax; another implementation may refuse
 some of these rules rather than run them.
 
+## Known gaps
+
+From the quality census of 2026-11-15 ([audit](../../portfolio/quality/audits/2026-11-15-sudoers-check.json)):
+
+- Run on a copied tree whose top directory is not named `etc`, `@includedir /etc/sudoers.d` is not mapped to the copy's `sudoers.d`, so a file sudo would skip (a name with a dot) can be checked as if it were live.
+- Scoped `Defaults>runas !authenticate` and `Defaults!cmnd !authenticate` are not yet applied when deciding whether a rule needs a password, so the root-path list can say "with a password" for a rule that has none.
+
 ## Licence
 
 MIT. See [`LICENSE`](LICENSE).

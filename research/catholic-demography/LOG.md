@@ -2,6 +2,110 @@
 
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
+## 2026-11-17 · Milestone 5b, fourteenth GSS-only step: seen at 25-44, the mothers' cohorts close most of the share gap, but less than half of that is switching
+
+Run: `experiments/m5o_lifecourse/run.py` (output `results.txt`, tables `t43`, `t44`; 500-draw stratified PSU bootstrap over the
+whole file, seed 1; women's tables re-estimated in every draw; 86 s). Data from `data/download_gssr.sh` (checksums passed).
+**Order of events:** the script with P1-P4 was committed (2607c7445) and pushed before any run; one 1-draw smoke run with
+stdout discarded and its CSVs deleted unread (exit code only); then the full run, once, unchanged. The switching /
+composition split below was done by hand from the printed point estimates after reading the results and tests no
+prediction.
+
+Question. m5n left the mothers of US-born respondents about 3.5 to 5 points more Catholic than US-born GSS mothers 45+
+of their cohorts. Children report the mother's religion while they grew up (mother about 25-44); the women's table uses
+current religion at 45+. Women's tables are rebuilt for mothers interviewed at 25-44 (main) and 35-49, with the share
+raised Catholic (`relig16`) of the same women as a check that a fall with age is switching and not a different population.
+
+- **Coverage.** For respondents born 1965-99 (mothers born about 1937-71) every matched window is covered at all three
+  ages. For respondents born 1925-64, 96% of mother weight falls on windows the 25-44 band does not cover (82% for
+  35-49), so that group is reported, not tested, as written.
+- **P1 supported.** Both parents US-born, respondents 1965-99 (n 1,440): P_m(25-44) 26.7% against P_m(45+) 22.9%:
+  **+3.7 [+2.1, +5.4]**. The same cohorts are more Catholic at child-rearing ages than at 45+.
+- **P2 supported.** M_mothers 27.7%. The gap M_mothers - P_m falls from **+4.8 [+2.3, +7.1]** (45+) to **+1.1 [-1.7,
+  +4.0]** (25-44); 22% of it is left (point; interval of the fraction -0.71 to 0.62). The reduction is P1's +3.7 [+2.1, +5.4].
+- **P3 refuted.** The same mothers' raised-Catholic share is also higher at 25-44: R16 29.4% against 26.9%, **+2.4
+  [+0.7, +4.2]**, above the 1-point bound. So the younger-age table is not only the same women before they left. Post hoc
+  (point estimates): the Catholic share among those raised Catholic is 0.907 at 25-44 and 0.852 at 45+. Split (Shapley,
+  two orders), the +3.7 is **+1.5 retention** (switching out after child-rearing at a fixed raised share) and **+2.2
+  raised share** (the same cohorts report a Catholic upbringing more often when interviewed young). Switching alone
+  would leave a gap of about 3.2 points of the 4.8.
+- **P4 supported.** At 35-49: P_m - P_m(45+) +2.8 [+1.5, +4.2]; gap left 41% (point). R16 +1.5 [+0.2, +2.9]; the
+  post-hoc retention part is again +1.5.
+- **Within cohorts (t44).** Window centres 1940-1960: P_m(25-44) - P_m(45+) is +1.3 to +5.3, with R16 differences of
+  -0.4 to +4.5. In 1965-70 the R16 difference turns negative (-2.6, -4.1) and so does P_m's in 1970 (-1.9): these
+  cohorts are seen at 45+ only from 2010 on, much of it in the 2021-24 waves (m5f: web respondents there report a
+  raised-Catholic share 5.3 points above in-person ones), so survey year and mode, not age, can drive both columns.
+- **Implication.** Reading (b) holds in a weaker form. Measured at the ages they were raising children, the mothers'
+  cohorts were about as Catholic as their children say (gap 1.1, interval includes zero). But only about 1.5 of the
+  3.7 points is women leaving the Church after child-rearing; the larger part is that the same cohorts, interviewed
+  younger (earlier survey years), more often say they were raised Catholic. That is a cohort-by-survey-year
+  inconsistency in `relig16` (recall drift with age, differential mortality or attrition of Catholic-raised women,
+  or year and mode effects), which the m5i panel (95% test-retest over 2-4 years) cannot see at this time scale.
+  m5n's other candidate, children projecting their own upbringing onto their mother, is not needed to close the gap
+  for the 1965-99 group, but is not excluded either.
+- **For the model.** m5h's p (current religion, any age) and the 45+ women's tables understate the mothers' Catholic
+  share at child-rearing time by 3 to 4 points for mothers born 1937-71. H4 is not affected: m5n showed the fertility
+  channel rests on rho, and p enters the change only through cohort composition.
+- **Limits.** Repeated cross-sections, not people followed over time: age at interview and survey year are confounded
+  within a cohort. The 25-44 table includes women who will have more children later. Mothers' religion is recall.
+  The switching / composition split is post hoc.
+- **Next.** Separate age from survey year in R16: within the 2006-20 panels (same women, 2-4 years apart) and across
+  cross-sections with year and mode fixed effects (in-person only), test whether a cohort's raised-Catholic share drifts
+  with age. Then H5, or milestone 2.
+
+## 2026-11-17 · Milestone 5b, thirteenth GSS-only step: children's sibling counts say the missing Catholics are mothers, not extra children
+
+Run: `experiments/m5n_siblings/run.py` (output `results.txt`, tables `t39` to `t42`; 500-draw stratified PSU bootstrap over the
+whole file, seed 1; women's tables re-estimated in every draw). Data from `data/download_gssr.sh` (checksums passed; outside
+hosts for NSFG/Census refused here, so the outside check of m5m's "Next" was not possible and this step uses an inside one).
+**Order of events:** one 1-draw smoke run with stdout discarded (only the exit code seen); the script with P1-P5 was then
+committed (870c61069) and pushed before the full run. After the full run one output-only fix: rows whose names contain
+"rho" (the module gap and the channel's sibling-rho rows) had been printed as fractions, not points. The unit rule was
+fixed and the run repeated with the same seed. The 84 changed rows differ by exactly x100 and no other number moved.
+
+Question. m5m left children of two US-born parents (cohorts 1925-64) with mothers 3.4 points more Catholic than the model
+says, and two readings: (a) Catholic mothers had more children than GSS women report, or (b) the mothers were more
+Catholic than GSS women of their cohort. Each respondent reports `sibs`, so k = sibs + 1 is their family's size seen from
+the child's side, independent of whether the mother survived to be interviewed. Weighting children by 1/k recovers mothers
+(Preston 1976). `sibs` is top-coded at 6+ in this release (22.5% of these respondents), `childs` at 8+, so (1) family sizes
+are compared size-biased and capped at 7 on both sides (no tail assumption), and (2) the 1/k inversion puts the 7+ class
+at t = 8 (swept 7, 10, 12).
+
+- **P1 refuted: children do not see bigger Catholic families than Catholic women report.** Both-parents-US-born, 1925-64
+  (n 3,188): children of Catholic mothers come from families of 4.53 (capped, size-biased), against 4.42 implied by GSS
+  Catholic women of the mothers' cohorts (+0.12 [-0.01, +0.26]). Children of other mothers: +0.18 [+0.10, +0.27]. The
+  diff-in-diff is **-0.06 [-0.22, +0.09]**. Children see slightly bigger families than women report on both sides
+  (step-siblings are counted in `sibs`, and mothers who died early are missing from the women's side), but not more so for
+  Catholics. Cohorts 1965-99: DD -0.06 [-0.24, +0.13].
+- **P2 refuted: the gap is the mothers' Catholic share.** Among mothers (1/k-weighted), 24.4% were Catholic against
+  20.8% of GSS mothers 45+ of the same cohorts: **+3.5 [+2.1, +5.3]**. The fertility ratio among mothers is 1.10 [1.06,
+  1.14] from children's reports and 1.09 [1.06, 1.13] from women's (+0.01 [-0.05, +0.07]). Of the gap M - f(P_m, rho_m) =
+  3.84 [2.26, 5.45] points, the share part is 3.71 [2.19, 5.54] and the ratio part 0.13 [-0.83, +1.07] (**3% [-25, +28]**).
+  Cohorts 1965-99: gap 5.37, share part 4.96, ratio part 8%.
+- **P3 refuted.** Full file (US-born adults surveyed 1977-2024, cohorts 1925-64, n 34,697), raised Catholic in place of
+  mother Catholic: rho_sib_raised **1.070 [1.055, 1.083]**, below the 1.15 predicted, and -0.025 [-0.059, +0.011] from the
+  women's ratio among mothers. For cohorts 1965-99 it is 1.004 [0.989, 1.020]. Children raised Catholic had at most 7%
+  more siblings' worth of family than others, by the size-bias inversion; nowhere near m5m's needed 1.27.
+- **P4 supported, and the fertility channel shrinks.** With rho = rho_sib_raised x the GSS motherhood ratio (Catholic women
+  45+ are slightly less often mothers: 0.92-0.97 for mothers born 1910-30), fertility's contribution to the level is 0.13
+  [-0.22, +0.42] points in 1990-99 (m5h main 1.17) and its contribution to the 1990-99 -> 2010-18 change -0.05 [-0.29,
+  +0.20] (m5h -0.37). Immigration minus |fertility| +1.02 [+0.35, +1.56]. H4 stands.
+- **P5 supported.** At t = 7 and 12, the ratio part is 2% and 6% of the gap and rho_sib (mothers) 1.10-1.11; P3's full-file
+  rho is 1.069 and 1.073.
+- **Implication.** Reading (a) is out: the 1.27 fertility ratio that would close m5m's gap is not in the children's own
+  family sizes, which agree with what GSS women report. What is left is (b): the women who raised these respondents were
+  about 3.5 points more Catholic (when the child was young) than GSS mothers of their cohort are when interviewed at 45+.
+  Two candidates remain, and they are different claims: religious change of mothers between child-rearing and interview
+  (P_m uses current religion; m5m's raised-Catholic p also left a gap, so converts at marriage who later left would fit
+  both), and children's recall attributing their own upbringing to their mother.
+- **Side result.** m5h's fertility channel (level 1.2 points in 1990-99) rests on the women's rho including childless
+  women; the sibling-based version puts it near zero. H4 is stronger for it, and m5h's level figure should be read as an
+  upper end.
+- **Limits.** `sibs` counts step and adopted siblings and the father's other children; the cap at 7 discards the tail of
+  large families on both sides. The motherhood ratio in the channel is from GSS women. Mothers' religion is recall.
+- **Next.** Test the switching reading from GSS women's own life course: women 45+ of the mothers' cohorts with religion at
+  16 and now (and, where asked, religion at marriage or of spouse) to bound their Catholic share during child-rearing.
+
 ## 2026-11-14 · Milestone 5b, twelfth GSS-only step: giving immigrant mothers their own Catholic share fits them but opens a gap for US-born mothers
 
 Run: `experiments/m5m_mothers_nativity/run.py` (output `results.txt`, tables `t35` to `t38`; 500-draw stratified PSU bootstrap

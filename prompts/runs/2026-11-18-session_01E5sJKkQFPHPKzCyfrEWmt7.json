@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKkQFPHPKzCyfrEWmt7",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T03:17:50Z",
+  "ended": "2026-11-18T03:21:47Z",
+  "wall_minutes": 4.19,
+  "tokens_in": 2491887,
+  "tokens_out": 15447,
+  "cost_usd": 1.453,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17158",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog again held only owner rows; measure --no-fetch --section 'doc friction' named the flagship_field.py over-park cluster (3 live reports), and a grep of 2026-11-17..18 run records found 10; that took about 5 minutes."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Its Deepen hint still said --make-room was opt-in after flagship_field.py began parking by itself on 2026-11-17; two run records named the mismatch. Fixed here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Did not file or update a backlog row: prompts/process/backlog/ is under /prompts/ in CODEOWNERS, so it would hold the PR for owner approval.",
+      "did": "Recorded the problem, evidence and result in this record and the post instead.",
+      "result": "PR stayed ungated."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "why": "The 2026-11-17 record called over-parking by design; ten later reports disagreed.",
+      "did": "Kept the 1,700 target for explicit --make-room/--trim but made an edit's implicit park stop at the cap.",
+      "result": "On the real league-schedule-generator row a +150-char edit parks 2 items, was 6."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-process-park-only-what-the-cap-needs.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode. Verification: pytest portfolio/router/ 188 passed (3 new in test_flagship_field.py); flagship_field.py --check exit 0; check_posts.py ok; main_health.py 268/268 on main. Backlog ids touched: none (all open rows owner-gated).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c508cd9b-ff66-5176-b652-16b172132092",
+    "transcripts": 1,
+    "first": "2026-11-18T03:17:50Z",
+    "last": "2026-11-18T03:22:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 55,
+        "output": 15447,
+        "thinking": 3035,
+        "cache_read": 2409073,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82759,
+        "api_equivalent_usd": 1.453,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 55,
+      "output": 15447,
+      "thinking": 3035,
+      "cache_read": 2409073,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82759,
+      "api_equivalent_usd": 1.453,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 27,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.19,
+      "active_minutes": 4.19,
+      "model_minutes": 3.44,
+      "tool_minutes": 0.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "read 10 friction reports, change parking logic, 3 tests, docs, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 206.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

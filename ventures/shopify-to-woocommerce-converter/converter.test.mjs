@@ -112,7 +112,7 @@ test("two options become two attributes; tags and categories carry over", () => 
 });
 
 test("semicolon files and BOMs are read", () => {
-  const t = "﻿" + "Handle;Title;Variant SKU;Variant Price\nmug;Mug;M;5.00\n";
+  const t = "\uFEFF" + "Handle;Title;Variant SKU;Variant Price\nmug;Mug;M;5.00\n";
   const r = convert(t);
   assert.equal(r.error, null);
   assert.equal(out(r)[0].SKU, "M");

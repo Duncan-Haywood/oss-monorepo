@@ -30,6 +30,8 @@ import group_shift_reddit as R  # noqa: E402
 import h6r_rare_pilot as P  # noqa: E402
 import h7l_fixed_lambda as L  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
+A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 SEED, MODEL = 20261110, "Qwen2.5-1.5B-Instruct"
 CELLS = ((500, 6683), (500, 3341), (500, 1667), (1000, 3341), (2000, 6683))

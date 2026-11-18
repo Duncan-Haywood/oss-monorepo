@@ -137,7 +137,7 @@ test("CSV import: headers, quoted names, bad rows are reported, won deals count 
     "",
   ].join("\n");
   const { state, errors } = E.parseCsv(csv);
-  assert.equal(errors.length, 1); assert.match(errors[0], /Line 4/);
+  assert.equal(errors.length, 1); assert.match(errors[0], /Line 5/); // file line: the header is line 1
   assert.equal(state.deals.a1.amount, 12000); assert.equal(state.deals.a1.name, "Acme, Inc");
   const m = E.train(state, NOW);
   assert.equal(m.stages[3].wins, 1); // the won deal went through every stage
@@ -151,4 +151,13 @@ test("CSV stage_history marks a deal exact so the dwell features and backtest ca
   assert.deepEqual(errors, []);
   assert.equal(state.deals.z.exact, true); assert.deepEqual(state.deals.z.history.map((h) => h[0]), [0, 1, 3]);
   assert.match(E.parseCsv("id,stage,created,stage_history\nz,lead,2026-01-01,oops@x").errors[0], /not stage@date/);
+});
+
+test("parseCsv: a quoted next_step spanning lines stays one deal; \"\" is a literal quote (red-team 2026-11-17)", () => {
+  const csv = 'id,name,stage,created,next_step\r\nq1,"Acme ""West""",lead,2026-01-01,"call Tue\r\nthen send quote"\r\nq2,Globex,lead,2026-01-02,\r\nbad,,,nope,\n';
+  const { state, errors } = E.parseCsv(csv);
+  assert.deepEqual(Object.keys(state.deals).sort(), ["q1", "q2"]);
+  assert.equal(state.deals.q1.name, 'Acme "West"');
+  assert.equal(state.deals.q1.nextStep, "call Tue\nthen send quote");
+  assert.equal(errors.length, 1); assert.match(errors[0], /^Line 5:/);
 });

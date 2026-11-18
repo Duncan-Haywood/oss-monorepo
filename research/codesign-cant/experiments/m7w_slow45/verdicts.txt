@@ -1,0 +1,16 @@
+W1 refuted (0 of 4): L2-45 at 33 ms, lag45 > lag39: 7l above 75 vs 80; 7l below 77 vs 107; aware above 27 vs 37; aware below 34 vs 46
+W2 held (4 of 4): L2-45 at 39.1 ms, lag45 <= lag39: 7l above 123 vs 150; 7l below 108 vs 167; aware above 52 vs 72; aware below 46 vs 73
+W3 held (4 of 4): L2-45 at 45 ms, lag45 < lag39: 7l above 183 vs 215; 7l below 169 vs 225; aware above 100 vs 149; aware below 86 vs 141
+W4 refuted: 22 of 24 lag45 designs pass the margin test under all three identified laws (need <= 21; lag39 24)
+W5 held: at 45 ms lag45 certified 24 of 24 (need >= 22; lag39 15)
+W6 refuted: under the inherited 15 ms law lag45 certified 20 of 24 (need <= 17; lag39 20)
+W7 held: aware lag45 vs 7l lag45 at 39.1 ms: above L2-45 52 vs 123, mass +9.2%; below L2-45 46 vs 108, mass +24.8%
+check: 7u's lag39 designs reproduce 7u's L2-45 counts (33 ms 80, 107, 37, 46; 39.1 ms 150, 167, 72, 73): 80, 107, 37, 46; 150, 167, 72, 73
+context: L2-45 under inherited 15 ms D^1.5, lag45 / lag39 / lag36: 7l above 26 / 26 / 29; 7l below 46 / 60 / 59; aware above 6 / 8 / 8; aware below 8 / 13 / 15
+context: L2-45 under id 33 ms D^0, lag45 / lag39 / lag36: 7l above 75 / 80 / 108; 7l below 77 / 107 / 124; aware above 27 / 37 / 53; aware below 34 / 46 / 56
+context: L2-45 under mid 36 ms D^0, lag45 / lag39 / lag36: 7l above 88 / 109 / 149; 7l below 98 / 132 / 161; aware above 38 / 61 / 63; aware below 39 / 59 / 82
+context: L2-45 under id 39.1 ms D^0, lag45 / lag39 / lag36: 7l above 123 / 150 / 198; 7l below 108 / 167 / 195; aware above 52 / 72 / 93; aware below 46 / 73 / 117
+context: L2-45 under stress 45 ms D^0, lag45 / lag39 / lag36: 7l above 183 / 215 / 248; 7l below 169 / 225 / 251; aware above 100 / 149 / 168; aware below 86 / 141 / 190
+context: margin passes per law, lag45 / lag39 / lag36 (of 24): inherited 15 ms 20 / 20 / 23; id 33 ms 22 / 24 / 23; mid 36 ms 22 / 24 / 24; id 39.1 ms 23 / 24 / 21; stress 45 ms 24 / 15 / 10
+context: mean mass, D, pos kp lag45 vs lag39: 7l above 1.328 vs 1.307 kg, 0.116 vs 0.137 m, kp 22.9 vs 23.2; 7l below 1.089 vs 1.053 kg, 0.119 vs 0.124 m, kp 23.1 vs 25.0; aware above 1.450 vs 1.420 kg, 0.103 vs 0.103 m, kp 22.5 vs 20.8; aware below 1.359 vs 1.356 kg, 0.100 vs 0.111 m, kp 21.9 vs 22.0
+context: median J at lever 1, 45 deg under 36 ms, lag45 vs lag39: 7l above -1.95 vs -2.41; 7l below -1.66 vs -2.23; aware above -1.81 vs -1.83; aware below -1.70 vs -1.67

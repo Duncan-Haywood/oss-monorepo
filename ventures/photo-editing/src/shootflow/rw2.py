@@ -38,9 +38,38 @@ as a step of ``j << shift`` from the prediction lowered by ``0x80 << shift``.
 The format as dcraw and LibRaw read it (Dave Coffin's ``panasonic_load_raw``
 and ``pana_bits``); this is an independent implementation, checked sensel for
 sensel against LibRaw 0.22 (``tools/rw2_libraw_check.py``,
-``eval/panasonic-rw2-reader-2026-11-14.md``). RawFormat 2, 3, 5, 6, 7 and 8
-(older 16-bit, the newer 14-bit and 12-bit blocks of the GH5 era on) are
-refused with the reason: no test file of them was at hand.
+``eval/panasonic-rw2-reader-2026-11-14.md``).
+
+Since 2026-11-15 three newer layouts are read too
+(``eval/panasonic-rw2-newer-2026-11-15.md``):
+
+* **RawFormat 5** (G9, GH5S): no prediction. Each 16-byte line of the same
+  rotated 0x4000-byte block stream holds 10 sensels of 12 bits or 9 of 14,
+  taken from the line's lowest bit up (the 16 bytes as one little-endian
+  128-bit number).
+* **RawFormat 7** (S5): the same 16-byte lines, but stored in order, with no
+  block rotation.
+* **RawFormat 6** (S1, S1R, S1H): 11 sensels a 16-byte line, read from the
+  line's top bit down as 14, 14, then three groups of (2-bit shift code, three
+  10-bit values; only two values in the last group). The first value of each column parity is absolute; after it,
+  a value is multiplied by ``1 << s`` (s = the code, 3 meaning 4) and, while
+  ``0x200 << s`` is below 0x2000 and under the parity's previous value, moved
+  up by their difference. 15 is taken off every sensel (0 at most, 0x3FFF on
+  overflow), so the black-level tags are used as stored.
+
+On formats 5 to 7 the black-level tags are not raised by 15 and a 14-bit
+body's white level is its linearity limit, less 64 on formats 6 and 7 (as
+LibRaw: saturated sensels there read anywhere in the top 64 levels). The crop is
+the camera's own (tags 0x2F-0x32: an in-camera 1:1 or 16:9 aspect), else the
+sensor borders. The older 16-bit RawFormat 2 and 3 are refused, with the reason.
+
+Since 2026-11-15 **RawFormat 8** (GH6, GH7, G9 II, S5 II, S1 II, S9) is read
+too (``eval/panasonic-rw2-format8-2026-11-15.md``): tiles across the frame
+(tags 0x42-0x48), each a bit stream of Huffman-coded steps over 2x2 blocks
+(``_c8_tile_python`` says how). The format as LibRaw 0.22's ``pana8.cpp``
+reads it; written here independently, no code copied, and checked sensel for
+sensel against LibRaw on ten files from all six bodies. 12- and 14-bit files
+take the same white margin as formats 6 and 7; 16-bit files keep 65535.
 """
 
 from __future__ import annotations
@@ -64,6 +93,7 @@ PANA_BLACK = (0x1C, 0x1D, 0x1E)
 PANA_WB_LEVELS = (0x24, 0x25, 0x26)
 PANA_RAW_FORMAT = 0x2D
 PANA_RAW_OFFSET = 0x118
+PANA_CROP = (0x2F, 0x30, 0x31, 0x32)  # CropTop, CropLeft, CropBottom, CropRight: the in-camera aspect
 PANA_JPG_FROM_RAW = 0x2E  # the camera's own JPEG of the frame, with the full EXIF (maker note included)
 
 TAG_EXIF_MAKER_NOTE = 0x927C
@@ -76,6 +106,10 @@ BLACK_OFFSET = 15  # dcraw and LibRaw add 15 to tags 0x1C-0x1E
 BLOCK = 0x4000
 SPLIT = 0x2008  # dcraw's load_flags for RW2
 RUN = 14
+WHITE_MARGIN_14 = 64  # RawFormat 6/7: white = linearity limit less 64 at 14 bits (LibRaw's 16319)
+LINE = 16  # RawFormat 5-7: one 16-byte (128-bit) line of packed sensels
+C6_PER_LINE = 11
+C6_FIELDS = (14, 14, 2, 10, 10, 10, 2, 10, 10, 10, 2, 10, 10, 10)
 
 # CFAPattern (0x09) as the 2x2 pattern (0 = R, 1 = G, 2 = B), row by row.
 CFA_CODES = {1: (0, 1, 1, 2), 2: (1, 0, 2, 1), 3: (1, 2, 0, 1), 4: (2, 1, 1, 0)}
@@ -198,10 +232,290 @@ def decode_panasonic(buf: bytes, width: int, height: int, engine: str = "auto") 
     return _decode_python(buf, width, height)
 
 
-def black_per_position(levels, pattern) -> tuple[float, ...]:
-    """BlackLevelRed, Green, Blue (+15) placed on the 2x2 CFA positions."""
+def packed_per_line(bits: int) -> int:
+    """Sensels in one 16-byte line of RawFormat 5 and 7: 10 of 12 bits, 9 of 14."""
 
-    return tuple(float(levels[colour] + BLACK_OFFSET) for colour in pattern)
+    return 128 // bits
+
+
+def _packed_python(data: bytes, width: int, height: int, bits: int) -> array:
+    """RawFormat 5/7 reference: each 16-byte line, as a little-endian 128-bit number, holds
+    ``128 // bits`` sensels from its lowest bit up. ``data`` is already in reading order."""
+
+    per = packed_per_line(bits)
+    lines = width // per
+    mask = (1 << bits) - 1
+    out = array("H", [0]) * (width * height)
+    at = 0
+    for row in range(height):
+        k = row * width
+        for _ in range(lines):
+            v = int.from_bytes(data[at : at + LINE], "little")
+            at += LINE
+            for _i in range(per):
+                out[k] = v & mask
+                v >>= bits
+                k += 1
+    return out
+
+
+def _c6_python(data: bytes, width: int, height: int) -> array:
+    """RawFormat 6 reference: 11 sensels a 16-byte line (see the module docstring)."""
+
+    lines = width // C6_PER_LINE
+    out = array("H", [0]) * (width * height)
+    at = 0
+    for row in range(height):
+        k = row * width
+        for _ in range(lines):
+            v = int.from_bytes(data[at : at + LINE], "little")
+            at += LINE
+            pos = 128
+            vals = []
+            for w in C6_FIELDS:
+                pos -= w
+                vals.append((v >> pos) & ((1 << w) - 1))
+            it = iter(vals)
+            first = [0, 0]
+            prev = [0, 0]
+            mul = base = 0
+            for pix in range(C6_PER_LINE):
+                if pix % 3 == 2:
+                    code = next(it)
+                    if code == 3:
+                        code = 4
+                    mul, base = 1 << code, 0x200 << code
+                e = next(it)
+                p = pix & 1
+                if first[p]:
+                    e *= mul
+                    if base < 0x2000 and prev[p] > base:
+                        e += prev[p] - base
+                    prev[p] = e
+                else:
+                    first[p] = e
+                    if e:
+                        prev[p] = e
+                    else:
+                        e = prev[p]
+                e -= BLACK_OFFSET
+                out[k] = 0 if e < 0 else (e if e <= 0xFFFF else 0x3FFF)
+                k += 1
+    return out
+
+
+def decode_newer(buf: bytes, width: int, height: int, fmt: int, bits: int, engine: str = "auto") -> array:
+    """RawFormat 5, 6 or 7 sensor data (from RawDataOffset), row-major, ``width`` sensels a row."""
+
+    per = C6_PER_LINE if fmt == 6 else packed_per_line(bits)
+    need = width // per * LINE * height
+    if fmt == 5:
+        data = rotated_blocks(buf[: need + BLOCK])[:need]
+    else:
+        data = bytes(buf[:need])
+    if len(data) < need:
+        raise rd.DevelopError(f"RW2: the sensor data is cut short ({len(data)} of {need} bytes)")
+    if engine != "python":
+        from shootflow import ljpeg_native
+
+        got = None
+        if ljpeg_native.available():
+            got = (ljpeg_native.panasonic_c6_run(data, width, height) if fmt == 6
+                   else ljpeg_native.panasonic_packed_run(data, width, height, bits))
+        if got is not None:
+            return got
+        if engine == "native":
+            raise RuntimeError("native decoder is not available")
+    return _c6_python(data, width, height) if fmt == 6 else _packed_python(data, width, height, bits)
+
+
+# --------------------------------------------------------------------------
+# RawFormat 8 (GH6 and later): Huffman-coded 2x2 blocks in tiles
+
+C8_TILE_COLS, C8_TILE_ROWS = 0x42, 0x43
+C8_TILE_OFFSETS, C8_TILE_LEFT, C8_TILE_BITS = 0x44, 0x45, 0x46
+C8_TILE_WIDTH, C8_TILE_HEIGHT = 0x47, 0x48
+C8_CURVE_SHIFTS, C8_CURVE_KNEES, C8_CURVE_TOP = 0x39, 0x3A, 0x3B
+C8_INITIAL = (0x3C, 0x3D, 0x3E, 0x3F)
+C8_CODES, C8_CODE_SHIFTS = 0x40, 0x41
+C8_SYMBOLS = 17
+C8_MAX_TILES = 12
+# Decoding order inside a 2x2 block, as (row, column): top-left, bottom-left, top-right, bottom-right.
+C8_ORDER = ((0, 0), (1, 0), (0, 1), (1, 1))
+_REVERSED = bytes(int(f"{b:08b}"[::-1], 2) for b in range(256))
+
+
+class C8Params:
+    """The RawFormat 8 tables from IFD0: one Huffman code per symbol (the symbol is how many bits
+    the step takes, as in lossless JPEG), a per-symbol shift, the four starting values and the
+    tiles. Raises ``DevelopError`` on anything outside what the six checked bodies write."""
+
+    def __init__(self, ifd0: rd.Ifd, width: int, height: int, size: int):
+        def counted(tag, item, count):
+            raw = bytes(ifd0.entries.get(tag) or b"")
+            fmt = ifd0.byte_order
+            if len(raw) < 2:
+                raise rd.DevelopError(f"RW2 RawFormat 8: tag 0x{tag:X} is missing")
+            n = struct.unpack(fmt + "H", raw[:2])[0]
+            if n > count or len(raw) < 2 + n * struct.calcsize(item):
+                raise rd.DevelopError(f"RW2 RawFormat 8: tag 0x{tag:X} is malformed")
+            return list(struct.unpack(fmt + item * n, raw[2 : 2 + n * struct.calcsize(item)]))
+
+        pairs = counted(C8_CODES, "HH", C8_SYMBOLS)
+        pairs += [0, 0] * (C8_SYMBOLS - len(pairs) // 2)
+        self.lengths = [min(v, 16) for v in pairs[0::2]]
+        self.codes = [min(v, 0xFFF) for v in pairs[1::2]]
+        shifts = counted(C8_CODE_SHIFTS, "H", C8_SYMBOLS)
+        self.shifts = [min(v, 16) for v in shifts] + [0] * (C8_SYMBOLS - len(shifts))
+        self.initial = [int(ifd0.one(t, 0) or 0) for t in C8_INITIAL]
+        self.top = int(ifd0.one(C8_CURVE_TOP, 0xFFFF) or 0xFFFF)
+        self.curve = self._curve(counted(C8_CURVE_SHIFTS, "I", 6), counted(C8_CURVE_KNEES, "HH", 6))
+        self.lookup = self._lookup()
+
+        cols, rows = int(ifd0.one(C8_TILE_COLS, 0) or 0), int(ifd0.one(C8_TILE_ROWS, 0) or 0)
+        n = cols * rows
+        if not 1 <= n <= C8_MAX_TILES:
+            raise rd.DevelopError(f"RW2 RawFormat 8: {cols} x {rows} tiles is outside 1-{C8_MAX_TILES}")
+        offsets = counted(C8_TILE_OFFSETS, "I", C8_MAX_TILES)
+        lefts = counted(C8_TILE_LEFT, "I", C8_MAX_TILES)
+        bits = counted(C8_TILE_BITS, "I", C8_MAX_TILES)
+        widths = counted(C8_TILE_WIDTH, "H", C8_MAX_TILES)
+        heights = counted(C8_TILE_HEIGHT, "H", C8_MAX_TILES)
+        if min(len(offsets), len(lefts), len(bits), len(widths), len(heights)) < n:
+            raise rd.DevelopError("RW2 RawFormat 8: fewer tile entries than tiles")
+        self.tiles = []
+        for t in range(n):
+            row, col = divmod(t, cols)
+            top = sum(heights[k] for k in range(col, t, cols))
+            w, h = widths[t], heights[t]
+            if not w or not h or w % 2 or h % 2 or lefts[t] + w > width or top + h > height:
+                raise rd.DevelopError(f"RW2 RawFormat 8: tile {t} ({w} x {h} at {lefts[t]}, {top}) does not fit")
+            nbytes = (bits[t] + 7) // 8
+            if offsets[t] + nbytes > size:
+                raise rd.DevelopError(f"RW2 RawFormat 8: tile {t} runs past the end of the file")
+            self.tiles.append((offsets[t], nbytes, lefts[t], top, w, h))
+        for r in range(rows):
+            if sum(self.tiles[r * cols + c][4] for c in range(cols)) != width:
+                raise rd.DevelopError("RW2 RawFormat 8: the tiles do not cover the row")
+        for c in range(cols):
+            if sum(self.tiles[r * cols + c][5] for r in range(rows)) != height:
+                raise rd.DevelopError("RW2 RawFormat 8: the tiles do not cover the column")
+
+    def _curve(self, shifts, knees):
+        """The tone curve of tags 0x39/0x3A as a 65536-entry table, or None when it is the identity
+        (every checked body). Only the identity is accepted: no file with another curve was at hand,
+        so its meaning is unchecked."""
+
+        knees = knees[1::2] + [0] * (6 - len(knees) // 2)
+        shifts = shifts + [0] * (6 - len(shifts))
+        if any(k for k in knees) or any(s & 0x1F for s in shifts):
+            raise rd.DevelopError(
+                "RW2 RawFormat 8: this file carries a tone curve (tags 0x39/0x3A) that no checked body uses; "
+                "convert to DNG"
+            )
+        return None
+
+    def _lookup(self) -> bytes:
+        """For every value of the next 16 bits, the symbol whose code they start with: the first
+        match in table order, 17 when none matches (a corrupt stream)."""
+
+        table = bytearray([17]) * 0x10000
+        for sym in range(C8_SYMBOLS - 1, -1, -1):
+            n = self.lengths[sym]
+            if not n:
+                continue
+            code = self.codes[sym] & ((1 << n) - 1)
+            start = code << (16 - n)
+            table[start : start + (1 << (16 - n))] = bytes([sym]) * (1 << (16 - n))
+        return bytes(table)
+
+
+def _c8_tile_python(data: bytes, p: C8Params, width: int, height: int, pairs: int | None = None) -> array:
+    """One RawFormat 8 tile: ``width`` x ``height`` sensels, row-major. ``pairs`` stops after that
+    many row pairs (for checks on part of a frame).
+
+    The tile is one bit stream, each byte read from its lowest bit. Sensels come in 2x2 blocks,
+    left to right along each pair of rows, in the order of ``C8_ORDER``. Each sensel is a
+    Huffman symbol k with shift s, then k - s raw bits r (none when k <= s); the step is
+    ``r << s`` when r's top bit is set, else ``(r << s) - 2**k`` (+1 when s is 0), plus
+    ``2**(s-1)`` when s > 0. When k <= s the step's sign comes from the next bit, which is not
+    taken. The step is added to the same position of the block to the left (the first block of a
+    row pair: the first block of the pair above; the first pair: tags 0x3C-0x3F), and the sum is
+    held to 0..tag 0x3B."""
+
+    stream = data.translate(_REVERSED)  # now most significant bit first
+    nbytes = len(stream)
+    acc, have, at = 0, 0, 0
+    lookup, lengths, shifts = p.lookup, p.lengths, p.shifts
+    top = p.top
+    rows = height // 2 if pairs is None else min(height // 2, pairs)
+    out = array("H", [0]) * (width * rows * 2)
+    first = list(p.initial)  # TL, TR, BL, BR
+    for pair in range(rows):
+        base = list(first)
+        r0 = 2 * pair * width
+        r1 = r0 + width
+        for col in range(0, width, 2):
+            block = [0, 0, 0, 0]
+            for slot in (0, 2, 1, 3):
+                while have < 48:
+                    acc = (acc << 8) | (stream[at] if at < nbytes else 0)
+                    at += 1
+                    have += 8
+                sym = lookup[(acc >> (have - 16)) & 0xFFFF]
+                if sym >= C8_SYMBOLS:
+                    raise rd.DevelopError("RW2 RawFormat 8: a code matches no symbol (corrupt data)")
+                have -= lengths[sym]
+                s = shifts[sym]
+                extra = sym - s
+                if extra > 0:
+                    have -= extra
+                    raw = (acc >> have) & ((1 << extra) - 1)
+                    step = raw << s if raw >> (extra - 1) else (raw << s) - (1 << sym) + (0 if s else 1)
+                elif sym and not (acc >> (have - 1)) & 1:
+                    step = -(1 << sym)
+                else:
+                    step = 0
+                if s:
+                    step += 1 << (s - 1)
+                acc &= (1 << have) - 1
+                v = base[slot] + step
+                block[slot] = 0 if v < 0 else top if v > top else v
+            base = block
+            if col == 0:
+                first = list(block)
+            out[r0 + col], out[r0 + col + 1], out[r1 + col], out[r1 + col + 1] = block
+    return out
+
+
+def decode_c8(data: bytes, p: C8Params, width: int, height: int, engine: str = "auto", pairs: int | None = None) -> array:
+    """A whole RawFormat 8 frame from its tiles, row-major (``pairs``: decode only that many row
+    pairs of each tile; the rest stays 0)."""
+
+    out = array("H", [0]) * (width * height)
+    native = None
+    if engine != "python":
+        from shootflow import ljpeg_native
+
+        native = ljpeg_native if ljpeg_native.available() and hasattr(ljpeg_native, "panasonic_c8_tile") else None
+        if native is None and engine == "native":
+            raise RuntimeError("native decoder is not available")
+    for offset, nbytes, left, top_row, w, h in p.tiles:
+        chunk = data[offset : offset + nbytes]
+        tile = native.panasonic_c8_tile(chunk, p, w, h, pairs) if native is not None else None
+        if tile is None:
+            tile = _c8_tile_python(chunk, p, w, h, pairs)
+        rows = len(tile) // w
+        for r in range(rows):
+            k = (top_row + r) * width + left
+            out[k : k + w] = tile[r * w : (r + 1) * w]
+    return out
+
+
+def black_per_position(levels, pattern, offset: int = BLACK_OFFSET) -> tuple[float, ...]:
+    """BlackLevelRed, Green, Blue (+15 on RawFormat 4) placed on the 2x2 CFA positions."""
+
+    return tuple(float(levels[colour] + offset) for colour in pattern)
 
 
 def parse_rw2(data: bytes, engine: str = "auto") -> rd.RawImage:
@@ -219,25 +533,50 @@ def parse_rw2(data: bytes, engine: str = "auto") -> rd.RawImage:
         raise rd.DevelopError("raw image size is missing or implausible")
     fmt = ifd0.one(PANA_RAW_FORMAT, 0)
     compression = ifd0.one(PANA_COMPRESSION, 0)
-    if fmt != 4 or compression != 34316:
+    bits = ifd0.one(PANA_BITS, 12)
+    c8 = None
+    if fmt == 8:
+        if bits not in (12, 14, 16):
+            raise rd.DevelopError(f"this RW2 layout (RawFormat 8, {bits}-bit) is not supported; convert to DNG")
+        c8 = C8Params(ifd0, width, height, len(data))
+    elif fmt not in (4, 5, 6, 7) or compression != 34316 or (fmt == 4 and bits != 12) or bits not in (12, 14) \
+            or (fmt == 6 and bits != 14):
         raise rd.DevelopError(
-            f"this RW2 layout (RawFormat {fmt}, compression {compression}) is not supported; convert to DNG"
+            f"this RW2 layout (RawFormat {fmt}, compression {compression}, {bits}-bit) is not supported; convert to DNG"
+        )
+    per = RUN if fmt in (4, 8) else C6_PER_LINE if fmt == 6 else packed_per_line(bits)
+    if fmt not in (4, 8) and width % per:
+        raise rd.DevelopError(
+            f"RW2 RawFormat {fmt}: a row of {width} sensels is not whole {per}-sensel lines (no test file); convert to DNG"
         )
     start = ifd0.one(PANA_RAW_OFFSET)
-    if not start or start >= len(data):
+    if c8 is not None:
+        values = decode_c8(data, c8, width, height, engine)
+        notes = [f"RW2: Panasonic RawFormat 8, {bits}-bit, {len(c8.tiles)} tiles"]
+    elif not start or start >= len(data):
         raise rd.DevelopError("RW2 has no RawDataOffset inside the file")
-    values = decode_panasonic(data[start:], width, height, engine)
-    notes = ["RW2: Panasonic compressed (RawFormat 4, 12-bit)"]
+    elif fmt == 4:
+        values = decode_panasonic(data[start:], width, height, engine)
+        notes = ["RW2: Panasonic compressed (RawFormat 4, 12-bit)"]
+    else:
+        values = decode_newer(data[start:], width, height, fmt, bits, engine)
+        notes = [f"RW2: Panasonic RawFormat {fmt}, {bits}-bit"]
 
     pattern = CFA_CODES.get(ifd0.one(PANA_CFA, 0))
     if pattern is None:
         raise rd.DevelopError(f"RW2 CFAPattern {ifd0.one(PANA_CFA)} is not one of 1-4")
     levels = [ifd0.one(t) for t in PANA_BLACK]
-    black = black_per_position(levels, pattern) if all(v is not None for v in levels) else (0.0,) * 4
+    offset = BLACK_OFFSET if fmt == 4 else 0
+    black = black_per_position(levels, pattern, offset) if all(v is not None for v in levels) else (0.0,) * 4
+    top = (1 << bits) - 1
     limits = [ifd0.one(t) for t in PANA_LINEARITY]
-    white = min(int(v) for v in limits) if all(limits) else 4095
-    if white > 4095:
-        white = 4095
+    white = min(int(v) for v in limits) if all(limits) else top
+    white = min(white, top)
+    if fmt in (6, 7) or (fmt == 8 and bits < 16):
+        # A saturated photosite reads anywhere in the top 64 levels on these bodies (a real S1 frame:
+        # 144,576 sensels at 16352-16355, 32,128 at 16368; an S1 II high-resolution frame: 474,477 at
+        # 16381-16382); LibRaw's margin catches all of them. 16-bit RawFormat 8 keeps 65535, as LibRaw.
+        white -= WHITE_MARGIN_14 >> (14 - bits)
     as_shot = None
     wb = [ifd0.one(t) for t in PANA_WB_LEVELS]
     if all(wb) and wb[1] > 0:
@@ -253,7 +592,7 @@ def parse_rw2(data: bytes, engine: str = "auto") -> rd.RawImage:
     synth.entries = {
         rd.TAG_WIDTH: (width,),
         rd.TAG_HEIGHT: (height,),
-        rd.TAG_BITS: (12,),
+        rd.TAG_BITS: (bits,),
         rd.TAG_SAMPLES: (1,),
         rd.TAG_PHOTOMETRIC: (rd.PHOTOMETRIC_CFA,),
         rd.TAG_CFA_REPEAT: (2, 2),
@@ -266,8 +605,8 @@ def parse_rw2(data: bytes, engine: str = "auto") -> rd.RawImage:
     crop = sensor_crop(ifd0, width, height)
     if crop is not None:
         synth.entries[rd.TAG_CROP_ORIGIN] = crop[:2]
-        synth.entries[rd.TAG_CROP_SIZE] = crop[2:]
-        notes.append(f"RW2: the sensor borders, {crop[2]}x{crop[3]} at ({crop[0]}, {crop[1]})")
+        synth.entries[rd.TAG_CROP_SIZE] = crop[2:4]
+        notes.append(f"RW2: {crop[4]}, {crop[2]}x{crop[3]} at ({crop[0]}, {crop[1]})")
     if as_shot is not None:
         synth.entries[rd.TAG_AS_SHOT_NEUTRAL] = tuple(1.0 / v for v in as_shot)
     head = rd.Ifd(entries=dict(ifd0.entries), byte_order=reader.end)
@@ -373,20 +712,24 @@ def rw2_exif(data: bytes, reader, ifd0: rd.Ifd) -> tuple[rd.Ifd | None, str | No
     return merged, lens_note
 
 
-def sensor_crop(ifd0: rd.Ifd, width: int, height: int) -> tuple[int, int, int, int] | None:
-    """SensorTopBorder, LeftBorder, BottomBorder, RightBorder (0x04-0x07) as (x, y, w, h), when inside."""
+def sensor_crop(ifd0: rd.Ifd, width: int, height: int):
+    """The frame as (x, y, w, h, what): the camera's crop (0x2F-0x32, top, left, bottom, right: the
+    aspect ratio chosen in the camera) when present and inside the sensor borders' limits, else the
+    sensor borders (0x04-0x07). None when neither fits the stored size."""
 
-    top, left, bottom, right = (ifd0.one(t) for t in (PANA_TOP, PANA_LEFT, PANA_BOTTOM, PANA_RIGHT))
-    if None in (top, left, bottom, right):
-        return None
-    if not (0 <= left < right <= width and 0 <= top < bottom <= height):
-        return None
-    return left, top, right - left, bottom - top
+    for tags, what in ((PANA_CROP, "the in-camera crop"), ((PANA_TOP, PANA_LEFT, PANA_BOTTOM, PANA_RIGHT), "the sensor borders")):
+        top, left, bottom, right = (ifd0.one(t) for t in tags)
+        if None in (top, left, bottom, right):
+            continue
+        if 0 <= left < right <= width and 0 <= top < bottom <= height:
+            return left, top, right - left, bottom - top, what
+    return None
 
 
 __all__ = [
     "black_per_position",
     "camera_model",
+    "decode_newer",
     "decode_panasonic",
     "embedded_exif",
     "is_rw2",

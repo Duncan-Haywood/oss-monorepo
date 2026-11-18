@@ -36,7 +36,8 @@ const iso = /^\d{4}-\d{2}-\d{2}$/;
 function parseDate(s) {
   if (!iso.test(String(s || ""))) return null;
   const t = Date.parse(s + "T00:00:00Z");
-  return Number.isNaN(t) ? null : t;
+  // Date.parse rolls 2026-02-30 into 2 March; refuse dates that do not round-trip.
+  return Number.isNaN(t) || new Date(t).toISOString().slice(0, 10) !== s ? null : t;
 }
 const fmtDate = (t) => new Date(t).toISOString().slice(0, 10);
 const money = (n) => "£" + (Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -56,7 +57,7 @@ export function referenceKey(dueTime) {
 export function compute(raw) {
   const errors = [];
   const amount = Number(raw.amount);
-  if (!(amount > 0)) errors.push("Enter the unpaid amount of the invoice (more than zero).");
+  if (!(amount > 0 && Number.isFinite(amount))) errors.push("Enter the unpaid amount of the invoice (more than zero).");
   const given = parseDate(raw.dueDate);
   if (given === null) errors.push(raw.dueMode === "invoice30" ? "Enter the invoice or delivery date as YYYY-MM-DD." : "Enter the payment due date as YYYY-MM-DD.");
   const asOf = parseDate(raw.asOf);
@@ -67,7 +68,7 @@ export function compute(raw) {
   const dueTime = raw.dueMode === "invoice30" ? given + 30 * DAY : given;
   const key = referenceKey(dueTime);
   let base, baseNote;
-  const override = raw.baseOverride === "" || raw.baseOverride == null ? null : Number(raw.baseOverride);
+  const override = raw.baseOverride == null || String(raw.baseOverride).trim() === "" ? null : Number(raw.baseOverride);
   if (override !== null && !(override >= 0 && override <= 30)) return { errors: ["The base rate must be a percentage between 0 and 30."] };
   if (override !== null) { base = override; baseNote = "base rate you entered"; }
   else if (BASE_RATES[key]) {
@@ -79,12 +80,20 @@ export function compute(raw) {
   const daysLate = Math.max(0, Math.round((asOf - dueTime) / DAY));
   const perDay = (amount * rate) / 100 / 365;
   const interest = round2(perDay * daysLate);
-  const compensation = compensationFor(amount);
+  // The fixed sum becomes due only once the debt is late.
+  const compensation = daysLate > 0 ? compensationFor(amount) : 0;
   const costs = Math.max(0, Number(raw.recoveryCosts) || 0);
   const total = round2(amount + interest + compensation + costs);
   const claimable = round2(interest + compensation + costs);
 
-  const horizon = [30, 60, 90].map((n) => ({ days: n, date: fmtDate(asOf + n * DAY), interest: round2(perDay * (daysLate + n)), total: round2(amount + perDay * (daysLate + n) + compensation + costs) }));
+  // Count each horizon date's own days late: an as-of date before the due date
+  // must not earn interest (or the fixed sum) for the days still before it.
+  const horizon = [30, 60, 90].map((n) => {
+    const at = asOf + n * DAY;
+    const late = Math.max(0, Math.round((at - dueTime) / DAY));
+    const comp = late > 0 ? compensationFor(amount) : 0;
+    return { days: n, date: fmtDate(at), interest: round2(perDay * late), total: round2(amount + perDay * late + comp + costs) };
+  });
 
   const findings = [];
   if (daysLate === 0) findings.push({ severity: "info", title: "Not overdue on this date: interest starts the day after the due date, so nothing is owed yet." });

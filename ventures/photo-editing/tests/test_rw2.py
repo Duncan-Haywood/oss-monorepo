@@ -182,12 +182,54 @@ def _encodable(seed, width, height):
     return vals, encode(vals, width, height)
 
 
-def make_rw2(*, width=W, height=H, cfa=2, black=(128, 129, 130), wb=(662, 256, 370), model="DMC-GF7",
-             borders=(2, 4, 8, 32), linearity=4095, values=None, raw_format=4, jpeg=None):
-    """An RW2: (file bytes, expected sensels). ``borders`` = (top, left, bottom, right); ``jpeg`` is the
-    embedded JpgFromRaw (tag 0x2E), when given."""
+def pack_lines(values, width, height, bits):
+    """RawFormat 5/7 lines in reading order: ``128 // bits`` sensels a 16-byte line, lowest bits first."""
 
-    if values is None:
+    per = 128 // bits
+    out = bytearray()
+    for row in range(height):
+        r = values[row * width : (row + 1) * width]
+        for at in range(0, width, per):
+            v = 0
+            for i, x in enumerate(r[at : at + per]):
+                v |= x << (i * bits)
+            out += v.to_bytes(16, "little")
+    return bytes(out)
+
+
+def unrotate(stream):
+    """The file bytes whose rotated 0x4000-byte blocks read as ``stream`` (the inverse of rw2.rotated_blocks)."""
+
+    n = -(-len(stream) // rw2.BLOCK) * rw2.BLOCK
+    stream = stream + bytes(n - len(stream))
+    out = bytearray()
+    for at in range(0, n, rw2.BLOCK):
+        blk = stream[at : at + rw2.BLOCK]
+        out += blk[rw2.SPLIT :] + blk[: rw2.SPLIT]
+    return bytes(out)
+
+
+def c6_line(fields):
+    """One RawFormat 6 line from its 14 fields (widths rw2.C6_FIELDS), the first field in the top bits."""
+
+    v, pos = 0, 128
+    for w, x in zip(rw2.C6_FIELDS, fields):
+        pos -= w
+        assert 0 <= x < 1 << w
+        v |= x << pos
+    return v.to_bytes(16, "little")
+
+
+def make_rw2(*, width=W, height=H, cfa=2, black=(128, 129, 130), wb=(662, 256, 370), model="DMC-GF7",
+             borders=(2, 4, 8, 32), linearity=4095, values=None, raw_format=4, jpeg=None, bits=12,
+             payload=None, crop=None):
+    """An RW2: (file bytes, expected sensels). ``borders`` = (top, left, bottom, right); ``jpeg`` is the
+    embedded JpgFromRaw (tag 0x2E), when given; ``crop`` the in-camera crop (0x2F-0x32), same order.
+    ``payload`` replaces the RawFormat 4 sensor data (expected is then None)."""
+
+    if payload is not None:
+        expected = None
+    elif values is None:
         expected, (payload, _) = _encodable(5, width, height)
     else:
         expected, (payload, _) = values, encode(values, width, height)
@@ -196,7 +238,7 @@ def make_rw2(*, width=W, height=H, cfa=2, black=(128, 129, 130), wb=(662, 256, 3
         e = [
             (0x02, 3, (width,)), (0x03, 3, (height,)),
             (0x04, 3, (borders[0],)), (0x05, 3, (borders[1],)), (0x06, 3, (borders[2],)), (0x07, 3, (borders[3],)),
-            (0x09, 3, (cfa,)), (0x0A, 3, (12,)), (0x0B, 3, (34316,)),
+            (0x09, 3, (cfa,)), (0x0A, 3, (bits,)), (0x0B, 3, (34316,)),
             (0x0E, 3, (linearity,)), (0x0F, 3, (linearity,)), (0x10, 3, (linearity,)),
             (0x2D, 3, (raw_format,)),
             (271, 2, tuple(b"Panasonic\0")), (272, 2, tuple(model.encode() + b"\0")),
@@ -208,7 +250,9 @@ def make_rw2(*, width=W, height=H, cfa=2, black=(128, 129, 130), wb=(662, 256, 3
             e += [(0x24, 3, (wb[0],)), (0x25, 3, (wb[1],)), (0x26, 3, (wb[2],))]
         if jpeg is not None:
             e.append((0x2E, 7, tuple(jpeg)))
-        return e
+        if crop is not None:
+            e += [(0x2F + i, 3, (c,)) for i, c in enumerate(crop)]
+        return sorted(e)
 
     head_len = 8 + len(_ifd_bytes(ifd0(0), 8))
     blob = b"IIU\0" + struct.pack("<I", 8) + _ifd_bytes(ifd0(head_len), 8) + payload
@@ -392,8 +436,111 @@ class ReadTests(unittest.TestCase):
         self.assertTrue(any("white balance" in n for n in no_wb.notes))
 
     def test_other_raw_formats_are_refused(self):
-        with self.assertRaisesRegex(rd.DevelopError, "RawFormat 5.*not supported"):
-            rw2.parse_rw2(make_rw2(raw_format=5)[0])
+        with self.assertRaisesRegex(rd.DevelopError, "RawFormat 3.*not supported"):
+            rw2.parse_rw2(make_rw2(raw_format=3)[0])
+        # RawFormat 8 is read (tests/test_rw2_c8.py), but needs its code table.
+        with self.assertRaisesRegex(rd.DevelopError, "RawFormat 8: tag 0x40 is missing"):
+            rw2.parse_rw2(make_rw2(raw_format=8)[0])
+        with self.assertRaisesRegex(rd.DevelopError, "not supported"):
+            rw2.parse_rw2(make_rw2(raw_format=6, bits=12, payload=bytes(16 * 40))[0])
+        # 36 sensels a row is not whole 11-sensel lines.
+        with self.assertRaisesRegex(rd.DevelopError, "not whole 11-sensel lines"):
+            rw2.parse_rw2(make_rw2(raw_format=6, bits=14, payload=bytes(16 * 40))[0])
+        with self.assertRaisesRegex(rd.DevelopError, "cut short"):
+            rw2.parse_rw2(make_rw2(raw_format=7, bits=12, width=40, height=4, borders=(0, 0, 4, 40),
+                                   payload=bytes(16 * 10))[0])
+
+    def test_in_camera_crop_wins_over_the_borders(self):
+        raw = rw2.parse_rw2(make_rw2(crop=(2, 10, 8, 26))[0])
+        e = raw.ifd.entries
+        self.assertEqual((e[rd.TAG_CROP_ORIGIN], e[rd.TAG_CROP_SIZE]), ((10, 2), (16, 6)))
+        self.assertTrue(any("in-camera crop" in n for n in raw.notes))
+        # A crop past the stored size falls back to the sensor borders.
+        e = rw2.parse_rw2(make_rw2(crop=(2, 10, 8, 99))[0]).ifd.entries
+        self.assertEqual((e[rd.TAG_CROP_ORIGIN], e[rd.TAG_CROP_SIZE]), ((4, 2), (28, 6)))
+
+
+class NewerFormatTests(unittest.TestCase):
+    """RawFormat 5 (G9, GH5S), 6 (S1, S1R, S1H) and 7 (S5). Real files: eval/panasonic-rw2-newer-2026-11-15.md."""
+
+    def _field(self, seed, n, bits):
+        rng = random.Random(seed)
+        return [rng.randrange(1 << bits) if rng.random() < 0.9 else rng.choice((0, (1 << bits) - 1)) for _ in range(n)]
+
+    def test_format_7_packed_lines_both_bit_depths(self):
+        for bits, width in ((14, 45), (12, 40)):
+            height = 7
+            vals = self._field(bits, width * height, bits)
+            data, _ = make_rw2(raw_format=7, bits=bits, width=width, height=height, borders=(0, 0, height, width),
+                               payload=pack_lines(vals, width, height, bits), black=(500, 501, 502),
+                               linearity=(1 << bits) - 1)
+            for engine in engines():
+                raw = rw2.parse_rw2(data, engine=engine)
+                self.assertEqual(list(raw.values), vals, (bits, engine))
+            e = raw.ifd.entries
+            self.assertIn(f"RawFormat 7, {bits}-bit", raw.notes[0])
+            # Black as stored (no +15) and the white level up to the body's own bit depth.
+            self.assertEqual(e[rd.TAG_BLACK_LEVEL], (501.0, 500.0, 502.0, 501.0))
+            # Less LibRaw's margin of 64 levels at 14 bits (16 at 12).
+            self.assertEqual(e[rd.TAG_WHITE_LEVEL], ((1 << bits) - 1 - (64 >> (14 - bits)),))
+            self.assertEqual(e[rd.TAG_BITS], (bits,))
+
+    def test_format_5_lines_through_rotated_blocks(self):
+        # 90 x 200 sensels at 14 bits: 32,000 bytes, so the stream crosses a 0x4000-byte block.
+        width, height, bits = 90, 200, 14
+        vals = self._field(5, width * height, bits)
+        stream = pack_lines(vals, width, height, bits)
+        self.assertGreater(len(stream), rw2.BLOCK)
+        data, _ = make_rw2(raw_format=5, bits=bits, width=width, height=height, borders=(0, 0, height, width),
+                           payload=unrotate(stream), linearity=16383)
+        for engine in engines():
+            raw = rw2.parse_rw2(data, engine=engine)
+            self.assertEqual(list(raw.values), vals, engine)
+        # RawFormat 5's white is the linearity limit itself, no longer held at 4095 (the GH5S: 16383 = LibRaw).
+        self.assertEqual(raw.ifd.entries[rd.TAG_WHITE_LEVEL], (16383,))
+        # Read in file order instead (RawFormat 7's way), the same bytes give other sensels.
+        self.assertNotEqual(list(rw2.decode_newer(unrotate(stream), width, height, 7, bits, "python")), vals)
+
+    def test_format_6_worked_line(self):
+        # Two absolute 14-bit values, then groups with codes 0, 1 and 3 (= shift 4).
+        fields = [5000, 7000, 0, 0x210, 0x220, 0x230, 1, 0x150, 0x160, 0x170, 3, 0x40, 0x50, 0x60]
+        line = c6_line(fields)
+        # By hand: parity 0 starts at 5000, parity 1 at 7000. Code 0: mul 1, base 0x200 (< 0x2000 and
+        # under the previous value), so value + prev - 0x200. Code 1: mul 2, base 0x400. Code 3 -> shift
+        # 4: mul 16, base 0x2000, which is not below 0x2000, so no move.
+        p0, p1 = 5000, 7000
+        want = [p0, p1]
+        for value, mul, base, parity in ((0x210, 1, 0x200, 0), (0x220, 1, 0x200, 1), (0x230, 1, 0x200, 0),
+                                         (0x150, 2, 0x400, 1), (0x160, 2, 0x400, 0), (0x170, 2, 0x400, 1)):
+            if parity == 0:
+                p0 = value * mul + p0 - base
+                want.append(p0)
+            else:
+                p1 = value * mul + p1 - base
+                want.append(p1)
+        want += [0x40 * 16, 0x50 * 16, 0x60 * 16]
+        want = [v - 15 for v in want]
+        for engine in engines():
+            self.assertEqual(list(rw2.decode_newer(line, 11, 1, 6, 14, engine)), want, engine)
+
+    def test_format_6_zero_start_clamps_and_random_lines_agree(self):
+        # A parity whose first value is 0 takes its next value as absolute too; below 15 reads 0.
+        fields = [0, 3, 0, 900, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        got = list(rw2.decode_newer(c6_line(fields), 11, 1, 6, 14, "python"))
+        self.assertEqual(got[:3], [0, 0, 900 - 15])
+        # Parity 1: 3 is absolute (below 15, so 0); then 20 as is (prev 3 is not over 0x200): 5.
+        self.assertEqual(got[3], 20 - 15)
+        rng = random.Random(9)
+        width, height = 33, 5
+        payload = b"".join(c6_line([rng.randrange(1 << w) for w in rw2.C6_FIELDS]) for _ in range(width // 11 * height))
+        data, _ = make_rw2(raw_format=6, bits=14, width=width, height=height, borders=(0, 0, height, width),
+                           payload=payload, linearity=16383, black=(510, 510, 510))
+        outs = {e: tuple(rw2.parse_rw2(data, engine=e).values) for e in engines()}
+        self.assertEqual(len(set(outs.values())), 1)
+        raw = rw2.parse_rw2(data)
+        # White: LibRaw's 16319 (saturation lands anywhere in the top 64 levels); black as stored.
+        self.assertEqual(raw.ifd.entries[rd.TAG_WHITE_LEVEL], (16319,))
+        self.assertEqual(raw.ifd.entries[rd.TAG_BLACK_LEVEL], (510.0,) * 4)
 
     def test_dispatch_and_names(self):
         data, _ = make_rw2()

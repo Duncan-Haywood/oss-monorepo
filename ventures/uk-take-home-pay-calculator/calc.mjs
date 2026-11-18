@@ -24,7 +24,7 @@ export const PLANS = {
 export const PGL = { threshold: 21000, rate: 0.06 };
 export const METHODS = { none: "No pension contribution", sacrifice: "Salary sacrifice", netpay: "Net pay arrangement", ras: "Relief at source" };
 
-const money = (n) => (n < 0 ? "-" : "") + "GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0"));
 const r2 = (n) => Math.round(n * 100) / 100;
 const pos = (n) => (n > 0 ? n : 0);
 

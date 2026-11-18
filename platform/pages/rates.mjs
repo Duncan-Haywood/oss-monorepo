@@ -376,6 +376,8 @@ export const REVIEWED_NOT_CARRIED = {
     'the attendant wage and payroll-extras percentage price staffed hours across every open day of a kennel, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollars, and the target margin is a pricing goal for nightly and daycare prices.',
   'kombucha-brewery-profit-calculator':
     'the hourly labour cost prices minutes per gallon of kombucha for a production brewery sold by the gallon, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are a monthly dollar total, and the target margin is a share of net brewery revenue.',
+  'campground-site-profit-calculator':
+    'the wage and payroll burden price turnover minutes per stay spread over the nights of a whole campground season, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are a yearly dollar total, and the profit target is dollars a year (read 2026-11-16, when the burden field was added for quality audit 2026-11-07).',
   'pizzeria-profit-calculator':
     'the hourly wage prices paid staff hours across a whole open day of a pizzeria, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the target margin is a share of net shop revenue.',
   'boba-tea-shop-profit-calculator':
@@ -823,7 +825,15 @@ function fieldSentence(fields) {
  * held from first paint at the height it will have when shown (see the
  * scripting rule in RATES_CSS). The script still sets it; the two must match.
  */
-export const RATES_FIRST_VISIT_STATUS = 'Save your rates once \u2014 every calculator here uses them.';
+//
+// Short enough to sit beside its button on a phone. The old sentence ("Save
+// your rates once \u2014 every calculator here uses them.", 55 characters) wrapped
+// to two lines at 390 px and pushed the button onto a third, an 83 px bar above
+// the form on all 124 bar pages; this one shares the button's row on 124 of 124
+// at 390 px and 121 at 360 px (fit test, 2026-11-16, docs/reports/
+// polish-2026-11-16-rates-line.md). The panel still says the rest.
+export const RATES_FIRST_VISIT_STATUS = 'Save rates once for every bid.';
+export const RATES_FIRST_VISIT_MAX = 30;
 const RATES_FIRST_VISIT_STATUS_HTML = RATES_FIRST_VISIT_STATUS.replace('\u2014', '&mdash;');
 
 const RATES_MARKUP = (fields, note) => `<section class="pf-rates" hidden data-pf-rates-root>
@@ -939,7 +949,19 @@ ${BAR_ALIGN_JS}
     if (!isFinite(value) || value < 0 || value > max) return null;
     return value;
   };
+  // The page's own ceiling where its input sets a lower one than the shared
+  // spec. locksmith-bid-calculator takes overhead up to 100%, not 500%, and its
+  // calculator throws above that, so a rate saved on another tool must not be
+  // written into its form. Thirteen inputs on nine tools set a lower max.
+  var ceiling = function(f){
+    var node = fieldFor(f);
+    var own = node && node.max !== undefined && node.max !== null && node.max !== '' ? Number(node.max) : NaN;
+    return isFinite(own) && own < f.max ? own : f.max;
+  };
+  // Saved fields this page carries but cannot take, named in the status.
+  var overLimit = [];
   var read = function(){
+    overLimit = [];
     if (!store) return null;
     var raw;
     try { raw = store.getItem(KEY); } catch (e) { return null; }
@@ -950,8 +972,11 @@ ${BAR_ALIGN_JS}
     var source = parsed.rates && typeof parsed.rates === 'object' ? parsed.rates : parsed;
     var out = {}, kept = 0;
     FIELDS.forEach(function(f){
-      var value = usable(source[f.id], f.max);
-      if (value === null) return;
+      var value = usable(source[f.id], ceiling(f));
+      if (value === null) {
+        if (usable(source[f.id], f.max) !== null) overLimit.push(f);
+        return;
+      }
       out[f.id] = value; kept++;
     });
     // Whatever of this page's fields is saved, not all-or-nothing. A contractor
@@ -1007,7 +1032,7 @@ ${BAR_ALIGN_JS}
   var currentFromForm = function(){
     var out = {}, kept = 0;
     FIELDS.forEach(function(f){
-      var value = usable(fieldFor(f).value, f.max);
+      var value = usable(fieldFor(f).value, ceiling(f));
       if (value === null) return;
       out[f.id] = value; kept++;
     });
@@ -1079,13 +1104,13 @@ ${BAR_ALIGN_JS}
     // alternative is a bar that says "using your shop rates" over a form where
     // one of them is still a stranger's ballpark, which is the kind of quiet
     // half-truth that makes a contractor stop trusting the number.
-    var unsaved = FIELDS.filter(function(f){ return !(f.id in rates); });
+    var unsaved = FIELDS.filter(function(f){ return !(f.id in rates) && overLimit.indexOf(f) < 0; });
+    var names = function(list){ return list.map(function(f){ return f.label; }).join(' and '); };
     status.textContent = held
       ? 'This bid came from a link, so it still shows the sender\\u2019s rates.'
-      : unsaved.length
-        ? 'Using your shop rates. ' + unsaved.map(function(f){ return f.label; }).join(' and ') +
-          ' is not saved yet.'
-        : 'Using your shop rates.';
+      : 'Using your shop rates.' +
+        (overLimit.length ? ' ' + names(overLimit) + ' is above what this tool accepts, so it keeps its own.' : '') +
+        (unsaved.length ? ' ' + names(unsaved) + ' is not saved yet.' : '');
   };
 
   var start = function(){
@@ -1119,6 +1144,7 @@ ${BAR_ALIGN_JS}
           return;
         }
         bump('shop_rates_saved');
+        overLimit = [];
         render(next, { applied: FIELDS, heldBack: [] });
         // On a page carrying fewer than the full set, "every calculator opens
         // with these" would promise more than was saved: the fields this page

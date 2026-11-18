@@ -10,12 +10,13 @@ import { cueSheet } from './cues.mjs';
 import { suggestFinal, splitVoices, describeSplit, MENS_RANGE, TENOR_RANGE, BASS_RANGE, BARITONE_RANGE, TENOR2_RANGE, CHOIRS, CHOIR_NAMES, choirUnison, fewestSections } from './voicefit.mjs';
 import { arrange, barsFor, bpmRange, GENRE_NAMES } from './genre.mjs';
 import { sectionPlan, liftEvents } from './sections.mjs';
+import { addOrganum, describeIntervals } from './organum.mjs';
 import { noteName } from './gabc.mjs';
 import { parseSingers, singersChoir, singersReport, fewestSectionsForSingers, sitOutNotes, SECTION_ORDER, SECTION_LABEL } from './singers.mjs';
 import { pathToFileURL } from 'node:url';
 
 const USAGE = `usage: node cli.mjs --singers FILE.csv [--sit-out N]   (report the section ranges a range test gives, and exit)
-       node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--a-cappella] [--key-lift N] [--choir NAME] [--singers FILE.csv] [--sit-out N] [--range LOW-HIGH] [--split-voices] [--split-words] [--word-cost N] [--entrance-cost N] [--overlap] [--baritones] [--second-tenors] [--tenor LOW-HIGH] [--tenor2 LOW-HIGH] [--baritone LOW-HIGH] [--bass LOW-HIGH] [--outro N] [--musicxml FILE] [--json]
+       node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--organum] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--a-cappella] [--key-lift N] [--choir NAME] [--singers FILE.csv] [--sit-out N] [--range LOW-HIGH] [--split-voices] [--split-words] [--word-cost N] [--entrance-cost N] [--overlap] [--baritones] [--second-tenors] [--tenor LOW-HIGH] [--tenor2 LOW-HIGH] [--baritone LOW-HIGH] [--bass LOW-HIGH] [--outro N] [--musicxml FILE] [--json]
   --genre   add drums, bass and chords in the chant's mode: ${GENRE_NAMES.join(', ')}
   --fills   with --genre: a snare roll on the last beat of every fourth bar (not the final bar)
   --sections  with --genre: song sections from the chant's double bars (intro, verse, build, drop, outro); the backing changes energy between them
@@ -40,6 +41,7 @@ const USAGE = `usage: node cli.mjs --singers FILE.csv [--sit-out N]   (report th
   --stretch with --fit: lengthen the phrase's long notes to fill the bar instead of padding silence
   --halftime  chant at half speed over full-time backing (every duration doubled; for metal)
   --repeat  play the whole chant N times in a row (a 1-minute chant becomes a 3-minute track; backing and cues follow)
+  --organum  add a second voice under the chant, a fourth below as in the Musica enchiriadis (no lower than the step under the final, no tritone, unison at each phrase end), on every pass of --repeat after the first (the whole piece when not repeated); the MIDI gets an Organal voice track
   --final   transpose so the last note is this MIDI number (50 = D3, a low men's choir final)
   --drone   add a held drone on the final, an octave below
   --cues    write a singer's cue sheet (bar, beat, seconds, note, syllable) to this file; with --sections, a guidance line opens each section (backing, first note to pitch from, the band's entry, the lifted key)
@@ -63,6 +65,7 @@ export function run(argv) {
     else if (a === '--repeat') args.repeat = Number(argv[++i]);
     else if (a === '--final') args.final = Number(argv[++i]);
     else if (a === '--drone') args.drone = true;
+    else if (a === '--organum') args.organum = true;
     else if (a === '--genre') args.genre = argv[++i];
     else if (a === '--fills') args.fills = true;
     else if (a === '--sections') args.sections = true;
@@ -193,6 +196,7 @@ export function run(argv) {
   if (args.acappella && !args.sections) return { code: 2, text: '--a-cappella needs --sections' };
   if (args.keyLift && !args.sections) return { code: 2, text: '--key-lift needs --sections' };
   if (args.keyLift && args.drone) return { code: 2, text: '--drone holds one note under the whole piece, so it cannot follow --key-lift; use one' };
+  if (args.organum && args.split) return { code: 2, text: '--organum adds its own second voice under the unison line; drop --split-voices' };
   if (args.stretch && !args.fit) return { code: 2, text: '--stretch needs --fit' };
 
   const parsed = parseGabc(readFileSync(args.file, 'utf8'));
@@ -215,7 +219,7 @@ export function run(argv) {
   // plan, then the key lift, then the pitch choice: so the range check sees the lifted line.
   if (args.fit) events = args.stretch ? fitStretch(events, args.fit) : fitToBars(events, args.fit);
   if (args.halftime) events = halfTime(events);
-  if (args.repeat > 1) events = Array.from({ length: args.repeat }, () => events).flat().map((e) => ({ ...e }));
+  if (args.repeat > 1) events = Array.from({ length: args.repeat }, (_, k) => events.map((e) => ({ ...e, pass: k + 1 }))).flat();
   const ppb = 8; // the backing's bar is always 4/4 at two pulses a beat (genre.mjs BAR), whatever --fit says
   const chantPulses = events.reduce((s, e) => s + e.pulses, 0);
   const chantBars = Math.max(1, Math.ceil(chantPulses / ppb - 1e-9));
@@ -273,6 +277,16 @@ export function run(argv) {
       return { code: 1, text: `--key-lift ${lift} puts the last drop up to ${noteName(top)}, above ${noteName(range.high)}; use --final ${fin - (top - range.high)} or lower, --auto-final, a smaller lift, or --range` };
     }
   }
+  let org = null;
+  if (args.organum && hasNotes) {
+    org = addOrganum(events, { from: args.repeat > 1 ? 2 : 1, lift });
+    events = org.events;
+    const low = Math.min(...events.filter((e) => e.organal !== undefined).map((e) => e.organal));
+    if (low < range.low) {
+      const fin = [...events].reverse().find((e) => e.type === 'note').midi - lift;
+      return { code: 1, text: `--organum: the organal voice goes down to ${noteName(low)}, below ${noteName(range.low)}; use --final ${fin + (range.low - low)} or higher, or --range` };
+    }
+  }
   if (args.outro) events = [...events, { type: 'bar', kind: 'full', pulses: chantBars * ppb - chantPulses + ppb * args.outro }];
   if (args.intro) events = [{ type: 'bar', kind: 'full', pulses: 8 * args.intro }, ...events];
   const summary = summarize({ ...parsed, events }, { bpm: args.bpm, pulsesPerBar: args.fit || 8 });
@@ -303,6 +317,10 @@ export function run(argv) {
       sharedPhrases: split.phrases.map((p, k) => (p.voice === 'mixed' ? k + 1 : 0)).filter(Boolean),
       line: describeSplit(split),
     };
+  }
+  if (org) {
+    summary.organum = { passes: args.repeat > 1 ? `2-${args.repeat}` : 'all', notes: org.notes, intervals: describeIntervals(org.intervals), lowest: noteName(Math.min(...events.filter((e) => e.organal !== undefined).map((e) => e.organal))) };
+    if (args.musicxml) summary.warnings.push('--musicxml writes the chant line only; the organal voice is in the MIDI file');
   }
   if (args.cues) {
     writeFileSync(args.cues, cueSheet(events, { bpm: args.bpm, pulsesPerBar: args.fit || 8, plan }));
@@ -344,6 +362,7 @@ export function run(argv) {
         `mode ${summary.mode ?? 'not given'}${summary.modeFinalMatches === false ? ' (final does not match the mode: check the transcription)' : ''}`,
         `${summary.bars.toFixed(2)} bars, ${summary.seconds.toFixed(1)} s at ${args.bpm} BPM`,
         ...(summary.voices ? [`voices: ${summary.voices.line}`] : []),
+        ...(summary.organum ? [`organum on ${summary.organum.passes === 'all' ? 'the whole piece' : `pass${summary.organum.passes === '2-2' ? ' 2' : `es ${summary.organum.passes}`}`}: ${summary.organum.notes} notes (${summary.organum.intervals}), lowest ${summary.organum.lowest}`] : []),
         ...(summary.sections ? [`sections: ${summary.sections.join('; ')}`] : []),
         ...(summary.singers?.sittingOut.length ? [`sitting out: ${summary.singers.sittingOut.map((t) => `${t.name} ${t.notes} of ${t.of} notes (${t.pitches})`).join('; ')}`] : []),
         ...summary.warnings.map((w) => `warning: ${w}`),

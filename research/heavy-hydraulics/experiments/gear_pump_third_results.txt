@@ -1,0 +1,63 @@
+Milestone 7d: a third rule number for the shape below the index point, k_lo = eta(57 L/min, 150 bar)/E - 1, scored leave-one-maker-family-out on held, spun and geared readings pooled
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps and drive loss as gear_pump_stepup.py)
+
+Variants (index 2 at 85 L/min and 150 bar; k_lo, k_hi; idle kW at 85 L/min; diagonal E50):
+  variant        group      index 2   k_lo      k_hi      idle kW  E50
+  casappa        casappa    0.7590  -0.0566  +0.0334     3.57  0.8277
+  danfoss        danfoss    0.8481  -0.0092  -0.0283     3.64  0.8297
+  marzocchi      marzocchi  0.8975  -0.0036  -0.0872     3.32  0.8193
+  bench          bench      0.9130  +0.0000  +0.0000     2.85  0.8116
+  rexroth        rexroth    0.9124  -0.0040  -0.0005     2.58  0.8040
+  azpu           azpu       0.8890  +0.0074  -0.0016     2.45  0.8030
+  azpf           azpf       0.9103  +0.0019  +0.0000     2.61  0.8075
+  azpf_spin      azpf       0.9043  +0.0085  +0.0000     2.99  0.8075
+  azpf_gear      azpf       0.8971  +0.0166  +0.0000     3.13  0.8094
+  azpf_gear98    azpf       0.8828  +0.0330  +0.0000     3.41  0.8093
+  azpn           azpn       0.9250  -0.0020  +0.0000     2.49  0.8050
+  azpn_spin      azpn       0.9197  +0.0037  -0.0031     2.61  0.8031
+  azpn_gear      azpn       0.9129  +0.0111  -0.0031     2.73  0.7988
+  azpn_gear98    azpn       0.8994  +0.0263  -0.0031     2.98  0.7879
+  196 cells: 0.7875 to 0.8300
+
+(i) pooled fits on all 196 cells
+  one : E50 = 0.8090; in-sample RMS 0.0087
+  two : E50 = 0.8196 + 0.0172 (kW - 3.57); in-sample RMS 0.0055
+  lo  : E50 = 0.8200 + 0.0172 (kW - 3.57) -0.1819 k_lo; in-sample RMS 0.0042
+  hi  : E50 = 0.8199 + 0.0172 (kW - 3.57) +0.0488 k_hi; in-sample RMS 0.0054
+
+(ii) pooled leave-one-maker-family-out (8 groups; the AZPF's and the AZPN's four readings held out together)
+  variant        diagonal      one      two       lo       hi
+  casappa        0.8277    +0.0202  +0.0088  -0.0078  +0.0083
+  danfoss        0.8297    +0.0219  +0.0099  +0.0076  +0.0113
+  marzocchi      0.8193    +0.0110  +0.0047  +0.0035  +0.0166
+  bench          0.8116    +0.0027  +0.0047  +0.0042  +0.0044
+  rexroth        0.8040    -0.0054  +0.0016  +0.0004  +0.0013
+  azpu           0.8030    -0.0065  +0.0031  +0.0041  +0.0028
+  azpf           0.8075    -0.0015  +0.0045  +0.0055  +0.0041
+  azpf_spin      0.8075    -0.0015  -0.0027  -0.0003  -0.0032
+  azpf_gear      0.8094    +0.0004  -0.0035  +0.0006  -0.0040
+  azpf_gear98    0.8093    +0.0003  -0.0091  -0.0014  -0.0095
+  azpn           0.8050    -0.0074  +0.0016  +0.0014  +0.0011
+  azpn_spin      0.8031    -0.0093  -0.0021  -0.0016  -0.0024
+  azpn_gear      0.7988    -0.0137  -0.0085  -0.0070  -0.0088
+  azpn_gear98    0.7879    -0.0246  -0.0234  -0.0200  -0.0237
+  RMS over 14 diagonals: one 0.0120, two 0.0084, lo 0.0068, hi 0.0096
+  RMS over the 8 held diagonals only: one 0.0119, two 0.0056, lo 0.0050, hi 0.0080
+
+(iii) the 7a, 7b and 7c eight-family panels alone, leave-one-family-out (64 cells each)
+  held (7a)    diagonal RMS: one 0.0113, two 0.0022, lo 0.0022, hi 0.0039  (check: two-number 0.0022 against the milestone's 0.0022, +0.0000)
+    diagonal errors two / lo: casappa +0.0037 / +0.0026, danfoss +0.0041 / +0.0040, marzocchi +0.0004 / +0.0010, bench +0.0006 / +0.0016, rexroth -0.0027 / -0.0021, azpu -0.0011 / +0.0009, azpf +0.0008 / +0.0021, azpn +0.0003 / +0.0011
+  spun (7b)    diagonal RMS: one 0.0115, two 0.0035, lo 0.0028, hi 0.0051  (check: two-number 0.0035 against the milestone's 0.0035, -0.0000)
+    diagonal errors two / lo: casappa +0.0048 / +0.0024, danfoss +0.0052 / +0.0049, marzocchi +0.0014 / +0.0018, bench +0.0019 / +0.0028, rexroth -0.0012 / -0.0008, azpu +0.0006 / +0.0026, azpf_spin -0.0055 / -0.0035, azpn_spin -0.0028 / -0.0014
+  geared (7c)  diagonal RMS: one 0.0121, two 0.0051, lo 0.0040, hi 0.0067  (check: two-number 0.0051 against the milestone's 0.0051, +0.0000)
+    diagonal errors two / lo: casappa +0.0059 / -0.0020, danfoss +0.0064 / +0.0058, marzocchi +0.0024 / +0.0026, bench +0.0030 / +0.0037, rexroth -0.0000 / +0.0001, azpu +0.0019 / +0.0039, azpf_gear -0.0054 / -0.0020, azpn_gear -0.0093 / -0.0070
+
+Predictions (LOG.md 7d):
+  TN1 pooled three-number (lo) diagonal RMS at least 20% below two-number: refuted (0.0068 against 0.0084, -18%)
+  TN2 pooled k_lo coefficient negative: held (-0.1819)
+  TN3 three-number (hi) does not cut the pooled diagonal RMS by 20%: held (0.0096 against 0.0084, +14%)
+  TN4 geared AZPN (sourced) within +-0.005 under three-number (lo), pooled out of sample: refuted (-0.0070; two-number -0.0085)
+  TN5 held panel three-number (lo) diagonal RMS at most 0.0030: held (0.0022)
+  TN6 geared panel three-number (lo) diagonal RMS below two-number: held (0.0040 against 0.0051)
+
+Sources: as gear_pump_stepup.py.

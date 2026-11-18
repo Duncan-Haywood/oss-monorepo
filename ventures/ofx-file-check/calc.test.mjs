@@ -200,16 +200,16 @@ test("long NAME and MEMO are reported and left alone", () => {
 });
 
 test("BOM is reported and stripped", () => {
-  const src = "﻿" + doc();
+  const src = "\uFEFF" + doc();
   assert.ok(has(validate(src), /Byte order mark/));
   const f = repair(src);
-  assert.ok(!f.text.startsWith("﻿"));
+  assert.ok(!f.text.startsWith("\uFEFF"));
   assert.ok(f.changes.some((c) => /byte order mark/.test(c)));
   assert.equal(validate(f.text).summary.errors, 0);
 });
 
 test("decodeBuffer keeps a UTF-8 BOM and falls back to Windows-1252", () => {
-  assert.equal(decodeBuffer(new Uint8Array([0xef, 0xbb, 0xbf, 0x41]).buffer), "﻿A");
+  assert.equal(decodeBuffer(new Uint8Array([0xef, 0xbb, 0xbf, 0x41]).buffer), "\uFEFFA");
   assert.equal(decodeBuffer(new Uint8Array([0x43, 0x61, 0x66, 0xe9]).buffer), "Café");
 });
 

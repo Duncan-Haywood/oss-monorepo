@@ -44,6 +44,46 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on leak 
 
 **Step 16 (2026-11-15): the exact hydraulic model does not localise leaks better; the slow leaks' residual is what fails.** Leak signatures from the organisers' own generating model, `L-TOWN_Real.inp`, restarted on each leak's day with its true tank and pump state and the leak's true size, put **15 of 32 leaks within 300 m**, against 16 for the nominal model and 14 for the sensor whose pressure fell most (paired P = 1.0 for both). All five pre-registered predictions failed, including the main one (at least 24 of 32). A post-hoc split shows where the loss is: **abrupt leaks localise 11 of 15 with any method, incipient leaks 4 of 17**. A slow leak reaches half its peak a median five weeks after onset, and by then the other leaks' flows have changed by 2.7 times its own, so its residual is mostly other leaks. This corrects step 15's reading: on L-Town the nominal model is not what limits localisation ([step 16](#step-16-the-generators-model-on-each-leaks-day-experimentsstep16-realday)).
 
+**Step 17 (2026-11-15): take the other leaks out of the residual, and localisation goes from 15 to 27 of 32 leaks within 300 m.** Replaying every other leak through the organisers' generating model (each leak pipe split at its midpoint, drawing its published flow) reproduces the published pressures exactly (median difference 0.0000 m), so published minus that replay is one leak's own pressure effect. On it, the generator's-model localiser puts **27 of 32 leaks within 300 m** (median error 56 m; step 16 on the old residual: 15; paired P = 0.004), the **slow, incipient leaks 14 of 17** (step 16: 4), and even the uncalibrated nominal model **28 of 32**; naming the sensor whose pressure fell most manages 20 (P = 0.065 against the model). Four of five pre-registered predictions held. On L-Town the limit on leak localisation is the residual (other leaks' changes in it), not the hydraulic model and not the 33 sensors. Every input here is an oracle, so it is an upper bound; the open problem is a residual a utility could compute that removes the other leaks ([step 17](#step-17-a-per-leak-oracle-residual-the-other-leaks-replayed-srcwater_leaksreplaypy-experimentsstep17-replay)).
+
+![Localisation error per leak with and without the other leaks in the residual](experiments/step17-replay/localisation_error.svg)
+
+**Step 18 (2026-11-15): a residual a utility could compute, the change against the same hours a week earlier, finds only 12 of 32 leaks within 300 m.** With no model and no leak list in the residual (published pressure over a day minus the same hours a week before), the nominal-model localiser puts **12 of 32 within 300 m, slow leaks 4 of 17**: no better than step 11's regression residual (15; paired P = 0.45) or naming the sensor whose pressure fell most (12), and 16 leaks short of step 17's oracle (28). Removing week-to-week demand change with the leak-free model does not help (11), and no lag from 24 h to two weeks does better than 12. Three of five pre-registered predictions failed. The leak flows say why: over a week the other leaks' flows change by about as much as a slow leak's own (median 2.7 against 2.3 m³/h), and only a third of the slow leak's own growth is left in the window. On L-Town the other leaks have to be modelled, not differenced away ([step 18](#step-18-a-lagged-tracking-baseline-with-no-leak-list-experimentsstep18-lagged)).
+
+![Leaks localised within 300 m against the baseline lag, abrupt and incipient](experiments/step18-lagged/lag_sweep.svg)
+
+**Step 19 (2026-11-16): model the other leaks instead of differencing them away, and the slow leaks show up in the fit but the localiser still misses them.** A joint fit of the network's leak effect (published minus leak-free pressure, a demand oracle with no leak list) as a non-negative sum of the nominal model's leak signatures, refitted a week later from the same atoms, with the leak placed at the junction whose fitted flow rose most, puts **11 of 32 leaks within 300 m, slow leaks 1 of 17**: the same as step 18's lagged difference (11; paired 4 against 4) and below D1's regression residual (15). Four of five pre-registered predictions failed. The fit is good (it leaves a median 4.6% of the signal), and after the run we found that its atom set has an atom within 300 m of **10 of the 17 slow leaks** against 5.5 expected if as many atoms were drawn at random (P = 0.016). The largest-rise rule picks only 1 of those 10, because a slow leak is already in last week's fit and barely grows inside a week. Finding the slow leak is not the problem on L-Town; telling which fitted source is new is ([step 19](#step-19-a-joint-multi-source-fit-experimentsstep19-joint)).
+
+![Leaks within 300 m by residual and estimate, with the joint fit's atom-set hits and their chance level](experiments/step19-joint/methods.svg)
+
+**Step 20 (2026-11-16): tracking every fitted leak source day by day and picking the newest one localises fewer leaks, not more.** On a residual a utility could compute from its own SCADA data (pressure minus a regression frozen on the first two weeks of 2018; no hydraulic model, no leak list), a daily tracker refits the network's leak effect each day from the previous day's sources, dates each source by the day it entered, and places a new leak at the active source with the latest onset. It puts **8 of 32 leaks within 300 m, slow leaks 2 of 17**, against **14 for step 19's two-window rule on the same residual** (paired 3 against 9, P = 0.15) and 15 for D1 (P = 0.039). Five of six pre-registered predictions failed. The tracker keeps a median 20 sources active and starts a new one every three to four days, so the newest source is usually drift or another leak; only 4 of the 17 slow leaks get a source dated to their own start ([step 20](#step-20-a-daily-tracker-that-dates-each-fitted-source-experimentsstep20-tracker)).
+
+![Leaks within 300 m by estimate, and the tracker's active-atom count over 2018-19](experiments/step20-tracker/tracker.svg)
+
+**Step 21 (2026-11-16): the same tracker on a residual with demand removed finds 13 of 32 leaks within 300 m and dates 9 of the 17 slow leaks to their start, so step 20's failure was the residual's drift.** Run unchanged on step 19's demand-oracle residual (published pressure minus the generator's leak-free run), the daily tracker keeps a median **8 sources active instead of 20**, places **13 of 32 leaks within 300 m (slow leaks 3 of 17)** against 8 on the data-only residual, and gives **9 of the 17 slow leaks a source dated to their own start** (4 before). Five of six pre-registered predictions held; the one that failed is the paired test against step 20 (9 against 4 leaks, P = 0.27), so on 32 leaks the gain is not significant, and 13 is level with D1's 15, far from the oracle's 28. The slow leaks are now in the dated set but their sources enter a median 18 days late, behind newer ones, so "pick the newest" still misses them ([step 21](#step-21-the-same-tracker-on-the-demand-oracle-residual-experimentsstep21-tracker-d)).
+
+![Leaks within 300 m by estimate, and active atoms per day on the demand-oracle and data-only residuals](experiments/step21-tracker-d/tracker_d.svg)
+
+**Step 22 (2026-11-16): choosing the fastest-rising recent source instead of the newest doubles the slow leaks found, at the cost of two bursts.** On the same demand-oracle residual and tracker as step 21, the estimate becomes the source dated within the last 30 days whose fitted flow rose fastest over two weeks. It places **14 of 32 leaks within 300 m and 6 of the 17 slow leaks** (step 21's newest source: 13 and 3; the regression residual D1: 15 and 5), but only 8 of the 15 abrupt leaks against 10 (our reading, not tested: a burst's source jumps once and goes flat, so a concurrent ramp outruns it). Two of five pre-registered predictions held, and the net gain is one leak (5 against 4, P = 1.0). The two rules hit different leaks and together cover 18 of 32, so the next estimate should test each source's shape, a step or a ramp ([step 22](#step-22-the-steepest-rising-dated-source-experimentsstep22-steepest)).
+
+**Step 23 (2026-11-17): a step-or-ramp fit labels the slow leaks right, but timing the change undoes it.** On the same residual and tracker, each source dated within 30 days gets a one-change fit, a step or a ramp, and the estimate is the source whose change is timed nearest the alarm (a step at its start, a ramp at its half level). **Every slow leak's nearby source is fitted as a ramp (8 of 8)**, yet the rule places **13 of 32 within 300 m and 3 of the 17 slow leaks**, step 21's newest-source result again, against step 22's 6. A slow leak is still rising at the alarm, so its ramp's half-level day falls a median 4 days before it, and the newest source wins. Three of five pre-registered predictions failed. What carries forward is the label, not the timing: candidates are mostly steps (a median 1 ramp among 6), so the next test is to use the shape to choose the score ([step 23](#step-23-a-step-or-ramp-fit-per-dated-source-experimentsstep23-shape)).
+
+![Each leak's nearby source: its fitted change time minus the alarm, by leak type and shape](experiments/step23-shape/shape_timing.svg)
+
+**Step 24 (2026-11-17): letting the fitted shape choose the score finds 15 of 32 leaks within 300 m and keeps both the slow leaks and the bursts.** On the same demand-oracle residual and tracker, the estimate is the steepest fitted ramp among the sources dated within 30 days when any of them fits as a ramp, and the newest source otherwise. It places **15 of 32 within 300 m, 6 of the 17 slow leaks and 9 of the 15 bursts** (step 22's steepest source: 14, 6, 8; step 21's newest: 13, 3, 10), and where a ramp source lies within 300 m it places the leak within 300 m for 11 of 13. Four of five pre-registered predictions held; the paired test against the newest source failed (3 against 1, P = 0.63), the rule was chosen after seeing step 23's per-leak shapes on these same leaks, and 15 is only level with the plain regression residual D1 (15), 13 short of the one-leak oracle. The remaining misses are the 15 leaks with no ramp source at all, where the rule is the newest source by construction ([step 24](#step-24-the-shape-chooses-the-score-experimentsstep24-shape-chosen)).
+
+![Leaks within 300 m by rule, for leaks with and without a ramp-shaped source](experiments/step24-shape-chosen/shape_chosen.svg)
+
+**Step 25 (2026-11-17): on 64 new leaks it had never seen, step 24's rule beats the newest-source rule, 25 against 16 within 300 m (P = 0.022).** To test step 24's rule out of sample, 64 new leaks were simulated through the benchmark's own generator model (`L-TOWN_Real.inp`), each copying the type, size, rise and duration of one of BattLeDIM's 33 leaks but at a new junction (more than 300 m from every real leak) and a new start time, and their pressure effect was added to the published 2018-19 pressures, so the real leaks, demand mismatch and rounding all stay in. With the tracker and every setting frozen, the steepest fitted ramp, else the newest source (R30), places **25 of 64 within 300 m (chance 2.1; median error 475 m), 13 of the 37 slow leaks and 12 of the 27 bursts**; the newest source (T-D) places 16 (5 slow, 11 bursts). Paired, **R30 alone hits 11 and T-D alone 2 (exact sign test P = 0.022)**; R30 also leads the steepest rise (21) and the shape-timed rule (19), though not significantly. All six pre-registered predictions held. Where a ramp-shaped source lies within 300 m, R30 picks within 300 m for 21 of 23. Three things remain: the residual is still the demand oracle D, the alarm hour is still the oracle's, and the 21 leaks with no ramp source are where the rule is weakest (4 hits). Adding eight leaks to the year also moved the real 32 leaks' result a lot: 6 to 15 within 300 m by set ([step 25](#step-25-a-held-out-check-on-64-injected-leaks-experimentsstep25-heldout)).
+
+![Held-out injected leaks within 300 m by rule and leak type, with the chance level](experiments/step25-heldout/heldout.svg)
+
+**Step 26 (2026-11-17): with a real detector's alarm in place of the oracle hour, the localiser keeps about half of its hits.** Steps 15 to 25 localised each leak on the day its own flow first reached half its peak, a time no utility knows. Here the project's own pressure detector (D1, thresholds frozen from 2018) raises the alarm and step 24's rule (R30) localises on the alarm day. **On the 30 of 64 injected leaks D1 detects, R30 places 8 within 300 m at the alarm day against 15 at the oracle day** (2 against 9 discordant, P = 0.065). That is still far above chance (1.0 expected, P = 4e-6), and the newest-source rule does no better (7). On the 10 real 2019 leaks it detects, R30 places 2 at the alarm day against 6 at the oracle day. End to end, detect-then-localise places **8 of 64 injected and 2 of 19 real 2019 leaks** within 300 m. Two of the six pre-registered predictions held and four failed. A sweep after the run shows why: **moving the oracle day by one day already costs 2 to 6 hits** (real leaks 15 to 13 or 10, injected 25 to 19 or 22). So the localisation figures of steps 21 to 25 are upper bounds for a pipeline, tuned to an exact day that no detector supplies ([step 26](#step-26-a-detectors-alarm-in-place-of-the-oracle-hour-experimentsstep26-alarm-timed)).
+
+![Detected leaks within 300 m: R30 at the oracle day against R30 and the newest source at the detector's alarm day](experiments/step26-alarm-timed/alarm_timed.svg)
+
+![Leaks within 300 m by estimate on the demand-oracle residual, abrupt and incipient](experiments/step22-steepest/steepest.svg)
+
 ![Localisation error per leak: nominal model against the generator's model on the leak's day](experiments/step16-realday/localisation_error.svg)
 
 We also found that **the released LILA identification code is not a blind detector**: its notebook writes in, for each known 2019 leak, the pipe, its most affected sensor and the calibration windows, and then dates that one leak (it prints a 0 h delay for p523). Our automatic version runs LILA's identification over a whole year without those inputs; we know of no earlier such run.
@@ -84,7 +124,7 @@ Every L-Town result we could read reports true-positive rates and false-alarm co
 - **Water.** 64% of the 2019 new leaks' volume (285,791 of 444,340 m³) flows after D1's alarms: the share an instant repair on alarm would save. An upper bound on value, since repairs take days.
 - **Pre-registered H1-step1** (at least 9 of 19 with at most 4 false alarms): held, and is uninformative, since chance alone reaches 11. Logged in [`LOG.md`](LOG.md) with the design change made after a first look at 2019.
 
-### Checks (`tests/`, 20)
+### Checks (`tests/`, 44)
 Decimal-comma SCADA parsing; leak list from the configuration file; hourly means; weekday/weekend columns; a synthetic 10-sd step on one of three sensors gives residuals below −5 and one alarm within a day (and the old hold-off version alarms twice); CUSUM ignores upward shifts; matching picks the latest onset and closes the 30-day window; carried-over leaks keep their 2018 onset; graph and straight distances on a three-link network. Step 2: pairwise models reconstruct leak-free data and predict each sensor itself exactly; a 1 m drop at one sensor gets every model's vote, while other sensors tie with it in more than half the steps and the norm tie-break finds it every time; automatic LILA raises one alarm for a step, at that sensor, within a day; a sensor rarely the MAS keeps a finite sd. Step 6: the water balance removes the tank's storage change; the night minimum uses hours 00 to 05 only; a 5-sd step in synthetic night minima alarms once within three nights and is then absorbed. Step 7: weekday offsets recover a planted weekly pattern and ignore nights outside the training set.
 
 ## Step 2: LILA, automatic (`src/water_leaks/lila.py`, `experiments/step2-lila/`)
@@ -285,6 +325,275 @@ Plan, set before any SICAMS statistic was computed: [`LOG.md`](LOG.md), 2026-11-
 - **For H1:** a third method, and the first published entry's own times, confirm the restated claim: detection-only counts on L-Town sit at or near chance, and location and timeliness carry the signal. For H2: a false-alarm rate tuned on 2018 does not transfer to 2019 (1 to 26 here), which is the case for a rate certified on leak-free operation.
 - **Not reproduced:** the paper's manual retraining of area C before p31 and p277, its hand-picked training intervals beyond the stated rule, its 5-minute resolution, and Algorithm 2's unstated &alpha; and &delta; (fixed here at 0.05 and a grid). p680's detection time is misprinted in the paper's Table 1 (before onset); its &Delta;t (2 h) was used.
 
+## Step 26: a detector's alarm in place of the oracle hour (`experiments/step26-alarm-timed/`)
+
+Plan, set before R30 was run at any alarm day: [`LOG.md`](LOG.md), 2026-11-17 (step 26). Milestone 3, H3.
+
+**Question.** Every localisation result since step 15 is computed on day k, the day the leak's own flow first reaches half its peak, which is an oracle. R30 uses only that day. If a real detector's alarm day is used instead, does R30 still place the leaks, and how many does a detect-then-localise pipeline place end to end?
+
+**Method.** Step 1's D1 residual CUSUM, both variants at the thresholds step 1 chose on 2018 (D1-L: hour-of-week and tank level, h = 80, the primary; D1-F: with the three inlet flows, h = 240), matched to leaks by step 1's 30-day rule. Arm A: the published pressures (the run asserts that both variants reproduce step 1's recorded 2019 alarms) with LILA-auto's recorded alarms as a reference, and R30 and the newest source (T-D) on step 21's tracker on D at the alarm day, hour index div 24 + 1. Arm B: step 25's eight injected sets, unchanged, through the same detectors with the published regressors, matched against the real and injected leaks together, and R30 and T-D on step 25's trackers. In each arm the comparison is R30 at the oracle day on the same detected leaks.
+
+**Results** (`experiments/step26-alarm-timed/results.txt`; deterministic; about 5 minutes on 4 cores from a cold step 25 cache). Within 300 m:
+
+| leaks, detector | detected | R30, oracle day | R30, alarm day | T-D, alarm day | end to end |
+|---|---|---|---|---|---|
+| injected (64), D1-L | 30 | 15 | **8** (chance 1.0) | 7 | 8 of 64 |
+| injected (64), D1-F | 31 | 14 | 10 | 9 | 10 of 64 |
+| real 2019 (19), D1-L | 10 | 6 | **2** (chance 0.4) | 2 | 2 of 19 |
+| real 2019 (19), D1-F | 13 | 5 | 2 | 3 | 2 of 19 |
+| real 2019 (19), LILA-auto | 14 | 6 | 2 | 4 | 2 of 19 |
+
+- **Pre-registered predictions.** (a) At the alarm day R30 keeps at least 80% of its oracle-day hits on the detected injected leaks: **failed** (8 against 15). (b) It beats chance at P &lt; 0.001: **held** (P = 4e-6). (c) It beats T-D at the alarm day: **held**, by one (8 against 7). (d) At least 15 of 64 end to end: **failed** (8). (e) Real 2019 leaks, at most one fewer: **failed** (2 against 6). (f) Most of the lost leaks were alarmed early: **failed** (5 of 14; losses come from both early and late alarms).
+- **The timing.** D1-L alarms the injected leaks a median 2 days before the oracle day (43 days before to 21 after) and the real 2019 leaks a median 4 days after it.
+- **A sweep after the run (no verdicts).** R30 at the oracle day moved by &delta; days, on all leaks:
+
+| &delta; (days) | &minus;14 | &minus;7 | &minus;2 | &minus;1 | 0 | +1 | +2 | +7 | +14 |
+|---|---|---|---|---|---|---|---|---|---|
+| injected, of 64 | 7 | 14 | 11 | 19 | **25** | 22 | 21 | 17 | 16 |
+| real, of 32 | 2 | 5 | 6 | 13 | **15** | 10 | 11 | 6 | 8 |
+
+- **What it means.** The oracle half-peak day did part of the work in steps 21 to 25. Their figures are upper bounds for a pipeline, sharper on the real leaks the rules were developed on than on the held-out ones. A detector on raw pressures alarms days away from that day in either direction. R30 still beats chance by a wide margin at a real alarm, and the next rule should be defined against what an alarm means (first visible), set on 2018 leaks only.
+- **Caveats.** D and D<sub>inj</sub> still remove demand with the generator's model (an oracle). In arm B the regressors are the published tank level and inlet flows, which miss the injected leaks' effect, so those leaks may be easier to detect than in the field; the detection rate (30 of 64) is close to arm A's (10 of 19). D1's thresholds were tuned on 2018 with the real leaks only. False alarms (30 over the 8 sets for D1-L) are not scored.
+
+## Step 25: a held-out check on 64 injected leaks (`experiments/step25-heldout/`)
+
+Plan, set before any leak was injected: [`LOG.md`](LOG.md), 2026-11-17 (step 25). Milestone 3, H3.
+
+**Question.** Step 24's rule was chosen after seeing step 23's per-leak shapes on the same 32 leaks, and 32 leaks gave its paired test no power. Does it beat the newest-source rule on leaks it has never seen?
+
+**Method.** Eight sets of eight leaks (seeds 1 to 8). Each leak resamples one of the 33 leaks in BattLeDIM's `dataset_configuration.yaml` and keeps its type, diameter, rise and duration. It gets a junction drawn uniformly among those more than 300 m along the pipes from every real leak and from the set's other leaks, and a start time drawn uniformly over the scored period. It is an EPANET emitter whose coefficient follows an orifice with discharge coefficient 0.75 (`simulate.emitter_coef`; assumed). Incipient leaks grow with the square of time, because the published incipient flows sit at 0.25 of peak at mid-rise, so the diameter grows linearly (`simulate.leak_shape`). Each set is one continuous two-year run of `L-TOWN_Real.inp`, with coefficients set every 5 minutes (`simulate.run_injected`; with no leak active it reproduces the leak-free run exactly). The injected residual is D<sub>inj</sub> = hourly(round(P<sub>published</sub> + P<sub>inj</sub> &minus; P<sub>free</sub>, 0.01 m)) &minus; the leak-free run. Step 21's tracker and step 24's rules run unchanged. The alarm hour is the injected leak's half-peak hour, as for the real leaks. Score: along-pipe distance from the injected node to the estimate, hit within 300 m, chance from each node's share of junctions within 300 m.
+
+**Results** (`experiments/step25-heldout/results.txt`; deterministic; about 3 minutes on 4 cores from a warm step 14 cache; the run first asserts that it rebuilds step 24's R30, T-D, S30 and C30 errors on the real leaks). Injected peak flows: median 16.2 m&sup3;/h (4.0 to 34.9), against 15.7 (5.1 to 35.4) for the 33 published leaks. Within 300 m, of 64 (chance expects 2.1):
+
+| estimate (on D<sub>inj</sub>, frozen) | within 300 m | abrupt (27) | incipient (37) | median error |
+|---|---|---|---|---|
+| steepest fitted ramp, else newest (R30, step 24) | **25** | 12 | 13 | 475 m |
+| ramp ranked by 14-day slope / by day-k level | 25 / 24 | 12 / 12 | 13 / 12 | 475 / 475 m |
+| onset within 14 / 60 days | 22 / 28 | 12 / 13 | 10 / 15 | 679 / 405 m |
+| shape-timed (step 23's C30) | 19 | 11 | 8 | 672 m |
+| steepest rise (step 22's S30) | 21 | 9 | 12 | 591 m |
+| latest onset (step 21's T-D) | 16 | 11 | 5 | 848 m |
+
+- **Pre-registered predictions, all held.** (a) beats chance at P &lt; 0.001: P = 7e-21. (b) at least 19 of 64: 25. (c) more hits than T-D: 25 against 16. (d) beats T-D at P &lt; 0.05: R30 alone 11, T-D alone 2, **P = 0.022**. (e) slow-leak share above T-D's: 0.35 against 0.14. (f) bursts at most 3 below T-D: 12 against 11. R30 hits more than T-D in 6 of the 8 sets and ties in the other 2.
+- **Against the other rules (no verdicts).** R30 against S30: 6 against 2 (P = 0.29). Against C30: 8 against 2 (P = 0.11). S30 against T-D: 9 against 4 (P = 0.27). The 60-day window (28) is the best variant here, as it tied R30 in step 24; it was not the primary and is not adopted on this evidence.
+- **Where it works.** A source within 300 m is active on day k for 34 of the 64; for 23 of them that source fits as a ramp, and R30 picks within 300 m for 21 of those 23. For the 21 leaks with no ramp candidate at all, R30 is T-D by construction and hits 4. The ceiling is set by the tracker, not the rule: 30 of 64 leaks have no candidate within 300 m.
+- **Control, no verdict.** The 32 real leaks, scored on each set's tracker, keep R30 above T-D in total (86 against 65 hits over the 8 sets), but per set they range from 6 to 15 for R30 (15 on D alone). Eight more leaks in a year visibly crowd the tracker: this is the cost of density, and it means step 24's 15 of 32 was the result at BattLeDIM's own leak density.
+- **What it means.** By the plan's fixed reading, (c) and (d) holding make the gain out of sample: R30 replaces T-D as this tracker's estimate on D. The open problem is again the residual (a data-only one as clean as D) and the alarm (a detector's, not the oracle's half-peak hour).
+- **Caveats.** D removes demand with the generator's model (an oracle). The alarm hour is an oracle. Injected leaks sit at junctions (BattLeDIM's sit on pipes). The discharge coefficient is assumed, though the injected sizes match the published ones. The injection is additive, ignoring the second-order interaction between new and real leaks. The resampled shapes are the 33 leaks the earlier steps were tuned on; only their places and times are new. The leak set is a resample, not a model of a utility's leak population.
+
+## Step 24: the shape chooses the score (`experiments/step24-shape-chosen/`)
+
+Plan, set before any output of this rule was computed: [`LOG.md`](LOG.md), 2026-11-17 (step 24). Milestone 3, H3.
+
+**Question.** Step 23's fit labels every slow leak's nearby source a ramp, while candidates are mostly steps, but timing changes against the alarm threw the label away. Does using the label to choose the score, the steepest ramp when one exists and the newest source otherwise, combine step 22's slow leaks with step 21's bursts?
+
+**Method.** Step 21's D and tracker, step 22's candidates (active on day k, onset within 30 days) and step 23's `shape_fit` on each candidate's daily flow over [k &minus; 29, k]. `localise.shape_chosen` (**R30**): if any candidate fits as a ramp, the ramp with the largest fitted slope b, ties by flow; else the latest onset, ties by flow. No alarm time is used beyond the day k.
+
+**Results** (`experiments/step24-shape-chosen/results.txt`; deterministic, seconds from a warm cache; the run asserts that its rebuilt tracker gives step 23's C30 error for every leak). Within 300 m, of 32 (chance expects 1.4):
+
+| estimate (on D) | within 300 m | abrupt (15) | incipient (17) | median error |
+|---|---|---|---|---|
+| steepest fitted ramp, else newest (R30) | **15** | 9 | 6 | 417 m |
+| ramp ranked by 14-day slope / by day-k level | 15 / 14 | 7 / 7 | 8 / 7 | 459 / 540 m |
+| onset within 14 / 60 days | 13 / 15 | 9 / 8 | 4 / 7 | 430 / 388 m |
+| shape-timed (step 23's C30) | 13 | 10 | 3 | 394 m |
+| steepest rise (step 22's S30) | 14 | 8 | 6 | 517 m |
+| latest onset (step 21's T-D) | 13 | 10 | 3 | 521 m |
+| D1 regression residual (step 11) | 15 | 10 | 5 | 436 m |
+| one-leak oracle (step 17) | 28 | 13 | 15 | 68 m |
+
+- **Pre-registered predictions.** (a) more than 14: **held** (15). (b) at least 6 of 17 incipient: **held** (6). (c) at least 9 of 15 abrupt: **held** (9). (d) of the 13 leaks with a ramp candidate within 300 m, at least 9 placed within 300 m: **held** (11). (e) beats T-D at P &lt; 0.05: **failed** (3 against 1, P = 0.63). Against S30 5 against 4, against D1 7 against 7 (both P = 1.0).
+- **Where the gains and losses are.** 17 leaks have a ramp candidate; R30 hits 11 of them (T-D 9). On the 15 with none it is T-D by construction (4 hits), and that is where S30 keeps two bursts R30 misses (p866, p142; C30 keeps p866). The one burst lost to a ramp is p514, whose only ramp is a slow source elsewhere. R30 hits two slow leaks no earlier tracker rule found (p461, p653).
+- **What it means.** By the plan's fixed reading, (a), (b) and (c) holding say the shape label combines the two rules without an alarm time: the best tracker estimate on D so far, and the open problem is again the residual (a data-only one as clean as D). It is not yet a method claim: the rule was named after step 23's per-leak table was seen, on the same 32 leaks, so the gain is in-sample, and on 32 leaks none of the differences is significant. The ceiling on this tracker is the 15 leaks with no ramp source, where the newest source is right for 4.
+- **Caveats.** D uses the generator's leak-free model; day k comes from the oracle half-peak hour; the leak type is the generator's configuration; 32 leaks give little power.
+
+## Step 23: a step-or-ramp fit per dated source (`experiments/step23-shape/`)
+
+Plan, set before any shape fit of a tracked source was computed: [`LOG.md`](LOG.md), 2026-11-17 (step 23). Milestone 3, H3.
+
+**Question.** Step 22's steepest-rising source found 6 of 17 slow leaks but lost 2 bursts to the newest-source rule; together they hit 18 of 32. Does fitting each source's flow with its own shape, a step or a ramp, and timing its change by that shape combine them?
+
+**Method.** Step 21's D and tracker, step 22's candidates (active on day k, onset within 30 days). `localise.shape_fit`: each candidate's daily fitted flow over [k &minus; 29, k] is fitted by a one-change step (a from day &tau;) and a one-change ramp (b (d &minus; &tau; + 1) from &tau;), non-negative least squares over every &tau;, the smaller error wins (ties to the step). `localise.shape_timed` (**C30**): the change time is &tau; for a step and the half-level day &tau; &minus; 1 + (k &minus; &tau; + 1)/2 for a ramp; pick the candidate whose change time is nearest the alarm t/24, ties by flow, fallback the latest onset.
+
+**Results** (`experiments/step23-shape/results.txt`; deterministic, under a minute from a warm cache). Within 300 m, of 32 (chance expects 1.4):
+
+| estimate (on D) | within 300 m | abrupt (15) | incipient (17) | median error |
+|---|---|---|---|---|
+| shape-timed change nearest the alarm (C30) | **13** | 10 | 3 | 394 m |
+| both shapes timed at their start | 12 | 10 | 2 | 430 m |
+| every candidate a step / a ramp | 13 / 13 | 10 / 10 | 3 / 3 | 394 m |
+| onset within 14 / 60 days | 14 / 13 | 11 / 10 | 3 / 3 | 388 / 394 m |
+| steepest rise (step 22's S30) | 14 | 8 | 6 | 517 m |
+| latest onset (step 21's T-D) | 13 | 10 | 3 | 521 m |
+| D1 regression residual (step 11) | 15 | 10 | 5 | 436 m |
+| one-leak oracle (step 17) | 28 | 13 | 15 | 68 m |
+
+- **Pre-registered predictions.** (a) more than 14: **failed** (13). (b) at least 10 of 15 abrupt: **held**. (c) at least 6 of 17 incipient: **failed** (3). (d) the near source's shape matches the leak type for at least 15 of the 20 leaks with one: **held** (15: incipient as ramps 8 of 8, abrupt as steps 7 of 12). (e) beats T-D at P &lt; 0.05: **failed** (1 against 1).
+- **Seen after the run.** A slow leak's near source is a ramp whose half-level day is a median 4.2 days before the alarm; a burst's is timed 0.4 days before. On day k the slow leak is still rising, so half its day-k level comes before t, the half-peak hour of a peak still ahead, and the newest source sits nearer the alarm. C30 differs from T-D by one leak each way. The five bursts fitted as ramps have sources one or two days old, too short to tell the shapes apart.
+- **What it means.** The shape labels are right where it matters (every slow leak's source is a ramp, and ramps are rare among candidates, a median 1 of 6), but timing changes against an oracle half-peak hour throws that away. Next: let the shape choose the score (the steepest ramp when one exists, else the newest step), registered before it is run, and time changes against a detector's alarm, which marks when a leak became visible.
+- **Caveats.** D uses the generator's leak-free model; t is the oracle half-peak hour; the leak type in (d) is the generator's configuration; 32 leaks give little power.
+
+## Step 22: the steepest-rising dated source (`experiments/step22-steepest/`)
+
+Plan, set before any output of this rule was computed: [`LOG.md`](LOG.md), 2026-11-16 (step 22). Milestone 3, H3.
+
+**Question.** On the demand-oracle residual D, step 21's tracker holds a slow leak's source for 12 of 17 and dates it to the leak's start for 9, but "pick the newest" chooses it for 3, because slow leaks' sources enter a median 18 days late. A slow leak is a ramp: does picking the recently dated source whose flow is rising fastest find them?
+
+**Method.** Step 21's D and tracker, unchanged. **S30** (`localise.steepest_dated`): on the first whole day k after the oracle hour t, among the active atoms with onset in [k &minus; 30, k], the one whose daily fitted flow over [k &minus; 13, k] (0 on inactive days) has the largest least-squares slope; ties by flow, fallback the latest onset. References from steps 11, 17, 20 and 21's `leaks.tsv`; 300 m rule, Poisson-binomial chance, exact sign tests.
+
+**Results** (`experiments/step22-steepest/results.txt`; deterministic, about a minute from a warm cache). Within 300 m, of 32 (chance expects 1.4):
+
+| estimate (on D unless noted) | within 300 m | abrupt (15) | incipient (17) | median error |
+|---|---|---|---|---|
+| steepest rise, onset within 30 days (S30) | **14** | 8 | **6** | 517 m |
+| steepest rise, within 14 days | 15 | 9 | 6 | 411 m |
+| steepest rise, within 60 days | 12 | 8 | 4 | 781 m |
+| steepest rise, any onset | 11 | 6 | 5 | 907 m |
+| steepest rise over 7 days, within 30 | 14 | 10 | 4 | 403 m |
+| largest flow, onset within 30 days | 11 | 8 | 3 | 632 m |
+| latest onset (step 21's T-D) | 13 | 10 | 3 | 521 m |
+| two-window rise on data-only F (step 20) | 14 | 9 | 5 | 397 m |
+| D1 regression residual (step 11) | 15 | 10 | 5 | 436 m |
+| one-leak oracle (step 17) | 28 | 13 | 15 | 68 m |
+
+- **Pre-registered predictions.** (a) more than 13: **held** (14). (b) more than 3 of 17 incipient: **held** (6). (c) at least 15: **failed**. (d) at least 9 of 15 abrupt: **failed** (8). (e) beats T-D at P &lt; 0.05: **failed** (5 against 4, P = 1.0). The rows below S30 are variants with no verdicts.
+- **The candidate set.** A median 6 atoms are dated within 30 days on day k; one within 300 m is among them for 20 of 32 leaks, and S30 picks it for 14.
+- **Seen after the run.** S30 and T-D share 9 hits; S30 alone has 5 (3 incipient, 2 abrupt), T-D alone 4 (all abrupt), so together they cover 18 of 32. No rule choosing between them has been scored.
+- **What it means.** By the reading fixed in the plan, the flow slope trades bursts for ramps; the likely reason, not yet tested, is that a burst's source jumps once and stays flat, so a concurrent ramp outruns it. The estimate should match each source's shape (step or ramp) to the change being localised, which a detector's alarm time can anchor. None of the differences is significant on 32 leaks.
+- **Caveats.** D uses the generator's leak-free model, which a utility does not have; t is the oracle localisation hour; the 30-day and 14-day settings were set in the plan, and the sweep shows the count moves between 11 and 15 with them.
+
+## Step 21: the same tracker on the demand-oracle residual (`experiments/step21-tracker-d/`)
+
+Plan, set before any tracker output on D was computed: [`LOG.md`](LOG.md), 2026-11-16 (step 21). Milestone 3, H3.
+
+**Question.** Step 20's tracker failed on a data-only residual with a median 20 atoms active. Was that the residual's drift (the frozen regression leaves demand change in it) or the latest-onset rule itself? Run the tracker, with no setting changed, on step 19's D, where demand is removed by the generator's own leak-free run.
+
+**Method.** D = published hourly pressure minus step 14's leak-free `L-TOWN_Real.inp` run (rounded 0.01 m), exactly step 19's residual. Daily means tracked by `localise.track` with step 20's settings (nominal q = 5 signatures, active at 0.5 m&sup3;/h, 2-day gap, link r &ge; 0.95). **T-D** = the active atom with the latest onset on the first whole day after the oracle hour t. References read from steps 11, 17, 19 and 20's `leaks.tsv`. 300 m rule, Poisson-binomial chance, exact sign tests.
+
+**Results** (`experiments/step21-tracker-d/results.txt`; deterministic, under two minutes from a warm cache). Within 300 m, of 32 (chance expects 1.4):
+
+| residual, estimate | within 300 m | abrupt (15) | incipient (17) | median error |
+|---|---|---|---|---|
+| D, tracker, latest onset (T-D) | **13** | 10 | 3 | 521 m |
+| D, tracker, onset nearest the true onset (oracle) | 13 | 11 | 2 | 574 m |
+| F, tracker, latest onset (step 20) | 8 | 6 | 2 | 862 m |
+| F, two-window rise (step 20's J) | 14 | 9 | 5 | 397 m |
+| D, two-window rise (step 19) | 11 | 10 | 1 | 447 m |
+| D1 regression residual (step 11) | 15 | 10 | 5 | 436 m |
+| one-leak oracle (step 17) | 28 | 13 | 15 | 68 m |
+
+- **Pre-registered predictions.** (a) more than 8: **held** (13). (b) more than 11: **held**. (c) more than 2 of 17 incipient: **held** (3). (d) at least 8 of 17 incipient leaks dated: **held** (9; abrupt 11 of 15). (e) median active atoms per day below 15: **held** (8). (f) T-D beats step 20's T on F at P &lt; 0.05: **failed** (9 against 4, P = 0.27).
+- **Sweep (no verdicts).** Active threshold 0 or 1.0 m&sup3;/h: 8 and 7; link correlation 0.90, 0.99 or none: 12, 12, 11.
+- **The tracker.** A median 8 atoms active per day (never at the 24 cap; on F 20, at the cap on 89 days), fit RMS 0.0066 m of 0.169 m; 350 tracks, median 4 days. On the leaks' scoring day a median 12 atoms are active while 6 leaks run at 1 m&sup3;/h or more. An atom within 300 m is active for 24 of 32 (chance 12.3) and is the newest for 13.
+- **What it means.** By the reading fixed in the plan, F's drift was what filled step 20's tracker: on a residual without demand change the active set shrinks and slow leaks get dated. The open problem moves to the residual: a data-only residual as clean as D. The gain is not significant on 32 leaks, and slow leaks are dated a median 18 days after onset, so they are rarely the newest source at the alarm.
+- **Caveats.** D uses the generator's leak-free model, which a utility does not have. The localisation hour is an oracle. The estimate uses up to 48 h after t (T-D-0, without the extra day, gives 11).
+
+## Step 20: a daily tracker that dates each fitted source (`experiments/step20-tracker/`)
+
+Plan, set before any tracker output was computed: [`LOG.md`](LOG.md), 2026-11-16 (step 20). Milestone 3, H3.
+
+**Question.** Step 19's joint fit had an atom near 10 of the 17 slow leaks, but its two-window rise rule picked 1 of them. If every day's fit starts from the previous day's atoms, each atom enters when its leak becomes visible: does dating atoms by entry, and picking the newest at the alarm, find the slow leaks?
+
+**Method.** `L-TOWN_Real.inp` (Zenodo only) was unreachable in this session, so the residual is data only: **F** = published hourly pressure minus step 11's no-flow regression (hour of day &times; weekday/weekend, tank level) fitted once on 2018's first 14 days and frozen. `localise.track` fits each day's mean of F by step 19's non-negative pursuit over the nominal q = 5 signatures, starting from the previous day's active atoms (flow &ge; 0.5 m&sup3;/h). An atom keeps its onset while active (gaps up to 2 days rejoin), inherits a dropped atom's onset if their centred signatures correlate at &ge; 0.95, else its onset is today. **T** = the active atom with the latest onset on the first whole day after the oracle hour t. Reference on the same residual: **J**, step 19's rise from t &minus; 168 h. 300 m rule, Poisson-binomial chance, exact sign tests.
+
+**Results** (`experiments/step20-tracker/results.txt`; deterministic, under a minute). Within 300 m, of 32 (chance expects 1.4):
+
+| residual, estimate | within 300 m | abrupt (15) | incipient (17) | median error |
+|---|---|---|---|---|
+| F, tracker, latest onset (T) | **8** | 6 | 2 | 862 m |
+| F, tracker, onset nearest the true onset (oracle) | 8 | 7 | 1 | 815 m |
+| F, two-window rise vs 168 h (J, step 19's rule) | 14 | 9 | 5 | 397 m |
+| P-lag(168), data only (step 18) | 12 | 8 | 4 | 841 m |
+| D1 regression residual (step 11) | 15 | 10 | 5 | 436 m |
+| one-leak oracle (step 17) | 28 | 13 | 15 | 68 m |
+
+- **Pre-registered predictions.** (a) more than 12: **failed** (8). (b) more than 15: **failed**. (c) more than 3 of 17 incipient: **failed** (2). (d) at most 27: **held**. (e) T beats J on the same residual at P &lt; 0.05: **failed** (J ahead 9 against 3, P = 0.15). (f) at least 8 of 17 incipient leaks get an atom within 300 m dated to their own start: **failed** (4; abrupt 8 of 15).
+- **Sweep (no verdicts).** Active threshold 0 or 1.0 m&sup3;/h: 6 and 9; link correlation 0.90, 0.99 or none: 9, 7, 7; a 28-day training window: 9.
+- **The tracker.** A median 20 atoms active per day (at the 24 cap on 89 of 730 days), fit RMS 0.0043 m of 0.217 m. Post hoc: 221 tracks, median length 6 days, 0.29 new tracks a day; where an atom within 300 m of the leak is active (21 of 32, chance 17.1), it is the newest for 8.
+- **What it means.** The dating rule loses to the two-window rise on the same data. By the plan's fixed reading, atoms accumulate to absorb the frozen regression's drift and other leaks, and a new track every three to four days buries the leak's own. Not tested but worth noting: step 19's rise on this data-only residual finds 14 of 32 (slow leaks 5), level with D1 and above its 11 on the demand-oracle D.
+- **Caveats.** The localisation hour is an oracle. The tracker's estimate uses up to 24 h more data than J's (T-0, without it, gives 7). Every threshold was fixed in the plan; the sweep shows none reaches J.
+
+## Step 19: a joint multi-source fit (`experiments/step19-joint/`)
+
+Plan, set before any joint fit was computed: [`LOG.md`](LOG.md), 2026-11-16 (step 19). Milestone 3, H3.
+
+**Question.** Step 18 found that no fixed-lag difference separates a slow leak from the 20-odd other leaks running in 2019. If each leak's effect is attributed to its own place by a multi-source fit, do the other leaks stop contaminating the target's?
+
+**Method.** D = published minus step 14's leak-free `L-TOWN_Real.inp` run (removes demand; no leak list). The 24 h mean of D over a baseline window is fitted by **non-negative greedy pursuit** (`localise.nn_pursuit`) over step 11's nominal q = 5 signatures at the 782 junctions, scaled per m&sup3;/h and centred across the 33 sensors: add the atom most correlated with the residual, refit all flows by NNLS, stop when the RMS gain is under 5%, the RMS under 0.005 m, or 24 atoms are in. The window [t, t + 24) is then fitted starting from the baseline's atoms (`localise.rise`: the estimate is the junction whose flow rose most). Primary: baseline t &minus; 168 h (**J-lag(168)**); J-on uses the 24 h before onset (an oracle onset). 300 m rule, Poisson-binomial chance, exact sign tests.
+
+**Results** (`experiments/step19-joint/results.txt`; deterministic, 8 s from the cache). Within 300 m, of 32 (chance expects 1.4):
+
+| residual, estimate | within 300 m | abrupt (15) | incipient (17) | median error |
+|---|---|---|---|---|
+| joint fit, rise vs 168 h (J-lag(168)) | **11** | 10 | 1 | 447 m |
+| joint fit, rise vs onset (J-on, oracle onset) | 12 | 9 | 3 | 502 m |
+| D-lag(168), nominal model (step 18) | 11 | 8 | 3 | 742 m |
+| D1 regression residual (step 11) | 15 | 10 | 5 | 436 m |
+| O-inc onset residual (step 15) | 16 | 11 | 5 | 340 m |
+| one-leak oracle (step 17) | 28 | 13 | 15 | 68 m |
+
+- **No gain.** J-lag(168) against D-lag(168): 4 against 4 discordant leaks (P = 1.0); against D1 3 against 7 (P = 0.34); against the oracle 1 against 18 (P &lt; 0.0001). Lags 24, 72 and 336 h give 9, 7 and 13; stopping at 2% or 10% RMS gain gives 10 and 11 (no verdicts).
+- **The fit itself is good.** A median 10 atoms (1 to 16) leave a median 0.0124 m of a 0.212 m centred signal (4.6%). Of the leaks running at t (median 6), a fitted atom lies within 300 m of 147 of 250 (59%).
+- **Seen after the run (post hoc).** The window fit has an atom within 300 m of the target for 21 of 32 leaks (abrupt 11 of 15, **incipient 10 of 17**), against 10.9 expected if as many atoms were drawn at random (P = 0.0001; incipient 5.5, P = 0.016). The largest-rise rule picks 10 of the 11 abrupt ones and **1 of the 10 incipient ones**.
+- **Pre-registered predictions.** (a) more than 11: **failed** (11). (b) more than 15: **failed**. (c) more than 3 of 17 incipient: **failed** (1). (d) at most 27: **held**. (e) beats D-lag(168) at P &lt; 0.05: **failed** (P = 1.0).
+- **What it means.** By the plan's fixed reading, (a) failing with a low fit RMS points to what 33 sensors can separate with nominal signatures. The post-hoc split narrows that: for slow leaks the sensors and the fit already place an atom near the leak more often than chance, and what fails is the decision of which atom is the new leak. A slow leak already sits in the baseline fit and grows only a little within a week, so the largest one-week rise goes to whichever atom absorbs the other leaks' changes. The next step is a tracker that follows each atom's flow over time and names a leak when an atom's flow trends up from zero (an onset per atom), scored on all 32 at once, rather than a two-window difference.
+- **Caveats.** The localisation hour and D's leak-free model are oracles; the fit itself uses only the nominal model. Superposition is linear in flow while head loss is not; the 4.6% residual says it holds to that degree here. The atom-set result was found after the run and its chance level was added then; it has no verdict.
+
+## Step 18: a lagged tracking baseline with no leak list (`experiments/step18-lagged/`)
+
+Plan, set before any lagged residual was computed: [`LOG.md`](LOG.md), 2026-11-15 (step 18). Milestone 3, H3.
+
+**Question.** Step 17's one-leak residual is an oracle. The simplest residual a utility could compute that drops old leaks is a change against a recent window. Does it recover part of the gap between D1's regression residual (15 of 32) and the oracle (28)?
+
+**Method.** For each of the 32 oracle-timed leaks at hour t: **P-lag(L)** = mean published pressure over [t, t + 24) minus the same over [t &minus; L, t &minus; L + 24) (`localise.lagged_change`; no model, no leak list); **D-lag(L)**, the same on published minus step 14's leak-free run (removes demand change between the windows). Primary L = 168 h (same weekday and hours); 24, 72 and 336 h as a sweep. Localised with step 11's nominal signatures at q = 5 (A) and the most-affected sensor (M); 300 m rule, Poisson-binomial chance, exact sign tests. Contamination is measured from the published leak flows: the target's own mean-flow change between the windows and the summed absolute change of every other leak.
+
+**Results** (`experiments/step18-lagged/results.txt`; deterministic). Within 300 m, of 32 (chance expects 1.4):
+
+| residual, estimate | within 300 m | abrupt (15) | incipient (17) | median error |
+|---|---|---|---|---|
+| P-lag(168), A (data only) | **12** | 8 | 4 | 841 m |
+| D-lag(168), A (demand removed) | 11 | 8 | 3 | 742 m |
+| P-lag(168), M | 12 | 10 | 2 | 402 m |
+| D1 regression residual, A (step 11) | 15 | 10 | 5 | 436 m |
+| one-leak oracle, A (step 17) | 28 | 13 | 15 | 68 m |
+
+| lag L | 24 h | 72 h | 168 h | 336 h |
+|---|---|---|---|---|
+| A on P-lag(L), of 32 | 12 | 8 | 12 | 11 |
+| abrupt / incipient | 11 / 1 | 7 / 1 | 8 / 4 | 8 / 3 |
+
+- **No better than D1, far from the oracle.** A on P-lag(168) against D1: 2 against 5 discordant leaks (P = 0.45); against the oracle 0 against 16 (P &lt; 0.0001); against the most-affected sensor 3 against 3 (P = 1.0).
+- **Not demand.** Removing demand change with the leak-free model moves 12 to 11; the loss is other leaks.
+- **Why no lag works.** Over 168 h a slow leak's own flow changes a median 2.34 m&sup3;/h and the other leaks' by a summed 2.66; only 0.32 of its own change since onset is left in the window. A short lag keeps abrupt leaks (11 of 15 at 24 h) but drops the slow ones' growth (1 of 17); a long lag lets other leaks back in. The best correlation has median 0.896 (oracle 0.9986).
+- **Pre-registered predictions.** (a) more than 15: **failed** (12). (b) more than 5 of 17 incipient on D-lag: **failed** (3). (c) demand costs at most 3 leaks: **held** (&minus;1). (d) at most 23: **held**. (e) beats the most-affected sensor at P &lt; 0.05: **failed** (P = 1.0).
+- **What it means.** On a network with many overlapping leaks, differencing against any fixed window cannot isolate a slow leak. The other leaks have to be modelled: a sequential localiser that subtracts leaks already found, or a joint multi-source fit over the 782 signatures, scored against step 17's 28 of 32.
+- **Caveats.** The localisation hour is still an oracle (half the leak's peak flow). One network, 32 leaks; the sweep's lags carry no verdicts.
+
+## Step 17: a per-leak oracle residual, the other leaks replayed (`src/water_leaks/replay.py`, `experiments/step17-replay/`)
+
+Plan, set before any replayed residual was computed: [`LOG.md`](LOG.md), 2026-11-15 (step 17). Milestone 3, H3.
+
+**Question.** Step 16 found the exact model localises no better than the nominal one (15 of 32) and, post hoc, that the slow leaks' residual is mostly other leaks' changes. A residual holding one leak tests that reading directly: if localisation rises, contamination was the limit; if it stays put with a near-perfect fit, the 33 sensors are.
+
+**Method.** `replay.Replay` opens `L-TOWN_Real.inp` in the EPANET 2.2 toolkit, splits every leak pipe of 2018-19 at its midpoint (new junction at the mean end elevation, two halves at the pipe's diameter and roughness), and sets the junction's demand to the pipe's published 5-minute leak flow before every hydraulic solve. Each 24 h window restarts at the published T1 level and PUMP_1 status. For each of the 32 oracle-timed leaks, the localisation window [t, t + 24) and the pre-onset window are run with ALL leaks and with OTHERS (the target left out): 128 day runs, under a minute on 4 cores. **O-one** = mean over [t, t + 24) of published minus OTHERS (rounded to 0.01 m). Localised with step 16's real-day signatures (R), step 11's nominal signatures at q = 5 (A) and the most-affected sensor (M); argmax Pearson, 300 m rule, Poisson-binomial chance, exact sign tests.
+
+**Results** (`experiments/step17-replay/results.txt`; deterministic). Gate: ALL equals the published pressures to a median 0.0000 m in both windows of every leak. Within 300 m, of 32 (chance expects 1.4):
+
+| estimate | within 300 m | abrupt (15) | incipient (17) | median error |
+|---|---|---|---|---|
+| R, generator's model on the leak's day, on O-one | **27** | 13 | **14** | 56 m |
+| R on O-one less its pre-onset mean | 27 | 13 | 14 | 34 m |
+| A, nominal model q = 5, on O-one | **28** | 13 | 15 | 67 m |
+| M, most-affected sensor, on O-one | 20 | 11 | 9 | 228 m |
+| R on step 15's O-inc (step 16) | 15 | 11 | 4 | 389 m |
+
+- **The residual was the limit.** R on O-one against R on O-inc: 14 leaks gained, 2 lost (P = 0.004). The best correlation has median 0.9986 (step 16: 0.966), and the leak pipe's better end node ranks first for 16 of 32 (step 16: 5; median rank 2). For 21 leaks no junction over 300 m away scores within 0.001 of the best.
+- **The model is not.** With a one-leak residual the nominal model at a fixed 5 m&sup3;/h matches the exact one (28 against 27, P = 1.0).
+- **Pre-registered predictions.** (a) more than 15: **held** (27). (b) more than 4 of 17 incipient: **held** (14). (c) at least 20: **held**. (d) median best correlation &ge; 0.99: **held** (0.9986). (e) beats the most-affected sensor at P &lt; 0.05: **failed** (9 against 2 discordant, P = 0.065).
+- **What is left.** Five leaks miss at 325 to 964 m; two of them (p277, p653) have 17 distant junctions within 0.001 of the best score, the places 33 sensors cannot tell apart.
+- **What it means.** On L-Town, model-based correlation localisation is limited by what else is in the residual. A utility does not have the other leaks' flows, so the practical target is a residual that tracks them: a baseline that moves with the network, or a sequential localiser that subtracts the modelled effect of leaks already found.
+- **Caveats.** Every input is an oracle (generator's model, leak list, flows, times): an upper bound, not a method. The replay draws each leak as a demand at its pipe's midpoint; the exact gate shows the generator's leaks behave so on this data. Candidates are the 782 junctions.
+
 ## Step 16: the generator's model on each leak's day (`experiments/step16-realday/`)
 
 Plan, set before any signature was computed: [`LOG.md`](LOG.md), 2026-11-15 (step 16). Milestone 3, H3.
@@ -395,6 +704,15 @@ PYTHONPATH=src python experiments/step15-oracle/run.py       # oracle-residual l
 PYTHONPATH=src python experiments/step15-oracle/figure.py    # experiments/step15-oracle/localisation_error.svg
 PYTHONPATH=src python experiments/step16-realday/run.py     # 25,056 day runs of L-TOWN_Real.inp, about 17 min on 4 cores (cached after)
 PYTHONPATH=src python experiments/step16-realday/figure.py  # experiments/step16-realday/localisation_error.svg
+PYTHONPATH=src python experiments/step17-replay/run.py      # 128 replayed day runs (needs step 16 first), about 1 min on 4 cores
+PYTHONPATH=src python experiments/step17-replay/figure.py   # experiments/step17-replay/localisation_error.svg
+PYTHONPATH=src python experiments/step18-lagged/run.py      # lagged residuals (reuses steps 14 and 11's caches, about 7 min to rebuild them)
+python experiments/step18-lagged/figure.py                  # experiments/step18-lagged/lag_sweep.svg
+PYTHONPATH=src python experiments/step24-shape-chosen/run.py  # steps 21 to 24 rebuild from the step 14 and 11 caches (about 4 min cold)
+PYTHONPATH=src python experiments/step25-heldout/run.py     # 8 injected two-year runs of L-TOWN_Real.inp, about 3 min on 4 cores (cached after)
+python experiments/step25-heldout/figure.py                 # experiments/step25-heldout/heldout.svg
+PYTHONPATH=src python experiments/step26-alarm-timed/run.py  # D1 alarms, then R30 at the alarm day; reuses step 25's cached runs (about 5 min cold)
+python experiments/step26-alarm-timed/figure.py               # experiments/step26-alarm-timed/alarm_timed.svg
 ```
 
 ## Limitations
@@ -408,6 +726,6 @@ PYTHONPATH=src python experiments/step16-realday/figure.py  # experiments/step16
 
 ## Next steps
 
-Step 15 bounds detection delay with an oracle: every leak is visible within hours, the detectors alarm after four to six days. Step 16 withdraws step 15's reading of localisation: the generator's exact model on each leak's day finds 15 of 32, no better than the nominal model, and the misses are the incipient leaks, whose residual carries weeks of other leaks' changes. Next for H3: a per-leak oracle residual (the other leaks replayed through the generator's model), to split what is left between residual contamination and what 33 sensors cannot resolve, then a localiser whose baseline tracks the other changes in the network. Step 14 (milestone 4) gives the exact leak-free counterfactual: next, a null with the uncertainty the generator left out (demand multipliers perturbed per node and day, roughness and diameters within the README's 10%, sensor noise), seeded 20 or more times, for the e-process threshold (milestone 5, H2); and the oracle residual (published minus leak-free) as an upper bound on detection delay and on localisation for each leak. H4 is closed for this network as stated, under both rules. Steps 8 and 9 show that the detection-only verdict on L-Town turns on the matching rule and that 19 leaks cannot rank the detectors; next in the harness: re-select each detector's threshold under the rule it is scored by, and pool evidence across more leaks than BattLeDIM's 32 (step 10 cross-fitted both years and still could not separate any pair), with simulated leak years from `L-TOWN_Real.inp`, so a paired test has power. Milestone 2 is done (step 13: SICAMS reimplemented and its published times chance-corrected); next for SICAMS, an online (causal) PELT and retraining after each declared leak, and its 2018 FP rate measured on leak-free simulated years. Then localisation on the nominal model with the 300 m confusion matrix as BattLeDIM scored it, and leak-free simulated years for an e-process threshold ([`PROPOSAL.md`](PROPOSAL.md), Milestones). H1 should be restated as a protocol claim: a detection-only count is reported with its rule, its chance level and a multiplicity correction; location-aware counts beat chance under every rule tried.
+Step 15 bounds detection delay with an oracle: every leak is visible within hours, the detectors alarm after four to six days. Step 16 withdraws step 15's reading of localisation: the generator's exact model on each leak's day finds 15 of 32, no better than the nominal model, and the misses are the incipient leaks, whose residual carries weeks of other leaks' changes. Step 17 settles it: with the other leaks replayed out of the residual, 27 of 32 leaks localise within 300 m (nominal model 28), so contamination of the residual, not the model or the sensors, was the limit. Step 18 closes the moving baseline: the change against the same hours a week earlier finds 12 of 32 (slow leaks 4 of 17), no better than D1, at every lag from 24 h to two weeks, because other leaks change by as much as a slow leak inside any window. Step 19 models them instead: a joint non-negative fit over the 782 signatures, refitted a week later, also finds 11 of 32 (slow leaks 1 of 17), though its atom set lands within 300 m of 10 of the 17 slow leaks (chance 5.5): the slow leak is in the fit, but a two-window rise cannot tell it from the other leaks. Step 20 tried that tracker on a data-only residual: dating atoms by onset finds 8 of 32 (slow leaks 2), below the two-window rise on the same residual (14), because the tracker keeps about 20 atoms active and a new one starts every few days. Step 21 ran the same tracker on the demand-oracle D: 8 atoms active instead of 20, 13 of 32 within 300 m and 9 of the 17 slow leaks dated to their start, so F's drift was what sank it (the gain over F is not significant on 32 leaks, P = 0.27). Step 22 used the dated set: the steepest-rising source dated within 30 days finds 14 of 32 and 6 of the 17 slow leaks (newest source: 3) but loses two bursts, so the two rules hit different leaks (18 of 32 together). Step 23 fitted each source's shape: slow leaks' sources are ramps (8 of 8), but timing each change against the oracle hour returns the newest-source result (13 of 32, slow leaks 3), because a still-rising ramp's half level comes days early. Step 24 let the fitted shape choose the score (steepest ramp, else newest source): 15 of 32, slow leaks 6 and bursts 9, four of five predictions held, but in-sample and level with D1. Step 25 checked it out of sample on 64 leaks injected through `L-TOWN_Real.inp` into the published pressures: 25 of 64 within 300 m against the newest source's 16 (11 against 2 discordant, P = 0.022), all six predictions held, so R30 is now the tracker's estimate on D. Step 26 replaced the oracle hour with D1's alarm: R30 keeps about half of its hits (8 against 15 of the 30 injected leaks D1 detects; real 2019 leaks 2 against 6), and one day off the oracle day already costs 2 to 6, so steps 21 to 25 are upper bounds for a pipeline. Next for H3: a rule defined against the alarm's meaning, set on 2018 leaks only; a detector on D, whose leaks are visible within hours; and a data-only residual as clean as D (AMR demands as regressors, or a regression refitted on a rolling window). Step 14 (milestone 4) gives the exact leak-free counterfactual: next, a null with the uncertainty the generator left out (demand multipliers perturbed per node and day, roughness and diameters within the README's 10%, sensor noise), seeded 20 or more times, for the e-process threshold (milestone 5, H2); and the oracle residual (published minus leak-free) as an upper bound on detection delay and on localisation for each leak. H4 is closed for this network as stated, under both rules. Steps 8 and 9 show that the detection-only verdict on L-Town turns on the matching rule and that 19 leaks cannot rank the detectors; next in the harness: re-select each detector's threshold under the rule it is scored by, and pool evidence across more leaks than BattLeDIM's 32 (step 10 cross-fitted both years and still could not separate any pair), with simulated leak years from `L-TOWN_Real.inp`, so a paired test has power. Milestone 2 is done (step 13: SICAMS reimplemented and its published times chance-corrected); next for SICAMS, an online (causal) PELT and retraining after each declared leak, and its 2018 FP rate measured on leak-free simulated years. Then localisation on the nominal model with the 300 m confusion matrix as BattLeDIM scored it, and leak-free simulated years for an e-process threshold ([`PROPOSAL.md`](PROPOSAL.md), Milestones). H1 should be restated as a protocol claim: a detection-only count is reported with its rule, its chance level and a multiplicity correction; location-aware counts beat chance under every rule tried.
 
 AI-assisted research (Claude); no affiliation with the BattLeDIM organisers is implied. Code MIT; BattLeDIM data CC-BY-4.0 (Vrachimis et al.), not redistributed here.

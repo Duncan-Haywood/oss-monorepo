@@ -44,10 +44,10 @@ const monthOf = (w) => MONTHS.indexOf(String(w).slice(0, 3).toLowerCase());
 function parseDate(tok, order = "") {
   // A leading weekday ("Mon, 11/2/2026", "Monday Nov 2 2026") is dropped; the date itself decides the day.
   let s = String(tok || "").trim().replace(/^(mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,?\s+(?=\d|[a-z]{3})/i, "");
-  let m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/.exec(s);
+  let m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})(?!\d)/.exec(s);
   let y, mo, d;
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; }
-  else if ((m = /^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2}|\d{4})/.exec(s))) {
+  else if ((m = /^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4}|\d{2})(?!\d)/.exec(s))) {
     y = +m[3] < 100 ? 2000 + +m[3] : +m[3];
     const dayFirst = order ? order === "dmy" : +m[1] > 12;
     if (dayFirst) { d = +m[1]; mo = +m[2]; } else { mo = +m[1]; d = +m[2]; }
@@ -160,7 +160,7 @@ export function importShiftsCsv(text, opts = {}) {
     date: pick("date", fam) >= 0 ? pick("date", fam) : pick("date", ""),
     role: own("role"), who: own("who"), where: own("where"),
   };
-  const flagCols = Object.fromEntries(Object.entries(SKIP_IF_TRUE).map(([k, names]) => [k, head.findIndex((h) => names.includes(h))]));
+  const flagCols = Object.fromEntries(Object.entries(SKIP_IF_TRUE).map(([k, names]) => [k, (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1)]));
   const used = new Set([...Object.values(ix), ...Object.values(flagCols)].filter((i) => i >= 0));
   // Columns of the families not read are known, not unknown: list them apart.
   const otherFam = new Set();

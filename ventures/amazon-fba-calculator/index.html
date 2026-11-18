@@ -153,7 +153,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 760px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f4f8a; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .9fr); gap: 18px; align-items: start; }
@@ -171,6 +171,8 @@
     .result a { color: inherit; text-decoration: underline; }
     /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
     .result table { display: block; overflow-x: auto; max-width: 100%; }
+    /* A display:block table sizes its caption to the grid, not the box: keep it in view. */
+    .result caption { display: block; position: sticky; left: 0; }
     .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -1142,7 +1144,7 @@
     // page to learn whether sending extra units beats paying the surcharge.
     function renderLowInventory(input) {
       const result = compareLowInventory(input);
-      const signed = (value) => `${value < 0 ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
       const verdict = document.getElementById("lowInventoryVerdict");
       if (!result.applies) {
         verdict.textContent = result.reason === "fbm"
@@ -1200,7 +1202,7 @@
         ...input,
         removalFee: input.agedRemovalFee,
       });
-      const signed = (value) => `${value < 0 ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
       const verdict = document.getElementById("liquidationVerdict");
       if (result.winner === "elsewhere") {
         verdict.textContent = `Selling elsewhere keeps ${signed(result.extraElsewhereVsLiquidate)} more than FBA Liquidations`;
@@ -1231,7 +1233,7 @@
     // is-amazon-vine-worth-it.html.
     function renderVine(input) {
       const result = compareVine(input);
-      const signed = (value) => `${value < 0 ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
       const verdict = document.getElementById("vineVerdict");
       if (result.winner === "leftover") {
         verdict.textContent = `Vine leftover units keep ${signed(result.extraKeptOnLeftover)} more than skipping Vine`;
@@ -1259,7 +1261,7 @@
     // should-i-use-seller-fulfilled-prime.html.
     function renderSfp(input) {
       const result = compareSfp(input);
-      const signed = (value) => `${value < 0 ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
       const verdict = document.getElementById("sfpVerdict");
       if (result.winner === "sfp") {
         verdict.textContent = `Seller Fulfilled Prime keeps ${signed(result.extraKeptOnSfp)} more per session than FBA`;

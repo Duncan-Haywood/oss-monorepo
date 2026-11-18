@@ -1,0 +1,269 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/sign-language-interpreter-rate-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-15-8354",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a nationally certified (NIC) freelance ASL interpreter who also schedules for a small agency. They would check first: that the booking minimum and portal-to-portal travel are billed the way their contracts say (including 'no minimum' for an agency rate), that the team-interpreting prompt fires on the bookings their field actually teams (any long continuous assignment, and legal work past about an hour, as court rules require), that mileage uses the current IRS rate, and that the cancellation fee matches the notice actually given",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran computeAssignmentQuote / computeCancellationFee via a scratch probe (scratchpad/sign-language/probe.mjs) and recomputed by hand: (A) page example 1 h legal at $65, 2 h minimum, 20 min each way, 18 mi at $0.67: 2x65=130 + (40/60)x65=43.33 + 18x0.67=12.06 = 185.39, tool 185.39; (B) 3 h medical evening, team, $80, 45 min each way billed at 0.5, 30 mi at $0.725 (IRS IR-2025-128): 3x80x1.5x2=720 + 1.5x80x0.5=60 + 21.75 = 801.75, tool 801.75; (J) 2.5 h holiday $70: 350, tool 350; flat-fee page row 1 (180.03) and the guide page's 130 / 390 / 200 / 100 figures all reproduce. Cancellation boundaries 23.9/24/47.99/48 h give 100/50/50/0% as documented. Arithmetic is right in every case. Not higher because two inputs silently produce wrong numbers a user would act on: a blank 'Hours notice' becomes 0 and bills the full fee (index.html:323), and a deliberate booking minimum of 0 is replaced by 2 hours (calc.mjs:107,149), so a 0.75 h agency booking bills 2 h ($130 not $48.75).",
+  "completeness": "README features checked end to end: booking minimum (works, except a 0 minimum cannot be set), travel time with billed fraction (works), mileage (works), evening/weekend x1.5 and holiday x2 (work), team flag and team pricing (work as coded), cancellation calculator (works with the default schedule only). Gap: README:58 and the page note (index.html:166) and FAQ say the cancellation tiers are adjustable 'here'; the page has no tier inputs, only the JS API accepts tiers. Three guide pages and llms.txt present; no stubs or TODOs. Served page not loaded (marisstella.app not reachable from this session); no URL defects filed.",
+  "verification": "`cd ventures/sign-language-interpreter-rate-calculator && node --test '*.test.mjs'`: 61 tests, 61 pass. 7 seeded mutants via quality_mutate.py: 5 caught (team threshold > to >=, travel round trip x2 dropped, 50% tier to 25%, minimum applied to zero hours, billed fraction forced to 1), 2 survived: HOLIDAY_MULTIPLIER 2 -> 1.5 (calc.test.mjs:58-61 asserts the fee equals 3*60*HOLIDAY_MULTIPLIER, the imported constant, so it can never fail) and positiveOrDefault n>0 -> n>=0 (no test covers a 0 minimum).",
+  "craft": "Read calc.mjs (278 lines), index.html script, calc.test.mjs, the three guide pages and tests. Small, dependency-free, pure functions shared by the page; inputs coerced defensively. Defects: silent fallbacks (0 minimum -> default 2; empty tiers array -> 0% with a 'no fee' finding; unknown setting string such as 'Legal' silently suppresses the team flag); effectiveHourlyOnAssignment for a team reports the combined two-interpreter figure ($240/h for an $80 rate x1.5) under a label that reads as the interpreter's own rate; mileage default 0.67 duplicated in calc.mjs:73, index.html:128 and index.html:303.",
+  "claims": "Checked: arithmetic claims on the guide and comparison pages (backed, reproduce exactly); disclaimer present on every page (backed); 'nothing uploaded' (backed: no fetch in index.html, usage.mjs localStorage only). Not backed: the repeated attribution that 'RID's Standard Practice Papers recommend a team ... for assignments past about two hours' in legal/medical/mental-health settings (calc.mjs:201, README, index FAQ) cites no paper or file, and the RID SPP Team Interpreting (2007) is not quoted anywhere in the venture; court rules the professional would cite set the bar lower (Washington GR 11.4: a team when more than one hour of simultaneous interpreting is expected; Wisconsin court program: beyond one hour). 'Tiers adjustable here' is false on the page. '$0.67 commonly cited standard mileage rate' is the 2024 IRS rate.",
+  "fitness": "Walked the job: a freelancer pricing a 1 h legal deposition with a 20 min drive gets a sensible $185.39 itemised quote in seconds. First-hour gaps: cannot price an agency booking with no minimum; no billing increment (2 h 10 m bills 2.17 h; most interpreters bill in quarter or half hours); no overtime past the scheduled block; team travel/mileage for a second interpreter is only disclosed, not priced; no VRI/remote option; blank notice on the cancellation card silently bills 100%; a 6 h general conference or educational day gets no team prompt.",
+  "domain": "Compared to: IRS IR-2025-128 (2026 business rate 72.5 c/mi; reported raised to 76 c from July 2026), Washington GR 11.4 and Wisconsin court interpreter best practices (team past one hour), and common RID-community practice (team for long continuous assignments in any setting). Departures: team flag requires both >2 h and a legal/medical/mental-health setting, so a 2 h legal deposition and a 6 h conference both get no prompt; mileage default two years stale; 2 h minimum, x1.5/x2 differentials, and 24/48 h cancellation tiers are reasonable, honestly labelled conventions."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "page worked example: 1 h legal, $65, 2 h minimum, 20 min each way, 18 mi at $0.67",
+   "method": "hand: 2x65 + (40/60)x65 + 18x0.67",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/sign-language/probe.mjs",
+   "expected": "185.39",
+   "observed": "185.39",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "3 h medical evening, team, $80, 45 min each way at 0.5 billed, 30 mi at 2026 IRS 0.725",
+   "method": "hand: 3x80x1.5x2 + 1.5x80x0.5 + 30x0.725; rate from IRS IR-2025-128",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/sign-language/probe.mjs",
+   "expected": "801.75",
+   "observed": "801.75",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "2.5 h holiday at $70",
+   "method": "hand: 2.5x70x2",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/sign-language/probe.mjs",
+   "expected": "350",
+   "observed": "350",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "cancellation tier boundaries for $200 at 23.9/24/47.99/48 h notice",
+   "method": "hand against the documented 100/50/0 schedule",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/sign-language/probe.mjs",
+   "expected": "200/100/100/0",
+   "observed": "200/100/100/0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "agency booking with no minimum: 0.75 h at $65, minimum set to 0",
+   "method": "hand: 0.75x65",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/sign-language/probe.mjs",
+   "expected": "48.75",
+   "observed": "130 (minimum silently reset to 2 h)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "cancellation card with Hours notice left blank",
+   "method": "page passes Number('') = 0 (index.html:323); expected a prompt, not a fee",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/sign-language/probe.mjs",
+   "expected": "an error asking for the notice",
+   "observed": "100% fee, $200, no finding",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "default mileage rate",
+   "method": "IRS IR-2025-128 (2026: 72.5 c/mi; 76 c reported from July 2026)",
+   "command": "grep -n 0.67 ventures/sign-language-interpreter-rate-calculator/calc.mjs ventures/sign-language-interpreter-rate-calculator/index.html",
+   "expected": "0.725 or newer",
+   "observed": "0.67 (2024 rate)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "team prompt on a 2.0 h legal deposition",
+   "method": "Washington GR 11.4 / Wisconsin court best practices: team past one hour",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/sign-language/probe.mjs",
+   "expected": "team-interpreting-recommended",
+   "observed": "no finding",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "team prompt on a 6 h general conference and a 6 h educational day",
+   "method": "common RID-community practice: team long continuous assignments in any setting",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/sign-language/probe.mjs",
+   "expected": "a team prompt",
+   "observed": "no finding for either",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "comparison page row 1: 1 h, 20 min each way, 10 mi -> $180.03",
+   "method": "recomputed via the module and by hand",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/sign-language/probe.mjs",
+   "expected": "180.03",
+   "observed": "180.03",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'adjust [the cancellation tiers] to your own contract' on the page",
+   "method": "read index.html cancellation card",
+   "command": "grep -n 'adjust to your own contract\\|hours-notice' ventures/sign-language-interpreter-rate-calculator/index.html",
+   "expected": "tier inputs on the page",
+   "observed": "no tier inputs; defaults only",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "RID SPP attribution of a 2 h / legal-medical-mental-health team threshold",
+   "method": "searched the venture for a cited paper; web search for the SPP text",
+   "command": "grep -rn 'Standard Practice' ventures/sign-language-interpreter-rate-calculator",
+   "expected": "a citation or quote backing the threshold",
+   "observed": "asserted in 6 places, never cited; court rules cite one hour",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "full test suite",
+   "method": "run",
+   "command": "cd ventures/sign-language-interpreter-rate-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "61/61 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "README features: minimum, travel, mileage, differentials, team flag/pricing, cancellation",
+   "method": "exercised each via probe.mjs",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/sign-language/probe.mjs",
+   "expected": "each works",
+   "observed": "all work; 0 minimum and page-adjustable tiers do not",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:192",
+   "change": "billableHours > TEAM_RECOMMENDED_HOURS && -> billableHours >= TEAM_RECOMMENDED_HOURS &&",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs how-much-should-i-charge-for-an-interpreting-assignment.test.mjs vs-a-flat-fee-per-assignment.test.mjs vs-a-spreadsheet.test.mjs"
+  },
+  {
+   "where": "calc.mjs:160",
+   "change": "const travelHoursRoundTrip = (nonNegative(travelMinutesEachWay) * 2) / 60; -> const travelHoursRoundTrip = nonNegative(travelMinutesEachWay) / 60;",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs how-much-should-i-charge-for-an-interpreting-assignment.test.mjs vs-a-flat-fee-per-assignment.test.mjs vs-a-spreadsheet.test.mjs"
+  },
+  {
+   "where": "calc.mjs:75",
+   "change": "export const HOLIDAY_MULTIPLIER = 2; -> export const HOLIDAY_MULTIPLIER = 1.5;",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs how-much-should-i-charge-for-an-interpreting-assignment.test.mjs vs-a-flat-fee-per-assignment.test.mjs vs-a-spreadsheet.test.mjs"
+  },
+  {
+   "where": "calc.mjs:90",
+   "change": "{ minHoursNotice: 24, feePercentage: 50, -> { minHoursNotice: 24, feePercentage: 25,",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs how-much-should-i-charge-for-an-interpreting-assignment.test.mjs vs-a-flat-fee-per-assignment.test.mjs vs-a-spreadsheet.test.mjs"
+  },
+  {
+   "where": "calc.mjs:150",
+   "change": "requestedHours > 0 ? minHours : 0 -> minHours",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs how-much-should-i-charge-for-an-interpreting-assignment.test.mjs vs-a-flat-fee-per-assignment.test.mjs vs-a-spreadsheet.test.mjs"
+  },
+  {
+   "where": "calc.mjs:107",
+   "change": "return Number.isFinite(n) && n > 0 ? n : fallback; -> return Number.isFinite(n) && n >= 0 ? n : fallback;",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs how-much-should-i-charge-for-an-interpreting-assignment.test.mjs vs-a-flat-fee-per-assignment.test.mjs vs-a-spreadsheet.test.mjs"
+  },
+  {
+   "where": "calc.mjs:161",
+   "change": "const billedFraction = clamp01(travelBillingFraction); -> const billedFraction = 1;",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs how-much-should-i-charge-for-an-interpreting-assignment.test.mjs vs-a-flat-fee-per-assignment.test.mjs vs-a-spreadsheet.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Leaving 'Hours notice given' blank on the cancellation card passes Number('') = 0 and bills the full scheduled fee (100%, under-24-hours tier) with no warning; only the scheduled fee is validated",
+   "where": "ventures/sign-language-interpreter-rate-calculator/index.html:323",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"
+  },
+  {
+   "severity": "medium",
+   "what": "A booking minimum of 0 (agency or staff rate with no minimum; the field allows min=0) is silently replaced by the 2-hour default, so a 0.75 h booking at $65 bills $130 not $48.75 and the finding says 'billing 2 hour(s)'",
+   "where": "ventures/sign-language-interpreter-rate-calculator/calc.mjs:107",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Team-interpreting prompt requires both >2 h and a legal/medical/mental-health setting: a 2.0 h legal deposition (Washington GR 11.4 and Wisconsin courts team past one hour) and a 6 h conference or school day get no prompt",
+   "where": "ventures/sign-language-interpreter-rate-calculator/calc.mjs:192",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Default mileage rate $0.67 is the 2024 IRS rate; 2026 is 72.5 c/mi (IR-2025-128), reportedly 76 c from July 2026; labelled 'commonly cited' with no year",
+   "where": "ventures/sign-language-interpreter-rate-calculator/calc.mjs:73",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "The 2-hour / legal-medical-mental-health team threshold is attributed to 'RID's Standard Practice Papers' in calc.mjs, README, index FAQ and guide pages with no citation or quote of the 2007 Team Interpreting SPP",
+   "where": "ventures/sign-language-interpreter-rate-calculator/calc.mjs:201",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Page note and FAQ say the cancellation tiers can be adjusted 'here', and README calls them adjustable inputs, but the page has no tier inputs",
+   "where": "ventures/sign-language-interpreter-rate-calculator/index.html:166",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Holiday test asserts against the imported HOLIDAY_MULTIPLIER constant, so changing the multiplier can never fail it (seeded 2 -> 1.5 survived)",
+   "where": "ventures/sign-language-interpreter-rate-calculator/calc.test.mjs:61",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"
+  },
+  {
+   "severity": "low",
+   "what": "With team interpreting, 'Effective hourly on this assignment' shows the combined two-interpreter figure ($240/h for an $80 rate x1.5), read as one interpreter's rate",
+   "where": "ventures/sign-language-interpreter-rate-calculator/calc.mjs:167",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "No billing increment (2 h 10 m bills 2.17 h) and no overtime past the scheduled block, both standard in interpreter invoices",
+   "where": "ventures/sign-language-interpreter-rate-calculator/calc.mjs:150",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"],
+ "verdict": "A small, honest, correctly-calculated assignment pricer: every hand recomputation (page example $185.39, a team evening booking $801.75, holiday, cancellation boundaries, the comparison-page figures) matches to the cent and the disclaimers are thorough. It misses the bar on claims and verification and sits at 2 on domain: a blank notice field bills a 100% cancellation fee, a 0 minimum cannot be entered, the mileage default is the 2024 IRS rate, and the team prompt, attributed to RID without a citation, misses a 2 h legal deposition and any long general or educational booking. Two of seven seeded mutants survived, one because the holiday test checks the constant against itself. Rerun: node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/sign-language/probe.mjs."
+}

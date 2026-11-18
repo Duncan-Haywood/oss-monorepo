@@ -997,7 +997,7 @@ def _stored_area(op: "MapTable | PerLine", out, w: int, h: int, notes: list[str]
     try:
         import numpy as np
     except ImportError:  # pragma: no cover - the pure path below, same answer
-        np = None
+        np = None  # type: ignore[assignment]
     if np is not None:
         dt = np.uint16 if out.typecode == "H" else np.uint32
         arr = np.frombuffer(out, dtype=dt).reshape(h, w)  # a view: writes land in ``out``

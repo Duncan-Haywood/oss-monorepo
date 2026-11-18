@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%235b3f8c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%7B%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>csshound: Find Unused CSS on Every Page, Fast (Rust, Runs in Your Browser)</title>
+  <meta name="description" content="Paste a page, or a stylesheet and the markup that uses it, and see every CSS rule nothing on the page names. PurgeCSS's selector rules in a Rust engine compiled to WebAssembly; nothing is uploaded. The CLI read 3,915 pages in 0.5 s.">
+  <meta property="og:title" content="Find unused CSS on every page">
+  <meta property="og:description" content="An unused-CSS finder written in Rust with PurgeCSS's selector rules: the same engine runs as a CLI over a whole site and in your browser. On 3,915 pages it found 8,815 rules no page uses, in 0.5 s.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"csshound","applicationCategory":"DeveloperApplication","operatingSystem":"Linux, macOS, Windows, any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT","description":"Unused-CSS finder written in Rust: lists the CSS rules a page never uses, by PurgeCSS's selector rules. Runs as a command-line tool over a whole site and, compiled to WebAssembly, in the browser with nothing uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is my code uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. What you paste is handed to a WebAssembly module loaded from this site and judged in this tab. The page makes no network requests of its own after it loads."}}, {"@type": "Question", "name": "How does it decide a rule is unused?", "acceptedAnswer": {"@type": "Answer", "text": "The same way PurgeCSS does by default: the markup and scripts are cut into words, and a selector is unused when one of its classes, ids, tags or attributes is not one of those words. Pseudo-classes and combinators never count against a selector, and rules inside @keyframes are left alone."}}, {"@type": "Question", "name": "Can it be wrong?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, in the direction of calling something unused that a visitor does see: a class name your code builds with no literal prefix, markup fetched at run time, or a class set by a script from another site. It keeps classes built from a literal prefix plus a value, such as \"tier-\" + level. Check a finding before deleting the rule."}}, {"@type": "Question", "name": "How is this different from PurgeCSS?", "acceptedAnswer": {"@type": "Answer", "text": "It uses PurgeCSS's rules but works page by page over a whole folder, follows the imports of each page's scripts, and reports instead of rewriting files. Given the same input, it rejects exactly what PurgeCSS 9.1.0 rejects: 15,632 selectors on 3,923 pages, no difference either way."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1a29; background: #f4f2f8; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #3b2763; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b2763; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #574f66; }
+    .card { background: #fff; border: 1px solid #ddd6ea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b276310; margin: 18px 0; }
+    @media (max-width: 680px) { body { padding: 16px; } }
+    label { display: block; font-size: .82rem; font-weight: 700; color: #3b2763; margin: 10px 0 4px; }
+    label.inline { display: inline; font-weight: 400; color: inherit; font-size: .86rem; margin: 0; }
+    textarea { width: 100%; min-height: 180px; box-sizing: border-box; padding: 10px; border: 1px solid #b7abcc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .opts { display: flex; gap: 18px; flex-wrap: wrap; margin: 10px 0; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #5b3f8c; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #ebe5f4; color: #3b2763; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #3b2763; }
+    table { width: 100%; border-collapse: collapse; font-size: .86rem; margin: 10px 0 20px; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #ebe5f4; vertical-align: top; }
+    th { color: #574f66; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd6ea; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    pre.cmd { background: #f8f6fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CSSHOUND · UNUSED CSS FINDER · RUST + WEBASSEMBLY · RUNS IN YOUR BROWSER</p>
+    <h1>Which of this page's CSS rules does it never use?</h1>
+    <p>Paste a whole HTML page, or a stylesheet with the markup and scripts that use it. csshound judges every rule by PurgeCSS's rules and lists the ones nothing in the content names, with the bytes each one costs. Pages copy stylesheets from each other; this shows what each page carries for nothing.</p>
+    <p class="note">Nothing is uploaded. What you paste is handed to a WebAssembly module from this site; the page makes no network requests of its own after it loads.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Paste a page, or CSS and content</h2>
+    <label for="css">An HTML page with <code>&lt;style&gt;</code> blocks, or a stylesheet</label>
+    <textarea id="css" spellcheck="false"></textarea>
+    <label for="content">Markup and scripts that use it (optional for a page: add the scripts it loads)</label>
+    <textarea id="content" spellcheck="false"></textarea>
+    <div class="opts">
+      <span><input type="checkbox" id="dynamic" checked> <label class="inline" for="dynamic">Keep classes built from a prefix (<code>"tier-" + t</code>, or a template)</label></span>
+    </div>
+    <button type="button" id="run">Find unused CSS</button>
+    <button type="button" class="secondary" id="example">Load an example</button>
+    <p class="note" id="status" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>2. What it found</h2>
+    <p class="verdict" id="verdict"></p>
+    <p class="note" id="summary"></p>
+    <h3>Rules that could go</h3>
+    <div class="tableWrap"><table>
+      <thead><tr><th scope="col">Byte offset</th><th scope="col">Selector</th></tr></thead>
+      <tbody id="deadRows"></tbody>
+    </table></div>
+    <h3>Every rejected selector</h3>
+    <p class="note">Includes selectors removed from a list whose other selectors are still used, and arguments of <code>:is()</code> and <code>:where()</code>.</p>
+    <div class="tableWrap"><table>
+      <thead><tr><th scope="col">Selector</th></tr></thead>
+      <tbody id="rejRows"></tbody>
+    </table></div>
+    <button type="button" class="secondary" id="download">Download the JSON report</button>
+  </section>
+
+  <section class="card">
+    <h2>How it decides</h2>
+    <ul>
+      <li>The content is cut into words with <code>[A-Za-z0-9_-]+</code>. <code>.card</code> is used if <code>card</code> is a word anywhere, in a <code>class</code> attribute, a script string or the text. That errs toward keeping rules.</li>
+      <li>Every class, id, tag and attribute of a selector must be found. Pseudo-classes, pseudo-elements and combinators never count against it.</li>
+      <li><code>:is()</code> and <code>:where()</code> arguments are judged one by one; <code>:not()</code> and <code>:has()</code> arguments are always kept. <code>[value]</code>, <code>[checked]</code>, <code>[selected]</code> and <code>[open]</code> are always kept, since scripts change them.</li>
+      <li>Rules inside <code>@keyframes</code>, and <code>@font-face</code> and custom properties, are left alone. <code>purgecss ignore</code> comments are honoured.</li>
+    </ul>
+    <p class="note">It can call a rule unused that a visitor does see: a class name your code builds with no literal prefix, markup fetched at run time, or a class set by a script from another site. Check before deleting.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it over a whole site</h2>
+    <p>The CLI reads every HTML page under a folder, takes each page's <code>&lt;style&gt;</code> blocks and linked local stylesheets, and judges them against the page, the local scripts it loads and every module those scripts import.</p>
+    <pre class="cmd">git clone --depth 1 --filter=blob:none --sparse https://github.com/duncan-haywood/oss-monorepo
+cd oss-monorepo &amp;&amp; git sparse-checkout set ventures/csshound
+cargo install --path ventures/csshound
+csshound site/            # summary and the worst pages
+csshound --dead site/     # every unused rule, page:offset: selector
+csshound --fail site/     # CI gate: exit 1 if anything is unused</pre>
+    <h3>Measured on this repository</h3>
+    <p>On 3,915 HTML pages (99,479 rules, 8,101,928 bytes of CSS), on a 4-core container: <strong>0.50 to 0.52 s and 18 to 21 MB</strong>. It found <strong>8,815 rules</strong> (644,192 bytes, 8.0% of the CSS) that nothing on their page uses. With PurgeCSS's input, which does not follow imports, the count was 13,412: following imports removes a third of the findings. Run against PurgeCSS 9.1.0 itself on 3,923 pages with the same input, the two rejected <strong>the same 15,632 selectors</strong>, with no difference either way. PurgeCSS took 4.6 to 4.9 s and 123 MB; csshound 0.31 to 0.36 s (1.1 s on one thread) and 10 MB. <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/csshound/BENCHMARK.md" rel="noopener">The benchmark</a> has the commands to repeat it.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Is my code uploaded?</h3>
+    <p>No. What you paste is handed to a WebAssembly module loaded from this site and judged in this tab. The page makes no network requests of its own after it loads.</p>
+    <h3>How does it decide a rule is unused?</h3>
+    <p>The same way PurgeCSS does by default: the markup and scripts are cut into words, and a selector is unused when one of its classes, ids, tags or attributes is not one of those words. Pseudo-classes and combinators never count against a selector, and rules inside @keyframes are left alone.</p>
+    <h3>Can it be wrong?</h3>
+    <p>Yes, in the direction of calling something unused that a visitor does see: a class name your code builds with no literal prefix, markup fetched at run time, or a class set by a script from another site. It keeps classes built from a literal prefix plus a value, such as "tier-" + level. Check a finding before deleting the rule.</p>
+    <h3>How is this different from PurgeCSS?</h3>
+    <p>It uses PurgeCSS's rules but works page by page over a whole folder, follows the imports of each page's scripts, and reports instead of rewriting files. Given the same input, it rejects exactly what PurgeCSS 9.1.0 rejects: 15,632 selectors on 3,923 pages, no difference either way.</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a code review or an accessibility audit, and it does not replace a qualified engineer's judgement. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, install the CLI from the repo and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Same kind of Rust engine: <a href="../cyclehound/">cyclehound</a> finds circular imports and <a href="../dupehound/">dupehound</a> finds copy-pasted code.</p>
+    <p>PurgeCSS is its authors' project; csshound follows its selector rules and is not affiliated with or endorsed by them.</p>
+    <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { load } from "./web/csshound.mjs";
+
+    const $ = (id) => document.getElementById(id);
+    let engine = null, lastReport = null;
+
+    async function getEngine() {
+      if (!engine) engine = await load(new URL("./web/csshound.wasm", import.meta.url));
+      return engine;
+    }
+
+    function esc(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    }
+
+    function show(r) {
+      $("results").hidden = false;
+      const n = (x) => x.toLocaleString("en-US");
+      $("verdict").textContent = r.rules === 0
+        ? "No style rules found."
+        : r.dead_rules === 0
+          ? `All ${n(r.rules)} rules are used.`
+          : `${n(r.dead_rules)} of ${n(r.rules)} rules could go (${n(r.dead_bytes)} of ${n(r.css_bytes)} bytes)`;
+      $("summary").textContent = `${n(r.rejected.length)} selector${r.rejected.length === 1 ? "" : "s"} rejected in all.`;
+      $("deadRows").innerHTML = r.dead.slice(0, 500).map((d) =>
+        `<tr><td>${d.offset}</td><td><code>${esc(d.selector)}</code></td></tr>`).join("")
+        || `<tr><td colspan="2" class="note">None.</td></tr>`;
+      $("rejRows").innerHTML = r.rejected.slice(0, 500).map((s) => `<tr><td><code>${esc(s)}</code></td></tr>`).join("")
+        || `<tr><td class="note">None.</td></tr>`;
+    }
+
+    $("run").addEventListener("click", async () => {
+      const css = $("css").value;
+      if (!css.trim()) { $("status").textContent = "Paste a page or a stylesheet first."; return; }
+      try {
+        const cs = await getEngine();
+        const html = /<style[\s>]/i.test(css);
+        const t = performance.now();
+        lastReport = cs.analyze(css, $("content").value, { dynamic: $("dynamic").checked, html });
+        $("status").textContent = `Read as ${html ? "an HTML page" : "a stylesheet"}; done in ${((performance.now() - t) / 1000).toFixed(3)} s.`;
+        show(lastReport);
+        record("scan_run");
+      } catch (e) {
+        $("status").innerHTML = `<span class="error">${esc(e && e.message || e)}</span>`;
+      }
+    });
+
+    $("example").addEventListener("click", () => {
+      $("css").value = [
+        "<!doctype html>",
+        "<style>",
+        "  .card { padding: 16px; border: 1px solid #ccc; }",
+        "  .card .title { font-weight: 700; }",
+        "  .card .badge, .card .ribbon { float: right; }",
+        "  .tier-high { color: #b42318; } .tier-low { color: #1a7f37; }",
+        "  .modal, .modal-backdrop { position: fixed; }",
+        "  nav :is(.active, .current) { text-decoration: underline; }",
+        "  input[type=number] { width: 6em; }",
+        "  @media print { .no-print { display: none; } }",
+        "</style>",
+        '<nav><a class="active">Top</a></nav>',
+        '<div class="card"><span class="title">Plan</span><span class="badge">new</span></div>',
+        '<input type="number" id="qty">',
+        "<script>",
+        '  document.querySelector(".card").classList.add("tier-" + level);',
+        "<\/script>",
+      ].join("\n");
+      $("content").value = "";
+      record("example_loaded");
+    });
+
+    $("download").addEventListener("click", () => {
+      if (!lastReport) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(lastReport, null, 2)], { type: "application/json" }));
+      a.download = "csshound-report.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+
+    $("optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = $("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+</body>
+</html>

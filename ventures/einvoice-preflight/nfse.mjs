@@ -26,7 +26,9 @@
 //      (NFSE-034), is allowed on an NFS-e and valid on the date (NFSE-035), and the NFS-e's
 //      pRedAliqUF/Mun/CBS is the code's reduction (NFSE-036);
 //   6. the ISSQN rate (NFSE-024): pAliqAplic (or the DPS's pAliq) within LC 116's national
-//      2% to 5% band, and the burden after a municipal benefit not under 2% (iss-rate.mjs).
+//      2% to 5% band, and the burden after a municipal benefit not under 2% (iss-rate.mjs);
+//      NFSE-037: the rate against the city's own law where cLocIncid names a city whose
+//      table is read (São Paulo, iss-city-rates.mjs).
 // An offline observation, not the national system's authorisation, and not tax advice.
 
 import { COMPLEX, SIMPLE, PACKAGE } from "./nfse-xsd-data.mjs";
@@ -35,6 +37,7 @@ import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { keyCheckDigit } from "./nfe.mjs";
 import { checkClassTrib } from "./cclasstrib.mjs";
 import { issRateProblem, issBurdenProblem, lcSubitem } from "./iss-rate.mjs";
+import { cityRateProblem } from "./iss-city-rates.mjs";
 
 export const NFSE_NS = "http://www.sped.fazenda.gov.br/nfse";
 export { PACKAGE };
@@ -265,6 +268,12 @@ function checkIssRate(inf, infDPS, DP, out, skipped) {
     if (why && prob.kind === "low") skipped.push(`ISSQN rate ${rate}%: below the national 2% minimum, from ${why}; not judged (the band applies to the municipal rate, not this regime)`);
     else out.push(finding("NFSE-024", prob.message, prob.fix, path));
     return;
+  }
+  // NFSE-037: the city's own rate, where the ISSQN is due (cLocIncid, only on an issued NFS-e)
+  // in a city whose rate table is read (iss-city-rates.mjs: São Paulo, Rio de Janeiro, Curitiba).
+  if (inf && !why && rate) {
+    const c = cityRateProblem({ city: txt(inf, "cLocIncid"), rate, item, year, fraction: false });
+    if (c) out.push(finding("NFSE-037", c.message, c.fix, path));
   }
   // The burden after a municipal benefit (BM): vISSQN on the base before the benefit.
   if (!inf || why) return;

@@ -13,6 +13,7 @@
 //   'markov':    a two-state chain per stretch (P(repeat | last step repeated), P(repeat | last step
 //                updated)), so long flat runs inside a stretch are not read as a change of rate.
 // Both are profiled -2 log likelihoods; a cut costs `penalty` (default mult x 2 log n).
+import { staleTestMarkov } from './rounded-walk.mjs';
 
 /** 0/1 per step t = 1..n-1: 1 when values[t] === values[t - 1]. Non-finite values never repeat. */
 export function repeatIndicators(values) {
@@ -174,7 +175,9 @@ export function updateRateChanges(values, opts = {}) {
   const none = { changes: [], stretches: [], repeats: total, steps: z.length, setting: o };
   if (total < o.minRepeats || z.length < 2 * o.minSegment) return none;
   const { cuts, penalty } = partitionRates(z, o);
-  const cu = { ...CATCHUP, ...(opts.catchUp || {}) };
+  // A `catchUp` option replaces the default whole, over the ratio-only base, so the earlier rounds'
+  // settings (eval/update-rate-catchup*.mjs, update-rate-stale-lr.mjs) still reproduce their files.
+  const cu = opts.catchUp ? { ...CATCHUP_BASE, ...opts.catchUp } : CATCHUP;
   const bounds = [0, ...cuts, z.length];
   const stretches = [];
   for (let k = 0; k + 1 < bounds.length; k++) {
@@ -197,7 +200,7 @@ export function updateRateChanges(values, opts = {}) {
       // README "Repeats from rounding": in the stickier stretch, at least half the moves are one tick,
       // unless the move after a run of repeats grows with the run, as a stale feed's catch-up does
       // (README "One-tick stale feeds: the catch-up check").
-      ...roundingVerdict(sticky, cu), tick: sticky.tick,
+      ...roundingVerdict(sticky, cu, values, trimmed(stretches, ranges, less ? k + 1 : k, cu)), tick: sticky.tick,
     };
   });
   return { changes, stretches, repeats: total, steps: z.length, penalty, setting: o };
@@ -249,7 +252,13 @@ export function medianMoveTicks(values, from, to, tick) {
 // runs >= 3, ratio 1.8, one-tick stale feeds caught in 79.5% of one cell, bar 80%). So `ratio` is Infinity
 // and `catchUp` is always false; the ratio is still computed and returned (`catchUpRatio`) as a number,
 // with no sentence. A test checks this matches the files.
-export const CATCHUP = { minRun: 3, ratio: Infinity, minMoves: 5 };
+// Round four ships (README "One-tick stale feeds: a heavy-tailed walk", eval/update-rate-stale-lr-4.out.txt,
+// all four pre-registered lines passed on seed 20261216): the call is made by the likelihood route below,
+// with Student t steps and the stretch trimmed to its cuts' ranges. The ratio stays a reported number.
+export const CATCHUP_BASE = { minRun: 3, ratio: Infinity, minMoves: 5 };
+// Round five ships (README "One-tick stale feeds: clumped carry-forward", eval/update-rate-stale-lr-5.out.txt,
+// K1-K5 passed on seed 20261217): Markov carry-forward, threshold 6.56 set on the null cells of seed 31.
+export const CATCHUP = { minRun: 3, ratio: Infinity, minMoves: 5, method: 'lr', lr: 6.56, test: staleTestMarkov, trim: 'range' };
 export function catchUpRatio(values, from, to, tick, { minRun = CATCHUP.minRun, minMoves = CATCHUP.minMoves } = {}) {
   if (!tick) return null;
   let after = 0, nAfter = 0, plain = 0, nPlain = 0, run = 0, prevMoved = false;
@@ -264,9 +273,28 @@ export function catchUpRatio(values, from, to, tick, { minRun = CATCHUP.minRun, 
   if (nAfter < minMoves || nPlain < minMoves) return { ratio: null, after: nAfter, plain: nPlain };
   return { ratio: (after / nAfter) / (plain / nPlain), after: nAfter, plain: nPlain };
 }
-function roundingVerdict(sticky, cu = CATCHUP) {
+// The likelihood route (README "One-tick stale feeds: a likelihood" and "a heavy-tailed walk";
+// rounded-walk.mjs): with `method: 'lr'`, a one-tick sticky stretch is called a catch-up when a rounded
+// walk carried forward beats the same walk merely rounded by LR >= `lr` (5.41, the 1% point of the
+// boundary chi-square mix). It runs only on stretches that already pass the one-tick test. Round three
+// (Gaussian steps, whole stretch) failed K1; round four (`staleTestHeavy`, t steps, `trim: 'range'`)
+// passed K1-K4; round five (`staleTestMarkov`, clumped carry-forward, lr 6.56) passed K1-K5 and is the
+// default. Pass `catchUp: { method: null }` for the median-move test alone.
+function trimmed(stretches, ranges, j, cu) {
+  const st = stretches[j];
+  if (cu.trim !== 'range') return { from: st.from, to: st.to };
+  const from = j > 0 ? Math.max(st.from, ranges[j - 1][1] + 1) : st.from;
+  const to = j < ranges.length ? Math.min(st.to, ranges[j][0]) : st.to;
+  return to - from >= 1 ? { from, to } : { from: st.from, to: st.to };
+}
+function roundingVerdict(sticky, cu = CATCHUP, values = null, span = sticky) {
   const oneTick = sticky.medianMoveTicks != null && sticky.medianMoveTicks <= ROUNDING_TICKS;
   const r = sticky.catchUp && sticky.catchUp.ratio;
+  if (cu.method === 'lr') {
+    const t = oneTick && values && cu.test ? cu.test(values, span.from - 1, span.to, sticky.tick) : null;
+    const catchUp = !!(t && t.lr >= (cu.lr ?? 5.41));
+    return { rounding: oneTick && !catchUp, catchUp, catchUpRatio: r ?? null, staleLR: t ? t.lr : null, staleP: t ? t.p : null, ...(t && t.lrIid != null ? { staleLRIid: t.lrIid, staleEnter: t.pEnter, staleStay: t.pStay, staleThreshold: cu.lr } : {}) };
+  }
   const catchUp = oneTick && r != null && r >= cu.ratio;
   return { rounding: oneTick && !catchUp, catchUp, catchUpRatio: r ?? null };
 }
@@ -286,8 +314,13 @@ export function updateRateLines(u, labels) {
     ? ` In the stretch with more repeats at least half the moves are one tick (${[...new Set(rounded.map(tk))].join(' or ')}, the smallest move there), so the repeats may only mean the series moved less than its recorded precision then: a slower series, not a stale one. If so, this is a change in how fast it moved, not in how often it was refreshed.`
     : ` This describes how often the data was refreshed (a stale feed, a figure carried forward, a change in how it was recorded), not a change in its level; jumps near these dates may be catch-ups after a stale stretch.${rounded.length ? ` Around ${rounded.map((c) => `${L(c.index)} (tick ${tk(c)})`).join(', ')}, though, at least half the moves in the stickier stretch are one tick, so those repeats may only be a slow series rounded to its precision.` : ''}`;
   const caught = u.changes.filter((c) => c.catchUp);
+  const lrNote = (c) => c.staleStay != null
+    ? `a rounded walk carried forward in runs (after a fresh value the next repeats about ${pct(c.staleEnter)} of the time, after a repeat about ${pct(c.staleStay)}) fits it better than the same walk only rounded, even allowing heavy-tailed jumps (likelihood ratio ${c.staleLR.toFixed(1)}, against ${c.staleThreshold.toFixed(1)}, which about 2% of rounded slow series clear in simulation)`
+    : c.staleLR != null
+    ? `a rounded walk carried forward on about ${pct(c.staleP)} of steps fits it better than the same walk only rounded, even allowing heavy-tailed jumps (likelihood ratio ${c.staleLR.toFixed(1)}, against 5.4 at the 1% level)`
+    : `a move that ends two or more repeats is ${c.catchUpRatio.toFixed(1)}x the mean square of a move after a move`;
   const catchNote = caught.length
-    ? ` Around ${caught.map((c) => L(c.index)).join(', ')} most moves in the stickier stretch are one tick (${[...new Set(caught.map(tk))].join(' or ')}), but a move that ends two or more repeats is larger (${caught.map((c) => `${c.catchUpRatio.toFixed(1)}x`).join(', ')} the mean square of a move after a move), as a stale figure catching up would be, so those repeats read as staleness, not rounding.`
+    ? ` Around ${caught.map((c) => L(c.index)).join(', ')} most moves in the stickier stretch are one tick (${[...new Set(caught.map(tk))].join(' or ')}), but the moves that end runs of repeats grow with the run, as a stale figure catching up would (${caught.map(lrNote).join('; ')}), so those repeats read as staleness, not rounding.`
     : '';
   return [`Update-rate check: the share of steps that repeat the previous value exactly changed ${u.changes.length === 1 ? 'once' : `${u.changes.length} times`}: ${parts.join('; ')}.${why}${catchNote}`];
 }

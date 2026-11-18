@@ -1,0 +1,222 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/energy-store-flip",
+ "stratum": "research",
+ "seed": "2026-11-15-1fba",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior energy-systems techno-economic analyst (the kind who builds LCOH comparisons on the Danish Energy Agency / PyPSA technology-data catalogues and referees for Applied Energy or Energy). They would check first that costs and prices are on one currency-year basis, that the sensitivity moves inputs the way they actually co-move (a table vintage moves every row, not one), that uncertainty ranges come from the catalogue's own lower/upper columns, and that the heat-pump side (COP, full-load hours) is credible, since its capex dominates the house comparison",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every number in results.txt recomputes with an independent script (numpy, own parsing of energy-thermal-cost/data/params.csv, own capital-recovery-factor + FOM annualisation, own cheapest-quarter and November-March means from the price files' own timestamps, flip multipliers in closed form because the margin is linear in each capex multiplier; only the physical sizing size_for_delivery is borrowed). All 30 house/district daily/weekly/monthly diffs, x_store and x_hp agree to the printed digits (e.g. house weekly -0.0044/-0.0053/-0.0054/+0.0111/-0.0005, x_store 1.16/1.20/1.20/0.59/1.02, x_hp 0.93/0.91/0.91/1.18/0.99; monthly 2018 'none'). Vintage ratios 1.2573 (store, charger) and 1.2623 (both heat pumps) match README:28. A 200,000-draw numpy Monte Carlo reproduces section C/D within sampling error: weekly h=0.10 win shares 0.85/0.905/0.91/0.00/0.54 vs 0.84/0.90/0.90/0.00/0.53; sd_year 0.0063, sd_cost 0.0039 (h=0.10) and 0.0097 vs 0.0098 (h=0.25), year share 0.72/0.29; daily mean -0.0217. Hand check of the heat-pump capital part: 5 kW x 1135.43 EUR/kW x (CRF(4%,18)=0.0790 + 3.0014% FOM) / 10,000 kWh = 0.0619 EUR/kWh, as the script. Not 4: the numbers are right relative to the table, but sd_year uses the population (ddof=0) sd of five years (sample sd 0.0070) without saying so.",
+  "completeness": "README promises: run.py reproduces results.txt in about 30 s (rerun: 31.3 s, `diff` byte-identical); 6 tests (6 passed in 1.15 s); sections A to D present with the stated grids (bisection 0.05 to 20, 1,000 draws seed 20261023, 500 draws for D); live page https://marisstella.app/research/energy-store-flip/ HTTP 200 with the summary numbers. Next steps are labelled as not done. Everything claimed as done runs end to end.",
+  "verification": "`cd research/energy-store-flip && /usr/bin/python3.13 -m pytest tests -q`: 6 passed in 1.15 s. The base-case test pins the weekly house diffs to energy-thermal-real (abs 0.0006) and the flip test checks a zero of the margin, so changes to the cost path are caught (2 of 2: charger dropped from scaled; charge fraction 0.25 -> 0.5). The Monte Carlo and variance code are effectively untested: 3 of 3 seeded mutants survived via platform/ci/quality_mutate.py (within-year variance taken around the grand mean instead of the year mean, model.py:94; between-year variance divided by 25 instead of 5, model.py:93; win test `< 0` -> `< 0.001`, model.py:82). The variance test only asserts b > 0 and w > 0. Nothing pins results.txt or the README's section C/D numbers.",
+  "craft": "Read src/energy_store_flip/model.py (95 lines), __init__.py, tests/test_model.py, experiments/run.py, and the imported energy_thermal_cost/cost.py and energy_thermal_hourly/prices.py. Small, clear, stdlib, deterministic. Defects: model.py:21 monkeypatches the sibling package's module global (`_cost.size_for_delivery = lru_cache(...)`) at import, a side effect on any other importer; model.py:13-16 mutates sys.path, so the pyproject package is not installable on its own; model.py:34 loads the price file twice; flip_multiplier runs 60 bisection steps (each a deepcopy of the whole table) on a function that is linear in the multiplier and has a closed form; win_share's default n=2000 differs from the 1,000 the README and run.py use. None changes a result.",
+  "claims": "Checked against files and recomputation: all headline numbers (README:10-13, project.json summary/lede) are in results.txt and recompute. Problems: (1) README:10 'The table's own vintage step ... is 1.257 times for the store, so choosing the older or newer table alone flips the verdict in the four years where the store wins' compares a store-only 1.257x step with x_store, but the same vintage step moves the heat pump by 1.262x. Moving the whole table up a step never flips (house weekly diffs -0.0138/-0.0147/-0.0148/+0.0017/-0.0098: the store wins more). Moving to the real older table (v0.9.2) does flip all four (+0.0030/+0.0021/+0.0020/+0.0069), but because the heat pump gets cheaper, the opposite mechanism from the one stated. The project.json summary and live page repeat '(1.257x) alone flips four of five years'. (2) '2 to 40% change' when 0.59 is a 41% cut (low). (3) sd_year is a population sd over five years, unstated. Limitations are otherwise specific and candid (h assumed, HX not costed, capex only, wholesale).",
+  "fitness": "Job: a researcher deciding whether energy-thermal-real's 'weekly cycling mostly favours the store' survives cost uncertainty, or extending the model. The tables do answer the narrow one-at-a-time question and the code is easy to extend. But the most relevant joint move is missed: scaling all capex together by less than 0.85 (house weekly; 0.986 for 2019) hands every year to the heat pump, and the 2025-EUR costs against 2015-2019 nominal prices make exactly such a move (about 0.8) the consistent comparison. The heat-pump capital part (0.062 EUR/kWh) is 2.3 times the store's (0.027), so the verdict is mainly a heat-pump capex question, which the README does not say. Nearest prior work: catalogue sensitivity practice (Danish Energy Agency Technology Data, lower/upper columns; PyPSA technology-data), sand/particle thermal storage techno-economics (e.g. Gifford et al. NREL particle TES; Polar Night Energy pilot), and LCOH comparisons of heat pumps and thermal storage; none cited. As research it is a sensitivity table on a repository-internal model, well short of the PhD bar the research track sets.",
+  "domain": "Against standard techno-economic practice (real/nominal consistency, e.g. IEA/DEA LCOE methodology; joint or global sensitivity, Saltelli et al. 2008): (a) capex in 2025 euros (params.csv currency_year 2025 for head_2030) is compared with nominal 2015-2019 wholesale prices with no deflation; a ~0.80 joint deflator flips house weekly to the pump in all five years (auditor assumption for the deflator: German HICP roughly 2017 -> 2025, about +25%), and the README calls the vintage ratio 'inflation, not technical uncertainty' without drawing that consequence; (b) one-at-a-time multipliers for two inputs that move together under any table revision; (c) h assumed rather than from the catalogue's own ranges (disclosed); (d) variance split with five years and ddof=0; (e) constant COP 3.6 and 2000 full-load hours for an ASHP (disclosed as fixed). The arithmetic is sound; a practitioner would reject the framing of the vintage result and ask for a currency-consistent base case first."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "house and district diffs and store/heat-pump flip multipliers, all 30 daily/weekly/monthly cells",
+   "method": "auditor's own LCOH (CRF + FOM from params.csv), own price reductions, closed-form flip (margin linear in multiplier)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/esflip-audit/esf_indep.py /home/user/oss-monorepo/research (numpy; own params.csv parse, own CRF+FOM LCOH, own cheapest-quarter and Nov-Mar means from the price files' own timestamps, closed-form flips; imports only energy_thermal.size_for_delivery, nothing from energy_store_flip or energy_thermal_cost)",
+   "expected": "results.txt section A (e.g. house weekly x_store 1.16 1.20 1.20 0.59 1.02, x_hp 0.93 0.91 0.91 1.18 0.99)",
+   "observed": "identical to printed digits in all 30 cells, monthly 2018 x_store none",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "win shares, weekly house, h = 0.10 and 0.25",
+   "method": "numpy default_rng(7), 200,000 independent uniform draws on the auditor's own margin decomposition",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/esflip-audit/esf_indep.py /home/user/oss-monorepo/research (numpy; own params.csv parse, own CRF+FOM LCOH, own cheapest-quarter and Nov-Mar means from the price files' own timestamps, closed-form flips; imports only energy_thermal.size_for_delivery, nothing from energy_store_flip or energy_thermal_cost)",
+   "expected": "0.84 0.90 0.90 0.00 0.53 / 0.63 0.66 0.67 0.15 0.50",
+   "observed": "0.85 0.905 0.91 0.00 0.54 / 0.642 0.671 0.674 0.147 0.516 (within 1,000-draw MC error)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "variance split, weekly and daily house",
+   "method": "numpy between-year and mean within-year variance on the auditor's draws",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/esflip-audit/esf_indep.py /home/user/oss-monorepo/research (numpy; own params.csv parse, own CRF+FOM LCOH, own cheapest-quarter and Nov-Mar means from the price files' own timestamps, closed-form flips; imports only energy_thermal.size_for_delivery, nothing from energy_store_flip or energy_thermal_cost)",
+   "expected": "weekly mean -0.0008, sd_year 0.0063, sd_cost 0.0039/0.0098, share 0.72/0.29; daily mean -0.022",
+   "observed": "-0.0009, 0.0063 (sample sd 0.0070), 0.0039/0.0097, 0.72/0.29; daily -0.0217",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "vintage ratios and heat-pump capital part",
+   "method": "params.csv rows by hand; CRF(4%,18) = 0.0790 plus FOM 3.0014%",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/esflip-audit/esf_indep.py /home/user/oss-monorepo/research (numpy; own params.csv parse, own CRF+FOM LCOH, own cheapest-quarter and Nov-Mar means from the price files' own timestamps, closed-form flips; imports only energy_thermal.size_for_delivery, nothing from energy_store_flip or energy_thermal_cost)",
+   "expected": "1.257 store, 1.262 heat pump",
+   "observed": "1.2573 store and charger, 1.2623 both heat pumps; HP capital 0.0619 EUR/kWh",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiment reproduces committed results",
+   "method": "rerun and diff",
+   "command": "cd research/energy-store-flip && time /usr/bin/python3.13 experiments/run.py > $S/results.txt && diff $S/results.txt experiments/results.txt",
+   "expected": "no diff, about 30 s",
+   "observed": "IDENTICAL, 31.3 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd research/energy-store-flip && /usr/bin/python3.13 -m pytest tests -q",
+   "expected": "6 tests pass",
+   "observed": "6 passed in 1.15s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -sS -w '%{http_code}' https://marisstella.app/research/energy-store-flip/",
+   "expected": "200 with README numbers",
+   "observed": "200; summary repeats '(1.257x) alone flips four of five years', sd 0.0063/0.0039/0.0098",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:10 vintage step (1.257x store) alone flips the four store-winning years, older or newer table",
+   "method": "recompute house weekly with the whole table moved: v0.9.2 rows, and head x1.2573 store / x1.2623 heat pump",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/esflip-audit/esf_indep.py /home/user/oss-monorepo/research (numpy; own params.csv parse, own CRF+FOM LCOH, own cheapest-quarter and Nov-Mar means from the price files' own timestamps, closed-form flips; imports only energy_thermal.size_for_delivery, nothing from energy_store_flip or energy_thermal_cost)",
+   "expected": "flip via the store's capex in both directions",
+   "observed": "older table flips all four (+0.0030 +0.0021 +0.0020 +0.0069) but through the cheaper heat pump; a further step up flips none (-0.0138 -0.0147 -0.0148 -0.0098); only the hypothetical store-only step matches the stated mechanism",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:10 'flips on a 2 to 40% change in store capex'",
+   "method": "1 - x_store from results.txt",
+   "command": "sed -n '/house     weekly/p' research/energy-store-flip/experiments/results.txt",
+   "expected": "2% to 40%",
+   "observed": "2%, 16%, 20%, 20%, 41%",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "currency-year consistency: 2025-EUR capex against 2015-2019 nominal prices",
+   "method": "joint capex multiplier at which the store stops winning house weekly; compare with a ~0.80 deflator (auditor's HICP approximation)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/esflip-audit/esf_indep.py /home/user/oss-monorepo/research (numpy; own params.csv parse, own CRF+FOM LCOH, own cheapest-quarter and Nov-Mar means from the price files' own timestamps, closed-form flips; imports only energy_thermal.size_for_delivery, nothing from energy_store_flip or energy_thermal_cost)",
+   "expected": "store still wins weekly in 4 of 5 years on a consistent basis",
+   "observed": "joint flip at 0.874, 0.849, 0.846, (2018 pump already), 0.986; at 0.80 every year goes to the pump (+0.0026 +0.0017 +0.0016 +0.0181 +0.0065)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "sd across price years uses five-year population sd",
+   "method": "numpy std ddof 0 vs 1",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/esflip-audit/esf_indep.py /home/user/oss-monorepo/research (numpy; own params.csv parse, own CRF+FOM LCOH, own cheapest-quarter and Nov-Mar means from the price files' own timestamps, closed-form flips; imports only energy_thermal.size_for_delivery, nothing from energy_store_flip or energy_thermal_cost)",
+   "expected": "convention stated",
+   "observed": "0.0063 (ddof 0) vs 0.0070 (ddof 1), unstated",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "which side of the comparison carries the verdict",
+   "method": "capital parts per kWh, house weekly",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/esflip-audit/esf_indep.py /home/user/oss-monorepo/research (numpy; own params.csv parse, own CRF+FOM LCOH, own cheapest-quarter and Nov-Mar means from the price files' own timestamps, closed-form flips; imports only energy_thermal.size_for_delivery, nothing from energy_store_flip or energy_thermal_cost)",
+   "expected": "stated",
+   "observed": "heat-pump capital 0.0619 vs store+charger 0.0267 EUR/kWh; not stated in README",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/energy_store_flip/model.py:94",
+   "change": "within-year variance around the year mean -> around the grand mean",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest tests -q -x"
+  },
+  {
+   "where": "src/energy_store_flip/model.py:93",
+   "change": "between-year variance / len(YEARS) -> / len(YEARS) ** 2",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest tests -q -x"
+  },
+  {
+   "where": "src/energy_store_flip/model.py:82",
+   "change": "store wins when diff < 0 -> diff < 0.001",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest tests -q -x"
+  },
+  {
+   "where": "src/energy_store_flip/model.py:41",
+   "change": "scale Sand-store and Sand-charger -> Sand-store only",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest tests -q -x"
+  },
+  {
+   "where": "src/energy_store_flip/model.py:53",
+   "change": "cheapest_mean(series, w, frac) -> cheapest_mean(series, w, 0.5)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest tests -q -x"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Costs in 2025 euros are compared with nominal 2015-2019 wholesale prices with no deflation; scaling all capex jointly below 0.85 (0.986 for 2019) hands house weekly to the heat pump in every year, and a ~0.80 deflator to 2017 euros does exactly that. The 'weekly mostly favours the store' baseline this project tests is an artefact of the currency-year mix, which neither the one-at-a-time sweep nor the limitations surface",
+   "where": "research/energy-store-flip/README.md:44",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16221"
+  },
+  {
+   "severity": "medium",
+   "what": "Vintage claim argues from a store-only 1.257x step, but the vintage moves the heat pump 1.262x too: a whole-table step up flips no year, and the older table flips the four years through the cheaper heat pump, not the store. Repeated in project.json summary and on the live page",
+   "where": "research/energy-store-flip/README.md:10",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169"
+  },
+  {
+   "severity": "medium",
+   "what": "Monte Carlo and variance-split code untested: 3 of 3 seeded mutants (variance around the wrong mean, wrong divisor, win threshold) survive; the test asserts only b > 0 and w > 0 and nothing pins results.txt sections C/D",
+   "where": "research/energy-store-flip/tests/test_model.py:42",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "No prior work cited (DEA Technology Data uncertainty ranges, particle/sand TES techno-economics, LCOH comparisons); the heat-pump capex share (0.062 vs 0.027 EUR/kWh) that drives the verdict is not reported",
+   "where": "research/energy-store-flip/README.md:47",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "'2 to 40% change' when the 2018 multiplier 0.59 is a 41% cut; sd_year is a five-year population sd (0.0063; sample sd 0.0070), unstated",
+   "where": "research/energy-store-flip/README.md:10",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16221"
+  },
+  {
+   "severity": "low",
+   "what": "Import-time monkeypatch of the sibling module's size_for_delivery and sys.path insertion (not installable alone); price file loaded twice; 60-step bisection with a full table deepcopy per step on a margin that is linear in the multiplier",
+   "where": "research/energy-store-flip/src/energy_store_flip/model.py:21",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16221"
+ ],
+ "verdict": "Arithmetically right and fully reproducible, but its main interpretive claim rests on a one-sided reading of the cost table. run.py reproduces results.txt byte for byte in 31 s, 6 tests pass, and an independent numpy recomputation (own LCOH, own price reductions, closed-form flips, 200k-draw Monte Carlo) matches every flip multiplier, win share and variance figure. It misses the bar on claims, verification and domain: the README says the table's 1.257x vintage step flips the weekly verdict through the store's capex, when the same step moves the heat pump 1.262x (a whole-table step up flips nothing; the older table flips all four years through the cheaper pump). More fundamentally, 2025-euro costs are set against nominal 2015-2019 prices, and any joint capex scaling below 0.85 (about the inflation gap) hands weekly cycling to the heat pump in every year. 3 of 5 seeded mutants in the Monte Carlo and variance code survive, and no prior work is cited."
+}

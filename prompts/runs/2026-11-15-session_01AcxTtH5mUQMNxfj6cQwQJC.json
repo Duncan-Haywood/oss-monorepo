@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtH5mUQMNxfj6cQwQJC",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T15:28:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore run: build mann-kendall-trend, the eighteenth research-algorithm tool (Mann-Kendall test, Sen's slope, autocorrelation corrections, seasonal Kendall with Hirsch-Slack covariance, homogeneity test).",
+  "projects": [
+    "ventures/mann-kendall-trend"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16257",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 38,
+  "outcome": "success",
+  "errors": [
+    "First size simulation used a float LCG (s*1103515245 overflows 2^53) and gave degenerate 0%/9% rates; replaced with the mulberry32 generator the tests use.",
+    "normPpf's Halley step lost precision for p = 1e-10 (1 - normSf(x) cancels); fixed by using normSf(-x) for x < 0."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The `PY=$(python3 platform/ci/pyenv.py ...)` route was not needed; a plain `python3 -m venv` plus pip install of numpy/scipy/pymannkendall worked in about a minute, which cloud-session.md also mentions as the fallback."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Takes several minutes; piping it through `| tail` inside a 120 s tool call hides all progress until it finishes, so start it with run_in_background from the outset."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/research-tools/README.md",
+      "why": "The spec asks for tests against a published or independently computed reference; for the default Yue-Wang correction pymannkendall's default is itself the problem, so the reference for the default is the paper's AR(1) formula written out independently in eval/reference.py, and pymannkendall's all-lag version is matched by a separate helper.",
+      "did": "Matched every other statistic to pymannkendall/scipy and the default to an independent formula, plus a seeded size simulation (eval/size-simulation.json) that the page's quoted numbers are tested against.",
+      "result": "38 tests pass; page claims tied to the simulation file by page.test.mjs."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-trend-test-default-that-finds-trends-in-noise.md",
+    "ventures/mann-kendall-trend/README.md"
+  ],
+  "goal": null,
+  "notes": "Idea: a Mann-Kendall / Sen's slope / seasonal Kendall tool for environmental trend testing, no venture covered it. Finding: in seeded simulation (1,000 AR(1) series per cell) pymannkendall 1.4.3's default yue_wang_modification_test (all lags summed) calls a trend in 45-51% of trend-free series including white noise; confirmed with the package itself (300 white-noise series, n=100: 44%; lag=1: 8%). Default here is Yue-Wang AR(1) (5-9% for phi<=0.6). Hamed-Rao all-lag screen 19% and TFPW 40% at phi=0.6, n=100. Example: USGS Potomac at Little Falls; on the withdrawal-adjusted record the independent seasonal test says p=0.0039 increasing, the Hirsch-Slack covariance p=0.113. No upstream issue was filed (outward-facing; left to the owner). Verification run here: node --test engine/cli/page/usage (38 pass), check_post_frontmatter, check_post_links, check_llms_txt_links, post_similarity, venture-preflight (see below).",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVNkt7Ezcs3U6za5JBg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (standing ventures brief)",
+  "input_sha256": "8fb852fa69e8fadcd87253901ee86f75fb0c18ee7f97afe19777b4f07d31e01c",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T09:56:39Z",
+  "ended": "2026-11-17T10:08:13Z",
+  "wall_minutes": 11.92,
+  "tokens_in": 12863988,
+  "tokens_out": 53710,
+  "cost_usd": 5.1565,
+  "tool_calls": 89,
+  "task": "Deepen (flagship 12) ids-model-check: IDS editor ranges on date, time and duration bases (exclusive-bounds 'Not done' items)",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16896",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start-here picked einvoice-preflight (row 3) although every item in its next: needs a real outside file or the SAT host (omawww/www.sat.gob.mx refused by the proxy); the row has no inputs_only/buildable marker, so the run spent several calls confirming that before moving to ids-model-check."
+    },
+    {
+      "file": "ventures/ids-model-check/eval/exclusive-bounds-2026-11-17.md",
+      "issue": "Its 'Not done' tolerance note said '\"less than 2100\" fails a door written 2099.9999999', which is backwards (2099.9999999 < 2100 passes); the shipped hint states the actual IDS rule instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Allocator's pick (einvoice-preflight) had nothing buildable here: every next: item needs a real outside file or a blocked SAT host.",
+      "did": "Took ids-model-check (flagship 12), whose BUILDABLE HERE item had no claim, and did not add inputs_only to einvoice-preflight since its items change daily and other runs land slices there.",
+      "result": "Landed date/duration ranges, the IfcTester float-cast finding with a pattern workaround, and +24 editable facets in public files."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-ids-date-ranges-ifctester-float.md",
+    "ventures/ids-model-check/eval/date-ranges-2026-11-17.md"
+  ],
+  "goal": "Make the IDS editor write date/time/duration requirements real projects need, in a form the common checkers agree on.",
+  "notes": "Local checks: python3 platform/ci/run_venture_tests.py ids-model-check -> ok (125 tests); node eval/editor-open.mjs -> 64/64 public, 12/12 IDS-Audit, 187/187 pass cases write back the same, audit errors changed on 0; public facets editable 1,714 -> 1,738 (85.2% -> 86.4%), fully editable files 14 -> 17; IDS-Audit-tool 202 -> 214. IfcTester cross-check (ifcopenshell 0.9.0.post1, ifctester 0.9.0) on a 61-door model: date ranges 0/10 agree (IfcTester fails all 61 on every range: float() cast in Restriction.__eq__), datePattern rewrites 10/10 agree with the same failing doors. Playwright on editor.html: 16 range rows open from the eval IDS, 16 IfcTester warnings, 10 Write-as-a-pattern buttons, one click rewrote the row into an xs:pattern, no page errors. Also fixed a contradictory note ('has it on 61 of 61. None ... has it yet') present since #16740. Post checks: frontmatter, links, similarity all clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7c2b62c7-c565-54b3-88b6-a344340fffde",
+    "transcripts": 1,
+    "first": "2026-11-17T09:56:39Z",
+    "last": "2026-11-17T10:08:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 166,
+        "output": 53710,
+        "thinking": 11636,
+        "cache_read": 12670372,
+        "cache_write_5m": 0,
+        "cache_write_1h": 193450,
+        "api_equivalent_usd": 5.1565,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 166,
+      "output": 53710,
+      "thinking": 11636,
+      "cache_read": 12670372,
+      "cache_write_5m": 0,
+      "cache_write_1h": 193450,
+      "api_equivalent_usd": 5.1565,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 86,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.92,
+      "active_minutes": 11.92,
+      "model_minutes": 8.69,
+      "tool_minutes": 3.23,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior JS dev: temporal range rows, digit-by-digit date regex generator with fuzz tests, IfcTester cross-check on a synthetic model, page wiring and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 193.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqycJuXykL7QAQHU3Fh3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md (scheduled routine)",
+  "input_sha256": "b6c1fdb49773d4b84b165a5384e2f31e1860e3f1a3eebd2b6321acfbfd7b41e7",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T18:38:59Z",
+  "ended": "2026-11-15T18:45:51Z",
+  "wall_minutes": 13.05,
+  "tokens_in": 6534277,
+  "tokens_out": 36718,
+  "cost_usd": 2.9895,
+  "tool_calls": 56,
+  "task": "Deepen flagship changepoint-detector: step-or-bend check with an 'unclear' outcome (the repair the README named)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16304",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "partial",
+  "errors": [
+    "Wired --step-or-bend into engine/CLI before the fresh-seed bars were in; two bars failed, so the wiring was reverted before merge (no user-facing change shipped)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "changepoint-detector next: sat at 1968 of 2000 chars, so recording one landed item meant cutting two other items (apple's volume in several-columns mode, heavy-tailed walks); the cap forces silent loss of open items."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Posts have no single local checker named (platform/ci/check_posts.py does not exist); allocate.py prints the front-matter rules instead, which worked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "next: cap of 2000 characters",
+      "did": "Dropped 'apple's volume in several-columns mode' and 'heavy-tailed walks' from changepoint-detector next: to fit the new item",
+      "result": "next: at 2000 of 2000; the dropped items remain recoverable from git history"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-step-or-bend-unclear-and-random-walks.md",
+    "ventures/changepoint-detector/README.md (Step or bend, as two tests)"
+  ],
+  "goal": null,
+  "notes": "Pre-registration committed before the fresh run (eval/hinge-step-or-bend-boot-prereg-2026-11-15.md). Fresh seeds 62,000,000: W fails in bend 0.08 rho 0.5 (11% called step, cap 8%), RW fails (random walks called bend 129/200 at n 100, 112/200 at n 145). N, U, R hold. Not offered; stepOrBendTest exported for evaluation. Post hoc on dev seeds: fitted rho ~0.44 for true 0.5. hinge-test.test.mjs 15/15 pass locally; run_workflow_locally --for-changes run (results in PR body).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9f99a9e7-fb90-56bb-b784-a687073b06db",
+    "transcripts": 1,
+    "first": "2026-11-15T18:38:59Z",
+    "last": "2026-11-15T18:52:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 113,
+        "output": 36718,
+        "thinking": 8657,
+        "cache_read": 6412650,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121514,
+        "api_equivalent_usd": 2.9895,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 113,
+      "output": 36718,
+      "thinking": 8657,
+      "cache_read": 6412650,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121514,
+      "api_equivalent_usd": 2.9895,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 54,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.05,
+      "active_minutes": 12.19,
+      "model_minutes": 5.84,
+      "tool_minutes": 6.35,
+      "waiting_on_human_minutes": 0.86,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a statistician designing, pre-registering and running a two-null bootstrap study plus write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 200.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

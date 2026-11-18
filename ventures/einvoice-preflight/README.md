@@ -56,6 +56,8 @@ It is an offline observation, not the KoSIT validator.
 
 **BG, MT and GB false rejects fixed (2026-11-10).** A differential run over 44,000 random numbers against python-stdnum 2.2 found valid numbers we flagged: BG 10-digit "other" numbers whose weighted sum is a multiple of 11 (check digit 0), MT numbers whose last two digits are 74 minus the sum or 00 (the rule is the eight-digit weighted sum 3,4,6,7,8,9,10,1 mod 37 = 0), GB 12-digit branch traders with branch digits other than 000, and GB numbers from 100 on with remainder 55. All fixed in `vat.mjs` and `vat.py`; BG, MT and GB now agree on every case. Not changed: EL 8-digit numbers (stdnum pads a zero; we still ask for 9 digits) and GB GD/HA government forms (not covered). No authority text read.
 
+**Dutch VAT numbers issued since 2020 no longer fail as typos (2026-11-17).** Since 1 January 2020 a Dutch sole trader's btw-identificatienummer carries no BSN, and its check is ISO 7064 mod 97-10 over the whole number (NL and B included, as an IBAN), not the elfproef. INV-023 used the elfproef alone, so it reported a valid sole trader's number (python-stdnum's example NL002455799B11) as an error, "fails the published NL checksum". Now a number passes if either check holds, and the suffix 00 or nine zero digits fail, as python-stdnum's `nl.btw` has it (`vat.mjs` and `vat.py`). Measured with `eval/nl-vat-stdnum-differential.py` (and `.mjs` for the page) on 30,000 drawn numbers per seed (a third built to pass the elfproef, a third to pass mod 97, a third random, 30% with a one-digit typo): before, 6,545 of 30,000 disagreed with stdnum, 6,406 of them valid mod-97 numbers flagged; after, 0 of 30,000 on seeds 7 and 11, page and CLI alike (`eval/nl-vat-stdnum-differential-2026-11-17.md`). No Belastingdienst text read; the source is python-stdnum 2.2.
+
 **Azerbaijan VOEN check digit (2026-11-09).** An `AZ` number of 10 digits now fails INV-023 unless the ninth digit equals the weighted sum of the first eight (4,1,8,6,2,7,5,3) mod 11 and the tenth is 1 or 2 (a remainder of 10 fits no digit, so such numbers are refused, as python-stdnum does). In `vat.mjs` only (`vat.py` does not cover AZ). Pinned on python-stdnum's three doctest numbers (1401555071 valid, 1401555081 bad digit, 1400057424 bad status); the Ministry of Taxes text is unread, and no real VOEN from an invoice was tried.
 
 **VAT check digits for Bulgarian 10-digit and Czech 10-digit numbers (2026-11-09).** A BG number of 10 digits (a natural person's EGN, a foreigner's number or the "other" form) now fails INV-023 unless one of the three public check-digit rules holds, so about a quarter of wrong last digits still pass; a CZ 10-digit birth number (individuals, born 1954 on) must have a valid month and day and a first nine digits that leave the last digit mod 11. 9-digit CZ numbers carry no check digit and stay shape-only. In `vat.mjs` and `vat.py`; pinned on python-stdnum's published EGN example and a mutation each; no authority text read.
@@ -89,6 +91,139 @@ recognised, as are French and English wording. The UBL and CII readers now
 capture the party legal identifier and the invoice and payment-terms notes.
 Off by default, JS only, and an offline observation, not a certified
 platform's validator or legal advice. Findings never echo the number.
+
+**France: the BR-FR rules the approved platforms run (2026-11-17).** With the
+French profile and "official Schematron" both ticked (`?profile=france&schematron=1`),
+a file also goes through FNFE-MPE's BR-FR Schematron 1.4.0.04 (AFNOR XP Z12-012,
+the "Flux 2" controls, github.com/fnfempe/France_RFE commit `97ba0f3`, Apache-2.0):
+175 UBL and 171 CII checks covering the invoice number format and length (BR-FR-01/02),
+dates, the French document types and billing modes (BT-23: B1, S1, M1 ...), SIREN and
+SIRET coherence, the VAT rates France has, the electronic addresses, and the
+multi-vendor and sub-line rules (BR-FR-MV-*, BR-FR-BD-*). One file per syntax serves
+EN 16931, Extended-CTC-FR and Factur-X (the copies are byte-identical; `build-fr-rules.mjs`
+checks). A French EN 16931 file names plain `urn:cen.eu:en16931:2017`, so the set runs
+when the French profile is asked for; an Extended-CTC-FR file (`urn.cpro.gouv.fr`) gets
+it without. It runs in the browser on the plain route, like the other national add-ons;
+messages are FNFE's, in French. **Measured** (`eval/br-fr-crosscheck.mjs`,
+`eval/br-fr-crosscheck-2026-11-17.md`) against Saxon-JS running FNFE's own compiled
+XSLT: on FNFE's 26 example invoices (UBL and CII, EN 16931 and Extended-CTC-FR), each
+as published and broken ten ways (invoice number with a space or 36 characters, a
+Peppol BT-23, 30 February, type code 999, notes removed, a 21% rate, SIREN scheme
+swapped, a line net +10, line status codes removed), **264 of 264** runs give the same
+rule ids on both engines, with 0 rules left unevaluated; the 26 published files pass
+every rule. Three compiler fixes made that possible, all in `plain-compile.mjs` and
+pinned by `plain-schematron.test.mjs`: a `let $custom:x` inside an `xsl:function`
+(fontoxpath has no prefixed let; one such let had broken the whole prolog, so every
+check calling a BR-FR function was skipped) is renamed; a pattern's `<let>` is visible
+to later patterns, as the ISO skeleton's top-level variable (`$invoiceID`, read by
+BR-FR-MV-02..14); and a rule `<let>` read inside a predicate is bound with XPath
+`let ... return` at the rule's context node instead of being pasted in as text, where
+`../../cbc:DocumentCurrencyCode` read the wrong element (BR-FR-MV-03, -05). Rebuilding
+the other sets with the fixed compiler: the EU base, XRechnung, Peppol, NLCIUS, CIUS-HR
+and CIUS-RO compile byte-identical; ZATCA's BR-KSA-F-13 changed, and was wrong before
+(its `$is-supplier` asked the ID element instead of the party, so a seller's ids were
+checked against the buyer's scheme list; `zatca.test.mjs` pins it). CIUS-PT and PINT
+were not rebuilt (Maven Central answered 429). Extended files get their own base since
+2026-11-17 (next section). Not done: the CDAR life-cycle messages and Flux 10 e-reporting
+schematron and a real platform's rejection compared (English text landed, next section).
+
+**BR-FR in English (new, 2026-11-17).** FNFE-MPE publishes the BR-FR and BR-FR-CDV messages in
+French only, so a seller outside France who got `BR-FR-08/BT-23` back from a platform had a French
+sentence to decode. Every one of the 384 distinct messages in the three compiled sets
+(`plain/cius-fr-ubl.json`, `plain/cius-fr-cii.json`, `plain/cdar-fr.json`) now has an English
+translation made for this tool, kept in `plain/br-fr-en.json` keyed by FNFE's exact French text.
+`br-fr-en.mjs` writes it into each check as `en` (and `build-fr-rules.mjs` calls it on a rebuild, so
+a new FNFE release shows which messages lack English). A finding's `message` is the English and
+`message_fr` keeps FNFE's French; the page prints the French under the English. Both drop the rule
+code prefix and the empty `Valeur actuelle : ""` slot (the compiled set has no value-of, so it was
+always empty). Tests (`br-fr-en.test.mjs`): every check has its table entry, no stale entries,
+each translation keeps its `[code]`, every BT/BG/EXT-FR-FE/MDT id and every quoted status or
+reason code of the French, and no French phrase is left in the English. All 195 rule codes, English
+beside French, are listed on `br-fr-error-codes.html`, written by `build-br-fr-codes-page.mjs`
+from the same files (`br-fr-codes-page.test.mjs` fails when it drifts). **Not checked:** the
+translation was made by machine-assisted translation and read in part, not by a sworn translator;
+the French remains the reference, and the page says so. Source glitches (stray quotes, `"/>"`,
+"ans" for "dans") are kept or read for their evident meaning.
+
+**Extended-CTC-FR and Factur-X EXTENDED: their own base sets (new, 2026-11-17).** An
+extended invoice may carry what EN 16931 forbids (several sellers on one multi-vendor
+invoice, GROUP lines with sub-lines, line allowances that change the sums), and until now
+the EN 16931 base judged it anyway: every one of FNFE's 15 extended examples failed, with 4
+to 16 findings each (fatal BR-CO-10, BR-22/23, BR-26/27, BR-CO-04, BR-S-10, UBL-SR-48,
+CII-SR-439 ...). Now a file whose BT-24 names Extended-CTC-FR
+(`urn.cpro.gouv.fr:1p0:extended-ctc-fr`) gets FNFE-MPE's EXTENDED-CTC-FR base (UBL 953 checks,
+CII 773, derived from EN 16931 1.3.16), and one naming Factur-X or ZUGFeRD EXTENDED
+(`urn:factur-x.eu:1p0:extended`, `urn:zugferd.de:2p0:extended`) gets Factur-X 1.09.2 EXTENDED
+(CII, 1,464 checks), in place of the EU base (`EXTENDED_BASES` in `schematron-core.mjs`;
+`plain/extended-ctc-fr-*.json`, `plain/facturx-extended-cii.json`, built by `build-fr-rules.mjs`
+from the same France_RFE commit). BR-FR still runs after the French base. The Factur-X set's
+210 code-list lookups read a side file (`document('FACTUR-X_EXTENDED_codedb.xml')`) that
+fontoxpath cannot open; the build inlines its 53 lists. A copy of the page without an
+extended base file says "unavailable" rather than giving the EU base's verdict, and the
+Saxon route hands such a file to the plain route. **Measured** (`eval/extended-base-crosscheck.mjs`,
+`eval/extended-base-crosscheck-2026-11-17.md`): FNFE's 15 extended examples (UBL, CII and
+Factur-X; multi-vendor, sub-line, self-billed) pass, and with each broken up to eleven ways
+(type code, currency, unit, country, VAT category, line net, tax total, seller name ...)
+the plain route and Saxon-JS running FNFE's compiled XSLT give the same rule ids on **175 of
+175** runs, 43 distinct ids, 0 checks unevaluated. On 13 real EXTENDED files from the ZUGFeRD
+corpus (intarsys, symtrax, Mustang; `eval/extended-real-files.mjs`) the false fatal BR-CO-12
+and BR-S-08 on four are gone, plain = Saxon on 13 of 13, and what remains is code-list
+drift since ZUGFeRD 2.0/2.1 that the EU base also caught (the Leitweg scheme 9958, now 0204;
+old allowance reason and unit codes). Not done: a real French platform's extended file or
+rejection; per-list messages for the Factur-X code-list checks (FX-SCH-A-*: the finding's
+path and a generic fix say where and what); the Factur-X EN 16931 and BASIC WL sets.
+
+**France: life-cycle status messages (CDAR, new 2026-11-17).** Under the French reform every
+invoice travels with statuses ("CDV": 200 Déposée, 202 Reçue, 205 Approuvée, 207 En litige,
+210 Refusée, 212 Encaissée, 213 Rejetée ...), sent between the platforms (PA), the seller, the
+buyer and the PPF as a UN/CEFACT D22B `CrossDomainAcknowledgementAndResponse` (CDAR). Drop one
+in and `cdar.mjs` names the status and its reason (`FR-CDV-100`); drop it with the invoice it
+answers (matched on MDT-87 = BT-1) and the message's invoice type, date and seller SIREN are
+compared with the invoice's (`FR-CDV-101` MDT-91 vs BT-3, `-102` MDT-100 vs BT-2, `-103` MDT-129
+vs BT-30); several statuses for one invoice are listed in time order (`FR-CDV-104`). With the
+official rules on, FNFE-MPE's BR-FR-CDV Schematron 1.4.0.04 (43 checks, `plain/cdar-fr.json`,
+built by `build-fr-rules.mjs` from the same France_RFE commit) runs on the plain route, in the
+browser too; a CDAR never gets the EN 16931 base. **Measured** (`eval/cdar-crosscheck.mjs`,
+`eval/cdar-crosscheck-2026-11-17.md`) against Saxon-JS running FNFE's own compiled XSLT: FNFE's
+59 example messages, each as published and broken up to fourteen ways, **780 of 780** runs give
+the same rule ids on both engines, 0 rules left unevaluated, and the 59 published messages pass.
+Two things found in FNFE's set: no rule checks the message id, its creation date or the
+referenced invoice number for format (a space or 30 February passes both engines), and statuses
+206 and 208 are named both ways round, so the tool labels neither. Status labels are FNFE's own;
+the English glosses are this tool's. **Second round (2026-11-17):** 33 more mutations aimed
+at the unreached rules: **2,496 of 2,496** runs agree, 37 of 43 rule ids reached. The other six
+cannot fire as written (BR-FR-CDV-01, 04, 05, 06 and 10 put the mandatory element in the rule's
+context and test `.`; BR-FR-CDV-07_MDT-38_no tests `count(...) ge 0`), so a status message with
+no invoice number (MDT-87) or no creation date-time (MDT-8) passes the whole set on both engines.
+`cdar.mjs` covers those gaps itself: `FR-CDV-105` missing or impossible MDT-8 (and impossible
+MDT-78/MDT-100 dates), `FR-CDV-106` no invoice number, `FR-CDV-107` a reference without its
+invoice date let through by BR-FR-CDV-11 because another reference in the message is 501. They
+raise nothing on FNFE's 59 messages and catch all 177 mutated runs neither engine flags. Limits:
+the _WARNING copy not run; no real platform's message compared. Flux 10 e-reporting: next section.
+
+**France: e-reporting files (Flux 10) (new, 2026-11-17).** From 1 September 2026 a French
+business's approved platform (PA) also reports to the tax administration's platform (PPF) the sales
+that are not domestic B2B e-invoices: invoices to or from businesses abroad (10.1), B2C and other
+sales without an e-invoice, summed per day, category and VAT rate (10.3), and the payments received
+on them where VAT is due on payment (10.2, 10.4). Drop such a file (root `Report` >
+`ReportDocument`, the PPF's Flux 10 XSD) and `flux10.mjs` names its kind, declarant, period and
+totals per rate (`FR-F10-100`), and checks what the official controls do not: an impossible
+calendar date (`FR-F10-101`; the controls test the shape and the year only), VAT that is not base x
+rate (`FR-F10-102`, warning; half a cent per sale counted is allowed on daily aggregates), a day or
+payment outside the period (`FR-F10-103`, warning), a SIREN with a wrong Luhn key (`FR-F10-104`), a
+French VAT number with a wrong key or built on another SIREN (`FR-F10-105`), a rate given twice in a
+day (`FR-F10-106`, warning) and the sums of a non-EUR block (`FR-F10-107`; G1.53 is written for EUR
+only). With the official rules on, FNFE-MPE's Flux 10 Schematron (the PPF's Annexe 7 v1.8 controls,
+150 checks under 36 control codes such as G1.53 or G6.28, `plain/flux10-fr.json`, built by
+`build-fr-rules.mjs` from the same France_RFE commit) runs on the plain route, in the browser too.
+**Measured** (`eval/flux10-crosscheck.mjs`, `eval/flux10-crosscheck-2026-11-17.md`) against
+Saxon-JS running FNFE's own compiled `Flux10.xslt`: FNFE publishes no Flux 10 example, so three
+made-up files (`fixtures/flux10/*.xml`, valid against FNFE's copy of the XSD with xmllint), each as
+written and broken by up to 95 mutations: **147 of 147** runs fire the same multiset of control
+codes on both engines, all 36 codes reached, 0 checks skipped; 25 runs that neither engine flags
+are caught by FR-F10-101..107. Tests: `flux10.test.mjs` (8). Limits: no real platform's Flux 10
+file and no PPF rejection compared; the XSD is not enforced by the tool; the official messages are
+FNFE's, in French.
 
 **Poland: KSeF FA(3) (new, 2026-10-24).** An XML file whose root is `Faktura` in the `crd.gov.pl/wzor/` namespace is read by `fa3.mjs` with its own rules `PL-001`..`PL-011`: NIP check digit for seller and buyer (weights 6 5 7 2 3 4 5 6 7, mod 11), tax-rate code list, `P_8B x P_9A = P_11` per line, each `P_13_n` against the lines at that rate, `P_14_n` against net x rate, `P_15` against all totals, duplicate line numbers, and the PLN tax (`P_14_nW`) on foreign-currency invoices. Element names, rate codes and what each total means were read from the published schema (`schemat_FA(3)_v1-0E.xsd`, namespace `http://crd.gov.pl/wzor/2025/06/25/13775/`, taken from the `ksef-client-ts` npm package because crd.gov.pl was unreachable from the build host); `examples/fa3-invoice.xml` validates against it with `xmllint`, and the defect file fails the XSD on its unknown rate code only (the other faults are arithmetic that a schema cannot see). Sums are checked only on `RodzajFaktury` VAT or UPR; advance, settlement and correcting invoices skip them and say so in `skipped`. Not done: the KSeF-side business rules, and any real invoice: no genuine FA(3) file was available, so the rules are measured on one hand-made example and its planted-defect twin (`fa3.test.mjs`, 6 tests). The 1-grosz tolerance is an assumption. **Schema gate (2026-10-25, `PL-012`..`PL-017`).** `build-fa3-schema.mjs` reads `schemat_FA(3)_v1-0E.xsd` and its three base files into `fa3-xsd-data.mjs` (content models with occurrence counts, attributes, and length, pattern, range, digit and code-list facets; it throws on any XSD construct it does not model, and the one union, `TNrREGON`, is read as two patterns). `fa3-xsd.mjs` runs a file against it before the arithmetic rules: `PL-012` an element the schema does not allow there or one too many, `PL-013` elements out of sequence, `PL-014` a required element missing, `PL-015` a value outside its pattern, length, date, digits or code list (every enumeration is enforced here, because v1-0E is the schema in force; the generic PL-015 for a bad tax rate yields to the more specific `PL-004`), `PL-016` a missing or non-fixed attribute (`kodSystemowy="FA (3)"`, `wersjaSchemy="1-0E"`), `PL-017` a cut-off file (the other checks are then skipped and named). Messages never echo the value. **Measured against xmllint on the real XSD** (`eval/fa3-xsd-diff.mjs`; xmllint needs the remote import pointed at the local `bazowe/` copy): from two xmllint-valid seeds (`examples/fa3-invoice.xml`, and `fa3-invoice-rich.xml` with an EU buyer, exemption branch, payment, footer and registers), 3 x 1,620 seeded mutations (an element deleted, duplicated, swapped with its neighbour, an unknown element added, a value emptied, lengthened by 1,100 characters, given a euro sign, made text or negative, or a date cut to year-month): 4,860 of 4,860 verdicts agree with xmllint. **Branch seeds (2026-11-06).** `examples/fa3-correction.xml` (RodzajFaktury KOR: reason, type, two corrected-invoice blocks, one by KSeF number and one outside KSeF, period) and `examples/fa3-settlement.xml` (ROZ: a partial advance, an advance-invoice reference, a `Zalacznik` data block) are made-up, xmllint-valid on the real XSD, and joined the differential: 4 seeds, 6,520 mutations in 10 kinds (652 each) (an element deleted, duplicated, swapped, unknown, emptied, lengthened, euro, text, negative, short date), 6,520 of 6,520 verdicts agree with xmllint. The official CIRF/KSeF client templates (13 distinct files, `eval/ksef-official-templates.mjs`) hold no correction, advance or settlement file, so these seeds are hand-built from the XSD and no real one has been tried. **Transport seed (2026-11-08).** `examples/fa3-transport.xml` (made up, xmllint-valid on the real XSD) adds a `WarunkiTransakcji` block with two `Transport` entries (one by `RodzajTransportu` with carrier, cargo, times and a three-country route, one by the `TransportInny` / `LadunekInny` choice branch). With it as a fifth seed, 6,550 mutations in 10 kinds (655 each, `--per 1300`): 6,550 of 6,550 verdicts agree with xmllint. Limits: the seeds cover the blocks they contain (the transport block is now seeded; other choice branches are mutated only if present); no real KSeF file; the namespace is not checked; KSeF's own business rules beyond the XSD are not modelled.
 
@@ -136,7 +271,11 @@ platform's validator or legal advice. Findings never echo the number.
 
 **The single-file 1.0x layouts: Rio de Janeiro, Salvador, Belo Horizonte, Porto Alegre, Curitiba and seven more (new, 2026-11-13, late).** Most of the 1.0x generation is one schema file per system, not a set, and until now those files got identifier and value checks only. `build-abrasf-schema.mjs` now reads twelve of them from the pinned OpenAC.Net.NFSe commit: ISSRio, ISSSalvador, DBSeller, Pronim, MetropolisWeb and Thema 1.00 (all in ABRASF 1.00's namespace `http://www.abrasf.org.br/ABRASF/arquivos/nfse.xsd`), BHISS 1.00 and DSF 1.00 (the 1.00 model written in ABRASF 2.x's namespace), ISSIntegra 1.00 (ABRASF's own one-slash `http:/www.abrasf.org.br/nfse.xsd`), ISSCuritiba 1.00, SimplISS 1.00 and Abaco 1.00 (each in its own namespace). Together OpenAC's list puts 19 cities on them. Six systems share one namespace and the same root names with different content, so `abrasf.mjs` takes the issuing city's own system when it is one of them, and otherwise the one the file fits best, naming the others. A Belo Horizonte or Porto Alegre file in the 2.x namespace that does not state a 2.x `versao` is checked against BHISS 1.00; one that states 2.x stays 2.x, with the 1.00 count in the note. A one-slash namespace with a 2.x `versao` is still reported as a typo. Attribute names are case-sensitive and these copies disagree (Salvador, Pronim, MetropolisWeb and Thema write `id`, Rio and DBSeller `Id`), so ABR-006 now gives the spelling the schema wants. At the pinned commit, OpenAC's Salvador copy also requires the tax reform's `NBS` and `cClassTrib` in `Servico`. *Measured* (`eval/abrasf-1x-single-file-2026-11-13.md`): 427 public files from 63 repositories found by GitHub code search, 149 distinct elements (119 in the new layouts). **149 of 149 verdicts** and **11,033 of 11,033 single-change mutants** agree with xmllint. On those files: 10 Nota Carioca reply samples put `ValorLiquidoNfse` after the discounts, which Rio's published schema refuses (these are replies, written by the city); 3 BHISS requests use the 2.x shape (`Rps` straight inside `GerarNfseEnvio`). Not done: no public file was found for DSF 1.00, ISSIntegra or Abaco 1.00 (compiled, unmeasured); IPM 1.00/1.01, SigISS and SigISSWeb (no schema in the mirror); a real city rejection.
 
-**The ISS rate band: ABR-024 and NFSE-024 (new, 2026-11-15).** The checker recomputed the ISS from the base and the stated rate, but never asked whether the rate itself was legal. `iss-rate.mjs` reads Lei Complementar 116/2003 as amended: the rate is at most 5% (art. 8, II) and at least 2% (art. 8-A, LC 157/2016); no benefit, base reduction or credit may bring the burden under 2% except for list subitems 7.02 and 7.05 (construction) and 16.01 (municipal public passenger transport) (art. 8-A § 1). It matters to the buyer as much as the issuer: where the buyer is in another municipality, a municipal rate under 2% is void (§ 2) and the ISS becomes due where the buyer is (art. 3 § 4). `ABR-024` checks `Aliquota` in every ABRASF-family layout (a percentage in 2.x, a fraction in 1.00; a value under 1 is tried both ways), with the subitem from `ItemListaServico` (`07.02`, `0702` and `702` all read). `NFSE-024` checks the national NFS-e's `pAliqAplic` (or the DPS's `tribMun/pAliq`), with the subitem from `cTribNac`'s first four digits, and the burden after a municipal benefit (`vISSQN` over `vBC` plus the benefit). For 2029-2032 art. 8-B (LC 214/2025) cuts municipal rates by 10% to 40%; both ends of the band are scaled by the same factor (2029: 1.8% to 4.5%), which is this tool's reading. From 2033 no band applies. Below 2% is not judged for a Simples Nacional or MEI provider, a special regime, or ISS not due here (export, immunity, exemption, suspension), and the note says so; above 5% is reported for everyone. *Measured* (`eval/iss-rate-band-2026-11-15.md`): 489 public NFS-e files from GitHub code search (326 ABRASF-family, 163 national; 376 with a nonzero rate): 11 drew the rule, all Unimake test resources with rates no city may charge (6.3%, 10%, 1000%); 8 Simples Nacional files under 2% were skipped and said; nothing else fired. Statute text read from a mirror of planalto.gov.br (refused the build host). Not done: each city's own rate per service, a real rejection for a rate under 2%, LC 123's Simples Nacional ISS shares.
+**The ISS rate band: ABR-024 and NFSE-024 (new, 2026-11-15).** The checker recomputed the ISS from the base and the stated rate, but never asked whether the rate itself was legal. `iss-rate.mjs` reads Lei Complementar 116/2003 as amended: the rate is at most 5% (art. 8, II) and at least 2% (art. 8-A, LC 157/2016); no benefit, base reduction or credit may bring the burden under 2% except for list subitems 7.02 and 7.05 (construction) and 16.01 (municipal public passenger transport) (art. 8-A § 1). It matters to the buyer as much as the issuer: where the buyer is in another municipality, a municipal rate under 2% is void (§ 2) and the ISS becomes due where the buyer is (art. 3 § 4). `ABR-024` checks `Aliquota` in every ABRASF-family layout (a percentage in 2.x, a fraction in 1.00; a value under 1 is tried both ways), with the subitem from `ItemListaServico` (`07.02`, `0702` and `702` all read). `NFSE-024` checks the national NFS-e's `pAliqAplic` (or the DPS's `tribMun/pAliq`), with the subitem from `cTribNac`'s first four digits, and the burden after a municipal benefit (`vISSQN` over `vBC` plus the benefit). For 2029-2032 art. 8-B (LC 214/2025) cuts municipal rates by 10% to 40%; both ends of the band are scaled by the same factor (2029: 1.8% to 4.5%), which is this tool's reading. From 2033 no band applies. Below 2% is not judged for a Simples Nacional or MEI provider, a special regime, or ISS not due here (export, immunity, exemption, suspension), and the note says so; above 5% is reported for everyone. *Measured* (`eval/iss-rate-band-2026-11-15.md`): 489 public NFS-e files from GitHub code search (326 ABRASF-family, 163 national; 376 with a nonzero rate): 11 drew the rule, all Unimake test resources with rates no city may charge (6.3%, 10%, 1000%); 8 Simples Nacional files under 2% were skipped and said; nothing else fired. Statute text read from a mirror of planalto.gov.br (refused the build host). Not done: each city's own rate per service (São Paulo's now read, below), a real rejection for a rate under 2%, LC 123's Simples Nacional ISS shares.
+
+**A city's own ISS rate: São Paulo, ABR-025 and NFSE-037 (new, 2026-11-15).** A rate inside the national band can still be the wrong one for the city. `iss-city-rates.mjs` holds São Paulo's rate for every LC 116 subitem, from Lei 13.701/2003 art. 16 as amended up to Lei 18.270/2025 (consolidated text on legislacao.prefeitura.sp.gov.br): 2% for items 4 and 5 and named subitems (1.09, 2.01, 6.04, 8.01, 11.02, 11.03, 11.05, 12.01, 12.03, 12.05, 12.11, 13.04, 15.09, 15.14, 16.01, 17.05, 17.07, 19.01, 21.01), 2.5% for 17.09, 2.9% for the rest of item 1 and 17.24, 5% otherwise, plus rates set for only part of a subitem (school transport and taxis in 16.02, payment facilitators in 15.10, platform intermediation in 10.05, ...), which are accepted beside the subitem's general rate since a file cannot say which part a service is. **São Paulo's list is not numbered like LC 116's:** LC 116 vetoed 3.01, 7.14, 7.15, 13.01 and 17.07 and kept the gaps, São Paulo closed them, so its 3.01-3.04, 7.14-7.20, 13.01-13.04 and 17.07-17.24 are LC 116's 3.02-3.05, 7.16-7.22, 13.02-13.05 and 17.08-17.25 (all 200 subitem texts matched, eval/iss-city-rates-2026-11-15.md). NFS-e files use LC 116's numbers, so the table is converted: São Paulo's 2.9% "17.24" is LC 17.25, advertising insertion. `ABR-025` checks `Aliquota` where `MunicipioIncidencia` (else the issuing city) is 3550308; `NFSE-037` checks `pAliqAplic` where `cLocIncid` is 3550308. Not judged: Simples Nacional, MEI, special regimes, ISS not due, competences outside 2024-2028 (Lei 18.066/2023 moved 1.09 to 2%; from 2029 art. 8-B cuts every rate). The message names the clause and, for a shifted subitem, São Paulo's own number. *Measured:* 70 public NFS-e from GitHub code search, 35 naming São Paulo: the 4 issued by São Paulo's own system in production all pass (one at 2.9% on LC 17.25, the renumbering confirmed on a real file); 10 flagged, every one made up (four were this venture's own fixtures, which charged 5% on São Paulo software services; they now carry 2.9% with every amount recomputed by hand, and the page samples moved with them). **Rio de Janeiro (added 2026-11-15, later run).** Lei 691/1984 art. 33 as worded by Lei 8.467/2024 (consolidated text, checked against the city's own 2025 rate table on carioca.rio): 5% general (I); 2% for any service from an established self-employed professional or professional partnership under Lei 3.720/2004 (II, 5) or a research institution, junior company or incubated technology company (II, 8), so 2% is a rate Rio sets for every subitem; 3% for dredging, construction and consulting engineering (II, 1: LC 7.01-7.05, 7.17-7.20), internet-only advertising (II, 3: Rio's 17.24, LC 17.25) and oil and gas logistics (II, 21, which names no subitem: accepted on 11.01, 11.04, 16.02, 20.01-20.03, this tool's reading); 0.5% for hotel works on 7.02 and 7.05 (II, 7); 2.6% for hospitals on 4.03 that do not prove the investment art. 33 § 3 asks. Rio's list closed LC 116's vetoed gaps exactly as São Paulo's did (200 subitem texts matched by difflib, the same four runs), so the same conversion applies and the message names Rio's own number. What it catches: a rate Rio never sets for the service (São Paulo's 2.9%, a 4%, a 2.5%, a 3% outside construction, advertising and logistics). *Measured* (`eval/iss-city-rates-rio-2026-11-15.md`): 48 public files from GitHub code search, 42 naming 3304557; none naming Rio is flagged (12 with Rio as the city of incidence: seven at 5% on 1.01, 2.02, 7.01, 10.02 and 31.01, three marked production, five with no rate; 17 Nota Carioca/ABRASF 1.00 replies from 2009-2018, from four repositories, at 0.05 and 0.02, outside the years read but passing the table when read without the year). Not done: other cities, São Paulo's own Paulistana layout and its five-digit service codes, a São Paulo rejection compared. **Curitiba (added 2026-11-16).** Lei Complementar 40/2001 art. 4, from the city's consolidated text (to LC 112/2018) and the later LC 119/2020, LC 134/2022 and LC 146/2025: 2% for collective transport (16.01), leasing (15.09), schools (8.01), the shows, fairs, competitions and event production of 12.01, 12.03, 12.04, 12.07, 12.08, 12.10, 12.11 and 12.13, and franchising (17.08); 2.5% for security (11.02), typesetting (13.05), tyre retreading (14.04) and, as part of a subitem, cleaning (7.10), insurance brokerage (10.01) and commercial representation (10.09); 4% for health plans (4.22, 4.23), registries (21.01) and hospitals within 4.03; 5% otherwise. Exports and call-centre or remote-support services take 2% under clauses that name no subitem, so 2% is never flagged in Curitiba; for 2024-2025 competences 4% is accepted on any subitem, since III, b covered any services cooperative until LC 146/2025. Curitiba's list keeps LC 116's numbers, vetoed gaps included, so no conversion. *Measured* (`eval/iss-city-rates-curitiba-2026-11-16.md`): 19 public files naming 4106902, 9 with Curitiba as the city of incidence, 2 judged (5% on 1.01, pass), none flagged; all are fixtures. Not done: Belo Horizonte (every host with its consolidated Lei 8.725/2003 refused the build host).
+
+**Rio de Janeiro's own service codes: ABR-026 (new, 2026-11-16).** A Nota Carioca NFS-e names its service twice: `ItemListaServico`, the LC 116 subitem (`0102`), and `CodigoTributacaoMunicipio`, a six-digit code the issuer must take from Rio's Tabela de Códigos de Serviços (Portaria F/SUBTF/CIS 256/2018, art. 1). `rio-service-codes.mjs` holds that table with every change since: 963 codes in 2018; 269/2020 added municipal pipeline transport and "other municipal transport" (16.02.05-06); 282/2021 added opinion and market research (02.01.03-04) and remote vehicle and cargo tracking (11.05.01, from 20 Dec 2021); 286/2022 excluded the eighteen hotel-works codes from 14 Jul 2022; 321/2025 adds thirty codes and excludes nineteen from 1 Jan 2026 (fourteen floor, wall and window finishes in 07.06, the 07.02 metal-frame code, two steelworks waste and effluent codes under Lei 5.133/2009, and school and waterway transport, re-coded within 16.01 and 16.02) and extends the codes to the national NFS-e. `build-rio-codes.mjs` reads two independent copies of the 2018 annex (contabeis.com.br, normasbrasil.com.br: all 963 texts agree) and 321/2025's text, and refuses to build when a count changes. **The table uses LC 116's numbers, not the renumbered list of Rio's own Lei 691/1984 art. 8** (it has 03.05, 07.22, 13.05 and 17.25, which art. 8's list lacks; the rate table above converts, this one does not need to). `ABR-026` reads `CodigoTributacaoMunicipio` where Rio's system issues the file (OrgaoGerador, the provider's address or, on an RPS, the service's city; not where the ISS is due, since the code is the issuing city's) and flags: a code that is not six digits (a subitem such as `16.02` written in its place), a code not on the table, a code whose first four digits are another subitem than `ItemListaServico`, and a code that was not on the table on the competence date. Each message lists the table's codes for the subitem on that date. Files dated before 1 Aug 2018 get the subitem comparison only (the older table is not read) and a note. *Measured* (`eval/rio-service-codes-2026-11-16.md`): 74 public files from GitHub code search, 22 distinct ABRASF files issued by Rio's system: none flagged (5 compared on the table, 17 from 2009-2010 compared on the subitem); 76 of 76 planted faults caught (another subitem's code, a four-digit code, an unknown code, a code 321/2025 excluded dated 2026, a code it added dated 2025). Not done: the national NFS-e (its `cTribMun` is the national system's three-digit parameter, linked to Rio's codes inside the system, not written in the file), the pre-2018 table, any Nota Carioca rejection compared, and other cities' code tables.
 
 
 **Mexico: CFDI 4.0 (new, 2026-11-12).** An XML file whose root is `Comprobante` in `http://www.sat.gob.mx/cfd/4` is read by `cfdi.mjs` with its own rules `MX-001`..`MX-036` (this tool's ids, not SAT's CFDI40xxx codes; the Anexo 20 error matrix was not read). Three layers. **Schema:** `build-cfdi-schema.mjs` reads SAT's `cfdv40.xsd`, `tdCFDI.xsd` and `catCFDI.xsd` (from the public-domain phpcfdi/resources-sat-xml mirror, because sat.gob.mx did not answer from the build host) into `cfdi-xsd-data.mjs`, 96 KB: element order and counts, required attributes, patterns, lengths, digits and every catalogue code, including c_ClaveProdServ (52,747 codes as 4,620 runs) and c_CodigoPostal (95,777 codes as 15 runs). `MX-002` missing attribute, `MX-003` a value outside its type or catalogue, `MX-004` unknown attribute, `MX-005` element not allowed or out of order, `MX-006` element missing or repeated. **Sums:** line Importe within Cantidad x ValorUnitario widened by half a unit in each last written decimal (`MX-020`; the bound rule Anexo 20 describes, as PAC vendors document it), line discount (`MX-021`), each tax = Base x TasaOCuota by the same rule (`MX-024`), the tax summary grouped by tax, factor and rate against the lines (`MX-034`), the summary totals (`MX-033`), SubTotal, Descuento and Total rounded to the currency's decimals (`MX-030`, `MX-031`, `MX-035`; ISO 4217 minor units from Intl, since c_Moneda's decimals are not in the XSD), as CfdiUtils (MIT) recomputes them. **4.0 rules:** currency decimals (`MX-010`), MXN/XXX/foreign exchange rate (`MX-011`), T and P documents (`MX-012`), PPD with FormaPago 99 (`MX-013`), XAXX010101000 and XEXX010101000 receivers (S01, 616, the issuer's postal code, ResidenciaFiscal, InformacionGlobal for PUBLICO EN GENERAL; `MX-014`), ObjetoImp 01/02 against the line's taxes (`MX-022`), exempt and withheld tax lines (`MX-023`), RFC check digit (`MX-007`, mod 11 from `mexico.mjs`), stamped more than 72 hours after Fecha (`MX-036`). Local taxes (ImpuestosLocales) skip the Total check and say so; Pagos 2.0 is read since the same day (next paragraph). The Mexico page (`mexico-cfdi-e-invoice-mandate.html`) runs the same check on a dropped file in the browser, and the main report routes CFDI files to it.
@@ -349,6 +488,147 @@ Read and left alone, because they are faults in the examples, not in the checks:
 **Romania RO e-Factura national rules, CIUS-RO (shipped 2026-10-24).** A UBL file whose BT-24 names `CIUS-RO` now also gets Romania's 122 national rules (v1.0.9 from `phive-rules-cius-ro` on Maven Central) after the EU base, in the browser and on the Node plain route: date format `YYYY-MM-DD`, an invoice number with a digit, the profile id, RON as the VAT accounting currency, `SECTOR1..6` city and `RO-xx` county codes, address and tax-id presence, two-decimal amounts and the length caps. It is an add-on (`ADDONS["cius-ro"]`), not a replacement like PINT, because the national file only adds to EN 16931. The messages are bilingual in the source (`Romanian #English`); the English half is shown, each rule has an English fix. `build-ro-rules.mjs` rebuilds `plain/cius-ro-ubl.json` (set `EINVOICE_RO_JAR` for a jar on disk). Verification (`cius-ro.test.mjs`, 5 tests; made-up invoices `examples/ro-invoice.xml` and `ro-invoice-with-defects.xml`): the clean RON invoice passes both sets with no skipped rule; the defect file raises BR-RO-001, -010, -030, -110 and -DT001; removing the buyer street raises BR-RO-082. Not done: the Saxon route and server API do not run it (no `.sef.json` built); the bundled `EN16931-CIUS_RO` XSLT (EN rules with RO changes) is not used; no real invoice from a Romanian ERP and no ANAF SPV verdict has been tried, so false positives or gaps against ANAF's live validator are unmeasured.
 
 **Portugal national rules, CIUS-PT (shipped 2026-10-25).** A UBL file whose BT-24 names `CIUS-PT` (`...urn:feap.gov.pt:CIUS-PT:2.1.1`) now also gets the Portuguese profile's checks that the EU base lacks (368 of the 1,154 in AMA's v2.1.1 stylesheet, from `phive-rules-cius-pt` 4.6.3 on Maven Central): VAT identifier and tax scheme for seller and buyer (`BR-CIUS-PT-01..04`), a Deliver to group (`-66`), a credit or debit note's preceding-invoice reference (`-25`, `-65`), "lower rate" `AA` rules, and about 290 field-format rules (`DT-CIUS-PT-*`: VAT rate as `23.00`, quantities with three decimals, a remittance reference framed as `#REFERENCE@ATMPAYMENT#...#`). It is an add-on (`ADDONS["cius-pt"]`), plain route only (no Saxon form). `build-pt-rules.mjs` rebuilds `plain/cius-pt-ubl.json` (set `EINVOICE_PT_JAR` for a jar on disk); to read it, `plain-from-xslt.mjs` now also turns an `xsl:if` around a `successful-report` (a Schematron `<report>`) into an assert. Verification (`cius-pt.test.mjs`, 5 tests; made-up invoice `examples/pt-invoice.xml`, NIFs with valid check digits): it passes the EU base and the PT set with no skipped rule; a bare `23` rate, an unframed payment reference, a removed Deliver to group, a removed seller VAT block and a type-383 note without a reference each raise exactly the expected PT rule. Not done: no real invoice from a Portuguese ERP and no AT/eFatura verdict has been tried, so false positives are unmeasured; the stylesheet's own EU-base copy is dropped, and Portuguese `AA`, `RED`, `INT`, `NOR`, `ISE`, `OUT` and `NA` VAT codes fail the EU base's BR-CL-17/18 (measured 2026-10-25 on `examples/pt-invoice.xml`), although AMA's stylesheet has no BR-CL rule at all and its own DT-CIUS-PT-091/-105/-131 and BR-AA-* rules admit them; the finding now says so (`PT_CODE_NOTE`, 1 test) and is not suppressed, since which validator the receiver runs is unknown; the Portuguese page still says nothing is mandated for B2B.
+
+## Spain's VERI*FACTU records: fingerprint, chain and record (2026-11-15)
+
+Drop the RegistroAlta and RegistroAnulacion XML a billing system (SIF) keeps under
+Real Decreto 1007/2023, alone, batched (RegFactuSistemaFacturacion) or in the SOAP
+envelope sent to the AEAT, one file or many (`verifactu.mjs`, rules VF-001 to VF-047; VF-029 onward in the two sections below):
+
+- **Fingerprint (VF-001 to VF-003).** The SHA-256 Huella is recomputed over the
+  AEAT's field string with the values exactly as written. On a mismatch the checker
+  tries the usual slips (amount hashed as 15.00 while the XML says 15 or the reverse,
+  Z for +00:00, no offset, milliseconds, the previous fingerprint left out or in lower
+  case, yyyy-mm-dd dates, URL-encoded or untrimmed values; singly and in pairs) and
+  names the one that reproduces the stored value, with the string that was hashed.
+- **Chain (VF-004 to VF-008).** Across every file in the batch: each
+  RegistroAnterior must carry the exact fingerprint of the record it names (VF-005),
+  name the record whose fingerprint it carries (VF-006); two records on one
+  predecessor are a fork (VF-007); a record generated before its predecessor is a
+  warning (VF-008).
+- **Record (VF-009 to VF-028).** Dates, invoice type against recipients (F2 and R5
+  carry none, the rest need one), TipoRectificativa and ImporteRectificacion,
+  RechazoPrevio with Subsanacion, each breakdown line's rate and tax against its
+  operation type (S1/S2, N1/N2, E1-E6), the equivalence surcharge with ClaveRegimen 18,
+  CuotaTotal and ImporteTotal against the lines (warnings: AEAT's tolerance is not
+  modelled), NIF check letters, foreign VAT prefixes.
+- **QR URL.** The JSON report gives each invoice's ValidarQR URL (`verifactuQrUrl`
+  also builds the test host and ValidarQRNoVerifactu forms).
+
+Measured (eval/verifactu-records-2026-11-15.md): the AEAT's two worked examples
+reproduce; an AEAT test-environment record and two library fixtures match; the test
+record shows the amount is hashed as written ("15", not "15.00"); 4,590 of 4,590 seeded
+slips are flagged and named, and a changed value is never explained away. Sources:
+the AEAT specification itself refuses this session's proxy, so its examples are
+taken as quoted by two MIT libraries, and the record rules follow
+josemmo/Verifactu-PHP's validations. Open: a production system's records; the AEAT's
+error-code list mapped to VF rules. It does not certify a billing system.
+
+## VERI*FACTU: the AEAT's error codes, and its reply read back (2026-11-15, later)
+
+The AEAT's own list of VERI*FACTU validation errors (errores.properties, 247 codes,
+Last-Modified 30 July 2026) answered this session at prewww2.aeat.es. It is kept byte
+for byte in `fixtures/verifactu/aeat-errores.properties.txt` (SHA-256 06519ceb…5902) and
+turned into `verifactu-errors-data.mjs` by `node build-verifactu-errors.mjs` (`--check`
+fails on a stale data file; a test does the same).
+
+- **New record rules, VF-029 to VF-042,** each naming the AEAT code it anticipates:
+  issue date before 28-10-2024 (1152), Macrodato (1137-1139), an F2 over 3,000 (1150),
+  the equivalence surcharge allowed beside each VAT rate on the operation's date
+  (1160-1170, 1277), surcharge only on S1 and rate with amount (1281, 1284), S2 lines
+  at zero and on F1/F3/R1-R4 (1197, 1198, 1207), base and tax of one sign (1140,
+  1143), the S/N flags and their invoice types (1136, 1183-1185), each ClaveRegimen's
+  allowed qualifications (1199-1206, 1245, 1252, 1257, 1260, 1286, 1289, 1293, 2009),
+  R2/R3 buyers (1191, 1192), a buyer or third party with the issuer's NIF (1188,
+  1193), third-party issuers (1151-1159, 1186, 1187, 1211), the previous fingerprint
+  equal to the record's own (2008) and characters the AEAT refuses (< > " ' =, 1287).
+  VF-019 now also flags a value that is not NIF-shaped, on the issuer, the previous
+  record's issuer, the system and the buyers (1123).
+- **The AEAT's reply** (`verifactu-response.mjs`): drop the
+  RespuestaRegFactuSistemaFacturacion, alone or in its SOAP envelope, or the SOAP fault
+  whose faultstring carries `Codigo[nnnn]`, beside the records. Each rejected or
+  accepted-with-errors line becomes a finding AEAT-nnnn with an English paraphrase,
+  the AEAT's Spanish text, the VF rule that catches it before sending or the reason
+  none can (census, the AEAT's records, its clock, the header), and, when the record is
+  in the batch (paired by issuer, number and date), whether this checker reproduces
+  it. A line the AEAT registered as correct whose record this checker flags is
+  reported too (AEAT-PASSED), so a rule stricter than the AEAT can be found.
+
+Coverage: of the 203 codes about a record, 113 map to a rule (101 fully, 12 in part,
+e.g. a NIF's shape where the AEAT also checks the census); the 44 submission codes are
+schema, certificate or AEAT-side faults. Measured (eval/verifactu-aeat-codes-2026-11-15.md):
+the one real AEAT reply found (code 1123 on NIF "AAAA") is explained and, with the
+record rebuilt, reproduced by VF-019. The mapping is the AEAT's text read against the
+rules, not AEAT replies to every code. Two MIT libraries' copies of the list are stale
+(1278-1280 kept, 1285-1293, 2009 and 4141 missing). Open: a production system's
+replies; the offline-checkable codes listed here then landed as VF-043 to VF-047 (next
+section).
+
+## VERI*FACTU: Canary Islands (IGIC) records stop failing (2026-11-16, latest)
+
+The AEAT's validation document itself (v1.1.5, a text extraction found by code search)
+and the later schema (adds ClaveRegimen 21 and country RE) showed three false errors on
+valid IGIC records: E7/E8 exemptions read as unknown, regime 21 read as off-list, and the
+21% lease rule (1206) applied to IGIC. Fixed; E7/E8 and 21 on a VAT line are now 1182 and
+1246, and a NIF-IVA buyer on an F2/R5 is 1156. The document has no IGIC or IPSI rate
+list, so those rates are rightly not checked. Record coverage 143 of 203 (123 fully).
+Measured in eval/verifactu-igic-rules-2026-11-16.md.
+
+## VERI*FACTU: the AEAT's VAT and surcharge rate lists (2026-11-15)
+
+The AEAT's validation document ("Validaciones y errores del servicio") refused this
+session's proxy again, but two independent projects quote its section 3.1.3 rule 15
+word for word and agree (mdiago/VeriFactu, AGPL, whose comments copy the text; only the
+AEAT's text is used; and eloi24/verifactu-sdk, MIT, citing v1.2.2). So:
+
+- **VF-045** (1124, now fully): on an S1 line under Impuesto 01 or none, only 0, 2, 4,
+  5, 7.5, 10 and 21% are allowed, and an unlisted rate is now an **error**, not a warning.
+  The date windows stand (5% July 2022 to September 2024, 1194; 2% and 7.5% October to
+  December 2024, 1235/1236). 7, 8, 16 and 18% still pass up to 2012 (1132; an inference,
+  as the quoted list does not name them). Lines other than S1 are left to VF-034 (S2 at
+  0%) and the no-rate rules.
+- **VF-032** (1127, new, fully): a surcharge rate outside 0, 0.26, 0.5, 0.62, 1, 1.4,
+  1.75 and 5.2% is rejected; 4% after 2012 is 1135 (in part: the code's text does not
+  name the rate, and 4% is the one old rate outside the list).
+
+Record coverage: **142 of 203** codes (122 fully, 20 in part; was 140, 120 and 20).
+Measured in eval/verifactu-rate-lists-2026-11-15.md. Not done: an AEAT reply for any of
+these codes (IGIC and IPSI rates: the document lists none, see the 2026-11-16 section).
+
+## VERI*FACTU: code lists, dates, VAT rates by date, Generador (2026-11-15, later)
+
+Five rules for 27 more AEAT codes, so 140 of the 203 record codes now map to a rule (120
+fully, 20 in part; was 113, 101 and 12). Measured in
+eval/verifactu-offline-codes-2026-11-15.md.
+
+- **VF-043, the schema's code lists** (`verifactu-lists.mjs`): CodigoPais against the
+  245 codes of CountryType2 (1101; "UK" and "EL" are not in it), CodigoPais required
+  unless IDType 02 (1111), Impuesto 01/02/03/05 (1218), ClaveRegimen against its 17
+  keys (1246), IDType 02-07 (1231 on the Generador), and SistemaInformatico's S/N
+  flags (1212, 1213, 1226). The lists come from SuministroInformacion.xsd as kept by
+  three MIT projects, byte-identical (SHA-256 ebba5565...38ea); the AEAT's own copy
+  refused the proxy this time.
+- **VF-044, dates against the clock**: issue or operation date more than twenty years
+  before today (1133, 1134); FechaOperacion after the issue date (1146) or in the
+  future (1173) with no breakdown line under ClaveRegimen 14 or 15. "Today" is this
+  tool's clock (`recordFindings(r, { now })`), not the AEAT's.
+- **VF-045, VAT rates by date**: 5% only from 1 July 2022 to 30 September 2024 (1194),
+  2% and 7.5% only October to December 2024 (1235, 1236), 7, 8, 16 and 18% only up to
+  2012 (1132), on FechaOperacion when given, else the issue date. The AEAT's text for
+  1194/1235/1236 does not name the rate; the rule infers it from the surcharge codes
+  that cover the same windows (1166-1169). A rate outside 0, 2, 4, 5, 7.5, 10, 21 is a
+  warning (1124), since the AEAT's list itself is in its validation PDF, which this
+  session could not fetch. IGIC and IPSI rates are not checked (the AEAT's document lists none).
+- **VF-046, Brexit prefixes**: a VAT number (IDType 02) starting XI on an operation
+  before 2021 (1254) or GB from 1 February 2021 (1255).
+- **VF-047, the Generador block** of a cancellation: GeneradoPor and Generador together
+  (1224), E/D/T (1225), E needs a NIF (1227), NIF or IDOtro, exactly one (1228), T not
+  IDType 07 (1229), D from Spain only 03 or 07 (1230), the NIF's shape and check
+  character (1258, in part) and not the issuer's own unless E (1259, in part).
+
+Not done: 1156 (which invoice types a NIF-IVA buyer allows) and 1146's exact reading
+(the rule lets a record pass when any line is under 14 or 15; the AEAT may require
+every line); no AEAT reply for any of these codes has been seen.
 
 ## Mandate calendar (shipped 2026-11-02)
 
@@ -1700,4 +1980,359 @@ Not done: the certificate chain to ZATCA's CA is not verified (no CA keys, no
 network call), so a self-made certificate passes as long as it signed this
 invoice; Fatoora's acceptance is not known from any of this; the Python CLI
 does not run the stamp check.
+
+
+## Spain: Facturae 3.2.1 and 3.2.2 (2026-11-15)
+
+Invoices to Spanish public bodies go through FACe (and the regional hubs) as
+Facturae XML, and Facturae is one of the formats Spain's B2B regulation allows.
+A file whose root is `Facturae` in the 3.2.1 or 3.2.2 namespace is now read by its
+own reader (`facturae.mjs`), not as UBL:
+
+- **Structure (ES-018..022)**: element order, occurrence counts, choices, value
+  facets and all 22 code lists of the Ministry's two XSDs, read into
+  `facturae-xsd-data.mjs` by `build-facturae-schema.mjs` (downloads from
+  facturae.gob.es, SHA-256 pinned). A decimal comma gets its own message.
+- **Totals (ES-003..017, ES-023..025)**, each a formula from the Ministry's field
+  description (06/06/2017): TotalCost = Quantity x UnitPriceWithoutTax; GrossAmount
+  = TotalCost - discounts + charges; TotalGrossAmount, general discounts and
+  charges, TotalGrossAmountBeforeTaxes; each cuota and recargo de equivalencia =
+  base x rate; TotalTaxOutputs; withholdings (IRPF) and TotalTaxesWithheld;
+  InvoiceTotal = before taxes + outputs - withheld; TotalOutstandingAmount after
+  subsidies and advances; TotalExecutableAmount after retentions, payment in kind,
+  suplidos and financial expenses; the batch's three sums and InvoicesCount.
+- **Consistency**: Modality I/L against the invoice count (ES-002), SchemaVersion
+  against the namespace (ES-001), corrective invoices (ES-027 Corrective block,
+  ES-028 corrected number and, in 3.2.2, its date for methods 01/02, ES-029 reason
+  and method code/description pairs from the XSD's lists), summary invoices need
+  InvoicingPeriod (ES-030), foreign currency needs ExchangeRateDetails and euro
+  equivalents (ES-031), NIF/NIE/CIF check character (ES-032), installments against
+  the total to execute (ES-035, warning), a future IssueDate (ES-037, warning).
+
+Measured (`eval/facturae-differential-2026-11-15.md`): 1,000 generated files, all
+valid under xmllint and the official XSDs, 0 flagged; 6,539 structural mutants, our
+verdict equal to xmllint's on every one; 5,006 arithmetic mutants, all caught by the
+expected rule. Generator and checker share one reading of the field description,
+so the arithmetic is not independently confirmed. Not done: FACe's DIR3 directory and FACe's own error codes, Facturae 3.2 (2009) files (named,
+schema step skipped), and a real business's file. The Python CLI does not read
+Facturae.
+
+## Facturae XAdES signature, verified offline (2026-11-15, later)
+
+A Facturae file for FACe is signed XAdES-EPES under the Facturae signature
+policy, and a signed file that was edited, re-indented or re-encoded afterwards is
+rejected with a bare "firma no válida". A signed Facturae file is now verified on
+the page, the server API and the batch report, with no dependency and no network
+call (`facturae-signature.mjs` for the Facturae rules, `xmldsig.mjs` for XML-DSig:
+SHA-1, SHA-384/512 and RSA PKCS#1 v1.5 over BigInt written out; `c14n.mjs` gained
+exclusive C14N's InclusiveNamespaces PrefixList).
+
+| Rule | What it checks |
+| --- | --- |
+| ES-SIG-01 | The signature is a ds:Signature child of the Facturae root, with SignedInfo (a second root signature is a warning) |
+| ES-SIG-02 | A Reference covers the whole invoice (URI="" with the enveloped-signature transform, or the XPath `not(ancestor-or-self::ds:Signature)`) |
+| ES-SIG-03 | Every Reference digest, recomputed (SHA-1/256/384/512; C14N 1.0, 1.1, exclusive), equals its DigestValue; the message says which part changed, and when a digest matches only under the other C14N family it names the undeclared transform |
+| ES-SIG-04 | The SignatureValue verifies over the canonical SignedInfo with the certificate's RSA key (RSA-SHA1/256/384/512) |
+| ES-SIG-06 | The certificate in KeyInfo is readable and RSA (or an RSAKeyValue is given) |
+| ES-SIG-07 | XAdES SignedProperties exist and a Reference signs them (Type ...#SignedProperties, warning if missing) |
+| ES-SIG-08 | A SigningCertificate CertDigest is the digest of the KeyInfo certificate |
+| ES-SIG-09 | IssuerSerial's serial is the certificate's (decimal); its issuer name matches attribute by attribute in any order (warning) |
+| ES-SIG-10, -11 | The policy is the Facturae v3.1 one (URL) and SigPolicyHash is its SHA-1 digest; another Facturae policy URL is a warning |
+| ES-SIG-12 (warning) | SigningTime is present, an xs:dateTime, and inside the certificate's validity |
+| ES-SIG-14 (warning) | ClaimedRole is one the policy names (emisor/supplier, receptor/customer, tercero/third party) |
+| ES-SIG-16 (warning) | QualifyingProperties' Target points at the signature's Id |
+
+An algorithm, transform or XPath it does not implement is listed under `skipped`,
+never counted as a pass. The certificate chain to FNMT or another CA, revocation
+and XAdES-T timestamps are not checked (also listed under `skipped`). The result's
+`signature` summary gives the algorithms, issuer, expiry, signing time, policy and
+role, and leaves out the subject, which on a Spanish certificate carries the NIF.
+
+**Measured against signxml** (`eval/facturae-signature-2026-11-15.md`): 30 signed
+files (five algorithm pairs, three C14N methods, 2048 and 3072-bit keys) and five
+mutants of each (amount, SigningTime, SignatureValue, certificate, re-indent), 180
+in all: **our verdict equals signxml's on all 180**, 7.8 ms a file. The comparison
+turned up a signxml signer fault: with exclusive C14N it digests the untransformed
+SignedProperties and KeyInfo references exclusively, which XML-DSig says are
+inclusive, so its own verifier rejects those ten files; our recomputed inclusive
+digests equal lxml's byte for byte, and ES-SIG-03 now names the cause.
+
+Tests (`facturae-signature.test.mjs`, 21): the fixture signed at run time with a
+fresh RSA key and a self-made certificate in the layout Facturae signers write,
+then each part broken (an edit and a re-indent after signing, another key, a
+swapped certificate, SigningCertificate, serial, issuer order and value, no policy,
+wrong policy hash and URL, signing time outside validity in another zone, role,
+unsigned SignedProperties, no whole-document reference, undeclared exclusive C14N,
+unsupported algorithm and XPath, duplicate Id, nested signature), a default-namespace
+Facturae, the batch report, SHA and RSA agreement with node:crypto, DN parsing, and
+a fuzz pass over every signature field and every truncation of the certificate.
+
+Not done: a real business's signed file and a FACe verdict on it; the policy
+digest was not recomputed from the policy PDF (facturae.gob.es did not answer; it
+is the value FirmaXadesNet, Odoo, OCA and Facturae-PHP write); ECDSA keys.
+
+**The policy digest recomputed, and the Ministry's own signed files (2026-11-16).**
+facturae.gob.es answered. The v3.1 policy PDF it serves hashes to SHA-1
+`f/LPQFpMc/ha+1dJ+Y5y11OPVnM=`, not the `Ohixl6upD6av8N7pEvDABhEL6hM=` every signer
+writes: the file carries an incremental update dated 2014-03-28 (a metadata edit)
+appended to the 2008 document, and the 2008 revision, its first 40,892 bytes, hashes
+to exactly `Ohixl6up...`. The v3.0 policy is the same (first 80,176 bytes:
+`HQvPemjDslVpcNmaJPpbHzhdZ50=`). The policy's own page-4 sample prints a third value,
+`xmfh8D/...`. ES-SIG-11 now checks the 2008 revision's SHA-256/384/512 digests too
+(the policy admits every XML-DSig hash; SHA-1 is still the recommended fix), names a
+hash that is today's whole-file digest, the page-4 sample or the other version's
+digest, and checks a v3.0 signature's hash against the v3.0 digest (the v3.0 policy
+stays an ES-SIG-10 warning; both of its URL spellings are known). The two signed
+example invoices the Ministry publishes (`factura_ejemplo_31.xml`,
+`factura2_ejemplo30.xml`, MITyC test CA, RSA-SHA1), each as published and with four
+mutants (an amount edited, a re-indent, a flipped SignatureValue character, an
+edited SigningTime): **our verdict equals signxml 5.3.0's on all 10**. The 3.1 example
+was signed 25 days after its certificate expired, which ES-SIG-12 reports. Details,
+file hashes and how to rerun: `eval/facturae-gob-2026-11-16.md`
+(`eval/facturae-gob-check.mjs`, `eval/facturae-gob-signxml.py`; the Ministry's files
+are not committed). Open: a real business's signed file and a FACe verdict; whether
+FACe takes a SHA-256 policy hash; ECDSA keys.
+
+**Spanish NIE and K/L/M NIFs fixed (same day).** The party VAT check (`vat.mjs`,
+`vat.py`) refused every valid NIE (X/Y/Z) and K/L/M NIF as INV-023. Against
+python-stdnum 2.2 on 6,000 seeded numbers: 891 disagreements before (750 valid
+numbers refused), 55 after, all CIFs where stdnum takes either control form and we
+take the one the entity letter calls for.
+
+## Hungary: the NAV Online Számla 3.0 report (2026-11-15)
+
+Every Hungarian domestic invoice is reported to NAV, the tax authority, as an
+`InvoiceData` XML in NAV's own schema, usually by the invoicing program and
+without anyone looking at it. A blocking error means the invoice was not reported
+at all; a warning means it was reported with numbers that do not add up. NAV's
+own validator only runs once you send, with a technical user. Who would use this:
+a bookkeeper or developer who has the XML (exported, or the `manageInvoice`
+request from a log) and wants to know what NAV will say before sending, or why it
+said it. The free alternatives today are NAV's test environment (needs a
+registered technical user and sends the data) and the commercial invoicing
+programs' own checks; none of them explains a file offline.
+
+`hungary-nav.mjs` reads an `InvoiceData` file (namespace
+`http://schemas.nav.gov.hu/OSA/3.0/data`), single or batch, or a `manageInvoice`
+request, whose Base64 `invoiceData` operations it decodes and checks one by one.
+Rule ids are ours (HU-001..026); every message names the NAV code it mirrors,
+taken from the English interface specification, 2026-02-12 edition, section 3.3.2.
+
+| Rule | NAV code(s) | What it checks |
+| --- | --- | --- |
+| HU-001 | (read) | well-formed XML, an InvoiceData root, a decodable Base64 operation |
+| HU-002 | LINE_NUMBER_NOT_SEQUENTIAL | lineNumber 1, 2, 3, ... |
+| HU-003 | INVOICE_LINE_MISSING | a new invoice has lines |
+| HU-004 | MANDATORY_LINE_CONTENT_MISSING | description, quantity, unit, unit price by lineExpressionIndicator |
+| HU-005 | INVALID_VAT_DATA | VAT rates (5, 18, 27%, and 7, 12%) and simplified VAT contents; pre-2013 rates and 0 before 2024 by delivery date |
+| HU-006 | LINE_SUMMARY_TYPE_MISMATCH_*, INVALID_*_VAT_RATE_* | simplified vs normal amounts and vatContent vs vatPercentage, lines and summaries |
+| HU-007 | INVALID_*_VAT_EXEMPTION_CODE, _OUT_OF_SCOPE_CODE, _AMOUNT_MISMATCH_* | exemption, out-of-scope and mismatch codes and rates; UNKNOWN only on modifications |
+| HU-008 | CUSTOMER_INFO_MISSING, CUSTOMER_DATA_(NOT_)EXPECTED, CUSTOMER_*_TAXNUMBER_NOT_EXPECTED | customer data by VAT status (no name or address for a private person) |
+| HU-009 | ..._VAT_STATUS_VAT_DATA_MISMATCH_KBAET/KBAUK/EUFAD37/EUFADE, ..._DOMESTIC_REVERSE_CHARGE, DOMESTIC_TAXNUMBER_EXPECTED_REVERSE_CHARGE | exemption and reverse-charge codes against the buyer's VAT status |
+| HU-010 | INCORRECT_LINE/SUMMARY_DATA_VAT_EXEMPTION/OUT_OF_SCOPE_NORMAL | no VAT amount on exempt or out-of-scope lines and rows |
+| HU-011 | INCORRECT_LINE_DATA_AGGREGATE_INV_LINE_DATA_MANDATORY | aggregate invoice lines carry their own rate and date |
+| HU-012 | INCORRECT_HEAD_DATA_CURRENCY_CODE_HUF, _EXCHANGERATE_EXTREME | HUF takes rate 1; EUR, USD, GBP and 10 more inside NAV's bands |
+| HU-013 | INVALID_(ORIGINAL_)INVOICE_NUMBER, _MOD_REF_INVOICE_NUMBER, _MODIFICATIONINDEX_UNREAL | whitespace around numbers, a modification numbered like its base, index over 1000 |
+| HU-014 | INCORRECT_DATE_INVOICE_DELIVERY_TO_FROM, INVOICE_DELIVERY_DATE_LATE | period order; delivery over five years after issue |
+| HU-015 | INCORRECT_LINE_DATA_UOM_INCOMPLETE | OWN unit has unitOfMeasureOwn; units from the XSD list |
+| HU-016 | ELECTRONIC_INVOICE_HASH_EXPECTED, INVALID_INVOICE_HASH(_CRYPTO), INVOICE_APPEARANCE_MISMATCH, INVOICE_COMPLETENESS_* | a report that is the e-invoice itself: SHA3-512 hash recomputed, ELECTRONIC appearance, no private person, no merged lines |
+| HU-017 | INVOICE_REFERENCE_(NOT_)EXPECTED, LINE_MODIFICATION_(NOT_)EXPECTED, INVALID_LINE_OPERATION, LINE_NUMBER_REFERENCE_NOT_UNIQUE, SUPPLIER/CUSTOMER_NOT_IDENTICAL | modification structure, and the request's operation against it |
+| HU-018 | (register) | tax-number check digit (9-7-3-1) on supplier, customer and group members |
+| HU-027..032 | SCHEMA_VIOLATION | the schema gate (`hu-xsd.mjs`): an element not allowed or repeated (027), out of order (028), missing (029), a value outside its length, pattern, range, digits or code list (030), an attribute (031), an element in the wrong namespace, e.g. `taxpayerId` without `base:` (032) |
+| HU-033 (warnings) | INCORRECT_PRODUCT_CODE_FEE_*, MISSING_PRODUCT_FEE_DATA_*, INCORRECT_PRODUCT_FEE_DATA_*, INCORRECT_PRODUCT_FEE_CALCULATION_* | product fee (termékdíj, Annex I ids 270-810): CSK/KT code types, the obligated flag against line content, line content against the summary, quantity and unit by code, quantity x rate, amounts by code and productChargeSum; Annex I's tolerance (1% of the HUF value, at least 1 HUF or 0.01 of the currency) |
+| HU-020..026 (warnings) | INCORRECT_LINE_CALCULATION_*, INCORRECT_SUMMARY_CALCULATION_*, INCORRECT_SUMMARY_DATA_* | all 54 active Annex I calculation and summary warnings (re-read 2026-11-15): quantity x price less any discount, every HUF conversion, forint gross = net + VAT, rows against lines and rates, totals against rows and lines, simplified gross by VAT content, summary markers no line carries, negative CREATE totals; Annex I's tolerance (1% of the named reference, at least 1 HUF or 0.01 of the invoice currency). Each finding's `nav` names the warning; five extra checks NAV does not make (line VAT from rate, gross in the invoice currency, ...) say so and carry `nav: null` |
+| HU-034 (warnings) | SUPPLIER_*_MATCH_*, INCORRECT_VAT_CODE_*, INCORRECT_COUNTY_CODE_*, INCORRECT_DATE_*, INCORRECT_HEAD_DATA_* | Annex I section I.1 (invoice header, read 2026-11-15): the seller's tax number, name or bank account repeated for the customer or fiscal representative, VAT codes, county codes (02-20, 22-44, 51), a fiscal representative only for county 51 and only in Hungary, the seller's EU VAT number against its tax number, a group id (177...) as the customer's group member, delivery 397+ days after issue, aggregate dates against line dates, periodicalSettlement; and, against the day of reporting (a request's timestamp, else today in Budapest on the page), a future issue date (5 days), a lapsed delivery date, a modifying document in the future or 15+ days old |
+| HU-035 (warnings) | INCORRECT_LINE_DATA_* | Annex I section I.2 (line data): a summary rate no line carries (435), a line referring to itself, a reverse-charge or margin-scheme line with VAT, aggregate line data on a non-aggregate invoice, missing or wrong-kind line amounts, the exemption or out-of-scope case (KBAET, KBAUK, EAM, EUFAD37, EUFADE, EUE) against the kind of customer tax number |
+
+**Measured on NAV's own samples** (`eval/hungary-nav-samples-2026-11-15.md`): of
+the 30 InvoiceData samples NAV publishes, 27 get no finding; the other 3 get five,
+each a fault in NAV's file by NAV's current rules (two summary typos, a gross
+total of 500000 on a 600000 net row and an extra zero in a HUF amount; two
+placeholder tax numbers; a `lineOperation` MODIFY that code 60 now refuses).
+On NAV's `manageInvoice` sample all three `electronicInvoiceHash` values verify,
+and they verify only over the decoded XML bytes, not over the Base64 text the
+spec's wording suggests. 519 seeded faults of 27 kinds: 518 caught.
+
+The SHA3-512 is plain JavaScript (`sha3.mjs`, compared with node:crypto in the
+test), so the page checks the hash in the browser too.
+
+Not checked (listed under `skipped`): what NAV checks against its own records
+(unique numbers, registered tax numbers; the base invoice of a modification only when it is
+not among the files: see "the NAV chain" below),
+gzip-compressed operations, product fee lines against a summary when there are
+two (REFUND and DEPOSIT). Not done: a real business's report with NAV's response
+to compare verdicts.
+
+**Product fee totals (2026-11-15, later; `eval/nav-product-fee-2026-11-15.md`).**
+An earlier note said Annex I (the warning descriptions) was not in NAV's
+repository. It is: the English specification dated 2026.02.12 carries it from
+about page 300. Its 13 product fee (termékdíj) warnings are HU-033. NAV's one
+product fee sample (`fixtures/hungary-nav/product-fee.xml`) is clean, and each
+warning is seeded into it in `hungary-nav-product-fee.test.mjs` (8 tests). No real
+business's product fee invoice has been read.
+
+Tests: `hungary-nav.test.mjs` (14) and `hungary-nav-product-fee.test.mjs` (8) on
+six of NAV's files kept in `fixtures/hungary-nav/` with NAV's MIT licence.
+
+### The schema gate: invoiceData.xsd with NTCA common 1.0 (2026-11-15, latest)
+
+NAV refuses a report that breaks `invoiceData.xsd` before any business rule runs:
+`queryTransactionStatus` answers `SCHEMA_VIOLATION` (ERROR) and the invoice is
+ABORTED. The schema imports two others, `invoiceBase.xsd` (in NAV's repository)
+and the NTCA common 1.0 `common.xsd` (not in it). `build-hu-schema.mjs` reads all
+three into `hu-xsd-data.mjs` (facts only: content models, facets, the namespace of
+every element), fetching `common.xsd` from a public mirror and refusing it unless
+its SHA-256 is the one three independent mirrors agreed on. `hu-xsd.mjs` runs it
+through `xsd-check.mjs`, the validator FA(3) already used, now shared, plus a
+namespace pass of its own: the commonest hand-edit fault in these files is a
+`base:` prefix dropped or added, which the tag looks right with and NAV still refuses.
+Elements declared `fixed="true"` (`vatDomesticReverseCharge`, `noVatCharge`) take
+that value when empty and refuse any other, as XSD says.
+
+**Checked against xmllint on NAV's XSD** (`eval/hu-xsd-diff.mjs`,
+`eval/hungary-nav-xsd-2026-11-15.md`): NAV's 30 samples pass both. Of the mutants
+built from them (an element deleted, duplicated, swapped or unknown, a value
+emptied, lengthened, made text, negative, given a euro sign, a short date or a
+flipped boolean, a namespace prefix dropped or added), every verdict matches
+xmllint's; see the eval note for the counts on two seeds. One real fault turned up:
+NAV's own `manageInvoice` API sample still sends 2.0's `privatePersonIndicator`
+where 3.0 wants `customerVatStatus`, in all three operations; xmllint agrees, and
+the finding's fix names the replacement. The fuzzing also found a crash in the
+business checks on a summary row with an empty `vatRate`, now fixed.
+
+Tests: `hu-xsd.test.mjs` (10).
+
+### Corrections checked against their invoice: the NAV chain (2026-11-15, latest)
+
+A modifying or cancelling NAV report is checked by NAV against the invoice it refers to and the
+corrections already received: does a cancellation bring the invoice back to zero, is the
+modification number new, does a created line reuse a number. One file cannot show that, so
+every single-file run listed those warnings as skipped. Dropped together, a base invoice and
+its modifications now are checked as a chain (`hungary-nav-chain.mjs`, wired into the batch
+report, so the page does it when the files are dropped together):
+
+| Rule | NAV code | What it checks |
+| --- | --- | --- |
+| HU-036 | INVOICE_TYPE_MISMATCH (3.3.2 code 6) | invoiceCategory kept from the base invoice |
+| HU-036 | INVOICE_LINE_ALREADY_EXISTS (7) | a created line's lineNumberReference is not already in the chain |
+| HU-036 | MODIFICATION_INDEX_NOT_UNIQUE (16) | modificationIndex not reused |
+| HU-036 | MODIFY_WITHOUT_MASTER_MISMATCH (20) | modifyWithoutMaster true while the base invoice is among the files |
+| HU-037 | 342, 11400, 11401 (Annex I.1) | issued before the base invoice; delivery date moved to the correction's own issue date (another month for MODIFY, another day for STORNO) |
+| HU-037 | 632, 1030 (I.2) | mergedItemIndicator back to false; a MODIFY line that is not in the chain |
+| HU-037 | 1140, 1200, 1210, 1220, 1230 (I.5) | a document after a cancellation; a cancellation's net, simplified gross, VAT and HUF VAT against the chain so far (1 unit; 1 HUF or 0.01 of the currency for HUF VAT), only on a complete chain |
+| HU-037 (information) | 11250, 10082 (Annex II) | a gap in the modificationIndex series; a different customer tax number |
+
+"Received earlier" means earlier in modificationIndex order among the files given, and the
+messages say so. A bare InvoiceData file does not say whether it goes as MODIFY or STORNO
+(the manageInvoice request does), so it is checked as MODIFY and the cancellation sums are
+listed as skipped; drop the request to get them. Legal-predecessor chains are not followed.
+
+On NAV's own samples (`eval/nav-chain-mutations.mjs`, `eval/nav-chain-2026-11-15.md`): the six
+chains NAV publishes (five on base invoice ZZZ000001, one batch modification of three
+invoices) give no finding, and the "modification and cancellation" pair sums to exactly zero
+when its second document is read as STORNO. 58 seeded faults of 8 kinds into those chains:
+58 caught by the expected code; a cancellation short by 1 HUF passes, by 2 HUF is flagged.
+Also new: Annex II INFO 10311, a new invoice reported more than 10 days after issue, as
+information on HU-034. Tests: `hungary-nav-chain.test.mjs` (18).
+
+### Header and line-data warnings: Annex I I.1 and I.2 (2026-11-15)
+
+The earlier passes read Annex I's calculation, summary and product fee warnings. Sections I.1
+(invoice header) and I.2 (line data) were still unread: of I.1's 34 active warnings, none was
+checked by its own definition. Read warning by warning (`eval/nav-annex1-head-lines-2026-11-15.md`),
+23 of them can be decided from the file alone and are now HU-034; 19 line-data warnings are
+HU-035. Each finding names its Annex I code in `nav`. The ones that need NAV's taxpayer register
+or the stored base invoice (13 codes) are listed in `skipped` by number; the 14 marked
+deprecated or inactive are left out.
+
+Four warnings compare dates with the day NAV receives the report (310, 312, 340, 341). A
+manageInvoice request carries that day in its `header/timestamp`, which wins. A bare
+InvoiceData file does not, so the page passes today's date in Budapest (a preflight runs just
+before sending) and the message says "taken as"; called as a library without `reportDate`,
+those four are listed in `skipped`.
+
+On NAV's 30 samples, one new finding, and it is real: the aggregate sample `Gyujtoszamla 2.xml`
+gives every line delivery date in 2019 under a 2021 header date (warning 321), while its twin
+`Gyujtoszamla 1.xml` has 2021 line dates. NAV's API sample gets warning 500 three times (a
+placeholder seller EU VAT number). 172 new mutants, all caught. Tests:
+`hungary-nav-annex1-head.test.mjs` (22).
+
+### The VAT arithmetic against Annex I (2026-11-15)
+
+HU-020..026 were first written from NAV's warning code names. Annex I of the 2026.02.12
+specification defines each warning: its formula, when it runs, and what its 1% is 1% of.
+Read warning by warning (`eval/nav-annex1-calculations-2026-11-15.md`), the old code cited
+five codes NAV does not have (NAV never checks a line's VAT against its rate, nor a gross in
+the invoice currency) and six renamed ones, used a one-unit floor where NAV's is 0.01 of the
+currency (1.00 EUR became 0.01 EUR), skipped lines with a discount that NAV checks with the
+discount taken off, and summed zero rows NAV skips. All 54 active warnings in these families
+are now in, 21 of them new (forint gross sums, forint row VAT, line forint nets against the
+total, gross conversion, negative CREATE totals, simplified line sums, summary rates and
+markers no line carries, reverse-charge and margin rows with VAT). Every finding names its
+Annex I code in `nav`, or `null` for the five checks that are this tool's own, and says so:
+a bookkeeper can tell what NAV will warn about from what it will accept silently.
+
+NAV's 30 samples are unchanged (27 clean, same 5 findings). 633 seeded faults: 624 caught by
+the expected rule; 8 of the 9 others are where Annex I says the warning does not run, and the
+ninth is the earlier tax-number mutant, missed before this change too.
+Tests: `hungary-nav-annex1.test.mjs` (18), which also fails if the module cites a
+calculation code Annex I does not list.
+
+## Slovakia: Act 385/2025 read from the text, and a Slovak profile (2026-11-16)
+
+The Slovakia page was written from vendor guides. It is now written from Act No. 385/2025 Z. z. as published on slov-lex.sk (rendered in Chromium; time versions 2026, 2027 and 2030) and the Financial Administration's eFaktúra material (`eval/slovakia-act-385-2025-2026-11-16.md`):
+
+- **1 January 2027** is the transitional § 85o of the VAT Act: a Slovak VAT payer supplying goods or services with a Slovak place of supply to a taxable person or non-taxable legal person established in Slovakia must issue an e-invoice (exempt supplies and simplified invoices excepted), within 15 days; supplier and Slovak payer buyer report the data by handing the invoice to a certified delivery service; fines up to EUR 10,000 (EUR 100,000 repeated); 10-year retention. Everyone invoiced that way must be able to receive through a delivery service (§ 71(5)), non-payers and municipalities included (FS manual).
+- **1 July 2030** is the general rule (§ 71(4)): every invoice an e-invoice, § 80a domestic and § 80 cross-border reporting replacing the control and recapitulative statements, a 10-day deadline. The page had 2030 as "cross-border only".
+- The format is EN 16931 in UBL 2.1 or CII D16B, over OpenPeppol (the FS names it as the § 76a European delivery standard); 100 certified providers on the 12 November 2026 list. The vendor "1 July 2027 access-point limit" is not in the Act.
+
+**Slovak profile.** Tick "Also apply the Slovak rules", or call `POST /v1/validate?profile=slovakia`: the Peppol rules (PP-001..PP-005) plus six `SK-nnn` rules from the Financial Administration's field table "Transpozície štandardu Peppol BIS" v1.13 (29 October 2026), column "Povinná náležitosť faktúry podľa SK legislatívy": SK-001/SK-002 seller and buyer street, city and postcode (optional in EN 16931, § 74(1)(a)/(b)); SK-003 (warning) a Slovak party's electronic address not under scheme 0245 = DIČ; SK-004 a 0245 id that is not 10 digits; SK-005 (warning) no supplier payment account BT-84; SK-006 (warning) seller DIČ address vs SK VAT digits. Not checked: the conditional fields (IČO or IČ DPH "if assigned", tax point date), BT-33, and the tax data document. Tests: `slovakia-profile.test.mjs` (7), two more in `slovakia-e-invoice-mandate.test.mjs`. Hub row, `mandate-dates.json`, the `.ics` feed (127 milestones, 65 countries) and the 2027 deadlines page regenerated.
+
+## Peppol BIS Self-Billing gets its own rules (2026-11-18, latest)
+
+In self-billing the buyer writes the invoice for its supplier (a packing house paying growers, a platform paying drivers). Peppol's **BIS Self-Billing 3.0** has its own BT-24 (`...poacc:selfbilling:3.0`), BT-23 (`...poacc:selfbilling:01:1.0`) and type codes (389, 527, 261), but its BT-24 also names peppol.eu, so the checker ran Peppol BIS **Billing** on it: on OpenPeppol's own nine Self-Billing examples, all nine drew fatal R004 and R007 and eight drew P0112 (389 between non-German parties), with advice to switch to Billing's identifiers. A self-billing UBL file now gets OpenPeppol's Self-Billing rules instead: **3.0.2** (in force since 2026-08-17; branch `selfbilling-2026-Q2-QA`, 62 checks) and, with the 3.1.0 preview ticked, **3.1.0** (in force 2027-02-24; branch `selfbilling-2026-Q4-QA2`, 185 checks), on the plain route. They agree with all **219** and **349** assertions of those branches' own unit tests, and the nine examples now draw no official Peppol finding. The fix texts for R001, R004, R007, P0100 and P0101 give Self-Billing's values. Two smaller fixes came with it: the UBL reader now treats a debit note sent as an Invoice document (383, or Self-Billing's 527) as a debit note, so built-in INV-034 no longer calls it a mismatch (UBL 2.1's EN 16931 binding has no DebitNote document), and the opt-in Peppol profile accepts the Self-Billing BT-24/BT-23 pair. Verification: `peppol-selfbilling.test.mjs` (7 tests, made-up `examples/peppol-self-billing-invoice.xml`); write-up `eval/peppol-self-billing-2026-11-18.md`. Not tried on a real business's self-billing file or an access point's verdict; no CII form exists.
+
+## Peppol BIS 3.1.0 before it is in force, and zero-padded numbers (2026-11-18)
+
+OpenPeppol publishes BIS Billing 3.1.0 on 23 November 2026 and access points apply it from **24 February 2027**. Tick "check against Peppol BIS 3.1.0" on the page (or call `POST /v1/validate?schematron=1&peppol=next`, or pass `peppolNext: true` to the runner) and a Peppol file is checked against 3.1.0 instead of 3.0.22. Each finding the release in force today does not raise is marked `peppolNext: "new"`, and a fatal one says "rejected from 2027-02-24". What 3.1.0 adds that a sender will meet: scheme 0088 takes a 13-digit GLN only (R040), Belgian enterprise numbers must start with 0 or 1 (R043), the Dutch identifier warnings R054-R057 become errors, Luxembourg VAT and Matricule checks (R058, R059) and Belgian VAT (R062) arrive as warnings, Slovak SK-R-001..007 warnings, Swedish SE-R-006 only for Swedish buyers, and 120 inferred mandatory-element rules (R141-R276). The rules are compiled from OpenPeppol's release branch `2026-Q4-QA2` (`90f078a`; 294 UBL and 95 CII checks) and agree with all **1,138** assertions of that branch's own unit tests. On OpenPeppol's own 3.0.22 example files, 5 of 17 pass today and fail 3.1.0, all on R040 (19-digit values under 0088); the release's fixed examples pass. `eval/peppol-next-diff.mjs` prints that comparison for any folder of files.
+
+The one unit-test miss found a fontoxpath bug: `format-integer(1, '00')` returns "1". It made a valid Luxembourg VAT number with check digits 00-09 fail, and it sat inside the compiler's own `format-number` stand-in, so ZATCA's BR-CO-17 and BR-S-09 read 15.05 as 15.5 and accepted subtotal VAT up to 0.45 off. The compiler now zero-pads; the ZATCA sets are rebuilt. Also fixed: the page named pasted text `pasted.json` whatever it held, so pasted UBL or CII never got the official Schematron (only dropped files did). Details: `eval/peppol-bis-3.1.0-2026-11-18.md`; tests: `peppol-next.test.mjs`, `zatca-cents.test.mjs`. Open: rebuild from the 3.1.0 tag once it is on master; a real sender's files through the diff.
+
+## Peppol's id rules on party identifiers and legal registration numbers (2026-11-17)
+
+OpenPeppol's PEPPOL-COMMON id rules do not stop at the endpoint: each one's context is `cbc:EndpointID[@schemeID = 'X'] | cac:PartyIdentification/cbc:ID[@schemeID = 'X'] | cbc:CompanyID[@schemeID = 'X']` (UBL) and `ram:URIID | ram:ID | ram:GlobalID` (CII). So a dotted Belgian KBO number as the seller's legal registration (BT-30) bounces at the network just as it does as the endpoint. Now `ubl.mjs` keeps every schemed `PartyIdentification/ID` as `party_ids: [{scheme, id}]` and `cii.mjs` every schemed `GlobalID`/`ID` (the legal registration was already `legal_id: {scheme, id}`), and `endpoint.mjs` checks both: **INV-062** (blocking) for the eight fatal schemes (0088, 0192, 0184, 0096, 0198, 0208, 0007, 0151), **INV-063** (a warning) for the seven warning-level ones (INV-061's list). JSON input gets the same checks on `legal_id` and `party_ids`. Schemes Peppol has no rule for are left to EN 16931's BR-CL-11. Findings never repeat the id.
+
+Measured end to end with `eval/party-id-peppol-differential.mjs` (`eval/party-id-peppol-differential-2026-11-17.md`): each drawn id or mutant goes into one of eight places (seller or buyer, identifier or legal registration, UBL or CII) of a shipped example file; Peppol's COMMON assertions (`plain/peppol-ubl.json`, `peppol-cii.json`) run on that XML with fontoxpath and slimdom, and our reader plus `checkInvoice` run on the same text. **0 disagreements on 9,431 files (seed 7) and 9,363 (seed 11)**; Peppol's rule fails on 6,785 of the seed-7 files, none of whose ids any check read before. Found on the way: Peppol's CII R050 is `u:abn()` alone (its UBL R050 also tests `^[0-9]{11}$`), and `u:abn` reads only the first 11 characters, so a 12-digit ABN passes Peppol in CII; INV-062 keeps the length test (counted apart, with the GLN length and Italian check-digit differences INV-041 and INV-061 already keep). The Python CLI mirrors INV-062 for JSON `legal_id`/`party_ids` (`endpoint.py`; INV-063 stays silent as INV-061 does); since 2026-11-17 its XML readers fill them too: `ubl.py` keeps the PartyLegalEntity `CompanyID` as `legal_id` and every schemed `PartyIdentification/ID` as `party_ids`, and the CII reader (`formats.py`) keeps `SpecifiedLegalOrganization/ID`, schemed `GlobalID`/`ID` and the `URIUniversalCommunication` endpoint, which it had dropped, so INV-041 now reads CII files in the CLI as well. `eval/py-js-party-readers.mjs` runs the Python and page readers over every UBL/CII file in the venture and compares the three fields per party: 24 of 34 differed before, 0 of 34 after (`eval/py-js-party-readers-2026-11-17.md`); the CLI now raises the same INV-062 findings as the page on the four FNFE fixtures whose `0088` ids are not 13-digit GLNs (`tests/test_party_ids_xml.py`). Tests: `party-ids.test.mjs` (7) and `tests/test_endpoint.py` (3 more), sharing `tests/endpoint_peppol_cases.json`. Since 2026-11-17 (later) the payee (BG-10) and tax representative (BG-11) are read too: both readers keep their schemed ids as `payee_party` / `tax_representative`, INV-062/063 check them ("Payee ...", "Tax representative ..."), and the differential writes into sixteen places, not eight: 3,311 of 9,596 files missed before, 0 of 9,430 (seed 7) and 0 of 9,360 (seed 11) after (`eval/side-party-ids-peppol-differential-2026-11-17.md`; the Python CLI mirrors it, `tests/test_side_party_ids.py`). Since 2026-11-17 (latest) the deliver-to party too: UBL `cac:Delivery/cac:DeliveryParty` and CII `ShipToTradeParty` (its schemed `ID`, BT-71's delivery location id, and `GlobalID`) are kept as `delivery_party` and checked as "Deliver-to party ..."; UBL's BT-71 (`cac:DeliveryLocation/cbc:ID`) sits under no Peppol context and stays unchecked. The differential's twenty-two places (six new, one a DeliveryLocation id where both sides must stay silent): 1,508 of 9,521 files disagreed before, 0 of 9,445 (seed 7) and 0 of 9,379 (seed 11) after (`eval/delivery-party-ids-peppol-differential-2026-11-17.md`; `tests/test_side_party_ids.py` for the CLI). Not done: any registry lookup or access point verdict. Since 2026-11-17 (latest) CII line ids are read too: every schemed `ID`, `GlobalID` and `URIID` in a line (BT-157 item ids, Extended line parties) becomes `lines[i].scheme_ids`, checked as "Line N identifier ...", because Peppol's `ram:GlobalID` context reaches a GTIN filed under 0088 (R040, fatal) and 0160 has no COMMON rule; 581 of 9,472 files missed before, 0 of 9,439 (seed 7) and 0 of 9,377 (seed 11) after (`eval/line-ids-peppol-differential-2026-11-17.md`; the CLI mirrors it). Since 2026-11-17 (last) UBL lines too: every schemed `EndpointID`, `PartyIdentification/ID` and `CompanyID` inside an `InvoiceLine`/`CreditNoteLine` (a line-level `cac:Delivery/cac:DeliveryParty`, an `OriginatorParty`, an Item's `ManufacturerParty`) joins `lines[i].scheme_ids`, because Peppol's UBL contexts name no parent; the item's own `StandardItemIdentification/ID` (BT-157, a GTIN) is under no COMMON context in UBL and stays unchecked, unlike CII's `GlobalID`. The differential gains four UBL line places (one of them that item id, where both sides must stay silent): 711 of 9,490 files missed before, 0 of 9,457 (seed 7) and 0 of 9,385 (seed 11) after (`eval/ubl-line-ids-peppol-differential-2026-11-17.md`; `ubl.py` mirrors it, `tests/test_side_party_ids.py`).
+
+**The tax representative's VAT number, and Dutch VAT numbers Peppol warns on (2026-11-17).** EN 16931's BR-56 requires a seller tax representative (BG-11) to carry a VAT number (BT-63), and neither reader kept it, so a mistyped one passed every built-in check. Now `ubl.mjs` reads it from `TaxRepresentativeParty/PartyTaxScheme/CompanyID` and `cii.mjs` from `SellerTaxRepresentativeTradeParty/SpecifiedTaxRegistration/ID[@schemeID='VA']` into `tax_representative.vat_id`, and `checks.mjs` runs the seller's checks on it (INV-022 shape, INV-023 checksum, "Tax representative VAT identifier ..."). Measuring that against OpenPeppol's PEPPOL-COMMON-R056-2 found a second gap the backlog had marked closed: `normalizeVat` strips spaces, dots and hyphens and upper-cases before the shape test, so a valid number written `NL 123456782 B01`, `NL123456782.B01` or `NL123456782b01` passed on the seller and buyer too, while R056-2 (which reads the text after `normalize-space`) warns. **INV-064** (a warning, as Peppol's is) now flags any party VAT number that starts with `NL` and is not exactly NL, nine digits, B and two digits, when INV-022/023 have not already reported it. `eval/nl-vat-r056-2-differential.mjs` draws elfproef and mod 97-10 numbers plus eighteen kinds of mutant, writes each into the seller's, buyer's or tax representative's VAT number in UBL or CII, and runs Peppol's own assertion with fontoxpath on the same text: **2,823 of the 3,654 files Peppol warns on drew nothing before (1,610 of them on the seller or buyer); 0 disagreements on 4,622 files (seed 7) and 4,627 (seed 11) after** (`eval/nl-vat-r056-2-differential-2026-11-17.md`). Stricter on purpose, counted apart: a number in R056-2's shape that fails both Dutch checksums, or a `B00` suffix, is INV-023. The Python CLI reads BT-63 and runs INV-022/023 on it (`tests/test_tax_rep_vat.py`); INV-064 stays silent there as INV-061 does. Tests: `tax-rep-vat.test.mjs` (6). Not done: a trailing no-break space (the readers' `trim()` strips it, `normalize-space` does not), the payee's and deliver-to party's `PartyTaxScheme` (no EN 16931 VAT field, though R056-2 reaches them), and an unlabelled UBL `PartyTaxScheme`.
+
+**R056-2's full reach, character references and the no-break space (2026-11-17, later).** Three gaps closed. A valid Dutch VAT number written with an XML character reference (`NL123456782&#66;01`) drew a blocking INV-022, because the XML reader keeps references raw; VAT numbers are now read with `xmlValue` (references decoded, only XML whitespace trimmed, as `normalize-space` does). That also keeps a trailing no-break space, which Saxon's `normalize-space` keeps and R056-2 warns on, so INV-064 now warns too. And R056-2 reaches every VAT `PartyTaxScheme` / VA `SpecifiedTaxRegistration`: the payee's, the deliver-to party's (header or line) and a seller's second one are kept as `vat_registrations` and get INV-064 (a warning; no INV-022/023, since EN 16931 gives them no VAT number). Measured with the same differential, now 13 places and 26 kinds of mutant: **3,149 disagreements on 7,423 files before (2,707 missed warnings, 442 false blocking errors), 0 after on seeds 7 and 11**; the oracle itself was re-checked with Saxon-HE 12.5 on all 15,539 files, 0 differ, after finding that fontoxpath's `normalize-space` strips U+00A0 where XPath does not (`eval/nl-vat-r056-2-payee-refs-2026-11-17.md`). Tests: `r056-2-reach.test.mjs` (6). Next: the plain-Schematron route runs on fontoxpath and has the same `normalize-space` deviation.
+
+**The browser's official rules read whitespace as Saxon does (2026-11-17, latest).** The page runs the official Schematron in the browser on fontoxpath, whose `normalize-space`, and `\s` in `replace()` and `tokenize()` patterns, also take U+00A0 and the other Unicode spaces; XPath counts only space, tab, CR and LF. So a VAT category `S` followed by a no-break space read as `S`, and a Dutch VAT number with a trailing one passed Peppol's R056-2, where every Saxon-based validator rejects them. `plain-schematron.mjs` now rewrites each rule before fontoxpath runs it (a spec `normalize-space`, `[ \t\n\r]` for `\s` in patterns). And a number or date holding such a space makes Saxon stop on the whole file (FORG0001); the page used to list the rules as "not checked" and show nothing else, so it now reports **XML-VALUE-01** (fatal) at the field, with the space spelled out. Measured against SaxonC-HE 13.1 running the official XSLT on 688 copies of 52 example invoices (ours, EN 16931's and Peppol's) with a no-break or em space put into one field: **the plain route disagreed with Saxon on 161 of 528 copies before and on 0 after; on the 160 copies Saxon stops on, it said nothing on 100 before, and XML-VALUE-01 names the field on all 160 now** (`eval/xml-whitespace-crosscheck-2026-11-17.md`). Saxon-JS, the engine behind the server's SEF route, has its own regex `\s` deviation (16 of 552 copies differ from SaxonC, all CII-DT-097). Tests: `plain-schematron.test.mjs` (3 new). Not done: the built-in checks still read a literal U+00A0 around an amount as a number (`Number()` trims it), so with the official rules off nothing is said; PINT, ZATCA and the national sets get the rewrite but were not cross-checked.
+
+**INV-065 in the FatturaPA, FA(3), Facturae, NAV and ISDOC readers (2026-11-17, latest).** Those five readers trimmed with `String.trim()` as the UBL and CII readers did, and their schema gates judged the trimmed value, so `<ImportoTotaleDocumento>1320.00` plus a no-break space passed while an XML Schema processor (what SdI, KSeF, FACe and NAV validate with) cannot read it as a number. Now `checkFatturaPa`, `checkFa3`, `checkFacturae` and `checkNavInvoiceData` report **INV-065** on the leaf's own path (inside a `manageInvoice` request, under its operation), and the ISDOC reader keeps `xml_values` for `checkInvoice`. Measured on 36 files (15 Agenzia delle Entrate and eigor FatturaPA samples from the ZUGFeRD corpus, NAV's 10 published samples, the ISDOC demo files, ours) with five kinds of space on each of their 2,001 number, date and boolean leaves: **6,880 of 8,004 literal-space copies drew no new finding before; INV-065 names the element on all 10,005 copies after**, SaxonC-HE refuses every mutated value and casts every original, and 0 of 1,333 text-leaf controls draw it (`eval/nbsp-other-formats-2026-11-17.md`). Tests: `xmlvalues-national.test.mjs` (14).
+
+**A no-break space around a number or date, in the built-in checks: INV-065 (2026-11-17).** The readers trimmed element text with JavaScript's `trim()` (and the CLI with Python's `strip()`), which also take U+00A0, U+202F, U+3000, U+FEFF and the other Unicode spaces that XML does not count as whitespace. So `238.00` plus a no-break space read as 238 and passed every built-in check, while a Saxon-based validator cannot cast it and stops on the whole file; only the official-rules route (XML-VALUE-01) said so. Written as `238.00&#160;`, the UBL reader refused the whole file with "amount is not a number" and named no field. Now both readers keep every number, date or boolean leaf that only JavaScript's trim makes readable (`xmlvalues.mjs`, shared with XML-VALUE-01), `checks.mjs` reports each as **INV-065** (blocking) with the space spelled out and the element's path, and the UBL reader decodes character references in amounts. The CLI does the same (`xmlvalues.py`). Measured on 62 UBL and CII files (ours and EN 16931's), with five kinds of space put on each of their 2,784 number, date and boolean leaves: **11,136 of 11,136 literal-space copies passed the built-in checks clean before; INV-065 names the field on all 13,920 copies after**, SaxonC-HE 13.1 refuses all 13,920 mutated values and casts every original, and 0 of 2,701 text-leaf controls draw it (`eval/nbsp-amounts-2026-11-17.md`). Tests: `xmlvalues.test.mjs` (7), `tests/test_xml_values.py` (5).
+
+**Oman's PINT rules all run now; PINT and ZATCA checked against SaxonC (2026-11-17, latest).** Cross-checking the PINT and ZATCA sets against the official XSLT on SaxonC-HE 13.1 found that 18 of Oman's jurisdiction rules never ran on any file: the rule compiler pasted Oman's global `$lines` over the parameter of the same name in its `u:vatBase` function, so the set's XQuery prolog did not parse and every rule needing it was listed as "not checked". They are the line net amount (IBR-071-OM), the allowance percentage, the VAT breakdown sums by category (ALIGNED-IBRP-*-08/09-OM) and the tax-currency total. `plain-compile.mjs` now lets a function's own parameters shadow globals, renames `adjust-date(Time)-to-timezone` (missing in fontoxpath) to XQuery copies of the F&O 3.1 functions, which IBR-171-OM (issue date in the future, Oman time) needs, and binds XSLT's `current()` to the rule's context node. A made-up Oman invoice now runs all 154 jurisdiction checks with none skipped. And `xmlvalues.mjs` knows `xs:time` and `xs:dateTime`, so a ZATCA `IssueTime` (or an FA(3) or NAV timestamp) with a no-break space draws XML-VALUE-01 / INV-065 at that field. Measured on 182 of OpenPeppol's and ZATCA's own examples (PINT SG, A-NZ, JP, JP-NTR, MY, AE, OM; ZATCA 3.4.6) and 2,268 copies with a no-break or em space in one field: **rule ids differ from SaxonC on 80 copies with the rules as shipped (76 of them Oman) and on 4 after**, those 4 being one rule's label (PINT SG's `BR-NG-08-GST-SG` writes `[BR-NG-08]` in its text); on the unmutated files the only difference left is Oman's always-true version banner, left out on purpose (`eval/pint-zatca-whitespace-2026-11-17.md`). Tests: `plain-prolog.test.mjs` (6: every set's prolog parses, no Oman rule skipped, IBR-071-OM and IBR-171-OM fire, the spec's timezone examples). (Those 4 were the eval script's labelling, not the product's: the page reports the assert's `id`, as Saxon does.)
+
+**The French sets checked against SaxonC; INV-065 in the Flux 10 and CDAR readers (2026-11-17, latest).** BR-FR (UBL and CII), the EXTENDED-CTC-FR and Factur-X EXTENDED bases, BR-FR-CDV and the Flux 10 Annexe 7 controls, against FNFE-MPE's own compiled XSLT (France_RFE ships it in `2xslt/`, so no SchXslt step was needed) on SaxonC-HE 13.1: FNFE's 100 example files, this repo's three Flux 10 fixtures and 1,784 copies with a no-break or em space in one field. **0 rule-id differences from SaxonC on every copy SaxonC ran to the end** (fontoxpath's own whitespace reading differed on 156, mostly the BR-FR-DEC decimal rules), and XML-VALUE-01 names the field on all 43 invoice copies SaxonC stops on. The one gap: on 12 Flux 10 copies with a no-break space in an amount, SaxonC stops on the file and the report said only G1.14, with no field. The Flux 10 and CDAR readers now raise INV-065 with the element's path (12 of 12; 0 on the 62 unmutated files), leaving out identifiers and CDAR's format-204 date-times, which are strings in the schemas (`frenchXmlValueFindings` in `xmlvalues.mjs`, `french-inv065.test.mjs`). The eval also stopped missing rule ids that live only in the message text (Flux 10's `[G1.24]`) (`eval/french-whitespace-2026-11-17.md`).
+
+**Timestamps and timezone dates in INV-065; `CASTABLE` checked against SaxonC (2026-11-18, latest).** The national readers' date-time leaves (FA(3) `DataWytworzeniaFa` and the transport times, FatturaPA `DataOraConsegna`) were measured with INV-065 as the 2026-11-17 run did: 80 of 80 mutants named at the leaf, SaxonC-HE agreeing on all 80 (10,085 of 10,085 over every leaf; 0 of 1,317 text controls). NAV's InvoiceData holds no timestamp (they sit in the request header). A new check asks SaxonC whether each value `xmlvalues.mjs` calls castable really casts: every one of the 1,695 distinct leaf values in 113 shipped and corpus files (UBL, CII, PINT, CFDI, NF-e, the national formats) agreed, but a 5,075-value lexical sweep found two faults, now fixed. A date with a timezone (`2024-01-31+01:00`, JAXB's default for a date, and schema-valid in FatturaPA's `Data`) or a signed or five-digit year was not castable, so a no-break space after it said nothing; and an impossible date or time (`2024-02-30`, `25:00:00`, a `+15:00` zone) was, so INV-065 and XML-VALUE-01 blamed a space for a value no processor reads anyway. `CASTABLE` now parses the three date forms and checks XSD's ranges: **5,024 of 5,075 swept values agree with SaxonC; the 51 others are zones past +14:00 on `xs:date` and `xs:time`, which Saxon accepts and XSD 1.1's `timezoneFrag` refuses** (`eval/datetime-leaves-2026-11-18.md`; `eval/castable-sweep.mjs`, `eval/castable-coverage-saxonc.py`). Tests: `xmlvalues.test.mjs` (2 new). Open: `IT-009` calls a timezone `Data` "not a YYYY-MM-DD date"; whether SdI accepts one is unknown here.
+
+**CIUS-RO, CIUS-PT, CIUS-HR and NLCIUS checked against SaxonC (2026-11-17).** The four national add-on sets only the plain route runs, against their official XSLT from the phive jars on SaxonC-HE 13.1: 445 files (the publishers' examples as phive ships them, and Croatia's 20 published example e-invoices) and 5,556 copies with a no-break or em space in one field. **0 rule-id differences from SaxonC in any of the four, on every copy SaxonC ran to the end** (fontoxpath's own whitespace reading differed on 203: BR-NL-12 on 76, HR-BR-34, BR-RO-020_1, DT-CIUS-PT-155 and others), and XML-VALUE-01 names the field on all 96 CIUS-RO, -PT and -HR copies SaxonC stops on. NLCIUS's 1,064 SaxonC aborts all come from the EU base rules its stylesheet bundles, which the product runs on the base route. No product change was needed; the eval scripts gained `--addons` and `--plain-scope`, and stopped reading a rule's id from its message text (CIUS-RO writes `[BR-RO-Z2]` on 22 differently-numbered decimal rules) (`eval/cius-whitespace-2026-11-17.md`). Not done: the French sets against Saxon (they need SchXslt on their `.sch`).
+
+## Peppol's warning-level address formats, as a warning (2026-11-17)
+
+INV-061 is a new warning (non-blocking: the file still passes) for an endpoint that misses a format OpenPeppol's PEPPOL-COMMON rules only warn about: Italian 0201 IPA office codes (6 letters or digits, R044), 0210 codice fiscale (R045) and 0211 partita IVA (IT and 11 digits with the check digit, R047), and Dutch 0106 KVK (8 digits, R054), 0190 OIN (20 digits, R055), 9944 VAT (NL123456789B12, R056-1) and 0217 KVK establishment numbers (12 digits, R057). Before, these schemes took any non-empty text (0190 any 20 digits once spaces were stripped), so a five-character IPA code or a mistyped partita IVA said nothing. It matters most where Peppol's set does not run: JSON input, and Italian or Dutch files that claim plain EN 16931 or NLCIUS.
+
+Measured with `eval/endpoint-peppol-warnings.mjs` (`eval/endpoint-peppol-warnings-2026-11-17.md`), which evaluates those seven assertions from `plain/peppol-ubl.json` with the bundled fontoxpath: **0 disagreements on 23,999 ids (seed 7) and 24,029 (seed 11)**; of the ids Peppol warns on, 15,275 drew nothing from the preflight before (seed 7). Stricter than Peppol on purpose, counted apart: an 11-digit 0210 or 0211 number must carry the partita IVA check digit (Peppol checks it only after an IT prefix), and a 0211 without IT must be 11 digits (Peppol passes any text without IT). The Python CLI has no warning severity and stays silent on INV-061, as it does for `bic.py`'s notes. Tests: `endpoint.test.mjs` (4 more). Not done: Peppol's 9907 rule (R046; 9907 is a retired code INV-039 already flags), the same checks on `PartyIdentification/ID` and `PartyLegalEntity/CompanyID` in JSON input, and any registry lookup.
+
+## Electronic addresses checked as OpenPeppol checks them (2026-11-17)
+
+INV-041 (an endpoint that does not match its scheme's published shape) now runs OpenPeppol's own fatal PEPPOL-COMMON checks, reimplemented in `endpoint.mjs` and `endpoint.py`: the Belgian enterprise number 0208 (10 digits, last two are 97 minus the first eight mod 97; R043), the Norwegian organisation number 0192 (mod 11; R041), the Swedish organisation number 0007 (Luhn; R049), the Australian ABN 0151 (mod 89; R050), the Danish CVR, P and SE numbers 0184/0096/0198 (R042/R052/R053) and the GLN 0088 (digits only; R040). Before, 0208, 0192 and 0007 were digit counts after stripping every non-digit and 0151, 0096 and 0198 were unchecked, so a mistyped Belgian KBO number, the commonest Peppol address since Belgium's B2B mandate began on 2026-01-01, passed the preflight and bounced at the network. This matters most where the official Peppol set does not run: JSON input, and UBL or CII files that claim XRechnung or plain EN 16931 rather than Peppol. The fix text now names the scheme's shape ("10 digits ... no dots or BE prefix") and still never repeats the address.
+
+Measured with `eval/endpoint-peppol-differential.mjs` (`eval/endpoint-peppol-differential-2026-11-17.md`), which evaluates Peppol's assertions from `plain/peppol-ubl.json` with the bundled fontoxpath on 21,264 drawn ids and mutants: **13,645 disagreements before, 0 after** (seeds 7 and 11), all of them ids Peppol rejects that we passed. One difference is kept on purpose: Peppol's GLN test accepts any length, INV-041 asks for 13 digits.
+
+INV-039 also stops calling twelve EAS codes unpublished that EN 16931's BR-CL-25 list accepts (0147, 0170, 0194, 0203, 0205, 0217, 0225, 9960, AN, AQ, AS, AU); 0225 is the French reform directory's address scheme. Tests: `endpoint.test.mjs` (4 more) and `tests/test_endpoint.py` (3 more), sharing `tests/endpoint_peppol_cases.json`. Not done: Peppol's warning-level identifier rules (Italian, Dutch KVK/OIN), party identifiers other than the endpoint on JSON input, and any access point's verdict on a real address.
 

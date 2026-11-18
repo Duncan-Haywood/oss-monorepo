@@ -17,6 +17,8 @@ test("RP: a price fall keeps the guarantee at the projected price", () => {
 test("RP: the harvest price counts only up to 200% of the projected price", () => {
   close(guaranteeFor("RP", 180, 80, 4.6, 10), 144 * 9.2);
   close(indemnityFor("RP", 180, 80, 4.6, 0, 10), 144 * 9.2);
+  // Revenue to count uses the same capped price: 160 x 8 - 100 x 8 (quality audit 2026-11-17).
+  close(indemnityFor("RP", 200, 80, 4, 100, 9), 480);
 });
 test("RP-HPE ignores a price rise; YP pays missing bushels at the projected price", () => {
   close(indemnityFor("RPHPE", 180, 80, 4.6, 120, 5.8), 0); // 662.40 vs 696.00 revenue
@@ -49,6 +51,9 @@ test("analyze: break-even yield, step cost and expected net for the example", ()
   close(l80.expectedNet, 139.2 * 0.1 - 14.8);
   close(l80.worstNet, -14.8);
   close(l80.totalPremium, 14.8 * 640);
+  // The bolded "best expected net" level, recomputed by hand (quality audit 2026-11-17).
+  assert.equal(a.best.level, 75);
+  close(a.best.expectedNet, Math.max(...a.levels.map((l) => l.expectedNet)));
 });
 test("analyze: no scenarios or zero probability gives no recommendation, not NaN dollars", () => {
   const a = analyze({ ...DEFAULTS, scenarios: "" });

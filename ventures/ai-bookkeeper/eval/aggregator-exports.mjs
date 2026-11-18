@@ -28,6 +28,10 @@ import { hideColumn } from "./mercury-exports.mjs";
 export const SOURCES = [
   ["rocket-money", "Interact-Brands/finance-reporting", "1ea6a024ada77db34c5839664defc270817e0b96", "rocketmoney.csv"],
   ["monarch", "jegood78/Financial_Planning", "b0ec46a66f0633bf5544be1423fef18db8377111", "monarch_transactions.csv"],
+  // Copilot Money (added 2026-11-15): a household's 2026 accounts with its own joint and personal
+  // categories, and one person's 2022-2024 cards and checking on Copilot's default categories.
+  ["copilot-money", "gilbertosg/second-brain", "0937683b059a7c67646379800617690254e69d5f", "L5-Finance/transactions-2026-jan-oct.csv"],
+  ["copilot-money", "ultraspicy/CS-230", "2a02dd6b66169baabd7d3cdcca7206aee413a6f6", "final_project/resources/transactions_exported_from_copilot.csv"],
 ];
 
 // App category -> chart accounts a careful bookkeeper could accept (first is the one filed).
@@ -41,6 +45,15 @@ export const APP_MAP = {
   "Phone": ["6140"], "Water": ["6140"], "Business Utilities & Communication": ["6140", "6060"],
   "Insurance": ["6030"], "Rent": ["6080"], "Postage & Shipping": ["6180", "6070"], "Taxes": ["6110"],
   "Home Improvement": ["6090", "6100"], "Financial & Legal Services": ["6050", "6010"],
+  // Copilot Money: its defaults (second file) and the first file's own names for the same things.
+  // "Subscriptions" there is a household's streaming and apps as much as software, so it is scored
+  // against software and subscriptions (the chart's one account for it) all the same.
+  // "Car & Gas" holds tolls and parking too, so it takes vehicle or travel, as Rocket Money's "Auto & Transport" does.
+  "Restaurants": ["6130"], "Car & Gas": ["6160", "6120"], "Subscriptions": ["6060"], "Utilities": ["6140"],
+  "Restaurants - Joint": ["6130"], "Bar & Restaurants Gil": ["6130"], "Bar & Restaurants Lu": ["6130"],
+  "Bars & Nightlife - Joint": ["6130"], "Car + Gas": ["6160", "6120"], "Travel & Vacation Joint": ["6120"],
+  "Travel & Vacation Lu": ["6120"], "Travel & Vacation Gil": ["6120"], "Transportation (Uber)": ["6120", "6160"],
+  "Phones": ["6140"], "Electricity": ["6140"],
 };
 
 export async function fetchSource([, repo, sha, path], dir) {
@@ -105,6 +118,18 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     const out = read.rows.filter((r) => r.cents < 0).length;
     console.log(`${src[0].padEnd(13)} ${src[1]}: layout ${full.bank}, ${read.rows.length} rows (${out} out, ${read.rows.length - out} in), ${read.problems.length} problems, accounts ${read.accountNames?.length ?? 1}; app's category kept on ${full.rows.filter((r) => r.bankCat).length}`);
     if (full.inferred) console.log(`              ${full.inferred}`);
+    const typeIx = text.split(/\r?\n/)[0].toLowerCase().split(",").map((c) => c.replace(/"/g, "").trim()).indexOf("type");
+    if (src[0] === "copilot-money" && typeIx !== -1) {
+      // Lines Copilot typed "internal transfer": what the categorizer, with no history, files them to.
+      const kinds = {};
+      for (const r of read.rows) {
+        if (r.bankCat !== "Internal Transfer") continue;
+        const s = suggest({ desc: r.desc, cents: r.cents, bankCat: r.bankCat }, { rules: [], codes: null, memory: buildMemory([]), classifier: { n: 0 }, newPayee: null });
+        const k = s.account === "transfer" ? "transfer" : s.account ? "an expense or income account" : "review";
+        kinds[k] = (kinds[k] ?? 0) + 1;
+      }
+      console.log(`              Copilot's internal transfers (${Object.values(kinds).reduce((a, b) => a + b, 0)}), filed with no history: ${Object.entries(kinds).map(([k, n]) => `${n} ${k}`).join(", ")}`);
+    }
     console.log(`              keywords alone: ${fmt(keywordsAlone(read.rows, labels))}`);
     const r = replay(read.rows, labels, { skip });
     console.log(`              learning loop, every line: ${fmt(r.all)}`);

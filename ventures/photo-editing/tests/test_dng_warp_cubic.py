@@ -141,8 +141,8 @@ class EngineTests(unittest.TestCase):
         for half in (False, True):
             with self.subTest(half=half):
                 py = rd.develop(raw, rd.DevelopSettings(engine="python", half=half, warp_kernel="cubic"))
-                npy = rd.develop(raw, rd.DevelopSettings(engine="numpy", half=half, warp_kernel="cubic"))
-                lin = rd.develop(raw, rd.DevelopSettings(engine="numpy", half=half, warp_kernel="bilinear"))
+                npy = rd.develop(raw, rd.DevelopSettings(engine="numpy", demosaic="bilinear", half=half, warp_kernel="cubic"))
+                lin = rd.develop(raw, rd.DevelopSettings(engine="numpy", demosaic="bilinear", half=half, warp_kernel="bilinear"))
                 self.assertEqual(py[2].tobytes(), npy[2].tobytes())
                 self.assertNotEqual(npy[2].tobytes(), lin[2].tobytes())
 

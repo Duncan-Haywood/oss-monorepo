@@ -270,7 +270,7 @@ class EngineTests(unittest.TestCase):
                 for half in (False, True):
                     with self.subTest(size=(w, h), half=half, reciprocal=recip):
                         py = rd.develop(raw, rd.DevelopSettings(engine="python", half=half))
-                        npy = rd.develop(raw, rd.DevelopSettings(engine="numpy", half=half))
+                        npy = rd.develop(raw, rd.DevelopSettings(engine="numpy", demosaic="bilinear", half=half))
                         self.assertEqual(py[3].notes, npy[3].notes)
                         self.assertEqual(py[2].tobytes(), npy[2].tobytes())
 

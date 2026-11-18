@@ -84,7 +84,9 @@ test("dinner length follows the meal style and the guest count unless overridden
 
 test("the sample day is internally consistent", () => {
   const { n, day } = plan();
-  assert.deepEqual(day.warnings, []);
+  // the only warning: the nearest free sunset slot is 65 minutes before sunset, not about 30
+  assert.equal(day.warnings.length, 1);
+  assert.match(day.warnings[0], /before sunset instead of about 30 minutes/);
   const ceremony = day.events.find((e) => e.kind === "ceremony");
   assert.equal(ceremony.start, n.p.ceremonyStart);
   const first = day.events.find((e) => e.title === "First look");
@@ -112,7 +114,7 @@ test("sunset portraits are an overlay: they never collide with the couple's own 
 test("skipping the first look pushes portraits after the ceremony and can stretch the cocktail hour", () => {
   const withLook = plan({ firstLook: true }).day;
   const without = plan({ firstLook: false, cocktailMin: 45 }).day;
-  assert.equal(withLook.warnings.length, 0);
+  assert.ok(!withLook.warnings.some((w) => /cocktail hour stretches/.test(w)));
   assert.ok(without.warnings.some((w) => /cocktail hour stretches/.test(w)));
   assert.ok(without.cocktailEnd > without.ceremonyEnd + 45);
   const fam = without.events.find((e) => e.title.startsWith("Family portraits"));
@@ -221,4 +223,47 @@ test("property: across dates, cities and start times nothing throws and times st
     for (let i = 1; i < day.events.length; i++) assert.ok(day.events[i].start >= day.events[i - 1].start);
     for (const e of day.events) assert.ok(Number.isFinite(e.start) && Number.isFinite(e.end) && e.end >= e.start, `${c.name} ${date} ${start}: ${e.title}`);
   }
+});
+
+// Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-wedding-day-timeline-builder.json):
+// changing family setup +5 -> +0 or couple portraits 30 -> 25 left every engine test green.
+test("portrait blocks keep the published durations (15 / 30 / 10+2 per person / 3 per group + 5)", () => {
+  const len = (day, prefix) => { const e = day.events.find((x) => x.title.startsWith(prefix)); assert.ok(e, prefix); return e.end - e.start; };
+  const fl = plan({ firstLook: true, partySize: 8, familyGroups: 10, minPerGroup: 3 }).day;
+  assert.equal(len(fl, "First look"), 15);
+  assert.equal(len(fl, "Couple portraits"), 30);
+  assert.equal(len(fl, "Wedding party portraits"), 26);
+  assert.equal(len(fl, "Family portraits"), 35);
+  // the guide's worked sum: 15 + 30 + 26 + 35 = 106 minutes
+  assert.equal(["First look", "Couple portraits", "Wedding party portraits", "Family portraits"].reduce((a, k) => a + len(fl, k), 0), 106);
+  const odd = plan({ firstLook: true, partySize: 5, familyGroups: 7, minPerGroup: 4 }).day;
+  assert.equal(len(odd, "Wedding party portraits"), 20);
+  assert.equal(len(odd, "Family portraits"), 33);
+  const nofl = plan({ firstLook: false, partySize: 8, familyGroups: 10, minPerGroup: 3 }).day;
+  assert.equal(len(nofl, "Family portraits"), 35);
+  assert.equal(len(nofl, "Wedding party portraits"), 26);
+  assert.equal(nofl.coupleFree, nofl.ceremonyEnd + 35 + 26 + 35);
+});
+
+test("the guide's worked example: 5:41 PM portraits, 65 minutes before a 6:46 PM sunset, with a warning", () => {
+  const { day } = plan({ firstLook: true });
+  assert.equal(fmtTime(day.sun.sunset), "6:46 PM");
+  assert.equal(fmtTime(day.golden.start), "5:41 PM");
+  assert.equal(day.golden.beforeSunset, 65);
+  assert.ok(day.warnings.some((w) => /5:41 PM, 1 h 5 min before sunset instead of about 30 minutes, because "Parent dances/.test(w)), day.warnings.join(" | "));
+  for (const over of [{ firstLook: true, cocktailMin: 90 }, { firstLook: true, ceremonyStart: "17:00" }]) {
+    const d = plan(over).day;
+    assert.equal(fmtTime(d.golden.start), "6:11 PM");
+    assert.equal(d.golden.beforeSunset, 35);
+    assert.ok(!d.warnings.some((w) => /before sunset instead of/.test(w)));
+  }
+  assert.equal(fmtTime(adviseCeremonyTimes(inputs({ firstLook: true }).p).best[0].start), "5:30 PM");
+});
+
+test("ICS text escapes semicolons and commas (RFC 5545 3.3.11; audit 2026-11-07 defect 2, fixed by PR #15047)", () => {
+  const { n, day } = plan();
+  const d = { ...day, events: [{ start: 600, end: 615, title: "Toast; then cake, finally", who: ["all"], note: "a;b", couple: false, kind: "event" }] };
+  const ics = timelineIcs(d, n.p);
+  assert.ok(ics.includes("SUMMARY:Toast\\; then cake\\, finally"), ics);
+  assert.ok(ics.includes("DESCRIPTION:a\\;b"));
 });

@@ -4,6 +4,17 @@ from simdesign_gaugescatter import Params, PROCESSES, evaluate, rule_violations,
 
 
 class T(unittest.TestCase):
+    def test_tip_deflection_within_beam_bounds(self):
+        # Euler-Bernoulli frame estimates for this design bracket the FE tip: 0.351 to 0.483 mm
+        # (quality audit 2026-11-17); a wrong load or plane-strain stiffness falls outside.
+        from simdesign_gaugescatter.dfm import STEEL_SHEET
+        s = solve(Params(w=14.7, r=9.8, b=2), STEEL_SHEET, h=2.5)
+        self.assertGreater(s["tip_deflection_mm"], 0.351)
+        self.assertLess(s["tip_deflection_mm"], 0.483)
+        # The tip is mesh-converged (0.42120 at h=2.5, 0.42128 at h=1.0), so pin it within 2%:
+        # plane strain instead of plane stress moves it about 9%, a 20% load change 20%.
+        self.assertAlmostEqual(s["tip_deflection_mm"], 0.4212, delta=0.0084)
+
     def test_patch_measure_never_exceeds_peak(self):
         e = evaluate(PROCESSES["CNC routing"], Params(w=12, r=6, b=6), h=2.5, measure="patch")
         self.assertLessEqual(e["fe"]["patch_mpa"], e["fe"]["peak_mpa"] + 1e-9)

@@ -291,7 +291,7 @@ class DevelopTests(unittest.TestCase):
         for engine in ("python", "numpy"):
             try:
                 w, h, px, report = rd.develop(
-                    raw, rd.DevelopSettings(engine=engine, dcp=dcp, default_tone="never")
+                    raw, rd.DevelopSettings(engine=engine, dcp=dcp, default_tone="never", demosaic="bilinear")
                 )
             except rd.DevelopError:
                 continue  # numpy not installed

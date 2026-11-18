@@ -36,6 +36,25 @@ class BallisticsTest(unittest.TestCase):
         self.assertAlmostEqual(ay, 0.0, places=9)
         self.assertAlmostEqual(az, -12.8585, places=3)
 
+    def test_simulate_stepper_is_bit_identical_to_rk4(self):
+        # simulate() integrates with _stepper, a hoisted scalar copy of _rk4/acceleration (perf note
+        # 2026-11-15). It must give the same floats, not just close ones: catcher and fixture tests pin
+        # exact counts. Covers no spin, no air, zero velocity and spin parallel to velocity (no Magnus).
+        import random
+        rng = random.Random(3)
+        balls = [bl.DEFAULT_BALL, bl.with_overrides(bl.DEFAULT_BALL, air_density=0.0)]
+        for i in range(2000):
+            ball = balls[i % 2]
+            vel = (0.0, 0.0, 0.0) if i % 50 == 0 else tuple(rng.uniform(-60, 60) for _ in range(3))
+            spin = tuple(rng.uniform(-400, 400) for _ in range(3))
+            if i % 7 == 0:
+                spin = (0.0, 0.0, 0.0)
+            elif i % 11 == 0:
+                spin = tuple(0.3 * x for x in vel)
+            pos = tuple(rng.uniform(-12, 12) for _ in range(3))
+            dt = (0.002, 0.004)[i % 2]
+            self.assertEqual(repr(bl._stepper(spin, dt, ball)(pos, vel)), repr(bl._rk4(pos, vel, spin, dt, ball)))
+
     def test_sidespin_curves_left(self):
         v = bl.launch_velocity(20.0, math.radians(15), 0.0)
         f = bl.simulate((-12.4, 0.0, 1.0), v, bl.spin_vector(v, 0.0, 1500 * bl.RPM), max_bounces=0)

@@ -18,8 +18,13 @@ export const SHARED_DEFAULTS = {
 };
 export const EXAMPLE_SHARED = { ...SHARED_DEFAULTS };
 
-export const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
-export const cents = (n) => "$" + n.toFixed(3);
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 }));
+export const cents = (n) => {
+  const format = (n) => "$" + n.toFixed(3);
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 const num = (t) => {
   const s = String(t ?? "").replace(/[$%\s,]/g, "");

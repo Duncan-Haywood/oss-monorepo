@@ -96,7 +96,12 @@ export function parseDate(s) {
   return Math.round(dt.getTime() / DAY);
 }
 export const isoDay = (n) => new Date(n * DAY).toISOString().slice(0, 10);
-export const money = (n) => (n == null ? "—" : "$" + Number(n).toLocaleString("en-US"));
+export const money = (n) => {
+  const format = (n) => (n == null ? "—" : "$" + Number(n).toLocaleString("en-US"));
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 function yn(s) {
   const t = norm(s);
@@ -257,7 +262,7 @@ export function check(text, req = {}, asOf) {
 
 const csvCell = (v) => {
   let s = String(v ?? "");
-  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; // spreadsheet formula injection
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; // spreadsheet formula injection
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 const csv = (rows) => rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";

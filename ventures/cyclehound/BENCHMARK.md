@@ -83,10 +83,10 @@ without a config, about 75 package and Node built-in names, and 10 CSS files.
 - **Self-imports.** A file importing itself is a component of one in
   cyclehound and is reported; madge drops the edge.
 - **Path aliases.** madge and dependency-cruiser can read webpack and
-  TypeScript `paths` settings (`@/lib/x`); cyclehound treats any
-  non-relative import as a package and leaves it out. On this repository
-  that hides 360 alias imports in a handful of Next.js apps, so their cycles
-  are not checked. Reading `tsconfig.json` `paths` is the next slice.
+  TypeScript `paths` settings (`@/lib/x`). Until 2026-11-16 cyclehound
+  treated any non-relative import as a package; it now reads tsconfig and
+  jsconfig `paths` and `baseUrl` (next section), though not webpack or Vite
+  aliases.
 - **The parser.** cyclehound does not build a syntax tree. Its lexer skips
   comments, strings, template literals (with nested `${}`) and regular
   expressions, and pattern-matches the tokens around `import`, `export` and
@@ -120,6 +120,81 @@ loaded without error: the modules only use the names they import inside
 functions. They are latent, not bugs; they would break if someone moved a
 use of an imported value to the top level of a module.
 
+## Unused exports: against ts-unused-exports 11.0.1
+
+`cyclehound --unused-exports` (added 2026-11-15) lists exports that no file
+in the graph imports. The reference is
+[ts-unused-exports](https://github.com/pzavolinsky/ts-unused-exports) 11.0.1
+on TypeScript 5.6.3, run with `allowJs` over the same files. Both tools ran
+on this repository's 11,736 `.mjs` files under `ventures/` (11,800 files
+read once cyclehound followed imports into other extensions), Node 22.23.4,
+4-core container, 2026-11-15. cyclehound ran with `--entries`, because
+ts-unused-exports reports the exports of files nothing imports too.
+
+| tool | wall time | peak memory | findings |
+| --- | --- | --- | --- |
+| ts-unused-exports 11.0.1 | 10.7 to 11.4 s (3 runs) | 368 to 390 MB | 6,222 |
+| cyclehound `--unused-exports --entries --ext mjs` | 0.31 to 0.33 s warm, 2.96 s on a cold disk cache (3 runs) | 29 to 30 MB | 5,470 |
+
+About 34 times faster in a thirteenth of the memory. The findings agree on
+5,419 (file, name) pairs, a Jaccard agreement of 0.864
+(`tests/bench/compare_unused.py`). Every difference was classified, by a
+script for the bulk and by reading the source for the rest:
+
+- **803 only ts-unused-exports reported.**
+  - 527 are in modules a file loads whole with a dynamic import
+    (`const calc = await import("./calc.mjs")`, then `calc[name]`).
+    cyclehound counts a whole-module import as taking every export, since it
+    cannot see which members are read; ts-unused-exports reports them. In
+    this repository most are page tests that check *every* name an inline
+    script imports, so counting them as used is right here; in other code
+    it can hide a real unused export. A deliberate, conservative difference.
+  - 252 are taken by a destructured dynamic import inside a function
+    (`const { replay } = await import("./x.mjs")` in a test). cyclehound
+    reads the destructured keys as names taken. ts-unused-exports reported
+    these as unused; a two-file case reproduces it (an `await import()`
+    destructured inside an async function is not counted). These are
+    false positives in its report.
+  - 24 others: 21 are whole-module dynamic imports in other shapes
+    (`Promise.all([import("./a.mjs"), ...])`, `(await import("./a.mjs")).f()`),
+    two are this tool's own test fixture (a namespace import), and one is a
+    spelling difference (ts-unused-exports names a rest element `...restC`,
+    cyclehound `restC`; both report it).
+- **51 only cyclehound reported.**
+  - 36 are a second or later name in one declaration
+    (`export const A = "1450", B = "5000";`). ts-unused-exports does not
+    report `B` when only `A` is imported; the same two-file case
+    reproduces it. cyclehound is right on these: `B` is exported and nobody
+    imports it.
+  - 1 is a name inside an exported destructuring pattern, the same gap.
+  - 10 are in `shift-roster-builder/hub.mjs`, which reaches its importers
+    only through `export * from "./hub.mjs"` in `server.mjs`. The only
+    importer of `server.mjs` takes four names, so the other ten exports of
+    `hub.mjs` are unused; ts-unused-exports does not report them.
+  - 4 are this tool's own test fixture.
+
+So on this repository nearly every disagreement is either a choice
+(whole-module imports count as taking everything) or a case where the
+source shows cyclehound's answer is the right one.
+
+Reproduce:
+
+```sh
+npm install --prefix /tmp/tue ts-unused-exports@11.0.1 typescript@5.6.3
+cat > /tmp/tue/tsconfig.json <<'JSON'
+{"compilerOptions": {"allowJs": true, "noEmit": true, "module": "esnext",
+  "moduleResolution": "bundler", "target": "es2022"},
+ "include": ["/ABSOLUTE/PATH/oss-monorepo/ventures/**/*.mjs"],
+ "exclude": ["/ABSOLUTE/PATH/oss-monorepo/ventures/**/node_modules"]}
+JSON
+python3 ventures/cyclehound/tests/bench/measure.py /tmp/tue.txt node /tmp/tue/node_modules/.bin/ts-unused-exports /tmp/tue/tsconfig.json --showLineNumber
+python3 ventures/cyclehound/tests/bench/measure.py /tmp/ch.txt ventures/cyclehound/target/release/cyclehound --unused-exports --entries --ext mjs ventures
+python3 ventures/cyclehound/tests/bench/compare_unused.py /tmp/tue.txt /tmp/ch.txt ventures
+```
+
+knip also reports unused exports, but it needs a per-project entry
+configuration to run on a tree like this one, so it was not measured.
+
 ## Reproducing
 
 ```sh
@@ -128,3 +203,41 @@ npm install --prefix /tmp/bench madge@8 dependency-cruiser@16
 python3 ventures/cyclehound/tests/bench/measure.py /dev/null /tmp/bench/node_modules/.bin/madge --circular --extensions mjs ventures
 python3 ventures/cyclehound/tests/bench/measure.py /dev/null ventures/cyclehound/target/release/cyclehound --ext mjs ventures
 ```
+
+## Path aliases (2026-11-16)
+
+Measured at commit `4e4b8e60f` on the same 4-core container. The reference
+here is not madge but TypeScript itself: what the compiler would resolve is
+what the alias means.
+
+[`tests/bench/ts_alias_edges.cjs`](tests/bench/ts_alias_edges.cjs) takes
+every file in cyclehound's graph of `ventures/`, finds its nearest
+`tsconfig.json` or `jsconfig.json` with `ts.findConfigFile`, parses it with
+`ts.getParsedCommandLineOfConfigFile` (which follows `extends`), lists every
+import with `ts.preProcessFile`, and resolves each bare specifier with
+`ts.resolveModuleName` under that config's own options. Targets in
+`node_modules` and `.d.ts` files are dropped, as cyclehound drops them.
+TypeScript 5.9.3 from npm, Node v22.
+
+```
+16 configs, 2502 bare specifiers read
+cyclehound alias edges 1436 typescript 1436 common 1436
+```
+
+"Alias edges" are the edges `cyclehound --graph --json ventures` has and
+`cyclehound --graph --json --no-tsconfig ventures` does not (11,560 edges
+without aliases, 12,996 with). The two sets are identical. The alias edges
+add no new cycle in `ventures/` (12 components, 37 files, before and after)
+and no broken alias (`--unresolved` lists the same 8 relative imports).
+`--unused-exports` drops from 5,648 to 5,540 findings: 108 exports were
+reported unused only because the files taking them did so through `@/`.
+
+Cost: `cyclehound ventures` took 0.25 to 0.28 s and 20 to 21 MB with
+aliases and 0.25 to 0.27 s and 19 to 20 MB without (three runs each,
+`tests/bench/measure.py`); the whole repository, 13,847 files, 0.35 to
+0.38 s either way. Each directory's config is looked up once and cached.
+
+One `.mjs`-only edge changed: `--ext mjs` now follows an alias from
+`quick-pick-survey/src/lib/groupRanking.ts` (reached from an `.mjs` file) to
+`glicko2.ts`, so the 2026-11-13 madge comparison, which read `.mjs` without
+aliases, should be rerun with `--no-tsconfig` to reproduce it.

@@ -219,18 +219,31 @@ export function pairSwissRound(players, rounds, opts = {}) {
     const half = Math.ceil(ids.length / 2);
     let best = { cost: Infinity, pairs: null };
     let budget = 400_000;
-    const used = new Array(ids.length).fill(false);
+    const n = ids.length;
+    const used = new Array(n).fill(false);
     const cur = [];
+    // pairCost is pure within one call, so each (i, j) cost is computed once
+    // and each row's candidates are sorted once by (cost, j). The search used
+    // to rebuild and re-sort the free candidates at every node; filtering the
+    // presorted row by `used` visits them in the same order (perf, 2026-11-18).
+    const costs = new Float64Array(n * n);
+    const order = new Array(n);
+    for (let i = 0; i < n; i++) {
+      const gh = noGames ? half : Math.ceil(groupSize(ids[i]) / 2);
+      const row = [];
+      for (let j = i + 1; j < n; j++) { costs[i * n + j] = pairCost(ids[i], ids[j], gh); row.push(j); }
+      row.sort((x, y) => costs[i * n + x] - costs[i * n + y] || x - y);
+      order[i] = row;
+    }
     function go(cost) {
       if (cost >= best.cost || budget-- <= 0) return;
       let i = 0;
-      while (i < ids.length && used[i]) i++;
-      if (i === ids.length) { best = { cost, pairs: cur.slice() }; return; }
+      while (i < n && used[i]) i++;
+      if (i === n) { best = { cost, pairs: cur.slice() }; return; }
       used[i] = true;
-      const cands = [];
-      for (let j = i + 1; j < ids.length; j++) if (!used[j]) cands.push([pairCost(ids[i], ids[j], noGames ? half : Math.ceil(groupSize(ids[i]) / 2)), j]);
-      cands.sort((x, y) => x[0] - y[0] || x[1] - y[1]);
-      for (const [c, j] of cands) {
+      for (const j of order[i]) {
+        if (used[j]) continue;
+        const c = costs[i * n + j];
         used[j] = true;
         cur.push([ids[i], ids[j]]);
         go(cost + c);

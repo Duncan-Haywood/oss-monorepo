@@ -90,7 +90,7 @@ test("aliases map other CRMs' headers; csv output has a formula-safe cell", () =
 // Shapes real exports have and hand-built ones left out: a byte-order mark, a ";" separator, one name column,
 // several addresses in one cell, a bounce column, a marketing status.
 test("reads Pipedrive/Excel-style files: BOM, semicolons, one name column, many emails", () => {
-  const csv = "﻿Person - Name;Person - Email - Work;Person - Organization;Person - Job title;Person - Marketing status;Email Hard Bounce Reason\n" +
+  const csv = "\uFEFFPerson - Name;Person - Email - Work;Person - Organization;Person - Job title;Person - Marketing status;Email Hard Bounce Reason\n" +
     "Dana Reyes;dana@brightline.example, dana.r@other.example;Brightline Logistics;Director;subscribed;\n" +
     "Ann Lee;ann@gone.example;Gone Co;Owner;subscribed;Mailbox does not exist\n" +
     "Bo Wu;bo@unsub.example;Unsub Co;Owner;Unsubscribed;\n";

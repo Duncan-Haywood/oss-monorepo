@@ -110,6 +110,16 @@ class MainTest(Fixture):
                             "--json", "--", "cd", "ventures/a", "&&", sys.executable, "-m", "unittest", "-q"])
         self.assertEqual(code, 0, out.getvalue())
 
+    def test_env_prefix_runs_through_a_shell(self):
+        # `PYTHONPATH=src cmd` exec'd without a shell is "no such program" (doc_friction 2026-11-16)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            code = qm.main([str(self.repo / "ventures/a/calc.py"), "--old", "x > 100", "--new", "x >= 100",
+                            "--json", "--", "MUTATE_PROBE=1", sys.executable, "-m", "unittest", "-q"])
+        self.assertEqual(code, 0, out.getvalue())
+        self.assertTrue(qm.is_shell(["PYTHONPATH=src", "python3"]))
+        self.assertFalse(qm.is_shell(["python3", "-m", "pytest", "--x=1"]))
+
     def test_red_baseline_is_not_a_catch(self):
         (self.repo / "ventures/b/helper.py").write_text("def k():\n    return 8\n")
         code, _ = self.mutate("--old", "x > 100", "--new", "x >= 100")
@@ -121,11 +131,60 @@ class MainTest(Fixture):
         code, _ = self.mutate("--old", "x > 100", "--new", "x >= 100")
         assert code == 2
 
+    def test_repo_relative_test_path_gets_a_hint(self):
+        # `-s ventures/a` inside ventures/a: discovery fails, and the hint says what to write
+        err = io.StringIO()
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+            code = qm.main([str(self.repo / "ventures/a/calc.py"), "--old", "x > 100", "--new", "x >= 100",
+                            "--", sys.executable, "-m", "unittest", "discover", "-s", "ventures/a"])
+        self.assertEqual(code, 2)
+        self.assertIn("hint: the command runs in ventures/a/, so `ventures/a` is written from the "
+                      "repository root; write `.`", err.getvalue())
+
+    def test_repo_relative_args(self):
+        cwd = Path("ventures/a")
+        self.assertEqual(qm.repo_relative_args(["pytest", "ventures/a/tests", "-q"], cwd),
+                         [("ventures/a/tests", "tests")])
+        self.assertEqual(qm.repo_relative_args(["node --test 'ventures/a/x.test.mjs'"], cwd),
+                         [("ventures/a/x.test.mjs", "x.test.mjs")])
+        self.assertEqual(qm.repo_relative_args(["pytest", "tests", "ventures/ab/t"], cwd), [])
+        self.assertEqual(qm.repo_relative_args(["pytest", "./ventures/a/"], cwd), [("./ventures/a/", ".")])
+
     def test_no_tests_patterns(self):
         assert qm.ran_no_tests("# tests 0\n# pass 0\n")
         assert qm.ran_no_tests("Ran 0 tests in 0.000s\n\nOK")
         assert not qm.ran_no_tests("# tests 10\n# pass 10\n")
         assert not qm.ran_no_tests("Ran 10 tests in 0.1s")
+
+
+class TimeoutTest(Fixture):
+    def test_mutant_timeout_scales_with_the_baseline(self):
+        self.assertEqual(qm.mutant_timeout(None, 900), 900)
+        self.assertEqual(qm.mutant_timeout(2.0, 900), 38)
+        self.assertEqual(qm.mutant_timeout(400.0, 900), 900)
+
+    def test_a_hang_under_a_shell_wrapper_is_killed_and_caught(self):
+        # The mutant makes the import sleep; a `cd ... &&` command runs through
+        # bash as a compound (bash forks), so the timeout must kill the python
+        # under it, not just bash, or it is orphaned and runs on.
+        import time
+        orig = qm.mutant_timeout
+        qm.mutant_timeout = lambda b, cap: 3
+        try:
+            out = io.StringIO()
+            start = time.monotonic()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+                code = qm.main([str(self.repo / "ventures/a/calc.py"), "--old", "def fee(x):",
+                                "--new", "import time; time.sleep(60)\ndef fee(x):", "--json", "--",
+                                "cd", "ventures/a", "&&", sys.executable, "-m", "unittest", "-q"])
+            took = time.monotonic() - start
+        finally:
+            qm.mutant_timeout = orig
+        self.assertEqual(code, 0)
+        row = json.loads(out.getvalue().strip().splitlines()[-1])
+        self.assertTrue(row["caught"])
+        self.assertIn("timed out after 3 s", row["note"])
+        self.assertLess(took, 30)
 
 
 if __name__ == "__main__":

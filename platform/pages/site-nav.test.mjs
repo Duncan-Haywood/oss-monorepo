@@ -18,6 +18,7 @@ import {
   VENTURE_CHROME_JS,
   VENTURE_CHROME_EARLY_JS,
   renderSiteHeader,
+  MID_CRUMB_CHARS,
   renderSiteStyle,
   researchChromeTemplate,
   withSiteHeader,
@@ -83,8 +84,26 @@ test('the header keeps Search on the brand row instead of a row of its own', () 
   // under the breakpoint. At 15px semibold the links measured 7.9px a character (577px for 73).
   // A new nav item that breaks this needs a wider breakpoint or a shorter label.
   const chars = SITE_NAV.reduce((n, item) => n + item.label.length, 0);
-  const budget = 153 + Math.ceil(chars * 7.9) + 16 * (SITE_NAV.length - 1) + 22 * 2 + 100;
-  assert.ok(budget <= Number(twoRow[1]) + 1, `one-row header needs about ${budget}px, breakpoint is ${twoRow[1]}px`);
+  const linkWidth = Math.ceil(chars * 7.9);
+  // Between the two-row breakpoint and the full row, a compact row: Search as its glass alone, closer gaps.
+  const compact = /@container pfs-head \(min-width:(\d+)px\) and \(max-width:(\d+)px\)\{([^@]*)\}/.exec(SITE_HEADER_CSS);
+  assert.ok(compact, 'a compact one-row band sits above the two-row breakpoint');
+  assert.equal(Number(compact[1]), Number(twoRow[1]) + 1, 'the band starts where two rows stop');
+  const full = 153 + linkWidth + 16 * (SITE_NAV.length - 1) + 22 * 2 + 100;
+  assert.ok(full <= Number(compact[2]) + 1, `full one-row header needs about ${full}px, band ends at ${compact[2]}px`);
+  const gap = (re) => Number(re.exec(compact[3])[1]);
+  const pill = gap(/\.pfs-searchlink\{[^}]*width:(\d+)px/);
+  const tight = 153 + linkWidth + gap(/\.pfs-nav\{column-gap:(\d+)px/) * (SITE_NAV.length - 1) + gap(/\.pfs-bar\{column-gap:(\d+)px/) * 2 + pill;
+  assert.ok(tight <= Number(compact[1]), `compact row needs about ${tight}px, band starts at ${compact[1]}px`);
+  // The word stays the link's accessible name; only its glyphs go.
+  assert.match(compact[3], /\.pfs-searchlink\{[^}]*font-size:0/);
+  assert.match(compact[3], /\.pfs-search\{display:none\}/);
+  // A tool page's chrome resets its links' font and the pill's padding with stronger selectors, which hid the
+  // compact rule there on the first try (the word showed beside the glass); it repeats both inside the same band.
+  const band = `@container pfs-head (min-width:${compact[1]}px) and (max-width:${compact[2]}px){`;
+  const venture = VENTURE_CHROME_CSS.slice(VENTURE_CHROME_CSS.indexOf(band));
+  assert.ok(VENTURE_CHROME_CSS.includes(band), 'the venture chrome repeats the band');
+  assert.match(venture, /nav\.pf-chrome\.pf-chrome-top\[data-pfs-head\] \.pfs-searchlink\{padding:\d+px 0;font-size:0\}/);
 });
 
 test('a breadcrumb names the page last, unlinked', () => {
@@ -92,6 +111,30 @@ test('a breadcrumb names the page last, unlinked', () => {
   assert.match(html, /aria-label="Breadcrumb"><a href="\.\.\/\.\.\/" data-pf-to="hub">Home<\/a>/);
   assert.match(html, /<a href="\.\.\/\.\.\/c\/">Tools<\/a>/);
   assert.match(html, /<span aria-current="page">A &lt;b&gt; page<\/span>/);
+});
+
+test('a long middle crumb is marked to give way on a phone, a short one is not', () => {
+  // A 4.5em floor on "Tools" would stretch it; a category gives way so the tool's name fits (2026-11-15).
+  const long = 'x'.repeat(MID_CRUMB_CHARS + 1);
+  const html = renderSiteHeader({
+    crumbs: [{ label: 'Tools', href: 't/' }, { label: long, href: 'c/' }, { label: 'x'.repeat(MID_CRUMB_CHARS), href: 'd/' }, { label: 'Page' }],
+  });
+  assert.match(html, /<a href="t\/">Tools<\/a>/);
+  assert.match(html, new RegExp(`<a href="c/" class="pfs-mid">${long}</a>`));
+  assert.match(html, /<a href="d\/">x+<\/a>/, 'exactly the limit stays unmarked');
+  assert.doesNotMatch(html, /class="pfs-mid"[^>]*>Page/, 'the page itself is never marked');
+  const phone = SITE_HEADER_CSS.slice(SITE_HEADER_CSS.indexOf('@media (max-width:600px)'));
+  assert.match(phone, /\.pfs-crumbs>\.pfs-mid\{flex:0 100000 auto;min-width:4\.5em/);
+  assert.match(phone, /\.pfs-crumbs>\[aria-current\]\{flex:0 1 auto;min-width:0/);
+});
+
+test('a last crumb that repeats the h1 is hidden on a phone, separator and all', () => {
+  const html = renderSiteHeader({ crumbs: [{ label: 'Topic', href: 't/' }, { label: 'A <b> title', echo: true }] });
+  assert.match(html, /<a href="t\/">Topic<\/a><span class="pfs-sep pfs-echo" aria-hidden="true">›<\/span><span aria-current="page" class="pfs-echo">A &lt;b&gt; title<\/span><\/span>/);
+  assert.doesNotMatch(renderSiteHeader({ crumbs: [{ label: 'Page' }] }), /pfs-echo/, 'unmarked by default');
+  const phone = SITE_HEADER_CSS.slice(SITE_HEADER_CSS.indexOf('@media (max-width:600px)'));
+  assert.match(phone, /\.pfs-crumbs>\.pfs-echo\{display:none\}/);
+  assert.doesNotMatch(SITE_HEADER_CSS.slice(0, SITE_HEADER_CSS.indexOf('@media (max-width:600px)')), /pfs-echo/, 'desktop keeps the full trail');
 });
 
 test('a venture header opens with the exact tag rates.mjs and jobs.mjs look for', () => {
@@ -169,8 +212,11 @@ test('research topic and project pages get the breadcrumb variants of the same h
   // Home › Research › topic › project, the topic linking its own page.
   assert.match(template.project_header, /class="pfs-crumbs"/);
   assert.match(template.project_header, /href="\{\{ROOT\}\}research\/">Research<\/a>/);
-  assert.match(template.project_header, /href="\{\{ROOT\}\}research\/topics\/\{\{TOPIC_ID\}\}\/">\{\{TOPIC\}\}<\/a>/);
-  assert.match(template.project_header, /<span aria-current="page">\{\{TITLE\}\}<\/span>/);
+  // Marked to give way on a phone though the placeholder is short: the topic names are not.
+  assert.match(template.project_header, /href="\{\{ROOT\}\}research\/topics\/\{\{TOPIC_ID\}\}\/" class="pfs-mid">\{\{TOPIC\}\}<\/a>/);
+  // The project page's h1 is the title, so a phone hides the repeat (2026-11-15); the topic is not marked.
+  assert.match(template.project_header, /<span class="pfs-sep pfs-echo" aria-hidden="true">›<\/span><span aria-current="page" class="pfs-echo">\{\{TITLE\}\}<\/span>/);
+  assert.doesNotMatch(template.topic_header, /pfs-echo/);
   assert.match(template.topic_header, /<span aria-current="page">\{\{TOPIC\}\}<\/span>/);
 });
 
@@ -227,8 +273,31 @@ test('the chrome goes dark only on a page whose own background is dark', () => {
 });
 
 test('a widened venture header keeps its content offset as padding (phone: no sideways scroll, so no undo)', () => {
-  assert.match(VENTURE_CHROME_JS, /paddingLeft=Math\.max\(0,r\.left\)/);
+  assert.match(VENTURE_CHROME_JS, /pl=Math\.max\(0,r\.left\)/);
   assert.match(VENTURE_CHROME_JS, /paddingRight=''/, 'reset() clears the padding it set');
+});
+
+test('a venture header that already fills a phone gets a 16px gutter, not the brand at x = 0', () => {
+  // polish-2026-11-15-header-gutter.md: 49 tools put their side padding on main, not body, so the
+  // band filled the window, fit() returned early, and the brand and trail started at the left edge.
+  const run = (left, width, vw, tagName = 'NAV') => {
+    const style = {};
+    const el = { tagName, style, setAttribute() {}, removeAttribute() {},
+      getBoundingClientRect: () => { const l = left + (parseFloat(style.marginLeft) || 0), w = parseFloat(style.width) || width;
+        return { left: l, width: w, right: l + w, top: 0 }; } };
+    const doc = { querySelectorAll: () => [el], documentElement: { clientWidth: vw, scrollWidth: vw }, body: { nodeType: 1, parentElement: null } };
+    new Function('document', 'getComputedStyle', 'window', 'addEventListener', 'matchMedia', 'setTimeout', 'clearTimeout', VENTURE_CHROME_JS)(
+      doc, () => ({ backgroundColor: 'rgb(255, 255, 255)' }), { scrollY: 0 }, () => {}, null, () => {}, () => {});
+    return style;
+  };
+  const flush = run(0, 390, 390);
+  assert.equal(flush.paddingLeft, '16px');
+  assert.equal(flush.paddingRight, '16px');
+  assert.ok(!flush.width, 'a bar that already fills the window is not resized');
+  assert.equal(run(0, 390, 390, 'ASIDE').paddingLeft || '', '', 'the footer keeps its own padding');
+  const inset = run(24, 342, 390);
+  assert.equal(inset.paddingLeft, '24px', "a host's own inset is kept");
+  assert.equal(inset.width, '390px');
 });
 
 test('siteTitle adds the site name only when the whole title still fits a results page', () => {

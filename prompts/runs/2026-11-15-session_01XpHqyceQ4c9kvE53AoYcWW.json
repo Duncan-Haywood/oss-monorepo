@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyceQ4c9kvE53AoYcWW",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T23:39:57Z",
+  "ended": "2026-11-15T23:47:20Z",
+  "wall_minutes": 7.52,
+  "tokens_in": 5952352,
+  "tokens_out": 30654,
+  "cost_usd": 2.8248,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16379",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/sensing-selfcal/experiments/m4l_predict/score.py",
+      "issue": "unit_stats reads a `<unit>_<design>_far` array that milestone 4m's analyse.py does not write, so reusing it on a new run needs the far flag rebuilt (score.py here does it from the stored solves)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-fit-the-lens-then-wait-for-better-views.md",
+    "research/sensing-selfcal/LOG.md (milestone 4o planned and result)",
+    "research/sensing-selfcal/paper/draft.md (milestone 4o paragraph, 13 new checked numbers)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS and website requests empty; routed research/0, drew programme sensing-selfcal. Milestone 4o pre-registered (H86-H91, plan committed and PR opened before any computation), then run: k1 arm reproduced milestones 4l/4m exactly; all six predictions held. Kinect: twin level 1.34x -> 0.995x with k1 + k2; 6 + 6 blind k1 6.2% -> chosen k1 + k2 17.9% (x2.86) at 0.59% false alarms. Local checks: tests/test_m4o.py, test_m4m.py, test_m4l.py 13 passed; paper/check_numbers.py 239 of 239; research/_homepage/build.py ok; check_md_links ok; post front matter, links, similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "86efcc2c-8119-5d96-b35d-d3d557502c84",
+    "transcripts": 1,
+    "first": "2026-11-15T23:39:57Z",
+    "last": "2026-11-15T23:47:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 94,
+        "output": 30654,
+        "thinking": 6339,
+        "cache_read": 5821378,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130880,
+        "api_equivalent_usd": 2.8248,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 94,
+      "output": 30654,
+      "thinking": 6339,
+      "cache_read": 5821378,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130880,
+      "api_equivalent_usd": 2.8248,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 47,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.52,
+      "active_minutes": 7.52,
+      "model_minutes": 4.73,
+      "tool_minutes": 2.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a PhD student re-running two existing analyses with a richer lens model, pre-registering, checking reproduction and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 212.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

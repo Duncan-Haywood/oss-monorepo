@@ -1,0 +1,3 @@
+{"note": "Milestone 7t training law: the midpoint of the two brushless, 5-5.1 inch identifications in identified.csv (use = fit), applied to every propeller (no diameter exponent: neither source measures one, and the design range 0.106-0.134 m sits next to the identified 0.127-0.130 m).",
+ "fit_rows": {"NeuroBEM 2021": 0.033, "Agilicious 2022": 0.0391},
+ "train_K_s": 0.036, "train_exp": 0.0, "inherited": {"K_s": 0.015, "D0_m": 0.127, "exp": 1.5}}

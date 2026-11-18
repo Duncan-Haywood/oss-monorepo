@@ -1,4 +1,4 @@
-"""Writes experiments/results.txt. Synthetic scenes only; a few minutes on one CPU core."""
+"""Writes experiments/results.txt. Synthetic scenes only; about 20 s on one CPU core."""
 import os
 import sys
 import numpy as np

@@ -7,7 +7,7 @@
 // voices are recorded singers (RECORDING-GUIDE.md). Deterministic: a seeded noise
 // source, so the same MIDI gives the same bytes.
 import { readWav, integratedLufs, truePeak } from './master.mjs';
-import { singNote, latinVowel } from './sing.mjs';
+import { singNote, latinVowel, latinOnset, latinCoda, onsetLength, PHONES } from './sing.mjs';
 export { readWav };
 
 // ---- MIDI reading (format 0/1, running status, tempo map, channel programs) ----
@@ -211,24 +211,50 @@ export function limiterCurve(L, R, rate, ceil, ms = 5, scratch = null) {
   return out;
 }
 
-export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89, stems = false, limit = false, learn = null, sing = false } = {}) {
+export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89, stems = false, limit = false, learn = null, sing = false, nasalCut = true, voiceBar = true, voiceBarWall = false } = {}) {
   const m = parseMidi(midiBytes);
-  // sing: the choir sings the vowel of each note's Latin syllable (sing.mjs) instead of the pad's
-  // fixed "ah"; a diphthong glides on the syllable's last note, found as the last note on that
+  // sing: the choir sings each note's Latin syllable (sing.mjs) instead of the pad's fixed "ah":
+  // its consonants on the syllable's first note, then its vowel, then its final consonants at the end of
+  // its last note ('vowels': the vowel alone); a diphthong glides on the syllable's last note, found as the last note on that
   // channel carrying the syllable's lyric event
-  const lastOfSyl = new Set();
+  const lastOfSyl = new Set(), firstOfSyl = new Set();
   const nextOn = new Map(); // note -> start tick of the next note on its channel (legato release)
+  const nextNote = new Map(); // note -> the next note on its channel
   if (sing) {
     const byCh = new Map();
     for (const n of m.notes) { if (!byCh.has(n.ch)) byCh.set(n.ch, []); byCh.get(n.ch).push(n); }
     for (const list of byCh.values()) {
       list.sort((a, b) => a.tick - b.tick);
-      for (let k = 0; k < list.length; k++) { const later = list.slice(k + 1).find((x) => x.tick > list[k].tick); if (later) nextOn.set(list[k], later.tick); }
+      for (let k = 0; k < list.length; k++) { const later = list.slice(k + 1).find((x) => x.tick > list[k].tick); if (later) { nextOn.set(list[k], later.tick); nextNote.set(list[k], later); } }
     }
     const bySyl = new Map();
     for (const n of m.notes) if (n.syl) { const k = `${n.ch}|${n.syl}`; const b = bySyl.get(k); if (!b || n.tick >= b.tick) bySyl.set(k, n); }
     for (const n of bySyl.values()) lastOfSyl.add(n);
+    const firstBy = new Map();
+    for (const n of m.notes) if (n.syl) { const k = `${n.ch}|${n.syl}`; const b = firstBy.get(k); if (!b || n.tick < b.tick) firstBy.set(k, n); }
+    for (const n of firstBy.values()) firstOfSyl.add(n);
   }
+  // the consonants a note opens with: the syllable's onset on its first note, none on a melisma's later notes
+  const onsetOf = (n) => (sing === true && firstOfSyl.has(n) ? latinOnset(n.lyric) : []);
+  // and the consonants it closes with: the syllable's coda at the end of its last note
+  const codaOf = (n) => (sing === true && lastOfSyl.has(n) ? latinCoda(n.lyric) : []);
+  // Choirs sing the consonant before the beat so the vowel lands on it. A note's consonant takes its
+  // full length where it can: up to half the previous note (and any rest before it) goes to it, and
+  // what does not fit spills into the note itself, at most 30% of it, shortened in proportion when
+  // even that is too little. lead: seconds before the beat; len: the consonant's whole length.
+  const sec0 = (t) => tickToSeconds(t, m.division, m.tempos);
+  const prevNote = new Map();
+  for (const [a, b] of nextNote) prevNote.set(b, a);
+  const leadOf = new Map(); // note -> { lead, len }
+  if (sing === true) for (const n of m.notes) {
+    const on = onsetOf(n); if (!on.length) continue;
+    const want = onsetLength(on), p = prevNote.get(n), start = sec0(n.tick), dur = sec0(n.end) - start;
+    const before = p ? 0.5 * (sec0(p.end) - sec0(p.tick)) + Math.max(0, start - sec0(p.end)) : start;
+    const lead = Math.max(0, Math.min(want, before, start)), len = Math.min(want, lead + 0.3 * dur);
+    leadOf.set(n, { lead, len });
+  }
+  // how much of a note the next note's consonant takes from its end
+  const cutOf = (n) => { const nx = nextNote.get(n), l = nx && leadOf.get(nx); return l ? Math.max(0, l.lead - (sec0(nx.tick) - sec0(n.end))) : 0; };
   const sec = (t) => tickToSeconds(t, m.division, m.tempos);
   const progAt = (ch) => (m.programs.get(ch) || [[0, 0]])[0][1];
   let endSec = 0;
@@ -243,8 +269,9 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
   const gain = { choir: 0.9, organ: 0.35, bass: 0.7, chords: 0.28, drums: 0.8 };
   for (const n of m.notes) {
     const v = voiceFor(n.ch, progAt(n.ch));
-    const start = Math.round(sec(n.tick) * rate);
-    const dur = Math.max(0.03, sec(n.end) - sec(n.tick));
+    const ld = leadOf.get(n) || { lead: 0, len: null }, cut = sing === true ? cutOf(n) : 0;
+    const start = Math.round((sec(n.tick) - ld.lead) * rate);
+    const dur = Math.max(0.03, sec(n.end) - sec(n.tick) - cut);
     if (learn && learn.mode === 'minus' && v === 'choir' && n.ch === learn.ch) continue;
     let wave;
     if (v === 'drums') {
@@ -255,9 +282,20 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
       const glide = sung && sung.glide && lastOfSyl.has(n) ? sung.glide : null;
       // the same singers go straight on to the next note: a 50 ms crossfade into it, not the pad's
       // 0.25 s release over the next syllable (which covered the quieter /i/ and /u/ on short notes)
-      const release = sung ? (nextOn.has(n) ? Math.min(0.25, Math.max(0.05, sec(nextOn.get(n)) - sec(n.end) + 0.05)) : 0.25) : 0;
-      const key = `${v}:${n.note}:${Math.round(dur * 1000)}${sung ? `:${sung.vowel}${glide || ''}:${Math.round(release * 1000)}` : ''}`;
-      if (!waveCache.has(key)) waveCache.set(key, sung ? singNote(hz(n.note), dur, rate, { vowel: sung.vowel, glide, release, seed: n.note * 7919 + Math.round(dur * 1000) }) : (v === 'choir' ? choir : v === 'organ' ? organ : v === 'bass' ? bass : chordPad)(hz(n.note), dur, rate));
+      // before a stop, an affricate or a fricative the voices stop for the consonant: 15 ms, so the
+      // closure is silent and the hiss is not sung over, and before a tap, so its dip is heard; and before
+      // a nasal, whose lips or tongue close the mouth as a stop's do: the 50 ms tail of the vowel covered
+      // the first 50 of the murmur's 70 ms, and a third of the sung nasals read as none (README "Nasal
+      // openings: the mouth closes"; `nasalCut: false` keeps the 50 ms). l and the glides keep the 50 ms.
+      const nx = sung && nextNote.get(n), nxOn = nx ? onsetOf(nx) : [];
+      const overlap = nxOn.length && (PHONES[nxOn[0]].F === undefined || nxOn[0] === 'r' || (nasalCut && PHONES[nxOn[0]].kind === 'nasal')) ? 0.015 : 0.05;
+      // the gap to the next sound: the next note's start, or where its consonant starts before the beat
+      const nxl = nx && leadOf.get(nx) ? leadOf.get(nx).lead : 0;
+      const release = sung ? (nextOn.has(n) ? Math.min(0.25, Math.max(overlap, sec(nextOn.get(n)) - nxl - (sec(n.end) - cut) + overlap)) : 0.25) : 0;
+      const onset = sung ? onsetOf(n) : [], coda = sung ? codaOf(n) : [];
+      const leadMs = Math.round(ld.lead * 1000), lenMs = ld.len === null ? -1 : Math.round(ld.len * 1000);
+      const key = `${v}:${n.note}:${Math.round(dur * 1000)}${sung ? `:${sung.vowel}${glide || ''}:${Math.round(release * 1000)}:${onset.join('.')}:${leadMs}:${lenMs}:${coda.join('.')}` : ''}`;
+      if (!waveCache.has(key)) waveCache.set(key, sung ? singNote(hz(n.note), dur, rate, { vowel: sung.vowel, glide, release, onset, coda, lead: leadMs / 1000, onsetLen: lenMs < 0 ? null : lenMs / 1000, seed: n.note * 7919 + Math.round(dur * 1000), ...(voiceBar ? {} : { voiceBarLevel: false }), ...(voiceBarWall ? { voiceBarWall } : {}) }) : (v === 'choir' ? choir : v === 'organ' ? organ : v === 'bass' ? bass : chordPad)(hz(n.note), dur, rate));
       wave = waveCache.get(key);
     }
     let g = (n.vel / 127) * gain[v], p = pan[v];

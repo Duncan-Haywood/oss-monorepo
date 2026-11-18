@@ -96,7 +96,7 @@ export function parseBallots(text, options = {}) {
     return index.get(key);
   };
   for (const c of options.candidates || []) if (clean(c)) id(c);
-  const src = String(text ?? "").replace(/^﻿/, "");
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   const lines = src.split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith("#"));
   const raw = []; // [{ groups: [[name, ...], ...], count, line }]
   let format;
@@ -449,7 +449,7 @@ export function analyze(input = {}) {
 
 /** Round-by-round CSV of the IRV and STV counts and the pairwise matrix. */
 export function reportCsv(result) {
-  const q = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const q = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   const names = result.parsed.candidates;
   const lines = [];
   if (result.irv) {

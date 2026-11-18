@@ -141,7 +141,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       writeFileSync(f, Buffer.from(await res.arrayBuffer()));
       fetched++;
     }
-    const a = analyse(readFileSync(f, "utf8").replace(/^﻿/, ""), src);
+    const a = analyse(readFileSync(f, "utf8").replace(/^\uFEFF/, ""), src);
     files++; rows += a.rows; other += a.otherSkipped; wrongSign += a.signWrong.length; if (a.bank === src.bank) named++;
     const bal = a.balance ? (a.balance.breaks ? `balance ${a.balance.breaks} breaks` : "balance chains") : "no balance";
     console.log(`${src.bank.padEnd(16)} ${src.kind.padEnd(8)} named ${String(a.bank).padEnd(16)} rows ${String(a.rows).padStart(4)}  skipped ${a.skipped.length} (${a.otherSkipped} unexplained)  ${bal}  sign wrong ${a.signWrong.length}  problems ${a.problems.length}${a.cards ? `  cards ${a.cards}` : ""}`);

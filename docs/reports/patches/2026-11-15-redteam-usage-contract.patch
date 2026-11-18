@@ -1,0 +1,58 @@
+diff --git a/prompts/redteam.py b/prompts/redteam.py
+index 19ae6215e..ec9dce0f3 100644
+--- a/prompts/redteam.py
++++ b/prompts/redteam.py
+@@ -39,6 +39,7 @@ import os
+ import random
+ import re
+ import signal
++import shlex
+ import subprocess
+ import sys
+ import time
+@@ -193,7 +194,17 @@ def suite_for(path: Path, repo: Path = REPO) -> tuple[list[str], Path] | None:
+             if any(vdir.rglob("*.test.mjs")):
+                 # node expands the quoted glob itself, so this reaches suites
+                 # kept in a subdirectory (CLAUDE.md's checklist, same shape).
+-                return ["node", "--test", f"ventures/{parts[1]}/**/*.test.mjs"], repo
++                cmd = ["node", "--test", f"ventures/{parts[1]}/**/*.test.mjs"]
++                contract = repo / "platform" / "ci" / "usage_contract.mjs"
++                if len(parts) == 3 and path.name == "usage.mjs" and contract.is_file():
++                    # CI also runs this contract over every copy (portfolio-validate,
++                    # check_storage_guard.py), so a mutant it rejects is caught by
++                    # the repository's tests. Measuring the venture suite alone read
++                    # 43 of 152 usage.mjs mutants as escaped (2026-11-15).
++                    chain = " && ".join(shlex.join(c) for c in (
++                        cmd, ["node", "platform/ci/usage_contract.mjs", "ventures"]))
++                    return ["sh", "-c", chain], repo
++                return cmd, repo
+             return None
+         sibling = path.with_name(path.stem + ".test.mjs")
+         if sibling.is_file():
+diff --git a/prompts/test_redteam.py b/prompts/test_redteam.py
+index 3d3e9d304..53e779225 100644
+--- a/prompts/test_redteam.py
++++ b/prompts/test_redteam.py
+@@ -92,6 +92,22 @@ class CampaignTest(unittest.TestCase):
+         self.assertEqual(redteam.list_targets(self.repo), [self.target])
+         self.assertIsNone(redteam.suite_for(self.venture / "calc.test.mjs", self.repo))
+ 
++    def test_usage_counter_suite_includes_the_ci_contract(self):
++        # A usage.mjs mutant that CI's usage_contract.mjs rejects is caught;
++        # the venture suite alone used to read it as escaped (2026-11-15).
++        (self.venture / "usage.mjs").write_text("export const x = 1;\n")
++        cmd, _ = redteam.suite_for(self.venture / "usage.mjs", self.repo)
++        self.assertEqual(cmd[0], "node")  # no contract in this repo: suite only
++        ci = self.repo / "platform" / "ci"
++        ci.mkdir(parents=True)
++        (ci / "usage_contract.mjs").write_text("process.exit(1);\n")
++        cmd, _ = redteam.suite_for(self.venture / "usage.mjs", self.repo)
++        self.assertEqual(cmd[:2], ["sh", "-c"])
++        self.assertIn("usage_contract.mjs", cmd[2])
++        self.assertFalse(redteam.run_suite(cmd, self.repo)[0])  # contract red: caught
++        cmd, _ = redteam.suite_for(self.target, self.repo)
++        self.assertEqual(cmd[0], "node")  # other files: unchanged
++
+     def test_targets_probe_times_each_suite_once(self):
+         from unittest import mock
+         import contextlib, io

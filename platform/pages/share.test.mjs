@@ -8,7 +8,7 @@ import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 
 import { fillText, fitText, font, measureText, wrapText } from './fontraster.mjs';
-import { accentFor, addShareCards, cardKey, cardTitle, completeShareTags, crumbsOf, mapLimit, pageCardPlan, renderCards, researchTopicColour, siteAddress } from './share.mjs';
+import { accentFor, addShareCards, cardKey, cardTitle, completeShareTags, crumbsOf, mapLimit, pageCardPlan, renderCards, researchTopicColour, setCardDrawing, siteAddress } from './share.mjs';
 import { CARD_HEIGHT, CARD_WIDTH, quantize, renderCard, renderMarkIcon, renderSiteCard } from './sharecard.mjs';
 
 const PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -146,6 +146,30 @@ test('completeShareTags points at the page card and fills the twitter: and size 
   assert.equal(completeShareTags(out, { card: `${BASE}research/energy-tou/share-card.png`, toRoot: '../../' }), out);
 });
 
+test('tags read after an edit see the edit, with the tag memo swapped in place or dropped', () => {
+  // completeShareTags edits og:image and og:image:alt, then reads them back
+  // for the twitter: tags; the memo of the page's tags must follow each edit
+  // (docs/history/pages-build-perf-2026-11-15-share-memo-swap.md).
+  const card = `${BASE}research/energy-tou/share-card.png`;
+  const alt = (html) => [
+    /property="og:image:alt" content="([^"]*)"/.exec(html)?.[1],
+    /name="twitter:image:alt" content="([^"]*)"/.exec(html)?.[1],
+    /name="twitter:image" content="([^"]*)"/.exec(html)?.[1],
+  ];
+  const withAlt = page().replace('</head>', '<meta property="og:image:alt" content="An old alt">\n</head>');
+  // A stray tag opening before the edited one, whose quote never closes: the
+  // memo cannot be swapped there and is dropped, so the reads still agree.
+  const stray = withAlt.replace('<title>', '<meta name="stray" content="never closed><title>');
+  for (const html of [withAlt, stray, withAlt.replace(/"/g, "'")]) {
+    pageCardPlan(html, 'research/energy-tou/index.html', { baseUrl: BASE });
+    const out = completeShareTags(html, { card, toRoot: '../../' });
+    const [ogAlt, twitterAlt, twitterImage] = alt(out.replace(/'/g, '"'));
+    assert.equal(ogAlt, 'Does a battery pay? — Maris Stella Labs');
+    assert.equal(twitterAlt, ogAlt);
+    assert.equal(twitterImage, card);
+  }
+});
+
 test('the data: icon strip takes the whitespace before each link, as the one-regex form did', () => {
   // The form before 2026-11-13 (docs/history/pages-build-perf-2026-11-13-share-data-icon-scan.md).
   const before = /\s*<link\b[^>]*\brel=["'](?:shortcut )?icon["'][^>]*\bhref=["']data:[^"']*["'][^>]*>/gi;
@@ -259,6 +283,36 @@ test('the card cache copies an unchanged card and draws a changed one', async ()
   assert.deepEqual(readFileSync(path.join(dir, 'out', 'b.png')), renderCard({ headline: 'Cache B' }));
   assert.ok(existsSync(path.join(cacheDir, `${cardKey({ headline: 'Cache B' })}.png`)));
   assert.notEqual(cardKey({ headline: 'Cache A' }), cardKey({ headline: 'Cache B' }));
+});
+
+test('builds sharing a cache directory at once store every card whole, under its key', async () => {
+  // Two concurrent renders over the same cards, as the site-builder suite's
+  // parallel builds are: each takes cards the other stored mid-run, and no
+  // temporary file or half-written entry is left in the directory.
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'cards-shared-'));
+  const cacheDir = path.join(dir, 'cache');
+  const options = Array.from({ length: 20 }, (_, i) => ({ headline: `Shared cache card ${i}` }));
+  const jobs = (side) => options.map((o, i) => ({ file: path.join(dir, side, `${i}.png`), options: o }));
+  await Promise.all([renderCards(jobs('a'), { cacheDir, threads: 2 }), renderCards(jobs('b'), { cacheDir, threads: 2 })]);
+  assert.deepEqual(readdirSync(cacheDir).sort(), options.map((o) => `${cardKey(o)}.png`).sort());
+  for (const [i, o] of options.entries()) {
+    const want = renderCard(o);
+    assert.deepEqual(readFileSync(path.join(cacheDir, `${cardKey(o)}.png`)), want);
+    for (const side of ['a', 'b']) assert.deepEqual(readFileSync(path.join(dir, side, `${i}.png`)), want);
+  }
+});
+
+test('with card drawing off (a fixture build), renderCards writes no card and no cache entry', async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'cards-off-'));
+  const cacheDir = path.join(dir, 'cache');
+  setCardDrawing(false);
+  try {
+    await renderCards([{ file: path.join(dir, 'out', 'a.png'), options: { headline: 'Drawing off' } }], { cacheDir });
+  } finally {
+    setCardDrawing(true);
+  }
+  assert.equal(existsSync(path.join(dir, 'out', 'a.png')), false);
+  assert.equal(existsSync(cacheDir), false);
 });
 
 test('a card drawn earlier in the process is reused byte for byte, with no cache directory', async () => {

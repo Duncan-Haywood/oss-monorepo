@@ -15,8 +15,33 @@ the whole order, for when you need a shortlist; its link carries the k, so a
 team all answers for the same cut, and combining their codes leads with the
 team's top k, each option's chance of really being in it and how many people
 shortlisted it (on 432 simulated teams the model's pick was right 78% of the
-time, a show of hands 72%). Nothing is
+time, a show of hands 72%). Since 2026-11-15 lists of 8 or more can start
+with an optional rough sort (one tap per option: near the top, middle, near
+the bottom), which the refit reads as each option's prior; on simulated
+ordinary answerers, 20 options took 64 taps and picks after a careful sort, 87
+after an ordinary one and 120 after a careless one, against 93 picks, for
+about the same order (docs/RANK-PAGE.md, "Sort into piles first"). Nothing is
 uploaded. How it works and what was measured: [docs/RANK-PAGE.md](docs/RANK-PAGE.md).
+
+**Used to MaxDiff?** [Rank by best and worst of four](https://marisstella.app/quick-pick-survey/maxdiff-best-worst.html)
+(since 2026-11-15): a mode of the ranker where each screen shows four options
+and you tap the one you like most, then the least. Each screen is scored with
+the exact best-worst model (not split into implied pairs, which overstates
+two taps as five answers), and the next four are the ones expected to tell
+the most. On simulated people, 15 options took 27 screens (54 taps) against
+70 pair picks for an order about as good. Time per screen is not simulated:
+since 2026-11-15 the page times each answer on the device, codes carry the
+times, and a team combine says whether screens or pairs reached the stop
+sooner for that team (docs/RANK-PAGE.md, "Answer times"). Links, codes and team combine work as for pairs. How it works and the
+tables: [docs/RANK-PAGE.md](docs/RANK-PAGE.md), "Best and worst of four".
+
+**Ranking pictures?** [Pick the best photo or logo by comparing pairs](https://marisstella.app/quick-pick-survey/pick-the-best-photo.html)
+(since 2026-11-15): select 3 to 60 image files on the ranker and pick between
+two pictures at a time; the files are opened in the browser and never
+uploaded. The file names are the list, so a team link works as for words:
+each person selects the same files on their own device. "Look closer" flips
+between the two pictures full screen with a shared tap-to-zoom. How it works:
+[docs/RANK-PAGE.md](docs/RANK-PAGE.md), "Pictures" and "Pictures on a phone".
 
 **Choosing on several criteria?** [Weigh criteria by picking pairs](https://marisstella.app/quick-pick-survey/decide.html)
 (since 2026-11-14) is a weighted decision matrix with nothing typed: it asks
@@ -252,10 +277,16 @@ careless, so timing alone stays weak there. Since later that day the picks help:
 the wander test still counts when the person's picks from it on agree with the rest of the panel
 much less than their earlier picks did (2.5 standard errors, allowing for the closer pairs shown
 late in a session). Under the same wander it finds 24% of the careless instead of 18% and recovers
-27% of the harm instead of 19%, for 3.9% of honest people flagged against 3.4%. A comparison for now (same file, "Carelessness that starts
+27% of the harm instead of 19%, for 3.9% of honest people flagged against 3.4%. Since 2026-11-15 the
+pick test counts a disagreement on a clear pair more than one on a close pair (read as a lapse
+estimate, 3 standard errors): 27% of the careless found instead of 24% (26% against 23% on a second
+seed set) for 3.8% of honest people flagged against 3.9%. Easy check pairs asked every 5 or 10
+answers were tried for the same test and did not help: they cost ranking accuracy and found fewer
+blocks ("Check pairs for the pick test"). A comparison for now (same file, "Carelessness that starts
 mid-session", "A panel curve the careless cannot drag down", "A threshold from the panel's own
 slow turns", "A later-pass curve that drift cannot lift", "A step net of the person's own trend"
-"A step a wandering pace cannot make" and "A block's picks as well as its times").
+"A step a wandering pace cannot make", "A block's picks as well as its times" and "Check pairs for
+the pick test").
 Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.
 
 **A person's own results** (`/api/insights`) refit all of that person's answers at once

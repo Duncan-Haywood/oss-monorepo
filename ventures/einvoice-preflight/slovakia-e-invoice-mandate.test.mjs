@@ -18,6 +18,33 @@ test("states the date and the format", () => {
   assert.match(html, /Peppol BIS Billing 3\.0/);
 });
 
+test("pins the facts read from Act 385/2025 and the Financial Administration (2026-11-16)", () => {
+  // Article VIII: points in force 1 Jan 2026, 1 Jan 2027 (§ 85o(1)-(16), § 71(5)) and 1 Jul 2030 (§ 71(4)).
+  assert.match(html, /Act No\. 385\/2025 Z\. z\./);
+  assert.match(html, /1 Jan 2026/);
+  assert.match(html, /§ 85o\(1\) to \(16\)/);
+  assert.match(html, /§ 71\(4\), \(6\)/);
+  assert.match(html, /Issue within 15 days/);
+  assert.match(html, /the issue deadline becomes 10 days/);
+  assert.match(html, /EUR 10,000/);
+  assert.match(html, /EUR 100,000 if repeated/);
+  assert.match(html, /kept for 10 years/);
+  assert.match(html, /UBL 2\.1 or CII D16B/);
+  assert.match(html, /0245 = DIČ/);
+  assert.match(html, /100 certified providers/);
+  // No longer written from vendor guides; the unconfirmed vendor claims stay marked.
+  assert.doesNotMatch(html, /as vendor guides report it/);
+  assert.match(html, /"1 July 2027" access-point limit one vendor mentioned is not in the Act/);
+  assert.match(html, /a text this page did not read in its earlier form/);
+});
+
+test("documents every SK rule the profile ships", async () => {
+  const { SLOVAK_RULES } = await import("./profile.mjs");
+  for (const id of Object.keys(SLOVAK_RULES)) assert.ok(html.includes(id) || (id === "SK-002" && html.includes("SK-001, SK-002")), id);
+  assert.match(html, /\?profile=slovakia/);
+  assert.match(indexHtml, /id="slovakia"/);
+});
+
 test("makes no price claim", () => {
   assert.doesNotMatch(html, /\$\d/);
 });

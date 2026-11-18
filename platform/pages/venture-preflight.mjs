@@ -45,6 +45,15 @@
 //      job runs over every venture's source (share-location.test.mjs failed
 //      #15700 in CI only).
 //
+//   Also, in step 1b, the git-ignored untracked files under ventures/<slug>
+//   that the local build would publish (copyTree's rules), printed as a note:
+//   CI's fresh checkout has none of them, so a check.mjs failure on one is
+//   local only and is demoted to a note in step 2. A fetched eval set inside
+//   the venture (changepoint-detector's utsa-data/, a .ppt in it) failed a
+//   preflight that CI would have passed (run record, 2026-11-15). Ignore rules
+//   in the root .gitignore that name a ventures/ path are build outputs CI
+//   makes too (einvoice-preflight/browser/), so they are not counted.
+//
 //   node platform/pages/venture-preflight.mjs <slug> [--skip-build]
 //
 // Takes about six and a half minutes (the build is most of it); the cheap checks fail first, in seconds. Exit 0: clean for this
@@ -158,6 +167,80 @@ export function placementProblems(slug, { categoryFor, subcategoryFor }) {
   return { category: category.id, subcategory: sub?.id ?? null, failures, notes };
 }
 
+/**
+ * Git-ignored, untracked paths under ventures/<slug> the local build would
+ * publish. `checkIgnoreOutput` is `git check-ignore -v --no-index --stdin`
+ * over `git ls-files --others --ignored --exclude-standard --directory`:
+ * lines `source:line:pattern<TAB>path`, a directory path ending in `/`.
+ * Paths whose rule is a root .gitignore line naming `ventures/` are CI build
+ * outputs and are dropped; so are paths copyTree skips (`copiesDir`,
+ * `isPublishable`). `listDir(dir)` expands an ignored directory to its files
+ * (repo-relative); the return is the sorted repo-relative files.
+ */
+export function localOnlyFiles(checkIgnoreOutput, slug, { copiesDir, isPublishable, listDir }) {
+  const base = `ventures/${slug}/`;
+  const files = new Set();
+  const publishes = (rel, isDir) => {
+    const parts = rel.slice(base.length).split('/').filter(Boolean);
+    const dirs = isDir ? parts : parts.slice(0, -1);
+    if (!dirs.every(copiesDir)) return false;
+    return isDir || isPublishable(parts[parts.length - 1]);
+  };
+  for (const line of (checkIgnoreOutput || '').split('\n')) {
+    const tab = line.indexOf('\t');
+    if (tab < 0) continue;
+    const rule = line.slice(0, tab);
+    const rel = line.slice(tab + 1).trim();
+    if (!rel.startsWith(base)) continue;
+    const [source, , ...pattern] = rule.split(':');
+    if (source === '.gitignore' && pattern.join(':').includes('ventures/')) continue;
+    const isDir = rel.endsWith('/');
+    if (!publishes(rel, isDir)) continue;
+    if (!isDir) { files.add(rel); continue; }
+    for (const f of listDir(rel)) if (publishes(f, false)) files.add(f);
+  }
+  return [...files].sort();
+}
+
+/** Recursively list a repo-relative directory's files, repo-relative, skipping what copyTree skips. */
+function listRepoDir(rel, copiesDir) {
+  const out = [];
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true })) {
+      const child = `${dir.replace(/\/$/, '')}/${e.name}`;
+      if (e.isDirectory()) { if (copiesDir(e.name)) walk(child); } else if (e.isFile()) out.push(child);
+    }
+  };
+  walk(rel);
+  return out;
+}
+
+function gitLocalOnlyFiles(slug, site) {
+  const git = (args, input) => spawnSync('git', args, { cwd: ROOT, encoding: 'utf8', input, maxBuffer: 1 << 26 });
+  const listed = git(['ls-files', '--others', '--ignored', '--exclude-standard', '--directory', '--', `ventures/${slug}`]);
+  if (listed.status !== 0 || !listed.stdout.trim()) return [];
+  const rules = git(['check-ignore', '-v', '--no-index', '--stdin'], listed.stdout);
+  return localOnlyFiles(rules.stdout, slug, { ...site, listDir: (rel) => listRepoDir(rel, site.copiesDir) });
+}
+
+/**
+ * Split this slug's check.mjs failures into real ones and ones on a local-only
+ * file. A failure line starts with the published path `<slug>/<rest>`; it is
+ * local only when `<rest>` is a local-only file's path below ventures/<slug>
+ * (or below a subdirectory the venture publishes from).
+ */
+export function splitLocalOnly(failures, slug, localFiles) {
+  const tails = localFiles.map((f) => f.slice(`ventures/${slug}/`.length));
+  const local = [];
+  const real = [];
+  for (const f of failures) {
+    const m = f.match(new RegExp(`^${slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/([^:\\s]+)`));
+    const rest = m?.[1];
+    if (rest && tails.some((t) => t === rest || t.endsWith(`/${rest}`))) local.push(f); else real.push(f);
+  }
+  return { real, local };
+}
+
 export function countProblem({ script, fix }, status) {
   if (status === 0) return null;
   return `${script} --check exited ${status}: run \`${fix}\` and commit the result`;
@@ -254,6 +337,7 @@ async function main(argv) {
     return 2;
   }
   const failures = [];
+  let localFiles = [];
 
   console.log('1/3 launched.json');
   failures.push(...(await launchedProblems(slug)));
@@ -275,6 +359,13 @@ async function main(argv) {
     console.log(`   filed under ${placed.category}${placed.subcategory ? ` / ${placed.subcategory}` : ''}`);
     for (const note of placed.notes) console.log(`   note: ${note}`);
     failures.push(...placed.failures);
+    localFiles = gitLocalOnlyFiles(slug, site);
+    if (localFiles.length) {
+      console.log(`   note: ${localFiles.length} git-ignored file(s) under ventures/${slug} that this local build publishes and CI's checkout lacks; `
+        + 'a check.mjs failure on one is local only (keep fetched data outside the venture to silence it):');
+      for (const f of localFiles.slice(0, 10)) console.log(`      ${f}`);
+      if (localFiles.length > 10) console.log(`      (+${localFiles.length - 10} more)`);
+    }
   }
   const posts = changedPosts();
   if (posts.length) {
@@ -325,7 +416,9 @@ async function main(argv) {
         const checked = run(['platform/pages/check.mjs', out]);
         if (checked.status !== 0) {
           const { failures: mine, other } = checkProblems(checked, slug);
-          failures.push(...mine);
+          const { real, local } = splitLocalOnly(mine, slug, localFiles);
+          failures.push(...real);
+          if (local.length) console.log(`   note: ${local.length} problem(s) on git-ignored local files CI never sees (not counted):\n${local.map((l) => `      ${l}`).join('\n')}`);
           if (other.length) console.log(`   note: ${other.length} problem(s) on other slugs (not yours):\n${other.join('\n')}`);
         }
       }

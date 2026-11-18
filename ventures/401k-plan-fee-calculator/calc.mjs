@@ -4,6 +4,27 @@
 // 408(b)(2) service-provider disclosures are where the numbers come from. There is no legal safe-harbor percentage; the
 // benchmark table below is an illustrative planning aid the visitor can edit, not a standard.
 
+// Comma-separated, with spreadsheet-style double quotes so an exported
+// "$1,200" or "Smith, LLC" stays one field ("" inside quotes is a quote).
+const splitCsvLine = (line) => {
+  if (!line.includes('"')) return line.split(",").map((s) => s.trim());
+  const out = [];
+  let cur = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i += 1; }
+      else if (ch === '"') quoted = false;
+      else cur += ch;
+    } else if (ch === '"' && cur.trim() === "") { quoted = true; cur = ""; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+};
+
 export const DEFAULT_BENCHMARK_TEXT = [
   "0-1000000: 1.35",
   "1000001-5000000: 1.05",
@@ -43,7 +64,7 @@ export function parseFunds(text) {
   String(text ?? "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const p = line.split(",").map((s) => s.trim());
+    const p = splitCsvLine(line);
     const bal = num(p[1]);
     const er = num(p[2]);
     if (!p[0] || !(p[1] ?? "") || !(p[2] ?? "") || !(bal >= 0) || !(er >= 0) || Number.isNaN(bal) || Number.isNaN(er)) {

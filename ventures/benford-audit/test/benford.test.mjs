@@ -156,7 +156,7 @@ test('sign filter: negatives can be tested on their own', () => {
 });
 
 test('CSV reader handles quotes, semicolons, BOM and picks columns', () => {
-  const text = '﻿Date;Payee;Betrag\n2025-01-02;"Müller; GmbH";"1.234,50"\r\n2025-01-03;Acme;99,00\n';
+  const text = '\uFEFFDate;Payee;Betrag\n2025-01-02;"Müller; GmbH";"1.234,50"\r\n2025-01-03;Acme;99,00\n';
   assert.equal(sniffDelimiter(text.slice(1)), ';');
   const rows = parseCsv(text);
   assert.equal(rows[1][1], 'Müller; GmbH');

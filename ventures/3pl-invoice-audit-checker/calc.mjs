@@ -151,7 +151,7 @@ export function parseInvoiceCsv(text) {
   if (head.some((h) => HEADER_ALIASES.description.includes(h)) && head.some((h, i) => i > 0 && [...HEADER_ALIASES.qty, ...HEADER_ALIASES.rate, ...HEADER_ALIASES.amount].includes(h))) {
     map = {};
     for (const [key, names] of Object.entries(HEADER_ALIASES)) {
-      const idx = head.findIndex((h) => names.includes(h));
+      const idx = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
       if (idx >= 0) map[key] = idx;
     }
     if (map.description === undefined || map.amount === undefined) throw new Error('The header row needs at least description and amount columns.');
@@ -376,6 +376,11 @@ export function auditInvoice(rawInput) {
 }
 
 function fmt(n) {
+  // The sign goes outside the symbol, and only on a nonzero amount: -$9.24, never $-9.24.
+  if (Number(n) < 0) {
+    const text = fmt(Math.abs(n));
+    return /[1-9]/.test(text) ? `-${text}` : text;
+  }
   const r = Math.round(n * 10000) / 10000;
   const decimals = Math.max(2, (String(r).split('.')[1] || '').length);
   return '$' + r.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
@@ -389,7 +394,12 @@ export function disputeNote(result, opts = {}) {
   const vendor = String(o.threePl || '').trim() || 'your billing team';
   const inv = String(o.invoiceNumber || '').trim();
   const brand = String(o.brand || '').trim();
-  const money2 = (n) => '$' + cents(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const money2 = (n) => {
+    const format = (n) => '$' + cents(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (!(Number(n) < 0)) return format(n);
+    const text = format(Math.abs(n));
+    return /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const out = [];
   out.push(`Subject: Billing dispute${inv ? ` for invoice ${inv}` : ''}: ${money2(result.totals.recoverable)} to review`);
   out.push('');
@@ -420,7 +430,7 @@ export function disputeNote(result, opts = {}) {
 
 const csvCell = (v) => {
   let s = v === null || v === undefined ? '' : String(v);
-  if (typeof v === 'string' && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  if (typeof v === 'string' && /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
   return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 

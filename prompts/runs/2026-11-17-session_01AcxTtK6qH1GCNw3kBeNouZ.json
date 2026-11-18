@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtK6qH1GCNw3kBeNouZ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T12:08:00Z",
+  "ended": "2026-11-17T12:14:30Z",
+  "wall_minutes": 6.72,
+  "tokens_in": 4147545,
+  "tokens_out": 28911,
+  "cost_usd": 2.2085,
+  "tool_calls": 43,
+  "task": "ids-model-check (flagship 12) buildable item: IDS audit warnings as CI annotations on the IDS file",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16930",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The buildable item named only class-abstract; on real IDS files 115 of 117 audit warnings are other codes (Pset_ templates, values with no dataType), so the item was broader than it read."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-ids-mistakes-annotated-on-the-ids-line.md",
+    "ventures/ids-model-check/eval/ci-audit-annotations-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed ventures/2; allocate.py picked ids-model-check row 8. Landed auditFindings/idsSpecLines in ci.mjs, annotations on the IDS <specification> line (audit warnings once per IDS file, invalid specs deduped and lined, unchecked-subclass warnings lined), a 9-annotation cap with a pointer (GitHub shows 10 warnings per step; Rotterdam's IDS has 19), job summary/JUnit/console/GITHUB_OUTPUT audit-warnings, --fail-on-audit-warnings and the Action input. Eval: 1,451 of 1,451 spec lines placed across 445 IDS files; 72 of 507 public specs warned. Local: run_venture_tests ids-model-check ok (147 tests, 1 skipped); venture-preflight run in background (result in PR body).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0bc72ff9-9ecb-5736-873b-483a8b8c0ea2",
+    "transcripts": 1,
+    "first": "2026-11-17T12:08:00Z",
+    "last": "2026-11-17T12:14:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 80,
+        "output": 28911,
+        "thinking": 3721,
+        "cache_read": 4044837,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102628,
+        "api_equivalent_usd": 2.2085,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 80,
+      "output": 28911,
+      "thinking": 3721,
+      "cache_read": 4044837,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102628,
+      "api_equivalent_usd": 2.2085,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 41,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.72,
+      "active_minutes": 6.72,
+      "model_minutes": 4.84,
+      "tool_minutes": 1.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior JS dev: CI annotation feature, line mapping, tests and a corpus eval",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 271.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

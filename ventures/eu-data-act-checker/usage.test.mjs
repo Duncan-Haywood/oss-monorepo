@@ -61,3 +61,14 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   record("analysis_run");
   assert.equal(readUsage().analysis_run, 1);
 });
+
+test("stored JSON that is not a plain object reads as empty and recording recovers", () => {
+  // Red-team 2026-11-16: `||`/`&&` flips in the shape checks of record() and
+  // readUsage() passed this suite, which never stored valid non-object JSON.
+  for (const raw of ["5", '"text"', "true", "null", "[]", "[1,2]"]) {
+    globalThis.localStorage.setItem("eu-data-act-checker-usage", raw);
+    assert.deepEqual(readUsage(), {}, `stored ${raw}`);
+    record("analysis_run");
+    assert.equal(readUsage().analysis_run, 1, `stored ${raw}`);
+  }
+});

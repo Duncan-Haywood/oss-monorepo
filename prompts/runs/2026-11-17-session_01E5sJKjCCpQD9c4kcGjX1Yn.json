@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKjCCpQD9c4kcGjX1Yn",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T00:09:48Z",
+  "ended": "2026-11-17T00:22:24Z",
+  "wall_minutes": 25.31,
+  "tokens_in": 9964258,
+  "tokens_out": 37714,
+  "cost_usd": 3.8171,
+  "tool_calls": 85,
+  "task": "Deepen flagship ai-bookkeeper, receipts item (5): a service charge in the tax vote",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16749",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "huggingface.co refused the CORD parquet download through the proxy (403), so CORD photos could not be read; the item was measured on SRD photos (GitHub) and CORD's committed text instead",
+    "my first 'baseline' SRD score ran the new receipts.mjs (eval/cord-receipts.mjs imports its sibling), caught by re-running from a git-archive copy of main"
+  ],
+  "integrity_issues": [
+    "CORD test text was scored as a regression check while choosing the rule; test-41 (a spurious 0.32 tax) was seen before the tax-line condition was added. The condition was justified by train-361 and -614, and the eval note says test was seen."
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper's buildable said 'huggingface.co answered 2026-11-16 late'; it refused this session. The file's own header warns against reachability notes; the note was dropped."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "checklist-coverage failed on this branch's base: platform/ci/*.test.mjs (added by PR #16739) was not yet named in the checklist; main fixed it within the hour and merging main cleared it. Cost one local-run cycle."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/ai-bookkeeper/eval/cord-tax-split-2026-11-16.md",
+      "why": "it asked for the service-charge rule to be chosen on CORD validation photos first; those photos could not be downloaded",
+      "did": "chose on a pre-fixed half of the SRD photos plus CORD train text, scored the other SRD half once",
+      "result": "SRD tax 133 to 134 (CLI), 134 to 135 (page); held-out half unchanged; CORD text train +2, val/test unchanged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-ai-bookkeeper-the-tip-between-the-subtotal-and-the-total.md",
+    "ventures/ai-bookkeeper/eval/service-charge-vote-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "Venture suite: python3 platform/ci/run_venture_tests.py ai-bookkeeper -> ok, 3285 tests. run_workflow_locally --for-changes: all reached steps pass except checklist-coverage (pre-existing on main, not touched by this diff). Both new tests fail on main's receipts.mjs. Gain is small: one SRD photo (1182), two CORD train texts. checklist-coverage failed locally until origin/main was merged in (fixed there); re-checked: checklist_coverage.py exit 0, test_checklist_coverage OK.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1ad3bb53-5335-5eac-817e-2d279a9fa994",
+    "transcripts": 1,
+    "first": "2026-11-17T00:09:48Z",
+    "last": "2026-11-17T00:35:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 82,
+        "input": 157,
+        "output": 37714,
+        "thinking": 9495,
+        "cache_read": 9827004,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137097,
+        "api_equivalent_usd": 3.8171,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 82,
+      "input": 157,
+      "output": 37714,
+      "thinking": 9495,
+      "cache_read": 9827004,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137097,
+      "api_equivalent_usd": 3.8171,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 78,
+      "ToolSearch": 2,
+      "Edit": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.31,
+      "active_minutes": 24.42,
+      "model_minutes": 9.58,
+      "tool_minutes": 14.83,
+      "waiting_on_human_minutes": 0.89,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer reproducing the 200-photo OCR baseline, writing and measuring the rule on a split, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 157.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

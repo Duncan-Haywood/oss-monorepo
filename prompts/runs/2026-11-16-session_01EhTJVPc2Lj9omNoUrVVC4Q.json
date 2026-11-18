@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVPc2Lj9omNoUrVVC4Q",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T15:09:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0005 clothing-design-studio: a soft torso the drape's lowered arms rest against",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 16611,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "allocate named chant-forge (row 8); its remaining items are fine OMR and singing tweaks. Took the owner's website request R-0005 instead (prompt.md ranks requests before flagships; allocate lists it as take-by-choice) because it has a real designer behind it and an open drape item.",
+      "did": "built the soft torso item from R-0005's open list",
+      "result": "landed: arms 28.5 to 18 degrees, 9 of 9 drapes settle"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-clothing-design-studio-soft-torso.md",
+    "ventures/clothing-design-studio/eval/drape-soft-torso-2026-11-16.md"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py clothing-design-studio -> ok (693 tests, 21.3 s); node --test drape-soft-torso.test.mjs 4/4; headless Chromium run of drape.html with Arms: lowered -> settled, arm 18 deg, no console errors; check_post_frontmatter ok; portfolio/requests tests 23/23. node eval/drape-soft-torso.mjs table in eval/. A first version (carving only below the armpit) left the M tee unsettled with a 213% underarm triangle; also found it changed the 45-degree drape by up to 4.6 cm, fixed by softening only once the arms start down (now bit-identical, tested).",
+  "corrections": [],
+  "redteam": null
+}

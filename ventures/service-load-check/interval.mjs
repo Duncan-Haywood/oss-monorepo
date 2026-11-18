@@ -17,9 +17,9 @@ export const num = (v) => {
 /** Wall-clock milliseconds from a date (and optional time); any zone offset is ignored. */
 export function parseTimestamp(s) {
   const str = String(s ?? "").trim().replace(/^"|"$/g, "");
-  let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?/i);
+  let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(?:[T\s]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?/i);
   if (m) return mk(+m[1], +m[2], +m[3], m[4], m[5], m[7]);
-  m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:[T\s]+(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?)?/i);
+  m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?!\d)(?:[T\s]+(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?)?/i);
   if (m) {
     let y = +m[3];
     if (y < 100) y += 2000;

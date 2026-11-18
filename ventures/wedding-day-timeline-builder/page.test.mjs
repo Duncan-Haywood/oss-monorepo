@@ -89,7 +89,11 @@ test("the guide's worked times are the engine's times", () => {
   ];
   for (const r of rows) assert.ok(html.includes(`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`), r.join(" | "));
   assert.ok(html.includes(`Sunset is at ${fmtTime(a.sun.sunset)}`));
-  assert.ok(html.includes(`that is ${fmtTime(a.golden.start)}`) || html.includes(`${fmtTime(a.golden.start)}, in the middle`));
+  // the guide states the slot the engine actually picks and how far before sunset it is (audit 2026-11-07: it promised ~30 min)
+  assert.ok(html.includes(`nearest free slot is ${fmtTime(a.golden.start)} in the middle of the cocktail hour: ${a.golden.beforeSunset} minutes before sunset`));
+  assert.ok(html.includes(`the aim is ${fmtTime(a.sun.sunset - 30)}`));
+  assert.equal(b.golden, null);
+  assert.ok(html.includes("there is no clean slot at all"));
   const extra = b.cocktailEnd - (b.ceremonyEnd + 60);
   assert.ok(html.includes(`guests wait an extra ${extra} minutes`));
   assert.ok(html.includes("15 + 30 + 26 + 35 = 106 minutes"));

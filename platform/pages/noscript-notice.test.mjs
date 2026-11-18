@@ -113,3 +113,12 @@ test('the one-walk finish writes the same bytes and reports as the title, sponso
     await fs.rm(root, { recursive: true, force: true });
   }
 });
+
+test('the site\'s own embed box and search form are not the page\'s controls', () => {
+  const embed = '<details class="pf-chrome pf-embed-offer"><summary>Embed</summary><textarea readonly></textarea><button type="button">Copy</button></details>';
+  const search = '<form class="pfs-search" action="../" method="get" role="search"><input name="q"><button type="submit">Search</button></form>';
+  const plain = page(`<p>An info page.</p>${search}${embed}<script>chrome()</script>`);
+  assert.equal(addNoscriptNotice(plain), plain);
+  const tool = page(`<input id="hours">${search}${embed}<script>calc()</script>`);
+  assert.ok(addNoscriptNotice(tool).includes(NOSCRIPT_NOTICE));
+});

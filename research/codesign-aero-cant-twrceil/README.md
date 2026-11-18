@@ -34,6 +34,7 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy cma matplotlib)
 ```
 
 ## Limitations
+- **Known defect, not yet re-run (quality fix 2026-11-15, [parent audit](../../portfolio/quality/audits/2026-11-15-codesign-aero.json)).** `size()` here is a copy of `codesign-aero`'s and, like it, never checks that the 60-step mass closure converged. On a 40x40 grid of (L, D) at the default cant and model settings, 36 of the 1,071 points it calls feasible have no fixed point (no battery mass gives 15 min of hover) and are scored at an arbitrary mass. The airframes this project reports were not checked one by one against that set, and its cant or coupling terms may move it. The parent now requires a closed mass (`closed` in `codesign-aero/src/codesign_aero/aero.py`); until this copy does the same and is re-run, treat rankings that touch the small-prop edge as unverified.
 - The location of the optimum near TWR 5 is set by the inherited motor mass and cost power-law fits, which were fitted for a range that stops well below TWR 8 and are assumed here, not taken from a catalogue. A different cost exponent would move it. Taking mass and cost from a motor catalogue is the next step.
 - Single yaw-only motor upgrades are not modelled; TWR raises all axes together.
 - Attitude steps only, no position hold, static propeller coefficients, no hardware. The mass iteration clamps at 20 kg, which no result approaches (masses 2.3–2.7 kg).

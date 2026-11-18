@@ -529,7 +529,120 @@ class FirmwareTest(unittest.TestCase):
         self.assertEqual(config.LIFT_JAM_REST_MS, p.lift_jam_rest_ms)
         self.assertEqual(config.LIFT_JAM_RETRIES, p.lift_jam_retries)
         self.assertEqual(config.LIFT_DUTY, p.lift_duty)
+        self.assertEqual(config.LIFT_RAMP_MS, p.lift_ramp_ms)
+        self.assertEqual(config.LIFT_V_REF_MV / 1000, p.lift_v_ref)
+        self.assertEqual(config.LIFT_DUTY_MIN, p.lift_duty_min)
+        self.assertEqual(config.LIFT_SLIP_JAMS, p.lift_slip_jams)
         self.assertEqual(p.check_lift_jam(), [])
+        self.assertEqual(p.check_lift_slip(), [])
+        bad = Feeder(lift_ramp_ms=250.0)
+        self.assertTrue(any("soft start" in m for m in bad.check_lift_jam()))
+
+    def test_lift_counts_every_cut(self):
+        n = []
+        lift = controller.LiftRun(1000, 1.0, blank_ms=100, trip_ms=10, rest_ms=200, retries=1, on_trip=lambda: n.append(1))
+        lift.kick(0)
+        for t in range(0, 2000, 10):
+            lift.update(t, True)
+        self.assertTrue(lift.jammed)
+        self.assertEqual(len(n), 2)                              # the first cut and the retry's: two slides of the hub
+
+    def test_jam_log_persists_flags_and_resets(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "j.json")
+            log = controller.JamLog(path, 3)
+            self.assertEqual((log.jams, log.since_set, log.due), (0, 0, False))       # no file: a new board
+            for _ in range(3):
+                log.add()
+            self.assertTrue(log.due)
+            self.assertFalse(os.path.exists(path + ".tmp"))
+            log = controller.JamLog(path, 3)
+            self.assertEqual((log.jams, log.since_set, log.due), (3, 3, True))
+            log.reset()
+            log = controller.JamLog(path, 3)
+            self.assertEqual((log.jams, log.since_set, log.due), (3, 0, False))
+            self.assertFalse(controller.JamLog(path, 0).due)                          # 0 never flags
+            for bad in ("", "{", "[]", '{"jams": 1}', '{"jams": 1, "since_set": 2}', '{"jams": -1, "since_set": -1}',
+                        '{"jams": "4", "since_set": 0}'):
+                with open(path, "w") as f:
+                    f.write(bad)
+                log = controller.JamLog(path, 300)
+                self.assertTrue(log.due, bad)                                         # a lost count is due
+                self.assertTrue(controller.JamLog(path, 0).due, bad)
+            log.add()
+            log.reset()
+            self.assertEqual(controller.JamLog(path, 300).due, False)
+
+    def test_jam_log_keeps_counting_when_flash_will_not_write(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            log = controller.JamLog(os.path.join(d, "missing-dir", "j.json"), 2)
+            log.add()
+            log.add()
+            self.assertTrue(log.write_failed)
+            self.assertTrue(log.due)
+
+    def test_reset_lift_hub_needs_its_key_and_the_feeder(self):
+        calls = []
+
+        class H:
+            def stop_all(self): pass
+            def estop_pressed(self): return False
+            def lift_hub_reset(self): calls.append(1)
+        c = controller.Controller(H(), controller.ROLE_FEEDER, 0)
+        c.handle(protocol.RESET_LIFT_HUB, (1,), 10)
+        self.assertEqual((calls, c.rejected), ([], 1))
+        c.handle(protocol.RESET_LIFT_HUB, (protocol.RESET_LIFT_HUB_KEY,), 20)
+        self.assertEqual(calls, [1])
+        col = controller.Controller(H(), controller.ROLE_COLLECTOR, 0)
+        col.handle(protocol.RESET_LIFT_HUB, (protocol.RESET_LIFT_HUB_KEY,), 10)
+        self.assertEqual((calls, col.rejected), ([1], 1))
+
+    def test_lift_soft_start_ramps_every_start(self):
+        # 2026-11-15, cad/README.md "Lift coupling dynamics": the first start and the retry after a trip both ramp
+        lift = controller.LiftRun(16000, 1.0, blank_ms=400, trip_ms=10, rest_ms=2000, retries=1, ramp_ms=100)
+        lift.kick(0)
+        duties = [lift.update(t, False) for t in range(0, 120, 10)]
+        self.assertAlmostEqual(duties[0], 0.1)
+        self.assertEqual(duties, sorted(duties))
+        self.assertEqual(duties[9:], [1.0, 1.0, 1.0])
+        for t in range(400, 430, 10):
+            lift.update(t, True)                                 # stalled past the blanking: cut
+        self.assertEqual(lift.update(500, False), 0.0)
+        self.assertAlmostEqual(lift.update(2420, False), 0.1)    # the retry ramps again
+        plain = controller.LiftRun(16000)                        # ramp_ms 0: straight to full duty
+        plain.kick(0)
+        self.assertEqual(plain.update(0, False), 1.0)
+
+    def test_lift_duty_follows_the_battery(self):
+        # 2026-11-15, cad/README.md "Lift duty follows the battery": the duty is held to v_ref / battery
+        lift = controller.LiftRun(16000, 1.0, v_ref_mv=24000, duty_min=0.82, bus_tau_ms=500)
+        lift.kick(0)
+        self.assertEqual(lift.update(0, False, 24000), 1.0)                   # at the cut: full duty
+        lift2 = controller.LiftRun(16000, 1.0, v_ref_mv=24000, duty_min=0.82, bus_tau_ms=500)
+        lift2.kick(0)
+        self.assertAlmostEqual(lift2.update(0, False, 29200), 24 / 29.2)     # first reading seeds the filter
+        self.assertEqual(lift2.update(10, False, 22000), lift2.update(10, False, 22000))
+        lift2.update(20, False, 1000)                                        # a dead reading is ignored
+        self.assertLess(lift2.update(30, False, 29200), 1.0)
+        for t in range(40, 3000, 10):                                        # a reading drifts down to 26 V
+            d = lift2.update(t, False, 26000)
+        self.assertAlmostEqual(d, 24 / 26, places=3)
+        one = lift2.update(3010, False, 26260)                               # a braking wheel's 260 mV step
+        self.assertLess(d - one, 0.2 * (d - 24 / 26.26))                     # moves it under a fifth of the way
+        floor = controller.LiftRun(16000, 1.0, v_ref_mv=24000, duty_min=0.82)
+        floor.kick(0)
+        self.assertAlmostEqual(floor.update(0, False, 36000), 0.82)          # never under the floor
+        none = controller.LiftRun(16000, 1.0, v_ref_mv=24000)
+        none.kick(0)
+        self.assertEqual(none.update(0, False, None), 1.0)                   # no reading yet: the fixed duty
+        fixed = controller.LiftRun(16000, 1.0)
+        fixed.kick(0)
+        self.assertEqual(fixed.update(0, False, 29200), 1.0)                 # v_ref 0: the fixed duty
+        ramp = controller.LiftRun(16000, 1.0, ramp_ms=100, v_ref_mv=24000, duty_min=0.82)
+        ramp.kick(0)
+        self.assertAlmostEqual(ramp.update(0, False, 29200), 0.1 * 24 / 29.2)  # the soft start ramps to the held duty
 
     def test_lift_run_on_covers_the_cad_return_time(self):
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "cad"))
@@ -768,7 +881,7 @@ class FirmwareTest(unittest.TestCase):
                     return 0 if self.n == 22 else self.v   # azimuth home switch closed; e-stop (4) not pressed
                 self.v = v
 
-            def irq(self, *a):
+            def irq(self, *a, **k):
                 pass
 
         class PWM:

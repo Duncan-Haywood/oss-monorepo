@@ -164,12 +164,17 @@ SECRET_LINE_RULES = [
 JS_CALLS = re.compile(r"\b(?:jwt|jsonwebtoken)\.(verify|sign|decode)\s*\(")
 PY_CALLS = re.compile(r"\b(?:jwt|pyjwt|PyJWT)\.(decode|encode)\s*\(")
 GO_CALLS = re.compile(r"\bjwt\.(?:Parse|ParseWithClaims)\s*\(")
-STRING_ARG = re.compile(r"^[bBuU]?([\"'`])((?:\\.|(?!\1).)*)\1$")
+# Same shape as classify.mjs: a backslash is an escape or, only before the closing
+# quote, a lone character; the old (?:\\.|(?!\1).)* split backslash runs 2^n ways.
+STRING_ARG = re.compile(r"^[bBuU]?([\"'`])((?:\\.|(?![\\]|\1).)*\\?)\1$")
 KEYWORD_ARG = re.compile(r"^([A-Za-z_]\w*)\s*=(?!=)\s*(.*)$")
 USER_KEY = re.compile(
     r"\b(?:req|request|ctx|event)\s*[.\[]|\bheaders?\b|\b(?:params|query|body)\b"
 )
-GO_METHOD_CHECK = re.compile(r"\.Method\b")
+# A keyfunc that checks token.Method: a type assertion (token.Method.(*jwt.SigningMethodHMAC)),
+# token.Method.Alg(), or a comparison with a jwt.SigningMethod*. A bare `.Method` also matched
+# net/http's r.Method and switched the rule off for the whole file (quality audit 2026-11-17).
+GO_METHOD_CHECK = re.compile(r"\.Method\s*(?:\.\s*\(|\.\s*Alg\s*\(|[!=]=\s*jwt\.SigningMethod)")
 
 WEAK_LITERALS = frozenset(
     {

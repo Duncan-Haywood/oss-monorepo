@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { findCodeownersPath, parseArgs } from './check.mjs';
@@ -51,6 +51,22 @@ test('findCodeownersPath throws naming the three checked locations when none exi
   process.chdir(dir);
   try {
     assert.throws(() => findCodeownersPath(null), /CODEOWNERS.*\.github\/CODEOWNERS.*docs\/CODEOWNERS/);
+  } finally {
+    process.chdir(original);
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('findCodeownersPath prefers .github/CODEOWNERS over the root, as GitHub does', () => {
+  // Quality census 2026-11-15-8354: the root file was checked first.
+  const dir = mkdtempSync(join(tmpdir(), 'codeowners-test-'));
+  const original = process.cwd();
+  mkdirSync(join(dir, '.github'));
+  writeFileSync(join(dir, 'CODEOWNERS'), '*.js @root-team');
+  writeFileSync(join(dir, '.github', 'CODEOWNERS'), '*.js @github-team');
+  process.chdir(dir);
+  try {
+    assert.equal(findCodeownersPath(null), '.github/CODEOWNERS');
   } finally {
     process.chdir(original);
     rmSync(dir, { recursive: true, force: true });

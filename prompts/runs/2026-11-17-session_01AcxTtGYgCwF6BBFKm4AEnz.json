@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtGYgCwF6BBFKm4AEnz",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T22:06:47Z",
+  "ended": "2026-11-17T22:10:14Z",
+  "wall_minutes": 9.53,
+  "tokens_in": 3271708,
+  "tokens_out": 17404,
+  "cost_usd": 1.5351,
+  "tool_calls": 45,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17082",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First test run: 176 failures, all from my post's description being 171 chars (writing.mjs limit 160); shortened to 152, rerun green.",
+    "A sloppy sed briefly turned an audience title into a .replace() expression; fixed before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Starting the build with a trailing & inside a foreground Bash call works but is fragile; the run_in_background form the prompt gives is the one to use, and the build must restart after edits to audiences.mjs since it imports them at start."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-two-household-audience-pages-parents-and-job-changers.md",
+    "docs/reports/polish-2026-11-17-parents-job-changers-audiences.md"
+  ],
+  "goal": null,
+  "notes": "Added parents (9 tools) and job-changers (8 tools) audiences. Verification: node platform/pages/build.mjs OK; node platform/pages/check.mjs: 'dist looks publishable: 1390 products, 49 category pages, 11241 pages, no dead links'; node --test 'platform/pages/*.test.mjs': 1795 pass, 0 fail; Playwright at 390 and 1280 px: scrollWidth equals viewport on both new pages; tool pages link back (nanny-tax -> for-parents, severance -> for-job-changers).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6c511983-51bf-5690-81ff-f1c574dbb8ff",
+    "transcripts": 1,
+    "first": "2026-11-17T22:06:47Z",
+    "last": "2026-11-17T22:16:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 83,
+        "output": 17404,
+        "thinking": 3084,
+        "cache_read": 3203373,
+        "cache_write_5m": 0,
+        "cache_write_1h": 68252,
+        "api_equivalent_usd": 1.5351,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 83,
+      "output": 17404,
+      "thinking": 3084,
+      "cache_read": 3203373,
+      "cache_write_5m": 0,
+      "cache_write_1h": 68252,
+      "api_equivalent_usd": 1.5351,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 41,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.53,
+      "active_minutes": 9.53,
+      "model_minutes": 3.96,
+      "tool_minutes": 5.57,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "choosing tools for two audiences, copy, tests, build verification and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 195.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

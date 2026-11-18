@@ -44,10 +44,16 @@ Options:
                             with --model poisson, a common log-linear growth rate (multiplicative, composes with --period)
   --slope-breaks [n]        test for up to n (default 3) changes of the growth rate on the differences (use with --log for a percentage growth): each break is dated and has a Wald statistic against a calibrated bar of 11; 40 or more points
   --hinge-test              test for one change of slope on the levels, with AR(1) noise and a bootstrap p-value: far more power than --slope-breaks on a series that wanders about a trend (temperature), and refuses one whose residuals look like a unit root (GDP); 30 to 600 points
+  --known-date <label>      test for a step and a change of slope at a date you name (a law, launch or price change; the label is the first row after it), against the line before it, AR(1) noise and a bootstrap p-value; takes --period and --log; refuses a series that wanders like a random walk
+  --donors <a,b,...|all>   with --known-date and --column: a synthetic control instead (Abadie et al. 2010): the treated column against a weighted mix of these donor columns in the same CSV, fitted on every point before the date, with a placebo test that gives each donor the same date (floored ratio); 4 or more donors, no blanks
+  --covariates <file.csv>   with --donors: one row per unit (the column name, then numbers, e.g. income, price), printed as a balance table of the fit with a warning where the treated unit is matched worse than 80% of the donors are by their own fits; changes no p
+  --window <from:to>        with --donors: use only the rows from label from to label to (either side may be left empty)
+  --anticipation <N|a-b>   with --donors: end the fit N points before --known-date, for a change people saw coming (an announced law); the gap and the test read from there. Unsure of the lead? a range such as 0-4 fits every lead, prints them together and one range p
+  --two-hinge-test          test for two changes of slope against a straight line on the levels (speeds up then levels off; rises, holds, falls), same AR(1) noise, bootstrap and unit-root guard as --hinge-test; 30 to 300 points
   --knot-margin f          with --trend bend(s): keep this fraction of the series clear at each end when looking for knots (default 0.1 = knots at 10 to 90%; 0.2 = the old 20 to 80%)
   --joint-knots             with --trend bends: also score every pair of knots, not only the greedy search's (slower, about 2 s per 240 points)
   --bootstrap               with --model meanvar, mean or poisson: set the penalty from block-resampled residuals (much fewer false alarms on heavy tails, clustered volatility or autocorrelated noise; a little less power at n = 100)
-  --overdispersion [phi|nb] counts (nb: a negative-binomial cost for independent clumpy counts, also with --period and --trend; in the Bayesian pass without them): scale the penalty by the counts' dispersion (variance over mean, estimated from block totals, or the number given), so sticky or clumped counts are not cut into many steps
+  --overdispersion [phi|nb|nb1] counts (nb: a negative-binomial cost for independent clumpy counts, one size r, variance mu + mu^2 / r, also with --period and --trend; in the Bayesian pass without them; nb1: the negative binomial whose clumping grows with the level, variance phi mu, slower; the output's clumping.fits says which law the counts look like): scale the penalty by the counts' dispersion (variance over mean, estimated from block totals, or the number given), so sticky or clumped counts are not cut into many steps
   --ar1 [joint]             allow for lag-1 autocorrelation (mean model): widen the noise scale, or
                             'joint' to fit the means and rho together (more power on small shifts)
   --hazard <n>              Bayesian expected points between changes (default: ${DEFAULTS.hazardLambda})
@@ -82,7 +88,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   let json = false;
   let example = false;
   let agreed = true;
-  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin', '--holidays': 'holidays' };
+  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin', '--holidays': 'holidays', '--known-date': 'knownDate', '--donors': 'donors', '--covariates': 'covariates', '--window': 'window', '--anticipation': 'anticipation' };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-h' || a === '--help') { out(USAGE + '\n'); return 0; }
@@ -101,12 +107,13 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--garch') opt.garch = true;
     else if (a === '--dispersion') opt.dispersion = true;
     else if (a === '--bootstrap') opt.bootstrap = true;
-    else if (a === '--overdispersion') opt.overdispersion = argv[i + 1] === 'nb' ? (i++, 'nb') : argv[i + 1] && /^\d+(\.\d+)?$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
+    else if (a === '--overdispersion') opt.overdispersion = argv[i + 1] === 'nb' || argv[i + 1] === 'nb1' ? argv[++i] : argv[i + 1] && /^\d+(\.\d+)?$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--bursts') opt.bursts = argv[i + 1] && /^\d+(\.\d+)?$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--spikes') opt.spikes = argv[i + 1] && /^\d+$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--episodes') opt.episodes = argv[i + 1] && /^\d+$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--burst-runs') opt.burstRuns = Number(argv[++i]);
     else if (a === '--hinge-test') opt.hingeTest = true;
+    else if (a === '--two-hinge-test') opt.twoHingeTest = true;
     else if (a === '--slope-breaks') opt.slopeBreaks = argv[i + 1] && /^[1-3]$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--joint-knots') opt.jointKnots = true;
     else if (a === '--trend') opt.trend = argv[i + 1] === 'bend' || argv[i + 1] === 'bends' || argv[i + 1] === 'quad' ? argv[++i] : true;
@@ -143,6 +150,20 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     const { driftText, driftResult } = await import('./drift-cli.mjs');
     const r = driftResult({ csv: example ? NILE_CSV : opt.csv, column: opt.column, labelColumn: opt.labelColumn, penalty: opt.penalty, minSegment: opt.minSegment, slope: opt.driftSlope, noise: opt.driftNoise });
     out((json ? JSON.stringify(r, null, 2) : driftText(r)) + '\n');
+    return 0;
+  }
+  if (opt.knownDate != null && opt.donors != null) {
+    const { synthResult, synthText } = await import('./synth-cli.mjs');
+    const covariatesCsv = opt.covariates != null ? await readFile(opt.covariates, 'utf8') : null;
+    const r = synthResult({ csv: opt.csv, column: opt.column, labelColumn: opt.labelColumn, date: opt.knownDate, donors: opt.donors.split(',').map((d) => d.trim()).filter(Boolean), window: opt.window, log: opt.log, covariatesCsv, anticipation: opt.anticipation ?? 0 });
+    out((json ? JSON.stringify(r, null, 2) : synthText(r)) + '\n');
+    return 0;
+  }
+  if (opt.donors != null || opt.covariates != null || opt.window != null || opt.anticipation != null) throw new Error('--donors, --covariates, --window and --anticipation go with --known-date (a synthetic control); --covariates, --window and --anticipation also need --donors.');
+  if (opt.knownDate != null) {
+    const { knownDateResult, knownDateText } = await import('./known-date-cli.mjs');
+    const r = knownDateResult({ csv: example ? NILE_CSV : opt.csv, column: opt.column, labelColumn: opt.labelColumn, date: opt.knownDate, period: opt.period, log: opt.log });
+    out((json ? JSON.stringify(r, null, 2) : knownDateText(r)) + '\n');
     return 0;
   }
   if (opt.columns) {
@@ -216,6 +237,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     for (const x of ch) lines.push(`  ${x.label}: ${x.range95.from === x.range95.to ? 'that point only' : `${x.range95.from} – ${x.range95.to}`}`);
   }
   if (r.updateRateWarning) lines.push('', r.updateRateWarning);
+  if (r.clumpingWarning) lines.push('', r.clumpingWarning);
   if (r.ramps) {
     lines.push('', 'Adjacent changes that look like one ramp (same direction, short segments between; the changes above are unchanged):');
     for (const x of r.ramps) lines.push(`  ${x.from} – ${x.to}: ${x.cuts} cuts, one ${x.direction} from ${x.meanBefore} to ${x.meanAfter} (${x.shift > 0 ? '+' : ''}${x.shift})`);
@@ -238,9 +260,18 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   }
   if (r.hingeTest) {
     const h = r.hingeTest;
-    lines.push('', 'One change of slope, tested on the levels:');
+    lines.push('', `One change of slope, tested on the ${h.scale === 'log' ? 'logs (a slope is a growth rate per step)' : 'levels'}:`);
     if (h.refused) lines.push(`  Not tested: ${h.reason}.`);
     else lines.push(`  ${h.significant ? 'A change of slope' : 'No significant change of slope'}: best knot ${h.label}, slope ${h.slopeBefore} -> ${h.slopeAfter} per step, F ${h.f} against a bootstrap bar of ${h.bar95}, p ${h.p} (${h.reps} replicates; AR(1) rho ${h.rho})`);
+    if (h.admittedByCut) lines.push(`  Tested although the residuals about a straight line are sticky (rho ${h.rhoLine}): the bend cuts that to ${h.rhoHinge}, more than 99% of random walks of this length are cut (${h.cutBar}), so this is a bend, not a wander.`);
+    lines.push(`  (${h.note})`);
+  }
+  if (r.twoHingeTest) {
+    const h = r.twoHingeTest;
+    lines.push('', `Two changes of slope, tested on the ${h.scale === 'log' ? 'logs (a slope is a growth rate per step)' : 'levels'}:`);
+    if (h.refused) lines.push(`  Not tested: ${h.reason}.`);
+    else lines.push(`  ${h.significant ? 'Two changes of slope' : 'No significant pair of slope changes'}: best knots ${h.label1} and ${h.label2}, slopes ${h.slopes.join(' -> ')} per step, F ${h.f} against a bootstrap bar of ${h.bar95}, p ${h.p} (${h.reps} replicates; AR(1) rho ${h.rho})`);
+    if (h.admittedByCut) lines.push(`  Tested although the residuals about a straight line are sticky (rho ${h.rhoLine}): the two bends cut that to ${h.rhoTwo}, more than 99% of random walks of this length are cut (${h.cutBar}).`);
     lines.push(`  (${h.note})`);
   }
   if (r.episodes && r.episodes.length) {

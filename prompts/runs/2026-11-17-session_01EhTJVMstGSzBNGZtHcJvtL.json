@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVMstGSzBNGZtHcJvtL",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production; merge when done.",
+  "input_sha256": "5767b84735b6c9043e02e53c77b00c9fbd663fcfa739a0cbaac4f733585d0f6f",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T21:56:03Z",
+  "ended": "2026-11-17T22:04:22Z",
+  "wall_minutes": 8.48,
+  "tokens_in": 6027776,
+  "tokens_out": 28030,
+  "cost_usd": 2.6338,
+  "tool_calls": 61,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17079",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "cloud-session pyenv advice: `python3 platform/ci/pyenv.py pytest numpy` printed /usr/bin/python3.13 (which has numpy) but bare `python3` lacks it, so develop_engine_check.py failed with a misleading 'needs numpy and an image at least 2x2' until I used python3.13 explicitly."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start-here pick was chant-forge, which 11 sessions in 2 days left; its buildable items are narrow synthetic tuning rounds. I took photo-editing's BUILDABLE item instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "allocate picked chant-forge (row 7); the brief asks for revenue-oriented depth and photo-editing has the highest revenue cap (40) among flagships with a concrete buildable quality defect",
+      "did": "took photo-editing's buildable item: interpolate the 4,096-entry tone table",
+      "result": "shipped; 16-bit masters reach 45k-65k levels, LibRaw p99 gap down 3-4x on two cameras"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-photo-editing-16-bit-masters-had-12-bits.md",
+    "ventures/photo-editing/eval/srgb-table-interp-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "run_venture_tests.py photo-editing: ok (1304 tests, 9 skipped, 209 s). tests/test_srgb_table.py 3 passed with numpy. develop_engine_check --half: Pentax QS1 and Nexus 5X identical bytes across engines. dng_camera_check vs rawpy 0.28.0 old/new p99 8-bit: Leica T 0.136/0.035, Pentax 0.160/0.047, Nexus 1.198/1.152.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "12598ee0-167b-5a7e-8641-50232a4087c7",
+    "transcripts": 1,
+    "first": "2026-11-17T21:56:03Z",
+    "last": "2026-11-17T22:04:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 112,
+        "output": 28030,
+        "thinking": 5710,
+        "cache_read": 5916478,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111186,
+        "api_equivalent_usd": 2.6338,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 112,
+      "output": 28030,
+      "thinking": 5710,
+      "cache_read": 5916478,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111186,
+      "api_equivalent_usd": 2.6338,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 55,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.48,
+      "active_minutes": 8.48,
+      "model_minutes": 5.36,
+      "tool_minutes": 3.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "an imaging engineer finding, fixing and measuring a LUT quantisation defect across two engines with LibRaw cross-check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 151.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

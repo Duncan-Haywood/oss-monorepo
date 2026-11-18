@@ -1983,3 +1983,14 @@ test("the default time budget starts strictly above 150 shifts (red-team 2026-11
   assert.equal(defaultBudgetMs(150), 0);
   assert.equal(defaultBudgetMs(151), 20000);
 });
+
+import { parseSiteWage as _psw } from "./calc.mjs";
+test("parseSiteWage: a long run of parts with doubled tabs does not backtrack exponentially (ReDoS)", () => {
+  const spec = "\t AT LEAS" + "T0\t+0\t\tAT LEAS".repeat(40) + "M\t+0";
+  const t0 = performance.now();
+  _psw(spec);
+  assert.ok(performance.now() - t0 < 1000, "parseSiteWage took over a second");
+  const r = _psw("Airport +2 \t +10 %; Downtown min 20.17");
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(r.rules.map((x) => [x.site, x.add, x.pct, x.min]), [["airport", 2, 10, 0], ["downtown", 0, 0, 20.17]]);
+});

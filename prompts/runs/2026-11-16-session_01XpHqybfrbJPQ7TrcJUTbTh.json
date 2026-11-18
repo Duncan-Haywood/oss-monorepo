@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqybfrbJPQ7TrcJUTbTh",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T21:39:31Z",
+  "ended": "2026-11-16T21:46:25Z",
+  "wall_minutes": 7.17,
+  "tokens_in": 3250019,
+  "tokens_out": 36197,
+  "cost_usd": 2.2533,
+  "tool_calls": 33,
+  "task": "creative: Hearth & Horizon story from the BIBLE proposal 'the pump that will not start on the generator'",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16711",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The session's named branch already existed locally at an older main commit (f93b11e8b), so 'git checkout -b' failed; a reset to origin/main was needed. Harmless, but the cloud-session notes could say the branch may pre-exist."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The claim-before-drafting rule needs a commit to open a PR; I committed a stub story file with front matter. A one-line note saying a stub file is the expected claim commit would save the guess."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "The proposal said the generator's breaker trips; on a 20 kVA set a stalled 69 A start is more plausibly ended by the controller's underfrequency shutdown (a 32 A breaker's thermal trip would take seconds to tens of seconds), so the story uses UNDERFREQUENCY and mentions the engine slowing.",
+      "did": "Wrote the failure as a controller underfrequency shutdown.",
+      "result": "The fault mechanism matches the note's engine-power sums (16.8 kW alone, 24.0 kW with other loads, against 16 kW)."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio folders are at 577 MB, over the 400 MB cap.",
+      "did": "Text and pages only, no audio.",
+      "result": "Story, pages and feeds land; audio left for when enclosures move off Pages."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-hearth-and-horizon-six-times-for-a-second.md"
+  ],
+  "goal": "Hearth & Horizon is the creative track's headline shelf; one finished story from the next-up list.",
+  "notes": "Project: hearth-and-horizon (Hearth & Horizon shelf). Piece: six-times-for-a-second (about 4,860 words, text only). Numbers in scratch script before drafting: pump 5.5 kW -> 7.98 kVA running, 47.9 kVA locked-rotor (6x), dip 37% with X'd 0.25 on 20 kVA; compressor 28.1 kVA, 26%; soft starter 23%; drive 7.1 kVA, 8%; DOL-capable set 48 kVA. Every weekday in the note checked with datetime; Easter 2051 = 2 Apr computed. Adversarial re-read fixed: restart count (three, not four), a fifty's load fraction (a third, not a quarter), porter timing. Checks: node --test in the venture 17/17 pass; check_post_frontmatter, check_post_links and post_similarity clean. Stub-claim draft PR opened before drafting; no competing PR for the phrase.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "44c06149-1f30-52fa-a6e5-88877a085077",
+    "transcripts": 1,
+    "first": "2026-11-16T21:39:31Z",
+    "last": "2026-11-16T21:46:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 61,
+        "output": 36197,
+        "thinking": 13272,
+        "cache_read": 3137252,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112706,
+        "api_equivalent_usd": 2.2533,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 61,
+      "output": 36197,
+      "thinking": 13272,
+      "cache_read": 3137252,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112706,
+      "api_equivalent_usd": 2.2533,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.965,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 28,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.17,
+      "active_minutes": 7.17,
+      "model_minutes": 6.7,
+      "tool_minutes": 0.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a writer researching generator motor starting and drafting a 4,900-word technical short story with a numbers note: about 10 hours",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 443.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

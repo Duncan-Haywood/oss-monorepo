@@ -111,6 +111,9 @@ def main(argv=None):
     for page, u in bad:
         print(f"{page}: {u}")
     print(f"{pages} pages, {len(bad)} plain-http loaders")
+    if not pages:
+        print(f"no pages under {args.root}: wrong --root? A scan of nothing is not a pass.")
+        return 2
     return 1 if bad else 0
 
 

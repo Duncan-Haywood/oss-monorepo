@@ -221,6 +221,11 @@ export const INPUT_NOTES = [
 ];
 
 export function fmtUsd(n) {
+  // The sign goes outside the symbol, and only on a nonzero amount: -$9.24, never $-9.24.
+  if (Number(n) < 0) {
+    const text = fmtUsd(Math.abs(n));
+    return /[1-9]/.test(text) ? `-${text}` : text;
+  }
   if (!Number.isFinite(n)) return "n/a";
   if (n >= 100) return "$" + Math.round(n).toLocaleString("en-US");
   return "$" + n.toFixed(2);

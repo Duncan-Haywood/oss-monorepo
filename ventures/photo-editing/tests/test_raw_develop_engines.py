@@ -34,7 +34,7 @@ class EngineEquivalenceTests(unittest.TestCase):
     def assertSameBytes(self, blob, **settings):
         raw = rd.parse_raw(blob)
         py = rd.develop(raw, rd.DevelopSettings(engine="python", **settings))
-        npy = rd.develop(raw, rd.DevelopSettings(engine="numpy", **settings))
+        npy = rd.develop(raw, rd.DevelopSettings(engine="numpy", demosaic="bilinear", **settings))
         self.assertEqual(py[3].engine, "python")
         self.assertEqual(npy[3].engine, "numpy")
         self.assertEqual(py[:2], npy[:2])
@@ -127,7 +127,7 @@ class EngineChoiceTests(unittest.TestCase):
         *_, report = rd.develop(rd.parse_raw(blob), rd.DevelopSettings(engine="auto"))
         self.assertEqual(report.engine, "python")
         with self.assertRaises(rd.DevelopError):
-            rd.develop(rd.parse_raw(blob), rd.DevelopSettings(engine="numpy"))
+            rd.develop(rd.parse_raw(blob), rd.DevelopSettings(engine="numpy", demosaic="bilinear"))
 
     def test_python_engine_reports_itself(self):
         blob = make_dng(patch_sensor(8, 4), 8, 4)
@@ -171,7 +171,7 @@ class BandedThreadsTests(unittest.TestCase):
                 self.np_mod._BAND_ROWS = band
                 os.environ["SHOOTFLOW_THREADS"] = threads
                 with self.subTest(band=band, threads=threads, **settings):
-                    got = rd.develop(raw, rd.DevelopSettings(engine="numpy", **settings))
+                    got = rd.develop(raw, rd.DevelopSettings(engine="numpy", demosaic="bilinear", **settings))
                     self.assertEqual(got[3].engine, "numpy")
                     self.assertEqual(got[2].tobytes(), want)
 

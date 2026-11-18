@@ -157,9 +157,15 @@ def ensure_models(models: Path = DEFAULT_MODELS) -> Path:
     for name in MODEL_FILES:
         if not (models / name).exists():
             print(f"downloading {name}", flush=True)
-            part = models / f"{name}.part"
-            urllib.request.urlretrieve(MODEL_URL + name, part)
-            part.rename(models / name)
+            # Per-process temp name: parallel renders sharing one models dir otherwise
+            # write the same "<name>.part" and one renames the other's partial file.
+            part = models / f"{name}.{os.getpid()}.part"
+            try:
+                urllib.request.urlretrieve(MODEL_URL + name, part)
+            except BaseException:
+                part.unlink(missing_ok=True)
+                raise
+            os.replace(part, models / name)
     return models
 
 

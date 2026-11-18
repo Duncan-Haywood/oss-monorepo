@@ -4,7 +4,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from robofab_solreftimestep.model import G, force_bound, gripper, mass_kg, moving_bound  # noqa: E402
-from robofab_solreftimestep.sim import holds  # noqa: E402
+from robofab_solreftimestep.sim import holds, min_force  # noqa: E402
 
 CUBE = [(0, 0, 0, 10, 10, 10)]
 
@@ -34,6 +34,17 @@ class T(unittest.TestCase):
     def test_parts_have_mass(self):
         for b in gripper().values():
             self.assertGreater(mass_kg(b), 0)
+
+
+    def test_min_force_lands_just_above_the_bound(self):
+        # Quality census 2026-11-17: min_force had no test, and returning `lo` instead of `hi`
+        # survived every existing test. The bisection must return a holding force near the bound.
+        b = moving_bound(CUBE, 0.6, a_up=600)
+        f = min_force(CUBE, 0, 0.6, a_up=600, solref=2e-4, dt=1e-4, hi=20.0)
+        self.assertIsNotNone(f)
+        self.assertGreaterEqual(f / b, 1.0)
+        self.assertLessEqual(f / b, 1.1)
+        self.assertTrue(holds(CUBE, 0, f, 0.6, a_up=600, solref=2e-4, dt=1e-4))
 
 
 if __name__ == "__main__":

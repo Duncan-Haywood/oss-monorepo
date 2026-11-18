@@ -93,6 +93,7 @@
       <div><label for="rounds">Rounds to play (blank = everyone plays everyone)</label><input id="rounds" inputmode="numeric" placeholder="e.g. 8 of 11"></div>
       <div><label for="seed">Shuffle seed (same seed, same schedule)</label><input id="seed" inputmode="numeric" value="1"></div>
     </div>
+    <div class="check"><input type="checkbox" id="balanceSeeds"><label for="balanceSeeds" style="display:inline;margin:0;font-weight:400">Shorter season: even out strength of schedule. List the teams best first (last season's table) and nobody gets all the top sides: with 20 teams over 10 rounds the bottom team would otherwise meet the top 10. Only applies when Rounds to play is less than a full round robin.</label></div>
     <fieldset style="border:0;padding:0;margin:12px 0 0">
       <legend style="font-weight:600">Play on</legend>
       <div class="days"><label class="inl" for="wd0"><input type="checkbox" id="wd0" value="Sun"> Sun</label><label class="inl" for="wd1"><input type="checkbox" id="wd1" value="Mon"> Mon</label><label class="inl" for="wd2"><input type="checkbox" id="wd2" value="Tue"> Tue</label><label class="inl" for="wd3"><input type="checkbox" id="wd3" value="Wed"> Wed</label><label class="inl" for="wd4"><input type="checkbox" id="wd4" value="Thu"> Thu</label><label class="inl" for="wd5"><input type="checkbox" id="wd5" value="Fri"> Fri</label><label class="inl" for="wd6"><input type="checkbox" id="wd6" value="Sat"> Sat</label></div>
@@ -115,6 +116,7 @@
       <div><label for="hire">Court hire per hour, optional (to price a team fee)</label><input id="hire" inputmode="decimal" placeholder="40"></div>
       <div><label for="courts">Courts or tables (comma or line separated, blank = automatic)</label><input id="courts" placeholder="Court 1, Court 2"></div>
       <div><label for="times">Time slots each night (blank = one)</label><input id="times" placeholder="18:00, 19:00"></div>
+      <div><label for="gamesPerNight">Games per team per night (2 = doubleheaders)</label><select id="gamesPerNight"><option value="1" selected>1</option><option value="2">2, back to back</option><option value="3">3, back to back</option><option value="4">4, back to back</option></select></div>
     </div>
 
     <h2 style="margin-top:18px">4. Play-offs (optional)</h2>
@@ -228,6 +230,15 @@
     <button type="button" id="dl-team-sheets">Download team sheets to print (.html)</button>
     <button type="button" class="secondary" id="dl-duties" hidden>Download team duty rota (text)</button>
     <p id="duty-line" class="note" role="status"></p>
+    <h3 style="margin-top:18px">Import into TeamSnap or SportsEngine</h3>
+    <p class="note">If your league already runs registration and team messaging on TeamSnap or SportsEngine, load this season there in one upload instead of typing every game. The files follow each platform's own published import template. Names must match the platform exactly.</p>
+    <p><label for="platformLocation">Location name on the platform</label> <input id="platformLocation" style="width:14em" placeholder="Riverside Rec Center"> <span class="note">(blank: each court is the location)</span></p>
+    <p><label for="teamSnapDivision">TeamSnap division</label> <input id="teamSnapDivision" style="width:12em" placeholder="Adult Coed">
+    <label for="teamSnapArrival">Arrive (minutes before)</label> <input id="teamSnapArrival" style="width:5em" inputmode="numeric" placeholder="30"></p>
+    <button type="button" class="secondary" id="dl-teamsnap">Download TeamSnap schedule import (.csv)</button>
+    <p><label for="sportsEngineIds">SportsEngine HQ team IDs, one per line (<code>Hawks = 2270996_271208</code>; HQ lists them on its template's Team/Division ID tab)</label><br><textarea id="sportsEngineIds" rows="3" style="width:100%"></textarea></p>
+    <button type="button" class="secondary" id="dl-sportsengine">Download SportsEngine schedule upload (.csv)</button>
+    <p id="platform-line" class="note" role="status"></p>
   </section>
 
   <section class="card" id="pack-card" aria-labelledby="h-pack" hidden>
@@ -350,7 +361,7 @@
     <h3>Other formats</h3>
     <ul class="pf-guide-list pf-cols"><li><a href="./how-to-run-a-swiss-tournament.html">Swiss pairings</a></li><li><a href="./how-to-run-a-single-elimination-bracket.html">Single elimination: seeds and byes</a></li><li><a href="./how-to-run-a-double-elimination-tournament.html">Double elimination and the grand final reset</a></li><li><a href="./how-to-run-an-americano-tournament.html">Americano rotation</a></li><li><a href="./how-to-run-a-mexicano-tournament.html">Mexicano draw</a></li><li><a href="./how-to-run-a-ladder-league.html">Challenge ladder</a></li></ul>
     <h3>Example schedules by sport</h3>
-    <ul class="pf-guide-list pf-cols"><li><a href="./pickleball-league-schedule.html">Pickleball: 8 teams, 2 courts</a></li><li><a href="./youth-soccer-league-schedule.html">Youth soccer: 9 teams, 2 fields, byes</a></li><li><a href="./adult-softball-league-schedule.html">Adult softball: 6 teams, a blackout night</a></li><li><a href="./rec-basketball-league-schedule.html">Rec basketball: 10 teams, 2 courts</a></li><li><a href="./volleyball-league-schedule.html">Volleyball: closed gym nights</a></li><li><a href="./cornhole-league-schedule.html">Cornhole: 8 teams, a skipped holiday</a></li><li><a href="./darts-league-schedule.html">Darts: home and away, 6 pub teams</a></li><li><a href="./chess-club-round-robin-schedule.html">Chess club: 7 players with byes</a></li></ul>
+    <ul class="pf-guide-list pf-cols"><li><a href="./pickleball-league-schedule.html">Pickleball: 8 teams, 2 courts</a></li><li><a href="./youth-soccer-league-schedule.html">Youth soccer: 9 teams, 2 fields, byes</a></li><li><a href="./adult-softball-league-schedule.html">Adult softball: 6 teams, a blackout night</a></li><li><a href="./rec-basketball-league-schedule.html">Rec basketball: 10 teams, 2 courts</a></li><li><a href="./volleyball-league-schedule.html">Volleyball: closed gym nights</a></li><li><a href="./cornhole-league-schedule.html">Cornhole: 8 teams, a skipped holiday</a></li><li><a href="./darts-league-schedule.html">Darts: home and away, 6 pub teams</a></li><li><a href="./bowling-league-schedule.html">Bowling: lane pairs rotated evenly</a></li><li><a href="./chess-club-round-robin-schedule.html">Chess club: 7 players with byes</a></li></ul>
     <h3>Look-up tables and templates</h3>
     <ul class="pf-guide-list"><li><a href="./round-robin-schedule-by-number-of-teams.html">Rounds and games for 3 to 16 teams</a></li><li><a href="./how-long-does-a-round-robin-tournament-take.html">How long a one-day round robin takes</a></li><li><a href="./tournament-bracket-by-number-of-teams.html">Byes, rounds and games for a 3 to 32 team bracket</a></li><li><a href="./round-robin-schedule-template.html">Ready-made round robin fixture lists for 4 to 16 teams</a></li><li><a href="./season-pack-for-league-organisers.html">A printable season pack for organisers (a planned paid extra; the schedule stays free)</a></li></ul>
   </section>
@@ -386,7 +397,7 @@
   </footer>
 
   <script type="module">
-    import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
+    import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, teamSnapCsv, sportsEngineCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { printPackHtml } from "./printpack.mjs";
     import { singleAsDivisions, parseDivisionDuties, assignDivisionDuties, validateDivisionDuties, divisionsTeamSheetsHtml, divisionsDutiesText } from "./divisions.mjs";
     import { carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, carryOverSqueeze, CARRY_OVER_POLISH, carryOverPolish, CARRY_OVER_FLOOR_PRICED, carryOverFloorPriced, carryOverPure } from "./carryover.mjs";
@@ -416,7 +427,8 @@
       $("#start").value = f.start;
       $("#minutes").value = f.minutes;
       $("#seed").value = f.seed;
-      $("#rounds").value = f.rounds || "";
+      $("#rounds").value = f.rounds || ""; $("#balanceSeeds").checked = Boolean(f.balanceSeeds);
+      $("#gamesPerNight").value = f.gamesPerNight || "1";
       for (let i = 0; i < 7; i++) $("#wd" + i).checked = f.weekdays.includes(WEEKDAYS[i]);
       $("#skip").value = f.skip;
       $("#blackouts").value = f.blackouts;
@@ -441,6 +453,7 @@
       $("#duties").value = f.duties || "";
       $("#sheetTitle").value = f.sheetTitle || "";
       $("#sheetContact").value = f.sheetContact || "";
+      for (const id of ["platformLocation", "teamSnapDivision", "teamSnapArrival", "sportsEngineIds"]) $("#" + id).value = f[id] || "";
     }
 
     function readFields() {
@@ -449,9 +462,10 @@
       return {
         teams: $("#teams").value, double: $("#double").checked, carryOver: $("#carryOver").checked, carryOverPick: $("#carryOverPick").value, carryOverKeep: $("#carryOverKeep").value, start: $("#start").value, weekdays,
         skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courtLimits: $("#courtLimits").value, courtClosures: $("#courtClosures").value, courts: $("#courts").value, times: $("#times").value,
-        seed: $("#seed").value, minutes: $("#minutes").value, rounds: $("#rounds").value,
+        seed: $("#seed").value, minutes: $("#minutes").value, rounds: $("#rounds").value, balanceSeeds: $("#balanceSeeds").checked, gamesPerNight: $("#gamesPerNight").value === "1" ? "" : $("#gamesPerNight").value,
         results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, pins: $("#pins").value, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, lateTeams: $("#lateTeams").value, finishBy: $("#finishBy").value, officials: $("#officials").value, grounds: $("#grounds").value, linked: $("#linked").value, scoring: $("#scoring").value,
         duties: $("#duties").value, sheetTitle: $("#sheetTitle").value, sheetContact: $("#sheetContact").value,
+        platformLocation: $("#platformLocation").value, teamSnapDivision: $("#teamSnapDivision").value, teamSnapArrival: $("#teamSnapArrival").value, sportsEngineIds: $("#sportsEngineIds").value,
       };
     }
 
@@ -848,14 +862,27 @@
       window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     });
     $("#clear-all").addEventListener("click", () => {
-      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "results", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "duties", "sheetTitle", "sheetContact"]) $("#" + id).value = "";
-      $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#playoffThird").checked = false; $("#double").checked = false; $("#carryOver").checked = false;
+      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "results", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "duties", "sheetTitle", "sheetContact", "platformLocation", "teamSnapDivision", "teamSnapArrival", "sportsEngineIds"]) $("#" + id).value = "";
+      $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#playoffThird").checked = false; $("#double").checked = false; $("#carryOver").checked = false; $("#balanceSeeds").checked = false;
       $("#report").hidden = true; last = null; status.textContent = "Cleared.";
     });
     $("#team").addEventListener("change", showTeam);
     $("#dl-csv").addEventListener("click", () => { if (!last) return; download("league-schedule.csv", scheduleCsv(last.s), "text/csv"); record("csv_downloaded"); });
     $("#dl-grid").addEventListener("click", () => { if (!last) return; download("league-season-grid.csv", seasonGridCsv(last.s), "text/csv"); record("csv_downloaded"); });
     $("#dl-gcal").addEventListener("click", () => { if (!last) return; download("league-calendar.csv", scheduleCalendarCsv(last.s), "text/csv"); record("csv_downloaded"); });
+    function platformExport(name, r) {
+      const line = $("#platform-line");
+      line.textContent = r.errors.length ? `Downloaded, but the platform will refuse it until this is fixed: ${r.errors.join(" ")}` : `Downloaded. ${r.warnings.join(" ")}`;
+      download(name, r.csv, "text/csv"); record("csv_downloaded");
+    }
+    $("#dl-teamsnap").addEventListener("click", () => {
+      if (!last) return;
+      platformExport("teamsnap-schedule-import.csv", teamSnapCsv(last.s, { division: $("#teamSnapDivision").value, location: $("#platformLocation").value, arrival: $("#teamSnapArrival").value.trim() || null }));
+    });
+    $("#dl-sportsengine").addEventListener("click", () => {
+      if (!last) return;
+      platformExport("sportsengine-schedule-upload.csv", sportsEngineCsv(last.s, { ids: $("#sportsEngineIds").value, location: $("#platformLocation").value }));
+    });
     $("#dl-standings").addEventListener("click", () => {
       if (!last) return;
       if (!last.table) { status.textContent = "Type some results first, then the standings can be downloaded."; return; }
@@ -1001,7 +1028,7 @@
       }
       if (tables.length) {
         parts.push(tables.map((t, i) => `${play[i].name} table\n` + t.map((r) => `  ${r.rank}. ${r.name}  ${r.points} pts  GD ${r.gd}`).join("\n")).join("\n\n"));
-        const adv = poolAdvancers(tables, Math.max(1, Math.trunc(Number($("#advance").value) || 1)));
+        const adv = poolAdvancers(tables, Math.max(1, Math.trunc(Number($("#advance").value) || 1))); /* zero-default: at least one team advances from a pool */
         parts.push("Play-off seeds\n" + adv.map((n, i) => `  ${i + 1}. ${n}`).join("\n"));
       }
       poolText = parts.join("\n\n");

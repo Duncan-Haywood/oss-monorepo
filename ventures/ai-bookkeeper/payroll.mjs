@@ -57,6 +57,9 @@ const ALIASES = {
   // Gusto's payroll journal (and others) print one total for the employer's taxes rather than social security, Medicare, FUTA and SUTA columns.
   erTaxTotal: ["employer_taxes", "total_employer_taxes", "employer_tax", "employer_taxes_total", "total_employer_tax", "employer_paid_taxes", "company_taxes"],
   // Expense reimbursements ride on the paycheck: in net pay, not in gross wages and not taxed.
+  // The amount actually paid to the worker, when the report prints net pay before reimbursements and post-tax deductions.
+  check: ["check_amount", "total_check_amount", "check_total", "net_check_amount", "amount_paid", "total_paid_to_employee"],
+  donations: ["donations", "charitable_donations", "charity", "donation"],
   reimb: ["reimbursements", "reimbursement", "expense_reimbursements", "expense_reimbursement", "non_taxable_reimbursements", "nontaxable_reimbursements", "reimbursements_non_taxable"],
   // A worker type column: rows for 1099 contractors are contract labour, not wages.
   kind: ["employee_type", "worker_type", "employment_type", "pay_type", "worker_classification", "classification"],
@@ -67,9 +70,34 @@ const ALIASES = {
   earn: ["regular_pay", "regular_wages", "regular_earnings", "regular", "salary", "hourly", "overtime", "overtime_pay", "double_time", "double_overtime", "bonus", "commission", "commissions", "holiday", "holiday_pay", "pto", "pto_pay", "vacation", "vacation_pay", "sick", "sick_pay", "paid_time_off", "severance", "retro_pay"],
 };
 
+const exact = (k) => {
+  for (const [f, names] of Object.entries(ALIASES)) if (names.includes(k)) return f;
+  return null;
+};
+// Two-letter state (and DC, PR) prefixes, as in "NC State Tax (Employee)" or "CA SUI (Employer)".
+const STATES = new Set("al ak az ar ca co ct de dc fl ga hi id il in ia ks ky la me md ma mi mn ms mo mt ne nv nh nj nm ny nc nd oh ok or pa ri sc sd tn tx ut vt va wa wv wi wy pr".split(" "));
+const UNEMPLOYMENT = /(^|_)(unemployment|sui|suta|ui|ett|uit)(_|$)/;
 const fieldOf = (header) => {
   const k = key(header);
-  for (const [f, names] of Object.entries(ALIASES)) if (names.includes(k)) return f;
+  const hit = exact(k);
+  if (hit) return hit;
+  // Reports that print one column per tax with the side in brackets: "FUTA (Employer)", "Additional Medicare (Employee)".
+  const m = k.match(/^(.+?)_(employee|employer|ee|er)$/);
+  const base = m ? m[1] : k, side = m ? (m[2] === "employer" || m[2] === "er" ? "er" : "ee") : null;
+  if (m) {
+    const viaBase = exact(base) ?? exact(`${side === "er" ? "employer" : "employee"}_${base}`);
+    if (viaBase && !["employee", "last", "first", "kind", "date", "net", "gross", "earn"].includes(viaBase)) return viaBase;
+  }
+  const words = base.split("_"), statePrefix = words.length > 1 && STATES.has(words[0]);
+  if (side === "er" || (statePrefix && UNEMPLOYMENT.test(base))) {
+    if (UNEMPLOYMENT.test(base)) return "suta";
+    // Other employer-only state taxes (workers' benefit funds, training taxes, transit taxes) are employer cost.
+    if (side === "er" && /tax|fund|assessment|surcharge/.test(base)) return "erOther";
+    return null;
+  }
+  // A state or local tax withheld from the employee: "NC State Tax", "CA SDI (Employee)", "Philadelphia City Tax (Employee)".
+  if (statePrefix && /(^|_)(tax|income_tax|withholding|w_h|wh|sdi|fli|pfl|pfml)(_|$)/.test(base)) return "state";
+  if (side === "ee" && /(^|_)(tax|sdi|fli|pfl|pfml)(_|$)/.test(base)) return "state";
   return null;
 };
 
@@ -78,19 +106,36 @@ export function readPayrollRegister(text) {
   let table = parseCsv(text).filter((r) => r.some((c) => String(c).trim() !== ""));
   if (table.length < 2) throw new Error("The payroll register has no rows.");
   // Exports often start with a title, the company and the period before the header: the header is the first row that names a pay date and a net pay column.
-  const at = table.findIndex((r) => { const f = r.map(fieldOf); return f.includes("date") && f.includes("net"); });
+  let at = table.findIndex((r) => { const f = r.map(fieldOf); return f.includes("date") && f.includes("net"); });
+  // Some journals (Gusto's "Payroll Journal Report") print the pay date once, as a "Pay day, 08/31/2026" line above the header, and no date column.
+  let runDate = null;
+  if (at < 0) {
+    const h = table.findIndex((r) => { const f = r.map(fieldOf); return (f.includes("gross") || f.includes("earn")) && f.includes("net"); });
+    if (h > 0) {
+      for (const r of table.slice(0, h)) {
+        const cells = r.map((c) => String(c).trim()).filter(Boolean);
+        if (cells.length === 2 && exact(key(cells[0])) === "date" && parseDate(cells[1])) runDate = parseDate(cells[1]);
+      }
+      if (runDate) at = h;
+    }
+  }
   if (at > 0) table = table.slice(at);
+  if (runDate) table = table.map((r, i) => [i === 0 ? "Pay date" : runDate, ...r]);
   const cols = table[0].map(fieldOf);
   const hasEarn = cols.includes("earn");
   for (const need of ["date", "gross", "net"]) if (!cols.includes(need) && !(need === "gross" && hasEarn)) throw new Error(`The payroll register needs a ${need === "date" ? "pay date" : need === "gross" ? "gross pay" : "net pay"} column. Found: ${table[0].join(", ")}.`);
   const problems = [], notes = [], byDate = new Map();
+  let erGap = 0;
+  if (runDate) notes.push(`The report prints its pay day (${runDate}) above the table, not on each row; every row is booked on that date.`);
   const taxOnly = cols.includes("taxTotal") && !cols.some((f) => ["fed", "ss", "med", "state"].includes(f));
   if (taxOnly) notes.push("The register has one total for employee taxes. Social Security (6.2%) and Medicare (1.45%) are taken from gross pay and the rest is booked as federal income tax; split columns would be exact, so the Form 941 worksheet is only as good as that guess.");
   // Provider exports end with a "Total" row (which would count every run twice) and often print the pay date only on a group's first row.
   const nameCol = cols.indexOf("employee"), dateCol = cols.indexOf("date");
+  const labelCols = [nameCol, cols.indexOf("last"), cols.indexOf("first"), dateCol].filter((j) => j >= 0);
   let lastDate = "";
   table.slice(1).forEach((r, i) => {
-    if (/^(grand\s+)?totals?\b/i.test(String(r[nameCol >= 0 ? nameCol : dateCol] ?? "").trim())) return;
+    // "Total", "Grand Total", "Payroll Totals", "Company Totals": in the name column, or in Last Name when the report splits names.
+    if (labelCols.some((j) => /^((grand|payroll|company|report|run)\s+)?totals?\b/i.test(String(r[j] ?? "").trim()))) return;
     if (nameCol >= 0 && String(r[dateCol] ?? "").trim() === "" && String(r[nameCol] ?? "").trim() !== "" && lastDate) r = r.map((c, j) => (j === dateCol ? lastDate : c));
     else lastDate = String(r[dateCol] ?? "").trim() || lastDate;
     const row = { employee: null };
@@ -117,13 +162,28 @@ export function readPayrollRegister(text) {
     }
     const label = `Row ${i + 2}`;
     if (!row.date) { problems.push(`${label}: no readable pay date.`); return; }
-    for (const f of ["gross", "net", "fed", "ss", "med", "state", "other", "erSs", "erMed", "futa", "suta", "erOther", "reimb"]) {
+    for (const f of ["gross", "net", "fed", "ss", "med", "state", "other", "erSs", "erMed", "futa", "suta", "erOther", "reimb", "donations"]) {
       row[f] ??= 0;
       if (!Number.isFinite(row[f])) { problems.push(`${label}: cannot read the ${f} amount.`); return; }
     }
     // Employee deductions are shown as positives; a negative one is the provider's sign convention.
-    for (const f of ["fed", "ss", "med", "state", "other", "erSs", "erMed", "futa", "suta", "erOther", "reimb"]) row[f] = Math.abs(row[f]);
+    for (const f of ["fed", "ss", "med", "state", "other", "erSs", "erMed", "futa", "suta", "erOther", "reimb", "donations"]) row[f] = Math.abs(row[f]);
     if (row.gross < 0) { problems.push(`${label}: negative gross pay; file a reversal by hand.`); return; }
+    // A report that prints net pay before reimbursements and post-tax donations, then the check amount actually paid: the check is what the bank shows.
+    if (cols.includes("check") && Number.isFinite(row.check) && row.check !== row.net) {
+      const base = row.gross - (row.fed + row.ss + row.med + row.state + row.other);
+      if (row.net === base && row.check === base + row.reimb - row.donations) { row.net = row.check; row.other += row.donations; }
+    } else if (row.donations && cols.includes("check")) row.other += row.donations;
+    // When the report prints both a total of employee taxes and the taxes one by one, they must agree, or a tax column was not read.
+    if (cols.includes("taxTotal") && !taxOnly && Number.isFinite(row.taxTotal) && Math.abs(row.taxTotal) !== row.fed + row.ss + row.med + row.state) {
+      problems.push(`${label} (${row.date}${row.employee ? ", " + row.employee : ""}): employee taxes ${(Math.abs(row.taxTotal) / 100).toFixed(2)} but the tax columns read add to ${((row.fed + row.ss + row.med + row.state) / 100).toFixed(2)}; a tax column was not recognised; row left out.`);
+      return;
+    }
+    // The same for the employer's side; the difference (a state employer tax this reader does not name) is booked as other employer cost.
+    if (cols.includes("erTaxTotal") && cols.some((f) => ["erSs", "erMed", "futa", "suta"].includes(f)) && Number.isFinite(row.erTaxTotal)) {
+      const gap = Math.abs(row.erTaxTotal) - (row.erSs + row.erMed + row.futa + row.suta + (cols.includes("erOther") ? row.erOther : 0));
+      if (gap > 0) { row.erOther += gap; erGap += gap; }
+    }
     const deducted = row.fed + row.ss + row.med + row.state + row.other;
     if (row.net !== row.gross - deducted + row.reimb) { problems.push(`${label} (${row.date}${row.employee ? ", " + row.employee : ""}): net pay ${(row.net / 100).toFixed(2)} is not gross ${(row.gross / 100).toFixed(2)} less deductions ${(deducted / 100).toFixed(2)}${row.reimb ? ` plus reimbursements ${(row.reimb / 100).toFixed(2)}` : ""}; row left out.`); return; }
     const run = byDate.get(row.date) ?? { id: `PR-${row.date}`, date: row.date, employees: 0, gross: 0, net: 0, fed: 0, ss: 0, med: 0, state: 0, other: 0, erSs: 0, erMed: 0, futa: 0, suta: 0, erOther: 0 };
@@ -143,6 +203,7 @@ export function readPayrollRegister(text) {
   const runs = [...byDate.values()].filter((r) => r.employees || r.contract).sort((a, b) => a.date.localeCompare(b.date));
   if (cols.includes("erTaxTotal") && !cols.some((f) => ["erSs", "erMed", "futa", "suta"].includes(f))) notes.push("The register has one total for employer taxes. Employer Social Security (6.2%) and Medicare (1.45%) are taken from gross pay and the rest is booked as unemployment tax; the Form 940 worksheet recomputes FUTA from wages, so check it against the provider's 940.");
   if (runs.some((r) => r.contract)) notes.push(`${runs.reduce((a, r) => a + (r.contractors?.length ?? 0), 0)} contractor payment${runs.reduce((a, r) => a + (r.contractors?.length ?? 0), 0) === 1 ? "" : "s"} booked to contract labor (${CONTRACT}), not wages, and left out of Forms 941, 940 and W-2. A provider that pays contractors usually files their 1099-NEC too; contract labor paid here does not show in this tool's 1099 list, which reads bank lines.`);
+  if (erGap) notes.push(`Employer taxes on the report add to ${(erGap / 100).toFixed(2)} more than the employer tax columns this reader recognises; the difference is booked as other employer cost (${PAYROLL_TAX}), not as FUTA or state unemployment.`);
   if (runs.some((r) => r.reimb)) notes.push(`Expense reimbursements on paychecks are booked to ${SUSPENSE} (ask my accountant): move each to the expense it repaid. They are not wages.`);
   return { runs, problems, notes };
 }

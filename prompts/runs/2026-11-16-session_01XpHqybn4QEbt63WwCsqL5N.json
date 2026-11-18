@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqybn4QEbt63WwCsqL5N",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T07:39:43Z",
+  "ended": "2026-11-16T07:54:18Z",
+  "wall_minutes": 14.9,
+  "tokens_in": 11562215,
+  "tokens_out": 52748,
+  "cost_usd": 4.8983,
+  "tool_calls": 105,
+  "task": "heavy-hydraulics milestone 7a: an eighth gear-pump family (Rexroth AZPF) held out, priced past its largest size",
+  "projects": [
+    "research/heavy-hydraulics"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16501",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "The auto-mode safety classifier returned no verdict on roughly 15 Bash calls (transient). Retrying the same command, or running read-only tools in between, got through.",
+      "cost": "about 15 wasted turns"
+    },
+    {
+      "what": "The first full pytest run reported test_paper_tex failing because it raced the manuscript edit made while it ran. A rerun after the edit passed (12 of 12 on the touched tests).",
+      "cost": "one rerun"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "issue": "6z's Next (g) named the AZPF as a candidate but not where to fetch its sheet. One search found two editions on distributor mirrors; recording mirror URLs in Next saves the next run a search."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "pick_track.py printed a 'LAND FIRST' list. All three PRs on it were live sibling claims (one had just merged), so the list cost a read and called for no action."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md (7a method)",
+      "why": "The registered method listed a diagnostic, 'how far the AZPF sits from the rule when its index and drag are read on its own largest size'. That is identical to the held reading, so it was dropped. In its place the run reports the share of the fixed-pump size grid above size 28 and adds a post-hoc end-size sensitivity check (size 25 held), labelled as not registered.",
+      "did": "reported grid share plus a labelled post-hoc check",
+      "result": "the rule error moved from +0.0008 to +0.0010; disclosed in LOG, README and manuscript"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-an-eighth-gear-pump-priced-past-its-largest-size.md",
+    "research/heavy-hydraulics/LOG.md (Milestone 7a)"
+  ],
+  "goal": "advance the heavy-hydraulics programme (track 25) with a registered held-out test",
+  "notes": "Verification: digitise_rexroth_azpf.py reads 2,134 rows, with axis misses of at most 15.1 r/min and 0.063 L/min. gear_pump_eight.py reproduces 6z's 49 cells exactly (0.0000). pytest tests/test_paper_tex.py tests/test_rexroth_azpf.py: 12 passed. The full suite gave 112 passed and 3 skipped; its 1 failure was the mid-edit race and passed on rerun. check_numbers.py --paper manuscript.md: 89 claims, 0 missing, 0 orphans; draft: 339, 0 missing. build_tex.py: 0 problems. Homepage build: ok. research_live_links and check_md_links: ok. programme_check: ok. Post front-matter and link checks: ok. cite_check was not run because no new DOI or arXiv reference was added (the AZPF data sheet is cited by RE number, as for the AZPG, AZPN and AZPU). Outcome: AF1, AF2, AF4, AF5 and AF6 held; AF3 refuted.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0bc8f1e6-3ad6-5802-b2df-f854d7fa7797",
+    "transcripts": 1,
+    "first": "2026-11-16T07:39:43Z",
+    "last": "2026-11-16T07:54:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 88,
+        "input": 171,
+        "output": 52748,
+        "thinking": 9619,
+        "cache_read": 11365855,
+        "cache_write_5m": 0,
+        "cache_write_1h": 196189,
+        "api_equivalent_usd": 4.8983,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 88,
+      "input": 171,
+      "output": 52748,
+      "thinking": 9619,
+      "cache_read": 11365855,
+      "cache_write_5m": 0,
+      "cache_write_1h": 196189,
+      "api_equivalent_usd": 4.8983,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 105,
+    "tools": {
+      "Bash": 67,
+      "Read": 16,
+      "Grep": 6,
+      "Write": 6,
+      "Edit": 5,
+      "ToolSearch": 2,
+      "WebSearch": 1,
+      "Glob": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.9,
+      "active_minutes": 14.9,
+      "model_minutes": 8.58,
+      "tool_minutes": 6.31,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "digitising a 10-size vector data sheet, adapting the reader, writing a registered held-out analysis, tests, manuscript update and post: about a researcher's working day",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 204.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

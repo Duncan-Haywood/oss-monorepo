@@ -141,3 +141,30 @@ test("impact lists exactly who flips when a rollout changes", () => {
   assert.deepEqual(Object.keys(back.moves), ["on -> off"]);
   assert.equal(impact(at(10), at(10), "f", { users: 500 }).changed, 0);
 });
+
+// From the 2026-11-15 quality census (portfolio/quality/audits/2026-11-15-flag-keeper.json).
+const badSeg = { flags: { f: { key: "f", enabled: true, rules: [{ id: "s", if: [{ op: "inSegment", value: "beta" }], serve: { variant: "on" } }], fallthrough: { variant: "off" } } }, segments: { beta: { include: "user-1" } } };
+
+test("a segment whose include is not a list is rejected, not saved to crash later", () => {
+  assert.ok(validateConfig(badSeg).some((e) => /segment "beta": include must be a list/.test(e)));
+  assert.ok(validateConfig({ flags: {}, segments: { x: null } }).some((e) => /must be an object/.test(e)));
+});
+
+test("local-mode SDK returns the fallback instead of throwing on a bad config", async () => {
+  const { createClient } = await import("./sdk.mjs");
+  const fetchImpl = async () => ({ status: 200, ok: true, json: async () => badSeg, headers: { get: () => null } });
+  const errors = [];
+  const c = createClient({ url: "http://x", key: "k", mode: "local", fetchImpl, onError: (e) => errors.push(e) });
+  await c.ready(); c.close();
+  assert.equal(await c.isOn("f", { key: "u" }), false);
+  assert.equal((await c.detail("f", { key: "u" }, "fb")).reason, "error");
+  assert.equal(errors.length, 2); // one per failed evaluation, reported to onError
+});
+
+test("pre-release versions order per SemVer 2.0.0 section 11", () => {
+  const chain = ["1.0.0-alpha", "1.0.0-alpha.1", "1.0.0-alpha.beta", "1.0.0-beta", "1.0.0-beta.2", "1.0.0-beta.11", "1.0.0-rc.1", "1.0.0-rc.2", "1.0.0-rc.10", "1.0.0"];
+  for (let i = 0; i + 1 < chain.length; i++) {
+    assert.equal(matchCondition({ attr: "v", op: "semverLt", value: chain[i + 1] }, { v: chain[i] }, {}), true, `${chain[i]} < ${chain[i + 1]}`);
+    assert.equal(matchCondition({ attr: "v", op: "semverLt", value: chain[i] }, { v: chain[i + 1] }, {}), false, `${chain[i + 1]} !< ${chain[i]}`);
+  }
+});

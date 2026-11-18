@@ -1,0 +1,454 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKjmghrfKQs9qYLdVRj",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T16:19:03Z",
+  "ended": "2026-11-17T16:19:29Z",
+  "wall_minutes": 19.56,
+  "tokens_in": 2373331,
+  "tokens_out": 11119,
+  "cost_usd": 1.1124,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16996",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "league-schedule-generator/calc.mjs campaign killed by my 590 s timeout: its suite takes 229 s baseline (27 files, 567 tests); file restored clean."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets --probe 20` samples, so grepping its output for a named file returned nothing; to check a specific target's suite time I had to time node --test by hand (league-schedule-generator turned out to be 229 s)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 11 open defects are control-plane edits (workflows, prompts/, control_plane_guard.py) needing owner-approved separate PRs; this session can push only its own branch.",
+      "did": "Re-checked each still reproduces on main (grep of the named fix sites), left them open, spent the run on campaigns and a real-bug hunt.",
+      "result": "One new real defect found and patched instead."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-a-capital-g-would-have-hidden-the-site-from-search-console.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: site-verification.mjs now rejects unknown config keys, so the build (portfolio-pages) fails on a misfiled token instead of deploying without it. Verified: node --test platform/pages/site-verification.test.mjs 6/6; redteam.py rerun: both gaps caught_after_fix true; verificationHead() on committed config returns ''.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/vat.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 669031670,
+        "commit": "d98b08bcb",
+        "sites": 1986,
+        "baseline_seconds": 21.7,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/vat.mjs",
+            "line": 129,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "let check = (weighted(padded.slice(0, 9), [7, 5, 3, 2, 1, 7, 5, 3, 2]) * 10) % 11;",
+            "after": "let check = (weighted(padded.slice(1, 9), [7, 5, 3, 2, 1, 7, 5, 3, 2]) * 10) % 11;",
+            "line_text": "      let check = (weighted(padded.slice(0, 9), [7, 5, 3, 2, 1, 7, 5, 3, 2]) * 10) % 11;",
+            "caught": true,
+            "seconds": 16.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/vat.mjs",
+            "line": 129,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "let check = (weighted(padded.slice(0, 9), [7, 5, 3, 2, 1, 7, 5, 3, 2]) * 10) % 11;",
+            "after": "let check = (weighted(padded.slice(0, 9), [7, 5, 4, 2, 1, 7, 5, 3, 2]) * 10) % 11;",
+            "line_text": "      let check = (weighted(padded.slice(0, 9), [7, 5, 3, 2, 1, 7, 5, 3, 2]) * 10) % 11;",
+            "caught": true,
+            "seconds": 14.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/vat.mjs",
+            "line": 187,
+            "col": 83,
+            "operator": "eq-flip",
+            "before": "return (1 + weighted(b.slice(0, 10), [10, 5, 8, 4, 2, 1, 6, 3, 7, 9])) % 11 % 10 === Number(b[10]);",
+            "after": "return (1 + weighted(b.slice(0, 10), [10, 5, 8, 4, 2, 1, 6, 3, 7, 9])) % 11 % 10 !== Number(b[10]);",
+            "line_text": "  return (1 + weighted(b.slice(0, 10), [10, 5, 8, 4, 2, 1, 6, 3, 7, 9])) % 11 % 10 === Number(b[10]);",
+            "caught": true,
+            "seconds": 14.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/vat.mjs",
+            "line": 492,
+            "col": 53,
+            "operator": "const-plus-one",
+            "before": "const value = Number(body[index + 1]) * (index % 2 === 0 ? 2 : 1);",
+            "after": "const value = Number(body[index + 1]) * (index % 3 === 0 ? 2 : 1);",
+            "line_text": "    const value = Number(body[index + 1]) * (index % 2 === 0 ? 2 : 1);",
+            "caught": true,
+            "seconds": 12.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/vat.mjs",
+            "line": 548,
+            "col": 28,
+            "operator": "const-plus-one",
+            "before": "const weights = [9, 8, 7, 6, 5, 4, 3, 2];",
+            "after": "const weights = [9, 8, 7, 7, 5, 4, 3, 2];",
+            "line_text": "  const weights = [9, 8, 7, 6, 5, 4, 3, 2];",
+            "caught": true,
+            "seconds": 12.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/vat.mjs",
+            "line": 669,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "return r !== 10 && r === d[11];",
+            "after": "return r !== 10 && r === d[12];",
+            "line_text": "  return r !== 10 && r === d[11];",
+            "caught": true,
+            "seconds": 12.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/vat.mjs",
+            "line": 870,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "return (11 - (sum % 11)) % 10 === Number(body[12]);",
+            "after": "return (11 - (sum % 11)) % 10 === Number(body[13]);",
+            "line_text": "  return (11 - (sum % 11)) % 10 === Number(body[12]);",
+            "caught": true,
+            "seconds": 12.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/vat.mjs",
+            "line": 937,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "if (country === \"XI\") return body.length === 9 || body.length === 12 ? gbOk(body) : false;",
+            "after": "if (country === \"XI\") return body.length === 10 || body.length === 12 ? gbOk(body) : false;",
+            "line_text": "  if (country === \"XI\") return body.length === 9 || body.length === 12 ? gbOk(body) : false;",
+            "caught": true,
+            "seconds": 12.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/pages/site-verification.mjs",
+        "test": "node --test platform/pages/site-verification.test.mjs  (in .)",
+        "seed": 585231614,
+        "commit": "d98b08bcb",
+        "sites": 4,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "platform/pages/site-verification.mjs",
+            "line": 21,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const TOKEN_RE = /^[A-Za-z0-9_-]{8,128}$/;",
+            "after": "const TOKEN_RE = /^[A-Za-z0-9_-]{9,128}$/;",
+            "line_text": "const TOKEN_RE = /^[A-Za-z0-9_-]{8,128}$/;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test pinned TOKEN_RE length bounds; added \"token length bounds: 8 and 128 characters pass, 7 and 129 are refused\"."
+          },
+          {
+            "file": "platform/pages/site-verification.mjs",
+            "line": 21,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "const TOKEN_RE = /^[A-Za-z0-9_-]{8,128}$/;",
+            "after": "const TOKEN_RE = /^[A-Za-z0-9_-]{8,129}$/;",
+            "line_text": "const TOKEN_RE = /^[A-Za-z0-9_-]{8,128}$/;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test pinned TOKEN_RE length bounds; added \"token length bounds: 8 and 128 characters pass, 7 and 129 are refused\"."
+          },
+          {
+            "file": "platform/pages/site-verification.mjs",
+            "line": 29,
+            "col": 23,
+            "operator": "neq-flip",
+            "before": "if (typeof token !== 'string' || !TOKEN_RE.test(token)) {",
+            "after": "if (typeof token === 'string' || !TOKEN_RE.test(token)) {",
+            "line_text": "      if (typeof token !== 'string' || !TOKEN_RE.test(token)) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/site-verification.mjs",
+            "line": 29,
+            "col": 36,
+            "operator": "or-to-and",
+            "before": "if (typeof token !== 'string' || !TOKEN_RE.test(token)) {",
+            "after": "if (typeof token !== 'string' && !TOKEN_RE.test(token)) {",
+            "line_text": "      if (typeof token !== 'string' || !TOKEN_RE.test(token)) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/pages/rates.mjs",
+        "test": "node --test platform/pages/rates.test.mjs  (in .)",
+        "seed": 1117,
+        "commit": "d98b08bcb",
+        "sites": 182,
+        "baseline_seconds": 1.0,
+        "mutants": [
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 653,
+            "col": 41,
+            "operator": "lt-to-le",
+            "before": "if (!Number.isFinite(result) || result < 0) return null;",
+            "after": "if (!Number.isFinite(result) || result <= 0) return null;",
+            "line_text": "  if (!Number.isFinite(result) || result < 0) return null;",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 946,
+            "col": 12,
+            "operator": "eq-flip",
+            "before": "if (raw === '' || raw === null || raw === undefined) return null;",
+            "after": "if (raw !== '' || raw === null || raw === undefined) return null;",
+            "line_text": "    if (raw === '' || raw === null || raw === undefined) return null;",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 949,
+            "col": 34,
+            "operator": "lt-to-le",
+            "before": "if (!isFinite(value) || value < 0 || value > max) return null;",
+            "after": "if (!isFinite(value) || value <= 0 || value > max) return null;",
+            "line_text": "    if (!isFinite(value) || value < 0 || value > max) return null;",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 1006,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "try { store.setItem(KEY, JSON.stringify({ v: 1, rates: merged })); return true; }",
+            "after": "try { store.setItem(KEY, JSON.stringify({ v: 2, rates: merged })); return true; }",
+            "line_text": "    try { store.setItem(KEY, JSON.stringify({ v: 1, rates: merged })); return true; }",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 1029,
+            "col": 20,
+            "operator": "plus-to-minus",
+            "before": "return f.prefix + shown.toLocaleString('en-US') + f.suffix;",
+            "after": "return f.prefix - shown.toLocaleString('en-US') + f.suffix;",
+            "line_text": "    return f.prefix + shown.toLocaleString('en-US') + f.suffix;",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 1167,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if (name === 'clear') {",
+            "after": "if (name !== 'clear') {",
+            "line_text": "      if (name === 'clear') {",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 1255,
+            "col": 30,
+            "operator": "ge-to-gt",
+            "before": "const anchored = headingEnd >= 0",
+            "after": "const anchored = headingEnd > 0",
+            "line_text": "  const anchored = headingEnd >= 0",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "toolHeadingEnd (jobs.mjs:2492) returns -1 or close + \"</header>\".length (>= 9), never 0, so >= 0, > 0 and >= 1 split its range identically."
+          },
+          {
+            "file": "platform/pages/rates.mjs",
+            "line": 1255,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const anchored = headingEnd >= 0",
+            "after": "const anchored = headingEnd >= 1",
+            "line_text": "  const anchored = headingEnd >= 0",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "toolHeadingEnd (jobs.mjs:2492) returns -1 or close + \"</header>\".length (>= 9), never 0, so >= 0, > 0 and >= 1 split its range identically."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/pages/site-verification.mjs",
+        "issue": "verificationTags ignored unknown keys in platform/seo/site-verification.json, so a token pasted under \"Google\", \"msvalidate.01\" or any typo built a home page with no verification tag and no error, while the owner believed Search Console/Bing were wired (the file says paste mistakes are 'refused loudly'). Reproduced: verificationTags({Google:[...]}) returned []. Fixed: unknown non-_ keys throw (Object.hasOwn, so 'toString' is refused too); failing-first test 'a misnamed engine key is refused, not silently dropped'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16996"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "839ec034-7298-5b63-a16a-942b6bdb47c5",
+    "transcripts": 1,
+    "first": "2026-11-17T16:19:03Z",
+    "last": "2026-11-17T16:38:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 68,
+        "output": 11119,
+        "thinking": 1597,
+        "cache_read": 2320044,
+        "cache_write_5m": 0,
+        "cache_write_1h": 53219,
+        "api_equivalent_usd": 1.1124,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 68,
+      "output": 11119,
+      "thinking": 1597,
+      "cache_read": 2320044,
+      "cache_write_5m": 0,
+      "cache_write_1h": 53219,
+      "api_equivalent_usd": 1.1124,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 33,
+      "Edit": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.56,
+      "active_minutes": 19.56,
+      "model_minutes": 1.87,
+      "tool_minutes": 17.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "mutation runs, bug repro, fix, tests and post by a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 179.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

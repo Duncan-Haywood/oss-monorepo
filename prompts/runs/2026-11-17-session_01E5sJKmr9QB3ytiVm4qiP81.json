@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKmr9QB3ytiVm4qiP81",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T18:10:19Z",
+  "ended": "2026-11-17T18:14:49Z",
+  "wall_minutes": 13.27,
+  "tokens_in": 5217797,
+  "tokens_out": 33929,
+  "cost_usd": 2.7254,
+  "tool_calls": 47,
+  "task": "society-lanes milestone 6f: why crowd-side robots slow people in two of three twins (2x2 factorial on steering and speed cap)",
+  "projects": [
+    "research/society-lanes"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17024",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first version of the new ORCA test compared result dicts with ==, which fails on nan values",
+      "fix": "compare repr()"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/society-lanes/README.md",
+      "issue": "README Next steps 6 had grown into a ~250-word paragraph mixing done and open items; finding the open question took a full read"
+    },
+    {
+      "file": "research/_shared/linefig.py",
+      "issue": "only line plots; a categorical effect-by-cause figure needed a hand-written bar SVG (~70 lines) in m6f_figure.py"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-corridor-robots-dont-slow-people-extra-bodies-do.md",
+    "research/society-lanes/LOG.md (6f entry)"
+  ],
+  "goal": null,
+  "notes": "Registered predictions V1-V7 committed before the full run (commit 1 of PR). 1,920 runs, ~9 min on 4 cores, no failed runs. V1,V2,V5,V6,V7 held; V3,V4 refuted: a crowd-side robot costs people less than the person it replaces in all three twins; the 6d/6e slow-down is the density control. Local checks: society-lanes tests 75 passed (python3.13 with jupedsim 1.4.2, numba); research/_homepage/build.py ok; research_live_links --write; check_md_links ok; check_post_frontmatter ok; check_post_links ok; post_similarity 0 pairs; programme_check ok. No new citations (cite_check not needed).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7bca6524-617c-5e2b-b991-7cd390ec3201",
+    "transcripts": 1,
+    "first": "2026-11-17T18:10:19Z",
+    "last": "2026-11-17T18:23:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 85,
+        "output": 33929,
+        "thinking": 7788,
+        "cache_read": 5089136,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128576,
+        "api_equivalent_usd": 2.7254,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 85,
+      "output": 33929,
+      "thinking": 7788,
+      "cache_read": 5089136,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128576,
+      "api_equivalent_usd": 2.7254,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 44,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.27,
+      "active_minutes": 13.27,
+      "model_minutes": 5.37,
+      "tool_minutes": 7.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a research engineer designing, coding, running and writing up a registered 1,920-run simulation factorial",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 440.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

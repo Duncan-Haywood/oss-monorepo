@@ -2,9 +2,12 @@
 // service fee actually observed, take-home per order, per-product and per-buyer net
 // revenue, repeat-buyer share, refunds and cancellations, withdrawal costs,
 // funds still clearing, and the price needed for a target take-home. Column
-// names are matched by alias; no real Gumroad export was available when this
-// was written, so nothing here claims to know Gumroad's exact headers. Pure
-// functions, no DOM, no network.
+// names are matched by alias. Gumroad's own sales export (Sales > Export) is
+// read directly: its headers ("Sale Price ($)", "Fees ($)", "Net Total ($)",
+// "Refunded?", "Partial Refund ($)", "Fully Refunded?", "Disputed?",
+// "Dispute Won?", "Discover?") are taken from PURCHASE_FIELDS in Gumroad's
+// open-source app/services/exports/purchase_export_service.rb (antiwork/gumroad),
+// checked 2026-11-15. Pure functions, no DOM, no network.
 
 export function decodeBuffer(buf) {
   const u8 = new Uint8Array(buf);
@@ -22,24 +25,26 @@ export function detectDelimiter(text) {
 
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
@@ -47,7 +52,7 @@ export function parseCsv(text, delim = ",") {
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−]/.test(s);
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -62,10 +67,10 @@ export function parseWhen(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   let y, mo, d, rest = "";
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(.*)$/);
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
   else {
-    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(.*)$/);
+    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)(.*)$/);
     if (!m) return null;
     const a = +m[1], b = +m[2];
     y = +m[3]; if (y < 100) y += 2000;
@@ -105,25 +110,41 @@ export function detectDmy(values) {
 
 const ALIASES = {
   id: ["purchase id", "sale id", "order id", "order number", "order #", "order", "id", "reference", "ref", "transaction id"],
-  date: ["sale time", "sale date", "purchase date", "date", "order date", "transaction date", "completed date", "completion date", "date completed", "created", "created at", "cleared date", "delivery date", "day"],
+  date: ["sale time", "sale date", "purchase date", "purchase time (utc timezone)", "date", "order date", "transaction date", "completed date", "completion date", "date completed", "created", "created at", "cleared date", "delivery date", "day"],
   type: ["type", "transaction type", "activity", "activity type", "event", "entry type", "category", "transaction"],
-  status: ["status", "order status", "state", "payment status"],
+  // Not "state": Gumroad's export has a "State" column for the buyer's address.
+  status: ["status", "order status", "payment status"],
   desc: ["description", "details", "memo", "note", "notes"],
   product: ["item name", "product name", "product", "product title", "product name", "service", "product / service", "item", "order title", "title", "product id"],
-  buyer: ["buyer", "buyer name", "buyer username", "customer", "client", "username", "from", "buyer / customer"],
-  gross: ["amount", "order amount", "order value", "price", "order price", "sale", "sales", "gross", "gross amount", "gross revenue", "total", "order total", "buyer paid", "order revenue", "revenue"],
+  buyer: ["buyer", "buyer name", "buyer username", "customer", "client", "username", "from", "buyer / customer", "purchase email", "buyer email"],
+  gross: ["amount", "sale price", "order amount", "order value", "price", "order price", "sale", "sales", "gross", "gross amount", "gross revenue", "total", "order total", "buyer paid", "order revenue", "revenue"],
   fee: ["service fee", "fee", "fees", "gumroad fee", "gumroad service fee", "commission", "platform fee", "gumroad commission", "marketplace fee", "withdrawal fee"],
   net: ["net total", "net", "your earnings", "payout amount", "net amount", "net revenue", "earnings", "you earn", "seller earnings", "your earnings", "net earnings", "payout", "net income", "income", "revenue after fee"],
   hours: ["hours", "hours spent", "time spent (hours)", "hours worked"],
   currency: ["currency"],
+  // Gumroad's per-sale flags (1 or 0) and partial refund amount.
+  refunded: ["refunded?", "refunded"],
+  fullyRefunded: ["fully refunded?", "fully refunded"],
+  partialRefund: ["partial refund"],
+  disputed: ["disputed?", "disputed"],
+  disputeWon: ["dispute won?", "dispute won"],
+  discover: ["discover?", "discover"],
 };
 
 export const MIN_REPEAT_ORDERS = 2;
-export const DEFAULT_FEE_PCT = 20;
+// Gumroad's direct-sale fee when Gumroad processes the payment: 10% + $0.50
+// Gumroad fee plus 2.9% + $0.30 processing (GUMROAD_FLAT_FEE_PER_THOUSAND 100,
+// GUMROAD_FIXED_FEE_CENTS 50, PROCESSOR_FEE_PER_THOUSAND 29,
+// PROCESSOR_FIXED_FEE_CENTS 30 in Gumroad's app/models/purchase.rb,
+// calculate_fees). A Discover (marketplace) sale is a flat 30% with no fixed fee.
+export const DEFAULT_FEE_PCT = 12.9;
+export const DEFAULT_FEE_FIXED = 0.8;
+export const DISCOVER_FEE_PCT = 30;
 export const FEE_MODES = ["auto", "gross", "net"];
 
 function findColumns(header) {
-  const norm = header.map((h) => h.trim().toLowerCase());
+  // "Sale Price ($)" -> "sale price": Gumroad puts the currency in the header.
+  const norm = header.map((h) => String(h ?? "").trim().toLowerCase().replace(/\s*\((\$|usd|€|eur|£|gbp)\)\s*$/, "").trim());
   const cols = {};
   for (const [field, names] of Object.entries(ALIASES)) {
     for (const n of names) {
@@ -151,7 +172,7 @@ const RE_PENDING = /pend|clearing|clearance|processing|escrow|\bhold\b|in progre
 // apply. feeMode: "auto" reads a fee column, else earnings vs amount, else
 // applies feePct to whatever single amount there is; "gross" reads the amount
 // column as before Gumroad's fee; "net" reads it as what you keep.
-export function normalizeRows(table, { decimalComma = false, feeMode = "auto", feePct = DEFAULT_FEE_PCT } = {}) {
+export function normalizeRows(table, { decimalComma = false, feeMode = "auto", feePct = DEFAULT_FEE_PCT, feeFixed = DEFAULT_FEE_FIXED } = {}) {
   const empty = { rows: [], skipped: [], currency: "", columns: {}, dmy: false, feeSource: "none" };
   if (!table.length) return { ...empty, error: "The file is empty." };
   let h = -1;
@@ -164,6 +185,8 @@ export function normalizeRows(table, { decimalComma = false, feeMode = "auto", f
   const get = (line, f) => (cols[f] === undefined ? "" : (line[cols[f]] ?? "").trim());
   const dmy = detectDmy(table.slice(h + 1).map((l) => get(l, "date")));
   const pctRaw = Math.min(Math.max(Number(feePct) || 0, 0), 99.99) / 100;
+  const fixedRaw = Math.max(Number(feeFixed) || 0, 0);
+  const flag = (line, f) => cols[f] !== undefined && /^(1|true|yes|y)$/i.test(get(line, f));
   const hasG = cols.gross !== undefined, hasN = cols.net !== undefined, hasF = cols.fee !== undefined;
   let feeSource;
   if (feeMode === "gross") feeSource = "percent";
@@ -181,7 +204,7 @@ export function normalizeRows(table, { decimalComma = false, feeMode = "auto", f
   };
   for (let i = h + 1; i < table.length; i++) {
     const line = table[i];
-    const lineNo = i + 1;
+    const lineNo = table[i].line ?? i + 1;
     if (line.every((x) => !String(x).trim())) continue;
     const first = String(line[0] ?? "").trim().toLowerCase();
     if (/^(total|totals|subtotal|grand total|summary|balance)\b/.test(first)) { skipped.push({ line: lineNo, reason: "total row" }); continue; }
@@ -206,8 +229,9 @@ export function normalizeRows(table, { decimalComma = false, feeMode = "auto", f
     else kind = "order";
     const cur = get(line, "currency");
     if (cur && !currency) currency = cur;
+    const discover = flag(line, "discover");
     const row = {
-      line: lineNo, id: get(line, "id"), t: when ? when.t : null, kind,
+      line: lineNo, id: get(line, "id"), t: when ? when.t : null, kind, discover,
       pending: (kind === "order" || kind === "tip") && RE_PENDING.test(statusText),
       product: get(line, "product").replace(/\s+/g, " ").trim(), buyer: get(line, "buyer").replace(/\s+/g, " ").trim(),
       gross: 0, fee: 0, net: 0, hours: null, refundGross: 0, refundNet: 0, moved: 0, moveFee: 0, moveFeeKnown: false,
@@ -225,11 +249,32 @@ export function normalizeRows(table, { decimalComma = false, feeMode = "auto", f
         net = n ?? g; gross = g ?? n;
         if (gross < net) gross = net;
       } else if (feeSource === "percent") {
-        gross = g ?? n; net = gross * (1 - pctRaw);
+        // Gumroad charges nothing on a $0 sale; a Discover sale is a flat 30%.
+        gross = g ?? n;
+        net = gross <= 0 ? gross : discover ? gross * (1 - DISCOVER_FEE_PCT / 100) : Math.max(gross * (1 - pctRaw) - fixedRaw, 0);
       } else {
-        net = n ?? g; gross = net / (1 - pctRaw);
+        net = n ?? g;
+        gross = net <= 0 ? net : discover ? net / (1 - DISCOVER_FEE_PCT / 100) : (net + fixedRaw) / (1 - pctRaw);
       }
       row.gross = gross; row.net = net; row.fee = gross - net;
+      rows.push(row);
+      // Gumroad's export keeps a refunded or disputed sale on its own row with
+      // flags rather than adding a negative row. Gumroad returns its fee in
+      // proportion to the amount refunded (purchase.rb: refunded_fee_cents =
+      // fee_cents / price_cents * refund), so the seller loses that share of net.
+      const share = (amt) => (gross > 0 ? Math.min(amt / gross, 1) : 0);
+      let back = 0, why = "";
+      if (flag(line, "fullyRefunded")) { back = 1; why = "refund"; }
+      else if (flag(line, "refunded") || cols.partialRefund !== undefined) {
+        const pr = Math.abs(num(line, "partialRefund") ?? 0);
+        if (pr > 0) { back = share(pr); why = "partial refund"; }
+        else if (flag(line, "refunded")) { back = 1; why = "refund"; }
+      }
+      if (!back && flag(line, "disputed") && !flag(line, "disputeWon")) { back = 1; why = "dispute lost"; }
+      if (back > 0 && Number.isFinite(back)) {
+        rows.push({ ...row, kind: "refund", why, pending: false, gross: 0, fee: 0, net: 0, hours: null, refundGross: gross * back, refundNet: net * back });
+      }
+      continue;
     } else if (kind === "refund") {
       row.refundGross = Math.abs(g ?? n);
       row.refundNet = Math.abs(n ?? g);
@@ -243,7 +288,7 @@ export function normalizeRows(table, { decimalComma = false, feeMode = "auto", f
     rows.push(row);
   }
   if (!rows.length) return { ...empty, columns: cols, dmy, skipped, error: "No usable rows: every row was skipped." };
-  return { rows, skipped, currency, columns: cols, dmy, feeSource, feePct: pctRaw * 100 };
+  return { rows, skipped, currency, columns: cols, dmy, feeSource, feePct: pctRaw * 100, feeFixed: fixedRaw };
 }
 
 // "Product, hours per order" per line. Returns { list, bad }.
@@ -265,7 +310,7 @@ function blank(k, label) {
   return { key: k, label, orders: 0, gross: 0, fee: 0, net: 0, refundNet: 0, cost: 0, hours: 0, hoursKnown: 0 };
 }
 
-const usd = (n) => (n < 0 ? "-" : "") + Math.abs(n).toFixed(2);
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toFixed(2));
 const p1 = (x) => (x * 100).toFixed(1) + "%";
 
 // opts: { costPerOrder (your own cost per order: tools, revisions, ads),
@@ -361,13 +406,20 @@ export function analyze(rows, opts = {}) {
   // P * (1 - r) * (1 - q) - cost = target.
   let target = Number(opts.target) > 0 ? Number(opts.target) : null;
   if (target === null && Number(opts.targetHourly) > 0 && hoursDefault) target = Number(opts.targetHourly) * hoursDefault;
+  // Price P with percentage fee r, fixed fee F per sale and refund share q
+  // leaves (P * (1 - r) - F) * (1 - q) - cost = target. With fees in the file,
+  // r is the observed fee after taking F off each non-Discover order, so a
+  // file of $10 sales at 12.9% + $0.80 gives r = 12.9%, not the 20.9% blended
+  // rate that would overprice a larger product.
   const assumed = Math.min(Math.max(Number(opts.feePct ?? DEFAULT_FEE_PCT) || 0, 0), 99) / 100;
-  const feeUsed = feeRate !== null ? feeRate : assumed;
+  const fixed = Math.max(Number(opts.feeFixed ?? DEFAULT_FEE_FIXED) || 0, 0);
+  const directOrders = orders.filter((r) => !r.discover && r.gross > 0).length;
+  const feeUsed = feeRate !== null ? Math.min(Math.max((fee - fixed * directOrders) / gross, 0), 0.99) : assumed;
   const refundShare = net > 0 ? Math.min(refundNet / net, 0.9) : 0;
   const breakEven = target === null ? null : {
-    target, feeRate: feeUsed, refundShare, cost,
-    price: (target + cost) / (1 - feeUsed),
-    priceWithRefunds: (target + cost) / ((1 - feeUsed) * (1 - refundShare)),
+    target, feeRate: feeUsed, feeFixed: fixed, refundShare, cost,
+    price: (target + cost + fixed) / (1 - feeUsed),
+    priceWithRefunds: ((target + cost) / (1 - refundShare) + fixed) / (1 - feeUsed),
   };
 
   const summary = {
@@ -382,6 +434,10 @@ export function analyze(rows, opts = {}) {
     avgOrderGross: orderCount ? orders.reduce((s, r) => s + r.gross, 0) / orderCount : null,
     from: dated.length ? Math.min(...dated) : null, to: dated.length ? Math.max(...dated) : null,
     products: byProduct.length, costEntered: cost > 0,
+    discoverOrders: orders.filter((r) => r.discover).length,
+    discoverGross: orders.filter((r) => r.discover).reduce((s2, r) => s2 + r.gross, 0),
+    // What Gumroad's standard schedule would have charged on these orders.
+    scheduleFee: orders.reduce((s2, r) => s2 + (r.gross <= 0 ? 0 : r.discover ? r.gross * DISCOVER_FEE_PCT / 100 : r.gross * assumed + fixed), 0),
   };
   const unmatchedHours = hoursList.list.filter((x) => !matchedHours.has(x));
   return {
@@ -394,8 +450,13 @@ export function analyze(rows, opts = {}) {
 function findings({ summary: s, byProduct, repeat, breakEven, hoursBad, unmatchedHours, hoursGiven }) {
   const out = [];
   if (s.feeRate !== null) {
-    const off = Math.abs(s.feeRate - DEFAULT_FEE_PCT / 100) >= 0.01;
-    out.push({ severity: off ? "medium" : "info", title: `Gumroad kept ${p1(s.feeRate)} of order value in this file`, detail: `${usd(s.fee)} of ${usd(s.gross)} across ${s.orders} order${s.orders === 1 ? "" : "s"}${s.tips ? ` and ${s.tips} tip${s.tips === 1 ? "" : "s"}` : ""}; you kept ${usd(s.net)}.${off ? ` That differs from the ${DEFAULT_FEE_PCT}% used as the default assumption here: the file may mix fee rules, include tips or adjustments, or the fee may have been assumed (see the note under the result).` : ""}` });
+    const orderGross = s.avgOrderGross !== null ? s.avgOrderGross * s.orders : 0;
+    const sched = orderGross > 0 ? s.scheduleFee / orderGross : null;
+    const off = sched !== null && Math.abs(s.feeRate - sched) >= 0.01;
+    out.push({ severity: off ? "medium" : "info", title: `Gumroad kept ${p1(s.feeRate)} of order value in this file`, detail: `${usd(s.fee)} of ${usd(s.gross)} across ${s.orders} order${s.orders === 1 ? "" : "s"}${s.tips ? ` and ${s.tips} tip${s.tips === 1 ? "" : "s"}` : ""}; you kept ${usd(s.net)}.${sched !== null ? ` Gumroad's standard schedule (12.9% + $0.80 on a direct sale, a flat 30% on a Discover sale, with the rates entered in step 2) comes to ${p1(sched)} on these orders.` : ""}${off ? " The gap can come from a custom or volume rate, PayPal or Stripe Connect processing (no Gumroad processing fee), affiliate shares, tips or adjustments, or an assumed fee (see the note under the result)." : ""}` });
+  }
+  if (s.discoverOrders) {
+    out.push({ severity: "info", title: `${s.discoverOrders} of ${s.orders} order${s.orders === 1 ? "" : "s"} came through Gumroad Discover`, detail: `${usd(s.discoverGross)} of order value. Gumroad charges a flat 30% on Discover sales against 12.9% + $0.80 on a direct sale, so a buyer you send yourself is worth more to you than one the marketplace finds.` });
   }
   if (s.refunds || s.cancelled) {
     const share = s.net > 0 ? s.refundNet / s.net : 0;
@@ -432,45 +493,46 @@ function findings({ summary: s, byProduct, repeat, breakEven, hoursBad, unmatche
   if (hoursBad.length) out.push({ severity: "medium", title: `${hoursBad.length} hours line${hoursBad.length === 1 ? "" : "s"} could not be read`, detail: hoursBad.map((b) => `line ${b.line}: ${b.reason}`).join("; ") + "." });
   if (unmatchedHours.length) out.push({ severity: "medium", title: `${unmatchedHours.length} hours line${unmatchedHours.length === 1 ? "" : "s"} matched no product`, detail: `${unmatchedHours.map((f) => f.name).join(", ")}. Names must match the file's product names or be contained in them.` });
   if (breakEven) {
-    out.push({ severity: "info", title: `To take home ${usd(breakEven.target)} per order, price at about ${usd(breakEven.price)}`, detail: `Fee rate ${p1(breakEven.feeRate)}${breakEven.cost ? `, your cost ${usd(breakEven.cost)} per order` : ""}. Allowing for your refund rate of ${p1(breakEven.refundShare)}, about ${usd(breakEven.priceWithRefunds)}. Any buyer-side fee comes on top and is not part of what you keep.` });
+    out.push({ severity: "info", title: `To take home ${usd(breakEven.target)} per order, price at about ${usd(breakEven.price)}`, detail: `Fee rate ${p1(breakEven.feeRate)}${breakEven.feeFixed ? ` plus ${usd(breakEven.feeFixed)} per sale` : ""}${breakEven.cost ? `, your cost ${usd(breakEven.cost)} per order` : ""}. Allowing for your refund rate of ${p1(breakEven.refundShare)}, about ${usd(breakEven.priceWithRefunds)}. Any buyer-side fee comes on top and is not part of what you keep.` });
   }
   return out;
 }
 
-export const money = (n) => (Number.isFinite(n) ? (n < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+export const money = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : "–");
 export const pct = (n) => (Number.isFinite(n) ? (n * 100).toFixed(1) + "%" : "–");
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
 
-// Deterministic synthetic file for the "Load an example" button: made-up products,
-// buyers and amounts over four months. Not real data and not a Gumroad export.
+// Deterministic synthetic file for the "Load an example" button, laid out
+// like Gumroad's sales export (a subset of its columns, same header names):
+// made-up products, buyers and amounts over four months, fees from Gumroad's
+// standard schedule. Not real data.
 export function sampleCsv() {
-  const lines = ["Date,Order ID,Type,Status,Product,Buyer,Amount,Service Fee,Net"];
+  const lines = ["Purchase ID,Item Name,Buyer Name,Purchase Email,Purchase Date,Sale Price ($),Fees ($),Net Total ($),State,Refunded?,Partial Refund ($),Fully Refunded?,Disputed?,Dispute Won?,Discover?"];
   let seed = 7;
   const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
   const products = [
-    { name: "Logo design", price: 90 },
-    { name: "Blog post writing", price: 60 },
-    { name: "Voice-over 60 seconds", price: 35 },
+    { name: "Notion budget template", price: 19 },
+    { name: "Lightroom preset pack", price: 29 },
+    { name: "Indie game asset bundle", price: 49 },
   ];
-  const buyers = ["amy_k", "bruno77", "cafe_north", "dev_dana", "eli_r", "fresh_startup", "gina_p", "harbor_co"];
+  const buyers = ["Amy K", "Bruno M", "Cafe North", "Dana Dev", "Eli R", "Fresh Startup", "Gina P", "Harbor Co"];
+  const states = ["CA", "NY", "TX", "WA", "IL"];
   let id = 1000;
-  for (let day = 0; day < 120; day += 2 + Math.floor(rnd() * 4)) {
+  for (let day = 0; day < 120; day += 1 + Math.floor(rnd() * 3)) {
     const product = products[Math.floor(rnd() * products.length)];
-    const buyer = buyers[Math.floor(Math.pow(rnd(), 1.6) * buyers.length)];
-    const d = new Date(Date.UTC(2026, 4, 1 + day));
-    const date = d.toISOString().slice(0, 10);
-    const amount = Math.round(product.price * (0.8 + rnd() * 1.4));
-    const oid = `FO${id++}`;
+    const bi = Math.floor(Math.pow(rnd(), 1.6) * buyers.length);
+    const buyer = buyers[bi];
+    const email = buyer.toLowerCase().replace(/[^a-z]+/g, ".") + "@example.com";
+    const date = new Date(Date.UTC(2026, 4, 1 + day)).toISOString().slice(0, 10);
+    const price = product.price;
+    const discover = rnd() < 0.2;
+    const fee = discover ? Math.round(price * 30) / 100 : Math.round(price * 12.9) / 100 + 0.8;
     const r = rnd();
-    if (r < 0.06) { lines.push(`${date},${oid},Order,Cancelled,${product.name},${buyer},${amount}.00,0.00,0.00`); continue; }
-    const fee = amount * 0.2;
-    const pending = day > 108;
-    lines.push(`${date},${oid},Order,${pending ? "Pending clearance" : "Cleared"},${product.name},${buyer},${amount}.00,${fee.toFixed(2)},${(amount - fee).toFixed(2)}`);
-    if (r > 0.94) lines.push(`${date},${oid}-R,Refund,Completed,${product.name},${buyer},-${amount}.00,-${fee.toFixed(2)},-${(amount - fee).toFixed(2)}`);
-    else if (r > 0.8) lines.push(`${date},${oid}-T,Tip,Cleared,${product.name},${buyer},10.00,2.00,8.00`);
+    const full = r > 0.95 ? 1 : 0;
+    const partial = !full && r > 0.92 ? (price / 2).toFixed(2) : "0.0";
+    lines.push(`${id++},${product.name},${buyer},${email},${date},${price.toFixed(2)},${fee.toFixed(2)},${(price - fee).toFixed(2)},${states[bi % states.length]},${full || partial !== "0.0" ? 1 : 0},${partial},${full},0,0,${discover ? 1 : 0}`);
   }
-  lines.push("2026-06-15,W1,Withdrawal,Completed,,,300.00,1.00,299.00");
-  lines.push("2026-08-15,W2,Withdrawal,Completed,,,250.00,1.00,249.00");
+  lines.push("Totals,,,,,,,,,,,,,,");
   return lines.join("\n") + "\n";
 }
 

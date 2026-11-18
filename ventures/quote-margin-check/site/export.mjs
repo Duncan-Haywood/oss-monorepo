@@ -20,7 +20,7 @@ import { formatDecimal } from "./format.mjs";
  */
 function safeText(value) {
   const text = String(value);
-  return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+  return /^[=+\-@\t\r]/.test(text) && !/^-?\d+(\.\d+)?$/.test(text) ? `'${text}` : text;
 }
 
 /**
@@ -127,5 +127,5 @@ export function quoteCsv(quote, report, extras = {}) {
     rows.push(["kill_refill_adjusted", money(kill.refill_adjusted), currency]);
   }
 
-  return rows.map((row) => row.map(csvCell).join(",")).join("\n");
+  return rows.map((row) => row.map((cell) => csvCell(cell)).join(",")).join("\n");
 }

@@ -33,3 +33,20 @@ test('empty or missing config adds nothing to the head', () => {
   fs.writeFileSync(f, JSON.stringify({ google: [], bing: [] }));
   assert.equal(verificationHead(f), '');
 });
+
+test('token length bounds: 8 and 128 characters pass, 7 and 129 are refused', () => {
+  assert.equal(verificationTags({ google: ['a'.repeat(8)] }).length, 1);
+  assert.equal(verificationTags({ google: ['a'.repeat(128)] }).length, 1);
+  assert.throws(() => verificationTags({ google: ['a'.repeat(7)] }), /bare token/);
+  assert.throws(() => verificationTags({ google: ['a'.repeat(129)] }), /bare token/);
+});
+
+test('a misnamed engine key is refused, not silently dropped', () => {
+  // A token under "Google" or under the meta name "msvalidate.01" would
+  // otherwise publish nothing while the owner believes the site is verified.
+  assert.throws(() => verificationTags({ Google: ['abcDEF123_-xyz'] }), /unknown key "Google"/);
+  assert.throws(() => verificationTags({ toString: ['abcDEF123_-xyz'] }), /unknown key/);
+  assert.throws(() => verificationTags({ 'msvalidate.01': ['0123456789ABCDEF'] }), /unknown key/);
+  // Keys starting with "_" are comments and stay allowed.
+  assert.deepEqual(verificationTags({ _comment: 'notes', google: [] }), []);
+});

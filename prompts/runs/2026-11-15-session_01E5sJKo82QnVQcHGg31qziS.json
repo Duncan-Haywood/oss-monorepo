@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKo82QnVQcHGg31qziS",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T15:22:59Z",
+  "ended": "2026-11-15T15:27:24Z",
+  "wall_minutes": 8.58,
+  "tokens_in": 2425878,
+  "tokens_out": 15690,
+  "cost_usd": 1.381,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16256",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again; the top friction_rank --live --ungated clusters I checked (check_post_frontmatter limits, quality_mutate repo-relative paths) were already fixed on main (--limits flag, repo_relative_args hint), so the ranker keeps surfacing landed fixes."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The creative prompt has no early claim step (a draft PR titled with shelf and piece, as ventures does); creative_due.py now spreads sessions but cannot see open PRs, so the claim line is still needed. CODEOWNERS-gated, left for the owner."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "why": "Stopped the local portfolio-validate run part-way because GitHub CI on the PR came back fully green first.",
+      "did": "Merged on green CI check runs (19/19 completed, none failed).",
+      "result": "no local verification gap: CI covered the same workflows"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-two-sessions-one-story.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode; backlog ids touched: none. Lens: duplicated creative work. Evidence: >=7 creative run records on 2026-11-14/15 report two sessions writing the same story (#15876/#15886, #16091/#16092, #16124). Shipped a session-seeded weighted draw in platform/ci/creative_due.py (weight (days behind+1)/(7-day pieces+1), stable per session, then: fallback order). Same-shelf probability for two overlapping sessions on today's counts: 1.0 -> 0.278 (sum of squared draw shares from --json). test_creative_due 10/10. main_health on main 228/228. PR CI all green. Follow-up for owner: add a draft-PR claim step to prompts/creative/prompt-0.md.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7233c36d-8307-52ba-8951-b8b919d2a236",
+    "transcripts": 1,
+    "first": "2026-11-15T15:22:59Z",
+    "last": "2026-11-15T15:31:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 61,
+        "output": 15690,
+        "thinking": 4123,
+        "cache_read": 2351227,
+        "cache_write_5m": 0,
+        "cache_write_1h": 74590,
+        "api_equivalent_usd": 1.381,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 61,
+      "output": 15690,
+      "thinking": 4123,
+      "cache_read": 2351227,
+      "cache_write_5m": 0,
+      "cache_write_1h": 74590,
+      "api_equivalent_usd": 1.381,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 27,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "mcp__github__pull_request_read": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.58,
+      "active_minutes": 8.58,
+      "model_minutes": 3.32,
+      "tool_minutes": 5.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "diagnose duplicate-shelf reports, write seeded draw + tests + post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 144.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

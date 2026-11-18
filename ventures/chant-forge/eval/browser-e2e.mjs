@@ -270,6 +270,91 @@ await page.selectOption("#sections", "");
   ok(sungWav.equals(fs.readFileSync(path.join(tmp, "sing.wav"))) && !sungWav.equals(fs.readFileSync(path.join(tmp, "pad.wav"))), `sung preview WAV equals render-cli --sing (${sungWav.length} bytes) and differs from the pad`);
   await page.selectOption("#voice", "");
 }
+// the release folder (2026-11-16): the page's ZIP unzips to a folder release-cli.mjs passes but for the owner's steps
+{
+  await page.selectOption("#piece", "Veni Creator");
+  await page.waitForFunction(() => document.querySelector("#src").value.includes("%%"));
+  await page.selectOption("#genre", "deep-house");
+  await page.selectOption("#voice", "sing");
+  await page.click("#go");
+  const t0 = Date.now();
+  const [dr] = await Promise.all([page.waitForEvent("download", { timeout: 180000 }), page.click("#dlrel")]);
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "rel-"));
+  fs.writeFileSync(path.join(tmp, "rel.zip"), fs.readFileSync(await dr.path()));
+  const secs = ((Date.now() - t0) / 1000).toFixed(1);
+  execFileSync("unzip", ["-q", path.join(tmp, "rel.zip"), "-d", path.join(tmp, "rel")]);
+  const names = execFileSync("find", [path.join(tmp, "rel"), "-type", "f"], { encoding: "utf8" }).trim().split("\n").map((f) => path.relative(path.join(tmp, "rel"), f)).sort();
+  ok(names.length === 7 && names.includes("cover.png") && names.includes("release.json") && names.some((n) => /^tracks\/01-.*\.wav$/.test(n)), `release ZIP in ${secs} s: ${names.join(", ")}`);
+  let code = 0, text = "";
+  try { text = execFileSync(process.execPath, [path.join(root, "release-cli.mjs"), path.join(tmp, "rel", "release.json")], { encoding: "utf8" }); }
+  catch (e) { code = e.status; text = String(e.stdout); }
+  const fails = text.split("\n").filter((l) => /^FAIL/.test(l));
+  ok(fails.length === 4 && fails.every((l) => /artist|p-line|c-line|ISRC/.test(l)), `release-cli on the page's folder: only owner steps fail (${fails.length}: ${fails.map((l) => l.split(":")[0]).join("; ")})`);
+  ok(/No build faults/.test(await out()) && /Yours to fill in/.test(await out()), "the page reports no build faults and lists the owner steps");
+  await page.fill("#relartist", "Name"); await page.fill("#relisrc", "QZ-ABC-27-00001");
+  const [dr2] = await Promise.all([page.waitForEvent("download", { timeout: 180000 }), page.click("#dlrel")]);
+  fs.writeFileSync(path.join(tmp, "rel2.zip"), fs.readFileSync(await dr2.path()));
+  execFileSync("unzip", ["-q", path.join(tmp, "rel2.zip"), "-d", path.join(tmp, "rel2")]);
+  let code2 = 0;
+  try { execFileSync(process.execPath, [path.join(root, "release-cli.mjs"), path.join(tmp, "rel2", "release.json")], { encoding: "utf8" }); } catch (e) { code2 = e.status; }
+  ok(code2 === 0 && /No owner steps left/.test(await out()), `with an artist and ISRC typed in, release-cli passes the page's folder (exit ${code2})`);
+  await page.fill("#relartist", ""); await page.fill("#relisrc", "");
+  await page.selectOption("#voice", ""); await page.selectOption("#genre", "");
+}
+// the EP queue (2026-11-16): three chants with their own settings and ISRCs, reordered, kept over a
+// reload, built into one folder release-cli.mjs passes
+{
+  const add = async (piece, genre, isrc) => {
+    await page.selectOption("#piece", piece);
+    await page.waitForFunction(() => document.querySelector("#src").value.includes("%%"));
+    await page.selectOption("#genre", genre); await page.selectOption("#voice", "sing");
+    await page.click("#go");
+    await page.fill("#relisrc", isrc);
+    await page.click("#epadd");
+  };
+  await add("Veni Creator", "deep-house", "QZ-ABC-27-00011");
+  await add("Dies irae", "metal", "QZ-ABC-27-00012");
+  await add("Pange lingua", "hard-rock", "QZ-ABC-27-00013");
+  const items = () => page.locator("#eplist li").evaluateAll((l) => l.map((x) => x.firstChild.textContent));
+  ok((await items()).length === 3 && (await page.inputValue("#relisrc")) === "", `three tracks queued, the ISRC box cleared after each: ${(await items()).join(" | ")}`);
+  await page.click('#eplist button[aria-label^="Move up Pange"]');
+  const order = await items();
+  ok(/Veni/.test(order[0]) && /Pange/.test(order[1]) && /Dies/.test(order[2]), `Up moves Pange lingua to track 2: ${order.join(" | ")}`);
+  await page.reload();
+  ok((await items()).join() === order.join() && !(await page.locator("#dlep").isDisabled()), "the queue survives a reload (localStorage)");
+  await page.fill("#relartist", "Name"); await page.fill("#reltitle", "Three");
+  const t0 = Date.now();
+  const [de] = await Promise.all([page.waitForEvent("download", { timeout: 300000 }), page.click("#dlep")]);
+  const secs = ((Date.now() - t0) / 1000).toFixed(1);
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "ep-"));
+  fs.writeFileSync(path.join(tmp, "ep.zip"), fs.readFileSync(await de.path()));
+  execFileSync("unzip", ["-q", path.join(tmp, "ep.zip"), "-d", path.join(tmp, "ep")]);
+  const rel = JSON.parse(fs.readFileSync(path.join(tmp, "ep", "release.json"), "utf8"));
+  ok(rel.tracks.length === 3 && rel.tracks.map((t) => t.isrc).join() === "QZ-ABC-27-00011,QZ-ABC-27-00013,QZ-ABC-27-00012"
+    && rel.tracks.map((t) => t.source.gabcFile).join() === "sources/veni-creator.gabc,sources/pange-lingua.gabc,sources/dies-irae.gabc",
+  `EP ZIP in ${secs} s: ${rel.tracks.map((t) => `${t.title} (${t.seconds} s)`).join(", ")}; each ISRC and corpus file name kept`);
+  let code = 0, text = "";
+  try { text = execFileSync(process.execPath, [path.join(root, "release-cli.mjs"), path.join(tmp, "ep", "release.json")], { encoding: "utf8" }); }
+  catch (e) { code = e.status; text = String(e.stdout); }
+  ok(code === 0 && /No owner steps left/.test(await out()), `release-cli passes the page's three-track folder (exit ${code}${code ? ": " + text.split("\n").filter((l) => /^FAIL/.test(l)).join("; ") : ""})`);
+  await page.click('#eplist button[aria-label^="Remove Dies"]');
+  ok((await items()).length === 2, "Remove drops a track");
+  await page.click("#epclear");
+  ok((await items()).length === 0 && (await page.locator("#dlep").isDisabled()), "Clear empties the queue");
+  await page.fill("#relartist", ""); await page.fill("#reltitle", "");
+  await page.selectOption("#voice", ""); await page.selectOption("#genre", "");
+}
+// organum: a second choir track a fourth below, named Organal voice
+{
+  const pieceNow = (await page.locator("#piece option").evaluateAll((o) => o.map((x) => x.value))).find((v) => /veni-creator\.gabc/.test(v)) || pieces.find(Boolean);
+  await page.selectOption("#piece", pieceNow); await page.waitForFunction(() => document.querySelector("#src").value.includes("%%"));
+  await page.selectOption("#genre", ""); await page.selectOption("#organum", "1"); await page.click("#go");
+  const t = await out();
+  const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
+  const m = fs.readFileSync(await dl.path());
+  ok(/Organum: \d+ notes \(/.test(t) && m.includes(Buffer.from("Organal voice")), `organum: ${(t.match(/Organum:[^\n]*/) || ["no line"])[0].slice(0, 90)}`);
+  await page.selectOption("#organum", "");
+}
 // errors
 await page.fill("#src", "hello");
 await page.click("#go");
