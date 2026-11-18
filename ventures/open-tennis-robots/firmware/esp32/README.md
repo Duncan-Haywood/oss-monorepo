@@ -2991,6 +2991,10 @@ old depth, and the new depth still needs less than half the heap the old one pin
 on every drill: the ESC build's calibration drill now surveys 24 of 24, with none cut. The ESC build picks 46-47 ms
 at both depths.
 
+**A test that leaned on the old depth.** The extra queued survey makes the Pi's end-of-drill wait longer: 42.5 s
+in place of 37.5 s on `tests/test_host.py`'s four-shot drill. That is past the lift's 16 s run-on after the last
+ball, so the lift had rightly stopped when the test read its duty. The test now reads the duty inside the run-on.
+
 **Not known.** These are counts against a model of the layout, not a reading of a board's heap. The heap free with
 `main.py` loaded is not known, nor is how the split heap grows past 56 KB, and the running survey's working lists
 (one wheel's re-based and lagged ticks, an estimated 10 KB) are the same at any depth and not counted. The stroke's own
