@@ -1,9 +1,9 @@
 ---
 title: "A price doubling read as a revenue loss, once the numbers got big enough"
-seo_title: "Infinity minus Infinity is NaN: an overflow bug in a SaaS price calculator"
+seo_title: "Infinity minus Infinity is NaN: an overflow bug in a price calculator"
 date: 2026-11-18
 tags: [redteam, testing, javascript, calculators]
-description: "A red-team run on three files caught 16 of 24 seeded faults, closed all eight gaps, and found that the SaaS price calculator called a price doubling a loss when revenue overflowed."
+description: "A red-team run caught 16 of 24 seeded faults, closed all eight gaps, and found a SaaS price calculator calling a price doubling a loss on overflow."
 ---
 
 Today's red-team run seeded 24 small faults into three files and ran each file's own tests after
