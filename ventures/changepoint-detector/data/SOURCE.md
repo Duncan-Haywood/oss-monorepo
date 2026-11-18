@@ -756,3 +756,26 @@ command line". Derived, not retrieved: written by `node eval/prop99-covariates.m
 `us-personal-income-per-capita.csv`, `us-cigarette-retail-price.csv` and `us-cigarette-packs-per-capita.csv` (ln
 income and price averaged over 1980-1988, packs per head in 1975, 1980 and 1988, and the 1970-1988 mean of packs per
 head). Same sources, licences and attribution as those files.
+
+# Two few-donor synthetic-control panels: Spanish regions and OECD countries
+
+`spain-regions-gdp-per-capita.csv`: GDP per head in thousands of 1986 USD, one column per Spanish region (short codes:
+AND Andalucia, ARA Aragon, AST Asturias, BAL Baleares, BAS Basque Country, CAN Canarias, CNT Cantabria, CYL Castilla
+y Leon, CLM Castilla-La Mancha, CAT Cataluna, VAL Comunidad Valenciana, EXT Extremadura, GAL Galicia, MAD Madrid, MUR
+Murcia, NAV Navarra, RIO La Rioja), 1955-1997; Spain's national row is dropped. `spain-regions-covariates-1969.csv`:
+investment share 1964-69, industry and agriculture shares 1961-69 (odd years only in the source), population density
+1969 and GDP per head 1960-69, one row per region (the CLI's `--covariates` format).
+
+`oecd-gdp-per-capita-1960-2003.csv`: GDP per head, PPP, 2002 USD, one column per country (spaces dropped:
+WestGermany, NewZealand), 1960-2003. `oecd-covariates-1989.csv`: trade openness, inflation and industry share
+averaged 1981-89, schooling 1980 and 1985, investment 1980-84 and GDP per head 1981-89, one row per country.
+
+- **Retrieved:** 2026-11-18 from pysyncon (MIT licence), <https://raw.githubusercontent.com/sdfordham/pysyncon/main/data/basque.csv>
+  (sha256 `7f7f90d7a01984a33a2ea3efc311ce826c05b61234a52c27445adacc6f52bf70`) and `.../data/germany.csv` (sha256
+  `c59ff635faaf43729eaefdf5e9a4584fc3112a56fdab84b9ac5f78e1b6302e83`): copies of the R Synth package's `basque` data
+  and of the replication data of Abadie, Diamond and Hainmueller (2015). Reshaped by `node eval/few-donor-panels.mjs
+  basque.csv germany.csv`, no value changed; covariates are plain averages of the source's columns.
+- **Cite:** Abadie, A. and Gardeazabal, J. (2003). The economic costs of conflict: a case study of the Basque Country.
+  *Am. Econ. Rev.* 93(1), 113-132. doi:10.1257/000282803321455188. Abadie, A., Diamond, A. and Hainmueller, J. (2015).
+  Comparative politics and the synthetic control method. *Am. J. Polit. Sci.* 59(2), 495-510. doi:10.1111/ajps.12116.
+- **Used by:** `eval/synth-few-donors-real.mjs`, `synth-few-donors.test.mjs` (README "Few donors").

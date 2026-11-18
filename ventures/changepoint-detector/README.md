@@ -6356,3 +6356,64 @@ shortest backdate. The page's "Points people saw it coming" box takes the same `
 **Limits.** One panel shape (N1), step effects, leads 0-4 only, an effect of one size; a range wider than the lead
 costs power that was not measured beyond 4. **Next:** a real deployer's panel; a range on a series whose donors are
 few (fewer than 20 units).
+
+### Few donors: the Basque Country and West Germany (2026-11-18, pre-registered; three of six bars passed)
+
+Every real test so far used Proposition 99's 38 donor states; "An uncertain lead" ended asking for a series whose
+donors are few, and the flagship row for "a real deployer's panel, few donors", the case a user is likelier to have
+(a handful of stores, regions or countries). Two published 17-unit panels, reshaped with no value changed by
+`node eval/few-donor-panels.mjs` (`data/SOURCE.md`): **West Germany**, reunification 1990, GDP per head of 17 OECD
+countries 1960-2003 (Abadie, Diamond and Hainmueller 2015), and the **Basque Country**, terrorism from about 1970,
+GDP per head of 17 Spanish regions 1955-1997 (Abadie and Gardeazabal 2003). Pre-registration
+`eval/synth-few-donors-prereg-2026-11-18.md`, committed before any fit; the shipped CLI defaults only (outcome-only
+fit, floored ratio), `node eval/synth-few-donors-real.mjs` (`eval/synth-few-donors-real.out.txt`):
+
+| Bar (pre-registered) | Result | |
+|---|---|---|
+| 1. West Germany: mean gap 1990-2003 between -2,500 and -800 USD, below 0 at 2003, at least 60% of the weight on the paper's five countries | -1,297 on average, -3,446 at 2003; USA 0.343, Austria 0.323, Switzerland 0.108 (77% on the five) | holds |
+| 2. West Germany: floored rank 1 of 17 | **rank 3 of 17, p 0.176** (the paper's plain ratio: rank 1, p 0.059) | **fails** |
+| 3. Basque: mean gap 1970-1997 below 0 and above -1.5 thousand USD, at least 60% of the weight on Catalonia and Madrid | -0.895 (about 10% of GDP per head, as published), but Madrid 0.483, Baleares 0.311, La Rioja 0.206: **48%** | **fails** |
+| 4. Basque: floored rank at most 3 of 17 | **rank 4 of 17, p 0.235**, with the fit warning (81% of placebos fit better) | **fails** |
+| 5. In-time placebos (West Germany at 1975 on 1960-1989, Basque at 1965 on 1955-1969): neither ranks 1 | ranks 2 and 7 of 17 | holds |
+| 6. Leave-one-out (each donor of weight at least 0.05 removed): every refit keeps a negative mean gap | 5 of 5 (-1,354 to -1,815) and 3 of 3 (-0.54 to -0.91) | holds |
+
+**The estimates survive; the test does not find them.** Both published gaps come back from an outcome-only fit:
+West Germany about 1,300 USD a head a year below its synthetic control from 1990 to 2003 (the paper, with covariates:
+about 1,600), opening after a brief reunification boom (+750 in 1991) to -3,400 by 2003, and the Basque Country about
+0.9 thousand USD a head (about 10%) below from the late 1970s. Every leave-one-out refit keeps the sign. But neither
+reaches rank 1, and with 17 units nothing else counts: **the smallest p 17 units allow is 1/17 = 0.059, so p <= 0.05
+was out of reach before any fit was run.**
+
+**Why they rank 3rd and 4th** (after the run, not pre-registered; numbers from `--json`, which now lists them):
+- *West Germany is the best-fitted unit of all 17* (before-gap 61 USD; 0% of placebos fit better), and the floored
+  ratio, built so a near-exact *donor* cannot win on a tiny denominator (Missouri and Virginia, "A floored ratio"),
+  floors the treated unit's own denominator too, at the 144 USD median. That gives up the advantage the paper's ratio
+  rests on (30.4 against the next unit's 20.5). Above it: the Netherlands (after-gap 2,428) and Norway (5,036, the
+  North Sea oil years): donors with large shocks of their own after 1990.
+- *The Basque Country is hard to fit*: the third richest region, with an industry share of 45% against a synthetic
+  23% (2.31 sd, 100% of placebos matched better, `WARNING`), so it carries the fit warning; above it Asturias (coal and
+  steel decline), Cantabria and Valencia. Its synthetic control is not the paper's Catalonia-Madrid mix: matched on
+  every point from 1955 rather than on 1960s covariates, Madrid, Baleares and La Rioja track it closer (before-gap
+  0.076). Dropping Madrid gives Catalonia 1.00 and halves the gap (-0.54); the paper's mix is the leave-Madrid-out
+  direction, not the default.
+- The paper's ratio would have ranked West Germany 1st, the Basque Country 7th; the after-gap alone 7th and 2nd. With
+  few donors the choice of statistic moves the rank by several places, so it has to be fixed before the result, as the
+  floored ratio was (2026-11-17, on 39-unit panels). Changing the default now, after seeing which one ranks West
+  Germany first, would be the forking path the pre-registration exists to stop; **the default stays**.
+
+**Ships (decided in the pre-registration, whatever the bars said).**
+- Under 19 donors the CLI prints `FEW DONORS: With 17 units the placebo p cannot go below 0.059: p <= 0.05 is out of
+  reach whatever happened, so rank 1 (p 0.059) is the strongest result this test can give, not a near-miss ...`, and
+  the page shows the same note (`fewDonorsNote` in `synth-view.mjs`); a rank-1 result with few units says "the largest
+  of all N units (the smallest p this many units allow)" on the page's summary line.
+- When the treated unit is not ranked 1, the CLI and the page name the placebos ranked at or above it, with their
+  statistic and before- and after-gaps (`above` in `--json`; `aboveNote`), and say that a donor's own shock is a reason
+  to look into it and report it, not to drop it after seeing the result. Descriptive: it changes no p.
+- `synth-few-donors.test.mjs` pins the recorded numbers.
+
+**What a user with a handful of units can take from this.** The synthetic control gives a usable estimate of the gap
+with 16 donors (both published gaps, both signs robust to dropping any heavy donor). The placebo test, with fewer than
+19 units, can at best say "the largest of all", and one donor with its own after-date shock is enough to take that
+away; read the named units above the treated one before reading the p. **Limits.** Two panels, one statistic fixed
+in advance, levels only, no covariate fit. **Next:** a size and power check at 10-20 units in simulation (how often
+rank 1 is reached with a real 2 sd step when one donor has its own shock); a real deployer's panel of stores or regions.
