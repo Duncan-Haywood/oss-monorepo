@@ -26,21 +26,15 @@ def load(path):
 def score(rows, trim):
     import take_misfit_trace as tm
     import controller
-    old = controller.SURVEY_TRIM
-    controller.SURVEY_TRIM = trim
-    try:
-        out = {}
-        for b in rows:
-            rs = controller.ResidualSurvey(tm.PICK_US)
-            for got in b["board_scores"]:
-                if got and all(g is not None for g in got):
-                    rs.add([g * g for g in got])
-            s = tm.survey_score(b["board_scores"])
-            rs.sums()
-            out[tuple(b["build"])] = (s, rs.trimmed, len(rs.wheels))
-        return out
-    finally:
-        controller.SURVEY_TRIM = old
+    out = {}
+    for b in rows:
+        rs = controller.ResidualSurvey(tm.PICK_US, trim)
+        for got in b["board_scores"]:
+            if got and all(g is not None for g in got):
+                rs.add([g * g for g in got])
+        rs.sums()
+        out[tuple(b["build"])] = (tm.survey_score(b["board_scores"], trim), rs.trimmed, len(rs.wheels))
+    return out
 
 
 def summary(rows, trim):
@@ -70,8 +64,8 @@ def summary(rows, trim):
 
 
 def main():
-    trims = [float(x) for x in sys.argv[sys.argv.index("--trims") + 1].split(",")] if "--trims" in sys.argv else [5.0,
-                                                                                                                float("inf")]
+    # 0 sums every wheel (controller.TAKE_SURVEY_TRIM); "inf" reads the same
+    trims = [float(x) for x in sys.argv[sys.argv.index("--trims") + 1].split(",")] if "--trims" in sys.argv else [5.0, 0.0]
     paths = [a for a in sys.argv[1:] if not a.startswith("--") and a != (sys.argv[sys.argv.index("--trims") + 1]
                                                                           if "--trims" in sys.argv else None)]
     for path in paths:

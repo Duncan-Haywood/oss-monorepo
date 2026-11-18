@@ -136,3 +136,38 @@ trim, instant builds advised at sub 8 are no more than at sub 1 plus 1.
 DECISION RULE: TAKE_SURVEY_TRIM = 0 ships if (a) and (b) hold. config.TACH_CAPTURE_SUB moves to 8 only if, with no
 trim, sub 8 names and advises at least as many spread takes as sub 1 on this set AND advises no instant build;
 otherwise it stays 1 (the earlier rule: a finer clock must not invent takes).
+
+## Fresh held-out set: lag 0.38 s, seed 13 (run after the pre-registration was committed, afae72d5f; 144 drills, none aborted)
+
+The capture's worker processes re-import controller per drill, and the TAKE_SURVEY_TRIM edit landed in the tree while
+the sub 8 set ran, so some drills' own `survey` field used it. The per-wheel board rows rescored here do not depend on
+the trim (it acts only on the sums), and every trim below is passed explicitly.
+
+
+fresh-sub8.jsonl: 72 survey drills
+  trim 5: spread takes named within 1 ms and advised 45 of 54, instant advised 0 of 18, within 1 ms 72 of 72, mean share 0.45; wheels trimmed 0 of 1584
+  trim 0: spread takes named within 1 ms and advised 45 of 54, instant advised 0 of 18, within 1 ms 72 of 72, mean share 0.45; wheels trimmed 0 of 1584
+
+fresh-sub1.jsonl: 72 survey drills
+  trim 5: spread takes named within 1 ms and advised 30 of 54, instant advised 0 of 18, within 1 ms 71 of 72, mean share 0.55; wheels trimmed 0 of 1584
+  trim 0: spread takes named within 1 ms and advised 30 of 54, instant advised 0 of 18, within 1 ms 71 of 72, mean share 0.55; wheels trimmed 0 of 1584
+
+Median wheel's best rms (ppm, the median over drills): design sub 8 5.5, earlier held-out sub 8 3.9, this set sub 8
+25.4, sub 1 42.0. On this set no wheel crosses 5 x the median at either clock.
+
+Verdict: (a) FAILED: trim 5 dropped 0 wheels at sub 8, not 30 or more, and the two trims named and advised the same 45.
+(b) held (0 dropped at sub 1, 30 and 30). (c) held (0 and 0). By the rule TAKE_SURVEY_TRIM = 0 does not ship on this
+set: the mechanism did not recur, because these wheels' floor is higher. The TACH_CAPTURE_SUB clause held on its own
+terms (no trim: sub 8 named and advised 45 against sub 1's 30, no instant build advised), but with trim 5 sub 8 is the
+setting that failed before, so the two are decided together below.
+
+## Pre-registration 2 (written and committed before the third capture runs)
+
+A non-inferiority test on a third set no run has used: the same 72 builds at wheel lag 0.52 s, seed 17, capture on,
+at sub 8 and sub 1. PREDICTION: (i) at sub 8, no trim names and advises at least as many spread takes as trim 5, and
+advises no more instant builds; (ii) at sub 1, the two trims are within 2; (iii) at sub 8 with no trim, at least as many
+named and advised as at sub 1 with no trim, and no instant build advised.
+
+DECISION RULE: TAKE_SURVEY_TRIM = 0 ships if (i) and (ii) hold (it then has one set where it mattered, 14 to 42, and
+three where it cost nothing). TACH_CAPTURE_SUB moves to 8 only if TAKE_SURVEY_TRIM = 0 ships and (iii) holds;
+otherwise both stay as they are and this file reports the miss.
