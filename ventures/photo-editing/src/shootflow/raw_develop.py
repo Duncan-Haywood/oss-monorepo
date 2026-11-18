@@ -978,7 +978,7 @@ class RawImage:
     # "nef" for a Nikon NEF read by ``shootflow.nef``, "orf" for an Olympus ORF read by ``shootflow.orf``, "rw2" for a
     # Panasonic RW2 read by ``shootflow.rw2``, "srw" for a Samsung SRW read by ``shootflow.srw`` or "pef" for a
     # Pentax PEF read by ``shootflow.pef``, "raf" for a Fujifilm RAF read by ``shootflow.raf``, "cr3" for a Canon
-    # CR3 read by ``shootflow.cr3``, "crw" for a Canon CRW (CIFF) read by ``shootflow.crw``
+    # CR3 read by ``shootflow.cr3``, "crw" for a Canon CRW (CIFF) read by ``shootflow.crw``, "mrw" for a Minolta MRW read by ``shootflow.mrw``
     # (DNG-equivalent tags, no colour matrix).
     source: str = "dng"
     notes: list[str] = field(default_factory=list)  # what the reader inferred, carried into the report
@@ -1085,10 +1085,12 @@ def read_raw(path: Path | str, cfa: str | None = None) -> RawImage:
 
 
 def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
-    """A DNG's (or a Canon CRW's, CR2's, Sony ARW's, Nikon NEF's, Olympus ORF's, Panasonic RW2's, Samsung SRW's, Pentax PEF's, Fujifilm RAF's or Canon CR3's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
+    """A DNG's (or a Canon CRW's, CR2's, Sony ARW's, Nikon NEF's, Olympus ORF's, Panasonic RW2's, Samsung SRW's, Pentax PEF's, Fujifilm RAF's, Canon CR3's or Minolta MRW's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
 
-    from shootflow import arw, cr2, cr3, crw, nef, orf, pef, raf, rw2, srw
+    from shootflow import arw, cr2, cr3, crw, mrw, nef, orf, pef, raf, rw2, srw
 
+    if mrw.is_mrw(data):
+        return mrw.parse_mrw(data)
     if crw.is_crw(data):
         return crw.parse_crw(data)
     if cr3.is_cr3(data):
@@ -1813,7 +1815,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     profile = _profile(ifd0, ifd, settings.dcp, notes) if settings.colour == "dng" else None
     if settings.dcp is not None and profile is None:
         raise DevelopError("the camera profile has no ColorMatrix1")
-    if raw.source in ("crw", "cr2", "cr3", "arw", "nef", "orf", "rw2", "srw", "pef", "raf") and profile is None:
+    if raw.source in ("crw", "cr2", "cr3", "arw", "nef", "orf", "rw2", "srw", "pef", "raf", "mrw") and profile is None:
         example = {
             "crw": "Canon EOS 10D",
             "cr2": "Canon EOS 5D Mark II",
@@ -1825,9 +1827,10 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             "srw": "Samsung NX1",
             "pef": "Pentax K-1 Mark II",
             "raf": "Fujifilm X-E1",
+            "mrw": "Konica Minolta DYNAX 7D",
         }[raw.source]
         raise DevelopError(
-            f"a{'n' if raw.source in ('arw', 'nef', 'orf', 'rw2', 'srw') else ''} {raw.source.upper()} carries no colour matrix: pass the camera's "
+            f"a{'n' if raw.source in ('arw', 'mrw', 'nef', 'orf', 'rw2', 'srw') else ''} {raw.source.upper()} carries no colour matrix: pass the camera's "
             f".dcp profile with --dcp (Adobe's free DNG Converter installs one per camera, e.g. '{example} Adobe "
             "Standard.dcp' under CameraRaw/CameraProfiles), or convert the file to DNG"
         )
