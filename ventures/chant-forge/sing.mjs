@@ -443,6 +443,9 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
   const out = new Float64Array(total);
   const rand = rng(seed);
   const src = new Float64Array(total);
+  // o.murmurSource 'one': the murmur (and a nasal's hum) is taken from one voice, not the beating chorus (src1)
+  const one = o.murmurSource === 'one', src1 = one ? new Float64Array(total) : null;
+  let vi = 0;
   for (const dt of o.detunes) {
     const ff = f * 2 ** (dt / 1200);
     const vr = 4.8 + 1.2 * (rand() * 0.5 + 0.5); // vibrato rate 4.8-6.0 Hz per voice
@@ -455,11 +458,13 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
       const depth = Math.min(1, t / 0.35) * o.vibratoCents + 3 * drift;
       const inc = (ff * 2 ** ((depth * Math.sin(2 * Math.PI * vr * t + vp)) / 1200)) / rate;
       ph += inc; if (ph >= 1) ph -= 1;
-      src[i] += (2 * ph - 1) - blep(ph, inc);
+      const v = (2 * ph - 1) - blep(ph, inc);
+      src[i] += v; if (one && vi === 0) src1[i] = v;
     }
+    vi++;
   }
   const nv = o.detunes.length;
-  for (let i = 0; i < total; i++) src[i] = src[i] / nv + o.breath * rand();
+  for (let i = 0; i < total; i++) { const b = o.breath * rand(); src[i] = src[i] / nv + b; if (one) src1[i] = src1[i] / Math.sqrt(nv) + b; } // one voice at the chorus's average (incoherent) power: at its coherent level (no division) part B's nasals fell 37 to 15 of 39
   // formant track: the vowel, gliding to `glide` from glideFrom of the sung length
   const from = tuneF1(FORMANTS[vowel] || FORMANTS.a, f, o.f1Tune), to = glide ? tuneF1(FORMANTS[glide], f, o.f1Tune) : from;
   const on = onset.length ? onsetTracks(onset, dur, total, rate, from, rng(seed ^ 0x5bd1e995), rawRms(rate), o.onsetShare, room, o.lateralLevel === false || o.onsetLateral === 'first' ? null : (c) => lateralGain(f, rate, from, c), o.voiceBarLevel === false ? null : (c) => voiceBarGain(f, rate, from, c, VOICE_BAR_DB, o.voiceBarWall === true), o.voiceBarWall === true) : null;
@@ -470,7 +475,7 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
   // a diphthong reaches its second vowel by the coda (or the note's end)
   const g0 = Math.round((lead + o.glideFrom * dur) * rate), g1 = Math.max(g0 + 1, Math.round((cd ? cd.plan.codaAt - TRANSITION * cd.plan.scale : lead + dur) * rate));
   const st = new Float64Array(10); // two state values per resonator
-  let co = null, lp = 0, lp2 = 0, az = null, zx1 = 0, zx2 = 0;
+  let co = null, lp = 0, lp2 = 0, lpm = 0, lpm2 = 0, az = null, zx1 = 0, zx2 = 0;
   // the murmur's gain against the vowel it leaves (or, in an opening, the one it goes to)
   const onCoda = o.onsetMurmur !== 'first'; // an opening nasal sings the coda's murmur
   const gains = new Map(), gainOf = (z, V, side) => { // per nasal (its zero) and vowel (the one it leaves or goes to)
@@ -489,17 +494,20 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
       const b1 = 1 + (NASAL_BW1 - 1) * Math.max(cd ? cd.nas[i] : 0, on && onCoda ? on.nas[i] : 0); // a nasal's broad low resonance
       co = fs.map((fk, k) => reson(fk, BW[k] * (k > 0 ? bm : b1), rate));
     }
-    let x = src[i] * (on ? on.av[i] : 1) * (cd ? cd.av[i] : 1);
+    const avi = (on ? on.av[i] : 1) * (cd ? cd.av[i] : 1);
+    let x = src[i] * avi;
     const nOn = on ? on.nas[i] : 0, nCd = cd ? cd.nas[i] : 0, nz = Math.max(nOn, nCd);
     lp += NASAL_LP * (x - lp); lp2 += NASAL_LP * (lp - lp2);
+    if (one) { lpm += NASAL_LP * (src1[i] * avi - lpm); lpm2 += NASAL_LP * (lpm - lpm2); }
+    const mm = one ? lpm2 : lp2; // the murmur's source, low-passed
     // the antiformant: an inverse resonator (Klatt's antiresonator, unity gain at 0 Hz) on the murmur
     const zf = nCd >= nOn ? cd && cd.nas.z[i] : onCoda && on.nas.z[i];
     if (zf && (!az || az.f !== zf)) { const [A, B, C] = reson(zf, NASAL_ZBW, rate); az = { f: zf, a: 1 / A, b: -B / A, c: -C / A }; }
-    const zy = az ? az.a * lp2 + az.b * zx1 + az.c * zx2 : lp2; zx2 = zx1; zx1 = lp2;
+    const zy = az ? az.a * mm + az.b * zx1 + az.c * zx2 : mm; zx2 = zx1; zx1 = mm;
     // a voiced closure's bar through the shut tract's walls: the same two low-passes, taken in place of x
     const wl = Math.max(on ? on.nas.wall[i] : 0, cd ? cd.nas.wall[i] : 0);
     if (wl && !nz) x = x * (1 - wl) + lp2 * wl;
-    if (nz) x = nCd >= nOn ? x * (1 - nz) + zy * nz * gainOf(zf, to, 'cd') : onCoda ? x * (1 - nz) + zy * nz * gainOf(zf, from, 'on') : x * (1 - nz) + lp2 * nz * ONSET_NASAL_GAIN;
+    if (nz) x = nCd >= nOn ? x * (1 - nz) + zy * nz * gainOf(zf, to, 'cd') : onCoda ? x * (1 - nz) + zy * nz * gainOf(zf, from, 'on') : x * (1 - nz) + mm * nz * ONSET_NASAL_GAIN;
     for (let k = 0; k < 5; k++) {
       const [A, B, C] = co[k];
       const y = A * x + B * st[2 * k] + C * st[2 * k + 1];

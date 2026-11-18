@@ -1304,6 +1304,30 @@ The reference fix, measured but not registered:
   none with the rule) and c's C3 quarters (nasals still read, stops and others unmoved). Reader only; nothing in the
   synthesis changed. Not listened to.
 
+#### A murmur dark in every phase (2026-11-18, latest; opt-in)
+
+The round above traced the cluster-onset -um misses to the synthesis: the murmur is the five detuned voices
+low-passed, the voices beat, and where the closure lands in the beating decides how dark the murmur is.
+`murmurSource: 'one'` in `sing.mjs` (`renderMidi`'s `murmurSource`, `--murmur one` in `eval/coda-check.mjs`) takes
+the murmur, and a final nasal's hum, from one voice at the chorus's average power. Everything before the closure is
+the same samples. Measured in [`eval/murmur-one-check.md`](eval/murmur-one-check.md):
+
+- **The murmur is steady now.** `eval/murmur-phase.mjs` sweeps the onset's lead 40-200 ms on 306 notes (*bum*, *brum*,
+  *bun*, A#3-E4). With one voice the murmur's brightest 40 ms is -42 dB at every lead (the chorus: -19 dB at worst),
+  and its low band dips 3 dB at most (the chorus: 23 dB, a hum that drops out). That is the audible part of the fault.
+- **It is not darker against its /u/.** The darkest 40 ms of the coda is 10 dB under the vowel at the median either
+  way. The chorus reached the level rule's 15 dB on 61 of 306 notes by landing in a dark beat; one voice on 4.
+- **Read back, it is mixed.** The dark-vowel parts gain (c 123 to 131 of 144, a 116 to 124), as do the cluster
+  syllables (P 114 to 119 of 120). The Graduale pieces at final D3 lose (held-out D's nasals 12 to 8 of 12, F 209 to
+  200 of 218, Z 46 to 43 of 48). No vowel-only control moved. Nothing was pre-registered, so this is not a held-out
+  result, and the option stays opt-in.
+- **Louder is worse.** At the level `nasalGain` assumes (the voice not divided), B's nasals fell 37 to 15 of 39: the
+  reader needs the murmur well under the vowel.
+
+Next: find why the D3 Graduale nasals lose with a steady murmur (their misses, `eval/dark-nasal-diag.mjs` with
+`--opt`), then pre-register a rule or a level and run it on a part built on fresh cells. Not listened to:
+`--murmur one` is the comparison to play first. `murmur-one.test.mjs` (3 tests).
+
 #### A /u/ release read as a nasal (2026-11-17; registration untested, opt-in)
 
 The round before found a fault in the default reader: on part c's A#3 quarter notes every /u/ syllable sung on vowels

@@ -592,6 +592,9 @@ const VOICEBAR = !(args.includes('--voice-bar') && args[args.indexOf('--voice-ba
 const WALLARG = args.includes('--wall') ? args[args.indexOf('--wall') + 1] : '';
 const WALL = WALLARG === 'on' ? true : WALLARG === 'coda' ? 'coda' : false;
 // --local off: readCoda's closure and nasal levels against the reference alone (`localRef: false`, before the fourteenth round)
+// --murmur one: a nasal's murmur sung from one voice, not the beating chorus (sing.mjs `murmurSource: 'one'`, the
+// twenty-eighth round; README "A murmur dark in every phase")
+const MURMUR = args.includes('--murmur') && args[args.indexOf('--murmur') + 1] === 'one' ? 'one' : null;
 const LOCALARG = args.includes('--local') ? args[args.indexOf('--local') + 1] : '';
 // --anchor on: the closure rule against the last vowel-like frames, band by band (`closeAnchor: true`, the parallel rule)
 const ANCHORARG = args.includes('--anchor') ? args[args.indexOf('--anchor') + 1] : '';
@@ -647,7 +650,7 @@ const label = (e) => e.cls === 'stop' ? `${e.voiced ? 'voiced' : 'voiceless'} ${
 const match = (want, got) => Object.entries(want).every(([k, v]) => got[k] === v);
 
 function choir(midiBytes, sing, voiceBar = VOICEBAR, voiceBarWall = WALL) {
-  const r = renderMidi(midiBytes, { rate, stems: true, sing, voiceBar, voiceBarWall });
+  const r = renderMidi(midiBytes, { rate, stems: true, sing, voiceBar, voiceBarWall, ...(MURMUR ? { murmurSource: MURMUR } : {}) });
   const m = parseMidi(midiBytes), sec = (t) => tickToSeconds(t, m.division, m.tempos);
   const notes = m.notes.filter((n) => n.ch !== 9 && m.programs.get(n.ch)?.[0]?.[1] === 52).map((n) => ({ ...n, t0: sec(n.tick), t1: sec(n.end) })).sort((a, b) => a.t0 - b.t0);
   return { x: r.stems.choir.channels[0], notes };
