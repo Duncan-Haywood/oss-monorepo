@@ -225,6 +225,23 @@ def report():
                  (f"O6 Spearman(|ln B1/B2|, drop) >= 0.6 ({rho:+.3f})", rho >= 0.6),
                  (f"O7 stretch orthotropy moves DC < 0.01 on >= 7 of 9 ({nst} of 9)", nst >= 7),
                  (f"O8 additive within 0.01 on >= 7 of 9 ({nad} of 9)", nad >= 7)]
+        # Post hoc (added after the seed-0 "both" and "bend" rows were read): the calibrated lattice's
+        # bending profile B(phi) between the axes, averaged over phi in [0, 90 deg], against the
+        # geometric mean the isotropic element uses.
+        ph = np.linspace(0, math.pi / 2, 31)
+        L += ["", "Post hoc: lattice B(phi) averaged over 0-90 deg (arithmetic, harmonic) / geometric mean of B1, B2"]
+        avg = []
+        for i, c in enumerate(C):
+            p = inputs(c)
+            prof_c = np.array(ortho.bending_profile(p["B1"], p["B2"], ph))
+            gm = math.sqrt(p["B1"] * p["B2"])
+            am, hm = float(np.trapezoid(prof_c, ph) / ph[-1]) / gm, float(ph[-1] / np.trapezoid(1 / prof_c, ph)) / gm
+            avg.append(am)
+            L.append(f"{c}: B1/B2 {p['B1'] / p['B2']:.2f}  mean {am:.3f}  harmonic {hm:.3f}  bend change {d['bend'][i]:+.4f}")
+        rho_avg = spearman(avg, d["bend"])
+        L.append(f"Spearman(mean B(phi)/gmean, bend - iso) = {rho_avg:+.3f}")
+        out["posthoc_profile_mean"] = dict(zip(C, avg))
+        out["posthoc_spearman_profile"] = rho_avg
     chk = []
     for c in ("F1", "F2"):
         r = ends.get((c, COARSE, 0, "iso"))

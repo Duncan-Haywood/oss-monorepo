@@ -75,6 +75,14 @@ class TestOrtho(unittest.TestCase):
         self.assertAlmostEqual(e1 / e2, 1.0, places=12)
         np.testing.assert_allclose(g1, g2, rtol=1e-9, atol=1e-12 * np.abs(g2).max())
 
+    def test_isotropic_ortho_hessian_equals_3d_hessian(self):
+        m = patch(EA1=500.0, EA2=500.0, B1=1e-6, B2=1e-6)
+        iso = fem.Mesh(m.P, m.T, 1e-6 / fem.GF_CM2_PER_CM, 15.0, 500.0, 20.0, m.fixed)
+        X = m.X0 + 0.002 * np.random.default_rng(4).standard_normal(m.X0.shape)
+        H1 = ortho.hessian(m, X).toarray()
+        H2 = m4b.m4a.localhess.hessian(iso, X).toarray()
+        self.assertLess(np.abs(H1 - H2).max() / np.abs(H2).max(), 1e-12)
+
     def test_inputs_from_the_paper(self):
         p = m4b.inputs("F2")             # E100 1.6 % warp, 18.0 % weft
         self.assertAlmostEqual(p["EA1"], 98.0665 / 0.016, places=6)
