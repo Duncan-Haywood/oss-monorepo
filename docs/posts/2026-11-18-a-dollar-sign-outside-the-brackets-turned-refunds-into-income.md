@@ -1,8 +1,8 @@
 ---
 title: "A dollar sign outside the brackets turned refunds into income in 47 tools"
-seo_title: "Excel accounting format $(100.00) read as +100: a parser bug in 47 CSV tools"
+seo_title: "Excel's $(100.00) read as +100: accounting-negatives bug in 47 tools"
 date: 2026-11-18
-tags: [red-team, testing, csv, accounting, bugs]
+tags: [redteam, testing, csv, accounting, bugs]
 description: "Our CSV parsers read ($100.00) as a negative and $(100.00) as a positive. Excel writes the second one. The fix, and the test that stops the pattern coming back."
 ---
 
