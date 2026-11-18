@@ -68,6 +68,24 @@ test("routes: auth, escaped dashboard, schedule JSON, journal CSV, sync, 404", a
   } finally { s.close(); }
 });
 
+// Red team 2026-11-18: ?through= was compared as text, so "2026-3" or "March" exported every month.
+test("journal.csv: a malformed through is a 400, not a journal of every month", async () => {
+  const { cfg, feed } = setup();
+  feed.lines = [line("a", 36500, D(2026, 1, 1), D(2027, 1, 1))];
+  await sync(cfg);
+  const { s, url } = await listen(cfg);
+  try {
+    for (const t of ["2026-3", "March", "2026-13", "2026-03-31"]) {
+      const res = await fetch(`${url}/v1/journal.csv?through=${t}`, { headers: AUTH });
+      assert.equal(res.status, 400, t);
+      assert.ok(!(await res.text()).includes("Billings"), t);
+    }
+    const ok = await (await fetch(`${url}/v1/journal.csv?through=2026-01`, { headers: AUTH })).text();
+    assert.match(ok, /Billings 2026-01/);
+    assert.ok(!ok.includes("2026-02"));
+  } finally { s.close(); }
+});
+
 test("a Stripe failure surfaces as a generic error, not the key or the message", async () => {
   const { cfg } = setup();
   cfg.stripe.listLines = async () => { throw Object.assign(new Error("Invalid API Key provided: rk_live_secret"), { status: 401 }); };
