@@ -1,0 +1,33 @@
+# POST HOC (--bound, no prediction): per-flight r = sqrt(FTE^2 + detrended baro-GNSS RMS^2), an upper bound on the height-keeping noise
+# Milestone 11am: 11al's shared-field planner with height-keeping noise from 16 PX4 flights (mission, level, en route). Z = 7.62 m, H = 120 m, 30 spacings, best of 200 descents, 48 layouts
+# sigma_fleet = 1.337 m (gauss: N(0, 2 sigma_fleet^2)); mix: pair sd sqrt(r_i^2 + r_j^2) over 64 quantile pairs (median 1.379, p90 2.717, max 3.681 m). old = 11al's aware plan at sigma_n = 1.0 m.
+# Every plan scored under mix (the truth here). bands = distinct levels used.
+
+## M = 12 (24 layouts)
+  mission  h*_mix  bands  h*_gauss  same_h  gauss/mix  max     h*_old  same_h  old/mix  max
+  deliv     13.33   5.0    13.33    20/24   1.0000   1.0505   13.33  20/24   1.0000   1.0505
+  T30       13.33   5.0    13.33    19/24   1.0000   1.0581   13.33  19/24   1.0000   1.0581
+  T60       13.33   5.0    13.33    18/24   1.0000   1.0322   13.33  16/24   1.0000   1.0748
+  h*_mix distribution (h: layouts)
+    deliv  13.33: 20, 17.14: 4
+    T30    13.33: 19, 17.14: 5
+    T60    13.33: 16, 17.14: 8
+
+## M = 16 (24 layouts)
+  mission  h*_mix  bands  h*_gauss  same_h  gauss/mix  max     h*_old  same_h  old/mix  max
+  deliv     13.33   5.0    13.33    23/24   1.0000   1.0084   13.33  23/24   1.0000   1.0084
+  T30       13.33   5.0    13.33    23/24   1.0000   1.0117   13.33  23/24   1.0000   1.0117
+  T60       13.33   5.0    13.33    21/24   1.0000   1.0232   13.33  21/24   1.0000   1.0232
+  h*_mix distribution (h: layouts)
+    deliv  13.33: 23, 17.14: 1
+    T30    13.33: 23, 17.14: 1
+    T60    13.33: 21, 17.14: 3
+
+# predictions (stated for the FTE truth; shown here for comparison only)
+  P5 M=12 deliv median h*_mix <= 13.33: 13.33 -> held
+  P5 M=16 deliv median h*_mix <= 13.33: 13.33 -> held
+  P6 gauss/mix median <= 1.01 in every cell: worst cell median 1.0000 (all layouts max 1.0581) -> held
+  P7 M=12 deliv old/mix median <= 1.02: 1.0000 -> held
+  P7 M=16 deliv old/mix median <= 1.02: 1.0000 -> held
+
+# analysis CPU s per layout: median 86
