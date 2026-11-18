@@ -45,7 +45,7 @@ export const OBLIGATIONS = [
   { id: "conformity", label: "Conformity assessment done, technical documentation kept and EU declaration of conformity drawn up", article: "conformity chapter", from: "2026-08-12", categories: ALL, roles: MAKERS, done: "conformity" },
   { id: "epr", label: "Registered in the producer register of each EU country you put packaged goods into; an authorised representative appointed there if you are not established there; collection and recycling financed", article: "producer responsibility chapter", from: "2026-08-12", categories: ALL, roles: ["producer", "importer", "distance"], done: "epr" },
   { id: "fulfilment", label: "Fulfilment services offered only to producers who are registered, and checked", article: "producer responsibility chapter", from: "2026-08-12", categories: ALL, roles: ["fulfilment"], done: "fulfilment" },
-  { id: "drs", label: "Deposit-return system covers single-use plastic bottles and metal drink cans (unless a 90 percent separate-collection rate is already met)", article: "collection chapter", from: "2029-01-01", categories: ["beverage"], roles: ["producer", "importer"], done: "drs" },
+  { id: "drs", label: "Deposit-return system covers single-use plastic bottles and metal drink cans (Member States must reach 90 percent separate collection by 2029; one that reached 80 percent in 2026 and has a plan to reach 90 percent can be exempted)", article: "collection chapter", from: "2029-01-01", categories: ["beverage"], roles: ["producer", "importer"], done: "drs" },
   { id: "label", label: "Harmonised label for material composition and sorting information on the packaging", article: "labelling chapter", from: "2028-08-12", categories: ["sales", "foodcontact", "beverage", "ecommerce"], roles: MAKERS, done: "label" },
   { id: "recyclable", label: "Packaging designed for recycling: meets the recyclability criteria for its material", article: "recyclability requirements", from: "2030-01-01", categories: ALL, roles: MAKERS, done: "recyclable" },
   { id: "recycled", label: "Plastic packaging carries the minimum share of recycled content for its type", article: "recycled-content requirements", from: "2030-01-01", categories: ALL, roles: MAKERS, materials: ["plastic", "multi"], done: "recycled" },
@@ -78,7 +78,7 @@ export function parse(input) {
   const sellsEu = opt(i.sellsEu, ["yes", "no", "unsure"], "yes");
   const euOperator = opt(i.euOperator, ["yes", "no", "unsure"], "unsure");
   const done = {};
-  for (const k of DONE_KEYS) done[k] = Boolean(i[k]) && i[k] !== "0";
+  for (const k of DONE_KEYS) done[k] = i[k] === true || i[k] === "1" || i[k] === 1 || i[k] === "on" || i[k] === "true";
   return { errors, category, material, role, location, today, micro, sellsEu, euOperator, done };
 }
 

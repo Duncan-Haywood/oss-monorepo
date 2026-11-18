@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVNjsqqHCepTGUZm73f",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support products; merge when done)",
+  "input_sha256": "3bacb6da1d6597aa438387432ba02aaf5ca117fccd8dc4fb52cfe978038d7aa0",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T08:05:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Hearth & Horizon story: The Tide Mark That Climbed (rising damp behind a cement render), text only",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 17227,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The proposal asked to check the Hall and Hoff steady-height form against the source, but core.ac.uk and discovery.ucl.ac.uk do not resolve through this session's network policy. The story derives the mass balance explicitly and uses only ratios (h(h-H)=h0^2), where the constant that depends on how evaporation is defined cancels; the closing note says so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (577 MB > 400 MB), so the story landed text only, as the prompt directs.",
+      "did": "text, pages, feeds and tests without audio",
+      "result": "node --test 19/19 pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-hearth-and-horizon-the-tide-mark-that-climbed.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, slug the-tide-mark-that-climbed (Bouça da Veiga, Minho, 2054). Picked the BIBLE.md proposal 'The tide mark that climbed' after searching open PRs for the phrase (none); claimed with draft PR #17227 before drafting. Numbers worked in a script: steady h=1.381 m from h0=0.50, H=1.20; climb 0.74/1.20/1.37 m at 3 mo/1 yr/2 yr with assumed theta 0.20, b 0.60 m, S 0.3 mm/min^0.5 (calibrated, not measured); perfect-barrier drop 4.9 cm in 48 days (tau 154 d); drying to 0.95 m in 71 days (story uses 0.98-1.04, deliberately slower). Weekdays, third Sundays, Portuguese Epiphany transfer (Sun 3 Jan 2055) and Year C 2nd Sunday OT Gospel (Cana) checked; birth years checked against events (one slip fixed in re-read: Albano could not have watched Rosa limewash before 2050). Added a 2054 timeline row and a new proposal (The wave that stands still, hydraulic jump below a low weir; Belanger ratio 6.7, 1.75 m head loss, ~34 kW/m worked). Checks: node --test (hearth-and-horizon) 19 pass; check_post_frontmatter, check_post_links, check_posts, post_similarity all clean.",
+  "corrections": [],
+  "redteam": null
+}

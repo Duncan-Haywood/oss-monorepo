@@ -61,7 +61,10 @@ Other `command`s: `preflight` marks files already present in Photos.app
 since a timeout may have imported them without confirming. Useful flags:
 `--batch-size` (default 10), `--timeout` seconds per file (default 180),
 `--attempts` retries for transient failures (default 3), `--photos-preflight`
-to check each file against Photos.app before importing it.
+to check each file against Photos.app before importing it. The library match is
+by file name only, so `run` uses it only with `--photos-preflight`: camera
+counters roll over at 9999, and an old `DSC00002.JPG` in the library would
+otherwise mark a new photo imported without sending it.
 
 After an import or before removing a source/staging copy, verify that the files
 tracked by a manifest are still present and readable. It exits with status 1 if
@@ -164,3 +167,13 @@ kind. The only records produced (`status.json`, `completion_report.json`,
 offload manifests) are written to disk on the machine running the tool, for
 your own use — see "Development" above for why they, and other
 machine-specific caches, are excluded from version control.
+
+## Known gaps
+
+From the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-photos-import-tools.json):
+
+- After a crash, watchdog kill or timeout, interrupted files go back to `pending`, which imports with Photos' duplicate check off, so a file that already landed can be imported twice.
+- A denied Automation permission (-1743) marks every file permanently skipped and still exits 0 "Complete".
+- The watchdog's 900 s stall limit is below the worker's 1,860 s batch timeout, so a healthy slow batch can be killed.
+- `--attempts` is parsed but not used; `status` resets interrupted rows; Sony `.HIF` files are copied by `sd_offload.py` but not verified.
+- `verify` re-reads the source files; it does not check that they are in Photos.

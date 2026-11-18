@@ -24,6 +24,9 @@ fog and sun glint do to that. Research code, not a certified perception system.
   173 of them are under 16 pixels at 320x240 (41 px in the 512x384 originals): distant buoys and swimmers, and
   fragments of thin structures (poles, mooring lines); recall there is 27%. Larger objects: 60% (32 to 256 px 48 to
   64%, over 256 px 100%; n = 31, so the object-sampling interval alone is about +-17 points).
+  Read the all-object figure with care: components are labelled with 4-connectivity and no minimum size, so 80 of the
+  204 are single pixels (117 are 3 px or less), many of them fragments of one diagonal pole or line. The 16 px-and-up
+  figure (60%, n = 31) is the more reliable one until a re-score with 8-connectivity (see "Known gaps").
 - **Fog costs the clean-trained network most of its large-object recall.** At transmission 0.3 (an object at 31% of
   the visibility range) recall of objects of at least 16 px falls from 60% to 28%, and to 23% at t = 0.15, while
   mIoU only drops from 0.967 to 0.884. The pixel MLP finds nothing at t = 0.5.
@@ -38,8 +41,7 @@ fog and sun glint do to that. Research code, not a certified perception system.
   10 to 26% of the time; those more than 40 rows below it 46 to 50% (clean frames). At t = 0.15 the near group also
   falls, to 12% (clean training) and 19% (augmented).
 - Full tables, by size and by rows below the water edge: [`experiments/results.txt`](experiments/results.txt).
-  Training takes 12 to 13 minutes per LR-ASPP run on 4 CPU cores. CPU training is not bit-reproducible: a rerun of
-  one seed moved clean mIoU by 0.002.
+  Training takes 12 to 13 minutes per LR-ASPP run on 4 CPU cores. CPU training is not bit-reproducible.
 
 ## Method and reproduce
 
@@ -116,3 +118,14 @@ Related labs: ARPG (Heckman; perception and sim-to-real for field robots), RECUV
   buoy, and what does that do to its closest point of approach?
 
 AI-assisted (Claude Code).
+
+## Known gaps
+
+From the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-marine-detect.json):
+
+- `metrics.py` labels obstacle components with scipy's default 4-connectivity and no minimum area, so a diagonal
+  8-pixel line counts as 8 obstacles. The "32% of 204" headline rests on that count; switching to 8-connectivity
+  needs the dataset to re-score.
+- Ground-truth obstacles count from 1 px, but predicted blobs under 4 px never count as false alarms.
+- Five of six seeded bugs survived the tests; `aggregate.py` and `model.py` have none.
+- eWaSR (Teršek et al. 2023), the closest lightweight-network result on MODS/MaSTr1325, is not cited.
