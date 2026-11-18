@@ -464,7 +464,7 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
     vi++;
   }
   const nv = o.detunes.length;
-  for (let i = 0; i < total; i++) { const b = o.breath * rand(); src[i] = src[i] / nv + b; if (one) src1[i] = src1[i] / Math.sqrt(nv) + b; }
+  for (let i = 0; i < total; i++) { const b = o.breath * rand(); src[i] = src[i] / nv + b; if (one) src1[i] += b; }
   // formant track: the vowel, gliding to `glide` from glideFrom of the sung length
   const from = tuneF1(FORMANTS[vowel] || FORMANTS.a, f, o.f1Tune), to = glide ? tuneF1(FORMANTS[glide], f, o.f1Tune) : from;
   const on = onset.length ? onsetTracks(onset, dur, total, rate, from, rng(seed ^ 0x5bd1e995), rawRms(rate), o.onsetShare, room, o.lateralLevel === false || o.onsetLateral === 'first' ? null : (c) => lateralGain(f, rate, from, c), o.voiceBarLevel === false ? null : (c) => voiceBarGain(f, rate, from, c, VOICE_BAR_DB, o.voiceBarWall === true), o.voiceBarWall === true) : null;
