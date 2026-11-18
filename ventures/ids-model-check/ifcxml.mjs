@@ -38,12 +38,26 @@ export function looksLikeXml(text) {
 }
 
 const local = (n) => (n.includes(":") ? n.slice(n.indexOf(":") + 1) : n);
-const isMeta = (k) => k === "id" || k === "ref" || k === "pos" || k.includes(":") || k === "xmlns";
+const isMeta = (k) => k === "id" || k === "ref" || k === "href" || k === "pos" || k.includes(":") || k === "xmlns";
+
+// Some writers point at an instance with href="i1" (ISO 10303-28's xlink
+// form: GeometryGymIFC's IFC4 output and all 41 of buildingSMART's IFC4 ADD2
+// TC1 Annex E ifcXML examples) rather than ref="i1". Both are read as ref.
+function hrefToRef(root) {
+  const stack = [root];
+  while (stack.length) {
+    const el = stack.pop();
+    if (el.attrs && el.attrs.ref === undefined && el.attrs.href !== undefined) el.attrs.ref = String(el.attrs.href).replace(/^#/, "");
+    if (el.children) for (const c of el.children) stack.push(c);
+  }
+}
 
 export function parseIfcXml(text, schema) {
   const root = parseXml(text);
+  hrefToRef(root);
   const entities = new Map();
   const errors = [];
+  let commaNumbers = 0, commaExample = null;
   const ids = new Map();
   let next = 1;
   const num = (s) => {
@@ -68,6 +82,19 @@ export function parseIfcXml(text, schema) {
   };
   const hasOwnValueAttrs = (el) => Object.keys(el.attrs).some((k) => !isMeta(k));
 
+  // A list of lists written flat ("x y z x y z"): cut into rows of the inner
+  // level's fixed size (schema attr.inner, e.g. [3] for CoordList). A size
+  // that varies cannot be recovered from flat text and is left flat.
+  const nest = (list, a) => {
+    if (!a.inner || a.inner.length !== 1 || !a.inner[0] || !Array.isArray(list) || list.some(Array.isArray)) return list;
+    const k = a.inner[0];
+    if (list.length % k) return list;
+    const out = [];
+    for (let i = 0; i < list.length; i += k) out.push(list.slice(i, i + k));
+    return out;
+  };
+  const splitText = (t, type) => (t.trim() ? t.trim().split(/\s+/).map((x) => cast(x, type)) : []);
+
   // A text value read as the given type name.
   function cast(raw, typeName) {
     const s = raw.trim();
@@ -76,6 +103,14 @@ export function parseIfcXml(text, schema) {
       case "double":
       case "integer": {
         const n = Number(s);
+        if (Number.isNaN(n) && /^[+-]?\d*,\d+(?:[eE][+-]?\d+)?$/.test(s)) {
+          // A decimal comma: the writer formatted numbers in a locale that
+          // uses one (41 of buildingSMART's IFC4 Annex E ifcXML examples). xs:double has no
+          // such form; read it as a point and say so once.
+          commaNumbers++;
+          if (!commaExample) commaExample = s;
+          return Number(s.replace(",", "."));
+        }
         return Number.isNaN(n) && s !== "NaN" ? s : n;
       }
       case "boolean":
@@ -146,11 +181,19 @@ export function parseIfcXml(text, schema) {
     if (kidsEls.length) {
       const first = kidsEls[0];
       const isItem = (c) => entityName(xsiType(c) || c.local) || definedName(xsiType(c) || c.local) || c.attrs.ref !== undefined || /-wrapper$/.test(c.local);
-      if (!isItem(first) && entityName(declared)) {
+      // <Position><Location ref="i3"/><Axis ../></Position>: the children are
+      // attributes of the declared class, so the element is an instance of it
+      // even when a child is itself a reference.
+      const ownAttr = (c) => entityName(declared) && schema.attrs(entityName(declared)).index.has(c.local) && !entityName(c.local);
+      if ((!isItem(first) || ownAttr(first)) && entityName(declared)) {
         // <UnitsInContext><Units>..</Units></UnitsInContext>: an IfcUnitAssignment
         // written without its own element.
         const v = { ref: entity(el, declared) };
         return def.aggregate ? [v] : v;
+      }
+      // A list of lists as one wrapper per row: <Seq-IfcPositiveInteger-wrapper>14 16 15 13</..>.
+      if (def.inner && kidsEls.every((c) => !c.children.length && !entityName(xsiType(c) || c.local) && c.attrs.ref === undefined)) {
+        return kidsEls.map((c) => splitText(c.text, declared));
       }
       if (def.aggregate || schema.prim(declared) === "aggregate") {
         const of = def.aggregate ? declared : itemType(declared);
@@ -158,7 +201,7 @@ export function parseIfcXml(text, schema) {
       }
       return item(first, declared);
     }
-    if (def.aggregate) return el.text.trim() ? el.text.trim().split(/\s+/).map((x) => cast(x, declared)) : [];
+    if (def.aggregate) return nest(splitText(el.text, declared), def);
     if (!el.text.trim() && schema.prim(declared) === "string") return "";
     return el.text.trim() === "" ? null : cast(el.text, declared);
   }
@@ -171,6 +214,21 @@ export function parseIfcXml(text, schema) {
     return null;
   }
 
+  // An attribute's position by name. A name in the wrong case
+  // (BenchMark="equalto" for IfcMetric.Benchmark, in GeometryGymIFC's IFC4
+  // output) is still read, and said once per class and name.
+  const caseNoted = new Set();
+  function attrIndex(attrs, name, type) {
+    const i = attrs.index.get(name);
+    if (i !== undefined) return i;
+    const lower = name.toLowerCase();
+    const j = attrs.findIndex((a) => a.name.toLowerCase() === lower);
+    if (j < 0) return undefined;
+    const key = type + "." + name;
+    if (!caseNoted.has(key)) { caseNoted.add(key); errors.push(`${type} attribute "${name}" read as ${attrs[j].name} (the name's case differs from the schema)`); }
+    return j;
+  }
+
   // Builds an entity from an element; returns its id.
   function entity(el, type) {
     const id = el.attrs.id !== undefined ? num(el.attrs.id) : next++;
@@ -180,20 +238,32 @@ export function parseIfcXml(text, schema) {
     entities.set(id, el.attrs.id !== undefined ? { id, type, args, xmlId: el.attrs.id } : { id, type, args });
     for (const [k, v] of Object.entries(el.attrs)) {
       if (isMeta(k)) continue;
-      const i = attrs.index.get(k);
+      const i = attrIndex(attrs, k, type);
       if (i === undefined) continue;
       const a = attrs[i];
-      args[i] = a.aggregate ? (v.trim() ? v.trim().split(/\s+/).map((x) => cast(x, a.type)) : []) : cast(v, a.type);
+      // A value written for a derived attribute (CoordinateSpaceDimension="0"
+      // on a sub-context) is not part of the instance: STEP writes it as *.
+      if (a.derived) continue;
+      args[i] = a.aggregate ? nest(splitText(v, a.type), a) : cast(v, a.type);
     }
     for (const c of el.children) {
       const name = c.local;
-      const i = attrs.index.get(name);
+      const i = attrIndex(attrs, name, type);
       if (i !== undefined) {
+        if (attrs[i].derived) continue;
         args[i] = attrValue(c, attrs[i], type);
         continue;
       }
       const inv = inverseOf(type, name);
       if (inv) {
+        // An inverse of at most one (IsTypedBy, a SET [0:1]) may be written
+        // as the relationship itself, its attributes on the inverse's element:
+        // <IsTypedBy GlobalId=".."><RelatingType ../></IsTypedBy>.
+        if (xsiType(c) || c.attrs.id !== undefined || c.attrs.ref !== undefined || hasOwnValueAttrs(c)) {
+          const v = c.attrs.ref !== undefined ? { ref: num(c.attrs.ref) } : { ref: entity(c, entityName(xsiType(c) || "") || inv[0]) };
+          backrefs.push([v.ref, inv[1], id]);
+          continue;
+        }
         for (const r of c.children) {
           const v = item(r, inv[0]);
           if (v && v.ref) backrefs.push([v.ref, inv[1], id]);
@@ -226,5 +296,6 @@ export function parseIfcXml(text, schema) {
     } else if (!r.args[i] || !r.args[i].ref) r.args[i] = { ref: pid };
   }
   for (const s of ids.keys()) if (!entities.has(ids.get(s))) errors.push(`ref="${s}" points at no element`);
+  if (commaNumbers) errors.push(`${commaNumbers} number(s) written with a decimal comma (e.g. "${commaExample}"), read with a decimal point`);
   return { schema: null, entities, errors };
 }

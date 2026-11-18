@@ -24,7 +24,7 @@
 - Restrictions: enumeration, pattern (XSD, anchored), min/max inclusive/exclusive, length, minLength, maxLength.
 - Large models (2026-11-17): STEP arguments are read when a check first needs them and geometry's are not kept; a 219 MB federated model of seven real exports checks against the starter IDS files at a 1.0 GB peak (was 2.5 GB), identical reports, and the page finishes it under a 1 GB heap (eval/heap-200mb-2026-11-17.md).
 - Specifications that apply to every entity (2026-11-17): an argument-free prefilter per facet, requirements judged before failure text, and an indexed IFC2X3 type map; 68 public and starter IDS files take 13 s on a 40 MB MEP export (was 96 s) and 111 s on the 219 MB model (was 515 s), with identical reports; that run fits a 2 GB heap, as it did before (eval/no-entity-facet-2026-11-17.md).
-- Model input: STEP; ifcXML in both the IFC2X3 (ifcXML2) and IFC4 layouts, read into the same entities as STEP (xBIM's ifcXML export of 4walls1floorSite agrees with its STEP file on 2,205 of 2,205 attribute values); .ifczip with deflate, stored and zip64 entries.
+- Model input: STEP; ifcXML in both the IFC2X3 (ifcXML2) and IFC4 layouts, read into the same entities as STEP (xBIM's ifcXML export of 4walls1floorSite agrees with its STEP file on 2,205 of 2,205 attribute values; on buildingSMART's 41 IFC4 Annex E examples and 2 GeometryGymIFC examples, each published as both STEP and ifcXML, the verdicts on the two forms agree 129 of 129, with href references, decimal commas and flat coordinate lists read); .ifczip with deflate, stored and zip64 entries.
 - IDS 1e-6 float tolerance; values converted to SI from project or property units; IFC2X3 occurrence classes via the type mapping table.
 
 ## Not covered

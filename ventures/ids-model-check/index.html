@@ -262,7 +262,7 @@
     let h = `<p class="summary"><span class="tag ${r.pass ? "pass" : "fail"}">${r.pass ? "PASS" : "FAIL"}</span> ${passed} of ${r.specs.length} specifications pass${failing ? `, ${failing.toLocaleString()} failing element results` : ""}${invalid ? `, ${invalid} invalid` : ""}</p>`;
     if (invalid) h += `<p class="warn">${invalid} specification(s) in the IDS are invalid and were not checked: the IDS needs fixing, not the model. Each says why below.</p>`;
     h += `<p class="muted">${esc(r.title || state.idsName)} against ${esc(state.ifcName)}: a ${esc(r.schema)} model with ${r.entityCount.toLocaleString()} entities.</p>`;
-    if (r.parseErrors.length) h += `<p class="warn">${r.parseErrors.length} line(s) of the model could not be read, e.g. ${esc(r.parseErrors[0])}</p>`;
+    if (r.parseErrors.length) h += `<p class="warn">${r.parseErrors.length} reader note(s) on the model (lines that could not be read, or forms read leniently), e.g. ${esc(r.parseErrors[0])}</p>`;
     const dups = r.duplicateGlobalIds || [];
     if (dups.length) {
       h += `<details class="spec" open><summary><span class="tag fail">MODEL</span><span><strong>${dups.length} duplicate GlobalId${dups.length > 1 ? "s" : ""}</strong> <span class="muted">not an IDS verdict: IFC requires every GlobalId to be unique</span></span></summary><div class="body"><p>BCF viewpoints, model comparisons and clash tools find elements by GlobalId, so a shared one points them at the wrong element or at both. It usually comes from copying elements in the authoring tool or merging two exports; re-export with new GlobalIds for the copies.</p><div class="tablewrap"><table><thead><tr><th>GlobalId</th><th>Elements holding it</th></tr></thead><tbody>`;
