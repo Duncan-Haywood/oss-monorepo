@@ -191,3 +191,12 @@ test("spread: rounding remainder goes to the months with the largest fractional 
   // exact shares: 1001*31/90 = 344.79, 1001*28/90 = 311.42, 344.79
   assert.deepEqual(s, { "2026-01": 345, "2026-02": 311, "2026-03": 345 });
 });
+
+test("journal: a one-cent month is still journaled, a zero month is not (red team 2026-11-18)", () => {
+  const rows = [{ month: "2026-01", billed: 1, recognized: 0 }, { month: "2026-02", billed: 0, recognized: 1 }];
+  const e = journal(rows);
+  assert.deepEqual(e.map((x) => [x.memo, x.account, x.debit, x.credit]), [
+    ["Billings 2026-01", "Stripe balance", "0.01", ""], ["Billings 2026-01", "Deferred revenue", "", "0.01"],
+    ["Revenue recognised 2026-02", "Deferred revenue", "0.01", ""], ["Revenue recognised 2026-02", "Subscription revenue", "", "0.01"],
+  ]);
+});

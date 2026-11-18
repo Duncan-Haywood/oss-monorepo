@@ -289,3 +289,22 @@ test("concentration top10 sums exactly ten subscriptions", () => {
   assert.ok(Math.abs(c.top10 - 10 / 12) < 1e-12);
   assert.ok(Math.abs(c.top5 - 5 / 12) < 1e-12);
 });
+
+test("edge amounts and defaults (red team 2026-11-18)", async () => {
+  const { cohorts } = await import("./metrics.mjs");
+  const now = Date.UTC(2026, 5, 15);
+  // A one-cent subscription is still revenue in the rebuilt history.
+  assert.deepEqual(mapAt([{ id: "a", mrr: 1, status: "active", created: Date.UTC(2026, 0, 1) }], now), { a: 1 });
+  // backfill and cohorts default to twelve months.
+  assert.equal(backfill([], now).months.length, 12);
+  assert.equal(cohorts([], now).length, 12);
+  // A rate over a zero base is null, not NaN.
+  const zero = { month: "2026-05", mrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0, startMrr: 0, startCustomers: 0 };
+  assert.equal(summarize([zero, { ...zero, month: "2026-06" }]).rates.logoChurn, null);
+  assert.equal(summarize([{ ...zero, startCustomers: 4, churnCount: 1 }]).rates.logoChurn, 0.25);
+  // Concentration ranks the largest customer first whatever the input order.
+  const subs = [10, 30, 20].map((mrr, i) => ({ id: `s${i}`, customer: `c${i}`, mrr, status: "active" }));
+  const b = breakdown(subs);
+  assert.equal(b.concentration.largest, 30);
+  assert.equal(b.concentration.top1, 0.5);
+});
