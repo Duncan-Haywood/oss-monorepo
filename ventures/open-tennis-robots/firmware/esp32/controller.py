@@ -406,12 +406,17 @@ ESC_SURVEY_REFINE = 5
 # window, not noise, so no rms band could flag it). The snapshot to the verdict already holds 28-118 revolutions.
 # With 16: 42 of 42 design drills and 28 of 28 held-out drills (ESC 0-230 ms, wheel lags 0.35-0.6 s) within 15%
 # (tests/esc_survey_window.py; 8: 31 and 21). Each refit row costs the same, so a refit is about 1.6 times the work.
-# Short lags read a little low with it (40 ms: 36-37, 50 ms: 44-47), still within 15%. The record's own fit keeps 8.
+# Short lags read a little low with it (40 ms: 36-37, 50 ms: 44-47), still within 15%; that was the parabola's pick, not
+# the window (ESC_SURVEY_SPLINE). The record's own fit keeps 8.
 ESC_SURVEY_AFTER = 16
 # The ESC-lag survey's pick between grid lags (2026-11-18, README "The ESC-lag survey's pick between grid lags"): a
 # natural cubic spline through all seven sums on log(lag + 10 ms) (`survey_spline_pick`) in place of the three-point
-# parabola (`survey_pick`). Off until its pre-registered held-out check (tests/esc_survey_spline.py) decides.
-ESC_SURVEY_SPLINE = False
+# parabola (`survey_pick`). Refit at 28 lags with the same window, the least residual sat on the true lag (40, 50 and
+# 90 ms builds, to the 5 ms step): the window was not biased, the parabola was. Within 5% of the true lag: 68 of 70
+# design drills (parabola 41) and, held out by its pre-registered rule, 39 of 44 (27), ESC 25-270 ms, wheel lags 0.45
+# and 0.65 s (eval/esc-survey-spline-2026-11-18.txt). No refit, frame or survey time changes; the take survey keeps
+# the parabola.
+ESC_SURVEY_SPLINE = True
 # Surveys waiting their turn (2026-11-18, same section). A new stroke used to cut the last ball's survey; now it only
 # pauses it (no survey step runs while a stroke is under way or a record's fit is pending), and the surveys queue, run
 # between strokes and after the drill. The oldest waiting beyond this many is dropped (`survey_cut`). Each holds one

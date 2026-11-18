@@ -1541,6 +1541,23 @@ class EscSurveyTest(unittest.TestCase):
         self.assertEqual(i, 1)
         self.assertTrue(0 <= ref <= 50000)
 
+    def test_spline_pick_finds_a_v_between_grid_lags(self):
+        # README "The ESC-lag survey's pick between grid lags": a V-shaped, lopsided sum curve (as the residuals are)
+        # with its least at 40 ms: the spline reads it within 5%
+        import math
+        g = controller.ESC_SURVEY_GRID_US
+        sums = [(1.0 + 30 * abs(math.log((v + 10000) / 50000.0))) ** 2 for v in g]
+        self.assertEqual(controller.survey_spline_pick(g, [0.0] * 7), (None, None))
+        self.assertEqual(controller.survey_spline_pick(g, [1, 2, 3, 4, 5, 6, 7]), (0, 0.0))
+        self.assertEqual(controller.survey_spline_pick(g, [7, 6, 5, 4, 3, 2, 1]), (6, 400000.0))
+        i, ref = controller.survey_spline_pick(g, sums)
+        self.assertEqual(i, 2)
+        self.assertTrue(20000 <= ref <= 100000)                     # inside the neighbours' span
+        self.assertLess(abs(ref - 40000), 0.05 * 40000)
+        # an exact parabola in log(lag + 10 ms) has its least where the spline says
+        sq = [(math.log(v + 10000) - math.log(70000)) ** 2 + 1 for v in g]
+        self.assertAlmostEqual(controller.survey_spline_pick(g, sq)[1], 60000, delta=3000)
+
     def test_board_surveys_a_drill_and_the_pi_reads_it(self):
         import esc_survey_sweep as S
         sim = S.sim_for({"esc_tau_s": 0.08}, 0.4, 0.95, 0.65)
