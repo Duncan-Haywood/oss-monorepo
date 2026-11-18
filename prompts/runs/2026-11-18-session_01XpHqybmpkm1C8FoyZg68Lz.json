@@ -28,7 +28,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 49,
   "outcome": "success",
@@ -44,6 +44,10 @@
     {
       "what": "First draft of the post said 16 clean policies; recount from the survey gave 15",
       "fix": "Corrected before commit"
+    },
+    {
+      "what": "CI build.test.mjs 'the catch-all holds only what no section claims' failed: a new tool in 'More free tools' grew it to 6; venture-preflight only printed a note about the catch-all",
+      "fix": "Added csp-policy-check to the 'CI checks & developer gates' rule in platform/pages/build.mjs"
     }
   ],
   "integrity_issues": [],
@@ -55,6 +59,10 @@
     {
       "file": "platform/ci/gen_llms_txt.py",
       "issue": "Uses the old github.io SITE while CLAUDE.md names marisstella.app as the host; unclear which a hand-written llms.txt should link (used marisstella.app)."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Its 'lands in the catch-all' line is a note, but build.test.mjs fails CI when the catch-all passes 5 tools; preflight skips build.test.mjs, so the note should be an error when the cap would be exceeded."
     }
   ],
   "deviations": [
