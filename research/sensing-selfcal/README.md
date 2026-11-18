@@ -13,6 +13,17 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
 revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
 
+**Milestone 3m headline** (does that gyro fix survive a wrong gyro? the same windows with the gyro rotated 1&ndash;10&deg; off the
+camera, scaled 2&ndash;5% or 2&ndash;20 ms late): **misalignment and timing are forgiving; a wrong readout is not.** Against the same
+window with an exact gyro, a 3&deg; camera&ndash;IMU rotation moves f a median 0.15% and 10&deg; 0.42%; a 5 ms time offset 0.14%,
+10 ms 0.35%, 20 ms 0.83%, all below the 1.1% the window's own noise leaves. A gyro scale 5% high with the readout held at its true
+value moves f by 1.23%, negative in all 30 windows (2%: 0.50%); since the model sees only rate &times; readout, that is also the cost of a
+readout taken 5% too long, and it is a bias, so pooling windows will not average it out. With the readout left free, the scale error
+is absorbed to 1e-10, and the free readout also shrinks the misalignment's shift (10&deg;: 0.29%). So: estimate the readout in the
+window, align the gyro to a few degrees, sync it within 10 ms. Four of six predictions held. [Log](LOG.md).
+
+![Gyro faults against the rolling-shutter window solve: median focal shift per fault, and shift against rate error for time offsets](experiments/m3m_gyrofault/gyrofault.png)
+
 **Milestone 3l headline** (can a robot undo the rolling-shutter error with the gyro it already carries? milestone 3k's synthetic
 windows re-solved with a rolling-shutter term driven by per-keyframe gyro rates): **mostly, and one 1.2 s window measures the
 readout time itself.** With random hand-held rates of 0.3 rad/s per axis and a 1/30 s readout, the gyro term cuts the median focal
@@ -1040,6 +1051,8 @@ python3 experiments/m3i_principal/analyse.py  # seconds; board_summary.json, pri
 OMP_NUM_THREADS=1 python3 experiments/m3l_gyro/run.py 4   # under 20 min on 4 cores, no video; results.json
 python3 experiments/m3l_gyro/analyse.py        # seconds; summary.json, gyro.png
 python3 experiments/m3l_gyro/explore.py        # ~5 min; post hoc noise-off check, explore.json
+OMP_NUM_THREADS=1 python3 experiments/m3m_gyrofault/run.py 4   # ~6 min on 4 cores, no video; results.json
+python3 experiments/m3m_gyrofault/analyse.py   # seconds; summary.json, gyrofault.png
 python3 experiments/m1_real/run.py        # ~40 min on 4 cores; results.json
 python3 experiments/m1_real/analyse.py    # summary.json, selfcal_vs_zhang.png
 python3 experiments/m1_real/planarity.py  # ~3 min; planarity.json
@@ -1142,6 +1155,11 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3m: the gyro fix tolerates a few degrees of camera&ndash;IMU rotation and up to 10 ms of time offset, but a
+readout (or gyro scale) held fixed and 5% wrong biases f by 1.2% in one direction, so the readout should be estimated. Next: the TUM
+test as specified below, readout free; a readout too short (s &lt; 1) and why the scale bias has one sign; estimating the time
+offset in the window (it is identifiable in principle from a smooth path); vibration within a frame; an outlier-laden SIFT front end.
 
 After milestone 3l: with a gyro, a rolling-shutter term in the window solve removes most of the shift (4.17% to 1.14%; 0.71%
 with a free linear velocity) and one hand-held window estimates the readout to 3.6% without a false shutter on global-shutter
