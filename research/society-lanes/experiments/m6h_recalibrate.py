@@ -9,7 +9,7 @@ social force's interaction strength A (Helbing et al. 2000; JuPedSim default 200
 speed's time gap T (Tordeux et al. 2016; JuPedSim default 1.0 s) and ORCA's time horizon tau (van den Berg
 et al. 2011; RVO2's example value 5 s). This step fits that parameter to the real curve.
 
-Part A (calibration, SEED0 20340000, 8 seeds): the four 6f settings, each parameter on a five-value grid that
+Part A (calibration, SEED0 20340000, 4 seeds): the four 6f settings, each parameter on a five-value grid that
 brackets the default on both sides, entrances 0.9 and 1.6 m, N in NS; 120 s runs, 40 s warm-up. Score of a
 value = RMS over cells (entrance, N) whose mean transit density lies inside the real free-choice walkers'
 5th to 95th percentile of (cell-mean transit - T_free(cell-mean transit density)), T_free being 6g's
@@ -18,7 +18,7 @@ chosen value is the grid minimum. Operating walker counts: per HERMES run (bo-36
 bo-360-160-160 at 1.6 m), the N at which the chosen twin's cell-mean transit density first reaches the
 run's own mean crossing density (6g Part A), by linear interpolation over NS, rounded.
 
-Part B (held out, SEED0 20341000, 20 fresh seeds): at the chosen value, the N grid again plus the operating
+Part B (held out, SEED0 20341000, 12 fresh seeds): at the chosen value, the N grid again plus the operating
 counts N_op and N_op - k (k = 20%) at both entrances. Reports (i) the curve gap (RMS of fitted quadratics on
 a 0.05 /m^2 grid) against the free curve, on fresh seeds; (ii) the curve gap against the eight
 assigned-exit 3.6 m runs' curve (doi:10.34735/ped.2009.11, which played no part in the fit) over the range
@@ -48,7 +48,7 @@ import m6g_density_cost as G  # noqa: E402
 import sftwin as S  # noqa: E402
 
 SEED_A, SEED_B = 20340000, 20341000
-FULL_A, FULL_B = 8, 20
+FULL_A, FULL_B = 4, 12
 SEEDS_A = int(os.environ.get("M6H_SEEDS", str(FULL_A)))
 SEEDS_B = int(os.environ.get("M6H_SEEDS", str(FULL_B)))
 DURATION = float(os.environ.get("M6H_DURATION", str(M5.DURATION)))
