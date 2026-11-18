@@ -159,12 +159,20 @@ export const RULES = [
 // Card numbers (13-19 digits that pass the Luhn check) and US social security numbers: never echoed, always a person.
 export function sensitiveData(text) {
   const found = [];
-  for (const m of String(text).matchAll(/\b(?:\d[ -]?){13,19}\b/g)) {
-    const d = m[0].replace(/\D/g, ""); let sum = 0;
-    for (let i = 0; i < d.length; i++) { let x = +d[d.length - 1 - i]; if (i % 2) { x *= 2; if (x > 9) x -= 9; } sum += x; }
-    if (sum % 10 === 0) { found.push("card"); break; }
+  // A run of digit groups is tried as every stretch of whole groups holding 13 to 19 digits, so a card typed with its
+  // security code or expiry after it ("4111 1111 1111 1111 123"), or a number before it, is still found.
+  const luhn = (d) => { let sum = 0; for (let i = 0; i < d.length; i++) { let x = +d[d.length - 1 - i]; if (i % 2) { x *= 2; if (x > 9) x -= 9; } sum += x; } return sum % 10 === 0; };
+  scan: for (const m of String(text).matchAll(/\b\d+(?:[ -]\d+)*\b/g)) {
+    const groups = m[0].split(/[ -]/);
+    for (let a = 0; a < groups.length; a++) {
+      let d = "";
+      for (let b = a; b < groups.length && d.length + groups[b].length <= 19; b++) {
+        d += groups[b];
+        if (d.length >= 13 && luhn(d)) { found.push("card"); break scan; }
+      }
+    }
   }
-  if (/\b\d{3}-\d{2}-\d{4}\b/.test(text)) found.push("ssn");
+  if (/\b\d{3}([ -])\d{2}\1\d{4}\b/.test(text)) found.push("ssn");
   return found;
 }
 
@@ -235,7 +243,8 @@ export function rankArticles(agent, question, limit = 5, ex = exampleVotes(agent
 }
 
 // --- Extractive answer ---------------------------------------------------------------------------------------------
-export const sentences = (text) => String(text).split(/\n+|(?<=[.!?])\s+(?=[A-Z0-9"'(])/).map((s) => s.trim()).filter(Boolean);
+// A numbered step's own marker ("1. Open Settings") is not a sentence end.
+export const sentences = (text) => String(text).split(/\n+|(?<=[.!?])(?<!(?:^|\n)[ \t]*\d+\.)\s+(?=[A-Z0-9"'(])/).map((s) => s.trim()).filter(Boolean);
 
 // The best passage for the question, whole when it is short; otherwise its best sentence and the ones after it (up to
 // `max`). Kept in article order and copied verbatim.
