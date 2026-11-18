@@ -668,6 +668,18 @@ slack, as well as the per-pose drag limits. Statics.
 
 ![Why the sweep drops cases (outside the drag envelope, or a plan limit inside it) and the worst residual inside the envelope](experiments/m51_envelope/figure.png)
 
+**Milestone 52: does calibrating with the hose slack fix the G1's coverage?** Yes. With the one calibration move made
+under the hanging hose's weight alone (each press keeps its hose load), the calibration plans at every sensor-error
+axis on both robots (H213 held), and inside milestone 51's drag envelope the G1 plans 1342 of 1368 cases, **98.1%
+(from 93.0%)**; the H1 stays at 99.7% (H211 held). No residual changes by as much as 5e-5 mm (H212 held: worst G1 0.016 mm,
+H1 0.014 mm): the compensator subtracts the hose load the wrist sensor measures, so the error the calibration absorbs
+is the sensor's bias alone, the same under any load. A practical rule: calibrate with the hose slack, then keep each
+pose inside its drag limit. What is left are plan limits at the poses themselves (21 G1 cases at the 1.0 and 1.2 m
+grips, 5 H1 at 1.6 m) and 5 G1 sensor-error cases. Statics; the sensor error is a constant bias (a gain error would
+make the calibration load-dependent and is not modelled).
+
+![Coverage inside the drag envelope with the calibration under load and with the hose slack, and the dropped cases that remain](experiments/m52_slackcal/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

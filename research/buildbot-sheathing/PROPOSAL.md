@@ -463,6 +463,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    limits (at the pose or the calibration pose) has no plan (G1 162 of 162, H1 36 of 36); inside them the G1 plans
    93.0% (83.1% overall), the H1 99.7%, in spec (H209 held). 101 cases inside have no plan (H208 refuted), 75 of the
    G1's 96 at its one calibration pose. Next: calibrate with the hose slack and rerun the sweep.
+52. **Slack-hose calibration** (done 2026-11-18, `experiments/m52_slackcal/`): calibrating under the hanging hose's
+   weight alone plans at every sensor-error axis (H213 held); the G1 plans 98.1% of in-envelope cases (from 93.0%,
+   H211 held), the H1 99.7%, and no residual changes (H212 held: the calibration error is the sensor bias alone,
+   load-independent once the measured load is compensated). Left: 21 G1 and 5 H1 plan limits at 1.0 to 1.6 m grips,
+   5 G1 sensor-error cases. Next: which hold row binds at those plan limits.
 
 ## Target venue
 
