@@ -192,6 +192,22 @@ export function synthFitCovariates(y, donors, k, x1, X0, { maxEval = 160, vSearc
   return { weights: w, v: best.v, synth, gap, preRmspe: pre, postRmspe: post, ratio: post / Math.max(pre, 1e-12), predictorRmse: xfit };
 }
 
+// The shape of a gap after the date (README "A donor's own event that is not a step"): the mean square of the first
+// third of the after-points against the last third's. 'faded' when the first is at least GAP_SHAPE_RATIO times the
+// last (a pulse that wore off), 'grew' when the last is at least that times the first (a slope from the date), else
+// 'held' (a step, or noise); null with fewer than 6 points after the date. The ratio, 6, was read off an exploratory
+// run (eval/synth-donor-shape-explore.out.txt) and frozen in eval/synth-donor-shape-prereg-2026-11-18.md. A
+// description of a placebo's own gap for the "ranked above" note; it changes no p.
+export const GAP_SHAPE_RATIO = 6;
+export function gapShape(after) {
+  const m = after.length;
+  if (m < 6) return null;
+  const t = Math.floor(m / 3), ms = (a) => a.reduce((s, e) => s + e * e, 0) / a.length;
+  const early = ms(after.slice(0, t)), late = ms(after.slice(m - t));
+  const shape = early >= GAP_SHAPE_RATIO * late ? 'faded' : late >= GAP_SHAPE_RATIO * early ? 'grew' : 'held';
+  return { shape, early: Math.sqrt(early), late: Math.sqrt(late) };
+}
+
 // The test. y: the treated series; donors: { name: series }; k: date index. Returns the fit, the gap after the date,
 // each donor's placebo ratio, the rank-based p, and a fit warning when the treated series is matched worse before
 // the date than most donors are (the placebo distribution then says little: Abadie et al. 2010, section 4.3).
@@ -235,7 +251,7 @@ export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fi
     // donorWeights: the placebo's own synthetic control, by name ('(treated)' when the treated unit is in its pool),
     // so covariateBalance can put the treated fit's balance among the placebos' (README "Covariate balance").
     const donorWeights = Object.fromEntries(others.map((i, q) => [i < 0 ? '(treated)' : names[i], f.weights[q]]));
-    return { name: s, preRmspe: f.preRmspe, postRmspe: f.postRmspe, ratio: f.ratio, donorWeights };
+    return { name: s, preRmspe: f.preRmspe, postRmspe: f.postRmspe, ratio: f.ratio, donorWeights, gapShape: gapShape(f.gap.slice(k)) };
   });
   // Three placebo statistics, each ranked the same way (README "A floored ratio"): 'ratio' (the 2010 paper's),
   // 'floored' (the default since 2026-11-17, eval/synth-floor-prereg-2026-11-17.md) (the after-gap over the before-gap floored at the median before-gap of all units, treated and
