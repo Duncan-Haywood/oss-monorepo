@@ -754,6 +754,14 @@ pulling forward. The drag a pose tolerates straight back is its press headroom o
 11.4 N in every direction at its best. A dragged rubber hose reaches 4.0 N with about 3 m on the
 floor (μ_f 0.5, unsourced), so at high grips the hose has to be fed or carried, not dragged.
 
+Those limits are the right hose rule as far as balance goes, but not all of it (milestone 51). In the
+sweep of section 5.11, every case whose drag passes the limit at its pose or at the calibration pose has
+no plan (162 of 162 on the G1, 36 of 36 on the H1), and inside the limits the G1 plans 1272 of 1368
+cases (93.0%) and the H1 1897 of 1902, with worst residuals unchanged (G1 0.016 mm, H1 0.014 mm). Of the
+101 cases inside with no plan, 75 are on the G1 and come from its one calibration pose: 45 under 20 N
+pulling sideways, at 35% of the drag that pose balances, with no plan even for an exact sensor. Because
+one calibration serves every pose, the calibration should be taken with the hose slack.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

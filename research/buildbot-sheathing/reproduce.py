@@ -95,6 +95,8 @@ EXPERIMENTS = {
                      3, [("posthoc.py", "posthoc.txt")]),
     "m50_relean": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m49_backload/run.py (and so m48's to m38's) and reads m48 results.json",
                    3, [("posthoc.py", "posthoc.txt")]),
+    "m51_envelope": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m48_loadside/posthoc.py (and so m48's to m38's) and reads m48 and m50 results.json",
+                     5, [("posthoc.py", "posthoc.txt")]),
 }
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]

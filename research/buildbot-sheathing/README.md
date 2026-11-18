@@ -657,6 +657,17 @@ to within 9% (H206 held); H204 and H205 refuted, H207 not tested. Statics.
 
 ![Worst friction-cone slack over 17 hose loads against forward lean, and the hose tension each pose tolerates per direction](experiments/m50_relean/figure.png)
 
+**Milestone 51: does keeping the hose inside each pose's drag limit give every case a plan?** Not quite. Every swept
+case whose drag exceeds milestone 50's limit (at the pose or at the calibration pose) has no plan: 162 of 162 on the
+G1, 36 of 36 on the H1. Inside that envelope the G1 plans 93.0% of its cases (83.1% overall) and the H1 99.7%, and the
+worst residuals stay in spec (G1 0.016 / 0.011 / 0.011 mm, H1 0.010 / 0.014 / 0.010 mm at 0 / 5 / 20 N; H209 held).
+But 101 cases inside it still have no plan (H208 refuted): 75 of the G1's 96 come from its one calibration pose, 45 of
+them under 20 N pulling sideways, at 35% of the drag it balances, and with an exact sensor too. The rest are plan
+limits at the 1.0 to 1.6 m grips and sensor error (H210 held). So the G1 needs the calibration taken with the hose
+slack, as well as the per-pose drag limits. Statics.
+
+![Why the sweep drops cases (outside the drag envelope, or a plan limit inside it) and the worst residual inside the envelope](experiments/m51_envelope/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
