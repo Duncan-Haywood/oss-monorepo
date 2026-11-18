@@ -406,8 +406,17 @@ ESC_SURVEY_REFINE = 5
 # window, not noise, so no rms band could flag it). The snapshot to the verdict already holds 28-118 revolutions.
 # With 16: 42 of 42 design drills and 28 of 28 held-out drills (ESC 0-230 ms, wheel lags 0.35-0.6 s) within 15%
 # (tests/esc_survey_window.py; 8: 31 and 21). Each refit row costs the same, so a refit is about 1.6 times the work.
-# Short lags read a little low with it (40 ms: 36-37, 50 ms: 44-47), still within 15%. The record's own fit keeps 8.
+# Short lags read a little low with it (40 ms: 36-37, 50 ms: 44-47), still within 15%; that was the parabola's pick, not
+# the window (ESC_SURVEY_SPLINE). The record's own fit keeps 8.
 ESC_SURVEY_AFTER = 16
+# The ESC-lag survey's pick between grid lags (2026-11-18, README "The ESC-lag survey's pick between grid lags"): a
+# natural cubic spline through all seven sums on log(lag + 10 ms) (`survey_spline_pick`) in place of the three-point
+# parabola (`survey_pick`). Refit at 28 lags with the same window, the least residual sat on the true lag (40, 50 and
+# 90 ms builds, to the 5 ms step): the window was not biased, the parabola was. Within 5% of the true lag: 68 of 70
+# design drills (parabola 41) and, held out by its pre-registered rule, 39 of 44 (27), ESC 25-270 ms, wheel lags 0.45
+# and 0.65 s (eval/esc-survey-spline-2026-11-18.txt). No refit, frame or survey time changes; the take survey keeps
+# the parabola.
+ESC_SURVEY_SPLINE = True
 # Surveys waiting their turn (2026-11-18, same section). A new stroke used to cut the last ball's survey; now it only
 # pauses it (no survey step runs while a stroke is under way or a record's fit is pending), and the surveys queue, run
 # between strokes and after the drill. The oldest waiting beyond this many is dropped (`survey_cut`). Each holds one
@@ -546,6 +555,62 @@ def survey_pick(grid, sums):
     xm = (x[0] + x[1]) / 2 - d1 / (2 * curv)
     xm = min(max(xm, x[0]), x[2])
     return i, math.exp(xm) if lg else xm
+
+
+def survey_spline_pick(grid, sums, offset=None):
+    """(index of the least sum, a lag in us at the least of a natural cubic spline through every sum) or (None, None)
+    with no sums (2026-11-18, README "The ESC-lag survey's pick between grid lags"). The spline runs on log(lag +
+    `offset`), `offset` half of grid[1] when None, so the 0 lag has a place on the axis. Its least is found in closed
+    form on the two segments either side of the least sum, so the refined lag stays inside the neighbours' span, as
+    `survey_pick`'s does; at either end of the grid it is the grid point. The three-point parabola reads a V-shaped,
+    lopsided residual curve off the vertex: an untold 40-50 ms ESC read 36-47 and 210-250 ms read 222-271."""
+    if not sums or not any(sums):
+        return None, None
+    n = len(sums)
+    i = 0
+    for k in range(1, n):
+        if sums[k] < sums[i]:
+            i = k
+    if i == 0 or i == n - 1 or n < 3:
+        return i, float(grid[i])
+    c = grid[1] / 2 if offset is None else offset
+    x = [math.log(g + c) for g in grid]
+    y = sums
+    h = [x[k + 1] - x[k] for k in range(n - 1)]
+    # second derivatives M of the natural spline (M[0] = M[n-1] = 0): a tridiagonal solve
+    b = [1.0] * n
+    d = [0.0] * n
+    for k in range(1, n - 1):
+        b[k] = 2 * (h[k - 1] + h[k])
+        d[k] = 6 * ((y[k + 1] - y[k]) / h[k] - (y[k] - y[k - 1]) / h[k - 1])
+        w = (h[k - 1] if k > 1 else 0.0) / b[k - 1]
+        b[k] -= w * (h[k - 1] if k > 1 else 0.0)
+        d[k] -= w * d[k - 1]
+    m = [0.0] * n
+    for k in range(n - 2, 0, -1):
+        m[k] = (d[k] - h[k] * m[k + 1]) / b[k]
+    best_y, best_x = y[i], x[i]
+    for s in (i - 1, i):
+        q = h[s] * h[s] / 6
+        y0, y1, m0, m1 = y[s], y[s + 1], m[s], m[s + 1]
+        # dy/dt on t in [0, 1]: (y1 - y0) + q (-2 m0 - m1 + 6 m0 t + 3 (m1 - m0) t^2)
+        a2, a1, a0 = 3 * q * (m1 - m0), 6 * q * m0, (y1 - y0) - q * (2 * m0 + m1)
+        roots = []
+        if abs(a2) < 1e-30:
+            if a1 != 0:
+                roots.append(-a0 / a1)
+        else:
+            disc = a1 * a1 - 4 * a2 * a0
+            if disc >= 0:
+                r = math.sqrt(disc)
+                roots += [(-a1 - r) / (2 * a2), (-a1 + r) / (2 * a2)]
+        for t in roots:
+            if 0 < t < 1:
+                u = 1 - t
+                v = u * y0 + t * y1 + ((u * u * u - u) * m0 + (t * t * t - t) * m1) * q
+                if v < best_y:
+                    best_y, best_x = v, x[s] + h[s] * t
+    return i, math.exp(best_x) - c
 
 
 def _seg_int(u, hs, x, y, s, tau):
@@ -2151,7 +2216,8 @@ class LaunchCheck:
         if not self.survey or self.survey_n == 0:
             return None
         self._survey_sums()
-        i, ref = survey_pick(self.survey, self.survey_sums)
+        pick = survey_spline_pick if ESC_SURVEY_SPLINE else survey_pick
+        i, ref = pick(self.survey, self.survey_sums)
         rms = [min(65535, int(round(1e6 * math.sqrt(v / self._kept)))) for v in self.survey_sums]
         return (min(255, self.survey_n), self.survey[i] // 1000, int(round(ref / 1000)), rms)
 

@@ -3003,3 +3003,61 @@ packing it there would add an array append to the control loop. Next: `gc.mem_fr
 rally drill, at depth 2 and 3. If the live log is the board's largest holder, pack it as it is logged.
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/survey_heap.py
+
+## The ESC-lag survey's pick between grid lags (2026-11-18, after "A queued survey's heap"; on by its pre-registered rule)
+
+**The item.** Section "Long ESC lags" moved the survey's refits to 16 revolutions after the anchor and noted that short
+lags then read a little low: 40 ms read 36-37 and 50 ms read 44-47. 210-250 ms read 222-271. All were within 15%,
+but a builder sets `ESC_TAU_US` from this number.
+
+**The window or the pick?** Refit at 28 lags from 0 to 400 ms with the same 16-revolution window (the stored drills of
+`tests/esc_survey_window.py`), the least summed residual sat on the true lag for every 40, 50 and 90 ms build, to the
+5 ms step. So the window is not biased. The survey's refinement is: `survey_pick` draws a parabola through the least
+grid sum and its two neighbours in the lag's log. Near its least the residual curve is a V, steeper on one side
+than the other. A parabola through three points of a lopsided V puts its vertex off the true least, and which way it
+falls depends on where the true lag sits between the grid lags.
+
+**Tried on the design set** (those 70 drills, scored by the board's own sums, `ResidualSurvey`, on the shipped grid):
+
+| pick between grid lags | within 5% | within 10% | within 15% | max error | mean error |
+| --- | --- | --- | --- | --- | --- |
+| parabola, log axis (shipped) | 41 | 66 | 70 | 11.7% | 4.4% |
+| natural cubic spline through all 7 sums, log(lag + 10 ms) | 68 | 70 | 70 | 6.4% | 1.3% |
+
+Also tried and dropped: the parabola on rms, on log sums, and on square-root or linear lag axes (no better than 41;
+the linear axes 25-35); a four-point cubic (56); the spline on rms (55) or on a linear axis (35). Moving the seven grid
+lags was tried too: geometric grids with the parabola scored 24-41. A search over 4,368 seven-lag grids found 56 at
+best, by putting grid lags on the design set's own ESC lags (120 and 250 ms), which would not carry over. The spline's
+only setting is the offset that gives 0 ms a place on the log axis: a quarter of grid[1] scored 68, half 68, one 65
+and two 61, so half (10 ms) ships.
+
+**Held out.** The prediction and decision rule were committed before the capture ran (commit 3de646cbe, in
+`tests/esc_survey_spline.py`). The held-out set used ESC lags none of the design drills used (25 / 33 / 45 / 60 / 75 /
+110 / 130 / 160 / 185 / 220 / 270 ms), wheel lags 0.45 and 0.65 s, rally and calibration drills, seed 13, and the second
+true launcher: 44 drills, every one counted (20-26 wheels). The board's survey ran unchanged, and both picks were
+scored on the same sums (eval/esc-survey-spline-2026-11-18.txt):
+
+| held out (44 drills) | within 5% | within 15% | max error | mean error |
+| --- | --- | --- | --- | --- |
+| parabola | 27 | 40 | 48.1% | 7.1% |
+| spline | 39 | 42 | 48.1% | 4.1% |
+
+The rule held on all three of its clauses: more drills within 5%, as many within 15%, and a max error no larger.
+`controller.ESC_SURVEY_SPLINE` is True. The max error is the same for both picks because two of the four 270 ms drills
+had their least sum at the grid's 400 ms end. There both picks give the grid point, and the Pi already answers that
+pick by telling the builder to scope the ESC. The prediction held in part. The spline put 89% of drills within 5%
+(predicted 85% or more) and the parabola 61% (predicted under 65%). On the 25-75 ms drills the spline's mean signed
+error was -2.4% (predicted within 3%). The parabola's was +2.0%, though, where I had predicted below -4%: it read 25-33
+ms high (28-35) and 45-60 ms low (40-58), so its error changes sign between grid lags rather than always reading low.
+The spline's worst short reads are 25 ms as 23-24.
+
+**The cost.** None in the survey: the refits, the grid, the ESC_SURVEY frame and the survey's time are unchanged. A
+Pi and a board from either side of this change read each other's frames, and only the refined lag in the frame
+moves. The pick solves a 7-point tridiagonal system and two quadratics each time the report is built. The take survey
+keeps the parabola, since nothing here tested it there.
+
+**Not known.** All simulated: a first-order ESC behind a first-order wheel, one seed per set. The V's shape comes
+from that model, and a real ESC's step response may bend it differently. Next: a real ESC's lag on a scope; whether
+the take survey's pick between its contact times has the same lean.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/esc_survey_spline.py --score eval/esc-survey-spline-heldout-rows-2026-11-18.jsonl.gz
