@@ -160,3 +160,213 @@ F9 2.5mm seed 1 both EA 2394: DC 0.7523 folds 5 E -1.58931320e-03 steps 15 conv 
 F2 2.5mm seed 0 stretch EA 978: DC 0.3256 folds 9 E -8.20902536e-04 steps 25 conv True lam None 56s
 F9 2.5mm seed 1 both EA 4785: DC 0.7590 folds 5 E -1.56881778e-03 steps 16 conv True lam 3.23369513527857e-08 32s
 F2 2.5mm seed 0 stretch EA 1827: DC 0.3284 folds 9 E -8.16004212e-04 steps 27 conv True lam 3.0037207197016366e-08 62s
+F8 2.5mm seed 1 both EA 150: DC 0.6120 folds 6 E -1.54151317e-03 steps 138 conv True lam None 282s
+F8 2.5mm seed 1 both EA 299: DC 0.6297 folds 6 E -1.49723136e-03 steps 16 conv True lam None 33s
+F8 2.5mm seed 1 both EA 598: DC 0.6466 folds 6 E -1.45955055e-03 steps 17 conv True lam None 35s
+F8 2.5mm seed 1 both EA 1193: DC 0.6592 folds 6 E -1.43044690e-03 steps 17 conv True lam None 36s
+F8 2.5mm seed 1 both EA 2381: DC 0.6693 folds 6 E -1.40862223e-03 steps 17 conv True lam -5.5802569364126016e-08 36s
+F7 2.5mm seed 1 both EA 150: DC 0.6095 folds 9 E -1.20164874e-03 steps 161 conv True lam None 336s
+F7 2.5mm seed 1 both EA 273: DC 0.6262 folds 9 E -1.17553480e-03 steps 15 conv True lam None 31s
+F7 2.5mm seed 1 both EA 495: DC 0.6397 folds 9 E -1.15352697e-03 steps 17 conv True lam None 37s
+F6 2.5mm seed 1 both EA 150: DC 0.5798 folds 9 E -1.13367040e-03 steps 178 conv True lam None 377s
+F7 2.5mm seed 1 both EA 900: DC 0.6509 folds 9 E -1.13522843e-03 steps 20 conv True lam None 41s
+F6 2.5mm seed 1 both EA 275: DC 0.5946 folds 9 E -1.11298060e-03 steps 16 conv True lam None 33s
+F3 2.5mm seed 1 both EA 150: DC 0.3665 folds 9 E -2.70745038e-03 steps 103 conv True lam None 221s
+F6 2.5mm seed 1 both EA 505: DC 0.6059 folds 9 E -1.09561634e-03 steps 20 conv True lam None 41s
+F7 2.5mm seed 1 both EA 1636: DC 0.6602 folds 9 E -1.11946684e-03 steps 29 conv True lam None 63s
+F3 2.5mm seed 1 both EA 265: DC 0.3775 folds 9 E -2.67465760e-03 steps 34 conv True lam None 71s
+F6 2.5mm seed 1 both EA 928: DC 0.6165 folds 9 E -1.08062357e-03 steps 26 conv True lam None 55s
+F7 2.5mm seed 1 both EA 2973: DC 0.6687 folds 9 E -1.10461134e-03 steps 36 conv True lam 1.7715721254876735e-08 77s
+F6 2.5mm seed 1 both EA 1703: DC 0.6261 folds 9 E -1.06648140e-03 steps 29 conv True lam 2.4278383579820258e-08 63s
+F3 2.5mm seed 1 both EA 470: DC 0.3868 folds 9 E -2.64605329e-03 steps 37 conv True lam None 80s
+F3 2.5mm seed 1 both EA 831: DC 0.3947 folds 9 E -2.62037691e-03 steps 35 conv True lam 5.190808654480146e-08 76s
+F4 2.5mm seed 1 both EA 150: DC 0.5015 folds 10 E -1.28953405e-03 steps 94 conv True lam None 201s
+F4 2.5mm seed 1 both EA 285: DC 0.5170 folds 10 E -1.26548490e-03 steps 22 conv True lam None 46s
+F4 2.5mm seed 1 both EA 543: DC 0.5294 folds 10 E -1.24533626e-03 steps 26 conv True lam None 53s
+F5 2.5mm seed 1 both EA 150: DC 0.4203 folds 8 E -1.49271671e-03 steps 127 conv True lam None 271s
+F5 2.5mm seed 1 both EA 280: DC 0.4315 folds 8 E -1.46620831e-03 steps 25 conv True lam None 50s
+F4 2.5mm seed 1 both EA 1034: DC 0.5397 folds 10 E -1.22868577e-03 steps 26 conv True lam None 51s
+F4 2.5mm seed 1 both EA 1967: DC 0.5480 folds 10 E -1.21432262e-03 steps 26 conv True lam None 55s
+F5 2.5mm seed 1 both EA 523: DC 0.4422 folds 8 E -1.44357692e-03 steps 35 conv True lam None 71s
+F1 2.5mm seed 1 both EA 150: DC 0.4002 folds 9 E -1.22825945e-03 steps 149 conv True lam None 312s
+F4 2.5mm seed 1 both EA 3744: DC 0.5571 folds 10 E -1.20040413e-03 steps 31 conv True lam -2.3344857084748464e-08 63s
+F1 2.5mm seed 1 both EA 299: DC 0.4119 folds 9 E -1.21091275e-03 steps 25 conv True lam None 51s
+F5 2.5mm seed 1 both EA 977: DC 0.4518 folds 8 E -1.42321908e-03 steps 32 conv True lam None 66s
+F1 2.5mm seed 1 both EA 597: DC 0.4207 folds 9 E -1.19658432e-03 steps 35 conv True lam None 73s
+F5 2.5mm seed 1 both EA 1824: DC 0.4610 folds 8 E -1.40329862e-03 steps 43 conv True lam 3.926009710316519e-08 89s
+F1 2.5mm seed 1 both EA 1190: DC 0.4278 folds 9 E -1.18410396e-03 steps 31 conv True lam None 66s
+F9 2.5mm seed 2 both EA 150: DC 0.6580 folds 4 E -1.78721450e-03 steps 52 conv True lam None 105s
+F9 2.5mm seed 2 both EA 300: DC 0.6686 folds 4 E -1.75321263e-03 steps 11 conv True lam None 21s
+F1 2.5mm seed 1 both EA 2374: DC 0.4336 folds 9 E -1.17216420e-03 steps 45 conv True lam None 100s
+F9 2.5mm seed 2 both EA 599: DC 0.6789 folds 4 E -1.72199294e-03 steps 12 conv True lam None 22s
+F2 2.5mm seed 1 both EA 150: DC 0.3410 folds 8 E -8.00219735e-04 steps 127 conv True lam None 258s
+F9 2.5mm seed 2 both EA 1198: DC 0.6889 folds 4 E -1.69370511e-03 steps 13 conv True lam None 23s
+F9 2.5mm seed 2 both EA 2394: DC 0.6976 folds 4 E -1.66857947e-03 steps 13 conv True lam None 24s
+F9 2.5mm seed 2 both EA 4785: DC 0.7039 folds 4 E -1.64655569e-03 steps 14 conv True lam 3.423513424820108e-08 26s
+F1 2.5mm seed 1 both EA 4735: DC 0.4379 folds 9 E -1.15992040e-03 steps 41 conv True lam 2.218027022004894e-08 83s
+F2 2.5mm seed 1 both EA 280: DC 0.3465 folds 8 E -7.92810618e-04 steps 56 conv True lam None 116s
+F2 2.5mm seed 1 both EA 524: DC 0.3511 folds 8 E -7.86613327e-04 steps 28 conv True lam None 56s
+F2 2.5mm seed 1 both EA 978: DC 0.3535 folds 8 E -7.81271725e-04 steps 32 conv True lam None 63s
+F8 2.5mm seed 2 both EA 150: DC 0.6120 folds 6 E -1.54151317e-03 steps 104 conv True lam None 192s
+F7 2.5mm seed 2 both EA 150: DC 0.6089 folds 9 E -1.20174544e-03 steps 113 conv True lam None 208s
+F8 2.5mm seed 2 both EA 299: DC 0.6297 folds 6 E -1.49723136e-03 steps 16 conv True lam None 28s
+F2 2.5mm seed 1 both EA 1827: DC 0.3564 folds 8 E -7.76393155e-04 steps 30 conv True lam 3.0205592991682254e-08 60s
+F7 2.5mm seed 2 both EA 273: DC 0.6264 folds 9 E -1.17569223e-03 steps 17 conv True lam None 30s
+F8 2.5mm seed 2 both EA 598: DC 0.6466 folds 6 E -1.45955055e-03 steps 17 conv True lam None 30s
+F7 2.5mm seed 2 both EA 495: DC 0.6396 folds 9 E -1.15379215e-03 steps 19 conv True lam None 35s
+F8 2.5mm seed 2 both EA 1193: DC 0.6592 folds 6 E -1.43044690e-03 steps 17 conv True lam None 32s
+F8 2.5mm seed 2 both EA 2381: DC 0.6693 folds 6 E -1.40862223e-03 steps 17 conv True lam -5.580256936642718e-08 30s
+F7 2.5mm seed 2 both EA 900: DC 0.6499 folds 9 E -1.13561978e-03 steps 21 conv True lam None 38s
+F7 2.5mm seed 2 both EA 1636: DC 0.6594 folds 9 E -1.11995310e-03 steps 22 conv True lam None 42s
+F7 2.5mm seed 2 both EA 2973: DC 0.6682 folds 9 E -1.10513374e-03 steps 25 conv True lam 1.1083046784305458e-08 46s
+F6 2.5mm seed 2 both EA 150: DC 0.5798 folds 9 E -1.13367040e-03 steps 110 conv True lam None 199s
+F6 2.5mm seed 2 both EA 275: DC 0.5946 folds 9 E -1.11298060e-03 steps 16 conv True lam None 29s
+F6 2.5mm seed 2 both EA 505: DC 0.6059 folds 9 E -1.09561634e-03 steps 20 conv True lam None 34s
+F6 2.5mm seed 2 both EA 928: DC 0.6165 folds 9 E -1.08062357e-03 steps 26 conv True lam None 46s
+F6 2.5mm seed 2 both EA 1703: DC 0.6261 folds 9 E -1.06648140e-03 steps 29 conv True lam 2.427838358127972e-08 52s
+F3 2.5mm seed 2 both EA 150: DC 0.3756 folds 10 E -2.69214798e-03 steps 195 conv True lam None 344s
+F4 2.5mm seed 2 both EA 150: DC 0.4945 folds 9 E -1.30018607e-03 steps 171 conv True lam None 303s
+F3 2.5mm seed 2 both EA 265: DC 0.3870 folds 10 E -2.65958621e-03 steps 38 conv True lam None 67s
+F3 2.5mm seed 2 both EA 470: DC 0.3972 folds 10 E -2.63117360e-03 steps 26 conv True lam None 46s
+F4 2.5mm seed 2 both EA 285: DC 0.5091 folds 9 E -1.27556542e-03 steps 36 conv True lam None 65s
+F3 2.5mm seed 2 both EA 831: DC 0.4064 folds 10 E -2.60555691e-03 steps 23 conv True lam 4.153572736362595e-08 43s
+F4 2.5mm seed 2 both EA 543: DC 0.5217 folds 9 E -1.25521496e-03 steps 29 conv True lam None 53s
+F4 2.5mm seed 2 both EA 1034: DC 0.5324 folds 9 E -1.23827931e-03 steps 30 conv True lam None 54s
+--- resumed after container restart 2026-11-18T06:33:46Z, 4 processes
+F4 2.5mm seed 2 both EA 1967: DC 0.5416 folds 9 E -1.22339377e-03 steps 28 conv True lam None 54s
+F4 2.5mm seed 2 both EA 3744: DC 0.5500 folds 9 E -1.20888776e-03 steps 40 conv True lam 2.6165944622118416e-08 77s
+F1 2.5mm seed 2 both EA 150: DC 0.3903 folds 8 E -1.23104602e-03 steps 135 conv True lam None 237s
+F1 2.5mm seed 2 both EA 299: DC 0.4004 folds 8 E -1.21442608e-03 steps 20 conv True lam None 36s
+F1 2.5mm seed 2 both EA 597: DC 0.4085 folds 8 E -1.20067323e-03 steps 27 conv True lam None 50s
+F5 2.5mm seed 2 both EA 150: DC 0.4272 folds 9 E -1.57527407e-03 steps 192 conv True lam None 338s
+F5 2.5mm seed 2 both EA 280: DC 0.4395 folds 9 E -1.55252657e-03 steps 18 conv True lam None 32s
+F1 2.5mm seed 2 both EA 1190: DC 0.4145 folds 8 E -1.18872400e-03 steps 28 conv True lam None 54s
+F5 2.5mm seed 2 both EA 523: DC 0.4498 folds 9 E -1.53296841e-03 steps 20 conv True lam None 37s
+F1 2.5mm seed 2 both EA 2374: DC 0.4188 folds 8 E -1.17743521e-03 steps 34 conv True lam None 68s
+F2 2.5mm seed 2 both EA 150: DC 0.3536 folds 9 E -7.99363305e-04 steps 241 conv True lam None 448s
+F5 2.5mm seed 2 both EA 977: DC 0.4599 folds 9 E -1.51530293e-03 steps 23 conv True lam None 42s
+F5 2.5mm seed 2 both EA 1824: DC 0.4698 folds 9 E -1.49782824e-03 steps 21 conv True lam 4.061254698027182e-08 41s
+F2 2.5mm seed 2 both EA 280: DC 0.3600 folds 9 E -7.91672688e-04 steps 32 conv True lam None 61s
+F1 2.5mm seed 2 both EA 4735: DC 0.4226 folds 8 E -1.16625871e-03 steps 27 conv True lam 2.3197453266098727e-08 57s
+F2 2.5mm seed 2 both EA 524: DC 0.3648 folds 9 E -7.85250628e-04 steps 47 conv True lam None 94s
+F2 2.5mm seed 2 both EA 978: DC 0.3690 folds 9 E -7.79551556e-04 steps 34 conv True lam None 66s
+F2 2.5mm seed 2 both EA 1827: DC 0.3709 folds 9 E -7.74268606e-04 steps 38 conv True lam 2.969034169372069e-08 74s
+Milestone 4b: orthotropic triangle-FEM Cusick DC against Petrak et al. (2021) Table 3.
+
+Inputs (FAST, Table 2): warp/weft B [uN m], ratio, warp/weft EA [N/m], ratio; lattice hinge weights [uN m]
+F1: B   4.5   1.9 (2.37)  EA   8915   2515 ( 3.55)  w   1.90   4.83
+F2: B   2.1   1.1 (1.91)  EA   6129    545 (11.25)  w   1.10   2.23
+F3: B   7.7   6.3 (1.22)  EA    824    838 ( 0.98)  w   6.30   7.88
+F4: B   7.6   3.9 (1.95)  EA   7005   2001 ( 3.50)  w   3.90   8.06
+F5: B   5.7   5.3 (1.08)  EA   2001   1662 ( 1.20)  w   5.30   5.75
+F6: B   9.1   9.3 (0.98)  EA   1509   1923 ( 0.78)  w   9.30   9.08
+F7: B  11.9   9.8 (1.21)  EA   3065   2884 ( 1.06)  w   9.80  12.16
+F8: B  32.1  10.3 (3.12)  EA   6129    925 ( 6.62)  w  10.30  34.83
+F9: B  94.3  23.4 (4.03)  EA   6538   3502 ( 1.87)  w  23.40 103.16
+Lattice B(phi)/B2 at B1/B2 = 4, phi = 0, 22.5, 30, 45, 60, 67.5, 90 deg: 4.000 4.311 4.375 4.000 2.875 2.189 1.000
+
+End states: fabric, mode, seed: DC, folds, energy J, stages, all converged, lam_min
+F1 2.5mm bend    seed 0: DC 0.4503 folds 10 E -1.14146047e-03 stages 6 allconv True lam 1.9271613404168522e-08
+F1 2.5mm both    seed 0: DC 0.4379 folds  9 E -1.15992040e-03 stages 6 allconv True lam 2.2180270236357553e-08
+F1 2.5mm stretch seed 0: DC 0.3893 folds 10 E -1.23272689e-03 stages 6 allconv True lam 2.3715634465121205e-08
+F1 2.5mm both    seed 1: DC 0.4379 folds  9 E -1.15992040e-03 stages 6 allconv True lam 2.218027022004894e-08
+F1 2.5mm both    seed 2: DC 0.4226 folds  8 E -1.16625871e-03 stages 6 allconv True lam 2.3197453266098727e-08
+F1 3.75mm iso     seed 0: DC 0.3620 folds  9 E -1.27055266e-03 stages 6 allconv True lam 4.5630780053501264e-08
+F2 2.5mm bend    seed 0: DC 0.3969 folds 11 E -7.55928031e-04 stages 5 allconv True lam 3.504927777394067e-08
+F2 2.5mm both    seed 0: DC 0.3815 folds 10 E -7.72002777e-04 stages 5 allconv True lam 2.819614256167662e-08
+F2 2.5mm stretch seed 0: DC 0.3284 folds  9 E -8.16004212e-04 stages 5 allconv True lam 3.0037207197016366e-08
+F2 2.5mm both    seed 1: DC 0.3564 folds  8 E -7.76393155e-04 stages 5 allconv True lam 3.0205592991682254e-08
+F2 2.5mm both    seed 2: DC 0.3709 folds  9 E -7.74268606e-04 stages 5 allconv True lam 2.969034169372069e-08
+F2 3.75mm iso     seed 0: DC 0.3275 folds  9 E -8.18132204e-04 stages 5 allconv True lam 7.662684670112157e-08
+F3 2.5mm bend    seed 0: DC 0.3942 folds  9 E -2.63021389e-03 stages 4 allconv True lam 6.673827761865613e-08
+F3 2.5mm both    seed 0: DC 0.4047 folds 10 E -2.60718374e-03 stages 4 allconv True lam 5.966376286328901e-08
+F3 2.5mm stretch seed 0: DC 0.3619 folds  7 E -2.64784093e-03 stages 4 allconv True lam 2.0642521182052455e-08
+F3 2.5mm both    seed 1: DC 0.3947 folds  9 E -2.62037691e-03 stages 4 allconv True lam 5.190808654480146e-08
+F3 2.5mm both    seed 2: DC 0.4064 folds 10 E -2.60555691e-03 stages 4 allconv True lam 4.153572736362595e-08
+F4 2.5mm bend    seed 0: DC 0.5382 folds  8 E -1.21686146e-03 stages 6 allconv True lam 2.1090273729073193e-08
+F4 2.5mm both    seed 0: DC 0.5346 folds  8 E -1.22666985e-03 stages 6 allconv True lam -1.6790618798691538e-08
+F4 2.5mm stretch seed 0: DC 0.5263 folds 11 E -1.25806562e-03 stages 6 allconv True lam 1.7637582808264208e-08
+F4 2.5mm both    seed 1: DC 0.5571 folds 10 E -1.20040413e-03 stages 6 allconv True lam -2.3344857084748464e-08
+F4 2.5mm both    seed 2: DC 0.5500 folds  9 E -1.20888776e-03 stages 6 allconv True lam 2.6165944622118416e-08
+F5 2.5mm bend    seed 0: DC 0.4717 folds  9 E -1.49591770e-03 stages 5 allconv True lam 3.51953756677157e-08
+F5 2.5mm both    seed 0: DC 0.4698 folds  9 E -1.49782824e-03 stages 5 allconv True lam 4.061254698087624e-08
+F5 2.5mm stretch seed 0: DC 0.4516 folds  8 E -1.51212207e-03 stages 5 allconv True lam 4.715073750405025e-08
+F5 2.5mm both    seed 1: DC 0.4610 folds  8 E -1.40329862e-03 stages 5 allconv True lam 3.926009710316519e-08
+F5 2.5mm both    seed 2: DC 0.4698 folds  9 E -1.49782824e-03 stages 5 allconv True lam 4.061254698027182e-08
+F6 2.5mm bend    seed 0: DC 0.6130 folds  8 E -1.08327242e-03 stages 5 allconv True lam 1.0101239157401303e-08
+F6 2.5mm both    seed 0: DC 0.6023 folds  7 E -1.08853822e-03 stages 5 allconv True lam 3.1373317992088436e-09
+F6 2.5mm stretch seed 0: DC 0.6154 folds  8 E -1.07959250e-03 stages 5 allconv True lam 8.19286714128875e-09
+F6 2.5mm both    seed 1: DC 0.6261 folds  9 E -1.06648140e-03 stages 5 allconv True lam 2.4278383579820258e-08
+F6 2.5mm both    seed 2: DC 0.6261 folds  9 E -1.06648140e-03 stages 5 allconv True lam 2.427838358127972e-08
+F7 2.5mm bend    seed 0: DC 0.6830 folds 10 E -1.07690645e-03 stages 6 allconv True lam 2.4630491240300756e-08
+F7 2.5mm both    seed 0: DC 0.6576 folds  8 E -1.12307679e-03 stages 6 allconv True lam 1.6551547885753288e-08
+F7 2.5mm stretch seed 0: DC 0.6567 folds  9 E -1.12845688e-03 stages 6 allconv True lam 1.1153028272850804e-08
+F7 2.5mm both    seed 1: DC 0.6687 folds  9 E -1.10461134e-03 stages 6 allconv True lam 1.7715721254876735e-08
+F7 2.5mm both    seed 2: DC 0.6682 folds  9 E -1.10513374e-03 stages 6 allconv True lam 1.1083046784305458e-08
+F8 2.5mm bend    seed 0: DC 0.6997 folds  6 E -1.37563494e-03 stages 5 allconv True lam 3.061850346335941e-08
+F8 2.5mm both    seed 0: DC 0.6764 folds  6 E -1.39611483e-03 stages 5 allconv True lam 1.3031779397683219e-08
+F8 2.5mm stretch seed 0: DC 0.6724 folds  8 E -1.54346814e-03 stages 5 allconv True lam 2.5221564572230027e-08
+F8 2.5mm both    seed 1: DC 0.6693 folds  6 E -1.40862223e-03 stages 5 allconv True lam -5.5802569364126016e-08
+F8 2.5mm both    seed 2: DC 0.6693 folds  6 E -1.40862223e-03 stages 5 allconv True lam -5.580256936642718e-08
+F9 2.5mm bend    seed 0: DC 0.7031 folds  4 E -1.64754561e-03 stages 6 allconv True lam 3.0973051654323597e-08
+F9 2.5mm both    seed 0: DC 0.8098 folds  6 E -1.49481658e-03 stages 6 allconv True lam 2.9769939476579443e-08
+F9 2.5mm stretch seed 0: DC 0.7877 folds  8 E -1.70104177e-03 stages 6 allconv True lam 9.471881678379741e-09
+F9 2.5mm both    seed 1: DC 0.7590 folds  5 E -1.56881778e-03 stages 6 allconv True lam 3.23369513527857e-08
+F9 2.5mm both    seed 2: DC 0.7039 folds  4 E -1.64655569e-03 stages 6 allconv True lam 3.423513424820108e-08
+
+Per fabric (both, 2.5 mm): measured, lowest-energy DC [seed interval], 4a iso lowest, change, error
+F1: Kd 0.222  ortho 0.4226 [0.4226, 0.4379] folds 8  iso 0.3679  change +0.0547  err +0.2006
+F2: Kd 0.227  ortho 0.3564 [0.3564, 0.3815] folds 8  iso 0.3327  change +0.0236  err +0.1294
+F3: Kd 0.285  ortho 0.3947 [0.3947, 0.4064] folds 9  iso 0.3737  change +0.0210  err +0.1097
+F4: Kd 0.319  ortho 0.5346 [0.5346, 0.5571] folds 8  iso 0.4939  change +0.0406  err +0.2156
+F5: Kd 0.348  ortho 0.4698 [0.4610, 0.4698] folds 9  iso 0.4648  change +0.0050  err +0.1218
+F6: Kd 0.403  ortho 0.6023 [0.6023, 0.6261] folds 7  iso 0.6026  change -0.0003  err +0.1993
+F7: Kd 0.442  ortho 0.6576 [0.6576, 0.6687] folds 8  iso 0.6455  change +0.0121  err +0.2156
+F8: Kd 0.548  ortho 0.6693 [0.6693, 0.6764] folds 6  iso 0.6670  change +0.0023  err +0.1213
+F9: Kd 0.647  ortho 0.7039 [0.7039, 0.8098] folds 4  iso 0.7773  change -0.0734  err +0.0569
+
+Scores against measured Kd (n = 9):
+orthotropic, lowest of 3 (registered) : r +0.919  rho +0.933  bias +0.1522  RMSE 0.1614  max|e| 0.2156
+4a isotropic, lowest of 3            : r +0.965  rho +0.967  bias +0.1427  RMSE 0.1479  max|e| 0.2035
+
+Seed 0, 2.5 mm: iso (4a), bend, stretch, both; changes from iso; additivity residual
+F1: iso 0.3921 bend 0.4503 (+0.0583) stretch 0.3893 (-0.0027) both 0.4379 (+0.0459)  resid -0.0097
+F2: iso 0.3327 bend 0.3969 (+0.0641) stretch 0.3284 (-0.0043) both 0.3815 (+0.0488)  resid -0.0110
+F3: iso 0.3921 bend 0.3942 (+0.0021) stretch 0.3619 (-0.0302) both 0.4047 (+0.0125)  resid +0.0407
+F4: iso 0.5058 bend 0.5382 (+0.0324) stretch 0.5263 (+0.0205) both 0.5346 (+0.0288)  resid -0.0241
+F5: iso 0.4766 bend 0.4717 (-0.0049) stretch 0.4516 (-0.0250) both 0.4698 (-0.0068)  resid +0.0231
+F6: iso 0.6145 bend 0.6130 (-0.0015) stretch 0.6154 (+0.0008) both 0.6023 (-0.0123)  resid -0.0116
+F7: iso 0.6455 bend 0.6830 (+0.0375) stretch 0.6567 (+0.0112) both 0.6576 (+0.0121)  resid -0.0366
+F8: iso 0.6776 bend 0.6997 (+0.0220) stretch 0.6724 (-0.0053) both 0.6764 (-0.0013)  resid -0.0180
+F9: iso 0.7893 bend 0.7031 (-0.0862) stretch 0.7877 (-0.0015) both 0.8098 (+0.0205)  resid +0.1082
+seed 0 bend   : r +0.900  rho +0.917  bias +0.1677  RMSE 0.1778  max|e| 0.2410
+seed 0 stretch: r +0.945  rho +0.933  bias +0.1499  RMSE 0.1579  max|e| 0.2147
+seed 0 both   : r +0.958  rho +0.933  bias +0.1704  RMSE 0.1749  max|e| 0.2159
+seed 0 iso (4a): r +0.966  rho +0.967  bias +0.1539  RMSE 0.1585  max|e| 0.2115
+Spearman(|ln B1/B2|, iso - bend) = -0.083
+
+Post hoc: lattice B(phi) averaged over 0-90 deg (arithmetic, harmonic) / geometric mean of B1, B2
+F1: B1/B2 2.37  mean 1.317  harmonic 1.194  bend change +0.0583
+F2: B1/B2 1.91  mean 1.217  harmonic 1.149  bend change +0.0641
+F3: B1/B2 1.22  mean 1.055  harmonic 1.049  bend change +0.0021
+F4: B1/B2 1.95  mean 1.226  harmonic 1.153  bend change +0.0324
+F5: B1/B2 1.08  mean 1.019  harmonic 1.018  bend change -0.0049
+F6: B1/B2 0.98  mean 0.995  harmonic 0.995  bend change -0.0015
+F7: B1/B2 1.21  mean 1.053  harmonic 1.047  bend change +0.0375
+F8: B1/B2 3.12  mean 1.466  harmonic 1.246  bend change +0.0220
+F9: B1/B2 4.03  mean 1.630  harmonic 1.292  bend change -0.0862
+Spearman(mean B(phi)/gmean, bend - iso) = +0.083
+iso check F1 3.75 mm: DC 0.361964 vs 4a 0.358856; E -1.2705526628e-03 vs -1.2730210847e-03
+iso check F2 3.75 mm: DC 0.327539 vs 4a 0.336689; E -8.1813220373e-04 vs -8.2118359314e-04
+
+Predictions:
+  O1 every stage converges: held
+  O2 iso path reproduces 4a (DC 1e-4, E 1e-9 rel): REFUTED
+  O3 (acceptance) orthotropic RMSE <= 0.08: REFUTED
+  O4 orthotropic bias >= +0.10: held
+  O9 orthotropic Pearson r >= 0.95: REFUTED
+  O5 bending orthotropy lowers DC on >= 7 of 9 (3 of 9): REFUTED
+  O6 Spearman(|ln B1/B2|, drop) >= 0.6 (-0.083): REFUTED
+  O7 stretch orthotropy moves DC < 0.01 on >= 7 of 9 (5 of 9): REFUTED
+  O8 additive within 0.01 on >= 7 of 9 (1 of 9): REFUTED
+DONE

@@ -41,9 +41,70 @@ simulation published with the data (0.85 to 0.94), but over-drapes every fabric 
 (RMSE 0.148, acceptance failed), and it is not mesh-flat at these stiffnesses; one shared factor of
 0.485 on bending rigidity brings it to RMSE 0.050 leave-one-out (0.036 solved, in-sample).
 
+**Milestone 4b (is the over-drape the averaged-away anisotropy?):** no. An orthotropic element
+that keeps warp and weft bending (up to 4:1) and stretch (up to 11:1) apart, calibrated so each
+axis is exact, over-drapes the same nine fabrics slightly more (bias +0.152, RMSE 0.161, r 0.919).
+On this lattice the hinge element's off-axis bending is 1.0 to 1.6 times the geometric mean, so
+orthotropy stiffens it, and single-seed differences between models are buried in fold-state noise
+(0.003 to 0.009 for identical energies, up to 0.1 when the fold count jumps).
+
 **Live page:** https://marisstella.app/research/hanger-codesign/
 
 ![Shape error against arm width offset on fabric D for three model tiers](experiments/m1_kes_fidelity/err_vs_offset_D.svg)
+
+## Milestone 4b: an orthotropic element does not explain the over-drape
+
+**Question.** Milestone 4a's isotropic element, given geometric-mean inputs, over-drapes all nine
+measured wovens by about 0.14, and one factor of 0.485 on bending removes the bias. Is the factor
+the warp/weft anisotropy the element averages away?
+
+**Method** ([`experiments/m4b_orthotropic/ortho.py`](experiments/m4b_orthotropic/ortho.py)).
+Stretch EA1 and EA2 act on the warp and weft Green strains. The discrete-shell hinges get one
+weight per lattice edge family, calibrated on the lattice itself so that a cylinder along the warp
+stores exactly B1 k²/2 and one along the weft B2 k²/2. By mirror symmetry the two diagonal
+families share a weight, so this is the only orthotropic form of the hinge element on this
+lattice. Between the axes the lattice decides: at B1/B2 = 4, B(φ)/B2 is 4.0, 4.31, 4.38, 4.0,
+2.88, 2.19 and 1.0 at 0, 22.5, 30, 45, 60, 67.5 and 90°. Inputs come from Petrak et al. (2021)
+Table 2 (FAST warp and weft B, 98.07 N/m / E100 for each direction) with nothing fitted. Every
+other setting is 4a's. Runs: B and EA orthotropic at seeds 0 to 2 (lowest energy, registered);
+B only and EA only at seed 0; and the isotropic case through the new code at 3.75 mm (F1, F2).
+Predictions O1 to O9 were committed and pushed before any 2.5 mm solve. A 7.5 mm pilot on two
+fabrics ran after they were written and before they were committed, and is disclosed in the log.
+
+**Results** ([`results.txt`](experiments/m4b_orthotropic/results.txt), 47 chains, every stage converged):
+
+![Isotropic and orthotropic FEM drape coefficient against measured, nine woven fabrics](experiments/m4b_orthotropic/dc_ortho_vs_measured.svg)
+
+| against measured DC (n = 9) | Pearson r | bias | RMSE |
+|---|---|---|---|
+| 4a isotropic, lowest of 3 | 0.965 | +0.143 | 0.148 |
+| 4b orthotropic B and EA, lowest of 3 (registered) | 0.919 | +0.152 | 0.161 |
+| seed 0: isotropic / B only / EA only / both | 0.966 / 0.900 / 0.945 / 0.958 | +0.154 / +0.168 / +0.150 / +0.170 | 0.159 / 0.178 / 0.158 / 0.175 |
+
+- **O1 held** (all stages converge). **O2 refuted:** the isotropic case through the new code
+  lands 0.003 (F1) and 0.009 (F2, 9 folds against 10) from 4a. On the same state the energy and
+  Hessian are identical and the gradients agree to 4e-16, so this is 3d's path sensitivity and not
+  a code difference. It sets the noise floor for any one-seed comparison.
+- **O3 refuted (acceptance failed), O4 held, O9 refuted:** RMSE 0.161, bias +0.152, r 0.919.
+- **O5, O6 refuted:** bending orthotropy raises the DC on F1 (+0.058), F2 (+0.064), F4
+  (+0.032) and F8 (+0.022), four of the five fabrics with B1/B2 ≥ 1.9. F9 drops by 0.086 into a
+  4-fold state. The Spearman with |ln B1/B2| is −0.08.
+- **O7, O8 refuted:** stretch orthotropy alone moves the DC by 0.01 or more on 4 of 9, and the two
+  effects add within 0.01 on only 1 of 9 (F9's residual is +0.108).
+- Post hoc: averaged over 0 to 90°, the lattice's B(φ) is 1.02 to 1.63 times the geometric mean
+  (harmonic mean 1.02 to 1.29), so on this element orthotropy stiffens bending off the axes.
+
+**Reading.** The 0.485 factor is not the anisotropy. Put back in the only form the hinge element
+allows, orthotropy pushes the drape coefficient up, not down, and the bias grows by 0.009. The
+remaining suspects are the mesh trend 4a found (the DC rises with refinement), membrane locking at
+2,000 to 9,000 N/m, and the gap between FAST's cantilever bending and the bending a drape uses.
+For method: on this tier a one-seed difference between two models means nothing below about 0.01,
+and a fold-count jump moves the DC by up to 0.1. Model comparisons need 3e to 3g's pooled or
+interval rules.
+
+**Limits.** The off-axis profile is fixed by the lattice, and no bias-bending measurement was
+available to check it. Bend-only, stretch-only and the additivity test use seed 0 only. One
+lattice orientation was run (warp along the rows). All nine fabrics come from one laboratory.
 
 ## Milestone 4a: the uncalibrated cloth FEM against nine measured Cusick drape coefficients
 
