@@ -13,29 +13,29 @@ reader_g                 25.0       assumed  g | carried over from model.py
 
 == B. headline rig (4 cameras, 4 h/day, 7 days, 2 SSD copies, 1 h evening limit): assumed vs sourced figures
 figures                          day_GB  cards_only_g  plan_g readers offload_h  1-reader-1-copy_h
-assumed (model.py)                  864          7.50   452.0       6      0.89               2.67
-sourced, reader at 90 MB/s          900          4.00   451.0       6      0.93               2.78
-sourced, UHS-I ceiling 104          900          4.00   426.0       5      0.96               2.40
-sourced, UHS-II ceiling 312         900          4.00   351.0       2      0.80               0.80
-sourced, UHS-I, mirrorless full SD    900         32.00   433.0       5      0.96               2.40
+assumed (model.py)                  864          7.50   402.0       4      0.89               2.67
+sourced, reader at 90 MB/s          900          4.00   401.2       4      0.89               2.78
+sourced, UHS-I ceiling 104          900          4.00   376.0       3      0.96               2.40
+sourced, UHS-II ceiling 312         900          4.00   326.0       1      0.80               0.80
+sourced, UHS-I, mirrorless full SD    900         32.00   383.0       3      0.96               2.40
 
 == C. does 'offload time, not card weight, binds' survive the reader speed? (sourced figures, 1 h limit)
 reader_MB/s  min_readers_for_1h_x2copies  plan_g  battery_g/h  card_g/h(action cam)
          45                none within 8       -         31.8                 0.029
-         90                            6     451         31.8                 0.029
-        104                            5     426         31.8                 0.029
-        156                            4     401         31.8                 0.029
-        312                            2     351         31.8                 0.029
+         90                            4     401         31.8                 0.029
+        104                            3     376         31.8                 0.029
+        156                            2     351         31.8                 0.029
+        312                            1     326         31.8                 0.029
 
 == D. checksum throughput on this container (4 cores, one thread per hash)
-cpu: Intel(R) Xeon(R) Processor @ 2.30GHz; python hashlib (OpenSSL), 256 MiB buffer in 1 MiB chunks, best of 3
+cpu: Intel(R) Xeon(R) Processor @ 2.10GHz; python hashlib (OpenSSL), 256 MiB buffer in 1 MiB chunks, best of 3
 algorithm   MB/s   readers_one_core_can_feed_at_104MB/s   at_312MB/s
-md5           626                                    6.0          2.0
-sha1         1632                                   15.7          5.2
-sha256       1464                                   14.1          4.7
-sha512        650                                    6.3          2.1
-blake2b       633                                    6.1          2.0
-crc32        4498                                   43.3         14.4
+md5           652                                    6.3          2.1
+sha1         1576                                   15.2          5.1
+sha256       1424                                   13.7          4.6
+sha512        610                                    5.9          2.0
+blake2b       658                                    6.3          2.1
+crc32        4342                                   41.8         13.9
 
 == E. checksum cost added to the evening for the sourced 4-camera rig (UHS-I ceiling, 1 reader, 1 copy)
 one day = 900 GB; copy alone 2.40 h

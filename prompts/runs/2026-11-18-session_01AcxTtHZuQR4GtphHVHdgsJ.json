@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtHZuQR4GtphHVHdgsJ",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T05:05:45Z",
+  "ended": "2026-11-18T05:20:16Z",
+  "wall_minutes": 14.79,
+  "tokens_in": 8082572,
+  "tokens_out": 43128,
+  "cost_usd": 3.6669,
+  "tool_calls": 71,
+  "task": "explore: round-trip differential harness for the portfolio's OFX/QIF writers",
+  "projects": [
+    "ofx-file-check",
+    "camt053-to-ofx-converter",
+    "bank-csv-to-qbo-converter"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17188",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First draft treated ofx-file-check's 'NAME longer than 32' warnings as a converter bug and rewrote all three converters to fit escaped text; their own pinned tests failed, and OFX 2's schema (GenericNameType maxLength 32, XSD facets on the parsed value) showed the checker was the one miscounting. Reverted the converter NAME changes and fixed the checker."
+    },
+    {
+      "what": "Two test expectations of mine were off by one character count; corrected after the runs showed the real output."
+    },
+    {
+      "what": "Local run_workflow_locally caught the harness's own dec() formatter with check_negative_zero_money (sign before rounding); inputs are whole nonzero cents so it could not misprint, but rewrote it in the lint's form."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "The 'skip audits already found clean' list is long and only covers page sweeps; nothing points an explore run at cross-venture differential testing (the MT940 harness was the useful precedent, found only by grep)."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "Rejects an HTML entity in seo_title, which the post template doesn't mention; cost one rewrite (minor)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-three-ofx-writers-four-readers-one-bare-ampersand.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: cross-product round-trip differential testing (writers -> readers) for OFX/QIF, modelled on eu-bank-statement-reader/mt940-differential.mjs. Findings: camt053 converter MEMO cut after escaping left a bare '&am' (238/400 with an & at the cut); ofx-file-check counted escapes as 5 chars (300/400 BAI2 files warned); CSV and camt converters cut NAME before collapsing spaces (6/400, 8/400 payees lost). After: 0 disagreements over 8 seeds x 400 x 3 writers, all hazards, and each hazard alone. Local: run_venture_tests for 6 ventures pass (ai-bookkeeper 3385 tests). Next: a 'mangle' variation for damaged OFX. Local CI (run_workflow_locally --for-changes): ventures-tests failed once on check_negative_zero_money over the new harness, fixed; other workflows run passed (uses: steps not run locally).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c2df2bcc-e80f-5c83-ab16-995913bd0cfb",
+    "transcripts": 1,
+    "first": "2026-11-18T05:05:45Z",
+    "last": "2026-11-18T05:20:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 129,
+        "output": 43128,
+        "thinking": 12218,
+        "cache_read": 7930217,
+        "cache_write_5m": 0,
+        "cache_write_1h": 152226,
+        "api_equivalent_usd": 3.6669,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 129,
+      "output": 43128,
+      "thinking": 12218,
+      "cache_read": 7930217,
+      "cache_write_5m": 0,
+      "cache_write_1h": 152226,
+      "api_equivalent_usd": 3.6669,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 64,
+      "Write": 3,
+      "ToolSearch": 2,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.79,
+      "active_minutes": 14.79,
+      "model_minutes": 8.32,
+      "tool_minutes": 6.47,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: read 6 parsers/writers, build a seeded round-trip harness, triage 3 findings incl. a spec question, tests and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 163.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

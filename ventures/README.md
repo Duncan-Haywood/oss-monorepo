@@ -1,6 +1,6 @@
 # Free business calculators, CSV checkers and self-hosted apps: the full catalogue
 
-Every tool in this folder (1391 when this list was last generated), grouped the way the live site
+Every tool in this folder (1392 when this list was last generated), grouped the way the live site
 groups them. Each line links to the **free web version**, which needs no account and, for all but the
 self-hosted apps, runs entirely in your browser, and to its **source code** here, MIT licensed, so you
 can run, fork or self-host your own copy.
@@ -24,7 +24,7 @@ free tools for each one (roofers, Etsy sellers, landlords, freelancers and more)
 - [Back-office money & contracts](#back-office-money--contracts) (181)
 - [CI checks & developer gates](#ci-checks--developer-gates) (188)
 - [Creator & solo earner income](#creator--solo-earner-income) (73)
-- [Research algorithms & ML](#research-algorithms--ml) (35)
+- [Research algorithms & ML](#research-algorithms--ml) (36)
 - [Learning & practice](#learning--practice) (7)
 - [Open hardware, robots & house plans](#open-hardware-robots--house-plans) (4)
 - [Music & audio](#music--audio) (1)
@@ -1449,6 +1449,7 @@ Methods from published research papers, run on your own data in your browser and
 - [Extreme value analysis: 100-year levels with honest intervals, in your browser](https://marisstella.app/extreme-value-analysis/) · [code](extreme-value-analysis/)
 - [Benjamini-Hochberg, q-values and Holm for your p-values — free, private, in your browser](https://marisstella.app/fdr-multiple-testing/) · [code](fdr-multiple-testing/)
 - [Fuzzy dedupe: find duplicate contacts in a CSV](https://marisstella.app/fuzzy-dedupe/) · [code](fuzzy-dedupe/)
+- [Is this gauge good enough? Gage R&R by ANOVA, with intervals, in your browser](https://marisstella.app/gage-rr/) · [code](gage-rr/)
 - [Gaussian process regression in your browser: a curve, a band, and how far to trust it](https://marisstella.app/gaussian-process-regression/) · [code](gaussian-process-regression/)
 - [HDBSCAN in your browser: which groups are in my data, and which rows belong to none?](https://marisstella.app/hdbscan-clustering/) · [code](hdbscan-clustering/)
 - [Inter-rater agreement in your browser: do your coders agree beyond chance, and where do they not?](https://marisstella.app/inter-rater-agreement/) · [code](inter-rater-agreement/)

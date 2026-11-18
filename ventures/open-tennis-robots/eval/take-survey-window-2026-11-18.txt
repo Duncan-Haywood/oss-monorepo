@@ -1,0 +1,132 @@
+# tests/take_survey_window.py, 2026-11-18 (firmware/esp32/README.md "The take survey's window")
+
+## design capture: --capture --lag 0.3 --seed 7, then --score
+36 survey drills (wheel lag 0.3 s, seed 7); each build's pick (refined, to 0.5 ms), best / step share and the advice (advised when the share is at most 0.6) per window (revolutions after the anchor; 8 is the board's, its own sums)
+  instant       first-order 8k  launcher 0 |  8:   0 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   0 ms 1.00   0 | 24:   0 ms 1.00   0
+  instant       first-order 8k  launcher 1 |  8:   0 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   0 ms 1.00   0 | 24:   0 ms 1.00   0
+  instant       first-order 8k  launcher 2 |  8:   0 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   0 ms 1.00   0 | 24:   0 ms 1.00   0
+  halfsine 3 ms first-order 8k  launcher 0 |  8:   3 ms 0.80   0 | 12:   3 ms 0.77   0 | 16:   3 ms 0.82   0 | 24:   3 ms 0.82   0
+  halfsine 3 ms first-order 8k  launcher 1 |  8: 2.5 ms 1.00   0 | 12: 1.5 ms 1.00   0 | 16: 1.5 ms 1.00   0 | 24:   2 ms 1.00   0
+  halfsine 3 ms first-order 8k  launcher 2 |  8: 3.5 ms 1.00   0 | 12: 3.5 ms 0.97   0 | 16: 3.5 ms 1.00   0 | 24: 3.5 ms 1.00   0
+  halfsine 6 ms first-order 8k  launcher 0 |  8:   6 ms 0.74   0 | 12: 6.5 ms 0.70   0 | 16: 6.5 ms 0.72   0 | 24: 6.5 ms 0.73   0
+  halfsine 6 ms first-order 8k  launcher 1 |  8:   6 ms 0.38 adv | 12:   6 ms 0.39 adv | 16:   6 ms 0.41 adv | 24:   6 ms 0.40 adv
+  halfsine 6 ms first-order 8k  launcher 2 |  8:   6 ms 0.33 adv | 12:   6 ms 0.34 adv | 16:   6 ms 0.35 adv | 24:   6 ms 0.36 adv
+  front 4 ms    first-order 8k  launcher 0 |  8: 4.5 ms 0.53 adv | 12: 4.5 ms 0.55 adv | 16: 4.5 ms 0.54 adv | 24: 4.5 ms 0.52 adv
+  front 4 ms    first-order 8k  launcher 1 |  8:   4 ms 0.58 adv | 12: 4.5 ms 0.59 adv | 16:   4 ms 0.62   0 | 24:   4 ms 0.62   0
+  front 4 ms    first-order 8k  launcher 2 |  8:   5 ms 0.72   0 | 12:   5 ms 0.73   0 | 16:   5 ms 0.76   0 | 24:   5 ms 0.81   0
+  instant       tach 3 us 10k   launcher 0 |  8:   0 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   0 ms 1.00   0 | 24:   0 ms 1.00   0
+  instant       tach 3 us 10k   launcher 1 |  8: 3.5 ms 1.00   0 | 12:   3 ms 1.00   0 | 16:   3 ms 1.00   0 | 24: 2.5 ms 1.00   0
+  instant       tach 3 us 10k   launcher 2 |  8:   0 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   0 ms 1.00   0 | 24:   0 ms 1.00   0
+  halfsine 3 ms tach 3 us 10k   launcher 0 |  8: 3.5 ms 0.99   0 | 12: 3.5 ms 0.99   0 | 16: 3.5 ms 0.99   0 | 24: 3.5 ms 0.99   0
+  halfsine 3 ms tach 3 us 10k   launcher 1 |  8:   3 ms 0.98   0 | 12:   3 ms 0.98   0 | 16:   3 ms 0.99   0 | 24:   3 ms 0.99   0
+  halfsine 3 ms tach 3 us 10k   launcher 2 |  8: 2.5 ms 1.00   0 | 12: 2.5 ms 1.00   0 | 16: 1.5 ms 1.00   0 | 24:   2 ms 1.00   0
+  halfsine 6 ms tach 3 us 10k   launcher 0 |  8:   8 ms 0.95   0 | 12:   8 ms 0.96   0 | 16:   8 ms 0.95   0 | 24:   8 ms 0.96   0
+  halfsine 6 ms tach 3 us 10k   launcher 1 |  8:   8 ms 0.97   0 | 12:   8 ms 0.98   0 | 16:   8 ms 0.98   0 | 24:   8 ms 0.98   0
+  halfsine 6 ms tach 3 us 10k   launcher 2 |  8:   8 ms 0.84   0 | 12:   8 ms 0.90   0 | 16:   8 ms 0.90   0 | 24:   8 ms 0.92   0
+  front 4 ms    tach 3 us 10k   launcher 0 |  8: 5.5 ms 0.93   0 | 12: 5.5 ms 0.94   0 | 16: 5.5 ms 0.96   0 | 24: 5.5 ms 0.96   0
+  front 4 ms    tach 3 us 10k   launcher 1 |  8: 3.5 ms 1.00   0 | 12: 3.5 ms 1.00   0 | 16: 3.5 ms 1.00   0 | 24: 3.5 ms 1.00   0
+  front 4 ms    tach 3 us 10k   launcher 2 |  8:   4 ms 0.97   0 | 12:   4 ms 0.98   0 | 16:   4 ms 0.98   0 | 24:   4 ms 0.98   0
+  instant       ESC 50 ms told  launcher 0 |  8:   0 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   0 ms 1.00   0 | 24:   0 ms 1.00   0
+  instant       ESC 50 ms told  launcher 1 |  8:   0 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   0 ms 1.00   0 | 24:   0 ms 1.00   0
+  instant       ESC 50 ms told  launcher 2 |  8:   0 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   0 ms 1.00   0 | 24:   0 ms 1.00   0
+  halfsine 3 ms ESC 50 ms told  launcher 0 |  8:   3 ms 0.50 adv | 12:   3 ms 0.63   0 | 16:   3 ms 0.74   0 | 24:   3 ms 0.79   0
+  halfsine 3 ms ESC 50 ms told  launcher 1 |  8:   3 ms 0.53 adv | 12:   3 ms 0.67   0 | 16:   3 ms 0.78   0 | 24:   3 ms 0.84   0
+  halfsine 3 ms ESC 50 ms told  launcher 2 |  8:   3 ms 0.57 adv | 12:   3 ms 0.76   0 | 16:   3 ms 0.83   0 | 24:   3 ms 0.84   0
+  halfsine 6 ms ESC 50 ms told  launcher 0 |  8:   6 ms 0.25 adv | 12:   6 ms 0.31 adv | 16:   6 ms 0.39 adv | 24:   6 ms 0.44 adv
+  halfsine 6 ms ESC 50 ms told  launcher 1 |  8:   6 ms 0.27 adv | 12:   6 ms 0.34 adv | 16:   6 ms 0.44 adv | 24:   6 ms 0.48 adv
+  halfsine 6 ms ESC 50 ms told  launcher 2 |  8:   6 ms 0.26 adv | 12:   6 ms 0.34 adv | 16:   6 ms 0.41 adv | 24:   6 ms 0.44 adv
+  front 4 ms    ESC 50 ms told  launcher 0 |  8: 4.5 ms 0.36 adv | 12: 4.5 ms 0.46 adv | 16: 4.5 ms 0.54 adv | 24: 4.5 ms 0.58 adv
+  front 4 ms    ESC 50 ms told  launcher 1 |  8:   5 ms 0.38 adv | 12:   5 ms 0.51 adv | 16:   5 ms 0.65   0 | 24: 4.5 ms 0.74   0
+  front 4 ms    ESC 50 ms told  launcher 2 |  8: 4.5 ms 0.62   0 | 12: 4.5 ms 0.71   0 | 16:   4 ms 0.80   0 | 24:   4 ms 0.81   0
+
+Per plant and take (3 launchers): picks; advised; within 1 ms of the true take (instant: 1 ms or less)
+  first-order 8k  instant       |  8: [0.0, 0.0, 0.0] adv 0 in 3 | 12: [0.0, 0.0, 0.0] adv 0 in 3 | 16: [0.0, 0.0, 0.0] adv 0 in 3 | 24: [0.0, 0.0, 0.0] adv 0 in 3
+  first-order 8k  halfsine 3 ms |  8: [2.5, 3.0, 3.5] adv 0 in 3 | 12: [1.5, 3.0, 3.5] adv 0 in 2 | 16: [1.5, 3.0, 3.5] adv 0 in 2 | 24: [2.0, 3.0, 3.5] adv 0 in 3
+  first-order 8k  halfsine 6 ms |  8: [6.0, 6.0, 6.0] adv 2 in 3 | 12: [6.0, 6.0, 6.5] adv 2 in 3 | 16: [6.0, 6.0, 6.5] adv 2 in 3 | 24: [6.0, 6.0, 6.5] adv 2 in 3
+  first-order 8k  front 4 ms    |  8: [4.0, 4.5, 5.0] adv 2 in 3 | 12: [4.5, 4.5, 5.0] adv 2 in 3 | 16: [4.0, 4.5, 5.0] adv 1 in 3 | 24: [4.0, 4.5, 5.0] adv 1 in 3
+  tach 3 us 10k   instant       |  8: [0.0, 0.0, 3.5] adv 0 in 2 | 12: [0.0, 0.0, 3.0] adv 0 in 2 | 16: [0.0, 0.0, 3.0] adv 0 in 2 | 24: [0.0, 0.0, 2.5] adv 0 in 2
+  tach 3 us 10k   halfsine 3 ms |  8: [2.5, 3.0, 3.5] adv 0 in 3 | 12: [2.5, 3.0, 3.5] adv 0 in 3 | 16: [1.5, 3.0, 3.5] adv 0 in 2 | 24: [2.0, 3.0, 3.5] adv 0 in 3
+  tach 3 us 10k   halfsine 6 ms |  8: [8.0, 8.0, 8.0] adv 0 in 0 | 12: [8.0, 8.0, 8.0] adv 0 in 0 | 16: [8.0, 8.0, 8.0] adv 0 in 0 | 24: [8.0, 8.0, 8.0] adv 0 in 0
+  tach 3 us 10k   front 4 ms    |  8: [3.5, 4.0, 5.5] adv 0 in 2 | 12: [3.5, 4.0, 5.5] adv 0 in 2 | 16: [3.5, 4.0, 5.5] adv 0 in 2 | 24: [3.5, 4.0, 5.5] adv 0 in 2
+  ESC 50 ms told  instant       |  8: [0.0, 0.0, 0.0] adv 0 in 3 | 12: [0.0, 0.0, 0.0] adv 0 in 3 | 16: [0.0, 0.0, 0.0] adv 0 in 3 | 24: [0.0, 0.0, 0.0] adv 0 in 3
+  ESC 50 ms told  halfsine 3 ms |  8: [3.0, 3.0, 3.0] adv 3 in 3 | 12: [3.0, 3.0, 3.0] adv 0 in 3 | 16: [3.0, 3.0, 3.0] adv 0 in 3 | 24: [3.0, 3.0, 3.0] adv 0 in 3
+  ESC 50 ms told  halfsine 6 ms |  8: [6.0, 6.0, 6.0] adv 3 in 3 | 12: [6.0, 6.0, 6.0] adv 3 in 3 | 16: [6.0, 6.0, 6.0] adv 3 in 3 | 24: [6.0, 6.0, 6.0] adv 3 in 3
+  ESC 50 ms told  front 4 ms    |  8: [4.5, 4.5, 5.0] adv 2 in 3 | 12: [4.5, 4.5, 5.0] adv 2 in 3 | 16: [4.0, 4.5, 5.0] adv 1 in 3 | 24: [4.0, 4.5, 4.5] adv 1 in 3
+
+All builds: spread takes named within 1 ms and advised; instant builds advised (a wrong re-flash); picks within 1 ms
+  after  8: named and advised 12, instant advised 0, within 1 ms 31 of 36
+  after 12: named and advised 9, instant advised 0, within 1 ms 30 of 36
+  after 16: named and advised 7, instant advised 0, within 1 ms 29 of 36
+  after 24: named and advised 7, instant advised 0, within 1 ms 31 of 36
+
+Mean best / step share on the spread takes, per plant (lower = a clearer pick)
+  first-order 8k  |  8: 0.68 | 12: 0.67 | 16: 0.69 | 24: 0.69
+  tach 3 us 10k   |  8: 0.96 | 12: 0.97 | 16: 0.97 | 24: 0.98
+  ESC 50 ms told  |  8: 0.42 | 12: 0.53 | 16: 0.62 | 24: 0.66
+
+## pre-registration
+Committed before the held-out capture ran (2b34515df): see the README section. Candidate: keep 8. PREDICTION: (a) named-and-advised spread takes with 8 >= with 24; (b) ESC 50 ms plant's mean share higher with 24; (c) no tach 3 us build advised at any window; (d) no instant build advised at any window. DECISION RULE: keep 8 unless 24 names and advises more spread builds than 8 held out with no instant build advised.
+
+## held out: --capture --lag 0.45 --seed 11, then --score (run after 2b34515df)
+36 survey drills (wheel lag 0.45 s, seed 11); each build's pick (refined, to 0.5 ms), best / step share and the advice (advised when the share is at most 0.6) per window (revolutions after the anchor; 8 is the board's, its own sums)
+  instant       first-order 8k  launcher 0 |  8:   0 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   0 ms 1.00   0 | 24:   0 ms 1.00   0
+  instant       first-order 8k  launcher 1 |  8:   0 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   0 ms 1.00   0 | 24:   0 ms 1.00   0
+  instant       first-order 8k  launcher 2 |  8:   0 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   0 ms 1.00   0 | 24:   0 ms 1.00   0
+  halfsine 3 ms first-order 8k  launcher 0 |  8:   2 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   1 ms 1.00   0 | 24: 1.5 ms 1.00   0
+  halfsine 3 ms first-order 8k  launcher 1 |  8: 2.5 ms 0.73   0 | 12: 2.5 ms 0.78   0 | 16: 2.5 ms 0.79   0 | 24:   3 ms 0.81   0
+  halfsine 3 ms first-order 8k  launcher 2 |  8:   3 ms 0.43 adv | 12:   3 ms 0.45 adv | 16:   3 ms 0.48 adv | 24:   3 ms 0.51 adv
+  halfsine 6 ms first-order 8k  launcher 0 |  8:   6 ms 0.25 adv | 12:   6 ms 0.27 adv | 16:   6 ms 0.28 adv | 24:   6 ms 0.29 adv
+  halfsine 6 ms first-order 8k  launcher 1 |  8:   6 ms 0.29 adv | 12:   6 ms 0.31 adv | 16:   6 ms 0.31 adv | 24:   6 ms 0.31 adv
+  halfsine 6 ms first-order 8k  launcher 2 |  8:   6 ms 0.44 adv | 12:   6 ms 0.48 adv | 16:   6 ms 0.48 adv | 24:   6 ms 0.48 adv
+  front 4 ms    first-order 8k  launcher 0 |  8: 4.5 ms 0.75   0 | 12: 4.5 ms 0.74   0 | 16: 4.5 ms 0.81   0 | 24: 4.5 ms 0.81   0
+  front 4 ms    first-order 8k  launcher 1 |  8:   4 ms 0.58 adv | 12: 4.5 ms 0.62   0 | 16: 4.5 ms 0.63   0 | 24: 4.5 ms 0.65   0
+  front 4 ms    first-order 8k  launcher 2 |  8: 4.5 ms 0.36 adv | 12: 4.5 ms 0.40 adv | 16: 4.5 ms 0.42 adv | 24: 4.5 ms 0.44 adv
+  instant       tach 3 us 10k   launcher 0 |  8: 2.5 ms 1.00   0 | 12:   2 ms 1.00   0 | 16:   2 ms 1.00   0 | 24:   2 ms 1.00   0
+  instant       tach 3 us 10k   launcher 1 |  8:   0 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   0 ms 1.00   0 | 24:   0 ms 1.00   0
+  instant       tach 3 us 10k   launcher 2 |  8: 5.5 ms 1.00   0 | 12: 5.5 ms 1.00   0 | 16:   4 ms 1.00   0 | 24:   4 ms 1.00   0
+  halfsine 3 ms tach 3 us 10k   launcher 0 |  8:   1 ms 1.00   0 | 12:   1 ms 1.00   0 | 16: 1.5 ms 1.00   0 | 24:   1 ms 1.00   0
+  halfsine 3 ms tach 3 us 10k   launcher 1 |  8: 2.5 ms 1.00   0 | 12: 2.5 ms 0.99   0 | 16: 2.5 ms 0.99   0 | 24:   3 ms 0.99   0
+  halfsine 3 ms tach 3 us 10k   launcher 2 |  8:   0 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   0 ms 1.00   0 | 24: 3.5 ms 1.00   0
+  halfsine 6 ms tach 3 us 10k   launcher 0 |  8: 5.5 ms 0.90   0 | 12: 5.5 ms 0.91   0 | 16: 5.5 ms 0.92   0 | 24: 5.5 ms 0.94   0
+  halfsine 6 ms tach 3 us 10k   launcher 1 |  8:   6 ms 0.95   0 | 12:   6 ms 0.95   0 | 16:   6 ms 0.96   0 | 24:   6 ms 0.97   0
+  halfsine 6 ms tach 3 us 10k   launcher 2 |  8:   6 ms 0.91   0 | 12: 5.5 ms 0.93   0 | 16: 5.5 ms 0.94   0 | 24: 5.5 ms 0.95   0
+  front 4 ms    tach 3 us 10k   launcher 0 |  8:   3 ms 0.99   0 | 12: 3.5 ms 0.99   0 | 16: 3.5 ms 0.99   0 | 24: 3.5 ms 0.99   0
+  front 4 ms    tach 3 us 10k   launcher 1 |  8:   5 ms 0.90   0 | 12: 4.5 ms 0.91   0 | 16:   5 ms 0.92   0 | 24:   5 ms 0.94   0
+  front 4 ms    tach 3 us 10k   launcher 2 |  8: 4.5 ms 1.00   0 | 12:   0 ms 1.00   0 | 16: 3.5 ms 1.00   0 | 24: 1.5 ms 1.00   0
+  instant       ESC 50 ms told  launcher 0 |  8:   0 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   0 ms 1.00   0 | 24:   0 ms 1.00   0
+  instant       ESC 50 ms told  launcher 1 |  8:   0 ms 1.00   0 | 12:   0 ms 1.00   0 | 16:   0 ms 1.00   0 | 24:   0 ms 1.00   0
+  instant       ESC 50 ms told  launcher 2 |  8:   1 ms 0.97   0 | 12: 2.5 ms 1.00   0 | 16: 2.5 ms 1.00   0 | 24: 1.5 ms 1.00   0
+  halfsine 3 ms ESC 50 ms told  launcher 0 |  8:   3 ms 0.71   0 | 12:   3 ms 0.77   0 | 16:   3 ms 0.83   0 | 24:   3 ms 0.85   0
+  halfsine 3 ms ESC 50 ms told  launcher 1 |  8:   3 ms 0.44 adv | 12:   3 ms 0.54 adv | 16:   3 ms 0.62   0 | 24:   3 ms 0.71   0
+  halfsine 3 ms ESC 50 ms told  launcher 2 |  8:   3 ms 0.50 adv | 12:   3 ms 0.57 adv | 16:   3 ms 0.67   0 | 24:   3 ms 0.69   0
+  halfsine 6 ms ESC 50 ms told  launcher 0 |  8:   6 ms 0.21 adv | 12:   6 ms 0.23 adv | 16:   6 ms 0.26 adv | 24:   6 ms 0.28 adv
+  halfsine 6 ms ESC 50 ms told  launcher 1 |  8:   6 ms 0.37 adv | 12:   6 ms 0.43 adv | 16:   6 ms 0.48 adv | 24:   6 ms 0.50 adv
+  halfsine 6 ms ESC 50 ms told  launcher 2 |  8:   6 ms 0.34 adv | 12:   6 ms 0.37 adv | 16:   6 ms 0.43 adv | 24:   6 ms 0.45 adv
+  front 4 ms    ESC 50 ms told  launcher 0 |  8: 4.5 ms 0.64   0 | 12: 4.5 ms 0.68   0 | 16: 4.5 ms 0.72   0 | 24: 4.5 ms 0.75   0
+  front 4 ms    ESC 50 ms told  launcher 1 |  8: 4.5 ms 0.79   0 | 12:   5 ms 0.85   0 | 16:   5 ms 0.88   0 | 24: 4.5 ms 0.94   0
+  front 4 ms    ESC 50 ms told  launcher 2 |  8: 4.5 ms 0.26 adv | 12: 4.5 ms 0.33 adv | 16: 4.5 ms 0.40 adv | 24: 4.5 ms 0.46 adv
+
+Per plant and take (3 launchers): picks; advised; within 1 ms of the true take (instant: 1 ms or less)
+  first-order 8k  instant       |  8: [0.0, 0.0, 0.0] adv 0 in 3 | 12: [0.0, 0.0, 0.0] adv 0 in 3 | 16: [0.0, 0.0, 0.0] adv 0 in 3 | 24: [0.0, 0.0, 0.0] adv 0 in 3
+  first-order 8k  halfsine 3 ms |  8: [2.0, 2.5, 3.0] adv 1 in 3 | 12: [0.0, 2.5, 3.0] adv 1 in 2 | 16: [1.0, 2.5, 3.0] adv 1 in 2 | 24: [1.5, 3.0, 3.0] adv 1 in 2
+  first-order 8k  halfsine 6 ms |  8: [6.0, 6.0, 6.0] adv 3 in 3 | 12: [6.0, 6.0, 6.0] adv 3 in 3 | 16: [6.0, 6.0, 6.0] adv 3 in 3 | 24: [6.0, 6.0, 6.0] adv 3 in 3
+  first-order 8k  front 4 ms    |  8: [4.0, 4.5, 4.5] adv 2 in 3 | 12: [4.5, 4.5, 4.5] adv 1 in 3 | 16: [4.5, 4.5, 4.5] adv 1 in 3 | 24: [4.5, 4.5, 4.5] adv 1 in 3
+  tach 3 us 10k   instant       |  8: [0.0, 2.5, 5.5] adv 0 in 1 | 12: [0.0, 2.0, 5.5] adv 0 in 1 | 16: [0.0, 2.0, 4.0] adv 0 in 1 | 24: [0.0, 2.0, 4.0] adv 0 in 1
+  tach 3 us 10k   halfsine 3 ms |  8: [0.0, 1.0, 2.5] adv 0 in 1 | 12: [0.0, 1.0, 2.5] adv 0 in 1 | 16: [0.0, 1.5, 2.5] adv 0 in 1 | 24: [1.0, 3.0, 3.5] adv 0 in 2
+  tach 3 us 10k   halfsine 6 ms |  8: [5.5, 6.0, 6.0] adv 0 in 3 | 12: [5.5, 5.5, 6.0] adv 0 in 3 | 16: [5.5, 5.5, 6.0] adv 0 in 3 | 24: [5.5, 5.5, 6.0] adv 0 in 3
+  tach 3 us 10k   front 4 ms    |  8: [3.0, 4.5, 5.0] adv 0 in 3 | 12: [0.0, 3.5, 4.5] adv 0 in 2 | 16: [3.5, 3.5, 5.0] adv 0 in 3 | 24: [1.5, 3.5, 5.0] adv 0 in 2
+  ESC 50 ms told  instant       |  8: [0.0, 0.0, 1.0] adv 0 in 3 | 12: [0.0, 0.0, 2.5] adv 0 in 2 | 16: [0.0, 0.0, 2.5] adv 0 in 2 | 24: [0.0, 0.0, 1.5] adv 0 in 2
+  ESC 50 ms told  halfsine 3 ms |  8: [3.0, 3.0, 3.0] adv 2 in 3 | 12: [3.0, 3.0, 3.0] adv 2 in 3 | 16: [3.0, 3.0, 3.0] adv 0 in 3 | 24: [3.0, 3.0, 3.0] adv 0 in 3
+  ESC 50 ms told  halfsine 6 ms |  8: [6.0, 6.0, 6.0] adv 3 in 3 | 12: [6.0, 6.0, 6.0] adv 3 in 3 | 16: [6.0, 6.0, 6.0] adv 3 in 3 | 24: [6.0, 6.0, 6.0] adv 3 in 3
+  ESC 50 ms told  front 4 ms    |  8: [4.5, 4.5, 4.5] adv 1 in 3 | 12: [4.5, 4.5, 5.0] adv 1 in 3 | 16: [4.5, 4.5, 5.0] adv 1 in 3 | 24: [4.5, 4.5, 4.5] adv 1 in 3
+
+All builds: spread takes named within 1 ms and advised; instant builds advised (a wrong re-flash); picks within 1 ms
+  after  8: named and advised 12, instant advised 0, within 1 ms 32 of 36
+  after 12: named and advised 11, instant advised 0, within 1 ms 29 of 36
+  after 16: named and advised 9, instant advised 0, within 1 ms 30 of 36
+  after 24: named and advised 9, instant advised 0, within 1 ms 30 of 36
+
+Mean best / step share on the spread takes, per plant (lower = a clearer pick)
+  first-order 8k  |  8: 0.54 | 12: 0.56 | 16: 0.58 | 24: 0.59
+  tach 3 us 10k   |  8: 0.96 | 12: 0.97 | 16: 0.97 | 24: 0.97
+  ESC 50 ms told  |  8: 0.47 | 12: 0.53 | 16: 0.59 | 24: 0.63

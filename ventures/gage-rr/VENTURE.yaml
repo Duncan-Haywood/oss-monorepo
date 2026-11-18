@@ -1,0 +1,58 @@
+name: gage-rr
+description: >-
+  Free browser tool, CLI and agent call for measurement system analysis:
+  Gage R&R by the ANOVA method for crossed and nested (destructive)
+  studies, with repeatability, reproducibility, part-to-part, %study
+  variation, %contribution, %tolerance, %process, the number of distinct
+  categories and modified large-sample confidence intervals for every
+  variance component. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-18 on an explore run as a research-algorithm tool: no
+# venture README mentioned Gage R&R or gauge repeatability (searched all
+# 1,399 venture READMEs); spc-control-charts covers the process, not the
+# gauge. Implemented from Montgomery & Runger 1993, Burdick, Borror &
+# Montgomery 2003, Ting et al. 1990 and Graybill & Wang 1980, with the AIAG
+# MSA manual's acceptance guidelines; no third-party code was ported.
+#
+# First visitor: searches such as "gage r&r calculator", "gauge r&r anova
+# online", "gage r&r excel template", "nested gage r&r destructive",
+# "number of distinct categories". Volume not measured with an external tool.
+#
+# Alternatives: Minitab, JMP, SigmaXL (paid), Excel templates (usually the
+# average-and-range method without intervals), R packages. Differentiators
+# here: free, no install, confidence intervals on every component, nested
+# designs, an honest coverage check of those intervals.
+#
+# Liability: a statistical estimate, not engineering certification or a
+# quality-system audit; the page says a customer or procedure may set
+# different criteria. Data never leave the browser (tests assert no network
+# calls).
+
+hypotheses:
+  - claim: >-
+      Quality engineers, metrology technicians and students running an MSA
+      for a PPAP or a course will use a no-install Gage R&R page that shows
+      confidence intervals and handles destructive (nested) studies.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a variance component that differs from Minitab or JMP with the same settings, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/gage-rr/
+  analytics: null
