@@ -4,7 +4,7 @@ A writer here builds IIQ files the way the backs lay them out: a TIFF header and
 ``IIII`` container at byte 8 with its directory (sizes, margins, format, data and row offsets, black level,
 the split columns and rows with their offset tables, the camera-to-ROMM matrix and as-shot multipliers),
 then rows coded as IIQ L: per-lane length prefixes every 8 columns, differences, raw 16-bit values for
-length 14 and for the last ``width % 8`` columns. The decoded sensels are checked exactly, through both the
+length 14 and for the last ``width % 8`` columns, and rows of IIQ S from random block headers. The decoded sensels are checked exactly, through both the
 pure-Python reference and the C helper. Ten real files from ten bodies against LibRaw (every sensel equal):
 ``tools/iiq_libraw_check.py`` and ``eval/phaseone-iiq-reader-2026-11-18.md``.
 """
@@ -104,13 +104,65 @@ def smooth_codes(width: int, height: int, seed: int, top: int = 16383) -> list[l
     return rows
 
 
+def encode_s_row(width: int, rng: random.Random) -> tuple[bytes, list[int]]:
+    """One random row of IIQ S and the stored values it must decode to (value times four, clamped).
+
+    The writer picks the row's precision, each block's lane scales (by a step or a fresh code) and its
+    refinement, then random sample bits; the expected values follow the format's own arithmetic."""
+
+    w = BitWriter()
+    q = rng.randrange(0, 8)
+    w.put((rng.randrange(0, 1 << 13) << 3) | q, 16)
+    fresh = {k: (n, code) for n, code, k in iiq.SCALE_CODES}
+    scale, last, out = [0, 0], [0, 0], []
+    for _ in range(width >> 3):
+        refine = rng.randrange(0, 5)
+        for lane in (0, 1):
+            allowed = [9] + list(range(refine, min(8, 17 - q) + 1))
+            near = [k for k in allowed if abs(k - scale[lane]) <= 1]
+            if near and rng.random() < 0.6:
+                k = rng.choice(near)
+                w.put(k - scale[lane] + 2, 2)
+            else:
+                k = rng.choice(allowed)
+                w.put(0, 2)
+                n, code = fresh[k]
+                w.put(code, n)
+            scale[lane] = k
+        if refine:
+            w.put(0, 1)
+            w.put(refine - 1, 2)
+        else:
+            w.put(1, 1)
+        nb = q + refine
+        for i in range(8):
+            lane = i & 1
+            if scale[lane] == 9:
+                v = rng.randrange(0, 1 << 14)
+                w.put(v, 14)
+            else:
+                b = rng.randrange(0, 1 << nb) if nb else 0
+                if nb:
+                    w.put(b, nb)
+                v = last[lane] + (b << (scale[lane] - refine)) - (0xFFFF >> (17 - q - scale[lane]))
+            last[lane] = v
+            out.append(min(65535, max(0, v << 2)))
+    for _ in range(width & 7):
+        v = rng.randrange(0, 1 << 14)
+        w.put(v, 14)
+        out.append(v << 2)
+    return w.words(), out
+
+
 def make_iiq(codes: list[list[int]], fmt: int = 3, black: int | None = 1024, top: int = 2, left: int = 4,
              cblack: list[int] | None = None, rblack: list[int] | None = None, split_col: int = 0,
              split_row: int = 0, orientation: int = 0, model: bytes = b"IQ180",
-             romm=(1.6, -0.4, -0.2, -0.15, 1.3, -0.15, 0.0, -0.3, 1.3), mul=(2.0, 1.0, 1.5), seed: int = 1) -> bytes:
+             romm=(1.6, -0.4, -0.2, -0.15, 1.3, -0.15, 0.0, -0.3, 1.3), mul=(2.0, 1.0, 1.5), seed: int = 1,
+             rows: list[bytes] | None = None) -> bytes:
     rng = random.Random(seed)
     height, width = len(codes), len(codes[0])
-    rows = [encode_row(r, rng) for r in codes]
+    if rows is None:
+        rows = [encode_row(r, rng) for r in codes]
     entries: list[tuple[int, int, int, bytes | int]] = []  # tag, type, count, inline value or blob
 
     def put(tag, value, typ=1):
@@ -271,9 +323,96 @@ class IiqTests(unittest.TestCase):
         self.assertEqual(report.colour, "dng")
         self.assertAlmostEqual(report.white_xy[0], 0.34567, places=3)
 
+    def test_iiq_s_every_sensel_both_paths(self):
+        for width, seed in ((48, 1), (45, 2), (5, 3), (64, 4)):
+            rng = random.Random(seed)
+            rows, want = [], []
+            for _ in range(6):
+                blob, vals = encode_s_row(width, rng)
+                rows.append(blob)
+                want += vals
+            codes = [[0] * width for _ in range(6)]
+            data = make_iiq(codes, fmt=6, rows=rows)
+            fields = iiq.info(data)
+            got_py, note_py = iiq.decode_sensor(data, fields, use_native=False)
+            self.assertEqual(list(got_py), want, width)
+            self.assertEqual(note_py, "IIQ: IIQ S")
+            if iiq.native_s() is not None:
+                got_c, note_c = iiq.decode_sensor(data, fields)
+                self.assertEqual(list(got_c), want, width)
+                self.assertIn("native", note_c)
+
+    def test_iiq_s_offsets_and_develop(self):
+        rng = random.Random(11)
+        width, height = 40, 20
+        rows, base = [], []
+        for _ in range(height):
+            blob, vals = encode_s_row(width, rng)
+            rows.append(blob)
+            base.append(vals)
+        cblack = [rng.randrange(-20, 20) for _ in range(2 * height)]
+        rblack = [rng.randrange(-5, 80) for _ in range(2 * width)]
+        data = make_iiq([[0] * width for _ in range(height)], fmt=6, rows=rows, cblack=cblack, rblack=rblack,
+                        split_col=17, split_row=9)
+        want = [min(65535, max(0, base[r][c] + cblack[2 * r + (c >= 17)] + rblack[2 * c + (r >= 9)]))
+                for r in range(height) for c in range(width)]
+        fields = iiq.info(data)
+        self.assertEqual(list(iiq.decode_sensor(data, fields, use_native=False)[0]), want)
+        if iiq.native_s() is not None:
+            self.assertEqual(list(iiq.decode_sensor(data, fields)[0]), want)
+        self.assertEqual(rd.parse_raw(data).source, "iiq")
+
+    def test_iiq_s_refinement_above_the_scale(self):
+        def block(sample_bits: int) -> bytes:
+            w = BitWriter()
+            w.put(2, 16)  # q = 2
+            for _ in (0, 1):
+                w.put(0, 2)
+                w.put(0b00010, 5)  # fresh scale 0
+            w.put(0, 1)
+            w.put(1, 2)  # refinement 2 > scale 0: shift -2
+            for _ in range(8):
+                w.put(sample_bits, 4)  # q + refinement bits
+            return w.words()
+
+        # Zero bits (what real IQ180 files send): the value is last - bias, bias = 0xFFFF >> (17 - 2 - 0) = 1.
+        data = make_iiq([[0] * 8], fmt=6, rows=[block(0)])
+        want = [0] * 8  # -1, -2, ... clamp to 0
+        for use_native in (False, True):
+            if use_native and iiq.native_s() is None:
+                continue
+            self.assertEqual(list(iiq.decode_sensor(data, iiq.info(data), use_native=use_native)[0]), want)
+            bad = make_iiq([[0] * 8], fmt=6, rows=[block(5)])
+            with self.assertRaisesRegex(rd.DevelopError, "corrupt"):
+                iiq.decode_sensor(bad, iiq.info(bad), use_native=use_native)
+
+    def test_iiq_s_refuses_an_out_of_range_scale(self):
+        w = BitWriter()
+        w.put(7, 16)  # q = 7: a scale above 17 - 7 = 10 cannot be biased
+        w.put(0, 2)
+        w.put(0b00000, 5)  # lane 0: fresh scale 9 (raw)
+        w.put(0, 2)
+        w.put(0b00000, 5)  # lane 1: fresh scale 9
+        w.put(1, 1)  # refinement 0
+        w.put(0, 8 * 14)
+        w.put(0b11, 2)  # next block: lane 0 9 -> 10
+        w.put(0b10, 2)  # lane 1 stays raw
+        w.put(1, 1)
+        w.put(0, 4 * 7 + 4 * 14)
+        w.put(0b11, 2)  # lane 0 10 -> 11: out of range
+        w.put(0b10, 2)
+        w.put(1, 1)
+        w.put(0, 4 * 7 + 4 * 14)
+        data = make_iiq([[0] * 24], fmt=6, rows=[w.words()])
+        for use_native in (False, True):
+            if use_native and iiq.native_s() is None:
+                continue
+            with self.assertRaisesRegex(rd.DevelopError, "corrupt"):
+                iiq.decode_sensor(data, iiq.info(data), use_native=use_native)
+
     def test_refuses_formats_it_does_not_read(self):
         codes = smooth_codes(16, 2, seed=1)
-        for fmt in (1, 2, 6, 8):
+        for fmt in (1, 2, 8):
             data = make_iiq(codes, fmt=fmt)
             with self.assertRaisesRegex(rd.DevelopError, f"format {fmt}"):
                 iiq.parse_iiq(data)

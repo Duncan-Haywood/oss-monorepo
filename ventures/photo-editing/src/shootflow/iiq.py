@@ -31,13 +31,30 @@ Levels: each stored sensel is the decoded value times four plus its row's offset
 column's offset for its half (dcraw adds both and subtracts the black level, ``phase_one_load_raw_c``); the
 black level stays a level here so the noise below it survives, and white is 65532 (16383 times four).
 
-**Not read**: "IIQ S" (format 6; the IQ180, iXU180 and IQ3 100MP's small files) and the uncompressed formats 1
-and 2, of which no public file was at hand; each is refused with the reason, and the frame falls back to its
-preview in the cull. The per-sensor corrections in the metadata block at ``0x110`` (defect columns, the
+**Format 6 ("IIQ S")** rows are coded on their own too, in the same 32-bit little-endian words read MSB
+first. A row opens with 16 bits whose low three give the row's base precision ``q`` (0-7). Then come blocks of
+8 columns, each with a small header and eight samples, the even and odd columns again two lanes:
+
+* each lane's *scale* ``k`` (0-9, 0 at the row's start): a 2-bit prefix ``01``, ``10`` or ``11`` moves it by
+  -1, 0 or +1; a prefix ``00`` is followed by a fresh value as a prefix code (``11`` 2, ``10`` 3, ``011`` 4,
+  ``010`` 1, ``0011`` 5, ``0010`` 6, ``00011`` 7, ``00010`` 0, ``00001`` 8, ``00000`` 9);
+* one shared *refinement* ``r``: a ``1`` means 0, a ``0`` and two bits ``xx`` mean ``xx + 1``;
+* eight samples: a lane at scale 9 reads a raw 14-bit value; otherwise ``q + r`` bits ``b`` give the value
+  ``last + (b << (k - r)) - (2**(q + k - 1) - 1)``, the bias centring the step on the last value. A refinement
+  one or two above the scale occurs on real IQ180 files (69 blocks in one frame), always with zero sample
+  bits, so the step is 0 under any reading; bits there are refused as corrupt.
+
+The last ``width % 8`` columns are raw 14-bit values. Stored values are the value times four, clamped to
+16 bits, before the row and column offsets (which are applied as for IIQ L).
+
+**Not read**: the uncompressed formats 1 and 2 and the 16-bit format 8 (the IQ4's and the Trichromatic's),
+of which no file has been checked against LibRaw here; each is refused with the reason, and the frame falls
+back to its preview in the cull. The per-sensor corrections in the metadata block at ``0x110`` (defect columns, the
 flat-field and the split-sensor curves LibRaw's ``phase_one_correct`` applies) are not applied.
 
-The format as dcraw and LibRaw read it (``parse_phase_one``, ``phase_one_load_raw_c``); this is an independent
-implementation, checked sensel for sensel against LibRaw 0.22 on raw.pixls.us files (``tools/iiq_libraw_check.py``,
+The format as dcraw and LibRaw read it (``parse_phase_one``, ``phase_one_load_raw_c``; IIQ S as LibRaw 0.21+
+reads it, ``decode_S_type``, LGPL-2.1/CDDL, read for the layout only, itself credited to Daniel Vogelbacher's
+work); this is an independent implementation, checked sensel for sensel against LibRaw 0.22 on raw.pixls.us files (``tools/iiq_libraw_check.py``,
 ``eval/phaseone-iiq-reader-2026-11-18.md``).
 """
 
@@ -59,7 +76,7 @@ from shootflow import raw_develop as rd
 BASE = 8
 MAGIC = b"IIII"
 LENGTHS = (8, 7, 6, 9, 11, 10, 5, 12, 14, 13)
-FORMATS = (3, 5)  # the coded "IIQ L" formats this reader decodes
+FORMATS = (3, 5, 6)  # the coded formats this reader decodes: "IIQ L" (3, 5) and "IIQ S" (6)
 FORMAT_NAMES = {1: "uncompressed (keyed)", 2: "uncompressed", 3: "IIQ L", 5: "IIQ L (8-bit coded)", 6: "IIQ S", 8: "IIQ L 16-bit"}
 WHITE = 16383 << 2
 # The sensor is RGGB at the image's top-left (the 0x10a/0x10b margins), on every body at hand.
@@ -257,6 +274,117 @@ def _decode_rows_python(data: bytes, start: int, offsets, width: int, height: in
     return out
 
 
+# IIQ S: the fresh-scale prefix code after a ``00`` prefix, as (bits, code, scale).
+SCALE_CODES = ((2, 0b11, 2), (2, 0b10, 3), (3, 0b011, 4), (3, 0b010, 1), (4, 0b0011, 5), (4, 0b0010, 6),
+               (5, 0b00011, 7), (5, 0b00010, 0), (5, 0b00001, 8), (5, 0b00000, 9))
+RAW_SCALE = 9
+
+
+def _scale_table() -> tuple[list[int], list[int]]:
+    """The scale code read from the five bits after ``00``: (scale, bits used) for each 5-bit window."""
+
+    scale, used = [0] * 32, [0] * 32
+    for n, code, k in SCALE_CODES:
+        for tail in range(1 << (5 - n)):
+            w = (code << (5 - n)) | tail
+            scale[w], used[w] = k, n
+    return scale, used
+
+
+class _Bits:
+    """32-bit little-endian words, read most significant bit first; zeros past the end."""
+
+    __slots__ = ("data", "pos", "end", "buf", "have")
+
+    def __init__(self, data: bytes, pos: int):
+        self.data, self.pos, self.end = data, pos, len(data)
+        self.buf = 0
+        self.have = 0
+
+    def peek(self, n: int) -> int:
+        while self.have < n:
+            p = self.pos
+            w = struct.unpack_from("<I", self.data, p)[0] if 0 <= p and p + 4 <= self.end else 0
+            self.buf = ((self.buf << 32) | w) & 0xFFFFFFFFFFFFFFFF
+            self.pos = p + 4
+            self.have += 32
+        return (self.buf >> (self.have - n)) & ((1 << n) - 1)
+
+    def skip(self, n: int):
+        self.peek(n)
+        self.have -= n
+
+    def get(self, n: int) -> int:
+        v = self.peek(n)
+        self.have -= n
+        return v
+
+
+def _decode_s_row(bits: _Bits, width: int, out: array, base: int, scale_of=None, used_of=None):
+    """One IIQ S row into ``out[base : base + width]`` (value times four, clamped, no offsets)."""
+
+    if scale_of is None:
+        scale_of, used_of = _scale_table()
+    q = bits.get(16) & 7
+    scale = [0, 0]
+    last = [0, 0]
+    col = 0
+    for _ in range(width >> 3):
+        for lane in (0, 1):
+            prefix = bits.get(2)
+            if prefix:
+                scale[lane] += prefix - 2
+            else:
+                w = bits.peek(5)
+                scale[lane] = scale_of[w]
+                bits.skip(used_of[w])
+        refine = bits.get(1)
+        refine = 0 if refine else bits.get(2) + 1
+        n = q + refine
+        for lane in (0, 1):
+            if scale[lane] != RAW_SCALE and not (0 <= scale[lane] <= 17 - q):
+                raise rd.DevelopError("IIQ S block's scale is out of range (corrupt data)")
+        shift = (scale[0] - refine, scale[1] - refine)
+        bias = tuple(0xFFFF >> (17 - q - k) if k != RAW_SCALE else 0 for k in scale)
+        for i in range(8):
+            lane = i & 1
+            if scale[lane] == RAW_SCALE:
+                v = bits.get(14)
+            else:
+                b = bits.get(n) if n else 0
+                if shift[lane] >= 0:
+                    v = last[lane] + (b << shift[lane]) - bias[lane]
+                elif b == 0:  # a refinement above the scale: real IQ180 files send it only with zero bits
+                    v = last[lane] - bias[lane]
+                else:
+                    raise rd.DevelopError("IIQ S sample has bits under a refinement above its scale (corrupt data)")
+            last[lane] = v
+            v <<= 2
+            out[base + col] = 0 if v < 0 else 65535 if v > 65535 else v
+            col += 1
+    while col < width:
+        out[base + col] = bits.get(14) << 2
+        col += 1
+
+
+def _decode_s_python(data: bytes, start: int, offsets, width: int, height: int,
+                     cblack: array, rblack: array, split_col: int, split_row: int) -> array:
+    """The reference IIQ S decoder: every row, then the row and column offsets as for IIQ L."""
+
+    scale_of, used_of = _scale_table()
+    out = array("H", [0]) * (width * height)
+    for row in range(height):
+        base = row * width
+        _decode_s_row(_Bits(data, start + offsets[row]), width, out, base, scale_of, used_of)
+        rb = 1 if row >= split_row else 0
+        lo, ro = cblack[2 * row], cblack[2 * row + 1]
+        if lo or ro or any(rblack):
+            for col in range(width):
+                v = out[base + col] + (ro if col >= split_col else lo) + rblack[2 * col + rb]
+                out[base + col] = 0 if v < 0 else 65535 if v > 65535 else v
+    return out
+
+
 C_SOURCE = r"""
 #include <stdint.h>
 static const int LENS[10] = {8, 7, 6, 9, 11, 10, 5, 12, 14, 13};
@@ -297,6 +425,66 @@ long shootflow_iiq_run(const uint8_t *d, long n, long start, const uint32_t *off
     }
     return 0;
 }
+
+/* IIQ S (format 6): per-lane scale, shared refinement, eight samples per block; then the offsets. */
+static const signed char S_SCALE[32] = {9, 8, 0, 7, 6, 6, 5, 5, 1, 1, 1, 1, 4, 4, 4, 4,
+                                        3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2};
+static const signed char S_USED[32] = {5, 5, 5, 5, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3,
+                                       2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+long shootflow_iiq_s_run(const uint8_t *d, long n, long start, const uint32_t *offsets, long width, long height,
+                         const int16_t *cblack, const int16_t *rblack, long split_col, long split_row,
+                         int any_offsets, uint16_t *out) {
+    long bad = 0;
+    for (long row = 0; row < height; row++) {
+        long pos = start + (long)offsets[row];
+        uint64_t buf = 0; int have = 0;
+#define NEED(k) while (have < (k)) { uint32_t w = 0; if (pos >= 0 && pos + 4 <= n) w = (uint32_t)d[pos] | ((uint32_t)d[pos+1] << 8) | ((uint32_t)d[pos+2] << 16) | ((uint32_t)d[pos+3] << 24); buf = (buf << 32) | w; pos += 4; have += 32; }
+#define PEEK(k) ((uint32_t)((buf >> (have - (k))) & ((1u << (k)) - 1)))
+        uint16_t *o = out + row * width;
+        NEED(16); int q = (int)(PEEK(16) & 7); have -= 16;
+        int scale[2] = {0, 0}; long last[2] = {0, 0};
+        long col = 0;
+        for (long blk = 0; blk < (width >> 3); blk++) {
+            for (int lane = 0; lane < 2; lane++) {
+                NEED(2); int prefix = (int)PEEK(2); have -= 2;
+                if (prefix) scale[lane] += prefix - 2;
+                else { NEED(5); int w = (int)PEEK(5); scale[lane] = S_SCALE[w]; have -= S_USED[w]; }
+            }
+            NEED(1); int refine = (int)PEEK(1); have -= 1;
+            if (refine) refine = 0; else { NEED(2); refine = (int)PEEK(2) + 1; have -= 2; }
+            int nb = q + refine;
+            for (int i = 0; i < 8; i++, col++) {
+                int lane = i & 1;
+                long v;
+                if (scale[lane] == 9) { NEED(14); v = (long)PEEK(14); have -= 14; }
+                else {
+                    int sh = scale[lane] - refine, bk = 17 - q - scale[lane];
+                    if (scale[lane] < 0 || bk < 0 || bk > 31) { bad++; bk = bk < 0 ? 0 : bk > 31 ? 31 : bk; }
+                    uint32_t b = 0;
+                    if (nb) { NEED(nb); b = PEEK(nb); have -= nb; }
+                    /* A refinement above the scale comes only with zero bits on real files; bits there are corrupt. */
+                    if (sh < 0) { if (b) bad++; sh = 0; b = 0; }
+                    v = last[lane] + ((long)b << sh) - (long)(0xFFFF >> bk);
+                }
+                last[lane] = v;
+                v <<= 2;
+                o[col] = (uint16_t)(v < 0 ? 0 : v > 65535 ? 65535 : v);
+            }
+        }
+        for (; col < width; col++) { NEED(14); o[col] = (uint16_t)(PEEK(14) << 2); have -= 14; }
+#undef NEED
+#undef PEEK
+        if (any_offsets) {
+            int rb = row >= split_row;
+            int lo = cblack[2 * row], ro = cblack[2 * row + 1];
+            for (long c = 0; c < width; c++) {
+                long v = (long)o[c] + (c >= split_col ? ro : lo) + rblack[2 * c + rb];
+                o[c] = (uint16_t)(v < 0 ? 0 : v > 65535 ? 65535 : v);
+            }
+        }
+    }
+    return bad;
+}
 """
 
 _STATE: dict[str, object] = {}
@@ -334,17 +522,32 @@ def _load():
     fn.restype = ctypes.c_long
     P, L = ctypes.c_void_p, ctypes.c_long
     fn.argtypes = [ctypes.c_char_p, L, L, P, L, L, P, P, P, L, L, P]
-    return fn
+    fn_s = lib.shootflow_iiq_s_run
+    fn_s.restype = ctypes.c_long
+    fn_s.argtypes = [ctypes.c_char_p, L, L, P, L, L, P, P, L, L, ctypes.c_int, P]
+    return fn, fn_s
 
 
-def native():
-    """The loaded C decoder, or None. Built and loaded once per process."""
-
+def _natives():
     if "fn" not in _STATE:
         with _LOCK:
             if "fn" not in _STATE:
                 _STATE["fn"] = _load()
     return _STATE["fn"]
+
+
+def native():
+    """The loaded C decoder for IIQ L, or None. Built and loaded once per process."""
+
+    fns = _natives()
+    return fns[0] if fns else None
+
+
+def native_s():
+    """The loaded C decoder for IIQ S, or None (the same library as ``native``)."""
+
+    fns = _natives()
+    return fns[1] if fns else None
 
 
 def decode_sensor(data: bytes, fields: dict, use_native: bool = True) -> tuple[array, str]:
@@ -367,6 +570,20 @@ def decode_sensor(data: bytes, fields: dict, use_native: bool = True) -> tuple[a
     rblack = _shorts(data, fields["black_row"], 2 * width)
     split_col = fields["split_col"] or width
     split_row = fields["split_row"] or height
+    if fmt == 6:
+        fn_s = native_s() if use_native else None
+        if fn_s is None:
+            out = _decode_s_python(data, fields["data"], offsets, width, height, cblack, rblack, split_col, split_row)
+            return out, f"IIQ: {FORMAT_NAMES[fmt]}"
+        out = array("H", [0]) * (width * height)
+        if not isinstance(data, bytes):
+            data = bytes(data)
+        any_offsets = 1 if (any(cblack) or any(rblack)) else 0
+        bad = fn_s(data, len(data), fields["data"], offsets.buffer_info()[0], width, height, cblack.buffer_info()[0],
+                   rblack.buffer_info()[0], split_col, split_row, any_offsets, out.buffer_info()[0])
+        if bad:
+            raise rd.DevelopError(f"IIQ S data has {bad} samples with an out-of-range scale or refinement (corrupt data)")
+        return out, f"IIQ: {FORMAT_NAMES[fmt]} (native)"
     fn = native() if use_native else None
     if fn is not None:
         table = array("H", curve()) if fmt == 5 else None
