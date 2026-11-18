@@ -135,6 +135,33 @@ total), the glider is longer in every one of 810 cases per row (\texttt{results\
 about a tenth of the speed. The glider's edge is a hotel-load edge, so the proposal's hypothesis of
 a speed crossover between 0.4 and 0.9\,m/s is refuted.
 
+Fig.~\ref{fig:gliderhotel} draws the same 2{,}430 cases as a curve in the hotel-load ratio
+(\texttt{results\_glider\_hotel\_curve.txt}). The share of cases the glider wins is the
+distribution of the break-even multiple: it passes 10\%, 50\% and 90\% at ratios of 2.38, 4.88
+and 10.83, and the median range ratio reaches 1 at 4.87. Below the crossover the AUV wins on
+hydrodynamics, since with almost no hotel load (ratio 0.1) the glider's median range is 0.083 of
+the AUV's. Above it the AUV pays for its hotel load by going faster, and the median range ratio
+grows with log-log slope 0.645 between ratios 1 and 10, close to the $2/3$ that minimising
+$c\,v^{1.8} + P/v$ gives. Over ratios 20 to 200 the slope is 0.850, because the swept AUV speed
+stops at 1.5\,m/s: its unconstrained best speed exceeds that in 55.6\% of cases at ratio 20.
+Rerun with AUV speeds up to 4\,m/s, the slope there is 0.653 and the crossover does not move
+(median ratio 1 at 4.87; 90\% of cases at 11.10). The ceiling therefore flatters the glider only
+where the glider already wins at least 99.88\% of cases. The REMUS-100 band (implied hotel 104.1 to 174.9\,W over the
+glider's 0.7 to 5\,W, ratios 20.8 to 249.8) lies where the glider wins at least 99.92\% of cases
+on the swept AUV hulls.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{\input{fig_glider_hotel.tex}}
+\caption{Glider against propeller AUV over the 2{,}430 glider cases of Table~\ref{tab:rank}, with
+the AUV's hotel load set to a multiple of the glider's. (a) Range ratio glider/AUV at equal battery:
+median (solid) and 10th to 90th percentile (band) on the swept AUV speeds up to 1.5\,m/s;
+dashed, the median with AUV speeds up to 4\,m/s. The dotted lines mark ratio 1 and the
+break-even multiple. (b) Share of cases in which the glider has the longer range. Shaded: the
+REMUS-100 hotel band (\texttt{results\_glider\_hotel\_curve.txt}; drawn by \texttt{make\_figures.py}).}
+\label{fig:gliderhotel}
+\end{figure}
+
 \subsection{What the ranking does not fix: absolute range}
 With 27 combinations of $c_s$, $k$ and wave scale on one monohull, best range spans 763 to 921\,km
 (20.6\%), though each constant alone moves it under 10\% ($c_s$ 9.0\%, $k$ 8.1\%, wave scale 0.8\%;
