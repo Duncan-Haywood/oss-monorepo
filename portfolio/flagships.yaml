@@ -475,9 +475,9 @@ flagships:
       test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
-      an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
-      (eval/ifcxml-xbim-2026-11-16.md); more real exports through
-      eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
+      IFC4X3 ifcXML: none public (searched 2026-11-18); IfcBSplineSurface
+      control-point rows from knot counts (eval/ifcxml-twins-2026-11-18.md); more
+      real exports through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
@@ -487,8 +487,10 @@ flagships:
       values 2026-11-17 (eval/model-values-2026-11-17.md: one-of or range from the
       model, ranges rounded outward, 1,014 of 1,014 pass their model; 82.0% of
       public facets editable); ifcXML and .ifczip read 2026-11-16
-      (eval/ifcxml-xbim-2026-11-16.md); IDS editor 2026-11-16 (203,433 offered specs
-      audit clean, 15,102 valid in ids.xsd; found voids/fills token pair and
+      (eval/ifcxml-xbim-2026-11-16.md); 43 IFC4 STEP/ifcXML twins 2026-11-18
+      (eval/ifcxml-twins-2026-11-18.md: verdicts 108 to 129 of 129; href refs,
+      decimal commas, flat point lists); IDS editor 2026-11-16 (203,433 offered
+      specs audit clean, 15,102 valid in ids.xsd; found voids/fills token pair and
       classification-system gaps, eval/editor-2026-11-16.md); IFC 4.3 infra/HVAC
       cross-check 2026-11-17 (348 of 348, eval/infra-mep-crosscheck-*); 65 public
       IDS vs IfcTester 2026-11-17 (1,661 of 1,736 same; unchecked subclasses
@@ -499,12 +501,5 @@ flagships:
       rows 2026-11-17 (eval/number-oneof-2026-11-17.md: 663 of 663 offers pass,
       IfcTester 646); several IFC versions per spec 2026-11-17
       (eval/multi-version-2026-11-17.md: opened in the schema that edits most, page
-      audit in every named schema, false page errors 18 to 0 on 18 public files); a
-      standard property in the file's own dataType 2026-11-17
-      (eval/template-type-2026-11-17.md: 16 rows in 7 public files, Use the
-      template's type, 14 pset-datatype errors to 0). 'did you mean' rows 2026-11-17
-      (eval/name-suggestion-2026-11-17.md: 17 rows in 7 public files, name errors 31
-      to 14); no-class numbers 2026-11-17 (eval/no-class-numbers-2026-11-17.md:
-      derived-on-subclass and xs:integer-on-NUMBER rows, list attributes an audit
-      warning; 117 of 129 audit-tool numeric lists open, was 109). More open items:
-      NEXT.md.
+      audit in every named schema, false page errors 18 to 0 on 18 public files).
+      More open items: NEXT.md.
