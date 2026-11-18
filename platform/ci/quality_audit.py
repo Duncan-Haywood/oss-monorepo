@@ -422,21 +422,39 @@ def draw(seed: str, k: int = 2, k_platform: int = 1, audits: list[dict] | None =
 
 # --- cli ---------------------------------------------------------------------
 
+# What a session runs and names its post in each mode. The track prompt (owner-held) describes only `sample`, so
+# the tool that runs first hands over the other modes' steps (README, "Five modes").
+MODE_STEPS = {
+    "census": ("python3 platform/ci/quality_audit.py census --n 6", "docs/posts/<date>-quality-census-<slug>.md"),
+    "fix": ("python3 platform/ci/quality_audit.py queue --severity high", "docs/posts/<date>-quality-fix-<slug>.md"),
+    "reaudit": ("python3 platform/ci/quality_audit.py reaudit", "docs/posts/<date>-quality-reaudit-<slug>.md"),
+    "reflect": ("python3 platform/ci/quality_audit.py metrics --md",
+                "portfolio/quality/reflections/<date>-<slug>.md and docs/posts/<date>-quality-reflection-<slug>.md"),
+}
+
+
 def mode_note(date: str, audits: list[dict]) -> str | None:
-    """A first line for `sample` when today's mode is not `sample`, else None.
+    """What `sample` prints instead of a draw when today's mode is not `sample`, else None.
 
     The track prompt (prompts/quality/prompt-0.md, step 1) says run `sample`;
     the README's "Five modes" says run `mode` first. Ten quality runs in five
     days reported the two procedures (friction_rank.py, 2026-11-10..14), and
-    the prompt is owner-held, so the tool that runs first says it.
+    the prompt is owner-held, so the tool that runs first says it. A one-line
+    NOTE above the draw was not enough: five more runs on 2026-11-17 read the
+    draw first and reported the clash again, so the draw is now withheld
+    (`--anyway` prints it, and that round is a deviation to record).
     """
     sys.path.insert(0, str(Path(__file__).parent))
     import quality_metrics as qm
     m = qm.mode_for(date, None, qm.last_reflection(), len(qm.queue(audits, "high")), len(qm.reaudit_due(audits)))
     if m["mode"] == "sample":
         return None
-    return (f"NOTE: today's mode is `{m['mode']}`, not sample ({m['why']}): {qm.MODES[m['mode']]}. "
-            "portfolio/quality/README.md, \"Five modes\", says how; a sample round today is a deviation to record.")
+    cmd, post = MODE_STEPS.get(m["mode"], ("python3 platform/ci/quality_audit.py mode", "see the README"))
+    return (f"Today's quality mode is `{m['mode']}`, not sample ({m['why']}): {qm.MODES[m['mode']]}.\n"
+            f"  run:  {cmd}\n"
+            f"  post: {post} (not quality-audit-round-<n>, which is for sample rounds)\n"
+            "  how:  portfolio/quality/README.md, \"Five modes\"; the track prompt's steps 1 and 5 are for sample rounds.\n"
+            "No sample draw printed. `sample --anyway` prints one; a sample round today is a deviation to record.")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -448,6 +466,7 @@ def main(argv: list[str] | None = None) -> int:
     sp.add_argument("--k-platform", type=int, default=1)
     sp.add_argument("--json", action="store_true")
     sp.add_argument("--offline", action="store_true", help="skip the origin/main fetch and the open-PR read")
+    sp.add_argument("--anyway", action="store_true", help="print the draw even when today's mode is not sample")
     sub.add_parser("validate", help="check every audit file")
     sm = sub.add_parser("summary", help="the scoreboard over every audit")
     sm.add_argument("--md", action="store_true")
@@ -486,6 +505,11 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     if args.cmd == "sample":
+        if not (args.seed or args.json or args.anyway):
+            note = mode_note(dt.date.today().isoformat(), load_audits())
+            if note:
+                print(note)
+                return 0
         fetched = False if args.offline else fetch_main()
         prs = [] if args.offline else open_round_prs()
         local = load_audits()
@@ -497,9 +521,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.json:
             print(json.dumps({"seed": seed, "round": rnd, "subjects": picks}, indent=1))
         else:
-            note = None if args.seed else mode_note(dt.date.today().isoformat(), local)
-            if note:
-                print(note)
+            if args.anyway and not args.seed and mode_note(dt.date.today().isoformat(), local):
+                print("NOTE: --anyway: today's mode is not sample, so this round is a deviation to record.")
             print(f"seed {seed}   round {rnd} (next post: docs/posts/<date>-quality-audit-round-{rnd}.md)")
             if not args.offline:
                 held_txt = ", ".join(f"{r}/{sd or '?'}" for r, sd in sorted(prs)) or "none"

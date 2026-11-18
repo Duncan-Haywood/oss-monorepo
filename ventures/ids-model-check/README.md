@@ -17,7 +17,10 @@ open. MIT licensed, no dependencies, nothing uploaded.
   specification results identical (`eval/infra-mep-crosscheck-2026-11-17.md`).
 - STEP `.ifc`, ifcXML (`.ifcxml`, both the IFC2X3 and IFC4 layouts) and `.ifczip`
   (either one zipped), read into the same entities: xBIM's ifcXML export of a
-  Revit model agrees with its STEP file on 2,205 of 2,205 attribute values.
+  Revit model agrees with its STEP file on 2,205 of 2,205 attribute values, and
+  on 43 STEP/ifcXML twins (buildingSMART's IFC4 Annex E examples and two
+  GeometryGymIFC examples) the checker gives the same verdicts on both forms, 129 of
+  129 (`eval/ifcxml-twins-2026-11-18.md`).
 - IFC2X3, IFC4 and IFC4X3 (ADD2); all six facets (entity, attribute, property,
   classification, material, part of); value restrictions (enumeration, pattern,
   bounds, length); IDS float tolerance; unit conversion to SI from the project's
@@ -197,6 +200,15 @@ open. MIT licensed, no dependencies, nothing uploaded.
   on only 22 of 324 lists typed to 6 digits, which the row warns about. 109
   of the 129 numeric lists in the IDS-Audit-tool valid files now open as rows
   (89.2% editable, was 75.9%). `eval/number-oneof-2026-11-17.md`.
+  **Numbers with no class named** (2026-11-17): an attribute stored as a
+  number on one class and derived on a subclass (CoordinateSpaceDimension,
+  Precision) opens as a number row that names the subclass, whose objects
+  never hold a value. A file's `xs:integer` on an IfcCountMeasure (a NUMBER:
+  BarCount, CountValue) is kept as written. A value on an attribute that is
+  a list on every class (TexCoordsList, DayComponent) stays held, and the
+  audit warns that every object it checks fails. 117 of 129 numeric lists
+  open (was 109); the 12 left are those lists; IDS-Audit-tool valid files
+  90.7% editable. `eval/no-class-numbers-2026-11-17.md`.
   **Specifications written for several IFC versions** (2026-11-17): a file
   whose specifications all say `IFC2X3 IFC4` (the Dutch NL-BIM Basis ILS and
   RVB BIM Norm, BASIX) opens in the schema where most facets are editable,
@@ -661,6 +673,26 @@ with a 2 GB heap it finishes, before and after this change.
    stored, deflated and zip64. In Chromium the page reads the `.ifczip` with
    `DecompressionStream` and gives the `.ifc`'s verdicts.
 
+7. **ifcXML twins from a real IFC4 exporter** (2026-11-18,
+   `eval/ifcxml-twins-2026-11-18.md`). `eval/fetch-ifcxml-twins.sh` fetches
+   the 41 IFC4 ADD2 TC1 Annex E examples (each as `.ifc` and `.ifcxml`; the
+   STEP files from Geometry Gym's Rhino and Grasshopper plug-ins, Constructivity,
+   SDS/2 and a text editor, the ifcXML files all in one writer's layout) and two
+   pairs written by GeometryGymIFC; `node eval/ifcxml-twins.mjs` compares each pair as
+   graphs (every entity hashed with its references' hashes, since the XML's
+   ids do not map to `#N`), by GlobalId attribute by attribute, and by the
+   three sample IDS files' verdicts. On the reader before this change 108 of
+   129 verdicts matched: all 43 ifcXML files write references as `href="i1"`, and
+   each became an empty copy, so `construction-scheduling-task`'s 4 walls read
+   as 24 with 20 "has no material". Seven forms are read now (`href`, decimal
+   commas in 41 of 43 files, derived attributes given a value, IsTypedBy
+   written as the relationship, `<Position>` holding references, flat lists of
+   lists, an attribute name in the wrong case): 129 of 129 verdicts match, 12
+   pairs are identical graphs and 24 once STEP entities nothing reaches are set
+   aside; each remaining difference was traced to the files (values the XML
+   writer drops, STEP written to an older IFC4 draft, the two halves of a few
+   pairs being different exports). No IFC4X3 ifcXML file was found in public.
+
 Speed (one core, Node 22): Schultz Residence 1.4 s for seven specifications;
 IfcTester (C++ parser) took 0.6-0.7 s for the same work. This tool is not
 faster than IfcTester; its point is needing no install.
@@ -714,7 +746,9 @@ faster than IfcTester; its point is needing no install.
 ## Limitations
 
 - ifcJSON is not read. ifcXML is checked on 9 real documents from about
-  seven exporters, not on every tool's output; the ifcXML reader holds the whole
+  seven exporters and 43 IFC4 STEP/ifcXML twins, not on every tool's output,
+  and on no real IFC4X3 file (none was found); an IfcBSplineSurface's control
+  points, a list of rows written flat, stay one flat list; the ifcXML reader holds the whole
   XML tree in memory, a few times the heap of the same model as STEP.
 - The model's text is held in memory with a small record per entity; an
   entity's arguments are read when a check first needs them, and geometry's
@@ -755,7 +789,7 @@ faster than IfcTester; its point is needing no install.
   the file's own dataType on a standard property 2026-11-17,
   `eval/template-type-2026-11-17.md`): a "did you mean" for a property the
   template lacks (Portugal's `Lenght` for Length, 8 facets);
-  the 20 numeric lists on non-element attributes in no-class specifications; a real IFC4 export with dates to try the range on;
+  a real IFC4 export with dates to try the range on;
   a subclass checkbox per class, not only the first;
   a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.
@@ -793,6 +827,10 @@ faster than IfcTester; its point is needing no install.
 - ifcXML and ifcZIP test files: xBIM Toolkit, `github.com/xBimTeam/XbimEssentials`
   (`Tests/TestFiles`, CDDL; fetched by `eval/fetch-xbim-samples.sh`, not
   copied here).
+- STEP/ifcXML twins: buildingSMART's IFC4 ADD2 TC1 Annex E examples,
+  `github.com/buildingSMART/Standards-builds`, and two from
+  `github.com/GeometryGym/GeometryGymIFCExamples` (MIT); fetched by
+  `eval/fetch-ifcxml-twins.sh`, not copied here.
 
 IDS is a buildingSMART International standard. This tool is independent and
 not endorsed by buildingSMART.

@@ -2790,6 +2790,21 @@ twelve pieces on leaves no earlier list reads, listed and committed before their
 failed as worded (an overlapping column). The fault is rare: main already read most of them. Details:
 `eval/one-step-cephalicus-check.md`; run `node eval/one-step-check.mjs <lists>`.
 
+### A one-step cephalicus with a hollow small note (2026-11-18)
+
+The ten one-step cephalici still missed on the tuning lists were each looked at (crops at 4x, the rule's
+window ink row by row; `node eval/one-step-check.mjs` now lists every miss with its page, staff and x).
+Four had the same cause in the print: this Graduale draws many small notes with a white counter, so in
+the rule's window their upper rows are two bars either side of a 2-3 px gap and only their last 3-5
+rows are solid, too few to count. The run-width test now bridges a gap up to 0.1 spaces
+(`ONE_STEP.gap`; `readPage(img, { oneStepGap: false })` reads without it). Tuning lists: 74 to 77 of
+84, agreeing +3, differing and false liquescents unchanged, all four places changed looked at and true.
+The 1908 Graduale on GregoBase is used up (one unread piece left), so the held-out check, committed
+before its pages were downloaded, was that piece (no change) plus 31 Graduale leaves no list reads,
+read both ways: two places changed, both one-step cephalici with a hollow small note, nothing moved or
+removed. Four predictions, four held. Seven misses are left, two of them `liquescentTail` claiming the
+cephalicus first. Details: `eval/one-step-hollow-check.md`.
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif

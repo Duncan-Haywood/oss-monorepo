@@ -6,7 +6,7 @@ export function textReport(r, { maxFailures = 10 } = {}) {
   out.push(`${r.title || "IDS"} against a ${r.schema} model (${r.entityCount.toLocaleString("en-US")} entities)${r.seconds !== undefined ? ` in ${r.seconds.toFixed(2)} s` : ""}`);
   const invalid = r.specs.filter((s) => s.status === "invalid").length;
   out.push(`${r.pass ? "PASS" : "FAIL"}: ${passed} of ${r.specs.length} specifications pass${invalid ? `; ${invalid} invalid (the IDS needs fixing; see below)` : ""}`);
-  if (r.parseErrors.length) out.push(`note: ${r.parseErrors.length} line(s) could not be read, e.g. ${r.parseErrors[0]}`);
+  if (r.parseErrors.length) out.push(`note: ${r.parseErrors.length} reader note(s) on the model (lines that could not be read, or forms read leniently), e.g. ${r.parseErrors[0]}`);
   const dups = r.duplicateGlobalIds || [];
   if (dups.length) {
     out.push(`model warning: ${dups.length} GlobalId(s) are shared by more than one element (IFC requires them unique; BCF viewpoints and model diffs find elements by GlobalId):`);

@@ -116,7 +116,7 @@ against the PostgreSQL version you actually run.
 
 | File | What it is |
 |---|---|
-| `sql.mjs` | Statement splitter: comments (nesting block comments included), string literals, dollar-quoted bodies, transaction depth |
+| `sql.mjs` | Statement splitter: comments (nesting block comments included), string literals, dollar-quoted bodies, explicit transaction blocks (flat, as in PostgreSQL: `ROLLBACK TO SAVEPOINT` leaves one open, `ABORT` closes one, `AND CHAIN` reopens one) |
 | `engine.mjs` | The fifteen checks. Pure functions over text; no I/O |
 | `check.mjs` | CLI |
 | `usage.mjs` | Anonymous local-storage feature counts, opt-out, DNT/GPC honoured |

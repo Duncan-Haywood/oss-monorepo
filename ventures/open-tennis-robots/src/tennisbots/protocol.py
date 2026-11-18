@@ -20,6 +20,9 @@ SET_AIM = 0x11        # int16 elevation_cdeg, int16 azimuth_cdeg
 FEED = 0x12           # uint8 balls
 SET_BASE = 0x13       # int16 target_y_mm, uint16 max_speed_mm_s
 RESET_LIFT_HUB = 0x14  # uint16 key (RESET_LIFT_HUB_KEY): the lift's slip hub was re-set on the bench; restart its jam count
+SURVEY_TAKE = 0x15    # uint8 on (2026-11-17, firmware/esp32/README.md "The contact time surveyed on the board"): the feeder
+                      # refits each launched wheel at TAKE_SURVEY_TIMES contact times too; the Pi sends it for a
+                      # calibration drill and turns it off at the drill's end
 DRIVE = 0x20          # int16 left_mm_s, int16 right_mm_s
 PICKUP = 0x21         # uint8 on
 TELEMETRY = 0x80      # uint16 flags, int16 base_y_mm, int16 rpm_top, int16 rpm_bottom, uint16 battery_mv,
@@ -44,6 +47,13 @@ ESC_SURVEY_LAGS = 6
 ESC_TAU = 0x83        # feeder, after TELEMETRY every period (2026-11-16, README "Checked before a calibration drill"):
                       # uint16 the ESC lag the board's drop fit runs with (config ESC_TAU_US), ms, so the Pi can compare
                       # it with the last drill's ESC_SURVEY before it feeds a ball
+TAKE_SURVEY = 0x84    # feeder, after LAUNCH while the board has a contact-time survey (2026-11-17, README "The contact time
+                      # surveyed on the board"): uint8 wheels summed (to 255), uint16 the contact time with the least
+                      # summed residual, uint16 that time refined between its neighbours, uint16 the contact time the
+                      # board's drop fit runs with (config TAKE_US), all in 0.1 ms, then uint16 x TAKE_SURVEY_TIMES:
+                      # each candidate's mean residual rms in 1e-6 of the pre-ball speed (65535: none). The candidates
+                      # are the firmware's TAKE_SURVEY_GRID_US, 0 / 2 / 3 / 4 / 5 / 6 / 8 ms, half-sine.
+TAKE_SURVEY_TIMES = 7
 
 FORMATS = {
     HEARTBEAT: "",
@@ -54,12 +64,14 @@ FORMATS = {
     FEED: "<B",
     SET_BASE: "<hH",
     RESET_LIFT_HUB: "<H",
+    SURVEY_TAKE: "<B",
     DRIVE: "<hh",
     PICKUP: "<B",
     TELEMETRY: "<HhhhHB",
     LAUNCH: "<BhhhhB",
     ESC_SURVEY: "<BHH" + "H" * ESC_SURVEY_LAGS,
     ESC_TAU: "<H",
+    TAKE_SURVEY: "<BHHH" + "H" * TAKE_SURVEY_TIMES,
 }
 
 # TELEMETRY flag bits

@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bowlingSchedule, laneReport, validateBowling, hungarian, bowlingCsv, bowlingText, parseWeekList, pairLabels, teamLaneGrid, assignLanes, VACANCY } from "./bowling.mjs";
+import { bowlingSchedule, laneReport, validateBowling, hungarian, bowlingCsv, bowlingText, parseWeekList, pairLabels, teamLaneGrid, assignLanes, boundOutOfReach, VACANCY } from "./bowling.mjs";
+import { OUT_OF_REACH } from "./bowling-proofs.mjs";
 import { toDay, roundRobin } from "./calc.mjs";
 
 const START = toDay(2026, 9, 1);
@@ -151,6 +152,29 @@ test("the bowling page's worked example matches bowlingSchedule(), its FAQ match
   assert.equal((page("eval/bowling-lane-sat.txt").match(/: SAT$/gm) || []).length, 6);
   assert.match(page("sitemap.xml"), new RegExp(name));
   assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
+test("seasons a solver proved out of reach are flagged, and only those", () => {
+  assert.ok(OUT_OF_REACH.length >= 20, `${OUT_OF_REACH.length} proofs`);
+  // Every listed season really is off the bound in the page's own season: a proof can never sit
+  // on a season the search put at the bound (that would make the proof file wrong).
+  for (const key of OUT_OF_REACH.filter((k) => Number(k.split(",")[0]) <= 12)) {
+    const [n, W] = key.split(",").map(Number);
+    const s = bowlingSchedule({ teams: names(n), weeks: W, start: START });
+    const r = laneReport(s);
+    assert.equal(r.boundProvedOutOfReach, true, key);
+    assert.ok(r.atBound < n, key);
+  }
+  // 4 teams, 2 weeks: in week 1 a v b share one pair and c v d the other, so in week 2 every team
+  // must change pairs, but a now plays c (or d), who must move the opposite way. No deal works.
+  assert.equal(boundOutOfReach(4, 2), true);
+  assert.equal(laneReport(bowlingSchedule({ teams: names(4), weeks: 2, start: START })).boundProvedOutOfReach, true);
+  // A position round does not count: 3 weeks with one position round is still 2 round-robin weeks.
+  assert.equal(bowlingSchedule({ teams: names(4), weeks: 3, start: START, positionWeeks: [3] }).boundProvedOutOfReach, true);
+  // An odd league's proof would cover the Vacancy's row, so it is never claimed.
+  assert.equal(bowlingSchedule({ teams: names(3), weeks: 2, start: START }).boundProvedOutOfReach, false);
+  // A season at the bound is never flagged.
+  assert.equal(laneReport(bowlingSchedule({ teams: names(8), weeks: 30, start: START })).boundProvedOutOfReach, false);
 });
 
 // Red team 2026-11-17: three faults seeded into bowling.mjs got past the suite, and three real

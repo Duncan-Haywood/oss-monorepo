@@ -3944,3 +3944,16 @@ Tests: `day-lns.test.mjs` (the gains are in time order, positive, one of the fou
 with and without repeated ladders; the ladder count is within its cap). Not claimed: generated weeks, one cloud machine, two
 builds at a time, an exploration set rather than a pre-registered one (no default moved, so none was needed); 2 of 11 open
 hours is a small count.
+
+## The open-hours row before the dual branch (2026-11-18)
+
+When the exact search's priced floor on open hours already equals the best roster's open hours, nothing later in the search can
+raise it: the cover branch, the cover LP and the coverage pass all need a floor below the roster's hours. So the open-hours row
+(the whole-score LP with that floor as a row, "The open-hours row in the score LP") now runs before the dual branch, with the same
+arguments it would get afterwards. If it proves the roster, the dual branch, which can run up to `dualBranchMs` (8 s), is skipped.
+If it doesn't, its answer is kept and the dual branch runs as before. On the call-out week with Cleo off Saturday and
+`earlyFloor: false`, the dual branch ran its full 8 s and proved nothing, and the row then proved the week in 0.1 s. That
+`buildRoster` call went from 19.4 s to 11.0 s, with the same roster, score, status and bounds as the old order
+(`rowBeforeDual: false`). `optimality.openRow.beforeDual` says when this happened. With default options, weeks this small
+usually get the early floor first, so most real weeks are unchanged.
+Details: `docs/history/ci-perf-2026-11-18-shift-roster-row-before-dual.md`. Test: `open-sums.test.mjs`.

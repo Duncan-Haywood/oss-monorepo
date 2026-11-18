@@ -613,6 +613,64 @@ test("with no class, every standard set and every attribute some class has is of
   assert.ok(!commonSets(L, ["IFCWALL"]).includes("Pset_DoorCommon"));
 });
 
+test("with no class, a number attribute derived on a subclass, or restricted on xs:integer where it is a NUMBER, opens as a row", () => {
+  // As IDS-Audit-tool's RichFileAttribute files write them.
+  const spec = (v, name, body) => `<ids:specification ifcVersion="${v}" name="${name}"><ids:applicability minOccurs="0" maxOccurs="unbounded"><ids:attribute><ids:name><ids:simpleValue>${name}</ids:simpleValue></ids:name></ids:attribute></ids:applicability><ids:requirements><ids:attribute cardinality="required"><ids:name><ids:simpleValue>${name}</ids:simpleValue></ids:name><ids:value>${body}</ids:value></ids:attribute></ids:requirements></ids:specification>`;
+  const doc = (v, ...specs) => `<?xml version="1.0" encoding="utf-8"?><ids:ids xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ids="http://standards.buildingsmart.org/IDS"><ids:info><ids:title>t</ids:title></ids:info><ids:specifications>${specs.join("")}</ids:specifications></ids:ids>`;
+  const loadFor = (id) => ({ S: R.schemas[id], psets: R.psets[id], tm: id === "IFC2X3" ? R.typeMap : null });
+  // CoordinateSpaceDimension is IFCDIMENSIONCOUNT, stored on the context and
+  // derived (*) on its subcontext: a number, with the subcontext named.
+  const k = attributeValueKind(S4, [], "CoordinateSpaceDimension");
+  assert.equal(k.kind, "number");
+  assert.equal(k.base, "xs:integer");
+  assert.deepEqual(k.derivedOn, ["IFCGEOMETRICREPRESENTATIONSUBCONTEXT"]);
+  assert.equal(attributeValueKind(S4, [], "Precision").base, "xs:double");
+  // A list on every class (TexCoordsList) is still not offered.
+  assert.ok(!commonAttributes(S4, []).includes("TexCoordsList"));
+  const xml = doc("IFC4",
+    spec("IFC4", "CoordinateSpaceDimension", `<xs:restriction base="xs:integer"><xs:enumeration value="16"/></xs:restriction>`),
+    spec("IFC4", "Precision", `<xs:restriction base="xs:double"><xs:enumeration value="17.086642968015973"/></xs:restriction>`),
+    spec("IFC4", "CountValue", `<xs:restriction base="xs:integer"><xs:enumeration value="32"/></xs:restriction>`),
+    spec("IFC4", "CountValue", `<xs:restriction base="xs:integer"><xs:minInclusive value="35"/></xs:restriction>`));
+  const parsed = parseIds(xml);
+  const { state, kept, rows } = importIds(parsed, loadFor);
+  assert.equal(kept, 0);
+  assert.equal(rows, 8);
+  // CountValue is IFCCOUNTMEASURE, a NUMBER in IFC4: the row keeps xs:integer
+  // and asks for whole numbers.
+  const cv = state.specs[2].reqs[0];
+  assert.equal(cv.numBase, "xs:integer");
+  assert.equal(valueChoices(loadFor("IFC4"), [], cv).integer, true);
+  assert.equal(state.specs[3].reqs[0].mode, "range");
+  const backXml = buildIds(stateToDoc(state, loadFor("IFC4")), S4);
+  const desc = (p) => p.specs.map((s) => [...s.applicability, ...s.requirements].map((f) => `${f.kind} ${f.cardinality} ${f.describe()} ${f.value && f.value.r ? f.value.r.base : ""}`).sort());
+  assert.deepEqual(desc(parseIds(backXml)), desc(parsed));
+  // A new CountValue row (no file base) is written on the type's own xs:double.
+  const L = loadFor("IFC4");
+  const fresh = buildIds(stateToDoc({ ...state, specs: [{ ...blankSpec(), name: "n", reqs: [{ ...blankReq(), kind: "attribute", name: "CountValue", mode: "oneOf", oneOf: ["3"] }] }] }, L), S4);
+  assert.match(fresh, /<xs:restriction base="xs:double"><xs:enumeration value="3"\/>/);
+  // IFC2X3's BarCount the same way.
+  const x3 = doc("IFC2X3", spec("IFC2X3", "BarCount", `<xs:restriction base="xs:integer"><xs:enumeration value="27"/></xs:restriction>`));
+  const i3 = importIds(parseIds(x3), loadFor);
+  assert.equal(i3.kept, 0);
+  assert.equal(i3.state.specs[0].reqs[0].numBase, "xs:integer");
+});
+
+test("with no class, a value on an attribute that is a list on every class is an audit warning, as on IDS-Audit-tool's files", () => {
+  const xml = `<?xml version="1.0" encoding="utf-8"?><ids:ids xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ids="http://standards.buildingsmart.org/IDS"><ids:info><ids:title>t</ids:title></ids:info><ids:specifications>
+<ids:specification ifcVersion="IFC4" name="tex"><ids:applicability minOccurs="0" maxOccurs="unbounded"><ids:attribute><ids:name><ids:simpleValue>TexCoordsList</ids:simpleValue></ids:name></ids:attribute></ids:applicability><ids:requirements><ids:attribute cardinality="required"><ids:name><ids:simpleValue>TexCoordsList</ids:simpleValue></ids:name><ids:value><xs:restriction base="xs:double"><xs:enumeration value="35.9"/></xs:restriction></ids:value></ids:attribute></ids:requirements></ids:specification>
+<ids:specification ifcVersion="IFC4" name="app"><ids:applicability minOccurs="0" maxOccurs="unbounded"><ids:attribute><ids:name><ids:simpleValue>DayComponent</ids:simpleValue></ids:name><ids:value><ids:simpleValue>3</ids:simpleValue></ids:value></ids:attribute></ids:applicability><ids:requirements><ids:attribute cardinality="required"><ids:name><ids:simpleValue>Name</ids:simpleValue></ids:name></ids:attribute></ids:requirements></ids:specification>
+<ids:specification ifcVersion="IFC4" name="dim"><ids:applicability minOccurs="0" maxOccurs="unbounded"><ids:attribute><ids:name><ids:simpleValue>CoordinateSpaceDimension</ids:simpleValue></ids:name></ids:attribute></ids:applicability><ids:requirements><ids:attribute cardinality="required"><ids:name><ids:simpleValue>CoordinateSpaceDimension</ids:simpleValue></ids:name><ids:value><ids:simpleValue>3</ids:simpleValue></ids:value></ids:attribute></ids:requirements></ids:specification>
+</ids:specifications></ids:ids>`;
+  const is = audit(xml);
+  assert.equal(is.filter((x) => x.level === "error").length, 0, "the IDS-Audit-tool accepts these files");
+  const tex = is.find((x) => x.specName === "tex");
+  assert.equal(tex.level, "warning");
+  assert.match(tex.message, /TexCoordsList is a list on every class that has it \(IfcTextureVertexList\).*every object this checks fails it/);
+  assert.match(is.find((x) => x.specName === "app").message, /DayComponent is a list .*this applicability selects nothing/);
+  assert.ok(!is.some((x) => x.specName === "dim"), "a number where it is stored: no warning");
+});
+
 test("a one-of on numbers: offered, checked with IDS's tolerance on reals and exactly on integers, and reopened as a row", () => {
   const L = loadFor("IFC4");
   const door = valueChoices(L, ["IFCDOOR"], { kind: "attribute", name: "OverallHeight" });

@@ -208,3 +208,115 @@ test("the command line reads .ifcxml and .ifczip and exits as for an .ifc", () =
   }
   assert.equal(JSON.parse(c.out).modelFile, "tiny-house.ifcxml");
 });
+
+// The forms of buildingSMART's IFC4 ADD2 TC1 Annex E ifcXML examples and
+// GeometryGymIFC's IFC4 output, measured on 43 STEP/ifcXML twins in
+// eval/ifcxml-twins-2026-11-18.md. Written by hand here in those forms, with
+// the STEP file each should read as.
+const ggXml = `<?xml version="1.0" encoding="utf-8"?>
+<ifc:ifcXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ifc="http://www.buildingsmart-tech.org/ifcXML/IFC4/Add2" xmlns="http://www.buildingsmart-tech.org/ifcXML/IFC4/Add2">
+<IfcProject GlobalId="0$WU4A9R19$vKWO$AdOnKA" Name="P">
+ <OwnerHistory id="i1" ChangeAction="added" CreationDate="1454575675">
+  <OwningUser><ThePerson Identification="Jon" /><TheOrganization Name="Org" /></OwningUser>
+  <OwningApplication Version="1" ApplicationFullName="App" ApplicationIdentifier="App"><ApplicationDeveloper Name="Org" /></OwningApplication>
+ </OwnerHistory>
+ <IsDecomposedBy>
+  <IfcRelAggregates GlobalId="091a6ewbvCMQ2Vyiqspa7a">
+   <OwnerHistory xsi:nil="true" href="i1" />
+   <RelatedObjects>
+    <IfcBuilding GlobalId="39t4Pu3nTC4ekXYRIHJB9W" Name="B">
+     <OwnerHistory xsi:nil="true" href="i1" />
+     <ContainsElements>
+      <IfcRelContainedInSpatialStructure GlobalId="3Sa3dTJGn0H8TQIGiuGQd5">
+       <OwnerHistory xsi:nil="true" href="i1" />
+       <RelatedElements>
+        <IfcWall GlobalId="0DWgwt6o1FOx7466fPk$jl" Name="W">
+         <OwnerHistory xsi:nil="true" href="i1" />
+         <IsTypedBy GlobalId="1$EkFElNT8TB_VUVG1FtMe">
+          <OwnerHistory xsi:nil="true" href="i1" />
+          <RelatingType xsi:type="IfcWallType" GlobalId="2aG1gZj7PD2PztLOx2$IVX" Name="T" PredefinedType="notdefined">
+           <OwnerHistory xsi:nil="true" href="i1" />
+          </RelatingType>
+         </IsTypedBy>
+         <ObjectPlacement xsi:type="IfcLocalPlacement">
+          <RelativePlacement>
+           <IfcAxis2Placement3D>
+            <Location id="i2" Coordinates="0 0 0" />
+           </IfcAxis2Placement3D>
+          </RelativePlacement>
+         </ObjectPlacement>
+         <Representation xsi:type="IfcProductDefinitionShape">
+          <Representations>
+           <IfcShapeRepresentation RepresentationIdentifier="Body" RepresentationType="Tessellation">
+            <ContextOfItems xsi:type="IfcGeometricRepresentationSubContext" id="i3" ContextIdentifier="Body" ContextType="Model" CoordinateSpaceDimension="0" TargetView="model_view">
+             <ParentContext id="i4" ContextType="Model" CoordinateSpaceDimension="3" Precision="0,0001">
+              <WorldCoordinateSystem xsi:type="IfcAxis2Placement3D"><Location xsi:nil="true" href="i2" /></WorldCoordinateSystem>
+             </ParentContext>
+            </ContextOfItems>
+            <Items>
+             <IfcExtrudedAreaSolid Depth="2,5">
+              <SweptArea xsi:type="IfcRectangleProfileDef" ProfileType="area" XDim="300" YDim="300" />
+              <Position><Location xsi:nil="true" href="i2" /></Position>
+              <ExtrudedDirection DirectionRatios="0 0 1" />
+             </IfcExtrudedAreaSolid>
+             <IfcTriangulatedFaceSet Closed="false" CoordIndex="1 2 3 1 3 4">
+              <Coordinates CoordList="0 0 0 1 0 0 1 1 0 0 1 0" />
+             </IfcTriangulatedFaceSet>
+            </Items>
+           </IfcShapeRepresentation>
+          </Representations>
+         </Representation>
+        </IfcWall>
+       </RelatedElements>
+      </IfcRelContainedInSpatialStructure>
+     </ContainsElements>
+    </IfcBuilding>
+   </RelatedObjects>
+  </IfcRelAggregates>
+ </IsDecomposedBy>
+</IfcProject>
+<IfcMetric Name="Length" ConstraintGrade="hard" BenchMark="equalto" />
+<IfcIndexedPolygonalFaceWithVoids CoordIndex="6 7 8 5">
+ <InnerCoordIndices><Seq-IfcPositiveInteger-wrapper>14 16 15 13</Seq-IfcPositiveInteger-wrapper><Seq-IfcPositiveInteger-wrapper>1 2 3</Seq-IfcPositiveInteger-wrapper></InnerCoordIndices>
+</IfcIndexedPolygonalFaceWithVoids>
+</ifc:ifcXML>`;
+
+test("Annex E ifcXML forms: href references, decimal commas, derived values, a one-item inverse, flat lists of lists", () => {
+  const m = new Model(ggXml, schemas);
+  const of = (t) => [...m.entities.values()].filter((e) => e.type === t);
+  // href="i1" is a reference: one owner history, one point, one context, not a copy per use.
+  assert.equal(of("IFCOWNERHISTORY").length, 1);
+  assert.equal(of("IFCCARTESIANPOINT").length, 1);
+  assert.equal(of("IFCWALL").length, 1);
+  const wall = of("IFCWALL")[0];
+  assert.equal(wall.args[1].ref, of("IFCOWNERHISTORY")[0].id);
+  // <IsTypedBy GlobalId=..> is the relationship itself, pointing back at the wall.
+  const rel = of("IFCRELDEFINESBYTYPE");
+  assert.equal(rel.length, 1);
+  assert.equal(rel[0].args[0], "1$EkFElNT8TB_VUVG1FtMe");
+  assert.deepEqual(rel[0].args[4], [{ ref: wall.id }]);
+  assert.equal(m.entities.get(rel[0].args[5].ref).type, "IFCWALLTYPE");
+  // A value written for a derived attribute stays derived (STEP's *).
+  const sub = of("IFCGEOMETRICREPRESENTATIONSUBCONTEXT")[0];
+  assert.deepEqual(sub.args[2], { derived: true });
+  // Decimal commas read as points, said once.
+  assert.equal(of("IFCGEOMETRICREPRESENTATIONCONTEXT")[0].args[3], 0.0001);
+  const solid = of("IFCEXTRUDEDAREASOLID")[0];
+  assert.equal(solid.args[3], 2.5);
+  assert.ok(m.parseErrors.some((e) => /2 number\(s\) written with a decimal comma \(e\.g\. "0,0001"\)/.test(e)), m.parseErrors.join("; "));
+  // <Position><Location href/></Position> is an IfcAxis2Placement3D, not the point.
+  assert.equal(m.entities.get(solid.args[1].ref).type, "IFCAXIS2PLACEMENT3D");
+  // Lists of lists written flat, and one wrapper per row.
+  assert.deepEqual(of("IFCCARTESIANPOINTLIST3D")[0].args[0], [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]]);
+  assert.deepEqual(of("IFCTRIANGULATEDFACESET")[0].args[3], [[1, 2, 3], [1, 3, 4]]);
+  assert.deepEqual(of("IFCINDEXEDPOLYGONALFACEWITHVOIDS")[0].args[1], [[14, 16, 15, 13], [1, 2, 3]]);
+  // An attribute name in the wrong case is read and named.
+  assert.deepEqual(of("IFCMETRIC")[0].args[7], { enum: "EQUALTO" });
+  assert.ok(m.parseErrors.some((e) => /IFCMETRIC attribute "BenchMark" read as Benchmark/.test(e)));
+});
+
+test("Annex E ifcXML forms: the checker counts one wall, as in the STEP twin", () => {
+  const ids = file("samples/coordination-basics.ids.xml");
+  const r = check(ids, ggXml);
+  for (const s of r.specs.filter((s) => /^Walls /.test(s.name))) assert.equal(s.applicable, 1, s.name);
+});

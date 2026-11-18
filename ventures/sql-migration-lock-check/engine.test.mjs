@@ -467,3 +467,72 @@ ALTER TABLE users DROP COLUMN legacy;
 COMMIT;`;
   assert.ok(has(sql, 'many-locks-one-transaction'));
 });
+
+// Red-team gap tests, 2026-11-18: mutants that survived the suite above.
+
+test('NOT VALID outside a block, VALIDATE inside a later one, is not the same transaction', () => {
+  const sql = `SET lock_timeout='3s';
+ALTER TABLE users ADD CONSTRAINT fk1 FOREIGN KEY (org_id) REFERENCES orgs (id) NOT VALID;
+BEGIN;
+ALTER TABLE users VALIDATE CONSTRAINT fk1;
+COMMIT;`;
+  assert.ok(!has(sql, 'validate-in-same-transaction'));
+});
+
+test('ADD PRIMARY KEY USING INDEX with no concurrent build names the index in the impact', () => {
+  const sql = "SET lock_timeout='3s';\nALTER TABLE users ADD CONSTRAINT users_pk PRIMARY KEY USING INDEX users_pk_idx;";
+  const f = analyzeSql(sql).findings.find((x) => x.id === 'add-key-builds-index');
+  assert.ok(f, 'an index built elsewhere is still reported');
+  assert.match(f.impact, /USING INDEX users_pk_idx/);
+});
+
+// Real defects found 2026-11-18: transaction-block tracking. PostgreSQL has one
+// flat transaction block, ended by COMMIT, END, ROLLBACK or ABORT; it does not
+// nest, and ROLLBACK TO SAVEPOINT does not end it.
+
+test('ROLLBACK TO SAVEPOINT does not end the block: a later CONCURRENTLY still fails', () => {
+  const sql = `SET lock_timeout='3s';
+BEGIN;
+SAVEPOINT before_index;
+ROLLBACK TO SAVEPOINT before_index;
+CREATE INDEX CONCURRENTLY idx ON users (email);
+COMMIT;`;
+  assert.ok(has(sql, 'create-index-concurrently-in-tx'));
+});
+
+test('ROLLBACK TO SAVEPOINT keeps NOT VALID and VALIDATE in the same transaction', () => {
+  const sql = `SET lock_timeout='3s';
+BEGIN;
+ALTER TABLE users ADD CONSTRAINT fk1 FOREIGN KEY (org_id) REFERENCES orgs (id) NOT VALID;
+SAVEPOINT s;
+ROLLBACK TO s;
+ALTER TABLE users VALIDATE CONSTRAINT fk1;
+COMMIT;`;
+  assert.ok(has(sql, 'validate-in-same-transaction'));
+});
+
+test('ABORT ends a block like ROLLBACK', () => {
+  const sql = `SET lock_timeout='3s';
+BEGIN;
+ABORT;
+CREATE INDEX CONCURRENTLY idx ON users (email);`;
+  assert.ok(!has(sql, 'create-index-concurrently-in-tx'));
+});
+
+test('a second BEGIN does not nest: one COMMIT ends the block', () => {
+  const sql = `SET lock_timeout='3s';
+BEGIN;
+BEGIN;
+COMMIT;
+CREATE INDEX CONCURRENTLY idx ON users (email);`;
+  assert.ok(!has(sql, 'create-index-concurrently-in-tx'));
+});
+
+test('COMMIT AND CHAIN opens a new block at once', () => {
+  const sql = `SET lock_timeout='3s';
+BEGIN;
+COMMIT AND CHAIN;
+CREATE INDEX CONCURRENTLY idx ON users (email);
+COMMIT;`;
+  assert.ok(has(sql, 'create-index-concurrently-in-tx'));
+});

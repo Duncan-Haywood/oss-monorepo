@@ -40,3 +40,9 @@ test("plan lines sum to the discounted MRR and use nickname, then product", () =
   assert.deepEqual(Object.keys(s.plans).sort(), ["Pro", "prod_seats"]);
   assert.equal(Object.values(s.plans).reduce((a, b) => a + b, 0), 9000);
 });
+
+test("trial_end is kept so rebuilt history skips the free weeks (red team 2026-11-18)", () => {
+  const s = normalizeSubscription({ id: "s", customer: "c", status: "active", created: 100, trial_end: 200, items: { data: [{ price: price(1000) }] } });
+  assert.equal(s.trialEnd, 200000);
+  assert.equal(normalizeSubscription({ id: "t", status: "active", items: { data: [] } }).trialEnd, null);
+});
