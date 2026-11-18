@@ -474,6 +474,12 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    100% of in-envelope cases (G1 1368, H1 1902), in spec (H216 held; largest recovered 0.0106 mm). Left: 2 G1
    sensor-error cases outside milestone 51's envelope with no hold solution on any side (H215 refuted). Next: sample
    hose loads off the 8-direction grid; the cost of side switches.
+54. **Hose loads off the grid** (done 2026-11-18, `experiments/m54_lhs/`): at 48 Latin-hypercube loads (0 to 20 N,
+   any direction) both robots plan every in-envelope case (G1 4002, H1 5436; H217 held), but 4 of 9438 leave the
+   0.03 mm spec, worst 0.284 mm (H218 refuted): one joint at the 0.2 N m friction threshold, held in the plan and free
+   under the true load (or the reverse), in direction spans under 5 degrees wide. Per-load sides fix the 3 H1 cases,
+   not the G1 arm joint. The grid's drag limits are up to 2.17 N optimistic between directions, only above 23 N (H219
+   refuted). Next: a held-or-free margin covering the sensor error on every joint.
 
 ## Target venue
 
