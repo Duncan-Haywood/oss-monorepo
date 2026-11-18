@@ -3236,3 +3236,28 @@ nine-candidate board run end to end.
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl --lag 0.4 --seed 53 --takes "0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,0"
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-grid-nine-d-2026-11-18.jsonl.gz --grids "0,2,3,4,5,6,8;0,1,2,3,4,5,6,7,8"
+
+## The nine-point take grid with the large misses named first (2026-11-18, after "The nine-point take grid on its own held-out sets"; the shipped grid kept by its pre-registered rule)
+
+**The item.** On D to F the nine-point grid tied the shipped one within 0.5 ms but halved the builds off by more than
+1 ms (10 against 20). Does that hold on fresh sets with that measure named before the capture?
+
+**How it was checked.** Sets G (wheel lag 0.65 s, seed 67), H (0.42 s, 71) and I (0.75 s, 73), 54 survey drills each,
+none aborted. D to F's takes all sat on the half-millisecond; G to I drew one take uniformly in each millisecond
+(0.8, 1.75, 2.35, 3.15, 4.1, 5.4, 6.5, 7.45 ms, seed 20261118) plus the instant build. Four predictions and a six-clause
+rule, with builds off by more than 1 ms as the primary measure and a margin of 4, were committed before any capture
+(59750c686). `tests/take_survey_pick.py --grids` now prints both error measures. Everything is in
+`eval/take-grid-fresh-g-i-2026-11-18.md`.
+
+**What it found.** Builds off by more than 1 ms: 14 shipped against 12 nine-point, pooled, so the rule's first clause
+(at least 4 fewer) failed and `TAKE_SURVEY_GRID_US` stays as it is. The other clauses held (mean absolute error 0.448
+against 0.533 ms, within 1 ms 150 against 148, no instant build advised). The large misses are mostly the fit's, not
+the grid's: 10 of them are the same builds on both grids, all on takes under 2 ms (1.75 ms takes read 0, instant
+builds read 1.5 to 2.5 ms), where the residual curve itself bottoms out in the wrong place. Outside the rule, builds
+within 0.5 ms rose from 93 to 121 at these uniform takes (every 7.45 ms take read 8.0 on the shipped grid), against a
+tie on D to F; that measure needs its own fresh set, most cheaply as an eight-point grid that adds only 7 ms.
+
+**Not known.** All simulated, one seed per set, one draw of takes; the nine-point verdicts are offline refits.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl --lag 0.65 --seed 67 --takes "0.8,1.75,2.35,3.15,4.1,5.4,6.5,7.45,0"
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-grid-fresh-g-2026-11-18.jsonl.gz --grids "0,2,3,4,5,6,8;0,1,2,3,4,5,6,7,8"

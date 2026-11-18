@@ -167,7 +167,37 @@ third party: zero dependencies, one JSON file on a disk you own.
     and its formula guard; the per-address limit; the payment-link filter; the confirmation email; and through the
     HTTP server: closed by default, sign-up, waitlist, kept values on a bad form, admin approve, decline, paid and CSV,
     and saving the settings). No real league has used it yet.
-- Tests: `node --test server.test.mjs deploy.test.mjs availability.test.mjs availability-roster.test.mjs registration.test.mjs confirm.test.mjs reschedule.test.mjs spirit.test.mjs`.
+- **Free agents: players with no team (2026-11-18, latest, `freeagents.mjs`):** tick *Take free agents at `/join`*
+  in `/admin` and share `/join` (public, like `/register`, which links to it while it is open). A player types their
+  name, email, optional phone, how much they have played (new, a season or two, experienced), optionally a friend who
+  is also signing up on their own, and a note (nights they cannot play, a position). Each waits in `/admin` under
+  **Free agents waiting** with a team already picked in a drop-down: groups (a player and the friend they named, by
+  full name or by a first name only one waiting player has; never a guess between two Sams; at most four) go most
+  experienced first, each to the team with the fewest players (its Rosters line plus players suggested so far), ties
+  to the team that has had the least experience from free agents, and no team past the *roster size to fill up to*
+  (0 = no limit); a group that fits no team says why. **Place** (with the pick or another team) or **Place all as
+  suggested** adds the name to that team's Rosters line, so the availability counts, the short-team reminders, the
+  waiver list and the captain page see the player at once. With SMTP on, the player gets one email with their team,
+  the team's contact address and the league link, and the team's contacts get the player's name, email, phone,
+  experience and note (both copied to `REMINDER_TO`); a team with no contact is named in the admin note. **Remove**
+  takes a player off without an email. *Download every free agent (CSV)* lists placed and waiting players with their
+  team and times (formula cells guarded). An optional fee is shown as text; it is paid however the organiser says.
+  Same abuse limits as `/register`: off until opened, a closing date, five joins per address per hour, a honeypot, 300
+  waiting at most; a name already on that team's roster, or a full roster (40), is refused rather than renamed.
+  - Alternatives: LeagueApps, SportsEngine and TeamSnap take free-agent registrations on paid plans and leave the
+    organiser to assign them by hand; a Google Form gives a list to copy into rosters, with no view of which team is
+    short. This keeps the list next to the rosters, picks a fair team for each player and does the copying and the
+    introductions.
+  - Checked: `freeagents.test.mjs` (8 tests: form checks and the honeypot; settings and the per-address limit; friend
+    groups by full name, a unique first name and the four-player cap, two Sams left alone; suggestions on six sample
+    teams: three experienced players spread over the three short teams, a pair kept together on the next-smallest, the
+    size cap leaving a pair unplaced with the reason; placing into an existing line, an empty line and a team with no
+    line, all read back by the league's own roster parser, a roster name clash and a full roster refused; both emails
+    and the one-email case with no contact; the CSV formula guard and escaping in the admin list; and through the HTTP
+    server: closed by default, opened from the admin form, two joins with a friend link, a bad form keeping what was
+    typed, place-all landing the pair on the smallest roster with four emails, the CSV, a single placement, a removal,
+    a wrong admin key, and SMTP off). No real league has used it yet.
+- Tests: `node --test server.test.mjs deploy.test.mjs availability.test.mjs availability-roster.test.mjs registration.test.mjs confirm.test.mjs reschedule.test.mjs spirit.test.mjs freeagents.test.mjs`.
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
