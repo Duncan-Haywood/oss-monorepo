@@ -6,6 +6,19 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Milestone 7ab: how wide a motor-lag range should you train a drone over? At least 4× the measured lag
+
+**Question.** Milestone 7aa found that training across a wide motor-lag range (the measured 39.1 ms up to 150 ms), not tuning for a slower nominal motor, is what makes the co-designed quadrotor robust in the stress test (twice the trained centre-of-pressure lever, 45° tilt limit). How wide is enough, and does wider cost anything? The same arm was retrained at the 39.1 ms floor with ceilings of 100 and 200 ms (48 CMA-ES runs) and scored with 7u's 78.2 ms, 7aa's 150 ms and 7z's 75 ms tunes.
+
+**Headline (`experiments/m7ab_ceilsweep/results.txt`, `verdicts.txt`, `posthoc.txt`; about 2.2 h on 4 cores; simulated; 7 predictions committed first, 4 held, one after a disclosed scoring fix).**
+
+- **100 ms is not enough.** Stress crashes over the identified lags (of 1152, centre of pressure above, below) by ceiling 78.2 / 100 / 150 / 200 ms: 170 / 82 / 27 / 17 and 178 / 109 / 38 / 36. The 100 ms tune crashes more than the 150 ms tune in 11 of 12 cells from 33 to 75 ms (p = 0.002-0.046).
+- **Beyond 150 ms, more coverage is free inside the measured range and pays at slow motors:** flown at a 75 ms lag the 200 ms tune crashes on 50, 71 of 384 against 138, 131 (p = 0.005, 0.020) and the 75 ms tune's 117, 103.
+- **The price is response:** rise to 90% of a 1 m step 1.47, 1.54 s at 100 ms (as fast as the narrow tune), 2.23, 1.76 s at 150 ms, 2.02, 2.27 s at 200 ms; the 200 ms designs are 5-7% heavier and half of the `above` ones never settle within 5 cm. The widest range is also the hardest to certify (20%, 17% of candidates rejected against 15%, 13%).
+- **For a builder:** train over at least about 4× your measured motor lag; go wider only if your motors may really be that slow, and expect a slower approach for it.
+
+![Three panels against the training lag ceiling at the 39.1 ms floor (78.2, 100, 150, 200 ms), centre of pressure above in blue and below in red, the 75 ms tune dashed. Left: crashes over the identified lags fall 170-178, 82-109, 27-38, 17-36. Middle: crashes at the 75 ms law fall 331-339, 266-277, 131-138, 50-71, below the 75 ms tune's 103-117 only at 200 ms. Right: rise time grows from about 1.4 s to 2.0-2.3 s.](experiments/m7ab_ceilsweep/m7ab_ceilsweep.png)
+
 ## Milestone 7aa: tune a drone for its measured motor lag or a slower one? Train across a wide lag range instead
 
 **Question.** Milestones 7u-7z found that tuning for a slower motor lag than the measured one cuts crashes in the stress test (twice the trained centre-of-pressure lever, 45° tilt limit). But each slower floor F also raised the ceiling of the training plants (lag F to 2F). Is the robustness bought by leaving out fast plants or by covering slow ones? The lever-aware arm was retrained at the identified 39.1 ms floor with the ceiling at 150 ms (training lags 39.1-150 ms, certificate at 33, 39.1 and 150 ms; 24 CMA-ES runs) and scored on 7x's stress test and 7y's response tests.
@@ -576,6 +589,8 @@ python3 experiments/m7q_closure/fit.py         # seconds, stdlib: closure consta
 "$PY" experiments/m7z_floor75/verdicts.py && "$PY" experiments/m7z_floor75/posthoc.py && "$PY" experiments/m7z_floor75/figure.py
 "$PY" experiments/m7aa_ceiling/run.py         # about 1.5 h on 4 cores (24 CMA-ES runs at 39.1 ms x U(1, 3.84), cached in .cache/; 8 min of stress flights; 1 min of response tests)
 "$PY" experiments/m7aa_ceiling/verdicts.py && "$PY" experiments/m7aa_ceiling/posthoc.py && "$PY" experiments/m7aa_ceiling/figure.py
+"$PY" experiments/m7ab_ceilsweep/run.py       # about 2.2 h on 4 cores (48 CMA-ES runs at 39.1 ms x U(1, c/39.1), c = 100 and 200 ms, cached in .cache/; 8 min of stress flights)
+"$PY" experiments/m7ab_ceilsweep/verdicts.py && "$PY" experiments/m7ab_ceilsweep/posthoc.py && "$PY" experiments/m7ab_ceilsweep/figure.py
 python3 paper/check_numbers.py                  # stdlib; every number the paper draft quotes against its results file
 ```
 

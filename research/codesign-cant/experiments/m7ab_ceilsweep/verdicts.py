@@ -51,7 +51,9 @@ def rej(s, g):
 
 
 def slow(s):
-    return sum(r["pos_kp"] < 8 for g in GEOMS for r in sel(s, g, MID))
+    # the response test's position kp (the field 7aa's slow-tail figures 5.0 and 6.2 came from), not the stress run's pos_kp,
+    # which is a different quantity (see LOG 7ab; the first version of this script read the stress field by mistake)
+    return sum(r["pos_kp"] < 8 for r in resp if r["set"] == s and r["test"] == "step" and r["law_name"] == MID)
 
 
 def short(s):
