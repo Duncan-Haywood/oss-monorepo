@@ -118,7 +118,32 @@ EARLY_YEARS = (2017, 2018)  # session 102: before every year any rule or selecto
 GRID = ("cpin_es3_nc4", "cpin_es3_nc6")  # session 102: the finer staleness grid
 
 
-def early_summary(path, rows_dir, held=("sf", "seattle")):
+def pooled(cells, prior_path, held=("sf", "seattle"), years=NEW_YEARS + OLD_YEARS):
+    """Session 102, post hoc: the four candidates and the k6 selector over every SF and Seattle city-year scored so
+    far, these cells plus session 101's eight (prior_path: results/rounds_score_oos_i2c.json, same candidates)."""
+    P = json.load(open(prior_path))
+    rows = [dict(held=c["held"], year=c["year"], test=c["test_q90"], k6=c["k6"]) for c in cells]
+    for h in held:
+        for Y in years:
+            rs = {v: P.get(f"{h} {Y} {v}") for v in CANDS}
+            if all(rs.values()):
+                rows.append(dict(held=h, year=Y, test={v: r["test_loss"]["0.9"] for v, r in rs.items()},
+                                 k6={v: r["tgt_k"]["6"]["loss"]["0.9"] for v, r in rs.items()}))
+    for r in rows:
+        r["oracle"] = min(r["test"], key=r["test"].get)
+        r["pick"] = min(r["k6"], key=r["k6"].get)
+        r["nc5_minus_nc3"] = r["test"]["cpin_es3_nc5"] - r["test"]["cpin_es3_nc3"]
+    m = lambda xs: float(np.mean(xs))  # noqa: E731
+    reg = lambda r, v: r["test"][v] - r["test"][r["oracle"]]  # noqa: E731
+    return dict(n=len(rows), fixed_regret={v: m([reg(r, v) for r in rows]) for v in CANDS},
+                k6_regret=m([reg(r, r["pick"]) for r in rows]), k6_hits=sum(r["pick"] == r["oracle"] for r in rows),
+                k6_side_hits=sum((r["pick"] in FIVE) == (r["oracle"] in FIVE) for r in rows),
+                oracle_3y=sum(r["oracle"] == "cpin_es3_nc3" for r in rows),
+                by_cell={f"{r['held']} {r['year']}": dict(oracle=r["oracle"], pick=r["pick"],
+                                                          nc5_minus_nc3=r["nc5_minus_nc3"]) for r in rows})
+
+
+def early_summary(path, rows_dir, held=("sf", "seattle"), prior_path=None):
     """Session 102: the same selector and fixed rules on test years 2017 and 2018, plus the 4- and 6-year cuts.
     Predictions E0 to E5, fixed before any model run (LOG.md, session 102)."""
     R = json.load(open(path))
@@ -128,7 +153,7 @@ def early_summary(path, rows_dir, held=("sf", "seattle")):
     sf, se = [c for c in cells if c["held"] == "sf"], [c for c in cells if c["held"] == "seattle"]
     grid = ("cpin_es3_nc3",) + GRID[:1] + ("cpin_es3_nc5",) + GRID[1:]
     allq = lambda c: {**c["test_q90"], **c["test_q90_extra"]}  # noqa: E731
-    fixed = {v: m([allq(c)[v] for c in cells]) for v in CANDS + GRID}
+    fixed = {v: m([allq(c)[v] for c in cells if v in allq(c)]) for v in CANDS + GRID}
     regret = {v: m([c["test_q90"][v] - c["test_q90"][c["oracle"]] for c in cells]) for v in CANDS}
     pred = dict(
         E0=full and all(c["rows_check_max_abs"] < 1e-3 for c in cells),
@@ -147,7 +172,8 @@ def early_summary(path, rows_dir, held=("sf", "seattle")):
                 mean_regret=m([c["regret"] for c in cells]), hits=sum(c["pick"] == c["oracle"] for c in cells),
                 side_hits=sum((c["pick"] in FIVE) == (c["oracle"] in FIVE) for c in cells),
                 grid_argmin={f"{c['held']} {c['year']}": min(grid, key=lambda v: allq(c).get(v, 9e9))
-                             for c in cells}, predictions=pred)
+                             for c in cells}, predictions=pred,
+                pooled_post_hoc=pooled(cells, prior_path) if prior_path and os.path.exists(prior_path) else None)
 
 
 if __name__ == "__main__":
@@ -159,10 +185,10 @@ if __name__ == "__main__":
     ap.add_argument("--early", action="store_true", help="session 102: test years 2017 and 2018 (early_summary)")
     a = ap.parse_args()
     if a.early:
-        s = early_summary(a.results, a.rows_dir)
+        s = early_summary(a.results, a.rows_dir, prior_path=a.prior.replace("tfol_i2c", "oos_i2c"))
         json.dump(s, open(a.results.replace(".json", "_boot.json"), "w"), indent=1)
         print(json.dumps({k: s[k] for k in ("fixed_mean", "fixed_regret", "selected_mean", "mean_regret", "hits",
-                                            "side_hits", "grid_argmin", "predictions")}, indent=1))
+                                            "side_hits", "grid_argmin", "predictions", "pooled_post_hoc")}, indent=1))
         for c in s["cells"]:
             print(c["held"], c["year"], "oracle", c["oracle"], "pick", c["pick"], round(c["regret"], 2),
                   "test nc5-nc3", round(c["test_nc5_minus_nc3"], 2), [round(x, 2) for x in c["boot_test_nc5_minus_nc3_ci"]],

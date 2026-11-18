@@ -71,6 +71,23 @@ class TestTfolBoot(unittest.TestCase):
         self.assertEqual(s["grid_argmin"]["sf 2017"], "cpin_es3_nc5")  # nc4 at 1 day is worse than q0.9 here
         self.assertEqual(len(s["cells"]), 4)
 
+    def test_pooled_counts_regret_over_prior_cells(self):
+        """Session 102: pooled adds the prior file's cells and scores the k6 pick's regret on each."""
+        C = tfol_boot.CANDS
+        cells = [dict(held="sf", year=2017, test_q90={C[0]: 10.0, C[1]: 12.0, C[2]: 13.0, C[3]: 14.0},
+                      k6={C[0]: 1.0, C[1]: 2.0, C[2]: 3.0, C[3]: 4.0})]
+        prior = {f"seattle 2019 {v}": dict(test_loss={"0.9": t}, tgt_k={"6": dict(loss={"0.9": k})})
+                 for v, t, k in zip(C, (20.0, 18.0, 19.0, 21.0), (1.0, 2.0, 3.0, 4.0))}
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "p.json")
+            json.dump(prior, open(path, "w"))
+            P = tfol_boot.pooled(cells, path)
+        self.assertEqual(P["n"], 2)
+        self.assertEqual(P["k6_hits"], 1)
+        self.assertAlmostEqual(P["k6_regret"], 1.0)  # 0 in sf 2017, 2 in seattle 2019
+        self.assertAlmostEqual(P["fixed_regret"][C[1]], 1.0)  # 2 in sf 2017, 0 in seattle 2019
+        self.assertEqual(P["oracle_3y"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()
