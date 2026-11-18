@@ -274,6 +274,29 @@ class WheelLoopTest(unittest.TestCase):
             self.assertEqual(loop.update(8500, 0, 10), 1.0)
         self.assertEqual(loop.i, 0.0)
 
+    def test_speed_esc_drops_the_proportional_term(self):
+        # README "An ESC with its own speed loop": in cascade with an ESC that holds its own speed the board only trims
+        loop = controller.WheelLoop(9000, speed_esc=True)
+        self.assertAlmostEqual(loop.update(3000, 2900, 10) - 3000 / 9000,
+                               6e-7 * controller.SPEED_ESC_KI_SHARE * 100 * 10)
+        self.assertEqual(controller.WheelLoop(9000).kp, 2e-4)      # off by default (controller.ESC_SPEED_LOOP)
+
+    def test_speed_esc_loop_holds_a_speed_loop_wheel_the_pi_rings(self):
+        # tests/speed_esc_sweep.py's case: a 5 Hz, damping 0.4 ESC loop at 2,500 rpm whose map is 11,000 rpm at full
+        # throttle against the 9,000 the board is told
+        import loop_residual_sweep as sweep
+        def swing(speed_esc):
+            ws = []
+            sweep.wheel(2500, 0.0, 0.4, free_rpm=11000.0, ball_ms=10 ** 9, total_ms=6000, speed_loop=(5, 0.4, 22500.0),
+                        loop=controller.WheelLoop(9000, speed_esc=speed_esc), settled=False, speeds=ws)
+            last = ws[-1000:]
+            return (max(last) - min(last)) / 2500, sum(last) / len(last) / 2500 - 1
+        rings, _ = swing(False)
+        held, err = swing(True)
+        self.assertGreater(rings, 0.05)
+        self.assertLess(held, 0.002)
+        self.assertLess(abs(err), 0.002)
+
     def test_slow_targets_scale_the_gains(self):
         # README "Slow wheels need slower gains": under LOOP_LOW_RPM both gains shrink with the target
         fast, slow = controller.WheelLoop(9000), controller.WheelLoop(9000)
