@@ -192,7 +192,7 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Reuel and the seven daughters at the well of Midian, the night Moses was invited to supper (Exodus 2:15-22; left by episode 140).
 - Miriam and Aaron and the cloud over the tent at Hazeroth, the meekest man on the face of the earth (Numbers 12; left by episode 141).
 - Othniel and Achsah and the upper and lower springs, Caleb's daughter who asked for water and the first judge of Israel (Joshua 15:13-19, Judges 1:11-15 and 3:7-11; left by episode 142).
-- Balaam and the donkey that saw the angel on the road, on the plains of Moab (Numbers 22-24; left by episode 143).
+- Balaam and the donkey that saw the angel on the road, on the plains of Moab (Numbers 22-24; left by episode 143). *(Drafting, 2026-11-18, episode 145.)*
 - Joshua and the twelve stones at Gilgal and the commander of the Lord's army before Jericho (Joshua 3-5; left by episode 143).
 - Abigail and the loaves on the mountain path, the wise woman who stopped David on his way to do a wrong (First Samuel 25; left by episode 144).
 - Mephibosheth at the king's table, the lame grandson of Saul whom David sought out for Jonathan's sake (Second Samuel 9; left by episode 144).
