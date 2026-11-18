@@ -41,7 +41,7 @@
   pans 0.86-1.00. 6% pans were the crop gate, not the grid (whole frames 25-33 apart, windows 0-7): gate 24
   to 44 the same day, 6% pans 1.00, held-out recall 0.991, no added false merge, crop and pan checks packed
   into one (eval/cull-crop-gate-2026-11-18.md). Open: 10% pans (0.86-0.95; best window pair 6-11 bits, a finer
-  grid?), grouping cost (10.7 s per 2,000 frames here, was 8.6; an index that skips most distinct pairs); single-linkage chaining measured on a real shoot; sunsets and dark-ground horizons are where the
+  grid?), grouping cost: an exact chunked index since 2026-11-18 (2,000 frames 10.0 to 3.6 s, 10,000 frames 251 to 42 s, same groups, eval/cull-grouping-index-2026-11-18.md); next a C helper for the index build if it matters again; single-linkage chaining measured on a real shoot; sunsets and dark-ground horizons are where the
   distinct-photo false merges sit.
 - A copy at 30% brightness (exposure 0.28) stayed an alternate; it lost its group, so harmless, but the reject line
   for exposure may sit too low.

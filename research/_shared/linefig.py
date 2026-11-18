@@ -12,7 +12,32 @@ import math
 import re
 from pathlib import Path
 
-COLS = ["#c0392b", "#1f6fb2", "#2e8b57", "#8e44ad"]
+# The first four are the original palette (figures with up to four series draw as
+# before); four more so a fifth series no longer repeats the first colour (friction
+# 2026-11-18: society-lanes m6g_figure.py recoloured its fifth line by string patching).
+COLS = ["#c0392b", "#1f6fb2", "#2e8b57", "#8e44ad", "#222222", "#d68910", "#17a2b8", "#7f5539"]
+
+LEGEND_PITCH = 170  # px per entry while every label fits its slot (the original layout)
+CHAR_W = 6.2  # px, a generous width for one 11 px sans-serif character
+
+
+def legend_slots(names, left, right, pitch=LEGEND_PITCH):
+    """[(x, row)] for each legend entry: the original fixed `pitch` while every entry fits
+    its slot and the row fits before `right`; otherwise entries packed by their label width,
+    wrapping to further rows. A five-series figure ran its fixed 170 px pitch past the 640 px
+    width (friction 2026-11-18); long labels at four series overlapped the next entry."""
+    widths = [20 + CHAR_W * len(str(n)) + 14 for n in names]
+    fixed = all(w <= pitch for w in widths) and (
+        not names or left + pitch * (len(names) - 1) + widths[-1] - 14 <= right)
+    if fixed:
+        return [(left + pitch * j, 0) for j in range(len(names))]
+    out, x, row = [], left, 0
+    for w in widths:
+        if x > left and x + w - 14 > right:
+            x, row = left, row + 1
+        out.append((x, row))
+        x += w
+    return out
 
 
 # "0.3818(0.0020)" and "0.38±0.02" / "0.38+-0.02": a value with its standard error
@@ -74,6 +99,9 @@ def svg_lines(title, alt, xlabel, ylabel, series, logx=False, logy=False, hline=
     positions (default: the data's x values, thinned to 8), for series on uneven, dense x grids."""
     vlines = [] if vline is None else ([vline] if isinstance(vline, (int, float)) else list(vline))
     W, H, L, R, T, B = 640, 380, 64, 16, 56, 56
+    slots = legend_slots([n for n, _, _ in series], L, W - R)
+    extra = 14 * max((r for _, r in slots), default=0)  # each further legend row
+    H, T = H + extra, T + extra
     fx = math.log10 if logx else (lambda v: v)
     fy = math.log10 if logy else (lambda v: v)
     xs_all = [fx(x) for _, xs, _ in series for x in xs] + [fx(v) for v in vlines if v > 0 or not logx]
@@ -123,8 +151,9 @@ def svg_lines(title, alt, xlabel, ylabel, series, logx=False, logy=False, hline=
         pts = [(px(x), py(y)) for x, y in zip(xs, ys) if y > 0 or not logy]
         o.append('<polyline points="' + " ".join(f"{a:.1f},{b:.1f}" for a, b in pts) + f'" fill="none" stroke="{c}" stroke-width="2"/>')
         o += [f'<circle cx="{a:.1f}" cy="{b:.1f}" r="3" fill="{c}"/>' for a, b in pts]
-        lx = L + 170 * j
-        o.append(f'<rect x="{lx}" y="32" width="14" height="10" fill="{c}"/><text x="{lx+20}" y="41" {f} font-size="11">{n}</text>')
+        lx, row = slots[j]
+        ly = 32 + 14 * row
+        o.append(f'<rect x="{lx:g}" y="{ly}" width="14" height="10" fill="{c}"/><text x="{lx+20:g}" y="{ly+9}" {f} font-size="11">{n}</text>')
     o.append("</svg>")
     return "\n".join(o) + "\n"
 

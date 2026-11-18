@@ -1,52 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: root-mean-square error in EUR per MWh of five hourly price models on German day-ahead prices, each fitted on the other four years 2015 to 2019 and tested on the held-out year">
-<rect width="640" height="380" fill="#fff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 394" role="img" aria-label="Line plot: root-mean-square error in EUR per MWh of five hourly price models on German day-ahead prices, each fitted on the other four years 2015 to 2019 and tested on the held-out year">
+<rect width="640" height="394" fill="#fff"/>
 <text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Price model error on a held-out year: residual load against the flat merit-order price</text>
-<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
-<line x1="64" x2="624" y1="278.7" y2="278.7" stroke="#ddd"/><text x="58" y="282.7" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
-<line x1="64" x2="624" y1="233.4" y2="233.4" stroke="#ddd"/><text x="58" y="237.4" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
-<line x1="64" x2="624" y1="188.1" y2="188.1" stroke="#ddd"/><text x="58" y="192.1" text-anchor="end" font-family="sans-serif" font-size="11">15</text>
-<line x1="64" x2="624" y1="142.8" y2="142.8" stroke="#ddd"/><text x="58" y="146.8" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
-<line x1="64" x2="624" y1="97.4" y2="97.4" stroke="#ddd"/><text x="58" y="101.4" text-anchor="end" font-family="sans-serif" font-size="11">25</text>
-<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2015</text>
-<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2016</text>
-<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2017</text>
-<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2018</text>
-<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2019</text>
-<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">held-out year</text>
-<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">RMSE (EUR/MWh); lower is better</text>
-<polyline points="64.0,207.1 204.0,196.2 344.0,172.7 484.0,135.5 624.0,181.7" fill="none" stroke="#c0392b" stroke-width="2"/>
-<circle cx="64.0" cy="207.1" r="3" fill="#c0392b"/>
-<circle cx="204.0" cy="196.2" r="3" fill="#c0392b"/>
-<circle cx="344.0" cy="172.7" r="3" fill="#c0392b"/>
-<circle cx="484.0" cy="135.5" r="3" fill="#c0392b"/>
-<circle cx="624.0" cy="181.7" r="3" fill="#c0392b"/>
+<line x1="64" x2="624" y1="338.0" y2="338.0" stroke="#ddd"/><text x="58" y="342.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="292.7" y2="292.7" stroke="#ddd"/><text x="58" y="296.7" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
+<line x1="64" x2="624" y1="247.4" y2="247.4" stroke="#ddd"/><text x="58" y="251.4" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="202.1" y2="202.1" stroke="#ddd"/><text x="58" y="206.1" text-anchor="end" font-family="sans-serif" font-size="11">15</text>
+<line x1="64" x2="624" y1="156.8" y2="156.8" stroke="#ddd"/><text x="58" y="160.8" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="111.4" y2="111.4" stroke="#ddd"/><text x="58" y="115.4" text-anchor="end" font-family="sans-serif" font-size="11">25</text>
+<text x="64.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">2015</text>
+<text x="204.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">2016</text>
+<text x="344.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">2017</text>
+<text x="484.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">2018</text>
+<text x="624.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">2019</text>
+<text x="344.0" y="382" text-anchor="middle" font-family="sans-serif" font-size="12">held-out year</text>
+<text x="14" y="204.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 204.0)">RMSE (EUR/MWh); lower is better</text>
+<polyline points="64.0,221.1 204.0,210.2 344.0,186.7 484.0,149.5 624.0,195.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="221.1" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="210.2" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="186.7" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="149.5" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="195.7" r="3" fill="#c0392b"/>
 <rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">constant mean</text>
-<polyline points="64.0,91.1 204.0,71.2 344.0,89.3 484.0,140.0 624.0,115.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
-<circle cx="64.0" cy="91.1" r="3" fill="#1f6fb2"/>
-<circle cx="204.0" cy="71.2" r="3" fill="#1f6fb2"/>
-<circle cx="344.0" cy="89.3" r="3" fill="#1f6fb2"/>
-<circle cx="484.0" cy="140.0" r="3" fill="#1f6fb2"/>
-<circle cx="624.0" cy="115.6" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">flat merit order</text>
-<polyline points="64.0,221.6 204.0,204.4 344.0,185.4 484.0,146.4 624.0,192.6" fill="none" stroke="#2e8b57" stroke-width="2"/>
-<circle cx="64.0" cy="221.6" r="3" fill="#2e8b57"/>
-<circle cx="204.0" cy="204.4" r="3" fill="#2e8b57"/>
-<circle cx="344.0" cy="185.4" r="3" fill="#2e8b57"/>
-<circle cx="484.0" cy="146.4" r="3" fill="#2e8b57"/>
-<circle cx="624.0" cy="192.6" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">hour-of-day mean</text>
-<polyline points="64.0,248.8 204.0,211.6 344.0,249.7 484.0,177.2 624.0,237.0" fill="none" stroke="#8e44ad" stroke-width="2"/>
-<circle cx="64.0" cy="248.8" r="3" fill="#8e44ad"/>
-<circle cx="204.0" cy="211.6" r="3" fill="#8e44ad"/>
-<circle cx="344.0" cy="249.7" r="3" fill="#8e44ad"/>
-<circle cx="484.0" cy="177.2" r="3" fill="#8e44ad"/>
-<circle cx="624.0" cy="237.0" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">residual load (fitted)</text>
-<polyline points="64.0,267.8 204.0,263.3 344.0,251.5 484.0,222.5 624.0,255.1" fill="none" stroke="#c0392b" stroke-width="2"/>
-<circle cx="64.0" cy="267.8" r="3" fill="#c0392b"/>
-<circle cx="204.0" cy="263.3" r="3" fill="#c0392b"/>
-<circle cx="344.0" cy="251.5" r="3" fill="#c0392b"/>
-<circle cx="484.0" cy="222.5" r="3" fill="#c0392b"/>
-<circle cx="624.0" cy="255.1" r="3" fill="#c0392b"/>
-<rect x="744" y="32" width="14" height="10" fill="#c0392b"/><text x="764" y="41" font-family="sans-serif" font-size="11">residual load + oracle level</text>
+<polyline points="64.0,105.1 204.0,85.2 344.0,103.3 484.0,154.0 624.0,129.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="105.1" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="85.2" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="103.3" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="154.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="129.6" r="3" fill="#1f6fb2"/>
+<rect x="178.6" y="32" width="14" height="10" fill="#1f6fb2"/><text x="198.6" y="41" font-family="sans-serif" font-size="11">flat merit order</text>
+<polyline points="64.0,235.6 204.0,218.4 344.0,199.4 484.0,160.4 624.0,206.6" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="235.6" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="218.4" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="199.4" r="3" fill="#2e8b57"/>
+<circle cx="484.0" cy="160.4" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="206.6" r="3" fill="#2e8b57"/>
+<rect x="311.8" y="32" width="14" height="10" fill="#2e8b57"/><text x="331.8" y="41" font-family="sans-serif" font-size="11">hour-of-day mean</text>
+<polyline points="64.0,262.8 204.0,225.6 344.0,263.7 484.0,191.2 624.0,251.0" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="262.8" r="3" fill="#8e44ad"/>
+<circle cx="204.0" cy="225.6" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="263.7" r="3" fill="#8e44ad"/>
+<circle cx="484.0" cy="191.2" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="251.0" r="3" fill="#8e44ad"/>
+<rect x="445" y="32" width="14" height="10" fill="#8e44ad"/><text x="465" y="41" font-family="sans-serif" font-size="11">residual load (fitted)</text>
+<polyline points="64.0,281.8 204.0,277.3 344.0,265.5 484.0,236.5 624.0,269.1" fill="none" stroke="#222222" stroke-width="2"/>
+<circle cx="64.0" cy="281.8" r="3" fill="#222222"/>
+<circle cx="204.0" cy="277.3" r="3" fill="#222222"/>
+<circle cx="344.0" cy="265.5" r="3" fill="#222222"/>
+<circle cx="484.0" cy="236.5" r="3" fill="#222222"/>
+<circle cx="624.0" cy="269.1" r="3" fill="#222222"/>
+<rect x="64" y="46" width="14" height="10" fill="#222222"/><text x="84" y="55" font-family="sans-serif" font-size="11">residual load + oracle level</text>
 </svg>

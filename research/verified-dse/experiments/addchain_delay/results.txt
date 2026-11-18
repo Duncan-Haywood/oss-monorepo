@@ -1,4 +1,4 @@
-# Milestone 146: add-chain structure against mapped delay at SKY130 ff_n40C_1v95, a blind 2 x 2 (flow run)
+# Milestone 147: add-chain structure against mapped delay at SKY130 ff_n40C_1v95, a blind 2 x 2 (flow run)
 
 theta = 3; bands FAST <= 15.0 ns, SLOW >= 16.5 ns; up to 5 designs a cell
 
@@ -98,6 +98,15 @@ cell means of d: ADD-FAST -11.57, ADD-SLOW -5.80, CTRL-FAST -3.34, CTRL-SLOW -8.
 S = -2.55 points (p = 0.6620); D = -0.09 points (p = 0.9867)
 all 20: SWC better on 15, worse on 3, tied on 2; sign p = 0.0075; mean regret SWC 2.09%, random 9.50%
 (2b) on batch 1 + batch 2, S > 0 with p < 0.05: False
+
+## Post hoc: milestone 146 (PR #17222, landed during this run; not a test)
+
+same design, sequence and clock in both runs: 515 routed points identical, 0 different (amin3, csum18, csum24, max2, rng2r)
+milestone 146 designs not run here, banded by this run's thresholds: amin4 CTRL-FAST +0.00, amin5 CTRL-FAST -3.64, amin6 CTRL-FAST -5.29, csum32 ADD-SLOW -8.95, csum40 ADD-SLOW -5.93, div4r CTRL-FAST -6.78
+fresh only, 146 + 147: ADD-FAST 5 designs -11.57, ADD-SLOW 7 designs -6.27, CTRL-FAST 9 designs -3.60, CTRL-SLOW 5 designs -8.93
+  S = -2.65 points (p = 0.5354); D = +0.01 points (p = 0.9974)
+all three, 145 + 146 + 147: ADD-FAST 15 designs -4.91, ADD-SLOW 7 designs -6.27, CTRL-FAST 9 designs -3.60, CTRL-SLOW 15 designs -8.87
+  S = +0.65 points (p = 0.8176); D = +3.31 points (p = 0.2636)
 
 ## Failed points
 

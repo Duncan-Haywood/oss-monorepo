@@ -1,4 +1,4 @@
-"""Milestone 146: at SKY130 ff_n40C_1v95, is the clipped ladder's (SWC's) smaller edge over equal-cost random routing on add-chain
+"""Milestone 147: at SKY130 ff_n40C_1v95, is the clipped ladder's (SWC's) smaller edge over equal-cost random routing on add-chain
 shift amounts (milestone 145) a property of the add-chain structure or of a short mapped critical path? A blind 2 x 2 test,
 structure (ADD, CTRL) by mapped-delay band (FAST <= 15.0 ns, SLOW >= 16.5 ns), designs and cells fixed by run.py's rule.
 
@@ -54,11 +54,11 @@ def _sibling(path, name):
     return mod
 
 
-m145 = _sibling(EXP / "addchain_ff" / "analyse.py", "verified_dse_m146_m145")
+m145 = _sibling(EXP / "addchain_ff" / "analyse.py", "verified_dse_m147_m145")
 m141 = m145.m141
 lb, score, swc, rand, lad, sign = m141.lb, m141.score, m141.swc, m141.rand, m141.lad, m141.sign
 r2r4_tau = m145.r2r4_tau
-run = _sibling(HERE / "run.py", "verified_dse_m146_run")
+run = _sibling(HERE / "run.py", "verified_dse_m147_run")
 complete = run.complete
 
 
@@ -101,7 +101,7 @@ def strat_perm_p(d, lab, strat, seed=SEED, n=PERMS):
 
 
 def main(dst):
-    out = ["# Milestone 146: add-chain structure against mapped delay at SKY130 ff_n40C_1v95, a blind 2 x 2 (flow run)", "",
+    out = ["# Milestone 147: add-chain structure against mapped delay at SKY130 ff_n40C_1v95, a blind 2 x 2 (flow run)", "",
            f"theta = {score.THETA}; bands FAST <= {run.FAST_MAX} ns, SLOW >= {run.SLOW_MIN} ns; up to {run.PER_CELL} designs a cell", ""]
     if not run.META.exists():
         Path(dst).write_text("\n".join(out + ["no baselines yet"]) + "\n")
@@ -201,6 +201,40 @@ def main(dst):
                 "all 20: SWC better on {}, worse on {}, tied on {}; sign p = {:.4f}; mean regret SWC {:.2f}%, random {:.2f}%".format(
                     *sign(ad), lb.mean(list(cc.values()) + list(c2.values()), swc), lb.mean(list(cc.values()) + list(c2.values()), rand)),
                 f"(2b) on batch 1 + batch 2, S > 0 with p < 0.05: {aS > 0 and paS < 0.05}"]
+        # Post hoc (added after milestone 146, PR #17222, landed while this flow ran; not a test): that sibling run tested the same
+        # question with the two missing cells only (slow add chains, fast controls) and borrowed fast add / slow control from
+        # milestone 145. Two checks: (a) the flow is deterministic across the two sessions on the designs both ran at one clock;
+        # (b) the pooled 2 x 2, with milestone 146's designs banded by this run's thresholds, and a fresh-only pool (146 + 147) that
+        # leaves out milestone 145, whose designs suggested the reading. A design in both runs is counted once, from this run.
+        r46 = [json.loads(l) for l in (EXP / "delay_split_ff" / "results.jsonl").read_text().splitlines()]
+        m46 = json.loads((EXP / "delay_split_ff" / "meta.json").read_text())
+        mine = {(r["design"], tuple(r["seq"]), r["period_ns"]): r for r in rs}
+        same = differ = 0
+        shared = set()
+        for r in r46:
+            b = mine.get((r["design"], tuple(r["seq"]), r["period_ns"]))
+            if b is None or r["status"] != "ok" or b["status"] != "ok":
+                continue
+            shared.add(r["design"])
+            eq = abs(r["final_area_notap"] - b["final_area_notap"]) < 1e-6 and abs(r["final_wns"] - b["final_wns"]) < 1e-6
+            same, differ = same + eq, differ + (not eq)
+        d46c = m141.cells([r for r in r46 if r["design"] not in ad], "delay_split_ff", "m146ff")
+        d46 = {x: swc(c) - rand(c) for x, c in d46c.items() if run.band(m46["base_period_ns"][x])}
+        st46 = {x: ("ADD" if m46["group"][x] == "ADDS" else "CTRL") for x in d46}
+        bd46 = {x: run.band(m46["base_period_ns"][x]) for x in d46}
+        out += ["", "## Post hoc: milestone 146 (PR #17222, landed during this run; not a test)", "",
+                f"same design, sequence and clock in both runs: {same} routed points identical, {differ} different "
+                f"({', '.join(sorted(shared))})",
+                f"milestone 146 designs not run here, banded by this run's thresholds: " +
+                ", ".join(f"{x} {st46[x]}-{bd46[x]} {d46[x]:+.2f}" for x in sorted(d46))]
+        for nm, pdd, pst_, pbd_ in (("fresh only, 146 + 147", ad | d46, ast | st46, abd | bd46),
+                                    ("all three, 145 + 146 + 147", ad | d46 | d45, ast | st46 | {x: m145.run.GROUP[x] for x in d45},
+                                     abd | bd46 | {x: run.band(b45[x]) for x in d45})):
+            cm = ", ".join(f"{s_}-{b_} {sum(pst_[x] == s_ and pbd_[x] == b_ for x in pdd)} designs "
+                           f"{mean([pdd[x] for x in pdd if pst_[x] == s_ and pbd_[x] == b_]):+.2f}" for s_, b_ in run.CELLS)
+            out += [f"{nm}: {cm}",
+                    f"  S = {effect(pdd, pst_, pbd_):+.2f} points (p = {strat_perm_p(pdd, pst_, pbd_):.4f}); "
+                    f"D = {effect(pdd, pbd_, pst_):+.2f} points (p = {strat_perm_p(pdd, pbd_, pst_):.4f})"]
     fails = {}
     for r in rs:
         if r["design"] in set(done) and r["status"] != "ok":

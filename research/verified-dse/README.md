@@ -161,14 +161,21 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
-- **Neither add-chain structure nor a short mapped path explains the ladder's fast-corner losses (milestone 146, flow run, blind
-  2 x 2, three of eight predictions held; the primary failed).** At ff_n40C_1v95, 16 fresh 128-bit designs were placed by a rule
-  fixed in advance into four cells: add-chain or compare-chain amount, by a short (<= 15 ns) or long (>= 16.5 ns) mapped no-wire
-  period. At matched delay the add-chain effect on SWC's advantage over equal-cost random routing is -5.06 points (stratified
-  permutation p = 0.46, the wrong sign), and the delay effect at matched structure +2.42 (p = 0.75). Four disclosed top-ups
-  (20 designs, 5 a cell) give -2.55 (p = 0.66) and -0.09 (p = 0.99). Milestone 145's 7.3-point gap does not replicate once the
-  confound is broken. SWC beats random on 15 of 20 (sign p = 0.0075; mean regret 2.09% against 9.50%):
+- **On fresh designs neither add-chain structure nor short mapped delay explains the ladder's fast-corner losses (milestone 147,
+  flow run, blind 2 x 2, three of eight predictions held; the primary failed).** At ff_n40C_1v95, a rule fixed in advance put fresh
+  128-bit designs in four cells: add-chain or compare-chain amount, by a short (<= 15 ns) or long (>= 16.5 ns) mapped no-wire
+  period. On 20 designs (5 a cell, 4 of them disclosed top-ups) the add-chain effect at matched delay is -2.55 points (stratified
+  permutation p = 0.66) and the delay effect at matched structure -0.09 (p = 0.99); pooled with milestone 146's six other fresh
+  designs, delay +0.01 (p = 0.997). Milestone 146's delay effect needs milestone 145's fast add chains. The flow reproduces bit for
+  bit across the two sessions (515 of 515 shared points). SWC beats random on 15 of 20 (sign p = 0.0075):
   [`experiments/addchain_delay/`](experiments/addchain_delay/results.txt).
+- **At the fast corner the ladder's weaker edge follows short mapped delay, not add chains (milestone 146, flow run, blind,
+  four of eight predictions held; the primary failed).** On 13 fresh designs, slow add chains (5 csum designs, 18 to 42 ns) and
+  fast control chains (8, 7 to 15 ns), SWC wins all 5 slow add chains (mean advantage 6.21 points) and only 4 of the 8 fast
+  controls (1.31). In the 2 x 2 with milestone 145's designs, the delay main effect is +6.08 points (interval +2.58 to +9.73) and
+  the structure main effect +1.18 (-2.43 to +4.69); every loss in either milestone is on a design that maps under 15 ns. Caveat:
+  the slow add-chain cell is one family, because sad, wsum and dot chains all map fast however long they are:
+  [`experiments/delay_split_ff/`](experiments/delay_split_ff/results.txt).
 - **At the fast corner the ladder's edge is smaller on add-chain shift amounts, but it does not lose on most of them (milestone 145,
   flow run, blind, four of seven predictions held; the primary failed).** On 20 fresh 128-bit designs at ff_n40C_1v95, SWC loses
   to equal-cost random routing on 3 of 10 designs whose amount is a chain of multi-bit adds and on 0 of 10 compare, select or

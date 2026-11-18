@@ -24,17 +24,17 @@
 <circle cx="176.0" cy="127.2" r="3" fill="#1f6fb2"/>
 <circle cx="400.0" cy="102.6" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="102.6" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">GP-EI on DFN@100</text>
+<rect x="184.8" y="32" width="14" height="10" fill="#1f6fb2"/><text x="204.8" y="41" font-family="sans-serif" font-size="11">GP-EI on DFN@100</text>
 <polyline points="64.0,257.8 176.0,228.6 400.0,170.1 624.0,123.9" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="257.8" r="3" fill="#2e8b57"/>
 <circle cx="176.0" cy="228.6" r="3" fill="#2e8b57"/>
 <circle cx="400.0" cy="170.1" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="123.9" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">SPM@100 screen</text>
+<rect x="318" y="32" width="14" height="10" fill="#2e8b57"/><text x="338" y="41" font-family="sans-serif" font-size="11">SPM@100 screen</text>
 <polyline points="64.0,277.8 176.0,256.1 400.0,163.6 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="277.8" r="3" fill="#8e44ad"/>
 <circle cx="176.0" cy="256.1" r="3" fill="#8e44ad"/>
 <circle cx="400.0" cy="163.6" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">DFN@2 screen</text>
+<rect x="438.8" y="32" width="14" height="10" fill="#8e44ad"/><text x="458.8" y="41" font-family="sans-serif" font-size="11">DFN@2 screen</text>
 </svg>

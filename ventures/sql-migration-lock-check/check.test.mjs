@@ -184,3 +184,25 @@ test('the report names the file when several were read', () => {
   assert.match(text, /db\/002\.sql/);
   assert.match(text, /Read 2 file\(s\)/);
 });
+
+test('a long finding heading wraps at 88 columns and hangs its continuation by 4', () => {
+  const result = analyzeSources([{ name: 'm.sql', text: RISKY }]);
+  // "✗ [risk] line 1:" is 16 characters; a 70-character word brings the line
+  // to 87, and one more word would make it 89, one past the limit.
+  result.findings = [{ ...result.findings[0], severity: 'risk', line: 1, title: `${'x'.repeat(70)} z` }];
+  const lines = renderText(result).split('\n');
+  const head = lines.findIndex((l) => l.startsWith('✗ [risk] line 1:'));
+  assert.ok(head >= 0, 'the heading is printed unindented');
+  assert.equal(lines[head].length, 87);
+  assert.equal(lines[head + 1], '    z', 'the continuation hangs under the heading');
+});
+
+test('--format json is printed with a two-space indent, the shape scripts diff against', async () => {
+  await withTempDir(async (dir) => {
+    await writeFile(path.join(dir, '001_index.sql'), RISKY);
+    const { io, out } = capture();
+    assert.equal(await main([dir, '--format', 'json'], io), 0);
+    const printed = out.join('\n');
+    assert.equal(printed, JSON.stringify(JSON.parse(printed), null, 2));
+  });
+});

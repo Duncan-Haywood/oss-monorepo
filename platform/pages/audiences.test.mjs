@@ -128,6 +128,23 @@ test('an audience page carries its own title, description, canonical, JSON-LD an
   assert.match(html, /no warranty/i);
 });
 
+test('the starting note sits under "Start here" when the page has one, in the hero when it does not', () => {
+  // In the hero it pushed the first tool card below a 360x780 screen on 20 of
+  // 31 pages (docs/reports/polish-2026-11-18-starting-under-start-here.md).
+  const note = 'class="starting"';
+  const short = renderAudiencePage({ audience: byId.roofers, items: roofTools, groups: [], baseUrl: BASE });
+  const hero = short.slice(short.indexOf('<header class="pf-hero">'), short.indexOf('</header>'));
+  assert.ok(hero.includes(note), 'four tools: no Start here row, so the note stays in the hero');
+  const many = [...roofTools, ...['skylight', 'siding', 'soffit', 'chimney'].map((w) => surface(`${w}-bid-calculator`))];
+  const html = renderAudiencePage({ audience: byId.roofers, items: many, groups: [], baseUrl: BASE });
+  const head = html.slice(html.indexOf('<header class="pf-hero">'), html.indexOf('</header>'));
+  assert.ok(!head.includes(note), 'the hero no longer carries it');
+  assert.equal(html.split(note).length - 1, 1, 'exactly once');
+  const start = html.slice(html.indexOf('<section class="start-here"'));
+  assert.ok(start.indexOf('</ol>') < start.indexOf(note) && start.indexOf(note) < start.indexOf('</section>'),
+    'after the cards, inside the Start here section');
+});
+
 test('the hub links every published audience page with a data-category the checker follows', () => {
   const html = renderHub(roofTools, BASE);
   assert.ok(html.includes('data-category="for-roofers"'));

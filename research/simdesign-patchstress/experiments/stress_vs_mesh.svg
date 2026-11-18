@@ -27,19 +27,19 @@
 <circle cx="352.5" cy="160.1" r="3" fill="#1f6fb2"/>
 <circle cx="202.6" cy="148.0" r="3" fill="#1f6fb2"/>
 <circle cx="64.0" cy="139.2" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">patch 1</text>
+<rect x="122.8" y="32" width="14" height="10" fill="#1f6fb2"/><text x="142.8" y="41" font-family="sans-serif" font-size="11">patch 1</text>
 <polyline points="624.0,204.5 502.5,198.0 352.5,192.6 202.6,190.6 64.0,189.5" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="624.0" cy="204.5" r="3" fill="#2e8b57"/>
 <circle cx="502.5" cy="198.0" r="3" fill="#2e8b57"/>
 <circle cx="352.5" cy="192.6" r="3" fill="#2e8b57"/>
 <circle cx="202.6" cy="190.6" r="3" fill="#2e8b57"/>
 <circle cx="64.0" cy="189.5" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">patch 2</text>
+<rect x="200.2" y="32" width="14" height="10" fill="#2e8b57"/><text x="220.2" y="41" font-family="sans-serif" font-size="11">patch 2</text>
 <polyline points="624.0,216.0 502.5,216.9 352.5,215.1 202.6,212.4 64.0,209.9" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="624.0" cy="216.0" r="3" fill="#8e44ad"/>
 <circle cx="502.5" cy="216.9" r="3" fill="#8e44ad"/>
 <circle cx="352.5" cy="215.1" r="3" fill="#8e44ad"/>
 <circle cx="202.6" cy="212.4" r="3" fill="#8e44ad"/>
 <circle cx="64.0" cy="209.9" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">patch 3</text>
+<rect x="277.6" y="32" width="14" height="10" fill="#8e44ad"/><text x="297.6" y="41" font-family="sans-serif" font-size="11">patch 3</text>
 </svg>

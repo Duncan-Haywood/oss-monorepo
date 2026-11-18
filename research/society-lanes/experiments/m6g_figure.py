@@ -31,17 +31,7 @@ svg = svg_lines("Milestone 6g: time to cross 8 m against the density each walker
                 "Fitted transit-density curves: real HERMES free-choice runs against four crowd twins",
                 "density seen while crossing (persons per m^2)", "transit across 8 m (s)", series,
                 xticks=[0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0])
-# five series: linefig has four colours and a 170 px legend pitch; give the fifth its own colour
-# and set the legend at a 112 px pitch so it fits the 640 px width
+# the real curve drawn thicker; linefig gives the fifth series its own colour and fits the legend
 svg = svg.replace('stroke="#c0392b" stroke-width="2"/>', 'stroke="#c0392b" stroke-width="3"/>', 1)
-parts = svg.split("<polyline")
-head, rest = parts[0], parts[1:]
-if len(rest) == 5:
-    rest[4] = rest[4].replace("#c0392b", "#222222")
-svg = head + "".join("<polyline" + r for r in rest)
-for j in range(5):
-    old_x = 64 + 170 * j
-    svg = svg.replace(f'<rect x="{old_x}" y="32"', f'<rect x="{64 + 112 * j}" y="32"')
-    svg = svg.replace(f'<text x="{old_x + 20}" y="41"', f'<text x="{64 + 112 * j + 20}" y="41"')
 (HERE / "m6g_density_cost.svg").write_text(svg)
 print("wrote", HERE / "m6g_density_cost.svg")

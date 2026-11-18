@@ -1,0 +1,269 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/eu-packaging-regulation-checker",
+ "stratum": "venture",
+ "seed": "2026-11-17-7528",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an EU packaging-compliance lawyer or EPR consultant who advises brand owners and non-EU online sellers on Regulation (EU) 2025/40, checking first: which economic-operator role the client has (manufacturer, producer, importer, distributor, fulfilment service provider, marketplace), the Article 71 application dates and every 'from X or N months after the implementing act, whichever is later' clause, the producer-register and authorised-representative duties (Articles 44-45), and the 2030 design duties with their exemptions (Article 7 recycled content, Article 24 empty space, Article 29 reuse targets and the cardboard-box and micro-enterprise carve-outs)",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the shipped calc.mjs through probes.mjs (scratchpad) and the page in headless Chrome. The primary text (EUR-Lex CELEX 32025R0040) could not be fetched: eur-lex.europa.eu is 403 at the proxy and not resolvable for WebFetch, so dates were checked against secondary sources found by web search (Latham & Watkins PPWR summary, Commission-guidance coverage in Packaging Europe, Reloop, Envirotec 2026-08-19, verpackungsregister.org, RegSurance timeline). Pass: general application, PFAS food-contact limits, conformity and producer registration from 2026-08-12 (Article 71; registration in existing national registers from that date); DRS from 2029-01-01; recyclability, recycled content, minimisation, empty space and single-use formats from 2030-01-01; day counts hand-checked (2026-11-17 -> 2028-08-12 = 634 days, -> 2030-01-01 = 1141, tool agrees). Fail: the DRS row says the exemption is 'a 90 percent separate-collection rate already met'; Article 50 sets 90% as the 2029 target and exempts a Member State reaching 80% in 2026 with a plan. Fail: the Article 29 40% reuse target covers transport packaging including e-commerce packaging, but the reuse row is limited to the transport category and to producer/importer/distributor, so the tool's own worked example (non-EU online seller, plastic mailers) shows no reuse duty; paper transport cartons get the reuse duty although cardboard boxes are excluded from the targets. Partial: label (2028-08-12), recycled content and empty space each run from the stated date 'or N months/years after the implementing act, whichever is later'; the label implementing act missed its 2026-08-12 deadline, so the 2028 date is already slipping, and the tool will flip it to 'applies now' on 2028-08-12. Reading-code cap does not apply (outputs run), but wrong rows on two duties hold correctness at 2.",
+  "completeness": "Every README/page feature runs end to end: headless Chrome on a scratch copy loaded the example and rendered 'In scope — Gap: no EU operator', the summary text and three timeline rows (2026-08-12 applies now x2, 2030-01-01 later); done-markers, operator status, findings, text and CSV downloads are wired (page.test.mjs checks ids and the map). No TODOs or stubs. Served copy (node platform/pages/served-copy.mjs) clean.",
+  "verification": "`cd ventures/eu-packaging-regulation-checker && node --test '*.test.mjs'`: 30 tests, 30 pass, ~0.1 s. Six mutants via platform/ci/quality_mutate.py: 3 caught (label date 2028 -> 2027, recycled-content dropping the multi-layer material, operator-gap condition flipped), 3 SURVIVED (DRS date 2029 -> 2030, the 'soon' window 365 -> 180 days, empty-space duty dropping transport packaging). No test pins the date of most duties or the category list of empty space and reuse, so the regulatory table can drift silently.",
+  "craft": "Read calc.mjs (172 lines), index.html script (lines 141-187), calc.test.mjs, page.test.mjs. Small pure engine, data-driven obligation table, page imports the engine (no copy), output escaped. Defects: header says 'Bad input is rejected with a message, never clamped' but opt() (calc.mjs:60-62) silently replaces unknown micro/sellsEu/euOperator values with defaults (micro='maybe' -> 'no'); done markers treat any truthy string except '0' as done, so 'false' marks a duty done (calc.mjs:81); default reference date is the UTC date (calc.mjs:75), one day off near midnight outside UTC. Acceptable to a senior reviewer with these noted.",
+  "claims": "No-warranty and not-legal-advice footer (index.html:131), header note that dates were written from memory and can move (index.html:62), summary text repeats it (calc.mjs:165), README and VENTURE.yaml say the same and stage is 'prototype': the main limit is disclosed honestly. Privacy claim 'a test in the code asserts there are no network calls' is backed by page.test.mjs:20. Unbacked/wrong: the DRS row's 90 percent exemption (calc.mjs:48); FAQ says the empty-space rule 'applies from 1 January 2030' and the label 'from August 2028' without the later-of clause (index.html:121,123); llms.txt:5 says 'estimates from the numbers typed in' on a tool that takes no numbers (boilerplate).",
+  "fitness": "Job walked: a non-EU Shopify seller shipping plastic mailers to EU buyers, and an EU brand owner of PET drinks. The tool correctly puts the seller in scope, flags the missing authorised representative and producer registration as overdue, which is the single most valuable answer for that user today. A compliance consultant would hit in the first hour: no Article numbers (deliberately omitted; the 'basis' column says 'labelling chapter'), single-select roles so an own-brand online seller choosing 'Online seller' loses conformity, label, recyclability and minimisation rows (probe P7), no online-marketplace or HORECA/take-away role (Articles 32-33 reuse offer from 2028), no compostable-packaging duty (2028), the reuse target missing for e-commerce, and no per-country register or fee guidance. Good first read for an SME, not a compliance plan.",
+  "domain": "Against Regulation (EU) 2025/40 as summarised by law-firm and Commission-guidance sources: application dates and the duty list are mostly right and the authorised-representative logic matches Article 45(3). Departs: Article 50 exemption threshold (80% in 2026, not 90%); Article 29 reuse scope (e-commerce included, cardboard boxes excluded, micro-enterprise exemption is tied to the 1,000 kg per Member State per year condition per secondary sources, tool exempts any micro-enterprise); DRS shown for glass drinks bottles under the 'plastic bottle or metal can' category (probe P4); later-of implementing-act clauses for Articles 7, 12 and 24 not modelled; Article numbers omitted. A packaging lawyer would treat it as a reasonable checklist that needs those fixes and the EUR-Lex check its own README asks for before sign-off."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "General application, PFAS food-contact limits, conformity and producer registration dates",
+   "method": "web search 2026-11-17 (EUR-Lex, ppwrconnect.com and environment.ec.europa.eu blocked by the session proxy/allowlist): Article 71 applies the Regulation from 12 August 2026; registration in existing national registers from that date (verpackungsregister.org, RegSurance)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/eu-packaging-regulation-checker/probes.mjs",
+   "expected": "substances, conformity, epr from 2026-08-12, 'applies now' on 2026-11-17",
+   "observed": "P1/P4 substances@2026-08-12:applies, conformity@2026-08-12:applies, epr@2026-08-12:applies",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Day counts to the 2028 label and 2030 design dates from 2026-11-17",
+   "method": "hand: 365 + 269 (2028 leap year) = 634; 45 + 365 + 366 + 365 = 1141; 45 + 365 + 366 = 776 to 2029-01-01",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/eu-packaging-regulation-checker/probes.mjs",
+   "expected": "634, 1141, 776",
+   "observed": "P2 634, 1141, 776",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Deposit-return duty: date and exemption threshold",
+   "method": "web search 2026-11-17 (EUR-Lex, ppwrconnect.com and environment.ec.europa.eu blocked by the session proxy/allowlist): Article 50: Member States reach 90% separate collection of single-use plastic bottles and metal cans up to 3 l by 1 January 2029 via DRS; exemption for a Member State reaching 80% in 2026 with an implementation plan (Reloop, Packaging Europe, Tomra)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/eu-packaging-regulation-checker/probes.mjs",
+   "expected": "from 2029-01-01; exemption at 80% in 2026",
+   "observed": "P12 from 2029-01-01, label says 'unless a 90 percent separate-collection rate is already met'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Reuse target for a producer's plastic e-commerce mailers (the worked example's packaging)",
+   "method": "web search 2026-11-17 (EUR-Lex, ppwrconnect.com and environment.ec.europa.eu blocked by the session proxy/allowlist): Article 29(1): 40% reuse target from 1 January 2030 for transport packaging including e-commerce packaging (Latham & Watkins summary, RegSurance, Packaging Europe)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/eu-packaging-regulation-checker/probes.mjs",
+   "expected": "a reuse row from 2030-01-01",
+   "observed": "P6 and P1: no reuse row for ecommerce (reuse.categories = ['transport'] only)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Reuse target for paper/cardboard transport boxes",
+   "method": "web search 2026-11-17 (EUR-Lex, ppwrconnect.com and environment.ec.europa.eu blocked by the session proxy/allowlist): Article 29(4): cardboard boxes are excluded from the transport reuse targets (Packaging Europe on Commission guidance, Certivo)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/eu-packaging-regulation-checker/probes.mjs",
+   "expected": "no reuse row, or a row noting the cardboard-box exclusion",
+   "observed": "P5 reuse@2030-01-01:later for material=paper",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Harmonised label date",
+   "method": "web search 2026-11-17 (EUR-Lex, ppwrconnect.com and environment.ec.europa.eu blocked by the session proxy/allowlist): Article 12(1): from 12 August 2028 or 24 months after the implementing act enters into force, whichever is later; the act missed its 12 August 2026 deadline (Envirotec 2026-08-19, Sourcemap)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/eu-packaging-regulation-checker/probes.mjs",
+   "expected": "2028-08-12 at the earliest, flagged as moving with the implementing act",
+   "observed": "P3 fixed 2028-08-12; state flips to 'applies' on that date regardless of the act; generic 'may move' note only",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Recycled-content and empty-space dates and material filter",
+   "method": "web search 2026-11-17 (EUR-Lex, ppwrconnect.com and environment.ec.europa.eu blocked by the session proxy/allowlist): Article 7: plastic packaging minimum recycled content from 1 January 2030 or 3 years after the Article 7(8) act, whichever later; Article 24: 50% empty-space cap from 1 January 2030 (or 3 years after the methodology act) for the operator filling grouped, transport or e-commerce packaging",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/eu-packaging-regulation-checker/probes.mjs",
+   "expected": "recycled only for plastic/multi from 2030-01-01; emptyspace for ecommerce/transport from 2030-01-01",
+   "observed": "P6/P13 recycled@2030-01-01 for plastic, absent for paper (test); emptyspace@2030-01-01 for ecommerce and transport; later-of clause not modelled",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "DRS duty for a glass drinks bottle",
+   "method": "Article 50 DRS covers single-use plastic bottles and metal containers; the tool's own category label says 'plastic bottle or metal can'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/eu-packaging-regulation-checker/probes.mjs",
+   "expected": "no DRS row for material=glass, or an input error",
+   "observed": "P4 drs@2029-01-01 shown for glass",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Own-brand online seller picking 'Online seller' role",
+   "method": "PPWR defines the manufacturer by own name/trademark; a seller of own-brand goods carries conformity, labelling and design duties",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/eu-packaging-regulation-checker/probes.mjs",
+   "expected": "conformity, label, recyclable, minimise rows, or a prompt to also choose brand owner",
+   "observed": "P7 only substances, epr, singleuse",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Worked example renders end to end in a browser",
+   "method": "headless Chrome --dump-dom on a scratch copy that clicks Load an example with reference date 2026-11-17",
+   "command": "google-chrome --headless=new --dump-dom http://127.0.0.1:8765/probe.html (scratchpad/eu-packaging-regulation-checker/copy)",
+   "expected": "verdict, summary, timeline rows",
+   "observed": "'In scope — Gap: no EU operator', full summary, rows 2026-08-12 Applies now x2, 2030-01-01 Later",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run the shipped tests",
+   "command": "cd ventures/eu-packaging-regulation-checker && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "30 tests, 30 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "Bad enumerated input is rejected, as the header promises",
+   "method": "calc.mjs:4 'Bad input is rejected with a message, never clamped'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/eu-packaging-regulation-checker/probes.mjs",
+   "expected": "an error for micro='maybe'; epr='false' not done",
+   "observed": "P8 no error, micro silently 'no'; P9 epr='false' counted as done",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, dates-from-memory disclosure and no-network claim",
+   "method": "read index.html:62,131 and page.test.mjs:20",
+   "command": "grep -n 'No warranty\\|written from memory\\|fetch(' ventures/eu-packaging-regulation-checker/index.html ventures/eu-packaging-regulation-checker/page.test.mjs",
+   "expected": "present and backed",
+   "observed": "present; page.test.mjs:20 asserts no fetch/XHR/beacon",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served llms.txt and canonicals",
+   "method": "platform/pages/served-copy.mjs (marisstella.app 403 through the proxy)",
+   "command": "node platform/pages/served-copy.mjs eu-packaging-regulation-checker",
+   "expected": "no placeholder or retired origin",
+   "observed": "no placeholder or retired origin left; llms.txt:5 says 'estimates from the numbers typed in' though the tool takes no numbers",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:48",
+   "change": "DRS from 2029-01-01 -> 2030-01-01",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:49",
+   "change": "label from 2028-08-12 -> 2027-08-12",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:116",
+   "change": "days <= 365 ? 'soon' -> days <= 180 ? 'soon'",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:53",
+   "change": "emptyspace categories ['ecommerce','transport'] -> ['ecommerce']",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:51",
+   "change": "recycled materials ['plastic','multi'] -> ['plastic']",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:94",
+   "change": "euOperator === 'no' -> === 'yes' (gap branch)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Article 29 reuse target (40% from 2030) omitted for e-commerce packaging and for online sellers and fulfilment providers: the tool's own worked example (non-EU seller, plastic mailers) shows no reuse duty",
+   "where": "ventures/eu-packaging-regulation-checker/calc.mjs:54",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "DRS row states the exemption as 'a 90 percent separate-collection rate already met'; Article 50 sets 90% as the 2029 target and exempts a Member State at 80% in 2026 with a plan (and binds Member States, not the producer)",
+   "where": "ventures/eu-packaging-regulation-checker/calc.mjs:48",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16798"
+  },
+  {
+   "severity": "medium",
+   "what": "Reuse duty shown for paper/cardboard transport packaging although cardboard boxes are excluded from the Article 29 targets; micro-enterprise exemption applied without the 1,000 kg condition",
+   "where": "ventures/eu-packaging-regulation-checker/calc.mjs:54",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Label (Art 12), recycled content (Art 7) and empty space (Art 24) run from a fixed date; the Regulation says 'or N months/years after the implementing act, whichever is later', and the label act already missed its deadline, so the tool will call the label 'applies now' from 2028-08-12 regardless",
+   "where": "ventures/eu-packaging-regulation-checker/calc.mjs:49",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Single-select role: an own-brand online seller who picks 'Online seller' gets no conformity, label, recyclability or minimisation duty; no marketplace, HORECA/take-away or compostable-packaging duties modelled",
+   "where": "ventures/eu-packaging-regulation-checker/calc.mjs:28",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "DRS shown for glass drinks bottles under a category labelled 'plastic bottle or metal can'; material is not cross-checked against the beverage category",
+   "where": "ventures/eu-packaging-regulation-checker/calc.mjs:48",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Header promises bad input is rejected, but opt() silently replaces unknown micro/sellsEu/euOperator values and any string but '0' (e.g. 'false') marks a duty done",
+   "where": "ventures/eu-packaging-regulation-checker/calc.mjs:60",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "3 of 6 seeded mutants survive (DRS date, 'soon' window, empty-space categories): no test pins the date or category list of most duties",
+   "where": "ventures/eu-packaging-regulation-checker/calc.test.mjs:48",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Dates never verified against EUR-Lex and Article numbers deliberately omitted; the 'basis' column gives chapter names only",
+   "where": "ventures/eu-packaging-regulation-checker/calc.mjs:4",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt says results are 'estimates from the numbers typed in'; the tool takes no numbers",
+   "where": "ventures/eu-packaging-regulation-checker/llms.txt:5",
+   "category": "overclaim",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16798"],
+ "verdict": "An honest, small PPWR first-read checklist that gets the headline right: for a non-EU online seller it says the Regulation applies now and that producer registration and an authorised representative are overdue, and its 2026, 2029 and 2030 dates agree with secondary legal summaries (EUR-Lex itself was unreachable from this session). Below the bar on correctness and domain: the Article 29 reuse target is missing for e-commerce packaging (including the tool's own worked example) and wrongly applied to cardboard transport boxes, the DRS exemption is stated as 90% instead of 80% in 2026, the later-of implementing-act clauses for the label, recycled content and empty space are not modelled though the label act has already slipped, and single-select roles drop design duties for own-brand online sellers. 30 tests pass but 3 of 6 seeded mutants survive. Disclaimers and the dates-from-memory disclosure are present and accurate. Finished (completeness 3), does not meet the bar (correctness 2, verification 2, median 2); fixable in one session by correcting the reuse and DRS rows, adding later-of notes and article numbers checked against CELEX 32025R0040, and pinning each duty's date and categories in a table test."
+}

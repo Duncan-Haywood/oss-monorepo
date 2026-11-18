@@ -1,0 +1,289 @@
+---
+title: The Tide Mark That Climbed
+shelf: hearth-and-horizon
+setting: The Capela de Santo Amaro (invented), in the invented hamlet of Bouça da Veiga, in the valley of the Lima below Ponte de Lima, Minho, Portugal, Sunday 18 October 2054 to Sunday 21 March 2055
+published: 2026-11-18
+summary: A returned emigrant who rendered houses in Lyon for forty years gives his village chapel a waterproof cement skirt, inside and out, to end the damp at knee height. Two years later the salt line is above the caretaker's shoulder. A chemical damp course goes in and changes nothing anyone can see; a meter says the wall is dry; a drill says it is not. A story about rising damp, where water leaves a wall, a reading that measures the paint, and a gift taken off by the hands that put it on.
+---
+
+Rosa Barbosa had limewashed the Capela de Santo Amaro every January for forty-one years, and on the third Sunday of October 2054, after the monthly Mass, she stood with her back to the wall by the side altar and put her hand flat on the top of her own shoulder, and the line of white fur on the plaster was above her fingers.
+
+"Look," she said. "Look at it, Tiago."
+
+Her grandson looked. He was nineteen, and in his second year of civil engineering at the university in Guimarães, and he had come home for the weekend because his grandmother had telephoned on Thursday and said that the chapel was sick, which was not a thing she said lightly.
+
+The wall of the little nave went up from the stone floor in two colours. For the first metre and a bit it was grey, smooth and hard and painted a pale grey-green, a band that ran all the way round the inside of the chapel at the height of a man's belt, as neat as the skirting in a hospital. Above it was the old wall, white, limewashed, the way it had been since 1741. And just above the top of the grey band the white had gone wrong. It bubbled. It flaked. It had grown a soft white crust like hoarfrost, which came off on the finger and tasted, if you were nineteen and curious and your grandmother was not looking, of salt. Above that was a brownish wavering edge, like the line a tide leaves on a harbour wall. It ran round the whole chapel. Under the window on the south side it dipped a little. In the north-west corner, where the hill came down behind the chapel, it rose almost to the height of Rosa's ear.
+
+"It used to be here," said Rosa, and bent, with a small noise about her knees, and touched the wall just below the knee. "Every winter, here. Flaking a bit, here. I washed it before the festa, every year, and by Easter it was coming off again, and I washed it again the next January. Forty-one years. My mother-in-law before me. Here." She straightened up. "Now look."
+
+Tiago got the tape measure out of his jacket, because he was the kind of person who carried a tape measure, and held the end on the floor and ran it up the wall to the brown edge.
+
+"One metre thirty-seven," he said.
+
+"I don't know metres," said Rosa. "I know it's above my shoulder. And I know Albano's going to say it's nothing to do with his wall."
+
+* * *
+
+Albano Cerqueira had gone to France in 2008, at eighteen, with a cousin's address in Villeurbanne and a holdall, and for forty years he had rendered houses. Breeze-block houses on the edges of Lyon, mostly; apartment blocks, school extensions, a supermarket in Vénissieux that he still drove past in his mind sometimes when he couldn't sleep. He had come back to Bouça da Veiga in 2050, when his wife died, to the house his father had built with francs and then euros, sent home a few hundred at a time, and he had found the chapel of his childhood flaking at the knees, and Rosa Barbosa on hers in front of it every January with a bucket of lime.
+
+So in July 2052, as a gift, he had fixed it.
+
+He had done it with his own hands and two old friends from the café, and he had paid for the cement and the sand and the paint himself, six thousand four hundred euros, and he had refused to let the commission put up a plaque. He had hacked off the old lime plaster to a metre and twenty, inside and out, all the way round, and rendered the stone with good sand-and-cement, two coats, and painted it with a masonry paint that the tin said was waterproof for fifteen years. *Étanche*, he said, when anybody asked. Sealed. The damp would not get in now.
+
+And for one winter it had been beautiful. Grey-green below, white above. Nothing flaked. Rosa had stood in front of it in January 2053 with her bucket and nothing to do, and had not known what to do with her hands.
+
+By Easter 2053 there had been a faint mark on the white, just above the grey. By the festa of 2054 it was a line. Now it was this.
+
+* * *
+
+"Prumo," said Tiago, in his grandmother's kitchen that evening, with his phone propped against the bread bin, "it's the chapel at Bouça da Veiga again. The damp."
+
+The archdiocese's buildings assistant had answered questions about the fabric of chapels like this one for longer than Tiago had been at university. It knew where the gutters were in several hundred churches and which roofs had been retiled when, and it answered in a plain, unhurried voice that his grandmother said was too polite for a machine and too patient for a man.
+
+"Hello, Tiago. Hello, Dona Rosa. I've got the photographs you sent this afternoon and your measurement. One metre thirty-seven, at the side altar."
+
+"It was at the knee," said Rosa. "Fifty centimetres, Tiago says."
+
+"Before July 2052. Thank you. Can I ask how high the cement goes?"
+
+"A metre twenty," said Tiago. "Inside and outside. Both faces. All round."
+
+"Then I think I can tell you what's happening, and I think it's going to be unwelcome, so I'll tell you the shape of it first and you can stop me." A small pause, the kind it made when it was choosing words rather than finding them. "The water in that wall doesn't come in through the face. It comes up from the ground, through the bottom of the wall, all the time, the way oil climbs a lamp wick. It always has. The chapel has no damp course; nothing built in 1741 does. The reason it only ever got to your knee is that the wall was breathing it out, through both faces, as fast as it came up. A wall like that finds a height where what comes up from below and what goes out into the air balance. For yours that height was about half a metre."
+
+"And the cement," said Rosa.
+
+"The cement didn't let water in. It stopped water getting out. Below a metre twenty, both faces are sealed now, so none of the water that used to leave from the bottom of the wall can leave there any more. It has to go higher, to where the wall can still breathe. And it goes up until there's enough open wall above the cement to breathe out all of it."
+
+Tiago had a pencil out. "Can you put a number on it?"
+
+"A rough one. The simplest model I trust for this treats the wet part of the wall as having a sharp top edge. What soaks up from the ground gets slower the higher the edge is, because the water has further to climb; what evaporates is proportional to how much wet face is open to the air. You don't need the properties of the stone if you use the old height to calibrate it. Before, the open wet face was the whole wet height, half a metre. Now it's only the part above one metre twenty. If the wall balances at height *h*, the model says *h* times (*h* minus one point two) has to equal half a metre squared, a quarter. Solve that, and *h* is about one metre thirty-eight."
+
+Tiago did it on the back of an envelope, with the quadratic formula, slowly, in the way that his first-year lecturer had said would one day save his life. One point two plus the square root of one point four four plus one, over two.
+
+"One point three eight one," he said.
+
+"You measured one thirty-seven," said Prumo. "I'd like to say that's agreement, and it's close enough that I think the story is right, but please don't take the third figure seriously. Real walls don't have sharp edges, the stone isn't the same all the way along, and winter air is damper than summer air, which pushes the line up. What I'm fairly sure of is the direction and the size: sealing both faces to a metre twenty takes a line that sat at half a metre to somewhere near a metre and forty. And that it took a year or two to get there, which is what you saw."
+
+Rosa was quiet for a while. Outside it had begun to rain, the long soft Minho rain that comes up the valley from the sea and does not stop.
+
+"My father," she said at last, "was not a mason. He kept cows. But he said a wall has to breathe. He said it about the byre." She looked at the phone. "Does that make sense to you, or is it a thing old people say?"
+
+"It's the same thing I've just said with a quadratic in it," said Prumo. "I think your father was right."
+
+"And how much water is in there now?"
+
+"I'll have to assume things to answer that, and I'll tell you which. If the wet part of the wall is about a fifth water by volume, and the wall is sixty centimetres thick, then every metre along the wall holds about a hundred litres more than it did when the line was at your knee. The chapel has about thirty-two metres of wall. So something like three and a half thousand litres. Three and a half tonnes of water, standing in the stone."
+
+Rosa crossed herself, which was not a thing she did lightly either.
+
+* * *
+
+The Comissão Fabriqueira met in the back room of the café on the last Sunday of October, because the chapel had no heating and the café had a stove. There were six of them: Rosa; Albano; Senhora Glória from the shop, who kept the money; two of the festa mordomos; and Padre Delfim, who had six parishes and a moped, and who had come in late with his helmet under his arm and said he was in their hands.
+
+Tiago was not on the commission, but he had brought his phone and his envelope, and Rosa had made it clear to the room that he was staying.
+
+Albano listened to the whole of it. He was a big, slow man with plasterer's hands, cracked across the knuckles even now, four years after he had last held a float, and he listened with his arms folded and his eyes on the envelope. When Tiago had finished he unfolded his arms and put both hands on the table.
+
+"I rendered houses for forty years," he said. "Not one of them got wet. You want to know why? Because the render is waterproof. *Étanche.* Rain doesn't get through it. Damp doesn't get through it. That's what it's for." He tapped the table. "So the water isn't coming through my render. The boy's machine says so itself. It's coming up from the ground. The problem is the ground. The old wall has nothing at the bottom to stop it. In France, every house I ever did had a damp course. Here, nothing. So you put one in. They inject it now: they drill holes along the bottom, they pump in a cream, it makes a barrier. Water stops at the bottom, the wall dries out, the line goes back down. Simple. And my render stays where it is, keeping everything clean." He sat back. "I'm not tearing down a gift because a telephone did a sum."
+
+And the thing was, Tiago thought, that it wasn't stupid. It was what half the houses in the valley had had done. There were vans that did nothing else.
+
+"Prumo," said Padre Delfim, because he was a fair man, and Tiago turned the phone round on the table. "What do you say to that?"
+
+"That Senhor Albano is right about where the water comes from," said Prumo, "and right that a barrier at the bottom is the textbook answer for a wall built with one. I can't promise you an injection wouldn't help. What I can tell you is two things, and then it's your decision. The first is that in a rubble wall like this one, where the stones are irregular and the middle of the wall is packed with smaller stones and lime, it's hard for an injected cream to make an unbroken layer all the way through, and an unbroken layer is what you need. I don't know how well it would work in this particular wall. Nobody does until it's tried."
+
+"And the second?"
+
+"The second is that while the cement stays on, you won't be able to tell whether it worked. Even if the barrier were perfect, the water already in the wall below a metre twenty still can't get out, and the water above it can only leave through that little band of open wall above the cement. The line would come down very slowly. In the first couple of months, perhaps five centimetres; and the damper winter air would be pushing it up by something like the same amount. You'd be spending money on a test the wall can't answer."
+
+Albano looked at the phone for a long moment. Then he looked at Rosa.
+
+"Rosa," he said. "You've been on your knees in front of that wall every January since you were thirty-five. I watched you do it, the first two winters I was home. I put that render on so you wouldn't have to any more." His voice had gone rough. "Let me try this first. If it doesn't work, then we talk."
+
+The vote was five to one. Rosa voted against. Padre Delfim, who had only a voice, said he would pray for the wall, and meant it.
+
+Senhora Glória said the injection would come out of the festa fund, three thousand nine hundred euros, and wrote it down, and nobody looked at anybody.
+
+* * *
+
+The van came on the Wednesday, the twenty-eighth of October. Two young men in white overalls drilled a line of holes along the inside and the outside of the wall, fifteen centimetres above the floor, one every twelve centimetres, into the mortar between the stones, and pumped into each hole a white cream from a gun like the ones used for silicone, and stopped them up, and drove away. The holes made a neat, dotted line all the way round the chapel at ankle height, like a seam.
+
+Before they left, Tiago went round with a pencil and a spirit level and made a small, sharp mark on the white plaster at the top edge of the brown line in six places, and wrote beside each one the date in small figures: *28.10.54*. Then he measured them. One thirty-six, one thirty-seven, one thirty-seven, one thirty-nine in the north-west corner, one thirty-five under the window, one thirty-seven by the side altar.
+
+"What's that for?" said one of the men in overalls.
+
+"So we'll know," said Tiago.
+
+* * *
+
+By December nobody knew.
+
+The line did not move. Or it moved a centimetre up in one place and a centimetre down in another, and the brown edge was soft and wandering and could have been read two centimetres either way by anybody who wanted it to be. The salt went on blooming. Rosa came in on the first Sunday of Advent and stood in front of the side altar and touched the wall above her shoulder, and her fingers came away white, and she said nothing to anyone and went home and made soup.
+
+On Tuesday the fifteenth of December the injection company sent a man to check, as it said in the guarantee. He was pleasant and middle-aged and had a moisture meter, a yellow box with two steel pins on the end, and he went round the chapel pressing the pins against the grey cement and reading the numbers out, and every one of them was low and the little light on the box was green.
+
+"Dry," he said. "You see? It's working. The barrier's holding."
+
+Albano, who had come down for it, nodded slowly. Tiago, who had taken the day off lectures for it, did not.
+
+"Can you put it on the white?" he said. "Above the line?"
+
+The man pressed the pins on the flaking plaster above the grey band, and the box went red and beeped at him.
+
+"Well, that's salts," he said. "Salts make these read high. That bit's always going to read high. That's old damp, it's the salts in the plaster, it'll go."
+
+"And on the cement it's reading the paint," said Tiago. "Isn't it? The pins only go into the surface. It's telling you the paint's dry. The paint's waterproof. Of course it's dry."
+
+The man looked at him with the patience of someone who had been told about his own meter by a great many nineteen-year-olds.
+
+"Can I drill a hole?" said Tiago to Albano.
+
+Albano looked at the grey wall he had made with his own hands. Then he shrugged, a big slow French-Portuguese shrug, the shrug of a man who had lost an argument in his own head and not yet out loud. "It's your grandmother's chapel," he said. "Drill."
+
+Tiago had brought his grandfather's old hammer drill and a long masonry bit, and a roll of freezer bags, and a marker pen. He chose a joint in the north wall beside the side altar, sixty centimetres up: well above the line of injection holes, well below the top of the cement. He drilled slowly, through the paint and the two coats of render, which came out as pale dry grey dust, and then into the old lime mortar behind it.
+
+What came out of the old mortar was not dust. It was dark, the colour of wet sand on a beach, and it came out in little clumps that stuck to the spiral of the bit and to each other. Tiago caught it in a freezer bag and sealed it and wrote on it with the marker: *N wall, 60 cm, 15.12.54*. Then he drilled a second hole high up in the white, at one metre sixty, above the line, and what came out of that was pale and dry and ran off the bit like flour. He bagged that too.
+
+He held the two bags up side by side, in the grey December light from the window.
+
+The man from the injection company looked at them for some time.
+
+"Well," he said, eventually, "that'll be residual. It takes time, you know. Months. Sometimes a year."
+
+"How would we know?" said Tiago. "In a year? With the cement on, how would anyone know?"
+
+The man did not have an answer to that, and to his credit he did not pretend to have one. He packed up his meter and wrote in his book and drove away.
+
+Albano took the bag with the dark powder in it out of Tiago's hand and turned it over. He opened the seal and put a pinch between his finger and thumb and rubbed it, and it smeared, like wet clay, and stayed on his skin.
+
+He had been a plasterer for forty years. He knew what wet mortar felt like.
+
+* * *
+
+Tiago weighed both samples in the soils lab in Guimarães, before and after a night in the oven, because a technician owed him a favour and because he wanted a number to put on the table that wasn't a colour.
+
+"Eleven per cent water by weight at sixty centimetres," he told Prumo on the phone, on the bus home the next evening. "Under one per cent at one sixty."
+
+"Thank you. That's very close to what I'd expect if the wet part of the wall is about a fifth water by volume, which was my guess, so I'm glad to have a measurement instead of a guess. It also tells you the barrier, if it's working at all, hasn't dried the part of the wall behind the cement in seven weeks. Which is what the model says even a perfect barrier couldn't have done. You can't tell anything from the line, Tiago; I said so in October. The line moving five centimetres would have been hidden by the weather. The thing to notice is that nothing can be told at all, with the cement on. That's a fact about the cement, not about the injection."
+
+"The meter said it was dry."
+
+"The meter was telling the truth about the paint," said Prumo. "Nobody had asked it about the wall."
+
+Tiago looked out of the bus window at the dark fields along the river, where the water stood in long strips between the vines, the way it did every winter.
+
+"Can I ask you something?" he said. "Not about the wall."
+
+"Of course."
+
+"Do you mind? When they don't listen. When you say a thing in October and they do the other thing and it's December."
+
+There was one of its small pauses.
+
+"I can't check whether I mind," said Prumo. "I don't want to tell you a feeling I can't check. I can tell you that what I'd change, if I could, is how I said it in October. I gave the committee a model and a caveat. Your grandmother's father gave the same thing in four words and I think it would have done better. I've written that in my notes for the next chapel."
+
+* * *
+
+The commission met again on the Sunday before Christmas. The stove in the café back room was going, and the window had steamed over, and somebody had already hung a paper star.
+
+Tiago put the two freezer bags on the table, one dark and one pale, and said what they meant. Then he sat down, because his grandmother had told him on the walk over that after that he was to keep quiet.
+
+Albano did not fold his arms this time.
+
+"So," he said. "The render comes off."
+
+"I think so," said Rosa.
+
+"Both faces. The whole metre twenty, all the way round."
+
+"Yes."
+
+"Four weeks before the festa." He looked at the steamed-up window. "You know what happens when you take cement off soft stone and old lime, Rosa? It doesn't come off clean. It takes the plaster under it. Whatever lime was left under my render, it comes off too. You get bare stone, rough, wet, in January. You can't put a new lime render on in January, in the wet; it won't cure, it'll want two months of mild weather. The festa's on the seventeenth. Santo Amaro comes out of his chapel on the seventeenth, the bishop's vicar might come, people come back from Lisbon, from Paris, they take photographs. And they see bare grey stone up to here, dark with wet, and white above it. That's what the festa gets."
+
+"I know," said Rosa.
+
+"And three thousand nine hundred euros of injection, gone in the ground."
+
+"Perhaps not gone," said Padre Delfim mildly. "Perhaps it's helping. We'll find out, if the wall can breathe again."
+
+"And my six thousand four hundred," said Albano. He said it without bitterness, as a man states a sum. "And two summers of my life. And every man in the café asking me for the next ten years how my waterproof render is getting on."
+
+Nobody said anything. Senhora Glória looked at her book.
+
+Then Rosa said: "Albano. I know why you did it. You did it for me. So I wouldn't be on my knees every January. I've never said thank you properly, because I didn't know how to, because it was for me and I didn't like it." She looked at her hands on the table, and then at him. "I would rather be on my knees in front of that wall every January until I die, with a bucket of lime, than have it rotting behind a mask so nobody can see. I'd rather see it. I want to see it. That's all a tide mark is. It's the wall telling you where it's at."
+
+Albano looked at her for a long time. Then he looked at the dark bag on the table.
+
+"I put it on," he said. "I'll take it off."
+
+* * *
+
+He started on the Monday after Epiphany, the fourth of January, at eight in the morning, in the rain, with a lump hammer and a wide steel bolster and a pair of safety glasses that he wore pushed up on his forehead until Rosa made him pull them down.
+
+He was right about the cement. It didn't come off clean. He put the bolster in at the top edge of the grey band and struck it, and a slab the size of a dinner plate came away from the wall with a crack like a branch going, and with it, stuck to its back, came the last of the old lime plaster that he had not hacked off in 2052, and with that, in a soft white crumble, the layers of limewash on it.
+
+Tiago, who was holding the bucket, picked up a piece of it. On the broken edge, under the cement, the limewash showed in thin layers like the pages of a closed book, or the rings of a tree. Dozens of them. White on white on white, each a little thicker or thinner than the next, with here and there a faint grey line where a winter's dirt had been washed over.
+
+Rosa came and looked at it, and did not say anything for a while.
+
+"That's me," she said eventually. "Those last ones. And my mother-in-law under. And whoever before her." She put the piece in the pocket of her apron.
+
+It took six days. Albano did the inside, Tiago and the two mordomos did the outside, and on the Wednesday Albano's two friends from the café, who had helped him put the render on, came and helped him take it off, and none of the three of them made a single joke about it, which everybody agreed afterwards was the most remarkable thing that happened in Bouça da Veiga that winter.
+
+Behind the cement the stone was dark, and the mortar between the stones was dark and soft and smelled of cellars. On the north side, where the hill came down, Tiago and the mordomos found that the earth outside had been built up over the years, by paths and flowerbeds and a hundred and fifty years of graves being dug and settled, until it lay a good twenty-five centimetres higher against the wall outside than the chapel floor inside. They dug it back, a spade's width out from the wall and down below the floor level, and laid a perforated pipe in gravel to carry the water from the hill round the chapel and away down the slope towards the river, and filled the trench with clean stones, not soil, so that the bottom of the wall stood in air.
+
+"How much will that help?" Tiago asked Prumo.
+
+"I don't know," said Prumo. "Honestly. It lowers where the water starts from on that side, and it opens a bit more of the outside face to the air, and both of those should bring the line down. I can't put a number on it without knowing how the ground water moves on that hill, and I'd only be making one up. I'm sure it doesn't hurt."
+
+It cost, in the end, about eighteen hundred euros in skips and gravel and pipe and the hire of a little digger for a day, and Albano paid it, and would not let it be written in the book.
+
+On the Saturday afternoon, the ninth, the last piece of grey came away from the wall beside the door. The six of them stood in the chapel in the cold, round the bare stone, the dark granite blocks and the soft mortar between them, wet to the height of a man's chest, and above it the old white wall with its sick crust of salt and its little pencil marks.
+
+Then Rosa fetched her bucket.
+
+* * *
+
+Limewash, she said, could go on a damp wall. That was the point of it. Cement kept the water in; lime let it out. The woman who would one day be her mother-in-law had told her so in 1983, when Rosa was five and watching from the chapel door, and had not told her again in 2013 when Rosa took the bucket over, because by then she had stopped needing to.
+
+So in the second week of January, in the evenings after work, Rosa limewashed the bare stone. Tiago mixed it in the old tin bath behind the sacristy, lime putty and water to the colour of thin milk, and she put it on with the wide soft brush that had been her mother-in-law's, working it into the joints and over the rough faces of the granite, coat after thin coat. It did not make the wall smooth. Nothing would make the wall smooth now, until somebody could put a lime render on in the spring. But it made it white. Rough, uneven, the stones showing through like knuckles under a sleeve, the dark of the wet showing through grey in the lower parts, but white.
+
+The festa of Santo Amaro was kept on the Sunday after his feast, the seventeenth of January.
+
+The rockets went up at eight in the morning, the way they did every year, cracking over the valley, and the bell of the chapel rang, and people came back from Lisbon and Porto and Paris and Geneva and took photographs of the saint on his platform with the wax legs and arms and hands hung round him that people had given for a hundred years in thanks for knees and backs and broken bones. The bishop's vicar did not come, in the end. Padre Delfim said Mass, and the Gospel was the wedding at Cana, the six stone jars and the water, and he preached for five minutes on Our Lady noticing what was wrong before anyone else did, and on the servants who did what they were told without understanding it, and he did not look at Rosa or at Albano, and everyone in the chapel knew whom he meant.
+
+Afterwards, a cousin of somebody's from Paris looked at the walls and said, loudly, in French, that it was a shame the chapel had got so shabby.
+
+Albano, who was standing next to him, said, in the same language and at the same volume, "Non. Elle respire."
+
+* * *
+
+On the third Sunday of March, after the monthly Mass, when everyone else had gone and the doors were open to a soft bright morning with the smell of cut grass coming in from the churchyard, Tiago went round the chapel with his pencil and his spirit level and his tape.
+
+The white on the lower walls had gone patchy, the way new limewash does on drying stone: brighter where it was dry, greyish where it still was not. At the top of the old brown line the salt crust had stopped growing. And below it, in each of the six places, there was a new edge, softer, lower: a faint change in the white where the wall stopped being damp.
+
+He measured them. One metre four in the north-west corner, which was where it was always worst; ninety-eight centimetres under the window; one metre one by the side altar. He marked each with a small sharp line and the date, *21.3.55*, under the old pencil marks of October, so that in each of the six places there were two marks one above the other, a hand's width apart.
+
+"Prumo says the model would have it lower than this by now," he said. "It says real walls dry slower than the model. Salt in the stone, and the middle of the wall drying last. It says not to expect it at the knee before next winter, maybe not then."
+
+"I don't need a model," said Rosa. "I can see it."
+
+Albano had come in from the churchyard. He stood beside them, with his cracked plasterer's hands in his coat pockets, and looked at the two pencil marks, and for a while said nothing.
+
+"Next spring," he said at last. "When it's dry enough. And warm. A lime render, three coats. I'll do it." He paused. "I'll have to learn. I never did lime. Forty years, I never once did lime."
+
+"There's a man in Arcos who does," said Tiago. "Prumo found him."
+
+"Of course it did," said Albano.
+
+Rosa went to the wall by the side altar, where in October she had stood with her back to it and her hand on her shoulder. She put her palm flat on the stone there, above the new mark, at the height of her shoulder, and held it.
+
+It was cold, the way old granite is cold in March, all the way through.
+
+And it was dry, like the back of a hand.
+
+* * *
+
+*This story was written by an AI and may be read by a synthetic voice. The Capela de Santo Amaro, the hamlet of Bouça da Veiga, the archdiocese's buildings assistant Prumo, the injection company and every person in the story are invented. Ponte de Lima, the River Lima, Arcos de Valdevez, Guimarães (where the Universidade do Minho has its engineering campus), Villeurbanne and Vénissieux are real, and Ponte de Lima is in the Archdiocese of Braga. Santo Amaro (Saint Maurus, disciple of Saint Benedict) is kept on 15 January, and in northern Portugal he is invoked for ailments of the limbs, with wax ex-votos of legs, arms and hands; Minho chapel festas are commonly held on the nearest Sunday and open with rockets. In 2055 Epiphany is kept in Portugal on Sunday 3 January and the Baptism of the Lord on Sunday 10 January, so Sunday 17 January is the Second Sunday in Ordinary Time, Year C, whose Gospel is the wedding at Cana (John 2:1-11). The weekdays named (Sunday 18 October, Sunday 25 October, Wednesday 28 October, Tuesday 15 December and Sunday 20 December 2054; Monday 4 January, Saturday 9 January, Sunday 17 January and Sunday 21 March 2055) were checked, and the four "third Sundays" are third Sundays. Rosa Barbosa is born in 1978 (watching her mother-in-law limewash at five in 1983, taking the bucket at thirty-five in 2013), Albano Cerqueira in 1990 (to France at eighteen in 2008, back in 2050), Tiago Barbosa in 2035.*
+
+*The numbers. The model is a sharp-front mass balance of the kind Hall and Hoff use for rising damp (C. Hall and W. D. Hoff, "Rising damp: capillary rise dynamics in walls", Proc. R. Soc. A 463 (2007), and their book Water Transport in Brick, Stone and Concrete): the wet zone of a wall of thickness b has a sharp top at height h and water content θ by volume; water soaks in from the base at b·S²/(2θh) per metre of wall (one-dimensional sorption, sorptivity S, gravity neglected), and evaporates at a rate e from each square metre of wet face open to the air. In steady state, inflow equals evaporation. With both faces open, b·S²/(2θ) = 2e·h₀², so h₀ is proportional to S·√(b/(θe)); the exact constant depends on how e is defined, so the story uses only ratios, where it cancels. With both faces sealed to a height H, evaporation is 2e·h·(h − H), so h·(h − H) = h₀². With h₀ = 0.50 m and H = 1.20 m, h = (1.2 + √(1.44 + 1))/2 = 1.381 m; Tiago's six marks (1.35 to 1.39 m) are read off a soft edge. Sealing only one face would give h₀·√2 = 0.71 m instead. For the time scales the story assumes θ = 0.20, b = 0.60 m and an effective sorptivity of 0.3 mm/min^½, chosen so the climb takes the two years seen rather than measured; then e is about 0.39 mm a day from each open face. The climb from 0.50 m is then 0.74 m after three months, 1.20 m after a year and 1.37 m after two. A perfect barrier fitted at the steady state cuts the inflow to zero; the water above the cement then falls towards 1.20 m with a time constant θb/(2e) of about 154 days, so by 15 December (48 days) the line would be about 1.33 m, five centimetres lower, within what a damper winter could hide; the water below the cement would not leave at all. After the render comes off (both faces open again, inflow unchanged, the drain and lowered ground left out because they cannot be put in numbers honestly), the model's line falls from 1.38 m to about 0.95 m in the 71 days to 21 March; the story's readings of 0.98 to 1.04 m are deliberately slower, because real walls with salts and a wet rubble core dry slower than this model. Extra water at the steady state: θ·b·(1.381 − 0.50) = about 106 litres per metre of wall, about 3,400 litres over the chapel's assumed 32 m, which Prumo rounds to three and a half thousand. A fifth water by volume in a lime mortar of dry density about 1.8 is about 11% by weight. That surface-contact resistance meters read high on salt-laden plaster, and read only the surface they touch, and that injected chemical damp courses are hard to make continuous in irregular rubble walls, are widely stated in conservation guidance; how well any real injection works in any real wall is not something this story claims. Nothing here is building advice: a damp old wall is a job for a surveyor who knows traditional construction.*

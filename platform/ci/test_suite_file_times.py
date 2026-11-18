@@ -70,13 +70,21 @@ class TestFileTimes(unittest.TestCase):
     def test_perf_history_matches_whole_slug_only(self):
         h = self.root / "history"
         h.mkdir()
-        (h / "ci-perf-2026-11-10-x.md").write_text("Sped up demo by 2x.")
-        (h / "ci-perf-2026-11-12-y.md").write_text("Touched demo-two only.")
+        (h / "ci-perf-2026-11-10-x.md").write_text("# CI perf: demo, a loop\nSped up demo by 2x.")
+        (h / "ci-perf-2026-11-12-y.md").write_text("# CI perf: demo-two\nTouched demo-two only.")
         (h / "ci-perf-2026-11-13-demo-split.md").write_text("split")
         (h / "other.md").write_text("demo")
         self.assertEqual(sft.perf_history("demo", h),
                          [("2026-11-13", "ci-perf-2026-11-13-demo-split.md"),
                           ("2026-11-10", "ci-perf-2026-11-10-x.md")])
+
+    def test_perf_history_ignores_body_mentions(self):
+        # a write-up about another suite that quotes the slowest-suites table
+        h = self.root / "history"
+        h.mkdir()
+        (h / "ci-perf-2026-11-18-other.md").write_text("# CI perf: other-suite\nskipped demo and big (table)")
+        (h / "ci-perf-2026-11-17-z.md").write_text("intro\n# Perf, 2026-11-17: demo, carry-over\nbody")
+        self.assertEqual(sft.perf_history("demo", h), [("2026-11-17", "ci-perf-2026-11-17-z.md")])
 
 
 if __name__ == "__main__":

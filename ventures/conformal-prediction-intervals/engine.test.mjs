@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import {
   analyze, DEFAULTS, PAPERS, METHODS, rng, normal, quantileIndex, conformalQuantile, ridgeSolve, ridgeFit, ridgeCV,
   quantileRegression, pinballLoss, pinball, fitConformal, parseCsv, prepareData, solve,
@@ -167,6 +168,25 @@ test("on the diabetes data the fitted quantiles beat every perturbed solution an
   }
   assert.equal(pinball(-2, 0.1), 1.8);
   assert.equal(pinball(2, 0.1), 0.2);
+});
+
+test("ridgeCV matches the pinned digest of twelve seeded fits (lambda-independent fold work is cached)", () => {
+  // Digest taken from the version that refit every fold for every lambda;
+  // includes constant columns and 2 to 7 folds.
+  const h = createHash("sha256");
+  for (let r = 0; r < 12; r++) {
+    const rand = rng(500 + r), p = 1 + (r % 4), n = 25 + 11 * r;
+    const X = [], y = [];
+    for (let i = 0; i < n; i++) {
+      const x = Array.from({ length: p }, () => normal(rand));
+      if (r % 5 === 0) x.push(3);
+      X.push(x);
+      y.push(x.reduce((a, v, j) => a + v * (j - 1), 0) + (1 + Math.abs(x[0])) * normal(rand));
+    }
+    const cv = ridgeCV(X, y, { seed: r + 1, folds: 2 + (r % 6) });
+    h.update(JSON.stringify([cv.lambda, cv.cvMse, cv.oofResiduals, cv.model.coef, cv.model.intercept]));
+  }
+  assert.equal(h.digest("hex"), "33e76a987ef4e0c1d70cc834fa7c05e226f706b991714418fe13c7f875f12c94");
 });
 
 // ------------------------------------------------------------ (a) coverage property

@@ -21,17 +21,30 @@ item 1)"). This script reads both and prints what is left, newest first:
 An item is "taken" when a later report's lead picks it by report and number,
 or picks the item it was carried over from. An open item whose key words
 mostly match a taken one is printed with a "maybe taken" note instead of being
-dropped: the match is a guess. It reads files only; it cannot see open pull
-requests, so still search them (`polish in:title`) before starting.
+dropped: the match is a guess.
+
+It also reads the open pull requests (unauthenticated REST; this repository
+is public) and marks an item "claimed by #N" when an open PR's body picks it
+by report and number, or "maybe claimed" when a PR title shares its key words.
+Reports were the only signal, and a report lands with the PR after a 10 to 20
+minute build: on 2026-11-18 three runs took the same item within five minutes
+(PRs #17145, #17146 and #17147, all opened 02:23 to 02:28 UTC) and two of them
+redid work the first had landed. So open the draft PR as soon as you pick,
+with "Picked item N of `polish-...md`" in its body; this script then shows
+the claim to the next run. --offline skips the PR read.
 """
 import argparse
 import datetime as dt
+import json
 import re
+import subprocess
 import sys
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 REPORTS = ROOT / "docs" / "reports"
+REPO = "duncan-haywood/oss-monorepo"
 
 NAME = r"(polish-\d{4}-\d{2}-\d{2}-[\w.-]+?\.md)"
 # "item 2 of "Still weakest" in `X`", "from item 1 of `X`"
@@ -75,8 +88,12 @@ def lead(text):
 
 def picks(text):
     """{(report name, item number)} that this report's lead says it took."""
+    return refs(lead(text))
+
+
+def refs(t):
+    """{(report name, item number)} named in `t` in either phrasing picks() reads."""
     found = set()
-    t = lead(text)
     for m in _ITEM_THEN_NAME.finditer(t):
         for n in (m.group(1), m.group(2)):
             if n:
@@ -197,15 +214,73 @@ def queue(texts, since=None):
     return open_, [t for t in taken if in_window(t[0])]
 
 
+def open_prs(repo=REPO, pages=5, opener=urllib.request.urlopen):
+    """[(number, title, body, head ref)] of open PRs whose title starts with "polish";
+    None when the API could not be read (said aloud, so "no claims" is never a silent guess)."""
+    found = []
+    try:
+        for page in range(1, pages + 1):
+            url = f"https://api.github.com/repos/{repo}/pulls?state=open&per_page=100&page={page}"
+            with opener(url, timeout=15) as r:
+                batch = json.load(r)
+            found += [(p["number"], p.get("title") or "", p.get("body") or "",
+                       (p.get("head") or {}).get("ref", "")) for p in batch
+                      if re.match(r"\s*polish\b", p.get("title") or "", re.I)]
+            if len(batch) < 100:
+                break
+    except Exception:
+        return None
+    return found
+
+
+def title_words(title):
+    """A PR title's key words, without the "polish:" prefix and the "+ post" tail."""
+    t = re.sub(r"^\s*polish\s*[:/]\s*", "", title, flags=re.I)
+    t = re.sub(r"\s*\+\s*(post|check)\b.*$", "", t, flags=re.I).replace("`", " ")
+    return {w for w in re.findall(r"[a-z][a-z0-9-]{3,}", t.lower()) if w not in _STOP}
+
+
+def _singular(words):
+    """Titles and items differ in plurals ("intro" vs "intros", PR #17145's title against
+    the item it took), which kept a real claim under similar()'s three-word bar."""
+    return {w[:-1] if len(w) > 4 and w.endswith("s") and not w.endswith("ss") else w for w in words}
+
+
+def claims(open_, prs, own_branch=""):
+    """{index into open_: note} for items an open PR (not this branch's) has claimed."""
+    out = {}
+    others = [p for p in prs if not own_branch or p[3] != own_branch]
+    named = {}
+    for n, _, body, _ in others:
+        for ref in refs(body):
+            named.setdefault(ref, n)
+    for i, (name, item, part, _) in enumerate(open_):
+        if (name, item) in named:
+            out[i] = f"claimed by open PR #{named[(name, item)]}: leave it"
+            continue
+        kw = _singular(key_words(part))
+        hit = next((n for n, title, _, _ in others if similar(kw, _singular(title_words(title)))), None)
+        if hit:
+            out[i] = f"maybe claimed: open PR #{hit}'s title looks like it"
+    return out
+
+
+def current_branch():
+    out = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=ROOT,
+                         capture_output=True, text=True)
+    return out.stdout.strip() if out.returncode == 0 else ""
+
+
 def clip(s, width=220):
     s = re.sub(r"\s+", " ", s).strip()
     return s if len(s) <= width else s[:width - 1].rsplit(" ", 1)[0] + " …"
 
 
-def main(argv=None, texts=None, today=None):
+def main(argv=None, texts=None, today=None, prs=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--days", type=int, default=2, help="reports dated this many days back (default 2: today and yesterday)")
     ap.add_argument("--taken", action="store_true", help="also list the items later runs picked")
+    ap.add_argument("--offline", action="store_true", help="do not read open PRs for claims")
     args = ap.parse_args(argv)
     texts = load() if texts is None else texts
     today = today or dt.date.today()
@@ -214,14 +289,28 @@ def main(argv=None, texts=None, today=None):
     window = sum(1 for n in texts if since is None or (report_date(n) or dt.date.min) >= since)
     print(f"{window} polish reports since {since or 'the start'}: "
           f"{len(open_)} open item(s), {len(taken)} taken by a later report")
-    for name, n, text, note in open_:
-        print(f"- {name} #{n}: {clip(text)}" + (f"  [{note}]" if note else ""))
+    if prs is None and not args.offline:
+        prs = open_prs()
+    if prs is None:
+        print("open PRs: not read (" + ("--offline" if args.offline else "GitHub API unreachable")
+              + "); search them (`polish in:title`) before you start")
+        claimed = {}
+    else:
+        claimed = claims(open_, prs, current_branch())
+        print(f"open polish PRs read: {len(prs)}; {sum(1 for v in claimed.values() if v.startswith('claimed'))} "
+              f"item(s) claimed, {sum(1 for v in claimed.values() if v.startswith('maybe'))} maybe")
+    for i, (name, n, text, note) in enumerate(open_):
+        notes = "; ".join(x for x in (claimed.get(i), note) if x)
+        print(f"- {name} #{n}: {clip(text)}" + (f"  [{notes}]" if notes else ""))
     if args.taken:
         print("\nTaken:")
         for name, n, text, by in taken:
             print(f"- {name} #{n} -> {by}: {clip(text, 120)}")
     if not open_:
         print("Nothing open in the window: survey the site (polish prompt, 'Pick one piece of work').")
+    else:
+        print('Claim before you build: open the draft PR now, its body saying "Picked item N of '
+              '`polish-...md`", so the next run sees it here (three runs took one item on 2026-11-18).')
     return 0
 
 

@@ -1,6 +1,6 @@
 ---
-title: "Adder chains or short paths? A blind 2 x 2 says neither explains the routing shortlist's fast-corner losses"
-seo_title: "SKY130 ff corner: adder chains vs short paths, a blind 2 x 2"
+title: "Adder chains or short paths? A fully fresh 2 x 2 says neither explains the routing shortlist's ff losses"
+seo_title: "SKY130 ff corner: adder chains vs short paths, a fresh 2 x 2"
 date: 2026-11-18
 tags: [research, chip-design, verified-dse, open-source, eda, statistics]
 description: "20 fresh SKY130 designs at ff_n40C_1v95, crossed by amount structure and mapped delay: neither predicts where the cheap routing shortlist loses."
@@ -19,6 +19,14 @@ fast-fast corner (ff, -40 C, 1.95 V) the rule's edge over random routing was
 (p = 0.026). It also found the catch: every add-chain design there had a shorter
 mapped critical path than every control. "Add chain" and "short path" were the
 same split, so the table could not say which one mattered.
+
+Two sessions picked up that question within minutes of each other. The other
+one landed first, as
+[milestone 146](2026-11-18-verified-dse-delay-not-add-chains.md). It ran only
+the two missing cells, slow add chains and fast compare chains, and took the
+other two cells from the previous run's table. Its answer was that short
+mapped delay, not add chains, is what costs the shortlist its edge. This run,
+now milestone 147, filled all four cells with fresh designs.
 
 ## What this run did
 
@@ -65,9 +73,21 @@ Negative means the shortlist beat random routing.
   a 2-input max and a 3-field range) are all short-path designs. But the
   largest wins are short-path designs too, so the cell means do not separate.
 
-So last run's 7.3-point gap does not replicate once the confound is broken.
+So the 7.3-point add-chain gap does not replicate once the confound is broken.
+
+## Against milestone 146
+
+Five designs ran in both sessions at the same clock. Their routed area and
+slack matched exactly on all 515 usable points, so the flow is deterministic
+across sessions. The two runs differ only in which designs they chose.
+
+Pooling the 26 fresh designs from both runs gives a delay effect of +0.01
+points (p = 0.997). It rises to +3.3 points (p = 0.26) only when the previous
+run's designs are added back. The delay reading needs those particular fast
+add chains. Fresh fast add chains are the shortlist's best cell, not its worst.
 Neither the family of the amount logic nor its mapped delay tells you in
-advance where the shortlist will lose at this corner.
+advance where the shortlist will lose at this corner. This pooled comparison
+was done after milestone 146 landed, so it is a post-hoc check, not a test.
 
 ## Limits
 
@@ -79,7 +99,7 @@ global-route estimated.
 
 ## What next
 
-Two runs spent on a family-level story have now ended in "no". The next step
+Three runs have now chased a family-level or delay-level story, and on fresh designs none of them holds. The next step
 is a per-design guard instead: route a small random pilot, and fall back to
 random routing when the cheap score's rank correlation with routing is low.
 Its threshold would be fixed on the pooled ff tables and then tested blind.

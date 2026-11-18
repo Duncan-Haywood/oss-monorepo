@@ -1,0 +1,240 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/print-on-demand-profit-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-17-7528",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an e-commerce accountant / marketplace-seller bookkeeper who reconciles Etsy, Shopify and eBay payouts for print-on-demand shops, checking first: that each preset fee matches the platform's current US schedule and is charged on the right base (item + shipping, and for eBay also sales tax), per-order fee tiers, the Offsite Ads rate and cap, how refunds treat fees and the supplier charge, and that margin, target price and break-even ROAS are defined the standard way",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Probe script /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/print-on-demand-profit-calculator/probes.mjs imports the shipped calc.mjs; /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/print-on-demand-profit-calculator/cdp.mjs drives the deploy-rewritten served copy (node platform/pages/served-copy.mjs) in headless Chrome over CDP. Fee rules taken from sources the author did not write (the platforms' own pages, etsy.com/ebay.com/shopify.com, are blocked from this session; rules confirmed by web search of eBay's help page id=4822 snippet, Shopify's shopify.com/plan snippet and several independent seller guides): Etsy 6.5% transaction on item+shipping, US processing 3% + $0.25, $0.20 listing, Offsite Ads 15%/12% capped at $100 per order; Shopify Basic 2.9% + $0.30; eBay most categories 13.6% + $0.40 per order over $10, $0.30 at or under $10, on item + shipping + sales tax. Hand recomputations: sample shirt on Etsy (29.99, supplier 14.50 + 4.75, refunds 2%, samples 0.50, Offsite 15% on 10% of orders): fees 1.9494+0.8997+0.25+0.20+0.4499 = 3.7489, profit 29.99-0.5998-3.7489-19.25-0.50 = 5.8913 (19.64%), target-30% price (0.45+19.25+0.50)/(1-0.02-0.11-0.30) = 35.4386, ROAS 29.99/5.8913 = 5.09x: tool and live page give $5.89, 19.64%, $35.44, 5.09x (pass). eBay $25 + $5 shipping: 30*0.136+0.40 = 4.48, profit 8.52: tool 4.48 / 8.52 (pass). Shopify $35: 35*0.029+0.30 = 1.315: tool 1.315 (pass); page comparison table on the sample: Shopify $1.17 = 29.99*0.029+0.30, eBay $4.48 = 29.99*0.136+0.40 (pass). Solved price round-trips to exactly 30.00% (pass). Fails at edges: a $9 eBay order charges $0.40 per-order fee (1.624) where eBay charges $0.30 (1.524), although the preset's own note says '$0.40 ... on orders over $10'; an $800 all-offsite Etsy order gets 196.45 in fees vs 176.45 with the $100 Offsite Ads cap. Both edges are small or rare for POD price points.",
+  "completeness": "Claims checked on the served page in headless Chrome: profit per sale with every fee line (pass), price for target margin ($35.44, pass), ad-spend limit and break-even ROAS (pass), price ladder -20%..+30% and CSV (6 rows + header, values match unit(), pass), same sale on each platform (pass), monthly rollup ($589.13 on $2,999.00, pass), custom fee option (pass), sample loader (pass), blank price shows 'Enter a selling price above zero.' and hides the report (pass), copy summary text (summaryText output checked). No TODOs or stubs; llms.txt served copy clean. Everything the README and page say is done works end to end.",
+  "verification": "`cd ventures/print-on-demand-profit-calculator && node --test '*.test.mjs'`: 28 tests, 28 pass, 0.11 s. Six mutants via platform/ci/quality_mutate.py with `node --test calc.test.mjs page.test.mjs usage.test.mjs`: 4 caught (refund base order->price, solvePrice drops shipping subtraction, sample cost dropped from profit, maxAd = profit after ads), 2 SURVIVED: eBay preset changed 13.6% + $0.40 -> 12.9% + $0.30 (no test pins any eBay number), break-even ROAS on price instead of order total (every ROAS test has shipCharged 0). Calc tests do pin hand-checked dollar values for custom, Etsy and Shopify, which is better than typical; page tests are string greps (static 'no fetch' check, labels, JSON-LD parse).",
+  "craft": "Read calc.mjs (174 lines), the index.html module script, calc.test.mjs, page.test.mjs. Pure engine imported by the page (no copied engine), one feeModel used by unit() and solvePrice(), money() uses en-US separators, HTML escaped. Defects: blank target margin silently becomes 30% (calc.mjs:61) while the page shows the box empty; negative custom fee percent or fixed fee accepted with no error (calc.mjs:58-59; HTML min=0 does not stop typed values), negative shipping charged silently clamped to 0; offsitePct not validated (only a select, so UI-safe); the 70% supplier-cost warning is skipped for the custom platform for no stated reason (calc.mjs:130); the eBay per-order tier is described in the note but not implemented (calc.mjs:27-28). A senior JS reviewer would accept with those asked for.",
+  "claims": "Disclaimer ('No warranty', not legal/tax/financial advice), non-affiliation and trademark notice in the footer (page.test.mjs asserts). Presets labelled 'author's recollection ... unverified ... verify' on page, README and VENTURE.yaml: checked against current published rules, Etsy, Shopify Basic and eBay main rates all match, so the label is conservative, not hiding an error. 'The price is solved exactly ... so the ladder and the solved price agree' (round-trip 30.00%, pass). 'Fees on the order total including shipping you charge' correct for Etsy and eBay. Refund model disclosed as the cautious case with 'some platforms return part of a fee' (true: Etsy and eBay credit part of fees on refund). 'Nothing is uploaded': no fetch/XHR/beacon in page or calc (pass); usage counted only in localStorage, DNT/GPC and opt-out (usage.mjs, usage.test.mjs pass). Sales tax listed under 'Not modelled'. Minor: the eBay note says '$0.40 ... on orders over $10' but the engine charges $0.40 on all orders.",
+  "fitness": "Job walked: a POD seller pricing a $29.99 Printify shirt for Etsy and checking whether to list on eBay or Shopify instead. The tool gives a usable answer in one screen: profit, target price, ad ceiling, ladder and comparison. Gaps a seller or their bookkeeper hits: eBay charges its fee on sales tax and Etsy processing on the tax-inclusive total (about $0.33 less profit on a $30 eBay order at 8% tax, ~6% of the profit), only one item per order (listing fee and per-order fixed fees on multi-item carts), no amortised Shopify plan fee or app costs, Printify/Printful sales tax charged to sellers without a resale certificate, no Etsy Ads (on-site) vs Offsite distinction. Usable with the stated limits for single-item US pricing.",
+  "domain": "Against the platforms' published US fee rules (via search, see correctness) and standard e-commerce unit economics (contribution margin; break-even ROAS = revenue / contribution before ads): margin on order total stated; ROAS formula standard (pass); target-price solve algebraically correct (pass); Offsite Ads as expected value over the share of orders is a sensible modelling choice (pass). Departs: eBay $0.30 per-order fee at or under $10 not applied; eBay final value fee base includes sales tax and Etsy processing base includes tax, not modelled (disclosed only as 'sales tax not modelled', which a user reads as 'tax collected is ignored', not 'fees are understated'); Offsite Ads $100 per-order cap missing; refunds treat all fees as lost, where Etsy credits the transaction fee and eBay credits the final value fee except the per-order fee (disclosed as cautious). A bookkeeper would accept it as a pricing estimate and ask for the tax-on-fee base and the eBay tier before relying on eBay numbers."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Sample shirt on Etsy: fees, profit, margin, 30% target price, break-even ROAS",
+   "method": "hand arithmetic from Etsy's published US fee rules (6.5% transaction on item+shipping, 3% + $0.25 processing, $0.20 listing, Offsite 15%) confirmed by web search of independent seller guides",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/print-on-demand-profit-calculator/probes.mjs ; node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/print-on-demand-profit-calculator/cdp.mjs",
+   "expected": "fees 3.7489, profit 5.8913 (19.64%), target 35.4386, ROAS 5.09x",
+   "observed": "P1 3.7489, 5.8913, 19.6442, 35.4386, 5.0906; live page '$5.89 \u2014 19.64%', '$35.44', '5.09x'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "eBay $25 item + $5 shipping, supplier $17",
+   "method": "eBay help page id=4822 (via search snippet): 13.6% of total + $0.40 per order over $10",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/print-on-demand-profit-calculator/probes.mjs",
+   "expected": "fees 4.48, profit 8.52",
+   "observed": "P3 4.48, 8.52",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Shopify Payments Basic on a $35 hoodie",
+   "method": "shopify.com/plan snippet: online standard card rate 2.9% + 30c",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/print-on-demand-profit-calculator/probes.mjs",
+   "expected": "fees 1.315, profit 7.685",
+   "observed": "P4 1.315, 7.685",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "eBay per-order fee on a $9 order",
+   "method": "eBay help page id=4822: $0.30 per order for orders of $10 or less",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/print-on-demand-profit-calculator/probes.mjs ; node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/print-on-demand-profit-calculator/cdp.mjs",
+   "expected": "fees 1.524",
+   "observed": "P2 1.624; live page 'FINAL VALUE FEE -$1.62'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Etsy Offsite Ads $100 per-order cap on an $800 canvas, all orders offsite",
+   "method": "Etsy Offsite Ads terms (via search): fee never exceeds $100 per order",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/print-on-demand-profit-calculator/probes.mjs",
+   "expected": "fees 176.45",
+   "observed": "P5 196.45",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Solved target price round-trips to the requested margin",
+   "method": "hand: re-run analyze at the solved price",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/print-on-demand-profit-calculator/probes.mjs",
+   "expected": "30.00%",
+   "observed": "P8 30",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Served page: sample loads and renders profit, target, ads, monthly and platform table",
+   "method": "headless Chrome over CDP on the deploy-rewritten served copy",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/print-on-demand-profit-calculator/cdp.mjs",
+   "expected": "all sections filled, comparison Shopify $1.17, eBay $4.48",
+   "observed": "all filled; ETSY $3.75 / SHOPIFY $1.17 / EBAY $4.48",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Blank price rejects and hides report",
+   "method": "headless Chrome",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/print-on-demand-profit-calculator/cdp.mjs",
+   "expected": "error, report hidden",
+   "observed": "'Enter a selling price above zero.' | true",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "Blank target margin and negative custom fee",
+   "method": "probe of analyze()",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/print-on-demand-profit-calculator/probes.mjs",
+   "expected": "error for blank target and negative fee",
+   "observed": "P6 blank target -> 30 silently; P7 customPct -10 accepted, fees -3",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "28 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Fee presets labelled unverified match current published schedules",
+   "method": "web search of platform help pages and independent guides",
+   "command": "grep -n 'pct:' ventures/print-on-demand-profit-calculator/calc.mjs",
+   "expected": "Etsy 6.5/3+0.25/0.20, Shopify 2.9+0.30, eBay 13.6+0.40",
+   "observed": "same values in calc.mjs:13-27",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, non-affiliation, privacy and usage counter on served page",
+   "method": "read served index.html and usage.mjs; page.test.mjs",
+   "command": "node platform/pages/served-copy.mjs print-on-demand-profit-calculator",
+   "expected": "present, no network calls, clean llms.txt",
+   "observed": "present; no placeholder or retired origin",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Fee base includes sales tax for eBay final value fee",
+   "method": "eBay help page id=4822 (via search): fee on item + shipping + sales tax",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/8c3dc66b-507d-5286-a066-00cfdd39a8bd/scratchpad/print-on-demand-profit-calculator/probes.mjs",
+   "expected": "tax modelled or the fee-on-tax effect disclosed",
+   "observed": "only 'sales tax ... not modelled'",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:93",
+   "change": "const refundLoss = (order * o.refundPct) / 100; -> const refundLoss = (price * o.refundPct) / 100;",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:140",
+   "change": "breakEvenRoas: maxAd > 0 ? u.order / maxAd : null -> breakEvenRoas: maxAd > 0 ? o.price / maxAd : null",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:27",
+   "change": "{ label: \"Final value fee\", pct: 13.6, fixed: 0.4 } -> { label: \"Final value fee\", pct: 12.9, fixed: 0.3 }",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:106",
+   "change": "const price = order - o.shipCharged; -> const price = order;",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:95",
+   "change": "profit drops - o.sampleCost",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:132",
+   "change": "const maxAd = noAd.profit; -> const maxAd = u.profit;",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "eBay per-order fee is always $0.40; eBay charges $0.30 on orders of $10 or less (the preset's own note says so). A $9 sticker shows fees $1.62 instead of $1.52 and the target-price solve inherits it.",
+   "where": "ventures/print-on-demand-profit-calculator/calc.mjs:27",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16798"
+  },
+  {
+   "severity": "medium",
+   "what": "No test pins any eBay number: changing the preset to 12.9% + $0.30 leaves all 28 tests green; break-even ROAS on price instead of order total also survives (every ROAS test has shipCharged 0).",
+   "where": "ventures/print-on-demand-profit-calculator/calc.test.mjs:45",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16798"
+  },
+  {
+   "severity": "medium",
+   "what": "eBay final value fee is charged on sales tax and Etsy payment processing on the tax-inclusive total; the page only says 'sales tax not modelled', so fees are understated (~$0.33 on a $30 eBay order at 8%) without the user being told fees grow with tax.",
+   "where": "ventures/print-on-demand-profit-calculator/index.html:122",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Etsy Offsite Ads $100 per-order cap not applied: an $800 all-offsite order shows $196.45 fees instead of $176.45.",
+   "where": "ventures/print-on-demand-profit-calculator/calc.mjs:81",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Blank target margin silently becomes 30% while the box shows empty.",
+   "where": "ventures/print-on-demand-profit-calculator/calc.mjs:61",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Negative custom fee percent or fixed fee accepted with no error (fees go negative, profit inflated); negative shipping charged silently clamped to 0.",
+   "where": "ventures/print-on-demand-profit-calculator/calc.mjs:58",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Supplier-cost-over-70% warning is skipped for the custom platform with no reason.",
+   "where": "ventures/print-on-demand-profit-calculator/calc.mjs:130",
+   "category": "logic-error",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16798"],
+ "verdict": "A small, honest single-item POD pricing tool whose arithmetic is right on every mainstream case recomputed. The Etsy, Shopify Basic and eBay presets, labelled 'unverified recollection', match the current published US rules (checked via search; the platform sites are blocked here), and the sample shirt (profit $5.89, 19.64%, 30%-margin price $35.44, break-even ROAS 5.09x), an eBay $30 order ($4.48 fees) and a Shopify $35 order ($1.315) reproduce by hand to the cent on the served page. Misses at the edges: eBay's $0.30 per-order fee at or under $10 is not applied though the note states it, the Offsite Ads $100 cap is missing, and fees charged on sales tax (eBay) are folded into 'sales tax not modelled'. Tests pin real dollar values for custom, Etsy and Shopify, but nothing pins eBay or ROAS with shipping: 2 of 6 seeded mutants survive. Disclaimer, privacy and usage counting hold. Does not meet the bar (verification 2); finished (completeness 3). Fixable in an hour: eBay fixed fee tier, Offsite cap, an eBay and a shipping-ROAS test, reject blank target and negative custom fees."
+}

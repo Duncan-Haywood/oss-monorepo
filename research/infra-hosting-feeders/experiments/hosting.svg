@@ -17,13 +17,13 @@
 <polyline points="64.0,157.0 624.0,166.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
 <circle cx="64.0" cy="157.0" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="166.6" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">fixed pf 0.95</text>
+<rect x="147.6" y="32" width="14" height="10" fill="#1f6fb2"/><text x="167.6" y="41" font-family="sans-serif" font-size="11">fixed pf 0.95</text>
 <polyline points="64.0,173.7 624.0,189.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="173.7" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="189.2" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">volt-var</text>
+<rect x="262.2" y="32" width="14" height="10" fill="#2e8b57"/><text x="282.2" y="41" font-family="sans-serif" font-size="11">volt-var</text>
 <polyline points="64.0,71.2 624.0,72.4" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="71.2" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="72.4" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">regulator -2 V</text>
+<rect x="345.8" y="32" width="14" height="10" fill="#8e44ad"/><text x="365.8" y="41" font-family="sans-serif" font-size="11">regulator -2 V</text>
 </svg>

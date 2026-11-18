@@ -108,17 +108,21 @@ export function maskNonCode(text) {
     // "identifier", with "" as the escape
     if (c === '"') {
       let j = i + 1;
+      let closed = false;
       while (j < n) {
         if (text[j] === '"' && text[j + 1] === '"') { j += 2; continue; }
-        if (text[j] === '"') { j += 1; break; }
+        if (text[j] === '"') { j += 1; closed = true; break; }
         j += 1;
       }
       // Quoted identifiers are code -- `ALTER TABLE "users"` must still match
       // -- so the characters are kept rather than blanked. Only the quotes go,
       // so `"my table"` does not read as two tokens.
+      // An unterminated identifier keeps every character: there is no closing
+      // quote to drop, and blanking its last letter renamed the table.
       out[i] = ' ';
-      for (let k = i + 1; k < j - 1; k += 1) out[k] = text[k];
-      if (j - 1 < n) out[j - 1] = ' ';
+      const end = closed ? j - 1 : Math.min(j, n);
+      for (let k = i + 1; k < end; k += 1) out[k] = text[k];
+      if (closed) out[j - 1] = ' ';
       i = j;
       continue;
     }
@@ -201,7 +205,13 @@ export function splitStatements(text) {
     const stmt = {
       text: raw.trim(),
       display: normalize(display),
-      masked: normalize(maskedSlice),
+      // Masking turns the quotes of `"public"."users"` into spaces, which
+      // would leave `public . users`: three tokens where every check's name
+      // pattern expects one, so `ALTER TABLE "public"."users" ALTER COLUMN
+      // "email" TYPE bigint` -- a full rewrite -- matched nothing. A dot
+      // between two names is rejoined; nothing else in masked code puts
+      // spaces round a dot.
+      masked: normalize(maskedSlice).replace(/(\w) ?\. ?(?=\w)/g, '$1.'),
       line: lineAt(text, from + leading),
       index: statements.length,
       inTransaction: open,

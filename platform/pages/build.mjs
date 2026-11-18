@@ -6356,6 +6356,7 @@ const CATEGORY_STYLE = `
     .start-grid a:hover, .start-grid a:focus-visible { color: var(--accent); text-decoration: underline; }
     .start-grid p { margin: 6px 0 0; color: var(--muted); font-size: .9rem; line-height: 1.5; }
     .start-grid .meta { font-size: .8rem; color: var(--soft); }
+    .start-here .starting { margin-top: 16px; }
     .answers { margin: 30px 0 0; padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; }
     .answers ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px 22px;
                   grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); }
@@ -6376,7 +6377,7 @@ const CATEGORY_STYLE = `
  * tools answer" lists the tools' own guide pages (`discoverGuides`), so every
  * line is a page that shipped, in that page's own words.
  */
-export function renderAudienceLead({ start = [], questions = [], toRoot = '../../', who = '', total = 0 }) {
+export function renderAudienceLead({ start = [], questions = [], toRoot = '../../', who = '', total = 0, starting = '' }) {
   if (!start.length) return '';
   const cards = start
     .map(
@@ -6412,7 +6413,12 @@ ${questions
       <p class="sub">The fullest tools on this page, with the most worked questions behind them.</p>
       <ol class="start-grid">
 ${cards}
-      </ol>
+      </ol>${
+        starting
+          ? `
+      <p class="starting">${escapeHtml(starting)}</p>`
+          : ''
+      }
     </section>${answers}
     <h2 class="all-tools">All ${formatCount(total)} tools${who ? ` for ${escapeHtml(who)}` : ''}</h2>
 `;
@@ -6737,6 +6743,7 @@ export function renderAudiencePage({ audience, items, groups, baseUrl, audiences
     questions: audienceQuestions(exampleTools(items, items.length), guides),
     who: audience.who,
     total: items.length,
+    starting: audience.starting,
   });
   const byCategory = groupByCategory(items);
   const subgroups =
@@ -6757,7 +6764,11 @@ export function renderAudiencePage({ audience, items, groups, baseUrl, audiences
       title: audience.title,
       description: audience.description,
       intro: audience.intro,
-      starting: audience.starting,
+      // With a "Start here" row the note goes under it (renderAudienceLead):
+      // in the hero it pushed the first card below a 360x780 phone's screen
+      // on 20 of 31 pages (polish-2026-11-18-fold-check.md), and its advice,
+      // "run a few sample jobs through these", is about those cards.
+      starting: lead ? '' : audience.starting,
       audience: audience.who,
       lead,
     },

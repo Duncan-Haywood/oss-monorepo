@@ -1,5 +1,7 @@
-"""Milestone 146: is the clipped ladder's fast-corner weakness about add-chain structure or about a short mapped critical path?
+"""Milestone 147: is the clipped ladder's fast-corner weakness about add-chain structure or about a short mapped critical path?
 A blind 2 x 2 test at SKY130 HD ff_n40C_1v95 that crosses the amount's structure (ADD, CTRL) with its mapped delay (FAST, SLOW).
+Planned and run as milestone 146; a sibling session landed its own milestone 146 on the same question (experiments/delay_split_ff/,
+PR #17222) while this flow ran, so this is milestone 147. The seeds keep the 146 they were committed with.
 
 Why: milestone 145 found, blind, that at ff the ladder's (SWC's) edge over equal-cost random routing is 7.3 points smaller on
 add-chain shift amounts (permutation p = 0.026), but every ADD design there mapped to a shorter no-wire period (6.9 to 14.8 ns) than
@@ -51,7 +53,7 @@ def _load(path, name):
     return mod
 
 
-M145 = _load(EXP / "addchain_ff" / "run.py", "vdse_m146_r145")
+M145 = _load(EXP / "addchain_ff" / "run.py", "vdse_m147_r145")
 SHA256, CORNER = M145.SHA256, M145.CORNER
 FAST_MAX, SLOW_MIN, PER_CELL = 15.0, 16.5, 5
 B = {"W": 128, "SW": 7}

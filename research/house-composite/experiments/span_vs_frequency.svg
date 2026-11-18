@@ -38,7 +38,7 @@
 <circle cx="512.0" cy="123.4" r="3" fill="#1f6fb2"/>
 <circle cx="568.0" cy="135.0" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="144.7" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">gamma 0 (loose panel)</text>
+<rect x="166.2" y="32" width="14" height="10" fill="#1f6fb2"/><text x="186.2" y="41" font-family="sans-serif" font-size="11">gamma 0 (loose panel)</text>
 <polyline points="64.0,71.2 120.0,71.2 176.0,71.2 232.0,71.2 288.0,71.2 344.0,71.2 400.0,71.2 456.0,88.4 512.0,103.6 568.0,116.4 624.0,127.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
 <circle cx="120.0" cy="71.2" r="3" fill="#2e8b57"/>
@@ -51,7 +51,7 @@
 <circle cx="512.0" cy="103.6" r="3" fill="#2e8b57"/>
 <circle cx="568.0" cy="116.4" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="127.2" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">gamma 0.5</text>
+<rect x="330.4" y="32" width="14" height="10" fill="#2e8b57"/><text x="350.4" y="41" font-family="sans-serif" font-size="11">gamma 0.5</text>
 <polyline points="64.0,71.2 120.0,71.2 176.0,71.2 232.0,71.2 288.0,71.2 344.0,71.2 400.0,71.2 456.0,75.3 512.0,91.5 568.0,105.0 624.0,116.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="71.2" r="3" fill="#8e44ad"/>
 <circle cx="120.0" cy="71.2" r="3" fill="#8e44ad"/>
@@ -64,5 +64,5 @@
 <circle cx="512.0" cy="91.5" r="3" fill="#8e44ad"/>
 <circle cx="568.0" cy="105.0" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="116.2" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">gamma 1 (glued T-beam)</text>
+<rect x="420.2" y="32" width="14" height="10" fill="#8e44ad"/><text x="440.2" y="41" font-family="sans-serif" font-size="11">gamma 1 (glued T-beam)</text>
 </svg>

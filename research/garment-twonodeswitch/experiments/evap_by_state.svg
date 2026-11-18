@@ -20,15 +20,15 @@
 <circle cx="624.0" cy="124.0" r="3" fill="#1f6fb2"/>
 <circle cx="362.7" cy="280.0" r="3" fill="#1f6fb2"/>
 <circle cx="64.0" cy="290.6" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">ours open</text>
+<rect x="166.2" y="32" width="14" height="10" fill="#1f6fb2"/><text x="186.2" y="41" font-family="sans-serif" font-size="11">ours open</text>
 <polyline points="624.0,71.2 362.7,263.0 64.0,285.3" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
 <circle cx="362.7" cy="263.0" r="3" fill="#2e8b57"/>
 <circle cx="64.0" cy="285.3" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">ref closed</text>
+<rect x="256" y="32" width="14" height="10" fill="#2e8b57"/><text x="276" y="41" font-family="sans-serif" font-size="11">ref closed</text>
 <polyline points="624.0,104.0 362.7,280.0 64.0,289.4" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="624.0" cy="104.0" r="3" fill="#8e44ad"/>
 <circle cx="362.7" cy="280.0" r="3" fill="#8e44ad"/>
 <circle cx="64.0" cy="289.4" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">ref open</text>
+<rect x="352" y="32" width="14" height="10" fill="#8e44ad"/><text x="372" y="41" font-family="sans-serif" font-size="11">ref open</text>
 </svg>

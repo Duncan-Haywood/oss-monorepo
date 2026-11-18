@@ -22,17 +22,17 @@
 <circle cx="204.0" cy="242.7" r="3" fill="#1f6fb2"/>
 <circle cx="344.0" cy="232.5" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="172.8" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">sigma 0.3 m</text>
+<rect x="166.2" y="32" width="14" height="10" fill="#1f6fb2"/><text x="186.2" y="41" font-family="sans-serif" font-size="11">sigma 0.3 m</text>
 <polyline points="64.0,189.1 204.0,167.4 344.0,155.2 624.0,149.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="189.1" r="3" fill="#2e8b57"/>
 <circle cx="204.0" cy="167.4" r="3" fill="#2e8b57"/>
 <circle cx="344.0" cy="155.2" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="149.8" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">sigma 0.6 m</text>
+<rect x="268.4" y="32" width="14" height="10" fill="#2e8b57"/><text x="288.4" y="41" font-family="sans-serif" font-size="11">sigma 0.6 m</text>
 <polyline points="64.0,126.1 204.0,113.2 344.0,92.9 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="126.1" r="3" fill="#8e44ad"/>
 <circle cx="204.0" cy="113.2" r="3" fill="#8e44ad"/>
 <circle cx="344.0" cy="92.9" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">sigma 1.0 m</text>
+<rect x="370.6" y="32" width="14" height="10" fill="#8e44ad"/><text x="390.6" y="41" font-family="sans-serif" font-size="11">sigma 1.0 m</text>
 </svg>

@@ -1,6 +1,6 @@
 """MicroPython entry point for the ESP32 motor controller (feeder or collector).
 
-Copy to the board with `mpremote cp protocol.py controller.py main.py config.py :`
+Copy to the board with `mpremote cp protocol.py controller.py main.py config.py capture.py :`
 (protocol.py lives in src/tennisbots/; see firmware/esp32/README.md).
 Pin assignments match hardware/electronics.md. Status: the logic in
 controller.py is unit-tested on CPython; this hardware layer has not yet
@@ -109,9 +109,20 @@ class Tach:
     """One pulse per revolution from a reflective IR sensor on the wheel hub, timed per revolution
     (controller.PeriodTach: counting pulses per 10 ms tick could only read multiples of 6000 rpm)."""
 
-    def __init__(self, pin):
-        self.core = controller.PeriodTach()
+    def __init__(self, pin, cap_ch=None):
         self.last_us = time.ticks_us()
+        # config.TACH_CAPTURE (2026-11-18, README "A tach timed in hardware"): the edge time comes from MCPWM0's capture
+        # channel `cap_ch`, latched in hardware, so the handler's latency no longer reaches the periods. Off by default.
+        # config.TACH_CAPTURE_SUB (README "Periods finer than a microsecond"): the capture's periods in 1 / SUB us.
+        self.cap = None
+        if cap_ch is not None and getattr(config, "TACH_CAPTURE", False):
+            import capture
+            sub = getattr(config, "TACH_CAPTURE_SUB", 1)
+            self.core = controller.PeriodTach(sub=sub)
+            self.cap = capture.Capture(pin, cap_ch)
+            self.clock = controller.CaptureClock(self.core.stall_us, sub=sub)
+        else:
+            self.core = controller.PeriodTach()
         self.rpm = 0
         self.rpm_last = 0
         self.since = 0
@@ -124,7 +135,13 @@ class Tach:
 
     def _p(self, _):
         now = time.ticks_us()
-        self.core.edge(time.ticks_diff(now, self.last_us))
+        since = time.ticks_diff(now, self.last_us)
+        if self.cap is None:
+            self.core.edge(since)
+        else:
+            period = self.clock.period(self.cap.ticks(), since)
+            if period >= 0:
+                self.core.edge(period)
         self.last_us = now
 
     def update(self, dt):
@@ -157,7 +174,7 @@ class StepDir:
 class FeederHw:
     def __init__(self):
         self.esc_top, self.esc_bottom = Servo(25), Servo(26)
-        self.tach_top, self.tach_bottom = Tach(34), Tach(35)
+        self.tach_top, self.tach_bottom = Tach(34, 0), Tach(35, 1)     # MCPWM0 capture channels 0 and 1 (TACH_CAPTURE)
         # Feed shuttle: a servo crank (cad/README.md, "Shuttle drive"); a stroke takes most of a second each way.
         self.gate = Servo(13, getattr(config, "GATE_LO_US", 500), getattr(config, "GATE_HI_US", 2500))
         self.gate_out_ms = getattr(config, "GATE_OUT_MS", 900)

@@ -34,7 +34,7 @@
 <circle cx="353.9" cy="122.5" r="3" fill="#1f6fb2"/>
 <circle cx="493.6" cy="112.4" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="77.6" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">isotropic (4a)</text>
+<rect x="129" y="32" width="14" height="10" fill="#1f6fb2"/><text x="149" y="41" font-family="sans-serif" font-size="11">isotropic (4a)</text>
 <polyline points="64.0,183.4 70.6,200.1 147.0,200.9 191.8,156.0 230.0,176.7 302.5,132.6 353.9,110.8 493.6,105.5 624.0,104.5" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="183.4" r="3" fill="#2e8b57"/>
 <circle cx="70.6" cy="200.1" r="3" fill="#2e8b57"/>
@@ -45,7 +45,7 @@
 <circle cx="353.9" cy="110.8" r="3" fill="#2e8b57"/>
 <circle cx="493.6" cy="105.5" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="104.5" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">orthotropic B only</text>
+<rect x="249.8" y="32" width="14" height="10" fill="#2e8b57"/><text x="269.8" y="41" font-family="sans-serif" font-size="11">orthotropic B only</text>
 <polyline points="64.0,187.3 70.6,204.9 147.0,197.6 191.8,157.1 230.0,177.3 302.5,136.0 353.9,118.7 493.6,112.8 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="187.3" r="3" fill="#8e44ad"/>
 <circle cx="70.6" cy="204.9" r="3" fill="#8e44ad"/>
@@ -56,5 +56,5 @@
 <circle cx="353.9" cy="118.7" r="3" fill="#8e44ad"/>
 <circle cx="493.6" cy="112.8" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">orthotropic B and EA</text>
+<rect x="395.4" y="32" width="14" height="10" fill="#8e44ad"/><text x="415.4" y="41" font-family="sans-serif" font-size="11">orthotropic B and EA</text>
 </svg>

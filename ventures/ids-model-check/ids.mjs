@@ -927,7 +927,9 @@ function versionMatches(spec, model) {
   return spec.ifcVersion.some((v) => v === model.schemaRaw || v === model.schemaId || (model.schemaId === "IFC4X3" && v.startsWith("IFC4X3")));
 }
 
-function applies(spec, model, ctx) {
+// walk: true visits every entity, as before the candidate pools; kept for
+// file-order-candidates.test.mjs, which compares the two.
+export function applies(spec, model, ctx, walk = false) {
   let pool = null;
   for (const f of spec.applicability) {
     if (f.kind === "entity") {
@@ -944,11 +946,94 @@ function applies(spec, model, ctx) {
   const pre = spec.applicability.map((f) => prefilter(f, model)).filter(Boolean);
   const keep = (e) => pre.every((p) => p(e)) && spec.applicability.every((f) => f.test(e, model, ctx).ok);
   if (!pool) {
-    const out = [];
-    for (const e of model.entities.values()) if (keep(e)) out.push(e);
-    return out;
+    // No entity facet: take the smallest candidate list a prefilter can name
+    // (the entities its own index holds), put it back in file order, and skip
+    // the walk over every entity (eval/file-order-candidates-2026-11-18.md).
+    pool = walk ? null : noEntityPool(spec, model);
+    if (!pool) {
+      const out = [];
+      for (const e of model.entities.values()) if (keep(e)) out.push(e);
+      return out;
+    }
   }
   return pool.filter(keep);
+}
+
+// The position of each entity in the file (the entities Map's order, which is
+// the order the walk above visits), built once per model and only when a
+// specification needs it. STEP ids are not in file order in real exports (none
+// of the four HHS/Schultz files is), so the id cannot stand in for it. Dense
+// integer ids (every parser here) index a typed array, 4 bytes per id.
+export function fileOrder(model) {
+  if (model._fileOrder) return model._fileOrder;
+  let max = 0, ints = true;
+  for (const id of model.entities.keys()) {
+    if (!Number.isInteger(id) || id < 0) { ints = false; break; }
+    if (id > max) max = id;
+  }
+  let ord;
+  if (ints && max <= 4 * model.entities.size + 1024) {
+    const a = new Int32Array(max + 1);
+    let i = 0;
+    for (const id of model.entities.keys()) a[id] = i++;
+    ord = (e) => a[e.id];
+  } else {
+    const byId = new Map();
+    let i = 0;
+    for (const id of model.entities.keys()) byId.set(id, i++);
+    ord = (e) => byId.get(e.id);
+  }
+  return (model._fileOrder = ord);
+}
+
+// Every entity a facet's prefilter (below) can pass, from the index it reads;
+// null where it reads none. A superset is safe (the pool is filtered by every
+// prefilter and test after); leaving one out is not, and
+// file-order-candidates.test.mjs compares each against the walk.
+function facetCandidates(f, model) {
+  const m = model;
+  const fromIds = (maps) => {
+    const out = new Set();
+    for (const map of maps) for (const id of map.keys()) { const e = m.entities.get(id); if (e) out.add(e); }
+    return out;
+  };
+  switch (f.kind) {
+    case "attribute": {
+      // Counted before it is built: an any-name attribute takes every class.
+      const lists = [];
+      let n = 0;
+      for (const [type, list] of m.byType) if (m.schema.attrs(type).some((a) => f.name.matchString(a.name))) { lists.push(list); n += list.length; }
+      if (n > m.entities.size / 2) return { size: n };
+      return new Set(lists.flat());
+    }
+    case "property": {
+      const out = new Set();
+      for (const [n, holders] of psetHolders(m)) if (f.propertySet.matchString(n)) for (const e of holders) out.add(e);
+      return out;
+    }
+    case "classification":
+      return fromIds([m.classRels, m.extRefs, m.typeOf]);
+    case "material":
+      return fromIds([m.matRels, m.typeOf]);
+    case "partOf": {
+      const rels = (f.relation === VOIDS_FILLS ? ["IFCRELFILLSELEMENT", "IFCRELVOIDSELEMENT"] : f.relation ? [f.relation] : PARTOF_RELS).map((r) => m.parents[r]).filter(Boolean);
+      return fromIds(rels);
+    }
+    default:
+      return null;
+  }
+}
+
+function noEntityPool(spec, model) {
+  let best = null;
+  for (const f of spec.applicability) {
+    const c = facetCandidates(f, model);
+    if (c && (!best || c.size < best.size)) best = c;
+  }
+  // Sorting more than half the model costs about what the walk does.
+  if (!best || best.size > model.entities.size / 2) return null; // also the attribute case's unbuilt { size }
+  const ord = fileOrder(model);
+  return [...best].sort((a, b) => ord(a) - ord(b));
 }
 
 // IDS has no inheritance (user manual, entity facet, "Inheritance"):
