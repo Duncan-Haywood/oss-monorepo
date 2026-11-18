@@ -1,0 +1,31 @@
+{
+  "note": "Fresh held-out pieces for the hollow small note bridge in the one-step cephalicus rule (scan.mjs oneStepCephalicus, ONE_STEP.gap), chosen on 2026-11-17 by eval/one-step-hollow-fresh.mjs after the bridge was set from three misses on the twelve tuning lists (GregoBase 3478, 3481, 3448) and frozen, and listed before any of their pages was downloaded: in id order from 3000 to 6999, the first 15 GregoBase ids in no earlier piece list (one-step-fresh-pages.json included), none of whose four leaves any earlier list (or an earlier piece of this list) reads, whose book: header names only the Graduale Romanum, 1908, and whose GABC has a one-step cephalicus (a liquescent whose note before it in the group is a plain pitch one letter higher). Arabic page p is printed on leaf p+26, bracketed page [p] on leaf p+585; the two leaves before it and the one after are read and the piece found by local alignment. GABC files are unmodified GregoBase downloads (CC0), in corpus/gregobase-1908-onestep/.",
+  "pieces": [
+    {
+      "name": "GregoBase 3357 (Ecce oculi)",
+      "gabc": "corpus/gregobase-1908-onestep/3357.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "oneStepCephalici": 1,
+      "pages": [
+        {
+          "page": "leaf 454",
+          "leaf": 454
+        },
+        {
+          "page": "leaf 455",
+          "leaf": 455
+        },
+        {
+          "page": "430",
+          "leaf": 456
+        },
+        {
+          "page": "leaf 457",
+          "leaf": 457
+        }
+      ]
+    }
+  ]
+}

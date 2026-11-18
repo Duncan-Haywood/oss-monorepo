@@ -16,7 +16,17 @@ KS = "experiments/m6_kindsel/results/summary.md"
 FR = "experiments/m6_fresh_items/results/summary.md"
 DV = "experiments/m6_design_variance/results/summary.md"
 DS = "experiments/m6_design_shrinkage/results/summary.md"
+LL = "experiments/m5_local_llm/results/summary.md"
 CHECKS = [
+    (LL, "| LLM15 | 0.569 (", "median AUC of 0.569"),
+    (LL, "| GBM_full | 0.780 (", "0.780 for the transferred model"),
+    (LL, "| LLM15 | 0.569 (0.537&ndash;0.589) | 32.84 (", "32.84 points zero-shot"),
+    (LL, "| 0.990 (0.984", "variance ratio 0.990"),
+    (LL, "Spearman(predicted gap, true gap) = 0.345", "Spearman 0.345"),
+    (LL, "slope of predicted on true gap 0.09", "slope of 0.09"),
+    (LL, "| LLM15_shift | &mdash; | 9.35 (", "misses by 9.35 points"),
+    (LL, "| GBM_full | 0.780 (0.755&ndash;0.790) | 5.11 (", "against 5.11 for the transferred model"),
+    (LL, "74 cells (pair x item)", "Over 74 cells"),
     (SB, "241 cells", "241 source-to-target cells"),
     (SB, "| E0 transfer as is | 5.59 |", "5.59 points on average"),
     (SB, "median |A-hat| (covariate shift, label-free) 0.83 points; |A-hat| < |B-hat| in 77% of cells", "|Â| < |B̂| in 77% of cells"),

@@ -4,7 +4,8 @@
 //   node schema/gen-schema.mjs IFC4.exp > schema/ifc4.json
 //
 // Kept facts only: entity names, supertype, abstract flag, explicit attributes in
-// order (name, type, optional, aggregate), which inherited attributes a subtype
+// order (name, type, optional, aggregate, and for a list of lists each inner
+// level's fixed size as `inner`), which inherited attributes a subtype
 // derives (written `*` in a STEP file), inverse attribute names (and, in
 // inverseFor, each one's entity and FOR attribute, for ifcXML), and every defined
 // type's underlying kind (simple base, enumeration values, select members).
@@ -52,7 +53,13 @@ export function parseExpress(text) {
       const tdecl = a[3].replace(/\s+/g, " ");
       const agg = /^(LIST|SET|ARRAY|BAG)\b/.test(tdecl);
       const of = (tdecl.match(/(\w+)\s*$/) || [])[1];
-      attrs.push({ name: a[1], type: (of || "").toUpperCase(), optional: !!a[2], aggregate: agg });
+      const at = { name: a[1], type: (of || "").toUpperCase(), optional: !!a[2], aggregate: agg };
+      // A list of lists (LIST [1:?] OF LIST [3:3] OF IfcLengthMeasure): each
+      // inner level's fixed size, or null when it varies. ifcXML writes such
+      // a list flat ("x y z x y z") when the size is fixed.
+      const levels = [...tdecl.matchAll(/\b(?:LIST|SET|ARRAY|BAG)\s*\[\s*(\w+)\s*:\s*([\w?]+)\s*\]/g)];
+      if (agg && levels.length > 1) at.inner = levels.slice(1).map((l) => (l[1] === l[2] && /^\d+$/.test(l[1]) ? Number(l[1]) : null));
+      attrs.push(at);
     }
     const derived = [];
     for (const d of (sections.derive || "").matchAll(/SELF\\(\w+)\.(\w+)\s*:/g)) derived.push(d[2]);

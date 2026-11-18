@@ -2,6 +2,42 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-17 · Milestone 6ac (H6 mechanism): where between H = 16 and H = 64 does the clean-last-sync gain appear? Rand-k keep 1/2, 1/4 and 1/8 with a dense last sync at H = 32, four seeds, both batch sets (planned before running; outcome below)
+
+- Why: 6ab's "Next" (1). The recipe (compress every sync but the last, send the last dense) ends below uncompressed on the fresh batches at H = 64 (-0.0123, -0.0185, -0.0141 at omega 1, 3, 7) and is break-even or a cost at H = 16 (-0.0038, -0.0004, +0.0141). A practitioner who syncs every 32 steps cannot tell from those two points whether the gain grows smoothly with H or appears only for long inner loops. H = 32 is the log2 midpoint, where 6t already found the fully-compressed cost between H = 16's line and H = 64's hinge.
+- Run (`experiments/gpt_scale/recipe_6ac.py`, written before the runs; run and scoring code as 6ab's with H = 32): the size-2 setup of `scale.py` at H = 32 (120 syncs), seeds 0 to 3. *unc* reruns the stored uncompressed run, now also scored on 6y's 64 fresh batches. For rand-k keep 1/4, 1/8 and 1/2 (omega 3, 7, 1; run in that order) the trunk trains with that noise for rounds 1 to 119, the state is forked, and the last round runs *clean* (the recipe) and *full* (the noise continuing). 16 runs; unc first.
+- **H6ac-i** (prior 95%, check): unc and the full keep-1/8 arm reproduce `scale.jsonl` (H = 32) bit-exactly on the standard batches (8 checks; keep 1/4 and 1/2 at H = 32 were never stored).
+- **H6ac-ii** (prior 50%): the omega-3 recipe is below unc on the fresh batches by more than 2 se (paired by seed).
+- **H6ac-iii** (prior 55%): the omega-7 recipe is within 2 se of unc on the fresh batches (its H = 16 cost and H = 64 gain average to zero).
+- **H6ac-iv** (prior 50%): the omega-3 fresh T at H = 32 is within 2 se of the seed-paired mean of its H = 16 and H = 64 values (about -0.0095): the gain grows linearly in log2 H rather than switching on above 32.
+- **H6ac-v** (prior 65%): b / omega (b = full - clean, standard batches) lies in [0.0008, 0.0016] at all three omegas, between H = 16's 0.0007 to 0.0009 and H = 64's 0.0013 to 0.0019.
+- Reported, no verdict: T, C and b on both batch sets, the weight norm, and fresh T at H = 64 minus H = 32 and H = 32 minus H = 16, paired by seed, per omega.
+- Reading: ii and iv holding mean the gain grows steadily with H and keep 1/4 already pays at H = 32; ii failing with iv holding means it grows steadily but is still within noise at 32; iv failing with T near zero means the gain switches on between 32 and 64.
+- Not tested: H = 48 or 128, other widths, a held-out split, outer-step tuning.
+
+### Outcome of 6ac (`experiments/gpt_scale/recipe_6ac.py`, `recipe_6ac.txt`, `recipe_6ac.jsonl`, `run_recipe6ac.out`; 16 runs, about 16.5 min each, 4 cores in parallel, torch 2.15.0+cu132 run on CPU)
+- The proxy refused download.pytorch.org, so this run used PyPI's CUDA build of the same torch version (2.15.0+cu132, CPU only) where 6ab used 2.15.0+cpu. H6ac-i is therefore also a check across builds.
+- **H6ac-i held**: all 8 checks reproduce `scale.jsonl` (H = 32) bit-exactly: unc and the full keep-1/8 arm, seeds 0 to 3.
+- Paired by seed against *unc* at H = 32 (nats, seed mean, se); T = clean - unc, C = full - unc, b = full - clean on the standard batches, then T and C on the fresh batches:
+
+  | noise | omega | T (std) | C (std) | b (std) | b / omega | T (fresh) | C (fresh) | fresh T per seed | ||theta||^2 |
+  |---|---|---|---|---|---|---|---|---|---|
+  | rand-k keep 1/2 | 1 | -0.0055 (0.0060) | -0.0039 (0.0056) | +0.0017 (0.0004) | 0.0017 | +0.0010 (0.0050) | +0.0024 (0.0048) | -0.004 +0.009 -0.011 +0.010 | 11,332 |
+  | rand-k keep 1/4 | 3 | -0.0085 (0.0061) | -0.0043 (0.0066) | +0.0042 (0.0005) | 0.0014 | -0.0059 (0.0082) | -0.0017 (0.0088) | -0.010 +0.018 -0.019 -0.013 | 13,736 |
+  | rand-k keep 1/8 | 7 | -0.0001 (0.0074) | +0.0111 (0.0074) | +0.0112 (0.0013) | 0.0016 | +0.0016 (0.0092) | +0.0117 (0.0092) | -0.018 +0.020 -0.011 +0.015 | 19,064 |
+  | uncompressed | 0 | 0 | 0 | | | 0 | 0 | | 10,248 |
+
+- **H6ac-ii refuted** (-0.0059, 0.7 se): at H = 32 the omega-3 recipe is not distinguishable from uncompressed. Three of four seeds are below zero by 0.010 to 0.019; seed 1 is +0.018.
+- **H6ac-iii held** (+0.0016, 0.2 se): the omega-7 recipe ties uncompressed on the fresh batches, between its H = 16 cost (+0.014) and H = 64 gain (-0.014); the seed-paired H = 16 / 64 midpoint is -0.0000.
+- **H6ac-iv held** (T -0.0059 against the midpoint -0.0094; difference +0.0035, 0.4 se). The test is weak: with se 0.008 it would also have held for a T of zero, so it does not separate a smooth rise in log2 H from a switch above H = 32.
+- **H6ac-v refuted**, at the edge: b / omega is 0.0017, 0.0014, 0.0016, so it is at H = 64's 0.0013 to 0.0019, not between H = 16 and H = 64 (keep 1/2's 0.0017 is above the registered 0.0016). The last sync's cost per unit of omega roughly doubles from H = 16 to H = 32 and then stays flat to H = 64.
+- Exploratory: the seed-to-seed spread of fresh T is two to four times larger at H = 32 (se 0.005 to 0.009) than at H = 16 or 64 (0.002 to 0.006), and it is shared across omegas: seed 1 is positive at all three (+0.009, +0.018, +0.020) and seed 2 negative at all three (-0.011, -0.019, -0.011). Averaged over the three omegas per seed, T is -0.010, +0.016, -0.013, +0.004 (mean -0.001, se 0.007). Much of the spread is the uncompressed run's own draw on each seed, which every compressed arm is paired against, so a fifth or sixth seed, or a second uncompressed reference, would tighten this more than another omega would.
+- Exploratory, paired by seed: fresh T at H = 64 minus H = 32 is -0.013 (0.010), -0.013 (0.009) and -0.016 (0.012) at omega 1, 3 and 7; H = 32 minus H = 16 is +0.005 (0.006), -0.006 (0.007) and -0.012 (0.013). None is past 2 se.
+- **Reading.** At H = 32 the recipe neither clearly gains nor costs at omega 1 to 7. Its seed means (+0.001, -0.006, +0.002) sit between the H = 16 values and the H = 64 gain, and the omega-7 arm moved from cost to tie exactly as a log-linear account predicts. With four seeds and this spread, the run cannot tell a gain that grows steadily with H from one that switches on between 32 and 64. What it does fix is the last-sync cost: the slope b / omega has reached its H = 64 value by H = 32.
+- **What it means in practice.** At H = 32 in this setup, any of keep 1/2, 1/4 or 1/8 with a dense last sync lands within about 0.006 nats of uncompressed training on the fresh batches (se 0.005 to 0.009), for half to an eighth of the bytes on 119 of 120 syncs. Skipping the dense last sync costs omega times about 0.0016 nats (+0.011 at keep 1/8). Across H = 16, 32 and 64, keep 1/4 with a dense last sync has never been measurably worse than uncompressed, so it is the safe default; a gain needs H = 64.
+- Limits: four seeds and a large shared seed effect; one width; the fresh batches are new draws from the validation text, not a held-out split; outer step not tuned.
+- Next: (1) seeds 4 to 7 of unc and keep 1/4 at H = 32 (8 runs), to resolve the -0.006; (2) a held-out split carved from the training text; (3) the recipe at the 0.41M-parameter size.
+
 ## 2026-11-17 · Milestone 6ab (H6 mechanism): does the clean-last-sync recipe pay at H = 16? Rand-k keep 1/2, 1/4 and 1/8 with a dense last sync, four seeds, both batch sets (planned before running; outcome below)
 
 - Why: 6aa's "Next" (1). At H = 64 the recipe (compress every sync but the last, send the last dense) ends below uncompressed on the fresh batches at omega 1, 3 and 7, best near omega 3 (6z, 6aa). At H = 16 the only point is 6x's omega-7 trunk on the standard batches, T = +0.0156 (se 0.0019): a cost. A practitioner who syncs every 16 steps needs to know whether some smaller omega still pays there, or whether the recipe is an H = 64 effect.
