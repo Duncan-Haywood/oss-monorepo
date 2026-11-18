@@ -9,7 +9,8 @@
 //   it returns true the element is dropped from its parent, so a caller that
 //   reads each subtree as it closes never holds the whole tree (the ifcXML
 //   reader, eval/lazy-ifcxml-2026-11-18.md). With spans: true each node gets
-//   `at` and `end`, its start and end offsets in text.
+//   `at` and `end`, its start and end offsets in text, plus `base` when the
+//   text is a slice of a larger one (eval/ifc4-layout-scale-2026-11-18.md).
 
 const ENT = { lt: "<", gt: ">", amp: "&", quot: '"', apos: "'" };
 
@@ -22,6 +23,7 @@ export function decodeEntities(s) {
 
 export function parseXml(text, opts = {}) {
   const { onClose, spans } = opts;
+  const base = opts.base || 0;
   // Every construct must be closed: a truncated file (an upload cut short, a
   // half-written commit) once sent indexOf's -1 back to the start and looped
   // forever, freezing the page or hanging a CI job.
@@ -54,7 +56,7 @@ export function parseXml(text, opts = {}) {
       const node = stack.pop();
       if (!node || node.name !== name || !stack.length) throw new Error(`mismatched </${name}>`);
       p = e + 1;
-      if (spans) node.end = p;
+      if (spans) node.end = p + base;
       if (onClose && onClose(node, stack)) top().children.pop();
       continue;
     }
@@ -78,7 +80,7 @@ export function parseXml(text, opts = {}) {
     const node = { name, local: name.includes(":") ? name.slice(name.indexOf(":") + 1) : name, attrs, children: [], text: "" };
     top().children.push(node);
     p = close + 1;
-    if (spans) { node.at = lt; node.end = p; }
+    if (spans) { node.at = lt + base; node.end = p + base; }
     if (!selfClosing) stack.push(node);
     else if (onClose && onClose(node, stack)) top().children.pop();
   }

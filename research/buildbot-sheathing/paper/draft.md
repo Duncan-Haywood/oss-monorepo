@@ -731,6 +731,21 @@ worst residual along the wall at 20 N of hose drag from 0.032 to 0.010 mm. On th
 residual at 20 N rises from 0.011 to 0.037 mm: at three poses a leg joint that the zero-drag score
 does not weigh flips under drag. Hold sides should be scored at the loads the controller will meet.
 
+Scored at those loads, they do both (milestone 48). Taking at each pose the sides whose smallest
+common leg margin over 17 hose loads and both press ends is largest returns the G1's worst residual
+to 0.016 / 0.011 / 0.011 mm at 0 / 5 / 20 N of drag and keeps the H1's 0.010 / 0.014 / 0.010 mm, at
+no stack cost. At 8 of 34 poses no side has a plan with 20 N of drag pulling backward at the 50 N
+press, and those keep the per-robot sides. The worst residuals are over the cases that have a plan:
+the G1 has none in 258 of 1530 swept pose-cases (17%), the H1 in 41 of 1938, a coverage the G1 figures
+since milestone 41 also carry.
+
+Those missing plans are a stance limit (milestone 49). At the 50 N press end of all 24 failing cells
+no contact force balances the base inside the friction cones (best cone slack −23.77 to −0.10 N),
+while the 25 N end balances at every cell; the soles' net horizontal load stays at most 0.189 of the
+vertical, so the robot tips back rather than slides. With 20 N of drag pulling straight back, the
+largest press the G1 balances at its 1.2 m grips falls from 51.6 to 36.4 N, and the H1's at 1.6 m from
+58.7 to 42.8 N, below the 50 N press. A pose's lean must leave headroom above 50 N for the hose.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

@@ -6,6 +6,12 @@ ROLLER_DUTY = 0.7               # collector pickup roller PWM duty
 BATTERY_DIVIDER = 11.0          # battery volts per ADC volt (100k/10k divider)
 LOW_BATTERY_MV = 24000          # 8S LiFePO4 (25.6 V nominal): ~3.0 V/cell under load
 WHEEL_RPM_FULL = 9000          # launcher wheel free speed at full ESC throttle, no ball (measure it with the tach)
+# True if the launcher ESCs hold an rpm setpoint with a speed loop of their own (VESC-class firmware in a speed or
+# "PID speed" input mode), False for a plain throttle ESC. With it on the board's wheel loop drops its proportional
+# term, which rang in cascade with the ESC's loop on the simulator (firmware/esp32/README.md "An ESC with its own speed
+# loop"). Set WHEEL_RPM_FULL to the rpm the ESC is told at full throttle. The ball-drop fit, and so a calibration
+# drill, assumes a throttle ESC: in speed mode its drops are marked unsure; calibrate with the ESC in duty mode.
+ESC_SPEED_LOOP = False
 # Launcher tachs timed by the ESP32's MCPWM capture unit rather than the pin interrupt's ticks_us() (firmware/esp32/
 # capture.py, README "A tach timed in hardware"): the edge time is latched in hardware, so the handler's latency drops
 # out. Not yet run on a board: log both ways with tach_log.run(34, 600) and tach_log.run(34, 600, capture=True), read

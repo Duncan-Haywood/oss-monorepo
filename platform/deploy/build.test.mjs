@@ -76,6 +76,19 @@ test('a real build writes the page, a catalogue and one json per app', async () 
   assert.equal(page.match(/id="q"/g).length, 1);
 }, { timeout: 120000 });
 
+test('the CLI the pages workflow runs builds into --out and says how many apps', async () => {
+  // portfolio-pages.yml runs `node platform/deploy/build.mjs --out=...`; the
+  // entry block was untested (red team 2026-11-18: an off-by-one in the
+  // --out= slice and a flipped main-module check both passed every test).
+  const { execFileSync } = await import('node:child_process');
+  const out = path.join(await tmp(), 'deploy');
+  const stdout = execFileSync(process.execPath, [path.join(import.meta.dirname, 'build.mjs'), `--out=${out}`], { encoding: 'utf8' });
+  assert.match(stdout, /^deploy page: \d+ deployable apps, \d+ skipped -> /);
+  assert.ok(stdout.trim().endsWith(`-> ${out}`), stdout);
+  const catalog = JSON.parse(await fs.readFile(path.join(out, 'catalog.json'), 'utf8'));
+  assert.equal(catalog.length, Number(stdout.match(/(\d+) deployable/)[1]));
+}, { timeout: 120000 });
+
 test('every built app composes into a repo for every provider', async () => {
   const out = await tmp();
   await build(out);
