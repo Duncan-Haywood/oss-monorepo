@@ -396,6 +396,12 @@ export function invert(A) {
  * scaling. The closed form the model fits are built on.
  */
 export function ridgeSolve(Z, y, lambda) {
+  const { G, r } = gramOf(Z, y);
+  return solveGram(G, r, lambda);
+}
+
+/** Upper triangle of Z'Z and Z'y, accumulated in the order ridgeSolve always used. */
+function gramOf(Z, y) {
   const p = Z[0].length;
   const G = Array.from({ length: p }, () => new Array(p).fill(0));
   const r = new Array(p).fill(0);
@@ -406,6 +412,13 @@ export function ridgeSolve(Z, y, lambda) {
       for (let b = a; b < p; b++) G[a][b] += z[a] * z[b];
     }
   }
+  return { G, r };
+}
+
+/** Adds lambda to a copy of the diagonal, mirrors the upper triangle and solves. */
+function solveGram(G0, r, lambda) {
+  const p = G0.length;
+  const G = G0.map((row) => row.slice());
   for (let a = 0; a < p; a++) {
     G[a][a] += lambda;
     for (let b = 0; b < a; b++) G[a][b] = G[b][a];
@@ -433,14 +446,28 @@ const standardize = (x, s) => x.map((v, j) => (s.active[j] ? (v - s.mean[j]) / s
  * Returns a model { predict(x), lambda, intercept, coef (original units) }.
  */
 export function ridgeFit(X, y, lambda) {
+  return ridgePrepare(X, y).fit(lambda);
+}
+
+/**
+ * Everything in ridgeFit that does not depend on lambda (scaling, centring,
+ * the Gram matrix), computed once; fit(lambda) then only solves. Same
+ * arithmetic in the same order as fitting from scratch, so the same bits.
+ */
+function ridgePrepare(X, y) {
   const n = X.length;
   const s = scaler(X);
   const Z = X.map((x) => standardize(x, s));
   const ym = y.reduce((a, b) => a + b, 0) / n;
-  const beta = ridgeSolve(Z, y.map((v) => v - ym), lambda * n) ?? new Array(X[0].length).fill(0);
-  const coef = beta.map((b, j) => (s.active[j] ? b / s.sd[j] : 0));
-  const intercept = ym - coef.reduce((a, c, j) => a + c * s.mean[j], 0);
-  return { lambda, intercept, coef, predict: (x) => intercept + x.reduce((a, v, j) => a + coef[j] * v, 0) };
+  const { G, r } = gramOf(Z, y.map((v) => v - ym));
+  return {
+    fit(lambda) {
+      const beta = solveGram(G, r, lambda * n) ?? new Array(X[0].length).fill(0);
+      const coef = beta.map((b, j) => (s.active[j] ? b / s.sd[j] : 0));
+      const intercept = ym - coef.reduce((a, c, j) => a + c * s.mean[j], 0);
+      return { lambda, intercept, coef, predict: (x) => intercept + x.reduce((a, v, j) => a + coef[j] * v, 0) };
+    },
+  };
 }
 
 function foldsOf(n, k, rand) {
@@ -458,15 +485,21 @@ export function ridgeCV(X, y, { folds = 5, seed = 1 } = {}) {
   const n = X.length;
   const k = Math.max(2, Math.min(folds, n));
   const fold = foldsOf(n, k, rng(seed));
+  // The split, scaling and Gram matrix of each fold do not depend on lambda:
+  // build them once and solve per grid value (same loop order, same sums).
+  const parts = [];
+  for (let f = 0; f < k; f++) {
+    const tr = [], te = [];
+    for (let i = 0; i < n; i++) (fold[i] === f ? te : tr).push(i);
+    if (!tr.length || !te.length) continue;
+    parts.push({ te, prep: ridgePrepare(tr.map((i) => X[i]), tr.map((i) => y[i])) });
+  }
   let best = null;
   for (const lam of LAMBDA_GRID) {
     let sse = 0;
     const oof = new Array(n);
-    for (let f = 0; f < k; f++) {
-      const tr = [], te = [];
-      for (let i = 0; i < n; i++) (fold[i] === f ? te : tr).push(i);
-      if (!tr.length || !te.length) continue;
-      const m = ridgeFit(tr.map((i) => X[i]), tr.map((i) => y[i]), lam);
+    for (const { te, prep } of parts) {
+      const m = prep.fit(lam);
       for (const i of te) {
         oof[i] = y[i] - m.predict(X[i]);
         sse += oof[i] ** 2;

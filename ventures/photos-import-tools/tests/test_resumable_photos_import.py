@@ -942,5 +942,48 @@ class PermanentlyFailingPhotosImporter(PhotosImporter):
         raise PhotosImportError("file is damaged and cannot be imported")
 
 
+class LibraryNameMatchIsOptInTests(unittest.TestCase):
+    # Quality audit 2026-11-17: an old DSC00002.JPG in the Photos library made
+    # `run` mark a new DSC00002.JPG imported without ever sending it.
+    def _run(self, extra):
+        import subprocess
+        with tempfile.TemporaryDirectory() as temp_dir:
+            t = Path(temp_dir)
+            root = t / "2026"
+            root.mkdir()
+            for name in ("DSC00001.JPG", "DSC00002.JPG", "DSC00003.JPG"):
+                (root / name).write_bytes(b"new")
+            db = t / "Photos.sqlite"
+            with sqlite3.connect(db) as connection:
+                connection.execute("CREATE TABLE ZASSET (ZFILENAME TEXT)")
+                connection.execute("CREATE TABLE ZADDITIONALASSETATTRIBUTES (ZORIGINALFILENAME TEXT)")
+                connection.execute("INSERT INTO ZADDITIONALASSETATTRIBUTES VALUES ('DSC00002.JPG')")
+            base = ["--root", str(root), "--state-dir", str(t / "s"), "--photos-db", str(db)]
+            calls = []
+
+            def fake_run(cmd, **kw):
+                if cmd == ["osascript"]:
+                    calls.append(kw["input"])
+                return subprocess.CompletedProcess(cmd, 0, "", "")
+
+            with redirect_stdout(StringIO()):
+                main(["init"] + base)
+                with mock.patch("resumable_photos_import.subprocess.run", side_effect=fake_run), \
+                        mock.patch("resumable_photos_import.time.sleep"):
+                    code = main(["run"] + base + extra)
+            return code, "\n".join(calls)
+
+    def test_run_sends_a_file_whose_name_is_already_in_the_library(self):
+        code, sent = self._run([])
+        self.assertEqual(code, 0)
+        self.assertIn("DSC00002.JPG", sent)
+
+    def test_photos_preflight_flag_still_skips_name_matches(self):
+        code, sent = self._run(["--photos-preflight"])
+        self.assertEqual(code, 0)
+        self.assertNotIn("DSC00002.JPG", sent)
+        self.assertIn("DSC00001.JPG", sent)
+
+
 if __name__ == "__main__":
     unittest.main()

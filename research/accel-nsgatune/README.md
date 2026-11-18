@@ -35,7 +35,7 @@ Random search: 0.129 (50 us), 0.116 (200 us). `accel-nsga`'s setting (pop 20, mu
 - **The earlier NSGA-II numbers were under-tuned.** Lowering mutation from 0.25 to 0.02 to 0.1 raises the share found at 400 designs from 0.28 to about 0.38 (50 us) and from 0.59 to about 0.71 to 0.77 (200 us). Every NSGA-II setting with population up to 40 and mutation up to 0.25 beats random search by a margin far above the seed spread (sd 0.06 to 0.14); the exceptions are the extreme settings.
 - **Too much randomness erases the advantage.** Population 80 with mutation 0.5 finds 0.132 and 0.185, about the same as random search (0.129 and 0.116); with 400 designs, population 80 is 20% of the budget spent on the first generation.
 - **Smaller populations and low mutation win at this budget; below about 0.1 mutation the curve is flat** (differences between 0.02, 0.05 and 0.1 are within about one seed sd at populations 10 and 20).
-- **Crossover matters little, and only at some settings.** At 50 us the mutation-only variant is level with or slightly ahead of NSGA-II at every mutation rate (pop 20: 0.450 vs 0.388 at mutation 0.02, 0.296 vs 0.282 at 0.25). At 200 us it is level at mutation 0.02 (0.731 vs 0.714) but behind at mutation 0.1 to 0.25 (pop 20: 0.634 vs 0.730 and 0.474 vs 0.587; pop 40: 0.486 vs 0.663 and 0.399 vs 0.546), gaps of roughly one to two seed sd. So crossover helps a little when mutation is moderate and not at all when mutation is low; on a 4-gene space with a 40-row model table there is little to recombine.
+- **Crossover's effect is sizeable at some settings and changes sign with the deadline.** At 50 us the mutation-only variant is level with or ahead of NSGA-II at every mutation rate tried at pop 20 ( 0.450 vs 0.388 at mutation 0.02, 0.296 vs 0.282 at 0.25). At 200 us it is level at mutation 0.02 (0.731 vs 0.714) but behind at mutation 0.1 to 0.25 (pop 20: 0.634 vs 0.730 and 0.474 vs 0.587; pop 40: 0.486 vs 0.663 and 0.399 vs 0.546), gaps of roughly one to two seed sd, which with 30 seeds is several standard errors (pop 40, mutation 0.1: Welch t about 6.2; pop 20, mutation 0.02 at 50 us: t about 2.9, 2026-11-17 quality audit). So crossover helps when mutation is moderate at 200 us, and removing it helps at low mutation at 50 us.
 - **Hypervolume again barely moves** (0.97 to 0.998 everywhere), and is slightly *higher* for the high-mutation settings that find less of the front. As in `accel-nsga`, only the exact-front share separates the methods.
 
 ![share of exact front found by mutation rate](experiments/mutation_sweep.svg)
@@ -54,3 +54,12 @@ None. Simulation only; no hardware specified, bought or measured, so no bill of 
 
 ## Outside dependencies
 Everything `accel-nsga` depends on (`accel-kws` models, `accel-codesign` Yosys areas, assumed constants). Standard library only.
+
+## Known gaps
+
+From the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-accel-nsgatune.json):
+
+- Comparisons between 30-seed means are judged against the per-seed sd, not the standard error, and no test is run; "flat below 0.1" fails a t-test at 200 us (0.773 vs 0.725, t about 3.3).
+- The random-search baseline (0.129) sits above its closed-form expectation, 400/3840 = 0.104, since every front point is a single design.
+- The no-crossover switch, the only new code, is untested: forcing crossover on leaves all tests green.
+- 0.25 is the 1/n mutation default for four genes (Deb), and the tuning literature (Eiben and Smit 2011; irace, López-Ibáñez et al. 2016) is not cited, so the result is new only relative to `accel-nsga`.

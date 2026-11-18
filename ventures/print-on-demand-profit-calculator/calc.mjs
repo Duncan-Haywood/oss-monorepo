@@ -73,9 +73,14 @@ function validate(o) {
 }
 
 // Fees as { pct (fraction of order total), fixed ($) } for one platform.
-export function feeModel(o, platform = o.platform) {
+// eBay's per-order fee is $0.40 on orders over $10 and $0.30 on orders of $10
+// or less (eBay selling fees help, id=4822). Pass the order total to get the
+// tier; without one the over-$10 fee is used.
+export const EBAY_SMALL_ORDER_FIXED = 0.3;
+export function feeModel(o, platform = o.platform, order) {
   const p = PLATFORMS[platform];
   const lines = platform === "custom" ? [{ label: "Your fee", pct: o.customPct, fixed: o.customFixed }] : p.lines.map((l) => ({ ...l }));
+  if (platform === "ebay" && order !== undefined && order <= 10) lines[0].fixed = EBAY_SMALL_ORDER_FIXED;
   if (platform === "etsy" && o.offsiteShare > 0 && o.offsitePct > 0) {
     // Expected value: only the share of orders Offsite Ads drove pays it.
     lines.push({ label: `Offsite Ads (${o.offsitePct}% on ${o.offsiteShare}% of orders)`, pct: (o.offsitePct * o.offsiteShare) / 100, fixed: 0 });
@@ -85,7 +90,7 @@ export function feeModel(o, platform = o.platform) {
 
 function unit(o, price, platform) {
   const order = price + o.shipCharged;
-  const fm = feeModel(o, platform);
+  const fm = feeModel(o, platform, order);
   const feeLines = fm.lines.map((l) => ({ label: l.label, amount: (order * l.pct) / 100 + l.fixed }));
   const fees = feeLines.reduce((s, l) => s + l.amount, 0);
   // A refunded order still cost the supplier's charge and the fees; only the
@@ -102,7 +107,14 @@ export function solvePrice(o, targetMarginPct, platform = o.platform) {
   const fm = feeModel(o, platform);
   const k = 1 - o.refundPct / 100 - fm.pct - targetMarginPct / 100;
   if (!(k > 0)) return null;
-  const order = (fm.fixed + o.baseCost + o.shipCost + o.sampleCost + o.adSpend) / k;
+  const costs = o.baseCost + o.shipCost + o.sampleCost + o.adSpend;
+  let order = (fm.fixed + costs) / k;
+  if (platform === "ebay" && order <= 10) {
+    // Re-solve on the small-order tier; if that lands above $10 the over-$10
+    // answer stands (it is <= $10, so it meets the target with margin to spare).
+    const small = (feeModel(o, platform, order).fixed + costs) / k;
+    if (small <= 10) order = small;
+  }
   const price = order - o.shipCharged;
   return price > 0 ? price : null;
 }

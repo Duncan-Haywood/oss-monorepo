@@ -97,3 +97,14 @@ test("sample runs and flags overdue duties as high plus the operator gap", () =>
   assert.equal(r.findings[0].severity, "high");
   assert.ok(r.findings.some((f) => /No EU operator/.test(f.title)));
 });
+
+test("DRS exemption is the Article 50 one: 80 percent in 2026 plus a plan (audit 2026-11-17)", () => {
+  const drs = run({ category: "beverage", role: "producer", location: "eu" }).timeline.find((t) => t.id === "drs");
+  assert.doesNotMatch(drs.label, /90 percent separate-collection rate is already met/);
+  assert.match(drs.label, /80 percent in 2026/);
+});
+
+test("a done marker of \"false\" or \"no\" is not done", () => {
+  for (const v of ["false", "no", "0", ""]) assert.equal(run({ epr: v }).timeline.find((t) => t.id === "epr").done, false, v);
+  assert.equal(run({ epr: "1" }).timeline.find((t) => t.id === "epr").done, true);
+});

@@ -31,16 +31,16 @@
       <li><code>resumable_photos_import.py</code>: restartable importer with <code>init</code>, <code>run</code>, <code>status</code>, <code>preflight</code> and <code>verify</code> commands; JPEG and RAW keep separate manifests.</li>
       <li><code>photos_import_watchdog.py</code> supervises the import phases, and <code>photos_import_errors.py</code> classifies failures and picks a recovery action.</li>
       <li><code>sd_offload.py</code> copies from removable storage; <code>--verify hash</code> compares SHA-256 so a same-size corrupted copy is caught.</li>
-      <li><code>verify</code> reads every manifest file back and exits 1 if any is missing, empty or unreadable, before you retire a source copy.</li>
+      <li><code>verify</code> reads every manifest file back and exits 1 if any is missing, empty or unreadable. It checks the source files, not that each one is in Photos, so check the library too before you retire a source copy.</li>
       <li>Status and report files are written atomically, so a reader never sees a half-written file.</li>
     </ul>
   </section>
   <section id="faq">
     <h2>Questions</h2>
     <h3>What happens if the import crashes halfway?</h3>
-    <p>Every file's state is recorded in a manifest on disk. Run the same <code>run</code> command again and it resumes from the manifest instead of starting over. It is also safe after Ctrl-C or a Photos.app timeout.</p>
+    <p>Every file's state is recorded in a manifest on disk. Run the same <code>run</code> command again and it resumes from the manifest instead of starting over. After Ctrl-C, a crash or a Photos.app timeout, files that were mid-import are sent again, and Photos may already hold some of them, so check for duplicates after an interrupted run.</p>
     <h3>Will it import the same photo twice?</h3>
-    <p>The manifest stops files it has already imported from being sent again. A file left <code>uncertain</code> by a Photos.app timeout may have been imported anyway, so the <code>preflight</code> command matches your files against the Photos library before you retry, and <code>skip-uncertain</code> clears them once you have decided.</p>
+    <p>The manifest stops files it has recorded as imported from being sent again. A batch interrupted mid-import can be sent twice (see the README's "Known gaps"). A file left <code>uncertain</code> by a Photos.app timeout may have been imported anyway, so the <code>preflight</code> command matches your files against the Photos library before you retry, and <code>skip-uncertain</code> clears them once you have decided.</p>
     <h3>Does it handle RAW files as well as JPEG?</h3>
     <p>Yes. JPEG and RAW each keep a separate manifest, chosen with <code>--media-type jpeg|raw</code>, so a RAW import needs its own <code>init</code> and <code>run</code> pass. The watchdog can supervise both phases in one unattended run.</p>
     <h3>How do I know the copy from my SD card is intact?</h3>

@@ -527,7 +527,11 @@ class PhotosImporter:
             self.log_event("recover_interrupted", {"count": recovered, "action": "reset_to_pending"})
 
         self.reset_failed_for_retry()
-        preflighted = bulk_preflight_pending(self.state, self.photos_db)
+        # Matching the library is by file name only, and camera counters roll
+        # over at 9999, so an old DSC00002.JPG in Photos would mark a new one
+        # imported without sending it. Only with --photos-preflight (quality
+        # audit 2026-11-17).
+        preflighted = bulk_preflight_pending(self.state, self.photos_db) if self.use_photos_preflight else 0
         if preflighted:
             self.stats.preflight_runs += 1
             self.log_event("bulk_preflight", {"marked_imported": preflighted})
@@ -576,7 +580,7 @@ class PhotosImporter:
                 self.stats.consecutive_failures = 0
                 self.stats.last_success_at = time.monotonic()
                 self.stats.batches_completed += 1
-                if self.stats.batches_completed % 10 == 0:
+                if self.use_photos_preflight and self.stats.batches_completed % 10 == 0:
                     marked = bulk_preflight_pending(self.state, self.photos_db)
                     if marked:
                         self.stats.preflight_runs += 1
@@ -712,7 +716,7 @@ class PhotosImporter:
         self.stats.last_error = str(error)
         self.stats.last_error_category = classified.category.value
 
-        if self.filename_in_photos(item.path.name):
+        if self.use_photos_preflight and self.filename_in_photos(item.path.name):
             self.state.mark_imported(item.path)
             self.log_event(
                 "recovered_already_imported",
@@ -776,7 +780,7 @@ class PhotosImporter:
                 "action": "preflight_then_pause",
             },
         )
-        marked = bulk_preflight_pending(self.state, self.photos_db)
+        marked = bulk_preflight_pending(self.state, self.photos_db) if self.use_photos_preflight else 0
         if marked:
             self.stats.preflight_runs += 1
         self.relaunch_photos()
