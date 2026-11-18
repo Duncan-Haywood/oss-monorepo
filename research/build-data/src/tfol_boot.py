@@ -11,6 +11,10 @@ run) to say how often the pick, and the 3-year versus 5-year side, would change.
 Run: python3 src/tfol_boot.py RESULTS_JSON ROWS_DIR [--prior results/rounds_score_tfol_i2c.json]
 Writes RESULTS_JSON with _boot.json in place of .json.
 Session 102: python3 src/tfol_boot.py RESULTS_JSON ROWS_DIR --early scores test years 2017 and 2018 (early_summary).
+Session 103: python3 src/tfol_boot.py RESULTS_JSON ROWS_DIR --grid scores the staleness grid {3, 4, 5 years} as fixed
+rules and as a per-deployment chooser (lowest k6_loss over the grid) over all 12 SF and Seattle city-years
+(grid_summary; nc4 for 2019 to 2022 from RESULTS_JSON, the rest from sessions 101 and 102's files). Writes
+RESULTS_JSON with _grid.json in place of .json.
 """
 import argparse, json, os, sys
 import numpy as np
@@ -176,6 +180,92 @@ def early_summary(path, rows_dir, held=("sf", "seattle"), prior_path=None):
                 pooled_post_hoc=pooled(cells, prior_path) if prior_path and os.path.exists(prior_path) else None)
 
 
+STALE_GRID = ("cpin_es3_nc3", "cpin_es3_nc4", "cpin_es3_nc5")  # session 103
+
+
+def grid_rows(new, oos, early, held=("sf", "seattle")):
+    """Session 103: one row per SF/Seattle city-year 2017 to 2022 with test q0.9 and k6_loss for each grid member.
+    new: session 103's nc4 fits (2019-2022); oos: session 101's (nc3, nc5 for 2019-2022); early: session 102's
+    (nc3, nc4, nc5 for 2017-2018). A cell missing any member is skipped."""
+    src = {Y: (early, early, early) if Y in EARLY_YEARS else (oos, new, oos) for Y in EARLY_YEARS + NEW_YEARS + OLD_YEARS}
+    rows = []
+    for h in held:
+        for Y, files in src.items():
+            rs = {v: f.get(f"{h} {Y} {v}") for v, f in zip(STALE_GRID, files)}
+            if not all(rs.values()):
+                continue
+            test = {v: r["test_loss"]["0.9"] for v, r in rs.items()}
+            k6 = {v: r["tgt_k"]["6"]["loss"]["0.9"] for v, r in rs.items()}
+            seeds = len(rs[STALE_GRID[0]]["test_loss_per_seed"]["0.9"])
+            oracle, pick = min(test, key=test.get), min(k6, key=k6.get)
+            rows.append(dict(held=h, year=Y, test=test, k6=k6, oracle=oracle, pick=pick,
+                             regret={v: test[v] - test[oracle] for v in STALE_GRID},
+                             pick_regret=test[pick] - test[oracle],
+                             pick_per_seed=[min(STALE_GRID, key=lambda v: rs[v]["tgt_k"]["6"]["loss_per_seed"]["0.9"][s])
+                                            for s in range(seeds)],
+                             nc4_minus_nc5_per_seed=[a - b for a, b in zip(rs["cpin_es3_nc4"]["test_loss_per_seed"]["0.9"],
+                                                                           rs["cpin_es3_nc5"]["test_loss_per_seed"]["0.9"])],
+                             nc4_minus_nc3_per_seed=[a - b for a, b in zip(rs["cpin_es3_nc4"]["test_loss_per_seed"]["0.9"],
+                                                                           rs["cpin_es3_nc3"]["test_loss_per_seed"]["0.9"])],
+                             k6_size=dict(n=rs["cpin_es3_nc4"]["tgt_k"]["6"]["n"], n_open=rs["cpin_es3_nc4"]["tgt_k"]["6"]["n_open"]),
+                             k6_size_ref=dict(n=rs["cpin_es3_nc3"]["tgt_k"]["6"]["n"], n_open=rs["cpin_es3_nc3"]["tgt_k"]["6"]["n_open"])))
+    return rows
+
+
+def grid_score(rows):
+    """Session 103's predictions G1 to G4 from grid rows (G0 needs the saved rows, see grid_summary)."""
+    m = lambda xs: float(np.mean(xs)) if xs else None  # noqa: E731
+    late = [r for r in rows if r["year"] not in EARLY_YEARS]
+    fixed_late = {v: m([r["test"][v] for r in late]) for v in STALE_GRID}
+    fixed_regret = {v: m([r["regret"][v] for r in rows]) for v in STALE_GRID}
+    chooser_regret = m([r["pick_regret"] for r in rows])
+    near = sum(r["regret"]["cpin_es3_nc4"] <= 1.0 for r in rows)
+    full = len(rows) == 12 and len(late) == 8
+    pred = dict(G1=full and fixed_late["cpin_es3_nc4"] < min(fixed_late["cpin_es3_nc3"], fixed_late["cpin_es3_nc5"]),
+                G2=full and min(fixed_regret, key=fixed_regret.get) == "cpin_es3_nc4",
+                G3=full and near >= 10,
+                G4=full and chooser_regret < fixed_regret["cpin_es3_nc4"])
+    return dict(n=len(rows), n_late=len(late), fixed_mean_late=fixed_late, fixed_mean_all={
+                    v: m([r["test"][v] for r in rows]) for v in STALE_GRID}, fixed_regret=fixed_regret,
+                chooser_regret=chooser_regret, chooser_hits=sum(r["pick"] == r["oracle"] for r in rows),
+                chooser_picks={v: sum(r["pick"] == v for r in rows) for v in STALE_GRID},
+                oracle_counts={v: sum(r["oracle"] == v for r in rows) for v in STALE_GRID},
+                nc4_within_1day=near, oracle_mean_all=m([r["test"][r["oracle"]] for r in rows]),
+                # post hoc (not pre-registered): worst case and how often each cut is the worst of the three
+                max_regret_post_hoc={v: max((r["regret"][v] for r in rows), default=None) for v in STALE_GRID},
+                chooser_max_regret_post_hoc=max((r["pick_regret"] for r in rows), default=None),
+                worst_counts_post_hoc={v: sum(max(r["test"], key=r["test"].get) == v for r in rows) for v in STALE_GRID},
+                predictions=pred)
+
+
+def grid_summary(path, rows_dir, oos_path, early_path, held=("sf", "seattle")):
+    """Session 103 (LOG.md): G0 checks the saved nc4 rows against the JSON and the target-cohort sizes against
+    session 101's fits; G1 to G4 from grid_score."""
+    R = json.load(open(path))
+    rows = grid_rows(R, json.load(open(oos_path)), json.load(open(early_path)), held)
+    chk = []
+    for h in held:
+        for Y in NEW_YEARS + OLD_YEARS:
+            r = R.get(f"{h} {Y} cpin_es3_nc4")
+            f = os.path.join(rows_dir, f"{h}_{Y}_cpin_es3_nc4.npz") if rows_dir else ""
+            if r is None or not os.path.exists(f):
+                chk.append(float("inf"))
+                continue
+            z = np.load(f)
+            done = ~z["k6_open"]
+            chk.append(max(abs(row_loss(z["test_y"], z["test_pred"]).mean() - r["test_loss"]["0.9"]),
+                           abs(row_loss(z["k6_y"][done], z["k6_pred"][:, done]).mean() - r["tgt_k"]["6"]["loss"]["0.9"])))
+    s = grid_score(rows)
+    s["predictions"] = dict(G0=bool(chk) and bool(max(chk) < 1e-3) and all(
+        r["k6_size"] == r["k6_size_ref"] for r in rows if r["year"] not in EARLY_YEARS), **s["predictions"])
+    s["rows_check_max_abs"] = float(max(chk)) if chk else None
+    s["note"] = ("session 103: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds on completed test rows "
+                 "(days); grid = staleness cuts 3, 4, 5 years; oracle = best grid member on the test year; chooser = "
+                 "lowest q0.9 pinball on the target's own Y-6 permits completed by D = 1 January Y")
+    s["cells"] = rows
+    return s
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("results")
@@ -183,7 +273,19 @@ if __name__ == "__main__":
     ap.add_argument("--prior", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results",
                                                      "rounds_score_tfol_i2c.json"))
     ap.add_argument("--early", action="store_true", help="session 102: test years 2017 and 2018 (early_summary)")
+    ap.add_argument("--grid", action="store_true", help="session 103: the {3, 4, 5}-year grid (grid_summary)")
     a = ap.parse_args()
+    if a.grid:
+        rd = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+        s = grid_summary(a.results, a.rows_dir, os.path.join(rd, "rounds_score_oos_i2c.json"),
+                         os.path.join(rd, "rounds_score_early_i2c.json"))
+        json.dump(s, open(a.results.replace(".json", "_grid.json"), "w"), indent=1)
+        print(json.dumps({k: v for k, v in s.items() if k not in ("cells", "note")}, indent=1))
+        for c in s["cells"]:
+            print(c["held"], c["year"], {k[8:]: round(v, 2) for k, v in c["test"].items()}, "oracle", c["oracle"][8:],
+                  "pick", c["pick"][8:], round(c["pick_regret"], 2), "k6", {k[8:]: round(v, 2) for k, v in c["k6"].items()},
+                  c["pick_per_seed"], "nc4-nc5 seeds", [round(x, 2) for x in c["nc4_minus_nc5_per_seed"]])
+        sys.exit(0)
     if a.early:
         s = early_summary(a.results, a.rows_dir, prior_path=a.prior.replace("tfol_i2c", "oos_i2c"))
         json.dump(s, open(a.results.replace(".json", "_boot.json"), "w"), indent=1)
