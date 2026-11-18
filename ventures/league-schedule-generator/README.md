@@ -193,8 +193,8 @@ MIT licence, see `LICENSE`.
 
 The six seasons the lane search left short (below, 2026-11-17) are closed: **36 of 36** measured
 seasons now have every team at the bound (worst spread 1, down from 2), at 0.64 s per season.
-Two additions to `assignLanes` in `bowling.mjs`, both run only when the polish ends with a count
-out of bounds:
+Two additions to `assignLanes` in `bowling.mjs`: a stored answer is used first when the season has
+one, and the walk runs only when the polish ends with a count out of bounds:
 
 - **A focused walk** (`walkLanes`, the WalkSAT idea): each step picks a random team-pair cell
   outside floor..ceil, and among the swaps that move one of that team's matches off (or onto)
@@ -214,18 +214,24 @@ out of bounds:
   number of round-robin weeks.
 
 Repeats rose from 340 to 392 over the 36 seasons: balance comes first in the price, and the
-repaired seasons have 9 to 39 repeats against 6 to 21 before. The grid and every SAT answer:
-`eval/bowling-lane-table.txt`.
+repaired seasons have 9 to 39 repeats against 6 to 21 before.
+
+**The wider grid** (`eval/bowling-lane-table.txt`): of 507 seasons (4 to 28 teams, 2 to 40
+weeks) the search with the walk misses 90. CaDiCaL solved 28 (all now stored and at the bound:
+every exact season of 12 to 20 teams up to 40 weeks, and the near-whole-cycle ones such as 18x17,
+20x29, 22x23), proved 35 impossible, and gave no answer to 27 within 420 s or before the batch's
+30-minute cap (16x40 and most seasons of 22 to 28 teams). Those 27 are where a longer SAT run, or a
+solver on a bigger machine, should go next; the table merges new answers with
+`eval/bowling-lane-table-merge.mjs`. The table is 6.4 kB.
 
 **Proved impossible.** CaDiCaL returns UNSAT for every season exactly P weeks long that it was
-asked about (6, 8, 10, 12, 14, 16, 18, 20 and 22 teams), and for 4 teams at every length tried.
-A P-week season at the bound needs each team on every pair exactly once, so each pair's P matches
-form a perfect matching with one edge from each round: a 1-factorization orthogonal to the
+asked about (6 to 24 teams), for 4 teams at all 21 lengths from 2 to 40 weeks where the search misses, and for 6x9, 8x3 and
+12x5. A P-week season at the bound needs each team on every pair exactly once, so each pair's P
+matches form a perfect matching with one edge from each round: a 1-factorization orthogonal to the
 circle method's P rounds. A SAT check (`eval/bowling-lane-blocks.py`; `eval/bowling-lane-table.txt`, "Blocks") found none
 for the first P rounds or for three random choices of P rounds at every even size from 6 to 20 teams
-(32 of 32 UNSAT), which is also
-why splitting a season into perfect P-week blocks, tried first this session, cannot work with
-these rounds. On those lengths the page's result is as close as the search gets.
+(32 of 32 UNSAT), which is also why splitting a season into perfect P-week blocks, tried first
+this session, cannot work with these rounds. On those lengths the page's result is as close as the search gets.
 
 ## Bowling leagues: lane pairs rotated evenly (2026-11-17)
 

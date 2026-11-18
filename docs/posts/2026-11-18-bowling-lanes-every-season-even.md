@@ -42,6 +42,10 @@ cost a little speed, but it can never make a season less even. "Try another lane
 the pairs, which keeps the balance, and then the usual polish cuts down back-to-back weeks on the
 same pair.
 
+Of the 90 seasons on that grid the search missed, the solver solved 28, which the page now
+stores. It proved 35 impossible (below), and 27 got no answer in the time given, mostly leagues
+of 22 to 28 teams. Those 27 are the next job.
+
 That last part has a cost: over the 36 seasons, back-to-back repeats rose from 340 to 392,
 because even lane counts come first.
 
