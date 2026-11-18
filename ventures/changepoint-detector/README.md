@@ -6417,3 +6417,55 @@ with 16 donors (both published gaps, both signs robust to dropping any heavy don
 away; read the named units above the treated one before reading the p. **Limits.** Two panels, one statistic fixed
 in advance, levels only, no covariate fit. **Next:** a size and power check at 10-20 units in simulation (how often
 rank 1 is reached with a real 2 sd step when one donor has its own shock); a real deployer's panel of stores or regions.
+
+### Few donors: size and power, and one donor with its own shock (2026-11-18, pre-registered; all six bars passed)
+
+"Few donors" ended: "a size and power check at 10-20 units in simulation (how often rank 1 is reached with a real
+2 sd step when one donor has its own shock)". `eval/synth-few-power-sim.mjs` (pre-registration
+`eval/synth-few-power-prereg-2026-11-18.md`, committed after an exploratory run at base 81000 and before the
+confirmatory run): the shipped generator in N1's shape (19 points before, 12 after, noise sd 0.5) at 11, 16 and 21
+units. The treated unit drops by 1.0 (two noise sd) from the date in the P cells; donor 1 moves by 1.0 (D) or 2.0 (E)
+from the date, its own event, sign drawn per panel. Shipped defaults. Each panel is also refitted with donor 1 left out
+of the pool beforehand. Confirmatory, base 83000, 400 panels a cell (`eval/synth-few-power-confirm.out.txt`); "rank 1"
+is p = 1/units, the strongest result the test allows:
+
+| units | no effect: rank 1 (1/units) | ... donor shocked | 2 sd step: rank 1 | ... one donor shocked by the same | ... by twice | ... that donor left out beforehand | mean gap (truth -1), shocked |
+|---|---|---|---|---|---|---|---|
+| 11 | 9.5% (9.1%) | 3.5% | **53.5%** | **38.0%** | **12.8%** | 58.3% | -0.995 |
+| 16 | 6.5% (6.3%) | 2.3% | **60.0%** | **40.3%** | **9.0%** | 56.0% | -1.029 |
+| 21 | 6.5% (4.8%) | 3.0% | **58.8%** | **34.8%** | **6.0%** | 57.5% | -1.007 |
+
+Bars: (1) size at most 1/units + 4 points in all six no-effect cells: holds. (2) power at least 40% with clean donors:
+53.5-60.0%, holds. (3) a same-size donor shock costs at least 8 points: 15.5, 19.7 and 24.0, holds. (4) a donor shock
+twice the effect leaves at most 15%: 6.0-12.8%, holds. (5) leaving the donor out beforehand comes within 8 points of
+the clean rate: -4.7 to +4.8, holds. (6) of PD and PE panels not at rank 1, the shocked donor is among the units
+listed above the treated one in 88.9% (1,633 of 1,837; bar 70%): holds.
+
+**What it says.**
+- **One donor's own event is enough to take the test away; it does not touch the estimate.** With clean donors a
+  2 sd step reaches rank 1 in 54-60% of panels at every size from 11 to 21 units; one donor with a shock as large
+  as the effect drops that to 35-40%, one twice as large to 6-13%, close to the 5-9% of no effect at all. The gap
+  stays right in every cell (mean -0.94 to -1.08 against the true -1): the shocked donor rarely carries much weight
+  (0.05-0.11 on average), so it spoils the placebo ranking, not the synthetic control. This is the pattern of West
+  Germany and the Basque Country: published gaps recovered, ranks 3rd and 4th.
+- **More units do not buy it back.** Power with clean donors is flat from 16 to 21 units (60.0%, 58.8%), and the
+  shocked donor costs the most at 21 (24 points): rank 1 is a single slot, and one unit with a larger statistic
+  takes it whatever the pool's size.
+- **Leaving the donor out beforehand restores the clean rate** (56-58%), at the price of one unit (the smallest p
+  rises from 1/21 to 1/20, or 1/11 to 1/10). Done before the fit, because its event is known (a store refit, a plant
+  closure, a region's own policy), this is Abadie (2021)'s advice to keep units with large idiosyncratic shocks out of
+  the pool; done after seeing the ranks, it is the forking path the "above" note warns about. The simulation scores
+  the pre-declared kind only.
+- The "ranked above" list names the culprit in 89% of the panels where the treated unit missed rank 1, so the note
+  added in "Few donors" points the reader at the right unit.
+- Reported, no bar: the plain ratio's rank-1 shares follow the floored ratio's (43-49% clean, 31-37% one shocked);
+  the after-gap alone is weak everywhere (16-19% clean).
+
+**Ships (decided in the pre-registration).** The FEW DONORS note in the CLI and on the page now quotes these rank-1
+shares at the nearest of 11, 16 and 21 units (`FEW_POWER`, `fewPowerRow` in `synth-view.mjs`) and says to leave out of
+`--donors`, before fitting, any unit whose own after-date event is already known, and to say so.
+`synth-few-power.test.mjs` pins the panel construction and checks the note's numbers against the confirmatory file.
+
+**Limits.** One panel shape (N1's), independent factor loadings, one shocked donor with a step; a donor with a slope or
+pulse, two shocked donors and a shocked donor that is also the treated unit's best match are untested. **Next:** a
+real deployer's panel of stores or regions; two shocked donors at 11-16 units.

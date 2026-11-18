@@ -24,3 +24,24 @@ test('a score: p is rank / units, the excluded fit has one donor fewer', () => {
   assert.equal(typeof s.shockedAbove, 'boolean');
   assert.ok(s.shockedWeight >= 0 && s.shockedWeight <= 1);
 });
+
+test('the FEW DONORS note quotes the confirmatory run at the nearest unit count and says to leave known shocks out beforehand', async () => {
+  const { fewDonorsNote, fewPowerRow, FEW_POWER } = await import('./synth-view.mjs');
+  const { readFileSync } = await import('node:fs');
+  const out = readFileSync(new URL('./eval/synth-few-power-confirm.out.txt', import.meta.url), 'utf8');
+  const cellRank1 = (cell) => Number(out.split('\n').find((l) => l.startsWith(cell + ' ')).split('|')[1].trim().split(/\s+/)[0].replace('%', ''));
+  const cellExcl = (cell) => Number(out.split('\n').find((l) => l.startsWith(cell + ' ')).split('|')[7].trim().split('%')[0]);
+  for (const r of FEW_POWER) {
+    assert.equal(r.clean, cellRank1(`P${r.units}`));
+    assert.equal(r.oneShocked, cellRank1(`PD${r.units}`));
+    assert.equal(r.twiceShocked, cellRank1(`PE${r.units}`));
+    assert.equal(r.excluded, cellExcl(`PD${r.units}`));
+  }
+  assert.equal(fewPowerRow(17).units, 16);
+  assert.equal(fewPowerRow(6).units, 11);
+  assert.equal(fewPowerRow(19).units, 21);
+  const t = fewDonorsNote({ donors: 16, minP: 1 / 17 });
+  assert.match(t, /In simulation with 16 units .* rank 1 60% of the time; .* same size after the date, 40%; twice the size, 9%; .* left out of the pool before the fit, 56%/);
+  assert.match(t, /leave out of --donors, before fitting/);
+  assert.equal(fewDonorsNote({ donors: 20, minP: 1 / 21 }), null);
+});
