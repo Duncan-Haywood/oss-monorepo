@@ -1,0 +1,62 @@
+Milestone 6h: each twin's spacing parameter recalibrated on the HERMES transit-density curve (3.6 m)
+Part A 4 seeds, Part B 12 fresh seeds; 120 s runs, warm-up 40 s; B = 2000.
+
+Real free curve: 1084 crossings; density 5th/95th 0.370/1.980; assigned-exit curve 1917 crossings, 5th/95th 0.441/2.830
+Operating densities (mean crossing density of the run): bo-360-090-090 0.830/m^2; bo-360-160-160 1.721/m^2
+
+Part A: calibration score = RMS of (cell-mean transit - real free curve at the cell's density), cells inside [0.37, 1.98] /m^2
+  social force x0.75 agent_scale=4000: score 3.25 s over 16 cells; max cell density 1.25; failed 1/72
+  social force x0.75 agent_scale=2000 (default): score 2.85 s over 16 cells; max cell density 1.13; failed 0/72
+  social force x0.75 agent_scale=1000: score 2.33 s over 16 cells; max cell density 1.36; failed 1/72
+  social force x0.75 agent_scale=500: score 2.54 s over 16 cells; max cell density 1.25; failed 0/72
+  social force x0.75 agent_scale=250: score 4.16 s over 16 cells; max cell density 1.37; failed 0/72
+    chosen agent_scale = 1000; operating N: entrance 0.9 -> 101; entrance 1.6 -> None
+  collision-free speed x0.5 time_gap=1.5: score 17.90 s over 16 cells; max cell density 2.11; failed 0/72
+  collision-free speed x0.5 time_gap=1 (default): score 8.87 s over 16 cells; max cell density 2.04; failed 0/72
+  collision-free speed x0.5 time_gap=0.7: score 2.96 s over 17 cells; max cell density 1.99; failed 0/72
+  collision-free speed x0.5 time_gap=0.5: score 1.02 s over 17 cells; max cell density 1.57; failed 0/72
+  collision-free speed x0.5 time_gap=0.3: score 0.55 s over 17 cells; max cell density 1.24; failed 0/72
+    chosen time_gap = 0.3; operating N: entrance 0.9 -> 48; entrance 1.6 -> None
+  ORCA x0.02 tau=10: score 9.68 s over 16 cells; max cell density 1.36; failed 0/72
+  ORCA x0.02 tau=5 (default): score 6.06 s over 16 cells; max cell density 1.17; failed 0/72
+  ORCA x0.02 tau=3: score 7.51 s over 16 cells; max cell density 1.25; failed 0/72
+  ORCA x0.02 tau=2: score 6.15 s over 16 cells; max cell density 1.18; failed 0/72
+  ORCA x0.02 tau=1: score 8.77 s over 18 cells; max cell density 1.58; failed 0/72
+    chosen tau = 5; operating N: entrance 0.9 -> 49; entrance 1.6 -> None
+  ORCA x1.0 tau=10: score 2.26 s over 16 cells; max cell density 1.30; failed 0/72
+  ORCA x1.0 tau=5 (default): score 5.40 s over 16 cells; max cell density 1.29; failed 0/72
+  ORCA x1.0 tau=3: score 1.70 s over 16 cells; max cell density 1.51; failed 0/72
+  ORCA x1.0 tau=2: score 0.78 s over 17 cells; max cell density 1.39; failed 0/72
+  ORCA x1.0 tau=1: score 0.84 s over 17 cells; max cell density 1.32; failed 0/72
+    chosen tau = 2; operating N: entrance 0.9 -> 49; entrance 1.6 -> None
+
+Part B: held out (fresh seeds; assigned-exit runs never used in the fit)
+  social force x0.75, agent_scale = 1000: failed 0/240; density 5th/95th 0.34/1.32; fresh-seed score 1.90 s over 16 cells (Part A 2.33, default 2.85)
+    curve gap vs free over [0.37, 1.32]: 2.16 s [1.70, 2.52]
+    curve gap vs assigned-exit over [0.44, 1.32]: 2.33 s [2.00, 2.66]
+    bo-360-090-090 (entrance 0.9): N 101 vs 81: twin cost -0.91 s [-3.19, +1.32] (density 0.767 vs 0.830); real curve at those densities -0.18 s [-0.24, -0.13]; transit twin 8.05 s, real 6.34 s; own-right share 0.885, lane order 0.813
+    bo-360-160-160: the twin never reached 1.72/m^2 at entrance 1.6
+  collision-free speed x0.5, time_gap = 0.3: failed 0/240; density 5th/95th 0.36/1.29; fresh-seed score 0.53 s over 17 cells (Part A 0.55, default 8.87)
+    curve gap vs free over [0.37, 1.29]: 0.54 s [0.43, 0.78]
+    curve gap vs assigned-exit over [0.44, 1.29]: 0.55 s [0.41, 0.75]
+    bo-360-090-090 (entrance 0.9): N 48 vs 38: twin cost +0.19 s [+0.09, +0.29] (density 0.820 vs 0.669); real curve at those densities +0.40 s [+0.27, +0.56]; transit twin 6.82 s, real 6.49 s; own-right share 0.959, lane order 0.915
+    bo-360-160-160: the twin never reached 1.72/m^2 at entrance 1.6
+  ORCA x0.02, tau = 5: failed 0/240; density 5th/95th 0.35/1.30; fresh-seed score 8.83 s over 16 cells (Part A 6.06, default 6.06)
+    curve gap vs free over [0.37, 1.30]: 7.59 s [5.84, 9.61]
+    curve gap vs assigned-exit over [0.44, 1.30]: 8.13 s [6.30, 10.40]
+    bo-360-090-090 (entrance 0.9): N 49 vs 39: twin cost +1.53 s [-0.05, +3.30] (density 0.803 vs 0.642); real curve at those densities +0.42 s [+0.27, +0.60]; transit twin 9.33 s, real 6.44 s; own-right share 0.765, lane order 0.773
+    bo-360-160-160: the twin never reached 1.72/m^2 at entrance 1.6
+  ORCA x1.0, tau = 2: failed 0/240; density 5th/95th 0.36/1.28; fresh-seed score 0.70 s over 16 cells (Part A 0.78, default 5.40)
+    curve gap vs free over [0.37, 1.28]: 0.58 s [0.41, 0.99]
+    curve gap vs assigned-exit over [0.44, 1.28]: 0.50 s [0.34, 0.77]
+    bo-360-090-090 (entrance 0.9): N 49 vs 39: twin cost +0.01 s [-0.08, +0.10] (density 0.834 vs 0.686); real curve at those densities +0.40 s [+0.28, +0.56]; transit twin 6.53 s, real 6.53 s; own-right share 1.000, lane order 0.997
+    bo-360-160-160: the twin never reached 1.72/m^2 at entrance 1.6
+
+Registered predictions (LOG.md):
+R1 (social force, collision-free speed and street-like ORCA each pick a value giving less room than the default): refuted (social force x0.75 1000.0; collision-free speed x0.5 0.3; ORCA x0.02 5.0)
+R2 (every setting's chosen score is at most half its default score): refuted (social force x0.75 2.85 -> 2.33; collision-free speed x0.5 8.87 -> 0.55; ORCA x0.02 6.06 -> 6.06; ORCA x1.0 5.40 -> 0.78)
+R3 (on fresh seeds at least three settings have a free-curve gap below 1.0 s): refuted (social force x0.75 2.16; collision-free speed x0.5 0.54; ORCA x0.02 7.59; ORCA x1.0 0.58)
+R4 (at least two settings have an assigned-exit curve gap below 1.0 s (held-out runs)): held (social force x0.75 2.33; collision-free speed x0.5 0.55; ORCA x0.02 8.13; ORCA x1.0 0.50)
+R5 (every chosen twin reaches the dense run's density (bo-360-160-160) within N 120): refuted (none)
+R6 (at the dense operating point at least two settings' twin cost lies inside the real cost's interval): refuted ()
+R7 (at the dense operating point every chosen twin keeps own-right share above 0.6): refuted ()
