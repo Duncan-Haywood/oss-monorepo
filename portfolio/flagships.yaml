@@ -16,6 +16,11 @@
 # tells runs to take it only if they hold such an input. Remove the field when
 # a buildable item is added to `next:`.
 #
+# `not_before: YYYY-MM-DD` marks a row whose only buildable work waits on a date
+# (an upstream tag, a data release). Until then allocate.py ranks it with the
+# inputs_only rows and Start here skips it; from that date it is a Deepen row
+# again with no edit. Delete it if you find an item buildable sooner.
+#
 # Edit a `next:` or `buildable:` with `python3 portfolio/router/flagship_field.py
 # <venture> --replace OLD NEW`: it rewraps safely (a hand wrap after a hyphen
 # reads back as "word- rest", and validate.py rejects it).
@@ -201,6 +206,9 @@ flagships:
       open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
+    # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
+    # due after 2026-11-23; four runs left the row on 2026-11-17/18 for that.
+    not_before: 2026-11-24
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
