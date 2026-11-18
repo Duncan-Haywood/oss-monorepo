@@ -417,6 +417,49 @@ answers (`bowling-avoid-shapes.mjs`) were not re-solved for repeats; the lane-li
 (`eval/bowling-lane-avoid.txt`, `eval/bowling-avoid-shapes.txt`) were not re-measured for
 repeats (their balance cannot change: the anneal keeps only in-target seasons).
 
+## Five or more limited teams: the most even of several dealings (2026-11-18, latest)
+
+With five or more teams under lane limits there is no stored shape answer, so the page deals teams
+to round-robin slots by search (`feasibleDealing`, below) and used to keep the first dealing whose
+every week had a legal lane deal. Which teams meet in the weeks the limits squeeze decides how
+close each team gets to its even share of pairs, so the first legal dealing was often not the best:
+five teams off the last pair in a 10-team, 26-week season left 2 of 10 teams off target.
+
+`evenDealing` (in `bowling.mjs`) now builds the season on several legal dealings (the first, then
+`feasibleDealing` with seeds 2, 3, ... started from a seeded shuffle) and keeps the one with the
+fewest teams off target, then the fewest off-target counts, then the fewest back-to-back repeats
+(`dealingScore`). It runs only when the first season has a team off target and no stored shape
+answer applies, stops as soon as every team is in target, and caps the number of dealings by the
+season's size (`dealingsFor`: weeks x pairs^2, six on 10 teams, two on 24 teams x 26 weeks), since
+each is a full lane search. Same input, same season. `bowlingSchedule` reports `dealingsTried`;
+`spec.dealings` overrides the cap.
+
+**Measured** (`node eval/bowling-many-limits.mjs`, `eval/bowling-many-limits.txt`; the same 112
+seasons as below, 8 still refused as out of reach; before is the same script on the previous
+`bowling.mjs`, run the same day):
+
+| kind | seasons with every team in target | off-target counts | repeats | ms per season (all kinds) |
+|---|---|---|---|---|
+| five teams, last pair (28) | 22 -> 25 | 11 -> 4 | 409 -> 360 | |
+| six teams, both ends (20 built) | 15 -> 17 | 23 -> 8 | 297 -> 285 | |
+| five or eight teams, a random pair each (56) | 56 -> 56 | 0 -> 0 | 370 -> 370 | |
+| all 104 built | | | | 1,212 -> 1,634 (slowest 5.0 s -> 10.7 s, 24 x 26 six off both ends) |
+
+Seasons that moved: 10 x 26 and 10 x 30 five off the last pair 8/10 -> 10/10, 18 x 26 16/18 ->
+18/18, six off both ends 14 x 30 11/14 -> 12/14, 16 x 30 12/16 -> 16/16, 18 x 30 15/18 -> 18/18,
+24 x 26 20/24 -> 21/24. No season got worse on teams in target; 0 limits broken. With no cap
+(six dealings everywhere) the totals were 26 of 28 and 18 of 20, at 1,959 ms per season and up to
+25 s on one season; the cap keeps the page's wait near what it was. The 142-season grid (at most
+three limited teams, `eval/bowling-lane-avoid.mjs`) keeps every in-target count; it uses stored
+shape answers almost everywhere, so the change touches it only on the few seasons without one.
+Tests: `bowling.test.mjs` ("the most even of several legal dealings": 10 x 26 five off the last
+pair, teams off target fall with the default against `dealings: 1`, limits kept, validated, same
+season twice).
+
+Open: the remaining misses (10 x 32, 10 x 34 one team off; 24 x 26 three; 14 x 30 two) with more
+dealings or SAT answers for the 5+ shapes; the bowling page still builds on the page thread, so
+the slowest seasons (10 s here) want the worker the round-robin page already uses.
+
 ## Five or more limited teams: a refused week re-dealt (2026-11-18)
 
 The stored shape answers cover up to four limited teams; with five or more the page runs the
@@ -452,7 +495,7 @@ are every team in target in 56 of 56. Tests: `bowling.test.mjs` (10 x 26 five of
 and 16 x 30 seven off both ends built and still round robins, a feasible season untouched, 8
 teams four off the last pair refused with the new message, its 6-week season dealt).
 
-Open: the dealing search picks the first legal dealing, not the most even one (five teams off
+Open (picking the most even dealing landed the same day, section above): the dealing search picked the first legal dealing, not the most even one (five teams off
 the last pair: 22 of 28 in target); scoring dealings by the search's balance, or SAT answers for
 5+ limited shapes on the misses (14, 16, 18 x 30 with six off both ends).
 

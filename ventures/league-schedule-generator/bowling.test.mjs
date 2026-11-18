@@ -466,3 +466,22 @@ test("five or more limited teams: a week with no legal deal on slot t = team t i
   // ...but a 6-week season plays only six of the seven rounds, and has a dealing.
   assert.ok(feasibleDealing(8, 6, no, 4));
 });
+
+test("five or more limited teams: the most even of several legal dealings is kept, and dealings: 1 keeps the first", async () => {
+  const { dealingScore } = await import("./bowling.mjs");
+  const avoid = Array.from({ length: 10 }, () => []);
+  for (let i = 0; i < 5; i++) avoid[(i * 7 + 3) % 10] = [4];
+  const plan = (s) => s.weeks.map((wk) => wk.matches.map((m) => [m.a, m.b, m.pair]));
+  const first = bowlingSchedule({ teams: names(10), weeks: 26, start: START, laneAvoid: avoid, dealings: 1 });
+  const even = bowlingSchedule({ teams: names(10), weeks: 26, start: START, laneAvoid: avoid });
+  assert.deepEqual(first.errors, []); assert.deepEqual(even.errors, []);
+  assert.equal(first.dealingsTried, 1);
+  assert.ok(even.dealingsTried > 1);
+  const a = dealingScore(plan(first), 10, 5, avoid), b = dealingScore(plan(even), 10, 5, avoid);
+  // the measured 10 x 26 season: 2 teams off target on the first dealing, 0 on the most even one
+  assert.ok(b[0] < a[0], `teams off ${b[0]} vs ${a[0]}`);
+  for (const wk of even.weeks) for (const m of wk.matches) assert.ok(!avoid[m.a].includes(m.pair) && !avoid[m.b].includes(m.pair));
+  assert.deepEqual(validateBowling(even), []);
+  // same input, same season
+  assert.deepEqual(bowlingSchedule({ teams: names(10), weeks: 26, start: START, laneAvoid: avoid }).weeks, even.weeks);
+});
