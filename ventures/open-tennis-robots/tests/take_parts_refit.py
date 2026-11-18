@@ -28,10 +28,14 @@ fit unchanged (take_fit.result, the board's TAKE_SURVEY_LEVELS), and reports per
 
 The board's kept set is the shipped model's (the board scores in the rows), so every model is scored on the same wheels.
 
-DESIGN SET (lag 0.45 s, seed 29): results in eval/take-parts-refit-2026-11-18.md, written before the held-out
-scoring below ran.
+DESIGN SET (lag 0.45 s, seed 29; eval/take-parts-refit-2026-11-18.md): on the capture tach the shipped model's dense
+least read the off-grid takes +0.38 ms high (12 of 18 within 0.25 ms); 8 parts -0.04 (16), 16 parts +0.04 (17, mean
+absolute 0.04 ms), `spread` +0.03 (16) but its on-grid takes read -0.38 (3 ms: -0.65). The jittery tach reads high
+for every model (+0.33 to +0.78). The board's verdict on the shipped grid: within 0.5 ms 35 (shipped) / 38 (spread) /
+34 (8) / 38 (16) of 53-54; within 1 ms 47 / 46 / 47 / 48; named and advised 29 / 27 / 28 / 29; instant advised 0.
 
-PREDICTION (written after the design set, before the held-out set was scored by any model but the shipped one): on
+PREDICTION (written in this file before the design set ran, and committed before the held-out set was scored by any
+model but the shipped one; the design set already fails the rule's within-1-ms clause for `spread`): on
 the held-out rows (lag 0.6 s, seed 31), (a) the shipped four-part model's dense least reads the off-grid takes high on
 the capture tach (mean signed > +0.15 ms) and `spread`'s mean signed error is closer to zero than the shipped model's;
 (b) 16 parts' mean signed error is closer to zero than the shipped model's; (c) `spread` has at least as many builds
