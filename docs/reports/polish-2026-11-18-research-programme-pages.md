@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design, research-homepage]
+date: 2026-11-18
+---
 # Polish, 2026-11-18: research programme pages fold their logs and break their summaries
 
 Track: polish/0. Surface: the research project pages (`/research/<slug>/`), built by
