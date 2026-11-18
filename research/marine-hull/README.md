@@ -184,6 +184,8 @@ PYTHONPATH=src python3 experiments/run_clamp_sweep.py > experiments/results_clam
 python3 experiments/figure_clamp_sweep.py   # milestone 6zzx figure (experiments/clamp_sweep.svg)
 PYTHONPATH=src:experiments python3 experiments/run_range_speed.py > experiments/results_range_speed.txt   # milestone 7t (range against speed per rung), 1 s
 python3 experiments/figure_range_speed.py   # milestone 7t figure (experiments/range_speed.svg); paper/make_figures.py writes the TikZ copy
+PYTHONPATH=src:experiments python3 experiments/run_glider_hotel_curve.py > experiments/results_glider_hotel_curve.txt   # milestone 7u (glider vs AUV against hotel ratio, with the post-hoc 4 m/s grid), under 1 s
+python3 experiments/figure_glider_hotel.py   # milestone 7u figure (experiments/glider_hotel.svg); paper/make_figures.py writes the TikZ copy
 PYTHONPATH=src python3 experiments/run_adaptive_clamp.py > experiments/results_adaptive_clamp.txt   # milestone 6zzy (adaptive clamp, four worlds), about 30 min on 4 cores
 PYTHONPATH=src python3 experiments/run_multi_season_clamp.py > experiments/results_multi_season_clamp.txt   # milestone 6zzz (adaptive clamp at one to three seasons, three worlds), about 80 min on 4 cores
 PYTHONPATH=src python3 experiments/run_k_aware_clamp.py > experiments/results_k_aware_clamp.txt   # milestone 6zzzb (sqrt(k)-scaled and latitude-switched spread clamp), about 30 min on 4 cores
