@@ -1,0 +1,19 @@
+---
+title: "A half-village seeding survey holds up when the contagion models are uncertain, and works best mostly random"
+seo_title: "Seeding with a partial network survey under model uncertainty"
+date: 2026-11-16
+tags: [research, networks, diffusion, seeding]
+description: "Over 500 refitted bootstrap draws on 43 village networks, a two-stage half survey with degree discount loses a median 1.9% of adopters; a full census 1.1%."
+---
+
+The `civ-seeding` programme asks whom a rollout should seed when the data cannot tell a simple contagion from a complex one. It uses the 43 Karnataka villages where a lender introduced microfinance (Banerjee, Chandrasekhar, Duflo and Jackson, 2013). The last step found a cheap design that came close to a full network census. Interview half the households: a random half first, then the households that half named most often. Then rank by **degree discount** (Chen, Wang and Yang, 2009) on the ties people reported. Under the worst fitted model it lost 1.6% of adopters, against 1.4% with a full census.
+
+That number came from the fitted models' point estimates. An earlier step had shown those estimates are loose: refit the models on resampled villages and they land on 205 different parameter settings. So this step asked whether the survey result still holds when every model is refitted in each of 500 bootstrap draws. It also tested whether the half-and-half split between the two rounds matters. Three hypotheses were logged before the run, and all three held.
+
+- **The half survey holds up.** Its median worst-case loss is **1.9%** (5–95% across draws: 1.0–3.3%). Degree discount on a full census loses 1.1%, and top degree on a full census loses 3.9%. The survey rule beats that census-plus-top-degree rule in 97% of draws. The gap to the best census rule does widen, though, from 0.3 point to 0.8, and the survey's bad tail is twice as long. Most of that tail comes from model fits with stronger word of mouth.
+- **The second, adaptive round keeps paying.** It beats a plain random sample of the same size in 89% of draws at a quarter of the village and in 93% at half. With the fitted parameters held fixed it won every draw, so uncertainty makes the win likely rather than certain.
+- **The split need not be tuned finely, but it leans one way.** At a quarter of the village, the half-and-half split is best. At half the village, spending three quarters of the interviews at random and only a quarter on the most-named households does better: **1.5%** (0.5–2.9%), better than the even split in 72% of draws. We had predicted the opposite, that a longer adaptive round would help when the budget is large. Our reading, not yet tested: the random round is what estimates degree for everyone not interviewed, so cutting it costs more than a short targeted round gains.
+
+For someone planning a rollout on networks like these, the advice changes a little. If you can interview half the village, spend most of it on a random sample, finish with the households named most, and rank by degree discount on the ties you heard about. Expect to lose a point or so of adopters against a full census. A quarter of the village gets you close to a census ranked by degree (4.2% against 3.9%), but it is no substitute.
+
+These are a fitted model's counterfactuals on 43 villages, not a field trial. Households are assumed to report every tie, the most-named households are assumed findable, each village's leader count is the seed budget, and only three splits were tried. The code, the pre-registered plan and every number are in `research/civ-seeding` (LOG.md, 2026-11-16, milestone 10; `experiments/m10_survey_uncertainty/results.txt` and `verdicts.txt`). These are models of past adoption, not advice about any real village. This post was written with AI assistance.

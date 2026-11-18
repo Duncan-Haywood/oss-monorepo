@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyfSei42FQpDtvujJ5o",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T21:38:42Z",
+  "ended": "2026-11-16T21:51:14Z",
+  "wall_minutes": 12.94,
+  "tokens_in": 9160901,
+  "tokens_out": 64566,
+  "cost_usd": 4.497,
+  "tool_calls": 66,
+  "task": "ids-model-check flagship (allocate.py row 9, BUILDABLE item): an IDS editor that offers a standard set's properties and data types",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16710",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "First Playwright-free test of the label check built a RegExp from template-literal ids containing ${...}: SyntaxError; replaced with a plain includes() check.",
+    "platform/ci inherited_keys check flagged IFC_VERSION[doc.schema] in editor.mjs; switched to an own() lookup (and Object.hasOwn for FILES in editor.html)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/README.md",
+      "issue": "Next steps listed the IDS editor twice (once as 'offers a standard set's properties', once as 'from the classes the loaded model has'); merged into one editor item."
+    },
+    {
+      "file": "ventures/ids-model-check/eval/run-testcases.mjs",
+      "issue": "334/334 on buildingSMART's suite hid that partOf voids/fills was wrong everywhere: the suite has no voids/fills case. Worth saying in the README that the suite has coverage holes (now noted in Model notes)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-an-ids-editor-tested-by-writing-every-choice-it-offers.md",
+    "ventures/ids-model-check/eval/editor-2026-11-16.md"
+  ],
+  "goal": "Deepen flagship 12 (ids-model-check): IDS authoring from the standard templates",
+  "notes": "Landed editor.html + editor.mjs (class -> standard sets it can carry -> properties with template dataType/enums; subclasses; predefined types; live audit; handoff to the checker via sessionStorage; draft in localStorage). Measurements: eval/editor-roundtrip.mjs writes every offered class/set/property in IFC2X3/IFC4/IFC4X3 = 203,433 specifications, 0 audit errors/warnings (5.4 s). eval/editor-xsd-sample.mjs + editor-xsd-check.py: 15,102 specifications valid against ids.xsd in IfcTester 0.9.0. Found and fixed: (1) partOf relation 'IFCRELVOIDSELEMENT IFCRELFILLSELEMENT' is one IDS 1.0 value; checker, audit and editor used split tokens (checker now follows IfcTester: door in opening of wall is part of the wall); (2) classification facet without system is invalid per ids.xsd -> new audit error, fires on 2 of 64 public IDS (both confirmed refused by ids.xsd); (3) IFC2X3 audit false positive: type-mapping names (IFCACTUATOR) can carry their type's sets (1,725 roundtrip errors -> 0). Unchanged: 334/334 test cases, 0 valid IDS flagged, IDS-Audit-tool results. Venture tests: ok ids-model-check (65 tests). Playwright run of editor.html in Chromium: build, audit INVALID->VALID, handoff to checker, draft reload, 390 px no horizontal scroll, no console errors.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "06fc1e7e-e9f5-5227-a13a-b17c9571941b",
+    "transcripts": 1,
+    "first": "2026-11-16T21:38:42Z",
+    "last": "2026-11-16T21:51:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 120,
+        "output": 64566,
+        "thinking": 12294,
+        "cache_read": 8984745,
+        "cache_write_5m": 0,
+        "cache_write_1h": 176036,
+        "api_equivalent_usd": 4.497,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 120,
+      "output": 64566,
+      "thinking": 12294,
+      "cache_read": 8984745,
+      "cache_write_5m": 0,
+      "cache_write_1h": 176036,
+      "api_equivalent_usd": 4.497,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 59,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.94,
+      "active_minutes": 12.94,
+      "model_minutes": 9.55,
+      "tool_minutes": 3.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior web developer with BIM/IDS knowledge: editor page and logic ~10 h, exhaustive roundtrip and XSD validation harness ~5 h, diagnosing and fixing voids/fills, classification and IFC2X3 type-set gaps ~6 h, docs and post ~3 h",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 533.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

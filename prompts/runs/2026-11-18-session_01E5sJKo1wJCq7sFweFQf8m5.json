@@ -1,0 +1,508 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKo1wJCq7sFweFQf8m5",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T01:18:08Z",
+  "ended": "2026-11-18T01:18:43Z",
+  "wall_minutes": 4.04,
+  "tokens_in": 2031522,
+  "tokens_out": 12366,
+  "cost_usd": 1.1509,
+  "tool_calls": 30,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17130",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list is now 11 entries, all control plane waiting on owner approval; every redteam run re-checks them and can patch none, so step 0 costs time without output until the owner lands those PRs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for an automated guard; a fleet-wide overflow guard (largest-allowed-input test across calculators) is wider than this run",
+      "did": "fixed the instance and named the class guard as next step in the post",
+      "result": "instance patched; class guard left open"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-redteam-a-price-doubling-read-as-a-loss.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: grepped main for each of the 11 open fixes (killpg, usage_contract, framerate, doc_index, fontoxpath, proposal-terms paths, ventures-tests paths, fetch-testcases); none landed, all control plane. Campaigns: check_noindex_sitemap.py 8/8, subscription-price-impact/calc.mjs 3/8 -> 8/8, snow-plow-contract-calculator/engine.mjs 5/8 -> 8/8. node --test: subscription-price-impact 46 pass, snow-plow 35 pass.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/check_noindex_sitemap.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_noindex_sitemap  (in platform/ci)",
+        "seed": 226383774,
+        "commit": "dccfc6539",
+        "sites": 20,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "platform/ci/check_noindex_sitemap.py",
+            "line": 28,
+            "col": 15,
+            "operator": "false-to-true",
+            "before": "return False",
+            "after": "return True",
+            "line_text": "        return False",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_noindex_sitemap.py",
+            "line": 33,
+            "col": 17,
+            "operator": "div-to-times",
+            "before": "sm = venture / \"sitemap.xml\"",
+            "after": "sm = venture * \"sitemap.xml\"",
+            "line_text": "    sm = venture / \"sitemap.xml\"",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_noindex_sitemap.py",
+            "line": 39,
+            "col": 28,
+            "operator": "or-to-and",
+            "before": "if \"/blob/\" in path or \"/tree/\" in path:",
+            "after": "if \"/blob/\" in path and \"/tree/\" in path:",
+            "line_text": "        if \"/blob/\" in path or \"/tree/\" in path:",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_noindex_sitemap.py",
+            "line": 44,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "rel = path[2:]",
+            "after": "rel = path[3:]",
+            "line_text": "            rel = path[2:]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_noindex_sitemap.py",
+            "line": 50,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "if page.is_file() and is_noindex(page):",
+            "after": "if page.is_file() or is_noindex(page):",
+            "line_text": "        if page.is_file() and is_noindex(page):",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_noindex_sitemap.py",
+            "line": 55,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "after": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[1])",
+            "line_text": "    ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_noindex_sitemap.py",
+            "line": 61,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "n += 1",
+            "after": "n += 2",
+            "line_text": "            n += 1",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_noindex_sitemap.py",
+            "line": 66,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 2 if bad else 0",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/subscription-price-impact/calc.mjs",
+        "test": "node --test ventures/subscription-price-impact/**/*.test.mjs  (in .)",
+        "seed": 170016396,
+        "commit": "dccfc6539",
+        "sites": 41,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 18,
+            "col": 45,
+            "operator": "minus-to-plus",
+            "before": "const currentContribution = currentRevenue - monthlyCosts;",
+            "after": "const currentContribution = currentRevenue + monthlyCosts;",
+            "line_text": "  const currentContribution = currentRevenue - monthlyCosts;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in calc.test.mjs asserts this value"
+          },
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 31,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "const maxChurnRate = customers === 0 ? 0 : (maxLostCustomers / customers) * 100;",
+            "after": "const maxChurnRate = customers === 0 ? 1 : (maxLostCustomers / customers) * 100;",
+            "line_text": "  const maxChurnRate = customers === 0 ? 0 : (maxLostCustomers / customers) * 100;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in calc.test.mjs asserts this value"
+          },
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 32,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "const scenarios = [0, 5, 10, 15, 20].map(churn => {",
+            "after": "const scenarios = [1, 5, 10, 15, 20].map(churn => {",
+            "line_text": "  const scenarios = [0, 5, 10, 15, 20].map(churn => {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in calc.test.mjs asserts this value"
+          },
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 32,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "const scenarios = [0, 5, 10, 15, 20].map(churn => {",
+            "after": "const scenarios = [0, 5, 11, 15, 20].map(churn => {",
+            "line_text": "  const scenarios = [0, 5, 10, 15, 20].map(churn => {",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 32,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "const scenarios = [0, 5, 10, 15, 20].map(churn => {",
+            "after": "const scenarios = [0, 5, 10, 16, 20].map(churn => {",
+            "line_text": "  const scenarios = [0, 5, 10, 15, 20].map(churn => {",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in calc.test.mjs asserts this value"
+          },
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 32,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "const scenarios = [0, 5, 10, 15, 20].map(churn => {",
+            "after": "const scenarios = [0, 5, 10, 15, 21].map(churn => {",
+            "line_text": "  const scenarios = [0, 5, 10, 15, 20].map(churn => {",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in calc.test.mjs asserts this value"
+          },
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 33,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "const retained = customers * (1 - churn / 100);",
+            "after": "const retained = customers * (1 - churn / 101);",
+            "line_text": "    const retained = customers * (1 - churn / 100);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subscription-price-impact/calc.mjs",
+            "line": 34,
+            "col": 99,
+            "operator": "times-to-div",
+            "before": "return { churn, customers: retained, revenue: retained * proposedPrice, contribution: retained * proposedPrice - monthlyCosts };",
+            "after": "return { churn, customers: retained, revenue: retained * proposedPrice, contribution: retained / proposedPrice - monthlyCosts };",
+            "line_text": "    return { churn, customers: retained, revenue: retained * proposedPrice, contribution: retained * proposedPrice - monthlyCosts };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/snow-plow-contract-calculator/engine.mjs",
+        "test": "node --test ventures/snow-plow-contract-calculator/**/*.test.mjs  (in .)",
+        "seed": 953191394,
+        "commit": "dccfc6539",
+        "sites": 365,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 85,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "[\"lightTime\", 0, 20], [\"mediumTime\", 0, 20], [\"heavyTime\", 0, 20],",
+            "after": "[\"lightTime\", 0, 20], [\"mediumTime\", 1, 20], [\"heavyTime\", 0, 20],",
+            "line_text": "  [\"lightTime\", 0, 20], [\"mediumTime\", 0, 20], [\"heavyTime\", 0, 20],",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 86,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "[\"truckRate\", 0, 1e4], [\"fuelPerHr\", 0, 1e4], [\"bladeWearPerHr\", 0, 1e4], [\"deadheadMin\", 0, 600],",
+            "after": "[\"truckRate\", 0, 1e4], [\"fuelPerHr\", 1, 1e4], [\"bladeWearPerHr\", 0, 1e4], [\"deadheadMin\", 0, 600],",
+            "line_text": "  [\"truckRate\", 0, 1e4], [\"fuelPerHr\", 0, 1e4], [\"bladeWearPerHr\", 0, 1e4], [\"deadheadMin\", 0, 600],",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in engine.test.mjs asserts this value"
+          },
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 118,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "if (o.probs.reduce((a, b) => a + b, 0) <= 0) throw new Error(\"probs must not all be zero\");",
+            "after": "if (o.probs.reduce((a, b) => a + b, 0) <= 1) throw new Error(\"probs must not all be zero\");",
+            "line_text": "    if (o.probs.reduce((a, b) => a + b, 0) <= 0) throw new Error(\"probs must not all be zero\");",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in engine.test.mjs asserts this value"
+          },
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 204,
+            "col": 54,
+            "operator": "max-to-min",
+            "before": "const billable = Math.min(d, o.tierBreakInches) + Math.max(0, d - o.tierBreakInches) * (1 + o.tierUpliftPct / 100);",
+            "after": "const billable = Math.min(d, o.tierBreakInches) + Math.min(0, d - o.tierBreakInches) * (1 + o.tierUpliftPct / 100);",
+            "line_text": "    const billable = Math.min(d, o.tierBreakInches) + Math.max(0, d - o.tierBreakInches) * (1 + o.tierUpliftPct / 100);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 289,
+            "col": 57,
+            "operator": "times-to-div",
+            "before": "walkAway: seasons.normal.cost + seasons.normal.hours * o.targetHourly * (o.walkAwayPct / 100),",
+            "after": "walkAway: seasons.normal.cost + seasons.normal.hours / o.targetHourly * (o.walkAwayPct / 100),",
+            "line_text": "    walkAway: seasons.normal.cost + seasons.normal.hours * o.targetHourly * (o.walkAwayPct / 100),",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 300,
+            "col": 72,
+            "operator": "times-to-div",
+            "before": "walkAway: sn(\"normal\").cost + sn(\"normal\").hours * o.targetHourly * (o.walkAwayPct / 100),",
+            "after": "walkAway: sn(\"normal\").cost + sn(\"normal\").hours * o.targetHourly / (o.walkAwayPct / 100),",
+            "line_text": "      walkAway: sn(\"normal\").cost + sn(\"normal\").hours * o.targetHourly * (o.walkAwayPct / 100),",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in engine.test.mjs asserts this value"
+          },
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 333,
+            "col": 17,
+            "operator": "lt-to-le",
+            "before": "if (f.length < 4) { errors.push(`${at}: expected site,model,revenue,hours`); return; }",
+            "after": "if (f.length <= 4) { errors.push(`${at}: expected site,model,revenue,hours`); return; }",
+            "line_text": "    if (f.length < 4) { errors.push(`${at}: expected site,model,revenue,hours`); return; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 354,
+            "col": 26,
+            "operator": "minus-to-plus",
+            "before": "}).sort((a, b) => a.net - b.net || a.name.localeCompare(b.name));",
+            "after": "}).sort((a, b) => a.net + b.net || a.name.localeCompare(b.name));",
+            "line_text": "  }).sort((a, b) => a.net - b.net || a.name.localeCompare(b.name));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/subscription-price-impact/calc.mjs",
+        "issue": "Finite but huge inputs (1e200 subscribers x $1e200) overflow revenue to Infinity; Infinity - Infinity is NaN, so a price doubling read '0.0%, this price change lowers revenue before churn' with break-even 'not achievable'. Fixed: throw 'too large to compute' when any revenue or contribution is not finite; test in calc.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17130"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "19fa5f52-3af1-5837-9bb2-3d2cc492246d",
+    "transcripts": 1,
+    "first": "2026-11-18T01:18:08Z",
+    "last": "2026-11-18T01:22:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 57,
+        "output": 12366,
+        "thinking": 2635,
+        "cache_read": 1967744,
+        "cache_write_5m": 0,
+        "cache_write_1h": 63721,
+        "api_equivalent_usd": 1.1509,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 57,
+      "output": 12366,
+      "thinking": 2635,
+      "cache_read": 1967744,
+      "cache_write_5m": 0,
+      "cache_write_1h": 63721,
+      "api_equivalent_usd": 1.1509,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 26,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.04,
+      "active_minutes": 4.04,
+      "model_minutes": 2.66,
+      "tool_minutes": 1.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "three mutation campaigns, triage, 4 test groups, one fix and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 260.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

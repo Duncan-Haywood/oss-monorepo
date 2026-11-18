@@ -1,0 +1,28 @@
+estimate bias: true sigma / estimated sigma at the median level
+  bayer  texture 0.00: 1.254
+  bayer  texture 0.01: 1.203
+  bayer  texture 0.04: 0.841
+  xtrans texture 0.00: 1.232
+  xtrans texture 0.01: 1.191
+  xtrans texture 0.04: 0.843
+guard: colour PSNR (dB) directional / true noise / overstated by k / overstated then guarded; ratio read
+  bayer  shot 5e-05 k   1: 47.77 / 48.15 / 48.15 / 48.15; ratio 0.95
+  bayer  shot 5e-05 k   2: 47.77 / 48.15 / 48.18 / 48.16; ratio 1.91
+  bayer  shot 5e-05 k   4: 47.77 / 48.15 / 46.51 / 48.16; ratio 3.81
+  bayer  shot 5e-05 k  16: 47.77 / 48.15 / 37.54 / 48.16; ratio 15.25
+  bayer  shot 5e-05 k 100: 47.77 / 48.15 / 37.37 / 48.16; ratio 95.33
+  bayer  shot 2e-04 k   1: 42.49 / 43.01 / 43.01 / 43.01; ratio 1.02
+  bayer  shot 2e-04 k   2: 42.49 / 43.01 / 42.80 / 43.03; ratio 2.04
+  bayer  shot 2e-04 k   4: 42.49 / 43.01 / 39.40 / 43.03; ratio 4.09
+  bayer  shot 2e-04 k  16: 42.49 / 43.01 / 36.80 / 43.03; ratio 16.34
+  bayer  shot 2e-04 k 100: 42.49 / 43.01 / 36.80 / 43.03; ratio 102.13
+  xtrans shot 5e-05 k   1: 43.40 / 43.63 / 43.63 / 43.63; ratio 0.96
+  xtrans shot 5e-05 k   2: 43.40 / 43.63 / 43.57 / 43.63; ratio 1.93
+  xtrans shot 5e-05 k   4: 43.40 / 43.63 / 42.24 / 43.63; ratio 3.85
+  xtrans shot 5e-05 k  16: 43.40 / 43.63 / 34.94 / 43.63; ratio 15.40
+  xtrans shot 5e-05 k 100: 43.40 / 43.63 / 34.61 / 43.63; ratio 96.25
+  xtrans shot 2e-04 k   1: 40.50 / 40.99 / 40.99 / 40.99; ratio 0.95
+  xtrans shot 2e-04 k   2: 40.50 / 40.99 / 40.48 / 40.97; ratio 1.90
+  xtrans shot 2e-04 k   4: 40.50 / 40.99 / 36.81 / 40.97; ratio 3.81
+  xtrans shot 2e-04 k  16: 40.50 / 40.99 / 34.28 / 40.97; ratio 15.22
+  xtrans shot 2e-04 k 100: 40.50 / 40.99 / 34.28 / 40.97; ratio 95.13

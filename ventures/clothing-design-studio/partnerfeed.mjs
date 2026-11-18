@@ -30,7 +30,7 @@ const httpsOnly = u => { try { const x = new URL(String(u).trim()); return x.pro
 /** RFC-4180-ish: quoted fields may hold commas, doubled quotes and newlines. */
 export function parseCsv(text) {
   const rows = []; let row = [], cur = "", q = false;
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (q) { if (c === '"' && s[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; }
@@ -123,7 +123,7 @@ ${sections}
 }
 
 export function catalogueCsv(catalogue) {
-  const q = v => { const t = String(v ?? "").replace(/^[=+\-@\t\r]/, "'$&"); return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+  const q = v => { const t = String(v ?? "").replace(/^[=+\-@\t\r]/, (c, _i, all) => (/^-?\d+(\.\d+)?$/.test(all) ? c : "'" + c)); return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
   const rows = [["Brand", "SKU", "Name", "Price", "Commission", "Card fee", "Brand paid", "Shop keeps"]];
   for (const i of catalogue.items) rows.push([i.brand, i.sku, i.name, i.price.toFixed(2), i.commission.toFixed(2), i.cardFee.toFixed(2), i.brandPayout.toFixed(2), i.shopKeeps.toFixed(2)]);
   return rows.map(r => r.map(q).join(",")).join("\n") + "\n";

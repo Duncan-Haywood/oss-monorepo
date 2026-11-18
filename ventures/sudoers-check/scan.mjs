@@ -439,7 +439,7 @@ function parseCommand(raw) {
 
 function runasInfo(runasText, aliases, runasDefault) {
   if (runasText === undefined) {
-    return { text: `(${runasDefault})`, root: runasDefault === "root" || runasDefault === "#0", any: false };
+    return { text: `(${runasDefault})`, root: runasDefault === "root" || runasDefault === "#0" };
   }
   const [usersPart, groupPart] = runasText.split(":");
   const users = splitTop(usersPart || "", ",").filter(Boolean);
@@ -447,13 +447,14 @@ function runasInfo(runasText, aliases, runasDefault) {
   const groups = expandList(splitTop(groupPart || "", ",").filter(Boolean), aliases.Runas_Alias);
   const list = (xs) => xs.map((x) => (x.neg ? "!" : "") + unquote(x.value));
   const lists = { users: list(expanded), groups: list(groups) };
-  const any = expanded.some((u) => !u.neg && u.value === "ALL");
-  const rootNeg = expanded.some((u) => u.neg && (u.value === "root" || u.value === "#0"));
-  const root = !rootNeg && expanded.some((u) => !u.neg && (u.value === "ALL" || u.value === "root" || u.value === "#0"));
+  // sudoers(5): in a list the last item that matches decides, so "(!root, ALL)" still allows root
+  // and "(ALL, !root)" does not.
+  let root = false;
+  for (const u of expanded) if (u.value === "ALL" || u.value === "root" || u.value === "#0") root = !u.neg;
   // '(:group)' alone runs the command as the invoking user.
-  if (!users.length && groupPart !== undefined) return { text: `(${runasText.trim()})`, root: false, any: false, self: true, ...lists };
-  if (!users.length) return { text: `(${runasDefault})`, root: runasDefault === "root" || runasDefault === "#0", any: false, ...lists };
-  return { text: `(${runasText.trim()})`, root, any, ...lists };
+  if (!users.length && groupPart !== undefined) return { text: `(${runasText.trim()})`, root: false, self: true, ...lists };
+  if (!users.length) return { text: `(${runasDefault})`, root: runasDefault === "root" || runasDefault === "#0", ...lists };
+  return { text: `(${runasText.trim()})`, root, ...lists };
 }
 
 function parseStatements(ordered, notes) {
@@ -463,7 +464,10 @@ function parseStatements(ordered, notes) {
   for (const stmt of ordered) {
     const t = stmt.text;
     let m;
-    if ((m = t.match(/^Defaults(?:([@:!>])\s*((?:\\.|[^\s\\]|,\s*)+))?\s+([\s\S]+)$/))) {
+    // The binding is escapes or non-space characters. An earlier `|,\s*` branch never changed
+    // a match (a comma already matched [^\s\\]) but let a run of commas split 2^n ways: 28 commas
+    // with no space after took 1.4 s and 32 took over 20 s (ReDoS). scan.test.mjs pins this.
+    if ((m = t.match(/^Defaults(?:([@:!>])\s*((?:\\.|[^\s\\])+))?\s+([\s\S]+)$/))) {
       defaults.push(parseDefaults(stmt, m));
       continue;
     }
@@ -556,8 +560,12 @@ function analyse({ aliases, defaults, rules }, mainName, findings, notes) {
     let off = false;
     for (const { binding, p } of perUser) {
       if (p.name !== "authenticate") continue;
-      const bound = splitTop(binding, ",").map(unquote);
-      if (users.some((u) => bound.includes(u) || bound.includes("ALL"))) off = p.negated;
+      // A binding can name a User_Alias (Defaults:ADMINS !authenticate), so expand it the way
+      // the rule's own user list is expanded; a negated member excludes that user.
+      const items = expandList(splitTop(binding, ","), aliases.User_Alias).map((x) => ({ ...x, value: unquote(x.value) }));
+      const bound = items.filter((x) => !x.neg).map((x) => x.value);
+      const excluded = items.filter((x) => x.neg).map((x) => x.value);
+      if (users.some((u) => !excluded.includes(u) && (bound.includes(u) || bound.includes("ALL")))) off = p.negated;
     }
     return off;
   }

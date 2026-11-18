@@ -1,0 +1,18 @@
+# step alone with a control, EXPLORATORY, seed base 91000, 200 pairs per cell, 199 replicates, difference arm, with in-time placebos on the difference
+S1 common AR .9, shared slope                n 120 k  60  step   5.0% of 200 tested (  5.0% of all) | joint   3.0% (  3.0% of all) | refused 0, cut 0 | placebos warn   2.0%; step rejections warned 0 of 10
+S2 common walk, shared step 2                n 120 k  60  step   4.0% of 200 tested (  4.0% of all) | joint   2.5% (  2.5% of all) | refused 0, cut 0 | placebos warn   4.0%; step rejections warned 1 of 8
+S3 common walk                               n  60 k  30  step   4.0% of 200 tested (  4.0% of all) | joint   1.0% (  1.0% of all) | refused 0, cut 0 | placebos warn   4.0%; step rejections warned 0 of 8
+S4 common AR .8                              n  40 k  20  step   3.5% of 200 tested (  3.5% of all) | joint   4.0% (  4.0% of all) | refused 0, cut 0 | placebos warn   3.5%; step rejections warned 1 of 7
+S5 common AR .5                              n 120 k  60  step   5.0% of 200 tested (  5.0% of all) | joint   4.0% (  4.0% of all) | refused 0, cut 0 | placebos warn   2.5%; step rejections warned 0 of 10
+S6 annual-like: common AR .8                 n  31 k  19  step   4.5% of 199 tested (  4.5% of all) | joint   3.0% (  3.0% of all) | refused 1, cut 0 | placebos warn   3.0%; step rejections warned 0 of 9
+B1 treated bends 8 sd, date mid              n 120 k  60  step   0.5% of 200 tested (  0.5% of all) | joint 100.0% (100.0% of all) | refused 0, cut 0 | placebos warn  77.5%; step rejections warned 1 of 1
+B2 treated bends 8 sd, date at 80%           n 120 k  96  step  30.0% of 200 tested ( 30.0% of all) | joint 100.0% (100.0% of all) | refused 0, cut 0 | placebos warn 100.0%; step rejections warned 60 of 60
+B3 treated bends 4 sd, rho_i .4              n 120 k  60  step   5.0% of 200 tested (  5.0% of all) | joint  98.0% ( 98.0% of all) | refused 0, cut 0 | placebos warn   9.5%; step rejections warned 1 of 10
+B6 treated bends 4 sd, date at 80%           n 120 k  96  step  40.5% of 200 tested ( 40.5% of all) | joint 100.0% (100.0% of all) | refused 0, cut 0 | placebos warn  98.5%; step rejections warned 79 of 81
+B4 treated slope change .05 at the date      n 120 k  60  step   3.0% of 200 tested (  3.0% of all) | joint  35.0% ( 35.0% of all) | refused 0, cut 0 | placebos warn   4.0%; step rejections warned 0 of 6
+B5 annual-like: treated bends 4 sd           n  31 k  19  step   3.6% of 137 tested (  2.5% of all) | joint  21.2% ( 14.5% of all) | refused 61, cut 2 | placebos warn   4.4%; step rejections warned 0 of 5
+P1 common walk, step 2                       n 120 k  60  step  68.5% of 200 tested ( 68.5% of all) | joint  53.0% ( 53.0% of all) | refused 0, cut 0 | placebos warn   2.0%; step rejections warned 2 of 137
+P2 common AR .9, shared slope, step 2        n 120 k  60  step  64.5% of 200 tested ( 64.5% of all) | joint  47.5% ( 47.5% of all) | refused 0, cut 0 | placebos warn   1.0%; step rejections warned 1 of 129
+P3 common AR .8, step 2                      n  40 k  20  step  30.7% of 192 tested ( 29.5% of all) | joint  14.1% ( 13.5% of all) | refused 8, cut 0 | placebos warn   1.6%; step rejections warned 1 of 59
+P4 treated bends 8 sd, step 2                n 120 k  60  step  72.5% of 200 tested ( 72.5% of all) | joint 100.0% (100.0% of all) | refused 0, cut 0 | placebos warn  73.0%; step rejections warned 105 of 145
+P5 annual-like: step 3                       n  31 k  19  step  44.1% of 186 tested ( 41.0% of all) | joint  24.7% ( 23.0% of all) | refused 14, cut 0 | placebos warn   1.6%; step rejections warned 3 of 82

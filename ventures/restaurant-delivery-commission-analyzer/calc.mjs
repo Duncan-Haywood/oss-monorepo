@@ -43,33 +43,38 @@ export function detectDelimiter(text) {
 
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
 // "1,234.56", "$12", "$-12", "USD -3", "(5.00)", "-5" and blanks (0). NaN only
-// for non-numbers. A minus anywhere before the first digit makes it negative.
+// for non-numbers. A minus (or an en or em dash) anywhere before the first
+// digit makes it negative.
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−]/.test(s);
+  // En and em dashes count too: formatted reports and pasted PDF tables write
+  // "–12.50" for a refund.
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -104,8 +109,10 @@ export function parseWhen(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   let y, mo, d, rest = "";
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(.*)$/);
-  if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
+  // Year first: ISO "2026-06-01" and the "2026/06/01" or "2026.06.01" some
+  // exports and spreadsheets write.
+  let m = s.match(/^(\d{4})([-/.])(\d{1,2})\2(\d{1,2})(?!\d)(.*)$/);
+  if (m) { y = +m[1]; mo = +m[3]; d = +m[4]; rest = m[5]; }
   else {
     // Two- or four-digit years only: "1/2/123" is a typo, not the year 123.
     m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4}|\d{2})(?!\d)(.*)$/);
@@ -217,7 +224,7 @@ export function normalizeRows(table, { decimalComma = false, platform = "auto", 
   };
   for (let i = h + 1; i < table.length; i++) {
     const line = table[i];
-    const lineNo = i + 1;
+    const lineNo = table[i].line ?? i + 1;
     if (line.every((x) => !String(x).trim())) continue;
     const first = String(line[0] ?? "").trim().toLowerCase();
     if (/^(total|totals|subtotal|grand total|summary)\b/.test(first) && cols.when !== 0) { skipped.push({ line: lineNo, reason: "total row" }); continue; }
@@ -233,7 +240,11 @@ export function normalizeRows(table, { decimalComma = false, platform = "auto", 
     if (bad) { skipped.push({ line: lineNo, reason: "amount not a number" }); continue; }
     if (f.gross === null && CHARGE_FIELDS.every((k) => f[k] === null)) { skipped.push({ line: lineNo, reason: "no amount" }); continue; }
     const status = get(line, "status");
-    const cancelled = /cancel|declin|reject|expire|void|fail|refund(ed)?\b/i.test(status) && !/^\s*$/.test(status);
+    // A refund cancels the order only when it is the whole status ("Refund",
+    // "Refunded", "Fully refunded"): "Partially refunded" or "Refund
+    // requested" orders were delivered and sold their food, and the refunded
+    // part arrives in the error/refund column.
+    const cancelled = /cancel|declin|reject|expire|void|fail/i.test(status) || /^(fully\s+)?refund(ed)?$/i.test(status);
     if (cancelled) cancelledCount += 1;
     const rowKey = cols.platform !== undefined ? platformFromText(get(line, "platform")) : null;
     const key = rowKey || fileKey || "other";
@@ -310,7 +321,8 @@ function markupNeeded(b, markupNow) {
 // Net cash = food sales minus commission, delivery/service, marketing/promo,
 // ad spend and error/refund charges. Net after costs also takes off food cost
 // and packaging. Cancelled orders with no charges are dropped and counted;
-// cancelled orders that carry a charge stay as cost with no food or packaging.
+// cancelled orders that carry a charge stay as cost only: no food sales (even
+// when the row lists a subtotal), food cost or packaging.
 // A loss is at least half a cent below zero: an order that breaks even to the
 // cent can come out at -1.8e-15 in floating point and is not a loss.
 const isLoss = (r) => r.counted && r.netAfter < -0.005;
@@ -327,7 +339,10 @@ export function analyze(orders, opts = {}) {
   const inRange = orders.filter((x) => (opts.from == null || x.t >= opts.from) && (opts.to == null || x.t < opts.to + DAY));
   if (!inRange.length) return { invalid: "No orders fall inside that date range." };
   let dropped = 0;
-  const list = inRange.filter((x) => {
+  // A cancelled order sold no food: a subtotal its row still lists is not food
+  // sales (counting it added a never-paid $25 to sales and net cash). Its
+  // charges stay as cost; a refund (negative food sales) keeps its sign.
+  const list = inRange.map((x) => (x.cancelled && x.gross > 0 ? { ...x, gross: 0 } : x)).filter((x) => {
     const charged = x.commission + x.delivery + x.marketing + x.ads + x.errors;
     if (x.cancelled && !x.gross && !charged) { dropped += 1; return false; }
     return true;
@@ -429,8 +444,10 @@ export function analyze(orders, opts = {}) {
 }
 
 // Rounded to the cent before the sign is chosen, so float noise such as
-// -1.8e-15 prints "$0.00", not "-$0.00".
-const cents = (n) => Math.round(n * 100) / 100;
+// -1.8e-15 prints "$0.00", not "-$0.00". Halves round away from zero for both
+// signs (Math.round sends -0.5 up to -0, which printed a half-cent loss as a
+// gain), and the printed magnitude is this same rounded value.
+const cents = (n) => Math.sign(n) * Math.round(Math.abs(n) * 100) / 100;
 const usd = (n) => (cents(n) < 0 ? "-" : "") + "$" + Math.abs(cents(n)).toFixed(2);
 const p0 = (n) => (n * 100).toFixed(0) + "%";
 const p1 = (n) => (n * 100).toFixed(1) + "%";
@@ -490,12 +507,12 @@ function findings({ summary: s, byPlatform, byWeekday, byDaypart, promo, noTimes
   }
   if (s.cancelledDropped || s.cancelledKept) {
     const n = s.cancelledDropped + s.cancelledKept;
-    out.push({ severity: "info", title: `${n} cancelled order${n === 1 ? "" : "s"} found`, detail: `${s.cancelledDropped} with no amounts were left out. ${s.cancelledKept} that carried a charge stay in the totals with no food cost or packaging and are not counted as orders.` });
+    out.push({ severity: "info", title: `${n} cancelled order${n === 1 ? "" : "s"} found`, detail: `${s.cancelledDropped} with no amounts were left out. ${s.cancelledKept} that carried a charge or a refund stay in the totals as cost only (no food sales, food cost or packaging) and are not counted as orders.` });
   }
   return out;
 }
 
-export const money = (n) => (Number.isFinite(n) ? (cents(n) < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+export const money = (n) => (Number.isFinite(n) ? (cents(n) < 0 ? "-" : "") + Math.abs(cents(n)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
 export const pct = (n) => (Number.isFinite(n) ? (n * 100).toFixed(1) + "%" : "–");
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
 

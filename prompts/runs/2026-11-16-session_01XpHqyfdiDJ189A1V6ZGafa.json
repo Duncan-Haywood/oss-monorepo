@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyfdiDJ189A1V6ZGafa",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T19:39:58Z",
+  "ended": "2026-11-16T19:43:23Z",
+  "wall_minutes": 17.17,
+  "tokens_in": 2094531,
+  "tokens_out": 17067,
+  "cost_usd": 1.3465,
+  "tool_calls": 28,
+  "task": "quality fix mode: uk-scottish-income-tax-calculator defects 1-7",
+  "projects": [
+    "ventures/uk-scottish-income-tax-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16683",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 5 asks for a quality-audit-round post, but `sample` printed that today's mode is `fix`; the README's 'Four modes' section resolves it, the track prompt does not mention modes."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-quality-fix-scottish-pension-relief-and-marginal-rate.md"
+  ],
+  "goal": null,
+  "notes": "Mode fix (seeded draw; 0 high defects open), queue seed 2026-11-16-4a03. Fixed defects 1-7 of audits/2026-11-15-uk-scottish-income-tax-calculator.json: RAS widened the 19% starter band (FA 2004 s.192(4A)) -> GBP 15/60 overstated relief; marginal rate ignored pension (69.5% shown to a 10% sacrificer at 110k, now 47%); 48% finding keyed on gross salary; dead three-ways table now rendered; FAQ crossover 32-33k -> 33,494; stale 'proposed'. 6 tests with hand-worked values; 4 seeded mutants (quality_mutate.py) all caught; node --test 34/34. Scores not changed; a later round re-audits. Defect 8 (no tax code input) left as a stated limit. Local CI: run_workflow_locally --for-changes, pages.yml 6/6 run steps ok, ventures-tests.yml 5/5, portfolio-validate.yml 100/100, 13/13 selected workflows passed (deploy and cross-review jobs not run locally).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bef8ea6c-5917-543e-97cf-56f821fa9a18",
+    "transcripts": 1,
+    "first": "2026-11-16T19:39:58Z",
+    "last": "2026-11-16T19:57:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 25,
+        "input": 49,
+        "output": 17067,
+        "thinking": 4547,
+        "cache_read": 2019343,
+        "cache_write_5m": 0,
+        "cache_write_1h": 75139,
+        "api_equivalent_usd": 1.3465,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 25,
+      "input": 49,
+      "output": 17067,
+      "thinking": 4547,
+      "cache_read": 2019343,
+      "cache_write_5m": 0,
+      "cache_write_1h": 75139,
+      "api_equivalent_usd": 1.3465,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.964,
+    "tool_calls": 28,
+    "tools": {
+      "Bash": 24,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.17,
+      "active_minutes": 17.17,
+      "model_minutes": 2.71,
+      "tool_minutes": 14.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "UK payroll specialist: research s.192(4A), fix three calc paths, hand-work six test values, write post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 297.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

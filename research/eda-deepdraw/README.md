@@ -15,7 +15,7 @@ Why it seemed worth doing: `eda-detectprob` could only say that 1,280 clean vect
 ```bash
 sudo apt-get install -y iverilog && pip install numpy scikit-learn
 cd research/eda-deepdraw
-python experiments/run.py 20000   # about 12 minutes on 4 cores; writes draws.jsonl
+python experiments/run.py 20000   # 507 CPU-s logged (a few minutes on 4 cores); writes draws.jsonl
 python experiments/analyse.py     # stdlib only; writes results.txt
 python experiments/figure.py      # writes bound.svg
 python -m unittest discover -s tests
@@ -24,7 +24,7 @@ python -m unittest discover -s tests
 ## Results (`experiments/results.txt`, per-mutant log `experiments/draws.jsonl`)
 - None of the 25 survivors was caught in 20,000 further vectors. Including the 16 proved equivalent: no random vector contradicts a formal equivalence proof (consistency, not independent proof).
 - The 9 formal timeouts also stay clean. For each, a bug that random testing could see has per-vector detection probability below 1.4 × 10<sup>-4</sup> at 95% (21,280 clean vectors). That is an upper bound; it does not show these 9 are equivalent.
-- `del@122:delete` first "fails" at vector 1,990 of 2,000. In `eda-verify` it failed at 54 of 64. Both are exactly 10 short of the vectors drawn, so this mutant returns 10 fewer output rows than vectors, not a wrong value, which the checker reports as the row count. This fits the truncation explanation `eda-detectprob` suggested; the rows were not inspected, so it is consistent with that, not confirmed. The analysis counts it as truncation, not a detection.
+- `del@122:delete` first "fails" at vector 1,990 of 2,000 (54 of 64 in `eda-verify`). **Correction (quality audit, 2026-11-17):** an earlier version of this page read that as truncated output. Inspecting the rows shows all 2,000 are printed: the deleted line is `done <= 0;`, so `done` is X for the first 10 vectors and then stuck at 1, giving a 1-cycle latency (golden 20) on every vector. The `eda-verify` checker's regex drops the 10 X rows and reports the row count, hence 54 and 1,990. It is a real detection at vector 0, not truncation. `analyse.py` still counts it as truncated (`STALL_LOSS`, `is_truncation`); that and the checker are listed under Known gaps ([audit](../../portfolio/quality/audits/2026-11-17-eda-deepdraw.json)).
 - Figure: `experiments/bound.svg`.
 
 ## Limitations
@@ -34,7 +34,13 @@ python -m unittest discover -s tests
 - No new bug was found, so this shows nothing about whether the 9 timeouts are killable.
 
 ## Next steps
-Run a biased generator (extreme values, sparse inputs) against the 9 timeouts; give the formal check a stronger solver (SymbiYosys with Boolector) and compare on the same 9; inspect the `del@122` output rows to confirm the truncation.
+Run a biased generator (extreme values, sparse inputs) against the 9 timeouts; give the formal check a stronger solver (SymbiYosys with Boolector) and compare on the same 9. The audit's reading of the RTL is that the 9 timeouts are reset-value or out-of-range-index edits the checker cannot observe, so check that before spending on a biased generator.
+
+## Known gaps
+From the [quality audit of 2026-11-17](../../portfolio/quality/audits/2026-11-17-eda-deepdraw.json):
+- `research/eda-verify/src/eda_verify/checks.py` parses only numeric `OUT` rows, so an X output is skipped and the row count is reported as a failing vector index. `analyse.py` builds its truncation class on that misreading.
+- The tests read the committed log rather than rerun `analyse.py`, so changing `PRIOR` or `SEED` leaves them green.
+- No prior work cited (rule of three; Duran and Ntafos on random testing; Offutt and Craft on equivalent mutants).
 
 ## Owner steps
 None.

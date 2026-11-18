@@ -14,3 +14,4 @@ import TheismFormal.AndersonFrames
 import TheismFormal.AndersonTransient
 import TheismFormal.AndersonHorn
 import TheismFormal.AndersonSep
+import TheismFormal.AndersonNP

@@ -84,8 +84,26 @@ test('the header keeps Search on the brand row instead of a row of its own', () 
   // under the breakpoint. At 15px semibold the links measured 7.9px a character (577px for 73).
   // A new nav item that breaks this needs a wider breakpoint or a shorter label.
   const chars = SITE_NAV.reduce((n, item) => n + item.label.length, 0);
-  const budget = 153 + Math.ceil(chars * 7.9) + 16 * (SITE_NAV.length - 1) + 22 * 2 + 100;
-  assert.ok(budget <= Number(twoRow[1]) + 1, `one-row header needs about ${budget}px, breakpoint is ${twoRow[1]}px`);
+  const linkWidth = Math.ceil(chars * 7.9);
+  // Between the two-row breakpoint and the full row, a compact row: Search as its glass alone, closer gaps.
+  const compact = /@container pfs-head \(min-width:(\d+)px\) and \(max-width:(\d+)px\)\{([^@]*)\}/.exec(SITE_HEADER_CSS);
+  assert.ok(compact, 'a compact one-row band sits above the two-row breakpoint');
+  assert.equal(Number(compact[1]), Number(twoRow[1]) + 1, 'the band starts where two rows stop');
+  const full = 153 + linkWidth + 16 * (SITE_NAV.length - 1) + 22 * 2 + 100;
+  assert.ok(full <= Number(compact[2]) + 1, `full one-row header needs about ${full}px, band ends at ${compact[2]}px`);
+  const gap = (re) => Number(re.exec(compact[3])[1]);
+  const pill = gap(/\.pfs-searchlink\{[^}]*width:(\d+)px/);
+  const tight = 153 + linkWidth + gap(/\.pfs-nav\{column-gap:(\d+)px/) * (SITE_NAV.length - 1) + gap(/\.pfs-bar\{column-gap:(\d+)px/) * 2 + pill;
+  assert.ok(tight <= Number(compact[1]), `compact row needs about ${tight}px, band starts at ${compact[1]}px`);
+  // The word stays the link's accessible name; only its glyphs go.
+  assert.match(compact[3], /\.pfs-searchlink\{[^}]*font-size:0/);
+  assert.match(compact[3], /\.pfs-search\{display:none\}/);
+  // A tool page's chrome resets its links' font and the pill's padding with stronger selectors, which hid the
+  // compact rule there on the first try (the word showed beside the glass); it repeats both inside the same band.
+  const band = `@container pfs-head (min-width:${compact[1]}px) and (max-width:${compact[2]}px){`;
+  const venture = VENTURE_CHROME_CSS.slice(VENTURE_CHROME_CSS.indexOf(band));
+  assert.ok(VENTURE_CHROME_CSS.includes(band), 'the venture chrome repeats the band');
+  assert.match(venture, /nav\.pf-chrome\.pf-chrome-top\[data-pfs-head\] \.pfs-searchlink\{padding:\d+px 0;font-size:0\}/);
 });
 
 test('a breadcrumb names the page last, unlinked', () => {
@@ -108,6 +126,15 @@ test('a long middle crumb is marked to give way on a phone, a short one is not',
   const phone = SITE_HEADER_CSS.slice(SITE_HEADER_CSS.indexOf('@media (max-width:600px)'));
   assert.match(phone, /\.pfs-crumbs>\.pfs-mid\{flex:0 100000 auto;min-width:4\.5em/);
   assert.match(phone, /\.pfs-crumbs>\[aria-current\]\{flex:0 1 auto;min-width:0/);
+});
+
+test('a last crumb that repeats the h1 is hidden on a phone, separator and all', () => {
+  const html = renderSiteHeader({ crumbs: [{ label: 'Topic', href: 't/' }, { label: 'A <b> title', echo: true }] });
+  assert.match(html, /<a href="t\/">Topic<\/a><span class="pfs-sep pfs-echo" aria-hidden="true">›<\/span><span aria-current="page" class="pfs-echo">A &lt;b&gt; title<\/span><\/span>/);
+  assert.doesNotMatch(renderSiteHeader({ crumbs: [{ label: 'Page' }] }), /pfs-echo/, 'unmarked by default');
+  const phone = SITE_HEADER_CSS.slice(SITE_HEADER_CSS.indexOf('@media (max-width:600px)'));
+  assert.match(phone, /\.pfs-crumbs>\.pfs-echo\{display:none\}/);
+  assert.doesNotMatch(SITE_HEADER_CSS.slice(0, SITE_HEADER_CSS.indexOf('@media (max-width:600px)')), /pfs-echo/, 'desktop keeps the full trail');
 });
 
 test('a venture header opens with the exact tag rates.mjs and jobs.mjs look for', () => {
@@ -187,7 +214,9 @@ test('research topic and project pages get the breadcrumb variants of the same h
   assert.match(template.project_header, /href="\{\{ROOT\}\}research\/">Research<\/a>/);
   // Marked to give way on a phone though the placeholder is short: the topic names are not.
   assert.match(template.project_header, /href="\{\{ROOT\}\}research\/topics\/\{\{TOPIC_ID\}\}\/" class="pfs-mid">\{\{TOPIC\}\}<\/a>/);
-  assert.match(template.project_header, /<span aria-current="page">\{\{TITLE\}\}<\/span>/);
+  // The project page's h1 is the title, so a phone hides the repeat (2026-11-15); the topic is not marked.
+  assert.match(template.project_header, /<span class="pfs-sep pfs-echo" aria-hidden="true">›<\/span><span aria-current="page" class="pfs-echo">\{\{TITLE\}\}<\/span>/);
+  assert.doesNotMatch(template.topic_header, /pfs-echo/);
   assert.match(template.topic_header, /<span aria-current="page">\{\{TOPIC\}\}<\/span>/);
 });
 

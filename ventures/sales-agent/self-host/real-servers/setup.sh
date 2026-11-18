@@ -1,7 +1,7 @@
 #!/bin/sh
 # Stands up a real Dovecot (IMAP) and Postfix (SMTP submission) on 127.0.0.1 for real-servers.mjs.
 # For a THROWAWAY container or VM only: it installs packages and overwrites /etc/postfix/main.cf and master.cf.
-# Ports: IMAP 10143 (STARTTLS offered), IMAPS 10993, submission 10587 (STARTTLS required before AUTH), submissions 10465.
+# Ports: IMAP 10143 (STARTTLS offered; real-servers.mjs uses it), IMAPS 10993, submission 10587 (STARTTLS required before AUTH), submissions 10465.
 # Certificates: a private CA made here (ca.pem) signs a localhost certificate, the way a company's own mail server would be set up.
 # Three mailbox users on the invented domain example.test: me@ (the sender), pat@ and lee@ (prospects). nobody@ does not exist (a bounce).
 set -eu

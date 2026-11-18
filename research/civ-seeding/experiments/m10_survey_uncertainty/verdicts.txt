@@ -1,0 +1,68 @@
+# Milestone 10: survey rules under milestone 6's joint bootstrap
+B = 500 joint draws; worst-case regret over I, T, R; reference set = milestone 6's 23 rules + 9 survey rules
+('survey-degree-0.25' is milestone 6's uniform quarter survey ranked by estimated degree, i.e. uniform-deg-0.25)
+
+## rule: point fit | joint median [5%, 95%] | share of draws: beats census top degree / beats census dd-0.05 / minimax
+  uniform-dd-0.25         0.050 | 0.050 [0.037, 0.067] | 0.030 / 0.000 / 0.000
+  adaptive-deg-0.25       0.057 | 0.063 [0.049, 0.083] | 0.000 / 0.000 / 0.000
+  adaptive-dd-0.25        0.041 | 0.042 [0.033, 0.057] | 0.310 / 0.000 / 0.000
+  adaptive-dd-0.25-s0.25  0.057 | 0.057 [0.042, 0.082] | 0.006 / 0.000 / 0.000
+  adaptive-dd-0.25-s0.75  0.045 | 0.044 [0.032, 0.061] | 0.224 / 0.000 / 0.000
+  uniform-dd-0.5          0.036 | 0.033 [0.020, 0.047] | 0.848 / 0.006 / 0.000
+  adaptive-dd-0.5         0.016 | 0.019 [0.010, 0.033] | 0.968 / 0.074 / 0.014
+  adaptive-dd-0.5-s0.25   0.013 | 0.019 [0.007, 0.035] | 0.958 / 0.156 / 0.032
+  adaptive-dd-0.5-s0.75   0.018 | 0.015 [0.005, 0.029] | 0.988 / 0.226 / 0.080
+  survey-degree-0.25      0.051 | 0.050 [0.037, 0.068] | 0.030 / 0.000 / 0.000
+  dd-0.05                 0.013 | 0.011 [0.005, 0.017] | 1.000 / 0.000 / 0.020
+  degree                  0.041 | 0.039 [0.032, 0.050] | 0.000 / 0.000 / 0.000
+  greedy-T                0.003 | 0.006 [0.002, 0.025] | 1.000 / 0.688 / 0.396
+
+## median regret per family, joint draws
+  uniform-dd-0.25         I 0.037  T 0.049  R 0.022
+  adaptive-deg-0.25       I 0.057  T 0.058  R 0.029
+  adaptive-dd-0.25        I 0.035  T 0.041  R 0.018
+  adaptive-dd-0.25-s0.25  I 0.039  T 0.056  R 0.029
+  adaptive-dd-0.25-s0.75  I 0.032  T 0.044  R 0.022
+  uniform-dd-0.5          I 0.022  T 0.032  R 0.011
+  adaptive-dd-0.5         I 0.017  T 0.014  R 0.008
+  adaptive-dd-0.5-s0.25   I 0.017  T 0.011  R 0.003
+  adaptive-dd-0.5-s0.75   I 0.011  T 0.012  R 0.005
+  survey-degree-0.25      I 0.036  T 0.050  R 0.021
+  dd-0.05                 I 0.008  T 0.004  R 0.006
+  degree                  I 0.031  T 0.039  R 0.018
+
+## family of the worst case (share of draws)
+  uniform-dd-0.25         I 0.11  T 0.89  R 0.00
+  adaptive-deg-0.25       I 0.43  T 0.57  R 0.01
+  adaptive-dd-0.25        I 0.26  T 0.74  R 0.01
+  adaptive-dd-0.25-s0.25  I 0.06  T 0.94  R 0.00
+  adaptive-dd-0.25-s0.75  I 0.10  T 0.90  R 0.00
+  uniform-dd-0.5          I 0.13  T 0.87  R 0.00
+  adaptive-dd-0.5         I 0.55  T 0.27  R 0.18
+  adaptive-dd-0.5-s0.25   I 0.65  T 0.18  R 0.17
+  adaptive-dd-0.5-s0.75   I 0.41  T 0.45  R 0.14
+  dd-0.05                 I 0.50  T 0.17  R 0.34
+
+## paired: share of joint draws where the first rule's worst case is lower
+  adaptive-dd-0.25 vs uniform-dd-0.25: 0.888
+  adaptive-dd-0.5 vs uniform-dd-0.5: 0.928
+  adaptive-dd-0.25 vs adaptive-deg-0.25: 1.000
+  uniform-dd-0.25 vs survey-degree-0.25: 0.544
+  adaptive-deg-0.25 vs survey-degree-0.25: 0.046
+  adaptive-dd-0.5 vs degree: 0.968
+  adaptive-dd-0.25 vs degree: 0.310
+  adaptive-dd-0.25-s0.25 vs adaptive-dd-0.25: 0.040
+  adaptive-dd-0.25-s0.75 vs adaptive-dd-0.25: 0.376
+  adaptive-dd-0.5-s0.25 vs adaptive-dd-0.5: 0.538
+  adaptive-dd-0.5-s0.75 vs adaptive-dd-0.5: 0.724
+
+## split (stage-1 share of the survey): joint median worst case
+  f = 0.25: s 0.25 0.0567  s 0.5 0.0424  s 0.75 0.0443
+  f = 0.5: s 0.25 0.0191  s 0.5 0.0195  s 0.75 0.0153
+
+H19 (adaptive-dd-0.5 joint median worst case <= 2.5% and below census top degree in >= 90% of draws): held; median 0.0195, share 0.968
+H20 (adaptive beats uniform with degree discount in >= 80% of draws at f = 0.25 and 0.5): held; 0.888 and 0.928
+H21 (the half split within 0.5 point of the best split's joint median at both shares): held; gaps f 0.25: 0.0000, f 0.5: 0.0041
+prediction (not tested): no survey rule is minimax in any draw: largest share 0.080
+prediction (not tested): adaptive-dd-0.5 median in [0.015, 0.02]: 0.0195; adaptive-dd-0.25 median in [0.035, 0.045]: 0.0424
+prediction (not tested): split 0.25 best at f = 0.5 and not best at f = 0.25: f 0.25 best s 0.5, f 0.5 best s 0.75

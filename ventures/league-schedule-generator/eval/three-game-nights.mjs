@@ -9,15 +9,24 @@
 // teams all start there and fill rows 1-3, and the other four fill rows 4-6: a wait-free night is
 // two groups of four that each play all three of their group (two K4s). Checked: no two of the 35
 // splits of 8 teams into two fours are edge-disjoint, so two such nights cannot both happen.
-// Part 4: the designed round robin (designedRounds) at 28 to 48 teams, 3 games, 6 times.
+// Part 4: the designed round robin (designedRounds) at 22 to 48 teams, 3 games, 6 times; since
+// 2026-11-15 (later) every even size has a design (the stored SAT ones, session-designs.mjs).
+// Part 6 (2026-11-15, latest): odd leagues of 5 to 29 teams at 6 time slots on the least courts
+// the bound and the proofs (PROVED_NO_WAIT_FREE: 5 teams on 1 court, 7 and 9 on 2) allow, against the
+// stored odd designs (odd-designs.mjs, eval/odd-night-sat.py).
+// Part 5 (2026-11-15, later): three sessions a night (9 time slots) on the least courts
+// (ceil(n / 6)), every even size with session blocks, against the stored three-session designs.
 import { buildSchedule, validateSchedule, nightWaits, parseDate } from "../calc.mjs";
-import { waitFreePossible, nightRowsExact, sessionBlocks, designedRounds } from "../nights.mjs";
+import { waitFreePossible, nightRowsExact, sessionBlocks, designedRounds, designCandidates, waitFreeProvedImpossible, oddDesigns } from "../nights.mjs";
+import { SESSION_DESIGNS } from "../session-designs.mjs";
 
 const g = 3;
-console.log("Part 1. teams times courts | least courts for a wait-free night: old bound / new bound | blocks | waits off (3 seeds) | waits on | ms on (avg) | valid");
-let offTot = 0, onTot = 0, zeroOn = 0, zeroOff = 0, rows = 0, invalid = 0;
+const only7 = process.argv.includes("--part") && process.argv[process.argv.indexOf("--part") + 1] === "7";
 const oldNeed = (n, T) => { let c = 1; while (!waitFreePossible(n % 2 ? n - g : n, g, c, T)) c++; return c; };
 const newNeed = (n, T) => { let c = 1; while (!waitFreePossible(n % 2 ? n - g : n, g, c, T, n % 2 ? g : 0)) c++; return c; };
+if (!only7) {
+console.log("Part 1. teams times courts | least courts for a wait-free night: old bound / new bound | blocks | waits off (3 seeds) | waits on | ms on (avg) | valid");
+let offTot = 0, onTot = 0, zeroOn = 0, zeroOff = 0, rows = 0, invalid = 0;
 for (const n of [6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 24]) for (const T of [4, 5, 6]) {
   const C = Math.max(newNeed(n, T), Math.ceil((Math.floor(n / 2) * g) / T));
   const spec = (seed, waitFree) => ({ teams: Array.from({ length: n }, (_, i) => `T${i + 1}`), start: parseDate("2026-01-06"), weekdays: [6], courts: Array.from({ length: C }, (_, i) => `C${i + 1}`), times: Array.from({ length: T }, (_, i) => `${String(9 + i).padStart(2, "0")}:00`), gamesPerNight: g, seed, waitFree });
@@ -71,7 +80,7 @@ console.log(`\nPart 2. 7 teams, 3 games, 2 courts x 5 times: ${nights} distinct 
 
 // Part 4
 console.log("\nPart 4. teams times courts | blocks | designed | waits off (3 seeds) | waits on | ms on (avg) | valid");
-for (const n of [28, 32, 36, 48]) {
+for (const n of [22, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48]) {
   const T = 6, C = Math.ceil((n / 2) * g / T);
   const spec = (seed, waitFree) => ({ teams: Array.from({ length: n }, (_, i) => `T${i + 1}`), start: parseDate("2026-01-06"), weekdays: [6], courts: Array.from({ length: C }, (_, i) => `C${i + 1}`), times: Array.from({ length: T }, (_, i) => `${String(9 + i).padStart(2, "0")}:00`), gamesPerNight: g, seed, waitFree });
   let off = 0, on = 0, ms = 0, ok = true;
@@ -85,3 +94,47 @@ for (const n of [28, 32, 36, 48]) {
   }
   console.log(`${n} ${T} ${C} | ${(sessionBlocks(n, g, C, T) || ["-"]).join("+")} | ${designedRounds(n, g) ? "yes" : "no"} | ${off} | ${on} | ${Math.round(ms / 3)} | ${ok}`);
 }
+
+// Part 5
+console.log("\nPart 5. teams times courts | blocks | stored 3-session design | waits off (3 seeds) | waits on | ms on (avg) | valid");
+for (let n = 12; n <= 48; n += 2) {
+  const T = 9, C = Math.ceil(n / 6);
+  if (!sessionBlocks(n, g, C, T)) continue;
+  const spec = (seed, waitFree) => ({ teams: Array.from({ length: n }, (_, i) => `T${i + 1}`), start: parseDate("2026-01-06"), weekdays: [6], courts: Array.from({ length: C }, (_, i) => `C${i + 1}`), times: Array.from({ length: T }, (_, i) => `${String(9 + i).padStart(2, "0")}:00`), gamesPerNight: g, seed, waitFree });
+  let off = 0, on = 0, ms = 0, ok = true;
+  for (const seed of [1, 2, 3]) {
+    const a = buildSchedule(spec(seed, false));
+    const t0 = performance.now();
+    const b = buildSchedule(spec(seed, true));
+    ms += performance.now() - t0;
+    ok = ok && validateSchedule(a).ok && validateSchedule(b).ok;
+    off += nightWaits(a).idle; on += nightWaits(b).idle;
+  }
+  console.log(`${n} ${T} ${C} | ${sessionBlocks(n, g, C, T).join("+")} | ${SESSION_DESIGNS.some((d) => d.n === n && d.sessions === 3) ? "yes" : "no"} | ${off} | ${on} | ${Math.round(ms / 3)} | ${ok}`);
+}
+
+}
+// Part 6, and Part 7 (2026-11-15, latest): the same at 9 time slots, where the 9-slot designs need
+// fewer courts. `node eval/three-game-nights.mjs --part 7` prints Part 7 alone.
+function oddPart(T, label) {
+  console.log(`\n${label}. odd leagues at ${T} times: teams courts | least courts by the count bound | stored odd design (its courts x times) | waits off (3 seeds) | waits on | ms on (avg) | valid`);
+  for (let n = 5; n <= 29; n += 2) {
+    let C = Math.max(newNeed(n, T), Math.ceil((Math.floor(n / 2) * g) / T));
+    const bound = C;
+    while (waitFreeProvedImpossible(n, g, C, T)) C++;
+    const spec = (seed, waitFree) => ({ teams: Array.from({ length: n }, (_, i) => `T${i + 1}`), start: parseDate("2026-01-06"), weekdays: [6], courts: Array.from({ length: C }, (_, i) => `C${i + 1}`), times: Array.from({ length: T }, (_, i) => `${String(9 + i).padStart(2, "0")}:00`), gamesPerNight: g, seed, waitFree });
+    let off = 0, on = 0, ms = 0, ok = true;
+    for (const seed of [1, 2, 3]) {
+      const a = buildSchedule(spec(seed, false));
+      const t0 = performance.now();
+      const b = buildSchedule(spec(seed, true));
+      ms += performance.now() - t0;
+      ok = ok && validateSchedule(a).ok && validateSchedule(b).ok;
+      off += nightWaits(a).idle; on += nightWaits(b).idle;
+    }
+    const d = oddDesigns(n, g);
+    console.log(`${n} ${C} | ${bound} | ${d.length ? `yes (${d.map((x) => `${x.courts}x${x.times}`).join(", ")})` : "no"} | ${off} | ${on} | ${Math.round(ms / 3)} | ${ok}`);
+  }
+}
+if (!only7) oddPart(6, "Part 6");
+oddPart(9, "Part 7");

@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKkWxDmHSMGFTfgNnTd",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T19:18:48Z",
+  "ended": "2026-11-15T19:41:25Z",
+  "wall_minutes": 30.28,
+  "tokens_in": 10029851,
+  "tokens_out": 40030,
+  "cost_usd": 3.846,
+  "tool_calls": 88,
+  "task": "Flagship row 6 (league-schedule-generator), top next: item: odd-league 3-game-night designs at 9 slots (19, 21-25, 27-29 teams) and 27 on 7x6, which the whole-season SAT model timed out on.",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16316",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "/usr/bin/time is not installed in the container; the first batch of solver runs exited 127 and had to be restarted.",
+    "pkill -f with the script name in the same command line was refused by the hook (bracket rule); split into two calls.",
+    "A window_shapes enumeration for 23 teams on 4 x 9 (combinations_with_replacement over 20 windows) never finished; killed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/README.md",
+      "issue": "Each new section tags itself '(2026-11-15, latest)' and the previous one must be retagged, which changes its GitHub anchor; an earlier post linked the old '-latest' anchor and had to be edited to keep working."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Cloud-session notes cover pytest/numpy but not python-sat; eval scripts here need `pip install python-sat` into a venv (about 30 s), worth a line next to pyenv.py."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-odd-leagues-one-night-at-a-time.md",
+    "ventures/league-schedule-generator/README.md (section 'Odd leagues one night at a time')",
+    "ventures/league-schedule-generator/eval/odd-cyclic.txt"
+  ],
+  "goal": "Deepen a flagship: new algorithm (1-rotational round robins, one-night SAT layout + exact cover by translates) closes four open wait-free settings.",
+  "notes": "New eval/odd-cyclic.py: in a 1-rotational round robin every night of rounds {s, s+a, s+b} is a relabelled copy of {0, a, b}, so one small SAT layout per pattern plus an exact cover of Z_n by translates gives a season. Stored: 21 and 23 teams on 4x9, 27 on 5x9 and 27 on 7x6 (all timed out at 20-40 min in the whole-season model); waits over seeds 1-3 in buildSchedule 102/184/231/201 -> 0. Fails on fully booked nights (13 on 3x6, 17 on 4x6, 13 on 2x9, 19 on 3x9 with 42 starters, 25 on 4x9); one 19-team night on 3x9 exists (odd-night-sat.py --nights 1, SAT 33 s). 29 on 5x9 not found: 3 starters x 126 patterns, none lay out, stopped at 1700 s. Verification: python3 platform/ci/run_venture_tests.py league-schedule-generator -> ok, 553 tests, 0 failed (323.9 s); node --test --test-name-pattern=odd doubleheader.test.mjs 6/6 pass; check_post_frontmatter ok, check_post_links 0 broken, post_similarity 0 pairs >= 0.25; flagship_field --check 1983 of 2000. node platform/pages/venture-preflight.mjs league-schedule-generator -> preflight clean (exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "73bbb5e2-9503-5bb1-922a-f69ef9177b3c",
+    "transcripts": 1,
+    "first": "2026-11-15T19:18:48Z",
+    "last": "2026-11-15T19:49:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 86,
+        "input": 165,
+        "output": 40030,
+        "thinking": 9586,
+        "cache_read": 9896504,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133182,
+        "api_equivalent_usd": 3.846,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 86,
+      "input": 165,
+      "output": 40030,
+      "thinking": 9586,
+      "cache_read": 9896504,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133182,
+      "api_equivalent_usd": 3.846,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 88,
+    "tools": {
+      "Bash": 81,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 30.28,
+      "active_minutes": 30.28,
+      "model_minutes": 8.84,
+      "tool_minutes": 21.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a scheduling researcher: derive the translation argument, write the per-night SAT and cover search, run and check four sizes, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 312.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

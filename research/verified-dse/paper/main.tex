@@ -75,7 +75,12 @@ test builds shifters where word-level cells and gates disagree. Counting
 gates wins: a guard that routes randomly when fewer than 36 AND/NOT
 gates feed the amount has 1.28\% regret on 12 blind cells against 5.33\%
 for a word-level guard and 3.95\% for random routing, and 2.25\% against
-3.94\% random over 36 blind cells (better in 17, worse in 1).
+3.94\% random over 36 blind cells (better in 17, worse in 1). Two
+confirmatory blind sets run at one clock per design, the second on
+128-bit right and 256-bit left shifters, bring the blind evidence to 73
+designs: the clipped ladder beats equal-cost random routing on 55 and
+loses on 15 (sign p = 0.000002), with a design-level mean difference of
+-2.79 points (95\% interval -3.98 to -1.59).
 \end{abstract}
 \textbf{Draft for MLCAD (6 pages when typeset); not submitted.}
 Programme \texttt{verified-dse}, milestone 7. Written with AI assistance
@@ -1075,6 +1080,171 @@ against 3.84\%. Over the 66 blind cells of milestones 121 to 125 SWG(32)
 still has 3.17\% against 5.25\% for random routing (better in 35, worse
 in 3), but that edge now comes from blind sets it was fitted after.
 
+\textbf{Why the ladder fails: a routed area-delay trade-off (milestone
+134; replay).} On the 36 blind ladder-branch cells of milestones 125,
+132 and 133 we split the log regret of the ladder's best routed pick
+into an area and a delay half (y = A4 x D4), with six predictions fixed
+before the table (\texttt{experiments/\allowbreak{}ladder\_\allowbreak{}diagnosis/\allowbreak{}}). Five held.
+Mapped area ranks routed area almost exactly where the ladder fails and
+where it wins (Kendall tau-b 0.95 and 0.93). On the 8 failing cells the
+pick is smaller than the routed optimum on 7 and slower on all 8 (3\% to
+27\%), so delay carries 149\% of the log regret. Mapped delay has no
+routed-delay rank information there (tau 0.00, against 0.13 on the 26
+winning cells), and mapped area is anti-correlated with routed delay
+(-0.15 against +0.10; AUC 0.06). The clip is not the cause. It binds on
+fewer points where the ladder fails (0.42 against 0.55, the refuted
+prediction), and the unclipped key does worse there (16.9\% against
+14.3\%). The trade-off is invisible before routing: mapped area and
+mapped delay are positively correlated on every cell (post hoc). This is
+why guards placed on RTL structure have moved on every blind set. The
+failure is a property of a pool's routed area-delay frontier, and only
+routed delay on a few points can measure it.
+
+\textbf{The blind evaluation, rule by rule (milestone 136; replay).}
+Table B scores each rule only on the blind sets that were out of sample
+for it, from the commit that fixed it
+(\texttt{experiments/\allowbreak{}blind\_\allowbreak{}pooled/\allowbreak{}}; six predictions fixed first, four
+held). SWC (fixed at milestone 115) and SWG(32) (registered before
+milestone 125's flow run) are blind on all 42 cells of milestones 125,
+132 and 133 (21 designs). SWP(32) was tuned on milestones 119 to 125, so
+it and SWGP(32) are blind on 26 cells. SWPF(32) is blind on 14, and SWX,
+built from the diagnosis above, on none.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+rule
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+blind cells
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+rule \%
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+SWC \% (same cells)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+random \% (same cells)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+guard - SWC, design-bootstrap 95\% interval (points)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Holm p
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+SWC & 42 & 3.30 & 3.30 & 4.65 & - & - \\
+SWG(32) & 42 & 4.26 & 3.30 & 4.65 & -0.90 to +2.89 & 0.35 \\
+SWP(32) & 26 & 3.19 & 3.14 & 4.01 & -0.76 to +0.84 & 0.35 \\
+SWGP(32) & 26 & 2.85 & 3.14 & 4.01 & -2.40 to +1.64 & 0.35 \\
+SWPF(32) & 14 & 3.23 & 2.70 & 5.57 & -0.69 to +1.59 & 0.23 \\
+SWX(3, 0.02) & 0 & 4.02 (all 42, seen) & 3.30 & 4.65 & - & - \\
+perfect guard min(SWC, random) & - & 1.30 (all 42) & 3.30 & 4.65 & - &
+- \\
+\end{longtable}
+
+No guard beats SWC after a Holm correction. One comes out lower on its
+own blind cells: SWGP(32), the gate flag in front of the pilot probe,
+has 2.85\% against 3.14\% on 26 cells, but it is worse than SWC on 14 of
+them and better on 6, and its interval spans -2.40 to +1.64 points.
+Against equal-cost random routing SWC is better on 28 cells and worse on
+8 (sign p = 0.001), but the two clocks of a design are not independent
+(the sign agrees on 16 of the 18 ladder-branch designs). By design SWC
+is better on 13, worse on 5 and tied on 3 (p = 0.096); the design-level
+mean difference is -1.36 points with sd 6.71, so at that spread about 95
+blind designs would be needed for a 95\% interval below zero, against 21
+run. Dropping any one design leaves SWC below random (-2.38 points
+without pmul4, -0.85 without pmul3). A perfect per-cell guard would sit
+1.99 points below SWC, and the whole gap is on 8 cells of 5 designs. We
+therefore report the clipped switch as the best rule found, better than
+random on most blind designs, but not as a demonstrated improvement on
+equal-cost random routing.
+
+\textbf{A confirmatory set (milestone 137; flow run).} Twelve 128-bit
+left shifters from four families no table had run (integer square root,
+argmin index, ones'-complement checksum, nibble-match count), kept from
+16 by the cost probe and run at one clock each, alternating tight and
+relaxed by a rule fixed before the probe. Seven predictions were
+committed before the flow run (\texttt{experiments/\allowbreak{}ladder\_\allowbreak{}confirm/\allowbreak{}}).
+SWC has 2.91\% mean regret against 4.15\% for random, is perfect on 7 of
+12 designs and is better on 8, worse on 4 (two-sided sign p = 0.39; the
+primary prediction, p \textless{} 0.05 on the new set alone, is
+refuted). Two integer-square-root designs at the tight clock carry most
+of the loss (+3.89 and +7.08 points). Pooled with Table B's 21 designs,
+SWC is better on 21 of 33 and worse on 9 (p = 0.043); the design-level
+mean difference is -1.32 points (sd 5.70, normal 95\% interval -3.26 to
++0.63). The claim the evidence supports is therefore the sign one: on
+more blind designs than not, the clipped ladder finds a better routed
+point than random routing of the same cost.
+
+\textbf{A second confirmatory set (milestone 138; flow run).} Every
+earlier blind design was a wide left shifter, so this set varies the
+shifter: five families no table had run (restoring division, chained
+saturating clamps, max - min of N fields, a 3-bit dot product, a count
+of fields above a threshold), four dials each, each dial at a 128-bit
+logical right shifter and a 256-bit left shifter. All 40 candidates
+passed the cost probe. Eight predictions, the clocks and a seeded run
+order were committed before any ABC sequence ran
+(\texttt{experiments/\allowbreak{}ladder\_\allowbreak{}confirm2/\allowbreak{}}); the flow stopped at its time
+limit and, by the rule fixed with the order, the 25 designs complete at
+that point are the analysed set. SWC has 2.45\% mean regret against
+6.44\% for random routing and is better on 21 designs, worse on 4
+(two-sided sign p = 0.0009; design-bootstrap 95\% interval of the mean
+difference -5.80 to -2.05 points). It wins on both shifters: 2.18\%
+against 4.75\% on the 13 right shifters, 2.74\% against 8.27\% on the 12
+256-bit left shifters. Its four losses are all at the tight clock, three
+of them on the cells with the lowest routing-cost ratio (3.33 to 3.79,
+near theta = 3), a post-hoc observation. Pooled over all 58 blind
+designs, SWC is better on 42 and worse on 13 (p = 0.0001), and the
+design-level mean difference is -2.47 points (sd 5.45, normal 95\%
+interval -3.87 to -1.06). The mean claim is now supported as well as the
+sign claim: on blind designs the clipped ladder finds a better routed
+point than equal-cost random routing, by about 2.5 points of regret on
+average.
+
+\textbf{Where the ladder's losses sit (milestone 139; replay).}
+Milestone 138's four losses were all at the tight clock, three of them
+just above theta. We tested that reading, with six predictions committed
+before the table existed (\texttt{experiments/\allowbreak{}tight\_\allowbreak{}theta/\allowbreak{}}), on the 99
+ladder-branch cells that did not suggest it: milestones 119 to 125's
+seen cells (which tuned only the guards, never SWC), the 42 cells of
+milestones 125, 132 and 133 and milestone 137's 12. The clock half is
+refuted: SWC fails (loses to random by more than a point) on 14 of 51
+tight cells and 11 of 48 relaxed ones (one-sided Fisher p = 0.39), and
+on the 42 designs with both clocks on the ladder branch the tight cell
+is the worse one on 19 and the better one on 23 (sign p = 0.64). The
+ratio half holds: failing cells have lower routing-cost ratios than the
+rest (AUC 0.67, permutation p = 0.006), and 16 of the 25 failures have
+routed/r2 at most 4. That band does not favour random routing, though.
+It also holds SWC's largest wins, and over its 45 cells the two tie on
+the mean (6.20\% against 6.03\%), while above 4 SWC has 2.65\% against
+4.44\% for random. A guard that routes randomly at the tight clock up to
+a ratio of 4 has 4.01\% against 4.21\% for SWC (better on 12 designs,
+worse on 11; design-bootstrap interval -1.25 to +0.78 points), and
+raising theta at both clocks to 5 or more is worse than SWC. The
+ladder's edge grows with the routing-cost ratio; near theta it is a coin
+flip with high variance, and theta = 3 is kept.
+
+\textbf{The second set completed (milestone 140; flow run).} The 15
+designs of milestone 138's run order that its time limit cut were run
+afterwards with the same script, as a descriptive addition with seven
+predictions committed before the flow resumed
+(\texttt{experiments/\allowbreak{}ladder\_\allowbreak{}rest/\allowbreak{}}); milestone 138's analysed 25 are
+unchanged. SWC has 2.23\% mean regret against 6.25\% and is better on
+13, worse on 2 (sign p = 0.0074). Over all 40 designs of the set it is
+better on 34 and worse on 6 (p = 0.000008), and over the 73 blind
+designs of milestones 136 to 140 on 55 against 15 (p = 0.000002), with a
+design-level mean difference of -2.79 points (sd 5.21, normal 95\%
+interval -3.98 to -1.59). By milestone 139's ratio bands over the 40
+cells, SWC and random tie near theta ((3, 4{]}: 3.31\% against 3.63\%, 9
+cells) and SWC wins clearly above it ((4, 6{]}: 0.52\% against 5.01\%;
+above 6: 3.10\% against 8.52\%, 18 of 19 cells).
+
 \hypertarget{limitations-and-threats}{%
 \subsection{5 Limitations and threats}\label{limitations-and-threats}}
 
@@ -1174,13 +1344,15 @@ and page limit still need checking against the call for papers.
 \setcounter{enumi}{5}
 \tightlist
 \item
-  Which shifters the ladder ranks. Milestone 125 refuted gate depth in
-  front of the amount as the deciding feature (the same family wins at
-  28 gates and loses at 36), after shift-operator and word-level-depth
-  guards had also moved on blind data. The next guard should be measured
-  rather than structural: route a few pilot points and check whether the
-  mapped rung's order holds on them, priced against equal-cost random
-  routing by replay on milestones 119 to 125 before a blind test.
+  More blind families below the cost threshold and at other corners.
+  Milestones 137, 138 and 140 ran the confirmatory sets: over 73 blind
+  designs SWC beats equal-cost random routing on 55 and loses on 15
+  (sign p = 0.000002), with a design-level mean difference of -2.79
+  points (95\% interval -3.98 to -1.59). Milestone 139 found the losses
+  cluster near theta at both clocks, not at the tight clock, and that no
+  raised threshold helps. What remains open is a pre-route signal that
+  separates the near-theta wins from the near-theta losses (milestone
+  140 ran the 15 designs milestone 138's flow did not reach).
 \end{enumerate}
 
 The headline is split by cost. On small designs, where a routed point

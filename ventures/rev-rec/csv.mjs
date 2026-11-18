@@ -1,8 +1,11 @@
 // Invoice-line CSV -> lines, for the browser demo. Columns by header name, any
-// order, amounts in major units. Needs amount, period start and a billing date.
+// order, amounts in major units, scaled by the row currency's minor unit
+// (minorExponent). Needs amount, period start and a billing date.
+import { minorExponent } from "./revrec.mjs";
+
 export function parseCsv(text) {
   const rows = []; let row = [], cur = "", q = false;
-  const s = String(text).replace(/^﻿/, "");
+  const s = String(text).replace(/^\uFEFF/, "");
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (q) { if (c === '"') { if (s[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
@@ -22,7 +25,16 @@ const ALIASES = {
   start: ["period start", "service start", "start", "period start utc"],
   end: ["period end", "service end", "end", "period end utc"],
   currency: ["currency"],
+  credits: ["credits", "credits line", "invoice line item", "credited line"],
 };
+// Major-unit amount -> number. "1,234.50" and "1.234,50" both read 1234.5: a comma
+// followed by one or two final digits is a decimal comma (a thousands group is
+// always three digits), so a European export is not read 100 times too large.
+export function parseAmount(v) {
+  let x = String(v).replace(/[$£€()\s]/g, "").replace(/[a-z]{3}$/i, "");
+  x = /,\d{1,2}$/.test(x) ? x.replace(/\./g, "").replace(",", ".") : x.replace(/,/g, "");
+  return x ? Number(x) : NaN;
+}
 const toMs = (v) => {
   const x = String(v || "").trim();
   if (!x) return null;
@@ -40,17 +52,32 @@ export function linesFromCsv(text) {
   const lines = [], skipped = [];
   rows.slice(1).forEach((r, i) => {
     const get = (k) => (col[k] >= 0 ? (r[col[k]] ?? "").trim() : "");
+    if (!get("amount")) return skipped.push({ line: i + 2, why: "amount is blank" });
     const neg = /^\(.*\)$/.test(get("amount"));
-    const raw = Number(get("amount").replace(/[$,£€()\s]/g, ""));
+    const raw = parseAmount(get("amount"));
     const billedAt = toMs(get("billed")), start = toMs(get("start"));
     if (!Number.isFinite(raw)) return skipped.push({ line: i + 2, why: "amount is not a number" });
     if (billedAt === null) return skipped.push({ line: i + 2, why: "billing date is not a date" });
     if (start === null) return skipped.push({ line: i + 2, why: "period start is not a date" });
-    const end = toMs(get("end")) ?? start;
+    // A blank end is a one-off charge; a typo in a filled-in end must not be one,
+    // or a year's term is recognised on day one with nothing flagged.
+    const end = get("end") ? toMs(get("end")) : start;
+    if (end === null) return skipped.push({ line: i + 2, why: "period end is not a date" });
     if (end < start) return skipped.push({ line: i + 2, why: "period end is before period start" });
-    lines.push({ id: get("id") || `row${i + 2}`, billedAt, start, end, amount: Math.round((neg ? -raw : raw) * 100), currency: (get("currency") || "usd").toLowerCase() });
+    const currency = (get("currency") || "usd").toLowerCase();
+    lines.push({ id: get("id") || `row${i + 2}`, billedAt, start, end, amount: Math.round((neg ? -raw : raw) * 10 ** minorExponent(currency)), currency, ...(get("credits") ? { credits: get("credits") } : {}) });
   });
   return { lines, skipped, missing: [] };
+}
+
+// One currency per schedule, like the server: keep the most common one and count
+// the lines left out, so a mixed export never sums dollars and euros together.
+export function oneCurrency(lines) {
+  const counts = {};
+  for (const l of lines) counts[l.currency] = (counts[l.currency] || 0) + 1;
+  const currency = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || "usd";
+  const left = Object.fromEntries(Object.entries(counts).filter(([c]) => c !== currency));
+  return { currency, lines: lines.filter((l) => l.currency === currency), left };
 }
 
 // Deterministic demo: monthly and annual plans over ~18 months, one refund.

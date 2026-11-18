@@ -57,13 +57,14 @@ test("automatic overseas tests: leaver under 16, arriver under 46", () => {
 test("an arriver needs all four ties at 46-90 days", () => {
   const three = base({ family: "yes", accommodation: "yes", ukWorkDays: 50 });
   assert.equal(verdictForDays(60, three).resident, false);
-  assert.equal(verdictForDays(60, { ...three, prev1: 90 }).resident, true);
+  assert.equal(verdictForDays(60, { ...three, prev1: 91 }).resident, true);
   assert.equal(verdictForDays(100, three).resident, true); // 3 ties at 91-120
 });
 
-test("the country tie only counts for leavers and needs strictly more UK days than any other country", () => {
+test("the country tie only counts for leavers; a draw for the most days still counts (Sch 45 para 38(2))", () => {
   const ctx = base({ priorResident: "yes", mostElsewhere: 100 });
-  assert.equal(verdictForDays(100, ctx).ties.list.find((t) => t.id === "country").present, false);
+  assert.equal(verdictForDays(99, ctx).ties.list.find((t) => t.id === "country").present, false);
+  assert.equal(verdictForDays(100, ctx).ties.list.find((t) => t.id === "country").present, true);
   assert.equal(verdictForDays(101, ctx).ties.list.find((t) => t.id === "country").present, true);
   assert.equal(verdictForDays(60, base({ mostElsewhere: 0 })).ties.list.some((t) => t.id === "country"), false);
 });
@@ -137,4 +138,36 @@ test("the summary names the test that decided, the disclaimer and HMRC's guidanc
   assert.match(t, /sufficient ties test/);
   assert.match(t, /not tax advice/);
   assert.match(t, /RDR3/);
+});
+
+test("the 90-day tie needs more than 90 days in an earlier year (Sch 45 para 37)", () => {
+  const tie = (o) => verdictForDays(60, base(o)).ties.list.find((t) => t.id === "ninety-day").present;
+  assert.equal(tie({ prev1: 90, prev2: 90 }), false);
+  assert.equal(tie({ prev1: 91 }), true);
+  assert.equal(tie({ prev2: 91 }), true);
+  // the same boundary when the earlier year comes from the stays: 6 April to 5 July 2025 is 90 midnights
+  const input = { ...SAMPLE, stays: "2025-04-06 2025-07-05\n2026-05-01 2026-06-30", prev1: "", prev2: "" };
+  assert.equal(assess(input).ctx.prev1, 90);
+  assert.equal(assess(input).verdict.ties.list.find((t) => t.id === "ninety-day").present, false);
+});
+
+// A leaver with one tie (family) is not resident at 91-120 days (2 needed) and would be at 121+ (1 needed).
+const nearEdge = (days) => {
+  const from = toDay(2026, 4, 6);
+  return assess({ ...SAMPLE, stays: `${dayIso(from)} ${dayIso(from + days)}`, accommodation: "no", ukHome: "no", prev1: "0", prev2: "0", mostElsewhere: "300" });
+};
+const bandNotice = (r) => r.notices.some((n) => /would move you into the 121-182 band/.test(n));
+
+test("the next-band notice fires within 10 days of the band edge, inclusive", () => {
+  const at = nearEdge(111);
+  assert.equal(at.days, 111);
+  assert.equal(at.verdict.resident, false);
+  assert.equal(at.verdict.ties.count, 1);
+  assert.equal(bandNotice(at), true); // exactly 10 days short
+  assert.equal(bandNotice(nearEdge(115)), true);
+});
+
+test("the next-band notice stays quiet further than 10 days from the edge", () => {
+  assert.equal(bandNotice(nearEdge(110)), false);
+  assert.equal(bandNotice(nearEdge(100)), false);
 });

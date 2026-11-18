@@ -70,7 +70,10 @@ into the tub, about 53 a minute on paper, and the firmware runs it for 16 s
 after each ball fed ([`cad/README.md`](cad/README.md), "Ball lift"); since
 2026-11-15 a shunt and comparator on GPIO 0 let it cut a jammed lift within
 about 30-90 ms, retry once and then report `FLAG_LIFT_JAM`
-([`cad/README.md`](cad/README.md), "Lift jam cutoff"), and a friction slip hub
+([`cad/README.md`](cad/README.md), "Lift jam cutoff"; its shunt sits inside the
+motor-diode loop behind an INA186-class amplifier, so the trip, 1.51-1.77 A,
+no longer rises when the firmware turns the duty down on a full pack: "Lift
+current sense inside the diode loop"), and a friction slip hub
 on the drive pulley keeps the jam's first impact on a flight to 51-88 N on the
 simulated feeder, against 98-214 N with the pulley keyed to the shaft
 ([`cad/README.md`](cad/README.md), "Lift slip coupling"). Hopper
@@ -189,6 +192,72 @@ timed elevation modes: four balls, each released within 0.6 deg of its planned
 elevation, 0.05 deg of its azimuth and 3.5% of both wheel speeds, at least 3 s
 apart. E-stop pressed mid-drill, a lost `FEED` frame, a pot wire coming off and
 a silent board each abort with no further ball. No real board has run it.
+
+**An empty tub (2026-11-16).** The firmware judges every feed stroke by the
+launcher wheels' speed drop, since a ball takes its momentum from them (8.8% per
+wheel on a flat shot with the CAD's figures) and an empty pocket leaves them
+steady. A dry stroke sets `FLAG_HOPPER_EMPTY`; the runner stops there, names the
+shot that went dry and how many flew, stops the wheels without latching the
+e-stop, and exits 3. No sensor was added because the feeder's ESP32 has no pin
+left for one. The drop is measured from the wheel's own speed when the ball met
+it, not its target: a stroke fed as the speed gate opens starts with the wheel
+still closing on its target, and against the target 29 of 972 such simulated
+strokes were judged wrong (none now). Margins over 27 simulated builds and the
+reasoning: [`firmware/esp32/README.md`](firmware/esp32/README.md), "Empty
+hopper" and "The verdict from the pre-ball speed".
+
+**A shot log and a launcher fit without a radar gun (2026-11-16).** The same
+drop is the ball's momentum, so every judged stroke now reaches the Pi as a
+`LAUNCH` record (each wheel's speed before the ball and its drop).
+`tennisbots run drill.calibration.json --shot-log shots.jsonl` logs them and
+`tennisbots fit-launcher shots.jsonl` fits the launcher's speed and spin
+efficiencies, the numbers the planner aims with. On 18 simulated builds the
+speed efficiency came within 3.9% (10.9% if the drops are read naively) and
+the spin efficiency within 11.7%; one radar session pins the wheel's inertia.
+Later that day, the firmware began fitting each drop to the wheel's pulse times
+instead of reading only the lowest revolution, which shows 62-99.5% of the
+drop. The fit came within 1.9% (speed) and 6.6% (spin), and it no longer
+needs the speed loop's recovery time. Later still, the board fits each drop
+with the speed loop's own logged ESC commands driving a first-order wheel
+instead of a free parabola: each drop within 0.3% (sd) of the simulator's,
+and the calibration drill's spin efficiency within 1.6% on 18 builds and 1.9%
+on 12 held-out ones (8.1% and 7.8% before). That is the method's best case,
+since the simulated wheel is that model; a real wheel's log is the next check.
+Since 2026-11-16 the board reports the ESC lag its fit runs with, the shot log
+keeps each drill's ESC-lag survey, and `tennisbots run` stops a calibration
+drill before its first ball when the two disagree (exit 4, the value to set;
+`--esc-lag-ok` overrides it). `tennisbots esc-lag shots.jsonl` prints the last
+survey's advice. On 72 simulated builds, every board set more than 15% off its
+survey was held, and none was held after a re-flash to the pick (worst spin error
+1.9%, against up to 16.1% if run anyway): firmware/esp32/README.md, "Checked
+before a calibration drill".
+
+Before trusting the contact-time survey, log one wheel's tach spinning steadily
+(`firmware/esp32/tach_log.py` from the ESP32's REPL) and run `tennisbots
+tach-jitter periods.txt`: it prints the tach's edge jitter and whether the survey
+can see through it. On the simulator the survey named and advised 14 of 18 spread
+contact times on a clean tach and none of 54 from 1.5 us of jitter, going quiet
+rather than wrong (firmware/esp32/README.md, "The take survey's jitter limit").
+If the log reads 0.55 us or more, log the same wheel again with
+`tach_log.run(34, 600, capture=True)`, which times the edges with the ESP32's
+MCPWM capture unit instead of the pin interrupt: if that reads lower, set
+`TACH_CAPTURE = True` in config.py. On the simulator the capture kept the survey
+naming 36 of 54 spread contacts at 1.5-3 us of handler jitter (the pin interrupt:
+0 of 54); it is off by default because it has not run on a board yet
+(firmware/esp32/README.md, "A tach timed in hardware").
+[`firmware/esp32/README.md`](firmware/esp32/README.md), "Shot log", "The
+drop from the pulse times" and "A recovery shaped by the loop's own commands".
+
+**A drill that re-aims itself from its own shots (2026-11-16).** `tennisbots
+run drill.json --shot-log shots.jsonl --refit-after 4` fits the launcher from
+the drill's own wheel speed drops every 4 shots and re-plans the remaining
+shots' wheel speeds, printing how far they would have landed off. On 12
+simulated builds whose launcher differed from the planner's default, shots 5
+to 16 landed up to 5.2 m off unchanged and at most 0.74 m off re-planned
+(1.2 m before the pulse-time drops); the
+planner also now refuses a wheel under 500 rpm, where the simulated wheel
+never settled.
+[`firmware/esp32/README.md`](firmware/esp32/README.md), "Re-planning a drill from its own shots".
 
 ### Wheel speed loop (2026-11-11)
 

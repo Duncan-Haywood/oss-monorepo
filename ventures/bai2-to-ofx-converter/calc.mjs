@@ -58,7 +58,7 @@ function fundsExtra(fields, i) {
 }
 
 export function splitRecords(text) {
-  let raw = String(text).replace(/^﻿/, "");
+  let raw = String(text).replace(/^\uFEFF/, "");
   let lines = raw.split(/\r\n|\n|\r/).map((l) => l.trim()).filter((l) => l.length);
   // A file delivered as one unbroken string: cut after each slash that precedes a record code.
   if (lines.length === 1 && /\/\s*(01|02|03|16|49|88|98|99),/.test(lines[0])) {
@@ -73,7 +73,7 @@ export function validate(text, opts = {}) {
   const { lines, eol } = splitRecords(text);
   const findings = [];
   const add = (sev, code, line, title, detail) => findings.push(newFinding(sev, code, line, title, detail));
-  const summary = { records: lines.length, groups: 0, accounts: 0, transactions: 0, credit: 0, debit: 0, header: null, accountList: [] };
+  const summary = { records: lines.length, groups: 0, accounts: 0, transactions: 0, credit: 0, debit: 0, header: null, accountList: [], transactionList: [] };
   if (!lines.length) {
     add("error", "EMPTY", 0, "The file is empty", "Paste or choose a BAI2 file: comma-separated records beginning 01, 02, 03, 16, 49, 98 and 99.");
     return { findings, summary, eol, parsed: [] };
@@ -483,7 +483,14 @@ export function statementsOf(result) {
 
 const ascii = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\x20-\x7e]/g, "?");
 const ofxText = (s) => ascii(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\s+/g, " ").trim();
+// OFX caps a field's length; cut the plain text so the escaped text fits, never splitting an "&amp;".
+const ofxCut = (s, n) => { let t = ascii(s).replace(/\s+/g, " ").trim(); while (ofxText(t).length > n) t = t.slice(0, -1); return ofxText(t); };
 const ymd = (iso) => iso.replace(/-/g, "");
+// A statement is dated by its 02 group's as-of date; one the validator could not read (an error it reports) has no
+// date to write, and every format needs one, so the converters refuse it rather than write "undefined".
+function needDate(st) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(st.date || "")) throw new Error(`Account ${mask(st.account || "")} has no valid as-of date ("${st.date || ""}" in its 02 group header, field 5): fix the date before converting.`);
+}
 const dec = (c) => (c / 100).toFixed(2);
 const csvText = (s) => { const t = String(s ?? ""); return /[",\r\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
 
@@ -513,6 +520,7 @@ export function accountId(st, { fullAccount = false } = {}) {
 }
 
 export function toOfx(st, o = {}) {
+  needDate(st);
   const rows = exportEntries(st);
   const now = (o.now || new Date().toISOString()).replace(/[-:T]/g, "").slice(0, 14);
   const type = o.accountType || "checking";
@@ -528,8 +536,8 @@ export function toOfx(st, o = {}) {
     `<BANKTRANLIST><DTSTART>${ymd(st.date)}120000<DTEND>${ymd(st.date)}120000`,
   ];
   for (const e of rows) {
-    const memo = ofxText([e.custRef, e.bankRef].filter(Boolean).join(" "));
-    L.push(`<STMTTRN><TRNTYPE>${e.kind === "debit" ? "DEBIT" : "CREDIT"}<DTPOSTED>${ymd(st.date)}120000<TRNAMT>${dec(e.signed)}<FITID>${e.fitid}<NAME>${ofxText(e.name)}${memo ? `<MEMO>${memo.slice(0, 255)}` : ""}</STMTTRN>`);
+    const memo = ofxCut([e.custRef, e.bankRef].filter(Boolean).join(" "), 255);
+    L.push(`<STMTTRN><TRNTYPE>${e.kind === "debit" ? "DEBIT" : "CREDIT"}<DTPOSTED>${ymd(st.date)}120000<TRNAMT>${dec(e.signed)}<FITID>${e.fitid}<NAME>${ofxText(e.name)}${memo ? `<MEMO>${memo}` : ""}</STMTTRN>`);
   }
   L.push("</BANKTRANLIST>");
   if (st.closing) L.push(`<LEDGERBAL><BALAMT>${dec(st.closing.amount)}<DTASOF>${ymd(st.date)}120000</LEDGERBAL>`);
@@ -538,6 +546,7 @@ export function toOfx(st, o = {}) {
 }
 
 export function toQif(st, o = {}) {
+  needDate(st);
   const out = [o.accountType === "credit" ? "!Type:CCard" : "!Type:Bank"];
   const [y, m, d] = st.date.split("-");
   for (const e of exportEntries(st)) {
@@ -553,6 +562,7 @@ const xeroDate = (iso, order) => { const [y, m, d] = iso.split("-"); return orde
 
 // Xero's statement import template: *Date, *Amount, Payee, Description, Reference.
 export function toXeroCsv(st, o = {}) {
+  needDate(st);
   const rows = [["*Date", "*Amount", "Payee", "Description", "Reference"]];
   for (const e of exportEntries(st)) rows.push([xeroDate(st.date, o.dateOrder || "iso"), dec(e.signed), e.name, ascii(e.text), e.custRef || e.bankRef]);
   return rows.map((r) => r.map(csvText).join(",")).join("\r\n") + "\r\n";

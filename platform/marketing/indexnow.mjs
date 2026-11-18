@@ -87,14 +87,36 @@ import { publishedBaseUrl, SERVING_BRANCH } from '../pages/published-base-url.mj
 export const INDEXNOW_ENDPOINT = 'https://api.indexnow.org/indexnow';
 
 // The protocol's own ceiling (https://www.indexnow.org/documentation) — a
-// single request may name at most 10,000 URLs. This catalogue is under that
-// — 973 on the 2026-09-11 snapshot, counting every page the published
-// sitemaps enumerate and not just the one-per-venture catalogue entries — but
-// the margin is roughly 10x rather than the 40x it looked like when only
-// `catalog.json` was read, so the guard matters more than it did. It fails
-// loudly with a name for the fix (batch the calls) rather than filing a
-// request the API silently truncates.
+// single request may name at most 10,000 URLs. The site was 973 URLs on
+// 2026-09-11 and 10,023 by 2026-11-15, when the old guard ("this script does
+// not batch yet") began refusing every deploy's announcement: the step's red
+// was soft (it must not hold back the GitHub Pages deploy), so the deploy job
+// stayed green and nothing reached IndexNow. The CLI now sends
+// `batches(urls)`, each at most this many, in order.
 export const MAX_URLS_PER_REQUEST = 10000;
+
+/** Split `urls` into consecutive lists of at most `size` (the protocol ceiling). */
+export function batches(urls, size = MAX_URLS_PER_REQUEST) {
+  if (!Number.isInteger(size) || size < 1) throw new Error(`batch size must be a positive integer, got ${size}`);
+  const out = [];
+  for (let i = 0; i < urls.length; i += size) out.push(urls.slice(i, i + size));
+  return out;
+}
+
+/**
+ * POST every batch in order, stopping at the first one that is not accepted
+ * (a refused key or a missing egress will refuse the rest the same way, and
+ * the CLI reports that one). Returns one `{ size, result }` per batch sent.
+ */
+export async function submitInBatches({ baseUrl, urls, send = submit, size = MAX_URLS_PER_REQUEST }) {
+  const sent = [];
+  for (const list of batches(urls, size)) {
+    const result = await send(buildPayload({ baseUrl, urls: list }));
+    sent.push({ size: list.length, result });
+    if (!result.ok) break;
+  }
+  return sent;
+}
 
 // Exit code for "the request never left this machine". Distinct from 1 so a
 // caller can tell "this host cannot reach IndexNow" (expected, and not a
@@ -632,17 +654,13 @@ if (isMain) {
     console.error('indexnow: catalog.json named no URLs — refusing to submit an empty list.');
     process.exit(1);
   }
-  if (urls.length > MAX_URLS_PER_REQUEST) {
-    console.error(
-      `indexnow: ${urls.length} URLs exceeds the ${MAX_URLS_PER_REQUEST}-per-request protocol ` +
-        'limit. This script does not batch yet — split the call or extend it before running.',
-    );
-    process.exit(1);
-  }
-
   const payload = buildPayload({ baseUrl, urls });
+  const planned = batches(urls);
 
   console.log(`indexnow: ${urls.length} URL(s) from ${args.dir ? `dir ${args.dir}` : `ref ${args.ref}`}`);
+  if (planned.length > 1) {
+    console.log(`  batches:     ${planned.length} requests (${planned.map((b) => b.length).join(' + ')}; at most ${MAX_URLS_PER_REQUEST} each)`);
+  }
   console.log(`  sources:     ${fromCatalog.length} from catalog.json, ${sitemapNote}`);
   console.log(`  origin:      ${baseUrl} (from ${resolved.source})`);
   console.log(`  host:        ${payload.host}`);
@@ -656,7 +674,9 @@ if (isMain) {
 
   await assertKeyFilePublished(readFile);
 
-  const result = await submit(payload);
+  const sent = await submitInBatches({ baseUrl, urls });
+  const { result } = sent[sent.length - 1];
+  const where = planned.length > 1 ? ` (batch ${sent.length} of ${planned.length})` : '';
 
   // Both shapes of "this host cannot reach IndexNow" land here: the request
   // rejecting outright, and an egress proxy answering in IndexNow's place.
@@ -667,7 +687,7 @@ if (isMain) {
       ? `${result.status}, from this host's egress proxy rather than from IndexNow`
       : null;
   if (noEgress) {
-    console.error(`\nPOST ${INDEXNOW_ENDPOINT} -> ${noEgress}`);
+    console.error(`\nPOST ${INDEXNOW_ENDPOINT}${where} -> ${noEgress}`);
     if (result.body) console.error(`  ${String(result.body).trim()}`);
     console.error(
       'indexnow: the request never reached IndexNow, so nothing was submitted and nothing\n' +
@@ -678,10 +698,17 @@ if (isMain) {
     process.exit(EXIT_NO_EGRESS);
   }
 
-  console.log(`\nPOST ${INDEXNOW_ENDPOINT} -> ${result.status}`);
-  if (result.body) console.log(result.body);
+  for (const [i, s] of sent.entries()) {
+    const label = planned.length > 1 ? ` (batch ${i + 1} of ${planned.length}, ${s.size} URLs)` : '';
+    console.log(`\nPOST ${INDEXNOW_ENDPOINT}${label} -> ${s.result.status}`);
+    if (s.result.body) console.log(s.result.body);
+  }
   if (!result.ok) {
-    console.error('indexnow: submission was not accepted — see status and body above.');
+    const done = sent.slice(0, -1).reduce((n, s) => n + s.size, 0);
+    console.error(
+      `indexnow: submission was not accepted${where} — see status and body above` +
+        (done ? `; the ${done} URL(s) in earlier batches were accepted.` : '.'),
+    );
     process.exit(1);
   }
 }

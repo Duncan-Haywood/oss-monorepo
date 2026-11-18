@@ -68,7 +68,7 @@ function splitLine(line, d) {
   return out;
 }
 
-const norm = (h) => h.trim().toLowerCase().replace(/^﻿/, "").replace(/\(k\)/g, "k").replace(/[\s_/]+/g, "-").replace(/\(.*\)$/, "").replace(/-+$/, "");
+const norm = (h) => h.trim().toLowerCase().replace(/^\uFEFF/, "").replace(/\(k\)/g, "k").replace(/[\s_/]+/g, "-").replace(/\(.*\)$/, "").replace(/-+$/, "");
 
 export function parseAmount(s) {
   const t = String(s ?? "").trim().replace(/\s/g, "");
@@ -85,7 +85,7 @@ export function parseAmount(s) {
 export function parseMoney(s) {
   const t = String(s ?? "").trim();
   if (t === "" || /^-+$/.test(t)) return null;
-  const neg = /^\(.*\)$/.test(t) || /^[^0-9]*[-−]/.test(t) || /[-−]$/.test(t);
+  const neg = /^\(.*\)$/.test(t) || /^[^0-9]*[-−–—]/.test(t) || /[-−]$/.test(t);
   const core = t.replace(/[^0-9.,]/g, "");
   if (!core) return NaN;
   const v = parseAmount(core);
@@ -141,7 +141,7 @@ const lastDay = (ym) => { const [y, m] = ym.split("-").map(Number); return `${ym
 export function parseRegister(text, opts = {}) {
   const findings = [];
   const add = (severity, title, detail, line) => findings.push({ severity, title, detail, line: line || 0 });
-  const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/);
+  const lines = String(text || "").replace(/^\uFEFF/, "").split(/\r?\n/);
   const first = lines.findIndex((l) => l.trim());
   const none = { payouts: [], remit: [], findings, summary: { rows: 0, payouts: 0 } };
   if (first < 0) { add("error", "The file is empty", "Paste or choose a payroll register export."); return none; }
@@ -329,7 +329,12 @@ export function decodeBuffer(buf) {
 // ---- samples -----------------------------------------------------------------
 
 const HEAD = ["Pay Date", "Employee", "Gross Pay", "Federal Income Tax", "Social Security", "Medicare", "State Income Tax", "401(k)", "Health Insurance", "Other Deductions", "Net Pay", "Employer Social Security", "Employer Medicare", "FUTA", "SUTA", "Employer 401(k) Match"];
-const usd = (c) => "$" + (c / 100).toFixed(2);
+const usd = (c) => {
+  const format = (c) => "$" + (c / 100).toFixed(2);
+  if (!(Number(c) < 0)) return format(c);
+  const text = format(Math.abs(c));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 const cents = (v) => Math.round((v || 0) * 100);
 
 // items in dollars. Social Security 6.2% and Medicare 1.45% are computed for both sides; net pay is computed.

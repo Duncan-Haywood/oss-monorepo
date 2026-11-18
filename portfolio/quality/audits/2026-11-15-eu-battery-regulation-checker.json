@@ -1,0 +1,280 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/eu-battery-regulation-checker",
+ "stratum": "venture",
+ "seed": "2026-11-15-7988",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an EU product compliance manager for a battery producer or importer (e-bike packs, power banks, storage, EV packs). They would check first that each battery category gets the right Article 13 marking duties (CE, collection symbol, label, QR), the Art 77 passport and Art 11 removability dates, the Art 47 due-diligence threshold after the 2025 postponement, and who is the producer for EPR in each Member State",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Fetched the Official Journal text of Regulation (EU) 2023/1542 and the amending Regulation (EU) 2025/1561 as XHTML from publications.europa.eu (eur-lex.europa.eu returned HTTP 202 with an empty body through the proxy), converted them to text, and grepped Arts 1, 3, 7, 8, 11, 13, 47, 48, 55, 56, 77, 96 and Annex I. I ran the shipped compute() on 12 concrete cases (/tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/eu-battery/probes.mjs). Right: passport 2027-02-18 for LMT, industrial >2 kWh and EV; removability 2027-02-18 (Art 96(2)(a)) for portable and LMT; label 2026-08-18; conformity 2024-08-18; EPR 2025-08-18; recycled content 2028-08-18 for EV, industrial >2 kWh and SLI; due diligence 2027-08-18 per 2025/1561 Art 1(a); carbon footprint undated (it waits on the delegated and implementing acts); calendar validation. Wrong: (1) a power bank gets no QR code, but Art 13(6) says 'all batteries'; (2) due-diligence scope uses SME status, not the Art 47 EUR 40m turnover test; (3) nuclear-safety batteries are put wholly out of scope, though Art 1(6) disapplies only Chapters III and VIII; (4) an EU fulfilment provider with no EU operator gets zero duties and 'every duty ... is marked done'; (5) a distributor never sees EPR, despite Art 3(47); (6) the collection symbol (Art 13(4), 2025-08-18) is dated a year late. 9 recomputed checks: 3 pass, 1 partial, 5 fail.",
+  "completeness": "Claimed features checked by running compute() and summaryText()/timelineCsv(): category, role and location selection; dated timeline filtered by category and role and sorted by date; EU-operator status; open-duty findings with severities; done-marking; text summary and CSV export; worked example; strict input rejection. Each works end to end (probes plus the 29 tests). The served page https://marisstella.app/eu-battery-regulation-checker/ returns 200, with the same scope text as the source. There are no stubs or TODOs. Every claimed feature exists, so 3. The wrong scoping is scored under correctness.",
+  "verification": "`node --test '*.test.mjs'` in the subject root: 29/29 pass in 0.12 s. Six mutants via platform/ci/quality_mutate.py: 3 caught (state threshold 365 to 30 days, passport date, operator rule) and 3 survived (due diligence back to the pre-amendment 2025-08-18, EPR +1 year, SLI dropped from recycled content). The tests pin behaviour, not the Regulation: no test compares a date or category set with the text, and calc.test.mjs:31 asserts the wrong 'portable gets no QR'.",
+  "craft": "Read calc.mjs (161 lines), index.html, calc.test.mjs and page.test.mjs, and ran them. The code is a pure, dependency-free table of obligations with a small filter, strict date validation (2026-02-29 rejected, 2028-02-29 accepted), escaped output and local-only usage counting. That is clean and easy to correct. Defects: the 'all done' finding fires on an empty timeline (calc.mjs:128). QR and passport share one done key, so marking the passport done also marks the QR done (calc.mjs:40-41). The article labels are wrong in places ('Chapter VI (conformity)'). sellsEu 'unsure' silently counts as in scope; that is the conservative choice but is not stated. A senior JS reviewer would accept it with these changes, so 3.",
+  "claims": "Disclaimer, not-legal-advice, privacy and 'Not decided' lines are present on the served page and asserted by page.test.mjs. 'Nothing uploaded' is backed: no network APIs, local imports only. README and VENTURE.yaml honestly say the dates were written from memory. Unbacked or wrong: 'Military, space and nuclear batteries are outside it' (index.html:97, :59) contradicts Art 1(6). The page lists 'QR code' as a timeline duty, but it never appears for portable batteries, which Art 13(6) covers. The FAQ's 'micro, small or medium firms' exemption (calc.mjs:42 label) misstates Art 47. The served llms.txt carries the live host; the source's github.io link is rewritten at deploy (source-only, not filed). Several claims a user would act on are wrong, so 2.",
+  "fitness": "Walked the job of an EU product-compliance manager at a battery producer: build the per-SKU obligation calendar. For an e-bike pack, an EV pack or 10 kWh storage, the calendar's dates match the Regulation and would save a first read. For a power-bank or appliance maker it leaves out the QR duty due in 3 months. A mid-size firm is mis-scoped on due diligence. A fulfilment provider is told it is done. It also lacks the 2 kWh, 5 kg and 25 kg classification inputs, Art 12 BMS safety, Art 14 state of health, spare-part availability and per-country EPR detail, which a compliance manager needs in the first hour. Usable as a first orientation only.",
+  "domain": "Compared with the Regulation text and the 2025 amendment, as a compliance manager would. The headline passport, removability, label and due-diligence dates are right, including the 2025/1561 postponement, and the from-memory caveat is honest. Departures a practitioner would catch at once: QR for all batteries, the Art 47 turnover threshold (not an SME test), the narrow nuclear carve-out, producer status of distributors (Art 3(47)), the separate 2025 collection-symbol date, the '18 months after the implementing act, whichever is the latest' conditions, and the omitted Art 12/14 duties. They would not sign it off as is."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Application dates of passport (Art 77), removability (Art 11 via Art 96(2)(a)), general label (Art 13(1)), CE/conformity (Art 17 via Art 96(2)(b)), EPR (Chapter VIII via Art 96(2)(c)) and recycled-content documentation (Art 8(1))",
+   "method": "Regulation (EU) 2023/1542 OJ text fetched as XHTML from publications.europa.eu/resource/celex/32023R1542 (eur-lex.europa.eu itself returned HTTP 202 with an empty body through the proxy); grep of Arts 8, 11, 13, 77, 96",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/eu-battery/probes.mjs",
+   "expected": "passport 2027-02-18 for LMT, industrial >2 kWh, EV; removability 2027-02-18 for portable-in-appliance and LMT; label 2026-08-18; conformity 2024-08-18; EPR 2025-08-18; recycled 2028-08-18 for EV, industrial >2 kWh, SLI",
+   "observed": "identical dates and category sets in every probe row (e-bike pack, 10 kWh storage, SLI, EV pack, power bank)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Due-diligence date after the 2025 stop-the-clock amendment",
+   "method": "Regulation (EU) 2025/1561 (OJ L 30.7.2025) fetched from publications.europa.eu/resource/celex/32025R1561: Art 48(1) '18 August 2025' replaced by '18 August 2027'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/eu-battery/probes.mjs",
+   "expected": "2027-08-18",
+   "observed": "diligence 2027-08-18 (probes 3 and 5)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "QR code duty for a portable battery (power bank, EU manufacturer)",
+   "method": "Regulation (EU) 2023/1542 OJ text fetched as XHTML from publications.europa.eu/resource/celex/32023R1542 (eur-lex.europa.eu itself returned HTTP 202 with an empty body through the proxy), Art 13(6): 'From 18 February 2027, all batteries shall be marked with a QR code'; point (b) gives the content for batteries without a passport",
+   "command": "cd ventures/eu-battery-regulation-checker && node -e \"import('./calc.mjs').then(m=>console.log(m.compute({category:'portable',role:'manufacturer',location:'eu',today:'2026-11-15'}).timeline.map(t=>t.id+' '+t.from).join(', ')))\"",
+   "expected": "timeline includes qr 2027-02-18",
+   "observed": "substances 2024-02-18, conformity 2024-08-18, epr 2025-08-18, label 2026-08-18, removable 2027-02-18 (no QR); calc.test.mjs:31 asserts the omission",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Due-diligence exemption test for a 200-staff firm with EUR 45 million turnover (an SME under Recommendation 2003/361: <250 staff, turnover <= EUR 50m)",
+   "method": "Regulation (EU) 2023/1542 OJ text fetched as XHTML from publications.europa.eu/resource/celex/32023R1542 (eur-lex.europa.eu itself returned HTTP 202 with an empty body through the proxy), Art 47 first subparagraph: Chapter VII does not apply to operators with net turnover below EUR 40 million (not an SME test); unchanged by 2025/1561",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/eu-battery/probes.mjs (probe 6, sme=yes)",
+   "expected": "due diligence from 2027-08-18 applies (turnover above EUR 40m)",
+   "observed": "no diligence row; the only input is 'micro, small or medium enterprise?'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Battery in equipment for the safety of a nuclear installation",
+   "method": "Regulation (EU) 2023/1542 OJ text fetched as XHTML from publications.europa.eu/resource/celex/32023R1542 (eur-lex.europa.eu itself returned HTTP 202 with an empty body through the proxy), Art 1(5) excludes only military/security and space equipment; Art 1(6) disapplies only Chapters III and VIII to nuclear-safety equipment",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/eu-battery/probes.mjs (probe 7, category exempt)",
+   "expected": "in scope; Chapter II (substances etc.), IV, VI, VII, IX still apply",
+   "observed": "'out': 'military, space and nuclear use are excluded'; no timeline",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "EU-established fulfilment service provider for a portable battery with no EU manufacturer/importer named",
+   "method": "Regulation (EU) 2019/1020 Art 4(1)(d) and Art 3(56) of 2023/1542 (definition imported): the fulfilment service provider is the responsible economic operator when no other is established",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/eu-battery/probes.mjs (probe 8)",
+   "expected": "operator duties (keep DoC, cooperate with authorities) or at least a warning; never 'all done'",
+   "observed": "responsible 'self'; findings '0 of 0 duties already apply to you and are not marked done.' and 'Every duty listed for your battery and role is marked done.'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "EPR for an EU distributor that first makes a battery available in a Member State",
+   "method": "Regulation (EU) 2023/1542 OJ text fetched as XHTML from publications.europa.eu/resource/celex/32023R1542 (eur-lex.europa.eu itself returned HTTP 202 with an empty body through the proxy), Art 3(47) ('producer' includes a distributor that first makes available in a Member State) and Art 55(2)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/eu-battery/probes.mjs (probe 9)",
+   "expected": "EPR registration listed (at least conditionally)",
+   "observed": "distributor gets substances and conformity only; no EPR row and no prompt",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Separate-collection symbol date",
+   "method": "Regulation (EU) 2023/1542 OJ text fetched as XHTML from publications.europa.eu/resource/celex/32023R1542 (eur-lex.europa.eu itself returned HTTP 202 with an empty body through the proxy), Art 13(4): from 18 August 2025 all batteries; Art 13(1) label from 18 August 2026",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/eu-battery/probes.mjs (probe 12, today 2025-09-01)",
+   "expected": "collection symbol already applies on 2025-09-01",
+   "observed": "symbol folded into the 'label' row dated 2026-08-18, shown 'soon'",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Calendar validation of the reference date",
+   "method": "Gregorian calendar: 2026 is not a leap year, 2028 is",
+   "command": "node -e (compute with today 2026-02-29 and 2028-02-29)",
+   "expected": "2026-02-29 rejected, 2028-02-29 accepted",
+   "observed": "2026-02-29 rejected with the YYYY-MM-DD message; 2028-02-29 no errors",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run in subject root",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "29/29 pass in 0.12 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Seeded mutations in calc.mjs via platform/ci/quality_mutate.py",
+   "method": "6 mutants on dates, category sets, the state threshold and the operator rule",
+   "command": "python3 platform/ci/quality_mutate.py ventures/eu-battery-regulation-checker/calc.mjs --old ... --new ... -- node --test '*.test.mjs'",
+   "expected": "every mutant caught",
+   "observed": "3 of 6 caught; due diligence reverted to the pre-amendment 2025-08-18, EPR moved a year and SLI dropped from recycled content all survive",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served page and llms.txt",
+   "method": "curl the served URLs and diff the scope text with the source",
+   "command": "curl -sS https://marisstella.app/eu-battery-regulation-checker/ ; curl -sS https://marisstella.app/eu-battery-regulation-checker/llms.txt",
+   "expected": "HTTP 200, live host links",
+   "observed": "both 200; served llms.txt links https://marisstella.app/eu-battery-regulation-checker/ (the source's github.io link is rewritten at deploy, source-only, not filed); served scope text identical to source",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Page scope line 'Military, space and nuclear batteries are outside it' (index.html:97, category label :59)",
+   "method": "Regulation (EU) 2023/1542 OJ text fetched as XHTML from publications.europa.eu/resource/celex/32023R1542 (eur-lex.europa.eu itself returned HTTP 202 with an empty body through the proxy), Art 1(5)-(6)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/eu-battery/probes.mjs (probe 7)",
+   "expected": "nuclear not a full exclusion",
+   "observed": "page and calc both claim full exclusion",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, from-memory caveat and 'nothing uploaded'",
+   "method": "read page; page.test.mjs asserts no fetch/XHR/beacon and local-only imports",
+   "command": "node --test '*.test.mjs'",
+   "expected": "disclaimer, not-legal-advice, privacy present and tested",
+   "observed": "present on the served page; README and VENTURE.yaml say dates were written from memory and must be checked against CELEX 32023R1542",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:42",
+   "change": "diligence from \"2027-08-18\" -> \"2025-08-18\" (the pre-amendment date)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:37",
+   "change": "EPR from \"2025-08-18\" -> \"2026-08-18\"",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:43",
+   "change": "recycled categories [\"ev\",\"industrial-big\",\"sli\"] -> [\"ev\",\"industrial-big\"]",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:105",
+   "change": "days <= 365 -> days <= 30",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:41",
+   "change": "passport from \"2027-02-18\" -> \"2027-08-18\"",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:77",
+   "change": "euOperator === \"yes\" -> euOperator !== \"no\"",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The QR-code duty is limited to non-portable batteries, but Art 13(6) applies it to all batteries from 18 Feb 2027 (portable batteries' QR links to the label information, DoC and waste information under Art 13(6)(b)). A power-bank or appliance-battery maker is told it has no QR duty, and calc.test.mjs:31 pins the omission.",
+   "where": "ventures/eu-battery-regulation-checker/calc.mjs:40",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16236"
+  },
+  {
+   "severity": "high",
+   "what": "An EU fulfilment service provider gets zero duties and the findings 'Every duty listed for your battery and role is marked done', even with no EU operator named (responsible() returns 'self'). Under Regulation 2019/1020 Art 4 it is the responsible operator in that case. The 'all done' message fires whenever the timeline is empty, so it is false comfort.",
+   "where": "ventures/eu-battery-regulation-checker/calc.mjs:128",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276"
+  },
+  {
+   "severity": "medium",
+   "what": "The due-diligence exemption is asked as 'micro, small or medium enterprise?', but Art 47 exempts operators with net turnover below EUR 40 million (group-consolidated). An SME with EUR 40-50m turnover is wrongly exempted, and a non-SME under EUR 40m is wrongly included.",
+   "where": "ventures/eu-battery-regulation-checker/calc.mjs:99",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276"
+  },
+  {
+   "severity": "medium",
+   "what": "Batteries for nuclear-installation safety equipment are classed as wholly outside the Regulation. Art 1(5) excludes only military/security and space equipment, and Art 1(6) disapplies only Chapters III and VIII to nuclear-safety equipment. The same error is on the page (index.html:59, :97).",
+   "where": "ventures/eu-battery-regulation-checker/calc.mjs:16",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276"
+  },
+  {
+   "severity": "medium",
+   "what": "EPR is never shown to distributors, although Art 3(47) makes a distributor that first makes a battery available in a Member State a producer that must register there (Art 55(2)).",
+   "where": "ventures/eu-battery-regulation-checker/calc.mjs:37",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276"
+  },
+  {
+   "severity": "medium",
+   "what": "Core dates and category sets are untested. Reverting due diligence to the pre-amendment 18 Aug 2025, moving EPR by a year and dropping SLI from recycled content all leave the 29 tests green (3 of 6 mutants survive). No test checks a date against the Regulation.",
+   "where": "ventures/eu-battery-regulation-checker/calc.test.mjs:35",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276"
+  },
+  {
+   "severity": "low",
+   "what": "The separate-collection symbol (Art 13(4), from 18 Aug 2025) is folded into the general label row dated 18 Aug 2026, so between those dates it shows as 'soon' when it already applies. The Art 13(1)-(3) 'or 18 months after the implementing act, whichever is the latest' condition is not mentioned.",
+   "where": "ventures/eu-battery-regulation-checker/calc.mjs:38",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276"
+  },
+  {
+   "severity": "low",
+   "what": "Category labels depart from Art 3: portable is '5 kg or less' and not limited to consumer use ('under 5 kg, for consumer use'); the 25 kg LMT ceiling is absent, and an L-category traction battery over 25 kg is an EV battery, but the EV option lists only cars, vans, trucks and buses. No weight or capacity input checks the user's choice.",
+   "where": "ventures/eu-battery-regulation-checker/calc.mjs:10",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Article references are wrong in places: conformity is cited as 'Chapter VI (conformity)' (Chapter IV is conformity, VI is economic operators), and carbon footprint is described as waiting on an 'implementing act' (Art 7 needs both a delegated and an implementing act). Annex I lead limit for portable batteries applies from 18 Aug 2024, not 18 Feb 2024.",
+   "where": "ventures/eu-battery-regulation-checker/calc.mjs:36",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276"
+  },
+  {
+   "severity": "low",
+   "what": "Not modelled and only partly covered by the 'Not decided' list: Art 12 safety of stationary battery energy storage systems and Art 14 BMS state-of-health data (both from 18 Aug 2024), Art 10 performance and durability, Art 11(7) five-year spare-part availability, and LMT recycled-content documentation from 18 Aug 2033.",
+   "where": "ventures/eu-battery-regulation-checker/calc.mjs:34",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16236",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16275"
+ ],
+ "verdict": "A tidy, private, honestly caveated first-read tool. Most of its headline dates match the Official Journal text: passport and removability 18 Feb 2027, label 18 Aug 2026, EPR 18 Aug 2025, recycled content 18 Aug 2028, and due diligence 18 Aug 2027 after Regulation (EU) 2025/1561. Its 29 tests pass. It does not meet the bar. It tells portable-battery makers they have no QR-code duty, though Art 13(6) covers all batteries from 18 Feb 2027, and its test pins that error. It scopes due diligence by SME status, not the Art 47 EUR 40m turnover test. It declares nuclear-safety batteries wholly out of scope, against Art 1(6). It tells an EU fulfilment provider with no EU operator that 'every duty ... is marked done'. It never shows EPR to distributors who are producers under Art 3(47). Three of six seeded date or category mutants survive. Scores: correctness 2, completeness 3, verification 2, craft 3, claims 2, fitness 2, domain 2. Finished (completeness 3), not at the bar."
+}

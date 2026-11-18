@@ -21,11 +21,13 @@ The loss is not a proper scoring rule for the full distribution: an open row who
 above the prediction is charged nothing, where a completed row there is charged tau. So open rows pull the
 quantile up only to their windows. Whether that is enough is what the run measures.
 """
+import os
 import numpy as np
 import lightgbm as lgb
 
 BASE = dict(learning_rate=0.15, num_leaves=63, min_data_in_leaf=100, feature_fraction=0.8,
-            bagging_fraction=0.8, bagging_freq=1, verbose=-1, num_threads=4)  # as boosted.fit_predict
+            bagging_fraction=0.8, bagging_freq=1, verbose=-1, num_threads=int(os.environ.get("CPIN_THREADS", 4)))  # as boosted.fit_predict;
+# CPIN_THREADS (session 92) lets two held-out cities run side by side on 4 cores
 
 
 def closs(y, q, open_, tau):

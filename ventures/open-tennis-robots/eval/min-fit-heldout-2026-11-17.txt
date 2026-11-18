@@ -1,0 +1,72 @@
+Part 1. Record drop / true drop per launched wheel, held-out slow drill, shipped hold, 3.0 s interval
+plant              rpm band | wheels >2% off    min    max
+first-order 8k    500-750   |     33       0  0.988  1.012
+first-order 8k    750-1000  |     27       0  0.988  1.009
+first-order 8k   1000-1500  |     48       0  0.991  1.008
+first-order 8k   2500-9000  |    216       0  0.992  1.007
+tach 3 us 10k     500-750   |     36       0  0.986  1.008
+tach 3 us 10k     750-1000  |     24       0  0.992  1.009
+tach 3 us 10k    1000-1500  |     48       0  0.987  1.008
+tach 3 us 10k    2500-9000  |    216       3  0.975  1.022
+ESC 50 ms told    500-750   |     36       0  0.991  1.012
+ESC 50 ms told    750-1000  |     24       0  0.994  1.008
+ESC 50 ms told   1000-1500  |     48       0  0.995  1.006
+ESC 50 ms told   2500-9000  |    216       0  0.994  1.007
+
+Part 2. fit_from_drops, calibration + held-out slow drill: efficiency error, mean / worst %
+plant            floor | builds speed mean  worst | spin mean  worst
+first-order 8k     500 |      6       0.08   0.14 |      0.27   0.54
+first-order 8k     750 |      6       0.07   0.14 |      0.55   0.83
+first-order 8k    1000 |      6       0.07   0.14 |      0.58   1.56
+tach 3 us 10k      500 |      6       0.05   0.15 |      0.61   0.97
+tach 3 us 10k      750 |      6       0.07   0.17 |      0.71   1.97
+tach 3 us 10k     1000 |      6       0.07   0.17 |      0.56   1.26
+ESC 50 ms told     500 |      6       0.03   0.06 |      0.84   2.33
+ESC 50 ms told     750 |      6       0.02   0.04 |      0.43   1.48
+ESC 50 ms told    1000 |      6       0.02   0.04 |      0.53   1.47
+
+Decision rule: (a) pooled spin mean 500 0.57% vs 1,000 0.56%: False; (b) lower or equal on two plants of three: False; (c) no plant's worst over 0.25 points worse: False; (d) the floor aborts nothing (same drills feed every floor). -> floor 1,000
+
+Through the speed change (LOOP_THROUGH_CHANGE), same drills: record drop / true drop, and the fit at the shipped floor against the shipped hold's
+first-order 8k  shipped hold | drills 6 | >2% off 0 of 324, range 0.988-1.012; under 1,000 rpm range 0.988-1.012 | spin err floor 1,000 0.58 / 1.56%, floor 500 0.27 / 0.54% | speed err 0.07%
+first-order 8k  through      | drills 6 | >2% off 0 of 324, range 0.988-1.011; under 1,000 rpm range 0.988-1.011 | spin err floor 1,000 0.09 / 0.27%, floor 500 0.22 / 0.38% | speed err 0.04%
+tach 3 us 10k   shipped hold | drills 6 | >2% off 3 of 324, range 0.975-1.022; under 1,000 rpm range 0.986-1.009 | spin err floor 1,000 0.56 / 1.26%, floor 500 0.61 / 0.97% | speed err 0.07%
+tach 3 us 10k   through      | drills 6 | >2% off 8 of 324, range 0.971-1.024; under 1,000 rpm range 0.986-1.010 | spin err floor 1,000 0.55 / 2.16%, floor 500 0.59 / 1.27% | speed err 0.11%
+ESC 50 ms told  shipped hold | drills 6 | >2% off 0 of 324, range 0.991-1.012; under 1,000 rpm range 0.991-1.012 | spin err floor 1,000 0.53 / 1.47%, floor 500 0.84 / 2.33% | speed err 0.02%
+ESC 50 ms told  through      | drills 6 | >2% off 0 of 324, range 0.992-1.012; under 1,000 rpm range 0.992-1.012 | spin err floor 1,000 0.17 / 0.41%, floor 500 1.28 / 3.53% | speed err 0.05%
+
+Part 3. Lateness, held-out slow drill: release after (previous release + interval)
+plant           interval   hold | drills abort | late mean s  worst  >0.25 s | span mean s
+first-order 8k       3.0      0 |      6     0 |       1.319   4.60  156/156 |       112.3
+first-order 8k       3.0   3000 |      6     0 |       1.504   4.60  156/156 |       117.1
+first-order 8k       3.0   thru |      6     0 |       1.319   4.60  156/156 |       112.3
+first-order 8k       2.0      0 |      6     0 |       1.828   5.60  156/156 |        99.5
+first-order 8k       2.0   3000 |      6     0 |       2.100   5.60  156/156 |       106.6
+first-order 8k       2.0   thru |      6     0 |       1.828   5.60  156/156 |        99.5
+tach 3 us 10k        3.0      0 |      6     0 |       1.207   3.00  156/156 |       109.4
+tach 3 us 10k        3.0   3000 |      6     0 |       1.399   3.00  156/156 |       114.4
+tach 3 us 10k        3.0   thru |      6     0 |       1.207   3.00  156/156 |       109.4
+tach 3 us 10k        2.0      0 |      6     0 |       1.753   4.00  156/156 |        97.6
+tach 3 us 10k        2.0   3000 |      6     0 |       2.026   4.00  156/156 |       104.7
+tach 3 us 10k        2.0   thru |      6     0 |       1.753   4.00  156/156 |        97.6
+ESC 50 ms told       3.0      0 |      6     0 |       1.319   4.50  156/156 |       112.3
+ESC 50 ms told       3.0   3000 |      6     0 |       1.527   4.50  156/156 |       117.7
+ESC 50 ms told       3.0   thru |      6     0 |       1.319   4.50  156/156 |       112.3
+ESC 50 ms told       2.0      0 |      6     0 |       1.888   5.50  156/156 |       101.1
+ESC 50 ms told       2.0   3000 |      6     0 |       2.157   5.50  156/156 |       108.1
+ESC 50 ms told       2.0   thru |      6     0 |       1.888   5.50  156/156 |       101.1
+
+Paired lateness against hold 0 (same build, same shot): seconds the shot came later than with no hold.
+(Every gap carries the 1.0 s feed-to-release stroke, so Part 3 shows no shot under 1.0 s late.)
+interval 3.0 hold 3000 fast->slow      mean +0.00 median +0.00 worst +0.10  >0.25 s: 0 of 162
+interval 3.0 hold 3000 slow->same slow mean -0.00 median +0.00 worst +0.00  >0.25 s: 0 of 162
+interval 3.0 hold 3000 slow->fast      mean +0.63 median +0.60 worst +1.30  >0.25 s: 113 of 144
+interval 3.0 thru      fast->slow      mean +0.00 median +0.00 worst +0.00  >0.25 s: 0 of 162
+interval 3.0 thru      slow->same slow mean +0.00 median +0.00 worst +0.00  >0.25 s: 0 of 162
+interval 3.0 thru      slow->fast      mean +0.00 median +0.00 worst +0.00  >0.25 s: 0 of 144
+interval 2.0 hold 3000 fast->slow      mean -0.00 median +0.00 worst +0.10  >0.25 s: 0 of 162
+interval 2.0 hold 3000 slow->same slow mean +0.00 median +0.00 worst +0.60  >0.25 s: 1 of 162
+interval 2.0 hold 3000 slow->fast      mean +0.88 median +0.85 worst +1.70  >0.25 s: 141 of 144
+interval 2.0 thru      fast->slow      mean +0.00 median +0.00 worst +0.00  >0.25 s: 0 of 162
+interval 2.0 thru      slow->same slow mean +0.00 median +0.00 worst +0.00  >0.25 s: 0 of 162
+interval 2.0 thru      slow->fast      mean +0.00 median +0.00 worst +0.00  >0.25 s: 0 of 144

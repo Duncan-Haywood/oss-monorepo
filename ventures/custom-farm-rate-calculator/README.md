@@ -59,3 +59,12 @@ does not audit your books, set a market rate, verify a custom-farming
 agreement, or replace your own contract, insurance, or accountant.
 
 MIT licensed. See `LICENSE`.
+
+## Known gaps
+
+From the [2026-11-17 census quality audit](../../portfolio/quality/audits/2026-11-17-custom-farm-rate-calculator.json), not yet fixed:
+
+- Labor is charged on field hours only, with no travel or setup time; the Iowa State A3-29 method also loads labor by 1.1.
+- The season table drops rows with zero profit, which raises the average.
+- Five of six seeded bugs (one removed labor from total cost) left every test green: no test pins a dollar figure.
+- (Fixed in the same PR as the audit: a blank field is now an error, not a silent zero.)

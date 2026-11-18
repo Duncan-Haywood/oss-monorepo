@@ -208,3 +208,63 @@ def binned_ltt(score, bad, bins, n_bins, grid, alpha=0.01, delta=0.1):
     bad = np.asarray(bad, bool)
     bins = np.asarray(bins, int)
     return [ltt_threshold(score[bins == k], bad[bins == k], grid, alpha, delta) for k in range(n_bins)]
+
+
+# ---- Step 3e: a level estimate from the seconds before the window ----------------------------------------
+
+def min_stats_snr_db(x, n_win, fs=16000, frame=512, hop=256, alpha=0.7, span_s=1.5, band=(100.0, 4000.0)):
+    """Blind SNR of the last `n_win` samples of `x`, with the noise floor tracked by minimum statistics over
+    all of `x` (the seconds before the window plus the window itself).
+
+    A simplified form of Martin's (2001) minimum-statistics noise tracker: Hann frames of `frame` samples,
+    hop `hop`; each bin's periodogram in the GCC band is smoothed recursively with a fixed `alpha` (0.7, a 45 ms time constant at a 16 ms hop, short enough to reach the floor in a 200 ms speech pause; Martin
+    uses a time-varying optimal alpha) and the noise power of a frame is the minimum of the smoothed
+    periodogram over the preceding `span_s` seconds, summed over bins. No bias compensation is applied, so
+    the noise power is underestimated by a roughly constant factor and the SNR reads high: a ranking of
+    noise levels, like `blind_snr_db`, not a calibrated SNR. Returns 10 log10((Y - N) / N), Y the mean band
+    power of the window's frames and N their mean tracked noise power, floored at -30 dB."""
+    from scipy.signal import lfilter
+    x = np.asarray(x, float)
+    nf = (len(x) - frame) // hop + 1
+    if nf < 2 or n_win < frame:
+        raise ValueError("signal too short")
+    idx = np.arange(frame)[None, :] + hop * np.arange(nf)[:, None]
+    f = np.fft.rfftfreq(frame, 1.0 / fs)
+    keep = (f >= band[0]) & (f <= band[1])
+    p = np.abs(np.fft.rfft(x[idx] * np.hanning(frame), axis=1))[:, keep] ** 2
+    s = lfilter([1 - alpha], [1, -alpha], p, axis=0, zi=alpha * p[:1])[0]
+    d = max(1, int(round(span_s * fs / hop)))
+    pad = np.vstack([np.full((d - 1, s.shape[1]), np.inf), s])
+    nmin = np.lib.stride_tricks.sliding_window_view(pad, d, axis=0).min(axis=-1)
+    win = hop * np.arange(nf) >= len(x) - n_win  # frames that start inside the window
+    if not win.any():
+        win[-1] = True
+    y = float(np.mean(p[win].sum(axis=1)))
+    nn = float(np.mean(nmin[win].sum(axis=1))) + 1e-30
+    return float(10 * np.log10(max(y - nn, 1e-3 * nn) / nn))
+
+
+# ---- Step 3g: a periodic-content flag -----------------------------------------------------------------------
+
+def self_periodicity(x, fs=16000, min_lag_s=1 / 30, max_lag_s=1.5, band=(100.0, 4000.0)):
+    """How much a window repeats itself: the highest normalised autocorrelation in the GCC band at lags from
+    min_lag_s to max_lag_s (at most 3/4 of the window), unbiased (lag L divided by its overlap n - L, then by
+    the zero-lag value). A looped recording or a machine with a steady period reads near its repeat's
+    correlation (0.9+); speech reads low. One device's window only: it needs neither the other device nor any
+    label."""
+    x = np.asarray(x, float)
+    x = x - x.mean()
+    n = len(x)
+    nfft = 1 << (2 * n - 1).bit_length()
+    X = np.fft.rfft(x, nfft)
+    p = np.abs(X) ** 2
+    f = np.fft.rfftfreq(nfft, 1.0 / fs)
+    p[(f < band[0]) | (f > band[1])] = 0
+    r = np.fft.irfft(p, nfft)
+    if r[0] <= 0:
+        return 0.0
+    lo, hi = int(round(min_lag_s * fs)), min(int(round(max_lag_s * fs)), (3 * n) // 4)
+    if hi < lo:
+        return 0.0
+    lag = np.arange(lo, hi + 1)
+    return float(np.clip((r[lo:hi + 1] * n / (n - lag)).max() / r[0], 0.0, 1.0))

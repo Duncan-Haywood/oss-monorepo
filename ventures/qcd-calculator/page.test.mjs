@@ -47,3 +47,9 @@ test("usage events named on the page are the ones the code records", () => {
 test("page says its defaults are placeholders", () => {
   assert.match(page("index.html"), /placeholders, not/i);
 });
+
+test("the filing-status menu does not offer head of household, which has no figures (quality audit 2026-11-17)", () => {
+  const html = page("index.html");
+  assert.doesNotMatch(html, /<option value="single">[^<]*or head of household/i);
+  assert.doesNotMatch(readFileSync(new URL("./calc.mjs", import.meta.url), "utf8"), /box 2a lower/);
+});

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A starter IDS written for this tool (MIT). It asks for the information a
+     coordinator usually needs before a model is shared: walls know whether they
+     are external and load-bearing, doors and windows are named and sit on a
+     storey, elements carry a material, and spaces have a name. -->
+<ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
+  <info>
+    <title>Coordination basics (starter IDS)</title>
+    <version>1.0</version>
+    <description>Starter requirements for sharing an architectural model with consultants.</description>
+    <purpose>Coordination</purpose>
+  </info>
+  <specifications>
+    <specification name="Walls say whether they are external" ifcVersion="IFC2X3 IFC4 IFC4X3_ADD2" description="Energy, facade and fire consultants filter on IsExternal." instructions="Set Pset_WallCommon.IsExternal (true/false) on every wall or wall type.">
+      <applicability minOccurs="1" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCWALL"/><xs:enumeration value="IFCWALLSTANDARDCASE"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCBOOLEAN">
+          <propertySet><simpleValue>Pset_WallCommon</simpleValue></propertySet>
+          <baseName><simpleValue>IsExternal</simpleValue></baseName>
+        </property>
+      </requirements>
+    </specification>
+    <specification name="Walls say whether they are load-bearing" ifcVersion="IFC2X3 IFC4 IFC4X3_ADD2" description="The structural engineer needs to know which walls carry load." instructions="Set Pset_WallCommon.LoadBearing (true/false).">
+      <applicability minOccurs="1" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCWALL"/><xs:enumeration value="IFCWALLSTANDARDCASE"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCBOOLEAN">
+          <propertySet><simpleValue>Pset_WallCommon</simpleValue></propertySet>
+          <baseName><simpleValue>LoadBearing</simpleValue></baseName>
+        </property>
+      </requirements>
+    </specification>
+    <specification name="Walls have a material" ifcVersion="IFC2X3 IFC4 IFC4X3_ADD2" description="Quantity takeoff and carbon estimates group walls by material.">
+      <applicability minOccurs="1" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCWALL"/><xs:enumeration value="IFCWALLSTANDARDCASE"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <material/>
+      </requirements>
+    </specification>
+    <specification name="Doors and windows are named" ifcVersion="IFC2X3 IFC4 IFC4X3_ADD2" description="Schedules key on the element name.">
+      <applicability minOccurs="1" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCDOOR"/><xs:enumeration value="IFCWINDOW"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <attribute><name><simpleValue>Name</simpleValue></name></attribute>
+      </requirements>
+    </specification>
+    <specification name="Doors and windows sit on a storey" ifcVersion="IFC2X3 IFC4 IFC4X3_ADD2" description="Every door and window should be found under a building storey, directly or through its host.">
+      <applicability minOccurs="1" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCDOOR"/><xs:enumeration value="IFCWINDOW"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <partOf><entity><name><simpleValue>IFCBUILDINGSTOREY</simpleValue></name></entity></partOf>
+      </requirements>
+    </specification>
+    <specification name="Spaces have a name and a long name" ifcVersion="IFC2X3 IFC4 IFC4X3_ADD2" description="Room data sheets use the space number (Name) and room name (LongName).">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCSPACE</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <attribute><name><simpleValue>Name</simpleValue></name></attribute>
+        <attribute><name><simpleValue>LongName</simpleValue></name></attribute>
+      </requirements>
+    </specification>
+    <specification name="No building element proxies" ifcVersion="IFC2X3 IFC4 IFC4X3_ADD2" description="Proxies usually mean an element was exported without a proper class.">
+      <applicability minOccurs="0" maxOccurs="0">
+        <entity><name><simpleValue>IFCBUILDINGELEMENTPROXY</simpleValue></name></entity>
+      </applicability>
+    </specification>
+  </specifications>
+</ids>

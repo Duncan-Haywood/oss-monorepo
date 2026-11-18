@@ -12,7 +12,7 @@ sys.path.insert(0, str(HERE.parents[1] / "_shared"))
 from linefig import table, write_lines  # noqa: E402
 
 TEXT = (HERE / "results.txt").read_text().splitlines()
-CFG = {'fname': 'jaw_vs_opening.svg', 'section': '## 1. Required jaw', 'xcol': 0, 'ycols': [1, 2], 'names': ['jaw needed to assemble a copy', 'jaw opening offered'], 'title': 'Robofab bootstrap: a gripper copies itself only above scale 4 (pad 4 mm)', 'alt': 'Line plot against gripper scale of the smallest jaw opening needed to assemble a copy and the opening the gripper offers; the offered opening overtakes the needed one at scale 4.0', 'xlabel': 'gripper scale', 'ylabel': 'jaw opening (mm)'}
+CFG = {'fname': 'jaw_vs_opening.svg', 'section': '## 1. Required jaw', 'xcol': 0, 'ycols': [1, 2], 'names': ['jaw needed to assemble a copy', 'jaw opening offered'], 'title': 'Robofab bootstrap: a gripper can copy itself from scale 4 up (pad 4 mm)', 'alt': 'Line plot against gripper scale of the smallest jaw opening needed to assemble a copy and the opening the gripper offers; the offered opening overtakes the needed one at scale 4.0', 'xlabel': 'gripper scale', 'ylabel': 'jaw opening (mm)'}
 
 
 def main():

@@ -35,14 +35,8 @@ for (const name of ['apple', 'bee_waggle_6', 'occupancy']) {
   series.push({ name, cols, names: j.series.map((s) => s.label), n: j.n_obs });
 }
 
-export const SETTINGS = {
-  'joint level (before)': { model: 'mean' },
-  'joint level, floor auto (primary)': { model: 'mean', floor: 'auto' },
-  'joint level, floor 2 every column': { model: 'mean', floor: 2 },
-  'joint level, floor 1 every column': { model: 'mean', floor: 1 },
-  'joint level, ar1': { model: 'mean', ar1: true },
-  'joint level, ar1 + floor 2': { model: 'mean', ar1: true, floor: 2 },
-};
+import { SETTINGS } from './tcpd-multi-floor-settings.mjs';
+export { SETTINGS };
 const res = {};
 for (const [nm, o] of Object.entries(SETTINGS)) {
   res[nm] = {};

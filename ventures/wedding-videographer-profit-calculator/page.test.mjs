@@ -53,3 +53,18 @@ test("the page tells the visitor the example figures are unverified", () => {
   assert.match(page("index.html"), /not verified/);
   assert.match(page("index.html"), /unverified approximations/);
 });
+
+test("profit and hourly results are labelled before tax where they are shown", () => {
+  const html = page("index.html");
+  assert.match(html, /Profit per booking, before income and self-employment tax/);
+  assert.match(html, /True hourly rate, before tax/);
+  assert.match(html, /id="pretax-note">[^<]*before income tax and self-employment tax/);
+  assert.match(html, /an hour before tax/);
+});
+
+test("the ladder table shows the booking as entered and says what tiers hold fixed", () => {
+  const html = page("index.html");
+  assert.match(html, /\[lad\.base, \.\.\.lad\.rows\]/);
+  assert.match(html, /id="ladder-note"/);
+  assert.match(html, /only the price and total edit hours change/);
+});

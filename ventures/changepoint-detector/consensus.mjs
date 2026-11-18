@@ -84,6 +84,84 @@ export function levelRunFromMain(opts, r) {
   return { name: PANEL[0].name, opts: PANEL[0].opts, labels: r.labels, cuts: r.pelt.changepoints.map((c) => ({ index: c.index, shift: c.shift })) };
 }
 
+// Many agreed changes spread through the whole series (pre-registered 2026-11-15,
+// eval/repeat-guard-prereg-2026-11-15.md; measured in eval/repeat-guard.mjs). On TSSB's long
+// repeating waveforms every setting cuts the same peaks, so they agree, and agreement is no
+// evidence of a change. Fires on 15 or more every-setting changes that fall in at least 8 of the
+// 10 equal tenths of the series. Reads only the agreed indexes and n. Returns null or a note.
+// Measured, NOT offered: it failed two of its three pre-registered lines (TCPD's bank fires; on
+// the fresh HAS 2023 set it cost 0.008 covering, worse on 20 of 31), so consensus() does not call it.
+export const REPEAT_GUARD = { minCount: 15, minTenths: 8 };
+export function repeatGuard(indexes, n) {
+  const k = indexes.length;
+  if (!(n > 0) || k < REPEAT_GUARD.minCount) return null;
+  const tenths = new Set(indexes.map((i) => Math.min(9, Math.floor((10 * i) / n)))).size;
+  if (tenths < REPEAT_GUARD.minTenths) return null;
+  const s = [...indexes].sort((a, z) => a - z);
+  const gaps = s.slice(1).map((v, i) => v - s[i]).sort((a, z) => a - z);
+  const gap = gaps.length ? gaps[Math.floor(gaps.length / 2)] : null;
+  return {
+    count: k, tenths, medianGap: gap,
+    text: `All settings agree on ${k} changes spread through ${tenths} of the series' 10 tenths${gap ? `, about every ${gap} points` : ''}. That is what a repeating pattern produces (each setting cuts the same peaks), not evidence of ${k} changes: on 75 long labelled series of repeating waveforms (TSSB) such agreed changes scored below reporting no change at all. Treat them as candidates; a shape-aware method (ClaSP) suits a change of pattern.`,
+  };
+}
+
+// The shape-repeat check (pre-registered 2026-11-15, eval/shape-repeat-prereg-2026-11-15.md;
+// measured in eval/shape-repeat.mjs). The agreed changes cut the series into segments; each
+// segment of 4+ points becomes a 32-point z-normalised shape. Two segments match when their
+// lengths are within 1.5x and their shapes correlate at 0.8 or more; a segment repeats when it
+// matches 2 or more others; an agreed change is a repeat cut when the segments on both sides
+// repeat (the same waveform cut at the same phase, cycle after cycle). Returns the indexes kept
+// and dropped. Reads only the values and the agreed indexes.
+export const SHAPE_REPEAT = { points: 32, minLen: 4, lenRatio: 1.5, minCorr: 0.8, minMatches: 2 };
+export function segmentShape(seg, P = SHAPE_REPEAT.points) {
+  const m = seg.length;
+  if (m < SHAPE_REPEAT.minLen) return null;
+  const out = new Array(P);
+  if (m >= P) {
+    for (let b = 0; b < P; b++) {
+      const lo = Math.floor((b * m) / P), hi = Math.floor(((b + 1) * m) / P);
+      let s = 0; for (let i = lo; i < hi; i++) s += seg[i];
+      out[b] = s / (hi - lo);
+    }
+  } else {
+    for (let b = 0; b < P; b++) {
+      const t = (b * (m - 1)) / (P - 1), i = Math.floor(t), f = t - i;
+      out[b] = i + 1 < m ? seg[i] * (1 - f) + seg[i + 1] * f : seg[i];
+    }
+  }
+  const mu = out.reduce((s, v) => s + v, 0) / P;
+  const sd = Math.sqrt(out.reduce((s, v) => s + (v - mu) ** 2, 0) / P);
+  if (!(sd > 1e-12)) return null;
+  return out.map((v) => (v - mu) / sd);
+}
+export function shapeRepeats(values, indexes) {
+  const cuts = [...new Set(indexes)].filter((c) => c > 0 && c < values.length).sort((a, z) => a - z);
+  if (cuts.length < 3) return { kept: cuts, dropped: [], segments: cuts.length + 1 };
+  const bounds = [0, ...cuts, values.length];
+  const segs = [];
+  for (let k = 0; k + 1 < bounds.length; k++) {
+    const len = bounds[k + 1] - bounds[k];
+    segs.push({ len, shape: segmentShape(values.slice(bounds[k], bounds[k + 1])) });
+  }
+  const P = SHAPE_REPEAT.points;
+  const repeats = segs.map((a, i) => {
+    if (!a.shape) return false;
+    let hits = 0;
+    for (let j = 0; j < segs.length && hits < SHAPE_REPEAT.minMatches; j++) {
+      const b = segs[j];
+      if (j === i || !b.shape) continue;
+      if (Math.max(a.len, b.len) > SHAPE_REPEAT.lenRatio * Math.min(a.len, b.len)) continue;
+      let r = 0; for (let t = 0; t < P; t++) r += a.shape[t] * b.shape[t];
+      if (r / P >= SHAPE_REPEAT.minCorr) hits++;
+    }
+    return hits >= SHAPE_REPEAT.minMatches;
+  });
+  const kept = [], dropped = [];
+  cuts.forEach((c, k) => ((repeats[k] && repeats[k + 1]) ? dropped : kept).push(c));
+  return { kept, dropped, segments: segs.length };
+}
+
 export function consensus(base = {}, { tolerance = null, panel = PANEL } = {}) {
   return mergeConsensus(panel.map((p) => runSetting(base, p)), { tolerance });
 }

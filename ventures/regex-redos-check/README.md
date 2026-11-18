@@ -17,6 +17,7 @@ node cli.mjs check '(a+)+$'            # analyse a single pattern
 | rule | level | shape |
 | --- | --- | --- |
 | `nested-quantifier` | error | `(a+)+`, `(\w+\s?)+` -- iterations can split the same text many ways (exponential) |
+| `nested-quantifier` | error | `(<!--[\s\S]*?-->)*`, `(a.*b)+` -- an inner repeat can swallow the next iteration's delimiters (exponential; added 2026-11-15) |
 | `overlapping-alternation` | error | `(a|aa)+`, `(\d|\w)+` -- two branches match the same text (exponential) |
 | `adjacent-overlap` | warn | `\d+\d+`, `^\s*(.*?)\s*$` -- adjacent repeats over the same characters (polynomial) |
 | `quadratic-end-anchor` | warn / info | `\s+$` with no `^` -- retried from every start position |
@@ -45,6 +46,28 @@ jobs:
 
 Findings appear as code-scanning alerts on the line of the regex. Drop `|| true`
 to also fail the job on exponential patterns.
+
+## Measured on a real codebase (2026-11-15)
+
+We ran it over this repository's own products and compared it with
+[recheck](https://github.com/makenowjust-labs/recheck) 4.6.2 (MIT), an automaton-based
+checker, on the 9,016 distinct regex literals in 5,040 non-test `.mjs` files:
+
+- **Extraction.** Regex literals found, checked against [acorn](https://github.com/acornjs/acorn)'s
+  tokenizer on 11,802 `.mjs` files: 96,536 of 96,536 with 0 spurious, after two fixes in this
+  release (regexes inside a template literal's `${...}` were skipped; a `#!` line was read as a
+  regex). Before them: 95,205 found (98.6%) and 2,739 spurious.
+- **Exponential.** recheck called 5 patterns exponential; all 5 were confirmed by timing V8.
+  This release flags all 5 at error level. The previous one flagged 3: it never saw one
+  (inside a template literal) and had no rule for `(<!--[\s\S]*?-->\s*)*`. It also flags 3 patterns at error
+  level that recheck calls safe and that do not slow down when timed: false positives, listed with
+  their reasons in `platform/ci/redos_allowlist.json`.
+- **Polynomial.** recheck called 1,105 patterns polynomial; most need inputs of tens of
+  thousands of characters to cost a second. This tool's `warn` rules overlap but are not a
+  substitute: use recheck or `--probe` when a quadratic pattern sees large untrusted input.
+
+The sweep is repeatable: `node platform/ci/check_redos.mjs` (exit 1 on a new error-level suspect).
+Write-up: [`docs/posts/2026-11-15-five-regexes-that-could-hang-our-own-tools.md`](../../docs/posts/2026-11-15-five-regexes-that-could-hang-our-own-tools.md).
 
 ## What it is not
 

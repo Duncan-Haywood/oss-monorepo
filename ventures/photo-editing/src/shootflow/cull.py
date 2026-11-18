@@ -3,7 +3,8 @@
 ``shootflow cull FOLDER`` reads the photos (JPEG, PNG, TIFF and the preview
 embedded in RAW files), scores each with the measured frame metrics, groups
 near-identical frames by perceptual hash (single linkage, the same distance the
-story planner uses), and picks one keeper per group. It also flags frames that
+story planner uses, plus a crop-tolerant match for frames the camera panned or
+zoomed a few percent between), and picks one keeper per group. It also flags frames that
 fail on their own: blurred, badly exposed, or with a prominent closed eye when a
 face detector is configured (``SHOOTFLOW_FACE_DETECTOR``, see ``faces.py``).
 
@@ -32,10 +33,47 @@ from pathlib import Path
 
 from shootflow.faces import FaceReport, detect_faces
 from shootflow.ffmpeg_media import PHOTO_EXTENSIONS, FfmpegMediaError, FfmpegTools, find_ffmpeg_tools
-from shootflow.frame_analysis import FrameMetrics, analyze_media
+from shootflow.frame_analysis import (
+    FrameMetrics,
+    ZoomIndex,
+    analyze_media,
+    crop_distance,
+    pan_within,
+    window_pack,
+    windows_within,
+    zoom_distance_within,
+    zoom_index,
+)
 from shootflow.raw_preview import RAW_EXTENSIONS, extract_preview, is_raw_path
 
 NEAR_DUPLICATE_MAX_DISTANCE = 8
+# Crop-tolerant second pass (eval/cull-crop-grouping-2026-11-17.md): two frames
+# whose whole-frame hashes differ by at most CROP_CANDIDATE_MAX_DISTANCE also
+# group when some pair of their 88% windows is within CROP_MAX_DISTANCE and that
+# is at least CROP_MIN_GAIN closer than the whole frames. Picked on 165 tune
+# photos; on 166 held-out ones it took burst-pair recall from 0.40 to 0.72 and
+# added 4 false merges in 13,695 pairs of distinct photos (17 to 21).
+# The gate was 24 until 2026-11-18 (eval/cull-crop-gate-2026-11-18.md): every
+# 6% pan it missed had crop windows within 0-7 bits but whole frames 25-33
+# apart. At 44, the wide-pan pass's gate, held-out recall rose 0.985 to 0.991
+# (6% pans 0.85-0.86 to 1.00) with no added false merge in 13,695 pairs.
+CROP_CANDIDATE_MAX_DISTANCE = 44
+CROP_MAX_DISTANCE = 6
+CROP_MIN_GAIN = 5
+# Zoom pass (eval/cull-zoom-windows-2026-11-18.md): a pair up to
+# ZOOM_CANDIDATE_MAX_DISTANCE apart also groups when one frame's whole hash is
+# within ZOOM_MAX_DISTANCE of a zoom window of the other and that is at least
+# ZOOM_MIN_GAIN closer than the whole frames. Picked on the same 165 tune photos.
+ZOOM_CANDIDATE_MAX_DISTANCE = 28
+ZOOM_MAX_DISTANCE = 6
+ZOOM_MIN_GAIN = 6
+# Wide-pan pass (eval/cull-pan-windows-2026-11-18.md): a pair up to
+# PAN_CANDIDATE_MAX_DISTANCE apart also groups when two 88% windows offset
+# further than the crop pass reaches are within PAN_MAX_DISTANCE and that is at
+# least PAN_MIN_GAIN closer than the whole frames. Picked on the same 165 tune photos.
+PAN_CANDIDATE_MAX_DISTANCE = 44
+PAN_MAX_DISTANCE = 5
+PAN_MIN_GAIN = 6
 BLURRY_BELOW = 0.2
 BAD_EXPOSURE_BELOW = 0.25
 CLOSED_EYES_BELOW = 0.3
@@ -263,31 +301,258 @@ def _failures(metrics: FrameMetrics, faces: FaceReport | None) -> tuple[str, ...
     return tuple(reasons)
 
 
-def _group(
-    scored: Sequence[tuple[Path, FrameMetrics, FaceReport | None]],
-) -> list[list[tuple[Path, FrameMetrics, FaceReport | None]]]:
-    ordered = sorted(scored, key=lambda row: str(row[0]))
-    parent = list(range(len(ordered)))
+def crop_match(distance: int, crops_a: Sequence[int], crops_b: Sequence[int]) -> bool:
+    """The crop-tolerant second pass for a pair whose whole-frame hashes are ``distance`` apart."""
 
-    def find(index: int) -> int:
-        while parent[index] != index:
-            parent[index] = parent[parent[index]]
-            index = parent[index]
-        return index
+    if distance > CROP_CANDIDATE_MAX_DISTANCE:
+        return False
+    shifted = crop_distance(crops_a, crops_b)
+    return shifted <= CROP_MAX_DISTANCE and shifted <= distance - CROP_MIN_GAIN
 
-    # Parse each hash once: the all-pairs scan is quadratic (up to _MAX_FILES
-    # photos), so the inner step must be a bare XOR and popcount.
-    hashes = [int(row[1].dhash, 16) for row in ordered]
+
+def zoom_match(distance: int, hash_a: int, index_a: ZoomIndex, hash_b: int, index_b: ZoomIndex) -> bool:
+    """The zoom pass for a pair whose whole-frame hashes are ``distance`` apart (``zoom_index`` of each)."""
+
+    if distance > ZOOM_CANDIDATE_MAX_DISTANCE:
+        return False
+    limit = min(ZOOM_MAX_DISTANCE, distance - ZOOM_MIN_GAIN)
+    if limit < 0:
+        return False
+    return zoom_distance_within(hash_a, index_a, hash_b, index_b, limit) <= limit
+
+
+def pan_match(distance: int, pans_a: tuple[int, ...], pans_b: tuple[int, ...]) -> bool:
+    """The wide-pan pass (8-10% pans) for a pair ``distance`` apart on the whole frame (``pan_pack`` of each)."""
+
+    if distance > PAN_CANDIDATE_MAX_DISTANCE:
+        return False
+    return pan_within(pans_a, pans_b, min(PAN_MAX_DISTANCE, distance - PAN_MIN_GAIN))
+
+
+def window_match(distance: int, windows_a: tuple[int, ...], windows_b: tuple[int, ...]) -> bool:
+    """``crop_match or pan_match`` in one packed check (``window_pack`` of each frame)."""
+
+    crop_limit = min(CROP_MAX_DISTANCE, distance - CROP_MIN_GAIN) if distance <= CROP_CANDIDATE_MAX_DISTANCE else -1
+    pan_limit = min(PAN_MAX_DISTANCE, distance - PAN_MIN_GAIN) if distance <= PAN_CANDIDATE_MAX_DISTANCE else -1
+    return windows_within(windows_a, windows_b, crop_limit, pan_limit)
+
+
+def burst_match(
+    distance: int,
+    hash_a: int, crops_a: Sequence[int], index_a: ZoomIndex,
+    hash_b: int, crops_b: Sequence[int], index_b: ZoomIndex,
+    windows_a: tuple[int, ...] | None = None, windows_b: tuple[int, ...] | None = None,
+) -> bool:
+    """Whether two frames ``distance`` apart on the whole frame belong to one burst.
+
+    ``windows_a`` / ``windows_b`` are ``window_pack`` of the crops, computed here when not given.
+    """
+
+    return (
+        distance <= NEAR_DUPLICATE_MAX_DISTANCE
+        or window_match(
+            distance,
+            window_pack(crops_a) if windows_a is None else windows_a,
+            window_pack(crops_b) if windows_b is None else windows_b,
+        )
+        or zoom_match(distance, hash_a, index_a, hash_b, index_b)
+    )
+
+
+# Exact candidate index for the burst grouping (2026-11-18,
+# eval/cull-grouping-index-2026-11-18.md). Every way two frames can link needs
+# some pair of 64-bit hashes within a few bits: the whole frames within
+# NEAR_DUPLICATE_MAX_DISTANCE (8); one frame's centre window within
+# CROP_MAX_DISTANCE (6) of any crop window of the other; one frame's whole hash
+# within ZOOM_MAX_DISTANCE (6) of any zoom window of the other; or a wide-pan
+# window pair within PAN_MAX_DISTANCE (5). Cut a hash into three chunks and two
+# hashes r bits apart differ in some chunk by at most r // 3 bits (pigeonhole),
+# so looking up each chunk with every flip of up to r // 3 of its bits finds
+# every pair that can link, and only those reach ``burst_match``. The partition
+# is the same as the all-pairs scan's (``_linked_pairs_all``), which a test
+# pins; on 2,000 frames the scan made about 2M packed window checks.
+_INDEX_MIN_FRAMES = 500  # below this the plain scan is as quick (tied at 500 frames)
+
+
+def _chunks(count: int) -> tuple[tuple[int, int, int], ...]:
+    """(shift, mask, bits) of ``count`` chunks covering all 64 bits, as even as can be."""
+
+    out, shift = [], 0
+    for k in range(count):
+        bits = (64 - shift) // (count - k)
+        out.append((shift, (1 << bits) - 1, bits))
+        shift += bits
+    return tuple(out)
+
+
+def _flips(bits: int, most: int) -> tuple[int, ...]:
+    """Every mask of ``bits`` bits with at most ``most`` (0-2) bits set."""
+
+    out = [0]
+    if most >= 1:
+        out += [1 << a for a in range(bits)]
+    if most >= 2:
+        out += [(1 << a) | (1 << b) for a in range(bits) for b in range(a + 1, bits)]
+    if most >= 3:
+        raise ValueError("more than 2 flips per chunk is not needed by any limit here")
+    return tuple(out)
+
+
+class _ChunkIndex:
+    """Frames by the chunks of the hashes inserted for them, for lookups within ``radius`` bits.
+
+    Two hashes ``radius`` apart differ by at most ``radius // count`` bits in
+    their closest chunk, so ``near`` flips up to that many bits per chunk.
+    """
+
+    def __init__(self, radius: int, count: int = 3) -> None:
+        self.chunks = _chunks(count)
+        most = radius // count
+        self.flips = tuple(_flips(bits, most) for _shift, _mask, bits in self.chunks)
+        self.tables: tuple[dict[int, list[int]], ...] = tuple({} for _ in self.chunks)
+
+    def add(self, frame: int, values: Sequence[int]) -> None:
+        for table, (shift, mask, _bits) in zip(self.tables, self.chunks):
+            for key in {(v >> shift) & mask for v in values}:
+                hit = table.get(key)
+                if hit is None:
+                    table[key] = [frame]
+                else:
+                    hit.append(frame)
+
+    def near(self, value: int, out: set[int]) -> None:
+        """Add to ``out`` every frame with an inserted hash that may be within the radius of ``value``."""
+
+        for table, (shift, mask, _bits), flips in zip(self.tables, self.chunks, self.flips):
+            # map() keeps the lookups in C.
+            out.update(*filter(None, map(table.get, map(((value >> shift) & mask).__xor__, flips))))
+
+
+def _candidate_pairs(
+    hashes: Sequence[int], crops: Sequence[tuple[int, ...]], zooms: Sequence[tuple[int, ...]],
+) -> tuple[list[set[int]], list[set[int]], list[set[int]]]:
+    """(near, windows, zoom) candidates: for each frame i, the frames j > i each pass could link it to.
+
+    A superset of the pairs the pass links: ``near`` for the whole-frame
+    distance, ``windows`` for ``window_match`` (crop and wide-pan windows),
+    ``zoom`` for ``zoom_match``.
+    """
+
+    from shootflow.frame_analysis import _CROP_CENTRE, _PAN_PAIRS, CROP_STEPS
+
+    n, full = len(hashes), CROP_STEPS * CROP_STEPS
+    # Pan lanes pair window a of the earlier frame with window b of the later
+    # one. Lanes sharing an a window share a table of their b windows, so each
+    # frame makes 21 pan queries rather than 56.
+    pan_lanes: dict[int, list[int]] = {}
+    for a, b in _PAN_PAIRS:
+        pan_lanes.setdefault(a, []).append(b)
+    whole = _ChunkIndex(NEAR_DUPLICATE_MAX_DISTANCE)
+    windows = _ChunkIndex(CROP_MAX_DISTANCE)
+    zoom_windows = _ChunkIndex(ZOOM_MAX_DISTANCE)
+    pan_b = {a: _ChunkIndex(PAN_MAX_DISTANCE) for a in pan_lanes}
+    for i, h in enumerate(hashes):
+        whole.add(i, (h,))
+        if len(crops[i]) == full:
+            windows.add(i, crops[i])
+            for a, bs in pan_lanes.items():
+                pan_b[a].add(i, [crops[i][b] for b in bs])
+        if zooms[i]:
+            zoom_windows.add(i, zooms[i])
+    near: list[set[int]] = [set() for _ in range(n)]
+    win: list[set[int]] = [set() for _ in range(n)]
+    zoom: list[set[int]] = [set() for _ in range(n)]
+
+    def keep(i: int, found: set[int], into: list[set[int]]) -> None:
+        # Crop and zoom lookups are one-sided (this frame's centre or whole
+        # hash against the other's windows), so a hit on an earlier frame is
+        # stored under that frame.
+        into[i].update(j for j in found if j > i)
+        for j in found:
+            if j < i:
+                into[j].add(i)
+
+    for i, h in enumerate(hashes):
+        found: set[int] = set()
+        whole.near(h, found)
+        near[i].update(j for j in found if j > i)  # symmetric: the later frame finds it too
+        found = set()
+        zoom_windows.near(h, found)  # this whole frame inside another's zoom window
+        keep(i, found, zoom)
+        if len(crops[i]) == full:
+            found = set()
+            windows.near(crops[i][_CROP_CENTRE], found)
+            keep(i, found, win)
+            found = set()
+            for a, table in pan_b.items():
+                table.near(crops[i][a], found)
+            win[i].update(j for j in found if j > i)  # pan lanes are ordered: this frame on the a side
+    return near, win, zoom
+
+
+def _linked_pairs_all(hashes, crops, zooms, windows):
+    """Every linked pair (i < j) by the plain all-pairs scan: the reference the index must match."""
+
     for i in range(len(hashes)):
         hi = hashes[i]
         for j in range(i + 1, len(hashes)):
-            if (hi ^ hashes[j]).bit_count() <= NEAR_DUPLICATE_MAX_DISTANCE:
-                a, b = find(i), find(j)
-                if a != b:
-                    parent[max(a, b)] = min(a, b)
+            distance = (hi ^ hashes[j]).bit_count()
+            if distance <= NEAR_DUPLICATE_MAX_DISTANCE or burst_match(
+                distance, hi, crops[i], zooms[i], hashes[j], crops[j], zooms[j], windows[i], windows[j]
+            ):
+                yield i, j
+
+
+def _linked_pairs_indexed(hashes, crops, zooms, zoom_hashes, windows):
+    """The same pairs as ``_linked_pairs_all``, checking only the candidates each pass could link."""
+
+    near, win, zoom = _candidate_pairs(hashes, crops, zoom_hashes)
+    for i in range(len(hashes)):
+        hi = hashes[i]
+        for j in sorted(near[i] | win[i] | zoom[i]):
+            distance = (hi ^ hashes[j]).bit_count()
+            if (
+                distance <= NEAR_DUPLICATE_MAX_DISTANCE
+                or (j in win[i] and window_match(distance, windows[i], windows[j]))
+                or (j in zoom[i] and zoom_match(distance, hi, zooms[i], hashes[j], zooms[j]))
+            ):
+                yield i, j
+
+
+def _group(
+    scored: Sequence[tuple[Path, FrameMetrics, FaceReport | None]],
+    *,
+    index: bool | None = None,
+) -> list[list[tuple[Path, FrameMetrics, FaceReport | None]]]:
+    """Single-linkage burst groups. ``index`` forces the candidate index on or off (default: on from 500 frames)."""
+
+    ordered = sorted(scored, key=lambda row: str(row[0]))
+    parent = list(range(len(ordered)))
+
+    def find(i: int) -> int:
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    # Parse each hash once: the inner step must be a bare XOR and popcount.
+    hashes = [int(row[1].dhash, 16) for row in ordered]
+    crops = [tuple(int(h, 16) for h in getattr(row[1], "dhash_crops", ())) for row in ordered]
+    zoom_hashes = [tuple(int(h, 16) for h in getattr(row[1], "dhash_zooms", ())) for row in ordered]
+    zooms = [zoom_index(z) for z in zoom_hashes]
+    windows = [window_pack(c) for c in crops]
+    use_index = len(ordered) >= _INDEX_MIN_FRAMES if index is None else index
+    links = (
+        _linked_pairs_indexed(hashes, crops, zooms, zoom_hashes, windows)
+        if use_index else _linked_pairs_all(hashes, crops, zooms, windows)
+    )
+    for i, j in links:
+        a, b = find(i), find(j)
+        if a != b:
+            parent[max(a, b)] = min(a, b)
     grouped: dict[int, list[tuple[Path, FrameMetrics, FaceReport | None]]] = {}
-    for index, row in enumerate(ordered):
-        grouped.setdefault(find(index), []).append(row)
+    for i, row in enumerate(ordered):
+        grouped.setdefault(find(i), []).append(row)
     return [grouped[key] for key in sorted(grouped)]
 
 

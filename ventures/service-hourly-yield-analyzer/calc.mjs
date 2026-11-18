@@ -32,7 +32,7 @@ export function decodeBuffer(buf) {
 // Comma, semicolon, tab or pipe: whichever appears most in the first non-empty
 // line outside quotes.
 export function detectDelimiter(text) {
-  const first = String(text).replace(/^﻿/, "").split(/\r\n|\n|\r/).find((l) => l.trim()) || "";
+  const first = String(text).replace(/^\uFEFF/, "").split(/\r\n|\n|\r/).find((l) => l.trim()) || "";
   const counts = { ",": 0, ";": 0, "\t": 0, "|": 0 };
   let inQ = false;
   for (const ch of first) {
@@ -48,7 +48,7 @@ export function detectDelimiter(text) {
 // Blank lines are dropped. Returns { rows, lines } where lines[i] is the
 // 1-based source line row i started on.
 export function parseCsv(text, delimiter = ",") {
-  const s = String(text).replace(/^﻿/, "");
+  const s = String(text).replace(/^\uFEFF/, "");
   const rows = [], lines = [];
   let row = [], field = "", inQ = false, line = 1, rowLine = 1, touched = false;
   const endField = () => { row.push(field); field = ""; };
@@ -458,7 +458,7 @@ export function analyze(records, opts = {}) {
 
 const csvCell = (v) => {
   let s = v === null || v === undefined ? "" : String(v);
-  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 

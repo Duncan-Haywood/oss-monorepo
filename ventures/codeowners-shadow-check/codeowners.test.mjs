@@ -205,3 +205,56 @@ test('the worked example (a specific rule shadowed by a later broad rule) matche
   assert.equal(report.shadowed.length, 1);
   assert.equal(report.shadowed[0].rule.pattern, '/src/payments/*.js');
 });
+
+test('a directory pattern without a trailing slash covers the files under it (GitHub docs examples)', () => {
+  // Quality census 2026-11-15-8354: `/apps/github` and `**/logs` matched nothing
+  // inside the directory, so the lost review requirement was reported as "unmatched".
+  assert.equal(patternMatches('/src/payments', 'src/payments/charge.js'), true);
+  assert.equal(patternMatches('/apps/github', 'apps/github/deep/x.rb'), true);
+  assert.equal(patternMatches('**/logs', 'build/logs/a.log'), true);
+  assert.equal(patternMatches('**/logs', 'deeply/nested/logs/x/y.log'), true);
+  assert.equal(patternMatches('apps', 'web/apps/index.js'), true); // unanchored: any depth
+  assert.equal(patternMatches('/src/payments', 'src/paymentsX/a.js'), false);
+  // GitHub's exception: a wildcard last segment does not reach nested files.
+  assert.equal(patternMatches('docs/*', 'docs/getting-started.md'), true);
+  assert.equal(patternMatches('docs/*', 'docs/build-app/troubleshooting.md'), false);
+  assert.equal(patternMatches('*.js', 'src/app.js'), true);
+});
+
+// Red-team 2026-11-16: three seeded faults passed this suite.
+test('accepts owner handles with any digit, not only 0 and 1', () => {
+  const { errors } = parseCodeowners('*.py @dev42x\n*.rs @acme9/team-7');
+  assert.deepEqual(errors, []);
+});
+
+test('an anchored trailing-slash pattern keeps its full last directory name', () => {
+  // `src/docs/` is anchored by its middle slash; dropping one character too
+  // many from the trailing slash would read it as `src/doc` and unanchor it.
+  assert.ok(patternMatches('src/docs/', 'src/docs/a.md'));
+  assert.ok(!patternMatches('src/docs/', 'lib/src/docs/a.md'));
+  assert.ok(!patternMatches('/ab/', 'x/ab/c'));
+});
+
+test('a single listed path is enough to report a rule that matches nothing', () => {
+  const report = buildReport('*.js @a\n/docs/ @b', 'src/app.js');
+  assert.equal(report.pathCount, 1);
+  assert.deepEqual(report.unmatched.map((r) => r.pattern), ['/docs/']);
+});
+
+// GitHub's CODEOWNERS docs: "Using ! to negate a pattern doesn't work",
+// "Using [ ] to define a character range doesn't work", escaping a leading #
+// with \ "doesn't work", and "If any line ... contains invalid syntax, that
+// line will be skipped". The page must not call such a file clean.
+test('flags gitignore syntax GitHub does not support in CODEOWNERS', () => {
+  const { errors } = parseCodeowners([
+    '*.js @a',
+    '!vendor/*.js @b',
+    '*.[ch] @c',
+    '\\#notes.md @d',
+  ].join('\n'));
+  assert.deepEqual(errors.map((e) => e.line), [2, 3, 4]);
+  assert.match(errors[0].message, /negat/);
+  assert.match(errors[1].message, /\[ \]/);
+  assert.match(errors[2].message, /\\#/);
+  assert.equal(buildReport('!vendor/ @b', 'vendor/x.js').ok, false);
+});

@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVN5DtcDUhFBmqnBj7Z",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... merge when done)",
+  "input_sha256": "3f292b268e63b0d72b6982886f7530a713ccb708bab3de8d9cc166b1c9e89c6c",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T05:08:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots flagship buildable item: MIN_FIT_RPM on held-out builds; does the slow-wheel hold make shots late",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 16805,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/tests/feeder_sim.py",
+      "issue": "SimFeeder's rpm_full sets the board's told WHEEL_RPM_FULL, not the simulated wheel's free speed (that is wheel_max_rpm); the name invites the wrong one (caught before the run)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-the-tennis-feeders-wait-for-slow-wheels-made-shots-late.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md#the-fit-floor-on-held-out-builds-2026-11-17"
+  ],
+  "goal": "settle the fit floor on held-out builds and measure the hold's lateness",
+  "notes": "Held-out sweep (tests/min_fit_heldout.py; decision rule committed in its own commit before the run): 18 builds on launchers, lags, plants, seed and slow targets no earlier sweep used. Floor stays 1,000 (pooled spin error 0.57% at 500 vs 0.56% at 1,000; ESC worst 2.33 vs 1.47%). The hold made slow->fast shots 0.63 s (3 s interval) / 0.88 s (2 s) late on average, 113/144 and 141/144 over 0.25 s. New opt-in controller/host LOOP_THROUGH_CHANGE keeps the slow wheel's watch through the next speed change: 0 of 468 gaps late, drops as accurate, spin error better on first-order and ESC, worse on the jittery tach (worst 2.16 vs 1.26%); off by default pending a real wheel. Verification: pytest tests/ 192 passed (88 s); post front matter, links, similarity clean; venture-preflight run (output in PR).",
+  "corrections": [],
+  "redteam": null
+}

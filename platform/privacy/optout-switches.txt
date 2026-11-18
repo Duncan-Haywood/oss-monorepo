@@ -189,6 +189,7 @@ ventures/card-surcharge-vs-cash-discount-calculator/usage.mjs
 ventures/cargo-audit-triage/usage.mjs
 ventures/carpet-cleaning-bid-calculator/usage.mjs
 ventures/carpet-install-bid-calculator/usage.mjs
+ventures/cash-application-matcher/usage.mjs
 ventures/cash-balance-plan-calculator/usage.mjs
 ventures/cash-flow-risk-forecaster/usage.mjs
 ventures/cat-adjuster-fee-calculator/usage.mjs
@@ -251,12 +252,14 @@ ventures/concrete-bid-calculator/usage.mjs
 ventures/concrete-lifting-bid-calculator/usage.mjs
 ventures/concrete-maturity/usage.mjs
 ventures/conformal-prediction-intervals/usage.mjs
+ventures/conjoint-analysis/usage.mjs
 ventures/consent-change-record/tool/usage.mjs
 ventures/consent-change-record/usage.mjs
 ventures/consignment-markdown-planner/usage.mjs
 ventures/construction-delay-claim-calculator/usage.mjs
 ventures/container-demurrage-detention-calculator/usage.mjs
 ventures/container-load-planner/usage.mjs
+ventures/contingency-table-tests/usage.mjs
 ventures/continuous-beam-calculator/usage.mjs
 ventures/contract-vs-fte-rate-calculator/usage.mjs
 ventures/contractor-bid-readiness/usage.mjs
@@ -265,6 +268,7 @@ ventures/convenience-store-gas-station-profit-calculator/usage.mjs
 ventures/cookie-security-check/usage.mjs
 ventures/cors-misconfig-check/usage.mjs
 ventures/cost-segregation-study-calculator/usage.mjs
+ventures/cost-sharing-calculator/usage.mjs
 ventures/cottage-food-pricing-calculator/usage.mjs
 ventures/countertop-bid-calculator/usage.mjs
 ventures/courier-van-route-profit-calculator/usage.mjs
@@ -286,11 +290,13 @@ ventures/crop-insurance-coverage-calculator/usage.mjs
 ventures/crown-molding-bid-calculator/usage.mjs
 ventures/crypto-cost-basis-calculator/usage.mjs
 ventures/csa-share-pricing-calculator/usage.mjs
+ventures/csshound/usage.mjs
 ventures/csv-to-sepa-pain001/usage.mjs
 ventures/csv-to-sepa-pain008/usage.mjs
 ventures/csv-to-sql-generator/usage.mjs
 ventures/custom-farm-rate-calculator/usage.mjs
 ventures/customer-lifetime-value-predictor/usage.mjs
+ventures/cvss-vector-check/usage.mjs
 ventures/cyclehound/usage.mjs
 ventures/dac7-seller-reporting-checker/usage.mjs
 ventures/daily-prep-quantity-optimizer/usage.mjs
@@ -312,6 +318,7 @@ ventures/deploy-concurrency-check/usage.mjs
 ventures/depop-fee-calculator/usage.mjs
 ventures/depreciation-recapture-calculator/usage.mjs
 ventures/devsec-toolkit/usage.mjs
+ventures/difference-in-differences/usage.mjs
 ventures/dining-room-table-mix-optimizer/usage.mjs
 ventures/discogs-fee-calculator/usage.mjs
 ventures/distillery-excise-tax-calculator/usage.mjs
@@ -342,6 +349,7 @@ ventures/duct-cleaning-bid-calculator/usage.mjs
 ventures/dumpster-rental-margin-calculator/usage.mjs
 ventures/dunning-engine/usage.mjs
 ventures/dupehound/usage.mjs
+ventures/dynamic-time-warping/usage.mjs
 ventures/dynamodb-capacity-mode-advisor/usage.mjs
 ventures/eaa-accessibility-act-checker/usage.mjs
 ventures/early-pay-discount-picker/usage.mjs
@@ -419,6 +427,7 @@ ventures/exemption-certificate-audit-check/usage.mjs
 ventures/expense-tracker/usage.mjs
 ventures/experience-mod-calculator/usage.mjs
 ventures/exterior-painting-bid-calculator/usage.mjs
+ventures/extreme-value-analysis/usage.mjs
 ventures/facebook-marketplace-fee-calculator/usage.mjs
 ventures/fair-workweek-schedule-checker/usage.mjs
 ventures/faire-wholesale-calculator/usage.mjs
@@ -491,6 +500,7 @@ ventures/funeral-price-list-checker/usage.mjs
 ventures/furnace-bid-calculator/usage.mjs
 ventures/fuzzy-dedupe/usage.mjs
 ventures/gabor-granger-price-analyzer/usage.mjs
+ventures/gage-rr/usage.mjs
 ventures/gambling-loss-deduction-calculator/usage.mjs
 ventures/garage-door-bid-calculator/usage.mjs
 ventures/gaussian-process-regression/usage.mjs
@@ -538,6 +548,7 @@ ventures/hard-money-loan-cost-calculator/usage.mjs
 ventures/hardwood-refinishing-bid-calculator/usage.mjs
 ventures/hay-baling-own-vs-hire-calculator/usage.mjs
 ventures/hay-sale-price-calculator/usage.mjs
+ventures/hdbscan-clustering/usage.mjs
 ventures/hearing-aid-dispensing-margin-calculator/usage.mjs
 ventures/hearth-and-horizon/usage.mjs
 ventures/heat-pump-vs-furnace-calculator/usage.mjs
@@ -548,6 +559,7 @@ ventures/hidden-unicode-check/usage.mjs
 ventures/hoa-reserve-fund-calculator/usage.mjs
 ventures/hoarding-cleanout-bid-calculator/usage.mjs
 ventures/holiday-light-bid-calculator/usage.mjs
+ventures/home-battery-planner/usage.mjs
 ventures/home-care-agency-margin-calculator/usage.mjs
 ventures/home-elevator-bid-calculator/usage.mjs
 ventures/home-inspection-business-profit-calculator/usage.mjs
@@ -578,6 +590,7 @@ ventures/ice-cream-shop-seasonal-profit-calculator/usage.mjs
 ventures/ice-dam-removal-bid-calculator/usage.mjs
 ventures/icp-lens/usage.mjs
 ventures/ics-calendar-check/usage.mjs
+ventures/ids-model-check/usage.mjs
 ventures/ie-self-employed-tax-set-aside-calculator/usage.mjs
 ventures/ifta-quarterly-fuel-tax-calculator/usage.mjs
 ventures/in-freelancer-advance-tax-set-aside-calculator/usage.mjs
@@ -592,6 +605,7 @@ ventures/installment-sale-tax-calculator/usage.mjs
 ventures/insurance-agency-book-valuation-calculator/usage.mjs
 ventures/insurance-commission-reconciler/usage.mjs
 ventures/insurance-denial-appeal-builder/usage.mjs
+ventures/inter-rater-agreement/usage.mjs
 ventures/interior-design-fee-calculator/usage.mjs
 ventures/interior-door-bid-calculator/usage.mjs
 ventures/internal-link-planner/usage.mjs
@@ -608,6 +622,7 @@ ventures/irrigation-winterization-bid-calculator/usage.mjs
 ventures/irs-iris-1099-csv-check/usage.mjs
 ventures/iso-exercise-amt-calculator/usage.mjs
 ventures/isolation-forest/usage.mjs
+ventures/item-response-theory/usage.mjs
 ventures/janitorial-bid-calculator/usage.mjs
 ventures/job-application-tracker/usage.mjs
 ventures/job-margin-variance/usage.mjs
@@ -624,6 +639,7 @@ ventures/k8s-pod-security-check/usage.mjs
 ventures/k8s-requests-rightsizer/usage.mjs
 ventures/k8s-resource-limits-check/usage.mjs
 ventures/k8s-rollout-safety-check/usage.mjs
+ventures/kalman-smoother/usage.mjs
 ventures/kdp-royalty-calculator/usage.mjs
 ventures/kdp-royalty-report-analyzer/usage.mjs
 ventures/kdp-royalty-to-journal/usage.mjs
@@ -633,6 +649,7 @@ ventures/kitchen-tile-backsplash-bid-calculator/usage.mjs
 ventures/klaviyo-profile-csv-check/usage.mjs
 ventures/ko-fi-payout-to-journal/usage.mjs
 ventures/kombucha-brewery-profit-calculator/usage.mjs
+ventures/kriging-interpolation/usage.mjs
 ventures/lambda-memory-rightsizer/usage.mjs
 ventures/lambda-vs-fargate-cost-breakeven/usage.mjs
 ventures/land-survey-bid-calculator/usage.mjs
@@ -670,10 +687,12 @@ ventures/lockfile-license-check/usage.mjs
 ventures/locksmith-bid-calculator/usage.mjs
 ventures/locum-tenens-vs-employed-calculator/usage.mjs
 ventures/log-management-pricing-calculator/usage.mjs
+ventures/lomb-scargle-periodogram/usage.mjs
 ventures/lot-split-calculator/usage.mjs
 ventures/ltl-freight-class-estimator/usage.mjs
 ventures/lumper-fee-reimbursement-calculator/usage.mjs
 ventures/mailchimp-audience-csv-check/usage.mjs
+ventures/mann-kendall-trend/usage.mjs
 ventures/maple-syrup-sugarbush-profit-calculator/usage.mjs
 ventures/market-event-picker/usage.mjs
 ventures/market-garden-bed-planner/usage.mjs
@@ -695,9 +714,11 @@ ventures/merchant-cash-advance-true-cost-calculator/usage.mjs
 ventures/merchant-feed-check/usage.mjs
 ventures/merchant-of-record-fee-calculator/usage.mjs
 ventures/meta-ads-fatigue-analyzer/usage.mjs
+ventures/meta-analysis/usage.mjs
 ventures/meta-catalog-csv-check/usage.mjs
 ventures/metal-roof-bid-calculator/usage.mjs
 ventures/meter-keeper/usage.mjs
+ventures/method-comparison/usage.mjs
 ventures/microgreens-tray-planner/usage.mjs
 ventures/midterm-rental-calculator/usage.mjs
 ventures/mileage-deduction-calculator/usage.mjs
@@ -857,6 +878,7 @@ ventures/private-chef-service-price-calculator/usage.mjs
 ventures/private-pilot-training-cost-calculator/usage.mjs
 ventures/private-practice-payer-mix-calculator/usage.mjs
 ventures/private-school-tuition-discount-calculator/usage.mjs
+ventures/probability-calibration/usage.mjs
 ventures/process-server-day-picker/usage.mjs
 ventures/process-server-fee-calculator/usage.mjs
 ventures/product-analytics-pricing-calculator/usage.mjs
@@ -866,6 +888,7 @@ ventures/project-staffing-margin-optimizer/usage.mjs
 ventures/prometheus-cardinality-cost/usage.mjs
 ventures/prop-firm-challenge-calculator/usage.mjs
 ventures/propane-delivery-route-margin/usage.mjs
+ventures/propensity-score/usage.mjs
 ventures/property-management-profit-calculator/usage.mjs
 ventures/property-tax-appeal-calculator/usage.mjs
 ventures/proposal-maker/usage.mjs
@@ -904,6 +927,7 @@ ventures/redirect-map-check/usage.mjs
 ventures/referral-keeper/usage.mjs
 ventures/referrer-permissions-policy-check/usage.mjs
 ventures/regex-redos-check/usage.mjs
+ventures/regression-discontinuity/usage.mjs
 ventures/release-notes-generator/usage.mjs
 ventures/renewal-rent-optimizer/usage.mjs
 ventures/rent-increase-notice-checker/usage.mjs
@@ -975,7 +999,9 @@ ventures/sawmill-custom-sawing-calculator/usage.mjs
 ventures/sba-loan-capacity-calculator/usage.mjs
 ventures/sbir-budget-builder/usage.mjs
 ventures/sbom-diff-check/usage.mjs
+ventures/scale-reliability/usage.mjs
 ventures/schengen-90-180-day-calculator/usage.mjs
+ventures/school-timetable-builder/usage.mjs
 ventures/scope-creep-change-order-calculator/usage.mjs
 ventures/scrap-gold-buy-price-calculator/usage.mjs
 ventures/scrap-metal-yard-payout-calculator/usage.mjs
@@ -1080,6 +1106,7 @@ ventures/square-sales-to-journal/usage.mjs
 ventures/squarespace-product-csv-check/usage.mjs
 ventures/sri-check/usage.mjs
 ventures/sshd-config-check/usage.mjs
+ventures/stable-matching/usage.mjs
 ventures/staffing-markup-calculator/usage.mjs
 ventures/stair-lift-bid-calculator/usage.mjs
 ventures/standby-generator-bid-calculator/usage.mjs
@@ -1279,6 +1306,7 @@ ventures/vineyard-grape-vs-wine-calculator/usage.mjs
 ventures/vinyl-liner-bid-calculator/usage.mjs
 ventures/visit-keeper/usage.mjs
 ventures/voiceover-project-rate-calculator/usage.mjs
+ventures/voltage-drop-calculator/usage.mjs
 ventures/volunteer-shift-scheduler/usage.mjs
 ventures/vpat-acr-generator/usage.mjs
 ventures/vscode-extension-drift-check/usage.mjs

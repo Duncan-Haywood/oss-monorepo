@@ -143,16 +143,12 @@ export function calculateSeason(input) {
   const pricePerSiteSeasonal = siteCount === 0 ? null : seasonalPrice / siteCount;
   const pricePerSitePerPush = siteCount === 0 ? null : pricePerPush / siteCount;
 
-  const hasProposedSeasonal = input.proposedSeasonal !== null
-    && input.proposedSeasonal !== undefined
-    && input.proposedSeasonal !== '';
+  const hasProposedSeasonal = String(input.proposedSeasonal ?? '').trim() !== '';
   const proposedSeasonal = hasProposedSeasonal
     ? number(input.proposedSeasonal, 'Seasonal you are considering')
     : null;
 
-  const hasProposedPerPush = input.proposedPerPush !== null
-    && input.proposedPerPush !== undefined
-    && input.proposedPerPush !== '';
+  const hasProposedPerPush = String(input.proposedPerPush ?? '').trim() !== '';
   const proposedPerPush = hasProposedPerPush
     ? number(input.proposedPerPush, 'Per-push you are considering')
     : null;

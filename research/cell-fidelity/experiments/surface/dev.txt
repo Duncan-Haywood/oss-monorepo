@@ -1,0 +1,4 @@
+Chen2020@1.5x        n 12  |ln err| 5y 0.340 surface 0.128  signed 5y +0.340 surface +0.115  wins 8/12  delta -0.0977  dU99 oc 0.5 mV surface 32.5 mV
+OKane2022@1.5x       n 12  |ln err| 5y 0.346 surface 0.130  signed 5y +0.346 surface +0.101  wins 11/12  delta -0.1105  dU99 oc 9.5 mV surface 33.9 mV
+NCA_Kim2011@0.875x   n  8  |ln err| 5y 0.020 surface 0.047  signed 5y -0.015 surface +0.047  wins 2/8  delta +0.1663  dU99 oc 119.1 mV surface 49.2 mV
+Ai2020@0.45x         n  7  |ln err| 5y 0.077 surface 0.229  signed 5y +0.077 surface +0.229  wins 0/7  delta +0.2100  dU99 oc 38.4 mV surface 84.9 mV

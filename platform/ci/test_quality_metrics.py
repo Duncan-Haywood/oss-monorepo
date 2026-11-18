@@ -112,6 +112,26 @@ class SignalsTest(unittest.TestCase):
         self.assertEqual([r["what"] for r in rows], ["wrong Section 179 cap"])
         self.assertEqual(len(m.queue([a], "low")), 2)
 
+    def test_queue_seed_spreads_parallel_sessions(self):
+        # Two fix sessions took the same top row the same minute (doc_friction 2026-11-16T16:41).
+        subs = [audit(subject=f"ventures/s{i}", _file=f"2026-11-0{i}-s{i}.json",
+                      defects=[{"severity": "medium", "what": f"s{i} first"}, {"severity": "medium", "what": f"s{i} second"}])
+                for i in range(1, 9)]
+        subs.append(audit(subject="ventures/hi", _file="2026-11-09-hi.json",
+                          defects=[{"severity": "high", "what": "hi"}]))
+        fixed = [r["subject"] for r in m.queue(subs, "medium")]
+        self.assertEqual(fixed[:3], ["ventures/hi", "ventures/s1", "ventures/s1"])
+        tops = {m.queue(subs, "medium", seed=f"2026-11-16-{t}")[1]["subject"] for t in ("aa", "bb", "cc", "dd", "ee")}
+        self.assertGreater(len(tops), 1)  # different seeds lead with different medium subjects
+        for seed in ("x", "y"):
+            rows = m.queue(subs, "medium", seed=seed)
+            self.assertEqual(rows, m.queue(subs, "medium", seed=seed))  # a seed repeats its order
+            self.assertEqual(rows[0]["subject"], "ventures/hi")  # severity still comes first
+            self.assertEqual(sorted(map(str, rows), key=str), sorted(map(str, m.queue(subs, "medium")), key=str))
+            for i in range(1, len(rows)):  # a subject's defects stay together, in index order
+                if rows[i]["subject"] == rows[i - 1]["subject"]:
+                    self.assertEqual(rows[i]["index"], rows[i - 1]["index"] + 1)
+
     def test_queue_reads_fixed_by_per_defect(self):
         url = "https://example.test/pull/1"
         a = audit(fix_prs=[url], defects=[{"severity": "medium", "what": "fixed one", "fixed_by": url},
@@ -122,6 +142,78 @@ class SignalsTest(unittest.TestCase):
         self.assertEqual(m.queue([legacy], "medium"), [])
         self.assertEqual(len(m.unmarked_fixes([legacy], "medium")), 1)
         self.assertEqual(m.unmarked_fixes([a], "medium"), [])
+
+
+class FixLoopTest(unittest.TestCase):
+    """Reflection 2 (2026-11-17): fixes were recorded but never re-checked, and the mutation share saturated."""
+    URL = "https://example.test/pull/7"
+
+    def test_reaudit_lists_unchecked_fixes_highs_first(self):
+        fixed_low = audit(subject="ventures/a", date="2026-11-08", fix_prs=[self.URL],
+                          defects=[{"severity": "low", "what": "x"}])
+        fixed_high = audit(subject="ventures/b", date="2026-11-12", fix_prs=[self.URL],
+                           defects=[{"severity": "high", "what": "y", "fixed_by": self.URL},
+                                    {"severity": "medium", "what": "z"}])
+        rechecked = [audit(subject="ventures/c", date="2026-11-08", fix_prs=[self.URL],
+                           defects=[{"severity": "high", "what": "w"}]),
+                     audit(subject="ventures/c", date="2026-11-14")]
+        untouched = audit(subject="ventures/d", defects=[{"severity": "high", "what": "v"}])
+        rows = m.reaudit_due([fixed_low, fixed_high, untouched] + rechecked)
+        self.assertEqual([r["subject"] for r in rows], ["ventures/b", "ventures/a"])
+        self.assertEqual((rows[0]["fixed"], rows[0]["explicit"], rows[0]["high_fixed"]), (1, 1, 1))
+        self.assertEqual(sorted(r["subject"] for r in m.reaudit_due([fixed_low, fixed_high], "s")),
+                         ["ventures/a", "ventures/b"])
+
+    def test_documented_open_goes_first(self):
+        import tempfile
+        root = Path(tempfile.mkdtemp())
+        (root / "ventures" / "a").mkdir(parents=True)
+        (root / "ventures" / "a" / "README.md").write_text(
+            "## Known gaps\n\nFrom `portfolio/quality/audits/2026-11-12-a.json`: not yet fixed.\n")
+        (root / "ventures" / "b").mkdir(parents=True)
+        (root / "ventures" / "b" / "README.md").write_text("All fixed.\n")
+        high = [{"severity": "high", "what": "y"}]
+        a = audit(subject="ventures/a", date="2026-11-12", fix_prs=[self.URL], defects=high)
+        a["_file"] = "2026-11-12-a.json"
+        b = audit(subject="ventures/b", date="2026-11-08", fix_prs=[self.URL], defects=high)
+        rows = m.reaudit_due([b, a], root=root)
+        self.assertEqual([(r["subject"], r["documented_open"]) for r in rows], [("ventures/a", True), ("ventures/b", False)])
+        self.assertFalse(m.documented_open(dict(a, subject="ventures/missing"), root))
+
+    def test_fix_confirmation_separates_marked_from_assumed(self):
+        marked = audit(subject="ventures/a", fix_prs=[self.URL],
+                       defects=[{"severity": "high", "what": "y", "fixed_by": self.URL}, {"severity": "low", "what": "z"}])
+        blanket = audit(subject="ventures/b", fix_prs=[self.URL],
+                        defects=[{"severity": "low", "what": "x"}, {"severity": "medium", "what": "w"}])
+        later = [audit(subject="ventures/c", date="2026-11-07", fix_prs=[self.URL]), audit(subject="ventures/c", date="2026-11-09")]
+        f = m.fix_confirmation([marked, blanket] + later)
+        self.assertEqual((f["explicit"], f["assumed"], f["open"]), (1, 2, 1))
+        self.assertEqual((f["rechecked_after_fix"], f["awaiting_recheck"]), (1, 2))
+
+    def test_kill_rate_moves_where_the_audit_share_cannot(self):
+        mut = lambda caught: {"where": "calc.mjs:1", "change": "a -> b", "caught": caught}
+        weak = audit(subject="ventures/a", mutations=[mut(True)] * 5 + [mut(False)])
+        weaker = audit(subject="ventures/b", mutations=[mut(True)] + [mut(False)] * 5)
+        self.assertEqual(m.mutation_outcome(weak), m.mutation_outcome(weaker))  # both "survived"
+        self.assertEqual(m.mutation_kill([weak])["kill_rate"], 0.833)
+        self.assertEqual(m.mutation_kill([weak, weaker]), {"mutants": 12, "killed": 6, "audits": 2, "kill_rate": 0.5,
+                                                            "per_audit": 6.0})
+
+    def test_bar_by_instrument_splits_prose_from_structured(self):
+        mut = [{"where": "x:1", "change": "a -> b", "caught": True}]
+        rows = [audit(subject="ventures/a"), audit(subject="ventures/b", mutations=mut),
+                audit(subject="ventures/c", mutations=mut, drawn_by="census"),
+                audit(subject="ventures/d", stratum="flagship")]
+        b = m.bar_by_instrument(rows, q.meets_bar)
+        self.assertEqual(b, {"prose": {"n": 1, "meets_bar": 1}, "structured": {"n": 1, "meets_bar": 1}})
+
+    def test_reaudit_mode_drops_out_when_nothing_waits(self):
+        modes = {m.mode_for("2026-11-11", seed=str(i), last_reflect="2026-11-10", reaudit_waiting=0)["mode"]
+                 for i in range(200)}
+        self.assertNotIn("reaudit", modes)
+        self.assertIn("reaudit", {m.mode_for("2026-11-11", seed=str(i), last_reflect="2026-11-10", reaudit_waiting=3)["mode"]
+                                  for i in range(200)})
+        self.assertEqual(q.validate_audit(audit(drawn_by="reaudit")), [])
 
 
 class CoverageTest(unittest.TestCase):

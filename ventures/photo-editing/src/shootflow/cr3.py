@@ -41,6 +41,16 @@ reverse-engineered decoder) and as the ``lclevy/canon_cr3`` notes describe
 the container; this is an independent implementation, checked sensel for
 sensel against LibRaw 0.22 on two full-quality EOS R8 files (and, for C-RAW, three more: two R8, one R3)
 (``tools/cr3_libraw_check.py``, ``eval/canon-cr3-reader-2026-11-15.md``).
+
+Several tiles (later on 2026-11-15): wide sensors (the R5 class) may store the planes cut into tiles,
+which CMP1's tile size gives (every tile that size but the last of each row and column, which takes the
+rest). The sample header then holds each tile's header (0xFF01, with its index) and its planes' headers in
+turn, and the data follows tile after tile; each tile's plane is an independent band at the tile's width.
+Full-quality tiles are read, and since 2026-11-16 C-RAW tiles too (``cr3_wavelet``: each tile its own
+wavelet decomposition plus the edge coefficients its neighbours lend). No public tiled CR3 could be fetched,
+so real one-tile R8 (and, for C-RAW, R3) files were re-stored as tiles and LibRaw 0.22 read them back to the
+original sensels (``tools/cr3_tiled_libraw_check.py``, ``eval/canon-cr3-tiled-2026-11-15.md``;
+``tools/cr3_craw_tiled_libraw_check.py``, ``eval/canon-cr3-craw-tiled-2026-11-16.md``).
 """
 
 from __future__ import annotations
@@ -440,10 +450,10 @@ def decode_band(data: bytes, width: int, height: int) -> list[list[int]]:
 
 
 class Band:
-    __slots__ = ("plane", "offset", "size")
+    __slots__ = ("plane", "offset", "size", "tile")
 
-    def __init__(self, plane: int, offset: int, size: int):
-        self.plane, self.offset, self.size = plane, offset, size
+    def __init__(self, plane: int, offset: int, size: int, tile: "Tile | None" = None):
+        self.plane, self.offset, self.size, self.tile = plane, offset, size, tile
 
 
 def check_supported(head: Cmp1) -> None:
@@ -456,41 +466,92 @@ def check_supported(head: Cmp1) -> None:
         )
     if head.planes != 4 or head.enc_type != 0:
         raise rd.DevelopError(f"CR3: {head.planes} planes with encoding type {head.enc_type} is not supported (only 4-plane Bayer)")
-    if head.tile_cols or head.tile_rows or head.tile_width != head.width or head.tile_height != head.height:
-        raise rd.DevelopError(
-            "CR3: a sensor stored in several tiles is not supported yet (no test file); convert to DNG with Adobe's "
-            "free DNG Converter"
-        )
+    if head.tile_width != head.width or head.tile_height != head.height:
+        tile_grid(head)
+
+
+class Tile:
+    """One tile of the sensor, in plane units (half the sensor's width and height for 4-plane Bayer)."""
+
+    __slots__ = ("index", "row", "col", "width", "height")
+
+    def __init__(self, index: int, row: int, col: int, width: int, height: int):
+        self.index, self.row, self.col, self.width, self.height = index, row, col, width, height
+
+
+def tile_grid(head: Cmp1) -> list[Tile]:
+    """The tiles CMP1's tile size cuts the planes into, row by row, as LibRaw lays them out (``crx.cpp``).
+
+    Every tile but the last in a row is ``tile_width / 2`` plane sensels wide and the last takes what is left;
+    rows likewise. LibRaw refuses a tile (or a remainder) under 22 plane sensels, an odd tile size, a tile larger
+    than the sensor, or more than 255 tiles a side, and so does this reader."""
+
+    pw, ph = head.width // 2, head.height // 2
+    tw, th = head.tile_width, head.tile_height
+    if tw & 1 or th & 1 or tw > head.width or th > head.height or tw // 2 < 0x16 or th // 2 < 0x16:
+        raise rd.DevelopError(f"CR3: tile size {tw} x {th} for a {head.width} x {head.height} sensor is not valid")
+    tw, th = tw // 2, th // 2
+    cols, rows = -(-pw // tw), -(-ph // th)
+    if cols > 0xFF or rows > 0xFF or pw - tw * (cols - 1) < 0x16 or ph - th * (rows - 1) < 0x16:
+        raise rd.DevelopError(f"CR3: a {cols} x {rows} tile grid leaves an edge tile under 22 sensels; not valid")
+    if (cols > 1) != bool(head.tile_cols) or (rows > 1) != bool(head.tile_rows):
+        raise rd.DevelopError("CR3: CMP1's several-tiles flags do not match its tile size")
+    tiles: list[Tile] = []
+    for r in range(rows):
+        for c in range(cols):
+            tiles.append(Tile(len(tiles), r * th, c * tw, tw if c < cols - 1 else pw - tw * (cols - 1),
+                              th if r < rows - 1 else ph - th * (rows - 1)))
+    return tiles
 
 
 def band_layout(sample: bytes, head: Cmp1) -> list[Band]:
-    """The planes' bands of a one-tile, no-wavelet CR3 sample, from its header (tags 0xFF01-0xFF03)."""
+    """The planes' bands of a no-wavelet CR3 sample, tile by tile, from its header (tags 0xFF01-0xFF03).
+
+    The header holds, for each tile in turn, a tile header (0xFF01: the tile's byte count and its index), then
+    per plane a plane header (0xFF02: its byte count, the plane number in the top four bits of its flags) and
+    one subband header (0xFF03). The data follows the header in the same order: tile after tile, and inside a
+    tile plane after plane."""
 
     check_supported(head)
+    tiles = tile_grid(head) if (head.tile_width, head.tile_height) != (head.width, head.height) else [
+        Tile(0, 0, 0, head.width // 2, head.height // 2)]
     hdr = sample[: head.header_size]
     pos = 0
-    data_at = head.header_size
+    tile_at = head.header_size
     bands: list[Band] = []
-    tag, size, _tile_size, _flags = struct.unpack_from(">HHII", hdr, 0)
-    if tag != 0xFF01 or size != 8:
-        raise rd.DevelopError(f"CR3: tile header tag {tag:#06x}, expected 0xff01")
-    pos = 12
-    for plane in range(head.planes):
-        tag, size, plane_size, pflags = struct.unpack_from(">HHII", hdr, pos)
-        if tag != 0xFF02 or size != 8:
-            raise rd.DevelopError(f"CR3: plane header tag {tag:#06x}, expected 0xff02")
-        if not pflags & 0x08000000:
-            raise rd.DevelopError("CR3: a plane without the partial-decoding flag is not supported (no test file)")
-        if (pflags >> 25) & 3:
-            raise rd.DevelopError("CR3: a plane with rounded bits is not supported (no test file)")
-        tag, size, band_size, bflags = struct.unpack_from(">HHII", hdr, pos + 12)
-        if tag != 0xFF03 or size != 8:
-            raise rd.DevelopError(f"CR3: subband header tag {tag:#06x}, expected 0xff03")
-        pos += 24
-        bands.append(Band(plane, data_at, band_size - (bflags & 0x7FFFF)))
-        data_at += plane_size
-    if data_at > len(sample):
-        raise rd.DevelopError("CR3: the planes run past the end of the sensor sample")
+    for tile in tiles:
+        if pos + 12 > len(hdr):
+            raise rd.DevelopError("CR3: the sample header ends before the last tile's")
+        tag, size, tile_size, number, tail = struct.unpack_from(">HHIHH", hdr, pos)
+        if tag != 0xFF01 or size != 8:
+            raise rd.DevelopError(f"CR3: tile header tag {tag:#06x}, expected 0xff01")
+        if number != tile.index or tail:
+            raise rd.DevelopError(f"CR3: tile header {tile.index} names tile {number}")
+        pos += 12
+        data_at = tile_at
+        for plane in range(head.planes):
+            if pos + 24 > len(hdr):
+                raise rd.DevelopError("CR3: the sample header ends inside a tile's plane headers")
+            tag, size, plane_size, pflags = struct.unpack_from(">HHII", hdr, pos)
+            if tag != 0xFF02 or size != 8:
+                raise rd.DevelopError(f"CR3: plane header tag {tag:#06x}, expected 0xff02")
+            if pflags >> 28 != plane:
+                raise rd.DevelopError(f"CR3: plane header {plane} of tile {tile.index} names plane {pflags >> 28}")
+            if not pflags & 0x08000000:
+                raise rd.DevelopError("CR3: a plane without the partial-decoding flag is not supported (no test file)")
+            if (pflags >> 25) & 3:
+                raise rd.DevelopError("CR3: a plane with rounded bits is not supported (no test file)")
+            tag, size, band_size, bflags = struct.unpack_from(">HHII", hdr, pos + 12)
+            if tag != 0xFF03 or size != 8:
+                raise rd.DevelopError(f"CR3: subband header tag {tag:#06x}, expected 0xff03")
+            pos += 24
+            bands.append(Band(plane, data_at, band_size - (bflags & 0x7FFFF), tile))
+            data_at += plane_size
+        tile_at += tile_size
+        if data_at > tile_at:
+            raise rd.DevelopError(f"CR3: tile {tile.index}'s planes run past its byte count")
+    if tile_at > len(sample):
+        raise rd.DevelopError("CR3: the tiles run past the end of the sensor sample")
     return bands
 
 
@@ -525,20 +586,23 @@ def decode_sensor(data: bytes, box: Container, engine: str = "auto") -> tuple[Cm
     for band in bands:
         chunk = sample[band.offset : band.offset + band.size]
         oy, ox = band.plane >> 1, band.plane & 1
+        tile = band.tile
+        assert tile is not None  # band_layout sets every band's tile
+        row0, col0 = 2 * tile.row + oy, 2 * tile.col + ox
         if native is not None:
-            first = out.buffer_info()[0] + 2 * (oy * w + ox)
-            if native(chunk, len(chunk), pw, ph, head.bits, first, 2 * w) < 0:
+            first = out.buffer_info()[0] + 2 * (row0 * w + col0)
+            if native(chunk, len(chunk), tile.width, tile.height, head.bits, first, 2 * w) < 0:
                 raise rd.DevelopError("CR3: the compressed band is invalid")
         else:
-            for y, row in enumerate(decode_band(chunk, pw, ph)):
-                base = (2 * y + oy) * w + ox
-                out[base : base + 2 * pw : 2] = array("H", (min(max(v, lo), hi) + mid for v in row))
+            for y, row in enumerate(decode_band(chunk, tile.width, tile.height)):
+                base = (row0 + 2 * y) * w + col0
+                out[base : base + 2 * tile.width : 2] = array("H", (min(max(v, lo), hi) + mid for v in row))
     return head, out
 
 
 def camera_model(data: bytes, readable: bool = False) -> str:
     """The camera's name from CMT1; with ``readable``, first refuse a file whose sensor data this reader
-    cannot decode (several tiles, an unknown codec version), so the profile chooser does not ask for a profile it could not use."""
+    cannot decode (an unknown codec version, a tile grid LibRaw would refuse), so the profile chooser does not ask for a profile it could not use."""
 
     box = Container(data)
     if readable:
@@ -585,6 +649,12 @@ def parse_cr3(data: bytes, engine: str = "auto") -> rd.RawImage:
     note_found = _tiff_ifd(box.cmt.get(b"CMT3"))
     note = note_found[1] if note_found else None
     notes: list[str] = []
+    if head.levels and head.tile_height < height:
+        notes.append(
+            "CR3: C-RAW tiles stacked one above another; the rows at each seam between them follow the seamless 5/3 "
+            "rule, which LibRaw 0.22 does not reproduce there (eval/canon-cr3-craw-tiled-2026-11-16.md); no real file "
+            "has checked them"
+        )
     sensor = note.get(cr2.CANON_SENSOR_INFO) if note is not None else None
     if sensor and len(sensor) >= 9 and 0 <= sensor[5] < sensor[7] < width and 0 <= sensor[6] < sensor[8] < height:
         left, top, right, bottom = int(sensor[5]), int(sensor[6]), int(sensor[7]) + 1, int(sensor[8]) + 1

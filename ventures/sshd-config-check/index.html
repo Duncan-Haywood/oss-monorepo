@@ -61,7 +61,8 @@
   <header>
     <p class="note">SSHD_CONFIG CHECK · RUNS IN YOUR BROWSER</p>
     <h1>What will your SSH server really do?</h1>
-    <p><code>sshd</code> keeps the <strong>first</strong> value it reads for a setting and silently ignores the rest. On Ubuntu and Debian the first line of <code>sshd_config</code> pulls in every <code>sshd_config.d/*.conf</code> file, so a cloud-init drop-in that says <code>PasswordAuthentication yes</code> beats your <code>no</code> further down. A drop-in named <code>hardening</code> without <code>.conf</code> is never read, and a line written flush left after a <code>Match</code> block still belongs to it. Paste <code>/etc/ssh/sshd_config</code> and its drop-ins below: this page reads them in <code>sshd</code>'s order and shows which value wins, the lines that do nothing, and the settings that let people in more easily than you meant.</p>
+    <p><code>sshd</code> keeps the <strong>first</strong> value it reads for a setting and silently ignores the rest. On Ubuntu and Debian the first line of <code>sshd_config</code> pulls in every <code>sshd_config.d/*.conf</code> file, so a cloud-init drop-in that says <code>PasswordAuthentication yes</code> beats your <code>no</code> further down.</p>
+<p>A drop-in named <code>hardening</code> without <code>.conf</code> is never read, and a line written flush left after a <code>Match</code> block still belongs to it. Paste <code>/etc/ssh/sshd_config</code> and its drop-ins below: this page reads them in <code>sshd</code>'s order and shows which value wins, the lines that do nothing, and the settings that let people in more easily than you meant.</p>
     <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and the tool makes no network calls of its own. It reads the files, not a running server: it is not <code>sshd -T</code> and not a security audit.</p>
   </header>
 <main>

@@ -35,6 +35,38 @@ export function money2(x) {
   return ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 }
 
+// Split one roster line into its fields. A tab or semicolon line uses that separator, and any comma
+// in it is a thousands separator ("24,000"). A comma line with more than four fields may carry
+// thousands commas: a comma with no space after it, followed by exactly three digits and preceded
+// by a one-to-three-digit group, is joined back. Each join removes one field, so the line is
+// accepted only when the joins leave exactly four; anything else (extra fields, joins that do not
+// account for them, an ambiguous all-no-space line) returns null and the line is reported as
+// skipped rather than read with its fields shifted.
+const GROUP_HEAD = /^\$?\d{1,3}(,\d{3})*$/;
+const GROUP_TAIL = /^\d{3}(\.\d+)?$/;
+export function splitFields(line) {
+  if (/[\t;]/.test(line)) {
+    const parts = line.split(/[\t;]/).map((s) => s.trim());
+    return parts.length === 4 ? parts : null;
+  }
+  const raw = line.split(",");
+  if (raw.length === 4) return raw.map((s) => s.trim());
+  if (raw.length < 4) return null;
+  const joins = [];
+  for (let i = 2; i < raw.length; i++) {
+    if (!/^\s/.test(raw[i]) && GROUP_TAIL.test(raw[i].trim()) && /\d$/.test(raw[i - 1])) joins.push(i);
+  }
+  const parts = [raw[0].trim()];
+  for (let i = 1; i < raw.length; i++) {
+    if (joins.includes(i)) {
+      const head = parts[parts.length - 1];
+      if (!GROUP_HEAD.test(head)) return null;
+      parts[parts.length - 1] = `${head},${raw[i].trim()}`;
+    } else parts.push(raw[i].trim());
+  }
+  return parts.length === 4 ? parts : null;
+}
+
 // "name, cash wage per hour, hours worked, tips reported" per line. Lines that do not parse are
 // returned in `skipped` rather than silently dropped, so a typo cannot quietly shrink the credit.
 export function parseEmployees(text) {
@@ -43,8 +75,8 @@ export function parseEmployees(text) {
   for (const raw of String(text ?? "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
-    const parts = line.split(/[,\t;]/).map((s) => s.trim());
-    if (parts.length < 4) { skipped.push(line); continue; }
+    const parts = splitFields(line);
+    if (!parts) { skipped.push(line); continue; }
     const [name, w, h, t] = parts;
     const wage = num(w), hours = num(h), tips = num(t);
     if (![wage, hours, tips].every(Number.isFinite) || wage < 0 || hours < 0 || tips < 0) { skipped.push(line); continue; }

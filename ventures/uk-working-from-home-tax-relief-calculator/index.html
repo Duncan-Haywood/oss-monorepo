@@ -136,7 +136,7 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0");
     let last = null;
     const map = { asOf: "asOf", required: "required", rate: "rate", weeks2021: "weeks2021", weeks2022: "weeks2022", weeks2023: "weeks2023", weeks2024: "weeks2024", weeks2025: "weeks2025", reimbursed: "reimbursed", actual: "actual", sa: "sa" };
     const IDLE = "Fill in the figures, then click Work out my refund.";

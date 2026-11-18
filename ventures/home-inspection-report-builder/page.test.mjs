@@ -52,3 +52,9 @@ test("printing hides everything but the report and respects [hidden]", () => {
   assert.match(html, /#report\[hidden\]\{display:none\}/);
   assert.match(html, /@media print/);
 });
+
+test("the page never hands normalise an array index as its issues list", () => {
+  const html = page("index.html");
+  assert.doesNotMatch(html, /\.map\(normalise\)/);
+  assert.match(html, /normalise\(f, issues\)/, "build() collects and shows what it repaired");
+});

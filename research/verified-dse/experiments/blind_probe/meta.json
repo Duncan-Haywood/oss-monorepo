@@ -1,0 +1,77 @@
+{
+ "base_period_ns": {
+  "lut1": 13.11,
+  "mod12": 24.1,
+  "mod10": 14.88,
+  "gray1": 14.75,
+  "mod8": 12.06,
+  "gray0": 8.29
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "designs": {
+  "gray0": [
+   "graysh_w",
+   "graysh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 0
+   },
+   ""
+  ],
+  "mod8": [
+   "modsh_w",
+   "modsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NA": 8,
+    "M": 97
+   },
+   ""
+  ],
+  "gray1": [
+   "graysh_w",
+   "graysh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 1
+   },
+   ""
+  ],
+  "lut1": [
+   "lutsh_w",
+   "lutsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "R": 1
+   },
+   ""
+  ],
+  "mod10": [
+   "modsh_w",
+   "modsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NA": 10,
+    "M": 97
+   },
+   ""
+  ],
+  "mod12": [
+   "modsh_w",
+   "modsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NA": 12,
+    "M": 97
+   },
+   ""
+  ]
+ }
+}

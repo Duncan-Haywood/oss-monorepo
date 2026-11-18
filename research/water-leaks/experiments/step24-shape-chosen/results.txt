@@ -1,0 +1,74 @@
+# water-leaks step 24: step 21's tracker on the demand-oracle residual D, unchanged; candidates = atoms
+# active on day k with onset in [k - 30, k], each fitted over [k - 29, k] by step 23's step-or-ramp fit;
+# estimate = the ramp with the largest fitted slope if any candidate is a ramp, else the latest onset;
+# rule 300 m along pipes
+
+chance: expected 1.40 of 32 within 300 m
+
+## within 300 m (P(chance >=); median error m)
+  R30, primary                                 15 of 32 (0.0000;   417); abrupt 9 of 15, incipient 6 of 17
+  ref: C30 shape-timed (step 23)               13 of 32 (0.0000;   394); abrupt 10 of 15, incipient 3 of 17
+  ref: S30 steepest (step 22)                  14 of 32 (0.0000;   517); abrupt 8 of 15, incipient 6 of 17
+  ref: T-D latest onset (step 21)              13 of 32 (0.0000;   521); abrupt 10 of 15, incipient 3 of 17
+  ref: A on D1 regression (step 11)            15 of 32 (0.0000;   436); abrupt 10 of 15, incipient 5 of 17
+  ref: one-leak oracle (step 17)               28 of 32 (0.0000;    68); abrupt 13 of 15, incipient 15 of 17
+
+## variants (no verdicts)
+  R30-S (ramp by 14-day least-squares slope)   15 of 32 (0.0000;   459); abrupt 7 of 15, incipient 8 of 17
+  R30-L (ramp by fitted level on day k)        14 of 32 (0.0000;   540); abrupt 7 of 15, incipient 7 of 17
+  R14 (onset within 14 days)                   13 of 32 (0.0000;   430); abrupt 9 of 15, incipient 4 of 17
+  R60 (onset within 60 days)                   15 of 32 (0.0000;   388); abrupt 8 of 15, incipient 7 of 17
+
+## paired, 300 m hits (exact sign test on discordant leaks)
+  R30 only 3, TD only 1: P = 0.625
+  R30 only 5, S30 only 4: P = 1.000
+  R30 only 4, C30 only 2: P = 0.688
+  R30 only 7, d1 only 7: P = 1.000
+  R30 only 1, or17 only 14: P = 0.001
+  for reference: S30 or T-D hits 18; R30 hits 13 of those and 2 others
+
+## where the shape decides
+  leaks with a ramp candidate 17 of 32 (median ramps 1); R30 hits 11 of them (T-D 9)
+  leaks with no ramp candidate 15; R30 hits 4 (T-D 4; equal by construction)
+  leaks with a ramp candidate within 300 m 13 (abrupt 5, incipient 8); R30 within 300 m for 11
+
+  pipe  kind       t                 |  k  |  R30 |  C30 |  S30 |  T-D | cand | ramps | near ramp | pick, b
+   p232 incipient  2018-02-02T15    |  33 |  102 |  102 |  102 |  102 |    4 |     4 | yes       | ramp, 8.14
+   p673 abrupt     2018-03-05T16    |  64 |  267 |  267 |  267 |  267 |    6 |     5 | yes       | ramp, 12.54
+   p461 incipient  2018-03-09T04    |  68 |  154 | 2414 | 2414 | 2414 |    5 |     2 | yes       | ramp, 0.44
+   p427 incipient  2018-04-18T21    | 108 | 1062 | 1062 | 1328 | 1062 |    2 |     0 | no        | step
+   p628 incipient  2018-05-12T08    | 132 |  399 |  399 |  208 | 1576 |    6 |     3 | yes       | ramp, 3.33
+   p538 abrupt     2018-05-18T09    | 138 |  218 |  426 |  989 |  218 |    9 |     5 | yes       | ramp, 8.09
+   p866 abrupt     2018-06-01T09    | 152 | 2299 |  198 |  198 | 2299 |    9 |     0 | no        | step
+    p31 incipient  2018-07-23T18    | 204 |  666 |  666 |  666 |  666 |    1 |     0 | no        | step
+   p183 abrupt     2018-08-07T03    | 219 |  128 |  128 |  128 |  128 |    2 |     0 | no        | step
+   p654 incipient  2018-08-26T14    | 238 |  171 |  171 |  171 |  171 |    6 |     1 | yes       | ramp, 0.40
+   p810 incipient  2018-10-05T14    | 278 |  918 |  918 |  918 |  918 |    4 |     0 | no        | step
+   p158 abrupt     2018-10-06T03    | 279 |   83 |   83 |   83 |   83 |    4 |     0 | no        | step
+   p369 abrupt     2018-10-26T02    | 299 |  435 |  435 |  435 |  435 |    2 |     0 | no        | step
+   p523 abrupt     2019-01-15T23    | 380 |   86 |   86 |   86 |   86 |    9 |     0 | no        | step
+   p827 abrupt     2019-01-24T19    | 389 |  229 |  242 | 2801 |  242 |   12 |     1 | yes       | ramp, 11.88
+   p280 abrupt     2019-02-10T13    | 406 | 1254 | 1254 | 1254 | 1254 |    4 |     0 | no        | step
+   p710 abrupt     2019-03-24T14    | 448 |  141 |  142 |  142 |  142 |    6 |     1 | yes       | ramp, 3.28
+   p514 abrupt     2019-04-02T21    | 457 | 1005 |   77 | 1005 |   77 |    8 |     1 | no        | ramp, 0.44
+   p653 incipient  2019-04-07T12    | 462 |  227 |  323 |  896 |  323 |   11 |     2 | yes       | ramp, 0.53
+   p331 abrupt     2019-04-20T10    | 475 |  277 |  277 | 1266 |  277 |    7 |     2 | yes       | ramp, 4.64
+   p142 abrupt     2019-06-12T20    | 528 |  483 |  482 |  281 |  482 |    5 |     0 | no        | step
+   p193 incipient  2019-07-05T22    | 551 | 2682 | 2451 | 2682 | 2682 |    5 |     0 | no        | step
+   p680 abrupt     2019-07-10T09    | 556 |  109 |  109 |  109 |  109 |    2 |     0 | no        | step
+   p277 incipient  2019-07-21T22    | 567 | 1602 | 1602 | 2153 | 1602 |    6 |     0 | no        | step
+   p586 incipient  2019-08-18T21    | 595 |  193 |  571 |  193 | 1551 |    9 |     1 | yes       | ramp, 1.53
+   p800 incipient  2019-09-01T10    | 609 | 2271 |  389 |   97 | 2836 |    9 |     4 | yes       | ramp, 2.99
+   p721 incipient  2019-09-08T03    | 616 | 1140 | 1364 | 1140 |  559 |    7 |     2 | no        | ramp, 2.32
+   p426 abrupt     2019-10-25T13    | 663 | 1523 |  387 |  387 | 1523 |    3 |     0 | no        | step
+   p123 incipient  2019-11-07T22    | 676 |  599 | 2115 |  599 |  563 |    6 |     2 | no        | ramp, 27.07
+   p762 incipient  2019-11-17T03    | 686 | 2428 | 2428 | 1523 | 2428 |    4 |     1 | no        | ramp, 0.32
+   p455 incipient  2019-11-24T22    | 693 |  137 |  137 |  137 |  137 |    3 |     1 | yes       | ramp, 0.30
+   p879 incipient  2019-12-19T21    | 718 | 1741 | 1741 | 1741 | 1741 |    2 |     0 | no        | step
+
+## pre-registered predictions (LOG.md, step 24 plan)
+  (a) R30 puts more than 14 of 32 within 300 m: 15: HELD
+  (b) R30 puts at least 6 of 17 incipient leaks within 300 m: 6: HELD
+  (c) R30 keeps at least 9 of 15 abrupt leaks: 9: HELD
+  (d) of the leaks with a ramp candidate within 300 m (13; the plan counted 13 from step 23's nearest-candidate shapes), R30 within 300 m for at least 9: 11: HELD
+  (e) R30 beats T-D at P < 0.05: R30 only 3, T-D only 1, P = 0.625: FAILED

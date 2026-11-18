@@ -40,3 +40,28 @@ class T(unittest.TestCase):
 
     def test_deterministic(self):
         self.assertEqual(per_load(CP, "pinch", PP, 3, 0.30, 5.0), per_load(CP, "pinch", PP, 3, 0.30, 5.0))
+
+
+class Headline(unittest.TestCase):
+    """Pins two cells of experiments/results.txt at the full 1000 loads, so a change to the gating rule
+    (sign, overlap terms, threshold) that moves an intermediate-tau result fails here. The tau = +-inf tests
+    above cannot see such a change (quality census 2026-11-17: four of five seeded changes survived them)."""
+
+    def cell(self, policy, sep, tau):
+        a, _ = per_load(CP, policy, PP, 1000, sep, 1e9)
+        b, reds = per_load(CP, policy, PP, 1000, sep, tau)
+        return sum(b) / 1000 - sum(a) / 1000, sum(reds) / 1000
+
+    def test_pinch_030_tau10_matches_results(self):
+        diff, reds = self.cell("pinch", 0.30, 10.0)
+        self.assertAlmostEqual(diff, 1.35, delta=0.005)
+        self.assertAlmostEqual(reds, 2.19, delta=0.005)
+
+    def test_see_015_tau6_matches_results(self):
+        diff, reds = self.cell("see", 0.15, 6.0)
+        self.assertAlmostEqual(diff, -0.30, delta=0.005)
+        self.assertAlmostEqual(reds, 3.35, delta=0.005)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -20,12 +20,12 @@
     {
       "@type": "Question",
       "name": "Where does checking by hand produce a false positive?",
-      "acceptedAnswer": { "@type": "Answer", "text": "On a site configured to answer every unknown path with HTTP 200 and a custom error page -- common on shared hosting, several static-site setups, and single-page apps that route unknown paths back to index.html. A person checking only the status code sees 200 at .git/HEAD and concludes the repository is exposed, when the body is actually a generic \"page not found\" message that happens to carry a 200 status. This checker reads the response body and requires it to actually match a real .git/HEAD file (a ref line or a bare 40-character commit hash) before reporting a finding, so a soft-404 page is correctly reported clean." }
+      "acceptedAnswer": { "@type": "Answer", "text": "On a site configured to answer every unknown path with HTTP 200 and a custom error page -- common on shared hosting, several static-site setups, and single-page apps that route unknown paths back to index.html. A person checking only the status code sees 200 at .git/HEAD and concludes the repository is exposed, when the body is actually a generic \"page not found\" message that happens to carry a 200 status. This checker reads the response body and requires it to actually match a real .git/HEAD file (a ref line or a bare 40-character (64 in a SHA-256 repository) commit hash) before reporting a finding, so a soft-404 page is correctly reported clean." }
     },
     {
       "@type": "Question",
       "name": "Where does checking by hand produce a false negative?",
-      "acceptedAnswer": { "@type": "Answer", "text": "When the repository's .git/HEAD is a detached HEAD -- a bare 40-character hex commit SHA such as 4b825dc642cb6eb9a060e54bf8d69288fbee4904, rather than the familiar \"ref: refs/heads/main\" line most people know to look for. A person expecting the ref: line can glance at a bare hex string, not recognise it as anything in particular, and move on -- missing a real, exposed .git directory. This checker's classification treats a bare 40-character hex string as real git-internal content on its own, the same as the ref: form, so a detached-HEAD exposure is still reported as a finding." }
+      "acceptedAnswer": { "@type": "Answer", "text": "When the repository's .git/HEAD is a detached HEAD -- a bare 40-character (64 in a SHA-256 repository) hex commit SHA such as 4b825dc642cb6eb9a060e54bf8d69288fbee4904, rather than the familiar \"ref: refs/heads/main\" line most people know to look for. A person expecting the ref: line can glance at a bare hex string, not recognise it as anything in particular, and move on -- missing a real, exposed .git directory. This checker's classification treats a bare 40-character (64 in a SHA-256 repository) hex string as real git-internal content on its own, the same as the ref: form, so a detached-HEAD exposure is still reported as a finding." }
     },
     {
       "@type": "Question",
@@ -65,7 +65,7 @@
     <tr><td>A plain 404, or a login page, at <code>.git/HEAD</code></td><td>Correctly reads as "not exposed"</td><td>Correctly reads as "not exposed"</td></tr>
     <tr><td>The obvious case: body reads <code>ref: refs/heads/main</code></td><td>Correctly reads as "exposed"</td><td>Correctly reads as "exposed"</td></tr>
     <tr><td>A site that answers every unknown path with HTTP 200 and a custom error page (a "soft 404")</td><td>Sees status 200, easy to misread as exposed</td><td>Reads the body; a generic error page does not match real git content, so it is reported clean</td></tr>
-    <tr><td>A detached HEAD — a bare 40-character commit hash instead of a <code>ref:</code> line</td><td>Easy to see an unfamiliar hex string and move on, missing a real exposure</td><td>Treats a bare 40-character hex string as real git-internal content, the same as a <code>ref:</code> line</td></tr>
+    <tr><td>A detached HEAD — a bare 40-character (64 in a SHA-256 repository) commit hash instead of a <code>ref:</code> line</td><td>Easy to see an unfamiliar hex string and move on, missing a real exposure</td><td>Treats a bare 40-character (64 in a SHA-256 repository) hex string as real git-internal content, the same as a <code>ref:</code> line</td></tr>
     <tr><td>Corroborating with <code>.git/config</code> too</td><td>An extra request most people skip once <code>HEAD</code> looks clean or looks exposed</td><td>Always checks both, and reports when only one corroborates the other</td></tr>
     <tr><td>Repeatable in CI on every deploy</td><td>Manual, point-in-time</td><td>CLI returns a real exit code</td></tr>
   </tbody>
@@ -82,11 +82,11 @@
 </p>
 <p>
   <strong>False negative.</strong> A site's <code>.git/HEAD</code> returns HTTP 200 with the body
-  <code>4b825dc642cb6eb9a060e54bf8d69288fbee4904</code> — a bare 40-character commit hash (a
+  <code>4b825dc642cb6eb9a060e54bf8d69288fbee4904</code> — a bare 40-character (64 in a SHA-256 repository) commit hash (a
   detached HEAD), not the <code>ref: refs/heads/main</code> line most people know to look for, and
   <code>.git/config</code> happens to 404. A person scanning for the familiar <code>ref:</code>
   format can see an unrecognised string of hex digits and conclude nothing is there. This checker's
-  classification treats a bare 40-character hex string as real git-internal content on its own, so
+  classification treats a bare 40-character (64 in a SHA-256 repository) hex string as real git-internal content on its own, so
   it still reports the directory exposed.
 </p>
 
@@ -102,9 +102,9 @@
 <h3>What does typing .git/HEAD into a browser by hand actually show you?</h3>
 <p>Visiting https://example.com/.git/HEAD directly is a real, fast way to spot the obvious case: a plain 404 or a login page means nothing is there, and a line reading "ref: refs/heads/main" is unmistakably a real, exposed git repository. That single glance genuinely works for that one shape of response.</p>
 <h3>Where does checking by hand produce a false positive?</h3>
-<p>On a site configured to answer every unknown path with HTTP 200 and a custom error page -- common on shared hosting, several static-site setups, and single-page apps that route unknown paths back to index.html. A person checking only the status code sees 200 at .git/HEAD and concludes the repository is exposed, when the body is actually a generic "page not found" message that happens to carry a 200 status. This checker reads the response body and requires it to actually match a real .git/HEAD file (a ref line or a bare 40-character commit hash) before reporting a finding, so a soft-404 page is correctly reported clean.</p>
+<p>On a site configured to answer every unknown path with HTTP 200 and a custom error page -- common on shared hosting, several static-site setups, and single-page apps that route unknown paths back to index.html. A person checking only the status code sees 200 at .git/HEAD and concludes the repository is exposed, when the body is actually a generic "page not found" message that happens to carry a 200 status. This checker reads the response body and requires it to actually match a real .git/HEAD file (a ref line or a bare 40-character (64 in a SHA-256 repository) commit hash) before reporting a finding, so a soft-404 page is correctly reported clean.</p>
 <h3>Where does checking by hand produce a false negative?</h3>
-<p>When the repository's .git/HEAD is a detached HEAD -- a bare 40-character hex commit SHA such as <code>4b825dc642cb6eb9a060e54bf8d69288fbee4904</code>, rather than the familiar "ref: refs/heads/main" line most people know to look for. A person expecting the ref: line can glance at a bare hex string, not recognise it as anything in particular, and move on -- missing a real, exposed .git directory. This checker's classification treats a bare 40-character hex string as real git-internal content on its own, the same as the ref: form, so a detached-HEAD exposure is still reported as a finding.</p>
+<p>When the repository's .git/HEAD is a detached HEAD -- a bare 40-character (64 in a SHA-256 repository) hex commit SHA such as <code>4b825dc642cb6eb9a060e54bf8d69288fbee4904</code>, rather than the familiar "ref: refs/heads/main" line most people know to look for. A person expecting the ref: line can glance at a bare hex string, not recognise it as anything in particular, and move on -- missing a real, exposed .git directory. This checker's classification treats a bare 40-character (64 in a SHA-256 repository) hex string as real git-internal content on its own, the same as the ref: form, so a detached-HEAD exposure is still reported as a finding.</p>
 <h3>Why does this matter for CI, not just a one-time check?</h3>
 <p>A browser check is a point-in-time, manual look at one URL. A deploy pipeline, a new static-site host, or a webserver config change can expose (or stop exposing) a .git directory at any point after the last time someone happened to check. The CLI here returns a real exit code from the same body classification, so it can gate a deploy the same way a linter or test suite does, rather than depending on someone remembering to look again.</p>
 </main>

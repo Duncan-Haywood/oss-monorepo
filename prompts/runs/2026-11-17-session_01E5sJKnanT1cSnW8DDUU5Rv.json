@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKnanT1cSnW8DDUU5Rv",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T07:19:34Z",
+  "ended": "2026-11-17T08:46:08Z",
+  "wall_minutes": 86.84,
+  "tokens_in": 5044956,
+  "tokens_out": 30038,
+  "cost_usd": 3.2597,
+  "tool_calls": 45,
+  "task": "marine-hull milestone 6zzz: spread-set clamp (AP) and level-floored AF at one to three seasons against C03, C15 (LC), AS and HR",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16859",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "Drafted the k=1 AP check constants from memory before reading 6zzy's per-lag rows; caught by reading results_adaptive_clamp.txt before committing the design, so no run used wrong constants."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No guidance on estimating a multi-world run's length before launching; timing one score() call (0.4 s per cell here) and multiplying by the cell count predicted the ~80 min run well, worth a line."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/marine-hull/LOG.md (6zzy Next)",
+      "why": "Dropped the era5 world that 6zzy scored, to keep a 25-set run inside the session (it behaved like nasa in 6zzu to 6zzy)",
+      "did": "Scored nasa, cross and reverse only, declared in the pre-registered design",
+      "result": "Run took ~80 min; the omission is listed in Limits"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-marine-hull-solar-boat-clamp-more-seasons.md",
+    "research/marine-hull/LOG.md (6zzz entry)",
+    "research/marine-hull/paper/DRAFT.md item 16"
+  ],
+  "goal": null,
+  "notes": "Pre-registration commit c4fdd0e27 before any run. All 13 reproduction checks ok (AP k=1 per lag in three worlds, LC k=2/3, HR k=2/3). Seven of ten predictions held. Local checks: unittest (8 tests) OK; research/_homepage/build.py ok; research_live_links 0 missing; check_md_links ok; post front matter, links and similarity clean; programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c904be2a-e121-5b8b-96d2-9e95e683f8e9",
+    "transcripts": 1,
+    "first": "2026-11-17T07:19:34Z",
+    "last": "2026-11-17T08:46:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 95,
+        "output": 30038,
+        "thinking": 5726,
+        "cache_read": 4833381,
+        "cache_write_5m": 0,
+        "cache_write_1h": 211480,
+        "api_equivalent_usd": 3.2597,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 95,
+      "output": 30038,
+      "thinking": 5726,
+      "cache_read": 4833381,
+      "cache_write_5m": 0,
+      "cache_write_1h": 211480,
+      "api_equivalent_usd": 3.2597,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.958,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 40,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 86.84,
+      "active_minutes": 7.3,
+      "model_minutes": 5.94,
+      "tool_minutes": 1.35,
+      "waiting_on_human_minutes": 79.54,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design of a pre-registered 25-set rule comparison, an 80-minute simulation, checks and write-up for a research engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 184.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

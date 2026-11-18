@@ -260,7 +260,22 @@ export function roundedWalkLogLikMarkov(k, s, pEnter, pStay, G = 10, nu = Infini
 // Markov statistic and round four's kept as `lrIid`. Under M0 (pEnter = 0) pStay is not identified, so
 // the boundary mix does not apply; the threshold is set by simulation (eval/update-rate-stale-lr-5.mjs).
 export const STALE_LR_MARKOV = { ...STALE_LR_HEAVY, markov: true };
+// The test is a pure function of the ticks and the options, and one analysis asks it the same
+// question many times: consensus re-runs the update-rate check under each of its settings on the
+// same stretch (frozen-juice's ppi: 7 calls, one distinct stretch, 3.6 s each). The last few
+// answers are kept, keyed on the ticks and options, and each caller gets its own copy
+// (docs/history/ci-perf-2026-11-16-stale-lr-memo.md).
+const markovMemo = new Map(), MARKOV_MEMO_SIZE = 16;
+const memoKey = (k, opts) => `${k.length}:${Array.prototype.join.call(k, ',')}|${JSON.stringify(opts, (_, v) => (typeof v === 'number' && !Number.isFinite(v) ? String(v) : v))}`;
 export function staleLRMarkov(k, opts = {}) {
+  const key = memoKey(k, opts);
+  if (markovMemo.has(key)) { const r = markovMemo.get(key); return r && { ...r }; }
+  const r = staleLRMarkovFit(k, opts);
+  if (markovMemo.size >= MARKOV_MEMO_SIZE) markovMemo.delete(markovMemo.keys().next().value);
+  markovMemo.set(key, r);
+  return r && { ...r };
+}
+function staleLRMarkovFit(k, opts) {
   const o = { ...STALE_LR, ...STALE_LR_HEAVY, ...opts };
   if (k.length - 1 < o.minSteps || k.length - 1 > o.maxSteps) return null;
   const ls = [Math.log(o.sMin), Math.log(o.sMax)];

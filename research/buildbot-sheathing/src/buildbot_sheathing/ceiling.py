@@ -42,8 +42,17 @@ EDGE_SPAN = float(Z_JOINT[-1] - Z_JOINT[0])      # two edge reads for the shim, 
 
 def theta_draw(ledger=True, panel=True, rock_draw=None, shim=None, s_edge=S_EDGE):
     """Tilt draw (rng, n) -> rad. ``shim`` (a corner-height residual, m) replaces ledger and
-    panel tilt by what a plumbing shim leaves: two edge reads' slope error plus s_shim / W."""
+    panel tilt by what a plumbing shim leaves: two edge reads' slope error plus s_shim / W. A
+    callable ``shim`` (milestone 28) maps each sheet's needed corner lift (m) to the height left."""
     def f(rng, n):
+        if callable(shim):                    # milestone 28: a residual set by the tilt itself
+            t = np.zeros(n)
+            if panel:
+                t = t + (L.panel_tilt(rng, n) if rock_draw is None else B.panel_tilt(rng, n, rock_draw))
+            if ledger:
+                t = t + L.ledger_tilt(rng, n)
+            t = np.sign(t) * shim(np.abs(t) * L.W) / L.W
+            return t + (rng.normal(0, math.sqrt(2) * s_edge / EDGE_SPAN, n) if s_edge > 0 else 0.0)
         if shim is not None:
             t = rng.normal(0, math.sqrt(2) * s_edge / EDGE_SPAN, n) if s_edge > 0 else np.zeros(n)
             return t + (rng.normal(0, shim / L.W, n) if shim > 0 else 0.0)
@@ -63,13 +72,14 @@ def slide_sx(s_slide, s_edge=S_EDGE):
 
 def clean(on=SOURCES, *, framing="2x", warp="straight", policy="three", rock_draw=None,
           slide=None, shim=None, s_robot=C.S_ROBOT, straighten=None, trials=20000, seed=7,
-          profiles=None, u_joint=None, hits=False):
+          profiles=None, u_joint=None, hits=False, tool=None):
     """Clean sheets and missed nails with only the sources in ``on`` switched on.
     ``u_joint`` and ``hits`` (milestone 14) pass to ``tack.simulate``: a denser joint-edge schedule,
     and the per-nail hit pattern, returned as ``hits`` when asked for.
     ``slide``/``shim`` (residuals, m) apply the remedies; they replace the slide translation and
     the ledger/panel tilt respectively, and keep the edge reads they rely on. ``profiles``
-    (milestone 11's measured studs, ``tack.simulate``) replaces the warp draw."""
+    (milestone 11's measured studs, ``tack.simulate``) replaces the warp draw. ``tool`` (milestone 29,
+    ``tool_lean.ToolError``) replaces the per-nail tool scatter."""
     on = set(on)
     s_edge = S_EDGE if "edge" in on else 0.0
     if slide is not None:
@@ -80,7 +90,7 @@ def clean(on=SOURCES, *, framing="2x", warp="straight", policy="three", rock_dra
     kw = dict(trials=trials, seed=seed, policy=policy, band=C.band(), joint_band=C.band(C.FRAMING[framing]),
               s_robot=s_robot if "tool" in on else 0.0, s_read=S_READ if "stud" in on else 0.0,
               s_edge=s_edge, s_x=s_x, aim="edge", theta_draw=td, straighten=straighten, profiles=profiles,
-              u_joint=u_joint, return_hits=hits, **({} if profiles is not None else C.WARP[warp]))
+              u_joint=u_joint, return_hits=hits, tool=tool, **({} if profiles is not None else C.WARP[warp]))
     r = K.simulate(**kw)
     out = {"clean": r["clean"], "missed": r["missed"]}
     if hits:

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseCsv, parseNumber, parseWhen, detectDelimiter, detectDecimalComma, decodeBuffer, normalizeRows, analyze, sampleCsv, MIN_ORDERS, DAYPARTS, detectDmy, pct } from "./calc.mjs";
+import { parseCsv, parseNumber, parseWhen, detectDelimiter, detectDecimalComma, decodeBuffer, normalizeRows, analyze, sampleCsv, MIN_ORDERS, DAYPARTS, detectDmy, pct, money } from "./calc.mjs";
 
 const HEAD = "Order ID,Platform,Order date,Status,Subtotal,Commission,Delivery fee,Marketing fees,Ad spend,Error charges,Net payout\n";
 const load = (body, head = HEAD, o) => normalizeRows(parseCsv(head + body), o);
@@ -11,7 +11,7 @@ test("CSV parsing handles quoted fields, embedded commas, quotes and newlines", 
   const rows = parseCsv('a,b\n"Joe\'s, Main St","say ""hi"""\n"line\nbreak",3\n');
   assert.deepEqual(rows[1], ["Joe's, Main St", 'say "hi"']);
   assert.deepEqual(rows[2], ["line\nbreak", "3"]);
-  assert.equal(parseCsv("﻿x,y\r\n1,2\r\n")[0][0], "x");
+  assert.equal(parseCsv("\uFEFFx,y\r\n1,2\r\n")[0][0], "x");
 });
 
 test("money and dates parse common formats; delimiters and UTF-16 are detected", () => {
@@ -561,4 +561,214 @@ test("a promotion that earns back its spend to the cent is not flagged high, wha
   const f = r.findings.find((x) => /^Promotions and ads/.test(x.title));
   assert.equal(f.severity, "info");
   assert.ok(!/cost more than/.test(f.detail));
+});
+
+// Red-team 2026-11-16: guards for escaped mutants and two real defects.
+test("a UTF-16 big-endian file (BOM FE FF) is decoded", () => {
+  const be = new Uint8Array([0xfe, 0xff, ...[..."Order date"].flatMap((c) => [0, c.charCodeAt(0)])]);
+  assert.equal(decodeBuffer(be.buffer), "Order date");
+});
+
+test("dates with a two-digit year are not read as amounts when picking the decimal mark", () => {
+  // One date and one decimal-comma amount per row: a date counted as an amount
+  // ("03.06.26" ends in .26) would tie the vote and fall back to a decimal point.
+  const t = [["Order date", "Subtotal"], ["03.06.26", "12,50"], ["04.06.26", "8,75"]];
+  assert.equal(detectDecimalComma(t, ","), true);
+});
+
+test("one-digit dotted dates are day-first", () => {
+  assert.equal(detectDmy(["3.6.2026", "4.6.2026"]), true);
+});
+
+test("the promotion view averages the tickets of orders with no spend", () => {
+  const body = "A,DoorDash,2026-06-01,Delivered,20,-5,0,-2,0,0,13\nB,DoorDash,2026-06-02,Delivered,30,-7,0,0,0,0,23\nC,DoorDash,2026-06-03,Delivered,10,-2,0,0,0,0,8\n";
+  const p = analyze(load(body).orders, {}).promo;
+  near(p.avgTicketWith, 20);
+  near(p.avgTicketWithout, 20);
+  near(p.netAfterPerOrderWithout, 15.5);
+});
+
+test("the example's promotions span the $2 to $7 range the generator draws", () => {
+  const m = normalizeRows(parseCsv(sampleCsv())).orders.map((o) => o.marketing).filter((v) => v > 0);
+  assert.ok(m.length > 10);
+  assert.ok(Math.max(...m) > 6, `largest promotion ${Math.max(...m)}`);
+  assert.ok(Math.max(...m) <= 7, `largest promotion ${Math.max(...m)}`);
+  assert.ok(Math.min(...m) >= 2);
+});
+
+test("year-first dates with slashes or dots are read (2026/06/01, 2026.06.01)", () => {
+  assert.deepEqual(parseWhen("2026/06/01 12:30"), { t: Date.UTC(2026, 5, 1, 12, 30), hasTime: true });
+  assert.deepEqual(parseWhen("2026.06.01"), { t: Date.UTC(2026, 5, 1), hasTime: false });
+  assert.equal(parseWhen("2026/02/30"), null);
+  const n = normalizeRows(parseCsv("Order date,Subtotal,Commission\n2026/06/01 12:30,20.00,-5.00\n2026/06/02 18:10,30.00,-7.50\n"), { decimalComma: "auto" });
+  assert.equal(n.error, undefined);
+  assert.equal(n.orders.length, 2);
+});
+
+test("an en or em dash before an amount is a minus sign", () => {
+  assert.equal(parseNumber("–5.00"), -5);
+  assert.equal(parseNumber("— $12.50"), -12.5);
+  assert.equal(parseNumber("–"), 0);
+  // A refund written with an en dash is a refund, not a sale.
+  const n = load("A,DoorDash,2026-06-01,Delivered,20,-5,0,0,0,0,15\nB,DoorDash,2026-06-02,Delivered,–12.50,0,0,0,0,0,–12.50\n");
+  assert.equal(n.orders[1].refund, true);
+  assert.equal(n.orders[1].gross, -12.5);
+});
+
+// Red-team guards (2026-11-16): each pins a behaviour a seeded mutant changed
+// without any test noticing.
+test("January dates, 12 pm and three-digit day or month parts are read correctly", () => {
+  assert.equal(parseWhen("2026-01-15").t, Date.UTC(2026, 0, 15));
+  assert.equal(parseWhen("01/15/2026").t, Date.UTC(2026, 0, 15));
+  assert.deepEqual(parseWhen("06/03/2026 12:30 PM"), { t: Date.UTC(2026, 5, 3, 12, 30), hasTime: true });
+  assert.deepEqual(parseWhen("06/03/2026 12:05 am"), { t: Date.UTC(2026, 5, 3, 0, 5), hasTime: true });
+  assert.equal(parseWhen("012/04/2026"), null, "a three-digit month is a typo, not December");
+});
+
+test("decimal comma is detected from amounts that contain zeros", () => {
+  assert.equal(detectDecimalComma([["Subtotal"], ["1.000,00"], ["20,00"]]), true);
+  assert.equal(detectDecimalComma([["Subtotal"], ["1,000.00"], ["20.00"]]), false);
+});
+
+test("money signs follow the rounded cents, symmetric for losses and gains", () => {
+  assert.equal(money(0), "0.00");
+  assert.equal(money(-1.8e-15), "0.00");
+  assert.equal(money(-12.5), "-12.50");
+  assert.equal(money(0.005), "0.01");
+  // a half-cent loss printed "0.01", a gain, before 2026-11-16
+  assert.equal(money(-0.005), "-0.01");
+  assert.equal(money(-1234.5), "-1,234.50");
+});
+
+test("the per-platform payout gap is reported when every row has a payout", () => {
+  const n = load("D1,DoorDash,2026-06-01 12:00,Delivered,40,-10,0,0,0,0,27\nD2,DoorDash,2026-06-02 12:00,Delivered,20,-5,0,0,0,0,15\n");
+  const dd = analyze(n.orders, {}).byPlatform.find((b) => b.key === "doordash");
+  near(dd.payoutGap, -3); // payout 42 against net 45
+  const noPay = normalizeRows(parseCsv("Order date,Platform,Subtotal,Commission\n2026-06-01 12:00,DoorDash,40,-10\n"));
+  assert.equal(analyze(noPay.orders, {}).byPlatform[0].payoutGap, null);
+});
+
+test("the markup finding prints whole percentages", () => {
+  const n = load("A,DoorDash,2026-06-01 12:00,Delivered,40,-14,0,0,0,0,26\n");
+  const f = analyze(n.orders, { foodPct: 30, packaging: 1, markupNow: 10 }).findings.find((x) => /menu prices on delivery/.test(x.title));
+  assert.match(f.title, /about 58% above in-store/);
+  assert.match(f.detail, /You entered 10% now, so about 48% more/);
+});
+
+test("the example file writes amounts to the cent", () => {
+  const rows = parseCsv(sampleCsv()).slice(1);
+  for (const r of rows) for (const v of r.slice(4)) assert.match(v, /^-?\d+\.\d{2}$/);
+});
+
+// Red-team run 2026-11-16 (prompts/runs/2026-11-16-session_01EhTJVMmK8A31TEs5kfnuRS.json).
+test("a skipped row names its file line even after a blank line or a quoted line break", () => {
+  const n = load('A,DoorDash,2026-06-01 12:00,Delivered,20,-5,0,0,0,0,15\n\n"B\nnote",DoorDash,2026-06-01 12:30,Delivered,20,-5,0,0,0,0,15\nC,DoorDash,not a date,Delivered,20,-5,0,0,0,0,15\n');
+  assert.deepEqual(n.skipped, [{ line: 6, reason: "date not readable" }]);
+  assert.deepEqual(n.orders.map((o) => o.line), [2, 4]);
+});
+
+test("the last row is read when the file has no trailing newline", () => {
+  assert.deepEqual(parseCsv("a,b\n1,2"), [["a", "b"], ["1", "2"]]);
+  assert.equal(load("A,DoorDash,2026-06-01 12:00,Delivered,20,-5,0,0,0,0,15").orders.length, 1);
+});
+
+test("a lone carriage return ends a row without eating the next line's first character", () => {
+  assert.deepEqual(parseCsv("a\rb\nc"), [["a"], ["b"], ["c"]]);
+});
+
+test("one-digit month and day parts are read (6/3/2026)", () => {
+  assert.deepEqual(parseWhen("6/3/2026"), { t: Date.UTC(2026, 5, 3), hasTime: false });
+});
+
+test("the header is found as far down as the tenth row, and not past it", () => {
+  const order = "A,DoorDash,2026-06-01 12:00,Delivered,20,-5,0,0,0,0,15\n";
+  const pre = (k) => "Report,x\n".repeat(k);
+  assert.equal(normalizeRows(parseCsv(pre(9) + HEAD + order)).orders.length, 1);
+  assert.ok(normalizeRows(parseCsv(pre(10) + HEAD + order)).error);
+});
+
+test("an order whose promotion and ad charges are equal still counts as promoted", () => {
+  const n = load("A,DoorDash,2026-06-01 12:00,Delivered,30,-7.5,0,-2,-2,0,18.5\nB,DoorDash,2026-06-02 12:00,Delivered,30,-7.5,0,0,0,0,22.5\n");
+  const p = analyze(n.orders, {}).promo;
+  assert.equal(p.orders, 1);
+  assert.equal(p.plainOrders, 1);
+});
+
+test("the direct-order gain per order is the gain divided by orders", () => {
+  const n = load("A,DoorDash,2026-06-01 12:00,Delivered,40,-14,0,0,0,0,26\nB,DoorDash,2026-06-02 12:00,Delivered,20,-7,0,0,0,0,13\n");
+  const d = analyze(n.orders, { directPct: 3, directFlat: 0.3 }).summary.direct;
+  near(d.gainPerOrder, d.gain / 2);
+});
+
+test("the example's error charges span the $6 to $26 range the generator draws", () => {
+  const errs = normalizeRows(parseCsv(sampleCsv())).orders.map((o) => o.errors).filter((e) => e !== 0);
+  assert.ok(errs.length > 0);
+  for (const e of errs) assert.ok(e >= 6 && e <= 26, `error charge ${e}`);
+  // Pinned like the example's sales: the same draws give the same charges.
+  assert.equal(errs.length, 11);
+  assert.equal(errs.reduce((s, e) => s + e, 0).toFixed(2), "160.87");
+});
+
+// Red team 2026-11-16: a cancelled order whose row still lists the subtotal
+// (no charge, nothing paid out) added its food sales to sales and net cash, so
+// one $25 cancellation turned a 20% take rate into 10.9%.
+test("a cancelled order's listed subtotal is not food sales; its charges stay as cost", () => {
+  const n = load("A,DoorDash,2026-06-01 12:00,Delivered,30,-6,0,0,0,0,24\nB,DoorDash,2026-06-02 12:00,Cancelled,25,0,0,0,0,0,0\nC,DoorDash,2026-06-03 12:00,Cancelled by store,18,0,0,0,0,-5,-5\n");
+  const r = analyze(n.orders, { foodPct: 30, packaging: 1 });
+  near(r.summary.gross, 30);
+  near(r.summary.net, 30 - 6 - 5);
+  near(r.summary.takeRate, 11 / 30);
+  assert.equal(r.summary.cancelledDropped, 1, "B carries no charge, so it is dropped");
+  assert.equal(r.summary.cancelledKept, 1);
+  near(r.byPlatform[0].gross, 30);
+  near(r.summary.payoutGap, 0); // payouts 24 - 5 match the net once the cancelled subtotals are out
+  // A refunded row keeps its negative food sales: "Refunded" is a cancel word.
+  const f = load("A,DoorDash,2026-06-01 12:00,Delivered,30,-6,0,0,0,0,24\nR,DoorDash,2026-06-02 12:00,Refunded,-10,0,0,0,0,0,-10\n");
+  near(analyze(f.orders, {}).summary.gross, 20);
+});
+
+test("edge inputs the parsers must reject or read one way", () => {
+  // A UTF-8 (or Latin-1) file is never read as UTF-16 because of one byte.
+  assert.equal(decodeBuffer(new Uint8Array([0x41, 0xff, 0x42])).charAt(0), "A");
+  assert.equal(decodeBuffer(new Uint8Array([0xfe, 0x41, 0x42])).charAt(1), "A");
+  // "12.50" alone votes for a decimal point, even in a semicolon file.
+  assert.equal(detectDecimalComma([["Subtotal"], ["12.50"], ["8.25"]], ";"), false);
+  // A three-digit day or month is a typo, not day 11.
+  assert.equal(parseWhen("2026-06-011"), null);
+  assert.equal(parseWhen("6/011/2026"), null);
+  assert.equal(detectDmy(["13/5/2026", "5/013/2026"]), true, "a malformed second part does not veto day-first");
+});
+
+// Red team 2026-11-16: guards for two escaped mutants and one real defect.
+test("a three-decimal grouped amount votes for decimal point", () => {
+  // "1,234.500" ends in three digits, so only the "1,234." grouping pattern
+  // tells it is decimal point; without that vote a semicolon file reads it as
+  // decimal comma (1.2345).
+  assert.equal(detectDecimalComma([["1,234.500"]], ";"), false);
+  assert.equal(detectDecimalComma([["1.234,500"]], ","), true);
+});
+
+test("the worked example spans the same three months on every load", () => {
+  const r = analyze(normalizeRows(parseCsv(sampleCsv())).orders, {});
+  assert.equal(new Date(r.summary.from).toISOString().slice(0, 10), "2026-06-01");
+  assert.equal(new Date(r.summary.to).toISOString().slice(0, 10), "2026-08-29");
+  assert.deepEqual(r.byWeekday.map((d) => d.orders), [26, 38, 41, 33, 31, 41, 36]);
+});
+
+test("a partly refunded or refund-requested order still sold its food", () => {
+  // Any status containing "refund" read as cancelled, so a delivered order
+  // marked "Partially refunded" lost its food sales and kept only its charges:
+  // four $40 orders came out at $40 of sales and -$8 net cash.
+  const csv = "Order ID,Order date,Status,Subtotal,Commission,Error charges\n" +
+    "1,2026-06-01 12:00,Delivered,40.00,-10.00,0\n" +
+    "2,2026-06-01 12:30,Partially refunded,40.00,-10.00,-8.00\n" +
+    "3,2026-06-01 13:00,Refund requested,40.00,-10.00,0\n" +
+    "4,2026-06-01 13:30,Refunded,40.00,-10.00,0\n" +
+    "5,2026-06-01 14:00,Fully Refunded,40.00,-10.00,0\n";
+  const n = normalizeRows(parseCsv(csv));
+  assert.deepEqual(n.orders.map((o) => o.cancelled), [false, false, false, true, true]);
+  const r = analyze(n.orders, {});
+  assert.equal(r.summary.orders, 3);
+  assert.equal(r.summary.gross, 120);
+  assert.equal(r.summary.net, 120 - 50 - 8);
 });

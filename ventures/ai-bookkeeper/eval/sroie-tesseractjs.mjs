@@ -9,7 +9,10 @@
 // tesseract.js is not a dependency of this venture: install it anywhere with
 // `npm install tesseract.js@5.1.1 @tesseract.js-data/eng@1.0.0` (the versions
 // photoocr.mjs pins) and pass that folder's node_modules.
-//   node eval/sroie-tesseractjs.mjs <clone>/data <out> <node_modules> [workers] [N]
+//   node eval/sroie-tesseractjs.mjs <clone>/data <out> <node_modules> [workers] [N] [--set name=value ...]
+// --set passes a tesseract parameter to every reading, e.g. --set thresholding_method=2
+// (Sauvola, the page's local-threshold reading; README "Shaded photos: a local
+// threshold"). --modes psm6 reads only that mode (default: psm6,psm4).
 // Any folder of .jpg/.png photos works in place of <clone>/data (read directly when
 // it has no img/ folder): CORD's phone photos, written by eval/cord_images.py, are
 // read the same way and scored with eval/cord-receipts.mjs --ocr.
@@ -17,13 +20,23 @@ import { readdirSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, resolve } from "node:path";
 
-const [dir, out, mods, nw = "4", limit = "100000"] = process.argv.slice(2);
+const argv = process.argv.slice(2);
+const sets = {};
+for (let i = argv.indexOf("--set"); i >= 0; i = argv.indexOf("--set")) {
+  const [k, v] = String(argv[i + 1] ?? "").split("=");
+  if (!k || v === undefined) { console.error("--set needs name=value"); process.exit(2); }
+  sets[k] = v; argv.splice(i, 2);
+}
+let only = null;
+const mi = argv.indexOf("--modes");
+if (mi >= 0) { only = String(argv[mi + 1] ?? "").split(","); argv.splice(mi, 2); }
+const [dir, out, mods, nw = "4", limit = "100000"] = argv;
 if (!dir || !out || !mods) { console.error("usage: node eval/sroie-tesseractjs.mjs <clone>/data <out> <node_modules> [workers] [N]"); process.exit(2); }
 const require = createRequire(join(resolve(mods), "noop.js"));
 const T = require("tesseract.js");
 // the page reads with the same model: @tesseract.js-data/eng@1.0.0/4.0.0, LSTM (oem 1)
 const langPath = join(resolve(mods), "@tesseract.js-data/eng/4.0.0");
-const MODES = { psm6: "6", psm4: "4" };
+const MODES = Object.fromEntries(Object.entries({ psm6: "6", psm4: "4" }).filter(([m]) => !only || only.includes(m)));
 for (const m of Object.keys(MODES)) mkdirSync(join(out, m), { recursive: true });
 
 const imgDir = existsSync(join(dir, "img")) ? join(dir, "img") : dir;
@@ -41,7 +54,7 @@ async function run() {
       for (const [m, psm] of Object.entries(MODES)) {
         const f = join(out, m, `${id}.txt`);
         if (existsSync(f)) continue;
-        await w.setParameters({ tessedit_pageseg_mode: psm });
+        await w.setParameters({ ...sets, tessedit_pageseg_mode: psm });
         // a scan the reader cannot decode is written empty (scored as no total),
         // as the page now skips such a photo and reads the rest
         let text = "";

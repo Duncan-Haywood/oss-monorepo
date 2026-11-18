@@ -17,6 +17,8 @@
 // sets home and away with assignVenues. Pure and seeded: the same input gives the same plan.
 
 import { assignVenues } from "./carryover.mjs";
+import { ALPHA, SESSION_DESIGNS } from "./session-designs.mjs";
+import { ODD_DESIGNS } from "./odd-designs.mjs";
 
 function rand32(seed) {
   let a = seed >>> 0;
@@ -79,6 +81,16 @@ export function nightLayout(edges, g, courts, times, usage = null, { exact = EXA
   if (out.unplaced && exact > 0) {
     const row = nightRowsExact(edges, courts, times, { nodes: exact, usage });
     if (row) return { unplaced: 0, row, score: 0, exact: true };
+    // the usage order can spend the node budget where the plain order finds a layout at once
+    // (2026-11-15: 26 teams, 3 games on 5 courts x 9 times, six of nine circle nights; the
+    // season kept 69 waits that planWaitCost, laid out without usage, said were not there)
+    if (usage) {
+      const plainRow = nightRowsExact(edges, courts, times, { nodes: exact });
+      if (plainRow) return { unplaced: 0, row: plainRow, score: 0, exact: true };
+    }
+    // a stored design's own rows (odd-designs.mjs) when the search ran out of nodes
+    const known = knownLayout(edges, courts, times);
+    if (known) return { unplaced: 0, row: known, score: 0, exact: true, known: true };
   }
   return out;
 }
@@ -294,6 +306,25 @@ export function waitFreePossible(teams, g, courts, times, short = 0) {
   return go(0, 0, kinds[0][1]);
 }
 
+/**
+ * Whole seasons proved to have no wait-free layout although waitFreePossible (a count over one
+ * night) allows it: [teams, games, courts, times]. Each is a proof about the whole round robin, not
+ * one night: 7 teams on 2 courts x 6 times (eval/odd-night-sat.py, UNSAT: every 7-team season with
+ * 3 games a night has a wait), 8 teams on 2 x 6 (no two edge-disjoint splits into two K4s,
+ * eval/three-game-nights.txt part 3), 9 teams on 2 x 6 (every slot booked forces one night shape,
+ * and no three nights of it cover the 36 pairs: eval/nine-on-two.py by exhaustion, and
+ * odd-night-sat.py --shape UNSAT), 12 teams on 2 x 9 (three K4s a night, three nights,
+ * eval/session-design-sat.txt), 5 teams on 1 court x 6 (odd-night-sat.py, UNSAT), and at 9 times
+ * (2026-11-15, latest) 5 and 7 teams on 1 court and 7 on 2 (odd-night-sat.py without the shape
+ * constraints, UNSAT in 0.0, 0.0 and 12 s; eval/odd-night-sat.txt).
+ */
+export const PROVED_NO_WAIT_FREE = [[5, 3, 1, 6], [7, 3, 2, 6], [8, 3, 2, 6], [9, 3, 2, 6], [12, 3, 2, 9], [5, 3, 1, 9], [7, 3, 1, 9], [7, 3, 2, 9]];
+
+/** True when a season of `n` teams, g games a night, on courts x times is proved to keep a wait. */
+export function waitFreeProvedImpossible(n, g, courts, times) {
+  return PROVED_NO_WAIT_FREE.some(([a, b, c, d]) => a === n && b === g && c === courts && d === times);
+}
+
 /** Matches (as edges) of the rounds `rs` of opp, real teams only. */
 function nightEdges(opp, rs, n) {
   const edges = [];
@@ -363,11 +394,12 @@ export function waitFreeNights(rounds, n, g, courts, times, { seed = 1, evals = 
     }
     return b;
   };
-  // a designed round robin first (designedNights): when it packs, no search is needed
-  if (sessions) {
+  // a designed round robin first (designedNights): when it packs, no search is needed. Odd
+  // leagues have stored designs of their own (oddDesigns, 2026-11-15): no session blocks there.
+  if (sessions || (n % 2 && g === 3 && ODD_DESIGNS.some((d) => d.n === n))) {
     const d = designedNights(n, g, courts, times, seed);
     if (d) {
-      const before = planWaitCost(oppOfRounds(rounds, n, n), n, g, courts, times);
+      const before = planWaitCost(oppOfRounds(rounds, n % 2 ? n + 1 : n, n), n, g, courts, times);
       if (before > 0) return { rounds: d.rounds, before, after: 0, evals: 0, start: "design", sessions: true, designed: true };
     }
   }
@@ -512,17 +544,111 @@ export function sessionNights(rounds, n, g, courts, times, { seed = 1, evals = 4
  *   cross rounds pair a in A with b = a + k (mod m) in B, and the shifts {k, k + m/3, k + 2m/3}
  *   make a night of m/3 groups of six (a K3,3 each: three teams of A against three of B). The two
  *   rounds left over from the halves are the short last night.
+ * - any other even n of 10 to 48 (2026-11-15): a stored design (session-designs.mjs) found by a
+ *   SAT solver (eval/session-design-sat.py): every night two closed blocks of at most 2 x
+ *   ceil(n / 4) teams, the least courts on 6 time slots. Three-session designs are stored too;
+ *   designedNights tries every candidate (designCandidates) and keeps the first that packs.
  *
  * `seed` relabels the teams (same structure, a different season per seed).
  */
 export function designedRounds(n, g, seed = 1) {
-  if (g !== 3 || !Number.isInteger(n) || n < 8) return null;
-  let rounds = null;
-  if ((n & (n - 1)) === 0 && n <= 64) rounds = xorDesign(n);
-  else if (n % 12 === 0) rounds = halvesDesign(n);
-  if (!rounds) return null;
+  const c = designCandidates(n, g);
+  return c.length ? relabel(c[0], n, seed) : null;
+}
+
+/**
+ * Every known design for n teams and g games, in the order designedNights tries them: the
+ * algebraic ones (XOR, halves) first, then the stored SAT designs (session-designs.mjs, 2026-11-15:
+ * every even league of 10 to 48 teams in two sessions, and three-session ones), each with the
+ * session count and largest block it was built for.
+ */
+export function designCandidates(n, g) {
+  if (g !== 3 || !Number.isInteger(n) || n < 8) return [];
+  const out = [];
+  if ((n & (n - 1)) === 0 && n <= 64) out.push(xorDesign(n));
+  else if (n % 12 === 0) out.push(halvesDesign(n));
+  for (const d of SESSION_DESIGNS) if (d.n === n) out.push(decodeDesign(d));
+  return out;
+}
+
+/** A stored design (session-designs.mjs) as n - 1 rounds of [a, b] pairs. */
+export function decodeDesign({ n, code }) {
+  const rounds = [];
+  for (let r = 0; r < n - 1; r++) {
+    const pairs = [];
+    for (let t = 0; t < n; t++) { const u = ALPHA.indexOf(code[r * n + t]); if (t < u) pairs.push([t, u]); }
+    rounds.push(pairs);
+  }
+  return rounds;
+}
+
+/**
+ * Stored round robins for odd leagues of n teams, 3 games a night (odd-designs.mjs, found by
+ * eval/odd-night-sat.py): each as n rounds of [a, b] pairs over n + 1 teams, team n the bye, with
+ * the courts and times its nights were laid out back to back on. An odd league has no closed
+ * session blocks (three teams sit out one game each night), so these were solved with the layout
+ * itself, match by match. [] when none is stored.
+ */
+export function oddDesigns(n, g = 3) {
+  if (g !== 3 || !Number.isInteger(n) || n % 2 === 0) return [];
+  return ODD_DESIGNS.filter((d) => d.n === n).map((d) => {
+    const N = n + 1;
+    const rounds = [];
+    for (let r = 0; r < n; r++) {
+      const pairs = [];
+      for (let t = 0; t < N; t++) { const u = ALPHA.indexOf(d.code[r * N + t]); if (t < u) pairs.push([t, u]); }
+      rounds.push(pairs);
+    }
+    // the solver's rows per night (`layout`), as Map("a,b" -> row) for the night's matches
+    const layouts = [];
+    let at = 0;
+    for (let s = 0; s < n; s += 3) {
+      const pairs = rounds.slice(s, s + 3).flat().filter(([a, b]) => a < n && b < n).map(([a, b]) => [Math.min(a, b), Math.max(a, b)]);
+      pairs.sort((x, y) => x[0] - y[0] || x[1] - y[1]);
+      const m = new Map();
+      for (const [a, b] of pairs) m.set(`${a},${b}`, d.layout ? ALPHA.indexOf(d.layout[at++]) : -1);
+      layouts.push(m);
+    }
+    return { rounds, courts: d.courts, times: d.times, layouts };
+  });
+}
+
+/**
+ * Layouts known to pack, by night: key edgeKey(edges) -> Map("a,b" -> row). designedNights
+ * registers an odd design's stored rows here (relabelled), and nightLayout uses one only when its
+ * own search finds nothing, after checking it (rows in range, at most `courts` a row, every team
+ * back to back). Why: a fully booked night of 25 teams on 6 courts x 6 times has a layout the
+ * match-by-match search needs up to 100,000 nodes to find (EXACT_NODES is 3,000). Bounded.
+ */
+const KNOWN_LAYOUTS = new Map();
+const KNOWN_LAYOUTS_MAX = 2048;
+
+function edgeKey(edges) {
+  return edges.map(([a, b]) => (a < b ? `${a},${b}` : `${b},${a}`)).sort().join(";");
+}
+
+function rememberLayout(pairRows) {
+  const key = [...pairRows.keys()].sort().join(";");
+  if (KNOWN_LAYOUTS.has(key)) KNOWN_LAYOUTS.delete(key);
+  KNOWN_LAYOUTS.set(key, pairRows);
+  while (KNOWN_LAYOUTS.size > KNOWN_LAYOUTS_MAX) KNOWN_LAYOUTS.delete(KNOWN_LAYOUTS.keys().next().value);
+}
+
+/** A remembered layout of this night (rememberLayout) that fits courts x times, as row[], or null. */
+function knownLayout(edges, courts, times) {
+  const m = KNOWN_LAYOUTS.get(edgeKey(edges));
+  if (!m) return null;
+  const row = edges.map(([a, b]) => m.get(a < b ? `${a},${b}` : `${b},${a}`));
+  const load = Array(times).fill(0);
+  for (const r of row) { if (!(r >= 0 && r < times) || ++load[r] > courts) return null; }
+  return rowsWaitFree(edges, row) ? row : null;
+}
+
+function relabel(rounds, n, seed, fixed = n) {
+  // teams at or above `fixed` keep their label (an odd design's bye team)
   const rand = rand32((seed >>> 0) * 2654435761 + 40503);
-  const lab = Array.from({ length: n }, (_, i) => i);
+  const lab = Array.from({ length: Math.max(n, fixed) }, (_, i) => i);
+  n = Math.min(n, fixed);
   for (let i = n - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); const t = lab[i]; lab[i] = lab[j]; lab[j] = t; }
   return rounds.map((r) => r.map(([a, b]) => [lab[a], lab[b]]));
 }
@@ -577,18 +703,56 @@ function halvesDesign(n) {
  * `courts` x `times`: { rounds, after: 0 } with venues set by assignVenues, or null.
  */
 export function designedNights(n, g, courts, times, seed = 1) {
-  const d = designedRounds(n, g, seed);
-  if (!d) return null;
-  const opp = d.map((r) => { const o = new Int16Array(n); for (const [a, b] of r) { o[a] = b; o[b] = a; } return o; });
-  if (planWaitCost(opp, n, g, courts, times) > 0) return null;
+  let opp = null;
+  const N = n % 2 ? n + 1 : n;
+  const odd = n % 2 ? oddDesigns(n, g).filter((d) => d.courts <= courts && d.times <= times) : [];
+  const cands = n % 2 ? odd.map((d) => d.rounds) : designCandidates(n, g);
+  // the layout search (nightRowsExact, EXACT_NODES) depends on the team labels: a fully booked odd
+  // night of 21 teams packs under some relabellings and runs out of nodes under others, so an odd
+  // design gets a few more relabellings of the same seed (seed, then seed + 1000k), the first that
+  // packs kept. Even designs keep the one relabelling they always had.
+  const tries = n % 2 ? ODD_RELABELS : 1;
+  for (const [ci, c] of cands.entries()) {
+    for (let k = 0; k < tries && !opp; k++) {
+      const sd = k ? seed + 1000 * k : seed;
+      const d = relabel(c, N, sd, n);
+      if (n % 2 && odd[ci].layouts) {
+        // the same relabelling applied to the design's stored rows (relabel maps pairs in order)
+        const lab = relabel([[...Array(N).keys()].map((t) => [t, t])], N, sd, n)[0].map(([x]) => x);
+        for (const m of odd[ci].layouts) {
+          const out = new Map();
+          for (const [key, r] of m) {
+            if (r < 0) continue;
+            const [a, b] = key.split(",").map(Number);
+            const x = lab[a], y = lab[b];
+            out.set(x < y ? `${x},${y}` : `${y},${x}`, r);
+          }
+          if (out.size === m.size) rememberLayout(out);
+        }
+      }
+      const o = d.map((r) => { const x = new Int16Array(N); for (const [a, b] of r) { x[a] = b; x[b] = a; } return x; });
+      if (planWaitCost(o, n, g, courts, times) === 0) opp = o;
+    }
+    if (opp) break;
+  }
+  if (!opp) return null;
   const venues = assignVenues(opp, n, seed);
   const rounds = opp.map((o, r) => {
     const matches = [];
-    for (let t = 0; t < n; t++) { const u = o[t]; if (t < u) matches.push(venues[r][t] ? [t, u] : [u, t]); }
-    return { leg: 0, matches, bye: null };
+    let bye = null;
+    for (let t = 0; t < N; t++) {
+      const u = o[t];
+      if (t > u) continue;
+      if (u >= n) { bye = t; continue; }
+      matches.push(venues[r][t] ? [t, u] : [u, t]);
+    }
+    return { leg: 0, matches, bye };
   });
   return { rounds, after: 0 };
 }
+
+/** Relabellings designedNights tries per seed for an odd design before giving up on it. */
+export const ODD_RELABELS = 8;
 
 /** Moves sessionNights may try inside waitFreeNights. */
 export const sessionEvals = 1000000;

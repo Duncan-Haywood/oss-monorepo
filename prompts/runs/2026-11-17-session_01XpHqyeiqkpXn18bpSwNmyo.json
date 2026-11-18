@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqyeiqkpXn18bpSwNmyo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T09:39:21Z",
+  "ended": "2026-11-17T09:52:09Z",
+  "wall_minutes": 13.05,
+  "tokens_in": 11370448,
+  "tokens_out": 43496,
+  "cost_usd": 4.4526,
+  "tool_calls": 93,
+  "task": "ids-model-check: 65 public IDS files on four real exports vs IfcTester; report counts subclasses an entity facet leaves unchecked",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16893",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "/usr/bin/time is not installed in the container; a background run piped through it exited 1 with no output and was re-run with bash's time"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Picked einvoice-preflight (row 3) by session id although every item in its next: and NEXT.md needs a real outside file (rejections, production files, a blocked SAT host); the row has no inputs_only flag and no BUILDABLE HERE note, so the pick cost a read of both before switching"
+    },
+    {
+      "file": "ventures/ids-model-check/eval/crosscheck_ifctester.py",
+      "issue": "Its docstring still recommends ifctester 0.8.0 with ifcopenshell 0.8.5; exclusive-bounds-2026-11-17.md found 0.9.0 + 0.9.0.post1 is the matching pair, which worked here (fixed in this PR)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The allocator's pick, einvoice-preflight, had no item buildable without a real outside file (a PPF/KSeF/NAV/SdI rejection, a business's real file, omawww.sat.gob.mx refused)",
+      "did": "Took row 8, ids-model-check, whose buildable: listed a public-model IfcTester cross-check, with no open PR on it",
+      "result": "Landed the cross-check plus a report fix it motivated; claim_check HOLD"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-ids-model-check-ifcwall-skips-standard-case-walls.md",
+    "ventures/ids-model-check/eval/corpus-crosscheck-2026-11-17.md"
+  ],
+  "goal": "Deepen flagship 12 (ids-model-check): correctness on published IDS files and real exports",
+  "notes": "65 public IDS x 4 opensourceBIM exports (260 pairs). IfcTester 0.9.0 opened 53 files; 1,661 of 1,736 spec results identical; 75 differences: 50 IFC2X3 IfcWallStandardCase-by-type (IfcTester), 16 prohibited spec with requirements (invalid per bSI suite), 9 untyped True. Both checkers skip the HHS models' 112 untyped standard-case walls; new skippedSubclasses/hint in ids.mjs (text, JSON, page) flags 165 of 2,028 results, 76 of them PASS. Verdicts identical before/after on all 2,028 results; bSI suite 334/334 (strict 333/334, same as main); venture tests 126 pass (run_venture_tests.py ids-model-check: ok). Corpus run 134 s -> 140 s. Local CI (run_workflow_locally --for-changes): 17 workflows, all run: steps pass (uses: steps not run) except prompts-ci validate, which ran while this record was still blank and passes now (promptctl validate ok). venture-preflight ids-model-check: clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "78e937a6-4c79-5d3f-8693-2e2591ced2e5",
+    "transcripts": 1,
+    "first": "2026-11-17T09:39:21Z",
+    "last": "2026-11-17T09:52:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 162,
+        "output": 43496,
+        "thinking": 10280,
+        "cache_read": 11202591,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167695,
+        "api_equivalent_usd": 4.4526,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 162,
+      "output": 43496,
+      "thinking": 10280,
+      "cache_read": 11202591,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167695,
+      "api_equivalent_usd": 4.4526,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 93,
+    "tools": {
+      "Bash": 90,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.05,
+      "active_minutes": 13.05,
+      "model_minutes": 7.24,
+      "tool_minutes": 5.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "BIM QA engineer: set up IfcTester, run 260 pairs, diff element ids, trace three causes in the IDS manual and IfcTester source, implement and test the report warning, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 224.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -48,6 +48,7 @@ test("llms.txt and sitemap exist", () => {
   assert.match(readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8"), /index\.html/);
 });
 
-test("index links one hop to the dupehound sibling", () => {
+test("index links one hop to the dupehound and csshound siblings", () => {
   assert.match(html, /href="\.\.\/dupehound\/"/);
+  assert.match(html, /href="\.\.\/csshound\/"/);
 });

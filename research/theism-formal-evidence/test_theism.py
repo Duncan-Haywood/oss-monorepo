@@ -394,3 +394,58 @@ if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
             fn(); print("ok", name)
+
+
+def test_swinburne_reproduced_exactly():
+    """E25: Swinburne's four inputs (as quoted in Otte's NDPR review) give exactly 100/103."""
+    import importlib.util
+    from fractions import Fraction as F
+    spec = importlib.util.spec_from_file_location(
+        "e25", Path(__file__).resolve().parent / "experiments" / "e25_swinburne" / "run.py")
+    e25 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(e25)
+    x = e25.INPUTS
+    post = e25.posterior(x["p_theism"], x["p_divided_incarnation_given_theism"], x["p_f_given_c"], x["p_f_given_not_c"])
+    assert post == F(100, 103)
+    th = e25.thresholds(F(1, 2), x)
+    assert th["P(c|k)"] == F(1, 101) and th["P(f|~c&k)"] == F(1, 30) and th["LR"] == 3
+    # each threshold, plugged back in, gives exactly 1/2
+    assert e25.posterior(F(1), th["P(c|k)"], x["p_f_given_c"], x["p_f_given_not_c"]) == F(1, 2)
+    assert e25.posterior(x["p_theism"], x["p_divided_incarnation_given_theism"], th["P(f|c&k)"], x["p_f_given_not_c"]) == F(1, 2)
+    assert e25.posterior(x["p_theism"], x["p_divided_incarnation_given_theism"], x["p_f_given_c"], th["P(f|~c&k)"]) == F(1, 2)
+
+
+def test_mcgrew_reproduced_and_mixture_bound():
+    """E26: the McGrews' factors multiply to 10^44, and a shared explanation caps the disciples' factor at 1/q."""
+    import importlib.util
+    from fractions import Fraction as F
+    spec = importlib.util.spec_from_file_location(
+        "e26", Path(__file__).resolve().parent / "experiments" / "e26_mcgrew" / "run.py")
+    e26 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(e26)
+    assert e26.W * e26.PER_DISCIPLE ** e26.N_DISCIPLES * e26.PAUL == F(10) ** 44
+    assert e26.post(e26.PRIOR_R, F(10) ** 44) > F(9999, 10000)
+    for q in (F(1, 10), F(1, 1000), F(1, 10**20)):
+        bd = e26.bf_disciples_mixture(q)
+        assert bd <= 1 / q and bd > (1 / q) * F(99, 100)
+    assert e26.bf_disciples_mixture(F(0)) == F(10) ** 39
+    # 12 independent disciples reach 1/2 at the 1e-40 prior, 11 do not
+    assert e26.post(e26.PRIOR_R, e26.W * e26.PER_DISCIPLE ** 12 * e26.PAUL) > F(1, 2)
+    assert e26.post(e26.PRIOR_R, e26.W * e26.PER_DISCIPLE ** 11 * e26.PAUL) < F(1, 2)
+    assert e26.post(F(1, 4), F(50)) == F(50, 53)
+
+
+def test_e27_separability_is_hypergraph_two_colouring():
+    """E27: on H31's reduction frame, v is separable from w iff the hypergraph is 2-colourable;
+    the Fano plane gives a non-separable successor with no back witness."""
+    e27 = _load("e27_separability_np")
+    fano = [(0, 1, 2), (0, 3, 4), (0, 5, 6), (1, 3, 5), (1, 4, 6), (2, 3, 6), (2, 4, 5)]
+    R = e27.frame(list(range(7)), fano)
+    assert e27.separable_bt(R, 0, 1) is None and not e27.back(R, 0, 1)
+    R6 = e27.frame(list(range(7)), fano[:6])
+    assert e27.check_witness(R6, 0, 1, *e27.separable_bt(R6, 0, 1))
+    for edges in [((0, 1),), ((0,),), ((0, 1), (1, 2), (0, 2)), ((0, 1, 2), (0, 1))]:
+        pts = sorted({p for e in edges for p in e})
+        R = e27.frame(pts, edges)
+        assert (e27.separable_bt(R, 0, 1) is not None) == e27.two_col(pts, edges)
+        assert e27.separable_brute(R, len(R), 0, 1) == e27.two_col(pts, edges)

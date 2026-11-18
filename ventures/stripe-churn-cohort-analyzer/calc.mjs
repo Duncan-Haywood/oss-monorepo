@@ -19,35 +19,38 @@ const ALIASES = {
 
 export function parseCsv(text) {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === ",") { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
 export function parseDate(value) {
   const s = String(value ?? "").trim();
   if (!s) return null;
-  let iso = s;
-  if (/^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/.test(s)) iso = s.replace(" ", "T") + (s.length > 10 ? "" : "T00:00:00") + "Z";
+  let iso = s, ymd = null;
+  if (/^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/.test(s)) { iso = s.replace(" ", "T") + (s.length > 10 ? "" : "T00:00:00") + "Z"; ymd = s.slice(0, 10); }
   else if (/^\d{9,10}$/.test(s)) return new Date(Number(s) * 1000);
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? null : d;
+  // Date rolls 2026-02-30 into March: refuse a day that does not round-trip.
+  return Number.isNaN(d.getTime()) || (ymd && d.toISOString().slice(0, 10) !== ymd) ? null : d;
 }
 
 export function monthKey(d) {
@@ -84,19 +87,19 @@ export function normalizeRows(table) {
     const get = (f) => (cols[f] === undefined ? "" : (line[cols[f]] ?? "").trim());
     const start = parseDate(get("start"));
     const amount = Number(get("amount").replace(/[$,\s]/g, ""));
-    if (!start) { skipped.push({ line: r + 1, reason: "unreadable start date" }); continue; }
-    if (!Number.isFinite(amount) || get("amount") === "") { skipped.push({ line: r + 1, reason: "unreadable amount" }); continue; }
+    if (!start) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable start date" }); continue; }
+    if (!Number.isFinite(amount) || get("amount") === "") { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable amount" }); continue; }
     let end = parseDate(get("end"));
     const status = get("status").toLowerCase();
-    if (end && end < start) { skipped.push({ line: r + 1, reason: "end date before start date" }); continue; }
+    if (end && end < start) { skipped.push({ line: table[r].line ?? r + 1, reason: "end date before start date" }); continue; }
     if (!end && ["canceled", "cancelled", "incomplete_expired"].includes(status)) {
-      skipped.push({ line: r + 1, reason: `status ${status} but no end date` });
+      skipped.push({ line: table[r].line ?? r + 1, reason: `status ${status} but no end date` });
       continue;
     }
-    if (status === "incomplete_expired" || status === "incomplete") { skipped.push({ line: r + 1, reason: "never became a paid subscription" }); continue; }
+    if (status === "incomplete_expired" || status === "incomplete") { skipped.push({ line: table[r].line ?? r + 1, reason: "never became a paid subscription" }); continue; }
     const iv = get("interval").toLowerCase().replace(/ly$/, "").replace(/s$/, "");
     const per = INTERVAL_MONTHS[iv] ?? (get("interval") === "" ? 1 : null);
-    if (per === null) { skipped.push({ line: r + 1, reason: `unknown interval “${get("interval")}”` }); continue; }
+    if (per === null) { skipped.push({ line: table[r].line ?? r + 1, reason: `unknown interval “${get("interval")}”` }); continue; }
     const count = Number(get("intervalCount")) || 1;
     const qty = cols.quantity === undefined ? 1 : Number(get("quantity")) || 1;
     subs.push({

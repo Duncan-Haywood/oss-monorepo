@@ -22,7 +22,8 @@ zero dependencies, one JSON file on a disk you own.
 
 - **Alternatives today:** When I Work, Deputy, Homebase and 7shifts charge per user per month and hold your staff
   data. This is the same publish-and-notify loop for a single small team, on your own server, MIT-licensed. It does
-  not do time clocks, payroll, push notifications; if you need those, use one of them.
+  not do payroll, photo clock-ins or push notifications; if you need those, use one of them. Since
+  2026-11-15 it has a simple time clock and timesheet (section "Time clock and timesheets" below).
 - **Secrets:** `ADMIN_KEY` unlocks `/admin?key=...` (edit, build, publish, merge). `TEAM_TOKEN` is the secret in the
   staff link `/team?t=...`. The server refuses to serve without both. Wages, hour caps and payroll never appear on the
   staff page (tested). Put it behind HTTPS (Fly and Render do); the key is in the URL, so do not share admin links.
@@ -32,6 +33,11 @@ zero dependencies, one JSON file on a disk you own.
 - **Free on Cloudflare, no server, no card (2026-11-15):** [Deploy to Cloudflare](https://deploy.workers.cloudflare.com/?url=https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shift-roster-builder), or from a clone of this folder `npx wrangler deploy` then `npx wrangler secret put ADMIN_KEY` and `npx wrangler secret put TEAM_TOKEN`. Details in "Free on Cloudflare" below.
 - **On the phone:** the staff page is an installable web app (manifest + a small service worker, `server.mjs`). "Add to home screen" opens it full-screen like an app, and the last schedule the phone saw stays readable with no signal. Only the schedule page is cached; forms are never replayed offline. No app-store account, no push notifications.
 - **Labor budget from a script (2026-11-08):** `node cli.mjs --budget 2400 staff.txt shifts.txt` compares payroll with a weekly dollar budget and, when over, lists the drops (from `trimOptions`) that close the gap, safe ones first; tested in `cli.test.mjs` on a hand-built week and the sample week.
+- **Time clock and timesheets (2026-11-15, on unless `TIME_CLOCK=0`):** staff clock in and out on the team page (the server's clock, shown in your `TIMEZONE`); `/admin/timesheet` shows hours worked beside the published week, flags late starts, early finishes, time past the shift's end, shifts with no punch and missing clock-outs, lets you add a missed punch (marked as yours) and downloads a CSV for payroll. Since 2026-11-16, optional per-person clock PINs and an optional site geofence (section "Clock PINs and a site geofence"); without them it is an honour system. Also since 2026-11-16, paid sick leave (or PTO) earned per hour worked at the rate and caps you set, off until `LEAVE_ACCRUAL` is set (section "Paid sick leave from the time clock"). Details in "Time clock and timesheets" below.
+- **Oregon's voluntary standby list (2026-11-16, with `FAIR_WORKWEEK=oregon`):** staff join it in writing on their page and leave any time; a call-out can be offered to the list first, and the hours someone on it accepts owe no predictability pay (ORS 653.432). The Oregon preset was checked against the statute's text: start or end changes of 30 minutes or less are free, a separate added shift always owes the hour. Section "Oregon's voluntary standby list" below.
+- **Your payroll service's own template, filled (2026-11-17, with the time clock on):** `/admin/payroll` takes the blank hours-import template from your payroll service (choose the file or paste its first row, once), matches each column by its name to the regular, 1.5x and 2x hours, leave hours, payroll ID, name, rate, gross or week dates, and each week downloads the same columns in the same order filled from the timesheet. Section "Fill your payroll service's template" below.
+- **Schedule changes and notice pay (2026-11-16, the log always on, pricing off until `FAIR_WORKWEEK` is set):** every change to a posted week is logged with the moment it was made and who asked for it (a week published again, an approved trade or pick-up, a call-out given to someone); `/admin/changes` prices each under Seattle's, Oregon's, Chicago's, Philadelphia's, Los Angeles's, New York City's, San Francisco's, Emeryville's or Berkeley's predictive-scheduling numbers (or your own), flags shifts posted under 14 days ahead and short rests, and downloads a CSV. Section "Schedule changes and fair-workweek pay" below.
+- **Overtime, meal periods and rounding (2026-11-15 later, `PAY_RULES`):** the timesheet turns punches into regular, 1.5x and 2x hours under federal, California, Alaska or Colorado rules, flags California meal breaks that came late or not at all (with the extra hour owed), rounds punches to 5, 6 or 15 minutes if you ask (never under California rules) and estimates gross pay at each person's wage. Since 2026-11-15 also Nevada (daily overtime by the 24-hour workday for staff under 1.5x the minimum wage) and meal-period flags for 13 more states (section "Nevada, and meal periods in 13 more states").
 - **Call-outs from a script (2026-11-07):** `node cli.mjs --cover "Tue 17:00" --json staff.txt shifts.txt` prints who can take the shift outright, who is blocked and why, and the hand-over chains as JSON (tested in `cli.test.mjs`).
 - **Call-outs:** the staff page has a "Cannot make a shift?" form. Your manager sees the request in `/admin` with who could cover it without moving anyone else, cheapest first (overtime flagged), from the same `coverOptions` as the browser tool. It only asks: nothing changes until you edit and publish again (which clears the list). **Give to (2026-10-29):** each candidate has a one-click **Give to Ana** button; it moves the shift on the published schedule, keeps both people's hours in step, and drops that call-out and any trade request on the shift (`applyCover`, `/admin/cover`; tested in `server.test.mjs`, not on a live team).
 - **Shift trades:** staff pick their shift and a colleague's on the team page ("Want to trade shifts?"). `/admin` shows each request with the same check as the browser tool's trade checker (rest gaps, hour limits, availability, payroll change) and enables **Approve** only when both weeks stay inside the rules. Approving swaps the two people on the published schedule; declining changes nothing. Nobody is notified automatically (the "Tell the team" links give you the text to send).
@@ -45,9 +51,639 @@ zero dependencies, one JSON file on a disk you own.
 - Tests: `node --test server.test.mjs`.
 
 - **Share link:** "Copy share link" puts the whole setup (staff, wages, shifts, rules) in the URL fragment, so a co-manager opens the same setup in one click. The fragment is never sent to a server; it still shows pay, so share it only with people who may see wages.
-- **Command line:** `cli.mjs` builds the same roster from a staff file and a shifts file with no browser and no network, for owners and bookkeepers who keep the week in text files and want a Sunday cron or a script: `node cli.mjs staff.txt shifts.txt`, `--last-week roster.csv` to carry end times over Monday, `--csv`, `--hours`, `--json`, `--ics` (with `--week-start`, and `--person` for one person's calendar), `--messages` (a paste-ready text per person), `--open-post` (a group message listing the shifts left open and who could take each), and `--check` (exit 1 if any shift stays open), `--prove` (below), and `--weeks 4 --week-start 2026-11-02` (a month in one run: rest gaps and the tough-shift tally carry week to week, dated `off:` entries land in their week, and the report ends with each person's weekend/closing/opening shifts added up; `--tough-balance 0-100`, `--csv` adds a week column, `--json`, `--check`; `planWeeks`, `planFairness` in `calc.mjs`). `--changes posted.csv --week-start 2026-11-02 --changed-at "2026-11-01 12:00"` (2026-10-27) compares the roster you posted with the new build and lists every shift added, cancelled or moved, with its notice and the premium on your own `--notice-hours` (default 336), `--premium-hours` (default 1) and `--exempt "Ben,Cleo"`, the same `scheduleChanges` as the page's changes report; tested on the sample week, not on a real payroll or any ordinance. `--cancel-hours 0.5` and `--premium-flat 10` (2026-11-04) change how `--changes` prices a short-notice change: a cancelled shift at its own hours of pay (some rules charge a cancellation at a fraction), or a fixed dollar amount per change whatever the wage (`scheduleChanges` options `cancelHours`, `flat`; `flat` also takes `{added, moved, cancelled}`); you type the numbers, no ordinance is preset or checked, tested on hand-built rosters. `--rest-under 11` (2026-11-04) lists every pair of one person's shifts with less than that many hours between them (a close then an open) and the premium on your own `--premium-hours` (default 1 hour of pay) and `--exempt` names, from `restPremium` in `calc.mjs`; inside one week, or with `--last-week roster.csv` (2026-11-04) also last Sunday night to Monday morning (listed as "Sun (last week)"; last week's own pairs are not repeated; the build already honours `--rest` across that boundary, so this mostly shows what `--rest 0` or a hand edit would owe), tested on hand-built rosters, no jurisdiction preset and no claim about any ordinance. `--sales "1200,900,..."` (2026-11-05) prints each day's labor cost as a share of seven daily sales figures (Monday first), flags days over `--labor-target <%>` and days whose hours differ from what `--splh <$>` calls for, from the page's `dailyLabor` and `salesPerLaborHour`; tested on hand-built weeks, sales are typed in, nothing is forecast. `--hours-watch 30` (2026-11-04) lists everyone whose planned week reaches that many hours, or lands within `--watch-within` hours (default 2) under it, for an owner watching a full-time or benefit line they typed; one week only, tested on hand-built weeks, no rule preset and no claim about any benefit or employer-mandate law. `--tips 200` (2026-11-05) splits a tip pot over the planned hours in whole cents that add back to the pot, and `--short-under 4` lists every assigned shift shorter than that, the page's `tipPool` and `shortShifts`; tested on the sample week, who may share a pool is the employer's call. `--long-over 10` (2026-11-06) lists every assigned shift longer than that many hours (`longShifts`; a shift of exactly that length is not listed, report only, tested on a hand-built week, no rule preset). `--days-off 2` (2026-11-05) lists everyone with no run of that many days off in a row in the Monday-to-Sunday week (`daysOffRuns`; a day counts on the day a shift starts, the week is not wrapped, report only; tested on a hand-built week). `--import-staff export.csv` (2026-10-30) turns a staff export from another scheduler (name or first + last, hourly rate, max and min hours, position; inactive rows skipped) into this tool's staff lines, availability set to `any`; the page has the same file box (`importStaffCsv`, `import-staff.mjs`). Column names are matched by synonym and were written from memory: tested on invented layouts, not on a real 7shifts, When I Work or Homebase export (wanted: one). `--import-shifts schedule.csv` (2026-10-30) does the same for the shifts: a published-schedule export (date or datetime, start, end, position; one row per scheduled shift) becomes shift-requirement lines, counted per weekday, time and position, the busiest week when the file spans several; the page has a second file box (`importShiftsCsv`, `import-shifts.mjs`). A published schedule shows who was scheduled, not who was needed. Since 2026-11-13 it reads two real exports, a Deputy timesheet export with the rostered shift beside the worked one and a retail workforce-management week with first-published and final shifts side by side (`--use schedule|final|initial|timesheet|plain` picks the version, `--location <name>` one site of several; section "Two real schedule exports" below); 7shifts and When I Work are read from their APIs instead (`--import-7shifts`, `--fetch-7shifts`, section "Reading 7shifts directly"; `--import-wheniwork`, `--fetch-wheniwork`, section "Reading When I Work directly"); Homebase layouts are still from memory. `--weeks` also reports anyone who works more than six days in a row across a week boundary (`planStreaks`, 2026-10-30; the per-week seven-day flag cannot see Wed to the next Tue; report only, not limited by the search, tested on hand-built plans). `node cli.mjs --example` runs an invented week. Zero dependencies; names and wages never leave the machine (the only network calls are `--fetch-7shifts` and `--fetch-wheniwork`, each to your own account with your own token).
+- **Command line:** `cli.mjs` builds the same roster from a staff file and a shifts file with no browser and no network, for owners and bookkeepers who keep the week in text files and want a Sunday cron or a script: `node cli.mjs staff.txt shifts.txt`, `--last-week roster.csv` to carry end times over Monday, `--csv`, `--hours`, `--json`, `--ics` (with `--week-start`, and `--person` for one person's calendar), `--messages` (a paste-ready text per person), `--open-post` (a group message listing the shifts left open and who could take each), and `--check` (exit 1 if any shift stays open), `--prove` (below), and `--weeks 4 --week-start 2026-11-02` (a month in one run: rest gaps and the tough-shift tally carry week to week, dated `off:` entries land in their week, and the report ends with each person's weekend/closing/opening shifts added up; `--tough-balance 0-100`, `--csv` adds a week column, `--json`, `--check`; `planWeeks`, `planFairness` in `calc.mjs`). `--changes posted.csv --week-start 2026-11-02 --changed-at "2026-11-01 12:00"` (2026-10-27) compares the roster you posted with the new build and lists every shift added, cancelled or moved, with its notice and the premium on your own `--notice-hours` (default 336), `--premium-hours` (default 1) and `--exempt "Ben,Cleo"`, the same `scheduleChanges` as the page's changes report; tested on the sample week, not on a real payroll or any ordinance. `--cancel-hours 0.5` and `--premium-flat 10` (2026-11-04) change how `--changes` prices a short-notice change: a cancelled shift at its own hours of pay (some rules charge a cancellation at a fraction), or a fixed dollar amount per change whatever the wage (`scheduleChanges` options `cancelHours`, `flat`; `flat` also takes `{added, moved, cancelled}`); you type the numbers, no ordinance is preset or checked, tested on hand-built rosters. `--rest-under 11` (2026-11-04) lists every pair of one person's shifts with less than that many hours between them (a close then an open) and the premium on your own `--premium-hours` (default 1 hour of pay) and `--exempt` names, from `restPremium` in `calc.mjs`; inside one week, or with `--last-week roster.csv` (2026-11-04) also last Sunday night to Monday morning (listed as "Sun (last week)"; last week's own pairs are not repeated; the build already honours `--rest` across that boundary, so this mostly shows what `--rest 0` or a hand edit would owe), tested on hand-built rosters, no jurisdiction preset and no claim about any ordinance. `--sales "1200,900,..."` (2026-11-05) prints each day's labor cost as a share of seven daily sales figures (Monday first), flags days over `--labor-target <%>` and days whose hours differ from what `--splh <$>` calls for, from the page's `dailyLabor` and `salesPerLaborHour`; tested on hand-built weeks, sales are typed in, nothing is forecast. `--hours-watch 30` (2026-11-04) lists everyone whose planned week reaches that many hours, or lands within `--watch-within` hours (default 2) under it, for an owner watching a full-time or benefit line they typed; one week only, tested on hand-built weeks, no rule preset and no claim about any benefit or employer-mandate law. `--tips 200` (2026-11-05) splits a tip pot over the planned hours in whole cents that add back to the pot, and `--short-under 4` lists every assigned shift shorter than that, the page's `tipPool` and `shortShifts`; tested on the sample week, who may share a pool is the employer's call. `--long-over 10` (2026-11-06) lists every assigned shift longer than that many hours (`longShifts`; a shift of exactly that length is not listed, report only, tested on a hand-built week, no rule preset). `--days-off 2` (2026-11-05) lists everyone with no run of that many days off in a row in the Monday-to-Sunday week (`daysOffRuns`; a day counts on the day a shift starts, the week is not wrapped, report only; tested on a hand-built week). `--import-staff export.csv` (2026-10-30) turns a staff export from another scheduler (name or first + last, hourly rate, max and min hours, position; inactive rows skipped) into this tool's staff lines, availability set to `any`; the page has the same file box (`importStaffCsv`, `import-staff.mjs`). Column names are matched by synonym and were written from memory: tested on invented layouts, not on a real 7shifts, When I Work or Homebase export (wanted: one). `--import-shifts schedule.csv` (2026-10-30) does the same for the shifts: a published-schedule export (date or datetime, start, end, position; one row per scheduled shift) becomes shift-requirement lines, counted per weekday, time and position, the busiest week when the file spans several; the page has a second file box (`importShiftsCsv`, `import-shifts.mjs`). A published schedule shows who was scheduled, not who was needed. Since 2026-11-13 it reads two real exports, a Deputy timesheet export with the rostered shift beside the worked one and a retail workforce-management week with first-published and final shifts side by side (`--use schedule|final|initial|timesheet|plain` picks the version, `--location <name>` one site of several; section "Two real schedule exports" below); 7shifts and When I Work are read from their APIs instead (`--import-7shifts`, `--fetch-7shifts`, section "Reading 7shifts directly"; `--import-wheniwork`, `--fetch-wheniwork`, section "Reading When I Work directly"); Homebase layouts are still from memory. `--weeks` also reports anyone who works more than six days in a row across a week boundary (`planStreaks`, 2026-10-30; the per-week seven-day flag cannot see Wed to the next Tue; report only, not limited by the search, tested on hand-built plans). `node cli.mjs --example` runs an invented week. Zero dependencies; names and wages never leave the machine (the only network calls are the `--fetch-*` readers, each to your own account with your own token).
 
 - **How close to optimal (exact check):** the roster comes from a seeded simulated-annealing search, which is fast but can miss the best answer. The exact check runs by itself on every week since 2026-11-12 (it was weeks of up to 14 shifts before; see "The exact check on by default, every size" below; `--no-prove`, `exact: false` or "Off" turns it off): with `exact: true` or the default, a branch-and-bound solver searches every assignment of people to shifts, cutting branches that break a hard rule or cannot beat the annealed score (`exactSearch` in `calc.mjs`). If it finishes inside its limits (400,000 nodes, 8 s) the answer is the proven best and the report says so, or says how far off the annealed roster was; if it does not finish it keeps the best roster it found and says the result is not proven. On the built-in sample week (7 people, 32 shifts) the default anneal leaves 19 hours open and the exact search finds a roster with 15 open; it does not finish the cheapest-roster proof there, so the result is shown as a better roster, not a proven one. What it does prove on that week is the coverage: a max-flow / min-cost-flow bound over shifts, person-days and weekly hours (whole shifts only, no two overlapping or breaking the rest rule on one day) shows 15 hours cannot be covered however the week is arranged, which puts the root bound within about $70 of the roster found (it was 79% below, because the old bound counted only total hours) and the report says so. In 40 random 3-5 person, 10-shift weeks (a deliberately weak 3,000-iteration anneal) the exact search proved 16 anneals optimal, improved 15, and ran out of limits on 9. Tested against brute force with overtime, balance, tough-shift, prefer and avoid terms on. **Interchangeable people (symmetry cuts).** People who differ only by name (same wage, limits, availability, preferences and history) are tried once per distinct set of shifts held, so a crew of equal part-timers is not searched in every mirrored order. Measured on equal 15/h, 40 h, any-time crews: 5 people, 8 shifts 132,172 -> 1,160 nodes (2.9 s -> 0.1 s); 4 people, 10 shifts 278,722 -> 11,634 nodes (5.5 s -> 0.4 s); 6 and 8 people on 10 shifts went from not proven at the 8 s limit to proven in 0.4 s and 0.3 s. It does nothing for a crew of all-different people, so the 7-person sample week is still not proven (`exactSearch`; test in `calc.test.mjs`). **Cheap bound first.** Each node builds a flow graph for the coverage bound; now the bound from total weekly capacity alone is checked first and the flow is skipped when that already cuts the branch. On the sample week the same 8 s search visits 220,160 nodes instead of 137,216 (1.6x), and the result is unchanged (still not proven; 15 uncoverable hours, within $69 of the roster found). 129 tests pass, including the brute-force comparisons. **Where the last $69 sits (measured 2026-10-20).** Raising the limits to 6M nodes / 150 s on the sample week visits 3.36M nodes and still does not prove it, so more search is not the way. The best roster's pay is $3,690, exactly the root bound's pay; the other $68.95 of its $3,758.95 score is the hours-balance term (every person's hours are held near a target, and whole shifts and availability stop the targets being met together). The bound minimises each person's balance term alone, so the next gain is a bound that couples people through the fixed total of covered hours, not more dominance cuts. **Balance coupled through covered hours (2026-10-21).** That bound is now in (`coupledHours` in `exactSearch`): the covered hours are fixed in total (the coverage flow says how many), so the people cannot all sit at their own best hours; a Lagrangian price on hours (any price is a valid bound, the best is found by ternary search) charges the squeeze. On the sample week the root gap fell from $68.95 to $55.81 of a $3,758.95 score. On 30 seeded random 3-5 person, 9-11 shift weeks the same 300,000-node limit proves 27 against 26 before, with 1.90M nodes in all against 2.04M (7% fewer). A modest gain: the rest of the gap is whole shifts and availability, which a bound on hours alone cannot see. The sample week is still not proven. **Whole-shift hours bound, tried and dropped (2026-10-21).** Replacing each person's balance minimum over any hours in [now, now + what could still be added] with the minimum over hours they can actually reach (a quarter-hour subset-sum of the undecided shifts that each still fit them) left the sample-week root gap at $55.81 and cut nodes only about 5% on 30 seeded random weeks (5,973 -> 6,126 nodes in the 13-15 shift set, 5,218 against 5,510 with 7-9 hour shifts and balance 80; every case was already proven either way), at the price of a subset-sum per person per node. Whole shifts are not where the gap is; it is who can work when, so the next bound has to couple availability with the balance targets (for example a flow with convex per-person hour costs), not hour sums. **Hours terms inside the coverage flow (2026-10-21).** That bound is now in. Each person's edge into the sink carries the convex hours curve (shortfall below the minimum plus the balance term) as 8 tangent lines, cheapest stretch first, so the min-cost flow prices who can work when together with each person's hours target (a max of tangents lies under the curve, so it is still a lower bound). Sample week root gap: $55.81 -> $0.10 of a $3,758.95 score (`node eval/bound-bench.mjs`; `flowBalance: false` gives the old bound back). On 30 seeded random 4-6 person, 12-14 shift weeks at a 100,000-node limit: proven 27 -> 28, nodes 486,892 -> 459,146. The sample week is still not proven inside 8 s (68,608 nodes): the bound is now tight at the root, and what remains is a tree that is deep because fifteen hours of shifts must stay open and every way of choosing which ones is a branch. **Stop at a stated tolerance (2026-10-22).** The remaining $0.10 was the tangent lines' slack, and the search kept exploring branches that could win by less than that (478,208 nodes in 60 s, never proven). The search now cuts a branch whose bound is within `exactTolerance` of the best (default $0.50 of score, 0 gives the strict proof back; the report says "to within $0.50 of score"). The sample week is proven in 2,545 nodes, about 0.5 s, with 15 hours forced open; before, not proven in 60 s. The 28 of 30 random weeks and the brute-force comparisons are unchanged (`node eval/bound-bench.mjs`; test in `calc.test.mjs`). Only the sample week's seed and the 30 random weeks were tried. **Coverage first (2026-10-22).** Before the cost search, a pass counts only the hours left open (no pay, no balance): the same branch and bound with the coverage flow as its bound, given the same node limit and half the time. If it finishes, the least open hours are proven, and the cost search uses that as a floor (open hours >= proven minimum minus those already open), because cost bounds are weak against whole open hours worth BIG each. On the 30 seeded random weeks at 100,000 nodes: proven 28 -> 29 of 30 (`node eval/bound-bench.mjs`); the two that failed before (cases 4 and 10) needed 128,006 and 29,893 coverage nodes, so case 4 still needs a limit above 100,000. Run at 3M nodes, all three previously unproven weeks (4, 10, 27) prove in under 12 s. A week the pass cannot finish is searched as before; the pass can cost up to the node limit again. Only these seeded weeks were tried; a result of `coverOpen` in the optimality object reports the proven minimum. **Coverage pass gets twice the node limit (2026-10-22).** Its nodes carry no cost terms, so `exactSearch` lets it run to 2 x `exactNodes` (time still half the limit). On the 30 seeded random weeks at 100,000 nodes: proven 29 -> 30 of 30 (case 4 needs 128,006 coverage nodes; 434,057 nodes in all, 17 s; `node eval/bound-bench.mjs`). Branch-order changes in the coverage pass (no cost sort; fewest-hours-first) were tried and left case 4 at 100,001 nodes, so they were dropped. Same 30 weeks only; a harder week still needs more nodes.
+
+## Time clock and timesheets (2026-11-15)
+
+Every subscription scheduler sells a time clock beside the schedule, and Homebase gives one away to win small teams. The team
+hub had none, so a manager who used it still needed a paper sign-in sheet or a second app to know who actually worked. It now
+has one, on the Node server and the free Cloudflare Worker alike (`timeclock.mjs`, no Node built-ins).
+
+- **Staff:** the team page has "Clock in or out": pick your name, press a button. The time is the server's when the button is
+  pressed, not the phone's, so a phone set five minutes slow does not move a punch. The page lists who is on the clock now.
+  A second clock-in while one is open, or a clock-out with nothing open, is refused (a double tap cannot make a zero-length
+  shift); an open clock-in older than 16 hours counts as a missing clock-out, not someone still working.
+- **Manager:** `/admin/timesheet` (linked from `/admin`) shows each person's hours worked against hours scheduled for the
+  published week, or any of the last 12 weeks kept for the calendar feed, and every stretch worked matched to the scheduled
+  shift it overlaps most (or one starting within two hours). Flags: late by more than the grace (`TIME_GRACE_MIN`, default 5),
+  left early, past the shift's end, a scheduled shift with no punch once it has started, time on no scheduled shift, unpaired
+  punches, and hours over 40 in the week. A lunch break is simply a clock-out and a clock-in; both stretches count toward the
+  same shift. **Add a missed punch** types a date and time in the site's zone; it is stored as added by the manager and shown so
+  in the page and the CSV. **Remove** deletes a wrong punch. **Download CSV for payroll** gives one line per stretch (date, in,
+  out, hours, scheduled shift, flags), the unpaired punches, and a total line per person.
+- **Time zone:** `TIMEZONE` is an IANA name (`America/Chicago`, `Europe/London`); unset or unknown means UTC. Punches are stored
+  as instants and shown on the site's wall clock, so daylight-saving changes do not shift them (tested on Chicago in November
+  and July, and a repeated 01:30).
+- **Storage:** up to 3,000 punches (about 100 days of 15 people punching twice a day), oldest dropped first; on the Worker the
+  last-resort size guard keeps the newest 1,500.
+- **What it is not:** proof of presence. Out of the box anyone with the team link can punch for anyone; the
+  manager's edits and the "added by manager" marks are the check, which is fine for a ten-person café. Optional clock PINs
+  and a site geofence (section "Clock PINs and a site geofence") close the two commonest gaps, a colleague punching for a friend and a punch
+  from the bus; there is still no photo check. Overtime, meal premiums and rounding are in the next section (`PAY_RULES`). Keeping time records may be a legal duty where you are; this keeps them
+  only as long as the 3,000-punch cap, so download the CSV each pay period.
+- **Checked:** `timeclock.test.mjs` (six tests: zone conversion across a clock change, double-tap and out-without-in refusals,
+  a week with an on-time split shift, late, early, past-end, unscheduled, missing clock-out and no-show cases, a Chicago week
+  read in the right and wrong zone, manager punches, the 40-hour line, and the hub end to end: punch, refusals, wrong token,
+  the staff page shows no wages, the timesheet page and CSV, `TIME_CLOCK=0`). Also on Cloudflare's runtime locally (wrangler
+  4.40.0 `wrangler dev`, 2026-11-15, `TIMEZONE=America/Chicago`): a week published from a browser-built owner array, a
+  clock-in shown as 09:01 Chicago time, the second clock-in refused, a clock-out, and the CSV and timesheet page served.
+  Not claimed: no real team has used it, and it has not run on a live Cloudflare account.
+
+## Fill your payroll service's template (2026-11-17)
+
+The timesheet CSV is this tool's own layout, so every week a manager still copied its numbers into the hours-import
+file their payroll service wants: one more retyping step, and the one where overtime gets put in the wrong column.
+Each payroll service imports hours from a spreadsheet with its own columns, and their layouts change, so the hub does
+not ship a guessed layout per provider. The manager gives it the provider's blank template instead, and the template
+says what is wanted.
+
+- **Once:** on `/admin/payroll`, choose the blank template file (only its first row is read, in the browser) or paste
+  that row; add payroll IDs as `Name = ID` lines (leading zeros kept); save. Comma, tab and semicolon templates are
+  read, and the download keeps the template's separator.
+- **Matching:** each column name is normalised (case, punctuation, `#` read as "number") and matched to a field by
+  spelling (`Employee ID`, `File #`, `Reg Hours`, `O/T Hours`, `Double Time Hours`, `Sick Hours`, `PTO`, `Pay Rate`,
+  `Pay Period End` and so on, `payroll-export.mjs` `FIELDS`), then by a whole-word match inside a longer name, most
+  specific first (`Double Time 2x` is double time, not overtime). A generic word alone never makes a guess, and a
+  column named as a code, type or department is never guessed (`Hours 3 Code` and `Hours 3 Amount` stay empty). The
+  page shows how each column was filled, marks guesses, and lists the columns left empty.
+- **Fixes:** a `Column = field` line picks the field for a column, `Column = blank` empties it, and `Column = "value"`
+  puts the same value on every row (a company code or batch number).
+- **Numbers:** regular, overtime and double-time hours are the PAY_RULES estimate the timesheet page shows; leave hours
+  are the uses recorded on the leave page with a date inside the week; rate and gross come from the staff list's
+  wages. Zero hours are left empty unless the box is ticked. People still on the clock or with an unpaired punch are
+  named, because their open stretch is not counted.
+- **Warnings:** someone with overtime, double time or leave and no column for it; no column naming the employee; a
+  template column for IDs with people missing one; no hours column at all (an employee-import template by mistake).
+- **What was checked:** `payroll-export.test.mjs` fills hand-built templates (comma, tab; quoted names; a formula typed
+  as a name is defused) and runs the hub from saving a template to downloading a week from real punches. The column
+  spellings in the tests are ones seen in published hours-import layouts; no file has been uploaded to a real Gusto,
+  ADP, Paychex or QuickBooks account, so check the provider's import preview before you submit payroll.
+
+## Overtime, meal periods and rounding (2026-11-15 later)
+
+The time clock above stopped at hours: "It does not compute overtime pay, meal-break premiums or rounding." That left the
+step a manager actually dreads (turning a week of punches into what to pay) to a spreadsheet, and it is the step where the
+subscription schedulers charge extra (labour-compliance add-ons) and where small employers get sued: California's daily
+overtime, seventh-day rule and meal-period premiums are not what the 40-hour line on the timesheet shows. `payrules.mjs`
+now does it, read on the timesheet page and in the CSV.
+
+- **Set `PAY_RULES`** to `federal` (default), `california`, `alaska` or `colorado`. What each applies, from the text named:
+  - federal: 1.5x over 40 in the workweek (FLSA, 29 U.S.C. 207(a)(1)).
+  - california: 1.5x over 8 in a workday and over 40 in the workweek, 2x over 12 in a workday; on the seventh consecutive
+    day worked in the workweek, 1.5x for the first 8 hours and 2x after (Labor Code 510(a)). Meal periods (Labor Code 512(a)):
+    a 30-minute clock-out must start before the end of the fifth hour worked, and a second before the end of the tenth; a
+    missing one is flagged with "fine only with a signed waiver" when the work period is 6 hours or less (or 12 or less for
+    the second, first taken), otherwise as owing one extra hour at the regular rate, at most one per workday (Labor Code
+    226.7).
+  - alaska: 1.5x over 8 in a day or 40 in a week (AS 23.10.060; it covers employers with 4 or more employees).
+  - colorado: 1.5x over 40 in the week, 12 in a workday or 12 consecutive hours, whichever pays more (COMPS Order #39,
+    Rule 4.1.1); the 30-minute meal period over 5 hours (Rule 5.1) is a note, since it carries no premium.
+  No hour is counted twice: weekly overtime is regular hours past 40 after daily overtime is taken out, which for a
+  1.5x-only state equals "whichever is greater".
+- **Pay estimate:** each person's wage comes from the published week's staff list. The regular rate is straight-time pay over
+  hours worked (29 CFR 778.115), so if stretches carry different rates the overtime premium uses the blend; with one wage it
+  is that wage. Gross = straight time + 0.5 x regular rate per overtime hour + 1.0 x per double-time hour + one hour per
+  meal-premium day. Shown to the cent, with a total.
+- **Rounding (`PUNCH_ROUND_MIN` = 5, 6 or 15):** each punch to the nearest step, which 29 CFR 785.48(b) presumes lawful if it
+  averages out over time. The page and CSV show each person's net minutes gained or lost, since a total that always leans
+  against staff is what makes rounding unlawful. Under the California rules it refuses to round at all: the California
+  Supreme Court held that meal-period punches may not be rounded (Donohue v. AMN Services, 2021).
+- **Assumptions to know:** the workweek is the published week (Monday 00:00 to Sunday 24:00) and the workday the calendar day in
+  `TIMEZONE`; a stretch crossing midnight splits there for daily overtime, and one past Sunday midnight stays in its clock-in
+  week. Stretches less than 2 hours apart are one work period (so a 3-hour gap is a split shift); a meal break is any
+  clock-out of 30 minutes or more. Paid rest breaks are not punched and not checked. Not in the estimate: tips, bonuses,
+  commissions and shift differentials (which belong in the regular rate), city minimum wages, predictive-scheduling pay,
+  split-shift premiums, union rules, and every state not listed (Nevada and 13 meal-period states were added later the same
+  day, next section).
+- **Checked:** `payrules.test.mjs` (eight tests, every expected figure worked by hand in the test's comments): five 9-hour days
+  federal (40 + 5) and California with and without lunch (one extra hour a day without); a 13-hour California day (8 + 4 +
+  1 at 2x, two missed meals, one premium); a seventh consecutive day (8 at 1.5x, 2 at 2x) with waivable six-hour periods;
+  six 8-hour days (8 weekly overtime); Alaska four 10s (8) against federal and Colorado (0); Colorado's 14-hour day and an
+  overnight 13 hours that is 6 + 7 by calendar day but 13 in a row; quarter-hour rounding with its net, and its refusal under
+  California rules; a blended regular rate (30 h at $10 and 20 h at $20: $14, $770); and the hub's page and CSV end to end.
+  Not claimed: no payroll provider has read the CSV, no real team's punches have been through it, and none of this is legal
+  advice: it is an estimate to check before you pay.
+
+## Nevada, and meal periods in 13 more states (2026-11-15 later)
+
+`PAY_RULES` covered four rule sets, and the README said "Nevada's daily overtime depends on the wage against the minimum and
+is left out rather than guessed". A café in Las Vegas, Seattle or Portland got federal overtime and no break check. Both gaps
+are now filled from text read this session, not from memory:
+
+- **`PAY_RULES=nevada`** (`nv`), from the statute (leg.state.nv.us, NRS chapter 608, read 2026-11-15):
+  - NRS 608.018(1): 1.5x over 8 hours in a workday and over 40 in a week for anyone paid less than 1.5 times the NRS 608.250
+    minimum; 608.018(2): only over 40 a week at or above it. The minimum is $12.00 (the US DOL state minimum-wage table, read
+    the same day), so the line is $18.00 an hour; `MIN_WAGE` changes it. A person's blended rate for the week decides which
+    side they are on; with no wage on the staff list the daily rule is applied and the row says so.
+  - NRS 608.0126: the **workday is 24 hours from when the employee begins work**, not the calendar day. This is the part a
+    spreadsheet gets wrong: a close Monday 14:00-22:00 and an open Tuesday 06:00-14:00 are 8 hours on each calendar day but
+    16 hours in one Nevada workday, so 8 hours of overtime (`rollingWorkdays` in `payrules.mjs`; the Alaska rules on the same
+    punches give none).
+  - The mutually agreed four 10-hour days of 608.018(1)(b): set `NV_FOUR_TENS=1` and the daily rule is off (an agreement the
+    tool cannot see, so it is a setting, not a guess).
+  - NRS 608.019(1): a 30-minute meal period in any continuous 8 hours; a break under 30 minutes does not interrupt the
+    continuous period. Flagged, with no premium (the section sets none). The paid 10-minute rest periods of 608.019(2) are not
+    punched, so they are a note.
+- **Meal-period flags for 13 states** from the US Department of Labor's "Minimum Length of Meal Period Required under State
+  Law" table (dol.gov/agencies/whd/state/meal-breaks, revised 2023-01-01, read 2026-11-15): `washington`, `oregon`,
+  `connecticut`, `delaware`, `illinois`, `kentucky`, `maine`, `massachusetts`, `minnesota`, `new-hampshire`,
+  `rhode-island`, `tennessee`, `west-virginia` (names in any case, spaces or underscores, or two-letter codes). Each is a
+  small rule in `MEAL_RULES`: how long the work period must be, how long a clock-out counts as a break, and the window it must
+  start in (Washington between 2 and 5 hours from the start; Connecticut and Delaware after the first 2 hours and before the
+  last 2 of a 7.5-hour period; Illinois 20 minutes within 5 hours; Oregon's two windows for 6-7 and over 7 hours; Rhode
+  Island's 20 minutes at 6 hours and 30 at 8; Tennessee not in the first hour; and so on). Overtime in these states stays
+  federal, with one exception: the DOL's state minimum-wage table (read the same day) lists general daily overtime only for
+  Alaska, California, Colorado and Nevada among the states, but also Kentucky's **seventh-day rule** (1.5x for the hours on the
+  seventh day when all seven days of the workweek are worked; not when the employee is not permitted over 40 in the week), so
+  `PAY_RULES=kentucky` pays the seventh day at 1.5x in a week over 40 and then regular hours past 40, never an hour twice. The
+  same table's narrower premiums are printed as notes, not applied: Oregon's 10-hour day in mills, factories and canneries,
+  Connecticut restaurants' seventh consecutive day, Rhode Island's Sunday and holiday pay in retail, and Minnesota's own
+  48-hour line (federal 40 is used, since it covers most employers). The meal-period table lists premium pay for a missed
+  break only in California and Puerto Rico, so these are flags, not money, and each state's
+  exceptions the punches cannot show (eating while working in New Hampshire and West Virginia, fewer than three on duty in
+  Maine, written waivers) are printed as a note under the row.
+- **Where the table's words leave room** ("between 3rd and 5th hour"), the window is read on the wide side, so a flag means the
+  punches plainly miss it. New York's noonday rules, North Dakota's "if desired" and Vermont's "reasonable opportunities" are
+  not checked; nor is any city ordinance.
+- **On one invented week** (`node eval/pay-rules-by-state.mjs`, `eval/pay-rules-by-state.out.txt`: four people, an opener with
+  lunch at 4 hours, a closer with a clopen and 20-minute breaks, a $24 lead on four 10s with lunch at 6 hours, a part-timer on
+  6.5-hour shifts with no break): overtime is 9 hours federally and in the 13 meal-period states, 17 in California, Alaska and
+  Nevada (by different routes: Nevada's 8 are the closer's clopen, Alaska's the lead's 10-hour days, which Nevada leaves to the
+  weekly rule at $24), and meal flags run from 0 (federal) and 2 (Minnesota, where any clock-out to eat counts) to 12
+  (Washington, Kentucky, New Hampshire, California).
+- **Checked:** seven new tests in `payrules.test.mjs`, each figure worked by hand in the test: Nevada daily overtime at $15 against
+  weekly-only at $20, a lower `MIN_WAGE`, `NV_FOUR_TENS`, no wage; the 24-hour workday on the clopen and across its boundary;
+  the meal period with a 20- and a 30-minute break; Washington, Connecticut, Delaware, Illinois, Oregon, Rhode Island,
+  Massachusetts, Minnesota and Tennessee windows on both sides of each line; Kentucky's seventh day (50 h: 8 + 2; 42 h: 6 against 2 federally;
+  35 h: none); the name and code parsing; and the hub page and
+  CSV end to end under Nevada rules ($712.50 for five 9-hour days at $15). Not claimed: no Nevada or other-state employer has
+  read it, no labour office or lawyer has checked the readings, the DOL table is a summary that says to consult the state, and
+  none of this is legal advice.
+
+## Clock PINs and a site geofence (2026-11-16)
+
+Buddy punching (a colleague clocking in for a friend who is running late) and punching from the car park, or the bus, are
+the two reasons owners give for paying for Homebase's, When I Work's or 7shifts' time clock rather than using a free one.
+The hub's clock was an honour system. It now has two optional checks, both off until you turn them on, on the Node server and
+the free Cloudflare Worker alike (`clockguard.mjs`, Web Crypto, no Node built-ins).
+
+- **Clock PINs.** On `/admin/timesheet`, "Clock PINs" sets a 4 to 8 digit PIN per person (or removes one); tell them in
+  person, it is not shown again. A person with a PIN must type it on the team page to clock in or out; people without one
+  punch as before, so you can start with the one person you have doubts about. `CLOCK_PIN=required` makes everyone use one
+  (anyone without a PIN is refused and listed in red on the timesheet page). PINs are stored salted and hashed
+  (PBKDF2-SHA256, 10,000 rounds; about 3 ms per check on Node 22), never in the clear and never shown back. Five wrong PINs
+  for one person within 15 minutes lock that person's punches for 15 minutes (HTTP 429), so the team link cannot be used to
+  try the 10,000 four-digit PINs; the right PIN clears the count, and setting a new PIN clears a lock.
+- **Site geofence.** `CLOCK_GEOFENCE=lat,lon,radius_m` (radius 25 m to 5 km, for example `41.8789,-87.6359,150`). When
+  someone presses Clock in or Clock out, the team page asks the phone for its location (up to 10 s) and posts it with the
+  punch; the server works out the great-circle distance to the site and keeps **only that distance in whole metres and the
+  phone's stated accuracy**, never the coordinates. The phone's accuracy is allowed for, up to 100 m (a reading of 178 m
+  +-90 m on a 100 m fence passes; 445 m +-300 m does not). `CLOCK_GEOFENCE_MODE=flag` (the default) records every punch and
+  flags the far ones ("clock-in 890 m from site (phone accuracy 12 m)") and the ones sent with no location ("location
+  refused", "location unavailable") on the timesheet and in the payroll CSV; `=block` refuses them with a message telling the
+  person to try on site or ask you to add the punch. A malformed value is reported on the timesheet page and the fence stays
+  off rather than half-applied. The team page says, beside the buttons, that location is checked and what is kept.
+- **What it does not do.** A determined person can fake a phone's location or share a PIN; these stop the casual cases and
+  leave the decision with you, which is what the flag mode is for. There is no photo check. Location data about staff is
+  personal data in many places (GDPR in the UK and EU, notice rules in some US states): tell staff before you turn the
+  geofence on. Nothing about where anyone is goes anywhere but your own server, and even there only the distance is stored.
+- **Checked:** `clockguard.test.mjs` (five tests): PIN format, salted hashes with no PIN in the clear, the five-try lock and
+  its expiry and reset; the distance (Westminster to the Eiffel Tower within 1.5 km of 340.5 km), the accuracy allowance and
+  its cap, no coordinates kept, staff-typed reason text stripped; place flags on the timesheet and in the CSV; the hub end to
+  end for PINs (set, wrong, right, lock at 429, remove, `CLOCK_PIN=required`) and for the fence (flag mode with and without
+  scripts, block mode, a misconfigured fence). Also run once in headless Chromium with a granted location 67 m from the site
+  (recorded as `{ m: 67, acc: 20, away: false }`) and with location not granted (the punch still arrives). Not yet tried on a
+  real phone at a real site.
+
+## Paid sick leave from the time clock (2026-11-16)
+
+Homebase, 7shifts, When I Work and Deputy all sell leave tracking beside the time clock, and many US states and cities
+require paid sick leave that is earned per hour worked (one hour per 30 or per 40 worked is a common form), so a small
+team's manager otherwise keeps a balance per person on paper from the payroll stubs. The hub now does it from the punches
+it already records (`leave.mjs`, no Node built-ins, the Node server and the Cloudflare Worker alike). **Off until you set
+`LEAVE_ACCRUAL`.**
+
+- **Your policy, in env vars:** `LEAVE_ACCRUAL=1/30` (hours earned per hours worked; `1 per 40`, `1:52` and `0.025`
+  also read), and optionally `LEAVE_YEAR_CAP` (most earned in a leave year), `LEAVE_BALANCE_CAP` (most held at once;
+  earning pauses at it and resumes after a use), `LEAVE_CARRYOVER_CAP` (most carried into a new leave year; the rest is
+  dropped and flagged), `LEAVE_YEAR_START=MM-DD` (default 01-01, in your `TIMEZONE`) and `LEAVE_NAME` (default "Paid
+  sick leave"; "PTO" works). **No state's or city's rule is preset**: the page says the numbers are yours. Waiting
+  periods, front-loading, who is covered and what counts as hours worked are not modelled; check your own law.
+- **Earned from closed stretches only:** each clock-in/clock-out pair earns at its clock-out, in time order with the uses,
+  so the caps bite in the order they would in a real year. Someone still on the clock earns at clock-out.
+- **`/admin/leave`** (linked from `/admin` and the timesheet): each person's leave year, hours worked in it, earned,
+  used and balance, with flags for the balance cap, the year cap, hours dropped at the carryover cap and any use that took
+  someone below zero (recorded anyway: it is your decision, but you see it). A form records leave taken (date, hours in
+  quarter hours, a note) and each record can be removed. **Opening balances:** moving from paper or another system, set a
+  person's balance as of now and hours from then on add to it. `/admin/leave.csv` downloads the balances and every use, with
+  the formula guard on names.
+- **The punch trim no longer forgets:** the clock keeps the newest 3,000 punches (1,500 on the Worker's size guard). Before
+  dropping older ones, `trimPunches` (timeclock.mjs) folds their closed stretches into `state.leaveBank` per person and
+  day, so a balance built over a year survives (tested: the balances are identical before and after a trim). A stretch whose
+  clock-in is dropped and clock-out kept is lost, as it already was for the timesheet.
+- **Staff do not see balances** on the team page: the team link is shared by everyone, and it shows nobody's hours.
+
+Tests: `leave.test.mjs` (rate parsing; one hour per 30 from 30 h worked; an open stretch earns nothing; a use below the
+balance flagged; the balance cap pausing and resuming after a use; a 5 h year cap; the carryover cap at the new year; an
+opening balance; a July leave year; the trim keeping the balances identical; the hub off by default, 404 on its forms
+when off, the page, a recorded and a removed use, an opening balance, the CSV and its formula guard). Not claimed: not
+tried on a live team or against any state's rule text; a manager's view of the policy wording is the next thing to get.
+
+## Los Angeles County (2026-11-17, latest)
+
+`FAIR_WORKWEEK=los-angeles-county` (or `la-county`, `county-of-los-angeles`) prices changes under the Los Angeles County
+Fair Workweek Ordinance (County Code Title 8, Chapter 8.102), in force since 2025-07-01 for retail employers with 300 or
+more employees worldwide, and only in the county's **unincorporated areas** (East LA, Altadena, Marina del Rey and the
+like); the City of Los Angeles keeps its own preset (`los-angeles`). **Read from the county's own text**, fetched from
+this session on file.lacounty.gov: the ordinance as sent to the Board of Supervisors on 2024-04-09 (supdocs 189905) and
+the amendment to 8.102.080 adopted 2025-11-18 (supdocs 208681).
+
+| | Los Angeles County, from the ordinance text |
+|---|---|
+| Posted | 14 days before the work period (8.102.060.A) |
+| A change to a date, time or location with no lost time, or adding more than 15 min | 1 h of pay per change (8.102.080.A.1) |
+| Work time cut by at least 15 min, a cancelled shift, an on-call shift not called in | half the regular rate for the time not worked, anywhere inside the 14 days (A.2 as amended 2025) |
+| Free | added time of 15 min or less; time taken away under 15 min |
+| Exempt | employee-initiated changes (B.1); hours accepted to cover another employee's absence (B.2), with the voluntariness notice and documented consent |
+| Rest | a shift starting under 10 h after the last one: written consent and time and a half for each hour of it inside the 10 h (8.102.100) |
+
+Two new rule fields, usable in any rule set:
+
+- `minCutMin` (`FWW_MIN_CUT_MIN`): time taken away under this many minutes owes nothing. The 2025 amendment folded the
+  old "subtracting hours", "start or end time ... loss of more than fifteen minutes", "changing the date" and
+  "cancelling" items into one: the employer "reduces the Retail Employee's work time ... by at least 15 minutes". So 15
+  minutes owes and 14 does not; the original text had said "more than fifteen".
+- `coverAccept` (`FWW_COVER_ACCEPT=1`): hours accepted to cover a colleague's absence owe nothing whether they came from
+  the written team offer or a one-to-one ask. Seattle's and Oregon's exception needs the group offer (`massOffer`); the
+  county's B.2 does not, but it needs the employer to have said taking the hours is voluntary and may be declined, and
+  to have documented the request and the consent. The changes page says so on each exempt line. The hub's plain
+  "Give to" cover cannot see whether that was done: if it was not, the hours were also given without the consent
+  8.102.060.C requires, and the "Employee asked" mark does not help; the deployer turns the exception off with
+  `FWW_COVER_ACCEPT=0`.
+
+How it differs from the city next door: no team-offer exception in the city (its FAQ prices volunteers), a short rest paid
+on the whole later shift in the city but only on the hours inside 10 h in the county, and no minute floor on cuts in the
+city. What it changes, at $18 an hour (`eval/la-county-compare.mjs`, `eval/la-county-compare-2026-11-17.md`):
+
+| Change | los-angeles-county | los-angeles | seattle | chicago | berkeley |
+|---|---:|---:|---:|---:|---:|
+| Monday's 8 h shift cancelled 10 days ahead | $72.00 | $72.00 | $72.00 | $18.00 | $18.00 |
+| 1 h cut off Tuesday's 8 h shift, Monday 23:00 | $9.00 | $9.00 | $9.00 | $9.00 | $18.00 |
+| 10 min cut off Wednesday's end, 3 days ahead | $0.00 | $1.50 | $1.50 | $18.00 | $18.00 |
+| Ben asked one-to-one to cover Ana's Thursday call-out | $0.00 | $18.00 | $18.00 | $18.00 | $18.00 |
+| Close Fri 24:00, open Sat 08:00 (8 h rest) | $18.00 | $72.00 | $18.00 | $9.00 | $27.00 |
+| **Total** | **$99.00** | **$172.50** | **$118.50** | **$72.00** | **$99.00** |
+
+Not modelled: who is covered (retail and grocery NAICS codes, 300 employees, two hours a week in an unincorporated
+area); B.3, hours accepted from the 72-hour offer to current staff before hiring (8.102.070), which the hub has no
+form for; B.4 and B.5 (discipline, operations compromised by law); B.6, extra hours already paid at overtime under
+Labor Code 510; the good-faith estimate (8.102.040) and the record keeping (8.102.130). Tests:
+`notice-la-county.test.mjs` (names and the city kept apart, the 14-day half with no 24-hour tier, the 15-minute floor at
+14 and 15 minutes, 1 h moves and adds, cover exempt one-to-one and by team offer and priced by the city and Seattle,
+on-call, rest on the inside hours only, the two env fields, the changes page).
+
+## Evanston (2026-11-17, later)
+
+`FAIR_WORKWEEK=evanston` (or `evanston-il`) prices changes under Evanston, Illinois's Fair Workweek Ordinance
+(24-O-23, City Code Title 3 Chapter 34), the last of the commonly listed fair-workweek jurisdictions without a preset.
+**Read from search summaries only**: the city's Fair Workweek page, Municode and the ordinance PDF on CivicWeb were all
+refused by this session's network, so the numbers come from summaries of the city page and of law-firm alerts (Jackson
+Lewis, Littler, Fox Rothschild, Epstein Becker Green). The changes page says so.
+
+| | Evanston, as the summaries agree |
+|---|---|
+| Posted | 14 days before the first scheduled shift |
+| Under 14 days, more than 24 h | 1 h of pay per changed shift |
+| Under 24 h, hours cut or shift cancelled | 4 h or the length of the scheduled shift, whichever is less (Emeryville's reading) |
+| Under 24 h, any other change | 1 h |
+| Free | nothing found: no de minimis minutes in any summary, so none applied |
+| Exempt | employee-requested and mutually agreed changes, events outside the employer's control (the hub's "Employee asked" mark) |
+| Hours volunteered from a team offer | priced: "agreeing to work additional hours does not exempt" the employer |
+| Rest | hours starting under 11 h after the previous shift, worked with written consent, at time and a half |
+
+No new pricer code: the preset reuses Emeryville's notice tiers with no grace and Berkeley's rest reading (after any
+previous shift; `FWW_REST_ACROSS_DAYS=1` to count only a prior day's). Readings to check against the ordinance text:
+
+- **Where notice is counted to.** The city page says schedules are posted 14 days before the first scheduled shift,
+  and one alert counts change notice to the first shift of the workweek. The preset counts to each changed shift, like
+  Chicago; `FWW_NOTICE_FROM_WEEK=1` counts to the week's first day instead (which also moves the 24-hour tier).
+- **A move to another date** stays a cancellation plus an addition (two changes); `FWW_PAIR_DATES=1` makes it one.
+- **The rest multiplier.** Most summaries give 1.5x; one table lists 1.25x beside a 10-hour rule. `FWW_REST_MULT`
+  overrides it.
+- **Enforcement date.** Summaries give 2023-09-01, 2024-01-01 and a later postponement. Check the city's notice.
+
+Coverage (the industries listed, employer size, two hours a week in Evanston), the right to decline, the offer of
+hours to part-timers and the good-faith estimate at hire are not modelled. What it changes, at $18 an hour
+(`eval/evanston-compare.mjs`, `eval/evanston-compare-2026-11-17.md`):
+
+| Change | evanston | berkeley | emeryville | chicago | seattle |
+|---|---:|---:|---:|---:|---:|
+| 1 h cut off Monday's 8 h shift, Sunday 23:00 | $72.00 | $18.00 | $72.00 | $9.00 | $9.00 |
+| Tuesday's 4 h shift cancelled, Monday 20:00 | $72.00 | $72.00 | $72.00 | $36.00 | $36.00 |
+| 5 min added to Wednesday's end, Tuesday 22:00 | $18.00 | $0.00 | $0.00 | $0.00 | $18.00 |
+| Thursday's 8 h shift cancelled 3 days ahead | $18.00 | $18.00 | $18.00 | $18.00 | $72.00 |
+| **Total** | **$180.00** | **$108.00** | **$162.00** | **$63.00** | **$135.00** |
+
+Tests: `notice-evanston.test.mjs` (names, both tiers, the shift-length cap against Berkeley's, no grace against
+Emeryville's, the team offer, date moves, rest, the changes page).
+
+## Berkeley (2026-11-17)
+
+`FAIR_WORKWEEK=berkeley` prices changes under Berkeley's Fair Workweek Ordinance (Berkeley Municipal Code Chapter 13.102,
+operational 2024-01-12). Read from the city's own documents, fetched from this session on berkeleyca.gov: the official
+employee notice of January 2024 and the city's FAQ revised 2024-08-23. The code's own text (berkeley.municipal.codes)
+returned 403, so it was not read; the changes page says the numbers come from the notice and FAQ.
+
+| | Berkeley | Emeryville, for contrast |
+|---|---|---|
+| Posted | 14 days ahead | 14 days ahead |
+| Under 14 days, 24 h or more | 1 h of pay for any change (FAQ 12a) | 1 h |
+| Under 24 h, hours cut or shift cancelled | the lesser of the hours taken away and 4 h (FAQ 12b; FAQ 14: cut 15 min early, 0.25 h) | the lesser of the scheduled shift's hours and 4 h |
+| Under 24 h, added or moved | 1 h (FAQ 12c) | 1 h |
+| Shift moved to another date | one change, 1 h | logged as a cancellation and an addition, 1 h each |
+| Free | starting up to 10 min early and finishing up to 10 min late (FAQ 17), each end on its own | 10 min or less added or taken at each end |
+| Swaps and cover employees arrange | exempt (FAQ 15) | exempt |
+| Hours volunteered from a team offer | priced: the notice says pay is owed "when employees voluntarily agree to such changes" | priced |
+| Rest | time and a half on hours worked under 11 h after the end of the previous shift (FAQ 23) | the same, after the previous day's shift |
+
+Three small additions to the pricer, open to any preset or `custom`:
+
+- `cutLostCap` on a notice tier: hours taken away pay the lesser of those hours and the cap. Emeryville's
+  `cutShiftCap` caps the scheduled shift's length instead, which is why taking 1 hour off an 8-hour shift the evening
+  before owes 4 hours there and 1 hour here. A shift both moved and shortened under 24 h owes the greater of the cut's
+  pay and the move's 1 h; the FAQ does not say whether the two stack, and this reading never pays more than one of them.
+- `extendEach` (`FWW_EXTEND_EACH=1`): the added-time grace applies to the start and the end separately (10 min early
+  and 10 min late is still free), not to their sum. The grace covers time added, not time cut: 10 minutes off the end
+  under 24 h is a cut and owes 0.17 h.
+- `pairDates` (`FWW_PAIR_DATES=1`): a cancellation and an addition for the same person, logged in the same moment by
+  the same cause, are one change of date. New York City already paired them; the pairing now also works when the staff
+  list has no wage (the pair is one change to price, not two).
+
+Readings to check against BMC 13.102 before relying on them. The notice and FAQ say rest is counted after "the previous
+shift", not "the previous day's", so a same-day split shift with a 4-hour gap puts its whole second piece inside the
+11-hour window; `FWW_REST_ACROSS_DAYS=1` turns that off if the code's definition of a shift says otherwise. The FAQ's
+"up to 30 minutes after the end to finish serving a customer" is a stay on the day, not a change to the posted
+schedule, so it is not modelled. Coverage (10 or more employees in Berkeley and 56 or 100 worldwide by industry,
+franchisees included), the right to decline, the offer of hours to part-timers and the good-faith estimate at hire are
+not modelled either. Tests: `notice-berkeley.test.mjs` (the FAQ's examples 12a-c, 14, 17 and 23, the date move, the
+team offer, the split-shift reading and the changes page).
+
+## San Francisco and Emeryville (2026-11-16, later)
+
+Two more presets for the hub's change log: `FAIR_WORKWEEK=san-francisco` (or `sf`) for San Francisco's Formula Retail
+Employee Rights Ordinances, and `FAIR_WORKWEEK=emeryville`. Unlike the six before them, both were read from the cities'
+own documents, which answered from this session:
+
+- San Francisco: Ordinance 117-15 as passed (sfbos.org, `o0117-15.pdf`, Police Code 3300G.4(c)-(e), now Labor and
+  Employment Code 42.4) and the Office of Labor Standards Enforcement's FAQ dated 2025-08-08 (`FRERO_FAQs_8.8.25.pdf`).
+- Emeryville: the city's official employee notice for the Fair Workweek Ordinance (Municipal Code Title 5, Chapter 39)
+  and its "Predictability Pay Structure" reference sheet (emeryville.org). The municipal code itself (municode) returned
+  403, so the code text was not read.
+
+| | San Francisco (formula retail) | Emeryville (retail and fast food) |
+|---|---|---|
+| Posted | 14 days ahead | 14 days ahead |
+| Premium window | under 7 days | under 14 days |
+| Under the window, 24 h or more | 1 h of pay per changed shift, added or cut | 1 h of pay |
+| Under 24 h | 2 h if 4 h or less change, 4 h if more | hours taken away: the lesser of the scheduled shift's hours and 4 h; any other change 1 h |
+| Free changes | none listed | 10 min or less added or taken at a shift's start or end |
+| Cover after a colleague's absence | exempt when the employer had under 7 days' notice of the absence (3300G.4(e)(4)), whoever was asked | priced: the sheet lists finding another employee to cover as pay due |
+| On-call shifts | their own table (3300G.4(d)): not called in, or released under 24 h ahead, 2 h (4 h or shorter) or 4 h | priced as hours taken away |
+| Rest | no premium | time and a half on hours worked under 11 h after the previous day's shift |
+
+The new shape: both pay a fixed number of hours per change by notice tier, not a share of the hours lost, so a new
+`tiers` table carries them (`[{ fromH, add, cut, overH, over, cutShiftCap }]`, highest notice first). San Francisco's
+"shift of four hours or less" is read as the hours added or subtracted, which is how OLSE's 2025 FAQ restates it
+("Number of hours added or subtracted"); for a shift moved with its length kept, the shift's own length decides. The
+FAQ's worked example (a 4 h shift made 6 h on the day, 2 h of pay) is a test. Three more fields, open to any preset:
+`postDays` (the posting window, when it differs from the premium window: San Francisco posts 14 days ahead but owes
+premiums only under 7), `onCallPay` and `coverAbsenceDays`. For the cover exception the hub now stores, on the covering
+person's added shift, whose absence it covers and when the call-out came in (`coverFor`, `absenceAt`), for a direct
+cover as well as a team offer or a standby-list pick. A cover with no call-out time on record (a call-out logged before
+this change) is priced, and the reason says so.
+
+Readings to check: Emeryville's sheet pays a cut under 24 hours by the scheduled shift's length, so taking 1 hour off
+an 8-hour shift the evening before owes 4 hours of pay; the preset follows the sheet, not a share of the cut. Its
+notice says time and a half "for any hours worked between closing and opening shifts that are separated by less than
+11 hours", which the preset reads as the hours inside the 11-hour window, after a previous day's shift.
+
+Not modelled: who is covered (San Francisco: formula retail with 40 or more establishments worldwide and 20 or more
+employees in the city; Emeryville: retail with 56 or more employees worldwide, fast food with 56 worldwide and 20 in the
+city), San Francisco's other exceptions (threats, utility failures, acts of God, mandatory overtime, a colleague late or
+sent home for discipline), Emeryville's right to decline, its offer of hours to part-timers up to 35 h, its exceptions for
+working past the end to finish a sale and for overtime pay that exceeds the premium, and the disciplinary exception the
+city's sheet and a 2017 law-firm alert disagree on. Planning aid, not legal advice: check the current text.
+
+Tested (`notice-sf-emeryville.test.mjs`, 10 tests): aliases; each San Francisco tier for adds, cuts and length changes,
+the FAQ's example, the 7-day premium window against the 14-day posting check; on-call release at 25 h, 3 days and 4 h,
+and never called in; the cover exception at 2 days' notice of the absence, through a team offer, refused at 8 days and
+with no time on record, and still priced in Seattle; Emeryville's 1 h tier, the lesser-of rule (3 h shift: 3 h; 8 h
+shift: 4 h; a 1 h cut of 8 h: 4 h), the 10-minute edges, the team offer priced, an 8 h rest after a 23:00 close priced
+at 3 h x 0.5 and a same-day split not counted; and the hub end to end (a cover posted through `/admin/cover` under
+`FAIR_WORKWEEK=sf` stored with the call-out time, exempt, and the rule set stated in words on the changes page).
+
+## New York City fast food (2026-11-16, later)
+
+A sixth preset, `FAIR_WORKWEEK=new-york-city` (or `nyc`), for the fast food half of New York City's Fair Workweek Law
+(Admin. Code 20-1201 et seq.). It is the first preset that does not fit the "hours of pay" shape the other five share,
+so three new pieces carry it:
+
+| | New York City (fast food) | The other presets |
+|---|---|---|
+| Premium | a flat sum per change, by notice: 14 to 7 days $10 (added or moved) / $20 (hours taken away); 7 days to 24 h $15 / $45; under 24 h $15 / $75 | hours of pay at the person's wage |
+| Notice counted to | 12:00 a.m. on the first day of the work schedule (rule 7-622(a)) | the start of the changed shift |
+| Free changes | start and end each moved by 15 min or less, whatever the shift's length becomes (final de minimis rule) | per city |
+| A shift moved to another day | one change: $10 at 14 to 7 days (7-622(a) example 3) | a cancellation plus an addition |
+| Volunteers, open-shift pick-ups, fill-ins | priced (7-622(e)(5)-(7)); consent does not waive it (7-622(b)) | exempt in Seattle, Oregon, Philadelphia |
+| Rest | a clopening (under 11 h, across two calendar days) pays $100 (20-1231) | per city |
+
+Why the week's first day matters: a Thursday shift cancelled on the Sunday before a Monday-start week is a change with
+under 24 hours' notice in New York City ($75), though the shift is four days off. Seattle, counting to the shift, calls
+the same change 4 days' notice. `noticeFromWeek` (`FWW_NOTICE_FROM_WEEK=1`) and `edgeEach` (`FWW_EDGE_EACH=1`) are
+switches any preset or `custom` can take; the flat table itself is the preset's and is not typed from the environment.
+The changes page states the table in words, and the CSV leaves "hours of pay" empty for a flat premium.
+
+Sources, read 2026-11-16 (the city's code library returned 403 and the DCWP page 404 from this session): the premium
+table of 20-1222(a) as the city's Office of Labor Policy and Standards set it out (CLASP conference slides, 2018); DCWP's
+proposed rules (rules.cityofnewyork.us notice of hearing, January 2022: 7-601 definitions, 7-607 de minimis, 7-622
+schedule changes with its five worked examples, 7-623 clopenings); and Fisher Phillips's summary of the June 2022 final
+rules, which changed de minimis from 15 minutes in total to 15 minutes at each end, and confirmed hours (336, 168) as the
+measure of days. Check the current RCNY title 6 chapter 7 text before relying on it.
+
+Not modelled: who is covered (fast food chains with 30 or more locations nationally), the retail half of the law (72
+hours' notice, no on-call shifts, no premiums), the exception for a shortened shift that is still paid in full, the
+regular-schedule rules of 7-622(g), the good-faith estimate, access to hours (offering shifts to current staff before
+hiring), and written consent for added hours and for each clopening (the page counts the $100, it does not collect
+the consent). The absent employee owes nothing (7-622(d)); the hub already logs a call-out's dropped shift as
+employee-asked.
+
+Tested (`notice.test.mjs`, 21 tests, 3 new): the rules' examples 1 to 3 ($75 for a cancellation on the Sunday before,
+$45 at 151 hours, $10 for a Thursday shift moved to Friday at 228 hours, where Seattle prices the same pair at $100 on a
+$20 wage), each tier for adds and cuts, the de minimis edges (15 min each way free, both ends together free, 20 min priced
+$15 or $45), the team offer still priced, an employee request exempt, the $100 clopening with no wage and a same-day split
+not counted, the CSV row, and the changes page's table in words.
+
+## Philadelphia and Los Angeles (2026-11-16, later)
+
+Two more presets for the hub's change log, so a covered shop in either city can turn the pricing on with one setting
+(`FAIR_WORKWEEK=philadelphia` or `philly`; `FAIR_WORKWEEK=los-angeles` or `la`). Both cities' own sites (phila.gov,
+wagesla.lacity.gov, the American Legal code library) were out of reach from this session (403 or no DNS), so the numbers
+come from search summaries of the cities' FAQs and regulations and of law-firm alerts, cross-checked where two agreed.
+Check them against Phila. Code ch. 9-4600 and LAMC ch. XVIII art. 5 before relying on them; the page says so.
+
+| | Philadelphia | Los Angeles (city) |
+|---|---|---|
+| Notice | 14 days | 14 days |
+| Added shift, added time, moved shift with no hours lost | 1 h of pay | 1 h of pay |
+| Free changes | start or end moved by 20 min or less (the regulations' exception) | added work time of 15 min or less |
+| Hours taken away | half their pay, anywhere in the 14 days | half their pay |
+| Team offer after a call-out | exempt (written "mass communication") | priced: the city FAQ says pay is owed even when the employee volunteers |
+| Rest | 9 h after a prior day's shift (or one that ran across two days); with written consent, $40 each such shift | 10 h; time and a half for the whole shift that follows |
+
+Three new switches carry the rest rules, and any preset takes them as overrides: `FWW_REST_FLAT` (a flat sum per short
+rest, owed whatever the wage), `FWW_REST_WHOLE_SHIFT=1` (the multiplier on the whole later shift, not only its hours
+inside the window) and `FWW_REST_ACROSS_DAYS=1` (a same-day split shift is not a short rest). The changes page states the
+rest rule in words and the short-rest table shows the hours paid and the sum owed.
+
+What the sources disagreed on, and what was chosen: for Los Angeles one vendor blog and the city's FAQ wording ("time and
+a half for the Shift following the insufficient rest period") say the whole shift, while a county summary says the hours
+in the gap; the preset follows the city's wording, and the LA County ordinance (unincorporated areas, from 2025-07-01) is
+not a preset (`custom` with `FWW_REST_WHOLE_SHIFT=0` types it). One summary of the LA rules also gives a one-week line for
+cancellations; the preset prices half of the lost hours anywhere inside the 14 days, the reading two other summaries give.
+
+Not modelled for either city: who is covered (Philadelphia: retail, hospitality and food service with 250+ employees and
+30+ locations; Los Angeles: retail with 300+ employees worldwide), Los Angeles's 72-hour offer of extra hours to current
+staff before hiring, the good-faith estimate, and the right to decline.
+
+Tested (`notice.test.mjs`, 17 tests, 3 new): each city's arithmetic (Philadelphia: a 20 min later start free, 21 min half
+of 21 min = $3.50 at $20; a cut at 3 days' notice half of 8 h = $72 at $18; the team offer exempt; Los Angeles: 15 min
+added free, 16 min one hour; the team offer priced), the rest rules side by side on Sunday 16-24 then Monday 08-16 at
+$20 (Seattle $20 on 2 h inside the window, Los Angeles $80 on the whole 8 h shift, Philadelphia $40 with no wage needed;
+a same-day split counted in Seattle and not in Philadelphia), the overrides, and the hub's changes page for both presets.
+
+## Schedule changes and fair-workweek pay (2026-11-16)
+
+Seattle, Oregon, Chicago, New York City, Philadelphia, San Francisco, Los Angeles and others make covered employers post
+schedules ahead (14 days in the three here) and pay "predictability pay" when they change a posted shift inside that window.
+The cost is invisible on the schedule: it is in the change, so a manager needs a record of what changed, when, for whom
+and at whose request. The builder's changes report (`--changes`, "Changes since you posted it") compares two rosters at
+a moment you type. The hub is where the changes really happen, days apart, so it now keeps that record itself
+(`notice.mjs`, no Node built-ins, the Node server and the Cloudflare Worker alike).
+
+- **The log (always on):** publishing a week that is already posted logs what it changed for each person (same day,
+  other hours: moved; otherwise cancelled or added, the same pairing as `scheduleChanges`); an approved trade or
+  open-shift pick-up is logged as employee-asked; a call-out given to someone logs the caller's dropped shift as
+  employee-asked and the added shift as not, because the manager picked the person. The first publish of a week is kept
+  as its posting time. The manager can flip any entry between "Employee asked" and not. The last 1,500 changes are kept
+  (Seattle asks for three years of records, so the page says to download the CSV with each payroll).
+- **The rule sets (`FAIR_WORKWEEK=seattle|oregon|chicago|philadelphia|los-angeles|new-york-city|san-francisco|emeryville|berkeley|custom`;
+  the later ones since 2026-11-16 later, see "Berkeley", "San Francisco and Emeryville", "Philadelphia and Los Angeles" and "New York City fast food" above):** read from the City of Seattle's Office of Labor
+  Standards "Secure Scheduling" page and Oregon BOLI's "Predictive scheduling" page on 2026-11-16, and for Chicago from
+  search summaries of the city's Fair Workweek notice and rules on chicago.gov and the ordinance's table as quoted by the
+  National Law Review (the chicago.gov pages returned 403 or 404 here, so Chicago is the least checked of the three):
+  - Seattle: an added shift, added hours or a moved shift inside 14 days owe 1 hour of pay; hours taken away owe half
+    their pay; hours worked under 10 hours after the last shift pay time and a half.
+  - Oregon: the same, except that 30 minutes or less of added work owes nothing.
+  - Chicago: an add or move owes 1 hour (moves of 15 minutes or less owe nothing); hours taken away owe half their pay
+    inside 24 hours of the shift and 1 hour of pay between 24 hours and 14 days; rest under 10 hours pays 1.25x.
+  - `custom`, or any preset with overrides: `FWW_NOTICE_DAYS`, `FWW_ADD_HOURS`, `FWW_MIN_MOVE_MIN`, `FWW_MIN_EXTEND_MIN`,
+    `FWW_CANCEL_WINDOW_HOURS`, `FWW_CANCEL_FRACTION`, `FWW_CANCEL_ELSE_HOURS`, `FWW_REST_HOURS`, `FWW_REST_MULT`.
+- **`/admin/changes`** (linked from `/admin`): every change newest first with its notice (from the change to the earliest
+  start it touches, in your `TIMEZONE`), the hours lost or gained, the premium at the person's wage from the staff list and
+  the reason in words; shifts posted under the notice window; short rests in the current week, reaching back into last
+  Sunday when last week is the one before; totals; `/admin/changes.csv` for payroll (names that start like a formula
+  are quoted). A change made after the shift ended is a record correction and owes nothing; a change during the shift
+  (sent home early) counts as hours taken away.
+- **Not modelled:** who is covered (Seattle: 500+ employees worldwide; others differ), the exceptions for emergencies,
+  offers to the whole team after an absence and standby lists, on-call shifts, the right to decline added hours, and the
+  good-faith estimate at hire. The page says it is an estimate to check before payroll.
+- **Tested** (`notice.test.mjs`, 9 tests): each preset's arithmetic on hand-made changes (Seattle half of 8 lost hours at
+  $20 = $80; Chicago 1 hour at 66 hours' notice, half at 18; Oregon 30 minutes added free, 45 not), the pairing, the
+  time-zone and overnight instants, late posting, a short rest across the week boundary, the CSV, and the hub end to end:
+  a week published, published again after a staff change (four changes logged, posting time kept), a call-out covered,
+  the page and CSV under Seattle, the manager's mark, and the page with no rule set. Not yet run against a real site's
+  week of changes or checked by an employment lawyer.
+
+The same check found a mistake in the sibling
+[fair workweek schedule checker](../fair-workweek-schedule-checker/): its Seattle preset paid short rests at 1.25x; Seattle
+pays time and a half, so the preset, its worked example ($137.50 to $148.00) and tests are corrected in the same change.
+
+## A call-out offered to the whole team, and on-call shifts (2026-11-16)
+
+The fair-workweek log above priced every cover the manager handed out, and said the two cases that change the bill most
+were not modelled: the offer to the whole team after someone calls out, and on-call shifts. Both are now in the hub
+(`notice.mjs`, `hub.mjs`).
+
+- **Offer to the whole team.** Each call-out on `/admin` has an "Offer to the whole team" button. It posts the shift on
+  the staff page and to the team webhook as a written offer that says what Seattle's 2024 model policy asks it to say:
+  it goes to everyone at once, taking it is voluntary, and the employee may decline (`teamOfferText`). Staff press
+  "I'll take it"; the manager sees who said yes on the cover buttons and gives the shift to one of them, under the same
+  rule checks as before. That cover is logged with the cause "team offer", the caller's dropped shift as employee-asked
+  and the taker's added shift marked as taken from the offer.
+- **Priced per rule set** (`massOffer`, override with `FWW_MASS_OFFER=0|1`): Seattle and Oregon exempt the hours an
+  employee accepts from such an offer after another employee's absence, for that employee's hours only, so the added
+  shift owes nothing there. No matching exception turned up for Chicago, whose city FAQ says employer-asked cover after a
+  call-off owes pay, so the Chicago preset still charges the hour and says the rule set has no team-offer exception.
+  Giving the shift straight to someone, without the offer, is priced as before.
+- **On-call shifts.** A shift whose label says "on-call" (or "on call", "oncall") is listed on `/admin` as waiting until
+  the manager marks it "Called in" or "Not needed". Not needed is logged as hours taken away and priced by the rule set's
+  cancellation terms: Seattle and Oregon pay half the hours not worked; Chicago's 2026 rules treat on-call cancellations
+  like other cancelled hours (half inside 24 hours, 1 hour of pay before). One still waiting when it ends is listed on
+  `/admin/changes` as never called in and counted as released at its start (half its hours in all three), with a row
+  in the CSV. Marks for weeks that drop out of the history are pruned with the posting times.
+- **Sources and their limits.** The primary pages (seattle.gov, oregon.gov, the Oregon statutes, chicago.gov) did not
+  answer from this session, so the rules are from search summaries of Seattle OLS's 2023 Q&A, 2024 model policy and
+  one-pager; ORS 653.455, OAR 839-026 and BOLI's page; and Chicago's May 2026 rules as summarised by law firms. Check
+  them against the current text. Still not modelled: Seattle's in-person group communication for unexpected customer
+  needs, Oregon's voluntary standby list, the emergency exceptions, and the right to decline.
+- **Tested** (`notice.test.mjs`, 12 tests, 3 new): the exception in Seattle and Oregon and its absence in Chicago, the
+  override, the offer's three statements; an on-call release at 28 hours ($60 Seattle, $20 Chicago at $20/h for 6 h),
+  never called in in all three presets, the CSV row; and the hub end to end: a call-out offered, the webhook text, the
+  staff page, a refused yes from the caller, a yes, the cover logged as "team offer" and shown exempt under Seattle, an
+  on-call shift marked not needed, logged and priced, and a second mark refused. Not run against a real site's week.
+
+## Oregon's voluntary standby list, from the statute's own text (2026-11-16)
+
+The two sections above priced Oregon from search summaries, because oregon.gov and the Oregon statutes did not answer
+from the session that wrote them. This session's request to the Oregon Legislature's published chapter 653
+(oregonlegislature.gov/bills_laws/ors/ors653.html, ORS 653.412 to 653.485 as amended by 2024 c.20) did answer, so the
+Oregon preset was checked against the statute itself. Reading it showed two pricing mistakes and one missing exception:
+
+- **A start or end changed by 30 minutes or less owes nothing, hours lost included** (ORS 653.455(3)(a)). The preset
+  charged half of the lost minutes, so a start moved 20 minutes later cost $2.50 at $15 an hour. It now owes nothing
+  (`minEdgeMin: 30`, override `FWW_MIN_EDGE_MIN`). 31 minutes is priced as before, and widening both ends by 20 minutes
+  adds 40 minutes of work, more than the 30 that (2)(a)(A) allows, so it still owes the hour. Seattle and Chicago keep
+  their old arithmetic.
+- **An additional shift owes the hour at any length** (ORS 653.455(2)(a)(C)). The 30-minute threshold is for "more than
+  30 minutes of work" added *to* a shift. The code had let a separate shift of 30 minutes or less go free, and it did
+  that in every preset. Now an added shift always owes `addHours`. The threshold still applies to time added to a shift.
+- **The voluntary standby list** (ORS 653.432, exempt under 653.455(3)(j)). An employer may keep a list of employees
+  who agreed in writing to be asked for extra hours after an unexpected absence or customer need. Hours someone on the
+  list agrees to work owe no predictability pay. With `FAIR_WORKWEEK=oregon` (or `FWW_STANDBY=1` with any rule set) the
+  hub has:
+  - **a "Standby list (voluntary)" section on the staff page.** It shows the written notice with the four statements
+    653.432(1)(a)-(d) require: the list is voluntary and how to leave it, how hours are offered and accepted, that
+    nobody has to accept, and that accepted hours earn no predictability pay. Joining needs a ticked written agreement,
+    and anyone can leave at any time (653.432(5)). The manager can also take someone off on request. Each join and
+    removal goes into a dated record (`standbyHistory`, latest 500 kept).
+  - **an "Ask the standby list (N)" button on each call-out.** It posts the hours on the staff page and to the team
+    webhook (653.432(2) allows notice by text, email or another electronic format). Only the people who were asked
+    can press "I'll take it". When the manager gives the shift to one of them, the change is logged as "standby list"
+    and priced as exempt, with a reason that cites 653.432(4).
+  - **the standby-first condition on the team offer.** Under 653.455(3)(k)(C), where an employer keeps a standby list,
+    the exception for cover after an absence applies only after everyone on the list has been contacted. A team offer
+    taken while listed people were never asked now records how many (`standbyOpen`). Oregon prices that shift and says
+    why; Seattle is unchanged. The call-out block tells the manager to ask the list first.
+- **Checked against the text, not yet in use.** `notice.test.mjs` (14 tests, 2 new and 1 corrected) covers the 20-,
+  30- and 31-minute edges, the 40-minute widening, the 30-minute added shift, the standby exemption in Oregon and its
+  absence in Seattle and Chicago, the standby-first pricing and the four statements. It also runs the hub end to end
+  under Oregon: a join refused without the box ticked, a join, the ask, a refusal for someone not asked, the yes, the
+  cover logged as exempt, a team offer before the list was asked priced at one hour, leaving, removal by the manager,
+  and the section and routes absent under Seattle. Not modelled: the 653.432(6) anti-retaliation rule and the
+  653.432(7) coercion penalty are printed as notes, not enforced. The rule texts were read, not checked by an
+  employment lawyer, and no real Oregon site has used this.
 
 ## Free on Cloudflare: no server, no card (2026-11-15)
 
@@ -1247,6 +1883,82 @@ What it does with When I Work's fields, and where it differs from the 7shifts re
 Checked: 11 tests on invented rows in the documented shape (`import-wheniwork.test.mjs`: winter and summer offsets, an overnight shift and one across the clock change, open, deleted and unpublished shifts, two locations picked by name or id, damaged rows, repeats, the time reader on the definition's own examples including its single-digit `9:30:00`, telling the two vendors' JSON apart and each reader refusing the other's, the fetch's parameters and headers against a stub, the CLI). A headless-Chromium upload of three JSON files on the page filled the shifts box (`Mon, 7:00, 15:00, 2, , server` with the open shift counted), listed both locations, and kept one when picked, with no page errors.
 
 Not claimed: no When I Work account, recorded response or real company's shifts was used, unlike the 7shifts reader, which was checked against a scrubbed recorded response; the field meanings are When I Work's own words, not observed behaviour; whether `/2/shifts` also returns positions and locations beside the shifts was not assumed (the definition lists only shifts, repeating shifts and chains), so they are fetched separately; the page cannot fetch; Homebase is still unread (its API docs answered 401 without an account).
+
+## Reading Square's schedule directly (2026-11-16)
+
+Square was the next scheduler with no reader. Many of the cafes and shops this tool is for already run their tills on
+Square, whose sales exports `--from-sales` reads, and Square's team plans include a scheduler; an owner moving the week
+here had no way to bring the shifts across except by retyping them. Square publishes its whole API definition on GitHub,
+including the Labor API's scheduled shifts, so the shifts can come from there, as for 7shifts and When I Work.
+`import-square.mjs` reads Square's own responses (`POST /v2/labor/scheduled-shifts/search`, `GET /v2/team-members/jobs`,
+`GET /v2/locations`) and hands them to the same counting as `--import-shifts`. Every field it uses, with the
+definition's SHA-256, is in `eval/square-scheduled-shifts-format-2026-11-16.md`.
+
+- **Page:** the schedule-export box tells Square JSON (`scheduled_shifts`, `draft_shift_details`) from When I Work's and
+  7shifts', Square first, so the same box takes any of the three. Choose the saved shifts, jobs and locations responses
+  together; the location picker works as before. Nothing is fetched by the page.
+- **CLI:** `node cli.mjs --import-square shifts.json --import-square jobs.json --import-square locations.json` (one file
+  may hold several responses, one per line). Or fetch with your own access token:
+  `SQUARE_ACCESS_TOKEN=... node cli.mjs --fetch-square --from 2026-11-02 --to 2026-11-29 [--save week.json]`. The token
+  needs TIMECARDS_READ, EMPLOYEES_READ and MERCHANT_PROFILE_READ (the definition's permission for each call); it goes only
+  to connect.squareup.com as a bearer header and is never printed or saved. `SQUARE_VERSION` overrides the
+  `Square-Version` header (default `2026-09-16`, the definition's). `--location` (name or Square id), `--no-drafts`,
+  `--square-latest`.
+
+What it does with Square's fields, and where it differs from the other readers:
+
+- **Two versions of each shift.** A scheduled shift carries its latest draft (always) and its published details (once
+  posted). By default the published version is read, because that is the schedule staff were shown; a shift never
+  published is read from its draft as planned, unless `--no-drafts`. `--square-latest` reads every shift's latest draft
+  instead, for a manager who has edited next week in Square and not posted it. Published shifts with edits waiting are
+  counted in a note either way.
+- **Deletes.** A draft marked `is_deleted` with no published version is left out. One marked `is_deleted` over a published
+  shift is still on the posted schedule (Square deletes it when the manager publishes), so it is counted with a note,
+  and `--square-latest` leaves it out.
+- **Unassigned shifts count.** No `team_member_id` is a shift nobody is on, still needed.
+- **Times carry the location's offset** (`2026-11-02T07:00:00-06:00`), so the digits are the shop's clock and lengths come
+  from the instants (a night across the clock change is 8 hours, not 7). A time written in UTC is moved to the shift's
+  `timezone` or its location's; with neither it is read as UTC and the note says so.
+- **Paging.** The search returns at most 50 shifts a page with a `cursor`; the fetch follows it, and the jobs list too.
+  It asks by workday (`match_scheduled_shifts_by: INTERSECTION`, shifts starting on those dates in the location's own
+  zone), so no padding day is needed; the saved result is still trimmed to the dates asked for.
+- **Errors.** A saved response with Square's `errors` list instead of shifts is reported with Square's own detail; the
+  fetch names the error code and, on a 403, the permission the search needs.
+
+Checked: 10 tests on invented rows in the documented shape (`import-square.test.mjs`: names from jobs and locations,
+winter and summer offsets and the clock change, published against draft and `--square-latest`, a pending delete,
+never-published and deleted drafts, unassigned shifts, two locations by name and by id, UTC times moved or flagged, damaged
+rows and repeats, an error response, telling Square JSON from When I Work's, the fetch's body, paging and headers against a
+stub, the CLI). A headless-Chromium upload of three JSON files on the page filled the shifts box and listed both locations
+(see the PR).
+
+Not claimed: no Square account, recorded response or real business's shifts was used; the field meanings are Square's own
+words, not observed behaviour; the scheduled-shifts and jobs endpoints are marked BETA in the definition and may change;
+team members' wages (`/v2/labor/team-member-wages`, `/v2/team-members/search`) are not read yet, so staff still come in
+by CSV or by hand; Deputy's API docs were not reachable from the session, so Deputy was then read only from its CSV
+export (its API is read since 2026-11-17, next section).
+
+## Reading Deputy directly (2026-11-17)
+
+`--import-deputy rosters.json` reads saved answers from Deputy's resource API (`POST /api/v1/resource/Roster/QUERY`, plus
+`resource/OperationalUnit/QUERY` and `resource/Company/QUERY` for area and location names; repeat the flag for more files)
+and prints shift-requirement lines, like the 7shifts, When I Work and Square readers. `--fetch-deputy --from 2026-11-02
+--to 2026-11-08` fetches the same from your own install: `DEPUTY_INSTALL=yourco.na.deputy.com` and `DEPUTY_TOKEN` (a
+permanent token or an OAuth access token; it is sent only to a `*.deputy.com` host, as `Authorization: OAuth`, 500 rows
+a page). The page's schedule box takes the saved JSON too and tells it from the other vendors' JSON by Deputy's
+capitalised `StartTime`.
+
+- **Roles and sites.** A roster's area (`OperationalUnitName`) is its role, as the CSV reader already takes Deputy's
+  `Area Name`; the area's company is the location (`--location` by name or company id).
+- **Times.** `StartTimeLocalized` is read on the site's own clock. A roster with only Unix times is read in `--tz`
+  when given, else at the offset of its own `Date`, else in UTC with a note.
+- **Open and draft shifts.** `Open` or `Employee: 0` counts as needed; unpublished rosters count unless `--no-drafts`.
+
+Deputy's own API reference gave no answer from the session, so the field names and request shape come from two
+open-source clients: an MIT PHP wrapper's schema, models and mock responses, and Google's Apache-2.0 Python client
+(`eval/deputy-api-format-2026-11-17.md`; no code copied). The wrapper's mock roster reads the same from its localized
+times and from its Unix times plus `Date` (09:00 to 11:00 at +10:30). Tests: `import-deputy.test.mjs` (10). Not
+claimed: no Deputy account, token or real response was used; `Mealbreak`, leave and wages are not read.
 
 ## Several shops in one sales export (2026-11-13)
 
@@ -2686,3 +3398,562 @@ seeds at 8.4% took 88 minutes for three rosters in the earlier study). The defau
 both studies, but its changes and premiums differ slightly from "The pair price in played weeks" (187 and $3,239 here, 183 and
 $3,177 there), because the reissues inside each play are time-gated and the machine was busier. Every other cell for the
 cover and default rosters matches that study exactly.
+
+## The clique LP steers the cover passes (2026-11-15 later)
+
+"Column generation keeps to its share" left a question for 350-400 copy weeks: the open-hours clique LP takes 5-11 s there and
+buys a much tighter bound, while the cover passes turn the same seconds into filled shifts, and in single runs neither won every
+week. **Measured first** (`node eval/clique-vs-cover.mjs P S week config seed`, `eval/clique-vs-cover.out.txt`): each of the five
+350-400 copy bench weeks built three times (search seeds 1-3) with the clique LP on and off, at the default 20 s budget.
+
+| open hours, mean of 3 seeds | clique LP off | clique LP on (unguided cover passes, as before) | on, cover passes guided (now) | bound the clique LP proves |
+|---|---|---|---|---|
+| 90 x 252 week 0 (348 copies) | 356.7 | 356.7 | **353.7** | 352 |
+| 90 x 252 week 1 (352) | 224.0 | 229.3 | **220.7** | 219 |
+| 90 x 252 week 2 (363) | 376.3 | 374.7 | **374.0** (proven on all 3) | 374 |
+| 100 x 280 week 0 (400) | 387.0 | 377.7 | **374.3** | 358 |
+| 100 x 280 week 1 (400) | 353.3 | **350.0** | 350.7 | 344 |
+
+So the clique LP paid for itself on four of five weeks even before this change: on the 400-copy weeks by 9.3 and 3.3 hours on
+every seed. Without it the only bound left is column generation's root (288-294 h on those weeks), so the page could not tell a
+manager that 344-358 of the hours are unavoidable. The one loss was 90 x 252 week 1, where the cover passes got about 2.5 s less
+and the roster left 5 more hours open.
+
+**What landed:** the LP's answer is now used twice. It already guided the day sweeps (README "A guide when the pay floor is
+skipped"); now it guides the cover passes too. When a cover-pass step tries to fill an open shift, it picks the person to try in
+proportion to their value on that shift in the LP's solution half the time, and picks uniformly the other half, as before
+(`coverPass`'s `guide`). It only changes which move is proposed. Every move is still checked by the same rules and accepted by
+the same test, so the guide cannot make a roster invalid, and a week whose LP gives nobody to a shift is proposed as before.
+`coverGuide: false` turns it off, `coverGuideProb` sets the share (0.9 was tried: no better than 0.5, worse on two weeks), and
+`optimality.coverGuided` says whether the cover passes used it.
+
+The before/after columns above come from two separate runs. So the change was checked again in **one run, on fresh search seeds
+4-6 and ten bench weeks** (60 to 100 people), guided against `coverGuide: false`, paired by week and seed:
+
+| same run, seeds 4-6 (`eval/clique-guide-ab.jsonl`) | unguided: open h | guided: open h |
+|---|---|---|
+| 80 x 224 weeks 0-2 | 260/259/259, 331/331/334, 284/282/282 | **257/259/257, 331/331/331, 281/281/281** |
+| 90 x 252 weeks 0-2 | 354/355/359, 221/222/224, 374 x 3 | **352/354/359, 220/226/219**, 374 x 3 |
+| 100 x 280 weeks 0-1 | 381/373/381, 346/349/348 | **372/377/374, 351/344/347** |
+| 60 x 168 weeks 0-1 | 300 x 3, 308 x 3 | 300 x 3, 308 x 3 (no change: proven or nothing to cover) |
+
+Guided builds left fewer open hours on **14 of 30, more on 3**, and tied on 13 (two-sided sign test p = 0.013): 9,450 hours in all
+against 9,481. Of the 24 builds above 60 people, **14 guided rosters reached the clique LP's bound**, so their open hours are
+proven least, against 5 unguided. They include all three seeds of 80 x 224 weeks 1 and 2, 90 x 252 week 1 seed 6 (219) and
+100 x 280 week 1 seed 5 (344). Because the plateau walk stops at the bound,
+those builds also spent less time in the cover passes (0.5-1.9 s instead of 3.3-5.9 s on 80 x 224 weeks 1 and 2). On weeks of
+up to about 245 copies the clique LP proves the posted roster's open hours before the cover passes start, so nothing changes there.
+
+**What this says** about the question it started from: on 350-400 copies the clique LP is worth its seconds, so its gate stays
+as it is. The way to stop it costing the cover passes is to let the cover passes use what it found, not to skip it.
+
+Tests: `cover-guide.test.mjs` (on 80 seeded small weeks a guided pass from an empty roster, at guide shares 0.5 and 1, keeps every
+rule, reports its own open hours, never ends above where it started and never below the clique LP's floor; an all-zero guide
+gives the unguided pass's roster exactly; buildRoster reports `coverGuided` true when the clique LP ran and false with
+`coverGuide: false`). Not claimed: generated weeks only, three or six search seeds each, one cloud machine with two builds at a
+time. The time-bound passes move a few hours run to run (README "Room for the clique LP"), which is why the claim rests on the
+paired same-run comparison. Next: the same guide for `coverRepair`'s choice of people, and for `ejectPass`, which run before the
+LP today.
+
+## The clique LP picks the repair's people (2026-11-15 later)
+
+"The clique LP steers the cover passes" ended on a next step: give the same LP guide to `coverRepair`, the exact repair that
+releases k people's shifts and re-solves them plus every open shift. Looking first at what the repair does on the 350-400 copy
+weeks changed the question. On most of those builds it got **0 ms**: the plateau walks run until the 20 s budget is gone
+(`eval/clique-guide-ab.jsonl`). And when it was given time (`coverRepairReserveMs`), it ended on its node budget after about 15 of
+its 60 rounds, because **every round hit its 200,000-node cap**. A three-person neighbourhood there holds about 68 open shifts, and
+the depth-first search began each round with no bound, so it often never even found the roster it started from (361 open hours
+found, 356 held, on 90 x 252 week 0).
+
+**What landed:**
+
+- **Each round starts from its own value.** The search must beat the neighbourhood as it stands, so it prunes from the first node.
+  Shifts no chosen person may take are counted once and not branched on, and a second bound prunes on the chosen people's weekly
+  hours: hours still to place, less what those people can still take, must stay open. Both only relax the rules, and a new test
+  checks the repair over everyone against a brute-force search on 60 tiny weeks: the same least open hours on all 60
+  (`repair-guide.test.mjs`).
+- **An LP-guided choice of people, opt-in** (`repairGuide: true`, `repairGuideProb`, default share 0.5). A guided round builds its
+  people as a chain the LP suggests: an open shift, a person the LP puts on it (drawn by value), a shift that person holds which the
+  LP gives mostly to someone else, that someone, and so on.
+- **A reserve for the repair, off by default** (`coverRepairReserveMs`): under a time budget the plateau walks stop starting once
+  only that much is left. The repair's own time is now capped at what the budget has left (at least 0.2 s).
+- `optimality.coverRepair` reports `guided`, `guidedRounds`, `gains` and `guidedGains` when the repair ran.
+
+**Measured on the repair alone** (`node eval/repair-alone.mjs P S week startSeed`, `eval/repair-alone.out.txt`): the eight
+80-100 person bench weeks, three fixed starts each (a guided plateau walk of 400,000 steps from an empty roster), then the
+repair under the same node budget:
+
+| 24 starts, k = 3 people, 60 rounds | total open h | cut from the start | paired against the unguided new repair |
+|---|---|---|---|
+| main's repair (b92b1c892) | 8,455 | 206 h | fewer open on 1, more on 8 (p = 0.039) |
+| this repair, unguided (the default) | **8,444** | **217 h** | |
+| this repair, guided half the rounds | 8,443 | 218 h | fewer on 11, more on 9, tied 4 (p = 0.82) |
+| this repair, guided every round | 8,481 | 180 h | fewer on 9, more on 13 (p = 0.52) |
+
+Five-person neighbourhoods (first start of each week) left more open than three on 6 of 8 weeks unguided and 6 of 8 guided, fewer on 1 (they hit the node cap sooner). So the bound is a small, real gain
+and the guide is not one: the LP's people are no better places to look than random ones, and guiding every round narrows the
+search and loses. That is why the guide is opt-in.
+
+**End to end** (`node eval/repair-guide.mjs P S week config seed`, `eval/repair-guide.out.txt`, same eight weeks, search seeds 4-6,
+default 20 s budget, two builds at a time): main 7,631 open hours in all, this change 7,631, the guided repair 7,635, a 500 ms
+reserve 7,639 guided and 7,632 unguided, each at the proven floor on 13 of 24 builds (12 for the guided reserve). The differences
+are the time-bound passes' run-to-run noise. On 40 small seeded weeks with no budget (`eval/repair-small.out.txt`) open hours and
+score are identical to main on all 40.
+
+**What this says:** the repair is not where the 350-400 copy weeks lose hours. Even with time and a bound it closes about 9 of the
+46 open hours (24-81) a start leaves above the floor, because a depth-first search over 50-80 shifts does not finish inside its node
+cap. A neighbourhood solved by something other than depth-first search (the flow bound of `openHoursFloor` or the clique LP
+restricted to the chosen people, then rounded) is the next thing to try; more of the same search, or a better choice of people,
+is not.
+
+Not claimed: generated weeks only, three starts or three search seeds each, one cloud machine.
+
+## The repair's neighbourhood under a flow bound (2026-11-15 later)
+
+"The clique LP picks the repair's people" ended on the next thing to try: solve the repair's neighbourhood with something other
+than plain depth-first search, because even with time and a bound it closed only about 9 of the 46 open hours a start leaves above
+the floor. Every round hit its node cap, so the question was where those nodes went.
+
+**What landed** (`coverRepair`'s `bound: "flow"`, now the default; `coverRepairBound: "dfs"` on `buildRoster` keeps the old search):
+
+- **A max-flow floor for each neighbourhood** (`neighbourhoodFloor`): `openHoursFloor`'s flow restricted to the free shifts and the
+  chosen people, with everyone else fixed. A free shift reaches a chosen person's day only if that person may take it next to what
+  they already hold; each day carries at most its longest rest-respecting chain and the daily cap less the hours already worked that
+  day; each person at most the weekly hours they have left. Every rule only relaxes, so the floor never overstates.
+- **Rounds that cannot win cost no search.** When the floor equals the neighbourhood's open hours, the round is skipped, and a
+  skipped round does not count against the round limit (up to `skipRounds`, 4 x rounds). On the bench starts the floor skipped
+  about two of every three three-person rounds: most random neighbourhoods are already as good as they can be.
+- **The search stops at the floor**: once it finds an assignment whose open hours equal the floor, nothing below exists.
+- **Dead shifts are counted at once.** Each chosen person keeps a row of the free shifts they may still take; when a person takes a
+  shift the row is re-checked, and a shift no chosen person may still take is counted as open right away instead of when the search
+  reaches it. Every hard rule only tightens as a list grows, so a closed shift never reopens below that node.
+
+**Measured on the repair alone** (`node eval/repair-flow.mjs P S week startSeed`, `sh eval/repair-flow-run.sh`,
+`eval/repair-flow.out.txt`): the same eight 80-100 person bench weeks and three fixed starts each as before (a guided plateau walk
+of 400,000 steps from an empty roster), every repair from the same start:
+
+| 24 starts | total open h | cut from the start | paired |
+|---|---|---|---|
+| depth-first, 3 people, 60 rounds (main) | 8,444 | 217 h | |
+| **flow-bounded, 3 people, 60 rounds** | **8,177** | **484 h** | fewer open than depth-first on **24 of 24** (p = 1.2e-7) |
+| depth-first, 5 people | 8,545 | 116 h | |
+| flow-bounded, 5 people | 8,510 | 151 h | fewer on 11, more on 2 (p = 0.023) |
+| depth-first, 3 people, 2 s of rounds | 8,127 | 534 h | |
+| **flow-bounded, 3 people, 2 s of rounds** | **7,970** | **691 h** | fewer on 19, more on 3 (p = 0.0009) |
+| flow-bounded, 5 people, 2 s | 8,290 | 371 h | more open than 3 people on 22 of 24 |
+
+At the same node budget the flow-bounded repair takes about twice as long (798 ms against 398 ms a start), because it runs more
+rounds that search. At the same wall-clock time, the fair test, it still closes 29% more hours. Three people stay the right
+neighbourhood size: five fill the node cap sooner either way.
+
+**End to end** (`sh eval/repair-flow-e2e.sh`, `eval/repair-flow-e2e.out.txt`; same eight weeks, search seeds 4-6, the default 20 s
+budget, two builds at a time):
+
+| 24 builds | open h in all | at the proven floor | paired |
+|---|---|---|---|
+| depth-first, no reserve (main) | 7,633 | 14 | |
+| flow-bounded, no reserve (now) | 7,633 | 14 | fewer open on 1, more on 1 |
+| depth-first, 2 s repair reserve | 7,629 | 13 | |
+| flow-bounded, 2 s repair reserve | **7,613** | 13 | against depth-first with the reserve: fewer on 6, more on 2 (p = 0.29); 55 repair gains against 31 |
+
+**What this says:** the neighbourhood was losing its nodes to rounds that could not win and to shifts that were already lost, and a
+flow answers both cheaply. As a search on its own the repair is now about twice as strong. But posted rosters do not change at
+the defaults, because the plateau walks use the 20 s budget and leave the repair about 0.2 s. With a 2 s reserve the flow-bounded
+repair is ahead on 6 of 8 builds that differ, which is suggestive and not significant, so the reserve stays off by default.
+
+Tests: `repair-flow.test.mjs` (over everyone on 60 tiny weeks the flow-bounded and depth-first repairs find the same least open
+hours, so neither the dead-shift bound nor the stop prunes a better roster; the neighbourhood floor never exceeds an exhaustive
+search of the same neighbourhood on 80 small weeks and equals it on at least half; the repair keeps every rule and never opens more;
+`buildRoster` reports `floorSkipped` and `floorReached`). Not claimed: generated weeks only, three starts or three search seeds
+each, one cloud machine. Next: whether a repair reserve pays at 20-60 people, or a flow floor per dead-shift node (a cheaper bound
+inside the search than a full flow, which the measurements above did not need).
+
+## The repair reserve at 30-60 people (2026-11-16)
+
+"The repair's neighbourhood under a flow bound" ended on a question: does a time reserve for the flow-bounded repair pay at 20-60
+people, where the plateau walks leave more of the 20 s budget than on the 350-400 copy weeks? **Measured first**
+(`sh eval/repair-reserve-small.sh`, `eval/repair-reserve-small.out.txt`): twelve bench weeks, 30 x 84, 40 x 112, 50 x 140 and
+60 x 168, weeks 0-2 each (121-245 copies), search seeds 4-6, no reserve against a 500 ms and a 2 s reserve, two builds at a time.
+(20 x 56 weeks were left out: they prove in about a second, README "The exact check end to end".)
+
+| 36 builds | open hours in all | at the proven floor | repair ran | repair gains |
+|---|---|---|---|---|
+| no reserve (the default) | 7,575 | 36 | 15 | 0 |
+| 500 ms reserve | 7,575 | 36 | 15 | 0 |
+| 2 s reserve | 7,575 | 36 | 15 | 0 |
+
+**No: every build at this size already reaches its proven open-hours floor**, with or without a reserve, so there is nothing for
+the repair to close. The reserve stays off by default, and the question stays where it was asked: the 350-400 copy weeks.
+
+The same table showed a waste. On 15 of the 36 builds (40 x 112 week 2, 50 x 140 weeks 1 and 2, 60 x 168 weeks 0 and 2) the repair
+still ran, for 0.04-1.8 s, on a roster whose open hours already equalled the floor the clique LP or the flow bound had proven. It
+cannot cover more there; all it could do is trade to fewer open shifts at equal hours, and it found that on none of them.
+
+**What landed:** the repair is skipped when the roster's open hours already equal a proven floor (`ctx.openFloor`), and
+`optimality.coverRepair` then reports `{ skippedAtFloor: true }`. Only when the repair is on by default: `coverRepair: true`, a priced
+`openShiftWeight` (CLI `--open-shift-hours`, where fewer open shifts is what was asked for) or `coverRepairAtFloor: true` runs it as
+before.
+
+| check (`eval/repair-at-floor.out.txt`) | result |
+|---|---|
+| the 15 bench builds above, rebuilt (`sh eval/repair-at-floor-bench.sh`) | same open hours on 15 of 15, skipped on all 15; 261.0 s to 241.4 s of build time, **1.31 s a build** back (up to 1.9 s on 40 x 112 week 2) |
+| 60 small seeded weeks, no budget (`node eval/repair-at-floor-small.mjs`) | identical open hours, open shifts, score and pay on 60 of 60; skipped on 16 |
+
+Tests: `repair-flow.test.mjs` (on 12 seeded weeks a skip happens only where the roster's open hours equal the reported floor, running
+the repair anyway never covers more, and `coverRepair: true` always runs it; the tests that read the repair's own report pass
+`coverRepairAtFloor: true`). Not claimed: generated weeks only, three search seeds each, one cloud machine with two builds at a
+time; on the bench builds pay was not recorded, only open hours (the repair found nothing on any of them, so the roster it would
+have handed back was the one it was given). Next: the 2 s reserve test belongs to the 350-400 copy weeks, where builds end above
+the floor (README "The repair's neighbourhood under a flow bound": 6 of 8 differing builds ahead, p = 0.29); more seeds there would
+settle it.
+
+## The repair reserve on the biggest weeks (2026-11-16 later)
+
+"The repair reserve at 30-60 people" left the 2 s reserve's question on the 350-400 copy weeks, where builds end above the floor:
+seeds 4-6 had it ahead on 7 builds and behind on 3 (p = 0.34). **Measured in three steps** (`eval/repair-reserve-big.out.txt`,
+`eval/repair-reserve-big-fresh.out.txt`; the flow-bounded repair, the default 20 s budget, two builds at a time):
+
+| step | builds | 2 s reserve: fewer open / more / tied | net hours covered | sign test |
+|---|---|---|---|---|
+| the eight bench weeks, fresh seeds 7-12 (`sh eval/repair-reserve-big.sh`) | 48 | 10 / 5 / 33 | +11 | p = 0.30 |
+| pooled with seeds 4-6 | 72 | 17 / 8 / 47 | +31 of 244 above the floors | p = 0.11 |
+| no reserve run twice, the four above-floor weeks, seeds 7-12 (`sh eval/repair-reserve-big-noise.sh`) | 24 | second run against first: 1 / 1 / 22 | +1 | |
+| **pre-registered** (`eval/repair-reserve-big-prereg.md`, written before the run): four above-floor weeks, fresh seeds 13-24 (`sh eval/repair-reserve-big-fresh.sh`) | 48 | **22 / 10 / 16** | **+34 of 305**; at the floor on 11 builds against 5 | **one-sided p = 0.025** |
+
+The rerun matters: two runs of one configuration tied on 22 of 24 builds, so the builds are close to deterministic and the
+reserve's wins and losses are its own, not timing noise. The pre-registered rule (fewer open hours on more builds, one-sided
+sign test p < 0.05, a net gain, on the fresh seeds alone) was met. The 80 x 224 weeks (304 copies) mostly reach their floor either
+way, and there the reserve changed nothing in seeds 7-12; build time did not grow (mean 22.3 s to 22.2 s on the fresh test).
+
+**What landed:** under a time budget, `coverRepairReserveMs` now defaults to a tenth of the budget, at most 2 s, on weeks of 300 or
+more shift copies, and to 0 below (where every bench build already reaches its floor, README "The repair reserve at 30-60
+people"). An explicit `coverRepairReserveMs` (0 turns it off) wins; `optimality.coverRepairReserveMs` reports the reserve used.
+
+Tests: `repair-flow.test.mjs` adds that a 348-copy bench week under a 3 s budget reserves 300 ms, a 149-copy week reserves none,
+and an explicit value is kept. Not claimed: generated weeks only, single runs on one cloud machine; the reserve's size (2 s) and
+the 300-copy line were not tuned, only tested; the reserve still loses on about one differing build in three. Next: whether a
+longer reserve (4 s) or a reserve scaled by the open hours above the floor does better on the same fresh seeds.
+
+## A 4 s repair reserve: measured and refused (2026-11-16 later)
+
+"The repair reserve on the biggest weeks" left one question: would a longer reserve (4 s) do better than the new 2 s default? On
+the pre-registered seeds 13-24 the repair under the 2 s reserve ran only 0.5-1.2 s, so the guess was that the last plateau walk
+ate most of the reserve and a bigger one would give the repair the time it was meant to have. **Pre-registered**
+(`eval/repair-reserve-4s-prereg.md`, committed before the run): the same four above-floor weeks (90 x 252 and 100 x 280, weeks
+0-1), fresh seeds 25-36, 48 paired builds, `flow2000` against `flow4000` (`sh eval/repair-reserve-4s.sh`,
+`eval/repair-reserve-4s.out.txt`). The rule: raise the default only if 4 s has fewer open hours on more builds, one-sided sign
+test p < 0.05, and a net gain.
+
+| 48 fresh builds | open hours above the floors | at the floor | repair ms, mean | plateau walks ms, mean |
+|---|---|---|---|---|
+| 2 s reserve (the default) | **307** | 4 | 1,143 | about 2,900 |
+| 4 s reserve | 371 | 3 | 1,208 | about 1,300 |
+
+**Not met, by a wide margin:** 4 s had fewer open hours on 11 builds and more on 27 (10 tied), 64 hours worse in all (one-sided
+p = 0.997). The guess was wrong about why the repair is short. It is not starved: given 4 s it still ran about 1.2 s, so it stops
+on something other than the clock, and the two extra seconds come out of the plateau walks (which still find coverage on these
+weeks) and go to stages after the repair that score pay, not open hours. The default stays at 2 s.
+
+**What stops the repair.** Not its 60 rounds: with `coverRepairRounds: 180` and the 4 s reserve, the first four builds
+(`eval/repair-reserve-rounds180.jsonl`) gave the same open hours, gains and skipped rounds as the 4 s run, build for build. That
+leaves its node budget (`coverRepairNodes`, 3M nodes in all, chosen so the same input gives the same roster on any machine).
+
+**More nodes do not rescue it (exploratory, the same 48 builds; `eval/repair-reserve-variants.out.txt`).** With the 4 s reserve
+and `coverRepairNodes: 9000000` the repair ran 2.3 s instead of 1.2 s and found 342 improving rounds instead of 250 (141 under the
+2 s default), recovering 17 of the 64 hours: still 47 h behind the default (fewer open on 14 builds, more on 22). Each repair
+round does cut open hours, but a second of plateau walk covers more of them than a second of repair on these weeks. So the 2 s
+default stands, and its gain came from giving the repair its first second, not from giving it more.
+
+Not claimed: generated weeks only, one cloud machine; the 9M and 180-round runs were exploratory, not pre-registered. Next:
+whether a reserve sized to what the repair uses (about 1.1-1.2 s at 3M nodes) beats 2 s on fresh seeds, pre-registered.
+
+
+## A 1.2 s repair reserve: a tie, so 2 s stays (2026-11-16 later)
+
+"A 4 s repair reserve: measured and refused" showed the repair stops on its 3M-node budget after about 1.1-1.2 s, so the question
+left was the other side: would a reserve sized to what the repair uses (1.2 s) hand the unused ~0.8 s back to the plateau walks
+and cover more? **Pre-registered** (`eval/repair-reserve-1200-prereg.md`, committed before the run): the same four above-floor
+weeks (90 x 252 and 100 x 280, weeks 0-1), fresh seeds 37-48, 48 paired builds, `flow2000` against `flow1200`
+(`sh eval/repair-reserve-1200.sh`, `eval/repair-reserve-1200.out.txt`). Same rule as before: change the default only on more
+wins than losses, one-sided sign test p < 0.05, and a net gain.
+
+| 48 fresh builds | open hours above the floors | at the floor | repair ms, mean | repair gains, total | cover-pass ms, mean |
+|---|---|---|---|---|---|
+| 2 s reserve (the default) | 294 | 4 | 1,171 | 148 | 3,156 |
+| 1.2 s reserve | **288** | 5 | 914 | 110 | 3,861 |
+
+**Not met:** 1.2 s had fewer open hours on 7 builds, more on 8, tied on 33; 6 hours ahead in all (one-sided p = 0.70). The
+mechanism did what was guessed: the plateau walks got about 0.7 s more and the repair about 0.26 s less, with 38 fewer improving
+rounds. The two roughly cancel. By week the net was -4, +3, +7 and 0 hours, so no week size favours either side.
+
+So the reserve's size is closed on both sides as measured: 4 s lost (64 h worse on seeds 25-36), 1.2 s ties, and 2 s stays the
+default from 300 copies. Its gain came from giving the repair its first second (README "The repair reserve on the biggest
+weeks"), and anything from about 1 s to 2 s is the same within noise. Not claimed: generated weeks only, one cloud machine.
+
+## A warm-sized gate for the pay floor (2026-11-16)
+
+The pay floor (README "A pay floor for big weeks") has started from the open-hours LP's basis since 2026-11-14, but its time gate
+was still the cold solve's: run with no deadline when the time left covers 4 s x (copies / 245)^4.5, otherwise try it warm and
+stop at the budget's end. **Measured first** (`eval/warm-gate.mjs`, `eval/warm-gate.out.jsonl`: 78 generated weeks of 148-326
+copies, the open-hours LP then the warm priced LP, one machine): the warm solve took 29 ms to 14.5 s, with no usable link to size
+(median 0.6 s at 140-180 copies, 2.8 s at 215-255, 5.6 s at 255-300, each band spanning 0.03-5.6 s) or to the open-hours LP's own
+time (ratio 0.04 to 6). It came in above the cold formula on 25 of 78 weeks, where the old gate let it run unbounded past the
+budget, and far below it on most of the rest, where the old gate skipped it or cut it at the budget's end. No formula sizes it.
+
+**What landed:** `scoreFloorPlan` (calc.mjs). With the open-hours basis in hand the pay floor always runs warm, stopped at the
+time left plus a reserve of its own (`scoreFloorReserveMs`, default 1500 ms), like the day sweeps' 2 s. With no basis, or
+`scoreFloorTry: false` / `scoreFloorWarm: false`, the cold formula alone decides as before; `scoreFloorReserveMs: 0` stops the try
+at the budget's end. `optimality.scoreFloorTried` now also reports the time `left` and the `reserve`.
+
+| 60 x 168 and 70 x 196, default 20 s budget (`eval/warm-gate-e2e.out.jsonl`, before = main's engine) | before | after |
+|---|---|---|
+| seed 2, 70 x 196 week 0 | pay floor out of time after 6.9 s; gap $23,272.35, rest $23,272.35 | finished in 7.7 s; **gap $16.90**, rest $23,269.28 |
+| seed 3, 60 x 168 week 0 | out of time after 1.4 s; gap $121,847.52, rest $21,847.52 | finished in 3.0 s; **gap $99,989.64** (the pay now bounded to within $10.36; the one open hour left is the gap), rest $21,845.73 |
+| seed 1 week 0, seed 2 week 1 (60 x 168) | skipped | tried, out of time after 2.2 and 2.7 s; same roster, 1.6-1.8 s longer |
+| ten other weeks | ran, skipped (budget spent) or proven before it | same roster and gap; within 0.5 s |
+
+So on 14 big weeks the pay floor finished on 2 more, both with a tighter proof and a slightly cheaper roster (its guide steers the
+day sweeps), and two weeks paid up to 1.8 s for a try that did not finish. Total time stays about the budget plus the two
+reserves (pay floor 1.5 s, day sweeps 2 s): at most 23.6 s here. Tests: `warm-score-floor.test.mjs` adds the plan's modes (try with the time left plus
+the reserve, bounded even with lots of time left, the reserve alone when the budget is spent, reserve 0 as the old try, no
+deadline without a budget, the cold formula without a basis). Not claimed: single runs on one cloud machine, generated weeks only;
+the 1.5 s reserve was not tuned (1 s or 2 s may do as well). Next: whether a longer reserve finishes more weeks than it costs, and
+carry the priced LP's basis into the day sweeps' guide.
+
+## The pay floor's reserve, sized from the full solve (2026-11-16 later)
+
+"A warm-sized gate for the pay floor" left its 1.5 s reserve untuned. Rather than race a few reserves against each other, this
+run measured what every reserve would do at once. **Pre-registered** (`eval/pay-floor-reserve-prereg.md`, committed before the
+run): 48 fresh weeks (seeds 6-17, 60 x 168 and 70 x 196, weeks 0-1, the generator of `eval/warm-gate-e2e.mjs`), each built twice
+at the default 20 s budget (`sh eval/pay-floor-reserve.sh`): once with the pay floor given a reserve no build reaches, so it
+reports its whole warm time T and the time left L at its start, and once with `scoreFloor: false`, which is exactly the path of a
+try that runs out of time. A reserve R finishes the try iff T <= max(0, L) + R, so `eval/pay-floor-reserve-summary.py` scores
+any R from the pair (`eval/pay-floor-reserve.out.txt`). The pay floor was tried on 19 of the 48 weeks; the rest were proven
+earlier or had no basis, and are the same under any R.
+
+| reserve | tries finished (of 19) | sum of gaps | pay, against 0.5 s | mean build | slowest build |
+|---|---|---|---|---|---|
+| 0.5 s | 12 | $21.73M | - | 21.14 s | 23.1 s |
+| 1.5 s (the old default) | 13 | $21.81M | one open hour more (search noise, below) | 21.26 s | 24.1 s |
+| 3 s | 15 | $21.69M | $44 less | 21.42 s | 25.6 s |
+| 4 s | 18 | $21.62M | $64 less | 21.49 s | 26.3 s |
+| **6 s** | **19** | **$21.60M** | **$75 less** | **21.51 s** | **27.5 s** |
+| 8 s | 19 | $21.60M | $75 less | 21.51 s | 27.5 s |
+
+(Gaps are in score units, where an open hour is 100,000, so the sums are dominated by open hours the floor cannot close; per
+week the change is the point: a finished try took the 70-person weeks' gaps from $22,530-$27,131 to $5-$18.)
+
+The warm solve needed up to 5.4 s past the time left (T 1.1-12.1 s); six of the 19 weeks needed more than 1.5 s and at most 6 s.
+The rule (raise only to a reserve finishing at least 3 more builds for at most 0.5 s more mean build time; the most finished,
+ties to the smaller) picked **6 s**: 6 more finished tries for 0.25 s of mean build time. The cost is the tail: the slowest
+build went from 24.1 to 27.5 s on a 20 s budget.
+
+**Checked with the new default itself** (`sh eval/pay-floor-reserve-confirm.sh`, `eval/pay-floor-reserve-confirm.jsonl`): the six
+weeks, new default against an explicit 1.5 s. Five finished, as predicted: gaps $23,613 to $6.98 and $24,278 to $15.52 on the
+70-person weeks, $118,547-$120,385 to about $99,990 (one open hour left) on two 60-person weeks, and one week (seed 17) covered
+one more hour; pay $0.61-$17.75 lower on four. The sixth (seed 9) never tried: that build's earlier stages ran past the budget,
+and `buildRoster` skips the pay floor once the budget is spent (`!over()`), whatever the reserve. Mean build time +0.9 s on these
+six, the slowest 25.5 s.
+
+**What landed:** `scoreFloorReserveMs` now defaults to 30% of the time budget, at most 6 s: 6 s at the 20 s default for big
+weeks, which is what was tested; a caller with a 3 s budget waits at most 0.9 s more, not 6. An explicit value wins.
+`warm-score-floor.test.mjs` checks the scaled default, the 6 s cap and an explicit 1.5 s.
+
+Not claimed: generated weeks, one cloud machine; the two builds of a week are separate runs, so their rosters before the pay
+floor can differ by timing (the +1 and -1 open hours on seeds 16 and 17 in the summary are that, not the pay floor); the 30%
+scaling below a 20 s budget was not measured. Next: the budget-spent case. The plan gives a try with the budget already spent
+"the reserve alone", but `buildRoster` never reaches it (seed 9 above); whether letting it run then finishes enough weeks to pay
+for the wait, measured the same way.
+
+## The pay floor once the budget is spent (2026-11-16 later)
+
+"The pay floor's reserve, sized from the full solve" ended on one case its reserve could not reach: when the stages before the pay
+floor run past the 20 s time budget, `buildRoster` skipped it (`!over()`), so a big week was posted with a gap of $20,000-$900,000
+in score units where a second or two of warm LP would have bounded it to within dollars or whole open hours. That run took the case
+to be rare (one week, seed 9). It is not: a new field, `optimality.scoreFloorSkip`, now names why the pay floor did not run
+("noClique", "proven", "off", "spent", "noBasis", or null when it ran), and on fresh weeks about one in five ended "spent", almost
+all of them 70-person weeks whose earlier stages ran 6-680 ms over.
+
+**Two pre-registered tests.** Both build each week twice at the default 20 s budget (`eval/pay-floor-spent.mjs`): "full" (try when
+spent, with a reserve no build reaches, so it reports the warm solve's whole time T) and "base" (the old skip). On a spent week a
+reserve R finishes iff T <= R; `eval/pay-floor-spent-summary.py` scores any R from the pair.
+
+| | spent weeks of 48 | finished at 4 s | finished at 6 s | mean build, base -> 4 s / 6 s | open hours, all 48 |
+|---|---|---|---|---|---|
+| seeds 18-29 (`eval/pay-floor-spent-prereg.md`, `.out.txt`) | 10 | 9 | 9 | 20.82 -> 21.30 / **21.34 s** | 11,912 -> 11,904 |
+| seeds 30-41, fresh (`eval/pay-floor-spent-4s-prereg.md`, `-4s.out.txt`) | 10 | **8** | 9 | 20.83 -> **21.14** / 21.18 s | 12,142 -> 12,142 |
+
+The first test's rule (turn it on at the normal 6 s reserve if it finishes half the spent weeks for at most +0.5 s of mean build
+time) **failed by 0.02 s** (+0.52 s). Its table showed 4 s finishing the same 9 for +0.48 s, but picking 4 s from that table would
+be fitting to it, so a second rule for a 4 s reserve of its own was written down and tested on twelve seeds no pay-floor test had
+used. It passed every clause: 8 of 10 finished, +0.31 s mean, open hours not higher. The first test's -8 open hours are mostly the
+two builds' timing noise (seed 19 and 22 went +1), so no open-hours gain is claimed.
+
+What a finished try does: the pay gap on the week goes from $23,865-$25,215 to under $1 (seed 30 week 1, seed 31 week 0), or from
+$124,000-$126,000 to about $99,980, which is one open hour left and the pay bounded to within about $20 (four weeks). The roster is
+the same or a few dollars cheaper, because the priced LP then guides the day sweeps.
+
+**What landed:** the pay floor now tries once the budget is spent, warm, for a reserve of its own, `scoreFloorSpentReserveMs`
+(default the smaller of 4 s and the normal reserve; a caller with a 3 s budget waits at most 0.9 s). `scoreFloorSpent: false`
+keeps the old skip. With time left the normal reserve (30% of the budget, at most 6 s) is unchanged.
+
+**Checked with the default itself** (`sh eval/pay-floor-spent-confirm.sh`, `eval/pay-floor-spent-confirm.jsonl`, the ten fresh
+spent weeks, default against `scoreFloorSpent: false`): 9 of 10 finished (one more than predicted: seed 36's solve took 3.9 s this
+time against 4.1 s), same open hours on nine and one fewer on seed 40, mean build 22.21 -> 23.86 s on those weeks (+0.34 s spread
+over all 48), slowest 26.3 s. Tests: `warm-score-floor.test.mjs` checks the spent reserve (4 s, an explicit value, capped by the
+normal reserve), the skip reasons and `scoreFloorSpent: false`.
+
+Not claimed: generated weeks, one cloud machine; the spent weeks are almost all 70 x 196, so 80-100 person weeks are untested here.
+Next: why the stages before the pay floor run past the budget at all (6-680 ms on these weeks), which is time no reserve should
+need to cover.
+
+## Where the time past the budget goes (2026-11-16 later)
+
+"The pay floor once the budget is spent" ended on a question: why do the stages before the pay floor run past the 20 s time
+budget at all? A new field answers it for any build: `timeline`, each stage's end in order, in ms since the build started
+(beside the summed `timings`).
+
+**Measured first** (`eval/stage-overrun.mjs`, `eval/stage-overrun.jsonl`: seeds 18-29, 60 x 168 and 70 x 196, weeks 0-1, the
+generator of the pay-floor tests). 27 of 48 builds reached the pay floor with the budget spent. On 17 the stage that crossed it was
+the cover walk (88-729 ms over), on 9 the cover repair (41-126 ms over). The walk read the clock only between walks, and one walk
+on these weeks is 3.1M steps, most of a second. So a walk started at 19.4 s finished at 20.2 s, and the repair after it was skipped
+anyway.
+
+**What landed:** `coverPass` takes a `deadline`, read every 1,024 steps, and returns its best roster so far when it passes;
+`buildRoster` gives each walk the budget's end (less the repair reserve after the first walk, so the reserve on 300+ copy weeks
+is kept). `coverPassDeadline: false` keeps the old between-walks check alone.
+
+**Pre-registered** (`eval/stage-overrun-prereg.md`, committed before the run): seeds 42-53, the same four weeks, each built twice,
+new and `coverPassDeadline: false` (`sh eval/stage-overrun-ab.sh`, scored by `eval/stage-overrun-summary.py`,
+`eval/stage-overrun-ab.out.txt`).
+
+| 48 fresh weeks | old | new |
+|---|---|---|
+| reached the pay floor more than 50 ms past the budget | 15 (52-770 ms) | **5** (65-249 ms) |
+| open hours, all 48 | 11,180 | 11,180 (two weeks -1, one +2: the builds' timing noise) |
+| mean build / slowest | 22.18 s / 28.1 s | 22.17 s / 28.1 s |
+| proven | 5 | 5 |
+
+All three clauses passed (late builds at least halved, open hours not more than 2 higher, mean build time not higher), so it is
+on by default. The walk now ends at 20,001 ms when it is the stage that reaches the budget. The five builds still late are all
+the cover repair, which starts with whatever is left and gets at least 200 ms (`Math.max(200, ...)` on its time limit), then
+polishes pay. Tests: `stage-overrun.test.mjs` (the timeline's order and total, a walk past its deadline stops at once and is no
+worse than its start, an infinite deadline changes nothing).
+
+Not claimed: generated weeks, one cloud machine, two builds at a time; no gain in open hours or pay is claimed, only that the
+walk no longer eats the pay floor's time. Next: the repair's 200 ms minimum when it starts within 200 ms of the budget's end.
+
+## The repair stops at the budget's end (2026-11-16 later)
+
+"Where the time past the budget goes" left five of 48 fresh builds reaching the pay floor 65-249 ms past the 20 s budget, all
+of them crossed by the cover repair. Read from the timelines, the 200 ms minimum explained only one (it started at 19,985 ms);
+the other four started 0.6-1.5 s before the end and still ran over, because the repair read the clock only between rounds
+and one round may search 200,000 nodes.
+
+**What landed:** `coverRepair` takes a `deadline` (the budget's end), read every 1,024 nodes inside a round as well as between
+rounds. A round stopped by it keeps the best assignment it had found, which already beats the round's start, so stopping never
+makes the roster worse. Under a budget the 200 ms minimum is gone. The report's repair stats gain `stoppedAtDeadline`.
+`coverRepairDeadline: false` gives back the old limit.
+
+**Pre-registered** (`eval/repair-deadline-prereg.md`, committed before the run): seeds 54-65, 60 x 168 and 70 x 196, weeks
+0-1, each built twice, new and `coverRepairDeadline: false` (`sh eval/repair-deadline-ab.sh`, scored by
+`eval/repair-deadline-summary.py`, `eval/repair-deadline-ab.out.txt`).
+
+| 48 fresh weeks | old | new |
+|---|---|---|
+| reached the pay floor more than 50 ms past the budget, repair crossing it | 6 (57-245 ms) | **0** |
+| latest arrival at the pay floor | 20,245 ms | 20,048 ms |
+| repair ran / gains / stopped at the deadline | 13 / 12 / 0 | 10 / 13 / 5 |
+| open hours, all 48 | 12,489 | 12,489 (no week moved) |
+| mean build / slowest | 21.28 s / 28.1 s | 21.28 s / 28.2 s |
+| proven | 7 | 7 |
+
+All three clauses passed, so it is on by default. The 22-48 ms still past the budget on six "new" builds is the pay polish
+that follows a repair gain, which is not timed. Tests: `stage-overrun.test.mjs` (a repair past its deadline returns its start
+untouched at once; a repair stopped mid-search keeps a valid roster no worse than its start, with its reported open hours
+matching; an infinite deadline changes nothing).
+
+Not claimed: generated weeks, one cloud machine, two builds at a time; no gain in open hours or pay, only that the repair no
+longer eats the pay floor's time. Next: time-bound the pay polish after a repair gain, or leave it (under 50 ms here).
+
+## The pay polish stops at the budget's end (2026-11-16 later)
+
+"The repair stops at the budget's end" left seven of 48 fresh builds reaching the pay floor 22-48 ms past the 20 s budget.
+On each the cover walk or the repair had stopped on time, but then found a gain, and the pay polish that follows any gain
+(`polishPay`, max(20,000, copies x 1,000) single moves and swaps) was untimed. Timed alone on 60-70 person weeks (230-267
+copies) one polish takes 28-47 ms.
+
+**What landed:** `polishPay` takes a `deadline`, read every 1,024 moves; past it the polish returns what it has. Every move it
+kept lowered the score and left no covered shift open, so stopping early never adds open hours. Under a time budget the polish
+after a cover walk gets that walk's deadline, and the polish after a repair gain the budget's end. `payPolishDeadline: false`
+keeps the untimed polish.
+
+**Pre-registered** (`eval/polish-deadline-prereg.md`, committed before the run): seeds 66-77, 60 x 168 and 70 x 196, weeks
+0-1, each built twice, new and `payPolishDeadline: false` (`sh eval/polish-deadline-ab.sh`, scored by
+`eval/polish-deadline-summary.py`, `eval/polish-deadline-ab.out.txt`).
+
+| 48 fresh weeks | old | new |
+|---|---|---|
+| reached the pay floor more than 20 ms past the budget | 8 (25-44 ms; 7 after a repair gain, 1 after a walk) | **0** |
+| latest arrival at the pay floor | 20,044 ms | 20,002 ms |
+| open hours, all 48 | 11,818 | 11,815 (three weeks -1: timing noise, not claimed) |
+| final pay on the 45 weeks with equal open hours | 1,030,595.21 | 1,030,592.06 (lower on 1 week, higher on none) |
+| mean build / slowest | 22.04 s / 28.1 s | 22.01 s / 28.1 s |
+| proven | 4 | 5 |
+
+All four clauses passed (late builds at least halved, open hours not more than 2 higher, pay not more than 0.1% higher, mean
+build time not higher), so it is on by default. With this, every stage before the pay floor stops on the clock: the walk, the
+repair and the polish after each. Tests: `stage-overrun.test.mjs` (a polish past its deadline stops within 1,024 moves with a
+valid roster no worse than its start; an infinite deadline changes nothing).
+
+Not claimed: generated weeks, one cloud machine, two builds at a time; the open-hours, pay and proof differences are within the
+builds' timing noise. What it buys is the 25-44 ms the pay floor no longer loses, nothing larger.
+
+## The day sweeps past a spent budget (2026-11-17)
+
+With every stage before the pay floor stopping on the clock, the time a 20 s build still runs past its budget is nearly all
+two stages, read from the 48 "new" timelines of `eval/polish-deadline-ab.jsonl`: the pay floor (63 s summed, its 4 s spent
+reserve, kept on purpose) and the day sweeps (`dayLNS`, 67 s summed: 2.0 s on every build that ran them, whatever the clock
+said). Mean build 22.0 s, slowest 28.1 s. Were the day sweeps' 2 s worth it on weeks whose budget was already gone?
+
+**What landed:** `optimality.dayLNS` now logs where the pass gains: `gains` (each as [ms since the pass started, phase
+"sweep" / "guide" / "guide2" / "kick", score saved]), `startedAt` (ms since the build started) and `ladders` (guide ladders
+run). `eval/stage-overrun.mjs` prints them; `eval/day-lns-spent-summary.py` adds them up by phase and by window length.
+
+**Measured** (`eval/day-lns-spent-explore.jsonl`: seeds 66-71, 60 x 168 and 70 x 196, weeks 0-1, today's defaults; the pass ran
+on 23 of 24, starting past the budget on 9):
+
+| what the 2 s window found, 23 builds | score saved (100,000 = one open hour) | open hours |
+|---|---|---|
+| first exact sweeps (by 15-55 ms) | 340 (pay alone) | 0 |
+| LP-guided ladder (by 400 ms) | 900,150 | 9 |
+| random kicks (250-1,870 ms) | 199,995 | 2 (at 866 ms and 1,155 ms) |
+| **kept by a 500 ms window** | 82% of the score saved | 9 of 11 |
+| kept by a 1,000 ms window | 91% | 10 of 11 |
+
+So the window stays at 2 s: a shorter one would have given back cover on 2 of 23 builds (one open hour each, both on 70 x 196
+weeks guided by the open-hours LP because the pay floor did not finish), and an open hour is worth more than the 1.5 s.
+
+**Tried and dropped: repeating the guide ladder.** The ladder found most of the cover, so `dayGuideRepeat: true` runs it again
+from the improved roster (up to 8 ladders) while the last one saved at least half an open hour, before the kicks. The builds are
+deterministic up to the pass (all 24 entered it at the same score both ways), so the comparison is exact
+(`eval/day-lns-repeat-explore.jsonl`): the second ladder found nothing on any build, and open hours were 6,064 both ways. It
+stays off; the option is kept so the result can be re-run.
+
+Tests: `day-lns.test.mjs` (the gains are in time order, positive, one of the four phases, and add up to what the pass saved,
+with and without repeated ladders; the ladder count is within its cap). Not claimed: generated weeks, one cloud machine, two
+builds at a time, an exploration set rather than a pre-registered one (no default moved, so none was needed); 2 of 11 open
+hours is a small count.
+
+## The open-hours row before the dual branch (2026-11-18)
+
+When the exact search's priced floor on open hours already equals the best roster's open hours, nothing later in the search can
+raise it: the cover branch, the cover LP and the coverage pass all need a floor below the roster's hours. So the open-hours row
+(the whole-score LP with that floor as a row, "The open-hours row in the score LP") now runs before the dual branch, with the same
+arguments it would get afterwards. If it proves the roster, the dual branch, which can run up to `dualBranchMs` (8 s), is skipped.
+If it doesn't, its answer is kept and the dual branch runs as before. On the call-out week with Cleo off Saturday and
+`earlyFloor: false`, the dual branch ran its full 8 s and proved nothing, and the row then proved the week in 0.1 s. That
+`buildRoster` call went from 19.4 s to 11.0 s, with the same roster, score, status and bounds as the old order
+(`rowBeforeDual: false`). `optimality.openRow.beforeDual` says when this happened. With default options, weeks this small
+usually get the early floor first, so most real weeks are unchanged.
+Details: `docs/history/ci-perf-2026-11-18-shift-roster-row-before-dual.md`. Test: `open-sums.test.mjs`.

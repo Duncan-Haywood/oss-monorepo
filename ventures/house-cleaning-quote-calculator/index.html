@@ -165,7 +165,7 @@
       const f0 = r.lines[0];
       const big = [
         [money2(f0.floor), "Lowest price that earns your target (" + f0.label + ")"],
-        [money2(r.neededListPrice), "List price so every frequency clears target"],
+        [money2(r.neededBasePrice), "One-time price (before add-ons) so every frequency clears target"],
         [money2(f0.cost), "Cost per visit (" + f0.label + ")"],
         [money(r.lines.reduce((a, l) => a + l.annualProfit, 0)), "Annual profit if you won one client of each"],
       ];

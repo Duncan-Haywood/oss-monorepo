@@ -19,6 +19,10 @@
   "checked": "2026-11-12",
   "title": "MuJoCo Playground (2025)"
  },
+ "doi:10.1002/eqe.495": {
+  "checked": "2026-11-16",
+  "title": "Hysteretic models that incorporate strength and stiffness deterioration (2005)"
+ },
  "doi:10.1007/BF01580066": {
   "checked": "2026-11-12",
   "title": "A survey of research in the application of tolerance analysis to the design of mechanical assemblies (1991)"
@@ -54,6 +58,10 @@
  "doi:10.1109/ROBOT.2003.1241826": {
   "checked": "2026-11-12",
   "title": "Biped walking pattern generation by using preview control of zero-moment point (None)"
+ },
+ "doi:10.1617/s11527-017-1124-5": {
+  "checked": "2026-11-16",
+  "title": "Experimental investigation of friction stresses between adjacent panels made of Oriented Strand Board (OSB) and between OSB panels and glued laminated timber (GLT) frame members (2017)"
  },
  "doi:10.34770/0w80-p436": {
   "checked": "2026-11-12",

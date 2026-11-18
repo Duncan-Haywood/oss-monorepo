@@ -9,7 +9,8 @@ import { schedule, summary, journal, journalCsv } from "./revrec.mjs";
 import { renderDashboard } from "./page.mjs";
 import { pathToFileURL } from "node:url";
 
-export const newState = () => ({ lines: {}, lastSyncAt: null, currency: null, skipped: 0 });
+export const newState = () => ({ lines: {}, lastSyncAt: null, lastFullSyncAt: null, currency: null, skipped: 0 });
+export const FULL_SYNC_MS = 24 * 3600000;
 
 const eq = (a, b) => { const x = Buffer.from(a), y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); };
 export function authorized(header, key) {
@@ -19,12 +20,17 @@ export function authorized(header, key) {
   return false;
 }
 
-// One pass. The first sync reads everything; later ones re-read the last 3 days
-// (lines are keyed by id, so overlap is harmless) and pick up new credit notes.
+// One pass. Stripe filters invoices by `created` only, so an incremental pass
+// (the last 3 days; lines are keyed by id, so overlap is harmless) misses an
+// invoice issued earlier and paid now, and keeps a credit note voided since it
+// was read. So at least once a day (cfg.fullSyncMs) a pass re-reads everything
+// and replaces the line set instead of merging into it.
 export async function sync(cfg) {
   const st = cfg.state, now = cfg.now();
-  const since = st.lastSyncAt ? Math.floor((st.lastSyncAt - 3 * 86400000) / 1000) : 0;
+  const full = !st.lastSyncAt || !st.lastFullSyncAt || now - st.lastFullSyncAt >= (cfg.fullSyncMs ?? FULL_SYNC_MS);
+  const since = full ? 0 : Math.floor((st.lastSyncAt - 3 * 86400000) / 1000);
   const fresh = [...(await cfg.stripe.listLines(since)), ...(await cfg.stripe.listCreditNotes(since))];
+  if (full) { st.lines = {}; st.lastFullSyncAt = now; }
   const counts = {};
   for (const l of fresh) counts[l.currency] = (counts[l.currency] || 0) + 1;
   st.currency = cfg.currency || st.currency || Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || "usd";
@@ -32,7 +38,7 @@ export async function sync(cfg) {
   st.skipped = Object.values(st.lines).filter((l) => l.currency !== st.currency).length;
   st.lastSyncAt = now;
   cfg.save();
-  return { lines: Object.keys(st.lines).length, added: fresh.length, skipped: st.skipped };
+  return { lines: Object.keys(st.lines).length, added: fresh.length, skipped: st.skipped, full };
 }
 
 const usable = (st) => Object.values(st.lines).filter((l) => l.currency === st.currency);
@@ -51,7 +57,9 @@ export function handler(cfg) {
       if (url.pathname === "/healthz") return send(200, "ok\n", "text/plain");
       if (!authorized(req.headers.authorization, cfg.adminKey)) return send(401, "sign in with ADMIN_KEY as the password\n", "text/plain", { "www-authenticate": 'Basic realm="Rev Rec", charset="UTF-8"' });
       const now = cfg.now(), lines = usable(cfg.state);
-      const rows = schedule(lines, { asOf: now });
+      const closedThrough = url.searchParams.get("closed_through") || cfg.closedThrough || null;
+      if (closedThrough && !/^\d{4}-(0[1-9]|1[0-2])$/.test(closedThrough)) return send(400, "closed_through must be YYYY-MM\n", "text/plain");
+      const rows = schedule(lines, { asOf: now, closedThrough });
       if (req.method === "GET" && url.pathname === "/") {
         return send(200, renderDashboard({ company: cfg.company || "Your company", summary: rows.length ? summary(rows, now) : null, rows, currency: cfg.state.currency || "usd", lastSyncAt: cfg.state.lastSyncAt, lineCount: lines.length, skipped: cfg.state.skipped }), "text/html; charset=utf-8", { "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'" });
       }
@@ -59,7 +67,7 @@ export function handler(cfg) {
       if (req.method === "GET" && url.pathname === "/v1/journal.csv") {
         const through = url.searchParams.get("through");
         const rs = rows.filter((r) => !r.future && (!through || r.month <= through));
-        return send(200, journalCsv(journal(rs, cfg.accounts)), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="rev-rec-journal.csv"' });
+        return send(200, journalCsv(journal(rs, { ...cfg.accounts, currency: cfg.state.currency || "usd" })), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="rev-rec-journal.csv"' });
       }
       if (req.method === "POST" && url.pathname === "/v1/sync") return send(200, await runSync());
       return send(404, "not found\n", "text/plain");
@@ -82,8 +90,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const statePath = env.STATE || "state.json";
   const state = Object.assign(newState(), readJson(statePath, {}));
   const save = () => { fs.writeFileSync(`${statePath}.tmp`, JSON.stringify(state)); fs.renameSync(`${statePath}.tmp`, statePath); };
-  const accounts = { cash: env.ACCOUNT_RECEIVABLE || "Accounts receivable", deferred: env.ACCOUNT_DEFERRED || "Deferred revenue", revenue: env.ACCOUNT_REVENUE || "Subscription revenue" };
-  const cfg = { state, save, stripe: createStripe({ key: env.STRIPE_SECRET_KEY, maxPages: Number(env.MAX_PAGES) || 500 }), adminKey: env.ADMIN_KEY, company: env.COMPANY_NAME, currency: env.CURRENCY && env.CURRENCY.toLowerCase(), accounts, now: Date.now };
+  // ACCOUNT_CASH names the debit side of billings; ACCOUNT_RECEIVABLE is the
+  // older name, still read so existing deployments keep their account.
+  const accounts = { cash: env.ACCOUNT_CASH || env.ACCOUNT_RECEIVABLE || "Stripe balance", deferred: env.ACCOUNT_DEFERRED || "Deferred revenue", revenue: env.ACCOUNT_REVENUE || "Subscription revenue" };
+  const cfg = { state, save, stripe: createStripe({ key: env.STRIPE_SECRET_KEY, maxPages: Number(env.MAX_PAGES) || 500 }), adminKey: env.ADMIN_KEY, company: env.COMPANY_NAME, currency: env.CURRENCY && env.CURRENCY.toLowerCase(), closedThrough: env.CLOSED_THROUGH || null, accounts, now: Date.now };
   const h = handler(cfg);
   const tick = () => sync(cfg).then((r) => console.log("synced", JSON.stringify(r)), (e) => console.error("sync failed:", e.message));
   http.createServer(h).listen(Number(env.PORT || 8080), () => {

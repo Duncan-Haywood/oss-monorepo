@@ -7,6 +7,10 @@
   "checked": "2026-11-13",
   "title": "Continuous speech separation: dataset and analysis (2020)"
  },
+ "arxiv:2104.08279": {
+  "checked": "2026-11-16",
+  "title": "Testing for Outliers with Conformal p-values (2021)"
+ },
  "arxiv:2107.07511": {
   "checked": "2026-11-13",
   "title": "A Gentle Introduction to Conformal Prediction and Distribution-Free Uncertainty Quantification (2021)"
@@ -39,9 +43,17 @@
   "checked": "2026-11-13",
   "title": "Blind compensation of interchannel sampling frequency mismatch for ad hoc microphone array based on maximum likelihood estimation (2015)"
  },
+ "doi:10.1109/78.542175": {
+  "checked": "2026-11-18",
+  "title": "Joint estimation of time delay and frequency delay in impulsive noise using fractional lower order statistics (1996)"
+ },
  "doi:10.1109/89.486067": {
   "checked": "2026-11-13",
   "title": "Performance of time-delay estimation in the presence of room reverberation (1996)"
+ },
+ "doi:10.1109/89.928915": {
+  "checked": "2026-11-16",
+  "title": "Noise power spectral density estimation based on optimal smoothing and minimum statistics (2001)"
  },
  "doi:10.1109/ASPAA.2003.1285842": {
   "checked": "2026-11-13",

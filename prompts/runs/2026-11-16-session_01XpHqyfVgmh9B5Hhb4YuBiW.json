@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyfVgmh9B5Hhb4YuBiW",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T14:39:27Z",
+  "ended": "2026-11-16T14:48:28Z",
+  "wall_minutes": 9.26,
+  "tokens_in": 4400558,
+  "tokens_out": 37637,
+  "cost_usd": 2.4959,
+  "tool_calls": 45,
+  "task": "quality track, fix mode: open defects of platform/deploy (audit 2026-11-07-deploy.json)",
+  "projects": [
+    "platform/deploy"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16608",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally.py --for-changes: tofu fmt/validate steps exit 127 (tofu not installed in the container); node test step passed; tofu modules untouched",
+    "first Playwright smoke run timed out: ?app= preselect failed for tools past the 400-option list, a real pre-existing bug, fixed in this PR"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "steps 1-5 describe a sample round only; the fix-mode procedure lives in portfolio/quality/README.md 'Four modes', so a fix session reads the track prompt then has to reinterpret it"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md (hook)",
+      "issue": "the pkill bracket rule also rejects a command where the pattern text appears elsewhere in the same command line (the http.server launch); kill $! via a pid file avoids it"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-quality-fix-deploy-button-one-commit.md",
+    "platform/deploy/README.md (upload section, known gaps)"
+  ],
+  "goal": null,
+  "notes": "Mode: fix (quality_audit.py sample printed NOTE: today's mode is fix; seed 2026-11-16-e76c not used for a round). Subject: platform/deploy, 8 open medium/low defects, no commits since its 2026-11-07 audit. Fixed defects 0,1,2,5,6,7 (marked fixed_by PR 16608); open: 3 (AWS static keys, auto-approve) and 4 (scaffold_static_deploy.py untested; the rest of 4 fixed). Extra defect found: ?app= preselect broken for 954 of 1,354 tools. Verification: node --test platform/deploy/*.test.mjs 42 pass 0 fail; mutations caught 3/3 (publish.mjs allow404, parents [], catalog MAX_FILES+1, the last one survived the original audit); 8,223 app x provider bundles byte-identical to main after the compose refactor; Chromium e2e against mocked GitHub: Pages deploy 11 calls, one commit; 401 path prints 'Nothing was created'; Cloudflare create step checked with a stand-in npx (ok 0, exists 0, auth error 1). Share meeting the bar: not measured (fix session, no scores changed).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "96b56ae4-aa52-5bc2-a8a8-ee816ffb1030",
+    "transcripts": 1,
+    "first": "2026-11-16T14:39:27Z",
+    "last": "2026-11-16T14:48:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 79,
+        "output": 37637,
+        "thinking": 7106,
+        "cache_read": 4289873,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110606,
+        "api_equivalent_usd": 2.4959,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 79,
+      "output": 37637,
+      "thinking": 7106,
+      "cache_read": 4289873,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110606,
+      "api_equivalent_usd": 2.4959,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 40,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.26,
+      "active_minutes": 9.26,
+      "model_minutes": 5.69,
+      "tool_minutes": 3.58,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "senior engineer: Git data API rewrite, mocked-GitHub tests, browser check, README",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 320.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

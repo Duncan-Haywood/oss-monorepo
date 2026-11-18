@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKkJVMxtifaTHokWarx",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T10:18:52Z",
+  "ended": "2026-11-17T10:23:36Z",
+  "wall_minutes": 4.96,
+  "tokens_in": 2973188,
+  "tokens_out": 20746,
+  "cost_usd": 1.7266,
+  "tool_calls": 37,
+  "task": "Little Lamps story: Hedwig of Silesia (BIBLE.md proposal)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16904",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "curl and WebFetch to en.wikipedia.org and www.newadvent.org failed (403 / DNS not allowed)",
+      "fix": "fact-checked through WebSearch result summaries instead; hedged anything only one source gave"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The Hedwig proposal dated the Legenda maior to the 1267 canonization; what could be checked places it in the decades after, drawing on the canonization testimony. The note says that, hedged."
+    },
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "Its audio-status section says the 400 MB cap is stale (audio is on jsDelivr) while prompts/creative/prompt-0.md still enforces it; the track prompt won, so this run is text only."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Hearth & Horizon and For Other Minds next-up lists were both empty; Little Lamps had a single entry, so a run that finishes it must write the next proposals (done here: two)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Claimed the proposal with an empty commit and a draft PR before drafting, as BIBLE.md's claim-before-drafting rule asks",
+      "did": "empty claim commit, then the story in a second commit",
+      "result": "no parallel Hedwig draft found"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-little-lamps-hedwig-of-silesia.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon, Little Lamps shelf. Piece: hedwig-of-silesia-and-the-shoes-in-her-hand (story ~1,250 words, text only; audio folders 577 MB over the 400 MB cap). Saints by Candlelight was already being written by PR #16898. Checks run locally: ventures/hearth-and-horizon node --test 17/17 pass; check_post_frontmatter ok; check_post_links 0 broken; post_similarity 0 pairs >= 0.25. No agent doc: nothing a next run needs beyond the BIBLE.md proposals added.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e4093aaf-1680-5341-aa64-7fb2efe9341d",
+    "transcripts": 1,
+    "first": "2026-11-17T10:18:52Z",
+    "last": "2026-11-17T10:23:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 64,
+        "output": 20746,
+        "thinking": 5789,
+        "cache_read": 2881232,
+        "cache_write_5m": 0,
+        "cache_write_1h": 91892,
+        "api_equivalent_usd": 1.7266,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 64,
+      "output": 20746,
+      "thinking": 5789,
+      "cache_read": 2881232,
+      "cache_write_5m": 0,
+      "cache_write_1h": 91892,
+      "api_equivalent_usd": 1.7266,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 25,
+      "WebSearch": 4,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.96,
+      "active_minutes": 4.96,
+      "model_minutes": 3.6,
+      "tool_minutes": 1.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "a writer researching and drafting a 1,300-word children's saint story with a sourced note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 231.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

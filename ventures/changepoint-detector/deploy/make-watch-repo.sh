@@ -15,10 +15,11 @@ get() { # get <path in the venture> <destination>
 }
 if [ -e "$DEST" ] && [ -n "$(ls -A "$DEST" 2>/dev/null)" ]; then echo "$DEST exists and is not empty" >&2; exit 1; fi
 mkdir -p "$DEST/.github/workflows" "$DEST/data"
-for f in watch.mjs watch-core.mjs engine.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs LICENSE; do get "$f" "$DEST/$f"; done
+for f in watch.mjs watch-core.mjs engine.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs two-hinge.mjs known-date.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs stripe-metrics.mjs LICENSE; do get "$f" "$DEST/$f"; done
 get deploy/watch-metric.yml "$DEST/.github/workflows/watch-metric.yml"
 
 printf '{ "type": "module" }\n' > "$DEST/package.json"
+printf '# Stripe metrics are fetched each run (and cached by the workflow); never commit them.\ndata/stripe.csv*\n' > "$DEST/.gitignore"
 cat > "$DEST/README.md" <<'MD'
 # Metric watch
 
@@ -44,6 +45,12 @@ Several metrics in one sheet (orders, revenue, sign-ups as columns): add `--colu
 each, `--columns orders:poisson,revenue,signups:poisson`, to `WATCH_OPTIONS`. Each column keeps its own record in
 `watch-state.json`, the day's new changes arrive as one message, and `--detector auto --alerts-per` picks each
 column's setting against the budget on its own history.
+
+Stripe: add the secret `STRIPE_API_KEY` (a restricted key with read access to Charges; Dashboard > Developers >
+API keys > Create restricted key) and leave `METRIC_CSV` unset. Each run then fetches your complete days into
+`data/stripe.csv` (payments, revenue, failed payments; `node stripe-metrics.mjs --help`) and watches all three, so
+you hear when sales, revenue or card declines move to a new level. Keep this repository private: `watch-state.json`
+records your revenue around each change. `data/stripe.csv` is cached by the workflow, never committed.
 
 Statistical analysis of data you supply, not advice. If this saves you time, you can support the
 creator: https://github.com/sponsors/Duncan-Haywood

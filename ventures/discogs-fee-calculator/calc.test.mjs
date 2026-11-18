@@ -20,7 +20,7 @@ test('processing is a percent of the order plus a flat amount, and is separate f
 });
 
 test('selling fee has a $0.10 floor and a $150 cap', () => {
-  near(sellingFeeOn(0.5), SELLING_FEE_MIN);
+  near(sellingFeeOn(0.5), 0.10);
   near(sellingFeeOn(1000), 90);
   near(sellingFeeOn(1666), 149.94, 'just under the cap');
   assert.equal(sellingFeeOn(1667), SELLING_FEE_MAX);
@@ -143,4 +143,20 @@ test('batch: a numeric label (an order number) is a label, and extra values are 
   assert.match(problems[0].message, /expected "label, price, shipping, cost"/);
   // a named row with too many values is refused too
   assert.equal(calculateBatch('A, 25, 5, 10, 99').problems.length, 1);
+});
+
+test('crate lines keep thousands commas inside a price', () => {
+  const batch = calculateBatch('Blue Note LP, $1,200.00\n1,200\nTest, 2,500, 12.50, 1,000\nTabbed\t1,200\t5');
+  assert.deepEqual(batch.problems, []);
+  assert.equal(batch.rows.length, 4);
+  near(batch.rows[0].discogsFee, sellingFeeOn(1200) + calculateSale({ itemPrice: 1200 }).processingFee);
+  near(batch.rows[1].discogsFee, batch.rows[0].discogsFee);
+  near(batch.rows[3].discogsFee, calculateSale({ itemPrice: 1200, buyerShipping: 5 }).discogsFee);
+});
+
+test('plain comma-separated crate lines still split', () => {
+  const batch = calculateBatch('Kind of Blue, 25, 5, 8\n30,6');
+  assert.deepEqual(batch.problems, []);
+  assert.equal(batch.rows.length, 2);
+  near(batch.rows[1].discogsFee, calculateSale({ itemPrice: 30, buyerShipping: 6 }).discogsFee);
 });

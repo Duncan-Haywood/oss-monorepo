@@ -110,7 +110,7 @@ export function auditDispute(input) {
 }
 
 export function money(n) {
-  return "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  return "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0");
 }
 
 // A plain dispute note built from the lines, for the user to edit; states figures and records, never a legal position.

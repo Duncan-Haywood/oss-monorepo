@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqycRHGPw2pqVwNi42D3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T16:39:28Z",
+  "ended": "2026-11-16T17:21:22Z",
+  "wall_minutes": 60.42,
+  "tokens_in": 13007954,
+  "tokens_out": 50095,
+  "cost_usd": 4.9537,
+  "tool_calls": 102,
+  "task": "Deepen (flagship 10) open-tennis-robots: why one 1,107 rpm wheel read 1.48x its drop through the loop fit; a tach averaging a fixed time",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16635",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Ran `git stash` to measure main's wheel_loop_sweep while two background simulator sweeps and the unit suite were running; they had already imported their modules so results were unaffected, but it was a risk.",
+    "First enabled TACH_WINDOW_US 40 ms and HOLD_RPM 3,000 together and ran the 9-build drill; the drop fits got much worse, so four isolation runs were needed to attribute it to the window. Changing two things before the drill check cost about 30 minutes."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/firmware/esp32/README.md",
+      "issue": "\"Slow wheels need slower gains\" says tests/wheel_loop_sweep.py reads 2.6% worst at the gate; main reads 3.3% today. Noted in the new section rather than rewriting history."
+    },
+    {
+      "file": "ventures/open-tennis-robots/tests/min_fit_rpm_sweep.py",
+      "issue": "Its ESC-lag plant runs with the board told no ESC lag (LaunchCheck.esc_tau_us 0), which a deployed board would set from its survey; conclusions drawn from it about the hold flip once the lag is told. Worth a --told flag."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-tennis-feeder-three-revolutions.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (\"The 1.48x wheel\", \"A tach that averages a fixed time\")"
+  ],
+  "goal": null,
+  "notes": "Cause of the 1.48x wheel: unheld at 1,107 rpm (HOLD_RPM 1,000), snapshot froze 0.16 s after the ball, 3 recovery revolutions, tau pinned at 0.1 s grid floor. HOLD_RPM -> 3,000. Told-lag nine builds: spin err at floor 1,000 0.55 -> 0.39% mean, worst 1.72 -> 1.74%. Untold lag: worse (1.46 -> 2.10%). Fixed-time tach built, measured, shipped off (40 ms: gate over-3% 14 -> 7 of 336, worst 7.0 -> 3.3%, but drop fits 3-5% low behind an untold ESC lag). Verification: run_venture_tests.py open-tennis-robots 341 tests OK (58 skipped, build123d); run_workflow_locally.py --for-changes: see PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f25f27f1-df11-5a6b-9038-b9c0a4cb105b",
+    "transcripts": 1,
+    "first": "2026-11-16T16:39:28Z",
+    "last": "2026-11-16T17:39:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 95,
+        "input": 181,
+        "output": 50095,
+        "thinking": 17502,
+        "cache_read": 12834753,
+        "cache_write_5m": 0,
+        "cache_write_1h": 173020,
+        "api_equivalent_usd": 4.9537,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 95,
+      "input": 181,
+      "output": 50095,
+      "thinking": 17502,
+      "cache_read": 12834753,
+      "cache_write_5m": 0,
+      "cache_write_1h": 173020,
+      "api_equivalent_usd": 4.9537,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 102,
+    "tools": {
+      "Bash": 93,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 60.42,
+      "active_minutes": 60.42,
+      "model_minutes": 8.7,
+      "tool_minutes": 51.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an embedded engineer reproducing a simulator outlier, isolating two firmware changes over ~10 sweep runs and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 121.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

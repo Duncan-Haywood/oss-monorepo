@@ -46,7 +46,7 @@ for (let seed = 1; seed <= 40; seed++) {
         : [fd(x.date), qq(x.desc), qq(money(x.cents, opt))];
       lines.push(cells.join(sep));
     }
-    const text = (bom ? "﻿" : "") + lines.join(crlf ? "\r\n" : "\n") + (crlf ? "\r\n" : "\n");
+    const text = (bom ? "\uFEFF" : "") + lines.join(crlf ? "\r\n" : "\n") + (crlf ? "\r\n" : "\n");
     const out = readStatement(text, { decimalComma: opt.comma, dayFirst: style === "dmy" });
     assert.deepEqual(out.problems, []);
     assert.deepEqual(out.rows.map((x) => [x.date, x.desc, x.cents]), rows.map((x) => [x.date, x.desc.replace(/\s+/g, " "), x.cents]));

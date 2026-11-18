@@ -31,9 +31,15 @@ is free. Jackpots that cover checking (`φJ ≥ k`) remove this: the floor is at
 - `C > 0`, `s < A`: `Π = sC/A`, attained at cheat rate `C/A = (k−φJ)/((1−φ)(λS+h))` — the no-collusion rate, so bribery changes the solver's profit but not security.
 - `C > 0`, `s ≥ A`: `Π = s − A + C` at **x = 1**. Security fails completely.
 
-So there is a sharp **collusion-proof stake** `S_c = (s − m·bonus)/(mλ) − h/λ`: below it a bribing solver cheats every task;
-above it the cheat rate stays at the inspection-game level. `S_c` falls as `1/m` — more verifiers make collusion
-linearly more expensive (contrast the free-riding result, where more verifiers only dilute rewards).
+So there is a sharp **collusion-proof stake**. Two things must hold above it: bribing all `m` verifiers must cost more
+than the saving, `S ≥ S_b = (s − m·bonus)/(mλ) − h/λ`, and checking must pay at all when the solver always cheats,
+`S > S_k = ((k − φJ)/(1 − φ) − h)/λ`. So `S_c = max(S_b, S_k)`: below it a bribing solver cheats every task; above it the
+cheat rate stays at the inspection-game level. `S_b` falls as `1/m`, so more verifiers make collusion linearly more
+expensive (contrast the free-riding result, where more verifiers only dilute rewards), but only until `S_b` meets `S_k`,
+at `m = s/((k − φJ)/(1 − φ))`. Beyond that, extra verifiers buy nothing: below `S_k` they stay silent unbribed. With
+`s=1, λ=k=.5, h=φ=J=0`, `S_c` is 2.0, 1.0, 1.0, 1.0 at `m` = 1, 2, 4, 8 (`experiments/run.py`). An earlier version of
+this note gave `S_c = S_b` and claimed `1/m` throughout; the quality audit of 2026-11-13 found that at `m=4`, stakes of
+0.6 and 0.9 still let the solver keep the whole saving.
 
 **Result 3 (jackpots raise the bar one-for-one).** Each unit of `φJ − k` raises the collusion cost by
 `m/(1−φ)` per task. In the table (`s=3, λ=.5, k=.5, φ=.05`), at `S=6` (where `s=A`) profit is 0.526 with no jackpot and 0 once `φJ ≥ k` (J=10).
@@ -45,7 +51,8 @@ above `S=6` it drops to 0.43, 0.38, 0.25 at `S`=7, 8, 12 with cheat rate 0.14, 0
 ## Verification
 `tests/` checks: floor equals indifference; `φ=0` recovers `x*`; the closed-form profit matches an independent
 brute force (grid over `x`, floor found by bisection on the payoff functions) on 7 parameter sets; the
-stake threshold flips the optimum to `x=1`; `S_c ∝ 1/m`; a Monte-Carlo simulation of tasks matches the payoff formulas. 7 tests.
+stake threshold flips the optimum to `x=1`; `S_b ∝ 1/m`; `S_c` never falls below `S_k` (the audit's `m=4` counterexample,
+pinned against the brute force); a Monte-Carlo simulation of tasks matches the payoff formulas. 8 tests.
 
 ## Limitations
 Silence being an equilibrium is one equilibrium of a coordination game — verifiers could also all report — so the floor is a *lower bound on what the

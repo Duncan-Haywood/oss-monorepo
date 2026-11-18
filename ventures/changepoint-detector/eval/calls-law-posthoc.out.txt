@@ -1,0 +1,7 @@
+within-day local differences, all days pooled (27552): mean d^2/(2m) 1.005 (1 under Poisson); capped mean 0.966 (0.981 under Poisson)
+  blocks of  1 slots (  5 min): mean (Y - E)^2 / E 1.34
+  blocks of  3 slots ( 15 min): mean (Y - E)^2 / E 2.18
+  blocks of  6 slots ( 30 min): mean (Y - E)^2 / E 3.25
+  blocks of 12 slots ( 60 min): mean (Y - E)^2 / E 5.17
+  blocks of 24 slots (120 min): mean (Y - E)^2 / E 8.02
+  lag-1 correlation of scaled residuals within a day: 0.314

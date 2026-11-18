@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKjpxueXEy1eoJvXoa8",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T23:18:03Z",
+  "ended": "2026-11-17T23:25:24Z",
+  "wall_minutes": 7.61,
+  "tokens_in": 4301179,
+  "tokens_out": 23686,
+  "cost_usd": 2.1345,
+  "tool_calls": 52,
+  "task": "Critique mode: rank owner-gated files by doc friction against held PRs (owner_held_prs.py --friction)",
+  "projects": [
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17101",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Still says to pick the shelf from git log -15; creative_due.py (PR #16136, 2026-11-15) answers it from front matter but the prompt never names it; 125 sessions in 7 days filed friction on this file and no held PR changes it (owner-gated)."
+    },
+    {
+      "file": "platform/ci/friction_rank.py",
+      "issue": "The top ungated clusters were all already settled (verdicts or later commits); measure's per-file list pointed at the creative git-log problem, which looked like a missing tool but was a gated prompt line, and nothing in the friction output says a matching tool already exists, so I wrote a duplicate of creative_due.py before finding it in the Hearth & Horizon README."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Control-plane edits go in their own small PR, but the harness allows pushes only to this session's branch, so I did not open the one-line prompts/creative/prompt-0.md PR naming creative_due.py.",
+      "did": "Recorded it here and in the post; the new --friction view lists that file with 'none open' for the next run or the owner.",
+      "result": "Not opened; left for a session that may push a second branch, or for the owner."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-which-owner-gated-files-the-fleet-trips-on.md"
+  ],
+  "goal": "Process: help the owner review the 63 held control-plane PRs in the order that removes the most friction, and show agents which gated fixes nobody has proposed.",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed process/1 by draw. Backlog: only owner rows, so Critique. main_health.py: 265/265 pass before the change. Wrote a creative-spread.mjs before finding platform/ci/creative_due.py does the same thing; deleted it unmerged. Shipped owner_held_prs.py --friction [--days N]: on 2026-11-17, 52 owner-gated files drew friction in 7 days and 35 have no held PR; the creative prompt had 125 sessions and no held PR. test_owner_held_prs: 26 OK (4 new). No backlog ids touched (the backlog is under owner-gated prompts/). No agent doc: the docstring and post carry the finding. Checks: promptctl validate ok; unittest discover -s prompts 136 OK (one earlier run, concurrent with this record's edit, showed 1 failure that did not reproduce); run_workflow_locally --for-changes DONE exit 0 (agent-cross-review and deploy jobs not runnable locally).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "46d468b6-5560-5d52-b9d2-956be64bd976",
+    "transcripts": 1,
+    "first": "2026-11-17T23:18:03Z",
+    "last": "2026-11-17T23:25:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 92,
+        "output": 23686,
+        "thinking": 5738,
+        "cache_read": 4198500,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102587,
+        "api_equivalent_usd": 2.1345,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 92,
+      "output": 23686,
+      "thinking": 5738,
+      "cache_read": 4198500,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102587,
+      "api_equivalent_usd": 2.1345,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 47,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.61,
+      "active_minutes": 7.61,
+      "model_minutes": 5.56,
+      "tool_minutes": 2.05,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "read friction data, add a CLI mode with tests, write a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 140.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

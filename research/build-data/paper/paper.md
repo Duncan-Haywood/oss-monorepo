@@ -466,6 +466,35 @@ permits costs, within a day of the complete-label model in 3 of 4 city-years. It
 ten years in 3 of 24 runs, on at most three test permits. Held out Austin, whose builds are shorter than its
 sources', loses part of the gain it had from dropping the long builds (q0.9 -2.6 and -7.7 days against IPCW's -7.5
 and -10.2): the censored loss lengthens the borrowed tail, which helps only where the new city's tail is as long.
+Session 91 (`../results/rounds_score_nc_i2c_summary.json`, `../results/sf_never_completed_status.json`; five
+predictions written before the run) put back the permits the feeds never mark complete, which a deployment on D
+also sees as open: 39% of San Francisco's issued permits, 23% of Seattle's and 8% of Austin's, flat by issue year
+back to 2010; in San Francisco 246,263 of them still read "issued" and 229,398 "expired". These are records nobody
+closed out, not decade-long builds, and read as lower bounds they cost the deployable q0.9 model +181 days against
+the complete-label model in San Francisco and Seattle. Dropping any source permit open more than five years on D,
+a rule fixed before the run, gives -0.41 days, the first deployable variant to match the complete-label model.
+Session 92 (`../results/rounds_score_sweep_i2c_summary.json`; five predictions written before the run, S1 to S5)
+swept that threshold over 2, 3, 5 and 8 years and chose it from a score a deployment has: the censored q0.9 loss on
+all the sources' Y-3 permits as seen on D, the same rows for every threshold. Change in q0.9 loss against the
+complete-label model, days, mean of 3 seeds:
+
+| held out, test year | 2 years | 3 years | 5 years | 8 years | censored Y-3 score picks |
+|---|---|---|---|---|---|
+| San Francisco 2021 | +3.54 | +0.90 | +2.46 | +19.09 | 8 years |
+| San Francisco 2022 | +1.19 | +0.05 | +3.10 | +21.73 | 8 years |
+| Seattle 2021 | +5.53 | +1.50 | -3.95 | -0.98 | 8 years |
+| Seattle 2022 | +1.68 | +0.73 | -3.22 | -0.78 | 8 years |
+| Austin 2021 (not tested) | -4.29 | -2.34 | +14.84 | +55.77 | 8 years |
+| Austin 2022 (not tested) | -8.42 | -5.64 | +10.43 | +59.83 | 8 years |
+
+The best threshold differs by city (S1 held) and the oldest records hurt (S2 held: 8 years is 10.2 days worse than
+5 on average in San Francisco and Seattle); over all six city-years 3 years is the most robust fixed choice (mean
+-0.80, worst +1.50; post hoc). The selector failed (S3, S4 refuted): its score falls with the threshold at every
+step in all six city-years, so it picks 8 years everywhere, with a mean regret of 11.3 days in San Francisco and
+Seattle and 60 to 68 in Austin. A censored score charges an open row nothing once the prediction passes its window,
+so wherever "open" includes permits nobody recorded as finished it rewards whichever model predicts longest. Choosing
+how to treat unrecorded permits needs a score they cannot game: a backtest on an older decision date, or a model of
+which open permits are still running.
 
 Agreement beyond chance (Cohen's kappa, `python3 ../src/desc_eval.py kappa`) is 0.79 in Chicago and
 0.90 in Seattle on the held-out year for the revised rules, against 0.47 and 0.58 for the original.
@@ -580,7 +609,18 @@ permits not yet completed, and keeping the default unless another encoding wins 
 regret 0.6 days over 12 cells). Three years back is better: it keeps the 0.9-quantile choice from chasing
 permits that have not finished yet (mean regret 0.3 days, session 85). Do not early-stop the borrowed model
 on the sources' latest year as it stands on the decision date: without its long builds the tail model stops
-too early (1.3 days of mean loss, session 85).
+too early (1.3 days of mean loss, session 85). Keep the source permits still open on the decision date in a
+censored pinball loss (4.4b, session 90), but drop those open for more than about three years: many are permits the
+city never closed out, and they lengthen the borrowed tail (session 91). Do not pick that cut-off with a censored
+score on the same feeds: it always favours keeping more of them (session 92). Do not pick it from the target
+city's own history either: a score on its permits issued six years earlier picked the best rule in the four
+city-years it was found on (session 99), but picked the 3-year cut in all four out-of-sample San Francisco and
+Seattle city-years (2019, 2020), where the 5-year cut was better in both cities (mean regret 2.15 days; session 100).
+Those picks are stable under a bootstrap over the target's permits (at least 96% of resamples on the same side in
+all eight city-years), so the score is biased, not noisy (session 101). For San Francisco- and Seattle-like targets
+use a fixed cut of about five years: over their eight city-years it is the best fixed rule (mean q0.9 78.16 days,
+0.63 above the per-cell oracle). Austin as the target wants the 3-year cut by about 16 days (session 100), and no
+signal found so far tells a deployment which kind of target it has.
 
 ## 7 To do before submission
 
@@ -590,5 +630,5 @@ too early (1.3 days of mean loss, session 85).
 4. A fourth city after a licence check: Seattle added in 4.8 (public domain; H1, coverage, width and H4 transfer for 2022 to 2024); NYC DOB NOW is still unchecked. (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted now covers 2022, 2023 and 2024 (4.6a).
 5. Empirical permit-duration prior published for all three cities (4.7); a median-of-predictions table of the boosted model failed to keep its gain (4.7a); a model-based version for `ventures/` is still to do: three flattening routes (4.7a, 4.7c) keep the gain only partly, the guarded-interval rerun (4.7d) repaired the collapse, and 4.7e picks the shipped interval (per-type baseline in four of five sets).
 6. Build a work-type class from the description text for Chicago and Seattle (4.4a: their structured fields do not name the work; overlap without "other" is 0.00 to 0.19) and from `work_class` for Austin, validate it on a hand-labelled sample, and rerun H4. Code in place (session 70: `src/classmap.py` cascade, the loader's `desc_class`, `transfer.py --classes cascade`, with a prediction in `../LOG.md`). Validated in session 71 (4.4b): the session 70 rules agree with hand labels on 60% (Chicago) and 78% (Seattle) of held-out rows, the revised rules (`desc_class_v2`, `--classes cascade2`) on 85% and 95%.
-7. Score issue-to-completion with a censoring-aware evaluation: done for the demolition fold in session 78 (4.4b; IPCW cannot reach q0.9 on a two-year window, so tails are scored on mature cohorts). Session 79 reran cascade2 against type on mature cohorts and held out SF and Austin (2021): the tail effect is city-specific (4.4b). Sessions 80 to 84 ran SF and Austin in 2020 to 2022, split Austin's cost by class, and chose the class per target city from its own earlier years, on deployment-time labels too (4.4b). Still to do: a three-year-old selection year with the sources' early stopping also truncated, an issue-month-conditional G for Austin, and a censored-quantile model that trains on incomplete permits (session 89: Portnoy-style pseudo-rows fail in boosted trees through leaf renewal; next, a custom censored-pinball objective).
+7. Score issue-to-completion with a censoring-aware evaluation: done for the demolition fold in session 78 (4.4b; IPCW cannot reach q0.9 on a two-year window, so tails are scored on mature cohorts). Session 79 reran cascade2 against type on mature cohorts and held out SF and Austin (2021): the tail effect is city-specific (4.4b). Sessions 80 to 84 ran SF and Austin in 2020 to 2022, split Austin's cost by class, and chose the class per target city from its own earlier years, on deployment-time labels too (4.4b). Still to do: a three-year-old selection year with the sources' early stopping also truncated, an issue-month-conditional G for Austin, and a censored-quantile model that trains on incomplete permits (session 89: Portnoy-style pseudo-rows fail in boosted trees through leaf renewal; next, a custom censored-pinball objective). Done in session 90; sessions 91 and 92 found the never-closed records and a staleness cut-off that a censored score cannot choose. Session 99: a deployable selector for that cut-off, the target's own Y-6 permits completed by D, picks the best rule in 4 of 4 city-years. Still to do: a paired bootstrap of that pick, more cells (Austin, 2019 and 2020), or a cure-fraction model of which open permits are real.
 8. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.

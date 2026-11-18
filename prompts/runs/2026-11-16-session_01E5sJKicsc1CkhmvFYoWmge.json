@@ -1,0 +1,513 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKicsc1CkhmvFYoWmge",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T22:19:02Z",
+  "ended": "2026-11-16T22:21:06Z",
+  "wall_minutes": 9.32,
+  "tokens_in": 4702514,
+  "tokens_out": 20740,
+  "cost_usd": 2.0388,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16724",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix the open list first, but all 9 open entries are control-plane fixes. Most already have owner-gated PRs (#14612, #15945, #12926, #14877, #14698, #15561, #12928); only the 2026-11-15 usage-contract patch and the 2026-11-14 control_plane_guard follow-up have none. The step could say: check for an existing control-plane PR and move on."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Step 4b suggests dogfooding our security products on our own setup, but email-auth-check against marisstella.app can't run here: cloudflare-dns.com and dns.google both give 403 at the proxy CONNECT, and node fetch also needs NODE_USE_ENV_PROXY=1 to use the proxy at all."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: did not re-fix the 9 open control-plane entries. Each needs its own owner-approved PR, and 7 already have one waiting.",
+      "did": "checked open PRs for each one, left them open",
+      "result": "run time went to the campaign and two real product defects instead"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b: no new automated guard beyond the tests; the dogfood check (email-auth-check on our own domain) was blocked by the proxy (403)",
+      "did": "the defect class is now guarded by suite tests that ventures-tests.yml runs",
+      "result": "partial"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-redteam-email-auth-check-exp-after-all.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: analyze.mjs 12 seeded (8 caught: 2 equivalent, 2 gaps fixed), lookup.mjs 12 (10 caught, 2 gaps fixed). Catch rate 18/22 = 0.818 before, 1.0 after (equivalents excluded). email-auth-check suite: 163 pass. Guard added: suite tests only (see deviations).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/email-auth-check/analyze.mjs",
+        "test": "node --test ventures/email-auth-check/**/*.test.mjs  (in .)",
+        "seed": 414552148,
+        "commit": "85a00cb22",
+        "sites": 328,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/email-auth-check/analyze.mjs",
+            "line": 204,
+            "col": 18,
+            "operator": "true-to-false",
+            "before": "truncated = true;",
+            "after": "truncated = false;",
+            "line_text": "      truncated = true;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "visit budget truncation untested; new test \"past the visit budget the walk is truncated\""
+          },
+          {
+            "file": "ventures/email-auth-check/analyze.mjs",
+            "line": 251,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "entry.lookupsHere += 1;",
+            "after": "entry.lookupsHere += 2;",
+            "line_text": "      entry.lookupsHere += 1;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "per-record lookupsHere untested; new test \"lookupsHere is the per-record count\""
+          },
+          {
+            "file": "ventures/email-auth-check/analyze.mjs",
+            "line": 350,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "if (off + 2 > bytes.length) return null;",
+            "after": "if (off + 3 > bytes.length) return null;",
+            "line_text": "  if (off + 2 > bytes.length) return null;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "derAt: off+2 vs off+3 differs only for a zero-length TLV ending exactly at the buffer end; every caller then returns null anyway (empty modulus -> i>=end null; empty BIT STRING -> bytes[start] undefined !== 0 null; empty SEQUENCE -> next derAt null)"
+          },
+          {
+            "file": "ventures/email-auth-check/analyze.mjs",
+            "line": 398,
+            "col": 75,
+            "operator": "eq-flip",
+            "before": "anyValid: results.some((r) => r.found && r.hasPublicKey && !(r.keyType === 'rsa' && r.keyBits < 1024)),",
+            "after": "anyValid: results.some((r) => r.found && r.hasPublicKey && !(r.keyType !== 'rsa' && r.keyBits < 1024)),",
+            "line_text": "    anyValid: results.some((r) => r.found && r.hasPublicKey && !(r.keyType === 'rsa' && r.keyBits < 1024)),",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/analyze.mjs",
+            "line": 455,
+            "col": 57,
+            "operator": "le-to-lt",
+            "before": "if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 100) pct = parsed;",
+            "after": "if (Number.isFinite(parsed) && parsed >= 0 && parsed < 100) pct = parsed;",
+            "line_text": "    if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 100) pct = parsed;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/analyze.mjs",
+            "line": 590,
+            "col": 49,
+            "operator": "and-to-or",
+            "before": "(c) => c.note !== 'loop' && c.found !== null && (c.found === false || c.multiple || (c.malformed && c.malformed.length)),",
+            "after": "(c) => c.note !== 'loop' && c.found !== null || (c.found === false || c.multiple || (c.malformed && c.malformed.length)),",
+            "line_text": "    (c) => c.note !== 'loop' && c.found !== null && (c.found === false || c.multiple || (c.malformed && c.malformed.length)),",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/analyze.mjs",
+            "line": 615,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "if (voids.length > 2) {",
+            "after": "if (voids.length > 3) {",
+            "line_text": "  if (voids.length > 2) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/analyze.mjs",
+            "line": 671,
+            "col": 11,
+            "operator": "eq-flip",
+            "before": "if (allQ === '+') {",
+            "after": "if (allQ !== '+') {",
+            "line_text": "  if (allQ === '+') {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/analyze.mjs",
+            "line": 708,
+            "col": 36,
+            "operator": "or-to-and",
+            "before": "for (const err of transportErrors || []) {",
+            "after": "for (const err of transportErrors && []) {",
+            "line_text": "  for (const err of transportErrors || []) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/analyze.mjs",
+            "line": 729,
+            "col": 68,
+            "operator": "const-plus-one",
+            "before": "} else if (r.hasPublicKey && r.keyType === 'rsa' && r.keyBits < 1024) {",
+            "after": "} else if (r.hasPublicKey && r.keyType === 'rsa' && r.keyBits < 1025) {",
+            "line_text": "    } else if (r.hasPublicKey && r.keyType === 'rsa' && r.keyBits < 1024) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/analyze.mjs",
+            "line": 825,
+            "col": 20,
+            "operator": "eq-flip",
+            "before": "} else if (policy === 'reject') {",
+            "after": "} else if (policy !== 'reject') {",
+            "line_text": "  } else if (policy === 'reject') {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/analyze.mjs",
+            "line": 890,
+            "col": 262,
+            "operator": "const-plus-one",
+            "before": "`default._bimi.${domain} is published, but Google and Yahoo require DMARC at p=quarantine or p=reject with pct=100 before they will display a BIMI logo. ${dmarc.found ? `Current DMARC here is p=${dmarc.appliedPolicy ?? '(none applies)'} pct=${dmarc.pct ?? 100}.` : 'No DMARC record was found at all -- see the DMARC findings above.'}`,",
+            "after": "`default._bimi.${domain} is published, but Google and Yahoo require DMARC at p=quarantine or p=reject with pct=100 before they will display a BIMI logo. ${dmarc.found ? `Current DMARC here is p=${dmarc.appliedPolicy ?? '(none applies)'} pct=${dmarc.pct ?? 101}.` : 'No DMARC record was found at all -- see the DMARC findings above.'}`,",
+            "line_text": "      `default._bimi.${domain} is published, but Google and Yahoo require DMARC at p=quarantine or p=reject with pct=100 before they will display a BIMI logo. ${dmarc.found ? `Current DMARC here is p=${dmarc.appliedPolicy ?? '(none applies)'} pct=${dmarc.pct ?? 100}.` : 'No DMARC record was found at all -- see the DMARC findings above.'}`,",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "the ?? fallback sits inside dmarc.found ? ..., and analyzeDmarc always sets pct to a number (default 100, line ~460) when found, so the fallback is unreachable; the added BIMI-text test pins the visible pct=100 anyway"
+          }
+        ]
+      },
+      {
+        "target": "ventures/email-auth-check/lookup.mjs",
+        "test": "node --test ventures/email-auth-check/**/*.test.mjs  (in .)",
+        "seed": 146770990,
+        "commit": "85a00cb22",
+        "sites": 70,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/email-auth-check/lookup.mjs",
+            "line": 44,
+            "col": 22,
+            "operator": "true-to-false",
+            "before": "return r.ok ? { ok: true, records: r.answers.map((a) => unquoteTxtData(a.data)), error: null } : { ok: false, records: null, error: r.error };",
+            "after": "return r.ok ? { ok: false, records: r.answers.map((a) => unquoteTxtData(a.data)), error: null } : { ok: false, records: null, error: r.error };",
+            "line_text": "  return r.ok ? { ok: true, records: r.answers.map((a) => unquoteTxtData(a.data)), error: null } : { ok: false, records: null, error: r.error };",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/lookup.mjs",
+            "line": 61,
+            "col": 23,
+            "operator": "neq-flip",
+            "before": "if (typeof fetchImpl !== 'function') {",
+            "after": "if (typeof fetchImpl === 'function') {",
+            "line_text": "  if (typeof fetchImpl !== 'function') {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/lookup.mjs",
+            "line": 77,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "if (body.Status === 3) return { ok: true, answers: [], error: null }; // NXDOMAIN: real, reportable absence",
+            "after": "if (body.Status === 4) return { ok: true, answers: [], error: null }; // NXDOMAIN: real, reportable absence",
+            "line_text": "    if (body.Status === 3) return { ok: true, answers: [], error: null }; // NXDOMAIN: real, reportable absence",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/lookup.mjs",
+            "line": 78,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "if (body.Status !== 0) {",
+            "after": "if (body.Status !== 1) {",
+            "line_text": "    if (body.Status !== 0) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/lookup.mjs",
+            "line": 83,
+            "col": 25,
+            "operator": "and-to-or",
+            "before": "const timedOut = err && err.name === 'AbortError';",
+            "after": "const timedOut = err || err.name === 'AbortError';",
+            "line_text": "    const timedOut = err && err.name === 'AbortError';",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/lookup.mjs",
+            "line": 107,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "let fetchedCount = 0;",
+            "after": "let fetchedCount = 1;",
+            "line_text": "  let fetchedCount = 0;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the maxFetches cap on DNS queries was untested; new test \"resolveSpfChain stops at exactly maxFetches DNS queries\""
+          },
+          {
+            "file": "ventures/email-auth-check/lookup.mjs",
+            "line": 111,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "fetchedCount += 1;",
+            "after": "fetchedCount += 2;",
+            "line_text": "    fetchedCount += 1;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the maxFetches cap on DNS queries was untested; new test \"resolveSpfChain stops at exactly maxFetches DNS queries\""
+          },
+          {
+            "file": "ventures/email-auth-check/lookup.mjs",
+            "line": 127,
+            "col": 14,
+            "operator": "and-to-or",
+            "before": "if (key && !queued.has(key)) {",
+            "after": "if (key || !queued.has(key)) {",
+            "line_text": "      if (key && !queued.has(key)) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/lookup.mjs",
+            "line": 164,
+            "col": 30,
+            "operator": "and-to-or",
+            "before": "if (t.mechanism !== 'a' && t.mechanism !== 'mx' && t.mechanism !== 'exists') continue;",
+            "after": "if (t.mechanism !== 'a' || t.mechanism !== 'mx' && t.mechanism !== 'exists') continue;",
+            "line_text": "      if (t.mechanism !== 'a' && t.mechanism !== 'mx' && t.mechanism !== 'exists') continue;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/lookup.mjs",
+            "line": 165,
+            "col": 49,
+            "operator": "or-to-and",
+            "before": "const target = normalizeDomainKey(t.domain || entry.domain);",
+            "after": "const target = normalizeDomainKey(t.domain && entry.domain);",
+            "line_text": "      const target = normalizeDomainKey(t.domain || entry.domain);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/lookup.mjs",
+            "line": 220,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "export const MAX_DMARC_QUERIES = 8;",
+            "after": "export const MAX_DMARC_QUERIES = 9;",
+            "line_text": "export const MAX_DMARC_QUERIES = 8;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/email-auth-check/lookup.mjs",
+            "line": 241,
+            "col": 24,
+            "operator": "le-to-lt",
+            "before": "for (let i = start; i <= labels.length - 2; i += 1) names.push(labels.slice(i).join('.'));",
+            "after": "for (let i = start; i < labels.length - 2; i += 1) names.push(labels.slice(i).join('.'));",
+            "line_text": "  for (let i = start; i <= labels.length - 2; i += 1) names.push(labels.slice(i).join('.'));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/email-auth-check/analyze.mjs",
+        "issue": "parseSpfMechanisms set allNotLast for any term after \"all\", so the legal and common `v=spf1 ... -all exp=explain...` (a modifier, allowed anywhere by RFC 7208 s6) got a false 'nothing after all is ever reached' notice. Mechanisms after all were also counted toward the 10-lookup budget, fetched, and checked for void lookups though s5.1 says they are never evaluated. Fixed: only a mechanism after all sets allNotLast, and such mechanisms cost no lookup; tests in analyze.test.mjs and lookup.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16724"
+      },
+      {
+        "file": "ventures/email-auth-check/analyze.mjs",
+        "issue": "`v=spf1 ~all -all` was reported as invalid syntax (spf-malformed, danger, 'PermError for every message') though RFC 7208's ABNF allows it, and allQualifier took the LAST all ('-', strict) while evaluation stops at the first ('~', softfail), overstating the policy. Fixed: first all decides, a later one is an unreachable term (notice); test in analyze.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16724"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "06f099d0-344d-5192-96c9-49d1dea0b575",
+    "transcripts": 1,
+    "first": "2026-11-16T22:19:02Z",
+    "last": "2026-11-16T22:28:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 104,
+        "output": 20740,
+        "thinking": 4881,
+        "cache_read": 4614838,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87572,
+        "api_equivalent_usd": 2.0388,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 104,
+      "output": 20740,
+      "thinking": 4881,
+      "cache_read": 4614838,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87572,
+      "api_equivalent_usd": 2.0388,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 51,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.32,
+      "active_minutes": 9.32,
+      "model_minutes": 3.52,
+      "tool_minutes": 5.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "reading RFC 7208 modifier/all semantics, 2 fixes, 7 tests, mutation triage, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 196.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

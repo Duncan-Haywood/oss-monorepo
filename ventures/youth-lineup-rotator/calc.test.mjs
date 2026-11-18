@@ -189,3 +189,75 @@ test("minimum-play never asks a late arrival for more than they can play", () =>
   const r = { periods: 4, stats: [{ name: "L", played: 1, avail: 1 }] };
   assert.deepEqual(minPlayCheck(r, 1), []);
 });
+
+// The plain, allocating cost function lineupCost replaced (2026-11-18). The
+// scratch-array version must give the same number, bit for bit, on any grid,
+// because the annealer's accept/reject decisions compare these totals.
+function plainCost(ctx, grid) {
+  const { players, periods, names } = ctx;
+  const N = players.length;
+  const S = ctx.slotNames.length;
+  let cost = 0;
+  const played = new Array(N).fill(0);
+  const onField = Array.from({ length: periods }, () => new Array(N).fill(false));
+  const count = Array.from({ length: N }, () => new Array(names.length).fill(0));
+  const strength = new Array(periods).fill(0);
+  const last = new Array(N).fill(-1);
+  for (let t = 0; t < periods; t++) {
+    for (let s = 0; s < S; s++) {
+      const p = grid[t][s];
+      if (p < 0) { cost += 1e6; continue; }
+      played[p]++;
+      onField[t][p] = true;
+      count[p][ctx.nameOf[s]]++;
+      strength[t] += players[p].skill;
+      if (last[p] === ctx.nameOf[s] && onField[t - 1]?.[p]) cost += 15;
+    }
+    for (let p = 0; p < N; p++) last[p] = -1;
+    for (let s = 0; s < S; s++) if (grid[t][s] >= 0) last[grid[t][s]] = ctx.nameOf[s];
+  }
+  for (let p = 0; p < N; p++) {
+    let avail = 0;
+    let run = 0;
+    for (let t = 0; t < periods; t++) {
+      if (!ctx.avail[p][t]) { run = 0; continue; }
+      avail++;
+      if (!onField[t][p]) { if (run > 0) cost += 400; run++; } else run = 0;
+    }
+    const eff = avail - played[p] + 0.5 * players[p].sat;
+    cost += 100 * eff * eff;
+    for (let n = 0; n < names.length; n++) {
+      const c = count[p][n];
+      cost += 10 * c * c;
+      if (ctx.isKeeper[n] && c > ctx.keeperMax) cost += 3000 * (c - ctx.keeperMax);
+    }
+  }
+  if (ctx.balance > 0) {
+    const mean = strength.reduce((a, b) => a + b, 0) / periods;
+    for (const v of strength) cost += 8 * ctx.balance * (v - mean) ** 2;
+  }
+  return cost;
+}
+
+test("lineupCost matches the plain cost function exactly on random grids", () => {
+  let a = 12345;
+  const rnd = () => { a = (Math.imul(a, 1103515245) + 12345) >>> 0; return a / 4294967296; };
+  const cases = [
+    ["GK, DEF x2, MID x2, FWD x2", EXAMPLE.players, 4, {}],
+    ["G, D x2, C, W x2", "A | skill: 2.5 | sat: 1.5\nB | sat: 3\nC | late: 1\nD | leaves: 2\nE\nF | skill: 5\nG | not: G\nH", 3, { balance: 2, keeperMax: 2 }],
+    ["Setter, Outside x2, Middle x2, Opposite", names(7), 3, { balance: 0 }],
+    ["GK, DEF x2, FWD x2", names(12), 6, {}],
+  ];
+  // One context per case and repeated calls on it, so the reused scratch
+  // arrays are exercised, including after a different-sized context ran.
+  for (let round = 0; round < 2; round++) for (const [slotsText, roster, periods, extra] of cases) {
+    const spec = make(slotsText, roster, periods, extra);
+    const ctx = buildContext(spec.players, spec.slotNames, periods, extra);
+    for (let k = 0; k < 300; k++) {
+      const grid = Array.from({ length: periods }, () => spec.slotNames.map(() => (rnd() < 0.1 ? -1 : Math.floor(rnd() * spec.players.length))));
+      assert.equal(lineupCost(ctx, grid), plainCost(ctx, grid));
+    }
+    const r = buildLineup({ ...spec, seed: 4, iterations: 2000, restarts: 2 });
+    assert.equal(lineupCost(ctx, r.grid), plainCost(ctx, r.grid));
+  }
+});

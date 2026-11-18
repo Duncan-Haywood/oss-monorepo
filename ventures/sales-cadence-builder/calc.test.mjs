@@ -9,7 +9,7 @@ const plan = buildPlan(SAMPLE_PROSPECTS, SAMPLE_SENDER, { start: "2026-10-26", s
 const person = (name) => plan.people.find((p) => p.first_name === name && !p.excluded) || plan.people.find((p) => p.first_name === name);
 
 test("CSV parser handles quotes, embedded commas and newlines, CRLF and a BOM", () => {
-  assert.deepEqual(parseCsv('﻿a,b\r\n"x, y","say ""hi""\nthere"\r\n\r\n'), [["a", "b"], ["x, y", 'say "hi"\nthere']]);
+  assert.deepEqual(parseCsv('\uFEFFa,b\r\n"x, y","say ""hi""\nthere"\r\n\r\n'), [["a", "b"], ["x, y", 'say "hi"\nthere']]);
 });
 
 test("column aliases map common CRM export headers, and a full name is split", () => {

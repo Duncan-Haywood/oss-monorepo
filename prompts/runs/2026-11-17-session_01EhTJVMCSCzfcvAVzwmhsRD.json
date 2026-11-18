@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVMCSCzfcvAVzwmhsRD",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (standing brief)",
+  "input_sha256": "b08f874f0e4038fde0f02101a24a0141f12b7b04776101eac102b0d229168f2c",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T22:46:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots: a ball's take spread over a few ms (flagship row 6, buildable item)",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": 17078,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "take_fit.py first run crashed: unsure_weight.run computes the true drop from the speed after an instant take (zero with a spread take); fixed by using take_spread.run"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/tests/unsure_weight.py",
+      "issue": "run() derives the true drop from the wheel speed right after _take_momentum, which assumes an instant take; the simulator now records sim.taken, which later scripts should read instead."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-the-tennis-feeders-ball-is-not-an-instant.md"
+  ],
+  "goal": null,
+  "notes": "Simulator: SimFeeder(take_ms, take_shape) spreads a ball's take over its contact time. tests/take_spread.py (72 builds): the prediction (step model holds to 6 ms) failed; 6 ms half-sine reads 0.82%/0.62% sd vs 0.14%/0.12% instant, spin 1.47%/1.25% off. Firmware: drop_from_commands_steps(take=) contact-time term + LOOP_TAKE switch (default (), unchanged); with take set, the t0 window opens earlier by the take's last part (found after the first offline refit missed). tests/take_fit.py offline on 575 wheels: true time 0.17-0.21% sd; least-rms pick of 7 candidates 0.09-0.17%. End to end told 6 ms: 0.20%/0.18% sd, spin 0.39%/0.35%. Jittery plant with polish: 0.66% sd, spin 0.52% (was 0.72/0.57). Verification: python3 platform/ci/run_venture_tests.py open-tennis-robots: ok, 358 tests, 58 skipped (build123d). All simulated.",
+  "corrections": [],
+  "redteam": null
+}

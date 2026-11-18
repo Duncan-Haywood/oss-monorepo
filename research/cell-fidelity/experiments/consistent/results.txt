@@ -1,0 +1,15 @@
+cell-fidelity milestone 5zd: 5zc's loaded law with the potential lever read at the eta-shortened window (eta)
+against 5zc (open-circuit potential lever, oc) and 5zb (open-circuit Q and dU, q). DFN (SEI + plating) to cycle 100,
+fresh Sobol designs (seed 22); median |ln(L_pred(99) / L_DFN(99))|; rise: separator-surface OCP u(99) - u(2)
+
+condition               n drop    5zb    5zc    5zd sgn 5zc sgn 5zd wins   rhoL rise mV err oc err eta eta mV
+Ai2020@0.575x          32    0  0.040  0.025  0.076  +0.006  -0.060   10  0.990   117.8   80.1    75.1  213.2
+NCA_Kim2011@0.8125x    32    0  0.028  0.033  0.020  +0.027  -0.011   26  1.000   107.4   23.4    39.5  133.2
+Chen2020@1.3125x       32    0  0.270  0.202  0.104  +0.202  +0.095   30  0.971    39.4   35.0    21.1  360.3
+OKane2022@1.4375x      32    0  0.259  0.167  0.064  +0.165  +0.042   29  0.942    36.4   27.3    16.6  396.6
+
+H157 (eta lever beats 5zc on both LG M50 pools): supported (2 of 2)
+H158 (eta lever within 0.12 on both LG M50 pools): supported
+H159 (controls: no worse than 5zc by more than 0.05 on either): mixed
+H160 (worst-pool error below 5zc's; 0.104 vs 0.202): supported
+H161 (eta window forecasts the cycle-99 surface OCP rise better than open circuit on both LG M50 pools): supported (2 of 2)

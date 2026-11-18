@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqygEfQh2xmNPY5cWNBe",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T03:39:10Z",
+  "ended": "2026-11-17T03:47:03Z",
+  "wall_minutes": 8.02,
+  "tokens_in": 5017636,
+  "tokens_out": 37035,
+  "cost_usd": 2.7012,
+  "tool_calls": 49,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16803",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "Pre-registered refutation rule (P0/D pooled ratio > 0.60 at n=50) was met as written (0.635) but was mis-specified: threshold taken from the draft's family-median 0.501 and applied to a pooled ratio that is 0.641 before any design effect. Recorded as met in LOG.md with the explanation, not rewritten.",
+    "Found and fixed a wrong DOI in paper/references.bib (Prasad and Rao 1990 pointed at Gelfand and Smith 1990); the older LOG entry quoting it is left as written and the correction is logged."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "HOSTS RECHECK line was right and useful: gss.norc.org and doi.org passed the proxy this session, unblocking two items the log said were blocked."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "No friction; the post front-matter limits printed by pick_track.py (title <=110, seo_title <=70, description 60-160) saved a CI round trip."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-christian-belief-models-shrinkage-survives-the-survey-design.md",
+    "research/christian-belief-models/LOG.md (2026-11-17 entry)"
+  ],
+  "goal": null,
+  "notes": "Programme christian-belief-models, milestone 6 part: new experiments/m6_design_shrinkage (228 cells refitted with GSS strata/PSUs, Sections 6-8 rescored against the population share in closed form). Gains unchanged within 0.01; Kish robust EB covers 93.0-93.6% at n=200-400, design-aware restores 94.1-96.8%. Draft sections 8-11, abstract and check_numbers (100 checks) updated; all 18 bib ids resolved. Local checks: pytest test_design_shrinkage/test_design_variance/test_paper_numbers/test_figures/test_intervals/test_prior 25 passed; build.py ok; check_md_links ok; post front matter ok. No new agent doc in docs/reports: LOG.md is the programme's handoff.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2ee9f4a3-1a11-5697-bbdb-ae64bfffd1ff",
+    "transcripts": 1,
+    "first": "2026-11-17T03:39:10Z",
+    "last": "2026-11-17T03:47:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 84,
+        "output": 37035,
+        "thinking": 8905,
+        "cache_read": 4894906,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122646,
+        "api_equivalent_usd": 2.7012,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 84,
+      "output": 37035,
+      "thinking": 8905,
+      "cache_read": 4894906,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122646,
+      "api_equivalent_usd": 2.7012,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 45,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.02,
+      "active_minutes": 8.02,
+      "model_minutes": 5.63,
+      "tool_minutes": 2.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

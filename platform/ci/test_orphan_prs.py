@@ -107,6 +107,29 @@ class Classify(unittest.TestCase):
         self.assertEqual(self.by[7]["merge"], "?")
 
 
+class Landed(unittest.TestCase):
+    """A PR whose number a main commit subject carries already merged by another
+    route (#15748, 2026-11-17: open three days after 808d45a4b landed it)."""
+
+    def test_landed_row_note_and_not_ready(self):
+        rows = op.classify(PRS, info_of, RULES, NOW, Main(), landed={1: "808d45a4b"})
+        by = {r["number"]: r for r in rows}
+        self.assertEqual(by[1]["landed"], "808d45a4b")
+        self.assertEqual(by[4]["landed"], "")
+        text = op.render(rows)
+        self.assertIn("landed on main as 808d45a4b", text)
+        self.assertIn("Green and clean against main: none.", text)
+
+    def test_subject_pattern(self):
+        m = op.LANDED_RE.search("league: minPlusStep in WebAssembly + post (#15748)")
+        self.assertEqual(m.group(1), "15748")
+        self.assertIsNone(op.LANDED_RE.search("see PR #15748 for context"))
+        self.assertIsNone(op.LANDED_RE.search("revert (#12) and more"))
+
+    def test_landed_numbers_without_ref(self):
+        self.assertEqual(op.landed_numbers(ref="refs/heads/no-such-ref-here"), {})
+
+
 class Checks(unittest.TestCase):
     def test_summary(self):
         ok = {"status": "completed", "conclusion": "success"}

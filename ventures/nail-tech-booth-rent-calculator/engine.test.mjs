@@ -142,3 +142,11 @@ test("money and pct format and tolerate non-numbers", () => {
   assert.equal(money(Infinity), "n/a");
   assert.equal(pct(0.5, 0), "50%");
 });
+
+// redteam 2026-11-16: "W1,booth,$1,200,50,30,40" read as $1 pay and 200 tips.
+test("parseWeeks reads a quoted $1,200 and refuses an unquoted one", () => {
+  assert.equal(parseWeeks('W1,booth,"$1,200",50,30,40').weeks[0].pay, 1200);
+  const r = parseWeeks("W1,booth,$1,200,50,30,40");
+  assert.equal(r.weeks.length, 0);
+  assert.match(r.errors[0], /^Line 1: .*thousands comma/);
+});

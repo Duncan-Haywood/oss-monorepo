@@ -48,6 +48,14 @@ it lacks (pip then always targets that interpreter). If none works, a private ve
 python3-<module>` is tried; the first interpreter that imports everything is
 printed. Progress goes to stderr; stdout is only the path. Exit 1 when nothing works, with what
 was tried.
+
+Every install keeps Debian's setuptools in the shared /usr/lib/python3/dist-packages
+(see SHARED_DIST): pip run by python3.13 for torch upgraded setuptools by
+uninstalling the copy python3.11 and 3.12 share, which left an orphaned
+distutils-precedence.pth, so every later python3 call printed a
+`No module named '_distutils_hack'` traceback (doc friction in ten run records,
+2026-11-12 to 17). pyenv.py now puts those files back after pip, and on start
+it parks a .pth already orphaned by an older install.
 """
 import fcntl
 import functools
@@ -57,6 +65,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 
@@ -64,7 +73,7 @@ import time
 PIP_NAMES = {"sklearn": "scikit-learn", "yaml": "pyyaml", "PIL": "pillow",
              "skfem": "scikit-fem", "skimage": "scikit-image", "cv2": "opencv-python-headless",
              "bs4": "beautifulsoup4", "dateutil": "python-dateutil",
-             "opendssdirect": "OpenDSSDirect.py"}
+             "opendssdirect": "OpenDSSDirect.py", "pysat": "python-sat"}
 APT_NAMES = {"sklearn": "python3-sklearn", "yaml": "python3-yaml", "PIL": "python3-pil",
              "skimage": "python3-skimage", "cv2": "python3-opencv", "bs4": "python3-bs4",
              "dateutil": "python3-dateutil"}
@@ -168,8 +177,45 @@ def candidates(path=None, extra_globs=("/usr/bin/python3*", "/usr/local/bin/pyth
     return out
 
 
+# Run inside the candidate interpreter: import `m`, or, when that fails, the
+# modules the installed distribution `dist` really provides. A pip name whose
+# import name differs and no table knows (`pyenv.py python-sat` guessed
+# `python_sat`; the package is `pysat`) used to read as "no interpreter
+# imports" after a good install (doc friction 2026-11-17).
+RESOLVE = """def _imp(m, dist):
+    import importlib
+    try:
+        return importlib.import_module(m)
+    except ImportError:
+        if not dist:
+            raise
+        import importlib.metadata as md
+        try:
+            d = md.distribution(dist)
+        except md.PackageNotFoundError:
+            raise ImportError(m)
+        tops = (d.read_text("top_level.txt") or "").split()
+        if not tops:
+            tops = sorted({str(f).split("/")[0].split(".")[0] for f in (d.files or [])
+                           if not str(f).startswith((".", "_")) and ".dist-info" not in str(f).split("/")[0]
+                           and ".data" not in str(f).split("/")[0]})
+        for t in sorted(tops, key=lambda t: t.startswith("_")):
+            try:
+                return importlib.import_module(t)
+            except ImportError:
+                pass
+        raise
+"""
+
+
+def dist_name(mod):
+    """The pip distribution name for `mod`, consulted when `mod` itself does not import."""
+    return re.split(r"[<>=!~\[; ]", PINS.get(mod) or PIP_NAMES.get(mod, mod), maxsplit=1)[0]
+
+
 def imports(py, modules, run=subprocess.run):
-    code = ("import " + ", ".join(modules) if modules else "pass") + pin_code(modules)
+    code = (RESOLVE + "".join(f"_imp({m!r}, {dist_name(m)!r})\n" for m in modules)
+            if modules else "pass") + pin_code(modules)
     try:
         return run([py, "-c", code], capture_output=True, timeout=60).returncode == 0
     except (OSError, subprocess.TimeoutExpired):
@@ -195,6 +241,14 @@ def pip_install(py, modules, run=subprocess.run, log=lambda m: print(m, file=sys
             # 2026-10-28: the proxy refused this host and pip silently fell back
             # to PyPI's CUDA build (about 25 min); say so up front.
             log(f"pyenv: {TORCH_CPU_INDEX} is unreachable, so pip will pull PyPI's ~3 GB CUDA torch (25 to 35 min); prefer an interpreter that already has torch")
+    keep = backup_shared()
+    try:
+        return _pip_attempts(base, pkgs, modules, py, run, log)
+    finally:
+        restore_shared(keep, log=log)
+
+
+def _pip_attempts(base, pkgs, modules, py, run, log):
     for extra in ([], ["--break-system-packages"], ["--user", "--break-system-packages"]):
         try:
             done = run(base + extra + pkgs, capture_output=True, timeout=pip_timeout(modules))
@@ -210,6 +264,91 @@ def pip_install(py, modules, run=subprocess.run, log=lambda m: print(m, file=sys
             # resolve, so go on to the next interpreter or the venv.
             return False
     return False
+
+
+# Debian's dist-packages is on the path of every /usr/bin/python3.x, so a pip
+# run by one version can uninstall what the others rely on. Reproduced
+# 2026-11-17: `python3.13 -m pip install --break-system-packages
+# setuptools==84.2.1` (what torch pulls in) printed "Uninstalling
+# setuptools-68.1.2" and left distutils-precedence.pth importing a deleted
+# _distutils_hack. The new setuptools lands in python3.13's own site-packages
+# and shadows the restored one there, so putting the old files back is safe.
+SHARED_DIST = "/usr/lib/python3/dist-packages"
+GUARDED = ("setuptools", "_distutils_hack", "pkg_resources", "distutils-precedence.pth",
+           "setuptools-*.egg-info", "setuptools-*.dist-info")
+ORPHAN_PTH = "distutils-precedence.pth"
+
+
+def _guarded_entries(shared):
+    found = []
+    for pattern in GUARDED:
+        found += sorted(glob.glob(os.path.join(shared, pattern)))
+    return found
+
+
+def backup_shared(shared=None):
+    """Copy the setuptools files in SHARED_DIST aside; return the copy's dir (or None)."""
+    shared = shared or SHARED_DIST
+    entries = _guarded_entries(shared) if os.path.isdir(shared) else []
+    if not entries:
+        return None
+    keep = tempfile.mkdtemp(prefix="pyenv-shared-")
+    try:
+        for path in entries:
+            dest = os.path.join(keep, os.path.basename(path))
+            if os.path.isdir(path):
+                shutil.copytree(path, dest, symlinks=True)
+            else:
+                shutil.copy2(path, dest)
+    except OSError:
+        shutil.rmtree(keep, ignore_errors=True)
+        return None
+    return keep
+
+
+def restore_shared(keep, shared=None, log=lambda m: print(m, file=sys.stderr)):
+    """Put back whatever pip removed from SHARED_DIST; return the names restored."""
+    shared = shared or SHARED_DIST
+    if not keep:
+        return []
+    put_back = []
+    try:
+        for name in sorted(os.listdir(keep)):
+            dest = os.path.join(shared, name)
+            if os.path.lexists(dest):
+                continue
+            src = os.path.join(keep, name)
+            try:
+                if os.path.isdir(src):
+                    shutil.copytree(src, dest, symlinks=True)
+                else:
+                    shutil.copy2(src, dest)
+                put_back.append(name)
+            except OSError as err:
+                log(f"pyenv: could not restore {dest}: {err}")
+    finally:
+        shutil.rmtree(keep, ignore_errors=True)
+    if put_back:
+        log(f"pyenv: pip removed {', '.join(put_back)} from {shared} (shared by every "
+            "python3.x); restored them so other interpreters keep setuptools and print no "
+            "_distutils_hack traceback")
+    return put_back
+
+
+def heal_orphan_pth(shared=None, log=lambda m: print(m, file=sys.stderr)):
+    """Park a distutils-precedence.pth whose _distutils_hack is gone (left by an
+    install before this guard existed); return True if it did."""
+    shared = shared or SHARED_DIST
+    pth = os.path.join(shared, ORPHAN_PTH)
+    if not os.path.isfile(pth) or os.path.exists(os.path.join(shared, "_distutils_hack")):
+        return False
+    try:
+        os.replace(pth, pth + ".orphaned")
+    except OSError:
+        return False
+    log(f"pyenv: {pth} imported a deleted _distutils_hack (an earlier pip removed it), so "
+        "every python3 printed a traceback; moved it to .orphaned")
+    return True
 
 
 def apt_install(modules, run=subprocess.run):
@@ -272,8 +411,9 @@ MISSING_PROBE = """import importlib, sys
 bad = []
 for m in sys.argv[1:]:
     m, _, req = m.partition("=")
+    m, _, dist = m.partition(":")
     try:
-        importlib.import_module(m)
+        _imp(m, dist)
         assert not req or _pin_ok(req)
     except Exception:
         bad.append(m)
@@ -283,8 +423,8 @@ print(" ".join(bad))"""
 def missing(py, modules, run=subprocess.run):
     """The modules `py` cannot import, in one subprocess (all of them on error)."""
     try:
-        args = [f"{m}={PINS[m]}" if m in PINS else m for m in modules]
-        done = run([py, "-c", PIN_CHECK + MISSING_PROBE, *args], capture_output=True, timeout=120)
+        args = [f"{m}:{dist_name(m)}" + (f"={PINS[m]}" if m in PINS else "") for m in modules]
+        done = run([py, "-c", PIN_CHECK + RESOLVE + MISSING_PROBE, *args], capture_output=True, timeout=120)
     except (OSError, subprocess.TimeoutExpired):
         return list(modules)
     out = getattr(done, "stdout", None)
@@ -500,6 +640,7 @@ def main(argv=None, execv=os.execv):
         print(__doc__, file=sys.stderr)
         return 2
     modules = [import_name(m) for m in modules]
+    heal_orphan_pth()
     cands = candidates()
     venv_dir = os.environ.get("PYENV_VENV") or os.path.join(os.path.expanduser("~"), ".cache", "pyenv-venv")
     # Fast path: an interpreter that already imports everything needs no
@@ -539,8 +680,11 @@ def report(py, command=None, execv=os.execv):
     if default and os.path.realpath(default) == os.path.realpath(py):
         print(f"pyenv: interpreter {py} (also the default python3, so plain python3 imports them too); "
               "stdout carries this path, capture it with PY=$(...)", file=sys.stderr)
-    print("pyenv: shell variables not kept between commands? add `-- <args>` to run "
-          "them with this interpreter in the same call", file=sys.stderr)
+    # Worded as a tip after an "ok": the old question ("shell variables not kept
+    # between commands?") read like an error on every successful PY=$(...) call
+    # (doc_friction 2026-11-15, four run records).
+    print(f"pyenv: ok, {py} on stdout. Tip: if $PY will not survive to your next call, "
+          "add `-- <args>` to run them with it in this one", file=sys.stderr)
     print(py)
     return 0
 

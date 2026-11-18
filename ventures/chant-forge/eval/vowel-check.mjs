@@ -131,7 +131,8 @@ for (const p of PIECES) {
       // and on a syllable's last note it ends where the final consonant's formant transition starts
       // (codaPlan: the coda ends where the note's sound does); the first round's window ran over it
       const cd = sing && last.get(n.syl) === n ? latinCoda(n.lyric) : [];
-      const cp = cd.length ? codaPlan(cd, n.t1 - n.t0, n.t1 - cut) : null;
+      // (the renderer plans the coda on the note less what the next consonant cuts from it)
+      const cp = cd.length ? codaPlan(cd, n.t1 - n.t0 - cut, n.t1 - cut) : null;
       const to = cp ? Math.min(toOld, cp.codaAt - 0.045 * cp.scale - 0.01) : toOld;
       // a syllable's consonant is sung mostly before the beat; what of it does not fit there spills
       // past the beat (render.mjs), so the window starts after the spill and its formant transition

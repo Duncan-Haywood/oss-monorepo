@@ -50,6 +50,7 @@
 // The scanned page set comes from the built artifact rather than from the hub,
 // because the hub lists tools and this checks pages.
 
+import { loadPlaywright } from './load-playwright.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -58,8 +59,8 @@ import { onlySlugs, keepPagePath, describeFilter, requireNonEmpty } from './only
 // Playwright ships CommonJS, so a PLAYWRIGHT naming its entry *file* resolves
 // the exports under `.default` while a bare specifier gives them directly.
 // Accept either — the same fix sweep.mjs carries, for the same reason.
-const playwright = await import(process.env.PLAYWRIGHT || 'playwright');
-const chromium = playwright.chromium ?? playwright.default?.chromium;
+const playwright = await loadPlaywright();
+const chromium = playwright?.chromium;
 if (!chromium) {
   console.error('Could not load Playwright. Set PLAYWRIGHT to its entry point, ' +
     'e.g. PLAYWRIGHT=./node_modules/playwright/index.js');

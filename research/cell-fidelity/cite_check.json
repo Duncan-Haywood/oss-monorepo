@@ -1,7 +1,15 @@
 {
+ "arxiv:1502.07943": {
+  "checked": "2026-11-15",
+  "title": "Non-stochastic Best Arm Identification and Hyperparameter Optimization (2015)"
+ },
  "arxiv:1603.06288": {
   "checked": "2026-11-12",
   "title": "Multi-fidelity Gaussian Process Bandit Optimisation (2016)"
+ },
+ "arxiv:1603.06560": {
+  "checked": "2026-11-15",
+  "title": "Hyperband: A Novel Bandit-Based Approach to Hyperparameter Optimization (2016)"
  },
  "doi:10.1007/s00158-005-0587-0": {
   "checked": "2026-11-12",

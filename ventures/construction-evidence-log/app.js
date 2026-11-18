@@ -238,7 +238,12 @@ $('download').addEventListener('click', () => {
 
 $('copy').addEventListener('click', async () => {
   if (!latest) return;
-  await navigator.clipboard.writeText(summary(latest));
+  try {
+    await navigator.clipboard.writeText(summary(latest));
+  } catch {
+    $('action-status').textContent = 'Copy was blocked by the browser. Use Download instead, or copy the summary by hand.';
+    return;
+  }
   $('action-status').textContent = 'Summary copied.';
   event('summary_copied');
 });

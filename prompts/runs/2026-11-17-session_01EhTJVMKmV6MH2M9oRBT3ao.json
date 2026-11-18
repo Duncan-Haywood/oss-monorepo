@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVMKmV6MH2M9oRBT3ao",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (prompts/ventures/prompt-2.md)",
+  "input_sha256": "c9c02706da5277856d8276fd863a7b37bb29dd87287863efdb0cf7cd8bf29de6",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T05:22:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 11): chant-forge, dark-vowel m read as nothing (Z's lum/dun, X's tum)",
+  "projects": [
+    "ventures/chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16819",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "ai-bookkeeper receipts OCR item (row 1) not buildable here: huggingface.co refused by the proxy (403) and apt has no tesseract-ocr package",
+      "fix": "took the row allocate.py assigned this session (chant-forge)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper's buildable: names CORD parquet downloads from huggingface.co and apt-get tesseract-ocr, neither reachable in this session; the row has no hosts: list, so allocate.py --venture did not probe them"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-chant-forge-a-dark-vowel-m.md"
+  ],
+  "goal": null,
+  "notes": "lipShut (onsets.mjs readCoda, LIP_SHUT): a final nasal after /u/ entered by a 12 dB fall in the band above 1 kHz within two hops and held. Development A-Z: +31 cells, none lost (F nasals 194 to 206 of 215). Pre-registered on new part a (committed b88e9d9 before it ran): dark-vowel nasals 116 to 121 of 144, every other row identical, control 384/384: held, now the default. Report rebuilt on the shipped code in 5 parallel groups and concatenated; identical to the --shut on development runs. bar-burst.test and two sing.test margin tests pinned to lipShut:false for their counterfactual arm. Local checks: run_venture_tests.py chant-forge, 1 suite 0 failed; venture-preflight run in background.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Made-up national NFS-e for tests (einvoice-preflight): test CNPJ 11.222.333/0001-81 and
      CPF 111.444.777-35, no real party. Worked by hand: ISSQN base 1500.00 - 100.00 = 1400.00;
-     ISSQN 5% = 70.00, retained by the customer; IRRF 1.5% = 21.00; vTotalRet 91.00;
-     vLiq 1500.00 - 100.00 - 91.00 = 1309.00; IBS/CBS base (2026) 1500.00 - 100.00 - 70.00
-     - PIS 9.10 - COFINS 42.00 = 1278.90; IBS UF 0.10% = 1.28, CBS 0.90% = 11.51; vTotNF = vLiq.
+     ISSQN 2.90% = 40.60 (São Paulo's rate for item 1, Lei 13.701/2003 art. 16, III), retained by
+     the customer; IRRF 1.5% = 21.00; vTotalRet 61.60;
+     vLiq 1500.00 - 100.00 - 61.60 = 1338.40; IBS/CBS base (2026) 1500.00 - 100.00 - 40.60
+     - PIS 9.10 - COFINS 42.00 = 1308.30; IBS UF 0.10% = 1.31, CBS 0.90% = 11.77; vTotNF = vLiq.
      The signature block is a placeholder: it holds no real signature. -->
 <NFSe versao="1.01" xmlns="http://www.sped.fazenda.gov.br/nfse">
 	<infNFSe Id="NFS35503082211222333000181000000000012326110000045673">
@@ -36,16 +37,16 @@
 		</emit>
 		<valores>
 			<vBC>1400.00</vBC>
-			<pAliqAplic>5.00</pAliqAplic>
-			<vISSQN>70.00</vISSQN>
-			<vTotalRet>91.00</vTotalRet>
-			<vLiq>1309.00</vLiq>
+			<pAliqAplic>2.90</pAliqAplic>
+			<vISSQN>40.60</vISSQN>
+			<vTotalRet>61.60</vTotalRet>
+			<vLiq>1338.40</vLiq>
 		</valores>
 		<IBSCBS>
 			<cLocalidadeIncid>3550308</cLocalidadeIncid>
 			<xLocalidadeIncid>São Paulo</xLocalidadeIncid>
 			<valores>
-				<vBC>1278.90</vBC>
+				<vBC>1308.30</vBC>
 				<uf>
 					<pIBSUF>0.10</pIBSUF>
 					<pAliqEfetUF>0.10</pAliqEfetUF>
@@ -60,18 +61,18 @@
 				</fed>
 			</valores>
 			<totCIBS>
-				<vTotNF>1309.00</vTotNF>
+				<vTotNF>1338.40</vTotNF>
 				<gIBS>
-					<vIBSTot>1.28</vIBSTot>
+					<vIBSTot>1.31</vIBSTot>
 					<gIBSUFTot>
-						<vIBSUF>1.28</vIBSUF>
+						<vIBSUF>1.31</vIBSUF>
 					</gIBSUFTot>
 					<gIBSMunTot>
 						<vIBSMun>0.00</vIBSMun>
 					</gIBSMunTot>
 				</gIBS>
 				<gCBS>
-					<vCBS>11.51</vCBS>
+					<vCBS>11.77</vCBS>
 				</gCBS>
 			</totCIBS>
 		</IBSCBS>

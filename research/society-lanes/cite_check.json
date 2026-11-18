@@ -1,4 +1,12 @@
 {
+ "arxiv:1412.1082": {
+  "checked": "2026-11-16",
+  "title": "Universal power law governing pedestrian interactions (2014)"
+ },
+ "arxiv:1512.05597": {
+  "checked": "2026-11-16",
+  "title": "Collision-free speed model for pedestrian dynamics (2015)"
+ },
  "arxiv:1809.08835": {
   "checked": "2026-11-13",
   "title": "Crowd-Robot Interaction: Crowd-aware Robot Navigation with Attention-based Deep Reinforcement Learning (2018)"
@@ -6,6 +14,10 @@
  "doi:10.1007/978-3-642-19457-3_1": {
   "checked": "2026-11-13",
   "title": "Reciprocal n-Body Collision Avoidance (2011)"
+ },
+ "doi:10.1007/s10479-005-5724-z": {
+  "checked": "2026-11-18",
+  "title": "A Tutorial on the Cross-Entropy Method (2005)"
  },
  "doi:10.1016/j.neucom.2012.01.036": {
   "checked": "2026-11-13",
@@ -18,6 +30,10 @@
  "doi:10.1016/j.trc.2021.103464": {
   "checked": "2026-11-15",
   "title": "Anticipation in a velocity-based model for pedestrian dynamics (2021)"
+ },
+ "doi:10.1023/A:1010091220143": {
+  "checked": "2026-11-18",
+  "title": "The Cross-Entropy Method for Combinatorial and Continuous Optimization (1999)"
  },
  "doi:10.1038/35035023": {
   "checked": "2026-11-15",

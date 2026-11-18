@@ -37,24 +37,26 @@ export function detectDelimiter(text) {
 
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
@@ -67,7 +69,7 @@ export const detectDecimalComma = (text, delim) => delim === ";" || (delim === "
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−]/.test(s);
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -167,9 +169,9 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
       return n;
     };
     const spend = num("spend"), impr = num("impr"), results = num("results");
-    if (!Number.isFinite(spend) || spend < 0) { skipped.push({ line: r + 1, reason: "unreadable amount spent" }); continue; }
-    if (!Number.isFinite(impr) || impr < 0) { skipped.push({ line: r + 1, reason: "unreadable impressions" }); continue; }
-    if (!Number.isFinite(results) || results < 0) { skipped.push({ line: r + 1, reason: "unreadable results" }); continue; }
+    if (!Number.isFinite(spend) || spend < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable amount spent" }); continue; }
+    if (!Number.isFinite(impr) || impr < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable impressions" }); continue; }
+    if (!Number.isFinite(results) || results < 0) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable results" }); continue; }
     const clicks = num("clicks"), reach = num("reach"), freq = num("freq");
     let value = cols.value === undefined ? 0 : parseNumber(get(line, "value"), decimalComma);
     if (cols.value === undefined && cols.roas !== undefined) {
@@ -183,7 +185,7 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
     if (Number.isFinite(s)) lo = Math.min(lo, s);
     if (Number.isFinite(e)) hi = Math.max(hi, e);
     rows.push({
-      line: r + 1, campaign: get(line, "campaign"), adset: get(line, "adset"), ad,
+      line: table[r].line ?? r + 1, campaign: get(line, "campaign"), adset: get(line, "adset"), ad,
       day: cols.day !== undefined && Number.isFinite(day) ? day : null,
       spend, impr, reach: Number.isFinite(reach) ? reach : 0, freq: Number.isFinite(freq) ? freq : 0,
       clicks: Number.isFinite(clicks) ? clicks : 0, results, value: Number.isFinite(value) ? value : 0,

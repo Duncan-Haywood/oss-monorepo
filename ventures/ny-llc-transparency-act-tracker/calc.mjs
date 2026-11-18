@@ -29,7 +29,8 @@ const THIRTY_DAY_WINDOW = 30;
 export function parseISODate(value) {
   if (!value || !DATE_RE.test(String(value))) return null;
   const date = new Date(`${value}T00:00:00Z`);
-  return Number.isNaN(date.getTime()) ? null : date;
+  // Date rolls 2026-02-30 into March: refuse a day that does not round-trip.
+  return Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== String(value) ? null : date;
 }
 
 function toISO(date) {

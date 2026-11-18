@@ -92,6 +92,15 @@ Events counted: `bid_calculated`, `preset_applied`,
 - Starting hours are ballpark figures, not timed from a named crew.
 - Does not price pedestrian entry doors or window replacement.
 
+## Known gaps
+
+From the quality audit `portfolio/quality/audits/2026-11-17-patio-door-bid-calculator.json` (fixed items are listed there):
+
+- A blank field, or `1,200` typed into a number box (which the browser turns into an empty value), is priced as 0 rather than flagged.
+- The new-construction presets add the sill-pan line on top of wrap hours that already describe a sill pan.
+- Crew-hours are priced at one wage; a two- or three-person set must be entered as multiplied hours.
+- The page's kit, restore and blank handling has no behavioural test of its own beyond `restoredOverrides`.
+
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of

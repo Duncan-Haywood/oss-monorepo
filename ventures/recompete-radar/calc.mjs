@@ -107,7 +107,7 @@ export function normalizeAwards(rows) {
 export function parseCsv(text) {
   const rows = [];
   let field = "", row = [], q = false;
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < s.length; i += 1) {
     const c = s[i];
     if (q) {
@@ -263,7 +263,7 @@ export function money(n) {
 export function recompetesToCsv(list) {
   const cell = (v) => {
     let s = v instanceof Date ? v.toISOString().slice(0, 10) : String(v ?? "");
-    if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
     return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const head = ["award_id", "incumbent", "agency", "office", "amount_usd", "start", "end", "months_left", "likely_solicitation", "stage", "description"];

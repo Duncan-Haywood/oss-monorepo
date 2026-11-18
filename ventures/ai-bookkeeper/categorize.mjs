@@ -775,6 +775,22 @@ export const BUILT_IN = [
   ["6180", "out", /\bpostage\b|\bshipping (costs?|fees?|labels?)\b/],
 ];
 
+// Which BUILT_IN regexes match a text, in list order. categorize re-suggests every open line on
+// each pass (every import), so the same few descriptions meet all ~500 regexes again and again
+// (2026-11-16: about half of suggest's time in import-order-property.test.mjs). The regexes have
+// no g or y flag, so test() is pure and the answer for a text never changes; the account and
+// direction filters still run per call, on the hits only. The memo is cleared when it gets big.
+const builtInMemo = new Map();
+function builtInHits(text) {
+  let hits = builtInMemo.get(text);
+  if (hits) return hits;
+  hits = [];
+  for (let i = 0; i < BUILT_IN.length; i++) if (BUILT_IN[i][2].test(text)) hits.push(i);
+  if (builtInMemo.size >= 20000) builtInMemo.clear();
+  builtInMemo.set(text, hits);
+  return hits;
+}
+
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,
 // direction and an amount bucket. Trained on every confirmed line.
 export function trainClassifier(history) {
@@ -1027,7 +1043,7 @@ export function suggest(txn, model) {
   // When a built-in keyword names the merchant, the classifier must be near-certain to
   // overrule it: on real Mint exports (eval/mint-labelled.mjs, 2026-11-10) a shared city
   // token ("brooklyn") was enough to send a deli and a burger chain to dues at p >= 0.5.
-  const keyword = ranked.length && !off.has("built-in") && BUILT_IN.some(([a, rd, re]) => (rd === "any" || rd === d) && (a === "transfer" || !model.codes || model.codes.has(a)) && re.test(text));
+  const keyword = ranked.length && !off.has("built-in") && builtInHits(text).some((i) => { const [a, rd] = BUILT_IN[i]; return (rd === "any" || rd === d) && (a === "transfer" || !model.codes || model.codes.has(a)); });
   if (ranked.length && ranked[0].p >= (keyword ? 0.95 : 0.5)) {
     return { account: ranked[0].account, confidence: Math.min(ranked[0].p, 0.85), source: "learned", reason: `similar to lines you filed here (${Math.round(ranked[0].p * 100)}%)`, alternatives: ranked.slice(1, 3) };
   }
@@ -1038,10 +1054,11 @@ export function suggest(txn, model) {
   // A wire names its counterparty after VIA:, A/C: or B/O:, and those names trip unrelated keyword rules (a bank's
   // name read as a utility). Whose money it is only a person can say, so it waits unsuggested.
   const thirdPartyWire = !off.has("built-in") && /\b(wire transfer|chips credit|fedwire|book transfer (credit|debit))\b/.test(bi) && /\b(via|a\/c|b\/o):/.test(bi);
-  for (const [account, rd, re] of off.has("built-in") || thirdPartyWire ? [] : BUILT_IN) {
+  for (const i of off.has("built-in") || thirdPartyWire ? [] : builtInHits(bi)) {
+    const [account, rd, re] = BUILT_IN[i];
     if (rd !== "any" && rd !== d) continue;
     if (account !== "transfer" && model.codes && !model.codes.has(account)) continue;
-    if (re.test(bi)) return { account, confidence: account === "transfer" ? 0.6 : 0.7, source: "built-in", reason: `built-in keyword "${(bi.match(re) ?? [""])[0].trim()}"`, alternatives: ranked.slice(0, 2) };
+    return { account, confidence: account === "transfer" ? 0.6 : 0.7, source: "built-in", reason: `built-in keyword "${(bi.match(re) ?? [""])[0].trim()}"`, alternatives: ranked.slice(0, 2) };
   }
   // The card network's merchant category code: what kind of merchant it is, even for a
   // payee these books have never seen (mcc.mjs; measured in eval/scotgov-card.mjs).
@@ -1056,7 +1073,7 @@ export function suggest(txn, model) {
     // not the grocer): their exception stands (read on the Scottish Government's held-out lines).
     // The keywords then decide on the cleaned payee ("www.iceland.co.uk" -> "iceland uk"): the grocer
     // if they file it, nothing if their exception holds.
-    const kw = (t) => BUILT_IN.find(([a, rd, re]) => a !== "transfer" && (rd === "any" || rd === "out") && re.test(t));
+    const kw = (t) => builtInHits(t).map((i) => BUILT_IN[i]).find(([a, rd]) => a !== "transfer" && (rd === "any" || rd === "out"));
     if (b && kw(b.name)) { const k = kw(payeeTokens(txn.desc).join(" ")); b.account = k?.[0] ?? null; }
     if (b?.account && (model.codes?.has(b.account) ?? true)) return { account: b.account, confidence: BRAND.confidence, source: "brand", reason: `"${b.name}" is a chain listed by OpenStreetMap as ${Object.hasOwn(BRAND_LABEL, b.account) ? BRAND_LABEL[b.account] : "this kind of place"}`, alternatives: ranked.slice(0, 2) };
   }
@@ -1085,7 +1102,7 @@ export function suggest(txn, model) {
 // name a line's payee starts with. Money out only, for review only (confidence under every
 // auto-post threshold), after the keywords, the card code and the bank's own category.
 export const BRAND = { confidence: 0.5, maxTokens: 5, version: BRANDS_VERSION };
-const BRAND_LABEL = { "6130": "a food shop, cafe or restaurant", "6120": "a hotel, car hire or travel agent", "6160": "a fuel station or car service", "6100": "a hardware, DIY or trade store", "6070": "a stationer, copy shop or post office", "6180": "a carrier", "6140": "a phone or internet provider", "6030": "an insurer", "6080": "a coworking or self-storage operator" };
+const BRAND_LABEL = { "6130": "a food shop, cafe or restaurant", "6120": "a hotel, car hire, travel agent or public transport service", "6160": "a fuel station or car service", "6100": "a hardware, DIY or trade store", "6070": "a stationer, copy shop or post office", "6180": "a carrier", "6140": "a phone or internet provider", "6030": "an insurer", "6080": "a coworking or self-storage operator" };
 const BRAND_FINANCE = /^(financial|finance|financing|credit|capital|bank|banking|loans?|lease|leasing|insurance|mortgage)$/;
 let BRAND_INDEX = null;
 const BRAND_PERSON = new Set(BRAND_PERSON_NAMES);

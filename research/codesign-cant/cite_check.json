@@ -3,9 +3,17 @@
   "checked": "2026-11-12",
   "title": "Learning to Fly -- a Gym Environment with PyBullet Physics for Reinforcement Learning of Multi-agent Quadcopter Control (2021)"
  },
+ "arxiv:2106.08015": {
+  "checked": "2026-11-17",
+  "title": "NeuroBEM: Hybrid Aerodynamic Quadrotor Model (2021)"
+ },
  "arxiv:2306.04485": {
   "checked": "2026-11-12",
   "title": "RotorPy: A Python-based Multirotor Simulator with Aerodynamics for Education and Research (2023)"
+ },
+ "arxiv:2307.06100": {
+  "checked": "2026-11-17",
+  "title": "Agilicious: Open-Source and Open-Hardware Agile Quadrotor for Vision-Based Flight (2023)"
  },
  "doi:10.1016/j.automatica.2013.01.035": {
   "checked": "2026-11-12",

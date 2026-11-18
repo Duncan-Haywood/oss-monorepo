@@ -1,0 +1,25 @@
+DFE-EducationEstates__InformationModelAssuran Pset_ManufacturerOccurrence.SerialNumber IFCTEXT mode=pattern REFUSED -> IFCIDENTIFIER mode=pattern
+DFE-EducationEstates__InformationModelAssuran Pset_ManufacturerOccurrence.BarCode IFCTEXT mode=pattern REFUSED -> IFCIDENTIFIER mode=pattern
+DFE-EducationEstates__InformationModelAssuran Pset_ManufacturerOccurrence.SerialNumber IFCTEXT mode=pattern REFUSED -> IFCIDENTIFIER mode=pattern
+DFE-EducationEstates__InformationModelAssuran Pset_ManufacturerOccurrence.SerialNumber IFCTEXT mode=pattern REFUSED -> IFCIDENTIFIER mode=pattern
+DFE-EducationEstates__InformationModelAssuran Pset_ManufacturerOccurrence.BarCode IFCTEXT mode=pattern REFUSED -> IFCIDENTIFIER mode=pattern
+DFE-EducationEstates__InformationModelAssuran Pset_ManufacturerOccurrence.BarCode IFCTEXT mode=pattern REFUSED -> IFCIDENTIFIER mode=pattern
+I-Sokolov__RDFApps__IDSChecker_CHEK_CHEK_Asco Pset_BuildingUse.MarketSubCategory IFCLENGTHMEASURE mode=any REFUSED -> IFCLABEL mode=any
+I-Sokolov__RDFApps__IDSChecker_CHEK_CHEK_GAIA Pset_BuildingUse.MarketCategory IFCREAL mode=any REFUSED -> IFCLABEL mode=any
+I-Sokolov__RDFApps__IDSChecker_CHEK_CHEK_GAIA Pset_BuildingUse.MarketSubCategory IFCREAL mode=any REFUSED -> IFCLABEL mode=any
+OpenAEC-Foundation__OpenAEC-BIM-validator__id Pset_BuildingCommon.BuildingID IFCLABEL mode=any REFUSED -> IFCIDENTIFIER mode=any
+OpenAEC-Foundation__OpenAEC-BIM-validator__id Pset_SpaceCommon.IsExternal IFCLABEL mode=any REFUSED -> IFCBOOLEAN mode=any
+OpenAEC-Foundation__open-3d-viewer__assets_id Pset_BuildingCommon.BuildingID IFCLABEL mode=any REFUSED -> IFCIDENTIFIER mode=any
+OpenAEC-Foundation__open-3d-viewer__assets_id Pset_SpaceCommon.IsExternal IFCLABEL mode=any REFUSED -> IFCBOOLEAN mode=any
+buildingSMARTSpain__ids-mei-edificacion__ids_ Qto_SpaceBaseQuantities.Height IFCREAL mode=any REFUSED -> IFCLENGTHMEASURE mode=any
+buildingSMARTSpain__ids-mei-edificacion__ids_ Qto_SpaceBaseQuantities.GrossVolume IFCREAL mode=any REFUSED -> IFCVOLUMEMEASURE mode=any
+buildingSMARTSpain__ids-mei-edificacion__ids_ Qto_SpaceBaseQuantities.GrossFloorArea IFCREAL mode=any REFUSED -> IFCAREAMEASURE mode=any
+{
+  rows: 16,
+  refused: 16,
+  fixed: 16,
+  dropped: 0,
+  files: 7,
+  pset_datatype_before: 14,
+  after_fix: 0
+}

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" font-family="sans-serif" font-size="12">
+<rect width="720" height="360" fill="#fff"/>
+<text x="16" y="22" font-size="13">Held-out assigned-exit runs (HERMES, pooled): share of walkers on their own right</text>
+<line x1="250.0" x2="250.0" y1="46" y2="310" stroke="#eee"/>
+<text x="250.0" y="326" text-anchor="middle">0.4</text>
+<line x1="323.3" x2="323.3" y1="46" y2="310" stroke="#eee"/>
+<text x="323.3" y="326" text-anchor="middle">0.5</text>
+<line x1="396.7" x2="396.7" y1="46" y2="310" stroke="#eee"/>
+<text x="396.7" y="326" text-anchor="middle">0.6</text>
+<line x1="470.0" x2="470.0" y1="46" y2="310" stroke="#eee"/>
+<text x="470.0" y="326" text-anchor="middle">0.7</text>
+<line x1="543.3" x2="543.3" y1="46" y2="310" stroke="#eee"/>
+<text x="543.3" y="326" text-anchor="middle">0.8</text>
+<line x1="616.7" x2="616.7" y1="46" y2="310" stroke="#eee"/>
+<text x="616.7" y="326" text-anchor="middle">0.9</text>
+<line x1="690.0" x2="690.0" y1="46" y2="310" stroke="#eee"/>
+<text x="690.0" y="326" text-anchor="middle">1.0</text>
+<text x="242" y="80.6" text-anchor="end">social force (JuPedSim)</text>
+<rect x="250.0" y="55.4" width="279.4" height="13.7" fill="#bbbbbb"/>
+<text x="533.4" y="67.1" font-size="10">0.78</text>
+<rect x="250.0" y="71.1" width="154.0" height="13.7" fill="#1f78b4"/>
+<text x="408.0" y="82.9" font-size="10">0.61</text>
+<rect x="250.0" y="86.9" width="176.0" height="13.7" fill="#a6cee3"/>
+<text x="430.0" y="98.6" font-size="10">0.64</text>
+<text x="242" y="146.6" text-anchor="end">anticipation velocity (JuPedSim)</text>
+<rect x="250.0" y="121.4" width="437.1" height="13.7" fill="#bbbbbb"/>
+<text x="691.1" y="133.1" font-size="10">1.00</text>
+<rect x="250.0" y="137.1" width="349.8" height="13.7" fill="#1f78b4"/>
+<text x="603.8" y="148.9" font-size="10">0.88</text>
+<rect x="250.0" y="152.9" width="385.7" height="13.7" fill="#a6cee3"/>
+<text x="639.7" y="164.6" font-size="10">0.93</text>
+<text x="242" y="212.6" text-anchor="end">collision-free speed (JuPedSim)</text>
+<rect x="250.0" y="187.4" width="389.4" height="13.7" fill="#bbbbbb"/>
+<text x="643.4" y="199.1" font-size="10">0.93</text>
+<rect x="250.0" y="203.1" width="163.5" height="13.7" fill="#1f78b4"/>
+<text x="417.5" y="214.9" font-size="10">0.62</text>
+<rect x="250.0" y="218.9" width="205.3" height="13.7" fill="#a6cee3"/>
+<text x="459.3" y="230.6" font-size="10">0.68</text>
+<text x="242" y="278.6" text-anchor="end">power law (numpy, UMANS parameters)</text>
+<rect x="250.0" y="253.4" width="418.7" height="13.7" fill="#bbbbbb"/>
+<text x="672.7" y="265.1" font-size="10">0.97</text>
+<rect x="250.0" y="269.1" width="218.5" height="13.7" fill="#1f78b4"/>
+<text x="472.5" y="280.9" font-size="10">0.70</text>
+<rect x="250.0" y="284.9" width="253.0" height="13.7" fill="#a6cee3"/>
+<text x="507.0" y="296.6" font-size="10">0.74</text>
+<line x1="353.4" x2="353.4" y1="42" y2="310" stroke="#c0392b" stroke-width="2" stroke-dasharray="5 3"/>
+<text x="357.4" y="40" fill="#c0392b" font-size="11">people 0.541</text>
+<rect x="16" y="338" width="10" height="10" fill="#bbbbbb"/><text x="30" y="347" font-size="11">bias always on</text>
+<rect x="246" y="338" width="10" height="10" fill="#1f78b4"/><text x="260" y="347" font-size="11">bias yields to exit goal</text>
+<rect x="476" y="338" width="10" height="10" fill="#a6cee3"/><text x="490" y="347" font-size="11">bias scaled by goal side</text>
+</svg>

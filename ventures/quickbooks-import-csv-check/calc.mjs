@@ -57,8 +57,8 @@ const num = (v) => /^-?\d+(\.\d+)?$/.test(v);
 
 export function decodeBuffer(buf) {
   const u8 = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
-  if (u8[0] === 0xff && u8[1] === 0xfe) return "﻿" + new TextDecoder("utf-16le").decode(u8.subarray(2));
-  if (u8[0] === 0xfe && u8[1] === 0xff) return "﻿" + new TextDecoder("utf-16be").decode(u8.subarray(2));
+  if (u8[0] === 0xff && u8[1] === 0xfe) return "\uFEFF" + new TextDecoder("utf-16le").decode(u8.subarray(2));
+  if (u8[0] === 0xfe && u8[1] === 0xff) return "\uFEFF" + new TextDecoder("utf-16be").decode(u8.subarray(2));
   return new TextDecoder("utf-8", { ignoreBOM: true }).decode(u8);
 }
 

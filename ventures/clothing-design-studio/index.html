@@ -27,7 +27,7 @@
       font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--paper); }
     body { max-width: 1280px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
     .eyebrow { color: var(--accent); font-weight: 800; letter-spacing: .12em; font-size: .75rem; text-transform: uppercase; margin: 0; }
-    h1 { font: 700 clamp(1.9rem, 4.6vw, 3.2rem)/1.05 Georgia, "Times New Roman", serif; letter-spacing: -.02em; margin: 8px 0 10px; max-width: 900px; }
+    h1 { font: 700 clamp(1.9rem, 4.6vw, 3rem)/1.05 Georgia, "Times New Roman", serif; letter-spacing: -.02em; margin: 8px 0 10px; max-width: 900px; }
     .lede { max-width: 760px; line-height: 1.55; margin: 0 0 16px; }
     a { color: var(--accent); }
     .workspace { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 16px; align-items: start; }
@@ -245,11 +245,17 @@
         <p class="muted">Paintings are shaded, and flat inks flatten the shading. An index separation prints the same inks as a scatter of square dots, one per finest dot the mesh holds, so the eye mixes them with the bare garment into the in-between tones. Same screens, finer films.</p>
         <div class="row3">
           <div><label for="ix-gain">Dot gain on press (% of a dot's area, 0 = none)</label><input id="ix-gain" type="number" min="0" max="100" step="1" value="0"></div>
-          <div><label for="ix-inks">Inks for the dots</label><select id="ix-inks"><option value="0">The flat separation's inks</option><option value="0.5">Chosen for the dots, seen from 0.5 m</option><option value="1" selected>Chosen for the dots, seen from 1 m</option><option value="3">Chosen for the dots, seen from 3 m</option></select></div>
+          <div><label for="ix-inks">Inks for the dots</label><select id="ix-inks"><option value="0">The flat separation's inks</option><option value="0.5">Chosen for the dots, seen from 0.5 m</option><option value="1" selected>Chosen for the dots, seen from 1 m</option><option value="3">Chosen for the dots, seen from 3 m</option><option value="s1">From the printer's stock, seen from 1 m</option><option value="s3">From the printer's stock, seen from 3 m</option></select></div>
           <div><label for="ix-singles">Single dots</label><select id="ix-singles"><option value="3" selected>None, refined (closest; a few seconds longer)</option><option value="0">None, quick cleanup</option><option value="-1">Keep them (only if your mesh holds single dots)</option></select></div>
         </div>
         <p class="muted">A dot one cell wide is the first thing a screen loses: it may not wash out of the stencil or may not print. "None" makes every dot on every film touch at least one more of its own ink: each single dot is either given up to a neighbour or grown into a pair, whichever keeps the print closer to the painting, and "refined" then moves dots around under the same rule. On nine paintings that was closer to the painting from 1 m than plain dots in 33 of 36 runs, and it does not fall apart on a press that drops single dots.</p>
         <p class="muted">Dots can only mix colours between their inks and the garment, and the flat separation's inks are averages, so they sit inside the painting's colours. "Chosen for the dots" tries inks moved outwards to reach the painting's darks, lights and strong colours, weighed against how grainy far-apart inks look from that distance, and keeps whichever set (the flat inks included) comes out closest to the painting. It takes a few seconds longer.</p>
+        <details id="ix-stock-box">
+          <summary>The printer's stock inks</summary>
+          <p class="muted">Every ink "Chosen for the dots" picks is a custom mix, and shops charge to match each one. "From the printer's stock" picks as many inks as you have screens from the shelf below, the set whose dots come closest to the painting, so nothing needs mixing. Paste the printer's own list, one ink per line: a name and a colour (#RRGGBB or three numbers 0-255). The list filled in here is a made-up starter shelf of common colour names with approximate colours, not any ink maker's swatches.</p>
+          <textarea id="ix-stock" rows="8" style="width:100%;font-family:monospace" aria-label="Stock inks, one per line: name and colour"></textarea>
+          <p id="ix-stock-msg" class="muted" aria-live="polite"></p>
+        </details>
         <details id="ix-calib">
           <summary>Measure dot gain from a proof</summary>
           <p class="muted">Ink spreads on press, so dots print larger than their film and the print comes out darker. Download the calibration strip (per ink: a solid square, a 50% checkerboard of single dots, a bare square), ask the printer to run it on your garment, photograph it flat in even light, and pick the three colours from that one photo (the middle of the checkerboard). The gain it shows goes into the box above and the next index separation spaces its dots to allow for it.</p>
@@ -551,7 +557,8 @@
     import { MOTIFS, PUBLIC_DOMAIN_SOURCES } from "./motifs.mjs";
     import { printResolution, resolutionSummary, takeHandoff } from "./artwork.mjs";
     import { newDesign, History, variants, applyOp, encodeDesign, decodeDesign, sanitizeDesign, OpError } from "./design.mjs";
-    import { EXAMPLES } from "./commands.mjs";
+    import { EXAMPLES, parseClause } from "./commands.mjs";
+    import { answerQuestion } from "./answers.mjs";
     import { interpret } from "./ai.mjs";
     import { renderDesign, placementBox, esc } from "./render.mjs";
     import { renderTurntable } from "./turntable.mjs";
@@ -570,6 +577,7 @@
     import { singleInkFilm, contrastInk, halftoneSvg, halftoneBrief } from "./halftone.mjs";
     import { separate, films, previewRgba, separationBrief } from "./separation.mjs";
     import { chooseIndexInks } from "./inkfit.mjs";
+    import { chooseStockInks, parseStockList, stockBrief, STARTER_STOCK } from "./stockinks.mjs";
     import { indexSeparate, compareFlatIndex, indexFilms, indexPreviewRgba, indexBrief, calibrationFilms, gainFromPatch, cleanLoneDots } from "./indexsep.mjs";
     import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -637,14 +645,15 @@
 
     async function runCommand(text, via = "typed") {
       if (!text.trim()) return;
-      const out = await interpret(text, d(), aiConfig());
+      const out = await interpret(text, d(), aiConfig(), { timeline: [...history.past, history.present] });
       recordUsage(via === "voice" ? "voice_command" : "command");
       const engine = out.source === "model" ? `model (${out.local ? "on your computer" : $("#ai-provider").value})` : "built-in";
       $("#engine-label").textContent = `Last command: ${engine}${out.error ? ` (model failed: ${out.error}; used built-in)` : ""}`;
       for (const step of out.result.steps) {
         let err = null;
         for (const u of step.ui) {
-          if (u.ui === "undo") { history.undo(); render(); }
+          if (u.ui === "undo") { for (let i = 0; i < (u.count ?? 1); i++) history.undo(); render(); }
+          else if (u.ui === "restore") { const t = [...history.past, history.present][u.index]; if (t && t !== history.present) { history.replace(t); render(); } }
           else if (u.ui === "redo") { history.redo(); render(); }
           else if (u.ui === "variants") showVariants();
           else if (u.ui === "pick") pickVariant(u.index - 1);
@@ -654,6 +663,11 @@
         if (step.ops.length) err = commit(step.ops, "command_op");
         log(`${err ? `<span class="miss">Could not: ${esc(err)}</span>` : esc(step.did)} <span class="words">“${esc(step.words)}”</span> <span class="engine">${engine}</span>`);
       }
+      for (const q of out.result.questions || []) {
+        recordUsage("question_answered");
+        log(`<span class="engine">You asked:</span> <span class="words">“${esc(q.words)}”</span> ${esc(answerQuestion(q, d(), { parse: parseClause, sheet }).text)}`);
+      }
+      for (const no of out.result.declined || []) log(`<span class="miss">Left alone (you said no):</span> <span class="words">“${esc(no.words)}”</span>`);
       for (const miss of out.result.unmatched) log(`<span class="miss">Not understood:</span> <span class="words">“${esc(miss)}”</span> <span class="engine">Try one of the examples, or add a model below.</span>`);
     }
 
@@ -947,7 +961,9 @@
     const slugify = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "design";
 
     // ---- colour separation ----
-    let lastSep = null, lastPixels = null, lastIndex = null, lastIndexCmp = [], lastInkPick = null;
+    let lastSep = null, lastPixels = null, lastIndex = null, lastIndexCmp = [], lastInkPick = null, lastStockPick = null;
+    $("#ix-stock").value = STARTER_STOCK.map(s => `${s.name}, ${s.hex}`).join("\n");
+    $("#ix-inks").addEventListener("change", e => { if (e.target.value.startsWith("s")) $("#ix-stock-box").open = true; });
     function sepExtras() {
       const p = $("#sep-crop").value.split(/[ ,]+/).filter(Boolean).map(Number);
       if (p.length && (p.length !== 4 || p.some(v => !(v >= 0 && v <= 90)))) throw new Error("Trim edges needs four percentages from 0 to 90, e.g. 0,0,10,0.");
@@ -1010,9 +1026,17 @@
     $("#sep-index").addEventListener("click", () => {
       if (!lastSep || !lastPixels) return;
       try {
-        const ixo = { crop: sepExtras().crop, dotGainPct: Number($("#ix-gain").value) || 0 }, forM = Number($("#ix-inks").value) || 0;
-        lastInkPick = forM ? chooseIndexInks(lastPixels, lastSep, { ...ixo, metres: forM }) : null;
-        lastIndex = lastInkPick ? lastInkPick.idx : indexSeparate(lastPixels, lastSep, ixo);
+        const ixo = { crop: sepExtras().crop, dotGainPct: Number($("#ix-gain").value) || 0 }, inkSel = $("#ix-inks").value;
+        const fromStock = inkSel.startsWith("s"), forM = Number(fromStock ? inkSel.slice(1) : inkSel) || 0;
+        lastStockPick = null;
+        if (fromStock) {
+          const parsed = parseStockList($("#ix-stock").value);
+          $("#ix-stock-msg").textContent = `${parsed.inks.length} inks read.` + parsed.errors.map(e => ` Line ${e.line} skipped: ${e.reason}.`).join("");
+          lastStockPick = chooseStockInks(lastPixels, lastSep, parsed.inks, { ...ixo, metres: forM });
+          recordUsage("separation_index_stock");
+        }
+        lastInkPick = !fromStock && forM ? chooseIndexInks(lastPixels, lastSep, { ...ixo, metres: forM }) : null;
+        lastIndex = lastStockPick ? lastStockPick.idx : lastInkPick ? lastInkPick.idx : indexSeparate(lastPixels, lastSep, ixo);
         const singles = Number($("#ix-singles").value);
         if (singles >= 0) lastIndex = cleanLoneDots(lastIndex, { metres: forM || 1, passes: singles });
         lastIndexCmp = compareFlatIndex(lastSep, lastIndex, [0.5, 1, 3]);
@@ -1024,6 +1048,7 @@
         <p><strong>${ix.screens} screens</strong>, square dots of ${ix.dotMm} mm (${ix.width} x ${ix.height}), ${ix.garmentPct}% bare garment between them${ix.dotGainPct ? `, spaced for ${ix.dotGainPct}% dot gain (distances below are for a press with that gain)` : ""}. <span id="sep-index-singles">${ix.loneCleanup ? `No single dots: ${ix.loneCleanup.before} cleaned up${ix.loneCleanup.passes ? `, then ${ix.loneCleanup.changed} cells moved in ${ix.loneCleanup.passes} refining passes` : ""}.` : `${ix.inks.map(i => i.loneDotPct).join("%, ")}% of each ink's dots are single dots; a mesh that cannot hold them will lose them.`}</span></p>
         <table id="sep-index-table"><caption>Distance from the painting (mean delta E after a rough eye blur; lower is closer)</caption><tr><th>Seen from</th><th>Flat inks</th><th>Index dots</th></tr>${lastIndexCmp.map(r => `<tr><td>${r.metres} m</td><td>${r.flat}</td><td${r.index < r.flat ? ' style="font-weight:bold"' : ""}>${r.index}</td></tr>`).join("")}</table>
         ${lastInkPick ? `<p id="sep-index-inks">${lastInkPick.refit ? `<strong>Inks chosen for the dots</strong> (closest seen from ${lastInkPick.metres} m): ${ix.inks.map(i => `<span style="display:inline-block;width:1em;height:1em;background:${i.flatHex};border:1px solid #888"></span> ${i.flatHex} &rarr; <span style="display:inline-block;width:1em;height:1em;background:${i.hex};border:1px solid #888"></span> ${i.hex}`).join("; ")}. Ask the printer to match these, not the flat ones.` : `The flat separation's inks stayed closest seen from ${lastInkPick.metres} m, so they are kept.`} <span class="muted">Tried: ${lastInkPick.candidates.map(c => `${esc(c.label)} ${c.deltaE}`).join(", ")}.</span></p>` : ""}
+        ${lastStockPick ? `<p id="sep-index-stock"><strong>Inks from the printer's stock</strong> (closest seen from ${lastStockPick.metres} m, no mixing): ${lastStockPick.inks.map((h, p) => `screen ${p + 1}: <span style="display:inline-block;width:1em;height:1em;background:${h};border:1px solid #888"></span> ${esc(lastStockPick.names[p])}`).join("; ")}. <span class="muted">Tried: ${lastStockPick.candidates.map(c => `${esc(c.label)} ${c.deltaE}`).join(", ")}.</span></p><pre class="muted">${esc(stockBrief(lastStockPick, lastSep))}</pre>` : ""}
         <ul class="muted">${ix.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`);
       $("#sep-index-films").disabled = false; $("#sep-index-brief").disabled = false; $("#ix-calib-films").disabled = false;
       recordUsage("separation_index");

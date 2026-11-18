@@ -15,6 +15,7 @@ import json
 import os
 import sys
 import time
+import zlib
 from concurrent.futures import ProcessPoolExecutor
 
 import numpy as np
@@ -44,6 +45,34 @@ FAMS = ("I", "T", "R")
 FIDX = {f: np.array([i for i, p in enumerate(POINTS) if p[0] == f]) for f in FAMS}
 P_GRID = (0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.3)
 RANDOMISED = ("random", "friend", "survey-degree-0.25", "survey-spread-0.25")
+# milestone 8 reuses this run with extra deterministic rules and its own output directory
+EXTRA_RULES = {}
+OUT_DIR = HERE
+# milestone 10 adds randomised rules: name -> fn(v, b, rng), N_RAND draws each, scored like RANDOMISED
+EXTRA_RANDOMISED = {}
+# milestone 13: each extra randomised rule scored on its own stream, keyed by its name, so adding or
+# removing rules re-draws no other rule. A name ending in "#r<j>" is replicate j of the rule before
+# the "#": its surveys and its scoring runs are drawn afresh. False keeps milestones 10-12's shared stream.
+PER_RULE_STREAMS = False
+# milestone 13: rules scored but left out of the best-rule reference (replicates)
+NOT_IN_REFERENCE = set()
+
+
+def rule_key(name):
+    """Stable 32-bit key of a rule name (crc32), for its own random stream."""
+    return zlib.crc32(name.encode())
+
+
+def replicate_of(name):
+    """(base name, replicate index); index 0 for a rule that is not a replicate."""
+    if "#r" in name:
+        base, j = name.rsplit("#r", 1)
+        return base, int(j)
+    return name, 0
+
+
+def rand_names():
+    return tuple(RANDOMISED) + tuple(EXTRA_RANDOMISED)
 
 _V = _BETA = None
 
@@ -89,11 +118,16 @@ def _greedy(args):
 
 def rand_sets(v, b):
     out = {}
-    for rule in RANDOMISED:
+    for rule in rand_names():
         D = []
         for k in range(N_RAND):
             r = np.random.default_rng([EVAL_SEED, v.village, k, 7])
-            if rule == "random":
+            if rule in EXTRA_RANDOMISED:
+                j = replicate_of(rule)[1] if PER_RULE_STREAMS else 0
+                if j:
+                    r = np.random.default_rng([EVAL_SEED, v.village, k, 7, j])
+                D.append(EXTRA_RANDOMISED[rule](v, b, r))
+            elif rule == "random":
                 D.append(sd.rule_random(v, b, np.random.default_rng([EVAL_SEED, v.village, k])))
             elif rule == "friend":
                 D.append(sd.rule_friend(v, b, r))
@@ -113,6 +147,7 @@ def _score(args):
     rs = rand_sets(v, b)
     X = np.stack(list(det.values()), 1)
     R = np.concatenate([rs[r] for r in RANDOMISED], 1)
+    RX = np.concatenate([rs[r] for r in EXTRA_RANDOMISED], 1) if EXTRA_RANDOMISED else None
     out = {}
     for k in ks:
         mod, s = model_of(k)
@@ -122,7 +157,22 @@ def _score(args):
         zr = m3b.zdraw(EVAL_SEED + 1, v.village, R.shape[1]) * s if s else None
         er = sd.simulate_batch(v, _BETA, R, 1, np.random.default_rng([EVAL_SEED, v.village, 17]),
                                shift=zr, independent=True, **mod)[:, 0].reshape(len(RANDOMISED), N_RAND).mean(1)
-        out[k] = np.concatenate([e, er])
+        parts = [e, er]
+        if RX is not None and PER_RULE_STREAMS:
+            ex_ = []
+            for i, rule in enumerate(EXTRA_RANDOMISED):
+                key = rule_key(rule)
+                zx = np.random.default_rng([EVAL_SEED + 2, v.village, 7, key]).standard_normal(N_RAND) * s if s else None
+                ex_.append(sd.simulate_batch(v, _BETA, RX[:, i * N_RAND:(i + 1) * N_RAND], 1,
+                                             np.random.default_rng([EVAL_SEED, v.village, 19, key]),
+                                             shift=zx, independent=True, **mod)[:, 0].mean())
+            parts.append(np.array(ex_))
+        elif RX is not None:  # own streams, so milestone 6's rows are untouched by the extra rules
+            zx = m3b.zdraw(EVAL_SEED + 2, v.village, RX.shape[1]) * s if s else None
+            ex_ = sd.simulate_batch(v, _BETA, RX, 1, np.random.default_rng([EVAL_SEED, v.village, 19]),
+                                    shift=zx, independent=True, **mod)[:, 0]
+            parts.append(ex_.reshape(len(EXTRA_RANDOMISED), N_RAND).mean(1))
+        out[k] = np.concatenate(parts)
     return g, out
 
 
@@ -184,8 +234,10 @@ def main():
                 d[f"dd-{q:g}"] = sd.rule_degree_discount(v, b, p=q)
             for f in FAMS:
                 d[f"greedy-{f}"] = greedy[(g, f)]
+            for r, fn in EXTRA_RULES.items():
+                d[r] = fn(v, b, None)
             det_sets.append(d)
-        rules = list(det_sets[0]) + list(RANDOMISED)
+        rules = list(det_sets[0]) + list(rand_names())
         ks = sorted(set(point.values()) | {d[f] for d in draws for f in FAMS})
         p(f"scoring {len(rules)} rules under {len(ks)} distinct processes")
         E = {k: np.zeros((len(rules), G)) for k in ks}
@@ -200,14 +252,15 @@ def main():
         for bi in range(B_BOOT):
             for fi, f in enumerate(FAMS):
                 tot = E[pick(bi, f)] @ W[bi]
-                out[bi, fi] = 1 - tot / tot.max()
+                out[bi, fi] = 1 - tot / tot[ref].max()
         return out
+    ref = np.array([r not in NOT_IN_REFERENCE for r in rules])
     joint = regrets(lambda bi, f: draws[bi][f])
     fixed = regrets(lambda bi, f: point[f])
     wj, wf = joint.max(1), fixed.max(1)
     n = np.array([v.n for v in V])
     full = {f: E[point[f]].sum(1) for f in FAMS}
-    reg0 = {f: 1 - full[f] / full[f].max() for f in FAMS}
+    reg0 = {f: 1 - full[f] / full[f][ref].max() for f in FAMS}
     worst0 = np.max([reg0[f] for f in FAMS], 0)
 
     p("\n## sanity: point fits, equal weights (milestone 5 at S = 200: greedy-T 0.005, dd-0.05 0.014, degree 0.041)")
@@ -224,7 +277,7 @@ def main():
         p(f"  {rules[k]:19s} {(wj[:, k] < wj[:, kd]).mean():.3f}  {(best == k).mean():.3f}")
 
     # added after the first full run (results_shared_runs.txt), see LOG.md: where the tail comes from
-    ndet = len(rules) - len(RANDOMISED)
+    ndet = len(rules) - len(rand_names())
     def regrets_det(pick):
         out = np.zeros((B_BOOT, len(FAMS), ndet))
         for bi in range(B_BOOT):
@@ -278,14 +331,16 @@ def main():
       f"gap to best {med[0.05] - min(med.values()):.4f} (best p {min(med, key=med.get):g})")
     p(f"runtime {time.time() - t0:.0f} s")
     txt = "\n".join(lines) + "\n"
-    open(os.path.join(HERE, "smoke.txt" if SMOKE else "results.txt"), "w").write(txt)
+    open(os.path.join(OUT_DIR, "smoke.txt" if SMOKE else "results.txt"), "w").write(txt)
     json.dump({"rules": rules,
                "worst_point": worst0.round(5).tolist(),
                "worst_joint_q": np.percentile(wj, [5, 50, 95], 0).round(5).tolist(),
                "worst_fixed_q": np.percentile(wf, [5, 50, 95], 0).round(5).tolist(),
                "dd_p_median": med},
-              open(os.path.join(HERE, "smoke.json" if SMOKE else "regret.json"), "w"), indent=1)
+              open(os.path.join(OUT_DIR, "smoke.json" if SMOKE else "regret.json"), "w"), indent=1)
     print(txt)
+    return dict(rules=rules, joint=joint, fixed=fixed, W=W, E=E, draws=draws, point=point,
+                det_sets=det_sets, worst0=worst0, full=full)
 
 
 if __name__ == "__main__":

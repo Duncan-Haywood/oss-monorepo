@@ -109,6 +109,107 @@ and run it yourself.
 MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
 
 
+## "The one where the halo was bigger": a version by how it compared (2026-11-18)
+
+Designers also point back by comparison: "the one where the halo was bigger",
+"when it sat lower", "when it was more expensive", "the version with the
+heavier fabric", "the cheapest one". Before, none of these found a version and
+some did harm: "the one where the price was higher" moved the print up and set
+the price to 1. `refer.mjs` (`comparedVersion`) reads artwork size and position
+(a named piece, followed by its id, or the selected one), price, fabric weight
+and run, and restores whole the most recent earlier version that compared that
+way with the present (superlatives: the session's extreme, latest among equals).
+The log gives the value then and now; nothing changes when no version compared
+that way. "The bigger one" stays an edit, since it may mean a variant on the
+panel. Hand-written eval, dev 9 to 20 of 20, held out (written first) 3 to 11 of
+12 on the first run, 12 after one vocabulary fix
+([`eval/compared-versions-2026-11-18.md`](eval/compared-versions-2026-11-18.md)).
+Also fixed: "raise the price" and "the price is higher than I want" moved the
+artwork.
+
+## "The one with the halo": a whole earlier version by what it had (2026-11-18)
+
+A designer who has moved on from a version points back at it by what it had:
+"the one with the halo", "the version without the text", "the tee with the
+wings", "when it still had the halo", "before I added the wings", "the one
+before we made it navy". The keyword reader took "with" as "add", so the first
+of those added a second halo. `refer.mjs` (`describedVersion`) now reads the
+description (motifs, text, an uploaded image, each optionally "on the back";
+garment; garment colour; decoration method; "without X" for what was absent)
+and returns the **most recent earlier version** that matches it, whole, as it
+was. The log says which version and how many changes ago, and lists its
+garment, colour and artwork; one undo brings the current version back. "Before
+X" returns the version just before X last appeared. When the current version
+already matches, or no version ever did, nothing changes and the log says so.
+"Back to the cream one" still restores only the colour (a value, not a version).
+
+`node eval/whole-versions.mjs` (`eval/whole-versions-2026-11-18.md`): on 23 dev
+sentences `main` read 6 (only the controls) and this reads 23; on 12 held-out
+sentences written before the code, 1 and 12. Before, 20 of the 29 version
+sentences were acted on wrongly. Our sentences, not a designer's.
+`refer.test.mjs` (13 tests).
+
+## "Go back to the cream": questions and earlier versions (2026-11-17)
+
+Designers ask and point back as often as they order. The keyword reader read
+every clause as an order, so "is embroidery more expensive?" switched the print
+to embroidery, "go back to the cream" ran one undo whatever the last change was,
+and "the previous colour", "undo the last two" and "start over" were not
+understood. `refer.mjs` now sorts each clause first:
+
+- **Questions for information** change nothing. The log answers them
+  (`answers.mjs`): cost questions are costed on your supplier sheet by applying
+  each named alternative to a copy of the design ("which is cheaper, dtg or
+  screen print?" gives both landed costs and the cheaper one; "how much does a
+  hoodie cost to make?" the difference), fabric and method questions give the
+  method note and the maker checks for that pairing, and colour, size and lead
+  time questions say where to look.
+- **Suggestions asked as questions** ("isn't navy better?", "what about a
+  crewneck", "why not embroider it", "wouldn't it look better in sage", "what if
+  we made it bigger") are tried, marked "Trying it (you asked)", and undoable.
+- **References to the history** are resolved against this session's versions:
+  "go back to the cream" or "the hoodie looked better" restores that value
+  only and says how many changes ago it was seen; "the previous colour", "the
+  original size", "the old position", "the other one" restore one attribute and
+  keep the rest; "undo the last two", "go back three steps" undo that many;
+  "back to the original" or "start over" returns to the session's first
+  version (one undo brings the current one back).
+
+`node eval/history-questions.mjs` (`eval/history-questions-2026-11-17.md`): on 41
+hand-written sentences `main` read 17 right and this reads 41; on 20 written
+after the code was frozen, 12 and 19 (the miss, "what if we did it in white",
+was fixed afterwards). Our sentences, not a designer's; real recorded feedback
+is still the test that matters. `refer.test.mjs`, `answers.test.mjs` (12 tests).
+
+## "Not black, make it cream": negated feedback (2026-11-17)
+
+Spoken feedback is full of refusals, and both keyword readers (`commands.mjs`
+in the studio, `guide.mjs` in the wardrobe chat) used to read a refused word as
+a request: "don't make it bigger" made the print 15% bigger, "no embroidery,
+screen print it" applied both methods, "not for men" chose men's fit and "not
+luxury" chose luxury. `negation.mjs` now cuts each negated stretch out first
+(from "not", "no", "don't", "never", "without", "nothing", "instead of",
+"rather than" and the like to the end of the clause: the next comma, "but",
+"and", "just", another negation, at most four words). Quoted text, names
+("call it Not Today") and phrases that only look negative ("not just", "no
+more than", "never mind", "not sure") are left alone.
+
+- **Studio:** a refused command is never applied; it is listed as "Left alone
+  (you said no)" in the command log (`parseCommand(...).declined`, also through
+  the optional model's rewrite).
+- **Wardrobe chat:** turning down the current answer undoes it ("not luxury"
+  sets the tier back to premium, the default) and the question is asked again;
+  a refused occasion comes off the list. "Skip", "not sure", "any" or "no
+  preference" in reply to a question keeps the current answer and moves on,
+  and "men ... women too" said apart reads as unisex.
+
+`node eval/negated-feedback.mjs` (`eval/negated-feedback-2026-11-17.md`): on 30
+hand-written studio sentences, `main` read 15 right and this reads 29; on 12
+wardrobe sentences, 3 and 12. The six controls without negation pass both.
+The one miss is a question ("isn't navy better", read as turning navy down).
+The sentences are ours, not a designer's: real recorded feedback is still the
+test that matters. `negation.test.mjs` (9 tests).
+
 ## Virtual drape: the pattern sewn onto a body (2026-11-13)
 
 `drape.mjs` and `drape.html`. The interviews asked to see a garment on the
@@ -330,8 +431,42 @@ settle in the time given. So the page keeps the 45 degree pose. Arms that
 really hang need a torso that gives under the arm (a soft layer, or a section
 shaped from a scan) before the sleeve's fall can be read.
 
-Not yet: elbow bend, a non-round arm section, a torso the arm can rest
-against, the hood and rib bands, and any real garment compared.
+### A soft torso the arms rest against (2026-11-16)
+
+`drapeGarment(..., { lowerArms: true, softTissueCm: 3 })`, and "Arms: lowered
+to the side" with "Side gives (cm)" on `drape.html`. Below the shoulder shelf
+the torso is carved away round a lowered arm (`dentContact`), leaving 1.2 cm
+for the two layers of cloth at the side, as a real side gives under a resting
+arm; `hangAngleDeg` lets the arm press up to `softTissueCm` into the rigid
+ellipse below the armpit. The side only softens once the arms start down, so
+arms held out at 45 degrees drape bit-identically to before. The pressed
+flesh is not bulged out at front and back, and **the give is an assumption**
+(arm and side together; nobody has measured it for this page).
+
+`node eval/drape-soft-torso.mjs`, table and reading in
+`eval/drape-soft-torso-2026-11-16.md` (tee, long sleeve and hoodie in S, M and
+L on the 100 cm chest):
+
+| | rigid (0 cm) | 2 cm | 3 cm | 4 cm |
+|---|---|---|---|---|
+| arm angle | 28.5 | 22 | 18 | 15 |
+| drapes settled, of 9 | 7 | 8 | 9 | 9 |
+| points inside the body (S tee + S long sleeve) | 16 | 0 | 0 | 0 |
+| M tee: worst sleeve triangle / bicep peak | 138% / 22.9% | 95% / 22.6% | 98% / 23.6% | 100% / 24.5% |
+
+What it does not fix: the cloth pinched between arm and side still reads as a
+bicep peak (M and L peaks rise 1-4 points as the arm comes closer; S falls
+from about 60% to 46%), so the bicep's mean is the reading to trust in this
+pose. Against the rigid lowered runs the hem moves at most 0.7 cm. A first
+version carved the side only below the armpit: the sleeve's underarm caught
+between the arm and the rigid torso just above it (one triangle at 213%) and
+the M tee never settled; carving up to the shoulder shelf fixed both.
+`drape-soft-torso.test.mjs` (4 tests, about 5 s) pins the angles, the carving
+and the bit-identical held-out drape. The page still opens with the arms out.
+
+Not yet: elbow bend, a non-round arm section, volume kept when the side is
+pressed, a measured give, the hood and rib bands, and any real garment
+compared.
 
 ## Turntable preview (2026-11-04)
 
@@ -558,6 +693,64 @@ and 1.8 MB, brief downloaded, no console errors). Not checked: a real screen
 printer's index print. Whether 0.3 mm single dots hold on their mesh, how dot
 gain darkens the result, and registration on a dark garment's underbase are
 all for a proof.
+
+### Inks from the printer's stock (2026-11-16)
+
+Every ink "Chosen for the dots" picks is a custom mix, and a shop charges to
+match each colour to a sample. Most shops that print index separations have a
+shelf of ready-made inks instead. `stockinks.mjs`, the choices "From the
+printer's stock, seen from 1 m / 3 m" on the studio page, picks as many inks
+as the separation has screens from a pasted stock list (one ink per line, a
+name and `#RRGGBB` or three numbers 0-255), so nothing has to be mixed.
+
+- **Score.** The colours dots can reach are the convex hull of the inks and
+  the bare garment in linear RGB, so a subset is scored by `mixCost` from
+  `inkfit.mjs` (mean Lab distance from sampled painting colours to what the
+  dots can mix, plus the grain term for that viewing distance).
+- **Search.** Two starts, each improved by swap descent (replace one chosen
+  ink with one unchosen while the score falls): each flat ink's nearest stock
+  ink, and greedy forward selection. The chosen inks go on the screens by the
+  assignment closest in Lab to the flat inks, so print order holds.
+- **Check.** The nearest-ink pick (what a person matching by eye would do)
+  and both searched sets are dotted with the real index separation and scored
+  by the eye model; the closest wins, so it is never worse than the pick by
+  eye on that measure. The brief lists screen, stock ink name and colour.
+- **The starter shelf** filled in on the page (`STARTER_STOCK`, 25 inks) is
+  made up: common colour names with approximate colours, not any ink maker's
+  swatches. A printer's own list is what to use.
+
+Measured (`eval/index-stock.mjs`, the nine paintings at 640 px, 28 cm, the
+starter shelf; mean delta E after the eye blur; full output
+`eval/index-stock-2026-11-16.md`):
+
+| Garment, inks | Seen from | Dots, flat (custom) inks | Nearest stock ink each | Chosen from stock | Freely mixed (`inkfit.mjs`) | Chosen closer than nearest |
+|---|---|---|---|---|---|---|
+| white, 3 | 1 m | 12.14 | 15.32 | 13.62 | 10.95 | 7 of 9 |
+| white, 3 | 3 m | 9.79 | 12.24 | 7.65 | 6.31 | 9 of 9 |
+| white, 4 | 1 m | 10.64 | 14.07 | 12.25 | 9.55 | 7 of 9 |
+| white, 4 | 3 m | 8.34 | 10.94 | 5.93 | 4.51 | 8 of 9 |
+| white, 6 | 1 m | 8.94 | 11.89 | 10.95 | 7.85 | 7 of 9 |
+| white, 6 | 3 m | 6.68 | 8.17 | 4.85 | 3.78 | 8 of 9 |
+| near-black, 4 | 1 m | 11.04 | 14.18 | 11.51 | 9.20 | 9 of 9 |
+| near-black, 4 | 3 m | 8.78 | 11.36 | 5.17 | 4.37 | 9 of 9 |
+
+- Matching each flat ink to its nearest shelf ink costs 1.5 to 3.4 delta E
+  against the custom flat inks. The search wins back 0.9 to 2.7 of that at
+  1 m and all of it and more at 3 m, where the chosen stock set beats the
+  custom flat inks in 32 of 36 runs (12 of 36 at 1 m).
+- What custom mixing still buys over the chosen stock set: 0.8 to 1.4 delta E
+  at 3 m, 2.3 to 3.1 at 1 m. So for a print seen across a room, stock inks
+  come close to custom ones; for a print seen up close, mixing is worth its fee
+  on this measure.
+- The search picks far-apart inks (Starry Night on white, 3 inks: lemon
+  yellow, cyan, black) where the eye would pick look-alikes (nearest 12.41, chosen 7.51 at
+  3 m). Swap descent from the nearest inks won 25 of 36 runs at 1 m and 30 at
+  3 m, greedy selection 5 and 4, and the nearest inks were kept 6 and 2 times.
+- A choice takes 0.3 to 5.5 s on one CPU at 640 px (more inks, longer).
+
+Not checked: a real printer's shelf (real inks are not the starter colours)
+and a real proof. The eye model is the same rough blur as above; dot gain and
+the single-dot cleanup run after the choice, not inside it.
 
 ### Inks chosen for the dots (2026-11-14)
 

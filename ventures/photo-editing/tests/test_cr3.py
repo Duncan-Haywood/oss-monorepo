@@ -202,15 +202,15 @@ def _tiff(entries) -> bytes:
     return b"II*\0" + struct.pack("<I", 8) + _ifd_bytes(entries, 8)
 
 
-def sensor(levels=(2048, 1024, 1024, 1536), seed=3) -> list[int]:
+def sensor(levels=(2048, 1024, 1024, 1536), seed=3, width=SENSOR_W, height=SENSOR_H) -> list[int]:
     """Masked columns at BLACK with noise, a scene of coloured 4x4 cells behind RGGB, clipped highlights."""
 
     rng = random.Random(seed)
     mult = (levels[0] / 1024, 1.0, levels[3] / 1024)
     left, top, right, bottom = CROP
     out = []
-    for y in range(SENSOR_H):
-        for x in range(SENSOR_W):
+    for y in range(height):
+        for x in range(width):
             if x <= OB[2]:
                 out.append(BLACK + rng.choice((-1, 0, 0, 1)))
             elif top <= y <= bottom and left <= x <= right:
@@ -222,39 +222,63 @@ def sensor(levels=(2048, 1024, 1024, 1536), seed=3) -> list[int]:
     return out
 
 
-def make_cr3(values=None, version=0x100, levels=0, tiles=False, color_len=3778, wb=(2048, 1024, 1024, 1536),
-             lens=b"RF24-240mm F4-6.3 IS USM", iad1=True, sample=None, header_size=None) -> bytes:
-    """A whole CR3. ``sample`` and ``header_size`` replace the losslessly coded sensor sample (C-RAW tests)."""
+def tiled_sample(values: list[int], width: int, height: int, tile: tuple[int, int], tile_size_pad: int = 0) -> tuple[bytes, int]:
+    """A lossless CRX sample of a ``width`` x ``height`` sensor cut into tiles of ``tile`` (sensor units), laid
+    out as LibRaw reads it: per tile a 0xFF01 header with its index, per plane 0xFF02 (plane number in the top
+    four flag bits) and 0xFF03, then the data tile after tile, plane after plane. Returns (sample, header size)."""
 
-    values = sensor(wb) if values is None else values
+    pw, ph = width // 2, height // 2
+    tw, th = tile[0] // 2, tile[1] // 2
+    cols, rows = -(-pw // tw), -(-ph // th)
+    header = b""
+    data = b""
+    index = 0
+    for r in range(rows):
+        for c in range(cols):
+            x0, y0 = c * tw, r * th
+            w_, h_ = min(tw, pw - x0), min(th, ph - y0)
+            bands = []
+            for plane in range(4):
+                oy, ox = plane >> 1, plane & 1
+                lines = [[values[(2 * (y0 + y) + oy) * width + 2 * (x0 + x) + ox] - MID for x in range(w_)] for y in range(h_)]
+                bands.append(encode_band(lines))
+            header += struct.pack(">HHIHH", 0xFF01, 8, sum(len(b) for b in bands) + tile_size_pad, index, 0)
+            for plane, band in enumerate(bands):
+                header += struct.pack(">HHII", 0xFF02, 8, len(band), 0x08000000 | (plane << 28))
+                header += struct.pack(">HHII", 0xFF03, 8, len(band), 0)
+            data += b"".join(bands) + b"\xa5" * tile_size_pad  # not zeros: a band read from a zero pad can decode the same
+            index += 1
+    header += bytes(4)
+    return header + data, len(header)
+
+
+def make_cr3(values=None, version=0x100, levels=0, tiles=False, color_len=3778, wb=(2048, 1024, 1024, 1536),
+             lens=b"RF24-240mm F4-6.3 IS USM", iad1=True, sample=None, header_size=None, size=None, tile=None) -> bytes:
+    """A whole CR3. ``sample`` and ``header_size`` replace the losslessly coded sensor sample (C-RAW tests).
+
+    ``size`` is the sensor's (width, height) (default 64 x 40); ``tile`` a tile size in sensor units, coded as
+    real tiles. ``tiles=True`` alone only sets CMP1's several-tiles fields (half-width tiles) over a one-tile
+    sample, for the refusal tests."""
+
+    width, height = size or (SENSOR_W, SENSOR_H)
+    values = sensor(wb, width=width, height=height) if values is None else values
+    tile_w, tile_h = tile or ((width // 2, height) if tiles else (width, height))
     if sample is None:
-        w2, h2 = SENSOR_W // 2, SENSOR_H // 2
-        bands = []
-        for plane in range(4):
-            oy, ox = plane >> 1, plane & 1
-            lines = [[values[(2 * y + oy) * SENSOR_W + 2 * x + ox] - MID for x in range(w2)] for y in range(h2)]
-            bands.append(encode_band(lines))
-        header = struct.pack(">HHII", 0xFF01, 8, sum(len(b) for b in bands), 0)
-        for plane, band in enumerate(bands):
-            header += struct.pack(">HHII", 0xFF02, 8, len(band), 0x08000000 | (plane << 28))
-            header += struct.pack(">HHII", 0xFF03, 8, len(band), 0)
-        header += bytes(4)
-        raw_sample = header + b"".join(bands)
-        header_size = len(header)
+        raw_sample, header_size = tiled_sample(values, width, height, tile or (width, height))
     else:
         raw_sample = sample
 
     cmp1 = bytearray(60)
     struct.pack_into(">HH", cmp1, 0, 0xFF00, 0x30)
     struct.pack_into(">H", cmp1, 4, version)
-    struct.pack_into(">4I", cmp1, 8, SENSOR_W, SENSOR_H, SENSOR_W // (2 if tiles else 1), SENSOR_H)
+    struct.pack_into(">4I", cmp1, 8, width, height, tile_w, tile_h)
     cmp1[24] = BITS
     cmp1[25] = 4 << 4
     cmp1[26] = levels
-    cmp1[27] = 0x80 if tiles else 0
+    cmp1[27] = (0x80 if tile_w < width else 0) | (0x40 if tile_h < height else 0)
     struct.pack_into(">I", cmp1, 28, header_size)
-    rects = CROP + OB + (OB[2] + 1, 0, SENSOR_W - 1, 2) + (OB[2] + 1, 3, SENSOR_W - 1, SENSOR_H - 1)
-    iad = bytes(4) + struct.pack(">22H", SENSOR_W, SENSOR_H, 1, 2, 1, 0, *rects)
+    rects = CROP + OB + (OB[2] + 1, 0, width - 1, 2) + (OB[2] + 1, 3, width - 1, height - 1)
+    iad = bytes(4) + struct.pack(">22H", width, height, 1, 2, 1, 0, *rects)
     cdi1 = _box(b"CDI1", bytes(4) + _box(b"IAD1", iad))
     craw = _box(b"CRAW", bytes(82) + _box(b"CMP1", bytes(cmp1)) + (cdi1 if iad1 else b""))
 
@@ -268,7 +292,7 @@ def make_cr3(values=None, version=0x100, levels=0, tiles=False, color_len=3778, 
 
     cmt1 = _tiff([(271, 2, tuple(b"Canon\0")), (272, 2, tuple(b"Canon EOS R8\0")), (274, 3, (1,))])
     cmt2 = _tiff([(33437, 5, (5.6,))])
-    sensor_info = (34, SENSOR_W, SENSOR_H, 1, 1) + CROP + (0,) * 8
+    sensor_info = (34, width, height, 1, 1) + CROP + (0,) * 8
     cmt3 = _tiff([(0x00E0, 3, sensor_info), (0x0095, 2, tuple(lens) + (0,))])
     uuid = _box(b"uuid", cr3.CANON_UUID + _box(b"CMT1", cmt1) + _box(b"CMT2", cmt2) + _box(b"CMT3", cmt3))
 
@@ -313,6 +337,92 @@ class CodecTests(unittest.TestCase):
         # Long flat lines push the run index up; a noisy line after it must still decode.
         lines = [[0] * 200, [0] * 200, [7] * 200, list(range(200)), [3] * 200]
         self.assertEqual(cr3.decode_band(encode_band(lines), 200, 5), lines)
+
+
+TILED_SIZE = (120, 100)  # planes 60 x 50: a 64 x 52 tile gives plane tiles of 32 + 28 across, 26 + 24 down
+
+
+def busy_sensor(width: int, height: int, seed: int = 5) -> list[int]:
+    """Detail in every tile: noise over a gradient, with flat patches so the run mode is used too.
+
+    (``sensor()`` is flat right of its crop, and a flat tile codes to a few bytes, too little to show a
+    tile read from the wrong place.)"""
+
+    rng = random.Random(seed)
+    out = []
+    for y in range(height):
+        for x in range(width):
+            if (x // 8 + y // 8) % 5 == 0:
+                out.append(BLACK + 500)
+            else:
+                out.append(min(16383, BLACK + 40 * x + 25 * y + rng.randrange(0, 400)))
+    return out
+
+
+def differing(got, want) -> int:
+    return sum(1 for a, b in zip(got, want) if a != b) + abs(len(got) - len(want))
+
+
+class TiledTests(unittest.TestCase):
+    """A full-quality CR3 whose sensor is stored in several tiles (wide sensors: the R5 class)."""
+
+    def _check(self, tile, engine, size=TILED_SIZE):
+        values = busy_sensor(*size)
+        data = make_cr3(values=values, size=size, tile=tile)
+        box = cr3.Container(data)
+        _head, out = cr3.decode_sensor(data, box, engine=engine)
+        self.assertEqual(differing(out, values), 0)
+
+    def test_grids_both_engines(self):
+        engines = ["python"] + (["c"] if ljpeg_native.crx_function() else [])
+        # 2 x 2 uneven, 2 across, 2 down, 2 x 2 even across, and 3 across (plane tiles of 24, 24, 22).
+        for size, tile in ((TILED_SIZE, (64, 52)), (TILED_SIZE, (76, 100)), (TILED_SIZE, (120, 52)),
+                           (TILED_SIZE, (60, 52)), ((140, 60), (48, 60))):
+            for engine in engines:
+                with self.subTest(size=size, tile=tile, engine=engine):
+                    self._check(tile, engine, size)
+
+    def test_grid_matches_libraw_layout(self):
+        head = cr3.Container(make_cr3(size=TILED_SIZE, tile=(64, 52))).head
+        got = [(t.index, t.row, t.col, t.width, t.height) for t in cr3.tile_grid(head)]
+        self.assertEqual(got, [(0, 0, 0, 32, 26), (1, 0, 32, 28, 26), (2, 26, 0, 32, 24), (3, 26, 32, 28, 24)])
+
+    def test_tile_byte_count_places_the_next_tile(self):
+        # A tile whose byte count runs past its planes (padding): the next tile starts where the count says.
+        values = busy_sensor(*TILED_SIZE)
+        sample, header_size = tiled_sample(values, *TILED_SIZE, (64, 100), tile_size_pad=7)
+        data = make_cr3(values=values, size=TILED_SIZE, tile=(64, 100), sample=sample, header_size=header_size)
+        for engine in ["python"] + (["c"] if ljpeg_native.crx_function() else []):
+            with self.subTest(engine=engine):
+                _head, out = cr3.decode_sensor(data, cr3.Container(data), engine=engine)
+                self.assertEqual(differing(out, values), 0)
+
+    def test_parse_raw_develops_a_tiled_frame(self):
+        values = sensor(width=TILED_SIZE[0], height=TILED_SIZE[1])
+        raw = rd.parse_raw(make_cr3(values=values, size=TILED_SIZE, tile=(64, 52)))
+        self.assertEqual((raw.width, raw.height), TILED_SIZE)
+        self.assertEqual(differing(raw.values, values), 0)
+
+    def test_refusals(self):
+        values = sensor(width=TILED_SIZE[0], height=TILED_SIZE[1])
+        good, header_size = tiled_sample(values, *TILED_SIZE, (64, 52))
+        bad_index = bytearray(good)
+        struct.pack_into(">H", bad_index, 8, 5)
+        with self.assertRaisesRegex(rd.DevelopError, "tile header 0 names tile 5"):
+            rd.parse_raw(make_cr3(values=values, size=TILED_SIZE, tile=(64, 52), sample=bytes(bad_index), header_size=header_size))
+        bad_plane = bytearray(good)
+        bad_plane[12 + 8] = 0x18  # plane 0's header naming plane 1
+        with self.assertRaisesRegex(rd.DevelopError, "names plane 1"):
+            rd.parse_raw(make_cr3(values=values, size=TILED_SIZE, tile=(64, 52), sample=bytes(bad_plane), header_size=header_size))
+        with self.assertRaisesRegex(rd.DevelopError, "edge tile under 22"):
+            rd.parse_raw(make_cr3(values=values, size=TILED_SIZE, tile=(96, 100)))  # 48 + 12 plane sensels
+        with self.assertRaisesRegex(rd.DevelopError, "tile size .* not valid"):
+            rd.parse_raw(make_cr3(values=values, size=TILED_SIZE, tile=(40, 100)))  # 20-sensel plane tiles
+        flags = bytearray(make_cr3(values=values, size=TILED_SIZE, tile=(64, 52)))
+        at = flags.index(b"CMP1") + 4 + 27
+        flags[at] = 0x80  # rows flag missing
+        with self.assertRaisesRegex(rd.DevelopError, "several-tiles flags"):
+            rd.parse_raw(bytes(flags))
 
 
 class ReadTests(unittest.TestCase):
@@ -368,14 +478,16 @@ class ReadTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             good, c_raw = Path(tmp) / "a.CR3", Path(tmp) / "b.CR3"
             good.write_bytes(make_cr3())
-            c_raw.write_bytes(make_cr3(tiles=True))
+            c_raw.write_bytes(make_cr3(version=0x300, levels=3))
             self.assertEqual(camera_profiles.camera_of(good), "Canon EOS R8")
-            with self.assertRaisesRegex(rd.DevelopError, "several tiles"):
+            with self.assertRaisesRegex(rd.DevelopError, "codec version 0x300"):
                 camera_profiles.camera_of(c_raw)
 
-    def test_tiled_sensor_is_refused(self):
-        with self.assertRaisesRegex(rd.DevelopError, "several tiles"):
-            rd.parse_raw(make_cr3(tiles=True))
+    def test_c_raw_with_fewer_tiles_than_cmp1_names_is_refused(self):
+        # C-RAW tiles are read since 2026-11-16 (test_cr3_wavelet.TiledCrawTests); a lossless one-tile sample
+        # under a CMP1 that names C-RAW in two tiles is refused, not read as something else.
+        with self.assertRaisesRegex(rd.DevelopError, "C-RAW"):
+            rd.parse_raw(make_cr3(version=0x200, levels=3, tiles=True, size=TILED_SIZE))
 
     def test_not_a_cr3(self):
         self.assertFalse(cr3.is_cr3(b"II*\0" + bytes(20)))

@@ -567,7 +567,7 @@ export function createViewer(canvas, { presentation = false } = {}) {
     cam.target = [d.length / 2, d.width / 2, d.peak / 2.4];
     cam.fit = Math.hypot(d.length + 2 * d.overhang, d.width + 2 * d.overhang, d.peak) * 1.35;
     if (!fitted || refit) { cam.dist = cam.fit; cam.pan = [0, 0, 0]; fitted = true; }
-    draw();
+    paint();
   }
 
   function draw() {
@@ -810,30 +810,49 @@ export function createViewer(canvas, { presentation = false } = {}) {
     e.preventDefault();
   });
   function zoom(f) { cam.dist = Math.max(cam.fit * 0.25, Math.min(cam.fit * 3, cam.dist * f)); requestDraw(); }
-  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => draw()).observe(canvas);
+  // A canvas off the page (the gallery and compare thumbnails) is only ever
+  // seen through snapshot(), which draws, so the calls before it do not: on
+  // SwiftShader each frame costs real CPU, and a thumbnail was drawn three or
+  // four times (show, view, the resize callback, snapshot) for one picture.
+  // Every draw clears and repaints from the viewer's state, so the one frame
+  // snapshot() draws is the picture the extra frames ended on.
+  let painted = false;
+  function paint() {
+    if (!canvas.isConnected) return;
+    painted = true;
+    draw();
+  }
+  // The first resize callback comes just after show() has drawn at this size;
+  // redraw only when the size actually changed (or nothing is drawn yet).
+  const sizeChanged = () => {
+    const dpr = Math.min(2, globalThis.devicePixelRatio || 1);
+    const w = canvas.clientWidth; const h = canvas.clientHeight;
+    return Boolean(w && h) && (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr));
+  };
+  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { if (canvas.isConnected && (!painted || sizeChanged())) paint(); }).observe(canvas);
 
   return {
     show,
     draw,
     zoom,
-    setLayer(name, on) { if (on) visible.add(name); else visible.delete(name); draw(); },
-    setDimensions(on) { showDims = on; draw(); },
+    setLayer(name, on) { if (on) visible.add(name); else visible.delete(name); paint(); },
+    setDimensions(on) { showDims = on; paint(); },
     /** Board outlines on or off (presentation mode turns them off). */
-    setOutlines(on) { outlines = on; draw(); },
+    setOutlines(on) { outlines = on; paint(); },
     /** Lawn, shadow and sky on or off. */
-    setScenery(on) { scenery = on; draw(); },
-    view(theta, phi) { cam.theta = theta; cam.phi = phi; cam.dist = cam.fit; cam.pan = [0, 0, 0]; draw(); },
-    reset() { cam.theta = -0.95; cam.phi = 0.42; cam.dist = cam.fit; cam.pan = [0, 0, 0]; draw(); },
+    setScenery(on) { scenery = on; paint(); },
+    view(theta, phi) { cam.theta = theta; cam.phi = phi; cam.dist = cam.fit; cam.pan = [0, 0, 0]; paint(); },
+    reset() { cam.theta = -0.95; cam.phi = 0.42; cam.dist = cam.fit; cam.pan = [0, 0, 0]; paint(); },
     panBy,
     /** Show these members (by id) in orange, over everything; [] clears. */
-    highlight(ids) { setHighlight(ids); draw(); },
+    highlight(ids) { setHighlight(ids); paint(); },
     pick,
     /** Called with the member id under a click (null for none). */
     set onPick(fn) { onPick = fn; },
     /** How far the view is panned from the shed's centre, in inches (for tests). */
     panned() { return Math.hypot(...cam.pan); },
-    snapshot() { draw(); return canvas.toDataURL('image/png'); },
+    snapshot() { painted = true; draw(); return canvas.toDataURL('image/png'); },
     /** Show a picture of the viewer's own on the big poster (it stays in the browser). */
-    setPosterImage(img) { posterImage = img; if (textures.big) { gl.deleteTexture(textures.big); delete textures.big; } draw(); },
+    setPosterImage(img) { posterImage = img; if (textures.big) { gl.deleteTexture(textures.big); delete textures.big; } paint(); },
   };
 }

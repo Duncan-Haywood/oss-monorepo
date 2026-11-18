@@ -193,7 +193,7 @@ export function checks(data, year = TAX_YEAR) {
 // ---- CSV ---------------------------------------------------------------------------
 export function csvEscape(v) {
   let s = String(v ?? "");
-  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 export function toCsv(rows) { return rows.map((r) => r.map(csvEscape).join(",")).join("\n") + "\n"; }
@@ -212,7 +212,7 @@ export function scheduleECsv(sch) {
 export function parseCsv(text) {
   const rows = [];
   let cur = [], field = "", q = false;
-  const s = String(text || "").replace(/^﻿/, "");
+  const s = String(text || "").replace(/^\uFEFF/, "");
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (q) { if (c === '"' && s[i + 1] === '"') { field += '"'; i++; } else if (c === '"') q = false; else field += c; }

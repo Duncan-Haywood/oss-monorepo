@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVPhvnWtag61sq6Bcun",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "[scheduled] continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...",
+  "input_sha256": "8d4e60729f927cf09d96d18ede304a2beceabbf4e15205bf6bd30eac5386cd82",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T03:38:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship: read Canon C-RAW CR3 stored in several tiles (buildable item 'Tiled C-RAW: re-tile a real R8 for LibRaw')",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": 16427,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first matrix run used a 4x3 grid that LibRaw refuses; isolated to stacked tiles by rerunning 1x2, 1x3 and 4x1 grids",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "gdb and further instrumentation of a locally built LibRaw were refused by the auto-mode classifier mid-investigation; the second stacked-tile difference stays untraced and is documented as open"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-canon-c-raw-tiles-and-a-libraw-seam-bug.md",
+    "ventures/photo-editing/eval/canon-cr3-craw-tiled-2026-11-16.md"
+  ],
+  "goal": "Close the last CR3 layout ShootFlow refused, checked against an independent reader",
+  "notes": "Verification: run_venture_tests.py photo-editing: 1214 tests ok (165 s). tools/cr3_craw_tiled_libraw_check.py on IMG_0041, _MG_0045 (EOS R8) and the EOS R3 C-RAW: 20 of 20 side-by-side layouts (2-5 tiles across, plane tiles 22-2048 and odd 619), lossless and quantised, LibRaw 0.22 and both our engines identical; lossless equal to the original (eval/canon-cr3-craw-tiled-libraw-2026-11-16.jsonl). Stacked tiles: LibRaw differs at seam rows (160,305 / 370,013 sensels; 4x3 refused); a misplaced BOTTOM test in crxIdwt53FilterTransform found and a rebuilt LibRaw with it fixed matches the upper tile; lower tile's first 8 rows still differ (open, noted in parse_cr3 notes). Mutation checks: 6 hand mutations each fail 1-13 tests. Post checks: front matter, links, similarity clean.",
+  "corrections": [],
+  "redteam": null
+}

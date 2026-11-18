@@ -1,10 +1,10 @@
 // Scottish income tax and take-home pay calculator, 2026/27 Scottish bands.
 // Pure functions, no I/O. Bad input is rejected with a message, never clamped.
-// Scottish bands checked against gov.scot "Scottish Income Tax: rates and bands 2026 to 2027" in the building session (proposed in the January 2026 Scottish Budget):
+// Scottish bands checked against gov.scot "Scottish Income Tax: rates and bands 2026 to 2027" (set in the January 2026 Scottish Budget; GOV.UK publishes them as the 2026 to 2027 rates):
 // starter 19%, basic 20%, intermediate 21%, higher 42%, advanced 45%, top 48%. Band tops as income with a full personal allowance of GBP 12,570: 16,537 / 29,526 / 43,662 / 75,000 / 125,140.
 // Applied here to taxable income (income less personal allowance), which is how the bands work when the allowance is tapered above GBP 100,000.
 // Employee National Insurance is not devolved and is the same as the rest of the UK (8% between GBP 12,570 and GBP 50,270, 2% above); the student loan and postgraduate loan
-// thresholds are the 2025/26 figures and move each April. Annual figures, standard tax code (S1257L), one job, whole year at this pay, no benefits, no other income.
+// thresholds are the 2026/27 figures (GOV.UK, "Rates and thresholds for employers 2026 to 2027") and move each April. Annual figures, standard tax code (S1257L), one job, whole year at this pay, no benefits, no other income.
 // NOT modelled: Scottish bands for any other year, tax codes other than the standard one, second jobs, taxable benefits, Marriage Allowance, Gift Aid, childcare schemes, employer
 // NI and employer pension. The rest-of-UK figure is shown for comparison only. Every result names its source to verify.
 
@@ -29,15 +29,15 @@ export const RUK_BANDS = [
 export const NI = { primary: 12570, upper: 50270, main: 0.08, above: 0.02 };
 export const PLANS = {
   none: { label: "No student loan", threshold: 0, rate: 0 },
-  1: { label: "Plan 1", threshold: 26065, rate: 0.09 },
-  2: { label: "Plan 2", threshold: 28470, rate: 0.09 },
-  4: { label: "Plan 4 (Scotland)", threshold: 32745, rate: 0.09 },
+  1: { label: "Plan 1", threshold: 26900, rate: 0.09 },
+  2: { label: "Plan 2", threshold: 29385, rate: 0.09 },
+  4: { label: "Plan 4 (Scotland)", threshold: 33795, rate: 0.09 },
   5: { label: "Plan 5", threshold: 25000, rate: 0.09 },
 };
 export const PGL = { threshold: 21000, rate: 0.06 };
 export const METHODS = { none: "No pension contribution", sacrifice: "Salary sacrifice", netpay: "Net pay arrangement", ras: "Relief at source" };
 
-const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }));
+const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0"));
 const r2 = (n) => Math.round(n * 100) / 100;
 const pos = (n) => (n > 0 ? n : 0);
 
@@ -57,12 +57,18 @@ export function parse(input) {
   return { errors, salary, pensionPct, method, plan, pgl };
 }
 
-// Tax on taxable income through a band table; `extend` widens every finite band top (relief at source).
-export function taxOn(taxable, bands, extend = 0) {
+// Relief at source widens the basic rate limit and every limit above it by the gross contribution
+// (Finance Act 2004 s.192(4) and (4A); for a Scottish taxpayer the Scottish basic rate limit, which is the
+// top of the 20% band). The 19% starter band is not widened: widening it would give a further 1% the law
+// does not. Index of the first band whose top widens, per table:
+export const RAS_EXTEND_FROM = { scotland: 1, ruk: 0 };
+
+// Tax on taxable income through a band table; `extend` widens the finite band tops from index `from` on.
+export function taxOn(taxable, bands, extend = 0, from = 0) {
   let prev = 0, tax = 0;
   const parts = [];
-  for (const b of bands) {
-    const top = b.upTo === Infinity ? Infinity : b.upTo + extend;
+  for (const [i, b] of bands.entries()) {
+    const top = b.upTo === Infinity ? Infinity : b.upTo + (i >= from ? extend : 0);
     const amount = pos(Math.min(taxable, top) - prev);
     parts.push({ name: b.name, rate: b.rate, amount: r2(amount), tax: r2(amount * b.rate) });
     tax += amount * b.rate;
@@ -81,7 +87,7 @@ export function annual(salary, pensionPct, method, plan, pgl, region = "scotland
   const adjustedNet = salary - sacrifice - netpay - ras;
   const allowance = pos(PERSONAL_ALLOWANCE - pos(adjustedNet - TAPER_START) / 2);
   const taxable = pos(incomeForTax - allowance);
-  const { tax, parts } = taxOn(taxable, region === "scotland" ? SCOT_BANDS : RUK_BANDS, ras);
+  const { tax, parts } = taxOn(taxable, region === "scotland" ? SCOT_BANDS : RUK_BANDS, ras, RAS_EXTEND_FROM[region === "scotland" ? "scotland" : "ruk"]);
   const niPay = salary - sacrifice;
   const ni = r2(pos(Math.min(niPay, NI.upper) - NI.primary) * NI.main + pos(niPay - NI.upper) * NI.above);
   const sl = r2(pos(niPay - PLANS[plan].threshold) * PLANS[plan].rate);
@@ -97,9 +103,16 @@ export function compute(input) {
   const { salary, pensionPct, method, plan, pgl } = p;
   const a = annual(salary, pensionPct, method, plan, pgl);
   const ruk = annual(salary, pensionPct, method, plan, pgl, "ruk");
-  const base = annual(salary, 0, "none", plan, pgl);
-  const raised = annual(salary + 1000, 0, "none", plan, pgl);
-  const marginal = r2((1 - (raised.takeHome - base.takeHome) / 1000) * 100);
+  // The next GBP 1,000 is earned with the same pension in pounds, so a user whose pension has already
+  // brought adjusted net income under GBP 100,000 is not shown the taper rate they have escaped.
+  const raised = annual(salary + 1000, method === "none" ? 0 : (a.contrib / (salary + 1000)) * 100, method, plan, pgl);
+  const marginal = r2((1 - (raised.takeHome - a.takeHome) / 1000) * 100);
+  // The same contribution paid each of the three ways: what it costs in take-home pay, and what reaches the pension.
+  const unpensioned = annual(salary, 0, "none", plan, pgl);
+  const compare = pensionPct > 0 ? ["sacrifice", "netpay", "ras"].map((m) => {
+    const x = annual(salary, pensionPct, m, plan, pgl);
+    return { method: m, label: METHODS[m], costToYou: r2(unpensioned.takeHome - x.takeHome), intoPension: x.contrib };
+  }) : [];
   const deductions = r2(a.tax + a.ni + a.sl + a.pg);
   const effective = r2((deductions / salary) * 100);
   const taxDiff = r2(a.tax - ruk.tax); // positive = Scotland costs more
@@ -109,14 +122,15 @@ export function compute(input) {
 
   findings.push({ severity: "info", title: `On a gross salary of ${money(salary)} in Scotland you take home ${money(a.takeHome)} a year, ${money(a.takeHome / 12)} a month. Income tax ${money(a.tax)}, National Insurance ${money(a.ni)}${a.sl ? `, student loan ${money(a.sl)}` : ""}${a.pg ? `, postgraduate loan ${money(a.pg)}` : ""}. Total deducted from pay: ${effective}% of gross.` });
   if (taxDiff > 0) findings.push({ severity: "medium", title: `The same salary in England, Wales or Northern Ireland would pay ${money(taxDiff)} a year less income tax (${money(ruk.tax)} against ${money(a.tax)}). Scotland taxes higher earners more.` });
-  else if (taxDiff < 0) findings.push({ severity: "info", title: `The same salary in England, Wales or Northern Ireland would pay ${money(-taxDiff)} a year more income tax (${money(ruk.tax)} against ${money(a.tax)}). Scotland's lower starter, basic and intermediate rates favour middle and lower earners.` });
+  else if (taxDiff < 0) findings.push({ severity: "info", title: `The same salary in England, Wales or Northern Ireland would pay ${money(-taxDiff)} a year more income tax (${money(ruk.tax)} against ${money(a.tax)}). At this income Scotland's 19% starter band saves more than the 21% intermediate rate costs; above about GBP 33,500 Scottish tax is higher.` });
   else findings.push({ severity: "info", title: "At this income Scottish and rest-of-UK income tax come to the same amount." });
   const adj = method === "none" ? salary : salary - a.contrib;
   if (adj > TAPER_START && adj <= ADDITIONAL_THRESHOLD) findings.push({ severity: "high", title: `Your adjusted net income is between ${money(TAPER_START)} and ${money(ADDITIONAL_THRESHOLD)}, where the personal allowance is withdrawn. In Scotland that makes the real tax rate on each extra pound 67.5% (the 45% advanced rate plus the lost allowance), before National Insurance and loans. Your personal allowance is down to ${money(a.allowance)}.` });
-  if (salary > ADDITIONAL_THRESHOLD) findings.push({ severity: "info", title: `Income above ${money(ADDITIONAL_THRESHOLD)} is taxed at the 48% top rate in Scotland, against 45% elsewhere in the UK, and you have no personal allowance.` });
+  const top = a.parts.find((x) => x.name === "Top");
+  if (top && top.amount > 0) findings.push({ severity: "info", title: `${money(top.amount)} of your taxable income is in the 48% top rate band in Scotland, against 45% elsewhere in the UK${a.allowance === 0 ? ", and you have no personal allowance" : ""}.` });
   if (marginal >= 60) findings.push({ severity: "high", title: `If you earned GBP 1,000 more you would keep about ${money(1000 - marginal * 10)}: a marginal rate of ${marginal}%.` });
   else findings.push({ severity: "info", title: `If you earned GBP 1,000 more you would keep about ${money(1000 - marginal * 10)}: a marginal rate of ${marginal}% including National Insurance and any loan.` });
-  if (plan !== "none" && a.sl > 0) findings.push({ severity: "info", title: `${PLANS[plan].label} takes ${+(PLANS[plan].rate * 100).toFixed(4)}% of pay over ${money(PLANS[plan].threshold)} (2025/26 threshold; it changes each April). It is collected through payroll but is a loan repayment, and the balance is written off at the end of its term.` });
+  if (plan !== "none" && a.sl > 0) findings.push({ severity: "info", title: `${PLANS[plan].label} takes ${+(PLANS[plan].rate * 100).toFixed(4)}% of pay over ${money(PLANS[plan].threshold)} (2026/27 threshold; it changes each April). It is collected through payroll but is a loan repayment, and the balance is written off at the end of its term.` });
   if (method === "sacrifice") findings.push({ severity: "medium", title: "Salary sacrifice cuts your contractual pay. That saves tax and National Insurance, but it can lower mortgage affordability figures and statutory pay, and your employer must keep you above the National Minimum Wage. A cap on the NI saving has been announced for later years; check the current rules." });
   if (method === "ras") findings.push({ severity: "medium", title: "With relief at source your pension provider claims 20% basic rate relief. In Scotland that is the relief rate even though your starter and basic bands are 19% and 20%; any extra relief at 21% or more is claimed through Self Assessment, so cash arrives later." });
   if (method === "netpay") findings.push({ severity: "info", title: "A net pay arrangement takes the contribution before tax but after National Insurance, so you get income tax relief at your top Scottish rate but no NI saving." });
@@ -126,7 +140,7 @@ export function compute(input) {
   obligations.push({ ref: "Payslip", title: "Check your tax code and payslip", why: "A different code changes every number here. Query a wrong code with HMRC." });
   obligations.push({ ref: "Pension", title: "Confirm the pension tax method with your employer", why: "Employers use one of three methods and it changes how much you keep. Ask payroll which one your scheme uses before comparing the figures above." });
   obligations.push({ ref: "Verify", title: "Verify the bands", why: `Scottish bands are set each year by the Scottish Parliament. Confirm them at ${VERIFY.split(" and ")[0]}.` });
-  return { errors: [], salary, pensionPct, method, methodLabel: METHODS[method], plan, planLabel: PLANS[plan].label, pgl, ...a, effective, marginal, taxDiff, rukTax: ruk.tax, rukTakeHome: ruk.takeHome, bands, monthly: r2(a.takeHome / 12), weekly: r2(a.takeHome / 52), findings, obligations };
+  return { errors: [], salary, pensionPct, method, methodLabel: METHODS[method], plan, planLabel: PLANS[plan].label, pgl, ...a, effective, marginal, taxDiff, compare, rukTax: ruk.tax, rukTakeHome: ruk.takeHome, bands, monthly: r2(a.takeHome / 12), weekly: r2(a.takeHome / 52), findings, obligations };
 }
 
 export const SAMPLE = { salary: 45000, pensionPct: 5, method: "sacrifice", plan: "4", pgl: "no" };

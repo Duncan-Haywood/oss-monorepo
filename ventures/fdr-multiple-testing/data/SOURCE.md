@@ -28,3 +28,11 @@ values to illustrate their two-stage procedure.
   Benjamini & Hochberg (1995) when you use them.
 
 The data contain no names or identifiers.
+
+## online-stream.csv
+
+**Simulated, not real data.** 400 one-sided z-tests in arrival order for the
+online FDR example; each is a true effect (mean shift 3) with probability
+0.15, else N(0,1). Written by `eval/make_online_example.mjs` (seed
+20261116); rerunning it reproduces the file. The `truth` column is known
+only because the data are simulated.

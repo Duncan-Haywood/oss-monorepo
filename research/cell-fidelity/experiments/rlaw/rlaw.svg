@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 380" font-family="sans-serif" font-size="12">
+<rect width="560" height="380" fill="#fff"/>
+<line x1="60" y1="320" x2="500" y2="320" stroke="#333"/>
+<line x1="60" y1="60" x2="60" y2="320" stroke="#333"/>
+<text x="280.0" y="24" text-anchor="middle" font-size="13">Milestone 5y: cycle-99 lithium-loss error, fresh pools</text>
+<text x="16" y="190.0" text-anchor="middle" transform="rotate(-90 16 190.0)">median |ln(predicted / DFN)|</text>
+<text x="52" y="324.0" text-anchor="end">0.0</text>
+<text x="52" y="259.0" text-anchor="end">0.1</text>
+<text x="52" y="194.0" text-anchor="end">0.2</text>
+<text x="52" y="129.0" text-anchor="end">0.3</text>
+<text x="52" y="64.0" text-anchor="end">0.4</text>
+<rect x="330" y="52" width="10" height="10" fill="#999999"/><text x="345" y="62">pool law on L (5u)</text>
+<rect x="330" y="68" width="10" height="10" fill="#d1495b"/><text x="345" y="78">pool law on R (5x)</text>
+<rect x="330" y="84" width="10" height="10" fill="#2a6fdb"/><text x="345" y="94">power law on R (5y)</text>
+<rect x="78.3" y="204.4" width="33.0" height="115.6" fill="#999999"/>
+<rect x="115.0" y="110.3" width="33.0" height="209.7" fill="#d1495b"/>
+<rect x="151.7" y="253.6" width="33.0" height="66.4" fill="#2a6fdb"/>
+<text x="133.3" y="336" text-anchor="middle">Ai2020@0.55x</text>
+<rect x="225.0" y="126.8" width="33.0" height="193.2" fill="#999999"/>
+<rect x="261.7" y="295.1" width="33.0" height="24.9" fill="#d1495b"/>
+<rect x="298.3" y="295.1" width="33.0" height="24.9" fill="#2a6fdb"/>
+<text x="280.0" y="336" text-anchor="middle">NCA_Kim2011@0.75x</text>
+<rect x="371.7" y="117.9" width="33.0" height="202.1" fill="#999999"/>
+<rect x="408.3" y="304.1" width="33.0" height="15.9" fill="#d1495b"/>
+<rect x="445.0" y="304.1" width="33.0" height="15.9" fill="#2a6fdb"/>
+<text x="426.7" y="336" text-anchor="middle">NCA_Kim2011@1x</text>
+</svg>

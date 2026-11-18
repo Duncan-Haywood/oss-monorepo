@@ -113,3 +113,103 @@ test("a big photo's shrunk grey copy is read first, so its text is the block and
   assert.equal(r.text, "KEDAI MAJU\n05/03/2018\nTotal 18.20");
   assert.deepEqual(r.notes, []);
 });
+
+// Unevenly lit photos are read with SHADED_PASSES: block mode, global then local
+// threshold, on the photo and the grey copy (README, "Shaded photos: a local threshold").
+test("an engine that measures a photo as unevenly lit reads it with the local threshold; an evenly lit one as before", async () => {
+  const { SHADED_PASSES, SHADED_CUT } = await import("./photoocr.mjs");
+  assert.deepEqual(SHADED_PASSES, ["6", { psm: "6", threshold: "2" }, { psm: "6", grow: 2000 }, { psm: "6", grow: 2000, threshold: "2" }]);
+  const seen = [];
+  const e = {
+    shading: async (f) => (f.name === "shadow.jpg" ? SHADED_CUT + 0.1 : 0.04),
+    recognize: async (f, { psm, grow, threshold }) => { seen.push(`${f.name}:${psm}${grow ? "g" : ""}${threshold ? `t${threshold}` : ""}`); return "KEDAI MAJU\nTotal 31.00"; },
+    close() {},
+  };
+  const r = await readPhotos([{ name: "shadow.jpg", type: "image/jpeg" }, { name: "scan.jpg", type: "image/jpeg" }], { loadEngine: async () => e });
+  assert.deepEqual(seen, ["shadow.jpg:6", "shadow.jpg:6t2", "shadow.jpg:6g", "shadow.jpg:6gt2", "scan.jpg:6", "scan.jpg:4", "scan.jpg:6g", "scan.jpg:4g"]);
+  assert.equal(r.shaded, 1);
+  // a measurement that fails reads the photo as before
+  seen.length = 0;
+  await readPhotos([{ name: "x.jpg", type: "image/jpeg" }], { loadEngine: async () => ({ ...e, shading: async () => { throw new Error("no canvas"); } }) });
+  assert.deepEqual(seen, ["x.jpg:6", "x.jpg:4", "x.jpg:6g", "x.jpg:4g"]);
+});
+
+// The engine wrapper sets the threshold on every reading, so a Sauvola reading
+// never leaks into the next reading (a stub worker).
+test("loadEngine sets the threshold method on every reading, back to Otsu when a pass names none", async () => {
+  const { loadEngine } = await import("./photoocr.mjs");
+  const set = [];
+  const had = globalThis.Tesseract;
+  globalThis.Tesseract = { createWorker: async () => ({ setParameters: async (p) => set.push(p), recognize: async () => ({ data: { text: "TOTAL 1.00" } }), terminate: async () => {} }) };
+  try {
+    const e = await loadEngine();
+    for (const pass of ["6", { psm: "6", threshold: "2" }, "4"]) await e.recognize("photo", typeof pass === "string" ? { psm: pass } : pass);
+    assert.deepEqual(set, [{ tessedit_pageseg_mode: "6", thresholding_method: "0" }, { tessedit_pageseg_mode: "6", thresholding_method: "2" }, { tessedit_pageseg_mode: "4", thresholding_method: "0" }]);
+  } finally { globalThis.Tesseract = had; }
+});
+
+// 2026-11-17 red team: the lines around a swapped tax or total line are all kept
+test("the tax and total swaps keep the first reading's other lines, above and below", async () => {
+  const { settleReadings: settle } = await import("./photoocr.mjs");
+  // a tax line read wrong is replaced in place; the merchant above and the footer below stay
+  const tax = settle(["Diner\nBurger 13.50\nTAX: 0.68\nTotal 14.36\nThank you", "Diner\nBurger 13.50\nTAX: 0.86\nTotal 14.36", "Burger 13.50\nTAX: 0.86\nTotal 14.36"]);
+  assert.equal(tax.text, "Diner\nBurger 13.50\nTax 0.86\nTotal 14.36\nThank you");
+  // a total line read wrong is replaced in place, and the line after it stays
+  const total = settle(["Diner\nSubtotal 13.50\nTotal 14.63\nThank you", "Diner\nSubtotal 13.50\nTax 0.86\nTotal 14.36", "Subtotal 13.50\nTax 0.86\nTotal 14.36"]);
+  assert.equal(total.text, "Diner\nSubtotal 13.50\nTax 0.86\nTotal 14.36\nThank you");
+});
+
+test("lightSpread: no pixels, or one even grey, is 0", async () => {
+  const { lightSpread } = await import("./photoocr.mjs");
+  assert.equal(lightSpread(new Uint8Array(0)), 0);
+  assert.equal(lightSpread(new Uint8Array(16).fill(200)), 0);
+  assert.ok(Math.abs(lightSpread(Uint8Array.from([50, 150])) - 0.5) < 1e-9);
+});
+
+// a browser stand-in: createImageBitmap gives a photo of the given size, a canvas records
+// what was drawn on it, and tesseract echoes back what it was handed
+function fakeBrowser({ width, height }) {
+  const drawn = [];
+  const canvas = () => {
+    const c = { width: 0, height: 0 };
+    c.getContext = () => ({
+      drawImage: (...a) => drawn.push({ canvas: c, args: a.slice(1) }),
+      getImageData: (x, y, w, h) => ({ data: new Uint8ClampedArray(w * h * 4).fill(128) }),
+    });
+    return c;
+  };
+  const saved = { document: globalThis.document, createImageBitmap: globalThis.createImageBitmap, Tesseract: globalThis.Tesseract };
+  globalThis.document = { createElement: () => canvas() };
+  globalThis.createImageBitmap = async () => ({ width, height, close() {} });
+  globalThis.Tesseract = { createWorker: async () => ({ setParameters: async () => {}, recognize: async (img) => ({ data: { text: img === "photo" ? "photo" : `copy ${img.width}x${img.height}` } }), terminate: async () => {} }) };
+  return { drawn, restore: () => Object.assign(globalThis, saved) };
+}
+
+test("loadEngine: the grey copy's long side is the size asked for, and a shrunk copy says so", async () => {
+  const { loadEngine } = await import("./photoocr.mjs");
+  let b = fakeBrowser({ width: 1000, height: 750 });
+  try {
+    const e = await loadEngine();
+    assert.equal(await e.recognize("photo", { psm: "6", grow: 2000 }), "copy 2000x1500");
+    assert.deepEqual(b.drawn.at(-1).args, [0, 0, 2000, 1500]);
+  } finally { b.restore(); }
+  b = fakeBrowser({ width: 3000, height: 4000 });
+  try {
+    const e = await loadEngine();
+    assert.deepEqual(await e.recognize("photo", { psm: "6", grow: 2000 }), { text: "copy 1500x2000", shrunk: true });
+    // a photo already 2,000 on its long side is not read again
+    const same = fakeBrowser({ width: 2000, height: 1000 });
+    try { assert.equal(await (await loadEngine()).recognize("photo", { grow: 2000 }), null); } finally { same.restore(); }
+  } finally { b.restore(); }
+});
+
+test("loadEngine: shading draws the whole photo onto the 32 x 32 thumbnail", async () => {
+  const { loadEngine, SHADE_SIDE } = await import("./photoocr.mjs");
+  const b = fakeBrowser({ width: 1200, height: 1600 });
+  try {
+    const e = await loadEngine();
+    assert.equal(await e.shading("photo"), 0);
+    assert.deepEqual(b.drawn.at(-1).args, [0, 0, SHADE_SIDE, SHADE_SIDE]);
+    assert.equal(b.drawn.at(-1).canvas.width, SHADE_SIDE);
+  } finally { b.restore(); }
+});

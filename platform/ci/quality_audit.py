@@ -53,7 +53,7 @@ FLAGSHIP_REAUDIT_DAYS = 7
 # the owner, 2026-11-10: "more detail in it ... detailed metrics on quality and correctness".
 DETAIL_FROM = "2026-11-11"
 CHECK_RESULTS = ("pass", "fail", "partial")
-DRAWN_BY = ("sample", "census", "fix")  # how the subject was chosen; only "sample" feeds the unbiased share
+DRAWN_BY = ("sample", "census", "fix", "reaudit")  # how the subject was chosen; only "sample" feeds the unbiased share
 FILE_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})-[a-z0-9][a-z0-9._-]*\.json$")
 
 
@@ -422,21 +422,39 @@ def draw(seed: str, k: int = 2, k_platform: int = 1, audits: list[dict] | None =
 
 # --- cli ---------------------------------------------------------------------
 
+# What a session runs and names its post in each mode. The track prompt (owner-held) describes only `sample`, so
+# the tool that runs first hands over the other modes' steps (README, "Five modes").
+MODE_STEPS = {
+    "census": ("python3 platform/ci/quality_audit.py census --n 6", "docs/posts/<date>-quality-census-<slug>.md"),
+    "fix": ("python3 platform/ci/quality_audit.py queue --severity high", "docs/posts/<date>-quality-fix-<slug>.md"),
+    "reaudit": ("python3 platform/ci/quality_audit.py reaudit", "docs/posts/<date>-quality-reaudit-<slug>.md"),
+    "reflect": ("python3 platform/ci/quality_audit.py metrics --md",
+                "portfolio/quality/reflections/<date>-<slug>.md and docs/posts/<date>-quality-reflection-<slug>.md"),
+}
+
+
 def mode_note(date: str, audits: list[dict]) -> str | None:
-    """A first line for `sample` when today's mode is not `sample`, else None.
+    """What `sample` prints instead of a draw when today's mode is not `sample`, else None.
 
     The track prompt (prompts/quality/prompt-0.md, step 1) says run `sample`;
-    the README's "Four modes" says run `mode` first. Ten quality runs in five
+    the README's "Five modes" says run `mode` first. Ten quality runs in five
     days reported the two procedures (friction_rank.py, 2026-11-10..14), and
-    the prompt is owner-held, so the tool that runs first says it.
+    the prompt is owner-held, so the tool that runs first says it. A one-line
+    NOTE above the draw was not enough: five more runs on 2026-11-17 read the
+    draw first and reported the clash again, so the draw is now withheld
+    (`--anyway` prints it, and that round is a deviation to record).
     """
     sys.path.insert(0, str(Path(__file__).parent))
     import quality_metrics as qm
-    m = qm.mode_for(date, None, qm.last_reflection(), len(qm.queue(audits, "high")))
+    m = qm.mode_for(date, None, qm.last_reflection(), len(qm.queue(audits, "high")), len(qm.reaudit_due(audits)))
     if m["mode"] == "sample":
         return None
-    return (f"NOTE: today's mode is `{m['mode']}`, not sample ({m['why']}): {qm.MODES[m['mode']]}. "
-            "portfolio/quality/README.md, \"Four modes\", says how; a sample round today is a deviation to record.")
+    cmd, post = MODE_STEPS.get(m["mode"], ("python3 platform/ci/quality_audit.py mode", "see the README"))
+    return (f"Today's quality mode is `{m['mode']}`, not sample ({m['why']}): {qm.MODES[m['mode']]}.\n"
+            f"  run:  {cmd}\n"
+            f"  post: {post} (not quality-audit-round-<n>, which is for sample rounds)\n"
+            "  how:  portfolio/quality/README.md, \"Five modes\"; the track prompt's steps 1 and 5 are for sample rounds.\n"
+            "No sample draw printed. `sample --anyway` prints one; a sample round today is a deviation to record.")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -448,6 +466,7 @@ def main(argv: list[str] | None = None) -> int:
     sp.add_argument("--k-platform", type=int, default=1)
     sp.add_argument("--json", action="store_true")
     sp.add_argument("--offline", action="store_true", help="skip the origin/main fetch and the open-PR read")
+    sp.add_argument("--anyway", action="store_true", help="print the draw even when today's mode is not sample")
     sub.add_parser("validate", help="check every audit file")
     sm = sub.add_parser("summary", help="the scoreboard over every audit")
     sm.add_argument("--md", action="store_true")
@@ -464,14 +483,33 @@ def main(argv: list[str] | None = None) -> int:
     qu.add_argument("--limit", type=int, default=40)
     qu.add_argument("--no-git", action="store_true", help="skip the per-subject 'changed since audit' git check")
     qu.add_argument("--no-prs", action="store_true", help="skip the open-PR search that marks rows another PR already names")
+    qu.add_argument("--seed", default=None,
+                    help="default: today's date plus a random tail; subjects are shuffled by it within a severity")
+    qu.add_argument("--oldest-first", action="store_true", help="the fixed order (oldest audit first), no shuffle")
     qu.add_argument("--no-fetch", action="store_true",
                     help="in a shallow clone, do not fetch main back to the oldest shown audit (the check may say unknown)")
+    mf = sub.add_parser("mark-fixed", help="record a fix PR on an audit's defects, editing the file in place (no reformat)")
+    mf.add_argument("file", help="audit file (path, or a name in portfolio/quality/audits/)")
+    mf.add_argument("defects", nargs="*", type=int, help="defect indices, from 0 as validate numbers them")
+    mf.add_argument("--pr", required=True, help="the fix PR's URL")
+    mf.add_argument("--all", action="store_true", help="every defect that has no fixed_by yet")
+    mf.add_argument("--force", action="store_true", help="replace a different fixed_by")
+    mf.add_argument("--dry-run", action="store_true")
     mo = sub.add_parser("mode", help="which mode today's quality session runs")
     mo.add_argument("--date", default=dt.date.today().isoformat())
     mo.add_argument("--seed", default=None)
+    ra = sub.add_parser("reaudit", help="subjects with a recorded fix that no later audit has checked, highs first")
+    ra.add_argument("--limit", type=int, default=15)
+    ra.add_argument("--seed", default=None, help="default: today's date plus a random tail, so parallel sessions spread out")
+    ra.add_argument("--no-prs", action="store_true", help="skip the open-PR search that puts subjects in flight last")
     args = ap.parse_args(argv)
 
     if args.cmd == "sample":
+        if not (args.seed or args.json or args.anyway):
+            note = mode_note(dt.date.today().isoformat(), load_audits())
+            if note:
+                print(note)
+                return 0
         fetched = False if args.offline else fetch_main()
         prs = [] if args.offline else open_round_prs()
         local = load_audits()
@@ -483,9 +521,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.json:
             print(json.dumps({"seed": seed, "round": rnd, "subjects": picks}, indent=1))
         else:
-            note = None if args.seed else mode_note(dt.date.today().isoformat(), local)
-            if note:
-                print(note)
+            if args.anyway and not args.seed and mode_note(dt.date.today().isoformat(), local):
+                print("NOTE: --anyway: today's mode is not sample, so this round is a deviation to record.")
             print(f"seed {seed}   round {rnd} (next post: docs/posts/<date>-quality-audit-round-{rnd}.md)")
             if not args.offline:
                 held_txt = ", ".join(f"{r}/{sd or '?'}" for r, sd in sorted(prs)) or "none"
@@ -501,11 +538,22 @@ def main(argv: list[str] | None = None) -> int:
                     days = FLAGSHIP_REAUDIT_DAYS if st == "flagship" else SKIP_DAYS
                     print(f"  {st:<9} none drawn: every subject was audited in the last {days} days (or none exist)")
         return 0
+    if args.cmd == "mark-fixed":
+        if not args.defects and not args.all:
+            ap.error("mark-fixed: name defect indices or pass --all")
+        sys.path.insert(0, str(Path(__file__).parent))
+        import quality_mark_fixed
+        return quality_mark_fixed.run(args.file, args.defects, args.pr, args.all, args.force, args.dry_run, validate_audit)
     audits = load_audits()
     if args.cmd == "census" and not args.seed:
         # The date alone gave every census session on a day the same draw (doc_friction, 2026-11-15T07:08).
         args.seed = claim_seed(dt.date.today().isoformat())
-    if args.cmd in ("metrics", "coverage", "census", "queue", "mode"):
+    if args.cmd == "reaudit" and not args.seed:
+        args.seed = claim_seed(dt.date.today().isoformat())
+    if args.cmd == "queue":
+        # Two fix sessions took the same top row the same minute (doc_friction, 2026-11-16T16:41).
+        args.seed = None if args.oldest_first else (args.seed or claim_seed(dt.date.today().isoformat()))
+    if args.cmd in ("metrics", "coverage", "census", "queue", "mode", "reaudit"):
         sys.path.insert(0, str(Path(__file__).parent))
         import quality_metrics
         return quality_metrics.main_metrics(args, audits, population(), meets_bar, wilson)

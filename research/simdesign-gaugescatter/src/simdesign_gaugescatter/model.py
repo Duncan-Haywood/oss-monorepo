@@ -102,9 +102,7 @@ def solve(p: Params, mat: Material = Material(), h: float = 1.5, return_field: b
     lam = 2 * lam * mu / (lam + 2 * mu)  # plane-stress effective lambda
     K = asm(linear_elasticity(lam, mu), basis) * p.b
     # traction on the end face x = L, total force F downward (per unit depth: F / (w*b))
-    fb = basis.boundary(lambda x: np.isclose(x[0], p.L) & (x[1] < p.w + 1e-9)) if False else None
     facets = mesh.facets_satisfying(lambda x: np.isclose(x[0], p.L, atol=1e-6))
-    fb = basis.boundary(facets=facets) if hasattr(basis, "boundary") else None
     from skfem import FacetBasis
     fbasis = FacetBasis(mesh, basis.elem, facets=facets)
 

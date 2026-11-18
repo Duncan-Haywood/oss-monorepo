@@ -109,3 +109,17 @@ testSplit("splitCells keeps a quoted thousands comma, reads tabs, and treats a m
   assertSplit.deepEqual(splitCellsForTest('17" rims,"say ""hi""",5'), ['17" rims', 'say "hi"', "5"]);
   assertSplit.deepEqual(splitCellsForTest("a, b ,c"), ["a", "b", "c"]);
 });
+
+test("the needed price is stated in the same terms as the one-time price field (before add-ons)", () => {
+  // Quality census 2026-11-15-8354: the verdict quoted a price that already included
+  // add-ons; typing it into the one-time price field added them twice.
+  const s = sampleJob();
+  const freqs = parseFrequencies(s.frequencies).rows;
+  const adds = parseAddOns(s.addOns).rows;
+  const r = analyze({ ...s.job, basePrice: 150 }, freqs, adds);
+  near(r.neededBasePrice, r.neededListPrice - r.addRevenue);
+  assert.match(r.verdict, new RegExp(r.neededBasePrice.toFixed(2).replace(".", "\\.")));
+  // Typing the advised base price makes every frequency clear the target.
+  const again = analyze({ ...s.job, basePrice: Math.ceil(r.neededBasePrice * 100) / 100 }, freqs, adds);
+  assert.ok(again.lines.every((l) => l.meetsTarget), again.verdict);
+});

@@ -28,6 +28,11 @@ class FakeVentures(unittest.TestCase):
         self.addCleanup(wf.stop)
         rvt.clear_workflow_caches()
         self.addCleanup(rvt.clear_workflow_caches)
+        # The real platform/pages checks scan the real tree; these tests use
+        # a fake one (test_page_checks_* opt back in with their own).
+        pages = mock.patch.object(rvt, "PAGES", self.root / ".no-pages")
+        pages.start()
+        self.addCleanup(pages.stop)
 
     OWN_CI = ("jobs:\n  t:\n    defaults:\n      run:\n        working-directory: ventures/own\n"
               "    steps:\n      - run: pip install pytest\n      - run: python3 -m pytest -q\n")
@@ -190,7 +195,72 @@ class FakeVentures(unittest.TestCase):
         self.assertNotIn("no such venture", printed)
 
 
+    def _pages(self, body):
+        pages = self.root / ".pages"
+        pages.mkdir(exist_ok=True)
+        (pages / "faq-visible.test.mjs").write_text(
+            "import test from 'node:test'; test('faq', () => { " + body + " });")
+        return mock.patch.object(rvt, "PAGES", pages)
+
+    def test_page_checks_fail_a_named_run_of_a_venture_with_html(self):
+        # A visible FAQ edited without its JSON-LD twin went red only in CI.
+        self.venture("web", {"index.html": "<p>hi</p>",
+                             "a.test.mjs": "import test from 'node:test'; test('t', () => {});"})
+        with self._pages("throw new Error('FAQPage markup must be visible')"), \
+                mock.patch.object(rvt, "ON_ACTIONS", False), mock.patch("sys.stdout") as out:
+            self.assertEqual(rvt.main(["--no-elsewhere", "web"]), 1)
+        printed = "".join(c.args[0] for c in out.write.call_args_list if c.args)
+        self.assertIn("FAIL site page checks", printed)
+        self.assertIn("FAQPage markup must be visible", printed)
+
+    def test_page_checks_pass_skip_and_opt_out(self):
+        self.venture("web", {"index.html": "<p>hi</p>",
+                             "a.test.mjs": "import test from 'node:test'; test('t', () => {});"})
+        self.venture("cli", {"a.test.mjs": "import test from 'node:test'; test('t', () => {});"})
+        with mock.patch.object(rvt, "ON_ACTIONS", False):
+            with self._pages(""), mock.patch("sys.stdout") as out:
+                self.assertEqual(rvt.main(["--no-elsewhere", "web"]), 0)
+            printed = "".join(c.args[0] for c in out.write.call_args_list if c.args)
+            self.assertIn("ok   site page checks", printed)
+            # No HTML or CSS in the named venture: nothing for them to read.
+            with self._pages("throw new Error('x')"), mock.patch("sys.stdout"):
+                self.assertEqual(rvt.main(["--no-elsewhere", "cli"]), 0)
+                self.assertEqual(rvt.main(["--no-elsewhere", "--no-page-checks", "web"]), 0)
+
+
 class Report(unittest.TestCase):
+    UNITTEST_RED = ("F\n" + "=" * 70 + "\nFAIL: test_host (tests.test_host.T.test_host)\n" + "-" * 70
+                    + "\nTraceback (most recent call last):\nAssertionError: 3 != 4\n\n" + "-" * 70
+                    + "\nRan 1 test in 0.001s\n\nFAILED (failures=1)\n")
+
+    def test_a_unittest_failure_is_shown_not_a_later_green_step_s_tail(self):
+        # friction 2026-11-16: the summary showed the CAD step's all-OK tail and
+        # hid the test_host failure of the step before it.
+        out = ("$ python3 -m unittest (in tests)  <- this step failed\n" + self.UNITTEST_RED
+               + "$ python3 -m unittest (in cad)\n" + "." * 200 + "\n" + "Ran 200 tests\n\nOK\n" * 300)
+        shown = rvt.failures(out)
+        self.assertIn("FAIL: test_host", shown)
+        self.assertIn("AssertionError: 3 != 4", shown)
+        self.assertIn("FAILED (failures=1)", shown)
+        self.assertNotIn("Ran 200 tests", shown)
+
+    def test_a_failed_step_without_test_blocks_shows_that_step_s_tail(self):
+        out = "$ npm test (in x, from .github/workflows/x.yml)  <- this step failed\nSyntaxError: bad\n$ node --test (in .)\n" + "ok 1\n" * 2000
+        shown = rvt.failures(out)
+        self.assertIn("SyntaxError: bad", shown)
+        self.assertNotIn("ok 1", shown)
+
+    def test_run_marks_the_step_that_failed(self):
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(rvt, "VENTURES", Path(d)), \
+                mock.patch.object(rvt, "commands", return_value=[(["node", "a"], Path(d) / "v"), (["python3", "b"], Path(d) / "v")]), \
+                mock.patch.object(rvt, "run_one", side_effect=[(False, self.UNITTEST_RED), (True, "OK\n")]):
+            (Path(d) / "v").mkdir()
+            _, ok, out, _ = rvt.run("v")
+        self.assertFalse(ok)
+        self.assertIn("$ node --test (in .)  <- this step failed", out)
+        self.assertNotIn("unittest (in .)  <-", out)
+        self.assertIn("FAIL: test_host", rvt.failures(out))
+
     def test_the_failing_test_is_shown_even_far_from_the_end(self):
         out = "\n".join(["not ok 3 - the broken one", "  error: boom"] + [f"ok {i}" for i in range(500)] + ["# fail 1"])
         shown = rvt.failures(out)
@@ -254,7 +324,7 @@ class Selection(unittest.TestCase):
         # 2026-11-11: CalledProcessError).
         with self.assertRaises(SystemExit) as cm:
             rvt.changed_slugs("refs/no/such-ref")
-        self.assertIn("git fetch --depth=40 origin main", str(cm.exception))
+        self.assertIn("fetch_ref.py main", str(cm.exception))
 
     def test_an_all_zero_base_means_every_venture(self):
         # A push that creates a branch reports `before` as forty zeros.

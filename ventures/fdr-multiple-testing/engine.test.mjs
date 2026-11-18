@@ -175,3 +175,18 @@ test("the simulation's normal tail matches scipy.stats.norm.sf, and a small run 
   assert.deepEqual(a, b);
   assert.ok(a.methods.bh.power > a.methods.bonferroni.power);
 });
+
+test("missing entries in a values array are left out, not read as p = 0", () => {
+  const r = analyze({ values: [0.01, null, 0.5, "", undefined, "NA"], labels: ["a", "b", "c", "d", "e", "f"] });
+  assert.equal(r.error, undefined);
+  assert.equal(r.m, 2);
+  assert.equal(r.rows.dropped, 4);
+  assert.ok(r.warnings.some((w) => /left out/.test(w)));
+});
+
+test("an adjusted p-value exactly at alpha is kept (<=, not <)", () => {
+  // Bonferroni: 5 x 0.01 = 0.05 = alpha; BH step-up cut-off is 0.01
+  const r = analyze({ values: [0.01, 0.5, 0.6, 0.7, 0.8], alpha: 0.05 });
+  const bonf = r.methods.find((x) => x.id === "bonferroni");
+  assert.equal(bonf.rejections, 1);
+});

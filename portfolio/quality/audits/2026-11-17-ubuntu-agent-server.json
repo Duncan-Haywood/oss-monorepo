@@ -1,0 +1,238 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/ubuntu-agent-server",
+ "stratum": "venture",
+ "seed": "2026-11-17-e87b",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior SRE / Linux platform engineer who runs unattended automation with write access to GitHub (Ansible, systemd, CI bots); first checks: does each headless CLI invocation actually start, does dry-run really do nothing repeatedly costly, can the runner claim an issue on a fresh repo, are the guardrails (kill switch, secret scan, dry_run) tested, does the playbook parse and lint, and does the branch it pushes contain only the agent's change",
+ "scores": {
+  "correctness": 1,
+  "completeness": 2,
+  "verification": 1,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed against tools the author did not write. (1) FAIL: the real Claude Code CLI (2.1.326 on this box) run with claude.sh's exact flags, `cd /tmp && claude -p \"say ok\" --output-format stream-json --permission-mode auto`, exits 1 with `Error: When using --print, --output-format=stream-json requires --verbose`; claude.sh:40-43 passes stream-json without --verbose, so every claude run fails before a token. (2) FAIL: an end-to-end harness (fake `gh` keeping issue/label state, a real local bare git origin, a stub codex.sh that edits a file; /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/ubuntu-agent-server/harness.sh) runs the shipped agent_runner.py main() three times with dry_run: true: `tool_runs(clones)= 3 comments= 3 labels_now= ['agent']`. The dry-run branch (agent_runner.py:730-741) only unclaims and never adds a done label, so the same issue is re-cloned, re-run and re-commented on every 10-minute poll (144 tool runs and comments a day), and on a self_directed repo the open self-directed issue stays a candidate forever. (3) PASS: `systemd-analyze calendar '*:0/10' --iterations=3` gives 07:20, 07:30, 07:40, matching the documented every-10-minutes schedule. (4) PASS: harness2.sh (non-dry run, stub tool commits its own change while an upstream commit lands on origin/main mid-run) leaves origin's agent/codex/issue-1 differing from current main only in `a.txt | 1 +`, label `agent:pr-opened`: the sync+fold logic does not revert upstream work. (5) PASS: `claude --help` lists `auto` among --permission-mode choices. (6) PASS: kill switch: with DISABLED present, main() exits 0 with zero gh calls. Two of the four tool paths' core failures are on the primary path (claude broken outright; any dry run burns quota without bound), so 1.",
+  "completeness": "Claimed features checked: kill switch works (run, 0 gh calls); fresh clone, branch, per-tool identity, fold, push, PR, labels work end to end in the harness when labels exist; mid-run upstream sync works; secret scan skipped silently when gitleaks absent (as documented); playbook parses (`ansible-playbook playbook.yml --syntax-check` -> `playbook: playbook.yml`). Not working or not done: the claude runner (fails on argument parsing); dry_run loops; no task anywhere creates the agent:in-progress / agent:pr-opened / agent:failed / agent:self-directed labels (`grep -rn 'label create' roles/` is empty), and `gh issue edit --add-label` on a label that does not exist fails, so on a fresh repo claim_issue returns False and nothing is ever worked (harness with labels absent: 0 runs, 0 comments, nothing on GitHub to show why); Docker sandbox and antigravity/opencode paths are self-declared untested; README says nothing has ever run against a real repo or host.",
+  "verification": "`cd ventures/ubuntu-agent-server && /usr/bin/python3.13 -m pytest -q tests` -> 43 passed in 1.56 s. Pure helpers are well covered (fold, sync, tier choice, cooldown, docker argv). Four mutants via platform/ci/quality_mutate.py: 2 caught (tier threshold 800 -> 8000; fold reset onto HEAD), 2 SURVIVED, both safety guardrails: inverting `if dry_run:` (agent_runner.py:730, so a dry-run repo pushes and opens PRs) and bypassing the gitleaks result (agent_runner.py:716). process_issue/_process_issue_inner, the code that decides push vs no-push, has no test at all, which is also why the dry-run loop and the missing-label failure were not caught. Runner scripts are only grepped for strings (test_codex_runner_*), never executed against a CLI's argument parser, so the stream-json/--verbose break passed.",
+  "craft": "Read agent_runner.py (812 lines), all four runners/*.sh, roles/agent_runner/tasks/main.yml, the systemd templates, Dockerfile, group_vars/all.yml, config/repos.yml, tests. `shellcheck runners/*.sh bootstrap.sh` exit 0; `pyflakes agent_runner.py tests` exit 0; syntax-check clean. Comments are unusually candid about uncertainty. Defects: no label bootstrap; process_issue untested and calls run_id() twice so workspace and log names can differ by a second (agent_runner.py:584-585); pr-create failure labels failed then raises into the broad handler which labels and comments again (763-766 + 592-602); gitleaks installed from 'latest' with no checksum check (tasks/main.yml:37-62); Dockerfile `curl ... install.sh | bash || true` hides an install failure; credential mounts are read-only and omit ~/.claude.json, so a containerised claude is likely unauthenticated (agent_runner.py:124-130).",
+  "claims": "No public page (served-copy: `not a published product`), so claims are the README. Unbacked or false: 'Skips any issue already labeled ... so nothing gets worked twice' (false under dry_run, harness above); 'Claude Code and Codex CLI's headless modes are the two on solid, current, primary-source footing' and 'exact headless/permission flags for Claude Code ... checked against each vendor's own current docs' (claude invocation rejected by the CLI); 'tests/ has 28 unit tests' (43); '.github/workflows/ci.yml' (does not exist; the workflow is the repo-level .github/workflows/ubuntu-agent-server-ci.yml); 'the separate Hetzner product box' (retired 2026-10-01, README line 3 says so); 'matching gitops/agents/workers/worker.sh' (tree deleted). Backed: kill-switch behaviour, codex API-key unset and login preflight (codex.sh:52-64), the PR-only/no-merge design, the honest 'never executed against a real repo' disclaimer.",
+  "fitness": "The job: the owner provisions a box and lets agents work labelled issues safely. Walked through in the harness: on a repo without the agent:* labels the runner silently does nothing; with labels and the shipped `dry_run: true` codex entry it re-runs the agent every 10 minutes on the same issue, spending the ChatGPT plan quota and posting a comment each time; switching the tool to claude fails every run. An operator following the README's 'watch a few dry runs' advice would get a spam loop and a drained quota before trusting it.",
+  "domain": "Against SRE practice for unattended bots: good choices (systemd oneshot + timer so runs cannot overlap, master kill switch enforced by config management, fresh ephemeral clone per run, fine-grained PAT advice, staged-only secret scan, PR-only, Persistent=true). Departures: dry-run is not idempotent (a dry run must leave a marker, e.g. an agent:dry-run label, or it is a load generator); required GitHub labels are not provisioned as code despite the repo's 'everything as code' direction; no integration test of the CLI argv against real binaries (the cheapest check a platform engineer runs: `<cli> --help`/argument parse); unpinned, unverified binary download for the security scanner; issue bodies go verbatim into an autonomous agent's prompt with only the trigger label as the human gate, with no note on prompt injection from non-maintainer issue authors."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "claude.sh flag set accepted by the real Claude Code CLI",
+   "method": "Claude Code CLI 2.1.326 argument parser (vendor binary, not the author's code)",
+   "command": "cd /tmp && claude -p \"say ok\" --output-format stream-json --permission-mode auto",
+   "expected": "CLI starts a run (exit 0 or auth error)",
+   "observed": "Error: When using --print, --output-format=stream-json requires --verbose; exit 1",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "dry_run issue is not re-worked on later polls",
+   "method": "end-to-end harness: fake gh with stateful labels, real git bare origin, shipped agent_runner.py main() x3",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/ubuntu-agent-server/harness.sh yes 3 ventures/ubuntu-agent-server/roles/agent_runner/files/agent_runner.py",
+   "expected": "tool_runs(clones)= 1",
+   "observed": "tool_runs(clones)= 3 comments= 3 labels_now= ['agent']",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "timer OnCalendar '*:0/10' fires every 10 minutes",
+   "method": "systemd-analyze (systemd's own parser)",
+   "command": "systemd-analyze calendar '*:0/10' --iterations=3",
+   "expected": "elapses 10 minutes apart",
+   "observed": "07:20, 07:30, 07:40 UTC",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "pushed branch holds only the tool's change when main moves mid-run",
+   "method": "real git: harness2.sh, stub tool commits + upstream commit pushed during run, then git diff --stat main agent/codex/issue-1 on origin",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/ubuntu-agent-server/harness2.sh ventures/ubuntu-agent-server/roles/agent_runner/files/agent_runner.py",
+   "expected": "a.txt only, no revert of up.txt",
+   "observed": "a.txt | 1 +; labels ['agent','agent:pr-opened']",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "kill switch: DISABLED present means no GitHub calls",
+   "method": "run main() with a gh shim that logs calls",
+   "command": "PATH=<shim>:$PATH AGENTS_ROOT=<tmp with DISABLED> /usr/bin/python3.13 -I ventures/ubuntu-agent-server/roles/agent_runner/files/agent_runner.py",
+   "expected": "exit 0, 0 gh calls",
+   "observed": "exit=0 ghcalls=0",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "runner can claim an issue on a repo that lacks the agent:* labels",
+   "method": "grep roles for label provisioning; harness with only the 'agent' label existing (fake gh rejects unknown labels as gh does)",
+   "command": "grep -rn 'label create' ventures/ubuntu-agent-server/roles/; /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/ubuntu-agent-server/harness.sh no 3 ventures/ubuntu-agent-server/roles/agent_runner/files/agent_runner.py",
+   "expected": "labels created, or a clear failure",
+   "observed": "no label provisioning; tool_runs 0, comments 0, silent",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite runs green",
+   "method": "pytest",
+   "command": "cd ventures/ubuntu-agent-server && /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "pass",
+   "observed": "43 passed in 1.56s",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "shell and python lint, playbook syntax",
+   "method": "shellcheck-py, pyflakes, ansible-core in scratch venv",
+   "command": "shellcheck roles/agent_runner/files/runners/*.sh bootstrap.sh; pyflakes roles/agent_runner/files/agent_runner.py tests; ansible-playbook playbook.yml --syntax-check",
+   "expected": "clean",
+   "observed": "shellcheck exit 0, pyflakes exit 0, 'playbook: playbook.yml'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README '28 unit tests'",
+   "method": "count",
+   "command": "grep -c 'def test_' ventures/ubuntu-agent-server/tests/test_agent_runner.py",
+   "expected": "28",
+   "observed": "43",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README '.github/workflows/ci.yml' runs CI",
+   "method": "ls",
+   "command": "ls ventures/ubuntu-agent-server/.github; ls .github/workflows | grep ubuntu",
+   "expected": "file at stated path",
+   "observed": "no .github in subject; CI is .github/workflows/ubuntu-agent-server-ci.yml",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "README 'nothing gets worked twice'",
+   "method": "harness.sh dry-run polls",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/ubuntu-agent-server/harness.sh yes 3 ventures/ubuntu-agent-server/roles/agent_runner/files/agent_runner.py",
+   "expected": "1 run",
+   "observed": "3 runs",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "references to retired infra (Hetzner product box, gitops/agents/workers/worker.sh)",
+   "method": "grep + ls",
+   "command": "grep -n 'Hetzner\\|gitops/' ventures/ubuntu-agent-server/README.md; ls -d gitops",
+   "expected": "no live references to deleted trees",
+   "observed": "README:14 'separate Hetzner product box', README:346 and codex.sh:23 cite gitops/...; gitops absent",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "roles/agent_runner/files/agent_runner.py:730",
+   "change": "if dry_run: -> if not dry_run:",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"
+  },
+  {
+   "where": "roles/agent_runner/files/agent_runner.py:716",
+   "change": "if not scan_for_secrets(...) -> if False and not scan_for_secrets(...)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"
+  },
+  {
+   "where": "roles/agent_runner/files/agent_runner.py:422",
+   "change": "body_len > 800 -> body_len > 8000",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"
+  },
+  {
+   "where": "roles/agent_runner/files/agent_runner.py:555",
+   "change": "git reset --soft base_branch -> git reset --soft HEAD",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -x tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "claude.sh passes --output-format stream-json with -p but no --verbose; Claude Code rejects this with 'requires --verbose' and exit 1, so every claude-tool run fails before starting and the issue is labelled agent:failed",
+   "where": "ventures/ubuntu-agent-server/roles/agent_runner/files/runners/claude.sh:40",
+   "category": "not-built-or-run",
+   "origin": "build",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
+  },
+  {
+   "severity": "high",
+   "what": "dry_run path unclaims the issue but adds no marker label, so the same issue is re-cloned, re-run by the agent and re-commented on every poll (3 polls -> 3 runs, 3 comments; 144/day at the default schedule), draining plan quota; the shipped monorepo entry is dry_run + self_directed",
+   "where": "ventures/ubuntu-agent-server/roles/agent_runner/files/agent_runner.py:730",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"
+  },
+  {
+   "severity": "medium",
+   "what": "no task creates the agent:in-progress / agent:pr-opened / agent:failed / agent:self-directed labels; gh issue edit/create with a missing label fails, so on a fresh repo claim_issue returns False and the runner silently never works anything",
+   "where": "ventures/ubuntu-agent-server/roles/agent_runner/tasks/main.yml:1",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"
+  },
+  {
+   "severity": "medium",
+   "what": "process_issue/_process_issue_inner (push/no-push, dry_run, secret-scan gate) has no test; mutants inverting dry_run and bypassing gitleaks both survive",
+   "where": "ventures/ubuntu-agent-server/tests/test_agent_runner.py:1",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"
+  },
+  {
+   "severity": "medium",
+   "what": "README says nothing gets worked twice and that Claude Code's headless flags were checked against vendor docs; both false (dry-run loop; stream-json without --verbose rejected)",
+   "where": "ventures/ubuntu-agent-server/README.md:140",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"
+  },
+  {
+   "severity": "low",
+   "what": "README says 28 unit tests (43 now) and points at .github/workflows/ci.yml inside the subject (CI is the repo-level ubuntu-agent-server-ci.yml)",
+   "where": "ventures/ubuntu-agent-server/README.md:464",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
+  },
+  {
+   "severity": "low",
+   "what": "README and codex.sh cite the retired Hetzner product box and the deleted gitops/agents/workers/worker.sh",
+   "where": "ventures/ubuntu-agent-server/README.md:14",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "gitleaks is downloaded from 'latest' with no checksum verification, and the Dockerfile pipes an install script to bash with '|| true', hiding failures in the security-relevant toolchain",
+   "where": "ventures/ubuntu-agent-server/roles/agent_runner/tasks/main.yml:37",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "low",
+   "what": "run_id() is called separately for workspace and log names, so they can differ by a second and the comment's log path may not match the workspace stamp",
+   "where": "ventures/ubuntu-agent-server/roles/agent_runner/files/agent_runner.py:584",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16857", "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"],
+ "verdict": "A carefully commented Ansible + systemd agent runner whose pure helpers are well tested (43 pass; sync/fold verified against real git with an upstream commit landing mid-run) and whose playbook parses and lints clean, but the primary paths fail when actually run: the real Claude Code CLI rejects claude.sh's flags ('stream-json requires --verbose'), dry_run re-runs the agent on the same issue every poll (harness: 3 polls, 3 runs, 3 comments), and the GitHub labels the claim step needs are never created, so a fresh repo is silently never worked. The guardrail code (dry_run, secret-scan gate) has no test and two mutants there survive. It does not meet the bar; a senior SRE would not enable it until those three are fixed and the CLI argv is exercised against the real binaries."
+}

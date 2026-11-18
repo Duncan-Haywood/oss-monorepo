@@ -24,19 +24,104 @@ static i32 narrow;
 #define IO (1 << 16)
 static i32 Pi[IO];
 static double Pf[IO];
-static i32 LUT[64 + 1024];
+static i32 LUT[64 + 1024], LUTO[64 + 1024];
+// the backward table a trial's last step is summed with (chain_min)
+static i32 Pb[IO];
 __attribute__((export_name("io"))) i32 io(void) { return IO; }
 __attribute__((export_name("pi"))) i32 *pi(void) { return Pi; }
 __attribute__((export_name("pf"))) double *pf(void) { return Pf; }
 __attribute__((export_name("lut"))) i32 *lut(void) { return LUT; }
+__attribute__((export_name("luto"))) i32 *luto(void) { return LUTO; }
+__attribute__((export_name("pb"))) i32 *pb(void) { return Pb; }
 #define PERM(v) (LUT[(v) & 63] | LUT[64 + ((v) >> 6)])
+#define PERMO(v) (LUTO[(v) & 63] | LUTO[64 + ((v) >> 6)])
+// the largest entry of the last in_i32 / in_i32u input, so a caller chaining steps in the module can
+// check that int16 tables cannot overflow over the chain
+static i32 top;
+__attribute__((export_name("top"))) i32 topv(void) { return top; }
 __attribute__((export_name("in_i32"))) void in_i32(i32 k) {
   i32 lo = 0, hi = 0;
   for (i32 x = 0; x < 1 << k; x++) { const i32 v = Pi[x]; lo = v < lo ? v : lo; hi = v > hi ? v : hi; }
-  narrow = lo > -NARROW_MAX && hi < NARROW_MAX;
+  narrow = lo > -NARROW_MAX && hi < NARROW_MAX; top = hi;
   if (narrow) for (i32 x = 0; x < 1 << k; x++) Ts[PERM(x)] = (i16)Pi[x];
   else for (i32 x = 0; x < 1 << k; x++) Ti[PERM(x)] = Pi[x];
 }
+// The symmetric step (README "Half the table: flipping every host"): a whole-break table
+// with f[x] = f[~x] goes in with one of the next round's host bits fixed at 0, so that match's two
+// edges become unary costs on the input (m0, m1: the A host bit each of its teams meets, 0 for
+// none; the team breaks when that bit equals f0, f1), and the step runs on one fewer y bit.
+__attribute__((export_name("in_i32u"))) void in_i32u(i32 k, i32 m0, i32 f0, i32 m1, i32 f1) {
+  i32 lo = 0, hi = 0;
+  for (i32 x = 0; x < 1 << k; x++) { const i32 v = Pi[x]; lo = v < lo ? v : lo; hi = v > hi ? v : hi; }
+  narrow = lo > -NARROW_MAX && hi < NARROW_MAX - 2; top = hi + 2;
+  // the cost of bit m is 1 when (x & m != 0) == f: with s = f ? 0 : m, that is ((x & m) ^ s) == m
+  // for m != 0; an absent edge (m = 0) adds nothing
+  const i32 s0 = f0 ? 0 : m0, s1 = f1 ? 0 : m1, e0 = m0 != 0, e1 = m1 != 0;
+#define U(x) ((e0 & (((x) & m0) == (m0 ^ s0))) + (e1 & (((x) & m1) == (m1 ^ s1))))
+  if (narrow) for (i32 x = 0; x < 1 << k; x++) Ts[PERM(x)] = (i16)(Pi[x] + U(x));
+  else for (i32 x = 0; x < 1 << k; x++) Ti[PERM(x)] = Pi[x] + U(x);
+#undef U
+}
+// ...and comes out at full width: y with the fixed bit (hb) set reads ~y's entry (the table is
+// symmetric), and the step's table holds the other k - 1 bits (the lookups place those).
+__attribute__((export_name("out_i32s"))) void out_i32s(i32 k, i32 swap, i32 tm, i32 hb) {
+  const i32 full = (1 << k) - 1, half = hb;
+  if (narrow) { const i16 *S = swap ? Ns : Ts; for (i32 y = 0; y < 1 << k; y++) { const i32 v = y & half ? ~y & full : y; Pi[y] = S[PERM(v) & tm]; } return; }
+  const i32 *T = swap ? Ni : Ti;
+  for (i32 y = 0; y < 1 << k; y++) { const i32 v = y & half ? ~y & full : y; Pi[y] = T[PERM(v) & tm]; }
+}
+// A trial's steps chained in the module (README "A trial's steps kept in the module"): the last
+// step's output, still in its own layout, goes straight into the next step's input layout, with the
+// next step's unary costs added, without a trip through Pi and JS. Walked in the input layout's own
+// order (sequential writes): entry d reads the output at LUTO's composite bit permutation of d, xor
+// mm when d's bit qm is set (the symmetric step's folded bit: flipping every host flips every bit
+// the output keeps); m0, m1 are the unary bits in that layout. It reads one table buffer and writes
+// the other, so the next step starts with swap ^ 1. k: the round's matches.
+__attribute__((export_name("chain_i32"))) void chain_i32(i32 k, i32 m0, i32 f0, i32 m1, i32 f1, i32 swap, i32 mm, i32 qm) {
+  const i32 s0 = f0 ? 0 : m0, s1 = f1 ? 0 : m1;
+  // each unary term counted in the half that holds its bit
+#define U(x, lowHalf) ((m0 && ((m0 < 64) == (lowHalf)) & (((x) & m0) == (m0 ^ s0))) + (m1 && ((m1 < 64) == (lowHalf)) & (((x) & m1) == (m1 ^ s1))))
+  // in blocks of 64: the low six bits' part of the source place (with the fold when the folded bit
+  // is one of them) and of the unary cost, looked up once; the high bits' part is fixed per block,
+  // and the two parts' source bits are disjoint, so they combine by xor
+  const i32 nl = k < 6 ? 1 << k : 64, nh = k < 6 ? 1 : 1 << (k - 6);
+  i32 cl[64]; i16 ul[64];
+  for (i32 l = 0; l < nl; l++) { cl[l] = LUTO[l] ^ (l & qm ? mm : 0); ul[l] = (i16)U(l, 1); }
+  if (narrow) {
+    const i16 *restrict S = swap ? Ns : Ts; i16 *restrict D = swap ? Ts : Ns;
+    for (i32 h = 0; h < nh; h++) {
+      const i32 hd = h << 6, base = LUTO[64 + h] ^ (hd & qm ? mm : 0);
+      const i16 uh = (i16)U(hd, 0);
+      i16 *restrict dd = D + hd;
+      for (i32 l = 0; l < nl; l++) dd[l] = (i16)(S[base ^ cl[l]] + uh + ul[l]);
+    }
+    return;
+  }
+  const i32 *restrict S = swap ? Ni : Ti; i32 *restrict D = swap ? Ti : Ni;
+  for (i32 h = 0; h < nh; h++) {
+    const i32 hd = h << 6, base = LUTO[64 + h] ^ (hd & qm ? mm : 0), uh = U(hd, 0);
+    i32 *restrict dd = D + hd;
+    for (i32 l = 0; l < nl; l++) dd[l] = S[base ^ cl[l]] + uh + ul[l];
+  }
+#undef U
+}
+#define FOLD(x) ((x) & hb ? ~(x) & full : (x))
+// ...and the trial's least: min over y of the last output plus Pb[y] (useb) or alone.
+__attribute__((export_name("chain_min"))) i32 chain_min(i32 k, i32 swap, i32 tm, i32 hb, i32 useb) {
+  const i32 full = (1 << k) - 1;
+  i32 best = 0x7fffffff;
+  if (narrow) {
+    const i16 *S = swap ? Ns : Ts;
+    if (useb) for (i32 y = 0; y <= full; y++) { const i32 c = S[PERM(FOLD(y)) & tm] + Pb[y]; best = c < best ? c : best; }
+    else for (i32 z = 0; z <= tm; z++) { const i32 c = S[z]; best = c < best ? c : best; }
+    return best;
+  }
+  const i32 *S = swap ? Ni : Ti;
+  if (useb) for (i32 y = 0; y <= full; y++) { const i32 c = S[PERM(FOLD(y)) & tm] + Pb[y]; best = c < best ? c : best; }
+  else for (i32 z = 0; z <= tm; z++) { const i32 c = S[z]; best = c < best ? c : best; }
+  return best;
+}
+#undef FOLD
 __attribute__((export_name("narrowed"))) i32 narrowed(void) { return narrow; }
 __attribute__((export_name("in_f64"))) void in_f64(i32 k) { for (i32 x = 0; x < 1 << k; x++) Tf[PERM(x)] = Pf[x]; }
 __attribute__((export_name("out_i32"))) void out_i32(i32 k, i32 swap, i32 tm) {

@@ -1,6 +1,6 @@
 """MicroPython entry point for the ESP32 motor controller (feeder or collector).
 
-Copy to the board with `mpremote cp protocol.py controller.py main.py config.py :`
+Copy to the board with `mpremote cp protocol.py controller.py main.py config.py capture.py :`
 (protocol.py lives in src/tennisbots/; see firmware/esp32/README.md).
 Pin assignments match hardware/electronics.md. Status: the logic in
 controller.py is unit-tested on CPython; this hardware layer has not yet
@@ -13,6 +13,12 @@ from machine import ADC, PWM, UART, Pin
 
 import config
 import controller
+
+try:
+    import micropython
+    micropython.alloc_emergency_exception_buf(100)   # a fault inside the hard tach interrupt can still be reported
+except ImportError:                                    # CPython (tests/feeder_sim.py)
+    pass
 import protocol
 
 ROLE = getattr(config, "ROLE", controller.ROLE_FEEDER)
@@ -34,7 +40,8 @@ COIL_SENSE_PIN = 15
 # Lift over-current (2026-11-15, cad/README.md "Lift jam cutoff"): an LM393 comparator's open-collector output, low
 # while the lift draws more than its trip current, with a 10k pull-up to 3.3 V (most dev boards already have one on
 # GPIO 0, for their BOOT button). GPIO 0 low at reset selects the serial bootloader, but at reset the lift's MOSFET is
-# off (GPIO 12 is held low), no current flows in the shunt and the output is released: the board boots normally.
+# off (GPIO 12 is held low), no current flows in the shunt (the belt backdriving the motor through the diode puts
+# at most 0.16 A through it, under the 1.5 A trip) and the output is released: the board boots normally.
 # Pressing the BOOT button while running reads as over-current; after the blanking that trips the lift, nothing else.
 LIFT_SENSE_PIN = 0
 
@@ -102,19 +109,42 @@ class Tach:
     """One pulse per revolution from a reflective IR sensor on the wheel hub, timed per revolution
     (controller.PeriodTach: counting pulses per 10 ms tick could only read multiples of 6000 rpm)."""
 
-    def __init__(self, pin):
+    def __init__(self, pin, cap_ch=None):
         self.core = controller.PeriodTach()
         self.last_us = time.ticks_us()
+        # config.TACH_CAPTURE (2026-11-18, README "A tach timed in hardware"): the edge time comes from MCPWM0's capture
+        # channel `cap_ch`, latched in hardware, so the handler's latency no longer reaches the periods. Off by default.
+        self.cap = None
+        if cap_ch is not None and getattr(config, "TACH_CAPTURE", False):
+            import capture
+            self.cap = capture.Capture(pin, cap_ch)
+            self.clock = controller.CaptureClock(self.core.stall_us)
         self.rpm = 0
-        Pin(pin, Pin.IN).irq(self._p, Pin.IRQ_RISING)
+        self.rpm_last = 0
+        self.since = 0
+        # A hard interrupt (2026-11-16, README "When the wheel is not a first-order lag"): a soft one only schedules
+        # _p, so ticks_us() is read whenever the main loop next yields, up to a control tick's work later. The drop fit
+        # reads each revolution's period from these times, and on the simulator 5 us of edge jitter took the
+        # calibration drill's spin error from 1.6% to 5.3%, 10 us to 16%. _p and PeriodTach.edge allocate nothing
+        # (small ints, list stores), as a hard handler must.
+        Pin(pin, Pin.IN).irq(self._p, Pin.IRQ_RISING, hard=True)
 
     def _p(self, _):
         now = time.ticks_us()
-        self.core.edge(time.ticks_diff(now, self.last_us))
+        since = time.ticks_diff(now, self.last_us)
+        if self.cap is None:
+            self.core.edge(since)
+        else:
+            period = self.clock.period(self.cap.ticks(), since)
+            if period >= 0:
+                self.core.edge(period)
         self.last_us = now
 
     def update(self, dt):
-        self.rpm = self.core.rpm(time.ticks_diff(time.ticks_us(), self.last_us))
+        since = time.ticks_diff(time.ticks_us(), self.last_us)
+        self.since = since                            # LaunchCheck's tick log aligns each command to the edges with it
+        self.rpm = self.core.rpm(since)
+        self.rpm_last = self.core.rpm_last(since)     # one revolution, unaveraged: the empty-hopper check reads it
 
 
 class StepDir:
@@ -140,7 +170,7 @@ class StepDir:
 class FeederHw:
     def __init__(self):
         self.esc_top, self.esc_bottom = Servo(25), Servo(26)
-        self.tach_top, self.tach_bottom = Tach(34), Tach(35)
+        self.tach_top, self.tach_bottom = Tach(34, 0), Tach(35, 1)     # MCPWM0 capture channels 0 and 1 (TACH_CAPTURE)
         # Feed shuttle: a servo crank (cad/README.md, "Shuttle drive"); a stroke takes most of a second each way.
         self.gate = Servo(13, getattr(config, "GATE_LO_US", 500), getattr(config, "GATE_HI_US", 2500))
         self.gate_out_ms = getattr(config, "GATE_OUT_MS", 900)
@@ -194,15 +224,62 @@ class FeederHw:
         self.gate_homed = False       # a back stroke has run since power-up or the last stop
         # Ball lift (cad/README.md, "Ball lift"): a gearmotor on a MOSFET (GPIO 12, PWM) runs on after each ball fed.
         self.lift_pwm = PWM(Pin(LIFT_PIN), freq=20000, duty_u16=0)
+        # Every jam cut slides the slip hub; the count lives in flash and flags a bench re-set (cad/README.md "Slip hub wear").
+        self.lift_jams = controller.JamLog(getattr(config, "LIFT_JAM_LOG", "lift_jams.json"),
+                                           getattr(config, "LIFT_SLIP_JAMS", 300))
         self.lift = controller.LiftRun(getattr(config, "LIFT_RUN_ON_MS", 16000), getattr(config, "LIFT_DUTY", 1.0),
                                        getattr(config, "LIFT_JAM_BLANK_MS", 400), getattr(config, "LIFT_JAM_TRIP_MS", 10),
-                                       getattr(config, "LIFT_JAM_REST_MS", 2000), getattr(config, "LIFT_JAM_RETRIES", 1))
+                                       getattr(config, "LIFT_JAM_REST_MS", 2000), getattr(config, "LIFT_JAM_RETRIES", 1),
+                                       getattr(config, "LIFT_RAMP_MS", 0), getattr(config, "LIFT_V_REF_MV", 0),
+                                       getattr(config, "LIFT_DUTY_MIN", 0.0), getattr(config, "LIFT_BUS_TAU_MS", 500),
+                                       on_trip=self.lift_jams.add)
         self.lift_sense = Pin(LIFT_SENSE_PIN, Pin.IN, Pin.PULL_UP)
         # Hopper agitator (cad/README.md, "Hopper agitator"): a gearmotor on a MOSFET (GPIO 2, PWM) stirs the tub's
         # outlet while balls are being fed, so a bridge of balls over it cannot leave the column empty.
         self.agit_pwm = PWM(Pin(AGIT_PIN), freq=20000, duty_u16=0)
         self.agit = controller.AgitatorRun(getattr(config, "AGIT_RUN_ON_MS", 3000), getattr(config, "AGIT_DUTY", 1.0))
+        # Empty hopper (2026-11-16, README "Empty hopper"): every forward stroke is judged by the wheels' speed drop, since
+        # a ball takes its momentum from them; a stroke that leaves them steady carried an empty pocket. No pin is free
+        # for a sensor, and none is needed.
+        self.launch = None
+        if getattr(config, "LAUNCH_CHECK", True):
+            self.launch = controller.LaunchCheck(
+                getattr(config, "WHEEL_INERTIA_KGM2", 0.00155), getattr(config, "BALL_KG", 0.0577),
+                getattr(config, "WHEEL_RADIUS_M", 0.075), getattr(config, "BALL_RADIUS_M", 0.0335),
+                getattr(config, "LAUNCH_SPEED_EFF", 0.85), getattr(config, "LAUNCH_SPIN_EFF", 0.5),
+                getattr(config, "LAUNCH_DIP_SHARE", 0.25), getattr(config, "LAUNCH_DIP_MIN", 0.015),
+                getattr(config, "LAUNCH_CHECK_MS", 250), getattr(config, "ESC_TAU_US", 0),
+                getattr(config, "ESC_SURVEY_GRID_US", controller.ESC_SURVEY_GRID_US),
+                getattr(config, "TAKE_US", 0), getattr(config, "TAKE_SURVEY_GRID_US", controller.TAKE_SURVEY_GRID_US))
+        self.hopper_empty = False     # the last judged stroke put no ball through the wheels; cleared by the next FEED
+        self.dry_strokes = 0          # strokes judged empty since power-up
+        self.launches = 0             # strokes judged to have launched a ball since power-up
         self.arm()
+
+    def launch_record(self):
+        """The last judged stroke's record for the LAUNCH frame (controller.LaunchCheck.record), or None."""
+        return self.launch.record if self.launch is not None else None
+
+    def esc_survey(self):
+        """The ESC-lag survey so far for the ESC_SURVEY frame (controller.LaunchCheck.survey_report), or None."""
+        return self.launch.survey_report() if self.launch is not None else None
+
+    def take_survey(self, on):
+        """SURVEY_TAKE: the contact-time survey on or off (README "The contact time surveyed on the board")."""
+        if self.launch is not None:
+            self.launch.take_on = on
+
+    def take_survey_report(self):
+        """(wheels, least, refined and the drop fit's own contact time in 0.1 ms, mean rms per candidate) for the
+        TAKE_SURVEY frame, or None before the survey's first wheel."""
+        if self.launch is None:
+            return None
+        r = self.launch.take_report()
+        return None if r is None else (r[0], r[1], r[2], self.launch.take_ms10(), r[3])
+
+    def esc_tau_ms(self):
+        """The ESC lag the drop fit runs with (config ESC_TAU_US), ms, for the ESC_TAU frame, or None with no launch check."""
+        return int(round(self.launch.esc_tau_us / 1000)) if self.launch is not None else None
 
     def arm(self):
         self.esc_top.frac(0)
@@ -239,6 +316,8 @@ class FeederHw:
         self.lift_pwm.duty_u16(0)
         self.agit.stop()
         self.agit_pwm.duty_u16(0)
+        if self.launch is not None:
+            self.launch.cancel()          # wheels stopping mid-check would read as a launch; a cut stroke counts no ball
         if self.elev.mode == controller.ELEV_RC:
             self.elev_out.pwm.duty_u16(0)     # no pulse: the actuator holds where it is
         else:
@@ -263,6 +342,8 @@ class FeederHw:
 
     def feed(self, n):
         self.feeding += n
+        if n > 0:
+            self.hopper_empty = False     # a new FEED is the Pi (or a person) trying again, perhaps after a refill
 
     def set_base(self, y_mm, vmax):
         self.base_target, self.base_vmax = y_mm, vmax
@@ -291,7 +372,15 @@ class FeederHw:
             f |= protocol.FLAG_BUS_OFF
         if self.lift.jammed:
             f |= protocol.FLAG_LIFT_JAM
+        if self.lift_jams.due:
+            f |= protocol.FLAG_LIFT_HUB_DUE
+        if self.hopper_empty:
+            f |= protocol.FLAG_HOPPER_EMPTY
         return f
+
+    def lift_hub_reset(self):
+        """RESET_LIFT_HUB: the slip hub has been re-set on the bench (cad/README.md "Slip hub wear")."""
+        self.lift_jams.reset()
 
     def balls_fed(self):
         return self.fed
@@ -340,9 +429,20 @@ class FeederHw:
             ramp = self.wheel_ramps[i]
             ramped = ramp.update(self.target_rpm[i], tach.rpm, dt, brake)
             # coasting: zero throttle (ESCs set with no brake at zero throttle), the loop's integrator held
-            self.esc_cmd[i] = 0.0 if ramp.coasting else self.wheel_loops[i].update(ramped, tach.rpm, dt)
+            self.esc_cmd[i] = 0.0 if ramp.coasting else self.wheel_loops[i].update(ramped, tach.rpm, dt,
+                                                                                   ramped > self.target_rpm[i])
             esc.frac(self.esc_cmd[i])
         steady = self.wheels_steady.update(self.target_rpm, (self.tach_top.rpm, self.tach_bottom.rpm), dt)
+        if self.launch is not None:
+            went = self.launch.update(now, (self.tach_top.rpm_last, self.tach_bottom.rpm_last), self.target_rpm,
+                                    (self.tach_top.core, self.tach_bottom.core), self.esc_cmd,
+                                    (self.tach_top.since, self.tach_bottom.since))
+            if went is True:
+                self.launches += 1
+                self.hopper_empty = False
+            elif went is False:
+                self.dry_strokes += 1
+                self.hopper_empty = True
         # Base: proportional position control capped at vmax (trapezoid in practice
         # because the cap limits speed and the gain limits deceleration).
         err = self.base_target - self.base_y_mm()
@@ -360,10 +460,16 @@ class FeederHw:
                 self.gate_out = False
                 self.fed += 1
                 self.lift.kick(now)
+                if self.launch is not None:
+                    self.launch.stroke_done(now)
         elif self.feeding and not self.gate_homed:
             self.gate_back(now)           # first FEED since power-up or a stop: bring the shuttle back first
         elif self.feeding and ok and now >= self.gate_ready_at:
             self.gate.frac(1)
+            for loop in self.wheel_loops:
+                loop.ball()               # README "A ball charged the integrator"
+            if self.launch is not None:
+                self.launch.start(self.target_rpm, now)
             self.gate_out = True
             self.gate_rest_at = None
             self.gate_open_until = now + self.gate_out_ms
@@ -371,7 +477,7 @@ class FeederHw:
         elif self.gate_rest_at is not None and now >= self.gate_rest_at:
             self.gate.pwm.duty_u16(0)     # back at the dead centre: rest unpowered
             self.gate_rest_at = None
-        self.lift_pwm.duty_u16(int(self.lift.update(now, self.lift_sense.value() == 0) * 65535))
+        self.lift_pwm.duty_u16(int(self.lift.update(now, self.lift_sense.value() == 0, self.battery_mv()) * 65535))
         self.agit_pwm.duty_u16(int(self.agit.update(now, self.feeding > 0 or self.gate_out) * 65535))
 
 

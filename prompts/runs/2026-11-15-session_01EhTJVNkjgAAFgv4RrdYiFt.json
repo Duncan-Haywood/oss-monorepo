@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVNkjgAAFgv4RrdYiFt",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ...)",
+  "input_sha256": "f0940a04757810de07f56e2c3705fe96e1a45d8de98448e85edef4ca28d67d12",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T17:03:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "flagship 10 open-tennis-robots: lift belt tooth-jump check at a hood jam",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 16277,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "optibelt.com and ammeraalbeltech.com do not resolve from the session, so the AT5 specific tooth force figures come from search-result quotes of those sheets",
+      "fix": "labelled unread in params and README; strength margin 7.7x so the exact figure does not decide anything"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The open item proposed a faster hood cut or a 20-tooth pulley if the check failed; the model shows the ratchet margin is pull-independent at zero slack tension and a 20-tooth pulley lowers it, so neither was applied",
+      "did": "kept 16 teeth and T0, recorded the finding and a bench test",
+      "result": "nominal 2.54x, 1 of 81 corners below 1"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-open-tennis-robots-bigger-pulley-jumps-sooner.md",
+    "ventures/open-tennis-robots/eval/lift-tooth-jump-2026-11-15.txt"
+  ],
+  "goal": "Land the flagship's buildable next item: does the 89 N hood-jam pull with the slack strand at zero jump a tooth on the 16-tooth AT5 drive pulley?",
+  "notes": "Feeder.lift_tooth_jump_design (strength vs catalogue F_Uspec; ratcheting via shear-lag load spread, wrap hold vs flank push-out), lift_tooth_jump_sweep (81 corners), check_lift_tooth in Feeder.check; tests/lift_tooth_sweep.py -> eval. Verification here: cad pytest 136 passed (build123d 0.13.0 venv), venture pytest 119 passed, feeder package rebuilt (manifest params), venture-preflight clean, check_post_frontmatter ok, validate.py ok. flagships next: field at 1970/2000 so the bench test went into the README and buildable only.",
+  "corrections": [],
+  "redteam": null
+}

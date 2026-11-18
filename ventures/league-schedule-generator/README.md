@@ -33,6 +33,7 @@ third party: zero dependencies, one JSON file on a disk you own.
 - **Run:** `ADMIN_KEY=a LEAGUE_TOKEN=b STATE=./state.json node server.mjs`, or `docker compose up -d`
   (`docker-compose.yml`), Fly (`fly.toml`), or Render (`render.yaml`, deploy from your fork; it generates both
   secrets). Nothing runs on the author's accounts.
+- **Calendar feeds:** the player page links a subscribe-able feed for the whole league and each team (`webcal://`, Google Calendar, or the plain address). Optional `PUBLIC_URL=https://league.example.org` fixes the address in those links; without it the request's host is used (README "Calendar files that follow a rainout").
 - **Score reports:** the player page has a "Report a score" form. A report only waits in `/admin` ("Scores waiting for you"); **Approve** appends it to Results as `Hawks 3 - 2 Owls`, **Decline** drops it, and the table never changes until you approve. At most 100 wait at once.
 - Tests: `node --test server.test.mjs deploy.test.mjs`.
 
@@ -188,6 +189,406 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
+## Lane limits: shapes stored on other slots, and the last misses (2026-11-18, latest)
+
+The stored lane-limit answers (next section) put the limited teams on the circle method's first
+slots, 0, 1 and so on. Six of the grid's 112 seasons were still missed: two shapes had no answer on
+those slots (UNSAT) and four timed out at 300 s. **Which slots the limited teams take changes the
+season**: in a season shorter than a full cycle, which teams meet in the first W weeks, and who
+meets the fixed slot, depends on the slots. Balance still does not see names, so any slots will do.
+
+- A shape key may now name its slots: `0:0;5:0` is two teams off one pair, on slots 0 and 5.
+  `matchShape` returns the slots too and `avoidShapeSlots` deals the limited teams those slots
+  (the other teams fill the rest in order). Keys on 0, 1, ... read as before; 171 old answers
+  unchanged.
+- `eval/bowling-avoid-slots.py` tries a shape on other slots (first team kept on slot 0, then
+  tuples with the fixed slot, then the rest), 4 at a time, and stops at the first SAT.
+  `eval/bowling-avoid-shapes.py` takes `SYMBREAK=1`: the pairs no limit names are interchangeable,
+  so week 1's matches go on them in increasing order (keeps at least one answer).
+- `eval/bowling-avoid-lns.py` repairs the search's near miss a few weeks at a time (Glucose,
+  interruptible; the other weeks kept), for shapes whose whole-season model is slow.
+
+**Results** (`eval/bowling-avoid-slots.txt`):
+
+| season, limit | before | now |
+|---|---|---|
+| 20 x 9, two teams off one pair | UNSAT on slots 0, 1 (and 0-2, 0-3, 0-4); page 17 of 20 | SAT on slots 0 and 5 in 2.5 s; page 20 of 20 |
+| 18 x 8, two teams each off the same two pairs | UNSAT on slots 0, 1 | SAT on slots 12 and 17 in 0.4 s; page 18 of 18 |
+| 22 x 23, two teams off one pair | SAT timed out at 300 s; page 20 of 22 | the search alone on slots 0 and 1 is in target (the page's own dealing missed by 2); page 22 of 22 |
+| 24 x 13, one team off one pair | SAT timed out at 300 s; page 22 of 24 | SAT with the symmetry break in 365 s; page 24 of 24 |
+| 24 x 13, one team off both ends | timed out at 300 s; page 22 of 24 | symmetry break, 574 s; page 24 of 24 |
+| 24 x 13, two teams off one pair | timed out at 300 s; page 22 of 24 | timed out at 1,800 s even with the break on slots 0, 1; SAT on slots 0 and 23 (the fixed slot) in 110 s; page 24 of 24 |
+| 20 x 40, one team off one pair | timed out at 300 s; page 18 of 20 | symmetry break, 88 s; page 20 of 20 |
+| 6 x 26 and 6 x 34, two teams off the last pair (142-season grid) | UNSAT on the page's dealing, called out of reach | SAT on slots 0 and 5, and 0 and 3, at once |
+
+The symmetry break, not the slots, closed four of the five timeouts. The near-miss repair
+(`eval/bowling-avoid-lns.py`) did not close either near miss it was given (2 counts off after 25
+min on 20 x 40), so it stays a tool, not part of the page. Still out of reach on every dealing
+tried: 6 x 32 with two teams off the last pair (14 of 15 slot pairs UNSAT; slots 0 and 4 unanswered at 300 s)
+and, proved, with one team off both ends: UNSAT on all six slots, so no dealing of the circle method has an even rotation there.
+
+On the 112-season grid the page now has every team in target in **112 of 112** (was 106; 0 counts off, was 14; `eval/bowling-avoid-shapes.txt`). On the 142-season limit grid (`eval/bowling-lane-avoid.txt`) it has **139 of 142** (was 137; 10 counts off, was 18). Tests: `bowling.test.mjs` (a shape on slots 0 and 5 matches and deals; 20 x 9, 18 x 8 and 22 x 23 seasons with those limits keep them, every team in target, no pair meeting twice in a cycle). 180 stored answers (171 before), 38 KB.
+
+## Lane limits on the hard season lengths: stored answers per limit shape (2026-11-18)
+
+The lane-limit search (next section) missed 9 of 142 measured seasons; a SAT solver showed 3 of
+them, all 20 teams over 30 weeks, have a deal the search did not find. Restarting the walk from
+the stored unlimited answer got 2 of the 3 in 0.7-37 s and never the third in 80 restarts, and a
+weighted (breakout) walk did no better, so the fix is not more search. A stored answer keyed on
+the limits looked like too many keys, but it is not: **balance does not see names.** The round
+robin may deal any team any slot of the circle method (the organiser typed names, not slots), and
+every lane pair plays the same role. So one SAT answer for "slots 0 and 1 avoid pair 0" serves any
+two teams avoiding any one pair. A limit's *shape* is which teams avoid which pairs up to renaming
+both; one team off one pair, two teams off one pair, one team off both ends and so on are a handful
+of shapes.
+
+- `bowling-avoid-shapes.mjs` (generated by `eval/bowling-avoid-shapes.py`, CaDiCaL via
+  python-sat, merged by `eval/bowling-avoid-shapes-merge.mjs`): 171 answers, keyed
+  `"teams,weeks|shape"` with the shape written on slots and pairs (`0:0;1:0` is two teams off one
+  pair), over the 28 season lengths that already needed a stored answer with no limits. 36 KB.
+- `matchShape` finds the renaming (limited teams onto slots, real pairs onto the shape's pairs;
+  up to 4 limited teams and 5 named pairs, tried exhaustively). `bowlingSchedule` then deals the
+  limited teams the shape's slots (`avoidShapeSlots`; the other teams keep their order), so the
+  fixtures are still the plain circle method, every team meeting every other as often as before,
+  just with the teams in other slots. With no limits, or no matching shape, nothing changes.
+- `assignLanes` uses the answer only if the rounds are exactly that dealing, every match is on a
+  pair its teams may use and every count is inside `laneTargets()` (`shapePlan`); else the search
+  runs as before. "Try another lane deal" relabels the pairs no limit names, from the seed. The
+  polish then cuts back-to-back repeats, as for the unlimited table.
+
+**Measured.** On the 28 hard lengths x 4 kinds of limit (`node eval/bowling-avoid-shapes-grid.mjs`,
+`eval/bowling-avoid-shapes.txt`; limited teams spread over the league, not on the shape slots):
+
+| | seasons with every team in target | counts off target | ms per season |
+|---|---|---|---|
+| search alone | 60 of 112 | 100 | 1,940 |
+| page with shape answers | 106 of 112 | 14 | 1,062 |
+
+Of the grid's 49 search misses, 43 got a SAT answer (0.4-199 s each), 1 is UNSAT (20 teams x 9
+weeks, two teams off one pair: that dealing has no deal) and 5 timed out at 300 s (20 x 40, 22 x 23
+and 24 x 13 with one or two teams off one pair, one team off both ends): those 6 are the page's
+misses left. A further 119 shapes on 12-18 teams were solved ahead of need (1 UNSAT: 18 x 8, two
+teams each off the same two pairs). On the 142-season grid of the next section the page now has
+every team in target in **137** (was 133), 18 counts off (was 24), and every season it still misses
+is proved out of reach on its dealing (2026-11-18 later: 6 x 26 and 6 x 34 have answers on other slots, section above; `eval/bowling-lane-avoid.txt`; the 6 x 26 random-limit season, unchecked
+before, is UNSAT too). The cost: back-to-back repeats rose from 2,338 to 2,436 over the grid, since
+the polish starts from a stored answer it may not unbalance; balance comes first on this page. 20 x 30 with a limit takes 1.0-1.5 s, down from 3.5 s, since it skips the
+search. Tests: `bowling.test.mjs` (shape matching, dealing, 20 x 30 under three limits and two
+seeds all 20 of 20 in target, every pair of teams still meets once or twice). Browser check: 16
+checks (`eval/browser-bowling.txt`; new: 20 teams x 30 weeks, one team off both ends, 20 of 20).
+
+Not done (2026-11-18, latest, above, took the first two): an UNSAT shape is UNSAT for that
+dealing only, so try other slots; the 5 timeouts need a longer solve. Shapes with more than 4
+limited teams fall back to the search.
+
+## Bowling lane limits: a team that must never bowl on a pair (2026-11-18)
+
+Some leagues have a team that cannot use one pair (the end pair by the wall where a bowler with a
+walker has no room, the pair by the bar). The bowling page now takes **lane limits**, one team per
+line (`Pin Pals: 7-8`, `Spare Me: last`, `Gutter Gang: ends`, a single lane number for its pair;
+`parseLaneAvoid` in `bowling.mjs`), and treats them as a hard constraint in every stage of the lane
+search, not a fix-up after it:
+
+- **Greedy and week re-solves:** a banned (match, pair) cell costs `FORBID` (2^26), above every
+  balance price, so the Hungarian step never takes one when the week has any legal deal. The step
+  is exact per week, so a banned cell in the greedy plan proves that week has no legal deal at all;
+  `bowlingSchedule` then refuses the season and names the week ("Week 3: the lane limits leave no
+  way ...") instead of building one that breaks a limit.
+- **Walk:** moves that would put a team on a banned pair are skipped.
+- **Stored SAT answers** are used only if they keep the limits (they never were built for them, so
+  in practice the search runs).
+- **Targets** (`laneTargets`): with no limits, floor..ceil(W/P) as before (byte-identical seasons;
+  all 20 old bowling tests pass unchanged). With limits, the avoided pairs still host a match every
+  week, so the other teams must bowl there more often. The fair share is the matrix scaling
+  (Sinkhorn) of the allowed cells to row sums W_t and pair sums sum(W)/P; the target is
+  floor..ceil of it, 0 on a banned cell. A rounding that keeps every row and pair total always
+  exists; the weekly one-match-per-pair rule can still rule it out (below). `offBound`,
+  `laneReport` (`inTarget`, `avoided`, `target` per row; spread and bound over the pairs a team may
+  use) and the page's highlighted cells all use it; the avoided cell shows a dash.
+
+**Measured** (`node eval/bowling-lane-avoid.mjs`, `eval/bowling-lane-avoid.txt`; 9 league sizes
+6-24 x 4 lengths 26-34 x 4 kinds of limit: one team off the last pair, two teams off the last pair,
+one team off both ends, three random teams off one random pair each). The baseline is the fix an
+organiser makes by hand: the page's unconstrained season, then each week a limited team lands on
+its pair, swap its match with the nearest match that may take that pair.
+
+| | seasons with every team in target | counts off target | back-to-back repeats | limits broken |
+|---|---|---|---|---|
+| hand fix | 0 of 142 | 3,345 | 3,438 | 3 weeks (no legal swap found) |
+| page | 133 of 142 | 24 | 2,338 | 0 |
+
+Two random-limit seasons (6 teams x 30 and 34 weeks) have a week with no legal deal; the page
+refuses them and they are left out. 0.81 s per season on average (3.5 s at 20 x 30).
+
+**The 9 misses** (`eval/bowling-lane-avoid-sat.py`, CaDiCaL on the exact weeks, bans hard, every
+count in target): 6x26, 6x32 and 6x34 with two teams off the last pair, and 6x32 with one team off
+both ends, are UNSAT: on 3 pairs those limits put the target out of reach for any deal, so the
+page's 1-5 off is the season's limit. 20x30 with one team off the last pair, two off the last pair
+and one off both ends are SAT: the search's fault, on the one length (P divides W) that already
+needed a stored SAT answer without limits. Two misses (20x30 and 6x26, random limits) were not
+SAT-checked. Next: closing 20x30 under limits (a SAT call at build time is too slow for the page;
+a stored answer keyed on the limits is too many keys; a longer walk on exact seasons is the
+cheapest thing to try).
+
+Position rounds put 1st v 2nd on the first pair; their teams are known only on the night, so the
+page tells the organiser to check a limited team's pair on those weeks. Browser check:
+`node eval/browser-bowling.mjs` (15 checks, 5 new: 8 of 8 in share, Pin Pals never on Lanes 7-8,
+a dash in the avoided cell, an unknown team reported).
+
+## Bowling lanes: every measured season at the bound (2026-11-18)
+
+The six seasons the lane search left short (below, 2026-11-17) are closed: **36 of 36** measured
+seasons now have every team at the bound (worst spread 1, down from 2), at 0.64 s per season.
+Two additions to `assignLanes` in `bowling.mjs`: a stored answer is used first when the season has
+one, and the walk runs only when the polish ends with a count out of bounds:
+
+- **A focused walk** (`walkLanes`, the WalkSAT idea): each step picks a random team-pair cell
+  outside floor..ceil, and among the swaps that move one of that team's matches off (or onto)
+  that pair takes the one leaving the fewest out-of-bounds counts, or any of them with
+  probability 0.2. Deterministic per seed, a step budget instead of a clock. It closed 10x30,
+  18x26 and 24x34 (33 of 36 with the walk alone).
+- **Stored SAT assignments** (`bowling-lane-table.mjs`): the other three (12x30, 16x32, 20x30)
+  are seasons where P divides W, so every team needs every pair exactly W/P times. The week
+  re-solves, a tabu swap search and the walk all stalled 4 to 12 counts short there (tried this
+  session, up to 4 s and 200,000 steps each). `eval/bowling-lane-grid.mjs` runs the page's search on
+  every even league of 4 to 28 teams and 2 to 40 round-robin weeks; `eval/bowling-lane-table.py`
+  asks CaDiCaL about each miss and `eval/bowling-lane-table-merge.mjs` writes the solved ones as
+  one base-36 digit per match. `tablePlan` uses an entry only if it is a permutation every week
+  and puts every team at the bound for the rounds it is given, so a stale table costs speed,
+  never balance; the seed relabels the pairs (balance kept) for "Try another lane deal", and
+  the polish then cuts back-to-back repeats. Position weeks do not count, so the key is the
+  number of round-robin weeks.
+
+Repeats rose from 340 to 392 over the 36 seasons: balance comes first in the price, and the
+repaired seasons have 9 to 39 repeats against 6 to 21 before.
+
+**The wider grid** (`eval/bowling-lane-table.txt`): of 507 seasons (4 to 28 teams, 2 to 40
+weeks) the search with the walk misses 90. CaDiCaL solved 28 (all now stored and at the bound:
+every exact season of 12 to 20 teams up to 40 weeks, and the near-whole-cycle ones such as 18x17,
+20x29, 22x23), proved 35 impossible, and gave no answer to 27 within 420 s or before the batch's
+30-minute cap (16x40 and most seasons of 22 to 28 teams). Those 27 are where a longer SAT run, or a
+solver on a bigger machine, should go next; the table merges new answers with
+`eval/bowling-lane-table-merge.mjs`. The table is 6.4 kB.
+
+**Proved impossible.** CaDiCaL returns UNSAT for every season exactly P weeks long that it was
+asked about (6 to 24 teams), for 4 teams at all 21 lengths from 2 to 40 weeks where the search misses, and for 6x9, 8x3 and
+12x5. A P-week season at the bound needs each team on every pair exactly once, so each pair's P
+matches form a perfect matching with one edge from each round: a 1-factorization orthogonal to the
+circle method's P rounds. A SAT check (`eval/bowling-lane-blocks.py`; `eval/bowling-lane-table.txt`, "Blocks") found none
+for the first P rounds or for three random choices of P rounds at every even size from 6 to 20 teams
+(32 of 32 UNSAT), which is also why splitting a season into perfect P-week blocks, tried first
+this session, cannot work with these rounds. On those lengths the page's result is as close as the search gets.
+
+## Bowling: seasons where an even lane split is proved impossible (2026-11-18)
+
+The bowling page said "(best possible 0)" next to any team off the floor/ceil bound, which reads
+as a missed deal. For some seasons no deal exists. `eval/bowling-bound-sweep.mjs` ran a lane
+search on every even league of 4 to 32 teams for 1 to 60 round-robin weeks (900 seasons) and
+`eval/bowling-bound-proof.py` gave each season it missed (145; the search was the page's
+polish plus a min-conflicts repair tried this session, not shipped here) to CaDiCaL with the CNF of
+`eval/bowling-lane-sat.py` over the exact weeks `bowlingSchedule()` plays. An UNSAT answer is a
+proof about the season, not the search: no lane deal of those weeks puts every team at the bound.
+Every such season is missed by every search, so the misses of any one search cover all of them;
+the gap is seasons the solver did not settle in its time (UNKNOWN, listed in
+`eval/bowling-bound-proof.txt`).
+
+Proved out of reach (`bowling-proofs.mjs`, `OUT_OF_REACH`; full list in
+`eval/bowling-bound-proof.txt`):
+
+- **A season exactly as long as the lane pairs:** P round-robin weeks on P pairs (4 teams x 2
+  weeks, 6 x 3, 8 x 4, ... 30 x 15): every league from 4 to 30 teams. Each team would need every
+  pair exactly once, and the circle method's first P rounds allow it at none of those sizes. 32 x 16 was not
+  settled in 150 s.
+- **4 teams (2 pairs):** whenever the round-robin weeks are 2, 3 or 4 more than a multiple of 6,
+  through 58 weeks (51 and 57 not settled). 4 x 2 by hand: week 1's two matches split the teams
+  across the pairs, so in week 2 every team must change pair, but each week-2 match joins one team
+  from each pair.
+- **Other short seasons:** 6 x 9, 8 x 3, 12 x 5.
+
+44 seasons in all; 17 misses were SAT (a deal at the bound exists: the search's fault) and 84 were
+not settled, almost all at 20 to 32 teams, where the SAT checks of 2026-11-17 took 30 s and more.
+
+The engine sets `boundProvedOutOfReach` on an even league's season (and `laneReport` carries it)
+when its team count and round-robin weeks are listed; position rounds do not count, and an odd
+league is never flagged (its proof would cover the Vacancy's row). The page then says the even
+split is out of reach this season instead of "best possible". The search is improved in the section above (PR 17107), which
+brings every measured season at the bound; the seasons listed here stay out of reach for any search.
+
+## Bowling leagues: lane pairs rotated evenly (2026-11-17)
+
+`bowling-league-schedule.html` (engine `bowling.mjs`, tests `bowling.test.mjs`) builds a whole
+bowling season: the circle-method round robin repeated until the weeks run out, real dates on one
+weekday with no-bowl dates stepped over, weeks held for position rounds (1st v 2nd, 3rd v 4th on
+the pairs in order; they do not advance the round robin), a Vacancy for an odd league (it bowls
+on its pair like any team, so 9 teams use 5 pairs), and lane-pair labels from the league's first
+lane (`firstLane: 13` gives "Lanes 13-14", ...). Exports: CSV (formula-safe), text, print.
+`validateBowling` re-checks each week (each team once, each pair once), that every pair of teams
+meets `floor` or `floor + 1` times for the round-robin weeks played, and the dates.
+
+**The lane problem.** A team that bowls W weeks on P pairs can at best have every pair
+floor(W/P) or ceil(W/P) times ("at the bound"). Each week's matches go on pairs by an assignment
+problem (Hungarian method, `hungarian`, tested against every permutation up to 6x6). The page then
+runs an iterated local search: with every other week fixed, one week's best assignment is exact
+(each team's count on one pair rises by one and its repeats depend only on the weeks either side,
+so the price is a sum over (match, pair) cells); sweeps re-solve every week until none improves,
+a kick re-deals one to three random weeks, a worse result is undone, and the season with the
+fewest out-of-bounds counts, then fewest back-to-back repeats, is kept. Deterministic per seed;
+"Try another lane deal" changes the seed.
+
+**Measured** (`node eval/bowling-lanes.mjs`, `eval/bowling-lanes.txt`; 36 seasons, 6 to 24 teams x
+26, 30, 32, 34 weeks; "all at bound" = every team at the bound):
+
+| assignment | seasons with all teams at the bound | worst spread | back-to-back repeats (total) |
+|---|---|---|---|
+| naive (match k on pair k, a copy of the circle method) | 0 of 36 | 34 | 2,124 |
+| hand rotation (every match one pair along each week) | 1 of 36 | 13 | 6,490 |
+| greedy (week by week, Hungarian on counts so far) | 4 of 36 | 3 | 417 |
+| page (greedy + iterated local search) | 30 of 36 | 2 | 340 |
+
+About 0.55 s per season on this container. **The 6 misses are the search's fault, not the
+problem's:** `eval/bowling-lane-sat.py` (CaDiCaL via python-sat; exactly-one per match and per
+pair each week, cardinality bounds per team and pair, week 1 fixed for symmetry) finds an
+assignment with every team at the bound for all six (`eval/bowling-lane-sat.txt`: 10x30, 12x30,
+16x32, 18x26, 20x30, 24x34, each SAT). Balance does not depend on which week a round falls in, so
+the answer holds for any round order.
+
+Tried and dropped (numbers from this session's runs, same 36 seasons unless named): a simulated
+annealing swap search (two matches of one week trade pairs) on squared deviation stalled at spread
+2 on most sizes from 10 teams up; guided local search (raising penalty weights on out-of-bounds
+cells) did worse than random kicks (10x30: 7 of 10 teams at the bound against 8); starting from a
+balanced first cycle with pair labels shifted by one each cycle (which keeps full cycles within
+one of even when the first cycle is a balanced tournament design) gave the same 30 of 36 and took
+1.7 times as long, and the search did not find a balanced first cycle at 20 or 32 teams anyway;
+closed forms f(round, diagonal) = (k + h r) mod P gave no balanced cycle for any h at 6 to 32, 40, 48 or 64 teams.
+
+Browser check: `node eval/browser-bowling.mjs` (`eval/browser-bowling.txt`, 10 checks at 390 px:
+sample 8 of 8 at the bound, odd league with the Vacancy and a skip date, reshuffle, an error
+hiding the old schedule, no horizontal scroll, no console errors).
+
+Open (the 6 misses closed 2026-11-18, above; lane limits landed 2026-11-18, above): a
+"switch lanes each frame" note per pair for printed sheets; feeding real standings into the
+position rounds.
+
+## Calendar files that follow a rainout (2026-11-17)
+
+A team's `.ics` file used to give each game an id built from its date and its place in the
+round (`2-0-20261013-1@...`). A calendar import adds or updates events by that id and never
+deletes one missing from the new file, so when a rained-out game moved and the organiser
+re-sent the file, the player's calendar kept the old date as well as the new one. Every
+match now carries a **fixture id** (`fixture` on each match, `assignFixtureIds` in
+`calc.mjs`): the pair, lower team index first, and which meeting of that pair it is in the
+season as built (`0-3-1` is the second meeting of teams 0 and 3). Rainouts, pins and late
+entries copy the match and keep the id, and each move adds one to `moves`, written as the
+event's `SEQUENCE`. When a team withdraws, its removed fixtures go out as `STATUS:CANCELLED`
+events under the same ids, titled "Cancelled: ...", so a re-import marks them rather than
+leaving them in place. Officials' files add `-official` to the id so a referee who also plays
+does not have one event overwrite the other. The multi-division page (`divisionsIcs`) uses
+the division, the round and the pair.
+
+Measured with `node eval/ics-stable-uids.mjs` (`eval/ics-stable-uids.txt`): 9 league sizes
+(4 to 16 teams), single and double, 4 seeds, two random nights rained out and then the last
+team withdrawing mid-season. A player imports the first file, then the updated one; we count
+the events left over that are a **ghost** (no game then) or a **duplicate** (the same game
+twice). Old ids against fixture ids:
+
+| | team files | matches moved | old ids: ghost + duplicate | fixture ids |
+|---|---|---|---|---|
+| single division, two nights rained out | 584 | 640 | 1,139 + 0 | 0 + 0 |
+| then a team withdraws | 584 | | 512 + 2,222 | 0 + 0 |
+| multi-division example, one night rained out (4 runs) | 80 | 26 | 52 + 70 | 0 + 0 |
+
+The duplicates come from the old id's position-in-round part: removing or moving one game
+renumbered the others on that night. No file repeats an id.
+
+**Subscribe on the self-hosted league page.** `server.mjs`'s player page now offers, for the
+whole league (`/league/ics?t=...&team=all`, new) and each team, a `webcal://` subscribe link,
+a Google Calendar add-by-URL link, the plain address to paste into any app, and the download.
+A subscribed calendar re-reads the feed on its own schedule (each app decides how often), so
+a rainout reaches players without anyone re-sending a file. The address is taken from
+`PUBLIC_URL` when set, else the request's host (`x-forwarded-proto` for https behind Fly or
+Render); a host that is not a plain name is refused and the page falls back to downloads.
+The feed is served `inline` with `cache-control: no-cache`.
+
+**Not checked:** no real calendar app was used here. The counts above model an import that
+matches events by UID as RFC 5545 describes; how Google, Apple and Outlook each treat a
+re-imported file or a cancelled event, and how often they poll a subscription, is untested.
+Ids are stable while the season's base setup (teams, dates, courts, seed) is unchanged;
+editing those rebuilds the season and its ids.
+
+## Import into TeamSnap or SportsEngine (2026-11-17)
+
+Many leagues already pay for TeamSnap or SportsEngine for registration, payments and team
+messaging, and those platforms' own schedulers are where this tool's fairness work (fewest
+home/away breaks, even courts and slots, blackouts) does not reach. Typing a 10-team season
+into either platform by hand is 45 games. Now the schedule card has **Import into TeamSnap
+or SportsEngine**: two downloads that are each platform's own import file, so the season
+built here goes up in one upload.
+
+- **TeamSnap** (`teamSnapCsv`): the organisation schedule import, columns `Date, Start Time,
+  End Time, Arrival Time, Short Label, Event Type, Division, Home Team, Away Team, Location,
+  Location Details` in that order, dates MM/DD/YYYY and times h:mm AM/PM. You type the
+  TeamSnap division name and, optionally, the location name (then each court goes in
+  Location Details) and an arrival time in minutes. Arrival Time is left out when blank,
+  which TeamSnap allows. The file is refused-in-advance where TeamSnap would refuse it: no
+  division, a game with no start time. A game ending after midnight is flagged, because
+  TeamSnap's template has no end date, and names with `% @ # *` are flagged because TeamSnap
+  says those symbols trip imports.
+- **SportsEngine HQ** (`sportsEngineCsv`, `parseTeamIds`): the 28-column Schedule Upload
+  file (`Start_Date` ... `Division_Override`), 24-hour times, `TBD` for a game with no time
+  slot, the end date rolled past midnight, `Event_Type` Game, `Team1_Is_Home` 1 for the home
+  side. HQ matches games by its own team IDs, so you paste `Hawks = 2270996_271208` lines
+  (HQ lists them on the template's Team/Division ID tab); a team without one is named in the
+  error.
+
+The column lists are copied from the templates the platforms publish, read 2026-11-17
+(`eval/platform-templates-2026-11-17.md` has the URLs, header rows and SHA-256 of each file),
+and `platform-import.test.mjs` pins them. **Not done:** no file has been uploaded to a real
+TeamSnap or SportsEngine account (both need a paid organisation account), so what each
+platform does with, say, a repeated Short Label is untested; the multi-division page has no
+platform export yet.
+
+## A shorter season with an even strength of schedule (2026-11-17)
+
+"Rounds to play" cuts a round robin short: 20 teams with a ten-week season play the first
+10 of 19 rounds. Those were the circle method's first rounds, and the circle method fixes
+one team (the last listed) and rotates the rest, so that team met **teams 1 to 10**. With
+the teams listed best first, as the pool-play and seeding boxes already ask, the bottom
+seed got the ten strongest opponents (mean opponent seed 5.5 where an even share is 10.0),
+and the gap grows with the league: 30 teams over 12 rounds were 8.5 seed places off.
+
+Tick **"Shorter season: even out strength of schedule"** (`balanceSeeds: true` in a spec,
+carried by the share link) and `balanceSeedStrength` in `calc.mjs` gives teams their
+places in the shorter season so every team's opponents average close to the mean seed of
+every other team. It searches relabellings by seeded annealing on pair swaps (sum of
+fourth powers of each team's gap, keeping the least worst gap), with a fixed work budget
+so a share link rebuilds the same season. A relabelling moves teams, not patterns: every
+home/away sequence, break count and carry-over count is unchanged and no pair meets
+twice. Blackout fit, which also relabels, now only takes swaps that keep the balance
+(`fitPlanToBlackouts(..., { keep })`). `seedStrength(plan, n)` reports each team's
+opponent mean, its even share and the gap.
+
+How it was checked (`eval/seed-balance.mjs`, output `eval/seed-balance.txt`): worst
+team's gap in seed places, plain first-k rounds to balanced, with the exact optimum over
+all n! relabellings where that is small enough to enumerate:
+
+| teams x rounds | plain | balanced | exact optimum | breaks (both) | time |
+|---|---|---|---|---|---|
+| 8 x 5 | 1.03 | 0.34 | 0.34 | 4 | 16 ms |
+| 9 x 5 | 1.38 | 0.50 | 0.50 | 0 | 12 ms |
+| 10 x 6 | 1.50 | 0.11 | 0.11 | 4 | 19 ms |
+| 12 x 8 | 1.50 | 0.25 | - | 6 | 17 ms |
+| 20 x 10 | 4.50 | 0.56 | - | 8 | 48 ms |
+| 30 x 12 | 8.50 | 0.36 | - | 10 | 62 ms |
+| 64 x 20 | 21.50 | 0.54 | - | 18 | 232 ms |
+
+On all five sizes small enough to try every relabelling (6 x 3, 8 x 4, 8 x 5, 9 x 5 and
+10 x 6) the search finds the exact optimum. Tests: `seed-balance.test.mjs`. Not done:
+picking a different set of rounds as well as the relabelling. Tried while building this
+(annealing over which k of the n - 1 rounds to play): it did not lower the worst gap
+reliably and raised home/away breaks sharply (12 teams x 8: 6 to 34), so it was dropped.
+The seeds are only the list order: a league with no idea who is strong should leave the
+box off, and it changes nothing for a full round robin, where everyone meets everyone.
+
 ## Doubleheader nights: every team's games back to back (2026-11-15)
 
 Many rec leagues play two games a night (adult softball doubleheaders, volleyball and cornhole nights, darts with
@@ -309,6 +710,623 @@ Not done: groups for odd leagues; designs for 14, 18, 20 and 28 teams (20 teams 
 so each night must be two closed groups of ten; the halves design needs K10,10 in three such nights plus a
 matching, and annealing from it stops at 2 crossing matches); three sessions a night (9 times) by design; the
 full-booking argument above as part of the courts hint.
+
+### Closed sessions for every league size: a SAT solver writes the designs (2026-11-15, latest)
+
+The halves and XOR designs above cover multiples of 12 and powers of two; for 14, 18, 20 and 28 teams the
+annealing stopped at 2 crossing matches and the note said those sizes needed designs. They do not need a
+construction: a SAT solver finds them in seconds (`eval/session-design-sat.py`, python-sat with CaDiCaL,
+eval only). The encoding: x[r, i, j] for "i and j meet in round r" (every pair once, every team once a
+round), y[t, v, k] for "team v plays in session k on night t" (each block at most 2 x courts teams), and
+for every round of night t, a match joins two teams of the same block. Round 0 is fixed and team 0 sits
+in block 0 every night, which costs no generality.
+
+Results (`eval/session-design-sat.txt`; timeout 300 s a size, 4-core container):
+
+- **Two sessions (6 time slots, the least courts, ceil(n / 4)):** every even league of 10 to 48 teams is
+  satisfiable, in 0.1 s (14 teams) to 32 s (46 and 48). 8 teams on 2 courts is UNSAT, the solver
+  re-deriving the hand argument of part 3 below.
+- **Three sessions (9 time slots, ceil(n / 6) courts):** 15 of 19 sizes found (16 to 48 teams, 8 to 197
+  s); 14, 38, 40 and 46 ran out of time. 12 teams on 2 courts x 9 is UNSAT: every night would be three
+  K4s, and no round robin of 12 holds three such nights edge-disjoint (a full booking forces each
+  session's four teams to fill its three rows, so the blocks are not a modelling choice).
+
+The 32 designs are stored, one character per team per round, in `session-designs.mjs` (33 KB, generated by
+`eval/write-session-designs.mjs`, which re-checks each). `designCandidates(n, g)` lists the algebraic
+design first and then the stored ones; `designedNights` relabels each by the seed and keeps the first
+whose nights all pack. A test re-checks every stored design in JS (each pair once, each round perfect,
+each night's components packing into its blocks).
+
+Measured (`node eval/three-game-nights.mjs`, `eval/three-game-nights.txt`, seeds 1 to 3, every season valid):
+
+- Part 1 at 6 slots: 14 teams on 4 courts 33 waits to 0, 18 on 5 courts 101 to 0, 20 on 5 courts 194 to 0.
+  Builds there take 0.26 to 0.34 s instead of 2.1 to 2.5 s (no annealing). Settings with no waits 30 to
+  33 of 39; total waits 467 to 143. What is left at 6 slots is odd leagues
+  (7, 9, 11, 13 teams; groups for them are still open), 6 teams on 2 courts and the 8-team night proved
+  impossible.
+- Part 4 now runs every even size 22 to 48 at 6 slots: all 13 reach 0 waits on every seed (28 teams 360 to
+  0; 22, 26, 30, 34, 38, 40, 42, 44 and 46 are new), in 0.4 to 2.3 s a build.
+- Part 5 (new) runs 12 to 48 teams at 9 slots on ceil(n / 6) courts: 16 of 19 sizes at 0 waits on every
+  seed. 12 teams keep 78 (proved, above), 40 and 46 keep theirs (no design yet); 14 and 38 need none.
+
+Two bugs found on the way, both fixed with a test:
+
+- **A team booked twice at one time** (44 teams, 3 games on 11 courts x 6 times, seed 2, search off).
+  The slot annealing priced a clash at 1,000, and one swap touching four teams can save more than that in
+  idle slots at 200 each, so it traded a double booking for fewer waits. A clash now costs 10^7, above
+  any one swap's gap change. A scan of 504 seasons (2 and 3 games, 6 to 44 teams, 4 to 9 slots, the least
+  courts, seeds 1 to 3, search off) found this one season on `main` and none after. Leftover matches the
+  night layout cannot place now also go to a row holding neither of their teams.
+- **Waits the plan said were not there** (26 teams on 5 courts x 9 times, 0 waits planned, 69 in the
+  season). The season's layout orders the exact search by each team's time-row usage so far; on six of
+  nine nights that order spent the 3,000-node budget where the plain order finds a layout at once. It now
+  tries the plain order when the usage order fails. 26, 32, 38 and 44 teams at 9 slots went to 0 waits
+  with the search off.
+
+Open (updated below): three-session designs for 14, 38, 40 and 46 (longer solver runs, or a
+symmetry such as a cyclic group acting on the teams). 40 and 46 closed 2026-11-16 with a cyclic group
+(section "Three sessions at 40 and 46 teams" below); 14 and 38 reach 0 waits without a design.
+
+### Big odd leagues at 9 slots: 33 to 63 teams, one pattern laid out once (2026-11-16)
+
+`MAX_TEAMS` is 64, but before this run no odd league above 31 teams had a stored design, so every odd
+league of 33 to 63 teams at 9 time slots kept its waits on the least courts: 33 teams on 6 courts 377
+waits over seeds 1 to 3, 63 teams on 11 courts 2,643 (`node eval/odd-cyclic-check.mjs`, before).
+
+For an odd league n = 3k (33, 39, 45, 51, 57, 63) the rounds split into k nights with no short
+night, and `eval/odd-cyclic.py`'s patterned starter (the circle method as a 1-rotational round robin)
+covers Z_n with the k translates of one pattern, {0, 1, 2}. So one SAT layout of one night, about
+1.5 n matches, is the whole season. On the least courts at 9 slots these nights leave 6 slots spare
+(48 of 54 at 33 teams, 93 of 99 at 63), and the first pattern laid out every time:
+
+| Teams | Courts x 9 | Matches a night / slots | Layout solve (s) / whole script (s) | Waits before (3 seeds) | Waits now | Build (ms), before to now |
+|---|---|---|---|---|---|---|
+| 33 | 6 | 48 / 54 | 0.4 / 5 | 377 | 0 | 5,350 to 769 |
+| 39 | 7 | 57 / 63 | 0.2 / 14 | 583 | 0 | 5,283 to 849 |
+| 45 | 8 | 66 / 72 | 3.8 / 36 | 966 | 0 | 3,790 to 823 |
+| 51 | 9 | 75 / 81 | 4.1 / 55 | 1,354 | 0 | 3,601 to 1,213 |
+| 57 | 10 | 84 / 90 | 1.2 / 111 | 1,896 | 0 | 4,981 to 1,372 |
+| 63 | 11 | 93 / 99 | 7.0 / 197 | 2,643 | 0 | 7,035 to 1,884 |
+
+The builds also got 3 to 7 times faster: with a stored design the tool lays each night out from the
+stored rows instead of annealing.
+
+**Where it does not reach (measured this run).**
+
+- **n = 3k + 2 (35, 41, 47, 53, 59 teams), the same class as 29.** On the least courts these nights
+  have 3 spare slots (51 of 54 at 35 teams, 60 of 63 at 41), like 29 on 5 x 9 (42 of 45). 35 on 6 x 9
+  and 41 on 7 x 9 were stopped after 8 to 12 minutes with no pattern laid out (the runs shared 4 cores with three others). The proof in the 29-team
+  section rules out the group method for all of them. 29, 35 and 41 were later closed by the SAT
+  neighbourhood search (`eval/odd-lns.py`, sections below); 47 and up are open.
+- **6 time slots.** The odd leagues above 29 teams on the least courts at 6 slots are fully booked or
+  3 slots short of it (31 on 8 x 6: 45 of 48; 33 on 8 x 6: 48 of 48). No pattern laid out at 31 on 8 x 6
+  (145 patterns on each of two starters, 560 s) or 39 on 10 x 6 (307 s).
+- **37 teams on 6 x 9 is fully booked** (54 matches in 54 slots; n = 3k + 1, k = 12), so it went to
+  `eval/odd-orbit.py`, the turned-night construction of the next section: SAT in 2,783 s (111,006
+  variables; 31 teams took 626 s), waits over seeds 1 to 3 701 to 0, 1,246 ms a build. 43 on 7 x 9
+  (k = 14) ran the same script alongside and was stopped after 39 minutes with no answer; a later run
+  given the time answered SAT in 9,849 s, so it is wait-free now (1,073 waits to 0; section "43 teams
+  on 7 x 9" below, `eval/odd-orbit.txt`).
+- **49 teams on 9 courts x 9** is already wait-free without a design (spare courts), so its design was
+  not stored. On the least courts, 8, it is fully booked (n = 3k + 1, k = 16), the turned-night case.
+
+(The whole script's time is mostly checking and decoding the season; up to four runs shared the 4 cores.)
+
+### Fully booked odd nights: one night turned by three k-cycles, 19, 25 and 31 teams (2026-11-15)
+
+19 teams on 3 courts x 9 slots and 25 on 4 x 9 use every slot of a three-round night (27 matches
+in 27 slots, 36 in 36). The three earlier methods all failed there: the whole-season model ran past
+30 minutes, no cyclic pattern laid out (below), and `eval/odd-pack.py`, which searches for any
+renamings of one wait-free night that pack edge-disjoint into the round robin, ran 25 minutes with
+no answer. `eval/odd-orbit.py` fixes the renamings in advance with a group.
+
+**The construction.** Let n = 3k + 1 with k even (7, 13, 19, 25, 31, 37, ...) and let g turn three
+rings of k teams (0..k-1, k..2k-1, 2k..3k-1) one step each, fixing team 3k and the bye. Under g a
+pair of half-turn opposites in one ring ({0, k/2}, ...) has an orbit of k/2. Those 3k/2 pairs and
+{3k, bye} cover every team once, so together they are one round: the last night, one game per
+team. Every other pair has an orbit of exactly k, and there are 3(n + 1)/2 such orbits, exactly the
+pairs of one three-round night with its bye pairs. So a wait-free night H that takes **one pair
+from every full orbit** gives the season: nights H, gH, ..., g^(k-1)H use every pair once, each is
+H with its teams renamed (the same rows), and the short orbits are the last round. The SAT model
+is one night (`odd-night-sat.py`'s match rows and window shapes plus "exactly one pair per orbit").
+
+| Teams | Courts x 9 | k | Solve (s) | Waits before (3 seeds) | Waits now |
+|---|---|---|---|---|---|
+| 19 | 3 | 6 | 23 | 171 | 0 |
+| 25 | 4 | 8 | 141 | 281 | 0 |
+| 31 | 5 | 10 | 626 | 499 | 0 |
+
+It also finds the stored 13 on 3 x 6 (fully booked) in 0.0 s and 19 on 5 x 6 in 0.2 s (the
+whole-season model: 3.4 s and 66 s), and it is UNSAT for 13 on 2 x 9, which the whole-season model
+solved, so a "no" rules out this group only. Sizes 3k + 2 (29 teams) are not covered: with odd k the
+short orbits are a triangle, not two rounds. Measurements: `eval/odd-orbit.txt`;
+`node eval/odd-cyclic-check.mjs 19:3:9 25:4:9 31:5:9` reruns the tool's before and after.
+`doubleheader.test.mjs` builds all three wait-free (and with waits when the search is off), and the
+stored-designs test re-checks the solver's rows for all 24 designs. (`odd-night-sat.build` gained a
+`fix_round0` flag, on by default, so a caller with its own structure can drop the round-0 fix.)
+
+29 on 5 x 9 (3k + 2; no group of order k can work, proved in the next section) was solved by a
+neighbourhood search instead (two sections down). 37 on 6 x 9
+was solved by the same script on 2026-11-16 (2,783 s, section above) and 43 on 7 x 9 on 2026-11-17
+(9,849 s); 49 on 8 x 9 is the next fully booked size.
+
+### 29 teams on 5 x 9: why one turned night cannot work, and what was tried (2026-11-16)
+
+29 teams on 5 courts x 9 slots is the open size from the section above (42 matches a night in 45
+slots). The tool leaves 334 waits over seeds 1 to 3 (`node eval/odd-cyclic-check.mjs 29:5:9`,
+3.6 s a build). This run did not find a wait-free season. It found why the method that solved 19,
+25 and 31 cannot, measured three other routes, and left a script for the next run.
+
+**No group of order k can turn one night into the season (proof).** Write n = 3k + 2 (k = 9 at 29
+teams), so N = n + 1 = 3(k + 1) counting the bye. For `eval/odd-orbit.py`'s idea the k full nights
+must be one orbit of a group G of order k acting on the teams, and every element must fix the bye
+(a rename that moves the bye puts a sitting-out team on a court). Take a prime p dividing k (p is
+odd, since k is) and h in G of order p. The points h fixes number N mod p, which is 3 mod p, or 0
+when p = 3; it includes the bye, so h fixes at least 3 points. A pair of h-fixed points lies on
+some night X with hX = X, and in one regular orbit of nights no full night is fixed by h, so every
+such pair is on the short two-round night. Three h-fixed points give a triangle there, and two
+matchings cannot hold a triangle. So the "triangle, not two rounds" note above is not a quirk of
+the three k-cycles: no group of order k works, for any 3k + 2 with k odd (17, 23, 29, 35, ...).
+
+**What was tried, all on this 4-core container (`eval/odd-triple.txt`):**
+
+- **1-rotational round robins** (`eval/odd-cyclic.py --random-only`, new flag: skip the patterned
+  starter). Three more random starters (seeds 101 to 103), 126 night patterns each, 447 to 461 s a
+  starter: none lays out. With the three tried before, 756 patterns, none.
+- **One night exists.** `odd-night-sat.py 29 --courts 5 --times 9 --shape --nights 1` is SAT in
+  575 s (151,246 variables). Its layout is three near-closed sessions: 8 teams in rows 0 to 2,
+  7 in rows 3 to 5, 8 in rows 6 to 8, and six teams (the three sitting out among them) bridging
+  the sessions. A 1-rotational night spreads every team's opponents round Z_29, which is likely why
+  none of its patterns fit this shape.
+- **A rename of order 3 with fixed nights** (`eval/odd-triple.py`, new). g turns eight 3-cycles and
+  fixes six points (five teams and the bye). The five rounds g fixes hold the six fixed points'
+  15 pairs as the one 1-factorization of K6 and are the short night plus one fixed night; the other
+  24 rounds fall into eight orbits {R, gR, g^2 R}, laid out either as orbit nights (three nights,
+  one layout) or as "turned" nights {R, gR, g^2 R}. The model lays out 6 to 10 distinct nights
+  instead of 10. At 29 the fixed night alone lays out in 3 s, but the whole model (2, 5 or 8 turned
+  nights; CaDiCaL 1.5 and 1.9) gave no answer in 50 minutes each. It is UNSAT for 11 teams (two
+  3-cycles give only three g-fixed matchings, five are needed) and for 17 on 3 x 9 with one turned
+  night (its fixed night has no layout, 0.9 s), so it is not a route to those sizes either; 17 and
+  23 are solved already by other scripts.
+
+Solved since by a different route, the next section (`eval/odd-lns.py`, no group). An order-2 rename
+was not needed: worked through, an involution fixing two points forces one round (every swapped pair
+plus the two fixed points) and leaves six of the ten nights to lay out, about what odd-triple.py had.
+
+### 29 and 35 teams, solved: two nights re-dealt at a time (2026-11-16, latest)
+
+The open size above now has a wait-free season, stored like the others: over seeds 1 to 3 the tool
+goes from 334 waits to **0**, and a build from 3.6 s to 1.1 s (`node eval/odd-cyclic-check.mjs
+29:5:9`). The next size of the same class followed: 35 teams on 6 x 9, 505 waits to **0**, 3.8 s to
+1.5 s a build. Both came from `eval/odd-lns.py` (new), which uses no group at all.
+
+**The search.** The state is a whole round robin (29 rounds of K_30, the bye as team 29) in the
+tool's night order: nine nights of three rounds and a last night of two. A night is good when its
+own matches have a wait-free layout, a small SAT question (one night's 42 matches, not the 435 pairs
+the one-night model chose from, which is why that model took 575 s). A step frees two nights, at least
+one bad, and asks the solver to deal the 90 pairs they hold into the same six rounds again, each pair
+once and each team once a round, with a layout for both nights, a good-night indicator per night
+that switches its back-to-back clauses on, and "at least one more good night than before". The
+other eight nights keep their pairs, so every state is a round robin. When six steps in a row find no
+improvement inside their 120 s, it takes a sideways step (as many good nights, pairs re-dealt with
+random phases) so the bad night sees new pairs. Each team's rows are encoded as one start row and a
+window of g rows, or g - 1 for a team that sits out tonight, which the solver handles far better
+than the betweenness clauses (row a and row c imply every row between).
+
+| Run (4 at once, 4 cores) | Good nights over time | Result |
+|---|---|---|
+| seed 6 | 1 at 29 s, 5 at 123 s, 8 at 1,018 s, 10 at 1,186 s | stored |
+| seeds 3, 5 | 9 of 10 at 991 s and 1,046 s | stopped when seed 6 finished |
+| seed 4 | 8 of 10 at 1,049 s | stopped |
+| 35 teams, seed 1 | 1 of 12 at 205 s, 5 at 764 s, 10 at 2,413 s, 12 at 4,724 s | stored |
+| 35 teams, seed 2 | 10 of 12 at 2,920 s | stopped |
+| 41 teams, seeds 1, 2 | 1 of 14 at 262 s, no step landed | stopped to free cores |
+
+What did not work on the way (`eval/odd-lns.txt`): Glucose 4 with the betweenness clauses sat at
+1 of 10 nights for 10 minutes; three nights freed a step climbed more slowly than two (6 of 10 at
+2,000 s). A first version also held the two-round last night to three-game windows, which it can
+never meet, and stalled at 9 of 10 for 112 steps; windows now follow the night's round count.
+
+`doubleheader.test.mjs` builds 29 on 5 x 9 wait-free (and with waits when the search is off), and
+the stored-designs test re-checks the solver's rows for all 33 designs (35 on 6 x 9 is built the same way). `eval/write-odd-designs.mjs`
+gained `--append` (keep the stored designs, add new ones), since the earlier solver output is not
+kept in the tree; a plain run with no files rewrites the file unchanged.
+
+Open: the same class at 47 on 8 x 9 (41 on 7 x 9 closed, next sections) (3 spare slots
+a night, no group of order k), and the fully booked 49 on 8 x 9 (43 on 7 x 9 closed 2026-11-17 by
+`eval/odd-orbit.py`, the section after next).
+
+### 49 teams on 8 x 9: a turn-fixed night does not lay out, and two hours of four solvers (2026-11-17, latest)
+
+The open fully booked size, 49 teams on 8 courts x 9 slots, was estimated at about 11 hours for
+`eval/odd-orbit.py` on one core. This run tried to cut that and did not. Both results are negative,
+and both are written down so the next run skips them (`eval/odd-orbit-sym.txt`).
+
+- **A second symmetry: no layout on a fully booked night.** `eval/odd-orbit-sym.py` adds to the
+  orbit model that the night's set of pairs is also fixed by turning the three cycles (A to B to C to
+  A, same position). That commutes with g and moves every full orbit, so the solver picks one pair
+  per class of three orbits. The pairs alone always exist (`eval/odd-orbit-sym-pairs.py`, SAT at 13
+  and 19). With the layout, every fully booked size tried was UNSAT: 13 on 3 x 6 in 0.5 s, 19 on
+  3 x 9 in 82 s, and 25 on 4 x 9 gave no answer in 11 minutes against 141 s without the symmetry.
+  With a court to spare it is SAT (13 and 19 on 4 x 9; 7 on 3 x 6). Fixing only some kinds of orbit
+  (`--only`) was UNSAT at 13 or no faster at 19 (39 s against 34 s). 49 on 8 x 9 is fully booked, so
+  this is not a route there. Two other symmetries fail on paper: swapping A and B pointwise maps an
+  orbit onto itself with no fixed pair, and any turn whose cube is a power of g other than the
+  identity puts two pairs of one orbit in the night.
+- **The plain model with four solvers at once, two hours each: no answer.** CaDiCaL 1.9, CaDiCaL
+  1.5.3, MapleChrono, and CaDiCaL 1.9 with totalizer instead of sequential-counter cardinalities,
+  one per core, all stopped at 6,600 to 7,000 s. That fits the ~4x-a-size trend (43 on 7 x 9 took
+  9,849 s alone).
+
+What is left for 49: one run of `eval/odd-orbit.py 49 --courts 8 --times 9 --solver cd19` of about 11 hours
+on its own core (a session's background limit is 2 hours, so it needs a resumable or split search),
+or a model that fixes the window shapes and team positions first. The tool still builds 49 on 8 x 9
+with waits.
+
+### 47 teams on 8 x 9: five more runs from 13 of 16, no climb (2026-11-17, later)
+
+The next step the section below asked for, run as written plus one new setting: three resumes of
+`eval/odd-lns.py` from the stored 13-of-16 state, side by side on four cores, 6,000 s each, and
+`eval/lns-bad-night.py` on the fourth (full logs at the end of `eval/odd-lns.txt`).
+
+| Seed | Settings | Steps | Sideways | Better | Failed repairs |
+|---|---|---|---|---|---|
+| 131 | `--also 15` | 23 | 4 | 0 | 18, all timeouts |
+| 132 | `--also 15 --sideways-after 2` | 28 | 11 | 0 | 18, all timeouts |
+| 133 | `--free 3` (new at 47) | 20 | 1 | 0 | 19, all timeouts |
+
+- **The search has stalled at 13.** With seeds 121 and 122 from the last session, five runs from 13
+  have found no climb in 26,870 core-seconds. The bad nights stay 2, 3 and 11. The sideways steps
+  re-deal their pairs without making any of them lay out.
+- **Night 2 alone is not proved impossible.** Its 69 matches (7,485 variables, 17,103 clauses)
+  came back UNKNOWN after 3,600 s with the one-night model. At 41 teams the last bad night was UNSAT
+  in 677 s, and that verdict pointed straight at a re-deal. Here a layout may exist, but the search's
+  300 s repairs never reach it. A longer budget (seed 92, 900 s) already did worse.
+- **Freeing three nights did not help.** `--free 3` made one sideways step in 6,208 s, the slowest
+  of the three. That matches 41 teams, where freeing three nights a step also stalled.
+
+The stored state is unchanged (13 of 16). Throwing more seeds at the same moves is unlikely to pay
+off. The next attempt should change the method: an orbit model like the one that closed 43 on 7 x 9
+(`eval/odd-orbit.py`, with the 4x-a-size cost) for the n = 6m + 5 family, or a one-night model with
+symmetry breaking so that night 2 returns SAT or UNSAT within an hour.
+
+### 47 teams on 8 x 9: 5 to 13 of 16 nights, and why the repairs fail (2026-11-17, later)
+
+The state saved by the last run (5 of 16, "47 teams on 8 x 9: 5 of 16 nights" below) is now **13 of 16** wait-free nights,
+stored in `eval/lns-states/47-8x9.json` and checked by `lns-state.test.mjs`. The tool still anneals
+47 on 8 x 9, with waits, until the last three nights lay out. Same script, `eval/odd-lns.py`, four
+cores, about 4.5 hours, one container restart; full logs in `eval/odd-lns.txt`.
+
+- **A relay, not one long run.** Each time a run found a better state it was committed, and the
+  slowest run was restarted from it: seed 71 took the state from 5 to 11 (12,757 s, steps at
+  2,915, 6,496, 8,614, 9,201, 12,202 and 12,757 s), seed 78 found a 10 of its own from 9, and after
+  the restart seed 103 took 11 to 12 on its first step (372 s) and to 13 at 1,348 s. Seed 112
+  reached 12 separately.
+- **Every failed repair ran out of time; none was proved impossible.** The script now counts failed
+  repairs by cause (`timeout`, `unsat`, `unconfirmed`, printed with each step). Over the instrumented
+  runs: at least 98 failed repairs, every one a timeout, 0 UNSAT, 0 unconfirmed. That differs from 41 teams, whose last bad
+  night was UNSAT on its own pairs (`eval/lns-bad-night.py`), and says the step budget, not the
+  pairs, is what stops a step here.
+- **But a longer budget did worse.** Seed 92 with 900 s repairs made one sideways step in about
+  6,500 s and never climbed; the 300 s runs climbed in the same time. Most climbs came within one to
+  four repairs of a sideways step (as many good nights, pairs re-dealt), which the search tries only
+  after 6 failures in a row. `--sideways-after N` (default 6) makes that number an option; seed 112
+  with 2 reached 12 from 11 at 841 s, seed 103 with 6 at 372 s, so there is no verdict yet. The
+  last two runs, from 13 with `--also 15` (one with `--sideways-after 2`), took 8 sideways steps
+  between them in about 4,000 s each and no climb.
+- **Freeing the short night helps here.** At 41 teams `--also` (always free the short last night
+  with a bad one) was untested. At 47, both of seed 103's climbs, 11 to 12 and 12 to 13, freed night
+  15 with a bad night, so its 2 rounds (46 matches in 72 slots) took the pairs that did not fit.
+
+Next: `python3 eval/odd-lns.py 47 --courts 8 --times 9 --seed S --step 300 --also 15 --resume-check 60
+--resume eval/lns-states/47-8x9.json --save /tmp/47.json` on four cores (two of them with
+`--sideways-after 2`), then, once the season is whole, `node eval/write-odd-designs.mjs --append`.
+
+### 43 teams on 7 x 9: one fully booked night, turned fourteen times (2026-11-17)
+
+**43 teams on 7 courts x 9 slots now plays three back-to-back games a night for every team, every
+night.** Through the tool, seeds 1 to 3 (`node eval/odd-cyclic-check.mjs 43:7:9`): **1,073 waits to
+0**, 2.5 s a build. It is the fifth size of the fully booked n = 6m + 1 family after 19, 25, 31 and
+37: three rounds of 22 pairs is 63 real matches a night in exactly 63 slots, so every court is busy in
+every slot and every team plays rows r, r + 1, r + 2.
+
+- **Nothing new in the method, only the time.** `eval/odd-orbit.py` (three 14-cycles, team 42 and the
+  bye fixed; one night that takes one pair from each of the 66 full orbits, turned 14 times, plus the
+  half-turn pairs as the last round) was stopped after 39 minutes on 2026-11-16. Run alone on a core
+  with CaDiCaL 1.9 (`--solver cd19`), it answered SAT in **9,849 s** (166,511 variables, 377,525
+  clauses). The solve times so far grow about 4x a size: 23 s, 141 s, 626 s, 2,783 s, 9,849 s.
+- **Stored and checked.** The season was re-checked whole by `odd-night-sat.check` before it printed,
+  appended with `node eval/write-odd-designs.mjs --append eval/odd-designs/43-7x9.json` (35 designs),
+  and `doubleheader.test.mjs`'s stored-designs test re-checks its rows like the others.
+
+At 9 slots on the least courts every odd league from 11 to 45 teams is now wait-free except 47 (8 x 9,
+n = 3k + 2, the neighbourhood search: best state 13 of 16 nights since 2026-11-17 later,
+`eval/lns-states/47-8x9.json`, section above) and 49 (8 x 9, fully booked; at the 4x trend the orbit model needs about 11 hours on a core).
+
+### 47 teams on 8 x 9: 5 of 16 nights, saved for the next run (2026-11-17)
+
+47 teams on 8 x 9 (69 matches a night in 72 slots, 15 nights of three rounds and a short night of two)
+is the next size of the 29, 35, 41 class. `eval/odd-lns.py` ran on it for the first time this session
+(container restarted once; `--save` kept the states). Best state: **5 of 16 nights**, stored as
+`eval/lns-states/47-8x9.json`; `lns-state.test.mjs` now checks every file in `eval/lns-states/`
+(round robin, and each stored night wait-free on its own courts x slots), not only the 41-team one.
+
+| Run | Good nights over time | End |
+|---|---|---|
+| seeds 1, 3 (fresh, 300 s steps) | 1 at 300 s, 2 at ~500 s | restarted with the container |
+| seed 2 (fresh) | 1 at 300 s; 3, 4, 5 at 5,169, 6,024, 6,123 s | 5 of 16 at 9,166 s |
+| seed 11 (resumed from seed 1 at 2) | 3 at 3,650 s | 3 of 16 at 9,067 s |
+| seed 13 (resumed from seed 3 at 2) | 4 at 4,476 s, 5 at 5,370 s | 5 of 16 at 9,012 s |
+| seeds 31, 41, 51, 61 (resumed at 5; 51, 61 with `--also 15`) | 5 at 661 s (60 s re-checks); no step accepted | lost to a second container restart (31: ~1.3 h in) |
+
+The climb is slower than 41 teams' (1 to 7 good nights in about 4,200 to 5,500 s there, 1 to 5 in
+5,000 to 6,000 s here), and a resume spends up to 180 s re-checking every unlaid night before its
+first step (`--resume-check 60` cut that for the later resumes). Next:
+`python3 eval/odd-lns.py 47 --courts 8 --times 9 --seed S --step 300 --limit 14000 --resume-check 60
+--resume eval/lns-states/47-8x9.json --save /tmp/47.json`, four seeds on four cores, and the short last
+night (night 15) freed with the bad one once few bad nights are left (`--also 15`), the move that
+closed 41.
+
+### 41 teams on 7 x 9: the last night, and a season with no waits (2026-11-16)
+
+The 13-of-14 state below is finished: **41 teams on 7 courts x 9 slots now plays three back-to-back
+games a night for every team, every night.** Through the tool, seeds 1 to 3: 752 waits to 0, and a
+build takes 2.0 s instead of 3.4 s, because it lays each night out from the stored rows instead of
+annealing.
+
+- **The bad night was impossible, not slow.** `eval/lns-bad-night.py` takes a saved state and solves
+  each night with no stored layout alone, with the same one-night model the search uses, under one
+  long limit. Night 5's 60 pairs came back UNSAT in 677 s: no layout of them is wait-free, so no
+  amount of extra solve time on that night would have helped. Only a re-deal could fix it.
+- **What fixed it.** A resumed run (`--free 2 --step 300`, seed 23) freed night 5 together with the
+  short last night (2 rounds, 40 matches in 63 slots, 23 spare) on its ninth step. The step re-dealt
+  those five rounds' pairs and laid both nights out: the short night took the pairs night 5 could not
+  place. The pick was random. A new `--also 13` option, which always frees the short night with the
+  bad one, was started after the UNSAT verdict and had not landed a step when seed 23 finished, so
+  it is untested. Two runs freeing three nights a step made one sideways step in 45 minutes.
+- **Stored and checked.** The season was re-checked whole before it printed, written to
+  `odd-designs.mjs` by `eval/write-odd-designs.mjs` (which checks it again, match by match), and
+  `eval/lns-states/41-7x9.json` now holds the finished state, which `lns-state.test.mjs` checks in Node.
+
+The n = 3k + 2 class on the least courts is now wait-free at 29, 35 and 41 teams. 47 on 8 x 9 is next;
+it has 3 spare slots a night like the others and 16 nights. Full log: `eval/odd-lns.txt`.
+
+### 41 teams on 7 x 9: 13 of 14 nights, and a search that survives the session (2026-11-16)
+
+41 teams on 7 courts x 9 slots (60 matches a night in 63 slots) is the next size of the 29 and 35
+class. An earlier run of `eval/odd-lns.py` sat at 1 of 14 good nights with no step accepted. This run
+did not finish the season: the best state has **13 of 14 nights** wait-free, and three resumed runs
+of 80 minutes each could not lay out the last one. The tool still anneals 41 on 7 x 9, with waits.
+What landed is the search's ability to get that far and to carry on later:
+
+- **A repair keeps its own layouts.** The solver lays out every night it marks good while it re-deals
+  the pairs; the script used to throw that away and lay each night out again under a 20 s limit,
+  rejecting the step when the second solve timed out. At 41 teams it often did. Now the repair's
+  layouts go straight into the cache (the final season is still re-checked whole before it prints).
+  With this change four fresh seeds climbed from 1 to 9, 10 and 11 of 14 in their 3.9 hours, where
+  the old code had not landed one step.
+- **`--save` and `--resume`.** The state (the round robin and the layouts of its good nights) is
+  written after every accepted step; `--resume` starts from it and re-checks each stored layout
+  match by match (`night_ok`) instead of solving it again. The first resumes had only the rounds and
+  re-checked under 20 s, so 11 good nights came back as 9 or 10; nights with no stored layout now get
+  180 s (`--resume-check`), and 12 came back as 12. Resuming a new seed on the best state is how the
+  run went from 11 to 13 (seed 4, then seed 8).
+
+| Run | Good nights over time | End |
+|---|---|---|
+| seeds 1, 3, 4 (fresh) | 1 at ~250 s; 7, 6, 7 at ~4,200 to 5,500 s | 10, 9, 11 of 14 at 14,000 s |
+| seed 8 (resumed from seed 4 at 11) | 11 at 696 s, 13 at 6,081 s | 13 of 14 at its limit |
+| seeds 11 to 13 (resumed from seed 8 at 13) | no gain in 4,800 s each | 13 of 14; the bad night moved (4, 2, 5) |
+
+The state is in the tree, `eval/lns-states/41-7x9.json`, and `lns-state.test.mjs` checks it in
+Node: a whole round robin, and each of the 13 stored nights wait-free on 7 x 9 (one row per match,
+at most 7 a row, each team's games back to back). The next run resumes from it:
+`python3 eval/odd-lns.py 41 --courts 7 --times 9 --seed S --step 150 --resume
+eval/lns-states/41-7x9.json --save /tmp/41.json`. Full log: `eval/odd-lns.txt`.
+
+### Three sessions at 40 and 46 teams: one night turned by a group, solved in 0.1 s (2026-11-16)
+
+40 teams on 7 courts x 9 slots and 46 on 8 x 9 were the two even sizes left with waits at three
+sessions a night (Part 5 of `eval/three-game-nights.txt`: 794 and 1,201 waits over seeds 1 to 3,
+and 18.5 s and 11.8 s a build spent searching). The whole-season SAT model
+(`eval/session-design-sat.py`) ran out of its 300 s on both. `eval/session-orbit.py` (new) asks
+for one night instead, the idea `eval/odd-orbit.py` used for fully booked odd leagues.
+
+**The construction.** Write n = 3k + 1 with k odd (40 = 3 x 13 + 1, 46 = 3 x 15 + 1). Let g add 3
+(mod 3k) to every team but the last, which it fixes. Then g has order k, and because 3k is odd no
+power of g except the identity fixes a pair, so every pair's orbit has exactly k pairs: there are
+n(n - 1) / 2k = 3n / 2 orbits, exactly the number of matches in a night of three rounds. A night H
+that is three perfect matchings, takes one pair from every orbit, and splits into three closed
+blocks of at most 2 x courts teams gives the season: H, gH, ..., g^(k-1) H are k nights of three
+rounds (all 3k = n - 1 rounds), every pair meets once, and each night is H with its teams renamed,
+so its blocks have the same sizes. Unlike the odd case nothing is left over for a short night.
+The SAT model is one night: 3 x n(n - 1)/2 pair-and-round variables plus block membership.
+
+| Teams | Courts x 9 | k | Model (vars / clauses) | Solve | Blocks | Waits before (3 seeds) | Waits now | Build before / now |
+|---|---|---|---|---|---|---|---|---|
+| 40 | 7 | 13 | 10,472 / 37,022 | 0.1 s | 14 + 14 + 12 | 794 | 0 | 18.5 s / 1.5 s |
+| 46 | 8 | 15 | 13,883 / 49,154 | 0.1 s | 16 + 16 + 14 | 1,201 | 0 | 11.8 s / 2.1 s |
+
+(Solve times repeated three times each, same answer; 4-core container, CaDiCaL 1.5 via
+python-sat 1.9.dev22.) The two designs are stored in `session-designs.mjs` like the others
+(`node eval/write-session-designs.mjs --append out/40-3x9.json out/46-3x9.json`; `--append` is
+new, because the earlier solver output is not kept in the tree and a full rewrite would drop the
+32 stored designs). `doubleheader.test.mjs` re-checks both codes and builds both leagues wait-free.
+With them every even size of 14 to 48 teams has 0 waits at 9 slots on the least courts; only 12
+teams on 2 courts keeps its 78 (proved impossible above).
+
+The same script also solves 22, 28 and 34 teams (k = 7, 9, 11; already stored from the whole-season
+model) and 52, 58 and 64 teams (k = 17, 19, 21; 0.3 s each, blocks 18 + 18 + 16, 20 + 20 + 18,
+22 + 22 + 20). Those three are not stored: the eval and the stored designs stop at 48 teams, and
+the one-character code covers 64 teams at most. n = 3k + 1 with k even (14, 26, 38) is not
+covered: there the half-turn pairs in each ring have orbits of k / 2.
+
+### Odd leagues one night at a time: 21 and 23 teams on 4 x 9, 27 on 5 x 9 and 7 x 6 (2026-11-15, latest)
+
+The whole-season model above timed out on every odd size from 19 teams up at 9 slots. Those runs
+ask for the round robin and all of its nights at once. `eval/odd-cyclic.py` fixes the round robin
+instead, so it only has to solve one night.
+
+**Why one night is enough.** In a 1-rotational round robin of n odd teams (a *starter*: the nonzero
+residues mod n in pairs, using each difference +-d once; round r is the starter plus r, and team r
+sits out), adding 1 to every team maps round r to round r + 1. So the night made of rounds
+{s, s + a, s + b} is the night {0, a, b} with its teams relabelled. If one night's layout exists,
+every translate of it has the same layout. The script:
+
+1. asks a small SAT model (about 3n matches, each given a time row; at most `courts` a row; no team
+   twice in a row; each team's rows consecutive) for the layout of each pattern {0, a, b};
+2. covers Z_n with disjoint translates of the patterns that pass, leaving n mod 3 rounds for the
+   short last night (depth-first search);
+3. orders the rounds night by night, re-checks the season with `odd-night-sat.py`'s own `check`,
+   and prints the same JSON, so `eval/write-odd-designs.mjs` stores it unchanged.
+
+It tries the patterned starter (the circle method's {-k, k}) first, then random starters
+(`--starters`, `--seed`).
+
+| Teams | Courts x 9 | Courts at 6 slots | Starter | Solve (s) | Waits before (3 seeds) | Waits now |
+|---|---|---|---|---|---|---|
+| 21 | 4 | 5 | patterned, pattern {0,1,2} | 0.2 | 102 | 0 |
+| 23 | 4 | 6 | 5th tried (random, seed 1) | 26 (221 in all) | 184 | 0 |
+| 27 | 5 | none stored | patterned, {0,1,2} | 0.3 | 231 | 0 |
+
+At 6 slots it also found **27 teams on 7 courts** (39 matches a night in 42 slots; the whole-season
+model passed 40 minutes): the 10th starter tried has one pattern, {0, 4, 14}, whose nine translates
+cover all 27 rounds (56 s on that starter, 849 s in all). Waits over three seeds 201 to 0.
+
+It also found the stored 15 and 17 on 3 x 9 again in 0.1 s and 22 s, where the whole-season model
+took 51 s and 245 s.
+
+**Where it fails: fully booked nights.** At 13 teams on 3 x 6, 17 on 4 x 6, 13 on 2 x 9, 19 on 3 x 9
+and 25 on 4 x 9 every slot of the night is used. No pattern of any starter tried laid out (42
+starters x 51 patterns at 19 teams), while the whole-season model solves the 6-slot ones in seconds.
+One 19-team night on 3 x 9 does exist (`odd-night-sat.py ... --nights 1`, SAT in 33 s), so 19 on
+3 x 9 is still open. Only the translation structure has been ruled out, for the starters tried.
+Measurements: `eval/odd-cyclic.txt`. `node eval/odd-cyclic-check.mjs 23:4:9` reruns the tool's
+before and after.
+
+`doubleheader.test.mjs` builds 21 and 23 teams on 4 x 9, 27 on 5 x 9 (with waits when the search is
+off) and 27 on 7 x 6 wait-free. The stored-designs test re-checks the solver's rows for all 21 designs.
+
+Open: 19 on 3 x 9 and 25 on 4 x 9 (solved since, above: `eval/odd-orbit.py`), and 29 on 5 x 9
+(see `eval/odd-cyclic.txt`).
+
+### Odd leagues at 9 time slots: fewer courts, and three more proofs (2026-11-15, later)
+
+The odd designs above were all solved at 6 time slots. A league with 9 slots (three sessions a
+night) could use them, but only on the 6-slot court count, and on the courts the count bound asks
+for at 9 slots the tool left long waits: 11 teams on 2 courts 31 waits over seeds 1 to 3, 13 on 2
+courts 95, 17 on 3 courts 60, 19 on 3 courts 171, 25 on 4 courts 281
+(`eval/three-game-nights.txt`, part 7 "before").
+
+`eval/odd-night-sat.py ... --times 9 --shape` (the same model; `window_shapes` already took any
+slot count) found seasons for:
+
+| Teams | Courts x 9 | Courts at 6 slots | Solver (s) | Waits before (3 seeds) | Waits now |
+|---|---|---|---|---|---|
+| 9 | 2 | 3 | 1.3 | 0 | 0 |
+| 11 | 2 | 3 | 6.0 | 31 | 0 |
+| 13 | 2 | 3 | 100 | 95 | 0 |
+| 15 | 3 | 4 | 51 | 0 | 0 |
+| 17 | 3 | 4 | 245 | 60 | 0 |
+
+(Four runs shared a 4-core container, so the solver times are rough.) 9 and 15 teams were already
+wait-free at 9 slots without a design (spare slots), so their designs are a guarantee, not a gain.
+
+**Three settings proved to keep a wait** (UNSAT without the shape constraints, so the proof does not
+lean on `window_shapes`): 5 teams on 1 court x 9 (0.0 s), 7 on 1 court x 9 (0.0 s) and 7 on 2 courts
+x 9 (12 s). They join `PROVED_NO_WAIT_FREE`, so 7 teams on 2 courts x 9 now get "need at least 3
+courts ... checked for every possible 7-team season on 2 courts" instead of a bound they can't reach.
+
+**Stored per slot count.** `eval/write-odd-designs.mjs` used to keep one design per team count (the
+fewest courts); a 9-slot design on fewer courts would have replaced a 6-slot one and left 6-slot
+leagues without any. It now keeps the fewest courts per (teams, slots), and a 9-slot design only
+when it saves a court over the 6-slot one (`designedNights` already takes any design with
+`times <=` the league's). `doubleheader.test.mjs` checks both: 11 and 13 teams on 2 x 9 build
+wait-free (and keep waits with the search off), and 11 on 3 x 9 still uses the 6-slot design.
+
+Open: 19 teams on 3 x 9 (fully booked; the `--shape` run passed 30 minutes), 21 on 4 x 9 (passed
+20), 23 and 25 on 4 x 9, 27 and 29 on 5 x 9 (29 passed 25), and 27 on 7 x 6 (passed 40 this time,
+25 before). At 9 slots a full night allows far more window shapes than at 6, so the implied
+constraints prune less; a symmetry break on the first night, or solving night by night with the
+pairs left, are the next things to try (`eval/odd-night-sat.txt`).
+
+### Odd leagues, three games a night: solved with the layout, and two proofs (2026-11-15, later)
+
+An odd league could not use any of the above. Each round one team sits out, so on a night of three
+rounds three teams play two games and the rest play three; a closed block cannot hold a two-game
+team whose bye falls in its middle round, and `sessionBlocks` returns null for odd n. At 6 time
+slots on the least courts the search left 7 teams 7 waits, 9 teams 31, 11 teams 16 to 22 and 13
+teams 52 (`eval/three-game-nights.txt`, part 1).
+
+**The solver lays the night out itself.** `eval/odd-night-sat.py` asks for a round robin of n + 1
+teams (team n is the bye) and, for every night, a time row for each match: at most `courts`
+matches a row, no team twice in a row, and each team's rows consecutive (q[a] and q[c] imply q[b]).
+That is the question `nightRowsExact` answers for one night, asked of the whole season at once.
+
+**The shape of a full night is forced, and saying so is what makes it solvable.** When every slot
+is booked (9 teams on 2 courts, 13 on 3, 17 on 4, 21 on 5, 25 on 6, all at 6 slots), every row
+holds exactly 2 x courts teams, and the row counts leave one way to start the windows: the
+three-game teams split evenly into rows 1-3 and rows 4-6, and the three two-game teams take rows
+1-2, 3-4 and 5-6 (derived by hand for 9 teams in `eval/nine-on-two.py`, and enumerated for every
+size by `window_shapes`). With a few slots spare (15 on 4, 19 on 5, 23 on 6) six shapes fit.
+`--shape` adds these as implied constraints: each team takes one window, the night follows one
+allowed shape (a selector), and the two-game windows go to that night's bye teams. Without them
+the solver ran past 30 minutes on 9 and 13 teams and past 20 on 15 and 19; with them 13 teams
+takes 3 to 4 s, 15 teams 1 s, 19 teams 66 s, 25 teams 78 s.
+
+**Two settings are proved to keep a wait**, though the one-night count allows both:
+
+- **7 teams on 2 courts x 6 times:** UNSAT in 0.1 s (2.4 s without the shapes).
+- **9 teams on 2 courts x 6 times:** the forced shape makes each night two groups of four (the
+  three-game teams of one session and a two-game team) that play K4 minus one edge, joined through
+  the middle two-game team. `eval/nine-on-two.py` enumerates all 45,360 such nights, fixes the first
+  by relabelling, and finds 56 possible second nights and no third: no season exists
+  (`eval/nine-on-two.txt`, 1.3 s). The SAT model with `--shape` agrees (UNSAT, 11 s).
+
+Both join `PROVED_NO_WAIT_FREE` (with 8 teams on 2 x 6 and 12 on 2 x 9 from earlier), so the
+waits notice now says "need at least 3 courts ... checked for every possible 7-team season on 2
+courts" where it used to say "more courts or fewer time slots close them".
+
+**In the tool.** The designs are stored in `odd-designs.mjs` (generated by
+`eval/write-odd-designs.mjs`, which re-checks each; JSON in `eval/odd-designs/`), one per size on
+the fewest courts found: 5 to 25 and 29 teams (12 designs, 7 KB with their rows; per-size solver
+times in `eval/odd-night-sat.txt`).
+`oddDesigns(n)` decodes them, and `waitFreeNights` tries `designedNights` first for an odd league
+with a stored design, as it does for even ones. Two details:
+
+- **The tool's own layout search could not always find the solver's layout.** A fully booked
+  21-team night packed under one relabelling of the teams and ran out of its 3,000 nodes under
+  another; a 25-team night needed up to 100,000. So each design carries the solver's rows too
+  (`layout`, one character per match), `designedNights` registers them for its relabelling, and
+  `nightLayout` uses a stored layout only when its own search finds nothing, after checking it
+  (rows in range, at most `courts` a row, every team back to back; `knownLayout`). It also tries up
+  to `ODD_RELABELS` = 8 relabellings of the seed before giving up on a design.
+- The test re-checks every stored design in JS (each pair once, every team once a round and once
+  out, every night's stored rows back to back on its courts) and builds 11 to 25 teams wait-free.
+
+Measured (`node eval/three-game-nights.mjs`, `eval/three-game-nights.txt`, part 6, seeds 1 to 3,
+every season valid), waits with the search off and on, the least courts at 6 slots:
+
+| Teams | Courts | Waits before | Waits now | Build (ms) |
+|---|---|---|---|---|
+| 11 | 3 | 22 | 0 | 144 |
+| 13 | 3 | 52 | 0 | 185 |
+| 15 | 4 | 53 | 0 | 344 |
+| 17 | 4 | 86 | 0 | 311 |
+| 19 | 5 | 89 | 0 | 383 |
+| 21 | 5 | 148 | 0 | 428 |
+| 23 | 6 | 125 | 0 | 581 |
+| 25 | 6 | 217 | 0 | 610 |
+| 27 | 7 | 201 | 201 | 3,352 (no design yet) |
+| 29 | 7 | 293 | 0 | 981 |
+
+7 and 9 teams need 3 courts (proved) and are wait-free there, as before. Part 1's 39 settings: total
+waits 143 to 75, settings with no waits 33 to 35 of 39; what is left there is the proved-impossible
+6, 7, 8 and 9 teams on 2 courts. 5 teams on 1 court x 6 is UNSAT too (0.0 s) and joins the list.
+
+Open: 27 teams on 7 courts (the `--shape` run passed 25 minutes; 23 and 29 took 5 and 6); odd leagues at 9 time slots (three sessions);
+the forced shape as a construction rather than a solver run (a full night is two near-complete
+groups joined through one team, which may have a closed form for every n = 4c + 1).
 
 ## Even carry-over (2026-11-11)
 
@@ -2185,7 +3203,138 @@ tried. Tests: `blackout-fit.test.mjs` (relabelling keeps a round robin and moves
 its label; never worse than the plan as given; the same seed gives the same season; no blackouts means no
 change). The multi-division page gets the same fit in the next section.
 
-## Starting under the gap: 27 and 28 teams join the page (2026-11-15, latest)
+## Stopping a refused trial early: measured, not kept (2026-11-17, latest)
+
+The flagship row asked for a cheaper 30-team floor-priced step: the step is 31 of the page's 62 s. One way to
+spend fewer steps is to stop a trial once it is sure to be refused. The search only needs to know whether a
+timetable's break floor is at most `maxBreaks + floor((line - carry-over) / over)`, so a trial could stop as
+soon as a lower bound on its floor passes that. Tried, measured, and left out of `main`, because it bought
+nothing the machine's noise does not hide (`eval/trial-cutoff.txt`; the code is `eval/trial-cutoff.patch.txt`).
+
+- **Two rounds alone never force a break in an even league.** The cheapest bound counts the odd cycles the
+  teams of two consecutive rounds form (each such cycle forces one break; checked by brute force on 400 random
+  pairs). On every pair of rounds of a 30-team starter it is 0. Breaks come from three rounds or more:
+  disjoint 3-round windows give 56 of that starter's 84, 5-round windows all 84.
+- **Refused moves miss by a break or two.** Of the trials that ran to the end, 1,044 were refused by one
+  break and 1,432 more by 2 to 5. A bound has to be within a break or two of exact to stop a trial early.
+  The pair bound plus the table so far stopped 7,211 of 11,307 trials, but near their end: 5.9% fewer steps,
+  and the floor-priced step took 55.5, 56.3 and 54.1 s against 60.4, 56.0 and 55.3 s without it.
+- **Exact windows cost more than they save.** Caching the exact least of every window of 4 or 6 unchanged
+  committed rounds gives a much tighter bound, but a commit every ten trials changes about three rounds, so
+  the windows are recomputed so often that the run takes 40,654 to 66,540 extra steps to save 21,000 to
+  29,000 (67.4 and 68.6 s).
+- **The step itself is near its limit.** A profile puts 28 of 54 s in the int16 step, which keeps one cycle
+  open at a time (tables of 2^(k+1) at most) and moves about 3.8 billion entries a second. A shuffle-free
+  inner loop gave the same tables at the same speed.
+
+So the next saving at 30 teams is fewer trials, not cheaper ones, and has to be judged on the seasons it
+finds. Same seasons, same code on the page; nothing changed for users.
+
+## A trial's steps kept in the module: 30 teams join the page (2026-11-17)
+
+The flagship row asked for 30 teams in the page's floor-priced step, and named the next thing to cut:
+the step's copy-in and copy-out, which had grown about as large as the step itself. Counted first
+(guards lifted locally, 30 teams, seed 1): one page run makes **11,360 trials of 19 steps each on
+average, and commits only 1,118 of them** (245 more are walked for their balanced least). Nine trials
+in ten are scored and thrown away, yet every one of their 216,167 steps sent its table out of the
+module into JS, sliced a copy, and sent it back in for the next step.
+
+**The change.** `floorTable`'s trial now hands its whole run of rounds to `chainLeast` (`orient.mjs`),
+which plans every step first and then runs them in the module back to back: between steps,
+`chain_i32` (`wasm/minplus.c`) moves the last step's output straight into the next step's input
+layout, and `chain_min` takes the least against the backward table there too. Only that one number
+comes back. The trial's tables and home masks are rebuilt in JS (the old path) only if the trial is
+committed or walked. Anything the module cannot take (a table too big, no WebAssembly, values that
+could leave int16) falls back to the old path before any state changes.
+
+The move between layouts went through three versions (`eval/chain-step.txt`):
+
+| Version | 30 teams, off -> on | 28 teams, off -> on | the move's own time |
+|---|---|---|---|
+| scatter and gather: two lookups per entry | 91.1 -> 78.2 s | 42.3 -> 35.5 s | 20.3 s |
+| sequential writes, one composite bit permutation read | 94.6 -> 76.3 s | 44.9 -> 36.5 s | 16.3 s |
+| the same in blocks of 64 (committed) | **93.8 -> 62.0 s** | **45.7 -> 30.2 s** | 3.5 s |
+
+The composite permutation works because both layouts are permutations of the same round's host bits:
+input bit `xPos[j]` is output bit `ys[j]`. For the symmetric step, the folded bit's place reads its
+complement, which in output terms is one xor with every kept bit. In blocks of 64, the low six bits'
+part of that place and of the unary costs is a 64-entry table, and the high bits add one constant per
+block. **About 34% off the page's floor-priced step at 28 and 30 teams, with the same seasons on every pair.**
+26 teams gained 7% with the first version (21.9 -> 20.4 s), since fewer of its steps take the symmetric step.
+
+**30 teams join the page; 29 does not** (two processes at once, so slower than solo):
+
+| Teams, seed | Floor-priced step | Gap | Added |
+|---|---|---|---|
+| 30, 1 | 62.0 s (solo) | 1110/84 .. 2542/68 | 1152/82, 2542/64 |
+| 30, 2 | 105.1 s | 1110/84 .. 2576/60 | 1164/82 |
+| 30, 3 | 74.3 s | 1110/84 .. 2718/58 | 1162/82, 2066/80 |
+| 29, 1 | 80.7 s | 3641/47 .. 4049/38 | nothing |
+| 29, 2 | 75.9 s | 1105/56 .. 3597/45 | 3597/44 |
+| 29, 3 | 74.2 s | 3659/50 .. 4063/44 | nothing |
+
+30 teams add seasons on 3 of 3 seeds, including one in the middle of the gap (2066/80 on seed 3) and
+one that beats a listed season outright (2542/64 against 2542/68), at about what 28 teams cost when
+they joined (47-64 s). So `carryOverFloorPriced` runs at up to 30 teams (`maxTeams` 30,
+`FLOOR_PRICED_MAX_MATCHES` 15). 29 teams added one season, one break better, on 1 of 3 seeds for
+75-80 s, so they are skipped (`skip: [29]`).
+
+- Tests: `orient.test.mjs` compares `floorTable` with and without the chain (`chain: false`) over
+  trials at 9 to 30 teams, a third of them committed and every seventh walked: same least, same walk.
+  `floor-priced.test.mjs` checks the new size gate (30 in; 29 and 31 out; `maxTeams: 28` still works).
+  `FLOOR_CHAIN=0` in the environment turns the chain off, for comparison.
+- Not claimed: times are from one shared cloud machine, not a phone or laptop browser. The step itself
+  (31 s of 62 at 30 teams) is now most of the time. Halving it again needs a different elimination,
+  not less copying.
+
+## Half the table: flipping every host (2026-11-16)
+
+The flagship row asked for 29 and 30 teams in the page's floor-priced step, profiling 30 first. With the
+size guards lifted locally (not committed), 30 teams took **128 s solo** (138 to 196 s three at once)
+against 47 to 64 s for 28, and added one or two seasons a seed, all just under the top of a very wide
+gap: seed 1's list jumps from 1110/84 to 2542/68, and the step added 1152/82 and 2542/64; seed 2 added
+1164/82. 29 teams (seed 1) added nothing in 110 s. The profile: 116 of 128 s in the floor trials, the
+WebAssembly step 66 s, its copy in and out 17 s, the JS around it 18 s.
+
+**The symmetry.** Flipping every host in every round leaves every team's breaks as they were (two home
+games in a row become two away games). So every whole-break table the floor programme builds, which starts
+at zero, has f[x] = f[~x], and so does the next one. `minPlusStep(fr, A, B, { sym: true })` uses it: one of
+B's host bits is fixed at 0, the two teams of that match become unary costs on fr's bits ("this team breaks
+when A's host bit i equals f"), the step runs on one fewer bit, and the other half of the output is read
+from the first (g[y] = g[~y]). The unary costs are added in the module's copy-in (`in_i32u`) and the fold
+in its copy-out (`out_i32s`), so no extra pass runs in JS (a first JS version was slower than the plain
+step). The bit fixed is the first one the elimination meets, so every table after the first step is
+halved: 0.44 to 0.35 ms a step at 30 teams (the last bit: 0.39; the best bit by measured time would save
+more, but scoring the bits costs more than it saves). `floorTable` passes `sym` on every step; the priced
+(Float64) tables and `leastBreaks`' other callers are unchanged. Below 13 matches the extra planning
+costs what it saves, so the step only takes the flag from 13 matches (26 teams) up (`SYM_MIN_MATCHES`).
+
+**The page's floor-priced step, off against on** (`eval/symmetric-step.txt`; `FLOOR_SYM=0` turns it off;
+two processes side by side on one shared 4-CPU machine, same seasons in every pair):
+
+| Teams, seed | off | on | seasons added (the same) |
+|---|---|---|---|
+| 28, 1 | 58.0 s | 52.1 s | 1252/72, 1250/70 |
+| 28, 2 | 53.6 s | 48.6 s | 1260/72, 1248/70 |
+| 28, 3 | 63.9 s | 56.6 s | 1220/68, 1318/66 |
+| 26, 1 | 27.9 s | 26.5 s | 1014/58, 1068/56 |
+| 26, 2 | 20.1 s | 18.7 s | 738/68, 776/66 |
+| 30, 1 (guards lifted, last bit fixed) | 129.2 s | 103.8 s | 1152/82, 2542/64 |
+
+**28 teams 175.5 s to 157.3 s over three seeds (10%), 26 teams 48.0 to 45.2 s (6%), 30 teams 20%**, with
+identical seasons. That is not enough for 30 teams: at about 100 s they still cost twice the 28-team step,
+for seasons near the top of the gap, so 29 and 30 stay off the page (`maxTeams` 28). At 28 teams the step
+is a smaller share of the run (a bare step goes 0.23 to 0.19 ms), so the rest of the time is the moves,
+the closing walks and the JS around each step.
+
+- Tests: `orient.test.mjs`: on 240 random rounds of 2 to 16 matches (byes included), symmetric tables
+  small, at the int16 edge and wide int32 give the JS loop's table with `sym` and a symmetric output;
+  `floorTable` gives the same floor and trials with the symmetry on and off at 9, 14, 20 and 24 teams.
+- Not claimed: times are from one shared cloud machine, not a phone or a laptop browser; per-step times
+  in `eval/symmetric-step.txt` are noisy to about 10%. Next for 30 teams: the copy-in and copy-out are now
+  about as large as the step (keep tables in the module between steps instead of copying each one out).
+
+## Starting under the gap: 27 and 28 teams join the page (2026-11-15)
 
 The section below left 28 teams (14 matches a round) off the page: 94 s of floor-priced search that
 added nothing. Profiled first (`node --cpu-prof`, 28 teams, seed 1; `eval/under-start.txt`): of 78 s in

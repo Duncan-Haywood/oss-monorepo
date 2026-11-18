@@ -674,3 +674,108 @@ report prints when the set is wider than one page (`eval/multi-report-print.mjs`
 - **Retrieved:** 2026-11-13 from <https://raw.githubusercontent.com/datasets/global-temp/main/data/monthly.csv> (datahub.io `global-temp`, republishing NASA GISTEMP and NOAA/NASA GCAG).
 - **Licence:** the datahub packaging is ODC-PDDL; the underlying figures are public US government data. Kept as test fixtures with their source named.
 - **Used by:** `hinge-test.test.mjs`, `eval/hinge-test-real.mjs`, README "The 1976 acceleration, dated and tested on the levels".
+
+# Example data: five-minute call volume at a North American bank, 2003
+
+`bank-calls-5min.csv`: one row per weekday, the date then the calls handled in each of 169 five-minute slots from
+07:00 to 21:05, 164 weekdays from 2003-03-03 to 2003-10-24 (the `fpp2::calls` series, reshaped from one column).
+
+- **Retrieved:** 2026-11-16 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/calls.csv> (row names such as
+  `X3.3.20031`, day.month.year then slot, rewritten as dates).
+- **Source:** Rob Hyndman, for *Forecasting: Principles and Practice* (2nd ed.); the package documentation says
+  "Five-minute call volume handled on weekdays between 7:00am and 9:05pm, beginning 3 March 2003 for 164 days."
+- **Licence:** the fpp2 package is GPL-3; the series is published counts (facts). Not checked further.
+- **Used by:** `eval/calls-law.mjs`, `eval/calls-law-posthoc.mjs`, `calls-law.test.mjs`.
+
+# Labelled data: honeybee dance sequences 1-6
+
+`beedance-1.csv` to `beedance-6.csv`: tracked position (x, y) and heading of a
+dancing honeybee, one row per video frame (602 to 1124 frames), with `change`
+= 1 on each frame the set's own labels mark as the start of a new dance phase
+(left turn, right turn, waggle; 15 to 28 per sequence). Columns are min-max
+scaled to [0, 1] as distributed (the heading too, so it jumps at the wrap
+point). Values rounded to six decimals.
+
+- **Retrieved:** 2026-11-16 from
+  <https://github.com/OctoberChang/klcpd_code> (commit `b3a32ee`),
+  `data/beedance/beedance-{1..6}.mat` (`Y` frames x 3, `L` labels),
+  converted with scipy's `loadmat`.
+- **Licence:** the repository is BSD 3-Clause, "Copyright (c) 2019, author of
+  KLCPD paper"; redistributed here under its notice, with the original data
+  credited to Oh et al.
+- **Cite:** Oh, S. M., Rehg, J. M., Balch, T. and Dellaert, F. (2008).
+  Learning and inferring motion patterns using parametric segmental switching
+  linear dynamic systems. *International Journal of Computer Vision* 77,
+  103-124. doi:10.1007/s11263-007-0062-z (not opened from this session: the
+  DOI hosts answered 403; the title and venue are as KL-CPD and TCPD cite
+  them). Chang, W.-C., Li, C.-L., Yang, Y.
+  and Póczos, B. (2019). Kernel change-point detection with auxiliary deep
+  generative models. ICLR 2019. arXiv:1901.06077 (as the repository's README cites it).
+- **Used by:** `eval/beedance-multi.mjs`, `eval/muted-sim.mjs`,
+  `beedance-muted.test.mjs`. Sequence 6 is the dance TCPD calls
+  `bee_waggle_6` (seen data); 1 to 5 are fresh.
+
+# US cigarette sales per head and state taxes, 1970-2019 (the tax burden on tobacco)
+
+`us-cigarette-packs-per-capita.csv`: packs of cigarettes sold per head in each of the 50 states and DC, by fiscal
+year (Orzechowski and Walker compile state tax-paid sales; the fiscal year ends 30 June in most states), 1970-2019.
+`us-cigarette-state-tax.csv`: the state excise tax per pack in dollars, same rows. One column per state (postal code).
+
+- **Retrieved:** 2026-11-17 from the CDC's "The Tax Burden on Tobacco, 1970-2019" dataset,
+  <https://data.cdc.gov/api/views/7nwe-3aj9/rows.csv?accessType=DOWNLOAD> (measures "Cigarette Consumption (Pack
+  Sales Per Capita)" and "State Tax per pack"), reshaped to one column per state; no values changed.
+- **Licence:** Open Data Commons Attribution License 1.0 (the dataset's stated licence on data.cdc.gov).
+  Attribution: Centers for Disease Control and Prevention, National Center for Chronic Disease Prevention and Health
+  Promotion, Office on Smoking and Health; Orzechowski and Walker, *The Tax Burden on Tobacco*.
+- **Cite (the policies tested):** Abadie, A., Diamond, A. and Hainmueller, J. (2010). Synthetic control methods for
+  comparative case studies: estimating the effect of California's tobacco control program. *J. Am. Stat. Assoc.*
+  105(490), 493-505. doi:10.1198/jasa.2009.ap08746 (California's Proposition 99 and its 38-state donor pool).
+- **Used by:** `eval/known-date-control-step-real.mjs`, `known-date-control.test.mjs`, `eval/synth-real.mjs`, `eval/synth-real-diag.mjs`, `synth-control.test.mjs`, `eval/synth-cov-real.mjs`.
+
+`us-cigarette-retail-price.csv`: the average retail price of a pack of cigarettes in each state, in dollars, same
+rows and columns (the dataset's measure "Average Cost per pack"), 1970-2019. Same retrieval (2026-11-17), source,
+licence and attribution as the two files above; reshaped to one column per state, no values changed.
+
+# US per capita personal income by state, 1970-2019
+
+`us-personal-income-per-capita.csv`: per capita personal income in current dollars, one column per state (postal
+code) and DC, calendar years 1970-2019.
+
+- **Retrieved:** 2026-11-17 from the U.S. Bureau of Economic Analysis, Regional Economic Accounts, table SAINC1
+  ("Personal income summary"), <https://apps.bea.gov/regional/zip/SAINC.zip>, file
+  `SAINC1__ALL_AREAS_1929_2025.csv`, line code 3 ("Per capita personal income (dollars)"); reshaped, no values changed.
+- **Licence:** a U.S. federal government work, public domain in the United States. Attribution: U.S. Bureau of
+  Economic Analysis.
+- **Used by:** `eval/synth-cov-real.mjs` (a covariate of the synthetic control, README "Matched on covariates").
+
+# Proposition 99 covariates for the CLI's synthetic control
+
+`prop99-covariates-1989.csv`: one row per state, the `--covariates` file of README "A synthetic control from the
+command line". Derived, not retrieved: written by `node eval/prop99-covariates.mjs` from
+`us-personal-income-per-capita.csv`, `us-cigarette-retail-price.csv` and `us-cigarette-packs-per-capita.csv` (ln
+income and price averaged over 1980-1988, packs per head in 1975, 1980 and 1988, and the 1970-1988 mean of packs per
+head). Same sources, licences and attribution as those files.
+
+# Two few-donor synthetic-control panels: Spanish regions and OECD countries
+
+`spain-regions-gdp-per-capita.csv`: GDP per head in thousands of 1986 USD, one column per Spanish region (short codes:
+AND Andalucia, ARA Aragon, AST Asturias, BAL Baleares, BAS Basque Country, CAN Canarias, CNT Cantabria, CYL Castilla
+y Leon, CLM Castilla-La Mancha, CAT Cataluna, VAL Comunidad Valenciana, EXT Extremadura, GAL Galicia, MAD Madrid, MUR
+Murcia, NAV Navarra, RIO La Rioja), 1955-1997; Spain's national row is dropped. `spain-regions-covariates-1969.csv`:
+investment share 1964-69, industry and agriculture shares 1961-69 (odd years only in the source), population density
+1969 and GDP per head 1960-69, one row per region (the CLI's `--covariates` format).
+
+`oecd-gdp-per-capita-1960-2003.csv`: GDP per head, PPP, 2002 USD, one column per country (spaces dropped:
+WestGermany, NewZealand), 1960-2003. `oecd-covariates-1989.csv`: trade openness, inflation and industry share
+averaged 1981-89, schooling 1980 and 1985, investment 1980-84 and GDP per head 1981-89, one row per country.
+
+- **Retrieved:** 2026-11-18 from pysyncon (MIT licence), <https://raw.githubusercontent.com/sdfordham/pysyncon/main/data/basque.csv>
+  (sha256 `7f7f90d7a01984a33a2ea3efc311ce826c05b61234a52c27445adacc6f52bf70`) and `.../data/germany.csv` (sha256
+  `c59ff635faaf43729eaefdf5e9a4584fc3112a56fdab84b9ac5f78e1b6302e83`): copies of the R Synth package's `basque` data
+  and of the replication data of Abadie, Diamond and Hainmueller (2015). Reshaped by `node eval/few-donor-panels.mjs
+  basque.csv germany.csv`, no value changed; covariates are plain averages of the source's columns.
+- **Cite:** Abadie, A. and Gardeazabal, J. (2003). The economic costs of conflict: a case study of the Basque Country.
+  *Am. Econ. Rev.* 93(1), 113-132. doi:10.1257/000282803321455188. Abadie, A., Diamond, A. and Hainmueller, J. (2015).
+  Comparative politics and the synthetic control method. *Am. J. Polit. Sci.* 59(2), 495-510. doi:10.1111/ajps.12116.
+- **Used by:** `eval/synth-few-donors-real.mjs`, `synth-few-donors.test.mjs` (README "Few donors").

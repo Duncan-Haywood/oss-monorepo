@@ -207,3 +207,14 @@ test('a bisected balance reads as balanced, with no phantom truck', () => {
   const b = balanceSheet({ cut: 921.7, fill: 921.7 * 0.85 - 0.01, shrink: 15, swell: 25, truck: 12 });
   assert.equal(b.kind, 'balanced'); assert.equal(b.trucks, 0); assert.equal(b.loose, 0);
 });
+
+test('a comma inside a description does not break a space- or tab-separated row', () => {
+  // Quality audit 2026-11-17: the first row was split on its comma, taken as a header and dropped.
+  const spaced = parsePoints('1 5000 2000 100 EP, CURB\n2 5000 2030 101 T\n3 5030 2000 102 T\n4 5030 2030 103 T');
+  assert.equal(spaced.points.length, 4);
+  assert.deepEqual([spaced.points[0].x, spaced.points[0].y, spaced.points[0].z], [2000, 5000, 100]);
+  const tabbed = parsePoints('1\t5000\t2000\t100\tEP, CURB\n2\t5000\t2030\t101\tT\n3\t5030\t2000\t102\tT');
+  assert.equal(tabbed.points.length, 3);
+  // Plain CSV still splits on commas.
+  assert.equal(parsePoints('1,5000,2000,100,EP\n2,5000,2030,101,T\n3,5030,2000,102,T').points.length, 3);
+});

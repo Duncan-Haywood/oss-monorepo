@@ -362,15 +362,15 @@ class LocalPipelineTests(unittest.TestCase):
             self.assertEqual(_hidden_temp_files(workspace), [])
 
     def test_unreadable_raw_with_a_preview_stops_at_grade_naming_the_dng_route(self) -> None:
-        # Every RAW extension ShootFlow ingests is developed since 2026-11-15 (CR3 then, C-RAW too), but a CR3
-        # whose sensor is stored in several tiles is not read yet: it is scored from its preview and stops at
-        # the grade stage.
+        # Every RAW extension ShootFlow ingests is developed since 2026-11-15 (CR3 then, C-RAW too, and C-RAW in
+        # several tiles since 2026-11-16), but a CR3 whose codec version is unknown is not read: it is scored from its
+        # preview and stops at the grade stage.
         from test_cr3 import make_cr3
 
         with tempfile.TemporaryDirectory() as tmp:
             preview = Path(tmp) / "preview.jpg"
             _make_photo(preview, color="green")
-            c_raw = make_cr3(tiles=True) + preview.read_bytes() + b"\x00" * 16
+            c_raw = make_cr3(version=0x300, levels=3) + preview.read_bytes() + b"\x00" * 16
             manifest = _ingested_shoot(Path(tmp) / "shoot", extra_files={"IMG_0003.CR3": c_raw})
 
             result = run_local_pipeline(manifest, clock=_ticking_clock())
@@ -379,7 +379,7 @@ class LocalPipelineTests(unittest.TestCase):
             self.assertTrue(any(job_id.startswith("grade_asset_") for job_id in result.needs_review_ids), result)
             status = json.loads((manifest.parent / "production_status.json").read_text())
             messages = [job["error_message"] for job in status["job_statuses"] if job.get("error_message")]
-            self.assertTrue(any("several tiles" in message and "DNG Converter" in message for message in messages), messages)
+            self.assertTrue(any("codec version" in message and "DNG Converter" in message for message in messages), messages)
 
     def test_cli_exit_code_reports_review_needed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

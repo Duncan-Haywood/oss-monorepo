@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyfYnJnPGoEmqnxNiMm",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T01:39:11Z",
+  "ended": "2026-11-16T03:03:12Z",
+  "wall_minutes": 84.27,
+  "tokens_in": 10271509,
+  "tokens_out": 49250,
+  "cost_usd": 4.2867,
+  "tool_calls": 79,
+  "task": "research/build-data session 95: refit cpin_es3_nc5 without dead-status completion dates (session 94's Next)",
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16410",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "A `kill $(ps aux | grep '[r]ounds.py' ...)` matched the Bash tool's own shell (its heredoc mentioned rounds.py) and killed it before the edit that followed ran; caught and redone.",
+    "First CPIN_TAUS edit referenced `taus` before assignment and left sel_loss at (0.5, 0.9) (would divide by zero); caught by reading before launch."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/build-data/LOG.md",
+      "issue": "Session 94's 1.5% dead share was measured on issue years 2010-2022 only, while the models train on every year back to the 1980s; the next step it proposed rested on that figure, and the real share in training is 6.5-8.6% (pre-2000 Austin)."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "The cpin runs' time per fit varies 2-3x with thread count and city (q0.5 442-516 s at 2 threads); no doc says that q0.5 dominates cpin fit time, which cost a restart."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/build-data/LOG.md (session 95 design)",
+      "why": "q0.5 fits would have taken over 3 hours and no pre-registered prediction read q0.5",
+      "did": "stopped the first launch after 18 minutes, before any cell finished, and refit q0.9 only (CPIN_TAUS=0.9)",
+      "result": "all 4 cells plus Austin finished in about 70 minutes; disclosed in LOG"
+    },
+    {
+      "file": "research/build-data/LOG.md (session 95 design)",
+      "why": "a core freed up after SF finished",
+      "did": "added Austin held out after launch, reported and not tested",
+      "result": "-5.73 and +0.89 days, seed noise dominates (3-5 rounds)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-build-data-austin-180-day-expiry-stamp.md",
+    "research/build-data/LOG.md (session 95)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered K1-K5 (commit 11fb2ef59). K5 held to the digit; K1, K2, K3 refuted; K4 held but uninformative. Post-hoc finding: Austin's 180-day completion stamp on pre-2000 void/expired permits (143,212 rows, the feed's modal build-time label). Checks: build-data pytest 154 passed, 2 skipped; research/_homepage/build.py ok; check_md_links, research_live_links, post front matter/links/similarity clean. No agent doc in docs/reports: the LOG.md 'Next' line is what the next build-data run reads.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fe9e17cb-6f2d-57f6-9c3a-05e7d4bf2e7f",
+    "transcripts": 1,
+    "first": "2026-11-16T01:39:11Z",
+    "last": "2026-11-16T03:03:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 146,
+        "output": 49250,
+        "thinking": 10259,
+        "cache_read": 10111510,
+        "cache_write_5m": 0,
+        "cache_write_1h": 159853,
+        "api_equivalent_usd": 4.2867,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 146,
+      "output": 49250,
+      "thinking": 10259,
+      "cache_read": 10111510,
+      "cache_write_5m": 0,
+      "cache_write_1h": 159853,
+      "api_equivalent_usd": 4.2867,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 72,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 84.27,
+      "active_minutes": 84.27,
+      "model_minutes": 7.82,
+      "tool_minutes": 76.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a data scientist: status pull and join, variant and summary code, two model-run rounds, stamp diagnosis, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 233.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

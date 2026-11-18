@@ -1,0 +1,67 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 46: H1 right_hip_roll held on the other side at [1.4, -0.15], spec preload 0.1 N m
+hold set ['left_hip_yaw', 'left_hip_roll', 'right_hip_yaw', 'right_hip_roll'], per-robot sides [-1.  1. -1.  1.], flipped at the pose [-1.  1. -1. -1.]
+## A1. Hold-set joints whose torque-minimising side disagrees with the per-robot side: pose | 25 N end | 50 N end | at both ends
+  [0.4, 0.0] | left_hip_yaw +0.52, right_hip_yaw +0.52 | left_hip_yaw +0.61, right_hip_yaw +0.71 | ['left_hip_yaw', 'right_hip_yaw']
+  [0.4, 0.15] | - | - | []
+  [0.6, -0.15] | left_hip_yaw +0.53, right_hip_yaw +0.50 | left_hip_yaw +0.36, right_hip_yaw +0.29 | ['left_hip_yaw', 'right_hip_yaw']
+  [0.6, 0.0] | - | - | []
+  [0.6, 0.15] | - | - | []
+  [0.8, -0.15] | - | - | []
+  [0.8, 0.0] | - | - | []
+  [0.8, 0.15] | - | - | []
+  [1.0, -0.15] | left_hip_roll -0.52 | - | []
+  [1.0, 0.0] | - | - | []
+  [1.0, 0.15] | - | - | []
+  [1.2, -0.15] | left_hip_roll -1.75, right_hip_roll -1.74 | - | []
+  [1.2, 0.0] | - | left_hip_roll -0.53, right_hip_roll -0.54 | []
+  [1.2, 0.15] | - | - | []
+  [1.4, -0.15] | left_hip_roll -2.69, right_hip_roll -2.67 | left_hip_roll -3.16, right_hip_roll -0.39 | ['left_hip_roll', 'right_hip_roll']
+  [1.4, 0.0] | left_hip_roll -0.71, right_hip_roll -0.71 | left_hip_roll -1.04, right_hip_roll -1.03 | ['left_hip_roll', 'right_hip_roll']
+  [1.4, 0.15] | - | - | []
+  [1.6, 0.0] | left_hip_roll -0.68, right_hip_roll -0.68 | left_hip_roll -2.31, right_hip_roll -0.22 | ['left_hip_roll', 'right_hip_roll']
+  [1.6, 0.15] | - | - | []
+  other poses with a hold-set joint on the wrong side at both ends: 4
+## A2. At [1.4, -0.15], zero hose force, exact sensor: sides | right_hip_roll torque (25 N, 50 N) | common margin (25 N, 50 N)
+  per-robot | +0.2000, +0.2000 | 1.6081, 0.0333
+  flipped   | -3.6204, -3.7883 | 6.1546, 2.2900
+
+## B. No-hose clean-sheet spec stack at the pose: case | flipped side | squeeze (N) | milestone 45 | change (points)
+  stock  | 0.9716 | -10.00 | 0.9715 | +0.00
+  braked | 0.9716 | -10.00 | 0.9715 | +0.00
+
+## C. H1 worst spec stack over its zero-press poses: case | worst | at | poses with a plan | milestone 45
+  stock  | 0.9655 | [1.6, 0.15] | 19 | 0.9655
+  braked | 0.9655 | [1.6, 0.15] | 19 | 0.9655
+
+(section D tasks: H 0 10 s, H 5 83 s, H 20 69 s)
+## D. H1 worst residual along the wall (mm), 'braked', |e| 0.2 N, S 10 N: H | all poses | other poses (milestone 41) | (1.4, -0.15) flipped [flips hold/leg/waist/arm] | (1.6, 0) [flips] | milestone 45: all, (1.4, -0.15) | cases at the two poses with no plan (milestone 45)
+    0.0 | 0.010 | 0.010 (0.010) | 0.005 (phi 0) [0/0/0/0] | 0.003 (phi 0) [0/0/0/0] | 0.172, 0.172 | 0 of 12 (0)
+    5.0 | 0.019 | 0.019 (0.019) | 0.005 (phi 0) [0/0/0/0] | 0.014 (phi 270) [0/1/0/0] | 0.172, 0.172 | 5 of 96 (5)
+   20.0 | 0.032 | 0.032 (0.032) | 0.005 (phi 315) [0/0/0/0] | 0.003 (phi 90) [0/0/0/0] | 0.172, 0.172 | 18 of 96 (19)
+check: the other poses reproduce milestone 41's H1 worst residual to 0.000 mm (expect 0.000)
+
+## E. Hypotheses (registered in LOG.md before this run)
+H181 (full 0.1 N m preload: common margin >= 0.1/0.9 at both ends): 6.1546, 2.2900 -> held
+H182 ((1.4, -0.15) at most 0.03 / 0.03 / 0.05 mm at 0 / 5 / 20 N): 0.005, 0.005, 0.005 -> held
+H183 (the H1's worst residual at most 0.03 mm at 5 N and 0.05 mm at 20 N): 0.019, 0.032 -> held
+H184 (cases at the two poses with no plan at most milestone 45's 24): 23 of 204 -> held
+H185 ('braked' stack at least milestone 45's 0.9715 minus 0.1 points): 0.9716 -> held
+H186 (at most one other H1 pose with a hold-set joint on the wrong side at both ends): 4 -> refuted
+
+(run time 146 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

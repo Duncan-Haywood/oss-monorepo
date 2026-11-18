@@ -74,3 +74,11 @@ test('the built shop-rates bar already carries the first-visit status line', () 
   assert.ok(status, 'status span missing');
   assert.equal(status[1].replace('&mdash;', '\u2014'), RATES_FIRST_VISIT_STATUS);
 });
+
+test('the shop-rates first-visit line is short enough to share its button\'s row on a phone', async () => {
+  // 30 characters fit beside "Your shop rates" on 124 of 124 bar pages at
+  // 390 px; the old 55-character sentence fit on none and made the bar 83 px.
+  const { RATES_FIRST_VISIT_MAX } = await import('./rates.mjs');
+  assert.ok(RATES_FIRST_VISIT_STATUS.length <= RATES_FIRST_VISIT_MAX,
+    `"${RATES_FIRST_VISIT_STATUS}" is ${RATES_FIRST_VISIT_STATUS.length} characters; at most ${RATES_FIRST_VISIT_MAX} fit beside the button at 360 to 390 px`);
+});

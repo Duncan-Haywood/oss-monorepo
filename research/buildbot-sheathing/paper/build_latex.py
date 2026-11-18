@@ -49,6 +49,8 @@ CITES = [
     ("Rahnama and Krawinkler", "1993", "rahnama1993soft"),
     ("Ibarra et al.", "2005", "ibarra2005hysteretic"),
     ("Ghazinader", "2024", "ghazinader2024"),
+    ("Buchalter et al.", "2002", "buchalter2002nailgun"),
+    ("Lowe et al.", "2014", "lowe2014nailgun"),
 ]
 # Standards the draft names without an author-year citation; listed in the references.
 NOCITE = ["awc_nds", "awc_sdpws", "apa_buildertips", "ps2"]

@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqyf7eD3nz85g2zkEVrc",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T22:38:56Z",
+  "ended": "2026-11-17T22:45:34Z",
+  "wall_minutes": 9.07,
+  "tokens_in": 3591564,
+  "tokens_out": 21584,
+  "cost_usd": 1.7897,
+  "tool_calls": 43,
+  "task": "photo-editing flagship buildable item: a 3-stop shadow lift on a 16-bit master, old vs new sRGB encode, for banding",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17089",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first run of the tool: --old was required, so the subprocess dump mode exited 2",
+      "fix": "--old checked only outside dump mode"
+    },
+    {
+      "what": "post description 161 chars",
+      "fix": "trimmed to 160"
+    },
+    {
+      "what": "CI lint failed: ruff E731 (lambda assigned in tests/test_shadow_lift.py)",
+      "fix": "def; ran ruff --fix on both new files"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv.py reported /usr/bin/python3.13 but the shell's python3.13 was /usr/local/bin/python3.13; both had numpy, so harmless, but the printed path differs from what runs"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-photo-editing-shadow-lift-banding.md",
+    "ventures/photo-editing/eval/shadow-lift-banding-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "Measured, no develop code changed. Old encode (4,096 nearest) pushed +3 stops loses 1-39 of 256 8-bit codes per channel on five public DNGs, +5 stops up to 129; new (16,384 interpolated) loses 0. Noise-free ramp: old jumps 2-7 codes at 21 places below code 70. Visibility on real noisy frames not judged by a person. Checks run: tests/test_shadow_lift.py + test_srgb_table.py (5 passed), validate.py, post frontmatter/links/similarity, run_venture_tests.py photo-editing (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "dbe866ef-acaa-5c71-af18-193f40d04824",
+    "transcripts": 1,
+    "first": "2026-11-17T22:38:56Z",
+    "last": "2026-11-17T22:48:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 80,
+        "output": 21584,
+        "thinking": 3575,
+        "cache_read": 3509505,
+        "cache_write_5m": 0,
+        "cache_write_1h": 81979,
+        "api_equivalent_usd": 1.7897,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 80,
+      "output": 21584,
+      "thinking": 3575,
+      "cache_read": 3509505,
+      "cache_write_5m": 0,
+      "cache_write_1h": 81979,
+      "api_equivalent_usd": 1.7897,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 38,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.07,
+      "active_minutes": 9.07,
+      "model_minutes": 3.53,
+      "tool_minutes": 5.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an imaging engineer writing the lift check, running it on five raws, and writing up: about half a day",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 279.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

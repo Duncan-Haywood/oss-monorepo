@@ -37,7 +37,7 @@ const FIRST_FREE = { asset: 1600, liability: 2400, equity: 3200, income: 4300, e
 // Drop the title rows some exports print above the header; the header is the
 // first row that names an account/name column and a second known column.
 function tableFrom(text, wants) {
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   const lines = s.split(/\r?\n/);
   for (let i = 0; i < lines.length; i++) {
     const cells = parseCsv(lines[i])[0]?.map((c) => norm(c)) ?? [];

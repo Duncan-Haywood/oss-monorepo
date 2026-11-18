@@ -153,7 +153,7 @@ test("more than 250 tags is an error", () => {
 });
 
 test("BOM is tolerated; empty input is an error", () => {
-  assert.deepEqual(validate("﻿" + sampleFile()).findings, []);
+  assert.deepEqual(validate("\uFEFF" + sampleFile()).findings, []);
   assert.deepEqual(codes(validate("")), ["empty"]);
 });
 

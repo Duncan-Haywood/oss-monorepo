@@ -233,7 +233,12 @@ node ventures/open-house-plans/cli.mjs design --beds 4 --baths 2.5 --garage 2 --
 
     const $ = (s) => document.querySelector(s);
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const money = (v) => "$" + Math.round(v).toLocaleString("en-US");
+    const money = (v) => {
+      const format = (v) => "$" + Math.round(v).toLocaleString("en-US");
+      if (!(Number(v) < 0)) return format(v);
+      const text = format(Math.abs(v));
+      return /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const FIELDS = ["beds", "baths", "area", "style", "priority", "garage", "porch", "foundation", "frame", "split", "snow", "wind", "finish", "region", "ceiling"];
     let current = null, tab = "view", variant = 0, lastBrief = null;
 

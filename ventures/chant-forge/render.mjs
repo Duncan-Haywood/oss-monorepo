@@ -211,7 +211,7 @@ export function limiterCurve(L, R, rate, ceil, ms = 5, scratch = null) {
   return out;
 }
 
-export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89, stems = false, limit = false, learn = null, sing = false } = {}) {
+export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89, stems = false, limit = false, learn = null, sing = false, nasalCut = true, voiceBar = true, voiceBarWall = false } = {}) {
   const m = parseMidi(midiBytes);
   // sing: the choir sings each note's Latin syllable (sing.mjs) instead of the pad's fixed "ah":
   // its consonants on the syllable's first note, then its vowel, then its final consonants at the end of
@@ -283,17 +283,19 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
       // the same singers go straight on to the next note: a 50 ms crossfade into it, not the pad's
       // 0.25 s release over the next syllable (which covered the quieter /i/ and /u/ on short notes)
       // before a stop, an affricate or a fricative the voices stop for the consonant: 15 ms, so the
-      // closure is silent and the hiss is not sung over, and before a tap, so its dip is heard (m, n, l
-      // and the glides keep the 50 ms)
+      // closure is silent and the hiss is not sung over, and before a tap, so its dip is heard; and before
+      // a nasal, whose lips or tongue close the mouth as a stop's do: the 50 ms tail of the vowel covered
+      // the first 50 of the murmur's 70 ms, and a third of the sung nasals read as none (README "Nasal
+      // openings: the mouth closes"; `nasalCut: false` keeps the 50 ms). l and the glides keep the 50 ms.
       const nx = sung && nextNote.get(n), nxOn = nx ? onsetOf(nx) : [];
-      const overlap = nxOn.length && (PHONES[nxOn[0]].F === undefined || nxOn[0] === 'r') ? 0.015 : 0.05;
+      const overlap = nxOn.length && (PHONES[nxOn[0]].F === undefined || nxOn[0] === 'r' || (nasalCut && PHONES[nxOn[0]].kind === 'nasal')) ? 0.015 : 0.05;
       // the gap to the next sound: the next note's start, or where its consonant starts before the beat
       const nxl = nx && leadOf.get(nx) ? leadOf.get(nx).lead : 0;
       const release = sung ? (nextOn.has(n) ? Math.min(0.25, Math.max(overlap, sec(nextOn.get(n)) - nxl - (sec(n.end) - cut) + overlap)) : 0.25) : 0;
       const onset = sung ? onsetOf(n) : [], coda = sung ? codaOf(n) : [];
       const leadMs = Math.round(ld.lead * 1000), lenMs = ld.len === null ? -1 : Math.round(ld.len * 1000);
       const key = `${v}:${n.note}:${Math.round(dur * 1000)}${sung ? `:${sung.vowel}${glide || ''}:${Math.round(release * 1000)}:${onset.join('.')}:${leadMs}:${lenMs}:${coda.join('.')}` : ''}`;
-      if (!waveCache.has(key)) waveCache.set(key, sung ? singNote(hz(n.note), dur, rate, { vowel: sung.vowel, glide, release, onset, coda, lead: leadMs / 1000, onsetLen: lenMs < 0 ? null : lenMs / 1000, seed: n.note * 7919 + Math.round(dur * 1000) }) : (v === 'choir' ? choir : v === 'organ' ? organ : v === 'bass' ? bass : chordPad)(hz(n.note), dur, rate));
+      if (!waveCache.has(key)) waveCache.set(key, sung ? singNote(hz(n.note), dur, rate, { vowel: sung.vowel, glide, release, onset, coda, lead: leadMs / 1000, onsetLen: lenMs < 0 ? null : lenMs / 1000, seed: n.note * 7919 + Math.round(dur * 1000), ...(voiceBar ? {} : { voiceBarLevel: false }), ...(voiceBarWall ? { voiceBarWall } : {}) }) : (v === 'choir' ? choir : v === 'organ' ? organ : v === 'bass' ? bass : chordPad)(hz(n.note), dur, rate));
       wave = waveCache.get(key);
     }
     let g = (n.vel / 127) * gain[v], p = pan[v];

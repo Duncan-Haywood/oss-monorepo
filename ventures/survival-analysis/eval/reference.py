@@ -47,6 +47,10 @@ def synth(seed, n, groups, ncov, cat=False, round_to=1.0):
         df[f"x{j + 1}"] = np.round(X[:, j], 3)
     if cat:
         df["site"] = rng.choice(["north", "south", "east"], n)
+    if seed == 1:  # two binary strata columns for the stratified refit, from their own stream
+        r2 = np.random.default_rng(101)
+        df["s1"] = r2.choice(["a", "b"], n)
+        df["s2"] = r2.integers(0, 2, n)
     return df
 
 
@@ -56,6 +60,9 @@ CASES = {
     "ties2cat": (synth(2, 200, 2, 3, cat=True, round_to=2.0), "time", "event", "arm", ["x1", "x2", "x3", "site"]),
     "smooth": (synth(3, 80, 2, 1, round_to=0.001), "time", "event", "arm", ["x1"]),
 }
+
+# Stratified refits: each case's strata columns (their combinations are the strata).
+STRATA = {"leukemia": ["sex"], "ties2cat": ["site"], "ties3": ["s1", "s2"]}
 
 
 def design(df, group, covs, levels):
@@ -123,6 +130,31 @@ for name, (df, T, E, G, covs) in CASES.items():
     for ties in ("efron", "breslow"):
         m = PHReg(df[T].values, X.values, status=df[E].values, ties=ties).fit()
         case[f"cox_{ties}_statsmodels"] = {"coef": [float(x) for x in m.params], "se": [float(x) for x in m.bse], "log_lik": float(m.llf)}
+    if name in STRATA:
+        S = STRATA[name]
+        skey = df[S].astype(str).agg("|".join, axis=1)
+        scode = skey.map({k: i for i, k in enumerate(dict.fromkeys(skey))}).values
+        st = {"strata": S}
+        for wt, key in ((None, "logrank"), ("gb", "wilcoxon"), ("tw", "tarone-ware")):
+            chi, p = survdiff(df[T].values, df[E].values, gcode, weight_type=wt, strata=scode)
+            st[f"survdiff_{key}"] = {"chi_square": float(chi), "p": float(p)}
+        Xs = design(df, G, [c for c in covs if c not in S], levels)
+        sfit = pd.concat([Xs, df[[T, E]], df[S]], axis=1)
+        scph = CoxPHFitter().fit(sfit, duration_col=T, event_col=E, strata=S)
+        sph = proportional_hazard_test(scph, sfit, time_transform="km")
+        st["cox_efron_lifelines"] = {
+            "names": list(Xs.columns),
+            "coef": [float(scph.params_[c]) for c in Xs.columns],
+            "se": [float(scph.standard_errors_[c]) for c in Xs.columns],
+            "log_lik": float(scph.log_likelihood_),
+            "concordance": float(scph.concordance_index_),
+            "ph_km_chi_square": [float(x) for x in np.atleast_1d(sph.test_statistic)],
+            "ph_km_p": [float(x) for x in np.atleast_1d(sph.p_value)],
+        }
+        for ties in ("efron", "breslow"):
+            m = PHReg(df[T].values, Xs.values, status=df[E].values, strata=scode, ties=ties).fit()
+            st[f"cox_{ties}_statsmodels"] = {"coef": [float(x) for x in m.params], "se": [float(x) for x in m.bse], "log_lik": float(m.llf)}
+        case["stratified"] = st
     ref["cases"][name] = case
 
 with open(os.path.join(HERE, "reference.json"), "w") as f:

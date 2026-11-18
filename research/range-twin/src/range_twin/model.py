@@ -37,15 +37,18 @@ def twin_steps(k, x0, tol):
 
 def real_steps(k, r, x0, tol):
     """Exact step count for the range-limited P loop, 0 < k < 1, x0 > 0: ceil((x0-R)/(kR)) capped steps to reach
-    x <= R, then geometric from x1 = x0 - j1*k*R."""
+    x <= R, then geometric from x1 = x0 - j1*k*R.  When tol >= R the state reaches tol while still capped, so the
+    count is ceil((x0-tol)/(kR)) and the geometric phase never starts."""
     if x0 <= tol:
         return 0
+    if tol >= r:
+        return math.ceil((x0 - tol) / (k * r) - 1e-12)
     j1 = 0
     x1 = x0
     if x0 > r:
         j1 = math.ceil((x0 - r) / (k * r))
         x1 = x0 - j1 * k * r
-    if x1 <= tol:  # only possible when tol >= R-ish; handled by caller grids
+    if x1 <= tol:  # x1 lands exactly on tol (< R): the geometric phase needs no step
         return j1
     return j1 + math.ceil(math.log(tol / x1) / math.log(1 - k))
 

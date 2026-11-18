@@ -19,6 +19,26 @@ mailboxes on the invented domain `example.test` (`me@`, `pat@`, `lee@`), and
 leaves `nobody@` missing so a message to it bounces. `real-servers.mjs` prints
 PASS or FAIL per step and exits with the number of failures.
 
+## Result, 2026-11-15: 36 of 36 (port 143 added)
+
+The 2026-11-14 run's plain-IMAP step is replaced by four STARTTLS steps on 10143,
+with the client treating Dovecot as a remote host (`loopbackIsSafe: false`):
+
+| Step | What the real server did |
+|---|---|
+| STARTTLS, CA trusted | Dovecot upgraded; the client was encrypted before LOGIN, then EXAMINE and SEARCH worked |
+| Capabilities after TLS | asked again: `IMAP4REV1 SASL-IR ... AUTH=PLAIN AUTH=LOGIN`, no `STARTTLS` (the pre-TLS list is thrown away, RFC 9051 6.2.1) |
+| STARTTLS, certificate not trusted | refused with "unable to verify the first certificate"; Dovecot logged `no auth attempts ... TLS handshaking: Connection closed` |
+| Plain text with STARTTLS turned off | refused by the client ("refusing plain-text IMAP to a non-local host"), whatever the server would allow |
+
+`AGENT_IMAP_PORT=10143 node self-host/real-servers/real-servers.mjs` runs the
+whole agent loop over STARTTLS instead of IMAPS: 36 of 36, and Dovecot's log
+shows the agent's logins as `method=PLAIN ... TLS`. The two attacks a real
+server will not perform (a stripped STARTTLS and bytes injected after the
+STARTTLS reply) and a plain-text PREAUTH greeting are tested against the fake in
+`../tls.test.mjs`. The injection test also found that the SMTP client, given a
+forged `250` before the handshake, desynchronised and hung; it now refuses.
+
 ## Result, 2026-11-14: 32 of 32
 
 | Step | What the real servers did |
@@ -53,8 +73,5 @@ PASS or FAIL per step and exits with the number of failures.
 
 - A hosted provider: Gmail, Microsoft 365, Fastmail, with real OAuth consent.
   That needs an account, which is the deployer's.
-- IMAP STARTTLS on port 143. The agent speaks implicit TLS (993) or, for a test
-  server, plain text; Dovecot accepted plain text here only because 127.0.0.1
-  counts as secure to it.
 - Deliverability (SPF, DKIM, DMARC). The agent sends through your own server,
   which signs or not; `authcheck.mjs` checks a domain's records.

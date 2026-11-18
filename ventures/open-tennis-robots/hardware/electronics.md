@@ -57,8 +57,14 @@ button released *and* a `CLEAR_ESTOP` command.
 | 36 | Battery voltage via 100k/10k divider |
 | 12 | Ball lift gearmotor MOSFET (PWM). The module must pull its input down: GPIO 12 high at reset makes the ESP32 pick 1.8 V flash and not boot |
 | 2 | Hopper agitator gearmotor MOSFET (PWM; low through reset, so the motor stays off while the board boots) |
-| 0 | Lift over-current: LM393 comparator output (open collector, 10k pull-up to 3.3 V; low = the lift draws over its trip current, about 1.7 A). High at reset because the lift is off then, so the board boots normally (cad/README.md "Lift jam cutoff") |
+| 0 | Lift over-current: LM393 comparator output (open collector, 10k pull-up to 3.3 V; low = the lift draws over its trip current, about 1.6 A). High at reset because the lift is off then, so the board boots normally (cad/README.md "Lift jam cutoff") |
 | 17 / 16 | UART2 TX / RX to the Pi |
+
+No GPIO is left: on a WROOM-32 module only 1 and 3 remain, and they are UART0,
+the USB console the firmware is flashed over. That is why the empty-hopper
+check (2026-11-16) reads the launcher wheels' tachometers instead of a
+break-beam over the column (`firmware/esp32/README.md`, "Empty hopper"). A
+future sensor needs a pin freed first, or an I/O expander on two of them.
 
 Until 2026-11-14 the lift and agitator were on GPIO 16 and 17, the UART's
 own pins: the UART, opened last, took them back, so neither motor would have
@@ -75,16 +81,31 @@ pack (1.1 kJ in 6 s on the simulated feeder), and a hot stall draws only
 about 1.4 times the 3 A branch fuse, which a blade fuse can carry for minutes.
 Wiring:
 
-- a 0.05 ohm 3 W 1% shunt between the lift MOSFET module's source (its `-`
-  output side ground) and the deck's ground, so it carries the motor's current
-  only while the MOSFET conducts (the flyback diode's current bypasses it);
-- 10k from the shunt's top to an LM393's `-` input, 100 nF from that input to
-  ground (1 ms: it averages the 20 kHz PWM and brush spikes);
-- 100k from 3.3 V to the `+` input and 2.7k from it to ground (0.087 V: a trip
-  at 1.74 A, 1.47 to 2.00 A over the rail, resistor and offset tolerances;
-  3.9k and 2.48 A until the drive pulley's slip hub, 2026-11-15: the trip must
-  sit under the 2.3 A the motor draws while the hub slides, so a jam is still
-  cut and flagged);
+- a 0.01 ohm 1 W 1% shunt (2512, four-terminal if you can) in the lift
+  motor's `+` lead, between the lift's branch fuse and the motor, with the
+  flyback diode's cathode on the motor side of it: the shunt is inside the loop
+  the diode closes, so it carries the motor's current while the MOSFET is on
+  and while the diode freewheels, and its reading does not depend on the duty
+  (cad/README.md "Lift current sense inside the diode loop");
+- an INA186A2 current-sense amplifier (gain 50 V/V; its inputs take -0.2 to
+  40 V common mode whatever its supply, so it sits on the 29.2 V pack): `IN+`
+  and `IN-` on Kelvin leads across the shunt, `VS` 3.3 V with 100 nF, `REF` to
+  ground. Its output is 0.5 V per amp, 2.7 V at a cold stall on the held duty; at full
+  duty on a full pack (no battery reading) it saturates at the rail, which still trips;
+- 10k from the amplifier's output to an LM393's `-` input, 100 nF from that
+  input to ground (1 ms: it averages the motor's current ripple and brush spikes);
+- 100k from 3.3 V to the `+` input and 33k from it to ground (0.819 V: a trip
+  at 1.64 A, 1.51 to 1.77 A over the rail, resistors, shunt, the amplifier's
+  gain error and offset and the comparator's offset). It is the same at every
+  duty, so on a full 29.2 V pack, where the firmware holds the duty to 0.82
+  (`LIFT_V_REF_MV`, below), the trip stays at 1.77 A at most, 1.30 times under
+  the 2.30 A the motor draws while the slip hub (set to 0.9 N m, 1.0 until the
+  sense moved high side) slides. History
+  (all 2026-11-15): a 0.05 ohm shunt in the MOSFET module's source, which sees
+  current only while the MOSFET conducts, so its trip in motor amps was the
+  divider's over the duty: 3.9k and 2.48 A until the slip hub, 2.7k and 1.74 A
+  until the duty followed the battery, then 2.4k, 1.55 A at full duty and 2.20 A
+  at 0.82 (1.14 times under the slide);
 - the LM393 powered from 3.3 V, its open-collector output to GPIO 0 with a 10k
   pull-up to 3.3 V (most dev boards already carry one for their BOOT button);
   the unused half's inputs to ground and 3.3 V.
@@ -92,7 +113,10 @@ Wiring:
 The firmware (`controller.LiftRun`) ignores the comparator for 400 ms after
 each start, cuts the motor when it reads low on two ticks 10 ms apart, rests
 2 s, tries once more, and then leaves the lift off with `FLAG_LIFT_JAM` set
-until the e-stop is pressed and released (the bus dropping clears it). The
+until the e-stop is pressed and released (the bus dropping clears it). Above
+24 V on the battery reading (GPIO 36) it runs the lift at 24 V / reading
+(smoothed over 0.5 s, never under 0.82), so the belt keeps its 24 V speed on a
+full pack (cad/README.md "Lift duty follows the battery"). The
 drill runner logs the flag once and carries on: the hopper still holds balls.
 Numbers and their assumptions: the manifest's "lift jam" line and
 `tests/lift_jam_sweep.py`.

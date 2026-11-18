@@ -43,7 +43,7 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
              shape="halfnormal", s_layout=0.0, s_read=0.5e-3, s_robot=0.9e-3, s_edge=0.5e-3,
              band=None, joint_band=None, s_x=0.0, s_theta=0.0, s_sway=0.0, aim="edge",
              accept_half=None, max_hangs=5, rng=None, theta_draw=None, straighten=None,
-             s_push=None, profiles=None, u_joint=None, return_hits=False):
+             s_push=None, profiles=None, u_joint=None, return_hits=False, tool=None):
     """Monte Carlo of one sheet's 62 nails on four as-built studs, hung with a pose error.
 
     s_x, s_theta   the hang: translation along the wall and rotation about the sheet centre
@@ -66,6 +66,8 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
                    parabolic bow and linear twist; layout lean (s_layout) still applies.
     u_joint        optional joint-nail heights as fractions of the sheet height (milestone 14: a
                    denser joint-edge schedule); default the 17 heights of a 6 in schedule
+    tool           optional ``tool_lean.ToolError`` (milestone 29): a (surface, depth) offset pair per
+                   nail in place of the s_robot Gaussian
     return_hits    also return ``hits`` (trials, n) booleans in the order left joint edge, right
                    joint edge, field stud 1, field stud 2, 7 bottom-plate and 7 top-plate nails
     accept_half    re-hang while the narrowest predicted joint half-window is below this (None:
@@ -206,16 +208,31 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
     # sway moves the sheet (edge) under the nail; the stud does not move
     sw = lambda: rng.normal(0, s_sway, eL.shape) if s_sway > 0 else 0.0  # noqa: E731
     swL, swR = sw(), sw()
-    nL = aimL + noise(aimL.shape)
-    nR = aimR + noise(aimR.shape)
-    hits = [(nL >= eL + swL + EDGE) & (nL <= loL_true_hi),
-            (nR >= loR_true_lo) & (nR <= eR + swR - EDGE)]
-    for k in (1, 2):
-        n = est_f[:, k] + noise(est_f[:, k].shape)
-        hits.append((n >= true_f[:, k] + blo_f[:, k]) & (n <= true_f[:, k] + bhi_f[:, k]))
-    for h in plate_halves():
-        n = noise((t, 1)) if s_robot > 0 else np.zeros((t, 1))
-        hits.append(np.abs(n) <= h)
+    if tool is None:
+        nL = aimL + noise(aimL.shape)
+        nR = aimR + noise(aimR.shape)
+        hits = [(nL >= eL + swL + EDGE) & (nL <= loL_true_hi),
+                (nR >= loR_true_lo) & (nR <= eR + swR - EDGE)]
+        for k in (1, 2):
+            n = est_f[:, k] + noise(est_f[:, k].shape)
+            hits.append((n >= true_f[:, k] + blo_f[:, k]) & (n <= true_f[:, k] + bhi_f[:, k]))
+        for h in plate_halves():
+            n = noise((t, 1)) if s_robot > 0 else np.zeros((t, 1))
+            hits.append(np.abs(n) <= h)
+    else:
+        # milestone 29 (tool_lean): the panel-edge bound sees the nail at the surface, the
+        # stud and plate bounds see it 44 mm deep, where the nailer's length and lean move it
+        sL, dL_ = tool.draw(rng, aimL.shape, "y")
+        sR, dR_ = tool.draw(rng, aimR.shape, "y")
+        hits = [(aimL + sL >= eL + swL + EDGE) & (aimL + dL_ <= loL_true_hi),
+                (aimR + dR_ >= loR_true_lo) & (aimR + sR <= eR + swR - EDGE)]
+        for k in (1, 2):
+            _, d = tool.draw(rng, est_f[:, k].shape, "y")
+            n = est_f[:, k] + d
+            hits.append((n >= true_f[:, k] + blo_f[:, k]) & (n <= true_f[:, k] + bhi_f[:, k]))
+        for h in plate_halves():
+            _, d = tool.draw(rng, (t, 1), "z")
+            hits.append(np.abs(d) <= h)
     allhit = np.concatenate(hits, axis=1)
     feasible = np.all(eL + EDGE <= loL_true_hi, axis=1) & np.all(loR_true_lo <= eR - EDGE, axis=1)
     out = {"clean": float(allhit.all(axis=1).mean()),

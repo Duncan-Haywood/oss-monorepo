@@ -1,0 +1,246 @@
+{
+ "note": "session 97: stamp, stamp_len, stamp_long refit on the 2026-11-16 pull; clean from session 95, stamp96 from session 96 (same row counts); L4 uses session 96's clean minus stamp as pre-registered",
+ "cells": [
+  {
+   "held": "sf",
+   "year": 2021,
+   "n_nonstamp_dead": 27622,
+   "len_matched": {
+    "n_dropped": 27622,
+    "n_short": 0
+   },
+   "len_short_share": 0.0,
+   "n_long_dropped": 12167,
+   "long_share_of_nonstamp": 0.4404822243139526,
+   "q90": {
+    "stamp": 72.77059764038795,
+    "stamp96": 72.77059764038795,
+    "clean": 72.49184619611458,
+    "stamp_len": 72.29355266033956,
+    "stamp_long": 72.62358206869102
+   },
+   "stamp_refit_minus_s96": 0.0,
+   "len_minus_stamp": -0.47704498004839024,
+   "long_minus_stamp": -0.14701557169692592,
+   "clean_minus_stamp": -0.27875144427336807,
+   "clean_minus_stamp_s96": -0.27875144427336807,
+   "len_minus_stamp_per_seed": [
+    -0.6181501993344227,
+    -0.43275599964425737,
+    -0.3802287411664622
+   ],
+   "long_minus_stamp_per_seed": [
+    -0.535228670364603,
+    -0.17167448026447119,
+    0.26585643553832483
+   ],
+   "q90_pred_mean": {
+    "stamp": 703.025608615664,
+    "clean": 688.9273079527176,
+    "stamp_len": 678.6457647323613,
+    "stamp_long": 684.8741122087557
+   },
+   "rounds": {
+    "stamp": [
+     43,
+     34,
+     35
+    ],
+    "stamp_len": [
+     46,
+     26,
+     92
+    ],
+    "stamp_long": [
+     84,
+     29,
+     114
+    ]
+   }
+  },
+  {
+   "held": "sf",
+   "year": 2022,
+   "n_nonstamp_dead": 28420,
+   "len_matched": {
+    "n_dropped": 28420,
+    "n_short": 0
+   },
+   "len_short_share": 0.0,
+   "n_long_dropped": 12471,
+   "long_share_of_nonstamp": 0.4388106966924701,
+   "q90": {
+    "stamp": 62.28085384307146,
+    "stamp96": 62.28085384307146,
+    "clean": 61.02889203490466,
+    "stamp_len": 61.638828324608774,
+    "stamp_long": 61.37051380478842
+   },
+   "stamp_refit_minus_s96": 0.0,
+   "len_minus_stamp": -0.6420255184626882,
+   "long_minus_stamp": -0.9103400382830387,
+   "clean_minus_stamp": -1.2519618081668042,
+   "clean_minus_stamp_s96": -1.2519618081668042,
+   "len_minus_stamp_per_seed": [
+    -0.6419491773924193,
+    -0.5726123792080955,
+    -0.7115149987875427
+   ],
+   "long_minus_stamp_per_seed": [
+    -1.3202125220458072,
+    -0.838069206123194,
+    -0.5727383866801361
+   ],
+   "q90_pred_mean": {
+    "stamp": 702.7409038690943,
+    "clean": 674.727447487717,
+    "stamp_len": 677.5990680990162,
+    "stamp_long": 676.0004382638513
+   },
+   "rounds": {
+    "stamp": [
+     64,
+     28,
+     31
+    ],
+    "stamp_len": [
+     152,
+     55,
+     141
+    ],
+    "stamp_long": [
+     38,
+     40,
+     51
+    ]
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2021,
+   "n_nonstamp_dead": 30358,
+   "len_matched": {
+    "n_dropped": 30358,
+    "n_short": 0
+   },
+   "len_short_share": 0.0,
+   "n_long_dropped": 12287,
+   "long_share_of_nonstamp": 0.40473680743131957,
+   "q90": {
+    "stamp": 86.60159905852957,
+    "stamp96": 86.60159905852957,
+    "clean": 89.12000171327641,
+    "stamp_len": 88.07392077481421,
+    "stamp_long": 88.49737567267768
+   },
+   "stamp_refit_minus_s96": 0.0,
+   "len_minus_stamp": 1.4723217162846396,
+   "long_minus_stamp": 1.8957766141481045,
+   "clean_minus_stamp": 2.5184026547468363,
+   "clean_minus_stamp_s96": 2.5184026547468363,
+   "len_minus_stamp_per_seed": [
+    1.4347422560873468,
+    0.6412241516695332,
+    2.340998741097053
+   ],
+   "long_minus_stamp_per_seed": [
+    3.851347708945468,
+    -0.6139353539829528,
+    2.4499174874818266
+   ],
+   "q90_pred_mean": {
+    "stamp": 731.2468424735903,
+    "clean": 729.976521901312,
+    "stamp_len": 720.6213275944274,
+    "stamp_long": 720.7581258498994
+   },
+   "rounds": {
+    "stamp": [
+     129,
+     196,
+     99
+    ],
+    "stamp_len": [
+     157,
+     189,
+     193
+    ],
+    "stamp_long": [
+     298,
+     160,
+     202
+    ]
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2022,
+   "n_nonstamp_dead": 31133,
+   "len_matched": {
+    "n_dropped": 31133,
+    "n_short": 0
+   },
+   "len_short_share": 0.0,
+   "n_long_dropped": 12579,
+   "long_share_of_nonstamp": 0.40404072848745703,
+   "q90": {
+    "stamp": 69.99974775204431,
+    "stamp96": 69.99974775204431,
+    "clean": 71.74969308873142,
+    "stamp_len": 70.72791792309789,
+    "stamp_long": 71.12239110744063
+   },
+   "stamp_refit_minus_s96": 0.0,
+   "len_minus_stamp": 0.7281701710535771,
+   "long_minus_stamp": 1.1226433553963204,
+   "clean_minus_stamp": 1.7499453366871052,
+   "clean_minus_stamp_s96": 1.7499453366871052,
+   "len_minus_stamp_per_seed": [
+    -0.038989196626658895,
+    2.2462681811077942,
+    -0.02276847132037574
+   ],
+   "long_minus_stamp_per_seed": [
+    0.6245636188510275,
+    2.042513479738261,
+    0.7008529675996584
+   ],
+   "q90_pred_mean": {
+    "stamp": 718.3842579187839,
+    "clean": 728.6027499339774,
+    "stamp_len": 711.7837754706637,
+    "stamp_long": 711.9718750764868
+   },
+   "rounds": {
+    "stamp": [
+     90,
+     36,
+     91
+    ],
+    "stamp_len": [
+     123,
+     92,
+     39
+    ],
+    "stamp_long": [
+     111,
+     97,
+     58
+    ]
+   }
+  }
+ ],
+ "predictions": {
+  "L0": true,
+  "L1": true,
+  "L2": false,
+  "L3": true,
+  "L4": false,
+  "L5": false
+ },
+ "mean": {
+  "len_minus_stamp": 0.27035534720678456,
+  "long_minus_stamp": 0.4902660898911151,
+  "clean_minus_stamp": 0.6844086847484423
+ }
+}

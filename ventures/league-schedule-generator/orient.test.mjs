@@ -9,7 +9,17 @@ import { carryOverTry as carryOverTryNow, polishSeasonVenues, circleOpp, TIMETAB
 // timetable (TIMETABLES[14], 2026-11-14) joined the search's starts, which changed some seeded tries
 // (each to a better score on its own weight). They are rebuilt without that start so the proofs still
 // apply to the same timetables.
+//
+// The tries are only inputs here (orient.mjs is the subject), and they are about 44 of this file's
+// 47 s. Two tests share a try (14 teams try 3 double, 20 teams try 0), so each is searched once per
+// file and every caller gets its own copy (docs/history/ci-perf-2026-11-16-orient-tries-memo.md).
+const searched = new Map();
 function carryOverTry(n, i, opts) {
+  const key = `${n} ${i} ${JSON.stringify(opts)}`;
+  if (!searched.has(key)) searched.set(key, searchTry(n, i, opts));
+  return structuredClone(searched.get(key));
+}
+function searchTry(n, i, opts) {
   if (n !== 14) return carryOverTryNow(n, i, opts);
   const saved = TIMETABLES[14];
   delete TIMETABLES[14];
@@ -182,6 +192,71 @@ test("minPlusStep in WebAssembly equals the JS loop, whole (int16 and int32) and
     // at the int16 edge: entries up to 29,999 plus up to 2 a step still fit
     const fe = Int32Array.from({ length: 1 << A.length }, () => 29999 - Math.floor(rand() * 3));
     assert.deepEqual(minPlusStep(fe, A, B), js.minPlusStep(fe, A, B), msg);
+  }
+});
+
+test("minPlusStep's symmetric step (sym) equals the JS loop on every table with f[x] = f[~x]: byes, int16 and int32, 2 to 16 matches", async () => {
+  const { MINPLUS_WASM_ON } = await import("./orient.mjs");
+  process.env.MINPLUS_JS = "1";
+  const js = await import("./orient.mjs?js-only-sym");
+  delete process.env.MINPLUS_JS;
+  const rand = mulberry32(41);
+  const roundOf = (n, sitOut) => {
+    const ts = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [ts[i], ts[j]] = [ts[j], ts[i]]; }
+    const ms = [];
+    for (let i = sitOut; i + 1 < n; i += 2) ms.push([Math.min(ts[i], ts[i + 1]), Math.max(ts[i], ts[i + 1])]);
+    return ms;
+  };
+  const symOf = (k, val) => { const f = new Int32Array(1 << k); for (let x = 0; x < f.length; x++) { const y = (~x) & (f.length - 1); f[x] = x < y ? val() : f[y]; } return f; };
+  for (let it = 0; it < 240; it++) {
+    const n = it < 8 ? 32 : 4 + Math.floor(rand() * 23);
+    const A = roundOf(n, Math.floor(rand() * 3)), B = it % 9 === 0 ? A.slice() : roundOf(n, Math.floor(rand() * 3));
+    const msg = `n ${n} A ${JSON.stringify(A)} B ${JSON.stringify(B)}`;
+    for (const val of [() => Math.floor(rand() * 40), () => 29997 + Math.floor(rand() * 3), () => Math.floor(rand() * 2000000) - 1000000]) {
+      const f = symOf(A.length, val), want = js.minPlusStep(f, A, B);
+      const got = minPlusStep(f, A, B, { sym: true });
+      assert.deepEqual(got, want, msg);
+      // the output is symmetric too, so the next step may take sym as well
+      for (let y = 0; y < got.length; y++) assert.equal(got[y], got[(~y) & (got.length - 1)], msg);
+    }
+  }
+  if (!MINPLUS_WASM_ON) return;
+  // and floorTable, which steps with sym, gives the same floor and trials as with it off
+  const { floorTable } = await import("./orient.mjs");
+  process.env.FLOOR_SYM = "0";
+  const off = await import("./orient.mjs?no-sym");
+  delete process.env.FLOOR_SYM;
+  for (const n of [9, 14, 20, 24]) {
+    const opp = oppOf(carryOverTry(n, 1, { seed: 3, weighted: 8 }).rounds, n);
+    const a = floorTable(opp, n), b = off.floorTable(opp, n);
+    assert.equal(a.floor, b.floor, `${n}`);
+    for (const [lo, hi] of [[0, 2], [3, 3], [opp.length - 3, opp.length - 1], [1, opp.length - 2]]) assert.equal(a.trial(lo, hi), b.trial(lo, hi), `${n} ${lo}..${hi}`);
+  }
+});
+
+test("floorTable's chained trials (steps kept in the module) give the stepped trials' least, commits and walks, 9 to 30 teams", async () => {
+  // README "A trial's steps kept in the module": a trial's steps run in WebAssembly from one to the
+  // next, its tables rebuilt only for a commit or a walk; chain: false steps every table out as before
+  const { floorTable, MINPLUS_WASM_ON } = await import("./orient.mjs");
+  if (!MINPLUS_WASM_ON) return;
+  for (const n of [9, 14, 20, 24, 27, 28, 30]) {
+    const opp = oppOf(carryOverTry(n, 1, { seed: 3, weighted: 8 }).rounds, n), R = opp.length;
+    const a = floorTable(opp, n, { maxMatches: 15 }), b = floorTable(opp, n, { maxMatches: 15, chain: false });
+    assert.equal(a.floor, b.floor, `${n}`);
+    for (let i = 0; i < 30; i++) {
+      // swap two rounds, so every trial is a real move; keep a third of them
+      const lo = (i * 7) % R, hi = Math.min(R - 1, lo + (i % 5) * 3);
+      [opp[lo], opp[hi]] = [opp[hi], opp[lo]];
+      assert.equal(a.trial(lo, hi), b.trial(lo, hi), `${n} ${lo}..${hi}`);
+      if (i % 3 === 0) { a.commit(); b.commit(); } else [opp[lo], opp[hi]] = [opp[hi], opp[lo]];
+      if (i % 7 === 0) {
+        const cap = a.trial(0, 1) + 4;
+        assert.equal(b.trial(0, 1) + 4, cap, `${n} walk trial`);
+        assert.deepEqual(a.balanced(cap, { budget: 2000 }), b.balanced(cap, { budget: 2000 }), `${n} walk`);
+        a.commit(); b.commit();
+      }
+    }
   }
 });
 

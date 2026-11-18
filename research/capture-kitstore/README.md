@@ -4,6 +4,8 @@ Follow-up to `capture-realkit` and `capture-storage` (track 13, autonomous multi
 
 **Live page:** https://marisstella.app/research/capture-kitstore/
 
+**Known gap (found 2026-11-18 while fixing `capture-storage`).** `storage_plan()` (`src/capture_kitstore/model.py:62`) copies `capture-storage`'s first offload model, which splits a day's bytes evenly over up to 8 readers as if a card could be read by several at once and reads the cards once per SSD copy. `capture-storage` now schedules whole cards on readers (never more readers than cards) and reads each card once while writing both copies ([its README](../capture-storage/README.md), "Fixed 2026-11-18"; [audit](../../portfolio/quality/audits/2026-11-17-capture-storage.json)). The storage grams and reader counts here come from the old model and have not been regenerated; the two changes push in opposite directions (fewer passes, but no splitting a card), so the sign of the change to the +225 g headline is not known until the model is ported.
+
 **Builds on.** `capture-realkit` (the sourced catalogue and kit search; its model is copied here as `catalogue.py` so this project is self-contained) and `capture-storage` (cards reused daily, SSD copies holding the trip, parallel readers). It builds on none of the CU Boulder groups in `prompt.md`.
 
 ## Method

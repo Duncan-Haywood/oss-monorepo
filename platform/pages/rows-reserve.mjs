@@ -25,6 +25,7 @@
 //   node platform/pages/rows-reserve.mjs --base http://127.0.0.1:8801 [--write] [slug ...]
 // Without slugs it looks at every venture whose index.html has a bare
 // `<div id="..."></div>`. Without --write it prints what it would write.
+import { requirePlaywright } from './load-playwright.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -99,7 +100,7 @@ export function writeBlock(html, block) {
 }
 
 async function main(argv) {
-  const pw = (await import('/opt/node-tools/node_modules/playwright/index.js')).default;
+  const pw = await requirePlaywright();
   const base = argv[argv.indexOf('--base') + 1];
   if (!argv.includes('--base') || !base) throw new Error('--base <url serving ventures/ or dist/> is required');
   const write = argv.includes('--write');

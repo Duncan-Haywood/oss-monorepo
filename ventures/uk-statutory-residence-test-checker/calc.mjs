@@ -91,7 +91,7 @@ export function verdictForDays(days, ctx) {
   step("overseas-2", "Automatic overseas test 2: not UK resident in any of the last 3 years and under 46 days here", !leaver ? o2 : null, !leaver ? `${days} day(s) in the UK; the limit is 45` : "Not applicable: you were UK resident in one of the last 3 tax years");
   const o3 = ctx.fullTimeAbroad && days < 91 && ctx.ukWorkDays < 31;
   step("overseas-3", "Automatic overseas test 3: full-time work abroad, under 91 days and under 31 working days in the UK", o3,
-    ctx.fullTimeAbroad ? `${days} UK day(s) (limit 90) and ${ctx.ukWorkDays} UK working day(s) of 3+ hours (limit 30)` : "You said you did not work full-time abroad with no significant break");
+    ctx.fullTimeAbroad ? `${days} UK day(s) (limit 90) and ${ctx.ukWorkDays} UK day(s) with more than 3 hours' work (limit 30)` : "You said you did not work full-time abroad with no significant break");
   if (o1 || o2 || o3) return { resident: false, basis: "automatic-overseas", steps, ties: null, days };
 
   const u1 = days >= 183;
@@ -107,10 +107,12 @@ export function verdictForDays(days, ctx) {
   const tiesList = [
     { id: "family", label: "Family tie", present: ctx.family },
     { id: "accommodation", label: "Accommodation tie", present: ctx.accommodation },
-    { id: "work", label: "Work tie (3+ hours on 40+ UK days)", present: ctx.ukWorkDays >= 40 },
-    { id: "ninety-day", label: "90-day tie (90+ UK days in either of the last 2 tax years)", present: ctx.prev1 >= 90 || ctx.prev2 >= 90 },
+    { id: "work", label: "Work tie (more than 3 hours' work on 40+ UK days)", present: ctx.ukWorkDays >= 40 },
+    // Sch 45 para 37: "more than 90 days", so exactly 90 is no tie.
+    { id: "ninety-day", label: "90-day tie (more than 90 UK days in either of the last 2 tax years)", present: ctx.prev1 > 90 || ctx.prev2 > 90 },
   ];
-  if (leaver) tiesList.push({ id: "country", label: "Country tie (more days in the UK than in any other country)", present: days > ctx.mostElsewhere });
+  // Sch 45 para 38(2): if the UK ties with another country for the most midnights, that is still a country tie.
+  if (leaver) tiesList.push({ id: "country", label: "Country tie (at least as many days in the UK as in any other country)", present: days >= ctx.mostElsewhere });
   const count = tiesList.filter((t) => t.present).length;
   const band = tieBand(kind, days);
   const resident = count >= band.needed;

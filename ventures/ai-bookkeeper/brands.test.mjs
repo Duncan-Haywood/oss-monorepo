@@ -4,7 +4,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { suggest, brandAccount, BRAND } from "./categorize.mjs";
-import { build, CATEGORY_MAP, EXCLUDE } from "./brands-build.mjs";
+import { build, CATEGORY_MAP, EXCLUDE, transitName, TRANSIT_EXCLUDE } from "./brands-build.mjs";
 import { BRAND_KINDS, BRANDS_VERSION } from "./brands.mjs";
 
 const empty = { rules: [], codes: null };
@@ -91,4 +91,55 @@ test("the builder lists one-word mapped names that are people's names, and only 
   const { personNames } = await import("./brands-build.mjs");
   const m = new Map([["albert", "6130"], ["albert heijn", "6130"], ["heron foods", "6130"], ["dennis", ""], ["wolseley", "6100"]]);
   assert.deepEqual(personNames(m, new Set(["albert", "dennis", "heijn"])), ["albert"]);
+});
+
+// Transit networks and operators from NSI's transit/route/* (2026-11-16, README "Public transport
+// from OpenStreetMap"). Descriptions in the shapes card and bank exports print; amounts made up.
+test("a fare to a transit network or operator these books have never seen is travel, for review only", () => {
+  for (const desc of ["LONG ISLAND RAIL ROAD TVM", "Long Island Rail Road", "MERSEYRAIL TICKET OFFICE", "TORONTO TRANSIT COMMISSION",
+    "STAGECOACH SOUTH WEST", "WASHINGTON STATE FERRIES", "BC FERRIES"]) {
+    const s = out(desc);
+    assert.equal(s.source, "brand", desc);
+    assert.equal(s.account, "6120", desc);
+    assert.ok(s.confidence < 0.85, "never auto-posts");
+    assert.match(s.reason, /public transport/);
+  }
+  assert.equal(out("RENFREWSHIRE COUNCIL").source, "none", "a bare place used as a network name is not listed");
+  assert.equal(brandAccount("NETWORK RAIL INFRASTRUCTURE"), null, "an infrastructure owner sells no fares");
+  assert.equal(suggest({ desc: "MERSEYRAIL REFUND", cents: 1234 }, empty).source, "none", "money in: the layer says nothing");
+});
+
+test("transit names: a transport word is required, departments and bare places are not names", () => {
+  for (const n of ["Long Island Rail Road", "Metrolink", "Flixbus", "King County Metro", "Beaumont Municipal Transit", "BC Ferries", "ScotRail"]) assert.ok(transitName(n), n);
+  for (const n of ["Renfrewshire", "Isle of Wight", "SEPTA", "Maine Department of Transportation", "Nova Scotia Department of Public Works",
+    "City of Santa Monica", "ar:municipal", "Ferrara", "Network Rail", "", undefined]) assert.ok(!transitName(n), String(n));
+  for (const n of TRANSIT_EXCLUDE) assert.ok(!transitName(n), n);
+});
+
+test("the builder adds transit names as travel, under the chains' filters, and never re-files a chain as travel", () => {
+  const nsi = { nsi: {
+    "brands/amenity/restaurant": { items: [{ displayName: "Zorbo Bus Diner", tags: { name: "Zorbo Bus Diner" } }] },
+    "transit/route/bus": { items: [{ tags: { network: "Zorbo Bus Diner", operator: "Quux Transit", "operator:short": "QT" } }, { tags: { network: "Plimsoll" } }] },
+    "transit/route/train": { items: [{ tags: { network: "Metro", operator: "Wexford Department of Transport" } }] },
+    "transit/highway/bus_stop": { items: [{ tags: { network: "Stoplight Transit" } }] },
+  } };
+  const m = build(nsi, new Set(["metro"]));
+  assert.equal(m.get("quux transit"), "6120");
+  assert.equal(m.has("zorbo bus diner"), false, "a chain's name and a network's: two kinds of place, says nothing");
+  assert.equal(m.has("qt"), false, "under four letters");
+  assert.equal(m.has("plimsoll"), false, "no transport word");
+  assert.equal(m.has("metro"), false, "a common word");
+  assert.equal(m.has("wexford department transport"), false, "a department");
+  assert.equal(m.has("stoplight transit"), false, "stops are not read, only routes");
+  const off = build(nsi, new Set(["metro"]), { transitRoutes: false });
+  assert.equal(off.has("quux transit"), false);
+  assert.equal(off.get("zorbo bus diner"), "6130", "without the transit names the restaurant chain is meals");
+});
+
+test("the shipped transit names took no suggestion away from a chain", async () => {
+  // Built from the same release with and without transit/route/*: every chain name keeps its
+  // account (checked when brands.mjs was rebuilt on 2026-11-16); here, the shipped list carries
+  // the chains' own names next to the transit names.
+  for (const [desc, account] of [["HERON FOODS BISHOP A", "6130"], ["Wolseley Uk", "6100"], ["CANDLEWOOD SUITES BRMNHM", "6120"]]) assert.equal(brandAccount(desc)?.account, account, desc);
+  assert.ok(BRAND_KINDS["6120"].includes("long island rail road"));
 });

@@ -1,0 +1,286 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtL2GDyLj7edaHy9utW",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T15:07:12Z",
+  "ended": "2026-11-17T15:09:37Z",
+  "wall_minutes": 10.18,
+  "tokens_in": 4915047,
+  "tokens_out": 27934,
+  "cost_usd": 2.3279,
+  "tool_calls": 54,
+  "task": "redteam campaign on platform/pages/stories.mjs (random draw under platform)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16978",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "A backgrounded full `node --test platform/pages/*.test.mjs` ran past 4 minutes and started before the final fix, so it was stopped; the affected suites (6 platform/pages files that import stories.mjs or css-lint.mjs, 127 tests, plus hearth-and-horizon stories.test.mjs 17 tests and build.test.mjs filtered to stories) were run instead."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "suite_for measures a platform/pages/<x>.mjs target with <x>.test.mjs only, but CI runs css-lint.test.mjs over every module's CSS, so 3 of 6 escapes read as escaped when CI catches them (same class as the 2026-11-15 usage.mjs note). Fix belongs in a control-plane PR."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list held 11 entries, all control plane (workflows or prompts/), so none could be fixed from a run's own branch; the list will keep growing until an owner-approved PR batches them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix open defects first; all 11 are control-plane edits needing their own owner-approved PR.",
+      "did": "Skipped them and noted it; no entries changed.",
+      "result": "Run time went to the campaign and its guards."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Long full platform/pages suite (>4 min) after the fix was replaced by the suites that import the changed modules.",
+      "did": "Ran the 6 importing test files plus filtered build.test.mjs and hearth-and-horizon tests.",
+      "result": "All green; CI runs the full set."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-css-the-browser-drops-without-a-word.md",
+    "docs/reports/redteam-2026-11-17-platform-pages-css.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: badSelectors() in platform/pages/css-lint.mjs (comparison or lone -,/ combinators and empty list entries in style-rule selectors), run over ~3,750 tree pages and every *_CSS/*STYLE* constant in platform/pages; unitless-length check extended to border/outline/column-rule shorthands. First run: no bad selectors in the tree, one false-positive source (styleBlocks reading <script> strings) fixed. Catch rate 2/8 -> 8/8 after fix. Tests: node --test on 6 platform/pages files 127 pass; ventures/hearth-and-horizon stories.test.mjs 17 pass.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/stories.mjs",
+        "test": "node --test platform/pages/stories.test.mjs  (in .)",
+        "seed": 782750190,
+        "commit": "0a375bb7d",
+        "sites": 80,
+        "baseline_seconds": 0.9,
+        "mutants": [
+          {
+            "file": "platform/pages/stories.mjs",
+            "line": 113,
+            "col": 78,
+            "operator": "div-to-times",
+            "before": "minutes: episodeAudio[e.slug] ? Math.round(episodeAudio[e.slug].seconds / 60) : null,",
+            "after": "minutes: episodeAudio[e.slug] ? Math.round(episodeAudio[e.slug].seconds * 60) : null,",
+            "line_text": "      minutes: episodeAudio[e.slug] ? Math.round(episodeAudio[e.slug].seconds / 60) : null,",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/stories.mjs",
+            "line": 141,
+            "col": 59,
+            "operator": "const-plus-one",
+            "before": ".has-covers .jump a { display:block; padding:0; border:0; background:none; border-radius:12px; color:var(--muted); font-size:.82rem; line-height:1.35; }",
+            "after": ".has-covers .jump a { display:block; padding:0; border:1; background:none; border-radius:12px; color:var(--muted); font-size:.82rem; line-height:1.35; }",
+            "line_text": "    .has-covers .jump a { display:block; padding:0; border:0; background:none; border-radius:12px; color:var(--muted); font-size:.82rem; line-height:1.35; }",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "border shorthand was not linted: border:1 is invalid, the declaration is dropped and the cover link keeps the chip border. css-lint.mjs now checks border/outline shorthands; stories.test.mjs lints the rendered page."
+          },
+          {
+            "file": "platform/pages/stories.mjs",
+            "line": 153,
+            "col": 27,
+            "operator": "gt-to-ge",
+            "before": ".shelf > p, .shelf-intro > p { max-width:68ch; }",
+            "after": ".shelf > p, .shelf-intro >= p { max-width:68ch; }",
+            "line_text": "  .shelf > p, .shelf-intro > p { max-width:68ch; }",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "invalid selector (.shelf-intro >= p) drops the whole rule; nothing checked selectors. New badSelectors() in css-lint.mjs, run over the tree, every *_CSS/*STYLE constant in platform/pages, and the rendered Stories page."
+          },
+          {
+            "file": "platform/pages/stories.mjs",
+            "line": 173,
+            "col": 42,
+            "operator": "const-plus-one",
+            "before": ".items { list-style:none; margin:.8em 0 0; padding:0; display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap:10px; }",
+            "after": ".items { list-style:none; margin:.8em 0 1; padding:0; display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap:10px; }",
+            "line_text": "  .items { list-style:none; margin:.8em 0 0; padding:0; display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap:10px; }",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "margin:.8em 0 1 is dropped. CI's css-lint.test.mjs (portfolio-pages runs platform/pages/*.test.mjs) already caught it; the campaign measures stories.test.mjs only, which now lints its own rendered CSS."
+          },
+          {
+            "file": "platform/pages/stories.mjs",
+            "line": 191,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": ".items .when { margin:.2em 0 0; font-size:.8rem; color:var(--muted); display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; }",
+            "after": ".items .when { margin:.2em 1 0; font-size:.8rem; color:var(--muted); display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; }",
+            "line_text": "  .items .when { margin:.2em 0 0; font-size:.8rem; color:var(--muted); display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; }",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "as mutant 3 (CI's css-lint caught it, the measured suite did not); now caught in stories.test.mjs."
+          },
+          {
+            "file": "platform/pages/stories.mjs",
+            "line": 194,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": ".more { margin:.9em 0 0; }",
+            "after": ".more { margin:.9em 0 1; }",
+            "line_text": "  .more { margin:.9em 0 0; }",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "as mutant 3; now caught in stories.test.mjs."
+          },
+          {
+            "file": "platform/pages/stories.mjs",
+            "line": 204,
+            "col": 9,
+            "operator": "or-to-and",
+            "before": "if (!m || !MONTHS[+m[2] - 1]) return String(iso);",
+            "after": "if (!m && !MONTHS[+m[2] - 1]) return String(iso);",
+            "line_text": "  if (!m || !MONTHS[+m[2] - 1]) return String(iso);",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/stories.mjs",
+            "line": 254,
+            "col": 68,
+            "operator": "gt-to-ge",
+            "before": "<p class=\"more\"><a href=\"${esc(toRoot + shelf.href)}\">${shelf.count > items.length ? `All ${shelf.count} on ${esc(shelf.title)} \u2192` : `Open ${esc(shelf.title)} \u2192`}</a></p>",
+            "after": "<p class=\"more\"><a href=\"${esc(toRoot + shelf.href)}\">${shelf.count >= items.length ? `All ${shelf.count} on ${esc(shelf.title)} \u2192` : `Open ${esc(shelf.title)} \u2192`}</a></p>",
+            "line_text": "<p class=\"more\"><a href=\"${esc(toRoot + shelf.href)}\">${shelf.count > items.length ? `All ${shelf.count} on ${esc(shelf.title)} \u2192` : `Open ${esc(shelf.title)} \u2192`}</a></p>",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "count >= items.length shows 'All 6 on X' when the shelf holds exactly the 6 cards shown. New test pins Open/All at 3, 6 and 7 items."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/pages/stories.mjs",
+        "issue": "All three Hearth & Horizon shelves linked the bare hearth-and-horizon/ index, so 'All 70 on Little Lamps' and 'All 53 on For Other Minds' opened the page at its first shelf, 336 science-fiction stories above theirs. Fixed: href hearth-and-horizon/#<shelf id>; test checks the section exists and no two shelves share a link.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16978"
+      },
+      {
+        "file": "platform/pages/css-lint.mjs",
+        "issue": "styleBlocks() read a \"<style>\" string inside a <script> (ventures/csshound/index.html) as CSS, so any lint over it sees JavaScript. Found when the new selector lint flagged three JS lines. Fixed: scripts are dropped before style blocks are read.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16978"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "77d40e44-a20e-5bfe-9c23-044293703b67",
+    "transcripts": 1,
+    "first": "2026-11-17T15:07:12Z",
+    "last": "2026-11-17T15:17:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 102,
+        "output": 27934,
+        "thinking": 6845,
+        "cache_read": 4814197,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100748,
+        "api_equivalent_usd": 2.3279,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 102,
+      "output": 27934,
+      "thinking": 6845,
+      "cache_read": 4814197,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100748,
+      "api_equivalent_usd": 2.3279,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 51,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.18,
+      "active_minutes": 10.18,
+      "model_minutes": 5.43,
+      "tool_minutes": 4.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "seed and triage 8 mutants, write a selector lint with tree-wide tests, fix one link defect, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 171.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

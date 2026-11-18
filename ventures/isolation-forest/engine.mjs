@@ -70,32 +70,42 @@ export function rng(seed) {
 // size[k] rows were left when growth stopped; otherwise rows with
 // x[feat] < thr[k] go to left[k] and the rest to right[k].
 
-function growTree(X, d, idx, limit, rand) {
+function growTree(C, d, idx, limit, rand) {
   const feat = [], thr = [], left = [], right = [], size = [];
-  const lo = new Float64Array(d), hi = new Float64Array(d);
   const live = new Int32Array(d);
   function node(rows, depth) {
     const k = feat.length;
     feat.push(-1); thr.push(0); left.push(-1); right.push(-1); size.push(rows.length);
     if (depth >= limit || rows.length <= 1) return k;
-    lo.fill(Infinity); hi.fill(-Infinity);
-    for (const r of rows) {
-      const x = X[r];
-      for (let j = 0; j < d; j++) {
-        const v = x[j];
-        if (v < lo[j]) lo[j] = v;
-        if (v > hi[j]) hi[j] = v;
+    // An attribute can split the node when two of its (non-NaN) values
+    // differ. Finding that stops at the first differing row, so this is
+    // nearly O(d) instead of a full min/max scan of every column; the
+    // minimum and maximum are then taken for the chosen attribute only.
+    // Same live set, same order, same rand() calls as a full scan.
+    const nr = rows.length;
+    let m = 0;
+    for (let j = 0; j < d; j++) {
+      let i = 0, f = NaN;
+      const c = C[j];
+      while (i < nr && f !== f) f = c[rows[i++]];
+      while (i < nr) {
+        const v = c[rows[i++]];
+        if (v !== f && v === v) { live[m++] = j; break; }
       }
     }
-    let m = 0;
-    for (let j = 0; j < d; j++) if (hi[j] > lo[j]) live[m++] = j;
     if (m === 0) return k; // every row identical: nothing can split them
     const q = live[Math.floor(rand() * m)];
-    const a = lo[q], b = hi[q];
+    const cq = C[q];
+    let a = Infinity, b = -Infinity;
+    for (let i = 0; i < nr; i++) {
+      const v = cq[rows[i]];
+      if (v < a) a = v;
+      if (v > b) b = v;
+    }
     let p = a + rand() * (b - a);
     if (p <= a) p = (a + b) / 2; // rand() = 0 would send every row right
     const L = [], R = [];
-    for (const r of rows) (X[r][q] < p ? L : R).push(r);
+    for (const r of rows) (cq[r] < p ? L : R).push(r);
     feat[k] = q; thr[k] = p;
     left[k] = node(L, depth + 1);
     right[k] = node(R, depth + 1);
@@ -119,6 +129,8 @@ export function fitForest(X, opts = {}) {
   const limit = Math.ceil(Math.log2(Math.max(psi, 2)));
   const rand = rng(opts.seed ?? DEFAULTS.seed);
   const pool = Int32Array.from({ length: n }, (_, i) => i);
+  // Column-major copy: growTree scans one attribute across a node's rows.
+  const C = Array.from({ length: d }, (_, j) => Float64Array.from(X, (x) => x[j]));
   const forest = [];
   for (let t = 0; t < trees; t++) {
     // Partial Fisher-Yates: the first psi entries become a uniform sample without replacement.
@@ -126,7 +138,7 @@ export function fitForest(X, opts = {}) {
       const j = i + Math.floor(rand() * (n - i));
       const tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
     }
-    forest.push(growTree(X, d, Array.from(pool.subarray(0, psi)), limit, rand));
+    forest.push(growTree(C, d, Array.from(pool.subarray(0, psi)), limit, rand));
   }
   return { trees: forest, sampleSize: psi, heightLimit: limit, dims: d, cPsi: averagePathLength(psi) };
 }
@@ -207,7 +219,7 @@ function splitLine(line, delim) {
 
 /** Parse a delimited table with a header row (comma, tab or semicolon). Headerless numeric tables get c1, c2, ... */
 export function parseCsv(text) {
-  const raw = String(text ?? "").replace(/^﻿/, "");
+  const raw = String(text ?? "").replace(/^\uFEFF/, "");
   const lines = raw.split(/\r\n|\n|\r/).filter((l) => l.trim() !== "");
   if (!lines.length) return { error: "The data is empty. Paste a CSV with a header row and at least one numeric column." };
   const delim = ["\t", ";", ","].map((dl) => [dl, splitLine(lines[0], dl).length]).sort((a, b) => b[1] - a[1])[0][0];

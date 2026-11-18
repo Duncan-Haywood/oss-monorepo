@@ -531,7 +531,7 @@ export function resultText(R) {
 
 function csvCell(s) {
   const t = String(s ?? "");
-  const safe = /^[=+\-@\t\r]/.test(t) ? "'" + t : t;
+  const safe = /^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t) ? "'" + t : t;
   return /[",\n]/.test(safe) ? '"' + safe.replace(/"/g, '""') + '"' : safe;
 }
 
@@ -608,7 +608,7 @@ function splitCsvLine(line) {
 // Read a filled-in bid sheet (or this tool's own CSV export): first column is
 // the item, each other column an heir. "$1,200" and blanks (= 0) are accepted.
 export function parseBidSheet(text) {
-  const lines = String(text).replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim() !== "");
+  const lines = String(text).replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim() !== "");
   if (lines.length < 2) return { error: "The sheet needs a header row and at least one item." };
   let head = splitCsvLine(lines[0]).map((s) => s.trim());
   let rows = lines.slice(1).map(splitCsvLine);

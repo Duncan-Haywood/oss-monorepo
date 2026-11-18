@@ -1,0 +1,32 @@
+# tests/take_misfit_trace.py part 3, 2026-11-18: held out, wheel lag 0.45 s, board at TAKE_SURVEY_LEVELS = 5, Pi hold TAKE_WAIT_S = 12
+24 survey drills; per build the advice's pick (refined, 0.5 ms) and best / step share at each t0 depth (advised when the share is at most 0.6)
+  lag 0.45 instant       first-order 8k  launcher 0 | 3 levels:   1 ms 0.93 kept 0  | 4 levels:   2 ms 0.89 kept 0  | 5 levels: 2.5 ms 1.00 kept 0  | board at 5: cut 0, held 79.2 s
+  lag 0.45 instant       first-order 8k  launcher 1 | 3 levels:   0 ms 1.00 kept 0  | 4 levels:   0 ms 1.00 kept 0  | 5 levels:   0 ms 1.00 kept 0  | board at 5: cut 0, held 79.2 s
+  lag 0.45 instant       first-order 8k  launcher 2 | 3 levels:   0 ms 1.00 kept 0  | 4 levels:   0 ms 1.00 kept 0  | 5 levels:   0 ms 1.00 kept 0  | board at 5: cut 0, held 79.2 s
+  lag 0.45 instant       ESC 50 ms told  launcher 0 | 3 levels:   3 ms 0.80 kept 0  | 4 levels: 1.5 ms 0.95 kept 0  | 5 levels:   1 ms 1.00 kept 0  | board at 5: cut 0, held 79.2 s
+  lag 0.45 instant       ESC 50 ms told  launcher 1 | 3 levels:   0 ms 1.00 kept 0  | 4 levels:   0 ms 1.00 kept 0  | 5 levels:   0 ms 1.00 kept 0  | board at 5: cut 0, held 79.2 s
+  lag 0.45 instant       ESC 50 ms told  launcher 2 | 3 levels:   0 ms 1.00 kept 0  | 4 levels:   1 ms 0.88 kept 0  | 5 levels:   1 ms 1.00 kept 0  | board at 5: cut 0, held 79.2 s
+  lag 0.45 halfsine 3 ms first-order 8k  launcher 0 | 3 levels: 1.5 ms 0.94 kept 0  | 4 levels:   3 ms 0.79 kept 0  | 5 levels:   3 ms 0.75 kept 0  | board at 5: cut 0, held 79.2 s
+  lag 0.45 halfsine 3 ms first-order 8k  launcher 1 | 3 levels:   0 ms 1.00 kept 0  | 4 levels:   3 ms 0.64 kept 0  | 5 levels:   3 ms 0.57 advised | board at 5: cut 0, held 79.2 s
+  lag 0.45 halfsine 3 ms first-order 8k  launcher 2 | 3 levels: 3.5 ms 0.60 kept 0  | 4 levels:   3 ms 0.55 advised | 5 levels:   3 ms 0.46 advised | board at 5: cut 0, held 79.2 s
+  lag 0.45 halfsine 3 ms ESC 50 ms told  launcher 0 | 3 levels: 2.5 ms 0.84 kept 0  | 4 levels:   1 ms 0.97 kept 0  | 5 levels:   3 ms 0.84 kept 0  | board at 5: cut 0, held 79.2 s
+  lag 0.45 halfsine 3 ms ESC 50 ms told  launcher 1 | 3 levels: 2.5 ms 0.45 advised | 4 levels:   3 ms 0.53 advised | 5 levels:   3 ms 0.40 advised | board at 5: cut 0, held 79.2 s
+  lag 0.45 halfsine 3 ms ESC 50 ms told  launcher 2 | 3 levels:   0 ms 1.00 kept 0  | 4 levels:   3 ms 0.82 kept 0  | 5 levels:   3 ms 0.84 kept 0  | board at 5: cut 0, held 79.2 s
+  lag 0.45 halfsine 6 ms first-order 8k  launcher 0 | 3 levels: 5.5 ms 0.52 advised | 4 levels:   6 ms 0.38 advised | 5 levels:   6 ms 0.36 advised | board at 5: cut 0, held 79.2 s
+  lag 0.45 halfsine 6 ms first-order 8k  launcher 1 | 3 levels:   6 ms 0.52 advised | 4 levels:   6 ms 0.40 advised | 5 levels:   6 ms 0.35 advised | board at 5: cut 0, held 78.1 s
+  lag 0.45 halfsine 6 ms first-order 8k  launcher 2 | 3 levels: 5.5 ms 0.51 advised | 4 levels:   6 ms 0.36 advised | 5 levels:   6 ms 0.30 advised | board at 5: cut 0, held 79.2 s
+  lag 0.45 halfsine 6 ms ESC 50 ms told  launcher 0 | 3 levels:   6 ms 0.55 advised | 4 levels:   6 ms 0.31 advised | 5 levels:   6 ms 0.31 advised | board at 5: cut 0, held 79.2 s
+  lag 0.45 halfsine 6 ms ESC 50 ms told  launcher 1 | 3 levels: 6.5 ms 0.67 kept 0  | 4 levels:   6 ms 0.58 advised | 5 levels:   6 ms 0.56 advised | board at 5: cut 0, held 79.2 s
+  lag 0.45 halfsine 6 ms ESC 50 ms told  launcher 2 | 3 levels:   6 ms 0.72 kept 0  | 4 levels:   6 ms 0.48 advised | 5 levels:   6 ms 0.44 advised | board at 5: cut 0, held 79.2 s
+  lag 0.45 front 4 ms    first-order 8k  launcher 0 | 3 levels:   4 ms 0.42 advised | 4 levels: 4.5 ms 0.40 advised | 5 levels: 4.5 ms 0.41 advised | board at 5: cut 0, held 79.2 s
+  lag 0.45 front 4 ms    first-order 8k  launcher 1 | 3 levels: 4.5 ms 0.58 advised | 4 levels: 4.5 ms 0.40 advised | 5 levels: 4.5 ms 0.41 advised | board at 5: cut 0, held 79.2 s
+  lag 0.45 front 4 ms    first-order 8k  launcher 2 | 3 levels: 5.5 ms 0.85 kept 0  | 4 levels: 4.5 ms 0.70 kept 0  | 5 levels: 4.5 ms 0.56 advised | board at 5: cut 0, held 79.2 s
+  lag 0.45 front 4 ms    ESC 50 ms told  launcher 0 | 3 levels:   4 ms 0.52 advised | 4 levels: 4.5 ms 0.51 advised | 5 levels: 4.5 ms 0.45 advised | board at 5: cut 0, held 79.2 s
+  lag 0.45 front 4 ms    ESC 50 ms told  launcher 1 | 3 levels: 4.5 ms 0.53 advised | 4 levels: 4.5 ms 0.37 advised | 5 levels: 4.5 ms 0.35 advised | board at 5: cut 0, held 79.2 s
+  lag 0.45 front 4 ms    ESC 50 ms told  launcher 2 | 3 levels: 4.5 ms 0.48 advised | 4 levels: 4.5 ms 0.41 advised | 5 levels: 4.5 ms 0.38 advised | board at 5: cut 0, held 79.2 s
+
+Pooled per lag and take (6 builds): picks; builds advised
+  lag 0.45 instant       | 3: [0.0, 0.0, 0.0, 0.0, 1.0, 3.0] advised 0, within 1 ms 5 | 4: [0.0, 0.0, 0.0, 1.0, 1.5, 2.0] advised 0, within 1 ms 4 | 5: [0.0, 0.0, 0.0, 1.0, 1.0, 2.5] advised 0, within 1 ms 5
+  lag 0.45 halfsine 3 ms | 3: [0.0, 0.0, 1.5, 2.5, 2.5, 3.5] advised 1, within 1 ms 3 | 4: [1.0, 3.0, 3.0, 3.0, 3.0, 3.0] advised 2, within 1 ms 5 | 5: [3.0, 3.0, 3.0, 3.0, 3.0, 3.0] advised 3, within 1 ms 6
+  lag 0.45 halfsine 6 ms | 3: [5.5, 5.5, 6.0, 6.0, 6.0, 6.5] advised 4, within 1 ms 6 | 4: [6.0, 6.0, 6.0, 6.0, 6.0, 6.0] advised 6, within 1 ms 6 | 5: [6.0, 6.0, 6.0, 6.0, 6.0, 6.0] advised 6, within 1 ms 6
+  lag 0.45 front 4 ms    | 3: [4.0, 4.0, 4.5, 4.5, 4.5, 5.5] advised 5, within 1 ms 5 | 4: [4.5, 4.5, 4.5, 4.5, 4.5, 4.5] advised 5, within 1 ms 6 | 5: [4.5, 4.5, 4.5, 4.5, 4.5, 4.5] advised 6, within 1 ms 6

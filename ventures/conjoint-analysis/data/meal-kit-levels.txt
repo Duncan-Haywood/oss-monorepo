@@ -1,0 +1,5 @@
+Price per serving#: 7, 9, 11, 13
+Recipes per week: 2, 3, 4, 5
+Menu: Classic, Vegetarian-friendly, Chef's premium
+Delivery: Fixed weekly day, Pick any day
+Packaging: Standard, Compostable

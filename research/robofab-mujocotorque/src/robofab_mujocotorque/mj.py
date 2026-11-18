@@ -2,7 +2,8 @@
 
 Vertical x-z plane, hinges about -y so that a positive angle lifts the link towards +z. Links are uniform rods (mass at
 mid-length, inertia m l^2 / 12 about the hinge axis); the gripper and part are a point mass at the wrist. MuJoCo needs a
-positive-definite inertia, so the axial inertia is set to a small value that does not enter a planar motion.
+positive-definite inertia, so the axial inertia is set to a small value. For the rods it does not enter a planar motion; the payload's 1e-9 about the hinge axis adds
+1e-9 (qdd1 + qdd2) N m to both joint torques, which is all of the hand-vs-MuJoCo difference in experiments/results.txt.
 """
 import mujoco
 import numpy as np

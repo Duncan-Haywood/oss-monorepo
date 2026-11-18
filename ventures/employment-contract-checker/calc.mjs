@@ -22,7 +22,10 @@ export function parseMoney(s) {
   return Math.round(Number(t) * 100);
 }
 export function dollars(c) {
-  return "$" + (c / 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  const format = (c) => "$" + (c / 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0");
+  if (!(Number(c) < 0)) return format(c);
+  const text = format(Math.abs(c));
+  return /[1-9]/.test(text) ? `-${text}` : text;
 }
 
 export function extractAmounts(text) {

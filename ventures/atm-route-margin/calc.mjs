@@ -128,7 +128,11 @@ export function calculate(input) {
   const totalCost = commissionAmount + processingCost + cashCost + mileageCost + armoredCost + laborCost + machineMonthlyCost;
   const netProfit = grossSurcharge - totalCost;
   const profitMarginPct = grossSurcharge > 0 ? (netProfit / grossSurcharge) * 100 : null;
-  const effectiveHourlyRate = laborHours > 0 ? netProfit / laborHours : null;
+  // What the operator's own hours earn: net profit has already paid them
+  // targetHourlyRate for those hours, so add that labor cost back before
+  // dividing (quality audit 2026-11-17: dividing net alone understated it
+  // by exactly the target rate).
+  const effectiveHourlyRate = laborHours > 0 ? (netProfit + laborCost) / laborHours : null;
   const perTransactionProfit = monthlyWithdrawals > 0 ? netProfit / monthlyWithdrawals : null;
 
   return {

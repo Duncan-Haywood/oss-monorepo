@@ -29,6 +29,17 @@ test('readApp skips root-absolute assets, oversize trees and no-index dirs', asy
   assert.match((await readApp(e)).skip, /index/);
 });
 
+test('readApp takes exactly MAX_FILES files and skips one more (audit 2026-11-07: this boundary was untested)', async () => {
+  const d = await tmp();
+  await fs.writeFile(path.join(d, 'index.html'), '<p>x</p>');
+  for (let i = 1; i < MAX_FILES; i++) await fs.writeFile(path.join(d, `f${i}.css`), 'a{}');
+  const at = await readApp(d);
+  assert.equal(at.skip, undefined, `${MAX_FILES} files must be deployable`);
+  assert.equal(Object.keys(at.files).length, MAX_FILES);
+  await fs.writeFile(path.join(d, 'one-more.css'), 'a{}');
+  assert.equal((await readApp(d)).skip, `${MAX_FILES + 1} files (limit ${MAX_FILES})`);
+});
+
 test('readApp leaves test files and tests/ out of the published copy', async () => {
   const d = await tmp();
   await fs.writeFile(path.join(d, 'index.html'), '<p>x</p>');
@@ -109,6 +120,9 @@ test('the cloudflare workflow pins wrangler and reads only its two secrets', asy
   assert.match(y, /secrets\.CLOUDFLARE_API_TOKEN/);
   assert.match(y, /secrets\.CLOUDFLARE_ACCOUNT_ID/);
   assert.doesNotMatch(y, /secrets\.(?!CLOUDFLARE_)\w+/);
+  // Audit 2026-11-07: `|| true` hid every project-create failure, not only "already exists".
+  assert.doesNotMatch(y, /\|\|\s*true/);
+  assert.match(y, /grep -qi 'already exists' \|\| exit 1/);
 });
 
 test('the workflows never echo a secret and hold no credentials of our own', async () => {

@@ -74,7 +74,7 @@
         <select id="shape"><option value="one">One column</option><option value="multi">Several columns measured at the same points</option></select></div>
       <div><label for="columns">Columns (several-columns mode; names or numbers, comma-separated; blank = every numeric column)</label><input id="columns" type="text" placeholder="e.g. temp, co2" disabled></div>
       <div><label for="jointNoise">One segmentation for all columns: noise per column (several-columns mode, level model)</label>
-        <select id="jointNoise" disabled><option value="auto">Floor only the columns that over-cut (default)</option><option value="off">Plain: each column's step-to-step scatter</option><option value="floor2">Floor every column at 2x its local-line scatter</option><option value="ar1floor">Autocorrelation and a floor on every column (fewest cuts)</option></select></div>
+        <select id="jointNoise" disabled><option value="auto">Floor only the columns that over-cut (default)</option><option value="off">Plain: each column's step-to-step scatter</option><option value="floor2">Floor every column at 2x its local-line scatter</option><option value="ar1floor">Autocorrelation and a floor on every column (fewest cuts; can mute autocorrelated columns)</option></select></div>
       <div><label for="column">Value column (name or number; blank = last numeric)</label><input id="column" type="text" placeholder="e.g. volume"></div>
       <div><label for="model">Look for a change in</label>
         <select id="model"><option value="mean">Level (mean)</option><option value="meanvar">Level and volatility</option><option value="trend">Level or slope (trending series)</option><option value="poisson">Rate of counts (Poisson)</option><option value="drift">Sudden jumps on a level that wanders (random walk)</option></select></div>
@@ -87,11 +87,16 @@
       <div><label for="trend">Trend under the steps</label><select id="trend"><option value="">None</option><option value="1">One straight slope</option><option value="bend">Slope changes once</option><option value="bends">Slope changes up to three times</option></select></div>
       <div><label for="jointKnots"><input id="jointKnots" type="checkbox"> Score every pair of slope changes (slower; with "up to three times")</label></div>
       <div><label for="knotMargin">Where slope changes may sit</label><select id="knotMargin"><option value="0.1">Middle 80% (default; finds early or late bends)</option><option value="0.2">Middle 60% (the old default)</option></select></div>
-      <div><label for="overdispersion">Clumpy or sticky counts (counts model)</label><select id="overdispersion"><option value="">Assume Poisson</option><option value="1">Scale the penalty by the dispersion</option><option value="nb">Negative-binomial cost</option></select></div>
+      <div><label for="overdispersion">Clumpy or sticky counts (counts model)</label><select id="overdispersion"><option value="">Assume Poisson</option><option value="1">Scale the penalty by the dispersion</option><option value="nb">Negative-binomial cost</option><option value="nb1">Negative-binomial cost, clumping grows with the level (NB1, slower)</option></select></div>
       <div><label for="holidays">Known holidays (counts model; dates or row numbers, comma-separated)</label><input id="holidays" type="text" placeholder="e.g. 2024-12-25, 2025-01-01"></div>
       <div><label for="log"><input id="log" type="checkbox"> Take logs first (level, volatility or slope models; positive values, e.g. sales or prices that grow by a percentage)</label></div>
       <div><label for="slopeBreaks"><input id="slopeBreaks" type="checkbox"> Also test for a change of growth rate (40+ points; tick &ldquo;take logs&rdquo; for percentage growth). A weak test: a miss does not rule a break out</label></div>
-      <div><label for="hingeTest"><input id="hingeTest" type="checkbox"> Also test one change of slope on the levels (30&ndash;600 points; for a series that wanders about a trend, like temperature; refuses one that drifts like GDP)</label></div>
+      <div><label for="hingeTest"><input id="hingeTest" type="checkbox"> Also test one change of slope on the levels (30&ndash;600 points; for a series that wanders about a trend, like temperature; refuses one that drifts like GDP, and most real series under 100 points)</label></div>
+      <div><label for="twoHingeTest"><input id="twoHingeTest" type="checkbox"> Also test two changes of slope (30&ndash;300 points; a curve that speeds up and levels off, or rises, holds and falls; same guard, so it still refuses most sticky series under 60 points)</label></div>
+      <div><label for="knownDate">Test a date you name (a law, launch or price change: the label of the first row after it; uses the seasonal period and &ldquo;take logs&rdquo; when set)</label><input id="knownDate" type="text" placeholder="e.g. 1983-02"></div>
+      <div><label for="donors">Compare with other columns at that date (synthetic control): <code>all</code>, or column names, comma-separated. The column above is the treated one; the rest of the file must be complete series of the same thing elsewhere (other states, stores or regions)</label><input id="donors" type="text" placeholder="e.g. all, or UT, MT, NV"></div>
+      <div><label for="anticipation">Points people saw it coming (synthetic control; 0 = none): end the fit this many points before the date, for a law passed or a price rise announced before it took effect. Not sure how early? Give a range such as <code>0-4</code>: every lead is shown and one p is read for the range</label><input id="anticipation" type="text" value="0" pattern="\s*\d+(\s*-\s*\d+)?\s*" autocomplete="off"></div>
+      <div><label for="covariates">Optional covariates for the balance table: one row per unit (its column name first, then numbers), a header naming them</label><textarea id="covariates" rows="3" placeholder="state,ln income,price&#10;CA,9.9,1.08&#10;UT,9.4,0.97"></textarea></div>
       <div><label for="bursts"><input id="bursts" type="checkbox"> Cut back isolated spikes before fitting (counts model; e.g. a post going viral)</label></div>
       <div><label for="drift"><input id="drift" type="checkbox"> Seasonal shape drifts (needs a period)</label></div>
       <div><label for="period">Seasonal period in points (0 = none)</label><input id="period" type="number" min="0" step="1" value="0"></div>
@@ -102,6 +107,7 @@
     </div>
     <button type="button" id="run">Find changepoints</button>
     <button type="button" class="secondary" id="example">Load example: Nile river flow 1871–1970</button>
+    <button type="button" class="secondary" id="example-prop99">Load example: California's 1989 tobacco tax against 38 states (synthetic control)</button>
     <button type="button" class="secondary" id="example-fx">Load example: franc, pound and yen, 2012–2018 (several columns)</button>
     <p class="note" id="working" role="status" hidden>Working in the background: a long series takes a few seconds (several columns run the six-setting check on each column). The page stays usable, and a new run replaces this one.</p>
   </section>
@@ -119,6 +125,15 @@
     <h3 id="segments-h">Segments</h3>
     <div class="scroll"><table id="segments"></table></div>
     <button type="button" class="secondary" id="download">Download per-point results (CSV)</button>
+  </section>
+
+  <section class="card" aria-labelledby="synth-h" id="synth-results" hidden>
+    <h2 id="synth-h">Against a synthetic control</h2>
+    <p class="note">The treated column against a weighted blend of the other columns that tracked it before your date, with a placebo test that gives every donor the same date (Abadie, Diamond and Hainmueller 2010). Still in this tab.</p>
+    <div id="synth-body" aria-live="polite"></div>
+    <div class="legend"><span>— treated column</span><span style="color:#c0392b">- - synthetic control</span><span style="color:#888">┆ your date</span></div>
+    <div id="synth-chart"></div>
+    <button type="button" class="secondary" id="synth-download">Download treated, synthetic and gap (CSV)</button>
   </section>
 
   <section class="card" aria-labelledby="replay-h" id="replay-card" hidden>
@@ -239,7 +254,7 @@
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
     <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>agreed_run</code>, <code>drift_run</code>, <code>watch_check</code>, <code>watch_replay</code>, <code>watch_eagerness</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p>More research algorithms on your own data: <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. For time-to-event data (churn, failures, relapse), the <a href="../survival-analysis/">survival analysis tool</a> gives Kaplan-Meier curves, log-rank tests and Cox hazard ratios. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>. To check which of many test results survive multiple-testing correction, use <a href="../fdr-multiple-testing/">Benjamini-Hochberg and q-values</a>. To separate a seasonal pattern from the trend before looking for a change, use <a href="../stl-decomposition/">STL decomposition</a>. For measurements from a production line or lab with subgroups, run rules and Cpk, use <a href="../spc-control-charts/">SPC control charts</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../kalman-smoother/">Kalman smoother</a> for the level under a noisy series, with gaps filled and outliers told apart from level shifts; <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. For time-to-event data (churn, failures, relapse), the <a href="../survival-analysis/">survival analysis tool</a> gives Kaplan-Meier curves, log-rank tests and Cox hazard ratios. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>. To check which of many test results survive multiple-testing correction, use <a href="../fdr-multiple-testing/">Benjamini-Hochberg and q-values</a>. To separate a seasonal pattern from the trend before looking for a change, use <a href="../stl-decomposition/">STL decomposition</a>. For measurements from a production line or lab with subgroups, run rules and Cpk, use <a href="../spc-control-charts/">SPC control charts</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   <p class="more-pages">Also: <a href="how-do-you-know-if-a-time-series-really-changed.html">How Do You Know If a Time Series Really Changed? (Free Changepoint Detection)</a> · <a href="watch-a-metric-for-changes.html">Get alerted when a metric really shifts (free, self-hosted daily watch)</a></p>
   </footer>
@@ -252,6 +267,7 @@
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { analyzeJob } from "./analyze-job.mjs";
+    import { synthHtml, synthChartSvg, synthCsv } from "./synth-view.mjs";
     import { watchCheck, recordText, replayText, eagernessText, budgetFromPlain, suggestFor, HINT_BUDGET } from "./watch-core.mjs";
     import { multiChartSvg, agreedTableHtml, jointTableHtml, multiSummary, multiCsv } from "./multi-view.mjs";
     import { parseColumns } from "./multivariate.mjs";
@@ -369,7 +385,7 @@
       const { p, r } = out.result;
       lastMulti = { p, r };
       $("#multi-summary").textContent = multiSummary(r);
-      $("#multi-warnings").innerHTML = [r.overcutWarning, ...(r.updateRateWarnings || [])].filter(Boolean).map((w) => `<p class="note" role="note"><strong>Read with care:</strong> ${esc(w)}</p>`).join("");
+      $("#multi-warnings").innerHTML = [r.overcutWarning, r.mutedWarning, ...(r.updateRateWarnings || [])].filter(Boolean).map((w) => `<p class="note" role="note"><strong>Read with care:</strong> ${esc(w)}</p>`).join("");
       $("#multi-chart").innerHTML = multiChartSvg(p, r);
       $("#multi-agreed").innerHTML = agreedTableHtml(r);
       $("#multi-joint").innerHTML = jointTableHtml(r, p);
@@ -438,16 +454,24 @@
     }
 
     function run() {
+      $("#synth-results").hidden = true; lastSynth = null;
       if ($("#shape").value === "multi") { stopAgreed(); return runMulti(); }
       $("#multi-results").hidden = true;
       $("#error").textContent = "";
       const penalty = $("#penalty").value === "custom" ? Number($("#penaltyValue").value) : $("#penalty").value;
-      const opts = { csv: $("#csv").value, column: $("#column").value.trim() || null, model: $("#model").value, robust: $("#model").value === "meanvar" && $("#robust").checked, garch: $("#model").value === "meanvar" && !$("#robust").checked && $("#garch").checked, period: Number($("#period").value) || 0, drift: $("#drift").checked, overdispersion: $("#overdispersion").value === "nb" ? "nb" : $("#overdispersion").value === "1", jointKnots: $("#jointKnots").checked, bursts: $("#bursts").checked, log: $("#log").checked, slopeBreaks: $("#slopeBreaks").checked, hingeTest: $("#hingeTest").checked, holidays: $("#holidays").value.split(",").map((h) => h.trim()).filter(Boolean), knotMargin: Number($("#knotMargin").value), trend: $("#trend").value === "1" ? true : $("#trend").value || false, ar1: $("#ar1").value === "joint" ? "joint" : $("#ar1").value === "1", penalty, ...($("#noiseFloor").value === "local25" && $("#model").value === "mean" ? { noiseFloor: 2, noiseFloorOrder: "local", noiseFloorWindow: 25 } : {}), hazardLambda: Number($("#hazard").value), threshold: Number($("#threshold").value) };
+      const opts = { csv: $("#csv").value, column: $("#column").value.trim() || null, model: $("#model").value, robust: $("#model").value === "meanvar" && $("#robust").checked, garch: $("#model").value === "meanvar" && !$("#robust").checked && $("#garch").checked, period: Number($("#period").value) || 0, drift: $("#drift").checked, overdispersion: $("#overdispersion").value === "nb" || $("#overdispersion").value === "nb1" ? $("#overdispersion").value : $("#overdispersion").value === "1", jointKnots: $("#jointKnots").checked, bursts: $("#bursts").checked, log: $("#log").checked, slopeBreaks: $("#slopeBreaks").checked, hingeTest: $("#hingeTest").checked, twoHingeTest: $("#twoHingeTest").checked, knownDate: $("#knownDate").value.trim() || null, holidays: $("#holidays").value.split(",").map((h) => h.trim()).filter(Boolean), knotMargin: Number($("#knotMargin").value), trend: $("#trend").value === "1" ? true : $("#trend").value || false, ar1: $("#ar1").value === "joint" ? "joint" : $("#ar1").value === "1", penalty, ...($("#noiseFloor").value === "local25" && $("#model").value === "mean" ? { noiseFloor: 2, noiseFloorOrder: "local", noiseFloorWindow: 25 } : {}), hazardLambda: Number($("#hazard").value), threshold: Number($("#threshold").value) };
       const agreedBase = { csv: $("#csv").value, column: $("#column").value.trim() || null, log: $("#log").checked, period: Number($("#period").value) || 0, penalty };
       const wantAgreed = $("#model").value === "mean";
       stopAgreed();
       if (opts.model === "drift") return runDrift(opts);
-      startMain({ kind: "one", opts }, (out) => {
+      // Synthetic control (synth-cli.mjs, the CLI's --donors and --covariates): needs the date and a named treated column.
+      const donorList = $("#donors").value.split(",").map((d) => d.trim()).filter(Boolean);
+      let synth = null;
+      if (donorList.length) {
+        if (!opts.knownDate || !opts.column) { stopMain(); $("#results").hidden = true; $("#error").textContent = "A synthetic control needs the date you name and the treated column's name in the Column box."; return; }
+        synth = { csv: opts.csv, column: opts.column, date: opts.knownDate, donors: donorList.map((d) => (d.toLowerCase() === "all" ? "all" : d)), log: opts.log, covariatesCsv: $("#covariates").value.trim() || null, anticipation: $("#anticipation").value.trim() || 0 };
+      }
+      startMain({ kind: "one", opts, ...(synth ? { synth } : {}) }, (out) => {
         if (out.error) { $("#results").hidden = true; $("#error").textContent = out.error; return; }
         show(out.result, wantAgreed ? agreedBase : null, opts);
       });
@@ -501,15 +525,27 @@
       lastAgreed = "";
       stopAgreed();
       if (agreedBase) runAgreed(agreedBase, r.n, levelRunFromMain(opts, r));
-      $("#warnings").innerHTML = ["rangeWarning", "driftWarning", "cycleWarning", "overcutWarning", "updateRateWarning"].filter((k) => r[k]).map((k) => `<p class="note" role="note"><strong>Read with care:</strong> ${esc(r[k])}</p>`).join("") + (r.garch ? `<p class="note" role="note"><strong>GARCH search:</strong> ${esc(r.garch.note)}</p>` : "");
+      $("#warnings").innerHTML = ["rangeWarning", "driftWarning", "cycleWarning", "overcutWarning", "updateRateWarning", "clumpingWarning"].filter((k) => r[k]).map((k) => `<p class="note" role="note"><strong>Read with care:</strong> ${esc(r[k])}</p>`).join("") + (r.garch ? `<p class="note" role="note"><strong>GARCH search:</strong> ${esc(r.garch.note)}</p>` : "");
       $("#slopeResult").innerHTML = r.slopeBreaks
         ? `<p class="note" role="note"><strong>Growth-rate test (bar ${esc(r.slopeBreaks.critical)}):</strong> ${r.slopeBreaks.breaks.length ? r.slopeBreaks.breaks.map((b) => `${esc(b.label)}: ${esc(b.slopeBefore)} → ${esc(b.slopeAfter)} per step (Wald ${esc(b.wald)})`).join("; ") : "no change of growth rate clears the bar."} ${esc(r.slopeBreaks.note)}</p>`
         : "";
       if (r.hingeTest) {
         const h = r.hingeTest;
         $("#slopeResult").innerHTML += h.refused
-          ? `<p class="note" role="note"><strong>Slope test on the levels:</strong> not run. ${esc(h.reason)}.</p>`
-          : `<p class="note" role="note"><strong>Slope test on the levels:</strong> ${h.significant ? "a change of slope" : "no significant change of slope"}, best at ${esc(h.label)}: ${esc(h.slopeBefore)} → ${esc(h.slopeAfter)} per step (F ${esc(h.f)}, bootstrap bar ${esc(h.bar95)}, p ${esc(h.p)}).${h.admittedByCut ? ` Tested although the straight line's residuals are sticky (rho ${esc(h.rhoLine)}): the bend cuts that to ${esc(h.rhoHinge)}, more than 99% of random walks this long are cut (${esc(h.cutBar)}).` : ""} ${esc(h.note)}</p>`;
+          ? `<p class="note" role="note"><strong>Slope test on the ${h.scale === "log" ? "logs" : "levels"}:</strong> not run. ${esc(h.reason)}.</p>`
+          : `<p class="note" role="note"><strong>Slope test on the ${h.scale === "log" ? "logs" : "levels"}:</strong> ${h.significant ? "a change of slope" : "no significant change of slope"}, best at ${esc(h.label)}: ${esc(h.slopeBefore)} → ${esc(h.slopeAfter)} per step (F ${esc(h.f)}, bootstrap bar ${esc(h.bar95)}, p ${esc(h.p)}).${h.admittedByCut ? ` Tested although the straight line's residuals are sticky (rho ${esc(h.rhoLine)}): the bend cuts that to ${esc(h.rhoHinge)}, more than 99% of random walks this long are cut (${esc(h.cutBar)}).` : ""} ${esc(h.note)}</p>`;
+      }
+      if (r.twoHingeTest) {
+        const h = r.twoHingeTest;
+        $("#slopeResult").innerHTML += h.refused
+          ? `<p class="note" role="note"><strong>Two-bend test on the ${h.scale === "log" ? "logs" : "levels"}:</strong> not run. ${esc(h.reason)}.</p>`
+          : `<p class="note" role="note"><strong>Two-bend test on the ${h.scale === "log" ? "logs" : "levels"}:</strong> ${h.significant ? "two changes of slope" : "no significant pair of slope changes"}, best at ${esc(h.label1)} and ${esc(h.label2)}: ${h.slopes.map(esc).join(" → ")} per step (F ${esc(h.f)}, bootstrap bar ${esc(h.bar95)}, p ${esc(h.p)}).${h.admittedByCut ? ` Tested although the straight line's residuals are sticky (rho ${esc(h.rhoLine)}): the two bends cut that to ${esc(h.rhoTwo)}, more than 99% of random walks this long are cut (${esc(h.cutBar)}).` : ""} ${esc(h.note)}</p>`;
+      }
+      if (r.knownDate) {
+        const h = r.knownDate, on = h.scale === "log" ? "logs (a step of -0.1 is about a 10% fall)" : "levels";
+        $("#slopeResult").innerHTML += h.refused
+          ? `<p class="note" role="note"><strong>Test at ${esc(h.date)}:</strong> not run. ${esc(h.reason)}.</p>`
+          : `<p class="note" role="note"><strong>Test at the date you named (${esc(h.lastBefore)} &rarr; ${esc(h.firstAfter)}), on the ${on}:</strong> ${h.calibrated ? (h.significant ? "the line before the date does not carry on through it" : "no significant step or change of slope") : "estimates only, no calibrated p-value here"}. Step ${esc(h.step)} (95% range ${esc(h.stepRange95[0])} to ${esc(h.stepRange95[1])}, p ${esc(h.pStep)}); slope ${esc(h.slopeBefore)} per step before, change ${esc(h.slopeChange)} (p ${esc(h.pSlope)}); joint p ${esc(h.p)} (bootstrap, ${esc(h.reps)} replicates; the F table would say ${esc(h.pTable)}). AR(1) rho ${esc(h.rho)}.${h.calibrated ? "" : ` <strong>Not a calibrated test here:</strong> a plain line's residuals look like a wander (rho ${esc(h.rhoLine)}) and the series was let through only because a step at the date cuts that stickiness more than random walks are cut (${esc(h.cutBar)}). On simulated series let through this way, the p-value came out under 0.05 for 77% with no change and 91% with a real step, so it cannot tell them apart (a bootstrap that conditions on the same guard could not either).`}${h.placebo ? ` <strong>In-time placebos</strong> (the same test before your date only, where your event cannot act): ${h.placebo.dates.length ? h.placebo.dates.map((d) => `${esc(d.label)} ${d.refused ? "not tested" : `p ${esc(d.p)}`}`).join(", ") : "none, the before-period is too short"}; ${esc(h.placebo.fired)} of ${esc(h.placebo.tested)} at p &le; 0.05. ${h.placebo.warn ? "<strong>Warning:</strong> the line before your date is not a stable baseline, so a small p at your date may be that instability, not your event." : "No warning (the placebos cannot see a bend that grows after your date)."}` : ""} ${esc(h.note)}</p>`;
       }
       $("#chart").innerHTML = chartSvg(r);
       $("#changes").innerHTML = r.pelt.changepoints.length
@@ -523,6 +559,19 @@
       lastReplayJob = { kind: "replay", csv: opts.csv, column: opts.column, opts: { model: wm, penalty: opts.penalty, ...(opts.period ? { period: opts.period } : {}), ...(opts.log && wm !== "poisson" ? { log: true } : {}) }, replayedAs: wm === opts.model ? null : opts.model };
       resetReplay(r.n >= 10);
       record("analysis_run");
+      if (r.knownDate) record("known_date_run");
+      showSynth(r);
+    }
+
+    let lastSynth = null;
+    function showSynth(r) {
+      lastSynth = r.synth || null;
+      if (!r.synth && !r.synthError) { $("#synth-results").hidden = true; return; }
+      $("#synth-body").innerHTML = r.synth ? synthHtml(r.synth) : `<p class="error" role="alert">Synthetic control not run: ${esc(r.synthError.replace(/--(known-date|donors|covariates|column|window|anticipation)/g, (m, w) => ({ "known-date": "the date", donors: "the donor list", covariates: "the covariates box", column: "the Column box", window: "the window", anticipation: "the points-seen-coming box" })[w]))}</p>`;
+      $("#synth-chart").innerHTML = r.synth ? synthChartSvg(r.synth) : "";
+      $("#synth-download").hidden = !r.synth;
+      $("#synth-results").hidden = false;
+      if (r.synth) record(r.synth.balance ? "synth_balance_run" : "synth_run");
     }
 
 
@@ -604,6 +653,19 @@
     $("#eager-run").addEventListener("click", runEagerness);
     $("#eager-use").addEventListener("click", () => { $("#watch-detector").value = $("#eager-use").dataset.value; $("#watch-detector").focus(); });
     $("#run").addEventListener("click", run);
+    $("#example-prop99").addEventListener("click", async () => {
+      const { PROP99_CSV, PROP99_COVARIATES, PROP99_DONORS } = await import("./example-prop99.mjs");
+      $("#csv").value = PROP99_CSV; $("#shape").value = "one"; $("#columns").disabled = true; $("#column").disabled = false; $("#column").value = "CA"; $("#model").value = "mean";
+      $("#knownDate").value = "1989"; $("#donors").value = PROP99_DONORS; $("#covariates").value = PROP99_COVARIATES; $("#log").checked = false; $("#period").value = "0";
+      record("example_loaded"); run();
+    });
+    $("#synth-download").addEventListener("click", () => {
+      if (!lastSynth) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([synthCsv(lastSynth)], { type: "text/csv" }));
+      a.download = "synthetic-control.csv";
+      a.click();
+    });
     $("#example-fx").addEventListener("click", async () => {
       const { FX_CSV } = await import("./example-fx.mjs");
       $("#csv").value = FX_CSV; $("#shape").value = "multi"; $("#columns").value = ""; $("#columns").disabled = false; $("#column").disabled = true; $("#model").value = "meanvar";

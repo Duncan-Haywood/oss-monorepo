@@ -3,7 +3,7 @@
 
 export const SAMPLE = {
   sites: "40", openMonths: "6", occupancy: "55", nightly: "48", avgStay: "2.5", stayFee: "6",
-  varNight: "4", turnMin: "15", wage: "16", platformPct: "8", fixedYear: "120000", target: "40000",
+  varNight: "4", turnMin: "15", wage: "16", burdenPct: "12", platformPct: "8", fixedYear: "120000", target: "40000",
 };
 
 const num = (v) => {
@@ -27,19 +27,20 @@ export function parse(raw) {
   if (!(nightly >= 0)) errors.push("Enter the nightly rate per site (0 or more).");
   if (!(fixedYear >= 0)) errors.push("Enter yearly fixed costs: mortgage or lease, insurance, property tax, repairs, insurance (0 or more).");
   const avgStay = opt(raw.avgStay, 2), stayFee = opt(raw.stayFee, 0), varNight = opt(raw.varNight, 0);
-  const turnMin = opt(raw.turnMin, 0), wage = opt(raw.wage, 0), platformPct = opt(raw.platformPct, 0), target = opt(raw.target, 0);
+  const turnMin = opt(raw.turnMin, 0), wage = opt(raw.wage, 0), burdenPct = opt(raw.burdenPct, 0), platformPct = opt(raw.platformPct, 0), target = opt(raw.target, 0);
   if (!(avgStay >= 1)) errors.push("Average stay must be 1 night or more.");
-  for (const [n, v] of [["Fee per stay", stayFee], ["Cost per occupied night", varNight], ["Turnover minutes per stay", turnMin], ["Labour wage", wage], ["Profit target", target]])
+  for (const [n, v] of [["Fee per stay", stayFee], ["Cost per occupied night", varNight], ["Turnover minutes per stay", turnMin], ["Labour wage", wage], ["Payroll burden", burdenPct], ["Profit target", target]])
     if (!(v >= 0)) errors.push(`${n} must be 0 or more.`);
   if (!(platformPct >= 0 && platformPct < 50)) errors.push("Booking commission must be from 0 to under 50 percent.");
-  return { errors, sites, openMonths, occupancy, nightly, fixedYear, avgStay, stayFee, varNight, turnMin, wage, platformPct, target };
+  return { errors, sites, openMonths, occupancy, nightly, fixedYear, avgStay, stayFee, varNight, turnMin, wage, burdenPct, platformPct, target };
 }
 
 // One occupied site-night earns the nightly rate plus its share of the per-stay fee, less commission,
-// and costs utilities and supplies plus its share of the turnover labour.
+// and costs utilities and supplies plus its share of the turnover labour. Labour is costed at the wage
+// plus the employer's payroll burden (payroll taxes, unemployment insurance, workers' comp), as a percent.
 function unit(p) {
   const k = 1 - p.platformPct / 100;
-  const labour = (p.turnMin / 60) * p.wage / p.avgStay;
+  const labour = (p.turnMin / 60) * p.wage * (1 + p.burdenPct / 100) / p.avgStay;
   return { k, labour, feeShare: p.stayFee / p.avgStay, income: (p.nightly + p.stayFee / p.avgStay) * k, variable: p.varNight + labour };
 }
 const profitAt = (p, u, nights) => nights * (u.income - u.variable) - p.fixedYear;
@@ -71,8 +72,11 @@ export function compute(raw) {
     else findings.push({ severity: "high", title: `Each occupied night brings in exactly what it costs, so no number of bookings covers the ${dollars(p.fixedYear)} of fixed costs. Rate or costs have to change before occupancy helps.` });
   }
   else if (breakEvenOcc > 100) findings.push({ severity: "high", title: `Break-even needs ${Math.round(breakEvenNights)} occupied nights but only ${Math.round(available)} exist in a season. Even full, the campground loses money at this rate.` });
+  // Below break-even the loss is already here: say how far off it is, not that a rainy month could cause one.
+  else if (p.occupancy < breakEvenOcc) findings.push({ severity: "medium", title: `Break-even is ${breakEvenOcc.toFixed(0)}% full and you run ${p.occupancy}%: you need about ${Math.ceil(breakEvenNights - nights).toLocaleString("en-US")} more occupied nights a season to cover the fixed costs.` });
   else if (p.occupancy - breakEvenOcc < 10) findings.push({ severity: "medium", title: `Break-even is ${breakEvenOcc.toFixed(0)}% full and you run ${p.occupancy}%. One rainy month can turn it into a loss.` });
   if (margin > 0) findings.push({ severity: "info", title: `Each extra occupied night adds about ${dollars(margin)}; each night a site sits empty costs you that, because fixed costs run regardless.` });
+  if (p.wage > 0 && p.turnMin > 0 && p.burdenPct === 0) findings.push({ severity: "info", title: `Turnover labour is costed at the bare ${dollars(p.wage)} wage. If you pay staff, the employer's share of Social Security and Medicare alone is 7.65% (IRS Publication 15), before unemployment tax and workers' comp: enter that as the payroll burden.` });
   findings.push({ severity: "info", title: `Fixed costs are spread over ${p.openMonths} open month(s): about ${dollars(p.fixedYear / p.openMonths)} a month while open.` });
   if (p.platformPct >= 5 && nights > 0) findings.push({ severity: "info", title: `${p.platformPct}% booking commission costs about ${dollars(nights * (p.nightly + u.feeShare) * p.platformPct / 100)} a year. Direct bookings through your own page or phone keep it.` });
   return { errors: [], input: p, available, nights, stays, revenue: round2(revenue), variable: round2(variable), labour: round2(labour), profit: round2(profit), perSite: round2(profit / p.sites), margin: round2(margin), breakEvenNights, breakEvenOcc, breakEvenRate: round2(breakEvenRate), targetRate: round2(targetRate), findings, sweep };

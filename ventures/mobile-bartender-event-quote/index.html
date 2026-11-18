@@ -105,7 +105,12 @@ node cli.mjs --guests 120 --compare</pre>
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const m = (x) => "$" + x.toFixed(2);
+    const m = (x) => {
+      const format = (x) => "$" + x.toFixed(2);
+      if (!(Number(x) < 0)) return format(x);
+      const text = format(Math.abs(x));
+      return /[1-9]/.test(text) ? `-${text}` : text;
+    };
     function build() {
       const num = (id) => Number($(id).value);
       const input = { guests: num("#guests"), hours: num("#hours"), service: $("#service").value, guestsPerBartender: num("#gpb"), bartenderRate: num("#rate"), minBartenderHours: num("#min"), setupHours: num("#setup"), miles: num("#miles"), insuranceAndPermit: num("#ins"), targetMargin: num("#margin") / 100 };

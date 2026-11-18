@@ -1,0 +1,20 @@
+cell-fidelity milestone 5ze: 5zd's law with the symmetric eta split into eta_d and eta_c (asym), measured from
+the charge Ah and the discharge Wh/Ah of cycles 2..10, against 5zd (eta) and 5zc (oc). DFN (SEI + plating) to
+cycle 100, fresh Sobol designs (seed 23); median |ln(L_pred(99) / L_DFN(99))|; overpotentials in mV;
+rise: median |error| of the predicted separator-surface OCP rise u(99) - u(2) in mV
+
+condition               n drop    5zc    5zd    5ze sgn 5zd sgn 5ze wins    rho   eta eta_d eta_c   d99   c99  rise e 5zd e 5ze
+Ai2020@0.6125x         32    0  0.024  0.063  0.059  -0.020  -0.022   18  0.981   227   156   230   152   189   125    82    82
+NCA_Kim2011@0.5625x    32    0  0.013  0.023  0.023  -0.022  -0.022   25  1.000    87    97    86    84   118   139    20    20
+Chen2020@1.28125x      32    0  0.191  0.109  0.102  +0.108  +0.095   28  0.987   355   242   360   239   346    37    18    16
+OKane2022@1.3125x      32    0  0.160  0.095  0.093  +0.080  +0.077   24  0.987   365   256   368   256   361    34    14    14
+Ai2020@0.6125x         oracle eta drift 0.111 against constant eta 0.063; eta at cycle 99 188 mV; median |eta_c - eta| 2.3 mV
+NCA_Kim2011@0.5625x    oracle eta drift 0.040 against constant eta 0.023; eta at cycle 99 116 mV; median |eta_c - eta| 0.8 mV
+Chen2020@1.28125x      oracle eta drift 0.155 against constant eta 0.109; eta at cycle 99 341 mV; median |eta_c - eta| 5.3 mV
+OKane2022@1.3125x      oracle eta drift 0.126 against constant eta 0.095; eta at cycle 99 357 mV; median |eta_c - eta| 3.4 mV
+
+H162 (5zd replicates: LG M50 within 0.12 on both, Ai2020 above 0.05): supported
+H163 (asym within 0.02 of 5zd on every pool; max 0.007): supported
+H164 (median |eta_c - eta| at most 10 mV on every pool): supported
+H165 (eta_d below eta_c on LG M50 and Ai2020): supported
+H166 (oracle eta drift worse than constant eta on at least 3 of 4 pools; 4 of 4): supported

@@ -127,6 +127,39 @@ function normalizeSites(sites) {
   return sites;
 }
 
+/**
+ * Split one CSV line, honouring double quotes ("Smith, Jones" or "$1,200").
+ * Returns the trimmed fields, or an error string when a quote is left open or
+ * an unquoted "$1,200" would split into a $1 amount and a stray "200"
+ * (redteam 2026-11-16: such a row was read as $1 with no error).
+ */
+function splitCsvLine(line) {
+  const out = [];
+  const quotedAt = [];
+  let cur = "";
+  let quoted = false;
+  let wasQuoted = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+      else if (ch === '"') quoted = false;
+      else cur += ch;
+    } else if (ch === '"') { quoted = true; wasQuoted = true; }
+    else if (ch === ",") { out.push(cur.trim()); quotedAt.push(wasQuoted); cur = ""; wasQuoted = false; }
+    else cur += ch;
+  }
+  if (quoted) return "a double quote is never closed";
+  out.push(cur.trim());
+  quotedAt.push(wasQuoted);
+  for (let k = 0; k + 1 < out.length; k++) {
+    if (!quotedAt[k] && !quotedAt[k + 1] && /^\$\d{1,3}$/.test(out[k]) && /^\d{3}(\.\d*)?$/.test(out[k + 1])) {
+      return `${out[k]},${out[k + 1]} looks like an amount with a thousands comma; write ${out[k]}${out[k + 1]} or put it in double quotes`;
+    }
+  }
+  return out;
+}
+
 /** Parse site rows: name,hours,perPush,seasonalFlat,perInch,trigger[,saltLbs]. Never throws. */
 export function parseSites(text) {
   const sites = [];
@@ -135,7 +168,8 @@ export function parseSites(text) {
   String(text ?? "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const f = line.split(",").map((s) => s.trim());
+    const f = splitCsvLine(line);
+    if (typeof f === "string") { errors.push(`Line ${i + 1}: ${f}`); return; }
     if (!seenHeader && /^(site|name)$/i.test(f[0])) { seenHeader = true; return; }
     seenHeader = true;
     const at = `Line ${i + 1}`;
@@ -291,7 +325,8 @@ export function parseSeasons(text) {
   String(text ?? "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const f = line.split(",").map((s) => s.trim());
+    const f = splitCsvLine(line);
+    if (typeof f === "string") { errors.push(`Line ${i + 1}: ${f}`); return; }
     if (!seenHeader && /^(site|name)$/i.test(f[0])) { seenHeader = true; return; }
     seenHeader = true;
     const at = `Line ${i + 1}`;

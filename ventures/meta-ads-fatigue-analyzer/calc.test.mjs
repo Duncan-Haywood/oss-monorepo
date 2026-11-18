@@ -33,7 +33,7 @@ test("delimiter is sniffed and UTF-16 exports decode", () => {
 });
 
 test("BOM, currency in the header, and a totals row are handled", () => {
-  const n = normalizeRows(parseCsv("﻿" + HEAD + "C,S,Ad A,\"1,200.50\",\"100,000\",80000,1.25,900,30,1800\n,,,\"1,200.50\",\"100,000\",80000,1.25,900,30,1800\n"));
+  const n = normalizeRows(parseCsv("\uFEFF" + HEAD + "C,S,Ad A,\"1,200.50\",\"100,000\",80000,1.25,900,30,1800\n,,,\"1,200.50\",\"100,000\",80000,1.25,900,30,1800\n"));
   assert.equal(n.error, null);
   assert.equal(n.currency, "USD");
   assert.equal(n.rows.length, 1);

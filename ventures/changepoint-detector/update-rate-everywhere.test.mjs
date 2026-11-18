@@ -36,7 +36,7 @@ test('the CLI text, the page and the branded report show it', async () => {
   assert.ok(out.includes(LINE), 'CLI text');
   const r = analyze({ csv: juiceCsv, column: 'price', labelColumn: 'month' });
   assert.ok(changeReportHtml(r).includes('Update-rate check: the share of steps'), 'report');
-  assert.match(read('./index.html'), /"overcutWarning", "updateRateWarning"\]\.filter\(\(k\) => r\[k\]\)/);
+  assert.match(read('./index.html'), /"overcutWarning", "updateRateWarning"(, "\w+")*\]\.filter\(\(k\) => r\[k\]\)/);
 });
 
 test('long series: grid search, then each cut moved to its best place between neighbours', () => {

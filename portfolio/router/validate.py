@@ -159,7 +159,16 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
                 f"{FLAGSHIP_NEXT_MAX}). Replace the item your slice landed instead of "
                 f"appending (portfolio/router/flagship_field.py <venture> --replace OLD NEW); "
                 f"history belongs in the venture's README; "
-                f"`flagship_field.py {entry.get('venture')} --landed` lists the landed notes to cut."
+                f"`flagship_field.py {entry.get('venture')} --landed` lists the landed notes to cut, and "
+                f"`--park ITEM` moves an open item to ventures/{entry.get('venture')}/NEXT.md "
+                f"(it combines with --replace in one call)."
+            )
+        hosts = entry.get("hosts")
+        if hosts is not None and (not isinstance(hosts, list) or not all(
+                isinstance(h, str) and h.startswith(("https://", "http://")) for h in hosts)):
+            errors.append(
+                f"flagships.yaml: {entry.get('venture')} `hosts:` must be a list of http(s) URLs "
+                f"(allocate.py --venture probes each one), got {hosts!r}."
             )
         n = len(str(entry.get("buildable") or "").strip())
         if n > FLAGSHIP_BUILDABLE_MAX:

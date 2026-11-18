@@ -184,11 +184,46 @@ class ModeNote(unittest.TestCase):
             qm.mode_for = lambda *a, **k: {"mode": "fix", "why": "w"}
             note = q.mode_note("2026-11-14", [])
             self.assertIn("`fix`", note)
-            self.assertIn("Four modes", note)
+            self.assertIn("Five modes", note)
             qm.mode_for = lambda *a, **k: {"mode": "sample", "why": "w"}
             self.assertIsNone(q.mode_note("2026-11-14", []))
         finally:
             qm.mode_for = real
+
+    def _with_mode(self, mode, argv):
+        import contextlib, io, sys
+        sys.path.insert(0, str(Path(__file__).parent))
+        import quality_metrics as qm
+        real = qm.mode_for
+        out = io.StringIO()
+        try:
+            qm.mode_for = lambda *a, **k: {"mode": mode, "why": "w"}
+            with contextlib.redirect_stdout(out):
+                rc = q.main(argv)
+        finally:
+            qm.mode_for = real
+        return rc, out.getvalue()
+
+    def test_every_other_mode_names_its_command_and_post(self):
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent))
+        import quality_metrics as qm
+        self.assertEqual(set(q.MODE_STEPS), set(qm.MODES) - {"sample"})
+        for cmd, post in q.MODE_STEPS.values():
+            self.assertTrue(cmd.startswith("python3 platform/ci/quality_audit.py "))
+            self.assertIn("docs/posts/<date>-quality-", post)
+
+    def test_sample_withholds_the_draw_on_another_modes_day(self):
+        # Five quality runs on 2026-11-17 reported the draw-versus-mode clash although a NOTE sat above the draw.
+        rc, out = self._with_mode("census", ["sample"])
+        self.assertEqual(rc, 0)
+        self.assertIn("census --n 6", out)
+        self.assertIn("quality-census-", out)
+        self.assertNotIn("seed ", out)
+        rc, out = self._with_mode("census", ["sample", "--anyway", "--offline"])
+        self.assertEqual(rc, 0)
+        self.assertIn("deviation", out)
+        self.assertIn("seed ", out)
 
 
 if __name__ == "__main__":

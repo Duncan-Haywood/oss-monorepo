@@ -38,7 +38,7 @@ const r2 = (n) => Math.round(n * 100) / 100;
 function headerTokens(text) {
   const line = String(text || "").split(/\r?\n/).find((l) => l.trim() !== "") || "";
   const delim = line.includes("\t") ? "\t" : line.split(";").length > line.split(",").length ? ";" : ",";
-  return line.split(delim).map((h) => h.replace(/^﻿/, "").replace(/^"|"$/g, "").trim().toLowerCase());
+  return line.split(delim).map((h) => h.replace(/^\uFEFF/, "").replace(/^"|"$/g, "").trim().toLowerCase());
 }
 
 /**
@@ -112,11 +112,14 @@ function ebayChannel(files, costText) {
   out.net = s.operating;
   out.from = s.firstMonth;
   out.to = s.lastMonth;
-  if (s.anyCosted) {
+  if (s.anyCosted && s.allCosted) {
     out.cogs = s.cogsTotal;
-    out.costedShare = s.allCosted ? 1 : null;
+    out.costedShare = 1;
     out.profit = s.profit;
-    if (!s.allCosted) out.notes.push("Only some eBay items have a cost, so eBay profit is left blank rather than overstated.");
+  } else if (s.anyCosted) {
+    // Same rule as the other channels: a partly costed channel would count the
+    // uncosted items as free and overstate profit, so leave it blank.
+    out.notes.push("Only some eBay items have a cost, so eBay profit is left blank rather than overstated.");
   }
   const months = r.months.map((m) => ({ month: m.key, sales: m.sales, refunds: m.refunds, deductions: r2(m.net - m.sales - m.refunds), net: m.net, cogs: null }));
   return { line: out, months, detail: r, skipped: skipped.length, costBad: costs.bad.length };

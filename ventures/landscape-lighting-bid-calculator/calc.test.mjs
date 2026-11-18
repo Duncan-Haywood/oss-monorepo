@@ -251,3 +251,65 @@ test('the customer summary names the fixtures and omits wages', () => {
   assert.doesNotMatch(text, /burden/i);
   assert.match(text, /not an electrical design/i);
 });
+
+test('fixtures-only comparison row carries no new transformer and no soil or sod work (quality audit 2026-11-17)', () => {
+  const { label, ...p } = JOB_PRESETS[2];
+  const arch = {
+    ...p, ...suggestedExtraKit(), ...suggestedScopeKit(p.scope), ...suggestedSoilKit(p.soil),
+    ...suggestedTransformerKit(p.transformer),
+    hourlyWage: 32, burdenRate: 30, travelAndEquipment: 55, otherCost: 0, overheadRate: 15, targetMargin: 20,
+  };
+  assert.notEqual(arch.transformer, 'existing');
+  assert.notEqual(arch.soil, 'easy');
+  const fixtures = compareScope(arch).find((row) => row.scope === 'fixtures-only');
+  assert.equal(fixtures.xfmrMaterial, 0);
+  // By hand from the starting rates: 3,431.05 (it was 4,799.06 with a 310 transformer and 432 of sod repair).
+  assert.equal(Math.round(fixtures.price * 100) / 100, 3431.05);
+});
+
+test('vs-aspire page does not claim transformer sizing or wire-gauge work the calculator lacks (quality audit 2026-11-17)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const html = readFileSync(new URL('./vs-aspire.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(html, /transformer sizing|wire gauge/);
+  const index = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(index, /cannot lose money/);
+});
+
+test('a blank or whitespace proposed price counts as none, not as $0 (red team 2026-11-17)', () => {
+  // An agent or CLI passing "  " used to get a $0 bid scored as a 0% margin.
+  for (const blank of [' ', '  ', '\t', '\n']) {
+    assert.equal(calculateBid({ ...special(), proposedPrice: blank }).proposed, null, JSON.stringify(blank));
+  }
+  assert.equal(calculateBid({ ...special(), proposedPrice: '0' }).proposed.price, 0);
+});
+
+test('a field missing from a shared link or agent call prices as zero, not a guessed rate (red team 2026-11-17)', () => {
+  const full = calculateBid({ ...special(), includeExtraXfmr: true });
+  const { pathEach, extraXfmrInvoice, ...rest } = { ...special(), includeExtraXfmr: true };
+  const missing = calculateBid(rest);
+  assert.equal(missing.fixtureMaterial, full.fixtureMaterial - 6 * pathEach);
+  assert.equal(missing.extraXfmrMaterial, 0);
+  assert.equal(full.extraXfmrMaterial, extraXfmrInvoice);
+});
+
+test('hour shares are each bucket as a percent of crew-hours and sum to 100 (red team 2026-11-17)', () => {
+  const bid = calculateBid(fullInputFromPreset());
+  const sum = Object.values(bid.hourShares).reduce((a, b) => a + b, 0);
+  assert.ok(Math.abs(sum - 100) < 1e-9, `sum ${sum}`);
+  assert.ok(Math.abs(bid.hourShares.trench - bid.hoursTrench / bid.totalHours * 100) < 1e-9);
+  assert.ok(bid.hourShares.trench > 1, 'a new-system trench is a visible share of the hours');
+  const none = calculateBid({ scope: 'fixtures-only', soil: 'easy', transformer: 'existing' });
+  assert.equal(none.totalHours, 0);
+  assert.equal(none.hourShares.travel, 0);
+});
+
+function fullInputFromPreset() {
+  const { label, ...job } = JOB_PRESETS[2];
+  return {
+    ...special(),
+    ...suggestedScopeKit(job.scope),
+    ...suggestedSoilKit(job.soil),
+    ...suggestedTransformerKit(job.transformer),
+    ...job,
+  };
+}

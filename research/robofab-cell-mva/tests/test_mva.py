@@ -51,6 +51,35 @@ class TestMVA(unittest.TestCase):
         self.assertAlmostEqual(D[0], 0.5 * 4 / 0.9 + 0.5 * 4 / 0.8)
         self.assertEqual(m, [1, 4, 1])
 
+    def test_demands_hold_printer(self):
+        # MVA-h (hold_printer=True): printer demand per good part includes load and unload.
+        # By hand: 0.5*(20+2+2)/0.9 + 0.5*(60+2+2)/0.8 = 13.333... + 40 = 53.333...
+        D, _ = cell_demands(T, 4, 1, hold_printer=True)
+        self.assertAlmostEqual(D[1], 0.5 * 24 / 0.9 + 0.5 * 64 / 0.8)
+        self.assertAlmostEqual(D[1], 160 / 3)
+        # arm and inspection demands do not change; plain printer demand is print time only
+        D0, _ = cell_demands(T, 4, 1)
+        self.assertAlmostEqual(D0[1], 0.5 * 20 / 0.9 + 0.5 * 60 / 0.8)
+        self.assertEqual(D[0], D0[0]); self.assertEqual(D[2], D0[2])
+
+    def test_mva_h_double_counts_at_one_job(self):
+        # One job, no rework: the true cycle is load + print + unload + inspect = 27 min, but MVA-h
+        # charges load and unload to both the arm and the printer, so it predicts 1/31 per minute.
+        A = dict(weight=1, print=20, load=2, unload=2, inspect=3, q=0.0)
+        D, m = cell_demands([A], 1, 1, hold_printer=True)
+        self.assertAlmostEqual(mva(D, m, 1)[0], 1 / 31)
+
+    def test_demands_reject_bad_input(self):
+        bad = dict(weight=1, print=20, load=2, unload=2, inspect=3, q=1.0)
+        with self.assertRaises(ValueError):
+            cell_demands([bad], 1, 1)
+        with self.assertRaises(ValueError):
+            cell_demands([dict(bad, q=-0.1)], 1, 1)
+        with self.assertRaises(ValueError):
+            cell_demands([dict(bad, q=0.1, weight=0)], 1, 1)
+        with self.assertRaises(ValueError):
+            cell_demands([], 1, 1)
+
 
 class TestSim(unittest.TestCase):
     def test_product_form_sim_matches_mva(self):
@@ -64,6 +93,25 @@ class TestSim(unittest.TestCase):
         b = simulate(T, 2, 1, 4, mode="hold", dist="ln", seed=3)
         self.assertEqual(a, b)
         self.assertGreater(a, 0)
+
+    def test_deterministic_exact_rates(self):
+        # Deterministic times, no rework, one type: the printer is the bottleneck and its rate is
+        # exact. Hold mode keeps a printer for load + print + unload = 24 min; pf mode for print = 20.
+        # Counting only whole parts in the 1200 min after warm-up allows an error of one part.
+        A = dict(weight=1, print=20, load=2, unload=2, inspect=3, q=0.0)
+        tol = 1 / 1200
+        self.assertAlmostEqual(simulate([A], 1, 1, 3, mode="hold", dist="det"), 1 / 24, delta=tol)
+        self.assertAlmostEqual(simulate([A], 2, 1, 4, mode="hold", dist="det"), 2 / 24, delta=tol)
+        self.assertAlmostEqual(simulate([A], 1, 1, 3, mode="pf", dist="det"), 1 / 20, delta=tol)
+        self.assertAlmostEqual(simulate([A], 2, 1, 4, mode="pf", dist="det"), 2 / 20, delta=tol)
+        # one job never waits, so the cycle is 2 + 20 + 2 + 3 = 27 min in both modes
+        self.assertAlmostEqual(simulate([A], 1, 1, 1, mode="hold", dist="det"), 1 / 27, delta=tol)
+
+    def test_hold_single_job_with_rework(self):
+        # One job, exponential times, q = 0.1: renewal-reward gives (1 - q) / 27 good parts per min.
+        B = dict(weight=1, print=20, load=2, unload=2, inspect=3, q=0.1)
+        mean, se = replicate([B], 1, 1, 1, mode="hold", dist="exp", seeds=range(20))
+        self.assertLess(abs(mean - 0.9 / 27), 4 * se)
 
     def test_hold_not_faster_than_pf(self):
         pf = replicate(T, 4, 1, 6, mode="pf", dist="det", seeds=range(3))[0]

@@ -7,15 +7,20 @@
 // and law-firm guides that agree with each other for each state (Levelset,
 // Siteline, Sunray, mechanicslien.com, Florida Hard Hat Law, Stone LLP and
 // others), for a subcontractor or material supplier who contracts with the
-// general contractor (a first-tier claimant):
+// general contractor (a first-tier claimant); the tier split below was
+// added 2026-11-16 from the same kind of sources (statute hosts were not
+// reachable from the session that added it):
 //
 //   - California: preliminary notice within 20 days after first furnishing
 //     labor or materials. Claim of lien recorded within 90 days after
 //     completion of the work of improvement, or within 30 days after the
 //     owner records a notice of completion, whichever applies first
 //     (Cal. Civ. Code §§ 8200-8204, 8412).
-//   - Texas: commercial (non-residential) -- notice by the 15th day of the
-//     3rd month after each month work was performed and unpaid; lien
+//   - Texas (original contracts from 2022-01-01, HB 2237): commercial
+//     (non-residential) -- a "notice of claim for unpaid labor or
+//     materials" to owner and original contractor by the 15th day of the
+//     3rd month after each month work was performed and unpaid, the same for
+//     every tier; lien
 //     affidavit by the 15th day of the 4th month after the month the
 //     claimant last furnished. Residential -- notice by the 15th day of the
 //     2nd month; lien affidavit by the 15th day of the 3rd month
@@ -29,7 +34,8 @@
 //     project as a whole, or within 60 days after a recorded notice of
 //     completion (Ariz. Rev. Stat. §§ 33-992.01, 33-993).
 //   - Georgia (added 2026-11-03; law-firm and lien-service explainers agree,
-//     statute text not opened): notice to contractor within 30 days of the
+//     statute text not opened): notice to contractor, required only of a
+//     claimant without privity with the contractor, within 30 days of the
 //     later of first furnishing and the notice of commencement (modeled from
 //     first furnishing, the earlier and safe reading); claim of lien within
 //     90 days after last furnishing (O.C.G.A. §§ 44-14-361.1, 44-14-361.5).
@@ -45,8 +51,15 @@
 // only be the same or later, so that yields the same or an EARLIER date --
 // the safe direction for a deadline. The result says when it did this.
 //
-// Not modeled: second-tier and lower claimants (several states shorten or
-// change their clocks), residential homestead variations beyond the two
+// Claimant tier (added 2026-11-16, quality fix): first tier contracts with the
+// general contractor, second tier with a subcontractor or supplier. Of the
+// modeled states only Georgia's notice turns on it (required only without
+// privity with the contractor); California, Arizona, Florida, Washington and
+// Colorado give the same clocks to both tiers, and Texas does too for
+// original contracts signed from 2022-01-01 (HB 2237 removed the old
+// second-tier 2nd-month notice). Texas notices are listed month by month.
+//
+// Not modeled: third-tier claimants (often no lien rights at all), residential homestead variations beyond the two
 // Texas/Washington splits, public-project bond-claim rules, retainage,
 // weekend and holiday extensions, contractual notice requirements, notice
 // content and delivery method, lien foreclosure / suit deadlines, and
@@ -77,7 +90,8 @@ export const STATE_RULES = {
       residential: { type: "month_day15_from_last", monthsAfter: 3 },
     },
     lienLabel: "file a lien affidavit",
-    prelimLabel: "notice of unpaid balance",
+    prelimLabel: "notice of claim for unpaid labor or materials",
+    monthlyNotice: true,
   },
   FL: {
     name: "Florida",
@@ -103,11 +117,20 @@ export const STATE_RULES = {
   GA: {
     name: "Georgia",
     citation: "O.C.G.A. §§ 44-14-361.1, 44-14-361.5",
-    prelim: { type: "days_after_first", days: 30 },
+    prelimByTier: {
+      // A Notice to Contractor is required only of a claimant without privity
+      // with the contractor (e.g. a sub-subcontractor or a supplier to a
+      // subcontractor), and only where a notice of commencement was filed
+      // (O.C.G.A. § 44-14-361.5; checked 2026-11-16 against secondary
+      // sources, statute host not reachable from the session).
+      first: { type: "not_required", reason: "Georgia requires a Notice to Contractor only from claimants who do not contract directly with the general contractor (sub-subcontractors and suppliers to subcontractors). You contract with the general contractor, so no Notice to Contractor is required of you; the lien date below still applies." },
+      second: { type: "days_after_first", days: 30 },
+    },
     lien: { type: "days_after_last", days: 90 },
     lienLabel: "record a claim of lien",
     prelimLabel: "Notice to Contractor",
-    prelimExtra: "The statute counts 30 days from the later of first furnishing and the owner's recorded notice of commencement, so the true date can be later than this one; this date is the safe, earlier reading. The recorded lien must also be served on the owner within 2 business days, and suit filed within 365 days of recording.",
+    prelimExtraTier: "second",
+    prelimExtra: "The statute counts 30 days from the later of first furnishing and the owner's recorded notice of commencement, so the true date can be later than this one; this date is the safe, earlier reading. The recorded lien must also be served on the owner within 2 business days, and suit filed within 365 days of recording. No Notice to Contractor is needed at all on a project where no notice of commencement was filed.",
   },
   WA: {
     name: "Washington",
@@ -137,6 +160,12 @@ STATE_RULES.CO = {
 };
 
 export const PROJECT_TYPES = ["commercial", "residential"];
+// "first": you contract with the general (original) contractor.
+// "second": you contract with a subcontractor or a supplier (sub-sub or
+// supplier to a sub). Only Georgia's notice depends on it among the modeled
+// states; Texas (contracts from 2022-01-01) gives every tier the same clocks.
+export const TIERS = ["first", "second"];
+export const MAX_SCHEDULE_MONTHS = 36;
 
 export function parseDate(value) {
   if (!value || typeof value !== "string") return null;
@@ -253,7 +282,7 @@ function resolvePrelim(rule, ctx) {
       if (!ctx.lienDate) return { date: null, description: "needs your last furnishing date" };
       return {
         date: addDays(ctx.lienDate, -rule.days),
-        description: `${describeDays(rule.days)} before the lien-filing deadline`,
+        description: `${describeDays(rule.days)} before the lien-filing deadline (counted from the last business day on or before it)`,
       };
     case "days_after_first":
       return {
@@ -295,16 +324,37 @@ function decorate(resolved, today) {
   };
 }
 
+// Texas: one notice date per calendar month of unpaid work, from the month of
+// first furnishing to the month of last furnishing.
+export function monthlyNoticeSchedule(first, last, monthsAfter, today) {
+  const rows = [];
+  let y = first.getUTCFullYear();
+  let m = first.getUTCMonth();
+  const endKey = last.getUTCFullYear() * 12 + last.getUTCMonth();
+  while (y * 12 + m <= endKey && rows.length < MAX_SCHEDULE_MONTHS) {
+    const monthStart = new Date(Date.UTC(y, m, 1));
+    const resolved = {
+      workMonth: monthStart.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" }),
+      date: day15MonthsAfter(monthStart, monthsAfter),
+    };
+    rows.push(decorate(resolved, today));
+    m += 1;
+    if (m === 12) { m = 0; y += 1; }
+  }
+  return { rows, truncated: y * 12 + m <= endKey };
+}
+
 /**
  * Computes the preliminary-notice deadline and the lien-filing deadline for a
  * subcontractor or supplier from its first and last furnishing dates.
  * `today` (YYYY-MM-DD) is optional and only used to report days remaining.
- * Does NOT advise, does not model second-tier claimants, public projects, or
+ * Does NOT advise, does not model third-tier claimants, public projects, or
  * holidays -- see the module docstring.
  */
 export function lienDeadlines({
   state = "CA",
   projectType = "commercial",
+  tier = "first",
   firstFurnishing = "",
   lastFurnishing = "",
   completionDate = "",
@@ -314,6 +364,7 @@ export function lienDeadlines({
   const info = STATE_RULES[state];
   if (!info) throw new Error(`unsupported state: ${state}`);
   const pt = projectType === "residential" ? "residential" : "commercial";
+  const tr = tier === "second" ? "second" : "first";
 
   const first = parseDate(firstFurnishing);
   const last = parseDate(lastFurnishing);
@@ -338,9 +389,13 @@ export function lienDeadlines({
 
   let prelim = null;
   let lien = null;
+  let noticeSchedule = null;
+  let prelimNotRequired = null;
 
   if (inputsOk) {
-    const prelimRule = info.prelimByProject ? info.prelimByProject[pt] : info.prelim;
+    const prelimRule = info.prelimByTier
+      ? info.prelimByTier[tr]
+      : info.prelimByProject ? info.prelimByProject[pt] : info.prelim;
     const lienRule = info.lienByProject ? info.lienByProject[pt] : info.lien;
 
     if (last) {
@@ -349,13 +404,21 @@ export function lienDeadlines({
         now,
       );
     }
-    if (prelimRule.type === "days_before_lien") {
-      if (lien) prelim = decorate(resolvePrelim(prelimRule, { lienDate: lien.date }), now);
+    if (prelimRule.type === "not_required") {
+      prelimNotRequired = prelimRule.reason;
+    } else if (prelimRule.type === "days_before_lien") {
+      // Count back from the safe (business-day) filing date the page tells the
+      // user to file on, so serving the notice on its shown date and filing on
+      // the shown safe date still leaves the full notice period.
+      if (lien) prelim = decorate(resolvePrelim(prelimRule, { lienDate: lien.safeDate }), now);
     } else if (first) prelim = decorate(resolvePrelim(prelimRule, { first }), now);
+    if (info.monthlyNotice && first && last && prelimRule.type === "month_day15") {
+      noticeSchedule = monthlyNoticeSchedule(first, last, prelimRule.monthsAfter, now);
+    }
   }
 
   for (const [kind, d, label] of [
-    ["preliminary notice", prelim, info.prelimLabel],
+    [noticeSchedule && noticeSchedule.rows.length > 1 ? "first month's notice" : "preliminary notice", prelim, info.prelimLabel],
     ["lien filing", lien, info.lienLabel],
   ]) {
     if (!d) continue;
@@ -369,22 +432,40 @@ export function lienDeadlines({
     }
   }
 
-  if (info.prelimExtra) add("medium", `${info.name}: an earlier cutoff also applies`, info.prelimExtra);
+  if (noticeSchedule) {
+    const rows = noticeSchedule.rows;
+    const passed = rows.filter((r) => r.status === "passed");
+    const next = rows.find((r) => r.status !== "passed" && r.status !== "unknown");
+    if (rows.length > 1) {
+      add("high", `Texas: ${rows.length} monthly notices, one per month of unpaid work`, `Each month you furnished unpaid labor or materials (${rows[0].workMonth} to ${rows[rows.length - 1].workMonth}) has its own notice date, the 15th day of the ${ordinal(pt === "residential" ? 2 : 3)} month after that month. Send a notice for every month still unpaid; a missed month loses the lien for that month's work only. The full list is in the schedule below.`);
+    }
+    if (passed.length && passed.length < rows.length && next) {
+      add("medium", `${passed.length} of ${rows.length} monthly notice dates have passed`, `The earliest still open is for ${next.workMonth} work, due ${formatDate(next.safeDate)}. Months whose date has passed may no longer be protected by a lien; ask a construction attorney before assuming either way.`);
+    }
+    if (noticeSchedule.truncated) {
+      add("medium", `Schedule shows the first ${MAX_SCHEDULE_MONTHS} months only`, "Your first and last dates span more months than the schedule lists. Later months follow the same rule.");
+    }
+  }
+  if (prelimNotRequired) add("info", `${info.name}: no ${info.prelimLabel} for a first-tier claimant`, prelimNotRequired + " If you are actually hired by a subcontractor or supply one, choose the second-tier option.");
+  if (info.prelimExtra && (!info.prelimExtraTier || info.prelimExtraTier === tr)) add("medium", `${info.name}: an earlier cutoff also applies`, info.prelimExtra);
   if (info.residentialNote && pt === "residential") add("medium", `${info.name}: confirm the residential category`, info.residentialNote);
   if (lien && lien.usedLastFurnishingAsCompletion) {
     add("info", "Completion date not entered: used your last furnishing date", "This state measures the lien deadline from completion of the whole project. Your own last furnishing date can only be the same as or earlier than completion, so the date shown is the cautious one -- entering the real completion date can only move it later, and only rely on that after confirming the completion date with an attorney.");
   }
   if (state === "TX") {
-    add("info", "Texas notices run month by month", "The Texas notice date depends on the month each piece of unpaid work was performed. The date shown is for the first month of work; work in later months has later dates.");
+    add("info", "Texas: rules for original contracts signed on or after 1 January 2022", "These are the clocks set by the 2021 amendments (HB 2237), which apply when the owner's contract with the general contractor was signed on or after 2022-01-01, and they are the same for a subcontractor or supplier at any tier. Older projects follow the earlier rules, where second-tier claimants also had a 2nd-month notice to the general contractor. Retainage has its own notice and filing dates, not shown here.");
   }
-  add("info", "This is a date lookup, not legal advice", "It applies a simplified, first-tier subcontractor/supplier reading of each state's timing rules to the dates you enter. It does not model second-tier claimants, public projects, contractual notice terms, required notice content or delivery method, or foreclosure deadlines. Lien rights are lost by missing a deadline, so confirm with a construction attorney or your state's statute before relying on any date.");
+  add("info", "This is a date lookup, not legal advice", "It applies a simplified reading of each state's timing rules for a subcontractor or supplier to the dates you enter. It does not model laborers' special rules, third-tier claimants (who often have no lien rights at all), public projects, contractual notice terms, required notice content or delivery method, or foreclosure deadlines. Lien rights are lost by missing a deadline, so confirm with a construction attorney or your state's statute before relying on any date.");
 
   return {
     state,
     stateName: info.name,
     citation: info.citation,
     projectType: pt,
+    tier: tr,
     inputsOk,
+    noticeSchedule: noticeSchedule ? noticeSchedule.rows : null,
+    prelimNotRequired,
     prelim,
     lien,
     prelimLabel: info.prelimLabel,

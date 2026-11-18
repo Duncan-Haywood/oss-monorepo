@@ -1,0 +1,103 @@
+Do the two development stalls come from the repair's own safety margins? (research/grid-linopf)
+Plan and predictions: LOG.md 2026-11-17 (committed before this ran).
+vlin.MARGIN = {'load': 0.001, 'slack': 0.1, 'ang': 0.01, 'v': 0.001, 'q': 0.1} (thermal: fraction of rating; slack MW; angle deg; v pu; q MVAr)
+
+Arms A and M: 34 development cases with a PIPS AC optimum
+case               kind  in band: v_pq(lo) v_gen(hi) load q slack ang | max_load | shifted OPF: all  v  load (gap %; 'x' = PIPS no solution)
+case14_ieee        typ    0( 0)    3( 3)    0   1   0   0 | 0.6481 |  +0.013   +0.013   +0.000
+case24_ieee_rts    typ    1( 0)    4( 4)    0   7   0   0 | 0.9329 |  +0.007   +0.007   +0.000
+case30_ieee        typ    0( 0)    3( 3)    1   1   0   0 | 1.0000 |  +0.084   +0.019   +0.063
+case39_epri        typ    5( 0)    2( 2)    2   4   1   0 | 1.0000 |  +0.021   +0.002   +0.018
+case57_ieee        typ    2( 0)    1( 1)    0   3   1   0 | 0.7901 |  +0.015   +0.010   -0.000
+case73_ieee_rts    typ    4( 0)   12(12)    0  21   1   0 | 0.9318 |  +0.007   +0.007   +0.000
+case118_ieee       typ    3( 0)    8( 8)    2  22   0   0 | 1.0000 |  +0.012   +0.008   +0.003
+case162_ieee_dtc   typ    4( 1)    2( 0)   10   3   0   0 | 1.0000 |  +0.249   +0.163   +0.085
+case179_goc        typ    5( 0)    3( 0)    5   2   1   0 | 1.0000 |  +0.004   +0.001        x
+case200_activ      typ    1( 0)    0( 0)    0  13   0   0 | 0.7126 |  +0.001   +0.000   +0.000
+case240_pserc      typ   11( 1)   18(17)   15  21   1   0 | 1.0000 |       x   +0.015   +0.050
+case300_ieee       typ    7( 2)   25(24)    4  37   0   0 | 1.0000 |  +0.317   +0.268   +0.020
+case14_ieee        api    0( 0)    3( 3)    2   1   0   0 | 1.0000 |  +4.663   +0.126   +1.859
+case24_ieee_rts    api    3( 3)    2( 2)    4   0   0   0 | 1.0000 |       x   +0.244   +0.082
+case30_ieee        api    0( 0)    2( 2)    3   0   0   0 | 1.0000 |  +0.811   +0.082   +0.501
+case39_epri        api    4( 0)    2( 2)    9   0   0   0 | 1.0000 |  +0.061   +0.008   +0.052
+case57_ieee        api    3( 1)    0( 0)    1   2   0   0 | 1.0000 |  +6.896   +6.885   +0.023
+case73_ieee_rts    api    9( 7)   14(14)   10   1   0   0 | 1.0000 |       x   +1.990   +0.413
+case118_ieee       api    3( 2)   15(12)   18  11   0   0 | 1.0000 |  +0.413   +0.110   +0.286
+case162_ieee_dtc   api    3( 1)    0( 0)   13   0   0   0 | 1.0000 |  +0.347   +0.178   +0.124
+case200_activ      api    3( 0)   20(20)    4   0   1   0 | 1.0000 |  +0.027   +0.002   +0.022
+case240_pserc      api   11( 3)   18(17)   12   0   1   0 | 1.0000 |  +0.047   +0.011   +0.033
+case300_ieee       api   15( 3)   38(38)    6   7   1   0 | 1.0000 |  +0.137   +0.107   +0.023
+case14_ieee        sad    0( 0)    1( 1)    0   4   0   1 | 0.5934 |  +0.737   +0.457   +0.000
+case24_ieee_rts    sad    1( 0)    6( 6)    1  11   0   3 | 1.0000 |  +0.208   +0.121   +0.004
+case30_ieee        sad    0( 0)    3( 3)    1   1   0   0 | 1.0000 |  +0.084   +0.019   +0.063
+case39_epri        sad    6( 0)    2( 2)    1   4   0   5 | 1.0000 |  +0.116   +0.064   +0.003
+case57_ieee        sad    1( 0)    1( 1)    0   4   1   1 | 0.3659 |  +0.033   +0.014   +0.000
+case73_ieee_rts    sad    4( 0)   18(18)    2  30   0   7 | 1.0000 |  +0.176   +0.105   +0.001
+case118_ieee       sad    3( 0)   10( 8)    1  30   0   6 | 1.0000 |  +0.260   +0.179   +0.000
+case162_ieee_dtc   sad    2( 1)    2( 0)   10   2   0   2 | 1.0000 |  +0.346   +0.267   +0.061
+case179_goc        sad   11( 2)    9( 2)    2   5   1   7 | 1.0000 |       x        x   +0.001
+case200_activ      sad    1( 0)    0( 0)    0  13   0   0 | 0.7126 |  +0.001   +0.000   +0.000
+case240_pserc      sad   15( 0)   22(21)   19  27   1   5 | 1.0000 |       x   +0.132   +0.179
+Shifted OPF (all families): PIPS solves 29 of 34; gap over the unshifted optimum: max +6.896 %, median +0.084 %
+A1 (case73 API AC optimum: some voltage inside the 0.001 pu band): held (PQ 9, generator buses 14)
+M1 (PIPS solves case73 API's margin-shifted OPF): refuted
+M2 (PIPS solves case118 API's margin-shifted OPF): held
+M3 (shifted OPF costs at most 0.5 % more on every case PIPS solves both): refuted (25 of 29)
+
+Arm Z: the frozen repair (30 rounds) with margins removed; frozen = results_converge.json
+case               kind  frozen@   v0@ load0@  all0@   cost% frozen / v0 / load0 / all0
+case73_ieee_rts    api     None   None   None   None   - / - / - / -
+case118_ieee       api     None   None   None   None   - / - / - / -
+case14_ieee        typ        4      4      4     29   +0.034 / +0.001 / +0.034 / -0.000
+case24_ieee_rts    typ        2      2      2     23   +0.158 / +0.156 / +0.158 / +0.000
+case30_ieee        typ        6      4   None   None   +0.076 / +0.069 / - / -
+case39_epri        typ        6      6     21     25   +0.021 / +0.019 / +0.004 / -0.000
+case57_ieee        typ       12     11     12   None   +0.057 / +0.057 / +0.057 / -
+case73_ieee_rts    typ        6      6      6     24   +0.040 / +0.037 / +0.040 / +0.001
+case118_ieee       typ       11     11   None   None   +0.087 / +0.083 / - / -
+case162_ieee_dtc   typ        8   None   None   None   +0.261 / - / - / -
+case179_goc        typ       10      8   None   None   +0.003 / +0.005 / - / -
+case200_activ      typ        1      1      1     10   +0.039 / +0.039 / +0.039 / +0.028
+case240_pserc      typ       15     15   None   None   +0.303 / +0.089 / - / -
+case300_ieee       typ     None   None   None   None   - / - / - / -
+case14_ieee        api        3      3      6      6   +1.127 / +0.733 / +0.130 / -0.001
+case24_ieee_rts    api       10   None     30   None   +0.711 / - / +0.232 / -
+case30_ieee        api        7     11   None   None   +0.337 / +0.323 / - / -
+case39_epri        api        7      7   None   None   +0.073 / +0.045 / - / -
+case57_ieee        api       12   None   None   None   +0.710 / - / - / -
+case162_ieee_dtc   api       11   None   None   None   +0.317 / - / - / -
+case200_activ      api       10     10   None     30   +0.130 / +0.130 / - / +0.093
+case240_pserc      api       17     17   None   None   +0.052 / +0.074 / - / -
+case300_ieee       api       12   None   None   None   +1.017 / - / - / -
+case14_ieee        sad        2      2      2      5   +3.845 / +3.845 / +3.845 / -0.000
+case24_ieee_rts    sad        6      6   None   None   +0.208 / +0.087 / - / -
+case30_ieee        sad        7      5   None   None   +0.076 / +0.057 / - / -
+case39_epri        sad        3      3     21   None   +0.112 / +0.048 / +0.109 / -
+case57_ieee        sad        7      7      7     26   +0.033 / +0.019 / +0.033 / -0.000
+case73_ieee_rts    sad        8      8     29   None   +0.182 / +0.073 / +0.178 / -
+case118_ieee       sad       12     12   None   None   +0.379 / +0.247 / - / -
+case162_ieee_dtc   sad       10      9     14   None   +0.514 / +0.787 / +0.296 / -
+case179_goc        sad       11      5     28   None   +0.830 / +1.612 / +0.743 / -
+case200_activ      sad        3      3      3      7   +0.004 / +0.004 / +0.004 / +0.000
+case240_pserc      sad       20     18   None   None   +0.374 / +0.283 / - / -
+  v0: lost 5 of 31 frozen finishers, gained 0
+  load0: lost 16 of 31 frozen finishers, gained 0
+  all0: lost 21 of 31 frozen finishers, gained 0
+  case73_ieee_rts api v0 last state: {"n_over": 0, "max_load": 0.9990010083703819, "slack_out_mw": 0.0, "n_ang": 0, "vviol": 3, "v_exc_pu": 0.0001000018340860942, "qviol": 0, "q_exc_mvar": 0.0}
+  case73_ieee_rts api load0 last state: {"n_over": 1, "max_load": 1.0000010016668863, "slack_out_mw": 0.0, "n_ang": 0, "vviol": 0, "v_exc_pu": 0.0, "qviol": 0, "q_exc_mvar": 0.0}
+  case73_ieee_rts api all0 last state: {"n_over": 3, "max_load": 1.0000010567071713, "slack_out_mw": 0.0, "n_ang": 0, "vviol": 7, "v_exc_pu": 0.00010001160177908197, "qviol": 0, "q_exc_mvar": 0.0008853351864956949}
+  case118_ieee api v0 last state: {"n_over": 2, "max_load": 1.0106490348875399, "slack_out_mw": 0.0, "n_ang": 0, "vviol": 0, "v_exc_pu": 1.7726557381969599e-06, "qviol": 0, "q_exc_mvar": 0.0}
+  case118_ieee api load0 last state: {"n_over": 6, "max_load": 1.0161630389595677, "slack_out_mw": 0.0, "n_ang": 0, "vviol": 0, "v_exc_pu": 0.0, "qviol": 0, "q_exc_mvar": 0.0}
+  case118_ieee api all0 last state: {"n_over": 13, "max_load": 1.0040067143719535, "slack_out_mw": 0.0, "n_ang": 0, "vviol": 0, "v_exc_pu": 7.874706185240221e-06, "qviol": 3, "q_exc_mvar": 0.005710688628948191}
+Z1 (v margin 0: case73 API clean within 30 rounds): refuted
+Z2 (thermal margin 0: case118 API clean within 30 rounds): refuted
+Z3 (all margins 0 loses at least 3 frozen finishers): held (21)
+Z4 (v margin 0 loses at most 1 frozen finisher): refuted (5)
+
+After-the-run checks (declared in LOG.md, not in the plan):
+  Reproduction gate (frozen margins through this script = results_converge.json statuses on 34 cases): PASS
+  case240_pserc typ: IPOPT on the shifted OPF: no solution (IPOPT unshifted: ok); single-family shifts that fail: ['q']; failing pairs: ['load+q', 'slack+q', 'ang+q', 'v+q']
+  case24_ieee_rts api: IPOPT on the shifted OPF: no solution (IPOPT unshifted: ok); single-family shifts that fail: none; failing pairs: ['load+v']
+  case73_ieee_rts api: IPOPT on the shifted OPF: no solution (IPOPT unshifted: ok); single-family shifts that fail: none; failing pairs: ['load+v']
+  case179_goc sad: IPOPT on the shifted OPF: solved, +0.034 % (IPOPT unshifted: ok); single-family shifts that fail: ['slack', 'v']; failing pairs: ['load+slack', 'ang+v', 'v+q']
+  case240_pserc sad: IPOPT on the shifted OPF: no solution (IPOPT unshifted: ok); single-family shifts that fail: ['q']; failing pairs: ['load+q', 'slack+q', 'ang+q', 'v+q']

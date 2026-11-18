@@ -36,35 +36,38 @@ const CATEGORY = {
 
 export function parseCsv(text) {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === ",") { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
 export function parseDate(value) {
   const s = String(value ?? "").trim();
   if (!s) return null;
-  let iso = s;
-  if (/^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/.test(s)) iso = s.replace(" ", "T") + (s.length > 10 ? "" : "T00:00:00") + "Z";
+  let iso = s, ymd = null;
+  if (/^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/.test(s)) { iso = s.replace(" ", "T") + (s.length > 10 ? "" : "T00:00:00") + "Z"; ymd = s.slice(0, 10); }
   else if (/^\d{9,10}$/.test(s)) return new Date(Number(s) * 1000);
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? null : d;
+  // Date rolls 2026-02-30 into March: refuse a day that does not round-trip.
+  return Number.isNaN(d.getTime()) || (ymd && d.toISOString().slice(0, 10) !== ymd) ? null : d;
 }
 
 export function normalizeReason(raw) {
@@ -103,17 +106,17 @@ export function normalizeRows(table) {
     const line = table[r];
     const get = (f) => (cols[f] === undefined ? "" : (line[cols[f]] ?? "").trim());
     const at = parseDate(get("date"));
-    if (!at) { skipped.push({ line: r + 1, reason: "unreadable date" }); continue; }
+    if (!at) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable date" }); continue; }
     const amount = Number(get("amount").replace(/[$,€£\s]/g, ""));
-    if (!Number.isFinite(amount) || get("amount") === "") { skipped.push({ line: r + 1, reason: "unreadable amount" }); continue; }
+    if (!Number.isFinite(amount) || get("amount") === "") { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable amount" }); continue; }
     const status = get("status").toLowerCase().replace(/\s+/g, "_");
     const ok = OK.has(status), fail = FAIL.has(status);
     if (!ok && !fail) { ignored++; continue; } // refunded, canceled, pending: not a charge outcome
     const customer = get("customer");
     const invoice = get("invoice");
     const key = invoice || customer;
-    if (!key) { skipped.push({ line: r + 1, reason: "no customer or invoice on the row" }); continue; }
-    raw.push({ line: r + 1, at, amount, ok, key, byInvoice: Boolean(invoice), customer: customer || invoice, reason: normalizeReason(get("reason")), currency: get("currency").toUpperCase() });
+    if (!key) { skipped.push({ line: table[r].line ?? r + 1, reason: "no customer or invoice on the row" }); continue; }
+    raw.push({ line: table[r].line ?? r + 1, at, amount, ok, key, byInvoice: Boolean(invoice), customer: customer || invoice, reason: normalizeReason(get("reason")), currency: get("currency").toUpperCase() });
   }
   const tally = {};
   for (const e of raw) tally[e.currency || ""] = (tally[e.currency || ""] || 0) + 1;

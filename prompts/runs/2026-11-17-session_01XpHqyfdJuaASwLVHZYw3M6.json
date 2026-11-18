@@ -1,0 +1,156 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqyfdJuaASwLVHZYw3M6",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T02:39:29Z",
+  "ended": "2026-11-17T02:47:38Z",
+  "wall_minutes": 8.5,
+  "tokens_in": 15039853,
+  "tokens_out": 158396,
+  "cost_usd": 9.8821,
+  "tool_calls": 185,
+  "task": "quality track, census mode: first audits of six never-audited subjects (seed 2026-11-17-4dba)",
+  "projects": [
+    "ventures/ice-dam-removal-bid-calculator",
+    "ventures/rental-dscr-calculator",
+    "ventures/custom-farm-rate-calculator",
+    "ventures/docker-base-image-pin-check",
+    "research/simdesign-pocketmesh",
+    "ventures/uk-self-assessment-tax-calculator"
+  ],
+  "pr": 16786,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "a stray `cp calc.mjs ../../../fixed.tmp` wrote a file to /home/user outside the repo; removed at once, nothing committed",
+      "impact": "none"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 1 says run `sample`, but `sample` prints that today's mode is `census`; the README's 'Five modes' governs. The track prompt still describes only the sample round, so a reader following it alone would run the wrong mode."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 5 names the post `quality-audit-round-<n>`; the README says only a sample round uses that name, and census posts in docs/posts use `quality-census-*`. The prompt does not say so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "Docker ARG/COPY --from and the ice-dam emergency-premium defects are high severity, but fixing them means design or two-language changes, so they are not small and safe",
+      "did": "recorded them under a new 'Known gaps' section in each README, linked to the audit file, rather than fixing them",
+      "result": "three small fixes landed with failing-first tests; the larger ones are queued for the fix mode"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "claim the subjects early with a draft PR, as the census skip reads open PR titles",
+      "did": "opened the PR with a draft post stub, replaced with the full post before merging",
+      "result": "no placeholder reaches main"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-quality-census-six-first-audits.md"
+  ],
+  "goal": "measure finished and expert-grade work across never-audited subjects, and fix what is small",
+  "notes": "Mode: census (date-seeded draw). Seed 2026-11-17-4dba. Subjects: ventures/ice-dam-removal-bid-calculator, ventures/rental-dscr-calculator, ventures/custom-farm-rate-calculator, ventures/docker-base-image-pin-check, research/simdesign-pocketmesh, ventures/uk-self-assessment-tax-calculator. Share meeting bar: 0 of 6 (census, not in the sampled share; sampled share unchanged at 33/306). All 6 finished. Seeded mutations caught 13 of 35. Each audit was written by one parallel subagent; I reran at least one headline recomputation per subject: rental DSCR payment 1790.71 and DSCR 1.26598 (independent python amortization); ice-dam emergency price 560 with cost 425.32 (node); custom-farm A3-24 19.64 ac/hr (probe and hand); pocketmesh beam floor w=15.0 (hand: 6*100*72.5/(2*225)+100/30=100); docker ARG FROM exit 0 (ran CLI); UK finance credit 86 / tax 1706.25 (hand from the GOV.UK rule). Fix PRs: #16786 (same PR): uk finance-cost credit limit excludes savings/dividends; custom-farm blank field errors; ice-dam privacy text discloses localStorage. Each new test fails on the old code (checked by restoring the old file). Local checks: node --test in all five touched ventures green (custom-farm 49, uk 33, ice-dam 115, docker and rental unchanged, 0 fail); quality_audit.py validate 392 files 0 problems.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bfc40cd0-35aa-5329-b7a8-571e88aa5cb8",
+    "transcripts": 7,
+    "first": "2026-11-17T02:39:29Z",
+    "last": "2026-11-17T02:47:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 179,
+        "input": 362,
+        "output": 158396,
+        "thinking": 40258,
+        "cache_read": 14334133,
+        "cache_write_5m": 599000,
+        "cache_write_1h": 106358,
+        "api_equivalent_usd": 9.8821,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 179,
+      "input": 362,
+      "output": 158396,
+      "thinking": 40258,
+      "cache_read": 14334133,
+      "cache_write_5m": 599000,
+      "cache_write_1h": 106358,
+      "api_equivalent_usd": 9.8821,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.953,
+    "tool_calls": 185,
+    "tools": {
+      "Bash": 160,
+      "Agent": 6,
+      "SubagentHandback": 6,
+      "Read": 5,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.5,
+      "active_minutes": 5.55,
+      "model_minutes": 4.85,
+      "tool_minutes": 0.7,
+      "waiting_on_human_minutes": 2.95,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 22.36
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "six expert audits at about 2 h each plus three fixes with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 141.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

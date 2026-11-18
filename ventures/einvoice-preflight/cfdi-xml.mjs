@@ -11,7 +11,7 @@ function decode(s) {
  * `Año`). Rejects DTDs and entity declarations. Returns {root, error}. Each node:
  * {name (local), prefix, ns, attrs, children, text}. */
 export function parseCfdiXml(source) {
-  const text = String(source).replace(/^﻿/, "");
+  const text = String(source).replace(/^\uFEFF/, "");
   if (/<!DOCTYPE/i.test(text) || /<!ENTITY/i.test(text)) throw new Error("DTD and entity declarations are not supported");
   const tokens = text.match(/<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<\?[\s\S]*?\?>|<\/?[^>]+>|[^<]+/g) || [];
   const top = { name: "#root", children: [], text: "", nsmap: {} };

@@ -12,8 +12,28 @@ const rules = [
   ['questions', /\b(?:questions?|clarifications?|inquir(?:y|ies)|addend(?:um|a)|amendments?|SF\s*30)\b/i, 'Record the question deadline and check addenda'],
 ];
 
-// "A bid bond is not required", "No site visit will be held": the signal is mentioned but waived.
-const NEGATED = /\b(?:not (?:be )?(?:required|mandatory|needed)|is waived|will not be held|no (?:\w+\s+){0,3}(?:will be|is) (?:held|required))\b/i;
+// "A bid bond is not required", "No site visit will be held": the signal is mentioned but waived. Hyphenated
+// words ("No pre-bid meeting will be held") count as one word.
+const NEGATED = /\b(?:not (?:be )?(?:required|mandatory|needed)|is waived|will not be held|no (?:[\w-]+\s+){0,3}(?:will be|is) (?:held|required)(?!\s+to\b))\b/i;
+// A requirement stated in the same clause outweighs a waiver there: "Firms with no local office will be required to
+// attend the mandatory site visit" is an obligation, and so is "A bid bond is required and insurance is not
+// required" for the bond (reading a required item as waived is the costly mistake, so a mixed clause counts as found).
+const AFFIRMED = /\b(?:(?:is|are|will be|shall be|must be) (?:required|mandatory)|(?:must|shall) (?!not\b)\w+)\b/i;
+// Contrast words start a new clause: in "bond and insurance are required, but a site visit is not required" the
+// waiver belongs to the site visit only.
+const CLAUSE = /\s*(?:[,;]\s*)?\b(?:but|however|whereas|while|although|though|except that)\b\s*/i;
+
+function clauseAt(sentence, index) {
+  let start = 0;
+  for (const part of sentence.split(new RegExp(CLAUSE.source, 'gi'))) {
+    const at = sentence.indexOf(part, start);
+    if (index < at + part.length) return part;
+    start = at + part.length;
+  }
+  return sentence;
+}
+
+const waivedIn = (clause) => NEGATED.test(clause) && !AFFIRMED.test(clause.replace(NEGATED, ' '));
 const QUESTION_LINE = /\b(?:questions?|inquir(?:y|ies)|clarifications?|RFIs?)\b/i;
 
 // Match sentence by sentence so negation and "question" context before the keyword are seen.
@@ -25,8 +45,8 @@ function pick(key, list, pattern) {
   // The bid deadline, not the question deadline: a guide page here says to look for "two deadlines, not one".
   const hit = key === 'deadline'
     ? hits.find((h) => !QUESTION_LINE.test(h.sentence)) ?? hits[0]
-    : hits.find((h) => !NEGATED.test(h.sentence)) ?? hits[0];
-  return { evidence: hit.sentence.slice(hit.m.index, hit.m.index + hit.m[0].length + 100).trim(), negated: NEGATED.test(hit.sentence) };
+    : hits.find((h) => !waivedIn(clauseAt(h.sentence, h.m.index))) ?? hits[0];
+  return { evidence: hit.sentence.slice(hit.m.index, hit.m.index + hit.m[0].length + 100).trim(), negated: waivedIn(clauseAt(hit.sentence, hit.m.index)) };
 }
 
 export function checkTender(text) {

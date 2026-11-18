@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtKg1ZfcVpnxyVUZ9iA",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T15:06:13Z",
+  "ended": "2026-11-16T15:27:35Z",
+  "wall_minutes": 21.56,
+  "tokens_in": 6415352,
+  "tokens_out": 27072,
+  "cost_usd": 2.6627,
+  "tool_calls": 69,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16612",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First background build was started with a shell '&' in a foreground call; it survived, but run_in_background is the reliable form.",
+    "PIL in the system python3 is broken (no _imaging); used Playwright setContent to compose before/after images instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Picking from 'Still weakest' means reading 25 polish reports from the last two days; there is no index of open items across them, so the same carried-over items (hub's empty margin) repeat in many files."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The harness blocks `sleep N; cmd`; platform/ci/wait_for.py is the right tool and is named only in the polish prompt."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Final measurements came from regenerating pf-jobs.css/js and the status text into dist/ from the final jobs.mjs, not from a second full 10-minute build after the wording change.",
+      "did": "Same render functions the build calls; the full build of the first draft plus check.mjs and 1,740 page tests on the final code.",
+      "result": "Numbers stated with that caveat in the report."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-saved-bids-says-what-it-is.md",
+    "docs/reports/polish-2026-11-16-saved-bids-lead.md"
+  ],
+  "goal": null,
+  "notes": "Saved-bids band on 168 bid calculators now opens with 'Save bids, mark them won or lost.' (markup + script). 390px: on button row 145/168, band grew only on the 33 copy-link pages (+26px, sentence takes its own row so buttons stay together); 1280px: 168/168, 0 grew, 0 sideways scroll. check.mjs: 10,697 pages, no dead links. node --test platform/pages/*.test.mjs: 1740 pass, 0 fail. jobs.test.mjs 243 pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e93de726-8bf6-5c7e-a2c7-d477dc5bf05d",
+    "transcripts": 1,
+    "first": "2026-11-16T15:06:13Z",
+    "last": "2026-11-16T15:27:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 121,
+        "output": 27072,
+        "thinking": 5561,
+        "cache_read": 6307824,
+        "cache_write_5m": 0,
+        "cache_write_1h": 107407,
+        "api_equivalent_usd": 2.6627,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 121,
+      "output": 27072,
+      "thinking": 5561,
+      "cache_read": 6307824,
+      "cache_write_5m": 0,
+      "cache_write_1h": 107407,
+      "api_equivalent_usd": 2.6627,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 59,
+      "Read": 7,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.56,
+      "active_minutes": 21.56,
+      "model_minutes": 6.52,
+      "tool_minutes": 15.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "measure 168 pages at two widths, wording fit test, code + tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 112.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

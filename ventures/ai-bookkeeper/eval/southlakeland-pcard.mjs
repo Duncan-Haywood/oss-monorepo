@@ -105,7 +105,7 @@ const dmy = (s) => { const [d, m, y] = String(s).split("/"); return y && m && d 
 
 function decode(buf) {
   const t = buf.toString("utf8");
-  return t.includes("�") ? buf.toString("latin1") : t.replace(/^﻿/, "");
+  return t.includes("�") ? buf.toString("latin1") : t.replace(/^\uFEFF/, "");
 }
 
 // Rows from every CSV in dir, oldest first. Lines with a class outside CLASS_MAP,

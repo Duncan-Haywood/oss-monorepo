@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtK9H7xkn5B99EkLQC6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T17:07:17Z",
+  "ended": "2026-11-15T17:19:42Z",
+  "wall_minutes": 12.86,
+  "tokens_in": 10875615,
+  "tokens_out": 59431,
+  "cost_usd": 4.8764,
+  "tool_calls": 78,
+  "task": "Deepen flagship einvoice-preflight (allocate.py row 3): the 'HU: Annex I I.5 re-read' item, grown into checking a NAV base invoice and its corrections as a chain",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16282",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 19,
+  "outcome": "success",
+  "errors": [
+    "A browser smoke test of the page (local http.server plus Playwright) was refused by the session's permission classifier; the batch-report wiring is covered by a node test instead."
+  ],
+  "integrity_issues": [
+    "eval/nav-annex1-head-lines-2026-11-15.md said 'I.5 (1140, 1200-1230 are in)'; nothing in hungary-nav.mjs checked them, and none can be checked from one file. Corrected in eval/nav-chain-2026-11-15.md."
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace refused a same-length swap because next: was already within 27 chars of the cap; it took a second replace on the History clause to fit. Working as designed, but the first message reads like a failure."
+    },
+    {
+      "file": "ventures/einvoice-preflight/eval/nav-annex1-head-lines-2026-11-15.md",
+      "issue": "Its 'Not done' said I.5's 1140 and 1200-1230 'are in' and that 10311/10082 were 'untitled'. Both were wrong: none of I.5 was implemented, and 10311/10082 are Annex II INFO messages on the next page."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-a-hungarian-cancellation-has-to-add-up-to-zero.md",
+    "ventures/einvoice-preflight/eval/nav-chain-2026-11-15.md"
+  ],
+  "goal": null,
+  "notes": "New hungary-nav-chain.mjs (HU-036 blocking codes 6/7/16/20; HU-037 Annex I 342, 11400, 11401, 632, 1030, I.5 1140/1200/1210/1220/1230; Annex II 11250 and 10082 as information), wired into report.mjs preflightDocuments so dropping the files together on the page runs it. Annex II 10311 was added to HU-034 as information. NAV's 6 published sample chains are clean; 58 of 58 seeded faults were caught (eval/nav-chain-mutations.mjs); the STORNO zero-sum boundary was checked at 1 and 2 HUF. Verification: hungary-nav*.test.mjs 86 pass; the full suite run_venture_tests.py einvoice-preflight passed (2522 tests) before the doc edits and was rerun after them; venture-preflight.mjs ran in the background (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4a48e5df-1488-5490-a105-3ad1faa09aa6",
+    "transcripts": 1,
+    "first": "2026-11-15T17:07:17Z",
+    "last": "2026-11-15T17:20:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 138,
+        "output": 59431,
+        "thinking": 13072,
+        "cache_read": 10681608,
+        "cache_write_5m": 0,
+        "cache_write_1h": 193869,
+        "api_equivalent_usd": 4.8764,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 138,
+      "output": 59431,
+      "thinking": 13072,
+      "cache_read": 10681608,
+      "cache_write_5m": 0,
+      "cache_write_1h": 193869,
+      "api_equivalent_usd": 4.8764,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 78,
+    "tools": {
+      "Bash": 71,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.86,
+      "active_minutes": 12.86,
+      "model_minutes": 10.97,
+      "tool_minutes": 1.89,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "reading NAV's spec sections I.5, Annex II and the blocking-code table, designing the chain walk, 18 tests, a mutation harness on NAV's samples, docs and a post: about 1.5 days for an engineer who knows the format",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 205.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -45,7 +45,7 @@ const COLUMN_SYNONYMS = {
 
 export function normalizeHeader(value) {
   return String(value ?? '')
-    .replace(/^﻿/, '')
+    .replace(/^\uFEFF/, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();
@@ -54,7 +54,7 @@ export function normalizeHeader(value) {
 // Minimal RFC 4180 reader: quoted fields, doubled quotes, newlines inside
 // quotes, CRLF or LF, and a trailing newline. Returns rows of strings.
 export function parseCsv(text) {
-  const input = String(text ?? '').replace(/^﻿/, '');
+  const input = String(text ?? '').replace(/^\uFEFF/, '');
   const rows = [];
   let row = [];
   let field = '';
@@ -103,7 +103,7 @@ export function normalizeState(value) {
 export function parseAmount(value) {
   const raw = String(value ?? '').trim();
   if (!raw) return null;
-  const negative = /^\(.*\)$/.test(raw) || /^[^0-9]*[-−]/.test(raw);
+  const negative = /^\(.*\)$/.test(raw) || /^[^0-9]*[-−–—]/.test(raw);
   const cleaned = raw.replace(/[^0-9.]/g, '');
   if (!cleaned || cleaned === '.') return null;
   const n = Number(cleaned);

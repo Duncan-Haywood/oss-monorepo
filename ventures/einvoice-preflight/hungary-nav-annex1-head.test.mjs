@@ -97,8 +97,9 @@ test("313: delivery 397 days or more after issue", () => {
 test("310 and 312 against the day of reporting; without one they are listed as skipped", () => {
   assert.deepEqual(codes(foreign, { reportDate: "2021-05-09" }), ["INCORRECT_DATE_INVOICE_ISSUE_DATE_LATE"]); // issued 6 days later
   assert.deepEqual(codes(foreign, { reportDate: "2021-05-10" }), []); // 5 days: tolerated
-  assert.deepEqual(codes(foreign, { reportDate: "2027-12-31" }), []); // lapsed before 2021-01-01
-  assert.deepEqual(codes(foreign, { reportDate: "2028-01-01" }), ["INCORRECT_DATE_INVOICE_DELIVERY_DATE_EARLY"]); // before 2022-01-01
+  // (Six years on, Annex II's late-report note 10311 is there too.)
+  assert.deepEqual(codes(foreign, { reportDate: "2027-12-31" }), ["INCORRECT_DATE_INVOICE_ISSUE_DATE_EARLY"]); // lapsed before 2021-01-01
+  assert.deepEqual(codes(foreign, { reportDate: "2028-01-01" }).sort(), ["INCORRECT_DATE_INVOICE_DELIVERY_DATE_EARLY", "INCORRECT_DATE_INVOICE_ISSUE_DATE_EARLY"]); // before 2022-01-01
   const r = checkNavInvoice(foreign);
   assert.ok(r.skipped.some((s) => s.rule === "HU-034" && /310, 312, 340, 341/.test(s.reason)));
   assert.match(budapestToday(new Date("2026-11-15T23:30:00Z")), /^2026-11-16$/); // Budapest is UTC+1 in November
@@ -109,6 +110,17 @@ test("340 and 341: a modifying document's issue date against the day of reportin
   assert.deepEqual(codes(modification, { reportDate: "2021-06-03" }), []); // 14 days
   assert.deepEqual(codes(modification, { reportDate: "2021-05-14" }).sort(), ["INCORRECT_DATE_INVOICE_ISSUE_DATE_LATE", "INCORRECT_DATE_INVOICE_MODIFICATION_ISSUE_DATE_LATE"]);
   assert.ok(!codes(foreign, { reportDate: "2021-06-30" }).includes("INCORRECT_DATE_INVOICE_MODIFICATION_ISSUE_DATE_EARLY")); // not a modification
+});
+
+test("Annex II 10311: a new invoice reported more than 10 days after issue is noted, as information", () => {
+  // foreign-currency.xml is issued 2021-05-15.
+  assert.deepEqual(codes(foreign, { reportDate: "2021-05-25" }), []); // 10 days: tolerated
+  assert.deepEqual(codes(foreign, { reportDate: "2021-05-26" }), ["INCORRECT_DATE_INVOICE_ISSUE_DATE_EARLY"]);
+  const f = checkNavInvoice(foreign, { reportDate: "2021-05-26" }).findings.find((x) => x.nav === "INCORRECT_DATE_INVOICE_ISSUE_DATE_EARLY");
+  assert.equal(f.severity, "information");
+  assert.match(f.message, /11 days before/);
+  // CREATE only: a modification 11 days old gets 340's window, not 10311.
+  assert.ok(!codes(modification, { reportDate: "2021-05-31" }).includes("INCORRECT_DATE_INVOICE_ISSUE_DATE_EARLY"));
 });
 
 test("a manageInvoice request's own timestamp is the day of reporting", () => {

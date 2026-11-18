@@ -273,7 +273,7 @@ export function calculateBid(input) {
   const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
   if (targetMargin >= 100) throw new Error('Target margin must be below 100%');
 
-  const proposedPrice = input.proposedPrice === null || input.proposedPrice === undefined || input.proposedPrice === ''
+  const proposedPrice = String(input.proposedPrice ?? '').trim() === ''
     ? null
     : number(input.proposedPrice, 'Proposed price');
 

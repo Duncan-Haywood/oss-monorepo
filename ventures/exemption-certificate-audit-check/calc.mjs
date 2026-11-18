@@ -35,7 +35,7 @@ export const customerKey = (s) => norm(s).replace(SUFFIX, " ").replace(/\s+/g, "
 export function parseCsv(text) {
   const rows = [];
   let row = [], cur = "", q = false, line = 1, rowLine = 1;
-  const src = String(text).replace(/^﻿/, "");
+  const src = String(text).replace(/^\uFEFF/, "");
   const push = () => { row.push(cur); cur = ""; };
   const endRow = () => { push(); if (row.some((c) => c.trim() !== "")) rows.push({ line: rowLine, cells: row }); row = []; };
   for (let i = 0; i < src.length; i++) {

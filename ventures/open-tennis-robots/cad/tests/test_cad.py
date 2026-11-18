@@ -1326,7 +1326,7 @@ class LiftParamsTest(unittest.TestCase):
         p = Feeder()
         self.assertEqual(p.check_lift_jam(), [])
         c = p.lift_jam_cutoff()
-        self.assertAlmostEqual(c["trip_a"], 3.3 * 2.7 / 102.7 / 0.05, places=6)
+        self.assertAlmostEqual(c["trip_a"], 3.3 * 33 / 133 / (0.01 * 50), places=6)   # high side: vref / (R x gain)
         self.assertLess(c["trip_lo_a"], c["trip_a"])
         self.assertLess(c["trip_a"], c["trip_hi_a"])
         self.assertGreater(c["stall_hot_a"], c["trip_hi_a"])
@@ -1337,11 +1337,43 @@ class LiftParamsTest(unittest.TestCase):
         self.assertAlmostEqual(m["ke"] * m["noload_rad_s"] + p.lift_motor_noload_a * m["winding_ohm"], p.supply_v)
         # each rule fires
         self.assertTrue(any("full belt" in r for r in Feeder(lift_sense_r2=1.0e3).check_lift_jam()))
-        self.assertTrue(any("never trip" in r for r in Feeder(lift_sense_r2=6.8e3).check_lift_jam()))
+        self.assertTrue(any("never trip" in r for r in Feeder(lift_sense_r2=91e3).check_lift_jam()))
         self.assertTrue(any("blanking" in r for r in Feeder(lift_jam_blank_ms=100.0).check_lift_jam()))
-        self.assertTrue(any("shunt takes" in r for r in Feeder(lift_shunt_w=1.0).check_lift_jam()))
+        self.assertTrue(any("shunt takes" in r for r in Feeder(lift_shunt_w=0.25).check_lift_jam()))
         self.assertTrue(any("two ticks" in r for r in Feeder(lift_jam_trip_ms=0.0).check_lift_jam()))
-        self.assertTrue(any("never trip" in r for r in Feeder(lift_duty=0.6).check_lift_jam()))
+        low = dict(lift_sense_side="low", lift_shunt_ohm=0.05, lift_sense_r2=2.4e3, lift_shunt_w=3.0, lift_slip_nm=1.0)
+        self.assertEqual(Feeder(**low).check_lift_jam() + Feeder(**low).check_lift_slip(), [])
+        self.assertTrue(any("never trip" in r for r in Feeder(lift_duty=0.6, **low).check_lift_jam()))
+        # 2026-11-15, "Lift duty follows the battery": low side the trip rises 1/duty on a full pack; the 2.7k divider
+        # and the 0.9 N m hub set before it would let a jam slide unseen there, and a lower floor would too
+        c = Feeder(**low).lift_jam_cutoff()
+        self.assertAlmostEqual(c["trip_hi_a_full_pack"], c["trip_hi_a"] / Feeder().lift_duty_min)
+        self.assertLess(c["stall_margin_hi_v"], c["stall_margin_lo_v"])
+        self.assertTrue(any("slide unseen" in r for r in Feeder(**dict(low, lift_sense_r2=2.7e3, lift_slip_nm=0.9)).check_lift_slip()))
+        self.assertTrue(any("slide unseen" in r for r in Feeder(lift_duty_min=0.7, **low).check_lift_slip()))
+        self.assertEqual(Feeder(lift_v_ref=0, **dict(low, lift_sense_r2=2.7e3, lift_slip_nm=0.9)).check_lift_slip(), [])
+        # 2026-11-15, "Lift current sense inside the diode loop": high side the trip is the same at every duty, so
+        # the floor, a lower fixed duty and the 0.9 N m hub no longer move it past the slide or the hot stall
+        c = Feeder().lift_jam_cutoff()
+        self.assertEqual(c["sense"], "high")
+        self.assertEqual(c["trip_hi_a_full_pack"], c["trip_hi_a"])
+        self.assertAlmostEqual(c["sense_v_per_a"], Feeder().lift_shunt_ohm * Feeder().lift_sense_gain)
+        # 1.42 with the 1.0 N m hub; 1.30 with the 0.9 N m hub set since (cad/README.md "Slip hub back to 0.9 N m"),
+        # against the rule's 1.1
+        self.assertGreater(Feeder(lift_slip_nm=1.0).lift_slip_design()["trip_margin"], 1.4)
+        self.assertGreater(Feeder().lift_slip_design()["trip_margin"], 1.25)
+        self.assertLess(c["trip_hi_a"] - c["trip_lo_a"], Feeder(**low).lift_jam_cutoff()["trip_hi_a"] - Feeder(**low).lift_jam_cutoff()["trip_lo_a"])
+        for kw in ({"lift_duty_min": 0.7}, {"lift_slip_nm": 0.9}, {"lift_v_ref": 0}):
+            self.assertEqual(Feeder(**kw).check_lift_jam() + Feeder(**kw).check_lift_slip(), [], kw)
+        self.assertEqual(Feeder(lift_duty_min=0.7).lift_jam_cutoff()["trip_hi_a_full_pack"], c["trip_hi_a"])
+        # the amplifier's output stays under its 3.3 V rail at the held duty's cold stall; with no battery reading
+        # (full duty on a full pack) it reaches the rail, which is still far over the reference, so it still trips
+        self.assertLess(c["stall_cold_a"] * c["sense_v_per_a"] * (1 + Feeder().lift_sense_gain_tol), 3.3)
+        self.assertGreater(3.3 * 0.9, 3 * c["vref_v"])
+        # the tolerances widen the trip: gain error, shunt tolerance and the amplifier's offset each count
+        for kw in ({"lift_sense_gain_tol": 0.0}, {"lift_shunt_tol": 0.0}, {"lift_sense_amp_offset_v": 0.0}):
+            w = Feeder(**kw).lift_jam_cutoff()
+            self.assertLess(w["trip_hi_a"] - w["trip_lo_a"], c["trip_hi_a"] - c["trip_lo_a"], kw)
 
     def test_lift_slip_hub_numbers_and_rules(self):
         # 2026-11-15, cad/README.md "Lift slip coupling"
@@ -1357,10 +1389,201 @@ class LiftParamsTest(unittest.TestCase):
         self.assertGreater(s["shaft_mm"], s["rigid_shaft_mm"])
         # each rule fires
         self.assertTrue(any("slip on a start" in r for r in Feeder(lift_slip_nm=0.25).check_lift_slip()))
-        self.assertTrue(any("slide unseen" in r for r in Feeder(lift_sense_r2=3.9e3).check_lift_slip()))
-        self.assertTrue(any("flight cap" in r for r in Feeder(lift_slip_nm=1.6, lift_sense_r2=3.9e3).check_lift_slip()))
-        self.assertTrue(any("spring" in r for r in Feeder(lift_slip_spring_n=100.0).check_lift_slip()))
+        self.assertTrue(any("slide unseen" in r for r in Feeder(lift_sense_r2=56e3).check_lift_slip()))
+        self.assertTrue(any("flight cap" in r for r in Feeder(lift_slip_nm=1.6, lift_sense_r2=47e3).check_lift_slip()))
+        self.assertTrue(any("spring" in r for r in Feeder(lift_slip_spring_t=0.3).check_lift_slip()))
         self.assertTrue(any("boot's wall" in r for r in Feeder(lift_slip_collar_w=20.0).check_lift_slip()))
+
+    def test_lift_slip_wear_numbers_and_rules(self):
+        # 2026-11-16, cad/README.md "Slip hub wear"
+        p = Feeder()
+        # Almen-Laszlo against DIN 2093's table: A 8 x 4.2 x 0.4, h0 0.2, 210 N at 0.75 h0
+        a8 = Feeder(lift_slip_spring_de=8.0, lift_slip_spring_di=4.2)
+        self.assertAlmostEqual(a8.disc_spring_n(0.15, t=0.4, h0=0.2), 210, delta=6)
+        self.assertEqual(p.check_lift_slip_wear(), [])
+        sp, w = p.lift_slip_spring(), p.lift_slip_wear()
+        self.assertAlmostEqual(sp["load"](sp["set_mm"]), sp["need_n"], delta=0.5)
+        self.assertLess(sp["set_share"], p.lift_slip_spring_flat_max)
+        self.assertGreater(w["budget_um"], w["loss_um"])
+        self.assertGreaterEqual(w["lo_nm"], w["band_lo_nm"])
+        self.assertLessEqual(w["hi_nm"], w["band_hi_nm"])
+        ratio = {l: r for l, r, _ in w["sweep"]}
+        self.assertGreater(ratio[40.0], 0.94)
+        # the single A disc it replaced: 10 um costs 15%, 40 um 61%, and a warm facing over-torques it
+        one = Feeder(lift_slip_spring_t=0.7, lift_slip_spring_h0=0.3, lift_slip_spring_count=1)
+        r1 = {l: r for l, r, _ in one.lift_slip_wear()["sweep"]}
+        self.assertLess(r1[10.0], 0.87)
+        self.assertLess(r1[40.0], 0.45)
+        bad = one.check_lift_slip_wear()
+        self.assertTrue(any("budget" in b for b in bad) and any("warm" in b for b in bad), bad)
+        self.assertTrue(any("budget" in b for b in Feeder(lift_slip_loss_um=60.0).check_lift_slip_wear()))
+        # more discs in series, more budget; the stack still leaves the bearing pocket its web
+        self.assertGreater(Feeder(lift_slip_spring_count=6).lift_slip_wear()["budget_um"], w["budget_um"])
+        self.assertEqual(p.check_lift_shaft(), [])
+        g = p.lift_shaft_geometry()
+        self.assertGreaterEqual(min(g["near_web_mm"], g["far_web_mm"]), 1.5)
+
+    def test_lift_sense_ripple_numbers_and_rules(self):
+        # 2026-11-16, cad/README.md "Sense amplifier against the PWM ripple"
+        p = Feeder()
+        self.assertEqual(p.check_lift_sense_ripple(), [])
+        r = p.lift_sense_ripple()
+        # the triangle's peak to peak, largest at D = 0.5, none at full duty
+        self.assertAlmostEqual(r["pp_a"], (29.2 + 0.7) * 0.25 / (0.002 * 20000), places=9)
+        self.assertEqual(p.lift_sense_ripple(duty=1.0)["pp_a"], 0.0)
+        self.assertGreater(r["pp_a"], p.lift_sense_ripple(duty=0.82)["pp_a"])
+        # what reaches the comparator is a few mA of motor current against a 259 mA trip spread
+        self.assertLess(r["comp_pp_a"], 0.002)
+        self.assertLess(r["ripple_share"], 0.01)
+        self.assertGreater(r["slew_factor"], 50)
+        self.assertAlmostEqual(r["delay_us"], 1e6 / (2 * math.pi * 37e3), places=6)
+        self.assertFalse(p.lift_sense_ripple(duty=p.lift_duty_at(29.2))["clips"])
+        # the rules fire: a 10 us filter passes the ripple; a 50 uH winding also out-runs the slew rate
+        self.assertTrue(any("ripple reaches" in b for b in Feeder(lift_sense_rc_s=1e-5).check_lift_sense_ripple()))
+        self.assertTrue(any("slew" in b for b in Feeder(lift_motor_mh=0.05).check_lift_sense_ripple()))
+        # low side has no amplifier to check
+        self.assertEqual(Feeder(lift_sense_side="low", lift_shunt_ohm=0.05, lift_sense_r2=2.4e3,
+                                lift_shunt_w=3.0, lift_slip_nm=1.0).check_lift_sense_ripple(), [])
+        # the switched simulation agrees with the formula and leaves the mean where the averaged plant puts it
+        sys.path.insert(0, str(HERE.parent.parent / "tests"))
+        import lift_sense_ripple_sweep as sw
+        for duty in (0.5, p.lift_duty_at(29.2)):
+            s = sw.steady(p, 29.2, duty, p.lift_jam_cutoff()["trip_a"])
+            a = p.lift_sense_ripple(duty=duty)
+            self.assertAlmostEqual(s["pp_a"], a["pp_a"], delta=0.03 * a["pp_a"])
+            self.assertLessEqual(s["comp_pp_v"], a["comp_pp_v"] * 1.01)       # the analytic figure is a bound
+            self.assertGreater(s["comp_pp_v"], 0.8 * a["comp_pp_v"])
+            self.assertLess(abs(s["bias_ma"]), 0.05)
+        # the amplifier adds about its pole's delay to a stall's crossing, thousands of times under the 10 ms tick
+        held = p.lift_duty_at(29.2)
+        added = sw.stall_cross_us(p, 29.2, held, True, False) - sw.stall_cross_us(p, 29.2, held, True, True)
+        self.assertGreater(added, 0.5 * r["delay_us"])
+        self.assertLess(added, 2 * r["delay_us"])
+
+    def test_lift_tooth_jump_numbers_and_rules(self):
+        # 2026-11-15, cad/README.md "Lift tooth jump"
+        p = Feeder()
+        self.assertEqual(p.check_lift_tooth(), [])
+        d = p.lift_tooth_jump_design()
+        self.assertEqual(d["mesh"], 8)
+        self.assertGreater(d["strength_margin"], 5.0)
+        self.assertGreater(d["jump_margin"], p.lift_tooth_jump_factor)
+        # with the slack strand at zero the margin is the same at any pull
+        self.assertAlmostEqual(p.lift_tooth_jump_design(pull_n=20.0)["jump_margin"], d["jump_margin"])
+        # soft teeth give back the even share: hold = (T1 + T2) x wrap / 2
+        soft = p.lift_tooth_jump_design(g_mpa=1e-6)
+        self.assertAlmostEqual(soft["hold_n"], d["pull_n"] * math.pi / 2, delta=0.01)
+        # stiffer teeth crowd the first tooth and lower the margin; friction and a taut slack strand raise it
+        stiff = p.lift_tooth_jump_design(g_mpa=40.0)
+        self.assertGreater(stiff["first_tooth_share"], d["first_tooth_share"])
+        self.assertLess(stiff["jump_margin"], d["jump_margin"])
+        self.assertGreater(p.lift_tooth_jump_design(mu=0.3)["jump_margin"], d["jump_margin"])
+        self.assertGreater(p.lift_tooth_jump_design(slack_n=10.0)["jump_margin"], d["jump_margin"])
+        # the needed slack-side tension brings a failing corner exactly to the factor
+        bad = p.lift_tooth_jump_design(0.5, 40.0, 35.0, 0.0)
+        self.assertLess(bad["jump_margin"], 1.0)
+        fixed = p.lift_tooth_jump_design(0.5, 40.0, 35.0, 0.0, slack_n=bad["slack_need_n"])
+        self.assertAlmostEqual(fixed["jump_margin"], p.lift_tooth_jump_factor, places=6)
+        # the sweep: one corner of 81 fails, and a 20-tooth pulley does not help
+        w16, w20 = p.lift_tooth_jump_sweep(), p.lift_tooth_jump_sweep(20)
+        self.assertEqual(len(w16["rows"]), 81)
+        self.assertEqual(len(w16["fail"]), 1)
+        self.assertLess(w20["worst"]["margin"], w16["worst"]["margin"])
+        # each rule fires
+        self.assertTrue(any("teeth in mesh" in r for r in Feeder(lift_tooth_fuspec_n_mm=0.4,
+                                                                 lift_tooth_fuspec_1200_n_mm=0.3).check_lift_tooth()))
+        self.assertTrue(any("jump a tooth" in r for r in Feeder(lift_tooth_g_mpa=40.0, lift_tooth_flank_deg=35.0,
+                                                                lift_belt_cspec_n=30000.0).check_lift_tooth()))
+        self.assertIn(Feeder(lift_tooth_g_mpa=40.0, lift_tooth_flank_deg=35.0).check_lift_tooth()[0],
+                      Feeder(lift_tooth_g_mpa=40.0, lift_tooth_flank_deg=35.0).check())
+
+    def test_lift_strand_modes_solver_and_numbers(self):
+        # 2026-11-15, cad/README.md "Lift strand modes"
+        from otr_cad.params import _modes_below, _string_beam_rows
+        # the solver against closed forms: a uniform string, and a pinned beam-string (f^2 = string^2 + beam^2)
+        L, n, T, m, ei = 2.0, 200, 10.0, 0.085, 3.0
+        h = L / n
+        f = _modes_below(_string_beam_rows(h, [T] * n, 0.0), [m * h] * (n - 1), 15.0)
+        for k, fk in enumerate(f[:5], 1):
+            self.assertAlmostEqual(fk, k * math.sqrt(T / m) / (2 * L), delta=0.002 * fk)
+        f = _modes_below(_string_beam_rows(h, [T] * n, ei), [m * h] * (n - 1), 40.0)
+        for k, fk in enumerate(f[:3], 1):
+            exact = math.hypot(k * math.sqrt(T / m) / (2 * L), (k * math.pi / L) ** 2 * math.sqrt(ei / m) / (2 * math.pi))
+            self.assertAlmostEqual(fk, exact, delta=0.002 * exact)
+        p = Feeder()
+        self.assertEqual(p.check_lift_strand(), [])
+        # tension: running, the down strand is the tight one at the drive pulley; both meet at the top
+        dn, up = p.lift_strand_tension("down"), p.lift_strand_tension("up")
+        t0 = p.lift_tension_design()["t0_n"]
+        self.assertAlmostEqual(dn["t_bottom_n"] - up["t_bottom_n"], up["pull_n"], delta=0.05)
+        self.assertAlmostEqual(dn["t_top_n"], up["t_top_n"], delta=0.05)
+        self.assertGreater(dn["t_bottom_n"], t0)
+        # the setting figure: flights' mass makes the strand ring under the bare formula, about 2.1 Hz
+        pl = p.lift_pluck_design()
+        self.assertLess(pl["pluck_hz"], pl["bare_hz"])
+        self.assertAlmostEqual(pl["pluck_hz"], 2.12, delta=0.02)
+        self.assertGreater(pl["over_tension"], 1.2)
+        # with no flights and no weight it is the bare formula
+        bare = Feeder(lift_flight_kg=0.0)
+        tp = bare.lift_strand_tension("down", 0, running=False)
+        r = bare.lift_strand_modes("down", "flat", loaded_every=0, running=False, f_max_hz=4.0)
+        mean_t = sum(tp["tension"]) / len(tp["tension"])
+        self.assertAlmostEqual(r["modes_hz"][0], math.sqrt(mean_t / p.lift_belt_kg_m) / (2 * tp["span_m"]), delta=0.01)
+        # loaded with balls that go with it, the up strand rings lower; pinned at the pads, its spans ring high
+        free = p.lift_strand_modes("up", "edge", ball_moves=False)["modes_hz"][0]
+        heavy = p.lift_strand_modes("up", "edge")["modes_hz"][0]
+        self.assertLess(heavy, 0.6 * free)
+        pinned = p.lift_strand_modes("up", "flat", pin_loaded=True)["modes_hz"][0]
+        self.assertGreater(pinned, 25.0)
+        # at a fixed duty the belt's speed follows the battery and the flight rate meets the empty belt's fundamental;
+        # held to lift_v_ref (2026-11-15, "Lift duty follows the battery") the band stops short of it
+        fixed = Feeder(lift_v_ref=0)
+        s = fixed.lift_speed_range()
+        self.assertLess(s["lo"], 1.0)
+        self.assertGreater(s["hi"], 1.2)
+        f1 = p.lift_strand_modes("down", "flat", loaded_every=0)["modes_hz"][0]   # the empty run-on
+        self.assertTrue(fixed.lift_strand_excitations(s["lo"])["flight"] < f1 < fixed.lift_strand_excitations(s["hi"])["flight"])
+        self.assertTrue(fixed.lift_run_on_resonance()["hits"])
+        self.assertTrue(any("passing band" in r for r in fixed.check_lift_strand()))
+        held = p.lift_speed_range()
+        self.assertAlmostEqual(held["lo"], s["lo"])                 # the 24 V cut is unchanged: full duty there
+        self.assertLess(held["hi"], 1.02)
+        r = p.lift_run_on_resonance()
+        self.assertEqual(r["hits"], [])
+        self.assertGreater(r["clearance"], 1.1)
+        # stretch: held, uniform mass, the first mode is the lumped model's to a few per cent; balls on the up strand
+        # lower the first stuck mode a little and the lumped model's 38 Hz sits above the distributed one
+        held = p.lift_belt_axial_modes(1, stuck=False, balls_on_up=False)["modes_hz"][0]
+        bm = p.lift_belt_model()
+        self.assertAlmostEqual(held, bm["f_belt_hz"], delta=0.04 * bm["f_belt_hz"])
+        st_up = [f for f in p.lift_belt_axial_modes(1)["modes_hz"] if f > 1.0]
+        st_sp = [f for f in p.lift_belt_axial_modes(1, balls_on_up=False)["modes_hz"] if f > 1.0]
+        self.assertLess(st_up[0], st_sp[0])
+        self.assertLess(st_up[0], bm["f_stuck_hz"])
+        # the rule fires on a strand that goes slack
+        self.assertTrue(any("goes slack" in r for r in Feeder(lift_tension_factor=0.3).check_lift_strand()))
+
+    def test_lift_belt_chain(self):
+        # 2026-11-15 later, cad/README.md "Lift belt as a chain": the node layout the axial modes and the jam sweep's
+        # time-domain chain share; two nodes a flight pitch keep the first stuck modes of the eight-node reference
+        p = Feeder()
+        c = p.lift_belt_chain(1, nodes_per_pitch=2)
+        d = p.lift_design()
+        self.assertEqual(len(c["mass"]), c["n"] - 1)
+        self.assertEqual(len(set(c["flight_nodes"])), len(c["flight_nodes"]))        # one flight to a node
+        self.assertEqual(len(c["ball_nodes"]), len(c["up_flight_nodes"]))
+        self.assertEqual(len(p.lift_belt_chain(2, nodes_per_pitch=2)["ball_nodes"]), len(c["ball_nodes"]) // 2)
+        self.assertAlmostEqual(c["h_m"] * (c["top_node"] + 1), d["centre_mm"] / 1000, delta=c["h_m"])
+        self.assertTrue(set(c["up_nodes"]).isdisjoint(c["down_nodes"]))
+        moving = sum(c["mass"]) + c["m_wrap_kg"]
+        # the same moving mass as the fine layout, less one segment's belt (n - 1 interior nodes)
+        self.assertAlmostEqual(moving, p.lift_belt_chain(1)["m_wrap_kg"] + sum(p.lift_belt_chain(1)["mass"]), delta=0.01)
+        for every in (1, 2):
+            for cs in p.lift_belt_cspec_sweep:
+                coarse = [f for f in p.lift_belt_axial_modes(every, cs, f_max_hz=200.0, nodes_per_pitch=2)["modes_hz"] if f > 1]
+                fine = [f for f in p.lift_belt_axial_modes(every, cs, f_max_hz=200.0)["modes_hz"] if f > 1]
+                for a, b in zip(coarse[:2], fine[:2]):
+                    self.assertAlmostEqual(a, b, delta=0.005 * b)
 
     def test_lift_drive_shaft_numbers_and_rules(self):
         # 2026-11-15, cad/README.md "Lift drive shaft"
@@ -1423,7 +1646,7 @@ class LiftParamsTest(unittest.TestCase):
         self.assertTrue(t["off_lo_mm"] < t["off_set_mm"] < t["off_hi_mm"])
         # the setting figures: a taut string's fundamental and a mid-span push
         span = d["centre_mm"] / 1000
-        self.assertAlmostEqual(t["ring_hz"], math.sqrt(t["t0_n"] / p.lift_belt_kg_m) / (2 * span))
+        self.assertAlmostEqual(t["ring_hz"], math.sqrt(t["t0_n"] / p.lift_belt_kg_m) / (2 * span))   # bare belt
         self.assertAlmostEqual(t["push_1n_mm"], span * 1000 / (4 * t["t0_n"]))
         self.assertGreater(t["ring_hz_top"], t["ring_hz"])
         self.assertAlmostEqual(t["jack_n"], 2 * (t["t0_n"] + t["strand_weight_n"]) + p.lift_top_kg * 9.81)
@@ -1469,6 +1692,74 @@ class LiftParamsTest(unittest.TestCase):
         self.assertTrue(any("width" in r for r in Feeder(lift_cap_pin_y=10.0).check_lift()))
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class BearingFitParamsTest(unittest.TestCase):
+    """2026-11-15, cad/README.md "Bearing fit test ring"."""
+
+    def test_lame_limits_and_kinds(self):
+        p = Feeder()
+        r = p.lift_bearing_od / 2
+        # an endless block: the bore's compliance is 1 + nu; zero interference, zero pressure
+        self.assertAlmostEqual(p.bearing_fit(0.0, 0.1, b=1e6)["compliance"], 1 + p.petg_nu, places=6)
+        self.assertEqual(p.bearing_fit(0.1, 0.2)["pressure_mpa"], 0.0)
+        # hand check at b = 22: i = 0.1 mm, K = (22^2 + 9.5^2) / (22^2 - 9.5^2)
+        k = (22 ** 2 + r * r) / (22 ** 2 - r * r)
+        f = p.bearing_fit(0.05, 0.2)
+        self.assertAlmostEqual(f["pressure_mpa"], p.petg_hoop_e_mpa * 0.05 / (r * (k + p.petg_nu)), places=6)
+        self.assertAlmostEqual(f["hoop_mpa"], f["pressure_mpa"] * k, places=6)
+        self.assertAlmostEqual(f["press_n"], p.petg_steel_mu * f["pressure_mpa"] * math.pi * 19.0 * 4.5, places=6)
+        # tighter bores, more pressure; the kinds run loose, slip, light, press, tight as the bore shrinks
+        order = ["loose", "slip", "light", "press", "tight"]
+        kinds = [p.bearing_fit(o, 0.2)["kind"] for o in (0.2, 0.11, 0.095, 0.05, -0.05)]
+        self.assertEqual(kinds, order)
+        lo, hi = p.bearing_fit_window()
+        self.assertAlmostEqual(lo, 19.0 * (p.petg_cte - p.steel_cte) * p.fit_dt_k)
+        self.assertAlmostEqual(p.bearing_fit(0.0, hi * 0.999)["hoop_mpa"], p.fit_hoop_allow_mpa, delta=0.02)
+
+    def test_ring_covers_every_swept_printer_and_the_boot_is_stiffer(self):
+        p = Feeder()
+        self.assertEqual(p.check_bearing_fit_ring(), [])
+        d = p.bearing_fit_ring_design()
+        for s, c in d["covered"].items():
+            self.assertTrue(c, s)
+        # no single drawn size suits every swept printer: that is why the ring exists
+        self.assertFalse(any(all(p.bearing_fit(o, s)["kind"] == "press" for s in p.print_hole_under_sweep)
+                             for o in [x / 100 for x in range(-10, 21)]))
+        self.assertGreater(d["boot_factor"], 1.0)
+        self.assertEqual(d["boot"]["kind"], "press")
+        self.assertLess(d["boot"]["race_close_um"], 13.0)
+
+    def test_rules_fire(self):
+        self.assertTrue(any("apart on the diameter" in r for r in Feeder(bearing_ring_steps=(0.0, 0.15)).check_bearing_fit_ring()))
+        self.assertTrue(any("no bore in the press window" in r
+                            for r in Feeder(print_hole_under_sweep=(-0.3,)).check_bearing_fit_ring()))
+        self.assertTrue(any("rising order" in r for r in Feeder(bearing_ring_steps=(0.05, 0.0)).check_bearing_fit_ring()))
+        self.assertTrue(any("counterbore" in r for r in Feeder(bearing_ring_pitch=28.0).check_bearing_fit_ring()))
+        self.assertTrue(any("set lift_bearing_fit_mm" in r for r in Feeder(lift_bearing_fit_mm=0.2).check_bearing_fit_ring()))
+        self.assertIn(Feeder(lift_bearing_fit_mm=0.2).check_bearing_fit_ring()[0], Feeder(lift_bearing_fit_mm=0.2).check())
+
+    def test_pick_and_cli(self):
+        p = Feeder()
+        # bores run tightest first: a real ring reads cracked or hard at the top and drops at the bottom
+        self.assertEqual(p.pick_bore_over(["cracks", "hard", "presses", "presses", "presses", "slides"])["over"], 0.05)
+        self.assertEqual(p.pick_bore_over(["hard", "presses", "presses", "slides", "drops", "drops"])["over"], -0.03 + 0.03)
+        self.assertEqual(p.pick_bore_over(["cracks", "hard", "hard", "slides", "drops", "drops"])["over"], 0.03)
+        self.assertIsNone(p.pick_bore_over(["slides"] * 6)["over"])
+        self.assertIsNone(p.pick_bore_over(["cracks"] * 6)["over"])
+        with self.assertRaises(ValueError):
+            p.pick_bore_over(["presses"] * 5)
+        with self.assertRaises(ValueError):
+            p.pick_bore_over(["snug"] * 6)
+        run = subprocess.run([sys.executable, "-m", "otr_cad", "fit-ring", "hard", "hard", "presses", "presses",
+                              "slides", "drops"], cwd=HERE.parent, capture_output=True, text=True)
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(json.loads(run.stdout)["over"], 0.03)
+        self.assertIn("lift_bearing_fit_mm=0.03", run.stderr)
+        bad = subprocess.run([sys.executable, "-m", "otr_cad", "fit-ring", "presses"], cwd=HERE.parent,
+                             capture_output=True, text=True)
+        self.assertEqual(bad.returncode, 2)
+
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
 class LiftCadTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -1476,6 +1767,44 @@ class LiftCadTest(unittest.TestCase):
         cls.F = F
         cls.p = Feeder()
         cls.parts = {q.name: q for q in F.all_parts(cls.p)}
+
+    def test_bearing_fit_ring(self):
+        # 2026-11-15, cad/README.md "Bearing fit test ring": one pocket per step, sized as drawn, cut as the boot's
+        from build123d import Box, Cylinder, Location
+        F, p = self.F, self.p
+        ring = self.parts["lift_bearing_fit_ring"]
+        self.assertEqual(ring.placements, [])           # a test print: not in the assembly, the sweeps or the mass
+        self.assertEqual(ring.kind, "print")
+        s = ring.shape
+        self.assertTrue(s.is_valid)
+        bb = s.bounding_box()
+        self.assertLessEqual(max(bb.size.X, bb.size.Z), 200.0)   # fits a 220 mm bed standing up
+        self.assertAlmostEqual(bb.min.Z, 0.0, places=3)
+        cells = F.fit_ring_cells(p)
+        self.assertEqual([c[2] for c in cells], list(p.bearing_ring_steps))
+        B, ft = p.lift_bearing_w, p.lift_bearing_flange_t
+        for k, (x, z, over) in enumerate(cells):
+            rb = p.lift_bearing_od / 2 + over
+            probe = lambda r, y0, y1: Cylinder(r, y1 - y0).moved(Location((x, (y0 + y1) / 2, z), (90, 0, 0)))
+            # the bore is empty to its drawn radius and solid just past it, behind the counterbore
+            self.assertLess((probe(rb - 0.005, -B / 2, B / 2 - ft - 0.05) & s).volume, 0.01, over)
+            ring_band = probe(rb + 0.05, -B / 2 + 0.1, B / 2 - ft - 0.1) - probe(rb + 0.01, -B / 2, B / 2)
+            self.assertAlmostEqual((ring_band & s).volume, ring_band.volume, delta=0.01 * ring_band.volume)
+            # the flange's counterbore from the front face, as in the boot
+            self.assertLess((probe(p.lift_bearing_flange_d / 2 + 0.15, B / 2 - ft + 0.05, B / 2) & s).volume, 0.01)
+            # k + 1 dimples over the bore
+            dots = Box(4.0 * (k + 2), 1.0, 2.6).moved(Location((x, B / 2 - 0.5, z + p.lift_bearing_flange_d / 2 + 0.2 + 4.5)))
+            vol = dots.volume - (dots & s).volume
+            self.assertAlmostEqual(vol, (k + 1) * math.pi * 1.0 * 1.0, delta=0.3, msg=f"dots over bore {k}")
+        # the boot's pocket bore follows lift_bearing_fit_mm
+        self.assertGreater(F.lift_bearing_pockets(Feeder(lift_bearing_fit_mm=0.15)).volume, F.lift_bearing_pockets(p).volume)
+        # the boot is solid round both pockets out to boot_b (what bearing_fit_ring_design takes it as)
+        boot = self.parts["lift_boot"].placed()[0]
+        g, b = p.lift_shaft_geometry(), p.bearing_fit_ring_design()["boot_b_mm"]
+        for yc in g["bearing_y"]:
+            loc = Location((p.lift_x_pulley, p.lift_y + yc, p.lift_z_bottom), (90, 0, 0))
+            ann = Cylinder(b, B - 2 * ft).moved(loc) - Cylinder(p.lift_bearing_flange_d / 2 + 0.3, B).moved(loc)
+            self.assertGreater((ann & boot).volume / ann.volume, 0.85, yc)
 
     def _solids(self, name):
         q = self.parts[name]
@@ -1790,6 +2119,69 @@ class BrakesAndBouncesInARowTest(unittest.TestCase):
         rp = p.precharge_ohm + d["r_ohm"]
         want = p.bus_idle_a * rp * (1 - math.exp(-0.1 / (rp * d["c_f"])))
         self.assertAlmostEqual(tr["makes"][1]["gap_v"], want, delta=0.01)
+
+    @staticmethod
+    def _reference_bounce_train(p, load_a, n, open_frac):
+        """`contactor_bounce_train` as it was before the settle phase could stop early (perf note 2026-11-15): every
+        phase stepped to its end, the same float operations in the same order."""
+        d = p.contactor_inrush()
+        r, l, c = d["r_ohm"], d["l_h"], d["c_f"]
+        vp = p.battery_v_max
+        rp = p.precharge_ohm + r if p.precharge_ohm > 0 else math.inf
+        v = vp - (d["precharge"]["residual_v"] if d["precharge"] else vp)
+        i, win = 0.0, p.contactor_bounce_ms / 1e3
+        t_open, t_shut = open_frac * win / n, (1 - open_frac) * win / n
+        settle = 20 * max(r * c, math.sqrt(l * c))
+        h0 = min(math.sqrt(l * c), r * c, l / r) / 60
+        pre = (lambda vx: (vp - vx) / rp) if rp != math.inf else (lambda vx: 0.0)
+        makes, breaks, arc_j = [], [], 0.0
+        for k in range(n + 1):
+            dur = t_shut if k < n else settle
+            steps = max(int(math.ceil(dur / h0)), 1)
+            h, peak, gap = dur / steps, 0.0, vp - v
+            for _ in range(steps):
+                a1, b1 = (i + pre(v) - load_a) / c, (vp - r * i - v) / l
+                vv, ii = v + a1 * h / 2, i + b1 * h / 2
+                a2, b2 = (ii + pre(vv) - load_a) / c, (vp - r * ii - vv) / l
+                vv, ii = v + a2 * h / 2, i + b2 * h / 2
+                a3, b3 = (ii + pre(vv) - load_a) / c, (vp - r * ii - vv) / l
+                vv, ii = v + a3 * h, i + b3 * h
+                a4, b4 = (ii + pre(vv) - load_a) / c, (vp - r * ii - vv) / l
+                v += (a1 + 2 * a2 + 2 * a3 + a4) * h / 6
+                i += (b1 + 2 * b2 + 2 * b3 + b4) * h / 6
+                peak = max(peak, i)
+            makes.append({"gap_v": gap, "peak_a": peak})
+            if k == n:
+                break
+            breaks.append(i)
+            arc_j += 0.5 * l * i * i
+            i = 0.0
+            if rp == math.inf:
+                v = max(v - load_a * t_open / c, 0.0)
+            else:
+                floor = vp - load_a * rp
+                v = floor + (v - floor) * math.exp(-t_open / (rp * c))
+        return {"n": n, "open_frac": open_frac, "makes": makes, "breaks_a": breaks, "arc_j": arc_j,
+                "peak_a": max(m["peak_a"] for m in makes), "max_gap_v": max(m["gap_v"] for m in makes),
+                "break_a": max(breaks) if breaks else 0.0}
+
+    def test_settle_stops_early_with_the_same_bits(self):
+        # 2026-11-15: the settle phase stops once the energy norm proves the current cannot reach its peak again.
+        # The result must be the reference's to the last bit, with and without the precharge resistor, idle and
+        # with the stepper's load, a long and a short bounce window.
+        from otr_cad.params import _settle_contracts
+        p = Feeder()
+        d = p.contactor_inrush()
+        r, l, c = d["r_ohm"], d["l_h"], d["c_f"]
+        h = min(math.sqrt(l * c), r * c, l / r) / 60
+        self.assertTrue(_settle_contracts(r, l, c, 1 / (p.precharge_ohm + r), h))   # the fast path is taken
+        self.assertTrue(_settle_contracts(r, l, c, 0.0, h))
+        self.assertFalse(_settle_contracts(r, l, c, 0.0, 400 * h))                   # a step too long to contract
+        for q in (p, Feeder(precharge_ohm=0.0), Feeder(contactor_bounce_ms=2.0, bus_idle_a=4.0)):
+            for load in (q.bus_idle_a, q.bus_idle_a + 6.0):
+                for n, f in ((1, 1.0), (1, 0.2), (3, 0.5), (10, 0.8)):
+                    self.assertEqual(repr(q.contactor_bounce_train(load, n, f)),
+                                     repr(self._reference_bounce_train(q, load, n, f)), (q.precharge_ohm, load, n, f))
 
     def test_several_bounces_never_make_more_than_the_first_closing(self):
         p = Feeder()

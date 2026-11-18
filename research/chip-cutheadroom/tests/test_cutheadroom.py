@@ -46,6 +46,14 @@ class Synthetic(unittest.TestCase):
         r = N.analyse([a, b], [3, 5], gates, self.rep, self.cost)
         self.assertEqual(r["removable_disjoint"], 1)  # 4 and 5 (= a&b) collapse; 3 stays
 
+    def test_node_feeding_a_gate_outside_the_cone_stays(self):
+        # Quality census 2026-11-15-8ced: the MFFC rule (fanout entirely inside the cone) was untested.
+        # Node 3 = a&b also feeds 6 = 3|c, which is outside node 5's cone, so only 4 and 5 can go.
+        a, b, c = 1, 2, 3
+        gates = {7: ("$_AND_", [a, b]), 4: ("$_AND_", [7, a]), 5: ("$_AND_", [4, b]), 6: ("$_OR_", [7, c])}
+        r = N.analyse([a, b, c], [5, 6], gates, self.rep, self.cost)
+        self.assertEqual(r["removable_disjoint"], 1)
+
     def test_savings_never_negative_total(self):
         rnd = random.Random(0)
         ins = list(range(1, 7))

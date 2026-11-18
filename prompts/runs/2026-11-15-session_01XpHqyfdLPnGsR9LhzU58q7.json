@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyfdLPnGsR9LhzU58q7",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T22:39:14Z",
+  "ended": "2026-11-15T22:47:34Z",
+  "wall_minutes": 8.5,
+  "tokens_in": 5920708,
+  "tokens_out": 32812,
+  "cost_usd": 3.0177,
+  "tool_calls": 48,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16364",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/water-leaks/README.md",
+      "issue": "'Checks (tests/, 20)' was stale (the suite had 41 tests); updated to 42. Nothing checks this count."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "Default marker is DONE; a log ending in 'EXIT <code>' needs --marker EXIT, learned from the first timeout message (which was clear)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-a-week-old-baseline-cannot-find-a-slow-leak.md",
+    "research/water-leaks/LOG.md (step 18 plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Routed research (track 21 draw), advanced water-leaks with step 18: a pre-registered lagged tracking baseline with no leak list. A on P-lag(168) puts 12 of 32 leaks within 300 m (incipient 4 of 17) against D1 15 and the step 17 oracle 28; 3 of 5 predictions failed; no lag (24-336 h) beats 12. Contamination measured from leak flows: over a week other leaks change by 2.66 m3/h against a slow leak's own 2.34. The step reran byte-identically from cache after moving the residual into localise.lagged_change. Tests 42 passed; research build ok; md links ok; post front matter, links and similarity ok. Open research PRs #16359 and #16321 were left alone because other sessions updated them within 3 h. Security queue empty; IDEAS and website requests empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "067539fb-8c58-5b87-9135-a344238e0c0d",
+    "transcripts": 1,
+    "first": "2026-11-15T22:39:14Z",
+    "last": "2026-11-15T22:47:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 84,
+        "output": 32812,
+        "thinking": 8502,
+        "cache_read": 5769726,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150898,
+        "api_equivalent_usd": 3.0177,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 84,
+      "output": 32812,
+      "thinking": 8502,
+      "cache_read": 5769726,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150898,
+      "api_equivalent_usd": 3.0177,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 41,
+      "Read": 2,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.5,
+      "active_minutes": 8.5,
+      "model_minutes": 5.55,
+      "tool_minutes": 2.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a water-resources PhD student pre-registering, coding and running a lag-sweep localisation study on BattLeDIM, plus write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 397.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

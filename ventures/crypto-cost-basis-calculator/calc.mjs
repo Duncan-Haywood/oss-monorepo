@@ -24,7 +24,7 @@ const cents = (n) => Math.round((n + Number.EPSILON * Math.sign(n)) * 100) / 100
 // ---- CSV ---------------------------------------------------------------
 
 export function parseCsv(text) {
-  const src = String(text ?? "").replace(/^﻿/, "");
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   const firstLine = src.split(/\r?\n/, 1)[0] || "";
   const delim = firstLine.includes("\t") && !firstLine.includes(",") ? "\t" : ",";
   const rows = [];

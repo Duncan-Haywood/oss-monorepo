@@ -15,6 +15,7 @@ its marker), so a live job is told apart from a quiet, stuck or dead one.
 
 A job that prints no marker (a `pip install`, a writer of a jsonl) can be waited on by
 a condition instead: `--until "python3 -c 'import torch'"` returns 0 once that command exits 0.
+Given a log too, it waits for both (the condition, then the log's marker) and prints the log's tail.
 
 A job with a known pid: `--pid 12345` returns once that process has exited. Do not
 use `--until "pgrep -f name"`: the shell running it matches its own command line, so it
@@ -53,11 +54,13 @@ def is_marker(line, marker):
     inside a line (`not DONE yet`) does not count (friction 2026-11-11: `--marker
     EXIT` waited its full 540 s timeout on a log that ended `EXIT 0`). A marker
     that ends in `=` or `:` is a prefix: `rc=` matches `rc=0` (an `echo rc=$?`
-    line; friction 2026-11-13, the same 540 s wait)."""
+    line; friction 2026-11-13, the same 540 s wait). A bare word followed by `=`
+    counts too: `--marker BUILD_EXIT` matches `BUILD_EXIT=0` (friction 2026-11-16,
+    a full timeout on a log whose last line was exactly that)."""
     s = line.strip()
     if marker[-1] in "=:" and s.startswith(marker):
         return True
-    return s == marker or (s.startswith(marker) and s[len(marker)] in " \t:-")
+    return s == marker or (s.startswith(marker) and s[len(marker)] in " \t:-=")
 
 
 DEFAULT_MARKERS = ("DONE", "EXIT", "[exited with code")
@@ -189,6 +192,18 @@ def holders(path, proc="/proc"):
     return found
 
 
+def short_cmd(cmd, width=80):
+    """The holder's command line, cut in the middle so its arguments survive.
+
+    A head-only cut at 60 characters showed 'run.py --draws 10' for
+    '--draws 1000', which read as the wrong job running (friction 2026-11-17).
+    The interpreter path at the front is what a reader can spare."""
+    if len(cmd) <= width:
+        return cmd
+    head = width // 3
+    return cmd[:head] + "..." + cmd[-(width - head - 3):]
+
+
 def progress(path, now=time.time, who=holders):
     """What a timed-out wait can say about the job, so "call again" is not a guess.
 
@@ -209,7 +224,7 @@ def progress(path, now=time.time, who=holders):
     open_by = who(path)
     if open_by:
         pid, cmd = max(open_by)  # the newest holder is the job itself, not the shell that started it
-        hint = (f"pid {pid} ({cmd[:60]!r}) still has it open, so the job is running"
+        hint = (f"pid {pid} ({short_cmd(cmd)!r}) still has it open, so the job is running"
                 + ("" if idle < 60 else ", quietly (it may print only at the end, or buffer: python3 -u)")
                 + "; call again")
     elif open_by is not None:
@@ -258,16 +273,24 @@ def main(argv=None):
             return 0
         print(f"wait_for: pid {a.pid} still running after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
         return 1
+    timeout = a.timeout
     if a.until:
-        if wait_until(a.until, a.timeout):
+        started = time.monotonic()
+        if not wait_until(a.until, a.timeout):
+            print(f"wait_for: '{a.until}' still failing after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
+            return 1
+        if not a.log:
             print("wait_for: condition met")
             return 0
-        print(f"wait_for: '{a.until}' still failing after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
-        return 1
+        # A log given with --until was ignored, so a wait returned "condition met" with no
+        # output before the job had written its last line (friction 2026-11-16). Both
+        # given means both: the condition, then the log's marker, in what time is left.
+        print("wait_for: condition met; now waiting for the log's marker", file=sys.stderr)
+        timeout = max(0.0, a.timeout - (time.monotonic() - started))
     if not a.log:
         ap.error("give a log file, --until or --pid")
     boot = None if a.ignore_restart else boot_time()
-    ok, lines = wait(a.log, a.marker or DEFAULT_MARKERS, a.timeout, boot=boot)
+    ok, lines = wait(a.log, a.marker or DEFAULT_MARKERS, timeout, boot=boot)
     if ok is None:
         last = next((l for l in reversed(lines) if l.strip()), "(empty)")[:120]
         when = time.strftime("%H:%M:%S UTC", time.gmtime(boot))

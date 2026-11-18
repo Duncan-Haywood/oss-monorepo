@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A third starter IDS written for this tool (MIT): IFC4X3 infrastructure
+     (bridges, roads, rail, earthworks) and building services (ducts, air
+     terminals, pipes). Written for buildingSMART's IFC 4.3 Simple-Scene sample
+     models; eval/infra-mep-crosscheck-2026-11-17.md records what both this
+     checker and IfcTester say about them. -->
+<ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
+  <info>
+    <title>Infrastructure and building services (starter IDS)</title>
+    <purpose>Coordination of IFC 4.3 infrastructure and MEP models</purpose>
+  </info>
+  <specifications>
+    <specification name="Bridges are arched or girder bridges" ifcVersion="IFC4X3_ADD2">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCBRIDGE</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <entity>
+          <name><simpleValue>IFCBRIDGE</simpleValue></name>
+          <predefinedType><xs:restriction base="xs:string"><xs:enumeration value="ARCHED"/><xs:enumeration value="GIRDER"/></xs:restriction></predefinedType>
+        </entity>
+      </requirements>
+    </specification>
+    <specification name="Bridge parts say what they are" ifcVersion="IFC4X3_ADD2" description="NOTDEFINED is not one of the allowed values, so a part left NOTDEFINED fails.">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCBRIDGEPART</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <entity>
+          <name><simpleValue>IFCBRIDGEPART</simpleValue></name>
+          <predefinedType><xs:restriction base="xs:string"><xs:enumeration value="ABUTMENT"/><xs:enumeration value="DECK"/><xs:enumeration value="DECK_SEGMENT"/><xs:enumeration value="FOUNDATION"/><xs:enumeration value="PIER"/><xs:enumeration value="PIER_SEGMENT"/><xs:enumeration value="PYLON"/><xs:enumeration value="SUBSTRUCTURE"/><xs:enumeration value="SUPERSTRUCTURE"/><xs:enumeration value="SURFACESTRUCTURE"/></xs:restriction></predefinedType>
+        </entity>
+      </requirements>
+    </specification>
+    <specification name="Structural members belong to a bridge" ifcVersion="IFC4X3_ADD2" description="Through any chain of containment and aggregation: element in a bridge part, part in a bridge.">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCBEAM"/><xs:enumeration value="IFCCOLUMN"/><xs:enumeration value="IFCFOOTING"/><xs:enumeration value="IFCMEMBER"/><xs:enumeration value="IFCRAILING"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <partOf><entity><name><simpleValue>IFCBRIDGE</simpleValue></name></entity></partOf>
+      </requirements>
+    </specification>
+    <specification name="Beams in a bridge are 1 m to 20 m long" ifcVersion="IFC4X3_ADD2" description="Qto_BeamBaseQuantities.Length, read in the model's length unit and compared in metres.">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCBEAM</simpleValue></name></entity>
+        <partOf><entity><name><simpleValue>IFCBRIDGE</simpleValue></name></entity></partOf>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE">
+          <propertySet><simpleValue>Qto_BeamBaseQuantities</simpleValue></propertySet>
+          <baseName><simpleValue>Length</simpleValue></baseName>
+          <value><xs:restriction base="xs:double"><xs:minInclusive value="1"/><xs:maxInclusive value="20"/></xs:restriction></value>
+        </property>
+      </requirements>
+    </specification>
+    <specification name="Bridge slabs give a net volume" ifcVersion="IFC4X3_ADD2">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCSLAB</simpleValue></name></entity>
+        <partOf><entity><name><simpleValue>IFCBRIDGEPART</simpleValue></name></entity></partOf>
+      </applicability>
+      <requirements>
+        <property dataType="IFCVOLUMEMEASURE">
+          <propertySet><simpleValue>Qto_SlabBaseQuantities</simpleValue></propertySet>
+          <baseName><simpleValue>NetVolume</simpleValue></baseName>
+          <value><xs:restriction base="xs:double"><xs:minExclusive value="0"/></xs:restriction></value>
+        </property>
+      </requirements>
+    </specification>
+    <specification name="Earthworks fill is typed" ifcVersion="IFC4X3_ADD2">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCEARTHWORKSFILL</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <entity>
+          <name><simpleValue>IFCEARTHWORKSFILL</simpleValue></name>
+          <predefinedType><xs:restriction base="xs:string"><xs:enumeration value="BACKFILL"/><xs:enumeration value="COUNTERWEIGHT"/><xs:enumeration value="EMBANKMENT"/><xs:enumeration value="SLOPEFILL"/><xs:enumeration value="SUBGRADE"/><xs:enumeration value="SUBGRADEBED"/><xs:enumeration value="TRANSITIONSECTION"/></xs:restriction></predefinedType>
+        </entity>
+        <material/>
+      </requirements>
+    </specification>
+    <specification name="Road parts are carriageway, shoulder or segment" ifcVersion="IFC4X3_ADD2" description="A deliberately narrow list: other road part types (a parking bay) fail.">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCROADPART</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <entity>
+          <name><simpleValue>IFCROADPART</simpleValue></name>
+          <predefinedType><xs:restriction base="xs:string"><xs:enumeration value="CARRIAGEWAY"/><xs:enumeration value="SHOULDER"/><xs:enumeration value="ROADSEGMENT"/></xs:restriction></predefinedType>
+        </entity>
+      </requirements>
+    </specification>
+    <specification name="Courses sit in a road or railway part" ifcVersion="IFC4X3_ADD2">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCCOURSE</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <partOf relation="IFCRELCONTAINEDINSPATIALSTRUCTURE"><entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCROADPART"/><xs:enumeration value="IFCRAILWAYPART"/></xs:restriction></name></entity></partOf>
+      </requirements>
+    </specification>
+    <specification name="Asphalt courses are bitumen" ifcVersion="IFC4X3_ADD2">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCCOURSE</simpleValue></name></entity>
+        <attribute><name><simpleValue>Name</simpleValue></name><value><xs:restriction base="xs:string"><xs:pattern value=".*asphalt.*"/></xs:restriction></value></attribute>
+      </applicability>
+      <requirements>
+        <material><value><xs:restriction base="xs:string"><xs:pattern value="bitumen.*"/></xs:restriction></value></material>
+      </requirements>
+    </specification>
+    <specification name="Track elements sit in a track" ifcVersion="IFC4X3_ADD2">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCTRACKELEMENT"/><xs:enumeration value="IFCRAIL"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <partOf relation="IFCRELCONTAINEDINSPATIALSTRUCTURE"><entity><name><simpleValue>IFCRAILWAYPART</simpleValue></name><predefinedType><simpleValue>TRACK</simpleValue></predefinedType></entity></partOf>
+      </requirements>
+    </specification>
+    <specification name="Line markings are named and painted" ifcVersion="IFC4X3_ADD2">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCSURFACEFEATURE</simpleValue></name><predefinedType><simpleValue>LINEMARKING</simpleValue></predefinedType></entity>
+      </applicability>
+      <requirements>
+        <attribute><name><simpleValue>Name</simpleValue></name></attribute>
+        <material><value><xs:restriction base="xs:string"><xs:pattern value=".*paint.*"/></xs:restriction></value></material>
+      </requirements>
+    </specification>
+    <specification name="Trees and plants are under 20 m tall" ifcVersion="IFC4X3_ADD2" description="SizeSet.Height, a project-specific set, read in the model's length unit.">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCGEOGRAPHICELEMENT</simpleValue></name></entity>
+        <property><propertySet><simpleValue>SizeSet</simpleValue></propertySet><baseName><simpleValue>Height</simpleValue></baseName></property>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE">
+          <propertySet><simpleValue>SizeSet</simpleValue></propertySet>
+          <baseName><simpleValue>Height</simpleValue></baseName>
+          <value><xs:restriction base="xs:double"><xs:maxExclusive value="20"/></xs:restriction></value>
+        </property>
+      </requirements>
+    </specification>
+    <specification name="Signs are pictorial and have a material" ifcVersion="IFC4X3_ADD2" description="PICTORAL is the schema's spelling; the type object carries it.">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCSIGN</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <entity><name><simpleValue>IFCSIGN</simpleValue></name><predefinedType><simpleValue>PICTORAL</simpleValue></predefinedType></entity>
+        <material/>
+      </requirements>
+    </specification>
+    <specification name="Duct segments are rigid and sit on a storey" ifcVersion="IFC4X3_ADD2" description="The predefined type comes from the segment's type object.">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCDUCTSEGMENT</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <entity><name><simpleValue>IFCDUCTSEGMENT</simpleValue></name><predefinedType><simpleValue>RIGIDSEGMENT</simpleValue></predefinedType></entity>
+        <partOf relation="IFCRELCONTAINEDINSPATIALSTRUCTURE"><entity><name><simpleValue>IFCBUILDINGSTOREY</simpleValue></name></entity></partOf>
+      </requirements>
+    </specification>
+    <specification name="Air terminals have a material and sit in a building" ifcVersion="IFC4X3_ADD2">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCAIRTERMINAL</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <material/>
+        <partOf><entity><name><simpleValue>IFCBUILDING</simpleValue></name></entity></partOf>
+      </requirements>
+    </specification>
+    <specification name="Pipe segments are culverts or rigid pipes" ifcVersion="IFC4X3_ADD2">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCPIPESEGMENT</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <entity><name><simpleValue>IFCPIPESEGMENT</simpleValue></name><predefinedType><xs:restriction base="xs:string"><xs:enumeration value="CULVERT"/><xs:enumeration value="RIGIDSEGMENT"/></xs:restriction></predefinedType></entity>
+        <material/>
+      </requirements>
+    </specification>
+    <specification name="Services and chambers are classified in CCI" ifcVersion="IFC4X3_ADD2" description="Molio's CCI Construction, as the sample scene uses it.">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCDISTRIBUTIONCHAMBERELEMENT"/><xs:enumeration value="IFCELECTRICAPPLIANCE"/><xs:enumeration value="IFCPIPESEGMENT"/><xs:enumeration value="IFCAIRTERMINAL"/><xs:enumeration value="IFCDUCTSEGMENT"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <classification><system><simpleValue>Molio</simpleValue></system></classification>
+      </requirements>
+    </specification>
+    <specification name="Every road is classified" ifcVersion="IFC4X3_ADD2">
+      <applicability minOccurs="1" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCROAD</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <classification><system><xs:restriction base="xs:string"><xs:pattern value=".+"/></xs:restriction></system></classification>
+      </requirements>
+    </specification>
+  </specifications>
+</ids>

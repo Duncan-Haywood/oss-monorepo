@@ -141,8 +141,9 @@ export const MID_CRUMB_CHARS = 12;
  *   1080px only, or nothing. Default: the form; on the hub, 'narrow', because
  *   the hub's own search box is in view on a wide screen but sits about 700px
  *   down on a phone, below the fold.
- * @param {Array<{href?: string, label: string, mid?: boolean}>} [o.crumbs] breadcrumb trail after "Home"; `mid`
- *   says whether a linked middle crumb may shrink on a phone (default: its label is over MID_CRUMB_CHARS)
+ * @param {Array<{href?: string, label: string, mid?: boolean, echo?: boolean}>} [o.crumbs] breadcrumb trail after "Home"; `mid`
+ *   says whether a linked middle crumb may shrink on a phone (default: its label is over MID_CRUMB_CHARS); `echo` on the
+ *   last crumb says the page's `h1` repeats it word for word, so a phone hides it and gives the trail's width to the parents
  * @param {string} [o.extraClass] extra classes (the venture chrome adds its marker)
  */
 export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [], extraClass = '' } = {}) {
@@ -170,7 +171,9 @@ export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [
             ? `<span class="pfs-sep" aria-hidden="true">›</span><a href="${esc(c.href)}"${
                 (c.mid ?? [...c.label].length > MID_CRUMB_CHARS) ? ' class="pfs-mid"' : ''
               }>${esc(c.label)}</a>`
-            : `<span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">${esc(c.label)}</span>`,
+            : c.echo
+              ? `<span class="pfs-sep pfs-echo" aria-hidden="true">›</span><span aria-current="page" class="pfs-echo">${esc(c.label)}</span>`
+              : `<span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">${esc(c.label)}</span>`,
         )
         .join('')}</span>`
     : '';
@@ -278,6 +281,10 @@ export const SITE_HEADER_CSS = `
   .pfs-crumbs>.pfs-mid{flex:0 100000 auto;min-width:4.5em;overflow:hidden;text-overflow:ellipsis}
   /* With a middle crumb there, "Home" goes: the brand beside it already links home, and the trail starts at the section. */
   .pfs-crumbs:has(>a:not([data-pf-to]))>a[data-pf-to=hub],.pfs-crumbs:has(>a:not([data-pf-to]))>a[data-pf-to=hub]+.pfs-sep{display:none}
+  /* A last crumb marked .pfs-echo is the page's h1 word for word (a research project's title, a sentence). Cut to about
+     30 characters it said nothing the heading below did not, and it took the room the topic needed; on a phone the trail
+     ends at the parent instead ("Research › Proper scoring & elicitation"), and the h1 names the page. */
+  .pfs-crumbs>.pfs-echo{display:none}
 }
 @media (max-width:1080px){
   .pfs-search{display:none}
@@ -287,13 +294,23 @@ export const SITE_HEADER_CSS = `
    Before 2026-11-11 the Search control wrapped onto a row of its own, under the brand at the left edge, on every
    page but the hub from 721px up (even at 1280px, where the 236px form was too wide to share the row with ten
    links). The query is on the bar's own content width, not the window's: a tool page's header can sit in a 1,000px column,
-   with or without side padding. One row needs about 1,016px (brand 153, links 721, gaps 44, Search pill 98). */
+   with or without side padding. One row needs about 1,016px (brand 153, links 721, gaps 44, Search pill 98).
+   Between 960 and 1,017px the row is kept by drawing Search as its glass alone and closing the gaps (about 929px);
+   before 2026-11-16 that band went to two rows, and 885 of 1,388 tool pages, whose column is 900 to 1,000px wide, had a
+   31px taller header at 1,280px than the pages beside them. The two-row layout is for 959px and under. */
 [data-pfs-head] .pfs-bar{container:pfs-head/inline-size}
-@container pfs-head (max-width:1017px){
+@container pfs-head (max-width:959px){
   [data-pfs-head] .pfs-brand{flex:1 1 auto}
   .pfs-nav{order:3;flex-basis:100%}
   /* The pill is taller than the brand line; let it overhang the row gap so two rows cost no more than before. */
   [data-pfs-head] .pfs-searchlink{margin-block:-4px}
+}
+/* The word "Search" is set at font-size 0, not removed: it stays the link's accessible name. */
+@container pfs-head (min-width:960px) and (max-width:1017px){
+  .pfs-bar{column-gap:18px}
+  .pfs-nav{column-gap:14px}
+  .pfs-search{display:none}
+  [data-pfs-head] .pfs-searchlink{display:inline-flex;justify-content:center;width:35px;padding:8px 0;gap:0;font-size:0}
 }
 @property --pfs-fade{syntax:'<length>';inherits:false;initial-value:28px}
 @keyframes pfs-fade-out{to{--pfs-fade:0px}}
@@ -375,6 +392,10 @@ nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-crumbs a{text-decoration:underli
 nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-searchlink{padding:5px 13px 5px 11px;border:1px solid var(--pfs-line);
   border-radius:999px;font-weight:600;color:var(--pfs-ink)}
 nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-searchlink:hover{border-color:currentColor}
+/* The compact header row (SITE_HEADER_CSS) draws Search as its glass alone; the two rules above outrank it here. */
+@container pfs-head (min-width:960px) and (max-width:1017px){
+  nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-searchlink{padding:8px 0;font-size:0}
+}
 nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-mark{background:var(--pfs-mark);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
 aside.pf-chrome.pf-chrome-foot{display:block;position:static;float:none;max-width:none;box-sizing:border-box;
   color:var(--pfs-ink);background:var(--pfs-foot-bg);border:0;border-top:1px solid var(--pfs-line);border-radius:0;
@@ -658,7 +679,8 @@ export function researchChromeTemplate() {
     style_file: SITE_STYLE_FILE,
     header: renderSiteHeader({ toRoot: root, current: 'research' }),
     topic_header: renderSiteHeader({ toRoot: root, current: 'research', crumbs: [research, { label: '{{TOPIC}}' }] }),
-    project_header: renderSiteHeader({ toRoot: root, current: 'research', crumbs: [research, topic, { label: '{{TITLE}}' }] }),
+    // `echo`: build.py's project page opens with <h1>{{TITLE}}</h1>, so a phone drops the title from the trail.
+    project_header: renderSiteHeader({ toRoot: root, current: 'research', crumbs: [research, topic, { label: '{{TITLE}}', echo: true }] }),
     footer: renderSiteFooterNav({ toRoot: root }),
   };
 }

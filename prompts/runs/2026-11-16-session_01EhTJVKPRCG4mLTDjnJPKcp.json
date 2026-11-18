@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVKPRCG4mLTDjnJPKcp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production; merge when done.",
+  "input_sha256": "5767b84735b6c9043e02e53c77b00c9fbd663fcfa739a0cbaac4f733585d0f6f",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T13:57:32Z",
+  "ended": "2026-11-16T14:04:27Z",
+  "wall_minutes": 9.54,
+  "tokens_in": 6839957,
+  "tokens_out": 30289,
+  "cost_usd": 2.9886,
+  "tool_calls": 65,
+  "task": "Deepen (flagship 6) shift-roster-builder: Philadelphia and Los Angeles fair workweek presets",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16593",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "The first python heredoc that edited hub.mjs was refused by the rm-safety check (template strings with $ in a heredoc); rerun from a script file in the scratchpad."
+  ],
+  "integrity_issues": [
+    "Primary sources (phila.gov, wagesla.lacity.gov, amlegal) unreachable (403/no DNS); presets built from search summaries of the cities' FAQs/regulations and law-firm alerts, labelled as such in code, README, hub page and post. LA rest premium: sources disagree (whole shift vs hours in gap); city FAQ wording chosen and the disagreement written down."
+  ],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The plain route (no --task) sent this ventures-worded scheduled prompt to research; needed route --task to land on ventures. Scheduled prompts that don't say 'read ./prompt.md' may never pass --task."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-shift-roster-the-clopening-costs-three-ways.md",
+    "ventures/shift-roster-builder/README.md section 'Philadelphia and Los Angeles (2026-11-16, later)'"
+  ],
+  "goal": null,
+  "notes": "Added FAIR_WORKWEEK=philadelphia|los-angeles presets plus three rest switches (FWW_REST_FLAT, FWW_REST_WHOLE_SHIFT, FWW_REST_ACROSS_DAYS). notice.test.mjs 17/17 pass; full venture suite: run_venture_tests.py shift-roster-builder ok, 704 tests, 207 s, 0 failed. No agent doc in docs/reports: README section carries what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d84604ad-2cfc-5c70-88aa-09a34cc28b3a",
+    "transcripts": 1,
+    "first": "2026-11-16T13:57:32Z",
+    "last": "2026-11-16T14:07:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 111,
+        "output": 30289,
+        "thinking": 5467,
+        "cache_read": 6709796,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130050,
+        "api_equivalent_usd": 2.9886,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 111,
+      "output": 30289,
+      "thinking": 5467,
+      "cache_read": 6709796,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130050,
+      "api_equivalent_usd": 2.9886,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 45,
+      "WebSearch": 7,
+      "WebFetch": 5,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.54,
+      "active_minutes": 9.54,
+      "model_minutes": 5.22,
+      "tool_minutes": 4.32,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "researching two city ordinances, coding three rest variants with tests, docs and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 200.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

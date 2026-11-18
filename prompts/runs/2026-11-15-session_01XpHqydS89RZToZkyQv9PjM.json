@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqydS89RZToZkyQv9PjM",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T21:39:28Z",
+  "ended": "2026-11-15T21:47:38Z",
+  "wall_minutes": 8.37,
+  "tokens_in": 4415312,
+  "tokens_out": 39547,
+  "cost_usd": 2.6502,
+  "tool_calls": 45,
+  "task": "research/marine-hull milestone 6zzm: lag-3 learning year, NASA POWER against ERA5",
+  "projects": [
+    "marine-hull"
+  ],
+  "pr": 16350,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "CLAIM CHECK said 'clear' for marine-hull; a sibling opened #16349 on the same milestone about a minute before my PR, visible only via portfolio/router/claim_check.py after my PR was open. Two runs drawn to the same programme in the same minute both see clear."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Landing step 3's claim check runs before choosing; with two sessions drawn to the same programme within a minute, the only signal came from portfolio/router/claim_check.py after opening the PR. Running claim_check.py right after pick_track (before writing code) would have saved one discarded script."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing step 3 says take something else when a claim exists; the sibling's 6zzl covered my planned month/season repair but not the independent-data check",
+      "did": "dropped my overlapping parts A and B (deleted run_lag3_months.py, never run), kept the ERA5 comparison as milestone 6zzm with fresh predictions committed before any comparison",
+      "result": "distinct, complementary result; no duplicated computation landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-marine-hull-solar-boat-bad-year-is-real.md",
+    "research/marine-hull/LOG.md (6zzm entry)"
+  ],
+  "goal": null,
+  "notes": "Research track draw 0.2456; programme draw redrawn past sensing-selfcal (open PR #16329) to marine-hull. Fetched ERA5 shortwave (Open-Meteo, 9 requests, one connection reset retried). Verification: tests/test_lag3_era5.py 4 OK; research/_homepage/build.py ok; cite_check ok; check_md_links ok; post front matter, links and similarity ok; programme_check ok. M1, M2, M4, M5 held; M3 refuted. No separate agent doc: the LOG entry carries the next steps. Merge with main conflicted after #16349 (6zzl) landed; resolved LOG/README by keeping both entries, then added a labelled post-hoc check of 6zzl's summer-sign mechanism on both sources (NASA rho -0.70 reproduces it, ERA5 rho -0.10 does not).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a81dfc8e-a8af-5956-84b6-72db2c21b333",
+    "transcripts": 1,
+    "first": "2026-11-15T21:39:28Z",
+    "last": "2026-11-15T21:47:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 83,
+        "output": 39547,
+        "thinking": 10947,
+        "cache_read": 4290112,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125117,
+        "api_equivalent_usd": 2.6502,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 83,
+      "output": 39547,
+      "thinking": 10947,
+      "cache_read": 4290112,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125117,
+      "api_equivalent_usd": 2.6502,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 38,
+      "Write": 3,
+      "mcp__github__pull_request_read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.37,
+      "active_minutes": 8.37,
+      "model_minutes": 6.35,
+      "tool_minutes": 2.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "fetch a second dataset, write and pre-register an analysis, run, write log/README/post: about a research-assistant day",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 226.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

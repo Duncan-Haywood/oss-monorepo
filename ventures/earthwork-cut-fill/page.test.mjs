@@ -62,3 +62,10 @@ test('CLI two-surface run through the injected reader', () => {
   assert.equal(r.volumes.fill, 10000);
   assert.match(report(r), /Fill: 10,000\.0 m³/);
 });
+
+test('the privacy answer does not claim nothing is sent while the hosted page counts a page view', async () => {
+  const { readFileSync } = await import('node:fs');
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(html, /Nothing is sent anywhere/);
+  assert.match(html, /counts one anonymous page view/);
+});

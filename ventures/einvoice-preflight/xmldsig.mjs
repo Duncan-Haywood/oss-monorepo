@@ -54,8 +54,12 @@ export function sha1(input) {
   return out;
 }
 
-// ---------- SHA-512 / SHA-384 (BigInt words: slow but small inputs) ----------
-const K512 = [
+// ---------- SHA-512 / SHA-384 ----------
+// Each 64-bit word is a pair of 32-bit halves (hi, lo) in an Int32Array, the usual
+// way to run SHA-512 without BigInt: about 40x faster than the BigInt version this
+// replaced (docs/history/ci-perf-2026-11-16-einvoice-sha512-halves.md), with the same
+// bytes out (sha512/sha384 are checked against node:crypto in the tests).
+const K512 = Int32Array.from([
   "428a2f98d728ae22", "7137449123ef65cd", "b5c0fbcfec4d3b2f", "e9b5dba58189dbbc", "3956c25bf348b538", "59f111f1b605d019", "923f82a4af194f9b", "ab1c5ed5da6d8118",
   "d807aa98a3030242", "12835b0145706fbe", "243185be4ee4b28c", "550c7dc3d5ffb4e2", "72be5d74f27b896f", "80deb1fe3b1696b1", "9bdc06a725c71235", "c19bf174cf692694",
   "e49b69c19ef14ad2", "efbe4786384f25e3", "0fc19dc68b8cd5b5", "240ca1cc77ac9c65", "2de92c6f592b0275", "4a7484aa6ea6e483", "5cb0a9dcbd41fbd4", "76f988da831153b5",
@@ -66,8 +70,8 @@ const K512 = [
   "748f82ee5defb2fc", "78a5636f43172f60", "84c87814a1f0ab72", "8cc702081a6439ec", "90befffa23631e28", "a4506cebde82bde9", "bef9a3f7b2c67915", "c67178f2e372532b",
   "ca273eceea26619c", "d186b8c721c0c207", "eada7dd6cde0eb1e", "f57d4f7fee6ed178", "06f067aa72176fba", "0a637dc5a2c898a6", "113f9804bef90dae", "1b710b35131c471b",
   "28db77f523047d84", "32caab7b40c72493", "3c9ebe0a15c9bebc", "431d67c49c100d4c", "4cc5d4becb3e42b6", "597f299cfc657e2a", "5fcb6fab3ad6faec", "6c44198c4a475817",
-].map((s) => BigInt("0x" + s));
-const M64 = (1n << 64n) - 1n;
+].flatMap((s) => [parseInt(s.slice(0, 8), 16) | 0, parseInt(s.slice(8), 16) | 0]));
+const TWO32 = 0x100000000;
 function sha512core(input, init, outLen) {
   const bytes = typeof input === "string" ? utf8(input) : input;
   const len = bytes.length;
@@ -77,27 +81,54 @@ function sha512core(input, init, outLen) {
   const view = new DataView(padded.buffer);
   view.setUint32(padded.length - 8, Math.floor(len / 0x20000000));
   view.setUint32(padded.length - 4, (len * 8) >>> 0);
-  const h = init.map((s) => BigInt("0x" + s));
-  const w = new Array(80);
-  const ror = (x, n) => ((x >> n) | (x << (64n - n))) & M64;
+  const h = Int32Array.from(init.flatMap((s) => [parseInt(s.slice(0, 8), 16) | 0, parseInt(s.slice(8), 16) | 0]));
+  const w = new Int32Array(160);
   for (let off = 0; off < padded.length; off += 128) {
-    for (let t = 0; t < 16; t++) w[t] = view.getBigUint64(off + t * 8);
+    for (let i = 0; i < 32; i++) w[i] = view.getInt32(off + i * 4);
     for (let t = 16; t < 80; t++) {
-      const s0 = ror(w[t - 15], 1n) ^ ror(w[t - 15], 8n) ^ (w[t - 15] >> 7n);
-      const s1 = ror(w[t - 2], 19n) ^ ror(w[t - 2], 61n) ^ (w[t - 2] >> 6n);
-      w[t] = (w[t - 16] + s0 + w[t - 7] + s1) & M64;
+      // s0 = ror1 ^ ror8 ^ shr7 of w[t-15]; s1 = ror19 ^ ror61 ^ shr6 of w[t-2]
+      const xh = w[2 * t - 30], xl = w[2 * t - 29];
+      const s0h = ((xh >>> 1) | (xl << 31)) ^ ((xh >>> 8) | (xl << 24)) ^ (xh >>> 7);
+      const s0l = ((xl >>> 1) | (xh << 31)) ^ ((xl >>> 8) | (xh << 24)) ^ ((xl >>> 7) | (xh << 25));
+      const yh = w[2 * t - 4], yl = w[2 * t - 3];
+      const s1h = ((yh >>> 19) | (yl << 13)) ^ ((yl >>> 29) | (yh << 3)) ^ (yh >>> 6);
+      const s1l = ((yl >>> 19) | (yh << 13)) ^ ((yh >>> 29) | (yl << 3)) ^ ((yl >>> 6) | (yh << 26));
+      const lo = (w[2 * t - 31] >>> 0) + (s0l >>> 0) + (w[2 * t - 13] >>> 0) + (s1l >>> 0);
+      w[2 * t] = w[2 * t - 32] + s0h + w[2 * t - 14] + s1h + Math.floor(lo / TWO32);
+      w[2 * t + 1] = lo;
     }
-    let [a, b, c, d, e, f, g, hh] = h;
+    let ah = h[0], al = h[1], bh = h[2], bl = h[3], ch = h[4], cl = h[5], dh = h[6], dl = h[7];
+    let eh = h[8], el = h[9], fh = h[10], fl = h[11], gh = h[12], gl = h[13], hh = h[14], hl = h[15];
     for (let t = 0; t < 80; t++) {
-      const t1 = (hh + (ror(e, 14n) ^ ror(e, 18n) ^ ror(e, 41n)) + ((e & f) ^ (~e & M64 & g)) + K512[t] + w[t]) & M64;
-      const t2 = ((ror(a, 28n) ^ ror(a, 34n) ^ ror(a, 39n)) + ((a & b) ^ (a & c) ^ (b & c))) & M64;
-      hh = g; g = f; f = e; e = (d + t1) & M64; d = c; c = b; b = a; a = (t1 + t2) & M64;
+      // S1 = ror14 ^ ror18 ^ ror41 of e; ch = (e & f) ^ (~e & g)
+      const S1h = ((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((el >>> 9) | (eh << 23));
+      const S1l = ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((eh >>> 9) | (el << 23));
+      const chh = (eh & fh) ^ (~eh & gh), chl = (el & fl) ^ (~el & gl);
+      const t1lo = (hl >>> 0) + (S1l >>> 0) + (chl >>> 0) + (K512[2 * t + 1] >>> 0) + (w[2 * t + 1] >>> 0);
+      const t1h = (hh + S1h + chh + K512[2 * t] + w[2 * t] + Math.floor(t1lo / TWO32)) | 0, t1l = t1lo | 0;
+      // S0 = ror28 ^ ror34 ^ ror39 of a; maj = (a & b) ^ (a & c) ^ (b & c)
+      const S0h = ((ah >>> 28) | (al << 4)) ^ ((al >>> 2) | (ah << 30)) ^ ((al >>> 7) | (ah << 25));
+      const S0l = ((al >>> 28) | (ah << 4)) ^ ((ah >>> 2) | (al << 30)) ^ ((ah >>> 7) | (al << 25));
+      const mjh = (ah & bh) ^ (ah & ch) ^ (bh & ch), mjl = (al & bl) ^ (al & cl) ^ (bl & cl);
+      const t2lo = (S0l >>> 0) + (mjl >>> 0);
+      const t2h = (S0h + mjh + Math.floor(t2lo / TWO32)) | 0, t2l = t2lo | 0;
+      hh = gh; hl = gl; gh = fh; gl = fl; fh = eh; fl = el;
+      const elo = (dl >>> 0) + (t1l >>> 0);
+      eh = (dh + t1h + Math.floor(elo / TWO32)) | 0; el = elo | 0;
+      dh = ch; dl = cl; ch = bh; cl = bl; bh = ah; bl = al;
+      const alo = (t1l >>> 0) + (t2l >>> 0);
+      ah = (t1h + t2h + Math.floor(alo / TWO32)) | 0; al = alo | 0;
     }
-    [a, b, c, d, e, f, g, hh].forEach((v, i) => { h[i] = (h[i] + v) & M64; });
+    const v = [ah, al, bh, bl, ch, cl, dh, dl, eh, el, fh, fl, gh, gl, hh, hl];
+    for (let i = 0; i < 16; i += 2) {
+      const lo = (h[i + 1] >>> 0) + (v[i + 1] >>> 0);
+      h[i] = h[i] + v[i] + Math.floor(lo / TWO32);
+      h[i + 1] = lo;
+    }
   }
   const out = new Uint8Array(64);
   const ov = new DataView(out.buffer);
-  for (let i = 0; i < 8; i++) ov.setBigUint64(i * 8, h[i]);
+  for (let i = 0; i < 16; i++) ov.setInt32(i * 4, h[i]);
   return out.slice(0, outLen);
 }
 export const sha512 = (input) => sha512core(input, ["6a09e667f3bcc908", "bb67ae8584caa73b", "3c6ef372fe94f82b", "a54ff53a5f1d36f1", "510e527fade682d1", "9b05688c2b3e6c1f", "1f83d9abfb41bd6b", "5be0cd19137e2179"], 64);

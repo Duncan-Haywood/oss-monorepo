@@ -24,6 +24,8 @@ import {
   resolveBaseUrl,
   scopeToSite,
   parseArgs,
+  batches,
+  submitInBatches,
 } from './indexnow.mjs';
 import { INDEXNOW_KEY, indexNowKeyFileName } from '../pages/build.mjs';
 
@@ -104,6 +106,45 @@ test('submit reports a rejected submission without throwing', async (t) => {
 
 test('MAX_URLS_PER_REQUEST matches the protocol ceiling', () => {
   assert.equal(MAX_URLS_PER_REQUEST, 10000);
+});
+
+// 2026-11-15: the site reached 10,023 URLs and the old guard refused every
+// deploy's announcement (Portfolio Pages run 43732427513, deploy-cloudflare).
+test('batches splits at the ceiling and keeps every URL once, in order', () => {
+  const urls = Array.from({ length: 10023 }, (_, i) => `https://example.test/p${i}/`);
+  const out = batches(urls);
+  assert.deepEqual(out.map((b) => b.length), [10000, 23]);
+  assert.deepEqual(out.flat(), urls);
+  assert.deepEqual(batches(urls.slice(0, 10000)).map((b) => b.length), [10000]);
+  assert.deepEqual(batches([]), []);
+  assert.throws(() => batches(urls, 0));
+});
+
+test('submitInBatches sends each batch with the same host and key, and stops at a refusal', async () => {
+  const urls = Array.from({ length: 5 }, (_, i) => `https://example.test/p${i}/`);
+  const seen = [];
+  const sent = await submitInBatches({
+    baseUrl: 'https://example.test/',
+    urls,
+    size: 2,
+    send: async (payload) => {
+      seen.push(payload);
+      return { status: 202, ok: true, body: '' };
+    },
+  });
+  assert.deepEqual(sent.map((s) => s.size), [2, 2, 1]);
+  assert.deepEqual(seen.flatMap((p) => p.urlList), urls);
+  assert.equal(new Set(seen.map((p) => `${p.host} ${p.key} ${p.keyLocation}`)).size, 1);
+
+  let calls = 0;
+  const refused = await submitInBatches({
+    baseUrl: 'https://example.test/',
+    urls,
+    size: 2,
+    send: async () => (++calls === 2 ? { status: 403, ok: false, body: 'bad key' } : { status: 202, ok: true, body: '' }),
+  });
+  assert.equal(calls, 2);
+  assert.deepEqual(refused.map((s) => s.result.status), [202, 403]);
 });
 
 // --- the published surface, not just the catalogue index -------------------
@@ -266,6 +307,15 @@ test('CLI dry run prints what would be submitted and makes no network call', () 
     // means both halves landed and neither replaced the other.
     assert.match(out, new RegExp(`${FIXTURE_PAGE_COUNT + CATALOG.categories.length} URL\\(s\\)`));
     assert.match(out, /example\.test/);
+  }));
+
+test('CLI dry run over the ceiling plans batches instead of refusing', () =>
+  withFixtureDir(async (dir) => {
+    const extra = Array.from({ length: 10050 }, (_, i) => ({ slug: `t${i}`, url: `${CATALOG.url}t${i}/` }));
+    await fs.writeFile(path.join(dir, 'catalog.json'), JSON.stringify({ ...CATALOG, tools: [...CATALOG.tools, ...extra] }));
+    const out = execFileSync(process.execPath, [SCRIPT, '--dir', dir], { encoding: 'utf8' });
+    assert.match(out, /batches: +2 requests \(10000 \+ \d+; at most 10000 each\)/);
+    assert.match(out, /Dry run — no request sent/);
   }));
 
 test('CLI refuses an empty URL list rather than submitting nothing', () =>

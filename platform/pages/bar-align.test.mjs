@@ -1,17 +1,14 @@
 // Tests for BAR_ALIGN_JS (bar-align.mjs): the shop-rates and saved-bids bars
 // line up with the page's heading. Browser tests skip when Playwright cannot
 // load (PLAYWRIGHT / CHROME_PATH, as in sticky-fit.test.mjs).
+import { loadPlaywright } from './load-playwright.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { BAR_ALIGN_JS, BAR_ALIGN_MIN_WIDTH } from './bar-align.mjs';
 import { renderSavedBidsModule } from './jobs.mjs';
 import { renderShopRatesModule } from './rates.mjs';
 
-let chromium = null;
-try {
-  const mod = await import(process.env.PLAYWRIGHT || 'playwright');
-  chromium = mod.chromium ?? mod.default?.chromium;
-} catch { /* skipped below */ }
+const chromium = (await loadPlaywright())?.chromium ?? null;
 const skip = !chromium && 'playwright not installed';
 
 test('both bar scripts carry the aligner, call it on reveal, and parse', () => {

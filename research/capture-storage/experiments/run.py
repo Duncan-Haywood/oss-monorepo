@@ -19,6 +19,7 @@ for c in NAMES:
 
 P("")
 P("== B. rig size, 4 h/day for 7 days (n cameras taken in catalogue order, repeating the 360 camera)")
+P("   two SSD copies, each card read once by one reader and written to both copies, 1 h evening limit")
 P("n  day_GB  trip_GB  cards_only_g  offload_g  cards ssds readers offload_h  exposed_GB")
 base = ["360 camera", "action camera", "phone telephoto", "mirrorless body"]
 for n in range(1, 9):
@@ -27,7 +28,7 @@ for n in range(1, 9):
     of = offload(cams, 4, 7)
     head = "%d  %6.0f  %7.0f  %12.1f" % (n, day_gb(cams, 4), day_gb(cams, 4) * 7, co.grams)
     P(head + ("  %9.1f  %5d %4d %7d %9.2f  %10.0f" % (of.grams, of.cards, of.ssds, of.readers, of.offload_h, of.exposed_gb)
-              if of else "  infeasible within 8 readers"))
+              if of else "  infeasible within 8 readers (one per card)"))
 
 P("")
 P("== C. evening offload time of a 4-camera rig against hours filmed per day, one reader, one copy")
@@ -49,6 +50,16 @@ P("limit_h  grams readers offload_h")
 for lim in (0.5, 1.0, 2.0, 3.0, 4.0):
     of = offload(cams4, 4, 7, max_offload_h=lim)
     P("%7.1f  %5.1f %7d %9.2f" % (lim, of.grams, of.readers, of.offload_h) if of else "%7.1f  infeasible" % lim)
+
+P("")
+P("== F. copy model for the same rigs (4 h/day, 7 days, two SSD copies, 1 h limit): grams / readers / cards")
+P("n  read_once        read_per_copy    read_once+1_spare_card_per_camera")
+def cell(p):
+    return "%6.1f/%d/%-3d" % (p.grams, p.readers, p.cards) if p else "%-12s" % "infeasible"
+for n in range(1, 9):
+    cams = [base[i % 4] for i in range(n)]
+    P(("%d  %-15s  %-15s  %s" % (n, cell(offload(cams, 4, 7)), cell(offload(cams, 4, 7, reads="per-copy")),
+                                cell(offload(cams, 4, 7, spare=1)))).rstrip())
 
 (HERE / "results.txt").write_text("\n".join(out) + "\n")
 print("\n".join(out))

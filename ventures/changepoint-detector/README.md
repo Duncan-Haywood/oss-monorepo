@@ -62,6 +62,9 @@ where it departs from the paper.
   `--columns orders:poisson,revenue,signups:poisson`, a model per column) watches every column of one CSV, keeps a
   record per column in one state file and sends the day's new changes as one webhook message. README "Several metrics in
   one watch".
+- **Watch your Stripe account** (2026-11-16): `STRIPE_API_KEY=rk_live_... node stripe-metrics.mjs --out data/stripe.csv`
+  writes payments, revenue and failed payments per complete day from your own account; the self-deploy workflow
+  fetches and watches it when the secret `STRIPE_API_KEY` is set. README "Stripe as a source".
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
   (the watch replay: `call changepoint-detector replayWatch --module watch-core.mjs --args '[[...]]'`)
@@ -230,7 +233,8 @@ series, 40 each, in `engine.test.mjs`):
   Bayesian pass as a check that no longer cries wolf; a negative-binomial cost might recover power. Page: "Counts are clumpy or sticky".
 - **Independent clumpy counts (`--overdispersion nb`, added 2026-10-20).** A negative-binomial cost (`makeCost(..., 'negbin')`,
   variance mu + mu^2 / r, one mean per segment, PELT still exact) with r estimated from the series (`negbinSize`: the median
-  of squared first differences gives a variance that a step does not spoil). 200 counts, rate 10, each count drawn at a
+  of squared first differences gives a variance that a step does not spoil; since 2026-11-15 each difference is read against its
+  local level, see "Clumpy counts that grow" at the end). 200 counts, rate 10, each count drawn at a
   lognormal rate (sd 0.35) independently, seeds 1700..1739: false changes per series on a flat series 3.55 with the Poisson
   cost, 0.78 with the quasi-Poisson penalty (`--overdispersion`), 0.13 with the negative binomial. With a 1.8x step at 100 the
   step was found within 10 points on 39 of 40 with either correction, at 1.27 changes per series against 1.50. Sticky counts
@@ -462,6 +466,9 @@ Free and open source (MIT, see `LICENSE`). Optional support:
 - **Eyeballing a chart:** fast, but cannot say whether a dip is noise or a shift, or how sure to be.
 - **Anomaly alerts in a monitoring product:** flag single odd points, not a lasting change in level.
   `watch.mjs` is the lasting-change alert, run in the user's own account (see "Watching a growing series").
+- **Stripe analytics apps (Baremetrics, ChartMogul, ProfitWell and the like):** subscription dashboards, mostly
+  paid, holding the merchant's data. `stripe-metrics.mjs` plus the watch sends one message when payments, revenue
+  or declines move to a new level, from the merchant's own GitHub account, free (see "Stripe as a source").
 
 
 **Page (2026-10-21).** The web page now has a "Known holidays" box (comma-separated dates or row numbers, counts model) that passes `holidays` to the engine. Checked on 200 seeded daily counts with every 17th day at 0.3x: 6 changes without the list, 0 with it (factor 0.304).
@@ -2284,7 +2291,7 @@ What it says:
 
 - **The rule is met, so `auto` is the default.** Mean F1 0.172 to 0.286, cuts down by a third to four fifths, and no cost on white noise. Over-cut columns: both apple columns, all four bee columns, two of four occupancy sensors (the output lists the sd each got).
 - **`auto` is still below the column-by-column reading (0.521) and "no change" (0.621).** The page keeps leading with the agreed changes, and the over-cut warning still fires on occupancy (89 cuts in 509 points).
-- **AR(1) plus floor 2 on every column scored best here (0.564), above the consensus.** It was listed in advance but is not the primary, so that is a lead, not a finding: three series is a panel, and in simulation it gives up most of the power on smooth columns. It ships as a page and CLI option ("Autocorrelation and a floor on every column (fewest cuts)", `--joint-floor 2 --joint-ar1`), to be tested on fresh multi-column data before it is anything more.
+- **AR(1) plus floor 2 on every column scored best here (0.564), above the consensus.** It was listed in advance but is not the primary, so that is a lead, not a finding: three series is a panel, and in simulation it gives up most of the power on smooth columns. It ships as a page and CLI option ("Autocorrelation and a floor on every column (fewest cuts)", `--joint-floor 2 --joint-ar1`), to be tested on fresh multi-column data before it is anything more. **Tested 2026-11-16 on five fresh bee dance sequences and failed** (see "The AR(1)-plus-floor lead on fresh labelled data" below).
 - **A real pair checked after the rule was applied:** German unemployment, unadjusted and adjusted, quarterly 1962-1991 (`data/german-unemployment.csv`). Plain joint fit: 22 changes and the over-cut warning. With `auto` (both columns floored): 1974Q4 (+3.4 points, the first oil shock's recession), 1982Q1 (+4.3, the early-1980s recession) and 1989Q2 (-1.8), no warning. With AR(1) as well: one change, 1981Q3. Pinned in `multi-view.test.mjs`.
 
 **What shipped.** `columnSigmas` and the `floor`/`ar1` options of `multiPelt`; `analyzeMulti` defaults to `floor: 'auto'` for the level model and reports `floor`, `ar1` and `flooredColumns`; the text output and the page summary name the floored columns; CLI `--joint-floor auto|off|k` and `--joint-ar1`; a page select, "One segmentation for all columns: noise per column". `eval/tcpd-multi.mjs` and `eval/multi-sim.mjs` call `multiPelt` with no floor, so their figures above are unchanged. Tests: `multivariate.test.mjs` (auto floors a random walk and leaves white noise alone, the shared step survives, the pre-registered figures and the white-noise equality from the output files) and `multi-view.test.mjs` (German unemployment both ways).
@@ -3482,6 +3489,54 @@ is simulated), and a faster fit (the Markov ascent could skip the degrees of fre
 M1 already places far behind). Tests: `rounded-walk-markov.test.mjs`, `rounded-walk-heavy.test.mjs`,
 `rounded-walk.test.mjs`.
 
+## Stripe as a source (2026-11-16)
+
+Most people who want to hear "sales moved to a new level" sell through Stripe, and asking them to export a CSV every
+day is where a watch dies. `stripe-metrics.mjs` turns the deployer's own Stripe account into the daily CSV the watch
+reads, with a read-only restricted key (Charges; Customers too for `--customers`) from an environment variable:
+
+- one row per **complete** day in the deployer's `--utc-offset` (today is left out, so a half day never reads as a
+  fall), zeros on days with nothing, so a count series has no holes;
+- `payments`: succeeded charges in any currency; `revenue`: their gross amount in one currency, major units, summed
+  in minor units so it stays exact (zero- and three-decimal currencies from Stripe's currency list); `failed`:
+  charges with status `failed`; `new_customers` with `--customers`. Pending charges count once they settle; refunds
+  are not subtracted (a refund belongs to the day it was made, which a charge list does not date);
+- an existing CSV is extended: its last `--refetch` days (default 3) are fetched again for late settles, the rest
+  kept, and the currency summed is remembered beside it (`<file>.currency`) so a column never mixes two;
+- list pages followed with `starting_after`, 429 and 5xx retried with backoff (1, 2, 4, 8, 16 s), a 401 or 403
+  answered with what to fix; a publishable key is refused before any call. `STRIPE_API_BASE` (tests only) takes a
+  loopback address and nothing else, so the key cannot be pointed at another host.
+
+`deploy/watch-metric.yml` runs it before the watch when the secret `STRIPE_API_KEY` is set (options in the variable
+`STRIPE_OPTIONS`), caches `data/stripe.csv` with `actions/cache` so a run fetches days, not 400 days, and with
+`METRIC_CSV` unset watches `--columns payments:poisson,revenue,failed:poisson`. `make-watch-repo.sh` copies the
+script and writes a `.gitignore` for the CSV. The repository should be private: `watch-state.json` records the
+level around each change, which for revenue is the business's revenue.
+
+**Checked** (`stripe-metrics.test.mjs`, 10 tests, one the CSV formula guard): against a stand-in for Stripe's list API with its documented
+shape (`{object: 'list', data, has_more}`, newest first, `created[gte]`, `created[lt]`, `starting_after`, `limit`
+capped at 100): every charge read once across pages; retries and error messages; day boundaries at an offset;
+complete days only; the incremental refetch window; the currency guard; then the made repository's workflow run
+under `deploy/run-workflow.mjs` against the stand-in served over HTTP (fetch step writes 400 days, state holds the
+three columns, the CSV is not committed, the key never printed). **Not checked against a live Stripe account**: no
+session holds a key. A deployer's first run is that check; the field names used (`id`, `created`, `amount`,
+`currency`, `status`) are the stable core of the Charge object.
+
+**How the default watch behaves on it** (`eval/stripe-declines.mjs`, output `eval/stripe-declines.out.txt`;
+synthetic shops, 40 Poisson payments a day of $10-50, declines 2% of attempts, watched daily over the last 30 of
+120 days, 20 seeds per row; measured once, no setting tuned on it):
+
+| case | decline jump heard | days after the jump | payments/revenue alerts at the jump | other alert lines / 620 checks |
+|---|---|---|---|---|
+| declines 2% to 25%, 12 days before the end | 20 of 20 | 5 (all) | 12 | 0 |
+| declines 2% to 10% | 16 of 20 | median 5, 4-7 | 0 | 0 |
+| no change | - | - | - | 0 |
+
+The 12 payments/revenue alerts in the first row are true: a quarter of attempts declined takes about a quarter off
+succeeded payments. The quiet is optimistic: these shops have no weekly cycle, promotions or growth, all of which a
+real shop has and which the watch's own history replay (`--suggest`) is there to measure. Next: a real shop's
+daily Stripe series (a deployer's, or a public one) through `--suggest`, and a weekly cycle (`--period 7`) per column.
+
 ## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other
@@ -4197,6 +4252,148 @@ admitted walks then reject more often than not; S2 shows the total stays at or u
 Gaussian walks; a walk with heavy-tailed steps was not measured. R's 1930 cell is the case that motivated the guard,
 so it is seen, not fresh evidence. Test: `hinge-test.test.mjs` ("rho-cut guard", "random-walk cut bar", "the CLI
 says when a sticky series was admitted by the cut").
+
+### Step or bend? A check beside the hinge test, and the test on eight fresh real series (2026-11-15, latest; pre-registered; the check fails, not offered)
+
+The hinge test asks "one bend against a straight line", so a level jump on a trend can reject the line and come back
+as a change of slope; its note said so but nothing measured how often. `stepOrBend(x, rho)` in `hinge-test.mjs` fits,
+with the test's Prais-Winsten rho and the same knot range, the best hinge and the best single level step on the same
+line. Both have three coefficients and one knot, so the smaller transformed residual sum of squares names the kind.
+The bars and the real predictions were written down first (`eval/hinge-step-or-bend-prereg-2026-11-15.md`, committed
+before the code existed); `node eval/hinge-step-or-bend-sim.mjs 200 99` (`eval/hinge-step-or-bend-sim.out.txt`, seeds
+from 61,000,000) and `node eval/hinge-step-or-bend-real.mjs` (`eval/hinge-step-or-bend-real.out.txt`, 999 replicates).
+
+**Synthetic** (line 0.02 t plus AR(1) noise, innovation sd 1, change at 60% of n, 200 series per cell). "Right kind"
+is among the series the hinge test rejects at p <= 0.05:
+
+| cell | hinge test rejects (share of all) | right kind (pre-registered, GLS) | post hoc: OLS | bar |
+|---|---|---|---|---|
+| step 1, n 100, rho 0.5 | 5.5% | 54.5% | 54.5% | reported |
+| step 2, n 100, rho 0.5 | 14.0% | 82.1% (28 rejections) | 71.4% | too few to decide |
+| step 3, n 100, rho 0.5 | 15.5% | 90.3% | 90.3% | SS holds |
+| step 2, n 145, rho 0.5 | 20.5% | 85.4% | 80.5% | SS holds |
+| step 2, n 100, rho 0 | 42.0% | 98.8% | 98.8% | SS holds |
+| bend 0.04, n 100, rho 0.5 | 17.0% | 29.4% | 35.3% | reported |
+| bend 0.08, n 100, rho 0.5 | 60.0% | **44.2%** | 56.7% | **SB fails** |
+| bend 0.04, n 145, rho 0.5 | 49.5% | 35.4% | 53.5% | reported |
+| bend 0.08, n 100, rho 0 | 100% | **82.0%** | 81.0% | **SB fails** |
+
+**Real, bar R** (recalled kinds, plausibility labels): it holds. The Nile is tested (n 100, rho 0.24) and the hinge
+test **rejects**, knot 1913, F 12.5 against 8.7, p 0.017, a slope of -8.1 a year turning flat: a bend that is not
+there. The check says `step`, after 1898, size -284, step RSS 0.90 of the bend's: the documented drop. GCAG
+1880/1850, GISTEMP and GCAG 1930-2024 all say `bend` (step RSS 1.16 to 1.25 of the bend's).
+
+**Verdict.** SB fails in both cells, so the check is not in `hingeTest`'s output, the CLI or the page (it is exported
+for evaluation). It is lopsided: given a real step it says `step` 85-99% of the time, but given a real bend at
+rho 0.5 it says `step` more often than not. With 40 points after the knot and sticky noise, a ramp of 3.2 is fit
+about as well by a jump half-way along it. The OLS column (looked at after the result, not pre-registered) does not
+rescue it. Two things do ship, as text: the report note now says a level step can pass for a hinge, with the Nile
+and the measured rate (a 2 sd step on a line makes the test reject in 14-42% of series, against about 5% with no
+change), and asks the reader to run the step models too.
+
+**The test on fresh real series: 4 of 5 predictions fail, all by refusal.** None of these had been run through
+`--hinge-test`:
+
+| series | n | prediction | result |
+|---|---|---|---|
+| P1 Australian gas, annual totals 1956-1994 | 39 | tested, p <= 0.05, knot 1966-1973 | refused: line rho 0.97, hinge 0.83 (guard 0.7) |
+| P2 US electricity, annual totals 1973-2012 | 40 | tested, p <= 0.05, knot 1998-2008 | refused: line 0.82, hinge 0.72 |
+| P3 US female murder rate 1950-2004 | 55 | tested, p <= 0.05, knot 1975-1995 | refused: line 0.97, hinge 0.80 |
+| P4 Lake Huron 1875-1972 | 98 | p > 0.05 | refused: line 0.80, hinge 0.75 |
+| P5 UK gas, annual totals 1960-1986 | 27 | refused (under 30) | refused, as predicted |
+| Canada fertility 1931-1968 (no prediction) | 38 | | refused: line 0.92, hinge 0.77 |
+| Michigan-Huron 1918-2009 (no prediction) | 92 | | refused: line 0.87, hinge 0.80 |
+| CO2 annual means 1959-2025 (no prediction) | 67 | | refused: line 0.97, hinge 0.92 |
+
+So, counting GCAG 1930-2024, the test has now run on one of eight real series under 100 points. Under 100 points the
+guard is 0.7 on the best hinge's residuals, and every one of these left the hinge's residuals above it: a growth
+curve (gas, CO2), a rise and fall (murder rate: two bends, one hinge), a near-random-walk lake. That is the guard
+doing what its size table asked for (it was set to keep n 60, rho 0.8 at 3.3%), and the predictions were wrong
+about how sticky these series are, not about their shapes. The page box now says it refuses most real series under
+100 points. **Next** (not run): a second hinge, or a hinge on the log for growth curves, would cut these rhos further
+and might admit them; each needs its own size check on fresh seeds. A step-or-bend rule with a margin (call it only
+when one RSS is clearly smaller, else "can't tell") is the obvious repair to the check; it needs fresh seeds too.
+Test: `hinge-test.test.mjs` ("step or bend").
+
+### Step or bend, as two tests (2026-11-15, last; pre-registered on fresh seeds; fails two bars, not offered)
+
+The RSS check above names whichever kind fits better even when the two fit equally, and that is where it failed. Its
+named repair was a rule that can say "can't tell". `stepOrBendTest(x)` in `hinge-test.mjs` does that with two tests:
+T = log(step RSS / bend RSS), and each kind in turn is the null, drawn from its best OLS fit plus AR(1) noise and
+rerun through the whole procedure 199 times. A kind is named only when its rival is rejected at 0.05 and it is not;
+otherwise "unclear". Guard: refused under 30 points, or when both fits' residuals have bias-corrected rho above 0.9
+(0.7 under 100). The bars were written down and committed before the fresh run
+(`eval/hinge-step-or-bend-boot-prereg-2026-11-15.md`), after one look at the old check's seeds, which showed why
+the bars are over **all** series and not only those the hinge test rejects: there, 9 of 28 and 10 of 41 sticky steps
+were called bends. The hinge test fires on a sticky step mainly when the noise happens to bend it, and no check on the
+same data can undo that selection. `node eval/hinge-step-or-bend-boot-sim.mjs 200 199` (seeds from 62,000,000,
+`eval/hinge-step-or-bend-boot-sim.out.txt`, about 45 min on 4 cores) and `node eval/hinge-step-or-bend-boot-real.mjs`
+(`eval/hinge-step-or-bend-boot-real.out.txt`, 999 replicates).
+
+| cell (200 series) | step | bend | unclear | bar |
+|---|---|---|---|---|
+| step 2, n 100, rho 0.5 | 68 | 9 (4.5%) | 123 | W holds |
+| step 3, n 100, rho 0.5 | 134 | 6 (3.0%) | 60 | W holds |
+| step 2, n 145, rho 0.5 | 86 | 10 (5.0%) | 104 | W holds |
+| step 2, n 100, rho 0 | 178 (89%) | 0 | 22 | W, U hold |
+| bend 0.08, n 100, rho 0.5 | **22 (11.0%)** | 52 | 126 | **W fails** (cap 8%) |
+| bend 0.08, n 100, rho 0 | 11 (5.5%) | 149 (74.5%) | 40 | W, U hold |
+| no change, n 100 rho 0 / n 100 rho 0.5 / n 145 rho 0.5 | 13 / 16 / 11 | 8 / 10 / 13 | 179 / 174 / 176 | N holds (all <= 8%) |
+| random walk with drift, n 100 (195 tested) | 5 | **129** | 61 | **RW fails** (cap 10% of all) |
+| random walk with drift, n 145 (162 tested) | 3 | **112** | 47 | **RW fails** |
+| reported: step 1 / bend 0.04 n 100 / bend 0.04 n 145, all rho 0.5 | 17 / 13 / 14 | 8 / 21 / 41 | 175 / 166 / 145 | |
+
+**Bar R holds:** the Nile is called `step` (after 1898, size -284;
+pStep 0.52, pBend 0.014), and GCAG 1880, GISTEMP and GCAG 1850 are called `bend` at 1976 (pStep 0.001, pBend 0.69 to
+0.76). Not predicted: GCAG 1930-2024 `bend` at 1974; Canada fertility (a rise and fall) rejects both kinds, so
+`unclear`; Lake Huron `unclear`; five short sticky series refused.
+
+**Verdict: two bars fail, so it is not offered** (it was wired into the CLI as `--step-or-bend` while the run went;
+that wiring was removed before merge). It is honest where its guard is: with white noise it names a clear step 89%
+of the time and a clear bend 75%, with wrong calls at or under 5.5%, and with no change it names a kind in 10.5-13% of
+series. Two things break it. (1) **The guard.** Read off the fitted step's and bend's residuals, it admits nearly every
+random walk at n 100 (where the limit is 0.9), and a walk's wander fits a bend far better than a step. On the same walks the
+hinge test, behind its rho-cut guard, rejected only 14 and 6: the next round should reuse that guard. (2) **Sticky bends.** Post hoc,
+on the development seeds: with true rho 0.5 the fitted bend's residuals give a bias-corrected rho of about 0.44 (the
+knot search soaks up stickiness), so the bend null's noise is too smooth and it rejects a real bend too often. A
+bootstrap bias correction of rho (fit, simulate, refit, shift by the mean bias) is the obvious repair; it needs fresh
+seeds. `stepOrBendTest` is exported for evaluation. Test: `hinge-test.test.mjs` ("step or bend as two bootstrap
+tests").
+
+### The hinge test on the logs, and its size at 40 points (2026-11-15, latest; pre-registered; size holds, logs admit nothing)
+
+"Step or bend" ended with the test refusing 7 of 8 real series under 100 points, and named a hinge on the log for
+growth curves as one way in. `--log --hinge-test` (and the page's "Take logs first" box) already passed logged values
+to the test, but nobody had run it, and the report still said "on the levels". The bars, the predictions and the
+decision rule were committed before any run (`eval/hinge-log-prereg-2026-11-15.md`). The two growth series that
+motivated it have 39 and 40 points, below the n 60 where the shipped size tables start, so the synthetic half measures
+the shipped test (guard `cut`) at n 40 on fresh seeds: `node eval/hinge-log-sim.mjs 300 99`
+(`eval/hinge-log-sim.out.txt`, seeds from 63,000,000, under a minute) and `node eval/hinge-log-real.mjs`
+(`eval/hinge-log-real.out.txt`, 999 replicates). One smoke run of the sim script (20 series, 19 replicates, the same
+first seeds) came before the full run; it only checked that the script ran.
+
+| bar | cell (n 40, 300 series) | share of all series with p <= 0.05 | tested | holds? |
+|---|---|---|---|---|
+| S1 | line plus AR(1), rho 0 / 0.3 / 0.6 / 0.8 | 3.7% / 5.0% / 6.7% / 3.3% | 300 / 300 / 266 / 134 | yes (cap 8%) |
+| S2 | AR(1) rho 0.9 / 0.95, random walk with drift | 4.0% / 1.7% / 2.3% | 93 / 57 / 72 | yes (cap 8%) |
+
+| series | logs | levels | prediction (logs) |
+|---|---|---|---|
+| L1 Australian gas, annual 1956-1994 (39) | refused: line rho 1.00, hinge 0.95 | refused: 0.97, 0.83 | tested, p <= 0.05, knot 1966-1976: **fails** |
+| L2 US electricity, annual 1973-2012 (40) | refused: line 0.89, hinge 0.71 (guard 0.7) | refused: 0.82, 0.72 | tested, p <= 0.05, knot 1998-2008: **fails** |
+| C Lake Huron, Michigan-Huron, US female murder rate | refused (0.75, 0.80, 0.79) | refused | refused: holds |
+| CO2 annual means 1959-2025 (reported) | refused: 0.96, 0.90 | refused | refused |
+| Canada fertility 1931-1968 (reported) | refused: 0.91, 0.79 | refused | none |
+
+**Verdict.** Size holds at 40 points, so the 30-point minimum stands: under 100 points the 0.7 guard keeps every cell,
+random walks included, at or under 6.7%. Logs do not help, and bar L fails. Logging gas makes it worse (a supply that
+grew from almost nothing in the 1960s is far from a straight line on the log scale, hinge rho 0.95), and electricity
+misses the guard by 0.01. What blocks these series is the stickiness left after one bend, not the scale. As the decision
+rule set out, no refusal suggests logs. The one change that ships is the wording: with logs on, the CLI, the page and
+`hingeTest.note` say the test ran on the logs and that a slope there is a growth rate (0.02 a step is about 2% a step),
+and the report carries `scale: 'log' | 'levels'`. **Next** (not run): the series' hinge residuals sit at 0.71-0.95, so a
+second hinge or a smooth trend term, not a transform, is the remaining route; it needs its own size check at n 40.
+Test: `hinge-test.test.mjs` ("with logs on, the report says the test ran on the logs").
 
 ## Round 8: a watch for a level that wanders (2026-11-13, pre-registered; ships as an option)
 
@@ -4971,3 +5168,1356 @@ in `llms.txt`) now say that a change of shape at an unchanged level and spread i
 that on long repeating waveforms the agreed changes can be the cycle itself, and name a shape method (ClaSP) for that
 job. Tests: `tssb.test.mjs` (5: desc parsing, the pinned round, single-annotator covering, every setting on a made-up
 step, and the committed output's four verdicts).
+
+## Many agreed changes spread through a series: a guard, and a fresh activity set (2026-11-15, pre-registered; fails two of three lines, not offered)
+
+The TSSB round above found the page's headline ("every setting agrees on these changes") scoring below "no change" on
+long repeating waveforms, and named a guard on "many agreed changes, evenly spread" as the next round. Fixed before it
+ran on anything (`eval/repeat-guard-prereg-2026-11-15.md`): the guard (`consensus.mjs` `repeatGuard`) fires on 15 or
+more every-setting changes falling in at least 8 of the series' 10 equal tenths; when it fires, the series is scored as
+reporting no agreed change. Three sets: TSSB (seen: the guard was designed on its counts), TCPD's 38 univariate series
+(it must stay quiet) and a **fresh** labelled set, the Human Activity Segmentation Challenge 2023 (HAS; 250 smartphone
+recordings of people moving through routines of activities, 1.93 M points, 785 labelled activity changes; CC BY-NC-SA,
+fetched by `eval/has-fetch.sh` with a pinned sha256, never committed), read as the accelerometer magnitude.
+`node eval/repeat-guard.mjs tssb-data tcpd-data has-data` (output `eval/repeat-guard.out.txt`, 10 min on 4 cores).
+
+| covering (one annotator) | TSSB, 75 | HAS 2023, 250 (fresh) |
+|---|---|---|
+| zero (no change) | 0.401 | 0.444 |
+| every-setting consensus (the page's headline) | 0.344 | **0.619** |
+| guarded every-setting | **0.403** | 0.611 |
+| guard fires on | 14 (all repeating waveforms) | 31 |
+
+- **G1 holds (seen set).** On TSSB the guard fires on exactly the 14 series with 23 or more agreed changes, holding 568
+  of the 579 agreed changes; guarded covering 0.403 against zero's 0.401 (+0.059 over unguarded, better on 14, worse on 0).
+- **G2 fails.** It fires on one TCPD series, `bank` (30 agreed changes). The pre-registration's premise, "TCPD's most on
+  any one series is 12", was wrong: 12 was the held-out seven's most; the shipped 31 were not checked per series. (Post
+  hoc, deciding nothing: `bank` has no annotated change, so firing there would raise its score.)
+- **G3 fails (fresh set).** On HAS the guard costs 0.008 covering (bar -0.005; 95% interval -0.020 to 0.003) and is worse
+  on 20 of the 31 series where it fires, better on 11. Repeated motions (steps, jumps, sit-ups) do produce evenly spread
+  agreed changes, but a routine of several activities spread through a recording does too, and there the agreed
+  changes carry real ones: on has-195 (8 labelled changes) dropping them takes covering from 0.743 to 0.117. Count and
+  spread alone cannot tell the two apart. The count-only arm (descriptive) is worse still: 0.587.
+- **Predictions, scored:** G1 met: right. G2 met: wrong (the premise above). G3 met: wrong. Fires on 10 to 60 HAS series:
+  right (31). Consensus above zero on HAS: right.
+
+**The finding that matters more: on a fresh set nearer the detector's domain the headline holds.** HAS's activity
+changes move the level and spread of the accelerometer magnitude, and there the every-setting consensus beats reporting
+no change by +0.175 covering (95% 0.142 to 0.207; better on 160 series, worse on 32), with 1.15 cuts per 1,000 points;
+24% of its 2,220 agreed changes lie within 2% of the length of a labelled change. Following the over-cut warning lifts the
+plain level model from 0.131 to 0.492. This is the third labelled set the agreed-changes headline has been scored on
+(TCPD held out F1 0.711, TSSB covering 0.344 below zero, HAS 0.619 above zero), and it is the first fresh one of over a
+million points.
+
+**What changes now.** As pre-registered, nothing ships: `repeatGuard` stays in `consensus.mjs` for the eval, uncalled by
+`consensus()`. The limits keep saying that many evenly spread agreed changes on a long periodic signal can be the cycle,
+now with the counter-case: on a routine of activities they can be real. A next guard would need a reading of the
+waveform between cuts (are the segments the same shape repeated?), not their count or spread. Tests:
+`repeat-guard.test.mjs` (7: the thresholds, firing and quiet cases, the tenth at the end, `consensus()` without the
+warning, the HAS line parser, the committed verdicts and the HAS headline).
+
+## Agreed changes that are the same waveform repeated: a shape check, and a fresh fourth set (2026-11-15, pre-registered; fails one of four lines, not offered)
+
+The count-and-spread guard above failed on HAS because a routine of activities spreads agreed changes through a
+recording just as a repeating waveform does, and the round ended asking for "a reading of the waveform between cuts".
+This round is that reading. Fixed before it was computed on any series (`eval/shape-repeat-prereg-2026-11-15.md`), the
+check (`consensus.mjs` `shapeRepeats`) cuts the series at the every-setting changes, reduces each segment of 4 or more
+points to a 32-point z-normalised shape, calls two segments a match when their lengths are within 1.5x and their shapes
+correlate at 0.8 or more, calls a segment a repeat when it matches 2 or more others, and drops an agreed change when the
+segments on both sides of it repeat. Nothing reads labels or a period. Four sets: TSSB (seen), TCPD's 38 univariate
+series, HAS 2023 (seen) and a **fresh** one, the UCR Semantic Segmentation Benchmark (UTSA; Gharghabi et al., ICDM
+2017; 32 real physiological and mechanical repeating signals of 2,000 to 40,000 points with one or two labelled regime
+changes; fetched by `eval/utsa-fetch.sh` with a pinned sha256, never committed).
+`node eval/shape-repeat.mjs tssb-data tcpd-data has-data utsa-data` (output `eval/shape-repeat.out.txt`, 2.2 min on 4
+cores once the TSSB and HAS detections are cached).
+
+| covering (one annotator) | TSSB, 75 | HAS 2023, 250 | UTSA, 32 (fresh) |
+|---|---|---|---|
+| zero (no change) | 0.401 | 0.444 | 0.512 |
+| every-setting consensus (the page's headline) | 0.344 | 0.619 | 0.458 |
+| shape-filtered every-setting | 0.365 | **0.620** | **0.522** |
+| agreed changes dropped (series touched) | 113 of 579 (11) | 21 of 2,220 (7) | 176 of 301 (5) |
+
+- **S1 fails (TSSB, seen).** Shape-filtered 0.365 against a bar of 0.381 (zero minus 0.02). It helps on all 11 series it
+  touches (+0.021, 95% 0.008 to 0.037; worse on none) but drops only a fifth of the agreed changes: on most of TSSB's
+  waveforms the six settings cut at slightly different phases of each cycle, so neighbouring segments differ in length
+  or shape and do not count as repeats. The count guard, which drops everything, reached 0.403.
+- **S2 holds (TCPD).** F1 0.704 to 0.703, covering 0.653 to 0.656. It drops 8 of `bank`'s 30 agreed changes (bank has
+  no labelled change) and 1 of `bitcoin`'s 12, which costs bitcoin F1 0.570 to 0.521: the one loss anywhere in the round.
+- **S3 holds (HAS, seen).** +0.001 (95% 0.000 to 0.001), better on 6, worse on 0; it drops 21 of 2,220 agreed changes,
+  so the routines of activities that broke the count guard keep their real changes.
+- **S4 holds (fresh UTSA).** +0.064 (95% 0.015 to 0.124), better on all 5 series it touches, worse on none. Those five
+  (gun-draw motion, pig airway and arterial pressure, tilt-table ABP and ECG) are long repeating signals where the
+  headline listed 34 to 50 agreed changes against one labelled one; the filter drops 23 to 47 of each. Covering rises
+  from 0.04-0.12 to 0.24-0.67.
+- **Predictions, scored:** S1 met: wrong. S2, S3 met: right. S4 met: right, but it touched 5 UTSA series, not 10 to 25
+  (so S4 was one series from "not informative"). UTSA consensus below zero: right (-0.054, interval -0.136 to 0.026;
+  6 of 301 agreed changes lie within the file's window of a labelled change).
+
+**What it shows.** On the three long-series sets (357 series) it made covering worse on none; on TCPD it cost one
+series (`bitcoin`) one true change. It is a safe but timid filter: it catches the waveforms whose
+cycles every setting cuts at the same phase and misses the rest. Post hoc (deciding nothing): every series it touched
+on TSSB, UTSA and 6 of 7 on HAS is one where the count guard also fires, so the two read the same thing from
+different sides, the count guard too eagerly, the shape check too cautiously.
+
+**What changes now.** As pre-registered, a failed line means nothing ships: `shapeRepeats` stays in `consensus.mjs`
+for the eval, uncalled by `consensus()`, and the page's headline is unchanged. Also fixed: `eval/repeat-guard.mjs`
+read `consensus().repeatWarning`, which `consensus()` no longer sets, so a rerun reported G2 met; it now calls
+`repeatGuard` itself and reproduces the committed output. The next candidate, to be pre-registered on a fifth
+labelled set (none of TSSB, HAS or UTSA may decide it): segments matched with a tolerance for phase (a lag search or
+cross-correlation), or the count guard confirmed by the share of segments that repeat. Tests: `shape-repeat.test.mjs`
+(8: the settings, segment shapes, a sawtooth whose cuts all drop, a staircase that keeps all, the length rule, that
+`consensus()` does not call it, the UTSA name parser, the committed verdicts).
+
+## Clumpy counts that grow: the clumping size read against the local level (2026-11-15, pre-registered twice; round 2 ships)
+
+`--overdispersion nb` needs the negative binomial's size r, and `negbinSize` estimated it by comparing the median squared
+first difference with the series' **global** mean. On counts whose level moves a lot that is wrong in one direction: the
+typical local spread belongs to a typical local level, far below the global mean squared, so r came out too large, and on
+steep growth (rate 7 to about 700) it came out Infinity. Infinity means "not clumpy", so the NB path quietly ran the plain
+Poisson cost, steps soaked up the growth, and the bend landed at the edge of the scan. That is why only 14% of the steep
+cell's bends were located before (2026-11-08 entry above, "Steep-bend range, replicated"), and why the range under them
+was short (80%).
+
+The new `negbinSize` reads each difference against the mean of the 7 points around it. Under NB2 a pair at level m has
+E d^2 = 2 (m + m^2 / r), so with z = d^2 / (2 (m + c m^2)) it solves mean min(z, 6.635) = 0.9813 for c = 1 / r (the cap is
+chi-square(1)'s 99th percentile, so a step's few big differences do not set the size; 0.9813 is E min(chi-square(1), cap)),
+and calls the series Poisson unless the mean at c = 0 clears 0.9813 by two standard errors. The old estimator stays as
+`negbinSizeGlobal` for comparison. Bars written first: `eval/nb-size-local-preregistration.md`.
+
+- **Round 1 failed.** The same idea with a median instead of the capped mean held the size and the false-bend bars, but
+  plain Poisson counts at rate 10 read as clumpy on 32 of 100 (bar: at most 10): at small counts d^2 takes a few lattice
+  values and the median jumps. Not shipped.
+- **Round 2, fresh seeds, all five bars hold** (`eval/nb-size-local.mjs 9501 9502 9503`, `eval/nb-size-local.out.txt`;
+  steep cell `eval/nb-size-local-steep.out.txt`):
+
+| 200 clumpy counts, lognormal sd 0.35 (true size 7.67) | global-mean size (before) | local size (now) |
+|---|---|---|
+| median size, no bend / bump 0.015 / 0.025 / 0.04 | 8.6 / 31 / 123 / Infinity | 8.2 / 8.2 / 8.4 / 8.6 |
+| Poisson counts read as Poisson, rate 10 / ramp 7 to 700 | 95 / 100 of 100 | 99 / 100 of 100 |
+| steep bend (bump 0.04) located within 20 points | 81 of 500 (16%) | **280 of 500 (56%)** |
+| ... and its 95% range holds the true knot | 58 of 81 (72%) | **278 of 280 (99%)** |
+| straight growth 0.02 per point: a bend kept | 11 of 100 | 0 of 100 |
+| straight growth 0.02 per point: step changes per series | 1.86 | 0.08 |
+
+- **Real series (bar 5).** 739 of 747 tests passed unchanged. The 8 that moved are pinned counts on real series, all
+  toward fewer changes, because the old size was too large wherever the level moved: bike-share days (size 58 before, 32
+  now, raw counts), Wikipedia "Payroll" views (45 to 27), UK lung deaths (104 to 59). No documented date was lost: the
+  Ansett 1989 stop and restart are found in every setup (23 and 24 other changes, was 37 and 30), the stop's range holds
+  on 29 of 30 routes as before, and the fewest changes outside the closure on any route fell from 8 to 4. UK lung deaths
+  (no documented step) lose the 1979-10 cut. Payroll 47 to 26 changes (45 to 25 with holidays). US births: the holiday
+  list still removes changes in every year (239 to 205 before, 205 to 179 now). Bike-share at period 7: 56 to 30 changes,
+  and the holiday factor no longer adds any (61 before). One pinned observation reversed: at period 365 bike-share goes
+  134 to 29 changes, and the holiday list now adds changes there (29 to 36) instead of removing them.
+- **Milder bends too (measured after, not a bar).** On the earlier held-out seeds 3 and 11 (bumps 0.015, 0.025, 0.04, 100
+  series each; `eval/growth-change-interval-nb-local-size.out.txt`) bends found went from 114 to 301 of 600 and the range
+  held 299 of them (99%, was 107 of 114, 94%). The 1.4 temper was not retuned, so the ranges are now probably wider than a
+  95% range needs; the note under them says 99% and says so.
+- **Not checked.** A real count series with a documented steep slope break (still wanted, as before); clumping that
+  itself changes with the level (NB1-like, variance proportional to the mean), which a single r cannot describe.
+
+
+## Clumping that grows with the level: an NB1 cost and a law check (2026-11-16, pre-registered; ships)
+
+`--overdispersion nb` uses the NB2 law, variance mu + mu^2 / r with one size r. Counts that arrive in batches of a
+typical size clump in proportion to their level instead (NB1, variance phi mu), and on a series whose level moves a
+lot one r cannot describe that: it overstates the spread where the level is high and understates it where it is low,
+so the low stretch sprouts changes. Measured first (`eval/nb1-probe.mjs`, `eval/nb1-probe.out.txt`): on NB1 counts
+(phi 3) ramping 100-fold with `--trend bend` and no change, the NB2 cost gave 0.38 to 0.68 false changes per series,
+4 to 7 times what it gives when its law is right; the quasi-Poisson route (`--overdispersion`) was worse everywhere,
+up to 8 per series on NB2 ramps.
+
+**What shipped.**
+
+- `--overdispersion nb1` (CLI, API `overdispersion: "nb1"`, the page's counts box): the NB1 negative-binomial
+  likelihood, size lam e_t / delta per point (delta = phi - 1), with `--period` and `--trend` exposures as `nb` has.
+  The segment's rate has no closed-form maximum, so the moment estimate is polished by a Newton step on the exact
+  score (digamma, trigamma), warm-started along PELT's scan; within 1e-3 of a brute-force grid (`nb1.test.mjs`).
+  It costs about 2.5 times `nb` with `--trend bend` (1.3 s against 0.5 s on 200 points). The Bayesian pass has no
+  NB1 conjugate, so it tempers the Poisson likelihood by phi there.
+- `nb1Dispersion`: phi read against each point's local 7-point level, the same capped-mean equation `negbinSize` uses
+  for NB2 (so growth is not read as clumping), and phi 1 unless Poisson is rejected by two standard errors.
+- `clumpingLaw` and the output's `clumping` field: both laws fitted to the same differences; the right law leaves the
+  scaled differences equal on the lower and upper halves of the level. It says `nb1`, `nb2` or `either` (the level
+  spans under 3 times, or neither is clearly worse). When the other law fits better, `clumpingWarning` says which
+  setting to use, on the page and in the report.
+
+**Pre-registered bars, fresh seeds, run once** (`eval/nb1-preregistration.md`, `eval/nb1.mjs 9701 9702 9703 9704`,
+`eval/nb1.out.txt`; 100 series of 200 counts per cell):
+
+| | NB2 cost (`nb`) | NB1 cost (`nb1`) |
+|---|---|---|
+| NB1 phi 3, ramp 7 to 700, false changes per series | 0.45 | **0.19** |
+| NB1 phi 3, ramp 2 to 200, false changes per series | 0.47 | **0.15** |
+| NB1 ramp with a x1.6 step: found within 5 points | 100 of 100 | 100 of 100 |
+| ... other changes per series | 0.50 | 0.47 |
+| NB2 r 8 ramps, false changes per series (no bar) | 0.15 / 0.12 | 3.50 / 2.67 |
+
+The law check said `nb1` on 94 of 100 NB1 ramps in each cell (the rest `either`, never `nb2`) and `nb2` on 100 of 100
+NB2 ramps. phi came out 2.91 (flat) and 3.00 (ramp) against the true 3, and plain Poisson ramps read phi 1 on 97 of 100.
+
+**Read with care.** The wrong law costs more in the NB1-on-NB2 direction (3.5 false changes against 0.45 the other
+way), so `nb` stays the default clumpy-count cost and `nb1` is opt-in, with the law check to say when to take it. Two
+changes were made on development seeds before the run (the Newton polish, and a bug in the trend fit that subtracted
+an exposure term the NB1 likelihood already holds: a bend won on 8 of 8 straight ramps until it was fixed); they are
+listed in the pre-registration. On development seeds the 2-to-200 cell read 0.30 against the 0.2 bar; the bars were
+not moved, and the pre-registered run decided. Remaining false changes are short bursts and short runs of zeros on
+series whose phi comes out low. Not checked: a real count series known to clump in proportion to its level (call
+centre arrivals in batches, insurance claims per event; real call-centre arrivals were checked on 2026-11-16 and turned out
+Poisson around a wandering rate, see the next section), and the law check under a season (it reads the raw counts).
+Tests: `nb1.test.mjs` (6: the special functions, the cost against a grid with and without exposures, phi on flat and
+growing counts, the law check both ways and on a flat series, analyze's output and hint, a flat series kept whole).
+
+## Two changes of slope: a second hinge for the short sticky series (2026-11-16, pre-registered; ships as `--two-hinge-test`)
+
+"Step or bend?" and "The hinge test on the logs" ended the same way: `--hinge-test` refused 7 of 8 real series under
+100 points because the residuals about its best single bend stayed sticky (rho 0.71-0.95), and a second hinge was the
+route both named. `two-hinge.mjs` (`twoHingeTest`) is the same procedure with two knots: `x = a + b t + c1 (t - k1)+
++ c2 (t - k2)+` plus AR(1) noise, a sup-F with 2 and n - 4 degrees of freedom over knot pairs (each knot 15% from either
+end, the two at least 15% of n apart), rho from the best OLS pair's residuals, Prais-Winsten GLS, and a bootstrap from
+the GLS straight line. The guard is the one-hinge `cut` guard with the random-walk bar recomputed for two hinges (0.90
+at n 39, 0.82 at 40, 0.65 at 55, 0.64 at 60, 0.40 at 95: two bends cut a walk's stickiness much more than one does).
+The scan precomputes the Gram matrix of the hinge columns, so a pair costs a 2 x 2 solve; 499 replicates on 145 points
+take about 1.3 s, and 300 points (the cap) about 8 s. Bars, predictions and the decision rule were committed before any run
+(`eval/two-hinge-prereg-2026-11-16.md`; development seeds 900,000+ looked at once for speed, not reused).
+`node eval/two-hinge-sim.mjs 300 99 size <n>` (`eval/two-hinge-sim-size.out.txt`, seeds from 64,000,000),
+`node eval/two-hinge-sim.mjs 300 99 power` (`eval/two-hinge-sim-power.out.txt`), `node eval/two-hinge-real.mjs`
+(`eval/two-hinge-real.out.txt`, 999 replicates).
+
+**Size (S1) and unit roots (S2): all 21 cells hold** (share of all series with p <= 0.05, refusals counted as not
+rejecting; cap 8%):
+
+| n | line + AR(1) rho 0 / 0.3 / 0.6 / 0.8 | AR(1) 0.9 / 0.95 / random walk with drift |
+|---|---|---|
+| 40 | 5.7% / 4.3% / 7.3% / 4.7% | 2.7% / 3.7% / 2.3% |
+| 60 | 4.7% / 7.0% / 5.3% / 2.7% | 1.3% / 2.7% / 1.7% |
+| 95 | 3.3% / 5.0% / 5.3% / 2.3% | 0.7% / 1.0% / 2.0% |
+
+**Power (P): holds.** Flat to n/3, rising 0.25 a step to 2n/3, flat after, rho 0.5, on the same series:
+
+| cell | two hinges | one hinge (shipped) | difference |
+|---|---|---|---|
+| n 60, rise 0.25 (bar: at least 10 points) | 30.7% (224 tested) | 7.3% (224 tested) | **+23.3** |
+| n 95, rise 0.25 (reported) | 46.3% (144 tested) | 1.7% (77 tested) | +44.7 |
+| n 60, rise 0.15 (reported) | 17.0% | 7.7% | +9.3 |
+
+**Real series: 6 of 7 predictions hold, and the motivating ones are still refused.**
+
+| series | n | two hinges | one hinge | prediction |
+|---|---|---|---|---|
+| R1 Australian gas, annual | 39 | refused: line 0.97, two 0.47, cut bar 0.90 | refused | refused: holds |
+| R2 US electricity, annual | 40 | refused: line 0.82, two 0.49, cut bar 0.82 | refused | refused: holds |
+| R3 US female murder rate | 55 | refused: line 0.97, two 0.68, cut 0.29 against 0.65 | refused | tested, p <= 0.05: **fails** |
+| R4 Canada fertility | 38 | refused: line 0.92, two 0.61, cut bar 0.93 | refused | refused: holds |
+| C Lake Huron / Michigan-Huron | 98 / 92 | refused (two 0.71 / 0.78) | refused | refused: holds |
+| G GCAG 1880-2024 | 145 | knots 1904 and 1985, p 0.002; -0.26 -> 0.62 -> 2.27 degrees per century | 1976, p 0.001 | knot in 1965-1985: holds |
+| CO2 annual means (reported) | 67 | refused: line 0.97, two 0.77 | refused | |
+| Nile (reported) | 100 | knots 1892 and 1907, p 0.019, a slope of -18.6 a year between | 1913, p 0.017 | |
+
+**Verdict: ships.** S1, S2 and P hold, so the decision rule puts it in `analyze({ twoHingeTest })`, the CLI
+(`--two-hinge-test`) and the page ("Also test two changes of slope"), 30 to 300 points. On a series the shipped test
+already admits, it finds two-bend shapes the one-hinge test misses (the plateau: 31% against 7% at n 60). It does
+**not** rescue the short sticky series it was built for. Two hinges do take their stickiness down (gas 0.83 to 0.47,
+fertility 0.77 to 0.61, murder rate 0.80 to 0.68), but two hinges take a random walk's down by about as much, so the
+random-walk bar rises with them and the cut never clears it under 60 points. That is the guard working: S2 at n 40 is
+at most 3.7%, and a rule loose enough to admit the gas series would admit walks. Under 60 points, these series need
+outside information (a documented break date, which would fix the knots and remove the search) rather than another
+shape. GCAG's pair dates the early-century warming's start and the late acceleration; 1976 sits between 1904 and 1985
+as one hinge's compromise. The Nile result is the familiar warning: two close knots make a 15-year plunge that stands
+in for the 1898 drop, and the note says so.
+
+**Use it.** CLI `--two-hinge-test`; `analyze({ ..., twoHingeTest: true })` returns `twoHingeTest: { index1, index2,
+label1, label2, f, bar95, p, rho, slopes: [before, between, after], significant, note }` or `{ refused, reason }`; with
+`--log` it runs on the logs. Test: `two-hinge.test.mjs`. **Next** (not run): a hinge test with the knot or knots given
+by the user (a documented date: no search, so a far smaller null and a looser guard), which is the remaining route for
+the 39-55 point series.
+
+## The clumping-law check on real call-centre arrivals (2026-11-16, pre-registered; fails its bar by abstaining, nothing changed)
+
+The NB1 section left open "a real count series known to clump in proportion to its level". This is the first real
+one: `fpp2::calls`, five-minute calls handled by a large North American bank, 164 weekdays of 169 slots from
+3 March 2003 (`data/bank-calls-5min.csv`, `data/SOURCE.md`). The reference law was read across days, which the
+check never sees: a weekday-by-slot profile times a day level, then the mean of (y - E)^2 / E by decile of E
+(`eval/calls-law-preregistration.md`, written before any check ran; `node eval/calls-law.mjs`,
+`eval/calls-law.out.txt`).
+
+| | Pre-registered | Result |
+|---|---|---|
+| Reference law | `nb2`, `nb1` or `unclear` by a fixed rule | `nb1`: top / bottom decile 0.83, bottom 1.60 |
+| L1: check says `nb1` on at least 99 of 164 days | | **0 of 164: fails** |
+| L1/L2: check says `nb2` (a wrong warning) on at most 16 | | 0 of 164: holds |
+
+`clumpingLaw` said `either` on every day and `nb1Dispersion` read phi 1 (Poisson) on 161 of 164. The level inside a
+day spans 2.16 times (median, upper half against lower), under the check's 3. Both NB costs gave the same changes
+on the first five whole weeks with `--period 169` (7 to 13 a week, 0.1 s each), with no warning.
+
+**Why, post hoc (not pre-registered; `eval/calls-law-posthoc.mjs`, `eval/calls-law-posthoc.out.txt`).** The
+pre-registration named this weakness in advance: a profile that differs from the fitted one leaves residuals that
+look like clumping. That is what happened. Pooled over all 27,552 within-day first differences, d^2 / (2m) is 1.005,
+Poisson to the third digit, so adjacent five-minute counts do not clump. The across-day residuals are correlated
+inside a day (lag 1: 0.31), and their dispersion grows with the block they are summed over: 1.34 at 5 minutes, 2.18
+at 15, 3.25 at 30, 5.17 at an hour, 8.02 at two hours. Independent clumping would stay flat. So these arrivals are
+Poisson around a rate that wanders slowly away from the weekday profile, the doubly stochastic picture of the
+call-centre literature, and the reference's "NB1" was that wander, not batches.
+
+**What it means for use.** On counts like these the law check abstaining is the right answer, and the NB costs add
+nothing over plain Poisson. The 7 to 13 changes a week are the wandering rate cut into steps, not clumping. Nothing
+in `clumpingLaw` was changed (decided in advance: one series does not retune it). Still open: a real series that does
+clump in batches (insurance claims per event, orders per basket), and, for wandering rates on counts, a drift model
+like "Wandering level" (the mean model has one) for the Poisson cost. Test: `calls-law.test.mjs` (2: the reference
+reads `nb1` by the pre-registered rule; the check says `either` on all 164 days and a week run warns nothing).
+
+
+## The AR(1)-plus-floor lead on fresh labelled data: five bee dance sequences (2026-11-16, pre-registered; fails, a muted-column note ships)
+
+On TCPD's three multi-column series the joint level fit with an AR(1) long-run sd and a floor of 2 on every column
+scored best (mean F1 0.564), but it was not the primary there, so it was recorded as a lead to test on fresh
+multi-column labelled data. The bee dance set (Oh et al. 2008, via KL-CPD's BSD-3 repository; `data/SOURCE.md`) is
+that: six tracked dances, three columns each (x, y, heading), 602 to 1124 frames, with 15 to 28 labelled switches
+between left-turn, right-turn and waggle phases. Sequence 6 is TCPD's `bee_waggle_6` (seen, and TCPD's annotators
+marked 2 changes where this set marks 15), so only 1 to 5 enter the rule. The settings (the six of
+`eval/tcpd-multi-floor.mjs`, now shared through `eval/tcpd-multi-floor-settings.mjs`), the primary and the rule were
+committed in `eval/beedance-multi.mjs` before any score: the lead confirms if (1) it has the best mean F1 of the six,
+(2) it beats the column consensus and (3) it beats `floor auto` on at least 4 of the 5. `node eval/beedance-multi.mjs`
+(output `eval/beedance-multi.out.txt`), F1 at margin 5, TCPDBench definitions:
+
+| joint level fit | bee 1 | bee 2 | bee 3 | bee 4 | bee 5 | mean F1 | cover | cuts | bee 6 (seen) |
+|---|---|---|---|---|---|---|---|---|---|
+| plain | 0.204 | 0.242 | 0.248 | 0.283 | 0.319 | 0.259 | 0.242 | 101-165 | 0.281 |
+| floor auto (default) | 0.354 | 0.306 | 0.340 | 0.357 | 0.328 | 0.337 | 0.443 | 35-61 | 0.231 |
+| floor 2, every column | 0.354 | 0.310 | 0.340 | 0.357 | 0.328 | 0.338 | 0.447 | 35-60 | 0.231 |
+| floor 1, every column | 0.279 | 0.299 | 0.376 | 0.262 | 0.436 | 0.330 | 0.343 | 65-103 | 0.342 |
+| ar1 per column | 0.296 | 0.316 | 0.400 | 0.308 | 0.446 | **0.353** | 0.480 | 7-91 | 0.337 |
+| **ar1 + floor 2 (primary)** | 0.273 | 0.245 | 0.111 | 0.267 | 0.327 | 0.244 | 0.446 | 0-25 | 0.150 |
+| columns: every setting (consensus) | 0.375 | 0.217 | 0.111 | 0.250 | 0.255 | 0.242 | 0.469 | 0-27 | 0.324 |
+| zero (no changes) | 0.095 | 0.083 | 0.111 | 0.105 | 0.067 | 0.092 | 0.056 | 0 | 0.118 |
+
+- **The lead fails.** (1) not met: plain AR(1) has the best mean F1 (0.353); (2) met, by 0.002 over the consensus;
+  (3) not met: it beats `floor auto` on 0 of 5. It is the worst joint setting here bar none, and on bee 3 it reports no
+  change at all against 16 labelled.
+- **Why: the two corrections stack until a column goes silent.** The floor already raises a smooth column's sd, and the
+  AR(1) long-run sd multiplies it again by sqrt((1+rho)/(1-rho)), which grows without bound as rho nears 1. A bee's
+  position is a smooth path (rho near 1), so a column scaled to [0, 1] got a noise sd of 1.07 to 1.88: no move inside
+  its own range can pay the penalty, and the segmentation came from the remaining columns or from none.
+- **No setting does well on this set.** Every joint fit cuts 35 to 165 times except the two with AR(1) + floor; the best
+  mean F1 is 0.353 against 16 to 28 labels. Unlike TCPD's three series, where "no change" scored 0.621,
+  this set labels many changes, so "zero" scores 0.092 and every method clears it. Published methods were not rerun.
+- **Nothing in the defaults changes.** The joint default stays `floor auto` whatever this showed (decided in advance:
+  a floor on every column costs most of the power on small shared steps in white noise, `eval/multi-floor-sim.mjs`).
+
+**What ships: a muted-column note.** `mutedColumns` in `multivariate.mjs` names any column whose noise sd the floor
+or the AR(1) correction raised to more than 3 times the column's own whole-series sd, and `analyzeMulti` returns it
+as `mutedWarning` ("Read with care") in the CLI text, the page and the branded report. The plain sd is never flagged
+(a column with no change has a plain sd close to its whole-series sd). The 3 was set after this run and checked on
+simulations, not tuned on the bees (`node eval/muted-sim.mjs`, output `eval/muted-sim.out.txt`, 300 columns per
+cell): under the default it fires on no column of white noise, AR(1) at rho 0.5 or 0.9, random walks or smooth sines;
+under AR(1) + floor 2 it fires on no white-noise column, but on 282 to 296 of 300 autocorrelated or random-walk columns,
+which is what that option does to them. On the bees it names x on 1 and 2, x and y on 3, y on 4, nothing on 5, and
+nothing under the default. The page's option now reads "fewest cuts; can mute autocorrelated columns".
+
+Not done: the heading column wraps at the scale's edge and was left in as distributed (it is noisy enough that no
+setting mutes it); TCPD's three series were not rerun for the note (the TCPD files are fetched, not committed);
+published methods (bocpd, KL-CPD) were not rerun on 1 to 5. Next for (a): a per-column trend term instead of a blunt
+floor, or the AR(1) correction alone (best here, 0.353) on a sixth fresh multi-column set before it is anything more.
+Tests: `beedance-muted.test.mjs` (3: the rule fails with the committed numbers; white noise never flagged under the
+default or a floor of 2; bee 3 under AR(1) + floor 2 names x and y in the text and the default names nothing).
+
+## A date you name: five pre-registered rounds; round 5 ships as `--known-date` (2026-11-16)
+
+The question: a law, launch or price change happened on a date fixed before anyone looked at the chart; did the
+level or the slope change there? That is an interrupted time series (segmented regression; Wagner et al. 2002,
+Bernal, Cummins and Gasparrini 2017). The module `known-date.mjs` fits a line, a step and a slope change at the
+given date (plus seasonal dummies with a period), AR(1) noise by iterated Prais-Winsten, and calibrates the joint
+F and both t statistics with a parametric bootstrap from the null fit. A 95% range for the step and the slope
+change uses the bootstrap's 97.5th percentile of |t|. The bar to ship (CLI `--known-date`, the page, the engine)
+was size within 2-8% at p 0.05 in every synthetic cell plus four real predictions. Rounds 1-3 were too eager in
+short sticky series; round 4 fixed that and became too cautious in one cell; **round 5 (below) met every bar and
+ships in the CLI** (`--known-date <label>`, with `--period` and `--log`; on the page and in `analyze({ knownDate })`
+since round 6). Series that only the random-walk cut lets through are reported as not calibrated (round 5, "after the run").
+
+| Round (pre-registration) | Generator rho; guard | Worst size cells (of series tested) | Random walks rejected (of all) | Real A-D |
+|---|---|---|---|---|
+| 1 (`eval/known-date-prereg-2026-11-16.md`) | Kendall-corrected, capped at the guard; full-model residuals | n 40 rho 0.8: 13.6% (date at 50%), 8.9% (80%) | 18.0% (n 40), 10.8% (n 120) | all met |
+| 2 (`...-round2-2026-11-16.md`) | matched by indirect inference, capped at 0.95; same | n 40 rho 0.8 date 80%: 9.2% | 5.0%, 8.7% | (not rerun) |
+| 3 (`...-round3-2026-11-16.md`) | matched; plus the hinge test's random-walk cut guard | n 40 rho 0.8 date 80%: 9.4%; n 60 rho 0.8: 8.9% | 1.3%, 1.0% | all met |
+| 4 (`...-round4-2026-11-16.md`) | round 3, plus a 90% upper bound for rho; the larger p of the two | every cell 1.1-5.9% (max n 60 rho 0.8); **n 40 rho 0.4 date 80%: 1.8%, under the 2% floor** | 0.3%, 1.0% | all met |
+| 5 (`...-round5-2026-11-16.md`) | round 4's upper bound only when the line rho is above 0.5 | every cell 1.0-5.8%; rho 0 / 0.4 cells 3.3-5.8% | 0.3%, 0.5% | all met; **ships** |
+
+400 series per cell, 199 replicates; outputs in
+`eval/known-date-sim-round1.out.txt`, `-round2`, and `eval/known-date-sim.out.txt` (round 3). Every other size cell
+in round 3 was 3.8-7.3%, and as a share of *all* series (refusals count as no rejection) no cell rejected more than
+7.3%: the excess is among the short sticky series the guard lets through, whose rho reads low.
+
+**Real series, 999 replicates** (`eval/known-date-real.out.txt`, round 3's code; round 1's in `-round1`):
+
+- A. UK car drivers killed or seriously injured, logs, monthly seasons, date 1983-02 (the front-seat belt law of
+  31 January 1983): step -0.237 (a 21% fall), range -0.354 to -0.119, p 0.001; slope change p 0.13. Met.
+- B. Front-seat passengers: step -0.309 (27%), p 0.001. Met.
+- C. Rear-seat passengers, whom the 1983 law did not cover (the control): step +0.043, range -0.080 to 0.165, p 0.50.
+  Met. The joint test is significant (p 0.006), because the slope after 1983 rises in all three series by the same
+  0.007 a month: whatever moved the post-law trend was not the belt law, which is why a control series matters.
+- D. Nile flow, date 1899 (after the 1898 Aswan dam): step -289, range -436 to -143, p 0.001; slope change p 0.90. Met.
+- E. Placebo dates on Nottingham temperatures (1925, 1930, 1935): p 0.30, 0.39, 0.97.
+
+**What a reader can use now.** The F table (what a regression package reports) is far too eager on autocorrelated
+data even with the AR(1) correction: on straight lines with rho 0.4 it rejected 13-15% of 40-point series at p 0.05,
+and with rho 0.8 11-30% at every length (round 3 table). The bootstrap brings every 120-point cell to 3.8-6.8%.
+
+### Round 4: an upper bound for rho fixes the eager cells and overshoots (2026-11-16, pre-registered; fails one line)
+
+Round 3's excess came from short sticky series whose rho reads low, so the bootstrap drew too-tame nulls. Round 4
+(`eval/known-date-prereg-round4-2026-11-16.md`, written after a 200-series exploratory run on seed base 333 and before
+the confirmatory run on fresh base 13000) adds one thing: a one-sided 90% upper bound for rho by test inversion (the
+grid rho whose simulated 10th-percentile estimate reaches the observed one, 200 null series per design, cached), a
+second bootstrap at that rho, and the larger p and wider range of the two: a two-point version of a maximised Monte
+Carlo test (Dufour 2006; Berger and Boos 1994). The exploratory run already showed it conservative, so before the
+confirmatory run the 2% size floor was restricted to the eight rho 0 and 0.4 cells and two power lines were added.
+`node eval/known-date-sim.mjs 400 199 upper` (`eval/known-date-sim-round4.out.txt`):
+
+| Bar (pre-registered) | Round 3 | Round 4 | |
+|---|---|---|---|
+| 1a. size at most 8% of tested, 12 cells + n 60 rho 0.8 | worst 9.4% | worst 5.9% (n 60 rho 0.8); n 40 rho 0.8 date 80%: 3.7% | holds |
+| 1b. size at least 2% in the eight rho 0 / 0.4 cells | (all met) | n 40 rho 0.4 date 80%: **1.8%** (7 of 391); date 50%: 2.3% | **fails** |
+| 2. random walks rejected, share of all | 1.3%, 1.0% | 0.3%, 1.0% | holds |
+| 3. power, step 1 sd, n 120: rho 0 at least 55%, rho 0.4 at least 20% | 64.8%, 26.0% | 62.8%, 27.3% | holds |
+| 4. real series A-D (`eval/known-date-real-round4.out.txt`) | met | met (seat belts: step -0.237, p 0.001; rear-seat control p 0.50; Nile -289, p 0.001; placebos 0 of 3) | holds |
+
+Reported without a bar: n 60 rho 0.9, 7.3% of tested (round 3: 24.5%). The price is power on short series: a step of
+1 sd at n 40 is found 15.8% of the time with white noise (round 3: 19.3%) and 4.8% with rho 0.4 (9.3%), where the
+test now rejects less often under the change than its nominal size under none. At n 120 power is near round 3's.
+
+**Reading.** The over-eager cells are gone at every length and stickiness tried, and the real predictions hold, but
+at n 40 the upper bound is far above the truth even at rho 0.4 (40 points carry little information about rho), so
+the two-point maximum spends the error budget on a worst case that rarely holds. By its own pre-registration nothing
+ships. **Next round** (fresh pre-registration and seeds): use the upper bound only when the guard's line-residual rho
+is above a value fixed in advance (where round 3 failed), or a Berger-Boos p (the maximum over the bound's interval
+plus its gamma) with a narrower 1-gamma; either way state the 2% floor for every cell again. The CLI wiring
+(`--known-date <label>` with a plain-text report) was written in this session and taken out when the bar failed.
+
+### Round 5: the upper bound only where the line rho is high (2026-11-16, pre-registered; ships as `--known-date`)
+
+Round 4's two-point test spent the error budget on rho 0.4 series at 40 points, where the 90% upper bound sits far
+above the truth. Round 5 (`eval/known-date-prereg-round5-2026-11-16.md`, committed on its own before the
+confirmatory run) runs it only when the plain line's residual rho (OLS, bias corrected, the guard's own reading) is
+above **0.5**, and round 3's matched-rho bootstrap alone otherwise (`rhoGenMethod: 'gated'`). The gate was chosen on
+an exploratory run (seed base 21000, 200 series; `eval/known-date-gate-explore.mjs`, `.out.txt`) that kept each
+series' line rho and both p-values, so gates 0.3-0.7 were scored on the same series: 0.7 let n 60 rho 0.9 back to
+11.8%, 0.5 and 0.6 differed little, and 0.5 is the safer. The 2% floor stays on the eight rho 0 and 0.4 cells, not
+every cell as round 4's note suggested: where the gate fires the test takes a maximum of two p-values, the
+exploratory run showed 1.0-1.2% in two rho 0.8 cells under any gate at or below 0.6, and a floor there would be a bar
+set to fail; a power bar on the short rho 0.4 series (3b) takes its place.
+Confirmatory run on fresh seed base 25000: `node eval/known-date-sim.mjs 400 199 gated`
+(`eval/known-date-sim-round5.out.txt`), real series `node eval/known-date-real.mjs gated`
+(`eval/known-date-real-round5.out.txt`):
+
+| Bar (pre-registered) | Round 4 | Round 5 | |
+|---|---|---|---|
+| 1a. size at most 8% of tested, 12 cells + n 60 rho 0.8 | worst 5.9% | worst 5.8% (n 40 rho 0 date 50%); n 60 rho 0.8: 4.3% | holds |
+| 1b. size at least 2% in the eight rho 0 / 0.4 cells | 1.8% (n 40 rho 0.4 date 80%) | lowest 3.3% (same cell) | holds |
+| 2. random walks rejected, share of all | 0.3%, 1.0% | 0.3%, 0.5% | holds |
+| 3a. power, step 1 sd, n 120: rho 0 at least 55%, rho 0.4 at least 20% | 62.8%, 27.3% | 64.0%, 24.3% | holds |
+| 3b. power, step 1 sd, n 40, rho 0.4: at least 5% | 4.8% | 10.4% | holds |
+| 4. real series A-D | met | met: drivers step -0.237 (range -0.354 to -0.119), joint p 0.003; front -0.309, p 0.001; rear-seat control step p 0.50; Nile -289, p 0.001; placebos 0 of 3 | holds |
+
+Power on 40 points came back: a 1 sd step at rho 0 is found 20.8% of the time (round 4: 15.8%), a slope change
+9.0% (6.3%). The seat-belt series are sticky about a plain line (rho 0.62 and 0.66), so both bootstraps ran on them;
+the rear-seat control and the Nile were below the gate.
+
+**After the run: series passed only by the cut are not calibrated** (not pre-registered; a diagnosis,
+`node eval/known-date-cut-admitted.mjs`, `eval/known-date-cut-admitted.out.txt`). Reported without a bar, n 60 rho
+0.9 rejected 23.6% of the 55 series it tested (round 4: 7.3% on other seeds; 3.3% of all 400, since most are
+refused). Replaying round 5's eight sticky null cells on the same seeds and splitting tested series by how they
+passed the guard: those the line checks pass were rejected 0.7-4.9% in every cell (n 60 rho 0.9: 2 of 41); those
+passed only by the random-walk cut were rejected **17 times in 26**. The cut admits a sticky series when a step at
+the date makes its residuals much less sticky, and a spurious step that does that is just what the F test then
+finds. The pre-registered rule is unchanged, but the CLI marks these results `calibrated: false` and its text says
+"NOT A CALIBRATED TEST HERE", with the 17 of 26. None of the real series A-D took that path. **Next:** a bootstrap
+that conditions on admission (simulate the null, apply the same guard, take the p among admitted replicates), and
+the page and engine wiring.
+
+### Round 6: a bootstrap conditioned on the cut is calibrated and blind (2026-11-17, exploratory then replicated; not shipped)
+
+Round 5's diagnosis left one question: a series the line checks would refuse, let through only because a step at the
+date cuts its stickiness more than random walks are cut, gets a p that ignores that selection. The textbook answer is
+to condition on it (selective inference; Lee, Sun, Sun and Taylor 2016 for the lasso): simulate the null, keep only the
+replicates the same guard lets through the same way, and take the p among those. `knownDateTest(..., { cutConditional:
+true })` does that by Monte Carlo (admission runs 2-4% of null draws, so it draws until 199 are admitted, up to 200
+times that many; 0.2-0.5 s a series). `eval/known-date-conditional.mjs` screens thousands of simulated series per cell,
+keeps the first 40 the cut admits, and scores round 5's test and the conditional one on the same series.
+
+Not pre-registered: the first run (seed base 41000, `eval/known-date-conditional-explore.out.txt`) was meant to pick
+settings, and it showed the idea cannot ship whatever the settings, so the same script was rerun unchanged on fresh
+seeds (base 45000, `node eval/known-date-conditional.mjs 4000 40 199`, `eval/known-date-conditional-replicate.out.txt`)
+to fix the numbers the CLI and page quote:
+
+| Series the cut lets through (fresh seeds) | admitted | round 5's p <= 0.05 | conditional p <= 0.05 |
+|---|---|---|---|
+| no change: AR(1) rho 0.8-0.95, n 40-120, and random walks (10 cells) | 306 | **77.5%** | 4.9% |
+| a real step of 2-4 innovation sd at the date (5 cells) | 156 | 91.0% | **2.6%** |
+
+Both rows matter. Round 5's p flags no-change series 77.5% of the time and real steps 91.0%: on this path it barely
+tells them apart, worse than the 17 of 26 the round-5 diagnosis saw. The conditional p is calibrated (4.9%, cells
+0-7.5%, walks 5.0-12.5%) but flags real steps less often than no-change series. The reason is the selection itself:
+what admits a series is a step at the date cutting its stickiness, and that is the same evidence the F test reads, so
+once you condition on it nothing is left to test. Two variants, scored on 25 series per cell
+(`eval/known-date-conditional-sticky-explore.out.txt`, `-walkgen-`, `-sticky-walkgen-`), did no better.
+Conditioning only on "sticky about a line" kept round 5's rates (60% no change, 92% step 4 at n 60). Adding a
+random-walk generator to the full conditioning took walks to 12% and power to 0.
+
+**What ships:** the test reaches the page ("Test a date you name") and `analyze({ knownDate: label | { date, reps,
+seed } })`, with round 5's settings and the CLI's fields plus `calibrated` and `significant` (never true on a
+cut-admitted series). The CLI and page warnings now quote 237 of 306 against 142 of 156. `cutConditional` and
+`cutWalkGen` stay in `known-date.mjs` as off-by-default options, for reproducing the table. Tests:
+`known-date-page.test.mjs`. **Next:** a test for this path needs evidence the guard does not use: a control series
+(the rear-seat passengers did this job for the seat-belt law), or several dates across series. A slower route is a
+likelihood ratio of "step at the date" against "random walk" that is scored on its own, not after the cut.
+
+**Use it.** `node cli.mjs data.csv --column deaths --known-date 1983-02 --period 12 --log` (the label is the first
+row after the change; `--json` for the fields: `step`, `stepRange95`, `pStep`, `slopeChange`, `pSlope`, `p`,
+`pTable`, `effectAverage`, `effectAtEnd`, `gated`, `rhoGen`, `calibrated`). Tests: `known-date.test.mjs`,
+`known-date-cli.test.mjs`, `known-date-page.test.mjs`. On the page: type the label in "Test a date you name".
+
+### A control series: sharper and calibrated in simulation, but a placebo check on real data fails (2026-11-17, pre-registered; not shipped)
+
+Round 6 left one route for the sticky series the cut lets through: evidence the guard does not use, such as a control
+series the change should not touch (comparative interrupted time series; Lopez Bernal, Cummins and Gasparrini 2018,
+Int. J. Epidemiol. 47(6), 2082-2093). `knownDateTest(x, k, { control, controlMode: 'difference' })` runs round 5's test
+on the series minus the control (on logs, their ratio), so a trend change or a wander both share cancels. A second
+arm, the control as a regressor with a free coefficient (`controlMode: 'regress'`), was dropped after exploration: the
+control's own noise shrinks the coefficient (errors in variables), and with a shared slope change it flagged 18.0% of
+100 no-change pairs (`eval/known-date-control-explore-regress.out.txt`).
+
+Pre-registration `eval/known-date-prereg-control-2026-11-17.md`, committed before the confirmatory run (seed base
+67000, 400 pairs, 199 replicates; `eval/known-date-control-confirm.out.txt`, the treated series alone in
+`-confirm-plain.out.txt`) and before the real placebos (`node eval/known-date-control-real.mjs`,
+`eval/known-date-control-real.out.txt`):
+
+| Bar (pre-registered) | With the control (difference) | The treated series alone (round 5) | |
+|---|---|---|---|
+| 1. size 2-8% of tested, five cells: common AR(1) 0.5-0.9 or a common random walk, some with a shared step or slope change at the date | 4.0, 5.5, 7.8, 3.3, 4.8% | 11.5, 22.6, 20.0, 5.5, 9.3% | holds |
+| 2. at least 90% of pairs tested | 396-400 of 400 | 215-400 of 400 (the walks refused) | holds |
+| 3. power, a treated-only step of 2 sd, share of all pairs: at least 40, 35, 10% and above the series alone | 55.8, 52.3, 10.5% | 10.8, 19.8, 4.3% | holds |
+| 4a. seat belts, drivers minus rear-seat passengers, 1983-02 (seen in development) | step -0.277 (range -0.359 to -0.196), p 0.001; slope change -0.0002, p 0.95 | step -0.237, slope change +0.0066 | holds |
+| 4b. front minus rear (seen) | step -0.360, p 0.001; slope change p 0.86 | step -0.309 | holds |
+| 4c. **placebo**: drivers minus rear before the law, dates 1974-01, 1977-01, 1980-01; at most 1 of 3 with p <= 0.05 | **3 of 3** (joint p 0.018, 0.003, 0.002) | | **fails** |
+| 4d. placebo: male minus female lung deaths 1974-79, dates 1976-01, 1977-01; at most 1 of 2 | 1 of 2 (p 0.033, 0.116) | | holds |
+
+By its own rule nothing ships: the CLI, engine and page wiring written in this session was taken out, and `control`
+stays in `known-date.mjs` as an off-by-default option for reproducing the table (`known-date-control.test.mjs`).
+A control on another scale (cell S6, control = 2 x the common part, reported without a bar) was flagged 27.0% of the
+time: a difference only cancels what both series carry in the same units, which is why logs matter.
+
+**Why the placebo failed** (after the run, not pre-registered; `node eval/known-date-control-placebo-diag.mjs`,
+`eval/known-date-control-placebo-diag.out.txt`). Three things together. (i) 1974-01 was a poor placebo: the 1973-74
+fuel crisis is a real step in drivers, front and rear alike (each p 0.001 on its own), and the ratio still moved
+(slope change p 0.011). (ii) The drivers-to-rear ratio is almost free of short-run noise (rho -0.05 to -0.01 against
+0.27-0.52 for drivers alone), so the test is far sharper, and a slow bend in the ratio before 1983 that drivers alone
+hide in their noise is now enough to flag: at 1977-01 and 1980-01 drivers alone give p 0.81 and 0.83, drivers minus
+rear 0.003 and 0.002. (iii) The steps at the placebo dates are small and mostly not significant (p 0.68, 0.11, 0.055):
+the slope term carries the rejections. So the control did its job on noise and shared shocks, and exposed that a
+straight line is the wrong baseline for this ratio over 14 years. The seat-belt step itself is no weaker for it
+(a 24% fall in the ratio, range 18-30%), but a test whose placebos fire cannot be called calibrated here.
+
+**Next** (a fresh pre-registration, and real pairs not seen here): an in-time placebo check that ships beside the test
+(the same test at dates in the before-period; refuse or warn when they fire), or a step-only test with the control,
+since the steps passed every placebo (0 of 5 at p 0.05, real pairs 4c and 4d); and real pairs beyond road deaths, such as a policy that
+covered some regions and not others.
+
+### In-time placebos: a warning beside the test when the line before your date is not a line (2026-11-17, pre-registered; ships)
+
+The control round above ended asking for "an in-time placebo check that ships beside the test". This is it, for the
+shipped one-series test: `placeboCheck(x, k, { period })` in `known-date.mjs` runs the same test (round 5's settings,
+199 replicates) on the points before your date only, at up to three dates spread through that before-period (each with
+`8 + period` points on both sides), where the event you named cannot act. It **warns** when 2 or more of the tested
+placebo dates give joint p <= 0.05. It is a warning beside the result; it does not change the named-date p. This is
+the "falsification" check of the interrupted-time-series tutorials (Lopez Bernal, Cummins and Gasparrini 2017).
+
+Pre-registration `eval/known-date-prereg-placebo-2026-11-17.md`, committed after an exploratory run (seed base 81000,
+100 series, `eval/known-date-placebo-explore.out.txt`) and before the confirmatory run (fresh seed base 87000, 200
+series per cell, `eval/known-date-placebo-confirm.out.txt`; `KD_SEED_BASE=87000 KD_SHARD=i/4 node
+eval/known-date-placebo-sim.mjs 200 199`) and the real series (`node eval/known-date-placebo-real.mjs`,
+`eval/known-date-placebo-real.out.txt`):
+
+| Bar (pre-registered) | Confirmatory | |
+|---|---|---|
+| 1. false warnings at most 8% of tested, 14 straight-line cells (n 40-240, rho 0-0.8) and a real 2 sd step at the date | 0-4.0% (the step cell 1.0%) | holds |
+| 2. warnings: a quadratic bend of 8 sd, n 120, rho 0, at least 70%; an earlier 3 sd shock, n 240 / n 120, rho 0, at least 80% / 25% | 91.5%; 92.5% / 44.5% | holds |
+| 3. among the named-date test's false rejections (bends and earlier shocks, no change at the date), at least 25% warned | 677 of 1,830 (37.0%) | holds |
+| 4. drivers / rear-seat ratio before 1983-02 warns (seen); Nile before 1899 and Nottingham before 1935-01 and 1930-01 do not | ratio 3 of 3 fired, warns; Nile 0 of 3, Nottingham 0 of 3 twice | holds |
+
+**What it catches and what it cannot.** Where the before-period itself bends or carries an earlier shock, the warning
+comes up often (bends 15-91.5% at n 120, earlier shocks 8.5-92.5%; stickier noise hides more). Where the series bends
+mostly *after* the date (a quadratic with the date at the middle of 240 points), the named-date test fires 59-100% of
+the time with nothing at the date and the placebos warn only 3.5-19%: they see only the before-period. So no warning is
+not a clean bill; a control series or a look at the after-period is still the check for that.
+
+**Real series** (reported without a bar): drivers alone before the 1983 belt law, 1 of 3 (1973-05, the fuel crisis)
+and no warning; front-seat passengers 2 of 3 and rear-seat passengers 2 of 3 both warn, which agrees with the control
+round's reading that the joint test on those series partly reads a slope shared by all three. Australian cafe turnover
+before the July 2000 GST would warn (2 of 2), but the named date is refused (a wander) so no placebos are reported;
+quarterly cement is refused at every date.
+
+**Use it.** Nothing to switch on: `--known-date` prints an "In-time placebos" line (and a WARNING line when it fires);
+`--json` has `placebo: { dates: [{ label, p }], tested, fired, warn }`; `analyze({ knownDate })` has the same field
+(`knownDate: { date, placebo: false }` leaves it out), and the page adds a sentence to "Test a date you name". Tests:
+`known-date-placebo.test.mjs`.
+
+### The step alone, with a control series: calibrated in simulation, refused on real state pairs (2026-11-17, pre-registered; not shipped)
+
+The control round above failed only on its placebo dates, where the joint test read a slow bend in the drivers-to-rear
+ratio through its slope term; the step's own p fired at none of the five. So this round keeps the statistic and changes
+the decision: with a control, a **finding** is the step's p (`pStep`, in the model that still fits a slope change) at
+0.05 with the in-time placebos, run on the same difference, not warning. Pre-registration
+`eval/known-date-prereg-control-step-2026-11-17.md`, committed after an exploratory run (seed base 91000,
+`eval/known-date-control-step-explore.out.txt`) and before the confirmatory run (fresh base 97000, 400 pairs a cell,
+`eval/known-date-control-step-confirm.out.txt`) and before any real pair was tested. The real pairs are new to this
+tool: state cigarette tax rises (CDC's *Tax Burden on Tobacco*, 1970-2019, `data/us-cigarette-packs-per-capita.csv`),
+each state's packs per head against the mean of Abadie, Diamond and Hainmueller's (2010) 38 donor states, on logs.
+
+| Bar (pre-registered) | Confirmatory | |
+|---|---|---|
+| 1. step size 2-8% of tested, six no-change cells (n 31-120, shared slopes, steps and walks) | 4.3-6.8% (joint p 4.0-7.3%) | holds |
+| 2. findings at most 8% where only the treated series bends or turns (six cells, no step) | 0-5.3%; the date-at-80% bends: step p fired 44.0% and 41.0%, the placebos warned 176 of 176 and 160 of 164 | holds |
+| 3. power, findings as a share of all pairs: P1 55%, P2 50%, P3 20%, P5 30%, and the step above the joint p | 65.5, 60.8, 24.0, 40.0% (joint 51.3, 49.5, 14.0, 14.0%) | holds |
+| 4. placebos warn at most 8% in the no-change cells | 1.3-4.3% | holds |
+| 5a. California, Proposition 99, 1989: a fall found | **refused** (the log ratio about a line has rho 0.98; the cut at 1989 is 0.67 against a walk bar of 0.72) | **fails** |
+| 5b. Massachusetts 1993, Arizona 1995, Oregon 1997: 2 of 3 found | **0 of 3: all three refused** as wanders | **fails** |
+| 5c. nine placebo states (state tax unchanged FY1985-FY1995), 1989: at most 1 of 9 found | 1 of 9 (Tennessee, +8.9%, step p 0.007); 7 of the 9 refused | holds |
+
+By its own rule nothing ships, and `control` stays an off-by-default option of `known-date.mjs`. In simulation the rule
+does what it was built to do: as calibrated as the joint test, more powerful wherever the change is a step (a 2 sd step
+at n 40 found 24% of the time against 14%), and the bends that fool the step are the ones the placebos see. The real
+pairs failed for a reason the simulation did not contain.
+
+**Why the real pairs were refused** (after the run, not pre-registered; `node eval/known-date-control-step-real-diag.mjs`,
+`eval/known-date-control-step-real-diag.out.txt`). The simulated pairs share a wander that the difference removes
+exactly and leave AR(1) noise at rho 0.4; a real state's share of national cigarette sales wanders on its own
+(cross-border buying, smuggling, demographics). Across all 38 donor states against the other 37 over 1970-2000, the
+log ratio about a straight line has a median bias-corrected rho of 0.76, and 26 of 38 are above the guard's 0.7 for
+series under 100 points; about the before-and-after lines at 1989, 14 of 38 still are. On 31 annual points the guard
+cannot tell such a ratio from a random walk, and that is a correct refusal, not a fault to tune away. With the guard
+switched off (not a calibrated test), California's ratio shows a step of -5.6% (step p 0.051) and a slope change of
+-0.033 a year (p 0.002): Proposition 99's effect grows over the decade, as in Abadie et al.'s synthetic-control
+estimate, so even uncensored a step-only rule would set aside the part of the effect a tobacco programme produces.
+Massachusetts and Oregon stay above 0.7 about their own before-and-after lines; Arizona shows -6.9% (p 0.14).
+
+**What a reader can use now.** A control series and a named date make a sharp test only where the control removes the
+wander, and a state against a national average on annual data usually does not: check the ratio's own stickiness first
+(this tool's refusal says it for you). **Next** (fresh pre-registration): monthly or quarterly state series, where 31
+years are 124-372 points and the guard reads rho on enough data; a synthetic control (weights fitted on the
+before-period, Abadie et al. 2010) instead of a plain mean; and, for programmes rather than one-off price changes, a
+test of the effect's path (the slope change) with the placebo warning, since that is where the real effect sat.
+
+### A synthetic control: Proposition 99's published gap, but California ranks third (2026-11-17, pre-registered; not shipped)
+
+The step-alone round ended asking for "a synthetic control (weights fitted on the before-period, Abadie et al. 2010)
+instead of a plain mean". `synthControlTest(y, donors, k)` in `synth-control.mjs` builds one: weights at least zero and
+summing to one, fitted so a mix of donor series tracks the treated series over every point before your date
+(accelerated projected gradient on the simplex), and the gap after the date is the estimate. The test is Abadie,
+Diamond and Hainmueller's (2010) in-space placebo: each donor is fitted the same way as if it were treated, and the
+treated series' ratio of after-date to before-date root mean squared gap is ranked among them, p = rank / (donors + 1).
+It matches on the outcome only, no covariates. A fit warning says when the treated series is matched worse before the
+date than 80% of the donors are.
+
+Pre-registration `eval/synth-prereg-2026-11-17.md`, committed after an exploratory run (seed base 11000,
+`eval/synth-explore.out.txt`) and before the confirmatory run (fresh base 13000, 400 panels a cell,
+`eval/synth-confirm.out.txt`) and before any real state was fitted (`node eval/synth-real.mjs`,
+`eval/synth-real.out.txt`):
+
+| Bar (pre-registered) | Confirmatory (400 panels a cell) | |
+|---|---|---|
+| 1. size, p <= 0.05 at most 6% and p <= 0.10 at most 14%, five no-change cells (exact: 2.6% and 10.3% with 38 donors, 5.0% and 10.0% with 19) | 5.5, 4.3, 5.0, 4.8, 3.3%; 9.0, 8.5, 9.3, 9.0, 10.0% | holds |
+| 2. treated outside the donors' range (E1): p <= 0.05 at most 6%, fit warning at least 90% | 1.3%; 99.5% | holds |
+| 3. power, p <= 0.05: a 2 sd step (P1) at least 28%; the same step with every unit wandering (P3) at least 18% | 34.8%; 22.8% (an effect growing to 3 sd in sticky noise, P2: 11.8%; short series, P4: 6.8%) | holds |
+| 4a. T1 California 1989: p <= 0.05, average gap -30 to -10 packs, gap at 2000 below 0 | gap -19.5 average, -26.5 at 2000; **rank 3 of 39, p 0.077** | **fails** |
+| 4b. T2-T4 Massachusetts 1993, Arizona 1995, Oregon 1997: 2 of 3 at p <= 0.10 with a negative gap | **0 of 3** (p 0.21, 0.50, 0.39; gaps -15.7, -8.1, -15.6) | **fails** |
+| 4c. in-time placebos, California cut at 1988, fake dates 1980 and 1984: neither p <= 0.05 | p 0.46, 0.28 | holds |
+| 4d. nine placebo states at 1989: at most 1 of 9 p <= 0.05 | 0 of 9 (Virginia closest, rank 2 of 38, p 0.053) | holds |
+
+N1's 5.5% is twice its exact level. A post-hoc re-run on fresh seeds (base 15000, `eval/synth-pool-without.out.txt`)
+gives 2.5% and 3.0% in N1 and N2, and the paper's placebo pool (the treated unit moved into each placebo's pool,
+`placeboPool: 'with'`, `eval/synth-pool-with.out.txt`) gives the same, so the excess is not the pool. It looks
+seed-specific: `eval/synth-sim.mjs` seeds a xorshift generator with consecutive integers and no scrambling, which can
+correlate neighbouring panels. A later round should hash its seeds.
+
+**The estimate replicates the paper.** California's synthetic control is Utah 0.391, Montana 0.227, Nevada 0.207,
+Connecticut 0.109, New Hampshire 0.043 and Colorado 0.024 (the paper's, with covariates: Utah 0.394, Nevada 0.234,
+Montana 0.199, Colorado 0.164, Connecticut 0.069). Before 1989 the gap is 1.66 packs a head (root mean square); after,
+it opens to -8.4 packs in 1989, -17.5 in 1993 and -26.5 in 2000, an average of -19.5 over 1989-2000. The paper reports
+"about 26 packs" by 2000 and about 20 on average. With the window cut at 1988, fake dates 1980 and 1984 give p 0.46 and
+0.28, and none of the nine placebo states is found.
+
+**The test does not.** California's ratio (12.4) ranks 3rd of 39, p 0.077, against the paper's 1st, p 0.026. Massachusetts
+(rank 8 of 39, gap -15.7), Arizona (18 of 36, -8.1) and Oregon (11 of 28, -15.6) all have negative gaps and none is
+near p 0.10, so T1 and T2-T4 fail and `--synth-control` is not offered (the CLI wiring written in this session was taken
+out; the module stays for reproducing these tables, `synth-control.test.mjs`).
+
+**Why California ranks third** (after the run, not pre-registered; `node eval/synth-real-diag.mjs`,
+`eval/synth-real-diag.out.txt`). The two states above it are Missouri (ratio 26.5) and Virginia (16.9), whose
+before-period fits are almost exact (RMSPE 0.41 and 0.86 packs against California's 1.66): a ratio divides by the
+before-gap, so a donor that a mix of other states tracks to under a pack gets a large ratio from a modest later gap
+(Missouri's after-gap is 10.9 packs, California's 20.5). Matching on all 19 before-years and no covariates fits the
+middle of the donor cloud too well; the paper's covariate-and-three-lags match leaves those placebos looser. The
+paper's own filters do not rescue it here: keeping placebos with before MSPE at most 20, 5 or 2 times California's
+leaves it 3rd of 35, 31 and 20 (p 0.086, 0.097, 0.150), and with California moved into each placebo's pool, as the
+paper does, it is still 3rd of 39, behind Missouri and Virginia again.
+
+**What a reader can use now.** For a single treated unit with a long before-period and a donor pool, this module gives
+the published-quality estimate of the gap (`node -e` with `synthControlTest`), but its p should not be read as a test
+when some donors fit almost exactly. **Next** (fresh pre-registration): a statistic that does not divide by a tiny
+before-gap (the after-gap alone, or the ratio with the before-gap floored at the donors' median), checked in simulation
+against cells where some donors are near-copies of others; monthly series; and the effect's path as the statistic.
+
+### A floored ratio: California ranks first, as in the paper (2026-11-17, pre-registered; module default, CLI not shipped)
+
+The synthetic-control round above ranked California 3rd of 39 because Missouri and Virginia are fitted almost exactly
+before 1989 and the paper's statistic divides by that before-gap. `synthControlTest` now scores every placebo with
+three statistics from the same fits (`r.tests`): **floored**, the after-gap over the before-gap floored at the median
+before-gap of all units, treated and donors alike (`r.floor`); ratio, the paper's after-gap over before-gap; and post,
+the after-gap alone. The floor is one number computed symmetrically from every unit's fit, so when nothing happened
+and the treated unit is like the donors, the ranks stay exchangeable and the test stays exact.
+
+Pre-registration `eval/synth-floor-prereg-2026-11-17.md`, committed after an exploratory run (hashed seed base 21000,
+`eval/synth-floor-explore.out.txt`) and before the confirmatory run (base 23000, 400 panels a cell,
+`eval/synth-floor-confirm.out.txt`) and before the floored ratio was computed on any real state
+(`SC_STAT=floored node eval/synth-real.mjs`, `eval/synth-floor-real.out.txt`). Seeds are now hashed (splitmix32), as
+the last round asked. New cells: N6/P5 eight near-copy donor pairs; N7/P6 a treated unit inside the donors' range
+but near its corner.
+
+| Bar (pre-registered, floored statistic) | Confirmatory (400 panels a cell) | |
+|---|---|---|
+| 1. size, N1-N7: p <= 0.05 at most 6%, p <= 0.10 at most 14% | 2.3-5.3%; 6.8-14.0% (N6, the near copies, at the cap) | holds |
+| 2. treated outside the donors' range (E1): p <= 0.05 at most 6% | 5.8% (ratio 0.5%; p <= 0.10 16.5%, no bar; the fit warning fires on 100%) | holds |
+| 3. power, p <= 0.05: no cell below the ratio by more than 2 points; P1 and P6 at least 10 above | P1 56.5 vs 33.8%; P2 18.8 vs 12.0; P3 26.0 vs 20.0; P4 25.3 vs 6.8; P5 57.3 vs 41.8; P6 45.5 vs 18.8 | holds |
+| 4a. T1 California 1989: p <= 0.05, average gap -30 to -10, gap at 2000 below 0 | **rank 1 of 39, p 0.026**; gap -19.5 average, -26.5 at 2000 | holds |
+| 4b. T2-T4 MA 1993, AZ 1995, OR 1997: 2 of 3 at p <= 0.10, negative gap | 0 of 3 (p 0.154, 0.361, 0.214; ranks 6, 13, 6, up from 8, 18, 11) | **fails** |
+| 4c. in-time placebos (1980, 1984 in a window cut at 1988): neither p <= 0.05 | p 0.385, 0.359 | holds |
+| 4d. nine placebo states at 1989: at most 1 of 9 p <= 0.05 | 0 of 9 (Virginia now rank 5 of 38, p 0.132, from 2nd) | holds |
+
+The after-gap alone was ruled out in exploration (49% rejections in E1, 54.8% confirmatory: a series no mix of donors
+can match drifts away after any date). With the hashed seeds the paper's ratio holds its exact size in N1 (3.0%
+against 2.6% exact), consistent with the last round's 5.5% being a seed artefact (one run does not prove it).
+
+**What changed.** The floor on the real data is 2.15 packs (the median before-gap of the 39 states). California's
+before-gap, 1.66, is under it, so its statistic is 20.5 / 2.15 = 9.5; Missouri's (10.9 after, 0.41 before) drops from
+26.5 to 5.1 and Virginia's from 16.9 to 6.7, and California ranks 1st (the next are Oklahoma 7.4 and Texas 7.2), p 1/39 = 0.026, the paper's result without
+the paper's covariates. On simulated panels the floored ratio finds a 2 sd step 57% of the time against 34%, and a
+treated unit near the edge of the donors' range 46% against 19%. The cost is in E1, the case the fit warning is for:
+when no mix of donors can match the treated series, p <= 0.10 comes up 16.5% of the time against 3.5%, so read p
+only when the fit warning is off.
+
+**Decision, as pre-registered.** Bars 1-3 hold, so `synthControlTest`'s default statistic is now `'floored'`
+(`{ statistic: 'ratio' }` gives the paper's; the last round's scripts pass it and reproduce their tables). Bar 4b
+fails: Massachusetts, Arizona and Oregon have negative gaps of 8 to 16 packs, ranked 6th to 13th, so `--synth-control`
+stays out of the CLI and the module stays a library function. **Next** (fresh pre-registration): those three states
+have before-gaps of 3.0 to 5.5 packs, worse than 55-78% of the donors', so they are matched loosely, not over-fitted:
+covariates (income, price, the 15-24 share) or monthly series would give the fit something more to go on; and the
+effect's path (a slope change) as the statistic.
+
+### Matched on covariates: looser fits, California second (2026-11-17, pre-registered; fails two bars, not the default)
+
+The floored-ratio round asked for covariates, so Massachusetts, Arizona and Oregon, matched loosely on their own
+sales, would have more to go on. `synthControlTest(y, donors, k, { predictors })` now fits the way the paper does:
+each unit gets a few predictors, each divided by its spread over all units; for diagonal weights V on those predictors
+the donor weights W(V) minimise the V-weighted predictor gap on the simplex (`simplexLeastSquaresRows`, FISTA on the
+few rows), and V is chosen (softmax, Nelder-Mead from equal weights, at most 160 evaluations) to minimise the
+before-date gap in the outcome, Synth's "data-driven" V. Every placebo goes through the same search. The real
+predictors are ln per capita personal income (BEA SAINC1, `data/us-personal-income-per-capita.csv`) and the average
+retail price per pack (CDC, `data/us-cigarette-retail-price.csv`), each averaged over the nine years before the date,
+and packs per head 14, 9 and 1 years before it (1975, 1980 and 1988 for California). **The paper's 15-24 population
+share and beer consumption are left out**: neither had a reachable, documented source this session, so this is the
+paper's design less two of its seven predictors.
+
+Pre-registration `eval/synth-cov-prereg-2026-11-17.md`, committed after an exploratory run (hashed base 31000, 50
+panels a cell, `eval/synth-cov-explore.out.txt`) and before the confirmatory run (base 33000, 200 panels a cell,
+`eval/synth-cov-confirm.out.txt`) and before any real state was fitted with covariates (`node eval/synth-cov-real.mjs`,
+`eval/synth-cov-real.out.txt`). Simulated covariates are each unit's two factor loadings measured with N(0, 0.15)
+noise, plus the same three lags.
+
+| Bar (pre-registered, covariate fit, floored ratio) | Confirmatory (200 panels a cell) / real | |
+|---|---|---|
+| 1. size, N1-N7: p <= 0.05 at most 7%, p <= 0.10 at most 15% | 1.0-5.5%; 4.5-14.0% | holds |
+| 2. treated outside the donors' range (E1): p <= 0.05 at most 8% | **17.5%** (the outcome fit on the same panels: 9.0%; fit warning 99%) | **fails** |
+| 3. power: no cell more than 10 points below the outcome fit | P1 50.0 vs 55.0; P2 16.5 vs 15.5; P3 32.0 vs 36.0; P4 29.0 vs 27.5; P5 52.5 vs 48.0; P6 52.0 vs 50.5 | holds |
+| 4a. T1 California 1989: p <= 0.05, average gap -30 to -10, gap at 2000 below 0 | **rank 2 of 39, p 0.051**; gap -17.4 average, -23.9 at 2000 | **fails** |
+| 4b. T2-T4 MA 1993, AZ 1995, OR 1997: 2 of 3 at p <= 0.10, negative gap | **1 of 3**: MA rank 3, p 0.077 (from 6th); AZ rank 5, p 0.139 (from 13th); OR rank 21 of 28, p 0.750, fit warning (from 6th) | **fails** |
+| 4c. in-time placebos (1980, 1984 in a window cut at 1988): neither p <= 0.05 | p 0.077, 0.436 | holds |
+| 4d. nine placebo states at 1989: at most 1 of 9 p <= 0.05 | 0 of 9 (West Virginia closest, p 0.105) | holds |
+
+**What the covariates do.** California's synthetic control becomes Utah 0.405, Colorado 0.352, Nevada 0.221 and New
+Hampshire 0.015, close to the paper's (Utah 0.394, Nevada 0.234, Montana 0.199, Colorado 0.164, Connecticut 0.069),
+with V almost all on price (0.61) and the 1980 lag (0.22); the gap after 1989 is -17.4 packs on average and -23.9 by
+2000, against the paper's "about 26". But the fit before 1989 loosens (RMSPE 2.02 against 1.66 packs), the donors'
+fits loosen more, so the floor rises from 2.15 to 3.63 packs, and California's floored statistic (18.4 / 3.63 = 5.1)
+falls just behind one donor: rank 2, p 0.051. With the paper's unfloored ratio it ranks 1st (p 0.026), the paper's
+result. Massachusetts moves from 6th to 3rd (p 0.077, a gap of -14.0 packs) and Arizona from 13th to 5th, so for the
+two loosely fitted states the covariates help, as the last round guessed. Oregon is the failure: its fit is far worse
+(19.6 packs before 1997, against 5.5 matched on its own sales), a fit warning fires and it ranks 21st.
+
+**Why Oregon fails** (after the run, not pre-registered). Oregon's predictors sit inside the donors' range (its price
+above 32 of 38 donors, its income above 24), so a close match exists; the search did not find it. Its V ended at
+0.149, 0.405, 0.149, 0.149, 0.149, one simplex step from the start: the before-gap is piecewise flat in V (W jumps
+between donor sets), and Nelder-Mead from one start stalls. Georgia's V (the same values) and Montana's (equal fifths)
+show the same stall among the placebos. Synth's practice of several starts, one per predictor and a regression-based
+one, would likely fix it, but that is a new method and needs a fresh pre-registration. E1's 17.5% is the other cost:
+when no mix of donors can match the treated unit, a looser fit lets its after-gap look larger than the placebos'.
+
+**Decision, as pre-registered.** Bars 1 and 3 hold, 2 and 4 fail, so the `predictors` option stays in the module as a
+library function, not calibrated, and the outcome-only fit stays the default and the recommended one. On the same
+fresh panels the shipped outcome fit gave 2.5% at p 0.05 in N1 and 17.0% at p 0.10 in N6, the near-copy cell (the last
+round's 400 panels: 14.0%, at its cap), so the shipped default's p 0.10 is loose when donors come in near-copy pairs;
+its p 0.05 (7.0% there) is the one to read. **Next** (fresh pre-registration): a multi-start V search (one start per
+predictor plus equal weights), with the paper's 15-24 share and beer covariates if a source can be found; monthly
+series.
+
+### Several starts for V: tighter fits, the same ranks; Oregon's covariates cannot fit it (2026-11-17, pre-registered; fails three bars)
+
+The covariate round ended with a diagnosis: Oregon's V stopped one simplex step from its start, so "a multi-start V
+search (one start per predictor plus equal weights)" might find the close match its predictors suggested.
+`synthControlTest(y, donors, k, { predictors, vSearch: 'multi' })` now runs Nelder-Mead from equal weights and then
+from each predictor's corner (theta_m = 3, v_m about 0.83), each with its own 160-evaluation budget, and keeps the
+best before-gap any start reached. The first start is the one-start search, evaluation for evaluation, so no fit can
+come out looser (`synth-control.test.mjs` checks the treated fit and every placebo). It costs about six times as much.
+
+Pre-registration `eval/synth-multi-prereg-2026-11-17.md`, committed after an exploratory run (hashed base 41000, 20
+panels a cell, `eval/synth-multi-explore.out.txt`) and before the confirmatory run (base 43000, 80 panels a cell,
+`eval/synth-multi-confirm.out.txt`) and before any real state was fitted with it (`node eval/synth-multi-real.mjs`,
+`eval/synth-multi-real.out.txt`). The method, cells, predictors and real windows are the covariate round's; only the
+starts changed.
+
+| Bar (pre-registered, multi-start covariate fit, floored ratio) | Confirmatory (80 panels a cell) / real | |
+|---|---|---|
+| 1. size, N1-N7: p <= 0.05 at most 8%, p <= 0.10 at most 16% | 0-6.3% and 3.8-10.0% in N1-N6; **N7 11.3% and 17.5%** (one start on the same panels: 8.8%, 18.8%; outcome: 8.8%, 15.0%) | **fails** |
+| 2. treated outside the donors' range (E1): p <= 0.05 at most 8% | **16.3%** (one start 17.5%, outcome 10.0%; fit warning 99%) | **fails** |
+| 3. power: no cell more than 10 points below the outcome fit | P1 53.8 vs 62.5; P2 18.8 vs 15.0; P3 28.8 vs 23.8; P4 26.3 vs 21.3; P5 58.8 vs 58.8; P6 43.8 vs 36.3 | holds |
+| 4a. T1 California 1989: p <= 0.05, average gap -30 to -10, gap at 2000 below 0 | **rank 2 of 39, p 0.051** (unchanged); gap -17.6 average, -24.0 at 2000 | **fails** |
+| 4b. T2-T4 MA 1993, AZ 1995, OR 1997: 2 of 3 at p <= 0.10, negative gap | **0 of 3**: MA rank 4, p 0.103 (one start: 3rd, 0.077); AZ rank 8, p 0.222 (5th); OR rank 19 of 28, p 0.679, fit warning (21st) | **fails** |
+| 4c. in-time placebos (1980, 1984 in a window cut at 1988): neither p <= 0.05 | p 0.077, 0.385 | holds |
+| 4d. nine placebo states at 1989: at most 1 of 9 p <= 0.05 | 1 of 9: **West Virginia rank 1 of 38, p 0.026** (one start: 4th, p 0.105) | holds, at the bar |
+
+**What the extra starts do.** They find a better V in most fits, but not a much better one. California's before-gap
+goes from 2.02 to 1.92 packs with V moved almost wholly onto the 1975 and 1980 lags (0.81, 0.19) from price (0.61);
+its synthetic control stays Utah, Colorado and Nevada, the gap and the rank do not move, and the floor drops from 3.63
+to 3.40. Massachusetts tightens from 4.65 to 3.70 packs but its after-gap shrinks with it (14.0 to 13.0 packs), so it
+slips from 3rd to 4th. Arizona tightens from 4.95 to 4.72 and slips from 5th to 8th. A tighter V-search fit is
+a closer copy of the treated unit's own before-period; for these states it also follows less of what came after.
+West Virginia, a placebo state with no tax change, moves from 4th to 1st with a positive gap of 17 packs (sales above
+its synthetic control): the one Q placebo the bar allows.
+
+**Why Oregon still fails** (after the run, not pre-registered; `node eval/synth-multi-oregon-diag.mjs`,
+`eval/synth-multi-oregon-diag.out.txt`). The multi-start search took Oregon's before-gap from 19.6 to 17.5 packs.
+4,000 V drawn uniformly on the simplex do no better than 15.8, and the best corner (all weight on ln income, which the
+softmax search can only approach) gives 12.9. The outcome-only fit gives 5.5. So the stall the last round saw was
+real but cost little: no V on these five predictors fits Oregon. Its sales fell from 157 packs a head in 1970 (the
+donors' mean: 118) to 97 in 1994 (donors: 105), from 40 packs above the pool to below it, and predictors read in
+1983, 1988 and 1996 say nothing about the 1970s, where most of the before-gap is. The paper's lags were chosen for
+California, whose before-period runs close to its donors throughout. For a unit whose path crosses the pool's, a few
+lags cannot stand in for the whole before-period; the outcome-only fit matches every year and does.
+
+**In simulation the extra starts change almost nothing.** The multi-start treated fit is tighter than the one-start
+fit in 65-93% of panels, but mean before RMSPE falls only 1-4% per cell, and rejection rates move by at most 2.5 points
+either way. E1 stays where the one-start fit left it (16.3% against 17.5%), so the excess there is the covariate
+design, not the search. N7, a treated unit near the corner of the donors' range, is over its size bar for every
+covariate fit (11.3% multi, 8.8% one start at p 0.05; both over 16% at p 0.10); at 80 panels a cell its standard
+error is about 3 points, so this says the corner case is loose, not how loose.
+
+**Decision, as pre-registered.** Bar 3 holds, bars 1, 2 and 4 fail, so `vSearch: 'multi'` stays an option (default `'single'`), documented with
+these tables, and the outcome-only fit stays the default and the recommended one. **Next** (fresh pre-registration, if covariates are tried again): lags
+spread over the whole before-period (every fifth year, or the before-period's mean and slope), so a unit whose level
+crosses the pool's is matched on its path; or drop the predictor search and add covariates as a check on the
+outcome-only fit's weights (Abadie 2021, section 7: report the covariate balance of the outcome fit). Until then the
+outcome-only fit with the floored ratio is the one to use (California 1st of 39).
+
+### Covariate balance of the outcome-only fit: California is matched on sales, not on income (2026-11-17, a diagnostic; not pre-registered, changes no p)
+
+The multi-start round ended recommending the outcome-only fit and, as the alternative to more predictor searches,
+"add covariates as a check on the outcome-only fit's weights (Abadie 2021, section 7)". `covariateBalance(r,
+covariates)` in `synth-control.mjs` does that. It takes a `synthControlTest` result and any per-unit covariates, and
+for each one prints the treated value, the synthetic control's (the fit's donor weights applied to the donors' values),
+the plain donor average, and both gaps divided by the covariate's spread over all units (a standardised difference,
+flagged past 0.25, the usual matching rule of thumb, Stuart 2010). It also puts the treated fit among the placebos:
+every donor's own synthetic control (now kept on `r.placebos[i].donorWeights`) is scored the same way, and
+"placebos matched better" is the share closer on that covariate than the treated fit is. It is a description of the
+fit, not a test, and no p moves.
+
+Run on the four real tax rises with the covariate round's definitions plus the before-period mean of packs per head
+(`node eval/synth-balance-real.mjs`, `eval/synth-balance-real.out.txt`; standardised gaps, synthetic vs treated):
+
+| State, date | ln income | price per pack | packs, three lags | packs, before mean | floored p |
+|---|---|---|---|---|---|
+| California 1989 | **+1.66** (89% of placebos better) | **-0.33** (34%) | +0.01, -0.00, -0.08 | -0.00 | 0.026 |
+| Massachusetts 1993 | +0.13 | -0.05 | -0.17, -0.01, -0.02 | -0.00 | 0.154 |
+| Arizona 1995 | +0.17 | **-0.67** (60%) | -0.24, +0.15, -0.10 | -0.00 | 0.361 |
+| Oregon 1997 | **+0.39** (26%) | **+0.97** (81%) | **-0.33**, +0.03, -0.10 | -0.00 | 0.214 |
+
+**What it shows.** Matching every before-year of sales balances the sales lags and the before mean almost exactly, as it
+must. It does not balance income: California's synthetic control (Utah, Montana, Nevada, Connecticut) is 1.66 standard
+deviations poorer than California, worse than 89% of the placebos' own fits, and the plain donor average is no closer
+(1.73). The price gap is small in cents (2.3 cents a pack) but past the flag. So the published gap of about 20 packs a
+head rests on the assumption that income does not move cigarette sales differently in California and in its poorer
+synthetic control after 1989; a reader should say so when quoting it. **Massachusetts is the useful negative:** its
+outcome-only fit balances all six covariates (no gap past 0.13) and it still ranks 6th of 39 (p 0.154), so the earlier
+rounds' hope that covariates would rescue it is not supported: its weak rank is not an imbalance the covariates
+measure. Oregon's synthetic control is cheaper than Oregon by 13 cents a pack before 1997 (0.97 sd, worse than 81% of
+placebos), which is consistent with the covariate round's finding that no predictor weighting fits it.
+
+**Limits.** The paper's 15-24 population share and beer consumption are still missing (no documented source reached),
+the 0.25 flag is a convention, not a calibrated bar, and four states cannot say whether imbalance predicts a biased gap;
+a simulation where a covariate drives the outcome after the date would. **Next:** that simulation (does the flag pick
+out the panels whose gap is biased?), then print the balance table with the synthetic-control result once the CLI
+offers one.
+
+Sources: Abadie, A. (2021), "Using synthetic controls: feasibility, data requirements, and methodological aspects",
+Journal of Economic Literature 59(2), 391-425, doi:10.1257/jel.20191450; Abadie, A., Diamond, A. and Hainmueller, J.
+(2010), JASA 105(490), 493-505, doi:10.1198/jasa.2009.ap08746; Stuart, E. A. (2010), "Matching methods for causal
+inference: a review and a look forward", Statistical Science 25(1), 1-21, doi:10.1214/09-STS313.
+
+### Which imbalance biases the gap: read "placebos matched better", not the 0.25 flag (2026-11-17, pre-registered, all five bars passed)
+
+The balance round ended: "four states cannot say whether imbalance predicts a biased gap; a simulation where a
+covariate drives the outcome after the date would." `eval/synth-bias-sim.mjs` is that simulation (pre-registration
+`eval/synth-bias-prereg-2026-11-17.md`, committed before the confirmatory run). Panels are the shipped generator's
+(39 units, 19 points before the date, 12 after). Each unit gets one covariate Z (think income); before the date Z does
+nothing, and from the date on every unit, treated and donors alike, moves by beta x Z. The treated unit has no effect
+of its own, so any gap after the date is bias, and the part Z explains is exactly beta x sd(Z) x the standardised gap.
+Each panel is fitted the shipped way (outcome only, floored ratio) and scored with `covariateBalance`. Two candidate
+warnings: the 0.25 flag (`imbalanced`) and "placebos matched better" at 80% or more (the treated unit is matched worse
+on Z than at least 80% of the donors are by their own synthetic controls).
+
+Confirmatory run, fresh seeds (base 43000), 200 panels a cell (`eval/synth-bias-confirm.out.txt`):
+
+| cell | 0.25 flag fires | 80% warning fires | p <= 0.05, warned vs not | mean abs. bias, warned vs not | p <= 0.05 overall |
+|---|---|---|---|---|---|
+| B0 Z does nothing | 84% | 21% | 2.4% vs 1.3% | 0.40 vs 0.32 | 1.5% |
+| B1 beta 0.5 | 85% | 24% | **20.8% vs 0.0%** | **1.04 vs 0.43** | 5.0% |
+| B2 beta 1.0 | 84% | 20% | **12.8% vs 0.0%** | **1.88 vs 0.74** | 2.5% |
+| B3 beta 0.5, treated Z at 1.8 | 100% | 75% | 12.1% vs 2.0% | 1.04 vs 0.62 | 9.5% |
+| B4 beta 0.5, Z tied to the loadings | 79% | 21% | **16.7% vs 0.6%** | **0.80 vs 0.40** | 4.0% |
+| B5 = B3 + a true step of -1 | 100% | 71% | 0% vs 0% | | **0.0%** (power) |
+| B6 = B5 with beta 0 | 100% | 73% | | | **58.5%** (power) |
+
+Bars: (1) the 0.25 flag fires in at least 50% of B0: 84%, passed. (2) In B1, B2 and B4 the 80% warning's panels
+have at least 1.5x the mean absolute bias (2.4x, 2.5x, 2.0x) and a p <= 0.05 share at least 5 points higher (+20.8,
++12.8, +16.1): passed. (3) In B0 it fires in 10-30% of panels: 21%, passed. (4) Size at most 10% in B0-B4: 1.5-9.5%,
+passed (B3 is close). (5) B5's power at most half of B6's: 0% vs 58.5%, passed.
+
+**What it says.**
+- **The 0.25 flag is not a warning.** An outcome-only fit leans on four or five donors, so on any covariate it was not
+  matched on its gap is past 0.25 sd about five times in six, whether or not that covariate matters. It stays in the
+  output as a description.
+- **"Placebos matched better" is the one to read.** At 80% or more it fires on about one panel in five when nothing is
+  wrong, and when a covariate does move the outcome it holds every false finding: 13-21% of warned panels reach
+  p <= 0.05 with no effect at all, against 0-0.6% of the rest, and their gaps are 2-2.5x as biased. The placebo test
+  protects itself when the treated unit is matched no worse than the donors are (their gaps are biased the same way);
+  it stops protecting exactly when the treated unit is the outlier. `covariateBalance` now returns `placeboWarning`
+  (placeboShare >= 0.8, option `placeboQuantile`).
+- **An imbalance can hide a real effect as easily as invent one.** With the treated unit's Z at 1.8 (where
+  California's income sits) and a true drop of 1, the shock pushed the gap up by about as much as the drop, and the
+  test found it in 0 of 200 panels against 58.5% without the shock.
+
+**On the real states** (`eval/synth-balance-real.out.txt`, `!` marks the warning): California's income (89%) and
+Oregon's price (81%) are warned; so are one outcome lag each in MA, AZ and OR (85-87%, gaps of only 0.17-0.33 sd,
+on numbers the fit already matches year by year). So the published California gap carries the warning this simulation
+calibrates: if income moved cigarette sales differently after 1989, the gap and its p of 0.026 can be off in either
+direction, and the simulation cannot say which way. A post-hoc check found the warning never fired on a gap of 0.25 or
+under in simulation, so pairing it with the 0.25 flag would change nothing there; on real outcome lags it would drop
+the three small-gap warnings. Not adopted: not pre-registered.
+
+**Limits.** One covariate, a step shock and the N1 panel shape; real covariates are several and correlated, and their
+shocks need not be steps. The 80% cut was chosen from the exploratory run (50 a cell) before the confirmatory one.
+**Next:** print the balance table, with the warning, from the CLI once it offers a synthetic control; a two-covariate
+cell (one that matters, one that does not) to check the warning names the right one.
+
+### A synthetic control from the command line, with its balance table (2026-11-17)
+
+The balance rounds ended "print the balance table, with the warning, from the CLI once it offers a synthetic control".
+It now does:
+
+```
+node cli.mjs data/us-cigarette-packs-per-capita.csv --window 1970:2000 --column CA --known-date 1989 \
+  --donors AL,AR,CO,CT,DE,GA,IA,ID,IL,IN,KS,KY,LA,ME,MN,MO,MS,MT,NC,ND,NE,NH,NM,NV,OH,OK,PA,RI,SC,SD,TN,TX,UT,VA,VT,WI,WV,WY \
+  --covariates data/prop99-covariates-1989.csv
+```
+
+`--donors` (a list, or `all` for every other numeric column) turns `--known-date` into a synthetic control on a wide
+CSV, one column per unit, with the shipped defaults (outcome-only fit, floored ratio). `--window from:to` cuts the rows;
+`--log` takes logs; a blank in any used column is refused, not carried forward. `--covariates` takes a file with one
+row per unit (the column's name, then one number per covariate, a header naming them; `data/prop99-covariates-1989.csv`
+is written by `node eval/prop99-covariates.mjs` with the balance round's definitions). The text gives the weights,
+the before-gap and how many placebos fit better (with the fit warning), the gap after the date, the floored rank and p
+and the paper's ratio rank, and the balance table with `WARNING` on each covariate where 80% or more of the placebos
+are matched better. The run above prints exactly the recorded numbers: UT 0.391, MT 0.227, NV 0.207; gap -19.5 on
+average, -26.5 at 2000; rank 1 of 39, p 0.026 (ratio: 3rd); ln income 1.66 sd, 89%, `WARNING` (`synth-cli.test.mjs`).
+
+**Why it ships now, against the floored-ratio round's "stays out of the CLI".** That round held the CLI back because
+three of four real tax rises were not found (bar 4b, a power bar on real data); size held in every round (2.3-5.3% at
+p 0.05). A size-calibrated test with low power is usable if it says so, and the balance diagnostic it lacked then now
+exists. So the CLI prints the power record with every result ("a large p is not evidence of no effect"), and the fit
+and placebo warnings beside the p. The decision is a product call by this run, not a new pre-registered result.
+
+### A synthetic control on the page, with its balance table (2026-11-17)
+
+The CLI's synthetic control ran only from a terminal; the people it is for (an analyst asking whether a store,
+region or state really moved after a change, against the others that did not) mostly will not install Node. The page
+now has it. In "One column" mode, name the treated column in **Column**, the date in **Test a date you name**, and
+put `all` or a list of column names in **Compare with other columns at that date**; optionally paste a covariates
+table (the CLI's `--covariates` format: one row per unit, the column name first, a header naming the covariates).
+A new card, "Against a synthetic control", shows what `synthText` prints: the gap after the date, the weights, the
+before-fit with the fit warning, the floored placebo rank and p and the paper's ratio, the covariate balance table
+with a **Warning** cell where 80% or more of the placebos are matched better, the power caveat, a chart of the treated
+series against its synthetic with the date marked, and a CSV of treated, synthetic and gap per row.
+
+It runs in the page's existing worker job (`analyze-job.mjs`: `{ kind: 'one', opts, synth }` returns
+`result.synth`, or `result.synthError` with the one-column result left standing), so the panel never blocks the page.
+The view is `synth-view.mjs` (pure functions). **Load example: California's 1989 tobacco tax against 38 states**
+fills the boxes from `example-prop99.mjs`, a copy of `data/us-cigarette-packs-per-capita.csv` cut at 2000 and
+`data/prop99-covariates-1989.csv` with the 38-state donor pool of `synth-cli.test.mjs`; the page then shows the
+CLI's numbers exactly (rank 1 of 39, p 0.026; UT 0.391, MT 0.227, NV 0.207; gap -19.5 on average; the
+`ln income 1980-88` warning, 89% of placebos matched better). `synth-page.test.mjs` checks the copies match the data
+files, the worker job gives those numbers, a bad donor name reports an error without losing the one-column result,
+and the page is wired; a headless Chromium run of the example (2026-11-17) showed the card with no console errors
+and no horizontal scroll at 390 px. Counted as `synth_run` / `synth_balance_run` (local counters only). No new
+method or measurement: every number shown comes from the CLI's tested code.
+
+### Two covariates: the warning carries the false finds, but does not always name the culprit (2026-11-17, pre-registered; one bar failed)
+
+The balance round asked for "a two-covariate cell (one that matters, one that does not) to check the warning names
+the right one". `eval/synth-two-cov-sim.mjs` (pre-registration `eval/synth-two-cov-prereg-2026-11-17.md`, committed
+after an exploratory run at base 51000 and before the confirmatory run): the same N1 panels, each unit with Z, which
+moves every unit by beta x Z from the date on, and W, which moves nothing; no true effect, so every gap is bias.
+Confirmatory, base 53000, 400 panels a cell (`eval/synth-two-cov-confirm.out.txt`):
+
+| cell | Z warns | W warns | p <= 0.05: Z warned / W alone / neither | mean abs. bias: Z warned / W alone / neither |
+|---|---|---|---|---|
+| C1 beta 0.5, independent | 21.5% | 19.5% | 14.0% (86) / 0.0% (58) / 1.2% (256) | 0.912 / **0.532** / 0.418 |
+| C2 beta 0.5, corr 0.7 | 22.8% | 22.3% | 14.3% (91) / 0.0% (43) / 0.8% (266) | 1.030 / 0.422 / 0.444 |
+| C3 beta 1.0, independent | 18.3% | 20.8% | 12.3% (73) / 0.0% (69) / 0.0% (258) | 1.878 / 0.831 / 0.683 |
+
+Bars: (1) W's warning fires in 10-30% of C1 and C3: 19.5%, 20.8%, holds. (2) Z-warned bias at least 1.5x the
+neither group's (2.2x, 2.7x, holds) and W-alone at most 1.25x (C3 1.22x holds; **C1 1.27x fails**). (3) In C3, Z-warned
+p <= 0.05 share at least 5 points above neither (+12.3) and W-alone at most 2 above (+0.0): holds. (4) In C2, Z-warned
+bias above W-alone's (1.03 vs 0.42): holds.
+
+**What it says.** Every false finding sat in a panel warned on the covariate that mattered: 12-14% of those reach
+p <= 0.05 with no effect, against none of the 170 warned only on the harmless one and 0-1.2% of the unwarned. So a
+`WARNING` row still marks the result to distrust. But the bias in panels warned only on W is a little above the
+unwarned (1.22-1.27x), past the pre-registered cap in C1: a treated unit matched worse than the placebos on one
+covariate tends to be matched a little worse on others too (a post-hoc reading, not tested). With correlated
+covariates (C2) the two warnings fire together on half their panels (11.5 of 22-23%). **As pre-registered for a
+failed bar 2,** the CLI's warning text now says the warned covariate need not be the one that moved the outcome, and
+that correlated covariates share warnings. **Next:** the balance table on the page; covariates with shocks that are
+not steps (a slope from the date).
+
+### Shocks that are not steps: a slope from the date and a pulse that fades (2026-11-18, pre-registered; all four bars passed)
+
+The balance rounds calibrated the warning on covariates whose shock is a step at the date and listed "their shocks
+need not be steps" as a limit; "Two covariates" ended "covariates with shocks that are not steps (a slope from the
+date)". `eval/synth-shape-sim.mjs` (pre-registration `eval/synth-shape-prereg-2026-11-18.md`, committed after an
+exploratory run at base 61000 and before the confirmatory run): the same N1 panels; each unit has Z, which moves every
+unit by beta x Z x shape(h) at h = 0..11 points after the date, and W, which moves nothing. Both shapes average 1 over
+the 12 points, so beta means what it meant for steps. **Slope**: (h + 1) / 6.5, from 0.15 at the first point to 1.85
+at the last. **Pulse**: 3 for four points, then 0. No true effect, so every gap is bias. Confirmatory, base 63000,
+400 panels a cell (`eval/synth-shape-confirm.out.txt`):
+
+| cell | p <= 0.05 | Z warns | p <= 0.05: Z warned / not | mean abs. bias: Z warned / not | abs. gap at the last point: Z warned / not | p <= 0.05: W alone / neither |
+|---|---|---|---|---|---|---|
+| S0 beta 0 | 2.8% | 18.5% | 1.4% / 3.1% | 0.32 / 0.32 | 0.60 / 0.63 | 2.7% / 3.2% |
+| S1 slope 0.5 | 1.8% | 18.3% | **8.2% / 0.3%** | **0.96 / 0.44** | 1.93 / 0.78 | 0.0% / 0.4% |
+| S2 slope 1.0 | 2.5% | 19.8% | **12.7% / 0.0%** | **1.88 / 0.70** | 3.55 / 1.34 | 0.0% / 0.0% |
+| P1 pulse 0.5 | 2.8% | 22.3% | **12.4% / 0.0%** | **1.05 / 0.48** | 0.58 / 0.62 | 0.0% / 0.0% |
+| P2 pulse 1.0 | 3.8% | 19.8% | **19.0% / 0.0%** | **1.98 / 0.74** | 0.50 / 0.59 | 0.0% / 0.0% |
+
+Bars: (1) Z's warning fires in 10-30% of S0 (18.5%) and size is at most 10% everywhere (1.8-3.8%): holds. (2) Slopes:
+Z-warned bias 2.2x and 2.7x the unwarned, p <= 0.05 share +7.9 and +12.7 points: holds. (3) Pulses: (a) bias 2.2x and
+2.7x, (b) +12.4 and +19.0 points: holds. (4) W warned alone vs neither, S2 and P2: 0.0% vs 0.0% both: holds.
+
+**What it says.**
+- **The warning's calibration carries over.** For a covariate that moves the outcome gradually from the date, or
+  briefly after it, of the 43 false p <= 0.05 in the four shock cells (1,600 panels), 42 sat in a panel carrying the
+  warning on that covariate (the other: S1, 1 of 327 unwarned), and warned panels' gaps were 2.2-2.7x as biased, as for steps (2.0-2.5x). The base rate
+  with nothing wrong is unchanged (18.5% against 21%), and the harmless covariate's warning alone held no false
+  finding in any cell (0 of 253).
+- **A pulse fools the test as easily as a step, then leaves no trace at the end.** In P2 19% of warned panels reach
+  p <= 0.05 with no effect, more than in any step cell, yet the gap at the last point is no larger in warned panels
+  (0.50) than in the rest (0.59): the ratio test reads the whole after-period, so a short covariate shock right after
+  the date can pass as an effect that "wore off". Read a significant gap that fades with the balance table in view.
+- **A slope's bias grows.** In S2 the warned panels' gap at the last point is 3.55, about twice their average gap,
+  so `effectAtEnd` overstates a slope-driven bias more than `effectAverage` does.
+- The exploratory run's P2 had no false finds in 13 warned panels; 400 a cell gave 15 of 79. Fifty a cell was too few
+  to say anything about rare events, as the pre-registration's wording assumed.
+
+**As pre-registered for bars 1-3 holding,** the CLI's warning text and the page's note now say the calibration holds
+for a shock that is a slope from the date or a pulse that fades, citing this file. Real states are not refitted.
+**Limits.** Two shapes, one panel shape (N1), independent covariates. **Next:** a shock that starts before the date
+(anticipation), and a real deployer's panel.
+
+### A shock before the date: backdate with `--anticipation N` (2026-11-18, pre-registered; five of six bars passed, one failed)
+
+"Shocks that are not steps" ended: "Next: a shock that starts before the date (anticipation)". Two things can start
+early: a covariate's shock (people move before a law takes effect), which puts part of it inside the window the
+synthetic control is fitted on; and the true effect itself (smokers cut down when a tax is announced, before it binds),
+which the fit then partly absorbs. Abadie (2021) advises backdating the date to the first point people could react.
+`eval/synth-anticip-sim.mjs` (pre-registration `eval/synth-anticip-prereg-2026-11-18.md`, committed after an
+exploratory run at base 71000 and before the confirmatory run): N1 panels; covariate cells move every unit by 1.0 x Z
+from L points before the stated date; effect cells drop the treated unit by 1 from L points before it. Each panel is
+scored at the stated date and backdated by 2 and by 4. Confirmatory, base 73000, 400 panels a cell
+(`eval/synth-anticip-confirm.out.txt`):
+
+| cell | p <= 0.05 stated / back 2 / back 4 | mean gap over the stated window, stated / back 2 / back 4 |
+|---|---|---|
+| E0 effect -1 at the date | 61.8% / 52.0% / 43.3% | -1.02 / -1.02 / -1.01 |
+| E2 effect -1, 2 points early | 39.8% / **55.0%** / 45.8% | -0.86 / **-1.00** / -1.00 |
+| E4 effect -1, 4 points early | 25.3% / 35.3% / **53.5%** | -0.75 / -0.85 / **-0.98** |
+
+| cell (no effect) | false p <= 0.05 stated / back 2 / back 4 | of those, Z-warned | Z warns (stated) | mean abs. gap stated: Z warned / not |
+|---|---|---|---|---|
+| A0 nothing | 5.8% / 4.3% / 1.8% | 6 of 23 / 2 of 17 / 1 of 7 | 21.5% | 0.33 / 0.30 |
+| A2 Z from 2 points early | 2.8% / 2.0% / 2.3% | 6 of 11 / 7 of 8 / 8 of 9 | 18.3% | 0.97 / 0.45 |
+| A4 Z from 4 points early | 2.0% / 2.0% / 2.0% | **4 of 8** / 5 of 8 / **8 of 8** | 19.8% | 0.84 / 0.35 |
+
+Bars: (1) size at most 10% in A0, A2, A4 at every date: 1.8-5.8%, holds. (2) A4 at the stated date, warned bias at
+least 1.5x the unwarned (2.4x, holds) **and** a warned p <= 0.05 share 5 points above the unwarned (5.1% vs 1.2%,
++3.9: **fails**). (3) Reported: Z's warning in A2 fires 18.3% against A0's 21.5%, under the 5-point line, so no text
+change. (4) Anticipation costs power: E2 -22.0 and E4 -36.5 points against E0, holds. (5) Backdating by the lead wins
+it back: +15.2 (E2) and +28.2 (E4) points, gaps -0.86 to -1.00 and -0.75 to -0.98, holds. (6) Reported: backdating
+when nothing was anticipated costs 9.8 (by 2) and 18.5 (by 4) points of power; backdating too far (E2 by 4) still
+beats the stated date (45.8% vs 39.8%) but loses to the right lead (55.0%).
+
+**What it says.**
+- **An effect people saw coming is half-hidden at the stated date.** Two points of anticipation cost a third of the
+  power and four points cost three fifths, and the gap read from the date shrinks by 14-25%, because the fit already
+  bends toward the early drop. Backdating to the true lead recovers both. Needless backdating has a cost too (a
+  shorter fit), so the lead should come from what is known about the change (when the law passed, when the price
+  rise was announced), not from trying several and keeping the smallest p.
+- **The placebo warning's calibration is for covariate shocks that start at the date.** When Z moved 4 points before
+  it, warned panels were still 2.4x as biased, but the warning held only half the false finds: the fit saw four of
+  the shifted points and matched part of Z through the outcome, so some biased panels no longer looked imbalanced.
+  Fitted before the covariate moved (`--anticipation 4`), the warning held all 8 again. The CLI's and the page's
+  warning text now say so.
+- **On Proposition 99** (an illustration, not part of the pre-registration): the ballot passed in November 1988 and
+  the tax began in January 1989. Backdated one or two years, California keeps rank 1 of 39 (p 0.026) with a gap from
+  1989 on of -19.7 and -18.5 packs (-19.5 undated); Massachusetts 1993 stays 6th either way. The published result
+  does not lean on a year of anticipation.
+
+**Ships.** `node cli.mjs panel.csv --column CA --known-date 1989 --donors all --anticipation 1` ends the fit N points
+before the named date, reads the gap and the placebo test from there, keeps the named date as the label and prints
+`gapFromDate` (the mean gap from the named date on). The page has the same box ("Points people saw it coming").
+Without it the CLI and the page print one line on when to use it. **Limits.** One panel shape (N1), step effects and
+step covariate shocks, the lead known exactly. **Next:** a real deployer's panel; a lead that is uncertain (a range of
+backdates reported together without picking the best p).
+
+### An uncertain lead: a range of backdates with one p, `--anticipation 0-4` (2026-11-18, pre-registered; all four bars passed)
+
+"A shock before the date" shipped `--anticipation N` for a lead known exactly and ended "Next: a lead that is
+uncertain (a range of backdates reported together without picking the best p)". `synthLeadRange(y, donors, k, leads)`
+in `synth-control.mjs` fits the synthetic control at every backdate in the range and reads three range statistics,
+each a placebo test that ranks the treated unit's value among all units' values computed the same way, so no lead is
+picked: **max-scaled** (each unit's largest floored statistic over the leads, each lead's divided by its median over
+all units), **mean** (the floored statistic averaged over the leads) and **min-p** (the Westfall-Young permutation
+min-p of the per-lead placebo p's). `eval/synth-lead-range-sim.mjs` (pre-registration
+`eval/synth-lead-range-prereg-2026-11-18.md`, committed after two exploratory runs at bases 81000 and 82000,
+`eval/synth-lead-range-explore.out.txt`, and before the confirmatory run): the anticipation panels (N1, 39 units, 19
+points before the stated date, 12 after), leads 0 to 4. The exploration dropped min-p as a candidate: with 39 units
+p <= 0.05 means rank 1, and some placebo is nearly always rank 1 at one of five leads. Confirmatory, base 83000, 400
+panels a cell (`eval/synth-lead-range-confirm.out.txt`), p <= 0.05 shares:
+
+| cell | stated date | oracle (true lead) | smallest p of 5 | min-p | mean | **max-scaled** | Bonferroni | largest p |
+|---|---|---|---|---|---|---|---|---|
+| A0 nothing | 2.0% | 2.0% | 5.3% | 0.8% | 3.5% | **3.8%** | 0.0% | 0.8% |
+| A4 covariate shock 4 early, no effect | 2.0% | 3.3% | 7.8% | 0.0% | 2.5% | **3.3%** | 0.0% | 0.0% |
+| E0 effect -1 at the date | 59.0% | 59.0% | 64.0% | 36.3% | 53.5% | **53.5%** | 0.0% | 36.3% |
+| E2 effect -1, 2 points early | 34.8% | 56.8% | 66.3% | 26.8% | 50.0% | **54.8%** | 0.0% | 26.8% |
+| E4 effect -1, 4 points early | 27.8% | 59.3% | 64.3% | 23.0% | 48.3% | **55.5%** | 0.0% | 23.0% |
+
+Bars (max-scaled): (1) size at most 10% in A0 and A4: 3.8% and 3.3%, holds. (2) E2 and E4 at least 10 points above the
+stated date: +20.0 and +27.7, holds. (3) E0 at most 15 points below the stated date: -5.5, holds. (4) E2 and E4 within
+10 points of the oracle: -2.0 and -3.8, holds. (5) Reported: keeping the smallest of the five p's raised the
+no-effect share from 2.0% to 5.3% (A0) and 7.8% (A4); the smallest p sat at lead 0 in 41% of A0 panels and at lead 4
+in 20%.
+
+**What it says.**
+- **Not knowing the lead costs little.** Read over leads 0-4, an effect that began 2 or 4 points early was found
+  nearly as often as with the true lead known (55% and 56% against 57% and 59%) and twice as often as at the stated
+  date (35% and 28%). When nothing was anticipated the range cost 5.5 points, less than backdating by a fixed 2 (9.8)
+  or 4 (18.5) did in "A shock before the date".
+- **Trying leads and keeping the smallest p is the trap it replaces.** It found more (64-66%) because it also found
+  more where there was nothing: 5.3% and 7.8% of no-effect panels against 2.0%. Bonferroni over five leads is useless
+  here: with 39 units its smallest possible p is 5/39 = 0.128, so it never reaches 0.05.
+- **Size.** The range test's no-effect share (3.8%) sits above the single-date test's (2.0%) and above the 2.6% a
+  rank-1 cut gives under exact exchangeability, within the sampling error of 400 panels (about 1 point). It is under
+  the 5% people read p 0.05 as.
+- **On Proposition 99** (an illustration, not part of the bars): `--anticipation 0-2` gives California p 0.026 at
+  each lead (gaps from 1989 on -19.5, -19.7, -18.5) and a range p of 0.026.
+
+**Ships.** `node cli.mjs panel.csv --column CA --known-date 1989 --donors all --anticipation 0-4` prints every
+lead's fit end, mean gap from the named date and placebo p in a table, then the max-scaled range p as the one to read,
+with the line that the table's smallest p is not a test (`--json`: `leadRange`). The main fit shown is the range's
+shortest backdate. The page's "Points people saw it coming" box takes the same `a-b` range and shows the table.
+**Limits.** One panel shape (N1), step effects, leads 0-4 only, an effect of one size; a range wider than the lead
+costs power that was not measured beyond 4. **Next:** a real deployer's panel; a range on a series whose donors are
+few (fewer than 20 units).
+
+### Few donors: the Basque Country and West Germany (2026-11-18, pre-registered; three of six bars passed)
+
+Every real test so far used Proposition 99's 38 donor states; "An uncertain lead" ended asking for a series whose
+donors are few, and the flagship row for "a real deployer's panel, few donors", the case a user is likelier to have
+(a handful of stores, regions or countries). Two published 17-unit panels, reshaped with no value changed by
+`node eval/few-donor-panels.mjs` (`data/SOURCE.md`): **West Germany**, reunification 1990, GDP per head of 17 OECD
+countries 1960-2003 (Abadie, Diamond and Hainmueller 2015), and the **Basque Country**, terrorism from about 1970,
+GDP per head of 17 Spanish regions 1955-1997 (Abadie and Gardeazabal 2003). Pre-registration
+`eval/synth-few-donors-prereg-2026-11-18.md`, committed before any fit; the shipped CLI defaults only (outcome-only
+fit, floored ratio), `node eval/synth-few-donors-real.mjs` (`eval/synth-few-donors-real.out.txt`):
+
+| Bar (pre-registered) | Result | |
+|---|---|---|
+| 1. West Germany: mean gap 1990-2003 between -2,500 and -800 USD, below 0 at 2003, at least 60% of the weight on the paper's five countries | -1,297 on average, -3,446 at 2003; USA 0.343, Austria 0.323, Switzerland 0.108 (77% on the five) | holds |
+| 2. West Germany: floored rank 1 of 17 | **rank 3 of 17, p 0.176** (the paper's plain ratio: rank 1, p 0.059) | **fails** |
+| 3. Basque: mean gap 1970-1997 below 0 and above -1.5 thousand USD, at least 60% of the weight on Catalonia and Madrid | -0.895 (about 10% of GDP per head, as published), but Madrid 0.483, Baleares 0.311, La Rioja 0.206: **48%** | **fails** |
+| 4. Basque: floored rank at most 3 of 17 | **rank 4 of 17, p 0.235**, with the fit warning (81% of placebos fit better) | **fails** |
+| 5. In-time placebos (West Germany at 1975 on 1960-1989, Basque at 1965 on 1955-1969): neither ranks 1 | ranks 2 and 7 of 17 | holds |
+| 6. Leave-one-out (each donor of weight at least 0.05 removed): every refit keeps a negative mean gap | 5 of 5 (-1,354 to -1,815) and 3 of 3 (-0.54 to -0.91) | holds |
+
+**The estimates survive; the test does not find them.** Both published gaps come back from an outcome-only fit:
+West Germany about 1,300 USD a head a year below its synthetic control from 1990 to 2003 (the paper, with covariates:
+about 1,600), opening after a brief reunification boom (+750 in 1991) to -3,400 by 2003, and the Basque Country about
+0.9 thousand USD a head (about 10%) below from the late 1970s. Every leave-one-out refit keeps the sign. But neither
+reaches rank 1, and with 17 units nothing else counts: **the smallest p 17 units allow is 1/17 = 0.059, so p <= 0.05
+was out of reach before any fit was run.**
+
+**Why they rank 3rd and 4th** (after the run, not pre-registered; numbers from `--json`, which now lists them):
+- *West Germany is the best-fitted unit of all 17* (before-gap 61 USD; 0% of placebos fit better), and the floored
+  ratio, built so a near-exact *donor* cannot win on a tiny denominator (Missouri and Virginia, "A floored ratio"),
+  floors the treated unit's own denominator too, at the 144 USD median. That gives up the advantage the paper's ratio
+  rests on (30.4 against the next unit's 20.5). Above it: the Netherlands (after-gap 2,428) and Norway (5,036, the
+  North Sea oil years): donors with large shocks of their own after 1990.
+- *The Basque Country is hard to fit*: the third richest region, with an industry share of 45% against a synthetic
+  23% (2.31 sd, 100% of placebos matched better, `WARNING`), so it carries the fit warning; above it Asturias (coal and
+  steel decline), Cantabria and Valencia. Its synthetic control is not the paper's Catalonia-Madrid mix: matched on
+  every point from 1955 rather than on 1960s covariates, Madrid, Baleares and La Rioja track it closer (before-gap
+  0.076). Dropping Madrid gives Catalonia 1.00 and halves the gap (-0.54); the paper's mix is the leave-Madrid-out
+  direction, not the default.
+- The paper's ratio would have ranked West Germany 1st, the Basque Country 7th; the after-gap alone 7th and 2nd. With
+  few donors the choice of statistic moves the rank by several places, so it has to be fixed before the result, as the
+  floored ratio was (2026-11-17, on 39-unit panels). Changing the default now, after seeing which one ranks West
+  Germany first, would be the forking path the pre-registration exists to stop; **the default stays**.
+
+**Ships (decided in the pre-registration, whatever the bars said).**
+- Under 19 donors the CLI prints `FEW DONORS: With 17 units the placebo p cannot go below 0.059: p <= 0.05 is out of
+  reach whatever happened, so rank 1 (p 0.059) is the strongest result this test can give, not a near-miss ...`, and
+  the page shows the same note (`fewDonorsNote` in `synth-view.mjs`); a rank-1 result with few units says "the largest
+  of all N units (the smallest p this many units allow)" on the page's summary line.
+- When the treated unit is not ranked 1, the CLI and the page name the placebos ranked at or above it, with their
+  statistic and before- and after-gaps (`above` in `--json`; `aboveNote`), and say that a donor's own shock is a reason
+  to look into it and report it, not to drop it after seeing the result. Descriptive: it changes no p.
+- `synth-few-donors.test.mjs` pins the recorded numbers.
+
+**What a user with a handful of units can take from this.** The synthetic control gives a usable estimate of the gap
+with 16 donors (both published gaps, both signs robust to dropping any heavy donor). The placebo test, with fewer than
+19 units, can at best say "the largest of all", and one donor with its own after-date shock is enough to take that
+away; read the named units above the treated one before reading the p. **Limits.** Two panels, one statistic fixed
+in advance, levels only, no covariate fit. **Next:** a size and power check at 10-20 units in simulation (how often
+rank 1 is reached with a real 2 sd step when one donor has its own shock); a real deployer's panel of stores or regions.
+
+### Few donors: size and power, and one donor with its own shock (2026-11-18, pre-registered; all six bars passed)
+
+"Few donors" ended: "a size and power check at 10-20 units in simulation (how often rank 1 is reached with a real
+2 sd step when one donor has its own shock)". `eval/synth-few-power-sim.mjs` (pre-registration
+`eval/synth-few-power-prereg-2026-11-18.md`, committed after an exploratory run at base 81000 and before the
+confirmatory run): the shipped generator in N1's shape (19 points before, 12 after, noise sd 0.5) at 11, 16 and 21
+units. The treated unit drops by 1.0 (two noise sd) from the date in the P cells; donor 1 moves by 1.0 (D) or 2.0 (E)
+from the date, its own event, sign drawn per panel. Shipped defaults. Each panel is also refitted with donor 1 left out
+of the pool beforehand. Confirmatory, base 83000, 400 panels a cell (`eval/synth-few-power-confirm.out.txt`); "rank 1"
+is p = 1/units, the strongest result the test allows:
+
+| units | no effect: rank 1 (1/units) | ... donor shocked | 2 sd step: rank 1 | ... one donor shocked by the same | ... by twice | ... that donor left out beforehand | mean gap (truth -1), shocked |
+|---|---|---|---|---|---|---|---|
+| 11 | 9.5% (9.1%) | 3.5% | **53.5%** | **38.0%** | **12.8%** | 58.3% | -0.995 |
+| 16 | 6.5% (6.3%) | 2.3% | **60.0%** | **40.3%** | **9.0%** | 56.0% | -1.029 |
+| 21 | 6.5% (4.8%) | 3.0% | **58.8%** | **34.8%** | **6.0%** | 57.5% | -1.007 |
+
+Bars: (1) size at most 1/units + 4 points in all six no-effect cells: holds. (2) power at least 40% with clean donors:
+53.5-60.0%, holds. (3) a same-size donor shock costs at least 8 points: 15.5, 19.7 and 24.0, holds. (4) a donor shock
+twice the effect leaves at most 15%: 6.0-12.8%, holds. (5) leaving the donor out beforehand comes within 8 points of
+the clean rate: -4.7 to +4.8, holds. (6) of PD and PE panels not at rank 1, the shocked donor is among the units
+listed above the treated one in 88.9% (1,633 of 1,837; bar 70%): holds.
+
+**What it says.**
+- **One donor's own event is enough to take the test away; it does not touch the estimate.** With clean donors a
+  2 sd step reaches rank 1 in 54-60% of panels at every size from 11 to 21 units; one donor with a shock as large
+  as the effect drops that to 35-40%, one twice as large to 6-13%, close to the 5-9% of no effect at all. The gap
+  stays right in every cell (mean -0.94 to -1.08 against the true -1): the shocked donor rarely carries much weight
+  (0.05-0.11 on average), so it spoils the placebo ranking, not the synthetic control. This is the pattern of West
+  Germany and the Basque Country: published gaps recovered, ranks 3rd and 4th.
+- **More units do not buy it back.** Power with clean donors is flat from 16 to 21 units (60.0%, 58.8%), and the
+  shocked donor costs the most at 21 (24 points): rank 1 is a single slot, and one unit with a larger statistic
+  takes it whatever the pool's size.
+- **Leaving the donor out beforehand restores the clean rate** (56-58%), at the price of one unit (the smallest p
+  rises from 1/21 to 1/20, or 1/11 to 1/10). Done before the fit, because its event is known (a store refit, a plant
+  closure, a region's own policy), this is Abadie (2021)'s advice to keep units with large idiosyncratic shocks out of
+  the pool; done after seeing the ranks, it is the forking path the "above" note warns about. The simulation scores
+  the pre-declared kind only.
+- The "ranked above" list names the culprit in 89% of the panels where the treated unit missed rank 1, so the note
+  added in "Few donors" points the reader at the right unit.
+- Reported, no bar: the plain ratio's rank-1 shares follow the floored ratio's (43-49% clean, 31-37% one shocked);
+  the after-gap alone is weak everywhere (16-19% clean).
+
+**Ships (decided in the pre-registration).** The FEW DONORS note in the CLI and on the page now quotes these rank-1
+shares at the nearest of 11, 16 and 21 units (`FEW_POWER`, `fewPowerRow` in `synth-view.mjs`) and says to leave out of
+`--donors`, before fitting, any unit whose own after-date event is already known, and to say so.
+`synth-few-power.test.mjs` pins the panel construction and checks the note's numbers against the confirmatory file.
+
+**Limits.** One panel shape (N1's), independent factor loadings, one shocked donor with a step; a donor with a slope or
+pulse, two shocked donors and a shocked donor that is also the treated unit's best match are untested. **Next:** a
+real deployer's panel of stores or regions; two shocked donors at 11-16 units.
+
+### Two shocked donors, and a shocked best match (2026-11-18, pre-registered; all eight bars passed)
+
+"Few donors: size and power" left "two shocked donors and a shocked donor that is also the treated unit's best match"
+untested. West Germany had two donors above it and the Basque Country three, and a user often knows of one donor's
+event and not another's. `eval/synth-two-shock-sim.mjs` (pre-registration `eval/synth-two-shock-prereg-2026-11-18.md`,
+committed after an exploratory run at base 84000 and before the confirmatory one): the same generator and N1 shape at
+11 and 16 units, the treated unit dropping by 1.0 (two noise sd); two donors each moved by 1.0 (PDD) or 2.0 (PEE)
+with independent signs, or one donor moved by 1.0 that is the treated fit's heaviest (PB, weights found from the
+before-period before the shock is added; it carries 0.50-0.55 of the weight on average). Each panel is refitted with
+the first shocked donor left out beforehand and with all of them left out. Confirmatory, base 85000, 400 panels a
+cell (`eval/synth-two-shock-confirm.out.txt`):
+
+| units | 2 sd step, clean: rank 1 | one donor shocked | two shocked | ... one of the two left out | ... both left out | two shocked by twice | ... one left out | gap error: clean / best match shocked / it left out |
+|---|---|---|---|---|---|---|---|---|
+| 11 | 53.8% | 40.3% | **28.0%** | 35.0% | **52.5%** | **8.0%** | 12.5% | 0.507 / **0.673** / 0.689 |
+| 16 | 55.8% | 38.0% | **27.3%** | 35.8% | **55.5%** | **4.8%** | 7.0% | 0.417 / **0.657** / 0.568 |
+
+Bars: (1) size with two shocked donors and no effect at most 1/units + 4: 4.5% and 1.5%, holds. (2) two shocks cost
+at least 5 points more than one: 12.3 and 10.7, holds. (3) two shocks of twice the effect leave at most 10%: 8.0% and
+4.8%, holds. (4) leaving both out comes within 8 points of clean: -1.3 and -0.3 (PDD), +1.7 and -1.8 (PEE), holds.
+(5) leaving out one of two twice-size shocks leaves at most 15%: 12.5% and 7.0%, holds. (6) a shocked best match
+raises the gap's mean absolute error at least 1.3x: 1.33x and 1.58x, holds (11 units only just). (7) leaving the best
+match out does not buy the precision back, at least 1.15x: 1.36x and 1.36x, holds. (8) of PDD and PEE panels not at
+rank 1, a shocked donor is listed above the treated unit in 94.7% (1,258 of 1,328; bar 80%): holds.
+
+**What it says.**
+- **Each donor's own event takes its share; leaving out the one you know of leaves the other's.** One shocked donor
+  costs 14-18 points of rank-1 share, two cost 26-29, and with two shocks twice the effect's size the test is back at
+  its no-effect rate (5-8%). Leaving out both beforehand restores the clean rate to within 2 points (52.5-55.5% against
+  53.8-55.8%); leaving out one of two restores 35-36%, about the one-shocked rate, and next to nothing when the other
+  is large (7-12.5%). Size stays honest throughout (1.5-4.5% with no effect): donors' shocks make the test blind, never
+  eager.
+- **A shocked best match spoils the estimate more than the test.** When the shocked donor is the treated unit's
+  heaviest (half its synthetic control), rank 1 drops only 9-13 points (45.0%, 42.5%), less than a random donor's
+  shock, because a donor that tracks the treated unit closely has a small placebo statistic. But the gap's error rises
+  1.3-1.6x (the gap moves by about weight times shock), and leaving that donor out beforehand does not buy it back
+  (1.36x both sizes): the remaining donors fit the treated unit worse. The mean gap stays near -1 only because the
+  shock's sign is drawn at random; a single real panel gets one sign.
+- On the two real panels the units above the treated one carry almost no weight (Netherlands 0.000, Norway 0.028;
+  Asturias, Cantabria, Valencia 0.000), so their events moved the rank and not the estimate, the "one shocked donor"
+  case.
+
+**Ships (decided in the pre-registration).** The FEW DONORS note quotes the two-shocked rank-1 shares at the nearest
+of 11 and 16 units (`TWO_SHOCK`, `twoShockRow` in `synth-view.mjs`) and says leaving out the one event you know of is
+not enough when another donor had one too. The "ranked above" note now names any listed unit carrying at least 0.2 of
+the treated unit's weight (`HEAVY_WEIGHT`; `above` in `--json` gains `weight`), says an event of its own moves the
+estimated gap too, quotes the simulated error ratios, and says to report the gap with and without it.
+`synth-two-shock.test.mjs` pins the panels, checks the numbers against the confirmatory file and re-checks every bar.
+
+**Limits.** One panel shape, step shocks only, independent loadings; the error ratios are averaged over random signs.
+**Next:** a real deployer's panel of stores or regions; a donor with a slope or pulse rather than a step.

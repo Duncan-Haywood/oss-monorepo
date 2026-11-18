@@ -140,7 +140,7 @@ def _encode(r, g, b, hi, m, curve, lut_size, look):
     r = np.where(r > hi, hi, np.where(r < 0, 0.0, r))
     g = np.where(g > hi, hi, np.where(g < 0, 0.0, g))
     b = np.where(b > hi, hi, np.where(b < 0, 0.0, b))
-    lut = np.asarray(curve, dtype=np.uint16)
+    lut = np.asarray(curve, dtype=np.float64)
     out = np.empty(r.shape + (3,), dtype=np.uint16)
     planes = []
     for i in range(3):
@@ -151,12 +151,16 @@ def _encode(r, g, b, hi, m, curve, lut_size, look):
         planes = list(apply_look(look, *planes))
     for i in range(3):
         v = planes[i]
-        idx = (v * (lut_size - 1) + 0.5).astype(np.int64)
-        np.clip(idx, 0, lut_size - 1, out=idx)
-        enc = lut[idx]
+        # Linear interpolation between table entries, rounded once, as raw_develop's ``encode``
+        # does it (same float64 operations in the same order, so both paths give the same bytes).
+        t = np.clip(v, 0.0, 1.0) * (lut_size - 1)
+        idx = t.astype(np.int64)
+        np.clip(idx, 0, lut_size - 2, out=idx)
+        lo = lut[idx]
+        enc = np.floor(lo + (t - idx) * (lut[idx + 1] - lo) + 0.5)
         enc[v <= 0] = 0
         enc[v >= 1] = 65535
-        out[..., i] = enc
+        out[..., i] = enc.astype(np.uint16)
     return out
 
 
@@ -249,7 +253,7 @@ def _encode_image(img, hi, m, curve, lut_size, look, mults=None, threads=None):
     out = np.empty(img.shape, dtype=np.uint16)
 
     def band(y0, y1):
-        b = img[y0:y1]
+        b = np.asarray(img[y0:y1], dtype=np.float64)  # a float32 image (noise-aware) encodes in float64 as the rest do
         if mults is None:
             planes = (b[..., 0], b[..., 1], b[..., 2])
         else:
@@ -260,45 +264,113 @@ def _encode_image(img, hi, m, curve, lut_size, look, mults=None, threads=None):
     return out
 
 
-def _directional(norm, w, h, pat, mults, hi):
+def _noise_aware_plane(plane, pat, hi, plane_noise):
+    """The noise-aware blend of the white-balanced plane under ``plane_noise`` ((shot, read) on its scale), clipped."""
+
+    from shootflow.xtrans_demosaic import noise_aware
+
+    h, w = plane.shape
+    if len(pat) == 4:
+        from shootflow.bayer_demosaic import directional as bayer
+
+        d = bayer(plane, pat, laplace=0.1875)
+    else:
+        from shootflow.xtrans_demosaic import directional
+
+        d = directional(plane, pat, scale=hi)
+    # float32, as the Bayer directional image already is: half the bytes of the largest array the develop holds.
+    # 16-bit output needs about 1.5e-5 of the range; float32 keeps 6e-8. Bands on every thread (``_run_bands``:
+    # no byte changes with the count); the blend is written over the bilinear image band by band (each band's
+    # arithmetic in float64, stored as float32) and clipped in place, so no further full-frame (h, w, 3) array
+    # is made (eval/noise-aware-full-frame-cost-2026-11-17.md, eval/noise-aware-float32-2026-11-17.md).
+    b = np.empty((h, w, 3), dtype=np.float32)
+    _bilinear(plane, w, h, pat, (1.0, 1.0, 1.0), 1e9, None, None, None, None, sink=b)
+    out = noise_aware(plane, pat, bilinear=b, directional_out=d, noise=plane_noise, out=b)
+    del d
+
+    def clip(y0, y1):
+        o = out[y0:y1]
+        o[...] = _clip(o, hi)
+
+    _run_bands(clip, h)
+    return out
+
+
+def _directional(norm, w, h, pat, mults, hi, demosaic="directional", noise=None, notes=None, guard=True):
     """The directional demosaic on the white-balanced plane, clipped as ``_encode`` clips: the same
     (h, w, 3) linear image the bilinear path's ``sink`` receives. X-Trans goes to ``xtrans_demosaic``,
     a 2x2 Bayer CFA to ``bayer_demosaic`` (2026-11-15)."""
 
     from shootflow.xtrans_demosaic import colour_map
 
-    gains = np.asarray(mults, dtype=np.float64)[colour_map(pat, h, w)]
-    plane = np.asarray(norm).reshape(h, w) * gains
+    plane = np.asarray(norm).reshape(h, w) * np.asarray(mults, dtype=np.float64)[colour_map(pat, h, w)]
+    if demosaic == "noise-aware":
+        # The directional result blended toward bilinear block by block where it adds less detail than the
+        # sensor's own noise (``noise``: (shot, read) on the 0..1 normalised scale, a DNG NoiseProfile;
+        # carried to the white-balanced plane per colour gain): eval/xtrans-noise-aware-blend-2026-11-16.md.
+        from shootflow.xtrans_demosaic import as_planes
+
+        g = np.asarray(mults, dtype=np.float64)
+        if noise is None:
+            # No NoiseProfile (a raw read directly, or a DNG without one): the model is read from the
+            # white-balanced plane itself (patch PCA), scaled down and guarded (``frame_noise``,
+            # eval/noise-aware-estimated-2026-11-17.md, eval/noise-pca-estimator-2026-11-17.md).
+            from shootflow.xtrans_demosaic import frame_noise
+
+            plane_noise = frame_noise(plane, pat)
+            return _noise_aware_plane(plane, pat, hi, plane_noise)
+        raw = as_planes(noise)  # (shot, read) per colour on the normalised scale: one pair, or the DNG's per plane
+        if guard:
+            # A profile far above the noise the mosaic shows is scaled down (eval/noise-profile-real-dngs-2026-11-16.md),
+            # plane by plane, each carried by its own gain. With noise drawn before white balance, as a sensor draws
+            # it, an honest profile read 1.03 at the 95th percentile this way and 1.16-1.35 through the one-gain carry,
+            # which trimmed honest profiles on up to 33 of 174 tiles (eval/noise-aware-planes-luma-2026-11-16.md).
+            from shootflow.xtrans_demosaic import PROFILE_CAP, guard_profile
+
+            per = np.stack([raw[:, 0] * g, raw[:, 1] * g * g], axis=1)
+            used, ratio = guard_profile(plane, pat, per)
+            raw = np.stack([used[:, 0] / g, used[:, 1] / (g * g)], axis=1)
+            if notes is not None and ratio == ratio and ratio > PROFILE_CAP:
+                notes.append(
+                    f"NoiseProfile states {ratio:.1f}x the noise in the frame: scaled to {PROFILE_CAP:g}x for the noise-aware blend"
+                )
+        # The blend itself takes the one-gain carry it was tuned with (shot x mean gain, read x mean gain^2 of the
+        # planes' mean pair): on 25 held-out files a per-colour carry scored +0.01-0.05 dB colour and -0.05-0.07 dB
+        # luma against it (eval/noise-aware-planes-luma-2026-11-16.md).
+        shot, read = raw.mean(axis=0)
+        plane_noise = (float(shot) * float(np.mean(g)), float(read) * float(np.mean(g * g)))
+        return _noise_aware_plane(plane, pat, hi, plane_noise)
     if len(pat) == 4:
         from shootflow.bayer_demosaic import directional as bayer
 
-        return _clip(bayer(plane, pat), hi)
+        # "learned": the per-sensel Laplacian weight of eval/bayer-learned-laplace-2026-11-16.md (C path when it builds, eval/bayer-learned-native-2026-11-16.md)
+        return _clip(bayer(plane, pat, laplace="learned" if demosaic == "learned" else 0.1875), hi)
     from shootflow.xtrans_demosaic import directional
 
     return _clip(directional(plane, pat, scale=hi), hi)
 
 
-def _half_linear(norm, w, h, pat, mults, hi, threads=None, demosaic="bilinear"):
+def _half_linear(norm, w, h, pat, mults, hi, threads=None, demosaic="bilinear", noise=None, notes=None, guard=True):
     """Half size for an X-Trans CFA (``raw_develop._half_from_full``): full-size demosaic, clipped and
     white-balanced, then each 2x2 block summed in row order from 0.0 and divided by 4."""
 
     ow, oh = w // 2, h // 2
-    if demosaic == "directional":
-        full = _directional(norm, w, h, pat, mults, hi)
+    if demosaic in ("directional", "noise-aware"):
+        full = _directional(norm, w, h, pat, mults, hi, demosaic, noise, notes, guard)
     else:
         full = np.empty((h, w, 3), dtype=np.float64)
         _bilinear(norm, w, h, pat, mults, hi, None, None, None, None, sink=full, threads=threads)
-    t = 0.0 + full[0 : 2 * oh : 2, 0 : 2 * ow : 2]
+    t = full[0 : 2 * oh : 2, 0 : 2 * ow : 2].astype(np.float64)  # sums in float64 when ``full`` is float32 (noise-aware)
     t = t + full[0 : 2 * oh : 2, 1 : 2 * ow : 2]
     t = t + full[1 : 2 * oh : 2, 0 : 2 * ow : 2]
     t = t + full[1 : 2 * oh : 2, 1 : 2 * ow : 2]
     return t / 4.0
 
 
-def _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=None, demosaic="bilinear"):
+def _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=None, demosaic="bilinear", noise=None, notes=None, guard=True):
     ow, oh = w // 2, h // 2
     if len(pat) != 4:
-        lin = _half_linear(norm, w, h, pat, mults, hi, threads, demosaic)
+        lin = _half_linear(norm, w, h, pat, mults, hi, threads, demosaic, noise, notes, guard)
         return _encode_image(lin, hi, m, curve, lut_size, look, threads=threads)
     out = np.empty((oh, ow, 3), dtype=np.uint16)
 
@@ -322,13 +394,16 @@ def _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=None, de
 def render(
     *, vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines,
     linear_raw, pat, half, mults, hi, m, curve, lut_size, look=None, gain_maps=(), warps=(), warp_kernel="bilinear",
-    threads=None, demosaic="bilinear",
+    threads=None, demosaic="bilinear", noise=None, notes=None, guard=True,
 ):
     """Returns ``(pixels uint16 (oh, ow, 3), ow, oh, clipped)``.
 
     Demosaic and encode run in bands on ``threads`` threads (``SHOOTFLOW_THREADS`` or every CPU when None), as
     the warp does; the thread count never changes the output. ``demosaic`` is "bilinear" (the pure path's
-    method, byte for byte) or "directional" (``xtrans_demosaic`` on X-Trans, ``bayer_demosaic`` on Bayer; numpy only).
+    method, byte for byte) or "directional" (``xtrans_demosaic`` on X-Trans, ``bayer_demosaic`` on Bayer; numpy only), or "learned"
+    (Bayer only: the directional demosaic with the learned per-sensel Laplacian weight), or "noise-aware" (the
+    directional result blended toward bilinear where it adds less than the sensor noise ``noise``, a (shot,
+    read) pair on the normalised scale, e.g. a DNG NoiseProfile).
     """
 
     norm, clipped = _normalised_plane(
@@ -342,7 +417,7 @@ def render(
             ow, oh = w, h
         elif half and len(pat) != 4:
             ow, oh = w // 2, h // 2
-            lin = _half_linear(norm, w, h, pat, mults, hi, threads, demosaic)
+            lin = _half_linear(norm, w, h, pat, mults, hi, threads, demosaic, noise, notes, guard)
         elif half:
             ow, oh = w // 2, h // 2
             acc = [np.zeros((oh, ow), dtype=np.float64) for _ in range(3)]
@@ -353,9 +428,9 @@ def render(
                     acc[c] = acc[c] + norm[dy : 2 * oh : 2, dx : 2 * ow : 2]
                     cnt[c] += 1
             lin = np.stack([_clip(acc[i] / cnt[i] * mults[i], hi) for i in range(3)], axis=-1)
-        elif demosaic == "directional":
+        elif demosaic in ("directional", "learned", "noise-aware"):
             ow, oh = w, h
-            lin = _directional(norm, w, h, pat, mults, hi)
+            lin = _directional(norm, w, h, pat, mults, hi, demosaic, noise, notes, guard)
         else:
             ow, oh = w, h
             lin = np.empty((h, w, 3), dtype=np.float64)
@@ -366,10 +441,10 @@ def render(
         out = _encode_image(norm.reshape(h, w, 3), hi, m, curve, lut_size, look, mults=mults, threads=threads)
         return out, w, h, clipped
     if half:
-        out = _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=threads, demosaic=demosaic)
+        out = _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=threads, demosaic=demosaic, noise=noise, notes=notes, guard=guard)
         return out, w // 2, h // 2, clipped
-    if demosaic == "directional":
-        lin = _directional(norm, w, h, pat, mults, hi)
+    if demosaic in ("directional", "learned", "noise-aware"):
+        lin = _directional(norm, w, h, pat, mults, hi, demosaic, noise, notes, guard)
         del norm
         return _encode_image(lin, hi, m, curve, lut_size, look, threads=threads), w, h, clipped
     return _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=threads), w, h, clipped

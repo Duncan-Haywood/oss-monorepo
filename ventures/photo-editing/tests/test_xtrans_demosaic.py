@@ -150,6 +150,26 @@ class DirectionalTests(unittest.TestCase):
         err = lambda a: float(np.mean((a - truth)[6:-6, 6:-6] ** 2))  # noqa: E731
         self.assertLess(err(new), err(old))
 
+    def test_median_green_false_leaves_green_as_the_pass_left_it(self):
+        import numpy as np
+
+        from shootflow.xtrans_demosaic import directional
+
+        # median_green=False (2026-11-16, measured and not the default: eval/xtrans-fresh-truths-2026-11-16.md):
+        # the median sets red and blue only, so green equals the no-median green exactly, sensels keep their own
+        # values, bands still equal one piece, and the C path is not asked for it.
+        c = self.mosaic(_edge_truth(h=120, w=36))[0] + np.random.default_rng(9).uniform(0, 0.05, (120, 36))
+        rb_only = directional(c, XE1_PATTERN, median_green=False, band_rows=None)
+        none = directional(c, XE1_PATTERN, median_passes=0, band_rows=None)
+        np.testing.assert_array_equal(rb_only[..., 1], none[..., 1])
+        self.assertFalse(np.array_equal(rb_only, none))
+        self.assertFalse(np.array_equal(rb_only, directional(c, XE1_PATTERN, band_rows=None)))
+        np.testing.assert_array_equal(
+            directional(c, XE1_PATTERN, median_green=False, band_rows=24, threads=2), rb_only
+        )
+        with self.assertRaises(RuntimeError):
+            directional(c, XE1_PATTERN, median_green=False, native=True)
+
     def test_unknown_choice_refused(self):
         import numpy as np
 

@@ -1,0 +1,23 @@
+Slip hub wear: set 0.9 N m; the worn corner is the set at -5% and the friction at -10%, times the disc stack's load left after the loss. Trip 1.51-1.77 A; plate allows 156 N. Starts: soft, empty belt, 6 corners, slips at the nominal / worn stiff spider (80.0, 5.0). Jams: 4 corners; cut and give-up at the highest trip, peak at the lowest.
+
+one A 12.5 x 0.7 disc (to 2026-11-16): set 65 um of 300 um, 3.07 N/um, stack 0.94 mm; budget 4 um; design loss 47 um (set 15 + cold 6.7 + 300 jams x 0.083); warm high corner 1.21 N m
+  loss um  load hub N m   slips  cut ms  gave up  peak N
+        0  100%    0.77   0/0        69     2479      59
+       10   85%    0.66   0/2        89     2499      47
+       20   70%    0.54   0/5       199     2669      41
+       40   39%    0.30   0/6       inf      inf      32
+       80    0%    0.00  the stack is unloaded: the pulley spins free, the belt stops
+      160    0%    0.00  the stack is unloaded: the pulley spins free, the belt stops
+  warm, new    1.21 N m: slips 0/0, cut by 49 ms, peak 92 N
+
+four B 12.5 x 0.5 discs in series (now): set 673 um of 1400 um, 0.25 N/um, stack 2.73 mm; budget 53 um; design loss 47 um (set 15 + cold 6.7 + 300 jams x 0.083); warm high corner 1.05 N m
+  loss um  load hub N m   slips  cut ms  gave up  peak N
+        0  100%    0.77   0/0        69     2479      59
+       10   99%    0.76   0/0        69     2479      59
+       20   98%    0.75   0/0        69     2479      59
+       40   95%    0.73   0/0        69     2479      56
+       80   90%    0.69   0/1        79     2489      49
+      160   80%    0.62   0/3        99     2509      45
+  warm, new    1.05 N m: slips 0/0, cut by 49 ms, peak 82 N
+
+Floors (bisected): every jam is still cut down to 0.53 N m; no soft start slips with the worn stiff spider down to 0.71 N m (the band's bottom is 0.72)

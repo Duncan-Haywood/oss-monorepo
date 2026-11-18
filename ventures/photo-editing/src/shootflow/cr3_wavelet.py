@@ -37,9 +37,24 @@ Implemented independently from the format as LibRaw's ``crx.cpp`` (Alexey
 Danilchenko's reverse-engineered decoder, LGPL-2.1/CDDL; no code copied) reads
 it, and checked sensel for sensel against LibRaw 0.22 on three real C-RAW
 files from two bodies (``tools/cr3_libraw_check.py``,
-``eval/canon-cr3-craw-2026-11-15.md``). Several tiles (with the extra edge
-coefficients LibRaw's ``exCoefNumTbl`` adds where tiles meet) and the
-old-style per-line ``qParam`` updates are not read: no test file has either.
+``eval/canon-cr3-craw-2026-11-15.md``). The old-style per-line ``qParam``
+updates are not read: no test file has them.
+
+**Several tiles (2026-11-16).** Wide sensors (the R5 class) may store the
+planes cut into a grid of tiles (``cr3.tile_grid``). Each tile is its own 5/3
+decomposition, its first sample even at every level, and its subbands carry
+edge coefficients lent by its neighbours: one more high-pass coefficient
+before a left (or top) neighbour, and after a right (or bottom) one the counts
+LibRaw's ``exCoefNumTbl`` gives for the tile's size mod 8 (``tile_geometry``).
+With them the inverse runs across the seam with the interior lifting rule
+(``inverse_53``'s ``first`` and ``last``), each level producing the next
+level's low band with its own edge coefficients (``level_sizes``). Each tile
+has its own QP grid at the tile's size; a borrowed coefficient takes the step
+of the nearest own column (and, as LibRaw reads it, row: ``step_row``). No
+public tiled C-RAW file exists to test with, so real R8 and R3 C-RAW frames
+were re-stored as tiles (``tests/craw_tiled.py``) and LibRaw 0.22 read them
+back (``tools/cr3_craw_tiled_libraw_check.py``,
+``eval/canon-cr3-craw-tiled-2026-11-16.md``).
 """
 
 from __future__ import annotations
@@ -56,11 +71,15 @@ STEP_MAX = 0x168000
 
 
 class Subband:
-    __slots__ = ("index", "offset", "size", "width", "height", "mult", "base", "shift", "level")
+    __slots__ = ("index", "offset", "size", "width", "height", "mult", "base", "shift", "level",
+                 "col_start", "col_end", "row_start", "row_end")
 
     def __init__(self, index: int, offset: int, size: int, mult: int, base: int):
         self.index, self.offset, self.size, self.mult, self.base = index, offset, size, mult, base
         self.width = self.height = self.shift = self.level = 0
+        # Edge coefficients borrowed from neighbouring tiles (0 on a one-tile sensor): the first ``col_start``
+        # and last ``col_end`` columns, the first ``row_start`` and last ``row_end`` rows.
+        self.col_start = self.col_end = self.row_start = self.row_end = 0
 
 
 class Plane:
@@ -71,12 +90,107 @@ class Plane:
         self.bands: list[Subband] = []
 
 
-class Layout:
-    """Where everything lies in a one-tile C-RAW sample: QP stream, planes and their subbands (offsets from the sample start)."""
+# Neighbouring tiles (LibRaw's tile flags).
+RIGHT, LEFT, BOTTOM, TOP = 1, 2, 4, 8
 
-    def __init__(self, qp_offset: int, qp_size: int, planes: list[Plane], levels: int, width: int, height: int):
-        self.qp_offset, self.qp_size, self.planes = qp_offset, qp_size, planes
-        self.levels, self.width, self.height = levels, width, height
+# Extra coefficients a tile's subbands carry past its right (or bottom) edge, from the format as LibRaw's
+# ``exCoefNumTbl`` gives it: 48 entries per level count (1-3), six per value of the tile's width (or height)
+# mod 8, two per level (finest first): the high band's count, then the low band's.
+EX_COEF = (
+    1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
+    0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0,
+    0, 0, 1, 2, 2, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 2, 2,
+    1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 2, 2, 2, 2, 1, 1, 1,
+    1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 0, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+)
+
+
+class TileLayout:
+    """One tile of a C-RAW sample: where its QP stream and planes lie (offsets from the sample start), its
+    place and size in plane units, its neighbours and the size each level's inverse produces (deepest first)."""
+
+    def __init__(self, index: int, row: int, col: int, width: int, height: int, flags: int, levels: int):
+        self.index, self.row, self.col, self.width, self.height = index, row, col, width, height
+        self.flags, self.levels = flags, levels
+        self.qp_offset = self.qp_size = 0
+        self.planes: list[Plane] = []
+        self.geometry = tile_geometry(width, height, levels, flags)
+        self.level_sizes = level_sizes(self.geometry, width, height, levels)
+
+
+class Layout:
+    """Where everything lies in a C-RAW sample: its tiles, each with a QP stream and four planes of subbands."""
+
+    def __init__(self, tiles: list[TileLayout], levels: int, width: int, height: int):
+        self.tiles, self.levels, self.width, self.height = tiles, levels, width, height
+
+    # One-tile conveniences (the sample's only tile).
+    @property
+    def planes(self) -> list[Plane]:
+        return self.tiles[0].planes
+
+    @property
+    def qp_offset(self) -> int:
+        return self.tiles[0].qp_offset
+
+    @property
+    def qp_size(self) -> int:
+        return self.tiles[0].qp_size
+
+
+def tile_geometry(width: int, height: int, levels: int, flags: int = 0) -> list[tuple[int, int, int, int, int, int]]:
+    """Each subband's (width, height, col_start, col_end, row_start, row_end) in coded order, for a tile of
+    ``width`` x ``height`` plane sensels with the neighbours ``flags`` names.
+
+    A tile's bands are those of its own 5/3 decomposition (its first sample even at every level), plus edge
+    coefficients from its neighbours so the inverse runs across the seam as on one plane: one more high-pass
+    coefficient before a left (or top) neighbour, and after a right (or bottom) one the counts ``EX_COEF``
+    gives for the tile's size mod 8, a high and a low count per level. With no neighbours this is
+    ``band_sizes``."""
+
+    if not levels:
+        return [(width, height, 0, 0, 0, 0)]
+    row_ex = EX_COEF[0x30 * (levels - 1) + 6 * (width & 7):][:6]
+    col_ex = EX_COEF[0x30 * (levels - 1) + 6 * (height & 7):][:6]
+    per_level = []  # finest first: (HL, LH, HH)
+    bw, bh = width, height
+    for level in range(levels):
+        odd_w, odd_h = bw & 1, bh & 1
+        bw, bh = (bw + odd_w) >> 1, (bh + odd_h) >> 1
+        wx0 = wx1 = hx0 = hx1 = cs = rs = 0
+        if flags & RIGHT:
+            wx0, wx1 = row_ex[2 * level], row_ex[2 * level + 1]
+        if flags & LEFT:
+            wx0 += 1
+            cs = 1
+        if flags & BOTTOM:
+            hx0, hx1 = col_ex[2 * level], col_ex[2 * level + 1]
+        if flags & TOP:
+            hx0 += 1
+            rs = 1
+        hh = (bw + wx0 - odd_w, bh + hx0 - odd_h, cs, wx0 - cs, rs, hx0 - rs)
+        lh = (bw + wx1, bh + hx0 - odd_h, 0, wx1, rs, hx0 - rs)
+        hl = (bw + wx0 - odd_w, bh + hx1, cs, wx0 - cs, 0, hx1)
+        per_level.append((hl, lh, hh))
+    wx = row_ex[2 * levels - 1] if flags & RIGHT else 0
+    hx = col_ex[2 * levels - 1] if flags & BOTTOM else 0
+    out = [(bw + wx, bh + hx, 0, wx, 0, hx)]
+    for group in reversed(per_level):
+        out.extend(group)
+    return out
+
+
+def level_sizes(geometry, width: int, height: int, levels: int) -> list[tuple[int, int]]:
+    """The (width, height) each level's inverse produces, deepest first: the next level's low band with its
+    edge coefficients, and the tile itself at the finest level."""
+
+    out = []
+    for level in range(levels):
+        if level == levels - 1:
+            out.append((width, height))
+        else:
+            out.append((geometry[3 * (level + 1) + 2][0], geometry[3 * (level + 1) + 1][1]))
+    return out
 
 
 def _trunc_div(a: int, b: int) -> int:
@@ -114,65 +228,96 @@ def band_sizes(width: int, height: int, levels: int) -> list[tuple[int, int]]:
     return out
 
 
-def read_layout(sample: bytes, header_size: int, levels: int, planes: int, width: int, height: int) -> Layout:
-    """Parse a one-tile C-RAW sample's headers. ``width`` and ``height`` are one plane's (half the sensor's)."""
+def read_layout(sample: bytes, header_size: int, levels: int, planes: int, width: int, height: int,
+                grid=None) -> Layout:
+    """Parse a C-RAW sample's headers. ``width`` and ``height`` are one plane's (half the sensor's); ``grid``
+    is ``cr3.tile_grid``'s tiles (plane units) when the sensor is stored in several, else one tile.
 
+    The header holds, for each tile in turn, a tile header (0xFF11: the tile's byte count, its index, then the
+    sizes of the QP stream and of an extra block that open the tile's data), its four plane headers and each
+    plane's subband headers. The data follows tile after tile: QP stream, extra block, then the planes."""
+
+    if grid is None:
+        grid = [(0, 0, 0, width, height)]
+    else:
+        grid = [(t.index, t.row, t.col, t.width, t.height) for t in grid]
+    cols = sum(1 for g in grid if g[1] == 0)
+    rows = len(grid) // cols
     hdr = sample[:header_size]
-    if len(hdr) < 12:
-        raise rd.DevelopError("CR3: the C-RAW header is too short")
-    tag, size = struct.unpack_from(">HH", hdr, 0)
-    if tag not in (0xFF01, 0xFF11) or size not in (8, 16) or (tag == 0xFF01 and size != 8):
-        raise rd.DevelopError(f"CR3: C-RAW tile header tag {tag:#06x} size {size} is not known")
-    tile_size, number, tail = struct.unpack_from(">IHH", hdr, 4)
-    if number != 0 or (size == 8 and tail) or (size == 16 and tail != 0x4000):
-        raise rd.DevelopError("CR3: C-RAW tile header is not the single tile this reader expects")
-    qp_size = extra = 0
-    if size == 16:
-        qp_size, extra = struct.unpack_from(">IH", hdr, 12)
-    pos = 4 + size
-    data_at = header_size + qp_size + extra
-    out_planes: list[Plane] = []
-    sizes = band_sizes(width, height, levels)
-    for p in range(planes):
-        tag, size, plane_size = struct.unpack_from(">HHI", hdr, pos)
-        flags = hdr[pos + 8]
-        if tag not in (0xFF02, 0xFF12) or size != 8 or flags >> 4 != p:
-            raise rd.DevelopError(f"CR3: C-RAW plane header {p} (tag {tag:#06x}) is not valid")
-        if (flags >> 1) & 3:
-            raise rd.DevelopError("CR3: a wavelet plane with rounded bits is not valid")
-        plane = Plane(p, data_at, plane_size, bool(flags & 8))
-        pos += 12
-        band_at = data_at
-        for b in range(3 * levels + 1):
-            tag, size, band_size = struct.unpack_from(">HHI", hdr, pos)
-            if hdr[pos + 8] >> 4 != b:
-                raise rd.DevelopError(f"CR3: C-RAW subband header {b} is out of order")
-            if tag == 0xFF13 and size == 16:
-                head2, mult, base, pad, end = struct.unpack_from(">HHIHH", hdr, pos + 8)
-                if head2 & 0xFFF or end:
-                    raise rd.DevelopError("CR3: a C-RAW subband with partial decoding is not supported (no test file)")
-                band = Subband(b, band_at, band_size - pad, mult, base)
-            elif tag == 0xFF03 and size == 8:
-                raise rd.DevelopError("CR3: an old-style C-RAW subband header (per-line quantisation) is not supported (no test file)")
-            else:
-                raise rd.DevelopError(f"CR3: C-RAW subband header tag {tag:#06x} is not known")
-            band.width, band.height = sizes[b]
-            # Level 0 is the deepest; the LL band belongs to it.
-            band.level = 0 if b == 0 else (b - 1) // 3
-            # The step grid has one column per 8 plane columns: shift a column at this band's scale down to it.
-            band.shift = 3 - levels + (0 if b == 0 else band.level)
-            plane.bands.append(band)
-            band_at += band_size
-            pos += 4 + size
-        if band_at - data_at > plane_size:
-            raise rd.DevelopError("CR3: C-RAW subbands run past their plane")
-        out_planes.append(plane)
-        data_at += plane_size
-    if data_at > len(sample):
-        raise rd.DevelopError("CR3: the C-RAW planes run past the end of the sensor sample")
-    if not qp_size:
-        raise rd.DevelopError("CR3: a C-RAW tile without quantisation data is not supported (no test file)")
-    return Layout(header_size, qp_size, out_planes, levels, width, height)
+    pos = 0
+    tile_at = header_size
+    tiles: list[TileLayout] = []
+    for index, row, col, tw, th in grid:
+        r, c = divmod(index, cols)
+        flags = (RIGHT if c < cols - 1 else 0) | (LEFT if c else 0) | (BOTTOM if r < rows - 1 else 0) | (TOP if r else 0)
+        tile = TileLayout(index, row, col, tw, th, flags, levels)
+        if len(hdr) < pos + 12:
+            raise rd.DevelopError("CR3: the C-RAW header is too short")
+        tag, size = struct.unpack_from(">HH", hdr, pos)
+        if tag not in (0xFF01, 0xFF11) or size not in (8, 16) or (tag == 0xFF01 and size != 8):
+            raise rd.DevelopError(f"CR3: C-RAW tile header tag {tag:#06x} size {size} is not known")
+        tile_size, number, tail = struct.unpack_from(">IHH", hdr, pos + 4)
+        if number != index or (size == 8 and tail) or (size == 16 and tail != 0x4000):
+            raise rd.DevelopError(f"CR3: C-RAW tile header {index} is not valid (it names tile {number})")
+        qp_size = extra = 0
+        if size == 16:
+            qp_size, extra, end = struct.unpack_from(">IHH", hdr, pos + 12)
+            if end:
+                raise rd.DevelopError("CR3: a C-RAW tile header does not end in two zero bytes")
+        if not qp_size:
+            raise rd.DevelopError("CR3: a C-RAW tile without quantisation data is not supported (no test file)")
+        tile.qp_offset, tile.qp_size = tile_at, qp_size
+        pos += 4 + size
+        data_at = tile_at + qp_size + extra
+        geometry = tile.geometry
+        for p in range(planes):
+            if len(hdr) < pos + 12:
+                raise rd.DevelopError("CR3: the C-RAW header ends inside a tile's plane headers")
+            tag, size, plane_size = struct.unpack_from(">HHI", hdr, pos)
+            flags_byte = hdr[pos + 8]
+            if tag not in (0xFF02, 0xFF12) or size != 8 or flags_byte >> 4 != p or hdr[pos + 9 : pos + 12] != bytes(3):
+                raise rd.DevelopError(f"CR3: C-RAW plane header {p} of tile {index} (tag {tag:#06x}) is not valid")
+            if (flags_byte >> 1) & 3:
+                raise rd.DevelopError("CR3: a wavelet plane with rounded bits is not valid")
+            plane = Plane(p, data_at, plane_size, bool(flags_byte & 8))
+            pos += 12
+            band_at = data_at
+            for b in range(3 * levels + 1):
+                if len(hdr) < pos + 20:
+                    raise rd.DevelopError("CR3: the C-RAW header ends inside a subband header")
+                tag, size, band_size = struct.unpack_from(">HHI", hdr, pos)
+                if hdr[pos + 8] >> 4 != b:
+                    raise rd.DevelopError(f"CR3: C-RAW subband header {b} is out of order")
+                if tag == 0xFF13 and size == 16:
+                    head2, mult, base, pad, end = struct.unpack_from(">HHIHH", hdr, pos + 8)
+                    if head2 & 0xFFF or end:
+                        raise rd.DevelopError("CR3: a C-RAW subband with partial decoding is not supported (no test file)")
+                    if pad > band_size:
+                        raise rd.DevelopError("CR3: a C-RAW subband's padding is larger than the subband")
+                    band = Subband(b, band_at, band_size - pad, mult, base)
+                elif tag == 0xFF03 and size == 8:
+                    raise rd.DevelopError("CR3: an old-style C-RAW subband header (per-line quantisation) is not supported (no test file)")
+                else:
+                    raise rd.DevelopError(f"CR3: C-RAW subband header tag {tag:#06x} is not known")
+                (band.width, band.height, band.col_start, band.col_end, band.row_start, band.row_end) = geometry[b]
+                # Level 0 is the deepest; the LL band belongs to it.
+                band.level = 0 if b == 0 else (b - 1) // 3
+                # The step grid has one column per 8 plane columns: shift a column at this band's scale down to it.
+                band.shift = 3 - levels + (0 if b == 0 else band.level)
+                plane.bands.append(band)
+                band_at += band_size
+                pos += 4 + size
+            if band_at - data_at > plane_size:
+                raise rd.DevelopError("CR3: C-RAW subbands run past their plane")
+            tile.planes.append(plane)
+            data_at += plane_size
+        if data_at > tile_at + tile_size:
+            raise rd.DevelopError(f"CR3: tile {index}'s planes run past its byte count")
+        tile_at += tile_size
+        tiles.append(tile)
+    if tile_at > len(sample):
+        raise rd.DevelopError("CR3: the C-RAW tiles run past the end of the sensor sample")
+    return Layout(tiles, levels, width, height)
 
 
 # ---------------------------------------------------------------- QP grid
@@ -390,17 +535,50 @@ def decode_highpass(data: bytes, width: int, height: int) -> list[list[int]]:
 # ---------------------------------------------------------------- dequantisation and the inverse transform
 
 
-def dequantise(lines: list[list[int]], band: Subband, table: list[list[int]]) -> None:
-    """Multiply each coefficient by its step, in place (single tile: no edge add-ons)."""
+def step_row(band: Subband, r: int, rows: int) -> int:
+    """The step-table row for line ``r`` of ``band``, as LibRaw's ``getSubbandRow`` picks it: 0 for the
+    borrowed top lines, ``r - row_end`` inside, the last own row for the borrowed bottom lines.
 
+    Inside, LibRaw subtracts the bottom count, where the columns' rule (below) would subtract the top
+    one; the two agree on a one-tile sensor and on a single row of tiles. Followed as LibRaw reads it, and
+    clamped to the table where that rule would step outside it. Only a real tiled C-RAW file can say which
+    Canon meant (``eval/canon-cr3-craw-tiled-2026-11-16.md``)."""
+
+    if r < band.row_start:
+        i = 0
+    elif r < band.height - band.row_end:
+        i = r - band.row_end
+    else:
+        i = band.height - band.row_end - band.row_start - 1
+    return 0 if i < 0 else (rows - 1 if i >= rows else i)
+
+
+def step_col(band: Subband, i: int, cols: int) -> int:
+    """The step-table column for coefficient ``i`` of a line: the first own column's for borrowed left
+    coefficients, the column shifted down to the grid inside, the last own column's for borrowed right ones."""
+
+    if i < band.col_start:
+        c = 0
+    elif i < band.width - band.col_end:
+        c = (i - band.col_start) >> band.shift
+    else:
+        c = (band.width - band.col_end - band.col_start - 1) >> band.shift
+    return 0 if c < 0 else (cols - 1 if c >= cols else c)
+
+
+def dequantise(lines: list[list[int]], band: Subband, table: list[list[int]]) -> None:
+    """Multiply each coefficient by its step, in place."""
+
+    rows = len(table)
+    mult, base = band.mult, band.base
     for r, line in enumerate(lines):
-        steps = table[r]
-        mult, base, shift = band.mult, band.base, band.shift
+        steps = table[step_row(band, r, rows)]
+        cols = len(steps)
         cache: dict[int, int] = {}
         for i, v in enumerate(line):
             if not v:
                 continue
-            col = i >> shift
+            col = step_col(band, i, cols)
             q = cache.get(col)
             if q is None:
                 q = base + ((steps[col] * mult) >> 3)
@@ -409,63 +587,78 @@ def dequantise(lines: list[list[int]], band: Subband, table: list[list[int]]) ->
             line[i] = v * q
 
 
-def inverse_53(low: list[int], high: list[int], n: int) -> list[int]:
-    """One line (or column) of the reversible 5/3 inverse with symmetric edges; ``n`` output samples."""
+def _evens(n: int, nh: int, first: bool, last: bool) -> list[tuple[int, int, int]]:
+    """For each even output sample of an ``n``-sample 5/3 inverse: (low index, high index before, high index
+    after). ``first``: the high band opens with a borrowed coefficient (a neighbour before); ``last``: the
+    bands run on past the end (a neighbour after), so the edge samples use the interior rule. With no
+    neighbour the missing high coefficient is the other one (symmetric extension)."""
+
+    hoff = 1 if first else 0
+    ne = (n + 1) >> 1
+    count = ne + (1 if last and not n & 1 else 0)
+    out = []
+    for k in range(count):
+        a, b = k - 1 + hoff, k + hoff
+        a_ok = a >= 0
+        b_ok = b < nh and (last or 2 * k + 1 < n)
+        if not a_ok:
+            a = b
+        if not b_ok:
+            b = a
+        out.append((k, a, b))
+    return out
+
+
+def inverse_53(low: list[int], high: list[int], n: int, first: bool = False, last: bool = False) -> list[int]:
+    """One line (or column) of the reversible 5/3 inverse; ``n`` output samples. With no neighbours
+    (``first``, ``last``) the edges are symmetric; see ``_evens``."""
 
     if n <= 1:
         return [low[0]]
-    m = len(high)
-    even = [0] * len(low)
-    even[0] = low[0] - ((high[0] + 1) >> 1)
-    for k in range(1, m):
-        even[k] = low[k] - ((high[k - 1] + high[k] + 2) >> 2)
-    if n & 1:
-        even[m] = low[m] - ((high[m - 1] + 1) >> 1)
+    hoff = 1 if first else 0
+    even = [low[k] - ((high[a] + high[b] + 2) >> 2) for k, a, b in _evens(n, len(high), first, last)]
     out = [0] * n
-    out[0::2] = even
-    for k in range(m):
-        out[2 * k + 1] = high[k] + ((even[k] + even[k + 1]) >> 1) if k + 1 < len(even) else high[k] + even[k]
+    out[0::2] = even[: (n + 1) >> 1]
+    count = len(even)
+    for k in range(n >> 1):
+        h = high[k + hoff]
+        out[2 * k + 1] = h + ((even[k] + even[k + 1]) >> 1) if k + 1 < count else h + even[k]
     return out
 
 
-def _rows(low: list[list[int]], high: list[list[int]], width: int) -> list[list[int]]:
-    return [inverse_53(lo, hi, width) for lo, hi in zip(low, high)]
+def inverse_level(ll: list[list[int]], hl: list[list[int]], lh: list[list[int]], hh: list[list[int]], width: int, height: int,
+                  flags: int = 0) -> list[list[int]]:
+    """Rebuild a ``width`` x ``height`` band from its four subbands: rows first, then columns."""
 
-
-def inverse_level(ll: list[list[int]], hl: list[list[int]], lh: list[list[int]], hh: list[list[int]], width: int, height: int) -> list[list[int]]:
-    """Rebuild a ``width`` x ``height`` band from its four subbands."""
-
-    lo_rows = _rows(ll, hl, width)  # vertically low
-    hi_rows = _rows(lh, hh, width) if lh else []  # vertically high
+    left, right, top, bottom = bool(flags & LEFT), bool(flags & RIGHT), bool(flags & TOP), bool(flags & BOTTOM)
+    lo_rows = [inverse_53(lo, hi, width, left, right) for lo, hi in zip(ll, hl)]  # vertically low
+    hi_rows = [inverse_53(lo, hi, width, left, right) for lo, hi in zip(lh, hh)] if lh else []  # vertically high
     if height <= 1:
         return lo_rows[:1]
-    m = len(hi_rows)
-    even: list[list[int]] = [None] * len(lo_rows)  # type: ignore[list-item]
-    even[0] = [a - ((b + 1) >> 1) for a, b in zip(lo_rows[0], hi_rows[0])]
-    for r in range(1, m):
-        even[r] = [a - ((b + c + 2) >> 2) for a, b, c in zip(lo_rows[r], hi_rows[r - 1], hi_rows[r])]
-    if height & 1:
-        even[m] = [a - ((b + 1) >> 1) for a, b in zip(lo_rows[m], hi_rows[m - 1])]
+    even = [[a - ((b + c + 2) >> 2) for a, b, c in zip(lo_rows[k], hi_rows[i], hi_rows[j])]
+            for k, i, j in _evens(height, len(hi_rows), top, bottom)]
+    hoff = 1 if top else 0
     out: list[list[int]] = []
-    for r in range(m):
+    count = len(even)
+    for r in range(height >> 1):
         out.append(even[r])
-        if r + 1 < len(even):
-            out.append([h + ((a + b) >> 1) for h, a, b in zip(hi_rows[r], even[r], even[r + 1])])
+        hr = hi_rows[r + hoff]
+        if r + 1 < count:
+            out.append([h + ((a + b) >> 1) for h, a, b in zip(hr, even[r], even[r + 1])])
         else:
-            out.append([h + a for h, a in zip(hi_rows[r], even[r])])
+            out.append([h + a for h, a in zip(hr, even[r])])
     if height & 1:
-        out.append(even[m])
+        out.append(even[height >> 1])
     return out
 
 
-def decode_plane(sample: bytes, layout: Layout, plane: Plane, tables: list[list[list[int]]]) -> list[list[int]]:
-    """One plane's signed values (before the ``2^(bits-1)`` offset): ``height`` lines of ``width``."""
+def decode_plane(sample: bytes, tile: TileLayout, plane: Plane, tables: list[list[list[int]]]) -> list[list[int]]:
+    """One tile's plane, signed values (before the ``2^(bits-1)`` offset): ``tile.height`` lines of ``tile.width``."""
 
     from shootflow.cr3 import decode_band
 
-    bands = plane.bands
     coeffs: list[list[list[int]]] = []
-    for band in bands:
+    for band in plane.bands:
         chunk = sample[band.offset : band.offset + band.size]
         if not band.size:
             lines = [[0] * band.width for _ in range(band.height)]
@@ -478,50 +671,59 @@ def decode_plane(sample: bytes, layout: Layout, plane: Plane, tables: list[list[
         dequantise(lines, band, tables[band.level])
         coeffs.append(lines)
     ll = coeffs[0]
-    sizes = [(layout.width, layout.height)]
-    w, h = layout.width, layout.height
-    for _ in range(layout.levels - 1):
-        w, h = (w + 1) >> 1, (h + 1) >> 1
-        sizes.append((w, h))
-    sizes.reverse()  # output size of each level, deepest first
-    for level in range(layout.levels):
+    for level in range(tile.levels):
         hl, lh, hh = coeffs[3 * level + 1 : 3 * level + 4]
-        ll = inverse_level(ll, hl, lh, hh, *sizes[level])
+        ll = inverse_level(ll, hl, lh, hh, *tile.level_sizes[level], flags=tile.flags)
     return ll
 
 
+def tile_tables(sample: bytes, tile: TileLayout) -> list[list[list[int]]]:
+    """A tile's step tables, from its own QP stream (a grid at the tile's width and height)."""
+
+    return step_tables(qp_grid(sample[tile.qp_offset : tile.qp_offset + tile.qp_size], tile.width, tile.height), tile.levels)
+
+
 def native_decode(fn, sample: bytes, layout: Layout, bits: int, out, stride: int) -> int:
-    """All four planes through ``shootflow_craw_plane`` (one thread per plane; ctypes lets go of the GIL)."""
+    """Every tile's four planes through ``shootflow_craw_plane`` (planes of a tile on their own threads;
+    ctypes lets go of the GIL). ``stride`` is the sensor's width."""
 
     import ctypes
     from array import array
     from concurrent.futures import ThreadPoolExecutor
 
-    tables = step_tables(qp_grid(sample[layout.qp_offset : layout.qp_offset + layout.qp_size], layout.width, layout.height), layout.levels)
-    qw = len(tables[0][0])
-    flat = array("i")
-    offsets = array("l")
-    rows = array("l")
-    for table in tables:
-        offsets.append(len(flat))
-        rows.append(len(table))
-        for row in table:
-            flat.extend(row)
-    keep = [flat, offsets, rows]
     base_addr = out.buffer_info()[0]
+    results: list[int] = []
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        for tile in layout.tiles:
+            tables = tile_tables(sample, tile)
+            qw = len(tables[0][0])
+            flat = array("i")
+            offsets = array("l")
+            rows = array("l")
+            for table in tables:
+                offsets.append(len(flat))
+                rows.append(len(table))
+                for row in table:
+                    flat.extend(row)
+            sizes = array("l")
+            for w, h in tile.level_sizes:
+                sizes.extend((w, h))
+            keep = [flat, offsets, rows, sizes]
 
-    def one(plane: Plane) -> int:
-        info = array("l")
-        for band in plane.bands:
-            info.extend((band.offset, band.size, band.width, band.height, band.mult, band.base, band.shift))
-        keep.append(info)
-        oy, ox = plane.number >> 1, plane.number & 1
-        first = base_addr + 2 * (oy * stride + ox)
-        return fn(sample, len(sample), layout.levels, info.buffer_info()[0], flat.buffer_info()[0], offsets.buffer_info()[0],
-                  rows.buffer_info()[0], qw, layout.width, layout.height, bits, ctypes.c_void_p(first), stride)
+            def one(plane: Plane, tile=tile, qw=qw, keep=keep) -> int:
+                info = array("l")
+                for band in plane.bands:
+                    info.extend((band.offset, band.size, band.width, band.height, band.mult, band.base, band.shift,
+                                 band.col_start, band.col_end, band.row_start, band.row_end))
+                keep.append(info)
+                oy, ox = plane.number >> 1, plane.number & 1
+                first = base_addr + 2 * ((2 * tile.row + oy) * stride + 2 * tile.col + ox)
+                flat_, offsets_, rows_, sizes_ = keep[:4]
+                return fn(sample, len(sample), tile.levels, info.buffer_info()[0], sizes_.buffer_info()[0], tile.flags,
+                          flat_.buffer_info()[0], offsets_.buffer_info()[0], rows_.buffer_info()[0], qw, tile.width,
+                          tile.height, bits, ctypes.c_void_p(first), stride)
 
-    with ThreadPoolExecutor(max_workers=len(layout.planes)) as pool:
-        results = list(pool.map(one, layout.planes))
+            results.extend(pool.map(one, tile.planes))
     return min(results) if results else -1
 
 
@@ -530,9 +732,12 @@ def decode_sensor(sample: bytes, head, out, engine: str = "auto") -> None:
 
     from array import array
 
+    from shootflow import cr3
+
     w, h = head.width, head.height
     pw, ph = w // 2, h // 2
-    layout = read_layout(sample, head.header_size, head.levels, head.planes, pw, ph)
+    grid = cr3.tile_grid(head) if (head.tile_width, head.tile_height) != (head.width, head.height) else None
+    layout = read_layout(sample, head.header_size, head.levels, head.planes, pw, ph, grid)
     native = None
     if engine in ("auto", "c"):
         from shootflow import ljpeg_native
@@ -545,9 +750,10 @@ def decode_sensor(sample: bytes, head, out, engine: str = "auto") -> None:
             raise rd.DevelopError("CR3: the C-RAW data is invalid")
         return
     mid, top = 1 << (head.bits - 1), (1 << head.bits) - 1
-    tables = step_tables(qp_grid(sample[layout.qp_offset : layout.qp_offset + layout.qp_size], pw, ph), head.levels)
-    for plane in layout.planes:
-        oy, ox = plane.number >> 1, plane.number & 1
-        for y, row in enumerate(decode_plane(sample, layout, plane, tables)):
-            base = (2 * y + oy) * w + ox
-            out[base : base + 2 * pw : 2] = array("H", (0 if v + mid < 0 else (top if v + mid > top else v + mid) for v in row))
+    for tile in layout.tiles:
+        tables = tile_tables(sample, tile)
+        for plane in tile.planes:
+            oy, ox = plane.number >> 1, plane.number & 1
+            for y, row in enumerate(decode_plane(sample, tile, plane, tables)):
+                base = (2 * (tile.row + y) + oy) * w + 2 * tile.col + ox
+                out[base : base + 2 * tile.width : 2] = array("H", (0 if v + mid < 0 else (top if v + mid > top else v + mid) for v in row))

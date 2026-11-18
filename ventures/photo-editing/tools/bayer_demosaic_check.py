@@ -145,12 +145,16 @@ def _pattern_bayer(raw) -> tuple[int, ...]:
     return tuple(order.get(desc[v], 1) for v in colours.ravel())
 
 
-def variants_for(names: list[str] | None):
+def variants_for(names: list[str] | None, candidate: tuple[float, ...] | None = None, candidate_extra=()):
     from shootflow.bayer_demosaic import directional
 
     allv = {
         "bilinear": ("ours bilinear", ours_bilinear),
         "default": ("ours directional (default)", lambda c, p: directional(c, p)),
+        "laplace-quarter": ("ours directional, Hamilton-Adams 1/4 (2026-11-15 first)", lambda c, p: directional(c, p, laplace=0.25)),
+        "laplace-eighth": ("ours directional, Laplacian 1/8", lambda c, p: directional(c, p, laplace=0.125)),
+        "laplace-adaptive": ("ours directional, per-sensel Laplacian weight (2026-11-16)", lambda c, p: directional(c, p, laplace="adaptive")),
+        "laplace-learned": ("ours directional, learned Laplacian weight (2026-11-16)", lambda c, p: directional(c, p, laplace="learned")),
         "simple-rb": ("ours directional, simple red/blue", lambda c, p: directional(c, p, rb="simple")),
         "median": ("ours directional, one median", lambda c, p: directional(c, p, median_passes=1)),
         "power1": ("ours directional, power 1", lambda c, p: directional(c, p, power=1.0)),
@@ -158,6 +162,9 @@ def variants_for(names: list[str] | None):
         "window1": ("ours directional, window 3x3", lambda c, p: directional(c, p, window=1)),
         "window3": ("ours directional, window 7x7", lambda c, p: directional(c, p, window=3)),
     }
+    if candidate is not None:  # a fit not yet in LEARNED_LAPLACE (--learned-fit), scored as its own variant
+        allv["laplace-candidate"] = ("ours directional, candidate learned weight (--learned-fit)",
+                                     lambda c, p: directional(c, p, laplace=candidate, laplace_extra=tuple(candidate_extra)))
     keys = names or list(allv)
     return [allv[k] for k in keys]
 
@@ -170,10 +177,17 @@ def main(argv=None) -> int:
     ap.add_argument("--no-libraw", action="store_true", help="score ours only (fast tuning runs)")
     ap.add_argument("--variant", action="append", help="variant keys (default: all)")
     ap.add_argument("--noise-snr", type=float, action="append", default=[])
+    ap.add_argument("--learned-fit", help="a tools/bayer_laplace_train.py output; adds the laplace-candidate variant")
     args = ap.parse_args(argv)
     import rawpy
 
-    variants = variants_for(args.variant)
+    candidate = None
+    if args.learned_fit:
+        with open(args.learned_fit) as fh:
+            fits = [json.loads(line) for line in fh if line.strip().startswith("{") and '"fit"' in line]
+        candidate = tuple(fits[-1]["fit"])
+        candidate_extra = tuple(fits[-1].get("extra", ()))  # correlation features the fit reads
+    variants = variants_for(args.variant, candidate, candidate_extra if candidate else ())
     for path in args.raw:
         raw = rawpy.imread(path)
         if raw.raw_pattern is None or raw.raw_pattern.shape != (2, 2):

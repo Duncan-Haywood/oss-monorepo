@@ -1,0 +1,195 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/ppp-pricing-table-generator",
+ "stratum": "venture",
+ "drawn_by": "census",
+ "seed": "2026-11-17-1d50",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a SaaS pricing manager who sets regional (PPP) price lists in Paddle, Stripe or an app store; first checks: are the price levels sourced and current, do the floor and cap actually hold after rounding, and is the break-even arithmetic right",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The arithmetic matches an independent Python model (scratchpad ppp/indep.py, written from the README's method: (index/100)^strength, clamp to floor/cap, nearest .99): default base 29 gives US 28.99, DE 26.99 (factor 0.9144), PL 16.99, BR 15.99 (0.5357), NG 11.99, IN 10.99 (0.3789), identical to `node -e buildTable({base:29})`; revenue what-if for EXAMPLE_SHARES at 2% / elasticity 1.5 is 580.00 -> 703.95 (+21.37%) in both; breakEvenLift(0.4)=0.6667 = 1/(1-d)-1, and the guide's table (20% +25%, 40% +67%, 70% +233%) checks by hand. Two output faults: (1) at the defaults the floor is broken by rounding: PK clamps to 0.35*29 = 10.15 and charm-rounds down to 9.99 (34.4% of base, 65% off); (2) 'nine' rounding at base 25 prices the US (reference market, cap 1) at 29, a 16% premium, and tiers with cap 1.2 charge the US 32.99 on a 29 base. The data the method runs on was checked against World Bank WDI (api.worldbank.org, PA.NUS.PRVT.PP / PA.NUS.FCRF, private-consumption price level, US=100; euro members via EMU FX), script ppp/compare.py: median absolute gap 4.3 index points for 2024 (3.9 for 2023), but Egypt 25 vs 15.3 (+63%), Thailand 41 vs 30.9 (+33%), China 60 vs 49.3, Norway 105 vs 88.8, Germany 88 vs 75.9, Peru 38 vs 51.9 (-27%), Mexico 47 vs 59.0, Brazil 41 vs 46.8. Reading-level fine, but several markets are off by a full discount group or more.",
+  "completeness": "Ran `node --test '*.test.mjs'` and bare `node --test` (README): 30/30 pass. Checked each README/page feature: base-to-table for 49 countries (README 'about 50' holds), strength, floor, cap, four roundings, tiers 0-12 (tiers 12 -> 12 prices; tiers 4 -> 28.99/20.99/16.99/12.99), regional discount groups at nearest 5% (`node cli.mjs 29`), index overrides (parseIndexOverrides, US 50 -> IN 17.99), traffic-share revenue what-if (`node cli.mjs 29 --traffic shares.txt`), CSV and JSON export (`--format csv|json`), guide page, opt-out local usage counts. Served page https://marisstella.app/ppp-pricing-table-generator/ returns 200 and its ppp.mjs is byte-identical to the source. No stubs or TODOs. Every claimed feature works end to end.",
+  "verification": "30 tests pass. They pin roundPrice cases, the floor with rounding 'none', the US at 28.99, tier count, overrides, break-even lift and the revenue model's sign at elasticity 0.5/1/2. Six mutants seeded with quality_mutate.py: 3 caught (floor clamp removed, top tier price changed, 'nine' rounding shifted), 3 survived (conversion cap Math.min(1, ...) removed at ppp.mjs:154; discount groups rounded to 10% instead of 5% at ppp.mjs:167; refIndex replaced by 100 at ppp.mjs:52, which only differs when the US index is overridden). No test runs the floor or cap together with charm/nine rounding, which is how the default-settings floor breach got through (ppp.test.mjs:59 uses rounding 'none').",
+  "craft": "Read ppp.mjs (204 lines), cli.mjs (40), index.html script (lines 137-216), usage.mjs, the three test files. Pure exported functions, validation shared by page and CLI, HTML escaped in table cells, usage storage guarded. Defects: rounding is applied after the floor/cap clamp with no re-check (ppp.mjs:109); CLI silently prints text for an unknown --format (cli.mjs:29: `--format xml` gives the text table) and ignores unknown flags; refCode is a buildTable parameter neither the page nor CLI can set; the top tier's 'full price' comment (ppp.mjs:101) is wrong once cap > 1. Small, readable, a reviewer would accept it with those fixes.",
+  "claims": "Backed: disclaimer 'No warranty ... not financial, tax or legal advice' on index.html:130 and the guide; 'never uploaded / no network calls' (grep finds no fetch/XHR/sendBeacon; page.test.mjs:166 asserts it; usage.mjs honours DNT/GPC at :34); 'about 50 countries' (49); indexes labelled 'rounded estimates' on page, README and CLI output; revenue model labelled a what-if; served copy has no placeholder origin (served-copy.mjs). Not backed: the floor is presented as a guarantee ('never go below this fraction', ppp.mjs:26; guide: 'The floor keeps any price above a share of your base') but rounding undercuts it at the defaults (PK 9.99 < 10.15); the cap is labelled '1 = never above base' (index.html:56) but 'nine' rounding and tiers with cap > 1 put the reference market above base. 'In the spirit of the World Bank ICP price levels' is roughly fair (median gap ~4 points) but gives no year or source table, and several values are off by 25-60%.",
+  "fitness": "Walked an indie developer's job: enter 29, strength 0.7, floor 0.35, read the table and the 13 discount groups, paste a traffic mix and see +21.4% at elasticity 1.5, copy CSV. It produces a usable starting price list in a minute and the break-even column is a real aid. A practitioner still has to re-source the price levels (several markets off a full group), convert to local currency and price endings in the processor, and check the floor by eye.",
+  "domain": "Against common PPP-pricing practice (price-level ratio from ICP/World Bank PPP over market FX, damped with an exponent or blend, floor, a small number of tiers, prices set by billing country) the method is the standard one and the break-even rule 1/(1-d)-1 is correct. Departs where a pricing manager would object: the price levels are undated and uncited (Egypt still at 25 after the 2024 devaluation, WDI 15.3; Peru 38 vs 51.9), rounding is not constrained by the floor/cap the user set, the top tier charges every member the maximum (GB, factor 0.855, pays the full 28.99 with tiers 4), and the constant-elasticity what-if uses one elasticity for all markets (disclosed)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "default table prices, base 29 (US, DE, PL, BR, NG, IN)",
+   "method": "independent Python re-implementation of the stated method (scratchpad ppp/indep.py)",
+   "command": "python3 -I indep.py; node -e buildTable({base:29})",
+   "expected": "28.99, 26.99, 16.99, 15.99, 11.99, 10.99",
+   "observed": "28.99, 26.99, 16.99, 15.99, 11.99, 10.99",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "revenue what-if for EXAMPLE_SHARES, conversion 2%, elasticity 1.5, per 1,000 visitors",
+   "method": "independent constant-elasticity computation in indep.py",
+   "command": "node cli.mjs 29 --traffic shares.txt",
+   "expected": "580.00 -> 703.95 (+21.37%)",
+   "observed": "$580.00 -> $703.95 (+21.4%)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "break-even conversion lift for 20/40/50/70% discounts",
+   "method": "hand: revenue flat when (1-d)(1+x)=1",
+   "command": "node -e breakEvenLift(0.4)",
+   "expected": "25%, 66.7%, 100%, 233%",
+   "observed": "0.25, 0.6667, 1, 2.333 (guide table agrees)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "floor holds after rounding at default settings (Pakistan)",
+   "method": "hand: floor 0.35 x 29 = 10.15",
+   "command": "node -e 'import(\"./ppp.mjs\").then(m=>console.log(m.buildTable({base:29}).find(r=>r.code==\"PK\").price))'",
+   "expected": ">= 10.15 (10.99)",
+   "observed": "9.99",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "built-in price levels vs World Bank private-consumption price level (PPP factor / market FX, US=100), 2024",
+   "method": "World Bank WDI PA.NUS.PRVT.PP and PA.NUS.FCRF via api.worldbank.org (scratchpad ppp/compare.py)",
+   "command": "python3 -I compare.py ventures/ppp-pricing-table-generator/ppp.mjs 2024",
+   "expected": "EG 15.3, TH 30.9, PE 51.9, MX 59.0, NO 88.8, DE 75.9, IN 23.8",
+   "observed": "EG 25, TH 41, PE 38, MX 47, NO 105, DE 88, IN 25 (median abs gap 4.3 over 48)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "cap 1 holds for the reference market under 'nine' rounding, base 25",
+   "method": "page label 'Cap (1 = never above base)'",
+   "command": "node -e buildTable({base:25,rounding:'nine'}) US",
+   "expected": "<= 25 (19)",
+   "observed": "29 (discount -16%)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "tiers with cap 1.2: reference market price",
+   "method": "comment ppp.mjs:101 says the top band keeps the full price",
+   "command": "node -e buildTable({base:29,cap:1.2,tiers:4}) US",
+   "expected": "28.99",
+   "observed": "32.99",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "30/30 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "CLI examples from README (tiers, csv, json, traffic)",
+   "method": "run each",
+   "command": "node cli.mjs 29 --tiers 4 --format json; node cli.mjs 29 --floor 0.4 --strength 0.6 --format csv",
+   "expected": "table/CSV/JSON with 49 countries",
+   "observed": "works; tiers 4 gives 4 prices",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "unknown --format value",
+   "method": "should error",
+   "command": "node cli.mjs 29 --format xml",
+   "expected": "error",
+   "observed": "text table printed silently",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "no network calls / nothing uploaded",
+   "method": "grep engine and page script; page.test.mjs network assertion",
+   "command": "grep -n 'fetch\\|sendBeacon\\|XMLHttp' ppp.mjs index.html usage.mjs",
+   "expected": "no matches",
+   "observed": "no matches",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page matches source, disclaimer present",
+   "method": "load https://marisstella.app/ppp-pricing-table-generator/ and diff its ppp.mjs",
+   "command": "curl -sS https://marisstella.app/ppp-pricing-table-generator/ppp.mjs | diff - ppp.mjs",
+   "expected": "identical, 'No warranty' on page",
+   "observed": "identical; 'No warranty' found",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt/sitemap origins as served",
+   "method": "deploy rewrite copy",
+   "command": "node platform/pages/served-copy.mjs ppp-pricing-table-generator",
+   "expected": "no placeholder origin",
+   "observed": "no placeholder or retired origin left",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {"where": "ppp.mjs:53", "change": "return clamp(raw, o.floor, o.cap); -> return clamp(raw, 0, o.cap);", "caught": true, "test_cmd": "node --test page.test.mjs ppp.test.mjs usage.test.mjs"},
+  {"where": "ppp.mjs:154", "change": "a = v * Math.min(1, newConv) * r.price -> a = v * newConv * r.price", "caught": false, "test_cmd": "node --test page.test.mjs ppp.test.mjs usage.test.mjs"},
+  {"where": "ppp.mjs:167", "change": "Math.round((r.discount * 100) / 5) * 5 -> Math.round((r.discount * 100) / 10) * 10", "caught": false, "test_cmd": "node --test page.test.mjs ppp.test.mjs usage.test.mjs"},
+  {"where": "ppp.mjs:52", "change": "Math.pow(index / refIndex, o.strength) -> Math.pow(index / 100, o.strength)", "caught": false, "test_cmd": "node --test page.test.mjs ppp.test.mjs usage.test.mjs"},
+  {"where": "ppp.mjs:102", "change": "const f = top ? hi : members -> const f = top ? hi * 0.9 : members", "caught": true, "test_cmd": "node --test page.test.mjs ppp.test.mjs usage.test.mjs"},
+  {"where": "ppp.mjs:59", "change": "Math.max(9, Math.round((p + 1) / 10) * 10 - 1) -> Math.max(9, Math.round(p / 10) * 10 - 1)", "caught": true, "test_cmd": "node --test page.test.mjs ppp.test.mjs usage.test.mjs"}
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Rounding is applied after the floor/cap clamp and never re-checked, so the user's floor and cap do not hold: at the defaults (base 29, floor 0.35, charm) Pakistan is 9.99 (34.4% of base, below 10.15); 'nine' rounding at base 25 prices the US at 29 with cap 1 (a 16% premium on the reference market, shown as a -16% discount). The floor and cap are presented as guarantees on the page, in DEFAULTS and in the guide.",
+   "where": "ventures/ppp-pricing-table-generator/ppp.mjs:109",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"
+  },
+  {
+   "severity": "medium",
+   "what": "Built-in price levels are undated and uncited ('in the spirit of' ICP). Against World Bank WDI 2024 private-consumption price levels: Egypt 25 vs 15.3, Thailand 41 vs 30.9, China 60 vs 49.3, Norway 105 vs 88.8, Germany 88 vs 75.9, Peru 38 vs 51.9, Mexico 47 vs 59.0; several markets land a full 5% discount group or more off.",
+   "where": "ventures/ppp-pricing-table-generator/ppp.mjs:9",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "With tiers and cap > 1, the top band is priced at the highest factor for every member, so the reference market pays above base (cap 1.2, tiers 4: US 32.99 on a 29 base), contradicting the comment that the top band 'keeps the full price'; with cap 1 every top-band member (GB, factor 0.855) pays the full base.",
+   "where": "ventures/ppp-pricing-table-generator/ppp.mjs:100",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "3 of 6 seeded core mutants survive (conversion cap removed, discount groups at 10% instead of 5%, reference index hard-coded to 100). The floor test uses rounding 'none', so the default-settings floor breach is untested; no test pins a discount group's percentage or a non-US reference.",
+   "where": "ventures/ppp-pricing-table-generator/ppp.test.mjs:59",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "CLI silently falls back to the text table for an unknown --format (e.g. xml) and ignores unknown flags.",
+   "where": "ventures/ppp-pricing-table-generator/cli.mjs:29",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16925"],
+ "verdict": "A small, honest, working PPP price-table generator whose arithmetic is right: an independent Python model reproduces the default table (US 28.99, DE 26.99, BR 15.99, IN 10.99), the revenue what-if (580.00 -> 703.95, +21.37%) and the break-even rule 1/(1-d)-1 exactly, and every README feature runs from the page and the CLI; the served engine is byte-identical to the source and the no-network claim holds. A SaaS pricing manager would stop at two things. The floor and cap are not enforced after rounding, so the default settings price Pakistan at 9.99 under a 10.15 floor and 'nine' rounding can charge the US above base. And the built-in price levels, compared with World Bank 2024 private-consumption price levels, are close on median (4.3 points) but undated and off by 25-60% for Egypt, Thailand, Peru and Mexico. 30 tests pass, but 3 of 6 seeded mutants survive. Does not meet the bar: correctness 2, claims 2, verification 2, median 2. Finished (completeness 3). Fixable in one session: re-check floor/cap after rounding, refresh and date the index table from WDI, fix the top tier under cap > 1, and test the floor with charm rounding."
+}

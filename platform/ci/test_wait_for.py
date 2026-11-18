@@ -89,6 +89,13 @@ class WaitFor(unittest.TestCase):
         self.assertFalse(is_marker("the rc=0 line", "rc="))
         self.assertFalse(is_marker("rc0", "rc="))
 
+    def test_bare_marker_matches_name_equals_value(self):
+        # friction 2026-11-16: --marker BUILD_EXIT timed out on a log ending BUILD_EXIT=0
+        from wait_for import is_marker
+        self.assertTrue(is_marker("BUILD_EXIT=0", "BUILD_EXIT"))
+        self.assertFalse(is_marker("BUILD_EXIT_CODE=0", "BUILD_EXIT"))
+        self.assertFalse(is_marker("the BUILD_EXIT=0 line", "BUILD_EXIT"))
+
     def test_default_accepts_the_harness_task_file_ending_and_a_dash(self):
         with tempfile.TemporaryDirectory() as d:
             p = os.path.join(d, "o.log")
@@ -113,6 +120,21 @@ class WaitFor(unittest.TestCase):
         self.assertTrue(wait_until("true", timeout=1))
         t = [0.0]
         self.assertFalse(wait_until("false", timeout=3, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s)))
+
+    def test_until_with_a_log_waits_for_its_marker_too(self):
+        # friction 2026-11-16: a log given with --until was ignored; "condition met" came before the job's last line
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("working\n")
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(main([p, "--until", "true", "--timeout", "1", "--ignore-restart"]), 1)
+            self.assertIn("no 'DONE' or 'EXIT' line", err.getvalue())
+            open(p, "a").write("timing 3.2 s\nDONE\n")
+            out = io.StringIO()
+            with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(out):
+                self.assertEqual(main([p, "--until", "true", "--timeout", "1", "--ignore-restart"]), 0)
+            self.assertIn("timing 3.2 s", out.getvalue())
 
     def test_until_runs_through_a_shell(self):
         self.assertTrue(wait_until("exit 0", timeout=1))
@@ -313,6 +335,19 @@ class PidProbe(unittest.TestCase):
             self.assertIn("pid 4242", msg)
             self.assertIn("running, quietly", msg)
             self.assertNotIn("stuck", msg)
+
+    def test_progress_keeps_the_end_of_a_long_command(self):
+        # friction 2026-11-17: a 60-character head cut showed '--draws 10' for '--draws 1000'
+        from wait_for import progress, short_cmd
+        cmd = "/usr/bin/python3.13 research/some-programme/experiments/m7t/run.py --seed 3 --draws 1000"
+        self.assertTrue(short_cmd(cmd).endswith("--draws 1000"))
+        self.assertLessEqual(len(short_cmd(cmd)), 80)
+        self.assertEqual(short_cmd("python3 bench.py"), "python3 bench.py")
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").close()
+            msg = progress(p, now=lambda: os.stat(p).st_mtime, who=lambda _: [(4242, cmd)])
+            self.assertIn("--draws 1000'", msg)
 
     def test_progress_says_a_log_nobody_holds_is_finished(self):
         from wait_for import progress

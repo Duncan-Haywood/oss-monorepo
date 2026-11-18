@@ -32,6 +32,8 @@ export function recordUsage(storage = usageStorage(), optOut = false, event = 'r
     const key = 'ada-title-ii-evidence-usage';
     let current = {};
     try { current = JSON.parse(storage.getItem(key) || '{}'); } catch { current = {}; }
+    // Valid JSON that is not a plain object (an array, a number, null) would swallow every count: start over.
+    if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};
     current[event] = Number(current[event] || 0) + 1;
     storage.setItem(key, JSON.stringify(current));
   } catch {

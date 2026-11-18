@@ -657,7 +657,7 @@
    "date": "2027-01-01",
    "country": "Slovakia",
    "page": "slovakia-e-invoice-mandate.html",
-   "note": "1 Jan 2027 for domestic B2B and B2G (vendor guides; voluntary in 2026)",
+   "note": "1 Jan 2027 for domestic B2B and B2G (Act 385/2025, § 85o; voluntary in 2026)",
    "status": "Upcoming"
   },
   {
@@ -869,6 +869,13 @@
    "page": "malta-e-invoice-mandate.html",
    "note": "EU-wide ViDA from 1 Jul 2030 (Commission sheets and vendor guides, not the legal notices)",
    "status": "B2G receive-side; B2B voluntary"
+  },
+  {
+   "date": "2030-07-01",
+   "country": "Slovakia",
+   "page": "slovakia-e-invoice-mandate.html",
+   "note": "1 Jul 2030 every invoice electronic, with domestic and cross-border reporting",
+   "status": "Upcoming"
   },
   {
    "date": "2030-07-01",

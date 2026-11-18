@@ -12,7 +12,7 @@ const texts = readdirSync(dir).filter((f) => !/\.(xls|xlsx)$/.test(f))
   .map((f) => [f, readFileSync(new URL(f, dir), "utf8")]);
 
 function rng(seed) { let s = seed >>> 0; return () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 2 ** 32); }
-const JUNK = ["", "\0", "\r", "\n", ",", ";", "\"", "-", "(", ")", "9".repeat(30), "1e999", "NaN", " ", "﻿", "€", "0000-00-00", "31/02/2020", ":61:", "<", "</STMTTRN>", "'"];
+const JUNK = ["", "\0", "\r", "\n", ",", ";", "\"", "-", "(", ")", "9".repeat(30), "1e999", "NaN", " ", "\uFEFF", "€", "0000-00-00", "31/02/2020", ":61:", "<", "</STMTTRN>", "'"];
 
 function mutate(t, r) {
   const n = 1 + Math.floor(r() * 4);

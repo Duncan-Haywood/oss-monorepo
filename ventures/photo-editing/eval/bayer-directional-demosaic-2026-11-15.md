@@ -129,7 +129,9 @@ pure engine, byte for byte) now pin `demosaic="bilinear"`, the method both engin
 
 ## Open
 
-- Luma on fine, aliased texture (A7 III, K-1 II): trails bilinear, DCB and VNG by 0.8-1 dB.
+- Luma on fine, aliased texture (A7 III, K-1 II): trails bilinear, DCB and VNG by 0.8-1 dB. Mostly closed by a
+  3/16 Laplacian weight (A7 III 0.08 dB behind bilinear, K-1 II 0.17 behind VNG):
+  `eval/bayer-laplace-weight-2026-11-15.md`.
 - Noise: at SNR 25 a plain average has the higher colour PSNR on two frames; a demosaic that
   denoises its colour differences (or a real low/high-ISO pair as a noisy truth) is the next step.
 - The sheet: 1.9 dB more is available from a median that real frames do not want.

@@ -222,3 +222,39 @@ test("the invoice summary is built from the passed-in result, never recomputed",
   assert.match(text, /Transcript fee: \$10\.00/);
   assert.match(text, /Total: \$10\.00/);
 });
+
+// --- red-team 2026-11-15 guards ---------------------------------------------
+
+test("a part-hour job still gets an effective hourly rate (hours between 0 and 1)", () => {
+  const r = computeTranscriptInvoice({
+    pages: 10, pageRate: 5, turnaroundMultiplier: 1,
+    copies: 0, copyRatePerPage: 0, exhibitsCount: 0, exhibitRate: 0,
+    roughDraftFee: 0, realtimeRequested: false, realtimeRatePerPage: 0,
+    appearanceFee: 0, travelMiles: 0, mileageRate: 0, hoursWorked: 0.5,
+  });
+  assert.equal(r.effectiveHourlyRate, 100);
+  assert.ok(!r.findings.some((f) => f.id === "missing-hours"));
+});
+
+test("below-target finding states the shortfall in dollars per hour", () => {
+  const r = computeAgencyOfferCheck({
+    pages: 80, agencyPageRate: 2.25, agencyAppearanceFee: 0, hoursWorked: 4, targetHourlyRate: 50,
+  });
+  const f = r.findings.find((x) => x.id === "below-target");
+  assert.match(f.detail, /\$5\.00\/hr below your \$50\.00\/hr target/);
+});
+
+test("summary of a partial result invents no line items for missing fields", () => {
+  const text = formatInvoiceSummary({ totalInvoice: 0 }, {});
+  for (const label of ["Appearance fee", "Travel", "Transcript fee", "Certified copies",
+    "Exhibits", "Rough draft", "Realtime"]) {
+    assert.ok(!text.includes(label), `${label} should not appear: ${text}`);
+  }
+  assert.match(text, /Total: \$0\.00/);
+  assert.equal(formatInvoiceSummary(undefined).includes("Total: $0.00"), true);
+});
+
+test("summary money never prints a minus sign on zero", () => {
+  const text = formatInvoiceSummary({ totalInvoice: -0.001 }, {});
+  assert.match(text, /Total: \$0\.00/);
+});

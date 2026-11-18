@@ -180,3 +180,27 @@ def gmm_estimate(Dgrid: np.ndarray, weights=None):
     Q = (mom ** 2).sum(-1)
     i, j = np.unravel_index(np.argmin(Q), Q.shape)
     return i, j, Q
+
+
+STRENGTH = os.path.join(os.path.dirname(DATA), "tie_strength.json.gz")
+
+
+def tie_strata(villages: list[Village], path: str = STRENGTH, key: str = "s6", top: int = 2) -> dict:
+    """Milestone 12: per village id, an n x n int matrix of each tie's strength stratum
+    (min(count of the `key` questions naming the pair, top)), -1 off the ties. Built from
+    `data/tie_strength.json.gz` (`experiments/m12_strength/measure_strength.py`), in the edge
+    order of `bcdj_villages.json.gz`."""
+    with gzip.open(DATA, "rt") as f:
+        edges = {v["village"]: np.array(v["edges"], int) for v in json.load(f)["villages"]}
+    with gzip.open(path, "rt") as f:
+        ts = json.load(f)["villages"]
+    out = {}
+    for v in villages:
+        e = edges[v.village]
+        h = np.minimum(np.array(ts[str(v.village)][key], int), top)
+        H = -np.ones((v.n, v.n), int)
+        H[e[:, 0], e[:, 1]] = h
+        H[e[:, 1], e[:, 0]] = h
+        assert ((H >= 0) == (v.A > 0)).all()
+        out[v.village] = H
+    return out

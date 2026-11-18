@@ -139,7 +139,7 @@ hover-held, free collective), side force on or off, κ percentile.
    with corrected limits (this run).
 2. Attainable-torque polytope for combined commands in the simulator (replace the per-axis box),
    and a mixer that prioritises attitude (done 2026-11-12, with a price on hover power; `LOG.md`).
-3. Motor catalogue data (mass, max thrust with the chosen propeller, price) replacing the fits.
+3. Motor catalogue data (mass, max thrust with the chosen propeller, price) replacing the fits (mass against thrust, battery specific energy and propulsive efficiency sourced 2026-11-16 in milestone 7q, which also found the 60-step closure unconverged; price not yet; `LOG.md`).
 4. INDI and geometric attitude baselines; 10 seeds per arm (done 2026-11-12: H4 supported; `LOG.md`).
 5. RotorPy (or equivalent) with canted rotors; re-score the top designs; H5 (done 2026-11-12: the ranking of design classes survives, the top-ten test is noise-bound, the stylised model is 1–2° optimistic and most for INDI; `LOG.md`).
 6. Position hold with the corrected side force and longer wind-step episodes; H3 (done 2026-11-12: depends on the centre-of-pressure sign; 6b, same day: a rigid frame is hurt on one axis and helped on the other; `LOG.md`).

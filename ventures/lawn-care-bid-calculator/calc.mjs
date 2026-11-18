@@ -148,7 +148,7 @@ export function calculateBid(input) {
   const turf = services.find(row => /turf|mow/i.test(row.name) && row.workQuantity > 0);
   const turfAcres = turf ? turf.workQuantity / SQFT_PER_ACRE : null;
 
-  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const hasProposed = String(input.proposedPrice ?? '').trim() !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
   return {

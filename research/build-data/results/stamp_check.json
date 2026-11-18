@@ -1,0 +1,198 @@
+{
+ "note": "dated completions (issue to completion >= 0 days) by issue era and status group as on the pull day; at_stamp = rows exactly 180 days",
+ "stamp_days": 180,
+ "cities": {
+  "austin": {
+   "n": 2182859,
+   "top_labels": {
+    "180": 143212,
+    "1": 53965,
+    "2": 29835,
+    "7": 28058,
+    "3": 25247
+   },
+   "at_stamp": 143212,
+   "by_era": {
+    "1900-1999 dead": {
+     "n": 140722,
+     "at_stamp": 135567,
+     "share_at_stamp": 0.9633674905132105,
+     "modal_days": 180,
+     "share_at_mode": 0.9633674905132105,
+     "median_days": 180.0,
+     "p90_days": 180.0
+    },
+    "1900-1999 done": {
+     "n": 720131,
+     "at_stamp": 1409,
+     "share_at_stamp": 0.001956588454045167,
+     "modal_days": 1,
+     "share_at_mode": 0.03183309703373414,
+     "median_days": 84.0,
+     "p90_days": 294.0
+    },
+    "2000-2009 dead": {
+     "n": 18326,
+     "at_stamp": 3661,
+     "share_at_stamp": 0.19977081741787625,
+     "modal_days": 180,
+     "share_at_mode": 0.19977081741787625,
+     "median_days": 258.0,
+     "p90_days": 1353.5
+    },
+    "2000-2009 done": {
+     "n": 377964,
+     "at_stamp": 755,
+     "share_at_stamp": 0.0019975447397106603,
+     "modal_days": 1,
+     "share_at_mode": 0.02204178175699273,
+     "median_days": 102.0,
+     "p90_days": 298.0
+    },
+    "2010-2022 dead": {
+     "n": 11211,
+     "at_stamp": 37,
+     "share_at_stamp": 0.0033003300330033004,
+     "modal_days": 0,
+     "share_at_mode": 0.019534385871019536,
+     "median_days": 140.0,
+     "p90_days": 1080.0
+    },
+    "2010-2022 done": {
+     "n": 741169,
+     "at_stamp": 1322,
+     "share_at_stamp": 0.0017836687718995263,
+     "modal_days": 1,
+     "share_at_mode": 0.022517131720295912,
+     "median_days": 102.0,
+     "p90_days": 379.0
+    }
+   }
+  },
+  "sf": {
+   "n": 748954,
+   "top_labels": {
+    "7": 7677,
+    "14": 6591,
+    "8": 6130,
+    "6": 6116,
+    "21": 6097
+   },
+   "at_stamp": 1234,
+   "by_era": {
+    "1900-1999 dead": {
+     "n": 1537,
+     "at_stamp": 8,
+     "share_at_stamp": 0.00520494469746259,
+     "modal_days": 7,
+     "share_at_mode": 0.016916070266753416,
+     "median_days": 104.0,
+     "p90_days": 344.0
+    },
+    "1900-1999 done": {
+     "n": 238813,
+     "at_stamp": 400,
+     "share_at_stamp": 0.001674950693638956,
+     "modal_days": 7,
+     "share_at_mode": 0.008621808695506526,
+     "median_days": 106.0,
+     "p90_days": 368.0
+    },
+    "2000-2009 dead": {
+     "n": 1379,
+     "at_stamp": 0,
+     "share_at_stamp": 0.0,
+     "modal_days": 0,
+     "share_at_mode": 0.0826686004350979,
+     "median_days": 50.0,
+     "p90_days": 355.20000000000005
+    },
+    "2000-2009 done": {
+     "n": 177908,
+     "at_stamp": 339,
+     "share_at_stamp": 0.0019054792364592936,
+     "modal_days": 7,
+     "share_at_mode": 0.011123726870067675,
+     "median_days": 101.0,
+     "p90_days": 369.0
+    },
+    "2010-2022 dead": {
+     "n": 117,
+     "at_stamp": 0,
+     "share_at_stamp": 0.0,
+     "modal_days": 169,
+     "share_at_mode": 0.042735042735042736,
+     "median_days": 169.0,
+     "p90_days": 1581.0
+    },
+    "2010-2022 done": {
+     "n": 264259,
+     "at_stamp": 369,
+     "share_at_stamp": 0.001396357361527895,
+     "modal_days": 7,
+     "share_at_mode": 0.00997506234413965,
+     "median_days": 123.0,
+     "p90_days": 576.0
+    }
+   }
+  },
+  "seattle": {
+   "n": 108234,
+   "top_labels": {
+    "0": 619,
+    "56": 426,
+    "42": 385,
+    "84": 382,
+    "70": 375
+   },
+   "at_stamp": 163,
+   "by_era": {
+    "1900-1999 done": {
+     "n": 2,
+     "at_stamp": 0,
+     "share_at_stamp": 0.0,
+     "modal_days": 2589,
+     "share_at_mode": 0.5,
+     "median_days": 7542.0,
+     "p90_days": 11504.4
+    },
+    "2000-2009 dead": {
+     "n": 85,
+     "at_stamp": 0,
+     "share_at_stamp": 0.0,
+     "modal_days": 0,
+     "share_at_mode": 0.09411764705882353,
+     "median_days": 551.0,
+     "p90_days": 2071.0
+    },
+    "2000-2009 done": {
+     "n": 23212,
+     "at_stamp": 29,
+     "share_at_stamp": 0.0012493537825262796,
+     "modal_days": 0,
+     "share_at_mode": 0.012019645011201103,
+     "median_days": 275.0,
+     "p90_days": 842.0
+    },
+    "2010-2022 dead": {
+     "n": 282,
+     "at_stamp": 0,
+     "share_at_stamp": 0.0,
+     "modal_days": 0,
+     "share_at_mode": 0.024822695035460994,
+     "median_days": 406.5,
+     "p90_days": 1042.5000000000002
+    },
+    "2010-2022 done": {
+     "n": 69786,
+     "at_stamp": 112,
+     "share_at_stamp": 0.0016049064282234258,
+     "modal_days": 84,
+     "share_at_mode": 0.003969277505516866,
+     "median_days": 247.0,
+     "p90_days": 691.0
+    }
+   }
+  }
+ }
+}

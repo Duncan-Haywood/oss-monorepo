@@ -14,6 +14,7 @@
 
 import { roundHalfUpToCents } from "./checks.mjs";
 import { parseXmlTree } from "./ubl.mjs";
+import { xmlValueFindings } from "./xmlvalues.mjs";
 import { checkAgainstFa3Schema } from "./fa3-xsd.mjs";
 
 const TOLERANCE = 0.01;
@@ -350,6 +351,8 @@ export function checkFa3(source, { today = warsawToday() } = {}) {
   // A bad tax rate keeps its own, more specific PL-004 below rather than the schema's generic PL-015.
   const out = checkAgainstFa3Schema(root, text).filter((f) => !(f.rule === "PL-015" && /\/P_12$/.test(f.path)));
   if (out.some((f) => f.rule === "PL-017")) return { findings: out, skipped: ["every other check (the XML is cut off)"] };
+  // INV-065 (2026-11-17): a number or date with a no-break space (xmlvalues.mjs).
+  out.push(...xmlValueFindings({ children: [root] }));
   const skipped = [];
   checkKsefTransport(source, text, root, out);
   const head = child(root, "Naglowek");

@@ -16,6 +16,7 @@ exceeded the allowance, 2 on a usage or parse error.
 
 import argparse
 import json
+import math
 import sys
 import xml.etree.ElementTree as ET
 
@@ -177,7 +178,8 @@ def _from_jacoco(report):
 
 def compare_coverage(baseline_xml, current_xml, max_drop_pct=0):
     max_drop_pct = float(max_drop_pct)
-    if max_drop_pct < 0 or max_drop_pct != max_drop_pct:
+    # inf would make every drop "within the allowance"; nan compares false.
+    if not math.isfinite(max_drop_pct) or max_drop_pct < 0:
         raise ValueError("--max-drop must be a non-negative number of percentage points")
     baseline = read_coverage(baseline_xml, "baseline")
     current = read_coverage(current_xml, "current")
@@ -313,13 +315,24 @@ def _print_human(result):
     return status
 
 
+def _finite_nonneg(text):
+    # float() accepts "nan" and "inf"; either would switch the gate off.
+    try:
+        value = float(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"not a number: {text!r}") from None
+    if not math.isfinite(value) or value < 0:
+        raise argparse.ArgumentTypeError(f"must be a finite number >= 0, got {text!r}")
+    return value
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("baseline", help="coverage XML from the baseline (main, last release)")
     parser.add_argument("current", help="coverage XML from this PR or commit")
     parser.add_argument(
         "--max-drop",
-        type=float,
+        type=_finite_nonneg,
         default=0,
         metavar="POINTS",
         help="allowed drop in percentage points (default 0 — any drop fails)",

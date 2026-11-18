@@ -49,13 +49,13 @@ test("every input has a label and nothing is sent anywhere", () => {
   const reads = html.match(/fetch\([^)]*\)/g) ?? [];
   assert.deepEqual(reads, ['fetch(url, { credentials: "omit" })']);
   assert.doesNotMatch(html.replace('fetch(url, { credentials: "omit" })', ''), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts/);
-  for (const f of ["engine.mjs", "watch-core.mjs", "example-data.mjs", "example-fx.mjs", "usage.mjs", "report.mjs", "multivariate.mjs", "multi-view.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
+  for (const f of ["engine.mjs", "watch-core.mjs", "example-data.mjs", "example-fx.mjs", "usage.mjs", "report.mjs", "multivariate.mjs", "multi-view.mjs", "synth-view.mjs", "example-prop99.mjs", "synth-cli.mjs", "synth-control.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
   assert.doesNotMatch(html, /<form[^>]+action=/i);
 });
 
 test("the module script imports only local files and parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./analyze-job.mjs", "./checkout.mjs", "./consensus.mjs", "./drift-report.mjs", "./drift-view.mjs", "./engine.mjs", "./licence.mjs", "./multi-report.mjs", "./multi-view.mjs", "./multivariate.mjs", "./report.mjs", "./usage.mjs", "./watch-core.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./analyze-job.mjs", "./checkout.mjs", "./consensus.mjs", "./drift-report.mjs", "./drift-view.mjs", "./engine.mjs", "./licence.mjs", "./multi-report.mjs", "./multi-view.mjs", "./multivariate.mjs", "./report.mjs", "./synth-view.mjs", "./usage.mjs", "./watch-core.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));
@@ -126,10 +126,11 @@ test("the page has a switch for scoring every pair of knots and passes it to the
   assert.match(html, /knotMargin: Number\(\$\("#knotMargin"\)\.value\)/);
 });
 
-test("the counts box offers the negative-binomial cost and passes 'nb' to the engine", () => {
+test("the counts box offers the negative-binomial costs and passes 'nb' or 'nb1' to the engine", () => {
   const html = page("index.html");
-  assert.match(html, /<select id="overdispersion">[^]*?<option value="1">[^]*?<option value="nb">/);
-  assert.match(html, /overdispersion: \$\("#overdispersion"\)\.value === "nb" \? "nb" : \$\("#overdispersion"\)\.value === "1"/);
+  assert.match(html, /<select id="overdispersion">[^]*?<option value="1">[^]*?<option value="nb">[^]*?<option value="nb1">/);
+  assert.match(html, /overdispersion: \$\("#overdispersion"\)\.value === "nb" \|\| \$\("#overdispersion"\)\.value === "nb1" \? \$\("#overdispersion"\)\.value : \$\("#overdispersion"\)\.value === "1"/);
+  assert.match(html, /"clumpingWarning"\]\.filter/);
 });
 
 test("page offers known holidays for counts", () => {

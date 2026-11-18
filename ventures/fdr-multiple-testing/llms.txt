@@ -1,6 +1,6 @@
 # Multiple testing correction: Benjamini-Hochberg FDR, q-values, Holm, Bonferroni, e-BH
 
-> Free Benjamini-Hochberg false discovery rate calculator and p-value adjustment. Paste a list of p-values (or a CSV with a p-value column) and get adjusted p-values and the number kept by Bonferroni, Šidák, Holm, Hochberg, Benjamini-Hochberg, Benjamini-Yekutieli, the two-stage Benjamini-Krieger-Yekutieli procedure and Storey's q-values, with Storey's pi0 estimate and a p-value histogram; e-values are corrected with e-BH. Checked against statsmodels. Runs in your browser; nothing is uploaded.
+> Free Benjamini-Hochberg false discovery rate calculator and p-value adjustment. Paste a list of p-values (or a CSV with a p-value column) and get adjusted p-values and the number kept by Bonferroni, Šidák, Holm, Hochberg, Benjamini-Hochberg, Benjamini-Yekutieli, the two-stage Benjamini-Krieger-Yekutieli procedure and Storey's q-values, with Storey's pi0 estimate and a p-value histogram; e-values are corrected with e-BH. For tests that arrive one at a time, online FDR with LORD++, SAFFRON, LOND and alpha-spending. Checked against statsmodels and an independent implementation. Runs in your browser; nothing is uploaded.
 
 Free and open source (MIT). Results are statistical estimates from the data you supply, not medical, legal, tax, financial or professional advice.
 
@@ -12,12 +12,15 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 - `node cli.mjs pvalues.csv --column p_value --alpha 0.05 [--method bh|by|bky|storey|holm|hochberg|bonferroni|sidak] [--csv|--json]`
 - `node cli.mjs --kind e evalues.csv --alpha 0.1` for e-BH
+- `node cli.mjs stream.csv --online [--method lordpp|saffron|lond|spending] [--lambda 0.5] [--w0 0.5]` for online FDR, rows in arrival order
+- `node platform/agents/tools.mjs call fdr-multiple-testing analyzeOnline --input '{"values":[0.0001,0.3,0.002],"alpha":0.05}'`
 - `node platform/agents/tools.mjs call fdr-multiple-testing analyze --input '{"values":[0.001,0.02,0.3],"alpha":0.05}'`
 
 ## What it answers
 
 - Which of my many tests still stand after correcting for multiple testing, at a chosen false discovery rate or family-wise error rate.
 - Each test's adjusted p-value (and q-value) under each method, and how many each method keeps.
+- Which tests to keep when they arrive one at a time and each must be decided before the next (online false discovery rate control).
 - What share of my tests look like true nulls (Storey's pi0), and whether the p-value histogram looks healthy.
 
 ## Source

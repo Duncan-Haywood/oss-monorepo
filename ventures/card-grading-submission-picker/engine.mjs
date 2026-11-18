@@ -32,7 +32,7 @@ export const CONDITION_DEFAULTS = {
 };
 
 export const INPUT_NOTES = [
-  { what: "name,raw,v10,v9,v8,v7_or_lower,p10,p9,p8[,note]", detail: "One card per row. Values are what the card would sell for in that state (raw, or a slab at that grade) before fees. p10, p9, p8 are your own chances of each grade; the rest is grade 7 or lower." },
+  { what: "name,raw,v10,v9,v8,v7_or_lower,p10,p9,p8[,note]", detail: "One card per row, pasted or exported from a spreadsheet as CSV (quoted cells like \"$1,200\" are read as one number). Values are what the card would sell for in that state (raw, or a slab at that grade) before fees. p10, p9, p8 are your own chances of each grade; the rest is grade 7 or lower." },
   { what: "p10, p9, p8 as 0.35 or 35%", detail: "A number from 0 to 1, or a percent. A plain number above 1 up to 100 is read as a percent. They must add up to 100% or less." },
   { what: "p10 cell holds a word: sharp, clean, fair, worn", detail: "Uses an illustrative chance table instead of your own (leave p9 and p8 empty). Rows with no chances at all use the default condition. These are generic guesses, not population data." },
   { what: "Fee tiers: name,fee,max_declared_value,days", detail: "The cheapest tier whose declared-value limit covers the card's best case is used. Use none for no limit. Defaults are examples, not a current price list." },
@@ -65,7 +65,26 @@ export function parseProb(s) {
   return n > 1 ? n / 100 : n;
 }
 
-const splitLine = (line) => line.split(",").map((s) => s.trim());
+// Comma-separated, with spreadsheet-style double quotes so an exported
+// "$1,200" stays one field ("" inside quotes is a literal quote).
+const splitLine = (line) => {
+  if (!line.includes('"')) return line.split(",").map((s) => s.trim());
+  const out = [];
+  let cur = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i += 1; }
+      else if (ch === '"') quoted = false;
+      else cur += ch;
+    } else if (ch === '"' && cur.trim() === "") { quoted = true; cur = ""; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+};
 
 /** Parse card rows. Never throws; errors carry line numbers. */
 export function parseCards(text) {

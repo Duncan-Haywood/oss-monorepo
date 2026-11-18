@@ -91,14 +91,15 @@
 // same way; this file was missed, and the cost was real: `3pl-quote-normalizer`
 // shipped to `main` with a module that failed to parse, which is precisely the
 // defect a sweep exists to catch, and no sweep was running to catch it.
-const playwright = await import(process.env.PLAYWRIGHT || 'playwright');
-const chromium = playwright.chromium ?? playwright.default?.chromium;
+const playwright = await loadPlaywright();
+const chromium = playwright?.chromium;
 if (!chromium) {
   console.error('Could not load Playwright. Set PLAYWRIGHT to its entry point, ' +
     'e.g. PLAYWRIGHT=./node_modules/playwright/index.js');
   process.exit(2);
 }
 
+import { loadPlaywright } from './load-playwright.mjs';
 import { onlySlugs, keepSlug, describeFilter, requireNonEmpty } from './only-slugs.mjs';
 
 const BASE = (process.env.BASE_URL || 'http://localhost:8793').replace(/\/$/, '');

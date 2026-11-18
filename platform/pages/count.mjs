@@ -30,23 +30,30 @@ export function formatCount(value) {
  * kind of word the site counts ("1338 tools", "All 3591"). Used by
  * `count-format-check.mjs` over the built pages. Years ("2026 calculator"),
  * form numbers ("Form 1099") and codes are not counts, so the pattern only
- * fires on the nouns the site's own templates count.
+ * fires on the nouns the site's own templates count. The digits must start a
+ * word: the engineering page prints an eight-character commit sha just
+ * before its title, so a sha ending `…86540` beside a title starting "post"
+ * read as "86540 post" once tags were stripped, a red that came and went with
+ * which commits a clone had (doc friction, 2026-11-16). A sha that is all
+ * digits (about 1 in 70: 71949322 on 2026-11-17) still read as a count, so
+ * `ungroupedCounts` also drops `<code>` text, where the page prints shas.
  */
 export const UNGROUPED_COUNT =
-  /(?<![\d,.$£€#\/:\-])(?!(?:19|20)\d\d\b)\d{4,}(?![\d,.%:\-])\s*(?:free |reproducible |research |open-source |plain-English )?(?:tools?|projects?|posts?|pages?|sessions?|stories|calculators?|tests?)\b|\bAll \d{4,}\b/g;
+  /(?<![\w,.$£€#\/:\-])(?!(?:19|20)\d\d\b)\d{4,}(?![\d,.%:\-])\s*(?:free |reproducible |research |open-source |plain-English )?(?:tools?|projects?|posts?|pages?|sessions?|stories|calculators?|tests?)\b|\bAll \d{4,}\b/g;
 
 /**
  * The ungrouped counts in a page's visible text and its title and meta
  * description, e.g. `['1338 tools', 'All 3591']`. Scripts and styles are
  * dropped first: a count inside client code is not something a reader sees
- * until the code writes it, and that code formats it itself.
+ * until the code writes it, and that code formats it itself. `<code>` text
+ * (commit shas, identifiers) is dropped too: it is never a count.
  */
 export function ungroupedCounts(html) {
   const head = [
     ...String(html).matchAll(/<title[^>]*>([\s\S]*?)<\/title>|<meta[^>]+name=["']description["'][^>]+content=["']([^"']*)["']/gi),
   ].map((m) => m[1] ?? m[2] ?? '');
   const body = String(html)
-    .replace(/<(script|style|template|title)\b[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<(script|style|template|title|code)\b[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<!--[\s\S]*?-->/g, ' ')
     .replace(/<[^>]+>/g, ' ');
   const text = [...head, body].join(' ').replace(/\s+/g, ' ');

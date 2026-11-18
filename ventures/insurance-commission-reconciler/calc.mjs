@@ -60,7 +60,7 @@ const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9#&%/]+/g, " "
 export function parseCsv(text) {
   const rows = [];
   let row = [], cur = "", q = false, line = 1, rowLine = 1;
-  const src = String(text).replace(/^﻿/, "");
+  const src = String(text).replace(/^\uFEFF/, "");
   const push = () => { row.push(cur); cur = ""; };
   const endRow = () => { push(); if (row.some((c) => c.trim() !== "")) rows.push({ line: rowLine, cells: row }); row = []; };
   for (let i = 0; i < src.length; i++) {
@@ -543,7 +543,8 @@ export function allDisputeLetters(report) {
 
 const csvCell = (v) => {
   let s = v == null ? "" : String(v);
-  if (/^[=+@\t\r]/.test(s) || /^-[^\d.]/.test(s)) s = "'" + s; // keep a spreadsheet from running a typed cell
+  // Keep a spreadsheet from running a typed cell. Only a plain number may start with "-": "-1+HYPERLINK(...)" is a formula.
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 const money = (c) => (c == null ? "" : (c / 100).toFixed(2));

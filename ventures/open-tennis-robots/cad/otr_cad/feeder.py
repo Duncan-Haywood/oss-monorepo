@@ -1456,7 +1456,8 @@ def trough_sump(p: Feeder) -> Part:
 LIFT_PARTS = ("lift_boot", "lift_base_plate", "lift_spine", "lift_belt", "lift_pulley", "lift_motor", "lift_rod",
               "lift_clip", "lift_head", "lift_jack_screw", "lift_chute", "lift_strut", "lift_flight_cap",
               "lift_slip_plate", "lift_slip_facing", "lift_slip_spring", "lift_slip_collar", "lift_shaft",
-              "lift_shaft_bearing", "lift_shaft_coupler", "lift_motor_spacer")
+              "lift_shaft_bearing", "lift_shaft_coupler", "lift_motor_spacer",
+              "lift_bearing_fit_ring")
 
 
 def _stadium(p: Feeder, r: float, z0: float, z1: float, half_w: float, x: float | None = None):
@@ -1518,9 +1519,9 @@ def lift_boot(p: Feeder) -> Part:
     blk = blk - Box(20.6, 40.6, z1 - z_sp + 1).moved(Location((p.lift_x_pulley, p.lift_y, (z_sp + z1 + 1) / 2)))
     blk = blk - Cylinder(4.0, y1 - y0 + 2).moved(Location((p.lift_x_pulley, p.lift_y, zb), (90, 0, 0)))
     hub = p.lift_slip_design()                     # the drive pulley's slip hub turns in a pocket either side of the belt
-    span = 2 * (hub["half_pulley_mm"] + hub["far_side_mm"] + 1.0)
-    blk = blk - Cylinder(max(p.lift_slip_od, p.lift_slip_collar_d) / 2 + 1.5, span).moved(
-        Location((p.lift_x_pulley, p.lift_y, zb), (90, 0, 0)))
+    near, far = hub["half_pulley_mm"] + hub["motor_side_mm"] + 1.0, hub["half_pulley_mm"] + hub["far_side_mm"] + 1.0
+    blk = blk - Cylinder(max(p.lift_slip_od, p.lift_slip_collar_d) / 2 + 1.5, near + far).moved(
+        Location((p.lift_x_pulley, p.lift_y + (near - far) / 2, zb), (90, 0, 0)))   # the disc stack is on -y
     mp = p.lift_y + dep / 2 + w
     blk = blk - Box(40.0, 2 * w, 40.0).moved(Location((p.lift_x_pulley, mp, zb))).moved(Location((0, 0, 0)))
     blk = blk - lift_bearing_pockets(p) - lift_spacer_inserts(p)
@@ -1667,7 +1668,9 @@ def lift_slip_hub(p: Feeder) -> list[Part]:
     s = p.lift_slip_design()
     x, y0, z = p.lift_x_pulley, p.lift_y, p.lift_z_bottom
     h = s["half_pulley_mm"]
-    ft, pt, st, cw = p.lift_slip_facing_t, p.lift_slip_plate_t, p.lift_slip_spring_t, p.lift_slip_collar_w
+    sp = p.lift_slip_spring()
+    ft, pt, st, cw = p.lift_slip_facing_t, p.lift_slip_plate_t, sp["stack_mm"], p.lift_slip_collar_w
+    n, dt = p.lift_slip_spring_count, st / p.lift_slip_spring_count
 
     def along(t, y_mid):
         return Location((x, y_mid, z), (90, 0, 0)), t
@@ -1680,7 +1683,8 @@ def lift_slip_hub(p: Feeder) -> list[Part]:
     # extrude runs along the face's +z, which (90, 0, 0) turns to -y: a plate placed at y covers [y - t, y]
     plates = [Location((x, y0 + h + ft + pt, z), (90, 0, 0)), Location((x, y0 - h - ft, z), (90, 0, 0))]
     facings = [Location((x, y0 + h + ft / 2, z), (90, 0, 0)), Location((x, y0 - h - ft / 2, z), (90, 0, 0))]
-    spring_y = y0 - h - ft - pt - st / 2
+    spring_y = y0 - h - ft - pt - st / 2              # the stack's middle; each disc drawn flat at its loaded height
+    springs = [Location((x, y0 - h - ft - pt - dt * (i + 0.5), z), (90, 0, 0)) for i in range(n)]
     collars = [Location((x, y0 + h + ft + pt + cw / 2, z), (90, 0, 0)),
                Location((x, y0 - h - ft - pt - st - cw / 2, z), (90, 0, 0))]
     return [
@@ -1688,13 +1692,21 @@ def lift_slip_hub(p: Feeder) -> list[Part]:
              notes=f"Slip hub's pressure plates: the D bore keys them to the gearmotor's shaft; deburr both faces flat "
                    f"(they are the friction faces against the facings). Set the hub to {p.lift_slip_nm:g} N m: on the "
                    f"bench, the shaft in a vice, wrap a strip of the belt teeth-in round the pulley and pull it with a "
-                   f"luggage scale; tighten collar B until it slips at {s['set_n']:.0f} N, then lock its set screw."),
+                   f"luggage scale; tighten collar B until it slips at {s['set_n']:.0f} N, then lock its set screw. "
+                   f"Bed the facings in: pull the strip through about 20 slips (or hold a flight and run the lift "
+                   f"for 10 s), then set it again; fresh facings lose tens of microns as they bed in, and every "
+                   f"micron lost after the set costs about {p.lift_slip_spring()['rate_n_um']:.2f} N of the hub's "
+                   f"{s['spring_n']:.0f} N. Check it with the scale again after {p.lift_slip_jams} jams or a season."),
         Part("lift_slip_facing", "cots", "", 2, disc(p.lift_slip_od / 2, p.lift_slip_id / 2, ft), facings,
              spec=f"Friction facing washer {p.lift_slip_od:g} x {p.lift_slip_id:g} x {ft:g} mm, cut from clutch or brake "
                   f"lining sheet or cork-rubber gasket sheet (oil-free; friction about {p.lift_slip_mu:g} assumed)"),
-        Part("lift_slip_spring", "cots", "", 1, disc(12.5 / 2, 6.2 / 2, st), [Location((x, spring_y, z), (90, 0, 0))],
-             spec=f"Disc spring DIN 2093 6.2 x 12.5 x {st:g} mm (flat load about {p.lift_slip_spring_n:g} N assumed; the "
-                  f"hub needs about {s['spring_n']:.0f} N)"),
+        Part("lift_slip_spring", "cots", "", n, disc(p.lift_slip_spring_de / 2, p.lift_slip_spring_di / 2, dt * 0.95),
+             springs,
+             spec=f"Disc spring DIN 2093 {p.lift_slip_spring_de:g} x {p.lift_slip_spring_di:g} x "
+                  f"{p.lift_slip_spring_t:g} mm, free height {p.lift_slip_spring_t + p.lift_slip_spring_h0:.2f} mm "
+                  f"(B series), {n} stacked in series (alternating, cone to cone): about {sp['flat_n']:.0f} N flat by "
+                  f"DIN 2093's formula; the hub needs {s['spring_n']:.0f} N at {sp['set_mm']:.2f} mm of the stack's "
+                  f"{sp['stroke_mm']:.2f} mm (cad/README.md \"Slip hub wear\")"),
         Part("lift_slip_collar", "cots", "", 2, disc(p.lift_slip_collar_d / 2, 3.0, cw), collars,
              spec=f"Shaft collar, 6 mm bore, {p.lift_slip_collar_d:g} mm OD x {cw:g} mm, M3 set screw onto the shaft's flat"),
     ]
@@ -1713,12 +1725,12 @@ def _axle_cyl(r: float, y0: float, y1: float, p: Feeder):
 
 
 def lift_bearing_pockets(p: Feeder):
-    """The two flanged bearings' seats: each a 0.05 mm-over bore and a counterbore that takes the flange flush with
+    """The two flanged bearings' seats: each a bore `lift_bearing_fit_mm` over (set from the fit ring) and a counterbore that takes the flange flush with
     the face it is pressed in from (the motor recess's floor on +y, the boot's outer wall on -y)."""
     d = p.lift_shaft_design()
     dep, w, B, ft = p.lift_depth, p.lift_wall, p.lift_bearing_w, p.lift_bearing_flange_t
     y_out, y_far = dep / 2, -(dep / 2 + w)
-    rb, rf = p.lift_bearing_od / 2 + 0.05, p.lift_bearing_flange_d / 2 + 0.2
+    rb, rf = p.lift_bearing_od / 2 + p.lift_bearing_fit_mm, p.lift_bearing_flange_d / 2 + 0.2
     near = _axle_cyl(rb, y_out - B, y_out + 0.01, p) + _axle_cyl(rf, y_out - ft, y_out + 0.01, p)
     far = _axle_cyl(rb, y_far - 0.01, y_far + B, p) + _axle_cyl(rf, y_far - 0.01, y_far + ft, p)
     assert d["near_web_mm"] > 0 and d["far_web_mm"] > 0
@@ -1773,6 +1785,61 @@ def lift_motor_spacer(p: Feeder) -> Part:
                       f"(shaft fills the hub; tighten onto the flat), then slide the spacer's plug into the recess over the "
                       f"drive shaft's end and the spider and fix the ears with two M3 x 10 into heat-set inserts. The plug "
                       f"holds the near bearing's flange in. Print flange down, 5 walls, 40% infill.")
+
+
+FIT_RING_COLS, FIT_RING_FOOT = 3, (30.0, 3.0)   # cells across; the foot it stands on (depth, thickness)
+
+
+def fit_ring_cells(p: Feeder) -> list[tuple[float, float, float]]:
+    """(x, z, over) of each bore of the fit ring in its own frame: rows of FIT_RING_COLS, left to right from the top
+    row, origin under the middle of the foot, the bores' axes along y."""
+    n, a = len(p.bearing_ring_steps), p.bearing_ring_pitch
+    rows = -(-n // FIT_RING_COLS)
+    out = []
+    for k, over in enumerate(p.bearing_ring_steps):
+        row, col = divmod(k, FIT_RING_COLS)
+        out.append(((col - (FIT_RING_COLS - 1) / 2) * a, FIT_RING_FOOT[1] + (rows - row - 0.5) * a, over))
+    return out
+
+
+def bearing_fit_ring_solid(p: Feeder):
+    """The bearing fit test: an upright wall `lift_bearing_w` thick with one bearing pocket per step of
+    `bearing_ring_steps`, each cut as the boot's are (bore through, the flange's counterbore from the front, +y) and
+    printed the same way, axis sideways. k dimples over a bore mark the k-th step. A foot along the bottom keeps it
+    standing on the bed."""
+    n, a = len(p.bearing_ring_steps), p.bearing_ring_pitch
+    rows = -(-n // FIT_RING_COLS)
+    B, ft = p.lift_bearing_w, p.lift_bearing_flange_t
+    w, h = FIT_RING_COLS * a, rows * a
+    fd, fz = FIT_RING_FOOT
+    body = Box(w, B, h).moved(Location((0, 0, fz + h / 2))) + Box(w, fd, fz).moved(Location((0, 0, fz / 2)))
+    rf = p.lift_bearing_flange_d / 2 + 0.2
+    for k, (x, z, over) in enumerate(fit_ring_cells(p)):
+        rb = p.lift_bearing_od / 2 + over
+        body = body - Cylinder(rb, B + 0.02).moved(Location((x, 0, z), (90, 0, 0)))
+        body = body - Cylinder(rf, ft + 0.01).moved(Location((x, B / 2 - ft / 2 + 0.005, z), (90, 0, 0)))
+        for j in range(k + 1):
+            dx = (j - k / 2) * 4.0
+            body = body - Cylinder(1.0, 1.0 + 0.01).moved(Location((x + dx, B / 2 - 0.5 + 0.005, z + rf + 4.5), (90, 0, 0)))
+    return body
+
+
+def lift_bearing_fit_ring(p: Feeder) -> Part:
+    """A test print, not on the machine: no placement, so it is outside the assembly, the sweeps and the mass."""
+    d = p.bearing_fit_ring_design()
+    steps = ", ".join(f"{k + 1} dot{'s' if k else ''} {o:.2f}" for k, o in enumerate(p.bearing_ring_steps))
+    first = (d["covered"].get(p.print_hole_under_mm) or [None])[0]
+    expect = (f"The model expects the first press fit at {first:.2f} mm over" if first is not None else
+              "The model expects no press fit") + f" on a printer whose sideways holes print {p.print_hole_under_mm:g} mm small (assumed). "
+    return Part("lift_bearing_fit_ring", "print", "PETG", 1, bearing_fit_ring_solid(p), [],
+                notes=f"Test print, before the lift boot: one bearing pocket per drawn size, cut and printed as the boot's "
+                      f"are. Print it standing on its foot (the bores sideways, as the boot's are when it prints floor "
+                      f"down), same printer, filament and slicer settings as the boot. Bores, radius over the bearing's "
+                      f"{p.lift_bearing_od:g} mm (dots over each): {steps}. Press one spare F626 into each from the "
+                      f"counterbore side in a vise (a 22 mm socket on the flange) and note a word for each: drops, slides "
+                      f"(in snug), presses, hard (a hard squeeze) or cracks (whitens or cracks the ring). `python -m otr_cad "
+                      f"fit-ring` with the six words takes the middle of the bores it presses into; set "
+                      f"lift_bearing_fit_mm to that and rebuild: cad/README.md \"Bearing fit test ring\". " + expect + "4 walls, 40% infill.")
 
 
 def lift_shaft_parts(p: Feeder) -> list[Part]:
@@ -1950,12 +2017,13 @@ def lift_tensioner_parts(p: Feeder) -> list[Part]:
     screw = (Cylinder(4.0, k).moved(Location((0, 0, k / 2)))
              + Cylinder(2.5, shank_top - zc - k).moved(Location((0, 0, k + (shank_top - zc - k) / 2))))
     t = p.lift_tension_design()
+    pl = p.lift_pluck_design()
     return [Part("lift_jack_screw", "cots", "", 2, screw,
                  [Location((p.lift_x_pulley, p.lift_y + s * p.lift_jack_y, zc)) for s in (1, -1)],
                  spec="M5 x 25 hex bolt + M5 nut (captive in the head) + M5 jam nut: the top pulley's jack screws",
                  notes=f"Stand on the top rod clip; turning them out raises the head. Set {t['t0_n']:.0f} N at the drive "
-                       f"pulley: a strand plucked at mid-height swings about {t['ring_hz']:.1f} times a second, or a 1 N push "
-                       f"there moves it about {t['push_1n_mm']:.0f} mm. Then tighten the four side M5s and lock each jack "
+                       f"pulley, belt stopped and empty: a plucked strand swings about {pl['pluck_hz']:.1f} times a second, or a 1 N push at mid-height "
+                       f"moves it about {t['push_1n_mm']:.0f} mm. Then tighten the four side M5s and lock each jack "
                        f"with its jam nut up against the head.")]
 
 
@@ -1986,7 +2054,7 @@ def lift_strut(p: Feeder) -> Part:
 def lift_parts(p: Feeder) -> list[Part]:
     return [lift_boot(p), lift_base_plate(p), lift_spine(p), lift_belt(p), *lift_pulleys(p), lift_rods(p), lift_clips(p),
             lift_head(p), *lift_tensioner_parts(p), lift_chute(p), lift_strut(p), lift_flight_cap(p), *lift_slip_hub(p),
-            *lift_shaft_parts(p), lift_motor_spacer(p)]
+            *lift_shaft_parts(p), lift_motor_spacer(p), lift_bearing_fit_ring(p)]
 
 
 _ALL_PARTS_CACHE: list[tuple[Feeder, list[Part]]] = []
@@ -2281,9 +2349,10 @@ COTS_EXTRA = [
     ("24 V on-delay timer relay module, set 0.5 s", 1, "closes the contactor's coil after the precharge (manifest inrush line)"),
     ("PC817 optocoupler + 10k 0.5 W resistor", 1, "contactor coil sense: LED across the coil through the 10k, transistor from ESP32 GPIO 15 to GND (cad/README.md \"Stepper ENABLE after the contactor\")"),
     ("4.7k resistor", 1, "stepper driver EN pull-up to 3.3 V, EN to ESP32 GPIO 5: the driver stays off until the contactor has closed"),
-    ("Current-sense resistor 0.05 ohm 3 W 1% (2512 or through-hole)", 1, "lift jam cutoff: between the lift MOSFET module's source and ground (manifest lift jam line)"),
-    ("LM393 dual comparator (DIP-8 or SOIC on an adapter) + 100 nF decoupling", 1, "lift jam cutoff: shunt to its - input through 10k with 100 nF to ground, open-collector output to ESP32 GPIO 0 (hardware/electronics.md \"Lift jam cutoff\")"),
-    ("Resistors 1%: 100k, 2.7k, two 10k; capacitor 100 nF", 1, "lift jam cutoff: reference divider from 3.3 V, input filter, output pull-up (most dev boards already pull GPIO 0 up)"),
+    ("Current-sense resistor 0.01 ohm 1 W 1% (2512, four-terminal if you can)", 1, "lift jam cutoff: in the lift motor's + lead, between the lift fuse and the motor, inside the flyback diode's loop (diode cathode on the motor side of it; manifest lift jam line)"),
+    ("INA186A2 current-sense amplifier, 50 V/V (SOT-23 on an adapter) + 100 nF decoupling", 1, "lift jam cutoff: IN+ and IN- across the shunt (Kelvin leads), VS 3.3 V, REF to ground, output to the LM393's filter (hardware/electronics.md \"Lift jam cutoff\")"),
+    ("LM393 dual comparator (DIP-8 or SOIC on an adapter) + 100 nF decoupling", 1, "lift jam cutoff: the amplifier's output to its - input through 10k with 100 nF to ground, open-collector output to ESP32 GPIO 0 (hardware/electronics.md \"Lift jam cutoff\")"),
+    ("Resistors 1%: 100k, 33k, two 10k; capacitor 100 nF", 1, "lift jam cutoff: reference divider from 3.3 V, input filter, output pull-up (most dev boards already pull GPIO 0 up)"),
     ("Schottky diode, 45 V 20 A or more (TO-220 class)", 1, "regen return across the contactor and precharge relay: anode on the switched bus, cathode between the main fuse and the contactor (manifest regen line)"),
     ("Wireless e-stop relay remote, latching", 1, "second cut-off"),
     ("5 V 5 A buck converter", 1, "Pi supply"),
@@ -2349,20 +2418,30 @@ def lift_line(p: Feeder) -> str:
 def _tension_text(p: Feeder) -> str:
     t = p.lift_tension_design()
     return (f"two jack screws raise the head {t['travel_mm']:.1f} mm on the spine to tension the belt to {t['t0_n']:.0f} N "
-            f"at the drive pulley (slack strand {t['slack_n']:.1f} N; a strand plucked at mid-height swings "
-            f"{t['ring_hz']:.1f} times a second)")
+            f"at the drive pulley (slack strand {t['slack_n']:.1f} N; stopped and empty, a plucked strand swings "
+            f"{p.lift_pluck_design()['pluck_hz']:.1f} times a second, flights' mass included)")
 
 
 def lift_jam_line(p: Feeder) -> str:
     c = p.lift_jam_cutoff()
     m = c["motor"]
-    return (f"lift jam: a {p.lift_shunt_ohm:g} ohm shunt under the lift MOSFET, a {p.lift_sense_rc_s * 1000:g} ms filter "
+    if c["sense"] == "high":
+        where = (f"a {p.lift_shunt_ohm:g} ohm shunt in the lift motor's + lead inside the flyback diode's loop, an "
+                 f"INA186-class amplifier at {p.lift_sense_gain:g} V/V ({c['sense_v_per_a']:g} V/A at any duty), a "
+                 f"{p.lift_sense_rc_s * 1000:g} ms filter")
+        duty = (f"the trip is the same at the {c['duty_hi_v']:.2f} duty a {p.battery_v_max:g} V pack gets, where a hot "
+                f"stall is {c['stall_margin_hi_v']:.2f}x it")
+    else:
+        where = f"a {p.lift_shunt_ohm:g} ohm shunt under the lift MOSFET, a {p.lift_sense_rc_s * 1000:g} ms filter"
+        duty = (f"at the {c['duty_hi_v']:.2f} duty a {p.battery_v_max:g} V pack gets, the trip rises to "
+                f"{c['trip_hi_a_full_pack']:.2f} A at most and a hot stall is {c['stall_margin_hi_v']:.2f}x it")
+    return (f"lift jam: {where} "
             f"and an LM393 against {c['vref_v'] * 1000:.0f} mV pull GPIO 0 low over {c['trip_a']:.2f} A "
             f"({c['trip_lo_a']:.2f}-{c['trip_hi_a']:.2f} A over the parts' tolerances); a full belt runs at "
             f"{c['run_a']:.2f} A, so the lowest trip leaves {c['trip_nm_lo']:.2f} N m ({c['trip_factor']:.1f}x the "
             f"belt's need), and a hot stall at {p.battery_v_min:g} V draws {c['stall_hot_a']:.2f} A "
-            f"({c['stall_margin']:.2f}x the highest trip; {c['fuse_ratio']:.2f}x the {c['fuse_a']:g} A fuse, which may "
-            f"never open). Firmware ignores it {p.lift_jam_blank_ms:g} ms after each start (a start stays over it about "
+            f"({c['stall_margin_lo_v']:.2f}x the highest trip; {duty}; {c['fuse_ratio']:.2f}x the {c['fuse_a']:g} A "
+            f"fuse, which may never open). Firmware ignores it {p.lift_jam_blank_ms:g} ms after each start (a start stays over it about "
             f"{c['start_over_s'] * 1000:.0f} ms: mechanical time constant {m['tau_m_s'] * 1000:.0f} ms), cuts on "
             f"{p.lift_jam_trip_ms:g} ms over, rests {p.lift_jam_rest_ms / 1000:g} s, retries {p.lift_jam_retries}x, "
             f"then stays off (FLAG_LIFT_JAM) until the e-stop drops the bus. A stall costs {c['attempt_j']:.0f} J in the "
@@ -2373,9 +2452,11 @@ def lift_jam_line(p: Feeder) -> str:
 
 def lift_slip_line(p: Feeder) -> str:
     s = p.lift_slip_design()
+    w = p.lift_slip_wear()
     c = p.lift_jam_cutoff()
     return (f"lift slip hub: the drive pulley turns on the gearmotor's shaft between two {p.lift_slip_od:g} mm facings "
-            f"and D-bore steel plates, squeezed by a disc spring (about {s['spring_n']:.0f} N at a friction of "
+            f"and D-bore steel plates, squeezed by {p.lift_slip_spring_count} disc springs in series (about "
+            f"{s['spring_n']:.0f} N at a friction of "
             f"{p.lift_slip_mu:g}), set to slip at {p.lift_slip_nm:g} N m ({s['set_n']:.0f} N on a belt strip round "
             f"the pulley; {s['stick_lo_nm']:.2f}-{s['stick_hi_nm']:.2f} N m over +-{p.lift_slip_tol:.0%}). A cold start "
             f"passes {s['start_nm']:.2f} N m through it ({s['start_factor']:.1f}x under the lowest; the belt side is "
@@ -2383,7 +2464,29 @@ def lift_slip_line(p: Feeder) -> str:
             f"{s['trip_margin']:.2f}x the cutoff's highest trip, so a jam is still cut and flagged. A jam's estimated "
             f"peak on a flight is {s['peak_n']:.0f} N against the plate's {c['plate_allow_n']:.0f} N (rigid: up to "
             f"214 N on tests/lift_jam_sweep.py, where the hub gives 51-88 N). It rides the lift's own drive shaft "
-            f"(lift shaft line), not the gearmotor's (friction and spring figures assumed; set on the bench)")
+            f"(lift shaft line), not the gearmotor's (friction and spring figures assumed; set on the bench). Wear: the "
+            f"stack loses {w['rate_n_um']:.2f} N per micron of facing lost after the set, so the band holds "
+            f"{w['budget_um']:.0f} um against {w['loss_um']:.0f} um of assumed set, cold shrink and "
+            f"{p.lift_slip_jams} jams (cad/README.md \"Slip hub wear\")")
+
+
+def bearing_fit_line(p: Feeder) -> str:
+    d = p.bearing_fit_ring_design()
+    lo, hi = d["window_mm"]
+    cov = "; ".join(f"{s:g} mm small: {', '.join(f'{o:.2f}' for o in c) or 'none'}" for s, c in d["covered"].items())
+    b = d["boot"]
+    return (f"bearing fit: an F626 in printed PETG wants {lo:.3f}-{hi:.3f} mm of diametral interference (the floor is what "
+            f"{p.fit_dt_k:g} K of warming takes back, the ceiling {p.fit_hoop_allow_mpa:g} MPa hoop at the bore), but a "
+            f"sideways printed hole comes out 0-0.35 mm small depending on the printer, so the pockets are sized from "
+            f"lift_bearing_fit_ring.stl. Its bores ({', '.join(f'{o:.2f}' for o in p.bearing_ring_steps)} mm over on the radius) "
+            f"put at least one in the window across that spread (press bores by printer error: {cov}). Drawn "
+            f"{p.lift_bearing_fit_mm:g} over on the assumed {p.print_hole_under_mm:g} mm printer: {b['interference_mm']:.2f} mm, "
+            f"{b['pressure_mpa']:.1f} MPa, hoop {b['hoop_mpa']:.1f} MPa, about {b['press_n']:.0f} N to press in, the "
+            f"raceway closing {b['race_close_um']:.1f} um (a CN 626 has {p.lift_bearing_cn_min_um:g}-13 um: buy C3 if the "
+            f"ring's pick is its tightest press bore). The ring's cells press {d['boot_factor']:.2f}x softer than the boot "
+            f"(Lame, 22 mm against {d['boot_b_mm']:.0f} mm of PETG round the bore). "
+            f"`python -m otr_cad fit-ring <word per bore>` picks the size (assumed PETG and printer figures; the ring "
+            f"is the measurement)")
 
 
 def lift_shaft_line(p: Feeder) -> str:
@@ -2712,6 +2815,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     checks.insert(-3, lift_jam_line(p))
     checks.insert(-3, lift_slip_line(p))
     checks.insert(-3, lift_shaft_line(p))
+    checks.insert(-3, bearing_fit_line(p))
     checks.insert(-3, agitator_line(p))
     derived = {"wheel_gap_mm": p.wheel_gap, "ball_squeeze_mm": round(p.ball_d - p.wheel_gap, 1),
                "base_width_mm": round(width), "net_w_mm": p.net_w, "wind_force_n": round(p.wind_force_n, 1),

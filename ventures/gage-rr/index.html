@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e52'/%3E%3Cpath%20d='M6%2024h20M9%2024v-6M14%2024v-12M19%2024v-9M24%2024v-4'%20stroke='%23f2c14e'%20stroke-width='3'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gage R&amp;R Calculator Online: ANOVA Method, Crossed or Nested, with Confidence Intervals, Free</title>
+  <meta name="description" content="Free Gage R&amp;R calculator by the ANOVA method: paste a crossed or nested (destructive) gauge study and get repeatability, reproducibility, part-to-part, %study variation, %contribution, %tolerance, number of distinct categories and confidence intervals for every variance component. Runs in your browser.">
+  <meta property="og:title" content="Is this gauge good enough? Gage R&amp;R by ANOVA, with intervals, in your browser">
+  <meta property="og:description" content="Paste a gauge study (parts, operators, repeat readings). Repeatability, reproducibility, %study variation, %tolerance, ndc and 95% intervals. Worked on a real study of three ways to time JavaScript.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Gage R&R calculator: ANOVA method, crossed and nested", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Measurement system analysis by the ANOVA method for crossed and nested gauge studies: variance components for repeatability, reproducibility, operator, part by operator interaction and part-to-part, %contribution, %study variation, %tolerance, %process, number of distinct categories, and modified large-sample confidence intervals (Burdick, Borror and Montgomery 2003). Runs in your browser.", "featureList": "Gage R&R, gauge repeatability and reproducibility, ANOVA method, crossed gage study, nested gage study, destructive testing, variance components, percent study variation, percent contribution, percent tolerance, precision to tolerance ratio, number of distinct categories, confidence intervals, interaction plot, measurement system analysis, MSA", "citation": ["https://doi.org/10.1080/08982119308918710", "https://doi.org/10.1080/00224065.2003.11980232", "https://doi.org/10.1080/00949659008811240", "https://doi.org/10.1080/01621459.1980.10477565"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What do %study variation, %contribution and %tolerance mean?", "acceptedAnswer": {"@type": "Answer", "text": "%contribution is each source's share of the total variance. %study variation is its standard deviation divided by the total standard deviation, so the column does not add to 100. %tolerance is the source's study variation (6 standard deviations by default) divided by the tolerance, USL minus LSL; for gauge R&R it is the precision-to-tolerance ratio. Use %tolerance when the gauge sorts parts against a specification, and %study variation (or %process with a historical process standard deviation) when it is used to study or control the process."}}, {"@type": "Question", "name": "When is a gauge acceptable?", "acceptedAnswer": {"@type": "Answer", "text": "The AIAG Measurement Systems Analysis manual's guideline is under 10% gauge R&R acceptable, 10% to 30% possibly acceptable depending on the application and costs, and over 30% unacceptable, with at least 5 distinct categories. These are guidelines, not laws of nature: the intervals on this page show how far the study itself could be off, and with 10 parts and 3 operators that is often a lot."}}, {"@type": "Question", "name": "What is the number of distinct categories?", "acceptedAnswer": {"@type": "Answer", "text": "It is 1.41 times the part-to-part standard deviation divided by the gauge R&R standard deviation, rounded down: roughly how many non-overlapping groups of parts the gauge can tell apart across the parts in the study. It depends on the parts you chose, so a study with parts that span less than the process range will understate it."}}, {"@type": "Question", "name": "Crossed or nested?", "acceptedAnswer": {"@type": "Answer", "text": "Crossed when every operator measures every part several times. Nested when each part can be measured by only one operator, as in destructive testing (a tensile test, a burst test), where each operator gets their own parts from a batch assumed to be uniform. In a nested study any real difference between batches shows up as reproducibility."}}, {"@type": "Question", "name": "What does pooling the interaction do?", "acceptedAnswer": {"@type": "Answer", "text": "In a crossed study the part by operator interaction measures whether operators disagree by different amounts on different parts. When its F test is not significant, a common practice is to drop it and pool its sum of squares into repeatability, which gives the operator and part tests more degrees of freedom. The default here pools when p is above 0.05; choose keep to always report it, or set your own threshold."}}, {"@type": "Question", "name": "How are the confidence intervals computed?", "acceptedAnswer": {"@type": "Answer", "text": "Repeatability has an exact chi-square interval. The other components are linear combinations of mean squares with positive and negative coefficients, and get the modified large-sample (MLS) intervals of Graybill and Wang (1980) and Ting et al. (1990), as reviewed for gauge studies by Burdick, Borror and Montgomery (2003). In a simulation of 2,000 studies for each of seven designs, the 95% intervals covered the true value 94.5% to 97.7% of the time."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every number is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17292b; background: #eef3f2; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1f5f63; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #173f42; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #173f42; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b5a5b; }
+    .card { background: #fff; border: 1px solid #d3e0de; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #173f4210; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f8384; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f63; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2eeec; color: #173f42; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3ecea; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4b5a5b; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.key td { font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d3e0de; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6f8384; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .verdict { font-size: 1.05rem; padding: 10px 14px; border-radius: 9px; margin: 6px 0 10px; }
+    .verdict.acceptable { background: #dff2e6; color: #134d2a; }
+    .verdict.marginal { background: #fdf0d5; color: #5f480c; }
+    .verdict.unacceptable { background: #fbe0dc; color: #6d1d12; }
+    .verdict.unknown { background: #eef1f1; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .sw { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 5px; }
+    pre { background: #f2f6f5; border: 1px solid #dbe6e4; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GAGE R&amp;R · MEASUREMENT SYSTEM ANALYSIS · ANOVA METHOD · CROSSED OR NESTED · %TOLERANCE · NDC · CONFIDENCE INTERVALS · RUNS IN YOUR BROWSER</p>
+    <h1>Is this gauge good enough to tell your parts apart?</h1>
+    <p>Several operators measured the same parts several times. Paste the readings and get a <strong>Gage R&amp;R by the ANOVA method</strong>: how much of the variation is the gauge (<strong>repeatability</strong>), how much is who held it (<strong>reproducibility</strong>), and how much is the parts themselves, as <strong>%study variation</strong>, <strong>%contribution</strong>, <strong>%tolerance</strong> and the <strong>number of distinct categories</strong>, each with a <strong>confidence interval</strong> so you can see how much ten parts and three operators can tell you. Crossed studies, or nested ones for destructive tests.</p>
+    <p class="note">Nothing you enter leaves this browser tab. A statistical estimate from the readings you give, not engineering certification or quality-system advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your gauge study</h2>
+    <label for="data">CSV, tab or semicolon-separated, one row per reading: a part column, an operator (appraiser) column and a measurement column. Columns named part, operator or appraiser, and measurement or value are found by name; others, such as trial, are ignored.</label>
+    <textarea id="data" spellcheck="false" placeholder="part,operator,trial,measurement&#10;1,Ana,1,10.02&#10;1,Ana,2,10.04&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <div class="grid">
+      <div><label for="design">Study design</label><select id="design"><option value="crossed">Crossed: every operator measures every part</option><option value="nested">Nested: each operator has own parts (destructive)</option></select></div>
+      <div><label for="lsl">Lower spec limit (optional)</label><input id="lsl" type="number" step="any" placeholder="for %tolerance"></div>
+      <div><label for="usl">Upper spec limit (optional)</label><input id="usl" type="number" step="any" placeholder="for %tolerance"></div>
+      <div><label for="psd">Historical process SD (optional)</label><input id="psd" type="number" min="0" step="any" placeholder="for %process"></div>
+      <div><label for="k">Study variation</label><select id="k"><option value="6">6 × SD (99.73%)</option><option value="5.15">5.15 × SD (99%, older convention)</option></select></div>
+      <div><label for="interaction">Part × operator interaction (crossed)</label><select id="interaction"><option value="auto">Pool into repeatability if p &gt; threshold</option><option value="keep">Always keep</option><option value="pool">Always pool</option></select></div>
+      <div><label for="poolalpha">Pooling threshold</label><input id="poolalpha" type="number" min="0" max="1" step="any" value="0.05"></div>
+      <div><label for="conf">Confidence for intervals</label><select id="conf"><option value="0.95">95%</option><option value="0.9">90%</option><option value="0.99">99%</option></select></div>
+      <div><label for="partcol">Part column (blank: by name)</label><input id="partcol" type="text" placeholder="e.g. part"></div>
+      <div><label for="opcol">Operator column (blank: by name)</label><input id="opcol" type="text" placeholder="e.g. appraiser"></div>
+      <div><label for="ycol">Measurement column (blank: by name)</label><input id="ycol" type="text" placeholder="e.g. diameter_mm"></div>
+    </div>
+    <div>
+      <button type="button" class="secondary" id="ex-bench">Example: three ways to time a JavaScript function, 90 readings (real, measured)</button>
+      <button type="button" class="secondary" id="ex-nested">Example: destructive tensile test, nested (made up)</button>
+    </div>
+    <button type="button" id="analyze">Analyse the gauge</button>
+    <span class="note" id="status" role="status"></span>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <div id="verdict" class="verdict"></div>
+    <p id="counts" class="note"></p>
+    <div id="warnings"></div>
+    <h3>Variance components</h3>
+    <div class="scroll"><table id="components"></table></div>
+    <p class="note">Intervals are for the standard deviation of each source (and for %tolerance, which is a fixed multiple of it). %Study variation is a ratio of standard deviations, so the column does not add to 100; %contribution does.</p>
+    <h3>Where the variation comes from</h3>
+    <div id="bars"></div>
+    <h3>Operator by part</h3>
+    <div id="interplot"></div>
+    <p class="legend" id="interlegend"></p>
+    <h3>ANOVA</h3>
+    <div class="scroll"><table id="anova"></table></div>
+    <div class="scroll"><table id="anova-pooled"></table></div>
+    <h3>Operators</h3>
+    <div class="scroll"><table id="operators"></table></div>
+    <button type="button" class="secondary" id="download">Download the report (CSV-style text)</button>
+  </section>
+
+  <section class="card">
+    <h2>The example: is a JavaScript benchmark a capable gauge?</h2>
+    <p>A gauge is anything that turns a thing into a number, and a stopwatch is one. To give this page a real study rather than a made-up one, ten workloads (sorting copies of arrays of 400 to 4,000 random numbers) were each timed three times by three "operators", three timing harnesses: one call between two <code>performance.now()</code> readings (<code>single</code>), fifty calls in a loop divided by fifty (<code>loop50</code>), and the median of fifteen single calls timed with <code>process.hrtime.bigint()</code> (<code>median15</code>), in shuffled order on one Node 22 process (the script is <code>eval/benchmark-study.mjs</code>). With the interaction kept, gauge R&amp;R is 22.5% of study variation with 6 distinct categories: marginal. Repeatability is 15.7% and reproducibility 16.1%, and nearly all of the reproducibility is one harness: <code>single</code> reads 101.5 µs on average against 83.4 and 85.0 for the other two, the cost of timing one short call. Without it, gauge R&amp;R falls to 14.7% and the distinct categories rise to 9.</p>
+    <p class="note">Your own run of the script gives different numbers: that is the point of a gauge study. The bundled file is the one measured for this page.</p>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>For a crossed study with <em>p</em> parts, <em>o</em> operators and <em>n</em> trials, the two-factor random-effects ANOVA gives the mean squares for parts, operators, their interaction and repeatability, and the variance components follow from the expected mean squares (Montgomery and Runger 1993): repeatability is the error mean square; the interaction is (MS<sub>PO</sub> − MS<sub>E</sub>)/<em>n</em>; operator is (MS<sub>O</sub> − MS<sub>PO</sub>)/(<em>pn</em>); part-to-part is (MS<sub>P</sub> − MS<sub>PO</sub>)/(<em>on</em>). A negative estimate is reported as zero. Reproducibility is operator plus interaction, and gauge R&amp;R is repeatability plus reproducibility. The nested design replaces the interaction with parts within operators. Intervals: the exact chi-square interval for repeatability, and modified large-sample intervals for the rest (Graybill and Wang 1980; Ting et al. 1990; Burdick, Borror and Montgomery 2003). The number of distinct categories is 1.41 × part SD / gauge SD, rounded down, and the 10% and 30% bands are the AIAG MSA manual's guidelines (4th edition, 2010).</p>
+    <p><strong>Balanced studies only.</strong> Every operator must measure every part (or, nested, the same number of parts) the same number of times; the page says which cells are short.</p>
+    <p><strong>Random operators.</strong> The intervals treat the operators as a sample from everyone who might use the gauge. With two or three operators the reproducibility interval is wide, and the page shows it.</p>
+    <p><strong>Not here (yet):</strong> the average-and-range method, attribute agreement, bias and linearity studies, one-sided tolerances and unbalanced designs.</p>
+    <p><strong>Checked against:</strong> sums of squares from statsmodels 0.15.0 OLS ANOVA and quantiles from scipy 1.18.1 on eight generated studies, to 1e-9; a hand-worked 2 × 2 × 2 study; and a coverage simulation of the intervals (README, "Verification").</p>
+<pre>@article{montgomery1993gauge,
+  author = {Montgomery, Douglas C. and Runger, George C.},
+  title = {Gauge capability and designed experiments. Part I: basic methods},
+  journal = {Quality Engineering}, volume = {6}, number = {1}, pages = {115--135}, year = {1993},
+  doi = {10.1080/08982119308918710}}
+@article{burdick2003review,
+  author = {Burdick, Richard K. and Borror, Connie M. and Montgomery, Douglas C.},
+  title = {A review of methods for measurement systems capability analysis},
+  journal = {Journal of Quality Technology}, volume = {35}, number = {4}, pages = {342--354}, year = {2003},
+  doi = {10.1080/00224065.2003.11980232}}
+@article{ting1990mls,
+  author = {Ting, Naitee and Burdick, Richard K. and Graybill, Franklin A. and Jeyaratnam, S. and Lu, T.-F. C.},
+  title = {Confidence intervals on linear combinations of variance components that are unrestricted in sign},
+  journal = {Journal of Statistical Computation and Simulation}, volume = {35}, number = {3-4}, pages = {135--143}, year = {1990},
+  doi = {10.1080/00949659008811240}}
+@article{graybill1980mls,
+  author = {Graybill, Franklin A. and Wang, Chih-Ming},
+  title = {Confidence intervals on nonnegative linear combinations of variances},
+  journal = {Journal of the American Statistical Association}, volume = {75}, number = {372}, pages = {869--873}, year = {1980},
+  doi = {10.1080/01621459.1980.10477565}}
+@manual{aiag2010msa,
+  title = {Measurement Systems Analysis Reference Manual}, edition = {4th},
+  organization = {Automotive Industry Action Group}, address = {Southfield, Michigan}, year = {2010}}</pre>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What do %study variation, %contribution and %tolerance mean?</h3>
+    <p>%contribution is each source's share of the total variance. %study variation is its standard deviation divided by the total standard deviation, so the column does not add to 100. %tolerance is the source's study variation (6 standard deviations by default) divided by the tolerance, USL minus LSL; for gauge R&amp;R it is the precision-to-tolerance ratio. Use %tolerance when the gauge sorts parts against a specification, and %study variation (or %process with a historical process standard deviation) when it is used to study or control the process.</p>
+    <h3>When is a gauge acceptable?</h3>
+    <p>The AIAG Measurement Systems Analysis manual's guideline is under 10% gauge R&amp;R acceptable, 10% to 30% possibly acceptable depending on the application and costs, and over 30% unacceptable, with at least 5 distinct categories. These are guidelines, not laws of nature: the intervals on this page show how far the study itself could be off, and with 10 parts and 3 operators that is often a lot.</p>
+    <h3>What is the number of distinct categories?</h3>
+    <p>It is 1.41 times the part-to-part standard deviation divided by the gauge R&amp;R standard deviation, rounded down: roughly how many non-overlapping groups of parts the gauge can tell apart across the parts in the study. It depends on the parts you chose, so a study with parts that span less than the process range will understate it.</p>
+    <h3>Crossed or nested?</h3>
+    <p>Crossed when every operator measures every part several times. Nested when each part can be measured by only one operator, as in destructive testing (a tensile test, a burst test), where each operator gets their own parts from a batch assumed to be uniform. In a nested study any real difference between batches shows up as reproducibility.</p>
+    <h3>What does pooling the interaction do?</h3>
+    <p>In a crossed study the part by operator interaction measures whether operators disagree by different amounts on different parts. When its F test is not significant, a common practice is to drop it and pool its sum of squares into repeatability, which gives the operator and part tests more degrees of freedom. The default here pools when p is above 0.05; choose keep to always report it, or set your own threshold.</p>
+    <h3>How are the confidence intervals computed?</h3>
+    <p>Repeatability has an exact chi-square interval. The other components are linear combinations of mean squares with positive and negative coefficients, and get the modified large-sample (MLS) intervals of Graybill and Wang (1980) and Ting et al. (1990), as reviewed for gauge studies by Burdick, Borror and Montgomery (2003). In a simulation of 2,000 studies for each of seven designs, the 95% intervals covered the true value 94.5% to 97.7% of the time.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Every number is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it is not engineering certification, a quality-system audit or a substitute for your customer's or your own measurement procedure, which may set different criteria. Results are statistical estimates from the readings you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the Automotive Industry Action Group, or any statistics software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs study.csv --lsl 9.9 --usl 10.1</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gage-rr" rel="noopener">source</a>.</p>
+    <p>More quality and measurement tools: <a href="../spc-control-charts/">control charts</a> for a process over time, <a href="../method-comparison/">method comparison</a> for two instruments on the same samples, <a href="../inter-rater-agreement/">inter-rater agreement</a> for pass/fail and ratings, and <a href="../scale-reliability/">scale reliability</a> for questionnaires.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, report } from "./engine.mjs";
+    import { BENCHMARK_CSV, DESTRUCTIVE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const sig = (x) => (x == null || !Number.isFinite(x) ? "" : Math.abs(x) >= 1e5 || (x !== 0 && Math.abs(x) < 1e-3) ? x.toExponential(3) : x.toPrecision(4).replace(/\.?0+$/, (m) => (m.includes(".") ? "" : m)));
+    const pct = (x) => (x == null || !Number.isFinite(x) ? "" : x.toFixed(1));
+    const pfmt = (p) => (p == null ? "" : p < 0.0001 ? "< 0.0001" : p.toFixed(4));
+    const COLORS = ["#1f5f63", "#c46a2f", "#6b4fa0", "#2f7d3b", "#b03a48", "#7a6a1f", "#2f6db0", "#8a4b2a"];
+    let last = null;
+
+    function inputs() {
+      return {
+        text: $("#data").value, design: $("#design").value, lsl: $("#lsl").value, usl: $("#usl").value, processSd: $("#psd").value,
+        k: Number($("#k").value), interaction: $("#interaction").value, poolAlpha: Number($("#poolalpha").value), confidence: Number($("#conf").value),
+        part: $("#partcol").value.trim(), operator: $("#opcol").value.trim(), measurement: $("#ycol").value.trim(),
+      };
+    }
+
+    function bars(r) {
+      const rows = r.components.filter((c) => c.key !== "total");
+      const useTol = r.tolerance != null;
+      const W = 900, rowH = 30, L = 200, R = 60, T = 10, B = 30, H = T + B + rowH * rows.length;
+      const max = Math.max(100, ...rows.map((c) => Math.max(c.pctStudyVar ?? 0, useTol ? c.pctTolerance ?? 0 : 0)));
+      const x = (v) => L + (v / max) * (W - L - R);
+      let g = "";
+      for (const v of [10, 30]) g += `<line x1="${x(v)}" x2="${x(v)}" y1="${T}" y2="${H - B}" stroke="#c46a2f" stroke-dasharray="4 3"/><text x="${x(v)}" y="${H - B + 14}" font-size="11" text-anchor="middle" fill="#4b5a5b">${v}%</text>`;
+      rows.forEach((c, i) => {
+        const y = T + i * rowH;
+        g += `<text x="${L - 8}" y="${y + 18}" font-size="12" text-anchor="end" fill="#17292b">${esc(c.source)}</text>`;
+        g += `<rect x="${L}" y="${y + 4}" width="${Math.max(0, x(c.pctStudyVar ?? 0) - L)}" height="${useTol ? 10 : 18}" fill="#1f5f63"/>`;
+        if (useTol) g += `<rect x="${L}" y="${y + 15}" width="${Math.max(0, x(c.pctTolerance ?? 0) - L)}" height="10" fill="#c46a2f"/>`;
+        g += `<text x="${x(c.pctStudyVar ?? 0) + 4}" y="${y + 14}" font-size="11" fill="#17292b">${pct(c.pctStudyVar)}%</text>`;
+      });
+      g += `<text x="${(L + W - R) / 2}" y="${H - 2}" font-size="11" text-anchor="middle" fill="#4b5a5b">${useTol ? "%study variation (teal) and %tolerance (orange)" : "%study variation"}</text>`;
+      $("#bars").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Bar chart of percent study variation by source">${g}</svg>`;
+    }
+
+    function interplot(r) {
+      const ops = r.summary.operators.map((o) => o.name);
+      const W = 760, H = 320, L = 58, R = 36, T = 12, B = 52;
+      if (r.design === "nested") {
+        // Part means grouped by operator.
+        const parts = r.summary.parts;
+        const vals = parts.map((p) => p.mean);
+        const lo = Math.min(...vals), hi = Math.max(...vals), pad = (hi - lo || 1) * 0.08;
+        const y = (v) => T + (1 - (v - lo + pad) / (hi - lo + 2 * pad)) * (H - T - B);
+        const x = (i) => L + ((i + 0.5) / parts.length) * (W - L - R);
+        let g = `<line x1="${L}" x2="${L}" y1="${T}" y2="${H - B}" stroke="#6f8384"/>`;
+        for (const v of [lo, (lo + hi) / 2, hi]) g += `<text x="${L - 6}" y="${y(v) + 4}" font-size="11" text-anchor="end" fill="#4b5a5b">${esc(sig(v))}</text>`;
+        parts.forEach((p, i) => { const c = COLORS[ops.indexOf(p.operator) % COLORS.length]; g += `<circle cx="${x(i)}" cy="${y(p.mean)}" r="4" fill="${c}"/>`; });
+        r.summary.operators.forEach((o, k) => { const idx = parts.map((p, i) => (p.operator === o.name ? i : -1)).filter((i) => i >= 0); g += `<line x1="${x(idx[0]) - 6}" x2="${x(idx[idx.length - 1]) + 6}" y1="${y(o.mean)}" y2="${y(o.mean)}" stroke="${COLORS[k % COLORS.length]}" stroke-dasharray="5 3"/>`; });
+        g += `<text x="${(L + W - R) / 2}" y="${H - 8}" font-size="11" text-anchor="middle" fill="#4b5a5b">part means, grouped by operator (dashed: operator mean)</text>`;
+        $("#interplot").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Part means grouped by operator">${g}</svg>`;
+      } else {
+        const parts = r.summary.parts.map((p) => p.name);
+        const cells = r.summary.cells;
+        const vals = cells.map((c) => c.mean);
+        const lo = Math.min(...vals), hi = Math.max(...vals), pad = (hi - lo || 1) * 0.08;
+        const y = (v) => T + (1 - (v - lo + pad) / (hi - lo + 2 * pad)) * (H - T - B);
+        const x = (j) => L + (parts.length === 1 ? 0.5 : j / (parts.length - 1)) * (W - L - R);
+        let g = `<line x1="${L}" x2="${L}" y1="${T}" y2="${H - B}" stroke="#6f8384"/>`;
+        for (const v of [lo, (lo + hi) / 2, hi]) g += `<text x="${L - 6}" y="${y(v) + 4}" font-size="11" text-anchor="end" fill="#4b5a5b">${esc(sig(v))}</text>`;
+        const every = Math.ceil(parts.length / 12);
+        parts.forEach((p, j) => { if (j % every === 0) g += `<text x="${x(j)}" y="${H - B + 16}" font-size="10" text-anchor="middle" fill="#4b5a5b">${esc(p.length > 10 ? p.slice(0, 9) + "…" : p)}</text>`; });
+        ops.forEach((op, k) => {
+          const pts = parts.map((p, j) => `${x(j)},${y(cells.find((c) => c.operator === op && c.part === p).mean)}`);
+          g += `<polyline points="${pts.join(" ")}" fill="none" stroke="${COLORS[k % COLORS.length]}" stroke-width="2"/>`;
+        });
+        g += `<text x="${(L + W - R) / 2}" y="${H - 8}" font-size="11" text-anchor="middle" fill="#4b5a5b">part (in the order of the data); each line is one operator's average reading</text>`;
+        $("#interplot").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Interaction plot: operator average by part">${g}</svg>`;
+      }
+      $("#interlegend").innerHTML = ops.map((o, k) => `<span><i class="sw" style="background:${COLORS[k % COLORS.length]}"></i>${esc(o)}</span>`).join("");
+    }
+
+    function anovaTable(rows) {
+      return `<tr><th>Source</th><th class="n">DF</th><th class="n">SS</th><th class="n">MS</th><th class="n">F</th><th class="n">p</th></tr>` + rows.map((t) => `<tr><td>${esc(t.source)}</td><td class="n">${t.df}</td><td class="n">${sig(t.ss)}</td><td class="n">${sig(t.ms)}</td><td class="n">${t.f == null ? "" : Number.isFinite(t.f) ? t.f.toFixed(3) : "∞"}</td><td class="n">${pfmt(t.p)}</td></tr>`).join("");
+    }
+
+    function render(r) {
+      last = r;
+      $("#results").hidden = false;
+      const v = $("#verdict");
+      v.className = `verdict ${r.verdict.level}`;
+      v.textContent = r.verdict.text;
+      $("#counts").textContent = `${r.design === "nested" ? "Nested" : "Crossed"} study: ${r.counts.parts} parts, ${r.counts.operators} operators, ${r.counts.replicates} trials, ${r.counts.readings} readings. Study variation = ${r.k} × SD. Number of distinct categories: ${r.ndc ?? "n/a"}.`;
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      const tol = r.tolerance != null, proc = r.processSd != null, cl = Math.round(r.confidence * 100);
+      let h = `<tr><th>Source</th><th class="n">Variance</th><th class="n">SD</th><th class="n">${cl}% interval for SD</th><th class="n">Study var</th><th class="n">%Contribution</th><th class="n">%Study var</th>${tol ? `<th class="n">%Tolerance (${cl}% interval)</th>` : ""}${proc ? `<th class="n">%Process</th>` : ""}</tr>`;
+      for (const c of r.components) {
+        h += `<tr class="${c.key === "grr" ? "key" : ""}"><td>${esc(c.source)}</td><td class="n">${sig(c.variance)}</td><td class="n">${sig(c.sd)}</td><td class="n">${c.sdLower == null ? "" : `${sig(c.sdLower)} to ${sig(c.sdUpper)}`}</td><td class="n">${sig(c.studyVar)}</td><td class="n">${pct(c.pctContribution)}</td><td class="n">${pct(c.pctStudyVar)}</td>${tol ? `<td class="n">${pct(c.pctTolerance)}${c.pctToleranceLower == null ? "" : ` (${pct(c.pctToleranceLower)} to ${pct(c.pctToleranceUpper)})`}</td>` : ""}${proc ? `<td class="n">${pct(c.pctProcess)}</td>` : ""}</tr>`;
+      }
+      $("#components").innerHTML = h;
+      $("#anova").innerHTML = (r.anova.pooledTable ? `<caption class="note">With the interaction</caption>` : "") + anovaTable(r.anova.table);
+      $("#anova-pooled").innerHTML = r.anova.pooledTable ? `<caption class="note">Interaction pooled into repeatability (used for the components)</caption>` + anovaTable(r.anova.pooledTable) : "";
+      $("#operators").innerHTML = `<tr><th>Operator</th><th class="n">Average</th><th class="n">Average range of trials</th></tr>` + r.summary.operators.map((o) => `<tr><td>${esc(o.name)}</td><td class="n">${sig(o.mean)}</td><td class="n">${sig(o.meanRange)}</td></tr>`).join("");
+      bars(r);
+      interplot(r);
+    }
+
+    function runAnalysis() {
+      try {
+        const r = analyze(inputs());
+        render(r);
+        $("#status").textContent = "";
+        return true;
+      } catch (e) {
+        $("#results").hidden = true;
+        $("#status").textContent = e.message;
+        return false;
+      }
+    }
+
+    $("#analyze").addEventListener("click", () => { if (runAnalysis()) record("analysis_run"); });
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#data").value = await f.text();
+      $("#status").textContent = `Loaded ${f.name}.`;
+    });
+    $("#ex-bench").addEventListener("click", () => {
+      $("#data").value = BENCHMARK_CSV;
+      $("#design").value = "crossed"; $("#lsl").value = ""; $("#usl").value = ""; $("#psd").value = ""; $("#interaction").value = "keep";
+      if (runAnalysis()) record("example_loaded");
+    });
+    $("#ex-nested").addEventListener("click", () => {
+      $("#data").value = DESTRUCTIVE_CSV;
+      $("#design").value = "nested"; $("#lsl").value = "380"; $("#usl").value = "440"; $("#psd").value = ""; $("#interaction").value = "auto";
+      if (runAnalysis()) record("example_loaded");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([report(last) + "\n"], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "gage-rr-report.txt";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

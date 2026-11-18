@@ -17,7 +17,8 @@ OPTIONS:
     --graph            print the whole import graph instead (madge --json shape:
                        {\"file\": [\"dep\", ...]})
     --orphans          list files nothing imports (madge --orphans)
-    --unresolved       list relative imports that point at no file; exit 1 if any
+    --unresolved       list relative imports and tsconfig aliases that point at
+                       no file; exit 1 if any
     --unused-exports   list exports no file in the graph imports; exit 1 if any
                        (files nothing imports are entry points and skipped;
                        --entries reports theirs too)
@@ -30,6 +31,9 @@ OPTIONS:
     --no-type          ignore TypeScript `import type` / `export type`, which
                        are erased before the code runs
     --no-follow        do not follow imports out of the given paths
+    --no-tsconfig      treat every bare specifier as a package (by default
+                       `paths` and `baseUrl` in the nearest tsconfig.json or
+                       jsconfig.json resolve aliases such as \"@/lib/x\")
     --ignore-dir NAME  skip directories with this name (repeatable;
                        node_modules, .git and target are always skipped)
     --no-gitignore     read files .gitignore would skip
@@ -110,6 +114,7 @@ fn parse_args() -> Result<Option<Args>, String> {
                 a.opts.kinds.remove(&ImportKind::Require);
             }
             "--no-follow" => a.opts.follow_outside = false,
+            "--no-tsconfig" => a.opts.tsconfig = false,
             "--ignore-dir" => a.ignore_dirs.push(val(&arg)?),
             "--no-gitignore" => a.gitignore = false,
             "--base" => a.base = Some(PathBuf::from(val(&arg)?)),
@@ -194,6 +199,7 @@ fn main() -> ExitCode {
         opts = Options {
             exts: opts.exts,
             follow_outside: opts.follow_outside,
+            tsconfig: opts.tsconfig,
             ..Options::default()
         };
     }
@@ -317,7 +323,7 @@ fn main() -> ExitCode {
                     println!("{f}:{l}: cannot resolve {s}");
                 }
                 eprintln!(
-                    "{} unresolved relative imports in {} files",
+                    "{} unresolved imports in {} files",
                     u.len(),
                     g.files.len()
                 );

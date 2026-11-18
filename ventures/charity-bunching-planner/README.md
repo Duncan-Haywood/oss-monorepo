@@ -19,7 +19,8 @@ mean rebuilding the itemize-or-standard comparison in a spreadsheet for every sc
 - A bunch year deposits this year's gift plus the DAF-funded part of each following year until the next
   bunch year; covered years send `min(gift, cap)` directly and the DAF grants the rest.
 - Optimum: exhaustive over all 2^N deposit-year schedules (N <= 15) whose gaps respect the typed limit,
-  verified against an independent brute force in `calc.test.mjs`. Giving directly competes as a schedule.
+  checked in `calc.test.mjs` against a brute-force enumeration that reuses the same `evaluate()` and
+  `allowed()` (so it confirms the search, not the tax arithmetic). Giving directly competes as a schedule.
 - Deduction amounts and AGI grow at a typed inflation rate; the DAF grows at a typed rate (reported as money
   left for charity, never as tax saving). Optional line for tax avoided by funding deposits with appreciated
   stock.

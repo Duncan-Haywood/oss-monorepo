@@ -5,8 +5,10 @@
 // worksheet). Solo 401(k): the employee deferral comes first, then 20% as the
 // employer share, all under the section 415(c) cap. Dollar amounts are cents.
 //
-// LIMITS were typed from memory of IRS Notice 2025-67 (2026) and Notice 2024-80 (2025),
-// not read from irs.gov (refused through the proxy 2026-10-27), so every result says so.
+// LIMITS were typed from memory of IRS Notice 2025-67 (2026) and Notice 2024-80 (2025)
+// on 2026-10-27, then checked on 2026-11-17 against the text of Notice 2025-67
+// (irs.gov/pub/irs-drop/n-25-67.pdf, which states each 2026 figure next to the 2025 one
+// it replaces): all ten match. platform/ci/check_plan_limits_2026.py pins them.
 // Pass `limits` to override. A worksheet, not tax advice; it ignores other employers'
 // plans, which share the employee-deferral limit.
 import { selfEmployment } from "./taxforms.mjs";
@@ -21,7 +23,7 @@ export function retirementLimits(profitCents, { year = new Date().getFullYear(),
   const warnings = [];
   const L = limits ?? LIMITS[year];
   if (!L) throw new Error(`No retirement limits on file for ${year}; pass limits.`);
-  if (!limits) warnings.push(`The ${year} limits are from memory of IRS notices, not checked against irs.gov; confirm them before contributing.`);
+  if (!limits) warnings.push(`The ${year} limits match the IRS text of Notice 2025-67 (checked 2026-11-17); confirm they are still current before contributing.`);
   const se = selfEmployment(profitCents, { year, wages });
   const earned = Math.max(0, Math.min(profitCents - se.deduction, L.compLimit));
   const catchUp = age >= 60 && age <= 63 ? L.catchUp6063 : age >= 50 ? L.catchUp50 : 0;

@@ -1,0 +1,28 @@
+H6ab-i reproduction on the standard batches against scale.jsonl (H = 16)
+  unc  seed 0: 1.5714612976 vs 1.5714612976 (+0.0e+00)  torch 2.15.0+cpu
+  unc  seed 1: 1.5670808926 vs 1.5670808926 (+0.0e+00)  torch 2.15.0+cpu
+  unc  seed 2: 1.5723209083 vs 1.5723209083 (+0.0e+00)  torch 2.15.0+cpu
+  unc  seed 3: 1.5756339207 vs 1.5756339207 (+0.0e+00)  torch 2.15.0+cpu
+  rk4  seed 0: 1.5701472908 vs 1.5701472908 (+0.0e+00)  torch 2.15.0+cpu
+  rk4  seed 1: 1.5796124041 vs 1.5796124041 (+0.0e+00)  torch 2.15.0+cpu
+  rk4  seed 2: 1.5799095184 vs 1.5799095184 (+0.0e+00)  torch 2.15.0+cpu
+  rk4  seed 3: 1.5702969506 vs 1.5702969506 (+0.0e+00)  torch 2.15.0+cpu
+  rk8  seed 0: 1.5964516178 vs 1.5964516178 (+0.0e+00)  torch 2.15.0+cpu
+  rk8  seed 1: 1.5896469802 vs 1.5896469802 (+0.0e+00)  torch 2.15.0+cpu
+  rk8  seed 2: 1.5950424969 vs 1.5950424969 (+0.0e+00)  torch 2.15.0+cpu
+  rk8  seed 3: 1.5931929797 vs 1.5931929797 (+0.0e+00)  torch 2.15.0+cpu
+H6ab-i (bit-exact, 12 checks): held
+
+per noise at H = 16, paired by seed against unc: T = clean - unc, C = full - unc, b = full - clean (std); fresh T
+  rk2  omega 1 n 4: T +0.0006 (0.0054)  C +0.0014 (0.0056)  b +0.0008 (0.0002)  | fresh T -0.0038 (0.0057) C -0.0027 (0.0060) per seed +0.0049 +0.0058 -0.0183 -0.0077  theta2 9,754  b/omega 0.0008
+        exploratory: fresh T at H = 64 minus at H = 16, paired by seed: -0.0085 (0.0116)
+  rk4  omega 3 n 4: T +0.0011 (0.0041)  C +0.0034 (0.0041)  b +0.0022 (0.0006)  | fresh T -0.0004 (0.0035) C +0.0015 (0.0035) per seed -0.0041 +0.0059 +0.0051 -0.0084  theta2 11,853  b/omega 0.0007
+        exploratory: fresh T at H = 64 minus at H = 16, paired by seed: -0.0181 (0.0041)
+  rk8  omega 7 n 4: T +0.0156 (0.0019)  C +0.0220 (0.0016)  b +0.0064 (0.0004)  | fresh T +0.0141 (0.0036) C +0.0200 (0.0033) per seed +0.0228 +0.0114 +0.0163 +0.0058  theta2 16,284  b/omega 0.0009
+        exploratory: fresh T at H = 64 minus at H = 16, paired by seed: -0.0282 (0.0080)
+  unc theta2 8,783  step2 5.96
+
+H6ab-ii  (omega 7 recipe above unc on fresh by > 2 se, 6x's cost on new batches): held (+0.0141, +3.9 se)
+H6ab-iii (omega 3 recipe below unc on fresh by > 2 se): refuted (-0.0004, -0.1 se)
+H6ab-iv  (fresh T rises with omega, T(1) < T(3) < T(7), seed means): held (-0.0038, -0.0004, +0.0141)
+H6ab-v   (b / omega in [0.0005, 0.0012] at all three omegas): held (0.0008, 0.0007, 0.0009)

@@ -1,4 +1,7 @@
+import tempfile
 import unittest
+from pathlib import Path
+from unittest import mock
 
 import pick_track
 
@@ -72,6 +75,20 @@ class MilestonesTest(unittest.TestCase):
     def test_unknown_prefix_is_empty(self):
         self.assertEqual(pick_track.milestones("nosuchtrack"), ([], []))
 
+    def test_open_programme_demotes_the_milestone_line(self):
+        found = (["aerolog-a", "aerolog-sizing"], ["aerolog-sizing"])
+        [line] = pick_track.milestone_lines("aerolog", ["aerolog-scaling"], found, lambda s: [])
+        self.assertIn("advancing aerolog-scaling comes first", line)
+        self.assertIn("next free: aerolog-sizing", line)
+
+    def test_no_takeable_programme_keeps_the_plain_line(self):
+        found = (["x-a", "x-b"], ["x-b"])
+        [line] = pick_track.milestone_lines("x", [], found, lambda s: ["research/p/LOG.md"])
+        self.assertTrue(line.startswith("milestones: 1/2 on this checkout; next free: x-b"))
+        self.assertIn("named in research/p/LOG.md", line)
+        [line] = pick_track.milestone_lines("x", [], ([], []), lambda s: [])
+        self.assertIn("no list found", line)
+
 
 class NextStepsTest(unittest.TestCase):
     def test_reads_section_and_cuts(self):
@@ -81,6 +98,17 @@ class NextStepsTest(unittest.TestCase):
 
     def test_missing_project_is_empty(self):
         self.assertEqual(pick_track.next_steps("nosuch-project"), "")
+
+    def test_a_list_shows_every_item(self):
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "p").mkdir()
+            body = "".join(f"{i}. Item {i} " + "x" * 300 + "\n" for i in range(1, 7))
+            (Path(d) / "p" / "README.md").write_text("# P\n\n## Next steps\n\n" + body + "\n## Log\n")
+            with mock.patch.object(pick_track, "RESEARCH", Path(d)):
+                text = pick_track.next_steps("p")
+        for i in range(1, 7):
+            self.assertIn(f"{i}) Item {i}", text)
+        self.assertNotIn("Log", text)
 
 
 class NewestLogEntriesTest(unittest.TestCase):
@@ -217,6 +245,7 @@ class OpenPrsTest(unittest.TestCase):
         from unittest import mock
         body = json.dumps([{"number": 7, "title": "research/lowcomm-training: 3d"},
                            {"number": 8, "title": "other"}]).encode()
+        pick_track._open_pr_titles.cache_clear()  # an earlier test may have filled it
         with mock.patch("urllib.request.urlopen", return_value=io.BytesIO(body)):
             self.assertEqual(pick_track.open_prs_for("lowcomm-training"),
                              ["#7 research/lowcomm-training: 3d"])
@@ -376,9 +405,6 @@ class FocusTest(unittest.TestCase):
         self.assertEqual(set(firsts), {p[0] for p in progs})
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 class SessionDrawTest(unittest.TestCase):
     def test_same_draw_until_new(self):
@@ -489,3 +515,213 @@ class FreeChoiceTest(unittest.TestCase):
         self.assertIn("why_standalone", text)
         self.assertIn("PROPOSAL.md", text)
         self.assertIn("2 open programme(s)", text)
+
+    def test_least_contended_programme_comes_first(self):
+        prs = {"busy": ["#1 research/busy: m3"], "hot": [], "idle": [], "fresh": []}
+        recent = {"busy": [], "hot": ["abc 1 hour ago: research/hot: m9"], "idle": [], "fresh": []}
+        age = {"busy": 30.0, "hot": 40.0, "idle": 20.0, "fresh": 2.0}
+        lines = pick_track.contention_lines(["busy", "hot", "fresh", "idle"], prs=prs.get,
+                                            recent=recent.get, last=age.get)
+        self.assertEqual([l.split(":")[0].strip() for l in lines], ["idle", "fresh", "hot", "busy"])
+        self.assertIn("idle: 0 open PR(s), 0 commit(s) on main in 6 h, last landed 20 h ago", lines[0])
+
+    def test_unknown_age_counts_as_idlest_and_says_so(self):
+        lines = pick_track.contention_lines(["a", "b"], prs=lambda s: [], recent=lambda s: [],
+                                            last={"a": 5.0, "b": None}.get)
+        self.assertTrue(lines[0].strip().startswith("b:"))
+        self.assertIn("nothing in this clone's history", lines[0])
+
+    def test_free_choice_prints_the_ranking(self):
+        text = "\n".join(pick_track.free_choice_lines([("a-prog", True)], contention=lambda s: ["    a-prog: x"]))
+        self.assertIn("least contended first", text)
+        self.assertIn("a-prog: x", text)
+
+
+class PostLimitsTest(unittest.TestCase):
+    def test_line_carries_the_checker_caps(self):
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "platform" / "ci"))
+        import check_post_frontmatter as cpf
+        line = pick_track.post_limits_line()
+        self.assertTrue(line.startswith("post front matter:"))
+        self.assertIn(f"description {cpf.MIN_DESCRIPTION} to {cpf.LIMITS['description']}", line)
+
+
+class ProgrammeLabelTest(unittest.TestCase):
+    def test_offline_and_plain(self):
+        self.assertEqual(pick_track.programme_label("no-such-programme", []), "no-such-programme")
+        got = pick_track.programme_label("no-such-programme", ["https://example.invalid/"])
+        self.assertIn("OFFLINE", got)
+        self.assertIn("https://example.invalid/", got)
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+class LandFirstTest(unittest.TestCase):
+    """research prompt step 2: runs read 100+ open PR titles by hand to find the research ones."""
+
+    def setUp(self):
+        pick_track._open_pr_titles.cache_clear()
+        pick_track._HEADS.clear()
+        pick_track._META.clear()
+
+    tearDown = setUp
+
+    def _lines(self, prs, branch="claude/mine", main=(), **kw):
+        import io, json, calendar, time
+        from unittest import mock
+        body = json.dumps(prs).encode()
+        now = calendar.timegm(time.strptime("2026-11-16T12:00:00Z", "%Y-%m-%dT%H:%M:%SZ"))
+        with mock.patch("urllib.request.urlopen", return_value=io.BytesIO(body)), \
+                mock.patch.object(pick_track, "_main_subjects", return_value=list(main)), \
+                mock.patch.object(pick_track, "current_branch", return_value=branch):
+            return pick_track.land_first_lines(now=now, **kw)
+
+    def pr(self, n, title, created, ref="claude/x", draft=False):
+        return {"number": n, "title": title, "created_at": created, "draft": draft, "head": {"ref": ref}}
+
+    def test_splits_stale_from_fresh_and_skips_others(self):
+        lines = self._lines([
+            self.pr(1, "research/sensing-selfcal: milestone 3b", "2026-11-16T11:00:00Z", draft=True),
+            self.pr(2, "research/build-data: session 90", "2026-11-14T12:00:00Z"),
+            self.pr(3, "redteam: some venture", "2026-11-10T12:00:00Z"),
+            self.pr(4, "run record: research run 2026-11-08", "2026-11-08T12:00:00Z"),
+            self.pr(5, "research/old-prog: step", "2026-11-16T06:00:00Z"),
+            self.pr(6, "research/mine: step", "2026-11-10T00:00:00Z", ref="claude/mine"),
+        ])
+        text = "\n".join(lines)
+        self.assertIn("3 other open PR(s) of 6", lines[0])
+        self.assertNotIn("#3 ", text)
+        self.assertNotIn("#4 ", text)
+        # oldest stale first, fresh in its own group, own PR labelled
+        self.assertLess(text.index("#2 (2d)"), text.index("#5 (6.0h)"))
+        self.assertLess(text.index("#5 (6.0h)"), text.index("last 3h"))
+        self.assertIn("#1 (1.0h, draft)", text.split("last 3h")[1])
+        self.assertIn("#6 is this branch's own PR", text)
+
+    def test_none_and_api_error_are_said(self):
+        self.assertIn("none", self._lines([self.pr(3, "ventures: x", "2026-11-16T11:00:00Z")])[0])
+        pick_track._open_pr_titles.cache_clear()
+        from unittest import mock
+        with mock.patch("urllib.request.urlopen", side_effect=OSError):
+            self.assertIn("could not list", pick_track.land_first_lines()[0])
+
+    def test_squash_landed_prs_are_told_to_close(self):
+        # 2026-11-16: #16494 was listed as unlanded while '(#16494)' was already on main
+        lines = self._lines([
+            self.pr(7, "research/a: milestone 2", "2026-11-15T12:00:00Z"),
+            self.pr(8, "research/b: milestone 5", "2026-11-15T12:00:00Z"),
+            self.pr(9, "research/c: milestone 1", "2026-11-15T12:00:00Z"),
+        ], main=["research/a: milestone 2 + post (#7)", "Merge pull request #9 from x/y", "other (#77)"])
+        text = "\n".join(lines)
+        head, _, tail = text.partition("already on main")
+        self.assertIn("1 older than 3h", head)
+        self.assertIn("#8 (24.0h)", head)
+        self.assertNotIn("#7 ", head)
+        self.assertIn("#7 (24.0h)", tail)
+        self.assertIn("#9 (24.0h)", tail)
+        self.assertIn("close it", tail.splitlines()[0])
+
+    def test_landed_on_main_matches_subjects_only(self):
+        from unittest import mock
+        with mock.patch.object(pick_track, "_main_subjects",
+                               return_value=["x (#12)", "y (#123) trailing", "Merge pull request #5 from a/b"]):
+            self.assertEqual(pick_track.landed_on_main([12, 123, 5, 1]), {12, 5})
+
+    def test_caps_long_lists(self):
+        prs = [self.pr(i, f"research/p{i}: s", "2026-11-01T00:00:00Z") for i in range(12)]
+        lines = self._lines(prs, show=3)
+        self.assertTrue(any("and 9 more" in l for l in lines))
+
+
+
+class StaleHostsTest(unittest.TestCase):
+    """stale_hosts.py lives beside pick_track.py; its tests sit here because research-ci.yml
+    runs test_pick_track by name."""
+
+    def setUp(self):
+        import tempfile, pathlib
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = pathlib.Path(self.tmp.name)
+        d = self.root / "prog"
+        d.mkdir()
+        (d / "LOG.md").write_text(
+            "## 2026-11-16 · newest\n"
+            "- arXiv refused earlier sessions; this session reached example.org and read it.\n"
+            "- Design: no microdata (gss.norc.org still refuses the proxy with a 403).\n"
+            "- Wrote results.json and run.py; nothing was refused.\n"
+            "## 2026-11-10 · older\n"
+            "- `L-TOWN.inp` was unreachable (zenodo.org refused by the proxy).\n"
+            "- huggingface.co refused at CONNECT.\n")
+        (d / "README.md").write_text("Data from data.sf.gov (403 through the proxy).\n")
+        (d / "HOSTS").write_text("# needed\nhttps://huggingface.co/\n")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_finds_refused_hosts_only_in_refusing_clauses(self):
+        import stale_hosts
+        got = stale_hosts.noted_hosts("prog", self.root)
+        self.assertEqual([h for h, _ in got], ["arxiv.org", "gss.norc.org", "zenodo.org", "data.sf.gov"])
+        self.assertEqual(dict(got)["zenodo.org"], "LOG.md:6")  # newest LOG entries first, README last
+
+    def test_skips_hosts_listed_in_HOSTS_and_file_names(self):
+        import stale_hosts
+        hosts = [h for h, _ in stale_hosts.noted_hosts("prog", self.root)]
+        self.assertNotIn("huggingface.co", hosts)  # the OFFLINE check already probes it
+        self.assertNotIn("example.org", hosts)  # its clause says reached, not refused
+        self.assertNotIn("results.json", hosts)
+
+    def test_recheck_splits_answering_from_refused(self):
+        import stale_hosts
+        lines = stale_hosts.recheck_lines("prog", answers=lambda u: "zenodo" in u or "arxiv" in u, root=self.root)
+        self.assertEqual(len(lines), 2)
+        self.assertIn("arxiv.org (LOG.md:2), zenodo.org (LOG.md:6)", lines[0])
+        self.assertTrue(lines[1].endswith("still refused here: gss.norc.org, data.sf.gov"))
+
+    def test_no_notes_no_lines(self):
+        import stale_hosts
+        (self.root / "empty").mkdir()
+        self.assertEqual(stale_hosts.recheck_lines("empty", answers=lambda u: True, root=self.root), [])
+
+
+class TrackFallbackTest(unittest.TestCase):
+    """track_fallback_lines: a track whose programmes are all untakeable names one elsewhere."""
+
+    def lines(self, progs_here, down=None, claimed=lambda s: [], unreachable=lambda s: [], t=20,
+              all_progs=("build-data", "buildbot-sheathing", "house-x", "society-y")):
+        ranked = lambda slugs, show=3: [f"    {s}" for s in slugs[:show]]
+        with mock.patch.object(pick_track, "is_blocked", lambda s: False):
+            return pick_track.track_fallback_lines(t, progs_here, down or {}, all_progs=list(all_progs),
+                                                   claimed=claimed, unreachable=unreachable, contention=ranked)
+
+    def test_takeable_programme_prints_nothing(self):
+        self.assertEqual(self.lines(["build-data", "buildbot-sheathing"], down={"build-data": ["h"]}), [])
+
+    def test_offline_and_claimed_names_one_elsewhere(self):
+        out = self.lines(["build-data", "buildbot-sheathing"], down={"build-data": ["https://h"]},
+                         claimed=lambda s: ["#16769 research/buildbot-sheathing: draft"] if s == "buildbot-sheathing" else [])
+        self.assertIn("build-data: OFFLINE", out[0])
+        self.assertIn("buildbot-sheathing: claimed by #16769", out[0])
+        # track 20 (buildbot) is a focus track, so only focus programmes are offered
+        self.assertEqual(out[1:], ["    house-x"])
+
+    def test_non_focus_track_offers_any(self):
+        out = self.lines(["society-y"], claimed=lambda s: ["#1 t"] if s == "society-y" else [], t=17)
+        self.assertEqual(out[1:], ["    build-data", "    buildbot-sheathing", "    house-x"])
+
+    def test_skips_unreachable_elsewhere(self):
+        out = self.lines(["buildbot-sheathing"], claimed=lambda s: ["#1 t"] if s == "buildbot-sheathing" else [],
+                         unreachable=lambda s: ["h"] if s == "build-data" else [])
+        self.assertNotIn("    build-data", out)
+
+    def test_nothing_left_says_open_one(self):
+        out = self.lines(["buildbot-sheathing"], claimed=lambda s: ["#1 t"], all_progs=("buildbot-sheathing",))
+        self.assertEqual(len(out), 1)
+        self.assertIn("open a new programme", out[0])
+
+    def test_no_programmes_for_track_prints_nothing(self):
+        self.assertEqual(self.lines([]), [])

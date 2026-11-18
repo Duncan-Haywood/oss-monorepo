@@ -83,10 +83,10 @@ without a config, about 75 package and Node built-in names, and 10 CSS files.
 - **Self-imports.** A file importing itself is a component of one in
   cyclehound and is reported; madge drops the edge.
 - **Path aliases.** madge and dependency-cruiser can read webpack and
-  TypeScript `paths` settings (`@/lib/x`); cyclehound treats any
-  non-relative import as a package and leaves it out. On this repository
-  that hides 360 alias imports in a handful of Next.js apps, so their cycles
-  are not checked. Reading `tsconfig.json` `paths` is the next slice.
+  TypeScript `paths` settings (`@/lib/x`). Until 2026-11-16 cyclehound
+  treated any non-relative import as a package; it now reads tsconfig and
+  jsconfig `paths` and `baseUrl` (next section), though not webpack or Vite
+  aliases.
 - **The parser.** cyclehound does not build a syntax tree. Its lexer skips
   comments, strings, template literals (with nested `${}`) and regular
   expressions, and pattern-matches the tokens around `import`, `export` and
@@ -203,3 +203,41 @@ npm install --prefix /tmp/bench madge@8 dependency-cruiser@16
 python3 ventures/cyclehound/tests/bench/measure.py /dev/null /tmp/bench/node_modules/.bin/madge --circular --extensions mjs ventures
 python3 ventures/cyclehound/tests/bench/measure.py /dev/null ventures/cyclehound/target/release/cyclehound --ext mjs ventures
 ```
+
+## Path aliases (2026-11-16)
+
+Measured at commit `4e4b8e60f` on the same 4-core container. The reference
+here is not madge but TypeScript itself: what the compiler would resolve is
+what the alias means.
+
+[`tests/bench/ts_alias_edges.cjs`](tests/bench/ts_alias_edges.cjs) takes
+every file in cyclehound's graph of `ventures/`, finds its nearest
+`tsconfig.json` or `jsconfig.json` with `ts.findConfigFile`, parses it with
+`ts.getParsedCommandLineOfConfigFile` (which follows `extends`), lists every
+import with `ts.preProcessFile`, and resolves each bare specifier with
+`ts.resolveModuleName` under that config's own options. Targets in
+`node_modules` and `.d.ts` files are dropped, as cyclehound drops them.
+TypeScript 5.9.3 from npm, Node v22.
+
+```
+16 configs, 2502 bare specifiers read
+cyclehound alias edges 1436 typescript 1436 common 1436
+```
+
+"Alias edges" are the edges `cyclehound --graph --json ventures` has and
+`cyclehound --graph --json --no-tsconfig ventures` does not (11,560 edges
+without aliases, 12,996 with). The two sets are identical. The alias edges
+add no new cycle in `ventures/` (12 components, 37 files, before and after)
+and no broken alias (`--unresolved` lists the same 8 relative imports).
+`--unused-exports` drops from 5,648 to 5,540 findings: 108 exports were
+reported unused only because the files taking them did so through `@/`.
+
+Cost: `cyclehound ventures` took 0.25 to 0.28 s and 20 to 21 MB with
+aliases and 0.25 to 0.27 s and 19 to 20 MB without (three runs each,
+`tests/bench/measure.py`); the whole repository, 13,847 files, 0.35 to
+0.38 s either way. Each directory's config is looked up once and cached.
+
+One `.mjs`-only edge changed: `--ext mjs` now follows an alias from
+`quick-pick-survey/src/lib/groupRanking.ts` (reached from an `.mjs` file) to
+`glicko2.ts`, so the 2026-11-13 madge comparison, which read `.mjs` without
+aliases, should be rerun with `--no-tsconfig` to reproduce it.

@@ -1,0 +1,17 @@
+Milestone 7y, post hoc (not predicted): (a) per-seed Mann-Whitney U (two-sided), lag60 against lag45, on each design's median rise time, overshoot and 6 m/s peak drift at the 36 ms law; (b) why some designs never settle within 5 cm: their mean distance and x peak-to-peak over the last second of the step test.
+
+(a) step rise above: lag60 median 1.7370 vs lag45 1.5810, p = 0.132
+(a) step rise below: lag60 median 1.7710 vs lag45 1.4740, p = 0.015
+(a) step over above: lag60 median 0.0317 vs lag45 0.0590, p = 0.394
+(a) step over below: lag60 median 0.0266 vs lag45 0.0756, p = 0.041
+(a) wind6 peak above: lag60 median 0.0276 vs lag45 0.0225, p = 0.310
+(a) wind6 peak below: lag60 median 0.0236 vs lag45 0.0190, p = 0.394
+
+(b) aware lag39 above seed 3: unsettled 64/64; last-second distance median 6.7 cm, x peak-to-peak median 0.8 cm; pos kp 8.3
+(b) aware lag39 below seed 0: unsettled 63/64; last-second distance median 5.9 cm, x peak-to-peak median 0.7 cm; pos kp 6.7
+(b) aware lag45 below seed 3: unsettled 63/64; last-second distance median 6.0 cm, x peak-to-peak median 0.8 cm; pos kp 8.1
+(b) aware lag52 above seed 5: unsettled 64/64; last-second distance median 8.0 cm, x peak-to-peak median 1.7 cm; pos kp 5.7
+(b) aware lag52 below seed 1: unsettled 64/64; last-second distance median 6.1 cm, x peak-to-peak median 1.3 cm; pos kp 9.7
+(b) aware lag60 above seed 4: unsettled 48/64; last-second distance median 5.4 cm, x peak-to-peak median 0.5 cm; pos kp 5.7
+(b) aware lag60 above seed 5: unsettled 64/64; last-second distance median 5.9 cm, x peak-to-peak median 0.7 cm; pos kp 4.5
+(b) aware lag60 below seed 5: unsettled 64/64; last-second distance median 6.7 cm, x peak-to-peak median 2.0 cm; pos kp 5.9

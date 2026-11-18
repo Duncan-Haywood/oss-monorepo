@@ -1,0 +1,64 @@
+Milestone 7c: the step-up drive priced (spur-gear system loss from NASA TP-1622, swept) for 7b's spun AZPF size 28 (to 3000 r/min) and AZPN size 36 (to 2700 r/min)
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps as gear_pump_spin.py; drive loss: Anderson and Loewenthal 1980, NASA TP-1622, Table III and figure 9)
+
+Check: ungeared spun diagonals against 7b: azpf E50 0.8075 (+0.0000), idle 2.99 kW (-0.00), azpn E50 0.8031 (+0.0000), idle 2.61 kW (-0.00)
+
+Drive loss at the sourced point (eta_f 0.9934, tare 0.65), per pump at 85 L/min:
+  AZPF: speed 3000 r/min; rated drive power at 200 bar 31.06 kW; drive loss at 150 bar 187 W on 23.34 kW; at zero pressure 136 W on 1.05 kW
+  AZPN: speed 2359 r/min; rated drive power at 180 bar 27.47 kW; drive loss at 150 bar 171 W on 22.93 kW; at zero pressure 119 W on 0.67 kW
+
+(i) the sweep, each geared family alone (E50 with its own shape and drag); rule (Z) error = E50 - rule at the geared idle kW
+  family  eta_f   tare   index 2  idle kW   E50     dE50 vs 7b  rule (Z)  error
+  azpf    0.9934  0.000  0.8984     3.01  0.8075  +0.0000      0.8139  -0.0064
+  azpf    0.9934  0.325  0.8977     3.07  0.8080  +0.0005      0.8149  -0.0069
+  azpf    0.9934  0.650  0.8971     3.13  0.8094  +0.0019      0.8160  -0.0066
+  azpf    0.9900  0.000  0.8953     3.02  0.8069  -0.0006      0.8140  -0.0072
+  azpf    0.9900  0.325  0.8944     3.11  0.8081  +0.0006      0.8157  -0.0075
+  azpf    0.9900  0.650  0.8934     3.20  0.8100  +0.0025      0.8173  -0.0073
+  azpf    0.9850  0.000  0.8909     3.03  0.8067  -0.0008      0.8143  -0.0076
+  azpf    0.9850  0.325  0.8895     3.17  0.8081  +0.0006      0.8168  -0.0086
+  azpf    0.9850  0.650  0.8881     3.31  0.8096  +0.0021      0.8192  -0.0096
+  azpf    0.9800  0.000  0.8866     3.05  0.8056  -0.0019      0.8146  -0.0089
+  azpf    0.9800  0.325  0.8847     3.23  0.8083  +0.0008      0.8178  -0.0095
+  azpf    0.9800  0.650  0.8828     3.41  0.8093  +0.0018      0.8211  -0.0118
+  azpn    0.9934  0.000  0.9137     2.62  0.7987  -0.0044      0.8070  -0.0082
+  azpn    0.9934  0.325  0.9133     2.68  0.7987  -0.0044      0.8079  -0.0092
+  azpn    0.9934  0.650  0.9129     2.73  0.7988  -0.0044      0.8089  -0.0101
+  azpn    0.9900  0.000  0.9106     2.63  0.7965  -0.0066      0.8071  -0.0106
+  azpn    0.9900  0.325  0.9100     2.71  0.7964  -0.0067      0.8086  -0.0122
+  azpn    0.9900  0.650  0.9094     2.80  0.7963  -0.0069      0.8100  -0.0138
+  azpn    0.9850  0.000  0.9061     2.65  0.7933  -0.0098      0.8074  -0.0140
+  azpn    0.9850  0.325  0.9053     2.77  0.7929  -0.0103      0.8095  -0.0167
+  azpn    0.9850  0.650  0.9044     2.89  0.7920  -0.0111      0.8117  -0.0197
+  azpn    0.9800  0.000  0.9017     2.66  0.7900  -0.0131      0.8076  -0.0176
+  azpn    0.9800  0.325  0.9005     2.82  0.7883  -0.0148      0.8105  -0.0222
+  azpn    0.9800  0.650  0.8994     2.98  0.7879  -0.0153      0.8134  -0.0255
+
+Diagnostic (not a prediction), at the sourced point: which half of the drive moves the crossing
+  AZPF: geared shape with lossless-spin drag 0.8075 (+0.0000); lossless-spin shape with geared drag 0.8106 (+0.0031); both 0.8094 (+0.0019)
+  AZPN: geared shape with lossless-spin drag 0.7983 (-0.0048); lossless-spin shape with geared drag 0.8037 (+0.0006); both 0.7988 (-0.0044)
+
+(ii) eight families with the AZPF and AZPN spun and geared at the sourced point (64 cells): 0.7982 to 0.8300
+  shape \ idle    casappa    danfoss  marzocchi      bench    rexroth  azpn_gear       azpu  azpf_gear
+  casappa          0.8277     0.8283     0.8300     0.8172     0.8108     0.8120     0.8090     0.8197
+  danfoss          0.8217     0.8297     0.8217     0.8100     0.8042     0.8050     0.8038     0.8119
+  marzocchi        0.8175     0.8214     0.8193     0.8069     0.8010     0.8017     0.7996     0.8085
+  bench            0.8216     0.8214     0.8231     0.8116     0.8057     0.8064     0.8044     0.8130
+  rexroth          0.8207     0.8220     0.8225     0.8108     0.8040     0.8053     0.8030     0.8128
+  azpn_gear        0.8158     0.8246     0.8170     0.8050     0.7992     0.7988     0.7982     0.8078
+  azpu             0.8197     0.8191     0.8217     0.8105     0.8042     0.8056     0.8030     0.8113
+  azpf_gear        0.8185     0.8181     0.8192     0.8088     0.8025     0.8025     0.8013     0.8094
+  one-number fit: in-sample RMS 0.0086
+  two-number fit: in-sample RMS 0.0040; as E50 = 0.8221 + 0.0181 (kW - 3.57)
+  leave-one-family-out diagonal RMS: one-number 0.0121, two-number 0.0051
+  diagonal errors (two-number): casappa +0.0059, danfoss +0.0064, marzocchi +0.0024, bench +0.0030, rexroth -0.0000, azpn_gear -0.0093, azpu +0.0019, azpf_gear -0.0054
+
+Predictions (LOG.md 7c):
+  GB1 geared AZPF idle kW 0.05 to 0.25 above the spun 2.99 at the sourced point: held (+0.140 kW)
+  GB2 geared AZPF E50 0.0005 to 0.0040 above the spun 0.8075 at the sourced point: held (+0.0019)
+  GB3 E50 does not fall as the loss grows, either axis, either family: refuted
+  GB4 rule (Z) error on the geared AZPF at the sourced point in -0.0075 to -0.0045: held (-0.0066)
+  GB5 rule (Z) error on the geared AZPF within +-0.008 across the grid: refuted (-0.0118 to -0.0064)
+  GB6 eight-family LOFO two-number diagonal RMS at most 0.0040 with both geared: refuted (0.0051)
+
+Sources: as gear_pump_spin.py; Anderson, N. E. and Loewenthal, S. H. (1980), Spur-gear-system efficiency at part and full load, NASA Technical Paper 1622 (NTRS 19800009206), Table III (99.34%) and figure 9 text (tare up to 65% of full-load loss at 2000 r/min).

@@ -1,0 +1,27 @@
+# Mann-Kendall trend test with Sen's slope
+
+> Free online Mann-Kendall trend test (Mann 1945; Kendall 1975) with Sen's slope and its confidence interval (Sen 1968), serial-correlation corrections (Yue & Wang 2004 AR(1) by default; Hamed & Rao 1998; trend-free pre-whitening, Yue et al. 2002), and for monthly or quarterly data the seasonal Kendall test (Hirsch, Slack & Smith 1982) with the Hirsch & Slack (1984) covariance between seasons and the van Belle & Hughes (1984) homogeneity test. Matches pymannkendall 1.4.3 and scipy 1.17.1. On 95 years of USGS Potomac River flow with withdrawals added back, the covariance turns an apparent trend (p = 0.0039) into no trend (p = 0.113). Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A significant trend is not proof of a cause.
+
+## Pages
+
+- [The tool](https://marisstella.app/mann-kendall-trend/)
+
+## Use it from code
+
+- `node cli.mjs series.csv [--time date] [--value v] [--seasons auto|none|month|quarter] [--season-column c] [--correction yue-wang|hamed-rao|hamed-rao-3|tfpw|none] [--covariance auto|on|off] [--alpha 0.05] [--confidence 0.95] [--csv|--json]`
+- `node platform/agents/tools.mjs call mann-kendall-trend analyze --input '{"t":[2001,2002,2003,2004,2005],"x":[3.1,3.4,3.3,3.9,4.2]}'` (or `{"csv":"..."}`; add `"season":[...]` labels for the seasonal test)
+- From JavaScript: `mannKendall(t, x, {slope})`, `seasonalKendall(t, x, season, year)`, `senSlope(t, x, {variance})`, `exactP(n, S)`.
+
+## What it answers
+
+- Is this series trending up or down, and is the trend more than noise?
+- By how much per year (Sen's slope), with what confidence interval?
+- Does the answer survive correcting for serial correlation between readings?
+- With a seasonal cycle, is there a trend once each month is compared only with the same month?
+- Do all seasons share the trend, or do some rise while others fall?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mann-kendall-trend): MIT licensed.

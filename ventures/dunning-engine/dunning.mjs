@@ -123,13 +123,22 @@ export function replan(existing, { declineCode, now, policy = {} }) {
   return { class: next.class, steps: [...kept, ...fresh.filter((s) => !ids.has(s.id))].sort((a, b) => a.at - b.at) };
 }
 
+// Stripe's zero-decimal currencies (amounts are whole units), plus ISK, which
+// this engine has always shown without decimals.
+const ZERO_DECIMAL = ["BIF", "CLP", "DJF", "GNF", "ISK", "JPY", "KMF", "KRW", "MGA", "PYG", "RWF", "UGX", "VND", "VUV", "XAF", "XOF", "XPF"];
 export function formatMoney(amountMinor, currency) {
   const cur = String(currency || "usd").toUpperCase();
-  const zero = ["JPY", "KRW", "VND", "CLP", "ISK", "UGX", "XAF", "XOF", "PYG", "RWF"].includes(cur);
+  const zero = ZERO_DECIMAL.includes(cur);
   const n = zero ? amountMinor : amountMinor / 100;
   try {
     return new Intl.NumberFormat("en", { style: "currency", currency: cur, maximumFractionDigits: zero ? 0 : 2 }).format(n);
   } catch {
     return `${n.toFixed(zero ? 0 : 2)} ${cur}`;
   }
+}
+
+// {usd: 400, eur: 250} -> "$4.00 + €2.50" (sorted by currency), or "nothing".
+export function formatMoneyMap(m) {
+  const parts = Object.entries(m || {}).sort(([a], [b]) => (a < b ? -1 : 1)).map(([cur, minor]) => formatMoney(minor, cur));
+  return parts.length ? parts.join(" + ") : "nothing";
 }

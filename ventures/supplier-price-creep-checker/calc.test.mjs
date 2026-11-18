@@ -21,7 +21,7 @@ test("prices keep fractions of a cent and refuse finer ones", () => {
 });
 
 test("csv handles quotes, tabs and a BOM", () => {
-  assert.deepEqual(parseCsv('﻿a,b\n"x, y",2\n'), [["a", "b"], ["x, y", "2"]]);
+  assert.deepEqual(parseCsv('\uFEFFa,b\n"x, y",2\n'), [["a", "b"], ["x, y", "2"]]);
   assert.deepEqual(parseCsv("a\tb\n1\t2"), [["a", "b"], ["1", "2"]]);
 });
 

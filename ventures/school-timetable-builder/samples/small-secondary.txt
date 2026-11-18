@@ -1,0 +1,59 @@
+# A small secondary school: 4 classes, 5 days x 6 periods, every class fully booked
+days: Mon, Tue, Wed, Thu, Fri
+periods: 6
+breaks after: 2, 4
+rooms: Lab 1 (lab), Lab 2 (lab), Gym (gym), Art room (art), ICT suite (ict)
+
+teacher Okafor: off Mon 1-2; max 5 per day
+teacher Lindqvist: off Fri
+teacher Patel: max 5 per day
+
+7A: Maths / Okafor / 5
+7A: English / Lindqvist / 5
+7A: Science / Patel / 4 / 2 doubles / lab
+7A: History / Moreau / 2
+7A: Geography / Moreau / 2
+7A: French / Dubois / 3
+7A: Art / Nakamura / 2 / double / art
+7A: Computing / Reyes / 2 / ict
+7A: Music / Haddad / 1
+7A+7B: PE / Garcia / 2 / double / gym
+7A: RE / Haddad / 1
+7A: Tutor time / Moreau / 1
+
+7B: Maths / Okafor / 5
+7B: English / Brennan / 5
+7B: Science / Patel / 4 / 2 doubles / lab
+7B: History / Moreau / 2
+7B: Geography / Moreau / 2
+7B: French / Dubois / 3
+7B: Art / Nakamura / 2 / double / art
+7B: Computing / Reyes / 2 / ict
+7B: Music / Haddad / 1
+7B: RE / Haddad / 1
+7B: Tutor time / Brennan / 1
+
+8A: Maths / Novak / 5
+8A: English / Lindqvist / 4
+8A: Science / Asante / 4 / 2 doubles / lab
+8A: History / Moreau / 2
+8A: Geography / Sato / 2
+8A: French / Dubois / 3
+8A: Art / Nakamura / 2 / double / art
+8A: Computing / Reyes / 2 / ict
+8A: Music / Haddad / 2
+8A+8B: PE / Garcia / 2 / double / gym
+8A: RE / Haddad / 1
+8A: Tutor time / Sato / 1
+
+8B: Maths / Novak / 5
+8B: English / Brennan / 4
+8B: Science / Asante / 4 / 2 doubles / lab
+8B: History / Sato / 2
+8B: Geography / Sato / 2
+8B: French / Dubois / 3
+8B: Art / Nakamura / 2 / double / art
+8B: Computing / Reyes / 2 / ict
+8B: Music / Haddad / 2
+8B: RE / Haddad / 1
+8B: Tutor time / Novak / 1

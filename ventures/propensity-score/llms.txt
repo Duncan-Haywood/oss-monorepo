@@ -1,0 +1,25 @@
+# Propensity score analysis: weighting, matching and doubly robust estimates
+
+> Free propensity score tool. Upload a CSV with a 0/1 treatment, an outcome and covariates measured before treatment, and get a logistic propensity score model, inverse probability weighting, regression adjustment, the doubly robust AIPW estimate and 1:1 nearest-neighbour matching (with or without replacement, caliper on the logit) for the ATE, ATT and ATC, with M-estimation standard errors that count the estimated score, standardised mean differences before and after (love plot), an overlap histogram, effective sample sizes and Crump trimming. Matches statsmodels 0.15.0 TreatmentEffect within 1e-6. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/propensity-score/)
+
+## Use it from code
+
+- `node cli.mjs data.csv --treatment trained --outcome earnings --covariates age,education [--estimand ate|att|atc] [--trim none|crump|0.05] [--caliper 0.2] [--no-replace] [--csv|--scores|--json]`
+- `node cli.mjs --example` for 2,000 simulated job-training records (true sample ATE 1.333, ATT 1.644; raw difference -3.6)
+- `node platform/agents/tools.mjs call propensity-score analyze --input '{"csv":"...","treatment":"trained","outcome":"earnings","covariates":"age,education"}'`
+
+## What it answers
+
+- What did a treatment people chose (a programme, a drug, a feature) do to the outcome, once the measured differences between who chose it and who did not are accounted for?
+- Is the effect different for those who were treated (ATT) than for everyone (ATE)?
+- Did the adjustment work: are the covariates balanced after weighting or matching, do the arms overlap, and how much do a few large weights cost in effective sample size?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/propensity-score): MIT licensed.

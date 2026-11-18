@@ -1,0 +1,226 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/chip-cutheadroom",
+ "stratum": "research",
+ "seed": "2026-11-15-8ced",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior logic-synthesis researcher (the kind who reviews for DAC/ICCAD/TCAD and knows ABC's rewrite and mockturtle's cut_rewriting). They would check first that the cut, MFFC and exact-cost definitions are the standard ones and implemented right, that the analysis can actually detect headroom when it exists (so a null is meaningful), that the parsed netlists are the circuits claimed, and whether the result is new against exact-synthesis cut rewriting already published",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Every published number recomputes with code the author did not write. (1) Own NPN canonicalisation (own substitution code, not exact.py) gives 222 classes equal to the keys of exact_costs.json, and the induced cost distribution over all 65,536 functions is 10/60/456/2474/10624/24184/25008/2720 for costs 0..7, exactly Knuth TAOCP 4A sec. 7.1.2; brute-force circuit enumeration (no SAT) reproduces the exact cost of all 6,812 normal functions of cost <= 4 with 0 disagreements. (2) Own analyser (own Yosys JSON parse, inverters as free edge polarities, cut enumeration by leaf expansion, ABC-style reference-count MFFC) on Yosys 0.33 netlists: gates, w/room, cone>=3 and removable agree with results.json in 30 of 30 design/flow runs; the two headroom cones (mul6 resyn2 cut of 3 leaves, MFFC 4, f=0xe6e6 cost 3; lt16 resyn2 MFFC 3, f=0xf6f6 cost 2) have costs confirmed by the brute force. (3) Every one of the 30 netlists simulates correctly on 300 random vectors against Python reference semantics (+, *, <, popcount, <<, lowest-set-index priority). (4) Detection power: injecting k redundant XOR expansions into add16/mul6/pop8 default netlists yields removable exactly 2k for k = 1, 3, 5; and on 60 isolated random 4-input functions analyse() reports removable equal to gates - exact cost in 60/60 (mean gap 1.32, consistent with chip-exact4's 1.19). Not 4: no comparison against an established tool (ABC rewrite gain, mockturtle cut_rewriting) on the same netlists.",
+  "completeness": "Claimed and checked: run.py reruns in 4.8 s (README says about 1 minute) and results.txt is byte-identical; figure.py regenerates headroom.svg byte-identical; 7 tests as stated (5 synthetic + 2 Yosys) all pass with Yosys 0.33 installed; exact_costs.json and exact.py are byte-identical to chip-exact4 as stated; headline sums (2,483 gates over 30 runs; cone>=3 range 4 to 52) recomputed from results.json. Live page https://marisstella.app/research/chip-cutheadroom/ could not be loaded (proxy 403), so not verified. No stubs or TODOs; Next steps are honestly listed as not done.",
+  "verification": "`cd research/chip-cutheadroom && python3 -m unittest discover -s tests`: without Yosys 'Ran 7 tests OK (skipped=2)'; with Yosys 0.33 'Ran 7 tests in 2.987s OK'. Six seeded mutants via quality_mutate.py: 2 caught (dropping the disjointness check; dropping the primary-output exclusion from the MFFC), 4 survived: the MFFC rule itself (fanout[m] <= s -> fanout[m] & s, netlist.py:186), which moves summed removable over the 30 runs from 2 to 104 with every test green; the cut-size bound (<= k -> < k, :141); the cone>=3 threshold behind headline 3 (:206); and $_ORNOT_ semantics (:23). ANDNOT semantics are caught. No test pins results.json, and the Yosys tests skip silently where Yosys is absent (CI without it runs 5).",
+  "craft": "Read netlist.py (208 lines), exact.py, designs.py, tests, run.py, figure.py. Small, stdlib-only, readable; flows and designs are data; cut enumeration and MFFC are the textbook ones. Defects: run.py:1 docstring says three ABC flows (there are five); figure.py:28 legend labels the 'fast' bars 'fast (strash; map)' though fast is abc -fast (numbers happen to match); exact.py imports pysat lazily without declaring it (unused at runtime here, fine but undocumented); in analyse the per-cut tuple carries a sorted-leaves element that is never used for tie-breaking; MFFC is a quadratic fixpoint rather than reference counting (fine at this size).",
+  "claims": "Checked against files: headline 1 (0 in 28 runs, 1 in mul6/lt16 resyn2, 0.6%/1.2%, 2,483 gates) in results.txt and recomputed; headline 2 (82 vs 110 add16, 41 vs 71 prio16, -25%/-42%, headroom 0) in results.txt; table rows match; 'Yosys 0.33' matches; copies from chip-exact4 byte-identical; limitations (existence only, no reconstruction, six stylised blocks, gate count not area, 4-cuts only) are candid. Weaker: headline 3 'proposer would be wasted on these netlists ... every one is already exactly minimal' goes past the measurement, which is single-pass positive-gain only: it does not consider zero-gain replacements (ABC's rewrite -z exists because they unlock later gains) and 'exactly minimal' is really 'no cut's MFFC exceeds the exact cost'. The figure legend mislabels the fast flow. Prior work cited 'not re-read'.",
+  "fitness": "Job: a researcher deciding whether an LLM/proposer loop should spend effort on exact small-cone rewrites of Yosys/ABC output. The code is clean, runs in 5 s, and the null result survives my independent re-implementation and a detection-power test, so it is something one can build on. But nearest prior work is not engaged: Riener, Haaswijk, Mishchenko, De Micheli and Soeken, 'On-the-fly and DAG-aware: rewriting Boolean networks with exact synthesis' (DATE 2019, mockturtle cut_rewriting), and Haaswijk et al. 'SAT-based exact synthesis' (TCAD 2020) already do 4-cut (and larger) exact-synthesis rewriting after ABC on EPFL benchmarks and report residual gains; Cong and Minkovich (FPGA 2007 / TCAD) study optimality gaps of synthesis with constructed-optimum circuits. Against that literature a null on six stylised 6-to-16-bit blocks, after a cut-based mapper that already selects per-cut matches, is expected rather than new; no standard benchmark (EPFL, ISCAS) is run. Preliminary and below the PhD bar, as the README itself says.",
+  "domain": "The method matches standard logic-synthesis practice: k-feasible cuts, MFFC with PO references, NPN-class exact costs over the full 2-input basis with free inverters (consistent with the 8-type gate library, which covers all 10 non-degenerate 2-input functions up to operand order), and a disjoint greedy for a one-pass bound. Departures a practitioner would flag: no zero-gain or iterated moves, so 'no headroom' is a single-pass local optimum not a fixed point of rewriting; gate count with free inverters rather than mapped area; no standard benchmark suite. These are mostly disclosed."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "222 NPN classes and exact-cost distribution of all 65,536 4-input functions",
+   "method": "Knuth, TAOCP Vol 4A, sec. 7.1.2 (cost distribution 10, 60, 456, 2474, 10624, 24184, 25008, 2720); auditor's own NPN canonicalisation",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/chip-cutheadroom/knuth.py research/chip-cutheadroom/experiments/exact_costs.json",
+   "expected": "222 classes; Knuth distribution",
+   "observed": "222, keys equal; distribution matches Knuth exactly",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "exact costs of all functions of cost <= 4",
+   "method": "auditor's brute-force enumeration of circuits over AND(+-a,+-b)/XOR with free inverters (no SAT, no author code)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/chip-cutheadroom/knuth.py research/chip-cutheadroom/experiments/exact_costs.json",
+   "expected": "same cost for 6,812 normal functions",
+   "observed": "6,812 found, 0 disagreements, 0 missed",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "gates, w/room, cone>=3 and removable for all 30 design/flow netlists",
+   "method": "auditor's independent analyser: own JSON parse, inverters as edge polarities, leaf-expansion cut enumeration, ABC-style reference-count MFFC, own NPN map",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/chip-cutheadroom/indep.py /home/user/oss-monorepo/research/chip-cutheadroom",
+   "expected": "results.json values",
+   "observed": "30/30 agree; headroom cones mul6 resyn2 (MFFC 4, cost 3) and lt16 resyn2 (MFFC 3, cost 2)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "parsed netlists compute the stated blocks",
+   "method": "300 random vectors per netlist against Python reference semantics of +, *, <, popcount, <<, priority encoder",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/chip-cutheadroom/indep.py /home/user/oss-monorepo/research/chip-cutheadroom",
+   "expected": "30/30 correct",
+   "observed": "simulation ok 30/30",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "detection power: analyse finds known injected redundancy",
+   "method": "replace k XORs by ANDNOT(OR(a,b),AND(a,b)) (2 extra gates each, cost 1) in real netlists",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/chip-cutheadroom/inject.py /home/user/oss-monorepo/research/chip-cutheadroom",
+   "expected": "removable = 2k",
+   "observed": "2, 6, 10 for k = 1, 3, 5 in add16, mul6, pop8",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "consistency with chip-exact4 on isolated 4-input functions",
+   "method": "synthesise 60 random truth tables with the default flow; removable should equal gates - exact cost",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/b2160914-05de-5f4f-86d5-d63d72441592/scratchpad/chip-cutheadroom/isolated.py /home/user/oss-monorepo/research/chip-cutheadroom",
+   "expected": "60/60; mean gap near 1.19",
+   "observed": "60/60; mean gap 1.32",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py and figure.py reproduce committed outputs",
+   "method": "rerun in a scratch copy with Yosys 0.33 and diff",
+   "command": "cp -r research/chip-cutheadroom $S/copy && cd $S/copy && python3 experiments/run.py && diff experiments/results.txt <repo>/experiments/results.txt && python3 experiments/figure.py && cmp experiments/headroom.svg <repo>/experiments/headroom.svg",
+   "expected": "no diff",
+   "observed": "results.txt and headroom.svg identical; 4.8 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it with and without Yosys",
+   "command": "cd research/chip-cutheadroom && python3 -m unittest discover -s tests",
+   "expected": "all pass",
+   "observed": "7 OK (2 skipped without Yosys; all 7 run with Yosys 0.33)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -sS -w '%{http_code}' https://marisstella.app/research/chip-cutheadroom/",
+   "expected": "200",
+   "observed": "proxy CONNECT 403; not verified",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "headline numbers (28/30 zero, 0.6%/1.2%, 2,483 gates, 82 vs 110, 41 vs 71, cone>=3 4 to 52)",
+   "method": "recompute from results.json",
+   "command": "python3 -c \"import json;r=json.load(open('research/chip-cutheadroom/experiments/results.json'));print(sum(x['gates'] for x in r))\"",
+   "expected": "as README",
+   "observed": "2483; min 4 max 52; all other numbers match results.txt",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "headline 3: a small-cone exact proposer would be wasted; every cone already exactly minimal",
+   "method": "compare to what analyse measures (single pass, positive gain only, saving <= 0 test)",
+   "command": "sed -n 14p research/chip-cutheadroom/README.md; sed -n 186,206p research/chip-cutheadroom/src/chip_cutheadroom/netlist.py",
+   "expected": "claim limited to positive-gain single pass",
+   "observed": "stated without the zero-gain/iterated caveat; 'exactly minimal' means MFFC <= exact cost",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "figure legend for the grey bars",
+   "method": "read figure.py against FLOWS",
+   "command": "grep -n 'fast (strash' research/chip-cutheadroom/experiments/figure.py",
+   "expected": "fast (abc -fast)",
+   "observed": "'fast (strash; map)'",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "novelty against exact-synthesis cut rewriting",
+   "method": "literature: Riener et al. DATE 2019; Haaswijk et al. TCAD 2020; Cong and Minkovich 2007",
+   "command": "grep -n 'Builds on' research/chip-cutheadroom/README.md",
+   "expected": "nearest prior work engaged",
+   "observed": "only Mishchenko 2006 cited, 'not re-read'; no standard benchmarks",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/chip_cutheadroom/netlist.py:186",
+   "change": "fanout.get(m) and fanout[m] <= s -> fanout.get(m) and fanout[m] & s (MFFC admits shared nodes; summed removable 2 -> 104)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_cutheadroom/netlist.py:141",
+   "change": "if len(u) <= k: -> if len(u) < k:",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_cutheadroom/netlist.py:206",
+   "change": "biggest[g] >= 3 and -> biggest[g] > 3 and",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_cutheadroom/netlist.py:23",
+   "change": "$_ORNOT_ (a | ~b) -> (~a | b)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_cutheadroom/netlist.py:202",
+   "change": "if v[0] <= 0 or v[2] & claimed: -> if v[0] <= 0:",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_cutheadroom/netlist.py:186",
+   "change": "if m not in po and fanout.get(m) -> if fanout.get(m)",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The MFFC rule, the cut-size bound, the cone>=3 threshold and ORNOT semantics are untested: replacing fanout[m] <= s with fanout[m] & s lets shared logic into the MFFC and raises summed removable over the 30 runs from 2 to 104 with every test green; nothing pins results.json, and the two Yosys tests skip silently without Yosys",
+   "where": "research/chip-cutheadroom/src/chip_cutheadroom/netlist.py:186",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not engaged: exact-synthesis cut rewriting after ABC (Riener et al. DATE 2019, mockturtle cut_rewriting; Haaswijk et al. TCAD 2020) and synthesis optimality studies (Cong and Minkovich 2007); no standard benchmark (EPFL/ISCAS); a null after a cut-based mapper on six stylised blocks is expected rather than new",
+   "where": "research/chip-cutheadroom/README.md:9",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Headline 3 ('proposer would be wasted ... every one is already exactly minimal') goes past a single-pass, positive-gain-only measurement: zero-gain replacements (ABC rewrite -z) that unlock later gains are not considered, and 'exactly minimal' is really 'no MFFC exceeds the exact cost'",
+   "where": "research/chip-cutheadroom/README.md:14",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Figure legend labels the 'fast' bars 'fast (strash; map)', but the fast flow is abc -fast (the numbers coincide on these blocks)",
+   "where": "research/chip-cutheadroom/experiments/figure.py:28",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"
+  },
+  {
+   "severity": "low",
+   "what": "run.py docstring says three ABC flows; FLOWS has five. README says the run takes about 1 minute; it takes about 5 s",
+   "where": "research/chip-cutheadroom/experiments/run.py:1",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16361"],
+ "verdict": "A small, correct, reproducible null result. Every number recomputes with code the author did not write: the exact-cost table matches Knuth's distribution for all 65,536 functions and a brute-force enumeration for every cost <= 4; an independent analyser agrees with results.json on all 30 netlists; all 30 netlists simulate correctly; and the analysis provably detects injected redundancy (2k for k injections) and reproduces chip-exact4's isolated-function gap. run.py and figure.py reproduce byte-identically in 5 s. It misses the bar on verification: 4 of 6 seeded mutants survive, including the MFFC rule itself, whose corruption inflates the headline from 2 to 104 removable gates with all tests green. As research it is preliminary: six stylised blocks, no standard benchmarks, no engagement with published exact-synthesis cut rewriting, and headline 3 slightly overreaches a single-pass positive-gain measurement."
+}

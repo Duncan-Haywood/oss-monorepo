@@ -161,7 +161,7 @@ export function compute(input) {
 }
 
 function gbp(n) {
-  return "£" + (Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  return "£" + (Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0");
 }
 
 const pad = (n) => String(n).padStart(2, "0");
