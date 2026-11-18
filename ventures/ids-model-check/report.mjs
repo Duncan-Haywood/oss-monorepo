@@ -53,7 +53,7 @@ export function csvReport(r) {
 // The IDS audit on its own (no model): one line per issue.
 export function auditReport(title, specs, issues) {
   const errors = issues.filter((x) => x.level === "error");
-  const bad = new Set(errors.map((x) => x.spec));
+  const bad = new Set(errors.filter((x) => x.spec !== null).map((x) => x.spec));
   const out = [`${title || "IDS"}: ${errors.length ? "INVALID" : "VALID"}, ${specs.length - bad.size} of ${specs.length} specifications valid, ${errors.length} error(s), ${issues.length - errors.length} warning(s)`];
   for (const x of issues) out.push(`[${x.level.toUpperCase()}] ${x.specName}${x.facet ? " / " + x.facet : ""}: ${x.message}`);
   return out.join("\n");
