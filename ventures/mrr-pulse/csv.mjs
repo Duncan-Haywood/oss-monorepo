@@ -37,6 +37,9 @@ const ALIASES = {
 const toMs = (v) => {
   const x = String(v || "").trim();
   if (!x) return null;
+  // Date.parse rolls 2026-02-30 into 2 March: check the day exists (red team 2026-11-18).
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})/.exec(x);
+  if (ymd && +ymd[3] > new Date(Date.UTC(+ymd[1], +ymd[2], 0)).getUTCDate()) return null;
   const t = Date.parse(/[zZ]$|[+-]\d\d:?\d\d$/.test(x) ? x : `${x.replace(" ", "T")}${x.includes(":") ? "Z" : "T00:00:00Z"}`);
   return Number.isFinite(t) ? t : null;
 };
@@ -64,8 +67,14 @@ export function subsFromCsv(text) {
     const currency = (get("currency") || "usd").toLowerCase();
     const mrr = monthlyAmount(Math.round(amount * 10 ** minorExponent(currency)), interval, Number(get("intervalCount")) || 1, quantity);
     if (!Object.hasOwn(PER_MONTH, interval) && amount > 0) return skipped.push({ line: i + 2, why: `unknown interval "${interval}"` });
+    // A filled-in date that does not parse must not read as "never ended" or
+    // "no trial", and a canceled row with no end date cannot be placed in the
+    // history (it would count as alive every month): flag both (red team 2026-11-18).
     const endedAt = toMs(get("endedAt"));
+    if (get("endedAt") && endedAt === null) return skipped.push({ line: i + 2, why: "ended at is not a date" });
+    if (get("trialEnd") && toMs(get("trialEnd")) === null) return skipped.push({ line: i + 2, why: "trial end is not a date" });
     const status = (get("status") || (endedAt ? "canceled" : "active")).toLowerCase();
+    if (status === "canceled" && endedAt === null) return skipped.push({ line: i + 2, why: "canceled with no end date" });
     subs.push({ id: get("id") || `row${i + 2}`, mrr, status, created, endedAt: status === "canceled" ? endedAt : null, trialEnd: toMs(get("trialEnd")), currency });
   });
   return { subs, skipped, missing: [] };
