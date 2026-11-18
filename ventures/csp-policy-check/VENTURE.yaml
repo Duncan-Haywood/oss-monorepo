@@ -1,0 +1,50 @@
+name: csp-policy-check
+description: >-
+  A free browser tool and Node CLI for web developers: paste a
+  Content-Security-Policy (bare, a header line, a curl -sI dump or a meta
+  tag) and get its weaknesses in plain words, the directive that governs each
+  resource type, and a tester that answers whether a given URL, inline
+  script, event handler, style or eval() would be allowed, using the W3C CSP
+  Level 3 parsing, fallback and matching algorithms. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      Developers who hit the console error "Refused to execute inline script
+      because it violates the following Content Security Policy directive" or
+      "Refused to load the script" search those literal phrases, and a page
+      that answers "would this URL or script be allowed, and why" for their
+      exact policy is used more than a linter that only grades the policy;
+      measured as the share of policy_checked events followed by url_tested
+      or inline_tested.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Teams adopting a strict nonce policy wire the CLI into CI (it exits 1
+      on a high finding or a blocked test), producing return use with no
+      action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI engagement after being listed and indexed for a
+    fair run (portfolio/usage/README.md's "fair run" definition).
+  - Browsers' CSP behaviour moves far enough from the CSP3 draft that the
+    matching rules here mislead more than they help, and nobody updates them.
+
+links:
+  production: https://marisstella.app/csp-policy-check/
+  analytics: null

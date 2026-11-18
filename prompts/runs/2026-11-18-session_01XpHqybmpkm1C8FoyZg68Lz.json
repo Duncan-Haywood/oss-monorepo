@@ -1,0 +1,160 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqybmpkm1C8FoyZg68Lz",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T19:39:04Z",
+  "ended": "2026-11-18T19:56:20Z",
+  "wall_minutes": 21.22,
+  "tokens_in": 13632956,
+  "tokens_out": 87851,
+  "cost_usd": 5.9109,
+  "tool_calls": 104,
+  "task": "Explore (free choice): new venture csp-policy-check, a CSP Level 3 evaluator, CLI and page",
+  "projects": [
+    "ventures/csp-policy-check",
+    "ventures/security-headers-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17406",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 49,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First survey regex cut each policy at its first single quote, so every policy read as 'default-src' alone",
+      "fix": "Extracted each literal to its matching closing quote (eval/survey-repo-csps.mjs)"
+    },
+    {
+      "what": "Lint skipped source-syntax checks on default-src (it is not a FALLBACK key); a test caught it",
+      "fix": "Included default-src explicitly"
+    },
+    {
+      "what": "First draft of the post said 16 clean policies; recount from the survey gave 15",
+      "fix": "Corrected before commit"
+    },
+    {
+      "what": "CI build.test.mjs 'the catch-all holds only what no section claims' failed: a new tool in 'More free tools' grew it to 6; venture-preflight only printed a note about the catch-all",
+      "fix": "Added csp-policy-check to the 'CI checks & developer gates' rule in platform/pages/build.mjs"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "It stops at the first failing stage, so a post-description length error surfaced only in the build after a 10-minute run; check_posts.py is cheap and could run first."
+    },
+    {
+      "file": "platform/ci/gen_llms_txt.py",
+      "issue": "Uses the old github.io SITE while CLAUDE.md names marisstella.app as the host; unclear which a hand-written llms.txt should link (used marisstella.app)."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Its 'lands in the catch-all' line is a note, but build.test.mjs fails CI when the catch-all passes 5 tools; preflight skips build.test.mjs, so the note should be an error when the cap would be exceeded."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Explore track: allocate.py pointed at open-tennis-robots, but the explore prompt makes priority lists optional; built a new security dev tool instead",
+      "did": "New venture csp-policy-check plus a survey of the repository's own CSP headers",
+      "result": "Shipped tool, guide, post; the survey found 7 of 23 own policies allowing all inline script, queued in the report"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-seven-of-our-own-csp-headers-let-any-inline-script-run.md",
+    "docs/reports/csp-policy-check-2026-11-18.md"
+  ],
+  "goal": null,
+  "notes": "Idea: a Content-Security-Policy checker implementing the CSP3 parse/fallback/match algorithms (no venture covered CSP beyond security-headers-check's unsafe-inline flag). Spec worked example pinned: alert('Hello, world.'); -> sha256-qznLcs.../Tng=. Mutation: 5 seeded bugs, 4 caught first time, the survivor (hash not disabling unsafe-inline) now tested. Real-data survey of the repo's 23 server CSPs: 7 high (script-src 'unsafe-inline'), 15 no high/medium; it also downgraded missing base-uri to low where no script can run. Clean sweeps recorded for explore runs: parseInt on decimal inputs 0/8,313; single .replace(',', '') thousands strip 0 real hits. Local checks: node --test in the venture (48 pass), security-headers-check page tests, venture-preflight.mjs csp-policy-check clean including the full build and check.mjs, driven in headless Chromium at 390 px with no console errors.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b7693dc2-170d-5948-8a34-e4ea2284cafe",
+    "transcripts": 1,
+    "first": "2026-11-18T19:39:04Z",
+    "last": "2026-11-18T20:00:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 94,
+        "input": 180,
+        "output": 87851,
+        "thinking": 13945,
+        "cache_read": 13449881,
+        "cache_write_5m": 0,
+        "cache_write_1h": 182895,
+        "api_equivalent_usd": 5.9109,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 94,
+      "input": 180,
+      "output": 87851,
+      "thinking": 13945,
+      "cache_read": 13449881,
+      "cache_write_5m": 0,
+      "cache_write_1h": 182895,
+      "api_equivalent_usd": 5.9109,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 104,
+    "tools": {
+      "Bash": 91,
+      "Write": 10,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.22,
+      "active_minutes": 21.22,
+      "model_minutes": 13.98,
+      "tool_minutes": 7.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a security engineer writing a CSP3 matcher, linter, CLI, page and tests from the spec",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 203.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

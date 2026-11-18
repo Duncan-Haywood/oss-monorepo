@@ -291,6 +291,7 @@ ventures/crop-insurance-coverage-calculator/usage.mjs
 ventures/crown-molding-bid-calculator/usage.mjs
 ventures/crypto-cost-basis-calculator/usage.mjs
 ventures/csa-share-pricing-calculator/usage.mjs
+ventures/csp-policy-check/usage.mjs
 ventures/csshound/usage.mjs
 ventures/csv-to-sepa-pain001/usage.mjs
 ventures/csv-to-sepa-pain008/usage.mjs
