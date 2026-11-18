@@ -437,6 +437,10 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    right hip roll is a preloaded leg row whose margin, 0.030 N m, is under a 0.2 N sensor error's 0.033 N m shift). Even
    with every other leg released, the stance caps it at 0.0339 N m, so the residual stays 0.172 mm (20 N drag: 0.241 to
    0.172) at no stack cost; the pose needs a sensor z error under about 0.19 N (0.163 N m per N), a Mini45-class sensor.
+46. **The hold side** (done 2026-11-18, `experiments/m46_holdside/`): corrects milestone 45 (the per-robot hold side
+   pinned the right hip roll at τ_f; the controller wants −3.8 N m). Held on the other side the stance allows 2.29 N m
+   (from 0.033), the pose takes the full 0.1 N m preload and leaves 0.005 mm (from 0.172) with a 0.2 N sensor error, so
+   the H1 meets the tool-point spec at all 19 poses with an FT 300; the per-robot side is wrong at four more H1 poses.
 
 ## Target venue
 

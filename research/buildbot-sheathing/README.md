@@ -599,6 +599,18 @@ with a z error under about 0.19 N: 0.001–0.004 mm at 0.05–0.15 N (an ATI Min
 
 ![Where the margin is at H1 (1.4 m, −0.15 m), and the worst residual along the wall with the hold-first tiers](experiments/m45_tiered/figure.png)
 
+**Milestone 46: was the right hip roll held on the wrong side?** Yes, and with it on the other side the pose meets the
+spec with an FT 300. Milestones 32 to 45 chose each held joint's side once per robot. At (1.4 m, −0.15 m) that side
+pins the right hip roll at exactly its friction threshold, while the torque-minimising controller wants −3.8 N m.
+Held on the other side, the stance allows a common leg margin of **2.29 N m** at 50 N (from 0.033), the pose takes the
+spec's full 0.1 N m preload, and its worst residual along the wall falls from 0.172 to **0.005 mm** at 0, 5 and 20 N
+of hose drag with a 0.2 N sensor error. The H1's worst over all 19 poses returns to 0.010 / 0.019 / 0.032 mm, at no
+stack cost (0.9716). Milestone 45's sensor bound belonged to the wrong side. The per-robot side is also wrong at both
+window ends at four other H1 poses, which still meet the spec, so per-pose sides are the next step. H181 to H185
+held, H186 refuted. Statics.
+
+![The right hip roll's hold side at H1 (1.4 m, −0.15 m): the margin the stance allows and the worst residual along the wall](experiments/m46_holdside/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
