@@ -9,6 +9,13 @@ an unknown margin of about a pixel round each object) is mostly water and that d
 touch the frame (so shore, land and cut-off objects drop out); it is *found* when at least `cover` of its pixels are
 predicted obstacle. A *false alarm* is a predicted-obstacle component of at least
 `min_fp` pixels lying wholly on ground-truth water.
+
+Components on both sides are 8-connected and must be at least `MIN_AREA` pixels, so the
+ground-truth and predicted sides use the same rule. Until 2026-11-18 ground truth used
+scipy's default 4-connectivity with no size floor, which split one diagonal pole or line
+into a run of 1-pixel "obstacles" (80 of the 204 test obstacles were single pixels;
+audit portfolio/quality/audits/2026-11-17-marine-detect.json). `connectivity=4,
+min_area=1` reproduces that rule for comparison.
 """
 from __future__ import annotations
 
@@ -18,6 +25,8 @@ from scipy import ndimage
 from .data import IGNORE, OBSTACLE, SKY, WATER
 
 AREA_BINS = (0, 64, 256, 1024, 10 ** 9)  # pixels at the working resolution
+MIN_AREA = 4  # smallest component counted, ground truth and prediction alike (= min_fp)
+STRUCTURE = {4: ndimage.generate_binary_structure(2, 1), 8: ndimage.generate_binary_structure(2, 2)}
 
 
 def confusion(pred: np.ndarray, gt: np.ndarray, k: int = 3) -> np.ndarray:
@@ -30,9 +39,10 @@ def iou(conf: np.ndarray) -> np.ndarray:
     return tp / np.maximum(conf.sum(0) + conf.sum(1) - tp, 1)
 
 
-def floating_obstacles(gt: np.ndarray, water_ring: float = 0.5, ring_px: int = 3):
+def floating_obstacles(gt: np.ndarray, water_ring: float = 0.5, ring_px: int = 3,
+                       connectivity: int = 8, min_area: int = MIN_AREA):
     """Yield (pixel index arrays, area) of obstacle components whose ring is >= water_ring water."""
-    lab, n = ndimage.label(gt == OBSTACLE)
+    lab, n = ndimage.label(gt == OBSTACLE, structure=STRUCTURE[connectivity])
     h, w = gt.shape
     for i, sl in enumerate(ndimage.find_objects(lab), start=1):
         if sl is None:
@@ -40,6 +50,8 @@ def floating_obstacles(gt: np.ndarray, water_ring: float = 0.5, ring_px: int = 3
         y0, y1 = max(sl[0].start - ring_px, 0), min(sl[0].stop + ring_px, h)
         x0, x1 = max(sl[1].start - ring_px, 0), min(sl[1].stop + ring_px, w)
         comp = lab[y0:y1, x0:x1] == i
+        if comp.sum() < min_area:
+            continue
         ring = ndimage.binary_dilation(comp, iterations=ring_px) & ~comp
         if sl[0].start == 0 or sl[1].start == 0 or sl[0].stop == h or sl[1].stop == w:
             continue  # touches the frame: shore or a cut-off object
@@ -51,22 +63,26 @@ def floating_obstacles(gt: np.ndarray, water_ring: float = 0.5, ring_px: int = 3
         yield (yy + y0, xx + x0), int(comp.sum())
 
 
-def obstacle_recall(pred: np.ndarray, gt: np.ndarray, cover: float = 0.5):
+def obstacle_recall(pred: np.ndarray, gt: np.ndarray, cover: float = 0.5, **kw):
     """List of (area, found) for each floating obstacle in one frame."""
-    return [(a, f) for a, f, _, _ in obstacle_records(pred, gt, cover)]
+    return [(a, f) for a, f, _, _ in obstacle_records(pred, gt, cover, **kw)]
 
 
-def obstacle_records(pred: np.ndarray, gt: np.ndarray, cover: float = 0.5):
+def obstacle_records(pred: np.ndarray, gt: np.ndarray, cover: float = 0.5, connectivity: int = 8,
+                     min_area: int = MIN_AREA):
     """(area, found, covered fraction, lowest row) per floating obstacle; the lowest row is the waterline."""
     out = []
-    for idx, area in floating_obstacles(gt):
+    for idx, area in floating_obstacles(gt, connectivity=connectivity, min_area=min_area):
         frac = float(np.mean(pred[idx] == OBSTACLE))
         out.append((area, bool(frac >= cover), round(frac, 3), int(idx[0].max())))
     return out
 
 
-def false_alarms(pred: np.ndarray, gt: np.ndarray, min_fp: int = 4) -> int:
-    lab, n = ndimage.label(pred == OBSTACLE)
+def false_alarms(pred: np.ndarray, gt: np.ndarray, min_fp: int = MIN_AREA, connectivity: int = 8) -> int:
+    """Predicted-obstacle components of at least min_fp px lying wholly on ground-truth water.
+
+    A blob touching an unknown (ignored) pixel is not counted: it may be an unlabelled object."""
+    lab, n = ndimage.label(pred == OBSTACLE, structure=STRUCTURE[connectivity])
     if n == 0:
         return 0
     on_water = ndimage.sum(gt == WATER, lab, index=np.arange(1, n + 1))
@@ -86,4 +102,4 @@ def binned_recall(pairs, bins=AREA_BINS):
 
 
 __all__ = ["confusion", "iou", "floating_obstacles", "obstacle_recall", "false_alarms",
-           "binned_recall", "AREA_BINS", "SKY"]
+           "binned_recall", "AREA_BINS", "MIN_AREA", "SKY"]

@@ -59,6 +59,58 @@ def test_floating_obstacle_excludes_shore():
     assert len(obs) == 1 and obs[0][1] == 16
 
 
+def test_diagonal_line_is_one_obstacle():
+    """A thin diagonal pole is one 8-connected object, not eight 1-px ones (audit 2026-11-17)."""
+    gt = scene()
+    for k in range(8):
+        gt[22 + k, 40 + k] = OBSTACLE
+    obs = sorted(a for _, a in metrics.floating_obstacles(gt))
+    assert obs == [8, 16]
+    old = sorted(a for _, a in metrics.floating_obstacles(gt, connectivity=4, min_area=1))
+    assert old == [1] * 8 + [16]
+
+
+def test_min_area_floor_is_symmetric():
+    """Objects under MIN_AREA px are dropped on the ground-truth side as on the false-alarm side."""
+    assert metrics.MIN_AREA == 4
+    gt = scene()
+    gt[33:34, 10:13] = OBSTACLE  # 3 px: below the floor
+    gt[33:35, 45:47] = OBSTACLE  # 4 px: counted
+    areas = sorted(a for _, a in metrics.floating_obstacles(gt))
+    assert areas == [4, 16]
+    pred = scene()
+    pred[36:37, 10:13] = OBSTACLE  # 3-px blob on water: not an alarm
+    assert metrics.false_alarms(pred, gt) == 0
+    pred[36:38, 20:22] = OBSTACLE  # 4-px blob on water: an alarm
+    assert metrics.false_alarms(pred, gt) == 1
+
+
+def test_false_alarm_diagonal_blob_counts_once():
+    gt = scene()
+    pred = gt.copy()
+    for k in range(5):
+        pred[32 + k, 40 + k] = OBSTACLE
+    assert metrics.false_alarms(pred, gt) == 1
+    assert metrics.false_alarms(pred, gt, connectivity=4) == 0  # five 1-px blobs, each under the floor
+
+
+def test_found_threshold_is_half_cover():
+    gt = scene()
+    pred = gt.copy()
+    pred[25:27, 30:34] = WATER  # 8 of 16 covered: exactly half is found
+    assert metrics.obstacle_recall(pred, gt) == [(16, True)]
+    pred[27, 30] = WATER  # 7 of 16: missed
+    assert metrics.obstacle_recall(pred, gt) == [(16, False)]
+
+
+def test_mostly_shore_ring_is_not_floating():
+    gt = np.full((40, 60), WATER, np.uint8)
+    gt[:15] = SKY
+    gt[15:17, 10:50] = OBSTACLE  # shoreline strip not touching the frame edge, ring half sky
+    gt[14, 5:55] = OBSTACLE  # joins it to a strip above: ring mostly sky
+    assert list(metrics.floating_obstacles(gt)) == []
+
+
 def test_recall_and_false_alarms():
     gt = scene()
     pred = gt.copy()
