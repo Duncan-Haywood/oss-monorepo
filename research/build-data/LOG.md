@@ -1,5 +1,17 @@
 # build-data log
 
+## Session 103, 2026-11-18 (pre-registered): is a 4-year staleness cut the better default in 2019 to 2022 too, and does choosing the cut per deployment from the target's six-year-old permits beat a fixed cut?
+
+Why: session 102 found the 4-year cut best of the staleness grid in 2017 and 2018 (84.25 days against 87.53 for the 5-year cut) but fit it only there, and named as next steps (1) nc4 in the 8 cells of 2019 to 2022 and (2) a cut chosen per deployment from the target's Y-6 score over a grid (nc3, nc4, nc5), scored pooled over all 12 cells. Both come from one set of fits: nc4 with the target cohorts scored.
+Design (fixed before any model run): unchanged `rounds.py` (`CPIN_TARGET_SEL=1`, `CPIN_TAUS=0.9`, `CPIN_ROWS_DIR`); variant `cpin_es3_nc4` only; H = sf, seattle (sources: the other two of SF, Seattle, Austin); Y = 2019, 2020, 2021, 2022; 3 seeds; fresh pull 2026-11-18; `--score --keep-open --status-dir`; one process per cell at 1 thread; output `results/rounds_score_grid_i2c.json`. nc3 and nc5 for these cells are session 101's fits (`results/rounds_score_oos_i2c.json`); 2017 and 2018 come from session 102 (`results/rounds_score_early_i2c.json`). `src/tfol_boot.py --grid` (`grid_summary`) scores the grid G = {nc3, nc4, nc5}: oracle = the member of G with the lowest test q0.9 in a cell; the grid chooser picks the member of G with the lowest k6_loss (q0.9 pinball on the target's own Y-6 permits completed by D = 1 January Y).
+Predictions (q0.9 = cascade2's mean pinball loss over 3 seeds on completed test rows, days):
+- (G0, check) The saved nc4 rows reproduce the JSON means within 0.001, and the nc4 fits' target-cohort sizes equal session 101's for the same cells.
+- (G1) Over the 8 cells of 2019 to 2022, nc4's mean test q0.9 is below both nc3's and nc5's.
+- (G2) Pooled over all 12 SF and Seattle city-years 2017 to 2022, fixed nc4 has the lowest mean regret (against the G oracle) of the three fixed cuts.
+- (G3) Fixed nc4 is within 1.0 day of the G oracle in at least 10 of the 12 cells.
+- (G4) Pooled over the 12 cells, the grid chooser's mean regret is below fixed nc4's.
+Refuted if any part fails. Risks named in advance: k6_loss favoured the shorter tail in 10 of 12 cells among the session-98 candidates, so the chooser may simply pick nc3 (then G4 likely fails); nc4 may interpolate between nc3 and nc5 cell by cell and win no year pair outright (G1 needs it to beat both on average, not in each cell); 2020 is the first COVID year; the 2017 and 2018 nc4 fits came from a pull a few hours earlier than this one.
+
 ## Session 102, 2026-11-18: test years 2017 and 2018 side with 2021 and 2022, not 2019 and 2020: the 3-year cut wins in SF by 8.86 and 2.94 days and in Seattle 2017, the six-year-old-permit selector picks it in all 4 cells (regret 0.29 days, against 3.32 for the fixed 5-year cut), a 4-year cut is the best fixed rule (84.25) and a 6-year cut costs 7.5 days over the 5-year; pooled over all 12 SF and Seattle city-years the selector leaves 0.81 days of regret against 1.53 for the best fixed rule; E0, E3 held, E1, E2, E4, E5 refuted
 
 Why: session 100's next step (3) asked whether 2021 and 2022 or 2019 and 2020 are the unusual pair of test years, and session 101 added a finer staleness grid (4 and 6 years) to see whether the 5-year cut sits on a plateau. Test years 2017 and 2018 come before every year any of the four source rules or the target-cohort selector was looked at.
