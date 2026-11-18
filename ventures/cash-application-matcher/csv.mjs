@@ -4,7 +4,7 @@
 
 /** RFC 4180 CSV: quoted fields, doubled quotes, CRLF or LF, comma/semicolon/tab. */
 export function parseCsv(text) {
-  const src = String(text ?? '').replace(/^﻿/, '');
+  const src = String(text ?? '').replace(/^\uFEFF/, '');
   const firstLine = src.split(/\r?\n/, 1)[0] || '';
   const delim = [',', ';', '\t'].map((d) => [d, countOutsideQuotes(firstLine, d)]).sort((a, b) => b[1] - a[1])[0][0];
   const rows = [];

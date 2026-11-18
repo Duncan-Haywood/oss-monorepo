@@ -69,7 +69,7 @@ export function parseCsv(text) {
 
 // Mint CSV text -> [{ date (ISO), desc, cat, out, cents (money out negative) }].
 export function mintRows(text) {
-  const [head, ...body] = parseCsv(text.replace(/^﻿/, "")).filter((r) => r.some((c) => c.trim()));
+  const [head, ...body] = parseCsv(text.replace(/^\uFEFF/, "")).filter((r) => r.some((c) => c.trim()));
   const ix = (n) => head.findIndex((h) => h.trim().toLowerCase() === n);
   const D = ix("date"), O = ix("original description"), S = ix("description"), C = ix("category"), T = ix("transaction type"), A = ix("amount");
   return body.map((r) => {

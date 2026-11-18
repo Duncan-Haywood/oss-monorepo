@@ -11,7 +11,7 @@ import { detectSyntax } from "./schematron-core.mjs";
 import { looksLikeFlux10 } from "./flux10.mjs";
 
 // The PR #17149 pattern, kept only as the reference for the comparison below.
-const OLD = /^(?:﻿)?\s*(?:<\?[\s\S]*?\?>\s*|<!--[\s\S]*?-->\s*)*<Report\b[^>]*>\s*(?:<!--[\s\S]*?-->\s*)*<ReportDocument\b/;
+const OLD = /^(?:\uFEFF)?\s*(?:<\?[\s\S]*?\?>\s*|<!--[\s\S]*?-->\s*)*<Report\b[^>]*>\s*(?:<!--[\s\S]*?-->\s*)*<ReportDocument\b/;
 
 test("flux10 sniffing: 200 leading comments or PIs before another root answer at once", () => {
   for (const item of ["<!-- note -->\n", "<?pi data?>", "<!--a-->", "<?a?>"]) {
@@ -49,7 +49,7 @@ test("flux10 sniffing: same answers as the PR #17149 pattern on well-formed prol
     const root = pick(["<Report", "<Reports", "<Report ", "<Invoice", "<ReportDocument"]);
     const child = pick(["<ReportDocument", "<ReportDocuments", "<Header", "<ReportDocument "]);
     const commentsOnly = () => Array.from({ length: rnd(3) }, () => pick([" ", "<!--" + body("-->") + "-->"])).join("");
-    const s = pick(["", "﻿"]) + items(4) + root + pick(["", " a='1'", "/"]) + ">" + commentsOnly() + child + "/>";
+    const s = pick(["", "\uFEFF"]) + items(4) + root + pick(["", " a='1'", "/"]) + ">" + commentsOnly() + child + "/>";
     const want = OLD.test(s);
     if (want) positives++;
     assert.equal(detectSyntax(s) === "flux10", want, JSON.stringify(s));

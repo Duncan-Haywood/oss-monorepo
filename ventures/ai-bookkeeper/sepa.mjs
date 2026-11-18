@@ -85,7 +85,7 @@ function selfCheck(opening, closing, rows, problems, fmt = (c) => (c / 100).toFi
 }
 
 export function readMt940(text) {
-  const s = String(text).replace(/^﻿/, "").replace(/\r\n?/g, "\n");
+  const s = String(text).replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
   const problems = [];
   const out = [];
   // A tag starts a line with :NN[a-z]: and runs until the next one.

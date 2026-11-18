@@ -11,7 +11,7 @@ const run = (csv, opts) => {
 const d = (s) => parseDate(s);
 
 test("csv parser handles quotes, CRLF and BOM", () => {
-  assert.deepEqual(parseCsv('﻿a,b\r\n"x, y","he said ""hi"""\r\n').rows, [["a", "b"], ["x, y", 'he said "hi"']]);
+  assert.deepEqual(parseCsv('\uFEFFa,b\r\n"x, y","he said ""hi"""\r\n').rows, [["a", "b"], ["x, y", 'he said "hi"']]);
 });
 test("decodeBuffer honours UTF-16 and BOM; money formats", () => {
   assert.equal(decodeBuffer(new Uint8Array([0xff, 0xfe, 0x61, 0x00])), "a");

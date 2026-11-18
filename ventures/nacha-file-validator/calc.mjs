@@ -107,7 +107,7 @@ export function nextBankingDay(dt) {
 }
 
 export function splitRecords(text) {
-  const raw = String(text).replace(/^﻿/, "");
+  const raw = String(text).replace(/^\uFEFF/, "");
   let lines = raw.split(/\r\n|\n|\r/);
   while (lines.length && lines[lines.length - 1].trim() === "") lines.pop();
   // Some banks and tools emit one unbroken string; accept it when it is a whole number of records.

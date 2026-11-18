@@ -9,7 +9,7 @@ import {
 const fixture = (n) => readFileSync(new URL(`./fixtures/${n}`, import.meta.url), "utf8");
 
 test("parseCsv handles quotes, escaped quotes, CRLF and a BOM", () => {
-  const rows = parseCsv('﻿a,"b,c","d ""e"""\r\n1,2,3\r\n');
+  const rows = parseCsv('\uFEFFa,"b,c","d ""e"""\r\n1,2,3\r\n');
   assert.deepEqual(rows, [["a", "b,c", 'd "e"'], ["1", "2", "3"]]);
 });
 

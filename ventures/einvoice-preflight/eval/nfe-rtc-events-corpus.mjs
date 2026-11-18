@@ -13,7 +13,7 @@ for (const [repo, path] of list) {
   const url = `https://raw.githubusercontent.com/${repo}/HEAD/${path.split("/").map(encodeURIComponent).join("/")}`;
   const res = await fetch(url);
   if (!res.ok) { rows.push({ repo, path, error: `HTTP ${res.status}` }); continue; }
-  let text = Buffer.from(await res.arrayBuffer()).toString("utf8").replace(/^﻿/, "");
+  let text = Buffer.from(await res.arrayBuffer()).toString("utf8").replace(/^\uFEFF/, "");
   const sha = createHash("sha256").update(text).digest("hex").slice(0, 12);
   const dup = seen.get(sha);
   if (!dup) seen.set(sha, `${repo}/${path}`);

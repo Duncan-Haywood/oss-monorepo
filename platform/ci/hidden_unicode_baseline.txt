@@ -1,0 +1,36 @@
+# Files allowed to carry hidden or bidi Unicode (check_hidden_unicode.py).
+# count<TAB>path. Ratchet: lower or delete a line when you remove one;
+# raise or add one only for a deliberate test fixture or scanner.
+1	docs/history/ci-perf-2026-11-18-flux10-sniff-redos.md
+1	docs/posts/2026-10-24-crm-exports-are-messier-than-your-test-fixture.md
+5	docs/posts/2026-11-02-requests-are-screened-before-agents-read-them.md
+1	platform/ci/check_html_is_html.py
+1	platform/ci/test_check_html_is_html.py
+2	platform/pages/fontraster.mjs
+1	portfolio/requests/intake.test.mjs
+15	portfolio/requests/screen.mjs
+11	portfolio/requests/screen.test.mjs
+1	research/marriage-divorce-evidence/reproducibility/literature_evidence/scripts/verify_quotes.py
+2	ventures/ai-bookkeeper/HISTORY.md
+2	ventures/ai-bookkeeper/bank.mjs
+1	ventures/ai-bookkeeper/debit-prefix.test.mjs
+1	ventures/ai-bookkeeper/hledger-samples.test.mjs
+2	ventures/ai-bookkeeper/mt940slash.test.mjs
+1	ventures/ai-bookkeeper/readers-fuzz.test.mjs
+1	ventures/ai-bookkeeper/statement-balances.test.mjs
+1	ventures/ai-bookkeeper/xls-receipts-fuzz.test.mjs
+21	ventures/devsec-toolkit/tests/fixtures/vulnerable-repo/AGENTS.md
+4	ventures/email-list-csv-check/calc.mjs
+6	ventures/email-list-csv-check/calc.test.mjs
+1	ventures/google-ads-editor-csv-check/calc.mjs
+2	ventures/gtin-list-check/calc.test.mjs
+35	ventures/hidden-unicode-check/calc.test.mjs
+1	ventures/hidden-unicode-check/cli.mjs
+5	ventures/hidden-unicode-check/cli.test.mjs
+2	ventures/hidden-unicode-check/index.html
+1	ventures/ig-media-pipeline/src/igmp/metadata.py
+10	ventures/local-site-studio/src/app/docs/architecture/page.tsx
+2	ventures/mcp-supply-chain-watch/tests/cases.json
+1	ventures/photo-editing/src/shootflow/cull.py
+1	ventures/sms-segment-cost-calculator/engine.mjs
+1	ventures/testimonial-keeper/store.test.mjs

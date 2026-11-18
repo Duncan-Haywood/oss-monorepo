@@ -397,7 +397,7 @@ export function parseNumber(s) {
 }
 
 export function parseCsv(text) {
-  const src = String(text ?? "").replace(/^﻿/, "");
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   const firstLine = src.split(/\r?\n/).find((l) => l.trim()) || "";
   if (!firstLine) return { error: "The table is empty." };
   const counts = { ",": 0, "\t": 0, ";": 0 };

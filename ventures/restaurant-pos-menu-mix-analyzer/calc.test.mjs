@@ -21,7 +21,7 @@ test("delimiter detection and utf-16 decoding", () => {
   assert.equal(detectDelimiter("a\tb\n1\t2"), "\t");
   const text = "Item,Qty,Net Sales\nBurger,2,20";
   const le = new Uint8Array([0xff, 0xfe, ...[...text].flatMap((c) => [c.charCodeAt(0), 0])]);
-  assert.equal(decodeBuffer(le.buffer), "﻿".slice(0, 0) + text);
+  assert.equal(decodeBuffer(le.buffer), "\uFEFF".slice(0, 0) + text);
 });
 
 test("header aliases: Toast, Square and Clover style names all resolve", () => {

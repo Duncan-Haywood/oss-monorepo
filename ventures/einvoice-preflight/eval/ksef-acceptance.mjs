@@ -67,7 +67,7 @@ const mojibakePath = /"Templates", "([^"]*disallowed-unicode[^"]*)"/.exec(tests)
 const cases = [
   ["DisallowedUnicodeCharacter (U+007F before </Naglowek>)", base.replace("</Naglowek>", "\u007F</Naglowek>"), false, "U+007F"],
   ["MojibakeWithHiddenControlCharacters (their template)", mojibakePath && readFileSync(join(repo, "KSeF.Client.Tests.Core/Templates", mojibakePath), "utf8"), false, "U+009B"],
-  ["XmlWithBom (string U+FEFF)", "﻿" + base, false],
+  ["XmlWithBom (string U+FEFF)", "\uFEFF" + base, false],
   ["RawBytesWithBom (EF BB BF)", Uint8Array.from([0xef, 0xbb, 0xbf, ...enc(base)]), false],
   ["RawBytesWithoutBom", enc(base), true],
   ["PrologDeclaresNonUtf8Encoding (ISO-8859-2)", '<?xml version="1.0" encoding="ISO-8859-2"?>' + base, false],

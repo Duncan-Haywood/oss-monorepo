@@ -25,7 +25,7 @@ const attrs = (s) => Object.fromEntries([...s.matchAll(/([A-Za-z]+)="([^"]*)"/g)
 
 for (const f of files) {
   let t;
-  try { t = readFileSync(f, "utf8").replace(/^﻿/, ""); } catch { continue; }
+  try { t = readFileSync(f, "utf8").replace(/^\uFEFF/, ""); } catch { continue; }
   if (!/http:\/\/www\.sat\.gob\.mx\/(CartaPorte|ComercioExterior)/.test(t)) continue;
   const h = createHash("sha256").update(t).digest("hex");
   if (seen.has(h)) continue;

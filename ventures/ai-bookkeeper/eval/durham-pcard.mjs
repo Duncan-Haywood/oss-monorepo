@@ -88,7 +88,7 @@ export function decode(bytes) {
 export function loadDurham(texts, { field = "code", department = null, division = null } = {}) {
   const out = [];
   for (const text of texts) {
-    const rows = parseCsv(text.replace(/^﻿/, ""));
+    const rows = parseCsv(text.replace(/^\uFEFF/, ""));
     const hi = rows.findIndex((r) => r.some((x) => String(x).trim() === "Beneficiary"));
     if (hi === -1) continue;
     const h = rows[hi].map((x) => String(x).trim());

@@ -309,7 +309,7 @@ function money2(s) {
 }
 
 export function parseSpend(text) {
-  const lines = String(text ?? "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
+  const lines = String(text ?? "").replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim());
   if (lines.length < 2) return { error: "Paste or upload rows with a date, a channel, the spend and the revenue." };
   const first = lines[0];
   const d = [",", "\t", ";"].map((c) => [c, first.split(c).length]).sort((a, b) => b[1] - a[1])[0][0];

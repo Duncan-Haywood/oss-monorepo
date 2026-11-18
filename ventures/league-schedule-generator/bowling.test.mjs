@@ -326,10 +326,10 @@ test("the search with limits honours them on every week of a grid, and an odd le
 test("lane-limit shapes match up to renaming teams and pairs, and nothing else", () => {
   const avoid = (n, list) => { const a = Array.from({ length: n }, () => []); for (const [t, ps] of list) a[t].push(...ps); return a; };
   // Two teams on one pair: any two teams, any pair.
-  assert.deepEqual(matchShape(avoid(20, [[6, [4]], [13, [4]]]), "0:0;1:0", 10), { slotTeam: [6, 13], pairOf: [4] });
+  assert.deepEqual(matchShape(avoid(20, [[6, [4]], [13, [4]]]), "0:0;1:0", 10), { slotTeam: [6, 13], pairOf: [4], slots: [0, 1] });
   assert.equal(matchShape(avoid(20, [[6, [4]], [13, [5]]]), "0:0;1:0", 10), null);
   // A team on two pairs and a team on one of them: the slots follow the shape, not the input order.
-  assert.deepEqual(matchShape(avoid(20, [[2, [7]], [9, [7, 1]]]), "0:0,1;1:0", 10), { slotTeam: [9, 2], pairOf: [7, 1] });
+  assert.deepEqual(matchShape(avoid(20, [[2, [7]], [9, [7, 1]]]), "0:0,1;1:0", 10), { slotTeam: [9, 2], pairOf: [7, 1], slots: [0, 1] });
   assert.equal(matchShape(avoid(20, [[2, [7]], [9, [3, 1]]]), "0:0,1;1:0", 10), null);
   assert.equal(matchShape(avoid(20, [[2, [7]]]), "0:0;1:0", 10), null);
   // Dealing: the limited teams take the shape's slots, the rest keep their order.
@@ -361,4 +361,27 @@ test("20 teams x 30 weeks with lane limits: every team in target from a stored s
   const cyc = roundRobin(20);
   const key = (ms) => ms.map(([a, b]) => `${Math.min(a, b)}-${Math.max(a, b)}`).sort().join(" ");
   assert.equal(key(plain.weeks[0].matches.map((m) => [m.a, m.b])), key(cyc[0].matches));
+});
+
+test("lane-limit shapes that are UNSAT on slots 0 and 1 are stored on other slots and the page uses them", () => {
+  const avoid = (n, list) => { const a = Array.from({ length: n }, () => []); for (const [t, ps] of list) a[t].push(...ps); return a; };
+  // 18 x 8, two teams each off the same two pairs: UNSAT on slots 0-1, SAT on 12 and 17 (17 is fixed).
+  // 22 x 23, two teams off one pair: the search alone finds an answer on slots 0 and 1 (eval/bowling-avoid-lns.py
+  // starts from it), where the whole-season SAT model timed out; the page's own dealing missed by 2.
+  // 20 x 9, two teams off one pair: UNSAT with the teams on slots 0-1 (0-2, 0-3, 0-4 too), SAT on 0 and 5.
+  assert.deepEqual(matchShape(avoid(20, [[6, [4]], [13, [4]]]), "0:0;5:0", 10), { slotTeam: [6, 13], pairOf: [4], slots: [0, 5] });
+  const slots = avoidShapeSlots(20, 9, avoid(20, [[6, [4]], [13, [4]]]), 10);
+  assert.equal(slots[0], 6);
+  assert.equal(slots[5], 13);
+  assert.deepEqual([...slots].sort((a, b) => a - b), Array.from({ length: 20 }, (_, i) => i));
+  for (const [n, weeks, laneAvoid] of [[20, 9, "Team 4: 9-10\nTeam 11: 9-10"], [18, 8, "Team 2: 1-2, 3-4\nTeam 15: 1-2, 3-4"], [22, 23, "Team 3: last\nTeam 9: last"]]) {
+    const s = bowlingSchedule({ teams: names(n), weeks, start: START, laneAvoid });
+    assert.deepEqual(s.errors, [], laneAvoid);
+    assert.deepEqual(validateBowling(s), [], laneAvoid);
+    for (const wk of s.weeks) for (const m of wk.matches) for (const t of [m.a, m.b]) assert.ok(!s.avoid[t].includes(m.pair), `${laneAvoid}: week ${wk.week}`);
+    assert.equal(laneReport(s).rows.filter((x) => x.inTarget).length, n, `${n} x ${weeks}: ${laneAvoid}`);
+    // Still a plain round robin: no pair of teams meets twice within one cycle.
+    const met = new Set();
+    for (const wk of s.weeks.slice(0, n - 1)) for (const m of wk.matches) { const k = Math.min(m.a, m.b) * n + Math.max(m.a, m.b); assert.ok(!met.has(k)); met.add(k); }
+  }
 });

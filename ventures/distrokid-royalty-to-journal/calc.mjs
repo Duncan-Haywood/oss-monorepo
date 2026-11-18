@@ -70,7 +70,7 @@ function splitLine(line, d) {
   return out;
 }
 
-const norm = (h) => h.trim().toLowerCase().replace(/^﻿/, "").replace(/[\s_]+/g, "-").replace(/\(.*\)$/, "").replace(/-+$/, "");
+const norm = (h) => h.trim().toLowerCase().replace(/^\uFEFF/, "").replace(/[\s_]+/g, "-").replace(/\(.*\)$/, "").replace(/-+$/, "");
 
 // "$1,234.56", "-$12.00", "(12.00)", "USD 5" and European "1.234,56" all read to cents. Empty is null, junk is NaN.
 export function parseAmount(s) {

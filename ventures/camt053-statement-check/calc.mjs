@@ -7,7 +7,7 @@ export function decodeBuffer(buf) {
   const b = new Uint8Array(buf);
   if (b[0] === 0xff && b[1] === 0xfe) return new TextDecoder("utf-16le").decode(b.subarray(2));
   if (b[0] === 0xfe && b[1] === 0xff) return new TextDecoder("utf-16be").decode(b.subarray(2));
-  const utf8 = new TextDecoder("utf-8", { fatal: false }).decode(b).replace(/^﻿/, "");
+  const utf8 = new TextDecoder("utf-8", { fatal: false }).decode(b).replace(/^\uFEFF/, "");
   return utf8.includes("�") ? new TextDecoder("windows-1252").decode(b) : utf8;
 }
 
@@ -39,7 +39,7 @@ const unescapeXml = (s) =>
 // A small tolerant XML reader: element tree with namespace prefixes dropped and a line number per element.
 // Returns { root, error }. It is not a validator; it reports only the first structural fault it meets.
 export function parseXml(text) {
-  const src = text.replace(/^﻿/, "");
+  const src = text.replace(/^\uFEFF/, "");
   const lineAt = (pos) => { let n = 1; for (let i = 0; i < pos; i++) if (src.charCodeAt(i) === 10) n++; return n; };
   const re = /<!--[\s\S]*?-->|<!\[CDATA\[([\s\S]*?)\]\]>|<\?[\s\S]*?\?>|<!DOCTYPE[^>]*>|<(\/?)([A-Za-z_][\w.:-]*)((?:[^>"']|"[^"]*"|'[^']*')*?)(\/?)>|([^<]+)|(<)/g;
   const top = { name: "#root", children: [], text: "", line: 1, attrs: {} };

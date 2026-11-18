@@ -22,7 +22,7 @@ const fx = plain("facturx-extended-cii.json");
 const files = readFileSync(listFile, "utf8").split("\n").filter(Boolean);
 let enFatal = 0, fxFatal = 0, agree = 0, skipped = 0;
 for (const file of files) {
-  const xml = readFileSync(file, "utf8").replace(/^﻿/, "");
+  const xml = readFileSync(file, "utf8").replace(/^\uFEFF/, "");
   const fatal = (out) => [...new Set(out.filter((f) => f.flag !== "warning").map((f) => f.rule))].sort();
   const a = runner.runRules(en, parseXmlDocument(xml));
   const b = runner.runRules(fx, parseXmlDocument(xml));

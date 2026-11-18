@@ -72,7 +72,7 @@ function splitLine(line, d) {
   return out;
 }
 
-const norm = (h) => h.trim().toLowerCase().replace(/^﻿/, "").replace(/[\s_]+/g, "-");
+const norm = (h) => h.trim().toLowerCase().replace(/^\uFEFF/, "").replace(/[\s_]+/g, "-");
 
 export function parseAmount(s) {
   const t = String(s ?? "").trim().replace(/\s/g, "");
@@ -104,7 +104,7 @@ const REQUIRED = ["settlement-id", "amount"];
 export function parseSettlements(text, opts = {}) {
   const findings = [];
   const add = (severity, title, detail, line) => findings.push({ severity, title, detail, line: line || 0 });
-  const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/);
+  const lines = String(text || "").replace(/^\uFEFF/, "").split(/\r?\n/);
   const first = lines.findIndex((l) => l.trim());
   if (first < 0) { add("error", "The file is empty", "Paste or choose a settlement report."); return { settlements: [], findings, summary: { rows: 0, settlements: 0 } }; }
   const d = (lines[first].match(/\t/g) || []).length >= (lines[first].match(/,/g) || []).length ? "\t" : ",";

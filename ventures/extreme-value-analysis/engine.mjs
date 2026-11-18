@@ -632,7 +632,7 @@ export function thresholdStability(values, runLength, { from = 0.9, to = 0.995, 
 export function parseCsv(text) {
   const rows = [];
   let row = [], field = "", inQ = false;
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < s.length; i++) {
     const ch = s[i];
     if (inQ) {

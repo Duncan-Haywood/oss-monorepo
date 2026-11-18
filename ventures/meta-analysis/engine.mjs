@@ -441,7 +441,7 @@ export function continuousEffect(measure, m1, sd1, n1, m2, sd2, n2) {
 // ---------------------------------------------------------------- CSV and columns
 
 export function parseCsv(text) {
-  const src = String(text).replace(/^﻿/, "").replace(/\r\n?/g, "\n");
+  const src = String(text).replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
   const first = src.split("\n").find((l) => l.trim() !== "") || "";
   const counts = { ",": 0, "\t": 0, ";": 0 };
   let q = false;
