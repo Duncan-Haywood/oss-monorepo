@@ -32,7 +32,9 @@ const NAMES = 'abcdefghijklm';
 // (oneStepGap: false, eval/one-step-hollow-check.md) instead of the rule off
 // --before fleck: compare against the reader without the split-head join
 // (fleck: false, eval/fleck-check.md)
-const BEFORE = { gap: { oneStepGap: false }, fleck: { fleck: false } }[opt('--before', 'off')] ?? { oneStep: false };
+// --before join: compare against the reader without the staff-gap join
+// (staffJoin: false, eval/staff-gap-check.md)
+const BEFORE = { gap: { oneStepGap: false }, fleck: { fleck: false }, join: { staffJoin: false } }[opt('--before', 'off')] ?? { oneStep: false };
 
 const lists = manifests.map((f) => ({ file: f, pieces: JSON.parse(readFileSync(f, 'utf8')).pieces }));
 await prefetch(lists.flatMap((l) => l.pieces.flatMap((p) => p.pages.map((pg) => [p.archive, pg.leaf]))));
