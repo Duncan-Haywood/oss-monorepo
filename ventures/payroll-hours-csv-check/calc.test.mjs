@@ -111,7 +111,7 @@ test("safe fixes never change hours, dates, breaks or names", () => {
 });
 
 test("findings CSV round-trips and CRLF/BOM input is read", () => {
-  const r = validate("﻿" + H.replace(/\n/g, "\r\n") + "Ada,2026-09-28,,,,28,\r\n");
+  const r = validate("\uFEFF" + H.replace(/\n/g, "\r\n") + "Ada,2026-09-28,,,,28,\r\n");
   assert.ok(codes(r).includes("hours-over-24"));
   const csv = parseCsv(findingsCsv(r)).rows;
   assert.deepEqual(csv[0].cells, ["severity", "line", "code", "title", "detail"]);

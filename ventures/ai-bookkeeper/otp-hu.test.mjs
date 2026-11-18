@@ -26,7 +26,7 @@ test("Hungarian export with 'Partner név' and dotted dates names the payee", ()
   const head = ["Felhasználónév", "Számlaszám", "Könyvelés dátuma", "Összeg", "Devizanem", "Partner név", "Közlemény"];
   const csv = [head, ["x", "1160-0006", "2025.12.04", "-1250", "HUF", "Tesco Budapest", ""], ["x", "1160-0006", "2025.12.01", "90000", "HUF", "Acme Kft", ""]]
     .map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
-  const r = readStatement("﻿" + csv);
+  const r = readStatement("\uFEFF" + csv);
   assert.deepEqual(r.rows.map((x) => [x.date, x.desc, x.cents]), [
     ["2025-12-04", "Tesco Budapest", -125000],
     ["2025-12-01", "Acme Kft", 9000000],

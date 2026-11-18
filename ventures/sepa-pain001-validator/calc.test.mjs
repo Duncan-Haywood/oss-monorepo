@@ -344,7 +344,7 @@ test("a prefixed namespace (ns2:Document, as some ERP exports write it) is read 
 });
 
 test("real-world shape: BOM, xsi:schemaLocation, comments, CDATA and entities parse cleanly", () => {
-  const x = "﻿" + clean()
+  const x = "\uFEFF" + clean()
     .replace('<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03"', '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03 pain.001.001.03.xsd"')
     .replace("<GrpHdr>", "<!-- exported by ERP -->\n    <GrpHdr>")
     .replace("Invoice 2026-0412", "<![CDATA[Invoice 2026-0412]]>")

@@ -189,7 +189,7 @@ test("ordersToClear after commission needs a bigger order", () => {
 
 test("CSV parsing: quotes, embedded commas and newlines, CRLF, BOM, tabs, semicolons", () => {
   assert.deepEqual(parseCsv('a,b\r\n"x, y","he said ""hi"""\r\n'), [["a", "b"], ["x, y", 'he said "hi"']]);
-  assert.deepEqual(parseCsv("﻿a\tb\n1\t2"), [["a", "b"], ["1", "2"]]);
+  assert.deepEqual(parseCsv("\uFEFFa\tb\n1\t2"), [["a", "b"], ["1", "2"]]);
   assert.deepEqual(parseCsv("a;b\n1;2"), [["a", "b"], ["1", "2"]]);
   assert.deepEqual(parseCsv('a,b\n"line1\nline2",2'), [["a", "b"], ["line1\nline2", "2"]]);
   assert.deepEqual(parseCsv(""), []);

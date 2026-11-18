@@ -6,7 +6,7 @@ export const DAY = 86400000;
 export function parseCsv(text) {
   const rows = [];
   let row = [], cell = "", q = false;
-  const src = String(text).replace(/^﻿/, "");
+  const src = String(text).replace(/^\uFEFF/, "");
   const delim = (src.split("\n")[0].match(/\t/g) || []).length > (src.split("\n")[0].match(/,/g) || []).length ? "\t" : ",";
   for (let i = 0; i < src.length; i++) {
     const c = src[i];

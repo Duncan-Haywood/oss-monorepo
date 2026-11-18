@@ -31,7 +31,7 @@ for (const sub of ["TestFiles", "TestSourceFiles"]) {
       let zipNote = "";
       if (/\.ifczip$/i.test(f)) {
         if (unzip) {
-          const ref = execFileSync("unzip", ["-p", path, m.name], { maxBuffer: 1 << 28 }).toString("utf8").replace(/^﻿/, "");
+          const ref = execFileSync("unzip", ["-p", path, m.name], { maxBuffer: 1 << 28 }).toString("utf8").replace(/^\uFEFF/, "");
           const same = ref === m.text;
           if (!same) bad++;
           zipNote = `${m.name}: ${same ? "identical" : "DIFFERENT"}`;

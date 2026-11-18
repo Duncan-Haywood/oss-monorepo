@@ -5,7 +5,7 @@ import { minorExponent } from "./revrec.mjs";
 
 export function parseCsv(text) {
   const rows = []; let row = [], cur = "", q = false;
-  const s = String(text).replace(/^﻿/, "");
+  const s = String(text).replace(/^\uFEFF/, "");
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (q) { if (c === '"') { if (s[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }

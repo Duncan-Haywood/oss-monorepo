@@ -42,7 +42,7 @@ const FORMATS = [
 const VARIANTS = [
   ["trailing U+00A0", (t) => `${t} `],
   ["leading U+202F", (t) => ` ${t}`],
-  ["trailing U+FEFF", (t) => `${t}﻿`],
+  ["trailing U+FEFF", (t) => `${t}\uFEFF`],
   ["trailing U+3000", (t) => `${t}　`],
   ["trailing &#160;", (t) => `${t}&#160;`],
 ];

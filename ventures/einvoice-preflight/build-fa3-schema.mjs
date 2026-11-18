@@ -112,7 +112,7 @@ function complexDef(node, name) {
 }
 
 for (const f of files) {
-  const tree = parseXmlTree(readFileSync(join(dir, f), "utf8").replace(/^﻿/, ""));
+  const tree = parseXmlTree(readFileSync(join(dir, f), "utf8").replace(/^\uFEFF/, ""));
   const schema = tree.children.find((n) => n.name === "schema");
   noUnsupported(schema);
   ns = f.startsWith("bazowe/") ? "etd" : "tns";

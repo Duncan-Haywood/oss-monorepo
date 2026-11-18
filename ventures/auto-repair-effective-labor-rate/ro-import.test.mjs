@@ -56,7 +56,7 @@ test('credits (negative or parenthesised dollars) reduce sales', () => {
 });
 
 test('tab-separated paste from a spreadsheet works, quotes and BOM too', () => {
-  const r = importRepairOrders('﻿Pay Type\tHours\tLabor Sales\nCP\t2\t300\n');
+  const r = importRepairOrders('\uFEFFPay Type\tHours\tLabor Sales\nCP\t2\t300\n');
   assert.equal(r.ok, true);
   assert.equal(parseTable('a,"b,c",d\n')[0][1], 'b,c');
 });

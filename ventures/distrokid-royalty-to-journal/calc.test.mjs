@@ -170,7 +170,7 @@ test("a file without the DistroKid columns is refused with a pointer to the righ
 });
 
 test("tab-separated exports and a BOM are read", () => {
-  const tsv = "﻿" + sampleReport().replace(/,/g, "\t");
+  const tsv = "\uFEFF" + sampleReport().replace(/,/g, "\t");
   assert.ok(validate(tsv).reconciliation.every((x) => x.agrees === true));
 });
 

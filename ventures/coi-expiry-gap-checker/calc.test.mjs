@@ -21,7 +21,7 @@ test("dates, money and coverage names are read the way a certificate writes them
 });
 
 test("csv parser handles quotes, embedded commas and newlines, and a BOM", () => {
-  const rows = parseCsv('﻿a,b\n"x, y","say ""hi"""\n"two\nlines",z\n');
+  const rows = parseCsv('\uFEFFa,b\n"x, y","say ""hi"""\n"two\nlines",z\n');
   assert.deepEqual(rows.map((r) => r.cells), [["a", "b"], ["x, y", 'say "hi"'], ["two\nlines", "z"]]);
   assert.equal(rows[2].line, 3);
 });

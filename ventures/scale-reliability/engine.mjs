@@ -277,7 +277,7 @@ export function spearmanBrownItems(rel, k, target) {
 export function parseCsv(text) {
   const rows = [];
   let row = [], cell = "", q = false;
-  const s = String(text).replace(/^﻿/, "");
+  const s = String(text).replace(/^\uFEFF/, "");
   const delim = (() => {
     const first = s.split(/\r?\n/, 1)[0] || "";
     const counts = { ",": (first.match(/,/g) || []).length, ";": (first.match(/;/g) || []).length, "\t": (first.match(/\t/g) || []).length };

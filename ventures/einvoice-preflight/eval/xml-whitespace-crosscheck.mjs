@@ -104,7 +104,7 @@ const byRuleBefore = {};
 for (const dir of dirs) {
   if (!existsSync(dir)) continue;
   for (const name of readdirSync(dir).filter((f) => f.endsWith(".xml")).sort()) {
-    const xml = readFileSync(join(dir, name), "utf8").replace(/^﻿/, "");
+    const xml = readFileSync(join(dir, name), "utf8").replace(/^\uFEFF/, "");
     const syntax = detectSyntax(xml);
     if (syntax !== "ubl" && syntax !== "cii") continue;
     if (matchingProfile(xml, syntax)) { tally.skippedFiles++; continue; }

@@ -19,7 +19,7 @@ for (const src of SOURCES) {
   const f = join(cache, src.path.replace(/\//g, "_"));
   if (!existsSync(f)) continue;
   files++;
-  const r = readStatement(readFileSync(f, "utf8").replace(/^﻿/, ""), {});
+  const r = readStatement(readFileSync(f, "utf8").replace(/^\uFEFF/, ""), {});
   for (const x of r.rows) {
     lines++;
     if (x.cents >= 0) continue;

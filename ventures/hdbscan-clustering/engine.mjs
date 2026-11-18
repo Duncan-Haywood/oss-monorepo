@@ -425,7 +425,7 @@ function splitLine(line, delim) {
 
 /** Parse a delimited table with a header row (comma, tab or semicolon). Headerless numeric tables get c1, c2, ... */
 export function parseCsv(text) {
-  const raw = String(text ?? "").replace(/^﻿/, "");
+  const raw = String(text ?? "").replace(/^\uFEFF/, "");
   const lines = raw.split(/\r\n|\n|\r/).filter((l) => l.trim() !== "");
   if (!lines.length) return { error: "The data is empty. Paste a CSV with a header row and at least two numeric columns." };
   const delim = ["\t", ";", ","].map((dl) => [dl, splitLine(lines[0], dl).length]).sort((a, b) => b[1] - a[1])[0][0];

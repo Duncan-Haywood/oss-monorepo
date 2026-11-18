@@ -10,7 +10,7 @@ const run = (csv, opts) => {
 const H = "Date of Service,CPT,Description,Qty,Charge\n";
 
 test("csv parser handles quotes, CRLF and BOM", () => {
-  const p = parseCsv('﻿a,b\r\n"x, y","he said ""hi"""\r\n');
+  const p = parseCsv('\uFEFFa,b\r\n"x, y","he said ""hi"""\r\n');
   assert.deepEqual(p.rows, [["a", "b"], ["x, y", 'he said "hi"']]);
 });
 

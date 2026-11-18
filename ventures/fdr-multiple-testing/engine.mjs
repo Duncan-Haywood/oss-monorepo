@@ -157,7 +157,7 @@ function splitLine(line, delim) {
  * column named "value". Returns { columns, rows, numeric, list }.
  */
 export function parseCsv(text) {
-  const raw = String(text ?? "").replace(/^﻿/, "");
+  const raw = String(text ?? "").replace(/^\uFEFF/, "");
   const lines = raw.split(/\r\n|\n|\r/).filter((l) => l.trim() !== "");
   if (!lines.length) return { error: "The data is empty. Paste p-values, one per line, or a CSV with a header row and a p-value column." };
   const tokens = raw.split(/[\s,;]+/).filter(Boolean);

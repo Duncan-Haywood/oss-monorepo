@@ -27,7 +27,7 @@ const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9/ ]+/g, " ").
 export function parseCsv(text) {
   const rows = [];
   let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {

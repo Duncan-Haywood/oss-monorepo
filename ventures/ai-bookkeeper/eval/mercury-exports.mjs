@@ -51,7 +51,7 @@ export async function fetchSource([, repo, sha, path], dir) {
 const csvCell = (v) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
 // Blank one column (the owner's labels) and return the CSV text plus the labels by file line.
 export function hideColumn(text, name) {
-  const rows = parseCsv(text.replace(/^﻿/, ""));
+  const rows = parseCsv(text.replace(/^\uFEFF/, ""));
   const ix = rows[0].findIndex((h) => h.trim().toLowerCase() === name.toLowerCase());
   // labels[k - 1] is the label of the row that starts on line k of the returned text, the line
   // number the reader gives each row. A quoted cell holding a line break (a Copilot Money note,

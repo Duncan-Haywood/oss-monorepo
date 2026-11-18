@@ -6,7 +6,7 @@ test("parseCsv handles quotes, embedded commas and newlines, CRLF and tab pastes
   assert.deepEqual(parseCsv('a,b\r\n"x, y","he said ""hi"""\r\n'), [["a", "b"], ["x, y", 'he said "hi"']]);
   assert.deepEqual(parseCsv('a,b\n"line1\nline2",2'), [["a", "b"], ["line1\nline2", "2"]]);
   assert.deepEqual(parseCsv("a\tb\n1\t2"), [["a", "b"], ["1", "2"]]);
-  assert.deepEqual(parseCsv("﻿a,b\n\n1,2\n"), [["a", "b"], ["1", "2"]]);
+  assert.deepEqual(parseCsv("\uFEFFa,b\n\n1,2\n"), [["a", "b"], ["1", "2"]]);
 });
 
 test("auc: perfect, reversed, tied", () => {

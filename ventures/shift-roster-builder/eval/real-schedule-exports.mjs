@@ -24,7 +24,7 @@ const load = (p, k) => {
   return b.toString("utf8");
 };
 const A = load(pa, "A"), B = load(pb, "B");
-const table = (t) => { const L = csvLines(t).filter((l) => l.trim()); const H = splitCsvRow(L[0], ",").map((h) => h.replace(/^﻿/, "")); return L.slice(1).map((l) => { const c = splitCsvRow(l, ","); return Object.fromEntries(H.map((h, i) => [h, c[i] || ""])); }); };
+const table = (t) => { const L = csvLines(t).filter((l) => l.trim()); const H = splitCsvRow(L[0], ",").map((h) => h.replace(/^\uFEFF/, "")); return L.slice(1).map((l) => { const c = splitCsvRow(l, ","); return Object.fromEntries(H.map((h, i) => [h, c[i] || ""])); }); };
 const mins = (t) => { const m = /^(\d{1,2}):(\d{2})/.exec(t); return m ? +m[1] * 60 + +m[2] : NaN; };
 const len = (s, e) => { const a = mins(s), b = mins(e); return b > a ? b - a : b + 1440 - a; };
 const pct = (k, n) => `${k} of ${n} (${n ? Math.round((100 * k) / n) : 0}%)`;

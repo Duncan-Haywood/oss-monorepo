@@ -225,7 +225,7 @@ test('the served media type is checked when known', () => {
 });
 
 test('a byte-order mark is reported but does not break field parsing', () => {
-  const report = buildReport({ text: `﻿${GOOD}`, now: NOW });
+  const report = buildReport({ text: `\uFEFF${GOOD}`, now: NOW });
   assert.ok(ids(report).includes('bom'));
   assert.ok(!ids(report).includes('contact-missing'), 'the BOM must not hide the Contact field');
 });

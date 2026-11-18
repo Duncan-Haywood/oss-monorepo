@@ -25,7 +25,7 @@ const minor = (v) => (/^-?\d+$/.test(v ?? "") ? Number(v) : NaN);
 // Joins 88 continuation records onto the record before them and drops the "/" terminator.
 function records(text) {
   const out = [];
-  String(text).replace(/^﻿/, "").split(/\r?\n/).forEach((raw, i) => {
+  String(text).replace(/^\uFEFF/, "").split(/\r?\n/).forEach((raw, i) => {
     const l = raw.trim();
     if (!l) return;
     if (l.startsWith("88,") && out.length) { out[out.length - 1].body += "," + l.slice(3).replace(/\/$/, ""); return; }

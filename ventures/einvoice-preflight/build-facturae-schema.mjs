@@ -97,7 +97,7 @@ for (const [i, [version, pin]] of Object.entries(PINS).entries()) {
     if (!res.ok) throw new Error(`download of ${pin.file} failed: HTTP ${res.status}`);
     text = await res.text();
   }
-  text = text.replace(/^﻿/, "").replace(/\r/g, "");
+  text = text.replace(/^\uFEFF/, "").replace(/\r/g, "");
   const digest = createHash("sha256").update(text).digest("hex");
   if (digest !== pin.sha256) throw new Error(`unexpected ${pin.file}: sha256 ${digest}`);
   const table = read(text);
