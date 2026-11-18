@@ -1,6 +1,6 @@
 ---
 title: "Forty-five copies of one list: five framing calculators nobody could click to"
-seo_title: "Internal links on a 47-page construction calculator site, kept in one file"
+seo_title: "Internal links on a 47-page building calculator site, in one file"
 date: 2026-11-18
 tags: [wall-framing-takeoff, seo, design]
 description: "Every Wall Framing Takeoff page ended with a hand-pasted list of the other tools. The copies had drifted, and five tools were missing from 43 or 44 of 45 lists."
