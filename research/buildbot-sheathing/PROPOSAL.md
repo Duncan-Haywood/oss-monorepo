@@ -433,6 +433,10 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    move between 0 and 0.085 N m; −0.08 and −0.27 points against the old lean), but the worst residual along the wall
    becomes 0.172 mm (0.241 at 20 N drag) against the spec's 0.019: (1.6 m, 0) is rescued (0.003 mm), (1.4 m, −0.15 m) is
    not, because the joint that flips there is a hold-set joint the leg preload does not reach.
+45. **A hold-first preload** (done 2026-11-18, `experiments/m45_tiered/`): corrects milestone 44's post hoc (the flipping
+   right hip roll is a preloaded leg row whose margin, 0.030 N m, is under a 0.2 N sensor error's 0.033 N m shift). Even
+   with every other leg released, the stance caps it at 0.0339 N m, so the residual stays 0.172 mm (20 N drag: 0.241 to
+   0.172) at no stack cost; the pose needs a sensor z error under about 0.19 N (0.163 N m per N), a Mini45-class sensor.
 
 ## Target venue
 
