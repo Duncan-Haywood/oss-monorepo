@@ -2487,4 +2487,37 @@ is that large, a quieter edge (a debounced Hall sensor, or a timer capture in pl
 than any fit change.
 
 **Not known.** All simulated, one seed per set, Gaussian edge jitter, an assumed take profile. Next: the jitter level at
-which the take survey goes blind (a sweep of `tach_jitter_us` from 0.5 to 3 us), then a real tach's edge jitter.
+which the take survey goes blind (a sweep of `tach_jitter_us` from 0.5 to 3 us; the next section), then a real tach's
+edge jitter.
+
+## The take survey's jitter limit (2026-11-18, after "The take survey's window")
+
+**The item.** The section above found the survey blind at 3 us of edge jitter and useful with none, and nothing in
+between was measured. A builder who logs a real tach and reads 1.2 us cannot tell whether the survey will speak.
+`tests/take_survey_jitter.py` runs the same survey drill (the calibration drill with `SURVEY_TAKE` on, the board's grid,
+depth and window of 8) on min_fit_heldout's "tach 3 us 10k" plant with its jitter set to 0, 0.5, 1, 1.5, 2 and 3 us
+(10,000 rpm wheels throughout, so 0 us is that plant without its noise), the four takes and three launchers: 72 survey
+drills a set, scored by the board's own sums and margin. The simulator rounds each jittered edge to a whole
+microsecond, as `ticks_us()` does. Design: wheel lag 0.3 s, seed 7 (eval/take-survey-jitter-2026-11-18.txt):
+
+| edge jitter | spread takes named within 1 ms and advised (of 9) | instant builds advised (of 3) | picks within 1 ms (of 12) | mean best / step share, spread takes |
+| --- | --- | --- | --- | --- |
+| 0 us | 6 | 0 | 10 | 0.55 |
+| 0.5 us | 3 | 0 | 12 | 0.69 |
+| 1 us | 1 | 0 | 11 | 0.86 |
+| 1.5 us | 0 | 0 | 10 | 0.91 |
+| 2 us | 0 | 0 | 10 | 0.91 |
+| 3 us | 0 | 0 | 7 | 0.96 |
+
+The survey fades fast: half a microsecond already halves what it advises (the 6 ms takes stay advised at shares
+0.36-0.49; the front-loaded 4 ms ones drop out), at 1 us only one 6 ms build is advised (0.59, just inside the 0.6
+margin), and from 1.5 us nothing is. The picks themselves stay mostly right up to 2 us (10 of 12 within 1 ms); it is the
+margin that goes, as it should when every candidate's rms sinks into the same noise floor. No instant build was advised
+at any jitter, so the margin's quiet is safe: a noisy tach costs the survey its voice, not a wrong re-flash.
+
+**Pre-registration** (written before the held-out capture ran). Held out: the same 72 builds at wheel lag 0.45 s, seed
+11. PREDICTION: (a) no spread take is named and advised at 1.5, 2 or 3 us; (b) the count named and advised does not
+rise from one jitter to the next across 0, 0.5, 1 and 1.5 us; (c) the mean share on spread takes is higher at 1.5 us
+than at 0 us by at least 0.2; (d) no instant build is advised at any jitter. DECISION RULE: if (a) and (d) hold, the
+README and `tennisbots tach-jitter` state the survey's limit as "speaks below about 1 us, blind from 1.5 us"; if (a)
+fails, the limit is moved to the lowest jitter with no build advised on either set and the miss is reported here.

@@ -1,0 +1,18 @@
+# tests/take_survey_jitter.py, 2026-11-18 (firmware/esp32/README.md "The take survey's jitter limit")
+
+## design: --capture --lag 0.3 --seed 7, then --score
+72 survey drills (wheel lag 0.3 s, seed 7), the board's window of 8; each build's pick (refined, to 0.5 ms), best / step share and the advice (advised when the share is at most 0.6)
+  instant       | 0 us: 2.5/1.00 0/1.00 0/1.00 | 0.5 us: 0/1.00 0/1.00 0/1.00 | 1 us: 0/1.00 0/1.00 0/1.00 | 1.5 us: 0/1.00 0/1.00 0/1.00 | 2 us: 0/1.00 0/1.00 1/1.00 | 3 us: 0/1.00 3.5/1.00 0/1.00
+  halfsine 3 ms | 0 us: 1/1.00 3.5/0.97 3/0.32* | 0.5 us: 3/0.94 3.5/0.80 3.5/0.74 | 1 us: 3/0.88 3/0.98 0/1.00 | 1.5 us: 3.5/0.96 2.5/1.00 2.5/1.00 | 2 us: 3.5/0.95 2.5/0.99 1/1.00 | 3 us: 3.5/0.99 3/0.98 2.5/1.00
+  halfsine 6 ms | 0 us: 6/0.27* 6/0.30* 6/0.27* | 0.5 us: 6.5/0.36* 6/0.49* 6/0.37* | 1 us: 6/0.70 6/0.89 6.5/0.59* | 1.5 us: 8/0.78 6.5/0.89 6.5/0.72 | 2 us: 6.5/0.92 6.5/0.71 6/0.78 | 3 us: 8/0.95 8/0.97 8/0.84
+  front 4 ms    | 0 us: 5/0.83 4.5/0.51* 4.5/0.48* | 0.5 us: 3.5/0.99 4.5/0.69 5/0.81 | 1 us: 4.5/0.76 4/0.96 5/0.99 | 1.5 us: 5.5/0.91 4/0.99 4.5/0.96 | 2 us: 5.5/0.90 4/0.98 4/0.97 | 3 us: 5.5/0.93 3.5/1.00 4/0.97
+  (pick ms / share per launcher 0, 1, 2; * = advised)
+
+Per jitter: spread takes named within 1 ms and advised (of 9); instant builds advised (of 3, a wrong re-flash); picks within 1 ms (of 12); mean best / step share on the spread takes
+    0 us: named and advised 6, instant advised 0, within 1 ms 10 of 12, mean share 0.55
+  0.5 us: named and advised 3, instant advised 0, within 1 ms 12 of 12, mean share 0.69
+    1 us: named and advised 1, instant advised 0, within 1 ms 11 of 12, mean share 0.86
+  1.5 us: named and advised 0, instant advised 0, within 1 ms 10 of 12, mean share 0.91
+    2 us: named and advised 0, instant advised 0, within 1 ms 10 of 12, mean share 0.91
+    3 us: named and advised 0, instant advised 0, within 1 ms 7 of 12, mean share 0.96
+
