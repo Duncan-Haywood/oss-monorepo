@@ -1,0 +1,46 @@
+# Milestone 11al statistics (drift_share.py): NOAA ISD 2014 QNH at JFK (time part) and the centred JFK - LGA
+# simultaneous difference scaled to the hub separation (space part); 2000 draws per operator pair
+# sd in metres; 'pair' = pressure part of one pair's gap error (time + space); s0 = one drone's take-off drift
+# (11ak's S0) at the same ages; indep = sqrt(2) s0, the pair sd if the drifts were independent
+
+## deliv, dwell 0 min, M = 12 (24 layouts)
+  median mission time per operator: median 3.45 min (range 1.26..11.44)
+  pair pressure sd: median 0.543 (p90 1.074, max 1.843) m over 1872 pairs
+  space part sd (cross pairs): median 0.561 (max 1.806) m; hub separation median 3.8 km (0.8..12.1)
+  s0 per operator: median 0.207 m; indep pair sd sqrt(2) s0: median 0.293 m
+
+## deliv, dwell 0 min, M = 16 (24 layouts)
+  median mission time per operator: median 3.35 min (range 1.19..11.18)
+  pair pressure sd: median 0.554 (p90 1.078, max 1.981) m over 3264 pairs
+  space part sd (cross pairs): median 0.561 (max 1.985) m; hub separation median 3.8 km (0.8..13.0)
+  s0 per operator: median 0.197 m; indep pair sd sqrt(2) s0: median 0.278 m
+
+## deliv, dwell 5 min, M = 12 (24 layouts)
+  median mission time per operator: median 8.45 min (range 6.26..16.44)
+  pair pressure sd: median 0.621 (p90 1.120, max 1.839) m over 1872 pairs
+  space part sd (cross pairs): median 0.556 (max 1.814) m; hub separation median 3.8 km (0.8..12.1)
+  s0 per operator: median 0.464 m; indep pair sd sqrt(2) s0: median 0.656 m
+
+## deliv, dwell 5 min, M = 16 (24 layouts)
+  median mission time per operator: median 8.35 min (range 6.19..16.18)
+  pair pressure sd: median 0.634 (p90 1.126, max 2.030) m over 3264 pairs
+  space part sd (cross pairs): median 0.558 (max 1.918) m; hub separation median 3.8 km (0.8..13.0)
+  s0 per operator: median 0.452 m; indep pair sd sqrt(2) s0: median 0.639 m
+
+## long missions, layout hubs of the 24 M = 12 layouts (ages uniform on [0, T])
+  T30 space ~ d^1: pair sd median 1.201 m (max 2.003); space part median 0.519; s0 median 1.550; pair / indep 0.548  (8 layouts)
+  T30 space ~ d^0.5: pair sd median 1.575 m (max 2.397); space part median 1.203; s0 median 1.558; pair / indep 0.715  (8 layouts)
+  T60 space ~ d^1: pair sd median 2.207 m (max 2.696); space part median 0.515; s0 median 2.985; pair / indep 0.523  (8 layouts)
+  T60 space ~ d^0.5: pair sd median 2.421 m (max 3.234); space part median 1.198; s0 median 2.971; pair / indep 0.576  (8 layouts)
+
+## time part alone by station (same hub, ages uniform on [0, T]), and s0
+  T30 JFK: time-part sd 1.128 m, excess kurtosis 10.01, P(>3 sd) 0.0207; s0 1.547; ratio to sqrt(2) s0 0.516
+  T30 LGA: time-part sd 1.114 m, excess kurtosis 9.99, P(>3 sd) 0.0207; s0 1.559; ratio to sqrt(2) s0 0.505
+  T30 EWR: time-part sd 1.136 m, excess kurtosis 10.31, P(>3 sd) 0.0201; s0 1.546; ratio to sqrt(2) s0 0.519
+  T30 NYC: time-part sd 1.133 m, excess kurtosis 20.15, P(>3 sd) 0.0189; s0 1.566; ratio to sqrt(2) s0 0.512
+  T30 TEB: time-part sd 1.153 m, excess kurtosis 11.88, P(>3 sd) 0.0193; s0 1.581; ratio to sqrt(2) s0 0.516
+  T60 JFK: time-part sd 2.143 m, excess kurtosis 8.81, P(>3 sd) 0.0207; s0 2.974; ratio to sqrt(2) s0 0.510
+  T60 LGA: time-part sd 2.199 m, excess kurtosis 10.26, P(>3 sd) 0.0198; s0 2.993; ratio to sqrt(2) s0 0.520
+  T60 EWR: time-part sd 2.178 m, excess kurtosis 8.17, P(>3 sd) 0.0202; s0 2.994; ratio to sqrt(2) s0 0.514
+  T60 NYC: time-part sd 2.150 m, excess kurtosis 11.56, P(>3 sd) 0.0197; s0 2.972; ratio to sqrt(2) s0 0.512
+  T60 TEB: time-part sd 2.180 m, excess kurtosis 8.49, P(>3 sd) 0.0209; s0 3.041; ratio to sqrt(2) s0 0.507
