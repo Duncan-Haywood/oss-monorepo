@@ -634,6 +634,18 @@ refuted. Statics.
 
 ![Worst common leg margin over the hose sweep per pose on three side rules, and each robot's worst residual along the wall](experiments/m48_loadside/figure.png)
 
+**Milestone 49: why do 8 poses have no plan under a backward hose?** The robot tips back; the solver is not wrong.
+At the 50 N press end of all 24 failing (pose, hose load) cells, no contact force balances the base inside the
+μ 0.5 friction cones (best cone slack &minus;23.77 to &minus;0.10 N), while the 25 N end balances at every cell and
+the preload margin LP solves at all 984 hold solutions there. Milestone 48's post hoc had misread its own table as a
+disagreement between two solvers. The soles' net horizontal load is at most 0.19 of the vertical, so it is not
+sliding: 13 of the G1's 18 cells do not balance even with unlimited friction. 20 N of backward drag lowers the top
+of the press window by about 15 N (G1 51.6 to 36.4 N, H1 58.7 to 42.8 N), below the 50 N firing press. Those poses
+need a forward lean that covers the drag, or a hose routed so it does not pull back. H199 and H200 refuted, H201 to
+H203 not tested (they were conditional on a solver fault). Statics.
+
+![Largest press the soles balance with and without each cell's hose drag, and the best friction-cone slack at a 50 N press](experiments/m49_backload/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

@@ -450,6 +450,10 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    margin over 17 hose loads returns the G1 to 0.016 / 0.011 / 0.011 mm at 0 / 5 / 20 N and keeps the H1's 0.010 /
    0.014 / 0.010, at no stack cost; but at 8 of 34 poses no side has a plan under 20 N of backward drag at the 50 N
    press, and the G1's worst residuals since milestone 41 cover only 83% of the swept cases (the rest have no plan).
+49. **Backward-hose infeasibility** (done 2026-11-18, `experiments/m49_backload/`): a stance limit, not a solver
+   false negative. At the 50 N end of all 24 cells no force balances the base in the μ 0.5 cones (best slack
+   &minus;23.77 to &minus;0.10 N); the robot tips back. 20 N of backward drag lowers the top of the press window by
+   about 15 N (G1 51.6 to 36.4 N, H1 58.7 to 42.8 N), below the 50 N press. Next: re-lean those poses for the drag.
 
 ## Target venue
 
