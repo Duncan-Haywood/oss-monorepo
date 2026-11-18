@@ -49,16 +49,17 @@ check had not covered (IQ180, iXM-100): 205.8 million more values, again none di
 
 ## The one case C leaves undefined
 
-One IQ180 frame does something odd in 69 of its blocks: the refinement is larger than the
+Three of the six files do something odd: in some blocks the refinement is larger than the
 lane's scale. In LibRaw's C this becomes a shift by a negative count, which the C standard
 leaves undefined. A reimplementation has to pick a meaning, and a wrong pick would corrupt
 pixels in silence.
 
-So the run counted those blocks instead of guessing. All 276 affected samples carry zero bits.
+So the run counted those blocks instead of guessing. There are 880 such samples across the two
+IQ180 frames and the iXU180, and all 880 carry zero bits.
 Zero shifted any way is still zero, so a right shift, a wrapped left shift and "no step"
-all give LibRaw's values on every sensel of those rows. The reader accepts exactly that
-case. If a file ever puts non-zero bits there, the reader refuses it as corrupt rather than
-inventing a meaning. `tools/iiq_s_shift_check.py` repeats the count on any file.
+all give LibRaw's values on every sensel of those rows (1.6 million of them). The reader
+accepts exactly that case. If a file ever puts non-zero bits there, the reader refuses it as
+corrupt rather than inventing a meaning. `tools/iiq_s_shift_check.py` repeats the count on any file.
 
 ## What it does not do yet
 

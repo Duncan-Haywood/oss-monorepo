@@ -2,7 +2,7 @@
 
 An IIQ carries its own camera-to-ROMM matrix, so it develops with no ``.dcp``: ``shootflow.iiq`` turns that
 matrix into a ColorMatrix1 at D50. LibRaw develops the same file with its own per-model matrix (Adobe's,
-where its table has the body). Both renders use the as-shot white balance and sRGB output. For each file,
+where its table has the body). Both renders use the as-shot white balance and sRGB primaries; LibRaw's is taken in linear light (``gamma=(1, 1)``). For each file,
 prints the develop time and the mean linear-light value per channel over the pixels unclipped in both
 renders (every channel under 0.98 encoded), from ours and from
 ``rawpy.postprocess(use_camera_wb=True, no_auto_bright=True, output_bps=16)``, and the largest gap in
@@ -47,7 +47,9 @@ def _gap(rgb, w, h, theirs, keep_t):
     # The crops can differ by a row or a column (LibRaw evens odd margins): compare over the common size.
     hh, ww = min(ours.shape[0], theirs.shape[0]), min(ours.shape[1], theirs.shape[1])
     keep = keep_o[:hh, :ww] & keep_t[:hh, :ww]
-    o, t_ = lin(ours[:hh, :ww][keep]), lin(theirs[:hh, :ww][keep])
+    # Ours is sRGB-encoded; LibRaw's is asked for in linear light (its default curve is BT.709, not sRGB,
+    # and undoing it with the sRGB curve skewed dark frames: eval/hasselblad-3fr-reader-2026-11-18.md).
+    o, t_ = lin(ours[:hh, :ww][keep]), theirs[:hh, :ww][keep]
     m_ours = [float(o[:, c].mean()) for c in range(3)]
     m_theirs = [float(t_[:, c].mean()) for c in range(3)]
     co, ct = chroma(m_ours), chroma(m_theirs)
@@ -64,7 +66,7 @@ def check(path: Path) -> dict:
     except rd.DevelopError as exc:
         return {"file": path.name, "refused": str(exc), "ok": None}
     with rawpy.imread(str(path)) as lr:
-        theirs = lr.postprocess(use_camera_wb=True, no_auto_bright=True, output_bps=16)
+        theirs = lr.postprocess(use_camera_wb=True, no_auto_bright=True, output_bps=16, gamma=(1, 1))
         matrix = lr.rgb_xyz_matrix[:3].tolist()
     t = time.perf_counter()
     w, h, rgb, report = rd.develop(raw)

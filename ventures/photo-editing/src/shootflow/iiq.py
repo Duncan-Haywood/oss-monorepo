@@ -41,8 +41,8 @@ first. A row opens with 16 bits whose low three give the row's base precision ``
 * one shared *refinement* ``r``: a ``1`` means 0, a ``0`` and two bits ``xx`` mean ``xx + 1``;
 * eight samples: a lane at scale 9 reads a raw 14-bit value; otherwise ``q + r`` bits ``b`` give the value
   ``last + (b << (k - r)) - (2**(q + k - 1) - 1)``, the bias centring the step on the last value. A refinement
-  one or two above the scale occurs on real IQ180 files (69 blocks in one frame), always with zero sample
-  bits, so the step is 0 under any reading; bits there are refused as corrupt.
+  one or two above the scale occurs on real IQ180 and iXU180 files (880 samples in three frames), always
+  with zero sample bits, so the step is 0 under any reading; bits there are refused as corrupt.
 
 The last ``width % 8`` columns are raw 14-bit values. Stored values are the value times four, clamped to
 16 bits, before the row and column offsets (which are applied as for IIQ L).
@@ -354,7 +354,7 @@ def _decode_s_row(bits: _Bits, width: int, out: array, base: int, scale_of=None,
                 b = bits.get(n) if n else 0
                 if shift[lane] >= 0:
                     v = last[lane] + (b << shift[lane]) - bias[lane]
-                elif b == 0:  # a refinement above the scale: real IQ180 files send it only with zero bits
+                elif b == 0:  # a refinement above the scale: real files send it only with zero bits
                     v = last[lane] - bias[lane]
                 else:
                     raise rd.DevelopError("IIQ S sample has bits under a refinement above its scale (corrupt data)")

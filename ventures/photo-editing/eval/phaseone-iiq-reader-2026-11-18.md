@@ -104,7 +104,7 @@ MRW check did. Rows: `eval/phaseone-iiq-develop-2026-11-18.jsonl`.
 | IQ140 | 0.86 | 0.0110 | 0.0063 |
 | IQ150 | 5.06 | 0.0166 | 0.0149 |
 
-Eight of nine within the 0.02 gate with the file's own matrix; the P25+ is 0.026. The IQ3 100MP run was
+Eight of nine within the 0.02 gate with the file's own matrix; the P25+ is 0.026. (Correction, later the same day: this table was made while the check undid LibRaw's BT.709 output with the sRGB curve, which overstates gaps on dark frames; the fixed check moved the IQ180's gaps from 0.0205 / 0.0131 to 0.0182 / 0.0035, `eval/phaseone-iiq-s-reader-2026-11-18.md`. These rows need rerunning with the ten files.) The IQ3 100MP run was
 killed for memory (two 100 MP developments and LibRaw's render at once in this container) and is not in
 the table. What this says and does not: the levels above match LibRaw to under 1% per channel, so the
 remaining gap is the colour model. LibRaw renders dcraw's way (its matrix applied to white-balanced data,

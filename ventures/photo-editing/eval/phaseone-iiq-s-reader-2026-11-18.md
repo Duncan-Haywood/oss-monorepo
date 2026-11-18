@@ -33,14 +33,21 @@ codes are a table of prefix codes built at import, not LibRaw's 32-entry lookup 
 copied code.
 
 **One case LibRaw leaves to C.** A refinement above the lane's scale makes `k - r` negative. In LibRaw
-that becomes an unsigned shift count, which is undefined behaviour in C. It does occur in real files: one
-IQ180 frame (230214_9564) has it in 69 blocks (276 samples, in 11 rows), always with the refinement one or
-two above a scale of 0 or 1. Every one of those 276 samples carries zero bits (counted with
-`/tmp`-free diagnostics in the session; the counting loop is the reference decoder's), so the step is 0
-whatever the shift means, and right-shift, wrap-around and zero readings each gave the same values as LibRaw
-on all 57,376 sensels of those rows. The reader accepts that case and refuses non-zero bits there as
-corrupt, rather than guess at a meaning no file has shown. A scale above `17 - q`, where the bias would be
-undefined, is refused the same way.
+that becomes an unsigned shift count, which is undefined behaviour in C. It occurs in real files: the
+first run of the reader, which refused it, stopped on three of the six (both IQ180 IIQ S frames and the
+iXU180). `tools/iiq_s_shift_check.py` then counted it with the reference decoder's bit reader (rows:
+`eval/phaseone-iiq-s-shift-2026-11-18.jsonl`):
+
+| file | rows with it | samples | sample bits | sensels differing from LibRaw on those rows, read as: right shift / zero / 32-bit wrapped left shift |
+|---|---|---|---|---|
+| IQ180 230214_9564 | 11 | 276 | all 0 | 0 / 0 / 0 of 57,376 |
+| IQ180 230214_9562 | 58 | 232 | all 0 | 0 / 0 / 0 of 602,040 |
+| iXU180 cap_22908 | 93 | 372 | all 0 | 0 / 0 / 0 of 965,340 |
+
+Every one of the 880 samples carries zero bits, so the step is 0 whatever the shift means. The reader
+accepts exactly that case and refuses non-zero bits there as corrupt, rather than guess at a meaning no
+file has shown. A scale above `17 - q`, where the bias would be undefined, is refused the same way. The
+other three files never send it (the strict first run read them whole).
 
 ## Check 1: every sensel against LibRaw
 
@@ -93,7 +100,28 @@ those corrections, not the decoder.
 memory), with no profile (the file's own matrix) against `rawpy.postprocess(use_camera_wb=True,
 no_auto_bright=True)`. Rows: `eval/phaseone-iiq-s-develop-2026-11-18.jsonl`.
 
-DEVELOP_TABLE
+| body | file | format | develop s | chromaticity gap, file's matrix | gap, LibRaw's matrix as a .dcp | unclipped share |
+|---|---|---|---|---|---|---|
+| IQ180 | 230214_9564 | S | 2.37 | 0.0182 | 0.0035 | 0.9995 |
+| IQ180 | 230214_9565 | L | 1.98 | 0.0182 | 0.0034 | 0.9992 |
+
+Both within the 0.02 gate. With LibRaw's own matrix as a stand-in profile the gap is 0.0035: the levels,
+white balance and crop agree, and what is left with the file's own matrix is the colour model (DNG
+specification with the as-shot white adapted to D50, against dcraw's), as the IIQ L eval explains. The S
+and L frames of the same scene develop to the same numbers, as they should.
+
+**The check was wrong before this run.** `tools/iiq_develop_check.py` undid LibRaw's render with the sRGB
+curve, but LibRaw's default output curve is BT.709; the Hasselblad 3FR run, merged while this one worked,
+found the same flaw in the MRW check (`eval/hasselblad-3fr-reader-2026-11-18.md`). On the IQ180 9564 the old
+check reported 0.0205 (fails the gate) and 0.0131 with LibRaw's matrix; asking LibRaw for linear light
+(`gamma=(1, 1)`) gives 0.0182 and 0.0035. The IIQ L eval's develop table
+(`eval/phaseone-iiq-reader-2026-11-18.md`, Check 2) was made with the old check, so its gaps overstate the
+difference; rerunning it needs those ten files again.
+
+**Not run on the larger files.** The 81-154 MP frames (IQ180 9561/9562, iXU180, iXM-100, IQ3 100MP,
+iXM-RS150F) were killed for memory in this container (15 GB: our full-size develop, LibRaw's render and the
+second arm at once), as the IQ3 100MP was in the IIQ L run. Their sensels are identical to LibRaw's (Check
+1), so only the colour model is untested on them.
 
 ## Tests
 
@@ -102,7 +130,7 @@ fresh code, refinements and sample bits, with the expected values from the forma
 tests: every sensel through both decoders at widths 48, 45, 5 and 64; offsets and the split sensor plus a
 develop through `parse_raw`; the zero-bit refinement-above-scale case decoded and the non-zero one
 refused; and an out-of-range scale refused. 12 passed, 1 skipped (the real-file test, which passes with
-`SHOOTFLOW_IIQ_SAMPLES` set).
+`SHOOTFLOW_IIQ_SAMPLES` set to the ten files here).
 
 ## Next
 
