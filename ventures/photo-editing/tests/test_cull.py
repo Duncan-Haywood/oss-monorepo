@@ -227,8 +227,18 @@ class NearDuplicateGroupingTest(unittest.TestCase):
 
 class BurstMatchTest(unittest.TestCase):
     def test_window_match_is_crop_or_pan_match(self):
-        from shootflow.cull import crop_match, pan_match, window_match
-        from shootflow.frame_analysis import pan_pack, window_pack
+        from shootflow.cull import (
+            PAN_CANDIDATE_MAX_DISTANCE, PAN_OTHER_MAX_DISTANCE, PAN_OTHER_MIN_GAIN, crop_match, pan_match, window_match,
+        )
+        from shootflow.frame_analysis import pan_other_distance, pan_pack, window_pack
+
+        from shootflow.cull import other_pan_match
+        from shootflow.frame_analysis import other_pack
+
+        def other_match(distance, a, b):
+            # 2026-11-18: every other window pair at the wide-pan offsets, with its own limit and gain.
+            limit = min(PAN_OTHER_MAX_DISTANCE, distance - PAN_OTHER_MIN_GAIN)
+            return distance <= PAN_CANDIDATE_MAX_DISTANCE and pan_other_distance(a, b) <= limit
 
         rng = __import__("random").Random(7)
         for _ in range(400):
@@ -240,6 +250,21 @@ class BurstMatchTest(unittest.TestCase):
                     window_match(distance, window_pack(a), window_pack(b)),
                     crop_match(distance, a, b) or pan_match(distance, pan_pack(a), pan_pack(b)),
                 )
+                self.assertEqual(other_pan_match(distance, other_pack(a), other_pack(b)), other_match(distance, a, b))
+
+    def test_a_ten_percent_pan_off_the_middle_row_groups(self):
+        # 2026-11-18: at a 4-step horizontal offset the middle-row pair is far apart, the top-row pair close.
+        from shootflow.cull import PAN_MAX_DISTANCE, PAN_OTHER_MIN_GAIN, burst_match
+        from shootflow.frame_analysis import pan_distance
+
+        rng = __import__("random").Random(5)
+        a = tuple(rng.getrandbits(64) for _ in range(25))
+        b = list(rng.getrandbits(64) for _ in range(25))
+        b[0] = a[4] ^ 0b11  # a's top-right window two bits from b's top-left: dx 4 steps, dy 0, top row
+        self.assertGreater(pan_distance(a, b), PAN_MAX_DISTANCE)
+        self.assertTrue(burst_match(30, 0, a, (), (1 << 30) - 1, b, ()))
+        far = (1 << (PAN_OTHER_MIN_GAIN + 1)) - 1
+        self.assertFalse(burst_match(PAN_OTHER_MIN_GAIN + 1, 0, a, (), far, b, ()))
 
     def test_a_six_percent_pan_far_apart_on_the_whole_frame_groups(self):
         # 2026-11-18: crop windows within a few bits, whole frames 25-33 apart (past the old gate of 24).
@@ -365,9 +390,34 @@ class GroupingIndexTest(unittest.TestCase):
             self.assertLess(len(plain), len(rows))
             self.assertGreater(len(plain), 1)
 
+    def test_index_finds_a_pair_linked_only_by_another_pan_pair(self):
+        # 2026-11-18: a 10% pan whose middle-row pair is far but whose top-row pair is close.
+        import random
+        from types import SimpleNamespace
+
+        from shootflow.cull import _group
+        from shootflow.frame_analysis import pan_distance
+
+        rng = random.Random(21)
+        rows = []
+        for k in range(40):
+            whole = rng.getrandbits(64)
+            a = [rng.getrandbits(64) for _ in range(25)]
+            b = [rng.getrandbits(64) for _ in range(25)]
+            b[0] = a[4] ^ 0b101
+            b_whole = whole ^ ((1 << 30) - 1)  # 30 bits apart on the whole frame
+            self.assertGreater(pan_distance(a, b), 5)
+            for name, h, c in ((f"p{k:02d}a", whole, a), (f"p{k:02d}b", b_whole, b)):
+                rows.append((Path(name + ".jpg"), SimpleNamespace(
+                    dhash=f"{h:016x}", dhash_crops=tuple(f"{x:016x}" for x in c), dhash_zooms=()), None))
+        for index in (False, True):
+            groups = _group(rows, index=index)
+            self.assertEqual(len(groups), 40, index)
+            self.assertTrue(all(len(g) == 2 for g in groups), index)
+
     def test_candidates_cover_every_linked_pair(self):
         from shootflow import cull
-        from shootflow.frame_analysis import window_pack, zoom_index
+        from shootflow.frame_analysis import other_pack, window_pack, zoom_index
 
         rows = self._rows(9, 120)
         hashes = [int(r[1].dhash, 16) for r in rows]
@@ -375,7 +425,8 @@ class GroupingIndexTest(unittest.TestCase):
         zoom_hashes = [tuple(int(h, 16) for h in r[1].dhash_zooms) for r in rows]
         zooms = [zoom_index(z) for z in zoom_hashes]
         windows = [window_pack(c) for c in crops]
-        near, win, zoom = cull._candidate_pairs(hashes, crops, zoom_hashes)
+        others = [other_pack(c) for c in crops]
+        near, win, zoom, other = cull._candidate_pairs(hashes, crops, zoom_hashes)
         kinds = {"near": 0, "windows": 0, "zoom": 0}
         for i in range(len(rows)):
             for j in range(i + 1, len(rows)):
@@ -389,6 +440,8 @@ class GroupingIndexTest(unittest.TestCase):
                 if cull.zoom_match(distance, hashes[i], zooms[i], hashes[j], zooms[j]):
                     kinds["zoom"] += 1
                     self.assertIn(j, zoom[i])
+                if cull.other_pan_match(distance, others[i], others[j]):
+                    self.assertIn(j, other[i])
         for kind, count in kinds.items():
             self.assertGreater(count, 0, kind)
 
