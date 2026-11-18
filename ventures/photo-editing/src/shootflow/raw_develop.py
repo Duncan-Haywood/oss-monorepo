@@ -978,8 +978,8 @@ class RawImage:
     # "nef" for a Nikon NEF read by ``shootflow.nef``, "orf" for an Olympus ORF read by ``shootflow.orf``, "rw2" for a
     # Panasonic RW2 read by ``shootflow.rw2``, "srw" for a Samsung SRW read by ``shootflow.srw`` or "pef" for a
     # Pentax PEF read by ``shootflow.pef``, "raf" for a Fujifilm RAF read by ``shootflow.raf``, "cr3" for a Canon
-    # CR3 read by ``shootflow.cr3``, "crw" for a Canon CRW (CIFF) read by ``shootflow.crw``, "mrw" for a Minolta MRW read by ``shootflow.mrw``
-    # (DNG-equivalent tags, no colour matrix); "iiq" for a Phase One IIQ read by ``shootflow.iiq`` (DNG-equivalent
+    # CR3 read by ``shootflow.cr3``, "crw" for a Canon CRW (CIFF) read by ``shootflow.crw``, "mrw" for a Minolta MRW read by ``shootflow.mrw``,
+    # "dcr" for a Kodak DCR read by ``shootflow.kodak`` (DNG-equivalent tags, no colour matrix); "iiq" for a Phase One IIQ read by ``shootflow.iiq`` (DNG-equivalent
     # tags with a ColorMatrix1 from the file's own camera-to-ROMM matrix); "3fr" for a Hasselblad 3FR read by
     # ``shootflow.hasselblad`` (the file's own ColorMatrix1 in IFD0).
     source: str = "dng"
@@ -1087,9 +1087,9 @@ def read_raw(path: Path | str, cfa: str | None = None) -> RawImage:
 
 
 def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
-    """A DNG's (or a Canon CRW's, CR2's, Sony ARW's, Nikon NEF's, Olympus ORF's, Panasonic RW2's, Samsung SRW's, Pentax PEF's, Fujifilm RAF's, Canon CR3's, Minolta MRW's, Phase One IIQ's or Hasselblad 3FR's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
+    """A DNG's (or a Canon CRW's, CR2's, Sony ARW's, Nikon NEF's, Olympus ORF's, Panasonic RW2's, Samsung SRW's, Pentax PEF's, Fujifilm RAF's, Canon CR3's, Minolta MRW's, Phase One IIQ's, Hasselblad 3FR's or Kodak DCR's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
 
-    from shootflow import arw, cr2, cr3, crw, hasselblad, iiq, mrw, nef, orf, pef, raf, rw2, srw
+    from shootflow import arw, cr2, cr3, crw, hasselblad, iiq, kodak, mrw, nef, orf, pef, raf, rw2, srw
 
     if iiq.is_iiq(data):  # before the TIFF readers: an IIQ is a TIFF with its sensor in an IIII block
         return iiq.parse_iiq(data)
@@ -1117,6 +1117,8 @@ def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
         return srw.parse_srw(data)
     if hasselblad.is_3fr(data):
         return hasselblad.parse_3fr(data)
+    if kodak.is_dcr(data):
+        return kodak.parse_dcr(data)
     reader = _Reader(data)
     ifds = _all_ifds(reader)
     if not ifds:
@@ -1821,7 +1823,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     profile = _profile(ifd0, ifd, settings.dcp, notes) if settings.colour == "dng" else None
     if settings.dcp is not None and profile is None:
         raise DevelopError("the camera profile has no ColorMatrix1")
-    if raw.source in ("crw", "cr2", "cr3", "arw", "nef", "orf", "rw2", "srw", "pef", "raf", "mrw") and profile is None:
+    if raw.source in ("crw", "cr2", "cr3", "arw", "nef", "orf", "rw2", "srw", "pef", "raf", "mrw", "dcr") and profile is None:
         example = {
             "crw": "Canon EOS 10D",
             "cr2": "Canon EOS 5D Mark II",
@@ -1834,6 +1836,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             "pef": "Pentax K-1 Mark II",
             "raf": "Fujifilm X-E1",
             "mrw": "Konica Minolta DYNAX 7D",
+            "dcr": "Kodak DCS Pro SLR/n",
         }[raw.source]
         raise DevelopError(
             f"a{'n' if raw.source in ('arw', 'mrw', 'nef', 'orf', 'rw2', 'srw') else ''} {raw.source.upper()} carries no colour matrix: pass the camera's "
