@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231d4e89'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ECSP%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>"Refused to execute inline script because it violates the following Content Security Policy directive": the fixes</title>
+<meta name="description" content="What the browser's &quot;Refused to execute inline script&quot; CSP error means, why adding 'unsafe-inline' is the wrong fix, and how to allow one script with a nonce or a sha256 hash, with a free tool that computes the hash.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/csp-policy-check/refused-to-execute-inline-script.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fixing &quot;Refused to execute inline script&quot; without 'unsafe-inline'">
+<meta property="og:description" content="Allow one inline script with a nonce or a hash, and know why 'unsafe-inline' is ignored once you do.">
+<meta property="og:url" content="https://example.invalid/csp-policy-check/refused-to-execute-inline-script.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "Fix \"Refused to execute inline script\" without 'unsafe-inline'",
+  "description": "Allow a specific inline script under a Content-Security-Policy with a nonce or a hash.",
+  "step": [
+    { "@type": "HowToStep", "name": "Find the directive", "text": "Read which directive the console error names (script-src-elem, script-src or default-src). That is the list to change." },
+    { "@type": "HowToStep", "name": "Choose nonce or hash", "text": "Use a per-response random nonce if the server renders the page; use a sha256 hash if the script text never changes." },
+    { "@type": "HowToStep", "name": "Add it to the policy and the tag", "text": "Add 'nonce-VALUE' to the directive and nonce=\"VALUE\" to the script tag, or add 'sha256-HASH' computed over the exact script text." },
+    { "@type": "HowToStep", "name": "Move event handlers", "text": "Replace onclick= and other handler attributes with addEventListener in a nonced or hashed script; nonces never apply to attributes." },
+    { "@type": "HowToStep", "name": "Check the result", "text": "Paste the new policy into the CSP checker and test the inline script to confirm it would run." }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; --bg: #fbfbfd; --fg: #1b1d22; --muted: #5c6270; --line: #d5d8df; --card: #ffffff; --accent: #1d4e89; font: 16px/1.6 system-ui, sans-serif; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #14161a; --fg: #e7e9ee; --muted: #a2a8b5; --line: #343944; --card: #1c1f25; --accent: #8cb8ef; } }
+  body { background: var(--bg); color: var(--fg); max-width: 780px; margin: 0 auto; padding: 1.25rem 16px 2rem; }
+  h1 { font-size: clamp(1.45rem, 4vw, 2rem); line-height: 1.25; }
+  h2 { font-size: 1.2rem; margin-top: 1.8rem; }
+  a { color: var(--accent); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; overflow-wrap: anywhere; }
+  pre { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem 0.85rem; overflow-x: auto; font-size: 0.86rem; }
+  .cta { display: inline-block; background: var(--accent); color: var(--bg); padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: 0.86rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+<p><a href="./">← CSP checker</a></p>
+<h1>"Refused to execute inline script because it violates the following Content Security Policy directive"</h1>
+<p>You added a Content-Security-Policy, and now the console shows this error and part of your page has stopped working. It means the page contains script written directly in the HTML (a <code>&lt;script&gt;</code> block with no <code>src</code>, or an attribute such as <code>onclick="…"</code>), and the directive the error names does not allow inline script. This page is for the developer who has to make that script run again without throwing away what the policy is for.</p>
+
+<h2>Why not just add 'unsafe-inline'?</h2>
+<p>Because it switches the protection off. Script injection (XSS) works by getting the browser to run attacker text as inline script. <code>'unsafe-inline'</code> tells the browser to run any inline script, so the attacker's runs too. A policy whose script list contains <code>'unsafe-inline'</code> and no nonce or hash is the first thing the <a href="./">checker</a> marks high.</p>
+<p>There is a second trap. If the list already has a nonce or a hash, adding <code>'unsafe-inline'</code> does nothing at all: CSP Level 2 and later browsers ignore it when a nonce or hash is present. So it either disables your protection or has no effect, depending on what else is in the list.</p>
+
+<h2>Fix 1: a nonce, for pages your server renders</h2>
+<p>Generate at least 16 random bytes on every response, base64 them, and put the same value in the header and on each script tag you trust:</p>
+<pre>Content-Security-Policy: script-src 'nonce-q8d1fXo2mZb7J3kVt9rLwA==' 'strict-dynamic'; object-src 'none'; base-uri 'none'
+
+&lt;script nonce="q8d1fXo2mZb7J3kVt9rLwA=="&gt;initApp();&lt;/script&gt;</pre>
+<p>The value must change on every response; a nonce fixed in a config file is a password printed on every page. <code>'strict-dynamic'</code> lets scripts you trusted load further scripts, so third-party loaders keep working, and it makes browsers ignore host lists for scripts, which is why a script that used to load from an allowed CDN now needs the nonce too. <code>base-uri 'none'</code> stops an injected <code>&lt;base&gt;</code> tag repointing your nonced relative URLs.</p>
+
+<h2>Fix 2: a hash, for static pages</h2>
+<p>If the script text never changes (a static site, a fixed analytics snippet), allow its exact content by hash. The value is the base64 of the SHA-256 of the text between the tags, every space and newline included. The CSP specification's own example: the script <code>alert('Hello, world.');</code> is allowed by</p>
+<pre>script-src 'sha256-qznLcsROx4GACP2dm0UCKCzCG+HiZ1guq6ZZDob/Tng='</pre>
+<p>Change one character, or the indentation, and the hash no longer matches. Chrome prints the hash it expected in the error message itself; the <a href="./">checker</a> also prints it when you test inline code, and the CLI does the same:</p>
+<pre>node cli.mjs "script-src 'self'" --inline script "alert('Hello, world.');"</pre>
+
+<h2>Event handlers: onclick= needs moving, not allowing</h2>
+<p>Nonces never apply to attributes, and hashes match attributes only when the list also has <code>'unsafe-hashes'</code>. The clean fix is to move the handler into a nonced or hashed script:</p>
+<pre>&lt;button id="save"&gt;Save&lt;/button&gt;
+&lt;script nonce="…"&gt;document.getElementById('save').addEventListener('click', save);&lt;/script&gt;</pre>
+<p>If the error names <code>script-src-attr</code>, this is your case.</p>
+
+<h2>When the error names a directive you didn't write</h2>
+<p>Browsers fall back: an inline <code>&lt;script&gt;</code> is governed by <code>script-src-elem</code>, then <code>script-src</code>, then <code>default-src</code>. A policy of only <code>default-src 'self'</code> blocks inline script, because <code>'self'</code> matches URLs, not inline text. And if the response carries two policies (two headers, or one header with a comma), the script must pass both; check them all. The <a href="./">checker</a>'s table shows which directive decides each kind of resource.</p>
+
+<h2>When to use something else</h2>
+<p>If the page is not yours (a browser extension's injected script, a SaaS widget you cannot change), the fix is the vendor's. If you want a live scan of a site's headers rather than a policy you have in hand, the <a href="../security-headers-check/">Security Headers checker</a> fetches them. If you are in report-only mode, nothing is blocked yet, and these errors are reports of what would be.</p>
+
+<p><a class="cta" href="./">Check your policy</a></p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This tool and guide are provided free and as-is, without warranty of any kind, express or implied. They are not security, legal or professional advice, and do not replace a qualified security review. <strong>You are responsible for reviewing and verifying their output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p>Sources: W3C, <a href="https://www.w3.org/TR/CSP3/" rel="noopener">Content Security Policy Level 3</a>; Weichselbaum et al., "CSP Is Dead, Long Live CSP!", ACM CCS 2016. Free and open source under the <a href="LICENSE" rel="noopener">MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional.</p>
+</footer>
+</body>
+</html>

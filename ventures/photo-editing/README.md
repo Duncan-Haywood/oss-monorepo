@@ -1955,6 +1955,25 @@ render. The DiMAGE Z2's `.MRW` has no MRW header at all and is refused. Details:
 `eval/minolta-mrw-reader-2026-11-18.md`; checks: `tools/mrw_libraw_check.py`,
 `tools/mrw_develop_check.py`; tests: `tests/test_mrw.py`.
 
+### Phase One IIQ (2026-11-18)
+
+Phase One's IIQ files (the P+ and IQ backs, the H 25, the iXU and iXM aerial cameras, and the `.TIF`
+raws of the P25, P30 and P45) now develop directly, and with no `.dcp`: an IIQ carries its own
+camera-to-ROMM matrix, which `src/shootflow/iiq.py` turns into a DNG ColorMatrix1 at D50 (the as-shot
+neutral maps to D50 white exactly), so `shootflow develop CF000001.IIQ --out masters` works like a DNG
+and the grade stage takes them too. The sensor sits in an `IIII` container inside the TIFF; IIQ L
+(format 3, and the P+ backs' 8-bit-coded format 5) is decoded row by row, with each row's and column's
+black offsets for the split sensor halves added as dcraw does, by an optional C decoder (about 0.8 s for
+106 M sensels) or the pure-Python reference. On ten real files from raw.pixls.us (H 25, P25, P20+, P25+,
+P30, P45+, P65+, IQ140, IQ150, IQ3 100MP) every one of 342.7 M sensels, the CFA, the white balance and
+the orientation equal LibRaw 0.22's; per-channel levels after black are within 0.7% of LibRaw's linear
+render on nine (P45+: 2.2%, where LibRaw also applies Phase One's flat-field and defect corrections, not
+applied here). The mean colour of eight of nine developed frames is within 0.02 in chromaticity of
+LibRaw's render (P25+ 0.026; the two colour models differ, see the eval). IIQ S (the IQ180 and iXU180
+files at hand) and the uncompressed formats are refused with the reason. Details:
+`eval/phaseone-iiq-reader-2026-11-18.md`; checks: `tools/iiq_libraw_check.py`,
+`tools/iiq_develop_check.py`; tests: `tests/test_iiq.py`.
+
 ## Olympus ORF (2026-11-14)
 
 Olympus and OM System raw files no longer need Adobe's DNG Converter. `shootflow develop

@@ -145,15 +145,21 @@ test("it skips test files, which build ?-links as fixtures on purpose", async ()
 // with no share link, naming a file nobody wrote and git does not track. A red
 // that fires because you built the project is one a session learns to wave
 // through, so it is worth a test of its own rather than a quiet skip-list edit.
+//
+// The fixture lives in a temporary directory, not in the live ventures/ tree:
+// written there, it raced every other suite that walks ventures/ in parallel
+// (check_csv_formula_guard.py's rglob hit FileNotFoundError when this test
+// removed the directory mid-walk; run record 2026-11-18, session_01XpHqygLf5).
 test("it skips generated build output, which is not source anyone wrote", async () => {
-  const generated = path.join(VENTURES, ".share-location-fixture");
+  const root = await mkdtemp(path.join(os.tmpdir(), "share-location-build-"));
+  const generated = path.join(root, ".share-location-fixture");
   const buildDir = path.join(generated, ".next");
   await mkdir(buildDir, { recursive: true });
   await writeFile(path.join(buildDir, "chunk.js"), 'e.search=`?${t}`;\n', "utf8");
   await writeFile(path.join(generated, "real.mjs"), "export const ok = 1;\n", "utf8");
 
   try {
-    const files = await findShareSources(VENTURES);
+    const files = await findShareSources(root);
     assert.ok(
       files.some((f) => f.endsWith(path.join(".share-location-fixture", "real.mjs"))),
       "the fixture's own source must still be scanned, or this test proves nothing",
@@ -163,10 +169,10 @@ test("it skips generated build output, which is not source anyone wrote", async 
       0,
       "a .next/ build tree must not be scanned",
     );
-    const { findings } = await checkVentures(VENTURES);
+    const { findings } = await checkVentures(root);
     assert.equal(findings.filter((f) => f.file.includes(".next")).length, 0);
   } finally {
-    await rm(generated, { recursive: true, force: true });
+    await rm(root, { recursive: true, force: true });
   }
 });
 

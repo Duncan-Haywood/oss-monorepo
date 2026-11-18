@@ -180,3 +180,18 @@ entries:
         four seeded bugs caught; driven in headless Chromium with no console
         errors and no overflow at 375 px. Not yet used on a real pour.
     mrr_end: 0
+  - venture: csp-policy-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/csp-policy-check, a free
+        browser page and Node CLI that parses a Content-Security-Policy with
+        the W3C CSP Level 3 algorithms, lists strict-CSP weaknesses with fixes,
+        and tests whether a URL, inline script, handler, style or eval() would
+        be allowed. Guide page for the "Refused to execute inline script" error,
+        llms.txt, post. Tests pin the spec's hash example; four of five seeded
+        bugs caught, the fifth now tested. Survey of the repository's own 23
+        server CSP headers: 7 allow every inline script (eval/). Not yet used
+        by anyone outside the repository.
+    mrr_end: 0

@@ -165,3 +165,7 @@ test('the bundled worked example is valid input for buildReport and produces dan
   assert.ok(report.findings.some((f) => f.id === 'csp-unsafe-inline-script'));
   assert.ok(report.findings.some((f) => f.severity === 'danger'));
 });
+
+test('the footer links to the deeper CSP policy checker', () => {
+  assert.match(html, /href="\.\.\/csp-policy-check\/"/);
+});

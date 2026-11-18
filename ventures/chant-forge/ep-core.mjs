@@ -74,10 +74,19 @@ export async function deflateStream(bytes) {
 export function coverPixels(midis, { size = 3000, maxNotes = 14 } = {}) {
   const rgb = new Uint8Array(size * size * 3);
   const cx = size / 2, cy = size * 0.47, rmax = Math.hypot(cx, cy);
+  // The glow depends only on |x - cx| and |y - cy|, so it is mirror-symmetric: x and size - x
+  // give the same pixel exactly (x - cx is the exact negative), and so do rows y and 2 cy - y
+  // when cy is a whole number (it is at 3000, 1400 and 600 px). Each mirrored pixel or row is
+  // a copy, not a fresh hypot and pow: a quarter of the 9 million at 3000 px are computed.
+  const stride = size * 3, cyi = Number.isInteger(cy) ? cy : -1;
   for (let y = 0; y < size; y++) {
+    const ky = y * stride;
+    if (cyi >= 0 && y > cyi && 2 * cyi - y >= 0) { rgb.copyWithin(ky, (2 * cyi - y) * stride, (2 * cyi - y + 1) * stride); continue; }
     for (let x = 0; x < size; x++) {
+      const k = ky + x * 3;
+      if (x > cx) { const m = ky + (size - x) * 3; rgb[k] = rgb[m]; rgb[k + 1] = rgb[m + 1]; rgb[k + 2] = rgb[m + 2]; continue; }
       const t = Math.min(1, Math.hypot(x - cx, y - cy) / rmax);
-      const k = (y * size + x) * 3, f = (1 - t) ** 1.6;
+      const f = (1 - t) ** 1.6;
       rgb[k] = 10 + 34 * f; rgb[k + 1] = 9 + 20 * f; rgb[k + 2] = 12 + 14 * f; // warm black, lit from the middle
     }
   }
@@ -172,7 +181,7 @@ export async function releaseKit(plan, tracks, { today, coverSize = 3000, coverM
   if (!(plan.title || '').trim()) errs.push('the release needs a title');
   if (!tracks.length) errs.push('there is no track to release');
   if (errs.length) throw new Error(errs.join('; '));
-  const enc = new TextEncoder(), files = new Map(), wavs = new Map();
+  const enc = new TextEncoder(), files = new Map(), wavs = new Map(), analyses = new Map();
   const built = tracks.map((t, i) => {
     const title = (t.title || t.header.name || 'Chant').replace(/\s*\(.*?\)\s*$/, '').trim();
     const base = `${String(i + 1).padStart(2, '0')}-${slugify(title)}`;
@@ -182,7 +191,9 @@ export async function releaseKit(plan, tracks, { today, coverSize = 3000, coverM
     files.set(`tracks/${base}.lrc`, enc.encode(t.lrc));
     files.set(gabcCopy, enc.encode(t.gabcText));
     wavs.set(`tracks/${base}.wav`, t.wav);
-    return { base, title, header: t.header, seconds: t.wav.channels[0].length / t.wav.rate, analysis: analyze(t.wav), isrc: t.isrc || '', gabcCopy, warnings: t.warnings || [] };
+    const analysis = analyze(t.wav);
+    analyses.set(`tracks/${base}.wav`, analysis);
+    return { base, title, header: t.header, seconds: t.wav.channels[0].length / t.wav.rate, analysis, isrc: t.isrc || '', gabcCopy, warnings: t.warnings || [] };
   });
   const midis = coverMidis || [];
   files.set('cover.png', await pngBytes(coverSize, coverSize, coverPixels(midis, { size: coverSize }), deflate));
@@ -192,6 +203,8 @@ export async function releaseKit(plan, tracks, { today, coverSize = 3000, coverM
     exists: (p) => files.has(p),
     bytes: (p) => files.get(p),
     wav: (p) => { if (!wavs.has(p)) throw new Error('not a WAV the page built'); return wavs.get(p); },
+    // the check reads the same in-memory render the report analysed, so it reuses that analysis
+    analysis: (p) => analyses.get(p),
   };
   const check = checkReleaseWith(release, io, { today });
   const s = splitChecks(check);
