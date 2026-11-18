@@ -1,0 +1,76 @@
+Milestone 7p: 7n's own-pick oracle kW_s with the held-out variant's picks read at an efficiency that does not use its own E50 (e_m: the other maker groups' mean central E50; e_c: its catalogue index E); 7j's 22 idle conditions, 14 variants, 196 cells each, 4312 cells
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps and drive loss as gear_pump_stepup.py; neutral readings as excavator_idle_standby.py)
+
+Per variant at the central condition: pick efficiency at E50 / e_m / e_c (grid E), own-pick median (L/min) at each, kW_s, kW_s,m/kW_s, kW_s,c/kW_s:
+  casappa                       E 0.8275 / 0.8075 / 0.7600  median  72.5 /  72.0 /  69.5  kW_s 2.844  m/s 0.950  c/s 0.833
+  danfoss                       E 0.8300 / 0.8075 / 0.8475  median  63.5 /  58.5 /  90.5  kW_s 2.466  m/s 1.003  c/s 1.044
+  marzocchi                     E 0.8200 / 0.8075 / 0.8975  median  71.0 /  69.5 /  80.5  kW_s 2.832  m/s 0.979  c/s 1.109
+  bench                         E 0.8125 / 0.8075 / 0.9125  median  71.5 /  71.0 /  85.0  kW_s 2.337  m/s 0.988  c/s 1.235
+  rexroth                       E 0.8050 / 0.8100 / 0.9125  median  72.5 /  73.5 /  86.0  kW_s 2.057  m/s 1.012  c/s 1.270
+  azpu                          E 0.8025 / 0.8100 / 0.8900  median  69.0 /  70.0 /  85.5  kW_s 1.941  m/s 1.022  c/s 1.261
+  azpf                          E 0.8075 / 0.8100 / 0.9100  median  71.5 /  72.0 /  85.0  kW_s 2.111  m/s 1.007  c/s 1.254
+  azpf_spin                     E 0.8075 / 0.8100 / 0.9050  median  69.5 /  71.0 /  81.5  kW_s 2.212  m/s 1.008  c/s 1.292
+  azpf_gear                     E 0.8100 / 0.8100 / 0.8975  median  69.5 /  69.5 /  80.0  kW_s 2.293  m/s 1.000  c/s 1.274
+  azpf_gear98                   E 0.8100 / 0.8100 / 0.8825  median  68.0 /  68.0 /  78.0  kW_s 2.294  m/s 1.000  c/s 1.291
+  azpn                          E 0.8050 / 0.8125 / 0.9250  median  75.5 /  75.5 /  87.5  kW_s 1.945  m/s 1.027  c/s 1.353
+  azpn_spin                     E 0.8025 / 0.8125 / 0.9200  median  75.5 /  75.5 /  84.0  kW_s 1.932  m/s 1.033  c/s 1.382
+  azpn_gear                     E 0.8000 / 0.8125 / 0.9125  median  75.5 /  75.5 /  83.0  kW_s 1.918  m/s 1.036  c/s 1.392
+  azpn_gear98                   E 0.7875 / 0.8125 / 0.9000  median  75.5 /  75.5 /  75.5  kW_s 1.883  m/s 1.047  c/s 1.353
+Mean |pick E - E50 grid E| over the 14 variants: e_m 0.0095, e_c 0.0914
+
+Fits to all 4312 cells (training-row features; coefficients; in-sample RMS over all cells and the 308 diagonals):
+  owh    +0.8214, +0.0329, -0.4350, -0.0402;  cells 0.0043, diagonals 0.0045
+  owdw   +0.8208, +0.0359, -0.4350;  cells 0.0039, diagonals 0.0045
+  owds   +0.8240, +0.0356, -0.4350;  cells 0.0047, diagonals 0.0039
+  owdm   +0.8240, +0.0356, -0.4350;  cells 0.0047, diagonals 0.0039
+  owdc   +0.8240, +0.0356, -0.4350;  cells 0.0047, diagonals 0.0039
+  owdcc  +0.8141, +0.0369, -0.4350;  cells 0.0086, diagonals 0.0089
+
+(A) leave-one-condition-and-maker-family-out, RMS over 308 diagonals (max per-condition RMS; mean bias):
+  owh    0.0056  (max 0.0064; bias +0.0000)
+  owdw   0.0056  (max 0.0069; bias -0.0000)
+  owds   0.0042  (max 0.0052; bias +0.0001)
+  owdm   0.0047  (max 0.0056; bias -0.0001)
+  owdc   0.0135  (max 0.0211; bias -0.0100)
+  owdcc  0.0101  (max 0.0158; bias -0.0005)
+
+(B1) nine half-idle-speed conditions held out together, RMS over 126 diagonals (mean bias):
+  owh    0.0059  (+0.0002)
+  owdw   0.0059  (+0.0006)
+  owds   0.0047  (+0.0005)
+  owdm   0.0049  (+0.0002)
+  owdc   0.0096  (-0.0063)
+  owdcc  0.0097  (+0.0060)
+(B2) S = 0.20 and 0.50 held out together, RMS over 28 diagonals (mean bias):
+  owh    0.0057  (+0.0012)
+  owdw   0.0059  (-0.0011)
+  owds   0.0043  (-0.0007)
+  owdm   0.0047  (-0.0009)
+  owdc   0.0161  (-0.0118)
+  owdcc  0.0120  (-0.0023)
+
+Per variant, (A) error pooled over the 22 conditions (RMS): owh / owds / owdm / owdc / owdcc
+  casappa                       0.0031 / 0.0012 / 0.0024 / 0.0091 / 0.0214
+  danfoss                       0.0061 / 0.0067 / 0.0066 / 0.0046 / 0.0152
+  marzocchi                     0.0039 / 0.0021 / 0.0011 / 0.0084 / 0.0038
+  bench                         0.0042 / 0.0012 / 0.0016 / 0.0115 / 0.0046
+  rexroth                       0.0026 / 0.0010 / 0.0011 / 0.0124 / 0.0044
+  azpu                          0.0041 / 0.0013 / 0.0010 / 0.0103 / 0.0047
+  azpf                          0.0055 / 0.0025 / 0.0022 / 0.0097 / 0.0046
+  azpf_spin                     0.0056 / 0.0038 / 0.0034 / 0.0107 / 0.0049
+  azpf_gear                     0.0053 / 0.0040 / 0.0040 / 0.0099 / 0.0041
+  azpf_gear98                   0.0027 / 0.0041 / 0.0041 / 0.0105 / 0.0042
+  azpn                          0.0016 / 0.0022 / 0.0026 / 0.0160 / 0.0082
+  azpn_spin                     0.0022 / 0.0020 / 0.0029 / 0.0174 / 0.0095
+  azpn_gear                     0.0048 / 0.0037 / 0.0049 / 0.0198 / 0.0117
+  azpn_gear98                   0.0145 / 0.0110 / 0.0127 / 0.0251 / 0.0169
+
+Predictions (LOG.md 7p):
+  PX1 Danfoss own-pick median at e_m below 72 L/min: held (58.5 L/min; at E50 63.5)
+  PX2 owdm (A) at most 0.0049: held (0.0047; owds 0.0042)
+  PX3 owdc (A) at most 0.0049: refuted (0.0135)
+  PX4 owdm and owdc both below owh in (A): refuted (0.0047, 0.0135 against 0.0056)
+  PX5 owdcc (A) below owh's: refuted (0.0101 against 0.0056)
+  PX6 owdm B1 at most 0.0056: held (0.0049)
+
+Sources: as gear_pump_onerule.py (7j), gear_pump_ratio.py (7k) and gear_pump_ownpick.py (7n); every feature read on each condition's own idle curves with the pick weight fixed at the central setting.

@@ -10,3 +10,7 @@
 ## Needing a person (added 2026-11-18)
 
 - Log a VESC in speed mode on the bench: a 3 s spin-up from rest at the current limit, eight 2% setpoint steps 400 ms apart (up and back four times) at 1,500 rpm on the free wheel, and a few balls, with the VESC's own rpm and current over UART beside the hall tach. Run `tests/speed_ramp_fit.py` (`spinup_fit`, `loop_from_steps`, `drop_from_speed_ramp`) on it to see whether a real recovery is the clamped ramp then the PI tail (firmware/esp32/README.md, "A ramp-then-PI drop fit for a speed-mode ESC").
+
+## Buildable here (added 2026-11-18)
+
+- Does the take survey's pick between its contact times (`ResidualSurvey.report`, still the three-point parabola) lean the way the ESC-lag survey's did? Refit stored take-survey wheels at a dense set of contact times and compare the least with `survey_pick` and `survey_spline_pick` (firmware/esp32/README.md, "The ESC-lag survey's pick between grid lags").

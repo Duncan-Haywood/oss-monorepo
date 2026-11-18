@@ -571,9 +571,14 @@ def _linked_pairs_indexed(hashes, crops, zooms, zoom_hashes, windows, fine_hashe
 def _group(
     scored: Sequence[tuple[Path, FrameMetrics, FaceReport | None]],
     *,
-    index: bool | None = None,
+    index: bool | str | None = None,
 ) -> list[list[tuple[Path, FrameMetrics, FaceReport | None]]]:
-    """Single-linkage burst groups. ``index`` forces the candidate index on or off (default: on from 500 frames)."""
+    """Single-linkage burst groups.
+
+    ``index``: None (default) runs the C helper (``cull_native``) when it builds, else the Python
+    candidate index from ``_INDEX_MIN_FRAMES`` frames and the all-pairs scan below that; True / False
+    force the Python index / scan; ``"native"`` forces the C helper (an error when it cannot build).
+    """
 
     ordered = sorted(scored, key=lambda row: str(row[0]))
     parent = list(range(len(ordered)))
@@ -588,15 +593,25 @@ def _group(
     hashes = [int(row[1].dhash, 16) for row in ordered]
     crops = [tuple(int(h, 16) for h in getattr(row[1], "dhash_crops", ())) for row in ordered]
     zoom_hashes = [tuple(int(h, 16) for h in getattr(row[1], "dhash_zooms", ())) for row in ordered]
-    zooms = [zoom_index(z) for z in zoom_hashes]
-    windows = [window_pack(c) for c in crops]
     fine_hashes = [tuple(int(h, 16) for h in getattr(row[1], "dhash_fine", ())) for row in ordered]
-    fines = [fine_pack(c, f) for c, f in zip(crops, fine_hashes)]
-    use_index = len(ordered) >= _INDEX_MIN_FRAMES if index is None else index
-    links = (
-        _linked_pairs_indexed(hashes, crops, zooms, zoom_hashes, windows, fine_hashes, fines)
-        if use_index else _linked_pairs_all(hashes, crops, zooms, windows, fines)
-    )
+    links = None
+    if index is None or index == "native":
+        # The C index and exact checks (2026-11-18, eval/cull-grouping-native-2026-11-18.md): the same
+        # pairs as both Python paths below, which stay as the reference and the fallback.
+        from shootflow import cull_native
+
+        links = cull_native.linked_pairs(hashes, crops, zoom_hashes, fine_hashes)
+        if links is None and index == "native":
+            raise RuntimeError("the C grouping helper is not available (no C compiler, or SHOOTFLOW_NATIVE=0)")
+    if links is None:
+        zooms = [zoom_index(z) for z in zoom_hashes]
+        windows = [window_pack(c) for c in crops]
+        fines = [fine_pack(c, f) for c, f in zip(crops, fine_hashes)]
+        use_index = len(ordered) >= _INDEX_MIN_FRAMES if index is None else index
+        links = (
+            _linked_pairs_indexed(hashes, crops, zooms, zoom_hashes, windows, fine_hashes, fines)
+            if use_index else _linked_pairs_all(hashes, crops, zooms, windows, fines)
+        )
     for i, j in links:
         a, b = find(i), find(j)
         if a != b:
