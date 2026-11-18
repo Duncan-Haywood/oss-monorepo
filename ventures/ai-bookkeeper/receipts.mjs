@@ -125,7 +125,10 @@ const TIP_RE = /\b(tip|gratuity)\b/i;
 export function parseItems(lines, comma = false) { // comma: a style, as moneyRe
   const items = [];
   for (const l of lines) {
-    if (NOT_ITEM_RE.test(l) || DATE_RES.some((re) => re.test(l))) continue;
+    // a Russian card or cash line (БЕЗНАЛИЧНЫМИ, НАЛИЧНЫМИ) is a payment, not an item: tesseract's
+    // reading "БЕЗНАЛИЧНЫМИ -00.00" under one 15.00 item made 15.00 "the items", which then
+    // outvoted RapidOCR's right 300.00 (eval/receipt-ocr-ru-rus-vote-2026-11-18.md)
+    if (NOT_ITEM_RE.test(l) || RU_PAID_RE.test(l) || DATE_RES.some((re) => re.test(l))) continue;
     const a = amountsIn(l, comma);
     if (!a.length) continue;
     const desc = (comma === "whole" ? l.replace(RP, " ") : l).replace(moneyRe(comma), " ").replace(/^\s*\d+\s*(?:x\s*)?(?=[a-z])/i, "").replace(/[\s$£€@x*]+$/gi, "").replace(/\s{2,}/g, " ").trim();
@@ -231,7 +234,11 @@ function totalChecks(lines, comma, at, bare) {
   const items = parseItems(lines, comma);
   if (items.length >= 2) {
     const sum = items.reduce((a, x) => a + x.cents, 0);
-    checks.push([sum, "the items"]);
+    // one item beside lines read as 0.00 (noise, `974115.90` next to `7153056 0.00`) "adds up"
+    // only to itself: no more a check than a single item is. Two items that are not 0.00, or
+    // with the tax below (a free `No Beverage 0.00` beside a 3.99 shake still adds the tax).
+    // Behind RapidOCR's lead such a reading outvoted the right total (eval/receipt-ocr-ru-rus-vote-2026-11-18.md)
+    if (items.filter((x) => x.cents !== 0).length >= 2) checks.push([sum, "the items"]);
     for (const t of taxes) checks.push([sum + t, "the items plus tax"]);
   }
   // another total line ("Total : 9.00" above "Rounded Total 9.60")
