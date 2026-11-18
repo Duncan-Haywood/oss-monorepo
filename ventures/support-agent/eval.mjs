@@ -43,7 +43,10 @@ const pct = (a, b) => (b ? Math.round((a / b) * 1000) / 10 : 0);
 function tally(rows) {
   const t = { correct: 0, wrong: 0, handoff_ok: 0, missed: 0, suggested: 0, suggested_wrong: 0 };
   for (const r of rows) t[r.outcome]++;
-  const answered = t.correct + t.wrong, n = rows.length;
+  return summarise(t, rows.length);
+}
+function summarise(t, n) {
+  const answered = t.correct + t.wrong;
   return { ...t, n, answered, resolved_pct: pct(t.correct, n), wrong_of_answered_pct: pct(t.wrong, answered), handoff_pct: pct(t.handoff_ok + t.missed, n) };
 }
 
@@ -51,16 +54,28 @@ export function evaluate(agent, cases, { maxWrong = 0.05, threshold, suggestBar 
   // One pass at bar 0 gives each case's confidence; the decision at any other bar follows from it, except that rule
   // handoffs and clarifying questions do not depend on the bar.
   const raw = cases.map((c) => ({ ...c, d: decide(agent, c.question, { threshold: 0, suggestBar: 0 }), s: null }));
+  const below = (c) => {
+    const d = c.d;
+    if (d.confidence >= suggestBar) return (c.s ||= decide(agent, c.question, { threshold: 1.01, suggestBar }));
+    return { ...d, action: "handoff", citations: [] };
+  };
   const at = (bar) => raw.map((c) => {
     let d = c.d;
-    if (d.action === "answer" && d.confidence < bar) {
-      if (d.confidence >= suggestBar) d = (c.s ||= decide(agent, c.question, { threshold: 1.01, suggestBar }));
-      else d = { ...d, action: "handoff", citations: [] };
-    }
+    if (d.action === "answer" && d.confidence < bar) d = below(c);
     return { question: c.question, expect: c.expect, action: d.action, article: d.action === "answer" ? d.citations[0].articleId : d.topArticle, confidence: d.confidence, reasons: d.reasons.map((r) => r.id), outcome: outcome(d, c.expect) };
   });
   const bars = [...new Set([0, ...raw.filter((c) => c.d.action === "answer").map((c) => c.d.confidence), 1.001])].sort((a, b) => a - b);
-  const sweep = bars.map((bar) => ({ bar, ...tally(at(bar)) }));
+  // The sweep needs only counts: each case has one outcome at bars up to its confidence and another above it, so
+  // both are worked out once and every bar is a count (the same numbers as tally(at(bar)), without building rows).
+  for (const c of raw) {
+    c.hi = outcome(c.d, c.expect);
+    c.lo = c.d.action === "answer" ? outcome(below(c), c.expect) : c.hi;
+  }
+  const sweep = bars.map((bar) => {
+    const t = { correct: 0, wrong: 0, handoff_ok: 0, missed: 0, suggested: 0, suggested_wrong: 0 };
+    for (const c of raw) t[c.d.action === "answer" && c.d.confidence < bar ? c.lo : c.hi]++;
+    return { bar, ...summarise(t, raw.length) };
+  });
   // Most correct answers with wrong answers at or under the cap; ties go to the higher bar (fewer risky answers).
   let best = null;
   for (const s of sweep) if (s.answered === 0 || s.wrong / s.answered <= maxWrong) if (!best || s.correct > best.correct || (s.correct === best.correct && s.bar > best.bar)) best = s;

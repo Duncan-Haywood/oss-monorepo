@@ -62,8 +62,18 @@ export function buildIndex(docs) {
   return { postings, lengths, n: docs.length, avg: docs.length ? total / docs.length : 1, vocab: [...postings.keys()] };
 }
 
+// A query word's expansion depends only on the index and the word, so it is worked out once per index: the fuzzy
+// pass scans the whole vocabulary, and an evaluation asks about the same few hundred words thousands of times.
+// The cache is cleared at a size cap so a long-running server cannot grow it without bound.
+const EXPAND_CAP = 20000;
 function expand(index, term, isLast) {
   if (index.postings.has(term)) return [[term, 1]];
+  const cache = (index._expand ||= new Map()), key = (isLast ? "1" : "0") + term;
+  let out = cache.get(key);
+  if (!out) { if (cache.size >= EXPAND_CAP) cache.clear(); out = expandUncached(index, term, isLast); cache.set(key, out); }
+  return out;
+}
+function expandUncached(index, term, isLast) {
   const out = [];
   if (isLast && term.length >= 2) for (const v of index.vocab) if (v.startsWith(term)) out.push([v, 0.6]);
   if (out.length) return out;
@@ -72,24 +82,54 @@ function expand(index, term, isLast) {
   return out;
 }
 
+// A term's BM25 weight in each passage (idf times the length-normalised tf) depends only on the index, so it is
+// worked out once per term and kept as [passage number, weight] pairs. Scores are summed in flat arrays indexed by
+// passage number rather than Maps, and only the top `limit` are kept rather than sorting every match. The sums are
+// the same products added in the same order, and the order (score, then id) is total, so results are bit-identical.
+function weighted(index, term) {
+  const cache = (index._weighted ||= new Map()); let list = cache.get(term);
+  if (list) return list;
+  const p = index.postings.get(term); if (!p) return null;
+  if (!index._ord) { index._ids = [...index.lengths.keys()]; index._ord = new Map(index._ids.map((id, i) => [id, i])); }
+  const k1 = 1.2, b = 0.75;
+  const idf = Math.log(1 + (index.n - p.size + 0.5) / (p.size + 0.5));
+  list = [];
+  for (const [id, tf] of p) {
+    const norm = tf * (k1 + 1) / (tf + k1 * (1 - b + b * (index.lengths.get(id) / index.avg)));
+    list.push(index._ord.get(id), idf * norm);
+  }
+  cache.set(term, list); // bounded by the vocabulary, which is fixed once the index is built
+  return list;
+}
+
+const byScore = (a, b) => b.score - a.score || (a.id < b.id ? -1 : 1);
+
 export function search(index, query, { limit = 10 } = {}) {
   const qs = tokens(query);
   if (!qs.length || !index.n) return [];
-  const k1 = 1.2, b = 0.75, scores = new Map(), hit = new Map();
+  const n = index.lengths.size;
+  const scores = new Float64Array(n), hits = new Int32Array(n), last = new Int32Array(n).fill(-1), touched = [];
   qs.forEach((q, qi) => {
     for (const [term, weight] of expand(index, q, qi === qs.length - 1)) {
-      const p = index.postings.get(term); if (!p) continue;
-      const idf = Math.log(1 + (index.n - p.size + 0.5) / (p.size + 0.5));
-      for (const [id, tf] of p) {
-        const norm = tf * (k1 + 1) / (tf + k1 * (1 - b + b * (index.lengths.get(id) / index.avg)));
-        scores.set(id, (scores.get(id) || 0) + idf * norm * weight);
-        if (!hit.has(id)) hit.set(id, new Set()); hit.get(id).add(qi);
+      const list = weighted(index, term); if (!list) continue;
+      for (let i = 0; i < list.length; i += 2) {
+        const o = list[i];
+        if (last[o] === -1) touched.push(o);
+        scores[o] += list[i + 1] * weight;
+        if (last[o] !== qi) { last[o] = qi; hits[o]++; }
       }
     }
   });
   // Articles that match every query word outrank ones that match a subset.
-  const all = qs.length;
-  return [...scores].map(([id, s]) => ({ id, score: s * (1 + (hit.get(id).size - 1) / all), matchedAll: hit.get(id).size === all })).sort((a, b) => b.score - a.score || (a.id < b.id ? -1 : 1)).slice(0, limit);
+  const all = qs.length, top = [], cap = limit === Infinity ? Infinity : Math.max(0, Math.trunc(limit) || 0); // as slice(0, limit)
+  if (!cap) return top;
+  for (const o of touched) {
+    const r = { id: index._ids[o], score: scores[o] * (1 + (hits[o] - 1) / all), matchedAll: hits[o] === all };
+    if (top.length >= cap && byScore(r, top[top.length - 1]) > 0) continue;
+    let i = top.length; while (i > 0 && byScore(r, top[i - 1]) < 0) i--;
+    top.splice(i, 0, r); if (top.length > cap) top.pop();
+  }
+  return top;
 }
 
 // A short excerpt around the best-matching spot, as segments so the caller decides how to mark them up safely.
