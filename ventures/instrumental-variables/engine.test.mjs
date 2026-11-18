@@ -162,3 +162,90 @@ test("PAPERS entries are complete", () => {
   assert.ok(PAPERS.length >= 10);
   for (const p of PAPERS) for (const k of ["key", "authors", "title", "venue", "year", "url", "implemented", "deviations"]) assert.ok(p[k], `${p.key} ${k}`);
 });
+
+// ---------- review fixes (PR #17269) ----------
+
+test("CSV: one delimiter from the header, so a semicolon or tab inside a comma file stays in its cell", () => {
+  const { records } = parseCsv("region,y\nNorth;2020,5\nSouth\t1,6\n");
+  assert.deepEqual(records, [{ region: "North;2020", y: "5" }, { region: "South\t1", y: "6" }]);
+  assert.deepEqual(parseCsv("a\tb\n1\t2\n").records, [{ a: "1", b: "2" }]);
+  assert.deepEqual(parseCsv("a;b\n1;2\n").records, [{ a: "1", b: "2" }]);
+});
+
+test("invert: the singularity check does not depend on units", () => {
+  const n = 100;
+  const inv = invert([[n, 0], [0, n * 1e12]]);
+  close(inv[0][0], 1 / n, 1e-15, "intercept");
+  close(inv[1][1] * n * 1e12, 1, 1e-12, "scaled column");
+  assert.throws(() => invert([[1, 2], [2, 4]]), /singular/);
+  // the same regression in metres and in micrometres gives the same slope
+  const rows = sim({ n: 500, seed: 37 });
+  const big = rows.map((r) => ({ ...r, z2: String(Number(r.z2) * 1e6) }));
+  const a = analyze({ records: rows, outcome: "y", endogenous: "x", instruments: "z1,z2", exogenous: "w" });
+  const b = analyze({ records: big, outcome: "y", endogenous: "x", instruments: "z1,z2", exogenous: "w" });
+  close(a.models["2sls"].terms[2].coef, b.models["2sls"].terms[2].coef, 1e-9, "2SLS unchanged by units");
+});
+
+test("text levels come from the rows kept; without a constant the first text column keeps every level", () => {
+  const rows = sim({ n: 300, seed: 41 });
+  rows[0] = { ...rows[0], grp: "only-here", y: "" }; // a level seen only in a dropped row
+  const r = analyze({ records: rows, outcome: "y", endogenous: "x", instruments: "z1,z2", exogenous: "w,grp" });
+  assert.ok(!r.models.ols.terms.some((t) => t.name === "grp=only-here"));
+  const nc = analyze({ records: sim({ n: 300, seed: 41 }), outcome: "y", endogenous: "x", instruments: "z1,z2", exogenous: "w,grp", constant: false });
+  assert.deepEqual(nc.models.ols.terms.map((t) => t.name), ["w", "grp=a", "grp=b", "grp=c", "x"]);
+  const wc = analyze({ records: sim({ n: 300, seed: 41 }), outcome: "y", endogenous: "x", instruments: "z1,z2", exogenous: "w,grp" });
+  // one indicator per level without a constant is the same model as const + two indicators
+  close(nc.models["2sls"].terms[4].coef, wc.models["2sls"].terms[4].coef, 1e-10, "same slope");
+});
+
+test("unadjusted first-stage F is the classical F with RSS / (n - L), whether or not --debiased", () => {
+  const d = designOf(sim({ n: 60, seed: 43 }));
+  const x = d.endog[0];
+  const rss = (fit) => fit.rss;
+  const full = kClass({ y: x, X: d.Z, Z: d.Z, k: 0, se: "unadjusted" });
+  const restr = kClass({ y: x, X: d.exog, Z: d.exog, k: 0, se: "unadjusted" });
+  const q = d.instr.length;
+  const classical = ((rss(restr) - rss(full)) / q) / (rss(full) / (d.n - d.kz));
+  for (const debiased of [false, true]) close(firstStage(d, { se: "unadjusted", debiased, alpha: 0.05 })[0].F, classical, 1e-9 * classical, `debiased ${debiased}`);
+  const fs = firstStage(d, { se: "unadjusted", alpha: 0.05 })[0];
+  close(fs.effectiveF, fs.F, 1e-9 * fs.F, "effective F equals F");
+});
+
+test("a Hansen J that could not run is reported as such, not read as agreement", () => {
+  const rows = sim({ n: 400, seed: 29 }).map((r, i) => ({ ...r, g: String(i % 4) }));
+  const r = analyze({ records: rows, outcome: "y", endogenous: "x", instruments: "z1,z2", exogenous: "w", se: "clustered", cluster: "g" });
+  assert.match(r.summary, /Hansen J test of the overidentifying restrictions could not be computed/);
+  assert.doesNotMatch(r.summary, /instruments agree/);
+});
+
+test("several endogenous regressors: a note says per-regressor F statistics cannot show joint strength", () => {
+  const R = rng(53);
+  const rows = sim({ n: 500, seed: 47 }).map((r) => { const z3 = normal(R); return { ...r, z3: String(z3), w: String(Number(r.w) + 0.8 * z3) }; });
+  const r = analyze({ records: rows, outcome: "y", endogenous: "x,w", instruments: "z1,z2,z3" });
+  assert.ok(r.notes.some((n) => /jointly identified/.test(n)));
+  assert.equal(r.andersonRubin, null);
+});
+
+test("Anderson-Rubin grid: every finite end sits at the critical value, and an infinite tail is one the statistic stays under", () => {
+  let infinite = 0;
+  for (let seed = 1; seed <= 40; seed++) {
+    const rows = sim({ n: 80, pi: [0.15, 0.05], seed: 100 + seed });
+    for (const se of ["robust", "clustered"]) {
+      const d = designOf(rows, { cluster: "g" });
+      const opts = { se, clusters: d.clusters, debiased: false };
+      const tsls = kClass({ y: d.y, X: d.X, Z: d.Z, k: 1, se: "unadjusted" });
+      const set = andersonRubinSet(d, tsls, opts, 0.05);
+      for (const [a, b] of set.intervals) for (const e of [a, b]) {
+        if (Number.isFinite(e)) {
+          if (set.truncated && (e === set.intervals[0][0] || e === set.intervals.at(-1)[1])) continue;
+          close(andersonRubinStat(d, e, opts).stat, set.crit, 1e-5 * set.crit, `seed ${seed} ${se} end ${e}`);
+        } else {
+          infinite++;
+          assert.ok(set.limit <= set.crit, `seed ${seed} ${se}: infinite tail but limit ${set.limit} > ${set.crit}`);
+          assert.ok(andersonRubinStat(d, Math.sign(e) * 1e9, opts).stat <= set.crit * (1 + 1e-6), `seed ${seed} ${se}: stat far out`);
+        }
+      }
+    }
+  }
+  assert.ok(infinite > 0, "the weak design should produce some unbounded sets");
+});

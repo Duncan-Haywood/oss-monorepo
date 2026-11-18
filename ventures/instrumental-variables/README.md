@@ -73,12 +73,15 @@ followed so the numbers can be compared.
   F(q, n - L), and the set solves a quadratic inequality in b exactly.
   Robust or clustered: Wald on chi2(q); the Wald statistic is a ratio of
   quadratics in b, computed from precomputed pieces at 4,001 grid points over
-  the 2SLS estimate plus or minus 40 SE, and each crossing is refined by 100
-  bisection steps. A set touching the grid edge is reported as open-ended.
+  the 2SLS estimate plus or minus 40 SE plus 400 geometric points on each side
+  out to about 1e10 times that, and each crossing is refined by 100 bisection
+  steps. A tail still inside at the outermost point is infinite only if the
+  statistic's limit as |b| grows (gx' V_xx^-1 gx) is under the critical value;
+  otherwise the set is flagged as truncated at the search range.
 
 ## Verification
 
-`node --test *.test.mjs` (96 tests, under 2 s).
+`node --test *.test.mjs` (103 tests, under 3 s).
 
 **Against linearmodels 7.1** (`eval/reference.py` writes
 `eval/reference.json`): three specifications of the example data
@@ -91,7 +94,10 @@ Sargan, Hansen J (with the GMM coefficients), Durbin, Wu-Hausman and the
 control-function test. The largest relative differences seen: coefficients
 4.8e-12, standard errors 4.1e-12, Sargan 2.8e-12, Hansen J 1.3e-12, Durbin
 and Wu-Hausman 2.3e-13, control function 9.4e-12, first-stage F 3.2e-13
-(tests allow 1e-9 to 1e-7). **Anderson-Rubin**: the statistic at four values
+(tests allow 1e-9 to 1e-7). One deliberate difference: with unadjusted
+errors the tool's first-stage F is the classical one, residual variance
+RSS / (n - L), while linearmodels divides by n unless `debiased=True`; the
+test rescales before comparing. **Anderson-Rubin**: the statistic at four values
 of b matches linearmodels OLS fits of y - b x (1e-8 allowed), and the set's
 endpoints under all three error types match scipy 1.17.1 `brentq` roots of
 the same statistic within 1.7e-13.
@@ -99,18 +105,23 @@ the same statistic within 1.7e-13.
 Property tests: 2SLS recovers a simulated effect that OLS overstates; with
 no endogeneity OLS and 2SLS agree and the exogeneity tests do not reject;
 with one binary instrument and no controls 2SLS equals the Wald ratio and
-LIML's k is 1; the effective F equals the F under unadjusted errors and the
+LIML's k is 1; the unadjusted first-stage F equals the classical F from the
+restricted and unrestricted sums of squares; the effective F equals the F under unadjusted errors and the
 robust Wald statistic with one instrument; at both ends of an AR set the
 statistic equals the critical value; irrelevant instruments give an
 unbounded AR set and a weak-instrument warning; Fuller lies between 2SLS and
-LIML; and the distribution quantiles hit textbook values.
+LIML; and the distribution quantiles hit textbook values. After review
+(PR #17269): one CSV delimiter per file, a unit-invariant singularity check,
+text levels taken from the rows kept, every level kept when there is no
+constant, and on 80 weak-instrument samples every finite AR end sits at the
+critical value and every infinite tail is one the statistic stays under.
 
 **Coverage.** `eval/coverage.mjs` redraws the example's design 1,000 times
 (3,000 people in 150 counties, seed 11) and checks the clustered 95%
 intervals against the true 0.08. Output in `eval/coverage-output.txt`:
 
 ```
-example strength: median effective first-stage F 113.2 (10th-90th percentile 85.6 to 144.7); 206 s
+example strength: median effective first-stage F 113.2 (10th-90th percentile 85.6 to 144.7); 216 s
 | Interval | Median estimate | Median bias | Coverage | Median length (AR: bounded intervals only) |
 |---|---|---|---|---|
 | OLS, clustered Wald | 0.1094 | 0.0294 | 0.0% | 0.0160 |
@@ -120,25 +131,25 @@ example strength: median effective first-stage F 113.2 (10th-90th percentile 85.
 | Anderson-Rubin set, clustered | n/a | n/a | 93.9% | 0.1004 (interval 983, empty 17) |
 | Anderson-Rubin set, clustered, small-sample factor | n/a | n/a | 94.0% | 0.1011 (interval 983, empty 17) |
 
-weak (first-stage effects x 0.3): median effective first-stage F 10.4 (10th-90th percentile 5.1 to 17.9); 197 s
+weak (first-stage effects x 0.3): median effective first-stage F 10.4 (10th-90th percentile 5.1 to 17.9); 230 s
 | Interval | Median estimate | Median bias | Coverage | Median length (AR: bounded intervals only) |
 |---|---|---|---|---|
 | OLS, clustered Wald | 0.1112 | 0.0312 | 0.0% | 0.0160 |
 | 2SLS, clustered Wald | 0.0827 | 0.0027 | 95.0% | 0.2861 |
 | LIML, clustered Wald | 0.0792 | -0.0008 | 95.7% | 0.3123 |
 | Fuller (a = 1), clustered Wald | 0.0813 | 0.0013 | 95.2% | 0.2954 |
-| Anderson-Rubin set, clustered | n/a | n/a | 92.2% | 0.3888 (interval 959, empty 16, two rays 6, whole line 16, unbounded 3) |
-| Anderson-Rubin set, clustered, small-sample factor | n/a | n/a | 92.4% | 0.3914 (interval 957, unbounded 5, empty 16, two rays 6, whole line 16) |
+| Anderson-Rubin set, clustered | n/a | n/a | 92.2% | 0.3892 (interval 960, empty 16, two rays 8, whole line 16) |
+| Anderson-Rubin set, clustered, small-sample factor | n/a | n/a | 92.4% | 0.3923 (interval 960, empty 16, two rays 8, whole line 16) |
 
-weak (x 0.3) and strongly endogenous (ability effect on wages 0.12 -> 0.6): median effective first-stage F 11.0 (10th-90th percentile 5.8 to 18.8); 185 s
+weak (x 0.3) and strongly endogenous (ability effect on wages 0.12 -> 0.6): median effective first-stage F 11.0 (10th-90th percentile 5.8 to 18.8); 241 s
 | Interval | Median estimate | Median bias | Coverage | Median length (AR: bounded intervals only) |
 |---|---|---|---|---|
 | OLS, clustered Wald | 0.2356 | 0.1556 | 0.0% | 0.0254 |
 | 2SLS, clustered Wald | 0.0930 | 0.0130 | 94.7% | 0.3833 |
 | LIML, clustered Wald | 0.0829 | 0.0029 | 95.5% | 0.4118 |
 | Fuller (a = 1), clustered Wald | 0.0910 | 0.0110 | 94.9% | 0.3896 |
-| Anderson-Rubin set, clustered | n/a | n/a | 92.6% | 0.5197 (empty 11, interval 974, two rays 6, whole line 6, unbounded 3) |
-| Anderson-Rubin set, clustered, small-sample factor | n/a | n/a | 93.1% | 0.5234 (empty 11, interval 973, two rays 7, whole line 6, unbounded 3) |
+| Anderson-Rubin set, clustered | n/a | n/a | 92.6% | 0.5197 (empty 11, interval 974, two rays 9, whole line 6) |
+| Anderson-Rubin set, clustered, small-sample factor | n/a | n/a | 93.1% | 0.5240 (empty 11, interval 974, two rays 9, whole line 6) |
 
 Monte Carlo standard error of a coverage near 95%: 0.7 points.
 ```
@@ -158,7 +169,7 @@ What this says, honestly:
   clusters. The n / (n - L) and G / (G - 1) factors barely help (+0.1 to
   +0.5 points). The AR set's guarantee is about instrument strength, not about
   how well the cluster covariance is estimated. When the first stage is weak
-  it still widens as it should (two rays or the whole line in 12 to 22 draws
+  it still widens as it should (two rays or the whole line in 15 to 24 draws
   out of 1,000), where the Wald interval stays narrow.
 
 ## What the example shows

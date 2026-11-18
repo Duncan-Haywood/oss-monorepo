@@ -42,7 +42,9 @@ for (const c of ref.cases) {
         rel(x.r2, R.rsquared, 1e-10, "r2");
         rel(x.partialR2, R["partial.rsquared"], 1e-10, "partial r2");
         // linearmodels reports the F for unadjusted errors and the Wald statistic otherwise
-        rel(f.se === "unadjusted" ? x.F : x.wald, R["f.stat"], 1e-8, "first-stage F / Wald");
+        // unadjusted: our F uses RSS / (n - L); linearmodels reports W / q with RSS / n unless debiased
+        const lm = f.se === "unadjusted" ? (f.debiased ? x.F : (x.F * d.n) / (d.n - d.kz)) : x.wald;
+        rel(lm, R["f.stat"], 1e-8, "first-stage F / Wald");
         const coefs = f.first_stage_coefs[x.variable];
         const ex = d.exog.length;
         x.instruments.forEach((ins, a) => { rel(ins.coef, coefs.params[ex + a], 1e-9, "fs coef"); rel(ins.se, coefs.se[ex + a], 1e-8, "fs se"); });

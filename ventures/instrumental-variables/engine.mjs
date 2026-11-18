@@ -31,7 +31,7 @@ export const PAPERS = [
     url: "https://doi.org/10.1214/aoms/1177730090",
     doi: "10.1214/aoms/1177730090",
     implemented: "Limited information maximum likelihood (LIML) as the k-class estimator with k the smallest root of det(W'M_X1 W - k W'M_Z W) = 0, W = [y, endogenous], X1 the exogenous regressors; and the Anderson-Rubin test of a value of the coefficient: regress y - b x on the exogenous regressors and the instruments and test the instruments' coefficients, whose size does not depend on instrument strength.",
-    deviations: "The Anderson-Rubin confidence set is offered for one endogenous regressor only. With unadjusted errors it is the closed-form F-test inversion (an interval, two rays, or the whole line); with robust or clustered errors the Wald version is inverted on a grid of 4,001 points over the 2SLS estimate plus or minus 40 standard errors, each crossing refined by bisection, and the set is reported as open-ended if it reaches the grid's edge.",
+    deviations: "The Anderson-Rubin confidence set is offered for one endogenous regressor only. With unadjusted errors it is the closed-form F-test inversion (an interval, two rays, or the whole line); with robust or clustered errors the Wald version is inverted on a grid of 4,001 points over the 2SLS estimate plus or minus 40 standard errors plus 400 geometrically spaced points on each side out to about 1e10 times that width, each crossing refined by bisection. A tail still inside the set at the outermost point is reported as infinite only if the statistic's limit as |b| grows is below the critical value; otherwise the set is marked as truncated at the search range.",
   },
   {
     key: "fuller1977some",
@@ -153,6 +153,10 @@ export function parseCsv(text) {
   const rows = [];
   let row = [], f = "", q = false;
   const s = String(text ?? "").replace(/^\uFEFF/, "");
+  // One delimiter for the whole file, chosen from the header line: comma unless the
+  // header has none and has tabs (or else semicolons). Mixing them would split text cells.
+  const head = s.split(/\r?\n/, 1)[0];
+  const delim = head.includes(",") ? "," : head.includes("\t") ? "\t" : head.includes(";") ? ";" : ",";
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (q) {
@@ -160,7 +164,7 @@ export function parseCsv(text) {
       else if (c === '"') q = false;
       else f += c;
     } else if (c === '"') q = true;
-    else if (c === "," || c === "\t" || c === ";") { row.push(f); f = ""; }
+    else if (c === delim) { row.push(f); f = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && s[i + 1] === "\n") i++;
       row.push(f); f = "";
@@ -293,8 +297,18 @@ const sym = (A) => A.map((r, i) => r.map((v, j) => (v + A[j][i]) / 2));
 /** Inverse by Gauss-Jordan with partial pivoting; throws on a singular matrix. */
 export function invert(A, what = "design") {
   const n = A.length;
+  // Scale to unit diagonal first so the singularity test does not depend on the units of
+  // the columns (D^-1/2 A D^-1/2), then undo the scaling on the inverse.
+  const D = A.map((r, i) => Math.sqrt(Math.abs(r[i])));
+  if (D.some((v) => !(v > 0))) throw new Error(`The ${what} matrix is singular: a column is all zeros. Drop it and run again.`);
+  const S = A.map((r, i) => r.map((v, j) => v / (D[i] * D[j])));
+  return invertScaled(S, what).map((r, i) => r.map((v, j) => v / (D[i] * D[j])));
+}
+
+function invertScaled(A, what) {
+  const n = A.length;
   const M = A.map((r, i) => [...r, ...Array.from({ length: n }, (_, j) => (i === j ? 1 : 0))]);
-  const scale = Math.max(...A.map((r, i) => Math.abs(r[i]))) || 1;
+  const scale = 1;
   for (let c = 0; c < n; c++) {
     let piv = c;
     for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[piv][c])) piv = r;
@@ -386,27 +400,33 @@ export function buildDesign(records, { outcome, endogenous, instruments, exogeno
   const kinds = exog.map((c) => {
     const vals = records.map((r) => r[c]).filter((v) => String(v ?? "").trim() !== "" && !/^(na|nan|null|\.)$/i.test(String(v).trim()));
     const numeric = vals.length > 0 && vals.filter((v) => Number.isFinite(num(v))).length >= 0.9 * vals.length;
-    return { name: c, numeric, levels: numeric ? null : [...new Set(vals)].sort() };
+    return { name: c, numeric };
   });
   const keep = [];
   for (const r of records) {
     const ok = [outcome, ...endog, ...instr].every((c) => Number.isFinite(num(r[c])))
-      && kinds.every((k) => (k.numeric ? Number.isFinite(num(r[k.name])) : k.levels.includes(r[k.name])))
+      && kinds.every((k) => (k.numeric ? Number.isFinite(num(r[k.name])) : String(r[k.name] ?? "").trim() !== "" && !/^(na|nan|null|\.)$/i.test(String(r[k.name]).trim())))
       && (!cluster || String(r[cluster] ?? "").trim() !== "");
     if (ok) keep.push(r);
   }
   const dropped = records.length - keep.length;
   if (dropped) notes.push(`${dropped} row${dropped === 1 ? "" : "s"} with a missing or unreadable value in a used column ${dropped === 1 ? "was" : "were"} left out.`);
+  // Text levels come from the rows actually used, so a level seen only in a dropped row
+  // cannot leave an all-zero indicator.
+  for (const k of kinds) if (!k.numeric) k.levels = [...new Set(keep.map((r) => r[k.name]))].sort();
   const n = keep.length;
   const col = (c) => Float64Array.from(keep, (r) => num(r[c]));
   const exCols = [], exNames = [];
   if (constant) { exCols.push(new Float64Array(n).fill(1)); exNames.push("const"); }
+  let baselineFree = !constant; // without a constant, the first text column keeps every level
   for (const k of kinds) {
     if (k.numeric) { exCols.push(col(k.name)); exNames.push(k.name); }
     else {
       if (k.levels.length > 50) throw new Error(`Column "${k.name}" has ${k.levels.length} text values; give it as numbers or group it first.`);
-      for (const lv of k.levels.slice(1)) { exCols.push(Float64Array.from(keep, (r) => (r[k.name] === lv ? 1 : 0))); exNames.push(`${k.name}=${lv}`); }
-      notes.push(`"${k.name}" is text, so it enters as ${k.levels.length - 1} indicator${k.levels.length === 2 ? "" : "s"} (baseline "${k.levels[0]}").`);
+      const all = baselineFree;
+      baselineFree = false;
+      for (const lv of all ? k.levels : k.levels.slice(1)) { exCols.push(Float64Array.from(keep, (r) => (r[k.name] === lv ? 1 : 0))); exNames.push(`${k.name}=${lv}`); }
+      notes.push(all ? `"${k.name}" is text and there is no constant, so it enters as one indicator per level (${k.levels.length}).` : `"${k.name}" is text, so it enters as ${k.levels.length - 1} indicator${k.levels.length === 2 ? "" : "s"} (baseline "${k.levels[0]}").`);
     }
   }
   const y = col(outcome);
@@ -521,9 +541,12 @@ export function firstStage(d, opts) {
     const pi = instrIdx.map((i) => fit.beta[i]);
     const Vpi = instrIdx.map((a) => instrIdx.map((b) => fit.cov[a][b]));
     const trace = matmul(Vpi, ZtZt).reduce((s, r, i) => s + r[i], 0);
-    const effectiveF = quad(pi, ZtZt) / trace;
-    const F = W / q; // with robust or clustered errors, the Wald statistic over q (as R ivreg reports it)
-    const fDist = se === "unadjusted" ? { name: `F(${q},${d.n - kz})`, p: fsf(W / q, q, d.n - kz) } : { name: `chi2(${q})`, p: chi2sf(W, q) };
+    // Under unadjusted errors the classical F uses the residual variance RSS / (n - L); without
+    // --debiased the coefficient covariance divides by n, so rescale (linearmodels reports W / q unscaled).
+    const dfScale = se === "unadjusted" && !debiased ? (d.n - kz) / d.n : 1;
+    const effectiveF = (quad(pi, ZtZt) / trace) * dfScale;
+    const F = (W / q) * dfScale; // with robust or clustered errors, the Wald statistic over q (as R ivreg reports it)
+    const fDist = se === "unadjusted" ? { name: `F(${q},${d.n - kz})`, p: fsf(F, q, d.n - kz) } : { name: `chi2(${q})`, p: chi2sf(W, q) };
     return {
       variable: d.endogNames[j],
       instruments: d.instrNames.map((nm, a) => ({ name: nm, coef: fit.beta[ex + a], se: fit.se[ex + a], stat: fit.stat[ex + a], p: fit.p[ex + a] })),
@@ -686,8 +709,14 @@ function arSetGrid(d, centre, width, opts, alpha, points = 4001) {
     const C = idx.map((i) => idx.map((j) => V[i][j] * f));
     return quad(g, invert(C, "covariance"));
   };
+  // As |b| grows the statistic tends to a finite limit (gx and the Mxx meat dominate); a tail
+  // that is still inside the set at the outermost point is infinite only if that limit is.
+  const Vinf = matmul(matmul(ZZinv, Mxx), ZZinv);
+  const limit = quad(idx.map((i) => gx[i]), invert(idx.map((i) => idx.map((j) => Vinf[i][j] * f)), "covariance"));
   const lo = centre - width, hi = centre + width, step = (hi - lo) / (points - 1);
-  const grid = Array.from({ length: points }, (_, i) => lo + i * step);
+  const tails = Array.from({ length: 400 }, (_, k) => width * 1.06 ** (k + 1)); // out to about 1e10 widths
+  const grid = [...tails.map((t) => centre - t).reverse(), ...Array.from({ length: points }, (_, i) => lo + i * step), ...tails.map((t) => centre + t)];
+  const N = grid.length;
   const inside = grid.map((b) => stat(b) <= crit);
   const refine = (a, b) => { // a inside-status differs from b
     const ia = stat(a) <= crit;
@@ -695,13 +724,23 @@ function arSetGrid(d, centre, width, opts, alpha, points = 4001) {
     return (a + b) / 2;
   };
   const intervals = [];
+  const openTail = limit <= crit;
+  let truncated = false;
   let start = null;
-  for (let i = 0; i < points; i++) {
-    if (inside[i] && start === null) start = i === 0 ? -Infinity : refine(grid[i - 1], grid[i]);
+  for (let i = 0; i < N; i++) {
+    if (inside[i] && start === null) {
+      if (i > 0) start = refine(grid[i - 1], grid[i]);
+      else if (openTail) start = -Infinity;
+      else { start = grid[0]; truncated = true; }
+    }
     if (!inside[i] && start !== null) { intervals.push([start, refine(grid[i - 1], grid[i])]); start = null; }
   }
-  if (start !== null) intervals.push([start, Infinity]);
-  return { intervals, kind: describeSet(intervals), crit, critDist: `chi2(${q})`, method: `grid of ${points} points on [${lo.toPrecision(4)}, ${hi.toPrecision(4)}] with bisection`, stat };
+  if (start !== null) {
+    if (openTail) intervals.push([start, Infinity]);
+    else { intervals.push([start, grid[N - 1]]); truncated = true; }
+  }
+  const kind = truncated ? "truncated at the search range" : describeSet(intervals);
+  return { intervals, kind, truncated, limit, crit, critDist: `chi2(${q})`, method: `grid of ${points} points on [${lo.toPrecision(4)}, ${hi.toPrecision(4)}] plus geometric tails to +-${grid[N - 1] - centre > 0 ? (grid[N - 1] - centre).toPrecision(3) : "?"}, bisection at each crossing; the statistic tends to ${limit.toPrecision(4)} as |b| grows`, stat };
 }
 
 export function andersonRubinSet(d, tsls, opts, alpha) {
@@ -756,6 +795,7 @@ export function analyze(input = {}) {
   const overid = [sargan(d, tsls.e, ZZinv), hansenJ(d, tsls, opts)].filter(Boolean);
   const exogeneity = [...exogeneityTests(d, tsls.e, ZZinv), controlFunctionTest(d, opts, ZZinv)];
   const ar = andersonRubinSet(d, tsls, opts, alpha);
+  if (ar && ar.truncated) notes.push(`The Anderson-Rubin set still contains values at the edge of the search range (about ${fmt(Math.abs(ar.intervals[0][0] - tsls.beta[d.exog.length]) || 0, 0)} from the estimate) while the statistic does not stay below the critical value far out, so the reported end is where the search stopped, not a proven bound.`);
   const arZero = d.endog.length === 1 ? andersonRubinStat(d, 0, opts) : null;
   // The AR statistic over the 2SLS estimate +/- 6 SE, for the page's chart.
   const arCurve = ar ? (() => {
@@ -772,6 +812,7 @@ export function analyze(input = {}) {
   const notes = [...d.notes];
   const minF = Math.min(...fs.map((f) => (nE === 1 && se !== "unadjusted" ? f.effectiveF : f.F)));
   const weak = minF < 10;
+  if (nE > 1) notes.push("With several endogenous regressors, a strong F for each one separately does not show they are jointly identified: the instruments can predict them all through nearly the same combination. These per-regressor F statistics cannot rule that out (a conditional test such as Sanderson & Windmeijer 2016 is not computed here), so read the Wald intervals with care.");
   if (weak) notes.push(`The first stage is weak (F ${fmt(minF, 1)} < 10): 2SLS is biased towards OLS and its standard errors understate the uncertainty. Report the Anderson-Rubin set${nE === 1 ? "" : " (one endogenous regressor only)"} and compare LIML or Fuller.`);
   if (nE === 1 && q === 1 && !weak && fs[0].F < 104.7) notes.push(`With one instrument the usual 5% t-test keeps its 5% size only when the first-stage F exceeds 104.7 (Lee, McCrary, Moreira & Porter 2022); this F is ${fmt(fs[0].F, 1)}, so the Anderson-Rubin set is the safer interval.`);
   if (se === "unadjusted") notes.push("Unadjusted standard errors assume every error has the same variance and errors are independent; robust (the default) or clustered is safer.");
@@ -787,7 +828,8 @@ export function analyze(input = {}) {
   const exo = exogeneity[se === "unadjusted" ? 1 : 2];
   sentences.push(`${exo.name} test of exogeneity: p = ${fmt(exo.p, 4)}${exo.p < alpha ? ", so OLS and IV differ by more than chance" : ", so the data do not reject that OLS is consistent"}.`);
   const oid = overid.find((t) => t.name === (se === "unadjusted" ? "Sargan" : "Hansen J")) || overid[0];
-  if (oid) sentences.push(`${oid.name} test of the overidentifying restrictions: p = ${fmt(oid.p, 4)}${oid.p < alpha ? ": the instruments disagree with each other, so at least one is likely invalid (or the effect differs by instrument)" : ": the instruments agree (this cannot show that all of them are valid)"}.`);
+  if (oid && oid.error) sentences.push(`${oid.name} test of the overidentifying restrictions could not be computed: it ${oid.error}.`);
+  else if (oid) sentences.push(`${oid.name} test of the overidentifying restrictions: p = ${fmt(oid.p, 4)}${oid.p < alpha ? ": the instruments disagree with each other, so at least one is likely invalid (or the effect differs by instrument)" : ": the instruments agree (this cannot show that all of them are valid)"}.`);
   else sentences.push("Exactly identified (as many instruments as endogenous regressors), so instrument validity cannot be tested from the data.");
 
   return {

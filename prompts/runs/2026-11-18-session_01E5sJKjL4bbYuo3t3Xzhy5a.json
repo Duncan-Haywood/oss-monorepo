@@ -28,8 +28,8 @@
  "lines_removed": null,
  "merged": null,
  "ci_failures_before_green": 2,
- "review_findings": null,
- "tests_added": 96,
+ "review_findings": 11,
+ "tests_added": 103,
  "outcome": "success",
  "errors": [
   {
@@ -51,6 +51,10 @@
   {
    "what": "CI portfolio-pages test: &infin; on the page is not in platform/pages/entities.mjs NAMED_ENTITIES.",
    "fix": "Used the literal character in the page script instead of widening the shared table."
+  },
+  {
+   "what": "Copilot review on PR #17269 found 11 real defects, all fixed: AR grid called a tail infinite when it only reached the grid edge (an 80-row weak sample reported [-inf, 0.996] while AR(-21442) > crit); unadjusted first-stage F used RSS/n against F(q, n-L); Hansen J that could not run was read as 'instruments agree'; CSV split on ; and tab inside comma files; unit-dependent singularity threshold; text levels from dropped rows; baseline level dropped with --no-constant; no formula guard in the browser CSV export; W' for V' in the page's LIML formula; the page omitted the independence assumption; no warning that per-regressor F cannot show joint strength.",
+   "fix": "Engine: single delimiter, diagonal-scaled inversion, levels from kept rows, all levels without a constant, classical F, geometric tails + limit test for AR (truncated flag), error-aware reading, multi-endogenous note. Page: formula, guard, three IV conditions in FAQ and limits. 7 new tests (103 total); linearmodels reference still within 1e-11; coverage rerun: percentages identical, 3-5 'unbounded' edge cases now resolve as two rays."
   }
  ],
  "integrity_issues": [],
@@ -83,7 +87,7 @@
   "ventures/instrumental-variables/README.md"
  ],
  "goal": null,
- "notes": "Explore idea: instrumental variables as a research-algorithm tool (ventures/instrumental-variables); 0 of 1,403 venture READMEs mentioned IV/2SLS. OLS/2SLS/LIML/Fuller as k-class; unadjusted/robust/clustered (+debiased); first stage partial/Shea R2, F, effective F (Montiel Olea-Pflueger); Sargan, Hansen J (two-step GMM), Durbin, Wu-Hausman, control-function; Anderson-Rubin set closed form (homoskedastic) or grid+bisection (robust/clustered). Pinned to linearmodels 7.1 on 3 specs x 6 SE settings: max rel gap 9.4e-12; AR endpoints vs scipy brentq 1.7e-13. Example: Sargan rejects valid county-level instruments (p=0.029) under clustered errors; clustered Hansen J p=0.14. Coverage (1,000 draws x 3 designs, clustered): 2SLS 94.5/95.0/94.7%, LIML 94.3/95.7/95.5%, AR 93.9/92.2/92.6% (empty overidentified sets count as misses); stated on the page's limits. Browser-checked at 1100 and 390 px with Playwright, no console errors. Local verification: run_workflow_locally --for-changes passed 12 workflows; portfolio-validate 100/100 locally; portfolio-pages locally failed only 'Check the built artifact' on dev/daily pages from local build ordering (GitHub's build job passed) and the &infin; entity test (fixed).",
+ "notes": "Explore idea: instrumental variables as a research-algorithm tool (ventures/instrumental-variables); 0 of 1,403 venture READMEs mentioned IV/2SLS. OLS/2SLS/LIML/Fuller as k-class; unadjusted/robust/clustered (+debiased); first stage partial/Shea R2, F, effective F (Montiel Olea-Pflueger); Sargan, Hansen J (two-step GMM), Durbin, Wu-Hausman, control-function; Anderson-Rubin set closed form (homoskedastic) or grid+bisection (robust/clustered). Pinned to linearmodels 7.1 on 3 specs x 6 SE settings: max rel gap 9.4e-12; AR endpoints vs scipy brentq 1.7e-13. Example: Sargan rejects valid county-level instruments (p=0.029) under clustered errors; clustered Hansen J p=0.14. Coverage (1,000 draws x 3 designs, clustered): 2SLS 94.5/95.0/94.7%, LIML 94.3/95.7/95.5%, AR 93.9/92.2/92.6% (empty overidentified sets count as misses); stated on the page's limits. Browser-checked at 1100 and 390 px with Playwright, no console errors. Local verification: run_workflow_locally --for-changes passed 12 workflows; portfolio-validate 100/100 locally; portfolio-pages locally failed only 'Check the built artifact' on dev/daily pages from local build ordering (GitHub's build job passed) and the &infin; entity test (fixed). After review: 11 Copilot findings fixed (see errors); coverage rerun with the corrected AR grid gave identical coverage and reclassified the edge-touching sets.",
  "corrections": [],
  "redteam": null,
  "usage": {

@@ -102,7 +102,7 @@ factors recovered at most half a point.
 
 The AR set's promise is about instrument strength, not about how well the
 covariance is estimated. When the first stage was weak, it did what it
-should: in 12 to 22 draws per 1,000 it widened to two rays or the whole line,
+should: in 15 to 24 draws per 1,000 it widened to two rays or the whole line,
 where the Wald interval stayed narrow and confident. The page's limits now
 say plainly that it covered 92 to 94%, not 95%.
 

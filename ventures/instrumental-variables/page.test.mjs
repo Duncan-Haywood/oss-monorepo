@@ -92,7 +92,9 @@ test("page cites the papers with BibTeX and states its limits", async () => {
   const { PAPERS } = await import("./engine.mjs");
   assert.match(html, /<h2>Method and citation<\/h2>/);
   for (const p of PAPERS) assert.match(html, new RegExp(`@\\w+\\{${p.key},`), p.key);
-  assert.match(html, /<strong>Exclusion cannot be tested\.<\/strong>/);
+  assert.match(html, /<strong>Exclusion and independence cannot be tested\.<\/strong>/);
+  assert.match(html, /det\(V&prime;M<sub>W<\/sub>V/);
+  assert.match(html, /formula-injection guard/);
   assert.match(html, /<strong>Effects differ by person\.<\/strong>/);
   assert.match(html, /linearmodels 7\.1/);
 });
