@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23314f86'/%3E%3Ctext%20x='16'%20y='22'%20font-size='14'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EIV%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Instrumental Variables Regression Online: 2SLS, LIML, Weak Instrument Tests</title>
+  <meta name="description" content="Free instrumental variables (IV) regression tool. Upload a CSV and get two-stage least squares, LIML and Fuller next to OLS with robust or clustered standard errors, the first-stage F and effective F, Sargan and Hansen J overidentification tests, Durbin and Wu-Hausman endogeneity tests, and the Anderson-Rubin confidence set that stays valid with weak instruments. Matches linearmodels within 1e-11. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Instrumental variables regression in your browser: 2SLS, LIML and weak-instrument-robust intervals">
+  <meta property="og:description" content="What does x do to y when x is not randomly assigned? 2SLS, LIML and Fuller beside OLS, with the first-stage, overidentification and endogeneity checks a referee asks for and the Anderson-Rubin set. Free and private.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Instrumental variables regression: 2SLS, LIML and weak-instrument-robust inference", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Upload a CSV with an outcome, one or more endogenous regressors, instruments and controls, and get OLS, two-stage least squares, LIML and Fuller estimates with unadjusted, heteroskedasticity-robust or cluster-robust standard errors; first-stage R-squared, partial and Shea partial R-squared, the first-stage F and effective F; Sargan and Hansen J tests of the overidentifying restrictions; Durbin, Wu-Hausman and control-function tests of exogeneity; and the Anderson-Rubin confidence set. Runs in your browser.", "featureList": "instrumental variables regression online, 2SLS calculator, two-stage least squares, LIML, Fuller estimator, first-stage F statistic, effective F, weak instruments test, Anderson-Rubin confidence interval, Sargan test, Hansen J test, overidentification test, Durbin-Wu-Hausman test, endogeneity test, clustered standard errors, robust standard errors, CSV download", "citation": ["https://doi.org/10.1214/aoms/1177730090", "https://doi.org/10.2307/1912683", "https://doi.org/10.2307/2171753", "https://doi.org/10.1080/00401706.2013.806694", "https://doi.org/10.1257/aer.20211063", "https://doi.org/10.1162/rest.1997.79.2.348", "https://doi.org/10.2307/1907619", "https://doi.org/10.2307/1912775", "https://doi.org/10.2307/1401917", "https://doi.org/10.2307/1913827", "https://doi.org/10.2307/1912934"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an instrumental variable?", "acceptedAnswer": {"@type": "Answer", "text": "A variable that changes the regressor you care about but has no other route to the outcome. Distance to a college changes how much schooling people get; if it affects wages only through schooling, comparing people who lived nearer and farther identifies the return to schooling even though schooling itself was chosen. Two conditions must hold: relevance (the instrument moves the regressor, which the data can check) and exclusion (it reaches the outcome only through the regressor, which the data cannot check)."}}, {"@type": "Question", "name": "When should I use instrumental variables instead of OLS?", "acceptedAnswer": {"@type": "Answer", "text": "When the regressor is correlated with the error: an omitted variable drives both (ability raises schooling and wages), the outcome feeds back into the regressor (price and quantity), or the regressor is measured with error. OLS is then biased and more data does not fix it. IV trades that bias for a wider interval, and it is only as good as the instrument."}}, {"@type": "Question", "name": "How strong does the first stage need to be?", "acceptedAnswer": {"@type": "Answer", "text": "The usual rule of thumb is a first-stage F above 10 (Staiger and Stock 1997). Below that, 2SLS is biased towards OLS and its confidence interval is too narrow. With one instrument and one endogenous regressor, Lee, McCrary, Moreira and Porter (2022) show the usual 5% t-test keeps its 5% size only when the F exceeds 104.7. With heteroskedastic or clustered errors use the effective F of Montiel Olea and Pflueger (2013), which the page shows. When the first stage is not clearly strong, report the Anderson-Rubin set."}}, {"@type": "Question", "name": "What is the Anderson-Rubin confidence set?", "acceptedAnswer": {"@type": "Answer", "text": "The set of coefficient values b for which the instruments do not predict y minus b times x. Its coverage does not depend on how strong the instruments are. When they are strong it is close to the 2SLS interval; when they are weak it widens, and it can be two rays or the whole line, which is the honest answer: the data cannot pin the effect down. The page computes it for one endogenous regressor, with the same robust or clustered errors as the rest of the output."}}, {"@type": "Question", "name": "What do the Sargan and Hansen J tests tell me?", "acceptedAnswer": {"@type": "Answer", "text": "With more instruments than endogenous regressors, whether the instruments agree with each other about the coefficient. A rejection means at least one is invalid or the effect differs by instrument. Sargan assumes homoskedastic, independent errors; Hansen J is robust to heteroskedasticity or clustering. In the example, Sargan rejects valid instruments (p = 0.029) because the errors are clustered by county, and the clustered Hansen J does not (p = 0.14). Passing either test cannot show that the instruments are valid: if they share the same flaw, they agree."}}, {"@type": "Question", "name": "Should I report 2SLS or LIML?", "acceptedAnswer": {"@type": "Answer", "text": "With a strong first stage they agree and 2SLS is the convention. With many or weak instruments, LIML is median-unbiased where 2SLS is biased towards OLS, but LIML has no finite moments and can be erratic; Fuller's estimator with a = 1 (Fuller 1977) is a compromise with finite moments. The page prints all three with OLS so you can see whether the choice matters."}}, {"@type": "Question", "name": "Does it match Stata, R or Python?", "acceptedAnswer": {"@type": "Answer", "text": "On three specifications of the example data and every standard error choice, the OLS, 2SLS, LIML and Fuller coefficients and standard errors, the first-stage statistics, Sargan, Hansen J, Durbin, Wu-Hausman and the control-function test agree with linearmodels 7.1 within 1e-11, and the Anderson-Rubin set endpoints with an independent root-finding check within 1e-12."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b2536; background: #f2f4f8; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #314f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f3560; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f3560; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4d5868; }
+    .card { background: #fff; border: 1px solid #d5dbe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f356010; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6e7a8f; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #314f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3e8f1; color: #1f3560; }
+    button:disabled { opacity: .6; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e8ecf2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4d5868; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.bad { color: #a33b1f; font-weight: 700; }
+    td.se { color: #4d5868; font-size: .86rem; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #6e7a8f; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    #ar-chart svg { max-width: 680px; }
+    .summary { font-size: 1.02rem; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .legend { font-size: .82rem; color: #4d5868; margin: 4px 0 0; }
+    .sw { display: inline-block; width: 12px; height: 12px; vertical-align: middle; margin: 0 4px 0 10px; border-radius: 2px; }
+    pre { background: #f4f6fa; border: 1px solid #dfe4ec; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">INSTRUMENTAL VARIABLES · 2SLS · LIML · WEAK INSTRUMENTS · ANDERSON-RUBIN · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does x do to y when x was not randomly assigned?</h1>
+    <p>Schooling, prices, police numbers, hours of training: the regressor you care about is often chosen, and what drives the choice also drives the outcome, so ordinary least squares is biased however much data you have. An <strong>instrument</strong> is something that moves the regressor and has no other route to the outcome, such as growing up near a college for schooling, or a cost shock for price.</p>
+    <p>Upload one row per unit. You get <strong>two-stage least squares</strong>, <strong>LIML</strong> and <strong>Fuller</strong> beside <strong>OLS</strong>, with unadjusted, robust or <strong>clustered</strong> standard errors, and the checks a referee asks for: <strong>first-stage strength</strong> (partial R&sup2;, Shea's partial R&sup2;, the F and the effective F), <strong>overidentification</strong> (Sargan, Hansen J), <strong>endogeneity</strong> (Durbin, Wu-Hausman, the control-function test), and the <strong>Anderson-Rubin confidence set</strong>, which stays valid when the instruments are weak.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice, and not medical or policy advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">CSV with a header row: one row per unit (for example <code>log_wage,schooling,distance,age</code>)</label>
+    <textarea id="csv" spellcheck="false" placeholder="log_wage,schooling,near_college,age&#10;2.31,12,1,34&#10;2.05,10,0,41&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: 3,000 simulated people in 150 counties (true return to schooling 0.08)</button>
+    <p class="note" id="data-status">Paste data or load the example.</p>
+
+    <div class="grid">
+      <div><label for="outcome">Outcome (y)</label><select id="outcome"></select></div>
+      <div><label for="se">Standard errors</label><select id="se"><option value="robust" selected>Robust (heteroskedasticity)</option><option value="clustered">Clustered</option><option value="unadjusted">Unadjusted (homoskedastic)</option></select></div>
+      <div><label for="cluster">Cluster column (for clustered errors)</label><select id="cluster"></select></div>
+      <div><label for="estimator">Estimator for the reading</label><select id="estimator"><option value="2sls" selected>2SLS</option><option value="liml">LIML</option><option value="fuller">Fuller (a = 1)</option></select></div>
+    </div>
+    <label for="endogenous">Endogenous regressor(s): the variable whose effect you want, which was not randomly assigned</label>
+    <input id="endogenous" type="text" placeholder="education_years">
+    <label for="instruments">Instruments: move the endogenous regressor, reach the outcome only through it (at least one per endogenous regressor)</label>
+    <input id="instruments" type="text" placeholder="college_nearby, tuition">
+    <label for="exogenous">Exogenous controls, in both stages (comma-separated; text columns become indicators; a constant is added)</label>
+    <input id="exogenous" type="text" placeholder="experience, experience_sq, black, south, urban">
+    <p class="note" id="column-hint"></p>
+    <button type="button" id="analyze">Estimate</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div id="warnings"></div>
+    <h3>Coefficients (standard errors below)</h3>
+    <div class="scroll"><table id="coef-table"><thead></thead><tbody></tbody></table></div>
+    <div id="ar-block">
+      <h3>Anderson-Rubin test of each coefficient value</h3>
+      <div id="ar-chart" role="img" aria-label="Anderson-Rubin statistic against the coefficient value, with the critical value and the 2SLS interval"></div>
+      <p class="legend"><span class="sw" style="background:#314f86"></span>AR statistic <span class="sw" style="background:#c46a2f"></span>critical value: values below it form the AR set <span class="sw" style="background:#a9b3c4"></span>2SLS Wald interval</p>
+    </div>
+    <h3>First stage</h3>
+    <div class="scroll"><table id="fs-table"><thead><tr><th>Endogenous</th><th class="n">R&sup2;</th><th class="n">Partial R&sup2;</th><th class="n">Shea partial R&sup2;</th><th class="n">F</th><th class="n">p</th><th class="n">Effective F</th></tr></thead><tbody></tbody></table></div>
+    <div class="scroll"><table id="fs-coef-table"><thead><tr><th>Endogenous</th><th>Instrument</th><th class="n">Coefficient</th><th class="n">SE</th><th class="n">p</th></tr></thead><tbody></tbody></table></div>
+    <h3>Tests</h3>
+    <div class="scroll"><table id="test-table"><thead><tr><th>Test</th><th>Null hypothesis</th><th class="n">Statistic</th><th>Distribution</th><th class="n">p</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" class="secondary" id="download">Download the coefficient table and tests (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>Write the model as y = X&beta; + e, with X the constant, the exogenous controls W and the endogenous regressors, and Z the constant, W and the excluded instruments. Every estimator here is a <strong>k-class</strong> estimator, &beta;(k) = [(1&minus;k)X&prime;X + kX&prime;P<sub>Z</sub>X]<sup>&minus;1</sup>[(1&minus;k)X&prime;y + kX&prime;P<sub>Z</sub>y]: k = 0 is OLS, k = 1 is <strong>two-stage least squares</strong> (Theil 1953), k = the smallest root of det(W&prime;M<sub>W</sub>V &minus; k V&prime;M<sub>Z</sub>V) = 0 for V = [y, endogenous] is <strong>LIML</strong> (Anderson &amp; Rubin 1949), and that root minus a/(n &minus; L) is <strong>Fuller</strong>'s estimator (1977), a = 1 here.</p>
+    <p><strong>Standard errors</strong> are A<sup>&minus;1</sup>&middot;meat&middot;A<sup>&minus;1</sup> with A the matrix inverted above and the meat built from the first-stage fitted regressors P<sub>Z</sub>X times the structural residuals: summed unit by unit (robust; White 1980), summed within clusters first (clustered), or &sigma;&sup2;A (unadjusted). No small-sample factor is applied unless you ask for one in the command line (<code>--debiased</code>).</p>
+    <p><strong>First stage</strong>: the regression of each endogenous regressor on Z, its R&sup2;, the partial R&sup2; of the instruments after partialling out W, Shea's (1997) partial R&sup2;, and the F test of the instruments under the chosen errors (the Wald statistic over the number of instruments when errors are robust or clustered). The <strong>effective F</strong> of Montiel Olea &amp; Pflueger (2013) replaces the F when errors are not homoskedastic; F below 10 is flagged (Staiger &amp; Stock 1997). <strong>Overidentification</strong>: Sargan's (1958) n(1 &minus; e&prime;M<sub>Z</sub>e/e&prime;e) and Hansen's (1982) J from two-step GMM with the robust or clustered weight. <strong>Endogeneity</strong>: Durbin (1954) and Wu-Hausman (Hausman 1978), both homoskedastic, and the control-function test, which adds the first-stage residuals to OLS and tests them with the chosen errors.</p>
+    <p>The <strong>Anderson-Rubin set</strong> (one endogenous regressor) is every b for which the instruments do not predict y &minus; bx given W. With unadjusted errors it solves a quadratic inequality exactly; otherwise the robust or clustered Wald test is inverted on a grid of 4,001 points over the 2SLS estimate &plusmn; 40 standard errors and each edge refined by bisection.</p>
+    <p>Verified by tests in the source against <strong>linearmodels 7.1</strong>'s <code>IV2SLS</code>, <code>IVLIML</code> and <code>IVGMM</code> (run only as an external program to record reference numbers): on three specifications of the example data (overidentified, just identified, two endogenous regressors) and all six choices of errors, every coefficient, standard error, first-stage statistic and test agrees within 1e-11, and the Anderson-Rubin endpoints agree with an independent check (linearmodels' OLS and scipy's root finder) within 1e-12. On 1,000 simulated samples from the example's design the clustered intervals were checked for coverage; the README has the table.</p>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>Exclusion cannot be tested.</strong> That the instrument reaches the outcome only through the regressor is an argument you make, not something these statistics show. The overidentification tests only ask whether several instruments agree.</li>
+      <li><strong>Effects differ by person.</strong> With heterogeneous effects, IV estimates the effect for the people the instrument moves (a local average treatment effect; Imbens &amp; Angrist 1994), not for everyone, and different instruments can legitimately disagree.</li>
+      <li><strong>Few clusters.</strong> Clustered errors are unreliable with fewer than about 30 to 50 clusters; the page warns below 30.</li>
+      <li><strong>Linear model, one equation.</strong> No GMM point estimates, no panel fixed effects (add indicators as columns), no weights, no HAC errors; the Anderson-Rubin set is for one endogenous regressor.</li>
+    </ul>
+    <h3>BibTeX</h3>
+    <pre>@techreport{theil1953repeated,
+  author = {Theil, Henri}, title = {Repeated Least Squares Applied to Complete Equation Systems},
+  institution = {Central Planning Bureau}, address = {The Hague}, year = {1953}
+}
+@article{anderson1949estimation,
+  author = {Anderson, T. W. and Rubin, Herman},
+  title = {Estimation of the Parameters of a Single Equation in a Complete System of Stochastic Equations},
+  journal = {Annals of Mathematical Statistics}, volume = {20}, number = {1}, pages = {46--63}, year = {1949},
+  doi = {10.1214/aoms/1177730090}
+}
+@article{fuller1977some,
+  author = {Fuller, Wayne A.}, title = {Some Properties of a Modification of the Limited Information Estimator},
+  journal = {Econometrica}, volume = {45}, number = {4}, pages = {939--953}, year = {1977}, doi = {10.2307/1912683}
+}
+@article{white1980heteroskedasticity,
+  author = {White, Halbert},
+  title = {A Heteroskedasticity-Consistent Covariance Matrix Estimator and a Direct Test for Heteroskedasticity},
+  journal = {Econometrica}, volume = {48}, number = {4}, pages = {817--838}, year = {1980}, doi = {10.2307/1912934}
+}
+@article{staiger1997instrumental,
+  author = {Staiger, Douglas and Stock, James H.}, title = {Instrumental Variables Regression with Weak Instruments},
+  journal = {Econometrica}, volume = {65}, number = {3}, pages = {557--586}, year = {1997}, doi = {10.2307/2171753}
+}
+@article{olea2013robust,
+  author = {Montiel Olea, Jos{\'e} Luis and Pflueger, Carolin}, title = {A Robust Test for Weak Instruments},
+  journal = {Journal of Business \&amp; Economic Statistics}, volume = {31}, number = {3}, pages = {358--369}, year = {2013},
+  doi = {10.1080/00401706.2013.806694}
+}
+@article{lee2022valid,
+  author = {Lee, David S. and McCrary, Justin and Moreira, Marcelo J. and Porter, Jack},
+  title = {Valid t-Ratio Inference for {IV}}, journal = {American Economic Review},
+  volume = {112}, number = {10}, pages = {3260--3290}, year = {2022}, doi = {10.1257/aer.20211063}
+}
+@article{shea1997instrument,
+  author = {Shea, John}, title = {Instrument Relevance in Multivariate Linear Models: A Simple Measure},
+  journal = {Review of Economics and Statistics}, volume = {79}, number = {2}, pages = {348--352}, year = {1997},
+  doi = {10.1162/rest.1997.79.2.348}
+}
+@article{sargan1958estimation,
+  author = {Sargan, J. D.}, title = {The Estimation of Economic Relationships using Instrumental Variables},
+  journal = {Econometrica}, volume = {26}, number = {3}, pages = {393--415}, year = {1958}, doi = {10.2307/1907619}
+}
+@article{hansen1982large,
+  author = {Hansen, Lars Peter}, title = {Large Sample Properties of Generalized Method of Moments Estimators},
+  journal = {Econometrica}, volume = {50}, number = {4}, pages = {1029--1054}, year = {1982}, doi = {10.2307/1912775}
+}
+@article{durbin1954errors,
+  author = {Durbin, J.}, title = {Errors in Variables}, journal = {Revue de l'Institut International de Statistique},
+  volume = {22}, number = {1/3}, pages = {23--32}, year = {1954}, doi = {10.2307/1401917}
+}
+@article{hausman1978specification,
+  author = {Hausman, Jerry A.}, title = {Specification Tests in Econometrics},
+  journal = {Econometrica}, volume = {46}, number = {6}, pages = {1251--1271}, year = {1978}, doi = {10.2307/1913827}
+}</pre>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is an instrumental variable?</h3>
+    <p>A variable that changes the regressor you care about but has no other route to the outcome. Distance to a college changes how much schooling people get; if it affects wages only through schooling, comparing people who lived nearer and farther identifies the return to schooling even though schooling itself was chosen. Two conditions must hold: relevance (the instrument moves the regressor, which the data can check) and exclusion (it reaches the outcome only through the regressor, which the data cannot check).</p>
+    <h3>When should I use instrumental variables instead of OLS?</h3>
+    <p>When the regressor is correlated with the error: an omitted variable drives both (ability raises schooling and wages), the outcome feeds back into the regressor (price and quantity), or the regressor is measured with error. OLS is then biased and more data does not fix it. IV trades that bias for a wider interval, and it is only as good as the instrument.</p>
+    <h3>How strong does the first stage need to be?</h3>
+    <p>The usual rule of thumb is a first-stage F above 10 (Staiger and Stock 1997). Below that, 2SLS is biased towards OLS and its confidence interval is too narrow. With one instrument and one endogenous regressor, Lee, McCrary, Moreira and Porter (2022) show the usual 5% t-test keeps its 5% size only when the F exceeds 104.7. With heteroskedastic or clustered errors use the effective F of Montiel Olea and Pflueger (2013), which the page shows. When the first stage is not clearly strong, report the Anderson-Rubin set.</p>
+    <h3>What is the Anderson-Rubin confidence set?</h3>
+    <p>The set of coefficient values b for which the instruments do not predict y minus b times x. Its coverage does not depend on how strong the instruments are. When they are strong it is close to the 2SLS interval; when they are weak it widens, and it can be two rays or the whole line, which is the honest answer: the data cannot pin the effect down. The page computes it for one endogenous regressor, with the same robust or clustered errors as the rest of the output.</p>
+    <h3>What do the Sargan and Hansen J tests tell me?</h3>
+    <p>With more instruments than endogenous regressors, whether the instruments agree with each other about the coefficient. A rejection means at least one is invalid or the effect differs by instrument. Sargan assumes homoskedastic, independent errors; Hansen J is robust to heteroskedasticity or clustering. In the example, Sargan rejects valid instruments (p = 0.029) because the errors are clustered by county, and the clustered Hansen J does not (p = 0.14). Passing either test cannot show that the instruments are valid: if they share the same flaw, they agree.</p>
+    <h3>Should I report 2SLS or LIML?</h3>
+    <p>With a strong first stage they agree and 2SLS is the convention. With many or weak instruments, LIML is median-unbiased where 2SLS is biased towards OLS, but LIML has no finite moments and can be erratic; Fuller's estimator with a = 1 (Fuller 1977) is a compromise with finite moments. The page prints all three with OLS so you can see whether the choice matters.</p>
+    <h3>Does it match Stata, R or Python?</h3>
+    <p>On three specifications of the example data and every standard error choice, the OLS, 2SLS, LIML and Fuller coefficients and standard errors, the first-stage statistics, Sargan, Hansen J, Durbin, Wu-Hausman and the control-function test agree with linearmodels 7.1 within 1e-11, and the Anderson-Rubin set endpoints with an independent root-finding check within 1e-12.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician or econometrician. Results are statistical estimates from the data you enter; they do not by themselves establish what caused any outcome, and they are not medical or policy advice. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the linearmodels, statsmodels, ivreg, AER or ivreg2 projects, Stata, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs data.csv --outcome y --endogenous x --instruments z1,z2 --exogenous w</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/instrumental-variables" rel="noopener">source</a>.</p>
+    <p>More causal and research tools on your own data: <a href="../propensity-score/">propensity scores</a> when every confounder is measured, <a href="../regression-discontinuity/">regression discontinuity</a> for a treatment that switches on at a cutoff, <a href="../difference-in-differences/">difference-in-differences</a> for changes adopted at different times, and <a href="../synthetic-control/">synthetic control</a> for a single treated unit.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv } from "./engine.mjs";
+    import { EXAMPLE_CSV, EXAMPLE_SPEC } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const fmt = (x, d = 4) => (Number.isFinite(x) ? x.toFixed(d) : x === Infinity ? "+&infin;" : x === -Infinity ? "&minus;&infin;" : "n/a");
+    const pfmt = (p) => (!Number.isFinite(p) ? "n/a" : p < 0.0001 ? "< 0.0001" : p.toFixed(4));
+    let parsed = null;
+    let last = null;
+    const opts = (list, none) => (none ? `<option value="">${esc(none)}</option>` : "") + list.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+    const values = (col) => parsed.records.slice(0, 500).map((r) => String(r[col] ?? "").trim()).filter((v) => v !== "");
+    const isNum = (col) => values(col).every((v) => Number.isFinite(Number(v)));
+    function refreshColumns() {
+      const text = $("#csv").value;
+      if (!text.trim()) { parsed = null; $("#data-status").textContent = "Paste data or load the example."; return; }
+      try { parsed = parseCsv(text); } catch (e) { parsed = null; $("#data-status").textContent = e.message; return; }
+      const numeric = parsed.header.filter(isNum);
+      const prev = { y: $("#outcome").value, c: $("#cluster").value };
+      $("#outcome").innerHTML = opts(numeric);
+      $("#cluster").innerHTML = opts(parsed.header, "none");
+      $("#outcome").value = numeric.includes(prev.y) ? prev.y : numeric.find((c) => /(wage|earn|outcome|^y$|price|log)/i.test(c)) || numeric[0] || "";
+      $("#cluster").value = parsed.header.includes(prev.c) ? prev.c : "";
+      $("#column-hint").textContent = `Columns: ${parsed.header.join(", ")}`;
+      $("#data-status").textContent = `${parsed.records.length} rows, ${parsed.header.length} columns.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+    function inputs() {
+      return { csv: $("#csv").value, outcome: $("#outcome").value, endogenous: $("#endogenous").value, instruments: $("#instruments").value, exogenous: $("#exogenous").value, se: $("#se").value, cluster: $("#cluster").value || null, estimator: $("#estimator").value };
+    }
+    function arChart(el, ar, tslsTerm) {
+      const W = 560, H = 260, L = 48, R = 14, T = 12, B = 40;
+      const pts = ar.curve, xs = pts.map((p) => p[0]);
+      const ymax = Math.max(ar.crit * 2.2, Math.min(Math.max(...pts.map((p) => p[1])), ar.crit * 6));
+      const x0 = Math.min(...xs), x1 = Math.max(...xs);
+      const x = (v) => L + ((v - x0) / (x1 - x0)) * (W - L - R), y = (v) => T + (1 - Math.min(v, ymax) / ymax) * (H - T - B);
+      let g = "";
+      const [lo, hi] = tslsTerm.ci;
+      g += `<rect x="${x(Math.max(lo, x0))}" y="${T}" width="${Math.max(0, x(Math.min(hi, x1)) - x(Math.max(lo, x0)))}" height="${H - T - B}" fill="#a9b3c4" opacity="0.35"><title>2SLS Wald interval ${esc(fmt(lo))} to ${esc(fmt(hi))}</title></rect>`;
+      g += `<line x1="${L}" x2="${W - R}" y1="${y(ar.crit)}" y2="${y(ar.crit)}" stroke="#c46a2f" stroke-dasharray="5 3"/>`;
+      g += `<polyline fill="none" stroke="#314f86" stroke-width="2" points="${pts.map((p) => `${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`).join(" ")}"/>`;
+      g += `<line x1="${L}" x2="${W - R}" y1="${H - B}" y2="${H - B}" stroke="#6e7a8f"/>`;
+      for (let i = 0; i <= 4; i++) { const v = x0 + ((x1 - x0) * i) / 4; g += `<text x="${x(v)}" y="${H - B + 16}" font-size="11" text-anchor="middle" fill="#4d5868">${esc(v.toFixed(3))}</text>`; }
+      g += `<text x="${L - 6}" y="${y(ar.crit) + 4}" font-size="11" text-anchor="end" fill="#c46a2f">${esc(ar.crit.toFixed(2))}</text>`;
+      g += `<text x="${(L + W - R) / 2}" y="${H - 4}" font-size="11" text-anchor="middle" fill="#4d5868">coefficient value b tested (2SLS estimate &plusmn; 6 SE)</text>`;
+      el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+    }
+    const NULLS = { Sargan: "the instruments agree (homoskedastic)", "Hansen J": "the instruments agree (robust or clustered)", Durbin: "the regressors are exogenous: OLS is consistent", "Wu-Hausman": "the regressors are exogenous: OLS is consistent", "Control function (regression)": "the regressors are exogenous (chosen errors)" };
+    function render(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      $("#warnings").innerHTML = r.notes.map((n) => `<p class="warn">${esc(n)}</p>`).join("");
+      const models = Object.values(r.models);
+      $("#coef-table").querySelector("thead").innerHTML = `<tr><th>Term</th>${models.map((m) => `<th class="n">${esc(m.name)}</th>`).join("")}</tr>`;
+      const names = r.models.ols.terms.map((t) => t.name);
+      $("#coef-table").querySelector("tbody").innerHTML = names.map((nm, i) => `<tr><td>${r.spec.endogenous.includes(nm) ? `<strong>${esc(nm)}</strong>` : esc(nm)}</td>${models.map((m) => `<td class="n">${fmt(m.terms[i].coef)}<br><span class="note">(${fmt(m.terms[i].se)})</span></td>`).join("")}</tr>`).join("") + `<tr><td class="note">k</td>${models.map((m) => `<td class="n note">${fmt(m.k, 5)}</td>`).join("")}</tr>`;
+      $("#ar-block").hidden = !r.andersonRubin;
+      if (r.andersonRubin) arChart($("#ar-chart"), r.andersonRubin, r.models["2sls"].terms[names.indexOf(r.spec.endogenous[0])]);
+      const weakF = (v) => `<td class="n${Number.isFinite(v) && v < 10 ? " bad" : ""}">${fmt(v, 2)}</td>`;
+      $("#fs-table").querySelector("tbody").innerHTML = r.firstStage.map((s) => `<tr><td>${esc(s.variable)}</td><td class="n">${fmt(s.r2, 3)}</td><td class="n">${fmt(s.partialR2, 3)}</td><td class="n">${fmt(s.sheaR2, 3)}</td>${weakF(s.F)}<td class="n">${pfmt(s.fP)}</td>${weakF(s.effectiveF)}</tr>`).join("");
+      $("#fs-coef-table").querySelector("tbody").innerHTML = r.firstStage.flatMap((s) => s.instruments.map((z) => `<tr><td>${esc(s.variable)}</td><td>${esc(z.name)}</td><td class="n">${fmt(z.coef)}</td><td class="n">${fmt(z.se)}</td><td class="n">${pfmt(z.p)}</td></tr>`)).join("");
+      const rows = [...r.overid, ...r.exogeneity].map((t) => `<tr><td>${esc(t.name)}</td><td>${esc(NULLS[t.name] || "")}</td>${t.error ? `<td colspan="3" class="note">${esc(t.error)}</td>` : `<td class="n">${fmt(t.stat, 3)}</td><td>${esc(t.dist)}</td><td class="n${t.p < r.options.alpha ? " bad" : ""}">${pfmt(t.p)}</td>`}</tr>`);
+      if (r.andersonRubin) { const a = r.andersonRubin.atZero; rows.push(`<tr><td>Anderson-Rubin</td><td>the coefficient on ${esc(r.spec.endogenous[0])} is 0</td><td class="n">${fmt(a.stat, 3)}</td><td>${esc(a.dist)}</td><td class="n${a.p < r.options.alpha ? " bad" : ""}">${pfmt(a.p)}</td></tr>`); }
+      $("#test-table").querySelector("tbody").innerHTML = rows.join("");
+    }
+    function runAnalysis() {
+      $("#status").textContent = "";
+      try {
+        last = analyze(inputs());
+        render(last);
+        $("#status").textContent = `Done: ${last.n} rows${last.clusters ? ` in ${last.clusters} clusters` : ""}.`;
+        return true;
+      } catch (e) {
+        $("#results").hidden = true;
+        $("#status").textContent = e.message;
+        return false;
+      }
+    }
+    $("#analyze").addEventListener("click", () => {
+      $("#analyze").disabled = true;
+      $("#status").textContent = "Estimating...";
+      setTimeout(() => { if (runAnalysis()) record("analysis_run"); $("#analyze").disabled = false; }, 20);
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshColumns();
+      $("#outcome").value = EXAMPLE_SPEC.outcome;
+      $("#endogenous").value = EXAMPLE_SPEC.endogenous;
+      $("#instruments").value = EXAMPLE_SPEC.instruments;
+      $("#exogenous").value = EXAMPLE_SPEC.exogenous;
+      $("#cluster").value = EXAMPLE_SPEC.cluster;
+      $("#se").value = "clustered";
+      if (runAnalysis()) { record("example_loaded"); $("#data-status").textContent = "Example: 3,000 simulated people in 150 counties. Unobserved ability raises schooling and wages, so OLS says 0.107 a year of school; the true return is 0.08."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const f = (v) => (Number.isFinite(v) ? v : "");
+      const q = (s) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
+      const lines = ["model,term,coef,se,stat,p_value,ci_low,ci_high"];
+      for (const m of Object.values(last.models)) for (const t of m.terms) lines.push([q(m.name), q(t.name), f(t.coef), f(t.se), f(t.stat), f(t.p), f(t.ci[0]), f(t.ci[1])].join(","));
+      lines.push("", "test,statistic,distribution,p_value");
+      for (const t of [...last.overid, ...last.exogeneity]) lines.push([q(t.name), f(t.stat), q(t.dist), f(t.p)].join(","));
+      if (last.andersonRubin) lines.push("", "anderson_rubin_low,anderson_rubin_high", ...last.andersonRubin.intervals.map(([a, b]) => `${a},${b}`));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lines.join("\n") + "\n"], { type: "text/csv" }));
+      a.download = "instrumental-variables.csv";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
