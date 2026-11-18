@@ -140,3 +140,11 @@ test("spread: a period that starts and ends at the same time of day counts whole
   assert.equal(y["2027-03"], undefined);
   assert.equal(y["2026-03"], 3100);
 });
+
+test("only a negative line is re-spread over the line it credits; a positive one keeps its date (red team 2026-11-18)", () => {
+  const rows = schedule([
+    { id: "il_a", billedAt: D(2026, 1, 1), start: D(2026, 1, 1), end: D(2027, 1, 1), amount: 36500 },
+    { id: "fee", credits: "il_a", billedAt: D(2026, 2, 1), start: D(2026, 2, 1), end: D(2026, 2, 1), amount: 5000 },
+  ], { asOf: D(2026, 3, 1) });
+  assert.equal(rows.find((r) => r.month === "2026-02").recognized, 2800 + 5000);
+});

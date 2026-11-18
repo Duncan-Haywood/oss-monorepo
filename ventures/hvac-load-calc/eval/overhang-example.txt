@@ -1,0 +1,12 @@
+base 19,732 total 26,301 tons 2.19 peak 15 winSolar 3,946
+eave 1ft 19,562 total 26,131 tons 2.18 peak 15 winSolar 3,791
+eave 2ft 19,072 total 25,642 tons 2.14 peak 15 winSolar 3,346
+   Living 5,835 -> 5,698 peak 16 -> 16
+   Kitchen/dining 4,276 -> 3,959 peak 12 -> 13
+   Primary bedroom 2,952 -> 2,884 peak 16 -> 16
+   Primary bath 479 -> 479 peak 14 -> 14
+   Bedroom 2 1,325 -> 1,325 peak 12 -> 12
+   Bedroom 3 1,615 -> 1,398 peak 12 -> 13
+   Hall bath 77 -> 77 peak 14 -> 14
+   Halls/laundry 1,352 -> 1,352 peak 14 -> 14
+eave 3ft 18,690 total 25,259 tons 2.10 peak 16 winSolar 3,329

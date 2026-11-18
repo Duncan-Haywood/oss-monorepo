@@ -10,9 +10,22 @@ const f = (v, d = 2) => Number(v).toFixed(d), g = (v) => Number(v).toPrecision(3
 // Few donors (eval/synth-few-donors-prereg-2026-11-18.md, README "Few donors: the Basque Country and West Germany"):
 // with J donors the placebo p cannot go below 1 / (J + 1), so under 19 donors p <= 0.05 is out of reach whatever
 // happened. Arithmetic on the permutation test, shared by the CLI and the page; null when 0.05 is reachable.
+// FEW_POWER: what the test reached in simulation (eval/synth-few-power-confirm.out.txt, pre-registered
+// eval/synth-few-power-prereg-2026-11-18.md, all six bars passed): rank-1 shares at 11, 16 and 21 units with a step of
+// two noise sd and clean donors (clean), with one donor shocked by the same amount after the date (oneShocked), and
+// with that donor left out of the pool beforehand (excluded, the PD cell's).
+export const FEW_POWER = [
+  { units: 11, clean: 53.5, oneShocked: 38.0, twiceShocked: 12.8, excluded: 58.3 },
+  { units: 16, clean: 60.0, oneShocked: 40.3, twiceShocked: 9.0, excluded: 56.0 },
+  { units: 21, clean: 58.8, oneShocked: 34.8, twiceShocked: 6.0, excluded: 57.5 },
+];
+export function fewPowerRow(units) {
+  return FEW_POWER.reduce((best, r) => (Math.abs(r.units - units) < Math.abs(best.units - units) ? r : best));
+}
 export function fewDonorsNote(h) {
   if (!(h.minP > 0.05)) return null;
-  return `With ${h.donors + 1} units the placebo p cannot go below ${f(h.minP, 3)}: p <= 0.05 is out of reach whatever happened, so rank 1 (p ${f(h.minP, 3)}) is the strongest result this test can give, not a near-miss. On two real 17-unit panels (West Germany 1990, the Basque Country 1970) a donor or two with large gaps of their own put the treated unit 3rd and 4th; read the units ranked above it.`;
+  const pw = fewPowerRow(h.donors + 1), pc = (v) => `${Math.round(v)}%`;
+  return `With ${h.donors + 1} units the placebo p cannot go below ${f(h.minP, 3)}: p <= 0.05 is out of reach whatever happened, so rank 1 (p ${f(h.minP, 3)}) is the strongest result this test can give, not a near-miss. In simulation with ${pw.units} units (eval/synth-few-power-confirm.out.txt, pre-registered), a real step of two noise sd reached rank 1 ${pc(pw.clean)} of the time; when one donor had its own shock of the same size after the date, ${pc(pw.oneShocked)}; twice the size, ${pc(pw.twiceShocked)}; with that donor left out of the pool before the fit, ${pc(pw.excluded)}. So leave out of --donors, before fitting, any unit whose own event after the date you already know of, and say so; dropping one after seeing the ranks is not a test. On two real 17-unit panels (West Germany 1990, the Basque Country 1970) a donor or two with large gaps of their own put the treated unit 3rd and 4th; read the units ranked above it.`;
 }
 
 // The placebos whose statistic is at least the treated unit's (synthResult's h.above), largest first: a description,

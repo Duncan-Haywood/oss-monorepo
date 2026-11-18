@@ -226,6 +226,23 @@ class NearDuplicateGroupingTest(unittest.TestCase):
 
 
 class BurstMatchTest(unittest.TestCase):
+    def test_pan_pass_needs_both_a_close_far_window_and_a_gain(self):
+        from shootflow.cull import PAN_CANDIDATE_MAX_DISTANCE, PAN_MAX_DISTANCE, PAN_MIN_GAIN, pan_match
+        from shootflow.frame_analysis import _PAN_PAIRS, pan_pack
+
+        rng = __import__("random").Random(5)
+        far = tuple(rng.getrandbits(64) for _ in range(25))  # windows about 32 bits from each other
+        x, y = _PAN_PAIRS[0]
+        near = list(far)
+        near[y] = far[x] ^ 0b11  # 2 bits from a's window x at a far offset
+        far, near = pan_pack(far), pan_pack(near)
+        distance = max(2 + PAN_MIN_GAIN, PAN_MAX_DISTANCE + 1)
+        self.assertLessEqual(distance, PAN_CANDIDATE_MAX_DISTANCE)
+        self.assertTrue(pan_match(distance, far, near))
+        self.assertFalse(pan_match(2 + PAN_MIN_GAIN - 1, far, near))
+        self.assertFalse(pan_match(PAN_CANDIDATE_MAX_DISTANCE + 1, far, near))
+        self.assertFalse(pan_match(distance, far, ()))
+
     def test_zoom_pass_needs_both_a_close_window_and_a_gain(self):
         from shootflow.cull import ZOOM_CANDIDATE_MAX_DISTANCE, ZOOM_MIN_GAIN, zoom_match
         from shootflow.frame_analysis import ZOOM_SCALES, ZOOM_STEPS, zoom_index
