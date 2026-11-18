@@ -208,3 +208,57 @@ test("seasons a solver proved out of reach are flagged, and only those", () => {
   // A season at the bound is never flagged.
   assert.equal(laneReport(bowlingSchedule({ teams: names(8), weeks: 30, start: START })).boundProvedOutOfReach, false);
 });
+
+// Red team 2026-11-17: three faults seeded into bowling.mjs got past the suite, and three real
+// defects turned up reading it. Each test below fails on one of them.
+
+test("an odd league's position round puts last place against the Vacancy, not a place that does not exist", () => {
+  const s = bowlingSchedule({ teams: names(5), weeks: 3, start: START, positionWeeks: [3] });
+  const pos = s.weeks.find((w) => w.kind === "position");
+  assert.deepEqual(pos.matches.map((m) => [m.a, m.b]), [["1st place", "2nd place"], ["3rd place", "4th place"], ["5th place", VACANCY]]);
+  assert.doesNotMatch(bowlingText(s), /6th place/);
+  // An even league still lists every place.
+  const e = bowlingSchedule({ teams: names(6), weeks: 1, start: START, positionWeeks: [1] });
+  assert.equal(e.weeks[0].matches[2].b, "6th place");
+});
+
+test("a team called Vacancy is refused in an odd league (it would be two teams of one name), allowed in an even one", () => {
+  const odd = bowlingSchedule({ teams: "Pins\nSplits\nvacancy", weeks: 4, start: START });
+  assert.equal(odd.errors.length, 1);
+  assert.match(odd.errors[0], /Vacancy/);
+  assert.equal(bowlingSchedule({ teams: ["Pins", "Splits", " VACANCY "], weeks: 4, start: START }).errors.length, 1);
+  assert.deepEqual(bowlingSchedule({ teams: "Pins\nSplits\nVacancy\nStrikes", weeks: 4, start: START }).errors, []);
+});
+
+test("each input problem is reported once", () => {
+  for (const teams of ["Solo", Array.from({ length: 70 }, (_, i) => `T${i}`).join("\n")]) {
+    const errs = bowlingSchedule({ teams, weeks: 4, start: START }).errors;
+    assert.equal(errs.length, 1, errs.join(" | "));
+  }
+  assert.equal(bowlingSchedule({ teams: ["Solo"], weeks: 4, start: START }).errors.length, 1);
+});
+
+test("weeks: 60 is the longest season accepted, 61 is refused", () => {
+  assert.deepEqual(bowlingSchedule({ teams: names(4), weeks: 60, start: START, mode: "greedy" }).errors, []);
+  assert.equal(bowlingSchedule({ teams: names(4), weeks: 61, start: START }).errors.length, 1);
+  assert.equal(bowlingSchedule({ teams: names(4), weeks: 2.5, start: START }).errors.length, 1);
+});
+
+test("validateBowling checks the first team's meetings too", () => {
+  const s = bowlingSchedule({ teams: names(4), weeks: 3, start: START });
+  assert.deepEqual(validateBowling(s), []);
+  // Swap opponents in week 2 so team 0 meets team 1 twice and team 2 never; other pairs too.
+  const wk = s.weeks[1];
+  const t = structuredClone(s);
+  t.weeks[1].matches = wk.matches.map((m) => (m.a === 0 || m.b === 0 ? { ...m, a: 0, b: 1 } : { ...m, a: 2, b: 3 }));
+  assert.ok(validateBowling(t).some((p) => p.startsWith("Team 1 and")), validateBowling(t).join(" | "));
+});
+
+test("the season polish keeps back-to-back repeats low (12 teams, 30 weeks: 17 repeats)", () => {
+  // The sweep accepts a re-solve only when the season's price falls; flipping the sign of the
+  // squared-count term in that price left the spread intact but raised repeats from 17 to 25.
+  const s = bowlingSchedule({ teams: names(12), weeks: 30, start: START });
+  const r = laneReport(s);
+  assert.ok(r.worstSpread <= 2, `spread ${r.worstSpread}`);
+  assert.ok(r.repeats <= 17, `repeats ${r.repeats}`);
+});
