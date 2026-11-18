@@ -52,7 +52,7 @@
     "research/cell-fidelity/LOG.md (5zu plan and outcome)"
   ],
   "goal": null,
-  "notes": "Security queue empty; IDEAS and website requests empty; routed research/0, drew cell-fidelity. Checks run locally: tests/test_budget.py 4 OK, full project unittest discovery run, research/_homepage/build.py ok, research_live_links ok, check_md_links ok, check_posts ok, programme_check ok. rows 35 s stdlib, report run once.",
+  "notes": "Security queue empty; IDEAS and website requests empty; routed research/0, drew cell-fidelity. Checks run locally: tests/test_budget.py 4 OK, full project unittest discovery: 160 of 167 pass, 7 modules (test_average, calibrate, fresh, location, mfbo, theory, transfer) fail to import for lack of numpy/pytest in the bare python3, untouched by this PR and left to research CI, research/_homepage/build.py ok, research_live_links ok, check_md_links ok, check_posts ok, programme_check ok. rows 35 s stdlib, report run once.",
   "corrections": [],
   "redteam": null,
   "usage": {
