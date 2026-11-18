@@ -38,8 +38,9 @@ from shootflow.frame_analysis import (
     ZoomIndex,
     analyze_media,
     crop_distance,
-    pan_pack,
     pan_within,
+    window_pack,
+    windows_within,
     zoom_distance_within,
     zoom_index,
 )
@@ -52,7 +53,11 @@ NEAR_DUPLICATE_MAX_DISTANCE = 8
 # is at least CROP_MIN_GAIN closer than the whole frames. Picked on 165 tune
 # photos; on 166 held-out ones it took burst-pair recall from 0.40 to 0.72 and
 # added 4 false merges in 13,695 pairs of distinct photos (17 to 21).
-CROP_CANDIDATE_MAX_DISTANCE = 24
+# The gate was 24 until 2026-11-18 (eval/cull-crop-gate-2026-11-18.md): every
+# 6% pan it missed had crop windows within 0-7 bits but whole frames 25-33
+# apart. At 44, the wide-pan pass's gate, held-out recall rose 0.985 to 0.991
+# (6% pans 0.85-0.86 to 1.00) with no added false merge in 13,695 pairs.
+CROP_CANDIDATE_MAX_DISTANCE = 44
 CROP_MAX_DISTANCE = 6
 CROP_MIN_GAIN = 5
 # Zoom pass (eval/cull-zoom-windows-2026-11-18.md): a pair up to
@@ -324,24 +329,31 @@ def pan_match(distance: int, pans_a: tuple[int, ...], pans_b: tuple[int, ...]) -
     return pan_within(pans_a, pans_b, min(PAN_MAX_DISTANCE, distance - PAN_MIN_GAIN))
 
 
+def window_match(distance: int, windows_a: tuple[int, ...], windows_b: tuple[int, ...]) -> bool:
+    """``crop_match or pan_match`` in one packed check (``window_pack`` of each frame)."""
+
+    crop_limit = min(CROP_MAX_DISTANCE, distance - CROP_MIN_GAIN) if distance <= CROP_CANDIDATE_MAX_DISTANCE else -1
+    pan_limit = min(PAN_MAX_DISTANCE, distance - PAN_MIN_GAIN) if distance <= PAN_CANDIDATE_MAX_DISTANCE else -1
+    return windows_within(windows_a, windows_b, crop_limit, pan_limit)
+
+
 def burst_match(
     distance: int,
     hash_a: int, crops_a: Sequence[int], index_a: ZoomIndex,
     hash_b: int, crops_b: Sequence[int], index_b: ZoomIndex,
-    pans_a: tuple[int, ...] | None = None, pans_b: tuple[int, ...] | None = None,
+    windows_a: tuple[int, ...] | None = None, windows_b: tuple[int, ...] | None = None,
 ) -> bool:
     """Whether two frames ``distance`` apart on the whole frame belong to one burst.
 
-    ``pans_a`` / ``pans_b`` are ``pan_pack`` of the crops, computed here when not given.
+    ``windows_a`` / ``windows_b`` are ``window_pack`` of the crops, computed here when not given.
     """
 
     return (
         distance <= NEAR_DUPLICATE_MAX_DISTANCE
-        or crop_match(distance, crops_a, crops_b)
-        or pan_match(
+        or window_match(
             distance,
-            pan_pack(crops_a) if pans_a is None else pans_a,
-            pan_pack(crops_b) if pans_b is None else pans_b,
+            window_pack(crops_a) if windows_a is None else windows_a,
+            window_pack(crops_b) if windows_b is None else windows_b,
         )
         or zoom_match(distance, hash_a, index_a, hash_b, index_b)
     )
@@ -365,13 +377,13 @@ def _group(
     hashes = [int(row[1].dhash, 16) for row in ordered]
     crops = [tuple(int(h, 16) for h in getattr(row[1], "dhash_crops", ())) for row in ordered]
     zooms = [zoom_index(tuple(int(h, 16) for h in getattr(row[1], "dhash_zooms", ()))) for row in ordered]
-    pans = [pan_pack(c) for c in crops]
+    windows = [window_pack(c) for c in crops]
     for i in range(len(hashes)):
         hi = hashes[i]
         for j in range(i + 1, len(hashes)):
             distance = (hi ^ hashes[j]).bit_count()
             if distance > NEAR_DUPLICATE_MAX_DISTANCE and not burst_match(
-                distance, hi, crops[i], zooms[i], hashes[j], crops[j], zooms[j], pans[i], pans[j]
+                distance, hi, crops[i], zooms[i], hashes[j], crops[j], zooms[j], windows[i], windows[j]
             ):
                 continue
             a, b = find(i), find(j)

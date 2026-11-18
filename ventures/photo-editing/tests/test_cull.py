@@ -226,6 +226,35 @@ class NearDuplicateGroupingTest(unittest.TestCase):
 
 
 class BurstMatchTest(unittest.TestCase):
+    def test_window_match_is_crop_or_pan_match(self):
+        from shootflow.cull import crop_match, pan_match, window_match
+        from shootflow.frame_analysis import pan_pack, window_pack
+
+        rng = __import__("random").Random(7)
+        for _ in range(400):
+            a = tuple(rng.getrandbits(64) for _ in range(25))
+            b = tuple(a[rng.randrange(25)] ^ rng.getrandbits(64) & rng.getrandbits(64) & rng.getrandbits(64)
+                      for _ in range(25))
+            for distance in range(0, 50, 3):
+                self.assertEqual(
+                    window_match(distance, window_pack(a), window_pack(b)),
+                    crop_match(distance, a, b) or pan_match(distance, pan_pack(a), pan_pack(b)),
+                )
+
+    def test_a_six_percent_pan_far_apart_on_the_whole_frame_groups(self):
+        # 2026-11-18: crop windows within a few bits, whole frames 25-33 apart (past the old gate of 24).
+        from shootflow.cull import CROP_CANDIDATE_MAX_DISTANCE, CROP_MAX_DISTANCE, CROP_MIN_GAIN, crop_match
+
+        rng = __import__("random").Random(3)
+        a = tuple(rng.getrandbits(64) for _ in range(25))
+        b = list(rng.getrandbits(64) for _ in range(25))
+        b[0] = a[12] ^ 0b1  # a's centre window one bit from b's top-left window
+        self.assertGreaterEqual(CROP_CANDIDATE_MAX_DISTANCE, 33)
+        self.assertTrue(crop_match(30, a, b))
+        self.assertFalse(crop_match(CROP_CANDIDATE_MAX_DISTANCE + 1, a, b))
+        self.assertFalse(crop_match(CROP_MIN_GAIN, a, b))
+        self.assertLessEqual(1, CROP_MAX_DISTANCE)
+
     def test_pan_pass_needs_both_a_close_far_window_and_a_gain(self):
         from shootflow.cull import PAN_CANDIDATE_MAX_DISTANCE, PAN_MAX_DISTANCE, PAN_MIN_GAIN, pan_match
         from shootflow.frame_analysis import _PAN_PAIRS, pan_pack

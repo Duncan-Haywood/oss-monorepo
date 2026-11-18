@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtJQJU6DAfaiLWAHHri",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T06:06:25Z",
+  "ended": "2026-11-18T06:35:03Z",
+  "wall_minutes": 29.02,
+  "tokens_in": 9388878,
+  "tokens_out": 41121,
+  "cost_usd": 3.8787,
+  "tool_calls": 83,
+  "task": "Deepen (flagship 7) photo-editing: cull 6% pans (flagships.yaml next: '6% pans (0.85, a 7x7 grid?)')",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17199",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "Wrote a first claim in the eval note that the 10% misses' best window pair was 14-25 bits apart (that was crop_distance from the --why output); checked pan_distance before committing: 6-11 bits, corrected."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/eval/cull-pan-windows-2026-11-18.md",
+      "issue": "'What is left' blamed 6% pans on the grid (6.4% falls between 6% and 9% offsets) and proposed a 7x7 grid; the misses were all the crop pass's whole-frame gate (24). A per-reason count of the misses would have settled it in one command; the grid was never the cause."
+    },
+    {
+      "file": "ventures/photo-editing/tools/cull_showcase.py",
+      "issue": "Needs Pillow; the container's system python3 (and the one platform/ci/pyenv.py returns) has a broken dist-packages PIL (_imaging missing). A fresh venv with pip install pillow worked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/photo-editing/eval/cull-pan-windows-2026-11-18.md (pick rule)",
+      "why": "The earlier notes' pick rule (highest tune recall within +2 tune false merges) chose (T7,G5,L44); I picked (T6,G5,L44), changing only the gate the diagnosis implicated, for 0.0009 less tune recall and 2 fewer tune false merges. Chosen on the tune half before scoring held-out.",
+      "did": "gate 24 -> 44 only",
+      "result": "held-out recall 0.985 -> 0.991, false merges 26 -> 26"
+    },
+    {
+      "file": "portfolio/flagships.yaml (next: 'a 7x7 grid?')",
+      "why": "Diagnosed before building: the grid was not the cause for 6% pans, so no re-analysis-forcing grid change was shipped.",
+      "did": "gate change + packed check",
+      "result": "6% pans 0.85-0.86 -> 1.00 with no new hashes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-the-6-percent-pan-was-the-gate-not-the-grid.md",
+    "ventures/photo-editing/eval/cull-crop-gate-2026-11-18.md"
+  ],
+  "goal": "Deepen a flagship (photo-editing cull burst grouping)",
+  "notes": "Verification: baseline eval reproduced eval/cull-pan-windows-2026-11-18.txt exactly; held-out scored once (eval/cull-crop-gate-2026-11-18.txt); tests.test_cull + tests.test_frame_analysis 64 OK; grouping timing 2,000 frames 10.7 s vs 8.6 s before (tools/cull_group_timing.py); showcase unchanged (5 groups/5 keepers/6 alternates/2 rejects). run_venture_tests.py photo-editing and venture-preflight results: see PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "92c55cd6-6916-5d74-b566-0b484348ebc4",
+    "transcripts": 1,
+    "first": "2026-11-18T06:06:25Z",
+    "last": "2026-11-18T06:35:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 158,
+        "output": 41121,
+        "thinking": 8693,
+        "cache_read": 9237703,
+        "cache_write_5m": 0,
+        "cache_write_1h": 151017,
+        "api_equivalent_usd": 3.8787,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 158,
+      "output": 41121,
+      "thinking": 8693,
+      "cache_read": 9237703,
+      "cache_write_5m": 0,
+      "cache_write_1h": 151017,
+      "api_equivalent_usd": 3.8787,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 64,
+      "Edit": 7,
+      "Write": 5,
+      "Monitor": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.02,
+      "active_minutes": 16.57,
+      "model_minutes": 7.84,
+      "tool_minutes": 8.73,
+      "waiting_on_human_minutes": 12.45,
+      "human_prompts": 8,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "diagnose a grouping gap on a 331-photo eval, tune and hold out a gate, write a packed SWAR check with tests, timing, eval note and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 154.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

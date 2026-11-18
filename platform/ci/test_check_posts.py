@@ -52,6 +52,23 @@ class T(unittest.TestCase):
         code, _ = self._run(posts, ["2026-10-24-b.md"], strict=True)
         self.assertEqual(code, 1)
 
+    def test_fix_respells_tags_through_this_command(self):
+        # The front-matter checker's hint names `--fix <post>`; check_posts
+        # used to reject the flag (run record, 2026-11-18).
+        posts = {f"2026-10-24-{n}.md": post(n, BODY + f" {n} " * 40).replace("tags: [a, b]", "tags: [benchmarks]")
+                 for n in "abc"}
+        posts["2026-10-24-d.md"] = post("d", "other " * 80).replace("tags: [a, b]", "tags: [benchmark]")
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "docs" / "posts").mkdir(parents=True)
+            for name, text in posts.items():
+                (root / "docs" / "posts" / name).write_text(text, encoding="utf-8")
+            target = root / "docs" / "posts" / "2026-10-24-d.md"
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(check_posts.main(["--root", d, str(target)]), 1)
+                self.assertEqual(check_posts.main(["--root", d, "--fix", str(target)]), 0)
+            self.assertIn("tags: [benchmarks]", target.read_text(encoding="utf-8"))
+
     def test_nothing_changed_is_a_pass(self):
         lines = []
         self.assertEqual(check_posts.run([], out=lines.append), 0)

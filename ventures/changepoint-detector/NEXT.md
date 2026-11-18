@@ -29,3 +29,5 @@
 - (2026-11-18) placeboWarning (>=80% matched better) holds every false find (README "Which imbalance biases the gap")
 - (2026-11-18) covariate balance of the outcome fit (covariateBalance, eval/synth-balance-real.out.txt) 2026-11-17: CA 1.66 sd richer than its synthetic, MA balanced yet 6th
 - (2026-11-18) ar1 alone led (0.353): a 6th set, a season and a trend term per column (README "Wide sets in print")
+- (2026-11-18) few-donor power 2026-11-18 (README "Few donors: size and power"): one donor shocked as much as a 2 sd step cuts rank 1 from 54-60% to 35-40%, leaving it out beforehand restores it
+- (2026-11-18) few donors 2026-11-18 (README "Few donors"): West Germany and Basque gaps replicate, ranks 3 and 4 of 17 (p <= 0.05 unreachable under 19 donors; FEW DONORS note and units-ranked-above ship)

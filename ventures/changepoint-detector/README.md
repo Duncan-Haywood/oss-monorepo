@@ -6469,3 +6469,55 @@ shares at the nearest of 11, 16 and 21 units (`FEW_POWER`, `fewPowerRow` in `syn
 **Limits.** One panel shape (N1's), independent factor loadings, one shocked donor with a step; a donor with a slope or
 pulse, two shocked donors and a shocked donor that is also the treated unit's best match are untested. **Next:** a
 real deployer's panel of stores or regions; two shocked donors at 11-16 units.
+
+### Two shocked donors, and a shocked best match (2026-11-18, pre-registered; all eight bars passed)
+
+"Few donors: size and power" left "two shocked donors and a shocked donor that is also the treated unit's best match"
+untested. West Germany had two donors above it and the Basque Country three, and a user often knows of one donor's
+event and not another's. `eval/synth-two-shock-sim.mjs` (pre-registration `eval/synth-two-shock-prereg-2026-11-18.md`,
+committed after an exploratory run at base 84000 and before the confirmatory one): the same generator and N1 shape at
+11 and 16 units, the treated unit dropping by 1.0 (two noise sd); two donors each moved by 1.0 (PDD) or 2.0 (PEE)
+with independent signs, or one donor moved by 1.0 that is the treated fit's heaviest (PB, weights found from the
+before-period before the shock is added; it carries 0.50-0.55 of the weight on average). Each panel is refitted with
+the first shocked donor left out beforehand and with all of them left out. Confirmatory, base 85000, 400 panels a
+cell (`eval/synth-two-shock-confirm.out.txt`):
+
+| units | 2 sd step, clean: rank 1 | one donor shocked | two shocked | ... one of the two left out | ... both left out | two shocked by twice | ... one left out | gap error: clean / best match shocked / it left out |
+|---|---|---|---|---|---|---|---|---|
+| 11 | 53.8% | 40.3% | **28.0%** | 35.0% | **52.5%** | **8.0%** | 12.5% | 0.507 / **0.673** / 0.689 |
+| 16 | 55.8% | 38.0% | **27.3%** | 35.8% | **55.5%** | **4.8%** | 7.0% | 0.417 / **0.657** / 0.568 |
+
+Bars: (1) size with two shocked donors and no effect at most 1/units + 4: 4.5% and 1.5%, holds. (2) two shocks cost
+at least 5 points more than one: 12.3 and 10.7, holds. (3) two shocks of twice the effect leave at most 10%: 8.0% and
+4.8%, holds. (4) leaving both out comes within 8 points of clean: -1.3 and -0.3 (PDD), +1.7 and -1.8 (PEE), holds.
+(5) leaving out one of two twice-size shocks leaves at most 15%: 12.5% and 7.0%, holds. (6) a shocked best match
+raises the gap's mean absolute error at least 1.3x: 1.33x and 1.58x, holds (11 units only just). (7) leaving the best
+match out does not buy the precision back, at least 1.15x: 1.36x and 1.36x, holds. (8) of PDD and PEE panels not at
+rank 1, a shocked donor is listed above the treated unit in 94.7% (1,258 of 1,328; bar 80%): holds.
+
+**What it says.**
+- **Each donor's own event takes its share; leaving out the one you know of leaves the other's.** One shocked donor
+  costs 14-18 points of rank-1 share, two cost 26-29, and with two shocks twice the effect's size the test is back at
+  its no-effect rate (5-8%). Leaving out both beforehand restores the clean rate to within 2 points (52.5-55.5% against
+  53.8-55.8%); leaving out one of two restores 35-36%, about the one-shocked rate, and next to nothing when the other
+  is large (7-12.5%). Size stays honest throughout (1.5-4.5% with no effect): donors' shocks make the test blind, never
+  eager.
+- **A shocked best match spoils the estimate more than the test.** When the shocked donor is the treated unit's
+  heaviest (half its synthetic control), rank 1 drops only 9-13 points (45.0%, 42.5%), less than a random donor's
+  shock, because a donor that tracks the treated unit closely has a small placebo statistic. But the gap's error rises
+  1.3-1.6x (the gap moves by about weight times shock), and leaving that donor out beforehand does not buy it back
+  (1.36x both sizes): the remaining donors fit the treated unit worse. The mean gap stays near -1 only because the
+  shock's sign is drawn at random; a single real panel gets one sign.
+- On the two real panels the units above the treated one carry almost no weight (Netherlands 0.000, Norway 0.028;
+  Asturias, Cantabria, Valencia 0.000), so their events moved the rank and not the estimate, the "one shocked donor"
+  case.
+
+**Ships (decided in the pre-registration).** The FEW DONORS note quotes the two-shocked rank-1 shares at the nearest
+of 11 and 16 units (`TWO_SHOCK`, `twoShockRow` in `synth-view.mjs`) and says leaving out the one event you know of is
+not enough when another donor had one too. The "ranked above" note now names any listed unit carrying at least 0.2 of
+the treated unit's weight (`HEAVY_WEIGHT`; `above` in `--json` gains `weight`), says an event of its own moves the
+estimated gap too, quotes the simulated error ratios, and says to report the gap with and without it.
+`synth-two-shock.test.mjs` pins the panels, checks the numbers against the confirmatory file and re-checks every bar.
+
+**Limits.** One panel shape, step shocks only, independent loadings; the error ratios are averaged over random signs.
+**Next:** a real deployer's panel of stores or regions; a donor with a slope or pulse rather than a step.
