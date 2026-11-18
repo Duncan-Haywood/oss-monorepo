@@ -1,6 +1,6 @@
 # Free business calculators, CSV checkers and self-hosted apps: the full catalogue
 
-Every tool in this folder (1391 when this list was last generated), grouped the way the live site
+Every tool in this folder (1393 when this list was last generated), grouped the way the live site
 groups them. Each line links to the **free web version**, which needs no account and, for all but the
 self-hosted apps, runs entirely in your browser, and to its **source code** here, MIT licensed, so you
 can run, fork or self-host your own copy.
@@ -19,12 +19,12 @@ free tools for each one (roofers, Etsy sellers, landlords, freelancers and more)
 - [Logistics, freight & cloud cost](#logistics-freight--cloud-cost) (37)
 - [Compliance checks & evidence records](#compliance-checks--evidence-records) (120)
 - [US personal tax, pay & retirement](#us-personal-tax-pay--retirement) (54)
-- [Household money, home & health bills](#household-money-home--health-bills) (31)
+- [Household money, home & health bills](#household-money-home--health-bills) (32)
 - [UK tax, pay & benefits](#uk-tax-pay--benefits) (56)
 - [Back-office money & contracts](#back-office-money--contracts) (181)
 - [CI checks & developer gates](#ci-checks--developer-gates) (188)
 - [Creator & solo earner income](#creator--solo-earner-income) (73)
-- [Research algorithms & ML](#research-algorithms--ml) (35)
+- [Research algorithms & ML](#research-algorithms--ml) (37)
 - [Learning & practice](#learning--practice) (7)
 - [Open hardware, robots & house plans](#open-hardware-robots--house-plans) (4)
 - [Music & audio](#music--audio) (1)
@@ -896,6 +896,7 @@ Your own mortgage, rent, loans, utility and medical bills: escrow shortages, mor
 - [Funeral price list checker: what is required, what is your choice](https://marisstella.app/funeral-price-list-checker/) · [code](funeral-price-list-checker/)
 - [Heat Pump vs Furnace Calculator — free, private, in your browser](https://marisstella.app/heat-pump-vs-furnace-calculator/) · [code](heat-pump-vs-furnace-calculator/)
 - [HELOC or cash-out refinance? Free calculator](https://marisstella.app/heloc-vs-cash-out-refinance-calculator/) · [code](heloc-vs-cash-out-refinance-calculator/)
+- [What would a home battery have saved you last year?](https://marisstella.app/home-battery-planner/) · [code](home-battery-planner/)
 - [Home Sale Net Proceeds Calculator — what you really walk away with](https://marisstella.app/home-sale-net-proceeds-calculator/) · [code](home-sale-net-proceeds-calculator/)
 - [Injury settlement calculator: how much do you actually keep? Free, private](https://marisstella.app/injury-settlement-net-proceeds-calculator/) · [code](injury-settlement-net-proceeds-calculator/)
 - [Insurance Denial Appeal Builder — free, private, in your browser](https://marisstella.app/insurance-denial-appeal-builder/) · [code](insurance-denial-appeal-builder/)
@@ -1442,6 +1443,7 @@ Methods from published research papers, run on your own data in your browser and
 - [Assembly Line Balancer](https://marisstella.app/assembly-line-balancer/) · [code](assembly-line-balancer/)
 - [Changepoint Detector — when did your series change?](https://marisstella.app/changepoint-detector/) · [code](changepoint-detector/)
 - [Conformal Prediction Intervals Calculator — free, private, in your browser](https://marisstella.app/conformal-prediction-intervals/) · [code](conformal-prediction-intervals/)
+- [Which feature is worth paying for? Choice-based conjoint in your browser](https://marisstella.app/conjoint-analysis/) · [code](conjoint-analysis/)
 - [Fisher's exact test, Barnard's and Boschloo's tests, and every 2x2 table statistic, in your browser](https://marisstella.app/contingency-table-tests/) · [code](contingency-table-tests/)
 - [Who should pay what? Shapley value, nucleolus and the core for a shared cost, in your browser](https://marisstella.app/cost-sharing-calculator/) · [code](cost-sharing-calculator/)
 - [Difference-in-differences in your browser, built for staggered adoption](https://marisstella.app/difference-in-differences/) · [code](difference-in-differences/)
@@ -1449,6 +1451,7 @@ Methods from published research papers, run on your own data in your browser and
 - [Extreme value analysis: 100-year levels with honest intervals, in your browser](https://marisstella.app/extreme-value-analysis/) · [code](extreme-value-analysis/)
 - [Benjamini-Hochberg, q-values and Holm for your p-values — free, private, in your browser](https://marisstella.app/fdr-multiple-testing/) · [code](fdr-multiple-testing/)
 - [Fuzzy dedupe: find duplicate contacts in a CSV](https://marisstella.app/fuzzy-dedupe/) · [code](fuzzy-dedupe/)
+- [Is this gauge good enough? Gage R&R by ANOVA, with intervals, in your browser](https://marisstella.app/gage-rr/) · [code](gage-rr/)
 - [Gaussian process regression in your browser: a curve, a band, and how far to trust it](https://marisstella.app/gaussian-process-regression/) · [code](gaussian-process-regression/)
 - [HDBSCAN in your browser: which groups are in my data, and which rows belong to none?](https://marisstella.app/hdbscan-clustering/) · [code](hdbscan-clustering/)
 - [Inter-rater agreement in your browser: do your coders agree beyond chance, and where do they not?](https://marisstella.app/inter-rater-agreement/) · [code](inter-rater-agreement/)

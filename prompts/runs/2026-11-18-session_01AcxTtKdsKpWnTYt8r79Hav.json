@@ -1,0 +1,169 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtKdsKpWnTYt8r79Hav",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T06:06:35Z",
+  "ended": "2026-11-18T06:17:21Z",
+  "wall_minutes": 11.45,
+  "tokens_in": 6835027,
+  "tokens_out": 31815,
+  "cost_usd": 2.834,
+  "tool_calls": 76,
+  "task": "polish: captions of display:block tables on phones (polish-2026-11-17-raw-formats-page.md item 4)",
+  "projects": [
+    "3pl-invoice-audit-checker",
+    "3pl-quote-normalizer",
+    "amazon-fba-calculator",
+    "owner-operator-cpm-calculator",
+    "patent-maintenance-fee-planner",
+    "prop-firm-challenge-calculator",
+    "referral-keeper",
+    "sales-quota-capacity-planner",
+    "stockx-seller-payout-calculator",
+    "tiktok-shop-fee-calculator",
+    "where-to-sell-calculator",
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17203",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "A detached '(build ...) &' in a background Bash returned at once, so the completion notice meant nothing; waited on the log with wait_for.py instead",
+      "impact": "none"
+    },
+    {
+      "what": "A long python dist-patch script read 'git show HEAD:' after I committed mid-run, so 2 of 14 dist copies went unpatched; caught by grep and patched by hand before measuring",
+      "impact": "none"
+    },
+    {
+      "what": "sideways.mjs failed to import playwright until PLAYWRIGHT=/opt/node-tools/node_modules/playwright/index.js was set",
+      "impact": "one retry"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/sideways.mjs",
+      "issue": "Header says run it directly; in the cloud container it needs PLAYWRIGHT=/opt/node-tools/node_modules/playwright/index.js (the polish prompt names the path only for hand-written ESM scripts)."
+    },
+    {
+      "file": "docs/reports/polish-2026-11-17-raw-formats-page.md",
+      "issue": "Item 4 suggested a static grep for caption + table{display:block}; the real defect also hit page-local .result and @media rules and cut captions off (too wide), not only crushed them. Measuring in a browser first found 2x the pages a grep of the guard snippet would."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Did not rerun the full 3-20 minute build after the fix; patched the 14 built copies with the same <style> edits and measured those",
+      "did": "Applied the source diffs to dist and re-measured with Playwright and sideways.mjs",
+      "result": "All 26 captions match their box at 320/390/820; 75 pages no sideways scroll. CI's portfolio-pages build is the full proof."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Skipped screenshotting the hub/flagship/research/stories/blog set before choosing; the queue (polish_queue.py) and 5 reports from today showed audience pages heavily worked, so took an untouched queue item",
+      "did": "Picked raw-formats item 4 from polish_queue.py",
+      "result": "Found and fixed a real defect on 14 pages"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-the-caption-that-was-wider-than-its-table.md",
+    "docs/reports/polish-2026-11-18-block-table-captions.md"
+  ],
+  "goal": "impressive sites (phone table legibility) + a check that keeps it fixed",
+  "notes": "Before at 390 px: 15 captions on 8 pages wrong (13 cut off by 51-436 px, 2 squeezed; patent planner 101 px wide). After: caption{display:block;position:sticky;left:0} in the table rule's scope on 14 pages; all 26 captions equal box width at 320/390/820; CDP AX tree table names unchanged; sideways.mjs WIDTH=320,360 on 11 ventures: 75 pages, none scroll sideways. New platform/pages/caption-block-table.test.mjs fails on main (14 pages) and passes here. run_venture_tests.py on the 11 ventures: 11 suites, 0 failed. Post checks (check_posts, frontmatter, links, similarity) clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d26304b1-7240-58f9-a769-eb01e4c77ec3",
+    "transcripts": 1,
+    "first": "2026-11-18T06:06:35Z",
+    "last": "2026-11-18T06:18:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 129,
+        "output": 31815,
+        "thinking": 6821,
+        "cache_read": 6728459,
+        "cache_write_5m": 0,
+        "cache_write_1h": 106439,
+        "api_equivalent_usd": 2.834,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 129,
+      "output": 31815,
+      "thinking": 6821,
+      "cache_read": 6728459,
+      "cache_write_5m": 0,
+      "cache_write_1h": 106439,
+      "api_equivalent_usd": 2.834,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 65,
+      "Read": 7,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.45,
+      "active_minutes": 11.45,
+      "model_minutes": 6.63,
+      "tool_minutes": 4.82,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "front-end dev: diagnose CSS caption layout across 14 pages, write a static test, measure in a browser, write report and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 141.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

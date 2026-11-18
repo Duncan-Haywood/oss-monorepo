@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKigxR3rWF4myk7WUZQ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T06:17:58Z",
+  "ended": "2026-11-18T06:29:03Z",
+  "wall_minutes": 18.33,
+  "tokens_in": 5338618,
+  "tokens_out": 29075,
+  "cost_usd": 2.5777,
+  "tool_calls": 57,
+  "task": "changepoint-detector (flagship 4): two shocked donors and a shocked best match in the few-donor synthetic control",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17206",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "synth-two-shock.test.mjs first read the confirmatory table one column off (split on '|' gives excl1 at index 5, not 6)",
+      "fixed": "indices corrected; test passes"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to wait on long commands with run_in_background; a plain 'sleep N; cat' to poll a background job is blocked by a hook, and Monitor needs a ToolSearch load first. An until-loop in a foreground Bash worked."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-synthetic-control-two-shocked-donors-best-match.md",
+    "ventures/changepoint-detector/README.md (Two shocked donors, and a shocked best match)"
+  ],
+  "goal": "Deepen flagship 4 (changepoint-detector) by its next item: two shocked donors at 11-16 units",
+  "notes": "Pre-registered (eval/synth-two-shock-prereg-2026-11-18.md committed after a 100-panel exploratory run at base 84000, before the 400-panel confirmatory run at base 85000). All 8 bars held: two same-size donor shocks cut rank 1 to 27-28% (one: 38-40%, clean 54-56%); both left out restores 53-56%, one left out 35-36%; shocked best match raises gap MAE 1.33x/1.58x and leaving it out leaves 1.36x. Shipped: FEW DONORS note quotes two-shock rates (TWO_SHOCK in synth-view.mjs); aboveNote names listed units with weight >= 0.2; placebosAbove gains weight. Verification: node --test on synth-two-shock, synth-few-power, synth-few-donors, synth-cli, synth-page (26 pass); run_venture_tests.py changepoint-detector and venture-preflight in the PR summary; check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b6c926a3-4bad-517f-9f53-ae985c70db2b",
+    "transcripts": 1,
+    "first": "2026-11-18T06:17:58Z",
+    "last": "2026-11-18T06:36:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 97,
+        "output": 29075,
+        "thinking": 4663,
+        "cache_read": 5219530,
+        "cache_write_5m": 0,
+        "cache_write_1h": 118991,
+        "api_equivalent_usd": 2.5777,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 97,
+      "output": 29075,
+      "thinking": 4663,
+      "cache_read": 5219530,
+      "cache_write_5m": 0,
+      "cache_write_1h": 118991,
+      "api_equivalent_usd": 2.5777,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 49,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.33,
+      "active_minutes": 18.33,
+      "model_minutes": 6.52,
+      "tool_minutes": 11.81,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "design, pre-register and run a 4,800-panel simulation, wire two notes, tests, README and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 310.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

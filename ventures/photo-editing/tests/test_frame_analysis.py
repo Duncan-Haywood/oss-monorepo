@@ -291,6 +291,31 @@ class PanWindowTests(unittest.TestCase):
         self.assertTrue(all(abs(dx) > c or abs(dy) > c for dx, dy in offsets))
 
 
+class PackedWindowTests(unittest.TestCase):
+    def test_packed_check_agrees_with_both_distances(self) -> None:
+        from shootflow.frame_analysis import window_pack, windows_within
+
+        rng = random.Random(11)
+        for _ in range(1500):
+            a = tuple(rng.getrandbits(64) for _ in range(25))
+            # Some windows of b sit a few bits from windows of a, so both kinds come near their limits.
+            b = tuple(a[rng.randrange(25)] ^ rng.getrandbits(64) & rng.getrandbits(64) & rng.getrandbits(64)
+                      for _ in range(25))
+            crop, pan = crop_distance(a, b), pan_distance(a, b)
+            pa, pb = window_pack(a), window_pack(b)
+            for cl, pl in ((crop, -1), (crop - 1, -1), (-1, pan), (-1, pan - 1), (crop - 1, pan - 1), (crop, pan), (63, -5)):
+                want = (cl >= 0 and crop <= cl) or (pl >= 0 and pan <= pl)
+                self.assertEqual(windows_within(pa, pb, cl, pl), want, (crop, pan, cl, pl))
+
+    def test_missing_crops_never_match_packed(self) -> None:
+        from shootflow.frame_analysis import window_pack, windows_within
+
+        crops = _ints(crop_dhashes(_view(_scene(9), 0.0, 0.0, 1.0)))
+        self.assertEqual(window_pack(crops[:4]), ())
+        self.assertFalse(windows_within((), window_pack(crops), 63, 63))
+        self.assertTrue(windows_within(window_pack(crops), window_pack(crops), 0, -1))
+
+
 class ZoomHashTests(unittest.TestCase):
     def test_hundred_windows_and_metrics_carry_them(self) -> None:
         frame = _view(_scene(5), 0.0, 0.0, 1.0)

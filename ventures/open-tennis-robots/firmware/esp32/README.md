@@ -2424,3 +2424,138 @@ window stops at its end, as before.
 edge jitter. A real Hall tach's jitter may be larger, or correlated with the wheel's angle (a magnet's position),
 which averaging over more revolutions would not remove. Next: whether the take survey gains the same with 24, and a
 real tach's edge jitter logged on a spinning wheel.
+
+## The take survey's window (2026-11-18, after "The record's drop fit and its window")
+
+**The item.** The section above moved the record's drop fit to 24 revolutions after the ball's anchor, because on a
+jittery tach more rows averaged the edge noise. The take survey (`LaunchCheck._take_survey`) still refits at 8, and
+every take-survey measurement so far ran on noise-free plants. Does it gain the same? Two pulls: more rows average the
+jitter, but the take's effect sits in the first revolutions after the ball, so rows where every candidate fits alike
+pull each candidate's rms toward the others' and the best / step share toward 1, which the advice's margin
+(`host.TAKE_ADVISE_RATIO`, 0.6) reads as "keep 0".
+
+`tests/take_survey_window.py` keeps every take-survey wheel's inputs as the board passed them
+(`take_misfit_trace.capture_survey`) and refits each one offline at the board's grid and depth with 8, 12, 16 and 24
+revolutions after the anchor, scored by the board's own trimmed sums, refinement and margin. For the first time it
+includes the jittery tach plant (min_fit_heldout's "tach 3 us 10k"). Design: four takes (instant, half-sine 3 and 6
+ms, front-loaded 4 ms) x first-order 8k, tach 3 us, ESC 50 ms told x three launchers, wheel lag 0.3 s, seed 7 (36
+survey drills, eval/take-survey-window-2026-11-18.txt):
+
+| window | spread takes named within 1 ms and advised (of 27) | instant builds advised (of 9) | picks within 1 ms (of 36) | mean best / step share: first-order, tach 3 us, ESC 50 ms |
+| --- | --- | --- | --- | --- |
+| 8 (the board's) | 12 | 0 | 31 | 0.68, 0.96, 0.42 |
+| 12 | 9 | 0 | 30 | 0.67, 0.97, 0.53 |
+| 16 | 7 | 0 | 29 | 0.69, 0.97, 0.62 |
+| 24 | 7 | 0 | 31 | 0.69, 0.98, 0.66 |
+
+The longer window dilutes the survey, as the second pull said: the ESC 50 ms 3 ms builds were advised at 8 (shares
+0.50-0.57) and at none of 12-24 (0.63-0.84), with the picks still right. And the jitter is not rescued at any window:
+on the tach 3 us plant no build was advised (shares 0.84-1.00), and all three 6 ms builds picked 8 ms, the grid's
+last time, at every window.
+
+**Pre-registration** (written before the held-out capture ran). Candidate: keep 8. Held out: the same 36 builds at
+wheel lag 0.45 s, seed 11. PREDICTION: (a) spread takes named within 1 ms and advised are at least as many with 8 as
+with 24, (b) the ESC 50 ms plant's mean share on spread takes is higher with 24 than with 8, (c) on the tach 3 us
+plant no build is advised at any window, and (d) no instant build is advised at any window. DECISION RULE: the take
+survey keeps `drop_from_commands_steps`' default of 8 unless 24 names and advises more spread builds than 8 on the
+held-out set with no instant build advised; then this section reports the miss and 24 is retested on a third set.
+
+**Held out** (run after the pre-registration was committed, 2b34515df; 36 survey drills, none aborted):
+
+| window | spread takes named within 1 ms and advised (of 27) | instant builds advised (of 9) | picks within 1 ms (of 36) | mean best / step share: first-order, tach 3 us, ESC 50 ms |
+| --- | --- | --- | --- | --- |
+| 8 (the board's) | 12 | 0 | 32 | 0.54, 0.96, 0.47 |
+| 12 | 11 | 0 | 29 | 0.56, 0.97, 0.53 |
+| 16 | 9 | 0 | 30 | 0.58, 0.97, 0.59 |
+| 24 | 9 | 0 | 30 | 0.59, 0.97, 0.63 |
+
+Every clause held: (a) 12 named and advised with 8 against 9 with 24; (b) the ESC 50 ms plant's share rose from 0.47
+to 0.63 (its 3 ms builds were advised 2 of 3 at 8 and 0 of 3 at 16 or 24); (c) no tach 3 us build was advised at any
+window (shares 0.90-1.00); (d) no instant build was advised. The design run's 6 ms jitter builds all picked 8 ms, but
+the held-out ones picked 5.5-6 ms, so that bias belongs to the 0.3 s lag. The jitter plant's picks scatter (an
+instant take read 0 to 5.5 ms, a 3 ms take 0 to 3.5), and its share keeps the advice at "keep 0" every time.
+
+**What shipped.** The take survey keeps a window of 8, now named `controller.TAKE_SURVEY_AFTER` and passed explicitly,
+so a later change to the default cannot move it unnoticed. The record fit keeps 24. The two fits want different
+windows because they ask different questions: the record fit's reading gains from averaging, while the survey's
+choice between contact times lives in the rows right after the ball.
+
+**What this says about a real board.** At a 3 us edge jitter the survey cannot see a 3-6 ms contact time at all. Its
+shares sit at 0.90-1.00 at every window, and the margin keeps it quiet, as it should. So on a real wheel the survey
+only speaks if the tach is much cleaner than 3 us. A logged tach on a spinning wheel answers this first. If the jitter
+is that large, a quieter edge (a debounced Hall sensor, or a timer capture in place of the pin interrupt) is worth more
+than any fit change.
+
+**Not known.** All simulated, one seed per set, Gaussian edge jitter, an assumed take profile. Next: the jitter level at
+which the take survey goes blind (a sweep of `tach_jitter_us` from 0.5 to 3 us; the next section), then a real tach's
+edge jitter.
+
+## The take survey's jitter limit (2026-11-18, after "The take survey's window")
+
+**The item.** The section above found the survey blind at 3 us of edge jitter and useful with none, and nothing in
+between was measured. A builder who logs a real tach and reads 1.2 us cannot tell whether the survey will speak.
+`tests/take_survey_jitter.py` runs the same survey drill (the calibration drill with `SURVEY_TAKE` on, the board's grid,
+depth and window of 8) on min_fit_heldout's "tach 3 us 10k" plant with its jitter set to 0, 0.5, 1, 1.5, 2 and 3 us
+(10,000 rpm wheels throughout, so 0 us is that plant without its noise), the four takes and three launchers: 72 survey
+drills a set, scored by the board's own sums and margin. The simulator rounds each jittered edge to a whole
+microsecond, as `ticks_us()` does. Design: wheel lag 0.3 s, seed 7 (eval/take-survey-jitter-2026-11-18.txt):
+
+| edge jitter | spread takes named within 1 ms and advised (of 9) | instant builds advised (of 3) | picks within 1 ms (of 12) | mean best / step share, spread takes |
+| --- | --- | --- | --- | --- |
+| 0 us | 6 | 0 | 10 | 0.55 |
+| 0.5 us | 3 | 0 | 12 | 0.69 |
+| 1 us | 1 | 0 | 11 | 0.86 |
+| 1.5 us | 0 | 0 | 10 | 0.91 |
+| 2 us | 0 | 0 | 10 | 0.91 |
+| 3 us | 0 | 0 | 7 | 0.96 |
+
+The survey fades fast: half a microsecond already halves what it advises (the 6 ms takes stay advised at shares
+0.36-0.49; the front-loaded 4 ms ones drop out), at 1 us only one 6 ms build is advised (0.59, just inside the 0.6
+margin), and from 1.5 us nothing is. The picks themselves stay mostly right up to 2 us (10 of 12 within 1 ms); it is the
+margin that goes, as it should when every candidate's rms sinks into the same noise floor. No instant build was advised
+at any jitter, so the margin's quiet is safe: a noisy tach costs the survey its voice, not a wrong re-flash.
+
+**Pre-registration** (written before the held-out capture ran). Held out: the same 72 builds at wheel lag 0.45 s, seed
+11. PREDICTION: (a) no spread take is named and advised at 1.5, 2 or 3 us; (b) the count named and advised does not
+rise from one jitter to the next across 0, 0.5, 1 and 1.5 us; (c) the mean share on spread takes is higher at 1.5 us
+than at 0 us by at least 0.2; (d) no instant build is advised at any jitter. DECISION RULE: if (a) and (d) hold, the
+README and `tennisbots tach-jitter` state the survey's limit as "speaks below about 1 us, blind from 1.5 us"; if (a)
+fails, the limit is moved to the lowest jitter with no build advised on either set and the miss is reported here.
+
+**Held out** (run after the pre-registration was committed, 9e4cc316f; 72 survey drills, none aborted):
+
+| edge jitter | spread takes named within 1 ms and advised (of 9) | instant builds advised (of 3) | picks within 1 ms (of 12) | mean best / step share, spread takes |
+| --- | --- | --- | --- | --- |
+| 0 us | 8 | 0 | 10 | 0.45 |
+| 0.5 us | 1 | 0 | 10 | 0.80 |
+| 1 us | 0 | 0 | 12 | 0.85 |
+| 1.5 us | 0 | 0 | 12 | 0.92 |
+| 2 us | 0 | 0 | 8 | 0.93 |
+| 3 us | 0 | 0 | 8 | 0.96 |
+
+Every clause held: (a) nothing advised at 1.5, 2 or 3 us; (b) 8, 1, 0, 0 across 0 to 1.5 us; (c) the share rose from
+0.45 to 0.92; (d) no instant build advised. The held-out set is harsher than the design set at 0.5 us (1 of 9 against
+3), so across both sets the survey named and advised 14 of 18 spread takes on a clean tach, 4 of 18 at 0.5 us, 1 of 18
+at 1 us and 0 of 54 from 1.5 us. The picks stay mostly right through 1.5 us (22 of 24 within 1 ms on both sets); what
+the jitter takes away is the margin, so the survey goes quiet rather than wrong. The pre-registered limit ("speaks below
+about 1 us") was too generous for the held-out set; the shipped bands below put the edge at the clean tach instead, a
+choice made after seeing the held-out numbers.
+
+**What shipped.** `tennisbots tach-jitter periods.txt` (src/tennisbots/tach.py) reads a steady wheel's logged periods
+and prints the tach's edge jitter and where the survey stands at it. The estimate is the variance of the periods' second
+differences (the edge times' third differences, 20 times an edge's variance for independent edge errors), which a
+steady speed-up or slow-down cancels; a missed or doubled pulse is dropped and gross outliers are cut first. It reads the
+board's whole-microsecond clock too: simulator-like edges at 0, 0.5, 1, 1.5, 2 and 3 us read 0.40, 0.69, 1.14, 1.59,
+2.09 and 3.09 us, so a perfect sensor still reads about 0.4. Bands, on that scale: under 0.55 us the survey can name a
+spread take; 0.55-1.35 it is near its limit and a "keep TAKE_US = 0" may only mean it cannot see; from 1.35 it cannot
+see a 3-6 ms contact time. `firmware/esp32/tach_log.py` logs the periods from the REPL (a hard interrupt into a buffer
+made beforehand, as `main.Tach` times them): `import tach_log; tach_log.run(34, 600)` with the wheel spinning steadily
+and no ball in the feeder. `tests/test_tach.py` checks the estimate recovers 0.5-5 us within 12% through whole-us
+rounding, ignores a 300 rpm/s drill-like wander, and drops a missed pulse.
+
+**Not known.** All simulated: Gaussian, independent edge errors, one seed per set, an assumed take profile. A real
+sensor's errors may be tied to the wheel's angle (a reflective mark's edge, a magnet's position) or arrive in bursts
+(an ESC's switching noise on the lead), which the second difference reads as jitter too, though their effect on the
+survey may differ. Next: a real tach logged with tach_log.py on a spinning wheel; if it reads 1.35 us or more, a timer
+capture (the ESP32's MCPWM capture unit timestamps an edge in hardware) in place of the pin interrupt, measured with the
+same command.

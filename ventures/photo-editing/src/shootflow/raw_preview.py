@@ -70,7 +70,9 @@ def is_arw_path(path: Path) -> bool:
 
 
 def is_nef_path(path: Path) -> bool:
-    return path.suffix.lower() == ".nef"
+    """Nikon NEF, and the Coolpix NRW (the same TIFF layout under another name)."""
+
+    return path.suffix.lower() in (".nef", ".nrw")
 
 
 def is_orf_path(path: Path) -> bool:

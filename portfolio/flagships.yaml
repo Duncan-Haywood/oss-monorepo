@@ -194,13 +194,11 @@ flagships:
       warning holds 42 of 43 false finds (README "Shocks that are not steps");
       anticipation 2026-11-18: --anticipation N ships (power 25-40% to 54-55%
       backdated), warning holds 4 of 8 when a covariate moves 4 early (README "A
-      shock before the date"); few donors 2026-11-18 (README "Few donors"): West
-      Germany and Basque gaps replicate, ranks 3 and 4 of 17 (p <= 0.05 unreachable
-      under 19 donors; FEW DONORS note and units-ranked-above ship); few-donor power
-      2026-11-18 (README "Few donors: size and power"): one donor shocked as much as
-      a 2 sd step cuts rank 1 from 54-60% to 35-40%, leaving it out beforehand
-      restores it; the note quotes it; next two shocked donors, a real deployer's
-      panel. More open items: NEXT.md.
+      shock before the date"); the note quotes it; two shocked donors 2026-11-18
+      (README "Two shocked donors"): 54-56% to 27-28%, both left out 53-56%, one
+      35%; a shocked best match raises gap error 1.3-1.6x, leaving it out 1.36x;
+      notes quote it; next a donor slope or pulse, a real deployer's panel. More
+      open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -311,17 +309,19 @@ flagships:
       RWL, and a card copy that keeps all 27 raw formats, 2026-11-16. Bayer and
       X-Trans demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*). NEF
       edge columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
-      (eval/nikon-nef-*). Canon CRW 2026-11-16 (eval/canon-crw-*). Next: a Coolpix
-      NRW reader (no public sample yet); an RW2 RawFormat 8 with a tone curve
-      (0x39/0x3A); Sony's vignetting table vs an evenly lit frame; a real DNG and a
-      vignetting-calibrated lens through the pipeline's lens stage; a real evenly
-      lit frame shot wide open (corners level after lensfun's vignetting?); a second
-      maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
-      synthetic files so far, or the SDK to check them; lateral colour measured on a
-      real frame with sharp corner edges; a real Adobe `.dcp` through the profile
-      chooser; a real tiled CR3 (C-RAW tiles 2026-11-16, eval/canon-cr3-*tiled-*);
-      cull: zoom and 8-10% pan windows 2026-11-18 (eval/cull-pan-windows-*), next 6%
-      pans (0.85, a 7x7 grid?) and a real shoot's picks. More open items: NEXT.md.
+      (eval/nikon-nef-*). Canon CRW 2026-11-16 (eval/canon-crw-*). Coolpix NRW and
+      E-series NEF 2026-11-18 (eval/nikon-nrw-reader-*). Next: an RW2 RawFormat 8
+      with a tone curve (0x39/0x3A); Sony's vignetting table vs an evenly lit frame;
+      a real DNG and a vignetting-calibrated lens through the pipeline's lens stage;
+      a real evenly lit frame shot wide open (corners level after lensfun's
+      vignetting?); a second maker-against-lensfun DNG pair; a real DNG carrying any
+      opcode run only on synthetic files so far, or the SDK to check them; lateral
+      colour measured on a real frame with sharp corner edges; a real Adobe `.dcp`
+      through the profile chooser; a real tiled CR3 (C-RAW tiles 2026-11-16,
+      eval/canon-cr3-*tiled-*); cull: zoom, pan windows and the 44 crop gate
+      2026-11-18 (6% pans 0.85 to 1.00, eval/cull-crop-gate-*), next 10% pans
+      (0.86-0.95, windows 6-11 bits: a finer grid) and a real shoot's picks. More
+      open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -392,13 +392,13 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The record's drop fit and its window"
-      (record fit reads 24 revolutions after the ball, LOOP_FIT_AFTER: held out,
-      jittery-tach rms 0.62% to 0.47%, noise-free unchanged;
-      eval/record-fit-window-2026-11-18.txt). Next: the take survey with 24
-      (tests/record_fit_window.py); short ESC lags read ~10% low with 16;
-      SURVEY_QUEUE 3's heap; ball hold: WHEEL_RPM_FULL error's cost on 0.2 s wheels;
-      an ESC with its own speed loop.
+      see firmware/esp32/README.md, latest "The take survey's jitter limit" (both
+      sets: 14 of 18 spread takes advised on a clean tach, 4 at 0.5 us, 0 of 54 from
+      1.5 us; `tennisbots tach-jitter` reads a logged tach,
+      eval/take-survey-jitter-2026-11-18.txt). Next: a timer-capture tach (MCPWM
+      capture) in the simulator and firmware, opt-in; short ESC lags read ~10% low
+      with 16; SURVEY_QUEUE 3's heap; ball hold: WHEEL_RPM_FULL error's cost on 0.2
+      s wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -504,12 +504,12 @@ flagships:
       eval/corpus-crosscheck-*); duplicate GlobalIds in a model
       (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI
       2026-11-17 (eval/federated-globalids-2026-11-17.md; allow list and followers,
-      eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); number one-of
-      rows 2026-11-17 (eval/number-oneof-2026-11-17.md: 663 of 663 offers pass,
-      IfcTester 646); several IFC versions per spec 2026-11-17
-      (eval/multi-version-2026-11-17.md: opened in the schema that edits most, page
-      audit in every named schema, false page errors 18 to 0 on 18 public files).
-      attribute facets read geometry shallow 2026-11-18
+      eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); several IFC
+      versions per spec 2026-11-17 (eval/multi-version-2026-11-17.md: opened in the
+      schema that edits most, page audit in every named schema, false page errors 18
+      to 0 on 18 public files). attribute facets read geometry shallow 2026-11-18
       (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS MEP 13.3 to 8.3 s,
-      same reports); next: psetsOf on every-entity property specs, lazy ifcXML. More
-      open items: NEXT.md.
+      same reports); property sets indexed by name 2026-11-18
+      (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 7.9 to 4.6 s, same
+      reports); next: lazy ifcXML, a file-order candidate list for specs with no
+      entity facet. More open items: NEXT.md.

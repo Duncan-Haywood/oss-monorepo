@@ -2,12 +2,20 @@
 
 > Free route optimizer for service businesses, couriers and sales reps. Paste your stops with service times and customer time windows to get the order that cuts drive time, split across drivers, with miles, hours and dollars saved. Runs in your browser; nothing is uploaded.
 
+## What it does
+
+- Orders a day's stops to cut drive time, with service minutes and customer time windows, split across up to 20 drivers; exact (Held-Karp) up to 12 stops on one route.
+- Optional per-stop load and vehicle capacity: each driver's load stays within it, and stops that fit no driver are named.
+- Routing engine: string-removal ruin and recreate with simulated annealing (vrptw.mjs). On the 56 Solomon VRPTW benchmark instances it averages 0.44% above the best-known distance and equals it on 26 (eval/solomon-2026-11-18.md).
+- Travel times are straight-line miles times a road factor at an average speed: an estimate, not a road network.
+
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/route-stop-optimizer/)
+- [The tool](https://marisstella.app/route-stop-optimizer/)
 
 ## Source
 
+- [Solomon benchmark, 2026-11-18](https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/route-stop-optimizer/eval/solomon-2026-11-18.md)
 - [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/route-stop-optimizer): MIT licensed.
