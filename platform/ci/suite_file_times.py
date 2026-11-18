@@ -17,8 +17,8 @@ ran, and ok/FAIL.
 Each `*.test.mjs` runs as `node --test <file>` from the target directory; each
 `test_*.py` / `*_test.py` as `python3 -m unittest discover -s <its dir> -t
 <its dir> -p <file>` from its own directory, the same form run_venture_tests.py
-uses. For a venture the table ends with the earlier perf write-ups that name it
-(docs/history/ci-perf-*.md): a suite with five passes behind it is CPU-bound in
+uses. For a venture the table ends with the earlier perf write-ups about it
+(docs/history/ci-perf-*.md whose file name or title names it): a suite with five passes behind it is CPU-bound in
 tight loops by now, and the untouched ones are often the cheaper win (two perf
 run records, 2026-11-16 and 11-17).
 
@@ -90,14 +90,26 @@ def time_one(f, d, timeout, run=subprocess.run, clock=time.monotonic):
 
 
 def perf_history(slug, history=HISTORY):
-    """[(date, filename)] of the ci-perf write-ups that name the venture, newest first."""
+    """[(date, filename)] of the ci-perf write-ups about the venture, newest first.
+
+    A write-up counts when its file name or its `# ` title names the slug, not
+    when the body does: write-ups quote the slowest-suites table and the
+    suites they skipped, so a body match counted every top suite as passed
+    by every perf run (2026-11-18: all eight slowest showed a pass "latest
+    2026-11-18", three of them only from one shift-roster-builder write-up),
+    and the column the perf prompt steers by could not tell touched from
+    untouched suites."""
+    # the slug, or its product name in words ("Shed Designer" titles six shed-designer write-ups)
+    names = "|".join(re.escape(n) for n in (slug, slug.replace("-", " ")))
+    word = re.compile(rf"(?<![\w-])(?:{names})(?![\w-])", re.I)
     rows = []
     for p in sorted(history.glob("ci-perf-*.md")):
         try:
             text = p.read_text(errors="replace")
         except OSError:
             continue
-        if re.search(rf"(?<![\w-]){re.escape(slug)}(?![\w-])", text) or slug in p.name:
+        title = next((l for l in text.splitlines() if l.startswith("# ")), "")
+        if word.search(title) or slug in p.name:
             m = re.match(r"ci-perf-(\d{4}-\d{2}-\d{2})", p.name)
             rows.append((m.group(1) if m else "?", p.name))
     return sorted(rows, reverse=True)
