@@ -7,6 +7,8 @@
 // Optional reminders on your own mail account (off unless SMTP_HOST is set): SMTP_HOST, SMTP_PORT,
 // SMTP_USER, SMTP_PASS, SMTP_FROM, and REMINDER_TO (the organiser's address, copied on every reminder).
 // Two days before a game, a team still short of players gets one email (mailer.mjs).
+// Schedule-change emails (changes.mjs): saving a published league with "Email teams" ticked sends each
+// team whose upcoming games moved, were cancelled or were added one email listing only those games.
 // Team sign-ups (registration.mjs): /register is public while the organiser has sign-ups open in /admin.
 import http from "node:http";
 import fs from "node:fs";
@@ -15,6 +17,7 @@ import { readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeam
 import { pathToFileURL } from "node:url";
 import { upcomingGames, parseAvailability, recordAvailability, availabilityHtml, shortTeamsHtml, dayNumber, parseRosters, parseContacts, availabilityCsv, remindersDue, EMAIL, REMINDER_DAYS } from "./availability.mjs";
 import { smtpConfig, sendMail } from "./mailer.mjs";
+import { scheduleChanges, changeEmails, changeSummary } from "./changes.mjs";
 import { regSettings, closedReason, parseRegistration, namesInUse, addRegistration, allowSignup, approveRegistration, declineRegistration, togglePaid, registrationsCsv, registerFormHtml, registeredHtml, adminRegistrationsHtml, signupEmail } from "./registration.mjs";
 
 const MAX_BODY = 64 * 1024;
@@ -128,6 +131,7 @@ ${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}
 <label>Most teams (0 = no cap; past it, sign-ups go on a waitlist)<input name="regMaxTeams" inputmode="numeric" value="${esc(f.regMaxTeams ?? 0)}"></label>
 <label>Sign-ups close after (YYYY-MM-DD, optional)<input name="regCloses" value="${esc(f.regCloses ?? "")}"></label>
 <p class="note">Approve adds the team to Teams, its players to Rosters and the captain's email to Contacts. Fees are paid on your own payment page; this server never sees a card, and you tick Paid by hand.${f.regPayUrl && !rs.payUrl ? " The payment page address is not a plain https link, so it is not shown." : ""}</p></fieldset><p class="note">${esc(mailNote)} Rosters and contacts stay in this server's state file; players see first names on the league page, never the email addresses.</p>
+<label><input type="checkbox" name="notify" value="1" style="width:auto"${state.published ? "" : " disabled"}> Email teams whose upcoming games this save moves, cancels or adds (one email per team, to its contacts${smtp && !smtp.error ? "" : "; needs SMTP, see above"})</label>
 <button name="act" value="save">Save</button><button name="act" value="publish">Save and publish</button></form>
 <p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code>. Sign-up page: <code>/register</code> (${rs.open ? "open" : "closed"}).</p>`);
 }
@@ -256,6 +260,7 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
       f.regOpen = form.get("regOpen") === "1";
       for (const k of ["regFee", "regPayUrl", "regCloses"]) f[k] = String(form.get(k) ?? "").trim().slice(0, 500);
       f.regMaxTeams = regSettings({ regMaxTeams: form.get("regMaxTeams") }).maxTeams;
+      const wasPublished = state.published, prev = wasPublished ? buildLeague(state.fields) : null;
       state.fields = f;
       const out = buildLeague(f);
       if (form.get("act") === "publish") {
@@ -263,7 +268,29 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
         state.published = true;
       }
       save();
-      return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(out.error ? "Saved, but: " + out.error : "Saved." + (out.warnings.length ? " " + out.warnings.length + " warning(s): " + out.warnings[0] : ""))}` });
+      let changeNote = "";
+      if (wasPublished && prev && !prev.error && !out.error) {
+        const changes = scheduleChanges(prev.schedule, out.schedule, dayNumber(clock()));
+        if (changes.length) {
+          changeNote = ` ${changeSummary(changes)}.`;
+          const cfg = smtpConfig(env);
+          if (form.get("notify") !== "1") changeNote += " Teams were not emailed (tick \"Email teams\" when you save to send them).";
+          else if (!cfg || cfg.error) changeNote += " Teams were not emailed: reminder email (SMTP) is off.";
+          else {
+            const base = env.PUBLIC_URL && /^https?:\/\/[A-Za-z0-9.-]+(:\d+)?\/?$/.test(env.PUBLIC_URL) ? env.PUBLIC_URL.replace(/\/$/, "") : publicBase(req, env);
+            const emails = changeEmails(changes, {
+              contacts: parseContacts(f.contacts, out.schedule.teams).contacts,
+              organiser: EMAIL.test(env.REMINDER_TO || "") ? env.REMINDER_TO : "",
+              leagueUrl: base && token ? `${base}/league?t=${encodeURIComponent(token)}` : "",
+            });
+            const missing = new Set(changes.flatMap((c) => [c.before, c.after]).filter(Boolean).flatMap((g) => [g.home, g.away]));
+            for (const e of emails) missing.delete(e.team);
+            changeNote += ` Emailing ${emails.length} team${emails.length === 1 ? "" : "s"}.${missing.size ? ` No contact address for ${[...missing].slice(0, 6).join(", ")}: tell them yourself.` : ""}`;
+            for (const e of emails) Promise.resolve().then(() => mail(cfg, e)).catch((err) => console.error(`change email for ${e.team} not sent: ${err.message}`));
+          }
+        }
+      }
+      return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent((out.error ? "Saved, but: " + out.error : "Saved." + (out.warnings.length ? " " + out.warnings.length + " warning(s): " + out.warnings[0] : "")) + changeNote)}` });
     }
     if (req.method === "GET" && url.pathname === "/admin/signups.csv") {
       return send(200, "\ufeff" + registrationsCsv(state), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="signups.csv"', "cache-control": "no-store" });
