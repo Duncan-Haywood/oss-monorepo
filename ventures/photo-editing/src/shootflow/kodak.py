@@ -130,13 +130,14 @@ def as_shot_multipliers(kifd: rd.Ifd | None, end: str) -> tuple[tuple[float, flo
         return None, ""
     record = kifd.get(KODAK_WB_RECORD)
     if record is not None and len(record) == 72:
-        words = struct.unpack_from(end + "3H", bytes(record), 40)
-        return tuple(2048.0 / max(1.0, float(w)) for w in words), "entry 1021"
+        r, g, b = (2048.0 / max(1.0, float(w)) for w in struct.unpack_from(end + "3H", bytes(record), 40))
+        return (r, g, b), "entry 1021"
     index = kifd.one(KODAK_WB_INDEX)
     if index is not None and index >= 0:
         values = kifd.get(KODAK_WB_BASE + int(index))
         if values is not None and len(values) >= 3:
-            return tuple(2048.0 / max(1.0, float(v)) for v in values[:3]), f"entry {KODAK_WB_BASE + int(index)}"
+            r, g, b = (2048.0 / max(1.0, float(v)) for v in values[:3])
+            return (r, g, b), f"entry {KODAK_WB_BASE + int(index)}"
     return None, ""
 
 
