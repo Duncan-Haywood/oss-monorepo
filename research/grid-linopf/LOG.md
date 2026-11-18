@@ -1,5 +1,9 @@
 # Research log
 
+## 2026-11-18 · A merit that matches the QP: outcome. Inert in development (31 of 34 either way; case118 API still stalls, every round from 3 an elastic QP); held-out finishers 10 to 8 of 19, cheaper by 0.13 points where both finish. Not adopted
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-18); numbers in `research/infra-dcopf/experiments/results_summerit.txt`. S2, S3, S4, S5 held; S1, S6 refuted.
+- The merits disagree on 5 trials in development. case118 API's stall is the hard QP's infeasibility, not the acceptance test, which withdraws the 2026-11-17 reading. Held-out S loses case793 API and case588 TYP and is slower on 3 of 8 common finishers, but lands cheaper clean points (mean &minus;0.13 points, up to &minus;0.56). The frozen worst-excess merit stands.
+
 ## 2026-11-18 · A merit that matches the QP: accept a step on the summed thermal excess (plan)
 - Plan, rule S (the merit's worst thermal excess replaced by the summed excess, every round) and predictions S1 to S6: `research/infra-dcopf/LOG.md` (2026-11-18); script `research/infra-dcopf/experiments/run_summerit.py`. Frozen on the 34 development cases, scored on the 19 held-out cases that reach the repair.
 
