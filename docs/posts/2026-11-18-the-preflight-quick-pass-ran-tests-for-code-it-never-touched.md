@@ -2,7 +2,7 @@
 title: "The preflight's quick pass ran 174 test files for code a venture never touches"
 seo_title: "A quick check that ran tests for code it never touched"
 date: 2026-11-18
-description: "venture-preflight --skip-build was billed as a one-minute pass and ran past five. Most of that time tested platform/ci, which a venture branch leaves alone."
+description: "venture-preflight --skip-build was billed as a one-minute pass and ran past five. A third of it tested platform/ci, which a venture branch leaves alone."
 tags: [process, ci, tooling, performance]
 ---
 
