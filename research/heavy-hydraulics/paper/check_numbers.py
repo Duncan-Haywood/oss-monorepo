@@ -494,6 +494,10 @@ MANUSCRIPT_CHECKS = [
     ("E<sub>50</sub> = 0.8208 + 0.0359 H (kW<sub>w</sub> &minus; P<sub>LS</sub>)", "gear_pump_ratio_results.txt", "owdw  +0.8208, +0.0359, -0.4350"),
     ("slope of kW<sub>w</sub> on kW<sub>o</sub> 0.880)", "gear_pump_ratio_results.txt", "pooled with condition fixed effects 0.880"),
     ("Danfoss family (0.0080 against 0.0061)", "gear_pump_ratio_results.txt", "danfoss                       0.0061 / 0.0080 / 0.0080"),
+    # milestone 7l
+    ("(ratio 1.06)", "gear_pump_onepoint_results.txt", "owh 1.22, owhq 1.06"),
+    ("left-out RMS rises to 0.0065", "gear_pump_onepoint_results.txt", "owdq  0.0065  (max 0.0085"),
+    ("the Danfoss family's to 0.0142", "gear_pump_onepoint_results.txt", "danfoss                       0.0061 / 0.0080 / 0.0142"),
 ]
 
 
