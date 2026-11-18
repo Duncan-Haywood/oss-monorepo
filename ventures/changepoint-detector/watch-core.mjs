@@ -456,10 +456,11 @@ export function eagerSettings(model = 'mean') {
  * Returns { n, from, model, budget, suggest, settings: [{ key, detector, alerts, checks, step, per100, medianDelay }] }.
  */
 export function eagernessReplay(values, labels = null, opts = {}) {
-  const { detector: _d, budget: b0, ...rest } = opts;
+  const { detector: _d, budget: b0, keepAlerts = false, ...rest } = opts;
   const budget = b0 ?? HINT_BUDGET;
   const model = rest.model ?? 'mean';
   let n = 0, from = 0;
+  const v = values.map(Number);
   const settings = eagerSettings(model).map(({ key, detector }) => {
     const r = replayWatch(values, labels, { ...rest, detector });
     n = r.n; from = r.from;
@@ -467,7 +468,8 @@ export function eagernessReplay(values, labels = null, opts = {}) {
     // Per daily check after the baseline (n - from), as a watch run after every row would count them, not the
     // replay's own coarse and bisection checks.
     const daily = r.n - r.from;
-    return { key, detector, alerts: r.alerts.length, checks: daily, step: r.step, per100: daily ? (100 * r.alerts.length) / daily : 0, medianDelay: d.length ? (d.length % 2 ? d[m] : (d[m - 1] + d[m]) / 2) : null };
+    const weekly = rest.period > 1 ? null : weekdayBunching(r.alerts.map((a) => a.label), labels, { values: v });
+    return { key, detector, alerts: r.alerts.length, checks: daily, step: r.step, per100: daily ? (100 * r.alerts.length) / daily : 0, medianDelay: d.length ? (d.length % 2 ? d[m] : (d[m - 1] + d[m]) / 2) : null, ...(weekly ? { weekly } : {}), ...(keepAlerts ? { alertLabels: r.alerts.map((a) => a.label) } : {}) };
   });
   return { n, from, model, budget, suggest: suggestFor(settings, budget, n), settings };
 }
@@ -506,7 +508,83 @@ export function eagernessText(res, { column = 'the series', every = 'day' } = {}
   lines.push(`Budget: ${fb} alert${fb === 1 ? '' : 's'} per 100 checks, ${plainBudgetText(res.budget, every)}.`);
   lines.push('A suggestion from one past, not a promise: on 23 labelled series it reached 17 of 31 later marked changes against the default\'s 16, at 17.5 alerts per 1,000 checks against 15.7 (replayed with the shipped persist 2), and on 6 held-out series it changed nothing. On a second labelled set it was not confirmed: on 47 server, traffic, ad and Twitter series from the Numenta Anomaly Benchmark, watched hourly, it reached 49 of 61 later anomaly windows against the default\'s 50 (README "Round 10"). Nor on a third: on 33 fault runs of a water-pump testbed (SKAB, all 8 sensors watched), picked from a normal run, it reached 118 of 123 marked changes against the default\'s 97, but only 28.4% of its alerts sat at a marked change against the default\'s 36.8%, at 163 alerts per 1,000 checks against 69 (README "Round 12").'
     + (Math.abs(res.budget - HINT_BUDGET) > 1e-9 ? ` Those numbers are for the tested budget of ${HINT_BUDGET} per 100 (${plainBudgetText(HINT_BUDGET)}); at about 1 a month the same series reached 19 of 31 at 19.3 per 1,000, at about 1 a week 29 of 31 at 74.0 per 1,000.` : ''));
+  const wk = res.settings.find((s) => s.key === res.suggest)?.weekly ?? res.settings.find((s) => s.weekly)?.weekly;
+  if (wk) lines.push(weeklyText(wk));
   return lines.join('\n');
+}
+
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const dayNumber = (s) => (/^\d{4}-\d{2}-\d{2}$/.test(String(s)) ? Date.parse(`${s}T00:00:00Z`) / 864e5 : NaN);
+
+/** P(X >= k) for X ~ Binomial(n, p), summed in log space (n is an alert count, small). */
+function binomialTail(k, n, p) {
+  let lc = 0, t = 0;
+  for (let i = 0; i <= n; i++) {
+    if (i > 0) lc += Math.log((n - i + 1) / i);
+    if (i >= k) t += Math.exp(lc + i * Math.log(p) + (n - i) * Math.log(1 - p));
+  }
+  return Math.min(1, t);
+}
+
+/**
+ * Do a replay's alerts bunch on two neighbouring weekdays? On a daily series with a weekly cycle (a shop closed one day a
+ * week, a weekend dip) every week's low day reads as a step down and the next day as a step back, so the alerts fall on
+ * the same days week after week: on the UCI Online Retail shop (closed Saturdays) all 37 of Quiet's order alerts in 300
+ * days were dated Sunday or Monday, and --period 7 cut them to 4 (README "A real shop's daily series"). The test: the
+ * most-hit pair of adjacent weekdays against Binomial(n, 2/7), Bonferroni over the 7 pairs, at 1%, with 6 alerts or more,
+ * and (given `values`) a weekday effect in the history itself at 0.1% (weekdayEffect).
+ * Only for labels that are consecutive calendar days (YYYY-MM-DD, one row per day); otherwise null.
+ */
+export function weekdayBunching(alertLabels, labels, { alpha = 0.01, minAlerts = 6, values = null, dataAlpha = 0.001 } = {}) {
+  if (!labels || labels.length < 15 || alertLabels.length < minAlerts) return null;
+  const d0 = dayNumber(labels[0]), d1 = dayNumber(labels[1]), dn = dayNumber(labels[labels.length - 1]);
+  if (!Number.isFinite(d0) || d1 - d0 !== 1 || dn - d0 !== labels.length - 1) return null;
+  const counts = new Array(7).fill(0);
+  for (const l of alertLabels) {
+    const x = dayNumber(l);
+    if (!Number.isFinite(x)) return null;
+    counts[((x + 4) % 7 + 7) % 7]++; // 1970-01-01 was a Thursday
+  }
+  let best = 0;
+  for (let i = 1; i < 7; i++) if (counts[i] + counts[(i + 1) % 7] > counts[best] + counts[(best + 1) % 7]) best = i;
+  const k = counts[best] + counts[(best + 1) % 7], n = alertLabels.length;
+  const p = Math.min(1, 7 * binomialTail(k, n, 2 / 7));
+  if (!(p < alpha)) return null;
+  // Alerts on a busy series come about a week apart (confirm 5, tolerance 5), so their weekdays bunch on noise too
+  // (eval/weekday-bunching.out.txt: 4 of 60 null replays at 1%). The history itself must also show a weekday effect.
+  const data = values ? weekdayEffect(values, d0) : null;
+  if (values && !(data && data.p < dataAlpha)) return null;
+  return { alerts: n, onPair: k, days: [WEEKDAYS[best], WEEKDAYS[(best + 1) % 7]], p, ...(data ? { dataP: data.p } : {}) };
+}
+
+/**
+ * A weekday effect in a daily series: each point less its centred 7-day mean (which removes a level that wanders, and
+ * averages a weekly pattern out), ranked, and the ranks compared across the 7 weekdays (Kruskal-Wallis, chi-square
+ * with 6 degrees of freedom; ties take mid-ranks). d0: the day number of values[0]. Returns { h, p }.
+ */
+export function weekdayEffect(values, d0) {
+  const x = values.map(Number), r = [];
+  for (let i = 3; i + 3 < x.length; i++) {
+    let s = 0;
+    for (let j = i - 3; j <= i + 3; j++) s += x[j];
+    if (Number.isFinite(s)) r.push({ e: x[i] - s / 7, w: ((d0 + i + 4) % 7 + 7) % 7 });
+  }
+  const N = r.length;
+  if (N < 21) return null;
+  const order = r.map((_, i) => i).sort((a, b) => r[a].e - r[b].e), rank = new Array(N);
+  for (let i = 0; i < N;) { let j = i; while (j + 1 < N && r[order[j + 1]].e === r[order[i]].e) j++; for (let t = i; t <= j; t++) rank[order[t]] = (i + j) / 2 + 1; i = j + 1; }
+  const sum = new Array(7).fill(0), cnt = new Array(7).fill(0);
+  r.forEach((q, i) => { sum[q.w] += rank[i]; cnt[q.w]++; });
+  let h = 0;
+  for (let w = 0; w < 7; w++) if (cnt[w]) h += sum[w] ** 2 / cnt[w];
+  h = (12 / (N * (N + 1))) * h - 3 * (N + 1);
+  const y = h / 2; // chi-square, 6 degrees of freedom: P(X > h) = e^-y (1 + y + y^2/2)
+  return { h, p: Math.min(1, Math.exp(-y) * (1 + y + (y * y) / 2)) };
+}
+
+/** One plain sentence for weekdayBunching's result. */
+export function weeklyText(w) {
+  return `Weekly cycle: ${w.onPair} of these ${w.alerts} alerts are dated on a ${w.days[0]} or ${w.days[1]} (p ${w.p < 1e-4 ? '< 0.0001' : w.p.toFixed(4)} if alerts fell on any day alike), so the watch is reading a weekly pattern (a closed day, a weekend dip) as a new level each week. Replay with --period 7. On a real online shop closed on Saturdays it cut Quiet's order alerts from 37 to 4 in 300 days; one-day closures such as bank holidays still alerted (README "A real shop's daily series").`;
 }
 
 // A budget in plain terms (README "The hint in the CLI watch"). Days per period and per check; a month is a twelfth

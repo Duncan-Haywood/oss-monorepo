@@ -1,0 +1,8 @@
+## design seeds (rule set on these): node eval/weekday-bunching.mjs 30 20261118 0.01 none,closed
+no weekly cycle: 30 series x 2 settings = 60 replays, 1232 alerts, 59 replays with >= 6 alerts; alert-date test alone at alpha 0.01 on 4; the shipped line (alert dates and the history's weekday effect) on 0 of 60
+closed every Saturday: 30 series x 2 settings = 60 replays, 1559 alerts, 60 replays with >= 6 alerts; alert-date test alone at alpha 0.01 on 53; the shipped line (alert dates and the history's weekday effect) on 53 of 60
+
+## fresh seeds (rule fixed before this run): node eval/weekday-bunching.mjs 100 777 0.01 none,closed,dip
+no weekly cycle: 100 series x 2 settings = 200 replays, 3916 alerts, 199 replays with >= 6 alerts; alert-date test alone at alpha 0.01 on 6; the shipped line (alert dates and the history's weekday effect) on 0 of 200
+closed every Saturday: 100 series x 2 settings = 200 replays, 5102 alerts, 200 replays with >= 6 alerts; alert-date test alone at alpha 0.01 on 180; the shipped line (alert dates and the history's weekday effect) on 180 of 200
+weekend 30% lower: 100 series x 2 settings = 200 replays, 4073 alerts, 198 replays with >= 6 alerts; alert-date test alone at alpha 0.01 on 14; the shipped line (alert dates and the history's weekday effect) on 14 of 200

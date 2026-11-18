@@ -1,4 +1,6 @@
 import csv, sys, datetime as dt, collections
+# UCI Online Retail invoice lines -> one row per calendar day (README "A real shop's daily series", data/SOURCE.md).
+#   python3 eval/real-shop-daily.py online-retail-dataset.csv data/online-retail-daily.csv
 src, out = sys.argv[1], sys.argv[2]
 orders=collections.defaultdict(set); canc=collections.defaultdict(set); rev=collections.defaultdict(int)
 first={}
