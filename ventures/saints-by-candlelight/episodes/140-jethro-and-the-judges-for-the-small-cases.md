@@ -1,0 +1,319 @@
+---
+number: 140
+slug: jethro-and-the-judges-for-the-small-cases
+title: Jethro and the Judges for the Small Cases
+published: 2026-11-18
+summary: Jethro, the priest of Midian, brings Moses his wife and two sons across the desert to the mountain of God, hears everything the Lord has done, and blesses him; and the next morning he watches his son-in-law sit from dawn till dark with the whole people queuing in front of him, and gives him the oldest good advice in the Bible. Told from the Book of Exodus, chapter eighteen.
+figures: Jethro the priest of Midian, Moses, Zipporah, Gershom and Eliezer, Aaron and the elders of Israel, and the able men who were made judges over thousands, hundreds, fifties and tens
+tradition: Catholic and Orthodox; both read the Book of Exodus as Scripture; Moses is honoured as a saint and prophet in both traditions; Jethro has no feast day of his own in either
+feast: Moses the prophet and lawgiver is remembered on the fourth of September in the Orthodox Church and in the Roman Martyrology; Jethro has no feast day
+history: the story is Scripture, the Book of Exodus, chapter eighteen, told straight in a plain rendering, with Moses' own retelling in Deuteronomy, chapter one; the book gives no date in our years and historians disagree about when the Exodus happened, so none is given
+legend: none told as fact; the different names the Bible gives Moses' father-in-law are mentioned as the text has them, without settling how they fit together
+fiction: the people in the queue and their small cases, the goat, the cooking pot, the tent peg and the boy with the question, Jethro's journey, his thoughts, the talk between him and his grandsons, and every word not given in the chapter are our own invention, told in the spirit of the original; nothing is added to what Jethro, Moses or the people do in the book, or to the advice itself
+sources:
+  - The Book of Exodus, chapter two, verses fifteen to twenty-two, chapter three, verse one, chapter four, verses eighteen to twenty, and chapters twelve to eighteen
+  - The Book of Deuteronomy, chapter one, verses nine to eighteen
+  - The Book of Numbers, chapter ten, verses twenty-nine to thirty-two
+  - The Book of Judges, chapter one, verse sixteen
+  - The Book of Psalms, Psalm ninety
+---
+
+It is evening at the foot of a mountain in the desert, and the shadows of the tents have grown very long.
+
+There is a man sitting on a seat in the middle of the camp. He has been sitting there since the sun came up. In front of him, and around him, and stretching away between the tents further than you can comfortably see, there are people. They are standing. Some of them have been standing since the sun came up, too. One of them is holding a goat.
+
+And off to one side, sitting on a rolled-up rug in the shade of a tent, there is an old man with a grey beard, who has been watching all of this, all day long, with his chin in his hand.
+
+He has not said anything yet. He is the sort of old man who waits until he has seen the whole thing before he says anything.
+
+But now the sun is touching the edge of the hills. And the old man gets up, and brushes the dust off his robe, and walks over to the man on the seat, and says, very gently, "What is this that you are doing?"
+
+But we're getting ahead of ourselves.
+
+Hello, and welcome to Saints by Candlelight, stories of saints, angels and patriarchs from the Catholic and Orthodox traditions, told for bedtime. These episodes are written by an AI and read by a synthetic voice, and they try very hard to be faithful. Tonight's story is the visit of Jethro, the priest of Midian, to his son-in-law Moses in the wilderness, from the Book of Exodus, which Catholic and Orthodox Christians read as Scripture, and the people in the queue, their small quarrels, and the old man's thoughts on the way are our own invention, told in the spirit of the original. So get comfortable. Dim the lights. And let's begin.
+
+[pause]
+
+Last time on Saints by Candlelight, we were in Jerusalem with young King Solomon, and two mothers, and one baby, and a sword that was never used. And in the middle of that story, I mentioned, in passing, that the custom of judges at the gate went all the way back to Moses in the wilderness. And to a piece of advice that Moses was given by his father-in-law.
+
+I called it the oldest piece of management advice in the Bible. And I said it was a story for another night.
+
+So tonight we are going back a long way. Hundreds of years before Solomon. Back before there was a Jerusalem for anybody to be king of. Back to the desert, and a people who had very recently been slaves, and a mountain.
+
+I cannot tell you the year. The Bible does not count in our years, and historians disagree, quite cheerfully and at great length, about when the Exodus from Egypt happened. So I will not pretend to know. Let us just say it was a very long time ago, and the stars were the same stars, and the desert was the same desert, and people were, as we shall see, exactly the same people.
+
+* * *
+
+Let me tell you first about the old man.
+
+His name, in the eighteenth chapter of Exodus, is Jethro. He was a priest of Midian. Midian was a land of shepherds and herdsmen on the far side of the desert from Egypt, east of the long eastern arm of the Red Sea that is called today the Gulf of Aqaba, where the people lived in tents and moved with their flocks from grazing to grazing and from well to well.
+
+Now, if you have been listening to this show for a while, you have met Jethro before, very briefly. Years and years before tonight's story, a young man called Moses had run away from Egypt. He had been raised as a prince in Pharaoh's household, but he was a Hebrew, and one day he saw an Egyptian beating a Hebrew slave, and he struck the Egyptian, and the man died. And when Moses found out that people knew, he ran. He ran a very long way. And he came, tired and dusty and with nothing at all, to a well in the land of Midian, and sat down beside it.
+
+And while he was sitting there, seven sisters came to the well to water their father's flock. And some other shepherds came and tried to drive the girls away, the way the big boys at the water fountain sometimes do. And Moses stood up and helped the girls, and drew the water for them himself, and watered all their sheep.
+
+And the girls went home early. And their father said, how is it that you are back so soon today? And they said, an Egyptian helped us against the shepherds, and he even drew the water for us. And their father said, well, where is he? Why did you leave the man out there? Go and invite him to eat bread with us.
+
+I am very fond of that. Here is a man with seven daughters, who has just heard that a stranger has been kind to them, and his first thought is, why is he not at our table?
+
+So Moses came to supper. And he stayed. He married one of the daughters, whose name was Zipporah. And for many years Moses, who had been a prince of Egypt, kept his father-in-law's sheep in the wilderness.
+
+There is one small puzzle I should mention, so that nobody writes in. In that first story, at the well, the girls' father is called Reuel. In the next chapter, and in tonight's chapter, he is called Jethro. And in the Book of Numbers there is a man called Hobab who is also connected with Moses' father-in-law, and the Hebrew can be read more than one way about exactly who is whose son. People have been sorting this out for a very long time. Perhaps he had two names. Perhaps it was a title. People in the desert, then as now, could be called different things by different people. I am going to call him Jethro tonight, because that is what tonight's chapter calls him, and I am going to leave the rest to the scholars, who enjoy it.
+
+* * *
+
+Now. You will remember what happened next, because we told it once, in an episode a long way back in this series. While Moses was out with Jethro's flock, at the far side of the wilderness, he came to the mountain of God, which is called Horeb, and also Sinai. And there he saw a bush that was burning and was not burned up. And the Lord spoke to him from the bush, and sent him back to Egypt, to bring his people out.
+
+And what did Moses do, after the most astonishing afternoon of his life? He went home to his father-in-law. That is in the book. He went to Jethro and he said, please let me go back to my brothers in Egypt, and see whether they are still alive.
+
+And Jethro said, go in peace.
+
+That is all he said, in the book. Three words. I have always liked them. He did not say, but who will look after my sheep? He did not say, Egypt? Are you sure? He just said, go in peace.
+
+And then Moses went, and we know the rest. Or at least we know the outline of it. The plagues, and Pharaoh saying no, and no, and no again. The night of the Passover. The people going out of Egypt in a great crowd, with their flocks and their bread dough still in the kneading bowls because there had not been time for it to rise. The sea that opened in front of them and closed behind them. The desert.
+
+And the desert, it turned out, was hard. The book does not pretend otherwise. There was no water, and then there was bitter water, and then the Lord made the bitter water sweet. There was no food, and the people complained, at length, and in some detail, about the cooking pots of meat they remembered in Egypt, which I suspect were rather better in memory than they had been in fact. And the Lord sent quails in the evening, and in the morning there was something on the ground, small and white and flaky, like frost, and the people said, what is it? And in Hebrew, what is it, is man hu. And so they called it manna. It tasted, the book says, like wafers made with honey. And there was a fresh lot every morning, except on the sabbath.
+
+Then there was no water again, and Moses struck the rock, as he was told, and water came out. And then a fierce tribe called the Amalekites attacked them, at a place called Rephidim, and there was a battle, and Moses stood on a hill with his hands held up to God, and when his arms got tired, Aaron and a man called Hur sat him on a stone and held his hands up for him, one on each side, until the sun went down.
+
+Remember that, about Moses' arms getting tired. It is going to matter.
+
+* * *
+
+So that brings us to the beginning of tonight's chapter. And this is how it begins.
+
+Jethro, the priest of Midian, Moses' father-in-law, heard of everything that God had done for Moses, and for Israel his people, and how the Lord had brought Israel out of Egypt.
+
+News travelled in the desert. It travelled slowly, by traders and herdsmen and people meeting at wells. But it travelled. And a story like this one, about a people of slaves walking out of the greatest kingdom in the world, and a sea, and a pillar of cloud, does not stay quiet for long.
+
+And here is a detail that the book gives us almost in passing. Zipporah, Moses' wife, and their two sons, were not with Moses. They were with Jethro. The book says that Moses had sent her back, and it does not tell us when, or why. Perhaps he thought Egypt was no place for a wife and two small boys, with Pharaoh in the mood he was in. That would be my guess, but it is only a guess, and the book does not say, so I will not pretend it does.
+
+The two boys had names that tell a story of their own. The older one was called Gershom. Moses had named him that when he was a young man far from home, and the name sounds, in Hebrew, like the words for a stranger there. Because, Moses said, I have been a stranger in a foreign land. And the younger one was called Eliezer, which means my God is help. Because, Moses said, the God of my father was my help, and saved me from the sword of Pharaoh.
+
+So you have a grandfather, and his daughter, and two grandsons named, one for being far from home, and one for being rescued. And the grandfather hears the news. And he gets up, and he packs, and he sets out across the desert to bring them back to Moses.
+
+* * *
+
+Now, the book tells us none of what that journey was like. So let me tell you a little of what such a journey would have been like, and you will understand that this part is our own colour, and not Scripture.
+
+You would go with donkeys. Camels, perhaps, but donkeys certainly, because donkeys will carry anything you put on them and complain about all of it. You would carry water in skins, and you would plan your journey from well to well, because in the desert the wells are the roads, and the roads are only the lines between the wells.
+
+You would travel early in the morning and late in the afternoon, and in the middle of the day, when the sun is like a hammer, you would stretch a cloth between two poles and lie underneath it and wait. And at night it would be cold. People who have never been in a desert are always surprised by how cold it is at night. The sand gives back its heat to the sky as soon as the sun goes down, and the stars come out, more of them than you have ever seen, and you put on every piece of clothing you own and you lie close to the fire.
+
+I like to picture the two boys on that journey. They would not have been small any more, perhaps, but not grown yet either. Old enough to lead a donkey. Young enough to ask, every hour or so, whether they were nearly there.
+
+And I like to picture Jethro answering them. The book gives him not one word on the road, so everything I am about to say is invented. But I think he was the sort of grandfather who would say, when they asked whether they were nearly there, not nearly. And then, after a while, he would say, do you know what your father did, the first day I ever heard of him?
+
+And they would say, no. Even if they had heard it twenty times. Because that is what you say to a grandfather.
+
+And he would say, he stood up for your mother and your aunts at the well, against a whole crowd of shepherds bigger than him. And then he watered all our sheep. Every one. And he did not ask for anything. That is the kind of man your father is.
+
+And the younger boy, the one called my God is help, would say, and now he has beaten Pharaoh.
+
+And Jethro would say, no. Now God has beaten Pharaoh. Your father would be the first to tell you that.
+
+I invented that conversation, as I say. But I think it is the right shape, because of what happens when they arrive.
+
+* * *
+
+Moses and the people of Israel were camped in the wilderness, at the mountain of God. And Jethro sent a message ahead of him into the camp. The book gives us the message, and it is very simple. I, your father-in-law Jethro, am coming to you, with your wife, and her two sons with her.
+
+And here is what Moses did. And I want you to notice it, because Moses at this point is the most important man in the camp, perhaps the most important man for a hundred miles in any direction. Six hundred thousand men on foot, the book says, besides women and children, look to him. He has stood in front of Pharaoh. He has lifted his staff over the sea.
+
+And Moses went out to meet his father-in-law. And he bowed down to him, and kissed him. And they asked each other how they were. And they went into the tent.
+
+That is all the book says. They asked each other how they were. And I find it one of the loveliest sentences in the whole of the Old Testament. After everything. The plagues, the sea, the manna, the battle. Two men, one old and one not young any more, standing at the edge of a camp in the desert, asking each other how they are.
+
+The book does not tell us what Moses said to Zipporah, or to the boys. I am sure it was a great deal. I am also sure it was none of our business, and I am going to leave them to it.
+
+[pause]
+
+And then, in the tent, Moses told his father-in-law everything.
+
+Everything the Lord had done to Pharaoh, and to the Egyptians, for Israel's sake. All the hardship that had come on them on the way. And how the Lord had saved them.
+
+Picture it. An old man sitting on a rug in a tent, with a cup of something in his hands, and the lamp lit, and Moses telling the whole thing from the beginning. The bush. The staff. Pharaoh's face. The frogs, I suspect, would have got a laugh. The night of the Passover would not. The sea. The cloud. The manna in the morning. The water from the rock. Aaron and Hur holding up his arms.
+
+It would have taken a long time. I hope somebody refilled the lamp.
+
+And the book says that Jethro rejoiced. He rejoiced for all the good that the Lord had done for Israel, in saving them out of the hand of the Egyptians.
+
+And then he said this. And this is in the book, in a plain rendering. Blessed be the Lord, who has saved you out of the hand of the Egyptians, and out of the hand of Pharaoh. Now I know that the Lord is greater than all gods.
+
+Now I know. He was a priest of Midian, and the book does not tell us much about what he had believed or worshipped before. But it tells us that he listened to the whole story, and at the end of it he blessed the Lord, and said, now I know.
+
+And then he took a burnt offering, and sacrifices, for God. And Aaron came, and all the elders of Israel, to eat bread with Moses' father-in-law before God.
+
+So the first thing that happened when Jethro arrived in the camp was a family reunion. And the second thing that happened was a meal. And there, at the meal, with Aaron and the elders, was the old priest from Midian, a foreigner, a stranger, eating bread before God with the people of Israel. And nobody, in the book, seems to think this is at all strange.
+
+I would like to tell you more about that meal. But the book does not, so I cannot. I will just say that I hope there was something on the table other than manna, for the guest's sake. Though I suspect that if there was not, he was too polite to mention it.
+
+* * *
+
+And so we come to the next day.
+
+The next day, the book says, Moses sat to judge the people. And the people stood around Moses from the morning until the evening.
+
+Let me tell you what that was like. And from here, the people in the queue, and their cases, are our own invention. The book tells us only that they came, and what Moses did, and what Jethro saw. But it was a camp of a great many people, living very close together, a long way from anywhere, in a hard place. And people living very close together in a hard place find, as the day goes on, that they have a great many things to talk about.
+
+Moses sat down on his seat in the morning, outside his tent, just after the manna had been gathered. And the first man in the queue had a goat.
+
+The goat was not, strictly speaking, the problem. The problem was that the goat had got into another family's tent in the night and eaten a sandal. Not a pair of sandals. One sandal. And the owner of the other sandal, who had been standing behind the man with the goat since before it was light, and was hopping slightly, wished to know what Moses was going to do about it.
+
+The goat, for its part, was looking at Moses' sandals.
+
+And Moses listened. And Moses asked some questions. And Moses gave a decision. I do not know what it was. I like to think it involved the goat's owner giving the other man a goatskin to make a new sandal out of, which would have a kind of justice to it that the goat might not have appreciated.
+
+And the next case was two sisters and a cooking pot. They had shared the pot in Egypt, and they had carried it between them out of Egypt, taking turns, and now one of them had married and moved to a tent on the other side of the camp, and she had taken the pot with her, and the other sister wanted it back. And Moses listened. And it took a while, because each sister had a great deal to say about the other one's character, going back about thirty years.
+
+And the next case was about a tent peg, and whose side of a line it was on.
+
+And the next was a boy who had not come with a quarrel at all, but with a question. His father had told him that you were not allowed to gather manna on the sabbath, and the boy wanted to know why, and whether that meant you were allowed to eat it, and what would happen if you just picked up one piece, by accident, on the way past. And Moses answered him. Because the book says, and this is Scripture again, that the people came to Moses to inquire of God. And Moses taught them the statutes of God, and his laws. Even the small ones. Even to a boy.
+
+And on it went. The sun climbed up the sky. The shadows of the tents got short, and then they disappeared, and then they began, very slowly, to come out again on the other side. And the queue did not get shorter. Because every time somebody's case was settled and they went home, somebody else heard that Moses was sitting today, and remembered a thing that had been bothering them for a month, and came and stood at the back.
+
+And all day long, off to the side, an old man from Midian sat on a rolled-up rug in the shade of a tent, with his chin in his hand, and watched.
+
+[pause]
+
+* * *
+
+And so we are back where we began. It is evening at the foot of the mountain. The sun is touching the edge of the hills. And Jethro gets up, and brushes the dust off his robe, and walks over to his son-in-law, and says the first of the two questions that the book gives him.
+
+What is this that you are doing for the people? Why do you sit alone, and all the people stand around you, from morning until evening?
+
+It is a good question. It is a good question because it is a real question. He is not telling Moses off. He is asking. And Moses answers him honestly. In the book he says this.
+
+Because the people come to me to inquire of God. When they have a dispute, they come to me, and I decide between a man and his neighbour. And I make known to them the statutes of God, and his laws.
+
+And you can hear, I think, that Moses is not complaining. He is not saying, it is awful, help me. He is just explaining. This is what the people need, and so this is what I do. He is a man who has been carrying a very heavy thing for so long that he has stopped noticing it is heavy.
+
+And Jethro listens to the answer. And then he says the thing that he walked across the desert to say, though he did not know it when he set out.
+
+He says, what you are doing is not good.
+
+[pause]
+
+Now, I want you to hear that properly. It is not a rude thing to say. It is one of the kindest things anybody says in the whole book. Because the next thing he says is why.
+
+You will surely wear yourself out, he says. Both you, and these people with you. For the thing is too heavy for you. You are not able to do it alone.
+
+Both you, and these people with you. That is the bit people forget. Jethro was not only worried about Moses. He had been watching the queue all day. He had seen the man with the goat, or somebody like him, standing on one leg since before it was light. He had seen the people who had come in the morning and were still waiting at noon, and the people who had come at noon and were still waiting at sunset, and the people who had given up and gone home and would have to come back tomorrow and start again. He had seen that one man trying to do everything was not only wearing out the man. He was wearing out everybody.
+
+And then the old priest said, listen to me now. I will give you counsel. And God be with you.
+
+And here is the counsel. I am going to give it to you nearly as the book gives it, in a plain rendering, because it is the heart of tonight's story.
+
+You stand for the people before God, he says, and bring their cases to God. And teach them the statutes and the laws, and show them the way they must walk, and the work they must do.
+
+But also, he says, look out from all the people for able men. Men who fear God. Men who are trustworthy, and who hate a bribe. And set them over the people, as leaders of thousands, and of hundreds, and of fifties, and of tens.
+
+And let them judge the people at all times. Every great matter, they will bring to you. But every small matter, they will judge themselves. So it will be lighter for you, and they will carry the burden with you.
+
+And then he says this, and I think it is the wisest thing in the whole speech. If you do this thing, he says, and God so commands you, then you will be able to endure. And all these people also will go to their place in peace.
+
+If God so commands you. The old man did not say, do it because I said so. He said, here is my advice, take it to God. He knew whose people these were.
+
+* * *
+
+And Moses listened.
+
+That is the thing I most want you to take away from tonight, if you are still awake. Moses, who had spoken with God at the burning bush. Moses, who had stood in front of Pharaoh. Moses, who in a few days' time would go up the mountain into the cloud. Moses listened to the voice of his father-in-law, the book says, and did all that he had said.
+
+He did not say, I am the one God chose, thank you. He did not say, I will think about it, and then not think about it. He did not even say, actually, I was just about to do that myself. He listened, and he did it.
+
+The book says that Moses chose able men out of all Israel, and made them heads over the people, leaders of thousands, of hundreds, of fifties, and of tens. And they judged the people at all times. The hard cases they brought to Moses. But every small matter, they judged themselves.
+
+Many years later, at the very end of his life, on the far side of the desert, Moses told the whole people the story again. It is in the first chapter of the Book of Deuteronomy, in Moses' own voice. And in his telling of it, he remembers saying to the people, I am not able to bear you by myself. How can I bear alone the weight of you, and your burden, and your quarrels? Choose wise men, and understanding men, and experienced men, from your tribes, and I will make them your heads.
+
+And he remembers what he told the new judges, and it is worth hearing. Hear the cases between your brothers, he said, and judge rightly. Between a man and his brother, and the stranger who is with him. Do not be partial. Hear the small and the great alike. Do not be afraid of anybody's face, because the judgment is God's. And the case that is too hard for you, bring it to me, and I will hear it.
+
+Hear the small and the great alike. You may remember those words from the last episode, at the gate in Jerusalem, hundreds of years later, where two mothers who had nobody to speak for them were heard by the king. They started here. With a tired man on a seat in the desert, and a queue that went back between the tents as far as you could see, and an old man who had been watching all day with his chin in his hand.
+
+* * *
+
+So what happened to the queue?
+
+Well, I like to imagine the next morning. And this, again, is our own invention, though it follows from what the book says.
+
+The next morning, the man whose sandal had been eaten by the goat had a new question. Because that is the thing about people who have been wronged by a goat. They are never quite done. And he went to stand in front of Moses' tent, very early, so as to be first in the queue.
+
+And there was no queue.
+
+There was, instead, a man he knew. A man from three tents down, who had always been sensible, and who did not take bribes, and who feared God, and who had been made, the evening before, the leader of ten families, of whom the sandal man's family was one.
+
+And the sensible man from three tents down said, good morning. What is it about?
+
+And the sandal man told him. And it took about as long as it takes to say it. And the sensible man gave a decision. And the sandal man went home.
+
+And the two sisters with the cooking pot, who had not finished, went to the leader of their fifty. And she was, I am sorry to say, still there at lunchtime. But only the leader of fifty had to listen, and Moses did not.
+
+And the boy with the question about the manna went to his leader of ten, and asked again, and the leader of ten said, now, that is a very good question. And then he said, and I do not know the answer to the part about picking up a piece by accident, so I am going to ask my leader of fifty. And the leader of fifty said, that is a good question, I will ask my leader of a hundred. And so the question went up, and up, the way questions sometimes do, until it came to somebody who really did have to ask Moses. And Moses brought it to God.
+
+That is how it is supposed to work. The small things are settled close to home, by people you know. And the hard things go up. And the hardest things go to God.
+
+And Moses, for the first time in a long time, had an evening.
+
+[pause]
+
+* * *
+
+And then the book says this. The very last verse of the chapter.
+
+Then Moses let his father-in-law depart. And he went his way, to his own land.
+
+And that is all. The book does not tell us how long Jethro stayed. It does not tell us what he said when he left, or what Moses said, or whether Zipporah cried. It just says he went home.
+
+Now, the very next chapter of Exodus, chapter nineteen, is the one where the people come to the mountain, and the cloud comes down on it, and there is thunder, and the sound of a trumpet. And after that, the Ten Commandments.
+
+And here is a curious thing, which I find rather lovely. In the Jewish tradition, the Law of Moses is read through in the synagogue over the course of a year, in sections, and each section is called by one of its first words. And the section that begins with tonight's chapter, and goes on through the thunder on the mountain, and contains the Ten Commandments themselves, is called by the name of the old priest from Midian. It is called Yitro. Which is Jethro, in Hebrew.
+
+So the reading that holds the Ten Commandments is named after a foreigner, who came across the desert to bring a family back together, and listened to a long story with gladness, and blessed the Lord, and gave his son-in-law some good advice, and went home.
+
+[pause]
+
+The book of Numbers adds one more little scene, which may be about Jethro and may be about his son, depending on how you read it. When it is time for the people to leave the mountain and set off across the wilderness, Moses goes to Hobab, of the family of his father-in-law, and says, please come with us. And Hobab says, no, I will go back to my own land, and to my own family. And Moses says, please do not leave us. You know where we should camp in the wilderness. You will be eyes for us.
+
+You will be eyes for us. That is a son-in-law who had learned to ask for help.
+
+The book does not say what Hobab answered, in the end. But in the Book of Judges, much later, there is a family called the Kenites, the descendants of Moses' father-in-law, living among the people of Judah in the land. So someone, it seems, came along.
+
+* * *
+
+And so Jethro goes home.
+
+I like to picture him on the road back. He is lighter now, without the boys and their questions, though perhaps he misses the questions. The donkeys are lighter too, and are complaining less, which for donkeys means a great deal. He travels in the cool of the morning, and rests in the heat, and walks again as the afternoon goes gold.
+
+And in the evening he stops at a well, and waters the animals, and lights a small fire, and sits down beside it, and puts on every piece of clothing he owns, because it is cold in the desert at night.
+
+And the stars come out. More of them than you have ever seen.
+
+And perhaps, as he sits there, he thinks about his son-in-law. The young Egyptian, all those years ago, who stood up for seven girls at a well. The shepherd, who went off with the flock one morning and came back with God's own errand. The man on the seat, from morning until evening, with the whole people around him, and his arms, like on the hill at Rephidim, getting tired.
+
+And he thinks, I hope he listens. I hope he lets them help him.
+
+And he thinks, the Lord is greater than all gods. Now I know.
+
+And then the old man pulls his cloak around him, and lies down by the fire, and looks up at the stars for a while. And he does not have to settle anybody's quarrel tonight. And he does not have to carry anything by himself.
+
+And he sleeps.
+
+[pause]
+
+Here are the notes for the curious.
+
+Tonight's story comes from the Book of Exodus, chapter eighteen, told straight in our own plain rendering, not in any one translation. Moses' flight to Midian, the seven daughters at the well and the naming of Gershom are from chapter two. Moses keeping Jethro's flock is from chapter three, and his leave-taking, with Jethro's go in peace, is from chapter four. The bread dough in the kneading bowls is from chapter twelve, the bitter water made sweet from chapter fifteen, and the manna, the quails, the water from the rock and the battle at Rephidim from chapters sixteen and seventeen. Moses' own retelling, with his words to the new judges, is from Deuteronomy, chapter one. Hobab is from Numbers, chapter ten, and the Kenites from Judges, chapter one.
+
+The Bible calls Moses' father-in-law Reuel in chapter two and Jethro afterwards, and Hobab appears in Numbers, and how the names fit together has been read in more than one way; we have not tried to settle it. The book does not say when or why Moses sent Zipporah and the boys back, and we have not claimed to know. Some readers, ancient and modern, have wondered whether Jethro's visit came before or after the Law was given on the mountain; we have told it where the book puts it.
+
+That the Torah portion beginning with this chapter is called Yitro is the custom of the synagogue.
+
+Jethro's journey, his talk with his grandsons, the goat, the sandal, the cooking pot, the tent peg, the boy with the question about the manna, the sensible man from three tents down, and the next morning in the camp are our own invention. Nothing has been added to Jethro's advice, or to what Moses did with it.
+
+[pause]
+
+That's the story of Jethro and the judges for the small cases for tonight. Jethro has no feast day of his own, but his son-in-law Moses, the prophet and lawgiver, is remembered on the fourth of September, by the Orthodox Church and in the Roman Martyrology. Thank you for listening to Saints by Candlelight. If you enjoyed it, share it with someone who could use a gentle story at the end of a long day.
+
+And here is a prayer from Psalm ninety, which the Book of Psalms calls a prayer of Moses, the man of God, in a plain rendering. Lord, you have been our dwelling place, in every generation. Before the mountains were born, before the earth and the world were made, from everlasting to everlasting, you are God. Teach us to number our days, that we may gain a heart of wisdom. Satisfy us in the morning with your steadfast love, that we may rejoice and be glad all our days. Let your kindness be upon us, Lord our God, and establish the work of our hands. Yes, establish the work of our hands. Amen.
+
+Goodnight, and God bless.
