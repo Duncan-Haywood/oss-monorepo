@@ -414,17 +414,26 @@ TAKE_SURVEY_AFTER = 8
 # the held-out set named and advised 14 of 54 spread takes with it and 42 without (tests/take_survey_trim.py). At whole
 # microseconds it never fired on 432 stored drills. The ESC-lag survey keeps SURVEY_TRIM.
 TAKE_SURVEY_TRIM = 0
+# The take survey's take-blind wheels (2026-11-18, README "The take survey skips take-blind wheels"): a wheel whose
+# worst candidate's squared rms is at most TAKE_SURVEY_BLIND times its best's cannot tell the candidates apart (its
+# ball's take fits inside one revolution, so every candidate fits as the step does). It adds the same to every sum, so
+# it cannot move the pick, but it pulls the best / step share toward 1 and hides the advice; such wheels are left out.
+# 1 (or 0) keeps every wheel. Chosen on ten stored sets, held out on two fresh ones (eval/take-survey-blind-2026-11-18.md).
+TAKE_SURVEY_BLIND = 1.5
 
 
 class ResidualSurvey:
     """Each surveyed wheel's squared residual rms per candidate on `grid` (the last SURVEY_KEEP wheels), summed over the
     wheels whose best fit is within `trim` times the median wheel's best (None reads SURVEY_TRIM; 0 sums every wheel),
+    leaving out with `blind` > 1 a wheel whose worst candidate is within `blind` times its best (TAKE_SURVEY_BLIND),
     and the least sum refined by `survey_pick`. The ESC-lag survey's arithmetic (LaunchCheck.survey_add /
     _survey_sums) for another grid."""
 
-    def __init__(self, grid, trim=None):
+    def __init__(self, grid, trim=None, blind=0):
         self.grid = tuple(grid)
         self.trim = trim
+        self.blind = blind          # > 1: leave out a wheel whose worst candidate is within this of its best
+        self.blind_n = 0            # wheels left out as take-blind
         self.wheels = []
         self.n = 0
         self.trimmed = 0
@@ -433,6 +442,10 @@ class ResidualSurvey:
         self._sums_n = -1
 
     def add(self, got):
+        if self.blind > 1 and max(got) <= self.blind * min(got):
+            self.blind_n += 1       # the same to every sum: cannot move the pick, only dilute the share
+            self.n += 1
+            return
         self.wheels.append(array("f", got))
         if len(self.wheels) > SURVEY_KEEP:
             self.wheels.pop(0)
@@ -1686,7 +1699,7 @@ class LaunchCheck:
         # 0 or None keeps the module's LOOP_TAKE (the step unless a test sets it), else a half-sine of that time.
         self.take_us = take_us
         # The contact-time survey (README "The contact time surveyed on the board"): `take_on` while the Pi asks for it.
-        self.take_survey = ResidualSurvey(take_grid, TAKE_SURVEY_TRIM) if take_grid else None
+        self.take_survey = ResidualSurvey(take_grid, TAKE_SURVEY_TRIM, TAKE_SURVEY_BLIND) if take_grid else None
         self.take_on = False
         self.esc_tau_us = esc_tau_us  # the ESC's own lag for the drop fit (config ESC_TAU_US; 0: the wheel's lag only)
         self.share, self.dip_min, self.check_ms = share, dip_min, check_ms

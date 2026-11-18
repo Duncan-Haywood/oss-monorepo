@@ -1958,6 +1958,33 @@ class TakeSurveyTest(unittest.TestCase):
         lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, take_grid=controller.TAKE_SURVEY_GRID_US)
         self.assertEqual(lc.take_survey.trim, controller.TAKE_SURVEY_TRIM)
 
+    def test_take_survey_leaves_out_take_blind_wheels(self):
+        # 2026-11-18, README "The take survey skips take-blind wheels": a wheel whose candidates all fit alike adds the
+        # same to every sum, so it cannot move the pick but pulls the best / step share toward 1. Leaving such wheels
+        # out (TAKE_SURVEY_BLIND) keeps the pick and sharpens the share; a wheel that tells them apart stays in.
+        grid = controller.TAKE_SURVEY_GRID_US
+        blind = [(30e-6 * (1 + 1e-3 * i)) ** 2 for i in range(7)]   # 30 ppm, every candidate within 0.6% of the step
+        tells = [(60e-6 - 8e-6 * i) ** 2 for i in range(6)] + [(40e-6) ** 2]   # 6 ms (index 5) at 20 ppm, step 60
+        shares = {}
+        for b in (0, controller.TAKE_SURVEY_BLIND):
+            rs = controller.ResidualSurvey(grid, 0, b)
+            for _ in range(20):
+                rs.add(blind)
+            for _ in range(3):
+                rs.add(tells)
+            n, least, _, rms = rs.report(100)
+            self.assertEqual((n, least), (23, grid[5] // 100))     # every wheel counts as surveyed; the pick holds
+            self.assertEqual(rs.blind_n, 20 if b else 0)
+            shares[b] = min(rms) / rms[0]
+        self.assertGreater(shares[0], 0.6)                          # diluted: host.TAKE_ADVISE_RATIO would not advise
+        self.assertLess(shares[controller.TAKE_SURVEY_BLIND], 0.4)
+        rs = controller.ResidualSurvey(grid, 0, controller.TAKE_SURVEY_BLIND)
+        rs.add(blind)
+        self.assertIsNone(rs.report(100))                           # only blind wheels: no verdict yet
+        self.assertEqual(rs.n, 1)
+        lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, take_grid=grid)
+        self.assertEqual(lc.take_survey.blind, controller.TAKE_SURVEY_BLIND)
+
     def test_take_us_sets_the_record_fit(self):
         lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, take_us=6000)
         self.assertEqual(lc.take(), controller.take_offsets(6000))
