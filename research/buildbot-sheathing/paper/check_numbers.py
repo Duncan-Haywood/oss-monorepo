@@ -49,6 +49,8 @@ M43 = E + "m43_specstack/results.txt"
 M43P = E + "m43_specstack/posthoc.txt"
 M44 = E + "m44_legpreload/results.txt"
 M44P = E + "m44_legpreload/posthoc.txt"
+M45 = E + "m45_tiered/results.txt"
+M45P = E + "m45_tiered/posthoc.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -205,6 +207,11 @@ CHECKS = [
     (M44, "    5.0 | 0.172 | 0.019 (0.019) | 0.172 at [1.4, -0.15]", "worst becomes 0.172 mm, against 0.019 mm"),
     (M44P, "  0.90 |  0.0 | [1.4, -0.15] | 0.0300 | 0.172 (phi 0) | 6 of 6 | 1/0/0/0", "a joint in the controller's hold set flips"),
     (M44P, "  0.90 |  0.0 | [1.6, 0.0] | 0.0851 | 0.003 (phi 0)", "the residual is 0.003 mm"),
+    (M45, "  h1 [1.4, -0.15] | 0.0333 | 0.0339 | right_hip_roll (50 N) | 0.0305 | 0.1904", "raises that margin only to 0.0339 N m"),
+    (M45, "  h1 [1.4, -0.15] | 0.0333 | 0.0339 | right_hip_roll (50 N) | 0.0305 | 0.1904", "the other legs had 0.19 N m to spare"),
+    (M45, "H177 ((1.4, -0.15) at most 0.03 / 0.03 / 0.05 mm at 0 / 5 / 20 N): 0.172, 0.172, 0.172", "the residual stays 0.172 mm at every hose drag"),
+    (M45P, "  [0, 0, -1] | -0.1629 | -0.1629", "moves 0.163 N m per newton of sensor error along z"),
+    (M45P, "  0.90 | 0.15 |  5.0 | 0.004", "0.004 mm at 0.15 N"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

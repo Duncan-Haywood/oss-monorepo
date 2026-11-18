@@ -587,6 +587,18 @@ refuted. Statics.
 
 ![The H1's worst residual along the wall: 0.010 to 0.032 mm on the other poses, 0.17 to 0.24 mm on the re-planned ones](experiments/m44_legpreload/figure.png)
 
+**Milestone 45: can a hold-first preload rescue (1.4 m, −0.15 m)?** No; the pose needs a better wrist sensor instead.
+The joint that flips there is the right hip roll, a joint the controller holds and one the leg preload already
+reached (milestone 44's post hoc was wrong to say otherwise): planned 0.030 N m above its friction threshold, a 0.2 N
+sensor error moves it 0.033. Giving the hold set its own margin first, with every other leg allowed down to its
+threshold, raises it only to **0.0339 N m** (from 0.0333): the stance itself caps that joint, while the other legs
+had 0.19 N m to spare. So the residual stays **0.172 mm** at 0, 5 and 20 N of hose drag (20 N falls from 0.241), at
+no stack cost. Post hoc, the joint moves 0.163 N m per newton of sensor z error, so the pose meets the spec only
+with a z error under about 0.19 N: 0.001–0.004 mm at 0.05–0.15 N (an ATI Mini45-class sensor), 0.172 mm at an FT
+300's 0.2 N. H176, H179 and H180 held, H175, H177 and H178 refuted. Statics.
+
+![Where the margin is at H1 (1.4 m, −0.15 m), and the worst residual along the wall with the hold-first tiers](experiments/m45_tiered/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
