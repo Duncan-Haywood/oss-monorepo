@@ -2351,3 +2351,43 @@ survey there before trusting the count. Short lags now read a little low (40 ms:
 **Not known.** All simulated: a first-order ESC behind a first-order wheel, one seed per set. A real ESC's step
 response may not be one lag. Next: time a 16-revolution refit step on a real ESP32; a real ESC's lag on a scope;
 whether the record's own fit (window 8) reads the drop better with a longer window on slow wheels.
+
+## The record's drop fit and its window (2026-11-18, after "Long ESC lags")
+
+**The item.** The section above moved the survey's refits to 16 revolutions after the ball's anchor and left the
+record's own drop fit, the reading the Pi's launcher fit is built on, at `drop_from_commands_steps`' default of 8. Does
+that reading get better with a longer window on slow wheels (0.35-0.6 s)? The record fit is told the ESC lag, so it
+does not have the survey's problem of telling two lags in series apart; what a longer window could buy is more rows
+against the same unknowns, and what it could cost is more of whatever the model gets wrong.
+
+`tests/record_fit_window.py` runs the calibration drill and min_fit_heldout's slow drill per build, keeps every board
+record fit's inputs (snapshot periods, ESC-lagged ticks) with the simulator's true drop, and refits each offline with
+8, 12, 16 and 24 revolutions after the anchor (eval/record-fit-window-2026-11-18.txt; inputs in
+eval/record-fit-window-rows-2026-11-18.jsonl.gz, wheels at 1,000 rpm and up). Design builds: first-order, tach 3 us
+jitter, ESC 50 ms told and ESC 150 ms told, wheel lags 0.35 and 0.6 s, seed 7, launcher 0, 513 fits. rms is reading /
+true drop about 1, bias included:
+
+| build | after 8 | 12 | 16 | 24 |
+| --- | --- | --- | --- | --- |
+| first-order, 0.35 s | 0.20% | 0.28% | 0.30% | 0.29% |
+| first-order, 0.6 s | 0.14% | 0.13% | 0.15% | 0.16% |
+| tach 3 us, 0.35 s | 0.80% (worst 2.64%) | 0.73% | 0.68% | 0.61% (worst 1.48%) |
+| tach 3 us, 0.6 s | 0.67% (worst 2.04%) | 0.67% | 0.64% | 0.59% (worst 1.58%) |
+| ESC 50 ms, 0.35 / 0.6 s | 0.17% / 0.14% | 0.16% / 0.13% | 0.19% / 0.13% | 0.19% / 0.13% |
+| ESC 150 ms, 0.35 / 0.6 s | 0.15% / 0.11% | 0.14% / 0.10% | 0.16% / 0.11% | 0.16% / 0.12% |
+| all 513 | 0.39% (58 over 0.5%) | 0.38% | 0.36% | 0.34% (63 over 0.5%) |
+
+So the slow wheel itself is not the record fit's problem: on the noise-free plants 8 revolutions are as good as any
+longer window, and on the first-order 0.35 s build worse is longer (0.20% to 0.29-0.30%). What a longer window does is
+average a jittery tach: 0.80% to 0.61% and the worst wheel 2.64% to 1.48%. The jittery-tach wheels are the noisiest
+class the record fit has (README "Unsure marks on the noisy wheels"), and a real Hall tach will have some jitter.
+
+**Pre-registration** (written before the held-out capture ran). Candidate: `after=24` for the record's fit (the
+largest design gain; 12 and 16 gain less on the jitter builds and lose as much on first-order 0.35 s). Held-out
+builds: first-order, tach 3 us, ESC 100 ms told and ESC 120 ms told with tach 3 us jitter, wheel lags 0.45 and 0.55 s,
+seed 11, launcher 2 (8 builds). PREDICTION: with 24, rms falls on every held-out build with tach jitter (4 builds), by
+at least 10% of its value at 8 on the pooled jitter builds, and the worst jitter wheel is lower; on the noise-free
+builds rms moves by 0.10 points or less either way. DECISION RULE: the record's fit reads 24 (a new
+`controller.LOOP_FIT_AFTER`) only if (a) pooled rms over all held-out fits is lower with 24 than with 8, (b) the
+pooled jitter builds' rms falls by at least 10%, and (c) no held-out build's rms rises by more than 0.10 points.
+Otherwise it keeps 8 and this section reports the miss.

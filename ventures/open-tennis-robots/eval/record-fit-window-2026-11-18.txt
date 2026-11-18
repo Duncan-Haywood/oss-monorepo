@@ -1,0 +1,36 @@
+# tests/record_fit_window.py, 2026-11-18 (firmware/esp32/README.md "The record's drop fit and its window")
+
+## design capture: --score (8 builds, seed 7, launcher 0)
+513 record fits at 1000 rpm and up, 8 builds (seed 7, launcher 0), ESC told; reading / true drop per window (revolutions after the anchor)
+sd = scatter of reading / true about 1 (rms of reading / true - 1), so it counts bias too; >0.5% = fits more than 0.5% off; worst = largest |reading / true - 1|
+
+build (plant, wheel lag s)            n | after  8: mean rms >0.5% worst | after 12: mean rms >0.5% worst | after 16: mean rms >0.5% worst | after 24: mean rms >0.5% worst
+first-order, 0.35                    64 | 0.9998 0.20%   3 0.69% | 1.0001 0.28%   8 0.78% | 1.0001 0.30%   9 0.89% | 1.0002 0.29%   9 0.87%
+first-order, 0.60                    64 | 0.9998 0.14%   1 0.51% | 1.0000 0.13%   1 0.52% | 1.0002 0.15%   2 0.60% | 1.0003 0.16%   2 0.72%
+tach 3 us, 0.35                      65 | 0.9988 0.80%  30 2.64% | 0.9997 0.73%  30 2.05% | 0.9997 0.68%  30 2.01% | 0.9997 0.61%  27 1.48%
+tach 3 us, 0.60                      63 | 0.9980 0.67%  23 2.04% | 0.9983 0.67%  21 1.94% | 0.9987 0.64%  21 1.91% | 0.9987 0.59%  23 1.58%
+ESC 50 ms told, 0.35                 65 | 1.0000 0.17%   1 0.60% | 1.0005 0.16%   1 0.64% | 1.0009 0.19%   2 0.70% | 1.0008 0.19%   2 0.70%
+ESC 50 ms told, 0.60                 64 | 0.9997 0.14%   0 0.42% | 1.0002 0.13%   0 0.33% | 1.0004 0.13%   0 0.32% | 1.0004 0.13%   0 0.32%
+ESC 150 ms told, 0.35                63 | 0.9995 0.15%   0 0.44% | 0.9995 0.14%   0 0.44% | 0.9995 0.16%   0 0.44% | 0.9993 0.16%   0 0.44%
+ESC 150 ms told, 0.60                65 | 0.9996 0.11%   0 0.37% | 0.9998 0.10%   0 0.32% | 0.9997 0.11%   0 0.33% | 0.9997 0.12%   0 0.33%
+all                                 513 | 0.9994 0.39%  58 2.64% | 0.9998 0.38%  61 2.05% | 0.9999 0.36%  64 2.01% | 0.9999 0.34%  63 1.58%
+
+by speed band (all builds)
+1000-2000 rpm                        64 | 0.9998 0.31%   8 0.91% | 1.0006 0.35%  11 0.94% | 1.0006 0.35%  11 0.94% | 1.0006 0.35%  11 0.94%
+2000-3000 rpm                        72 | 0.9998 0.20%   3 0.74% | 1.0002 0.22%   4 0.85% | 1.0003 0.21%   4 0.89% | 1.0003 0.23%   5 0.89%
+3000-4500 rpm                       185 | 0.9998 0.31%  18 1.47% | 1.0000 0.30%  16 1.56% | 1.0001 0.29%  22 1.44% | 1.0000 0.29%  22 1.44%
+4500-up rpm                         192 | 0.9987 0.52%  29 2.64% | 0.9992 0.48%  30 2.05% | 0.9994 0.46%  27 2.01% | 0.9993 0.41%  25 1.58%
+
+by drill (all builds)
+calibration                         171 | 0.9996 0.28%  14 1.25% | 0.9999 0.31%  15 1.60% | 1.0000 0.31%  15 1.63% | 1.0000 0.28%  14 1.39%
+slow                                342 | 0.9993 0.44%  44 2.64% | 0.9997 0.41%  46 2.05% | 0.9999 0.39%  49 2.01% | 0.9998 0.36%  49 1.58%
+
+snapshot revolutions 23-119 (median 64); fits with no reading per window: 8: 0, 12: 0, 16: 0, 24: 0
+
+## pre-registration
+Copied from firmware/esp32/README.md "The record's drop fit and its window", written before the held-out capture ran.
+Candidate after=24. Held out: first-order, tach 3 us, ESC 100 ms told, ESC 120 ms told + tach 3 us; wheel lags 0.45
+and 0.55 s; seed 11, launcher 2. PREDICTION: rms falls on every held-out jitter build, by at least 10% pooled over
+them, worst jitter wheel lower; noise-free builds within 0.10 points. DECISION RULE: ship 24 (LOOP_FIT_AFTER) only if
+(a) pooled rms over all held-out fits is lower than with 8, (b) pooled jitter rms falls by at least 10%, (c) no build's
+rms rises by more than 0.10 points; else keep 8.
