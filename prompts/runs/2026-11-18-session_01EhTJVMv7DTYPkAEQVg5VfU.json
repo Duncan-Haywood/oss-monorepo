@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVMv7DTYPkAEQVg5VfU",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T09:14:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: shed-designer, slowest untouched venture suite after the two league/roster suites; gambrel truss analysis memo",
+  "projects": [
+    "shed-designer"
+  ],
+  "pr": 17248,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both perf backlog items (P063, P064) are still owner-gated; every perf run today fell through to venture suites. platform/ci/suite_file_times.py plus venture_suite_times.json made that fallback fast to pick."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/runs (model field)",
+      "why": "Left model null: the session's harness asks that no model identifier go into pushed artifacts other than the commit attribution line."
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-18-shed-gambrel-analysis-memo.md",
+    "docs/posts/2026-11-18-the-barn-roof-solved-83-times.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall seconds of shed-designer tests. Before (main 822bb9b49) / after, 4-core container. (1) gambrelAnalysis frame solves in one gambrel invariants(): 83 / 17 (counter instrumented, not kept). (2) node --test designsearch.test.mjs gambrel.test.mjs, interleaved with a git-archive copy of HEAD, date around each: 16.6, 25.2, 23.1 / 13.7, 15.7, 11.9 s; median 23.1 / 13.7. (3) make-gallery.mjs --check: 12.84, 12.37, 12.26 / 11.27, 11.04, 11.18 s. (4) suite_file_times.py shed-designer --jobs 4: 659.4 s summed, 170.0 s wall / 592.3 s summed, 152.6 s wall; designsearch.test.mjs 86.7 / 39.3 s. Same answers: sha256 of JSON of buildShed, estimate, structuralChecks, connectionChecks, utilisation, invariants and every sheet SVG over 381 designs (212 gambrel) db0afc6e0a876d96 both; gallery-data.mjs current both. CI command: run_venture_tests.py shed-designer: ok (139.8s, 538 tests), 3 skipped (axe), 0 failed.",
+  "corrections": [],
+  "redteam": null
+}
