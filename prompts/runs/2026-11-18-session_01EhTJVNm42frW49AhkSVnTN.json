@@ -1,0 +1,160 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVNm42frW49AhkSVnTN",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products ...)",
+  "input_sha256": "f8f71885604c3960397558b48aac2e83a85d070bfc142843170d120456c250fa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T09:56:28Z",
+  "ended": "2026-11-18T10:23:38Z",
+  "wall_minutes": 35.31,
+  "tokens_in": 11363155,
+  "tokens_out": 60722,
+  "cost_usd": 4.85,
+  "tool_calls": 82,
+  "task": "Deepen (flagship 7) photo-editing: cull 10% pans (0.86-0.95, a finer grid?)",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17257",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "The first `git checkout -b` failed because the session branch already existed; the claim commit landed on it anyway (already checked out).",
+    "System PIL in the container is broken (_imaging import error); cull_showcase.py ran from a --system-site-packages venv with pillow reinstalled."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/eval/cull-pan-windows-2026-11-18.md",
+      "issue": "Its 'What is left' said a 7x7 grid with 2% steps would cover 10% pans; a 2% grid gives offsets of 10 and 12, still 0.9-1.1% from the 11.1% a 10% pan needs. Every whole-percent offset needs a sparse ruler (0,1,2,3,6,9,12), not even steps."
+    },
+    {
+      "file": "ventures/photo-editing/tools/cull_crop_grouping_eval.py",
+      "issue": "The pan sizes 2/4/6/8/10% all but 10% sat within 0.4% of the 3% window grid, so the test hid that 7% and 9% pans split (0.78-0.84 diagonal). Added 5/7/9% pans."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "`pkill -f '[c]ull_group_timing'` was refused because the same word appeared later in the command line; the hook message explains it, but CLAUDE.md's note only says to bracket the first letter."
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "Two sessions claimed the same photo-editing cull item within minutes (#17257 'cull 10% pans', #17258 'cull finer window grid for 6% and 10% pans'); the item names differed, so neither claim check flagged the other and both built a fix."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row was chant-forge; 13 sessions in two days left it citing narrow OMR/coda items. Took photo-editing (row 3, no open PR, a concrete buildable cull item) instead.",
+      "did": "photo-editing cull fine offsets",
+      "result": "held-out recall 0.982 -> 0.998, no added false merge"
+    },
+    {
+      "file": "ventures/photo-editing/eval/cull-crop-gate-2026-11-18.md",
+      "why": "Pick rule (highest tune recall within +2 false merges) chose (6,8,40); took (5,8,44): 0.0001 lower recall, one fewer false merge, same threshold/gate as the other window passes. Chosen before held-out scoring.",
+      "did": "FINE_MAX_DISTANCE 5, FINE_MIN_GAIN 8, gate 44",
+      "result": "held-out false merges 26 -> 26"
+    },
+    {
+      "file": "CLAUDE.md (Duplicate PRs)",
+      "why": "PR #17258 (another session, claimed minutes after this one, both saw the item free) merged a different fix for the same item first. Measured both on the same frames: fine offsets alone 0.9983 held vs its 0.9946; it added 0.0001 on top of fine for +1 tune false merge and 1.8x grouping time.",
+      "did": "Merged main in; the cull runs the fine pass only; the other pass's frame_analysis helpers, tool and eval kept for reproducibility; comparison table in eval/cull-fine-offsets-2026-11-18.md",
+      "result": "held-out 0.9983, false merges 26"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-photo-cull-pans-between-the-window-steps.md",
+    "ventures/photo-editing/eval/cull-fine-offsets-2026-11-18.md"
+  ],
+  "goal": "Deepen a flagship: burst grouping recall on pans between the window grid's steps",
+  "notes": "Diagnosis: every missed 10% pan had 3%-grid windows 6-11 bits apart but whole-percent windows 0-2 (29/33 tune). Fine pass: 24 more windows, 544 packed lanes, exact index (one table of 49 windows). Tune 0.9829->0.9976 (FM 14->14); held 0.9822->0.9983 (FM 26->26); 7-10% pans 0.78-0.95 -> 0.99-1.00. Cost: grouping 2,000 frames 2.9->7.7 s, 10,000 frames 36->101 s; index starts at 200 frames. Local checks: tests.test_cull + tests.test_frame_analysis (unittest) OK; run_venture_tests.py photo-editing: ok (1341 tests, 252 s); venture-preflight.mjs photo-editing: clean; tools/cull_crop_grouping_eval.py end to end: tune 0.998/14 FM, held 0.998/26 FM; cull_showcase.py unchanged (5 groups, 5 keepers, 6 alternates, 2 rejects). Merge with main after #17258: both passes measured on the same frames (table in the eval note); unittest test_cull+test_frame_analysis 72 OK after the merge.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c666d269-32b9-5ce4-b61f-763d1e2efadb",
+    "transcripts": 1,
+    "first": "2026-11-18T09:56:28Z",
+    "last": "2026-11-18T10:31:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 79,
+        "input": 152,
+        "output": 60722,
+        "thinking": 18265,
+        "cache_read": 11188347,
+        "cache_write_5m": 0,
+        "cache_write_1h": 174656,
+        "api_equivalent_usd": 4.85,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 79,
+      "input": 152,
+      "output": 60722,
+      "thinking": 18265,
+      "cache_read": 11188347,
+      "cache_write_5m": 0,
+      "cache_write_1h": 174656,
+      "api_equivalent_usd": 4.85,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 78,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 35.31,
+      "active_minutes": 35.31,
+      "model_minutes": 10.94,
+      "tool_minutes": 24.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "diagnose a perceptual-hash grouping miss, design and tune a new window pass with held-out eval, index and tests: about a day and a half of a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 206.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

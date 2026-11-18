@@ -292,6 +292,61 @@ class PanWindowTests(unittest.TestCase):
         self.assertTrue(all(abs(dx) > c or abs(dy) > c for dx, dy in offsets))
 
 
+class FineOffsetTests(unittest.TestCase):
+    def test_marks_cover_every_whole_percent_offset(self) -> None:
+        from shootflow.frame_analysis import _FINE_GRID, _FINE_N, _FINE_PAIRS, FINE_MARKS
+
+        self.assertEqual({a - b for a in FINE_MARKS for b in FINE_MARKS}, set(range(-12, 13)))
+        n = _FINE_N
+        offsets = {(FINE_MARKS[a % n] - FINE_MARKS[b % n], FINE_MARKS[a // n] - FINE_MARKS[b // n]) for a, b in _FINE_PAIRS}
+        self.assertEqual(len(offsets), len(_FINE_PAIRS))
+        self.assertEqual(len(offsets), 25 * 25 - 9 * 9)  # every offset off the 3% lattice
+        self.assertEqual(sorted(set(_FINE_GRID)), list(range(49)))
+
+    def test_fine_windows_extend_the_crop_grid(self) -> None:
+        from shootflow.frame_analysis import _FINE_EXTRA, fine_dhashes, metrics_from_frames
+
+        frame = _view(_scene(12), 0.0, 0.0, 1.0)
+        fine = fine_dhashes(frame)
+        self.assertEqual(len(fine), len(_FINE_EXTRA))
+        self.assertEqual(len(fine), 24)
+        self.assertEqual(metrics_from_frames([frame]).dhash_fine, fine)
+
+    def test_a_pan_between_the_crop_steps_lines_up(self) -> None:
+        # A 7% pan moves the content 7.5% of the frame: 1.5% from the crop grid's
+        # 6% and 9%, 0.5% from the fine grid's 7% and 8%.
+        from shootflow.frame_analysis import fine_dhashes, fine_distance
+
+        scene = _scene(13)
+        left, right = _view(scene, 0.0, 0.0, 0.93), _view(scene, 0.07, 0.07, 0.93)
+        cl, cr = _ints(crop_dhashes(left)), _ints(crop_dhashes(right))
+        fl, fr = _ints(fine_dhashes(left)), _ints(fine_dhashes(right))
+        coarse = min(crop_distance(cl, cr), pan_distance(cl, cr))
+        fine = fine_distance(cl, fl, cr, fr)
+        self.assertLessEqual(fine, 3)
+        self.assertLess(fine, coarse)
+
+    def test_packed_check_agrees_and_old_rows_never_match(self) -> None:
+        from shootflow.frame_analysis import fine_distance, fine_pack, fine_within
+
+        rng = random.Random(14)
+        for _ in range(400):
+            ca = tuple(rng.getrandbits(64) for _ in range(25))
+            fa = tuple(rng.getrandbits(64) for _ in range(24))
+            pool = ca + fa
+            cb = tuple(pool[rng.randrange(49)] ^ rng.getrandbits(64) & rng.getrandbits(64) & rng.getrandbits(64)
+                       for _ in range(25))
+            fb = tuple(pool[rng.randrange(49)] ^ rng.getrandbits(64) & rng.getrandbits(64) & rng.getrandbits(64)
+                       for _ in range(24))
+            d = fine_distance(ca, fa, cb, fb)
+            pa, pb = fine_pack(ca, fa), fine_pack(cb, fb)
+            for limit in (d - 1, d, d + 1):
+                self.assertEqual(fine_within(pa, pb, limit), 0 <= limit and d <= limit, (d, limit))
+        self.assertEqual(fine_distance(ca, (), cb, fb), 64)
+        self.assertEqual(fine_pack(ca, ()), ())
+        self.assertFalse(fine_within((), fine_pack(cb, fb), 63))
+
+
 class PackedWindowTests(unittest.TestCase):
     def test_packed_check_agrees_with_both_distances(self) -> None:
         from shootflow.frame_analysis import other_pack, other_within, window_pack, windows_within

@@ -27,6 +27,11 @@ Python, so nothing beyond ffmpeg is needed:
 - ``dhash_zooms``: the hash over smaller windows (90-96% of the frame, 5 x 5
   positions each), so a frame zoomed 4-10% tighter than its neighbour matches
   that neighbour's window of the same size (``zoom_distance``).
+- ``dhash_fine``: the same 88% windows at 24 more offsets (1% and 2% of the
+  frame on either axis), so with the crop windows they form a 7 x 7 grid whose
+  offsets differ by every whole percent from 0 to 12: a pan that moves the
+  content by an amount between the crop grid's 3% steps still finds a window
+  pair within half a percent of it (``fine_distance``).
 
 These are technical signals. There is no face detector and no semantic model
 here, so ``framing`` finds where the detail is, not what it is, and ``story``
@@ -95,6 +100,7 @@ class FrameMetrics:
     duration_seconds: float | None
     dhash_crops: tuple[str, ...] = ()
     dhash_zooms: tuple[str, ...] = ()
+    dhash_fine: tuple[str, ...] = ()
 
     @property
     def level(self) -> float:
@@ -205,6 +211,7 @@ def metrics_from_frames(
         dhash=dhash_hex(middle, width, height),
         dhash_crops=crop_dhashes(middle, width, height),
         dhash_zooms=zoom_dhashes(middle, width, height),
+        dhash_fine=fine_dhashes(middle, width, height),
         tilt_degrees=round(tilt, 3),
         tilt_confidence=round(tilt_confidence, 6),
         noise_sigma=round(noise_sigma, 3),
@@ -688,6 +695,132 @@ def other_within(packed_a: tuple[int, ...], packed_b: tuple[int, ...], limit: in
     x = (x + (x >> 4)) & _OM4
     x = ((x * 0x0101010101010101) >> 56) & _O_LOW
     return (x + _O_ONE * (127 - min(63, limit))) & _O_HIGH != _O_HIGH
+
+
+# Fine offsets (2026-11-18, eval/cull-fine-offsets-2026-11-18.md). The crop
+# grid's windows sit at 0, 3, 6, 9 and 12% of the frame, so two windows can be
+# offset only by multiples of 3%. A pan of s moves the content s / (1 - s): a
+# 10% pan moves it 11.1%, 0.9% from the nearest 12%, and on real photos that
+# residue alone costs 6-10 bits where the exact offset costs 0-3. The marks
+# below (a sparse ruler) add windows at 1% and 2% on each axis; the differences
+# of {0, 1, 2, 3, 6, 9, 12} are every whole percent from 0 to 12, so every
+# whole-percent offset has a window pair and no pan is more than 0.5% off one.
+FINE_MARKS = (0, 1, 2, 3, 6, 9, 12)  # percent of the frame; the crop grid is (0, 3, 6, 9, 12)
+_FINE_N = len(FINE_MARKS)
+_FINE_EXTRA = tuple(
+    (j, i) for j in range(_FINE_N) for i in range(_FINE_N)
+    if FINE_MARKS[i] % 3 or FINE_MARKS[j] % 3
+)
+
+
+def _fine_grid() -> tuple[int, ...]:
+    """Index of each 7 x 7 grid cell, row by row, in (crop hashes + fine hashes)."""
+
+    out = []
+    for jj in range(_FINE_N):
+        for ii in range(_FINE_N):
+            x, y = FINE_MARKS[ii], FINE_MARKS[jj]
+            if x % 3 == 0 and y % 3 == 0:
+                out.append((y // 3) * CROP_STEPS + x // 3)
+            else:
+                out.append(CROP_STEPS * CROP_STEPS + _FINE_EXTRA.index((jj, ii)))
+    return tuple(out)
+
+
+_FINE_GRID = _fine_grid()
+
+
+def fine_dhashes(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> tuple[str, ...]:
+    """Difference hashes of the 88% windows at the fine marks the crop grid lacks (24), row by row."""
+
+    table = _integral(frame, width, height)
+    out = []
+    for j, i in _FINE_EXTRA:
+        x0 = width * FINE_MARKS[i] / 100
+        y0 = height * FINE_MARKS[j] / 100
+        bits = _window_dhash(table, x0, y0, (1 - CROP_MARGIN) * width, (1 - CROP_MARGIN) * height)
+        out.append(f"{bits:016x}")
+    return tuple(out)
+
+
+def _fine_pairs() -> tuple[tuple[int, int], ...]:
+    """(cell of a, cell of b) on the 7 x 7 grid for each whole-percent offset the 3% lattice misses.
+
+    Offsets that are multiples of 3% on both axes are left to the crop and
+    wide-pan passes. For each other offset, the pair nearest the middle of
+    both frames, as ``_pan_pairs`` does.
+    """
+
+    n, marks = _FINE_N, FINE_MARKS
+    mid = 6
+    out = []
+    for dy in range(-12, 13):
+        for dx in range(-12, 13):
+            if dx % 3 == 0 and dy % 3 == 0:
+                continue
+            candidates = [
+                (ay * n + ax, by * n + bx)
+                for ay in range(n) for ax in range(n) for by in range(n) for bx in range(n)
+                if marks[ax] - marks[bx] == dx and marks[ay] - marks[by] == dy
+            ]
+
+            def spread(pair: tuple[int, int]) -> int:
+                return sum(abs(marks[k // n] - mid) + abs(marks[k % n] - mid) for k in pair)
+
+            out.append(min(candidates, key=spread))
+    return tuple(out)
+
+
+_FINE_PAIRS = _fine_pairs()
+_FINE_A = operator.itemgetter(*(_FINE_GRID[a] for a, _ in _FINE_PAIRS))
+_FINE_B = operator.itemgetter(*(_FINE_GRID[b] for _, b in _FINE_PAIRS))
+_FINE_LANES = len(_FINE_PAIRS)
+_F_BYTES = 8 * _FINE_LANES
+_FM1, _FM2, _FM4 = (int.from_bytes(bytes([b]) * _F_BYTES, "little") for b in (0x55, 0x33, 0x0F))
+_F_LOW = sum(0xFF << (64 * k) for k in range(_FINE_LANES))
+_F_ONE = _F_LOW // 0xFF
+_F_HIGH = _F_ONE * 0x80
+
+
+def _fine_windows(crops: Sequence[int], fine: Sequence[int]) -> tuple[int, ...] | None:
+    if len(crops) != CROP_STEPS * CROP_STEPS or len(fine) != len(_FINE_EXTRA):
+        return None
+    return (*crops, *fine)
+
+
+def fine_distance(crops_a: Sequence[int], fine_a: Sequence[int], crops_b: Sequence[int], fine_b: Sequence[int]) -> int:
+    """Smallest Hamming distance over the window pairs at whole-percent offsets off the 3% lattice.
+
+    Takes each frame's crop hashes and fine hashes (ints). Returns 64 when
+    either frame lacks them (a frame analysed before 2026-11-18).
+    """
+
+    wa, wb = _fine_windows(crops_a, fine_a), _fine_windows(crops_b, fine_b)
+    if wa is None or wb is None:
+        return 64
+    return min(map(int.bit_count, map(int.__xor__, _FINE_A(wa), _FINE_B(wb))))
+
+
+def fine_pack(crops: Sequence[int], fine: Sequence[int]) -> tuple[int, ...]:
+    """(a side, b side) of a frame's windows packed for ``fine_within``; () when incomplete."""
+
+    windows = _fine_windows(crops, fine)
+    if windows is None:
+        return ()
+    return (_pack(_FINE_A(windows)), _pack(_FINE_B(windows)))
+
+
+def fine_within(packed_a: tuple[int, ...], packed_b: tuple[int, ...], limit: int) -> bool:
+    """Whether ``fine_distance`` is at most ``limit`` (0-63), from ``fine_pack`` of each frame."""
+
+    if not packed_a or not packed_b or limit < 0:
+        return False
+    x = packed_a[0] ^ packed_b[1]
+    x -= (x >> 1) & _FM1
+    x = (x & _FM2) + ((x >> 2) & _FM2)
+    x = (x + (x >> 4)) & _FM4
+    x = ((x * 0x0101010101010101) >> 56) & _F_LOW
+    return (x + _F_ONE * (127 - min(63, limit))) & _F_HIGH != _F_HIGH
 
 
 # Zoom windows (2026-11-18, eval/cull-zoom-windows-2026-11-18.md): the equal-size

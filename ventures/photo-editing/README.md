@@ -390,7 +390,17 @@ This repo currently contains the first testable core utilities:
   21.7 s), `eval/cull-pan-all-pairs-2026-11-18.md`; since the same day, from 500 photos up, a
   chunked hash index finds the only pairs any match could link instead of comparing
   every pair, with identical groups: 2,000 frames 10.0 to 3.6 s, 10,000 frames 251
-  to 42 s, `eval/cull-grouping-index-2026-11-18.md`), keeps the best frame per group as the
+  to 42 s, `eval/cull-grouping-index-2026-11-18.md`; and later that day a fine-offset
+  match: 24 more 88% windows at 1% and 2% of the frame make a 7 x 7 grid whose
+  offsets differ by every whole percent from 0 to 12, so a pan between the 3% steps
+  (a 10% pan moves the content 11.1%, a 7% pan 7.5%) still finds a window pair
+  within half a percent; frames up to 44 apart group when such a pair is within 5
+  and at least 8 closer than the whole frames: held-out pair recall 0.982 to 0.998
+  (with 5, 7 and 9% pans added to the test), 7-10% pans 0.78-0.95 to 0.99-1.00, no
+  added false merge in 13,695, `eval/cull-fine-offsets-2026-11-18.md`; with the fine
+  match in, the every-other-pair match above added 0.0001 held-out recall for one more
+  tune false merge and 1.8x the grouping time, so the cull no longer runs it; its
+  functions stay in `frame_analysis` for its tune tool), keeps the best frame per group as the
   keeper, and rejects blurred, badly exposed or (with `SHOOTFLOW_FACE_DETECTOR`)
   closed-eye frames. It writes `cull_report.json` and `cull_report.html`, and
   with `--write-xmp` a Lightroom/Bridge sidecar per photo (keeper 4 stars,
