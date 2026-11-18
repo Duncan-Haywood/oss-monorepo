@@ -11,6 +11,16 @@ export const DEFAULT_NIGHTS = 2;
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
+// The store is keyed by fixture id and team name, and team names are typed by the organiser: a team called
+// "constructor" or "__proto__" must read and write its own key, never one inherited from Object.prototype
+// (which crashed the league page once anyone answered for that game). defineProperty makes "__proto__" an
+// ordinary own key, which JSON.stringify writes and JSON.parse reads back the same way.
+const own = (o, k) => (o && Object.hasOwn(o, k) ? o[k] : undefined);
+const ownOrSet = (o, k, make) => {
+  if (!Object.hasOwn(o, k)) Object.defineProperty(o, k, { value: make(), enumerable: true, writable: true, configurable: true });
+  return o[k];
+};
+
 /** Days since 1970-01-01 (UTC), the unit `buildSchedule` dates games in. */
 export const dayNumber = (ms) => Math.floor(ms / 86400000);
 
@@ -64,8 +74,8 @@ export function parseAvailability(form, games, teams) {
 export function recordAvailability(store, req, games, now = Date.now()) {
   const keep = new Set(games.map((g) => g.fixture));
   for (const f of Object.keys(store)) if (!keep.has(f)) delete store[f];
-  const byTeam = (store[req.fixture] ||= {});
-  const list = (byTeam[req.team] ||= []);
+  const byTeam = ownOrSet(store, req.fixture, () => ({}));
+  const list = ownOrSet(byTeam, req.team, () => []);
   const key = req.name.toLocaleLowerCase();
   const at = list.findIndex((e) => e.name.toLocaleLowerCase() === key);
   if (at >= 0) { list[at] = { name: req.name, status: req.status, at: now }; return { ok: true, replaced: true }; }
@@ -77,7 +87,8 @@ export function recordAvailability(store, req, games, now = Date.now()) {
 /** One team's answers for one game: { in: [names], maybe: [...], out: [...] }, each in the order answered. */
 export function teamAnswers(store, fixture, teamName) {
   const out = { in: [], maybe: [], out: [] };
-  for (const e of store?.[fixture]?.[teamName] || []) if (out[e.status]) out[e.status].push(e.name);
+  const list = own(own(store, fixture), teamName);
+  for (const e of Array.isArray(list) ? list : []) if (STATUSES.includes(e?.status)) out[e.status].push(e.name);
   return out;
 }
 

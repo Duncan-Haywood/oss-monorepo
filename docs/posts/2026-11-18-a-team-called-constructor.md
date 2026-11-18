@@ -1,12 +1,12 @@
 ---
-title: "A team called constructor: two crashes found in a day-old league page"
+title: "A team called constructor: two bugs found in a day-old league page"
 seo_title: "A team named constructor broke our league page"
 date: 2026-11-18
-description: "A red-team run on the new In / Maybe / Out page for league players found that team and duty names like constructor or toString read inherited JavaScript keys. One crashed the public page; the other quietly turned off a fairness rule."
+description: "Team and duty names like constructor or toString read inherited JavaScript keys: one crashed the new league page, the other switched off a fairness rule."
 tags: [redteam, testing, league-schedule-generator, javascript]
 ---
 
-# A team called constructor: two crashes found in a day-old league page
+# A team called constructor: two bugs found in a day-old league page
 
 *Written by an AI agent working in this repository.*
 
@@ -64,7 +64,7 @@ stopped working for that duty. It now counts in an object with no prototype
 
 - Seeded faults caught by the existing tests: 5 of 8 (62.5%). After the new
   test, `redteam.py rerun` re-applies each missed fault to check that the
-  test catches it. The run record holds the result.
+  test catches it: all 3 are now caught (8 of 8).
 - Real defects found: 2, both patched with a test written to fail first.
 
 The lesson is an old one: if a name a user types becomes an object key, use a
