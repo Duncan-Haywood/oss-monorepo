@@ -1151,7 +1151,8 @@ def session_id() -> Optional[str]:
 
 def start_here(queue: list[dict], claims: Optional[dict[str, list]],
                now: Optional[datetime] = None, session: Optional[str] = None,
-               spread: int = START_SPREAD) -> Optional[tuple[int, str]]:
+               spread: int = START_SPREAD,
+               declined: Optional[set] = None) -> Optional[tuple[int, str]]:
     """(row number, venture) of a Deepen flagship row with no open PR younger
     than CLAIM_FRESH_HOURS, or None. Rows marked `inputs_only` are not Deepen
     rows, so they are skipped too. With claims unread (None) nothing is known
@@ -1163,9 +1164,12 @@ def start_here(queue: list[dict], claims: Optional[dict[str, list]],
     get different rows: two sessions took the same sales-agent item in
     parallel three times on 2026-11-11/12 (doc_friction on this file), which
     the open-PR read cannot see. Rows whose `buildable:` waits on a future
-    date come after the rest (gate_note)."""
+    date come after the rest (gate_note), and rows in `declined`
+    (declined_rows: recent sessions left them more often than they worked
+    them) come last."""
     now = now or datetime.now(timezone.utc)
-    free, dated = [], []
+    declined = declined or set()
+    free, dated, later = [], [], []
     for i, item in enumerate(queue, 1):
         if not (item["flagship"] and item["task"].startswith("Deepen")):
             continue
@@ -1177,10 +1181,13 @@ def start_here(queue: list[dict], claims: Optional[dict[str, list]],
         if "BUILDABLE HERE" in item["task"] and "(NOT YET: " in item["task"].split(" -- Context: ")[0]:
             dated.append((i, item["venture"]))
             continue
+        if item["venture"] in declined:
+            later.append((i, item["venture"]))
+            continue
         free.append((i, item["venture"]))
         if session is None or len(free) >= spread:
             break
-    free = (free + dated)[:1 if session is None else spread]
+    free = (free + dated + later)[:1 if session is None else spread]
     if not free:
         return None
     if session is None:
@@ -1306,6 +1313,26 @@ def worked_rows(names, runs_dir: Path = RUNS_DIR, now: Optional[datetime] = None
             if n in projects:
                 out[n] = out.get(n, 0) + 1
     return out
+
+
+DECLINE_MIN_LEAVES = 3
+
+
+def declined_rows(left: dict[str, list], worked: dict[str, int],
+                  min_leaves: int = DECLINE_MIN_LEAVES) -> set:
+    """Flagships that recent sessions left more often than they worked, with at
+    least `min_leaves` departures (left_rows, worked_rows).
+
+    Why: the 'Left recently' line was only a hint, and 'Start here' sent 16
+    sessions to chant-forge on 2026-11-17/18 while 9 records worked it; each
+    read the row, agreed with the last leaver and took another (run-record
+    doc_friction and deviations on this file, 7 reports in 3 days asking the
+    pick to skip such a row). A row most sessions work (einvoice-preflight 6
+    left, 18 worked) keeps its place. The demotion lifts by itself when the
+    leaves age out of the window or when a `buildable:` refresh gets the row
+    worked again."""
+    return {n for n, hits in left.items()
+            if len(hits) >= min_leaves and len(hits) > worked.get(n, 0)}
 
 
 def left_note(name: str, left: dict[str, list[tuple[str, str, str]]],
@@ -1560,7 +1587,10 @@ def print_table(ventures: list[Venture], queue: list[dict],
     if req:
         print(req)
     sid = session_id()
-    first = start_here(queue, claims, session=sid)
+    flag_names = [i["venture"] for i in queue if i["flagship"]]
+    left, worked = left_rows(flag_names), worked_rows(flag_names)
+    declined = declined_rows(left, worked)
+    first = start_here(queue, claims, session=sid, declined=declined)
     if first:
         how = (f"picked by this session's id among the first {START_SPREAD} Deepen flagships"
                if sid else "the first Deepen flagship")
@@ -1575,9 +1605,13 @@ def print_table(ventures: list[Venture], queue: list[dict],
             f"`python3 portfolio/router/claim_check.py {first[1]}`: two sessions that opened "
             "in the same minute both see this row free, and the PR opened first keeps it."
         )
-        flag_names = [i["venture"] for i in queue if i["flagship"]]
-        note = left_note(first[1], left_rows(flag_names),
-                         worked=worked_rows(flag_names).get(first[1], 0),
+        skipped = sorted(declined - {first[1]})
+        if skipped:
+            print("Moved behind the other free rows: " + ", ".join(
+                f"{n} (left by {len(left[n])}, worked by {worked.get(n, 0)} in the last "
+                f"{LEFT_WINDOW_DAYS} days)" for n in skipped)
+                + ". Refresh such a row's `buildable:` if you find it has real work.")
+        note = left_note(first[1], left, worked=worked.get(first[1], 0),
                          has_buildable=first[1] in load_flagship_field("buildable"))
         if note:
             print(note)
