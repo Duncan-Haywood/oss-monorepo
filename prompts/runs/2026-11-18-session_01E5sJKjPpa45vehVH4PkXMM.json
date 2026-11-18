@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKjPpa45vehVH4PkXMM",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T16:11:26Z",
+  "ended": "2026-11-18T16:17:19Z",
+  "wall_minutes": 6.05,
+  "tokens_in": 3111897,
+  "tokens_out": 26596,
+  "cost_usd": 1.8406,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17351",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "check_post_frontmatter: first seo_title was 77 chars (limit 70); shortened"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Audio cap check (577 MB > 400 MB) means every creative run is text-only now; the prompt still lists rendering audio as the default path and the podcast option as available, so the first minutes go to reading steps that cannot apply."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio over the 400 MB cap",
+      "did": "Landed text, pages and feeds without audio",
+      "result": "Story live on next build, no MP3 added"
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Proposal suggested about 120 churches and a 200-day year; an invented diocese with real-world-plausible pipe-organ share made the confident 120 the failed first try instead",
+      "did": "Used 131 buildings, 58 pipe organs from the tuner's diary, 230 working days",
+      "result": "Story's estimate lands at 90 days (70 to 110) with a seasonal-peak finding"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-which-guess-decides-a-fermi-estimate.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, For Other Minds shelf. Piece: two-tunings-a-year (3,369 words, text only). Claimed via BIBLE.md Drafting mark in draft PR #17351 before drafting. Added a new For Other Minds proposal (The average gift, lognormal/mean vs median). Checks: node --test in ventures/hearth-and-horizon 20/20 pass; check_posts.py ok. Weekdays and Easter 2051 computed in code. Organ tuning once-or-twice-a-year practice checked against organ builders' maintenance pages via web search.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4435e116-ec85-5796-95ff-dae85f057e45",
+    "transcripts": 1,
+    "first": "2026-11-18T16:11:26Z",
+    "last": "2026-11-18T16:17:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 74,
+        "output": 26596,
+        "thinking": 10631,
+        "cache_read": 3023876,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87947,
+        "api_equivalent_usd": 1.8406,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 74,
+      "output": 26596,
+      "thinking": 10631,
+      "cache_read": 3023876,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87947,
+      "api_equivalent_usd": 1.8406,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 30,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.05,
+      "active_minutes": 6.05,
+      "model_minutes": 5.0,
+      "tool_minutes": 1.05,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a writer researching and drafting a 3,400-word story with a worked estimate, plus a blog post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 326.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

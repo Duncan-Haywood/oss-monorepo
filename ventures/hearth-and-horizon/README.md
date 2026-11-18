@@ -366,10 +366,11 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (56 stories)
+### For Other Minds (57 stories)
 
 - [The Older the Likelier](stories/the-older-the-likelier.md) (2026-11-18; 17 min read, text only)
 - [The Village With No Bus](stories/the-village-with-no-bus.md) (2026-11-18; 15 min read, text only)
+- [Two Tunings a Year](stories/two-tunings-a-year.md) (2026-11-18; 17 min read, text only)
 - [A Hundred and Thirty-Eight](stories/a-hundred-and-thirty-eight.md) (2026-11-17; 18 min read, text only)
 - [Everywhere](stories/everywhere.md) (2026-11-17; 14 min read, text only)
 - [Three Tills and a Concert](stories/three-tills-and-a-concert.md) (2026-11-17; 17 min read, text only)
