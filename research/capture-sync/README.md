@@ -30,6 +30,15 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on **aud
 
 ![Predicted against observed miss rate per cell, real phones](experiments/threshold/libriwasn_pred_vs_obs.png)
 
+**Step 3h (2026-11-18): can audio sync survive a keyboard, a bite or a door heard by one device only? Yes, if each device's audio is divided by its own 32 ms loudness envelope before the correlation.** Step 3c's 62,000 windows replayed bit for bit (62 of 62 failure cells), with two new things recorded per window: the same GCC (gamma 0.25) on envelope-normalised audio, and whether 1 s sub-windows find the full window's lag. Results at -10 dB, 2 s windows, noise independent at each device:
+
+- **Impulsive noise stops breaking the sync.** Windows more than a 30 fps frame off fall from **78% to 0.1% (typing), 30% to 0.1% (munching), 21% to 0.2% (door) and 67% to 9% (neighbour)** in the 0.2 s room, and the same in the 0.8 s room (80% to 0.0% for typing). No other noise kind and no level gets worse by more than half a point at +10 or 0 dB.
+- **The 1% gate now keeps those windows instead of refusing them.** Calibrated on the same noise type, the gate on the normalised estimator's own PSR keeps 84% and 91% of impulsive-noise windows (PSR on plain GCC kept 4-5%) and meets 2% wrong among accepted for 9 of 10 noise types in each room (plain PSR 4 of 10).
+- **It costs something on steady noise.** Air conditioner rises from 12% to 21% and 16% to 23% raw failure, vacuum cleaner from 2.5% to 5.5% and 3.4% to 7.8%: envelope normalisation lifts the quiet gaps between words, where steady noise is all there is. Running both estimators and choosing per window is the next step.
+- **Checking sub-windows does not work.** Requiring the two 1 s halves to find the full window's lag met 2% for 7 and 5 of 10 types, keeping 15%; a failed typing window looks like a successful one by this test (AUROC 0.50 and 0.53).
+
+![Raw failure with and without envelope normalisation, and what the 1% gate keeps](experiments/gate/noiseimpulse_gate.png)
+
 **Step 3g (2026-11-17): can the gate tell a repeating sound from the right answer? A second-peak ratio can; PSR could not.** Step 3f's 242,000 windows replayed bit for bit (720 of 720 failure cells, 240 of 240 gate cells), now with the second-peak ratio of each correlation (the highest value more than a frame from the peak, over the peak) as the confidence instead of, or multiplied into, the peak-to-sidelobe ratio (PSR). Results at -10 dB, 2 s windows, gamma 0.25, devices 3 m apart, gate calibrated on independent noise and tested on one shared source:
 
 - **The looped door recordings stop getting through.** PSR passed 19% and 20% wrong among accepted windows (keeping 79% and 72%). The margin (1 minus the second-peak ratio) passes 1.1% and 0.0% (keeping 56% and 51%); PSR times margin 2.1% and 0.4%. Calibrated on the rig's own shared noise, the margin keeps 57-60% of door windows (4.2% and 1.7% wrong) where PSR kept 7-9% (12.8% and 3.0% wrong).
@@ -98,6 +107,8 @@ OMP_NUM_THREADS=1 python experiments/gate/noiselevel.py collect ~/ms-snsd /tmp/w
 python experiments/gate/noiselevel.py score /tmp/windows_e.npz   # noiselevel_results.txt, noiselevel_summary.json
 python experiments/gate/noiselevel_figure.py
 OMP_NUM_THREADS=1 python experiments/gate/noiseshared.py collect ~/ms-snsd /tmp/windows_f.npz --procs 4   # step 3f, ~25 min
+OMP_NUM_THREADS=1 python experiments/gate/noiseimpulse.py collect ~/ms-snsd /tmp/windows_h.npz --procs 4   # step 3h, ~11 min
+python experiments/gate/noiseimpulse.py score /tmp/windows_h.npz && python experiments/gate/noiseimpulse_figure.py
 python experiments/gate/noiseshared.py score /tmp/windows_f.npz   # noiseshared_results.txt, noiseshared_summary.json
 python experiments/gate/noiseshared_figure.py
 OMP_NUM_THREADS=1 python experiments/gate/noiseperiod.py collect ~/ms-snsd /tmp/windows_g.npz --procs 4   # step 3g, ~25 min (step 3f's windows plus the second-peak ratio)
@@ -364,6 +375,46 @@ Predictions: (a) replay held; (b) `ms` orders levels at AUROC 0.90 for 7 of 9 ty
 
 **Limits of step 3e.** Everything in step 3c's limits (simulated rooms, one speech corpus, noise independent per device). The tracker is a simplified minimum-statistics estimator with fixed smoothing and no bias compensation; Martin's full tracker, or a speech-presence-based one, might rank steady-but-coloured noise better, but cannot change the impulsive case, where the noise's bursts look like speech to any single-channel level estimate (an interpretation, not tested here). Context is 4 s; noise that changes kind within it is not modelled.
 
+## Step 3h: impulsive noise at one device (`experiments/gate/noiseimpulse.py`)
+
+**Question.** A key click, a bite or a door heard by one device only gives plain GCC a sharp, unrivalled wrong peak: PSR ranks typing failures above successes (AUROC 0.25), the second-peak margin is near chance (step 3g), and PHAT and gamma 0.25 land on the same wrong lag (step 3c). Can an estimator stop the bursts from dominating the correlation, and can a gate catch a peak that one stretch of the window makes? Plan and eight predictions in `LOG.md`, written before the run.
+
+**Method.** Step 3c's 2 s windows replayed bit for bit: `noisetype.run_chunk` runs unchanged with its `gcc` wrapped, so every failure label and PSR equals step 3c's. At gamma 0.25 the wrapper also records:
+
+- **`fn`, envelope-normalised GCC** (`sync.envelope_normalise`): each device's window is divided by its own centred 32 ms moving RMS (floor 10<sup>-3</sup> of the window's RMS), then correlated as before. A burst 20-40 dB above the speech becomes a stretch of unit power like every other, so it can no longer outvote the rest of the window; the fine structure that carries the delay is kept. This is a cousin of the robust correlators built for impulsive noise, such as the fractional lower-order covariance of Ma and Nikias (1996), and of the per-frame gain control a recorder applies; the narrow claim here is the measurement on real recorded noise and a frame-accuracy target, not the idea of taming bursts.
+- **sub-window delays** (`sync.subwindow_delays`): three 1 s sub-windows starting at 0, 0.5 and 1 s, on the full window's lag axis. `sub2` accepts a window only when both halves land within a frame of the full estimate, `sub3` when 2 of 3 sub-windows do.
+
+Gates as step 3g (Mondrian on `snr_hat`, LTT at alpha 1%, delta 0.1, step 3's PSR grid, calibrate sessions 0-4, test 5-9). **T3** calibrates on no noise plus the same type at every level and tests that type at -10 dB; **T4** is one generic calibration on no noise plus all ten types. `fn` is gated on its own PSR and scored on its own error.
+
+**Results** ([`experiments/gate/noiseimpulse_results.txt`](experiments/gate/noiseimpulse_results.txt); gamma 0.25, -10 dB, 2 s windows):
+
+| | 0.2 s room | 0.8 s room |
+|---|---|---|
+| replay of step 3c: raw failure cells | 62 of 62 (both rooms) | |
+| raw failure, plain / normalised: Typing | 78.1% / 0.1% | 80.4% / 0.0% |
+| Munching | 29.6% / 0.1% | 29.3% / 0.3% |
+| ShuttingDoor | 21.3% / 0.2% | 23.1% / 0.1% |
+| Neighbor | 67.2% / 8.8% | 73.8% / 8.4% |
+| Babble / CopyMachine / AirportAnnouncements | 58.7 / 30.4 / 25.2% to 39.0 / 14.1 / 20.2% | 63.5 / 35.7 / 28.6% to 43.5 / 17.9 / 25.2% |
+| AirConditioner / VacuumCleaner (worse) | 11.9 / 2.5% to 20.5 / 5.5% | 15.7 / 3.4% to 22.7 / 7.8% |
+| no noise / white | 0.0 / 0.2% to 0.0 / 0.1% | 0.0 / 0.7% to 0.0 / 1.0% |
+| T3, types at or under 2%: psr / agree / sub2 / sub3 / fn | 4 / 5 / 7 / 4 / 9 of 10 | 4 / 5 / 5 / 5 / 9 of 10 |
+| T3, mean kept: psr / sub2 / fn | 24% / 15% / 60% | 23% / 15% / 60% |
+| T3, impulsive types kept: psr / sub2 / fn | 5% / 9% / 84% | 4% / 12% / 91% |
+| T3, wrong and accepted, share of all windows: psr / sub2 / fn | 0.62% / 0.12% / 0.34% | 0.56% / 0.16% / 0.14% |
+| T4 (one calibration for all types), types at or under 2%: psr / sub2 / fn | 6 / 5 / 7 of 10 | 7 / 5 / 6 of 10 |
+| AUROC for failure, Typing: psr / sub-windows agreeing | 0.25 / 0.50 | 0.25 / 0.53 |
+
+`fn`'s miss under T3 is Babble in the drier room (8.9% wrong among 9% kept) and AirConditioner in the wetter one (5.9% among 7%). Under T4 its misses are Neighbor (6.7% and 7.5% wrong while keeping 95-96%) and the speech-like types: one calibration for all noise lets the normalised estimator's confident errors on babble and neighbours through, so with `fn` the per-site calibration of step 3d still matters.
+
+Predictions: (a) replay held; (b) `fn` halves raw failure for at least 3 of 4 impulsive types, held (4 of 4 in each room, by 7 to over 100 times); (c) `fn` costs little elsewhere, **failed**: no noise and white held, but AirConditioner rose by 7-9 points and VacuumCleaner by 3-4; (d) `sub2` at or under 2% for 8 of 10 types, failed (7 and 5); (e) `sub2` keeps at least 10% of impulsive windows, failed in the drier room (9%), held in the wetter one (12%); (f) `fn` beats `psr` on types met and windows kept, held (9 against 4; 60% against 23-24%); (g) exploratory, sub-window agreement ranks Typing failures with AUROC 0.8, failed (0.50, 0.53); (h) exploratory, `sub2` under T4 at 8 of 10, failed (5 and 5).
+
+**Why sub-windows fail, a reading not tested here.** A typing failure is not one chance alignment in one stretch: 96% of failed typing windows have at least one sub-window that finds the same wrong lag, and 41-45% have two of the three. The click trains at the two devices line up at the wrong lag throughout the window, because a typist's keystrokes come at a steady rate; consistency in time is exactly what a periodic burst train has.
+
+**Post hoc, not pre-registered.** Requiring plain and normalised GCC to agree within a frame, gated on `fn`'s PSR, did worse than `fn` alone (8 and 7 of 10 types at 2%, 43-44% kept): where they disagree on steady noise, plain GCC is usually the right one, so the agreement refuses the windows `fn` loses and also the windows only `fn` gets right. Choosing per window needs a rule that says which one to trust.
+
+**Limits of step 3h.** Everything in step 3c's limits (statistical rooms, one speech corpus, noise independent per device). One envelope window (32 ms) and one floor, fixed in advance and not tuned; a shorter window would flatten more of the speech's own envelope, a longer one would let short clicks through. Not yet tested on shared noise (step 3f's case), on the real phones of LibriWASN, or on mixed shared and independent noise.
+
 ## Step 3g: a second-peak ratio as the confidence (`experiments/gate/noiseperiod.py`)
 
 **Question.** PSR compares the peak with the *average* sidelobe, so a single rival peak of nearly the same height, which a sound repeating inside the search range produces, barely moves it. Does the ratio of the runner-up to the winner (the second-peak ratio, `spr`) catch what PSR passes? Plan and seven predictions in `LOG.md`, written before the run.
@@ -472,7 +523,7 @@ The pattern holds for every weighting: at 2 and 4 s, PHAT agrees in 3 of 12 cell
 
 - Why the threshold model overpredicts long windows on real phones (step 2b): keep per-window outputs, regress predicted against observed failure on window SNR, speech activity and L, and try a nonstationary (segment-wise) version of the true-lag peak variance.
 - Babble shared between devices (one crowd heard by both), and why PHAT wins in babble: a whitening that adapts to the noise spectrum, not a fixed gamma.
-- A mix of shared and independent noise (step 3f tested each alone), and real repeating sounds, where step 3f's looped door recordings gave several equal peaks; a confidence for impulsive noise heard by one device only, which neither level and class features (steps 3c to 3e) nor the second-peak ratio (step 3g) tamed: agreement of two weightings, or a peak's consistency across sub-windows; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
+- A mix of shared and independent noise (step 3f tested each alone), and real repeating sounds, where step 3f's looped door recordings gave several equal peaks; envelope-normalised GCC (step 3h) beside plain GCC with a rule that picks one per window (normalised wins on impulsive noise, plain on steady noise), checked on step 3f's shared noise and on LibriWASN's real phones; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
 - Baselines on equal windows: a Kammerl et al. (2014) style fingerprint sync and `paderwasn`'s online tracker.
 - Real ambient noise (licensed recordings) shared between devices, then owner camera clips with a clapper reference.
 
@@ -484,7 +535,7 @@ Record two or more of your own cameras with a clap at the start and end and a ti
 
 Bates et al. (2023), arXiv:2104.08279 (*Annals of Statistics* 51(1), 149-178), and Martin (2001), doi:10.1109/89.928915, were checked by web search on 2026-11-15, because the proxy refused arxiv.org and doi.org. The Rice (1944) DOI and the MS-SNSD arXiv id were checked by web search on 2026-11-13, because `cite_check.py` could not reach doi.org or arxiv.org from that session.
 
-The full related-work list, each entry checked, is in [`PROPOSAL.md`](PROPOSAL.md). Cited here: Knapp and Carter (1976), [doi:10.1109/TASSP.1976.1162830](https://doi.org/10.1109/TASSP.1976.1162830); Schmalenstroeer, Gburrek and Haeb-Umbach (2023), LibriWASN, [arXiv:2308.10682](https://arxiv.org/abs/2308.10682); Chen et al. (2020), LibriCSS, [arXiv:2001.11482](https://arxiv.org/abs/2001.11482); Kammerl et al. (2014), [doi:10.1109/ICASSP.2014.6854474](https://doi.org/10.1109/ICASSP.2014.6854474); Ianniello (1982), [doi:10.1109/TASSP.1982.1163992](https://doi.org/10.1109/TASSP.1982.1163992); Rice (1944), "Mathematical analysis of random noise", *Bell System Technical Journal* 23(3), [doi:10.1002/j.1538-7305.1944.tb00874.x](https://doi.org/10.1002/j.1538-7305.1944.tb00874.x); Polack (1993), "Playing billiard in the concert hall: the mathematical foundations of geometrical room acoustics", *Applied Acoustics* 38, 235-244 (DOI not checked: doi.org was unreachable from this session; details from the author's publication list); Angelopoulos, Bates, Cand&egrave;s, Jordan and Lei (2021), "Learn then Test: calibrating predictive algorithms to achieve risk control", [arXiv:2110.01052](https://arxiv.org/abs/2110.01052); Reddy et al. (2019), "A scalable noisy speech dataset and online subjective test framework" (MS-SNSD), Interspeech, 1816-1820, [arXiv:1909.08050](https://arxiv.org/abs/1909.08050). Bates, Cand&egrave;s, Lei, Romano and Sesia (2023), "Testing for outliers with conformal p-values", *Annals of Statistics* 51(1), [arXiv:2104.08279](https://arxiv.org/abs/2104.08279); Martin (2001), "Noise power spectral density estimation based on optimal smoothing and minimum statistics", *IEEE Transactions on Speech and Audio Processing* 9(5), [doi:10.1109/89.928915](https://doi.org/10.1109/89.928915).
+The full related-work list, each entry checked, is in [`PROPOSAL.md`](PROPOSAL.md). Cited here: Knapp and Carter (1976), [doi:10.1109/TASSP.1976.1162830](https://doi.org/10.1109/TASSP.1976.1162830); Schmalenstroeer, Gburrek and Haeb-Umbach (2023), LibriWASN, [arXiv:2308.10682](https://arxiv.org/abs/2308.10682); Chen et al. (2020), LibriCSS, [arXiv:2001.11482](https://arxiv.org/abs/2001.11482); Kammerl et al. (2014), [doi:10.1109/ICASSP.2014.6854474](https://doi.org/10.1109/ICASSP.2014.6854474); Ianniello (1982), [doi:10.1109/TASSP.1982.1163992](https://doi.org/10.1109/TASSP.1982.1163992); Rice (1944), "Mathematical analysis of random noise", *Bell System Technical Journal* 23(3), [doi:10.1002/j.1538-7305.1944.tb00874.x](https://doi.org/10.1002/j.1538-7305.1944.tb00874.x); Polack (1993), "Playing billiard in the concert hall: the mathematical foundations of geometrical room acoustics", *Applied Acoustics* 38, 235-244 (DOI not checked: doi.org was unreachable from this session; details from the author's publication list); Angelopoulos, Bates, Cand&egrave;s, Jordan and Lei (2021), "Learn then Test: calibrating predictive algorithms to achieve risk control", [arXiv:2110.01052](https://arxiv.org/abs/2110.01052); Reddy et al. (2019), "A scalable noisy speech dataset and online subjective test framework" (MS-SNSD), Interspeech, 1816-1820, [arXiv:1909.08050](https://arxiv.org/abs/1909.08050). Ma and Nikias (1996), "Joint estimation of time delay and frequency delay in impulsive noise using fractional lower order statistics", *IEEE Transactions on Signal Processing* 44(11), 2669-2687, [doi:10.1109/78.542175](https://doi.org/10.1109/78.542175) (checked by web search on 2026-11-18). Bates, Cand&egrave;s, Lei, Romano and Sesia (2023), "Testing for outliers with conformal p-values", *Annals of Statistics* 51(1), [arXiv:2104.08279](https://arxiv.org/abs/2104.08279); Martin (2001), "Noise power spectral density estimation based on optimal smoothing and minimum statistics", *IEEE Transactions on Speech and Audio Processing* 9(5), [doi:10.1109/89.928915](https://doi.org/10.1109/89.928915).
 
 ## Outside dependencies
 
