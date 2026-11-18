@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-18 · Tooling: 11ai's inputs are committed (`experiments/hub_airspace/leak_inputs.json.gz`)
+- Why: every milestone since 11ai (11aj to 11an) rebuilt the same 48-layout cache first, 1 h 20 min to 2 h 20 min on 4 cores each time (this log; run-record friction 2026-11-17 and 2026-11-18).
+- What: `leak_inputs.py` writes the cache as gzipped JSON with exact floats (466 KB; round trip checked bit for bit), and `level_leak_run.build()` seeds itself from it, so `LEAK_CACHE=leak.pkl python3 level_leak_run.py --build` takes 0.15 s. `LEAK_REBUILD=1` recomputes; `leak_inputs.py --verify N` rebuilds a seeded sample and compares.
+- Check: built fresh here in 88 min (143 to 1,046 CPU s per layout); 11aj's `ref_mix_run.py` rerun from the committed file reproduces `ref_mix_results.txt` line for line except the CPU-seconds line.
+
 ## 2026-11-18 · Milestone 11an: the barometer's error against RTK-fixed GNSS height in public PX4 logs (predictions in `experiments/hub_airspace/rtk_baro.py`'s docstring, committed and pushed in 3da8701e1 before any RTK log was reduced; one non-RTK log, 3dd3abbe, had been downloaded to read field names, and the pipeline was run on it with fix type 4 standing in for 6 as a code check; 11ai to 11am results were known)
 - Why: 11am's "Next". The planner's choice between 7 bands (9.2 m, FTE only) and 5 bands (13.3 m, baro-GNSS bound) turned on the barometer's short-term error in forward flight, which ordinary GNSS height (1 to 3 m noise) could not resolve. An RTK-fixed receiver reports height to a few cm.
 - Data: PX4 Flight Review, read 2026-11-18: every index row matching "RTK" (152 rows, 59 kept by 11am's filter) plus the newest uploads (350 kept) until 400 logs; each downloaded, reduced and deleted, only per-flight statistics and ids committed (`rtk_baro_2026.json`). Samples: 11am's level masks in Mission, Position or Loiter, plus RTK fixed (fix_type 6, vertical accuracy <= 0.10 m, GNSS sample <= 0.5 s old); en route (> 1 m/s) and hover sets, 30 s minimum. d = baro_alt_meter - RTK altitude MSL; r_lin = RMS after a line in time. Planner: `px4_height_run.py --rtk`, 11am's analysis with r_i = sqrt(FTE^2 + r_lin^2). 7 new tests.

@@ -63,6 +63,14 @@ Three details matter for a research cache:
 - **It is data, not code.** JSON rather than pickle, so a reader can `zcat` it
   and loading it runs nothing.
 
+## Checked end to end
+
+After building the file, this run reran milestone 11aj's whole analysis
+(`ref_mix_run.py`, 3 min 39 s) from the committed inputs alone and diffed it
+against the committed `ref_mix_results.txt`. All 56 lines match except the
+last, which reports CPU seconds per layout (23 then, 17 now). So the
+88-minute step is gone and the published result is unchanged.
+
 ## The general point
 
 A shared repository with ephemeral workers needs to think about what
