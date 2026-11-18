@@ -137,7 +137,7 @@ minutes by default — `agent_runner_schedule` in `group_vars/all.yml`) runs
 
 1. Lists open issues in that repo labeled `agent` (configurable per repo).
 2. Skips any issue already labeled `agent:in-progress`, `agent:pr-opened`,
-   or `agent:failed` — so nothing gets worked twice (except under `dry_run`, which leaves no done label: see Known gaps), and a failed run
+   `agent:failed` or `agent:dry-run` — so nothing gets worked twice, and a failed run
    doesn't get silently retried forever (you remove the `agent:failed`
    label yourself once you've looked at why it failed; the trigger label
    is never removed, so re-adding it does nothing).
@@ -209,8 +209,14 @@ no extra coordination logic needed.
    everything up through running the tool, computing the diff, and
    scanning it for secrets, then logs what it *would* commit/push/PR and
    comments that on the issue — without touching git or GitHub beyond that
-   comment. Flip to `false` per repo once you've watched it behave
-   correctly a few times.
+   comment and an `agent:dry-run` label, which stops the next poll working
+   the same issue again (remove the label to dry-run it once more). Flip to
+   `false` per repo once you've watched it behave correctly a few times.
+
+   The runner creates its five `agent:*` labels in each configured repo on
+   its first poll (`gh label create --force`; a marker in
+   `/srv/agents/state/` skips that afterwards). If it cannot, it logs which
+   label and skips the repo rather than failing every claim.
 
    **One thing `dry_run` does not gate: filing the self-directed issue.**
    On a repo with `self_directed: true`, step 3 above runs *before* any of
@@ -461,10 +467,11 @@ tests/                              unit tests for agent_runner.py's pure logic 
   the agent runner opens against its own repo, once self-directed mode is
   enabled for it — the same review gate applies to changes to its own
   orchestration code as to anything else.
-- `tests/` has 44 unit tests for `agent_runner.py`'s pure logic
-  (`make test`, or `pytest tests/`) — model-tier selection, self-directed
-  cooldown tracking, docker command construction, prompt building, issue
-  filtering. Two real bugs were caught this way, not by inspection alone:
+- `tests/` has 49 tests for `agent_runner.py` (`make test`, or
+  `pytest tests/`) — model-tier selection, self-directed cooldown tracking,
+  docker command construction, prompt building, issue filtering, label
+  creation, and the issue pipeline itself (dry run, push, secret-scan
+  block) driven against a local git remote with `gh` and the agent stubbed. Two real bugs were caught this way, not by inspection alone:
   `create_self_directed_issue()` originally hardcoded `"labels": []` on the
   dict it returned, so a self-directed issue processed in the same poll
   cycle it was filed in never actually got the "high" model tier the
@@ -488,8 +495,11 @@ tests/                              unit tests for agent_runner.py's pure logic 
   All `roles/agent_runner/files/runners/*.sh` scripts pass `shellcheck`
   clean.
 - The exact headless/permission flags for Claude Code, Codex CLI, and
-  opencode were checked against each vendor's own current docs, not just
-  blog posts summarizing them. Antigravity CLI's were not fully
+  opencode were read from each vendor's own current docs, not just
+  blog posts summarizing them, but not run against the real CLIs: that
+  reading missed that Claude Code's `--output-format stream-json` with `-p`
+  needs `--verbose`, and every Claude run failed until PR #16857 added it.
+  Run one issue through each tool before trusting its flags. Antigravity CLI's were not fully
   confirmable that way — its docs site doesn't document headless flags in
   the sections available — so that integration is explicitly marked
   lower-confidence throughout rather than presented with false certainty.
@@ -515,9 +525,8 @@ tests/                              unit tests for agent_runner.py's pure logic 
 
 From the [quality audit of 2026-11-17](../../portfolio/quality/audits/2026-11-17-ubuntu-agent-server.json):
 
-- `dry_run` clears the claim but adds no done label, so the same issue is
-  cloned, run and commented on again at every poll (up to 144 runs a day).
-- No task creates the `agent:*` labels the runner needs; on a fresh repository
-  the claim step can fail with nothing on GitHub to say why.
-- `process_issue` has no test; flipping `if dry_run:` or ignoring the gitleaks
-  result leaves the suite green.
+- Fixed 2026-11-18 (quality-fix PR #17128): `dry_run` now adds an
+  `agent:dry-run` done label (it used to re-run the same issue every poll);
+  the runner creates its labels itself; the dry-run, push and secret-scan
+  branches of the issue pipeline are tested, and the three mutants that
+  survived the audit now fail the suite.

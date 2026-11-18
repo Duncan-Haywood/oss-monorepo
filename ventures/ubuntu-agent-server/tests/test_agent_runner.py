@@ -10,6 +10,7 @@ Run with: pytest tests/  (needs pytest + PyYAML — tests/requirements.txt)
 
 import json
 import subprocess
+from pathlib import Path
 
 
 # --- fold_changes_into_staged -----------------------------------------
@@ -632,3 +633,126 @@ def test_self_directed_prompt_keeps_third_party_boundaries(agent_runner):
 def test_self_directed_prompt_defers_to_repo_docs(agent_runner):
     prompt = agent_runner.SELF_DIRECTED_PROMPT
     assert "CLAUDE.md" in prompt and "AGENTS.md" in prompt
+
+
+# --- process_issue: dry run, secret gate, label bootstrap ---------------
+#
+# Quality audit 2026-11-17 (portfolio/quality/audits/2026-11-17-ubuntu-agent-server.json):
+# defect 1, the dry-run path left no done label, so every poll re-ran the
+# same issue; defect 3, nothing tested _process_issue_inner, so inverting
+# `if dry_run:` or ignoring the gitleaks result left the suite green.
+# These drive _process_issue_inner with a real local git "remote", a fake
+# tool that edits a file, and a recorder in place of `gh`.
+
+class _GhRecorder:
+    def __init__(self):
+        self.calls = []
+
+    def __call__(self, *args, check=True):
+        self.calls.append(args)
+        return subprocess.CompletedProcess(["gh", *args], 0, "", "")
+
+    def added_labels(self):
+        return [a[a.index("--add-label") + 1] for a in self.calls if "--add-label" in a]
+
+    def removed_labels(self):
+        return [a[a.index("--remove-label") + 1] for a in self.calls if "--remove-label" in a]
+
+    def comments(self):
+        return [a[a.index("--body") + 1] for a in self.calls if a[:2] == ("issue", "comment")]
+
+
+def _drive_inner(agent_runner, monkeypatch, tmp_path, fake_log, *, dry_run, secrets_clean=True):
+    origin = tmp_path / "origin"
+    origin.mkdir()
+    subprocess.run(["git", "init", "-q", "-b", "main", str(origin)], check=True)
+    for args in (("config", "user.email", "a@example.com"), ("config", "user.name", "a")):
+        subprocess.run(["git", *args], cwd=origin, check=True)
+    (origin / "file.txt").write_text("hello\n")
+    subprocess.run(["git", "add", "-A"], cwd=origin, check=True)
+    subprocess.run(["git", "commit", "-q", "-m", "init"], cwd=origin, check=True)
+
+    real_run = subprocess.run
+    pushes = []
+
+    def fake_run(cmd, *a, **kw):
+        if cmd[:3] == ["gh", "repo", "clone"]:
+            return real_run(["git", "clone", "-q", str(origin), cmd[4]], capture_output=True, text=True)
+        if cmd[:2] == ["git", "push"]:
+            pushes.append(cmd)
+            return subprocess.CompletedProcess(cmd, 0, "", "")
+        if cmd and cmd[0] == "gh":  # never let a test reach the real GitHub CLI
+            return subprocess.CompletedProcess(cmd, 0, "https://example.invalid/pr/1\n", "")
+        if cmd and str(cmd[0]).endswith(".sh"):  # the agent tool
+            cwd = Path(kw["cwd"])
+            (cwd / "file.txt").write_text("hello\nagent change\n")
+            return subprocess.CompletedProcess(cmd, 0, "done", "")
+        return real_run(cmd, *a, **kw)
+
+    recorder = _GhRecorder()
+    monkeypatch.setattr(agent_runner.subprocess, "run", fake_run)
+    monkeypatch.setattr(agent_runner, "gh", recorder)
+    monkeypatch.setattr(agent_runner, "USE_DOCKER", False)
+    monkeypatch.setattr(agent_runner, "sync_branch_to_latest", lambda *a: True)
+    monkeypatch.setattr(agent_runner, "scan_for_secrets", lambda *a: secrets_clean)
+    issue = {"number": 7, "title": "Fix it", "body": "please", "labels": []}
+    agent_runner._process_issue_inner(
+        "o/r", "claude", "low", "main", dry_run, issue, tmp_path / "ws", fake_log,
+    )
+    return recorder, pushes
+
+
+def test_dry_run_leaves_a_done_label_so_the_next_poll_skips_it(agent_runner, monkeypatch, tmp_path, fake_log):
+    recorder, pushes = _drive_inner(agent_runner, monkeypatch, tmp_path, fake_log, dry_run=True)
+    assert pushes == []
+    assert agent_runner.LABEL_DRY_RUN in recorder.added_labels()
+    assert agent_runner.LABEL_IN_PROGRESS in recorder.removed_labels()
+    assert any("[dry run]" in c for c in recorder.comments())
+    # ...and the poll after it skips the issue.
+    listed = json.dumps([
+        {"number": 7, "title": "t", "body": "", "labels": [{"name": "agent"}, {"name": agent_runner.LABEL_DRY_RUN}]},
+    ])
+    monkeypatch.setattr(agent_runner, "gh", lambda *a, check=True: subprocess.CompletedProcess(a, 0, listed, ""))
+    assert agent_runner.list_candidate_issues("o/r", "agent", fake_log) == []
+
+
+def test_not_dry_run_pushes_and_never_labels_dry_run(agent_runner, monkeypatch, tmp_path, fake_log):
+    recorder, pushes = _drive_inner(agent_runner, monkeypatch, tmp_path, fake_log, dry_run=False)
+    assert len(pushes) == 1
+    assert agent_runner.LABEL_DRY_RUN not in recorder.added_labels()
+    assert agent_runner.LABEL_PR_OPENED in recorder.added_labels()
+
+
+def test_a_secret_scan_hit_blocks_the_push(agent_runner, monkeypatch, tmp_path, fake_log):
+    recorder, pushes = _drive_inner(
+        agent_runner, monkeypatch, tmp_path, fake_log, dry_run=False, secrets_clean=False,
+    )
+    assert pushes == []
+    assert agent_runner.LABEL_FAILED in recorder.added_labels()
+    assert agent_runner.LABEL_PR_OPENED not in recorder.added_labels()
+
+
+def test_ensure_labels_creates_every_runner_label_once(agent_runner, monkeypatch, tmp_path, fake_log):
+    # Audit defect 2: on a fresh repository `--add-label` fails for a label
+    # that does not exist, so the claim failed and nothing was ever worked.
+    monkeypatch.setattr(agent_runner, "STATE_DIR", tmp_path / "state")
+    recorder = _GhRecorder()
+    monkeypatch.setattr(agent_runner, "gh", recorder)
+    assert agent_runner.ensure_labels("o/r", fake_log) is True
+    created = {a[2] for a in recorder.calls if a[:2] == ("label", "create")}
+    assert created == set(agent_runner.RUNNER_LABELS)
+    assert agent_runner.DONE_LABELS <= created
+    recorder.calls.clear()
+    assert agent_runner.ensure_labels("o/r", fake_log) is True
+    assert recorder.calls == []  # the marker short-circuits later polls
+
+
+def test_ensure_labels_reports_a_failure_and_retries_next_poll(agent_runner, monkeypatch, tmp_path, fake_log):
+    monkeypatch.setattr(agent_runner, "STATE_DIR", tmp_path / "state")
+    monkeypatch.setattr(
+        agent_runner, "gh",
+        lambda *a, check=True: subprocess.CompletedProcess(a, 1, "", "HTTP 403"),
+    )
+    assert agent_runner.ensure_labels("o/r", fake_log) is False
+    assert not agent_runner.labels_marker_path("o/r").exists()
+    assert any("HTTP 403" in line for line in fake_log.lines)

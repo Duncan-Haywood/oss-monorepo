@@ -61,7 +61,22 @@ LABEL_IN_PROGRESS = "agent:in-progress"
 LABEL_PR_OPENED = "agent:pr-opened"
 LABEL_FAILED = "agent:failed"
 LABEL_SELF_DIRECTED = "agent:self-directed"
-DONE_LABELS = {LABEL_IN_PROGRESS, LABEL_PR_OPENED, LABEL_FAILED}
+# Marks an issue a dry run already worked. Without it the dry-run path left
+# no done label, so every poll re-cloned, re-ran and re-commented on the same
+# issue (quality audit 2026-11-17, defect 1). Remove it to dry-run again.
+LABEL_DRY_RUN = "agent:dry-run"
+DONE_LABELS = {LABEL_IN_PROGRESS, LABEL_PR_OPENED, LABEL_FAILED, LABEL_DRY_RUN}
+
+# Every label the runner adds, with the colour and description `gh label
+# create` gives it. `gh issue edit --add-label` fails on a label the
+# repository lacks, so ensure_labels() creates these before the first claim.
+RUNNER_LABELS = {
+    LABEL_IN_PROGRESS: ("fbca04", "An agent is working on this issue"),
+    LABEL_PR_OPENED: ("0e8a16", "An agent opened a pull request for this issue"),
+    LABEL_FAILED: ("b60205", "An agent run failed; remove to retry"),
+    LABEL_SELF_DIRECTED: ("5319e7", "Filed by an agent working without a human issue"),
+    LABEL_DRY_RUN: ("c5def5", "A dry run already worked this issue; remove to run again"),
+}
 
 TOOL_RUNNERS = {
     "claude": RUNNERS_DIR / "claude.sh",
@@ -195,6 +210,32 @@ def list_candidate_issues(repo: str, trigger_label: str, log: RunLog) -> list[di
             continue  # already claimed, already has a PR, or already failed — skip
         candidates.append(issue)
     return candidates
+
+
+def labels_marker_path(repo: str) -> Path:
+    return STATE_DIR / f"{repo.replace('/', '_')}-labels-v1.ok"
+
+
+def ensure_labels(repo: str, log: RunLog) -> bool:
+    """Create the runner's labels in `repo` once (a marker in STATE_DIR
+    records success, so a poll does not re-run five API calls). Returns
+    False, and logs which label, when one could not be created; the caller
+    then skips the repo instead of failing every claim silently."""
+    marker = labels_marker_path(repo)
+    if marker.exists():
+        return True
+    for name, (color, description) in RUNNER_LABELS.items():
+        result = gh(
+            "label", "create", name, "--repo", repo,
+            "--color", color, "--description", description, "--force",
+            check=False,
+        )
+        if result.returncode != 0:
+            log.write(f"[{repo}] could not create label {name!r}: {result.stderr.strip()}")
+            return False
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    marker.write_text(datetime.now(timezone.utc).isoformat())
+    return True
 
 
 def claim_issue(repo: str, number: int) -> bool:
@@ -581,8 +622,9 @@ def process_issue(cfg: dict, issue: dict, log: RunLog) -> None:
         log.write(f"[{repo}#{number}] could not claim (already claimed?), skipping")
         return
 
-    workspace = WORKSPACES_DIR / f"{repo.replace('/', '_')}-{number}-{run_id()}"
-    log_path = LOGS_DIR / f"{repo.replace('/', '_')}-{number}-{run_id()}.log"
+    stamp = run_id()  # one stamp, so the workspace and its log always match
+    workspace = WORKSPACES_DIR / f"{repo.replace('/', '_')}-{number}-{stamp}"
+    log_path = LOGS_DIR / f"{repo.replace('/', '_')}-{number}-{stamp}.log"
     run_log = RunLog(log_path)
     tier = choose_model_tier(cfg, issue)
     run_log.write(f"[{repo}#{number}] tool={tool} model_tier={tier} dry_run={dry_run} workspace={workspace}")
@@ -730,13 +772,16 @@ def _process_issue_inner(
     if dry_run:
         run_log.write(f"[{repo}#{number}] DRY RUN — would commit/push/PR now. Diff:\n{diff}")
         git("reset", cwd=workspace, check=False)
+        label(repo, number, LABEL_DRY_RUN)
         unclaim_issue(repo, number)
         comment(
             repo, number,
             f"[dry run] Agent (`{tool}`) would have made changes here but "
             f"`dry_run: true` is set for this repo in `config/repos.yml`, so "
-            f"nothing was committed or pushed. Flip `dry_run` to `false` once "
-            f"you've reviewed a few of these and trust the behavior.",
+            f"nothing was committed or pushed. The `{LABEL_DRY_RUN}` label "
+            f"stops the next poll running it again; remove it to re-run. "
+            f"Flip `dry_run` to `false` once you've reviewed a few of these "
+            f"and trust the behavior.",
         )
         return
 
@@ -794,6 +839,9 @@ def main() -> int:
                 top_log.write(f"[{repo}] unknown tool {tool!r}, skipping repo entirely")
                 continue
             trigger_label = cfg.get("trigger_label", "agent")
+            if not ensure_labels(repo, top_log):
+                top_log.write(f"[{repo}] runner labels missing and could not be created, skipping repo")
+                continue
             issues = list_candidate_issues(repo, trigger_label, top_log)
 
             if not issues and cfg.get("self_directed"):
