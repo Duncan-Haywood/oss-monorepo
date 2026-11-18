@@ -191,7 +191,13 @@ export function aim(origin, target, speed, topspinRpm = 0, sidespinRpm = 0, minN
       if (dist(m, az)[0] < want) a = m; else b = m;
     }
     elev = (a + b) / 2;
-    flight = dist(elev, az)[1];
+    let d;
+    [d, flight] = dist(elev, az);
+    if (Math.abs(d - want) > 0.1) {
+      // The bracket spanned a jump, not a crossing: just below it the ball hits the net, just above it lands past
+      // the target (launcher.aim's check, 2026-11-11; without it this read a bounce that does not exist).
+      throw new Error(`target cannot be reached at ${speed.toFixed(1)} m/s: every arc that clears the net lands beyond it; slow the shot or add topspin`);
+    }
     const land = flight.bounces[0].pos;
     const err = Math.atan2(ty - oy, tx - ox) - Math.atan2(land[1] - oy, land[0] - ox);
     if (Math.abs(err) < 1e-5) break;
