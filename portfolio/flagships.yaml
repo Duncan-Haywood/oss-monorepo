@@ -331,8 +331,9 @@ flagships:
       eval/canon-cr3-*tiled-*); cull: zoom, pan windows, the 44 crop gate and an
       exact pair index 2026-11-18 (10,000 frames 251 to 42 s,
       eval/cull-grouping-index-*) (6% pans 0.85 to 1.00, eval/cull-crop-gate-*),
-      next 10% pans (0.86-0.95, windows 6-11 bits: a finer grid) and a real shoot's
-      picks. More open items: NEXT.md.
+      whole-percent window offsets 2026-11-18 (7-10% pans 0.78-0.95 to 0.99-1.00,
+      eval/cull-fine-offsets-*); next a real shoot's picks. More open items:
+      NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

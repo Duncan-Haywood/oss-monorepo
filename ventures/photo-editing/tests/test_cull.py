@@ -333,24 +333,33 @@ class GroupingIndexTest(unittest.TestCase):
 
         crops_n, zooms_n = CROP_STEPS * CROP_STEPS, len(ZOOM_SCALES) * ZOOM_STEPS * ZOOM_STEPS
         bases = []
-        for _ in range(12):
+        for b in range(12):
             whole = rng.getrandbits(64)
-            bases.append((whole, [rng.getrandbits(64) for _ in range(crops_n)]))
+            crops = [rng.getrandbits(64) for _ in range(crops_n)]
+            # Some bursts whose fine windows repeat a corner crop window, so a
+            # fine lane (a fine window against that corner) lines up while the
+            # crop lanes stay random.
+            fines = [crops[0]] * 24 if b % 4 == 0 else [rng.getrandbits(64) for _ in range(24)]
+            bases.append((whole, crops, fines))
         rows = []
         for k in range(n):
-            base, crops = rng.choice(bases)
+            base, crops, fines = rng.choice(bases)
             # Whole frames from near (0-6 bits) to far past the window gate (up
             # to 48), so every pass decides some pairs; zoom windows near the
             # burst's base, so a near frame sits inside a far frame's window.
             whole = flip(base, rng.choice((6, 20, 34, 48)))
             crops = [flip(c, rng.choice((4, 8, 30))) for c in crops]
             zooms = [flip(base, rng.choice((3, 9, 30))) for _ in range(zooms_n)]
+            fine = [flip(c, rng.choice((1, 6, 30))) for c in fines]
             if k % 7 == 0:
-                crops, zooms = [], []  # an old catalogue row: whole frame only
+                crops, zooms, fine = [], [], []  # an old catalogue row: whole frame only
+            elif k % 5 == 0:
+                fine = []  # analysed before the fine offsets (2026-11-18)
             rows.append((Path(f"p{k:03d}.jpg"), SimpleNamespace(
                 dhash=f"{whole:016x}",
                 dhash_crops=tuple(f"{c:016x}" for c in crops),
                 dhash_zooms=tuple(f"{z:016x}" for z in zooms),
+                dhash_fine=tuple(f"{c:016x}" for c in fine),
             ), None))
         return rows
 
@@ -367,7 +376,7 @@ class GroupingIndexTest(unittest.TestCase):
 
     def test_candidates_cover_every_linked_pair(self):
         from shootflow import cull
-        from shootflow.frame_analysis import window_pack, zoom_index
+        from shootflow.frame_analysis import fine_pack, window_pack, zoom_index
 
         rows = self._rows(9, 120)
         hashes = [int(r[1].dhash, 16) for r in rows]
@@ -375,8 +384,10 @@ class GroupingIndexTest(unittest.TestCase):
         zoom_hashes = [tuple(int(h, 16) for h in r[1].dhash_zooms) for r in rows]
         zooms = [zoom_index(z) for z in zoom_hashes]
         windows = [window_pack(c) for c in crops]
-        near, win, zoom = cull._candidate_pairs(hashes, crops, zoom_hashes)
-        kinds = {"near": 0, "windows": 0, "zoom": 0}
+        fine_hashes = [tuple(int(h, 16) for h in r[1].dhash_fine) for r in rows]
+        fines = [fine_pack(c, f) for c, f in zip(crops, fine_hashes)]
+        near, win, zoom, fine = cull._candidate_pairs(hashes, crops, zoom_hashes, fine_hashes)
+        kinds = {"near": 0, "windows": 0, "zoom": 0, "fine": 0}
         for i in range(len(rows)):
             for j in range(i + 1, len(rows)):
                 distance = (hashes[i] ^ hashes[j]).bit_count()
@@ -389,6 +400,9 @@ class GroupingIndexTest(unittest.TestCase):
                 if cull.zoom_match(distance, hashes[i], zooms[i], hashes[j], zooms[j]):
                     kinds["zoom"] += 1
                     self.assertIn(j, zoom[i])
+                if cull.fine_match(distance, fines[i], fines[j]):
+                    kinds["fine"] += 1
+                    self.assertIn(j, fine[i])
         for kind, count in kinds.items():
             self.assertGreater(count, 0, kind)
 

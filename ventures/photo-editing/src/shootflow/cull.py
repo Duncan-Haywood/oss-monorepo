@@ -38,6 +38,8 @@ from shootflow.frame_analysis import (
     ZoomIndex,
     analyze_media,
     crop_distance,
+    fine_pack,
+    fine_within,
     pan_within,
     window_pack,
     windows_within,
@@ -74,6 +76,16 @@ ZOOM_MIN_GAIN = 6
 PAN_CANDIDATE_MAX_DISTANCE = 44
 PAN_MAX_DISTANCE = 5
 PAN_MIN_GAIN = 6
+# Fine-offset pass (eval/cull-fine-offsets-2026-11-18.md): the crop and wide-pan
+# windows sit on a 3% grid, so a pan that moves the content between its steps
+# (a 10% pan moves it 11.1%) lines up 6-10 bits apart where the exact offset is
+# 0-3. A pair up to FINE_CANDIDATE_MAX_DISTANCE apart also groups when a window
+# pair at some whole-percent offset off that grid (frame_analysis.FINE_MARKS)
+# is within FINE_MAX_DISTANCE and at least FINE_MIN_GAIN closer than the whole
+# frames. Picked on the same 165 tune photos.
+FINE_CANDIDATE_MAX_DISTANCE = 44
+FINE_MAX_DISTANCE = 5
+FINE_MIN_GAIN = 8
 BLURRY_BELOW = 0.2
 BAD_EXPOSURE_BELOW = 0.25
 CLOSED_EYES_BELOW = 0.3
@@ -337,15 +349,25 @@ def window_match(distance: int, windows_a: tuple[int, ...], windows_b: tuple[int
     return windows_within(windows_a, windows_b, crop_limit, pan_limit)
 
 
+def fine_match(distance: int, fine_a: tuple[int, ...], fine_b: tuple[int, ...]) -> bool:
+    """The fine-offset pass for a pair ``distance`` apart on the whole frame (``fine_pack`` of each)."""
+
+    if distance > FINE_CANDIDATE_MAX_DISTANCE:
+        return False
+    return fine_within(fine_a, fine_b, min(FINE_MAX_DISTANCE, distance - FINE_MIN_GAIN))
+
+
 def burst_match(
     distance: int,
     hash_a: int, crops_a: Sequence[int], index_a: ZoomIndex,
     hash_b: int, crops_b: Sequence[int], index_b: ZoomIndex,
     windows_a: tuple[int, ...] | None = None, windows_b: tuple[int, ...] | None = None,
+    fine_a: tuple[int, ...] = (), fine_b: tuple[int, ...] = (),
 ) -> bool:
     """Whether two frames ``distance`` apart on the whole frame belong to one burst.
 
     ``windows_a`` / ``windows_b`` are ``window_pack`` of the crops, computed here when not given.
+    ``fine_a`` / ``fine_b`` are ``fine_pack`` of each frame; the fine pass is skipped when either is empty.
     """
 
     return (
@@ -356,6 +378,7 @@ def burst_match(
             window_pack(crops_b) if windows_b is None else windows_b,
         )
         or zoom_match(distance, hash_a, index_a, hash_b, index_b)
+        or fine_match(distance, fine_a, fine_b)
     )
 
 
@@ -365,13 +388,14 @@ def burst_match(
 # NEAR_DUPLICATE_MAX_DISTANCE (8); one frame's centre window within
 # CROP_MAX_DISTANCE (6) of any crop window of the other; one frame's whole hash
 # within ZOOM_MAX_DISTANCE (6) of any zoom window of the other; or a wide-pan
-# window pair within PAN_MAX_DISTANCE (5). Cut a hash into three chunks and two
+# window pair within PAN_MAX_DISTANCE (5); or a fine-offset window pair within
+# FINE_MAX_DISTANCE (2026-11-18, the same per-a-window tables). Cut a hash into three chunks and two
 # hashes r bits apart differ in some chunk by at most r // 3 bits (pigeonhole),
 # so looking up each chunk with every flip of up to r // 3 of its bits finds
 # every pair that can link, and only those reach ``burst_match``. The partition
 # is the same as the all-pairs scan's (``_linked_pairs_all``), which a test
 # pins; on 2,000 frames the scan made about 2M packed window checks.
-_INDEX_MIN_FRAMES = 500  # below this the plain scan is as quick (tied at 500 frames)
+_INDEX_MIN_FRAMES = 200  # below this the plain scan is as quick (tied at 500 frames before the fine pass, near 200 after)
 
 
 def _chunks(count: int) -> tuple[tuple[int, int, int], ...]:
@@ -430,27 +454,36 @@ class _ChunkIndex:
 
 def _candidate_pairs(
     hashes: Sequence[int], crops: Sequence[tuple[int, ...]], zooms: Sequence[tuple[int, ...]],
-) -> tuple[list[set[int]], list[set[int]], list[set[int]]]:
-    """(near, windows, zoom) candidates: for each frame i, the frames j > i each pass could link it to.
+    fines: Sequence[tuple[int, ...]] | None = None,
+) -> tuple[list[set[int]], list[set[int]], list[set[int]], list[set[int]]]:
+    """(near, windows, zoom, fine) candidates: for each frame i, the frames j > i each pass could link it to.
 
     A superset of the pairs the pass links: ``near`` for the whole-frame
     distance, ``windows`` for ``window_match`` (crop and wide-pan windows),
-    ``zoom`` for ``zoom_match``.
+    ``zoom`` for ``zoom_match``, ``fine`` for ``fine_match`` (``fines`` holds
+    each frame's fine hashes; empty sets when not given).
     """
 
-    from shootflow.frame_analysis import _CROP_CENTRE, _PAN_PAIRS, CROP_STEPS
+    from shootflow.frame_analysis import _CROP_CENTRE, _FINE_GRID, _PAN_PAIRS, CROP_STEPS
 
     n, full = len(hashes), CROP_STEPS * CROP_STEPS
+    fines = fines if fines is not None else [()] * n
     # Pan lanes pair window a of the earlier frame with window b of the later
     # one. Lanes sharing an a window share a table of their b windows, so each
     # frame makes 21 pan queries rather than 56.
     pan_lanes: dict[int, list[int]] = {}
     for a, b in _PAN_PAIRS:
         pan_lanes.setdefault(a, []).append(b)
+    # Fine lanes pair nearly every window with nearly every other (544 lanes
+    # over 49 windows), so one table of all 49 windows per frame stands in for
+    # them: any fine lane within the limit has its two windows in it. Per-window
+    # tables like the pan ones cost 3x the time on 2,000 frames.
     whole = _ChunkIndex(NEAR_DUPLICATE_MAX_DISTANCE)
     windows = _ChunkIndex(CROP_MAX_DISTANCE)
     zoom_windows = _ChunkIndex(ZOOM_MAX_DISTANCE)
     pan_b = {a: _ChunkIndex(PAN_MAX_DISTANCE) for a in pan_lanes}
+    fine_windows = _ChunkIndex(FINE_MAX_DISTANCE)
+    grid: list[tuple[int, ...]] = []
     for i, h in enumerate(hashes):
         whole.add(i, (h,))
         if len(crops[i]) == full:
@@ -459,9 +492,14 @@ def _candidate_pairs(
                 pan_b[a].add(i, [crops[i][b] for b in bs])
         if zooms[i]:
             zoom_windows.add(i, zooms[i])
+        cells = (*crops[i], *fines[i]) if len(crops[i]) == full and fines[i] else ()
+        grid.append(cells)
+        if len(cells) == len(_FINE_GRID):
+            fine_windows.add(i, cells)
     near: list[set[int]] = [set() for _ in range(n)]
     win: list[set[int]] = [set() for _ in range(n)]
     zoom: list[set[int]] = [set() for _ in range(n)]
+    fine: list[set[int]] = [set() for _ in range(n)]
 
     def keep(i: int, found: set[int], into: list[set[int]]) -> None:
         # Crop and zoom lookups are one-sided (this frame's centre or whole
@@ -487,34 +525,45 @@ def _candidate_pairs(
             for a, table in pan_b.items():
                 table.near(crops[i][a], found)
             win[i].update(j for j in found if j > i)  # pan lanes are ordered: this frame on the a side
-    return near, win, zoom
+        if len(grid[i]) == len(_FINE_GRID):
+            found = set()
+            for cell in grid[i]:
+                fine_windows.near(cell, found)
+            fine[i].update(j for j in found if j > i)  # symmetric: the later frame finds it too
+    return near, win, zoom, fine
 
 
-def _linked_pairs_all(hashes, crops, zooms, windows):
+def _linked_pairs_all(hashes, crops, zooms, windows, fines=None):
     """Every linked pair (i < j) by the plain all-pairs scan: the reference the index must match."""
 
+    fines = fines if fines is not None else [()] * len(hashes)
     for i in range(len(hashes)):
         hi = hashes[i]
         for j in range(i + 1, len(hashes)):
             distance = (hi ^ hashes[j]).bit_count()
             if distance <= NEAR_DUPLICATE_MAX_DISTANCE or burst_match(
-                distance, hi, crops[i], zooms[i], hashes[j], crops[j], zooms[j], windows[i], windows[j]
+                distance, hi, crops[i], zooms[i], hashes[j], crops[j], zooms[j], windows[i], windows[j],
+                fines[i], fines[j],
             ):
                 yield i, j
 
 
-def _linked_pairs_indexed(hashes, crops, zooms, zoom_hashes, windows):
-    """The same pairs as ``_linked_pairs_all``, checking only the candidates each pass could link."""
+def _linked_pairs_indexed(hashes, crops, zooms, zoom_hashes, windows, fine_hashes=None, fines=None):
+    """The same pairs as ``_linked_pairs_all``, checking only the candidates each pass could link.
 
-    near, win, zoom = _candidate_pairs(hashes, crops, zoom_hashes)
+    ``fine_hashes`` are each frame's fine hashes (ints) for the index, ``fines`` their ``fine_pack``.
+    """
+
+    near, win, zoom, fine = _candidate_pairs(hashes, crops, zoom_hashes, fine_hashes)
     for i in range(len(hashes)):
         hi = hashes[i]
-        for j in sorted(near[i] | win[i] | zoom[i]):
+        for j in sorted(near[i] | win[i] | zoom[i] | fine[i]):
             distance = (hi ^ hashes[j]).bit_count()
             if (
                 distance <= NEAR_DUPLICATE_MAX_DISTANCE
                 or (j in win[i] and window_match(distance, windows[i], windows[j]))
                 or (j in zoom[i] and zoom_match(distance, hi, zooms[i], hashes[j], zooms[j]))
+                or (j in fine[i] and fines is not None and fine_match(distance, fines[i], fines[j]))
             ):
                 yield i, j
 
@@ -541,10 +590,12 @@ def _group(
     zoom_hashes = [tuple(int(h, 16) for h in getattr(row[1], "dhash_zooms", ())) for row in ordered]
     zooms = [zoom_index(z) for z in zoom_hashes]
     windows = [window_pack(c) for c in crops]
+    fine_hashes = [tuple(int(h, 16) for h in getattr(row[1], "dhash_fine", ())) for row in ordered]
+    fines = [fine_pack(c, f) for c, f in zip(crops, fine_hashes)]
     use_index = len(ordered) >= _INDEX_MIN_FRAMES if index is None else index
     links = (
-        _linked_pairs_indexed(hashes, crops, zooms, zoom_hashes, windows)
-        if use_index else _linked_pairs_all(hashes, crops, zooms, windows)
+        _linked_pairs_indexed(hashes, crops, zooms, zoom_hashes, windows, fine_hashes, fines)
+        if use_index else _linked_pairs_all(hashes, crops, zooms, windows, fines)
     )
     for i, j in links:
         a, b = find(i), find(j)

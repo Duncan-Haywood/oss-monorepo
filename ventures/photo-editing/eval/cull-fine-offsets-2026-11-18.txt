@@ -1,0 +1,107 @@
+held 10956 burst pairs, 13695 distinct pairs; before the fine pass (recall, false merges, pan recall): (0.9822, 26, 0.9558)
+(5, 8, 44) (0.9983, 26, 0.9995)
+    brightness bright n=166  1.00 -> 1.00
+    brightness dark   n=166  0.96 -> 0.96
+    pan-diag   0.02   n=166  0.98 -> 0.99
+    pan-diag   0.04   n=166  0.96 -> 1.00
+    pan-diag   0.05   n=166  1.00 -> 1.00
+    pan-diag   0.06   n=166  1.00 -> 1.00
+    pan-diag   0.07   n=166  0.84 -> 0.99
+    pan-diag   0.08   n=166  0.96 -> 1.00
+    pan-diag   0.09   n=166  0.78 -> 1.00
+    pan-diag   0.1    n=166  0.86 -> 1.00
+    pan-h      0.02   n=166  1.00 -> 1.00
+    pan-h      0.04   n=166  0.99 -> 1.00
+    pan-h      0.05   n=166  0.99 -> 1.00
+    pan-h      0.06   n=166  1.00 -> 1.00
+    pan-h      0.07   n=166  0.93 -> 1.00
+    pan-h      0.08   n=166  1.00 -> 1.00
+    pan-h      0.09   n=166  0.85 -> 1.00
+    pan-h      0.1    n=166  0.87 -> 1.00
+    pan-v      0.02   n=166  1.00 -> 1.00
+    pan-v      0.04   n=166  1.00 -> 1.00
+    pan-v      0.05   n=166  1.00 -> 1.00
+    pan-v      0.06   n=166  1.00 -> 1.00
+    pan-v      0.07   n=166  0.99 -> 1.00
+    pan-v      0.08   n=166  1.00 -> 1.00
+    pan-v      0.09   n=166  0.98 -> 1.00
+    pan-v      0.1    n=166  0.95 -> 1.00
+    zoom-BR    0.03   n=166  1.00 -> 1.00
+    zoom-BR    0.04   n=166  1.00 -> 1.00
+    zoom-BR    0.05   n=166  1.00 -> 1.00
+    zoom-BR    0.06   n=166  1.00 -> 1.00
+    zoom-BR    0.07   n=166  0.99 -> 0.99
+    zoom-BR    0.08   n=166  0.99 -> 1.00
+    zoom-BR    0.09   n=166  0.99 -> 0.99
+    zoom-BR    0.1    n=166  0.99 -> 0.99
+    zoom-C     0.03   n=166  1.00 -> 1.00
+    zoom-C     0.04   n=166  1.00 -> 1.00
+    zoom-C     0.05   n=166  1.00 -> 1.00
+    zoom-C     0.06   n=166  1.00 -> 1.00
+    zoom-C     0.07   n=166  1.00 -> 1.00
+    zoom-C     0.08   n=166  1.00 -> 1.00
+    zoom-C     0.09   n=166  1.00 -> 1.00
+    zoom-C     0.1    n=166  1.00 -> 1.00
+    zoom-TL    0.03   n=166  0.99 -> 1.00
+    zoom-TL    0.04   n=166  1.00 -> 1.00
+    zoom-TL    0.05   n=166  1.00 -> 1.00
+    zoom-TL    0.06   n=166  1.00 -> 1.00
+    zoom-TL    0.07   n=166  1.00 -> 1.00
+    zoom-TL    0.08   n=166  0.99 -> 0.99
+    zoom-TL    0.09   n=166  0.98 -> 0.98
+    zoom-TL    0.1    n=166  0.98 -> 0.98
+    zoom-off   0.03   n=332  1.00 -> 1.00
+    zoom-off   0.04   n=332  1.00 -> 1.00
+    zoom-off   0.05   n=332  1.00 -> 1.00
+    zoom-off   0.06   n=332  1.00 -> 1.00
+    zoom-off   0.07   n=332  1.00 -> 1.00
+    zoom-off   0.08   n=332  1.00 -> 1.00
+    zoom-off   0.09   n=332  1.00 -> 1.00
+    zoom-off   0.1    n=332  1.00 -> 1.00
+
+--- tune grid (tools/cull_fine_offsets_tune.py WORK) ---
+tune 10890 burst pairs, 13530 distinct pairs; before the fine pass (recall, false merges, pan recall): (0.9829, 14, 0.9588)
+(6, 8, 40, 0.9977, 15, 0.9992)
+(6, 8, 44, 0.9977, 15, 0.9992)
+(5, 6, 40, 0.9977, 16, 0.9992)
+(5, 6, 44, 0.9977, 16, 0.9992)
+(5, 8, 40, 0.9976, 14, 0.9992)
+(5, 8, 44, 0.9976, 14, 0.9992)
+(6, 10, 40, 0.9972, 14, 0.9977)
+(6, 10, 44, 0.9972, 14, 0.9977)
+(4, 6, 40, 0.9972, 15, 0.9977)
+(4, 6, 44, 0.9972, 15, 0.9977)
+(4, 4, 40, 0.9972, 16, 0.9977)
+(4, 4, 44, 0.9972, 16, 0.9977)
+(4, 8, 40, 0.9971, 14, 0.9977)
+(4, 8, 44, 0.9971, 14, 0.9977)
+(5, 10, 40, 0.9971, 14, 0.9977)
+(5, 10, 44, 0.9971, 14, 0.9977)
+(6, 12, 40, 0.9969, 14, 0.997)
+(6, 12, 44, 0.9969, 14, 0.997)
+(5, 12, 40, 0.9968, 14, 0.997)
+(5, 12, 44, 0.9968, 14, 0.997)
+
+--- 10% pans, tune half, by what the shipped passes saw (--why 0.1) ---
+ 447  grouped before
+   4  missed: whole 30-34, coarse 6, fine 2
+   3  missed: whole 30-34, coarse 7, fine 0
+   3  missed: whole 35-39, coarse 7, fine 0
+   3  missed: whole 20-24, coarse 6, fine 0
+   2  missed: whole 35-39, coarse 6, fine 1
+   2  missed: whole 35-39, coarse 8, fine 1
+   2  missed: whole 25-29, coarse 6, fine 1
+   2  missed: whole 35-39, coarse 7, fine 2
+   2  missed: whole 35-39, coarse 7, fine 1
+   2  missed: whole 30-34, coarse 7, fine 1
+   1  missed: whole 25-29, coarse 8, fine 1
+
+--- grouping time (tools/cull_group_timing.py) ---
+10000 frames, index: 249 groups, best of 1: 36.40 s
+10000 frames, index: 248 groups, best of 1: 101.19 s
+500 frames, index: 230 groups, best of 3: 0.47 s
+500 frames, plain: 230 groups, best of 3: 0.52 s
+identical groups: True
+500 frames, index: 227 groups, best of 3: 1.03 s
+500 frames, plain: 227 groups, best of 3: 2.05 s
+identical groups: True

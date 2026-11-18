@@ -8,6 +8,9 @@ number of groups, so two versions of the code can be compared on the same input.
 ``--plain`` forces the all-pairs scan and ``--index`` the candidate index
 (2026-11-18); by default ``_group`` picks by frame count. ``--compare`` times
 both and says whether their groups are identical (eval/cull-grouping-index-2026-11-18.txt).
+Since 2026-11-18 it reads tools/cull_fine_offsets_tune.py's cache (which adds the
+fine hashes and the 5/7/9% pans); ``--no-fine`` leaves the fine hashes out, as
+for a catalogue analysed before then (eval/cull-fine-offsets-2026-11-18.md).
 """
 import argparse
 import random
@@ -17,7 +20,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 sys.path.insert(0, "tools")
-from cull_pan_windows_tune import load  # noqa: E402
+from cull_fine_offsets_tune import load  # noqa: E402
 from shootflow import cull  # noqa: E402
 
 
@@ -26,6 +29,7 @@ def main():
     parser.add_argument("work", type=Path)
     parser.add_argument("--n", type=int, default=2000)
     parser.add_argument("--repeat", type=int, default=3)
+    parser.add_argument("--no-fine", action="store_true", help="leave the fine hashes out")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--plain", action="store_true", help="all-pairs scan")
     mode.add_argument("--index", action="store_true", help="candidate index")
@@ -35,7 +39,8 @@ def main():
     keys = random.Random(1).sample(sorted(data), args.n)
     rows = [
         (Path(k), SimpleNamespace(dhash=f"{data[k]['h']:016x}", dhash_crops=tuple(f"{c:016x}" for c in data[k]["c"]),
-                                  dhash_zooms=tuple(f"{z:016x}" for z in data[k]["z"])), None)
+                                  dhash_zooms=tuple(f"{z:016x}" for z in data[k]["z"]),
+                                  dhash_fine=() if args.no_fine else tuple(f"{f:016x}" for f in data[k]["f"])), None)
         for k in keys
     ]
     modes = [True, False] if args.compare else [True if args.index else False if args.plain else None]
