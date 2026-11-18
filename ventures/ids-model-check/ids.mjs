@@ -107,9 +107,13 @@ export class Model {
       // below reads each one once into its maps, and no check reads a
       // relationship's arguments again (36 MB on the 219 MB federated model,
       // eval/shared-values-2026-11-18.md).
+      // Property sets, properties and quantities are not kept either: the
+      // first read of a set keeps one compact record of its name and
+      // properties (psetRecord), and a property's value is read from the
+      // text when a facet asks for it (eval/pset-records-2026-11-18.md).
       p.policy.keep = (t) => {
         let k = keep.get(t);
-        if (k === undefined) keep.set(t, (k = !S.isA(t, "IFCREPRESENTATIONITEM") && !S.isA(t, "IFCRELATIONSHIP")));
+        if (k === undefined) keep.set(t, (k = !S.isA(t, "IFCREPRESENTATIONITEM") && !S.isA(t, "IFCRELATIONSHIP") && !PROPERTY_ROOTS.some((r) => S.isA(t, r))));
         return k;
       };
     }
@@ -567,24 +571,56 @@ export const QUANTITY_MEASURE = {
   IFCQUANTITYNUMBER: ["NumberValue", "IFCNUMERICMEASURE"],
 };
 
-// One property set's name and properties: {name, props: Map(name ->
-// propEntity)}; name is null when the set has no string Name, which psetsOf
-// skips. Not cached: on a 219 MB federated model a cache of every set kept
-// the run from fitting a 1 GB heap (eval/psets-cache-2026-11-18.md).
-export function psetInfo(model, pset) {
-  const name = model.attr(pset, "Name");
-  const props = new Map();
+// The classes whose arguments the Model does not keep once read (besides
+// geometry and relationships): sets of properties and what they hold. Names
+// a schema lacks match nothing.
+const PROPERTY_ROOTS = ["IFCPROPERTYABSTRACTION", "IFCPROPERTY", "IFCPHYSICALQUANTITY", "IFCPROPERTYSETDEFINITION", "IFCMATERIALPROPERTIES", "IFCPROFILEPROPERTIES"];
+
+// One property set read once, as one flat list: [name, name1, property1,
+// name2, property2, ...], name null when the set has no string Name (psetsOf
+// skips it), each property the entity (or for a predefined set {predefined,
+// owner, attr, value}), in the set's order. Kept per model by set number. It
+// stands in for the set's and its properties' kept arguments: 12 MB of
+// records where the arguments took about 79 MB on the 219 MB federated model
+// after 68 IDS files, and the names are read once, not once per element
+// (eval/pset-records-2026-11-18.md).
+export function psetRecord(model, pset) {
+  let recs = model._psetRecs;
+  if (!recs) recs = model._psetRecs = new Map();
+  let r = recs.get(pset.id);
+  if (r) return r;
+  const args = pset.args;
+  const nameAt = model.schema.attrs(pset.type).index.get("Name");
+  const name = nameAt === undefined ? undefined : args[nameAt];
+  const r2 = [typeof name === "string" ? name : null];
   if (pset.type === "IFCPROPERTYSET" || pset.type === "IFCELEMENTQUANTITY" || pset.type === "IFCMATERIALPROPERTIES" || pset.type === "IFCEXTENDEDMATERIALPROPERTIES" || pset.type === "IFCPROFILEPROPERTIES") {
     const listName = pset.type === "IFCELEMENTQUANTITY" ? "Quantities" : pset.type === "IFCEXTENDEDMATERIALPROPERTIES" ? "ExtendedProperties" : pset.type === "IFCPROPERTYSET" ? "HasProperties" : "Properties";
-    for (const p of model.refs(pset, listName)) {
+    const at = model.schema.attrs(pset.type).index.get(listName);
+    const list = at === undefined ? undefined : args[at];
+    for (const ref of Array.isArray(list) ? list : [list]) {
+      const p = model.get(ref);
+      if (!p) continue;
       const pn = model.attr(p, "Name");
-      if (typeof pn === "string") props.set(pn, p);
+      if (typeof pn === "string") r2.push(pn, p);
     }
   } else if (model.isA(pset, "IFCPREDEFINEDPROPERTYSET")) {
     const attrs = model.schema.attrs(pset.type);
-    for (let i = 4; i < attrs.length; i++) props.set(attrs[i].name, { predefined: true, owner: pset, attr: attrs[i], value: pset.args[i] });
+    for (let i = 4; i < attrs.length; i++) r2.push(attrs[i].name, { predefined: true, owner: pset, attr: attrs[i], value: args[i] });
   }
-  return { name: typeof name === "string" ? name : null, props };
+  // Copied to its length: a list built by push keeps room for 16.
+  r = r2.slice();
+  recs.set(pset.id, r);
+  return r;
+}
+
+// One property set's name and properties: {name, props: Map(name ->
+// propEntity)}, a new Map on each call (psetsOf changes it), from the set's
+// record (psetRecord). A later property of the same name wins, as before.
+export function psetInfo(model, pset) {
+  const r = psetRecord(model, pset);
+  const props = new Map();
+  for (let i = 1; i < r.length; i += 2) props.set(r[i], r[i + 1]);
+  return { name: r[0], props };
 }
 
 // The property sets psetsOf reads for an element, in its order (later ones
@@ -611,7 +647,10 @@ export function psetHolders(model) {
     if (!e || seen.has(e.id)) return;
     seen.add(e.id);
     psetSources(model, e, (p) => {
-      const n = model.attr(p, "Name");
+      // The name alone: the record (properties too) is read only for sets a
+      // facet's name takes.
+      const r = model._psetRecs && model._psetRecs.get(p.id);
+      const n = r ? r[0] : model.attr(p, "Name");
       if (typeof n !== "string") return;
       let l = out.get(n);
       if (!l) out.set(n, (l = []));
@@ -653,8 +692,12 @@ export class PropertyFacet {
   values(model, p) {
     const S = model.schema;
     const out = [];
+    // The property's arguments, read once: properties are not kept
+    // (psetRecord), so each model.attr would read the text again.
+    const A = p.predefined ? null : p.args;
+    const at = (name) => { const k = S.attrs(p.type).index.get(name); return k === undefined ? undefined : A[k]; };
     const unitOf = (p, type) => {
-      const u = model.get(model.attr(p, "Unit"));
+      const u = p ? model.get(at("Unit")) : undefined;
       if (u) return model.unitScale(u);
       const ut = own(model.measureUnits, type);
       return (ut && model.unitFactor.get(ut)) || { scale: 1, offset: 0 };
@@ -679,13 +722,13 @@ export class PropertyFacet {
       return { values: out };
     }
     switch (p.type) {
-      case "IFCPROPERTYSINGLEVALUE": push(model.attr(p, "NominalValue"), p); break;
-      case "IFCPROPERTYENUMERATEDVALUE": for (const x of model.attr(p, "EnumerationValues") || []) push(x, p); break;
-      case "IFCPROPERTYLISTVALUE": for (const x of model.attr(p, "ListValues") || []) push(x, p); break;
+      case "IFCPROPERTYSINGLEVALUE": push(at("NominalValue"), p); break;
+      case "IFCPROPERTYENUMERATEDVALUE": for (const x of at("EnumerationValues") || []) push(x, p); break;
+      case "IFCPROPERTYLISTVALUE": for (const x of at("ListValues") || []) push(x, p); break;
       case "IFCPROPERTYBOUNDEDVALUE": {
-        const lo = model.attr(p, "LowerBoundValue");
-        const hi = model.attr(p, "UpperBoundValue");
-        const sp = model.attr(p, "SetPointValue");
+        const lo = at("LowerBoundValue");
+        const hi = at("UpperBoundValue");
+        const sp = at("SetPointValue");
         const r = { values: [], bounded: true };
         const tmp = [];
         const before = out.length;
@@ -700,13 +743,13 @@ export class PropertyFacet {
         return r;
       }
       case "IFCPROPERTYTABLEVALUE":
-        for (const x of model.attr(p, "DefiningValues") || []) push(x, p);
-        for (const x of model.attr(p, "DefinedValues") || []) push(x, p);
+        for (const x of at("DefiningValues") || []) push(x, p);
+        for (const x of at("DefinedValues") || []) push(x, p);
         break;
       default:
         if (own(QUANTITY_MEASURE, p.type)) {
           const [an, mt] = own(QUANTITY_MEASURE, p.type);
-          const v = model.attr(p, an);
+          const v = at(an);
           if (v !== null && v !== undefined) {
             let x = v && v.typed ? v.value : v;
             if (typeof x === "number" && own(model.measureUnits, mt)) {

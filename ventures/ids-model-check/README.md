@@ -812,6 +812,16 @@ text is now copied in runs. Every report is identical.
    On the 219 MB federated model the smallest heap that parses it fell from
    576 to 512 MB, with the starter IDS from 704 to 576 MB, and with all 68
    IDS files from 896 to 704 MB. Reports hash the same on four models.
+13. **Property sets as one record each** (2026-11-18,
+   `eval/pset-records-2026-11-18.md`). The first read of a property set keeps
+   one flat list (the set's name, then each property's name and entity), and
+   the arguments of sets, properties and quantities are no longer kept; a
+   value is read from the text when a facet asks for it. What 68 IDS files
+   add to the heap of the 219 MB federated model fell from 137 to 71 MB, and
+   the smallest heap that parses it and runs all 68 from 704 to 608 MB
+   (HHS MEP after the checks: 119 to 107 MB). The checks take about as long
+   as before (federated 10.7-11.5 s on main, 11.4 s here). Reports hash the
+   same on five models.
 
 Speed (one core, Node 22): Schultz Residence 1.4 s for seven specifications;
 IfcTester (C++ parser) took 0.6-0.7 s for the same work. This tool is not
