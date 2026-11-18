@@ -52,3 +52,4 @@
   for exposure may sit too low.
 - (2026-11-18) next a real shoot's picks
 - (2026-11-18) cull: zoom, pan windows, the 44 crop gate and an exact pair index 2026-11-18 (10,000 frames 251 to 42 s, eval/cull-grouping-index-*) (6% pans 0.85 to 1.00, eval/cull-crop-gate-*), whole-percent window offsets 2026-11-18 (7-10% pans 0.78-0.95 to 0.99-1.00, eval/cull-fine-offsets-*)
+- (2026-11-18) a real CR3 with tiles stacked one above another (2018-23 bodies store two across, read since 2026-11-18 with their old C-RAW: 0 of 986.8 M sensels differ on 39 files, eval/canon-cr3-every-body-*)
