@@ -406,13 +406,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "An ESC with its own speed loop" . Landed
-      2026-11-18: ESC-lag survey spline pick, 39 of 44 held out within 5% (README
-      "The ESC-lag survey's pick between grid lags"); a ramp-then-PI drop fit for a
-      speed-mode ESC, limit from a spin-up, loop from a step train
-      (firmware/esp32/README.md, host-side). Next: a drill-level check of one-wheel
-      verdicts on more fresh sets; the sub-8 advised instant build; ball hold:
-      WHEEL_RPM_FULL error's cost on 0.2 s wheels.
+      see firmware/esp32/README.md, latest "The take survey's pick between contact
+      times" (2026-11-18: parabola and grid kept held out; the fit reads takes
+      0.2-0.4 ms high). Next: does a take model with more parts remove that reading
+      (NEXT.md); a drill-level check of one-wheel verdicts on more fresh sets; the
+      sub-8 advised instant build; ball hold: WHEEL_RPM_FULL error's cost on 0.2 s
+      wheels.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

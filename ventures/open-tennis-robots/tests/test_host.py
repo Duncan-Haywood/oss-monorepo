@@ -2011,6 +2011,11 @@ class TakeSurveyTest(unittest.TestCase):
         self.assertIn("keep TAKE_US = 0", host.take_survey_advice(flat))
         self.assertIn("only 25% less", host.take_survey_advice(flat))
         self.assertIn("set TAKE_US = 0", host.take_survey_advice(dict(sv, least_ms10=0, refined_ms10=0, board_ms10=40)))
+        # the grid's last contact time (2026-11-18, README "The take survey's pick between contact times"): 7 ms read 8
+        end = dict(sv, least_ms10=80, refined_ms10=80, rms_ppm=[136, 130, 120, 110, 100, 90, 40])
+        self.assertIn("about 7 ms or longer", host.take_survey_advice(end))
+        self.assertIn("set TAKE_US = 8000", host.take_survey_advice(end))
+        self.assertIn("already matches", host.take_survey_advice(dict(end, board_ms10=80)))
 
     def test_verdict_needs_two_summed_wheels(self):
         # 2026-11-18, README "The take survey's verdict needs two informative wheels": with the minimum at 2, 24 wheels
