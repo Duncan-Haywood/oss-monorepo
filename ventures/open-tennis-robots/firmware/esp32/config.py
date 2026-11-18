@@ -117,3 +117,11 @@ ESC_TAU_US = 0
 # The survey's lags (six, the ESC_SURVEY frame's slots), or () to turn the survey off: it refits each turning wheel
 # six times after its record is out, one step a control tick, and a new stroke cuts a survey short.
 ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 200000, 400000)
+# The ball's contact time the drop fit models, microseconds (2026-11-17, firmware/esp32/README.md "A take that lasts a
+# few milliseconds" and "The contact time surveyed on the board"). 0 (the default) models the take as one step. A real
+# ball is in the wheels for a few ms, and on the simulator a 6 ms take read the drop 0.98% (sd) off as a step and 0.19%
+# told its contact time. `tennisbots run` on a calibration drill asks the board to survey it (SURVEY_TAKE) and prints
+# the contact time its balls pick; set it here and re-flash.
+TAKE_US = 0
+# The survey's contact times (seven, the TAKE_SURVEY frame's slots), or () to turn it off.
+TAKE_SURVEY_GRID_US = (0, 2000, 3000, 4000, 5000, 6000, 8000)

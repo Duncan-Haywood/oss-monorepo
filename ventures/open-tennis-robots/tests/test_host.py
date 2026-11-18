@@ -1829,3 +1829,68 @@ class SpreadTakeTest(unittest.TestCase):
         _, half = self._take(4.0, "halfsine")
         _, front = self._take(4.0, "front")
         self.assertLess(front[0], half[0])                         # 7/16 of it in the first ms against 15%
+
+
+class TakeSurveyTest(unittest.TestCase):
+    """2026-11-17, firmware/esp32/README.md "The contact time surveyed on the board": with SURVEY_TAKE on, the board
+    refits each launched wheel at seven contact times, the TAKE_SURVEY frame carries the sums to the Pi, and the Pi says
+    which TAKE_US the balls pick."""
+
+    def test_frames_round_trip(self):
+        (cmd, vals), = list(P.Decoder().feed(P.encode(P.SURVEY_TAKE, 1)))
+        self.assertEqual((cmd, vals), (P.SURVEY_TAKE, (1,)))
+        frame = P.encode(P.TAKE_SURVEY, 24, 60, 57, 0, 700, 650, 620, 600, 590, 588, 640)
+        (cmd, vals), = list(P.Decoder().feed(frame))
+        self.assertEqual((cmd, vals[:4], len(vals)), (P.TAKE_SURVEY, (24, 60, 57, 0), 4 + P.TAKE_SURVEY_TIMES))
+        self.assertEqual(len(controller.TAKE_SURVEY_GRID_US), P.TAKE_SURVEY_TIMES)
+        self.assertEqual(tuple(g // 1000 for g in controller.TAKE_SURVEY_GRID_US), host.TAKE_SURVEY_MS)
+
+    def test_advice(self):
+        sv = {"wheels": 24, "least_ms10": 60, "refined_ms10": 57, "board_ms10": 0,
+              "rms_ppm": [136, 140, 119, 98, 95, 50, 112]}
+        self.assertIsNone(host.take_survey_advice(None))
+        self.assertIn("run more balls", host.take_survey_advice(dict(sv, wheels=6)))
+        self.assertIn("set TAKE_US = 5500", host.take_survey_advice(sv))
+        self.assertIn("already matches", host.take_survey_advice(dict(sv, board_ms10=60)))
+        self.assertIn("keep TAKE_US = 0", host.take_survey_advice(dict(sv, least_ms10=0, refined_ms10=0)))
+        # an instant take's build on the simulator: 3 ms fits 25% better than the step, under the margin
+        flat = dict(sv, least_ms10=30, refined_ms10=26, rms_ppm=[68, 62, 51, 75, 81, 107, 197])
+        self.assertIn("keep TAKE_US = 0", host.take_survey_advice(flat))
+        self.assertIn("only 25% less", host.take_survey_advice(flat))
+        self.assertIn("set TAKE_US = 0", host.take_survey_advice(dict(sv, least_ms10=0, refined_ms10=0, board_ms10=40)))
+
+    def test_board_off_by_default_and_on_for_a_calibration_drill(self):
+        import esc_survey_sweep as S
+        sim = S.sim_for({}, 0.4, 0.95, 0.65)
+        shots = host.plan_drill(S.load("drill.calibration.json"))[:3]
+        res = host.run_drill(host.FeederLink(sim, sim.clock), shots, sim.sleep)
+        self.assertTrue(res.ok, res.aborted)
+        self.assertIsNone(res.take_survey)                     # not asked for: no survey, no extra board time
+        sim = S.sim_for({}, 0.4, 0.95, 0.65)
+        res = host.run_drill(host.FeederLink(sim, sim.clock), shots, sim.sleep, take_survey=True)
+        self.assertTrue(res.ok, res.aborted)
+        sv = res.take_survey
+        self.assertIsNotNone(sv)
+        self.assertGreaterEqual(sv["wheels"], 4)               # the Pi waits for each ball's survey before the next
+        self.assertEqual(sim.hw.launch.survey_cut, 0)
+        self.assertEqual(len(sv["rms_ppm"]), P.TAKE_SURVEY_TIMES)
+        sim.sleep(0.05)                                        # the board reads the drill's last frame
+        self.assertFalse(sim.hw.launch.take_on)                # turned off at the drill's end
+
+    def test_take_us_sets_the_record_fit(self):
+        lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, take_us=6000)
+        self.assertEqual(lc.take(), controller.take_offsets(6000))
+        self.assertEqual(lc.take_ms10(), 60)
+        self.assertEqual(controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5).take(), controller.LOOP_TAKE)
+
+    def test_survey_kept_in_the_shot_log(self):
+        res = host.DrillResult(launches=[{"seq": 1, "rpm_top": 4000, "rpm_bottom": 3000, "drop_top": 0.08,
+                                          "drop_bottom": 0.09, "launched": True, "shot": 0}],
+                               take_survey={"wheels": 24, "least_ms10": 60, "refined_ms10": 57, "board_ms10": 0})
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "shots.jsonl")
+            self.assertIsNone(host.last_take_survey_from_log(path))
+            host.append_shot_log(path, res, "drill.calibration.json")
+            self.assertEqual(len(host.read_shot_log(path)), 1)
+            self.assertEqual(host.last_take_survey_from_log(path)["refined_ms10"], 57)
+            self.assertIsNone(host.last_survey_from_log(path))

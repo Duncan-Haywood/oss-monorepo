@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKizEyZQqcTC5BuqXsb",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T23:18:03Z",
+  "ended": "2026-11-18T00:23:20Z",
+  "wall_minutes": 65.7,
+  "tokens_in": 19131199,
+  "tokens_out": 60693,
+  "cost_usd": 6.6345,
+  "tool_calls": 87,
+  "task": "open-tennis-robots flagship row 6: a contact-time survey on the board's calibration drill, as the ESC-lag survey",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17100",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First board survey used refine=0 (copied from the ESC-lag survey) and picked an instant take on a 6 ms build",
+      "fix": "traced to ~60x larger fit misses without the tau refinement; the take survey keeps the refinement"
+    },
+    {
+      "what": "A new stroke cut 11 of 12 surveys at the calibration drill's 4 s interval",
+      "fix": "the Pi holds each calibration ball until the board's take-survey count rises (cap TAKE_WAIT_S 8 s)"
+    },
+    {
+      "what": "Planned held-out check on seed 8 reproduced seed 7 to the digit (noise-free plants ignore the seed)",
+      "fix": "held-out check rerun at wheel lag 0.6 s instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/tests/take_spread.py",
+      "issue": "MODES list seeds (7,) for the noise-free plants as if they mattered; on those plants the seed changes nothing, which cost a 45-minute run to learn"
+    },
+    {
+      "file": "ventures/open-tennis-robots/llms.txt",
+      "issue": "the status paragraph is one ~25,000-character line; appending to it is the only option and it is unreadable for an LLM or a person"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "no venture-level marketing page edit; the work is firmware on an unbuilt robot and index.html makes no claim it changes",
+      "did": "updated llms.txt and the firmware README instead",
+      "result": "page unchanged; llms.txt current"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-the-tennis-feeder-learns-how-long-a-ball-touches-its-wheels.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md#the-contact-time-surveyed-on-the-board"
+  ],
+  "goal": "deepen flagship open-tennis-robots",
+  "notes": "Board-side contact-time survey (SURVEY_TAKE 0x15 / TAKE_SURVEY 0x84, config TAKE_US), Pi advice with a 0.6 rms margin. Lag 0.3 s sweep: half-sine picks within 1 ms; 4/6 instant builds picked 1.5-2.5 ms and read worse told -> margin. Held-out at lag 0.6 s: margin advised 0/6 instant, 6/6 six-ms (sd 0.77->0.21%, spin 2.53->0.76%), 0/6 front-loaded (told unmargined: worst spin 5.03%). Verification: run_venture_tests.py open-tennis-robots and venture-preflight, output summarised in the PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f3451cfb-5bf8-50ee-af07-3fd10b01aeb7",
+    "transcripts": 1,
+    "first": "2026-11-17T23:18:03Z",
+    "last": "2026-11-18T00:23:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 113,
+        "input": 268,
+        "output": 60693,
+        "thinking": 14615,
+        "cache_read": 18926649,
+        "cache_write_5m": 0,
+        "cache_write_1h": 204282,
+        "api_equivalent_usd": 6.6345,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 113,
+      "input": 268,
+      "output": 60693,
+      "thinking": 14615,
+      "cache_read": 18926649,
+      "cache_write_5m": 0,
+      "cache_write_1h": 204282,
+      "api_equivalent_usd": 6.6345,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 87,
+    "tools": {
+      "Bash": 80,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 65.7,
+      "active_minutes": 20.16,
+      "model_minutes": 12.82,
+      "tool_minutes": 7.34,
+      "waiting_on_human_minutes": 45.54,
+      "human_prompts": 29,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "firmware survey + protocol + host advice + two 24-build simulator sweeps and write-up, senior embedded engineer estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 241.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
