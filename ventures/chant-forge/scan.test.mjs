@@ -336,6 +336,27 @@ test('a head split by a white fleck is read', () => {
   assert.deepEqual(rels(readPage(pgm, { fleck: false })[0]), [4, 3], 'without the join the halves are both too narrow');
 });
 
+test('a staff whose lines are broken by a short white gap is read on both sides (2026-11-18)', () => {
+  const img = canvas(1600, 400);
+  drawStaff(img, 120, [[200, 4], [300, 2], [420, 3], [700, 5], [900, 1], [1200, 2]]);
+  rect(img, 520, 100, 8, 3 * S + 40, 225); // every line broken for 8 px (0.22 spaces) after the third head
+  const pgm = readPgm(toPgm(img));
+  const rels = (st) => st.notes.map((n) => n.rel + 6);
+  assert.deepEqual(rels(readPage(pgm)[0]), [4, 2, 3, 5, 1, 2]);
+  const [old] = readPage(pgm, { staffJoin: false });
+  assert.ok(old.notes.length < 6, 'without the join only the longer stretch is read');
+});
+
+test('a decorated initial whose box crosses the staff lines is not joined to the staff (2026-11-18)', () => {
+  const img = canvas(1600, 400);
+  rect(img, 40, 60, 5 * S, 6 * S); // the initial's box, inked solid across the lines
+  drawStaff(img, 120, [[400, 4], [600, 2], [900, 3]], { left: 40 + 5 * S + 12 });
+  const pgm = readPgm(toPgm(img));
+  const [st] = findStaves(binarize(pgm));
+  assert.ok(st.left >= 40 + 5 * S + 12, `the staff starts after the box (left ${st.left})`);
+  assert.deepEqual(readPage(pgm), readPage(pgm, { staffJoin: false }), 'read as without the join');
+});
+
 // turn a drawn page by `deg` degrees about its centre (bilinear, as a
 // scanner's slightly turned page would come out)
 function rotate(img, deg) {
