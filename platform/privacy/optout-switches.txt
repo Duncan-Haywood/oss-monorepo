@@ -885,6 +885,7 @@ ventures/project-staffing-margin-optimizer/usage.mjs
 ventures/prometheus-cardinality-cost/usage.mjs
 ventures/prop-firm-challenge-calculator/usage.mjs
 ventures/propane-delivery-route-margin/usage.mjs
+ventures/propensity-score/usage.mjs
 ventures/property-management-profit-calculator/usage.mjs
 ventures/property-tax-appeal-calculator/usage.mjs
 ventures/proposal-maker/usage.mjs

@@ -1,6 +1,6 @@
 # Free business calculators, CSV checkers and self-hosted apps: the full catalogue
 
-Every tool in this folder (1390 when this list was last generated), grouped the way the live site
+Every tool in this folder (1391 when this list was last generated), grouped the way the live site
 groups them. Each line links to the **free web version**, which needs no account and, for all but the
 self-hosted apps, runs entirely in your browser, and to its **source code** here, MIT licensed, so you
 can run, fork or self-host your own copy.
@@ -24,7 +24,7 @@ free tools for each one (roofers, Etsy sellers, landlords, freelancers and more)
 - [Back-office money & contracts](#back-office-money--contracts) (181)
 - [CI checks & developer gates](#ci-checks--developer-gates) (188)
 - [Creator & solo earner income](#creator--solo-earner-income) (73)
-- [Research algorithms & ML](#research-algorithms--ml) (34)
+- [Research algorithms & ML](#research-algorithms--ml) (35)
 - [Learning & practice](#learning--practice) (7)
 - [Open hardware, robots & house plans](#open-hardware-robots--house-plans) (4)
 - [Music & audio](#music--audio) (1)
@@ -1463,6 +1463,7 @@ Methods from published research papers, run on your own data in your browser and
 - [Meta-analysis in your browser: pooled effect, heterogeneity and the next study's range](https://marisstella.app/meta-analysis/) · [code](meta-analysis/)
 - [Do two measurement methods agree? Passing-Bablok, Deming and Bland-Altman in your browser](https://marisstella.app/method-comparison/) · [code](method-comparison/)
 - [When these forecasts said 70%, did it happen 70% of the time?](https://marisstella.app/probability-calibration/) · [code](probability-calibration/)
+- [Propensity score analysis in your browser: weighting, matching and doubly robust estimates](https://marisstella.app/propensity-score/) · [code](propensity-score/)
 - [Ranked-Choice Ballot Counter — free, private, every round shown](https://marisstella.app/ranked-ballot-counter/) · [code](ranked-ballot-counter/)
 - [Regression discontinuity in your browser, with robust bias-corrected intervals](https://marisstella.app/regression-discontinuity/) · [code](regression-discontinuity/)
 - [Robust PCA in your browser: which cells of this table break the pattern the rest share?](https://marisstella.app/robust-pca/) · [code](robust-pca/)
