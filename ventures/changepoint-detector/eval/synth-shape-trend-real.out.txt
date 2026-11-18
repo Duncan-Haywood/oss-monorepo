@@ -1,0 +1,36 @@
+== West Germany 1990: rank 3 of 17; panel centre (median late/early mean square) 21.76, rule switched on; treated gap: plain grew, hybrid held
+   placebos plain {"held":4,"grew":12,"faded":0}, hybrid {"held":10,"grew":2,"faded":4}
+   USA          ratio    8.8  plain grew  hybrid held 
+   UK           ratio   46.7  plain grew  hybrid held 
+   Austria      ratio   21.8  plain grew  hybrid held 
+   Belgium      ratio   76.7  plain grew  hybrid held 
+   Denmark      ratio   10.1  plain grew  hybrid held 
+   France       ratio  106.7  plain grew  hybrid held 
+   Italy        ratio  114.6  plain grew  hybrid held 
+   Netherlands  ratio   16.6  plain grew  hybrid held   ranked at or above
+   Norway       ratio  208.0  plain grew  hybrid grew   ranked at or above
+   Switzerland  ratio   15.3  plain grew  hybrid held 
+   Japan        ratio    2.2  plain held  hybrid faded
+   Greece       ratio    2.8  plain held  hybrid faded
+   Portugal     ratio   33.4  plain grew  hybrid held 
+   Spain        ratio  661.5  plain grew  hybrid grew 
+   Australia    ratio    1.6  plain held  hybrid faded
+   NewZealand   ratio    2.6  plain held  hybrid faded
+== Basque Country 1970: rank 4 of 17; panel centre (median late/early mean square) 2.36, rule off; treated gap: plain grew, hybrid grew
+   placebos plain {"held":10,"grew":5,"faded":1}, hybrid {"held":10,"grew":5,"faded":1}
+   AND          ratio  101.4  plain grew  hybrid grew 
+   ARA          ratio    2.9  plain held  hybrid held 
+   AST          ratio   44.5  plain grew  hybrid grew   ranked at or above
+   BAL          ratio    2.4  plain held  hybrid held 
+   CAN          ratio    1.2  plain held  hybrid held 
+   CNT          ratio   45.9  plain grew  hybrid grew   ranked at or above
+   CYL          ratio    2.2  plain held  hybrid held 
+   CLM          ratio    1.4  plain held  hybrid held 
+   CAT          ratio    1.4  plain held  hybrid held 
+   VAL          ratio   25.0  plain grew  hybrid grew   ranked at or above
+   EXT          ratio    1.0  plain held  hybrid held 
+   GAL          ratio    2.1  plain held  hybrid held 
+   MAD          ratio    0.1  plain faded hybrid faded
+   MUR          ratio   10.8  plain grew  hybrid grew 
+   NAV          ratio    1.1  plain held  hybrid held 
+   RIO          ratio    5.1  plain held  hybrid held 
