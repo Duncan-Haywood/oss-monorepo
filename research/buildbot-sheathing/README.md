@@ -694,6 +694,21 @@ not modelled.
 
 ![Common leg margin on the pose's hold sides and on the sides chosen per load at each dropped case, and coverage inside the drag envelope for milestones 51 to 53](experiments/m53_loadside/figure.png)
 
+**Milestone 54: do the hose rules hold off the 8-direction grid?** Coverage does; accuracy, not quite. At 48
+Latin-hypercube hose loads (0 to 20 N, any direction; seed 54), with each pose's drag limit bisected at the sampled
+direction (the same test reproduces milestone 50's grid limits exactly), **both robots plan every case inside the
+drag limits: G1 4002 of 4002, H1 5436 of 5436** (H217 held; 116 of them by per-load sides). But **4 of those 9438
+cases leave the 0.03 mm spec, the worst 0.284 mm** (G1, 0.4 m grip, 13.2 N at 290 degrees; H1 0.032 to 0.042 mm at
+its 1.2 m grip; H218 refuted). Post hoc, each is one joint whose torque sits at the 0.2 N m friction threshold, so the
+plan (from the measured load) and the robot (under the true load) disagree on whether it is held: half a backlash gap
+of error on that joint, inside direction spans 2.75 to 4.75 degrees wide that a 45 degree grid steps over. Milestone
+53's per-load sides clear the 3 H1 cases but not the G1's, an arm joint. The grid's drag limits are also up to 2.17 N
+optimistic between directions (21 G1 pose-directions at the 0.4 to 0.8 m grips; H219 refuted), but only at limits
+above 23 N; the binding limits (G1 1.2 m, H1 1.6 m) sit straight back, on the grid. Next: a held-or-free margin
+that covers the sensor error on every joint. Statics; constant sensor bias.
+
+![Drag limit at each sampled direction against the grid's smaller neighbour, and the worst in-envelope residual at each Latin-hypercube hose load](experiments/m54_lhs/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
