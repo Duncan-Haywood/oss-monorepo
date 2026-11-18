@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bowlingSchedule, laneReport, validateBowling, hungarian, bowlingCsv, bowlingText, parseWeekList, pairLabels, teamLaneGrid, assignLanes, boundOutOfReach, VACANCY } from "./bowling.mjs";
+import { bowlingSchedule, laneReport, validateBowling, hungarian, bowlingCsv, bowlingText, parseWeekList, pairLabels, teamLaneGrid, assignLanes, offBound, boundOutOfReach, VACANCY } from "./bowling.mjs";
+import { LANE_TABLE } from "./bowling-lane-table.mjs";
 import { OUT_OF_REACH } from "./bowling-proofs.mjs";
 import { toDay, roundRobin } from "./calc.mjs";
 
@@ -56,6 +57,37 @@ test("the polished season is never less even than the greedy or hand-rotated one
     assert.equal(r.atBound, n, `${n} teams ${weeks} weeks`);
     assert.ok(r.worstSpread <= 1);
   }
+});
+
+test("every stored SAT assignment is a permutation each week and puts every team at the bound", () => {
+  for (const [key, code] of Object.entries(LANE_TABLE)) {
+    const [n, weeks] = key.split(",").map(Number);
+    const P = n / 2;
+    assert.equal(code.length, weeks * P, key);
+    const cyc = roundRobin(n);
+    const plan = Array.from({ length: weeks }, (_, w) => cyc[w % cyc.length].matches.map(([a, b], m) => [a, b, parseInt(code[w * P + m], 36)]));
+    for (const wk of plan) assert.equal(new Set(wk.map((m) => m[2])).size, P, key);
+    assert.equal(offBound(plan, n, P), 0, key);
+    // and the page uses it: the season it builds is at the bound, on any lane deal
+    const rounds = plan.map((wk) => wk.map(([a, b]) => [a, b]));
+    for (const seed of [1, 2]) assert.equal(offBound(assignLanes(rounds, n, P, { seed }), n, P), 0, `${key} seed ${seed}`);
+  }
+});
+
+test("the six seasons the week re-solves missed are now at the bound (walk or stored assignment)", () => {
+  for (const [n, weeks] of [[10, 30], [12, 30], [16, 32], [18, 26], [20, 30], [24, 34]]) {
+    const cyc = roundRobin(n);
+    const rounds = Array.from({ length: weeks }, (_, k) => cyc[k % cyc.length].matches);
+    assert.equal(offBound(assignLanes(rounds, n, n / 2), n, n / 2), 0, `${n} teams ${weeks} weeks`);
+  }
+});
+
+test("a stale or damaged stored entry is ignored, never trusted", () => {
+  const cyc = roundRobin(12);
+  const rounds = Array.from({ length: 30 }, (_, k) => cyc[k % cyc.length].matches.map(([a, b]) => [b, a]).reverse());
+  // reversed match order: the stored digits no longer fit these rounds, so the search runs instead
+  const plan = assignLanes(rounds, 12, 6);
+  for (const wk of plan) assert.equal(new Set(wk.map((m) => m[2])).size, 6);
 });
 
 test("the same input gives the same season (no clock, no Math.random)", () => {
@@ -146,9 +178,9 @@ test("the bowling page's worked example matches bowlingSchedule(), its FAQ match
   }
   // The measured claims on the page are the ones in eval/bowling-lanes.txt.
   const ev = page("eval/bowling-lanes.txt");
-  assert.match(ev, /polished: every team at the bound in 30 of 36 seasons; worst spread 2/);
+  assert.match(ev, /polished: every team at the bound in 36 of 36 seasons; worst spread 1/);
   assert.match(ev, /rotate: every team at the bound in 1 of 36 seasons; worst spread 13/);
-  assert.match(html, /30 of the 36/);
+  assert.match(html, /all 36/);
   assert.equal((page("eval/bowling-lane-sat.txt").match(/: SAT$/gm) || []).length, 6);
   assert.match(page("sitemap.xml"), new RegExp(name));
   assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));

@@ -20,6 +20,7 @@
 // left out of the lane counts.
 
 import { roundRobin, dayLabel, dayIso, csvCell, parseTeams, mulberry32 } from "./calc.mjs";
+import { LANE_TABLE } from "./bowling-lane-table.mjs";
 
 export const VACANCY = "Vacancy";
 
@@ -116,7 +117,119 @@ export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 
     plan.push(out);
   }
   if (mode === "greedy" || plan.length < 2 || nPairs < 2) return plan;
-  return polishLanes(plan, nTeams, nPairs, seed, iterations ?? kicksFor(plan.length, nPairs));
+  const kicks = iterations ?? kicksFor(plan.length, nPairs);
+  const stored = tablePlan(rounds, nTeams, nPairs, seed);
+  if (stored) return polishLanes(stored, nTeams, nPairs, seed, kicks);
+  const polished = polishLanes(plan, nTeams, nPairs, seed, kicks);
+  if (offBound(polished, nTeams, nPairs) === 0) return polished;
+  // The week re-solves stall a few counts short of the bound on some sizes. A focused walk on the
+  // out-of-bounds cells closes most of those; its result is polished again for repeats only (the
+  // polish never lets an out-of-bounds count back in).
+  const walked = walkLanes(polished, nTeams, nPairs, seed, walkStepsFor(plan.length, nPairs));
+  if (offBound(walked, nTeams, nPairs) >= offBound(polished, nTeams, nPairs)) return polished;
+  return polishLanes(walked, nTeams, nPairs, seed, kicks);
+}
+
+// A season the search misses but a SAT solver solved ahead of time (bowling-lane-table.mjs, from
+// eval/bowling-lane-table.py). The entry is used only if it is a permutation every week and puts
+// every team at the bound for these rounds, so a stale table can cost speed, never balance. The
+// pairs are relabelled by a permutation drawn from the seed (seed 1 keeps them), which keeps the
+// balance and gives "Try another lane deal" a different season; the polish then cuts repeats.
+function tablePlan(rounds, nTeams, nPairs, seed) {
+  const code = LANE_TABLE[`${nTeams},${rounds.length}`];
+  if (!code || code.length !== rounds.length * nPairs) return null;
+  const perm = Array.from({ length: nPairs }, (_, i) => i);
+  if (seed !== 1) {
+    const rnd = mulberry32(seed * 104729 + 3);
+    for (let i = nPairs - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [perm[i], perm[j]] = [perm[j], perm[i]]; }
+  }
+  const plan = [];
+  for (let w = 0; w < rounds.length; w++) {
+    if (rounds[w].length !== nPairs) return null;
+    const seen = new Set();
+    const wk = rounds[w].map(([a, b], m) => {
+      const p = parseInt(code[w * nPairs + m], 36);
+      seen.add(p);
+      return [a, b, perm[p] ?? -1];
+    });
+    if (seen.size !== nPairs || wk.some((m) => !(m[2] >= 0))) return null;
+    plan.push(wk);
+  }
+  return offBound(plan, nTeams, nPairs) === 0 ? plan : null;
+}
+
+/** Out-of-bounds counts of a plan: how far each team-pair count is outside floor..ceil(W_t/P). */
+export function offBound(plan, nTeams, nPairs) {
+  const cnt = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
+  const games = new Array(nTeams).fill(0);
+  for (const wk of plan) for (const [a, b, p] of wk) { cnt[a][p]++; cnt[b][p]++; games[a]++; games[b]++; }
+  let o = 0;
+  for (let t = 0; t < nTeams; t++) {
+    const lo = Math.floor(games[t] / nPairs), hi = Math.ceil(games[t] / nPairs);
+    for (const c of cnt[t]) o += Math.max(0, c - hi) + Math.max(0, lo - c);
+  }
+  return o;
+}
+
+function walkStepsFor(weeks, nPairs) {
+  return Math.max(2000, Math.min(200000, Math.floor(2e8 / (weeks * nPairs * nPairs))));
+}
+
+// A focused random walk (the WalkSAT idea) on the season's out-of-bounds cells. Each step picks one
+// team-pair cell outside the bound at random. If the team has too many weeks on that pair, the
+// moves are swaps that take one of its matches off the pair (with any other match that week); if
+// too few, swaps that bring one of its matches onto the pair. The step takes the move that leaves
+// the fewest out-of-bounds counts (ties at random), or with probability NOISE any of those moves,
+// which is what gets it out of the local minima the week re-solves stop in. Deterministic per seed;
+// the best plan seen is returned.
+const NOISE = 0.2;
+function walkLanes(source, nTeams, nPairs, seed, steps) {
+  const plan = source.map((wk) => wk.map((m) => m.slice()));
+  const W = plan.length, rnd = mulberry32(seed * 7919 + 17);
+  const cnt = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
+  const at = Array.from({ length: nTeams }, () => new Array(W).fill(-1)); // team -> week -> match index
+  const games = new Array(nTeams).fill(0);
+  plan.forEach((wk, w) => wk.forEach(([a, b, p], i) => { cnt[a][p]++; cnt[b][p]++; at[a][w] = i; at[b][w] = i; games[a]++; games[b]++; }));
+  const lo = games.map((g) => Math.floor(g / nPairs)), hi = games.map((g) => Math.ceil(g / nPairs));
+  const off = (t, c) => Math.max(0, c - hi[t]) + Math.max(0, lo[t] - c);
+  const move = (t, p, q) => off(t, cnt[t][p] - 1) - off(t, cnt[t][p]) + off(t, cnt[t][q] + 1) - off(t, cnt[t][q]);
+  let f = 0;
+  for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) f += off(t, cnt[t][p]);
+  let best = f, bestPlan = plan.map((wk) => wk.map((m) => m.slice()));
+  const cells = [];
+  for (let step = 0; step < steps && f > 0; step++) {
+    cells.length = 0;
+    for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) if (off(t, cnt[t][p])) cells.push(t * nPairs + p);
+    const cell = cells[Math.floor(rnd() * cells.length)];
+    const t = Math.floor(cell / nPairs), p = cell % nPairs, over = cnt[t][p] > hi[t];
+    const moves = [];
+    let bestDelta = Infinity, bestMoves = [];
+    for (let w = 0; w < W; w++) {
+      const i = at[t][w];
+      if (i < 0) continue;
+      const A = plan[w][i];
+      if (over ? A[2] !== p : A[2] === p) continue;
+      for (let j = 0; j < nPairs; j++) {
+        if (j === i) continue;
+        const B = plan[w][j];
+        if (!over && B[2] !== p) continue;
+        const q = A[2], r = B[2];
+        const d = move(A[0], q, r) + move(A[1], q, r) + move(B[0], r, q) + move(B[1], r, q);
+        moves.push(w, i, j);
+        if (d < bestDelta) { bestDelta = d; bestMoves = [w, i, j]; } else if (d === bestDelta) bestMoves.push(w, i, j);
+      }
+    }
+    if (!moves.length) continue;
+    const pool = rnd() < NOISE ? moves : bestMoves;
+    const k = 3 * Math.floor(rnd() * (pool.length / 3));
+    const w = pool[k], i = pool[k + 1], j = pool[k + 2];
+    const A = plan[w][i], B = plan[w][j], q = A[2], r = B[2];
+    for (const u of [A[0], A[1]]) { f -= off(u, cnt[u][q]) + off(u, cnt[u][r]); cnt[u][q]--; cnt[u][r]++; f += off(u, cnt[u][q]) + off(u, cnt[u][r]); }
+    for (const u of [B[0], B[1]]) { f -= off(u, cnt[u][q]) + off(u, cnt[u][r]); cnt[u][r]--; cnt[u][q]++; f += off(u, cnt[u][q]) + off(u, cnt[u][r]); }
+    A[2] = r; B[2] = q;
+    if (f < best) { best = f; bestPlan = plan.map((wk) => wk.map((m) => m.slice())); }
+  }
+  return bestPlan;
 }
 
 function kicksFor(weeks, nPairs) {
