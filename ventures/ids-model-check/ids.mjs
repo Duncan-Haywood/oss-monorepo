@@ -936,24 +936,33 @@ export function applies(spec, model, ctx, walk = false) {
   // and starter files have 153 distinct ones, and the ten that take every
   // entity of HHS MEP (665,224) each ran every facet on every entity
   // (eval/applies-cache-2026-11-18.md). The result is kept per model, keyed
-  // on the facets' full content, and held compactly: a result in file order
-  // that takes most of the model is kept as the entities it leaves out.
+  // on the facets' full content, and held off the JS heap (the 219 MB
+  // federated model's run fits a 1 GB heap with almost nothing to spare): a
+  // result in file order that takes most of the model as the file positions
+  // of the entities it leaves out, any other as its entities' ids, both in
+  // Int32Arrays.
   const c = appliesCacheFor(model, ctx);
   const key = facetsKey(spec.applicability);
   const got = c.map.get(key);
-  if (got) return got.all ? allBut(model, got.except) : got.hits;
+  if (got) return got.except ? allBut(model, got.except) : got.ids ? fromIds(model, got.ids) : got.hits;
   const r = appliesUncached(spec, model, ctx, false);
+  const hits = r.hits;
   const n = model.entities.size;
-  if (r.fileOrder && r.hits.length > n / 2) {
-    const except = new Set();
-    let i = 0;
-    for (const e of model.entities.values()) { if (r.hits[i] === e) i++; else except.add(e.id); }
-    if (c.budget >= except.size) { c.budget -= except.size; c.map.set(key, { all: true, except }); }
-  } else if (c.budget >= r.hits.length) {
-    c.budget -= r.hits.length;
-    c.map.set(key, { hits: r.hits });
+  if (r.fileOrder && hits.length > n / 2) {
+    const left = n - hits.length;
+    if (c.budget >= left) {
+      const except = new Int32Array(left);
+      let i = 0, j = 0, pos = 0;
+      for (const e of model.entities.values()) { if (hits[i] === e) i++; else except[j++] = pos; pos++; }
+      c.budget -= left;
+      c.map.set(key, { except });
+    }
+  } else if (c.budget >= hits.length) {
+    c.budget -= hits.length;
+    const ids = hits.every((e) => (e.id | 0) === e.id) ? Int32Array.from(hits, (e) => e.id) : null;
+    c.map.set(key, ids ? { ids } : { hits });
   }
-  return r.hits;
+  return hits;
 }
 
 // What a facet tests, for the applicability cache's key: its own fields, not
@@ -965,19 +974,29 @@ export function facetsKey(facets) {
 
 // One cache per model and per check context: an IFC2X3 entity facet reads
 // the type map, and a property value's units read measureUnits. The budget is
-// the model's entity count in kept references (8 bytes each on a 64-bit
-// heap, 29 MB on the 219 MB federated model), so the cache cannot grow past
-// one more copy of the entity list however many IDS files are checked.
+// the model's entity count in kept entries (4 bytes each, 15 MB on the 219 MB
+// federated model), so the cache cannot grow past that however many IDS files
+// are checked.
 function appliesCacheFor(model, ctx) {
   const c = model._appliesCache;
   if (c && c.typeMap === ctx.typeMap && c.measureUnits === model.measureUnits) return c;
   return (model._appliesCache = { typeMap: ctx.typeMap, measureUnits: model.measureUnits, map: new Map(), budget: model.entities.size, verdicts: new Map() });
 }
 
+// Every entity in file order but those at the (ascending) positions given.
+// The list is allocated at its final size: grown by push, a 3.7 million
+// entry list leaves its outgrown copies as garbage, enough to tip the 219 MB
+// federated run over a 1 GB heap.
 function allBut(model, except) {
-  const out = [];
-  if (!except.size) { for (const e of model.entities.values()) out.push(e); return out; }
-  for (const e of model.entities.values()) if (!except.has(e.id)) out.push(e);
+  const out = new Array(model.entities.size - except.length);
+  let i = 0, j = 0, pos = 0;
+  for (const e of model.entities.values()) { if (j < except.length && except[j] === pos) j++; else out[i++] = e; pos++; }
+  return out;
+}
+
+function fromIds(model, ids) {
+  const out = new Array(ids.length);
+  for (let i = 0; i < ids.length; i++) out[i] = model.entities.get(ids[i]);
   return out;
 }
 

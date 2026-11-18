@@ -33,13 +33,13 @@ does (`maxFailed: 1000`). On main (`bed94d087`):
 - **Applicability results, per model** (`applies`). Keyed on the facets' full
   content (`facetsKey`: each facet's own fields as JSON, without the caches a
   facet keeps on itself or the regexes compiled from its patterns, which are
-  in the key as patterns). A result in file order that takes more than half
-  the model is kept as the entities it leaves out (`entity (any)`: an empty
-  set; `attribute (any)`: 3 ids) and rebuilt by one walk. A result from an
-  entity facet's pool is in class order, not file order, so it is kept as the
-  list. The cache holds at most one model's entity count in references in
-  all (29 MB on the 219 MB federated model), whatever the number of IDS
-  files.
+  in the key as patterns). Held off the JS heap, in `Int32Array`s: a result in
+  file order that takes more than half the model as the file positions of the
+  entities it leaves out (`entity (any)`: none; `attribute (any)`: 3), rebuilt
+  by one walk; any other (an entity facet's pool is in class order, not file
+  order) as its entities' ids, looked up again in the entities Map. The cache
+  holds at most one model's entity count of entries in all (15 MB on the
+  219 MB federated model), whatever the number of IDS files.
 - **Facet verdicts, per model** (`verdictSlot`, `verdict`). A facet run over a
   pool of more than a quarter of the model keeps each entity's verdict in one
   byte by file position (`fileOrder`): not yet tested, OK, ABSENT (failed with
@@ -70,19 +70,40 @@ two runs each, main and this change alternating.
 
 | model | main | this change | reports |
 |---|---|---|---|
-| HHS MEP 39.6 MB | 6.7, 6.2 s; 631 MB RSS | 4.5, 4.7 s; 534 MB | identical |
-| HHS architect 13.1 MB | 3.0, 3.0 s; 286 MB | 2.4, 2.4 s; 284 MB | identical |
-| HHS construction 3.9 MB | 1.1, 1.2 s; 178 MB | 1.0, 1.0 s; 174-208 MB | identical |
-| Schultz Residence 22.5 MB | 3.3, 3.3 s; 315 MB | 2.4, 2.5 s; 286 MB | identical |
-FEDROWS
+| HHS MEP 39.6 MB | 6.3, 7.0 s; 633 MB RSS | 5.3, 5.0 s; 484 MB | identical |
+| HHS architect 13.1 MB | 3.3, 3.1 s; 288 MB | 2.3, 2.4 s; 287 MB | identical |
+| HHS construction 3.9 MB | 1.3, 1.1 s; 177 MB | 1.1, 1.0 s; 173 MB | identical |
+| Schultz Residence 22.5 MB | 3.4, 3.4 s; 315 MB | 2.5, 2.5 s; 287 MB | identical |
+| federated 219 MB, `--max-old-space-size=2048` | 60.4 s, 1,823 MB | 43.1 s, 1,714 MB | identical |
+| federated 219 MB, `--max-old-space-size=1024` | 94.2, 100.5, 92.3 s (3 of 3 finish) | 54.8 to 57.0 s (6 of 6 finish) | identical |
+
+A first round of the four smaller models, on the version before the heap
+fix below, gave the same picture (HHS MEP 6.2-6.7 s against 4.5-4.7 s).
 
 The federated model is `eval/federate.mjs` over the nine exports listed in
-`eval/heap-200mb-2026-11-17.md` (3,671,279 entities, IFC2X3). One run each.
+`eval/heap-200mb-2026-11-17.md` (3,671,279 entities, IFC2X3). One run at 2 GB; the 1 GB runs are listed one by one.
+
+### Under a 1 GB heap
+
+The 219 MB federated model with the 68 files only just fits a 1 GB heap on
+main: 991 MB live after a forced collection at the end (measured with
+`--expose-gc` after each file), peak 1,031-1,038 MB, 92-100 s of mostly
+collection. The first version of the cache kept list results as arrays of
+entity references and failed there: out of memory in 1 of 1 runs. Live
+memory was 995 MB, 4 MB over main.
+
+- With lists kept as `Int32Array` ids and left-out entities as file positions
+  (off the JS heap), live memory was 991 MB, the same as main's. It still ran
+  out of memory in 2 of 6 runs, and its sampled peak was 1,085 MB in every run
+  that finished.
+- The rest was `allBut` growing its 3.7 million entry list with `push`, which
+  leaves each outgrown copy as garbage. Allocated at its final size, the peak
+  is 1,039-1,041 MB, near main's, and 6 of 6 runs finished, in 54.8 to 57.0 s.
 
 ## Checks
 
-- `node --test *.test.mjs`: all pass (two skipped, as before: they need
-  fetched corpora).
+- `node --test *.test.mjs`: 200 tests, 198 pass, 2 skipped (as before: they
+  need fetched corpora).
 - New `applies-cache.test.mjs`: five IDS files built to repeat facets (the
   same applicability in several specifications, a requirement equal to an
   applicability facet, a requirement written twice, the same facet under every
@@ -91,8 +112,9 @@ The federated model is `eval/federate.mjs` over the nine exports listed in
   checked against one shared copy of `samples/tiny-house.ifc` and then each
   alone: every report equals the report of a fresh model with
   `facetCache: false`. A cached applicability result equals the walk's, in
-  order, on the first call and the second. Seven planted faults each fail it:
-  the key dropping `value`, `pattern` or `dataType`; the left-out set ignored;
+  order, on the first call and the second. Nine planted faults each fail it:
+  the key dropping `value`, `pattern` or `dataType`; the left-out positions
+  ignored; a kept id list read back wrong;
   ABSENT stored for FAIL; and an entity, optional or prohibited requirement
   passing whatever its verdict. (Three weaker faults, which make a verdict
   say "fails" where it passes, do not change a report, as designed: the
@@ -104,5 +126,6 @@ The federated model is `eval/federate.mjs` over the nine exports listed in
 
 - The ifcXML reader still builds every entity up front (lazy ifcXML).
 - `AttributeFacet.test` on every entity is still the largest self time on HHS
-  MEP, now for facets that differ by value (the fixture's three
+  MEP after the garbage collector (12.4% against 13.6%, profiled after the
+  change), now for facets that differ by value (the fixture's three
   `attribute (any) = ...` requirements), which a verdict cache cannot share.

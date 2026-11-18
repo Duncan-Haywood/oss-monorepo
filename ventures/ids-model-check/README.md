@@ -502,8 +502,10 @@ entities it leaves out), and, for a facet run over more than a quarter of the
 model, one byte per entity for its verdict (at most 8 facets, the least
 recently used dropped). On HHS MEP the 68 files ran 11.4 million facet tests,
 7.9 million of them repeats; they now run 3.7 million. The 68 files take
-4.5-4.7 s there, where main took 6.2-6.7 s, and 2.4-2.5 s on Schultz
-Residence, where it took 3.3 s. Every report is identical, and
+5.0-5.3 s there, where main took 6.3-7.0 s, 2.5 s on Schultz Residence, where
+it took 3.4 s, and 43.1 s on the 219 MB federated model, where it took 60.4 s
+(55-57 s under a 1 GB heap, where it took 92-100 s; the kept results live
+off the JS heap, so the run fits as main's does). Every report is identical, and
 `check(..., { facetCache: false })` turns the caches off.
 
 ## How it was checked

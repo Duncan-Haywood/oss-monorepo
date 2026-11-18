@@ -3,7 +3,7 @@ title: "Seven of every ten tests our IDS checker ran were repeats"
 seo_title: "Faster IDS checks: cache facet results across specifications"
 date: 2026-11-18
 tags: [bim, ifc, ids, performance]
-description: "On a 40 MB MEP export, 68 public IDS files ran 11.4 million facet tests, 7.9 million repeats. Keeping the results cut the run by a quarter; same reports."
+description: "On a 40 MB MEP export, 68 public IDS files ran 11.4 million facet tests, 7.9 million repeats. Keeping the results cut the run 20-30%, same reports."
 ---
 
 An IDS file is a list of specifications. Each one says which elements it
@@ -56,16 +56,30 @@ plants faults of that kind to make sure it notices.
 
 The same 68 files now run 3,650,434 facet tests on that model, and 138,794
 of them repeat (mostly the second test that writes the reasons of the up to
-1,000 failures a rule keeps). Two runs each, Node 22, 4 vCPU; every report
-hashes the same as before.
+1,000 failures a rule keeps). Two runs each on the four exports, Node 22,
+4 vCPU; every report hashes the same as before.
 
 | model | before | after |
 |---|---|---|
-| HHS Office MEP, 39.6 MB | 6.2-6.7 s | 4.5-4.7 s |
-| HHS Office architect, 13.1 MB | 3.0 s | 2.4 s |
-| HHS Office construction, 3.9 MB | 1.1-1.2 s | 1.0 s |
-| Schultz Residence, 22.5 MB | 3.3 s | 2.4-2.5 s |
-FEDROWS
+| HHS Office MEP, 39.6 MB | 6.3-7.0 s | 5.0-5.3 s |
+| HHS Office architect, 13.1 MB | 3.1-3.3 s | 2.3-2.4 s |
+| HHS Office construction, 3.9 MB | 1.1-1.3 s | 1.0-1.1 s |
+| Schultz Residence, 22.5 MB | 3.4 s | 2.5 s |
+| federated test model, 219 MB, 2 GB heap | 60.4 s | 43.1 s |
+| federated test model, 219 MB, 1 GB heap | 92-100 s | 55-57 s |
+
+## The cache that tipped a run over 1 GB
+
+The first version kept list results as arrays of element references. On
+the federated model under a 1 GB heap, the run had less than 40 MB to spare
+before the change. This version ran out of memory although it held only
+4 MB more. Moving the kept results into
+`Int32Array`s (element ids, or the positions of the few elements a result
+leaves out) put the live heap back to main's 991 MB, but 2 of 6 runs still
+failed. What remained was garbage: rebuilding "every entity" grew a
+3.7 million entry list one `push` at a time, and each outgrown copy had to
+be collected. Allocated at its final size, the peak heap matches main's and
+6 of 6 runs finished.
 
 A new test builds five IDS files that repeat facets on purpose. It checks
 them and the three starter files against one shared copy of the sample house,
