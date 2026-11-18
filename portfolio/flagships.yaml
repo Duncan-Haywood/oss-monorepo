@@ -519,5 +519,7 @@ flagships:
       (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 7.9 to 4.6 s, same
       reports); file-order candidate lists 2026-11-18
       (eval/file-order-candidates-2026-11-18.md: pooled specs 2.9x on HHS MEP, same
-      reports); next: lazy ifcXML, a facet-result cache across specs that apply to
-      most of a model. More open items: NEXT.md.
+      reports); facet-result cache 2026-11-18 (eval/applies-cache-2026-11-18.md: 68
+      IDS on HHS MEP 11.4M facet tests to 3.7M, 6.3-7.0 to 5.0-5.3 s; 219 MB 60.4 to
+      43.1 s, fits 1 GB); next: lazy ifcXML, attribute value tests on every entity.
+      More open items: NEXT.md.
