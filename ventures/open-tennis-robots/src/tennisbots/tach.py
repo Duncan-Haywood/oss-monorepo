@@ -81,8 +81,22 @@ def edge_jitter(periods: list[float]) -> dict:
             "periods": len(kept), "dropped": dropped}
 
 
+# A capture-timed tach (2026-11-18, firmware/esp32/capture.py, README "A tach timed in hardware"): with the edge times
+# latched by MCPWM capture the handler's own jitter never reached the periods, and on the simulator the survey named and
+# advised 36 of 54 spread takes at 1.5-3 us of handler jitter (0 of 54 by the pin interrupt). It cannot help a sensor's
+# own error, so the advice names it as a test: log again with capture=True and compare.
+CAPTURE_HINT = ("If this log came from the pin interrupt, log the same wheel again with "
+                "tach_log.run(pin, 600, capture=True): if that reads lower, the jitter was the handler's and "
+                "config.TACH_CAPTURE = True removes it (simulator: 36 of 54 spread takes advised at 1.5-3 us of "
+                "handler jitter, 0 of 54 without); if not, it is the sensor's own")
+
+
 def jitter_advice(jitter_us: float) -> str:
     """One line: what the contact-time survey can do at this edge jitter (the simulator's bands)."""
+    return _band_advice(jitter_us) + ("" if jitter_us < SURVEY_SPEAKS_US else ". " + CAPTURE_HINT)
+
+
+def _band_advice(jitter_us: float) -> str:
     if jitter_us < SURVEY_SPEAKS_US:
         return (f"edge jitter {jitter_us:g} us: the contact-time survey can name a spread take (on the simulator a "
                 f"clean tach, reading 0.4 us, named and advised 14 of 18 spread takes); trust its TAKE_US advice")

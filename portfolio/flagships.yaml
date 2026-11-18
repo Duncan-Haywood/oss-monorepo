@@ -392,13 +392,13 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The take survey's jitter limit" (both
-      sets: 14 of 18 spread takes advised on a clean tach, 4 at 0.5 us, 0 of 54 from
-      1.5 us; `tennisbots tach-jitter` reads a logged tach,
-      eval/take-survey-jitter-2026-11-18.txt). Next: a timer-capture tach (MCPWM
-      capture) in the simulator and firmware, opt-in; short ESC lags read ~10% low
-      with 16; SURVEY_QUEUE 3's heap; ball hold: WHEEL_RPM_FULL error's cost on 0.2
-      s wheels; an ESC with its own speed loop.
+      see firmware/esp32/README.md, latest "A tach timed in hardware" (opt-in
+      TACH_CAPTURE, MCPWM capture; simulated, 36 of 54 spread takes advised at 1.5-3
+      us of handler jitter, interrupt 0 of 54;
+      eval/take-survey-capture-2026-11-18.txt). Next: periods finer than 1 us from
+      the capture (PeriodTach units; the clean tach's 0.4 us floor); short ESC lags
+      read ~10% low with 16; SURVEY_QUEUE 3's heap; ball hold: WHEEL_RPM_FULL
+      error's cost on 0.2 s wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

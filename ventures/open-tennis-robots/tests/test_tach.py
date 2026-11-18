@@ -61,6 +61,13 @@ class TachJitterTest(unittest.TestCase):
         self.assertIn("near its limit", tach.jitter_advice(1.1))
         self.assertIn("cannot see", tach.jitter_advice(2.0))
 
+    def test_capture_hint_from_the_limit(self):
+        # 2026-11-18 (README "A tach timed in hardware"): a reading at or past the survey's limit names the capture test
+        self.assertNotIn("capture=True", tach.jitter_advice(0.4))
+        for j in (0.7, 2.0):
+            self.assertIn("capture=True", tach.jitter_advice(j))
+            self.assertIn("TACH_CAPTURE", tach.jitter_advice(j))
+
     def test_cli(self):
         with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False) as f:
             f.write("# tach_log pin 34 400 periods (us)\n")

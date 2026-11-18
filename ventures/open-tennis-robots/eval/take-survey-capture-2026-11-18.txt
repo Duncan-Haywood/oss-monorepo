@@ -30,3 +30,26 @@ its value at 0 us; (d) the count named and advised varies by at most 2 across th
 (b) hold, the README says the capture keeps the survey's voice through handler jitter and `tennisbots tach-jitter`
 names TACH_CAPTURE when a log reads 0.55 us or more; TACH_CAPTURE stays off by default either way (never run on a
 board). If (a) fails, the README reports the miss and the advice line is not added.
+
+## held out: --capture --tach-capture --lag 0.45 --seed 11, then --score (run after the pre-registration was committed, 8e8ba6cb9; 72 drills, none aborted)
+72 survey drills (wheel lag 0.45 s, seed 11), the board's window of 8; each build's pick (refined, to 0.5 ms), best / step share and the advice (advised when the share is at most 0.6)
+  instant       | 0 us: 0/1.00 2.5/1.00 0/1.00 | 0.5 us: 0/1.00 2.5/0.97 0/1.00 | 1 us: 0/1.00 1.5/1.00 1/0.97 | 1.5 us: 0/1.00 2/0.97 0/1.00 | 2 us: 0/1.00 2.5/1.00 0/1.00 | 3 us: 0/1.00 1.5/1.00 0/1.00
+  halfsine 3 ms | 0 us: 3/0.77 3/0.48* 3/0.52* | 0.5 us: 3/0.52* 3/0.49* 2.5/0.60 | 1 us: 3.5/0.72 3/0.51* 3.5/0.97 | 1.5 us: 3/0.42* 3/0.51* 3.5/0.97 | 2 us: 3/0.45* 3/0.37* 3/0.48* | 3 us: 3/0.53* 3/0.44* 3/0.69
+  halfsine 6 ms | 0 us: 6/0.36* 6/0.35* 6/0.40* | 0.5 us: 6/0.37* 6/0.35* 6/0.40* | 1 us: 6/0.29* 6/0.44* 6/0.53* | 1.5 us: 6/0.34* 6/0.34* 6/0.57* | 2 us: 6/0.29* 6/0.34* 6/0.54* | 3 us: 6/0.27* 6/0.34* 6/0.40*
+  front 4 ms    | 0 us: 4/0.33* 4.5/0.33* 3.5/0.94 | 0.5 us: 4/0.33* 4.5/0.34* 3.5/0.94 | 1 us: 4/0.32* 4.5/0.28* 0/1.00 | 1.5 us: 4/0.46* 4.5/0.28* 2/0.97 | 2 us: 4/0.30* 4.5/0.28* 2/0.97 | 3 us: 4/0.36* 4.5/0.34* 4.5/0.45*
+  (pick ms / share per launcher 0, 1, 2; * = advised)
+
+Per jitter: spread takes named within 1 ms and advised (of 9); instant builds advised (of 3, a wrong re-flash); picks within 1 ms (of 12); mean best / step share on the spread takes
+    0 us: named and advised 7, instant advised 0, within 1 ms 11 of 12, mean share 0.50
+  0.5 us: named and advised 7, instant advised 0, within 1 ms 11 of 12, mean share 0.48
+    1 us: named and advised 6, instant advised 0, within 1 ms 10 of 12, mean share 0.56
+  1.5 us: named and advised 7, instant advised 0, within 1 ms 10 of 12, mean share 0.54
+    2 us: named and advised 8, instant advised 0, within 1 ms 10 of 12, mean share 0.45
+    3 us: named and advised 8, instant advised 0, within 1 ms 11 of 12, mean share 0.43
+
+Every clause held: (a) 7, 8 and 8 of 9 named and advised at 1.5, 2 and 3 us; (b) no instant build advised; (c) mean share
+0.50 at 0 us, 0.43 at 3 us; (d) 6 to 8 across the six jitters. Both sets, named and advised of 18 spread takes per
+jitter: capture 11, 11, 10, 11, 12, 13 (0 to 3 us); pin interrupt (eval/take-survey-jitter-2026-11-18.txt) 14, 4, 1, 0,
+0, 0. From 1.5 us: 36 of 54 against 0 of 54. At 0 us the capture advised 11 against the interrupt's 14: the two read the
+same edges floored to whole microseconds on grids shifted by the first edge's phase, and the drills drift apart from
+there (tests/test_capture.py), so that gap is one draw per set, not a cost the capture was shown to carry.
