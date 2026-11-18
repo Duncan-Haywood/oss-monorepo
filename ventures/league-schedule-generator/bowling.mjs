@@ -21,6 +21,7 @@
 
 import { roundRobin, dayLabel, dayIso, csvCell, parseTeams, mulberry32 } from "./calc.mjs";
 import { LANE_TABLE } from "./bowling-lane-table.mjs";
+import { LANE_SHAPES } from "./bowling-avoid-shapes.mjs";
 
 export const VACANCY = "Vacancy";
 
@@ -97,7 +98,7 @@ const BALANCE = 8;
  *       "greedy" (week-by-week assignment priced on counts so far),
  *       "polished" (greedy, then the iterated local search below; the default).
  */
-export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 1, iterations = null, avoid = null } = {}) {
+export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 1, iterations = null, avoid = null, shapes = true } = {}) {
   const ban = banMatrix(nTeams, nPairs, avoid);
   if (mode === "naive") return rounds.map((wk) => wk.map(([a, b], k) => [a, b, k]));
   if (mode === "rotate") return rounds.map((wk, w) => wk.map(([a, b], k) => [a, b, (k + w) % nPairs]));
@@ -124,7 +125,7 @@ export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 
   if (ban && avoidViolations(plan, avoid).length) return plan;
   const lim = laneLimits(plan, nTeams, nPairs, avoid);
   const kicks = iterations ?? kicksFor(plan.length, nPairs);
-  const stored = tablePlan(rounds, nTeams, nPairs, seed, avoid);
+  const stored = tablePlan(rounds, nTeams, nPairs, seed, avoid) ?? (ban && shapes && shapePlan(rounds, nTeams, nPairs, seed, avoid));
   if (stored) return polishLanes(stored, nTeams, nPairs, seed, kicks, lim);
   const polished = polishLanes(plan, nTeams, nPairs, seed, kicks, lim);
   if (offBound(polished, nTeams, nPairs, avoid) === 0) return polished;
@@ -232,6 +233,104 @@ function tablePlan(rounds, nTeams, nPairs, seed, avoid = null) {
     if (seen.size !== nPairs || wk.some((m) => !(m[2] >= 0))) return null;
     plan.push(wk);
   }
+  return offBound(plan, nTeams, nPairs, avoid) === 0 ? plan : null;
+}
+
+// Lane limits on a season the search misses (bowling-avoid-shapes.mjs, from
+// eval/bowling-avoid-shapes.py): one SAT answer per limit *shape*, which teams avoid which pairs up
+// to renaming both. Balance does not see names, so the answer for slots 0 and 1 of the circle
+// method avoiding pair 0 serves any two teams avoiding any one pair, once bowlingSchedule deals
+// those teams the shape's slots (avoidShapeSlots) and the pairs are renamed to match.
+const SHAPE_MAX_TEAMS = 4, SHAPE_MAX_PAIRS = 5;
+
+function permutations(xs) {
+  if (xs.length <= 1) return [xs.slice()];
+  const out = [];
+  xs.forEach((x, i) => { for (const rest of permutations([...xs.slice(0, i), ...xs.slice(i + 1)])) out.push([x, ...rest]); });
+  return out;
+}
+
+function parseShape(shape) {
+  return shape.split(";").map((part) => { const [t, ps] = part.split(":"); return [Number(t), ps.split(",").map(Number)]; });
+}
+
+/**
+ * Match the organiser's limits against a shape: returns { slotTeam, pairOf } (slotTeam[i] is the
+ * team dealt shape slot i, pairOf[j] the real pair standing for shape pair j) or null. Slots are
+ * 0..k-1 and shape pairs 0..m-1, in order.
+ */
+export function matchShape(avoid, shape, nPairs) {
+  const limited = [];
+  avoid.forEach((l, t) => { if (l && l.length) limited.push(t); });
+  const spec = parseShape(shape);
+  if (limited.length !== spec.length || limited.length > SHAPE_MAX_TEAMS) return null;
+  if (spec.some(([t], i) => t !== i)) return null;
+  const used = [...new Set(limited.flatMap((t) => avoid[t]))].sort((a, b) => a - b);
+  const shapePairs = new Set(spec.flatMap(([, ps]) => ps));
+  if (used.length !== shapePairs.size || used.length > SHAPE_MAX_PAIRS || used.some((p) => p >= nPairs)) return null;
+  if ([...shapePairs].some((j) => j >= used.length)) return null;
+  const key = (ps) => [...ps].sort((a, b) => a - b).join(",");
+  for (const order of permutations(limited)) {
+    if (order.some((t, i) => avoid[t].length !== spec[i][1].length)) continue;
+    for (const pairOf of permutations(used)) {
+      if (spec.every(([, ps], i) => key(ps.map((j) => pairOf[j])) === key(avoid[order[i]]))) return { slotTeam: order, pairOf };
+    }
+  }
+  return null;
+}
+
+function shapeEntry(nTeams, weeks, avoid, nPairs) {
+  if (!avoid || !avoid.some((l) => l && l.length)) return null;
+  const prefix = `${nTeams},${weeks}|`;
+  for (const [k, code] of Object.entries(LANE_SHAPES)) {
+    if (!k.startsWith(prefix)) continue;
+    const m = matchShape(avoid, k.slice(prefix.length), nPairs);
+    if (m) return { ...m, code };
+  }
+  return null;
+}
+
+/**
+ * The team dealt each circle-method slot, for a season whose limits have a stored shape answer
+ * (the limited teams take the shape's slots, the rest keep their order), or null.
+ */
+export function avoidShapeSlots(nTeams, weeks, avoid, nPairs) {
+  const e = shapeEntry(nTeams, weeks, avoid, nPairs);
+  if (!e) return null;
+  const rest = Array.from({ length: nTeams }, (_, t) => t).filter((t) => !e.slotTeam.includes(t));
+  return [...e.slotTeam, ...rest];
+}
+
+// The stored shape answer laid onto these rounds: used only if the rounds are the circle method
+// dealt by avoidShapeSlots (every week the same matches, any order), every match lands on a pair
+// its teams may use, and every count is inside its target; else null and the search runs. The pairs
+// no limit names are relabelled by the seed, as tablePlan does.
+function shapePlan(rounds, nTeams, nPairs, seed, avoid) {
+  const e = shapeEntry(nTeams, rounds.length, avoid, nPairs);
+  if (!e || e.code.length !== rounds.length * nPairs) return null;
+  const slotTeam = avoidShapeSlots(nTeams, rounds.length, avoid, nPairs);
+  const free = Array.from({ length: nPairs }, (_, p) => p).filter((p) => !e.pairOf.includes(p));
+  if (seed !== 1) {
+    const rnd = mulberry32(seed * 104729 + 3);
+    for (let i = free.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [free[i], free[j]] = [free[j], free[i]]; }
+  }
+  const pairOf = [...e.pairOf, ...free];
+  const cycle = roundRobin(nTeams);
+  const plan = [];
+  for (let w = 0; w < rounds.length; w++) {
+    if (rounds[w].length !== nPairs) return null;
+    const where = new Map();
+    cycle[w % cycle.length].matches.forEach(([a, b], m) => {
+      const ta = slotTeam[a], tb = slotTeam[b];
+      where.set(Math.min(ta, tb) * nTeams + Math.max(ta, tb), pairOf[parseInt(e.code[w * nPairs + m], 36)]);
+    });
+    const seen = new Set();
+    const wk = rounds[w].map(([a, b]) => [a, b, where.get(Math.min(a, b) * nTeams + Math.max(a, b))]);
+    for (const m of wk) { if (!(m[2] >= 0)) return null; seen.add(m[2]); }
+    if (seen.size !== nPairs) return null;
+    plan.push(wk);
+  }
+  if (avoidViolations(plan, avoid).length) return null;
   return offBound(plan, nTeams, nPairs, avoid) === 0 ? plan : null;
 }
 
@@ -431,6 +530,8 @@ export function parseLaneAvoid(text, teams, nPairs, firstLane = 1) {
  *         firstLane = 1, mode = "polished", seed = 1,
  *         laneAvoid: text for parseLaneAvoid, or an array of pair-index lists per team }
  */
+const modeOf = (spec) => spec.mode ?? "polished";
+
 export function bowlingSchedule(spec) {
   const errors = [];
   let teams;
@@ -465,17 +566,6 @@ export function bowlingSchedule(spec) {
   const days = [];
   for (let d = spec.start; days.length < weeks; d += 7) if (!skipSet.has(d)) days.push(d);
   const skipped = [...skipSet].filter((d) => d >= spec.start && d <= days[days.length - 1] && (d - spec.start) % 7 === 0).sort((a, b) => a - b);
-  const cycle = roundRobin(n); // n even here, so every round has n/2 matches and no bye
-  const rrRounds = [];
-  const roundOf = [];
-  let k = 0;
-  for (let w = 1; w <= weeks; w++) {
-    if (positionSet.has(w)) continue;
-    const r = cycle[k % cycle.length];
-    rrRounds.push(r.matches);
-    roundOf.push({ week: w, cycle: Math.floor(k / cycle.length) + 1, round: (k % cycle.length) + 1 });
-    k++;
-  }
   let avoid = null;
   if (Array.isArray(spec.laneAvoid)) avoid = teams.map((_, t) => (spec.laneAvoid[t] ?? []).slice());
   else if (spec.laneAvoid) {
@@ -484,8 +574,24 @@ export function bowlingSchedule(spec) {
     avoid = parsed.avoid;
   }
   if (avoid && !avoid.some((l) => l.length)) avoid = null;
+  const cycle = roundRobin(n); // n even here, so every round has n/2 matches and no bye
+  const rrWeeks = Array.from({ length: weeks }, (_, i) => i + 1).filter((w) => !positionSet.has(w)).length;
+  // With lane limits on a season that has a stored shape answer, the limited teams are dealt the
+  // shape's slots of the circle method (still a plain round robin, every team meeting every other
+  // as often); with none, slot t is team t as before.
+  const slotTeam = (avoid && modeOf(spec) === "polished" && avoidShapeSlots(n, rrWeeks, avoid, nPairs)) || null;
+  const rrRounds = [];
+  const roundOf = [];
+  let k = 0;
+  for (let w = 1; w <= weeks; w++) {
+    if (positionSet.has(w)) continue;
+    const r = cycle[k % cycle.length];
+    rrRounds.push(slotTeam ? r.matches.map(([a, b]) => [slotTeam[a], slotTeam[b]]) : r.matches);
+    roundOf.push({ week: w, cycle: Math.floor(k / cycle.length) + 1, round: (k % cycle.length) + 1 });
+    k++;
+  }
   const labels = pairLabels(nPairs, firstLane);
-  const plan = assignLanes(rrRounds, n, nPairs, { mode: spec.mode ?? "polished", seed: spec.seed ?? 1, avoid });
+  const plan = assignLanes(rrRounds, n, nPairs, { mode: modeOf(spec), seed: spec.seed ?? 1, avoid });
   if (avoid) {
     const bad = avoidViolations(plan, avoid);
     if (bad.length) {

@@ -4,10 +4,12 @@
 // the limits on the same round robin:
 //   hand: the page's unconstrained season, then every week an avoiding team lands on its pair,
 //         its match swaps pairs with the nearest match that may use that pair (an organiser's fix);
-//   page: assignLanes(..., { avoid }), the limits inside the search.
+//   page: bowlingSchedule(... laneAvoid), as the page runs it: the limits inside the search, and on
+//         a season with a stored shape answer (bowling-avoid-shapes.mjs) the limited teams dealt
+//         that shape's round-robin slots.
 // "in target" = every team-pair count inside laneTargets() (the fair share once the avoided pairs
 // are taken out, floor..ceil); "off" = the summed distance outside it; violations must be 0.
-import { assignLanes, avoidViolations, laneTargets } from "../bowling.mjs";
+import { assignLanes, avoidViolations, bowlingSchedule, laneTargets } from "../bowling.mjs";
 import { roundRobin, mulberry32 } from "../calc.mjs";
 
 function measure(plan, n, P, avoid) {
@@ -60,11 +62,11 @@ for (const [kind, make] of Object.entries(kinds)) {
     const rounds = Array.from({ length: W }, (_, k) => cyc[k % cyc.length].matches);
     const hand = measure(handFix(assignLanes(rounds, n, P), avoid), n, P, avoid);
     const t0 = Date.now();
-    const page = measure(assignLanes(rounds, n, P, { avoid }), n, P, avoid);
+    const s = bowlingSchedule({ teams: Array.from({ length: n }, (_, i) => `T${i + 1}`), weeks: W, start: 20000, laneAvoid: avoid });
     const dt = Date.now() - t0; ms += dt; seasonsRun++;
-    // A violation in the page's plan means some week has no deal at all (the per-week Hungarian
-    // step is exact); bowlingSchedule() refuses such a season and names the week, so it is
-    // counted apart and left out of the totals.
+    // bowlingSchedule() refuses a season with a week that has no deal at all (the per-week
+    // Hungarian step is exact) and names the week, so it is counted apart and left out of the totals.
+    const page = s.errors.length ? { viol: 1 } : measure(s.weeks.map((wk) => wk.matches.map((m) => [m.a, m.b, m.pair])), n, P, avoid);
     if (page.viol) { tot[kind].none++; console.log(`${kind} | ${String(n).padStart(2)} ${String(W).padStart(2)} | no deal: a week where these limits cannot all hold (the page names it)`); continue; }
     for (const [k, r] of [["hand", hand], ["page", page]]) { const x = tot[kind][k]; x.all += r.at === n; x.off += r.off; x.viol += r.viol; x.rep += r.rep; }
     tot[kind].n++;
