@@ -17,3 +17,11 @@
 - (2026-11-17) India's INV-01 check on a real IRP payload
 - (2026-11-17) NLCIUS on a real Dutch file
 - (2026-11-17) open: RO_CIUS on a real ANAF file
+- (2026-11-18) open: a real business's PINT file
+- (2026-11-18) repair keeps PDF/A (veraPDF 155/155), PDF/A-3b writer passes Mustang
+- (2026-11-18) FA(3) KOR/ZAL/ROZ totals landed (README): open: a real KSeF rejection, a business's real KOR/ZAL file
+- (2026-11-18) CIUS-PT: which validator does AT run (AA/RED codes)?
+- (2026-11-18) HR: a real HR invoice, cash accounting
+- (2026-11-18) SdI: open: a real FatturaPA rejection with its file
+- (2026-11-18) ZATCA: a real KSA note
+- (2026-11-18) a real business's signed Facturae or FACe rejection (eval/facturae-gob-*)
