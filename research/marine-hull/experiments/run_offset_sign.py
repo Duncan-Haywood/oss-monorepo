@@ -93,6 +93,7 @@ _NAMES = ("KS", "TAGS", "TAG_ORDER", "RULES", "corrections")
 
 def configure():
     """6zzzg's configure() (climatology, packs), then this step's rules; before the worker pool forks."""
+    oc.use_clim(oc.OLD_CLIM)
     saved = wo.configure()
     saved.update({n: getattr(oz, n) for n in _NAMES if n not in saved})
     corrections.cache_clear()
