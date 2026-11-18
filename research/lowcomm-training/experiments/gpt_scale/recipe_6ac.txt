@@ -1,0 +1,24 @@
+H6ac-i reproduction on the standard batches against scale.jsonl (H = 32)
+  unc  seed 0: 1.6093209088 vs 1.6093209088 (+0.0e+00)  torch 2.15.0+cu132
+  unc  seed 1: 1.5713441595 vs 1.5713441595 (+0.0e+00)  torch 2.15.0+cu132
+  unc  seed 2: 1.5905685425 vs 1.5905685425 (+0.0e+00)  torch 2.15.0+cu132
+  unc  seed 3: 1.5871188045 vs 1.5871188045 (+0.0e+00)  torch 2.15.0+cu132
+  rk8  seed 0: 1.6061033309 vs 1.6061033309 (+0.0e+00)  torch 2.15.0+cu132
+  rk8  seed 1: 1.5998310149 vs 1.5998310149 (+0.0e+00)  torch 2.15.0+cu132
+  rk8  seed 2: 1.5915864334 vs 1.5915864334 (+0.0e+00)  torch 2.15.0+cu132
+  rk8  seed 3: 1.6053403765 vs 1.6053403765 (+0.0e+00)  torch 2.15.0+cu132
+H6ac-i (bit-exact, 8 checks): held
+
+per noise at H = 32, paired by seed against unc: T = clean - unc, C = full - unc, b = full - clean (std); fresh T
+  rk2  omega 1 n 4: T -0.0055 (0.0060)  C -0.0039 (0.0056)  b +0.0017 (0.0004)  | fresh T +0.0010 (0.0050) C +0.0024 (0.0048) per seed -0.0042 +0.0088 -0.0107 +0.0100  theta2 11,332  b/omega 0.0017
+        exploratory, fresh T paired by seed: H = 64 minus H = 32 -0.0133 (0.0100); H = 32 minus H = 16 +0.0048 (0.0056); midpoint of H = 16 and 64 -0.0081
+  rk4  omega 3 n 4: T -0.0085 (0.0061)  C -0.0043 (0.0066)  b +0.0042 (0.0005)  | fresh T -0.0059 (0.0082) C -0.0017 (0.0088) per seed -0.0096 +0.0179 -0.0190 -0.0131  theta2 13,736  b/omega 0.0014
+        exploratory, fresh T paired by seed: H = 64 minus H = 32 -0.0126 (0.0094); H = 32 minus H = 16 -0.0055 (0.0074); midpoint of H = 16 and 64 -0.0094
+  rk8  omega 7 n 4: T -0.0001 (0.0074)  C +0.0111 (0.0074)  b +0.0112 (0.0013)  | fresh T +0.0016 (0.0092) C +0.0117 (0.0092) per seed -0.0176 +0.0199 -0.0105 +0.0148  theta2 19,064  b/omega 0.0016
+        exploratory, fresh T paired by seed: H = 64 minus H = 32 -0.0158 (0.0117); H = 32 minus H = 16 -0.0124 (0.0125); midpoint of H = 16 and 64 -0.0000
+  unc theta2 10,248  step2 13.88
+
+H6ac-ii  (omega 3 recipe below unc on fresh by > 2 se): refuted (-0.0059, -0.7 se)
+H6ac-iii (omega 7 recipe within 2 se of unc on fresh): held (+0.0016, +0.2 se)
+H6ac-iv  (omega 3 fresh T within 2 se of the H = 16 / 64 midpoint, paired): held (T -0.0059, midpoint -0.0094, difference +0.0035, +0.4 se)
+H6ac-v   (b / omega in [0.0008, 0.0016] at all three omegas): refuted (0.0017, 0.0014, 0.0016)
