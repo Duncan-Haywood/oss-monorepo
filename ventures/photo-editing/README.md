@@ -376,7 +376,12 @@ This repo currently contains the first testable core utilities:
   window reaches (9-12% of the frame) are within 5 and at least 6 closer than the
   whole frames, so a burst panned 8-10% stays together; held-out pair recall 0.91
   to 0.985, those pans 0.07-0.77 to 0.86-1.00, for 1 more false merge in 13,695,
-  `eval/cull-pan-windows-2026-11-18.md`), keeps the best frame per group as the
+  `eval/cull-pan-windows-2026-11-18.md`; and later that day the crop match's gate
+  rose from 24 to 44, the wide-pan match's, because every 6% pan it still split had
+  windows within 0-7 bits but whole frames 25-33 apart: held-out pair recall 0.985
+  to 0.991, 6% pans 0.85-0.86 to 1.00, no added false merge in 13,695; both window
+  matches now run as one packed comparison,
+  `eval/cull-crop-gate-2026-11-18.md`), keeps the best frame per group as the
   keeper, and rejects blurred, badly exposed or (with `SHOOTFLOW_FACE_DETECTOR`)
   closed-eye frames. It writes `cull_report.json` and `cull_report.html`, and
   with `--write-xmp` a Lightroom/Bridge sidecar per photo (keeper 4 stars,

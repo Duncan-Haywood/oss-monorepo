@@ -558,6 +558,65 @@ def pan_within(packed_a: tuple[int, ...], packed_b: tuple[int, ...], limit: int)
     return counts & _LANE_HIGH != _LANE_HIGH
 
 
+# Crop and wide-pan windows in one packed check (2026-11-18,
+# eval/cull-crop-gate-2026-11-18.md). Once the crop pass's gate rose to the pan
+# pass's 44 bits both ran for most pairs, so the cull now compares a frame's
+# 49 crop pairs (its centre window against each window of the other, and each
+# of its windows against the other's centre; the centre pair once) and its 56
+# wide-pan pairs in one XOR of 105 lanes, each kind against its own limit.
+_CROP_LANE_A = (_CROP_CENTRE,) * (CROP_STEPS * CROP_STEPS) + tuple(
+    k for k in range(CROP_STEPS * CROP_STEPS) if k != _CROP_CENTRE
+)
+_CROP_LANE_B = tuple(range(CROP_STEPS * CROP_STEPS)) + (_CROP_CENTRE,) * (CROP_STEPS * CROP_STEPS - 1)
+_CROP_LANES = len(_CROP_LANE_A)
+_WINDOW_A = operator.itemgetter(*_CROP_LANE_A, *(x for x, _ in _PAN_PAIRS))
+_WINDOW_B = operator.itemgetter(*_CROP_LANE_B, *(y for _, y in _PAN_PAIRS))
+_WINDOW_LANES = _CROP_LANES + _PAN_LANES
+_W_BYTES = 8 * _WINDOW_LANES
+_WM1, _WM2, _WM4 = (int.from_bytes(bytes([b]) * _W_BYTES, "little") for b in (0x55, 0x33, 0x0F))
+_W_LOW = sum(0xFF << (64 * k) for k in range(_WINDOW_LANES))
+_W_HIGH = (_W_LOW // 0xFF) * 0x80
+_CROP_ONE = sum(1 << (64 * k) for k in range(_CROP_LANES))
+_PAN_ONE = sum(1 << (64 * k) for k in range(_CROP_LANES, _WINDOW_LANES))
+_WINDOW_BIAS: dict[tuple[int, int], int] = {}
+
+
+def window_pack(crops: Sequence[int]) -> tuple[int, ...]:
+    """(a side, b side) of a frame's crop hashes packed for ``windows_within``; () when incomplete."""
+
+    if len(crops) != CROP_STEPS * CROP_STEPS:
+        return ()
+    return (_pack(_WINDOW_A(crops)), _pack(_WINDOW_B(crops)))
+
+
+def windows_within(packed_a: tuple[int, ...], packed_b: tuple[int, ...], crop_limit: int, pan_limit: int) -> bool:
+    """Whether ``crop_distance`` is at most ``crop_limit`` or ``pan_distance`` at most ``pan_limit``.
+
+    From ``window_pack`` of each frame. A limit below 0 switches that kind off;
+    False when either frame has no crop hashes.
+    """
+
+    if not packed_a or not packed_b:
+        return False
+    crop_limit, pan_limit = max(-1, min(63, crop_limit)), max(-1, min(63, pan_limit))
+    if crop_limit < 0 and pan_limit < 0:
+        return False
+    bias = _WINDOW_BIAS.get((crop_limit, pan_limit))
+    if bias is None:
+        # 127 - limit added to a lane's count (0-64) sets its top bit exactly
+        # when the count is above the limit; at limit -1 the bit is always set.
+        bias = _WINDOW_BIAS[(crop_limit, pan_limit)] = _CROP_ONE * (127 - crop_limit) + _PAN_ONE * (127 - pan_limit)
+    x = packed_a[0] ^ packed_b[1]
+    x -= (x >> 1) & _WM1
+    x = (x & _WM2) + ((x >> 2) & _WM2)
+    x = (x + (x >> 4)) & _WM4
+    # One multiply sums each lane's eight byte counts into its top byte (no
+    # carry: a lane's bytes total at most 64), about 20% faster than three
+    # shift-and-adds on these 6,720-bit integers.
+    x = ((x * 0x0101010101010101) >> 56) & _W_LOW
+    return (x + bias) & _W_HIGH != _W_HIGH
+
+
 # Zoom windows (2026-11-18, eval/cull-zoom-windows-2026-11-18.md): the equal-size
 # crop windows line up a pan exactly but a zoom only roughly, so a frame zoomed
 # in by z is compared whole against the other frame's window of size 1 - z.

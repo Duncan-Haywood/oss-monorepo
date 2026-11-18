@@ -320,9 +320,10 @@ flagships:
       opcode run only on synthetic files so far, or the SDK to check them; lateral
       colour measured on a real frame with sharp corner edges; a real Adobe `.dcp`
       through the profile chooser; a real tiled CR3 (C-RAW tiles 2026-11-16,
-      eval/canon-cr3-*tiled-*); cull: zoom and 8-10% pan windows 2026-11-18
-      (eval/cull-pan-windows-*), next 6% pans (0.85, a 7x7 grid?) and a real shoot's
-      picks. More open items: NEXT.md.
+      eval/canon-cr3-*tiled-*); cull: zoom, pan windows and the 44 crop gate
+      2026-11-18 (6% pans 0.85 to 1.00, eval/cull-crop-gate-*), next 10% pans
+      (0.86-0.95, windows 6-11 bits: a finer grid) and a real shoot's picks. More
+      open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
