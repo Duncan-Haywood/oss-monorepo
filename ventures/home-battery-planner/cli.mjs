@@ -30,7 +30,7 @@ if (flag("--json")) {
   process.exit(r.ok ? 0 : 1);
 }
 if (!r.ok) { console.error(r.errors.join("\n")); process.exit(1); }
-const $ = (x) => (x < 0 ? "-$" : "$") + Math.abs(Math.round(x)).toLocaleString("en-US");
+const $ = (x) => ((t) => (x < 0 && /[1-9]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(x)).toLocaleString("en-US"));
 for (const n of r.meter.notes) console.log("- " + n);
 console.log(`\nBattery: ${r.battery.kwh} kWh usable, ${r.battery.kw} kW, ${Math.round(r.battery.roundTrip * 100)}% round trip, ${Math.round(r.battery.reserve * 100)}% reserve${r.battery.gridCharge ? ", may charge from the grid" : ""}${r.battery.gridExport ? ", may export" : ""}.`);
 for (const p of r.plans) {
