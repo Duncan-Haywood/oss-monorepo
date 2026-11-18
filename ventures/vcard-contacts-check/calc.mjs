@@ -260,6 +260,22 @@ function finish(findings, base) {
   return { findings, summary: { ...base, errors: findings.filter((f) => f.severity === "error").length, warnings: findings.filter((f) => f.severity === "warning").length, fixable: findings.filter((f) => f.fixable).length } };
 }
 
+// The card as the repair below will write it (FN from N, N padded), so two cards that only become identical
+// once fixed are caught in one pass instead of the next (found by fuzzing repair for idempotence, 2026-11-18).
+function asRepaired(c) {
+  const fn = get(c, "FN"), n = get(c, "N");
+  let props = c.props;
+  if ((!fn || !fn.value.trim()) && n) {
+    const built = fnFromN(n.value);
+    if (built) props = fn ? props.map((p) => (p === fn ? { ...p, params: {}, value: built } : p)) : props.concat([{ name: "FN", params: {}, value: built }]);
+  }
+  if (n) {
+    const parts = splitUnescaped(n.value, ";").length;
+    if (parts < 5) props = props.map((p) => (p === n ? { ...p, value: n.value + ";".repeat(5 - parts) } : p));
+  }
+  return { props };
+}
+
 // Apply only provable fixes: FN built from N, N padded to 5 components, byte-identical duplicate cards
 // dropped, lines refolded, CRLF endings. Everything else is written back unchanged.
 export function repair(text) {
@@ -269,7 +285,7 @@ export function repair(text) {
   const seen = new Set();
   for (const c of cards) {
     const label = nameOf(c);
-    const key = normalizedCard(c);
+    const key = normalizedCard(asRepaired(c));
     if (seen.has(key)) { dropFrom.set(c.line, c.endLine); changes.push(`${label}: removed an identical duplicate card`); continue; }
     seen.add(key);
     const fn = get(c, "FN"), n = get(c, "N");

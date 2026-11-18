@@ -247,6 +247,9 @@ export function repair(text) {
     out.splice(nextLine, 0, "-");
     changes.push(`Added the closing - line before statement ${s + 2}`);
   }
+  // The split leaves an empty last line for a file that ends in a newline; drop trailing blanks so the one
+  // CRLF below ends the file, instead of each repair adding a blank line (fuzz find, 2026-11-18).
+  while (out.length && !out[out.length - 1].trim()) out.pop();
   return { text: out.join("\r\n") + "\r\n", changes };
 }
 

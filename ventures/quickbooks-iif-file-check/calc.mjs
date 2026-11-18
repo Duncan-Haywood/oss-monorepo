@@ -37,7 +37,8 @@ export function normalizeAmount(raw) {
 
 // A cell wrapped in double quotes (what Excel writes when a tab file is re-saved) -> its inner text.
 function unquote(cell) {
-  const m = cell.match(/^"([\s\S]*)"$/);
+  if (cell == null) return ""; // a row with no column for this field (e.g. ACCNT before any !ACCNT header)
+  const m = String(cell).match(/^"([\s\S]*)"$/);
   return m ? m[1].replace(/""/g, '"') : cell;
 }
 
@@ -219,8 +220,8 @@ export function validate(text, opts = {}) {
     if (a.fields.ACCNTTYPE !== undefined && !ACCNTTYPES.has(t)) add("error", `Unknown ACCNTTYPE "${unquote(a.fields.ACCNTTYPE)}"`, "Expected BANK, AR, AP, CCARD, OCASSET, FIXASSET, OASSET, OCLIAB, LTLIAB, EQUITY, INC, COGS, EXP, EXINC, EXEXP or NONPOSTING.", a.line);
   }
   const names = new Map();
-  for (const a of p.rows.filter((r) => r.type === "ACCNT")) {
-    const k = keyName(unquote(a.fields.NAME || ""));
+  for (const a of p.rows.filter((r) => r.type === "ACCNT" && r.fields.NAME !== undefined)) {
+    const k = keyName(unquote(a.fields.NAME));
     if (names.has(k)) add("error", "Duplicate account in !ACCNT list", `"${unquote(a.fields.NAME)}" already appears on line ${names.get(k)}.`, a.line); else names.set(k, a.line);
   }
   if (order === "mixed") add("error", "Dates mix day-first and month-first", `${dmy} date(s) can only be day/month and ${mdy} can only be month/day. No regional setting reads both.`, 0);

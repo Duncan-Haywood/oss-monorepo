@@ -150,7 +150,9 @@ function parseList(text) {
 }
 
 // Normalised lookup key for a source or target path.
-const keyOf = (p, caseSensitive) => (caseSensitive ? p : p.toLowerCase());
+// "about" and "/about" are the same page (the repair adds the slash), so they share a key; without this
+// a loop through a slash-less target went unseen and the repair flattened it into a self-redirect.
+const keyOf = (p, caseSensitive) => { const k = p && p[0] !== "/" && !/^https?:\/\//i.test(p) ? "/" + p : p; return caseSensitive ? k : k.toLowerCase(); };
 
 // Resolve every source in the exact-match table in linear time: { final, hops, loop } per key, memoised.
 // A key that leads into a cycle (or is on one) is `loop`.

@@ -3,9 +3,16 @@
 // checker runs on it unchanged.
 //
 // ifcXMLSchemaId(text) -> "IFC2X3" | "IFC4" | "IFC4X3" | null
-// parseIfcXml(text, schema) -> { schema, entities: Map<id, {id, type, args}>, errors }
+// parseIfcXml(text, schema, { eager }) -> { schema, entities: Map<id, {id, type, args}>, errors }
 //   schema: a Schema (ids.mjs) for that version; it gives each attribute's
 //   position and type, which ifcXML does not carry.
+//
+// Read as it streams (2026-11-18, eval/lazy-ifcxml-2026-11-18.md): each
+// top-level entity's element is read as it closes and then dropped, so the
+// whole XML tree is never held; and geometry (IfcRepresentationItem and its
+// subtypes, as the STEP reader's Model policy) keeps only where its element
+// starts and ends, its arguments read again from that text each time a check
+// asks for them. { eager: true } keeps every entity's arguments.
 //
 // Two layouts are read, both seen in real files:
 // - IFC2X3 (ifcXML2, <iso_10303_28><uos>): every entity at the top, every
@@ -23,6 +30,7 @@
 // attributes are marked {derived:true} as a STEP file's * would be.
 
 import { parseXml } from "./xml.mjs";
+import { EMPTY_LIST, SKIPPED_LIST } from "./step.mjs";
 
 export function ifcXmlSchemaId(text) {
   const head = text.slice(0, 4000);
@@ -36,6 +44,9 @@ export function ifcXmlSchemaId(text) {
 export function looksLikeXml(text) {
   return /^\s*(\uFEFF)?\s*<[?!a-zA-Z]/.test(text.slice(0, 200));
 }
+
+// A reference in shallowArgs: AttributeFacet.test asks only that it is one.
+const REF = Object.freeze({ ref: -1 });
 
 const local = (n) => (n.includes(":") ? n.slice(n.indexOf(":") + 1) : n);
 const isMeta = (k) => k === "id" || k === "ref" || k === "href" || k === "pos" || k.includes(":") || k === "xmlns";
@@ -52,9 +63,8 @@ function hrefToRef(root) {
   }
 }
 
-export function parseIfcXml(text, schema) {
-  const root = parseXml(text);
-  hrefToRef(root);
+export function parseIfcXml(text, schema, opts = {}) {
+  const eager = !!opts.eager;
   const entities = new Map();
   const errors = [];
   let commaNumbers = 0, commaExample = null;
@@ -66,6 +76,45 @@ export function parseIfcXml(text, schema) {
     return n;
   };
   const backrefs = []; // [relationship id, attribute, parent id]
+
+  // Geometry's arguments are not kept: a LazyXmlEntity holds its element's
+  // span and reads it again on each `args`. An inline (id-less) entity nested
+  // in one is numbered by where it starts, so a re-read names the same id.
+  const keepType = new Map();
+  const keeps = (t) => {
+    let k = keepType.get(t);
+    if (k === undefined) keepType.set(t, (k = eager || !isA(t, "IFCREPRESENTATIONITEM")));
+    return k;
+  };
+  const inlineIds = new Map(); // start offset -> id, inside a dropped entity
+  let dropDepth = 0;
+  let re = null; // during a re-read: { root, base, out }
+  class LazyXmlEntity {
+    constructor(id, type, xmlId, s, e) {
+      this.id = id; this.type = type;
+      if (xmlId !== undefined) this.xmlId = xmlId;
+      this._s = s; this._e = e; this._a = undefined;
+    }
+    get args() { return this._a !== undefined ? this._a : reread(this); }
+    // What AttributeFacet.test reads (as StepEntity.shallowArgs): kept from
+    // the first read, so a specification applying to every entity never
+    // re-reads geometry.
+    get shallowArgs() { return this._a !== undefined ? this._a : this._sh; }
+    set args(v) { this._a = v; }
+    toJSON() { return this.xmlId !== undefined ? { id: this.id, type: this.type, args: this.args, xmlId: this.xmlId } : { id: this.id, type: this.type, args: this.args }; }
+  }
+  function reread(e) {
+    const root = parseXml(text.slice(e._s, e._e), { spans: true });
+    hrefToRef(root);
+    const saved = re;
+    re = { root, base: e._s, out: null, id: e.id };
+    try {
+      entity(root, e.type);
+      return re.out;
+    } finally {
+      re = saved;
+    }
+  }
 
   const U = (s) => s.toUpperCase();
   const entityName = (n) => {
@@ -107,7 +156,7 @@ export function parseIfcXml(text, schema) {
           // A decimal comma: the writer formatted numbers in a locale that
           // uses one (41 of buildingSMART's IFC4 Annex E ifcXML examples). xs:double has no
           // such form; read it as a point and say so once.
-          commaNumbers++;
+          if (!re) commaNumbers++;
           if (!commaExample) commaExample = s;
           return Number(s.replace(",", "."));
         }
@@ -121,6 +170,12 @@ export function parseIfcXml(text, schema) {
         return { enum: U(s) };
       case "binary":
         return { binary: s };
+      // xs:string keeps its whitespace: a label written ' 277 V/1-64VA' (731
+      // properties in the HHS Office MEP export) is that string in STEP too,
+      // and trimming it changed what an IDS value test saw
+      // (eval/lazy-ifcxml-2026-11-18.md).
+      case "string":
+        return raw;
       case "aggregate": {
         let t = typeName;
         for (let g = 0; g < 20 && schema.types[t] && schema.types[t].kind !== "aggregate"; g++) t = schema.types[t].of;
@@ -231,11 +286,58 @@ export function parseIfcXml(text, schema) {
 
   // Builds an entity from an element; returns its id.
   function entity(el, type) {
-    const id = el.attrs.id !== undefined ? num(el.attrs.id) : next++;
-    if (entities.has(id)) return id;
+    if (re && el !== re.root) {
+      // A re-read builds only its own arguments; nested entities exist.
+      return el.attrs.id !== undefined ? num(el.attrs.id) : inlineIds.get(re.base + el.at);
+    }
+    const id = re ? re.id : el.attrs.id !== undefined ? num(el.attrs.id) : next++;
+    if (!re && entities.has(id)) return id;
     const attrs = schema.attrs(type);
     const args = attrs.map((a) => (a.derived ? { derived: true } : null));
-    entities.set(id, el.attrs.id !== undefined ? { id, type, args, xmlId: el.attrs.id } : { id, type, args });
+    const rec = el.attrs.id !== undefined ? { id, type, args, xmlId: el.attrs.id } : { id, type, args };
+    if (re) re.out = args;
+    else {
+      entities.set(id, rec);
+      if (dropDepth && el.attrs.id === undefined) inlineIds.set(el.at, id);
+    }
+    const drop = !re && !keeps(type);
+    if (drop) dropDepth++;
+    try {
+      fill(el, type, id, attrs, args);
+      if (isA(type, "IFCBSPLINESURFACE")) bsplineRows(rec, attrs);
+    } finally {
+      if (drop) dropDepth--;
+    }
+    if (drop) {
+      const lazy = new LazyXmlEntity(id, type, el.attrs.id, el.at, el.end);
+      lazy._sh = shallow(args);
+      entities.set(id, lazy);
+    }
+    return id;
+  }
+
+  // An entity's arguments as an attribute test sees them: a list only as
+  // empty or not (EMPTY_LIST, SKIPPED_LIST), a reference only as a reference
+  // (one shared REF; the test never follows it). Rows of only such markers,
+  // nulls, booleans and enums are shared: the HHS MEP export's 500,000
+  // points, loops and faces come down to a few dozen arrays.
+  const shared = new Map();
+  function shallow(args) {
+    let plain = true;
+    const out = args.map((v) => {
+      if (Array.isArray(v)) return v.length ? SKIPPED_LIST : EMPTY_LIST;
+      if (v && v.ref !== undefined) return REF;
+      if (v !== null && !(v && (v.derived || v.enum !== undefined)) && typeof v !== "boolean") plain = false;
+      return v;
+    });
+    if (!plain) return out;
+    const key = JSON.stringify(out.map((v) => (v === SKIPPED_LIST ? "+" : v === EMPTY_LIST ? "0" : v === REF ? "r" : v)));
+    let s = shared.get(key);
+    if (!s) shared.set(key, (s = Object.freeze(out)));
+    return s;
+  }
+
+  function fill(el, type, id, attrs, args) {
     for (const [k, v] of Object.entries(el.attrs)) {
       if (isMeta(k)) continue;
       const i = attrIndex(attrs, k, type);
@@ -261,17 +363,15 @@ export function parseIfcXml(text, schema) {
         // <IsTypedBy GlobalId=".."><RelatingType ../></IsTypedBy>.
         if (xsiType(c) || c.attrs.id !== undefined || c.attrs.ref !== undefined || hasOwnValueAttrs(c)) {
           const v = c.attrs.ref !== undefined ? { ref: num(c.attrs.ref) } : { ref: entity(c, entityName(xsiType(c) || "") || inv[0]) };
-          backrefs.push([v.ref, inv[1], id]);
+          if (!re) backrefs.push([v.ref, inv[1], id]);
           continue;
         }
         for (const r of c.children) {
           const v = item(r, inv[0]);
-          if (v && v.ref) backrefs.push([v.ref, inv[1], id]);
+          if (v && v.ref && !re) backrefs.push([v.ref, inv[1], id]);
         }
       }
     }
-    if (isA(type, "IFCBSPLINESURFACE")) bsplineRows(entities.get(id), attrs);
-    return id;
   }
 
   const isA = (type, sup) => {
@@ -316,20 +416,34 @@ export function parseIfcXml(text, schema) {
     if (wi !== undefined && Array.isArray(e.args[wi]) && e.args[wi].length === list.length && !e.args[wi].some(Array.isArray)) e.args[wi] = cut(e.args[wi]);
   }
 
-  // Top-level entities may sit under the root (IFC4) or under <uos> (IFC2X3).
-  const walk = (node) => {
-    for (const c of node.children) {
-      const ent = entityName(xsiType(c) || c.local);
-      if (ent) {
-        if (c.attrs.ref === undefined) entity(c, ent);
-      } else if (!/header$/i.test(c.local)) walk(c);
-    }
+  // Top-level entities may sit under the root (IFC4) or under <uos> (IFC2X3):
+  // an element is top-level when every open element between it and the root
+  // is neither an entity nor a header. Each is read as it closes and dropped.
+  const isContainer = (a) => {
+    if (a._c === undefined) a._c = !entityName(xsiType(a) || a.local) && !/header$/i.test(a.local);
+    return a._c;
   };
-  walk(root);
+  parseXml(text, {
+    spans: !eager,
+    onClose(node, stack) {
+      if (stack.length < 2) return false; // the root element
+      for (let i = 2; i < stack.length; i++) if (!isContainer(stack[i])) return false;
+      const ent = entityName(xsiType(node) || node.local);
+      if (ent) {
+        if (node.attrs.ref === undefined) {
+          hrefToRef(node);
+          entity(node, ent);
+        }
+        return true;
+      }
+      return /header$/i.test(node.local);
+    },
+  });
 
   for (const [rid, attr, pid] of backrefs) {
     const r = entities.get(rid);
     if (!r) continue;
+    if (r instanceof LazyXmlEntity && r._a === undefined) r._a = reread(r); // patched, so kept
     const i = schema.attrs(r.type).index.get(attr);
     if (i === undefined) continue;
     const a = schema.attrs(r.type)[i];

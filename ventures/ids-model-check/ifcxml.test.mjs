@@ -365,3 +365,50 @@ test("the rational subtype's weights are cut into the same grid", () => {
   assert.deepEqual(weights, [[1, 1], [0.5, 0.5], [0.5, 0.5], [1, 1]]);
   assert.equal(s.args[2].length, 4);
 });
+
+// Streaming and lazy geometry (eval/lazy-ifcxml-2026-11-18.md).
+test("the lazy read gives every entity the eager read's arguments, in the same order, on both layouts", () => {
+  let lazy = 0;
+  for (const [text, schema] of [[file("samples/tiny-house.ifcxml"), schemas.IFC4], [IFC2X3_XML, schemas.IFC2X3]]) {
+    const a = parseIfcXml(text, schema, { eager: true }), b = parseIfcXml(text, schema);
+    assert.deepEqual([...b.entities.keys()], [...a.entities.keys()]);
+    assert.deepEqual(b.errors, a.errors);
+    for (const [id, e] of a.entities) {
+      const x = b.entities.get(id);
+      if (x._s !== undefined) lazy++;
+      assert.deepEqual([x.type, x.xmlId, x.args], [e.type, e.xmlId, e.args], `${id} ${e.type}`);
+      assert.deepEqual(JSON.parse(JSON.stringify(x)), JSON.parse(JSON.stringify(e)));
+    }
+  }
+  assert.ok(lazy > 0, "geometry is read lazily");
+});
+
+test("geometry keeps its span, not its arguments; shallowArgs keeps only what an attribute test reads", () => {
+  const p = parseIfcXml(IFC2X3_XML, schemas.IFC2X3);
+  const pt = [...p.entities.values()].find((e) => e.xmlId === "i12");
+  assert.equal(pt._a, undefined);
+  assert.deepEqual(pt.args[0], [0, 1500]);
+  assert.equal(pt._a, undefined, "a read is not kept");
+  assert.equal(pt.shallowArgs[0].length, 1, "a non-empty list stays non-empty");
+  const wall = [...p.entities.values()].find((e) => e.xmlId === "i7");
+  assert.equal(wall._s, undefined, "a wall is not geometry and keeps its arguments");
+});
+
+test("an inline entity nested in geometry keeps its id when the geometry is read again", () => {
+  const xml = `<?xml version="1.0"?><ifcXML xmlns="http://www.buildingsmart-tech.org/ifcXML/IFC4/final" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <IfcAxis2Placement3D id="a1"><Location><IfcCartesianPoint><Coordinates>1 2 3</Coordinates></IfcCartesianPoint></Location></IfcAxis2Placement3D>
+  <IfcAxis2Placement3D id="a2"><Location><IfcCartesianPoint><Coordinates>4 5 6</Coordinates></IfcCartesianPoint></Location></IfcAxis2Placement3D></ifcXML>`;
+  const p = parseIfcXml(xml, schemas.IFC4);
+  const [a1, , a2] = [...p.entities.values()];
+  assert.equal(a1.type, "IFCAXIS2PLACEMENT3D");
+  for (let k = 0; k < 2; k++) {
+    assert.deepEqual(p.entities.get(a1.args[0].ref).args[0], [1, 2, 3]);
+    assert.deepEqual(p.entities.get(a2.args[0].ref).args[0], [4, 5, 6]);
+  }
+});
+
+test("string values keep their whitespace, as in the STEP file", () => {
+  const xml = IFC2X3_XML.replace("<Name>Basic Wall</Name>", "<Name> Basic Wall </Name>");
+  const p = parseIfcXml(xml, schemas.IFC2X3);
+  assert.equal([...p.entities.values()].find((e) => e.xmlId === "i7").args[2], " Basic Wall ");
+});

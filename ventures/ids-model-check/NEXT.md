@@ -21,3 +21,4 @@
 - (2026-11-18) a standard property in the file's own dataType 2026-11-17 (eval/template-type-2026-11-17.md: 16 rows in 7 public files, Use the template's type, 14 pset-datatype errors to 0). 'did you mean' rows 2026-11-17 (eval/name-suggestion-2026-11-17.md: 17 rows in 7 public files, name errors 31 to 14)
 - (2026-11-18) number one-of rows 2026-11-17 (eval/number-oneof-2026-11-17.md: 663 of 663 offers pass, IfcTester 646)
 - (2026-11-18) duplicate GlobalIds in a model (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI 2026-11-17 (eval/federated-globalids-2026-11-17.md; allow list and followers, eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23)
+- (2026-11-18) file-order candidate lists 2026-11-18 (eval/file-order-candidates-2026-11-18.md: pooled specs 2.9x on HHS MEP, same reports)
