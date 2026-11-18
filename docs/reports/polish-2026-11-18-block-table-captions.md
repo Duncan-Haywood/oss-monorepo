@@ -1,4 +1,11 @@
+---
+kind: polish
+topics: [design, accessibility]
+date: 2026-11-18
+---
 # Polish 2026-11-18: table captions inside phone scrollers
+
+Date: 2026-11-18. Track: polish/0. PR #17203.
 
 Picked item 4 of "Still weakest" in `polish-2026-11-17-raw-formats-page.md`: other venture pages
 with a `<caption>` in a table that goes `display:block` on phones. It was broader than "crushed".
