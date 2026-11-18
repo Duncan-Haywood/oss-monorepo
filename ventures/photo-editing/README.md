@@ -390,7 +390,10 @@ This repo currently contains the first testable core utilities:
   21.7 s), `eval/cull-pan-all-pairs-2026-11-18.md`; since the same day, from 500 photos up, a
   chunked hash index finds the only pairs any match could link instead of comparing
   every pair, with identical groups: 2,000 frames 10.0 to 3.6 s, 10,000 frames 251
-  to 42 s, `eval/cull-grouping-index-2026-11-18.md`; and later that day a fine-offset
+  to 42 s, `eval/cull-grouping-index-2026-11-18.md`, and since later that day the
+  index and the exact checks run in C on every core when a C compiler is present
+  (`shootflow.cull_native`; same groups, 10,000 frames 115 to 5.8 s with the fine
+  match in, `eval/cull-grouping-native-2026-11-18.md`); and later that day a fine-offset
   match: 24 more 88% windows at 1% and 2% of the frame make a 7 x 7 grid whose
   offsets differ by every whole percent from 0 to 12, so a pan between the 3% steps
   (a 10% pan moves the content 11.1%, a 7% pan 7.5%) still finds a window pair
