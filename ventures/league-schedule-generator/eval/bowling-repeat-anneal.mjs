@@ -33,4 +33,4 @@ for (const n of sizes) for (const W of seasons) {
   console.log(`${String(n).padStart(5)} ${String(W).padStart(5)} | ${String(ra).padStart(15)} | ${String(rb).padStart(11)} | ${String(oa).padStart(11)} | ${String(ob).padStart(8)} | ${String(d0).padStart(10)} | ${String(d1).padStart(7)}`);
 }
 console.log(`\nrepeats ${before} -> ${after} over 36 seasons; ${zero} seasons with none; seasons less balanced with the anneal: ${broke}`);
-console.log(`${(ms0 / 36).toFixed(0)} ms -> ${(ms1 / 36).toFixed(0)} ms per season on average on this machine (4 cores shared with SAT runs)`);
+console.log(`${(ms0 / 36).toFixed(0)} ms -> ${(ms1 / 36).toFixed(0)} ms per season on average on this machine`);

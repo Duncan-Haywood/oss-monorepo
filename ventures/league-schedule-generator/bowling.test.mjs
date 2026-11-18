@@ -182,6 +182,10 @@ test("the bowling page's worked example matches bowlingSchedule(), its FAQ match
   assert.match(ev, /polished: every team at the bound in 36 of 36 seasons; worst spread 1/);
   assert.match(ev, /rotate: every team at the bound in 1 of 36 seasons; worst spread 13/);
   assert.match(html, /all 36/);
+  // The repeat claim on the page is the one in eval/bowling-repeat-anneal.txt and eval/bowling-lanes.txt.
+  assert.match(page("eval/bowling-repeat-anneal.txt"), /repeats 272 -> 148 over 36 seasons; 13 seasons with none; seasons less balanced with the anneal: 0/);
+  assert.match(ev, /polished: every team at the bound in 36 of 36 seasons; worst spread 1; repeats 148 in total/);
+  assert.match(html, /fell from 392 to 148, and 13 seasons have none/);
   assert.equal((page("eval/bowling-lane-sat.txt").match(/: SAT$/gm) || []).length, 6);
   assert.match(page("sitemap.xml"), new RegExp(name));
   assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
@@ -295,6 +299,14 @@ test("the repeat anneal never unbalances a season or adds a repeat, keeps lane l
   const lim = laneLimits(off, 4, 2, null);
   assert.ok(offBound(off, 4, 2) > 0);
   assert.deepEqual(cutRepeats(off, 4, 2, 1, 1000, lim), off);
+});
+
+test("12 teams over 30 weeks: every pair exactly five times and never the same pair two weeks running (stored answer re-solved for repeats)", () => {
+  for (const seed of [1, 2]) {
+    const r = laneReport(bowlingSchedule({ teams: names(12), weeks: 30, start: START, seed }));
+    assert.equal(r.atBound, 12);
+    assert.equal(r.repeats, 0, `seed ${seed}`);
+  }
 });
 
 test("lane limits: a team never bowls on a pair it avoids, and every team lands in its fair share", () => {
