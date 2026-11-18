@@ -119,8 +119,8 @@ def main():
     p(f"\n## sanity: the {len(shared)} rules shared with milestone 14, copy 0 max |difference| {d0:.2e}, "
       f"copies 0-4 {d14:.2e} (milestone 14 scored them with its own 16 swapped into the reference)")
 
-    p("\n## per rule: joint median per copy | pooled median [5%, 95% bootstrap] | MC se | copy sd | "
-      "pooled from copies 0-4 only")
+    p("\n## per rule: joint median per copy | pooled median [5%, 95% bootstrap] | MC se | "
+      "copy sd")
     rows = {}
     for x in KEY:
         i = ki[x]
