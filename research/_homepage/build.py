@@ -123,6 +123,177 @@ def plain(s):
     return html.unescape(re.sub(r"<[^>]+>", " ", s))
 
 
+# Summary paragraphs. A programme's summary grows by a milestone per run and is stored as one
+# HTML string; until 2026-11-18 the page printed it as one <p>, so research/cell-fidelity showed
+# 6,894 words with no break. `summary_paragraphs` breaks it where the text itself says a new part
+# starts (a milestone, a step, the limits) and then splits any part still longer than PARA_WORDS
+# at sentence ends. A summary that is short and has no such marker stays one paragraph.
+PARA_WORDS = 110
+_PARA_START = re.compile(
+    r"(?:<strong>\s*)?(?:Milestone|Step|Stage|Phase|Session|Round|Part)\s+[\w.-]+\b"
+    r"|(?:Limits?|Limitations?|Caveats?)\s*:")
+_ABBREV = re.compile(r"(?:\b(?:e\.g|i\.e|cf|vs|al|approx|Fig|Figs|Eq|Eqs|No|Nos|Ref|Refs|St|Dr|Mr|Ms|Jr|Inc|Ltd|Co|ca|resp|incl|etc)"
+                     r"|\b[A-Z])\.$")
+_INLINE = {"em", "strong", "code", "sup", "sub", "a", "b", "i", "span", "abbr", "small", "mark", "var", "kbd", "q"}
+
+
+def _words(s):
+    return len(plain(s).split())
+
+
+def summary_paragraphs(summary, limit=PARA_WORDS):
+    """The summary as a list of HTML paragraphs (inner HTML, no <p>). Breaks are only placed
+    outside tags, outside any open inline element and outside parentheses, so no paragraph
+    splits a <code> run or an aside."""
+    s = summary.strip()
+    if re.search(r"<(?:p|ul|ol|li|table|div|h\d|blockquote|pre)\b", s, re.I):
+        return [s]  # already structured: leave it alone
+    hard, soft = set(), []  # character offsets where a paragraph may start
+    depth, parens, i, n = 0, 0, 0, len(s)
+    prev_end = False  # the text before this point ends a sentence
+    while i < n:
+        if s.startswith("<br", i):
+            j = s.index(">", i) + 1
+            while True:  # a run of <br>s and spaces is one break
+                k = j
+                while k < n and s[k].isspace():
+                    k += 1
+                if s.startswith("<br", k):
+                    j = s.index(">", k) + 1
+                else:
+                    break
+            hard.add(("br", i, k))
+            i, prev_end = k, False
+            continue
+        if s[i] == "<":
+            j = s.find(">", i)
+            if j < 0:
+                break
+            m = re.match(r"<(/?)(\w+)", s[i:j + 1])
+            if m and m.group(2).lower() in _INLINE:
+                if depth == 0 and parens == 0 and not m.group(1) and prev_end and _PARA_START.match(s, i):
+                    hard.add(("at", i, i))
+                depth += -1 if m.group(1) else 1
+                depth = max(depth, 0)
+            i = j + 1
+            continue
+        c = s[i]
+        if c == "(":
+            parens += 1
+        elif c == ")":
+            parens = max(parens - 1, 0)
+        if depth == 0 and parens == 0 and c == " " and i > 0:
+            before = s[:i].rstrip()
+            ends = before.endswith((".", "!", "?", ".)", ".&rdquo;", '."')) and not _ABBREV.search(before)
+            if ends:
+                k = i
+                while k < n and s[k] == " ":
+                    k += 1
+                if k < n and (s[k].isupper() or s[k].isdigit() and _PARA_START.match(s, k) or s[k] == "<"):
+                    if _PARA_START.match(s, k):
+                        hard.add(("at", k, k))
+                    elif s[k] != "<":
+                        soft.append(k)
+                    prev_end = True
+                    i = k
+                    continue
+            prev_end = False
+        elif not c.isspace():
+            prev_end = False
+        i += 1
+    # cut at the hard breaks
+    parts, last = [], 0
+    for kind, a, b in sorted(hard, key=lambda h: h[1]):
+        if a > last:
+            parts.append((last, a))
+        last = b
+    parts.append((last, n))
+    out = []
+    for a, b in parts:
+        chunk = s[a:b].strip()
+        if not chunk:
+            continue
+        cuts = [k for k in soft if a < k < b]
+        if _words(chunk) <= limit or not cuts:
+            out.append(chunk)
+            continue
+        # greedy: start a new paragraph at the first sentence end past ~limit*0.7 words, but
+        # never leave a tail shorter than a third of the limit
+        start = a
+        for k in cuts:
+            if _words(s[start:k]) >= limit * 0.7 and _words(s[k:b]) >= limit / 3:
+                out.append(s[start:k].strip())
+                start = k
+        out.append(s[start:b].strip())
+    return [p for p in out if p] or [s]
+
+
+LEDE_WORDS = 90  # the project page's header line
+LEDE_CARD_WORDS = 60  # a lede on a card that links to the page
+
+
+def short_lede(lede, limit=LEDE_WORDS):
+    """A lede cut to at most `limit` words at a clause boundary (a "; " or a sentence end outside
+    tags and parentheses), marked with an ellipsis; a lede already that short is returned as is.
+    A programme's README bullet grows a clause per milestone (research/buildbot-sheathing's had
+    2,209 words on 2026-11-18) and was printed whole in its page header and in the cards on its
+    neighbours' pages. If the first clause alone is over twice the limit, the lede is left whole
+    rather than cut mid-claim."""
+    if _words(lede) <= limit:
+        return lede
+    cuts, depth, parens, i = [], 0, 0, 0
+    while i < len(lede):
+        c = lede[i]
+        if c == "<":
+            j = lede.find(">", i)
+            if j < 0:
+                break
+            m = re.match(r"<(/?)(\w+)", lede[i:j + 1])
+            if m and m.group(2).lower() in _INLINE:
+                depth = max(depth + (-1 if m.group(1) else 1), 0)
+            i = j + 1
+            continue
+        if c == "(":
+            parens += 1
+        elif c == ")":
+            parens = max(parens - 1, 0)
+        elif c == " " and depth == 0 and parens == 0 and (lede[i - 1] == ";" or (
+                lede[i - 1] == "." and not _ABBREV.search(lede[:i]))):
+            cuts.append(i - 1)
+        i += 1
+    fits = [k for k in cuts if _words(lede[:k]) <= limit]
+    if fits:
+        k = fits[-1]
+    elif cuts and _words(lede[:cuts[0]]) <= 2 * limit:
+        k = cuts[0]
+    else:
+        return lede
+    return lede[:k].rstrip(" ;,:.") + "&hellip;"
+
+
+# A summary past SUMMARY_FOLD words shows its first SUMMARY_OPEN words and folds the rest into a
+# <details> (still in the HTML, so search engines and answer engines read all of it).
+SUMMARY_FOLD = 700
+SUMMARY_OPEN = 300
+
+
+def summary_html(summary, indent="  ", fold=False):
+    ps = summary_paragraphs(summary)
+    lines = [f"{indent}<p>{p}</p>" for p in ps]
+    total = sum(_words(p) for p in ps)
+    if not fold or total <= SUMMARY_FOLD:
+        return "\n".join(lines)
+    shown, words = 0, 0
+    while shown < len(ps) - 1 and words < SUMMARY_OPEN:
+        words += _words(ps[shown])
+        shown += 1
+    rest = total - words
+    return "\n".join(lines[:shown] + [
+        f'{indent}<details class="summary-more"><summary>Show the rest of the summary '
+        f'({len(ps) - shown} more paragraph{"s" if len(ps) - shown != 1 else ""}, {rest:,} words)</summary>']
+        + lines[shown:] + [f"{indent}</details>"])
+
+
 def duplicate_bullets():
     text = (RESEARCH / "README.md").read_text()
     slugs = re.findall(r"^- \[`research/([\w-]+)`\]", text, re.M)
@@ -395,14 +566,32 @@ def read_log(slug):
     return entries
 
 
+# A research log shows its newest entry, and more while the open part stays under LOG_OPEN_WORDS;
+# older entries fold, one <details> each. Until 2026-11-18 every entry was printed open:
+# research/cell-fidelity's 116 entries (75,919 words) made a 350,000 px phone page.
+LOG_OPEN_WORDS = 500
+
+
 def log_html(slug):
     entries = read_log(slug)
     if not entries:
         return ""
     out = ['  <h2 id="log">Research log</h2>',
            f'  <p class="log-intro">Ongoing: each run adds a batch and an entry, newest first. Source: <a href="{REPO_URL}/blob/main/research/{slug}/LOG.md">LOG.md</a>.</p>']
-    for head, body in entries:
-        out.append(f'  <article class="log-entry"><h3>{inline_md(head, slug)}</h3>')
+    words = [sum(_words(inline_md(t)) for _, t in body) for _, body in entries]
+    shown = 1  # the newest entry is always open; more while the open part stays short
+    while shown < len(entries) and sum(words[:shown + 1]) <= LOG_OPEN_WORDS:
+        shown += 1
+    if len(entries) - shown < 2:  # folding one entry away saves nothing
+        shown = len(entries)
+    for i, (head, body) in enumerate(entries):
+        if i == shown:  # the older entries fold, one <details> each, inside one more
+            older = len(entries) - shown
+            out.append(f'  <details class="log-older"><summary>Show {older} earlier entr{"ies" if older != 1 else "y"}</summary>')
+        if i < shown:
+            out.append(f'  <article class="log-entry"><h3>{inline_md(head, slug)}</h3>')
+        else:
+            out.append(f'  <details class="log-entry"><summary><h3>{inline_md(head, slug)}</h3></summary>')
         items, paras = [], []
         for kind, text in body:
             if kind == "li":
@@ -414,7 +603,9 @@ def log_html(slug):
                 paras.append(f"<p>{inline_md(text, slug)}</p>")
         if items:
             paras.append("<ul>" + "".join(items) + "</ul>")
-        out.append("    " + "\n    ".join(paras) + "\n  </article>")
+        out.append("    " + "\n    ".join(paras) + ("\n  </article>" if i < shown else "\n  </details>"))
+    if len(entries) > shown:
+        out.append("  </details>")
     return "\n".join(out)
 
 
@@ -521,7 +712,7 @@ def more_in_topic(theme, i, ledes):
     ps = theme["projects"]
     picks = [ps[(i + k) % len(ps)] for k in range(1, min(MORE_IN_TOPIC, len(ps) - 1) + 1)]
     return "\n".join(
-        f'    <li><a href="../{q["slug"]}/">{q["title"]}</a><span>{ledes[q["slug"]]}</span></li>' for q in picks
+        f'    <li><a href="../{q["slug"]}/">{q["title"]}</a><span>{short_lede(ledes[q["slug"]], LEDE_CARD_WORDS)}</span></li>' for q in picks
     )
 
 
@@ -565,7 +756,7 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
     page = tmpl
     for key, val in {
         "FONTS": font_faces("../"),
-        "TOKENS": tokens, "THEME_VARS": theme_vars, "SLUG": slug, "TITLE": p["title"], "LEDE": lede, "SUMMARY": p["summary"],
+        "TOKENS": tokens, "THEME_VARS": theme_vars, "SLUG": slug, "TITLE": p["title"], "LEDE": short_lede(lede), "SUMMARY": summary_html(p["summary"], fold=True),
         "DESC": html.escape(plain(p["summary"])[:240]), "THEME_ID": theme["id"], "THEME_NAME": theme["name"],
         "STATS": stats, "FIGURE": figure, "LOG": log_html(slug), "LINKS": links, "REPO_URL": REPO_URL, "REPO": REPO,
         "TITLE_TEXT": text(p["title"]) + (f" (research/{slug})" if shared_title(p, themes, titles) else ""),
@@ -592,7 +783,7 @@ def topic_card(p, lede, tests):
     count = f" · {tests} tests" if tests else ""
     return (f'  <article class="proj" id="{p["slug"]}"><h2><a href="../../{p["slug"]}/">{p["title"]}</a></h2>'
             f'<p class="meta">research/{p["slug"]}{count}</p><p class="res">{lede}</p>'
-            f'<details><summary>Result and abstract</summary><p>{p["summary"]}</p></details></article>')
+            f'<details><summary>Result and abstract</summary>{summary_html(p["summary"], "")}</details></article>')
 
 
 def topic_page(theme, themes, ledes, tests, tokens, theme_vars, tmpl, out, base_url=None, chrome=None):
@@ -688,7 +879,7 @@ def card(p, theme, lede, tests):
     return f"""    <article class="card" id="{p['slug']}" data-search="{search}">
       <div class="card-top"><span class="slug">{p['slug']}</span>{badge}</div>
       <h3><a href="{p['slug']}/">{p['title']}</a></h3>
-      <p class="lede">{lede}</p>
+      <p class="lede">{short_lede(lede, LEDE_CARD_WORDS)}</p>
       <div class="card-foot"><a href="{p['slug']}/">Abstract and results →</a><a href="{url}">Code →</a></div>
     </article>"""
 
@@ -754,7 +945,7 @@ def build(out, base_url=None, chrome=None):
     )
     featured = "\n".join(
         f"""    <a class="feat t-{t['id']}" href="#{s}"><span class="theme-tag">{t['name']}</span>
-      <h3>{p['title']}</h3><p>{ledes[s]}</p><span class="go">Read more →</span></a>"""
+      <h3>{p['title']}</h3><p>{short_lede(ledes[s], LEDE_CARD_WORDS)}</p><span class="go">Read more →</span></a>"""
         for s in data["featured"] for p, t in [by_slug[s]]
     )
     log_section = logs_section(by_slug, ledes)

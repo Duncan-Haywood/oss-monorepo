@@ -42,6 +42,15 @@ figcaption{font-size:13px;color:var(--muted);margin-top:.5rem}
 .log-entry ul{margin:.3rem 0;padding-left:1.2rem}
 .log-entry li{margin:.25rem 0}
 .log-entry p{margin:.3rem 0}
+/* Folded parts: the rest of a long summary, and research-log entries older than the newest three. */
+.summary-more,.log-older{margin:.6rem 0 0}
+.summary-more>summary,.log-older>summary{cursor:pointer;display:inline-block;font-size:14px;font-weight:600;color:var(--accent-ink);border:1px solid var(--border-strong);background:var(--surface);border-radius:8px;padding:.4rem .85rem}
+.summary-more[open]>summary,.log-older[open]>summary{margin-bottom:.8rem}
+.summary-more p a{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+details.log-entry{margin-bottom:.7rem}
+details.log-entry>summary{cursor:pointer;list-style-position:inside}
+details.log-entry>summary h3{display:inline;font-size:16px}
+details.log-entry[open]>summary{margin-bottom:.4rem}
 .note{font-size:14px;color:var(--muted);border-left:3px solid var(--border-strong);padding-left:1rem;margin-top:2.2rem}
 .pager{display:flex;justify-content:space-between;gap:1rem;margin:2.4rem 0 0;padding:1rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);font-size:14px}
 .pager a{display:block;max-width:48%;color:var(--text)}
@@ -86,7 +95,7 @@ footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.5rem 0 3rem;
   <div class="stats">{{STATS}}</div>
   </header>
   <h2>What it found</h2>
-  <p>{{SUMMARY}}</p>
+{{SUMMARY}}
 {{FIGURE}}
 {{LOG}}
   <h2>Paper, code and results</h2>
