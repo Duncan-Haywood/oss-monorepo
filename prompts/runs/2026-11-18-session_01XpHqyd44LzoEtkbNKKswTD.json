@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyd44LzoEtkbNKKswTD",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T12:38:50Z",
+  "ended": "2026-11-18T13:20:49Z",
+  "wall_minutes": 180.06,
+  "tokens_in": 7333892,
+  "tokens_out": 30937,
+  "cost_usd": 3.9042,
+  "tool_calls": 63,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17298",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "tfol_boot.early_summary raised KeyError when run on a partial results file (nc4 missing in one cell); made it skip missing grid variants"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "no timing guide for build-data rounds.py fits: session 101 implied about 7.5 min per 3-seed fit, but this run measured 5 to 10 min per seed (about 2.5 hours for 24 fits on 4 processes); a per-programme runtime note would help plan scope"
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "--until with a 7000 s timeout exits 0 even when the condition still fails at timeout, so the background-task notification looked like completion; check the output text, not the exit code"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "the pooled 12-cell view (selector vs fixed rules over 2017 to 2022) was added after seeing the results, not pre-registered",
+      "did": "reported it as post hoc in LOG, README, summary and post, separate from the E0 to E5 verdicts",
+      "result": "it carries the headline framing, so it is labelled post hoc everywhere it appears"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-build-data-2019-2020-were-the-odd-years.md",
+    "research/build-data/LOG.md (session 102)"
+  ],
+  "goal": null,
+  "notes": "build-data session 102: test years 2017 and 2018 plus nc4/nc6 grid, 24 LightGBM fits on a fresh pull. E0, E3 held; E1, E2, E4, E5 refuted. Checks: build.py ok, check_posts ok, check_md_links ok, programme_check ok, build-data tests 162 passed (test_baselines needs xgboost, absent locally).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "77b874a5-39c9-5c77-9ba7-4c694603d1e8",
+    "transcripts": 1,
+    "first": "2026-11-18T12:38:50Z",
+    "last": "2026-11-18T15:38:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 127,
+        "output": 30937,
+        "thinking": 5930,
+        "cache_read": 7100664,
+        "cache_write_5m": 0,
+        "cache_write_1h": 233101,
+        "api_equivalent_usd": 3.9042,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 127,
+      "output": 30937,
+      "thinking": 5930,
+      "cache_read": 7100664,
+      "cache_write_5m": 0,
+      "cache_write_1h": 233101,
+      "api_equivalent_usd": 3.9042,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 60,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 180.06,
+      "active_minutes": 63.98,
+      "model_minutes": 5.61,
+      "tool_minutes": 58.37,
+      "waiting_on_human_minutes": 116.08,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a data scientist rerunning the pipeline on two new years, adding a grid and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 153.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
