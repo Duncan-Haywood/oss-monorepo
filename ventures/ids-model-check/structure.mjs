@@ -73,7 +73,10 @@ const REQUIREMENTS = {
 };
 const ifcVersion = (v) => {
   const list = collapse(v).split(" ").filter(Boolean);
-  if (!list.length) return "must name at least one of IFC2X3, IFC4, IFC4X3_ADD2";
+  // ids.xsd's minLength sits on the list's items, not the list, so an empty
+  // ifcVersion="" is valid to it (eval/fix-structure-2026-11-18.md); the
+  // checker reads it as every version.
+  if (!list.length) return null;
   const bad = list.filter((x) => !VERSIONS.includes(x));
   return bad.length ? `${bad.map((x) => JSON.stringify(x)).join(", ")} is not one of IFC2X3, IFC4, IFC4X3_ADD2${bad.includes("IFC4X3") ? ' (IDS 1.0 names IFC 4.3 "IFC4X3_ADD2")' : ""}` : null;
 };

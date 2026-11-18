@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKkfr1VCZCVDNyjzNYp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T17:10:11Z",
+  "ended": "2026-11-18T17:21:15Z",
+  "wall_minutes": 11.38,
+  "tokens_in": 9749127,
+  "tokens_out": 54171,
+  "cost_usd": 4.3045,
+  "tool_calls": 76,
+  "task": "ids-model-check (flagship row 7): repair the ids.xsd faults with one right answer (NEXT.md item from the structure check)",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": 17368,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    "A combined shell command that started a background http.server and ran a Playwright smoke test was refused by the auto-mode classifier; split into a run_in_background server plus a separate script, which ran."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ids-model-check's next: is ~1,980 characters of landed history with 0 clauses flagship_field.py --landed recognises as landed, so --replace could not make room; had to hand-pick a landed clause to move to NEXT.md."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The row's next: ended 'the parse's own 512 MB' (more memory work after ~8 memory runs today) while NEXT.md held a user-facing item (editor 'fix it' for structure faults); the most valuable item was only in NEXT.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took a NEXT.md item (repair of ids.xsd faults) over the row's first next: item (parse memory), judging a user-facing repair of 12 refused public files worth more than another heap cut.",
+      "did": "fix.mjs + page button + cli --fix",
+      "result": "6 of 12 failing public IDS files valid after repair; found the reader read 48 IDS 0.9 facets as 'anything'"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-ids-model-check-repair-ids-files-validators-refuse.md",
+    "ventures/ids-model-check/eval/fix-structure-2026-11-18.md"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test fix.test.mjs 11/11; run_venture_tests.py ids-model-check ok (240+ tests); eval/run-testcases.mjs 334/334, strict 333/334 (unchanged); eval/fix-structure.mjs on 145 corpus + 2,941 mutated files: 682/682 clean unchanged, 217/217 same reading, 198/217 valid in IfcTester ids.xsd (xmlschema), structure.mjs agrees with ids.xsd on 217/217 repaired and on 145/678/1,133/1,130 originals after the ifcVersion='' rule fix. Playwright smoke: page audit -> Download repaired IDS byte-identical to CLI output, no console errors. No separate agent doc: eval/fix-structure-2026-11-18.md and NEXT.md carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3eb7749e-a45b-5398-b4f4-01aa76238fab",
+    "transcripts": 1,
+    "first": "2026-11-18T17:10:11Z",
+    "last": "2026-11-18T17:21:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 138,
+        "output": 54171,
+        "thinking": 13216,
+        "cache_read": 9586077,
+        "cache_write_5m": 0,
+        "cache_write_1h": 162912,
+        "api_equivalent_usd": 4.3045,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 138,
+      "output": 54171,
+      "thinking": 13216,
+      "cache_read": 9586077,
+      "cache_write_5m": 0,
+      "cache_write_1h": 162912,
+      "api_equivalent_usd": 4.3045,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 68,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.38,
+      "active_minutes": 11.38,
+      "model_minutes": 8.34,
+      "tool_minutes": 3.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "senior dev: IDS 0.9->1.0 repair module, reader fixes, eval harness against xmlschema on ~3,000 files, page/CLI wiring, tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 278.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
