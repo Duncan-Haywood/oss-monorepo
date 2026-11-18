@@ -188,7 +188,7 @@ export function rosterPickerHtml(games, rosters) {
   return lists + js;
 }
 
-const csvCell = (v) => { const s = String(v ?? ""); const t = /^[=+\-@\t\r]/.test(s) ? "'" + s : s; return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+const csvCell = (v) => { const s = String(v ?? ""); const t = /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" + s : s; return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
 const isoDay = (day) => new Date(day * 86400000).toISOString().slice(0, 10);
 
 /**
