@@ -376,6 +376,7 @@ const escProp = (s) => escData(s).replace(/[:,]/g, (c) => (c === ":" ? "%3A" : "
 export function stepLines(text, ids) {
   const want = new Set(ids);
   const out = new Map();
+  if (want.size && text instanceof Uint8Array) return stepLinesBytes(text, want, out);
   if (!want.size || typeof text !== "string" || !/^\s*ISO-10303-21/.test(text)) return out;
   let line = 1, start = 0;
   for (let i = 0; i <= text.length; i++) {
@@ -384,6 +385,34 @@ export function stepLines(text, ids) {
       if (m && want.has(Number(m[1]))) {
         out.set(Number(m[1]), line);
         if (out.size === want.size) break;
+      }
+      line++; start = i + 1;
+    }
+  }
+  return out;
+}
+
+// stepLines on a file's bytes (readModel's `bytes`), so the CI runner need
+// not hold the model as a string beside its parsed copy: a line starting
+// with whitespace, #, digits, whitespace, "=" within its first 40 bytes.
+function stepLinesBytes(b, want, out) {
+  if (!/^\s*ISO-10303-21/.test(new TextDecoder().decode(b.subarray(0, 64)))) return out;
+  const ws = (c) => c === 32 || (c >= 9 && c <= 13);
+  let line = 1, start = 0;
+  for (let i = 0; i <= b.length; i++) {
+    if (i === b.length || b[i] === 10) {
+      const end = Math.min(i, start + 40);
+      let j = start;
+      while (j < end && ws(b[j])) j++;
+      if (b[j] === 35 && j < end) {
+        let k = j + 1, id = 0;
+        while (k < end && b[k] >= 48 && b[k] <= 57) { id = id * 10 + (b[k] - 48); k++; }
+        let q = k;
+        while (q < end && ws(b[q])) q++;
+        if (k > j + 1 && q < end && b[q] === 61 && want.has(id)) {
+          out.set(id, line);
+          if (out.size === want.size) break;
+        }
       }
       line++; start = i + 1;
     }

@@ -311,6 +311,7 @@ node cli.mjs model.ifcxml spec.ids              # ifcXML, or an .ifczip, the sam
 node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
+node cli.mjs --fix spec.ids -o spec-fixed.ids   # repair its ids.xsd faults; exit 1 if some need a person
 node cli.mjs model.ifc spec.ids --no-audit      # run invalid specifications as written
 ```
 
@@ -329,6 +330,32 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 `.ifc` zipped by Python's `zipfile`.
 
 No API key, account or server is involved, so there is nothing to configure.
+
+### Repairing an IDS that validating tools refuse (2026-11-18)
+
+An IDS that breaks `ids.xsd` is refused whole by IfcTester, the
+IDS-Audit-tool and other tools that validate first; 12 of 65 public IDS
+files do, most of them IDS 0.9 exports. Most of those faults have one right
+answer, so `fix.mjs` makes the edit: IDS 0.9's `minOccurs` moved from
+`<specification>` to `<applicability>` and turned into `cardinality` on
+facets, `<name>` and `datatype` in a property facet renamed `<baseName>` and
+`dataType`, `IFC4X3` written `IFC4X3_ADD2`, the schema URL used as namespace
+replaced, bare text wrapped in `<simpleValue>`, children put in schema order,
+a bare `&` escaped. It edits the file's own text, so comments and layout stay,
+and lists each change by line. On the page: audit the IDS, then **Download
+repaired IDS**. On the command line: `node cli.mjs --fix spec.ids -o
+spec-fixed.ids`.
+
+Checked (`eval/fix-structure-2026-11-18.md`): files with no fault come back
+byte for byte (682 of 682); the checker reads the same specifications from
+every repaired copy as from its original (217 of 217); 198 of the 217 are
+valid against IfcTester's `ids.xsd` afterwards, and structure.mjs agrees with
+ids.xsd on all 217. Of the 12 public files, 6 come back valid and 4 keep one
+or two faults that need a person (an author that is not an e-mail address, a
+classification with no system). Building it found that the reader took three
+IDS 0.9 forms as "anything" (a property facet's `<name>`, `datatype`, a value
+with no `<simpleValue>`); it now reads them as written, which changes 48
+facets in 8 public files and nothing in buildingSMART's suite.
 
 ### On every commit: GitHub Action, JUnit and annotations (2026-11-17)
 
@@ -822,6 +849,28 @@ text is now copied in runs. Every report is identical.
    (HHS MEP after the checks: 119 to 107 MB). The checks take about as long
    as before (federated 10.7-11.5 s on main, 11.4 s here). Reports hash the
    same on five models.
+14. **STEP read from the file's bytes** (2026-11-18,
+   `eval/step-bytes-2026-11-18.md`). `readModel` returns the file's bytes
+   and the STEP reader scans them, decoding a record to a short string only
+   when its arguments are read, so the file is never one string on the V8
+   heap; the page and the editor post bytes to the worker. The smallest heap
+   that parses the 219 MB federated model fell from 512 to 304 MB, with the
+   starter IDS files from 544 to 352 MB, and with all 68 IDS files from 640
+   to 448 MB (HHS MEP parse 112 to 64 MB). A STEP file past V8's
+   536,870,888-character string limit, which main could not open, now reads:
+   a 670 MB federated model (11.0 million entities) checks against the
+   starter IDS in 13.9 s. Checks are about 5% slower (each read decodes its
+   record). Reports from 68 IDS files hash the same on four models.
+15. **ifcXML read from the file's bytes** (2026-11-18,
+   `eval/ifcxml-bytes-2026-11-18.md`). The XML reader runs over the bytes,
+   decoding each name, attribute value and text run on its own, and lazy
+   geometry is read again from its byte span, so an ifcXML file is no longer
+   one string on the heap. The smallest heap that parses HHS MEP as ifcXML
+   fell from 336 to 192 MB; the 374 MB federated ifcXML parses in 448 MB
+   (was 800) and checks against all 68 IDS files in 448 MB (was 832). A
+   680 MB ifcXML, which main refused (string length limit), checks against
+   the starter IDS in 25.6 s. Reports from 68 IDS files hash the same on
+   three models; times are unchanged within noise.
 
 Speed (one core, Node 22): Schultz Residence 1.4 s for seven specifications;
 IfcTester (C++ parser) took 0.6-0.7 s for the same work. This tool is not
@@ -881,13 +930,17 @@ faster than IfcTester; its point is needing no install.
   points written flat are cut into rows from its knot counts, and left flat
   (with a note) when the counts do not multiply out. The ifcXML reader streams
   (2026-11-18, `eval/lazy-ifcxml-2026-11-18.md`): a 374 MB ifcXML checks under a
-  1 GB heap, about twice the time of the same model as STEP; a file much past
-  500 MB cannot be read at all (a JavaScript string's length limit). In the
+  1 GB heap, about twice the time of the same model as STEP. Since
+  2026-11-18 both forms are read from the file's bytes, so files past a
+  JavaScript string's 537 MB limit open (`eval/step-bytes-2026-11-18.md`,
+  `eval/ifcxml-bytes-2026-11-18.md`: a 680 MB ifcXML checks in 25.6 s). In the
   nested IFC4 layout every entity is read as its element closes
   (`eval/nested-early-2026-11-18.md`), so the tree under the root is not
   held; a 166 MB federated file still peaks about 1.4x higher than the same
   model as STEP, set by the records kept per entity.
-- The model's text is held in memory with a small record per entity (48
+- The model's bytes are held in memory (outside the JavaScript heap since
+  2026-11-18, `eval/step-bytes-2026-11-18.md`; ifcXML too,
+  `eval/ifcxml-bytes-2026-11-18.md`) with a small record per entity (48
   bytes and 12 more in the number index, since 2026-11-18,
   `eval/entity-table-2026-11-18.md`); an
   entity's arguments are read when a check first needs them, and geometry's

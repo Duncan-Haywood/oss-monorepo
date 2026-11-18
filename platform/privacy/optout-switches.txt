@@ -805,6 +805,7 @@ ventures/page-seo-audit/usage.mjs
 ventures/paid-sick-leave-accrual-calculator/usage.mjs
 ventures/painting-bid-calculator/usage.mjs
 ventures/paintless-dent-repair-quote-calculator/usage.mjs
+ventures/pairwise-ranking/usage.mjs
 ventures/parcel-dim-weight-calculator/usage.mjs
 ventures/parcel-late-delivery-refund-finder/usage.mjs
 ventures/parish-office/usage.mjs
@@ -1097,6 +1098,7 @@ ventures/solar-payback-calculator/usage.mjs
 ventures/solar-pv-bid-calculator/usage.mjs
 ventures/solo-401k-contribution-calculator/usage.mjs
 ventures/source-map-leak-check/usage.mjs
+ventures/spatial-autocorrelation/usage.mjs
 ventures/spc-control-charts/usage.mjs
 ventures/speaker-fee-calculator/usage.mjs
 ventures/speech-to-text-pricing-calculator/usage.mjs

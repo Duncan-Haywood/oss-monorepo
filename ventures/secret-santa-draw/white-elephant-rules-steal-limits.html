@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b717e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>White Elephant Rules: Steal Limits, Frozen Gifts and Game Length</title>
+  <meta name="description" content="White elephant rules explained: turns, steals, frozen gifts, no stealing back and the final swap, with a simulated table of how many moves a game takes for 8 to 30 players.">
+  <meta property="og:title" content="White elephant rules: steal limits, frozen gifts and how long the game takes">
+  <meta property="og:description" content="The rules, and which house rule actually shortens the game. Simulated on 24,000 games.">
+  <link rel="canonical" href="./white-elephant-rules-steal-limits.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many times can a gift be stolen in white elephant?", "acceptedAnswer": {"@type": "Answer", "text": "Most groups freeze a gift after three steals, so the third person to steal it keeps it. Two steals makes a faster game; four or more lets a popular gift travel further. Pick the number before the first gift is opened."}}, {"@type": "Question", "name": "How long does a white elephant game take?", "acceptedAnswer": {"@type": "Answer", "text": "Count moves, not players. Every player opens one gift and every steal is one more move. In our simulation of 20 players stealing half the time they could, the median game took 38 moves under a three-steal freeze, and the slowest one in ten took 47 or more."}}, {"@type": "Question", "name": "What is the best rule to make white elephant faster?", "acceptedAnswer": {"@type": "Answer", "text": "Limit steals per turn. In the simulation, allowing one steal per turn cut the median 20-player game from 38 to 30 moves and the slow tail from 47 to 33, while moving the freeze limit from three steals to two changed the median by nothing."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a1f1f; background: #fbf5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #9a1d2c; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e6d3cf; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #9a1d2c; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #5a4646; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./white-elephant.html">&larr; White elephant game host</a></p>
+  <h1>White elephant rules: steal limits, frozen gifts and how long the game takes</h1>
+  <p>White elephant (also called Yankee swap or Dirty Santa) is a gift exchange where people can steal. The rules fit on a card, but the house rules decide whether the game takes twenty minutes or an hour. This page sets out the usual rules and then measures which house rule actually shortens the game.</p>
+  <p><a class="cta" href="./white-elephant.html">Run your game on one screen, free</a></p>
+  <h2>The rules</h2>
+  <ol>
+    <li>Everyone brings one wrapped gift to a shared pile, usually under a set budget.</li>
+    <li>Draw numbers for the turn order.</li>
+    <li>On your turn, open a gift from the pile or steal an opened gift from someone.</li>
+    <li>If your gift is stolen, you move right away: open a new gift or steal a different one. The turn ends when someone opens a gift.</li>
+    <li>A gift is <strong>frozen</strong> after a set number of steals, usually three, and stays where it is.</li>
+    <li><strong>No stealing straight back:</strong> you cannot take back the gift that was just taken from you in the same turn.</li>
+    <li><strong>Final swap:</strong> once every gift is open, player one may swap once with any gift that is not frozen, because they never had anything to steal on their first turn.</li>
+  </ol>
+  <h2>Which house rule makes the game shorter?</h2>
+  <p>A game's length is its number of moves: one open per player plus one move per steal. The most moves the rules allow is exact: each gift except the last one opened can be stolen up to the freeze limit, plus the final swap. The typical length depends on how keen people are to steal, so we played the game engine against itself: in each of 2,000 games per row, a player who is allowed to steal does so half the time, picking a gift at random. That is a stated toy policy, not a measurement of real parties, which is why both the median and the slow tail are shown.</p>
+  <h3>Frozen after 2 steals</h3>
+  <table>
+    <thead><tr><th>Players</th><th>Most moves the rules allow</th><th>Median, simulated</th><th>90th percentile, simulated</th></tr></thead>
+    <tbody>
+      <tr><td>8</td><td>23</td><td>14</td><td>19</td></tr>
+      <tr><td>12</td><td>35</td><td>22</td><td>28</td></tr>
+      <tr><td>20</td><td>59</td><td>38</td><td>46</td></tr>
+      <tr><td>30</td><td>89</td><td>58</td><td>68</td></tr>
+    </tbody>
+  </table>
+  <h3>Frozen after 3 steals</h3>
+  <table>
+    <thead><tr><th>Players</th><th>Most moves the rules allow</th><th>Median, simulated</th><th>90th percentile, simulated</th></tr></thead>
+    <tbody>
+      <tr><td>8</td><td>30</td><td>15</td><td>20</td></tr>
+      <tr><td>12</td><td>46</td><td>23</td><td>29</td></tr>
+      <tr><td>20</td><td>78</td><td>38</td><td>47</td></tr>
+      <tr><td>30</td><td>118</td><td>58</td><td>68</td></tr>
+    </tbody>
+  </table>
+  <h3>Frozen after 3, one steal per turn</h3>
+  <table>
+    <thead><tr><th>Players</th><th>Most moves the rules allow</th><th>Median, simulated</th><th>90th percentile, simulated</th></tr></thead>
+    <tbody>
+      <tr><td>8</td><td>16</td><td>12</td><td>14</td></tr>
+      <tr><td>12</td><td>24</td><td>18</td><td>20</td></tr>
+      <tr><td>20</td><td>40</td><td>30</td><td>33</td></tr>
+      <tr><td>30</td><td>60</td><td>45</td><td>48</td></tr>
+    </tbody>
+  </table>
+  <p>What the numbers say: <strong>moving the freeze from three steals to two hardly changes a typical game</strong> (20 players: median 38 moves either way), because under this policy few gifts reach their third steal. It mainly caps the worst case. <strong>A limit of one steal per turn is the rule that bites</strong>: at 20 players it cuts the median from 38 to 30 moves and the slow tail from 47 to 33. If your party has a time limit, add the per-turn limit before tightening the freeze.</p>
+  <p>As a rough clock, if opening and showing a gift takes about a minute and a steal about half a minute, a 20-player game with a three-steal freeze runs about half an hour at the median. Time your own group's first few turns and scale from there.</p>
+  <h2>Setting up</h2>
+  <ul>
+    <li>Agree the budget, the freeze number and the per-turn limit before anyone opens a gift.</li>
+    <li>Have the host keep score on one screen everyone can see, so nobody argues about how many times the candle was stolen.</li>
+    <li>Gag gifts are fine if everyone knows they are allowed.</li>
+  </ul>
+  <h2>Common questions</h2>
+  <h3>How many times can a gift be stolen in white elephant?</h3>
+  <p>Most groups freeze a gift after three steals, so the third person to steal it keeps it. Two steals makes a faster game; four or more lets a popular gift travel further. Pick the number before the first gift is opened.</p>
+  <h3>How long does a white elephant game take?</h3>
+  <p>Count moves, not players. Every player opens one gift and every steal is one more move. In our simulation of 20 players stealing half the time they could, the median game took 38 moves under a three-steal freeze, and the slowest one in ten took 47 or more.</p>
+  <h3>What is the best rule to make white elephant faster?</h3>
+  <p>Limit steals per turn. In the simulation, allowing one steal per turn cut the median 20-player game from 38 to 30 moves and the slow tail from 47 to 33, while moving the freeze limit from three steals to two changed the median by nothing.</p>
+  <p>How these numbers were made: <code>node eval/elephant-length.mjs</code> in the project's source reruns the simulation with fixed seeds; the test suite checks this page's table against it. See also: the <a href="./">Secret Santa generator</a> for exchanges without stealing.</p>
+  <p><a class="cta" href="./white-elephant.html">Open the white elephant host</a></p>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is. A friendly party-game helper, not legal, financial or tax advice. Best-effort hosting, no SLA. Not affiliated with any gift-exchange service or retailer.</p>
+  </footer>
+</body>
+</html>

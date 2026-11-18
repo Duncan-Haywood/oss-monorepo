@@ -86,6 +86,9 @@ const SI_PREFIX = { EXA: 1e18, PETA: 1e15, TERA: 1e12, GIGA: 1e9, MEGA: 1e6, KIL
 
 export class Model {
   constructor(text, schemas) {
+    // The file's bytes (a Uint8Array) are read as they are, STEP and ifcXML
+    // alike, so the file is never one string on the heap
+    // (eval/step-bytes-2026-11-18.md, eval/ifcxml-bytes-2026-11-18.md).
     // An ifcXML model is read by its schema's attribute order (ifcxml.mjs).
     const xmlId = looksLikeXml(text) ? ifcXmlSchemaId(text) || "(not found in the ifcXML header)" : null;
     const xs = xmlId && schemas[xmlId];
@@ -318,6 +321,9 @@ export class IdsValue {
     const sv = kid(node, "simpleValue");
     if (sv) { this.simple = sv.text.trim() === sv.text ? sv.text : sv.text; return; }
     const r = kid(node, "restriction");
+    // Bare text with no <simpleValue> breaks ids.xsd (structure.mjs says so);
+    // read it as the value its author wrote rather than as "any value".
+    if (!r && !node.children.some((c) => c.local) && node.text.trim() !== "") { this.simple = node.text.trim(); return; }
     if (r) {
       const base = (r.attrs.base || "").replace(/^\w+:/, "");
       const get = (n) => kids(r, n).map((k) => k.attrs.value);
@@ -684,9 +690,11 @@ export class PropertyFacet {
   constructor(node) {
     this.kind = "property";
     this.propertySet = new IdsValue(kid(node, "propertySet"));
-    this.baseName = new IdsValue(kid(node, "baseName"));
+    // IDS 0.9 wrote <name> and datatype; read them as 1.0's baseName and
+    // dataType (structure.mjs still reports them, fix.mjs rewrites them).
+    this.baseName = new IdsValue(kid(node, "baseName") || kid(node, "name"));
     this.value = new IdsValue(kid(node, "value"));
-    this.dataType = (node.attrs.dataType || "").toUpperCase() || null;
+    this.dataType = (node.attrs.dataType ?? node.attrs.datatype ?? "").toUpperCase() || null;
   }
   // The values one property holds, each {v, type} with v converted to SI units.
   values(model, p) {

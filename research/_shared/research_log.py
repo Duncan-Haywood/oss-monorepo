@@ -6,6 +6,7 @@
     python3 research/_shared/research_log.py labels marine-hull        # last label, next free one, reuses
     python3 research/_shared/research_log.py labels marine-hull --ref origin/main   # also count main's
     python3 research/_shared/research_log.py labels marine-hull --ref origin/main --prs   # and open PRs'
+    python3 research/_shared/research_log.py chain marine-hull         # sub-steps of the newest milestone
 
 A project is a slug under research/ or a path to a LOG.md. Entries are the `## ` headings
 (research/CLAUDE.md: `## <date> · <title>`, newest first).
@@ -36,6 +37,16 @@ pre-registered the same ones and the later lander renumbered them at merge, whic
 a pre-registration after the fact: sensing-selfcal's 3b and 4s both planned H104-H107
 (renumbered H108-H112, 2026-11-16), a heavy-hydraulics-style 5g renumbered H51-H55
 (2026-11-13); main alone could not show either, since the sibling had not merged yet.
+
+`chain` counts the sub-steps under the newest milestone number (6, 6a, ..., 6zzzk) and the
+log entries since a heading last named a paper step. Why: a research run reported on
+2026-11-18 (PR #17327) that marine-hull's last ten milestones were single-knob reruns
+(6zzz to 6zzzh) and that nothing in the draw said when a chain had hit diminishing returns.
+A scan of the 21 logs with five or more labelled entries that day found 12 whose newest
+number had 10+ sub-steps: marine-hull 100 (6, 2026-10-29..11-18), cell-fidelity 98 (5, no
+paper/ directory), llm-coding-inference 58, aerolog-scaling 40 (log entries; distinct labels:
+89, 49, 56 and 40). A long chain is not wrong
+in itself (a design sweep can need it); the count is a cue, and the call stays the run's.
 """
 import argparse
 import re
@@ -232,6 +243,42 @@ def labels_report(text, extra="", gap=2):
     return lines
 
 
+# A heading that reports writing the paper, not one that merely says "paper" (aerolog-scaling's
+# "census paper weights" is a model term, not a write-up step).
+PAPER_STEP = re.compile(r"\bpaper (section|step|draft|catch-up)|\bfull paper\b|\bDRAFT\.md\b|"
+                        r"\bmanuscript\b|\bwrite-up step\b|\bthe paper draft\b", re.I)
+
+
+def chain(text):
+    """(number, n_substeps, first_label, last_label, first_date, last_date, since_paper) for the
+    newest milestone number of a LOG.md, or None with fewer than two labelled entries.
+    n_substeps counts distinct labels `<number>[a-z]*`; since_paper is how many entries (newest
+    first) come before the newest PAPER_STEP heading, None when no heading names one."""
+    es = newest(text, 10 ** 6)
+    labelled = [(label(e[1])[1], entry_date(e[1])) for e in es if label(e[1])]
+    if len(labelled) < 2:
+        return None
+    num = re.match(r"\d+", labelled[0][0]).group(0)
+    same = [(lab, d) for lab, d in labelled if re.fullmatch(num + r"[a-z]*", lab)]
+    labs = list(dict.fromkeys(lab for lab, _ in same))
+    dates = sorted(d for _, d in same if d)
+    since = next((i for i, e in enumerate(es) if PAPER_STEP.search(e[1])), None)
+    return (num, len(labs), labs[-1], labs[0], dates[0] if dates else "", dates[-1] if dates else "", since)
+
+
+def chain_report(text, has_paper_dir=True):
+    c = chain(text)
+    if c is None:
+        return ["no labelled headings to chain"]
+    num, n, first, last, d0, d1, since = c
+    out = [f"milestone {num}: {n} label(s), {first}..{last}" + (f", {d0}..{d1}" if d0 else "")]
+    if since is None:
+        out.append("paper step: no heading names one" + ("" if has_paper_dir else " (and no paper/ directory)"))
+    else:
+        out.append(f"paper step: {since} entr{'y' if since == 1 else 'ies'} since the newest heading naming one")
+    return out
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -245,6 +292,8 @@ def main(argv=None):
     b.add_argument("--prs", action="store_true",
                    help="also count labels and hypotheses in open research/<slug> PRs' LOG.md")
     b.add_argument("--gap", type=int, default=2)
+    c = sub.add_parser("chain", help="sub-steps under the newest milestone number, entries since a paper step")
+    c.add_argument("project")
     args = ap.parse_args(argv)
     path = log_path(args.project)
     if not path.is_file():
@@ -256,6 +305,9 @@ def main(argv=None):
             print(f"## {head}")
             if not args.headings:
                 print("\n".join(body).rstrip() + "\n")
+        return 0
+    if args.cmd == "chain":
+        print("\n".join(chain_report(text, (path.parent / "paper").is_dir())))
         return 0
     extra = ref_text(path, args.ref) if args.ref else ""
     if args.ref and not extra:

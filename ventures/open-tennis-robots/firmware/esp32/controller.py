@@ -29,6 +29,7 @@ import json
 import math
 from array import array
 import os
+import sys
 
 import protocol as P
 
@@ -318,6 +319,40 @@ LOOP_SE_MAX = 0.01
 LOOP_UNSURE = 64
 TICK_LOG = 240        # control ticks LaunchCheck keeps per wheel for it: a 0.9 s stroke and the 0.25 s check are 115,
                       # and a slow wheel's watch past the verdict (EXTEND_MS) up to 120 more
+# A queued survey's tick logs, packed (2026-11-18, README "A queued survey's heap"). Each control tick logs a tuple
+# (edge count, us since that edge, the command). On the ESP32's MicroPython a 3-tuple takes two 16-byte heap blocks
+# and the command a boxed float of one more, so a wheel's log costs about 48 bytes a tick, and a survey waiting in the
+# queue held 11.1-12.8 KB on the simulator's drills (tests/survey_heap.py) on a heap that starts at 56 KB. Packed into
+# three arrays it is 12 bytes a tick, and a queued survey 3.4-4.0 KB. The values are unchanged: the counts and times are integers, and the board's floats are single
+# precision, which is what array "f" holds. On the host the command array is "d" so the simulator stays bit for bit.
+_TICK_FLOAT = "f" if sys.implementation.name == "micropython" else "d"
+
+
+class PackedTicks:
+    """One wheel's tick log as three arrays, iterated as the (edges, us, command) tuples it was made from."""
+
+    def __init__(self, log):
+        self.c = array("l", (t[0] for t in log))
+        self.us = array("l", (t[1] for t in log))
+        self.u = array(_TICK_FLOAT, (t[2] for t in log))
+
+    def __len__(self):
+        return len(self.c)
+
+    def __bool__(self):
+        return len(self.c) > 0
+
+    def __iter__(self):
+        c, us, u = self.c, self.us, self.u
+        for i in range(len(c)):
+            yield c[i], us[i], u[i]
+
+
+def pack_ticks(ticks):
+    """Both wheels' tick logs packed (`PackedTicks`); a log already packed is kept as it is."""
+    return [t if isinstance(t, PackedTicks) else PackedTicks(t) for t in ticks]
+
+
 # A slow wheel's watch past the verdict (2026-11-16, README "Slow wheels watched past the verdict"). The verdict comes
 # 250 ms after the stroke, about 0.39 s after the ball: three or four revolutions at 520-750 rpm, where the loop fit
 # wants `drop_from_commands_steps`' eight after its anchor. So when a launched stroke's turning wheel has fewer than
@@ -378,7 +413,12 @@ ESC_SURVEY_AFTER = 16
 # between strokes and after the drill. The oldest waiting beyond this many is dropped (`survey_cut`). Each holds one
 # ball's two snapshots and tick logs (up to TICK_LOG entries a wheel), so the depth is kept small for the ESP32's heap:
 # on the rally drill 2 surveyed 18-20 of 32 wheels, 3 got 20-22, 4 got 22-24 (the Pi's end wait, ESC_SURVEY_S, counted).
-SURVEY_QUEUE = 2
+# 3 since 2026-11-18 (README "A queued survey's heap"): with the tick logs packed (PACK_SURVEY_TICKS) a survey holds
+# 3.4-4.0 KB, not 11.1-12.8, so three pin at most 12.0 KB where two pinned 25.6 (tests/survey_heap.py, 9 drills), and
+# depth 3 surveyed 2 more wheels on each of the 9 drills.
+SURVEY_QUEUE = 3
+# Pack a survey's tick logs before it is queued (`PackedTicks`; README "A queued survey's heap").
+PACK_SURVEY_TICKS = True
 # A wheel whose best fit over the grid misses by more than this many times the median wheel's best is left out of the
 # sums (2026-11-16, README "One wheel's misses outvoted the drill"): with tach jitter one wheel in 56 could fit 30 times
 # worse than the rest, and its square alone set the pick (0 instead of 100 ms on 6 of 102 simulated builds). 3 / 5 / 10
@@ -1989,6 +2029,11 @@ class LaunchCheck:
             self.record = (seq, int(round(speeds[0])), int(round(speeds[1])), min(32767, drops[0]),
                            min(32767, drops[1]), flags)
         if self.survey or (self.take_on and self.take_survey is not None):
+            if PACK_SURVEY_TICKS:
+                packed = pack_ticks(ticks)
+                if self.last_ticks is ticks:
+                    self.last_ticks = packed      # so the tuples are freed once the record's fit is done with them
+                ticks = packed
             self.queue_survey(self._survey(snap, ticks, edges0, targets))
 
     def queue_survey(self, survey):

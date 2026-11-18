@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVM3KGJkek7SK4UFawf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T18:05:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "bank-statement-pdf-to-csv: OFX/QFX/QBO/QIF bank files and multi-statement join with month-to-month balance check",
+  "projects": [
+    "ventures/bank-statement-pdf-to-csv"
+  ],
+  "pr": 17379,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 16,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row was chant-forge (18 prior leavers; its buildable items are narrow OMR/coda tuning). Other Deepen rows had open PRs or items needing real files. Took a non-flagship venture with a clear paid market instead: per-page statement converters charge for QBO/OFX export and batch, both buildable here with no outside input.",
+      "did": "Deepened bank-statement-pdf-to-csv with bank-file export and a year-of-statements join",
+      "result": "Shipped; 3 independent OFX readers, 0 mismatches on 12 files"
+    },
+    {
+      "file": "ventures/bank-statement-pdf-to-csv/VENTURE.yaml",
+      "why": "VENTURE.yaml named batch conversion as the paid candidate; shipped it free because it has no per-user cost, as OCR was. Noted in VENTURE.yaml and the README."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-a-missing-month-shows-up-as-its-own-amount.md"
+  ],
+  "goal": null,
+  "notes": "Verification: run_venture_tests.py bank-statement-pdf-to-csv 94 tests ok; eval/bank-files-2026-11-18.txt: ofx-file-check, ofxtools 1.1.1 and ofxparse 0.21 read all 12 files with 0 mismatches. The first eval run found that strict readers reject a file without LEDGERBAL; fixed. With June left out, the gap equals June's net (2,383.17). Headless Chromium page drive: 2-file gap 925.01 shown; 3-file join proved and downloaded a 6-row .qbo; 0 page errors, 0 external requests. Not tested: a real QuickBooks/Quicken import, real banks' statements.",
+  "corrections": [],
+  "redteam": null
+}

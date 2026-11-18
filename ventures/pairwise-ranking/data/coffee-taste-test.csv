@@ -1,0 +1,21 @@
+preferred,other,count
+Ethiopia washed,Colombia,7
+Colombia,Ethiopia washed,5
+Ethiopia washed,Brazil,9
+Brazil,Ethiopia washed,3
+Ethiopia washed,Sumatra,8
+Sumatra,Ethiopia washed,4
+Ethiopia washed,House blend,10
+House blend,Ethiopia washed,2
+Colombia,Brazil,7
+Brazil,Colombia,5
+Colombia,Sumatra,6
+Sumatra,Colombia,6
+Colombia,House blend,9
+House blend,Colombia,3
+Brazil,Sumatra,5
+Sumatra,Brazil,7
+Brazil,House blend,8
+House blend,Brazil,4
+Sumatra,House blend,7
+House blend,Sumatra,5

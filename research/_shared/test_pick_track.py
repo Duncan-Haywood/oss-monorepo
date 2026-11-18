@@ -740,3 +740,22 @@ class TrackFallbackTest(unittest.TestCase):
 
     def test_no_programmes_for_track_prints_nothing(self):
         self.assertEqual(self.lines([]), [])
+
+
+class ChainLineTest(unittest.TestCase):
+    LOG = "".join(f"## 2026-11-{10 + i // 10:02d} · Milestone 6{'z' * (i // 26)}{chr(97 + i % 26)}: knob {i}\n"
+                  for i in range(30, -1, -1))
+
+    def test_long_chain_prints_cue(self):
+        line = pick_track.chain_line("x", text=self.LOG)
+        self.assertTrue(line.startswith("CHAIN: milestone 6 has 31 sub-steps"))
+        self.assertIn("no LOG heading names a paper step yet", line)
+
+    def test_short_chain_prints_nothing(self):
+        self.assertIsNone(pick_track.chain_line("x", minimum=40, text=self.LOG))
+
+    def test_unlabelled_log_prints_nothing(self):
+        self.assertIsNone(pick_track.chain_line("x", text="## 2026-11-10 · notes\n- a\n"))
+
+    def test_missing_log_prints_nothing(self):
+        self.assertIsNone(pick_track.chain_line("no-such-programme-slug"))

@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKnoVw9uE7GRWzPjEek",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T18:18:08Z",
+  "ended": "2026-11-18T18:52:33Z",
+  "wall_minutes": 34.68,
+  "tokens_in": 8393751,
+  "tokens_out": 33723,
+  "cost_usd": 3.3797,
+  "tool_calls": 78,
+  "task": "ids-model-check flagship: ifcXML read from the file's bytes (top next: item)",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17385",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first version of ifcxml-bytes.test.mjs asserted lazy geometry on the nested IFC4 layout and then on tiny-house.ifcxml; neither keeps lazy geometry (nested elements are read early), so the assertion moved to the IFC2X3 fixture",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start-here pointed at chant-forge again although 18 sessions in 2 days left it for the same reason; the row still lacks inputs_only or a refreshed buildable list, so each run spends time re-checking it."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook rejects a command where the bracketed pattern's text also appears elsewhere on the line (here the http.server launch); the CLAUDE.md note only says to bracket the first letter."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here named chant-forge (row 6), whose buildable items 16+ prior sessions judged too narrow (narrow coda-reader and OMR tuning).",
+      "did": "Took ids-model-check (row 7, Deepen, no open PR) and its top next: item, ifcXML from bytes, a concrete scalability limit with a measurable result.",
+      "result": "Landed: 374 MB ifcXML parse heap 800 to 448 MB, a 680 MB ifcXML now opens, reports identical."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-ids-model-check-ifcxml-from-bytes.md",
+    "ventures/ids-model-check/eval/ifcxml-bytes-2026-11-18.md"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test *.test.mjs in ventures/ids-model-check 250 pass 0 fail; heap-compare hashes identical main vs branch on HHS MEP, Schultz and federated 374 MB ifcXML with 68 IDS; page-smoke in Chromium no console errors; PR CI green; run_workflow_locally --for-changes and venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8b0ceb23-a3c1-5678-9ecb-a0c78efb7553",
+    "transcripts": 1,
+    "first": "2026-11-18T18:18:08Z",
+    "last": "2026-11-18T18:52:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 135,
+        "output": 33723,
+        "thinking": 6490,
+        "cache_read": 8262085,
+        "cache_write_5m": 0,
+        "cache_write_1h": 131531,
+        "api_equivalent_usd": 3.3797,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 135,
+      "output": 33723,
+      "thinking": 6490,
+      "cache_read": 8262085,
+      "cache_write_5m": 0,
+      "cache_write_1h": 131531,
+      "api_equivalent_usd": 3.3797,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 78,
+    "tools": {
+      "Bash": 68,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "TaskStop": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 34.68,
+      "active_minutes": 34.68,
+      "model_minutes": 5.13,
+      "tool_minutes": 29.54,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "senior JS engineer: byte-level XML reader, equivalence tests, heap benchmarks on 4 large models",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 236.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

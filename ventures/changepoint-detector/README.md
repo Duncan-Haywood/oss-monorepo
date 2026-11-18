@@ -6669,6 +6669,65 @@ label less reliably), two non-step shapes, independent loadings, one shocked don
 of stores or regions (short after-periods, where the word should help); a slope or pulse on two donors; a shape word
 read against the panel's own trend (detrended thirds) for long compounding series.
 
+### The shape word against the panel's own trend (2026-11-18, pre-registered; bar 1 fails by 0.4 points, not shipped)
+
+"A donor's own event that is not a step" ended: "a shape word read against the panel's own trend (detrended thirds)
+for long compounding series". On West Germany 1990, 12 of 16 placebos' gaps 'grew', because gaps in GDP per head
+compound for 14 years whatever happened, so the word named nearly everyone. `panelShapes` (synth-control.mjs) takes
+every unit's gap (treated and placebos), finds the median of log(last-third over first-third mean square), the
+panel's **centre**, and, when the centre itself reaches the frozen ratio 6 (the median unit would be called 'grew'),
+words each unit by how far it stands from the centre at the same ratio; otherwise the plain word stands. No new
+constant. An all-relative variant (always subtract the centre) was tried first in the exploratory run and cost the
+trendless panels' sensitivity, so it was not tested.
+
+`eval/synth-shape-trend-sim.mjs` (pre-registration `eval/synth-shape-trend-prereg-2026-11-18.md`, committed after
+the exploratory run at base 88000 and before the confirmatory one): three families at 11 and 16 units, one donor with
+its own step, slope or pulse. **Trendless**: the donor-shape cells, unchanged. **Wandering**: a random walk of step sd
+0.15 or 0.3 on top of noise. **Growing**: compounding levels like GDP per head, each unit with its own persistent
+growth deviation, calibrated so the median panel's centre is 6-8. Confirmatory, base 89000, 400 panels a cell
+(`eval/synth-shape-trend-confirm.out.txt`), pooled:
+
+| family | line | plain | hybrid |
+|---|---|---|---|
+| trendless | pulse 'faded' / step 'held' / big slope 'grew' | 90.3% / 93.2% / 77.0% | 90.3% / 93.2% / 76.8% |
+| trendless | clean units listed above given a word | 20.3% | 20.3% |
+| wandering | big slope 'grew' | 70.7% | **68.8%** |
+| wandering | clean units listed above given a word | 29.2% | 28.7% |
+| growing | clean units listed above given a word | **70.1%** | **41.6%** |
+| growing, panels where the rule switched on (49%) | clean units listed above given a word | 80.2% | **22.2%** |
+| growing | all placebos 'grew' | 51.1% | 27.2% |
+| growing | pulse 'faded' | 74.3% | 78.4% |
+| growing | slope 'grew' (1x / 2x the effect) | 86.9% / 96.0% | 32.7% / 33.0% |
+
+Bars: (1) hybrid within 1.5 points of plain on every trendless and wandering line: **fails** on one line, wandering
+big slope 'grew', 1.9 points (70.7% to 68.8%; the rule switched on in 1-3% of wandering panels and there it can
+read a donor's slope as the panel's own trend); every other line within 0.6. (2) the earlier bars under the hybrid
+word: 90.3%, 93.2%, 76.8%, 20.3%, all hold. (3) growing, clean units given a word at least 20 points fewer: 28.5,
+holds. (4) where the rule switched on, at most 30%: 22.2%, holds. (5) pulses still named: 78.4% against 74.3%,
+holds. (6) 'grew' at most 60% of plain's share: 27.2% against 51.1%, holds.
+
+**What it says.**
+- **On compounding panels the plain word names most units; read against the panel it names about one in five.**
+  Where the median gap grew six times or more, 80% of clean units listed above the treated one got a word, against
+  22% with the hybrid word, about the trendless panels' 20%.
+- **A donor's own slope cannot be told from the panel's growth.** With the hybrid word a slope donor in a growing
+  panel is called 'grew' about a third of the time, close to the 27% of all placebos that get it. The plain word's
+  86-96% was no better: 70% of clean units got a word too. On these panels, neither word picks out a slope.
+- **On West Germany 1990** (`eval/synth-shape-trend-real.mjs`, a description run after the confirmatory one): the
+  centre is 21.8 and the hybrid word calls 2 of 16 placebos 'grew' (Norway, Spain), 4 'faded' (Japan, Greece,
+  Australia, New Zealand: their gaps grew much less than the panel's) and 10 'held'; West Germany's own gap 'held'.
+  The Basque panel's centre is 2.4, so its words are unchanged.
+
+**Not shipped (decided in the pre-registration).** Bar 1 failed, so `panelShapes` and `relShape`, `shapeCentre`
+and `shapeRelative` on `synthControlTest`'s result stay in the module only. The CLI, page and `--json` keep the
+plain word and the existing "most share the word" note. `synth-shape-trend.test.mjs` pins `panelShapes`, the two
+real panels, the unchanged CLI output, and re-checks every bar against the confirmatory file.
+
+**Limits.** The growing family is one generator with one persistence (AR 0.9). Twelve points after the date. The
+switch is all or nothing at the centre 6. **Next:** a fresh pre-registration whose bar 1 is scored only on the
+panels where the rule switches on, with the wandering cost reported beside it; or the hybrid word offered as an
+option, not the default, with this table quoted.
+
 ## Currency pegs: the update-rate check against documented dates (2026-11-18, pre-registered; D1 fails, a hang fixed)
 
 The update-rate check ("When a series starts updating less often") had only ever been scored in
@@ -6798,3 +6857,58 @@ before the window; California's empty 2022; Kentucky's autumn change; the commit
 Next: a moving-back check (more often) needs either a lower penalty for that direction, which would have
 to be pre-registered on simulated short returns first, or a set where publication resumes for longer than
 a few months.
+
+## Short returns to more frequent updates: a scan for them, pre-registered twice (2026-11-18; both rounds fail, not offered)
+
+The COVID-schedules round above dated 0 of the 8 documented moves *back* to more frequent publication:
+Vermont, Arkansas and Alabama resumed daily figures for a few months in late summer 2021, and two cuts at
+2 x 2 log n each do not pay for a two-month dip in repeats. Its "Next" asked for a lower penalty for that
+direction, pre-registered on simulated short returns first. This is that test.
+
+**The pass** (`shortReturns` and `bestReturn` in `update-rate.mjs`). Inside each stretch the shipped check
+finds, it looks for the single interval with fewer repeats than the rest of the stretch. The parts before and
+after share one two-state chain, because the old schedule came back. The pass costs one penalty, `m x 2 log n`,
+instead of two cuts. It never moves the shipped cuts. `eval/update-rate-returns.mjs` fixed the cells, the
+choice rule and the bars before any cell ran (commit 8875e1fa2). Null cells: the six chains of the original
+calibration at n 300 and 600, plus three publication schedules at n 1,100 (Monday-Friday, Monday/Wednesday/Friday,
+and daily turning into Monday-Friday for good). Power cells: Monday-Friday with 30, 60 or 90 days of daily
+publication, and independent repeats at 25% with 60 days at 2%. Choice: the smallest m whose false returns are at
+most 0.010 a series in every null cell. Confirmation bars: R1, false returns at most 0.020 in every null cell; R2, the
+60-day return found (start within 10 days) in at least 120 of 200 series; R3, at least 60 more than the shipped check
+alone finds.
+
+**Round 1, m from 0.5 to 2 (`eval/update-rate-returns.out.txt`): no m met the choice rule.** At m 2 the worst null
+cells were Monday/Wednesday/Friday 0.085, M60 at n 600 0.050 and B60 at n 300 0.045 false returns a series. Taking
+the best interval over every start and end is a scan statistic, and a scan needs a larger penalty than one cut.
+
+**Round 2, m from 2 to 4, fresh seeds (pre-registered after round 1's file, before it ran;
+`eval/update-rate-returns-2.out.txt`): m 3 chosen; R1 passes, R2 and R3 fail.**
+
+| confirmation seed 20261221, m 3 | found of 200 | shipped check alone |
+|---|---|---|
+| worst null cell, false returns a series | 0.000 | |
+| 30 days of daily inside Monday-Friday | 0 | 0 |
+| 60 days | **0** (bar 120) | 0 |
+| 90 days | 42 | 0 |
+| 60 days at 2% inside independent 25% | 23 | 1 |
+
+At the false-alarm budget the check already keeps (about 0.01 a series), a two-month return from 30% repeats to
+3% cannot be told from chance clumps in the same series. The calibration seed shows how steep the trade is: the
+60-day return is found in 105 of 200 at m 2 (0.090 false in the worst cell), 37 at m 2.5 (0.015) and 0 at m 3. The
+real check (J1, JHU's eight returns) ran only if R1 to R3 passed, so it did not run. `shortReturns` stays in the
+module with `SHORT_RETURNS.mult = null`, so it returns nothing unless a caller passes a penalty. Nothing the CLI or
+the page prints changes.
+
+**What binds** (post hoc, read off the two files, deciding nothing): the Monday/Wednesday/Friday null is the
+highest cell in both rounds (0.090 at m 2, 0.015 at m 2.5, where every other cell is at most 0.005). A two-state
+chain describes a fixed weekly schedule badly: whether today repeats depends on the day of the week, not on
+yesterday. The scan then finds intervals where chance happens to line up with the chain's misfit. Short returns
+cost that much because the cost model ignores the calendar, not because 60 days is too little data: a return to
+daily publication changes about 17 weekend days from repeating to moving.
+
+Next: a day-of-week repeat cost (one repeat probability per weekday in each stretch, for daily series with dates),
+pre-registered on the same cells. It should tighten the periodic nulls and sharpen exactly these returns. Then
+JHU's eight returns, which are seen data.
+
+Test: `update-rate-returns.test.mjs` (the pass finds a planted return and its edges, looks only for fewer repeats,
+is off by default, and both rounds' committed verdicts).

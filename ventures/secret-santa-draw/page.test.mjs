@@ -2,10 +2,11 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { buildAllowed, countDraws, draw, mulberry32 } from "./calc.mjs";
+import { table } from "./eval/elephant-length.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "secret-santa-rules-for-couples-and-no-repeats.html";
-const GUIDES = [GUIDE, "how-many-people-do-you-need-for-secret-santa.html", "secret-santa-for-remote-teams-without-email.html"];
+const GUIDES = [GUIDE, "how-many-people-do-you-need-for-secret-santa.html", "secret-santa-for-remote-teams-without-email.html", "white-elephant-rules-steal-limits.html", "white-elephant.html"];
 
 test("index page carries the disclaimer, privacy line, honor-system caveat and sponsor link", () => {
   const html = page("index.html");
@@ -99,4 +100,29 @@ test("new guides are linked from the index and listed in the sitemap, with the d
     assert.match(page(g), /No warranty/);
     assert.match(page(g), /<link rel="canonical" href="\.\/[^"]+">/);
   }
+});
+
+test("white elephant guide: every table row is the simulation's output", () => {
+  const html = page("white-elephant-rules-steal-limits.html");
+  const rows = table();
+  assert.equal(rows.length, 12);
+  for (const r of rows) assert.ok(html.includes(`<tr><td>${r.n}</td><td>${r.max}</td><td>${r.median}</td><td>${r.p90}</td></tr>`), `${r.label} ${r.n}`);
+  const at = (label, n) => rows.find((r) => r.label === label && r.n === n);
+  const f2 = at("Frozen after 2 steals", 20), f3 = at("Frozen after 3 steals", 20), t1 = at("Frozen after 3, one steal per turn", 20);
+  assert.ok(html.includes(`median ${f3.median} moves either way`) && f2.median === f3.median);
+  assert.ok(html.includes(`cuts the median from ${f3.median} to ${t1.median} moves and the slow tail from ${f3.p90} to ${t1.p90}`));
+});
+
+test("white elephant host page: labels, disclaimer, nothing sent", () => {
+  const html = page("white-elephant.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /Everything runs in your browser/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  const inputs = [...html.matchAll(/<(input|select|textarea)\b[^>]*>/g)].map((m) => m[0]);
+  for (const tag of inputs) {
+    const id = tag.match(/\sid="([^"]+)"/)?.[1];
+    assert.ok(/aria-label=/.test(tag) || (id && new RegExp(`<label[^>]*for="${id}"`).test(html)) || /type="checkbox"/.test(tag), `unlabelled: ${tag}`);
+  }
+  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  assert.doesNotMatch(page("elephant.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|import\(/);
 });

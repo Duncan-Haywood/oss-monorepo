@@ -30,6 +30,16 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on **aud
 
 ![Predicted against observed miss rate per cell, real phones](experiments/threshold/libriwasn_pred_vs_obs.png)
 
+**Step 3j (2026-11-18): does the simulated room predict the real phones? Yes for which noise breaks sync and what fixes it; no for how often.** Steps 3c-3i were all run on speech through statistical rooms. This step put the same nine kinds of real recorded noise (plus white) on step 1's five real LibriWASN phones, independently per phone, and ran plain partial-whitening GCC (gamma 0.25) against the envelope-normalised estimator `fn` on 168,000 2 s windows (step 1's windows replayed bit for bit: 6 of 6 of its cells reproduce to the digit). Each real cell sits beside its simulated twin at -10 dB:
+
+- **The twin gets the ranking right.** Across the ten noise types the real failure shares rank like the simulated ones (Spearman 0.98 and 1.00 for plain GCC, 0.89 and 1.00 for `fn`, in the 200 ms and 800 ms rooms), and the sign of `fn`'s effect agrees for 9 and 8 of 10 types.
+- **The fix carries to real phones.** `fn` takes typing from **66% to 2.8%** and **79% to 1.3%** of windows a frame off, munching 28-39% to 2-3%, door 22-32% to 2-3%, neighbours 52-69% to 14-24%. Summed over the ten types it halves the failure (2.78 to 1.33 and 4.01 to 2.11).
+- **So does its cost.** On steady noise `fn` is worse on the real phones too, by more than in simulation: air conditioner +7.4 and +10.5 points (simulated +8.6 and +7.0), vacuum cleaner +3.2 and +7.6.
+- **The twin is optimistic about the absolute level.** `fn` fails 13% and 21% of real -10 dB windows on average against 11% and 13% simulated; on white noise the real phones fail 5-10% where the simulated room fails under 1%, and `fn`'s impulsive residual is 1.3-2.9% real against 0.0-0.3% simulated. A gate must be calibrated on real recordings, not on the twin.
+- **A single 1% gate on the real phones:** on `fn`'s PSR it keeps 78% and 65% of -10 dB windows and holds 2% wrong among accepted for 7 and 6 of 10 types (misses: speech-like noise, 3-7%); on plain GCC it refuses 98% and 100% of them on average.
+
+![Real phones against the simulated room, plain and normalised GCC, -10 dB](experiments/real-devices/noisereal_twin.png)
+
 **Step 3i (2026-11-18): should a rig switch between plain and envelope-normalised GCC per window? Not by kurtosis: always normalising does as well.** Step 3h's normalised correlation fixed keyboard, bite and door noise but cost a few points on steady noise, so this step fitted a per-window switch on the window's own frame-energy kurtosis (threshold chosen on calibration sessions, tested on held-out ones; 62,000 windows replayed bit for bit). Results at -10 dB, 2 s windows, noise independent at each device:
 
 - **The fitted switch sends almost everything to the normalised estimator** (94-100% of windows for every noise type except air conditioner, 62-75%, and vacuum, 82-84%), because read speech is itself bursty: clean speech's kurtosis sits above the threshold.
@@ -118,6 +128,9 @@ python experiments/gate/noiselevel_figure.py
 OMP_NUM_THREADS=1 python experiments/gate/noiseshared.py collect ~/ms-snsd /tmp/windows_f.npz --procs 4   # step 3f, ~25 min
 OMP_NUM_THREADS=1 python experiments/gate/noiseimpulse.py collect ~/ms-snsd /tmp/windows_h.npz --procs 4   # step 3h, ~11 min
 OMP_NUM_THREADS=1 python experiments/gate/noiseselect.py collect ~/ms-snsd /tmp/windows_i.npz --procs 4   # step 3i, ~9 min
+OMP_NUM_THREADS=1 python experiments/real-devices/noisereal.py collect ~/libriwasn ~/ms-snsd /tmp/windows_j.npz --procs 4   # step 3j, ~18 min
+python experiments/real-devices/noisereal.py score /tmp/windows_j.npz   # noisereal_results.txt, noisereal_summary.json
+python experiments/real-devices/noisereal_figure.py
 python experiments/gate/noiseselect.py score /tmp/windows_i.npz && python experiments/gate/noiseselect_figure.py
 python experiments/gate/noiseimpulse.py score /tmp/windows_h.npz && python experiments/gate/noiseimpulse_figure.py
 python experiments/gate/noiseshared.py score /tmp/windows_f.npz   # noiseshared_results.txt, noiseshared_summary.json
@@ -386,6 +399,37 @@ Predictions: (a) replay held; (b) `ms` orders levels at AUROC 0.90 for 7 of 9 ty
 
 **Limits of step 3e.** Everything in step 3c's limits (simulated rooms, one speech corpus, noise independent per device). The tracker is a simplified minimum-statistics estimator with fixed smoothing and no bias compensation; Martin's full tracker, or a speech-presence-based one, might rank steady-but-coloured noise better, but cannot change the impulsive case, where the noise's bursts look like speech to any single-channel level estimate (an interpretation, not tested here). Context is 4 s; noise that changes kind within it is not modelled.
 
+## Step 3j: the simulated room against the real phones (`experiments/real-devices/noisereal.py`)
+
+**Question.** Steps 3c-3i measured every noise result on MS-SNSD speech through statistical rooms with a simulated delay, and step 3i made the envelope-normalised estimator `fn` the default on that evidence. Does the simulation (the programme's digital twin of a recording room) predict what happens on real phones, with real clocks, reverberation, microphones and their own recorded noise? Plan and eight predictions in `LOG.md`, written before the run.
+
+**Method.** LibriWASN 200_0S and 800_0S (10 sessions each, 5 phones, 10 pairs), step 1's reference lines and its 40 seeded 2 s window times per pair, prior error uniform in &plusmn;1 s, search &plusmn;1.5 s. The loop consumes step 1's random stream exactly, so its windows and white noise are reproduced bit for bit. On each as-recorded pair, the nine MS-SNSD noise types at 0 and -10 dB window SNR, independent per phone (each phone from its own half of the type's files), from a second seeded generator. Per window: plain gamma 0.25 GCC and `fn` (gamma 0.25 on each phone's audio divided by its own 32 ms RMS envelope), error and PSR; failure = more than a 30 fps frame from step 1's reference. Gate T4: Mondrian-`snr_hat` Learn-then-Test, alpha 1%, delta 0.1, calibrated on sessions 0-4 of a room (all 21 conditions), tested per type at -10 dB on sessions 5-9. Twin: step 3h's simulated cell (RT60 0.2 s for the 200 ms room, 0.8 s for the 800 ms room). 168,000 windows, 18 min on 4 cores.
+
+**Results** ([`experiments/real-devices/noisereal_results.txt`](experiments/real-devices/noisereal_results.txt); -10 dB, raw failure share, plain / `fn`):
+
+| | 200 ms room, real | RT60 0.2 s, simulated | 800 ms room, real | RT60 0.8 s, simulated |
+|---|---|---|---|---|
+| white | 5.0 / 5.2% | 0.2 / 0.1% | 7.2 / 9.7% | 0.7 / 1.0% |
+| AirConditioner | 14.2 / 21.6% | 11.9 / 20.5% | 24.5 / 35.0% | 15.7 / 22.7% |
+| VacuumCleaner | 6.8 / 10.0% | 2.5 / 5.5% | 10.8 / 18.3% | 3.4 / 7.8% |
+| Babble | 41.1 / 36.4% | 58.7 / 39.0% | 59.9 / 51.2% | 63.5 / 43.5% |
+| CopyMachine | 24.1 / 16.2% | 30.4 / 14.1% | 43.7 / 30.4% | 35.7 / 17.9% |
+| AirportAnnouncements | 19.9 / 20.8% | 25.2 / 20.2% | 35.2 / 37.0% | 28.6 / 25.2% |
+| Munching | 27.5 / 2.9% | 29.6 / 0.1% | 38.5 / 2.4% | 29.3 / 0.3% |
+| Neighbor | 51.8 / 14.4% | 67.2 / 8.8% | 69.3 / 23.5% | 73.8 / 8.4% |
+| ShuttingDoor | 21.6 / 2.9% | 21.3 / 0.2% | 32.3 / 2.1% | 23.1 / 0.1% |
+| Typing | 65.7 / 2.8% | 78.1 / 0.1% | 79.1 / 1.3% | 80.4 / 0.0% |
+| mean of the ten | 27.8 / 13.3% | 32.5 / 10.9% | 40.1 / 21.1% | 35.4 / 12.7% |
+| Spearman real vs simulated over types | plain 0.98, `fn` 0.89 | | plain 1.00, `fn` 1.00 | |
+| T4 gate: types at or under 2%, mean kept, plain | 8 of 10, 2% | | 10 of 10, 0% | |
+| T4 gate, `fn` | 7 of 10, 78% | | 6 of 10, 65% | |
+
+Predictions: (a) replay, 6 of 6 step 1 cells equal, **held**; (b) `fn` halves plain for at least 3 of 4 impulsive types, **held** (4 of 4 in each room); (c) the air-conditioner cost transfers (more than 2 points), **held** (+7.4 and +10.5); (d) `fn` fails less summed over the ten types, **held**; (e) as recorded and at 0 dB, `fn` within 0.5 points of plain for every condition, **failed**: `fn` is *better* by up to 2.3 and 3.5 points (typing at 0 dB 3.7% to 1.4% and 0.3%; as recorded 0.9% to 0.8% and 0.4% to 0.1%); (f) T4, `fn` meets 2% for at least as many types as plain and keeps more, **failed on the first part** (7 against 8, 6 against 10), held on the second (78% and 65% kept against 2% and 0%); (g) exploratory, Spearman at least 0.8 and the effect's sign for 8 of 10, **held** in both rooms; (h) exploratory, the gap: `fn`'s mean failure is 2.4 and 8.4 points higher on the real phones than in the simulated room; plain's is 4.7 points lower in the drier room and 4.7 higher in the wetter.
+
+**Reading.** Plain GCC's 8 and 10 "types at 2%" under T4 are a gate that refuses: a calibration pool that contains typing at -10 dB, where plain GCC is confidently wrong, pushes every threshold up until almost nothing is accepted (and the few typing and munching windows it does accept are 78% and 29% wrong in the drier room). `fn`'s misses are the speech-like types (AirportAnnouncements 3.1-4.3%, Babble 4.9-7.3%, Neighbor 5.1-5.7%, CopyMachine 2.5% in the wetter room), as in simulation. What the twin gets wrong is level, not order: real white noise costs 5-10% where the simulated room costs under 1%, plausibly because the real phones' windows also carry the loudspeaker's colouring, the phones' own noise and a real late reverberant tail (not separated here).
+
+**Limits of step 3j.** One dataset, one loudspeaker playing read speech, phones not cameras; noise is added, not recorded in the room, and independent per phone; the start offset is simulated as in step 1. The twin comparison is per type and room over one simulated configuration (statistical rooms, DRR 0 dB), not a fitted twin. Step 1's reference line (closure up to 1.8 ms) is the truth.
+
 ## Step 3i: a per-window switch between plain and normalised GCC (`experiments/gate/noiseselect.py`)
 
 **Question.** Step 3h's envelope-normalised estimator (`fn`) wins on impulsive and speech-like noise and loses 3-9 points on steady noise. Can the window's own impulsiveness, the frame-energy kurtosis of step 3d, say which estimator to trust? Plan and nine predictions in `LOG.md`, written before the run.
@@ -565,7 +609,8 @@ The pattern holds for every weighting: at 2 and 4 s, PHAT agrees in 3 of 12 cell
 
 - Why the threshold model overpredicts long windows on real phones (step 2b): keep per-window outputs, regress predicted against observed failure on window SNR, speech activity and L, and try a nonstationary (segment-wise) version of the true-lag peak variance.
 - Babble shared between devices (one crowd heard by both), and why PHAT wins in babble: a whitening that adapts to the noise spectrum, not a fixed gamma.
-- A mix of shared and independent noise (step 3f tested each alone), and real repeating sounds, where step 3f's looped door recordings gave several equal peaks; envelope-normalised GCC (step 3h, the default since step 3i found a kurtosis switch adds nothing) checked on step 3f's shared noise and on LibriWASN's real phones; a switch on a noise-only feature, for the babble windows where the two estimators fail apart; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
+- A mix of shared and independent noise (step 3f tested each alone), and real repeating sounds, where step 3f's looped door recordings gave several equal peaks; envelope-normalised GCC (step 3h, the default since step 3i found a kurtosis switch adds nothing) checked on step 3f's shared noise (the real-phone check is step 3j); a switch on a noise-only feature, for the babble windows where the two estimators fail apart; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
+- After step 3j: calibrate the twin to the real phones (fit the simulated room's noise floor, DRR and late tail so white-noise failure matches step 1's 5-7%) and test whether the calibrated twin then predicts the real *levels*, not just the ranking; a gate set on the calibrated twin and tested on real phones is the sim-to-real question proper.
 - Baselines on equal windows: a Kammerl et al. (2014) style fingerprint sync and `paderwasn`'s online tracker.
 - Real ambient noise (licensed recordings) shared between devices, then owner camera clips with a clapper reference.
 

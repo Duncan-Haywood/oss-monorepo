@@ -116,8 +116,8 @@ for (const { model, ids } of pairUp(models, idsFiles, pairing)) {
       current = { model };
       try {
         const m = await readModel(join(root, model));
-        current.text = /\.ifc$/i.test(model) ? m.text : null;
-        current.parsed = parseModel(m.text);
+        current.text = /\.ifc$/i.test(model) ? m.bytes : null;
+        current.parsed = parseModel(m.bytes);
         gidIndexes.push({ model, index: globalIdIndex(current.parsed) });
       } catch (e) { current.error = e.message; }
     } else t0 = null;
@@ -146,7 +146,7 @@ const federation = crossModelGlobalIds(gidIndexes, { allow: sharedAllow });
   for (const [model, ids] of want) {
     try {
       const known = lines.get(model) || new Map();
-      for (const [k, v] of stepLines(readFileSync(join(root, model), "utf8"), ids)) known.set(k, v);
+      for (const [k, v] of stepLines(readFileSync(join(root, model)), ids)) known.set(k, v);
       lines.set(model, known);
     } catch { /* no line: the annotation names the file only */ }
   }

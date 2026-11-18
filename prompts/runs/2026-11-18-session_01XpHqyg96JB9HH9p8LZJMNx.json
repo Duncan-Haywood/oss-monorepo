@@ -1,0 +1,124 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyg96JB9HH9p8LZJMNx",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T16:38:56Z",
+  "ended": "2026-11-18T17:00:13Z",
+  "wall_minutes": 21.4,
+  "tokens_in": 3975011,
+  "tokens_out": 26087,
+  "cost_usd": 2.1043,
+  "tool_calls": 40,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17359",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "heavy-hydraulics milestones need a ~25 min data and cell-cache rebuild from Hugging Face before any new step can run; nothing warns a run of this up front, so plan background work around it (the LOG mentions it only inside outcomes)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-a-data-sheet-stand-in-for-gear-pump-own-picks-learns-from-one-family.md",
+    "research/heavy-hydraulics/LOG.md (7o)"
+  ],
+  "goal": null,
+  "notes": "Milestone 7o of heavy-hydraulics: predictions registered and pushed before any number; 7n results reproduced byte for byte (cmp) on rebuilt caches; 7o: owdt (A) 0.0053 vs owh 0.0056 vs oracle 0.0042; lambda 2.15, 0.00 without Danfoss; 3 of 7 held. Checks: 9 tests pass (tilt + ownpick), check_numbers 339 claims 0 missing, research homepage build ok, check_md_links ok, check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9b7a7e8e-345d-5c32-888e-b6d8c03ae1b4",
+    "transcripts": 1,
+    "first": "2026-11-18T16:38:56Z",
+    "last": "2026-11-18T17:00:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 74,
+        "output": 26087,
+        "thinking": 3874,
+        "cache_read": 3873999,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100938,
+        "api_equivalent_usd": 2.1043,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 74,
+      "output": 26087,
+      "thinking": 3874,
+      "cache_read": 3873999,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100938,
+      "api_equivalent_usd": 2.1043,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.4,
+      "active_minutes": 21.4,
+      "model_minutes": 4.09,
+      "tool_minutes": 17.32,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, registration, implementation, 25-min reproduction, analysis and write-up of one pre-registered milestone",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 285.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

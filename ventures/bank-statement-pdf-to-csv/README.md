@@ -108,10 +108,52 @@ tesseract CLI read the same picture slightly differently. No real bank's scan,
 phone photo of a curled page or non-English scan has been through it yet; that
 is the next input wanted.
 
+## Bank files and a year of statements at once (2026-11-18)
+
+`bankfile.mjs` writes the same proved rows as a bank download file, and joins
+several statements of one account into one run:
+
+- **OFX, QFX, QBO** (OFX 1.02 SGML, the version QuickBooks Desktop, QuickBooks
+  Online Web Connect and Quicken read) and **QIF**. Each transaction's FITID
+  is its date plus a hash of date, amount and normalised description, with a
+  counter for identical rows on one day, so the same row read from two
+  overlapping statements gets the same id and the importer skips it.
+  `LEDGERBAL` is the statement's printed closing balance (OFX requires one;
+  strict readers refuse a file without it, which the first eval run found);
+  a card's balance owed is written negative and its posting date is
+  `DTPOSTED` with the transaction date as `DTUSER`. Accents fold to ASCII and
+  markup is escaped. A row with no year is refused, not guessed. QFX/QBO carry
+  `INTU.BID` only when the user enters a numeric one.
+- **Several statements** (`stitch`): choose many files at once on the page.
+  They are sorted by date, each must prove on its own, and each opening must
+  equal the previous closing; a missing month is reported as a gap of exactly
+  its net movement, naming the files either side. The same statement chosen
+  twice is counted once; rows shared by overlapping downloads are kept once.
+  Statements holding several accounts are refused in a join.
+
+**Measured** (`node eval/bank-files.mjs <dir>` then
+`python eval/bank-files-check.py <dir>` with `pip install ofxtools ofxparse`;
+output in `eval/bank-files-2026-11-18.txt`): the bank and card examples and a
+made-up year of 12 monthly statements, each built as a PDF and read through
+the real PDF route, then the year again with June left out. 12 OFX/QFX/QBO
+files: ofx-file-check reports no errors or warnings on any, and ofxtools and
+ofxparse each read the expected rows, net amount and ledger balance from all
+12 with unique ids (0 mismatches). With June left out the join reports a gap
+of 2,383.17 between May and July, which is June's own net movement. The page
+was driven in headless Chromium with three PDFs: a two-file join with
+February missing showed the 925.01 gap; the full three-file join proved and
+downloaded a 6-row `.qbo`, with no request leaving the page.
+
+Not tested: an import into QuickBooks or Quicken themselves (no licence here),
+and real banks' statements. Batch conversion was listed below as a paid-tier
+candidate; it ships free for the same reason OCR did: it runs on the visitor's
+machine at no per-user cost.
+
 ## Files
 
 - `index.html`: the tool's page.
 - `calc.mjs`: the logic, kept separate from the page so it can be tested.
+- `bankfile.mjs`: OFX, QFX, QBO and QIF from a read statement, and several statements joined and checked month to month.
 - `ocr.mjs`: scans and photos: the picture out of each PDF page, OCR word boxes into column-aligned lines, the tesseract.js loader (on click only).
 - `usage.mjs`: anonymous, opt-in-only usage counters (off by default; see
   `portfolio/usage/README.md` in the monorepo).

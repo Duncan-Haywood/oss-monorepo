@@ -1,0 +1,62 @@
+name: pairwise-ranking
+description: >-
+  Free browser tool, CLI and agent call for analysts, league organisers,
+  chess and esports clubs, sensory panels and product teams: paste
+  head-to-head results and get Bradley-Terry ratings with standard errors,
+  the chance each player is really ahead, rank ranges, draws by Davidson's
+  model, a tested home advantage, win/draw/loss chances for any pairing, and
+  Ford's check that a ranking exists. Checked against statsmodels and scipy
+  on 30 fits. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-18 on an explore run as a research-algorithm tool. No
+# standalone tool existed: quick-pick-survey uses a Bradley-Terry refit
+# inside a survey app and which-job-first explains why it does not, and no
+# venture takes head-to-head results as input. Implemented from Bradley &
+# Terry 1952, Zermelo 1929, Ford 1957, Davidson 1970, Davidson & Beaver 1977
+# and Hunter 2004; no third-party code was ported. numpy, scipy and
+# statsmodels were used only to produce eval/reference.json. Example data:
+# openfootball (public domain), data/SOURCE.md.
+#
+# First visitor: searches such as "bradley terry calculator", "paired
+# comparison analysis online", "rank teams from head to head results",
+# "power rankings calculator", "elo rating from results", "taste test
+# ranking", "pairwise comparison ranking tool". Volume not measured with an
+# external tool.
+#
+# Alternatives: R's BradleyTerry2 and Python's choix (need code); Elo
+# calculators (order-dependent, no uncertainty; not surveyed for this file).
+# Differentiators here: no install, draws and home advantage in one model,
+# rank ranges, and an explicit existence check.
+#
+# Liability: statistics from supplied results, not betting advice; the page
+# says so and states the constant-strength limit. Data never leave the
+# browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      People who run a league, a tournament or a paired taste test will use a
+      no-install tool that turns head-to-head results into ratings with
+      uncertainty, and will link to it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a rating or interval that disagrees with BradleyTerry2 or choix on the same data and model, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/pairwise-ranking/
+  analytics: null
