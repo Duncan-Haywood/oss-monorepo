@@ -1,9 +1,9 @@
 ---
 title: "The one-sided p-value hiding in every LISA map, and 81 years of US state incomes"
-seo_title: "Free Moran's I calculator: spatial autocorrelation, LISA, Gi* hot spots"
+seo_title: "Free Moran's I calculator: spatial autocorrelation, LISA, hot spots"
 date: 2026-11-18
 tags: [spatial-statistics, morans-i, lisa, hot-spot-analysis, statistics, research-algorithms, browser]
-description: "A free Moran's I and LISA tool checked against PySAL. A null simulation shows the usual permutation p rejects 9-12% at 0.05, and 89% of pattern-free maps show a 'cluster'."
+description: "A free Moran's I and LISA tool checked against PySAL. The usual permutation p rejects 9-12% at 0.05, and 89% of pattern-free maps show a 'cluster'."
 ---
 
 Put a number on every place on a map (an income, a disease rate, a house
