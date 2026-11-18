@@ -1,0 +1,7 @@
+# Milestone 16 exploratory: census top degree under false ties (recall 0.85, 20 draws per village)
+setting | top-b overlap with true top-b | Kendall tau (true, noisy degree) | mean true degree of chosen / of true top-b | true ties among chosen seeds per seed
+  no false ties      | 0.953 | 0.985 | 0.999 | 3.224
+  phi 0.25 uniform   | 0.838 | 0.856 | 0.981 | 3.094
+  phi 0.25 closure   | 0.839 | 0.884 | 0.982 | 3.150
+  phi 0.5 uniform    | 0.812 | 0.825 | 0.975 | 3.052
+  phi 0.5 closure    | 0.820 | 0.869 | 0.978 | 3.165

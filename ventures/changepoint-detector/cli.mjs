@@ -49,6 +49,7 @@ Options:
   --covariates <file.csv>   with --donors: one row per unit (the column name, then numbers, e.g. income, price), printed as a balance table of the fit with a warning where the treated unit is matched worse than 80% of the donors are by their own fits; changes no p
   --window <from:to>        with --donors: use only the rows from label from to label to (either side may be left empty)
   --anticipation <N|a-b>   with --donors: end the fit N points before --known-date, for a change people saw coming (an announced law); the gap and the test read from there. Unsure of the lead? a range such as 0-4 fits every lead, prints them together and one range p
+  --shape-word <plain|panel> with --donors: how the units ranked above the treated one are worded ("faded", "grew", "held"). panel reads each unit's gap growth against the median unit's when that median itself grew 6x or more (long compounding series such as GDP per head), where the plain word names most units; opt-in (it missed one pre-registered bar by 0.4 points)
   --two-hinge-test          test for two changes of slope against a straight line on the levels (speeds up then levels off; rises, holds, falls), same AR(1) noise, bootstrap and unit-root guard as --hinge-test; 30 to 300 points
   --knot-margin f          with --trend bend(s): keep this fraction of the series clear at each end when looking for knots (default 0.1 = knots at 10 to 90%; 0.2 = the old 20 to 80%)
   --joint-knots             with --trend bends: also score every pair of knots, not only the greedy search's (slower, about 2 s per 240 points)
@@ -88,7 +89,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   let json = false;
   let example = false;
   let agreed = true;
-  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin', '--holidays': 'holidays', '--known-date': 'knownDate', '--donors': 'donors', '--covariates': 'covariates', '--window': 'window', '--anticipation': 'anticipation' };
+  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin', '--holidays': 'holidays', '--known-date': 'knownDate', '--donors': 'donors', '--covariates': 'covariates', '--window': 'window', '--anticipation': 'anticipation', '--shape-word': 'shapeWord' };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-h' || a === '--help') { out(USAGE + '\n'); return 0; }
@@ -155,11 +156,11 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   if (opt.knownDate != null && opt.donors != null) {
     const { synthResult, synthText } = await import('./synth-cli.mjs');
     const covariatesCsv = opt.covariates != null ? await readFile(opt.covariates, 'utf8') : null;
-    const r = synthResult({ csv: opt.csv, column: opt.column, labelColumn: opt.labelColumn, date: opt.knownDate, donors: opt.donors.split(',').map((d) => d.trim()).filter(Boolean), window: opt.window, log: opt.log, covariatesCsv, anticipation: opt.anticipation ?? 0 });
+    const r = synthResult({ csv: opt.csv, column: opt.column, labelColumn: opt.labelColumn, date: opt.knownDate, donors: opt.donors.split(',').map((d) => d.trim()).filter(Boolean), window: opt.window, log: opt.log, covariatesCsv, anticipation: opt.anticipation ?? 0, shapeWord: opt.shapeWord ?? 'plain' });
     out((json ? JSON.stringify(r, null, 2) : synthText(r)) + '\n');
     return 0;
   }
-  if (opt.donors != null || opt.covariates != null || opt.window != null || opt.anticipation != null) throw new Error('--donors, --covariates, --window and --anticipation go with --known-date (a synthetic control); --covariates, --window and --anticipation also need --donors.');
+  if (opt.donors != null || opt.covariates != null || opt.window != null || opt.anticipation != null || opt.shapeWord != null) throw new Error('--donors, --covariates, --window, --anticipation and --shape-word go with --known-date (a synthetic control); --covariates, --window, --anticipation and --shape-word also need --donors.');
   if (opt.knownDate != null) {
     const { knownDateResult, knownDateText } = await import('./known-date-cli.mjs');
     const r = knownDateResult({ csv: example ? NILE_CSV : opt.csv, column: opt.column, labelColumn: opt.labelColumn, date: opt.knownDate, period: opt.period, log: opt.log });

@@ -4,7 +4,7 @@ Does a new product spread through a village like news (one informed contact is e
 a behaviour that needs reinforcement from several adopters? And if the data cannot tell, whom
 should a rollout seed first? This programme asks that on the 43 Karnataka village networks of
 Banerjee, Chandrasekhar, Duflo and Jackson (2013), where a lender introduced microfinance
-through village leaders. **Latest step (milestone 15): between 70% and 90% tie recall, the range a field survey reaches, more recall never makes the seeding advice worse, and it barely matters for census-based rules.** Ten pooled Monte Carlo copies per rule (se 0.10&ndash;0.16 point) put census top degree at 4.2&ndash;4.3% and census degree discount at 1.4&ndash;1.6% of adopters lost across the whole range, while the half survey improves from 2.4% at 70% recall to 1.8% at 90% (0.21 point per tenth of recall, se 0.07) and beats census top degree in at least 97% of draws at every level. Milestone 14's apparent dip for census degree discount at 85% recall was noise (+0.12 point, se 0.15) ([`experiments/m15_grid/verdicts.txt`](experiments/m15_grid/verdicts.txt), figure [`grid.svg`](experiments/m15_grid/grid.svg), [`LOG.md`](LOG.md), 2026-11-18). Before that, milestone 14: pooling five Monte Carlo copies of 16 randomised rules settles which of the survey findings are real. Forgetting half the ties now costs more than forgetting a quarter (+0.5 point for census degree discount and +1.1 for the survey, each over 2 Monte Carlo standard errors; +0.4, 1.3 se, for census top degree), so milestone 11's non-monotone recall was noise. Milestone 10's preferred split (three quarters of the survey at random) is not distinguishable from a one-quarter split (1.79% against 1.81%); both edge the half split (2.17%) by under 2 standard errors. The headline holds on pooled scores: the half survey at the measured recall loses a median 2.2% of adopters and beats census top degree (4.0%) in 97% of draws. Pooling also shows that a single Monte Carlo copy biases every worst-case regret up by about 0.15 point ([`experiments/m14_pooled/verdicts.txt`](experiments/m14_pooled/verdicts.txt), figure [`copies.svg`](experiments/m14_pooled/copies.svg), [`LOG.md`](LOG.md), 2026-11-18). Before that, milestone 13 found milestone 12's surprise, that uneven forgetting helps degree discount on a census, was Monte Carlo noise. With every randomised rule scored on its own random stream and four rules re-drawn five times, census degree discount scores a mean 1.51% under the measured, uneven recall and 1.58% under a uniform recall at the same level (gap &minus;0.07 point; milestone 12 had 0.9% against 1.8%). The re-draws show that one randomised rule's joint median moves by up to 0.47 point (sd) from one Monte Carlo copy to the next, which the bootstrap intervals do not include, so sub-point differences between randomised rules in milestones 10 to 12 are within noise; the advice itself (half survey about 2%, census degree discount about 1.5%, census top degree about 4%) is unchanged ([`experiments/m13_streams/verdicts.txt`](experiments/m13_streams/verdicts.txt), figure [`copies.svg`](experiments/m13_streams/copies.svg), [`LOG.md`](LOG.md), 2026-11-17). Before that, milestone 12 found survey respondents forget weak ties far more than strong ones (61% against 94% recall) without hurting the seeding advice.
+through village leaders. **Latest step (milestone 16): survey respondents who name ties that do not exist do not change the seeding advice, but the kind of false tie matters more than how many.** At the measured 85% recall plus up to one false tie per four true ones, census degree discount still loses 1.6&ndash;1.9% of adopters and the half survey 2.2&ndash;2.7%, both beating a perfect census ranked by top degree in 95&ndash;99% of draws. False ties placed at random cost no rule anything measurable; false ties that close triangles (naming a friend's friend) cost every rule more, top degree 0.8 point at one per four (z 3.5 against random placement), and at one per two they push census degree discount to 2.8% and the half survey to 2.9% ([`experiments/m16_false_ties/verdicts.txt`](experiments/m16_false_ties/verdicts.txt), figure [`false_ties.svg`](experiments/m16_false_ties/false_ties.svg), [`LOG.md`](LOG.md), 2026-11-18). Before that, milestone 15: between 70% and 90% tie recall, the range a field survey reaches, more recall never makes the seeding advice worse, and it barely matters for census-based rules. Ten pooled Monte Carlo copies per rule (se 0.10&ndash;0.16 point) put census top degree at 4.2&ndash;4.3% and census degree discount at 1.4&ndash;1.6% of adopters lost across the whole range, while the half survey improves from 2.4% at 70% recall to 1.8% at 90% (0.21 point per tenth of recall, se 0.07) and beats census top degree in at least 97% of draws at every level. Milestone 14's apparent dip for census degree discount at 85% recall was noise (+0.12 point, se 0.15) ([`experiments/m15_grid/verdicts.txt`](experiments/m15_grid/verdicts.txt), figure [`grid.svg`](experiments/m15_grid/grid.svg), [`LOG.md`](LOG.md), 2026-11-18). Before that, milestone 14: pooling five Monte Carlo copies of 16 randomised rules settles which of the survey findings are real. Forgetting half the ties now costs more than forgetting a quarter (+0.5 point for census degree discount and +1.1 for the survey, each over 2 Monte Carlo standard errors; +0.4, 1.3 se, for census top degree), so milestone 11's non-monotone recall was noise. Milestone 10's preferred split (three quarters of the survey at random) is not distinguishable from a one-quarter split (1.79% against 1.81%); both edge the half split (2.17%) by under 2 standard errors. The headline holds on pooled scores: the half survey at the measured recall loses a median 2.2% of adopters and beats census top degree (4.0%) in 97% of draws. Pooling also shows that a single Monte Carlo copy biases every worst-case regret up by about 0.15 point ([`experiments/m14_pooled/verdicts.txt`](experiments/m14_pooled/verdicts.txt), figure [`copies.svg`](experiments/m14_pooled/copies.svg), [`LOG.md`](LOG.md), 2026-11-18). Before that, milestone 13 found milestone 12's surprise, that uneven forgetting helps degree discount on a census, was Monte Carlo noise. With every randomised rule scored on its own random stream and four rules re-drawn five times, census degree discount scores a mean 1.51% under the measured, uneven recall and 1.58% under a uniform recall at the same level (gap &minus;0.07 point; milestone 12 had 0.9% against 1.8%). The re-draws show that one randomised rule's joint median moves by up to 0.47 point (sd) from one Monte Carlo copy to the next, which the bootstrap intervals do not include, so sub-point differences between randomised rules in milestones 10 to 12 are within noise; the advice itself (half survey about 2%, census degree discount about 1.5%, census top degree about 4%) is unchanged ([`experiments/m13_streams/verdicts.txt`](experiments/m13_streams/verdicts.txt), figure [`copies.svg`](experiments/m13_streams/copies.svg), [`LOG.md`](LOG.md), 2026-11-17). Before that, milestone 12 found survey respondents forget weak ties far more than strong ones (61% against 94% recall) without hurting the seeding advice.
 
 **Milestone 11: the survey advice survives respondents who forget ties, at the recall measured in the same villages.** Capture&ndash;recapture on the survey's converse questions (borrow from / lend to, visit / invite) shows a BCDJ respondent names about 84% of a household's ties (one question alone: 68&ndash;83%). With that much forgetting, the half-village survey (three quarters at random, then the most-named, ranked by degree discount) loses a median 1.8% of adopters under its worst refitted model, against 1.4% for a census with the same forgetting and 4.1% for top degree. Even with half of all ties forgotten, degree discount on the census still beats top degree on a perfect census in 99% of draws.
 
@@ -763,6 +763,47 @@ hypotheses (H38&ndash;H41) logged before the run.
   by up to 0.14, because a key rule beats the fixed reference in 2&ndash;5% of cells of a single
   copy (the plan expected near zero) and milestone 14 put the swapped rules in the reference.
 
+## Milestone 16: what if respondents name ties that do not exist? (`experiments/m16_false_ties/`)
+
+Every survey error modelled so far was a forgotten tie. The other kind is a false one: a
+respondent names a household they have no tie to. The archive cannot separate a one-sided name
+from a forgotten tie, so the false-tie rate is swept, not measured: at the measured recall of
+0.85, each household also names Poisson(&phi; &times; its degree) households it has no tie to,
+with &phi; = 0.1, 0.25 and 0.5, placed either uniformly at random or among friends of friends
+(triadic closure, the error of mistaking a friend's friend for a friend). Three rules, five
+Monte Carlo copies each, scored against milestone 15's fixed reference; the contagion always runs
+on the true network. Plan and hypotheses (H42&ndash;H45) logged before the run.
+
+![pooled worst-case regret against the false-tie rate, three rules, two placements](experiments/m16_false_ties/false_ties.svg)
+
+| rule, pooled joint median (MC se) | no false ties | &phi; = 0.1 uniform / closure | 0.25 uniform / closure | 0.5 uniform / closure |
+|---|---|---|---|---|
+| census top degree | 4.33% (0.09) | 4.61 / 4.78% | 4.30 / 5.09% | 4.41 / 5.12% |
+| census degree discount | 1.82% (0.19) | 1.70 / 1.64% | 1.81 / 1.92% | 2.16 / 2.78% |
+| half survey, 3/4 random | 2.32% (0.24) | 2.21 / 2.24% | 2.42 / 2.70% | 2.60 / 2.89% |
+
+Monte Carlo se 0.07&ndash;0.29 point per cell (`verdicts.txt`).
+
+- **H42 held.** With up to one false tie per four true ones, the half survey loses 2.2&ndash;2.7%
+  and beats perfect-census top degree in 95&ndash;98% of draws.
+- **H43 held.** False ties at &phi; = 0.25 cost census degree discount nothing measurable
+  (&minus;0.01 point uniform, +0.10 closure, se about 0.25).
+- **H44 refuted, the other way round.** The plan predicted uniform false ties would hurt top
+  degree more. Closure-placed ones do: at &phi; = 0.25, uniform scores 0.80 point better (se 0.22).
+  Uniform false ties cost top degree nothing measurable at any rate; closure ones cost 0.5&ndash;0.8
+  point. At &phi; = 0.5 the same holds for degree discount (0.62 point, se 0.20).
+- **H45 held.** Even at one false tie per two true ones, census degree discount beats
+  perfect-census top degree in 95&ndash;99% of draws.
+- Exploratory (`diagnose.py`, after the run): the two placements scramble the degree ranking
+  equally (a noisy census keeps 84% of the true top-b either way). Closure errors keep the chosen
+  seeds slightly more clustered (3.15 true ties among them per seed against 3.09 under uniform);
+  consistent with the scores, not established as the mechanism.
+
+The kind of error matters more than its rate. Random false names are harmless at these rates;
+names that close triangles cost every rule up to 1 point at &phi; = 0.5, where census degree
+discount and the half survey become indistinguishable (2.8% and 2.9%). A survey's quality check
+should look for triadic-closure errors, not only count unreciprocated names.
+
 ## What this does and does not say
 
 It says the archived code and data, ported, give q<sub>N</sub> &asymp; 0.05 and a weakly
@@ -780,7 +821,7 @@ villages. Adoption is observed once, not over time, so homophily and contagion a
 
 ```
 python3 data/build_dataset.py "<mirror>/datav4.0/Matlab Replication"   # optional, rebuilds the data
-python3 -m pytest -q tests                                                # 79 tests, about 2 s
+python3 -m pytest -q tests                                                # 83 tests, about 3 s
 python3 experiments/m1_reproduce/run.py      # about 2 minutes on 4 cores, writes results.txt
 python3 experiments/m1_reproduce/twostep.py  # seconds, needs run.py's dgrid.npz
 python3 experiments/m1_reproduce/periods.py  # about 12 minutes, periods.txt
@@ -817,18 +858,22 @@ OMP_NUM_THREADS=1 python3 experiments/m14_pooled/run.py        # about 26 minute
 python3 experiments/m14_pooled/figure.py
 OMP_NUM_THREADS=1 python3 experiments/m15_grid/run.py          # about 50 minutes on 4 cores, verdicts.txt
 python3 experiments/m15_grid/figure.py
+OMP_NUM_THREADS=1 python3 experiments/m16_false_ties/run.py    # about 38 minutes on 4 cores, verdicts.txt
+python3 experiments/m16_false_ties/figure.py
+python3 experiments/m16_false_ties/diagnose.py                 # about 20 s, diagnose.txt (exploratory)
 ```
 
 Needs numpy (and scipy for the data builder).
 
 ## Next steps
 
-Milestone 15 settles the recall range from 0.7 to 0.9: census rules are flat, the half survey
-gains about 0.2 point per tenth of recall, and nothing in the range overturns the advice. Next:
-report pooled medians with Monte Carlo error in the paper's tables (milestones 10 to 15); why
-stratified recall steadies a rule's score; false-positive ties; tie strength in the contagion
-itself; the controlled threshold sweep for complex centrality (milestone 8); the two
-milestone-3b checks; then the paper draft, with milestones 4 to 15 as its seeding section.
+Milestone 16 adds false ties: up to one per four true ones changes no advice, and triadic-closure
+errors cost more than random ones. Next: a reciprocity filter (keep a census tie only if both ends
+name it) against these false-tie settings, since it trades false positives for recall; report
+pooled medians with Monte Carlo error in the paper's tables (milestones 10 to 16); why stratified
+recall steadies a rule's score; tie strength in the contagion itself; the controlled threshold
+sweep for complex centrality (milestone 8); the two milestone-3b checks; then the paper draft,
+with milestones 4 to 16 as its seeding section.
 
 ## References
 

@@ -357,6 +357,31 @@ IDS 0.9 forms as "anything" (a property facet's `<name>`, `datatype`, a value
 with no `<simpleValue>`); it now reads them as written, which changes 48
 facets in 8 public files and nothing in buildingSMART's suite.
 
+### Patterns read the way IfcTester reads them (2026-11-18)
+
+IDS patterns are XML Schema regular expressions, and IfcTester reads them that
+way (through elementpath). This checker used to read them as JavaScript
+regexes, which part on text people really write: `^IFC.*SYSTEM` matched
+IFCPIPESYSTEM here and nothing in IfcTester, where `^` is a plain character;
+`(?:0[1-9]|1[0-2])` ran here and stops IfcTester. `xsdregex.mjs` now parses
+the XSD grammar and matches with its meaning (`\d` any digit, `\w` the XSD
+set, `[a-z-[aeiou]]` subtraction, block names), and the audit says where a
+pattern means something else elsewhere: an error for one that is not XSD (the
+specification reports INVALID), a warning for anchors, needless escapes like
+`\/`, and a bare `\w`, which IfcTester reads more narrowly than XSD. The
+repaired-file download rewrites them: `(?:` to `(`, anchors dropped,
+`{,3}` to `{0,3}`.
+
+Checked (`eval/xsd-regex-2026-11-18.md`): same valid/invalid verdict as
+elementpath on 78 of 78 distinct patterns in the public, IDS-Audit-tool and
+buildingSMART files, and the same match answer on every probe for 77 (the
+78th is `\w+`, below); on 9,000 random patterns over three seeds, every
+disagreement is one of two places elementpath departs from the XSD text (a
+bare `\w`, a range like `[\d-z]`). 37 of 65 public IDS files use patterns;
+4 have one that reads differently in different tools (`^2[ab]` in two BIM2SIM
+files, a DFE file's `(?:` date pattern). buildingSMART's suite stays 334 of
+334.
+
 ### On every commit: GitHub Action, JUnit and annotations (2026-11-17)
 
 A team that keeps its IFC exports and IDS files in a repository can check every
@@ -871,6 +896,16 @@ text is now copied in runs. Every report is identical.
    680 MB ifcXML, which main refused (string length limit), checks against
    the starter IDS in 25.6 s. Reports from 68 IDS files hash the same on
    three models; times are unchanged within noise.
+16. **White space between XML elements skipped** (2026-11-18,
+   `eval/xml-whitespace-2026-11-18.md`). Inside an element that has had a
+   child element, a text run of only white space is not decoded or kept;
+   leaf text, CDATA and character references are kept exactly. On main, the
+   `<uos>` element's text grew by one piece per entity until the file ended.
+   The XML reader alone now needs 2-4 MB of working heap instead of 40-106 MB
+   and is 5-29% faster. The 455 MB indented federated ifcXML parses in 416 MB
+   (was 480) and checks against all 68 IDS files in 448 MB (was 512).
+   Reports from 68 IDS files hash the same on four models, flat and
+   indented.
 
 Speed (one core, Node 22): Schultz Residence 1.4 s for seven specifications;
 IfcTester (C++ parser) took 0.6-0.7 s for the same work. This tool is not

@@ -15,7 +15,7 @@ team, a plain-text version to paste into a group chat, and a share link that car
 
 - **A spreadsheet or a hand-drawn grid:** free, but home/away balance, byes in odd leagues and court sharing are easy to get wrong, and a rainout means redoing the sheet.
 - **League-management platforms** (TeamSnap, LeagueApps, SportsEngine and similar): registration, payments, team messaging and score apps, usually on a paid plan and with accounts for every team. This tool only makes and maintains the schedule: no signup, no upload, free.
-- **What this adds:** a fair round robin with the fewest possible home/away breaks, real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; for card processing inside the sign-up, player waivers or messaging, use a platform and paste this schedule into it.
+- **What this adds:** a fair round robin with the fewest possible home/away breaks, real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
 ## Run your own league page (self-hosted)
@@ -37,7 +37,36 @@ third party: zero dependencies, one JSON file on a disk you own.
 - **Calendar feeds:** the player page links a subscribe-able feed for the whole league and each team (`webcal://`, Google Calendar, or the plain address). Optional `PUBLIC_URL=https://league.example.org` fixes the address in those links; without it the request's host is used (README "Calendar files that follow a rainout").
 - **Score reports:** the player page has a "Report a score" form. A report only waits in `/admin` ("Scores waiting for you"); **Approve** appends it to Results as `Hawks 3 - 2 Owls`, **Decline** drops it, and the table never changes until you approve. At most 100 wait at once.
 - **Captain links and confirmed scores (2026-11-18, `confirm.mjs`):** `/admin` lists one captain link per team (`/league?t=LEAGUE_TOKEN&c=KEY`; the key is an HMAC of the team name under `ADMIN_KEY`, 22 characters, nothing stored), and with SMTP on, **Email each team its captain link** sends each team's link to its contacts only. A captain's page shows their team's games from the last 21 days, each with its state and a score form. When the other captain sends the same score, the line (`Hawks 3 - 1 Owls`, home first) goes into Results straight away and the game is closed, so it cannot be added twice (reports are keyed by fixture id, which follows a rained-out game). Different scores, and games only one captain has reported, wait in `/admin` under **Captain reports** with both scores side by side and **Use Hawks's** / **Use Owls's** / **Clear reports** buttons; a captain can resend to fix a typo until the game is closed. A wrong captain key counts as a wrong link for the lockout. What this replaces: the organiser typing or approving every score, which is the chore score-confirmation in paid league apps exists to remove. Limits: anyone holding a team's captain link can report for that team (the same trust as the league link), a score the organiser typed by hand is not matched to a fixture, so do not also approve that game from captain reports, and nothing here is a dispute process: the organiser's choice is final. Tested in `confirm.test.mjs` (keys, confirm and dispute, the 21-day window, the full server flow and the emails); not yet used by a real league.
-- **Move requests (2026-11-18, latest, `reschedule.mjs`):** a captain's page lists their team's next 12 games, each
+- **Player waivers (2026-11-18, latest, `waivers.mjs`):** under **Waiver** in `/admin` the organiser pastes their own
+  release or code-of-conduct text. Each distinct text is a version (the first 16 hex characters of its SHA-256), kept
+  with the date it was first set, so every signature points at the exact words agreed to; `/admin/waiver.txt?v=ID`
+  returns any version as signed. Players sign at `/league/waiver?t=LEAGUE_TOKEN` (linked from the league page): team,
+  full name, optional email, a tick, and the full name typed again as the signature; for a minor the parent or guardian
+  signs with their own name. With a waiver set, the captain signs on the `/register` form too. `/admin` matches
+  signatures to each roster (a first-name roster entry matches only when one signer on that team has that first name,
+  never a guess between two) and lists per team who signed, who signed an earlier version and who has not; a captain's
+  page shows the same for their team. **Download every signature (CSV)** has time, team, name, guardian, email,
+  version, whether it is current and where it was signed; a mistaken signature can be removed. Signing again replaces
+  that person's row for the same version. No IP addresses are kept.
+  What it replaces: a paper sheet at week one, a form tool matched to rosters by hand, or a waiver app on a monthly plan.
+  What it does not do: draft legal text, check identity, take a drawn signature or judge enforceability (that and the
+  age at which a player signs for themselves depend on where you play: ask a lawyer or your league's insurer). Tested in
+  `waivers.test.mjs` (versions, signatures, roster matching, the version cap and the full server flow); not yet used
+  by a real league. Guide: `how-to-collect-player-waivers-for-a-rec-league.html`.
+- **Notices from the organiser (2026-11-18, `announcements.mjs`):** `/admin` has a **Notices** form: up to
+  1,000 characters, **Who sees it** (everyone, on the league page under "From the organiser", or one team, on that
+  team's captain page only), **Show until** (a date; blank means two weeks), and **Also email it to the team
+  contacts** (needs SMTP). Each notice is listed in `/admin` with who it was for, when it ends and how many teams were
+  emailed, with a **Remove** button. Text is escaped; plain `https://` links become clickable, nothing else. Emails go
+  one per team to that team's Contacts, carry the plain league link (never a captain key) and name the teams with no
+  address so the organiser tells them by hand. At most 30 notices are kept.
+  - Alternatives: the organiser's group chat or a mass email, which players lose and late joiners never see; TeamSnap,
+    LeagueApps and SportsEngine messaging, on paid plans with an account per player. This puts the notice where
+    players already look for the schedule, with an end date so old news drops off by itself.
+  - Checked: `announcements.test.mjs` (6 tests: input checks, the cap, audience and end-date filtering, escaping and
+    link rules, per-team emails, and through the HTTP server: post, see it on the league page, a one-team notice only
+    on that captain's page, emails to the teams with contacts, removal, and SMTP off). Not yet used by a real league.
+- **Move requests (2026-11-18, `reschedule.mjs`):** a captain's page lists their team's next 12 games, each
   with **Ask to move this game**: pick a later date (up to 180 days on) and an optional note. The date is checked
   against the live season before the request is stored: the season is rebuilt with the Rainouts line the organiser
   would type (`2026-10-20 Hawks, Owls -> 2026-10-22`), and the request is refused with the reason unless the game
@@ -271,7 +300,51 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Bowling: fewer weeks on the same pair running, balance kept (2026-11-18, latest)
+## Promotion and relegation into next season (2026-11-18, latest)
+
+Leagues with tiers (Premier, Division 1, Division 2: darts, pool, squash, social football, pickleball ladders)
+end every season the same way: the organiser reads the tables, moves the top team of each division up and the
+bottom team down, handles the play-off, drops the teams that are not coming back, slots in new entrants, and
+retypes every division. On the multi-division page this is now one box under the play-off seeding.
+
+- **What it does.** `divisionsPromotion(schedule, standings, { ladder, up, down, playoff, winners, leaving, joining })`
+  in `divisions.mjs` takes the standings (`divisionsStandings`) and a ladder (`Premier > Division 1 > Division 2`;
+  blank means every division in the order listed). The top `up` teams of each division below the top move up one
+  tier and the bottom `down` teams of each division above the last move down one; up and down can differ (two up,
+  one down grows the top division). Divisions not in the ladder (age groups) are copied unchanged, and `(double)`
+  stays on its division. With `playoff`, each line also gets a play-off between the last team that stays up and
+  the first that stays down; until a winner is named the upper team keeps its place and the play-off is listed as
+  still to play. It returns the text for the divisions box, a line per move with the reason (`A5: Premier ->
+  Division 1 (place 5 of 5, relegated)`), and warnings.
+- **Never guesses.** Games still to play in a ladder division, and two teams level on every tie-break at a
+  promotion, relegation or play-off line (the tie-break notes' "entry order" case), come back as warnings to settle
+  first. A move that would put two teams of one name in a division, a count larger than the division, a division
+  left with fewer than two teams, an unknown ladder division or play-off winner: an error, and no text is made.
+- **Page.** "Next season: promotion and relegation" on `multi-division-league-schedule.html`: ladder, numbers up
+  and down, the play-off tick and winners, teams not returning, new teams; **Show next season's divisions**, then
+  **Start next season with these divisions** puts them in step 1 and clears results, rainouts, blackouts and the
+  start date. CLI: `node divisions.mjs spec.json --results results.txt --promote [N]` (spec fields `ladder`,
+  `promote`, `relegate`, `playoff`, `playoffWinners`, `leaving`, `joining`).
+- **Alternatives.** A spreadsheet the organiser edits by hand; League Republic, Pitchero and similar club sites
+  carry tables and fixtures across seasons on their own accounts and plans. This is the move itself, checked, from
+  the table you already have, with nothing uploaded.
+- **Checked.** `promotion.test.mjs` (6 tests on a made-up three-tier league plus an age-group division: one up and
+  one down with every team once and sizes kept; two up and one down; play-off pending and decided; games left and a
+  boundary level on every tie-break warned; leaving, joining, a name clash and impossible counts refused; the CLI),
+  and clicked in Chromium (`eval/promotion-click.mjs`, output in `eval/promotion-click.txt`: show, start next season,
+  the box holds the moved teams and the new entrant, results cleared, the new season builds). Made-up leagues only;
+  no real league's end-of-season moves compared yet.
+
+## Time and court limits: kept exactly, and the impossible ones named first (2026-11-18, latest)
+
+A captain's request ("Aces can only play at 18:30", "Slice Squad needs Court 2") was a heavy penalty inside the slot annealing: usually kept, never guaranteed, and when a set of requests could not all be kept the page only said afterwards that a team "only plays at 20:00, but is at 18:30", without saying why.
+
+- **Exact per round.** After the annealing, any round that still breaks a limit is checked exactly: matches against the round's open slots as a bipartite matching (`legalRoundSlots`, Kuhn's augmenting paths starting from the annealed slots, so legal matches move only when they must). If a legal assignment exists the round takes it. One-game nights only; doubleheader nights keep the annealing (their team-clash rule is not a matching).
+- **Named before the build.** `limitConflicts(teams, { times, courts, timeLimits, courtLimits })` finds limits no schedule can keep: two limited teams with no time (or court) in common, whose match breaks one limit wherever it goes; and more teams limited to a set of times than those times hold (k teams need ceil(k/2) slots even when all paired together, k when none are). Each becomes the first notice on the page ("Limits that cannot all be kept: Aces only plays at 18:30 and Topspin only at 20:00, ... Give one of them a time the other can play.").
+
+Measured on 300 random leagues (6-16 teams, 1-3 courts, 1-5 random time or court limits; `node eval/limit-conflicts.mjs`, `eval/limit-conflicts.txt`): rounds with a legal assignment that kept a limit broken, 1 of 3,033 before and 0 of 3,033 after. Of the 90 leagues where some round could not keep every limit, 87 are named by `limitConflicts` before the build and 3 are not (crowding that depends on which teams meet in a round); no league was named that could keep every limit. Of the 149 rounds that could not, 139 hold a pair with no shared time or court and 10 are crowded. Tests: `limit-conflicts.test.mjs`. New guide: `tennis-league-schedule.html` (8 teams, two early-only teams and a one-court team, every limit kept; a test rebuilds its table).
+
+## Bowling: fewer weeks on the same pair running, balance kept (2026-11-18)
 
 A bowler notices two things about lanes: getting one pair more often than the others, and getting
 the same pair two weeks running. The page put balance first, so its seasons with the hardest

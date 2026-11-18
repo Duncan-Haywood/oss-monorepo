@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtGMxn4xfkRQQrZ5mwa",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T19:06:16Z",
+  "ended": "2026-11-18T19:25:30Z",
+  "wall_minutes": 19.64,
+  "tokens_in": 11464762,
+  "tokens_out": 62306,
+  "cost_usd": 4.8723,
+  "tool_calls": 89,
+  "task": "ids-model-check (flagship 12): read IDS xs:pattern values as XML Schema regex; audit and repair patterns that read differently across tools",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17397",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "eval/xsd-regex.mjs first used an LCG whose seed*1103515245 overflowed 2^53, giving a degenerate random set that hid a class of disagreements; replaced with mulberry32 before any numbers were recorded"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start-here row was chant-forge again; its own output says 19 sessions in 2 days left it for the same reason (narrow coda/OMR tuning). It should stop being picked rather than ask each session to re-judge it."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "git checkout -b for the harness branch failed because the branch already existed locally; harmless, but the cloud-session guide could say the harness pre-creates it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Start-here row 6 chant-forge: its buildable items are still narrow coda-reader and OMR tuning (fleck-check 'What is left' lists six one-off cephalicus misses); the leaver reason recorded by 19 prior sessions still holds",
+      "did": "took flagship row 7 ids-model-check (no open PR) and its parked NEXT.md item 'XSD regex validity of xs:pattern values'",
+      "result": "landed: checker verdicts now agree with IfcTester on anchored/non-XSD patterns; audit + repair found faults in 4 of 65 public IDS files"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-ids-model-check-caret-in-an-ids-pattern.md",
+    "ventures/ids-model-check/eval/xsd-regex-2026-11-18.md"
+  ],
+  "goal": "deepen a flagship with a hard correctness problem",
+  "notes": "Verified locally: node --test xsdregex.test.mjs 7/7; run_venture_tests ids-model-check ok; eval/run-testcases.mjs 334/334 before and after; eval/audit-corpus.mjs diff only adds pattern-* findings; eval/fix-structure.mjs on 145 corpus files: 107 unchanged, 7 pattern-only changes read the same, 14 of 14 repaired same reading; eval/xsd-regex.mjs vs elementpath 5.1.4: corpus 78/78 verdicts, 77/78 probes, repairs 10/10, random seeds 20261118/7/31 all disagreements in two documented elementpath departures. IfcTester 0.9.0 confirmed: (?: raises, ^ is literal.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7db2e22b-0a5f-5f02-94c1-30497a342d0c",
+    "transcripts": 1,
+    "first": "2026-11-18T19:06:16Z",
+    "last": "2026-11-18T19:25:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 86,
+        "input": 167,
+        "output": 62306,
+        "thinking": 16387,
+        "cache_read": 11293751,
+        "cache_write_5m": 0,
+        "cache_write_1h": 170844,
+        "api_equivalent_usd": 4.8723,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 86,
+      "input": 167,
+      "output": 62306,
+      "thinking": 16387,
+      "cache_read": 11293751,
+      "cache_write_5m": 0,
+      "cache_write_1h": 170844,
+      "api_equivalent_usd": 4.8723,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 85,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.64,
+      "active_minutes": 19.64,
+      "model_minutes": 11.96,
+      "tool_minutes": 7.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "XSD regex parser with elementpath cross-check harness, audit/repair integration, tests and write-up for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 205.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

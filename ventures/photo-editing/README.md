@@ -390,7 +390,10 @@ This repo currently contains the first testable core utilities:
   21.7 s), `eval/cull-pan-all-pairs-2026-11-18.md`; since the same day, from 500 photos up, a
   chunked hash index finds the only pairs any match could link instead of comparing
   every pair, with identical groups: 2,000 frames 10.0 to 3.6 s, 10,000 frames 251
-  to 42 s, `eval/cull-grouping-index-2026-11-18.md`; and later that day a fine-offset
+  to 42 s, `eval/cull-grouping-index-2026-11-18.md`, and since later that day the
+  index and the exact checks run in C on every core when a C compiler is present
+  (`shootflow.cull_native`; same groups, 10,000 frames 115 to 5.8 s with the fine
+  match in, `eval/cull-grouping-native-2026-11-18.md`); and later that day a fine-offset
   match: 24 more 88% windows at 1% and 2% of the frame make a 7 x 7 grid whose
   offsets differ by every whole percent from 0 to 12, so a pan between the 3% steps
   (a 10% pan moves the content 11.1%, a 7% pan 7.5%) still finds a window pair
@@ -1951,6 +1954,57 @@ as a stand-in profile, the mean colour of each picture is within 0.017 in chroma
 render. The DiMAGE Z2's `.MRW` has no MRW header at all and is refused. Details:
 `eval/minolta-mrw-reader-2026-11-18.md`; checks: `tools/mrw_libraw_check.py`,
 `tools/mrw_develop_check.py`; tests: `tests/test_mrw.py`.
+
+### Phase One IIQ (2026-11-18)
+
+Phase One's IIQ files (the P+ and IQ backs, the H 25, the iXU and iXM aerial cameras, and the `.TIF`
+raws of the P25, P30 and P45) now develop directly, and with no `.dcp`: an IIQ carries its own
+camera-to-ROMM matrix, which `src/shootflow/iiq.py` turns into a DNG ColorMatrix1 at D50 (the as-shot
+neutral maps to D50 white exactly), so `shootflow develop CF000001.IIQ --out masters` works like a DNG
+and the grade stage takes them too. The sensor sits in an `IIII` container inside the TIFF; IIQ L
+(format 3, and the P+ backs' 8-bit-coded format 5) is decoded row by row, with each row's and column's
+black offsets for the split sensor halves added as dcraw does, by an optional C decoder (about 0.8 s for
+106 M sensels) or the pure-Python reference. On ten real files from raw.pixls.us (H 25, P25, P20+, P25+,
+P30, P45+, P65+, IQ140, IQ150, IQ3 100MP) every one of 342.7 M sensels, the CFA, the white balance and
+the orientation equal LibRaw 0.22's; per-channel levels after black are within 0.7% of LibRaw's linear
+render on nine (P45+: 2.2%, where LibRaw also applies Phase One's flat-field and defect corrections, not
+applied here). The mean colour of eight of nine developed frames is within 0.02 in chromaticity of
+LibRaw's render (P25+ 0.026; the two colour models differ, see the eval). The uncompressed formats and
+the 16-bit format 8 (IQ4, Trichromatic) are refused with the reason. Details:
+`eval/phaseone-iiq-reader-2026-11-18.md`; checks: `tools/iiq_libraw_check.py`,
+`tools/iiq_develop_check.py`; tests: `tests/test_iiq.py`.
+
+**IIQ S (later the same day).** Phase One's smaller compressed setting (format 6), the one the iXU180,
+iXM-100 and iXM-RS150F aerial cameras and half the IQ180 files on raw.pixls.us use, now reads too: per
+block of eight columns a scale for each colour lane and a shared refinement, then eight samples, written
+independently from the layout LibRaw 0.21+ decodes (the module docstring describes it). On six real IIQ S
+files from five bodies (IQ180 twice, iXU180, IQ3 100MP, iXM-100, iXM-RS150F) every one of 546.9 M
+sensels, the CFA, white balance, crop and orientation equal LibRaw 0.22's, and on three IIQ L files from
+two bodies the first check had not read (IQ180, iXM-100) 205.8 M more; a 154 MP frame reads in 1.2 s with
+the C decoder. Three of the six files send a refinement above the scale, which in LibRaw's C is a shift by a
+negative count; all 880 such samples carry zero bits, so any reading gives LibRaw's values, and non-zero
+bits there are refused as corrupt (`tools/iiq_s_shift_check.py`). Levels after black are within
+0.6% of LibRaw's render on five of six; the iXU180, with offset tables down to -336, is 5.2% apart on
+blue, where Phase One's flat-field corrections (not applied) matter most. Details:
+`eval/phaseone-iiq-s-reader-2026-11-18.md`.
+
+### Hasselblad 3FR (2026-11-18)
+
+Hasselblad's 3FR files (H3D, H4D-60, X1D, X1D II, X2D, the CFV II 50C and CFV 100C backs, and the
+older CFV, CFV-50c and Ixpress CF132) now develop directly: `shootflow develop B0000079.3FR --out DIR`,
+with no `.dcp`, because a 3FR carries its own ColorMatrix1 and AsShotNeutral in IFD0; the grade stage
+takes them like a DNG (`src/shootflow/hasselblad.py`). The X-series and new backs store plain 16-bit
+words; the H-series and older backs use Hasselblad's own lossless JPEG (pairs of size codes, read from
+little-endian 32-bit words), decoded in C with a pure-Python reference. On ten real files from
+raw.pixls.us every one of 561.5 M sensels, the CFA and the white balance equal LibRaw 0.22's, 0.1-1.4 s
+a file. The H4D-60's data is black-subtracted and its noise wraps to the top of the 16-bit range (0.5% of
+the frame would develop as white specks); the reader finds that from the gap it leaves in the histogram
+and reads the frame with a 256 offset, as LibRaw does by model. The mean colour of each developed frame
+equals LibRaw's to four places with `--colour dcraw` on eight of ten bodies (the 100 MP two carry
+Hasselblad's own matrix). Writing the colour check found the MRW check's flaw: it undid LibRaw's BT.709
+output with the sRGB curve. Phocus `.fff` files and multi-shot frames are not read. Details:
+`eval/hasselblad-3fr-reader-2026-11-18.md`; checks: `tools/hasselblad_libraw_check.py`,
+`tools/hasselblad_develop_check.py`; tests: `tests/test_hasselblad.py`.
 
 ## Olympus ORF (2026-11-14)
 

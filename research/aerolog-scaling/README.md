@@ -135,6 +135,8 @@ see "Citation status" in `PROPOSAL.md` (several ids and one author were wrong an
 
 **Paper (milestone 8a).** A first draft with the claims, a hypotheses table and limitations is in [`paper/draft.md`](paper/draft.md); `python3 paper/check_numbers.py` checks its numbers against the result files.
 
+**Second paper: drone altitude-layer spacing (milestone 11 paper step, 2026-11-18).** [`paper/airspace_layers.md`](paper/airspace_layers.md) is draft v0 of a paper on **how far apart delivery-drone altitude layers should be**, written from milestones 11ah to 11an with no new simulation: with a 25 ft separation minimum and metre-scale altitude error, 5 two-level bands at 13.3 m fit under 400 ft, not 8 at 25 ft; the spacing rule is h - Z >= 3 sd of the altitude difference between two drones; and the sourced error to plan with is the differential one (barometer vs RTK about 1 m, hub-to-hub pressure about 0.5 m), not each drone's drift. `python3 paper/check_airspace_numbers.py` ties its 62 quoted numbers to the results files, and `python3 paper/airspace_figures.py` draws its two figures ([band count](paper/figures/figA1_band_count.svg), [error terms](paper/figures/figA2_error_ladder.svg)). Preliminary; venue an aim (DASC or *Transportation Research Part C*).
+
 ## Related labs
 
 Related to the autonomy and field-robotics groups the track names (RECUV, Autonomous Systems IRT)

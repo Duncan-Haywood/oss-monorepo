@@ -13,4 +13,4 @@
 
 ## Buildable here (added 2026-11-18)
 
-- Does the take survey's pick between its contact times (`ResidualSurvey.report`, still the three-point parabola) lean the way the ESC-lag survey's did? Refit stored take-survey wheels at a dense set of contact times and compare the least with `survey_pick` and `survey_spline_pick` (firmware/esp32/README.md, "The ESC-lag survey's pick between grid lags").
+- A fresh survey capture with the stretched half-sine offsets live on the board (firmware/esp32/README.md, "The take fit's four parts and its high reading", which refitted stored wheels offline): do 7 ms takes now read about 7 rather than the grid's end, and do the 3 ms takes on the grid still read low as on that section's design set? `tests/take_survey_pick.py --capture` on a new seed and lag.

@@ -769,6 +769,16 @@ calibration changes no residual: the compensator subtracts the load the wrist se
 error left at the calibration pose is the sensor's bias alone, the same under any hose load. What remains
 are 21 plan limits at the G1's 1.0 and 1.2 m grips, 5 at the H1's 1.6 m grip, and 5 G1 sensor-error cases.
 
+Those last cases are a leg-preload limit, and choosing the hold sides per load clears them (milestone 53).
+At 20 of the 26 plan limits the hold QP solves on the pose's sides but leaves a common leg margin of only
+0.004 to 0.092 N m on the G1 (0.019 to 0.062 N m on the H1), below the 0.1 N m preload, bound at an ankle
+roll or hip joint; at 6 the hold QP itself fails. Re-choosing the hold sides at each press from the measured
+load, among the 2<sup>n</sup> combinations whose full plan solves, recovers 31 of the 33 drops with 1.8 to 5.2 N m
+of margin. Inside the drag limits both robots then plan every case (G1 1368 of 1368, H1 1902 of 1902), and the
+largest recovered residual is 0.0106 mm, so no worst residual moves. The two cases left lie outside the
+limits at the calibration pose, and no side combination has a hold solution there. One side set per pose
+(milestones 46 to 48) cannot hold under every hose load; one per measured load can.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

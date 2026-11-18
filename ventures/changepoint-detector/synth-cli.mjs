@@ -32,7 +32,8 @@ export function parseCovariates(csv) {
   return { names, units };
 }
 
-export function synthResult({ csv, column, labelColumn = null, date, donors = [], window = null, log = false, covariatesCsv = null, anticipation = 0 }) {
+export function synthResult({ csv, column, labelColumn = null, date, donors = [], window = null, log = false, covariatesCsv = null, anticipation = 0, shapeWord = 'plain' }) {
+  if (shapeWord !== 'plain' && shapeWord !== 'panel') throw new Error(`--shape-word ${shapeWord}: give plain or panel`);
   if (column == null) throw new Error('a synthetic control (--donors) needs --column, the treated series');
   const all = parseColumns(csv, null, labelColumn);
   const find = (ref) => {
@@ -84,11 +85,15 @@ export function synthResult({ csv, column, labelColumn = null, date, donors = []
     statistic: r.statistic, rank: r.rank, p: r.p, minP: r.minP, tests: r.tests, preFitShare: r.preFitShare, fitWarning: r.fitWarning,
     labels, treatedSeries: y, synthetic: r.synth, gap: r.gap,
     // Placebos whose statistic is at least the treated unit's, largest first (README "Few donors"): describes the rank.
-    above: placebosAbove(r),
+    above: placebosAbove(r, shapeWord),
     // How many of all the placebos' own gaps faded, grew or held (gapShape, README "A donor's own event that is not a
     // step"): when most share a word, as on long compounding series, the word on a listed unit says little.
-    placeboShapes: r.placebos.reduce((c, q) => { if (q.gapShape) c[q.gapShape.shape] += 1; return c; }, { faded: 0, grew: 0, held: 0 }),
+    placeboShapes: r.placebos.reduce((c, q) => { const w = wordOf(q, shapeWord); if (w) c[w] += 1; return c; }, { faded: 0, grew: 0, held: 0 }),
   };
+  // --shape-word panel (opt-in, README "The shape word against the panel's own trend" and "The panel word as an
+  // option"): every word above is read against the median unit's gap growth (panelShapes) once that median would
+  // itself be called 'grew'. Pre-registered bar 1 failed by 0.4 points, so it is not the default.
+  if (shapeWord === 'panel') Object.assign(out, { shapeWord, shapeCentre: r.shapeCentre, shapeRelative: r.shapeRelative });
   if (lr) {
     out.leadRange = {
       from: lead, to: deepest, p: lr.pMaxScaled, pMean: lr.pMean, naiveMinP: lr.naiveMinP, bestLead: lr.bestLead, minP: lr.minP,
@@ -105,10 +110,11 @@ export function synthResult({ csv, column, labelColumn = null, date, donors = []
 }
 
 // The placebos counted in the rank (statistic at least the treated unit's, with synthControlTest's tolerance).
-export function placebosAbove(r) {
+const wordOf = (q, shapeWord) => (q.gapShape ? (shapeWord === 'panel' ? q.gapShape.relShape : q.gapShape.shape) ?? null : null);
+export function placebosAbove(r, shapeWord = 'plain') {
   const val = (q) => (r.statistic === 'post' ? q.postRmspe : q[r.statistic]), own = r.tests[r.statistic].value;
   return r.placebos.filter((q) => val(q) >= own - 1e-12 * Math.abs(own)).sort((a, b) => val(b) - val(a))
-    .map((q) => ({ name: q.name, statistic: val(q), preRmspe: q.preRmspe, postRmspe: q.postRmspe, weight: r.donorWeights?.[q.name] ?? 0, gapShape: q.gapShape?.shape ?? null }));
+    .map((q) => ({ name: q.name, statistic: val(q), preRmspe: q.preRmspe, postRmspe: q.postRmspe, weight: r.donorWeights?.[q.name] ?? 0, gapShape: wordOf(q, shapeWord) }));
 }
 
 const f = (v, d = 2) => Number(v).toFixed(d), g = (v) => Number(v).toPrecision(3);

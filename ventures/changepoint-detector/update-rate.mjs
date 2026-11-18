@@ -382,3 +382,104 @@ export function shortReturns(values, { mult = SHORT_RETURNS.mult, minSegment = S
   }
   return { returns, penalty };
 }
+
+// ---- Short returns with a calendar (README "Short returns, with the day of the week"). ----
+// The pass above models a stretch as one two-state chain, which describes a fixed weekly schedule badly:
+// whether today repeats depends on the day of the week, not on yesterday. These costs give each stretch one
+// repeat probability per weekday ('dow', 7 per region) or a two-state chain per weekday ('dowchain', 14).
+// `days[s]` is the weekday (0-6, any fixed origin) of repeat indicator z[s] (the step into value s + 1).
+// Each cost is a sum over "pairs" of counts (x, y) of -2 (x log x/(x+y) + y log y/(x+y)):
+//   'chain':    pair by z[s-1] (the shipped pass's cost; steps from the region's second on);
+//   'dow':      pair by days[s] (every step of the region);
+//   'dowchain': pair by (days[s], z[s-1]) (steps from the region's second on).
+export const RETURN_COSTS = { chain: { pairs: 2, off: 1 }, dow: { pairs: 7, off: 0 }, dowchain: { pairs: 14, off: 1 } };
+
+function pairPrefixes(z, days, kind) {
+  const { pairs, off } = RETURN_COSTS[kind], n = z.length;
+  const C = new Int32Array((n + 1) * 2 * pairs), R = new Int32Array(n + 1), W = 2 * pairs;
+  for (let s = 0; s < n; s++) {
+    R[s + 1] = R[s] + z[s];
+    const row = (s + 1) * W;
+    for (let k = 0; k < W; k++) C[row + k] = C[s * W + k];
+    if (s < off) continue;
+    const p = kind === 'chain' ? z[s - 1] : kind === 'dow' ? days[s] : 2 * days[s] + z[s - 1];
+    C[row + 2 * p + z[s]] += 1;
+  }
+  return { C, R, W, off };
+}
+
+/** Best interval [a, b) of fewer repeats inside z[L..R) under a return cost kind; { a, b, gain } or null. */
+export function bestReturnCost(z, L, R, { kind = 'dow', days = null, minSegment = 20, P = null } = {}) {
+  if (R - L < 3 * minSegment) return null;
+  if (kind !== 'chain' && !days) throw new Error(`a '${kind}' cost needs days`);
+  P = P || pairPrefixes(z, days, kind);
+  const { C, W, off } = P, Rp = P.R, n = z.length;
+  const LL = new Float64Array(n + 2); for (let k = 2; k <= n + 1; k++) LL[k] = k * Math.log(k);
+  const cost = (v) => { let s = 0; for (let k = 0; k < W; k += 2) s += LL[v[k] + v[k + 1]] - LL[v[k]] - LL[v[k + 1]]; return 2 * s; };
+  const diff = (out, b, a) => { for (let k = 0; k < W; k++) out[k] = C[b * W + k] - C[a * W + k]; return out; };
+  const whole = cost(diff(new Int32Array(W), R, L + off));
+  const left = new Int32Array(W), ins = new Int32Array(W), out = new Int32Array(W);
+  const totR = Rp[R] - Rp[L];
+  let best = null;
+  for (let a = L + minSegment; a <= R - 2 * minSegment; a++) {
+    diff(left, a, L + off);
+    for (let b = a + minSegment; b <= R - minSegment; b++) {
+      const inR = Rp[b] - Rp[a];
+      if (inR / (b - a) >= (totR - inR) / (R - L - (b - a))) continue; // only fewer repeats inside
+      let ci = 0, co = 0;
+      const bi = b * W, ai = (a + off) * W, ri = R * W, bo = (b + off) * W;
+      for (let k = 0; k < W; k += 2) {
+        const x = C[bi + k] - C[ai + k], y = C[bi + k + 1] - C[ai + k + 1];
+        ci += LL[x + y] - LL[x] - LL[y];
+        const u = left[k] + C[ri + k] - C[bo + k], w = left[k + 1] + C[ri + k + 1] - C[bo + k + 1];
+        co += LL[u + w] - LL[u] - LL[w];
+      }
+      const gain = whole - 2 * (ci + co);
+      if (!best || gain > best.gain) best = { a, b, gain };
+    }
+  }
+  return best;
+}
+
+/** Weekday (0 Sunday to 6 Saturday) of each repeat indicator, from ISO dates per value (dates[s + 1]). */
+export function daysFromDates(dates) {
+  return dates.slice(1).map((d) => new Date(`${String(d).slice(0, 10)}T00:00:00Z`).getUTCDay());
+}
+
+/**
+ * The best return per stretch under a return cost, with no penalty applied (so a caller can test several):
+ * [{ L, R, a, b, gain, shareInside, shareOutside }] in z positions. `u` reuses an updateRateChanges result.
+ */
+export function returnCandidates(values, { kind = 'dow', days = null, minSegment = SHORT_RETURNS.minSegment, minRepeats = SHORT_RETURNS.minRepeats, u = null } = {}) {
+  const z = repeatIndicators(values);
+  if (z.reduce((s, v) => s + v, 0) < minRepeats) return [];
+  const st = (u || updateRateChanges(values)).stretches;
+  const spans = st.length ? st.map((s) => [s.from - 1, s.to]) : [[0, z.length]];
+  const P = pairPrefixes(z, days, kind), out = [];
+  for (const [L, R] of spans) {
+    const r = bestReturnCost(z, L, R, { kind, days, minSegment, P });
+    if (!r) continue;
+    const inR = P.R[r.b] - P.R[r.a], outR = P.R[R] - P.R[L] - inR;
+    out.push({ L, R, ...r, shareInside: inR / (r.b - r.a), shareOutside: outR / (R - L - (r.b - r.a)) });
+  }
+  return out;
+}
+
+/**
+ * Weekly-pattern test for one stretch z[L..R) (round 4 of the short-returns pass, README "Short returns: the
+ * model chosen per stretch"): the likelihood ratio of a two-state chain per weekday (14 parameters) against one
+ * two-state chain (2), over the same transitions. Under a chain with no weekly pattern it is about chi-square on
+ * 12 degrees of freedom, and the chain null keeps clumps from reading as a calendar. Returns the statistic.
+ */
+export function weeklyPatternLR(z, days, L, R) {
+  let lr = 0;
+  for (const [kind, sign] of [['chain', 1], ['dowchain', -1]]) {
+    const { pairs } = RETURN_COSTS[kind], v = new Array(2 * pairs).fill(0);
+    for (let s = L + 1; s < R; s++) v[2 * (kind === 'chain' ? z[s - 1] : 2 * days[s] + z[s - 1]) + z[s]]++;
+    for (let k = 0; k < v.length; k += 2) lr += sign * 2 * (xlx(v[k], v[k] + v[k + 1]) + xlx(v[k + 1], v[k] + v[k + 1]));
+  }
+  return -lr;
+}
+
+/** chi-square 0.999 quantile on 12 degrees of freedom: a stretch above it is read as on a weekly schedule. */
+export const WEEKLY_TEST = { df: 12, crit: 32.909 };

@@ -6728,6 +6728,43 @@ switch is all or nothing at the centre 6. **Next:** a fresh pre-registration who
 panels where the rule switches on, with the wandering cost reported beside it; or the hybrid word offered as an
 option, not the default, with this table quoted.
 
+### The panel word as an option: `--shape-word panel` (2026-11-18, later; an opt-in, no new test)
+
+The section above ended with two ways forward; this takes the second. The pre-registration said a failed bar 1 keeps
+the panel-relative word off the default, and it stays off. But on a long compounding panel the default word is close
+to useless (80% of clean units listed above the treated one got a word where the rule switches on), and the one bar
+that failed was missed by 0.4 points on a line where the rule switched on in 1-3% of panels. So a person reading a
+GDP-per-head panel can now ask for the panel word, and the note tells them what it buys and what it costs, quoting the
+confirmatory file:
+
+- **CLI:** `--shape-word plain|panel` with `--donors` (default `plain`; anything else is refused; without `--donors`
+  it is refused like `--anticipation`).
+- **Library:** `synthResult({ ..., shapeWord: 'panel' })` words `above[].gapShape` and `placeboShapes` with
+  `relShape`, and adds `shapeWord`, `shapeCentre` (the median unit's last-third over first-third mean-square ratio) and
+  `shapeRelative` (whether that centre reached 6) to the result and `--json`. The default result has none of the three,
+  so existing `--json` readers see no change.
+- **Page:** a "Word the donors ranked above it" select beside the anticipation box, passed through the worker job.
+- **The note** (`synth-view.mjs` `panelShapeNote`, rates in `PANEL_SHAPE`, each pinned to its line in
+  `eval/synth-shape-trend-confirm.out.txt`): where the centre reached 6, it gives the centre, what each word now means,
+  the panel's own counts, and then the confirmatory rates: 22% of clean listed units worded against 80% for the plain
+  word; pulses still called 'faded' 78% (plain 74%); a donor's own big slope called 'grew' only 33%, about the 27% of
+  all placebos, so 'held' does not clear a unit of a slope; and the wandering-panel cost (68.8% against 70.7%) that kept
+  it off the default. Below a centre of 6 it says the plain words stand, and gives the plain note.
+- **The plain note** now ends its "most share the word" clause with a pointer to `--shape-word panel`.
+
+What it prints on West Germany 1990 (`node cli.mjs data/oecd-gdp-per-capita-1960-2003.csv --column WestGermany
+--known-date 1990 --donors all --window 1960:2003 --shape-word panel`): the centre is 21.8; of the two units ranked
+above West Germany, the Netherlands' gap 'held' and Norway's 'grew' (plain: both 'grew'); over all 16 placebos 4
+faded, 2 grew and 10 held (plain: 0, 12, 4). Rank 3 of 17 and p 0.176 are the same under either word: the word is a
+description and changes no p. The Basque Country 1970 (centre 2.36) reads the same either way.
+
+`synth-shape-trend.test.mjs` pins the West German and Basque outputs, that the test is identical under both words, the
+default `--json` unchanged, every `PANEL_SHAPE` rate against the confirmatory file, the refused values, and the
+option's path through the CLI, the worker job and the page.
+
+**Not done:** the fresh pre-registration scored only where the rule switches on, which would decide whether the panel
+word can become the default.
+
 ## Currency pegs: the update-rate check against documented dates (2026-11-18, pre-registered; D1 fails, a hang fixed)
 
 The update-rate check ("When a series starts updating less often") had only ever been scored in
@@ -6912,3 +6949,97 @@ JHU's eight returns, which are seen data.
 
 Test: `update-rate-returns.test.mjs` (the pass finds a planted return and its edges, looks only for fewer repeats,
 is off by default, and both rounds' committed verdicts).
+
+## Short returns, with the day of the week: a weekday cost, pre-registered (2026-11-18; round 3 fails R2 by 4 series, not offered)
+
+The round above ended on its own diagnosis: the two-state chain ignores the calendar, so a fixed weekly
+schedule looks like clumps, and the penalty that silences those clumps also buries a two-month return. This
+round replaces the region model with the calendar. `bestReturnCost` in `update-rate.mjs` takes a weekday per
+step and one of two costs: `'dow'`, one repeat probability per weekday in each region (7 inside, 7 shared by
+the parts before and after), and `'dowchain'`, a two-state chain per weekday (14 a region). Its `'chain'` kind
+reproduces the shipped pass's gain to 1e-6. `eval/update-rate-returns-dow.mjs` (header and module committed
+in cc37d9d05 before any cell ran) kept rounds 1 and 2's 15 null cells, 4 power cells, FOUND rule and R1-R3
+bars, and set the grid (m 2 to 6), fresh seeds and the choice: per cost the smallest m with at most 0.010 false
+returns a series in every null cell, then the cost with more R60 finds at its m.
+
+**Calibration (seed 20261222, `eval/update-rate-returns-dow.out.txt`).** The weekday cost finds what the chain
+cannot: at m 3, 199 of 200 sixty-day returns and 161 of 200 thirty-day ones, against 0 and 0 for round 2's
+chain on the same series. It fails the null budget on the clumpy chains, not the schedules: M60 still raises
+0.020 false returns a series at m 6 (W3, round 2's worst cell, is at 0.000 from m 3). A weekday Bernoulli has no
+memory, so a run of repeats in a series that clumps reads as a calendar stretch. The weekday chain adds that
+memory and pays for 14 parameters a region: it meets the budget only at m 5, where R60 is found in 123 of 200.
+
+| calibration, found of 200 (worst null cell) | m 3 | m 4 | m 5 | m 6 |
+|---|---|---|---|---|
+| `'dow'` R60 | 199 (M60 0.575) | 199 (0.225) | 198 (0.075) | 170 (0.020) |
+| `'dowchain'` R60 | 184 (B60 0.780) | 184 (B60 0.060) | **123 (0.005)** | 7 (0.000) |
+| round 2's `'chain'`, m 3 | 0 (0.000) | | | |
+
+**Confirmation (seed 20261223, `'dowchain'` at m 5): R1 passes (no false return in any null cell), R3 passes
+(116 more than the shipped check's 0), R2 fails: 116 of 200, bar 120.** So the pass is not offered, and the
+JHU check (J1, the eight documented returns, seen data) did not run, as pre-registered. `SHORT_RETURNS.mult` stays
+null; nothing the CLI or the page prints changes. The thirty-day return is found in 0 and the independent-repeats
+cell I60 in 0 (it has no weekly pattern for the weekday cost to use, and the chain reference finds 31).
+
+**What binds** (post hoc, read off the file, deciding nothing): the two costs fail on different cells. `'dow'` has
+the power (199 of 200 at every m to 5) and loses only the clumpy chains with no weekly schedule; `'dowchain'` holds
+every null but spends its margin on parameters a fixed schedule does not need. That points at choosing the model
+per stretch rather than one cost for all: the weekday cost where the stretch shows a weekly pattern (a weekday
+share test on the stretch, the same kind of test that already chooses "rounding" over a stale feed), the chain
+where it does not. Pre-registered on fresh seeds, with these cells.
+
+Test: `update-rate-returns-dow.test.mjs` (the generic chain cost equals `bestReturn`, the weekday costs find the
+planted return with about twice the chain's gain or more, a fixed weekly schedule gains nothing, weekdays from ISO
+dates, and the committed verdict).
+
+## Short returns: the model chosen per stretch (2026-11-18, pre-registered; R1-R3 pass, the real check J1 fails 3 of 8, not offered)
+
+Round 3 above ended by pointing at a choice per stretch: the weekday cost where the stretch has a weekly
+pattern, the chain where it does not. This round tests exactly that. `weeklyPatternLR` in `update-rate.mjs`
+scores a stretch by the likelihood ratio of a two-state chain per weekday (14 parameters) against one two-state
+chain (2). Under a chain with no calendar it is about chi-square on 12 degrees of freedom, so clumps alone do not
+read as a schedule (the plain weekday-share test would: a sticky chain inflates it). `WEEKLY_TEST.crit` is the
+0.999 quantile, 32.909, fixed before any cell ran, not tuned. A stretch above it has its return scored with
+`'dow'`, any other with the fallback. `eval/update-rate-returns-auto.mjs` (header, rule and function committed in
+73e05bb58 before any cell ran) kept the 15 null cells, the 4 power cells, FOUND, R1-R3 and the J1 bar, with fresh
+seeds and two arms by fallback: `'dow|chain'` and `'dow|dowchain'`.
+
+**Calibration (seed 20261224, `eval/update-rate-returns-auto.out.txt`).** The test sorts the cells as intended:
+every Monday-Friday and Monday/Wednesday/Friday stretch reads as weekly, W5c's daily half does not, and at most
+0.5% of the chain-null stretches do. `'dow|chain'` meets the null budget at m 3 and finds 198 of 200 sixty-day
+returns there. `'dow|dowchain'` needs m 5 (196), so `'dow|chain'` at m 3 was chosen.
+
+**Confirmation (seed 20261225, `'dow|chain'` at m 3): all three simulation bars pass.**
+
+| confirmation, found of 200 | per stretch, m 3 | `'dow'` alone, m 3 | round 2's chain, m 3 |
+|---|---|---|---|
+| worst null cell, false returns a series | **0.000** (R1, bar 0.020) | 0.590 (M60 n600) | 0.000 |
+| 30 days of daily inside Monday-Friday | 167 | 167 | 0 |
+| 60 days | **200** (R2, bar 120) | 200 | 0 |
+| 90 days | 200 | 200 | 42 |
+| 60 days at 2% inside independent 25% | 23 | 8 | 23 |
+
+R3 passes too (200 more than the shipped check alone). So the real check ran, as pre-registered: JHU's eight
+documented returns to more frequent reporting, seen data (README "A provider's own schedule changes").
+
+**J1 fails: 3 of 8 dated, bar 4.** Idaho (Monday-Friday to daily, 2021-09-11) is dated 2021-09-06, a 62-day
+return with 3% repeats inside and 24% around; Vermont (2021-08-21) on the day; Michigan (Tuesday and Friday to
+Monday/Wednesday/Friday, 2021-08-09) the day before. Arkansas, Alaska, Nebraska and South Dakota are missed.
+Alabama's return is found but dated 2021-07-17, two months before the documented 2021-09-17, so it does not
+count. The pass stays in the module, off: `SHORT_RETURNS.mult` is still null, and nothing the CLI or the page
+prints changes.
+
+**What the real series show** (post hoc, read off J2, deciding nothing). Five of the twelve returns on the 27
+primary states have about the same share of repeats inside as around them (85% and 85% for Alaska 2022,
+Michigan 2022 and Utah's 20 days, 86% and 86% for Alabama 2022). They are not returns to more frequent
+publication at all. They are changes in *which* days publish. The weekday cost gains from any change in the
+weekday pattern, and the pass's only direction guard is that the raw share inside is lower, which a reshuffled
+schedule passes by a hair. The simulated nulls never moved publication from one set of days to another set of
+the same size, so the calibration could not see this. Next, pre-registered: a null cell that keeps the count of
+publication days and moves them (Tuesday/Friday to Monday/Thursday, and Wednesday to Monday), and a direction
+guard that asks for a real drop in repeats (for example, the repeat share inside at most half of the share
+around, fixed before it runs). Then J1 again. It is now seen twice, so it can only confirm, not choose.
+
+Test: `update-rate-returns-auto.test.mjs` (a Monday-Friday schedule reads as weekly and a clumpy chain does not,
+the statistic is a non-negative likelihood ratio, each stretch is scored with the cost its test picks, and the
+committed verdict).

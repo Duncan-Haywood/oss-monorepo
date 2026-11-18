@@ -1,0 +1,595 @@
+{
+ "n": 12,
+ "n_late": 8,
+ "fixed_mean_late": {
+  "cpin_es3_nc3": 79.78094504230967,
+  "cpin_es3_nc4": 78.48062839368602,
+  "cpin_es3_nc5": 78.16483129381739
+ },
+ "fixed_mean_all": {
+  "cpin_es3_nc3": 81.35516204972626,
+  "cpin_es3_nc4": 80.40460701759831,
+  "cpin_es3_nc5": 81.28697108383518
+ },
+ "fixed_regret": {
+  "cpin_es3_nc3": 1.7338829015146213,
+  "cpin_es3_nc4": 0.7833278693866722,
+  "cpin_es3_nc5": 1.6656919356235604
+ },
+ "chooser_regret": 0.9139028617946003,
+ "chooser_hits": 6,
+ "chooser_picks": {
+  "cpin_es3_nc3": 9,
+  "cpin_es3_nc4": 1,
+  "cpin_es3_nc5": 2
+ },
+ "oracle_counts": {
+  "cpin_es3_nc3": 3,
+  "cpin_es3_nc4": 5,
+  "cpin_es3_nc5": 4
+ },
+ "nc4_within_1day": 8,
+ "oracle_mean_all": 79.62127914821163,
+ "max_regret_post_hoc": {
+  "cpin_es3_nc3": 5.456532740726217,
+  "cpin_es3_nc4": 2.3111584848713846,
+  "cpin_es3_nc5": 8.860824998738053
+ },
+ "chooser_max_regret_post_hoc": 4.43951454131691,
+ "worst_counts_post_hoc": {
+  "cpin_es3_nc3": 7,
+  "cpin_es3_nc4": 0,
+  "cpin_es3_nc5": 5
+ },
+ "predictions": {
+  "G0": true,
+  "G1": false,
+  "G2": true,
+  "G3": false,
+  "G4": false
+ },
+ "rows_check_max_abs": 7.62939453125e-06,
+ "note": "session 103: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds on completed test rows (days); grid = staleness cuts 3, 4, 5 years; oracle = best grid member on the test year; chooser = lowest q0.9 pinball on the target's own Y-6 permits completed by D = 1 January Y",
+ "cells": [
+  {
+   "held": "sf",
+   "year": 2017,
+   "test": {
+    "cpin_es3_nc3": 81.80392166003298,
+    "cpin_es3_nc4": 83.1672935837123,
+    "cpin_es3_nc5": 90.66474665877104
+   },
+   "k6": {
+    "cpin_es3_nc3": 55.38389982492263,
+    "cpin_es3_nc4": 61.20677192159942,
+    "cpin_es3_nc5": 73.68671572223377
+   },
+   "oracle": "cpin_es3_nc3",
+   "pick": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc4": 1.3633719236793098,
+    "cpin_es3_nc5": 8.860824998738053
+   },
+   "pick_regret": 0.0,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ],
+   "nc4_minus_nc5_per_seed": [
+    -7.56937389967689,
+    -7.362828231526095,
+    -7.560157093973274
+   ],
+   "nc4_minus_nc3_per_seed": [
+    1.525811353213598,
+    1.337161562207342,
+    1.2271428556169894
+   ],
+   "k6_size": {
+    "n": 29619,
+    "n_open": 10575
+   },
+   "k6_size_ref": {
+    "n": 29619,
+    "n_open": 10575
+   }
+  },
+  {
+   "held": "sf",
+   "year": 2018,
+   "test": {
+    "cpin_es3_nc3": 86.18686794737779,
+    "cpin_es3_nc4": 85.45754081611453,
+    "cpin_es3_nc5": 89.13071959340351
+   },
+   "k6": {
+    "cpin_es3_nc3": 56.7143502134509,
+    "cpin_es3_nc4": 58.962076917383435,
+    "cpin_es3_nc5": 69.06257483055673
+   },
+   "oracle": "cpin_es3_nc4",
+   "pick": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc3": 0.7293271312632612,
+    "cpin_es3_nc4": 0.0,
+    "cpin_es3_nc5": 3.6731787772889817
+   },
+   "pick_regret": 0.7293271312632612,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ],
+   "nc4_minus_nc5_per_seed": [
+    -2.7273472855545293,
+    -4.3451391899064475,
+    -3.9470498564059824
+   ],
+   "nc4_minus_nc3_per_seed": [
+    -0.5751952530160906,
+    -0.9445071954838653,
+    -0.6682789452898561
+   ],
+   "k6_size": {
+    "n": 30590,
+    "n_open": 11241
+   },
+   "k6_size_ref": {
+    "n": 30590,
+    "n_open": 11241
+   }
+  },
+  {
+   "held": "sf",
+   "year": 2019,
+   "test": {
+    "cpin_es3_nc3": 83.3078649348975,
+    "cpin_es3_nc4": 81.74835971751996,
+    "cpin_es3_nc5": 82.17087599500668
+   },
+   "k6": {
+    "cpin_es3_nc3": 60.61476805690244,
+    "cpin_es3_nc4": 62.61569395263327,
+    "cpin_es3_nc5": 68.02064698591563
+   },
+   "oracle": "cpin_es3_nc4",
+   "pick": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc3": 1.5595052173775343,
+    "cpin_es3_nc4": 0.0,
+    "cpin_es3_nc5": 0.4225162774867215
+   },
+   "pick_regret": 1.5595052173775343,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ],
+   "nc4_minus_nc5_per_seed": [
+    -0.8593667262125848,
+    -0.16216497764509086,
+    -0.24601712860250302
+   ],
+   "nc4_minus_nc3_per_seed": [
+    -1.6496844150706949,
+    -1.5580743029942852,
+    -1.4707569340676514
+   ],
+   "k6_size": {
+    "n": 33348,
+    "n_open": 12522
+   },
+   "k6_size_ref": {
+    "n": 33348,
+    "n_open": 12522
+   }
+  },
+  {
+   "held": "sf",
+   "year": 2020,
+   "test": {
+    "cpin_es3_nc3": 79.05358622322974,
+    "cpin_es3_nc4": 78.12169615031048,
+    "cpin_es3_nc5": 77.96732962924091
+   },
+   "k6": {
+    "cpin_es3_nc3": 61.589447619853,
+    "cpin_es3_nc4": 62.702148175135996,
+    "cpin_es3_nc5": 65.64980257675639
+   },
+   "oracle": "cpin_es3_nc5",
+   "pick": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc3": 1.0862565939888356,
+    "cpin_es3_nc4": 0.15436652106957638,
+    "cpin_es3_nc5": 0.0
+   },
+   "pick_regret": 1.0862565939888356,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ],
+   "nc4_minus_nc5_per_seed": [
+    0.32037215823790177,
+    -0.19003219617943046,
+    0.33275960115027203
+   ],
+   "nc4_minus_nc3_per_seed": [
+    -0.769413656558541,
+    -1.1314189405420905,
+    -0.8948376216571745
+   ],
+   "k6_size": {
+    "n": 34499,
+    "n_open": 13016
+   },
+   "k6_size_ref": {
+    "n": 34499,
+    "n_open": 13016
+   }
+  },
+  {
+   "held": "sf",
+   "year": 2021,
+   "test": {
+    "cpin_es3_nc3": 70.79361141817806,
+    "cpin_es3_nc4": 71.33493265866998,
+    "cpin_es3_nc5": 72.35000701709188
+   },
+   "k6": {
+    "cpin_es3_nc3": 60.917466814456795,
+    "cpin_es3_nc4": 63.44658929638708,
+    "cpin_es3_nc5": 65.73350071386011
+   },
+   "oracle": "cpin_es3_nc3",
+   "pick": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc4": 0.541321240491925,
+    "cpin_es3_nc5": 1.5563955989138236
+   },
+   "pick_regret": 0.0,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ],
+   "nc4_minus_nc5_per_seed": [
+    -0.11961332114597667,
+    -1.529522984472976,
+    -1.396086769646729
+   ],
+   "nc4_minus_nc3_per_seed": [
+    0.89699651960224,
+    0.29741066872182387,
+    0.42955653315172526
+   ],
+   "k6_size": {
+    "n": 37230,
+    "n_open": 14729
+   },
+   "k6_size_ref": {
+    "n": 37230,
+    "n_open": 14729
+   }
+  },
+  {
+   "held": "sf",
+   "year": 2022,
+   "test": {
+    "cpin_es3_nc3": 58.164812844803286,
+    "cpin_es3_nc4": 59.043103413342656,
+    "cpin_es3_nc5": 61.20789694314692
+   },
+   "k6": {
+    "cpin_es3_nc3": 70.00306781808113,
+    "cpin_es3_nc4": 70.2278733300001,
+    "cpin_es3_nc5": 71.55435374293006
+   },
+   "oracle": "cpin_es3_nc3",
+   "pick": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc4": 0.87829056853937,
+    "cpin_es3_nc5": 3.043084098343634
+   },
+   "pick_regret": 0.0,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc4"
+   ],
+   "nc4_minus_nc5_per_seed": [
+    -1.574332524717093,
+    -2.1646502076146064,
+    -2.7553978570810926
+   ],
+   "nc4_minus_nc3_per_seed": [
+    1.4851365762396682,
+    0.5157670478871808,
+    0.6339680814912612
+   ],
+   "k6_size": {
+    "n": 37119,
+    "n_open": 14764
+   },
+   "k6_size_ref": {
+    "n": 37119,
+    "n_open": 14764
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2017,
+   "test": {
+    "cpin_es3_nc3": 80.34002654923742,
+    "cpin_es3_nc4": 79.90537468137705,
+    "cpin_es3_nc5": 81.72753431671903
+   },
+   "k6": {
+    "cpin_es3_nc3": 58.13457002196986,
+    "cpin_es3_nc4": 57.89368847537197,
+    "cpin_es3_nc5": 60.63463423264012
+   },
+   "oracle": "cpin_es3_nc4",
+   "pick": "cpin_es3_nc4",
+   "regret": {
+    "cpin_es3_nc3": 0.43465186786036725,
+    "cpin_es3_nc4": 0.0,
+    "cpin_es3_nc5": 1.8221596353419756
+   },
+   "pick_regret": 0.0,
+   "pick_per_seed": [
+    "cpin_es3_nc4",
+    "cpin_es3_nc4",
+    "cpin_es3_nc4"
+   ],
+   "nc4_minus_nc5_per_seed": [
+    -1.6405841360107871,
+    -2.448556244543468,
+    -1.377338525471714
+   ],
+   "nc4_minus_nc3_per_seed": [
+    -0.6485897320063287,
+    -0.3240557947660534,
+    -0.3313100768087338
+   ],
+   "k6_size": {
+    "n": 5476,
+    "n_open": 887
+   },
+   "k6_size_ref": {
+    "n": 5476,
+    "n_open": 887
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2018,
+   "test": {
+    "cpin_es3_nc3": 89.68356810158957,
+    "cpin_es3_nc4": 88.48004798048767,
+    "cpin_es3_nc5": 88.6020020865897
+   },
+   "k6": {
+    "cpin_es3_nc3": 58.26250450342561,
+    "cpin_es3_nc4": 58.853631993504145,
+    "cpin_es3_nc5": 61.45323686820243
+   },
+   "oracle": "cpin_es3_nc4",
+   "pick": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc3": 1.2035201211019029,
+    "cpin_es3_nc4": 0.0,
+    "cpin_es3_nc5": 0.12195410610203794
+   },
+   "pick_regret": 1.2035201211019029,
+   "pick_per_seed": [
+    "cpin_es3_nc4",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ],
+   "nc4_minus_nc5_per_seed": [
+    0.11351073882713081,
+    -0.014782299739763971,
+    -0.46459075739348066
+   ],
+   "nc4_minus_nc3_per_seed": [
+    -1.6859334260694396,
+    -1.0130376361686473,
+    -0.9115893010676075
+   ],
+   "k6_size": {
+    "n": 5720,
+    "n_open": 852
+   },
+   "k6_size_ref": {
+    "n": 5720,
+    "n_open": 852
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2019,
+   "test": {
+    "cpin_es3_nc3": 82.25331007698172,
+    "cpin_es3_nc4": 80.30459934049496,
+    "cpin_es3_nc5": 80.79278907576246
+   },
+   "k6": {
+    "cpin_es3_nc3": 57.410190488784586,
+    "cpin_es3_nc4": 57.73234459170633,
+    "cpin_es3_nc5": 59.635146137367734
+   },
+   "oracle": "cpin_es3_nc4",
+   "pick": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc3": 1.9487107364867597,
+    "cpin_es3_nc4": 0.0,
+    "cpin_es3_nc5": 0.48818973526749687
+   },
+   "pick_regret": 1.9487107364867597,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc4",
+    "cpin_es3_nc3"
+   ],
+   "nc4_minus_nc5_per_seed": [
+    -0.9410858883425135,
+    -0.7460064760899456,
+    0.22252315862998273
+   ],
+   "nc4_minus_nc3_per_seed": [
+    -1.9944854536566652,
+    -2.183407805887768,
+    -1.6682389499158603
+   ],
+   "k6_size": {
+    "n": 6681,
+    "n_open": 1057
+   },
+   "k6_size_ref": {
+    "n": 6681,
+    "n_open": 1057
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2020,
+   "test": {
+    "cpin_es3_nc3": 99.75021527573604,
+    "cpin_es3_nc4": 97.25351151915673,
+    "cpin_es3_nc5": 95.31070073441913
+   },
+   "k6": {
+    "cpin_es3_nc3": 62.66944642847374,
+    "cpin_es3_nc4": 63.267182547373075,
+    "cpin_es3_nc5": 64.19814458586404
+   },
+   "oracle": "cpin_es3_nc5",
+   "pick": "cpin_es3_nc3",
+   "regret": {
+    "cpin_es3_nc3": 4.43951454131691,
+    "cpin_es3_nc4": 1.9428107847376026,
+    "cpin_es3_nc5": 0.0
+   },
+   "pick_regret": 4.43951454131691,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc4",
+    "cpin_es3_nc3"
+   ],
+   "nc4_minus_nc5_per_seed": [
+    1.9328307527562743,
+    2.3070849668348785,
+    1.5885166346216124
+   ],
+   "nc4_minus_nc3_per_seed": [
+    -1.8601065041198694,
+    -2.4304394125304754,
+    -3.199565353087607
+   ],
+   "k6_size": {
+    "n": 7352,
+    "n_open": 1147
+   },
+   "k6_size_ref": {
+    "n": 7352,
+    "n_open": 1147
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2021,
+   "test": {
+    "cpin_es3_nc3": 91.0691272883791,
+    "cpin_es3_nc4": 87.82120945690377,
+    "cpin_es3_nc5": 85.61259454765288
+   },
+   "k6": {
+    "cpin_es3_nc3": 63.685062407926786,
+    "cpin_es3_nc4": 63.74566414393086,
+    "cpin_es3_nc5": 62.869048045319765
+   },
+   "oracle": "cpin_es3_nc5",
+   "pick": "cpin_es3_nc5",
+   "regret": {
+    "cpin_es3_nc3": 5.456532740726217,
+    "cpin_es3_nc4": 2.2086149092508975,
+    "cpin_es3_nc5": 0.0
+   },
+   "pick_regret": 0.0,
+   "pick_per_seed": [
+    "cpin_es3_nc5",
+    "cpin_es3_nc5",
+    "cpin_es3_nc5"
+   ],
+   "nc4_minus_nc5_per_seed": [
+    1.2183906991049014,
+    3.442154928668913,
+    1.96529909997885
+   ],
+   "nc4_minus_nc3_per_seed": [
+    -3.573924466983968,
+    -3.12525351342984,
+    -3.044575514012166
+   ],
+   "k6_size": {
+    "n": 7572,
+    "n_open": 1242
+   },
+   "k6_size_ref": {
+    "n": 7572,
+    "n_open": 1242
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2022,
+   "test": {
+    "cpin_es3_nc3": 73.85503227627184,
+    "cpin_es3_nc4": 72.21761489308956,
+    "cpin_es3_nc5": 69.90645640821818
+   },
+   "k6": {
+    "cpin_es3_nc3": 65.99316027051565,
+    "cpin_es3_nc4": 65.71920603309309,
+    "cpin_es3_nc5": 65.06921274339112
+   },
+   "oracle": "cpin_es3_nc5",
+   "pick": "cpin_es3_nc5",
+   "regret": {
+    "cpin_es3_nc3": 3.9485758680536662,
+    "cpin_es3_nc4": 2.3111584848713846,
+    "cpin_es3_nc5": 0.0
+   },
+   "pick_regret": 0.0,
+   "pick_per_seed": [
+    "cpin_es3_nc5",
+    "cpin_es3_nc5",
+    "cpin_es3_nc4"
+   ],
+   "nc4_minus_nc5_per_seed": [
+    1.9119926099970002,
+    3.927466820286682,
+    1.0940160243304433
+   ],
+   "nc4_minus_nc3_per_seed": [
+    -1.7805741028381163,
+    -1.104271168225921,
+    -2.0274068784828216
+   ],
+   "k6_size": {
+    "n": 8042,
+    "n_open": 1394
+   },
+   "k6_size_ref": {
+    "n": 8042,
+    "n_open": 1394
+   }
+  }
+ ]
+}

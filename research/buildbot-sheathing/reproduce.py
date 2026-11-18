@@ -99,6 +99,8 @@ EXPERIMENTS = {
                      5, [("posthoc.py", "posthoc.txt")]),
     "m52_slackcal": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m51_envelope/run.py (and so m48's to m38's) and reads m48 and m50 results.json",
                      4, []),
+    "m53_loadside": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m52_slackcal/run.py (and so m51's, m48's to m38's) and reads m52 results.json",
+                     2, []),
 }
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]

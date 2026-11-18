@@ -15,7 +15,8 @@ its marker), so a live job is told apart from a quiet, stuck or dead one.
 
 A job that prints no marker (a `pip install`, a writer of a jsonl) can be waited on by
 a condition instead: `--until "python3 -c 'import torch'"` returns 0 once that command exits 0.
-Given a log too, it waits for both (the condition, then the log's marker) and prints the log's tail.
+Given a log too, it waits for both (the condition, then the log's marker) and prints the log's tail;
+a log path that still does not exist 10 s after the condition holds ends the wait (exit 0, with a note).
 
 A job with a known pid: `--pid 12345` returns once that process has exited. Do not
 use `--until "pgrep -f name"`: the shell running it matches its own command line, so it
@@ -134,6 +135,19 @@ def wait_until(cmd, timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.
         if clock() >= end:
             return False
         nap(interval)
+
+
+LOG_GRACE = 10.0
+
+
+def log_appears(path, grace=LOG_GRACE, interval=1.0, clock=time.monotonic, nap=time.sleep):
+    """True once `path` exists, False if it still does not after `grace` seconds."""
+    end = clock() + grace
+    while not os.path.exists(path):
+        if clock() >= end:
+            return False
+        nap(interval)
+    return True
 
 
 def pid_alive(pid):
@@ -361,8 +375,15 @@ def main(argv=None):
         # A log given with --until was ignored, so a wait returned "condition met" with no
         # output before the job had written its last line (friction 2026-11-16). Both
         # given means both: the condition, then the log's marker, in what time is left.
-        print("wait_for: condition met; now waiting for the log's marker", file=sys.stderr)
         timeout = max(0.0, a.timeout - (time.monotonic() - started))
+        # A log path that never appears (a typo, a job that writes elsewhere) then waited the
+        # whole timeout for a marker after the condition had already said done: one 9-minute
+        # wait on 2026-11-18. The condition is the signal; give the log a short grace to appear.
+        if not log_appears(a.log, min(LOG_GRACE, timeout)):
+            print(f"wait_for: condition met; {a.log} does not exist (wrong path, or the job writes "
+                  "elsewhere?), so there is no output to show")
+            return 0
+        print("wait_for: condition met; now waiting for the log's marker", file=sys.stderr)
     if not a.log:
         ap.error("give a log file, --until, --pid or --gone")
     boot = None if a.ignore_restart else boot_time()

@@ -291,6 +291,7 @@ ventures/crop-insurance-coverage-calculator/usage.mjs
 ventures/crown-molding-bid-calculator/usage.mjs
 ventures/crypto-cost-basis-calculator/usage.mjs
 ventures/csa-share-pricing-calculator/usage.mjs
+ventures/csp-policy-check/usage.mjs
 ventures/csshound/usage.mjs
 ventures/csv-to-sepa-pain001/usage.mjs
 ventures/csv-to-sepa-pain008/usage.mjs
@@ -350,6 +351,7 @@ ventures/duct-cleaning-bid-calculator/usage.mjs
 ventures/dumpster-rental-margin-calculator/usage.mjs
 ventures/dunning-engine/usage.mjs
 ventures/dupehound/usage.mjs
+ventures/dxf-nesting/usage.mjs
 ventures/dynamic-time-warping/usage.mjs
 ventures/dynamodb-capacity-mode-advisor/usage.mjs
 ventures/eaa-accessibility-act-checker/usage.mjs
@@ -1101,6 +1103,7 @@ ventures/source-map-leak-check/usage.mjs
 ventures/spatial-autocorrelation/usage.mjs
 ventures/spc-control-charts/usage.mjs
 ventures/speaker-fee-calculator/usage.mjs
+ventures/species-diversity/usage.mjs
 ventures/speech-to-text-pricing-calculator/usage.mjs
 ventures/sponsor-ready/usage.js
 ventures/sports-official-game-fee-calculator/usage.mjs

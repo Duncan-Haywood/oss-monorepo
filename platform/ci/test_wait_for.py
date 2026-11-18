@@ -136,6 +136,32 @@ class WaitFor(unittest.TestCase):
                 self.assertEqual(main([p, "--until", "true", "--timeout", "1", "--ignore-restart"]), 0)
             self.assertIn("timing 3.2 s", out.getvalue())
 
+    def test_until_with_a_missing_log_returns_once_the_condition_holds(self):
+        # friction 2026-11-18: a log path that never existed waited 9 minutes after the condition was met
+        import wait_for
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "never.log")
+            out = io.StringIO()
+            old, wait_for.LOG_GRACE = wait_for.LOG_GRACE, 0.0
+            try:
+                with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(out):
+                    self.assertEqual(main([p, "--until", "true", "--timeout", "30", "--ignore-restart"]), 0)
+            finally:
+                wait_for.LOG_GRACE = old
+            self.assertIn("does not exist", out.getvalue())
+
+    def test_log_appears_waits_its_grace_for_the_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "late.log")
+            t = [0.0]
+            def nap(s):
+                t[0] += s
+                if t[0] >= 3:
+                    open(p, "w").close()
+            from wait_for import log_appears
+            self.assertTrue(log_appears(p, grace=10, clock=lambda: t[0], nap=nap))
+            self.assertFalse(log_appears(os.path.join(d, "no.log"), grace=2, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s)))
+
     def test_until_runs_through_a_shell(self):
         self.assertTrue(wait_until("exit 0", timeout=1))
         self.assertTrue(wait_until("false || true", timeout=1))

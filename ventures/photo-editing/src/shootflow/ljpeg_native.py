@@ -25,7 +25,8 @@ pure-Python decoder stays the reference (``tests/test_nef.py`` runs both), and
 Panasonic RW2 decode of ``shootflow.rw2`` (``tests/test_rw2.py`` runs both), and the three Samsung SRW
 decoders of ``shootflow.srw`` (``shootflow_samsung_rows_run``, ``_huffman_run``, ``_blocks_run``;
 ``tests/test_srw.py`` runs both), and ``shootflow_pentax_run``, the Pentax PEF decode of
-``shootflow.pef`` (``tests/test_pef.py`` runs both), and ``shootflow_fuji_strip``, one strip of a
+``shootflow.pef`` (``tests/test_pef.py`` runs both), and ``shootflow_hasselblad_run``, the Hasselblad 3FR
+decode of ``shootflow.hasselblad`` (``tests/test_hasselblad.py`` runs both), and ``shootflow_fuji_strip``, one strip of a
 Fujifilm lossless compressed RAF (``shootflow.raf_compressed``; ``tests/test_raf_compressed.py`` runs both),
 and ``shootflow_crx_band``, one band of a Canon CR3 (``shootflow.cr3``; ``tests/test_cr3.py`` runs both),
 and ``shootflow_craw_plane``, one plane of a C-RAW CR3 (``shootflow.cr3_wavelet``; ``tests/test_cr3_wavelet.py``
@@ -624,6 +625,62 @@ long shootflow_pentax_run(const uint8_t *d, long len, long width, long height, i
         }
     }
 #undef PX_FILL
+    return 0;
+}
+
+/* Hasselblad 3FR compression 7 (shootflow.hasselblad; dcraw's hasselblad_load_raw): a lossless-JPEG
+   header, then a bit stream read MSB first from little-endian 32-bit words, no byte stuffing. Each pair
+   of sensels takes two Huffman size codes (lut: 65536 entries of (length << 8) | size), then the two
+   differences. A sensel is predicted from the one two columns left (0x8000 at a row's start); with
+   psv 11, from row 2 on, plus half the same-colour sensel two rows up minus half the one left of it.
+   Returns 0, -1 on an unassigned code, -2 when memory runs out. */
+long shootflow_hasselblad_run(const uint8_t *d, long len, long width, long height, int psv,
+                              const uint16_t *lut, uint16_t *out)
+{
+    uint64_t acc = 0;
+    int nb = 0;
+    long p = 0;
+#define HB_FILL(n) while (nb < (n)) { uint32_t w = 0; for (int q = 3; q >= 0; q--) w = w << 8 | (p + q < len ? d[p + q] : 0); p += 4; acc = acc << 32 | w; nb += 32; }
+    /* dcraw keeps each prediction unmasked (an int): three rows of them, the current one and two above. */
+    int32_t *back = (int32_t *)calloc((size_t)(3 * (width > 0 ? width : 1)), sizeof(int32_t));
+    if (!back) return -2;
+    for (long row = 0; row < height; row++) {
+        int32_t *cur = back + (row % 3) * width;
+        const int32_t *up2 = back + ((row + 1) % 3) * width;
+        uint16_t *o = out + row * width;
+        for (long col = 0; col < width; col += 2) {
+            int len2[2], diff[2];
+            for (int c = 0; c < 2; c++) {
+                HB_FILL(16);
+                unsigned e = lut[(acc >> (nb - 16)) & 0xFFFF];
+                if (!(e >> 8)) { free(back); return -1; }
+                nb -= e >> 8;
+                len2[c] = e & 0xFF;
+            }
+            for (int c = 0; c < 2; c++) {
+                int n = len2[c];
+                int v = 0;
+                if (n) {
+                    HB_FILL(n);
+                    nb -= n;
+                    v = (int)((acc >> nb) & ((1u << n) - 1));
+                    if (!(v & (1 << (n - 1)))) v -= (1 << n) - 1;
+                    if (v == 65535) v = -32768;
+                }
+                diff[c] = v;
+            }
+            for (long s = col; s < col + 2 && s < width; s++) {
+                int pred = 0x8000;
+                if (col) pred = cur[s - 2];
+                if (col && row > 1 && psv == 11) pred += up2[s] / 2 - up2[s - 2] / 2;
+                pred += diff[s & 1];
+                o[s] = (uint16_t)(pred & 0xFFFF);
+                cur[s] = pred;
+            }
+        }
+    }
+#undef HB_FILL
+    free(back);
     return 0;
 }
 
@@ -1510,6 +1567,7 @@ def _load():
         ("samsung_huffman", [ctypes.c_char_p] + [ctypes.c_long] * 3 + [ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]),
         ("samsung_blocks", [ctypes.c_char_p] + [ctypes.c_long] * 4 + [ctypes.c_void_p]),
         ("pentax", [ctypes.c_char_p] + [ctypes.c_long] * 3 + [ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]),
+        ("hasselblad", [ctypes.c_char_p] + [ctypes.c_long] * 3 + [ctypes.c_int, ctypes.c_char_p, ctypes.c_void_p]),
     ):
         f = getattr(lib, f"shootflow_{name}_run")
         f.restype = ctypes.c_long
@@ -1867,6 +1925,28 @@ def pentax_run(data: bytes, width: int, height: int, bits: int, lut: array) -> a
         from shootflow.raw_develop import DevelopError
 
         raise DevelopError("PEF: the compressed stream is invalid (a value out of range or an unassigned code)")
+    del out[width * height :]
+    return out
+
+
+def hasselblad_run(data: bytes, width: int, height: int, psv: int, lut: bytes) -> array | None:
+    """``shootflow.hasselblad._decode_python`` in C (``lut``: ``lut16`` of the stream's Huffman table): an
+    ``array('H')``, or None without the native library. Raises ``DevelopError`` where the Python reference would."""
+
+    fn: Any = _srw_call("hasselblad")
+    if fn is None:
+        return None
+    data = data if isinstance(data, bytes) else bytes(data)
+    if len(lut) != 2 * 65536:
+        raise ValueError("the Hasselblad lookup has 65536 16-bit entries")
+    out = array("H", [0]) * max(1, width * height)
+    got = fn(data, len(data), width, height, psv, lut, out.buffer_info()[0])
+    if got == -2:
+        raise MemoryError("3FR: no memory for the decoder's three prediction rows")
+    if got < 0:
+        from shootflow.raw_develop import DevelopError
+
+        raise DevelopError("3FR: the compressed stream holds a code its Huffman table does not assign")
     del out[width * height :]
     return out
 

@@ -46,9 +46,19 @@
   every whole-percent offset, held-out recall 0.982 to 0.998 with 5/7/9% pans in the test, 7-10% pans 0.99-1.00,
   no added false merge (eval/cull-fine-offsets-2026-11-18.md); the all-pairs pass then added 0.0001 held out for
   one more tune false merge and 1.8x the grouping time, so the cull runs the fine pass instead of it. Open:
-  grouping cost rose about 2.7x (10,000 frames 36 to 101 s; a C index build?), pans past 10.7% (past the margin), an exact chunked index since 2026-11-18 (2,000 frames 10.0 to 3.6 s, 10,000 frames 251 to 42 s, same groups, eval/cull-grouping-index-2026-11-18.md); next a C helper for the index build if it matters again; single-linkage chaining measured on a real shoot; sunsets and dark-ground horizons are where the
+  pans past 10.7% (past the margin), an exact chunked index since 2026-11-18 (2,000 frames 10.0 to 3.6 s, 10,000 frames 251 to 42 s, same groups, eval/cull-grouping-index-2026-11-18.md); the C helper landed 2026-11-18 (eval/cull-grouping-native-2026-11-18.md: index and exact checks in C on every core, 10,000 frames 115 to 5.8 s, same groups); single-linkage chaining measured on a real shoot; sunsets and dark-ground horizons are where the
   distinct-photo false merges sit.
 - A copy at 30% brightness (exposure 0.28) stayed an alternate; it lost its group, so harmless, but the reject line
   for exposure may sit too low.
 - (2026-11-18) next a real shoot's picks
 - (2026-11-18) cull: zoom, pan windows, the 44 crop gate and an exact pair index 2026-11-18 (10,000 frames 251 to 42 s, eval/cull-grouping-index-*) (6% pans 0.85 to 1.00, eval/cull-crop-gate-*), whole-percent window offsets 2026-11-18 (7-10% pans 0.78-0.95 to 0.99-1.00, eval/cull-fine-offsets-*)
+- (2026-11-18) a real CR3 with tiles stacked one above another (2018-23 bodies store two across, read since 2026-11-18 with their old C-RAW: 0 of 986.8 M sensels differ on 39 files, eval/canon-cr3-every-body-*)
+
+## From the Hasselblad 3FR reader (2026-11-18, eval/hasselblad-3fr-reader-2026-11-18.md)
+
+- Phocus `.fff` files (raw.pixls.us has H4D-40, H5D-40, H5D-50c, CFV-50, H6D-100c MS and X2D ones; also TIFFs)
+  through the 3FR reader, checked against LibRaw the same way.
+- Rerun `tools/mrw_develop_check.py` with LibRaw's output in linear light (`gamma=(1, 1)`): it undid LibRaw's
+  BT.709 curve with the sRGB curve, so its 0.003-0.016 colour gaps are overstated. Needs the nine MRW files again.
+  (The CR2 and camera-DNG checks pass `gamma=(2.4, 12.92)` and are not affected.)
+- A real 3FR written with predictor 11 (all five compressed files at hand use 8).
