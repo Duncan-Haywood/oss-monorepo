@@ -9,6 +9,7 @@ import {
   detectGlobalListeners,
   detectConsoleLog,
   buildReport,
+  manifestRuleViolations,
   MANIFEST_REQUIRED_FIELDS,
   SAMPLE_PLUGIN_DEFAULTS,
 } from './scan.mjs';
@@ -28,8 +29,9 @@ test('parseManifest: invalid JSON is reported as a parse error, not silently emp
 
 test('parseManifest: a complete manifest has no missing fields', () => {
   const manifest = {
-    id: 'my-plugin',
-    name: 'My Plugin',
+    id: 'word-goals',
+    name: 'Word Goals',
+    isDesktopOnly: false,
     version: '1.0.0',
     minAppVersion: '0.15.0',
     description: 'Does a thing.',
@@ -39,7 +41,7 @@ test('parseManifest: a complete manifest has no missing fields', () => {
   assert.equal(result.found, true);
   assert.equal(result.parseError, false);
   assert.deepEqual(result.missingRequired, []);
-  assert.deepEqual(result.missingRecommended, ['authorUrl', 'fundingUrl', 'isDesktopOnly']);
+  assert.deepEqual(result.missingRecommended, ['authorUrl', 'fundingUrl']);
 });
 
 test('parseManifest: a blank required field counts as missing, not merely absent', () => {
@@ -160,7 +162,7 @@ test('detectConsoleLog: flags console.log calls', () => {
 
 test('buildReport: ok is true only when every blocking check is clean', () => {
   const manifest = parseManifest(JSON.stringify({
-    id: 'my-plugin', name: 'My Plugin', version: '1.0.0', minAppVersion: '0.15.0', description: 'x', author: 'Jane',
+    id: 'word-goals', name: 'Word Goals', isDesktopOnly: false, version: '1.0.0', minAppVersion: '0.15.0', description: 'x', author: 'Jane',
   }));
   const versions = parseVersions(JSON.stringify({ '1.0.0': '0.15.0' }));
   const samplePluginDefaults = detectSamplePluginDefaults(manifest.data);
@@ -178,7 +180,7 @@ test('buildReport: ok is true only when every blocking check is clean', () => {
 
 test('buildReport: a sample-plugin placeholder blocks ok even if everything else is clean', () => {
   const manifest = parseManifest(JSON.stringify({
-    id: 'sample-plugin', name: 'My Plugin', version: '1.0.0', minAppVersion: '0.15.0', description: 'x', author: 'Jane',
+    id: 'sample-plugin', name: 'Word Goals', isDesktopOnly: false, version: '1.0.0', minAppVersion: '0.15.0', description: 'x', author: 'Jane',
   }));
   const versions = parseVersions(JSON.stringify({ '1.0.0': '0.15.0' }));
   const report = buildReport({
@@ -195,7 +197,7 @@ test('buildReport: a sample-plugin placeholder blocks ok even if everything else
 
 test('buildReport: a missing versions.json entry blocks ok', () => {
   const manifest = parseManifest(JSON.stringify({
-    id: 'my-plugin', name: 'My Plugin', version: '2.0.0', minAppVersion: '0.15.0', description: 'x', author: 'Jane',
+    id: 'word-goals', name: 'Word Goals', isDesktopOnly: false, version: '2.0.0', minAppVersion: '0.15.0', description: 'x', author: 'Jane',
   }));
   const versions = parseVersions(JSON.stringify({ '1.0.0': '0.15.0' }));
   const report = buildReport({
@@ -215,4 +217,52 @@ test('unsafe DOM: += and an assignment after a URL string are flagged (quality a
   const files = [{ path: 'src/a.ts', content: "el.innerHTML += item;\nconst u = 'https://x.y'; el.innerHTML = u;\n// el.innerHTML = 'in a comment';" }];
   const lines = detectUnsafeDom(files).map((f) => f.line).sort();
   assert.deepEqual(lines, [1, 2]);
+});
+
+// -- Manifest reference rules (quality audit 2026-11-17, defects 1 and 2) --
+
+function reportFor(manifestObj) {
+  const manifest = parseManifest(JSON.stringify(manifestObj));
+  const versions = parseVersions(JSON.stringify({ [manifestObj.version]: '0.15.0' }));
+  return buildReport({
+    manifest, versions,
+    samplePluginDefaults: detectSamplePluginDefaults(manifest.data),
+    versionsEntry: checkVersionsEntry(manifest.data, versions.data),
+    unsafeDom: [], globalListeners: [], consoleLog: [],
+  });
+}
+
+test('isDesktopOnly is required: a manifest without it is not ok', () => {
+  const r = reportFor({ id: 'word-goals', name: 'Word Goals', version: '1.0.0', minAppVersion: '0.15.0', description: 'x', author: 'Jane' });
+  assert.ok(r.missingRequiredManifest.includes('isDesktopOnly'));
+  assert.equal(r.ok, false);
+});
+
+test('isDesktopOnly false counts as present (a boolean, not a non-empty string)', () => {
+  const r = reportFor({ id: 'word-goals', name: 'Word Goals', version: '1.0.0', minAppVersion: '0.15.0', description: 'x', author: 'Jane', isDesktopOnly: false });
+  assert.deepEqual(r.missingRequiredManifest, []);
+  assert.equal(r.ok, true);
+});
+
+test('the audit manifest breaking the id, name, version and isDesktopOnly rules is not ok', () => {
+  const m = { id: 'obsidian-notes-plugin', name: 'Obsidian Notes Plugin', version: 'v1.0', minAppVersion: '0.15.0', description: 'x', author: 'Jane' };
+  const r = reportFor(m);
+  assert.equal(r.ok, false);
+  const rules = r.manifestRules.map((v) => `${v.field}:${v.rule}`);
+  assert.ok(rules.some((x) => /^id:.*obsidian/.test(x)));
+  assert.ok(rules.some((x) => /^id:.*end with/.test(x)));
+  assert.ok(rules.some((x) => /^name:.*Obsidian/.test(x)));
+  assert.ok(rules.some((x) => /^name:.*Plugin/.test(x)));
+  assert.ok(rules.some((x) => /^version:/.test(x)));
+  assert.ok(r.missingRequiredManifest.includes('isDesktopOnly'));
+});
+
+test('manifestRuleViolations: clean values pass, and each rule fires alone', () => {
+  assert.deepEqual(manifestRuleViolations({ id: 'word-goals-2', name: 'Word Goals', version: '10.0.12', isDesktopOnly: true }), []);
+  assert.equal(manifestRuleViolations({ id: 'Word_Goals' }).length, 1);
+  assert.equal(manifestRuleViolations({ id: 'goalsplugin' }).length, 1);
+  assert.equal(manifestRuleViolations({ name: 'Goals plugin' }).length, 1);
+  assert.equal(manifestRuleViolations({ version: '1.0' }).length, 1);
+  assert.equal(manifestRuleViolations({ version: '1.0.0-beta' }).length, 1);
+  assert.equal(manifestRuleViolations({ isDesktopOnly: 'false' }).length, 1);
 });
