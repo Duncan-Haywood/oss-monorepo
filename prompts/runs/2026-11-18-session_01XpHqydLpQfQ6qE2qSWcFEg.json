@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqydLpQfQ6qE2qSWcFEg",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T07:39:27Z",
+  "ended": "2026-11-18T07:56:01Z",
+  "wall_minutes": 17.05,
+  "tokens_in": 4641591,
+  "tokens_out": 21384,
+  "cost_usd": 2.1818,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17224",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First reading of run_workflow_locally's summary missed that ventures-tests had a failed step; caught on re-read before merging."
+  ],
+  "integrity_issues": [
+    "BIBLE.md proposal said Paulinus corresponded with Martin of Tours; sources say he met Martin and wrote to Sulpicius Severus, Martin's biographer. Story note corrected it. Uranius's Latin text could not be opened, so the death scene keeps only the psalm verse the liturgical tradition reports, and the note says so."
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Says audio over 400 MB means text only, while saints-by-candlelight/PRODUCTION.md and docs/reports/2026-11-13-audio-cap-is-stale.md say the cap is stale since audio moved to jsDelivr. creative_due.py still enforces it. Followed the script (text only)."
+    },
+    {
+      "file": "platform/ci/check_hidden_unicode.py",
+      "issue": "Red on main: a raw U+FEFF in ventures/conjoint-analysis/engine.mjs (PR #17202) failed every ventures-tests run through run_venture_tests.py's unwired-check step. Fixed here by writing it as an escape."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Fixed an unrelated one-character red-main fault (conjoint-analysis BOM regex) in this creative PR rather than a separate PR, since it blocked this PR's ventures-tests.",
+      "did": "Replaced the literal U+FEFF with \\uFEFF; conjoint-analysis node --test 44/44, check_hidden_unicode ok.",
+      "result": "ventures-tests unblocked"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-paulinus-of-nola-for-children.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, Little Lamps shelf (creative_due drew it). Piece: paulinus-and-the-lamps-at-nola (1,516 words of story, text only: audio 577 MB over the 400 MB cap). Moved the Paulinus proposal to DONE.md and added a Rita of Cascia proposal. Local checks (run_workflow_locally --for-changes): every runnable step of 11 workflows passed except ventures-tests, whose only failure was the pre-existing conjoint-analysis hidden-unicode fault, fixed in this PR; hearth-and-horizon node --test 19/19.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "025bba6b-6aeb-5962-af71-461dda298184",
+    "transcripts": 1,
+    "first": "2026-11-18T07:39:27Z",
+    "last": "2026-11-18T07:56:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 89,
+        "output": 21384,
+        "thinking": 6028,
+        "cache_read": 4535679,
+        "cache_write_5m": 0,
+        "cache_write_1h": 105823,
+        "api_equivalent_usd": 2.1818,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 89,
+      "output": 21384,
+      "thinking": 6028,
+      "cache_read": 4535679,
+      "cache_write_5m": 0,
+      "cache_write_1h": 105823,
+      "api_equivalent_usd": 2.1818,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 35,
+      "WebSearch": 5,
+      "ToolSearch": 3,
+      "WebFetch": 3,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.05,
+      "active_minutes": 6.68,
+      "model_minutes": 3.82,
+      "tool_minutes": 2.86,
+      "waiting_on_human_minutes": 10.36,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "researching sources and writing a 1,500-word children's saint story with a sourced grown-ups note, plus a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 183.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
