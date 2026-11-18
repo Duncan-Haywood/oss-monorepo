@@ -29,7 +29,12 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "main carried a literal BOM in conjoint-analysis/engine.mjs that fails the hidden-Unicode ratchet in every venture-touching PR",
+      "fix": "wrote it as an escape in this PR"
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -50,7 +55,7 @@
     "docs/history/ci-perf-2026-11-18-ad-spend-dedup-fits.md"
   ],
   "goal": null,
-  "notes": "Metric: ad-spend-saturation-optimizer suite wall time from run_venture_tests.py's own line, 5 alternating git-stash pairs: before 10.4/10.5/10.3/10.7/10.6 s (median 10.5), after 5.6/5.2/5.1/5.0/5.0 s (median 5.1), 71 tests both. Secondary: five analyze() calls on the sample, 5 alternating pairs, median 2216 -> 1954 ms, output digest unchanged. Identity: sha256 over 72 analyze runs + 420 fitCurve/nelderMead calls, old vs new identical (4e0a90e5...). Local checks: run_workflow_locally.py --for-changes (see PR).",
+  "notes": "Metric: ad-spend-saturation-optimizer suite wall time from run_venture_tests.py's own line, 5 alternating git-stash pairs: before 10.4/10.5/10.3/10.7/10.6 s (median 10.5), after 5.6/5.2/5.1/5.0/5.0 s (median 5.1), 71 tests both. Secondary: five analyze() calls on the sample, 5 alternating pairs, median 2216 -> 1954 ms, output digest unchanged. Identity: sha256 over 72 analyze runs + 420 fitCurve/nelderMead calls, old vs new identical (4e0a90e5...). Local checks: run_workflow_locally.py --for-changes, 8/9 workflows passed; ventures-tests failed only on check_hidden_unicode, a literal U+FEFF in ventures/conjoint-analysis/engine.mjs already on main (not this diff). Fixed forward here as the \\\\uFEFF escape; check_hidden_unicode ok, its unittest OK, conjoint-analysis 44 tests ok. agent-cross-review and pages deploy jobs cannot run locally.",
   "corrections": [],
   "redteam": null,
   "usage": {
