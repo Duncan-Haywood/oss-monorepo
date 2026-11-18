@@ -316,3 +316,12 @@ export const PRESETS = {
       { x: 9.5, y: 2.5, speed: 19, topspin: 1500 }, { x: 10.0, y: 0.0, speed: 19, topspin: 800 }] },
   },
 };
+
+/** The Pi's own drill page (`tennisbots serve`) with this drill in its fragment, or null for an address that is not
+ * a plain host[:port]. Always plain http: the server runs on a home network with no certificate. */
+export function piDrillUrl(address, code) {
+  let a = String(address || "").trim().replace(/^https?:\/\//i, "").replace(/\/.*$/, "");
+  if (!a || !/^(\[[0-9a-f:.]+\]|[a-z0-9.-]+)(:\d{1,5})?$/i.test(a)) return null;
+  if (!/:\d+$/.test(a)) a += ":8080";
+  return `http://${a}/#drill=${code}`;
+}
