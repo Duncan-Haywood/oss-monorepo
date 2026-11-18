@@ -795,6 +795,35 @@ def reproduce_gap_line(slug):
         return None
 
 
+# A milestone number with this many sub-step labels gets a CHAIN line in the draw.
+CHAIN_MIN = 20
+
+
+def chain_line(slug, minimum=CHAIN_MIN, text=None):
+    """A cue when the programme's newest milestone number has `minimum`+ sub-steps, else None.
+    Why: a research run on 2026-11-18 (PR #17327) found marine-hull's last ten milestones were
+    single-knob reruns and the draw gave no sign of a chain past diminishing returns; that day
+    four programmes had 40-89 labels under one number (research_log.py, `chain`)."""
+    try:
+        from research_log import chain
+        if text is None:
+            log = RESEARCH / slug / "LOG.md"
+            if not log.is_file():
+                return None
+            text = log.read_text(errors="replace")
+        c = chain(text)
+    except Exception:  # a hint; never let it break the draw
+        return None
+    if not c or c[1] < minimum:
+        return None
+    num, n, first, last, d0, d1, since = c
+    paper = ("no LOG heading names a paper step yet" if since is None
+             else f"{since} entries since a LOG heading named a paper step")
+    return (f"CHAIN: milestone {num} has {n} sub-steps ({first}..{last}, {d0}..{d1}); {paper}. "
+            "If the recent ones each turn one knob, a paper section or a new question may serve "
+            "the programme more (research/PROGRAMMES.md, 'A programme is done when ...'); your call")
+
+
 def post_limits_line():
     """The blog post front-matter caps, printed at the end of the draw: nine research
     sessions in three days (friction_rank.py --live, 2026-11-12..15) met the 160-character
@@ -846,6 +875,9 @@ if __name__ == "__main__":
             gap = reproduce_gap_line(slug)
             if gap:
                 print(gap)
+            cue = chain_line(slug)
+            if cue:
+                print(cue)
             for line in newest_log_entries(slug):
                 print(f"  LOG.md {line}")
         else:
