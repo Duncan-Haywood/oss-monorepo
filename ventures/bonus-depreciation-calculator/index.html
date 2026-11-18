@@ -257,7 +257,8 @@
       els.section179Table.innerHTML = `
         <tr><th scope="row">Limit after phase-out</th><td>${money(result.section179.limitAfterPhaseout)}</td></tr>
         <tr><th scope="row">Elected</th><td>${money(result.section179.elected)}</td></tr>
-        <tr><th scope="row">Usable this year</th><td>${money(result.section179.usable)}${result.section179.incomeLimited ? " ⚠ carryforward" : ""}</td></tr>
+        <tr><th scope="row">Usable this year</th><td>${money(result.section179.usable)}${result.section179.incomeLimited ? " ⚠ carryforward" : ""}</td></tr>${result.section179.remainderBasis > 0 ? `
+        <tr><th scope="row">Bonus on the remaining basis</th><td>${money(result.section179.remainderBonus)}${result.section179.remainderExcess > 0 ? " ⚠ NOL" : ""}</td></tr>` : ""}
         <tr><th scope="row"><strong>Cash tax saving</strong></th><td><strong>${money(result.section179.cashSavings)}</strong></td></tr>`;
 
       els.macrsTable.innerHTML = `
