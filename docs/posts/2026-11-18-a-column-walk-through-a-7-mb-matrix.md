@@ -2,7 +2,7 @@
 title: "A column walk through a 7 MB matrix: 7% off the Wasserstein tests, bit for bit"
 seo_title: "Row-major log-sum-exp in JavaScript without changing a bit"
 date: 2026-11-18
-description: "Sinkhorn's log-domain recentring read its cost matrix a column at a time and took the same logarithm 865,000 times. Fixing both halved that step and left every output identical."
+description: "Sinkhorn took the same logarithm 865,000 times and walked its cost matrix by columns. Fixing both halved that step, bit for bit."
 tags: [wasserstein-distance, performance, optimal-transport, javascript]
 ---
 
