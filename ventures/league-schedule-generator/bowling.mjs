@@ -98,7 +98,7 @@ const BALANCE = 8;
  *       "greedy" (week-by-week assignment priced on counts so far),
  *       "polished" (greedy, then the iterated local search below; the default).
  */
-export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 1, iterations = null, avoid = null, shapes = true } = {}) {
+export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 1, iterations = null, avoid = null, shapes = true, anneal = true } = {}) {
   const ban = banMatrix(nTeams, nPairs, avoid);
   if (mode === "naive") return rounds.map((wk) => wk.map(([a, b], k) => [a, b, k]));
   if (mode === "rotate") return rounds.map((wk, w) => wk.map(([a, b], k) => [a, b, (k + w) % nPairs]));
@@ -126,15 +126,17 @@ export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 
   const lim = laneLimits(plan, nTeams, nPairs, avoid);
   const kicks = iterations ?? kicksFor(plan.length, nPairs);
   const stored = tablePlan(rounds, nTeams, nPairs, seed, avoid) ?? (ban && shapes && shapePlan(rounds, nTeams, nPairs, seed, avoid));
-  if (stored) return polishLanes(stored, nTeams, nPairs, seed, kicks, lim);
+  const steps = anneal ? annealStepsFor(plan.length, nPairs) : 0;
+  const finish = (p) => (steps > 0 ? cutRepeats(p, nTeams, nPairs, seed, steps, lim) : p);
+  if (stored) return finish(polishLanes(stored, nTeams, nPairs, seed, kicks, lim));
   const polished = polishLanes(plan, nTeams, nPairs, seed, kicks, lim);
-  if (offBound(polished, nTeams, nPairs, avoid) === 0) return polished;
+  if (offBound(polished, nTeams, nPairs, avoid) === 0) return finish(polished);
   // The week re-solves stall a few counts short of the bound on some sizes. A focused walk on the
   // out-of-bounds cells closes most of those; its result is polished again for repeats only (the
   // polish never lets an out-of-bounds count back in).
   const walked = walkLanes(polished, nTeams, nPairs, seed, walkStepsFor(plan.length, nPairs), lim);
   if (offBound(walked, nTeams, nPairs, avoid) >= offBound(polished, nTeams, nPairs, avoid)) return polished;
-  return polishLanes(walked, nTeams, nPairs, seed, kicks, lim);
+  return finish(polishLanes(walked, nTeams, nPairs, seed, kicks, lim));
 }
 
 // A team that must never bowl on a pair (the end pair by the wall, a pair whose approach a bowler
@@ -202,7 +204,7 @@ export function laneTargets(games, nPairs, avoid = null) {
   return { lo, hi, ban, share: x };
 }
 
-function laneLimits(plan, nTeams, nPairs, avoid) {
+export function laneLimits(plan, nTeams, nPairs, avoid) {
   const games = new Array(nTeams).fill(0);
   for (const wk of plan) for (const [a, b] of wk) { games[a]++; games[b]++; }
   return laneTargets(games, nPairs, avoid);
@@ -411,6 +413,67 @@ function walkLanes(source, nTeams, nPairs, seed, steps, lim) {
     for (const u of [B[0], B[1]]) { f -= off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); cnt[u][r]--; cnt[u][q]++; f += off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); }
     A[2] = r; B[2] = q;
     if (f < best) { best = f; bestPlan = plan.map((wk) => wk.map((m) => m.slice())); }
+  }
+  return bestPlan;
+}
+
+// Back-to-back repeats on a balanced season (2026-11-18). The polish never lets a count leave its
+// target, so on a season where every count is pinned (P divides W: every team on every pair exactly
+// W/P times, the stored SAT answers) it can only trade repeats inside moves that keep every count,
+// and there are almost none: one swap of two matches in a week moves four teams' counts. This
+// anneal lets counts leave the target for a while. A move is the same swap; its price is
+// OFF_WEIGHT per out-of-bounds count plus one per repeat, accepted by the Metropolis rule at a
+// temperature falling linearly to near zero. Only seasons with every count in target are kept, so
+// the result is never less balanced than the input (with no out-of-bounds count, every team's
+// squared spread is fixed too: its counts are floor or ceil and sum to its weeks). Deterministic
+// per seed; a step budget, not a clock.
+const OFF_WEIGHT = 1;
+// Anneal steps: a fixed budget (each step is a constant amount of work), none for a season too
+// short to have repeats worth cutting. ANNEAL_STEPS is exported for the tests and eval scripts.
+export const ANNEAL_STEPS = 600000;
+function annealStepsFor(weeks, nPairs) {
+  return weeks < 3 || nPairs < 2 ? 0 : ANNEAL_STEPS;
+}
+export function cutRepeats(source, nTeams, nPairs, seed, steps, lim, { t0 = 0.6, t1 = 0.05, runs = 1 } = {}) {
+  let cur = source;
+  for (let k = 0; k < runs; k++) cur = annealRepeats(cur, nTeams, nPairs, seed + 7 * k, Math.floor(steps / runs), lim, t0, t1);
+  return cur;
+}
+function annealRepeats(source, nTeams, nPairs, seed, steps, lim, t0, t1) {
+  const plan = source.map((wk) => wk.map((m) => m.slice()));
+  const W = plan.length;
+  if (W < 2 || nPairs < 2) return plan;
+  const rnd = mulberry32(seed * 6151 + 29);
+  const cnt = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
+  const pos = Array.from({ length: W }, () => new Array(nTeams).fill(-1));
+  plan.forEach((wk, w) => wk.forEach(([a, b, p]) => { cnt[a][p]++; cnt[b][p]++; pos[w][a] = p; pos[w][b] = p; }));
+  const { lo, hi, ban } = lim;
+  const off = (t, p, c) => Math.max(0, c - hi[t][p]) + Math.max(0, lo[t][p] - c);
+  let o = 0, r = 0;
+  for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) o += off(t, p, cnt[t][p]);
+  for (let w = 1; w < W; w++) for (let t = 0; t < nTeams; t++) if (pos[w][t] >= 0 && pos[w][t] === pos[w - 1][t]) r++;
+  if (o > 0) return plan; // only balanced seasons are annealed
+  let best = r, bestPlan = plan.map((wk) => wk.map((m) => m.slice()));
+  const rep = (w, t, p) => (w > 0 && pos[w - 1][t] === p ? 1 : 0) + (w < W - 1 && pos[w + 1][t] === p ? 1 : 0);
+  // change of (off, repeats) when team t moves from pair p to pair q in week w
+  const dOff = (t, p, q) => off(t, p, cnt[t][p] - 1) - off(t, p, cnt[t][p]) + off(t, q, cnt[t][q] + 1) - off(t, q, cnt[t][q]);
+  const dRep = (w, t, p, q) => rep(w, t, q) - rep(w, t, p);
+  for (let step = 0; step < steps && best > 0; step++) {
+    const w = Math.floor(rnd() * W);
+    const i = Math.floor(rnd() * nPairs);
+    let j = Math.floor(rnd() * (nPairs - 1)); if (j >= i) j++;
+    const A = plan[w][i], B = plan[w][j], q = A[2], s = B[2];
+    if (ban !== null && (ban[A[0]][s] || ban[A[1]][s] || ban[B[0]][q] || ban[B[1]][q])) continue;
+    const dO = dOff(A[0], q, s) + dOff(A[1], q, s) + dOff(B[0], s, q) + dOff(B[1], s, q);
+    const dR = dRep(w, A[0], q, s) + dRep(w, A[1], q, s) + dRep(w, B[0], s, q) + dRep(w, B[1], s, q);
+    const d = OFF_WEIGHT * dO + dR;
+    const T = t0 + (t1 - t0) * step / steps;
+    if (d > 0 && rnd() >= Math.exp(-d / T)) continue;
+    for (const u of [A[0], A[1]]) { cnt[u][q]--; cnt[u][s]++; pos[w][u] = s; }
+    for (const u of [B[0], B[1]]) { cnt[u][s]--; cnt[u][q]++; pos[w][u] = q; }
+    A[2] = s; B[2] = q;
+    o += dO; r += dR;
+    if (o === 0 && r < best) { best = r; bestPlan = plan.map((wk) => wk.map((m) => m.slice())); }
   }
   return bestPlan;
 }
