@@ -52,3 +52,21 @@ the unit tests were added, the summary line ended with
 `(98 checks, 174 platform/ci test files)`, so the last failing check's
 output also swallowed the summary and the `DONE` line. The pattern now
 matches the line with or without that suffix, and a test covers both forms.
+
+## A third fault: "this branch" included main's newer files
+
+A second session made the same fix at the same time and hit one more bug
+while timing it. To decide whether a branch touches `platform/ci/`, the
+preflight ran `git diff origin/main`, which compares the working tree with
+the *tip* of `main`. Here `main` moves every few minutes, and once it moves
+ahead of a branch, its new files show up as that branch's changes. On an
+untouched branch in that session, the diff named 30 `platform/ci` files, so
+the quick pass ran all 174 unit-test files anyway and took 155 s. The same
+diff also sent posts other runs had just merged through the front-matter
+check.
+
+The diff now starts from where the branch left `main`
+(`git diff --merge-base origin/main`). A shallow cloud clone often has no
+merge base, and then the preflight falls back to the old tip diff. That diff
+can over-include files, but it never misses one, so the worst case is the
+slower run.
