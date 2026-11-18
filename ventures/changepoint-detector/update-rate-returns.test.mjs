@@ -37,3 +37,11 @@ test('round 1 committed verdict: no m in 0.5-2 meets the null budget', () => {
   assert.match(out, /No m meets <= 0\.010 in every null cell: nothing ships\./);
   assert.match(out, /W3 n1100 +1\.005 +1\.000 +0\.990 +0\.745 +0\.385 +0\.085/);
 });
+
+test('round 2 committed verdict: m 3 holds the null budget and finds no 60-day return', () => {
+  const out = readFileSync(new URL('./eval/update-rate-returns-2.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /Smallest m meeting <= 0\.010 in every null cell: m 3\n/);
+  assert.match(out, /R1 every null cell <= 0\.020 \(worst 0\.000\): pass/);
+  assert.match(out, /R2 R60 found >= 120 \(0\): FAIL/);
+  assert.match(out, /R3 R60 gain over shipped >= 60 \(0\): FAIL/);
+});
