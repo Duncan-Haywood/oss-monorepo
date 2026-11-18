@@ -623,7 +623,7 @@ export function parseVersionList(text) {
 
 /** CSV of the per-version verdicts. */
 export function reportCsv(result) {
-  const q = (s) => `"${String(s ?? "").replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s ?? ""); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [["version", "satisfies", "reason"].join(",")];
   for (const v of result.versions) rows.push([q(v.version), v.ok ? "yes" : v.valid ? "no" : "invalid", q(v.reason)].join(","));
   return rows.join("\n") + "\n";

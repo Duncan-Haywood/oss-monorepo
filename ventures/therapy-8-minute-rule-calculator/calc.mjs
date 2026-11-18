@@ -126,7 +126,7 @@ export function analyze(inputs) {
 }
 
 export function toCsv(a) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [["visit", "code", "minutes", "cms_units", "per_code_units", "rate", "cms_amount"].join(",")];
   for (const r of a.rows) for (const l of r.lines) lines.push([q(r.name), l.code, l.minutes, l.units, l.perCode, l.rate, (l.units * l.rate).toFixed(2)].join(","));
   return lines.join("\n") + "\n";

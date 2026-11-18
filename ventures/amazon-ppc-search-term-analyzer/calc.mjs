@@ -263,7 +263,7 @@ export function analyze(rows, { targetAcos = null, minClicks = 10, minOrders = 2
 export function money(v) { return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })); }
 export function pct(v) { return v === null || v === undefined ? "–" : `${(v * 100).toFixed(1)}%`; }
 
-const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
 const f = (v, d = 2) => (v === null || v === undefined ? "" : Number(v).toFixed(d));
 
 // Amazon accepts negatives as keyword text with a match type; this is a review

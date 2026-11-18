@@ -137,6 +137,22 @@ test('a last crumb that repeats the h1 is hidden on a phone, separator and all',
   assert.doesNotMatch(SITE_HEADER_CSS.slice(0, SITE_HEADER_CSS.indexOf('@media (max-width:600px)')), /pfs-echo/, 'desktop keeps the full trail');
 });
 
+test('a trail that only repeats the current tab is hidden on a phone, any other trail stays', () => {
+  const dup = (o) => /class="pfs-crumbs pfs-dup"/.test(renderSiteHeader(o));
+  // An audience page: "Tools" is the tab the row already underlines, and the h1 names the category.
+  assert.ok(dup({ toRoot: '../../', current: 'tools', crumbs: [{ label: 'Tools', href: '../../c/' }, { label: 'For homeowners' }] }));
+  assert.ok(dup({ toRoot: '../', current: 'about', crumbs: [{ label: 'About' }] }), 'Home › About');
+  assert.match(researchChromeTemplate().topic_header, /class="pfs-crumbs pfs-dup"/, 'a research topic: Research › <topic>');
+  // A link to anywhere else is orientation the tab row does not give: a tool's category, a project's topic.
+  assert.ok(!dup({ toRoot: '../', current: 'tools', crumbs: [{ label: 'For homeowners', href: '../c/for-homeowners/' }, { label: 'Rent vs buy' }] }));
+  assert.match(researchChromeTemplate().project_header, /class="pfs-crumbs"/);
+  assert.ok(!dup({ toRoot: '../../', crumbs: [{ label: 'Tools', href: '../../c/' }, { label: 'Page' }] }), 'no current tab, so the link counts');
+  assert.ok(!dup({ toRoot: '../', current: 'tools', crumbs: [{ label: 'Tools', href: '../t/' }, { label: 'Page' }] }), 'a different href is not the tab');
+  const phone = SITE_HEADER_CSS.slice(SITE_HEADER_CSS.indexOf('@media (max-width:600px)'));
+  assert.match(phone, /\.pfs-crumbs\.pfs-dup\{display:none\}/);
+  assert.doesNotMatch(SITE_HEADER_CSS.slice(0, SITE_HEADER_CSS.indexOf('@media (max-width:600px)')), /pfs-dup/, 'desktop keeps the full trail');
+});
+
 test('a venture header opens with the exact tag rates.mjs and jobs.mjs look for', () => {
   const html = renderSiteHeader({ toRoot: '../', extraClass: 'pf-chrome pf-chrome-top' });
   assert.ok(html.startsWith('<nav class="pf-chrome pf-chrome-top" aria-label="Site"'));

@@ -376,7 +376,7 @@ export function pairsText(names, assign) {
 }
 
 export function pairsCsv(names, assign) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   return ["giver,receiver", ...pairsOf(names, assign).map(([a, b]) => `${q(a)},${q(b)}`)].join("\n") + "\n";
 }
 

@@ -484,7 +484,7 @@ export function mapsLinks(result, routeIndex) {
 }
 
 export function routeCsv(result) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [["driver", "order", "stop", "latitude", "longitude", "arrive", "start_service", "depart", "leg_miles", "late_minutes"]];
   result.best.routes.forEach((r, ri) => {
     result.best.evals[ri].visits.forEach((v, i) => {

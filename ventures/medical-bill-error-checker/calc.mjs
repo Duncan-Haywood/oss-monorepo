@@ -368,7 +368,7 @@ export function summaryText(a) {
 }
 
 export function reportCsv(a) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   return ["severity,kind,title,amount_in_question,lines,detail", ...a.findings.map((f) => [f.severity, f.kind, q(f.title), f.amount.toFixed(2), q(f.lines.join(" ")), q(f.detail)].join(","))].join("\n") + "\n";
 }
 

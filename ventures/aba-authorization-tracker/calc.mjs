@@ -162,7 +162,7 @@ export function calculate(text, opts = {}) {
   };
 }
 
-const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
 export function reportCsv(res) {
   const head = ["Client", "Code", "Start", "End", "Units approved", "Units used", "Percent used", "Percent of time elapsed", "Forecast units per week", "Forecast basis", "Projected units at end", "Projected unused", "Projected short", "Units run out around", "Reauthorization submit by", "At risk (rate x unused)", "Flags"];
   const lines = [head.map(q).join(",")];

@@ -1,0 +1,490 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtJApcgE5G8f4vjusNB",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T12:07:09Z",
+  "ended": "2026-11-18T12:07:51Z",
+  "wall_minutes": 12.97,
+  "tokens_in": 5616887,
+  "tokens_out": 24447,
+  "cost_usd": 2.3823,
+  "tool_calls": 61,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17294",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Second sed (widening the number exemption) also rewrote pre-existing amount-parsing regexes in 19 *-to-journal ventures; caught by rerunning all 136 suites, reverted to lines carrying the guard only."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list was 11 control-plane entries, each already with an open owner-gated PR; the step has no note saying to skip entries whose fix PR is waiting, so a run re-checks them all."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "'redteam.py targets' piped to grep for files changed on main matched neither bowling.mjs nor youth-lineup-rotator/calc.mjs though both have suites; timed suites by hand and passed --target."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix open defects first; all 11 are control-plane with waiting PRs.",
+      "did": "Left them; noted the PR numbers.",
+      "result": "Run time went to seeding, hunting and the 152-file class fix."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-redteam-a-kid-named-equals-hyperlink.md"
+  ],
+  "goal": null,
+  "notes": "Guard tightened: csv_formula_guard baseline 508 -> 356 (152 exporters guarded with an anchored, comma-aware number exemption). Local checks: 136 touched venture suites green; platform/ci test_check_csv_formula_guard 14 OK; check_posts ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/youth-lineup-rotator/calc.mjs",
+        "test": "node --test ventures/youth-lineup-rotator/**/*.test.mjs  (in .)",
+        "seed": 734336728,
+        "commit": "addd28269",
+        "sites": 346,
+        "baseline_seconds": 2.8,
+        "mutants": [
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 38,
+            "col": 32,
+            "operator": "or-to-and",
+            "before": "for (const raw of String(text || \"\").split(/[,\\n;]/)) {",
+            "after": "for (const raw of String(text && \"\").split(/[,\\n;]/)) {",
+            "line_text": "  for (const raw of String(text || \"\").split(/[,\\n;]/)) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 139,
+            "col": 10,
+            "operator": "or-to-and",
+            "before": "if (!sc || sc.N !== N || sc.T !== T || sc.K !== K) {",
+            "after": "if (!sc && sc.N !== N || sc.T !== T || sc.K !== K) {",
+            "line_text": "  if (!sc || sc.N !== N || sc.T !== T || sc.K !== K) {",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 175,
+            "col": 16,
+            "operator": "and-to-or",
+            "before": "if (t > 0 && last[p] === ns && onField[base - N + p]) cost += 15;",
+            "after": "if (t > 0 || last[p] === ns && onField[base - N + p]) cost += 15;",
+            "line_text": "      if (t > 0 && last[p] === ns && onField[base - N + p]) cost += 15;",
+            "caught": true,
+            "seconds": 2.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 181,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let p = 0; p < N; p++) {",
+            "after": "for (let p = 0; p <= N; p++) {",
+            "line_text": "  for (let p = 0; p < N; p++) {",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 188,
+            "col": 21,
+            "operator": "times-to-div",
+            "before": "if (!onField[t * N + p]) { if (run > 0) cost += 400; run++; } else run = 0;",
+            "after": "if (!onField[t / N + p]) { if (run > 0) cost += 400; run++; } else run = 0;",
+            "line_text": "      if (!onField[t * N + p]) { if (run > 0) cost += 400; run++; } else run = 0;",
+            "caught": true,
+            "seconds": 21.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 188,
+            "col": 25,
+            "operator": "plus-to-minus",
+            "before": "if (!onField[t * N + p]) { if (run > 0) cost += 400; run++; } else run = 0;",
+            "after": "if (!onField[t * N - p]) { if (run > 0) cost += 400; run++; } else run = 0;",
+            "line_text": "      if (!onField[t * N + p]) { if (run > 0) cost += 400; run++; } else run = 0;",
+            "caught": true,
+            "seconds": 3.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 196,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "if (isKeeper[n] && c > keeperMax) cost += 3000 * (c - keeperMax);",
+            "after": "if (isKeeper[n] && c > keeperMax) cost += 3001 * (c - keeperMax);",
+            "line_text": "      if (isKeeper[n] && c > keeperMax) cost += 3000 * (c - keeperMax);",
+            "caught": true,
+            "seconds": 2.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 255,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "if ((a >= 0 && !eligible(ctx, a, t, s2)) || (b >= 0 && !eligible(ctx, b, t, s1))) continue;",
+            "after": "if ((a >= 0 && !eligible(ctx, a, t, s2)) || (b >= 1 && !eligible(ctx, b, t, s1))) continue;",
+            "line_text": "      if ((a >= 0 && !eligible(ctx, a, t, s2)) || (b >= 0 && !eligible(ctx, b, t, s1))) continue;",
+            "caught": true,
+            "seconds": 2.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 291,
+            "col": 14,
+            "operator": "or-to-and",
+            "before": "if (!best || res.cost < best.cost) best = res;",
+            "after": "if (!best && res.cost < best.cost) best = res;",
+            "line_text": "    if (!best || res.cost < best.cost) best = res;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/youth-lineup-rotator/calc.mjs",
+            "line": 382,
+            "col": 128,
+            "operator": "const-plus-one",
+            "before": "return Array.from({ length: result.periods }, (_, t) => result.slotNames.map((pos, s) => ({ pos, player: result.grid[t][s] >= 0 ? result.playerNames[result.grid[t][s]] : null })));",
+            "after": "return Array.from({ length: result.periods }, (_, t) => result.slotNames.map((pos, s) => ({ pos, player: result.grid[t][s] >= 1 ? result.playerNames[result.grid[t][s]] : null })));",
+            "line_text": "  return Array.from({ length: result.periods }, (_, t) => result.slotNames.map((pos, s) => ({ pos, player: result.grid[t][s] >= 0 ? result.playerNames[result.grid[t][s]] : null })));",
+            "caught": false,
+            "seconds": 2.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "periodTable rendered player index 0 as null (shown as ?); new calc.test.mjs assertion checks every cell against grid."
+          }
+        ]
+      },
+      {
+        "target": "ventures/rrule-explainer/rrule.mjs",
+        "test": "node --test ventures/rrule-explainer/**/*.test.mjs  (in .)",
+        "seed": 452005999,
+        "commit": "addd28269",
+        "sites": 1098,
+        "baseline_seconds": 4.9,
+        "mutants": [
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 34,
+            "col": 7,
+            "operator": "const-plus-one",
+            "before": "n += 719468;",
+            "after": "n += 719469;",
+            "line_text": "  n += 719468;",
+            "caught": true,
+            "seconds": 4.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 85,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "if (mo < 1 || mo > 12 || d < 1 || d > daysInMonth(y, mo)) return null;",
+            "after": "if (mo < 2 || mo > 12 || d < 1 || d > daysInMonth(y, mo)) return null;",
+            "line_text": "  if (mo < 1 || mo > 12 || d < 1 || d > daysInMonth(y, mo)) return null;",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 86,
+            "col": 8,
+            "operator": "const-plus-one",
+            "before": "if (m[4] === undefined) return { day: dayNumber(y, mo, d), sec: 0, date: true, utc: false };",
+            "after": "if (m[5] === undefined) return { day: dayNumber(y, mo, d), sec: 0, date: true, utc: false };",
+            "line_text": "  if (m[4] === undefined) return { day: dayNumber(y, mo, d), sec: 0, date: true, utc: false };",
+            "caught": false,
+            "seconds": 5.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "m[4] and m[5] sit in the same optional (?:T(..)(..)(..)(Z?)) group of one regex: both are undefined together or both defined, so testing either is identical."
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 150,
+            "col": 45,
+            "operator": "plus-to-minus",
+            "before": "const value = eq < 0 ? \"\" : raw.slice(eq + 1).trim();",
+            "after": "const value = eq < 0 ? \"\" : raw.slice(eq - 1).trim();",
+            "line_text": "    const value = eq < 0 ? \"\" : raw.slice(eq + 1).trim();",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 533,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "const i = p > 0 ? p - 1 : list.length + p;",
+            "after": "const i = p > 1 ? p - 1 : list.length + p;",
+            "line_text": "    const i = p > 0 ? p - 1 : list.length + p;",
+            "caught": true,
+            "seconds": 5.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 671,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "const afterW = opts.after ? opts.after.day * 86400 + opts.after.sec : -Infinity;",
+            "after": "const afterW = opts.after ? opts.after.day * 86401 + opts.after.sec : -Infinity;",
+            "line_text": "  const afterW = opts.after ? opts.after.day * 86400 + opts.after.sec : -Infinity;",
+            "caught": true,
+            "seconds": 5.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 828,
+            "col": 25,
+            "operator": "eq-flip",
+            "before": "[\"BYYEARDAY\", (f) => f === \"DAILY\" || f === \"WEEKLY\" || f === \"MONTHLY\", \"BYYEARDAY is not valid with FREQ=DAILY, WEEKLY or MONTHLY\"],",
+            "after": "[\"BYYEARDAY\", (f) => f !== \"DAILY\" || f === \"WEEKLY\" || f === \"MONTHLY\", \"BYYEARDAY is not valid with FREQ=DAILY, WEEKLY or MONTHLY\"],",
+            "line_text": "  [\"BYYEARDAY\", (f) => f === \"DAILY\" || f === \"WEEKLY\" || f === \"MONTHLY\", \"BYYEARDAY is not valid with FREQ=DAILY, WEEKLY or MONTHLY\"],",
+            "caught": true,
+            "seconds": 4.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 828,
+            "col": 55,
+            "operator": "or-to-and",
+            "before": "[\"BYYEARDAY\", (f) => f === \"DAILY\" || f === \"WEEKLY\" || f === \"MONTHLY\", \"BYYEARDAY is not valid with FREQ=DAILY, WEEKLY or MONTHLY\"],",
+            "after": "[\"BYYEARDAY\", (f) => f === \"DAILY\" || f === \"WEEKLY\" && f === \"MONTHLY\", \"BYYEARDAY is not valid with FREQ=DAILY, WEEKLY or MONTHLY\"],",
+            "line_text": "  [\"BYYEARDAY\", (f) => f === \"DAILY\" || f === \"WEEKLY\" || f === \"MONTHLY\", \"BYYEARDAY is not valid with FREQ=DAILY, WEEKLY or MONTHLY\"],",
+            "caught": true,
+            "seconds": 4.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 872,
+            "col": 365,
+            "operator": "plus-to-minus",
+            "before": "if (u.date !== start.date) F(\"error\", \"until-type\", `UNTIL is a ${u.date ? \"date\" : \"date-time\"} but DTSTART is a ${start.date ? \"date\" : \"date-time\"}`, u.date ? \"RFC 5545 requires UNTIL to have DTSTART's value type. Read as midnight at the start of that day (as python-dateutil does), it drops that day's own occurrence; write UNTIL=\" + icalWall(u.day, 86399) + \" instead.\" : \"RFC 5545 requires UNTIL to have DTSTART's value type: write UNTIL as a date.\");",
+            "after": "if (u.date !== start.date) F(\"error\", \"until-type\", `UNTIL is a ${u.date ? \"date\" : \"date-time\"} but DTSTART is a ${start.date ? \"date\" : \"date-time\"}`, u.date ? \"RFC 5545 requires UNTIL to have DTSTART's value type. Read as midnight at the start of that day (as python-dateutil does), it drops that day's own occurrence; write UNTIL=\" + icalWall(u.day, 86399) - \" instead.\" : \"RFC 5545 requires UNTIL to have DTSTART's value type: write UNTIL as a date.\");",
+            "line_text": "    if (u.date !== start.date) F(\"error\", \"until-type\", `UNTIL is a ${u.date ? \"date\" : \"date-time\"} but DTSTART is a ${start.date ? \"date\" : \"date-time\"}`, u.date ? \"RFC 5545 requires UNTIL to have DTSTART's value type. Read as midnight at the start of that day (as python-dateutil does), it drops that day's own occurrence; write UNTIL=\" + icalWall(u.day, 86399) + \" instead.\" : \"RFC 5545 requires UNTIL to have DTSTART's value type: write UNTIL as a date.\");",
+            "caught": false,
+            "seconds": 4.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "until-type hint text was never checked, so a NaN replacement value would ship; rrule.test.mjs now matches the exact UNTIL=...T235959 hint."
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 932,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "const g = gaps[0];",
+            "after": "const g = gaps[1];",
+            "line_text": "    const g = gaps[0];",
+            "caught": true,
+            "seconds": 2.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 984,
+            "col": 18,
+            "operator": "and-to-or",
+            "before": "if (parsed.tzid && !validZone(parsed.tzid)) findings.push(finding(\"error\", \"bad-tzid\", `Unknown time zone ${parsed.tzid}`, \"Use an IANA name such as Europe/Paris or America/New_York. Dates are listed in floating local time.\"));",
+            "after": "if (parsed.tzid || !validZone(parsed.tzid)) findings.push(finding(\"error\", \"bad-tzid\", `Unknown time zone ${parsed.tzid}`, \"Use an IANA name such as Europe/Paris or America/New_York. Dates are listed in floating local time.\"));",
+            "line_text": "  if (parsed.tzid && !validZone(parsed.tzid)) findings.push(finding(\"error\", \"bad-tzid\", `Unknown time zone ${parsed.tzid}`, \"Use an IANA name such as Europe/Paris or America/New_York. Dates are listed in floating local time.\"));",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 1010,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "...(x.zone === \"gap\" ? { actualLocal: shownLocal(x.utc, exp.tz) } : {}),",
+            "after": "...(x.zone !== \"gap\" ? { actualLocal: shownLocal(x.utc, exp.tz) } : {}),",
+            "line_text": "    ...(x.zone === \"gap\" ? { actualLocal: shownLocal(x.utc, exp.tz) } : {}),",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/youth-lineup-rotator/calc.mjs",
+        "issue": "lineupCsv wrote player names raw, so a name typed or carried in a shared setup link as =HYPERLINK(...) ran as a formula when the coach opened the CSV in Excel or Sheets (CWE-1236). Guarded with the repository's apostrophe prefix; test in calc.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17294"
+      },
+      {
+        "file": "ventures/youth-lineup-rotator/calc.mjs",
+        "issue": "parsePlayers accepted leaves: at or before late: (e.g. late: 3 | leaves: 1, or late: 4 in a 4-period game) with no error, so the child was silently planned absent for the whole game. Now an error naming the child.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17294"
+      },
+      {
+        "file": "platform/ci/csv_formula_guard_baseline.txt",
+        "issue": "152 more venture CSV exporters (the six commonest one-line quoting helpers: q/csvCell) had no formula-injection guard. Swept with the same anchored guard (number exemption /^-?\\d[\\d,.]*$/ so comma-decimal negatives like -42,10 stay numbers); all 136 touched venture suites green; baseline 508 -> 356.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17294"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a8751d4e-0aa7-5ec2-a542-1fe0f12ed12e",
+    "transcripts": 1,
+    "first": "2026-11-18T12:07:09Z",
+    "last": "2026-11-18T12:20:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 109,
+        "output": 24447,
+        "thinking": 4869,
+        "cache_read": 5518113,
+        "cache_write_5m": 0,
+        "cache_write_1h": 98665,
+        "api_equivalent_usd": 2.3823,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 109,
+      "output": 24447,
+      "thinking": 4869,
+      "cache_read": 5518113,
+      "cache_write_5m": 0,
+      "cache_write_1h": 98665,
+      "api_equivalent_usd": 2.3823,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 57,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.97,
+      "active_minutes": 12.97,
+      "model_minutes": 5.06,
+      "tool_minutes": 7.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "mutation campaign triage, two bug fixes with tests, and a 152-file guard sweep with suite runs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 251.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

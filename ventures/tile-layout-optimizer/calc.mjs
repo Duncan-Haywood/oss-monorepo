@@ -670,7 +670,7 @@ export function cutList(p, plan, sys) {
 
 export function reportCsv(p, result, sys) {
   const plan = result.best;
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [["tile_to_cut", "piece_in_tile", "pieces_from_this_tile", "cut_size_across_by_along_tile", `position_from_left_wall_${sys.len}`, `position_from_back_wall_${sys.len}`, "turned_in_tile"].join(",")];
   const rows = cutList(p, plan, sys);
   const f = (u) => fmtNum(fromU(u, sys.mm), 2);

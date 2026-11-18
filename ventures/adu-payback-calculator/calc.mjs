@@ -250,7 +250,7 @@ export function reportCsv(r) {
   out.push(["Yield on cost, year 1", (r.unleveredYield * 100).toFixed(2) + "%"]);
   out.push(["Equity IRR", r.irr === null ? "" : (r.irr * 100).toFixed(2) + "%"]);
   out.push(["Break-even rent per month", r.breakEvenRent === null ? "" : f2(r.breakEvenRent)]);
-  const q = (c) => { const s = String(c); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const q = (c) => { let s = String(c); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d[\d,.]*$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }; // formula injection guard (CWE-1236)
   return out.map((row) => row.map(q).join(",")).join("\n") + "\n";
 }
 

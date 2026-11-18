@@ -445,7 +445,7 @@ function findings(channels, total, months) {
 }
 
 export function toCsv(result) {
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const f = (v) => (v === null || v === undefined ? "" : Number(v).toFixed(2));
   const head = "month,sales,refunds,marketplace_deductions,net_payout,cost_of_goods,profit";
   const lines = result.months.map((m) => [m.month, f(m.sales), f(m.refunds), f(m.deductions), f(m.net), m.costedChannels === m.channelsPresent ? f(m.cogs) : "", f(m.profit)].join(","));

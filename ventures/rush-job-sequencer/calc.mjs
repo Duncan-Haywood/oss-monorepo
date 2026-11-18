@@ -182,7 +182,7 @@ export function analyze(rawItems, rawShared) {
 }
 
 export function toCsv(a) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [["position", "job", "starts at hour", "finishes at hour", "due at hour", "hours late", "lateness cost"].join(",")];
   a.plan.steps.forEach((s, i) => {
     lines.push([i + 1, q(s.name), s.begin.toFixed(2), s.finish.toFixed(2), s.due == null ? "" : s.due, s.late.toFixed(2), s.cost.toFixed(2)].join(","));

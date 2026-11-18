@@ -93,6 +93,7 @@ export function parsePlayers(text, slotNames, periods) {
         if (key === "can") p.can = set; else p.not = set;
       } else errors.push(`${name}: unknown setting "${key}".`);
     }
+    if (p.leaves <= p.late) errors.push(`${name}: plays no period (late: ${p.late}, leaves: ${p.leaves} of ${periods}). "leaves" counts the last period they are there, so it must be after "late"; remove the line if they are not coming.`);
     players.push(p);
   }
   if (players.length < 2) errors.push("Add at least two players.");
@@ -403,7 +404,12 @@ export function lineupText(result, { minutes = 0, title = "" } = {}) {
 }
 
 export function lineupCsv(result) {
-  const q = (v) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+  // A name typed (or carried in a shared link) as =HYPERLINK(...) would run as a
+  // formula in Excel or Sheets: prefix an apostrophe (CSV injection, CWE-1236).
+  const q = (v) => {
+    if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v;
+    return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+  };
   const rows = [["Player", ...Array.from({ length: result.periods }, (_, t) => `Period ${t + 1}`), "Played", "Available"].map(q).join(",")];
   for (const s of result.stats) rows.push([s.name, ...s.slots.map((x) => x ?? "absent"), s.played, s.avail].map((v) => q(String(v))).join(","));
   return rows.join("\n");

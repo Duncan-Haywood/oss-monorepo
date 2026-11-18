@@ -230,7 +230,7 @@ export function analyze(input) {
 }
 
 export function toCsv(a) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = ["Line,Amount"];
   for (const [k, v] of a.sf424) lines.push(`${q(k)},${v.toFixed(2)}`);
   lines.push("", "Person,Role,Annual salary,% effort,Person-months,Cost");

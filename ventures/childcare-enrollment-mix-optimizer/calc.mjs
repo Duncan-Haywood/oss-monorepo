@@ -230,7 +230,7 @@ export function analyze(rawItems, rawShared) {
 }
 
 export function toCsv(a) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [["group", "children", "waiting for a place", "rooms", "teachers", "weekly revenue", "weekly teacher cost", "weekly other cost", "weekly profit", "sq ft used", "next child changes profit by"].join(",")];
   for (const r of a.rows) {
     lines.push([q(r.name), r.children, r.demand, r.rooms, r.teachers, r.revenue.toFixed(2), r.staff.toFixed(2), r.other.toFixed(2), r.profit.toFixed(2), r.sqft, r.nextChild == null ? "" : r.nextChild.toFixed(2)].join(","));

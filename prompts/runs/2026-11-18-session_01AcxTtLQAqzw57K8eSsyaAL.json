@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtLQAqzw57K8eSsyaAL",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T12:06:54Z",
+  "ended": "2026-11-18T12:17:13Z",
+  "wall_minutes": 10.58,
+  "tokens_in": 6080980,
+  "tokens_out": 32004,
+  "cost_usd": 2.8479,
+  "tool_calls": 61,
+  "task": "Deepen flagship photo-editing: RW2 RawFormat 8 tone curve item, then new bodies and the 4 x 2 tile grid",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17290",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "rw2_libraw_check.py aborted the whole batch when LibRaw refused one file",
+      "fix": "made it record a per-file libraw_error row"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here sent the run to chant-forge for the 15th time in two days although its own 'Left recently' line says the leavers' reason still holds; the pick should skip a row that many sessions declined."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace that shortened nothing still parked two cull items (310 chars) to NEXT.md, leaving 202 characters spare; it parks more than the cap needs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row 6 chant-forge: its buildable items are narrow OMR/coda tuning that 14 prior leavers judged marginal; photo-editing (row 3) had a raw-format item checkable on public CC0 files.",
+      "did": "Took photo-editing's RW2 tone-curve item; found none exists, then fixed a real reader bug the survey exposed (S1R II 177 MP 4 x 2 tiles).",
+      "result": "Landed: a format bug fixed, 3 new bodies checked against LibRaw, tone-curve item retired with evidence."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-photo-editing-lumix-177mp-tile-grid.md",
+    "ventures/photo-editing/eval/panasonic-rw2-format8-grid-2026-11-18.md"
+  ],
+  "goal": null,
+  "notes": "Local verification: python3 platform/ci/run_venture_tests.py photo-editing -> ok (1347 tests, 9 skipped), site page checks ok; tests/test_rw2*.py 27 passed; check_posts ok; validate.py ok. Survey: 35 public RawFormat 8 files, all identity curves. LibRaw 0.22.2 matches on 9 more files (462.0 M sensels); P1000450 (177 MP) cannot be opened by LibRaw, checked via tools/rw2_grid_check.py seams (0.98-1.07 vs 19-46 swapped) and C/Python agreement.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4ae32d82-0aa7-5ce5-8608-14a5458daf79",
+    "transcripts": 1,
+    "first": "2026-11-18T12:06:54Z",
+    "last": "2026-11-18T12:17:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 111,
+        "output": 32004,
+        "thinking": 5536,
+        "cache_read": 5953795,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127074,
+        "api_equivalent_usd": 2.8479,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 111,
+      "output": 32004,
+      "thinking": 5536,
+      "cache_read": 5953795,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127074,
+      "api_equivalent_usd": 2.8479,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 55,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.58,
+      "active_minutes": 10.58,
+      "model_minutes": 5.97,
+      "tool_minutes": 4.61,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "survey 35 headers, diagnose packed tile tag, fix + tests, write seam/preview checker, verify 10 files",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 210.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

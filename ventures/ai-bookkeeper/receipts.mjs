@@ -70,9 +70,11 @@ export const unglueDate = (l) => String(l)
 // Russian fiscal receipts print "ИТОГ =650.07" or "ИТОГО К ОПЛАТЕ =231.94"; an engine with no
 // Cyrillic model (RapidOCR's default, tesseract -l eng) prints the word in Latin look-alikes:
 // HTOr, MTOr, NTOr, UTOr, WTOr, VTOr, ИTOr, MTOrO, HTOF (cdek-ocr/receipt-ocr-ru photos,
-// eval/receipt-ocr-ru-2026-11-18.md). JavaScript's \b does not see Cyrillic letters, so the
-// word is bounded by lookarounds instead.
-const RU_TOTAL_RE = /(?<![a-zа-яё])(?:итог[оo]?|[hmnuwvи][tт][oо0][rгf][oо0]?|к\s+оплате)(?![a-zа-яё])/i;
+// eval/receipt-ocr-ru-2026-11-18.md). PaddleOCR's East Slavic model (RAPIDOCR_REC_MODEL) reads
+// Cyrillic but prints the И as a Cyrillic Н or М on some slips (НТОГ, МТОГО: 11 of val's ИТОГ
+// lines, eval/receipt-ocr-ru-eslav-2026-11-18.md). JavaScript's \b does not see Cyrillic
+// letters, so the word is bounded by lookarounds instead.
+const RU_TOTAL_RE = /(?<![a-zа-яё])(?:итог[оo]?|[hmnuwvинм][tт][oо0][rгf][oо0]?|к\s+оплате)(?![a-zа-яё])/i;
 // "БЕЗНАЛИЧНЫМИ" (by card) and "НАЛИЧНЫМИ" (in cash) as the engines print them: 6E3HAnM4H6IMM,
 // BE3HANV-HbIMA, GE3HANM4H61MM, HAJMHHIMM, HANINYHDIMN.
 const RU_PAID_RE = /(?:наличн|[hн][aа]\S{0,5}?(?:h[b6dh]|ны)[i1lы]?m)/i;
@@ -86,6 +88,38 @@ const RU_CHANGE_RE = /(?<![a-zа-я])(?:сдача|[cс][дaаoо][aа][aа4чh]
 // An item's "119.00*1" (price times quantity) that the engine put on the ИТОГ row is not the total.
 // "HTor 1247 -00": the decimal point read as a dash with a space either side.
 const ruTotalLine = (l) => (RU_TOTAL_RE.test(l) ? l.replace(/(\d)\s+-\s?(\d{2})(?![\d.,])/g, "$1.$2").replace(/\d+[.,]\d{2}\s*[*xх×]\s*\d+(?:[.,]\d+)?/gi, " ").replace(/(\d)\.(\d)(?![\d.,])/g, "$1.$20").replace(/(\d)\.(?![\d.,])/g, "$1.00") : l);
+// A Russian fiscal slip names its seller by legal form: ИП (a sole trader), ООО, АО, ПАО, ЗАО,
+// ОАО, ГУП, МУП, or the forms spelled out. The merchant rules below look for Latin shop names and
+// on these slips took a header (КАССА, СМЕНА) or noise; with a Cyrillic reading, the line that
+// starts with a legal form is the seller on 113 of val's 146 labelled slips (it was on 0;
+// eval/receipt-ocr-ru-eslav-2026-11-18.md). Engines print О as 0 and Latin look-alikes
+// (000 "ЛЕНТА", AO "PH-MOCKBa"), so the form is matched on a folded copy and printed in
+// Cyrillic; the rest of the name is kept as read, up to the next column gap.
+const RU_LOOK = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х", Y: "У", 0: "О", Ё: "Е" };
+const ruFold = (s) => s.toUpperCase().replace(/[ABCEHKMOPTXY0Ё]/g, (c) => RU_LOOK[c]);
+const RU_FORM_RE = /^(ИНДИВИДУАЛЬНЫЙ ПРЕДПРИНИМАТЕЛЬ|АКЦИОНЕРНОЕ ОБ[ЩШ]ЕСТВО|ОБ[ЩШ]ЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ|ФГУП|ГУП|МУП|ПАО|ЗАО|ОАО|ООО|АО|ИП)(?=[\s"«“”'*.,]|$)/;
+export function russianSeller(lines) {
+  const text = lines.join("\n");
+  if ((text.match(/[а-яё]/gi) ?? []).length < 20 && !lines.some((l) => RU_TOTAL_RE.test(l))) return null;
+  for (const l of lines) {
+    const segs = l.split(/\s{2,}/);
+    for (const [i, seg] of segs.entries()) {
+      let t = seg.replace(/^[^\p{L}\d"«]+/u, "").replace(/[\s*]+$/, "");
+      const m = ruFold(t).match(RU_FORM_RE);
+      // the engine left a column gap after a spelled-out form: АКЦИОНЕРНОЕ ОБЩЕСТВО  ТОРГОВЫЙ ДОМ ...
+      if (m && m[1].length > 3 && t.length === m[1].length && segs[i + 1]) t = `${t} ${segs[i + 1].replace(/[\s*]+$/, "")}`;
+      // a form with nothing after it, or only digits (an ИНН line, "ИП 0000"), is no name
+      if (!m || !/\p{L}{2}/u.test(t.slice(m[1].length))) continue;
+      // the slip also names the bank that took the card (ПАО СБЕРБАНК) and the fiscal data
+      // operator (ОФД: ООО "Ярус", ООО "ПЕТЕР-СЕРВИС СПЕЦТЕХНОЛОГИИ", Такском, Тензор): not the seller
+      if (/БАНК|ОФД|ПЕТЕР-СЕРВИС|ЯРУС|ТАКСКОМ|ТЕНЗОР|ЭВОТОР|КОНТУР/.test(ruFold(l))) continue;
+      // a quoted name ends at its closing quote: 000 "КЛАУДС БАР" 191036, г. ... is the bar
+      const name = t.match(/^\S+(?:\s+\S+){0,3}?\s*["«“].*?["»”](?=\s|$)/u)?.[0] ?? t;
+      return (m[1] + name.slice(m[1].length)).replace(/ОБШЕСТВО/, "ОБЩЕСТВО").slice(0, 60);
+    }
+  }
+  return null;
+}
 const TOTAL_RE = new RegExp(String.raw`\b(grand\s+total|total\s+(?:due|paid|charged|amount)|totaldue|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|netto|jumlah|ukupno|razem|celkem|toplam|due|(?<=\bqty\W{0,3}\d{1,3}\W{0,3})amount|(?<!\b(?:tax|gst|vat|sst)\b.*)tl)\b|` + RU_TOTAL_RE.source, "i");
 const NOT_TOTAL_RE = /accepted\s+total|total\s+tender|total\s+includ\w*\s+(?:gst|tax|vat)\s*@|total[^a-z]*(?:sales\s*)?\(?[^a-z]*(?:excl|before\s+(?:gst|tax))|total\s*-?\s*(?:gst|tax|vat)\b|total\s+includ(?:es|ed|ing)\b[^a-z]*\d*\s*%|(?:gst|tax|vat)\b[^a-z]*\d*\s*%?\s*includ(?:es|ed)?\s+in\s+(?:the\s+)?total|sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|disc\w*|items?|qty|aty|oty|qt|quantity|pcs|tax|points|sv|gv|ev|qu)\b|discount\s+total|total\s+(?:\w+\s+)?sav(?:ed|in[g9]s?)\b|(?:gst|tax|vat)\b[^a-z]*\binc\w*ded\s+in\s+(?:the\s+)?total|total\s+sales\s+disc|total\s+includ\w*\b[^0-9]*\b(?:gst|tax|vat)\b[^0-9]*\bof\b|total\s+h\.?t\.?(?:v\.?a\.?)?(?![a-z])|hors\s+tax|\bsin\s+(?:iva|impuestos)\b|\bsans\s+tva\b|\bohne\s+(?:mwst|ust)\b|tax\s*\/\s*fees?\s+total|total\s+(?:county|state|city|local)\s*tax|\bnetto\b[^a-z\d]*(?:\(\d\)\s*)?(?:eur\b|€)?[^a-z\d]*\d+,\d{2}(?!\d)|\d\s*%\s*netto|\bch\s+ange\b|tax\s+total|before\s+tax|tip\b|change\b|cash\b|kemba|[6bб][eе][3з]\s*(?:ck|ск)/i;
 const FUZZY_TOTAL_RE = /^\W*(?:grand\s*)?t[aeo]t[aeo]?[ail1](?![a-z])/i;
@@ -658,7 +692,8 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   if (!regNamed && first && second && !ENTITY.test(first) && ENTITY.test(second) && first.trim().split(/\s+/).length <= 3 && first.trim().split(/\s+/)[0].toLowerCase() !== second.trim().split(/\s+/)[0].toLowerCase()
     && !/(?:restaurant|cafe|mart|market|shop|store|pharmacy|bakery|kitchen)/i.test(first)) merchantLine = /^[A-Z]{1,3}\.\s*\(M\)/.test(second.trim()) && /^[A-Z][A-Z .&']+$/.test(first.trim()) ? `${first.trim()} ${second.trim()}` : second; // "POPULAR BOOK" over "CO. (M) SDN BHD": one name wrapped over two lines
   // a stray mark before the name ("- UAN HING ...") and the engine's SON/SDN BHO for SDN BHD
-  const merchant = merchantLine ? merchantLine.replace(/\s{2,}.*$/, "").replace(/^(?:[^A-Za-z0-9(]+|[a-z]{1,2}\s+(?=[A-Z]{3}))/, "").replace(/\bS[OD]N\.?\s+B(?:HD|ND|HO|H0)\b/g, "SDN BHD").slice(0, 60) : null;
+  const ruSeller = russianSeller(lines);
+  const merchant = ruSeller ?? merchantLine ? ruSeller ?? merchantLine.replace(/\s{2,}.*$/, "").replace(/^(?:[^A-Za-z0-9(]+|[a-z]{1,2}\s+(?=[A-Z]{3}))/, "").replace(/\bS[OD]N\.?\s+B(?:HD|ND|HO|H0)\b/g, "SDN BHD").slice(0, 60) : null;
   if (!merchant) notes.push("no merchant found");
 
   // total: the last total-looking line with an amount; else the largest amount on the page

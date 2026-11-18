@@ -82,7 +82,7 @@ export function toMarkdown(r, { client = "", project = "", currency = "$" } = {}
 }
 
 export function toCsv(r) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   return ["request,hours,included_hours,billable_hours,amount", ...r.lines.map((l) => [q(l.title), l.hours, l.freeHours, l.billableHours, l.amount].join(","))].join("\n") + "\n";
 }
 

@@ -204,7 +204,7 @@ export function analyze(rows, opts = {}) {
 }
 
 export function reportCsv(r) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = ["payer,bill_rate,paid_share,cost_per_billed_hour,margin_per_hour,margin_pct,monthly_margin,rate_for_target_margin,break_even_refill"];
   for (const row of r.rows) {
     const sc = r.scenarios.find((s) => s.payer === row.payer);

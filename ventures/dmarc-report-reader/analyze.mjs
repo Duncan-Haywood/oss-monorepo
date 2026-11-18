@@ -141,7 +141,7 @@ export async function bytesToXml(bytes) {
 }
 
 export function toCsv(summary) {
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [["source_ip", "header_from", "messages", "aligned", "failing", "status", "fix"]];
   for (const s of summary.sources) rows.push([s.ip, s.headerFrom, s.count, s.pass, s.fail, s.status, s.hints.join(" ")]);
   return rows.map((r) => r.map(q).join(",")).join("\n");

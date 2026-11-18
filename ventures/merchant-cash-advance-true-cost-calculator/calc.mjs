@@ -219,7 +219,7 @@ export function sampleFactoring() {
 }
 
 export function reportCsv(r) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [["measure", "value"]];
   if (r.kind === "mca") {
     rows.push(["advance", r.input.advance], ["fees", r.input.fees], ["funded", r.funded.toFixed(2)], ["factor_rate", r.factor.toFixed(4)], ["total_payback", r.payback.toFixed(2)], ["payment", r.payment.toFixed(2)], ["payments", r.input.n], ["cost_of_capital", r.cost.toFixed(2)], ["annualised_cost_simple", r.apr == null ? "" : (r.apr * 100).toFixed(2) + "%"], ["annualised_cost_compounded", r.ear == null ? "" : (r.ear * 100).toFixed(2) + "%"]);

@@ -94,7 +94,7 @@ export function sampleList() {
 }
 
 export function reportCsv(r) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = ["Account,Realized,Prior unrealized,Current unrealized,Aggregate (box 11)"];
   for (const x of r.rows) lines.push([q(x.label), x.realized, x.prior, x.current, x.aggregate].join(","));
   const s = r.summary;

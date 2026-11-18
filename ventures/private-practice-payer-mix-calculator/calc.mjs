@@ -197,7 +197,7 @@ export function analyze(rows, opts = {}) {
 }
 
 export function reportCsv(r) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = ["payer,allowed,paid_share,net_per_session,net_per_hour,monthly_net,break_even_refill,rate_needed"];
   for (const row of r.rows) {
     const sc = r.scenarios.find((s) => s.payer === row.payer);

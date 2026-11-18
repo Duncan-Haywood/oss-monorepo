@@ -154,7 +154,7 @@ export function analyze(channelsText, settings = {}) {
 }
 
 export function resultCsv(r) {
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [["scenario", "sap_gal", "syrup_gal", "revenue", "fuel", "labour", "profit_before_labour", "profit_after_labour", "hours", "profit_per_tap", "cost_per_gal"]];
   const f = (x) => Math.round(x * 100) / 100;
   for (const sc of [["without_ro", r.summary.without], ["with_ro", r.summary.withRo], ...r.seasons.map((x) => [x.label, x])]) {

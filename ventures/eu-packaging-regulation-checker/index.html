@@ -71,7 +71,7 @@
       <div><label for="location">Where you are established</label><select id="location"><option value="">Choose one</option><option value="eu">In the EU</option><option value="noneu">Outside the EU</option></select></div>
       <div><label for="sellsEu">Do you sell into the EU?</label><select id="sellsEu"><option value="yes">Yes</option><option value="no">No</option><option value="unsure">Not sure</option></select></div>
       <div><label for="euOperator">Is an EU producer, importer or authorised representative named for it?</label><select id="euOperator"><option value="unsure">Not sure</option><option value="yes">Yes</option><option value="no">No</option></select></div>
-      <div><label for="micro">Is your firm a microenterprise (under 10 staff and under 2 million euro turnover)?</label><select id="micro"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="micro">Is your firm a microenterprise (under 10 staff and under 2 million euro turnover) that made at most 1,000 kg of packaging available in each EU country this year?</label><select id="micro"><option value="no">No</option><option value="yes">Yes</option></select></div>
       <div><label for="today">Reference date (blank = today)</label><input id="today" type="date"></div>
       <div><label for="substances">Heavy metals and PFAS limits are met (supplier declarations in hand)</label><select id="substances"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
       <div><label for="conformity">Technical documentation and the EU declaration of conformity exist</label><select id="conformity"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
@@ -83,7 +83,7 @@
       <div><label for="recycled">Recycled content in plastic packaging is documented</label><select id="recycled"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
       <div><label for="minimise">Packaging weight and volume are minimised</label><select id="minimise"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
       <div><label for="emptyspace">Shipping boxes leave 50 percent or less empty space</label><select id="emptyspace"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
-      <div><label for="reuse">Reuse targets for transport packaging are met</label><select id="reuse"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="reuse">Reuse targets for transport, e-commerce and grouped packaging are met</label><select id="reuse"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
       <div><label for="singleuse">Restricted single-use formats are avoided</label><select id="singleuse"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
     </div>
     <p>
@@ -150,7 +150,7 @@
     const DEFAULTS = { sellsEu: "yes", euOperator: "unsure", micro: "no" };
     const IDLE = "Choose the packaging, material, your role and where you are established, then click Check my packaging.";
     const RP = { self: "You can carry the operator's duties", covered: "Covered by an EU operator", check: "Check who is named", gap: "Gap: no EU operator", unknown: "Not confirmed" };
-    const ST = { applies: "Applies now", soon: "Within a year", later: "Later" };
+    const ST = { applies: "Applies now", pending: "Set by a Commission act", soon: "Within a year", later: "Later" };
 
     function download(name, body, type) {
       const a = document.createElement("a");
@@ -166,7 +166,7 @@
       $("#due").textContent = (r.verdict.status === "in" ? "In scope" : "Not in scope directly") + " — " + RP[r.responsible.status];
       $("#summary").textContent = summaryText(r);
       $("#report-findings").innerHTML = r.findings.map((f) => '<div class="finding"><span class="pill ' + f.severity + '">' + f.severity + "</span>" + esc(f.title) + "</div>").join("");
-      $("#timeline-rows").innerHTML = r.timeline.map((t) => "<tr><td>" + t.from + "</td><td>" + ST[t.state] + (t.done ? " · done" : "") + "</td><td>" + esc(t.label) + "</td><td>" + esc(t.article) + "</td></tr>").join("");
+      $("#timeline-rows").innerHTML = r.timeline.map((t) => "<tr><td>" + t.from + "</td><td>" + ST[t.state] + (t.done ? " · done" : "") + "</td><td>" + esc(t.label + (t.laterOf ? " (from this date or " + t.laterOf + ")" : "")) + "</td><td>" + esc(t.article) + "</td></tr>").join("");
       report.hidden = false;
       status.textContent = "Done. Check implementing acts and your national authority before relying on this.";
       report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });

@@ -43,9 +43,25 @@ def check(path: Path, engines: list[str]) -> dict:
     import rawpy
 
     data = path.read_bytes()
-    lib = rawpy.imread(str(path))
-    ref = lib.raw_image
     out: dict = {"file": path.name, "camera": rw2.camera_model(data)}
+    try:
+        lib = rawpy.imread(str(path))
+        ref = lib.raw_image
+    except rawpy.LibRawError as exc:
+        # LibRaw cannot read the file, so there is nothing to compare against: report our own
+        # read alone and fail the row (2026-11-18: LibRaw 0.22.2 refuses an S1R II frame).
+        out["libraw_error"] = f"{type(exc).__name__}: {exc}"
+        for engine in engines:
+            t = time.perf_counter()
+            try:
+                raw = rw2.parse_rw2(data, engine=engine)
+                out[f"read_s_{engine}"] = round(time.perf_counter() - t, 2)
+                out[f"size_{engine}"] = [raw.width, raw.height]
+                out["storage"] = raw.notes[0] if raw.notes else ""
+            except rd.DevelopError as err:
+                out[f"error_{engine}"] = str(err)
+        out["ok"] = False
+        return out
     for engine in engines:
         t = time.perf_counter()
         raw = rw2.parse_rw2(data, engine=engine)
