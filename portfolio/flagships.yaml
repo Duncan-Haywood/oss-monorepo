@@ -324,8 +324,9 @@ flagships:
       X-Trans demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*). NEF
       edge columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
       (eval/nikon-nef-*). Canon CRW 2026-11-16 (eval/canon-crw-*). Coolpix NRW and
-      E-series NEF 2026-11-18 (eval/nikon-nrw-reader-*). RW2 RawFormat 8 2026-11-18:
-      S1R II, S5 IIX, S1 II E; 4 x 2 tiles (177 MP); no public file has a tone curve
+      E-series NEF, Minolta MRW 2026-11-18 (eval/nikon-nrw-reader-*,
+      eval/minolta-mrw-*). RW2 RawFormat 8 2026-11-18: S1R II, S5 IIX, S1 II E; 4 x
+      2 tiles (177 MP); no public file has a tone curve
       (eval/panasonic-rw2-format8-grid-*). S1R II 177 MP = LibRaw snapshot 202611,
       every sensel (eval/panasonic-rw2-177mp-libraw-*). Next: Sony's vignetting
       table vs an evenly lit frame; a real DNG and a vignetting-calibrated lens
