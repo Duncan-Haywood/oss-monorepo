@@ -1,0 +1,3 @@
+{"file": "IQ180__230214_9564.IIQ", "format": 6, "rows": 11, "samples": 276, "bits": {"0": 276}, "differing_right": 0, "differing_zero": 0, "differing_wrap": 0, "sensels_on_those_rows": 57376}
+{"file": "IQ180__230214_9562.IIQ", "format": 6, "rows": 58, "samples": 232, "bits": {"0": 232}, "differing_right": 0, "differing_zero": 0, "differing_wrap": 0, "sensels_on_those_rows": 602040}
+{"file": "iXU180__cap_22908.IIQ", "format": 6, "rows": 93, "samples": 372, "bits": {"0": 372}, "differing_right": 0, "differing_zero": 0, "differing_wrap": 0, "sensels_on_those_rows": 965340}

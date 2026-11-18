@@ -1969,10 +1969,24 @@ P30, P45+, P65+, IQ140, IQ150, IQ3 100MP) every one of 342.7 M sensels, the CFA,
 the orientation equal LibRaw 0.22's; per-channel levels after black are within 0.7% of LibRaw's linear
 render on nine (P45+: 2.2%, where LibRaw also applies Phase One's flat-field and defect corrections, not
 applied here). The mean colour of eight of nine developed frames is within 0.02 in chromaticity of
-LibRaw's render (P25+ 0.026; the two colour models differ, see the eval). IIQ S (the IQ180 and iXU180
-files at hand) and the uncompressed formats are refused with the reason. Details:
+LibRaw's render (P25+ 0.026; the two colour models differ, see the eval). The uncompressed formats and
+the 16-bit format 8 (IQ4, Trichromatic) are refused with the reason. Details:
 `eval/phaseone-iiq-reader-2026-11-18.md`; checks: `tools/iiq_libraw_check.py`,
 `tools/iiq_develop_check.py`; tests: `tests/test_iiq.py`.
+
+**IIQ S (later the same day).** Phase One's smaller compressed setting (format 6), the one the iXU180,
+iXM-100 and iXM-RS150F aerial cameras and half the IQ180 files on raw.pixls.us use, now reads too: per
+block of eight columns a scale for each colour lane and a shared refinement, then eight samples, written
+independently from the layout LibRaw 0.21+ decodes (the module docstring describes it). On six real IIQ S
+files from five bodies (IQ180 twice, iXU180, IQ3 100MP, iXM-100, iXM-RS150F) every one of 546.9 M
+sensels, the CFA, white balance, crop and orientation equal LibRaw 0.22's, and on three IIQ L files from
+two bodies the first check had not read (IQ180, iXM-100) 205.8 M more; a 154 MP frame reads in 1.2 s with
+the C decoder. Three of the six files send a refinement above the scale, which in LibRaw's C is a shift by a
+negative count; all 880 such samples carry zero bits, so any reading gives LibRaw's values, and non-zero
+bits there are refused as corrupt (`tools/iiq_s_shift_check.py`). Levels after black are within
+0.6% of LibRaw's render on five of six; the iXU180, with offset tables down to -336, is 5.2% apart on
+blue, where Phase One's flat-field corrections (not applied) matter most. Details:
+`eval/phaseone-iiq-s-reader-2026-11-18.md`.
 
 ### Hasselblad 3FR (2026-11-18)
 
