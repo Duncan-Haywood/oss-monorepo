@@ -138,17 +138,24 @@ def features(c, pat) -> dict:
             "kept": round(kept, 4) if kept is not None else None, "white": round(w, 4) if w is not None else None}
 
 
-def card_floor(path: str) -> dict:
-    """The lowest patch-PCA sigma at 18% grey over every tile of one file at one SNR and scenario, from
-    ``sweep --features-only`` rows: the tiles of a file stand in for the frames of one card shot on one body at
-    one ISO, which share the sensor's noise and not the scene's texture."""
+def card_of(name: str, cards: dict | None) -> str:
+    """The card a file belongs to: its body from ``tools/card_scenes.py`` output, else the file itself."""
+
+    return cards[name]["card"] if cards and name in cards else name
+
+
+def card_floor(path: str, cards: dict | None = None) -> dict:
+    """The lowest patch-PCA sigma at 18% grey over every tile of one card at one SNR and scenario, from
+    ``sweep --features-only`` rows. A card is one body's frames at one ISO, which share the sensor's noise and
+    not the scene's texture. With ``cards`` (``tools/card_scenes.py``) a card is every kept scene of one body;
+    without, the tiles of one file stand in for it."""
 
     out: dict = {}
     for line in open(path):
         f = json.loads(line)
         if "feat" not in f or not f["feat"].get("pca18"):
             continue
-        k = (f["file"], f["snr"], f["scenario"])
+        k = (card_of(f["file"], cards), f["snr"], f["scenario"])
         out[k] = min(out.get(k, math.inf), f["feat"]["pca18"])
     return out
 
@@ -187,6 +194,8 @@ def sweep(argv) -> int:
     ap.add_argument("--pca-texture", choices=("grad", "colour", "near"),
                     help="arms D, true, pcaT@s, pcaTguard@s only: patch PCA with this texture test")
     ap.add_argument("--card", help="``--features-only`` rows: arms D, true, pcaguard@0.8 and card@s only (``card_arms``)")
+    ap.add_argument("--cards", help="``tools/card_scenes.py`` output: skip repeat scenes, split tune/held by body, "
+                    "and take ``--card`` floors over a body's scenes instead of one file's tiles")
     ap.add_argument("--features-only", action="store_true",
                     help="rows of ``features`` per noisy tile, no demosaic (``adapt --feats``: the same draws)")
     args = ap.parse_args(argv)
@@ -194,7 +203,8 @@ def sweep(argv) -> int:
     pcts = [float(x) for x in args.pcts.split(",")] if args.pcts else None
     scales = tuple(float(x) for x in args.scales.split(",")) if args.scales else SCALES
     scenarios = args.scenario or ["equal", "wb"]
-    card = card_floor(args.card) if args.card else None
+    cards = json.load(open(args.cards)) if args.cards else None
+    card = card_floor(args.card, cards) if args.card else None
 
     import rawpy
 
@@ -213,6 +223,8 @@ def sweep(argv) -> int:
         pat = chk._pattern(rawpy.imread(args.raf))
     for path in args.files:
         name = path.rsplit("/", 1)[-1]
+        if cards is not None and not cards.get(name, {}).get("keep"):
+            continue  # a repeat of a scene already in the card, or a file card_scenes.py could not read
         try:
             truth_full = _truth(path, args.cache)
             gains = gains_of(path)
@@ -233,20 +245,24 @@ def sweep(argv) -> int:
                         c, raw_model = draw(clean, pat, gains, snr, ((1.0, 1.0),) * 3, seed)
                         model, _ = carries(raw_model, gains)
                     if args.features_only:
-                        print(json.dumps({"file": name, "tile": [ty, tx], "snr": snr, "scenario": sc,
+                        from shootflow.noise_pca import sigma18
+
+                        print(json.dumps({"file": name, "card": card_of(name, cards), "tile": [ty, tx], "snr": snr,
+                                          "scenario": sc, "true18": round(sigma18(tuple(model)), 6),
                                           "feat": features(c, pat)}), flush=True)
                         continue
                     b = chk.ours_bilinear(c, pat)
                     d = directional(c, pat)
                     cps, lps = {}, {}
                     feat = features(c, pat) if args.pca else None
-                    arms = (card_arms(c, pat, b, d, model, card[(name, snr, sc)], scales) if card else
+                    arms = (card_arms(c, pat, b, d, model, card[(card_of(name, cards), snr, sc)], scales) if card else
                             arms_for(c, pat, b, d, model, scales, pcts, args.pca, args.pca_texture))
                     for arm, arr in arms.items():
                         s = chk.scores(arr, truth)
                         cps[arm], lps[arm] = s["cpsnr"], s["lpsnr"]
                     print(json.dumps({
-                        "layout": "bayer" if args.bayer else "xtrans", "file": name, "split": split_of(name),
+                        "layout": "bayer" if args.bayer else "xtrans", "file": name,
+                        "split": split_of(card_of(name, cards)), **({"card": card_of(name, cards)} if cards else {}),
                         "tile": [ty, tx], "snr": snr, "scenario": sc, "cpsnr": cps, "lpsnr": lps,
                         **({"feat": feat} if feat else {}),
                         "s": round(time.perf_counter() - t0, 2),
@@ -481,6 +497,48 @@ def adapt(argv) -> int:
     return 0
 
 
+def floors(argv) -> int:
+    """How far one frame's patch-PCA reading and its card's floor sit from the true sigma at 18% grey, from
+    ``sweep --features-only --cards`` rows (they carry ``true18``). Prints, per SNR and per card size (scenes
+    in the card), the median and 90th percentile of reading / truth for the frame's own reading and for the
+    card floor, and the share of rows the floor understates (ratio < 1)."""
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("feats")
+    ap.add_argument("--json")
+    args = ap.parse_args(argv)
+    rows = [json.loads(line) for line in open(args.feats) if line.strip()]
+    rows = [r for r in rows if r.get("feat", {}).get("pca18") and r.get("true18")]
+    floor: dict = {}
+    scenes: dict = {}
+    for r in rows:
+        k = (r["card"], r["snr"], r["scenario"])
+        floor[k] = min(floor.get(k, math.inf), r["feat"]["pca18"])
+        scenes.setdefault(r["card"], set()).add(r["file"])
+    out = []
+
+    def stats(v):
+        v = np.array(v)
+        return {"median": round(float(np.median(v)), 3), "p90": round(float(np.percentile(v, 90)), 3),
+                "max": round(float(v.max()), 3), "under": round(float((v < 1).mean()), 3), "n": int(v.size)}
+
+    for snr in sorted({r["snr"] for r in rows}, reverse=True):
+        for size, lab in ((1, "1 scene"), (2, "2 scenes"), (3, "3+ scenes")):
+            sub = [r for r in rows if r["snr"] == snr and min(len(scenes[r["card"]]), 3) == size]
+            if not sub:
+                continue
+            rec = {"snr": snr, "card": lab,
+                   "own": stats([r["feat"]["pca18"] / r["true18"] for r in sub]),
+                   "floor": stats([floor[(r["card"], r["snr"], r["scenario"])] / r["true18"] for r in sub])}
+            out.append(rec)
+            print(f"SNR {snr:>5g} {lab:9s} own {rec['own']}\n{'':19s}floor {rec['floor']}")
+    if args.json:
+        with open(args.json, "w") as f:
+            for rec in out:
+                f.write(json.dumps(rec) + "\n")
+    return 0
+
+
 if __name__ == "__main__":
     cmd, rest = sys.argv[1], sys.argv[2:]
-    sys.exit({"sweep": sweep, "fit": fit, "bucket": bucket, "adapt": adapt}[cmd](rest))
+    sys.exit({"sweep": sweep, "fit": fit, "bucket": bucket, "adapt": adapt, "floors": floors}[cmd](rest))
