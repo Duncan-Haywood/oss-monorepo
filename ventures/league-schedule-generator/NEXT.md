@@ -19,4 +19,4 @@
 - (2026-11-17) 47 on 8x9 (13 of 16; LNS stalled: 5 runs from 13, 0 climbs, night 2 UNKNOWN at 1 h; next: a new model, orbit or symmetry-broken night)
 - (2026-11-18) repeats in the SAT-table seasons (9-39 vs 6-21)
 - (2026-11-18) SAT answers for the 27 unanswered grid seasons (16x40, 22-28 teams; eval/bowling-lane-table.txt)
-- (2026-11-18) availability follow-ups (availability.mjs): an optional roster per team so a name picks from a list, a reminder on the deployer's own SMTP (env vars, off by default) two days before a short team's game, and a CSV of the answers for the organiser
+- (2026-11-18) bowling, 5+ lane-limited teams: the most even dealing (eval/bowling-many-limits.txt)
