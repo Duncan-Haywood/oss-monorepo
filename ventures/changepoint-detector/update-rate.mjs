@@ -324,3 +324,61 @@ export function updateRateLines(u, labels) {
     : '';
   return [`Update-rate check: the share of steps that repeat the previous value exactly changed ${u.changes.length === 1 ? 'once' : `${u.changes.length} times`}: ${parts.join('; ')}.${why}${catchNote}`];
 }
+
+// Short returns to more frequent updates (README "Short returns to more frequent updates";
+// eval/update-rate-returns.mjs, pre-registered). The partition above pays its penalty once per cut, so a
+// brief stretch of fewer repeats inside a stickier one (a provider that resumed daily publication for two
+// months, then went back) costs two cuts and rarely pays for itself. This pass looks inside each stretch
+// the partition found for one "epidemic" interval [a, b): its own two-state chain inside, ONE chain shared
+// by the parts before and after (the same schedule resumed), and the inside sharing fewer repeats. It is
+// reported only when the cost it saves beats `mult` x 2 log n. Descriptive: it never moves the partition's
+// cuts. Each side keeps at least minSegment steps, so a change at the series' ends is not a "return".
+function chainCounts(P, a, b) { // transitions s in [a + 1, b), as segmentCost counts them
+  const T = P.T, a1 = a + 1;
+  return [T[0][b] - T[0][a1], T[1][b] - T[1][a1], T[2][b] - T[2][a1], T[3][b] - T[3][a1]];
+}
+const chainCost = (c) => -2 * (xlx(c[0], c[0] + c[1]) + xlx(c[1], c[0] + c[1]) + xlx(c[2], c[2] + c[3]) + xlx(c[3], c[2] + c[3]));
+
+/** Best epidemic interval of fewer repeats inside z[L..R); { a, b, gain } in z positions, or null. */
+export function bestReturn(z, L, R, { minSegment = 20, P = prefixes(z) } = {}) {
+  if (R - L < 3 * minSegment) return null;
+  const whole = chainCost(chainCounts(P, L, R));
+  let best = null;
+  for (let a = L + minSegment; a <= R - 2 * minSegment; a++) {
+    const left = chainCounts(P, L, a);
+    for (let b = a + minSegment; b <= R - minSegment; b++) {
+      const inR = P.R[b] - P.R[a], outR = P.R[R] - P.R[L] - inR;
+      if (inR / (b - a) >= outR / (R - L - (b - a))) continue; // only fewer repeats inside
+      const right = chainCounts(P, b, R), inside = chainCounts(P, a, b);
+      const out = [left[0] + right[0], left[1] + right[1], left[2] + right[2], left[3] + right[3]];
+      const gain = whole - chainCost(out) - chainCost(inside);
+      if (!best || gain > best.gain) best = { a, b, gain };
+    }
+  }
+  return best;
+}
+
+// Not a default: `mult` is set by eval/update-rate-returns.mjs (null until a round passes).
+export const SHORT_RETURNS = { mult: null, minSegment: 20, minRepeats: 10 };
+
+/**
+ * Short stretches of more frequent updates inside the stretches updateRateChanges found. Value indexes:
+ * { returns: [{ from, to, steps, shareInside, shareOutside, gain }], penalty }. `u` may be passed to
+ * reuse a computed updateRateChanges result.
+ */
+export function shortReturns(values, { mult = SHORT_RETURNS.mult, minSegment = SHORT_RETURNS.minSegment, minRepeats = SHORT_RETURNS.minRepeats, u = null } = {}) {
+  const z = repeatIndicators(values);
+  const penalty = mult == null ? Infinity : mult * 2 * Math.log(z.length + 1);
+  const total = z.reduce((s, v) => s + v, 0);
+  if (!Number.isFinite(penalty) || total < minRepeats) return { returns: [], penalty };
+  const st = (u || updateRateChanges(values)).stretches;
+  const spans = st.length ? st.map((s) => [s.from - 1, s.to]) : [[0, z.length]];
+  const P = prefixes(z), returns = [];
+  for (const [L, R] of spans) {
+    const r = bestReturn(z, L, R, { minSegment, P });
+    if (!r || r.gain <= penalty) continue;
+    const inR = P.R[r.b] - P.R[r.a], outR = P.R[R] - P.R[L] - inR;
+    returns.push({ from: r.a + 1, to: r.b, steps: r.b - r.a, shareInside: inR / (r.b - r.a), shareOutside: outR / (R - L - (r.b - r.a)), gain: r.gain });
+  }
+  return { returns, penalty };
+}
