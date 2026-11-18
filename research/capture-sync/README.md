@@ -30,6 +30,15 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on **aud
 
 ![Predicted against observed miss rate per cell, real phones](experiments/threshold/libriwasn_pred_vs_obs.png)
 
+**Step 3i (2026-11-18): should a rig switch between plain and envelope-normalised GCC per window? Not by kurtosis: always normalising does as well.** Step 3h's normalised correlation fixed keyboard, bite and door noise but cost a few points on steady noise, so this step fitted a per-window switch on the window's own frame-energy kurtosis (threshold chosen on calibration sessions, tested on held-out ones; 62,000 windows replayed bit for bit). Results at -10 dB, 2 s windows, noise independent at each device:
+
+- **The fitted switch sends almost everything to the normalised estimator** (94-100% of windows for every noise type except air conditioner, 62-75%, and vacuum, 82-84%), because read speech is itself bursty: clean speech's kurtosis sits above the threshold.
+- **So it inherits the normalised estimator's results.** Impulsive noise falls from 21-81% of windows a frame off to 0.0-0.2% (neighbours 10-11%), and the 1% gate meets 2% for 9 of 10 types in each room, keeping 60-62% of -10 dB windows; it recovers only about a quarter of the steady-noise cost (air conditioner 18% and 22% against plain's 11% and 15%).
+- **Choosing by the higher PSR is worse** (mean failure 17.5-18.9% against 11.5-12.5%): plain GCC's wrong peak on a click train is sharp, so it wins the PSR vote on a third of typing windows.
+- **Room left: a per-window oracle would reach 7.8-8.9%,** and most of that gap is babble and copy-machine noise, not steady noise. The practical default is to always normalise.
+
+![Raw failure per noise type for plain, normalised, the two switches and the oracle](experiments/gate/noiseselect_raw.png)
+
 **Step 3h (2026-11-18): can audio sync survive a keyboard, a bite or a door heard by one device only? Yes, if each device's audio is divided by its own 32 ms loudness envelope before the correlation.** Step 3c's 62,000 windows replayed bit for bit (62 of 62 failure cells), with two new things recorded per window: the same GCC (gamma 0.25) on envelope-normalised audio, and whether 1 s sub-windows find the full window's lag. Results at -10 dB, 2 s windows, noise independent at each device:
 
 - **Impulsive noise stops breaking the sync.** Windows more than a 30 fps frame off fall from **78% to 0.1% (typing), 30% to 0.1% (munching), 21% to 0.2% (door) and 67% to 9% (neighbour)** in the 0.2 s room, and the same in the 0.8 s room (80% to 0.0% for typing). No other noise kind and no level gets worse by more than half a point at +10 or 0 dB.
@@ -108,6 +117,8 @@ python experiments/gate/noiselevel.py score /tmp/windows_e.npz   # noiselevel_re
 python experiments/gate/noiselevel_figure.py
 OMP_NUM_THREADS=1 python experiments/gate/noiseshared.py collect ~/ms-snsd /tmp/windows_f.npz --procs 4   # step 3f, ~25 min
 OMP_NUM_THREADS=1 python experiments/gate/noiseimpulse.py collect ~/ms-snsd /tmp/windows_h.npz --procs 4   # step 3h, ~11 min
+OMP_NUM_THREADS=1 python experiments/gate/noiseselect.py collect ~/ms-snsd /tmp/windows_i.npz --procs 4   # step 3i, ~9 min
+python experiments/gate/noiseselect.py score /tmp/windows_i.npz && python experiments/gate/noiseselect_figure.py
 python experiments/gate/noiseimpulse.py score /tmp/windows_h.npz && python experiments/gate/noiseimpulse_figure.py
 python experiments/gate/noiseshared.py score /tmp/windows_f.npz   # noiseshared_results.txt, noiseshared_summary.json
 python experiments/gate/noiseshared_figure.py
@@ -375,6 +386,37 @@ Predictions: (a) replay held; (b) `ms` orders levels at AUROC 0.90 for 7 of 9 ty
 
 **Limits of step 3e.** Everything in step 3c's limits (simulated rooms, one speech corpus, noise independent per device). The tracker is a simplified minimum-statistics estimator with fixed smoothing and no bias compensation; Martin's full tracker, or a speech-presence-based one, might rank steady-but-coloured noise better, but cannot change the impulsive case, where the noise's bursts look like speech to any single-channel level estimate (an interpretation, not tested here). Context is 4 s; noise that changes kind within it is not modelled.
 
+## Step 3i: a per-window switch between plain and normalised GCC (`experiments/gate/noiseselect.py`)
+
+**Question.** Step 3h's envelope-normalised estimator (`fn`) wins on impulsive and speech-like noise and loses 3-9 points on steady noise. Can the window's own impulsiveness, the frame-energy kurtosis of step 3d, say which estimator to trust? Plan and nine predictions in `LOG.md`, written before the run.
+
+**Method.** Step 3c's 62,000 2 s windows replayed bit for bit (`noisetype.run_chunk` unchanged, `gcc` wrapped). At gamma 0.25 the wrapper records `fn`'s delay and PSR and `gate.frame_kurtosis` (log10 kurtosis of 32 ms frame energies) at each device; `kurt` is the larger. Switches: **`kurt`** uses `fn` above a threshold k\* fitted per room on sessions 0-4 (all 31 conditions pooled; the calibration kurtosis percentile that minimises the switched estimator's failures, `fit_kstar`); **`psrmax`** uses whichever estimator has the higher PSR; **`oracle`** takes the better per window (a ceiling, not deployable). Raw failure on test sessions 5-9; gates as step 3h (Mondrian-`snr_hat` LTT, alpha 1%, delta 0.1), each switch gated on its chosen estimator's PSR.
+
+**Results** ([`experiments/gate/noiseselect_results.txt`](experiments/gate/noiseselect_results.txt); gamma 0.25, -10 dB, test sessions):
+
+| | 0.2 s room | 0.8 s room |
+|---|---|---|
+| replay: step 3c raw cells / step 3h `fn` cells | 62 of 62 / 62 of 62 (both rooms) | |
+| fitted k\* (log10 kurtosis); clean speech's median | 0.61; 1.02 | 0.57; 0.93 |
+| share of windows `kurt` sends to `fn`: none / AirConditioner / Vacuum / Typing | 96% / 62% / 82% / 100% | 98% / 75% / 84% / 100% |
+| raw failure plain / `fn` / `kurt` / `psrmax` / oracle: Typing | 77.2 / 0.2 / 0.2 / 33.0 / 0.2% | 81.4 / 0.0 / 0.0 / 39.8 / 0.0% |
+| Neighbor | 68.2 / 8.4 / 10.6 / 28.2 / 7.4% | 73.8 / 8.8 / 10.2 / 26.4 / 8.2% |
+| Babble | 60.8 / 41.2 / 42.4 / 47.0 / 33.2% | 61.6 / 41.8 / 42.2 / 46.8 / 35.0% |
+| AirConditioner | 11.4 / 20.0 / 17.8 / 12.4 / 10.6% | 15.2 / 24.0 / 22.4 / 17.0 / 14.2% |
+| VacuumCleaner | 2.6 / 6.2 / 6.0 / 2.2 / 1.8% | 4.0 / 7.4 / 6.8 / 3.8 / 2.8% |
+| mean over the ten types | 33.0 / 11.3 / 11.5 / 17.5 / 7.8% | 35.2 / 12.5 / 12.5 / 18.9 / 8.9% |
+| T3, types at or under 2%: plain / `fn` / `kurt` / `psrmax` | 4 / 9 / 9 / 6 of 10 | 4 / 9 / 9 / 5 of 10 |
+| T3, mean kept | 24 / 60 / 62 / 35% | 23 / 60 / 60 / 33% |
+| T4 (one calibration), types at or under 2% | 6 / 7 / 7 / 7 of 10 | 7 / 6 / 6 / 8 of 10 |
+
+Predictions: (a) replay held; (b) `kurt` within 2 points of the better estimator for 8 of 10 types, failed in the drier room (7), held in the wetter (8); (c) halves plain for 4 of 4 impulsive types, held; (d) steady noise within 2 points of plain, **failed** (+3 to +7 points); (e) no cost at none, +10 and 0 dB, held (within 0.2 points); (f) T4 at 8 of 10, failed (7 and 6), kept held; (g) T3 at `fn`'s count, held; (h) exploratory, `psrmax` worse than `kurt`, held; (i) exploratory, `kurt` within 3 points of the oracle, failed (3.6-3.7 points).
+
+**Why kurtosis cannot switch, a reading.** The rule had to choose between noise kinds by a feature of the whole window, and read speech has pauses: clean windows score 0.93-1.02, above most noisy ones, so any threshold low enough to keep steady noise on plain GCC also sends clean speech there, and the fit preferred `fn` everywhere it costs nothing. The feature needed is one of the noise alone (a band where speech is weak, or the residual after the estimated alignment); not tested here.
+
+**Post hoc.** The two estimators fail on different windows mostly under speech-like noise (Babble, 0.2 s room: 268 windows only plain fails, 71 only `fn` fails, 319 both, of 1000), which is where the oracle's 3-4 point lead comes from. Higher PSR is the better switch on steady noise alone (air conditioner within 1-2 points of plain), and the worse one overall.
+
+**Limits of step 3i.** Everything in step 3h's limits. One feature and one threshold rule; a learned switch on several features might close part of the oracle gap. Calibration pools all 31 conditions with equal weight, which is not a real site's mix: a site whose noise is mostly an air conditioner would fit a higher k\*.
+
 ## Step 3h: impulsive noise at one device (`experiments/gate/noiseimpulse.py`)
 
 **Question.** A key click, a bite or a door heard by one device only gives plain GCC a sharp, unrivalled wrong peak: PSR ranks typing failures above successes (AUROC 0.25), the second-peak margin is near chance (step 3g), and PHAT and gamma 0.25 land on the same wrong lag (step 3c). Can an estimator stop the bursts from dominating the correlation, and can a gate catch a peak that one stretch of the window makes? Plan and eight predictions in `LOG.md`, written before the run.
@@ -523,7 +565,7 @@ The pattern holds for every weighting: at 2 and 4 s, PHAT agrees in 3 of 12 cell
 
 - Why the threshold model overpredicts long windows on real phones (step 2b): keep per-window outputs, regress predicted against observed failure on window SNR, speech activity and L, and try a nonstationary (segment-wise) version of the true-lag peak variance.
 - Babble shared between devices (one crowd heard by both), and why PHAT wins in babble: a whitening that adapts to the noise spectrum, not a fixed gamma.
-- A mix of shared and independent noise (step 3f tested each alone), and real repeating sounds, where step 3f's looped door recordings gave several equal peaks; envelope-normalised GCC (step 3h) beside plain GCC with a rule that picks one per window (normalised wins on impulsive noise, plain on steady noise), checked on step 3f's shared noise and on LibriWASN's real phones; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
+- A mix of shared and independent noise (step 3f tested each alone), and real repeating sounds, where step 3f's looped door recordings gave several equal peaks; envelope-normalised GCC (step 3h, the default since step 3i found a kurtosis switch adds nothing) checked on step 3f's shared noise and on LibriWASN's real phones; a switch on a noise-only feature, for the babble windows where the two estimators fail apart; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
 - Baselines on equal windows: a Kammerl et al. (2014) style fingerprint sync and `paderwasn`'s online tracker.
 - Real ambient noise (licensed recordings) shared between devices, then owner camera clips with a clapper reference.
 
