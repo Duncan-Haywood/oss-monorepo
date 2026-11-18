@@ -10,6 +10,8 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 - [How many people do you need for Secret Santa? Valid draws by group size](https://duncan-haywood.github.io/oss-monorepo/secret-santa-draw/how-many-people-do-you-need-for-secret-santa.html)
 - [Secret Santa for remote teams, without email or a peeking organizer](https://duncan-haywood.github.io/oss-monorepo/secret-santa-draw/secret-santa-for-remote-teams-without-email.html)
 - [Secret Santa rules for couples and no repeats, with a worked example](https://duncan-haywood.github.io/oss-monorepo/secret-santa-draw/secret-santa-rules-for-couples-and-no-repeats.html)
+- [White elephant game host: turn order, steals and frozen gifts](https://duncan-haywood.github.io/oss-monorepo/secret-santa-draw/white-elephant.html)
+- [White elephant rules: steal limits, frozen gifts and how long the game takes](https://duncan-haywood.github.io/oss-monorepo/secret-santa-draw/white-elephant-rules-steal-limits.html)
 
 ## Source
 
