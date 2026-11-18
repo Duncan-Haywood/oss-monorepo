@@ -407,15 +407,24 @@ TAKE_SURVEY_LEVELS = 5
 # 36 survey drills): spread takes named and advised 12 with 8, 9 with 24; on a 3 us jittery tach no window advised any
 # build (shares 0.90-1.00), so the window does not rescue the jitter either.
 TAKE_SURVEY_AFTER = 8
+# The take survey's trim (2026-11-18, README "Take-blind rows traced"): 0 sums every wheel. A candidate whose take lands
+# inside one revolution fits as the step does, so only the wheels whose ball's take straddles a revolution's edge tell
+# the candidates apart, and on those even the right candidate fits 10-20 times worse than on the rest. SURVEY_TRIM's
+# 5 x the median wheel's best dropped exactly those wheels once the clock was fine enough to lower the median: at 1/8 us
+# the held-out set named and advised 14 of 54 spread takes with it and 42 without (tests/take_survey_trim.py). At whole
+# microseconds it never fired on 432 stored drills. The ESC-lag survey keeps SURVEY_TRIM.
+TAKE_SURVEY_TRIM = 0
 
 
 class ResidualSurvey:
     """Each surveyed wheel's squared residual rms per candidate on `grid` (the last SURVEY_KEEP wheels), summed over the
-    wheels whose best fit is within SURVEY_TRIM times the median wheel's best, and the least sum refined by
-    `survey_pick`. The ESC-lag survey's arithmetic (LaunchCheck.survey_add / _survey_sums) for another grid."""
+    wheels whose best fit is within `trim` times the median wheel's best (None reads SURVEY_TRIM; 0 sums every wheel),
+    and the least sum refined by `survey_pick`. The ESC-lag survey's arithmetic (LaunchCheck.survey_add /
+    _survey_sums) for another grid."""
 
-    def __init__(self, grid):
+    def __init__(self, grid, trim=None):
         self.grid = tuple(grid)
+        self.trim = trim
         self.wheels = []
         self.n = 0
         self.trimmed = 0
@@ -431,12 +440,13 @@ class ResidualSurvey:
 
     def sums(self):
         if self._sums_n != self.n:
+            trim = SURVEY_TRIM if self.trim is None else self.trim
             best = sorted(min(w) for w in self.wheels)
-            cap = SURVEY_TRIM * SURVEY_TRIM * best[len(best) // 2] if best else 0.0
+            cap = trim * trim * best[len(best) // 2] if best else 0.0
             sums = [0.0] * len(self.grid)
             kept = 0
             for w in self.wheels:
-                if min(w) <= cap:
+                if trim <= 0 or min(w) <= cap:
                     kept += 1
                     for i in range(len(sums)):
                         sums[i] += w[i]
@@ -1676,7 +1686,7 @@ class LaunchCheck:
         # 0 or None keeps the module's LOOP_TAKE (the step unless a test sets it), else a half-sine of that time.
         self.take_us = take_us
         # The contact-time survey (README "The contact time surveyed on the board"): `take_on` while the Pi asks for it.
-        self.take_survey = ResidualSurvey(take_grid) if take_grid else None
+        self.take_survey = ResidualSurvey(take_grid, TAKE_SURVEY_TRIM) if take_grid else None
         self.take_on = False
         self.esc_tau_us = esc_tau_us  # the ESC's own lag for the drop fit (config ESC_TAU_US; 0: the wheel's lag only)
         self.share, self.dip_min, self.check_ms = share, dip_min, check_ms

@@ -2654,3 +2654,53 @@ small beside it; at 1/8 us that level falls 2-4 times and the jumps decide the s
 trimmed sums of mostly take-blind rows, and how much of its 43 of 54 the take itself earned is open. Next: why the
 residual is identical across candidates (does the fit's t0 land where all of the take's parts fall in one revolution,
 or do the take columns drop out of the solve), on these 22 wheels.
+
+## Take-blind rows traced (2026-11-18, after "Periods finer than a microsecond"; the take survey's trim off, sub 8 on)
+
+**The item.** The section above ended on an open question: on the take survey's wheels several contact-time
+candidates reach the identical residual, 0 ms and 6 ms alike, and at 1/8 us the survey failed held out.
+
+**Why the rows tie.** The fit sees a wheel only through each revolution's mean speed. A take whose parts all land
+inside one revolution slows that revolution's mean by the mean of (b - t_i) / p over its parts, which to first order in
+p / tau is one step at their mean time, and every later revolution sees it through the sum of e^(t_i / tau), the same
+step again to order (take / tau)^2. At the survey's speeds a revolution lasts 10-27 ms, longer than any candidate's
+take, so the fit can almost always slide a candidate's whole take into the ball's revolution and match the step.
+`tests/take_blind_trace.py` refits one held-out build's 22 wheels at every candidate through a copy of the fit that
+also returns t0, and places each part against the revolution edges (eval/take-blind-trace-2026-11-18.txt): of 231
+spread candidates inside one revolution, 143 tie the step to 0.1% with t0 + their mean offset within 1-3 us of the
+step's t0, and the rest differ by the t0 grid's own scatter; all 33 that straddle an edge differ. Only four of 22
+wheels tell the candidates apart, the same four at either clock (the 6 ms candidate 31-76 ppm against the step's
+123-438), and even the right candidate fits them 10-20 times worse than a take-blind wheel, because four parts are not
+the simulator's continuous profile.
+
+**What broke at 1/8 us.** `ResidualSurvey` leaves out a wheel whose best rms is over `SURVEY_TRIM` (5) times the median
+wheel's, a guard written for the ESC-lag survey (section "One wheel's misses outvoted the drill"). At whole microseconds
+the median is 20-60 ppm and the straddling wheels stay in; at 1/8 us it fell to 3-5 ppm and they were dropped.
+`tests/take_survey_trim.py` rescores stored captures' board rows with the board's own sums: on the failed held-out set
+the trim dropped 101 wheels and named and advised 14 of 54 spread takes; with no trim, 42 (43 at whole microseconds).
+The dropped wheels are the informative ones (spread across candidates 5.4 times their best, against 2.0 for the kept).
+At whole microseconds the trim never fired on any of the 432 stored drills.
+
+**Held out, twice.** The first pre-registered set (lag 0.38 s, seed 13) missed its first clause: its wheels' floor was
+25 ppm even at 1/8 us, so the trim dropped nothing and the change could not be seen either way; by its rule nothing
+shipped. A second pre-registration, a non-inferiority rule on a third set (lag 0.52 s, seed 17), held on every clause:
+
+| set (72 drills each, capture on) | sub 8, trim 5: named and advised (of 54) | sub 8, no trim | sub 1 (either trim) | wheels the trim dropped at sub 8 |
+| --- | --- | --- | --- | --- |
+| design (0.3 s, seed 7) | 45 | 44 | 25 | 109 |
+| first held out (0.45 s, seed 11) | 14 | 42 | 43 | 101 |
+| fresh (0.38 s, seed 13) | 45 | 45 | 30 | 0 |
+| third (0.52 s, seed 17) | 42 | 42 | 40 | 0 |
+
+**What shipped.** `controller.TAKE_SURVEY_TRIM = 0`: the take survey sums every wheel (`ResidualSurvey(grid, trim)`; the
+ESC-lag survey keeps `SURVEY_TRIM`). By the same rule `config.TACH_CAPTURE_SUB` is now 8 for the capture tachs
+(`TACH_CAPTURE` itself stays off). Over the four sets, no trim at 1/8 us named and advised 173 of 216 spread takes
+against 138 at whole microseconds. `tests/test_host.py` checks that ten take-blind wheels and one straddling wheel pick
+6 ms with no trim and the step with the trim.
+
+**Not known.** One instant build of 72 is still advised at 1/8 us (the first held-out set's launcher 1, 3.5 ms at share
+0.57, just inside the 0.6 margin), with or without the trim; whole microseconds advised none. Why the floor sat at 4-6
+ppm on two sets and 25 on another is not traced. And the deeper finding stands: the survey can only see a take on balls
+whose contact straddles a revolution's edge, a few wheels a drill, so a drill's verdict rests on those few. Next: a
+survey that scores only the wheels where some candidate's parts must straddle (or a model whose take is continuous), and
+the advised instant build.

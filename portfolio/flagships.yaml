@@ -403,12 +403,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "Periods finer than a microsecond"
-      (sub-us capture periods failed held out, 14 vs 43 of 54;
-      eval/take-survey-capture-sub8-2026-11-18.txt). Next: why the take survey's
-      rows reach one residual at several candidates (take-blind fits); short ESC
-      lags read ~10% low with 16; SURVEY_QUEUE 3's heap; ball hold: WHEEL_RPM_FULL
-      error's cost on 0.2 s wheels; an ESC with its own speed loop.
+      see firmware/esp32/README.md, latest "Take-blind rows traced" (a take inside
+      one revolution fits as the step; the trim dropped the straddling wheels; trim
+      off, sub 8 on). Next: score only straddling wheels; the sub-8 advised instant
+      build; short ESC lags read ~10% low with 16; SURVEY_QUEUE 3's heap; ball hold:
+      WHEEL_RPM_FULL error's cost on 0.2 s wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

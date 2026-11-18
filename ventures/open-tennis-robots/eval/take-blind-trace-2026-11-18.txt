@@ -171,3 +171,30 @@ named and advised as at sub 1 with no trim, and no instant build advised.
 DECISION RULE: TAKE_SURVEY_TRIM = 0 ships if (i) and (ii) hold (it then has one set where it mattered, 14 to 42, and
 three where it cost nothing). TACH_CAPTURE_SUB moves to 8 only if TAKE_SURVEY_TRIM = 0 ships and (iii) holds;
 otherwise both stay as they are and this file reports the miss.
+
+## Third set: lag 0.52 s, seed 17 (run after pre-registration 2 was committed, 66f4a5f9c; 144 drills, none aborted)
+
+
+third-sub8.jsonl: 72 survey drills
+  trim 5: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 71 of 72, mean share 0.44; wheels trimmed 0 of 1584
+  trim 0: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 71 of 72, mean share 0.44; wheels trimmed 0 of 1584
+
+third-sub1.jsonl: 72 survey drills
+  trim 5: spread takes named within 1 ms and advised 40 of 54, instant advised 0 of 18, within 1 ms 62 of 72, mean share 0.52; wheels trimmed 0 of 1584
+  trim 0: spread takes named within 1 ms and advised 40 of 54, instant advised 0 of 18, within 1 ms 62 of 72, mean share 0.52; wheels trimmed 0 of 1584
+
+Verdict: (i) held (42 and 42, instant 0 and 0; no wheel crossed the trim); (ii) held (40 and 40); (iii) held (sub 8 no
+trim 42 against sub 1's 40, no instant build advised). By the rule both ship: controller.TAKE_SURVEY_TRIM = 0 and
+config.TACH_CAPTURE_SUB = 8 (TACH_CAPTURE itself stays off: never run on a board).
+
+Pooled over the three sets that ran both clocks (earlier held-out 0.45 s / 11, fresh 0.38 s / 13, third 0.52 s / 17),
+no trim: spread takes named and advised at sub 8 42 + 45 + 42 = 129 of 162, at sub 1 43 + 30 + 40 = 113 of 162 (the
+earlier design set adds 44 against 25: 173 of 216 against 138 over all four); instant builds advised at sub 8 1 of 72,
+at sub 1 0 of 72.
+The one is the earlier held-out set's launcher 1 instant build in its 0 us column (3.5 ms, share 0.57, just inside the
+0.6 margin), and it is advised with or without the trim: the finer clock's one wrong re-flash, still open.
+
+Why the trim fired on two sets and not the other two is not traced: the median wheel's best rms was 4-6 ppm on the sets
+where it fired (lag 0.3 and 0.45 s) and 25 ppm on the fresh one (0.38 s), so the floor moves with the build more than
+with the clock. All simulated: one take model (four parts), the simulator's take profiles, a capture with no sensor
+jitter.
