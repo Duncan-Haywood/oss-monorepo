@@ -13,7 +13,9 @@ export const monthEnd = (m) => { const [y, mo] = m.split("-").map(Number); retur
 export function spread(line) {
   const amount = Math.round(line.amount);
   const start = Math.floor(line.start / DAY) * DAY;
-  const days = line.end > line.start ? Math.max(1, Math.ceil((line.end - start) / DAY)) : 1;
+  // Whole days in the period itself (not from the floored start), so a period at
+  // 10:00 to 10:00 a month later is 31 days, not 32. A part day rounds.
+  const days = line.end > line.start ? Math.max(1, Math.round((line.end - line.start) / DAY)) : 1;
   const perMonth = {};
   for (let i = 0; i < days; i++) { const m = monthOf(start + i * DAY); perMonth[m] = (perMonth[m] || 0) + 1; }
   const sign = amount < 0 ? -1 : 1, abs = Math.abs(amount);
