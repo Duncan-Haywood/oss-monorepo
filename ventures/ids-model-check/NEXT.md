@@ -26,3 +26,5 @@
 - (2026-11-18) property sets indexed by name 2026-11-18 (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 7.9 to 4.6 s, same reports)
 - (2026-11-18) 65 public IDS vs IfcTester 2026-11-17 (1,661 of 1,736 same; unchecked subclasses reported, eval/corpus-crosscheck-*)
 - (2026-11-18) IDS editor 2026-11-16 (203,433 offered specs audit clean, 15,102 valid in ids.xsd; found voids/fills token pair and classification-system gaps, eval/editor-2026-11-16.md)
+- (2026-11-18) IFC 4.3 infra/HVAC cross-check 2026-11-17 (348 of 348, eval/infra-mep-crosscheck-*)
+- (2026-11-18) 43 IFC4 STEP/ifcXML twins 2026-11-18 (eval/ifcxml-twins-2026-11-18.md: verdicts 108 to 129 of 129; href refs, decimal commas, flat point lists; B-spline rows from knot counts)
