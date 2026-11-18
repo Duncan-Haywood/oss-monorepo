@@ -56,8 +56,21 @@ const DATE_RES = [
   /\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4})\b/i,
   /\b(\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,? (?:\d{4}|\d{2}))(?!\d)/i,
 ];
-const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|totaldue|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|netto|jumlah|ukupno|razem|celkem|toplam|due|(?<=\bqty\W{0,3}\d{1,3}\W{0,3})amount|(?<!\b(?:tax|gst|vat|sst)\b.*)tl)\b/i;
-const NOT_TOTAL_RE = /accepted\s+total|total\s+tender|total\s+includ\w*\s+(?:gst|tax|vat)\s*@|total[^a-z]*(?:sales\s*)?\(?[^a-z]*(?:excl|before\s+(?:gst|tax))|total\s*-?\s*(?:gst|tax|vat)\b|total\s+includ(?:es|ed|ing)\b[^a-z]*\d*\s*%|(?:gst|tax|vat)\b[^a-z]*\d*\s*%?\s*includ(?:es|ed)?\s+in\s+(?:the\s+)?total|sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|disc\w*|items?|qty|aty|oty|qt|quantity|pcs|tax|points|sv|gv|ev|qu)\b|discount\s+total|total\s+(?:\w+\s+)?sav(?:ed|in[g9]s?)\b|(?:gst|tax|vat)\b[^a-z]*\binc\w*ded\s+in\s+(?:the\s+)?total|total\s+sales\s+disc|total\s+includ\w*\b[^0-9]*\b(?:gst|tax|vat)\b[^0-9]*\bof\b|total\s+h\.?t\.?(?:v\.?a\.?)?(?![a-z])|hors\s+tax|\bsin\s+(?:iva|impuestos)\b|\bsans\s+tva\b|\bohne\s+(?:mwst|ust)\b|tax\s*\/\s*fees?\s+total|total\s+(?:county|state|city|local)\s*tax|\bnetto\b[^a-z\d]*(?:\(\d\)\s*)?(?:eur\b|€)?[^a-z\d]*\d+,\d{2}(?!\d)|\d\s*%\s*netto|\bch\s+ange\b|tax\s+total|before\s+tax|tip\b|change\b|cash\b|kemba/i;
+// Russian fiscal receipts print "ИТОГ =650.07" or "ИТОГО К ОПЛАТЕ =231.94"; an engine with no
+// Cyrillic model (RapidOCR's default, tesseract -l eng) prints the word in Latin look-alikes:
+// HTOr, MTOr, NTOr, UTOr, WTOr, VTOr, ИTOr, MTOrO, HTOF (cdek-ocr/receipt-ocr-ru photos,
+// eval/receipt-ocr-ru-2026-11-18.md). JavaScript's \b does not see Cyrillic letters, so the
+// word is bounded by lookarounds instead.
+const RU_TOTAL_RE = /(?<![a-zа-яё])(?:итог[оo]?|[hmnuwvи][tт][oо0][rгf][oо0]?|к\s+оплате)(?![a-zа-яё])/i;
+// "БЕЗНАЛИЧНЫМИ" (by card) and "НАЛИЧНЫМИ" (in cash) as the engines print them: 6E3HAnM4H6IMM,
+// BE3HANV-HbIMA, GE3HANM4H61MM, HAJMHHIMM, HANINYHDIMN.
+const RU_PAID_RE = /(?:наличн|[hн][aа]\S{0,5}?(?:h[b6dh]|ны)[i1lы]?m)/i;
+// On such a line the engine drops the last kopeck digit or both ("VTOr 27.0", "HTOr 2644.",
+// "HTOrO. 2644."): a Russian total always prints two, so they are put back as zeros.
+// An item's "119.00*1" (price times quantity) that the engine put on the ИТОГ row is not the total.
+const ruTotalLine = (l) => (RU_TOTAL_RE.test(l) ? l.replace(/\d+[.,]\d{2}\s*[*xх×]\s*\d+(?:[.,]\d+)?/gi, " ").replace(/(\d)\.(\d)(?![\d.,])/g, "$1.$20").replace(/(\d)\.(?![\d.,])/g, "$1.00") : l);
+const TOTAL_RE = new RegExp(String.raw`\b(grand\s+total|total\s+(?:due|paid|charged|amount)|totaldue|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|netto|jumlah|ukupno|razem|celkem|toplam|due|(?<=\bqty\W{0,3}\d{1,3}\W{0,3})amount|(?<!\b(?:tax|gst|vat|sst)\b.*)tl)\b|` + RU_TOTAL_RE.source, "i");
+const NOT_TOTAL_RE = /accepted\s+total|total\s+tender|total\s+includ\w*\s+(?:gst|tax|vat)\s*@|total[^a-z]*(?:sales\s*)?\(?[^a-z]*(?:excl|before\s+(?:gst|tax))|total\s*-?\s*(?:gst|tax|vat)\b|total\s+includ(?:es|ed|ing)\b[^a-z]*\d*\s*%|(?:gst|tax|vat)\b[^a-z]*\d*\s*%?\s*includ(?:es|ed)?\s+in\s+(?:the\s+)?total|sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|disc\w*|items?|qty|aty|oty|qt|quantity|pcs|tax|points|sv|gv|ev|qu)\b|discount\s+total|total\s+(?:\w+\s+)?sav(?:ed|in[g9]s?)\b|(?:gst|tax|vat)\b[^a-z]*\binc\w*ded\s+in\s+(?:the\s+)?total|total\s+sales\s+disc|total\s+includ\w*\b[^0-9]*\b(?:gst|tax|vat)\b[^0-9]*\bof\b|total\s+h\.?t\.?(?:v\.?a\.?)?(?![a-z])|hors\s+tax|\bsin\s+(?:iva|impuestos)\b|\bsans\s+tva\b|\bohne\s+(?:mwst|ust)\b|tax\s*\/\s*fees?\s+total|total\s+(?:county|state|city|local)\s*tax|\bnetto\b[^a-z\d]*(?:\(\d\)\s*)?(?:eur\b|€)?[^a-z\d]*\d+,\d{2}(?!\d)|\d\s*%\s*netto|\bch\s+ange\b|tax\s+total|before\s+tax|tip\b|change\b|cash\b|kemba|[6bб][eе][3з]\s*(?:ck|ск)/i;
 const FUZZY_TOTAL_RE = /^\W*(?:grand\s*)?t[aeo]t[aeo]?[ail1](?![a-z])/i;
 const TAX_RE = /\b(sales\s+tax|tax|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p\.\s*rest(?:o|oran)?)\b/i;
 // "Tax Total" is the tax, not the total; "Dasar Pengenaan Pajak" (DPP) is the taxable base
@@ -633,6 +646,7 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   lines.forEach((l, i) => {
     if (TOTAL_RE.test(l) && !NOT_TOTAL_RE.test(l)) {
       if (cents !== null && summaryAt >= 0 && i >= summaryAt) return;
+      l = ruTotalLine(l);
       let a = amountsIn(l, comma).length ? amountsIn(l, comma) : bare(lines[i + 1]);
       let split = null;
       if (!a.length && comma === false && (split = splitDecimal(l))) a = [split.cents];
@@ -640,6 +654,9 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
       // read as a number) is not the total; amounts under 100 units after one of 1,000 or more
       // are dropped (CORD train-436 read by RapidOCR)
       if (comma === "whole" && a.length > 1 && a.slice(0, -1).some((v) => v >= 100000)) while (a.length > 1 && a[a.length - 1] < 10000) a = a.slice(0, -1);
+      // "UTOr =439.00 =20.91": the tax row's amount beside the ИТОГ; a Russian ИТОГ line prints
+      // one amount, so with two the larger is the total
+      if (a.length > 1 && RU_TOTAL_RE.test(l)) a = [Math.max(...a)];
       if (a.length && a[a.length - 1] > 0) {
         cents = a[a.length - 1]; from = l; at = i;
         if (split) notes.push(`total line read "${split.was}" with its decimal point lost: took ${(split.cents / 100).toFixed(2)}, check the total`);
@@ -709,6 +726,60 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
       const r = m ? Math.round(parseFloat(m[2].replace(",", ".")) * 100) * (m[1] ? -1 : 1) : null;
       if (r !== null && r !== 0 && Math.abs(r) <= 10) { cents += r; notes.push("total adjusted by the printed rounding"); }
       break;
+    }
+  }
+  // A Russian fiscal slip prints its total several times from the ИТОГ line down (ИТОГ, the
+  // card or cash line, ПОЛУЧЕНО, a bare "=413.00"). When the ИТОГ line's amount is printed
+  // only once there, the engine took it from a neighbouring row ("UTOr =50.00": the last
+  // item's price) or misread a digit ("HTOr 119.00" over three 109.00s); the one amount
+  // printed on two or more of those lines, more often than any other, is the total
+  // (eval/receipt-ocr-ru-2026-11-18.md). Dates are left out of the count.
+  if (cents !== null && at >= 0 && RU_TOTAL_RE.test(from)) {
+    // the row above the ИТОГ line counts for the others (the total's own amount can drift
+    // up a row, "TOBAP -819.00" over "HTOr =39.00"), and for the ИТОГ line's amount only when
+    // it is a bare amount ("=333.00" over "ИТОГО К ОПЛАТЕ =333.00")
+    const seen = new Map();
+    let own = 0;
+    lines.slice(Math.max(0, at - 1)).forEach((l, k) => {
+      const x = DATE_RES.reduce((t, re) => t.replace(new RegExp(re.source, re.flags + "g"), " "), l).replace(/(^|\s)[-–]\s*(?=\d)/g, "$1");
+      for (const v of new Set(amountsIn(x, comma))) {
+        if (v === cents) { if (k > 0 || at === 0 || !/\p{L}/u.test(l)) own++; } else if (v > 0) seen.set(v, (seen.get(v) ?? 0) + 1);
+      }
+    });
+    // the ИТОГ amount is two amounts below it added (card 181.00 and an advance, АВАНС, of
+    // 5903.00 on a 6084.00 slip): the payments confirm it, so nothing replaces it
+    const after = lines.slice(at + 1).map((l) => amountsIn(l, comma).filter((v) => v > 0)).filter((a) => a.length).map((a) => a[a.length - 1]);
+    const split = after.some((x, i) => after.some((y, j) => j > i && x + y === cents));
+    if (own <= 1 && !split) {
+      const ranked = [...seen].filter(([, n]) => n >= 2).sort((a, b) => b[1] - a[1]);
+      if (ranked.length && (ranked.length === 1 || ranked[0][1] > ranked[1][1])) {
+        notes.push(`ИТОГ line read ${(cents / 100).toFixed(2)}, printed once; took ${(ranked[0][0] / 100).toFixed(2)}, printed ${ranked[0][1]} times below it: check the total`);
+        cents = ranked[0][0];
+      } else {
+        // printed once each: the card or cash line ("БЕЗНАЛИЧНЫМИ =717.00", read 6E3HAnM4H6IMM;
+        // "НАЛИЧНЫМИ 193.00", HAJMHHIMM) is what was paid, unless change (СДАЧА) was given
+        // unless change (СДАЧА) was given: then an amount below the ИТОГ line that is another
+        // one less the change ("=200.00", "СДАЧА =23.00", "НАЛИЧНЫМИ =177.00") is the total
+        const paid = new Set(), below = new Set();
+        let change = null;
+        for (const l of lines.slice(at + 1)) {
+          const a = amountsIn(l, comma).filter((v) => v > 0);
+          if (!a.length) continue;
+          if (/(?<![a-zа-я])(?:сдача|c[дa4][aа][чh4][aа])(?![a-zа-я])/i.test(l)) { change ??= a[a.length - 1]; continue; }
+          if (change === null) a.forEach((v) => below.add(v));
+          if (RU_PAID_RE.test(l)) paid.add(a[a.length - 1]);
+        }
+        let v = null, how = "";
+        if (change === null && paid.size === 1 && !paid.has(cents)) { v = [...paid][0]; how = "the card or cash line's"; }
+        else if (change !== null) {
+          const hits = [...below].filter((q) => q !== cents && below.has(q + change));
+          if (hits.length === 1) { v = hits[0]; how = "cash less change,"; }
+        }
+        if (v !== null) {
+          notes.push(`ИТОГ line read ${(cents / 100).toFixed(2)}, printed once; took ${how} ${(v / 100).toFixed(2)}: check the total`);
+          cents = v;
+        }
+      }
     }
   }
   if (cents === null) {
