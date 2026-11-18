@@ -113,6 +113,13 @@ test('placementProblems fails a trade tool in the trades catch-all and notes the
   assert.equal(more.category, 'more');
   assert.deepEqual(more.failures, []);
   assert.match(more.notes[0], /CATEGORY_RULES/);
+  // At the cap, a new arrival fails (build.test.mjs would); one already counted does not.
+  const full = Array.from({ length: site.CATCH_ALL_MAX }, (_, i) => `tool-${i}`);
+  const over = placementProblems('zzz-unclaimed-slug', site, full);
+  assert.match(over.failures[0], new RegExp(`hold ${site.CATCH_ALL_MAX + 1} tools`));
+  assert.deepEqual(over.notes, []);
+  const counted = placementProblems('zzz-unclaimed-slug', site, [...full.slice(1), 'zzz-unclaimed-slug']);
+  assert.deepEqual(counted.failures, []);
 });
 
 test('router inputs: validate.py runs only when flagships.yaml or a VENTURE.yaml changed', () => {

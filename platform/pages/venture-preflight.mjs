@@ -22,7 +22,8 @@
 //      one) and where build.mjs files the slug: a trade tool that no
 //      SUBCATEGORY_RULES keyword claims fails build.test.mjs, which this
 //      preflight skips, and a slug in the catch-all section is printed as a
-//      note. New-venture runs met all three only in CI (run records
+//      note, or fails when it would take that section past build.mjs's
+//      CATCH_ALL_MAX (build.test.mjs fails there; #17406 met it in CI). New-venture runs met all three only in CI (run records
 //      2026-11-11 explore #14822, 2026-11-12 explore #14962).
 //      Also `portfolio/router/validate.py` (3 s) when the branch edits
 //      portfolio/flagships.yaml or a VENTURE.yaml: a flagship `next:` over its
@@ -179,7 +180,7 @@ export function inheritedKeysProblem(status, output) {
  * published trade tool lands in a named sub-group"); a slug in the site-wide
  * catch-all is allowed, so it is only a note.
  */
-export function placementProblems(slug, { categoryFor, subcategoryFor }) {
+export function placementProblems(slug, { categoryFor, subcategoryFor, CATCH_ALL_MAX }, catchAll = null) {
   const category = categoryFor(slug);
   const sub = subcategoryFor(slug);
   const failures = [];
@@ -188,7 +189,18 @@ export function placementProblems(slug, { categoryFor, subcategoryFor }) {
     failures.push(`${slug} lands in the ${sub.id} catch-all sub-group, which build.test.mjs fails: add a keyword for it to SUBCATEGORY_RULES.${category.id} in platform/pages/build.mjs`);
   }
   if (category.id === 'more') {
-    notes.push(`${slug} lands in the catch-all "${category.title}" section; if a named section fits, add a keyword to CATEGORY_RULES in platform/pages/build.mjs`);
+    // `catchAll`: the slugs discoverSurfaces files there now. build.test.mjs
+    // ('the catch-all holds only what no section claims') fails past
+    // CATCH_ALL_MAX, and this preflight skips build.test.mjs, so a note let
+    // csp-policy-check through as the sixth tool and cost #17406 a CI round.
+    const members = new Set([...(catchAll || []), slug]);
+    if (catchAll && CATCH_ALL_MAX !== undefined && members.size > CATCH_ALL_MAX) {
+      failures.push(`${slug} lands in the catch-all "${category.title}" section, which would then hold ${members.size} tools `
+        + `(build.test.mjs fails past ${CATCH_ALL_MAX}; now: ${[...members].filter((s) => s !== slug).join(', ')}): `
+        + 'add a keyword for it to a named section in CATEGORY_RULES in platform/pages/build.mjs');
+    } else {
+      notes.push(`${slug} lands in the catch-all "${category.title}" section; if a named section fits, add a keyword to CATEGORY_RULES in platform/pages/build.mjs`);
+    }
   }
   return { category: category.id, subcategory: sub?.id ?? null, failures, notes };
 }
@@ -381,7 +393,9 @@ async function main(argv) {
     const problem = inheritedKeysProblem(r.status, (r.stdout || '') + (r.stderr || ''));
     if (problem) failures.push(problem);
     const site = await import('./build.mjs');
-    const placed = placementProblems(slug, site);
+    const surfaces = await site.discoverSurfaces(path.join(ROOT, 'ventures'));
+    const catchAll = site.groupByCategory(surfaces).find((g) => g.category.id === 'more')?.items.map((s) => s.slug) ?? [];
+    const placed = placementProblems(slug, site, catchAll);
     console.log(`   filed under ${placed.category}${placed.subcategory ? ` / ${placed.subcategory}` : ''}`);
     for (const note of placed.notes) console.log(`   note: ${note}`);
     failures.push(...placed.failures);
