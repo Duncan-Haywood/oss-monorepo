@@ -89,6 +89,8 @@ EXPERIMENTS = {
                      3, []),
     "m47_poseside": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m46_holdside/run.py (and so m45's, m44's, m43's, m42's, m41's and m38's) and reads m41, m43, m45 and m46 results.json",
                      12, []),
+    "m48_loadside": ("numpy, scipy, mujoco, Menagerie G1/H1; imports m47_poseside/run.py (and so m46's, m45's, m44's, m43's, m42's, m41's and m38's) and reads m41, m43, m45, m46 and m47 results.json",
+                     60, []),
 }
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]
