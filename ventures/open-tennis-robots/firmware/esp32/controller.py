@@ -964,6 +964,38 @@ class PeriodTach:
         return int(60000000 / period + 0.5)
 
 
+class CaptureClock:
+    """Whole-microsecond periods from a hardware capture's tick counts (2026-11-18, README "A tach timed in hardware").
+
+    `period(ticks, since_us)` takes the capture counter's ticks since the previous edge (capture.Capture.ticks(): -1
+    for a gap too long to count) and the pin interrupt's own ticks_us() gap, and returns the period to hand to
+    PeriodTach.edge: the ticks over `ticks_per_us`, with the remainder carried to the next edge so the periods add up
+    to the edge times floored to the microsecond (what ticks_us() would read with no handler latency), never drifting.
+    A gap over `stall_us` on either clock (the counter wraps every 53.7 s, so only the coarse clock can tell a long
+    stop from a short one), the first edge, and a too-long count return stall_us + 1, which PeriodTach.edge takes as a
+    restart. 0 ticks (the interrupt ran with no new capture) returns -1: nothing to hand on. Small ints only.
+    """
+
+    def __init__(self, stall_us=250000, ticks_per_us=80):
+        self.k = ticks_per_us
+        self.stall_us = stall_us
+        self.max_ticks = stall_us * ticks_per_us
+        self.rem = 0
+        self.primed = False
+
+    def period(self, ticks, since_us):
+        if ticks == 0:
+            return -1
+        if not self.primed or ticks < 0 or ticks > self.max_ticks or since_us > self.stall_us:
+            self.primed = True
+            self.rem = 0
+            return self.stall_us + 1
+        t = ticks + self.rem
+        us = t // self.k
+        self.rem = t - us * self.k
+        return us
+
+
 class SpinupRamp:
     """Moves a launcher wheel's speed target toward the asked speed at a capped shaft power (2026-11-14).
 

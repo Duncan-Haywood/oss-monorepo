@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKjwquCgswRaPW6amu7",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T07:18:12Z",
+  "ended": "2026-11-18T07:30:56Z",
+  "wall_minutes": 12.95,
+  "tokens_in": 4405626,
+  "tokens_out": 29822,
+  "cost_usd": 2.3982,
+  "tool_calls": 43,
+  "task": "capture-sync step 3i: per-window switch between plain and envelope-normalised GCC by frame-energy kurtosis",
+  "projects": [
+    "research/capture-sync"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17220",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First draft of the README table and project summary gave plain GCC's mean -10 dB failure as 26.0/28.4% and fn's as 12.6% in the 0.8 s room; recomputed from noiseselect_summary.json before commit (33.0/35.2%, 12.5%) and fixed everywhere.",
+      "caught_by": "self, before commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Plain python3 lacked numpy; pyenv.py returned /usr/bin/python3.13 in about a minute. Fine as documented, but the research/capture-sync README's reproduction lines say `python`, which here has no numpy."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-capture-sync-kurtosis-switch-adds-nothing.md",
+    "research/capture-sync/LOG.md (step 3i plan and outcome)",
+    "research/capture-sync/README.md (step 3i section)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed research/0 by draw; pick_track drew capture-sync. Plan with nine predictions committed and pushed (draft PR #17220) before scoring. Collection 62,000 windows ~9 min on 4 cores; replay 62/62 vs step 3c and 62/62 fn cells vs step 3h. Result negative: the fitted kurtosis threshold sends 94-100% of windows to fn, so the switch equals always-normalise (5 of 9 predictions held). Checks run locally: capture-sync tests 46 passed; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; check_posts ok; cite_check (no new citations; prior ids ok*).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "75539500-820a-5e21-a313-ffac82d6cf41",
+    "transcripts": 1,
+    "first": "2026-11-18T07:18:12Z",
+    "last": "2026-11-18T07:31:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 80,
+        "output": 29822,
+        "thinking": 4730,
+        "cache_read": 4287554,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117992,
+        "api_equivalent_usd": 2.3982,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 80,
+      "output": 29822,
+      "thinking": 4730,
+      "cache_read": 4287554,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117992,
+      "api_equivalent_usd": 2.3982,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 39,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.95,
+      "active_minutes": 12.95,
+      "model_minutes": 5.42,
+      "tool_minutes": 7.52,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a research engineer writing the replay wrapper, selector, figure and write-up for one pre-registered ablation",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 250.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

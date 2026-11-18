@@ -1,0 +1,17 @@
+Milestone 7y: verdicts Y1-Y6 from results.json, as fixed in ../../LOG.md. Per-set statistic: median over the six seeds of each design's median over 64 episodes. A flight that never settles within 6 s counts as settling after 6 s (censored, +inf), so a design that never settles sorts last instead of dropping out of the median (results.txt's nanmedian drops it).
+
+   id 33 ms D^0 above: settle (censored) lag39 2.046, lag45 2.046, lag52 2.203, lag60 2.373 s | rise90 1.440, 1.581, 1.641, 1.737 s | overshoot 6.4, 5.9, 3.8, 3.2 cm | wind6 peak 2.55, 2.25, 2.71, 2.76 cm
+   id 33 ms D^0 below: settle (censored) lag39 3.097, lag45 2.566, lag52 2.010, lag60 1.946 s | rise90 1.388, 1.474, 1.608, 1.771 s | overshoot 9.7, 7.6, 5.5, 2.7 cm | wind6 peak 1.86, 1.90, 2.02, 2.36 cm
+  mid 36 ms D^0 above: settle (censored) lag39 2.045, lag45 2.044, lag52 2.203, lag60 2.373 s | rise90 1.440, 1.581, 1.641, 1.737 s | overshoot 6.4, 5.9, 3.8, 3.2 cm | wind6 peak 2.55, 2.25, 2.71, 2.76 cm
+  mid 36 ms D^0 below: settle (censored) lag39 3.095, lag45 2.564, lag52 2.010, lag60 1.946 s | rise90 1.387, 1.474, 1.608, 1.771 s | overshoot 9.7, 7.6, 5.5, 2.7 cm | wind6 peak 1.86, 1.90, 2.01, 2.36 cm
+ id 39.1 ms D^0 above: settle (censored) lag39 2.045, lag45 2.044, lag52 2.203, lag60 2.373 s | rise90 1.439, 1.581, 1.641, 1.736 s | overshoot 6.4, 5.9, 3.8, 3.2 cm | wind6 peak 2.55, 2.25, 2.71, 2.76 cm
+ id 39.1 ms D^0 below: settle (censored) lag39 3.092, lag45 2.561, lag52 2.009, lag60 1.946 s | rise90 1.387, 1.474, 1.608, 1.771 s | overshoot 9.7, 7.6, 5.4, 2.6 cm | wind6 peak 1.86, 1.90, 2.01, 2.36 cm
+
+Y1 (lag60 settles slower than lag45 in >= 5 of 6 cells): 3 of 6 -> refuted
+Y2 (lag60 settle <= 1.25 x lag45 in every cell): ratios 1.16, 0.76, 1.16, 0.76, 1.16, 0.76 -> held
+Y3 (lag60 drifts further than lag45 after the 6 m/s step in >= 5 of 6 cells): 6 of 6 -> held
+Y4 (lag60 overshoots less than lag45 in >= 5 of 6 cells): 6 of 6 -> held
+Y5 (no flight diverges in the step or the 3 m/s wind test): 0 diverged -> held
+Y6 (settle time monotone lag39 <= lag45 <= lag52 <= lag60 in >= 4 of 6 cells): 0 of 6 -> refuted
+
+Not predicted (read off the same table): rise time to 90% monotone in the floor in 6 of 6 cells; overshoot monotone decreasing in 6 of 6.

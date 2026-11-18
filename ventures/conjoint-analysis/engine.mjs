@@ -15,7 +15,7 @@ export const PAPERS = [
 // ---------------------------------------------------------------- parsing
 
 export function parseCsv(text) {
-  const src = String(text ?? "").replace(/^﻿/, "");
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   const firstLine = src.split(/\r\n|\n|\r/).find((l) => l.trim() !== "");
   if (firstLine == null) throw new Error("No data: paste a CSV with a header row.");
   const delim = firstLine.includes("\t") ? "\t" : firstLine.includes(";") && !firstLine.includes(",") ? ";" : ",";
