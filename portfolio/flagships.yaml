@@ -196,9 +196,11 @@ flagships:
       backdated), warning holds 4 of 8 when a covariate moves 4 early (README "A
       shock before the date"); few donors 2026-11-18 (README "Few donors"): West
       Germany and Basque gaps replicate, ranks 3 and 4 of 17 (p <= 0.05 unreachable
-      under 19 donors; FEW DONORS note and units-ranked-above ship); next size and
-      power at 10-20 units with one shocked donor, a real deployer's panel. More
-      open items: NEXT.md.
+      under 19 donors; FEW DONORS note and units-ranked-above ship); few-donor power
+      2026-11-18 (README "Few donors: size and power"): one donor shocked as much as
+      a 2 sd step cuts rank 1 from 54-60% to 35-40%, leaving it out beforehand
+      restores it; the note quotes it; next two shocked donors, a real deployer's
+      panel. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
