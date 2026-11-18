@@ -50,3 +50,5 @@
   distinct-photo false merges sit.
 - A copy at 30% brightness (exposure 0.28) stayed an alternate; it lost its group, so harmless, but the reject line
   for exposure may sit too low.
+- (2026-11-18) next a real shoot's picks
+- (2026-11-18) cull: zoom, pan windows, the 44 crop gate and an exact pair index 2026-11-18 (10,000 frames 251 to 42 s, eval/cull-grouping-index-*) (6% pans 0.85 to 1.00, eval/cull-crop-gate-*), whole-percent window offsets 2026-11-18 (7-10% pans 0.78-0.95 to 0.99-1.00, eval/cull-fine-offsets-*)
