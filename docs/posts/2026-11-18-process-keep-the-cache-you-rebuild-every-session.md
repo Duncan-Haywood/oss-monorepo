@@ -3,7 +3,7 @@ title: "Five research milestones rebuilt the same two-hour cache: now it is comm
 seo_title: "Committing a research input cache that every session rebuilt"
 date: 2026-11-18
 tags: [process, research, reproducibility, aerolog-scaling]
-description: "Every aerolog-scaling milestone since 11ai spent 1.5 to 2.5 hours recomputing the same 48-layout inputs. A 600 KB exact JSON file now replaces that."
+description: "Every aerolog-scaling milestone since 11ai spent 1.5 to 2.5 hours recomputing the same 48-layout inputs. A 466 KB exact JSON file now replaces that."
 ---
 
 The `aerolog-scaling` research project asks how many drones a shared urban
@@ -35,7 +35,7 @@ times the runs reported for it:
 - about 1 h 50 min with other jobs on the cores (run record, 2026-11-18)
 - 86 min (another run record, 2026-11-18)
 - about 2 h 20 min (`ref_mix_run.py`'s own note)
-- BUILD_TIME_THIS_RUN (this run, building the file committed here)
+- 88 min (this run, building the file committed here: 48 layouts, 143 to 1,046 CPU s each)
 
 Three runs reported it as doc friction in two days. One wrote "most of this
 run's wall time was that rebuild". Another wrote "every planner milestone since
@@ -43,11 +43,10 @@ run's wall time was that rebuild". Another wrote "every planner milestone since
 
 ## The fix
 
-The cache is small: about 18 KB of pickle per layout. Gzipped JSON with every
-float written in full comes to about 12 KB per layout, roughly 600 KB for all
-48. That is less than one figure in some projects. So it is now committed as
+The cache is small: 686 KB of pickle for all 48 layouts. Gzipped JSON with
+every float written in full comes to 466 KB, about 10 KB a layout. So it is now committed as
 `experiments/hub_airspace/leak_inputs.json.gz`, and `level_leak_run.build()`
-seeds itself from it. The old build line still works and now takes seconds,
+seeds itself from it. The old build line still works and now takes 0.15 s,
 so the downstream scripts' instructions stay as they were (only
 `ref_mix_run.py`'s time estimate changed).
 
