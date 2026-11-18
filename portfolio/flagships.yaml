@@ -324,15 +324,16 @@ flagships:
       (eval/nikon-nef-*). Canon CRW 2026-11-16 (eval/canon-crw-*). Coolpix NRW and
       E-series NEF 2026-11-18 (eval/nikon-nrw-reader-*). RW2 RawFormat 8 2026-11-18:
       S1R II, S5 IIX, S1 II E; 4 x 2 tiles (177 MP); no public file has a tone curve
-      (eval/panasonic-rw2-format8-grid-*). Next: the S1R II 177 MP frame against a
-      second decoder; Sony's vignetting table vs an evenly lit frame; a real DNG and
-      a vignetting-calibrated lens through the pipeline's lens stage; a real evenly
-      lit frame shot wide open (corners level after lensfun's vignetting?); a second
-      maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
-      synthetic files so far, or the SDK to check them; lateral colour measured on a
-      real frame with sharp corner edges; a real Adobe `.dcp` through the profile
-      chooser; a CR3 a body writes in tiles (R5, R5 II: one tile,
-      eval/canon-cr3-r5-real-*). More open items: NEXT.md.
+      (eval/panasonic-rw2-format8-grid-*). S1R II 177 MP = LibRaw snapshot 202611,
+      every sensel (eval/panasonic-rw2-177mp-libraw-*). Next: Sony's vignetting
+      table vs an evenly lit frame; a real DNG and a vignetting-calibrated lens
+      through the pipeline's lens stage; a real evenly lit frame shot wide open
+      (corners level after lensfun's vignetting?); a second maker-against-lensfun
+      DNG pair; a real DNG carrying any opcode run only on synthetic files so far,
+      or the SDK to check them; lateral colour measured on a real frame with sharp
+      corner edges; a real Adobe `.dcp` through the profile chooser; a CR3 a body
+      writes in tiles (R5, R5 II: one tile, eval/canon-cr3-r5-real-*). More open
+      items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -380,11 +381,11 @@ flagships:
       schedule, eval/seed-balance.txt; TeamSnap and SportsEngine import files,
       eval/platform-templates-2026-11-17.md; calendar ids per fixture,
       eval/ics-stable-uids.txt; In/Maybe/Out per game and short teams on the league
-      page, availability.mjs 2026-11-18, then rosters, answers CSV and SMTP
-      reminders to short teams, mailer.mjs (next: a real provider's STARTTLS, a real
-      league's answers); bowling seasons, lane pairs rotated evenly: 36 of 36 at the
-      bound 2026-11-18 via a focused walk and stored SAT answers, P-week seasons
-      proved UNSAT, eval/bowling-lane-table.txt). 3-game nights
+      page, availability.mjs 2026-11-18, rosters, reminders (mailer.mjs), team
+      sign-ups with waitlist (registration.mjs; next: a real league's sign-ups and
+      answers); bowling seasons, lane pairs rotated evenly: 36 of 36 at the bound
+      2026-11-18 via a focused walk and stored SAT answers, P-week seasons proved
+      UNSAT, eval/bowling-lane-table.txt). 3-game nights
       (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
       every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 5, 7 on
       1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6;
@@ -403,12 +404,13 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The take survey's verdict needs two
-      informative wheels" (frame byte ships; a 2-wheel minimum failed held out, kept
-      off; 16 kept would silence the jittery tach). Next: a drill-level check of
-      one-wheel verdicts on more fresh sets; the sub-8 advised instant build; short
-      ESC lags read ~10% low with 16; SURVEY_QUEUE 3's heap; ball hold:
-      WHEEL_RPM_FULL error's cost on 0.2 s wheels; an ESC with its own speed loop.
+      see firmware/esp32/README.md, latest "An ESC with its own speed loop"
+      (ESC_SPEED_LOOP: the board loop drops P, 48 of 144 rang before; a PI drop fit
+      fails on the current limit, kept off). Next: a drill-level check of one-wheel
+      verdicts on more fresh sets; the sub-8 advised instant build; short ESC lags
+      read ~10% low with 16; SURVEY_QUEUE 3's heap; ball hold: WHEEL_RPM_FULL
+      error's cost on 0.2 s wheels; a ramp-then-PI drop fit for a speed-mode ESC
+      (limit from a spin-up).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

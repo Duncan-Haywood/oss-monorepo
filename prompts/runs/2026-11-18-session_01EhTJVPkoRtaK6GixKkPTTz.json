@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVPkoRtaK6GixKkPTTz",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T14:03:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "research/hanger-print"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17319",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "fix-mode queue was all research highs; the first shuffled row (marine-detect) needs a dataset whose host 403s through the proxy, which the queue cannot know"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-quality-fix-the-hanger-that-fit-no-printer.md"
+  ],
+  "goal": null,
+  "notes": "mode fix (queue seed 2026-11-18-8e1f, 14 high open). Subject research/hanger-print, defect 0 (overclaim: only whole-hanger STLs, none fit 220 mm). Fixed with split.py two-piece half-lap + 2 M4 bolts (manifold3d), rack_w*_A/B.stl; halves 150-219.8 mm square, joint SF >= 6.9 hand-calculated. Found and fixed a second defect: post filled lower half of the loop's 10 mm hole. Tests 12->18 pass; quality_mutate 4/4 caught. build.py ok, research_live_links 0 changes, check_md_links ok, check_posts ok, quality_audit validate 0 problems. Skipped marine-detect high (data.vicos.si 403). Fix PR: #17319. Share meeting the bar: n/a (fix mode).",
+  "corrections": [],
+  "redteam": null
+}
