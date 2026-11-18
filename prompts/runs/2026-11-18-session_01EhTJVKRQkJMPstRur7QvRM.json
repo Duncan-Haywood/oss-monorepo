@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVKRQkJMPstRur7QvRM",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T15:09:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots (flagship row 5, routed by allocate.py): a drill builder on the page (README roadmap item 6), plus a fix to the page's shot planner crash",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": 17333,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The row's buildable list names only ESC/tach simulator refinements, which dozens of runs have deepened with shrinking user value; the README's roadmap item 6 (a drill app) is a user-facing slice a run can finish with no outside input, so I took that within the same flagship instead.",
+      "did": "Built drill.mjs + the #drills section, checked its timing model against the simulated feeder, and put 'send a page drill to the Pi' at the head of buildable.",
+      "result": "Landed: every preset feeds; timing estimate within 0.3 s on 25 of 42 held-out gaps, never more than 0.34 s short."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-a-drill-builder-that-knows-what-the-ball-machine-can-do.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: node --test drill.test.mjs page.test.mjs sim.test.mjs usage.test.mjs (33 pass); run_venture_tests.py open-tennis-robots: ok (404 tests, 58 skipped for build123d), site page checks ok; venture-preflight.mjs open-tennis-robots: preflight clean. Playwright run of the page: no console errors, presets load, tap adds a ball, share link round-trips, 390 px wide has no horizontal scroll, the planner's former crash case now shows launcher.aim's message. Gap check: eval/drill-gap-check-2026-11-18.txt.",
+  "corrections": [],
+  "redteam": null
+}

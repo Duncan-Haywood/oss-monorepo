@@ -50,7 +50,7 @@ test("every input is labelled and nothing is sent anywhere", () => {
     const id = tag.match(/\sid="([^"]+)"/)?.[1];
     assert.ok(/aria-label=/.test(tag) || (id && html.includes(`for="${id}"`)), `unlabelled: ${tag}`);
   }
-  for (const f of ["index.html", "sim.mjs", "usage.mjs"]) {
+  for (const f of ["index.html", "sim.mjs", "usage.mjs", "drill.mjs"]) {
     assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts/, f);
   }
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
@@ -58,7 +58,7 @@ test("every input is labelled and nothing is sent anywhere", () => {
 
 test("module script imports only local files and parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./sim.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./drill.mjs", "./sim.mjs", "./usage.mjs"]);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));
 });
