@@ -10,6 +10,7 @@
 //     entity's arguments read back from the XML equal the STEP reader's)
 
 import { readFileSync, createWriteStream } from "node:fs";
+import { pathToFileURL } from "node:url";
 import { parseStep } from "../step.mjs";
 import { parseIfcXml } from "../ifcxml.mjs";
 import { Schema } from "../ids.mjs";
@@ -64,7 +65,7 @@ function norm(v, idOf) {
 
 const loadSchema = () => new Schema(JSON.parse(readFileSync(new URL("../schema/ifc2x3.json", import.meta.url))));
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2);
   const check = args[0] === "--check";
   if (check) args.shift();
