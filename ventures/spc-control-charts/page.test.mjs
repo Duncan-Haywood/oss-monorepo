@@ -64,3 +64,7 @@ test("links one hop to the assembly line balancer, so crawlers reach it", () => 
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.match(html, /href="\.\.\/assembly-line-balancer\/"/);
 });
+
+test("footer links the Gage R&R sibling", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/gage-rr\/"/);
+});
