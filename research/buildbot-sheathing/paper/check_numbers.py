@@ -53,6 +53,8 @@ M45 = E + "m45_tiered/results.txt"
 M45P = E + "m45_tiered/posthoc.txt"
 M46 = E + "m46_holdside/results.txt"
 M47 = E + "m47_poseside/results.txt"
+M48 = E + "m48_loadside/results.txt"
+M48P = E + "m48_loadside/posthoc.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -221,6 +223,12 @@ CHECKS = [
     (M47, "H187 (every pose's S* margin at least 0.1111): smallest 0.8858", "(smallest 0.886 N m)"),
     (M47, "  h1 |  20.0 | 0.010 ([1.6, 0.15], phi 90) | 0.032", "at 20 N of hose drag from 0.032 to 0.010 mm"),
     (M47, "  g1 |  20.0 | 0.037 ([0.6, -0.15], phi 225) | 0.011", "residual at 20 N rises from 0.011 to 0.037 mm"),
+    (M48, "H193 (G1 worst at most 0.03 mm at every drag): 0.016, 0.011, 0.011", "to 0.016 / 0.011 / 0.011 mm at 0 / 5 / 20 N of drag"),
+    (M48, "H195 (H1 worst at most milestone 47's + 0.005 mm): 0.010 (<= 0.015), 0.014 (<= 0.019), 0.010", "keeps the H1's 0.010 / 0.014 / 0.010 mm"),
+    (M48, "  g1: poses on S_H 9 of 15", "At 8 of 34 poses no side has a plan"),
+    (M48, "  h1: poses on S_H 17 of 19", "At 8 of 34 poses no side has a plan"),
+    (M48P, "  g1: 258 of 1530 pose-cases dropped", "the G1 has none in 258 of 1530 swept pose-cases"),
+    (M48P, "  h1: 41 of 1938 pose-cases dropped", "the H1 in 41 of 1938"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
