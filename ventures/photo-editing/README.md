@@ -1955,6 +1955,25 @@ render. The DiMAGE Z2's `.MRW` has no MRW header at all and is refused. Details:
 `eval/minolta-mrw-reader-2026-11-18.md`; checks: `tools/mrw_libraw_check.py`,
 `tools/mrw_develop_check.py`; tests: `tests/test_mrw.py`.
 
+### Kodak DCR (2026-11-18)
+
+Kodak's DCR files from the DCS Pro SLR/n (2004) and its siblings now develop directly: `shootflow
+develop M3XV3143.DCR --dcp DIR` (`src/shootflow/kodak.py`). A DCR is a big-endian TIFF whose sensor
+sits in a SubIFD with Kodak's own compression, 65000: each row in blocks of up to 256 sensels, a
+4-bit bit length per sensel, then the differences read least-significant bit first from pairs of
+big-endian 16-bit words, two predictors (one per CFA column) reset every block; a block with a length
+over 12 is stored as plain 12-bit values instead. The codes are 10-bit and go through Kodak IFD entry
+2317, a 1024-step linearisation table whose last step is the white level (3700). The as-shot white
+balance is the 72-byte record in entry 1021 (2048 over each multiplier), or entry 2120 + n when that
+record is missing. On the one public DCR (the DCS Pro SLR/n file in metadata-extractor-images) every
+one of 13.6 M sensels, the CFA, the white level and the white balance equal LibRaw 0.22's; the C
+decoder reads the frame in 0.13 s, the pure-Python reference in 5.1 s, with identical output.
+Developed with LibRaw's colour matrix for the body as a stand-in profile, the picture's mean colour is
+within 0.0023 in chromaticity of LibRaw's render (compared in linear light). Other Kodak compressions
+(the DC-series 262 and 32867 and the KDC formats) are refused with the reason. Details:
+`eval/kodak-dcr-reader-2026-11-18.md`; checks: `tools/dcr_libraw_check.py`,
+`tools/dcr_develop_check.py`; tests: `tests/test_kodak.py`.
+
 ### Phase One IIQ (2026-11-18)
 
 Phase One's IIQ files (the P+ and IQ backs, the H 25, the iXU and iXM aerial cameras, and the `.TIF`

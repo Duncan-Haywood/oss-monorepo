@@ -1255,12 +1255,12 @@ def _build_parser() -> argparse.ArgumentParser:
 
     develop = subparsers.add_parser(
         "develop",
-        help="Develop DNG and Hasselblad 3FR raw files (or, with --dcp, Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF and Minolta MRW) into 16-bit TIFF (or PNG) masters for the grade stage (stdlib only).",
+        help="Develop DNG and Hasselblad 3FR raw files (or, with --dcp, Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF, Minolta MRW and Kodak DCR) into 16-bit TIFF (or PNG) masters for the grade stage (stdlib only).",
     )
     develop.add_argument(
         "files",
         nargs="+",
-        help="DNG or Hasselblad 3FR files, or other makers' raws (CRW, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF, MRW) with --dcp (convert any other format with Adobe DNG Converter).",
+        help="DNG or Hasselblad 3FR files, or other makers' raws (CRW, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF, MRW, DCR) with --dcp (convert any other format with Adobe DNG Converter).",
     )
     develop.add_argument("--out", required=True, help="Folder for the masters; existing files are never overwritten.")
     develop.add_argument("--format", choices=("tif", "png", "png16"), default="tif", help="tif (16-bit, default), png (8-bit) or png16.")
