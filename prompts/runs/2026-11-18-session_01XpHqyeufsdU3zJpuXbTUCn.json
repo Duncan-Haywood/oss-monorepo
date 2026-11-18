@@ -27,14 +27,15 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 6,
   "outcome": "success",
   "errors": [
     "A Playwright run combined with a backgrounded `python3 -m http.server &` in one Bash call was refused by the auto-mode classifier; starting the server as its own run_in_background command worked.",
     "Playwright was not importable from a script in the scratchpad (ERR_MODULE_NOT_FOUND); createRequire with NODE_PATH=$(npm root -g) worked, as eval/heap-page-run.mjs does.",
-    "venture-preflight first failed on check_loose_number_pattern.py ([\\d,]+ in eval/page-smoke.mjs); fixed with a strict number pattern."
+    "venture-preflight first failed on check_loose_number_pattern.py ([\\d,]+ in eval/page-smoke.mjs); fixed with a strict number pattern.",
+    "CI validate failed on platform/privacy/optout-persistence.test.mjs: main's new spatial-autocorrelation (PR #17372) was missing from optout-switches.txt; fixed forward here with sync_tree_counts.py."
   ],
   "integrity_issues": [],
   "doc_friction": [
