@@ -270,7 +270,50 @@ export function parseIfcXml(text, schema) {
         }
       }
     }
+    if (isA(type, "IFCBSPLINESURFACE")) bsplineRows(entities.get(id), attrs);
     return id;
+  }
+
+  const isA = (type, sup) => {
+    for (let t = type; t && schema.entities[t]; t = schema.entities[t].super) if (t === sup) return true;
+    return false;
+  };
+
+  // IfcBSplineSurface.ControlPointsList is a LIST [2:?] OF LIST [2:?] of
+  // points, and ifcXML writers put it down as one flat list (buildingSMART's
+  // Annex E advanced-brep examples). The row length is not in the file, but
+  // the knot data fixes it: a B-spline of degree p with knot multiplicities
+  // m has sum(m) - p - 1 control points in that direction (IFC's own
+  // IfcBSplineSurfaceWithKnots.UUpper rule). Rows run in U, points within a
+  // row in V, as STEP writes them. With no knots, or counts that do not
+  // multiply out, the list is left flat and the model's notes say so.
+  const bsplineNoted = new Set();
+  function bsplineRows(e, attrs) {
+    const at = (name) => {
+      const i = attrs.index.get(name);
+      return i === undefined ? undefined : e.args[i];
+    };
+    const ci = attrs.index.get("ControlPointsList");
+    const list = e.args[ci];
+    if (!Array.isArray(list) || !list.length || list.some(Array.isArray)) return;
+    const count = (mult, deg) =>
+      Array.isArray(mult) && mult.length && mult.every(Number.isInteger) && Number.isInteger(deg)
+        ? mult.reduce((s, x) => s + x, 0) - deg - 1
+        : null;
+    const rows = count(at("UMultiplicities"), at("UDegree"));
+    const cols = count(at("VMultiplicities"), at("VDegree"));
+    if (!(rows >= 2 && cols >= 2 && rows * cols === list.length)) {
+      if (!bsplineNoted.has(e.type)) {
+        bsplineNoted.add(e.type);
+        errors.push(`${e.type} ControlPointsList written as ${list.length} points in one list; its knot data does not give the row length, so it is left flat`);
+      }
+      return;
+    }
+    const cut = (l) => Array.from({ length: rows }, (_, r) => l.slice(r * cols, (r + 1) * cols));
+    e.args[ci] = cut(list);
+    // The rational subtype's weights are the same grid, written flat too.
+    const wi = attrs.index.get("WeightsData");
+    if (wi !== undefined && Array.isArray(e.args[wi]) && e.args[wi].length === list.length && !e.args[wi].some(Array.isArray)) e.args[wi] = cut(e.args[wi]);
   }
 
   // Top-level entities may sit under the root (IFC4) or under <uos> (IFC2X3).

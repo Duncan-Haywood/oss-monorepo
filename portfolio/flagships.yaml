@@ -478,8 +478,8 @@ flagships:
       test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
-      IFC4X3 ifcXML: none public (searched 2026-11-18); IfcBSplineSurface
-      control-point rows from knot counts (eval/ifcxml-twins-2026-11-18.md); more
+      IFC4X3 ifcXML: none public (searched 2026-11-18); B-spline control points cut
+      into rows from knot counts 2026-11-18 (eval/ifcxml-twins-2026-11-18.md); more
       real exports through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
@@ -492,12 +492,13 @@ flagships:
       public facets editable); ifcXML and .ifczip read 2026-11-16
       (eval/ifcxml-xbim-2026-11-16.md); 43 IFC4 STEP/ifcXML twins 2026-11-18
       (eval/ifcxml-twins-2026-11-18.md: verdicts 108 to 129 of 129; href refs,
-      decimal commas, flat point lists); IDS editor 2026-11-16 (203,433 offered
-      specs audit clean, 15,102 valid in ids.xsd; found voids/fills token pair and
-      classification-system gaps, eval/editor-2026-11-16.md); IFC 4.3 infra/HVAC
-      cross-check 2026-11-17 (348 of 348, eval/infra-mep-crosscheck-*); 65 public
-      IDS vs IfcTester 2026-11-17 (1,661 of 1,736 same; unchecked subclasses
-      reported, eval/corpus-crosscheck-*); duplicate GlobalIds in a model
+      decimal commas, flat point lists; B-spline rows from knot counts); IDS editor
+      2026-11-16 (203,433 offered specs audit clean, 15,102 valid in ids.xsd; found
+      voids/fills token pair and classification-system gaps,
+      eval/editor-2026-11-16.md); IFC 4.3 infra/HVAC cross-check 2026-11-17 (348 of
+      348, eval/infra-mep-crosscheck-*); 65 public IDS vs IfcTester 2026-11-17
+      (1,661 of 1,736 same; unchecked subclasses reported,
+      eval/corpus-crosscheck-*); duplicate GlobalIds in a model
       (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI
       2026-11-17 (eval/federated-globalids-2026-11-17.md; allow list and followers,
       eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); number one-of
