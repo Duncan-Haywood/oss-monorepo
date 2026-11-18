@@ -23,6 +23,16 @@ import { roundRobin, dayLabel, dayIso, csvCell, parseTeams, mulberry32 } from ".
 
 export const VACANCY = "Vacancy";
 
+// Seasons where a SAT solver proved the floor/ceil lane bound out of reach (bowling-proofs.mjs,
+// from eval/bowling-bound-proof.py): "teams,round-robin weeks" for roundRobin(teams) played in
+// order from round 1, as bowlingSchedule() plays it. Only even leagues: an odd league's proof would
+// include the Vacancy's row, which says nothing about the real teams.
+import { OUT_OF_REACH } from "./bowling-proofs.mjs";
+const outOfReach = new Set(OUT_OF_REACH);
+export function boundOutOfReach(nTeams, rrWeeks) {
+  return outOfReach.has(`${nTeams},${rrWeeks}`);
+}
+
 /** Minimum-cost perfect assignment of rows to columns of a square matrix (Hungarian, O(n^3)). */
 export function hungarian(cost) {
   const n = cost.length;
@@ -106,81 +116,7 @@ export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 
     plan.push(out);
   }
   if (mode === "greedy" || plan.length < 2 || nPairs < 2) return plan;
-  repairLanes(plan, nTeams, nPairs, seed);
   return polishLanes(plan, nTeams, nPairs, seed, iterations ?? kicksFor(plan.length, nPairs));
-}
-
-// Min-conflicts tabu search that drives every team's pair counts into floor(W_t/P)..ceil(W_t/P)
-// before the polish. A move swaps the pairs of two matches in one week, so every week stays a
-// bijection of matches to pairs. Each step picks one out-of-bounds (team, pair) cell at random and
-// takes the best non-tabu swap that moves that team off (or onto) that pair, scored by the change
-// in total out-of-bounds count; a match just moved may not return to its old pair for a few steps
-// unless that reaches a new best. The polish's week re-solves and kicks plateau on the seasons
-// where the bound is exact (P divides W): 12 teams x 30 weeks ended 4 counts off for every seed.
-// Edits `plan` in place and returns the out-of-bounds count it reached (0 = every team at the bound).
-// Deterministic for a seed; `maxSteps` caps the work for the largest leagues.
-export function repairLanes(plan, nTeams, nPairs, seed = 1, maxSteps = null) {
-  const W = plan.length;
-  const cnt = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
-  const games = new Array(nTeams).fill(0);
-  // at[w][p] = index of the match on pair p in week w; slot[w][t] = index of team t's match.
-  const at = plan.map((wk) => { const a = new Array(nPairs); wk.forEach((m, k) => { a[m[2]] = k; }); return a; });
-  const slot = plan.map((wk) => { const s = new Array(nTeams).fill(-1); wk.forEach(([a, b], k) => { s[a] = k; s[b] = k; }); return s; });
-  for (const wk of plan) for (const [a, b, p] of wk) { cnt[a][p]++; cnt[b][p]++; games[a]++; games[b]++; }
-  const lo = games.map((g) => Math.floor(g / nPairs)), hi = games.map((g) => Math.ceil(g / nPairs));
-  const off = (t, c) => (c > hi[t] ? c - hi[t] : c < lo[t] ? lo[t] - c : 0);
-  let V = 0;
-  for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) V += off(t, cnt[t][p]);
-  if (V === 0) return 0;
-  // Change in V from moving team t from pair p to pair q.
-  const shift = (t, p, q) => off(t, cnt[t][p] - 1) - off(t, cnt[t][p]) + off(t, cnt[t][q] + 1) - off(t, cnt[t][q]);
-  const swapDelta = (w, p, q) => {
-    const [a, b] = plan[w][at[w][p]], [c, d] = plan[w][at[w][q]];
-    // Teams a, b move p -> q; c, d move q -> p. The four teams are distinct, so the cells are independent.
-    return shift(a, p, q) + shift(b, p, q) + shift(c, q, p) + shift(d, q, p);
-  };
-  const tabu = Array.from({ length: W }, () => Array.from({ length: plan[0].length }, () => new Array(nPairs).fill(0)));
-  const doSwap = (w, p, q, step, tenure) => {
-    const i = at[w][p], j = at[w][q];
-    for (const t of plan[w][i].slice(0, 2)) { cnt[t][p]--; cnt[t][q]++; }
-    for (const t of plan[w][j].slice(0, 2)) { cnt[t][q]--; cnt[t][p]++; }
-    tabu[w][i][p] = step + tenure; tabu[w][j][q] = step + tenure;
-    plan[w][i][2] = q; plan[w][j][2] = p; at[w][p] = j; at[w][q] = i;
-  };
-  const rnd = mulberry32(seed * 7919 + 17);
-  const limit = maxSteps ?? Math.max(20000, Math.min(400000, Math.floor(6e7 / (W * nPairs))));
-  let best = V, bestPlan = plan.map((wk) => wk.map((m) => m[2]));
-  const bad = [];
-  for (let step = 1; step <= limit && V > 0; step++) {
-    bad.length = 0;
-    for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) if (off(t, cnt[t][p])) bad.push(t * nPairs + p);
-    const cell = bad[Math.floor(rnd() * bad.length)];
-    const t = Math.floor(cell / nPairs), p = cell % nPairs;
-    const over = cnt[t][p] > hi[t];
-    let bestD = Infinity, moves = 0, pick = null;
-    for (let w = 0; w < W; w++) {
-      const k = slot[w][t];
-      if (k < 0) continue;
-      const cur = plan[w][k][2];
-      // Over: move t off p (to any q). Under: move t from its pair onto p.
-      if (over ? cur !== p : cur === p) continue;
-      const qs = over ? null : [p];
-      for (let q = 0; q < nPairs; q++) {
-        if (qs ? q !== p : q === cur) continue;
-        const d = swapDelta(w, cur, q);
-        const isTabu = tabu[w][k][q] > step || tabu[w][at[w][q]][cur] > step;
-        if (isTabu && V + d >= best) continue;
-        if (d < bestD) { bestD = d; moves = 1; pick = [w, cur, q]; }
-        else if (d === bestD && rnd() * ++moves < 1) pick = [w, cur, q];
-      }
-    }
-    if (!pick) continue;
-    doSwap(pick[0], pick[1], pick[2], step, 3 + Math.floor(rnd() * 8));
-    V += bestD;
-    if (V < best) { best = V; bestPlan = plan.map((wk) => wk.map((m) => m[2])); }
-  }
-  if (V > best) plan.forEach((wk, w) => wk.forEach((m, k) => { m[2] = bestPlan[w][k]; }));
-  return best;
 }
 
 function kicksFor(weeks, nPairs) {
@@ -313,7 +249,8 @@ export function bowlingSchedule(spec) {
     out.push({ week: w, day, kind: "round", cycle: info.cycle, round: info.round, matches });
     ri++;
   }
-  return { errors: [], teams, odd, nPairs, labels, weeks: out, skipped, cycleLength: cycle.length };
+  const boundProvedOutOfReach = !odd && boundOutOfReach(n, rrRounds.length);
+  return { errors: [], teams, odd, nPairs, labels, weeks: out, skipped, cycleLength: cycle.length, boundProvedOutOfReach };
 }
 
 function ordinal(i) {
@@ -346,7 +283,9 @@ export function laneReport(season) {
     return { name: r.name, counts: r.counts, weeks: r.weeks, spread, bound, repeats: r.repeats };
   });
   const real = out.filter((r, i) => !(season.odd && i === n - 1));
-  return { rows: out, worstSpread, atBound, teams: n, repeats, realRows: real };
+  // boundProvedOutOfReach: no lane deal of this season's round-robin weeks puts every team at the
+  // bound (proved by a SAT solver), so a team off it is the season's limit, not a missed deal.
+  return { rows: out, worstSpread, atBound, teams: n, repeats, realRows: real, boundProvedOutOfReach: Boolean(season.boundProvedOutOfReach) };
 }
 
 /** Independent check: every week, each team once and each pair once; every pair of teams meets as often as the cycles say. */
