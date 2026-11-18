@@ -7,33 +7,130 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T07:06:35Z",
   "ended": "2026-11-18T07:08:44Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "wall_minutes": 17.44,
+  "tokens_in": 3142389,
+  "tokens_out": 20456,
+  "cost_usd": 1.6815,
+  "tool_calls": 39,
+  "task": "quality fix mode: research/ambient-crossfit diverging fit_map (audit 2026-11-17 high defects #0, #1)",
+  "projects": [
+    "research/ambient-crossfit"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17216",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 2,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv.py returned /usr/bin/python3.13 but a bare `python3` (/usr/local/bin) still lacks pytest; had to call the returned path explicitly, as the doc says, but quality_mutate.py also needed PATH set so its `python3.13` resolved."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Committing the unfilled run record early (via git add -A) made prompts-ci fail locally; the record step's 'commit last' advice is easy to break with add -A."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "mode draw said fix, not sample; followed the README's fix mode instead of the prompt's sample steps 1-5",
+      "did": "fixed one high-severity queue row end to end (code, tests, rerun, docs, post)",
+      "result": "defects 0,1,4,5,6 of the audit marked fixed_by; scores untouched for a later re-audit"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-quality-fix-the-optimiser-that-made-the-result.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Mode fix (queue seed 2026-11-18-a4ea). Fixed research/ambient-crossfit fit_map: damped Newton + Armijo + gradient stop, raises when unconverged. Two regression tests fail on old fitter, pass on new; mutants (remove backtracking; loosen stop) both caught. Rerun 50 s reproduces auditor's independent numbers (uninformed biased 11.44, clip10 12.51, unclipped informed eps .002 9.27/9.12). Added paired cross-minus-plug t-tests: 23/24 cells negative, 13 |t|>2.09, 5 Bonferroni, none positive. Fix PR #17216. Open: same fitter in 12 sibling ambient-* projects (audit defect #3), test pinning results (#2), oracle ceiling (#8). Local: run_workflow_locally --for-changes all green except prompts-ci on this unfilled record (fixed by filling it); agent-cross-review and pages deploy not runnable locally. Pytest 7 passed.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9ba2e7ab-9c61-5a38-9f75-622f06e21798",
+    "transcripts": 1,
+    "first": "2026-11-18T07:06:35Z",
+    "last": "2026-11-18T07:24:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 69,
+        "output": 20456,
+        "thinking": 3266,
+        "cache_read": 3059806,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82514,
+        "api_equivalent_usd": 1.6815,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 69,
+      "output": 20456,
+      "thinking": 3266,
+      "cache_read": 3059806,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82514,
+      "api_equivalent_usd": 1.6815,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.44,
+      "active_minutes": 17.44,
+      "model_minutes": 3.73,
+      "tool_minutes": 13.71,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "researcher: diagnose and fix optimiser, rerun, rewrite results and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 237.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
