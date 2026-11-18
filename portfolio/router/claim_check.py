@@ -16,6 +16,9 @@ lower number.
   exit 1  LANDED a PR merged since your clone of main names your --item:
                  read it before building (it may already be on main)
   exit 2  the open PRs could not be read; search titles by hand
+  exit 3  UNCLAIMED  no one else claims it, but you have no PR yet either:
+                 open your draft PR, then run this again (a check before your
+                 PR exists cannot see a session that opens one seconds later)
 
 Why: the open-PR checks in allocate.py and research/_shared/pick_track.py run
 before a session has opened its PR, so two sessions that start in the same
@@ -53,6 +56,14 @@ flagship lands a dozen slices a day and a 24 h list was noise): with --item,
 one whose title shares two words of your item (one, if the item has one) is
 LANDED (exit 1: read its diff, then take the next item or say why yours
 differs); the rest are listed so you can read their titles.
+
+A check run before your own PR exists used to print HOLD, exit 0. On
+2026-11-18 #17257 and #17258 opened claim PRs for the same photo-editing cull
+item 8 seconds apart (claim commits 09:57:53 and 09:57:40); #17258's run record
+says "claim HOLD", which run after its PR opened would have been YIELD (#17257
+was older and its title shared "cull" and "pans"). Both built a fix and the
+later one had to be reconciled by hand. So with no PR of yours it says
+UNCLAIMED (exit 3): the item is free, not yours.
 
 Your PR is found by --pr, or else by the current git branch (the PR whose
 head is this branch). Fork PRs never count as claims and are never yours.
@@ -140,7 +151,7 @@ def decide(prs: list[dict], keyword: str, mine: Optional[int] = None,
            main_at: Optional[datetime] = None) -> dict:
     """The verdict for `keyword` given open PRs as returned by the REST pulls list.
 
-    Returns {"verdict": "HOLD"|"YIELD"|"LANDED", "mine": pr|None, "older": [...],
+    Returns {"verdict": "HOLD"|"YIELD"|"LANDED"|"UNCLAIMED", "mine": pr|None, "older": [...],
     "newer": [...], "sharing": [...], "landed": [...], "merged": [...]}, each pr
     a dict with number, title, created, branch (merged ones also `merged`).
     With `item`, older PRs on a different item go to "sharing" and do not make
@@ -149,7 +160,8 @@ def decide(prs: list[dict], keyword: str, mine: Optional[int] = None,
     `hours`) that name `keyword` go to "landed" when their title shares
     enough words of `item` (`shares_item`; verdict LANDED unless an open PR
     already makes it YIELD), else to "merged" (listed, never blocking).
-    Without `item` a merge never blocks."""
+    Without `item` a merge never blocks. With no PR of mine (none by
+    `mine` or `branch`) and nothing older, the verdict is UNCLAIMED, not HOLD."""
     now = now or datetime.now(timezone.utc)
     since = now - timedelta(hours=hours)
     rows = []
@@ -193,7 +205,7 @@ def decide(prs: list[dict], keyword: str, mine: Optional[int] = None,
     newest = lambda r: _when(r["merged"])
     landed.sort(key=newest, reverse=True)
     others.sort(key=newest, reverse=True)
-    verdict = "YIELD" if older else ("LANDED" if landed else "HOLD")
+    verdict = "YIELD" if older else ("LANDED" if landed else ("HOLD" if me else "UNCLAIMED"))
     return {"verdict": verdict, "mine": me, "older": older, "newer": newer,
             "sharing": sharing, "landed": landed, "merged": others}
 
@@ -294,6 +306,11 @@ def report(result: dict, keyword: str, now: datetime, hours: float,
         lines.append("Read its diff (`git fetch --depth=1 origin main`, then the flagship row): if it "
                      "covers your item, take the next one; if yours is a different slice, go on and "
                      "say why in the run record.")
+    elif me is None:
+        lines.append(f"UNCLAIMED (free, but not yet yours): no open PR in the last {hours:g} h names "
+                     f"'{keyword}'" + (f" for '{item}'" if item else "") + ". Open your draft PR and run "
+                     "this again: a session that opens one in the next seconds is invisible now, and "
+                     "the PR opened first keeps the item.")
     else:
         lines.append(f"HOLD (the item is yours): no older open PR in the last {hours:g} h names '{keyword}'"
                      + (f" for '{item}'." if item else "."))
@@ -335,7 +352,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         print("\n".join(report(result, args.keyword, now, args.hours, args.item)))
         if closed is None:
             print("(Recently merged PRs could not be read: check `git log origin/main` for the slug by hand.)")
-    return 0 if result["verdict"] == "HOLD" else 1
+    return {"HOLD": 0, "UNCLAIMED": 3}.get(result["verdict"], 1)
 
 
 if __name__ == "__main__":

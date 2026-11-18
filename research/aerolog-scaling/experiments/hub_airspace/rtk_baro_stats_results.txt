@@ -1,0 +1,41 @@
+# Milestone 11an: barometer minus RTK-fixed GNSS height in public PX4 logs (rtk_baro.py's docstring)
+# retrieved 2026-11-18; index rows read 1852; searches {'RTK': {'index_total': 152, 'kept': 59}, '(none)': {'index_total': 492430, 'kept': 350}}
+  downloaded 400, errors 0, with RTK fixed solutions 98, RTK-fixed level time >= 30 s 42
+  usable flights: enroute 7, hover 22 (duplicates dropped)
+
+  id                                    hw                       ref  vacc   sec   r_lin  r_hp60 r_hp300 tau_s   fte   ekf-rtk
+  5604ae5d-439a-4d00-8f95-ea7f95d2a13d  RHINOSKY_SHEEPDOG_V1       1  0.000    46  0.663  0.525  0.525    nan  0.032  0.092
+  a53e3cc5-fe85-46df-828e-bf9bf9b827ee  PX4_FMU_V5                 1  0.022   117  1.109  0.886  0.883    0.2  0.040  0.074
+  b9d3d4c3-a3a8-4860-a300-dafe0f2bc6cd  PX4_FMU_V5                 1  0.022   211  1.377  0.967  0.994    4.3  0.047  0.118
+  b47a240f-01d2-448c-9f5c-d059c402a961  CUBEPILOT_CUBEORANGEPLUS   1  0.012   583  0.826  0.745  0.752    0.2  0.023  0.032
+  8b9160e4-68cd-47d4-aec4-9aad33cf6092  PX4_FMU_V6C                1  0.010   491  1.763  1.043  1.042    1.5  0.042  0.067
+  bf888c1a-1338-429a-afb3-15d728f1994f  PX4_FMU_V5                 1  0.033    33  0.602  0.578  0.578    0.2  0.046  0.045
+  7abfbfe7-0e29-4ff2-aa86-5e7fba71aa50  PX4_FMU_V6X                1  0.026    38  0.334  0.252  0.252    nan  0.032  0.036
+
+  enroute (7 flights)
+    r_lin    median 0.826 (p25 0.632, p75 1.243, min 0.334, max 1.763; 7)
+    r_hp60   median 0.745 (p25 0.551, p75 0.927, min 0.252, max 1.043; 7)
+    r_hp300  median 0.752 (p25 0.551, p75 0.938, min 0.252, max 1.042; 7)
+    tau      median 0.229 (p25 0.170, p75 1.519, min 0.165, max 4.262; 5)
+    fte      median 0.040 (p25 0.032, p75 0.044, min 0.023, max 0.047; 7)
+    ekf_rtk  median 0.067 (p25 0.040, p75 0.083, min 0.032, max 0.118; 7)
+  hover (22 flights)
+    r_lin    median 0.345 (p25 0.290, p75 0.898, min 0.146, max 2.897; 22)
+    r_hp60   median 0.286 (p25 0.187, p75 0.336, min 0.026, max 2.232; 22)
+    r_hp300  median 0.286 (p25 0.194, p75 0.336, min 0.064, max 2.232; 22)
+    tau      median 0.303 (p25 0.223, p75 1.492, min 0.153, max 7.158; 16)
+    fte      median 0.032 (p25 0.025, p75 0.040, min 0.006, max 0.292; 22)
+    ekf_rtk  median 0.040 (p25 0.009, p75 0.267, min 0.007, max 2.618; 22)
+  enroute ekf_rtk with EKF2_HGT_REF = 0: n/a
+  enroute ekf_rtk with EKF2_HGT_REF = 1: median 0.067 (p25 0.040, p75 0.083, min 0.032, max 0.118; 7)
+  enroute r_lin by hardware: CUBEPILOT_CUBEORANGEPLUS 0.83; PX4_FMU_V5 0.60, 1.11, 1.38; PX4_FMU_V6C 1.76; PX4_FMU_V6X 0.33; RHINOSKY_SHEEPDOG_V1 0.66
+  planner noise r = sqrt(fte^2 + r_lin^2): median 0.826 (p25 0.634, p75 1.244, min 0.336, max 1.764; 7); fleet sqrt(mean r^2) 1.058 m
+  speed term: offset at 10 m/s, c*100 (m): median 0.806 (p25 -1.440, p75 1.063, min -4.703, max 1.553; 5); positive in 3 of 5
+  ratio r_lin(enroute)/r_lin(hover): median 1.739 (p25 1.492, p75 1.986, min 1.245, max 2.233; 2)
+
+# predictions
+  P1 usable enroute flights >= 15: 7 -> refuted
+  P2 median r_lin in [0.25, 0.80]: 0.826 (95% CI 0.602 to 1.377) -> refuted
+  P3 median enroute/hover >= 1.2: 1.739 (2 flights) -> held
+  P4 median |c*100| >= 0.20 m: 1.440 (5 flights) -> held
+  P5 median tau >= 5 s and median r_hp60 <= 0.7 median r_lin: tau 0.23 s, ratio 0.903 -> refuted

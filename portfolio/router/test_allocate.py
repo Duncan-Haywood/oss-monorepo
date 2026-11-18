@@ -1230,7 +1230,34 @@ class ClaimCheckTest(unittest.TestCase):
     def test_no_pr_of_mine_yields_to_any_fresh_claim(self):
         prs = [self.pr(1, "x: theirs", "2026-11-12T14:00:00Z")]
         self.assertEqual(self.decide(prs, "x")["verdict"], "YIELD")
-        self.assertEqual(self.decide([], "x")["verdict"], "HOLD")
+        self.assertEqual(self.decide([], "x")["verdict"], "UNCLAIMED")
+
+    def test_the_17257_17258_check_before_the_pr_is_not_a_hold(self):
+        # #17258's session checked before its own PR existed and read HOLD; #17257
+        # opened 8 s earlier. Before: UNCLAIMED (not yours). After opening: YIELD.
+        from claim_check import report, main
+        theirs = self.pr(17257, "photo-editing: cull 10% pans", "2026-11-12T13:58:41Z")
+        item = "cull finer window grid for 6% and 10% pans"
+        before = self.decide([], "photo-editing", item=item)
+        self.assertEqual(before["verdict"], "UNCLAIMED")
+        lines = report(before, "photo-editing", self.NOW, 24, item)
+        self.assertTrue(any(l.startswith("UNCLAIMED") and "run this again" in l for l in lines), lines)
+        self.assertFalse(any(l.startswith("HOLD") for l in lines), lines)
+        mine = self.pr(17258, "photo-editing: cull finer window grid for 6% and 10% pans",
+                       "2026-11-12T13:58:49Z")
+        after = self.decide([theirs, mine], "photo-editing", mine=17258, item=item)
+        self.assertEqual(after["verdict"], "YIELD")
+        import claim_check
+        orig = claim_check.open_prs, claim_check.recently_closed, claim_check.current_branch
+        try:
+            claim_check.open_prs = lambda: []
+            claim_check.recently_closed = lambda: []
+            claim_check.current_branch = lambda: "claude/nobody"
+            import io, contextlib
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(main(["photo-editing"]), 3)
+        finally:
+            claim_check.open_prs, claim_check.recently_closed, claim_check.current_branch = orig
 
     def test_no_pr_of_mine_prints_the_empty_commit_claim(self):
         from claim_check import report
@@ -1333,7 +1360,7 @@ class ClaimCheckTest(unittest.TestCase):
         clone = datetime(2026, 11, 16, 13, 30, tzinfo=timezone.utc)  # main already holds #16574
         r = decide([], "open-tennis-robots", now=now, item="edge-time drop fit", merged=merged,
                    main_at=clone)
-        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual(r["verdict"], "UNCLAIMED")  # not LANDED; no open PR of mine
         self.assertEqual([x["number"] for x in r["merged"]], [16635])
         r = decide([], "open-tennis-robots", now=now, item="edge-time drop fit", merged=merged,
                    main_at=datetime(2026, 11, 16, 12, 0, tzinfo=timezone.utc))
@@ -1348,7 +1375,7 @@ class ClaimCheckTest(unittest.TestCase):
                                  repo="someone/fork"),
                   self.merged_pr(3, "x: closure anchor", "2026-11-16T16:00:00Z", "2026-11-16T16:58:00Z")]
         r = decide([], "x", mine=3, now=now, item="closure anchor", merged=merged)
-        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual(r["verdict"], "UNCLAIMED")  # not LANDED; #3 merged, so no open claim
         self.assertEqual(r["landed"] + r["merged"], [])
 
     def test_an_open_older_claim_still_wins_over_landed(self):
