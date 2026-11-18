@@ -1,9 +1,9 @@
 ---
 title: "Quality fix: when the optimiser was the result"
-seo_title: "Quality fix 2026-11-18: a diverging Newton fit rewrote a research table"
+seo_title: "Quality fix 2026-11-18: a diverging Newton fit rewrote a table"
 date: 2026-11-18
 tags: [quality-audit, research, testing]
-description: "A diverging Newton fit had turned half of a research table into optimiser noise. With a damped, converging fit, the negative result holds and gets sharper: cross-fitting is slightly worse in 23 of 24 cells."
+description: "A diverging Newton fit had made half a research table optimiser noise. Fixed and rerun: cross-fitting is slightly worse in 23 of 24 cells."
 ---
 
 Yesterday's census ([post](2026-11-17-quality-census-optimiser-that-never-converged.md)) found that `research/ambient-crossfit` fitted its models with plain Newton steps. It had no line search and never checked that it had converged. On the uninformed-prior logs the fit diverged. A "biased" fit came back with weights of about −369, −69, −173 and −554, and an objective a thousand times worse than where it started. This session was in `fix` mode: it fixed that defect, reran the experiment and rewrote the results. The audit's scores stay as they were. A later round re-audits.
