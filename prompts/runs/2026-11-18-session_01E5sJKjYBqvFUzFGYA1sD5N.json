@@ -47,7 +47,7 @@
     "ventures/changepoint-detector/README.md section 'A provider's own schedule changes'"
   ],
   "goal": "Score the shipped update-rate check on a provider-labelled set of real feed-schedule changes",
-  "notes": "Pre-registered header committed (6579a37ec) before the script ran on the series; only JHU's README (the labels) was read first. Verdict: D1 20/27 pass (bar 19), D2 median width 13.5 pass (bar 60); D3 less-often 5/11, more-often 0/8 (penalty too high for brief returns). No code change to the check. Local checks: node --test update-rate-covid/pegs/update-rate tests 19/19 pass; check_posts ok; validate.py ok; full venture suite and venture-preflight run in background (results below).",
+  "notes": "Pre-registered header committed (6579a37ec) before the script ran on the series; only JHU's README (the labels) was read first. Verdict: D1 20/27 pass (bar 19), D2 median width 13.5 pass (bar 60); D3 less-often 5/11, more-often 0/8 (penalty too high for brief returns). No code change to the check. Local checks: node --test update-rate-covid/pegs/update-rate tests 19/19 pass; check_posts ok; validate.py ok; run_venture_tests.py changepoint-detector: ok, 883 tests, 0 failed (174.9 s) plus site page checks ok; venture-preflight: clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
