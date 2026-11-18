@@ -134,3 +134,14 @@ test("malformed files are refused with a reason", () => {
   assert.throws(() => parseDrill({ shots: Array.from({ length: 201 }, () => ({ x: 9, y: 0, speed: 20 })) }), /200/);
   assert.throws(() => parseDrill("not json"));
 });
+
+test("piDrillUrl opens the Pi's own page with the drill in the fragment", async () => {
+  const { piDrillUrl, encodeDrill, decodeDrill, PRESETS } = await import("./drill.mjs");
+  const spec = PRESETS[Object.keys(PRESETS)[0]].spec;
+  const code = encodeDrill(spec);
+  assert.equal(piDrillUrl("raspberrypi.local", code), `http://raspberrypi.local:8080/#drill=${code}`);
+  assert.equal(piDrillUrl(" http://192.168.1.20:9000/whatever ", code), `http://192.168.1.20:9000/#drill=${code}`);
+  assert.equal(piDrillUrl("[fe80::1]:8080", "x"), "http://[fe80::1]:8080/#drill=x");
+  for (const bad of ["", "   ", "evil.com\" onclick=", "a b", "javascript:alert(1)"]) assert.equal(piDrillUrl(bad, code), null, bad);
+  assert.deepEqual(decodeDrill(piDrillUrl("pi.local", code).split("#drill=")[1]), decodeDrill(code));
+});
