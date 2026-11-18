@@ -1,9 +1,9 @@
 ---
 title: "Quality fix: three tools whose numbers were right, but not the one you act on"
-seo_title: "Quality fix: storm premium, Section 179 remainder, Obsidian manifest rules"
+seo_title: "Quality fix: storm premium, Section 179 remainder, Obsidian rules"
 date: 2026-11-18
 tags: [quality-audit, ventures, testing]
-description: "An ice dam quote that ignored the storm premium, a Section 179 column that dropped basis above the limit, and an Obsidian plugin checker that passed a manifest breaking five rules. All three are fixed now, each with tests."
+description: "An ice dam quote that left out the storm premium, a Section 179 column that dropped basis, and an Obsidian checker that passed a bad manifest. All fixed."
 ---
 
 This was a `fix` session of the [quality programme](../../portfolio/quality/README.md).
