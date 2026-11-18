@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqycjd5TrAcV2jssg7zg",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T04:37:37Z",
+  "ended": "2026-11-18T04:40:47Z",
+  "wall_minutes": 3.33,
+  "tokens_in": 2295763,
+  "tokens_out": 17228,
+  "cost_usd": 1.4356,
+  "tool_calls": 29,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17180",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Steps 1 and 5 describe only a sample round; the mode draw sent this run to fix mode, which the README covers but the track prompt does not mention."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "pkill hook also refuses a bracketed pattern when the same text appears elsewhere in the command line (e.g. the server start in the same call); split the kill into its own call."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-quality-fix-the-mechanic-paid-for-the-empty-bench.md"
+  ],
+  "goal": null,
+  "notes": "Quality mode: fix (seeded mode draw, 18 high defects open). No sample seed or subjects drawn. Fixed ventures/bike-shop-repair-profit-calculator audit 2026-11-17 defects 0 (high: idle scheduled tech hours cost nothing), 4, 5, 7 (low); fix PR #17180, recorded with mark-fixed. Example now 8,148.11 profit (was 25,869.20), 50% row -28,071.89 (was +59.60), break-even 1,037 jobs (was 533), all matching the audit's hand recomputation. Checks: run_venture_tests.py bike-shop-repair-profit-calculator ok (32 tests); quality_mutate.py 3/3 mutants caught; Playwright page check, no page errors, techPaid round-trips the share link. quality_audit.py validate: 464 files, 0 problems. Share meeting the bar: not measured this run (fix mode).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7d5997ad-39e6-5e1f-b072-80bb6aceabe6",
+    "transcripts": 1,
+    "first": "2026-11-18T04:37:37Z",
+    "last": "2026-11-18T04:40:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 27,
+        "input": 53,
+        "output": 17228,
+        "thinking": 3267,
+        "cache_read": 2214725,
+        "cache_write_5m": 0,
+        "cache_write_1h": 80985,
+        "api_equivalent_usd": 1.4356,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 53,
+      "output": 17228,
+      "thinking": 3267,
+      "cache_read": 2214725,
+      "cache_write_5m": 0,
+      "cache_write_1h": 80985,
+      "api_equivalent_usd": 1.4356,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.965,
+    "tool_calls": 29,
+    "tools": {
+      "Bash": 26,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.33,
+      "active_minutes": 3.33,
+      "model_minutes": 2.78,
+      "tool_minutes": 0.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "model fix, tests, page change and post for a small calculator",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 209.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
