@@ -1,5 +1,15 @@
 # buildbot-sheathing research log
 
+## 2026-11-18 · Milestone 51 planned: which of milestone 48's dropped sweep cases are hose-drag stance limits, and does keeping the hose inside each pose's drag limit restore coverage and spec?
+
+- **Why.** Milestone 48's post hoc found section D's residual sweep drops 258 of the G1's 1530 pose-cases (41 of the H1's 1938), and milestone 50 found the drag each pose tolerates (its section A). Its "Next" asked for a hose-management rule with section D's sweep restricted to the loads each pose tolerates, coverage reported.
+- **Known before the run (from reading the code, no number computed).** `residuals` calibrates once at milestone 30's pose (1.0 m, 0) and returns nothing for the whole case if that pose has no plan, so a calibration-pose failure drops every pose of the robot. Milestone 48's post hoc counted the same 2 drops at every G1 pose at 5 N and 9 at 20 N, which looks like calibration-pose drops; milestone 50 has the calibration pose tolerating 17.0 N or more in every direction, so the 5 N drops are not explained by its drag limit. Nothing below has been computed.
+- **Model.** Milestone 48's sides, preload and sweep (its post hoc's import), 'braked' gaps, |e| 0.2 N on the 6 sensor axes, S 10 N, at 0, 5 and 20 N of drag in 8 directions. Section A, every case: whether the calibration pose plans, whether each pose plans, and its residual. Each pose-case is in the envelope when the drag is at most milestone 50's tolerated drag at that direction at both the pose and the calibration pose. Section B, every dropped case re-run with an exact sensor (e = 0) and, for a calibration failure, the reason (`plan` at the calibration pose).
+- **Hypotheses, registered before the run.**
+  - **H208 (drops are stance limits).** Every pose-case milestone 48's sweep drops lies outside the envelope. Refuted if any dropped pose-case is inside it.
+  - **H209 (in spec inside the envelope).** Over the pose-cases inside the envelope, each robot's worst residual along the wall is at most 0.03 mm at 0, 5 and 20 N. Refuted if any is larger.
+  - **H210 (the 5 N drops are sensor error).** At every case dropped at 5 N, the same load with an exact sensor plans at the calibration pose. Refuted if any does not.
+
 ## 2026-11-18 · Milestone 50 result: no forward lean keeps the eight high-grip poses balanced under 20 N of hose drag; the best lean tolerates 11.4 to 19.5 N in every direction, so the hose, not the lean, is the fix; H204 and H205 refuted, H206 held, H207 not tested
 
 `experiments/m50_relean/` (run, results, post hoc, figure; imports milestone 49's run, no change to it), `reproduce.py` (m50 listed), `paper/draft.md` (section 5.11 paragraph), `paper/check_numbers.py`, README, PROPOSAL and project card. No new library code, so no new tests. Run time 152 s on 4 processes.
