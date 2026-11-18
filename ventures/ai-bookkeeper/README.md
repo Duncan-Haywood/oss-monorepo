@@ -3029,9 +3029,23 @@ card line, or to cash less change, unless two payments below add up to it. On tr
 only after the last change and scored once: **187 to 203 of 230 totals (81.3% to 88.3%)**, 20
 gained, 4 lost. Development sets: val 120 to 138 of 145, train shard 0 198 to 213 of 231; test 126
 to 136 of 148 (its misses were read, so not clean). CORD text unchanged. tesseract's default
-reading ran over 9 minutes on each of these textured photos without finishing: the CLI has no
-time limit on OCR, an open item. Details: [`eval/receipt-ocr-ru-2026-11-18.md`](eval/receipt-ocr-ru-2026-11-18.md).
+reading ran over 9 minutes on each of these photos without finishing. That turned out to be OpenMP,
+not the photos (next section). Details: [`eval/receipt-ocr-ru-2026-11-18.md`](eval/receipt-ocr-ru-2026-11-18.md).
 Tests: `receipt-russian.test.mjs`.
+
+### OCR time limit (2026-11-18)
+
+The hang above was not the photos. tesseract's OpenMP threads spin while they wait, and with
+anything else on the machine wanting a core, a 0.9 s read ran past 30 s (three busy loops beside
+it) or 60 s (two tesseracts at once); with `OMP_THREAD_LIMIT=1` it takes 0.85 s and twelve at once
+finish in 3 s. So every OCR command the CLI runs (receipt photos, RapidOCR, scanned statement pages)
+now gets `OMP_THREAD_LIMIT=1` unless your environment sets it. A time limit, `OCR_TIMEOUT` seconds
+(default 120, `0` for none), turns a stall into a message: when one pass runs out of time, the photo's later passes are skipped, and
+RapidOCR's lead reading is kept when tesseract fails behind it. With tesseract able to run, val's
+145 Russian totals: `--four-pass` 68 right (46.9%), `--psm 6 -l rus+eng` 57, `--psm 6` 51, against
+RapidOCR's 138, so `--rapidocr` stays the advice for these slips. Details:
+[`eval/ocr-time-limit-2026-11-18.md`](eval/ocr-time-limit-2026-11-18.md). Tests:
+`ocr-time-limit.test.mjs`.
 
 ### WildReceipt: 472 held-out photos from a new source (2026-11-17)
 

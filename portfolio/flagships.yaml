@@ -124,9 +124,10 @@ flagships:
       kaydee/wildreceipt; Apache-2.0), SRD (eval/srd-fetch.mjs), CORD
       (eval/cord_images.py); tesseract via apt, RapidOCR via pip. WildReceipt all
       read (eval/wildreceipt-rescore-2026-11-17.md); next: VAT5%: 668. Russian slips
-      (cdek-ocr/receipt-ocr-ru, eval/receipt-ocr-ru-2026-11-18.md): tesseract hangs
-      on its photos (add an OCR time limit), a Cyrillic model, train shard 2 unread.
-      CORD leftovers: train-28, 1009 (eval/cord-shard0-lead-2026-11-17.md).
+      (cdek-ocr/receipt-ocr-ru, eval/receipt-ocr-ru-2026-11-18.md): tesseract runs
+      now (OCR_TIMEOUT; 68/145 val, eval/ocr-time-limit-2026-11-18.md), train shard
+      2 unread. CORD leftovers: train-28, 1009
+      (eval/cord-shard0-lead-2026-11-17.md).
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
