@@ -19,4 +19,4 @@
 - (2026-11-17) 47 on 8x9 (13 of 16; LNS stalled: 5 runs from 13, 0 climbs, night 2 UNKNOWN at 1 h; next: a new model, orbit or symmetry-broken night)
 - (2026-11-18) repeats on the seasons the repeat SAT did not move in 400 s (18x27, 20x30, 20x40, 22x23, 24x35: 18-44; eval/bowling-repeat-sat.txt), and lane-limit shape answers re-solved for repeats
 - (2026-11-18) SAT answers for the 27 unanswered grid seasons (16x40, 22-28 teams; eval/bowling-lane-table.txt)
-- (2026-11-18) bowling, 5+ lane-limited teams: the most even dealing (eval/bowling-many-limits.txt)
+- (2026-11-18) bowling, 5+ lane-limited teams: most even of several dealings landed (README); left: 10 x 32, 10 x 34, 14 x 30, 24 x 26 misses (more dealings or SAT answers for 5+ shapes), and the bowling page's build in a worker (slowest season 10 s)

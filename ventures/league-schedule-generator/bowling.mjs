@@ -630,25 +630,29 @@ function weekShortfall(matches, ban, nPairs) {
  * not raise the summed shortfall, with seeded restarts. Identity first, so a season that already
  * has a deal every week is unchanged.
  */
-export function feasibleDealing(nTeams, rrWeeks, avoid, nPairs, { tries = null, seed = 1 } = {}) {
+export function feasibleDealing(nTeams, rrWeeks, avoid, nPairs, { tries = null, seed = 1, shuffle = false } = {}) {
   const ban = banMatrix(nTeams, nPairs, avoid);
   if (!ban) return null;
   const cycle = roundRobin(nTeams);
   const used = cycle.slice(0, Math.min(rrWeeks, cycle.length)).map((r) => r.matches);
   const cost = (deal) => used.reduce((s, ms) => s + weekShortfall(ms.map(([a, b]) => [deal[a], deal[b]]), ban, nPairs), 0);
   let deal = Array.from({ length: nTeams }, (_, t) => t);
+  const limited = new Set(deal.filter((t) => ban[t].some(Boolean)));
+  const rnd = mulberry32(seed * 7919 + nTeams * 131 + rrWeeks);
+  // shuffle: start from a seeded random dealing, so seeds 2, 3, ... give other legal dealings for
+  // evenDealing to compare; without it identity comes first and a feasible season is unchanged.
+  const reshuffle = () => { for (let j = nTeams - 1; j > 0; j--) { const k = Math.floor(rnd() * (j + 1)); [deal[j], deal[k]] = [deal[k], deal[j]]; } };
+  if (shuffle && limited.size) reshuffle();
   let c = cost(deal);
   if (c === 0) return deal;
-  const limited = new Set(deal.filter((t) => ban[t].some(Boolean)));
   if (limited.size === 0) return null;
   // A work budget, not a clock, so the same input gives the same season on any machine: about
   // 3e7 matching steps (well under a second), capped at 4,000 swaps.
   if (tries === null) tries = Math.max(50, Math.min(4000, Math.floor(3e7 / (used.length * nPairs * nPairs))));
-  const rnd = mulberry32(seed * 7919 + nTeams * 131 + rrWeeks);
   const restartEvery = Math.max(200, 20 * nTeams);
   for (let i = 0; i < tries; i++) {
     if (i > 0 && i % restartEvery === 0) {
-      for (let j = nTeams - 1; j > 0; j--) { const k = Math.floor(rnd() * (j + 1)); [deal[j], deal[k]] = [deal[k], deal[j]]; }
+      reshuffle();
       c = cost(deal);
       if (c === 0) return deal;
     }
@@ -661,6 +665,55 @@ export function feasibleDealing(nTeams, rrWeeks, avoid, nPairs, { tries = null, 
     if (c2 <= c) { c = c2; if (c === 0) return deal; } else [deal[x], deal[y]] = [deal[y], deal[x]];
   }
   return null;
+}
+
+// How many legal dealings bowlingSchedule compares at most when a lane-limited season with no stored
+// shape answer leaves a team off its target: the first plus seeded others. Each is a full lane
+// search, so dealingsFor caps it by the season's size (weeks x pairs^2, the search's work): six on a
+// 10-team league, two on 24 teams x 26 weeks, where one search takes about 2 s.
+export const DEALINGS = 6;
+export function dealingsFor(weeks, nPairs) {
+  return Math.min(DEALINGS, Math.max(2, Math.floor(8000 / (weeks * nPairs * nPairs))));
+}
+
+/** A season's evenness, smaller is better: [teams off their lane target, summed off-target counts, back-to-back repeats]. */
+export function dealingScore(plan, nTeams, nPairs, avoid) {
+  const c = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
+  const games = new Array(nTeams).fill(0), last = new Array(nTeams).fill(-1);
+  let rep = 0;
+  for (const wk of plan) for (const [a, b, p] of wk) for (const t of [a, b]) { c[t][p]++; games[t]++; if (last[t] === p) rep++; last[t] = p; }
+  const { lo, hi } = laneTargets(games, nPairs, avoid);
+  let teamsOff = 0, off = 0;
+  for (let t = 0; t < nTeams; t++) {
+    let o = 0;
+    for (let p = 0; p < nPairs; p++) o += Math.max(0, c[t][p] - hi[t][p]) + Math.max(0, lo[t][p] - c[t][p]);
+    off += o; if (o) teamsOff++;
+  }
+  return [teamsOff, off, rep];
+}
+
+const better = (x, y) => { for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] < y[i]; return false; };
+
+/**
+ * The most even of several legal dealings. The first dealing (identity, or feasibleDealing's first
+ * find) is kept unless another legal one, from feasibleDealing with seeds 2, 3, ... started from a
+ * shuffle, scores better on dealingScore. Stops at a season with every team in target. build(deal)
+ * runs the lane search for a dealing. Deterministic: the same input gives the same season.
+ */
+export function evenDealing(firstPlan, firstDeal, build, nTeams, rrWeeks, avoid, nPairs, count = DEALINGS) {
+  let best = { plan: firstPlan, deal: firstDeal, score: dealingScore(firstPlan, nTeams, nPairs, avoid), tried: 1 };
+  const seen = new Set([String(firstDeal ?? Array.from({ length: nTeams }, (_, t) => t))]);
+  for (let seed = 2; best.score[0] > 0 && best.tried < count && seed < count + 8; seed++) {
+    const deal = feasibleDealing(nTeams, rrWeeks, avoid, nPairs, { seed, shuffle: true });
+    if (!deal || seen.has(String(deal))) continue;
+    seen.add(String(deal));
+    const plan = build(deal);
+    best.tried++;
+    if (avoidViolations(plan, avoid).length) continue;
+    const score = dealingScore(plan, nTeams, nPairs, avoid);
+    if (better(score, best.score)) best = { plan, deal, score, tried: best.tried };
+  }
+  return best;
 }
 
 export function bowlingSchedule(spec) {
@@ -712,21 +765,32 @@ export function bowlingSchedule(spec) {
   // as often); with none, slot t is team t as before.
   // Failing that, if slot t = team t leaves a week with no legal deal, the limited teams are dealt
   // slots where every week has one (feasibleDealing); a season that already has one is unchanged.
-  const slotTeam = (avoid && modeOf(spec) === "polished" && avoidShapeSlots(n, rrWeeks, avoid, nPairs))
-    || (avoid && feasibleDealing(n, rrWeeks, avoid, nPairs)) || null;
-  const redealt = slotTeam !== null && slotTeam.some((t, i) => t !== i);
-  const rrRounds = [];
+  const shapeSlots = avoid && modeOf(spec) === "polished" && avoidShapeSlots(n, rrWeeks, avoid, nPairs);
+  let slotTeam = shapeSlots || (avoid && feasibleDealing(n, rrWeeks, avoid, nPairs)) || null;
   const roundOf = [];
   let k = 0;
   for (let w = 1; w <= weeks; w++) {
     if (positionSet.has(w)) continue;
-    const r = cycle[k % cycle.length];
-    rrRounds.push(slotTeam ? r.matches.map(([a, b]) => [slotTeam[a], slotTeam[b]]) : r.matches);
     roundOf.push({ week: w, cycle: Math.floor(k / cycle.length) + 1, round: (k % cycle.length) + 1 });
     k++;
   }
+  const roundsFor = (deal) => roundOf.map((_, i) => {
+    const r = cycle[i % cycle.length];
+    return deal ? r.matches.map(([a, b]) => [deal[a], deal[b]]) : r.matches;
+  });
   const labels = pairLabels(nPairs, firstLane);
-  const plan = assignLanes(rrRounds, n, nPairs, { mode: modeOf(spec), seed: spec.seed ?? 1, avoid });
+  const laneSeed = spec.seed ?? 1;
+  let plan = assignLanes(roundsFor(slotTeam), n, nPairs, { mode: modeOf(spec), seed: laneSeed, avoid });
+  // No stored shape answer (five or more limited teams, or a shape not stored) and some team off its
+  // target: the dealing decides which teams meet in the weeks the limits squeeze, so other legal
+  // dealings are built too and the most even season kept (evenDealing below). A season already at
+  // its target, or with a stored answer, is unchanged.
+  let dealingsTried = 1;
+  if (avoid && !shapeSlots && modeOf(spec) === "polished" && !avoidViolations(plan, avoid).length) {
+    const best = evenDealing(plan, slotTeam, (deal) => assignLanes(roundsFor(deal), n, nPairs, { mode: "polished", seed: laneSeed, avoid }), n, rrWeeks, avoid, nPairs, spec.dealings ?? dealingsFor(rrWeeks, nPairs));
+    plan = best.plan; slotTeam = best.deal; dealingsTried = best.tried;
+  }
+  const redealt = slotTeam !== null && slotTeam.some((t, i) => t !== i);
   if (avoid) {
     const bad = avoidViolations(plan, avoid);
     if (bad.length) {
@@ -750,8 +814,8 @@ export function bowlingSchedule(spec) {
     out.push({ week: w, day, kind: "round", cycle: info.cycle, round: info.round, matches });
     ri++;
   }
-  const boundProvedOutOfReach = !odd && boundOutOfReach(n, rrRounds.length);
-  return { errors: [], teams, odd, nPairs, labels, weeks: out, skipped, cycleLength: cycle.length, boundProvedOutOfReach: boundProvedOutOfReach && !avoid, avoid, redealt };
+  const boundProvedOutOfReach = !odd && boundOutOfReach(n, roundOf.length);
+  return { errors: [], teams, odd, nPairs, labels, weeks: out, skipped, cycleLength: cycle.length, boundProvedOutOfReach: boundProvedOutOfReach && !avoid, avoid, redealt, dealingsTried };
 }
 
 function ordinal(i) {
