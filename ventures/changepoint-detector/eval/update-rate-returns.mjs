@@ -34,13 +34,23 @@
 // the event's +-10 day window); J2 descriptive, every return on the 27 primary states' series with its dates.
 // Pass R1-R3 and J1: offered as an opt-in (`--short-returns`), never the default line, since J1 is seen data.
 // usage: node eval/update-rate-returns.mjs [covid-data] > eval/update-rate-returns.out.txt
+//
+// ROUND 2 (written after round 1's file, before round 2 ran): round 1 failed its choice rule (no m in 0.5-2
+// met 0.010 in every null cell; at m 2 the worst cells were W3 0.085, M60 n600 0.050, B60 n300 0.045). The max
+// over every interval inside a stretch is a scan statistic, and a scan needs a larger penalty than one cut.
+// Round 2 changes only the grid and the seeds: m in {2, 2.5, 3, 3.5, 4} (4 is the shipped two cuts' total),
+// calibration seed 20261220, confirmation seed 20261221; cells, choice rule, R1-R3 and J1 unchanged.
+// usage: node eval/update-rate-returns.mjs --round 2 [covid-data] > eval/update-rate-returns-2.out.txt
 import { updateRateChanges, shortReturns } from '../update-rate.mjs';
 import { makeRng, chain, NULLS } from './update-rate-sim.mjs';
 import { pathToFileURL } from 'node:url';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-export const MULTS = [0.5, 0.75, 1, 1.25, 1.5, 2];
+const ROUND2 = process.argv.includes('--round') && process.argv[process.argv.indexOf('--round') + 1] === '2';
+const ARGS = process.argv.slice(2).filter((a, i, A) => a !== '--round' && A[i - 1] !== '--round');
+export const MULTS = ROUND2 ? [2, 2.5, 3, 3.5, 4] : [0.5, 0.75, 1, 1.25, 1.5, 2];
+const [SEED_CAL, SEED_CON] = ROUND2 ? [20261220, 20261221] : [20261218, 20261219];
 const START = 500, TOL = 10;
 
 // Values from repeat indicators z (1 = repeat), so the shipped check sees the same series.
@@ -94,15 +104,15 @@ function table(res, mults) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const t0 = Date.now();
-  console.log('CALIBRATION, seed 20261218: mean false returns a series (null cells), found of 200 (power cells)');
-  const cal = runSeed(20261218, MULTS);
+  console.log(`CALIBRATION, seed ${SEED_CAL}: mean false returns a series (null cells), found of 200 (power cells)`);
+  const cal = runSeed(SEED_CAL, MULTS);
   console.log(table(cal, MULTS));
   const ok = MULTS.findIndex((_, i) => Object.values(cal.nulls).every((f) => f[i] <= 0.010));
-  if (ok < 0) { console.log('\nNo m meets <= 0.010 in every null cell: nothing ships.'); process.exit(0); }
+  if (ok < 0) { console.log(`\nNo m meets <= 0.010 in every null cell: nothing ships.\n(${((Date.now() - t0) / 1000).toFixed(1)} s)`); process.exit(0); }
   const m = MULTS[ok];
   console.log(`\nSmallest m meeting <= 0.010 in every null cell: m ${m}`);
-  console.log('\nCONFIRMATION, seed 20261219, chosen m only');
-  const con = runSeed(20261219, [m]);
+  console.log(`\nCONFIRMATION, seed ${SEED_CON}, chosen m only`);
+  const con = runSeed(SEED_CON, [m]);
   console.log(table(con, [m]));
   const worst = Math.max(...Object.values(con.nulls).map((f) => f[0]));
   const r60 = con.power.R60;
@@ -110,7 +120,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   console.log(`\nR1 every null cell <= 0.020 (worst ${worst.toFixed(3)}): ${R1 ? 'pass' : 'FAIL'}`);
   console.log(`R2 R60 found >= 120 (${r60.both[0]}): ${R2 ? 'pass' : 'FAIL'}`);
   console.log(`R3 R60 gain over shipped >= 60 (${r60.both[0] - r60.shipped}): ${R3 ? 'pass' : 'FAIL'}`);
-  const dir = process.argv[2] || 'covid-data', file = join(dir, 'time_series_covid19_confirmed_US.csv');
+  const dir = ARGS[0] || 'covid-data', file = join(dir, 'time_series_covid19_confirmed_US.csv');
   if (R1 && R2 && R3 && existsSync(file)) {
     const { readStates, SECONDARY, PRIMARY, eventWindow } = await import('./update-rate-covid-schedules.mjs');
     const by = readStates(file);
