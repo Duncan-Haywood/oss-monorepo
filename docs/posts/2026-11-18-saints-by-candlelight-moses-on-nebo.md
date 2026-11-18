@@ -1,6 +1,6 @@
 ---
 title: "Saints by Candlelight: Moses on Mount Nebo"
-seo_title: "Moses on Mount Nebo and the promised land he saw, a bedtime podcast episode"
+seo_title: "Moses on Mount Nebo and the land he saw, a bedtime podcast episode"
 date: 2026-11-18
 tags: [fiction, saints-by-candlelight, saints, writing, scripture]
 description: "Episode 143: Moses's farewell on the plains of Moab, a song, a blessing, and the land the Lord showed him from the top of Nebo."
