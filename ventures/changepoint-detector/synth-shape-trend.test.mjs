@@ -2,6 +2,7 @@
 // pre-registered eval/synth-shape-trend-prereg-2026-11-18.md; bar 1 failed, so the default keeps the plain word and the
 // panel word is opt-in, `--shape-word panel`, README "The panel word as an option"). Pins panelShapes, the CLI's
 // unchanged default output, the opt-in on CLI, worker and page, and re-checks every bar against the confirmatory file.
+// The re-test scored only where the rule switches on is synth-shape-switch.test.mjs.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -92,7 +93,10 @@ test('--shape-word panel: West Germany is read against a centre of 21.8 (Norway 
   assert.match(t, /Words read against the panel \(--shape-word panel\): the median unit's gap grew 21\.8 times/);
   assert.match(t, /4 faded, 2 grew and 10 held on this reading/);
   assert.match(t, new RegExp(`${Math.round(PANEL_SHAPE.cleanPanel)}% of listed units with no event of their own got a word, against ${Math.round(PANEL_SHAPE.cleanPlain)}%`));
-  assert.match(t, /missing a pre-registered bar by 0\.4 points/);
+  assert.match(t, new RegExp(`a big one was called held ${Math.round(PANEL_SHAPE.bigSlopeHeldPanel)}% of the time \\(plain ${Math.round(PANEL_SHAPE.bigSlopeHeldPlain)}%\\)`));
+  assert.match(t, /Netherlands [^)]*its own gap held against the panel's growth, but grew towards the end on its own reading\)/, 'both words where they differ');
+  assert.deepEqual(r.above.map((x) => [x.name, x.plainShape]), [['Netherlands', 'grew'], ['Norway', 'grew']]);
+  assert.ok(plain.above.every((x) => !('plainShape' in x)), 'the default above entries are unchanged');
   assert.match(synthText(plain), /--shape-word panel words each unit against the panel instead/, 'the plain note points to the option when most units share a word');
 });
 
@@ -101,23 +105,12 @@ test('--shape-word panel: below a centre of 6 (the Basque Country, 2.36) the pla
   const p = synthResult({ ...opts, shapeWord: 'panel' }), q = synthResult(opts);
   assert.equal(p.shapeRelative, false);
   assert.deepEqual(p.placeboShapes, q.placeboShapes);
-  assert.deepEqual(p.above, q.above);
+  assert.deepEqual(p.above.map(({ plainShape, ...x }) => x), q.above);
+  assert.ok(p.above.every((x) => x.plainShape === x.gapShape), 'below 6 the two words agree');
   assert.match(synthText(p), /grew 2\.36 times .* under 6, so each word is the plain one/);
 });
 
-test('PANEL_SHAPE quotes the confirmatory file', () => {
-  const txt = readFileSync(new URL('./eval/synth-shape-trend-confirm.out.txt', import.meta.url), 'utf8');
-  const pct = (name) => Number(txt.match(new RegExp(`  ${name.replace(/[()]/g, '\\$&')}: \\d+ of \\d+, ([\\d.]+)%`))[1]);
-  assert.equal(PANEL_SHAPE.cleanPanel, pct('growing, relative panels: clean above shaped hybrid'));
-  assert.equal(PANEL_SHAPE.cleanPlain, pct('growing, relative panels: clean above shaped plain'));
-  assert.equal(PANEL_SHAPE.growSlopePanel, pct('growing big slope grew hybrid'));
-  assert.equal(PANEL_SHAPE.growSlopePlain, pct('growing big slope grew plain'));
-  assert.equal(PANEL_SHAPE.allGrewPanel, pct('growing all placebos grew hybrid'));
-  assert.equal(PANEL_SHAPE.wanderSlopePanel, pct('wander big slope grew hybrid'));
-  assert.equal(PANEL_SHAPE.wanderSlopePlain, pct('wander big slope grew plain'));
-  assert.equal(PANEL_SHAPE.pulsePanel, pct('growing pulse faded hybrid'));
-  assert.equal(PANEL_SHAPE.pulsePlain, pct('growing pulse faded plain'));
-});
+// PANEL_SHAPE now quotes the switched-panel re-test: synth-shape-switch.test.mjs pins it.
 
 test('--shape-word on the CLI, the worker job and the page', async () => {
   const { mkdtempSync, writeFileSync } = await import('node:fs');
