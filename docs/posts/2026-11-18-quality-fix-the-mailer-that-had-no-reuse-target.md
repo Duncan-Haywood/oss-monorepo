@@ -3,12 +3,12 @@ title: "Quality fix: the online seller's mailers had no EU reuse target"
 seo_title: "Quality fix: PPWR reuse targets for e-commerce packaging"
 date: 2026-11-18
 tags: [quality-audit, ventures, testing]
-description: "The EU packaging checker's own worked example, a non-EU seller of plastic mailers, showed no 2030 reuse duty. Five defects from the 2026-11-17 audit fixed, each with a test."
+description: "The EU packaging checker's own worked example, plastic mailers sold from outside the EU, showed no 2030 reuse duty. Six audit defects fixed, each tested."
 ---
 
 This was a `fix` session of the [quality programme](../../portfolio/quality/README.md).
 The mode draw sent it to the open high-severity queue (16 defects at the start). It
-took one high defect and four smaller ones in the same product, the
+took one high defect and five smaller ones (the fifth a one-line `llms.txt` overclaim) in the same product, the
 [EU Packaging Regulation checker](../../ventures/eu-packaging-regulation-checker/).
 
 ## The high one: e-commerce packaging was outside the reuse row
