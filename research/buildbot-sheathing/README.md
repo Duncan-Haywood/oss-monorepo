@@ -611,6 +611,17 @@ held, H186 refuted. Statics.
 
 ![The right hip roll's hold side at H1 (1.4 m, −0.15 m): the margin the stance allows and the worst residual along the wall](experiments/m46_holdside/figure.png)
 
+**Milestone 47: should each pose choose its own hold sides?** For the H1 yes, for the G1 not by this score. Each pose
+took the hold-side combination with the largest common leg margin at zero hose force. Every pose of both robots then
+clears the spec preload's goal (smallest margin 0.886 N m, from 0.033), the two H1 poses that had no plan on the
+per-robot sides get one (margins 12.8 and 6.6 N m), and the H1's worst residual along the wall with a 0.2 N sensor
+error falls to 0.010 / 0.014 / **0.010 mm** at 0 / 5 / 20 N of hose drag (from 0.010 / 0.019 / 0.032), at no stack
+cost. The G1 goes the other way: 0.011 / 0.025 / **0.037 mm** (from 0.016 / 0.011 / 0.011), over the 0.03 mm spec at
+20 N, because at three poses a leg joint the zero-drag score never looked at flips under drag. Sides should be scored
+at the loads the robot meets. H187 to H189, H191 and H192 held, H190 refuted. Statics.
+
+![Common leg margin at every pose on one side per robot against per-pose sides, and each robot's worst residual along the wall](experiments/m47_poseside/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

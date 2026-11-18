@@ -1,0 +1,41 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 47 post hoc: the G1's residual on per-robot sides and on S*
+## 1. Check: G1 worst over all poses on per-robot sides, this harness | milestone 41
+  H  0.0 | 0.016 | 0.016
+  H  5.0 | 0.011 | 0.011
+  H 20.0 | 0.011 | 0.011
+check: reproduces milestone 41 to 0.000 mm (expect 0.000)
+## 2. Per G1 pose, worst residual along the wall (mm): pose | H 0 per-robot, S* | H 5 per-robot, S* [flips hold/leg/waist/arm on S*] | H 20 per-robot, S* [flips]
+  [0.4, -0.15] | 0.009, 0.009 [0/0/0/0] | 0.009, 0.009 [0/0/0/0] | 0.009, 0.009 [0/0/0/0]
+  [0.4, 0.0] | 0.011, 0.011 [0/0/0/0] | 0.011, 0.011 [0/0/0/0] | 0.011, 0.011 [0/0/0/0]
+  [0.4, 0.15] | 0.010, 0.010 [0/0/1/0] | 0.010, 0.010 [0/0/1/0] | 0.010, 0.010 [0/0/0/0]
+  [0.6, -0.15] | 0.006, 0.006 [0/0/0/0] | 0.006, 0.006 [0/0/0/0] | 0.006, 0.037 [0/1/0/0]
+  [0.6, 0.0] | 0.007, 0.007 [0/0/0/0] | 0.007, 0.007 [0/0/0/0] | 0.007, 0.007 [0/0/0/0]
+  [0.6, 0.15] | 0.007, 0.007 [0/0/0/0] | 0.007, 0.007 [0/0/0/0] | 0.007, 0.007 [0/0/0/0]
+  [0.8, -0.15] | 0.005, 0.005 [0/0/0/0] | 0.005, 0.005 [0/0/0/0] | 0.005, 0.005 [0/0/0/0]
+  [0.8, 0.0] | 0.002, 0.002 [0/0/0/0] | 0.002, 0.002 [0/0/0/0] | 0.002, 0.002 [0/0/0/0]
+  [0.8, 0.15] | 0.004, 0.004 [0/0/0/0] | 0.004, 0.004 [0/0/0/0] | 0.004, 0.004 [0/0/0/0]
+  [1.0, -0.15] | 0.005, 0.005 [0/0/0/0] | 0.007, 0.005 [0/0/0/0] | 0.005, 0.005 [0/0/0/0]
+  [1.0, 0.0] | 0.000, 0.000 [0/0/0/0] | 0.000, 0.000 [0/0/0/0] | 0.000, 0.000 [0/0/0/0]
+  [1.0, 0.15] | 0.005, 0.005 [0/0/0/0] | 0.005, 0.005 [0/0/0/0] | 0.005, 0.005 [0/0/0/0]
+  [1.2, -0.15] | 0.005, 0.005 [0/0/0/0] | 0.005, 0.005 [0/0/0/0] | 0.005, 0.005 [0/0/0/0]
+  [1.2, 0.0] | 0.001, 0.001 [0/0/0/0] | 0.001, 0.001 [0/0/0/0] | 0.001, 0.004 [0/1/0/0]
+  [1.2, 0.15] | 0.016, 0.006 [0/0/0/0] | 0.006, 0.025 [0/1/0/0] | 0.006, 0.016 [0/1/0/0]
+G1 poses whose worst residual rises by more than 0.0005 mm on S*: H 0: 0 of 15, H 5: 1 of 15, H 20: 3 of 15
+
+(run time 37 s)

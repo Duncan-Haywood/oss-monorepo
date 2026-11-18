@@ -724,6 +724,13 @@ the wall is 0.005 mm at every hose drag with a 0.2 N sensor error. The H1 then m
 spec at all 19 poses with an FT 300-class sensor. The per-robot side also disagrees with the
 torque-minimising one at both press ends at four other H1 poses, which a per-pose rule would fix.
 
+A per-pose rule helps the H1 and hurts the G1 (milestone 47). Choosing at each pose the hold sides
+with the largest common leg margin at zero hose force lifts every pose of both robots above the
+preload goal (smallest 0.886 N m), gives the two H1 poses that had no plan one, and lowers the H1's
+worst residual along the wall at 20 N of hose drag from 0.032 to 0.010 mm. On the G1 the worst
+residual at 20 N rises from 0.011 to 0.037 mm: at three poses a leg joint that the zero-drag score
+does not weigh flips under drag. Hold sides should be scored at the loads the controller will meet.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
