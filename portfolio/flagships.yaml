@@ -376,17 +376,19 @@ flagships:
       12 on 2x9 UNSAT. Odd leagues (eval/odd-night-sat.py, odd-designs.mjs): 11-25
       teams 0 waits on 6 slots; on 9 slots 11, 13 teams on 2 courts, 17 on 3; proved
       impossible: 7, 9 on 2x6; 5, 7 on 1x9; 7 on 2x9. Night by night
-      (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6; every 3k of 27-63 on the least
-      9-slot courts 0 waits; fails at <=3 spare slots (eval/odd-cyclic.txt). Fully
-      booked: 19 on 3x9, 25 on 4x9, 31 on 5x9, 37 on 6x9 0 waits (eval/odd-orbit.py,
-      3 k-cycles); even 40, 46 on 3 sessions 0 waits (eval/session-orbit.py). 29 on
-      5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT
-      alone, eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0
-      waits (odd-orbit.py, 9,849 s). Bowling seasons proved uneven (SAT, 44 of 4-32
-      teams x 1-60 weeks, page says so; eval/bowling-bound-proof.txt). Lane limits
-      (team avoids a pair, hard; eval/bowling-lane-avoid.txt). Limits per shape,
-      renamed (eval/bowling-avoid-shapes.txt): 106 of 112 hard. Next, most valuable
-      first: UNSAT shapes on other slots; 5 timeouts. More open items: NEXT.md.
+      (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6; fails at <=3 spare slots
+      (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on 4x9, 31 on 5x9, 37 on
+      6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even 40, 46 on 3 sessions 0 waits
+      (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9
+      0 waits (last night UNSAT alone, eval/lns-bad-night.py; re-dealt with the
+      short night). 43 on 7x9 0 waits (odd-orbit.py, 9,849 s). Bowling seasons
+      proved uneven (SAT, 44 of 4-32 teams x 1-60 weeks, page says so;
+      eval/bowling-bound-proof.txt). Lane limits (team avoids a pair, hard;
+      eval/bowling-lane-avoid.txt). Limits per shape
+      (eval/bowling-avoid-shapes.txt), on other slots and symmetry-broken
+      (eval/bowling-avoid-slots.txt): 112 of 112 hard, 139 of 142 limit grid. Next,
+      most valuable first: 6x32 two teams, slots 0,4 open; 6x26 random limits on
+      other slots; shapes of 5+ limited teams. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
