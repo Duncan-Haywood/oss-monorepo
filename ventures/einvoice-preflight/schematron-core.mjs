@@ -34,6 +34,20 @@ export const ADDONS = {
   "cius-fr": { source: "cius-fr-schematron", match: /urn\.cpro\.gouv\.fr/i, profile: "france", plainOnly: true, files: { ubl: "cius-fr-ubl.sef.json", cii: "cius-fr-cii.sef.json" } },
 };
 
+// The next Peppol BIS Billing release, run in place of the current one when the caller asks
+// (`peppolNext: true`; the API's ?peppol=next, the page's "Preview Peppol BIS 3.1.0"). Compiled
+// by build-plain-rules.mjs from OpenPeppol's release branch; plain route only (no Saxon form).
+// When the release lands on OpenPeppol's master and is in force, it becomes `peppol` and this
+// entry moves to the release after it.
+export const PEPPOL_NEXT = {
+  release: "3.1.0",
+  current: "3.0.22",
+  published: "2026-11-23",
+  mandatory: "2027-02-24",
+  source: "peppol-3.1.0-schematron",
+  files: { ubl: "peppol-next-ubl.json", cii: "peppol-next-cii.json" },
+};
+
 // Peppol PINT profiles (Singapore InvoiceNow, Australia/New Zealand). Their
 // rules replace the EN 16931 base and the Peppol BIS add-on rather than
 // following them: PINT uses its own tax category codes (GST: SR, ZR, NG...),
@@ -118,7 +132,9 @@ export function plainOnlySets(xml, syntax, opts = {}) {
   const profile = matchingProfile(xml, syntax);
   if (profile) return [profile[0]];
   const extended = matchingExtendedBase(xml, syntax);
-  return (extended ? [extended[0]] : []).concat(matchingAddons(xml, syntax, opts).filter(([, a]) => a.plainOnly).map(([name]) => name));
+  const addons = matchingAddons(xml, syntax, opts);
+  const next = opts.peppolNext && addons.some(([name]) => name === "peppol") ? ["peppol-next"] : [];
+  return (extended ? [extended[0]] : []).concat(addons.filter(([, a]) => a.plainOnly).map(([name]) => name), next);
 }
 
 function decodeXml(text) {

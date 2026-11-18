@@ -327,6 +327,7 @@
     <label><input id="peppol" type="checkbox" style="width:auto"> Also apply the Peppol BIS Billing 3.0 rules (business process, specification id, electronic addresses) &mdash; for invoices sent through a Peppol access point</label><br>
     <label><input id="france" type="checkbox" style="width:auto"> Also apply the French rules (SIREN/SIRET check digits, late-penalty, 40&nbsp;&euro; recovery indemnity and early-payment-discount mentions; with &ldquo;official Schematron&rdquo; ticked, also FNFE-MPE&rsquo;s BR-FR rules, the checks French approved platforms run) &mdash; for invoices to French buyers under the 2026 e-invoicing reform</label><br>
     <label><input id="slovakia" type="checkbox" style="width:auto"> Also apply the Slovak rules (the Peppol rules plus the address, DIČ electronic address and payment account fields the Financial Administration's table requires) &mdash; for domestic Slovak invoices from 1 January 2027</label><br>
+    <label><input id="peppolNext" type="checkbox" style="width:auto"> With the official Schematron, check a Peppol file against <strong>Peppol BIS 3.1.0</strong> instead of 3.0.22 &mdash; published 23 November 2026, enforced by access points from 24 February 2027; each finding the new release adds is marked (new Luxembourg and Belgian VAT checks, GLN-only scheme 0088, the Dutch identifier warnings becoming errors, mandatory-element rules)</label><br>
     <label><input id="official" type="checkbox" style="width:auto"> Also run the official EN 16931 Schematron (and the XRechnung / Peppol add-ons for the chosen profile) &mdash; XML invoices only; runs in your browser from the rules published with this page (the file stays on your machine); only a copy without those rules <strong>sends the file to the server this page is served from</strong></label><br>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -494,7 +495,8 @@
         inputs.push({ name: file.name, source: new Uint8Array(await file.arrayBuffer()) });
       }
       const pasted = paste.value.trim();
-      if (pasted) inputs.push({ name: "pasted.json", source: pasted });
+      // Pasted XML is named .xml: the official rules skip a .json name, so pasted UBL/CII never got them (2026-11-18).
+      if (pasted) inputs.push({ name: /^\s*(?:\uFEFF)?</.test(pasted) ? "pasted.xml" : "pasted.json", source: pasted });
       return inputs;
     }
 
@@ -589,8 +591,9 @@
         return;
       }
       const profile = document.getElementById("xrechnung").checked ? "xrechnung" : document.getElementById("peppol").checked ? "peppol" : document.getElementById("france").checked ? "france" : document.getElementById("slovakia").checked ? "slovakia" : "";
+      const peppolNext = document.getElementById("peppolNext").checked;
       const result = await preflightDocuments(inputs, { profile });
-      if (document.getElementById("official").checked) await addOfficialFindings(result, inputs, { profile });
+      if (document.getElementById("official").checked || peppolNext) await addOfficialFindings(result, inputs, { profile, peppolNext });
       render(result);
       for (const report of result.reports) {
         recordUsage(usageStorage(), optedOut(), report.receipt ? "sdi_receipt_read" : report.aeatResponse ? "aeat_response_read" : "invoice_preflight_checked");

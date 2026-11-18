@@ -1,5 +1,5 @@
 {
-  "built": "2026-11-14",
+  "built": "2026-11-18",
   "sets": {
     "en16931-ubl": {
       "source": "eInvoicing-EN16931 (EUPL-1.2)",
@@ -266,6 +266,16 @@
       "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
       "from": "Flux10.sch",
       "checks": 150
+    },
+    "peppol-next-ubl": {
+      "source": "peppol-bis-invoice-3 branch 2026-Q4-QA2, BIS Billing 3.1.0 (MPL-2.0)",
+      "commit": "90f078a801c865b78bd9af628d7cd8a69aecfe84",
+      "checks": 294
+    },
+    "peppol-next-cii": {
+      "source": "peppol-bis-invoice-3 branch 2026-Q4-QA2, BIS Billing 3.1.0 (MPL-2.0)",
+      "commit": "90f078a801c865b78bd9af628d7cd8a69aecfe84",
+      "checks": 95
     }
   },
   "fontoxpath": "3.34.0"

@@ -123,8 +123,16 @@ function bindInPredicates(test, rawLets, outer) {
 const BIGMOD = 'declare function u:bigmod($digits as xs:string, $m as xs:integer) as xs:integer { fold-left(string-to-codepoints($digits), 0, function($acc, $c) { ($acc * 10 + $c - 48) mod $m }) };';
 // fn:format-number is not in fontoxpath. The only pictures the rule sets use ('0.00', '#.00') mean
 // two decimals, half-to-even, and the rules compare two such strings; '#.00' drops a zero integer part.
-const FMT = 'declare function u:fmt($n as item()*, $pic as xs:string) as xs:string { if (empty($n)) then "NaN" else let $x := xs:double($n) return if ($x != $x) then "NaN" else let $c := xs:integer(round-half-to-even(abs($x) * 100)) return concat(if ($x < 0 and $c > 0) then "-" else "", if ($c idiv 100 > 0 or starts-with($pic, "0")) then string($c idiv 100) else "", ".", format-integer($c mod 100, "00")) };';
+const FMT = 'declare function u:fmt($n as item()*, $pic as xs:string) as xs:string { if (empty($n)) then "NaN" else let $x := xs:double($n) return if ($x != $x) then "NaN" else let $c := xs:integer(round-half-to-even(abs($x) * 100)) return concat(if ($x < 0 and $c > 0) then "-" else "", if ($c idiv 100 > 0 or starts-with($pic, "0")) then string($c idiv 100) else "", ".", substring(string(100 + $c mod 100), 2)) };';
 const rewriteFormatNumber = (test) => test.replace(/(?<![\w:.-])format-number\(/g, "u:fmt(");
+// fontoxpath 3.34's format-integer ignores a zero-padded picture: format-integer(1, '00') is
+// "1", not "01". Peppol BIS 3.1.0's PEPPOL-COMMON-R058 (u:mod89-LU_VAT) compares two check
+// digits that way, so a valid Luxembourg VAT number whose check digits are 00-09 got a
+// false warning (OpenPeppol's own unit test LU00000101, 2026-11-18). All-zero pictures are
+// padded here; any other picture goes to format-integer as before.
+const FMT_INT = 'declare function u:format-integer($n as xs:integer?, $pic as xs:string) as xs:string { if (empty($n)) then "" else if (matches($pic, "^0+$")) then let $s := string(abs($n)) return concat(if ($n < 0) then "-" else "", string-join(for $i in (string-length($s) + 1 to string-length($pic)) return "0", ""), $s) else format-integer($n, $pic) };';
+const FMT_INT_CALL = /(?<![\w.\-:$])(?:fn:)?format-integer(?=\s*\()/g;
+export const rewriteFormatInteger = (text) => text.replace(FMT_INT_CALL, "u:format-integer");
 // fontoxpath 3.34 has neither adjust-date-to-timezone nor adjust-dateTime-to-timezone, so a
 // rule calling one was always skipped ("not checked"): Oman's IBR-171-OM, an issue date
 // in the future by Oman time (2026-11-17). Calls are renamed to these XQuery copies of
@@ -265,7 +273,7 @@ export function compileSchematron(file) {
           kind: a.localName,
           id: a.getAttribute("id") || "",
           flag: a.getAttribute("flag") || r.getAttribute("flag") || "fatal",
-          test: rewriteCurrent(rewriteTimezone(rewriteFormatNumber(rewriteBigMod(bindInPredicates(a.getAttribute("test"), rawLets, inPattern))))),
+          test: rewriteFormatInteger(rewriteCurrent(rewriteTimezone(rewriteFormatNumber(rewriteBigMod(bindInPredicates(a.getAttribute("test"), rawLets, inPattern)))))),
           text: clean(a.textContent),
         }));
         for (const e of elements(r)) {
@@ -285,14 +293,15 @@ export function compileSchematron(file) {
     const local = new Set(elements(f).filter((e) => is(e, XSL, "param")).map((e) => e.getAttribute("name")));
     const walk = (n) => { for (const e of elements(n)) { if (is(e, XSL, "variable")) local.add(e.getAttribute("name")); walk(e); } };
     walk(f);
-    return rewriteTimezone(rewriteBigMod(substitute(xqueryFunction(f), resolvedGlobals.filter(([name]) => !local.has(name)))));
+    return rewriteFormatInteger(rewriteTimezone(rewriteBigMod(substitute(xqueryFunction(f), resolvedGlobals.filter(([name]) => !local.has(name))))));
   });
   const usesBigMod = [...declared, ...out.flatMap((p) => p.rules.flatMap((r) => r.checks.map((c) => c.test)))].some((t) => t.includes("u:bigmod("));
   const usesFmt = out.some((p) => p.rules.some((r) => r.checks.some((c) => c.test.includes("u:fmt("))));
   const usesTz = [...declared, ...out.flatMap((p) => p.rules.flatMap((r) => r.checks.map((c) => c.test)))].some((t) => /\bu:adjust-date(?:Time)?-to-timezone\(/.test(t));
-  const prolog = [...declared, ...(usesBigMod ? [BIGMOD] : []), ...(usesFmt ? [FMT] : []), ...(usesTz ? [TZ] : [])].join("\n");
-  const prefixes = new Set([...functions.map((f) => f.getAttribute("name").split(":")[0]), ...(usesBigMod || usesFmt || usesTz ? ["u"] : [])]);
-  if ((usesFmt || usesTz) && !ns.u) ns.u = "urn:einvoice-preflight:util"; // prolog namespace for the helpers above
+  const usesFmtInt = [...declared, ...out.flatMap((p) => p.rules.flatMap((r) => r.checks.map((c) => c.test)))].some((t) => t.includes("u:format-integer("));
+  const prolog = [...declared, ...(usesBigMod ? [BIGMOD] : []), ...(usesFmt ? [FMT] : []), ...(usesFmtInt ? [FMT_INT] : []), ...(usesTz ? [TZ] : [])].join("\n");
+  const prefixes = new Set([...functions.map((f) => f.getAttribute("name").split(":")[0]), ...(usesBigMod || usesFmt || usesFmtInt || usesTz ? ["u"] : [])]);
+  if ((usesFmt || usesFmtInt || usesTz) && !ns.u) ns.u = "urn:einvoice-preflight:util"; // prolog namespace for the helpers above
   const usesFunction = new RegExp(`(?<![\\w.-])(?:${[...prefixes].join("|")}):[A-Za-z]`);
   for (const p of out) for (const r of p.rules) for (const c of r.checks) if (prolog && usesFunction.test(c.test)) c.xq = true;
   const declarations = [...prefixes].map((p) => `declare namespace ${p} = "${ns[p]}";`).join("\n");
