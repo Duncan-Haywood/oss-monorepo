@@ -93,7 +93,9 @@ export const DEFAULTS = {
  * @param {number} input.emergencyPct Percentage premium applied to billed
  *   time (labor + travel) when `emergencyCall` is true. Never applied to
  *   fuel or equipment cost -- the steamer costs the same to run at 2am as
- *   at 2pm.
+ *   at 2pm. The premium raises the job's cost and is billed on top of the
+ *   rate-card price, grossed up by overhead and target margin
+ *   (`emergencyPremium`).
  * @param {number} input.overheadRate Percentage overhead on direct cost --
  *   insurance, licensing, and vehicle costs that apply whether or not this
  *   specific call happens.
@@ -141,8 +143,16 @@ export function calculateQuote(input) {
   // footage, floored at the minimum service charge -- this is the number
   // that gets quoted, not the target price above.
   const rateCardPrice = ratePerFoot * edgeFeet;
-  const quotedPrice = Math.max(rateCardPrice, minimumServiceCharge);
+  const baseQuotedPrice = Math.max(rateCardPrice, minimumServiceCharge);
   const minimumApplied = minimumServiceCharge > rateCardPrice;
+  // A storm / night / weekend dispatch is billed to the customer, not only
+  // absorbed: the premium the crew's time costs is passed into the price,
+  // carried at the same overhead and target margin as the rest of the job,
+  // so ticking the box never leaves the quote at the daytime price (quality
+  // audit 2026-11-17, defect 0). It sits on top of the rate card / minimum,
+  // which price a scheduled call.
+  const emergencyPremium = est.emergencySurcharge * (1 + overheadRate / 100) / (1 - targetMargin / 100);
+  const quotedPrice = baseQuotedPrice + emergencyPremium;
 
   // The sharpest risk in this business: a per-foot rate that works fine on
   // a long run can still fall short of what THIS job's largely-fixed cost
@@ -188,6 +198,8 @@ export function calculateQuote(input) {
     cost: est.cost,
     targetPrice,
     rateCardPrice,
+    baseQuotedPrice,
+    emergencyPremium,
     quotedPrice,
     minimumApplied,
     breakEvenRatePerFoot,
