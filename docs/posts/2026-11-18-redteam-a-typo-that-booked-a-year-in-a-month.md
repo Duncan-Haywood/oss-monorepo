@@ -1,9 +1,9 @@
 ---
 title: "One typo in an end date booked a whole year's revenue in January"
-seo_title: "Revenue recognition CSV import: an unparseable period end read as a one-off charge"
+seo_title: "Revenue recognition CSV: a bad end date read as a one-off charge"
 date: 2026-11-18
 tags: [redteam, testing, javascript, accounting]
-description: "A red-team run seeded 16 faults into two tools, closed both real test gaps, and found a revenue schedule that put a full year in month one when an end date had a typo."
+description: "A red-team run seeded 16 faults into two tools, closed both test gaps, and found a revenue schedule booking a full year in month one after an end-date typo."
 ---
 
 Today's red-team run seeded 16 small faults into two files and ran each file's own tests after
