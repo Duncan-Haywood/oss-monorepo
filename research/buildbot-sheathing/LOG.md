@@ -1,5 +1,16 @@
 # buildbot-sheathing research log
 
+## 2026-11-18 · Milestone 50 planned: can a re-lean keep the eight high-grip poses balanced under 20 N of hose drag, and how much drag does each pose tolerate?
+
+- **Why.** Milestone 49 found the poses milestone 48 could not plan are a stance limit: a backward hose lowers the top of the press window by about 0.75 to 0.8 N per newton of drag, and milestone 41 had leaned these poses back (com_dx 0.123 to 0.085 m on the G1 at 1.2 m) so they stand at zero press, leaving the top at 51.6 to 62.2 N. Its "Next" asked for a re-lean under drag, or the largest drag each pose tolerates as a hose-routing rule.
+- **Known before the run.** For a fixed pose and hose load the press forces that balance are an interval (the balance-and-cones set is a polyhedron in press and contact forces), so checking 0, 25 and 50 N decides a window. Nothing below has been computed.
+- **Model.** Milestone 48's import (M1), μ 0.5, statics. Section A, every pose of milestone 48's set at its current lean: for each of the 8 hose directions, the largest hose tension H (bisected on [0, 60] N, assumed monotone, checked at the found H) at which both 25 and 50 N balance. Section B, the 8 poses with no S_H: com_dx on a 5 mm grid from 0 to 0.15 m (IK via `buildbot_payload.model.pose`), the worst cone slack over the 17 loads (0 N; 5 and 20 N in 8 directions) at 25 and 50 N, and separately at 0, 25 and 50 N (standing at zero press under every load, milestone 41's requirement). Section C, at each pose's best section B lean for [25, 50] N, milestone 48's side search (every combination, its `loaded_margin`).
+- **Hypotheses, registered before the run.**
+  - **H204 (a lean covers the firing window under drag).** Each of the 8 poses has a com_dx on the grid at which 25 and 50 N both balance under all 17 loads. Refuted if any has none.
+  - **H205 (one lean does both).** Each of the 8 has a com_dx at which 0, 25 and 50 N all balance under all 17 loads. Refuted if any has none.
+  - **H206 (the drag rule is linear).** At φ 180 at the 8 poses, the tolerated drag from section A is within 15% of (top with no hose &minus; 50 N) / 0.78, milestone 49's slope. Refuted if any is outside.
+  - **H207 (sides exist at the new lean).** At every pose where H204 holds, some side combination has a plan at all 17 loads and both ends with common leg margin at least 0.1/0.9 N m. Refuted if any has none.
+
 ## 2026-11-18 · Milestone 49 result: the backward-hose cells are a stance limit, not a solver false negative; 20 N of backward drag lowers the top of the press window by about 15 N, below the 50 N firing press; H199 and H200 refuted, H201 to H203 not tested
 
 `experiments/m49_backload/` (run, results, post hoc, figure; imports milestone 48's run, no change to it), `reproduce.py` (m49 listed), `paper/draft.md` (section 5.11 paragraph), `paper/check_numbers.py`, README, PROPOSAL and project card. No new library code, so no new tests. Run time 105 s on 4 processes (a first attempt lost 20 min to BLAS threads oversubscribing the pool: numpy was imported before milestone 48's `OMP_NUM_THREADS=1` default; the script now sets it first).
