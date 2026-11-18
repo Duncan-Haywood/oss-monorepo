@@ -74,7 +74,7 @@ test("the nested IFC4 layout reads the same, and lazy geometry is read again fro
   for (const e of lazy) assert.deepEqual(e.args, a.entities.get(e.id).args, `${e.id}`);
 });
 
-const UNI = `﻿<?xml version="1.0" encoding="utf-8"?>
+const UNI = `\uFEFF<?xml version="1.0" encoding="utf-8"?>
 <!-- a comment with ü and <tags> -->
 <ifcXML xmlns="http://www.buildingsmart-tech.org/ifcXML/IFC4/final" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <IfcProject id="p1" GlobalId="0YvctVUKr0kugbFTf53O9L" Name="Café 日本 \u{1F3E0}" Description="a &amp; b &#x00FC; &#252;">
