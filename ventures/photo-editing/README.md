@@ -80,7 +80,7 @@ gets its proxy and its scores from a half-size development instead of failing. S
 2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
 from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
 2026-11-14 a Sony ARW, a Nikon NEF, an Olympus ORF, a Panasonic RW2, a Samsung SRW and a Pentax PEF the same way ("Sony ARW", "Nikon NEF",
-"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a Canon CR3, full quality and C-RAW ("Canon CR3" below). Since 2026-11-15 the GH6-era RawFormat 8 RW2 too ("Lumix bodies from 2022 on" below). Since 2026-11-16 a C-RAW CR3 stored in several tiles too ("C-RAW in tiles" below). Other RAW formats (a CR3 with an unknown codec version, ...) are still scored from their preview but stop at the grade
+"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a Canon CR3, full quality and C-RAW ("Canon CR3" below). Since 2026-11-15 the GH6-era RawFormat 8 RW2 too ("Lumix bodies from 2022 on" below). Since 2026-11-16 a C-RAW CR3 stored in several tiles too ("C-RAW in tiles" below). Since 2026-11-18 the 2018-2023 bodies' tiled CR3s and older C-RAW layout too (EOS R, RP, M50, M6 Mark II, 250D, 90D, 850D, M200, R100: "Every CR3 body on raw.pixls.us" below). Other RAW formats (a CR3 with an unknown codec version, ...) are still scored from their preview but stop at the grade
 stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
@@ -1297,6 +1297,22 @@ Python reference too on two of them). Two things changed:
   levels away, and reads ColorData12's balance at 0x69. Black and balance now equal LibRaw on all nine.
   In the APS-C crop the old black lifted a tone five stops under middle grey by half a stop
   (`eval/canon-cr3-r5-real-2026-11-18.md`).
+
+**Every CR3 body on raw.pixls.us (later on 2026-11-18).** 39 files of 21 cameras, from the EOS M50 and EOS R
+of 2018 to the R6 Mark III and PowerShot V1, against LibRaw 0.22.2. The older bodies (EOS R, RP, M50 and
+Kiss M, M50 Mark II, M6 Mark II, M200, 250D/SL3, 90D, 850D, R100) do store tiles: two side by side, 6288 to
+7128 sensels wide, while every later body stores one tile even at 8480. ShootFlow refused 17 of their 18
+files: their RAW leaves CMP1's several-tiles flags at 0 (the reader demanded they match the grid; LibRaw
+reads the grid from the sizes), and their C-RAW is an older layout, CMP1 version 0x100 with no QP grid and
+one fixed step per subband, packed with the band's QP and padding into one word of the 0xFF03 header. Both
+are now read: **0 of 986.8 M sensels differ** from LibRaw on all 39 (17 tiled, 17 C-RAW, 8 of the old
+layout), the first real tiled CR3s this reader has seen, and the as-shot balance is equal on all 39.
+The stated black level is now found by ColorData's length and version (3,778 entries is two layouts:
+version 48 on the R7/R10/R50/R6 Mark II/R8 at 0x16B, 65-66 on the PowerShot V1 and R6 Mark III at 0x17F;
+the older bodies at 0x149), which took the R50 C-RAW's black from 13 levels high to within 2 of LibRaw.
+On the R6 Mark III and PowerShot V1, LibRaw 0.22.2 itself reads a wrong black (0 to 145 per channel, where
+the masked columns read 512.0-512.2 and ColorData states 512); ShootFlow uses 512
+(`eval/canon-cr3-every-body-2026-11-18.md`).
 
 ## Fujifilm RAF (2026-11-14)
 

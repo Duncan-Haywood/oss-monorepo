@@ -37,8 +37,18 @@ Implemented independently from the format as LibRaw's ``crx.cpp`` (Alexey
 Danilchenko's reverse-engineered decoder, LGPL-2.1/CDDL; no code copied) reads
 it, and checked sensel for sensel against LibRaw 0.22 on three real C-RAW
 files from two bodies (``tools/cr3_libraw_check.py``,
-``eval/canon-cr3-craw-2026-11-15.md``). The old-style per-line ``qParam``
-updates are not read: no test file has them.
+``eval/canon-cr3-craw-2026-11-15.md``).
+
+**The older layout (2026-11-18).** Bodies of 2018-2023 (EOS R, RP, M50, M6
+Mark II, 250D, 90D, R100...) write C-RAW as CMP1 version 0x100 with wavelet
+levels: tile headers 0xFF01 with no QP stream, and 0xFF03 subband headers whose
+one 32-bit word holds the band number (top four bits), a per-line flag (bit
+27), the band's QP (bits 19-26) and its padding (low 19 bits). Every
+coefficient of the band is multiplied by ``q_step(QP)``, LibRaw's "prev.
+version" path; here as a zero multiplier and a base of that step. Checked on
+real files of eight bodies against LibRaw
+(``eval/canon-cr3-every-body-2026-11-18.md``). The per-line ``qParam``
+updates (the flag set) are not read: no file seen has them.
 
 **Several tiles (2026-11-16).** A CR3 may store the planes cut into a grid of
 tiles (``cr3.tile_grid``; the real R5 and R5 Mark II files of 2026-11-18 are one tile). Each tile is its own 5/3
@@ -72,10 +82,11 @@ STEP_MAX = 0x168000
 
 class Subband:
     __slots__ = ("index", "offset", "size", "width", "height", "mult", "base", "shift", "level",
-                 "col_start", "col_end", "row_start", "row_end")
+                 "col_start", "col_end", "row_start", "row_end", "old_style")
 
     def __init__(self, index: int, offset: int, size: int, mult: int, base: int):
         self.index, self.offset, self.size, self.mult, self.base = index, offset, size, mult, base
+        self.old_style = False
         self.width = self.height = self.shift = self.level = 0
         # Edge coefficients borrowed from neighbouring tiles (0 on a one-tile sensor): the first ``col_start``
         # and last ``col_end`` columns, the first ``row_start`` and last ``row_end`` rows.
@@ -113,6 +124,7 @@ class TileLayout:
         self.index, self.row, self.col, self.width, self.height = index, row, col, width, height
         self.flags, self.levels = flags, levels
         self.qp_offset = self.qp_size = 0
+        self.old_style = False
         self.planes: list[Plane] = []
         self.geometry = tile_geometry(width, height, levels, flags)
         self.level_sizes = level_sizes(self.geometry, width, height, levels)
@@ -264,8 +276,9 @@ def read_layout(sample: bytes, header_size: int, levels: int, planes: int, width
             qp_size, extra, end = struct.unpack_from(">IHH", hdr, pos + 12)
             if end:
                 raise rd.DevelopError("CR3: a C-RAW tile header does not end in two zero bytes")
-        if not qp_size:
-            raise rd.DevelopError("CR3: a C-RAW tile without quantisation data is not supported (no test file)")
+        # A tile with no QP stream (0xFF01) must carry old-style subband headers (0xFF03), each with one fixed
+        # step; that is checked once the bands are read.
+        tile.old_style = not qp_size
         tile.qp_offset, tile.qp_size = tile_at, qp_size
         pos += 4 + size
         data_at = tile_at + qp_size + extra
@@ -283,9 +296,11 @@ def read_layout(sample: bytes, header_size: int, levels: int, planes: int, width
             pos += 12
             band_at = data_at
             for b in range(3 * levels + 1):
-                if len(hdr) < pos + 20:
+                if len(hdr) < pos + 12:
                     raise rd.DevelopError("CR3: the C-RAW header ends inside a subband header")
                 tag, size, band_size = struct.unpack_from(">HHI", hdr, pos)
+                if len(hdr) < pos + 4 + size:
+                    raise rd.DevelopError("CR3: the C-RAW header ends inside a subband header")
                 if hdr[pos + 8] >> 4 != b:
                     raise rd.DevelopError(f"CR3: C-RAW subband header {b} is out of order")
                 if tag == 0xFF13 and size == 16:
@@ -296,7 +311,21 @@ def read_layout(sample: bytes, header_size: int, levels: int, planes: int, width
                         raise rd.DevelopError("CR3: a C-RAW subband's padding is larger than the subband")
                     band = Subband(b, band_at, band_size - pad, mult, base)
                 elif tag == 0xFF03 and size == 8:
-                    raise rd.DevelopError("CR3: an old-style C-RAW subband header (per-line quantisation) is not supported (no test file)")
+                    # Old style (EOS R100 C-RAW, 2026-11-18): a 32-bit word of band number (top four bits), a
+                    # per-line flag (bit 27), the band's QP (bits 19-26) and the padding (low 19 bits). With no
+                    # per-line flag the whole band takes one step, q_step(QP), as LibRaw's "prev. version" path.
+                    word = struct.unpack_from(">I", hdr, pos + 8)[0]
+                    if word & 0x08000000:
+                        raise rd.DevelopError("CR3: an old-style C-RAW subband with per-line quantisation is not supported (no test file)")
+                    pad, scale = word & 0x7FFFF, q_step((word >> 19) & 0xFF)
+                    if pad > band_size:
+                        raise rd.DevelopError("CR3: a C-RAW subband's padding is larger than the subband")
+                    if scale < 1:
+                        # LibRaw multiplies such a band by 0; no file seen has one.
+                        raise rd.DevelopError("CR3: an old-style C-RAW subband with a zero step is not supported (no test file)")
+                    # A fixed step through the grid's formula: base + (step * 0 >> 3) is the base at every coefficient.
+                    band = Subband(b, band_at, band_size - pad, 0, scale)
+                    band.old_style = True
                 else:
                     raise rd.DevelopError(f"CR3: C-RAW subband header tag {tag:#06x} is not known")
                 (band.width, band.height, band.col_start, band.col_end, band.row_start, band.row_end) = geometry[b]
@@ -309,6 +338,9 @@ def read_layout(sample: bytes, header_size: int, levels: int, planes: int, width
                 pos += 4 + size
             if band_at - data_at > plane_size:
                 raise rd.DevelopError("CR3: C-RAW subbands run past their plane")
+            if any(band.old_style != tile.old_style for band in plane.bands):
+                raise rd.DevelopError(
+                    "CR3: a C-RAW tile mixes a QP stream and old-style subband headers (or lacks both); not supported (no test file)")
             tile.planes.append(plane)
             data_at += plane_size
         if data_at > tile_at + tile_size:
@@ -678,8 +710,12 @@ def decode_plane(sample: bytes, tile: TileLayout, plane: Plane, tables: list[lis
 
 
 def tile_tables(sample: bytes, tile: TileLayout) -> list[list[list[int]]]:
-    """A tile's step tables, from its own QP stream (a grid at the tile's width and height)."""
+    """A tile's step tables, from its own QP stream (a grid at the tile's width and height). An old-style tile
+    has none: a grid of zeros at the same shape, which its bands' zero multipliers ignore."""
 
+    if tile.old_style:
+        qw, qh = (tile.width >> 3) + ((tile.width & 7) != 0), (tile.height >> 1) + (tile.height & 1)
+        return step_tables([[0] * qw for _ in range(qh)], tile.levels)
     return step_tables(qp_grid(sample[tile.qp_offset : tile.qp_offset + tile.qp_size], tile.width, tile.height), tile.levels)
 
 
