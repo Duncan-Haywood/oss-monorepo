@@ -39,14 +39,18 @@ the drill's survey count reaches every surveyed wheel (no survey cut, the last b
 the count falls short, the Pi's wait (host.ESC_SURVEY_S) is raised to cover the longer survey.
 
 RESULT: the picks held on all 36 builds (first-order 0 ms on every one, jittery tach included; ESC 50 ms 48-55 ms, the
-on-grid 0.4 s builds as well). With the take survey off the count fell short: each ball's survey was cut after one
-wheel, so 11 of 22 wheels counted. Run as `tennisbots run` runs a calibration drill (--take-survey: the Pi holds each
-ball until the contact-time count rises, which comes after the ESC survey), 12 of 12 builds at 0.45 s met all of it:
-22 of 22 wheels, none cut, holds 104-107 s for 12 balls (79 s before), under the 12 s cap a ball, so no wait changes.
+on-grid 0.4 s builds as well). The count did not: with the take survey off, the next stroke cut each ball's survey
+after one wheel (11 of 22 counted), and the venture's own tests then failed, because a rally drill's survey (4 of 32
+wheels) no longer reached the 16 the pre-calibration check needs. A bracket around the record fit's tau at the old
+cost was tried and dropped (an untold 80 ms ESC read 13-57 ms). What shipped instead: a new stroke pauses a survey
+rather than cutting it (no survey step during a stroke or a pending record fit), surveys queue (controller.SURVEY_QUEUE
+= 2), and the Pi's end wait drains them (host.ESC_SURVEY_S 20 s, ending after SURVEY_QUIET_S = 3 s with no new count).
+Rerun (eval/esc-misfit-heldout-2026-11-18.txt): the picks unchanged on 36 of 36 with 18-20 wheels a drill (2-3 queued
+surveys gave way); run as `tennisbots run` runs a calibration drill (--take-survey), 12 of 12 builds met all of it, 24
+of 24 wheels, none cut, holds 104-107 s for 12 balls (79 s before).
 
-PART 3 (--rally, after part 2): drills with no hold. The shipped survey picked 84-90 ms for the 50 ms ESC there, so it
-was wrong on these drills too; at refine 5 it picks 52-53 ms but finishes only 1-3 wheels of 8-32, the rest cut by the
-next stroke. A drill without a hold is not where the survey can finish; the calibration drill is.
+PART 3 (--rally, after part 2): drills with no hold. The old fit picked 83-86 ms for the 50 ms ESC there, so it was
+wrong on these drills too; refined and queued, 49-51 ms on 6-18 of 8-32 wheels.
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/esc_misfit_trace.py --capture rows.jsonl [--lags 0.3,0.6] [--plants 0,2] [--procs 4]
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/esc_misfit_trace.py --rescore rows.jsonl[.gz] [--procs 4]
@@ -158,6 +162,8 @@ def refit(w, variant, lag):
 
 VARIANTS = ("shipped", "levels 5", "refine 1", "refine 2", "refine 3", "refine 5", "levels 5 refine 5",
             "tau at the plant's")
+if "--variants" in sys.argv:
+    VARIANTS = ("shipped",) + tuple(sys.argv[sys.argv.index("--variants") + 1].split(","))
 
 
 def score(rows):

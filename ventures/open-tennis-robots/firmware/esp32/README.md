@@ -2211,28 +2211,42 @@ this because its wheel lags, 0.2 / 0.4 / 0.8 s, all sit on the tau grid.
 **Held out.** The board now runs `controller.ESC_SURVEY_REFINE = 5`, the pre-registered change (refine 3 also passed,
 but it was chosen after seeing the table). The calibration drill was rerun at lags no part 1 run used: 0.45 s on both
 plants, the jittery tach plant (3 us, 10k) at 0.3 and 0.45 s, and on-grid 0.4 s, the case that must not regress. The
-prediction: every first-order build 5 ms or less, every 50 ms build 40-60 ms, every wheel counted, nothing cut
-(eval/esc-misfit-heldout-2026-11-18.txt):
+prediction: every first-order build 5 ms or less, every 50 ms build 40-60 ms, every wheel counted, nothing cut.
 
-| builds | picks |
-| --- | --- |
-| first-order, 0.4 and 0.45 s (12) | 0 on all |
-| jittery tach, 0.3 and 0.45 s (12) | 0 on all |
-| ESC 50 ms, 0.4 and 0.45 s (12) | 48-55 ms |
+**The cost broke the count, and the venture's tests caught it.** Each refit is now 36 steps, not 15, so a two-wheel
+ball's survey takes about 4.3 s of control ticks instead of 1.8 s. A new stroke used to cut the last ball's survey, and
+on drills with no hold it now cut nearly all of them: 11 of 22 wheels on the calibration drill with the take survey off,
+4 of 32 on the rally drill. The flow "run a drill, then the calibration drill is held until the board is told the lag"
+(section "Checked before a calibration drill") needs 16, so three of its tests failed. A cheaper search was tried first:
+golden section alone in a bracket around the record fit's tau, at the old 15 steps. It failed: with the ESC untold, the
+record's tau is 1.2-1.9 times the wheel's true lag, the candidates' best taus all sit near the true one, and an 80 ms
+ESC read 13-57 ms depending on the bracket. What shipped instead:
 
-The picks held on 36 of 36. The count half missed on the first run, which had the take survey off: each survey is now
-36 steps a fit, not 15 (about 4.3 s of control ticks a two-wheel ball, not 1.8 s), and with no hold the next stroke cut
-every ball's survey after its first wheel, leaving 11 of 22 wheels, under the 16 the advice needs. A real calibration
-drill does hold. `tennisbots run` turns the contact-time survey on and holds each ball until that count rises, which
-happens after the ESC survey. Run that way, 12 of 12 builds at 0.45 s met all of it: 22 of 22 wheels, none cut. The
-holds came to 104-107 s for 12 balls (79 s before), under the 12 s cap a ball, so no Pi timing changed.
+- a new stroke pauses a survey rather than cutting it: no survey step runs while a stroke is under way or a record's
+  fit is pending, so the stroke's control ticks cost what they did;
+- surveys queue behind the one running (`controller.SURVEY_QUEUE = 2`, two balls' snapshots and tick logs, kept small
+  for the ESP32's heap; the oldest waiting one gives way and counts as `survey_cut`). On the rally drill, depth 2
+  surveyed 18-20 of 32 wheels, 3 got 20-22 and 4 got 22-24;
+- the Pi's wait at a drill's end drains the queue: `host.ESC_SURVEY_S` 4 s to 20 s, ending once no count has risen for
+  `host.SURVEY_QUIET_S` = 3 s (it was 0.5 s, shorter than one wheel's survey, so it used to stop before the last ball's).
 
-**Drills without a hold.** On the rally and example drills (`--rally`) the shipped survey picked 84 and 90 ms for the
-50 ms ESC, so it was wrong there as well. Refined, it picks 52-53 ms, but the next stroke cuts all but 1-3 of 8-32
-wheels. Those drills cannot finish the survey; the calibration drill is where it gets done, and a survey with under 16
-wheels is reported, not advised (`host.esc_survey_advice`).
+Rerun with all of that (eval/esc-misfit-heldout-2026-11-18.txt):
 
-**Not known.** All simulated, noise-free plants apart from the jittery tach, one seed, one ESC shape (a first-order lag).
-Neither the 4.3 s a ball nor the calibration drill's longer holds have been timed on a real ESP32. Next: let a drill
-without a hold finish its last ball's survey (`host.survey` gives up after half a second with no new count, before one
-wheel's refined survey is done), then time a survey on a real board.
+| builds (calibration drill) | picks | wheels counted |
+| --- | --- | --- |
+| first-order, 0.4 and 0.45 s, no hold (12) | 0 on all | 18-20 of 24 |
+| jittery tach, 0.3 and 0.45 s, no hold (12) | 0 on all | 18-20 of 24 |
+| ESC 50 ms, 0.4 and 0.45 s, no hold (12) | 47-54 ms | 18-20 of 24 |
+| 0.45 s with the take survey on, as `tennisbots run` runs it (12) | 0 / 50-55 ms | 24 of 24, none cut |
+
+The picks held on 36 of 36. Without a hold, 2-3 queued surveys a drill gave way, so the "every wheel" half missed there,
+but each drill kept at least 18 wheels, above the 16 the advice needs. Run as a real calibration drill, 12 of 12 met all
+of it; the take survey's holds came to 104-107 s for 12 balls (79 s before), under the 12 s cap a ball.
+
+**Drills without a hold.** On the rally and example drills (`--rally`) the old survey picked 83-86 ms for the 50 ms ESC,
+so it was wrong there as well. Now it picks 49-51 ms from 6-18 wheels. One build outside every run above is still off:
+an untold 150 ms ESC on a 0.6 s wheel read 188 ms on the rally drill, 25% over (150 sits between the grid's 100 and 200).
+
+**Not known.** All simulated, one seed, one ESC shape (a first-order lag). The 4.3 s of survey a ball, two queued
+balls' memory and a drill end that can now wait up to 20 s have not been tried on a real ESP32. Next: time a survey and
+measure free heap with two queued on a real board; a grid point between 100 and 200 ms if a real ESC lands there.

@@ -390,9 +390,9 @@ flagships:
       see firmware/esp32/README.md, latest "The ESC-lag survey's search, traced"
       (the survey skipped the tau refinement, so off the tau grid the ESC lag stood
       in for tau: 10-14 ms picked with none, 23-25 for 50; refined, held out at
-      0.4-0.45 s and on a jittery tach, 0 and 48-55 ms;
-      eval/esc-misfit-*-2026-11-18). Next: let a drill with no hold finish its last
-      ball's survey (host.survey quits after 0.5 s quiet); ball hold: WHEEL_RPM_FULL
+      0.4-0.45 s and on a jittery tach, 0 and 48-55 ms; surveys now pause and queue,
+      not cut: 18+ wheels a drill; eval/esc-misfit-*-2026-11-18). Next: a grid point
+      between 100 and 200 ms (untold 150 read 188); ball hold: WHEEL_RPM_FULL
       error's cost on 0.2 s wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP

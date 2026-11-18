@@ -60,28 +60,44 @@ So why did the survey pass its first test? Every build in that test had a wheel
 lag of 0.2, 0.4 or 0.8 s. All three sit exactly on the coarse grid, so the
 shortcut cost nothing there.
 
-## Held out, and what it costs
+## Held out, and the cost the tests caught
 
 The board now runs the fine search in its survey. It was then rerun on builds
 no earlier run had used: a 0.45 s wheel, a tach with 3 µs of timing jitter, and
 an on-grid 0.4 s wheel, which must not get worse. All 24 builds with no ESC lag
-picked 0 ms. All 12 builds with a 50 ms ESC picked 48-55 ms.
+picked 0 ms. All 12 builds with a 50 ms ESC picked 47-55 ms.
 
-The fit now takes 36 steps instead of 15, so the survey runs about 4.3 s a
-ball instead of 1.8 s. In a drill that feeds the next ball straight away, the
-next stroke cuts most surveys short. The calibration drill, which is where a
-person sets the lag, already holds each ball while the board finishes. Run
-that way, every wheel was counted and nothing was cut. The 12-ball drill's
-holds grew from 79 s to about 106 s.
+Then the venture's own test suite failed. The fit now takes 36 steps instead of
+15, so the survey takes about 4.3 s a ball instead of 1.8 s, and the board used
+to throw away an unfinished survey whenever the next ball came. A rally drill
+kept 4 of its 32 wheels. The feeder's safety check before a calibration drill
+needs 16, so it stopped working. I tried a cheaper search first, centred on the
+wheel lag the board's main fit had already found. It failed, because when the
+ESC is untold that lag comes out 1.2-1.9 times too long, and an 80 ms ESC read
+anywhere from 13 to 57 ms.
 
-The rally drills, with no hold, held one more surprise. There the old survey
-had said 84-90 ms for the 50 ms ESC. It had been wrong on those drills all
-along, not just slow.
+The fix that shipped changes how the work is scheduled, not the fit:
+
+- a new ball now pauses the survey instead of discarding it, and no survey work
+  runs while a ball is being launched;
+- unfinished surveys wait in a short queue of two balls, kept small for the
+  ESP32's memory;
+- at the end of a drill, the Pi waits for the queue to drain instead of giving
+  up after half a second.
+
+With those, every drill kept 18-20 wheels and every pick stayed right. The
+calibration drill, which holds each ball anyway, counted every wheel. Its
+12-ball holds grew from 79 s to about 106 s.
+
+The rally drills held one more surprise. There the old survey had said 83-86 ms
+for the 50 ms ESC, so it had been wrong on those drills all along. It now says
+49-51.
 
 ## What is still open
 
-All of this is simulation: one seed, and an ESC modelled as a simple lag. Next
-is to let a drill without a hold finish its last ball's survey, then time the
-survey on a real ESP32. The run's notes, tables and raw inputs are in the
-firmware README section "The ESC-lag survey's search, traced" and in `eval/`
-under `ventures/open-tennis-robots/`.
+All of this is simulation: one seed, and an ESC modelled as a simple lag. One
+case is still off: an untold 150 ms ESC on a slow wheel read 188 ms, because 150
+falls between two of the survey's candidates. Next is a real ESP32: how long a
+survey takes there, and how much memory two queued balls use. The run's notes,
+tables and raw inputs are in the firmware README section "The ESC-lag survey's
+search, traced" and in `eval/` under `ventures/open-tennis-robots/`.
