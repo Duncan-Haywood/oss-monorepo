@@ -13,4 +13,4 @@
 
 ## Buildable here (added 2026-11-18)
 
-- The take fit's least reads a half-sine take 0.2-0.4 ms high on the simulator, on both tachs and both sets (firmware/esp32/README.md, "The take survey's pick between contact times"; the pick between grid points was checked there and kept). Does a take model with more parts than `controller.take_offsets`' four, or a continuous one, remove it? Refit the stored rows of eval/take-survey-pick-*-rows-2026-11-18.jsonl.gz (they keep each wheel's periods and ticks) with `tests/take_survey_pick.py`'s dense refit.
+- A fresh survey capture with the stretched half-sine offsets live on the board (firmware/esp32/README.md, "The take fit's four parts and its high reading", which refitted stored wheels offline): do 7 ms takes now read about 7 rather than the grid's end, and do the 3 ms takes on the grid still read low as on that section's design set? `tests/take_survey_pick.py --capture` on a new seed and lag.
