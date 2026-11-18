@@ -56,3 +56,29 @@ test("the ИТОГ row's merged neighbours: an item's price times quantity, a ta
 test("an ИТОГ that two payments below it add up to stands (card and an advance)", () => {
   assert.equal(read("169.00X 1 WT  =169.00 PV6\nNTOr:  =6084.00 Py6\nCYMMA HAC 20%  =1014.00 Py6\n5E3HAnM4HbMM:  =181.00 Py6\nABAHC:  =5903.00 Py6").cents, 608400);
 });
+
+// eval/receipt-ocr-ru-train2-2026-11-18.md: slips with no ИТОГ amount
+test("no ИТОГ amount: the card terminal's СУММА (РУБ) is the total", () => {
+  // the ИТОГ line lost; the item line 399.96 is larger than what was charged
+  assert.equal(read("TOBAP 89.99*1 =89.99\nKOBEP 399.96\nNO,/44EHO   KAPTA  =355.96\nCyMMa (Py6):  355.96\nCUMMA HAC 20%  =59.34").cents, 35596);
+  // "MTOr" alone, its amount on the line below with the VAT words
+  assert.equal(read("TOBAP 2000.00\nMTOr\nCYMMA HAC20%  =39617.00\n=6602.83\nMIR  <E>*4913\nCyHMa<Py6>  39617.00\n453116.2").cents, 3961700);
+  // "HTOD 89.9%": the ИТОГ amount unreadable, the terminal slip says 89.99
+  assert.equal(read("NTOr 6E3 CKMAOK  99.99\nCKHAKA  10.00\nHTOD  89.9%\nYisa Credit  <E1>*2677\nCyMMa<Py6>  89.99 KOMHCCHA: 0 Py6.").cents, 8999);
+});
+
+test("no ИТОГ amount: the card line's amount when printed twice or more", () => {
+  // "MTOr" alone over the card line; the before-discount 1969.00 is larger
+  assert.equal(read("leHa C HAC 10%:  1* 1969.00 =1969.00\nHTOr0 6e3 CKHAKH  1969.00\nMTOr\n6E3HANN4HBIM  1828.00\nCyMMa HAC 10%  1828.00").cents, 182800);
+  // a café slip whose rows run one off: the card line carries the VAT amount, printed once,
+  // so it is not taken and the largest amount stands
+  assert.equal(read("HAC 5%  1 MakapOHbl  =199.00\nTOBAP  119.00*1  =119.00\nCYMMA HAC 5%  -562.00\n6E3HAIM4H6M  =26.77\nKaccup  =562.00").cents, 56200);
+  // change was given: the cash line is the money handed over, so it is not taken
+  const r = read("TOBAP 300.00\nMTOr\nHAnNYHbIMM  =500.00\n=500.00\nCAA4A  =200.00\nCYMMA HAC 20%  =50.00");
+  assert.ok(!r.notes.some((n) => /card or cash line/.test(n)), r.notes.join("; "));
+  assert.ok(read("TOBAP 300.00\nMTOr\nHAnNYHbIMM  =300.00\n=300.00\nCYMMA HAC 20%  =50.00").notes.some((n) => /card or cash line/.test(n)));
+});
+
+test("ИТОГ amount with its point read as a dash between spaces", () => {
+  assert.equal(read("CKMaKa.  0.70\nHTor  1247  -00\nOKPYTIEHHE  0.70\nHANHBIII  1247.00\nnONYYEHO  1500.00").cents, 124700);
+});
