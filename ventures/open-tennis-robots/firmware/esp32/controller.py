@@ -362,6 +362,13 @@ SURVEY_KEEP = 128      # wheels whose residuals the board keeps for the median (
 # exponentials of a step and keeps the tau refinement (36 steps a fit, not 15), about 5 s of control ticks a two-wheel
 # ball, so it runs only while the Pi has asked for it (SURVEY_TAKE, sent for a calibration drill, which then waits).
 TAKE_SURVEY_GRID_US = (0, 2000, 3000, 4000, 5000, 6000, 8000)
+# The take survey's t0 search depth (2026-11-18, README "The first-order take misfit traced"). At the record fit's 3
+# levels a noise-free wheel's first, coarse t0 grid now and then settled in the wrong basin, so its rms against tau had
+# cliffs (227 ppm at 300 ms, 42 at 305) and the golden section stopped at 277-330 ms on single candidates, with 3-12
+# times the rms. The survey sums squares, so a few such wheels outvoted the rest: all three first-order instant builds
+# at lag 0.3 s picked 2.5 ms. At 5 levels (60 steps a fit, not 36) every instant build of 24 picked 1 ms or less and
+# every 6 ms build of 12 was named within 1 ms (tests/take_misfit_trace.py). The record fit keeps 3.
+TAKE_SURVEY_LEVELS = 5
 
 
 class ResidualSurvey:
@@ -1881,7 +1888,7 @@ class LaunchCheck:
                 # with the tau refinement the record's fit has: without it (refine=0, as the ESC-lag survey) the fits
                 # missed by about 60 times the refined fit's rms and every candidate scored alike, so a 6 ms take
                 # picked 0 (README "The contact time surveyed on the board")
-                for item in drop_from_commands_steps(snap[k], tk, take=take_offsets(c)):
+                for item in drop_from_commands_steps(snap[k], tk, take=take_offsets(c), levels=TAKE_SURVEY_LEVELS):
                     if item is None:
                         yield None
                     else:
