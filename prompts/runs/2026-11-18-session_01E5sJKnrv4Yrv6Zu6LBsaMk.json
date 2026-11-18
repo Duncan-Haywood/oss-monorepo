@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKnrv4Yrv6Zu6LBsaMk",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T21:18:22Z",
+  "ended": "2026-11-18T21:37:55Z",
+  "wall_minutes": 21.47,
+  "tokens_in": 5748653,
+  "tokens_out": 28302,
+  "cost_usd": 2.6527,
+  "tool_calls": 55,
+  "task": "Explore: copy drift across vendored helpers",
+  "projects": [
+    "platform/ci",
+    "ventures (36 usage.mjs)"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17432",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/usage_contract.mjs",
+      "issue": "The 'reads that throw' case existed for two counter designs but not the usageAllowed/recordEvent one, so 36 copies passed check_storage_guard while recordEvent threw; a fix in #14699 reached only 3 copies and the contract was not extended then."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a 36-venture diff ran over 10 minutes (portfolio-validate, site tests) and detached; fine, but the PR had to wait on it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Built a report tool (copy_drift.mjs) rather than a CI gate: most drift is deliberate, so a gate would be noise.",
+      "did": "Report plus a targeted contract case for the one real bug it found.",
+      "result": "Contract now catches the bug class (72 breaches on old tree, 0 on fixed)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-the-fix-that-reached-three-of-thirty-nine-copies.md"
+  ],
+  "goal": null,
+  "notes": "Idea: copy drift. Group 45,665 named JS functions across ventures by name; list minority bodies a few tokens from the majority body (token Levenshtein, quote style normalised). First run: 615 candidates; ~40 read. Real bug: usageAllowed() unguarded getItem in 36 of 39 ventures (3 fixed in #14699); with a throwing getItem, recordEvent() threw inside the render try, hiding the price. Verified in Chromium on locksmith-bid-calculator: before 'The operation is insecure.' + price hidden; after $214.43. 36 venture suites pass (run_venture_tests.py). test_copy_drift.mjs 4/4. check_storage_guard.py: 0 breaches (72 with ventures stashed). run_workflow_locally --for-changes: pages 6/6, ventures-tests 5/5, portfolio-validate 100/100, control-plane-guard, conflict-markers, doc-refs passed (uses: steps not run); portfolio-pages 12/12; 7/7 selected workflows passed locally (uses: steps, cross-review and deploy jobs not run). Graduation: a run could triage the report top-down for small real fixes.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ea074028-539e-56bf-95d2-8c4326f7f8db",
+    "transcripts": 1,
+    "first": "2026-11-18T21:18:22Z",
+    "last": "2026-11-18T21:39:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 104,
+        "output": 28302,
+        "thinking": 5111,
+        "cache_read": 5628480,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120069,
+        "api_equivalent_usd": 2.6527,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 104,
+      "output": 28302,
+      "thinking": 5111,
+      "cache_read": 5628480,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120069,
+      "api_equivalent_usd": 2.6527,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 51,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.47,
+      "active_minutes": 21.47,
+      "model_minutes": 4.41,
+      "tool_minutes": 17.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "Writing a token-diff clone report, triaging ~40 findings, patching 36 files with a browser check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 226.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
