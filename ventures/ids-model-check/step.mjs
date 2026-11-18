@@ -1,6 +1,6 @@
 // ISO 10303-21 (STEP physical file) reader for IFC models.
 //
-// parseStep(text) -> { schema, entities: Map<id, {id, type, args}> }
+// parseStep(text) -> { schema, entities: EntityTable<id, {id, type, args}> } (a Map's read interface)
 // (args is read on first use; parseStep(text, { eager: true }) reads it up front)
 // Argument values:
 //   null            $ (unset)
@@ -269,19 +269,24 @@ function recordEnd(t, p) {
 // its subtypes), which only a specification with no entity facet reads, once
 // or twice per entity, and which would otherwise all stay in memory.
 function entityClass(text, errors, policy) {
-  const read = (e) => {
+  const read = (e, p) => {
     try {
-      return new Reader(text, e._p).list();
+      return new Reader(text, p).list();
     } catch (err) {
       errors.push(`#${e.id}: ${err.message}`);
       return [];
     }
   };
+  // Three fields, not four: `_a` holds where the argument list starts (a
+  // number) until the arguments are read and kept, then the arguments (an
+  // array). One field fewer is 8 bytes on each of 3.7 million entities
+  // (eval/entity-table-2026-11-18.md).
   return class StepEntity {
-    constructor(id, type, p) { this.id = id; this.type = type; this._p = p; this._a = undefined; }
+    constructor(id, type, p) { this.id = id; this.type = type; this._a = p; }
     get args() {
-      if (this._a !== undefined) return this._a;
-      const a = read(this);
+      const a0 = this._a;
+      if (typeof a0 !== "number") return a0;
+      const a = read(this, a0);
       if (policy.keep(this.type) || a.length === 0) this._a = a;
       return a;
     }
@@ -295,9 +300,9 @@ function entityClass(text, errors, policy) {
     // once per facet (eval/attribute-any-geometry-2026-11-18.md). A record the
     // shallow read cannot read is read in full, so its error is recorded.
     get shallowArgs() {
-      if (this._a !== undefined || policy.keep(this.type)) return this.args;
+      if (typeof this._a !== "number" || policy.keep(this.type)) return this.args;
       try {
-        return new Reader(text, this._p).shallowList();
+        return new Reader(text, this._a).shallowList();
       } catch {
         return this.args;
       }
@@ -306,12 +311,55 @@ function entityClass(text, errors, policy) {
   };
 }
 
+// The entities by number, with the read-only part of a Map's interface (get,
+// has, size, keys, values, entries, forEach, iteration) in file order, and set
+// for the reader. A Map spent about 32 bytes an entry on 3.7 million entities
+// (its hash table rounds up to a power of two); STEP numbers are close to
+// dense, so here an entity sits at its number in a plain array (8 bytes a
+// slot, holes included) and the file order is a list of 4-byte numbers. A
+// second record with a number already read replaces the first in place, as
+// Map.set did. A number that is not a small non-negative integer, or numbers
+// so sparse that the array would be mostly holes, move the table to a Map,
+// so any file still reads (eval/entity-table-2026-11-18.md).
+export class EntityTable {
+  constructor() { this._at = []; this._ord = new Int32Array(1024); this._n = 0; this._map = null; }
+  get size() { return this._map ? this._map.size : this._n; }
+  get(id) { return this._map ? this._map.get(id) : (Number.isInteger(id) && id >= 0 ? this._at[id] : undefined); }
+  has(id) { return this.get(id) !== undefined; }
+  set(id, e) {
+    if (this._map) { this._map.set(id, e); return this; }
+    if (!(Number.isInteger(id) && id >= 0 && id <= 0x7fffffff) || id > 4 * this._n + 1048576) { this._toMap(); this._map.set(id, e); return this; }
+    const at = this._at;
+    // Holes are filled, not skipped: an index far past the end turns a V8
+    // array into a hash table bigger than the Map it replaces.
+    while (at.length < id) at.push(undefined);
+    if (at[id] === undefined) {
+      if (this._n === this._ord.length) { const o = new Int32Array(this._n * 2); o.set(this._ord); this._ord = o; }
+      this._ord[this._n++] = id;
+    }
+    at[id] = e;
+    return this;
+  }
+  _toMap() {
+    const m = new Map();
+    for (let i = 0; i < this._n; i++) m.set(this._ord[i], this._at[this._ord[i]]);
+    this._map = m; this._at = null; this._ord = null; this._n = 0;
+  }
+  // Drops the order list's spare capacity once the reader is done.
+  trim() { if (!this._map && this._ord.length > this._n) this._ord = this._ord.slice(0, this._n); return this; }
+  *keys() { if (this._map) { yield* this._map.keys(); return; } const o = this._ord, n = this._n; for (let i = 0; i < n; i++) yield o[i]; }
+  *values() { if (this._map) { yield* this._map.values(); return; } const o = this._ord, a = this._at, n = this._n; for (let i = 0; i < n; i++) yield a[o[i]]; }
+  *entries() { if (this._map) { yield* this._map.entries(); return; } const o = this._ord, a = this._at, n = this._n; for (let i = 0; i < n; i++) yield [o[i], a[o[i]]]; }
+  [Symbol.iterator]() { return this.entries(); }
+  forEach(f, self) { for (const [k, v] of this.entries()) f.call(self, v, k, this); }
+}
+
 export function parseStep(text, opts = {}) {
   const schemaM = text.match(/FILE_SCHEMA\s*\(\s*\(\s*'([^']*)'/i);
   const schema = schemaM ? schemaM[1].toUpperCase() : null;
   const dataStart = text.search(/\bDATA\s*;/);
   if (dataStart < 0) throw new Error("not a STEP file: no DATA section");
-  const entities = new Map();
+  const entities = new EntityTable();
   // A comment between records and a multi-type ("complex") instance
   // #5=(IFCA(...)IFCB(...)) are stepped over whole: the scan once matched
   // '#n=X(' inside them, so a record someone had commented out, or text in a
@@ -365,5 +413,5 @@ export function parseStep(text, opts = {}) {
     // until the process ran out of memory.
     re.lastIndex = Math.max(r.p, re.lastIndex);
   }
-  return { schema, entities, errors, policy };
+  return { schema, entities: entities.trim(), errors, policy };
 }
