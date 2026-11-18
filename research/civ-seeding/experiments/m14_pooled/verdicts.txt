@@ -1,0 +1,44 @@
+# Milestone 14: pooled Monte Carlo copies of 16 randomised rules (milestone 13's harness)
+B = 500 joint draws; 5 copies; reference = the 53 primary rules, the copy's (or pooled) columns swapped in for all 16
+
+## sanity: milestone 13's copies rebuilt (only its four rules swapped), max |difference| from m13_streams/verdicts.json 4.99e-06 (rounded to 1e-5 there)
+
+## per rule: joint median per copy | pooled median [5%, 95% bootstrap] | MC se | copy sd | minimax share (pooled)
+  census-dd-measured               0.0148 0.0161 0.0143 0.0150 0.0142 | 0.0134 [0.0056, 0.0238] | 0.03 | 0.08 | 0.034
+  census-dd-matched                0.0173 0.0091 0.0141 0.0151 0.0224 | 0.0142 [0.0061, 0.0260] | 0.22 | 0.48 | 0.020
+  adaptive-dd-0.5-s0.75-measured   0.0220 0.0222 0.0217 0.0232 0.0228 | 0.0209 [0.0140, 0.0324] | 0.03 | 0.06 | 0.000
+  adaptive-dd-0.5-s0.75-matched    0.0180 0.0229 0.0231 0.0248 0.0219 | 0.0205 [0.0129, 0.0305] | 0.11 | 0.25 | 0.000
+  adaptive-dd-0.5-s0.25            0.0185 0.0287 0.0194 0.0141 0.0177 | 0.0181 [0.0109, 0.0288] | 0.24 | 0.54 | 0.000
+  adaptive-dd-0.5                  0.0303 0.0254 0.0208 0.0189 0.0189 | 0.0217 [0.0119, 0.0344] | 0.22 | 0.49 | 0.000
+  adaptive-dd-0.5-s0.75            0.0198 0.0213 0.0158 0.0175 0.0223 | 0.0179 [0.0096, 0.0287] | 0.12 | 0.27 | 0.000
+  census-degree-r0.85              0.0457 0.0421 0.0423 0.0454 0.0439 | 0.0428 [0.0327, 0.0567] | 0.08 | 0.17 | 0.000
+  census-degree-r0.75              0.0382 0.0440 0.0507 0.0415 0.0415 | 0.0420 [0.0317, 0.0541] | 0.21 | 0.47 | 0.000
+  census-degree-r0.5               0.0503 0.0488 0.0473 0.0410 0.0504 | 0.0458 [0.0349, 0.0594] | 0.17 | 0.39 | 0.000
+  census-dd-r0.85                  0.0182 0.0233 0.0218 0.0168 0.0129 | 0.0175 [0.0091, 0.0292] | 0.18 | 0.41 | 0.002
+  census-dd-r0.75                  0.0147 0.0165 0.0162 0.0119 0.0108 | 0.0125 [0.0052, 0.0216] | 0.11 | 0.26 | 0.080
+  census-dd-r0.5                   0.0149 0.0204 0.0212 0.0202 0.0208 | 0.0174 [0.0108, 0.0285] | 0.12 | 0.26 | 0.002
+  adaptive-dd-0.5-s0.75-r0.85      0.0232 0.0320 0.0264 0.0192 0.0195 | 0.0223 [0.0147, 0.0345] | 0.24 | 0.53 | 0.000
+  adaptive-dd-0.5-s0.75-r0.75      0.0215 0.0231 0.0180 0.0228 0.0233 | 0.0199 [0.0132, 0.0298] | 0.10 | 0.22 | 0.000
+  adaptive-dd-0.5-s0.75-r0.5       0.0381 0.0271 0.0309 0.0293 0.0344 | 0.0305 [0.0224, 0.0425] | 0.19 | 0.44 | 0.000
+
+## reference rows, pooled reading: perfect census dd-0.05 0.0108, census top degree 0.0398
+
+## split at f = 0.5, perfect recall (pooled difference, per-copy differences, MC se, pooled paired share)
+  s0.75 - half split: -0.38 point; copies -1.05 -0.41 -0.50 -0.14 +0.35; se 0.23; s0.75 lower in 0.834 of draws
+  s0.25 - half split: -0.36 point; copies -1.18 +0.33 -0.14 -0.48 -0.12; se 0.25
+
+## recall: rho = 0.75 minus rho = 0.5 (pooled, per copy, MC se); and 0.85 minus 0.75
+  census-degree          -0.38 point; copies -1.21 -0.47 +0.34 +0.04 -0.88; se 0.29 | 0.85 - 0.75: +0.07 (se 0.27)
+  census-dd              -0.48 point; copies -0.03 -0.39 -0.50 -0.84 -1.00; se 0.17 | 0.85 - 0.75: +0.49 (se 0.08)
+  adaptive-dd-0.5-s0.75  -1.06 point; copies -1.66 -0.40 -1.29 -0.65 -1.11; se 0.22 | 0.85 - 0.75: +0.25 (se 0.28)
+
+## milestone 12's H28 on pooled scores: measured minus matched
+  census-dd              -0.07 point (se 0.25)
+  adaptive-dd-0.5-s0.75  +0.04 point (se 0.10)
+
+H34 (every pooled median has MC se <= 0.15 point): refuted; max se 0.24 (adaptive-dd-0.5-s0.25)
+H35 (pooled s0.75 - half split <= -0.25 point and below -2 se): refuted; -0.38, 2 se = 0.46
+H36 (rho 0.75 row no more than 2 se above rho 0.5): held; census-degree -0.38 (2 se 0.57), census-dd -0.48 (2 se 0.34), adaptive-dd-0.5-s0.75 -1.06 (2 se 0.45)
+H37 (adaptive-dd-0.5-s0.75-r0.85 pooled median <= 2.5%, beats perfect census top degree in >= 90%): held; 0.0223, 0.972
+prediction (not tested): pooled within 0.5 point of copy 0: max |shift| 0.86 point
+exploratory: rank correlation of copy sd with pooled minimax share over the 16 rules: -0.04
