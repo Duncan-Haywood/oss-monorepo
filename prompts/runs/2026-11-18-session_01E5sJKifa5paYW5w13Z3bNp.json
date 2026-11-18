@@ -1,0 +1,507 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKifa5paYW5w13Z3bNp",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T13:13:39Z",
+  "ended": "2026-11-18T13:14:02Z",
+  "wall_minutes": 8.98,
+  "tokens_in": 4520340,
+  "tokens_out": 20315,
+  "cost_usd": 1.9495,
+  "tool_calls": 55,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17309",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A platform campaign drew platform/audio/test_narrate.py and reported a red baseline: bare python3 lacks numpy (not a code defect). Re-ran redteam.py under the pyenv interpreter.",
+    "The rerun of the flipped main-module mutant in platform/deploy/build.mjs ran the CLI on import and wrote dist/deploy at the repo root (gitignored); removed it by hand."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "The probe treats an ImportError (numpy missing under bare python3) as a red baseline and tells you to fix it as a real defect. The campaign should run Python suites under pyenv.py's interpreter, or report a missing dependency separately from a red baseline."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "rerun measures usage.mjs targets with the venture suite only, so contract-caught gaps still read caught_after_fix: false (same root cause as open defect 2026-11-15 #0)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 11 open defects need control-plane PRs that wait on owner approval, so none were fixed in this run.",
+      "did": "Went straight to the campaigns.",
+      "result": "Three campaigns finished and nine gaps were closed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-redteam-a-day-stamp-with-a-trailing-t.md"
+  ],
+  "goal": null,
+  "notes": "Guard added (4b): usage_contract.mjs dayStampProblems. CI already runs it via check_storage_guard.py. First run: 1286 copies OK, and it rejects the escaped .slice(0, 11) mutant. Local checks: test_check_storage_guard 46 OK (10 fail against the old contract); basement venture node --test 160 pass; build.test CLI test passes; check_posts ok. platform/deploy node --test (4 files) 43 pass; prompts unittest OK.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/basement-finishing-bid-calculator/calc.mjs",
+        "test": "node --test ventures/basement-finishing-bid-calculator/**/*.test.mjs  (in .)",
+        "seed": 642885658,
+        "commit": "184e45a0b",
+        "sites": 264,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/basement-finishing-bid-calculator/calc.mjs",
+            "line": 173,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "framePerSf: 0,",
+            "after": "framePerSf: 1,",
+            "line_text": "      framePerSf: 0,",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/basement-finishing-bid-calculator/calc.mjs",
+            "line": 262,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "hoursPerEgress: 8,",
+            "after": "hoursPerEgress: 9,",
+            "line_text": "    hoursPerEgress: 8,",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/basement-finishing-bid-calculator/calc.mjs",
+            "line": 316,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "const hoursPerBedroom = number(input.hoursPerBedroom ?? 0, 'Hours per bedroom');",
+            "after": "const hoursPerBedroom = number(input.hoursPerBedroom ?? 1, 'Hours per bedroom');",
+            "line_text": "  const hoursPerBedroom = number(input.hoursPerBedroom ?? 0, 'Hours per bedroom');",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test omitted a numeric field; added 'an omitted number counts as zero, for every numeric field' in calc.test.mjs (covers every ?? 0 default, not just this one)."
+          },
+          {
+            "file": "ventures/basement-finishing-bid-calculator/calc.mjs",
+            "line": 327,
+            "col": 62,
+            "operator": "const-plus-one",
+            "before": "const shellInvoicePerSf = number(input.shellInvoicePerSf ?? 0, 'Shell invoice per SF');",
+            "after": "const shellInvoicePerSf = number(input.shellInvoicePerSf ?? 1, 'Shell invoice per SF');",
+            "line_text": "  const shellInvoicePerSf = number(input.shellInvoicePerSf ?? 0, 'Shell invoice per SF');",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test omitted a numeric field; added 'an omitted number counts as zero, for every numeric field' in calc.test.mjs (covers every ?? 0 default, not just this one)."
+          },
+          {
+            "file": "ventures/basement-finishing-bid-calculator/calc.mjs",
+            "line": 340,
+            "col": 27,
+            "operator": "times-to-div",
+            "before": "const buySf = finishedSf * (1 + wasteRate);",
+            "after": "const buySf = finishedSf / (1 + wasteRate);",
+            "line_text": "  const buySf = finishedSf * (1 + wasteRate);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/basement-finishing-bid-calculator/calc.mjs",
+            "line": 360,
+            "col": 35,
+            "operator": "times-to-div",
+            "before": "const frameMaterial = finishedSf * framePerSf;",
+            "after": "const frameMaterial = finishedSf / framePerSf;",
+            "line_text": "  const frameMaterial = finishedSf * framePerSf;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/basement-finishing-bid-calculator/calc.mjs",
+            "line": 374,
+            "col": 39,
+            "operator": "plus-to-minus",
+            "before": "const finishMaterial = frameMaterial + insulationMaterial + drywallMaterial",
+            "after": "const finishMaterial = frameMaterial - insulationMaterial + drywallMaterial",
+            "line_text": "  const finishMaterial = frameMaterial + insulationMaterial + drywallMaterial",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/basement-finishing-bid-calculator/calc.mjs",
+            "line": 375,
+            "col": 38,
+            "operator": "plus-to-minus",
+            "before": "+ shellMaterial + ceilingMaterial + floorMaterial;",
+            "after": "+ shellMaterial + ceilingMaterial - floorMaterial;",
+            "line_text": "    + shellMaterial + ceilingMaterial + floorMaterial;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/graphql-introspection-exposure-check/usage.mjs",
+        "test": "node --test ventures/graphql-introspection-exposure-check/**/*.test.mjs  (in .)",
+        "seed": 530301324,
+        "commit": "184e45a0b",
+        "sites": 22,
+        "baseline_seconds": 0.5,
+        "mutants": [
+          {
+            "file": "ventures/graphql-introspection-exposure-check/usage.mjs",
+            "line": 26,
+            "col": 11,
+            "operator": "false-to-true",
+            "before": "return false;",
+            "after": "return true;",
+            "line_text": "    return false;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": false,
+            "note": "Escaped the venture suite only: platform/ci/usage_contract.mjs (run in CI by check_storage_guard.py) rejects it, verified by hand on a one-venture tree (exit 1). This is the known suite_for gap, open defect 2026-11-15 #0 (control plane)."
+          },
+          {
+            "file": "ventures/graphql-introspection-exposure-check/usage.mjs",
+            "line": 31,
+            "col": 27,
+            "operator": "or-to-and",
+            "before": "if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;",
+            "after": "if (optedOut || !storage && readOptOut(storage) || honorsBrowserSignal()) return;",
+            "line_text": "  if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": false,
+            "note": "Escaped the venture suite only: platform/ci/usage_contract.mjs (run in CI by check_storage_guard.py) rejects it, verified by hand on a one-venture tree (exit 1). This is the known suite_for gap, open defect 2026-11-15 #0 (control plane)."
+          },
+          {
+            "file": "ventures/graphql-introspection-exposure-check/usage.mjs",
+            "line": 33,
+            "col": 52,
+            "operator": "const-plus-one",
+            "before": "const today = new Date().toISOString().slice(0, 10);",
+            "after": "const today = new Date().toISOString().slice(0, 11);",
+            "line_text": "    const today = new Date().toISOString().slice(0, 10);",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": false,
+            "note": "Escaped the venture suite AND platform/ci/usage_contract.mjs (checked by hand on a one-venture tree): nothing read the last_day value. Added dayStampProblems to the contract (all three designs) + DayStamp tests and two PARAM_MUTANTS in test_check_storage_guard.py; contract green on all 1286 copies, rejects this mutant. rerun measures only the venture suite (open defect 2026-11-15 #0), so caught_after_fix may read false; CI now catches it."
+          },
+          {
+            "file": "ventures/graphql-introspection-exposure-check/usage.mjs",
+            "line": 34,
+            "col": 58,
+            "operator": "or-to-and",
+            "before": "let current = JSON.parse(storage.getItem(STORAGE_KEY) || '{}');",
+            "after": "let current = JSON.parse(storage.getItem(STORAGE_KEY) && '{}');",
+            "line_text": "    let current = JSON.parse(storage.getItem(STORAGE_KEY) || '{}');",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/graphql-introspection-exposure-check/usage.mjs",
+            "line": 35,
+            "col": 35,
+            "operator": "neq-flip",
+            "before": "if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};",
+            "after": "if (!current || typeof current === 'object' || Array.isArray(current)) current = {};",
+            "line_text": "    if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/graphql-introspection-exposure-check/usage.mjs",
+            "line": 35,
+            "col": 48,
+            "operator": "or-to-and",
+            "before": "if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};",
+            "after": "if (!current || typeof current !== 'object' && Array.isArray(current)) current = {};",
+            "line_text": "    if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": false,
+            "note": "Escaped the venture suite only: platform/ci/usage_contract.mjs (run in CI by check_storage_guard.py) rejects it, verified by hand on a one-venture tree (exit 1). This is the known suite_for gap, open defect 2026-11-15 #0 (control plane)."
+          },
+          {
+            "file": "ventures/graphql-introspection-exposure-check/usage.mjs",
+            "line": 36,
+            "col": 43,
+            "operator": "plus-to-minus",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 0) - 1;",
+            "line_text": "    current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/graphql-introspection-exposure-check/usage.mjs",
+            "line": 36,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 0) + 2;",
+            "line_text": "    current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/deploy/build.mjs",
+        "test": "node --test platform/deploy/build.test.mjs  (in .)",
+        "seed": 533145431,
+        "commit": "184e45a0b",
+        "sites": 14,
+        "baseline_seconds": 12.9,
+        "mutants": [
+          {
+            "file": "platform/deploy/build.mjs",
+            "line": 20,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if (e.name === '.terraform' || e.name === '.terraform.lock.hcl') continue;",
+            "after": "if (e.name !== '.terraform' || e.name === '.terraform.lock.hcl') continue;",
+            "line_text": "    if (e.name === '.terraform' || e.name === '.terraform.lock.hcl') continue;",
+            "caught": true,
+            "seconds": 12.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/deploy/build.mjs",
+            "line": 20,
+            "col": 42,
+            "operator": "eq-flip",
+            "before": "if (e.name === '.terraform' || e.name === '.terraform.lock.hcl') continue;",
+            "after": "if (e.name === '.terraform' || e.name !== '.terraform.lock.hcl') continue;",
+            "line_text": "    if (e.name === '.terraform' || e.name === '.terraform.lock.hcl') continue;",
+            "caught": true,
+            "seconds": 12.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/deploy/build.mjs",
+            "line": 36,
+            "col": 32,
+            "operator": "true-to-false",
+            "before": "await fs.rm(out, { recursive: true, force: true });",
+            "after": "await fs.rm(out, { recursive: false, force: true });",
+            "line_text": "  await fs.rm(out, { recursive: true, force: true });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/deploy/build.mjs",
+            "line": 38,
+            "col": 54,
+            "operator": "true-to-false",
+            "before": "await fs.mkdir(path.join(out, 'apps'), { recursive: true });",
+            "after": "await fs.mkdir(path.join(out, 'apps'), { recursive: false });",
+            "line_text": "  await fs.mkdir(path.join(out, 'apps'), { recursive: true });",
+            "caught": false,
+            "seconds": 12.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "The line above, mkdir(out/vendor, {recursive:true}), has already created out, so a non-recursive mkdir of out/apps succeeds identically (out was just rm'd, so apps cannot pre-exist)."
+          },
+          {
+            "file": "platform/deploy/build.mjs",
+            "line": 55,
+            "col": 132,
+            "operator": "true-to-false",
+            "before": "JSON.stringify(apps.map(({ slug, title, description, serverFiles }) => ({ slug, title, description, ...(serverFiles ? { server: true } : {}) }))),",
+            "after": "JSON.stringify(apps.map(({ slug, title, description, serverFiles }) => ({ slug, title, description, ...(serverFiles ? { server: false } : {}) }))),",
+            "line_text": "    JSON.stringify(apps.map(({ slug, title, description, serverFiles }) => ({ slug, title, description, ...(serverFiles ? { server: true } : {}) }))),",
+            "caught": true,
+            "seconds": 13.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/deploy/build.mjs",
+            "line": 63,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (process.argv[1] === fileURLToPath(import.meta.url)) {",
+            "after": "if (process.argv[2] === fileURLToPath(import.meta.url)) {",
+            "line_text": "if (process.argv[1] === fileURLToPath(import.meta.url)) {",
+            "caught": false,
+            "seconds": 12.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The CLI entry block (what portfolio-pages.yml runs) had no test. Added 'the CLI the pages workflow runs builds into --out and says how many apps' in build.test.mjs (spawns node build.mjs --out=<tmp>, checks stdout and catalog.json)."
+          },
+          {
+            "file": "platform/deploy/build.mjs",
+            "line": 63,
+            "col": 20,
+            "operator": "eq-flip",
+            "before": "if (process.argv[1] === fileURLToPath(import.meta.url)) {",
+            "after": "if (process.argv[1] !== fileURLToPath(import.meta.url)) {",
+            "line_text": "if (process.argv[1] === fileURLToPath(import.meta.url)) {",
+            "caught": false,
+            "seconds": 18.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The CLI entry block (what portfolio-pages.yml runs) had no test. Added 'the CLI the pages workflow runs builds into --out and says how many apps' in build.test.mjs (spawns node build.mjs --out=<tmp>, checks stdout and catalog.json)."
+          },
+          {
+            "file": "platform/deploy/build.mjs",
+            "line": 64,
+            "col": 83,
+            "operator": "const-plus-one",
+            "before": "const out = path.resolve(process.argv.find((a) => a.startsWith('--out='))?.slice(6) ?? 'dist/deploy');",
+            "after": "const out = path.resolve(process.argv.find((a) => a.startsWith('--out='))?.slice(7) ?? 'dist/deploy');",
+            "line_text": "  const out = path.resolve(process.argv.find((a) => a.startsWith('--out='))?.slice(6) ?? 'dist/deploy');",
+            "caught": false,
+            "seconds": 14.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The CLI entry block (what portfolio-pages.yml runs) had no test. Added 'the CLI the pages workflow runs builds into --out and says how many apps' in build.test.mjs (spawns node build.mjs --out=<tmp>, checks stdout and catalog.json)."
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "808c9dd1-a89e-59ab-9aa0-a3d94584282d",
+    "transcripts": 1,
+    "first": "2026-11-18T13:13:39Z",
+    "last": "2026-11-18T13:22:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 103,
+        "output": 20315,
+        "thinking": 3344,
+        "cache_read": 4438352,
+        "cache_write_5m": 0,
+        "cache_write_1h": 81885,
+        "api_equivalent_usd": 1.9495,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 103,
+      "output": 20315,
+      "thinking": 3344,
+      "cache_read": 4438352,
+      "cache_write_5m": 0,
+      "cache_write_1h": 81885,
+      "api_equivalent_usd": 1.9495,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 52,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.98,
+      "active_minutes": 8.98,
+      "model_minutes": 4.34,
+      "tool_minutes": 4.64,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "three mutation campaigns, triage, a contract check with tests, two suite tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 205.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

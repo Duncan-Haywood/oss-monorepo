@@ -1,0 +1,37 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 48 post hoc: poses with no side that holds at every hose load
+## 1. robot | pose | loads at which no side combination has a plan at either window end [H, phi: combinations with a hold solution / with a margin, 25 N end; 50 N end]
+  g1 [1.0, -0.15] (64 combinations) | 3 of 17 loads: [20, 135: 48/48, 0/0]; [20, 180: 48/48, 0/0]; [20, 225: 51/51, 0/0]
+  g1 [1.0, 0.0] (64 combinations) | 1 of 17 loads: [20, 180: 54/54, 0/0]
+  g1 [1.0, 0.15] (64 combinations) | 1 of 17 loads: [20, 180: 48/48, 0/0]
+  g1 [1.2, -0.15] (64 combinations) | 5 of 17 loads: [20, 135: 48/48, 0/0]; [20, 180: 48/48, 0/0]; [20, 225: 44/44, 0/0]; [20, 270: 37/37, 0/0]; [5, 180: 48/48, 0/0]
+  g1 [1.2, 0.0] (64 combinations) | 4 of 17 loads: [20, 135: 52/52, 0/0]; [20, 180: 56/56, 0/0]; [20, 225: 52/52, 0/0]; [5, 180: 56/56, 0/0]
+  g1 [1.2, 0.15] (64 combinations) | 4 of 17 loads: [20, 135: 56/56, 0/0]; [20, 180: 48/48, 0/0]; [20, 225: 48/48, 0/0]; [5, 180: 48/48, 0/0]
+  h1 [1.6, 0.0] (16 combinations) | 3 of 17 loads: [20, 135: 16/16, 0/0]; [20, 180: 15/15, 0/0]; [20, 225: 15/15, 0/0]
+  h1 [1.6, 0.15] (16 combinations) | 3 of 17 loads: [20, 135: 16/16, 0/0]; [20, 180: 16/16, 0/0]; [20, 225: 16/16, 0/0]
+## 2. Section D's sweep: swept cases with no plan (dropped from the worst residual), per pose on milestone 48's sides: robot | H | cases per pose | poses with any dropped case: pose dropped
+  g1 |  0.0 | 6 | none
+  g1 |  5.0 | 48 | [0.4, -0.15] 2, [0.4, 0.0] 2, [0.4, 0.15] 2, [0.6, -0.15] 2, [0.6, 0.0] 2, [0.6, 0.15] 2, [0.8, -0.15] 2, [0.8, 0.0] 2, [0.8, 0.15] 2, [1.0, -0.15] 2, [1.0, 0.0] 2, [1.0, 0.15] 2, [1.2, -0.15] 11, [1.2, 0.0] 8, [1.2, 0.15] 14
+  g1 | 20.0 | 48 | [0.4, -0.15] 9, [0.4, 0.0] 9, [0.4, 0.15] 9, [0.6, -0.15] 9, [0.6, 0.0] 9, [0.6, 0.15] 9, [0.8, -0.15] 9, [0.8, 0.0] 9, [0.8, 0.15] 9, [1.0, -0.15] 21, [1.0, 0.0] 9, [1.0, 0.15] 15, [1.2, -0.15] 27, [1.2, 0.0] 27, [1.2, 0.15] 21
+  h1 |  0.0 | 6 | none
+  h1 |  5.0 | 48 | [1.6, 0.0] 5
+  h1 | 20.0 | 48 | [1.6, 0.0] 18, [1.6, 0.15] 18
+  g1: 258 of 1530 pose-cases dropped
+  h1: 41 of 1938 pose-cases dropped
+
+(run time 162 s)

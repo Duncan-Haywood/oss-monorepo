@@ -15,7 +15,7 @@ team, a plain-text version to paste into a group chat, and a share link that car
 
 - **A spreadsheet or a hand-drawn grid:** free, but home/away balance, byes in odd leagues and court sharing are easy to get wrong, and a rainout means redoing the sheet.
 - **League-management platforms** (TeamSnap, LeagueApps, SportsEngine and similar): registration, payments, team messaging and score apps, usually on a paid plan and with accounts for every team. This tool only makes and maintains the schedule: no signup, no upload, free.
-- **What this adds:** a fair round robin with the fewest possible home/away breaks, real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. If you need registration or payments, use a platform and paste this schedule into it.
+- **What this adds:** a fair round robin with the fewest possible home/away breaks, real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; for card processing inside the sign-up, player waivers or messaging, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
 ## Run your own league page (self-hosted)
@@ -26,8 +26,9 @@ play-off bracket, and add their own team's schedule to their calendar (`.ics`). 
 third party: zero dependencies, one JSON file on a disk you own.
 
 - **Alternatives today:** TeamSnap, LeagueApps and SportsEngine hold your players' data behind per-team accounts and
-  paid plans. This is only the publish-fixtures-and-table loop for one league, MIT-licensed. It has no registration,
-  payments or messaging; use one of them if you need those.
+  paid plans. This is the sign-up, publish-fixtures-and-table loop for one league, MIT-licensed. Team sign-ups take
+  the fee on the organiser's own payment link (it never handles a card), and it has no waivers or messaging; use one of
+  them if you need those.
 - **Secrets:** `ADMIN_KEY` unlocks `/admin`; `LEAGUE_TOKEN` is the secret in the player link. The server refuses to
   serve without both. Put it behind HTTPS (Fly and Render do); keys are in the URL, so do not share admin links. Ten wrong links from one address lock it out for 15 minutes (HTTP 429); behind a proxy the last `X-Forwarded-For` hop is used.
 - **Run:** `ADMIN_KEY=a LEAGUE_TOKEN=b STATE=./state.json node server.mjs`, or `docker compose up -d`
@@ -43,7 +44,40 @@ third party: zero dependencies, one JSON file on a disk you own.
   - **Reminder emails** on the deployer's own mail account, off unless `SMTP_HOST` is set (`SMTP_PORT`, default 587; `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`; `REMINDER_TO` is the organiser's address, copied on every reminder; `PUBLIC_URL` puts the league link in the email). At start and every hour the server sends one email per team per game to any team still short of the minimum two days out or less, to that team's contacts (*Team contacts for reminder emails*: `Hawks: captain@example.org`) and the organiser, naming the count, the maybes and the roster players not heard from. A sent reminder is remembered in the state file, so a team gets one per game; a failed send is retried next hour. The client (`mailer.mjs`, no dependencies) uses TLS on 465 or STARTTLS when offered, and never sends a password over an unencrypted connection except to localhost. Contacts accept plain addresses only, and the subject and headers are stripped of line breaks, so nothing typed can add a mail header. Contacts stay in the state file and never reach the player page.
   - Checked: `availability-roster.test.mjs` (parsing, the no-answer lists, the CSV, which reminders are due and to whom, once-only sending, a fake SMTP server for AUTH PLAIN, a refused recipient and a refused login, the server's CSV route) and a Chromium run of the player page (the name box follows the picked team's roster; a team with no roster takes free text; the answer saves). Not checked: STARTTLS and TLS against a real provider (the tests' fake server is plain text), and real inbox delivery. On Fly with `min_machines_running = 0` the hourly check only runs while the machine is awake.
   - Alternatives: TeamSnap and Spond send RSVP reminders to every player account (TeamSnap's free tier limits it); this sends one email only when a team is short, from the league's own mail account, with no player accounts.
-- Tests: `node --test server.test.mjs deploy.test.mjs availability.test.mjs availability-roster.test.mjs`.
+- **Team sign-ups (2026-11-18):** tick *Open sign-ups* in `/admin` and share `/register` (a public page, no secret in
+  the link) in the club newsletter or group chat. A captain types the team name, their name, email, optional phone,
+  the players and a note. Each sign-up waits in `/admin` ("Sign-ups waiting for you"): **Approve** adds the team to
+  Teams, the captain and players to Rosters and the captain's email to Contacts (so availability and the short-team
+  reminders work for the new team at once), **Decline** drops it.
+  - **Cap and waitlist:** set *Most teams*; once the teams listed plus the sign-ups waiting reach it, the form says the
+    league is full and later sign-ups go on a numbered waitlist, shown apart in `/admin`. *Sign-ups close after* shuts
+    the form at the end of that date (UTC).
+  - **Fee:** type the fee as you want it shown (`$450`) and, optionally, your own payment page (a Stripe, Square or
+    PayPal payment link you made; only plain `https://` links are shown). After signing up, the captain sees the fee,
+    the link and the team name to put in the payment's note; you tick **Mark paid** per team, before or after
+    approving, and the "Approved, fee not marked paid" list shows who still owes. This server never sees a card, a key
+    or a payment status.
+  - **Emails:** with SMTP set (the same settings as reminders), the captain gets a confirmation (copied to
+    `REMINDER_TO`) with the fee link; a decline sends nothing, so tell the team yourself.
+  - **Records:** *Download every sign-up (CSV)* (`/admin/signups.csv?key=...`) lists approved, waiting and waitlisted
+    teams with captain, email, phone, players, paid and the time they signed up (cells a spreadsheet would run as a
+    formula are prefixed with `'`).
+  - **Abuse limits:** the page is off until you open it; five sign-ups per address per hour (HTTP 429), 200 waiting at
+    most, a hidden honeypot field, a 64 KB form cap, and team names limited to what the schedule, results and roster
+    lines read back (no `:` `,` `;` `<` `>` or quotes, no leading list number, at least one letter, 40 characters).
+  - **Approving after you publish** rebuilds the round robin with the new team. If the season has started, also add a
+    Late teams line (`2026-11-03 Newbies`) so its earlier games move rather than fall in the past; `/admin` says so.
+  - Alternatives: LeagueApps, SportsEngine and TeamSnap run registration with card processing and waivers on paid
+    plans or a per-transaction fee; a Google Form plus a payment link is free but leaves the organiser to copy each
+    team into the schedule and rosters by hand. This is the Google-Form route with the copying, the cap and the
+    waitlist done for you.
+  - Checked: `registration.test.mjs` (11 tests: team-name rules that the schedule, results and roster parsers read
+    back; required fields, duplicates and the honeypot; cap and waitlist order; closing date; approve into Teams,
+    Rosters and Contacts with the league still building and a result for the new team parsed; the paid tick; the CSV
+    and its formula guard; the per-address limit; the payment-link filter; the confirmation email; and through the
+    HTTP server: closed by default, sign-up, waitlist, kept values on a bad form, admin approve, decline, paid and CSV,
+    and saving the settings). No real league has used it yet.
+- Tests: `node --test server.test.mjs deploy.test.mjs availability.test.mjs availability-roster.test.mjs registration.test.mjs`.
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

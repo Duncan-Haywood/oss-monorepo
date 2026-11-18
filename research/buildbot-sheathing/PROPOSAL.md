@@ -446,6 +446,23 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    poses milestone 38 skipped a plan (not yet swept), and cuts the H1's worst residual at 20 N drag from 0.032 to 0.010
    mm; but the G1 rises from 0.011 to 0.037 mm at 20 N (a leg joint flips at three poses), so sides must be scored
    under drag.
+48. **Hold sides scored under drag** (done 2026-11-18, `experiments/m48_loadside/`): the side with the largest worst
+   margin over 17 hose loads returns the G1 to 0.016 / 0.011 / 0.011 mm at 0 / 5 / 20 N and keeps the H1's 0.010 /
+   0.014 / 0.010, at no stack cost; but at 8 of 34 poses no side has a plan under 20 N of backward drag at the 50 N
+   press, and the G1's worst residuals since milestone 41 cover only 83% of the swept cases (the rest have no plan).
+49. **Backward-hose infeasibility** (done 2026-11-18, `experiments/m49_backload/`): a stance limit, not a solver
+   false negative. At the 50 N end of all 24 cells no force balances the base in the μ 0.5 cones (best slack
+   &minus;23.77 to &minus;0.10 N); the robot tips back. 20 N of backward drag lowers the top of the press window by
+   about 15 N (G1 51.6 to 36.4 N, H1 58.7 to 42.8 N), below the 50 N press. Next: re-lean those poses for the drag.
+50. **Re-lean under drag** (done 2026-11-18, `experiments/m50_relean/`): no forward lean keeps the 8 poses balanced
+   at 25 and 50 N under all 17 hose loads (best worst cone slack &minus;0.69 to &minus;10.12 N); a forward lean trades
+   backward-drag headroom for forward. The drag each pose tolerates is linear in its press headroom (H206 held): the
+   G1 at 1.2 m grips 4.0 N straight back, 11.4 to 13.4 N in every direction at its best lean; every pose that has a
+   plan tolerates at least 20.1 N. Next: a hose-management rule (dragged length or reel tension per pose).
+51. **Drag envelope** (done 2026-11-18, `experiments/m51_envelope/`): every swept case past milestone 50's drag
+   limits (at the pose or the calibration pose) has no plan (G1 162 of 162, H1 36 of 36); inside them the G1 plans
+   93.0% (83.1% overall), the H1 99.7%, in spec (H209 held). 101 cases inside have no plan (H208 refuted), 75 of the
+   G1's 96 at its one calibration pose. Next: calibrate with the hose slack and rerun the sweep.
 
 ## Target venue
 

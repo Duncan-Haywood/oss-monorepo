@@ -1275,3 +1275,19 @@ test("one-division league: singleAsDivisions gives duties and team sheets with b
     assert.ok(!/\[\]/.test(divisionsDutiesText(r)));
   }
 });
+
+test("duties named like Object.prototype keys are counted as numbers, so the per-duty fairness rule still applies", async () => {
+  const { parseDivisionDuties, assignDivisionDuties, validateDivisionDuties } = await import("./divisions.mjs");
+  const s = build();
+  for (const name of ["constructor", "toString", "__proto__", "valueOf"]) {
+    const pd = parseDivisionDuties(`${name}: 1\nScoreboard: 1`);
+    assert.deepEqual(pd.errors, [], name);
+    const r = assignDivisionDuties(s, pd.duties);
+    assert.deepEqual(validateDivisionDuties(s, pd.duties, r), [], name);
+    for (const duty of [name, "Scoreboard"]) {
+      const counts = r.loads.map((l) => (Object.hasOwn(l.byDuty, duty) ? l.byDuty[duty] : 0));
+      assert.ok(counts.every((c) => Number.isInteger(c)), `${name}/${duty}: ${counts.map(String).join(",").slice(0, 80)}`);
+      assert.equal(counts.reduce((a, b) => a + b, 0), r.rows.filter((x) => x.duty === duty).length, `${name}/${duty}`);
+    }
+  }
+});

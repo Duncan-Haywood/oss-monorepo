@@ -622,6 +622,52 @@ at the loads the robot meets. H187 to H189, H191 and H192 held, H190 refuted. St
 
 ![Common leg margin at every pose on one side per robot against per-pose sides, and each robot's worst residual along the wall](experiments/m47_poseside/figure.png)
 
+**Milestone 48: what if hold sides are scored under hose drag?** The G1 is back in spec and the H1 keeps its gain.
+Each pose took the side combination whose smallest common leg margin over 17 hose loads (0, 5 and 20 N, eight
+directions) and both press ends is largest. The G1's worst residual along the wall with a 0.2 N sensor error is
+0.016 / 0.011 / **0.011 mm** at 0 / 5 / 20 N of drag (milestone 47: 0.037 at 20 N), the H1's 0.010 / 0.014 /
+0.010 mm, and no pose's stack moves. Two limits: at 8 of 34 poses (the G1's 1.0 and 1.2 m grips, the H1's 1.6 m) no
+side has a plan with 20 N pulling backward at the 50 N press, so those poses keep the old sides; and a post hoc finds
+the G1's worst residuals since milestone 41 are worst over the 83% of swept cases that have a plan (258 of 1530
+pose-cases have none), so coverage belongs beside every worst case. H193 to H195 and H197 held, H196 and H198
+refuted. Statics.
+
+![Worst common leg margin over the hose sweep per pose on three side rules, and each robot's worst residual along the wall](experiments/m48_loadside/figure.png)
+
+**Milestone 49: why do 8 poses have no plan under a backward hose?** The robot tips back; the solver is not wrong.
+At the 50 N press end of all 24 failing (pose, hose load) cells, no contact force balances the base inside the
+μ 0.5 friction cones (best cone slack &minus;23.77 to &minus;0.10 N), while the 25 N end balances at every cell and
+the preload margin LP solves at all 984 hold solutions there. Milestone 48's post hoc had misread its own table as a
+disagreement between two solvers. The soles' net horizontal load is at most 0.19 of the vertical, so it is not
+sliding: 13 of the G1's 18 cells do not balance even with unlimited friction. 20 N of backward drag lowers the top
+of the press window by about 15 N (G1 51.6 to 36.4 N, H1 58.7 to 42.8 N), below the 50 N firing press. Those poses
+need a forward lean that covers the drag, or a hose routed so it does not pull back. H199 and H200 refuted, H201 to
+H203 not tested (they were conditional on a solver fault). Statics.
+
+![Largest press the soles balance with and without each cell's hose drag, and the best friction-cone slack at a 50 N press](experiments/m49_backload/figure.png)
+
+**Milestone 50: can a forward lean fix it, and how much hose drag can a humanoid nailing a wall take?** No lean
+fixes it; the hose has to be managed. On a 5 mm grid of forward lean (0 to 150 mm, then refined), the worst
+friction-cone slack over 17 hose loads at a 25 and a 50 N press stays below zero at all 8 poses (best &minus;0.69 N
+for the G1 at 1.0 m grips, &minus;10.12 N at 1.2 m): leaning forward buys headroom against a hose pulling back and
+spends it against one pulling forward. At its current lean the G1 at 1.2 m grips tolerates only 4.0 to 4.2 N of hose
+tension pulling straight back, about 3 m of rubber air hose dragging on the floor at μ_f 0.5 (unsourced); at its
+best lean 11.4 to 13.4 N in every direction. The tolerated drag is linear in the press headroom, (top &minus; 50 N) / 0.78,
+to within 9% (H206 held); H204 and H205 refuted, H207 not tested. Statics.
+
+![Worst friction-cone slack over 17 hose loads against forward lean, and the hose tension each pose tolerates per direction](experiments/m50_relean/figure.png)
+
+**Milestone 51: does keeping the hose inside each pose's drag limit give every case a plan?** Not quite. Every swept
+case whose drag exceeds milestone 50's limit (at the pose or at the calibration pose) has no plan: 162 of 162 on the
+G1, 36 of 36 on the H1. Inside that envelope the G1 plans 93.0% of its cases (83.1% overall) and the H1 99.7%, and the
+worst residuals stay in spec (G1 0.016 / 0.011 / 0.011 mm, H1 0.010 / 0.014 / 0.010 mm at 0 / 5 / 20 N; H209 held).
+But 101 cases inside it still have no plan (H208 refuted): 75 of the G1's 96 come from its one calibration pose, 45 of
+them under 20 N pulling sideways, at 35% of the drag it balances, and with an exact sensor too. The rest are plan
+limits at the 1.0 to 1.6 m grips and sensor error (H210 held). So the G1 needs the calibration taken with the hose
+slack, as well as the per-pose drag limits. Statics.
+
+![Why the sweep drops cases (outside the drag envelope, or a plan limit inside it) and the worst residual inside the envelope](experiments/m51_envelope/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

@@ -507,7 +507,13 @@ function propertyIssues(f, ctx, spec, where) {
 }
 
 export function auditIds(ids, { schemas, typeMap, psets } = {}) {
-  const out = [];
+  // The file's structure against ids.xsd first (structure.mjs): element order,
+  // allowed attributes and their fixed values. `structure: true` marks them.
+  // Capped at 200: a file written without <simpleValue> wrappers can break
+  // the schema 50,000 times, and the first findings say what to fix.
+  const structure = ids.structure || [];
+  const out = structure.slice(0, 200).map((x) => ({ spec: x.spec, specName: x.spec === null ? "IDS file" : ids.specs[x.spec]?.name ?? `specification ${x.spec + 1}`, facet: x.line ? `line ${x.line}` : null, level: x.level, code: x.code, message: x.message, structure: true, ...(x.topic ? { topic: x.topic } : {}) }));
+  if (structure.length > 200) out.push({ spec: null, specName: "IDS file", facet: null, level: "error", code: "xsd-more", message: `${(structure.length - 200).toLocaleString("en-US")} more places break ids.xsd; fix the ones above and audit again`, structure: true });
   ids.specs.forEach((spec, i) => {
     const add = (facet, issue) => out.push({ spec: i, specName: spec.name, facet, ...issue });
     for (const v of spec.ifcVersion) if (!VERSIONS.includes(v)) add(null, { level: "error", code: "version-unknown", message: `ifcVersion ${v} is not one of IFC2X3, IFC4, IFC4X3_ADD2` });
@@ -541,5 +547,10 @@ export function auditIds(ids, { schemas, typeMap, psets } = {}) {
       }
     }
   });
-  return out;
+  // A structure finding the checks above already made in their own words
+  // (a partOf relation, an ifcVersion, a classification with no system) is
+  // kept once: the specific message, which says what to write instead.
+  const SAME = { relation: ["relation-voids-fills", "relation-unknown"], ifcVersion: ["version-unknown"], "classification-system": ["classification-no-system"] };
+  const said = new Set(out.filter((x) => !x.structure).map((x) => x.spec + " " + x.code));
+  return out.filter((x) => !(x.structure && x.topic && SAME[x.topic].some((c) => said.has(x.spec + " " + c))));
 }

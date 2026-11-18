@@ -731,6 +731,37 @@ worst residual along the wall at 20 N of hose drag from 0.032 to 0.010 mm. On th
 residual at 20 N rises from 0.011 to 0.037 mm: at three poses a leg joint that the zero-drag score
 does not weigh flips under drag. Hold sides should be scored at the loads the controller will meet.
 
+Scored at those loads, they do both (milestone 48). Taking at each pose the sides whose smallest
+common leg margin over 17 hose loads and both press ends is largest returns the G1's worst residual
+to 0.016 / 0.011 / 0.011 mm at 0 / 5 / 20 N of drag and keeps the H1's 0.010 / 0.014 / 0.010 mm, at
+no stack cost. At 8 of 34 poses no side has a plan with 20 N of drag pulling backward at the 50 N
+press, and those keep the per-robot sides. The worst residuals are over the cases that have a plan:
+the G1 has none in 258 of 1530 swept pose-cases (17%), the H1 in 41 of 1938, a coverage the G1 figures
+since milestone 41 also carry.
+
+Those missing plans are a stance limit (milestone 49). At the 50 N press end of all 24 failing cells
+no contact force balances the base inside the friction cones (best cone slack −23.77 to −0.10 N),
+while the 25 N end balances at every cell; the soles' net horizontal load stays at most 0.189 of the
+vertical, so the robot tips back rather than slides. With 20 N of drag pulling straight back, the
+largest press the G1 balances at its 1.2 m grips falls from 51.6 to 36.4 N, and the H1's at 1.6 m from
+58.7 to 42.8 N, below the 50 N press. A pose's lean must leave headroom above 50 N for the hose.
+
+No lean does that for a hose pulling in every direction (milestone 50). Over forward leans of 0 to
+150 mm, the worst friction-cone slack over the 17 hose loads at 25 and 50 N peaks at −0.69 N for the
+G1 at 1.0 m grips and −10.12 N at 1.2 m: what the lean gives to a hose pulling back it takes from one
+pulling forward. The drag a pose tolerates straight back is its press headroom over 50 N divided by
+0.78, to within 9% at all 8 poses; the G1 at its 1.2 m grips tolerates 4.0 N at its current lean and
+11.4 N in every direction at its best. A dragged rubber hose reaches 4.0 N with about 3 m on the
+floor (μ_f 0.5, unsourced), so at high grips the hose has to be fed or carried, not dragged.
+
+Those limits are the right hose rule as far as balance goes, but not all of it (milestone 51). In the
+sweep of section 5.11, every case whose drag passes the limit at its pose or at the calibration pose has
+no plan (162 of 162 on the G1, 36 of 36 on the H1), and inside the limits the G1 plans 1272 of 1368
+cases (93.0%) and the H1 1897 of 1902, with worst residuals unchanged (G1 0.016 mm, H1 0.014 mm). Of the
+101 cases inside with no plan, 75 are on the G1 and come from its one calibration pose: 45 under 20 N
+pulling sideways, at 35% of the drag that pose balances, with no plan even for an exact sensor. Because
+one calibration serves every pose, the calibration should be taken with the hose slack.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

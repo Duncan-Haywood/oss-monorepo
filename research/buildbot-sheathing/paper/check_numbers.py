@@ -53,6 +53,14 @@ M45 = E + "m45_tiered/results.txt"
 M45P = E + "m45_tiered/posthoc.txt"
 M46 = E + "m46_holdside/results.txt"
 M47 = E + "m47_poseside/results.txt"
+M48 = E + "m48_loadside/results.txt"
+M48P = E + "m48_loadside/posthoc.txt"
+M49 = E + "m49_backload/results.txt"
+M49P = E + "m49_backload/posthoc.txt"
+M50 = E + "m50_relean/results.txt"
+M50P = E + "m50_relean/posthoc.txt"
+M51 = E + "m51_envelope/results.txt"
+M51P = E + "m51_envelope/posthoc.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -221,6 +229,27 @@ CHECKS = [
     (M47, "H187 (every pose's S* margin at least 0.1111): smallest 0.8858", "(smallest 0.886 N m)"),
     (M47, "  h1 |  20.0 | 0.010 ([1.6, 0.15], phi 90) | 0.032", "at 20 N of hose drag from 0.032 to 0.010 mm"),
     (M47, "  g1 |  20.0 | 0.037 ([0.6, -0.15], phi 225) | 0.011", "residual at 20 N rises from 0.011 to 0.037 mm"),
+    (M48, "H193 (G1 worst at most 0.03 mm at every drag): 0.016, 0.011, 0.011", "to 0.016 / 0.011 / 0.011 mm at 0 / 5 / 20 N of drag"),
+    (M48, "H195 (H1 worst at most milestone 47's + 0.005 mm): 0.010 (<= 0.015), 0.014 (<= 0.019), 0.010", "keeps the H1's 0.010 / 0.014 / 0.010 mm"),
+    (M48, "  g1: poses on S_H 9 of 15", "At 8 of 34 poses no side has a plan"),
+    (M48, "  h1: poses on S_H 17 of 19", "At 8 of 34 poses no side has a plan"),
+    (M48P, "  g1: 258 of 1530 pose-cases dropped", "the G1 has none in 258 of 1530 swept pose-cases"),
+    (M48P, "  h1: 41 of 1938 pose-cases dropped", "the H1 in 41 of 1938"),
+    (M49, "50 N end: 0 of 24 cells balance; best cone slack -23.77 to -0.10 N", "(best cone slack −23.77 to −0.10 N)"),
+    (M49, "25 N end: 24 of 24 cells balance", "while the 25 N end balances at every cell"),
+    (M49P, "largest |F_h|/F_z 0.189 (mu 0.5)", "at most 0.189 of the\nvertical"),
+    (M49P, "  g1 [1.2, -0.15] | 20 | 180 | -20.0, +0.0, -11.7 | False | > 5 | 36.4 | 51.6", "falls from 51.6 to 36.4 N"),
+    (M49P, "  h1 [1.6, 0.0] | 20 | 180 | -20.0, +0.0, -13.8 | True | > 5 | 42.8 | 58.7", "58.7 to 42.8 N"),
+    (M50, "  g1 [1.0, 0.0] | 90.7 | -0.69 |", "peaks at −0.69 N for the\nG1 at 1.0 m grips"),
+    (M50, "  g1 [1.2, 0.0] | 110.3 | -10.12 |", "−10.12 N at 1.2 m"),
+    (M50, "  H206 g1 [1.2, 0.0]: tolerated at phi 180 4.1 N, linear prediction 3.8 N, off 9%", "to within 9% at all 8 poses"),
+    (M50, "  g1 [1.2, -0.15] | yes | 21.9 | 30.2 | 51.2 | 6.3 | 4.0 |", "tolerates 4.0 N at its current lean"),
+    (M50, "  g1 [1.2, -0.15] | 110.3 | -10.12 | 14.6 | 20.1 | 51.5 | 15.5 | 11.4 |", "11.4 N in every direction at its best"),
+    (M50P, "  g1 [1.2, -0.15] | current | 4.0 | 9.0 | 5.4 | 3.4 | 5.0 | 3.0 |", "with about 3 m on the\nfloor"),
+    (M51P, "  g1 | 1530 | 1272 (83.1%) | 1368 | 1272 (93.0%) | 162", "the G1 plans 1272 of 1368\ncases (93.0%)"),
+    (M51P, "  h1 | 1938 | 1897 (97.9%) | 1902 | 1897 (99.7%) | 36", "the H1 1897 of 1902"),
+    (M51P, "  g1 | 20 | 90 | calibration pose [1.0, 0.0] | calibration, plan limit | 45 | 57.0 (35% of it)", "45 under 20 N\npulling sideways, at 35% of the drag"),
+    (M51, "H208 (every dropped pose-case lies outside the envelope): 101 inside -> refuted", "Of the\n101 cases inside with no plan"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

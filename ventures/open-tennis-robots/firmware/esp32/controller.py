@@ -434,6 +434,7 @@ class ResidualSurvey:
         self.trim = trim
         self.blind = blind          # > 1: leave out a wheel whose worst candidate is within this of its best
         self.blind_n = 0            # wheels left out as take-blind
+        self.kept_n = 0             # wheels added to the sums (the TAKE_SURVEY frame's informative count, to 255)
         self.wheels = []
         self.n = 0
         self.trimmed = 0
@@ -447,6 +448,7 @@ class ResidualSurvey:
             self.n += 1
             return
         self.wheels.append(array("f", got))
+        self.kept_n += 1
         if len(self.wheels) > SURVEY_KEEP:
             self.wheels.pop(0)
         self.n += 1
@@ -867,6 +869,18 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
     yield ("fit", (drop, w0 * before * 60e6, j1 - k + 1, tau, rms, se, dw))
 
 
+# An ESC with its own speed loop (2026-11-18, README "An ESC with its own speed loop"). VESC-class firmware in a speed
+# mode takes the throttle as an rpm setpoint and holds it with a PI loop of its own. WheelLoop's proportional term,
+# tuned for a wheel that follows its throttle as a 0.2-0.8 s lag, then rings in cascade with it: on the simulator 49 of
+# 144 such wheels swung over 1% of target with no ball, the worst 139% (tests/speed_esc_sweep.py). With this on (main.py
+# reads config.ESC_SPEED_LOOP), WheelLoop drops its proportional term and keeps SPEED_ESC_KI_SHARE of its integral
+# gain, a slow trim for an ESC whose setpoint is not exactly throttle x WHEEL_RPM_FULL: 0 of 144 swung over 1% and the
+# worst mean error was 0.05%. 0.5 sits in the band (0.5-0.7) the sweep found flat; 1.0 rang on one wheel, 0.3 had not
+# trimmed a 22% map error within 5 s. Picked on the same cases it is measured on.
+ESC_SPEED_LOOP = False
+SPEED_ESC_KI_SHARE = 0.5
+
+
 def esc_lagged_ticks(periods, ticks, esc_tau_us, dt_us=1000):
     """The tick log with each command replaced by the ESC's own drive: the commands through a lag `esc_tau_us`,
     sampled every `dt_us` (2026-11-16, README "An ESC lag picked from the build's own balls"). An ESC that ramps its
@@ -1162,8 +1176,14 @@ class WheelLoop:
     feedforward: enough for a wheel 22% off `rpm_full` (29%), not enough to switch the wheel off.
     """
 
-    def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3, low_rpm=LOOP_LOW_RPM, ball_band=-1.0, ball_ms=None, ramp_hold=None, i_ff_max=-1.0):
+    def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3, low_rpm=LOOP_LOW_RPM, ball_band=-1.0, ball_ms=None, ramp_hold=None, i_ff_max=-1.0,
+                 speed_esc=None):
         self.ff = 1.0 / rpm_full
+        if ESC_SPEED_LOOP if speed_esc is None else speed_esc:
+            # The ESC holds the speed itself (README "An ESC with its own speed loop"): the board's proportional term
+            # on a 4-revolution tach in cascade with it rang (+-15% at 2,500 rpm behind a 5 Hz ESC loop, no ball),
+            # so the board only trims the ESC's throttle-to-rpm map, slowly.
+            kp, ki = 0.0, ki * SPEED_ESC_KI_SHARE
         self.kp, self.ki, self.i_max = kp, ki, i_max
         self.low = low_rpm
         self.band = LOOP_BALL_BAND if ball_band == -1.0 else ball_band
@@ -2030,6 +2050,10 @@ class LaunchCheck:
         candidate's mean rms in 1e-6 of the pre-ball speed), or None before its first wheel."""
         return self.take_survey.report(100) if self.take_survey is not None else None
 
+    def take_kept(self):
+        """The take survey's wheels summed (not left out as take-blind), for the TAKE_SURVEY frame's last byte."""
+        return self.take_survey.kept_n if self.take_survey is not None else 0
+
     def _esc_survey(self, snap, ticks, edges0, targets):
         for k in (0, 1):
             if targets[k] <= 0:
@@ -2285,7 +2309,9 @@ class Controller:
         tv = tv() if tv is not None and self.role == ROLE_FEEDER else None
         if tv is not None:
             rms = (list(tv[4]) + [65535] * P.TAKE_SURVEY_TIMES)[:P.TAKE_SURVEY_TIMES]
-            out += P.encode(P.TAKE_SURVEY, tv[0], min(65535, tv[1]), min(65535, tv[2]), min(65535, tv[3]), *rms)
+            kept = tv[5] if len(tv) > 5 else 255
+            out += P.encode(P.TAKE_SURVEY, tv[0], min(65535, tv[1]), min(65535, tv[2]), min(65535, tv[3]), *rms,
+                            min(255, kept))
         # The lag the drop fit runs with rides along too (README "Checked before a calibration drill"): the Pi compares
         # it with the last survey before a drill's first ball, since a board told the wrong lag reads spin far off.
         tau = getattr(self.hw, "esc_tau_ms", None)

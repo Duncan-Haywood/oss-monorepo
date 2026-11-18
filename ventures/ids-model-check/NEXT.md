@@ -22,3 +22,10 @@
 - (2026-11-18) number one-of rows 2026-11-17 (eval/number-oneof-2026-11-17.md: 663 of 663 offers pass, IfcTester 646)
 - (2026-11-18) duplicate GlobalIds in a model (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI 2026-11-17 (eval/federated-globalids-2026-11-17.md; allow list and followers, eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23)
 - (2026-11-18) file-order candidate lists 2026-11-18 (eval/file-order-candidates-2026-11-18.md: pooled specs 2.9x on HHS MEP, same reports)
+- (2026-11-18) facet-result cache 2026-11-18 (eval/applies-cache-2026-11-18.md: 68 IDS on HHS MEP 11.4M facet tests to 3.7M, 6.3-7.0 to 5.0-5.3 s; 219 MB 60.4 to 43.1 s, fits 1 GB)
+- (2026-11-18) property sets indexed by name 2026-11-18 (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 7.9 to 4.6 s, same reports)
+- (2026-11-18) 65 public IDS vs IfcTester 2026-11-17 (1,661 of 1,736 same; unchecked subclasses reported, eval/corpus-crosscheck-*)
+- (2026-11-18) IDS editor 2026-11-16 (203,433 offered specs audit clean, 15,102 valid in ids.xsd; found voids/fills token pair and classification-system gaps, eval/editor-2026-11-16.md)
+- (2026-11-18) IDS structure against ids.xsd landed (structure.mjs, eval/ids-structure-2026-11-18.md: same verdict as IfcTester on 3,080 of 3,080 files; 12 of 65 public IDS break it). Next: an editor "fix it" for the common ones (move minOccurs from <specification> to <applicability>, IFC4X3 to IFC4X3_ADD2, the namespace), and XSD regex validity of xs:pattern values checked against the same validator.
+- (2026-11-18) IFC 4.3 infra/HVAC cross-check 2026-11-17 (348 of 348, eval/infra-mep-crosscheck-*)
+- (2026-11-18) 43 IFC4 STEP/ifcXML twins 2026-11-18 (eval/ifcxml-twins-2026-11-18.md: verdicts 108 to 129 of 129; href refs, decimal commas, flat point lists; B-spline rows from knot counts)

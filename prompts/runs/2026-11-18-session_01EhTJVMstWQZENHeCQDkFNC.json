@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVMstWQZENHeCQDkFNC",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T13:15:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/buildbot-sheathing milestone 48: per-pose hold sides scored by the worst common leg margin over the hose sweep",
+  "projects": [
+    "buildbot-sheathing"
+  ],
+  "pr": 17302,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "posthoc.py first run called R.set_tier on the m48 module (it lives on m47's); fixed and rerun",
+      "cost_minutes": 3
+    },
+    {
+      "what": "section C indexed min() of an empty list in the smoke run (no G1 poses); guarded",
+      "cost_minutes": 2
+    }
+  ],
+  "integrity_issues": [
+    {
+      "what": "The registered tie rule (ties keep the per-robot side) was amended before the full run, after the code smoke check showed the loaded score saturates at tau_f; disclosed in LOG.md's plan entry, hypotheses unchanged."
+    },
+    {
+      "what": "Post hoc found the G1 worst-residual figures since milestone 41 cover only the 83% of swept cases with a plan; recorded as a caveat in LOG, README, paper and post."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The scheduled prompt asks for revenue products while promptctl route sent this run to the research track; followed the router as the master prompt says."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-humanoid-hold-sides-scored-under-hose-drag.md"
+  ],
+  "goal": null,
+  "notes": "Full run 248 s on 4 processes (branch-and-bound prune), post hoc 162 s. H193, H194, H195, H197 held; H196, H198 refuted. check_numbers 371 of 371 ok, build.py ok, check_md_links ok, cite_check ok, check_posts ok.",
+  "corrections": [],
+  "redteam": null
+}

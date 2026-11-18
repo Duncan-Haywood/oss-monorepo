@@ -171,3 +171,37 @@ test('quoted schema-qualified names come out as one dotted token in the masked t
   const [lit] = splitStatements("SELECT 'a.b' AS x;");
   assert.equal(lit.display, "SELECT 'a.b' AS x", 'the quoted text keeps the original spelling');
 });
+
+// Red team 2026-11-18: each of these swallowed the rest of the file, so a
+// blocking CREATE INDEX after it produced no finding at all.
+test("E'...' strings take backslash escapes, so \\' does not end them", () => {
+  const st = splitStatements("UPDATE t SET note = E'it\\'s';\nCREATE INDEX idx ON t (a);");
+  assert.deepEqual(st.map((s) => s.masked), ['UPDATE t SET note = E', 'CREATE INDEX idx ON t (a)']);
+  // `\\` is an escaped backslash, so the quote after it does end the literal.
+  const both = splitStatements("SELECT e'a\\\\';\nCREATE INDEX idx ON t (a);");
+  assert.equal(both.length, 2);
+  // A plain literal keeps standard rules: a backslash is just a character.
+  const plain = splitStatements("SELECT 'a\\';\nCREATE INDEX idx ON t (a);");
+  assert.equal(plain.length, 2);
+  // `somE'x'` is not an E-string prefix (the E is the end of a name).
+  const named = splitStatements("SELECT typE'a\\';\nCREATE INDEX idx ON t (a);");
+  assert.equal(named.length, 2);
+});
+
+test('a $ inside an identifier does not open a dollar quote', () => {
+  const st = splitStatements('SELECT a$b$c FROM t;\nCREATE INDEX idx ON t (a);');
+  assert.equal(st.length, 2);
+  assert.equal(st[1].masked, 'CREATE INDEX idx ON t (a)');
+});
+
+test('dollar-quote tags take only identifier characters', () => {
+  assert.equal(splitStatements('SELECT $a|b$;\nCREATE INDEX idx ON t (a);').length, 2);
+});
+
+test('maskNonCode marks string characters, not comment characters, as inString', () => {
+  const text = "'ab' -- c";
+  const { inString, isComment } = maskNonCode(text);
+  assert.deepEqual(inString.slice(0, 4), [true, true, true, true]);
+  assert.equal(inString[7], false, 'a comment is not a string');
+  assert.equal(isComment[7], true);
+});

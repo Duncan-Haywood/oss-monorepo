@@ -508,6 +508,19 @@ it took 3.4 s, and 43.1 s on the 219 MB federated model, where it took 60.4 s
 off the JS heap, so the run fits as main's does). Every report is identical, and
 `check(..., { facetCache: false })` turns the caches off.
 
+Since 2026-11-18 (`eval/attribute-shape-2026-11-18.md`) attribute facets that
+differ only in their value share one reading of each entity: whether the name
+takes an attribute, whether it is set, empty, or a list or reference that IDS
+cannot compare. The verdict cache keeps that reading in the spare bits of the
+bytes it already holds, so it costs no memory. On HHS MEP the 68 files ran
+`AttributeFacet.test` 2,851,787 times and now run it 190,924 times, plus one
+reading per entity. They take 2.9-3.1 s there (main 4.1-4.5 s), 1.6-1.7 s on
+Schultz Residence (2.1-2.3 s), and 28.4-29.6 s on the 219 MB federated model
+(35.7-36.7 s), 35.4-36.6 s under a 1 GB heap (49.3-51.5 s). The same run found
+that the STEP reader kept every decoded string over 12 characters as a chain
+of one-character pieces, about 32 bytes a character (20 MB on HHS MEP). Plain
+text is now copied in runs. Every report is identical.
+
 ## How it was checked
 
 1. **buildingSMART's test suite.** `eval/fetch-testcases.sh` sparse-clones
@@ -755,6 +768,41 @@ off the JS heap, so the run fits as main's does). Every report is identical, and
    peak to 8.7 s and 681 MB; a 374 MB federated ifcXML: 4.0 GB peak (out of
    memory under a 1 GB heap) to 1.5 GB, and it finishes under 1 GB; every
    report identical.
+9. **The nested IFC4 ifcXML layout at scale** (2026-11-18,
+   `eval/ifc4-layout-scale-2026-11-18.md`). Real IFC4 writers put 96-99.9% of
+   a file under one element (the IfcProject), so reading by top-level element
+   held nearly the whole tree. `eval/ifc4-layout.mjs` writes four real IFC4
+   and IFC4X3 exports (10-32 MB as STEP) in that layout. They read back entity
+   for entity (857,301 of 857,301), and 2,160 of 2,160 verdicts from 68 IDS
+   files equal the STEP file's. Two faults fixed. First, the schema was taken
+   from any "IFC2x3" in the first 4,000 characters, and ARCHICAD's IFC4 export
+   names its "IFC2x3 add-on" there: 19 of 539 verdicts were wrong, with no
+   error shown. It is now read from the root element. Second, nested geometry
+   is cut to its span as it closes. A 166 MB federated file peaks at
+   1,770 MB before and 1,481 MB after, and fits a 768 MB heap, which it did
+   not before; reports are identical.
+10. **Nested ifcXML read as it closes** (2026-11-18,
+   `eval/nested-early-2026-11-18.md`). Property sets, relationships and the
+   rest of the model under the root are now read into records as each
+   element closes; nothing under the root is kept as XML. Entities still get
+   the old parent-first numbers: an early read gives provisional numbers,
+   and the walk replays them in the old order. On 57 ifcXML files (864,346
+   entities) every number, argument, map position and note equals main's,
+   and the reports from 68 IDS files hash the same on five models. The
+   smallest heap that parses each single-project model fell from 160 to
+   96 MB (C20), 144 to 128 MB and 128 to 112 MB, and stayed at 160 MB on
+   FM_ARC_DigitalHub. A six-project federated file is unchanged at 704 MB,
+   where the kept records, not the tree, set the peak.
+11. **A smaller record per entity** (2026-11-18,
+   `eval/entity-table-2026-11-18.md`). A STEP entity's record dropped from
+   four fields to three (the argument offset and the read arguments share
+   one), and the entities are held by number in a plain array with the file
+   order in an `Int32Array`, not in a Map, whose hash table cost about as
+   much as the records. Heap kept after parsing: HHS MEP 93 to 65 MB, the
+   219 MB federated model 444 to 350 MB. The smallest heap that parses it:
+   704 to 576 MB (HHS MEP 144 to 112 MB); with the starter IDS files, 832 to
+   704 MB. Parsing is 20-30% faster. Reports from 68 IDS files hash the same
+   on four models.
 
 Speed (one core, Node 22): Schultz Residence 1.4 s for seven specifications;
 IfcTester (C++ parser) took 0.6-0.7 s for the same work. This tool is not
@@ -815,8 +863,14 @@ faster than IfcTester; its point is needing no install.
   (with a note) when the counts do not multiply out. The ifcXML reader streams
   (2026-11-18, `eval/lazy-ifcxml-2026-11-18.md`): a 374 MB ifcXML checks under a
   1 GB heap, about twice the time of the same model as STEP; a file much past
-  500 MB cannot be read at all (a JavaScript string's length limit).
-- The model's text is held in memory with a small record per entity; an
+  500 MB cannot be read at all (a JavaScript string's length limit). In the
+  nested IFC4 layout every entity is read as its element closes
+  (`eval/nested-early-2026-11-18.md`), so the tree under the root is not
+  held; a 166 MB federated file still peaks about 1.4x higher than the same
+  model as STEP, set by the records kept per entity.
+- The model's text is held in memory with a small record per entity (48
+  bytes and 12 more in the number index, since 2026-11-18,
+  `eval/entity-table-2026-11-18.md`); an
   entity's arguments are read when a check first needs them, and geometry's
   are not kept (2026-11-17, `eval/heap-200mb-2026-11-17.md`). A 219 MB
   federated model built from seven real exports peaks at about 1 GB with the
@@ -827,8 +881,12 @@ faster than IfcTester; its point is needing no install.
   needed 2 GB before, `eval/no-entity-facet-2026-11-17.md`). Models well past 500 MB may need the command line with
   `--max-old-space-size`. The ifcXML reader reads each element as it streams
   and keeps geometry only as where its text starts and ends.
-- The IDS audit does not validate the file against the IDS XML schema
-  (cardinality attributes, element order); the IDS-Audit-tool does. Property
+- The IDS audit checks the file against the IDS 1.0 XML schema (element
+  order, allowed attributes, cardinality and other fixed-list values;
+  2026-11-18, `structure.mjs`, `eval/ids-structure-2026-11-18.md`: the same
+  verdict as IfcTester's `ids.xsd` validation on 145 of 145 public and
+  test files and 2,935 of 2,935 mutated copies), but not every rule of the
+  imported XMLSchema.xsd inside an `xs:restriction`. Property
   set templates are checked for names, data types and applicable classes, not
   for predefined types (`IfcSlab/TRACKSLAB` sets are allowed on any slab) or
   property set template types (occurrence versus type driven).

@@ -6,6 +6,20 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Milestone 7z: should you tune a drone for a 75 ms motor? Only if your motors may be slower than measured
+
+**Question.** Milestones 7u-7y found that each slower tuning floor (39.1, 45, 52, 60 ms) crashes less in the stress test (twice the trained centre-of-pressure lever, 45° tilt limit), at about 0.1 s of extra rise time per step on a 1 m position step. Does a 75 ms floor keep paying, and at what price? 7x's lever-aware arm was retrained at 75 ms (24 CMA-ES runs, certificate at 33, 75 and 150 ms) and scored on both 7x's stress test and 7y's response tests.
+
+**Headline (`experiments/m7z_floor75/results.txt`, `verdicts.txt`, `posthoc.txt`; about 1.2 h on 4 cores; simulated; 7 predictions committed first, 4 held).**
+
+- **Inside the identified motor lags (33-39.1 ms) the gain is small:** stress crashes 29, 33 of 1152 against the 60 ms tune's 36, 51 (centre of pressure above, below), not separated at six seeds in five of six cells; at the fast 33 ms motor the two tie.
+- **At slower motors the 75 ms tune clearly wins:** flown at 60 ms lag, 49, 45 crashes of 384 against 105, 83; at 75 ms, 117, 103 against 193, 188 (p = 0.010-0.026 in three of four cells).
+- **The price grows:** rise to 90% of a 1 m step 1.98, 1.86 s against 1.74, 1.77 (+14%, +5%), and the overshoot trend reverses (4.8, 3.2 cm against 3.2, 2.7), so settle time to 5 cm gets worse (3.2, 2.2 s against 2.4, 1.9). Crashes avoided per extra 0.1 s of rise fall from 41 to 3 with the centre of pressure above (22 to 20 below).
+- **Lighter, not heavier:** 1.43 kg on a 0.08-0.09 m propeller against 1.47-1.51 kg on 0.11 m; every design keeps the stability certificate.
+- **For a builder:** with motors near the published identifications, tune at 60 ms; tune at 75 ms only if your motors may be slower than the identifications (this test did not model why they would be), and accept a slower, less crisp step.
+
+![Left: stress-test crashes over the identified lags (of 1152) against rise time to 90% of a 1 m step, one point per tuning floor from 39.1 to 75 ms: centre of pressure above 170 at 1.44 s down to 36 at 1.74 s (60 ms) and 29 at 1.98 s (75 ms); below 178 at 1.39 s down to 51 at 1.77 s and 33 at 1.86 s. Right: crashes avoided per extra 0.1 s of rise for each step between floors; with the centre of pressure above it falls from 41 (52 to 60 ms) to 3 (60 to 75 ms).](experiments/m7z_floor75/m7z_floor75.png)
+
 ## Milestone 7y: what does tuning a drone for a slower motor cost in step response and wind drift? A 10-20% slower rise, half the overshoot, millimetres of drift
 
 **Question.** Milestones 7u-7x found that tuning for a slower motor lag than the one flown keeps cutting crashes in a stress test (twice the centre-of-pressure lever, 45° tilt limit), with no knee by 60 ms. That test rewards a slow, heavy vehicle by construction. What does the slower tune cost in the units a builder writes into a requirement? 7x's 48 lever-aware designs (39.1, 45, 52 and 60 ms floors) were flown, without retraining, through a **1 m position step** and a **calm-to-wind step (3 and 6 m/s)** at the design lever, under the three identified lags (33, 36, 39.1 ms), with turbulence and yaw steps off.
@@ -545,6 +559,8 @@ python3 experiments/m7q_closure/fit.py         # seconds, stdlib: closure consta
 "$PY" experiments/m7x_knee/verdicts.py && "$PY" experiments/m7x_knee/posthoc.py && "$PY" experiments/m7x_knee/corner_bind.py && "$PY" experiments/m7x_knee/figure.py
 "$PY" experiments/m7y_response/run.py         # about 2.5 min on 4 cores (7x's 48 designs, no retraining; step and wind-step tests)
 "$PY" experiments/m7y_response/verdicts.py && "$PY" experiments/m7y_response/posthoc.py && "$PY" experiments/m7y_response/figure.py
+"$PY" experiments/m7z_floor75/run.py          # about 1.2 h on 4 cores (24 CMA-ES runs at 75 ms, cached in .cache/; 7 min of stress flights; 1 min of response tests)
+"$PY" experiments/m7z_floor75/verdicts.py && "$PY" experiments/m7z_floor75/posthoc.py && "$PY" experiments/m7z_floor75/figure.py
 python3 paper/check_numbers.py                  # stdlib; every number the paper draft quotes against its results file
 ```
 

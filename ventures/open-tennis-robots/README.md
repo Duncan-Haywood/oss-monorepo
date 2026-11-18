@@ -12,7 +12,7 @@ tennis practice better:
   machine or a coach, and stays out of keep-out zones around the player and
   the feeder.
 
-**Try the shot planner and route demo in your browser:**
+**Try the shot planner, the drill builder and the route demo in your browser:**
 https://marisstella.app/open-tennis-robots/
 
 Everything is MIT-licensed. You can build it, change it, and **sell it**
@@ -166,6 +166,51 @@ drill.json ──> launcher.aim ──> wheel rpm, angles      catcher.plan (cro
                                                          (controller.py: limits, watchdog, e-stop)
 collector camera ──> vision.Homography ──> collector.Planner ──> drive.PurePursuit ──> ESP32
 ```
+
+## Drill builder on the page (2026-11-18)
+
+The page has a drill builder (`drill.mjs`, `#drills`): tap the court to add balls,
+edit each one's speed, spin and pause, start from five ready-made drills, save the
+`drill.json` that `tennisbots run` plays, open one, or share it as a link (the drill
+is base64 in the link's `#fragment`, so it never reaches a server). Every ball is
+checked the way `host.plan_drill` checks it (the same flight model, the head's
+-15..45 deg / +-30 deg range that the firmware clamps to, the 500-7,000 rpm wheel
+window), but every bad ball is listed at once instead of stopping at the first.
+
+It also estimates how soon after one ball the machine can feed the next, from the
+firmware's own figures: the shuttle's back stroke, the turntable's trapezoidal move
+(60 deg/s, 120 deg/s^2), the elevation actuator's travel through the CAD geometry
+under its pot loop (full speed, then proportional, then the 0.35 duty floor), the
+wheels' power-capped ramp plus a 0.4 s lag and the 150 ms steady hold, and the
+runner's hold after a slow wheel's ball. A pause more than 0.3 s shorter than that
+is marked "may run late"; the runner never feeds early, so such a drill just runs
+slower than written. `drill.test.mjs` pins every constant to `config.py`,
+`host.py` and `controller.py`, and checks the ramp against a step-by-step run of
+the firmware's `WheelRamp` law.
+
+Checked against the real firmware on the simulated feeder (`tests/drill_gap_check.py`,
+every drill's pauses forced to 0.1 s so the machine sets the pace;
+`eval/drill-gap-check-2026-11-18.txt`): on the five presets the estimate of each
+release-to-release time ran 0.20 s long on average (-0.11 to +0.81 s, short on 6
+of 33); on 42 gaps from six seeded random drills written after the model, 0.23 s
+long on average (-0.34 to +0.65 s, short on 9, within 0.3 s on 25). Two model
+fixes came from the first run and are in the shipped estimate: a constant
+9 deg/s tilt read up to 0.9 s short (the pot loop slows over the last 12.5 mm),
+and leaving out the board's 6-revolution steady gate before each stroke read
+every gap short. The wheel term runs long because the board's speed loop follows
+the ramp closer than a plain 0.4 s lag; a 0.25 s lag would centre it on these
+drills, but that would be fitting the simulator, whose wheel physics is itself an
+assumption, so it was left at the simulator's own value. The repository's own
+`drill.example.json` gets one "may run late" mark at 3 s (ball 4, a 3,400 rpm
+change on the top wheel); the simulator feeds it on time, about 0.6 s inside the
+estimate. Not measured on a built machine.
+
+The same work found a crash in the page's shot planner: `sim.mjs`'s `aim` lacked
+`launcher.aim`'s 2026-11-11 check for a bracket that spans a jump (just below,
+the ball hits the net; just above, it lands past the target), so a short, fast
+shot across the court from an offset machine (for example 1 m past the net at
+65-80 km/h from 4 m left) showed "Cannot read properties of undefined". It now
+gives `launcher.aim`'s message, and `sim.test.mjs` checks three such shots.
 
 ## Running a drill on the machine (2026-11-11)
 
@@ -380,7 +425,9 @@ PYTHONPATH=src python3 -m tennisbots.fixtures          # regenerate fixtures aft
    gives a measured `ReturnDistribution` to replace the guess.
 5. Build the moving base and net. Compare the measured catch rate with the
    simulation.
-6. Phone app for drills (Web Bluetooth or a local web server on the Pi).
+6. Phone app for drills: the page's drill builder (2026-11-18, below) plans, checks
+   and saves drills; sending one straight to the machine (Web Bluetooth or a local
+   web server on the Pi) is still open.
 7. Spin estimation from longer tracks, to cut prediction error on topspin
    returns (the main error source; see `tests/test_robots.py`).
 8. UWB or line-based localisation for the collector on unlit courts.

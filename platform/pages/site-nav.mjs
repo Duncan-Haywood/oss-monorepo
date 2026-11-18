@@ -164,8 +164,14 @@ export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [
       : mode === 'link' || mode === 'narrow'
         ? link
         : '';
+  // On a phone the trail goes when it only repeats what is already on screen: every link in it is
+  // "Home" or the current section's own tab, and the last crumb is the page the h1 names. On an
+  // audience page ("Tools › For homeowners") that row was 27px of a 106px header at 320 wide.
+  const tabHref = SITE_NAV.find((item) => item.id === current)?.href;
+  const tabUrl = tabHref === undefined ? null : `${toRoot}${tabHref}`;
+  const redundant = crumbs.every((c, i) => i === crumbs.length - 1 || !c.href || c.href === tabUrl);
   const crumbHtml = crumbs.length
-    ? `<span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="${esc(root)}" data-pf-to="hub">Home</a>${crumbs
+    ? `<span class="pfs-crumbs${redundant ? ' pfs-dup' : ''}" role="group" aria-label="Breadcrumb"><a href="${esc(root)}" data-pf-to="hub">Home</a>${crumbs
         .map((c, i) =>
           c.href && i < crumbs.length - 1
             ? `<span class="pfs-sep" aria-hidden="true">›</span><a href="${esc(c.href)}"${
@@ -285,6 +291,9 @@ export const SITE_HEADER_CSS = `
      30 characters it said nothing the heading below did not, and it took the room the topic needed; on a phone the trail
      ends at the parent instead ("Research › Proper scoring & elicitation"), and the h1 names the page. */
   .pfs-crumbs>.pfs-echo{display:none}
+  /* A trail that links nowhere but Home and the current tab (renderSiteHeader marks it .pfs-dup) says nothing on a
+     phone that the brand, the tab row and the h1 do not. Hiding it lifts the page by its 27px row (2026-11-18). */
+  .pfs-crumbs.pfs-dup{display:none}
 }
 @media (max-width:1080px){
   .pfs-search{display:none}

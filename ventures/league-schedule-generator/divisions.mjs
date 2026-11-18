@@ -1412,7 +1412,7 @@ export function assignDivisionDuties(schedule, duties) {
     const playing = [];
     for (const m of night.matches) for (const [t, d] of [[m.homeName, m.division], [m.awayName, m.division]]) {
       const k = key(d, t);
-      if (!teams.has(k)) teams.set(k, { division: d, team: t, total: 0, byDuty: {}, last: -Infinity });
+      if (!teams.has(k)) teams.set(k, { division: d, team: t, total: 0, byDuty: Object.create(null), last: -Infinity }); // duty names are typed: no inherited keys
       if (!playing.includes(k)) playing.push(k);
     }
     const used = new Set();
