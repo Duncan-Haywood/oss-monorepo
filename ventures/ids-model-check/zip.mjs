@@ -71,7 +71,8 @@ export function pickModel(entries) {
   return files.find((e) => /\.ifc$/i.test(e.name)) || files.find((e) => /\.(ifcxml|xml)$/i.test(e.name)) || null;
 }
 
-export async function unzipModel(bytes, inflateRaw) {
+// { name, text }, or { name, bytes } (the unpacked file) with opts.bytes.
+export async function unzipModel(bytes, inflateRaw, opts = {}) {
   const entries = zipEntries(bytes);
   const e = pickModel(entries);
   if (!e) throw new Error(`no .ifc or .ifcxml file in the archive (found: ${entries.map((x) => x.name).join(", ") || "nothing"})`);
@@ -85,7 +86,7 @@ export async function unzipModel(bytes, inflateRaw) {
   else if (e.method === 8) data = await inflateRaw(raw);
   else throw new Error(`${e.name} uses zip method ${e.method}; only stored and deflate are read`);
   if (data.length !== e.size) throw new Error(`${e.name} unpacked to ${data.length} bytes, the archive says ${e.size}`);
-  return { name: e.name, text: new TextDecoder().decode(data) };
+  return opts.bytes ? { name: e.name, bytes: data } : { name: e.name, text: new TextDecoder().decode(data) };
 }
 
 // Browser inflater, for the page.

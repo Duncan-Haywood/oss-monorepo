@@ -1,0 +1,27 @@
+# Moran's I calculator: spatial autocorrelation, LISA clusters and outliers, Getis-Ord Gi* hot spots
+
+> Free online spatial autocorrelation tool. Paste a table with one row per place (an id, coordinates as lon/lat or x/y, and one or more numeric columns), or add a neighbour list of shared borders, and get global Moran's I with variances under normality and randomisation and a two-sided permutation p-value, Geary's C, Getis-Ord General G, local Moran's I (LISA) with conditional-permutation p-values and high-high / low-low clusters and high-low / low-high outliers, an optional Benjamini-Hochberg false-discovery-rate cut-off, Getis-Ord Gi* hot and cold spots, the Moran scatterplot and a distance correlogram. Weights: k nearest neighbours, distance band, inverse distance, or a neighbour list; row-standardised, binary or raw. Every numeric column is analysed at once (e.g. one column per year). Checked against PySAL (esda 2.9.0) to 1e-9 on nine weight set-ups. Example: per-capita income of the 48 US states, 1929 to 2009 (BEA). Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). A description of the pattern in the numbers, not proof of a cause, and not legal, tax, financial, public-health, planning or other professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/spatial-autocorrelation/)
+
+## Use it from code
+
+- `node cli.mjs places.csv [--neighbors borders.csv] [--weights knn|band|inverse|list] [--k 6] [--threshold D] [--transform r|b|none] [--var A,B] [--permutations 999] [--fdr] [--json]`
+- `node platform/agents/tools.mjs call spatial-autocorrelation analyze --input '{"text":"id,lon,lat,v\n...","weights":"knn","k":6}'`
+- From JavaScript: `analyze({text, neighbors, weights, k, threshold, power, transform, variables, permutations, seed, alpha, fdr, bands})`, `report(result)`, `moran(y, W)`, `geary(y, W)`, `localMoran(y, W)`, `getisOrdGiStar(y, Wb)`.
+
+## What it answers
+
+- Is this variable spatially clustered, dispersed or random (Moran's I, Geary's C)?
+- Where are the clusters and outliers (LISA cluster map)?
+- Where are the hot spots and cold spots (Getis-Ord Gi*, as in ArcGIS Hot Spot Analysis)?
+- How far does the spatial pattern reach (Moran correlogram)?
+- Which of many local "clusters" survive a multiple-testing correction?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/spatial-autocorrelation): MIT licensed.

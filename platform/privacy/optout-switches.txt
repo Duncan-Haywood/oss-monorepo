@@ -1098,6 +1098,7 @@ ventures/solar-payback-calculator/usage.mjs
 ventures/solar-pv-bid-calculator/usage.mjs
 ventures/solo-401k-contribution-calculator/usage.mjs
 ventures/source-map-leak-check/usage.mjs
+ventures/spatial-autocorrelation/usage.mjs
 ventures/spc-control-charts/usage.mjs
 ventures/speaker-fee-calculator/usage.mjs
 ventures/speech-to-text-pricing-calculator/usage.mjs

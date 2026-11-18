@@ -19,7 +19,14 @@ Given a log too, it waits for both (the condition, then the log's marker) and pr
 
 A job with a known pid: `--pid 12345` returns once that process has exited. Do not
 use `--until "pgrep -f name"`: the shell running it matches its own command line, so it
-returns at once (friction 2026-11-06); use `--pid`, or bracket the first letter, `'[n]ame'`.
+returns at once (friction 2026-11-06); use `--pid`, or `--gone NAME`.
+
+A job known only by name: `--gone survey.py` returns once no process's command line
+contains `survey.py`, reading /proc itself and skipping wait_for and the shells that
+started it. The bracket trick (`pgrep -f '[s]urvey.py'`) still matched itself whenever
+the bare name appeared elsewhere on the same command line (a log called survey-out.log,
+a second command in a chain): three reports on 2026-11-18, one a 30-minute wait that
+never fired. It prints what it matched first, so a typo that matches nothing says so.
 
 `echo EXIT $?` works as a marker line too: with no `--marker`, a `DONE` line or an
 `EXIT 0` line both end the wait (friction 2026-11-11: runs guessed `--pattern` or
@@ -152,6 +159,54 @@ def wait_pid(pid, timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.sl
     return True
 
 
+def ancestors(pid=None, proc="/proc"):
+    """`pid` (default: this process) and every parent above it, read from /proc."""
+    pid = os.getpid() if pid is None else pid
+    seen = set()
+    while pid > 0 and pid not in seen:
+        seen.add(pid)
+        try:
+            with open(os.path.join(proc, str(pid), "stat")) as f:
+                pid = int(f.read().rsplit(")", 1)[1].split()[1])
+        except (OSError, IndexError, ValueError):
+            break
+    return seen
+
+
+def matching(name, proc="/proc", skip=None):
+    """[(pid, command)] of live processes whose command line contains `name`,
+    leaving out `skip` (default: this process and its ancestors, whose own
+    command lines name it: the self-match `pgrep -f` falls into). None when
+    /proc can't be listed."""
+    skip = ancestors(proc=proc) if skip is None else skip
+    try:
+        pids = [int(d) for d in os.listdir(proc) if d.isdigit()]
+    except OSError:
+        return None
+    found = []
+    for pid in pids:
+        if pid in skip:
+            continue
+        try:
+            with open(os.path.join(proc, str(pid), "cmdline"), "rb") as f:
+                cmd = f.read().replace(b"\0", b" ").decode(errors="replace").strip()
+        except OSError:
+            continue
+        if cmd and name in cmd and pid_alive(pid):
+            found.append((pid, cmd))
+    return found
+
+
+def wait_gone(name, timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.sleep, find=matching):
+    """True once nothing matches `name`; False at the timeout."""
+    end = clock() + timeout
+    while find(name):
+        if clock() >= end:
+            return False
+        nap(interval)
+    return True
+
+
 def holders(path, proc="/proc"):
     """[(pid, command)] of the processes that have `path` open; None when /proc can't say.
 
@@ -253,6 +308,8 @@ def main(argv=None):
     ap.add_argument("log", nargs="?")
     ap.add_argument("--until", help="shell command; wait until it exits 0 (no log needed)")
     ap.add_argument("--pid", type=int, help="wait until this process id has exited")
+    ap.add_argument("--gone", metavar="NAME",
+                    help="wait until no other process's command line contains NAME (no pgrep self-match)")
     # `--pattern` is what runs guess first (four friction reports, 2026-11-10/11);
     # accepting it costs nothing and an argparse error costs a turn.
     ap.add_argument("--marker", "--pattern", dest="marker",
@@ -267,6 +324,25 @@ def main(argv=None):
         ap.error("--marker must not be empty")
     if a.pid is not None and a.pid <= 0:
         ap.error("--pid must be a positive process id")
+    if a.gone is not None and not a.gone.strip():
+        ap.error("--gone must not be empty")
+    if a.gone:
+        now = matching(a.gone)
+        if now is None:
+            print("wait_for: /proc cannot be listed here; use --pid or a log marker", file=sys.stderr)
+            return 1
+        if not now:
+            print(f"wait_for: no process matches {a.gone!r} (already exited, or the name is wrong)")
+            return 0
+        print(f"wait_for: waiting on {len(now)} process(es) matching {a.gone!r}: "
+              + "; ".join(f"{pid} {short_cmd(cmd, 60)!r}" for pid, cmd in sorted(now)[:3]), file=sys.stderr)
+        if wait_gone(a.gone, a.timeout):
+            print(f"wait_for: no process matches {a.gone!r} any more")
+            return 0
+        left = matching(a.gone) or []
+        print(f"wait_for: {len(left)} process(es) matching {a.gone!r} still running after {a.timeout:.0f}s"
+              f"{': ' + str(sorted(left)[0][0]) if left else ''}; call again{longer(a.timeout)}", file=sys.stderr)
+        return 1
     if a.pid:
         if wait_pid(a.pid, a.timeout):
             print(f"wait_for: pid {a.pid} has exited")
@@ -288,7 +364,7 @@ def main(argv=None):
         print("wait_for: condition met; now waiting for the log's marker", file=sys.stderr)
         timeout = max(0.0, a.timeout - (time.monotonic() - started))
     if not a.log:
-        ap.error("give a log file, --until or --pid")
+        ap.error("give a log file, --until, --pid or --gone")
     boot = None if a.ignore_restart else boot_time()
     ok, lines = wait(a.log, a.marker or DEFAULT_MARKERS, timeout, boot=boot)
     if ok is None:
