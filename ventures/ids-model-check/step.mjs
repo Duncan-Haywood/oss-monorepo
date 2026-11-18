@@ -81,8 +81,54 @@ export function decodeStepString(s) {
 export const EMPTY_LIST = Object.freeze([]);
 export const SKIPPED_LIST = Object.freeze([undefined]);
 
+// Repeated small values, shared. A model's property and quantity records
+// repeat a small vocabulary (property names, IFCBOOLEAN(.T.), IFCLABEL('...'),
+// enumerations), and each read made new objects and strings for them: kept
+// for every property a check reads, they were 109 MB of the 219 MB federated
+// model's heap (eval/shared-values-2026-11-18.md). One Interner per parsed
+// model hands back the same frozen object (or string) for the same value.
+// Each table stops growing at INTERN_CAP entries, so a model of unique
+// strings (GlobalIds, descriptions) cannot make a table larger than the
+// values it would have held anyway, and lookups go on answering for the
+// entries already in.
+export const DERIVED = Object.freeze({ derived: true });
+export const UNKNOWN = Object.freeze({ unknown: true });
+const INTERN_CAP = 1 << 16;
+const INTERN_MAX_LEN = 64;
+export class Interner {
+  constructor() { this.strings = new Map(); this.enums = new Map(); this.typeNames = new Map(); this.typed = new Map(); this.typedCount = 0; }
+  string(s) {
+    if (s.length > INTERN_MAX_LEN) return s;
+    const got = this.strings.get(s);
+    if (got !== undefined) return got;
+    if (this.strings.size < INTERN_CAP) this.strings.set(s, s);
+    return s;
+  }
+  enumOf(v) {
+    let o = this.enums.get(v);
+    if (!o) { o = Object.freeze({ enum: v }); if (this.enums.size < INTERN_CAP) this.enums.set(v, o); }
+    return o;
+  }
+  typeName(raw) {
+    let n = this.typeNames.get(raw);
+    if (n === undefined) { n = raw.toUpperCase(); if (this.typeNames.size < INTERN_CAP) this.typeNames.set(raw, n); }
+    return n;
+  }
+  // A typed value whose value is a scalar (string, number, boolean, null or
+  // a shared enumeration or unknown); any other is made new each time.
+  typedOf(name, value) {
+    const t = typeof value;
+    if (!(t === "string" || t === "number" || t === "boolean" || value === null || value === UNKNOWN || (t === "object" && Object.isFrozen(value) && value.enum !== undefined)) || (t === "string" && value.length > INTERN_MAX_LEN)) return { typed: name, value };
+    let byValue = this.typed.get(name);
+    if (!byValue) this.typed.set(name, (byValue = new Map()));
+    let o = byValue.get(value);
+    if (!o) { o = Object.freeze({ typed: name, value }); if (this.typedCount < INTERN_CAP) { byValue.set(value, o); this.typedCount++; } }
+    return o;
+  }
+}
+
 class Reader {
-  constructor(text, pos) { this.t = text; this.p = pos; }
+  constructor(text, pos, intern = null) { this.t = text; this.p = pos; this.i = intern; }
   ws() {
     const t = this.t;
     for (;;) {
@@ -101,7 +147,7 @@ class Reader {
     const t = this.t;
     const c = t[this.p];
     if (c === "$") { this.p++; return null; }
-    if (c === "*") { this.p++; return { derived: true }; }
+    if (c === "*") { this.p++; return this.i ? DERIVED : { derived: true }; }
     if (c === "(") { return this.list(); }
     if (c === "'") {
       let i = this.p + 1;
@@ -112,7 +158,7 @@ class Reader {
         if (t[q + 1] === "'") { i = q + 2; continue; }
         const raw = t.slice(this.p + 1, q);
         this.p = q + 1;
-        return decodeStepString(raw);
+        return this.i ? this.i.string(decodeStepString(raw)) : decodeStepString(raw);
       }
     }
     if (c === "#") {
@@ -130,8 +176,8 @@ class Reader {
       this.p = e + 1;
       if (v === "T") return true;
       if (v === "F") return false;
-      if (v === "U") return { unknown: true };
-      return { enum: v };
+      if (v === "U") return this.i ? UNKNOWN : { unknown: true };
+      return this.i ? this.i.enumOf(v) : { enum: v };
     }
     if (c === '"') {
       const e = t.indexOf('"', this.p + 1);
@@ -154,6 +200,7 @@ class Reader {
       this.p = kw.lastIndex;
       this.ws();
       const inner = this.list();
+      if (this.i) return this.i.typedOf(this.i.typeName(k[0]), inner.length === 1 ? inner[0] : inner);
       return { typed: k[0].toUpperCase(), value: inner.length === 1 ? inner[0] : inner };
     }
     throw new Error(`unexpected '${c}' at ${this.p}`);
@@ -174,7 +221,7 @@ class Reader {
       this.ws();
       const c = this.t[this.p++];
       if (c === ",") continue;
-      if (c === ")") return out;
+      if (c === ")") return out.slice();
       throw new Error(`expected , or ) at ${this.p - 1}`);
     }
   }
@@ -224,7 +271,7 @@ class Reader {
       this.ws();
       const c = this.t[this.p++];
       if (c === ",") continue;
-      if (c === ")") return out;
+      if (c === ")") return out.slice();
       throw new Error(`expected , or ) at ${this.p - 1}`);
     }
   }
@@ -267,11 +314,14 @@ function recordEnd(t, p) {
 // Read arguments are kept, except for the types policy.keep(type) answers
 // false for: the Model sets it to drop geometry (IfcRepresentationItem and
 // its subtypes), which only a specification with no entity facet reads, once
-// or twice per entity, and which would otherwise all stay in memory.
-function entityClass(text, errors, policy) {
+// or twice per entity, and which would otherwise all stay in memory, and
+// relationships, which the Model indexes once. Lists are copied to their
+// length when read (list(): a pushed list of four keeps room for 16), and
+// repeated small values are shared (Interner).
+function entityClass(text, errors, policy, intern) {
   const read = (e, p) => {
     try {
-      return new Reader(text, p).list();
+      return new Reader(text, p, intern).list();
     } catch (err) {
       errors.push(`#${e.id}: ${err.message}`);
       return [];
@@ -302,7 +352,7 @@ function entityClass(text, errors, policy) {
     get shallowArgs() {
       if (typeof this._a !== "number" || policy.keep(this.type)) return this.args;
       try {
-        return new Reader(text, this._a).shallowList();
+        return new Reader(text, this._a, intern).shallowList();
       } catch {
         return this.args;
       }
@@ -369,7 +419,8 @@ export function parseStep(text, opts = {}) {
   re.lastIndex = dataStart;
   const errors = [];
   const policy = { keep: () => true };
-  const Lazy = opts.eager ? null : entityClass(text, errors, policy);
+  const intern = new Interner();
+  const Lazy = opts.eager ? null : entityClass(text, errors, policy, intern);
   // One string per type name, not one per entity (3.7 million on the 219 MB
   // model, about 100 MB of copies of "IFCCARTESIANPOINT").
   const types = new Map();

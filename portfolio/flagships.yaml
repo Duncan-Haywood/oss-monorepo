@@ -506,14 +506,11 @@ flagships:
       History and every measurement: README ("How it was checked"). Next, most
       valuable first: (audit 2026-11-16: 26 of 27 invalid-* files INVALID, 0 of 307
       valid; Pset_/Qto_ template audit 2026-11-16: 5 of 5 IDS-Audit-tool pset files,
-      faults in 21 of 64 public IDS, eval/audit-corpus.mjs); a model's property
-      values 2026-11-17 (eval/model-values-2026-11-17.md: one-of or range from the
-      model, ranges rounded outward, 1,014 of 1,014 pass their model; 82.0% of
-      public facets editable); ifcXML and .ifczip read 2026-11-16
-      (eval/ifcxml-xbim-2026-11-16.md); several IFC versions per spec 2026-11-17
-      (eval/multi-version-2026-11-17.md: opened in the schema that edits most, page
-      audit in every named schema, false page errors 18 to 0 on 18 public files).
-      attribute facets read geometry shallow 2026-11-18
+      faults in 21 of 64 public IDS, eval/audit-corpus.mjs); ifcXML and .ifczip read
+      2026-11-16 (eval/ifcxml-xbim-2026-11-16.md); several IFC versions per spec
+      2026-11-17 (eval/multi-version-2026-11-17.md: opened in the schema that edits
+      most, page audit in every named schema, false page errors 18 to 0 on 18 public
+      files). attribute facets read geometry shallow 2026-11-18
       (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS MEP 13.3 to 8.3 s,
       same reports); ifcXML streams 2026-11-18 (eval/lazy-ifcxml-2026-11-18.md: 374
       MB federated ifcXML 4.0 to 1.5 GB peak, fits 1 GB; strings keep whitespace,
@@ -528,5 +525,8 @@ flagships:
       heap 160 to 96 MB on C20, federated unchanged at 704 MB). smaller record per
       entity 2026-11-18 (eval/entity-table-2026-11-18.md: STEP records in a
       number-indexed array, 3 fields; kept after parse 444 to 350 MB on 219 MB,
-      smallest heap 704 to 576 MB, same reports). next: the checks' own peak (1.2
-      GB, 68 IDS on 219 MB). More open items: NEXT.md.
+      smallest heap 704 to 576 MB, same reports). checks' own memory 2026-11-18
+      (eval/shared-values-2026-11-18.md: lists at their length, shared small values,
+      relationships not kept; 219 MB with 68 IDS needs 896 to 704 MB, same reports).
+      next: a compact per-set record for properties (kept arguments, 17-39% slower
+      without). More open items: NEXT.md.

@@ -103,9 +103,13 @@ export class Model {
     if (p.policy) {
       const keep = new Map();
       const S = this.schema;
+      // Geometry is not kept (see step.mjs), nor are relationships: _index
+      // below reads each one once into its maps, and no check reads a
+      // relationship's arguments again (36 MB on the 219 MB federated model,
+      // eval/shared-values-2026-11-18.md).
       p.policy.keep = (t) => {
         let k = keep.get(t);
-        if (k === undefined) keep.set(t, (k = !S.isA(t, "IFCREPRESENTATIONITEM")));
+        if (k === undefined) keep.set(t, (k = !S.isA(t, "IFCREPRESENTATIONITEM") && !S.isA(t, "IFCRELATIONSHIP")));
         return k;
       };
     }
@@ -192,6 +196,10 @@ export class Model {
         for (const o of this.refs(e, "RelatedResourceObjects")) if (ref) this._push(this.extRefs, o.id, ref);
       }
     }
+    // Lists built by push carry V8's growth slack: a one-item list holds room
+    // for 16 (about 150 bytes). Copied to their length once indexing is done
+    // (eval/shared-values-2026-11-18.md).
+    for (const map of [this.psetRels, this.classRels, this.matRels, this.materialProps, this.extRefs, ...Object.values(this.parents), this.byType]) for (const [k, l] of map) map.set(k, l.slice());
     this._units();
   }
   _units() {

@@ -803,6 +803,15 @@ text is now copied in runs. Every report is identical.
    704 to 576 MB (HHS MEP 144 to 112 MB); with the starter IDS files, 832 to
    704 MB. Parsing is 20-30% faster. Reports from 68 IDS files hash the same
    on four models.
+12. **The checks' own memory** (2026-11-18,
+   `eval/shared-values-2026-11-18.md`). Most of what 68 IDS files added to
+   the heap was arguments kept once read, in lists built by `push` (room for
+   16 items for every four). Lists are now copied to their length, repeated
+   small values (`IFCBOOLEAN(.T.)`, property names, enumerations) are shared
+   frozen objects, and relationships' arguments are not kept once indexed.
+   On the 219 MB federated model the smallest heap that parses it fell from
+   576 to 512 MB, with the starter IDS from 704 to 576 MB, and with all 68
+   IDS files from 896 to 704 MB. Reports hash the same on four models.
 
 Speed (one core, Node 22): Schultz Residence 1.4 s for seven specifications;
 IfcTester (C++ parser) took 0.6-0.7 s for the same work. This tool is not
