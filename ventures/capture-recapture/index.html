@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232c4a2f'/%3E%3Ccircle%20cx='12'%20cy='16'%20r='7'%20fill='none'%20stroke='%23e9c46a'%20stroke-width='3'/%3E%3Ccircle%20cx='20'%20cy='16'%20r='7'%20fill='none'%20stroke='%23f4f1de'%20stroke-width='3'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Capture-Recapture Calculator: Population Size Estimate (Lincoln-Petersen, Chapman, Chao, M0/Mt/Mb), Free</title>
+  <meta name="description" content="Free capture-recapture (mark-recapture) population size calculator: Lincoln-Petersen and Chapman for two samples, closed-population models M0, Mt and Mb by maximum likelihood with profile-likelihood intervals and AIC, Chao's heterogeneity estimator and the jackknife, from capture histories. Runs in your browser.">
+  <meta property="og:title" content="How many are there, counting the ones you never saw? Capture-recapture in your browser">
+  <meta property="og:description" content="Paste capture histories or two-sample counts. Lincoln-Petersen, Chapman, M0, Mt, Mb, Chao and the jackknife, with intervals. Worked on 29 years of USGS chorus frog data.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Capture-recapture population size estimator", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Closed-population abundance estimation from capture-recapture data: Lincoln-Petersen and Chapman two-sample estimators with Seber's variance, the Otis et al. (1978) models M0, Mt and Mb by maximum likelihood with profile-likelihood confidence intervals and AIC model weights, Chao's (1987) heterogeneity estimator with its log-transformed interval, and the Burnham and Overton (1978) jackknife. Runs in your browser.", "featureList": "capture-recapture, mark-recapture, population size estimate, abundance estimation, Lincoln-Petersen, Chapman estimator, Schnabel, closed population, model M0, model Mt, model Mb, trap response, Chao estimator, heterogeneity, jackknife, profile likelihood, AIC, multiple-list estimation, defect estimation", "citation": ["https://doi.org/10.2307/2333183", "https://doi.org/10.2307/2531532", "https://doi.org/10.1093/biomet/65.3.625"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a closed population?", "acceptedAnswer": {"@type": "Answer", "text": "One with no births, deaths or movement in or out between the first and the last occasion, so the same N animals were there to be caught every time. Keep the occasions close together (a few nights, one breeding season) and estimate each period separately with a group column. If animals arrive or leave between occasions you need an open-population model (Cormack-Jolly-Seber or a robust design), which this page does not fit."}}, {"@type": "Question", "name": "Which estimate should I report?", "acceptedAnswer": {"@type": "Answer", "text": "The page ranks M0, Mt and Mb by AIC and shows each model's weight, but AIC only compares the models it was given. When animals differ in how catchable they are (heterogeneity, almost always true in the field), every one of those three underestimates N, and Chao's estimator, which is a lower bound under heterogeneity, is the better guide. When the models disagree by a lot, report the disagreement: it is real uncertainty about how animals were caught, not noise."}}, {"@type": "Question", "name": "Why do Mb and Mt give such different answers?", "acceptedAnswer": {"@type": "Answer", "text": "Both explain a fall in the number of new animals caught on later occasions, in opposite ways. Mt reads it as lower catch effort or activity, so many animals are still out there; Mb reads it as most animals already being marked and avoiding recapture less or more, so few are left. With falling catches the two can differ several-fold, and the data alone cannot always separate them. Record effort per occasion, and if it changed, trust Mt over Mb."}}, {"@type": "Question", "name": "What is the difference between Lincoln-Petersen and Chapman?", "acceptedAnswer": {"@type": "Answer", "text": "Lincoln-Petersen is n1 times n2 divided by m, the number marked in the second sample. It is biased upwards when m is small and undefined when m is 0. Chapman's version, (n1+1)(n2+1)/(m+1) minus 1, is nearly unbiased when n1 plus n2 is at least N, and the page gives it with Seber's variance. With two occasions model Mt is the same model, fitted by maximum likelihood."}}, {"@type": "Question", "name": "Can I use this for things that are not animals?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, wherever several independent searches find overlapping sets: defects found by several reviewers or test suites, cases on several registries (multiple-list or multiple-systems estimation), duplicate records across sources. Each item is a row and each search is an occasion. The independence assumption is the one to worry about: two lists that draw on the same source overlap more than chance and make the estimate too small."}}, {"@type": "Question", "name": "How are the intervals computed?", "acceptedAnswer": {"@type": "Answer", "text": "For M0, Mt and Mb, by profile likelihood: every N whose log-likelihood is within half the chi-square critical value of the best. They are asymmetric and never go below the number of animals seen, and an upper limit can be unbounded when the data cannot rule out a very large population. Chao's interval is log-transformed on the number never caught (Chao 1987), and Chapman's is the usual normal interval with Seber's variance."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every number is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2a1e; background: #f1f3ec; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #2c6a33; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #22401f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #22401f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4e594c; }
+    .card { background: #fff; border: 1px solid #d8dfcf; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #22401f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #727d6f; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2c6a33; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e5ecdd; color: #22401f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6ebe0; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e594c; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.key td { font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d8dfcf; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #727d6f; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .answer { font-size: 1.05rem; padding: 10px 14px; border-radius: 9px; margin: 6px 0 10px; background: #e7f1e2; color: #1d3b1c; }
+    .warn { background: #fbf0d6; color: #5c460d; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .sw { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 5px; }
+    pre { background: #f3f6ef; border: 1px solid #dde5d5; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CAPTURE-RECAPTURE · MARK-RECAPTURE · POPULATION SIZE · LINCOLN-PETERSEN · CHAPMAN · M0 · MT · MB · CHAO · JACKKNIFE · RUNS IN YOUR BROWSER</p>
+    <h1>How many are there, counting the ones you never saw?</h1>
+    <p>You caught, marked and released animals, then caught again, and some of the second catch were already marked. That overlap says how many you missed. Paste the <strong>capture histories</strong> (one row per animal, a 0 or 1 per occasion) or just the <strong>two-sample counts</strong>, and get the <strong>population size</strong> by <strong>Lincoln-Petersen</strong> and <strong>Chapman</strong>, the closed-population models <strong>M0, Mt and Mb</strong> by maximum likelihood with <strong>profile-likelihood intervals</strong> and AIC, <strong>Chao's estimator</strong> for animals that differ in catchability, and the <strong>jackknife</strong>. The same arithmetic counts defects several reviewers found, or cases on several registries.</p>
+    <p class="note">Nothing you enter leaves this browser tab. A statistical estimate from the captures you give, not wildlife-management, regulatory or other professional advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your captures</h2>
+    <label for="mode">What you have</label>
+    <select id="mode">
+      <option value="histories">Capture histories: one row per animal, a 0/1 column per occasion</option>
+      <option value="counts">Two samples: how many caught, caught later, and marked among them</option>
+      <option value="frequencies">Capture frequencies: how many caught once, twice, ...</option>
+    </select>
+    <div id="pane-histories">
+      <label for="data">CSV, tab or semicolon-separated. Every column holding only 0s and 1s is an occasion (a trap night, a survey, a reviewer, a list); a column named id, animal or tag is skipped, as is any text column. Or one history column such as <code>0101</code>, and optionally a <code>freq</code> column of how many animals share a row.</label>
+      <textarea id="data" spellcheck="false" placeholder="id,night1,night2,night3&#10;A17,1,0,1&#10;A18,0,1,0&#10;A19,1,1,0&#10;..."></textarea>
+      <label for="file">Or open a CSV file from this device</label>
+      <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+      <div class="grid">
+        <div><label for="group">Separate estimate for each (column, optional)</label><input id="group" type="text" placeholder="e.g. year or site"></div>
+        <div><label for="occ">Occasion columns (blank: every 0/1 column)</label><input id="occ" type="text" placeholder="e.g. night1,night2,night3"></div>
+      </div>
+    </div>
+    <div id="pane-counts" class="grid" hidden>
+      <div><label for="n1">Caught and marked in the first sample (n1)</label><input id="n1" type="number" min="0" step="1" placeholder="e.g. 60"></div>
+      <div><label for="n2">Caught in the second sample (n2)</label><input id="n2" type="number" min="0" step="1" placeholder="e.g. 55"></div>
+      <div><label for="m">Of those, already marked (m)</label><input id="m" type="number" min="0" step="1" placeholder="e.g. 22"></div>
+    </div>
+    <div id="pane-frequencies" class="grid" hidden>
+      <div><label for="freqs">Caught once, twice, three times, ... (comma-separated)</label><input id="freqs" type="text" placeholder="e.g. 43,16,8,6,0,2,1"></div>
+      <div><label for="kocc">Number of occasions</label><input id="kocc" type="number" min="2" step="1" placeholder="e.g. 18"></div>
+    </div>
+    <div class="grid">
+      <div><label for="conf">Confidence for intervals</label><select id="conf"><option value="0.95">95%</option><option value="0.9">90%</option><option value="0.99">99%</option></select></div>
+    </div>
+    <div>
+      <button type="button" class="secondary" id="ex-lily">Example: chorus frogs at Lily Pond, 29 breeding seasons (USGS, real)</button>
+      <button type="button" class="secondary" id="ex-rabbits">Example: 135 penned rabbits, the frequencies Chao (1987) analysed (real)</button>
+    </div>
+    <button type="button" id="analyze">Estimate the population</button>
+    <span class="note" id="status" role="status"></span>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <div id="trend-wrap" hidden>
+      <h3>Every group</h3>
+      <div id="trend"></div>
+      <p class="legend"><span><span class="sw" style="background:#2c6a33"></span>best model by AIC, with its interval</span><span><span class="sw" style="background:#b5651d"></span>Chao, with its interval</span><span><span class="sw" style="background:#7a8577"></span>animals seen</span></p>
+      <div class="scroll"><table id="groups"></table></div>
+      <label for="pick">Show the details for</label>
+      <select id="pick"></select>
+    </div>
+    <div id="answer" class="answer"></div>
+    <p id="counts" class="note"></p>
+    <div id="warnings"></div>
+    <h3>Estimates</h3>
+    <div class="scroll"><table id="estimates"></table></div>
+    <p class="note">N is the whole number with the highest likelihood; the interval is every N the data cannot rule out at the chosen level. "Unbounded" means the data cannot rule out a very large population. AIC weights compare M0, Mt and Mb only.</p>
+    <h3>Where each estimate sits</h3>
+    <div id="dots"></div>
+    <h3>Captures per occasion</h3>
+    <div class="scroll"><table id="occasions"></table></div>
+    <button type="button" class="secondary" id="download">Download the report (CSV-style text)</button>
+  </section>
+
+  <section class="card">
+    <h2>The example: how many chorus frogs bred at Lily Pond?</h2>
+    <p>Boreal chorus frogs at Lily Pond in Colorado were caught, marked and released on three to five days of each breeding season from 1986 to 2014 (Muths 2020, a U.S. Geological Survey data release). Within one season the breeding population is close to closed, so each year is its own estimate: put <code>year</code> in the group box. Three things stand out.</p>
+    <ul>
+      <li><strong>The count you see is not the population.</strong> In 2010, the best-recaptured year (57 of 270 frogs caught more than once), model Mt puts the breeding population at 539, 95% interval 455 to 656: about two frogs for every one seen.</li>
+      <li><strong>The model can matter more than the data.</strong> In 1999, 120 frogs were caught on three days, with falling catches (68, 39, 23). Model Mb, which reads that fall as most frogs already being marked, wins on AIC with 95% of the weight and says 135; model Mt, which reads it as falling activity, says 493. Effort records, not AIC, should settle that.</li>
+      <li><strong>Few recaptures, no answer.</strong> In 2007 only one of 88 frogs was caught twice, and Mt's interval runs from 474 to about 33,300. The page says so rather than pretending to a number.</li>
+    </ul>
+    <p class="note">The bundled file is a reshaping of the USGS file, one row per frog per year it was caught (<code>eval/build-example.py</code>); the original study fitted open-population models across years, which this page does not attempt. Most frogs in the file are calling males, so these are estimates of the frogs that came to be caught, not of every frog nearby.</p>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>From the capture histories of the <em>r</em> animals seen over <em>k</em> occasions the page counts, for each occasion, the animals caught (<em>n<sub>j</sub></em>), first caught (<em>u<sub>j</sub></em>) and already marked (<em>M<sub>j</sub></em>), and how many animals were caught exactly once (<em>f</em><sub>1</sub>), twice (<em>f</em><sub>2</sub>) and so on. The full likelihood of the histories, a multinomial over the <em>N</em> animals including the <em>N</em> − <em>r</em> never caught, is maximised for three models of Otis, Burnham, White and Anderson (1978): <strong>M0</strong>, one capture probability; <strong>Mt</strong>, one per occasion (Darroch 1958); and <strong>Mb</strong>, one for first capture and another for recapture (a trap response; with no recaptures it is the removal method). The capture probabilities are profiled out in closed form, the best whole-number <em>N</em> is found by a scan and golden-section search, and the interval is the profile-likelihood interval. Models are ranked by AIC (Akaike 1974). <strong>Chao's estimator</strong> (1987), <em>r</em> + <em>f</em><sub>1</sub>²/(2<em>f</em><sub>2</sub>), is a lower bound when catchability varies between animals; its interval is log-normal on the number never caught. The <strong>jackknife</strong> of Burnham and Overton (1978) is shown at orders 1 and 2, as point estimates. With two occasions the page adds <strong>Lincoln-Petersen</strong> and <strong>Chapman</strong> (1951) with Seber's (1982) variance.</p>
+    <p><strong>Closed population.</strong> Nothing born, dying, arriving or leaving between the first and last occasion. Estimate separate periods separately.</p>
+    <p><strong>Marks are kept and read correctly</strong>, and animals are caught independently of one another.</p>
+    <p><strong>Not here (yet):</strong> heterogeneity models by likelihood (Mh mixtures, Mth, Mbh), individual covariates (Huggins), open populations (Cormack-Jolly-Seber, Jolly-Seber, the robust design) and spatial capture-recapture.</p>
+    <p><strong>Checked against:</strong> an independent Python reference that maximises the full multinomial over all 2<sup><em>k</em></sup> histories numerically with scipy 1.18.1 on six simulated studies (same whole-number <em>N</em> everywhere, limits to 1e-6); the cottontail numbers printed in Chao (1987); and a coverage simulation of 1,000 studies under each of five models (README, "Verification").</p>
+<pre>@article{otis1978closed,
+  author = {Otis, David L. and Burnham, Kenneth P. and White, Gary C. and Anderson, David R.},
+  title = {Statistical inference from capture data on closed animal populations},
+  journal = {Wildlife Monographs}, volume = {62}, pages = {3--135}, year = {1978}}
+@article{darroch1958multiple,
+  author = {Darroch, J. N.},
+  title = {The multiple-recapture census. {I}: Estimation of a closed population},
+  journal = {Biometrika}, volume = {45}, number = {3/4}, pages = {343--359}, year = {1958},
+  doi = {10.2307/2333183}}
+@article{chapman1951some,
+  author = {Chapman, Douglas G.},
+  title = {Some properties of the hypergeometric distribution with applications to zoological sample censuses},
+  journal = {University of California Publications in Statistics}, volume = {1}, pages = {131--160}, year = {1951}}
+@book{seber1982estimation,
+  author = {Seber, G. A. F.},
+  title = {The Estimation of Animal Abundance and Related Parameters}, edition = {2nd},
+  publisher = {Griffin}, address = {London}, year = {1982}}
+@article{chao1987unequal,
+  author = {Chao, Anne},
+  title = {Estimating the population size for capture-recapture data with unequal catchability},
+  journal = {Biometrics}, volume = {43}, number = {4}, pages = {783--791}, year = {1987},
+  doi = {10.2307/2531532}}
+@article{burnham1978jackknife,
+  author = {Burnham, K. P. and Overton, W. S.},
+  title = {Estimation of the size of a closed population when capture probabilities vary among animals},
+  journal = {Biometrika}, volume = {65}, number = {3}, pages = {625--633}, year = {1978},
+  doi = {10.1093/biomet/65.3.625}}
+@article{akaike1974new,
+  author = {Akaike, Hirotugu},
+  title = {A new look at the statistical model identification},
+  journal = {IEEE Transactions on Automatic Control}, volume = {19}, number = {6}, pages = {716--723}, year = {1974},
+  doi = {10.1109/TAC.1974.1100705}}
+@misc{muths2020chorus,
+  author = {Muths, E. L.},
+  title = {Demographic data from two chorus frog populations in {Colorado}},
+  howpublished = {U.S. Geological Survey data release}, year = {2020},
+  doi = {10.5066/P9BZAPLB}}</pre>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is a closed population?</h3>
+    <p>One with no births, deaths or movement in or out between the first and the last occasion, so the same N animals were there to be caught every time. Keep the occasions close together (a few nights, one breeding season) and estimate each period separately with a group column. If animals arrive or leave between occasions you need an open-population model (Cormack-Jolly-Seber or a robust design), which this page does not fit.</p>
+    <h3>Which estimate should I report?</h3>
+    <p>The page ranks M0, Mt and Mb by AIC and shows each model's weight, but AIC only compares the models it was given. When animals differ in how catchable they are (heterogeneity, almost always true in the field), every one of those three underestimates N, and Chao's estimator, which is a lower bound under heterogeneity, is the better guide. When the models disagree by a lot, report the disagreement: it is real uncertainty about how animals were caught, not noise.</p>
+    <h3>Why do Mb and Mt give such different answers?</h3>
+    <p>Both explain a fall in the number of new animals caught on later occasions, in opposite ways. Mt reads it as lower catch effort or activity, so many animals are still out there; Mb reads it as most animals already being marked and avoiding recapture less or more, so few are left. With falling catches the two can differ several-fold, and the data alone cannot always separate them. Record effort per occasion, and if it changed, trust Mt over Mb.</p>
+    <h3>What is the difference between Lincoln-Petersen and Chapman?</h3>
+    <p>Lincoln-Petersen is n1 times n2 divided by m, the number marked in the second sample. It is biased upwards when m is small and undefined when m is 0. Chapman's version, (n1+1)(n2+1)/(m+1) minus 1, is nearly unbiased when n1 plus n2 is at least N, and the page gives it with Seber's variance. With two occasions model Mt is the same model, fitted by maximum likelihood.</p>
+    <h3>Can I use this for things that are not animals?</h3>
+    <p>Yes, wherever several independent searches find overlapping sets: defects found by several reviewers or test suites, cases on several registries (multiple-list or multiple-systems estimation), duplicate records across sources. Each item is a row and each search is an occasion. The independence assumption is the one to worry about: two lists that draw on the same source overlap more than chance and make the estimate too small.</p>
+    <h3>How are the intervals computed?</h3>
+    <p>For M0, Mt and Mb, by profile likelihood: every N whose log-likelihood is within half the chi-square critical value of the best. They are asymmetric and never go below the number of animals seen, and an upper limit can be unbounded when the data cannot rule out a very large population. Chao's interval is log-transformed on the number never caught (Chao 1987), and Chapman's is the usual normal interval with Seber's variance.</p>
+    <h3>How well do the intervals work?</h3>
+    <p>In 1,000 simulated studies for each model, each model's own 95% interval held the true N 94.5% to 95.5% of the time when the data were made by that model. Under heterogeneity (capture probabilities drawn from a beta distribution) M0, Mt and the AIC-chosen model held it only 2% to 13% of the time, underestimating by about 19%, while Chao's interval held it 85.5% of the time. Chao's estimator in turn overestimated by 14% to 64% when every animal was equally catchable over few occasions. The full table is in <code>eval/coverage-output.txt</code>.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Every number is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it is not wildlife-management, regulatory, epidemiological or other professional advice, nor a substitute for a survey design reviewed by a biometrician. Results are statistical estimates from the captures you enter and are only as good as the assumptions above. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the U.S. Geological Survey, or any statistics software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs histories.csv --group year</code> or <code>node cli.mjs --n1 60 --n2 55 --m 22</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/capture-recapture" rel="noopener">source</a>.</p>
+    <p>More estimation tools: <a href="../survival-analysis/">survival analysis</a> for how long until an event, <a href="../inter-rater-agreement/">inter-rater agreement</a> for whether two observers agree, <a href="../meta-analysis/">meta-analysis</a> for pooling studies, and <a href="../extreme-value-analysis/">extreme value analysis</a> for the rare largest values.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, report } from "./engine.mjs";
+    import { LILY_CSV, COTTONTAIL } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const whole = (x) => (x == null ? "unbounded" : Number.isFinite(x) ? Math.round(x).toLocaleString("en-US") : "unbounded");
+    const one = (x) => (x == null || !Number.isFinite(x) ? "" : x.toFixed(1));
+    let last = null;
+
+    function showMode() {
+      const mode = $("#mode").value;
+      for (const m of ["histories", "counts", "frequencies"]) $(`#pane-${m}`).hidden = m !== mode;
+    }
+
+    function inputs() {
+      const confidence = Number($("#conf").value);
+      const mode = $("#mode").value;
+      if (mode === "counts") return { n1: $("#n1").value === "" ? NaN : Number($("#n1").value), n2: $("#n2").value === "" ? NaN : Number($("#n2").value), m: $("#m").value === "" ? NaN : Number($("#m").value), confidence };
+      if (mode === "frequencies") return { frequencies: $("#freqs").value.split(",").filter((s) => s.trim() !== "").map((s) => Number(s.trim())), k: Number($("#kocc").value), confidence };
+      return { text: $("#data").value, group: $("#group").value.trim(), occasions: $("#occ").value.trim(), confidence };
+    }
+
+    function rows(g) {
+      const out = [];
+      for (const m of Object.values(g.models)) out.push({ name: m.label, short: m.model, N: m.N, lo: m.lower, hi: m.upper, se: m.se, aic: m.aic, w: m.weight, key: m.model === g.best });
+      if (g.chao.N != null) out.push({ name: "Chao (1987): animals differ in catchability (a lower bound)", short: "Chao", N: g.chao.N, lo: g.chao.lower, hi: g.chao.upper, se: g.chao.se });
+      out.push({ name: "Chao, bias-corrected (point only)", short: "Chao b-c", N: g.chao.corrected });
+      out.push({ name: "Jackknife, order 1 (point only)", short: "Jackknife 1", N: g.jackknife.order1 });
+      if (g.jackknife.order2 != null && g.k > 2) out.push({ name: "Jackknife, order 2 (point only)", short: "Jackknife 2", N: g.jackknife.order2 });
+      if (g.twoSample) {
+        out.push({ name: "Chapman (1951), two samples, normal interval", short: "Chapman", N: g.twoSample.N, lo: g.twoSample.lower, hi: g.twoSample.upper, se: g.twoSample.se });
+        out.push({ name: "Lincoln-Petersen (point only)", short: "Lincoln-Petersen", N: g.twoSample.lincoln });
+      }
+      return out;
+    }
+
+    function dots(g) {
+      const list = rows(g).filter((x) => x.N != null);
+      const narrow = ($("#dots").clientWidth || 900) < 600;
+      const W = narrow ? 420 : 900, rowH = narrow ? 30 : 28, L = narrow ? 120 : 200, R = 20, T = 10, B = 34, H = T + B + rowH * list.length, fs = narrow ? 13 : 12;
+      const vals = list.flatMap((x) => [x.N, x.lo, x.hi]).filter((v) => v != null && Number.isFinite(v));
+      const lo = Math.min(g.summary.r, ...vals), hiRaw = Math.max(...vals);
+      const hi = hiRaw > lo ? hiRaw : lo + 1;
+      const x = (v) => L + ((v - lo) / (hi - lo)) * (W - L - R);
+      let s = `<line x1="${x(g.summary.r)}" x2="${x(g.summary.r)}" y1="${T}" y2="${H - B}" stroke="#7a8577" stroke-dasharray="4 3"/><text x="${x(g.summary.r)}" y="${H - B + 14}" font-size="${fs}" text-anchor="middle" fill="#4e594c">seen: ${g.summary.r}</text>`;
+      list.forEach((d, i) => {
+        const y = T + i * rowH + 14;
+        s += `<text x="${L - 8}" y="${y + 4}" font-size="${fs}" text-anchor="end" fill="#1d2a1e">${esc(d.short)}</text>`;
+        if (d.lo != null) s += `<line x1="${x(d.lo)}" x2="${x(d.hi ?? hi)}" y1="${y}" y2="${y}" stroke="${d.key ? "#2c6a33" : "#9aa596"}" stroke-width="3"${d.hi == null ? ' stroke-dasharray="6 4"' : ""}/>`;
+        s += `<circle cx="${x(d.N)}" cy="${y}" r="5" fill="${d.key ? "#2c6a33" : "#b5651d"}"/>`;
+      });
+      s += `<text x="${(L + W - R) / 2}" y="${H - 2}" font-size="${fs - 1}" text-anchor="middle" fill="#4e594c">population size (dashed: unbounded)</text>`;
+      $("#dots").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Each estimate of population size with its interval">${s}</svg>`;
+    }
+
+    function trend(res) {
+      const gs = res.groups;
+      const W = 900, H = 320, L = 60, R = 20, T = 14, B = 46;
+      const pts = gs.map((g) => ({ g, b: g.best ? g.models[g.best] : null }));
+      const vals = pts.flatMap(({ g, b }) => [g.summary.r, b?.N, b?.upper, g.chao.N, g.chao.upper]).filter((v) => v != null && Number.isFinite(v));
+      const sorted = vals.slice().sort((a, b) => a - b);
+      // Clip the axis at the 90th percentile so one unbounded year does not flatten the rest.
+      const raw = Math.max(sorted[Math.floor(sorted.length * 0.9)] ?? 1, ...gs.map((g) => g.summary.r)) * 1.1;
+      const unit = 10 ** Math.floor(Math.log10(raw / 4));
+      const top = Math.ceil(raw / 4 / unit) * unit * 4;
+      const step = (W - L - R) / Math.max(1, gs.length);
+      const x = (i) => L + step * (i + 0.5);
+      const y = (v) => T + (1 - Math.min(v, top) / top) * (H - T - B);
+      let s = "";
+      for (let t = 0; t <= 4; t++) {
+        const v = (top / 4) * t;
+        s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#eef1ea"/><text x="${L - 6}" y="${y(v) + 4}" font-size="10" text-anchor="end" fill="#4e594c">${Math.round(v).toLocaleString("en-US")}</text>`;
+      }
+      pts.forEach(({ g, b }, i) => {
+        const cx = x(i);
+        s += `<rect x="${cx - 4}" y="${y(g.summary.r)}" width="8" height="${H - B - y(g.summary.r)}" fill="#d7ddd2"/>`;
+        if (b) {
+          s += `<line x1="${cx - 3}" x2="${cx - 3}" y1="${y(b.lower)}" y2="${y(b.upper ?? top)}" stroke="#2c6a33" stroke-width="2"/>`;
+          s += `<circle cx="${cx - 3}" cy="${y(b.N)}" r="3.5" fill="#2c6a33"/>`;
+        }
+        if (g.chao.N != null) {
+          s += `<line x1="${cx + 3}" x2="${cx + 3}" y1="${y(g.chao.lower)}" y2="${y(g.chao.upper)}" stroke="#b5651d" stroke-width="2"/>`;
+          s += `<circle cx="${cx + 3}" cy="${y(g.chao.N)}" r="3.5" fill="#b5651d"/>`;
+        }
+        if (gs.length <= 12 || i % 2 === 0) s += `<text x="${cx}" y="${H - B + 14}" font-size="10" text-anchor="middle" fill="#4e594c" transform="rotate(-45 ${cx} ${H - B + 14})">${esc(g.group)}</text>`;
+      });
+      s += `<text x="${L}" y="${H - 4}" font-size="11" fill="#4e594c">bars: animals seen; marks above ${Math.round(top).toLocaleString("en-US")} are clipped</text>`;
+      $("#trend").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Estimated population size for every group, with intervals">${s}</svg>`;
+      $("#groups").innerHTML = `<tr><th>Group</th><th class="n">Occasions</th><th class="n">Seen</th><th class="n">Recaptured</th><th>Best by AIC</th><th class="n">N</th><th class="n">Interval</th><th class="n">Chao</th></tr>` +
+        pts.map(({ g, b }) => `<tr><td>${esc(g.group)}</td><td class="n">${g.k}</td><td class="n">${g.summary.r}</td><td class="n">${g.summary.r - (g.summary.f[1] ?? 0)}</td><td>${g.best ?? "none finite"}</td><td class="n">${b ? whole(b.N) : ""}</td><td class="n">${b ? `${whole(b.lower)} to ${whole(b.upper)}` : ""}</td><td class="n">${whole(g.chao.N)}</td></tr>`).join("");
+      $("#pick").innerHTML = gs.map((g, i) => `<option value="${i}">${esc(g.group)}</option>`).join("");
+    }
+
+    function showGroup(g, conf) {
+      const pc = Math.round(conf * 100);
+      $("#answer").textContent = g.text;
+      const s = g.summary;
+      $("#counts").textContent = `${s.k} occasions · ${s.r} animals seen · ${s.nDot} captures · caught once ${s.f[1] ?? 0}, twice ${s.f[2] ?? 0}, three or more times ${s.f.slice(3).reduce((a, b) => a + b, 0)}`;
+      const notes = [...g.warnings, ...(g.chao.note ? [g.chao.note] : [])];
+      $("#warnings").innerHTML = notes.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      $("#estimates").innerHTML = `<tr><th>Estimator</th><th class="n">N</th><th class="n">${pc}% interval</th><th class="n">SE</th><th class="n">AIC</th><th class="n">Weight</th></tr>` +
+        rows(g).map((d) => `<tr${d.key ? ' class="key"' : ""}><td>${esc(d.name)}</td><td class="n">${whole(d.N)}</td><td class="n">${d.lo == null ? "" : `${whole(d.lo)} to ${whole(d.hi)}`}</td><td class="n">${one(d.se)}</td><td class="n">${one(d.aic)}</td><td class="n">${d.w == null ? "" : d.w.toFixed(2)}</td></tr>`).join("");
+      dots(g);
+      $("#occasions").innerHTML = `<tr><th>Occasion</th><th class="n">Caught</th><th class="n">New</th><th class="n">Already marked</th></tr>` +
+        g.occasions.map((o, j) => `<tr><td>${esc(o)}</td><td class="n">${s.n[j]}</td><td class="n">${s.u[j]}</td><td class="n">${s.m[j]}</td></tr>`).join("");
+    }
+
+    function runAnalysis() {
+      try {
+        const res = analyze(inputs());
+        last = res;
+        $("#results").hidden = false;
+        $("#trend-wrap").hidden = res.groups.length < 2;
+        if (res.groups.length > 1) trend(res);
+        showGroup(res.groups[0], res.confidence);
+        $("#status").textContent = res.groups.length > 1 ? `${res.groups.length} groups estimated.` : "Done.";
+        record("analysis_run");
+        return true;
+      } catch (e) {
+        $("#status").textContent = e.message;
+        $("#results").hidden = true;
+        return false;
+      }
+    }
+
+    $("#mode").addEventListener("change", showMode);
+    $("#analyze").addEventListener("click", runAnalysis);
+    $("#pick").addEventListener("change", (event) => { if (last) showGroup(last.groups[Number(event.target.value)], last.confidence); });
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#data").value = await f.text();
+      $("#status").textContent = `Loaded ${f.name}.`;
+    });
+    $("#ex-lily").addEventListener("click", () => {
+      $("#mode").value = "histories"; showMode();
+      $("#data").value = LILY_CSV; $("#group").value = "year"; $("#occ").value = "";
+      if (runAnalysis()) {
+        const i = last.groups.findIndex((g) => g.group === "2010");
+        if (i >= 0) { $("#pick").value = String(i); showGroup(last.groups[i], last.confidence); }
+        record("example_loaded");
+      }
+    });
+    $("#ex-rabbits").addEventListener("click", () => {
+      $("#mode").value = "frequencies"; showMode();
+      $("#freqs").value = COTTONTAIL.frequencies.join(","); $("#kocc").value = String(COTTONTAIL.k);
+      if (runAnalysis()) {
+        $("#status").textContent = `The true number was ${COTTONTAIL.trueN}: the rabbits were penned (Edwards and Eberhardt 1967).`;
+        record("example_loaded");
+      }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([report(last) + "\n"], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "capture-recapture-report.txt";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

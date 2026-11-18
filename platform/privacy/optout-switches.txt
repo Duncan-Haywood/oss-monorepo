@@ -179,6 +179,7 @@ ventures/cannabis-280e-tax-calculator/usage.mjs
 ventures/canonical-tag-check/usage.mjs
 ventures/capex-budget-prioritizer/usage.mjs
 ventures/caption-quality-check/usage.mjs
+ventures/capture-recapture/usage.mjs
 ventures/car-hauler-load-planner/usage.mjs
 ventures/car-lease-deal-checker/usage.mjs
 ventures/car-wash-membership-calculator/usage.mjs
