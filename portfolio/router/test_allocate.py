@@ -946,6 +946,37 @@ class StartHereTests(unittest.TestCase):
         self.assertEqual(start_here(queue[:2], {}, now=now, session="abc"), (1, "v0"))
 
 
+class DateGateTests(unittest.TestCase):
+    """A `buildable:` item dated after today is not buildable yet (2026-11-18:
+    Start here kept sending runs to einvoice-preflight's 'After 2026-11-23' item)."""
+
+    def test_future_gates_reads_only_future_dates(self):
+        from allocate import future_gates, gate_note
+        text = ("Preview landed (in force 2027-02-24). After 2026-11-23: rebuild from the tag; "
+                "from 2026-11-01 the old branch is gone; not before 2026-12-01 diff again.")
+        self.assertEqual(future_gates(text, today="2026-11-18"), ["2026-11-23", "2026-12-01"])
+        self.assertEqual(future_gates(text, today="2026-11-23"), ["2026-12-01"])
+        self.assertEqual(future_gates(text, today="2026-12-01"), [])
+        self.assertIn("NOT YET", gate_note(text, today="2026-11-18"))
+        self.assertEqual(gate_note("no dates here", today="2026-11-18"), "")
+
+    def test_start_here_puts_dated_rows_after_undated_ones(self):
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 18, 10, 0, tzinfo=timezone.utc)
+        dated = ("Deepen (flagship 1): BUILDABLE HERE: y (NOT YET: an item here is dated after "
+                 "2026-11-23, so ...) -- Context: z")
+        queue = [{"venture": "dated", "flagship": True, "task": dated},
+                 {"venture": "ok", "flagship": True, "task": "Deepen (flagship 2): BUILDABLE HERE: y -- Context: z"},
+                 {"venture": "ctx", "flagship": True,
+                  "task": "Deepen (flagship 3): BUILDABLE HERE: y -- Context: (NOT YET: in next: only)"}]
+        self.assertEqual(start_here(queue, {}, now=now), (2, "ok"))
+        picks = {start_here(queue, {}, now=now, session=f"s{n}", spread=2) for n in range(40)}
+        self.assertEqual(picks, {(2, "ok"), (3, "ctx")})
+        # With nothing else free, the dated row is still named.
+        self.assertEqual(start_here(queue[:1], {}, now=now), (1, "dated"))
+        self.assertEqual(start_here(queue[:1], {}, now=now, session="s1"), (1, "dated"))
+
+
 class LeastClaimedTests(unittest.TestCase):
     def test_names_the_row_whose_newest_claim_is_oldest_when_none_is_free(self):
         from datetime import datetime, timezone
