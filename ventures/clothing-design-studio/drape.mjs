@@ -587,34 +587,72 @@ function pushOut(body, pos, k, thick) {
 }
 
 /**
- * True when the point is surely at least `thick` from every arm capsule, so
- * pushOutArm would return 0 without touching anything. It compares the squared
- * distance to each capsule's axis with (r + thick + 1e-9)^2: no hypot, no
- * object, and the 1e-9 m margin covers the rounding gap between sqrt and the
- * hypot armContact uses. Any doubt falls through to armContact itself, so the
- * cloth moves exactly as before.
+ * Push vertex k out of the nearest arm capsule along its radius; returns the depth corrected (m).
+ *
+ * One pass over the capsules. A capsule whose squared distance to its axis is at
+ * least (r + thick + 1e-9)^2 is surely `thick` or more from the point (the 1e-9 m
+ * margin covers the rounding gap between sqrt and hypot), so it can neither push
+ * the point nor be the nearest capsule when some other one does: it is skipped
+ * without a hypot. The rest are compared with armContact's own arithmetic, first
+ * minimum wins, so the winner is armContact's whenever the point is pushed. A NaN
+ * coordinate falls back to armContact itself. (Until 2026-11-18 this was a separate
+ * armsClear pass followed, near an arm, by a full armContact.)
  */
-function armsClear(body, x, y, z, thick) {
-  for (const arm of body.arms) for (const c of arm.caps) {
-    const a = c.a, ux = c.b[0] - a[0], uy = c.b[1] - a[1], uz = c.b[2] - a[2], L2 = ux * ux + uy * uy + uz * uz;
-    let t = ((x - a[0]) * ux + (y - a[1]) * uy + (z - a[2]) * uz) / (L2 || 1);
-    t = t < 0 ? 0 : t > 1 ? 1 : t;
-    const dx = x - (a[0] + t * ux), dy = y - (a[1] + t * uy), dz = z - (a[2] + t * uz);
-    const R = c.ra + (c.rb - c.ra) * t + thick + 1e-9;
-    if (!(dx * dx + dy * dy + dz * dz >= R * R)) return false; // NaN falls through too
-  }
-  return true;
-}
-
-/** Push vertex k out of the nearest arm capsule along its radius; returns the depth corrected (m). */
 function pushOutArm(body, pos, k, thick) {
   const x = pos[k], y = pos[k + 1], z = pos[k + 2];
-  if (armsClear(body, x, y, z, thick)) return 0;
+  if (x !== x || y !== y || z !== z) return pushOutArmFull(body, pos, k, thick); // NaN, as before
+  let found = false, bd = 0, bx = 0, by = 0, bz = 0, br = 0, barm = null;
+  const arms = body.arms, boxes = armBoxes(arms);
+  for (let ai = 0; ai < arms.length; ai++) {
+    const arm = arms[ai], bb = boxes[ai], m = bb[6] + thick + 1e-6;
+    // outside the arm's box by more than its widest radius plus thick: every capsule
+    // of this arm would be skipped below
+    if (x < bb[0] - m || x > bb[3] + m || y < bb[1] - m || y > bb[4] + m || z < bb[2] - m || z > bb[5] + m) continue;
+    for (const c of arm.caps) {
+      const a = c.a, ux = c.b[0] - a[0], uy = c.b[1] - a[1], uz = c.b[2] - a[2], L2 = ux * ux + uy * uy + uz * uz;
+      let t = ((x - a[0]) * ux + (y - a[1]) * uy + (z - a[2]) * uz) / (L2 || 1);
+      t = Math.max(0, Math.min(1, t));
+      const cx = a[0] + t * ux, cy = a[1] + t * uy, cz = a[2] + t * uz;
+      const dx = x - cx, dy = y - cy, dz = z - cz, r = c.ra + (c.rb - c.ra) * t;
+      const R = r + thick + 1e-9, q = dx * dx + dy * dy + dz * dz;
+      if (q >= R * R) continue;
+      if (!(q < R * R)) return pushOutArmFull(body, pos, k, thick); // NaN
+      const dist = Math.hypot(dx, dy, dz) - r;
+      if (!found || dist < bd) { found = true; bd = dist; bx = cx; by = cy; bz = cz; br = r; barm = arm; }
+    }
+  }
+  if (!found || bd >= thick) return 0;
+  return pushAlong(pos, k, x, y, z, bx, by, bz, br, barm, thick);
+}
+/* Per arm: [minX, minY, minZ, maxX, maxY, maxZ] of its capsule end points and the widest
+   radius. Arms are rebuilt, never mutated, when they move (setArmAngle maps
+   body.arms to a new array), so the arms array is the key. */
+const ARM_BOXES = new WeakMap();
+function armBoxes(arms) {
+  let boxes = ARM_BOXES.get(arms);
+  if (boxes) return boxes;
+  boxes = arms.map(arm => {
+    const bb = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity, 0];
+    for (const c of arm.caps) for (const p of [c.a, c.b]) for (let d = 0; d < 3; d++) {
+      if (p[d] < bb[d]) bb[d] = p[d];
+      if (p[d] > bb[d + 3]) bb[d + 3] = p[d];
+    }
+    for (const c of arm.caps) bb[6] = Math.max(bb[6], c.ra, c.rb);
+    return bb;
+  });
+  ARM_BOXES.set(arms, boxes);
+  return boxes;
+}
+function pushOutArmFull(body, pos, k, thick) {
+  const x = pos[k], y = pos[k + 1], z = pos[k + 2];
   const c = armContact(body, x, y, z);
   if (!c || c.dist >= thick) return 0;
-  let dx = x - c.cx, dy = y - c.cy, dz = z - c.cz, d = Math.hypot(dx, dy, dz);
-  if (d < 1e-9) { dx = c.arm.n1[0]; dy = c.arm.n1[1]; dz = 0; d = 1; }
-  const depth = c.r + thick - d;
+  return pushAlong(pos, k, x, y, z, c.cx, c.cy, c.cz, c.r, c.arm, thick);
+}
+function pushAlong(pos, k, x, y, z, cx, cy, cz, r, arm, thick) {
+  let dx = x - cx, dy = y - cy, dz = z - cz, d = Math.hypot(dx, dy, dz);
+  if (d < 1e-9) { dx = arm.n1[0]; dy = arm.n1[1]; dz = 0; d = 1; }
+  const depth = r + thick - d;
   NRM[0] = dx / d; NRM[1] = dy / d; NRM[2] = dz / d;
   pos[k] = x + NRM[0] * depth; pos[k + 1] = y + NRM[1] * depth; pos[k + 2] = z + NRM[2] * depth;
   return depth;
