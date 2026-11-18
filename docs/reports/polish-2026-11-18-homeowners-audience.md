@@ -41,3 +41,16 @@ run record `notes`.
 3. Carried over from `polish-2026-11-17-household-section.md`: item 1 (severance, residency-day and
    FEIE/substantial-presence tools still in `backoffice`), item 3 (the audience `starting` note's
    business call-out styling; split `backoffice`).
+4. **`llms.txt` headroom is about 4 KB.** The "Tools by who you are" block is now 8.2 KB (32
+   audiences with full descriptions). If it fills up again, list audiences as a single line of
+   links and leave the descriptions to the pages.
+
+## Side fix: root `llms.txt` over its byte budget
+
+The page's one-line entry in the root `llms.txt` took the file to 50,113 bytes, and
+`build.test.mjs` ("llms.txt is a short index", < 50,000) failed. Main was about 130 bytes under it,
+so the next new tool or audience would have failed it too. The "Comparisons" block repeated
+"each saying what it does, what the free tool does, and when X is the right answer" on all 45
+product lines. `build.mjs` now says it once on the parent line. About 4.4 KB saved. The final size
+is in the run record.
+
