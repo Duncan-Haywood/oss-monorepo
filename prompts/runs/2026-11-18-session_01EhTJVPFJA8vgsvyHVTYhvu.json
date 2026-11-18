@@ -43,7 +43,7 @@
     "ventures/ids-model-check/eval/editor-open-repair-2026-11-18.md"
   ],
   "goal": "Editor writes back IDS files other checkers read as their authors meant",
-  "notes": "repairOnOpen in editor.mjs runs fix.mjs before importIds; editor.html lists the fixes in the open message. eval/editor-open-repair.mjs on 65 public + 80 IDS-Audit-tool files: pattern findings in written-back files 9->0 and 51->1; written back clean 55->60 and 65->68; editable facets unchanged; repaired files ask what the original asked 14/14 and 7/7 (differences only in rewritten patterns). Found in passing: parseIds already tolerates a bare &, so the repair does not make new files openable (claim dropped). Checks: node --test editor-repair.test.mjs editor.test.mjs fix.test.mjs page.test.mjs (55 pass); run_venture_tests.py ids-model-check and venture-preflight.mjs, results below.",
+  "notes": "repairOnOpen in editor.mjs runs fix.mjs before importIds; editor.html lists the fixes in the open message. eval/editor-open-repair.mjs on 65 public + 80 IDS-Audit-tool files: pattern findings in written-back files 9->0 and 51->1; written back clean 55->60 and 65->68; editable facets unchanged; repaired files ask what the original asked 14/14 and 7/7 (differences only in rewritten patterns). Found in passing: parseIds already tolerates a bare &, so the repair does not make new files openable (claim dropped). Checks: node --test editor-repair.test.mjs editor.test.mjs fix.test.mjs page.test.mjs (55 pass); run_venture_tests.py ids-model-check: ok, 268 tests; venture-preflight.mjs ids-model-check: 'preflight clean'; editor.html driven in Chromium on Issue 61's file: 3 fixes listed, no page errors.",
   "corrections": [],
   "redteam": null
 }
