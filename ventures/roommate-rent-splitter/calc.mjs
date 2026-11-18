@@ -188,7 +188,7 @@ export function resultText(res, input) {
 }
 
 export function resultCsv(res) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [["person", "room", "rent", "shared_costs", "total", "surplus_vs_own_value"]];
   for (const r of res.rows) rows.push([q(r.person), q(r.roomName), r.rent.toFixed(2), r.sharedShare.toFixed(2), r.total.toFixed(2), r.surplus.toFixed(2)]);
   return rows.map((r) => r.join(",")).join("\n") + "\n";

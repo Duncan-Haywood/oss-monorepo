@@ -360,7 +360,7 @@ export function analyze(studentRows, dayRows, sharedIn) {
 }
 
 export function toCsv(a) {
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [["Day", "Start", "End", "Student", "Fee"].map(q).join(",")];
   for (const d of a.schedule) for (const l of d.lessons) lines.push([d.name, fmtTime(l.start), fmtTime(l.end), l.student.name, l.student.fee].map(q).join(","));
   return lines.join("\n") + "\n";

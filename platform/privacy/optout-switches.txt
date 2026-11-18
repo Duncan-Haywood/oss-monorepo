@@ -604,6 +604,7 @@ ventures/influencer-media-kit-generator/usage.mjs
 ventures/inherited-ira-10-year-withdrawal-planner/usage.mjs
 ventures/injury-settlement-net-proceeds-calculator/usage.mjs
 ventures/installment-sale-tax-calculator/usage.mjs
+ventures/instrumental-variables/usage.mjs
 ventures/insurance-agency-book-valuation-calculator/usage.mjs
 ventures/insurance-commission-reconciler/usage.mjs
 ventures/insurance-denial-appeal-builder/usage.mjs

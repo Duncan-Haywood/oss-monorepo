@@ -414,7 +414,7 @@ export function analyze(input = {}) {
 
 /** CSV of the month-by-month result, one row per month and interface. */
 export function reportCsv(a) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = ["month,interface,temperature_c,saturation_pa,vapour_pa,rh_pct,rate_g_m2_day,moisture_end_g_m2"];
   for (const r of a.rows) {
     r.interfaces.forEach((f, i) => {

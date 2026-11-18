@@ -54,3 +54,37 @@ test("a Trial End (UTC) column is read, so history starts MRR when the trial end
   const { subs } = subsFromCsv(csv);
   assert.equal(subs[0].trialEnd, Date.UTC(2026, 8, 3, 10)); assert.equal(subs[1].trialEnd, null);
 });
+
+const SAMPLE_HASH = 3733524883;
+
+// Red team 2026-11-18 (sample data): sampleCsv feeds the "Try sample data"
+// button, and only a loose MRR floor checked it, so a changed plan price,
+// a day-shifted date or churn inside the first 60 days all passed.
+test("the sample data is pinned: plans, date window, churn after 60 days, exact output", () => {
+  const now = Date.UTC(2026, 9, 15), day = 86400000;
+  const csv = sampleCsv(now);
+  assert.equal(csv, sampleCsv(), "the default now is 2026-10-15");
+  const { subs } = subsFromCsv(csv);
+  assert.equal(subs.length, 160);
+  assert.deepEqual([...new Set(subs.map((s) => s.mrr))].sort((a, b) => a - b), [2417, 2900, 7900, 24900]);
+  for (const s of subs) {
+    assert.ok(s.created <= now && s.created >= now - 540 * day, s.id);
+    if (s.status === "canceled") assert.ok(now - s.created > 60 * day && s.endedAt > s.created, s.id);
+  }
+  assert.ok(csv.includes("\nsub_demo0,"));
+  let h = 0; for (const c of csv) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  assert.equal(h, SAMPLE_HASH, "sampleCsv output changed; update SAMPLE_HASH only if the change is intended");
+});
+
+// Red team 2026-11-18: a zero, negative or non-numeric Quantity made the row
+// read as `unknown interval "month"`, and a blank Amount became a $0 plan.
+test("quantity and blank amount get their own reasons; quantity 0 is a $0 subscription", () => {
+  const { subs, skipped } = subsFromCsv("id,amount,interval,created,quantity\na,10,month,2026-01-01,0\nb,10,month,2026-01-01,abc\nc,10,month,2026-01-01,-2\nd,,month,2026-01-01,1\ne,0,month,2026-01-01,1\nf,10,fortnight,2026-01-01,0\n");
+  assert.deepEqual(subs.map((s) => [s.id, s.mrr]), [["a", 0], ["e", 0]]);
+  assert.deepEqual(skipped, [
+    { line: 3, why: "quantity is not a number" },
+    { line: 4, why: "quantity is not a number" },
+    { line: 5, why: "amount is empty" },
+    { line: 7, why: 'unknown interval "fortnight"' },
+  ]);
+});

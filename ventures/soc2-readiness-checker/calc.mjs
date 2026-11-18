@@ -178,7 +178,7 @@ export function sampleAnswers() {
 }
 
 export function toCsv(r) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = ["order,control,area,answer,weight,remaining_days,finish_week,finish_date,evidence_to_collect"];
   r.gaps.forEach((g, i) => lines.push([i + 1, q(g.title), q(AREAS[g.area]), g.answer, g.w, Math.round(g.remaining * 10) / 10, g.finishWeek, g.finishDate, q(g.evidence)].join(",")));
   return lines.join("\n");

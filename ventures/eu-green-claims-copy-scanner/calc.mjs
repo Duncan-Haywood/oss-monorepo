@@ -232,7 +232,7 @@ export function summaryText(r) {
   return lines.join("\n");
 }
 
-const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
 export function findingsCsv(r) {
   const rows = [["severity", "phrase", "rule", "annex_i_point", "sentence", "fix"]];
   for (const f of r.findings) rows.push([f.severity, f.matched, f.title, f.annex, f.sentence, ruleById(f.rule).fix]);

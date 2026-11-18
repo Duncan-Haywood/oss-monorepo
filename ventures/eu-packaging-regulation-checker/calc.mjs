@@ -39,26 +39,34 @@ const ALL = ["sales", "foodcontact", "beverage", "ecommerce", "transport"];
 const MAKERS = ["manufacturer", "producer", "importer"];
 
 // Each duty: who it reaches (uses, roles, optionally materials), the date it applies from, and the key the
-// reader can mark done. `notMicro` duties do not reach a microenterprise.
+// reader can mark done. `notMicro` duties do not reach an operator that is a microenterprise AND made at
+// most 1,000 kg of packaging available in the Member State that year (the reuse-target exemption).
+// `laterOf` duties start on `from` or a set time after a Commission act, whichever is later: once `from`
+// passes they read "depends on the Commission act", not "applies now". `materials` limits a duty to those
+// materials; `notMaterials` removes it for them (cardboard boxes are outside the reuse targets).
 export const OBLIGATIONS = [
   { id: "substances", label: "Heavy metals in packaging stay under the limit and PFAS in food-contact packaging stays under the new limits", article: "substances chapter", from: "2026-08-12", categories: ALL, roles: ["manufacturer", "producer", "importer", "distributor", "distance"], done: "substances" },
   { id: "conformity", label: "Conformity assessment done, technical documentation kept and EU declaration of conformity drawn up", article: "conformity chapter", from: "2026-08-12", categories: ALL, roles: MAKERS, done: "conformity" },
   { id: "epr", label: "Registered in the producer register of each EU country you put packaged goods into; an authorised representative appointed there if you are not established there; collection and recycling financed", article: "producer responsibility chapter", from: "2026-08-12", categories: ALL, roles: ["producer", "importer", "distance"], done: "epr" },
   { id: "fulfilment", label: "Fulfilment services offered only to producers who are registered, and checked", article: "producer responsibility chapter", from: "2026-08-12", categories: ALL, roles: ["fulfilment"], done: "fulfilment" },
-  { id: "drs", label: "Deposit-return system covers single-use plastic bottles and metal drink cans (Member States must reach 90 percent separate collection by 2029; one that reached 80 percent in 2026 and has a plan to reach 90 percent can be exempted)", article: "collection chapter", from: "2029-01-01", categories: ["beverage"], roles: ["producer", "importer"], done: "drs" },
-  { id: "label", label: "Harmonised label for material composition and sorting information on the packaging", article: "labelling chapter", from: "2028-08-12", categories: ["sales", "foodcontact", "beverage", "ecommerce"], roles: MAKERS, done: "label" },
+  { id: "drs", label: "Deposit-return system covers single-use plastic bottles and metal drink cans (Member States must reach 90 percent separate collection by 2029; one that reached 80 percent in 2026 and has a plan to reach 90 percent can be exempted)", article: "collection chapter", from: "2029-01-01", categories: ["beverage"], roles: ["producer", "importer"], materials: ["plastic", "metal"], done: "drs" },
+  { id: "label", label: "Harmonised label for material composition and sorting information on the packaging", article: "labelling chapter", from: "2028-08-12", laterOf: "24 months after the Commission's implementing act on the label, if that is later (the act missed its 2026 deadline)", categories: ["sales", "foodcontact", "beverage", "ecommerce"], roles: MAKERS, done: "label" },
   { id: "recyclable", label: "Packaging designed for recycling: meets the recyclability criteria for its material", article: "recyclability requirements", from: "2030-01-01", categories: ALL, roles: MAKERS, done: "recyclable" },
-  { id: "recycled", label: "Plastic packaging carries the minimum share of recycled content for its type", article: "recycled-content requirements", from: "2030-01-01", categories: ALL, roles: MAKERS, materials: ["plastic", "multi"], done: "recycled" },
+  { id: "recycled", label: "Plastic packaging carries the minimum share of recycled content for its type", article: "recycled-content requirements", from: "2030-01-01", laterOf: "3 years after the Commission's act on the recycled-content calculation method, if that is later", categories: ALL, roles: MAKERS, materials: ["plastic", "multi"], done: "recycled" },
   { id: "minimise", label: "Packaging weight and volume kept to the minimum needed for function and safety", article: "minimisation requirements", from: "2030-01-01", categories: ALL, roles: MAKERS, done: "minimise" },
-  { id: "emptyspace", label: "Empty space in grouped, transport and e-commerce packaging is 50 percent or less", article: "empty-space requirements", from: "2030-01-01", categories: ["ecommerce", "transport"], roles: ["producer", "importer", "distance", "fulfilment"], done: "emptyspace" },
-  { id: "reuse", label: "Reuse targets for transport and grouped packaging (pallet wrap, crates, boxes) are met", article: "reuse targets", from: "2030-01-01", categories: ["transport"], roles: ["producer", "importer", "distributor"], done: "reuse", notMicro: true },
+  { id: "emptyspace", label: "Empty space in grouped, transport and e-commerce packaging is 50 percent or less", article: "empty-space requirements", from: "2030-01-01", laterOf: "3 years after the Commission's act on the empty-space calculation method, if that is later", categories: ["ecommerce", "transport"], roles: ["producer", "importer", "distance", "fulfilment"], done: "emptyspace" },
+  { id: "reuse", label: "Reuse targets met: at least 40 percent of the transport and e-commerce packaging you use (pallets, boxes other than cardboard, crates, trays, pails, drums, canisters, pallet wrap and straps) is reusable within a re-use system, and at least 10 percent of grouped-packaging boxes (aims for 2040: 70 and 25 percent). Cardboard boxes, dangerous-goods and large-machinery packaging and flexible food-contact packaging are outside the targets", article: "reuse targets", from: "2030-01-01", categories: ["transport", "ecommerce"], roles: ["producer", "importer", "distributor", "distance", "fulfilment"], notMaterials: ["paper"], done: "reuse", notMicro: true },
   { id: "singleuse", label: "Restricted single-use formats avoided (for example plastic wrap on small fruit and vegetable packs)", article: "restricted formats annex", from: "2030-01-01", categories: ["sales", "foodcontact"], roles: ["producer", "importer", "distributor", "distance"], materials: ["plastic", "multi"], done: "singleuse" },
 ];
 
 export const DONE_KEYS = ["substances", "conformity", "epr", "fulfilment", "drs", "label", "recyclable", "recycled", "minimise", "emptyspace", "reuse", "singleuse"];
 
-function opt(raw, allowed, fallback) {
-  return allowed.includes(raw) ? raw : fallback;
+// Blank means "use the default"; any other value outside the list is an error, never a silent fallback.
+function opt(raw, allowed, fallback, errors, message) {
+  if (raw === undefined || raw === null || raw === "") return fallback;
+  if (allowed.includes(raw)) return raw;
+  errors.push(message);
+  return fallback;
 }
 
 export function parse(input) {
@@ -74,9 +82,9 @@ export function parse(input) {
   if (!location) errors.push("Say where you are established.");
   const today = i.today === undefined || i.today === "" ? new Date().toISOString().slice(0, 10) : String(i.today);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(today) || Number.isNaN(Date.parse(today)) || new Date(today + "T00:00:00Z").toISOString().slice(0, 10) !== today) errors.push("Today's date must be written YYYY-MM-DD.");
-  const micro = opt(i.micro, ["yes", "no"], "no");
-  const sellsEu = opt(i.sellsEu, ["yes", "no", "unsure"], "yes");
-  const euOperator = opt(i.euOperator, ["yes", "no", "unsure"], "unsure");
+  const micro = opt(i.micro, ["yes", "no"], "no", errors, "Microenterprise must be yes or no.");
+  const sellsEu = opt(i.sellsEu, ["yes", "no", "unsure"], "yes", errors, "Sells into the EU must be yes, no or unsure.");
+  const euOperator = opt(i.euOperator, ["yes", "no", "unsure"], "unsure", errors, "EU operator named must be yes, no or unsure.");
   const done = {};
   for (const k of DONE_KEYS) done[k] = i[k] === true || i[k] === "1" || i[k] === 1 || i[k] === "on" || i[k] === "true";
   return { errors, category, material, role, location, today, micro, sellsEu, euOperator, done };
@@ -109,11 +117,12 @@ export function daysUntil(from, today) {
 
 export function timeline(p) {
   if (!p.category) return [];
-  const plastic = Boolean(p.material && p.material.plastic);
+  const mat = p.material ? p.material.id : null;
   const rows = OBLIGATIONS.filter((o) => o.categories.includes(p.category.id) && o.roles.includes(p.role.id)
-    && !(o.notMicro && p.micro === "yes") && !(o.materials && !(plastic && o.materials.includes(p.material.id)))).map((o) => {
+    && !(o.notMicro && p.micro === "yes") && !(o.materials && !o.materials.includes(mat))
+    && !(o.notMaterials && o.notMaterials.includes(mat))).map((o) => {
     const days = daysUntil(o.from, p.today);
-    const state = days <= 0 ? "applies" : days <= 365 ? "soon" : "later";
+    const state = days <= 0 ? (o.laterOf ? "pending" : "applies") : days <= 365 ? "soon" : "later";
     return { ...o, state, days, done: Boolean(p.done[o.done]) };
   });
   return rows.sort((a, b) => a.from.localeCompare(b.from));
@@ -134,6 +143,7 @@ export function compute(input) {
     if (rp.status === "gap" || rp.status === "unknown") findings.push({ severity: "high", title: "No EU operator is confirmed. Appoint an authorised representative for producer registration in each country you sell into, or sell through an EU importer." });
     if (rp.status === "check") findings.push({ severity: "medium", title: rp.reason });
     for (const r of overdue) findings.push({ severity: "high", title: `Applies since ${r.from}: ${r.label}.` });
+    for (const r of open.filter((x) => x.state === "pending")) findings.push({ severity: "medium", title: `From ${r.from} or ${r.laterOf}: ${r.label}. Check whether the act is in force.` });
     for (const r of open.filter((x) => x.state === "soon")) findings.push({ severity: "medium", title: `Applies in ${r.days} days (${r.from}): ${r.label}.` });
     if (rows.length && !open.length) findings.push({ severity: "info", title: "Every duty listed for your packaging and role is marked done. Keep the evidence; an authority can ask for it." });
   } else {
@@ -144,7 +154,7 @@ export function compute(input) {
 
 export const SAMPLE = { category: "ecommerce", material: "plastic", role: "distance", location: "noneu", sellsEu: "yes", euOperator: "no", micro: "no", today: "", substances: "", conformity: "", epr: "", fulfilment: "", drs: "", label: "", recyclable: "", recycled: "", minimise: "", emptyspace: "", reuse: "", singleuse: "" };
 
-const STATE_TEXT = { applies: "applies now", soon: "applies within a year", later: "applies later" };
+const STATE_TEXT = { applies: "applies now", pending: "date set by a Commission act", soon: "applies within a year", later: "applies later" };
 const RP_TEXT = { self: "you can carry the operator's duties", covered: "covered by an EU operator", check: "check who is named", gap: "gap: no EU operator", unknown: "not confirmed" };
 
 export function summaryText(r) {
@@ -160,13 +170,13 @@ export function summaryText(r) {
   ];
   if (r.timeline.length) {
     lines.push("", "Timeline:");
-    for (const t of r.timeline) lines.push(`  ${t.from}  ${STATE_TEXT[t.state].padEnd(24)} ${t.done ? "[done]" : "[open]"} ${t.label}`);
+    for (const t of r.timeline) lines.push(`  ${t.from}  ${STATE_TEXT[t.state].padEnd(29)} ${t.done ? "[done]" : "[open]"} ${t.label}${t.laterOf ? ` (or ${t.laterOf})` : ""}`);
   }
   lines.push("", "Dates written from memory: confirm with your national authority or counsel.");
   return lines.join("\n");
 }
 
 export function timelineCsv(r) {
-  const q = (c) => `"${String(c).replace(/"/g, '""')}"`;
+  const q = (c) => { let v = String(c); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   return ["applies_from,status,done,duty,basis", ...r.timeline.map((t) => [t.from, STATE_TEXT[t.state], t.done ? "yes" : "no", t.label, t.article].map(q).join(","))].join("\n");
 }

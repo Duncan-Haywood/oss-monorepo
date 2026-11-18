@@ -139,7 +139,7 @@ export function analyze(policies, { chars = 0 } = {}) {
 }
 
 export function toCsv(findings) {
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   return ["severity,statement,rule,title,fix", ...findings.map((f) => [f.severity, f.sid, f.rule, f.title, f.fix].map(q).join(","))].join("\n");
 }
 

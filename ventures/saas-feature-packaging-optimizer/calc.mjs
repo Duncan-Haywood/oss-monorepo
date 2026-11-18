@@ -389,7 +389,7 @@ export function analyze(shared) {
 }
 
 export function toCsv(a) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [["feature", "first_included_in", "share_of_respondents_who_value_it", "average_value_where_valued"].map(q).join(",")];
   a.impact.forEach((m) => lines.push([q(m.name), q(m.level === 0 ? "not offered" : a.tiers[m.level - 1]), m.reach.toFixed(4), m.avg.toFixed(2)].join(",")));
   lines.push("");

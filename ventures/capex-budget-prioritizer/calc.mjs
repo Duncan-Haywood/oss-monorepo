@@ -184,7 +184,7 @@ export function analyze(rawItems, rawShared) {
 }
 
 export function toCsv(a) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [["project", "cost", "annual benefit", "years", "npv", "profitability index", "irr %", "payback years", "in the plan"].join(",")];
   for (const r of a.rows) {
     lines.push([q(r.name), r.cost, r.benefit, r.years, r.npv.toFixed(2), r.pi.toFixed(3), r.irr == null ? "" : r.irr.toFixed(1), r.payback == null ? "" : r.payback.toFixed(2), r.chosen ? "yes" : "no"].join(","));

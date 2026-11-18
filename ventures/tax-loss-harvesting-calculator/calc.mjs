@@ -109,7 +109,7 @@ export function sampleInput() {
   };
 }
 
-const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
 export function reportCsv(a) {
   const rows = [["Section", "Item", "Value"]];
   rows.push(["Estimate", "Tax cost without harvest", a.before.cost], ["Estimate", "Tax cost with harvest", a.after.cost], ["Estimate", "Estimated savings this year", a.savings]);

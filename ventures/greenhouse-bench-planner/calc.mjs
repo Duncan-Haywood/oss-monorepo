@@ -232,7 +232,7 @@ export function analyze(text, options = {}) {
   };
 }
 
-const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
 export function planCsv(r) {
   const head = ["sow_date", "crop", "units_sown", "sale_date", "units_sold", "units_short", "shift", "bench_sqft", "germination_sqft", "margin"];
   return [head.join(","), ...r.rows.map((x) => [x.sow, q(x.crop), x.sown, x.sale, x.sold, x.short, q(x.shift), x.benchSqft.toFixed(1), x.germSqft.toFixed(1), x.margin.toFixed(2)].join(","))].join("\n") + "\n";

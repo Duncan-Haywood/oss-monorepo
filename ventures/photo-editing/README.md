@@ -1228,7 +1228,7 @@ decoders, and the white balance, CFA and white level match; 0.6-0.7 s per file w
 (each plane on its own thread), 25-28 s in pure Python. The R3 frame develops to a median 0.24 of an
 8-bit step from LibRaw's render (`eval/canon-cr3-craw-2026-11-15.md`).
 
-**Sensors stored in several tiles (later on 2026-11-15).** Canon's widest sensors (the R5 class) can
+**Sensors stored in several tiles (later on 2026-11-15).** Canon's widest sensors (the R5 class, it was thought; the real R5 and R5 Mark II files of 2026-11-18 are one tile) can
 store a frame as tiles side by side, and those files were refused. A full-quality CR3 in tiles is now
 read: CMP1's tile size cuts each plane into a grid (every tile that size except the last of each row and
 column, which takes the rest, at least 22 plane sensels, as LibRaw requires); the sample header lists each
@@ -1275,11 +1275,28 @@ cause: in `crxIdwt53FilterTransform` the test for a tile below is nested inside 
 tile with a neighbour below never computes its last rows (and the branch written for that case is dead
 code; `crxIdwt53FilterDecode` uses the combined test). Rebuilt with the two tests combined, LibRaw gives the
 upper tile back exactly, but the first 8 rows of the lower tile still differ, and this run could not trace
-that second difference. So side-by-side tiles (the layout of the wide R5-class sensors) are checked by an
+that second difference. So side-by-side tiles (the layout once expected of the wide R5-class sensors) are checked by an
 independent reader; stacked tiles are read by the same seamless rule, which nothing independent confirms
 yet, and a developed frame carries a note saying so. The QP row rule LibRaw uses for borrowed rows (row
 minus the bottom count, where columns subtract the left count) is followed but likewise unconfirmed
 (`eval/canon-cr3-craw-tiled-2026-11-16.md`).
+
+**Real R5, R5 Mark II and R3 files (2026-11-18).** raw.pixls.us answered this container today, so nine
+real CC0 files were checked against LibRaw 0.22: four EOS R5 (RAW and C-RAW, full frame and 1.6x crop),
+four R5 Mark II (the same four), one R3 RAW. Every one of 290.1 M sensels is equal (C decoder; the
+Python reference too on two of them). Two things changed:
+
+- The wide bodies do not store tiles. CMP1's tile size equals the frame on all nine, the R5's 8352 and
+  the R5 Mark II's 8480 sensels across included, so the "R5 class" above was a guess the real files do
+  not bear out, and the tiled layouts are still checked only on re-stored R8 frames.
+- The R5 Mark II developed with its black 8-41 levels low and no as-shot white balance. IAD1's optical
+  black there covers a darker, noisier strip (columns 0-131, about 470) as well as the real one (132-259,
+  512.2), and its ColorData12 (4,528 entries) was not in the balance table. The reader now takes the
+  black level ColorData states (PerChannelBlackLevel, found at 0x157, 0x16B and 0x17F on the R5, R3 and
+  R5 Mark II, equal to LibRaw on all nine) where its place is known, notes a measured one more than 4
+  levels away, and reads ColorData12's balance at 0x69. Black and balance now equal LibRaw on all nine.
+  In the APS-C crop the old black lifted a tone five stops under middle grey by half a stop
+  (`eval/canon-cr3-r5-real-2026-11-18.md`).
 
 ## Fujifilm RAF (2026-11-14)
 
@@ -1837,7 +1854,7 @@ RawFormat 6 and 7 do. Measured before choosing: on the S1 II's 96 MP frame 474,4
 sit at 16381-16382, one or two levels under the 16383 clip, and would have developed as not quite
 saturated. 16-bit files (GH6, GH7, G9 II) keep 65535, as LibRaw does.
 
-`tests/test_rw2_c8.py` (7 tests) writes RawFormat 8 files with an encoder of its own and checks
+`tests/test_rw2_c8.py` (9 tests since 2026-11-18) writes RawFormat 8 files with an encoder of its own and checks
 both decoders sensel for sensel, a hand-worked stream through the per-symbol shift, tile grids,
 the levels and the refusals.
 
@@ -1845,6 +1862,25 @@ Not done: no checked file uses a tone curve (tags 0x39/0x3A), per-symbol shifts 
 values. A file with a curve is refused with the reason; shifts and starting values are read as
 LibRaw reads them, tested on synthetic streams only. Colour needs the camera's `.dcp`, as for every
 RW2 here.
+
+### RawFormat 8: S1R II, S5 IIX, S1 II E, and a second row of tiles (2026-11-18)
+
+Three more bodies read sensel for sensel as LibRaw 0.22.2 does: the S1R II (12- and 14-bit,
+the 65:24 crop, electronic shutter, multiple exposure), the S5 IIX and the S1 II E, plus the
+S5 II's and S9's 96 MP frames. That is nine files and 462.0 M sensels, with white balance, black,
+CFA, crop and white level all equal (`eval/panasonic-rw2-format8-grid-2026-11-18.md`).
+
+The S1R II's 177 MP high-resolution mode (16296 x 10856) stores its frame in 4 x 2 tiles, the
+only public file with a second row of them. Both this reader and LibRaw 0.22.2 refused it. Tag
+0x45 turned out to hold `(top << 16) | left`, not just the left edge. Now it develops (3.05 s
+to read), and a tile whose stored top disagrees with the tiles above it is refused. With no
+other decoder to compare against, `tools/rw2_grid_check.py` scores the decode: the seams are as
+smooth as on files LibRaw confirms (0.98 to 1.07), against 19 to 46 when a block is swapped,
+and the C and Python decoders agree.
+
+Tone curves: none of the 35 public RawFormat 8 files on raw.pixls.us, from all nine bodies,
+carries one, and none has shifts or starting values either
+(`eval/panasonic-rw2-format8-curve-survey-2026-11-18.txt`), so the refusal stays.
 
 ### Leica RWL, and a card copy that leaves no raw behind (2026-11-16)
 

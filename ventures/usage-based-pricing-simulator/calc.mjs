@@ -200,7 +200,7 @@ export function analyze(rawPlans, popInput, cogsRaw) {
 }
 
 export function reportCsv(r) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const head = ["metric", ...r.plans.map((p) => q(p.name))].join(",");
   const rows = [
     ["monthly_revenue", ...r.results.map((x) => Math.round(x.revenue))],

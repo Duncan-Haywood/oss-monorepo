@@ -430,7 +430,7 @@ function verdictText(r) {
 }
 
 export function reportCsv(r) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const out = [["product", "units", "batches", "unit_margin", "weekly_margin", "resource_cost_per_unit", "net_per_unit"].join(",")];
   for (const l of r.plan.lines) out.push([q(l.name), l.units, l.batches, l.unitMargin.toFixed(2), l.margin.toFixed(2), l.oppCost.toFixed(2), l.netUnit.toFixed(2)].join(","));
   out.push("");

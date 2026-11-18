@@ -272,7 +272,7 @@ export function analyze(raw) {
 
 export function reportCsv(r) {
   const lines = [["Holder", "Group", "Shares", "Invested", "Payout", "Per share", "Share of net proceeds"]];
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   for (const x of r.waterfall.rows) lines.push([q(x.name), x.group, Math.round(x.shares), x.invested != null ? Math.round(x.invested) : "", Math.round(x.payout), x.perShare.toFixed(4), r.waterfall.net > 0 ? (x.payout / r.waterfall.net).toFixed(4) : "0"]);
   lines.push([]);
   lines.push(["Exit price", Math.round(r.waterfall.exit)], ["Debt repaid", Math.round(r.waterfall.debtPaid)], ["Fees", Math.round(r.waterfall.fees)], ["Carve-out", Math.round(r.waterfall.carve)], ["Net to shareholders", Math.round(r.waterfall.net)]);
