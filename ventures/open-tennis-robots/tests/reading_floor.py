@@ -63,6 +63,8 @@ for s in range(SUB):                 # the shipped Euler step, SUB times per mil
     if int(self.rev[i]) > int(before):
         frac = (s + (int(self.rev[i]) - before) / (self.rev[i] - before)) / SUB
         self.us = t0 + int(frac * 1000)
+        if tach.cap is not None or self.tach_sensor_jitter_us:
+            self._edge(tach, t0, frac * 1000)
         if self.tach_jitter_us:
             self.us += int(round(self._rng.gauss(0.0, self.tach_jitter_us)))
         tach._p(None)

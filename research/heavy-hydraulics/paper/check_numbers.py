@@ -498,6 +498,10 @@ MANUSCRIPT_CHECKS = [
     ("(ratio 1.06)", "gear_pump_onepoint_results.txt", "owh 1.22, owhq 1.06"),
     ("left-out RMS rises to 0.0065", "gear_pump_onepoint_results.txt", "owdq  0.0065  (max 0.0085"),
     ("the Danfoss family's to 0.0142", "gear_pump_onepoint_results.txt", "danfoss                       0.0061 / 0.0080 / 0.0142"),
+    # milestone 7m
+    ("(64 and 79 L/min)", "gear_pump_twopoint_results.txt", "q25 = 64, q* (median) = 72, q75 = 79 L/min"),
+    ("carries only 0.859 kW", "gear_pump_twopoint_results.txt", "pooled with condition fixed effects 0.859"),
+    ("left-out RMS stays at 0.0066", "gear_pump_twopoint_results.txt", "owd2  0.0066  (max 0.0084"),
 ]
 
 
