@@ -95,7 +95,9 @@ def fly(d, law, test):
         over = np.nanmax(np.maximum(-pos[:, :, 0], 0.0), 0)
         rise = np.argmax(pos[:, :, 0] <= 0.1 * STEP_M, 0) * A.DT          # time to 90% of the step
         r.update(settle=settle.tolist(), over=over.tolist(), rise=np.where(dead, np.nan, rise).tolist(),
-                 rms=np.sqrt(np.nanmean(e ** 2, 0)).tolist())
+                 rms=np.sqrt(np.nanmean(e ** 2, 0)).tolist(),
+                 tail_off=np.nanmean(e[-int(1.0 / A.DT):], 0).tolist(),                  # post hoc: mean distance over the last 1 s
+                 tail_pp=(np.nanmax(pos[-int(1.0 / A.DT):, :, 0], 0) - np.nanmin(pos[-int(1.0 / A.DT):, :, 0], 0)).tolist())   # and x peak-to-peak
     else:
         k = int(T_WIND / A.DT)
         r.update(peak=np.nanmax(e[k:], 0).tolist(), rms=np.sqrt(np.nanmean(e[k:] ** 2, 0)).tolist(),
