@@ -29,7 +29,12 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "A literal U+FEFF ended up in engine.mjs's parseCsv regex (the file-writing tool turned the escape into the character); CI's changed-ventures job (check_hidden_unicode.py) caught it on the PR, and it was rewritten as an escape.",
+      "fixed": true
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +44,10 @@
     {
       "file": ".github/prompts/cloud-session.md",
       "issue": "Outbound hosts: only GitHub raw and PyPI were reachable (CRAN, GBIF, Zenodo, Dryad, figshare, NEON, ScienceBase all refused). One line listing 'CC0 datasets on GitHub (e.g. weecology/PortalData)' as the working route for example data would save probing."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Preflight said clean, but changed-ventures failed on check_hidden_unicode.py for the new venture; preflight's repository checks do not run the hidden-unicode scan over a new venture's files."
     }
   ],
   "deviations": [
