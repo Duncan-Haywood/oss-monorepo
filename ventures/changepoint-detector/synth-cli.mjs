@@ -31,7 +31,7 @@ export function parseCovariates(csv) {
   return { names, units };
 }
 
-export function synthResult({ csv, column, labelColumn = null, date, donors = [], window = null, log = false, covariatesCsv = null }) {
+export function synthResult({ csv, column, labelColumn = null, date, donors = [], window = null, log = false, covariatesCsv = null, anticipation = 0 }) {
   if (column == null) throw new Error('a synthetic control (--donors) needs --column, the treated series');
   const all = parseColumns(csv, null, labelColumn);
   const find = (ref) => {
@@ -60,9 +60,17 @@ export function synthResult({ csv, column, labelColumn = null, date, donors = []
   const cut = (i) => { const a = all.cols[i].slice(lo, hi); if (log && a.some((v) => !(v > 0))) throw new Error(`--log needs every value above zero (${all.names[i]})`); return log ? a.map(Math.log) : a; };
   const y = cut(ti);
   const donorSeries = Object.fromEntries(di.map((i) => [all.names[i], cut(i)]));
-  const r = synthControlTest(y, donorSeries, k);
+  // --anticipation N (eval/synth-anticip-prereg-2026-11-18.md, README "A shock before the date"): the fit ends N points
+  // before the named date, so a change people saw coming is not absorbed into the synthetic control; the gap and the
+  // placebo test read from the fit's end, and gapFromDate is the mean gap from the named date on.
+  const lead = Number(anticipation ?? 0);
+  if (!Number.isInteger(lead) || lead < 0) throw new Error(`--anticipation ${anticipation}: give a whole number of points (0 or more)`);
+  const kFit = k - lead;
+  if (kFit < 5) throw new Error(`--anticipation ${lead}: that leaves ${Math.max(kFit, 0)} points before the fit's end; a synthetic control needs at least 5 (widen --window or lower --anticipation)`);
+  const r = synthControlTest(y, donorSeries, kFit);
+  const tail = r.gap.slice(k);
   const out = {
-    treated: all.names[ti], date: String(date), lastBefore: labels[k - 1], firstAfter: labels[k], from: labels[0], to: labels[labels.length - 1], scale: log ? 'log' : 'level',
+    treated: all.names[ti], date: String(date), anticipation: lead, fitEnd: labels[kFit - 1], gapFromDate: tail.reduce((a, b) => a + b, 0) / tail.length, lastBefore: labels[k - 1], firstAfter: labels[k], from: labels[0], to: labels[labels.length - 1], scale: log ? 'log' : 'level',
     donors: r.donors, weights: r.weights, preRmspe: r.preRmspe, postRmspe: r.postRmspe, effectAverage: r.effectAverage, effectAtEnd: r.effectAtEnd,
     statistic: r.statistic, rank: r.rank, p: r.p, minP: r.minP, tests: r.tests, preFitShare: r.preFitShare, fitWarning: r.fitWarning,
     labels, treatedSeries: y, synthetic: r.synth, gap: r.gap,
@@ -79,6 +87,7 @@ export function synthResult({ csv, column, labelColumn = null, date, donors = []
 const f = (v, d = 2) => Number(v).toFixed(d), g = (v) => Number(v).toPrecision(3);
 export function synthText(h) {
   const L = [`A synthetic control for ${h.treated} at a date you named (${h.lastBefore} -> ${h.firstAfter}), ${h.from} to ${h.to}, ${h.donors} donor series, on the ${h.scale === 'log' ? 'logs' : 'levels'}:`];
+  if (h.anticipation) L.push(`  Backdated (--anticipation ${h.anticipation}): fitted on the points up to ${h.fitEnd}, ${h.anticipation} before the date you named, so a change people saw coming is not fitted away; the gap and the test below read from ${h.fitEnd} on. Mean gap from ${h.firstAfter} on: ${g(h.gapFromDate)}`);
   const shown = h.weights.slice(0, 8).map((w) => `${w.name} ${f(w.weight, 3)}`).join(', ');
   L.push(`  Synthetic ${h.treated}: ${shown}${h.weights.length > 8 ? `, +${h.weights.length - 8} more` : ''} (weights matching every point before the date)`);
   L.push(`  Fit before the date: RMSPE ${g(h.preRmspe)}; ${f(100 * h.preFitShare, 0)}% of the donors' own synthetic controls fit better${h.fitWarning ? '. FIT WARNING: the treated series is fitted worse than 80% of the placebos, so its gap after the date is hard to read (often it sits outside the donors\' range)' : ''}`);
@@ -95,6 +104,7 @@ export function synthText(h) {
       : '    No placebo warning: on every covariate at least 20% of the donors are matched worse by their own synthetic controls than the treated unit is.');
     L.push('    (std gap = (treated - synthetic) / sd over all units. A gap past 0.25 sd is common and on its own is no warning: an outcome-only fit was past it on 84% of simulated panels where the covariate did nothing.)');
   }
+  if (!h.anticipation) L.push('  If people could see the change coming (a law passed months before it took effect, an announced price rise), rerun with --anticipation N, N the points between the first moment they could react and the date: in simulation an effect that began 2 or 4 points early was found ANTICIP_STATED of the time at the stated date and ANTICIP_BACK when backdated by its lead (eval/synth-anticip-confirm.out.txt).');
   L.push(`  (Abadie, Diamond and Hainmueller 2010, outcome-only fit. At p 0.05 it flagged 2.3-5.3% of simulated no-effect panels (README "A floored ratio"). It has little power on short or loosely fitted series: of four real state tobacco-tax rises it ranks California 1st of 39 (p 0.026) but Massachusetts, Arizona and Oregon only 6th to 13th, so a large p is not evidence of no effect. A small p says the treated series left its synthetic control more than the donors left theirs; it does not say what caused it.)`);
   return L.join('\n');
 }
