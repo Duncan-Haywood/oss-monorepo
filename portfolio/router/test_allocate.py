@@ -1004,6 +1004,26 @@ class DateGateTests(unittest.TestCase):
         self.assertEqual(start_here(queue[:1], {}, now=now), (1, "dated"))
         self.assertEqual(start_here(queue[:1], {}, now=now, session="s1"), (1, "dated"))
 
+    def test_start_here_moves_mostly_left_rows_behind(self):
+        from datetime import datetime, timezone
+        from allocate import mostly_left
+        now = datetime(2026, 11, 18, 10, 0, tzinfo=timezone.utc)
+        hit = ("2026-11-18", "other", "nothing buildable")
+        left = {"chant": [hit] * 16, "roster": [hit] * 5, "bk": [hit] * 2}
+        worked = {"chant": 9, "roster": 8, "bk": 0}
+        # chant: left more than worked; roster: worked more; bk: too few leaves.
+        self.assertEqual(mostly_left(left, worked), {"chant"})
+        self.assertEqual(mostly_left(None, None), set())
+        task = "Deepen (flagship {}): x"
+        queue = [{"venture": "chant", "flagship": True, "task": task.format(1)},
+                 {"venture": "roster", "flagship": True, "task": task.format(2)}]
+        self.assertEqual(start_here(queue, {}, now=now, demote={"chant"}), (2, "roster"))
+        picks = {start_here(queue, {}, now=now, session=f"s{n}", spread=1, demote={"chant"})
+                 for n in range(20)}
+        self.assertEqual(picks, {(2, "roster")})
+        # Alone, a demoted row is still named.
+        self.assertEqual(start_here(queue[:1], {}, now=now, demote={"chant"}), (1, "chant"))
+
 
 class LeastClaimedTests(unittest.TestCase):
     def test_names_the_row_whose_newest_claim_is_oldest_when_none_is_free(self):

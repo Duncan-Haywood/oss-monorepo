@@ -1149,9 +1149,30 @@ def session_id() -> Optional[str]:
     return None
 
 
+LEFT_DEMOTE_MIN = 3
+
+
+def mostly_left(left: Optional[dict], worked: Optional[dict]) -> set[str]:
+    """Flagships that at least LEFT_DEMOTE_MIN recent sessions left and that
+    more sessions left than worked (left_rows, worked_rows).
+
+    Why: the 'Left recently' hint alone did not stop the pick. On 2026-11-18
+    Start here sent sessions to chant-forge again and again (16 departures
+    against 9 records that worked it in two days; three doc-friction reports
+    on this file that day, one counting the 15th send) because no leaver
+    edited the row. A row most sessions find nothing on is moved behind the
+    rest, as a dated row is; rows worked more often than left keep their
+    place, so the earlier judgement (a hint, not a demotion) still holds for
+    them."""
+    left, worked = left or {}, worked or {}
+    return {n for n, hits in left.items()
+            if len(hits) >= LEFT_DEMOTE_MIN and len(hits) > worked.get(n, 0)}
+
+
 def start_here(queue: list[dict], claims: Optional[dict[str, list]],
                now: Optional[datetime] = None, session: Optional[str] = None,
-               spread: int = START_SPREAD) -> Optional[tuple[int, str]]:
+               spread: int = START_SPREAD,
+               demote: Optional[set] = None) -> Optional[tuple[int, str]]:
     """(row number, venture) of a Deepen flagship row with no open PR younger
     than CLAIM_FRESH_HOURS, or None. Rows marked `inputs_only` are not Deepen
     rows, so they are skipped too. With claims unread (None) nothing is known
@@ -1163,8 +1184,10 @@ def start_here(queue: list[dict], claims: Optional[dict[str, list]],
     get different rows: two sessions took the same sales-agent item in
     parallel three times on 2026-11-11/12 (doc_friction on this file), which
     the open-PR read cannot see. Rows whose `buildable:` waits on a future
-    date come after the rest (gate_note)."""
+    date come after the rest (gate_note), and so do rows in `demote`
+    (mostly_left)."""
     now = now or datetime.now(timezone.utc)
+    demote = demote or set()
     free, dated = [], []
     for i, item in enumerate(queue, 1):
         if not (item["flagship"] and item["task"].startswith("Deepen")):
@@ -1174,7 +1197,8 @@ def start_here(queue: list[dict], claims: Optional[dict[str, list]],
             continue
         # A row whose BUILDABLE HERE names an item not due yet (gate_note)
         # comes after every free row that does not (see _DATE_GATE).
-        if "BUILDABLE HERE" in item["task"] and "(NOT YET: " in item["task"].split(" -- Context: ")[0]:
+        if item["venture"] in demote or (
+                "BUILDABLE HERE" in item["task"] and "(NOT YET: " in item["task"].split(" -- Context: ")[0]):
             dated.append((i, item["venture"]))
             continue
         free.append((i, item["venture"]))
@@ -1560,7 +1584,10 @@ def print_table(ventures: list[Venture], queue: list[dict],
     if req:
         print(req)
     sid = session_id()
-    first = start_here(queue, claims, session=sid)
+    flag_names = [i["venture"] for i in queue if i["flagship"]]
+    left, worked = left_rows(flag_names), worked_rows(flag_names)
+    demoted = mostly_left(left, worked)
+    first = start_here(queue, claims, session=sid, demote=demoted)
     if first:
         how = (f"picked by this session's id among the first {START_SPREAD} Deepen flagships"
                if sid else "the first Deepen flagship")
@@ -1575,9 +1602,12 @@ def print_table(ventures: list[Venture], queue: list[dict],
             f"`python3 portfolio/router/claim_check.py {first[1]}`: two sessions that opened "
             "in the same minute both see this row free, and the PR opened first keeps it."
         )
-        flag_names = [i["venture"] for i in queue if i["flagship"]]
-        note = left_note(first[1], left_rows(flag_names),
-                         worked=worked_rows(flag_names).get(first[1], 0),
+        if demoted:
+            print("Moved behind the other rows: " + ", ".join(sorted(demoted)) + " (more recent "
+                  "sessions left it than worked it; mostly_left). If you find it buildable, say so in "
+                  "your record's `projects`, which counts as working it.")
+        note = left_note(first[1], left,
+                         worked=worked.get(first[1], 0),
                          has_buildable=first[1] in load_flagship_field("buildable"))
         if note:
             print(note)
