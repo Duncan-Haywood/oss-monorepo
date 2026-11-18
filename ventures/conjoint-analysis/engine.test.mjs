@@ -206,3 +206,12 @@ test("simulateShares on a finished analysis matches the built-in simulator", asy
   });
   assert.equal(simulateShares(r, products, { includeNone: false }).length, 2);
 });
+
+test("exported CSV defuses spreadsheet formulas but keeps negative numbers", () => {
+  const d = generateDesign({ attributes: parseAttributes("Name: =HYPERLINK(1), @x\nTemp#: -5, 5"), versions: 1, tasks: 2, concepts: 2, none: false, seed: 2 });
+  const csv = designCsv(d);
+  assert.match(csv, /'=HYPERLINK\(1\)/);
+  assert.match(csv, /'@x/);
+  assert.match(csv, /,-5(,|$)/m);
+  assert.doesNotMatch(csv, /,'-5/);
+});

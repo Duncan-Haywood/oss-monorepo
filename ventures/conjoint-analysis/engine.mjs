@@ -743,7 +743,13 @@ export function respondentsFor(design, target = 0.05) {
   return Math.ceil(Math.max(...design.unitSe.map((s) => (s / target) ** 2)));
 }
 
-const csvCell = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+// Spreadsheet formula-injection guard: a level or label starting =, +, -, @,
+// tab or CR gets an apostrophe, unless it is a plain number such as -5.
+function csvCell(c) {
+  let s = String(c);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
 
 /** The design as long CSV: version, task, concept, one column per attribute; the no-choice row has empty cells. */
 export function designCsv(d) {

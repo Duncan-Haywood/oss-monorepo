@@ -233,7 +233,7 @@ Contract: Monthly, Annual</textarea>
     function makeDesign() {
       try {
         const attributes = parseAttributes($("#attrs").value);
-        const d = generateDesign({ attributes, versions: $("#versions").value, tasks: $("#tasks").value, concepts: $("#concepts").value, none: $("#none").value === "yes", seed: Number($("#dseed").value) || 1 });
+        const d = generateDesign({ attributes, versions: $("#versions").value, tasks: $("#tasks").value, concepts: $("#concepts").value, none: $("#none").value === "yes", seed: Number.isFinite(Number($("#dseed").value)) ? Number($("#dseed").value) : 1 });
         lastDesign = d;
         const target = Number($("#target").value);
         const need = respondentsFor(d, target);
