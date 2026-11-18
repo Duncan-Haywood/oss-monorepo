@@ -411,7 +411,7 @@ export const AUDIENCES = [
     description:
       'Free retirement calculators: RMDs, QCDs, Medicare IRMAA, Social Security claiming age and taxes, Roth conversions, pension lump sums and withdrawal order.',
     intro:
-      'Calculators for the money decisions around retirement: when to claim Social Security and how much of it is taxed, required minimum distributions and giving them away as QCDs, the Medicare IRMAA and ACA subsidy cliffs, Roth conversions, a pension lump sum against the annuity, and which account to draw from first. Most follow US federal rules; the two marked UK cover the State Pension and pension withdrawals.',
+      'Calculators for the money decisions around retirement: when to claim Social Security, RMDs and QCDs, the IRMAA and ACA subsidy cliffs, Roth conversions, a pension lump sum, and which account to draw from first. Most follow US federal rules; the two marked UK cover the State Pension and pension withdrawals.',
     starting:
       'Retiring in the next few years? Start with the Social Security claiming age calculator and the withdrawal sequencer: the first sets your income floor, and the second shows how the order you draw from accounts moves your tax bill, IRMAA and RMDs.',
     match:
@@ -425,7 +425,7 @@ export const AUDIENCES = [
     description:
       'Free calculators for parents: Child Tax Credit, EITC, dependent care FSA vs credit, nanny tax, 529 to Roth, UK maternity and shared parental pay, childcare.',
     intro:
-      'Calculators for the money side of having children: the Child Tax Credit and EITC, whether a dependent care FSA or the childcare credit saves more, what employing a nanny really costs, rolling a leftover 529 into a Roth IRA, and on the UK side Statutory Maternity Pay, Shared Parental Pay, Tax-Free Childcare and the High Income Child Benefit Charge. The US tools follow federal rules; the four marked UK follow GOV.UK rules.',
+      'Calculators for the money side of having children: tax credits, childcare costs and the credits that offset them, what a nanny really costs, a leftover 529, and parental leave pay. The US tools follow federal rules; the four marked UK follow GOV.UK rules.',
     starting:
       'Expecting a baby? In the US, start with the Child Tax Credit calculator and the dependent care FSA vs credit comparison; in the UK, start with the maternity pay calculator and the shared parental pay planner, which shows how the weeks split between both parents.',
     match:
@@ -439,7 +439,7 @@ export const AUDIENCES = [
     description:
       'Free calculators for leaving a job: severance, COBRA vs marketplace, 401(k) loan vs withdrawal, final paycheck dates, UK and AU redundancy pay, job offers.',
     intro:
-      'Calculators for the weeks around a job change: whether a severance offer is in the usual range, keeping COBRA or buying a marketplace plan, a 401(k) loan against an early withdrawal, the date a final paycheck is legally due in your state, statutory redundancy pay and notice in Great Britain and Australia, comparing job offers on total pay, and a tracker for the applications in between.',
+      'Calculators for the weeks around a job change: a severance offer, COBRA or a marketplace plan, a 401(k) loan or withdrawal, when your final paycheck is legally due, redundancy pay in Great Britain and Australia, and comparing job offers on total pay.',
     starting:
       'Just been laid off? Check the severance offer and the final paycheck date first, since both have deadlines, then compare COBRA with a marketplace plan before the election window closes.',
     match:
@@ -453,7 +453,7 @@ export const AUDIENCES = [
     description:
       'Free homeowner calculators: mortgage points, escrow shortages, extra payments, HELOC vs cash-out refinance, property tax appeals, solar and heat pump payback.',
     intro:
-      'Calculators for the money decisions that come with owning a home: whether buying beats renting, if mortgage points pay back before you move, your annual escrow statement checked against your tax and insurance bills, extra payments against investing, a HELOC against a cash-out refinance, appealing your property tax assessment, solar, heat pump and ADU payback, an HOA reserve study, and what you keep and owe in tax when you sell. Most follow US rules; the one marked UK covers mortgage overpayments and early repayment charges.',
+      'Calculators for the money decisions that come with a home: renting or buying, mortgage points and extra payments, escrow, refinancing, a property tax appeal, upgrades that should pay for themselves, and selling. Most follow US rules; the one marked UK covers mortgage overpayments and early repayment charges.',
     starting:
       'Buying your first home? Start with the rent vs buy calculator for the break-even year, then the mortgage points calculator before you lock a rate: both answer how long you need to stay for the money to come back.',
     match:
