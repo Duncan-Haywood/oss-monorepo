@@ -92,7 +92,7 @@ export function parseMoney(raw) {
   let s = String(raw ?? '').trim();
   if (!s) return null;
   let neg = false;
-  if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1); }
+  if (/\([^()]*\d[^()]*\)/.test(s)) { neg = true; s = s.replace(/[()]/g, ""); }
   if (/\bDR\b/i.test(s)) neg = true;
   s = s.replace(/\b(CR|DR)\b/gi, '');
   if (/^[^0-9]*-/.test(s) || /-\s*$/.test(s)) neg = true;

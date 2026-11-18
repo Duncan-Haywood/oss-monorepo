@@ -121,3 +121,9 @@ test("an amount with more decimals than its currency is skipped, not read 1000x 
   assert.deepEqual(r.skipped.map((s) => [s.line, s.why]), [[2, "amount has more decimals than EUR allows (is . a thousands separator?)"], [5, "amount has more decimals than JPY allows (is . a thousands separator?)"]]);
   assert.deepEqual(r.lines.map((l) => l.amount), [1250, 1250, 5000]);
 });
+
+test("accounting-format negatives are credits wherever the currency sign sits (red team 2026-11-18)", () => {
+  const { lines, skipped } = linesFromCsv("amount,date,period start\n($100.00),2026-01-01,2026-01-01\n$(100.00),2026-01-01,2026-01-01\n$ (100.00),2026-01-01,2026-01-01\n(100.00) USD,2026-01-01,2026-01-01\n");
+  assert.deepEqual(skipped, []);
+  assert.deepEqual(lines.map((l) => l.amount), [-10000, -10000, -10000, -10000]);
+});
