@@ -1,0 +1,25 @@
+# Heckman sample selection model: two-step and maximum likelihood
+
+> Free Heckman sample-selection tool. Upload a CSV with one row per unit, where the outcome is seen only for selected rows (a wage only for people in work, a loss only for approved loans, a score only for students who sat the test), and get the selection probit, OLS on the selected rows, Heckman's two-step estimator with the Heckman-Greene corrected standard errors, and full maximum likelihood of the bivariate-normal selection model with conventional, robust or cluster-robust standard errors; rho, sigma and lambda with intervals; likelihood-ratio, Wald and two-step tests of rho = 0; and checks on the exclusion restriction and on collinearity of the inverse Mills ratio. Matches statsmodels 0.15 within 1e-12 (probit, OLS, two-step) and an independent scipy maximum-likelihood fit within 1e-7 (estimates) and 1e-5 (standard errors). Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/heckman-selection/)
+
+## Use it from code
+
+- `node cli.mjs data.csv --outcome y --regressors x1,x2 --selection z1,z2 [--selected s] [--se conventional|robust|clustered] [--cluster id] [--estimator mle|twostep] [--selection-only] [--csv|--json]`
+- `node cli.mjs --example` for 2,000 simulated women, 1,213 with a wage (true return to schooling 0.085, true rho 0.6; OLS on workers 0.0745, maximum likelihood 0.0840 with SE 0.0057, rho 0.496)
+- `node platform/agents/tools.mjs call heckman-selection analyze --input '{"csv":"...","outcome":"y","regressors":"x1,x2","selection":"z1"}'`
+
+## What it answers
+
+- What do the regressors do to an outcome that is recorded only for some units, when who is recorded may depend on the same unobserved factors?
+- Is there selection bias at all (rho = 0 tests), and in which direction?
+- Is the correction identified by a real exclusion restriction, or only by the normal distribution, and how fragile are the two-step estimates?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/heckman-selection): MIT licensed.

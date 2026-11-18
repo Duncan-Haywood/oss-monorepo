@@ -2042,7 +2042,7 @@ ESC-lag survey of each launched ball, `LaunchCheck._take_survey` refits each tur
 `TAKE_SURVEY_GRID_US` (0 / 2 / 3 / 4 / 5 / 6 / 8 ms), using the board's own ESC lag. It sums the squared residuals
 through the same trimmed sum as the ESC-lag survey (`ResidualSurvey`), and refines the least by `survey_pick`'s
 parabola. The TAKE_SURVEY frame (0x84) carries the wheel count, the least and refined times, the board's own `TAKE_US`
-(0.1 ms units) and each candidate's mean rms. `host.run_drill(take_survey=True)` sends SURVEY_TAKE for a calibration
+(0.1 ms units), each candidate's mean rms and, since 2026-11-18, the wheels summed (section "The take survey's verdict needs two informative wheels"). `host.run_drill(take_survey=True)` sends SURVEY_TAKE for a calibration
 drill (`run_file` does so whenever the drill says `"calibration": true`) and turns it off at the end. `tennisbots run`
 prints `host.take_survey_advice`, and the shot log keeps the survey (`last_take_survey_from_log`, also printed by
 `tennisbots esc-lag`).
@@ -2736,3 +2736,108 @@ blind (0 -> 1 of 9).
 the capture set sat at its ceiling and so could not show a gain; a verdict now rests on fewer wheels (on the jittery
 set 1149 of 1584 were left out), and `ESC_SURVEY_MIN_WHEELS` still counts all of them. Next: count only the kept wheels
 toward the 16-wheel minimum (a frame field), and the advised instant build of "Take-blind rows traced".
+
+## The take survey's verdict needs two informative wheels (2026-11-18, after "The take survey skips take-blind wheels"; built, kept off by its pre-registered rule)
+
+**The item.** The section above left `host.ESC_SURVEY_MIN_WHEELS` (16) counting every wheel the take survey saw,
+including the take-blind ones left out of its sums, and named next "count only the kept wheels toward the 16-wheel
+minimum (a frame field)".
+
+**The frame field ships.** `ResidualSurvey.kept_n` counts the wheels summed; the TAKE_SURVEY frame (0x84) carries it
+as a new last byte (to 255), and the Pi reads it into the survey (`"kept"`) and the shot log. The Pi still decodes the
+shorter frame of older firmware (`protocol.OLDER_FORMATS`), with `"kept": None`. `host.TAKE_SURVEY_MIN_KEPT` holds a
+verdict back, saying how many wheels told the contact times apart, when fewer than that many were summed.
+
+**Counting kept wheels toward 16 would silence the survey.** `tests/take_survey_kept.py` rescores stored captures'
+board rows at a minimum K on the kept wheels, at the drill's end and at every 16-wheel-or-longer prefix (a shorter
+drill). The jittery-tach drills keep a median of 3, 5 and 6 wheels of 22, so at K = 16 none of the three jittery sets'
+72 right end-of-drill verdicts is advised (eval/take-survey-kept-design-2026-11-18.txt). The 16-wheel minimum stays on
+every wheel surveyed.
+
+**A small minimum, pre-registered, failed held out.** On the twelve stored sets a prefix verdict resting on one kept
+wheel was wrong 12 times in 37 against about 1% on more, so K = 2 was pre-registered (eval/take-survey-kept-2026-11-18.md,
+committed before the capture): on a fresh jittery set (lag 0.7 s, seed 23) the one-wheel verdicts had to be wrong at
+three times the others' share. They were wrong 0 times in 6, the rest 6 in 140; end-of-drill verdicts were 21 right
+either way and no take was invented. By the rule the minimum ships at 0: the count is reported and nothing is held.
+
+**Not known.** Counted by drill, the design evidence was two wrong drills of 14 (prefixes of one drill are
+near-repeats), and held out two right of two, so whether one informative wheel is too few is not settled by these
+sets; a minimum would need drill-level counts over more fresh sets. Still open from before: the sub-8 advised instant
+build, and whether `TAKE_SURVEY_BLIND`'s 1.5 suits a real wheel.
+
+## An ESC with its own speed loop (2026-11-18, after "The take survey's verdict needs two informative wheels"; the board's loop fixed, a drop fit for it tried and kept off)
+
+**The item.** Every fit above models the wheel as a lag of the throttle the board sends. A builder may instead run
+VESC-class firmware in a speed mode, where the throttle is an rpm setpoint and the ESC holds it with a PI loop of its
+own. The flagship's list named it: "an ESC with its own speed loop". What does the board do then?
+
+**The plant.** `tests/loop_residual_sweep.py`'s wheel gains a `speed_loop=(f, z, a_max)` ESC: setpoint = throttle x
+the ESC's map, a PI loop on its own (exact) speed sensor with closed-loop natural frequency f and damping z, the
+wheel's drag w / tau, the drive clamped to the motor's acceleration limit, 0.1 ms steps. Its revolutions advance at
+each millisecond's mean speed, not its end speed as the other plants' do: a fast loop moves the wheel a few per cent
+within a millisecond after a ball, and the end-speed rule alone read 1.5-3.5% low on a fit that is exact on its own
+model (the other plants keep the rule their recorded sweeps used, and their numbers did not move).
+
+**The board's own loop rang.** `WheelLoop`'s proportional term was tuned on a wheel that lags its throttle by
+0.2-0.8 s. On top of an ESC that reaches a setpoint in tens of milliseconds, seen through a 4-revolution tach, it is
+a loop gain of about 1.8 behind a delay. `tests/speed_esc_sweep.py` runs one wheel with no ball for 6 s, starting
+at its target with an empty integrator, over 12 ESC loops (2-20 Hz, damping 0.4 and 0.7) x 4 targets (600-6,000 rpm) x
+3 setpoint maps (7,000, 9,000 and 11,000 rpm at full throttle against the 9,000 the board is told), and reads the last
+second (eval/speed-esc-sweep-2026-11-18.txt):
+
+| board loop | swing over the last second, median / worst (% of target) | worst mean error | wheels swinging over 1% |
+| --- | --- | --- | --- |
+| today's PI | 0.00 / 147.7 | 3.22% | 48 of 144 |
+| no P, no I (feedforward only) | 0.00 / 0.00 | 22.2% (the map's error, untrimmed) | 0 |
+| no P, 0.3 x the integral gain | 0.00 / 0.41 | 0.69% (still trimming) | 0 |
+| no P, 0.5 x | 0.00 / 0.00 | 0.05% | 0 |
+| no P, 0.7 x | 0.00 / 0.00 | 0.04% | 0 |
+| no P, 1.0 x | 0.00 / 1.18 | 0.08% | 1 |
+
+**What shipped.** `config.ESC_SPEED_LOOP` (off by default; `main.py` passes it to both wheel loops) makes `WheelLoop`
+drop its proportional term and keep `controller.SPEED_ESC_KI_SHARE` (0.5) of its integral gain, a slow trim for an
+ESC whose setpoint is not exactly throttle x `WHEEL_RPM_FULL`. 0.5 is the low end of the flat band; 1.0 starts to
+ring on a 2 Hz, damping 0.4 loop. Picked on the same cases it is measured on. `tests/test_host.py` checks the gains
+and that the case the PI rings on (5 Hz, damping 0.4, 2,500 rpm, an 11,000 rpm map) swings over 5% with the PI and
+under 0.2% with this.
+
+**The drop fit marks it.** With the speed-ESC loop on, the board's loop-command fit on the speed plants read 75 drops
+more than 2% off and marked all 75 unsure (105 of 216 gave no fit at all; eval/loop-residual-speed-2026-11-18.txt; with
+the old PI on top, 64 of 64, eval/loop-residual-speed-board-pi-2026-11-18.txt). So a speed-mode ESC does not
+calibrate the launcher silently wrong; the Pi's warning (README "When the wheel is not a first-order lag") fires. It
+does not calibrate it at all, though, and `config.py` says to calibrate with the ESC in duty mode.
+
+**A fit for the speed loop, tried.** A PI loop answers a step in its error, from a setpoint step or a ball, with
+x(t) = e^-sig t (cos wd t - sig / wd sin wd t), and its integral has a closed form, X(t) = e^-sig t sin(wd t) / wd. So a
+revolution's mean deficit is linear in the drop for a given loop and ball time, and cheap enough for the board.
+`tests/speed_loop_fit.py` fits that (c, a transient from before the window, the setpoint steps the board sent, the
+drop), searching t0 as `drop_from_commands_steps` does. Told the true loop it reads its own model to 0.01%
+(`tests/test_speed_loop_fit.py`) and the simulator's wheels within 0.3% while the ESC's drive stays under its limit.
+But one ball cannot tell a big drop that recovers fast from a small one that recovers slowly, so on a per-wheel
+grid of loops it read up to 40% off; and the loop is the build's, so `tests/speed_loop_survey.py` picks it the way the
+ESC-lag survey picks a lag, summing every wheel's squared rms over a drill of 24 balls, then reads each ball at the
+pick. On 16 builds (2-20 Hz, damping 0.4 and 0.7, drag 0.2 and 0.8 s, the current limit at the motor's stall
+acceleration 9,000 / tau rpm/s), exact and 5 us tachs (eval/speed-loop-survey-2026-11-18.txt):
+
+| builds (two tachs each) | worst drop error at the survey's pick | marked unsure | worst unmarked |
+| --- | --- | --- | --- |
+| 2 Hz, drag 0.2 s (4) | 1.2-4.0% | 6-21 of 24 | 2.2% |
+| 2 Hz, drag 0.8 s (4) | 3.4-18.5% | 21-24 of 24 | 0.8% |
+| 5 Hz (8) | 3.2-55.5% | 3-24 of 24 | 6.2% |
+| 10 and 20 Hz (16) | 26-95% | 24 of 24 | 0% |
+
+Over all 768 balls, 592 read more than 2% off and 571 of those were marked; 95 read within 1%. The board's own
+loop-command fit on the same drills read 215 drops, marked all 164 of those more than 2% off, and marked a drop in all
+16 drills. Only a slow (2 Hz) loop on a light-drag wheel reads well, and a real speed loop is rarely that slow.
+
+**Why it fails: the current limit.** A 10% drop at 6,000 rpm is 600 rpm of error; a 10 Hz loop at damping 0.7 asks
+for 88 x 600 = 53,000 rpm/s, over a motor's 11,000-45,000. While the drive is clamped the wheel recovers on a ramp
+the linear kernel lacks. With the limit lifted, the same 10 Hz wheels read within 0.3% told the true loop (its damping raised by the drag's
+1 / (2 tau wn)). Modelling
+the ramp needs the limit (one more number per build, which a spin-up from rest at full current shows on the tach) and
+a fit no longer linear in the drop. Kept off the board: `controller.py` holds only the loop fix.
+
+**Not known.** All of this is one assumed ESC: a textbook PI on an exact sensor, an integrator frozen while clamped.
+VESC's speed loop has its own filters, ramps and anti-windup, and none of the gains here are a real ESC's. Next: log a
+real VESC in speed mode (its own rpm and current over UART, against the hall tach) through a ball, and see whether
+its recovery is the clamped ramp then the PI tail; a ramp-then-PI fit with the limit from a spin-up.

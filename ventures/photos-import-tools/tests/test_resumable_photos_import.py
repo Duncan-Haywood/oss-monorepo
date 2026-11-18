@@ -329,6 +329,71 @@ class ResumablePhotosImportTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertEqual(importer.import_calls, [(photo, False)])
 
+    def _dup_check_importer(self, root, state, batch_size=1):
+        return FakePhotosImporter(
+            state=state,
+            state_dir=root,
+            event_log=root / "events.jsonl",
+            error_log=root / "errors.jsonl",
+            status_path=root / "status.json",
+            stop_file=root / "STOP",
+            per_file_timeout_seconds=1,
+            attempts=1,
+            batch_size=batch_size,
+            photos_db=root / "missing.sqlite",
+            existing_filenames=set(),
+        )
+
+    def test_file_recovered_after_crash_is_reimported_with_duplicate_check(self):
+        # A crash or watchdog kill mid-import leaves the row 'importing';
+        # Photos may already hold the file. recover_importing resets it to
+        # 'pending', and the retry must not skip Photos' duplicate check
+        # (quality audit 2026-11-17-photos-import-tools.json, defect 1).
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            photo = root / "crashed.JPG"
+            photo.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(photo, "pending")
+            self.assertEqual(len(state.claim_next_batch(1, 8)), 1)  # crash after this
+            self.assertEqual(state.recover_importing(), 1)
+            importer = self._dup_check_importer(root, state)
+
+            self.assertEqual(importer.run(), 0)
+            self.assertEqual(importer.import_calls, [(photo, True)])
+
+    def test_failed_file_reset_to_pending_is_retried_with_duplicate_check(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            photo = root / "timed-out.JPG"
+            photo.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(photo, "pending")
+            state.claim_next_batch(1, 8)
+            state.mark_failed(photo, "osascript timed out")
+            self.assertEqual(state.reset_failed_transient_to_pending(8), 1)
+            importer = self._dup_check_importer(root, state)
+
+            self.assertEqual(importer.run(), 0)
+            self.assertEqual(importer.import_calls, [(photo, True)])
+
+    def test_batch_with_one_recovered_file_checks_duplicates_for_the_batch(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            fresh = root / "a-fresh.JPG"
+            recovered = root / "b-recovered.JPG"
+            fresh.write_bytes(b"jpeg")
+            recovered.write_bytes(b"jpeg")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(recovered, "pending")
+            state.claim_next_batch(1, 8)
+            state.recover_importing()
+            state.upsert(fresh, "pending")
+            importer = self._dup_check_importer(root, state, batch_size=2)
+
+            self.assertEqual(importer.run(), 0)
+            self.assertEqual(sorted(importer.import_calls), [(fresh, True), (recovered, True)])
+
     def test_file_is_ready_true_for_nonempty_file(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             path = Path(temp_dir) / "photo.jpg"
@@ -390,6 +455,26 @@ class ResumablePhotosImportTests(unittest.TestCase):
             self.assertEqual(result, 0)
             self.assertIn("Status: total=1", output.getvalue())
             self.assertIn("Progress snapshot unavailable", output.getvalue())
+
+    def test_status_does_not_reset_a_live_workers_importing_rows(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            photo = root / "photo.JPG"
+            photo.write_bytes(b"jpeg")
+            state = ImportState(root / "photos_import.sqlite3")
+            state.upsert(photo, "pending")
+            state.claim_next_batch(1, 8)  # a worker is importing it now
+            state.close()
+
+            output = StringIO()
+            with redirect_stdout(output):
+                result = main(["status", "--state-dir", str(root)])
+
+            self.assertEqual(result, 0)
+            self.assertIn("1 file(s) marked importing", output.getvalue())
+            state = ImportState(root / "photos_import.sqlite3")
+            self.assertEqual(state.get_status(photo), "importing")
+            state.close()
 
     def test_scratch_copy_failure_is_retried_not_fatal_to_the_run(self):
         with tempfile.TemporaryDirectory() as temp_dir:

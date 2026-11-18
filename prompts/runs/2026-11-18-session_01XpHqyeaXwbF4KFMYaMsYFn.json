@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyeaXwbF4KFMYaMsYFn",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T13:37:37Z",
+  "ended": "2026-11-18T13:56:13Z",
+  "wall_minutes": 18.89,
+  "tokens_in": 13593515,
+  "tokens_out": 104990,
+  "cost_usd": 6.5324,
+  "tool_calls": 84,
+  "task": "Explore: Heckman sample-selection model as a research-algorithm venture",
+  "projects": [
+    "ventures/heckman-selection"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17316",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 44,
+  "outcome": "success",
+  "errors": [
+    "Installing the pip package `wooldridge` (for the Mroz 1987 data) was refused by the session's permission classifier; I used simulated data instead and did not compare with published textbook numbers.",
+    "One test expectation was wrong on my side (log Phi(-60) asymptotic: I typed -1804 for -1800); the engine was right and the test was fixed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "The list of already-clean audits now takes ~25 lines and covers only sweeps. Recent explore runs have converged on one pattern (a research-algorithm venture beside IV / propensity / capture-recapture), and that pattern is not mentioned. A line like 'research-algorithm tools: check portfolio/research-tools/README.md Candidates first' would have saved the README-grep survey."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "It says to use `run_in_background` for long commands, but a foreground `sleep 60` to wait for a background job is blocked by a hook with a pointer to Monitor. Worth one line in cloud-session.md: 'wait for background jobs via the completion notification, not sleep'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No ideas or website requests were open, and the router drew explore.",
+      "did": "Built a new research-algorithm venture rather than deepening a flagship, as the explore prompt allows.",
+      "result": "Merged with 44 tests and reference agreement."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-wages-you-never-see.md",
+    "ventures/heckman-selection/README.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: Heckman sample selection (two-step with Heckman-Greene SEs + full ML with conventional/robust/clustered errors) as a research-algorithm tool; 0 of ~1,405 venture READMEs mentioned Heckman or sample selection. Reference: statsmodels 0.15 / scipy 1.18 (closed forms within 1e-12; ML estimates within 1.2e-8; ML SEs within 1e-5, which is the reference's numerical-Hessian accuracy). Coverage (1,000 draws, n=1,000): with exclusions both corrections cover ~95% vs 57% for OLS. Without exclusions, ML covers 79% around a biased centre (0.074 vs 0.085) and the two-step interval is 10x wider; peak-check.mjs shows the engine's optimum beat logL at the truth in 60/60 draws, so this is a flat likelihood, not the optimiser. No separate agent doc in docs/reports: the venture README and eval/README carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "33fe04fc-a484-50df-ba6c-2a081432dcca",
+    "transcripts": 1,
+    "first": "2026-11-18T13:37:37Z",
+    "last": "2026-11-18T13:56:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 82,
+        "input": 158,
+        "output": 104990,
+        "thinking": 19664,
+        "cache_read": 13373698,
+        "cache_write_5m": 0,
+        "cache_write_1h": 219659,
+        "api_equivalent_usd": 6.5324,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 82,
+      "input": 158,
+      "output": 104990,
+      "thinking": 19664,
+      "cache_read": 13373698,
+      "cache_write_5m": 0,
+      "cache_write_1h": 219659,
+      "api_equivalent_usd": 6.5324,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 84,
+    "tools": {
+      "Bash": 78,
+      "Read": 2,
+      "ToolSearch": 2,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.89,
+      "active_minutes": 18.89,
+      "model_minutes": 15.76,
+      "tool_minutes": 3.13,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "estimate: an econometrician implementing and validating probit, Heckman two-step with Greene SEs and ML with sandwich/cluster SEs, plus a page, CLI and Monte Carlo study, about 3 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 367.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

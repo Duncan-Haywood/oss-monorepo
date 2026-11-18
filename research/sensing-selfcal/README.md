@@ -13,6 +13,17 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
 revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
 
+**Milestone 3p headline** (what is left of TUM's focal error after the rolling-shutter term: the camera's translation, or a
+timing offset? the real TUM RGB-D video, 53 windows, with the motion-capture linear velocity entered as a known input and the
+mocap&ndash;camera offset free): **neither moves the focal length, but the offset is real.** The true velocity fits the images
+slightly better than none (lower cost in 26 of 30 Kinect windows) and better than another window's velocity (23 of 28), yet the
+focal error does not change by a detectable amount (paired Wilcoxon p = 0.44; median change &minus;0.05 pp). The camera's image
+stamps run a median **5.1 ms** behind the motion they show (positive in 46 of 53 windows, sign test p = 4e-8; 6.0 / 5.4 / 4.0 ms
+by sequence, window-to-window spread 3&ndash;5 ms against a claimed 0.2&ndash;0.7 ms), and the velocity is not needed to find it
+(0.55 ms difference), unlike milestone 3o's synthetic windows. Three of six predictions held. [Log](LOG.md).
+
+![TUM with mocap velocity and a free offset: focal error with and without the velocity, offset per window with and without it, medians by model](experiments/m3p_tumvel/tumvel.png)
+
 **Milestone 3o headline** (can the same 1.2 s window also estimate the gyro&ndash;camera time offset, the next unknown on TUM?
 synthetic, milestone 3m's 30 smooth-rate windows, gyro 200 Hz and &minus;10 to +20 ms late, offset free from 0): **it removes the
 offset's focal error, but the offset value is biased unless translation is modelled.** With the offset free, a 20 ms late gyro moves
@@ -1079,6 +1090,8 @@ python3 experiments/m3n_tumrs/analyse.py   # seconds; summary.json, tumrs.png
 OMP_NUM_THREADS=1 python3 experiments/m3o_offset/run.py 4   # under 10 min on 4 cores, synthetic; results.json
 python3 experiments/m3o_offset/analyse.py   # seconds; summary.json, offset.png
 OMP_NUM_THREADS=1 python3 experiments/m3o_offset/diag.py 12 4   # post hoc, about 2 min; diag.json
+OMP_NUM_THREADS=1 python3 experiments/m3p_tumvel/run.py tum 4   # ~1 h on 4 cores, needs the fetch above, resumable; results.json
+python3 experiments/m3p_tumvel/analyse.py   # seconds; summary.json, tumvel.png
 python3 experiments/m1_real/run.py        # ~40 min on 4 cores; results.json
 python3 experiments/m1_real/analyse.py    # summary.json, selfcal_vs_zhang.png
 python3 experiments/m1_real/planarity.py  # ~3 min; planarity.json
@@ -1181,6 +1194,12 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3p: on TUM the mocap velocity fits but does not move f, and the mocap&ndash;image offset is about +5 ms on both
+cameras whether or not the velocity is modelled; freeing it moves f about 0.5% either way. The 1.9&ndash;4.0% left after the shutter
+term is not shutter timing. Next: test the per-window geometry (milestones 3b&ndash;3j's view-angle spread) as the predictor of what
+remains on TUM, with the shutter term in; check the board reference by a second calibration; and a longer window (2&ndash;4 s) to see
+whether the offset's 3&ndash;5 ms scatter shrinks as the solver's sd says it should.
 
 After milestone 3o: a free gyro&ndash;camera offset in the window removes a late gyro's focal shift (0.81% &rarr; 0.05% at 20 ms) at no
 cost, but without a linear-velocity term the offset absorbs the translation's rolling-shutter smear and lands about 3 ms off with a

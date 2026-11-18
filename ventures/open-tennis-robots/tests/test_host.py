@@ -6,6 +6,7 @@ import math
 import os
 import statistics
 import tempfile
+import struct
 import unittest
 
 from feeder_sim import SimFeeder, controller
@@ -272,6 +273,29 @@ class WheelLoopTest(unittest.TestCase):
         for _ in range(500):
             self.assertEqual(loop.update(8500, 0, 10), 1.0)
         self.assertEqual(loop.i, 0.0)
+
+    def test_speed_esc_drops_the_proportional_term(self):
+        # README "An ESC with its own speed loop": in cascade with an ESC that holds its own speed the board only trims
+        loop = controller.WheelLoop(9000, speed_esc=True)
+        self.assertAlmostEqual(loop.update(3000, 2900, 10) - 3000 / 9000,
+                               6e-7 * controller.SPEED_ESC_KI_SHARE * 100 * 10)
+        self.assertEqual(controller.WheelLoop(9000).kp, 2e-4)      # off by default (controller.ESC_SPEED_LOOP)
+
+    def test_speed_esc_loop_holds_a_speed_loop_wheel_the_pi_rings(self):
+        # tests/speed_esc_sweep.py's case: a 5 Hz, damping 0.4 ESC loop at 2,500 rpm whose map is 11,000 rpm at full
+        # throttle against the 9,000 the board is told
+        import loop_residual_sweep as sweep
+        def swing(speed_esc):
+            ws = []
+            sweep.wheel(2500, 0.0, 0.4, free_rpm=11000.0, ball_ms=10 ** 9, total_ms=6000, speed_loop=(5, 0.4, 22500.0),
+                        loop=controller.WheelLoop(9000, speed_esc=speed_esc), settled=False, speeds=ws)
+            last = ws[-1000:]
+            return (max(last) - min(last)) / 2500, sum(last) / len(last) / 2500 - 1
+        rings, _ = swing(False)
+        held, err = swing(True)
+        self.assertGreater(rings, 0.05)
+        self.assertLess(held, 0.002)
+        self.assertLess(abs(err), 0.002)
 
     def test_slow_targets_scale_the_gains(self):
         # README "Slow wheels need slower gains": under LOOP_LOW_RPM both gains shrink with the target
@@ -1903,9 +1927,10 @@ class TakeSurveyTest(unittest.TestCase):
     def test_frames_round_trip(self):
         (cmd, vals), = list(P.Decoder().feed(P.encode(P.SURVEY_TAKE, 1)))
         self.assertEqual((cmd, vals), (P.SURVEY_TAKE, (1,)))
-        frame = P.encode(P.TAKE_SURVEY, 24, 60, 57, 0, 700, 650, 620, 600, 590, 588, 640)
+        frame = P.encode(P.TAKE_SURVEY, 24, 60, 57, 0, 700, 650, 620, 600, 590, 588, 640, 9)
         (cmd, vals), = list(P.Decoder().feed(frame))
-        self.assertEqual((cmd, vals[:4], len(vals)), (P.TAKE_SURVEY, (24, 60, 57, 0), 4 + P.TAKE_SURVEY_TIMES))
+        self.assertEqual((cmd, vals[:4], len(vals)), (P.TAKE_SURVEY, (24, 60, 57, 0), 5 + P.TAKE_SURVEY_TIMES))
+        self.assertEqual(vals[-1], 9)                              # wheels summed (2026-11-18)
         self.assertEqual(len(controller.TAKE_SURVEY_GRID_US), P.TAKE_SURVEY_TIMES)
         self.assertEqual(tuple(g // 1000 for g in controller.TAKE_SURVEY_GRID_US), host.TAKE_SURVEY_MS)
 
@@ -1922,6 +1947,52 @@ class TakeSurveyTest(unittest.TestCase):
         self.assertIn("keep TAKE_US = 0", host.take_survey_advice(flat))
         self.assertIn("only 25% less", host.take_survey_advice(flat))
         self.assertIn("set TAKE_US = 0", host.take_survey_advice(dict(sv, least_ms10=0, refined_ms10=0, board_ms10=40)))
+
+    def test_verdict_needs_two_summed_wheels(self):
+        # 2026-11-18, README "The take survey's verdict needs two informative wheels": with the minimum at 2, 24 wheels
+        # surveyed but one summed (the rest take-blind) is held back; two are enough; older firmware (no count) is not.
+        sv = {"wheels": 24, "least_ms10": 60, "refined_ms10": 57, "board_ms10": 0,
+              "rms_ppm": [136, 140, 119, 98, 95, 50, 112]}
+        self.assertEqual(host.TAKE_SURVEY_MIN_KEPT, 0)               # shipped off: failed held out (prediction (a))
+        self.assertIn("set TAKE_US = 5500", host.take_survey_advice(dict(sv, kept=1)))
+        saved = host.TAKE_SURVEY_MIN_KEPT
+        host.TAKE_SURVEY_MIN_KEPT = 2                                # the pre-registered value, opt-in
+        try:
+            one = host.take_survey_advice(dict(sv, kept=1))
+            self.assertIn("only 1 told the contact times apart", one)
+            self.assertNotIn("set TAKE_US =", one)
+            self.assertIn("set TAKE_US = 5500", host.take_survey_advice(dict(sv, kept=2)))
+            self.assertIn("set TAKE_US = 5500", host.take_survey_advice(dict(sv, kept=None)))
+        finally:
+            host.TAKE_SURVEY_MIN_KEPT = saved
+
+    def test_older_frame_still_reads(self):
+        # firmware before 2026-11-18 sends the frame without the summed-wheel byte: it decodes, and the Pi has no count
+        body = struct.pack(P.OLDER_FORMATS[P.TAKE_SURVEY], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112)
+        b = bytes([P.TAKE_SURVEY, len(body)]) + body
+        frame = bytes([P.SYNC]) + b + bytes([P.crc8(b)])
+
+        class Port:
+            def __init__(self):
+                self.data = frame
+
+            def read(self):
+                d, self.data = self.data, b""
+                return d
+
+            def write(self, _):
+                pass
+        link = host.FeederLink(Port(), lambda: 0.0)
+        link.poll()
+        self.assertEqual(link.take_survey["kept"], None)
+        self.assertEqual(link.take_survey["rms_ppm"][-1], 112)
+        self.assertIn("set TAKE_US = 5500", host.take_survey_advice(link.take_survey))
+
+    def test_board_reports_summed_wheels(self):
+        rs = controller.ResidualSurvey((0, 3000, 6000), 0, controller.TAKE_SURVEY_BLIND)
+        rs.add([1.0, 1.1, 1.2])                                    # take-blind: left out
+        rs.add([4.0, 2.0, 1.0])                                    # tells them apart: summed
+        self.assertEqual((rs.n, rs.blind_n, rs.kept_n), (2, 1, 1))
 
     def test_board_off_by_default_and_on_for_a_calibration_drill(self):
         import esc_survey_sweep as S

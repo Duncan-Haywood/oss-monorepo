@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKnH94MkNYPztxFR1oy",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T12:19:47Z",
+  "ended": "2026-11-18T12:30:21Z",
+  "wall_minutes": 15.19,
+  "tokens_in": 6003609,
+  "tokens_out": 24854,
+  "cost_usd": 2.4574,
+  "tool_calls": 68,
+  "task": "polish: hide the phone breadcrumb row where it only repeats the current tab and the h1 (item 3 of polish-2026-11-18-homeowners-retirees-320.md)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": 17295,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First full site-test run failed 1 of 1818: build.test.mjs 'every tool page declares the breadcrumb trail it shows' matched the exact class=\"pfs-crumbs\" and missed the two story shelves now marked pfs-dup; widened the regex, reran that test.",
+    "A python one-off check with PIL failed (system PIL lacks _imaging); downscaled screenshots through Playwright instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-18-fold-check.md",
+      "issue": "Item 1 says 20 of 31 audience pages miss at 360x780; on today's main it is 1 of 31 before this PR (later hero fixes landed). Reports' 'still weakest' lists go stale within hours when several polish runs land the same day."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "The build-first order means the dist reflects whatever site-nav.mjs held at build start; to get before/after from real builds, measure the first build before editing, or plan for a second 10-minute build. Worth one line in the prompt."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/reports/polish-2026-11-18-homeowners-retirees-320.md",
+      "why": "It suggested folding the breadcrumb into the hero eyebrow on phones; that changes every page family's hero markup and would also drop the useful trail on tool pages.",
+      "did": "Hid the trail on phones only where it is pure repetition (every link Home or the current tab).",
+      "result": "Header 106 to 79 px on 98 pages; tool and project pages keep their trail."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Opened the draft PR right after the first commit, before the build finished, per the fold-check report's lesson on three runs taking one item.",
+      "did": "Draft PR #17295 at 12:23 UTC.",
+      "result": "No overlapping polish PR appeared."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-a-breadcrumb-that-said-it-twice.md",
+    "docs/reports/polish-2026-11-18-phone-trail.md"
+  ],
+  "goal": null,
+  "notes": "Measured with Chromium on two full builds (before = build started before the edit, after = rebuild), 40 pages x 320x640, 360x780, 390x844: header 106 -> 79 px on all 98 pages marked pfs-dup; first audience card 27-28 px higher; fold-check passes at 390x844 (deepest 739) and 360x780 (deepest 749; 30/31 before); 320x640 27/31 both. No sideways scroll. node --test platform/pages/*.test.mjs: 1817/1818 before the regex fix, the failing test rerun after it (see PR). site-nav.test.mjs 24/24. check_posts.py passes.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "47319a33-059b-5c49-8a85-a9efd186f39a",
+    "transcripts": 1,
+    "first": "2026-11-18T12:19:47Z",
+    "last": "2026-11-18T12:34:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 116,
+        "output": 24854,
+        "thinking": 5226,
+        "cache_read": 5906161,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97332,
+        "api_equivalent_usd": 2.4574,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 116,
+      "output": 24854,
+      "thinking": 5226,
+      "cache_read": 5906161,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97332,
+      "api_equivalent_usd": 2.4574,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 63,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.19,
+      "active_minutes": 15.19,
+      "model_minutes": 4.94,
+      "tool_minutes": 10.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "front-end dev: find the header rule, measure 40 pages x 3 viewports on two builds, change, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 122.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

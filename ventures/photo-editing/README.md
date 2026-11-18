@@ -1878,6 +1878,13 @@ other decoder to compare against, `tools/rw2_grid_check.py` scores the decode: t
 smooth as on files LibRaw confirms (0.98 to 1.07), against 19 to 46 when a block is swapped,
 and the C and Python decoders agree.
 
+Later the same day a second decoder confirmed it: LibRaw's git snapshot 202611 (built by hand,
+`tools/libraw_dump.cpp`; rawpy still bundles 0.22.2) opens the frame, and every one of its
+176,909,376 sensels, the white balance, black, CFA, crop and white level equal ours
+(`tools/libraw_dump_check.py`, `eval/panasonic-rw2-177mp-libraw-snapshot-2026-11-18.md`). 0.22.x
+refused it because it holds only single-row stripes; the snapshot sums each tile's top from the
+heights above it and drops the top that tag 0x45 stores, which this reader cross-checks.
+
 Tone curves: none of the 35 public RawFormat 8 files on raw.pixls.us, from all nine bodies,
 carries one, and none has shifts or starting values either
 (`eval/panasonic-rw2-format8-curve-survey-2026-11-18.txt`), so the refusal stays.

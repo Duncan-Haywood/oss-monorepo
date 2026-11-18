@@ -229,6 +229,17 @@ def test_park_candidates_from_the_end_until_enough():
     assert all(not c.startswith("History") for c, _ in ff.park_candidates(v, 10**6))
 
 
+def test_park_candidates_drop_tail_items_the_last_pick_makes_redundant():
+    # a short tail item, then a long one that alone frees enough: keep the short one
+    long_item = "(1) a long open item " + "x" * 200
+    v = f"History: README. Next: (0) first item here; {long_item}; (2) a short tail item"
+    cands = ff.park_candidates(v, 120)
+    assert [c for c, _ in cands] == [long_item]
+    # when both are needed, both are still offered, tail first
+    both = ff.park_candidates(v, 225)
+    assert [c.split(")")[0] for c, _ in both] == ["(2", "(1"]
+
+
 def test_refusal_lists_ready_park_flags():
     v = _full_row(11, 190)
     assert len(v) > ff.FLAGSHIP_NEXT_MAX

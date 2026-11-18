@@ -554,6 +554,7 @@ ventures/hdbscan-clustering/usage.mjs
 ventures/hearing-aid-dispensing-margin-calculator/usage.mjs
 ventures/hearth-and-horizon/usage.mjs
 ventures/heat-pump-vs-furnace-calculator/usage.mjs
+ventures/heckman-selection/usage.mjs
 ventures/helm-values-schema-check/usage.mjs
 ventures/heloc-vs-cash-out-refinance-calculator/usage.mjs
 ventures/help-keeper/usage.mjs

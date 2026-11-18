@@ -172,8 +172,7 @@ machine-specific caches, are excluded from version control.
 
 From the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-photos-import-tools.json):
 
-- After a crash, watchdog kill or timeout, interrupted files go back to `pending`, which imports with Photos' duplicate check off, so a file that already landed can be imported twice.
 - A denied Automation permission (-1743) marks every file permanently skipped and still exits 0 "Complete".
 - The watchdog's 900 s stall limit is below the worker's 1,860 s batch timeout, so a healthy slow batch can be killed.
-- `--attempts` is parsed but not used; `status` resets interrupted rows; Sony `.HIF` files are copied by `sd_offload.py` but not verified.
+- `--attempts` is parsed but not used; Sony `.HIF` files are copied by `sd_offload.py` but not verified.
 - `verify` re-reads the source files; it does not check that they are in Photos.

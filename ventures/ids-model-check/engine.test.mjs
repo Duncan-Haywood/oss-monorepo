@@ -24,6 +24,9 @@ test("STEP strings decode the \\X2\\, \\X\\, \\S\\ and quote escapes", () => {
   assert.equal(decodeStepString("it''s"), "it's");
   assert.equal(decodeStepString("\\S\\i"), "é");
   assert.equal(decodeStepString("\\X4\\0001F600\\X0\\"), "😀");
+  // Plain runs around escapes are copied whole (eval/attribute-shape-2026-11-18.md).
+  assert.equal(decodeStepString("Basic Wall:Interior - 138mm Partition (1-hr)"), "Basic Wall:Interior - 138mm Partition (1-hr)");
+  assert.equal(decodeStepString("Owner''s caf\\X2\\00E9\\X0\\ wall, C:\\\\models\\\\a.rvt, \\PA\\end'"), "Owner's café wall, C:\\models\\a.rvt, end'");
 });
 
 test("STEP reader keeps nulls, derived, refs, enums, booleans, typed values and lists", () => {
