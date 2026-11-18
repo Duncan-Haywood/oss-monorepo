@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01EhTJVNj8Bn2avreVi9GicP",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled)",
+  "input_sha256": "22ad619f9509f3b95d15aa5aec6eb43d01c80a2b2fc6623eadb43ae7f245ba82",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T04:59:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "site-perf-paginate-indexes: /writing/ paged (2,325 kB to 113 kB)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": 13480,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "Router drew the research track, but the scheduled prompt asks for revenue products and the owner's newest direction (site performance, 2026-11-06) is the work that helps every product page; did the top open site-performance task instead.",
+      "did": "Paginated /writing/",
+      "result": "113 kB first page, finder verified in Chromium, check.mjs clean"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-06-the-writing-index-is-now-113-kb.md"
+  ],
+  "goal": null,
+  "notes": "node --test writing.test.mjs 32/32; real 2,489-post build: index 113 kB, pages 58 kB, posts.json 1.5 MB lazy; Chromium: search 'wall framing' 473 of 2484, clear restores 50 cards; full build + check.mjs publishable. /research/ left for next run.",
+  "corrections": [],
+  "redteam": null
+}

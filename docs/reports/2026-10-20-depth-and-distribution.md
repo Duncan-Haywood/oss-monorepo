@@ -1,3 +1,9 @@
+---
+kind: analysis
+topics: [distribution]
+date: 2026-10-20
+tagged: auto
+---
 # How deep the ventures are, and how they reach agents
 
 **Date:** 2026-10-20. **Asked by:** the owner, who argued in

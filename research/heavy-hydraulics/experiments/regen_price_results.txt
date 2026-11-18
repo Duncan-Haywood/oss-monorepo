@@ -1,0 +1,12 @@
+central 3.3%: saved 76 W shaft, 0.023 L/h, $0.038/h
+   1.5kW ato        $    819  payback     21644 h
+   2kW fruugo-low   $    480  payback     12685 h
+   2kW fruugo-hi    $    874  payback     23097 h
+   2kW ebay         $    312  payback      8248 h
+   5kW ebay+ctrl    $   1727  payback     45637 h
+upper 10%: saved 230 W shaft, 0.069 L/h, $0.115/h
+   1.5kW ato        $    819  payback      7142 h
+   2kW fruugo-low   $    480  payback      4186 h
+   2kW fruugo-hi    $    874  payback      7622 h
+   2kW ebay         $    312  payback      2722 h
+   5kW ebay+ctrl    $   1727  payback     15060 h

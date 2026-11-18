@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtGagziyQnwmcZr2hdp",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T07:07:02Z",
+  "ended": "2026-11-16T07:22:58Z",
+  "wall_minutes": 16.45,
+  "tokens_in": 11905627,
+  "tokens_out": 54046,
+  "cost_usd": 4.966,
+  "tool_calls": 86,
+  "task": "heavy-hydraulics milestone 6z: index2 holds at a family's end sizes (6y Next h), then a seventh gear-pump family (Rexroth AZPU, RE 10 098) held out with six predictions registered first",
+  "projects": [
+    "research/heavy-hydraulics"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16494",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first background rerun of gear_pump_six.py used bare python3, which lacks numpy; the && chain failed silently into the task output",
+      "fix": "reran with the interpreter from platform/ci/pyenv.py (/usr/bin/python3.13 has numpy and h5py)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "issue": "6y's Next (g) asked for a family with drag above 4 kW or below 2 kW, but no Rexroth sheet found reaches 85 L/min outside the AZPG/AZPN/AZPU platforms, and the larger Parker sheet (PGP330) prints power only at rated pressure; the candidate list is now in the 6z Next so the next run does not repeat the search"
+    },
+    {
+      "file": "research/heavy-hydraulics/experiments/digitise_rexroth_azpg.py",
+      "issue": "the digitiser selects curves by an exact stroke width (1.2) and colour; the AZPU sheet draws white grid lines on a grey fill, curve widths 1.176 to 1.2 and light-grey pieces of dashed lines under labels, so a sheet-specific strokes() override was needed (done in digitise_rexroth_azpu.py, as 6y overrides axes())"
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "the tag-spelling rule surfaces one spelling at a time (gear-pumps, then excavators), so it took two edit-check rounds; listing every respelling at once would save a cycle"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md (6y practice: predictions before digitising)",
+      "why": "I digitised the AZPU curves before writing predictions, to check the sheet could be read at all; no derived number (efficiency, drag, index, crossing) was computed before the predictions were committed",
+      "did": "disclosed in the 6z entry; predictions committed (5249b3d7c) and analysis code committed (6f5cc4aca) before the run",
+      "result": "5 of 6 predictions held; the refuted one (AZ4, index near the AZPG's) is reported as refuted"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-a-seventh-gear-pump-lands-on-the-excavator-rule.md",
+    "research/heavy-hydraulics/LOG.md (Milestone 6z)"
+  ],
+  "goal": "advance an open PhD-level research programme (heavy-hydraulics) by one registered, held-out test",
+  "notes": "AZPU E50 0.8030 vs committed rule 0.8041 (error -0.0011; one number -0.0142). 49-cell refit 0.8239 + 0.0179 (kW - 3.57); seven-fold LOFO diagonal RMS 0.0023 vs 0.0120. 6y results reproduce byte for byte from a fresh Hugging Face cache, before and after the index fix. Local checks: heavy-hydraulics pytest 109 passed, 2 skipped (PDF-cache tests for AZPG/AZPN); check_numbers draft 339/0 and manuscript 81/0/0 orphans; build_tex 0 problems for both sources; research homepage build ok; research_live_links, check_md_links, cite_check ok; post frontmatter/links/similarity ok after the tag fix. No agent doc in docs/reports: the LOG.md entry carries the next steps. run_workflow_locally --for-changes: 7/9 workflows passed; the only failing steps were the post front-matter tag check (gear-pumps/excavators respelled to gear-pump/excavator, now clean on 5117 posts); agent-cross-review and the Pages deploy jobs cannot run outside PR CI.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "55a317b5-b1a6-513f-97e3-ba796198d6b6",
+    "transcripts": 1,
+    "first": "2026-11-16T07:07:02Z",
+    "last": "2026-11-16T07:23:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 155,
+        "output": 54046,
+        "thinking": 12653,
+        "cache_read": 11712729,
+        "cache_write_5m": 0,
+        "cache_write_1h": 192743,
+        "api_equivalent_usd": 4.966,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 155,
+      "output": 54046,
+      "thinking": 12653,
+      "cache_read": 11712729,
+      "cache_write_5m": 0,
+      "cache_write_1h": 192743,
+      "api_equivalent_usd": 4.966,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 86,
+    "tools": {
+      "Bash": 74,
+      "Write": 4,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "Read": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.45,
+      "active_minutes": 16.45,
+      "model_minutes": 10.18,
+      "tool_minutes": 6.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "finding and vetting a usable catalogue, adapting a vector digitiser to a new sheet's conventions, a registered analysis over 49 cells, tests, paper and log updates: about 1.5 working days for a hydraulics PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 241.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

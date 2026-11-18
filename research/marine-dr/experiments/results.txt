@@ -1,0 +1,22 @@
+drift rate, % of distance travelled (analytic) | simulated end error on 10 km, m
+bias_deg            s=0.06%            s=0.10%            s=0.20%            s=0.40%
+    0.05  0.106% |    10.6 m  0.133% |    13.3 m  0.218% |    21.8 m  0.409% |    40.9 m
+    0.10  0.185% |    18.5 m  0.201% |    20.1 m  0.265% |    26.6 m  0.436% |    43.7 m
+    0.20  0.354% |    35.4 m  0.363% |    36.3 m  0.402% |    40.3 m  0.531% |    53.1 m
+    0.50  0.875% |    87.5 m  0.878% |    87.9 m  0.895% |    89.6 m  0.960% |    96.2 m
+    1.00  1.746% |   174.7 m  1.748% |   174.9 m  1.757% |   175.8 m  1.791% |   179.4 m
+
+km of travel before a 10 m bound is reached (analytic)
+  0.05 deg:   9.44    7.53    4.58    2.44
+  0.10 deg:   5.42    4.97    3.77    2.29
+  0.20 deg:   2.82    2.75    2.49    1.88
+  0.50 deg:   1.14    1.14    1.12    1.04
+  1.00 deg:   0.57    0.57    0.57    0.56
+
+Monte Carlo, 20 km, scale ~ N(0, 0.2%), bias ~ N(0, 0.1 deg), gyro RW 5e-5 rad/sqrt(s), vel noise 0.3 cm/s per 1 s ping, 200 runs; fix sd 3 m
+no fix     median max-err    64.4 m   95th   177.7 m
+fix 10 km  median max-err    49.1 m   95th   106.6 m
+fix 5 km   median max-err    28.6 m   95th    68.3 m
+fix 2 km   median max-err    15.4 m   95th    27.9 m
+fix 1 km   median max-err    11.0 m   95th    17.9 m
+fix 0.5 km median max-err     9.6 m   95th    13.6 m

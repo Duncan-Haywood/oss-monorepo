@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-dof` (track 9, open-source purpose-built robots), taking the first item of its "Next steps": **a bill of materials for the whole arm with a source and date for every part.** `osrobot-dof` priced the servos alone and reported that extra joints "triple the servo bill". This project prices everything else from the published SO-ARM101 parts list and finds that claim overstates the cost ratio. In the direction of the CAIRO Lab interest in assistive robotics; nothing here is affiliated with or endorsed by it. Produced with AI assistance (Claude). Pure Python standard library. Prices only: nothing was built or bought.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-dofbom/
+**Live page:** https://marisstella.app/research/osrobot-dofbom/
 
 ![Full bill of materials against joint count](experiments/bom.svg)
 
@@ -41,6 +41,7 @@ A purpose-built arm drops joints to save money. Whether it saves two thirds or l
 
 ## Limitations
 - The $13.89 servo is the 7.4 V part (16.5 kg·cm stall at 6 V per the table's note), the retail listings are the 12 V 30 kg·cm part; `osrobot-dof` modelled the 12 V class. Mixing them is a price sweep, not a like-for-like part swap.
+- The 12 V servo rows ($26 and $49.22) keep the table's $10 5 V supply; the source says the 12 V servo needs a 12 V, 5 A or larger supply instead, which is not priced here, so those totals are low and their ratios slightly high (audit `portfolio/quality/audits/2026-11-17-osrobot-dofbom.json`).
 - The table's prices are a snapshot from a fork of the SO-ARM100 project, with no shipping, tax, tariffs or 3D printing; they will drift.
 - Parts that a real feeding arm needs and the table lacks (spoon holder, mount to a wheelchair or table, a camera for the camera-tracked design, safety stop) are not priced, so every total is a lower bound.
 - Nothing here weighs benefit against cost.

@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-30
+tagged: auto
+---
 # Actions usage: what was changed on 2026-10-30, and what to measure next
 
 **Asked by:** the owner ("looks like the actions usage hit a limit ... work on

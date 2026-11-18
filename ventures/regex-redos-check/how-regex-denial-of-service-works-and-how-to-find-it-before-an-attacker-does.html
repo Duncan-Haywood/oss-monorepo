@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to Regex ReDoS Check</a></p>
   <h1>How regex denial of service works, and how to find it before an attacker does</h1>
   <p>A regular expression engine that supports backreferences and lookarounds usually works by trying one path and, when it fails, backing up and trying another. That is fast on ordinary input. On a crafted input that <em>almost</em> matches, the number of paths can grow exponentially with the input length, and a single request can occupy a CPU core for minutes. This is ReDoS, regular expression denial of service.</p>
@@ -56,7 +57,9 @@ node cli.mjs scan src --fail-on warn      # also fail on polynomial warnings</pr
   <h3>Do I need a different regex engine?</h3>
   <p>Engines built on automata, such as RE2, Go's regexp and Rust's regex crate, match in linear time and cannot be ReDoS'd, at the cost of features like backreferences and lookarounds. Node.js, Python's re, Java and .NET use backtracking; .NET and recent V8 builds offer opt-in linear modes.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This guide and the tool it describes are provided free and as-is, without warranty of any kind. They are not security or engineering advice; static analysis can miss vulnerable patterns and flag safe ones. You are responsible for verifying results. Outage descriptions are summaries from the companies' public post-mortems and may omit detail.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional.</p>

@@ -1,3 +1,9 @@
+---
+kind: analysis
+topics: [money]
+date: 2026-10-30
+tagged: auto
+---
 # Plan: turning on billing without leaking a payment key
 
 Written 2026-10-30 at the owner's request ("I think I want to turn on billing

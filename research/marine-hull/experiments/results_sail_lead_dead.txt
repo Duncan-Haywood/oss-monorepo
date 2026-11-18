@@ -1,0 +1,35 @@
+every 4th window; hourly replan; shares of the no-corridor no-tack-cost bound; header margin 0.5
+
+January: 96 windows
+ tau 120 s: corridor 0.817; header 0.845; clairvoyant 0.995
+   T=    0 min: 0.818; minus header +0.3 pts (boot 95% -0.2..+0.7); tacks/day 56
+   T=   60 min: 0.858; minus header +2.1 pts (boot 95% +1.5..+2.7); tacks/day 56
+   T=  240 min: 0.872; minus header +3.9 pts (boot 95% +3.2..+4.3); tacks/day 54
+   T=  inf min: 0.887; minus header +5.8 pts (boot 95% +4.9..+7.2); tacks/day 50
+ tau 240 s: corridor 0.770; header 0.790; clairvoyant 0.993
+   T=    0 min: 0.785; minus header +0.3 pts (boot 95% +0.0..+0.8); tacks/day 44
+   T=   60 min: 0.808; minus header +2.1 pts (boot 95% +1.2..+3.0); tacks/day 46
+   T=  240 min: 0.827; minus header +3.8 pts (boot 95% +2.8..+5.1); tacks/day 46
+   T=  inf min: 0.840; minus header +6.7 pts (boot 95% +5.5..+7.9); tacks/day 42
+ tau 360 s: corridor 0.741; header 0.738; clairvoyant 0.991
+   T=    0 min: 0.757; minus header +1.3 pts (boot 95% +0.4..+2.3); tacks/day 39
+   T=   60 min: 0.770; minus header +3.2 pts (boot 95% +1.5..+4.2); tacks/day 42
+   T=  240 min: 0.784; minus header +4.8 pts (boot 95% +3.7..+6.4); tacks/day 42
+   T=  inf min: 0.802; minus header +8.4 pts (boot 95% +6.6..+10.3); tacks/day 38
+
+July (holdout): 96 windows
+ tau 120 s: corridor 0.775; header 0.822; clairvoyant 0.991
+   T=    0 min: 0.801; minus header -1.1 pts (boot 95% -2.0..-0.1); tacks/day 76
+   T=   60 min: 0.835; minus header +2.9 pts (boot 95% +1.5..+3.7); tacks/day 82
+   T=  240 min: 0.863; minus header +4.3 pts (boot 95% +3.8..+5.2); tacks/day 70
+   T=  inf min: 0.895; minus header +7.5 pts (boot 95% +5.8..+9.5); tacks/day 50
+ tau 240 s: corridor 0.742; header 0.770; clairvoyant 0.987
+   T=    0 min: 0.769; minus header -0.6 pts (boot 95% -2.0..-0.1); tacks/day 50
+   T=   60 min: 0.789; minus header +2.4 pts (boot 95% +1.1..+3.3); tacks/day 56
+   T=  240 min: 0.820; minus header +4.5 pts (boot 95% +3.4..+6.2); tacks/day 52
+   T=  inf min: 0.856; minus header +8.7 pts (boot 95% +7.5..+10.4); tacks/day 39
+ tau 360 s: corridor 0.702; header 0.718; clairvoyant 0.984
+   T=    0 min: 0.733; minus header +0.2 pts (boot 95% -1.4..+1.6); tacks/day 40
+   T=   60 min: 0.758; minus header +2.4 pts (boot 95% +1.4..+4.8); tacks/day 42
+   T=  240 min: 0.789; minus header +6.0 pts (boot 95% +3.8..+7.4); tacks/day 42
+   T=  inf min: 0.821; minus header +11.0 pts (boot 95% +9.7..+13.4); tacks/day 34

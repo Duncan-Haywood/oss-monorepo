@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer, round 3 lane 8: structural utilisation, visible
 
 2026-10-30. Owner's note from the walkthrough: most members check at about 15%, the ridge beam at 79%, so "it's overbuilt".

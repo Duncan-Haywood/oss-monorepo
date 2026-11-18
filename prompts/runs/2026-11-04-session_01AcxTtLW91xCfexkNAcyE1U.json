@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01AcxTtLW91xCfexkNAcyE1U",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-04T01:08:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12967",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Flagship next: items all need real inputs; a scheduled run with no real data can only land small labelling slices."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-04-mint-monarch-exports.md",
+    "docs/reports/2026-11-04-ai-bookkeeper-aggregators.md"
+  ],
+  "goal": null,
+  "notes": "Small slice: Mint/Monarch sniff labels; full suite 2228 pass. Did not rewrite flagship next (no item replaced). Headers from memory.",
+  "corrections": [],
+  "redteam": null
+}

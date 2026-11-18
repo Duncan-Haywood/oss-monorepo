@@ -20,6 +20,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Webhook Signature Debugger</a></p>
   <h1>How to verify webhook signatures correctly</h1>
   <p>A webhook endpoint is a public URL that accepts requests from anyone. The signature is the only thing that says a request came from the provider. Nearly every "signature verification failed" ticket is one of three things: the body was changed before hashing, the secret is not the one for this endpoint, or the timestamp check rejected an old request.</p>
@@ -50,7 +51,9 @@
   <h2>Using the debugger</h2>
   <p>Paste headers, raw body and secret into <a href="./">the tool</a>. If the signature fails but a variation matches (compact versus pretty JSON, trailing newline, CRLF, whitespace in the secret), it says which, and that points at the layer in your stack that altered the bytes.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> Provided free and as-is. This is general information about a debugging technique, not security advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the check</a>.</p>
   </footer>
 </body>

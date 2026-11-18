@@ -46,6 +46,7 @@
 // PLAYWRIGHT overrides the module path for a global install; CHROME_PATH reuses
 // a Chromium already on the machine.
 
+import { loadPlaywright } from './load-playwright.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { onlySlugs, keepSlug, describeFilter } from './only-slugs.mjs';
@@ -55,8 +56,8 @@ import { HIGHLIGHT_PROMISE, NO_FIELD_LABEL } from './invalid.mjs';
 // Playwright ships CommonJS, so a PLAYWRIGHT naming its entry *file* resolves
 // the exports under `.default` while a bare specifier gives them directly.
 // Accept either — the same fix the other probes here carry.
-const playwright = await import(process.env.PLAYWRIGHT || 'playwright');
-const chromium = playwright.chromium ?? playwright.default?.chromium;
+const playwright = await loadPlaywright();
+const chromium = playwright?.chromium;
 if (!chromium) {
   console.error('Could not load Playwright. Set PLAYWRIGHT to its entry point, '
     + 'e.g. PLAYWRIGHT=./node_modules/playwright/index.js');

@@ -2,7 +2,7 @@
 
 `sensing-bak2` found that on a narrow-field rig the second radial term `k2` is invisible: a one-term fit does as well and the (`k1`, `k2`) pair is not recovered. Its limitations and next steps named the cure, points near the image corners. This tests it. **Moving the camera in (distance 4 to 2) and shortening the focal length with it (800 to 400 px), so the object keeps its pixel size but the largest normalised radius goes from 0.34 to 0.85, the spread of the fitted `k2` over seeds falls from 0.33 to 0.02 and its mean sits within 0.01 of the true +0.1 from distance 2.5 on. Fitting `k2` then matters for the surface: at distance 2 a `k1`-only fit gives 0.0027 object radii against 0.0020 with `k2` (and 0.0082 to 0.0118 with no distortion model), and at `k2 = −0.2` the gap is 0.0055 against 0.0022** (numpy and scipy; 4 tests).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-bak2wide/
+**Live page:** https://marisstella.app/research/sensing-bak2wide/
 
 **Builds on.** `sensing-bak2` (solver, scoring and the `k2` law, imported unchanged), with `sensing-bafocal`, `sensing-ba` and `sensing-recon` beneath it. Brown (1966), "Decentering distortion of lenses", *Photogrammetric Engineering* 32(3), for `x_d = x (1 + k1 r² + k2 r⁴)`; Triggs, McLauchlan, Hartley and Fitzgibbon (2000), "Bundle adjustment: a modern synthesis", LNCS 1883. Track 15 (`sensing`). No lab in `prompt.md` fits.
 
@@ -16,7 +16,7 @@
 pip install numpy scipy pytest
 cd research/sensing-bak2wide
 PYTHONPATH=src python -m pytest -q tests   # 4 tests
-python experiments/run.py                  # writes experiments/results.txt (about 3 min)
+python experiments/run.py                  # writes experiments/results.txt (under a minute: 47 s in the 2026-11-13 audit)
 ```
 
 ## Results (from `experiments/results.txt`)
@@ -32,7 +32,8 @@ python experiments/run.py                  # writes experiments/results.txt (abo
 ## Limitations
 - **Synthetic, one object, no real images**, and the lens values are swept, not measured. The wide rig is a closer camera, so perspective distortion of the bumpy ellipsoid rises with the radius; field of view and range change together and this does not separate them.
 - **Distortion only on the rendering side is radial**; no decentring, no principal-point error and one focal shared by all views. A wrong principal point would trade with `k1` and `k2` and is the obvious next failure.
-- Correct matches, good starting poses, six seeds; the standard deviations are over only six.
+- Correct matches, good starting poses, six seeds; the standard deviations are over only six and are population sd (`np.std`, ddof=0), about 9% below the sample sd.
+- **Prior work and an analytic check are missing** (quality audit, [`2026-11-13-sensing-bak2wide.json`](../../portfolio/quality/audits/2026-11-13-sensing-bak2wide.json)): that `k2` is only identifiable when points reach the outer field is standard calibration practice (Brown 1971; Fraser 1997; Zhang 2000; Remondino & Fraser 2006). A one-line estimate predicts it here: the `k2` term moves an edge point about 0.35 px at distance 4, below the 0.5 px noise, and about 17 px at distance 2. The result reproduces; it is not new.
 
 ## Next steps
 A principal-point offset and per-camera focals on the wide rig; the same fit on an openly licensed multi-view set with a published calibration (not reachable from this container, whose egress allows few hosts); a rig that widens the angle of view at a fixed range, to separate it from perspective.

@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-deadlineloss` (track 9, open-source purpose-built robots), whose "Next steps" asked to "source prices for an open drone and ground platform". Its fleet prices (5,000 USD inline robot, 2,500 USD scout, 3,500 USD treater) were round numbers I chose. This project replaces them with two list prices read on 2026-10-23 and re-runs the sweep. **Sourced: a Holybro X500 V2 PX4 development kit, 609 USD with Pixhawk 6C, no battery, about 18 min hover, 1.5 kg payload (holybro.com/products/px4-development-kit-x500-v2); an AgileX Scout Mini ground robot, 4,500 USD, 10 or 20 kg payload (robotlab.com/store/agilex-scout-mini/).** Still not sourced and therefore swept: the battery, camera and sprayer or other weeding tool, and the drone's flight time under load. Yield loss (2% per leaf stage late) is Knezevic, Evans & Mainz 2003, *Crop Management* 2(1), doi:10.1094/CM-2003-0219-01-RS, as in `osrobot-deadlineloss`. In the direction of the ARPG, RECUV and Autonomous Systems IRT interest in field robots; nothing here is affiliated with or endorsed by them. Produced with AI assistance (Claude). Pure Python standard library. Simulation only; nothing was built, bought or flown.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-sourcedprices/
+**Live page:** https://marisstella.app/research/osrobot-sourcedprices/
 
 ![Total cost per hectare by ground-platform price, 1.62 ha fields](experiments/breakeven.svg)
 
@@ -39,6 +39,7 @@ A farmer, or a grant reviewer, asks what such a fleet would cost to buy. Round n
 | Annual capital charge 30%, 500 h/yr, labour 20 USD/h, electricity 0.15 USD/kWh, times | as `osrobot-deadlineloss` | assumed / `osrobot-pairprice` fits |
 
 ## Limitations
+- **The drone pilot is not paid (inherited from `osrobot-pairprice`; found by its quality audit, 2026-11-13).** `fleet.py` charges a person only for set-up and battery swaps, but FAA Part 107 needs a remote pilot to keep the scout in sight for every flight minute (14 CFR 107.31). At this project's 20 USD/h that is 56.8 flight min/ha, 18.9 USD per hectare added to every scout-and-treater cost, more than the inline robot's whole cost per hectare (11.6 to 13.0 USD at 0.72 to 20 ha in `osrobot-pairprice`). `osrobot-pairprice` was corrected on 2026-11-14 and, with the pilot paid, the pair loses at every field size (2.3 to 2.6 times the inline robot); any result here where the scout fleet wins or nearly ties should be read as conditional on an unpaid or shared pilot until this model is rerun.
 - Two retail list prices, one per machine; no quantity discount, tax, shipping or resale value. The Holybro price is its own store's; other sellers list the kit higher.
 - The Scout Mini is a research ground robot, not a weeding robot; its running speed and the per-field minutes (from `osrobot-pairprice`'s simulation) are not matched to it. The treater and the inline robot are not priced with any weeding tool, which makes both too cheap; the inline-premium rows are one way to bracket that and are not sourced.
 - The 2% loss rate applies to corn and soybean up to canopy closure; equal fields, one window, no weather or failures; fleets capped at four scouts, 16 treaters, 32 inline robots (as before).

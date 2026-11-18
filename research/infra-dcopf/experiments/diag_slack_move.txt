@@ -1,0 +1,7 @@
+Fold step's continuation with the reference moved to the largest live unit (diagnostic, after the run):
+case300_ieee   typ  new slack bus 186 (unit 27, [0, 2465] MW): mu* 0.9984  sigma ratio 0.043  Vmin 0.728  slack P 3832.6 MW (scheduled 2461.1)  losses 1372.8 MW
+case1888_rte   typ  new slack bus 1675 (unit 111, [403, 1503] MW): mu* 1.0000  sigma ratio 0.930  Vmin 0.856  slack P 1460.1 MW (scheduled 723.0)  losses 737.1 MW
+case1888_rte   api  new slack bus 1746 (unit 228, [175, 2440] MW): mu* 1.0000  sigma ratio 0.853  Vmin 0.839  slack P 2666.7 MW (scheduled 1203.0)  losses 1463.7 MW
+case1888_rte   sad  new slack bus 1675 (unit 111, [403, 1503] MW): mu* 1.0000  sigma ratio 0.930  Vmin 0.856  slack P 1458.6 MW (scheduled 723.0)  losses 735.6 MW
+case1951_rte   typ  new slack bus 1675 (unit 132, [403, 1503] MW): mu* 1.0000  sigma ratio 0.635  Vmin 0.832  slack P 3160.5 MW (scheduled 1503.0)  losses 1657.5 MW
+case1951_rte   sad  new slack bus 1675 (unit 132, [403, 1503] MW): mu* 1.0000  sigma ratio 0.635  Vmin 0.832  slack P 3160.5 MW (scheduled 1503.0)  losses 1657.5 MW

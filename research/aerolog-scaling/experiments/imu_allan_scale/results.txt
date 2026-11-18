@@ -1,0 +1,15 @@
+noise (0.1,) of channel rms, records (1, 2) phugoid periods, 8 draws per design and scale; scales (0.75,)
+20 mode-matched designs
+
+model-scale sample interval dt: median 0.0940 s (physical, model at n = 0.2); 20 designs
+
+IMU | record | median q rms (rad/s) | median record (s) | drift end-std / q rms (BI x sqrt(record/1h-free: BI taken as end-point std)) | white-noise std at dt / q rms | assumed in 9x/9y
+MPU-6050 (X axis, measured) | 1 periods | 0.0683 | 10.2 | drift 6.1e-04 (max 6.6e-04) | noise 7.6e-03 (max 8.3e-03) | drift 0.10-0.20, noise 0.10
+MPU-6050 (X axis, measured) | 2 periods | 0.0912 | 20.4 | drift 4.6e-04 (max 5.3e-04) | noise 5.8e-03 (max 6.7e-03) | drift 0.10-0.20, noise 0.10
+MPU-6050 (worst axis) | 1 periods | 0.0683 | 10.2 | drift 6.3e-04 (max 6.8e-04) | noise 8.3e-03 (max 9.1e-03) | drift 0.10-0.20, noise 0.10
+MPU-6050 (worst axis) | 2 periods | 0.0912 | 20.4 | drift 4.7e-04 (max 5.4e-04) | noise 6.3e-03 (max 7.3e-03) | drift 0.10-0.20, noise 0.10
+ADIS16488A (datasheet) | 1 periods | 0.0683 | 10.2 | drift 3.6e-04 (max 3.9e-04) | noise 3.6e-03 (max 4.0e-03) | drift 0.10-0.20, noise 0.10
+ADIS16488A (datasheet) | 2 periods | 0.0912 | 20.4 | drift 2.7e-04 (max 3.2e-04) | noise 2.7e-03 (max 3.2e-03) | drift 0.10-0.20, noise 0.10
+
+BI that equals 10% of q rms at 1 period: median 1409 deg/hr (min 1298)
+white-noise density that gives 10% of q rms at dt: median 0.1203 deg/s/sqrt(Hz)

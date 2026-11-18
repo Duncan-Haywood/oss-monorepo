@@ -75,6 +75,17 @@ calculators beyond fixes; already-built ones can still merge (owner, 2026-10-21;
    in these areas is the first kind to look for.
 4. A genuinely new, different venture, when one clears the gates.
 
+Since 2026-11-03 the owner also asks runs to consider areas from investors'
+published requests for startups (YC Winter 2027, a16z Speedrun, Conviction,
+Pear and partners' picks): US-made robot parts, financing the physical
+buildout, vertical foundation models, construction-permit tooling, the data
+center supply chain, 3D generative AI, vibe-creation, AI-native education,
+agent harnesses, an AI wealth guide, manufacturing autonomy, and an AI
+operating system for solo businesses. The special focus is **tooling for
+running orgs of agents**, starting with this repository's own dev-shop
+scripts. The areas, what already exists for each, and first steps:
+[`opinions/2026-11-03-requests-for-startups.md`](opinions/2026-11-03-requests-for-startups.md).
+
 The catalogue is live at `https://duncan-haywood.github.io/monorepo-projects/`;
 merging publishes it. `python3 platform/ci/publish_surface.py` says whether a
 merge publishes anything. `python3 portfolio/router/allocate.py` names the
@@ -82,14 +93,48 @@ highest-merit dispatchable venture.
 
 ## Revenue
 
-The owner's own instances take donations only (GitHub Sponsors). A product may
-ship payment code that is off by default and runs on the deployer's own keys,
-never the owner's (`PRODUCT_PLAYBOOK.md` §6). A per-product `github.com/sponsors`
+The owner's own instances take donations (GitHub Sponsors) and, since
+2026-10-31, may sell through the owner's merchant-of-record hosted checkout by
+a link set outside the repo. A product may ship payment code that is off by
+default and runs on the deployer's own keys (`PRODUCT_PLAYBOOK.md` §6). A per-product `github.com/sponsors`
 link is agent-decidable. The repo-level GitHub "Sponsor" button
 (`.github/FUNDING.yml`, decision `funding-sponsors-live` in
 `portfolio/ledger/decision_queue.py`) ties a real person's Sponsors profile to
 the repo and stays owner-only. Keeping customers happy means working, honest
 products: no fake claims, working links, answers to feedback.
+
+## Owner direction: tools for parishes and religious organisations
+
+The owner, 2026-11-03: "it'd be nice to build tools for catholic orgs.
+parishes. relgiious orgs. as a direction" and "standard problems they have."
+A standing direction for many runs: the books, counts, registers and schedules
+a parish office keeps, built as one local-first parish office in
+[`ventures/parish-office/`](../ventures/parish-office/ROADMAP.md), a module at
+a time (Mass intentions book first, landed 2026-11-03; the two-counter Sunday
+collection sheet next). Most modules serve any congregation. Canon law and tax
+rules are quoted only from their official text, fetched in the run that cites
+them; the diocese's own rules come first, and the tools report observations,
+not canonical judgments. Notes for the next run:
+[`docs/reports/parish-office-direction.md`](../docs/reports/parish-office-direction.md).
+
+## Owner direction: websites for monks and nuns
+
+The owner, 2026-11-03: "i want one direction to be to create a template website
+for catholic monks and nuns for their communities. like all the features of the
+best ones but customizable for their personal community. well supported set up
+for receiving donations vocations inquiry about section etc.", then "really
+high quality" and "maybe highly opinionated wesite builder for catholic monks
+and nuns communities." A standing direction for many runs, built as
+[`ventures/monastery-site/`](../ventures/monastery-site/ROADMAP.md): one form or
+one `community.json` builds a complete static site (horarium, vocations with an
+inquiry form, giving that links to the community's own donation page, prayer
+requests, visiting, events, news, shop), with a launch checklist that holds the
+opinions. First slice landed 2026-11-03; the next is a form handler each
+community deploys on its own account. Outreach is the owner's own one-to-one
+email to vocation directors and whoever runs a community's website or social
+media ([`OUTREACH.md`](../ventures/monastery-site/OUTREACH.md)); agents prepare it
+and never send it. Notes for the next run:
+[`docs/reports/monastery-site-direction.md`](../docs/reports/monastery-site-direction.md).
 
 ## Owner direction: new ventures get first call, legal exposure is the one hard stop
 

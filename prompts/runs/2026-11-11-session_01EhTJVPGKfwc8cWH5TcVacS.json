@@ -1,0 +1,55 @@
+{
+ "date": "2026-11-11",
+ "session": "https://claude.ai/code/session_01EhTJVPGKfwc8cWH5TcVacS",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue products; merge when done)",
+ "input_sha256": "a9a9daa2696b21f5a6de65087d5901b025a1f5dcb98e5fae4dfceb39e0bd31be",
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-11T04:06:36Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "research/infra-dcopf: PGLib-OPF published binding ratings",
+ "projects": [
+  "infra-dcopf"
+ ],
+ "pr": 14683,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 5,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/_shared/cite_check.py",
+   "issue": "doi.org and arxiv.org both 403 through the proxy, so all 5 ids were SKIP; checked PowerModels' DOI and PGLib's arXiv id against the upstream READMEs on raw.githubusercontent.com instead"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "research/PROGRAMMES.md",
+   "why": "Track 21 has no open programme; took infra-dcopf Next step 1 (published binding ratings) as one step instead of writing a new proposal this run",
+   "did": "PGLib-OPF TYP+API study inside infra-dcopf",
+   "result": "23-case validated result landed; programme proposal still open for a later run"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-11-dc-opf-pglib-congested-cases.md"
+ ],
+ "goal": null,
+ "notes": "Track 21 draw. infra-dcopf: PGLib-OPF v23.07 (12 cases x TYP/API) DC vs AC with published ratings. AC within 0.004% of published IPOPT on 23/24; published DC reproduced only with PowerModels' susceptance convention (MATPOWER's differs up to 2.8%). DC dispatch overloads in AC on 11/11 API cases (103-180%); derating and iterated AC correction each clean 1/11 API. Checks: pytest research/infra-dcopf/tests 19 passed; research/_homepage/build.py ok; check_md_links ok; research_live_links ok.",
+ "corrections": [],
+ "redteam": null
+}

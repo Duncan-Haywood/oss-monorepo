@@ -76,7 +76,7 @@ test('the optional retention inputs are genuinely optional on the page', () => {
 
 test('disclaimer and usage tracking are still present', () => {
   assert.match(html, /No warranty\./);
-  assert.match(scriptSource, /recordUsage\(localStorage,false,'plan_calculated'\)/);
+  assert.match(scriptSource, /recordUsage\(usageStorage\(\),false,'plan_calculated'\)/);
 });
 
 // Closest MEP sibling: same subcategory, but a one-off appliance repair call

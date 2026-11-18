@@ -15,7 +15,7 @@
 // upper bounds, never counted in the totals.
 
 // ILLUSTRATIVE and dated; regions, engines and contracts differ. Overridable.
-export const PRICES_AS_OF = "illustrative US East (N. Virginia) on-demand list prices for MySQL, MariaDB and PostgreSQL, single-AZ; Multi-AZ is twice the instance and storage price; gp2/gp3 $0.115, io1 $0.125 plus $0.10 per provisioned IOPS per GB-month; verify against the AWS RDS pricing page for your region, engine and any Reserved Instance or Savings Plan";
+export const PRICES_AS_OF = "illustrative US East (N. Virginia) on-demand list prices at MySQL/MariaDB rates (PostgreSQL lists a few percent higher, about 4% on db.m5.large), single-AZ; Multi-AZ is twice the instance and storage price; gp2/gp3 $0.115, io1 $0.125 plus $0.10 per provisioned IOPS-month; verify against the AWS RDS pricing page for your region, engine and any Reserved Instance or Savings Plan";
 export const HOURLY = {
   "db.t3.micro": 0.017, "db.t3.small": 0.034, "db.t3.medium": 0.068, "db.t3.large": 0.136, "db.t3.xlarge": 0.272, "db.t3.2xlarge": 0.544,
   "db.t4g.micro": 0.016, "db.t4g.small": 0.032, "db.t4g.medium": 0.065, "db.t4g.large": 0.129, "db.t4g.xlarge": 0.258, "db.t4g.2xlarge": 0.517,
@@ -77,7 +77,8 @@ export function parseInstances(text) {
     const multiRaw = String(cells[col.multi] ?? "").trim().toLowerCase();
     const type = String(cells[col.type] ?? "").trim().toLowerCase();
     const gb = toNum(cells[col.gb]);
-    const opt = (i) => (String(cells[i] ?? "").trim() === "" ? null : toNum(cells[i]));
+    // The AWS CLI prints None for an absent value (Iops on gp2): treat it as blank, not as a bad row.
+    const opt = (i) => { const v = String(cells[i] ?? "").trim(); return v === "" || /^(none|null)$/i.test(v) ? null : toNum(v); };
     const iops = opt(col.iops);
     const cpu = opt(col.cpu);
     const env = String(cells[col.env] ?? "").trim().toLowerCase() || null;

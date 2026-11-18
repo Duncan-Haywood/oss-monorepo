@@ -1,0 +1,5 @@
+series per cell 300, bootstrap reps 99; share of ALL series with p <= 0.05 (refused = not rejected)
+P plateau 0.25, n 60, rho 0.5     two hinges 30.7% (tested 224), one hinge 7.3% (tested 224), difference 23.3 points  holds (bar 10)
+reported: plateau 0.25, n 95, rho 0.5  two hinges 46.3% (tested 144), one hinge 1.7% (tested 77), difference 44.7 points
+reported: plateau 0.15, n 60, rho 0.5  two hinges 17.0% (tested 285), one hinge 7.7% (tested 286), difference 9.3 points
+# two spaces added by hand after 'rho 0.5' on the reported lines, where padEnd(34) ran the columns together; no number changed

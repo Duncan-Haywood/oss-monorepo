@@ -245,14 +245,30 @@ export function scopeLines(templates, values) {
  * which on a quote-expiry date is a real dispute with a customer.
  */
 export function addDays(isoDate, days) {
+  const stamp = isoStamp(isoDate);
+  const out = new Date(stamp + number(days, 'Valid days') * 86_400_000);
+  // Year 10000 and later print as "+010009-12-31", and a date before year 1 as "-000001": refuse both.
+  if (Number.isNaN(out.getTime()) || out.getUTCFullYear() < 1 || out.getUTCFullYear() > 9999) {
+    throw new Error('Issue date plus the valid days is not a real date');
+  }
+  return out.toISOString().slice(0, 10);
+}
+
+/**
+ * UTC milliseconds for a `YYYY-MM-DD` string that is a real calendar day.
+ * `Date.UTC` rolls 2026-02-30 over to 2 March and reads year 0 as 1900, so the
+ * date is read back and compared.
+ */
+function isoStamp(isoDate) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text(isoDate));
   if (!match) throw new Error('Issue date must be YYYY-MM-DD');
-  const [, year, month, day] = match;
-  const stamp = Date.UTC(Number(year), Number(month) - 1, Number(day));
-  if (Number.isNaN(stamp)) throw new Error('Issue date must be a real date');
-  return new Date(stamp + number(days, 'Valid days') * 86_400_000)
-    .toISOString()
-    .slice(0, 10);
+  const [, year, month, day] = match.map(Number);
+  const stamp = new Date(0).setUTCFullYear(year, month - 1, day);
+  const back = new Date(stamp);
+  if (year < 1 || back.getUTCFullYear() !== year || back.getUTCMonth() !== month - 1 || back.getUTCDate() !== day) {
+    throw new Error('Issue date must be a real date');
+  }
+  return stamp;
 }
 
 /** `2026-08-26` → `26 August 2026`. Unambiguous to both US and non-US readers. */
@@ -293,18 +309,26 @@ export function buildProposal(input = {}) {
   const clientName = text(input.clientName);
   if (!clientName) throw new Error('Add the customer name before printing a proposal');
 
-  const price = number(input.price, 'Price', { min: 0 });
-  if (price <= 0) throw new Error('Price a job before printing a proposal');
+  // Calculators hand over prices like 32.855. The sheet prints cents, so the
+  // price is cents from here on: every figure below is derived from the same
+  // number the customer reads, and a price that prints as $0.00 is a zero price.
+  const priceCents = Math.round(number(input.price, 'Price', { min: 0, max: 1e9 }) * 100);
+  if (priceCents <= 0) throw new Error('Price a job before printing a proposal');
+  const price = priceCents / 100;
 
   const depositPercent = number(input.depositPercent ?? 0, 'Deposit', { min: 0, max: 100 });
   const validDays = number(input.validDays ?? 0, 'Valid days', { min: 0, max: 3650 });
+  // "Held until 1 January (0.5 days from issue)" contradicts itself on the page.
+  if (!Number.isInteger(validDays)) throw new Error('Valid days must be a whole number');
   const issuedOn = text(input.issuedOn) || new Date().toISOString().slice(0, 10);
+  isoStamp(issuedOn); // a malformed or impossible date is refused even when the proposal has no expiry
 
   // Rounded to cents here, not at display time, and the balance taken as the
   // remainder. The customer adds the two lines up: if the deposit rounds up and
   // the balance rounds down independently, the printed figures miss the printed
   // total by a cent, and the contractor has to explain it on the phone.
-  const depositAmount = Math.round(price * depositPercent) / 100;
+  const depositCents = Math.round(priceCents * depositPercent / 100);
+  const depositAmount = depositCents / 100;
 
   return {
     reference: referenceFor(issuedOn, clientName),
@@ -332,7 +356,7 @@ export function buildProposal(input = {}) {
       price,
       depositPercent,
       depositAmount,
-      balanceAmount: price - depositAmount,
+      balanceAmount: (priceCents - depositCents) / 100,
       paymentTerms: text(input.paymentTerms),
     },
   };

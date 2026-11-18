@@ -207,7 +207,7 @@
       els.yearTable.innerHTML = r.years.map((y) => `<tr><td>${y.year}</td><td>${money(y.cash)}</td><td>${money(y.investor)}</td><td>${money(y.promote)}</td></tr>`).join("");
       els.status.textContent = "";
       record("waterfall_calculated");
-      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calculate").addEventListener("click", runCalculate);

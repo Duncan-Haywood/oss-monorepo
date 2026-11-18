@@ -38,7 +38,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -48,6 +48,16 @@
       select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
     th[scope=col] { white-space: nowrap; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#recovery) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 344px), 1fr)); } }
+    @media (min-width: 740px) { div.grid:has(#filing) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 404px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -274,7 +284,7 @@
     function renderFindings(container, findings) {
       container.innerHTML = findings.map((f) => `
         <div class="finding">
-          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <h3><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h3>
           <p>${f.detail}</p>
         </div>`).join("");
     }
@@ -291,7 +301,7 @@
       });
       const pathName = r.path === "nonpassive" ? "non-passive: the loss can offset other income" : "passive: the loss is limited";
       const avg = r.status.known ? r.status.avg.toFixed(1) + " days" : "not entered";
-      els.stats.innerHTML = `Average stay <strong>${avg}</strong>; ${r.participation.met ? "material participation shown" : "material participation not shown"} (${r.participation.hours.toLocaleString()} hours). Your path: <strong>${pathName}</strong>. A cost segregation study adds <strong>${money(r.extraDepreciation)}</strong> of first-year depreciation and about <strong>${money(r.extraSavings)}</strong> of tax savings (${money(r.netCostSegBenefit)} after the study).`;
+      els.stats.innerHTML = `Average stay <strong>${avg}</strong>; ${r.participation.met ? "material participation shown" : "material participation not shown"} (${r.participation.hours.toLocaleString('en-US')} hours). Your path: <strong>${pathName}</strong>. A cost segregation study adds <strong>${money(r.extraDepreciation)}</strong> of first-year depreciation and about <strong>${money(r.extraSavings)}</strong> of tax savings (${money(r.netCostSegBenefit)} after the study).`;
       const row = (label, a, b, bold) => `<tr><th scope="row">${bold ? "<strong>" + label + "</strong>" : label}</th><td>${bold ? "<strong>" + a + "</strong>" : a}</td><td>${bold ? "<strong>" + b + "</strong>" : b}</td></tr>`;
       const A = r.base, B = r.seg;
       els.resultTable.innerHTML = [
@@ -307,7 +317,7 @@
       els.report.hidden = false;
       els.status.textContent = "";
       record("loophole_checked");
-      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calculate").addEventListener("click", runCalculate);

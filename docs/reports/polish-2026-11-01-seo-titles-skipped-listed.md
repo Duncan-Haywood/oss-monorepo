@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-01
+tagged: auto
+---
 # Polish 2026-11-01: `propose_seo_titles.py` lists posts it cannot cut
 
 **Weak surface.** The previous note said posts with no clean cut stayed invisible: the script only counted them.

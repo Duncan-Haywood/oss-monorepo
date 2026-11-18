@@ -31,7 +31,7 @@ export function agencyPct(employeePct) {
   return AGENCY_AUTOMATIC_PCT + match;
 }
 
-export const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 }));
 export const pct = (n) => (Math.round(n * 10) / 10).toLocaleString("en-US") + "%";
 export const ageStr = (months) => `${Math.floor(months / 12)}${months % 12 ? ` y ${months % 12} m` : ""}`;
 

@@ -1,6 +1,6 @@
 # Run a Swiss tournament or bracket without the spreadsheet
 
-> Free Swiss pairing generator and bracket maker. Paste your players, get round-by-round Swiss pairings with colour balance, Buchholz and Sonneborn-Berger tiebreaks, or a single or double elimination bracket with byes. Runs in your browser; nothing is uploaded.
+> Free Swiss pairing generator and bracket maker. Paste your players, get round-by-round Swiss pairings with colour balance, Buchholz and Sonneborn-Berger tiebreaks, or a single or double elimination bracket with byes, and see each player's Elo or Glicko-2 rating change from the event. Runs in your browser; nothing is uploaded.
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 

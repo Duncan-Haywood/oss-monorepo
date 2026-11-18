@@ -22,12 +22,13 @@
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "featureList": [
     "Parses CODEOWNERS syntax and flags owners that are not @user, @org/team, or an email address",
+    "Flags gitignore syntax GitHub says does not work in CODEOWNERS: ! negation, [ ] ranges and \\# escapes",
     "Implements GitHub's gitignore-style pattern matching, including anchored paths, unanchored basename matches, trailing-slash directories, and **",
     "Resolves each file to its actual owning rule under last-match-wins, the same as GitHub",
     "Flags every rule that never wins ownership of any file in your list because a later, broader rule always overrides it",
     "Separately flags rules that matched no file in your list, so a typo is never confused with a genuinely dead rule",
     "Lists files covered by no rule at all",
-    "Optional CLI auto-detects CODEOWNERS (root, .github/, docs/) and your tracked files via git ls-files -- nothing to install, nothing leaves your machine",
+    "Optional CLI auto-detects CODEOWNERS (.github/, root, docs/, the order GitHub uses) and your tracked files via git ls-files -- nothing to install, nothing leaves your machine",
     "Works entirely from pasted text too -- the CLI is a convenience, not a requirement"
   ]
 }
@@ -159,7 +160,7 @@
 
 <script type="module">
   import { buildReport } from './codeowners.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -243,7 +244,7 @@
     }
 
     els.reportCard.hidden = false;
-    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
   }
 
   function runCheck(codeownersText, pathsText, event) {
@@ -260,7 +261,7 @@
     }
     render(report);
     els.status.textContent = '';
-    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+    recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, event);
   }
 
   $('#check').addEventListener('click', () => {
@@ -312,8 +313,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
 </script>
@@ -343,9 +344,11 @@
   — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
   optional and never changes what the tool does.</p>
   <p>Also worth a pass: <a href="../actions-permissions-check/">GitHub Actions permissions checker</a>
-  covers a different repository-hardening question — whether your workflows request more `GITHUB_TOKEN`
+  covers a different repository-hardening question — whether your workflows request more <code>GITHUB_TOKEN</code>
   scope than they use — and <a href="../repository-branch-hygiene/">Repository branch hygiene</a> covers
   a third: stale branch inventory and recovery, rather than review-routing correctness.</p>
+  <p>Same patterns, other file: the <a href="../gitignore-explainer/">.gitignore Explainer</a> resolves
+  .gitignore rules the way git does, and finds the <code>!</code> negations an ignored folder blocks.</p>
   <p>Seen a review requirement vanish with no explanation? Read
   <a href="why-codeowners-review-stops-being-required.html">why a CODEOWNERS review requirement can
   silently stop firing</a> for the exact before-and-after and how to gate CI against it.

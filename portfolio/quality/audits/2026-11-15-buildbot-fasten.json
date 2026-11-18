@@ -1,0 +1,249 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/buildbot-fasten",
+ "stratum": "research",
+ "seed": "2026-11-15-7988",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior humanoid whole-body-control researcher (the kind who reviews multi-contact / whole-body pushing papers for IEEE RA-L or Humanoids), paired with a framing inspector for the nailing schedule. The roboticist would check first whether the static push poses are physically realisable (contact with the wall, self-collision, support polygon) and whether the error model matches how humanoid end-effector error is actually budgeted; the inspector would check the edge distance, spacing and panel gap against APA/IRC.",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Placement arithmetic recomputes from first principles: window half-widths from inches (joint ((0.75-0.0655)-0.375)/2 in = 3.931 mm, bottom 13.456, top 32.506, field 17.386 mm), the whole-sheet sigma budget with statistics.NormalDist instead of math.erf (0.5/0.9/0.95/0.99 -> 1.692/1.329/1.239/1.086 mm, README 1.69/1.33/1.24/1.09), the no-edge-band 4.817 mm (README 4.82), a 200,000-draw Monte Carlo at 1.24 mm (0.9497), and the quantisation table (360/2^11/sqrt(12) = 0.0507 deg x 18.4 mm/deg = 0.93 mm G1, 0.70 mm H1; 10-bit sheet 0.295 G1, 0.843 H1 vs 0.299/0.845) all match (`python3 /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/indep.py`). `BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/menagerie python3.13 experiments/run.py` on a copy reproduces results.txt byte for byte (results.json differs only at the 1e-9 float level). The ground wrench is internally consistent (`/tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/phys.py`: ground Fx = F and Fz = W at every checked cell). But the push envelope is wrong as a physical claim: no wall or collision constraint exists, and the CoM lean F*z/W is achieved by driving the body through the wall plane. At the headline H1 276 N cell (x 0.3, z 1.2) the CoM is 0.636 m ahead of the feet, the pelvis 0.68 m, and the torso geom centre 0.76 m beyond the hand (= wall) plane; 29 of 33 feasible H1 cells and 6 of 10 G1 cells put a non-arm body geom centre past the wall plane, 8 H1 and 2 G1 even past hand+0.3 m (`/tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/wallall.py`). The force numbers are therefore upper bounds of an unconstrained model, not what a robot facing a wall can push. Capped at 2: the numbers the robot story rests on are not right.",
+  "completeness": "Every Method item runs end to end: schedule (62 nails, class counts asserted), band, sheet_success/required_sigma, push_limit over the full grid for both robots and both mu, tip_jacobian, quantisation table and coverage D; run.py reproduces results.txt exactly (~3 min). The figure and live page exist. The milestone's policy is explicitly not delivered and recoil/trip force are stated as missing, so the claimed scope is done; 3.",
+  "verification": "`BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/menagerie /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests` -> 7 passed in 1.5 s (models fetched; the 3 MuJoCo tests skip offline). Tests check the joint and field windows, the erf interval, required_sigma inversion, forward-dynamics balance of the wrench, the slip limit mu*W and the tip Jacobian against a finite perturbation: good physics tests. Six seeded mutants via quality_mutate.py: 2 caught (slip 2*mu, bottom-row count), 4 survived (no CoM lean at all, torque ratio limit 1.0 -> 1.5, tip_sigma reading the x row instead of y, plate nails losing the edge distance). No test pins a push value, a torque-limited cell, a plate window, or the committed results, so the headline force and scatter numbers are unguarded.",
+  "craft": "Read src/buildbot_fasten/model.py (200 lines), experiments/run.py, tests/test_model.py and buildbot_payload.model.pose/ground solver. Small, documented, readable; units commented; reuses buildbot_payload rather than copying it. Defects: an unused `_bid` duplicate (model.py:34); check_push returns a binding-joint name computed by argmax even for feasible cells, so 'binding limit' counts mix limits with reach failures; push_limit is warm-started so a cell's value is path dependent (cold check_push at G1 (0.3,1.0) 101 N returns infeasible); the package imports a sibling project via pytest pythonpath and sys.path edits. Acceptable research code: 3.",
+  "claims": "Checked against results.txt: 62 nails, +-3.9 mm, 1.24 mm, 4.8 mm, 0.05-0.11 deg, 11-bit 0.9/0.7 mm, G1 8-142 N, G1 4 cells > 80 N, waist 4 / wrist 6 cells, H1 82-276 N, mu 0.3 six slip cells: backed. Not backed or wrong: headline '1 deg scatters the tip 10 to 24 mm' while the table and the body say H1 minimum 9.4 mm ('9 to 19'); 'elbows limiting (27 of the 28 feasible cells at mu 0.6)' is right only if 'feasible' excludes the 5 reach-limited cells that carry a push value (33 in all; corrected by the session after re-count); '18 of 62 / 36 of 62 nails from one stance' counts nails by height only with hands fixed at +-0.18/0.22 m, while the sheet is 1.22 m wide and lateral reach is unmodelled; '11 bits or more passes' is shown at one pose only. Most importantly the push range is presented as what the robot 'pushes' with no statement that the body is allowed through the wall. Limits and the not-a-rating disclaimer are otherwise unusually candid: 2.",
+  "fitness": "A researcher could build on the nailing schedule and the placement budget (clear, reproducible, swept where unsourced). Nearest prior work, none cited: AIST HRP-5P autonomous plasterboard installation with a screw driver (Kumagai et al., IEEE RA-L 2019), the closest humanoid-fastening result; whole-body pushing / multi-contact statics for humanoids (Murooka et al., Humanoids 2015; Bouyarmane & Kheddar multi-contact planning); automated wall-panel framing/sheathing bridges (Weinmann, House of Design) for the accuracy a nailing machine actually achieves. The schedule-to-error-budget chain is a modest new framing, sound for placement, but the force result is not sound without a wall constraint, so a builder would have to redo it: 2.",
+  "domain": "Framing side: 6/12 in 8d common and the 3/8 in edge distance agree with IRC Table R602.3(1) and APA practice (secondary sources, as stated). Departures: APA's recommended 1/8 in gap at panel edges is ignored; with the sheet edge 1/16 in off the stud centre the joint half-window falls from 3.93 to 3.14 mm and the 95% sheet sigma from 1.24 to 0.99 mm (`{S}` one-liner, see checks); the four corner joint nails sit at z = 0 and z = 2438.4 mm, exactly on the panel edge, violating the same 3/8 in rule in z (schedule() at model.py:160). Robotics side: a whole-body push analysis without a wall/environment collision constraint, with the tool length ignored (adding a 0.3 m nose raises the H1 scatter at (0.4,1.0) from 13.8/12.7 to 21.0/21.8 mm per deg and the G1 from 18.4/17.2 to 25.9/28.7, `{S}/phys.py`), and independent per-nail Gaussian errors where the dominant terms (calibration, perception) are correlated. A senior reviewer would not sign off the force envelope: 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "nail window half-widths (joint, bottom, top, field)",
+   "method": "first-principles from inches: (hi-lo)/2 with 1.5 in face, 0.131 in shank, 3/8 in edge distance",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/indep.py",
+   "expected": "3.931 / 13.456 / 32.506 / 17.386 mm",
+   "observed": "results.txt 3.93 / 13.46 / 32.51 / 17.39 mm",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "whole-sheet tip sigma for 50/90/95/99% and the no-edge-band 95%",
+   "method": "statistics.NormalDist CDF product (not math.erf), own bisection; 200k-draw Monte Carlo at 1.24 mm",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/indep.py",
+   "expected": "1.692/1.329/1.239/1.086; 4.817 mm; MC 0.95",
+   "observed": "1.69/1.33/1.24/1.09; 4.82 mm; MC 0.9497",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "joint-sensor quantisation: 11-bit tip sigma and 10-bit sheet success at (0.4,1.0)",
+   "method": "uniform quantisation error step/sqrt(12) (textbook) times per-degree scatter from table C",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/indep.py",
+   "expected": "G1 0.934/0.873 mm, H1 0.700/0.644; 10-bit sheet G1 0.295, H1 0.843",
+   "observed": "G1 0.93/0.87, H1 0.70/0.64; 0.299 / 0.845",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "push envelope physically realisable: body stays behind the wall plane at each feasible mu=0.6 cell",
+   "method": "MuJoCo forward kinematics of the pose at the recorded push; compare non-arm geom centres with the hand (wall) x",
+   "command": "BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/menagerie /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/wallall.py",
+   "expected": "no body geom beyond the wall plane",
+   "observed": "H1 29/33 cells, G1 6/10 cells have torso/shoulder/hip geom centres past it; H1 276 N cell: torso 0.761 m past the wall, CoM 0.636 m ahead of feet",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "ground wrench balances the applied push and weight",
+   "method": "sum of foot forces vs F and W=(m+3.4)g",
+   "command": "BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/menagerie /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/phys.py",
+   "expected": "Fx=F, Fz=538.0 N (H1), 360.4 N (G1)",
+   "observed": "Fx=276.0/152.0/142.0, Fz=538.0/360.4",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments/run.py reproduces the committed results",
+   "method": "rerun on a scratch copy, diff",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/run/buildbot-fasten && BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/menagerie /usr/bin/python3.13 experiments/run.py > /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/results.txt; diff /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/results.txt research/buildbot-fasten/experiments/results.txt",
+   "expected": "identical",
+   "observed": "results.txt identical; results.json differs only in ~1e-9 float digits",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "pytest with Menagerie cda5236f fetched",
+   "command": "cd research/buildbot-fasten && BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/menagerie /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "green",
+   "observed": "7 passed in 1.49s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'elbows limiting (27 of the 28 feasible cells at mu 0.6)'",
+   "method": "count feasible cells and binding limits in results.txt section B h1 mu=0.6",
+   "command": "python3 -c \"import json;p=json.load(open('research/buildbot-fasten/experiments/results.json'))['push']['h1-mu0.6'];print(sum(x['N'] is not None for x in p),sum(x['limit']!='reach' for x in p))\"",
+   "expected": "28 feasible cells",
+   "observed": "33 cells carry a push value, but 5 of them are reach-limited; 28 end at a joint limit (right_elbow 22, left_elbow 5, left_shoulder_yaw 1), so '27 of 28' holds if 'feasible' means joint-limited. Ambiguous wording, not a wrong count (session re-count from results.json push['h1-mu0.6'])",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "headline '1 deg scatters the tip 10 to 24 mm'",
+   "method": "min/max of table C for both robots",
+   "command": "grep -A12 '^C. h1' research/buildbot-fasten/experiments/results.txt",
+   "expected": "10 to 24 mm",
+   "observed": "9.4 to 23.8 mm (H1 2.0 m row 18.0/9.4); the body text says 9 to 19 for H1",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'18 of 62 / 36 of 62 nails from one stance'",
+   "method": "read run.py coverage D: counts nails within 0.1 m in height of a feasible tool height; pose() fixes hands at y=+-half_width",
+   "command": "sed -n 113,121p research/buildbot-fasten/experiments/run.py",
+   "expected": "coverage accounts for the 1.22 m sheet width",
+   "observed": "height only; lateral reach not modelled (stated in Limitations, not in the headline)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "edge distance on all nails (3/8 in, IRC R602.3(1)/APA)",
+   "method": "list nails closer than 3/8 in to the top or bottom panel edge",
+   "command": "cd research/buildbot-fasten && BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/menagerie /usr/bin/python3.13 -c \"import sys; sys.path[:0]=['src','../buildbot-payload/src']; from buildbot_fasten import model as F; print([(x.y,x.z) for x in F.schedule() if x.z<F.EDGE_MIN or x.z>F.SHEET[1]-F.EDGE_MIN])\"",
+   "expected": "none",
+   "observed": "4 corner joint nails at z=0 and z=2438.4 mm",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "APA 1/8 in panel-edge gap effect on the binding joint window",
+   "method": "move the sheet edge 1/16 in off the stud centre line; recompute window and 95% sigma",
+   "command": "python3 one-liner in /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot (NormalDist product)",
+   "expected": "README budget 1.24 mm unaffected if gap negligible",
+   "observed": "joint half 3.14 mm, 95% sigma 0.99 mm (-20%)",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "tool length ignored in the tip scatter",
+   "method": "nose Jacobian = J_hand + omega x L with L = 0.3 m forward",
+   "command": "BUILDBOT_MENAGERIE=/tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/menagerie /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/buildbot/phys.py",
+   "expected": "small change",
+   "observed": "H1 13.8/12.7 -> 21.0/21.8 mm/deg; G1 18.4/17.2 -> 25.9/28.7 mm/deg",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/buildbot_fasten/model.py:65",
+   "change": "dx = force * z / weight -> dx = 0.0 * force * z / weight (no lean)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/buildbot_fasten/model.py:72",
+   "change": "float(ratio.max()) <= 1.0 -> <= 1.5 (torque limits 50% looser)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/buildbot_fasten/model.py:119",
+   "change": "np.linalg.norm(tip[1]) -> np.linalg.norm(tip[0]) (x row as lateral scatter)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/buildbot_fasten/model.py:71",
+   "change": "abs(fx) <= mu * fz -> abs(fx) <= 2 * mu * fz",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/buildbot_fasten/model.py:165",
+   "change": "range(1, 8) -> range(0, 9) for plate rows",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/buildbot_fasten/model.py:144",
+   "change": "lo = EDGE_MIN if kind != 'open' -> if kind == 'centre' (plate nails lose edge distance)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Push envelope has no wall/environment constraint: the CoM lean F*z/W is reached by putting the body through the wall. At the headline H1 276 N cell (x 0.3, z 1.2) the torso geom centre is 0.76 m past the hand (wall) plane and the CoM 0.64 m ahead of the feet; 29/33 H1 and 6/10 G1 feasible cells put a torso/shoulder/hip geom past it. The 82-276 N and 8-142 N ranges and the coverage counts built on them are not realisable pushes",
+   "where": "research/buildbot-fasten/src/buildbot_fasten/model.py:65",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16351"
+  },
+  {
+   "severity": "medium",
+   "what": "No test pins any push value, torque-limited cell, plate window or committed result: removing the lean, loosening torque limits 50%, swapping the scatter row, or dropping plate edge distance all leave 7/7 green (4 of 6 mutants survive)",
+   "where": "research/buildbot-fasten/tests/test_model.py:13",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16351"
+  },
+  {
+   "severity": "medium",
+   "what": "'18 of 62 / 36 of 62 nails from one stance' counts nails by height only; the hands are fixed at y=+-0.18/0.22 m and the 1.22 m sheet width is never reached laterally",
+   "where": "research/buildbot-fasten/experiments/run.py:118",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16351"
+  },
+  {
+   "severity": "medium",
+   "what": "Tool length ignored in the scatter: a 0.3 m nailer nose raises per-degree scatter by ~50-70% (H1 13.8 -> 21.0 mm/deg y), which moves the joint-accuracy requirement; stated as a limitation but not quantified",
+   "where": "research/buildbot-fasten/src/buildbot_fasten/model.py:109",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work cited: HRP-5P plasterboard screwing (Kumagai et al. 2019), humanoid whole-body pushing/multi-contact statics, automated sheathing bridges",
+   "where": "research/buildbot-fasten/README.md:1",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Four corner joint nails placed at z=0 and z=2438.4 mm, exactly on the panel edge, violating the 3/8 in edge distance the model enforces in y; the APA 1/8 in panel gap is also ignored (joint window 3.93 -> 3.14 mm, 95% sigma 1.24 -> 0.99 mm)",
+   "where": "research/buildbot-fasten/src/buildbot_fasten/model.py:160",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "README headline says 1 degree of joint error scatters the tip '10 to 24 mm' while the table minimum is 9.4 mm (H1, '9 to 19' in the body); 'feasible' in 'elbows limiting (27 of the 28 feasible cells)' silently excludes 5 reach-limited cells that do carry a push value (33 in all)",
+   "where": "research/buildbot-fasten/README.md:23",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16351"
+  },
+  {
+   "severity": "low",
+   "what": "push_limit is warm-started so cell values are path dependent (cold check_push at G1 (0.3,1.0) 101 N is infeasible); 'binding limit' is an argmax label reported even for reach failures; unused _bid duplicate",
+   "where": "research/buildbot-fasten/src/buildbot_fasten/model.py:34",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16351"],
+ "verdict": "A tidy, reproducible static study whose placement arithmetic is right and whose force headline is not physical. run.py reproduces results.txt byte for byte, 7 tests pass, and the nail windows, the 1.24 mm whole-sheet budget, the 4.82 mm no-edge-band figure and the 11-bit quantisation numbers all recompute independently (NormalDist, Monte Carlo, step/sqrt(12)). But push_limit never models the wall: the CoM lean that the bisection rewards is bought by driving the torso through the wall plane (0.76 m through it at the H1's 276 N headline cell; 29 of 33 H1 and 6 of 10 G1 feasible cells put a body geom past it), so the 8-142 N and 82-276 N ranges and the nail-coverage counts are not what a robot facing a wall can push. 4 of 6 seeded mutants survive because no test pins a push value or a plate window; coverage counts nails by height only; the tool length (a ~50-70% larger scatter) and APA's panel gap are left out; no prior work (HRP-5P plasterboard installation, whole-body pushing) is cited. It does not meet the research bar."
+}

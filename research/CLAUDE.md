@@ -123,7 +123,7 @@ results, in the same commit:
 
 Tests and figures may need packages the image lacks, and plain `python3` may lack what another
 interpreter on the box (e.g. `/usr/bin/python3.13`) has. Stdlib-only projects need nothing; for the rest,
-from the repo root, `PY=$(python3 platform/ci/pyenv.py pytest numpy matplotlib)`, then use `"$PY"` instead of
+from the repo root, `PY=$(python3 platform/ci/pyenv.py pytest numpy matplotlib)` (or `pytest -r <project>/requirements.txt` for a project's whole list), then use `"$PY"` instead of
 `python3` (it returns at once when an interpreter already imports everything; stdout is only the
 interpreter path, and it can differ from the default `python3`).
 First use can build a venv and install packages: 20s to over 2 minutes (5 reports of a 120s foreground timeout), install chatter on stderr. Run it with `run_in_background` and read its stdout when it exits. The same goes for any `run.py` or experiment that may pass 2 minutes (foreground calls time out at 120s).

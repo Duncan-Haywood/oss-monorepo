@@ -13,6 +13,9 @@ import argparse
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import unquote
+
+from page_pool import map_pages
 
 ROOT = Path(__file__).resolve().parents[2]
 ARIA = ("aria-labelledby", "aria-describedby", "aria-controls")
@@ -32,7 +35,7 @@ class _Refs(HTMLParser):
                 self.ids.add(a[k])
         href = a.get("href") or ""
         if tag == "a" and href.startswith("#") and href not in ("#", "#top"):
-            self.refs.append((line, "href", href[1:]))
+            self.refs.append((line, "href", unquote(href[1:])))
         for k in ARIA:
             for i in (a.get(k) or "").split():
                 self.refs.append((line, k, i))
@@ -45,12 +48,15 @@ def broken(html):
     return [r for r in p.refs if r[2] not in p.ids]
 
 
+def _page(f):
+    return broken(f.read_text(encoding="utf-8", errors="ignore"))
+
+
 def scan(root=ROOT):
     bad = []
-    for f in sorted((root / "ventures").rglob("*.html")):
-        if "node_modules" in f.parts:
-            continue
-        for line, kind, i in broken(f.read_text(encoding="utf-8", errors="ignore")):
+    files = [f for f in sorted((root / "ventures").rglob("*.html")) if {"node_modules", ".next"}.isdisjoint(f.parts)]
+    for f, found in zip(files, map_pages(_page, files)):
+        for line, kind, i in found:
             bad.append((f.relative_to(root), line, kind, i))
     return bad
 

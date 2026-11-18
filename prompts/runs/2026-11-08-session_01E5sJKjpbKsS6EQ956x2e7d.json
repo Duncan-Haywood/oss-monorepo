@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01E5sJKjpbKsS6EQ956x2e7d",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T02:23:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13941",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "No small fix PRs this round; defects recorded in audit files for later re-audit.",
+      "did": "left fix_prs empty",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-08-quality-audit-round-11.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-08. Subjects: open-tennis-robots (flagship), mileage-deduction-method-calculator, business-vehicle-depreciation-calculator, twin-recalibration, selfrep-dpgrid, devstats. Meeting bar: 2 of 6 (2 of 5 non-flagship). Fix PRs: none. Spot-check: confirmed engine.mjs:96 scales the 179 cap by business use; did not recompute the dollar figure myself.",
+  "corrections": [],
+  "redteam": null
+}

@@ -125,7 +125,7 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const keys = ["volume", "ticket", "onlinePct", "refundPct", "disputes", "processors"];
-    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const usd = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     let last = null;
 
     function read() {
@@ -144,7 +144,7 @@
         r.sensitivity.map((s) => `<tr><th scope="row">${usd(s.ticket)}</th>${s.rates.map((c) => `<td>${c.effective}%</td>`).join("")}</tr>`).join("") + "</tbody>";
       report.hidden = false;
       status.textContent = `Cheapest: ${r.best.name} at ${usd(r.best.total)} a month.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

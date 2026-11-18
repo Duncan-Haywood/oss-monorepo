@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKo3a1q6xR5mWvkr239",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T23:19:00Z",
+  "ended": "2026-11-16T23:48:57Z",
+  "wall_minutes": 30.32,
+  "tokens_in": 8434936,
+  "tokens_out": 41561,
+  "cost_usd": 3.6917,
+  "tool_calls": 69,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16737",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A backgrounded `SP=... && (cmd) & (cmd2)` line lost $SP in the second subshell, so one development run wrote its report to /vlow.md; the figures were read from there, no harm.",
+    "CI on PR 16737: 'coverage' and one 'validate' job failed with checklist_coverage: platform/ci/*.test.mjs (added on main by PR 16739, merged in) is not named in .github/prompts/verify-and-merge.md. The same failure reproduces on origin/main; not caused by this diff. The fix touches .github/ (control plane, owner approval), so it was left out of this PR and filed as prompts/process/backlog/P068."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/eval/coda-check.mjs",
+      "issue": "Earlier registrations counted every syllable of a pitch-and-length cell as its own trial, but render.mjs seeds a note's noise from pitch and length, so a cell's syllables share one burst draw (97% of p-burst variance lies between cells); predicted rates were overrated. This round states its expectation in cells; the next registrations should too."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-why-a-synthetic-choir-sang-p-like-a-k.md",
+    "ventures/chant-forge/README.md (A p's burst read as a k)"
+  ],
+  "goal": null,
+  "notes": "Flagship chant-forge (allocate row 8). Diagnosed V's p-as-k misses: the energy above 1 kHz is the 8 ms noise burst's own random spectrum (alone: 22-65% above 1 kHz, 10th-90th pct), set per cell by the seed; voiceless velars read >=0.99. Rule readCoda voicelessLow (0.9 for voiceless stops), dev A-V +31 cells none lost; pre-registered (commit 718f66e99) before held-out part W ran; W: p as k 18 to 0, p exact 100 to 118 of 120, everything else identical: held, made default. Checks: node eval/coda-check.mjs full report rebuilt (9.5 min) matches the dev figures; python3 platform/ci/run_venture_tests.py chant-forge: ok, 290 tests, 0 failed; post front matter/links/similarity checks clean; portfolio/router/validate.py valid. Merged with coverage/validate red from main's PR 16739 (checklist line for platform/ci/*.test.mjs missing); every check this diff reaches passed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "93479ee5-5863-555e-b1a8-565039507ab3",
+    "transcripts": 1,
+    "first": "2026-11-16T23:19:00Z",
+    "last": "2026-11-16T23:49:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 130,
+        "output": 41561,
+        "thinking": 12549,
+        "cache_read": 8284418,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150388,
+        "api_equivalent_usd": 3.6917,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 130,
+      "output": 41561,
+      "thinking": 12549,
+      "cache_read": 8284418,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150388,
+      "api_equivalent_usd": 3.6917,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 66,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 30.32,
+      "active_minutes": 30.32,
+      "model_minutes": 8.9,
+      "tool_minutes": 21.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a speech-acoustics engineer diagnosing a burst-place fault, writing a sweep, pre-registering and running a held-out test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 216.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -54,6 +54,15 @@
     .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
     .check input { width: auto; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 500px) { div.row3:has(#kind) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 265px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -218,7 +227,7 @@
       $("#wt tbody").innerHTML = r.weights.map((x) => `<tr><td>${esc(x.unit)}</td><td class="n">${x.weight.toFixed(3)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 
@@ -255,7 +264,7 @@
         : `None of the lengths tried could detect a ${pct(p.target)} lift on this history. Use more or steadier comparison regions, run the campaign longer, or aim for a bigger effect.`;
       $("#plan-report").hidden = false;
       status.textContent = "Test plan ready.";
-      $("#plan-report").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#plan-report").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#plan").addEventListener("click", () => { if (plan()) record("plan_run"); });

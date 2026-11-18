@@ -1,3 +1,9 @@
+---
+kind: analysis
+topics: [review]
+date: 2026-10-24
+tagged: auto
+---
 # PR review without dead branches: what fits a repo run by short agent sessions
 
 **Date:** 2026-10-24. **Asked by:** the owner: "figure out a system to get

@@ -10,7 +10,10 @@ export const BOOTSTRAPS = 300;
 const HORIZON = 365;
 
 export function money(v) {
-  return "$" + Math.round(v).toLocaleString("en-US");
+  const format = (v) => "$" + Math.round(v).toLocaleString("en-US");
+  if (!(Number(v) < 0)) return format(v);
+  const text = format(Math.abs(v));
+  return /[1-9]/.test(text) ? `-${text}` : text;
 }
 export function pct(v, d = 0) {
   return (v * 100).toFixed(d) + "%";

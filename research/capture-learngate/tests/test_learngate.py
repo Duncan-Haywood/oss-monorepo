@@ -1,6 +1,6 @@
 import numpy as np
 from capture_learngate.scene import W, H, render, stereo_pair
-from capture_learngate.stereo import match
+from capture_learngate.stereo import match, depth_errors
 from capture_learngate.hybrid import warped, plain
 from capture_learngate.learn import features, ideal_weight, Ridge, MLP, FEATURES
 
@@ -68,3 +68,12 @@ def test_predictions_are_in_unit_interval():
     for m in (Ridge().fit(X, y, np.ones(500)), MLP(hidden=4, epochs=3).fit(X, y, np.ones(500))):
         p = m.predict(X)
         assert p.min() >= 0 and p.max() <= 1
+
+
+def test_stereo_depth_matches_the_rendered_depth():
+    # Quality census 2026-11-15-8ced: nothing pinned z = F b / disp; a seeded (disp + 1) survived.
+    lc, lz, rc, _ = stereo_pair(14.0, 0.2, (), 0.01, 0)
+    z, _, ok, _ = match(lc, rc, 0.2)
+    err, coverage = depth_errors(z, lz)
+    assert coverage > 0.85
+    assert np.median(err) < 0.04

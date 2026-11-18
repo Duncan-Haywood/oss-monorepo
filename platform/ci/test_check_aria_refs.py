@@ -23,6 +23,11 @@ class AriaRefs(unittest.TestCase):
     def test_data_for_and_templated_values_are_ignored(self):
         self.assertEqual(dangling('<div data-for="regular"></div><i aria-controls="p-${n}"></i>'), [])
 
+    def test_brace_only_and_dollar_only_templates_are_each_ignored(self):
+        self.assertEqual(dangling('<i aria-controls="{{ id }}"></i>'), [])
+        self.assertEqual(dangling('<i aria-controls="$id"></i>'), [])
+        self.assertEqual(dangling('<i aria-controls=""></i>'), [])
+
     def test_for_on_non_label_is_ignored(self):
         self.assertEqual(dangling('<output for="a b"></output>'), [])
 
@@ -41,8 +46,27 @@ class AriaRefs(unittest.TestCase):
                 self.assertEqual(main(["--root", d]), 1)
             self.assertIn("aria-controls='gone'", out.getvalue())
 
+    def test_root_is_the_repository_root(self):
+        # ROOT must point at the repo, or the clean-tree scan below passes on an empty dir.
+        self.assertTrue((ROOT / "ventures").is_dir())
+
+    def test_help_describes_the_checker(self):
+        import contextlib, io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), self.assertRaises(SystemExit):
+            main(["--help"])
+        self.assertIn("aria", out.getvalue().lower())
+
     def test_repository_is_clean(self):
         self.assertEqual(scan(ROOT), [])
+
+
+    def test_prefilter_sees_any_case_and_label_tags(self):
+        from check_aria_refs import REF_HINT
+        self.assertTrue(REF_HINT.search('<div ARIA-DESCRIBEDBY="x">'))
+        self.assertTrue(REF_HINT.search('<LABEL for="x">'))
+        self.assertTrue(REF_HINT.search('<i aria-activedescendant="x">'))
+        self.assertFalse(REF_HINT.search('<p for="x" aria-label="y">'))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVMEnb4NbCk6HKPhEqF",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (revenue products; creative track routed)",
+  "input_sha256": "dc8c51683285bff25621f4b06ef2f6c9fcdd49e0878ff9aea4751f254da07a52",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T09:07:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 14743,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a docs+venture diff selects 13 workflows and outran a 500 s tool timeout; relied on node --test plus PR CI instead"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "picked Little Lamps (longest gap) and a saint already told on Saints by Candlelight yesterday (episode 87), because the feast is 23 Nov and the children's cut is a different piece",
+      "did": "Little Lamps retelling that leaves the hard parts to the episode",
+      "result": "story + post landed"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon, Little Lamps. Piece: columbanus-and-the-squirrel-in-his-robe (text only; audio 423 MB, over the 400 MB cap). Post docs/posts/2026-11-11-columbanus-and-the-squirrel-in-his-robe.md. Verification: node --test in ventures/hearth-and-horizon 12/12 pass, generate.mjs output up to date.",
+  "corrections": [],
+  "redteam": null
+}

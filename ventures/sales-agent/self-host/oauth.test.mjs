@@ -105,3 +105,10 @@ test("agent with OAuth: a revoked refresh token is a poll error that names the c
   assert.match(a.state.lastError, /OAuth refresh failed.*invalid_grant/); assert.ok(!/rt-1/.test(a.state.lastError));
   await imap.close(); await ts.close();
 });
+
+// Red-team 2026-11-17: tokenProvider named the valid providers, but authUrl and exchangeCode threw a raw TypeError.
+test("setup helpers: an unknown provider is refused with the valid names, not a TypeError", async () => {
+  const env = { OAUTH_PROVIDER: "gmail", OAUTH_CLIENT_ID: "cid" };
+  assert.throws(() => authUrl(env, { redirect: "r", state: "s", challenge: "c" }), /OAUTH_PROVIDER must be google or microsoft/);
+  await assert.rejects(exchangeCode(env, { code: "c", redirect: "r", verifier: "v" }, () => { throw new Error("must not fetch"); }), /OAUTH_PROVIDER must be google or microsoft/);
+});

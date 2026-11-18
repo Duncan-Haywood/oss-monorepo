@@ -2,16 +2,18 @@
 
 Third milestone of the agentic co-design track (`research/PROJECTS.md`, track 14, `codesign`; search-and-rescue domain). A rover with four printed wheels, optional front flippers, two drive motors and a battery carries a 0.6 kg sensor or radio-relay payload over 20 m of random rubble (steps, drops, gaps, patchy friction). Each design gets its own trained speed-and-flipper policy. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-sar/
+**Live page:** https://marisstella.app/research/codesign-sar/
 
 ![best objective vs evaluations](experiments/curves.png)
+
+> **Caveat (quality census, 2026-11-17).** The per-design policy search returns its starting policy (0.6, 0.4, 0.4) in 2,246 of 2,417 feasible evaluations, including the best design. The 0.783 "ceiling" and "the problem is almost one-dimensional" below therefore describe one fixed default policy, not trained ones. A policy chosen by grid search on the six training terrains and scored on the twelve test terrains reaches J 0.862 (17.4 m) on design [90, 320, 0, 0.6, 5]. Audit: [`portfolio/quality/audits/2026-11-17-codesign-sar.json`](../../portfolio/quality/audits/2026-11-17-codesign-sar.json).
 
 **Headline (simulated, stylised, one agent run, 20 seeds per baseline; all numbers from `experiments/results.txt`).**
 - **The problem is almost one-dimensional.** Wheel radius at its 90 mm upper bound plus drive torque of about 0.5 N m or more reaches the ceiling, J = 0.783 (16.0 m of 20 m on average), at 69 USD. Wheelbase, flipper length and battery size did not change J in any design that reached the ceiling.
 - **Everyone nearly gets there.** Median best J at 40 evaluations: Bayesian optimisation 0.782, CMA-ES 0.782, session agent 0.783, random search 0.716. No baseline seed beat the agent's 0.783, but the 0.001 gap is inside the noise of the per-design policy search (below).
 - **Evaluations to J of at least 0.78:** Bayesian optimisation 10 (median, 20 of 20 seeds reach it), CMA-ES 18 (18 of 20), random search 30 (3 of 20), session agent 2.
 - **Not a result about language models.** The agent is the Claude session that wrote this project. Before writing round 1 it had run several hundred random evaluations to calibrate the terrain and had seen that wheel radius dominates, so its head start in evaluations is a prior it could not unsee. Treat the agent row as one worked example, and the answer to "does it beat the baselines" as: not distinguishable here.
-- **The flipper and the tip-over and recovery path never fired.** Falls were 0.0 in every evaluation logged, so the "falls" and "recovery" terms of the brief are untested by this terrain. A harder terrain (taller drops, slopes) is the next step.
+- **Falls never occurred; recoveries were rare.** Falls were 0.0 in every evaluation logged and recoveries were logged in only 3 baseline evaluations (1.08 to 1.75 per run), so the "falls" and "recovery" terms of the brief are untested by this terrain. A harder terrain (taller drops, slopes) is the next step.
 
 ## What "agent" means here
 The run environment has no model API key. The proposer is the **session agent itself**: 4 rounds of 10 designs, committed as `proposals/round1.json` to `round4.json`, each round written after reading the previous round's diagnostics (distance, falls, share of runs ended on a step, energy per metre) and each file carrying its notes. 40 proposals in all. The baselines got no hand-written prior and 20 seeds each; the agent has one run, so its spread is unknown.
@@ -23,14 +25,14 @@ The run environment has no model API key. The proposer is the **session agent it
 - **Policy, not PPO:** three numbers per design (cruise speed, approach speed, flipper deploy threshold) found by a small evolution-strategies search, 6 iterations of 8 candidates, each scored on 6 training terrains. **This is not deep RL**, and the search noise is real: identical-physics designs can differ by up to 0.09 in J through the policy found (for example `[90,180,0,0.5,8]` scored 0.689, `[90,120,0,0.5,5]` 0.783). A PPO policy in a physics engine is the part of the milestone this does not do.
 - **Objective** `J = mean distance / 20 m - 0.05 falls - 0.02 recoveries - 0.002 x energy per metre`.
 - **Baselines** (`optimisers.py`, no language model): random search; CMA-ES (`cma`, population 6); Gaussian-process Bayesian optimisation (Matern 5/2, 8 Sobol points, then expected improvement). 40 evaluations, 20 seeds.
-- **Cost:** one evaluation is about 10 ms of pure Python; the whole comparison runs in about 12 s.
+- **Cost:** one evaluation is about 10 ms of pure Python; the whole comparison runs in about 46 s on 4 cores (measured 2026-11-17).
 
 ## Reproduce
 ```bash
 cd research/codesign-sar
 PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
 PYTHONPATH=src "$PY" -m unittest discover -s tests      # 8 tests
-"$PY" experiments/run.py                                  # ~12 s -> results.txt, results.json
+"$PY" experiments/run.py                                  # ~46 s -> results.txt, results.json
 "$PY" experiments/figure.py                               # -> curves.png
 ```
 
@@ -57,3 +59,13 @@ Price a real bill of materials with dated sources, print the top design, and mea
 Open-source Python packages (numpy, scipy, cma, matplotlib). No model API is called. Real motors, battery, controller and radio would be bought.
 
 MIT.
+
+## Known gaps (quality census 2026-11-17)
+
+From the first audit, [`portfolio/quality/audits/2026-11-17-codesign-sar.json`](../../portfolio/quality/audits/2026-11-17-codesign-sar.json) (correctness 1, verification 1, claims 1):
+
+- `train_policy` (`src/codesign_sar/sar.py`) rarely improves on its start, so J compares designs under one default policy. Fixing it changes the headline, the baseline comparison and the "policy noise" explanation for the 0.689 vs 0.783 gap.
+- The kinetic-energy step rule is OR-ed after the `h >= R` guard, so a 25 mm wheel crosses a 30 mm step at 1.5 m/s.
+- Tip-back needs a step over 85 mm and the terrain's tallest is 40 mm, so zero falls is built into the model, not only the terrain.
+- `T` is costed and applied per axle, not per wheel as the Method says.
+- 5 of 7 seeded bugs survived the tests; no test pins a J, a policy, or that training improves on its start.

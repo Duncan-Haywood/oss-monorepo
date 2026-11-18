@@ -14,10 +14,12 @@ class InsertLink(unittest.TestCase):
         self.assertEqual(out, f"# T\n\nPara one\nstill one.\n\n**Live page:** {URL}\n\nPara two.\n")
 
     def test_stale_base_rewritten_in_place(self):
-        old = "# t\n\nBody.\n\n**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/x/\n\nMore.\n"
-        out = r.insert_link(old, "x")
-        self.assertEqual(out, old.replace("monorepo-projects", "oss-monorepo"))
-        self.assertEqual(out.count("Live page"), 1)
+        new = "# t\n\nBody.\n\n**Live page:** https://marisstella.app/research/x/\n\nMore.\n"
+        for base in ("monorepo-projects", "oss-monorepo"):
+            old = new.replace("https://marisstella.app/", f"https://duncan-haywood.github.io/{base}/")
+            out = r.insert_link(old, "x")
+            self.assertEqual(out, new)
+            self.assertEqual(out.count("Live page"), 1)
 
     def test_idempotent(self):
         once = r.insert_link("# T\n\nPara.\n\nMore.\n", "foo")
@@ -52,6 +54,22 @@ class Main(unittest.TestCase):
             self.assertEqual(r.main(["--root", d]), 0)
 
 
+class IndexReadme(unittest.TestCase):
+    def test_stale_index_fails_then_write_fixes_and_current_passes(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "research" / "_homepage").mkdir(parents=True)
+            (root / "research" / "_homepage" / "projects.json").write_text(
+                json.dumps({"themes": [{"id": "t", "name": "T", "projects": []}]}))
+            index = root / "research" / "README.md"
+            index.write_text("# R\n\n- x\n")
+            self.assertEqual(r.main(["--root", d]), 1)
+            self.assertEqual(index.read_text(), "# R\n\n- x\n")  # check mode never writes
+            self.assertEqual(r.main(["--root", d, "--write"]), 0)
+            self.assertIn("topics/t/", index.read_text())
+            self.assertEqual(r.main(["--root", d]), 0)
+
+
 class Topics(unittest.TestCase):
     DATA = {"themes": [{"id": "chip", "name": "Chip &amp; loops", "projects": [{"slug": "a"}]},
                        {"id": "x", "projects": []}]}
@@ -61,6 +79,17 @@ class Topics(unittest.TestCase):
         self.assertIn(f"- [Chip & loops]({r.BASE}topics/chip/)", block)
         self.assertNotIn("topics/x/", block)
         self.assertTrue(block.startswith(r.TOPICS_START) and block.endswith(r.TOPICS_END))
+
+    def test_one_stray_marker_does_not_crash_or_replace(self):
+        for stray in (r.TOPICS_START, r.TOPICS_END):
+            out = r.with_topics(f"# R\n\n{stray}\n\n- a\n", "BLOCK")
+            self.assertIn("BLOCK", out)
+            self.assertIn("- a", out)
+
+    def test_text_after_the_block_survives_a_repeated_end_marker(self):
+        text = f"# R\n{r.TOPICS_START}\nold\n{r.TOPICS_END}\nTail {r.TOPICS_END} kept.\n"
+        out = r.with_topics(text, "BLOCK")
+        self.assertEqual(out, f"# R\nBLOCK\nTail {r.TOPICS_END} kept.\n")
 
     def test_inserted_before_first_list_item_then_replaced_in_place(self):
         text = "# R\n\nIntro.\n\n- [`research/a`](a) — one.\n"

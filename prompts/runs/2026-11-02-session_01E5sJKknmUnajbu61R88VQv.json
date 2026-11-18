@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01E5sJKknmUnajbu61R88VQv",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T05:11:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 1: fuzz test for risk.mjs",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12510",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 reads origin/security-alerts, which does not exist in this clone; the fetch fails with no guidance."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The flagship's wanted items all need real inputs; I added an invariant test to an engine lacking one instead.",
+      "did": "seeded fuzz test for risk.mjs",
+      "result": "passes; fails on a seeded fault"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-02-testing-a-dice-roll-schedule-risk.md"
+  ],
+  "goal": null,
+  "notes": "Ran node --test risk-fuzz.test.mjs only; CI not awaited locally.",
+  "corrections": [],
+  "redteam": null
+}

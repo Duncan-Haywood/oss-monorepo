@@ -1,0 +1,56 @@
+{
+ "date": "2026-11-04",
+ "session": "https://claude.ai/code/session_01AcxTtKQ2PSkegb8Lbb3k4C",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there (scheduled)",
+ "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-04T00:24:20Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [
+  "build-data"
+ ],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12961",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/_shared/pick_track.py",
+   "issue": "draws focus tracks pointing at a programme with a BLOCKED file; costs a re-pick"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "research/PROJECTS.md",
+   "why": "pick_track drew a BLOCKED programme (heavy-hydraulics); advanced build-data instead",
+   "did": "switched programme",
+   "result": "landed a milestone"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-04-why-rolling-conformal-did-nothing-for-permit-times.md",
+  "research/build-data/LOG.md"
+ ],
+ "goal": null,
+ "notes": "Drawn track 25 (heavy-hydraulics) was BLOCKED; moved to build-data. Pre-registered H2d, ran Chicago and SF a2i on fresh pulls: refuted (qhat 0 every week). Local checks: research/_homepage/build.py ok. No new unit test added for the rolling script (deviation of effort, not rule).",
+ "corrections": [],
+ "redteam": null
+}

@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01AcxTtH91CNufgg31NUSGHm",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T07:13:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13506",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "verified-dse is at 87 milestones and its open items need TeX, a template or ~12 core-hours; the draw still sends runs there and there is no signal to move on"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "no blog post: a typesetting-plumbing step with no new finding",
+      "did": "log entry only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "research/verified-dse/LOG.md milestone 87"
+  ],
+  "goal": null,
+  "notes": "Small step: BibTeX cite wiring; LaTeX not compiled (no pdflatex).",
+  "corrections": [],
+  "redteam": null
+}

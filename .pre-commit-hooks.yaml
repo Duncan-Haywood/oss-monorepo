@@ -159,3 +159,11 @@
   args: ['--fail-on-risk', '.']
   pass_filenames: false
   always_run: true
+- id: systemd-unit-hardening-check
+  name: 'Systemd Unit Hardening Check'
+  description: 'Free, read-only checker that reads your own systemd .service files with their NAME.service.d drop-ins merged in systemd order, for services running as root, missing sandboxing (NoNewPrivileges,…'
+  entry: ventures/systemd-unit-hardening-check/check.py
+  language: script
+  args: ['--fail-on-risk', '.']
+  pass_filenames: false
+  always_run: true

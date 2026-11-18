@@ -60,6 +60,9 @@ class NotOnPlan(JudgeError):
 
 
 OnResult = Callable[[str, "BaseModel | JudgeError"], None]
+# on_usage(task key, message.usage): what one API response cost (input_tokens, output_tokens,
+# cache_creation_input_tokens, cache_read_input_tokens); the cloud worker's token budget reads it
+OnUsage = Callable[[str, object], None]
 
 
 class Backend(Protocol):
@@ -93,11 +96,21 @@ class ApiBackend:
     FALLBACK_BETA = "server-side-fallback-2026-07-01"
     BATCH_BYTES = 180 * 1024 * 1024        # stay under the 256 MB batch limit
 
-    def __init__(self, cfg: Config, client=None):
+    def __init__(self, cfg: Config, client=None, on_usage: OnUsage | None = None):
         import anthropic
         self.cfg = cfg
         self.client = client or anthropic.Anthropic()
         self.system = [{"type": "text", "text": system_prompt(cfg), "cache_control": {"type": "ephemeral"}}]
+        self.on_usage = on_usage           # called with every response's usage (single and batch)
+
+    def _usage(self, key: str, message) -> None:
+        usage = getattr(message, "usage", None)
+        if self.on_usage is None or usage is None:
+            return
+        try:
+            self.on_usage(key, usage)
+        except Exception as e:             # accounting must never lose an answer already paid for
+            log.warning("usage hook failed for %s: %s", key, e)
 
     def _content(self, task: JudgeTask) -> list[dict]:
         blocks = [{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg",
@@ -126,6 +139,7 @@ class ApiBackend:
         # Single calls opt into server-side fallback; the Batches API rejects that parameter.
         message = self.client.beta.messages.create(
             **self._params(task), betas=[self.FALLBACK_BETA], extra_body={"fallbacks": "default"})
+        self._usage(task.key, message)     # a refusal or an unusable answer is billed too
         return _parse(task, self._text(message))
 
     def judge_many(self, tasks: list[JudgeTask[M]], on_result: OnResult | None = None
@@ -155,6 +169,7 @@ class ApiBackend:
                 try:
                     if r.result.type != "succeeded":
                         raise JudgeError(f"batch result {r.result.type}")
+                    self._usage(t.key, r.result.message)
                     out[t.key] = _parse(t, self._text(r.result.message))
                 except JudgeError:
                     try:                       # one interactive retry, with fallback enabled

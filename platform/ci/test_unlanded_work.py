@@ -6,6 +6,7 @@ github.com -- no mocks of the part that decides.
 """
 import io
 import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -23,20 +24,46 @@ def run(cwd, *args, env=None):
     ).stdout.strip()
 
 
+_TEMPLATE = None  # (tempdir, origin, clone): the base repositories, built once per process
+
+
+def _template():
+    """A bare "GitHub" and a clone with one pushed commit on main.
+
+    Building these took about ten git processes per test; they are built once
+    and each test copies them (a copy of a few small files) and points the
+    copy's remote at its own origin (2026-11-04, backlog P062's sibling in
+    the validate job, docs/history/ci-perf-2026-11-04-git-fixture-template.md).
+    """
+    global _TEMPLATE
+    if _TEMPLATE is None:
+        tmp = tempfile.TemporaryDirectory()
+        root = Path(tmp.name)
+        origin, clone = root / "origin.git", root / "clone"
+        run(root, "init", "-q", "--bare", "-b", "main", str(origin))
+        run(origin, "config", "uploadpack.allowFilter", "true")
+        run(root, "clone", "-q", origin.as_uri(), str(clone))
+        for key, value in (("user.name", "t"), ("user.email", "t@example.com"),
+                           ("commit.gpgsign", "false")):
+            run(clone, "config", key, value)
+        (clone / "README.md").write_text("base\n")
+        run(clone, "add", "README.md")
+        run(clone, "commit", "-q", "-m", "base")
+        run(clone, "push", "-q", "origin", "HEAD:main")
+        _TEMPLATE = (tmp, origin, clone)
+    return _TEMPLATE
+
+
 class Fixture(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         root = Path(self._tmp.name)
+        _, template_origin, template_clone = _template()
         self.origin = root / "origin.git"
         self.clone = root / "clone"
-        run(root, "init", "-q", "--bare", "-b", "main", str(self.origin))
-        run(self.origin, "config", "uploadpack.allowFilter", "true")
-        run(root, "clone", "-q", self.origin.as_uri(), str(self.clone))
-        for key, value in (("user.name", "t"), ("user.email", "t@example.com"),
-                           ("commit.gpgsign", "false")):
-            run(self.clone, "config", key, value)
-        self.commit("README.md", "base\n", "base")
-        run(self.clone, "push", "-q", "origin", "HEAD:main")
+        shutil.copytree(template_origin, self.origin)
+        shutil.copytree(template_clone, self.clone)
+        run(self.clone, "remote", "set-url", "origin", self.origin.as_uri())
         self.probe = root / "probe.git"
 
     def tearDown(self):
@@ -335,6 +362,15 @@ class TestSweep(Fixture):
         self.push("gh-pages")
         self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
 
+    def test_orphan_branch_with_stranded_work_is_reported(self):
+        # No merge base: `git diff base...tip` errors, which must not read as landed.
+        run(self.clone, "checkout", "-q", "--orphan", "claude/orphan")
+        run(self.clone, "rm", "-rq", "--cached", ".")
+        self.commit("stranded.txt", "work\n", "orphan work", day="2026-10-01")
+        self.push("claude/orphan")
+        self.assertEqual([r[1] for r in uw.sweep(str(self.clone), since=None, probe=self.probe)],
+                         ["claude/orphan"])
+
     def test_archive_branches_are_never_reported(self):
         self.branch("archive/research/claude/old-work")
         self.commit("a.txt", "a\n", "kept from oss-research-monorepo")
@@ -415,7 +451,7 @@ class TestMain(Fixture):
         self.commit("a.txt", "a\n", "a")
         self.push("claude/x")
         run(self.clone, "fetch", "-q", "origin")
-        self.assertTrue(uw.landed_by_content(
+        self.assertFalse(uw.landed_by_content(
             str(self.clone), "origin/no-such-branch", "origin/main"))
 
     def test_help_describes_the_script_by_its_first_paragraph(self):

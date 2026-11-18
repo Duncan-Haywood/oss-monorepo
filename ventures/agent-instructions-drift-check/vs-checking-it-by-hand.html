@@ -30,6 +30,7 @@
   </style>
 </head>
 <body>
+<main>
 <p class="note"><a href="./">&larr; back to Agent Instructions Drift Check</a></p>
 <h1>This checker vs. checking it by hand</h1>
 <p class="lede">Reading an instructions file and clicking through its links is a normal way to catch drift once, and it works fine for a short file checked right after you edit it. It is a different job from confirming the file is still accurate <em>today</em>, after every commit that touched anything the file names -- most of which nobody thinks to re-check, because they didn't touch the instructions file itself.</p>
@@ -66,7 +67,7 @@
 node cli.mjs check CLAUDE.md --package package.json</code></pre>
   <p class="note">Exits 1 if anything is found, so it works as a CI gate on the same PR that renames a file or a script. See <a href="why-ai-agent-instruction-files-rot.html">why these files rot, and this checker's own named limits</a>.</p>
 </div>
-
+</main>
 <footer>
 <p><strong>No warranty.</strong> This tool reports whether a referenced path, script, or known shell pattern matches what it was told about your repo -- nothing more, and a clean result is not a guarantee that your instructions are correct or complete. It is not legal, security, or engineering advice, and it does not replace a qualified professional or a careful read of your own instruction file. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
 <p><strong>Nothing leaves your browser.</strong> The checker this page links to runs entirely client-side; the text you paste and the file names read from a chosen folder are never uploaded anywhere. The CLI makes no network call either.</p>

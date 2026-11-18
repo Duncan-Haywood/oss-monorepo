@@ -38,6 +38,15 @@
     details { margin: 6px 0; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 16px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 560px) { div.grid:has(#prov) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 381px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <main>
@@ -71,7 +80,7 @@
     <input id="soffer" type="text">
     <label for="saddr">Your postal address (required in the footer by CAN-SPAM and similar laws)</label>
     <input id="saddr" type="text" autocomplete="street-address">
-    <p class="note">To keep everything on your own computer, run a model locally with Ollama, LM Studio or llama.cpp and pick it below: no key, no cost per use, and the text goes only to your machine. Name a model you have downloaded (for Ollama, <code>ollama list</code> shows them). The local server must allow this page: start Ollama with <code>OLLAMA_ORIGINS=https://duncan-haywood.github.io</code> set, or switch on CORS in LM Studio's server settings. Your browser may ask whether this site may reach devices on your network.</p>
+    <p class="note">To keep everything on your own computer, run a model locally with Ollama, LM Studio or llama.cpp and pick it below: no key, no cost per use, and the text goes only to your machine. Name a model you have downloaded (for Ollama, <code>ollama list</code> shows them). The local server must allow this page: start Ollama with <code>OLLAMA_ORIGINS=https://marisstella.app</code> set, or switch on CORS in LM Studio's server settings. Your browser may ask whether this site may reach devices on your network.</p>
     <div class="grid">
       <div><label for="prov">AI provider (optional)</label>
         <select id="prov"><option value="">None: use the template</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="ollama">Ollama (on your computer, no key)</option><option value="lmstudio">LM Studio (on your computer, no key)</option><option value="llamacpp">llama.cpp server (on your computer, no key)</option><option value="openai-compatible">Other (OpenAI-compatible URL)</option></select></div>
@@ -135,7 +144,7 @@ node cli.mjs leads.csv &gt; ranked.json  // same thing from a terminal, CSV in, 
     }
     let chosen = null;
     let writeButton = null;
-    function choose(p) { chosen = p; $("who").textContent = `Drafting for: ${p.name}`; $("draft").value = ""; $("issues").replaceChildren(); $("draftnote").textContent = "Press Write draft below."; writeButton?.remove(); const b = el("button", "Write draft", ""); writeButton = b; b.type = "button"; b.addEventListener("click", write); $("draftnote").before(b); $("s2").scrollIntoView({ behavior: "smooth" }); }
+    function choose(p) { chosen = p; $("who").textContent = `Drafting for: ${p.name}`; $("draft").value = ""; $("issues").replaceChildren(); $("draftnote").textContent = "Press Write draft below."; writeButton?.remove(); const b = el("button", "Write draft", ""); writeButton = b; b.type = "button"; b.addEventListener("click", write); $("draftnote").before(b); $("s2").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
     const sender = () => ({ name: $("sname").value.trim(), company: $("scompany").value.trim(), offer: $("soffer").value.trim(), address: $("saddr").value.trim() });
     function llm() {
       const provider = $("prov").value; if (!provider) return {};  // a local server needs no key; normalise() checks the rest

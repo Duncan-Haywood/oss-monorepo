@@ -36,8 +36,8 @@ line. The owner's prompts over the period read like "continue work on the
 repo aiming to develop, deploy, market, sell and support revenue generating
 software products"; the line every routine needs is
 "Read ./prompt.md and follow it." Schedule it in Claude Code on the web (a
-routine), with cron on your own machine, or from a workflow such as
-[`.github/workflows/claude-routine-trigger.yml`](../../.github/workflows/claude-routine-trigger.yml).
+routine), or with cron on your own machine. (This repo's own Actions trigger,
+`claude-routine-trigger.yml`, was deleted on 2026-10-31 at the owner's request.)
 
 [`prompt.md`](../../prompt.md) does the rest: `python3 prompts/promptctl.py
 route` draws a track by the weights in

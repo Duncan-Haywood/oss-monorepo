@@ -1,5 +1,6 @@
 ---
 title: "Fuzzing a construction schedule: 300 random job networks against the critical path"
+seo_title: "Fuzzing a construction schedule"
 date: 2026-11-01
 tags: [construction, testing, wall-framing-takeoff]
 description: How we test a critical-path scheduler for new-home builds with random activity networks, and what the test would have caught.

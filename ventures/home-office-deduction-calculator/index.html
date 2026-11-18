@@ -34,7 +34,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -47,6 +47,7 @@
   <header>
     <p class="note">HOME OFFICE DEDUCTION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Simplified or regular: which home office deduction is worth more?</h1>
+    <p class="answer-source" data-answer-lead>The IRS simplified home office method deducts $5 per square foot of the part of your home used regularly and exclusively for business, up to 300 square feet, so the most it can give is $1,500; the regular method (Form 8829) deducts your actual home expenses by business-use share instead. Source: IRS, "Simplified Option for Home Office Deduction" (Rev. Proc. 2013-13). As of 2026-11-09.</p>
     <p>The simplified method is <strong>$5 per square foot</strong> up to
     <strong>300 sq ft</strong> (max $1,500). The regular method (Form 8829)
     deducts your office's share of actual costs plus depreciation.
@@ -252,11 +253,11 @@
         `<tr><th scope="row">Carries to next year</th><td>$0.00 (lost)</td><td>${money(r.carryForward.operating + r.carryForward.depreciation)}</td></tr>`,
       ].join("");
       $("#report-findings").innerHTML = r.findings.map((f) => `
-        <div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+        <div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h3><p>${f.detail}</p></div>`).join("");
       report.hidden = false;
       status.textContent = "";
       record("comparison_calculated");
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calculate").addEventListener("click", runCalculate);

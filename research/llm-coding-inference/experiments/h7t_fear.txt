@@ -1,0 +1,6 @@
+GoEmotions fear, corpus 6000, prevalence 0.0122, coder J 0.339 (sens 0.356, spec 0.983), n 1000, 500 draws
+rule | share of draws using cells % | coverage % | half-width pts
+pooled | 0 | 95.2 | 0.609
+cells g10 | 9 | 96.4 | 0.600
+negcell k3 | 70 | 94.8 | 0.562
+negcell k5 | 31 | 96.2 | 0.593

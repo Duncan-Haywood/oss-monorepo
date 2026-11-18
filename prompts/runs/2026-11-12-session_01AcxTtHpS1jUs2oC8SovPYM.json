@@ -1,0 +1,454 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtHpS1jUs2oC8SovPYM",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T13:05:56Z",
+  "ended": "2026-11-12T13:07:05Z",
+  "wall_minutes": 7.73,
+  "tokens_in": 4790357,
+  "tokens_out": 22148,
+  "cost_usd": 2.2329,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15134",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says to fix every open defect first, but all five open entries are control-plane workflow/prompts edits that already have open owner-gated PRs (#12928, #14877, #14612, #14808, #14698); the open list does not show that, so each red-team run re-checks the same five. redteam.py open could print the PR that carries each fix."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Two red-team runs picked einvoice-preflight within an hour (#15132 and this one) because both followed 'aim at a file that just changed on main'. Disjoint files, so no harm, but a search of open redteam PRs for the target is not in the steps."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Three red-team runs (#15132, #15135, this one) took einvoice-preflight within one hour; #15135 and this run found and fixed the identical cce20 crash in parallel. Step 1's 'aim at a file that just changed on main' steers concurrent runs to the same target; it should say to search open redteam PRs for the target first, or prefer a random draw when the newest change already has a redteam PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix the open defects; each already has an owner-gated control-plane PR open, and a second copy would only add duplicates (P061/P063).",
+      "did": "Left them patched:false and seeded new targets instead.",
+      "result": "No duplicate PRs; the run's time went to a new real defect."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Most PRs carry a new post; this run's post covered the same pre-2024 crash as #15135's post (2026-11-12-redteam-an-export-invoice-from-last-december.md), which landed first.",
+      "did": "Dropped the post rather than publish a near-duplicate.",
+      "result": "PR carries only the two unique gap tests and the record."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Targets: ventures/einvoice-preflight/cce20.mjs (newest code on main, #15129) and platform/ci/check_se_tax_floor.py (random --under platform draw). Fuzz harness (attribute edits) found a TypeError on Fecha before 2024-01-18; the same harness is now cfdi-fuzz.test.mjs (guard added, ~10k docs, ~3 s; found exactly that one crash on its first run). Hand fuzz of preflightDocuments over 35 example XMLs (25,320 attr/text edits): no JS errors. Verification: run_venture_tests.py einvoice-preflight ok 7.5 s; python3 -m unittest test_check_se_tax_floor 7 OK; redteam rerun: all gaps caught_after_fix true. Main went red mid-run: #15130 left changepoint-detector's flagships.yaml `next:` at 2120 chars (cap 2000), failing portfolio/router/validate.py on every PR; I shortened it on this branch, but a parallel red-team run (#15132, same venture: cfdi.mjs/pagos20) landed its own fix first, so the merge keeps main's version. Two red-team runs on einvoice-preflight within the same hour: the router has no way to see a target is already taken. At merge: #15135 had landed the same crash fix and a robustness sweep, so this PR keeps only the CCE154 Cantidad test, the check_se_tax_floor main() test and this record.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/cce20.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 665780855,
+        "commit": "f7512e5c6",
+        "sites": 328,
+        "baseline_seconds": 5.6,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 60,
+            "col": 30,
+            "operator": "div-to-times",
+            "before": "const mul = (a, b) => (a * b) / ONE;",
+            "after": "const mul = (a, b) => (a * b) * ONE;",
+            "line_text": "const mul = (a, b) => (a * b) / ONE;",
+            "caught": true,
+            "seconds": 5.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 87,
+            "col": 19,
+            "operator": "minus-to-plus",
+            "before": "const lo = mul(a - half(x), b - half(y));",
+            "after": "const lo = mul(a + half(x), b - half(y));",
+            "line_text": "  const lo = mul(a - half(x), b - half(y));",
+            "caught": true,
+            "seconds": 5.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 197,
+            "col": 35,
+            "operator": "neq-flip",
+            "before": "if (tipo === \"T\" && receptor.Rfc !== undefined && receptor.Rfc !== emisorRfc) push(\"MX-061\", \"CCE108\", \"On a transfer (type T) with Comercio Exterior the receiver's RFC is the issuer's own.\", \"Set Receptor Rfc to the issuer's RFC; the foreign addressee goes in cce20:Destinatario.\", \"/Comprobante/Receptor/@Rfc\");",
+            "after": "if (tipo === \"T\" && receptor.Rfc === undefined && receptor.Rfc !== emisorRfc) push(\"MX-061\", \"CCE108\", \"On a transfer (type T) with Comercio Exterior the receiver's RFC is the issuer's own.\", \"Set Receptor Rfc to the issuer's RFC; the foreign addressee goes in cce20:Destinatario.\", \"/Comprobante/Receptor/@Rfc\");",
+            "line_text": "  if (tipo === \"T\" && receptor.Rfc !== undefined && receptor.Rfc !== emisorRfc) push(\"MX-061\", \"CCE108\", \"On a transfer (type T) with Comercio Exterior the receiver's RFC is the issuer's own.\", \"Set Receptor Rfc to the issuer's RFC; the foreign addressee goes in cce20:Destinatario.\", \"/Comprobante/Receptor/@Rfc\");",
+            "caught": true,
+            "seconds": 5.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 216,
+            "col": 38,
+            "operator": "and-to-or",
+            "before": "if (tipo === \"T\" && motivo === \"05\" && !propietarios.length) push(\"MX-062\", \"CCE117\", \"MotivoTraslado 05 (goods owned by someone else) needs at least one Propietario.\", \"Add cce20:Propietario with the owner's NumRegIdTrib and ResidenciaFiscal.\", `${base}/Propietario`);",
+            "after": "if (tipo === \"T\" && motivo === \"05\" || !propietarios.length) push(\"MX-062\", \"CCE117\", \"MotivoTraslado 05 (goods owned by someone else) needs at least one Propietario.\", \"Add cce20:Propietario with the owner's NumRegIdTrib and ResidenciaFiscal.\", `${base}/Propietario`);",
+            "line_text": "  if (tipo === \"T\" && motivo === \"05\" && !propietarios.length) push(\"MX-062\", \"CCE117\", \"MotivoTraslado 05 (goods owned by someone else) needs at least one Propietario.\", \"Add cce20:Propietario with the owner's NumRegIdTrib and ResidenciaFiscal.\", `${base}/Propietario`);",
+            "caught": true,
+            "seconds": 5.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 303,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "if (!/^[0-9]{1,14}(\\.[0-9]{1,3})?$/.test(ca.Cantidad || \"\") || dec(ca.Cantidad) < dec(\"0.001\")) push(\"MX-067\", \"CCE154\", `Line ${li}: without CantidadAduana on its Mercancia, a transfer's Cantidad is at least 0.001 with at most 3 decimals, not ${ca.Cantidad}.`, \"Write Cantidad with up to 3 decimals, or add the customs fields to the Mercancia.\", `${lp}/@Cantidad`);",
+            "after": "if (!/^[0-10]{1,14}(\\.[0-9]{1,3})?$/.test(ca.Cantidad || \"\") || dec(ca.Cantidad) < dec(\"0.001\")) push(\"MX-067\", \"CCE154\", `Line ${li}: without CantidadAduana on its Mercancia, a transfer's Cantidad is at least 0.001 with at most 3 decimals, not ${ca.Cantidad}.`, \"Write Cantidad with up to 3 decimals, or add the customs fields to the Mercancia.\", `${lp}/@Cantidad`);",
+            "line_text": "        if (!/^[0-9]{1,14}(\\.[0-9]{1,3})?$/.test(ca.Cantidad || \"\") || dec(ca.Cantidad) < dec(\"0.001\")) push(\"MX-067\", \"CCE154\", `Line ${li}: without CantidadAduana on its Mercancia, a transfer's Cantidad is at least 0.001 with at most 3 decimals, not ${ca.Cantidad}.`, \"Write Cantidad with up to 3 decimals, or add the customs fields to the Mercancia.\", `${lp}/@Cantidad`);",
+            "caught": true,
+            "seconds": 5.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": " Kept at merge (not covered by #15135)."
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 303,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "if (!/^[0-9]{1,14}(\\.[0-9]{1,3})?$/.test(ca.Cantidad || \"\") || dec(ca.Cantidad) < dec(\"0.001\")) push(\"MX-067\", \"CCE154\", `Line ${li}: without CantidadAduana on its Mercancia, a transfer's Cantidad is at least 0.001 with at most 3 decimals, not ${ca.Cantidad}.`, \"Write Cantidad with up to 3 decimals, or add the customs fields to the Mercancia.\", `${lp}/@Cantidad`);",
+            "after": "if (!/^[0-9]{1,14}(\\.[0-9]{2,3})?$/.test(ca.Cantidad || \"\") || dec(ca.Cantidad) < dec(\"0.001\")) push(\"MX-067\", \"CCE154\", `Line ${li}: without CantidadAduana on its Mercancia, a transfer's Cantidad is at least 0.001 with at most 3 decimals, not ${ca.Cantidad}.`, \"Write Cantidad with up to 3 decimals, or add the customs fields to the Mercancia.\", `${lp}/@Cantidad`);",
+            "line_text": "        if (!/^[0-9]{1,14}(\\.[0-9]{1,3})?$/.test(ca.Cantidad || \"\") || dec(ca.Cantidad) < dec(\"0.001\")) push(\"MX-067\", \"CCE154\", `Line ${li}: without CantidadAduana on its Mercancia, a transfer's Cantidad is at least 0.001 with at most 3 decimals, not ${ca.Cantidad}.`, \"Write Cantidad with up to 3 decimals, or add the customs fields to the Mercancia.\", `${lp}/@Cantidad`);",
+            "caught": false,
+            "seconds": 5.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test had a transfer line with a 1-decimal Cantidad (the fixture uses 12.000), so tightening the decimals to {2,3} went unseen. Added 'a transfer's Cantidad may have one, two or three decimals, not four (CCE154)' in cce20.test.mjs. Kept at merge (not covered by #15135)."
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 304,
+            "col": 81,
+            "operator": "eq-flip",
+            "before": "if (typeProblem({ ref: \"c_UnidadAduana\" }, ca.Unidad ?? \"\") || ca.Unidad === undefined) push(\"MX-067\", \"CCE155\", `Line ${li}: without CantidadAduana on its Mercancia, a transfer's Unidad is a c_UnidadAduana code (01 kilo, 06 pieza, 99 servicio...), not ${ca.Unidad === undefined ? \"absent\" : `\"${ca.Unidad}\"`}.`, \"Set Unidad to the c_UnidadAduana code, or add the customs fields to the Mercancia.\", `${lp}/@Unidad`);",
+            "after": "if (typeProblem({ ref: \"c_UnidadAduana\" }, ca.Unidad ?? \"\") || ca.Unidad !== undefined) push(\"MX-067\", \"CCE155\", `Line ${li}: without CantidadAduana on its Mercancia, a transfer's Unidad is a c_UnidadAduana code (01 kilo, 06 pieza, 99 servicio...), not ${ca.Unidad === undefined ? \"absent\" : `\"${ca.Unidad}\"`}.`, \"Set Unidad to the c_UnidadAduana code, or add the customs fields to the Mercancia.\", `${lp}/@Unidad`);",
+            "line_text": "        if (typeProblem({ ref: \"c_UnidadAduana\" }, ca.Unidad ?? \"\") || ca.Unidad === undefined) push(\"MX-067\", \"CCE155\", `Line ${li}: without CantidadAduana on its Mercancia, a transfer's Unidad is a c_UnidadAduana code (01 kilo, 06 pieza, 99 servicio...), not ${ca.Unidad === undefined ? \"absent\" : `\"${ca.Unidad}\"`}.`, \"Set Unidad to the c_UnidadAduana code, or add the customs fields to the Mercancia.\", `${lp}/@Unidad`);",
+            "caught": true,
+            "seconds": 5.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 329,
+            "col": 18,
+            "operator": "and-to-or",
+            "before": "if (vd === 0n && !service) push(\"MX-069\", \"CCE172\", `Mercancia ${i + 1}: ValorDolares 0 is only for a service outside the customs value (UnidadAduana 99 or ClaveUnidad E48).`, \"Enter the goods' value in dollars.\", `${p}/@ValorDolares`);",
+            "after": "if (vd === 0n || !service) push(\"MX-069\", \"CCE172\", `Mercancia ${i + 1}: ValorDolares 0 is only for a service outside the customs value (UnidadAduana 99 or ClaveUnidad E48).`, \"Enter the goods' value in dollars.\", `${p}/@ValorDolares`);",
+            "line_text": "    if (vd === 0n && !service) push(\"MX-069\", \"CCE172\", `Mercancia ${i + 1}: ValorDolares 0 is only for a service outside the customs value (UnidadAduana 99 or ClaveUnidad E48).`, \"Enter the goods' value in dollars.\", `${p}/@ValorDolares`);",
+            "caught": true,
+            "seconds": 5.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 346,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if (moneda === \"USD\") return dollarLimits(importes, undefined, undefined);",
+            "after": "if (moneda !== \"USD\") return dollarLimits(importes, undefined, undefined);",
+            "line_text": "    if (moneda === \"USD\") return dollarLimits(importes, undefined, undefined);",
+            "caught": true,
+            "seconds": 5.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 392,
+            "col": 46,
+            "operator": "and-to-or",
+            "before": "if (d.Municipio !== undefined && d.Estado && !inList(MUNICIPIOS[d.Estado], d.Municipio)) push(rule, codes.municipio, `Municipio ${d.Municipio} is not a c_Municipio code of ${d.Estado}.`, `Use the municipality's three-digit code within ${d.Estado}.`, `${p}/@Municipio`);",
+            "after": "if (d.Municipio !== undefined && d.Estado || !inList(MUNICIPIOS[d.Estado], d.Municipio)) push(rule, codes.municipio, `Municipio ${d.Municipio} is not a c_Municipio code of ${d.Estado}.`, `Use the municipality's three-digit code within ${d.Estado}.`, `${p}/@Municipio`);",
+            "line_text": "    if (d.Municipio !== undefined && d.Estado && !inList(MUNICIPIOS[d.Estado], d.Municipio)) push(rule, codes.municipio, `Municipio ${d.Municipio} is not a c_Municipio code of ${d.Estado}.`, `Use the municipality's three-digit code within ${d.Estado}.`, `${p}/@Municipio`);",
+            "caught": true,
+            "seconds": 5.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 408,
+            "col": 62,
+            "operator": "and-to-or",
+            "before": "if (pais !== undefined && pais !== \"ZZZ\" && ESTADOS[pais] && d.Estado !== undefined && !inList(ESTADOS[pais], d.Estado)) push(rule, codes.estado, `Estado \"${d.Estado}\" is not a c_Estado code of ${pais} (for ${pais} the state is written as its code, for example ${ESTADOS[pais].slice(0, 3).join(\", \")}).`, `Use the c_Estado code of the ${pais} state.`, `${p}/@Estado`);",
+            "after": "if (pais !== undefined && pais !== \"ZZZ\" && ESTADOS[pais] || d.Estado !== undefined && !inList(ESTADOS[pais], d.Estado)) push(rule, codes.estado, `Estado \"${d.Estado}\" is not a c_Estado code of ${pais} (for ${pais} the state is written as its code, for example ${ESTADOS[pais].slice(0, 3).join(\", \")}).`, `Use the c_Estado code of the ${pais} state.`, `${p}/@Estado`);",
+            "line_text": "    if (pais !== undefined && pais !== \"ZZZ\" && ESTADOS[pais] && d.Estado !== undefined && !inList(ESTADOS[pais], d.Estado)) push(rule, codes.estado, `Estado \"${d.Estado}\" is not a c_Estado code of ${pais} (for ${pais} the state is written as its code, for example ${ESTADOS[pais].slice(0, 3).join(\", \")}).`, `Use the c_Estado code of the ${pais} state.`, `${p}/@Estado`);",
+            "caught": true,
+            "seconds": 5.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 408,
+            "col": 74,
+            "operator": "neq-flip",
+            "before": "if (pais !== undefined && pais !== \"ZZZ\" && ESTADOS[pais] && d.Estado !== undefined && !inList(ESTADOS[pais], d.Estado)) push(rule, codes.estado, `Estado \"${d.Estado}\" is not a c_Estado code of ${pais} (for ${pais} the state is written as its code, for example ${ESTADOS[pais].slice(0, 3).join(\", \")}).`, `Use the c_Estado code of the ${pais} state.`, `${p}/@Estado`);",
+            "after": "if (pais !== undefined && pais !== \"ZZZ\" && ESTADOS[pais] && d.Estado === undefined && !inList(ESTADOS[pais], d.Estado)) push(rule, codes.estado, `Estado \"${d.Estado}\" is not a c_Estado code of ${pais} (for ${pais} the state is written as its code, for example ${ESTADOS[pais].slice(0, 3).join(\", \")}).`, `Use the c_Estado code of the ${pais} state.`, `${p}/@Estado`);",
+            "line_text": "    if (pais !== undefined && pais !== \"ZZZ\" && ESTADOS[pais] && d.Estado !== undefined && !inList(ESTADOS[pais], d.Estado)) push(rule, codes.estado, `Estado \"${d.Estado}\" is not a c_Estado code of ${pais} (for ${pais} the state is written as its code, for example ${ESTADOS[pais].slice(0, 3).join(\", \")}).`, `Use the c_Estado code of the ${pais} state.`, `${p}/@Estado`);",
+            "caught": true,
+            "seconds": 5.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/check_se_tax_floor.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_se_tax_floor  (in platform/ci)",
+        "seed": 799291299,
+        "commit": "f7512e5c6",
+        "sites": 17,
+        "baseline_seconds": 1.4,
+        "mutants": [
+          {
+            "file": "platform/ci/check_se_tax_floor.py",
+            "line": 48,
+            "col": 39,
+            "operator": "or-to-and",
+            "before": "if not rel.startswith(\"ventures/\") or \"/node_modules/\" in rel:",
+            "after": "if not rel.startswith(\"ventures/\") and \"/node_modules/\" in rel:",
+            "line_text": "    if not rel.startswith(\"ventures/\") or \"/node_modules/\" in rel:",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_se_tax_floor.py",
+            "line": 49,
+            "col": 15,
+            "operator": "false-to-true",
+            "before": "return False",
+            "after": "return True",
+            "line_text": "        return False",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_se_tax_floor.py",
+            "line": 50,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "name = rel.rsplit(\"/\", 1)[-1]",
+            "after": "name = rel.rsplit(\"/\", 2)[-1]",
+            "line_text": "    name = rel.rsplit(\"/\", 1)[-1]",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "rel.rsplit(\"/\", 2)[-1] is still the basename: the last element of any rsplit is the text after the final \"/\", whatever maxsplit is."
+          },
+          {
+            "file": "platform/ci/check_se_tax_floor.py",
+            "line": 51,
+            "col": 24,
+            "operator": "or-to-and",
+            "before": "if \".test.\" in name or name.startswith(\"test_\"):",
+            "after": "if \".test.\" in name and name.startswith(\"test_\"):",
+            "line_text": "    if \".test.\" in name or name.startswith(\"test_\"):",
+            "caught": true,
+            "seconds": 2.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_se_tax_floor.py",
+            "line": 52,
+            "col": 15,
+            "operator": "false-to-true",
+            "before": "return False",
+            "after": "return True",
+            "line_text": "        return False",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_se_tax_floor.py",
+            "line": 71,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "if not is_candidate(rel) or not p.is_file():",
+            "after": "if not is_candidate(rel) and not p.is_file():",
+            "line_text": "        if not is_candidate(rel) or not p.is_file():",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_se_tax_floor.py",
+            "line": 85,
+            "col": 48,
+            "operator": "div-to-times",
+            "before": "stale = [rel for rel in EXEMPT if not (ROOT / rel).is_file()]",
+            "after": "stale = [rel for rel in EXEMPT if not (ROOT * rel).is_file()]",
+            "line_text": "    stale = [rel for rel in EXEMPT if not (ROOT / rel).is_file()]",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_se_tax_floor.py",
+            "line": 88,
+            "col": 13,
+            "operator": "or-to-and",
+            "before": "if found or stale:",
+            "after": "if found and stale:",
+            "line_text": "    if found or stale:",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test ran main() on a finding: test_tree_is_clean only covers the clean exit. Added test_main_fails_on_a_finding_with_no_stale_exemption (a temp venture file with 0.9235 and no floor must exit 1)."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/cce20.mjs",
+        "issue": "checkCfdi threw TypeError (Cannot read properties of undefined (reading '0')) on any Comercio Exterior CFDI dated before 2024-01-18, or with an unreadable Fecha: the CCE161 not-in-force message read VIGENCIA[fr][0], but most tariff codes have no VIGENCIA row. mexico-cfdi-e-invoice-mandate.html calls checkCfdi without try/catch, so the page showed nothing; the CLI/report path gave a read error instead of the finding. Found independently by the parallel red-team run #15135, which landed first with the same fix (fraccionVigencia) and cfdi-robustness.test.mjs; this run's identical fix, fuzz test and post were dropped at merge.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15135"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bdd56d1b-9b70-53a8-9cb2-a4d30f342b97",
+    "transcripts": 1,
+    "first": "2026-11-12T13:05:56Z",
+    "last": "2026-11-12T13:13:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 94,
+        "output": 22148,
+        "thinking": 5561,
+        "cache_read": 4683657,
+        "cache_write_5m": 0,
+        "cache_write_1h": 106606,
+        "api_equivalent_usd": 2.2329,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 94,
+      "output": 22148,
+      "thinking": 5561,
+      "cache_read": 4683657,
+      "cache_write_5m": 0,
+      "cache_write_1h": 106606,
+      "api_equivalent_usd": 2.2329,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 46,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.73,
+      "active_minutes": 7.73,
+      "model_minutes": 4.77,
+      "tool_minutes": 2.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "mutation campaign review, fuzz harness, bug fix with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 134.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

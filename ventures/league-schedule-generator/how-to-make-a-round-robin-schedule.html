@@ -23,6 +23,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; League schedule generator</a></p>
   <h1>How to make a round-robin schedule, with a worked example</h1>
   <p>A round robin is the simplest fair league: every team plays every other team the same number of times. The hard part is not the pairing, it is everything around it: the odd team who sits out each week, who is at home, which court, and the team captain who cannot play on the 20th.</p>
@@ -50,7 +51,9 @@
   <p>In the circle method the home side of each pairing is set while the rounds are built, not patched afterwards. With an even number of teams the minimum possible number of home or away breaks (two consecutive home games or two consecutive away games) is the number of teams minus two, and the generator reaches it. With an odd number of teams no team gets two home or two away games in a row. A double round robin is mirrored, so every pair plays once at each home.</p>
   <h3>What if a team cannot play on a certain date?</h3>
   <p>Type the team and the date as a blackout. The generator moves only the affected match out of that round and plays it in a makeup round after the regular season, so the other teams are not held up. If a date has to be given up entirely, it says so. Check the makeup dates with the teams before you publish.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every date, court and pairing before you send a schedule to a league. The example teams are invented.</p>
     <p>Everything the generator does runs in your browser; team names and dates are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
   </footer>

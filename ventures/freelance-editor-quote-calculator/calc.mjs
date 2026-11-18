@@ -23,7 +23,7 @@ const num = (v) => {
   return Number.isFinite(n) ? n : NaN;
 };
 const opt = (v, d) => (String(v ?? "").trim() === "" ? d : num(v));
-export const dollars = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const dollars = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 const round2 = (n) => Math.round(n * 100) / 100;
 
 export function parse(raw) {
@@ -31,9 +31,10 @@ export function parse(raw) {
   const words = num(raw.words), rate = num(raw.rate);
   if (!(words > 0)) errors.push("Enter the manuscript length in words (more than 0).");
   if (!(rate > 0)) errors.push("Enter the hourly rate you want to earn (more than 0).");
-  const level = LEVELS[raw.level] ? raw.level : null;
+  // own keys only, so "constructor" or "toString" is not a level
+  const level = Object.hasOwn(LEVELS, raw.level) ? raw.level : null;
   if (!level) errors.push("Choose a level of edit.");
-  const condition = CONDITION[raw.condition] ? raw.condition : "average";
+  const condition = Object.hasOwn(CONDITION, raw.condition) ? raw.condition : "average";
   const pace = opt(raw.pace, level ? LEVELS[level].pace : NaN);
   if (level && !(pace > 0)) errors.push("Pace must be words per hour, more than 0.");
   const overhead = opt(raw.overhead, 0), extraHours = opt(raw.extraHours, 0), rushPct = opt(raw.rushPct, 0);

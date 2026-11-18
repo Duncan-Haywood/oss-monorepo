@@ -32,7 +32,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
     .finding { border-bottom: 1px solid #e3eaf8; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -125,16 +125,16 @@
       let h = "";
       if (!plan.none) {
         const b = plan.best;
-        h += `<div class="finding"><h4>Take these ${b.jobs} job${b.jobs === 1 ? "" : "s"}</h4><p class="stats">${money(b.profit)} take-home over ${hours(b.hoursUsed)} (${hours(b.onsite)} on site + ${hours(b.driveHours)} driving) · ${money(b.perHour)} an hour · ${money(b.revenue)} billed, ${money(b.supplies)} supplies, ${money(b.vehicle)} vehicle</p>`
+        h += `<div class="finding"><h3>Take these ${b.jobs} job${b.jobs === 1 ? "" : "s"}</h3><p class="stats">${money(b.profit)} take-home over ${hours(b.hoursUsed)} (${hours(b.onsite)} on site + ${hours(b.driveHours)} driving) · ${money(b.perHour)} an hour · ${money(b.revenue)} billed, ${money(b.supplies)} supplies, ${money(b.vehicle)} vehicle</p>`
           + `<div class="scroll"><table><thead><tr><th>Job</th><th class="n">Price</th><th class="n">Added time</th><th class="n">Adds</th><th class="n">Per hour</th><th class="n">Price for your target</th></tr></thead><tbody>`
           + plan.perJob.map((p) => `<tr><td>${esc(p.job.label)}</td><td class="n">${money(p.job.price)}</td><td class="n">${hours(p.marginalHours)}</td><td class="n">${money(p.contribution)}</td><td class="n">${money(p.perHour)}</td><td class="n">${money(p.priceToHitTarget)}</td></tr>`).join("")
           + `</tbody></table></div></div>`;
         if (plan.bestHourly && plan.bestHourly.set.length !== b.set.length) {
           const bh = plan.bestHourly;
-          h += `<div class="finding"><h4>If you would rather stop early</h4><p>${bh.set.map((j) => esc(j.label)).join(", ")} pays ${money(bh.perHour)} an hour (${money(bh.profit)} over ${hours(bh.hoursUsed)}), against ${money(b.perHour)} an hour for the full set.</p></div>`;
+          h += `<div class="finding"><h3>If you would rather stop early</h3><p>${bh.set.map((j) => esc(j.label)).join(", ")} pays ${money(bh.perHour)} an hour (${money(bh.profit)} over ${hours(bh.hoursUsed)}), against ${money(b.perHour)} an hour for the full set.</p></div>`;
         }
       }
-      for (const f of diagnose(plan)) h += `<div class="finding"><h4><span class="pill ${f.level}">${LABEL[f.level]}</span>${esc(f.title)}</h4><p>${esc(f.text)}</p></div>`;
+      for (const f of diagnose(plan)) h += `<div class="finding"><h3><span class="pill ${f.level}">${LABEL[f.level]}</span>${esc(f.title)}</h3><p>${esc(f.text)}</p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       record("plan_run");

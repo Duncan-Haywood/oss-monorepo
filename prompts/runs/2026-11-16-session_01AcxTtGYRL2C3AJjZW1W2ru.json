@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtGYRL2C3AJjZW1W2ru",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T12:07:11Z",
+  "ended": "2026-11-16T12:10:11Z",
+  "wall_minutes": 132.21,
+  "tokens_in": 5771330,
+  "tokens_out": 29824,
+  "cost_usd": 2.5608,
+  "tool_calls": 58,
+  "task": "lowcomm-training milestone 6y: is the H = 64 compression trunk gain an under-tuned uncompressed baseline?",
+  "projects": [
+    "research/lowcomm-training"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16568",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "pyenv.py torch install launched with a shell '&' instead of run_in_background; it survived and finished in about 2 min, but run_in_background would have been safer"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/*.py (system python3)",
+      "issue": "every python3 call prints a distutils-precedence.pth traceback (No module named _distutils_hack) on stderr; harmless but noisy and easy to mistake for a failure"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "no guidance for adding an exploratory arm mid-batch; I logged it with the exact runs finished at that point, which seems the right default and could be written down"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/lowcomm-training/LOG.md (6y plan)",
+      "why": "all three registered tunings were larger outer steps and seed 0 showed them all worse, so the registered test could not find a better baseline below lr 1",
+      "did": "added an exploratory outer lr 0.7 arm (4 runs) after 8 runs had finished, logged before its results and kept outside H6y-ii and iv",
+      "result": "lr 0.7 was also worse (+0.006), which turned a trivially held H6y-iv into a real two-sided check: the recipe beats the closest baseline on all four seeds"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-is-diloco-compression-gain-an-untuned-baseline-lowcomm.md",
+    "research/lowcomm-training/LOG.md (Milestone 6y)"
+  ],
+  "goal": null,
+  "notes": "24 CPU runs (about 2 h on 4 cores, torch 2.15.0+cpu on /usr/bin/python3.13 via pyenv.py, about 2 min to install). Checks run here: lowcomm-training tests 13 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; post frontmatter, links and similarity ok. Both reference arms reproduce stored runs bit-exactly. Key numbers: recipe minus plain averaging, fresh batches, -0.0141 (se 0.0063); lr 1.5 +0.036, lr 2 +0.36, Nesterov +0.16, lr 0.7 +0.006.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "26b2f971-8cd4-505b-b524-f22989ccfe2f",
+    "transcripts": 1,
+    "first": "2026-11-16T12:07:11Z",
+    "last": "2026-11-16T14:19:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 106,
+        "output": 29824,
+        "thinking": 6932,
+        "cache_read": 5667427,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103797,
+        "api_equivalent_usd": 2.5608,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 106,
+      "output": 29824,
+      "thinking": 6932,
+      "cache_read": 5667427,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103797,
+      "api_equivalent_usd": 2.5608,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 56,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 132.21,
+      "active_minutes": 132.21,
+      "model_minutes": 5.87,
+      "tool_minutes": 126.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "design, 24 runs on a cluster and write-up of one pre-registered ablation by a PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 390.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

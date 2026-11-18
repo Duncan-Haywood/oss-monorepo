@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2313325b'/%3E%3Cpath%20d='M4%2024%20L9%2022%20L12%206%20L15%2022%20L19%2020%20L22%2014%20L25%2021%20L28%2023'%20fill='none'%20stroke='%23ffd166'%20stroke-width='2.2'%20stroke-linejoin='round'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lomb-Scargle Periodogram Online — find periods in uneven data, free</title>
+  <meta name="description" content="Free online Lomb-Scargle periodogram for unevenly sampled data (generalised, error-weighted, one offset per instrument). Paste times and values and it finds the strongest periods with Baluev's false alarm probability, removes each and searches again, and checks every peak for sampling aliases. Matches astropy. Runs in your browser.">
+  <meta property="og:title" content="Lomb-Scargle periodogram in your browser: which periods are in these unevenly spaced measurements?">
+  <meta property="og:description" content="The generalised Lomb-Scargle periodogram with per-instrument offsets, Baluev false alarm probabilities, pre-whitening and an alias check against the spectral window. On 401 public velocities of HD 164922 it finds all four of the star's known planets.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Lomb-Scargle periodogram for unevenly sampled data", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a time series with uneven sampling, gaps or several instruments. The generalised Lomb-Scargle periodogram (Zechmeister and Kurster 2009) with one offset per group finds the strongest periods, Baluev's (2008) bound gives each a false alarm probability, pre-whitening finds further periods, and the spectral window flags aliases. Runs in your browser.", "featureList": "Lomb-Scargle periodogram online, generalised Lomb-Scargle, floating mean periodogram, unevenly sampled time series, period finder, false alarm probability, Baluev bound, pre-whitening, spectral window, aliasing check, radial velocity periodogram, variable star period, instrument offsets, CSV upload, CSV download", "citation": ["https://doi.org/10.1007/BF00648343", "https://doi.org/10.1086/160554", "https://doi.org/10.1051/0004-6361/200811296", "https://doi.org/10.1111/j.1365-2966.2008.12689.x", "https://doi.org/10.3847/1538-4365/aab766"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a Lomb-Scargle periodogram?", "acceptedAnswer": {"@type": "Answer", "text": "It answers which repeating periods are in a set of measurements taken at uneven times. For every trial period it fits the best sine wave to the data by least squares and records how much of the scatter that wave explains, from 0 (none) to 1 (all). A real cycle shows up as a tall, narrow peak at its period."}}, {"@type": "Question", "name": "Why not use an FFT?", "acceptedAnswer": {"@type": "Answer", "text": "The fast Fourier transform needs samples at equal spacing with no gaps. Field notes, telescope nights, lab visits, sensor dropouts and manual readings are not like that. Filling the gaps by interpolation invents data and can create or hide periods. The Lomb-Scargle periodogram works on the times you actually have."}}, {"@type": "Question", "name": "What does the false alarm probability mean?", "acceptedAnswer": {"@type": "Answer", "text": "It is the chance that pure noise, with the errors you gave, would produce a peak this tall somewhere in the searched range. A value of 0.1% says noise alone rarely does this. It does not say what causes the signal, and it assumes the noise is independent from point to point with the stated size; correlated noise or underestimated errors make it too optimistic."}}, {"@type": "Question", "name": "What is an alias?", "acceptedAnswer": {"@type": "Answer", "text": "When the sampling itself has a rhythm, such as observing only at night, only in some seasons or once a week, a true period also shows up at other periods that the sampling cannot tell apart from it. The tool computes the spectral window, the periodogram of the sampling times alone, and for each period found reports where its aliases fall and how much power they carry. If an alias is nearly as tall as the peak, the data cannot tell which is real."}}, {"@type": "Question", "name": "What is pre-whitening?", "acceptedAnswer": {"@type": "Answer", "text": "After the strongest period is found, its sine wave is subtracted from the data and the periodogram is run again on what is left. A weaker period that was hidden under the strongest one's side lobes can then stand out. The tool repeats this until the next peak's false alarm probability rises above your threshold."}}, {"@type": "Question", "name": "Why give each instrument its own offset?", "acceptedAnswer": {"@type": "Answer", "text": "Two instruments, sites or observers often measure the same thing with different zero points. If one of them was used mostly in later years, a single mean turns that offset into a fake long period. Fitting one offset per group removes it. Put the instrument name in a text column and the tool finds it."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #14213a; background: #eef2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f91; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #13325b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #13325b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5568; }
+    .card { background: #fff; border: 1px solid #d5dde8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #13325b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #708096; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f91; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3eaf4; color: #13325b; }
+    button:disabled { opacity: .6; cursor: progress; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6ebf2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5568; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dde8; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #708096; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 12px 0; }
+    .stat { background: #f1f5fa; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.35rem; color: #13325b; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .82rem; color: #4a5568; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .key { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+    pre { background: #f3f6fa; border: 1px solid #dde4ee; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LOMB-SCARGLE PERIODOGRAM · UNEVEN SAMPLING · FALSE ALARM PROBABILITY · ALIAS CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which periods are in these unevenly spaced measurements?</h1>
+    <p>Paste measurements taken at uneven times, with gaps, from one instrument or several: a star's brightness on the nights it was observed, river levels read by hand, a patient's readings at each visit, sensor logs with dropouts. The <strong>Lomb-Scargle periodogram</strong> (generalised and error-weighted, Zechmeister &amp; Kürster 2009, with one offset per instrument) fits a sine wave at every trial period and shows how much of the scatter each explains.</p>
+<p>You get the strongest periods with their amplitude and <strong>false alarm probability</strong> (Baluev 2008), more periods found by removing each and searching again, and a check of each against the sampling rhythm, where false periods come from.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">A CSV with a header row: a time column (numbers such as days or JD, or ISO dates like 2024-03-05), a value column, and optionally an error column and an instrument or site column (comma, tab, semicolon or space separated)</label>
+    <textarea id="csv" spellcheck="false" placeholder="day,brightness,error,site&#10;0.12,10.4,0.2,north&#10;1.08,11.1,0.2,north&#10;3.95,9.7,0.3,south&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,.dat,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: 401 velocities of the star HD 164922 (Keck and APF, 1996-2015)</button>
+    <p class="note" id="data-status">Rows with a missing time or value are skipped and counted.</p>
+
+    <div class="grid">
+      <div><label for="time-col">Time column</label><select id="time-col"></select></div>
+      <div><label for="value-col">Value column</label><select id="value-col"></select></div>
+      <div><label for="error-col">Error column (weights 1/error²)</label><select id="error-col"></select></div>
+      <div><label for="group-col">Instrument or site column (one offset each)</label><select id="group-col"></select></div>
+    </div>
+    <div class="grid">
+      <div><label for="min-period">Shortest period (blank: twice the median gap)</label><input id="min-period" inputmode="decimal" placeholder="e.g. 0.5"></div>
+      <div><label for="max-period">Longest period (blank: the time span)</label><input id="max-period" inputmode="decimal" placeholder="e.g. 3000"></div>
+      <div><label for="signals">Periods to find (pre-whitening)</label><select id="signals"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div>
+      <div><label for="fap-level">Stop when the next peak's false alarm probability is above</label><select id="fap-level"><option value="0.001">0.1%</option><option value="0.01" selected>1%</option><option value="0.05">5%</option></select></div>
+      <div><label for="jitter">Extra noise added to every error (jitter, value units)</label><input id="jitter" inputmode="decimal" placeholder="0"></div>
+    </div>
+    <button type="button" id="analyze">Find the periods</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div class="stats" id="stats"></div>
+    <div id="warnings"></div>
+    <h3>Periodogram</h3>
+    <p class="note"><span class="key" style="background:#1d4f91"></span>power of the data <span class="key" style="background:#e07a1f"></span>after removing the first period <span class="key" style="background:#b7c2d1"></span>spectral window (the sampling alone). Periods on a log scale; dashed lines are the 1% and 0.1% false alarm levels.</p>
+    <div id="pgram" role="img" aria-label="Periodogram: power against period on a logarithmic axis, with the power after removing the strongest period, the spectral window, and false alarm levels"></div>
+    <h3>Periods found</h3>
+    <div class="scroll">
+      <table id="signal-table">
+        <thead><tr><th>#</th><th class="n">Period</th><th class="n">± (1σ)</th><th class="n">Amplitude</th><th class="n">Power</th><th class="n">False alarm prob.</th><th>Aliases to check</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <h3>Folded on one period</h3>
+    <div class="grid">
+      <div><label for="fold-pick">Period</label><select id="fold-pick"></select></div>
+    </div>
+    <div id="folded" role="img" aria-label="Phase-folded plot: each measurement, with the other periods and the instrument offsets removed, against its phase in the chosen period, with the fitted sine wave"></div>
+    <p class="note" id="fold-note"></p>
+    <h3>The data</h3>
+    <div id="series" role="img" aria-label="The measurements against time, one colour per instrument or site"></div>
+    <h3>Tallest peaks of the first periodogram</h3>
+    <div class="scroll">
+      <table id="peak-table">
+        <thead><tr><th class="n">Period</th><th class="n">Frequency</th><th class="n">Power</th><th class="n">False alarm prob.</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note" id="settings-line"></p>
+    <button type="button" class="secondary" id="download">Download the periodogram (CSV)</button>
+    <button type="button" class="secondary" id="download-report">Download the report (text)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>The periodogram.</strong> At every trial frequency f the model <code>y = a cos(2πft) + b sin(2πft) + c_g</code> is fitted by weighted least squares, with weights <code>1/σ²</code> when errors are given and one offset <code>c_g</code> per instrument or site. The power is the fraction of chi-square the sine wave removes beyond the offsets alone, <code>p = (χ²₀ − χ²(f)) / χ²₀</code>, from 0 to 1. This is the generalised Lomb-Scargle periodogram of Zechmeister &amp; Kürster (2009), equations 5 and 10-20; with one group and equal weights it is the classical periodogram of Lomb (1976) and Scargle (1982) with a floating mean. The extension to several offsets centres the data and the cosine and sine within each group before forming the same sums, which is that least-squares fit with the offsets profiled out.</p>
+    <p><strong>The grid.</strong> Frequencies run from one over the longest period to one over the shortest in steps of <code>1/(5T)</code>, five points per peak width over the time span T (VanderPlas 2018, section 7.1), and each peak is refined between grid points. Uneven sampling has no true Nyquist limit; the default shortest period, twice the median gap, is a convenience, so lower it if you expect faster cycles.</p>
+    <p><strong>Significance.</strong> The false alarm probability of a peak of power z is Baluev's (2008) bound for the highest peak up to the maximum frequency searched: <code>FAP = 1 − (1 − P₁) e^(−τ)</code>, with <code>P₁ = (1 − z)^(N_K/2)</code> and <code>τ = γ(N_H) W (1 − z)^((N_K − 1)/2) √(N_H z/2)</code>, <code>W = f_max √(4π Var t)</code>. Here <code>N_H = N − G</code> and <code>N_K = N − G − 2</code> count the G offsets. It assumes independent Gaussian noise with the stated errors.</p>
+    <p><strong>More periods and aliases.</strong> Each period found is fitted (amplitude, phase, offsets) and subtracted, and the periodogram is run again on what is left (pre-whitening), until the next peak's false alarm probability passes your threshold. The period's uncertainty is <code>σ_P = P² √(6/N) σ_res / (π T A)</code> (Montgomery &amp; O'Donoghue 1999). The spectral window <code>|Σ wᵢ e^(2πi f tᵢ)|²</code> is the periodogram of the sampling alone; for each of its strongest peaks f_w, a true frequency f₀ reappears at <code>f₀ ± f_w</code>, and the table lists the power at those aliases as a share of the peak's.</p>
+    <p>Verified by tests in the source: on one instrument of the example the power matches <strong>astropy 6.1.4</strong>'s <code>LombScargle</code> to 10⁻⁹ at every tested frequency, with and without errors, and its Baluev false alarm probabilities to 10⁻⁸ relative; with several groups the power equals the chi-square reduction of a brute-force least-squares fit to 10⁻¹⁰; it is unchanged by shifting the times, scaling the values or adding a constant to one group; two sine waves hidden in gappy data with an instrument offset are recovered with their amplitudes and the offset; and a 0.8-day signal sampled once a night is flagged as indistinguishable from its 4-day alias.</p>
+    <h3>BibTeX</h3>
+    <pre>@article{lomb1976least,
+  author  = {Lomb, N. R.},
+  title   = {Least-squares frequency analysis of unequally spaced data},
+  journal = {Astrophysics and Space Science},
+  volume  = {39}, pages = {447--462}, year = {1976},
+  doi     = {10.1007/BF00648343}
+}
+@article{scargle1982studies,
+  author  = {Scargle, Jeffrey D.},
+  title   = {Studies in astronomical time series analysis. {II}. Statistical aspects of spectral analysis of unevenly spaced data},
+  journal = {The Astrophysical Journal},
+  volume  = {263}, pages = {835--853}, year = {1982},
+  doi     = {10.1086/160554}
+}
+@article{zechmeister2009generalised,
+  author  = {Zechmeister, M. and K{\"u}rster, M.},
+  title   = {The generalised {L}omb-{S}cargle periodogram. A new formalism for the floating-mean and {K}eplerian periodograms},
+  journal = {Astronomy \&amp; Astrophysics},
+  volume  = {496}, pages = {577--584}, year = {2009},
+  doi     = {10.1051/0004-6361/200811296}
+}
+@article{baluev2008assessing,
+  author  = {Baluev, Roman V.},
+  title   = {Assessing the statistical significance of periodogram peaks},
+  journal = {Monthly Notices of the Royal Astronomical Society},
+  volume  = {385}, number = {3}, pages = {1279--1285}, year = {2008},
+  doi     = {10.1111/j.1365-2966.2008.12689.x}
+}
+@article{vanderplas2018understanding,
+  author  = {VanderPlas, Jacob T.},
+  title   = {Understanding the {L}omb-{S}cargle Periodogram},
+  journal = {The Astrophysical Journal Supplement Series},
+  volume  = {236}, number = {1}, pages = {16}, year = {2018},
+  doi     = {10.3847/1538-4365/aab766}
+}
+@article{montgomery1999derivation,
+  author  = {Montgomery, M. H. and O'Donoghue, D.},
+  title   = {A derivation of the errors for least squares fitting to time series data},
+  journal = {Delta Scuti Star Newsletter},
+  volume  = {13}, pages = {28--32}, year = {1999}
+}</pre>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>A significant peak is not a cause.</strong> A low false alarm probability says noise alone rarely makes a peak this tall. It does not say the cycle is physical: a star's rotation, a seasonal habit of the person taking readings, or the sampling itself can all make real peaks. Check aliases and look at the folded plot before you believe a period.</li>
+      <li><strong>The probability is only as good as the errors.</strong> If the errors you give are too small, or the noise is correlated from point to point (red noise, slow drifts), every false alarm probability is too optimistic. The jitter setting adds noise to every error in quadrature; astronomers use it for a star's own velocity noise.</li>
+      <li><strong>Sine waves only.</strong> A spiky or very non-sinusoidal cycle (an eclipse, a strongly eccentric orbit) spreads its power over harmonics, so its strongest peak may be at half or a third of the true period. Look at the folded plot at 2P and 3P too.</li>
+      <li><strong>Pre-whitening is greedy.</strong> Each period is removed with the earlier ones held fixed. When two periods are close, or one is an alias of another, removing the wrong one first can lead the search astray; a joint fit of every period at once is not done here.</li>
+      <li><strong>Size.</strong> Up to 50,000 points; the grid is capped at 400 million point-frequency pairs, and the tool says so when it raises the shortest period or lowers the oversampling to fit.</li>
+      <li>Not modelled: Keplerian (eccentric) orbits, multi-band periodograms, Bayesian or bootstrap significance, and noise models with correlated errors (Gaussian processes; see the <a href="../gaussian-process-regression/">Gaussian process regression</a> tool for a periodic kernel).</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is a Lomb-Scargle periodogram?</h3>
+    <p>It answers which repeating periods are in a set of measurements taken at uneven times. For every trial period it fits the best sine wave to the data by least squares and records how much of the scatter that wave explains, from 0 (none) to 1 (all). A real cycle shows up as a tall, narrow peak at its period.</p>
+    <h3>Why not use an FFT?</h3>
+    <p>The fast Fourier transform needs samples at equal spacing with no gaps. Field notes, telescope nights, lab visits, sensor dropouts and manual readings are not like that. Filling the gaps by interpolation invents data and can create or hide periods. The Lomb-Scargle periodogram works on the times you actually have.</p>
+    <h3>What does the false alarm probability mean?</h3>
+    <p>It is the chance that pure noise, with the errors you gave, would produce a peak this tall somewhere in the searched range. A value of 0.1% says noise alone rarely does this. It does not say what causes the signal, and it assumes the noise is independent from point to point with the stated size; correlated noise or underestimated errors make it too optimistic.</p>
+    <h3>What is an alias?</h3>
+    <p>When the sampling itself has a rhythm, such as observing only at night, only in some seasons or once a week, a true period also shows up at other periods that the sampling cannot tell apart from it. The tool computes the spectral window, the periodogram of the sampling times alone, and for each period found reports where its aliases fall and how much power they carry. If an alias is nearly as tall as the peak, the data cannot tell which is real.</p>
+    <h3>What is pre-whitening?</h3>
+    <p>After the strongest period is found, its sine wave is subtracted from the data and the periodogram is run again on what is left. A weaker period that was hidden under the strongest one's side lobes can then stand out. The tool repeats this until the next peak's false alarm probability rises above your threshold.</p>
+    <h3>Why give each instrument its own offset?</h3>
+    <p>Two instruments, sites or observers often measure the same thing with different zero points. If one of them was used mostly in later years, a single mean turns that offset into a fake long period. Fitting one offset per group removes it. Put the instrument name in a text column and the tool finds it.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    <p class="note">Example data: 401 radial velocities in metres per second of the nearby star HD 164922, from the Keck telescope's HIRES spectrometer (k before its 2004 detector upgrade, j after) and the Automated Planet Finder at Lick Observatory (a), 1996 to 2015, with times in barycentric Julian days. They were published by Fulton et al. (2016, The Astrophysical Journal 830, 46), who announced the planet HD 164922 c, and are shipped as an example in the open-source radvel package (MIT licence). With jitter 2.6 m/s (the starting value in radvel's example fit) and four periods, the tool finds signals at the periods of the four planets the NASA Exoplanet Archive lists for this star: b near 1,200 days, c near 75.8 days, and d (12.46 days, Benatti et al. 2020) and e (41.76 days, Rosenthal et al. 2021), which were announced after this data set was published, with more data.</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter; a significant period is not proof of an error or of a cause. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the observatories named, the radvel or astropy projects, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs series.csv</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lomb-scargle-periodogram" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed, <a href="../stl-decomposition/">STL decomposition</a> separates trend from season in evenly spaced data, the <a href="../matrix-profile-explorer/">matrix profile explorer</a> finds repeated patterns in a series, <a href="../gaussian-process-regression/">Gaussian process regression</a> fits a curve with an honest uncertainty band, <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> gives intervals with guaranteed coverage, <a href="../spc-control-charts/">control charts</a> tell a process change from noise, <a href="../survival-analysis/">survival analysis</a> estimates time to an event, <a href="../fdr-multiple-testing/">multiple testing correction</a> says which of many results still stand, the <a href="../isolation-forest/">isolation forest</a> finds unusual rows, <a href="../robust-pca/">robust PCA</a> finds the cells that break a table's pattern, and the <a href="../mann-kendall-trend/">Mann-Kendall trend test</a> says whether a series is going up or down.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv, profileColumns, toCsv, report, fmt, fmtFap, baluevFap } from "./engine.mjs";
+    import { EXAMPLE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const COLORS = ["#1d4f91", "#e07a1f", "#2a9d8f", "#9b5de5", "#c0392b", "#6c757d"];
+    let last = null;
+
+    function options(sel, names, chosen, blank) {
+      sel.innerHTML = (blank ? `<option value="">${blank}</option>` : "") + names.map((n) => `<option value="${esc(n)}"${n === chosen ? " selected" : ""}>${esc(n)}</option>`).join("");
+    }
+
+    function refreshColumns() {
+      const text = $("#csv").value;
+      let p;
+      try {
+        p = parseCsv(text);
+      } catch (e) {
+        for (const id of ["#time-col", "#value-col", "#error-col", "#group-col"]) $(id).innerHTML = "";
+        $("#data-status").textContent = text.trim() ? e.message : "Paste a table or load the example.";
+        return;
+      }
+      const prof = profileColumns(p);
+      const timeable = prof.filter((c) => c.kind === "number" || c.kind === "date").map((c) => c.name);
+      const nums = prof.filter((c) => c.kind === "number").map((c) => c.name);
+      const texts = prof.filter((c) => c.kind === "text").map((c) => c.name);
+      const t = timeable[0];
+      const errGuess = nums.find((n) => n !== t && /^(err\w*|e_\w+|\w*_err\w*|sigma\w*|sig|unc|uncertainty|dy|stderr|std|se)$/i.test(n)) || "";
+      const v = nums.find((n) => n !== t && n !== errGuess);
+      options($("#time-col"), timeable, t);
+      options($("#value-col"), nums, v);
+      options($("#error-col"), nums, errGuess, "(none: equal weights)");
+      options($("#group-col"), texts, texts[0] || "", "(none: one group)");
+      $("#data-status").textContent = `${p.rows.length.toLocaleString("en-US")} rows, ${p.header.length} columns.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+
+    function num(id) {
+      const s = $(id).value.trim().replace(/,/g, "");
+      return s === "" ? null : Number(s);
+    }
+
+    function inputs() {
+      return {
+        csv: $("#csv").value,
+        timeColumn: $("#time-col").value || null,
+        valueColumn: $("#value-col").value || null,
+        errorColumn: $("#error-col").value,
+        groupColumn: $("#group-col").value,
+        minPeriod: num("#min-period"),
+        maxPeriod: num("#max-period"),
+        jitter: num("#jitter") || 0,
+        signals: Number($("#signals").value),
+        fapLevel: Number($("#fap-level").value),
+        top: 10,
+      };
+    }
+
+    // ---------- charts (plain SVG) ----------
+    const W = 900;
+    function axes(h, xTicks, yTicks, xLabel, yLabel) {
+      let s = `<rect x="60" y="10" width="${W - 80}" height="${h - 50}" fill="none" stroke="#c9d3df"/>`;
+      for (const [x, lab] of xTicks) s += `<line x1="${x}" x2="${x}" y1="${h - 40}" y2="${h - 35}" stroke="#708096"/><text x="${x}" y="${h - 22}" font-size="12" text-anchor="middle" fill="#4a5568">${esc(lab)}</text>`;
+      for (const [y, lab] of yTicks) s += `<line x1="55" x2="60" y1="${y}" y2="${y}" stroke="#708096"/><text x="52" y="${y + 4}" font-size="12" text-anchor="end" fill="#4a5568">${esc(lab)}</text>`;
+      s += `<text x="${(W + 40) / 2}" y="${h - 4}" font-size="12" text-anchor="middle" fill="#4a5568">${esc(xLabel)}</text>`;
+      s += `<text x="14" y="${(h - 40) / 2}" font-size="12" text-anchor="middle" fill="#4a5568" transform="rotate(-90 14 ${(h - 40) / 2})">${esc(yLabel)}</text>`;
+      return s;
+    }
+    function niceTicks(lo, hi, n = 5) {
+      const span = hi - lo || 1;
+      const step = Math.pow(10, Math.floor(Math.log10(span / n)));
+      const m = [1, 2, 5, 10].find((k) => span / (k * step) <= n) * step;
+      const out = [];
+      for (let v = Math.ceil(lo / m) * m; v <= hi + 1e-9 * span; v += m) out.push(Number(v.toPrecision(10)));
+      return out;
+    }
+    function line(xs, ys, color, width = 1.4) {
+      let d = "";
+      // thin long series to at most ~3000 vertices, keeping each bucket's maximum
+      const n = xs.length;
+      const step = Math.max(1, Math.floor(n / 3000));
+      for (let i = 0; i < n; i += step) {
+        let k = i;
+        for (let j = i; j < Math.min(n, i + step); j++) if (ys[j] < ys[k]) k = j; // SVG y grows downwards
+        d += `${d ? "L" : "M"}${xs[k].toFixed(1)},${ys[k].toFixed(1)}`;
+      }
+      return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${width}"/>`;
+    }
+
+    function drawPeriodogram(r) {
+      const h = 330;
+      const { fmin, df, nf, minPeriod, maxPeriod } = r.grid;
+      const lx = (p) => 60 + ((Math.log10(maxPeriod) - Math.log10(p)) / (Math.log10(maxPeriod) - Math.log10(minPeriod))) * (W - 80);
+      const ly = (v) => h - 40 - Math.max(0, Math.min(1, v)) * (h - 50);
+      const xs = new Array(nf);
+      const ys = new Array(nf);
+      const yw = new Array(nf);
+      const w0 = Math.round(fmin / df);
+      let top = 0;
+      for (let k = 0; k < nf; k++) top = Math.max(top, r.frequency[k]);
+      const scale = top > 0 ? 1 / Math.min(1, top * 1.1) : 1;
+      for (let k = 0; k < nf; k++) {
+        xs[k] = lx(1 / (fmin + k * df));
+        ys[k] = ly(r.frequency[k] * scale);
+        yw[k] = ly((r.window[w0 + k] ?? 0) * scale);
+      }
+      const xt = [];
+      for (let e = Math.floor(Math.log10(minPeriod)); e <= Math.ceil(Math.log10(maxPeriod)); e++) for (const m of [1, 2, 5]) {
+        const p = m * 10 ** e;
+        if (p >= minPeriod && p <= maxPeriod) xt.push([lx(p), fmt(p, 3)]);
+      }
+      const yt = niceTicks(0, 1 / scale).map((v) => [ly(v * scale), v.toString()]);
+      let s = axes(h, xt, yt, `period (${r.columns.timeKind === "date" ? "days" : "time units"})`, "power");
+      s += line(xs, yw, "#b7c2d1", 1);
+      if (r.residualPower) {
+        const yr = Array.from(r.residualPower, (v) => ly(v * scale));
+        s += line(xs, yr, "#e07a1f", 1.1);
+      }
+      s += line(xs, ys, "#1d4f91", 1.5);
+      // false alarm levels: invert the same bound by bisection (it falls as z grows)
+      const level = (target) => {
+        let lo = 0;
+        let hi = 1;
+        for (let i = 0; i < 60; i++) {
+          const mid = (lo + hi) / 2;
+          if (baluevFap(mid, r.fapParams).fap > target) lo = mid;
+          else hi = mid;
+        }
+        return hi;
+      };
+      for (const [t, lab, lx0] of [[0.01, "1%", W - 24], [0.001, "0.1%", W - 90]]) {
+        const z = level(t);
+        if (z * scale < 1) s += `<line x1="60" x2="${W - 20}" y1="${ly(z * scale)}" y2="${ly(z * scale)}" stroke="#c0392b" stroke-dasharray="5 4" stroke-width="1"/><text x="${lx0}" y="${ly(z * scale) - 4}" font-size="11" text-anchor="end" fill="#c0392b">FAP ${lab}</text>`;
+      }
+      r.found.forEach((sg, i) => {
+        const x = lx(sg.period);
+        s += `<text x="${x}" y="24" font-size="12" text-anchor="middle" fill="#13325b" font-weight="700">${i + 1}</text>`;
+      });
+      $("#pgram").innerHTML = `<svg viewBox="0 0 ${W} ${h}" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+    }
+    function drawSeries(r) {
+      const h = 260;
+      const t = r.times;
+      const y = r.values;
+      let tmin = Infinity, tmax = -Infinity, ymin = Infinity, ymax = -Infinity;
+      for (let i = 0; i < t.length; i++) {
+        tmin = Math.min(tmin, t[i]); tmax = Math.max(tmax, t[i]);
+        ymin = Math.min(ymin, y[i]); ymax = Math.max(ymax, y[i]);
+      }
+      const pad = (ymax - ymin) * 0.05 || 1;
+      ymin -= pad; ymax += pad;
+      const sx = (v) => 60 + ((v - tmin) / (tmax - tmin || 1)) * (W - 80);
+      const sy = (v) => h - 40 - ((v - ymin) / (ymax - ymin)) * (h - 50);
+      let s = axes(h, niceTicks(tmin, tmax).map((v) => [sx(v), fmt(v, 6)]), niceTicks(ymin, ymax).map((v) => [sy(v), fmt(v, 4)]), r.columns.timeKind === "date" ? "days since 1970-01-01" : r.columns.time, r.columns.value);
+      for (let i = 0; i < t.length; i++) s += `<circle cx="${sx(t[i]).toFixed(1)}" cy="${sy(y[i]).toFixed(1)}" r="2.2" fill="${COLORS[r.groupOf[i] % COLORS.length]}" fill-opacity=".75"/>`;
+      const legend = r.groups.length > 1 ? r.groups.map((g, k) => `<span class="key" style="background:${COLORS[k % COLORS.length]}"></span>${esc(g.name)} (${g.count})`).join(" &nbsp; ") : "";
+      $("#series").innerHTML = `<svg viewBox="0 0 ${W} ${h}" xmlns="http://www.w3.org/2000/svg">${s}</svg>${legend ? `<p class="note">${legend}</p>` : ""}`;
+    }
+
+    function drawFolded(r, j) {
+      const sg = r.found[j];
+      if (!sg) { $("#folded").innerHTML = ""; return; }
+      const h = 280;
+      const n = r.times.length;
+      const om = 2 * Math.PI * sg.frequency;
+      // the data minus every other signal and minus this signal's offsets
+      const ys = new Float64Array(n);
+      for (let i = 0; i < n; i++) {
+        let v = r.values[i] - sg.offsets[r.groups[r.groupOf[i]].name];
+        r.found.forEach((o, k) => {
+          if (k === j) return;
+          const tc = r.times[i] - r.tShift;
+          v -= o.a * Math.cos(2 * Math.PI * o.frequency * tc) + o.b * Math.sin(2 * Math.PI * o.frequency * tc);
+        });
+        ys[i] = v;
+      }
+      let ymin = Infinity, ymax = -Infinity;
+      for (const v of ys) { ymin = Math.min(ymin, v); ymax = Math.max(ymax, v); }
+      const pad = (ymax - ymin) * 0.05 || 1;
+      ymin -= pad; ymax += pad;
+      const sx = (ph) => 60 + ph * (W - 80);
+      const sy = (v) => h - 40 - ((v - ymin) / (ymax - ymin)) * (h - 50);
+      let s = axes(h, [0, 0.25, 0.5, 0.75, 1].map((p) => [sx(p), String(p)]), niceTicks(ymin, ymax).map((v) => [sy(v), fmt(v, 4)]), `phase in a period of ${fmt(sg.period, 6)} (0 = time of maximum)`, r.columns.value);
+      for (let i = 0; i < n; i++) {
+        let ph = ((r.times[i] - sg.timeOfMax) / sg.period) % 1;
+        if (ph < 0) ph += 1;
+        s += `<circle cx="${sx(ph).toFixed(1)}" cy="${sy(ys[i]).toFixed(1)}" r="2.2" fill="${COLORS[r.groupOf[i] % COLORS.length]}" fill-opacity=".7"/>`;
+      }
+      let d = "";
+      for (let k = 0; k <= 200; k++) d += `${k ? "L" : "M"}${sx(k / 200).toFixed(1)},${sy(sg.amplitude * Math.cos(2 * Math.PI * k / 200)).toFixed(1)}`;
+      s += `<path d="${d}" fill="none" stroke="#13325b" stroke-width="2"/>`;
+      $("#folded").innerHTML = `<svg viewBox="0 0 ${W} ${h}" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+      $("#fold-note").textContent = `Each point has the other ${r.found.length - 1} period${r.found.length === 2 ? "" : "s"} and its group's offset removed. The line is the fitted sine wave, amplitude ${fmt(sg.amplitude, 4)}. A real period folds into a clean wave; noise folds into a cloud.`;
+    }
+
+    function render(r) {
+      last = r;
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      const s0 = r.found[0];
+      const stats = [
+        [fmt(s0.period, 5), "strongest period"],
+        [fmtFap(s0.fap), "its false alarm probability"],
+        [String(r.found.length), r.found.length === 1 ? "period found" : "periods found"],
+        [r.n.toLocaleString("en-US"), `points${r.groups.length > 1 ? ` in ${r.groups.length} groups` : ""}`],
+        [fmt(r.baseline, 5), "time span"],
+      ];
+      $("#stats").innerHTML = stats.map(([b, sp]) => `<div class="stat"><b>${esc(b)}</b><span>${esc(sp)}</span></div>`).join("");
+      $("#warnings").innerHTML = [...(r.skipped ? [`${r.skipped} row${r.skipped === 1 ? " was" : "s were"} skipped (missing or unreadable time, value or error).`] : []), ...r.warnings].map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      drawPeriodogram(r);
+      $("#signal-table tbody").innerHTML = r.found.map((sg, i) => `<tr><td>${i + 1}</td><td class="n">${fmt(sg.period, 6)}</td><td class="n">${fmt(sg.periodError, 2)}</td><td class="n">${fmt(sg.amplitude, 4)}</td><td class="n">${sg.power.toFixed(3)}</td><td class="n">${fmtFap(sg.fap)}</td><td>${sg.aliases.slice(0, 2).map((a) => `${fmt(a.period, 4)} (${(a.ratio * 100).toFixed(0)}%)`).join(", ") || "none strong"}${sg.ambiguous ? " <strong>ambiguous</strong>" : ""}</td></tr>`).join("");
+      $("#fold-pick").innerHTML = r.found.map((sg, i) => `<option value="${i}">${i + 1}: ${fmt(sg.period, 6)}</option>`).join("");
+      drawFolded(r, 0);
+      drawSeries(r);
+      $("#peak-table tbody").innerHTML = r.peaks.map((p) => `<tr><td class="n">${fmt(p.period, 6)}</td><td class="n">${fmt(p.frequency, 5)}</td><td class="n">${p.power.toFixed(4)}</td><td class="n">${fmtFap(p.fap)}</td></tr>`).join("");
+      $("#settings-line").textContent = `Grid: ${r.grid.nf.toLocaleString("en-US")} frequencies from period ${fmt(r.grid.maxPeriod, 5)} to ${fmt(r.grid.minPeriod, 5)}, ${r.grid.oversample} points per peak width. Columns: time ${r.columns.time}, value ${r.columns.value}, error ${r.columns.error ?? "none"}, group ${r.columns.group ?? "none"}.`;
+    }
+
+    function run() {
+      $("#status").textContent = "Computing…";
+      $("#analyze").disabled = true;
+      setTimeout(() => {
+        try {
+          const t0 = performance.now();
+          const opts = inputs();
+          const r = analyze(opts);
+          render(r);
+          record("analysis_run");
+          $("#status").textContent = `Done in ${((performance.now() - t0) / 1000).toFixed(1)} s.`;
+        } catch (e) {
+          $("#results").hidden = true;
+          $("#status").textContent = e.message;
+        } finally {
+          $("#analyze").disabled = false;
+        }
+      }, 20);
+    }
+    $("#analyze").addEventListener("click", run);
+    $("#fold-pick").addEventListener("change", () => last && drawFolded(last, Number($("#fold-pick").value)));
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshColumns();
+      $("#jitter").value = "2.6";
+      $("#signals").value = "4";
+      $("#min-period").value = "";
+      $("#max-period").value = "";
+      record("example_loaded");
+      run();
+    });
+    function save(text, name, type) {
+      const blob = new Blob([text], { type });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    }
+    $("#download").addEventListener("click", () => last && save(toCsv(last), "periodogram.csv", "text/csv"));
+    $("#download-report").addEventListener("click", () => last && save(report(last) + "\n", "periods.txt", "text/plain"));
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

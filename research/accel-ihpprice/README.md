@@ -2,7 +2,7 @@
 
 Does clock-gated register-file weight-stationary scheduling still beat output-stationary on a second open process, IHP SG13G2, and does the answer to "is ungated weight-stationary good enough?" depend on the node? Ninth step of track 8 (task-specific AI accelerators) in `PROJECTS.md`. It takes the "second-node verdict" next step of `accel-gatedprice`, which could not give one because GF180 has no SRAM macro in the open tree. IHP SG13G2 does: ten SRAM macros, with separate read and write energies. It seemed worth doing because every earlier verdict in this chain rests on one node (SKY130), so the headline "weight-stationary needs gated flops" could have been a SKY130 accident.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-ihpprice/
+**Live page:** https://marisstella.app/research/accel-ihpprice/
 
 **Headline.** Gating is the robust result; the ungated verdict is node-dependent. With one clock gate per 24-bit accumulator, register-file weight-stationary (WS) beats output-stationary (OS) in all 120 (layer, batch, macro, packing) cells against IHP's own macros, needing at most 6 flops per gate. Ungated WS wins in 92 of the 120, and in 33 of the 60 packed cells, where on SKY130 it lost at nearly every packed cell. The reason is the price of a weight fetch in idle-flop-cycles: 72 to 497 for packed IHP macros against 18 to 62 for SKY130's.
 
@@ -51,3 +51,25 @@ None. Analysis of library files only; no hardware was specified, bought or measu
 The SKY130 HD, IHP SG13G2 and NanGate45 liberty files from OpenROAD-flow-scripts (fetched at a pinned commit; Apache-2.0); Python standard library for the model, tests and figure; the `accel-fetchprice` breakevens and the `accel-pdkprice` SKY130 macro energies (copied to `data/`).
 
 **Figure.** `experiments/thresholds.svg`: the weight-fetch cost WS needs, in idle-flop-cycles, against batch size, with the cheapest and dearest IHP packed macro.
+
+## Known gaps
+
+From the quality audit of 2026-11-12
+([`portfolio/quality/audits/2026-11-12-accel-ihpprice.json`](../../portfolio/quality/audits/2026-11-12-accel-ihpprice.json)):
+
+- **Clock-tree and wire energy are left out, with no sensitivity run.** The
+  "ungated WS wins 33 of 60 packed cells" headline is the fragile one: if
+  clock-network overhead scales flop and gate energy by 1.5x, 2x or 3x, it
+  falls to 24, 18 and 12 of 60 (the auditor's recomputation from
+  `data/fetchprice_results.json`). Gated WS still wins all 120.
+- **No prior work is cited**: Eyeriss (Chen et al. 2016), Timeloop/Accelergy
+  (Parashar et al. 2019; Wu et al. 2019), CACTI, Horowitz (ISSCC 2014).
+- **The verdict code in `experiments/run.py` is untested**, and nothing pins
+  `results.txt`.
+- "4 to 8 times dearer" compares range endpoints across different macro sets;
+  for the 64-bit macros alone the figure is 1.2 to 3.7x.
+
+Fixed since: `min_group_size` now returns the smallest *strictly* winning gate
+size, as its docstring said (results unchanged, re-run against the fetched
+libraries), and `fetch_pdk.sh` fails when the pinned commit cannot be fetched
+instead of silently using master.

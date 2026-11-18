@@ -1,0 +1,73 @@
+Milestone 6zzs: a dark-summer guard gated on the operating side the boat reads from replaying its own learning year, all 30 points and the five single-year lags, 2005 to 2014 (50 W)
+lag g: scoring L learns from 2010 - g, scoring E from 2009 + g; local summer JJA north, DJF south
+high-amplitude points: P-60, P-30, P+50, P+60, A-50, A+50, A+60, North-Sea, Gulf-of-Alaska (9)
+
+Checks (6zzj, 6zzp): all168 LC_1 97 (97), LC_2 117 (117), LC_3 132 (132), LC_4 152 (152), LC_5 111 (111), DG_1 89 (89), DG_2 105 (105), DG_3 136 (136), DG_4 131 (131), DG_5 69 (69); hi168 LC_1 77 (77), LC_2 153 (153), LC_3 1 (1), LC_4 124 (124), LC_5 50 (50), DG_1 105 (105), DG_2 152 (152), DG_3 74 (74), DG_4 124 (124), DG_5 91 (91); AT_90 all168 139 (139), hi168 25 (25), real8 8 (8), pp240 126 (126)  ok
+
+Per rule and lag: dominance counts
+  rule   |  all168 |   real8 |   hi168 |   pp240
+  AT_90  |     139 |       8 |      25 |     126
+  LC_1   |      97 |       4 |      77 |     106
+  LC_2   |     117 |       7 |     153 |     121
+  LC_3   |     132 |       8 |       1 |     107
+  LC_4   |     152 |       8 |     124 |     131
+  LC_5   |     111 |       7 |      50 |     105
+  DG_1   |      89 |       5 |     105 |     109
+  DG_2   |     105 |       6 |     152 |     121
+  DG_3   |     136 |       7 |      74 |     120
+  DG_4   |     131 |       6 |     124 |     133
+  DG_5   |      69 |       3 |      91 |     113
+  BG_1   |     136 |       7 |       4 |     102
+  BG_2   |     128 |       7 |      62 |     118
+  BG_3   |     116 |       6 |       0 |     112
+  BG_4   |     121 |       6 |      39 |     111
+  BG_5   |     136 |       8 |      25 |     104
+  OG_1   |     103 |       5 |      84 |     107
+  OG_2   |     121 |       6 |     152 |     123
+  OG_3   |     149 |       8 |      18 |     111
+  OG_4   |     154 |       8 |     124 |     130
+  OG_5   |     109 |       7 |      51 |     107
+  OM_1   |     111 |       6 |      84 |     110
+  OM_2   |     127 |       7 |     152 |     123
+  OM_3   |     151 |       8 |      18 |     111
+  OM_4   |     156 |       8 |     124 |     128
+  OM_5   |     113 |       6 |      51 |     107
+
+Per rule over the five lags: mean [min, max]
+  LC  |  121.8 [ 97,152] |    6.8 [  4,  8] |   81.0 [  1,153] |  114.0 [105,131]
+  DG  |  106.0 [ 69,136] |    5.4 [  3,  7] |  109.2 [ 74,152] |  119.2 [109,133]
+  BG  |  127.4 [116,136] |    6.8 [  6,  8] |   26.0 [  0, 62] |  109.4 [102,118]
+  OG  |  127.2 [103,154] |    6.8 [  5,  8] |   85.8 [ 18,152] |  115.6 [107,130]
+  OM  |  131.6 [111,156] |    7.0 [  6,  8] |   85.8 [ 18,152] |  115.8 [107,128]
+
+Failing hi168 cells by mode (km only / dark only / both)
+  LC: lag 1 89/2/0; lag 2 1/14/0; lag 3 167/0/0; lag 4 44/0/0; lag 5 118/0/0
+  DG: lag 1 61/2/0; lag 2 1/15/0; lag 3 94/0/0; lag 4 44/0/0; lag 5 77/0/0
+  OG: lag 1 82/2/0; lag 2 1/15/0; lag 3 150/0/0; lag 4 44/0/0; lag 5 117/0/0
+  OM: lag 1 82/2/0; lag 2 1/15/0; lag 3 150/0/0; lag 4 44/0/0; lag 5 117/0/0
+
+Failing all168 cells by mode (km only / dark only / both)
+  LC: lag 1 15/56/0; lag 2 6/45/0; lag 3 17/19/0; lag 4 6/10/0; lag 5 2/55/0
+  DG: lag 1 0/79/0; lag 2 0/63/0; lag 3 0/32/0; lag 4 0/37/0; lag 5 0/99/0
+  OG: lag 1 5/60/0; lag 2 0/47/0; lag 3 0/19/0; lag 4 1/13/0; lag 5 2/57/0
+  OM: lag 1 6/51/0; lag 2 0/41/0; lag 3 0/17/0; lag 4 1/11/0; lag 5 2/53/0
+
+Replay side of the learning year (AT_90 against B on that year): share short / dark / ok
+  all 30, 21 shapes: 0.246 / 0.144 / 0.611 (n = 25200)
+  high-amplitude, 21 shapes: 0.196 / 0.006 / 0.798 (n = 7560)
+  all 30, real shape: 0.217 / 0.137 / 0.647 (n = 1200)
+
+Replay side equals scored-year side (real shape, per point, pack and scored year): all 30 / high-amplitude
+  lag 1 0.618 / 0.758, lag 2 0.653 / 0.839, lag 3 0.677 / 0.817, lag 4 0.647 / 0.806, lag 5 0.631 / 0.808; pooled 0.645 / 0.806
+
+Predictions
+S1 OG mean hi168 >= 100: refuted (85.8)
+S2 OG mean all168 >= 121.8: held (127.2)
+S3 OG mean all168 > 106.0: held (127.2)
+S4 OG_3 hi168 >= 30: refuted (18)
+S5 OG worst lag hi168 >= 30: refuted (18)
+S6 OG mean all168 >= 139: refuted (127.2)
+S7 OM mean all168 >= OG mean all168: held (131.6 vs 127.2)
+S8 BG mean hi168 < 81.0: held (26.0)
+S9 BG mean all168 < 139: held (127.4)
+S10 replay side agreement >= 0.70: refuted (0.645)

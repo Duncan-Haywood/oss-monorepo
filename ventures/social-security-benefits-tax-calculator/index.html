@@ -44,12 +44,21 @@
     .scroll { overflow-x: auto; }
     @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#status) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 348px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
     <p class="note">SOCIAL SECURITY BENEFITS TAX CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Is your Social Security taxable, and what does your next dollar of income really cost?</h1>
-    <p>Up to <strong>50%</strong> then <strong>85%</strong> of your benefits are taxed once your <strong>provisional income</strong> (other income plus half your benefits) passes <strong>$25,000</strong> single or <strong>$32,000</strong> joint, and <strong>$34,000</strong> or <strong>$44,000</strong>. Enter your figures to see the taxable share, the tax, and the effective rate on an extra IRA withdrawal or Roth conversion (the "tax torpedo").</p>
+    <p class="answer-source" data-answer-lead>Up to <strong>50%</strong> then <strong>85%</strong> of your benefits are taxed once your <strong>provisional income</strong> (other income plus half your benefits) passes <strong>$25,000</strong> single or <strong>$32,000</strong> joint, and <strong>$34,000</strong> or <strong>$44,000</strong>; the amounts are fixed in the statute and not indexed for inflation. Source: 26 U.S.C. section 86 and IRS Publication 915. As of 2026-11-10. Enter your figures to see the taxable share, the tax, and the effective rate on an extra IRA withdrawal or Roth conversion (the "tax torpedo").</p>
     <p class="note">The numbers stay in this browser tab. It does arithmetic on what you type; it is a worksheet, not advice. The base amounts are not indexed for inflation.</p>
   </header>
 <main>
@@ -147,7 +156,7 @@
       $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${dollars(x.other)}</td><td class="n">${dollars(x.pi)}</td><td class="n">${dollars(x.taxable)}</td><td class="n">${(x.pct * 100).toFixed(1)}%</td><td class="n">${dollars(x.tax)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

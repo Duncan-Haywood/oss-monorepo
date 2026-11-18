@@ -48,7 +48,7 @@
 <body>
   <header>
     <p class="note">PADEL CLUB PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
-    <h1>What share of its court-hours does a padel club need to sell to break even, and how much cash does the ramp-up eat?</h1>
+    <h1>What share of its court-hours does a padel club need to sell to break even?</h1>
     <p>Enter your courts, opening hours, peak and off-peak prices and how full each is, members, coaching, food and drink, staff, rent and a loan. You get <strong>monthly profit</strong> at planned bookings, <strong>break-even court-hours and utilisation</strong>, the <strong>price change that hits your target margin</strong>, a table showing what <strong>slower bookings, price changes and wage rises</strong> do to profit, a sixty-month ramp-up with the <strong>cash reserve</strong> and <strong>payback</strong>, and loan coverage.</p>
     <p class="note">It works from your own figures. It does not know how many players live near your site, what competing clubs charge, or whether your building can be permitted for padel.</p>
   </header>
@@ -170,7 +170,7 @@
     let last = null;
     const map = { courts: "courts", hoursweekday: "hoursWeekday", hoursweekend: "hoursWeekend", peakshare: "peakShare", peakutil: "peakUtil", offutil: "offUtil", peakprice: "peakPrice", offprice: "offPrice", memberpct: "memberPct", memberdiscount: "memberDiscount", feespct: "feesPct", playersperhour: "playersPerHour", fbspend: "fbSpend", fbcogspct: "fbCogsPct", shopperhour: "shopPerHour", shopmarginpct: "shopMarginPct", perhourcost: "perHourCost", lessonsweek: "lessonsWeek", lessonprice: "lessonPrice", coachsharepct: "coachSharePct", staffhours: "staffHours", wage: "wage", burdenpct: "burdenPct", rentmonthly: "rentMonthly", utilitiesmonthly: "utilitiesMonthly", insuranceyear: "insuranceYear", marketingmonthly: "marketingMonthly", managermonthly: "managerMonthly", othermonthly: "otherMonthly", courtcost: "courtCost", fitout: "fitout", clubhouse: "clubhouse", launch: "launch", depositmonths: "depositMonths", contingencypct: "contingencyPct", startpct: "startPct", rampmonths: "rampMonths", ltcpct: "ltcPct", loanrate: "loanRate", termyears: "termYears", targetmargin: "targetMargin" };
     const IDLE = "Fill in your club, then click Work out the club. The number of courts, opening hours and a peak price are required; the rest default to zero or the neutral choice.";
-    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
     const pct = (n) => (n * 100).toFixed(1) + "%";
     const sgn = (n) => (n > 0 ? "+" : "") + n + "%";
     const cells = (x) => `<td class="n">${whole(x.profit)}</td><td class="n">${x.margin === null ? "n/a" : pct(x.margin)}</td><td class="n">${whole(x.cash)}</td>`;
@@ -195,7 +195,7 @@
       $("#year-rows").innerHTML = r.yearProfit.map((v, i) => `<tr><td class="n">${i + 1}</td><td class="n">${whole(v)}</td><td class="n">${whole(r.yearCash[i])}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

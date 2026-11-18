@@ -5,7 +5,7 @@ and reports every attribute value that looks like a real secret — an AWS
 access key, a PEM private key, a JWT, or a URL with embedded credentials —
 which the provider schema did **not** mark `sensitive`.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/terraform-plan-secret-exposure-check/
+**Live tool:** https://marisstella.app/terraform-plan-secret-exposure-check/
 
 **What it is not:** a Terraform state scanner, a secrets-manager audit, or a
 policy engine. It answers one narrow question per attribute — does this
@@ -44,7 +44,8 @@ they catch different things and a CI pipeline commonly wants both.
 
 [`index.html`](index.html) reads a plan file you load or paste entirely in
 the browser, and reports every unmarked attribute matching a known secret
-shape, redacted to the first and last four characters. No fetch happens from
+shape, redacted to at most the first and last four characters (a URL keeps its
+scheme, user and host, never its password). No fetch happens from
 the page itself, so nothing you load ever leaves your device.
 
 ## Quickstart (CLI)

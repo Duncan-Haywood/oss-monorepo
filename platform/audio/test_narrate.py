@@ -1,6 +1,8 @@
 """Tests for the narration engine's text, timing and cache logic. No model needed:
 the voice is stood in for by audio written into the cache first."""
+import os
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -21,6 +23,16 @@ class Sentences(unittest.TestCase):
     def test_merges_short_sentences(self):
         self.assertEqual(N.sentences("No. It was never going to work, not with the storage blocked."),
                          ["No. It was never going to work, not with the storage blocked."])
+
+    def test_long_sentence_absorbs_a_tiny_one(self):
+        # Either condition alone is enough: a long unit followed by a tiny one still merges.
+        long = "This first sentence is comfortably longer than the minimum unit."
+        self.assertGreaterEqual(len(long), N.MIN_UNIT)
+        self.assertEqual(N.sentences(long + " Yes."), [long + " Yes."])
+        # The "tiny" cutoff is MIN_UNIT // 2 (20 characters): 16 characters still merges.
+        mid = "Yes it was fine."
+        self.assertTrue(N.MIN_UNIT // 3 <= len(mid) < N.MIN_UNIT // 2)
+        self.assertEqual(N.sentences(long + " " + mid), [long + " " + mid])
 
     def test_keeps_abbreviations_and_acronyms_whole(self):
         units = N.sentences("We asked Dr. Okafor about it at length, over coffee. The A.I. Agent said nothing useful at all today.")
@@ -94,6 +106,11 @@ class Render(unittest.TestCase):
         self.assertNotEqual(k, N.Narrator(models=self.n.models, g2p="misaki")._key("x"))
         self.assertEqual(k, N.Narrator(models=self.n.models, g2p="espeak")._key("x"))
 
+    def test_store_into_an_existing_shard_directory(self):
+        self.n._store("ab" + "0" * 62, np.zeros(10, dtype=np.float32))
+        self.n._store("ab" + "1" * 62, np.zeros(10, dtype=np.float32))  # same shard: must not raise
+        self.assertIsNotNone(self.n._cached("ab" + "1" * 62))
+
     def test_cache_round_trip_is_close(self):
         audio = np.sin(np.linspace(0, 100, 4800)).astype(np.float32) * 0.8
         self.n._store("ab" * 32, audio)
@@ -116,7 +133,7 @@ class Voicing(unittest.TestCase):
         models = self.dir / "a" / "b"
 
         def fake(url, dest):
-            self.assertTrue(str(dest).endswith(".part"))
+            self.assertTrue(str(dest).endswith(f".{os.getpid()}.part"))
             Path(dest).write_bytes(b"x")
 
         with mock.patch.object(N.urllib.request, "urlretrieve", side_effect=fake) as get:
@@ -124,7 +141,7 @@ class Voicing(unittest.TestCase):
             self.assertEqual(get.call_count, len(N.MODEL_FILES))
             for name in N.MODEL_FILES:
                 self.assertTrue((models / name).exists())
-                self.assertFalse((models / f"{name}.part").exists())
+                self.assertEqual(list(models.glob(f"{name}*.part")), [])
             N.ensure_models(models)  # present files are not fetched again
             self.assertEqual(get.call_count, len(N.MODEL_FILES))
 
@@ -139,6 +156,30 @@ class Voicing(unittest.TestCase):
         self.assertEqual(rt.InferenceSession.call_args[0][0], str(self.dir / N.MODEL_FILES[0]))
         self.assertEqual(kokoro_onnx.Kokoro.from_session.call_args[0][1], str(self.dir / N.MODEL_FILES[1]))
 
+    def test_misaki_g2p_is_built_without_the_transformer_and_per_accent(self):
+        import types
+        from unittest import mock
+
+        misaki = types.SimpleNamespace(en=mock.MagicMock(), espeak=mock.MagicMock())
+        mods = {
+            "onnxruntime": mock.MagicMock(),
+            "kokoro_onnx": types.SimpleNamespace(Kokoro=mock.MagicMock()),
+            "misaki": misaki,
+            "misaki.en": misaki.en,
+            "misaki.espeak": misaki.espeak,
+        }
+        old = (N._KOKORO, N._G2P)
+        try:
+            with mock.patch.dict(sys.modules, mods):
+                N._load(str(self.dir), 1, g2p="misaki", lang="en-gb")
+                N._load(str(self.dir), 1, g2p="misaki", lang="en-us")
+        finally:
+            N._KOKORO, N._G2P = old
+        gb, us = misaki.en.G2P.call_args_list
+        self.assertIs(gb.kwargs["trf"], False)  # the transformer is a heavy optional dependency
+        self.assertIs(gb.kwargs["british"], True)
+        self.assertIs(us.kwargs["british"], False)
+
     def test_few_units_never_get_a_pool_when_one_worker_asked(self):
         from unittest import mock
 
@@ -150,6 +191,16 @@ class Voicing(unittest.TestCase):
             out = n.voice_units(units)
         self.assertEqual(set(out), set(units))
 
+    def test_single_process_uses_every_core_as_threads(self):
+        from unittest import mock
+
+        n = N.Narrator(models=self.dir / "m", cache=self.dir / "c", g2p="espeak", workers=1)
+        with mock.patch.object(N, "ensure_models"), mock.patch.object(N, "_load") as load, \
+                mock.patch.object(N, "default_workers", return_value=(4, 1)), \
+                mock.patch.object(N, "_voice", return_value=np.zeros(10, dtype=np.float32)):
+            n.voice_units(["one long enough sentence here."])
+        self.assertEqual(load.call_args[0][1], 4)
+
     def test_empty_script_renders_nothing(self):
         n = N.Narrator(models=self.dir / "m", cache=self.dir / "c", g2p="espeak")
         out = n.render([])
@@ -157,7 +208,162 @@ class Voicing(unittest.TestCase):
         self.assertEqual(out.dtype, np.float32)
 
 
+class DefaultWorkers(unittest.TestCase):
+    def test_one_process_per_usable_core_single_threaded(self):
+        from unittest import mock
+        with mock.patch.object(N.os, "sched_getaffinity", create=True, side_effect=lambda pid: {0, 1, 2} if pid == 0 else {9}):
+            self.assertEqual(N.default_workers(), (3, 1))
+
+    def test_never_fewer_than_one_process(self):
+        from unittest import mock
+        with mock.patch.object(N.os, "sched_getaffinity", create=True, return_value=set()):
+            self.assertEqual(N.default_workers(), (1, 1))
+
+
+class DefaultWorkersFallback(unittest.TestCase):
+    def test_no_affinity_and_unknown_cpu_count_means_one_core(self):
+        from unittest import mock
+        had = hasattr(N.os, "sched_getaffinity")
+        orig = getattr(N.os, "sched_getaffinity", None)
+        if had:
+            del N.os.sched_getaffinity
+        try:
+            with mock.patch.object(N.os, "cpu_count", return_value=None):
+                self.assertEqual(N.default_workers(), (1, 1))
+            with mock.patch.object(N.os, "cpu_count", return_value=6):
+                self.assertEqual(N.default_workers(), (6, 1))
+        finally:
+            if had:
+                N.os.sched_getaffinity = orig
+
+
+class G2PChoice(unittest.TestCase):
+    def test_misaki_is_english_only(self):
+        self.assertEqual(N.Narrator(lang="fr-fr", g2p="misaki").g2p, "espeak")
+        self.assertEqual(N.Narrator(lang="en-gb", g2p="misaki").g2p, "misaki")
+        self.assertEqual(N.Narrator(lang="fr-fr", g2p="espeak").g2p, "espeak")
+
+
+class CacheKeyModelSize(unittest.TestCase):
+    def test_missing_model_differs_from_a_one_byte_model(self):
+        d = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, d)
+        n = N.Narrator(models=d, cache=None, g2p="espeak")
+        missing = n._key("x")
+        (d / N.MODEL_FILES[0]).write_bytes(b"x")
+        self.assertNotEqual(missing, n._key("x"))
+
+
+class PoolScheduling(unittest.TestCase):
+    def test_pool_hands_out_one_unit_at_a_time(self):
+        from unittest import mock
+        d = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, d)
+        n = N.Narrator(models=d / "m", cache=d / "c", g2p="espeak", workers=2)
+        units = ["one long enough sentence here.", "two long enough sentence here."]
+        pool = mock.MagicMock()
+        pool.map.return_value = [np.zeros(10, dtype=np.float32)] * 2
+        with mock.patch.object(N, "ensure_models"), mock.patch.object(N, "ProcessPoolExecutor", return_value=pool):
+            n.voice_units(units)
+        self.assertEqual(pool.map.call_args.kwargs["chunksize"], 1)
+
+
+class FfmpegFailure(unittest.TestCase):
+    def test_a_failing_ffmpeg_raises(self):
+        import subprocess
+        with self.assertRaises(subprocess.CalledProcessError):
+            N._ffmpeg(["-af", "nonexistent_filter_xyz", "-f", "null", "-"], np.zeros(100, dtype=np.float32))
+
+
+class Fade(unittest.TestCase):
+    def test_one_sample_fade_still_applies(self):
+        out = N.fade(np.ones(10, dtype=np.float32), seconds=1.5 / N.RATE)
+        self.assertEqual(out[0], 0.0)
+        self.assertEqual(out[-1], 0.0)
+        self.assertTrue(np.all(out[1:-1] == 1.0))
+
+
+class Voice(unittest.TestCase):
+    def test_phoneme_path_flags_phonemes(self):
+        calls = []
+
+        class K:
+            def create(self, text, **kw):
+                calls.append((text, kw))
+                return np.ones(N.RATE // 10, dtype=np.float32), N.RATE
+
+        old = (N._KOKORO, N._G2P)
+        try:
+            N._KOKORO, N._G2P = K(), (lambda t: ("PH", None))
+            N._voice(("hi", "v", 1.0, "en-us"))
+            N._G2P = None
+            N._voice(("hi", "v", 1.0, "en-us"))
+        finally:
+            N._KOKORO, N._G2P = old
+        self.assertEqual(calls[0][0], "PH")
+        self.assertIs(calls[0][1]["is_phonemes"], True)
+        self.assertEqual(calls[1][0], "hi")
+        self.assertNotIn("is_phonemes", calls[1][1])
+
+
 class Master(unittest.TestCase):
+    def test_limiter_ceiling_matches_true_peak(self):
+        seen = []
+        old = N._ffmpeg
+        N._ffmpeg = lambda args, pcm: seen.append(args) or type("R", (), {"stderr": b""})()
+        try:
+            old_measure = N.measure
+            N.measure = lambda pcm, pre="": {"lufs": N.LOUDNESS, "lra": 0.0, "peak": 0.0}
+            try:
+                with tempfile.TemporaryDirectory() as tmp:
+                    try:
+                        N.master(np.zeros(10, dtype=np.float32), Path(tmp) / "x.mp3")
+                    except Exception:
+                        pass  # ffprobe on the unwritten file; the chain was already captured
+            finally:
+                N.measure = old_measure
+        finally:
+            N._ffmpeg = old
+        chain = seen[0][seen[0].index("-af") + 1]
+        self.assertIn(f"alimiter=limit={10 ** (N.TRUE_PEAK / 20):.4f}:", chain)
+
+    def _chain_for(self, lufs):
+        """The -af chain master() builds when the input measures `lufs`."""
+        seen = []
+        old, old_measure = N._ffmpeg, N.measure
+        N._ffmpeg = lambda args, pcm: seen.append(args) or type("R", (), {"stderr": b""})()
+        N.measure = lambda pcm, pre="": {"lufs": lufs, "lra": 0.0, "peak": 0.0}
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                try:
+                    N.master(np.full(10, 0.1, dtype=np.float32), Path(tmp) / "x.mp3")
+                except subprocess.CalledProcessError:
+                    pass  # ffprobe on the unwritten file; the chain was already captured
+        finally:
+            N._ffmpeg, N.measure = old, old_measure
+        return seen[0][seen[0].index("-af") + 1]
+
+    def test_gain_is_exactly_target_minus_measured(self):
+        # Pins the calibration a +/-1 LU end-to-end band cannot: a +0.8 dB error survived it.
+        self.assertIn("volume=12.25dB,", self._chain_for(-28.25))
+        self.assertIn("volume=-3.00dB,", self._chain_for(-13.0))
+
+    def test_refuses_silent_and_near_silent_input(self):
+        # ffmpeg reports -inf LUFS below the R128 -70 gate; that used to become volume=inf dB.
+        for lufs in (float("-inf"), float("nan"), -70.0, N.MIN_INPUT_LUFS - 0.1):
+            with self.subTest(lufs=lufs), self.assertRaises(ValueError):
+                self._chain_for(lufs)
+        self.assertIn("volume=", self._chain_for(N.MIN_INPUT_LUFS))
+
+    def test_refuses_empty_and_non_finite_samples(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            for pcm in (np.zeros(0, dtype=np.float32), np.array([0.1, np.nan], dtype=np.float32),
+                        np.array([0.1, np.inf], dtype=np.float32)):
+                with self.subTest(n=pcm.size), self.assertRaises(ValueError):
+                    N.master(pcm, Path(tmp) / "x.mp3")
+
+
+class MasterEndToEnd(unittest.TestCase):
     def test_lands_on_target_loudness(self):
         t = np.arange(N.RATE * 12) / N.RATE
         # A quiet, speech-like test signal: a 180 Hz buzz with syllable-rate bursts.
@@ -171,7 +377,10 @@ class Master(unittest.TestCase):
             raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(out), "-f", "f32le", "-ac", "1", "-ar", str(N.RATE), "-"],
                                  capture_output=True, check=True).stdout
             m = N.measure(np.frombuffer(raw, "<f4"), pre="")
-            self.assertAlmostEqual(m["lufs"], N.LOUDNESS, delta=1.0)
+            # The limiter and the MP3 encode land it 0.3 to 0.5 LU under target (-16.45 here,
+            # 2026-11-14); a band that wide either side let a +0.8 dB gain error through.
+            self.assertGreater(m["lufs"], N.LOUDNESS - 0.8)
+            self.assertLess(m["lufs"], N.LOUDNESS + 0.2)
             self.assertLess(m["peak"], -0.5)
 
 

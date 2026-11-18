@@ -27,5 +27,5 @@ kill_criteria:
   - Fewer than five people print plans or download a cut sheet within 90 days.
   - A builder reports a framing count or cut length that is wrong and the cause is the engine, not their input, twice without a fix.
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/shed-designer/
+  production: https://marisstella.app/shed-designer/
   analytics: null

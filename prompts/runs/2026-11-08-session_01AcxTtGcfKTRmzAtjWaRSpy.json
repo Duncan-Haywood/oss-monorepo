@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01AcxTtGcfKTRmzAtjWaRSpy",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T04:07:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13954",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "No blog post or run-cost attach; kept to a small analysis-only programme step because a training run did not fit the session",
+      "did": "LOG, paper item, script and output only",
+      "result": "landed as one step"
+    }
+  ],
+  "writeups": [
+    "research/lowcomm-training/LOG.md 6p; paper/section_compression.md item 8"
+  ],
+  "goal": null,
+  "notes": "Free-choice draw; sim2real-inference and heavy-hydraulics are BLOCKED so took lowcomm-training. Hinge w0 bootstrap interval is tight because w0 is pinned to the middle cell on an integer grid; stated in the log.",
+  "corrections": [],
+  "redteam": null
+}

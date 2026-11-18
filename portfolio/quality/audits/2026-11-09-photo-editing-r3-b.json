@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-09",
+  "subject": "ventures/photo-editing",
+  "stratum": "flagship",
+  "seed": "2026-11-09",
+  "auditor": "agent session (Claude), third audit (r3); see run record",
+  "status": "audited",
+  "professional": "a working event/wedding photographer who also cuts video (culls 2,000 frames, grades with LUTs, delivers reels); first checks: is the sharpness/exposure/tilt reading right, does the cull spare deliberate low-key frames, is the public page truthful and the command copy-pasteable",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran the code and recomputed against independent pure-Python code I wrote (no numpy needed). (a) _laplacian_variance on Gaussian-noise 320x180 frames of sigma 3/12/30: tool 183.276651682407 / 2832.467055371167 / 18144.848349628763 vs independent 4-neighbour Laplacian variance 183.27665168241052 / 2832.4670553712717 / 18144.848349628595 (agree to 1e-13). (b) luma/exposure on a horizontal ramp 40..190: tool mean_luma 114.281, exposure 0.952344, clipped 0/0; hand formula 1-|114.28125-120|/120 = 0.95234375. (c) tilt on soft sigmoid horizons rotated by true 0/3/-4/7 degrees: tool 0.0/2.993/-3.99/6.99, confidence 1.0. Synthetic media only, no real camera files, so correctness stays 3. Unit-test sandbox state matches r2.",
+    "completeness": "Since r2, `git log -- ventures/photo-editing` shows no photo-editing change (only an unrelated shallow-clone head commit), so the feature set is as r2 judged: cull + XMP, frame metrics (sharpness, exposure, noise, tilt, dHash), checksummed ingest, local ffmpeg pipeline, LUT grade, reels/carousels. This round I re-ran only the metrics and the 517-test suite, not the ffmpeg pipeline. Stated gaps stand (RAW development, no app). No NotImplementedError. 3 against its own README.",
+    "verification": "`PYTHONPATH=src python3 -m unittest discover -s tests`: 517 tests, 21 s, 1 failure + 1 error + 1 skip (identical to r2): chmod(0) test fails as root (test_workspace_health.py:117); test_real_photo_calibration errors on a broken system Pillow with no importorskip. pytest env was still installing via pyenv.py, so unittest was used. Seeded mutations in frame_analysis.py, each reverted with git checkout (git status clean): M1 exposure grey target 120.0 -> 100.0: NOT caught (full suite result identical to baseline, and the 58 tests in frame_analysis/cull/story all OK); M2 _SHARPNESS_HALF_POINT 60 -> 600 (sharpness score of every photo shifts roughly tenfold): NOT caught in the full suite. Two of two core-scoring mutations survive, plus the r2 survivor (tilt penalty zeroed) still stands as the same untouched code. Verification 2, arguably lower: the tests pin the metrics but not the scoring constants a photographer's cull depends on.",
+    "craft": "Read frame_analysis.py (metrics_from_frames, exposure, noise, tilt constants). Named constants, documented formulas, good. Defects unchanged from r2: pure-Python per-pixel loops, magic weights, 23,408 lines in src/shootflow with a parallel dry-run adapter/scheduler stack (production_adapter.py 3,167 lines, production_scheduler.py 1,404), tests that fail in a root/minimal sandbox without skips. Did not rerun ruff this round (r2: 69 errors). 2.",
+    "claims": "The public page ventures/photo-editing/site/index.html is byte-for-byte as r2 saw it: line 40 'The renderers are dry-run placeholders: ShootFlow does not yet render video or grade images', line 51 'No. The renderers are dry-run placeholders', and lines 34 and 47 tell users to run `shootflow cull FOLDER --out REPORT`; pyproject.toml has no [project.scripts] (grep returned nothing), so that command does not exist. README correctly gives `PYTHONPATH=src python3 -m shootflow.cli ...`, so README and page contradict each other. Cull claims are backed; the render/grade denial is false (understated) and the command is not runnable. Third audit with no fix. 2.",
+    "fitness": "Same as r2: a photographer can cull a folder and get XMP sidecars in one command with nothing uploaded, but only via a PYTHONPATH invocation, no UI, RAW only via embedded preview, no validation against a human's picks on a real shoot (VENTURE.yaml stage prototype). 2.",
+    "domain": "Compared to Photo Mechanic/Lightroom culling and DIT practice. Sound methods (sha256-verified ingest, dHash grouping, Immerkaer noise, structure-tensor tilt). Departures: 320x180 analysis frame hides critical-focus misses; mean-luma vs grey 120 exposure penalises deliberate low-key/high-key; the half-point and exposure constants are unvalidated and, as the mutations show, unpinned. A pro would use it as a first pass only. 2."
+  },
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Public page says renderers are dry-run placeholders and ShootFlow does not render video or grade images (false), and tells users to run a `shootflow` command that is not installed (no console script). Unchanged across three audits.",
+      "where": "ventures/photo-editing/site/index.html:34,40,47,51"
+    },
+    {
+      "severity": "medium",
+      "what": "Mutating the exposure grey target (120 to 100) or the sharpness half-point (60 to 600) leaves the entire 517-test suite result unchanged; scoring constants that drive keeper/reject decisions are unpinned.",
+      "where": "ventures/photo-editing/src/shootflow/frame_analysis.py:164,50"
+    },
+    {
+      "severity": "medium",
+      "what": "Analysis uses a 320x180 grayscale downscale, so critical-focus misses are invisible and low-key/high-key frames are penalised.",
+      "where": "ventures/photo-editing/src/shootflow/frame_analysis.py:43-44,164"
+    },
+    {
+      "severity": "low",
+      "what": "Two tests fail in a root/minimal sandbox with no guard (chmod(0) as root; Pillow import without importorskip).",
+      "where": "ventures/photo-editing/tests/test_workspace_health.py:117; tests/test_real_photo_calibration.py:14"
+    },
+    {
+      "severity": "low",
+      "what": "Large duplicated dry-run adapter/scheduler stack beside the real ffmpeg path; pure-Python pixel loops.",
+      "where": "ventures/photo-editing/src/shootflow/"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Third audit, with no code or page change since r2 (all scores identical: 3/3/2/2/2/2/2). The numeric core again reproduces against independent code: Laplacian variance to 1e-13 on three frames, the exposure formula by hand, and tilt within 0.02 degrees on rotated horizons. It still does not meet the bar. The public page still falsely says it cannot render or grade and names a command that is not installed (claims 2), and both core-scoring mutations I seeded this round (exposure target, sharpness half-point) passed the full 517-test suite (verification 2). The two cheapest fixes, rewriting four lines of site/index.html and adding tests that pin the exposure and sharpness constants, would move it toward the bar."
+}

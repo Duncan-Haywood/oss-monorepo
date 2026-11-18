@@ -11,7 +11,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Home Staging Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a vacant-listing staging job from the included term, furniture carrying cost, crew labor, mileage, and equipment cost, flags an extension fee priced below the carrying cost, and checks the real profit once the listing's actual time on market is known."}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the calculator price the staging job at the included term instead of how long I expect the listing to take?","acceptedAnswer":{"@type":"Answer","text":"Because that is what a staging agreement actually promises: a price for an included term, with anything beyond it billed separately as an extension. Pricing the base fee from your expected time-on-market instead would double-count carrying cost for months that are supposed to be billed as an extension, not baked into the sticker price."}},{"@type":"Question","name":"What happens if my extension fee is lower than my furniture carrying cost?","acceptedAnswer":{"@type":"Answer","text":"Every month the listing runs long then costs you more to keep that furniture package off the market than you charge the seller for it, so the fee meant to protect your margin instead erodes it — and the loss has no ceiling the longer the listing takes to sell. The calculator flags this directly and reports how many extension months would erase the job's entire built-in profit."}},{"@type":"Question","name":"Why is the design consultation fee treated as pure profit with no added cost?","acceptedAnswer":{"@type":"Answer","text":"Because in this model the consultation is billed once regardless of term length and adds no furniture, storage, or crew cost of its own. If your business does incur a real added cost for it (a second visit, printed materials), fold that into the flat other-cost field."}},{"@type":"Question","name":"Does anything about my job details get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
 <style>
-:root{font:16px/1.5 system-ui,sans-serif;color:#241a12;background:#f7f1ea}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,3.9rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e6d3ba;border-radius:16px;padding:20px;box-shadow:0 8px 24px #46270708;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #f0e3cd;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#9a5a12;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #dcb886;border-radius:8px;font:inherit;background:#fffdfa}.result{background:#5c3a0f;color:#fff;border-color:#5c3a0f}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6a5a46}.result .note{color:#eadcc6}.err{color:#ffd9a6;font-weight:700}.warn{background:#fff4e0;border:1px solid #f0c987;color:#7a4b06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#3f2808;border-color:#c98b3b;color:#ffe6b0}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #dcb886;background:#fff;cursor:pointer;color:#241a12}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+:root{font:16px/1.5 system-ui,sans-serif;color:#241a12;background:#f7f1ea}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,3rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e6d3ba;border-radius:16px;padding:20px;box-shadow:0 8px 24px #46270708;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #f0e3cd;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#9a5a12;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #dcb886;border-radius:8px;font:inherit;background:#fffdfa}.result{background:#5c3a0f;color:#fff;border-color:#5c3a0f}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6a5a46}.result .note{color:#eadcc6}.err{color:#ffd9a6;font-weight:700}.warn{background:#fff4e0;border:1px solid #f0c987;color:#7a4b06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#3f2808;border-color:#c98b3b;color:#ffe6b0}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #dcb886;background:#fff;cursor:pointer;color:#241a12}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
 /* proposal:begin — generated by platform/proposal/adopt.mjs */
     .proposal-status { font-size: .8rem; color: #5c5854; }
 
@@ -327,8 +327,15 @@ updateActual(false);
         "A month-to-month extension is available beyond the included term at the rate quoted below"
       ];
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) {
         if (saved[field]) el(field).value = saved[field];
       }
@@ -357,7 +364,7 @@ updateActual(false);
     function showProposal() {
       const result = calculateQuote(readInput());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -402,7 +409,7 @@ updateActual(false);
       }
       el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
       count('proposal_printed');
-      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el('proposalDoc').scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
       // After paint, so the browser renders the document before the sheet is
       // captured; without it an empty page can go to the printer.
       requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
@@ -413,7 +420,7 @@ updateActual(false);
     document.addEventListener('change', refreshProposal);
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) el(field).value = '';
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';

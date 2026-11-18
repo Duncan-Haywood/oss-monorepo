@@ -113,7 +113,7 @@ export function analyze(raw, F = FIGURES) {
     return { gift: oo.giving, cashTotal: c.total, qcdTotal: q.total, advantage: c.total - q.total };
   });
   const form = [
-    ["IRA distribution (1099-R box 1)", o.iraDistribution], ["QCD excluded (1099-R box 2a lower by)", qcd.qcd],
+    ["IRA distribution (1099-R box 1)", o.iraDistribution], ["QCD excluded (1040 line 4a less 4b; write QCD next to 4b)", qcd.qcd],
     ["Taxable IRA distribution", qcd.iraTaxable], ["Other income", o.otherIncome], ["Taxable Social Security", qcd.ssTaxable],
     ["AGI with QCD", qcd.agi], ["AGI with cash gift", cash.agi], ["Deduction with QCD", qcd.deduction], ["Deduction with cash gift", cash.deduction],
     ["Federal tax with QCD", qcd.tax], ["Federal tax with cash gift", cash.tax], ["Federal tax with no gift", none.tax],

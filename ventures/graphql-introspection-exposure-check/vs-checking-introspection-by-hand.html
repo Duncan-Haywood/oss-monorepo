@@ -47,6 +47,7 @@
 </style>
 </head>
 <body>
+<main>
 <p><a href="index.html">← Back to the GraphQL Introspection Exposure Checker</a></p>
 <h1>GraphQL Introspection Exposure Checker vs. checking by hand</h1>
 <p>
@@ -114,7 +115,7 @@
 <p>A real API's introspection response can list hundreds of types and enough fields that the raw JSON runs to thousands of lines. GraphiQL's docs explorer defaults to browsing the Query type, and mutationType is a separate branch of the same tree a reader has to think to open. This tool always parses mutationType.fields and subscriptionType.fields specifically, counts them, and raises the finding as danger rather than notice the moment any mutation field is present -- because an exposed write surface is a materially worse finding than an exposed read surface, and that distinction should not depend on a reader remembering to check the second tab.</p>
 <h3>Why check field names for sensitive wording automatically instead of reading the schema yourself?</h3>
 <p>Reading every field name in a schema of even moderate size for words like admin, resetPassword, or impersonateUser is tedious and easy to shortcut once the obvious top-level fields look ordinary. This tool scans every query and mutation field name against a fixed list of sensitive-operation wording and lists the matches -- still a hint to review by hand, not proof of a missing authorization check, since GraphQL field-level auth is common and no introspection response can show it. What the automated scan changes is coverage: it checks every field name, not just the ones a skim happens to land on.</p>
-
+</main>
 <footer>
   <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented
   exposure class -- whether an unauthenticated introspection query succeeds against the one

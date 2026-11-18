@@ -55,3 +55,18 @@ test("transitional share by purchase date", () => {
   assert.equal(transitionalShare("2029-10-01"), 0);
   assert.equal(transitionalShare("x"), null);
 });
+
+test("full-width digits, letter and dashes (as pasted in Japan) are normalised", () => {
+  const r = checkRegistrationNumber("Ｔ７０００－０１２０－５０００２");
+  assert.equal(r.number, "T7000012050002");
+  assert.equal(r.kind, "corporate");
+  assert.equal(checkRegistrationNumber("t7000012050002").kind, "corporate");
+  assert.equal(checkRegistrationNumber("T7000ー0120ー50002").number, "T7000012050002");
+});
+
+test("impossible calendar dates are outside the measure, not 80% or 50%", () => {
+  assert.equal(transitionalShare("2026-13-45"), null);
+  assert.equal(transitionalShare("2026-02-31"), null);
+  assert.equal(transitionalShare("2025-02-29"), null);
+  assert.equal(transitionalShare("2028-02-29"), 0.5);
+});

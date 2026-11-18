@@ -101,8 +101,10 @@
     <label for="officials">One per line: Name, with an optional team in brackets, weekdays and a cap, such as <code>Ana (Hawks): Tue, Thu max 6</code>. Every match gets one, shared out evenly; nobody works their own team's match or two matches at once</label>
     <textarea id="officials" rows="3" placeholder="Ana (Hawks): Tue, Thu max 6&#10;Bo&#10;Cy (Rams)"></textarea>
     <h2 style="margin-top:18px">5. Team unavailable dates (optional)</h2>
-    <label for="blackouts">One team per line, written Division/Team: dates (a range works: <code>2026-11-05 to 2026-11-19</code>). A match on one of these nights moves to the next night both teams are free</label>
+    <label for="blackouts">One team per line, written Division/Team: dates (a range works: <code>2026-11-05 to 2026-11-19</code>). Each division's teams are first given the places in its round robin that suit these dates (a blackout lands on a bye or on a night the opponent is out too), and a match still on one of these nights moves to the next night both teams are free</label>
     <textarea id="blackouts" rows="2" placeholder="U10/Hawks: 2026-11-05, 2026-12-22 to 2026-12-30"></textarea>
+    <p class="note"><button type="button" class="secondary" id="dl-avail">Download a sign-up sheet for coaches (CSV, one row per team)</button> Send it out, then load the filled copy below.</p>
+    <p class="note"><label for="blackoutsCsv">Or load a coach sign-up form export (CSV with a Team column, an optional Division column and a column of dates they cannot play; read in your browser, nothing is uploaded):</label> <input type="file" id="blackoutsCsv" accept=".csv,text/csv"> <span id="blackoutsCsvMsg" role="status"></span></p>
     <h2 style="margin-top:18px">6. Rainouts (optional)</h2>
     <label for="rainouts">One per line: a date alone cancels the night; add a division or Division/Team to cancel just those matches; end with <code>-&gt; 2026-12-01</code> to name the make-up night</label>
     <textarea id="rainouts" rows="2" placeholder="2026-10-13 U10/Hawks, U12/Owls"></textarea>
@@ -124,6 +126,22 @@
     <p id="check-line"></p>
     <div class="scroll"><table id="nights"><thead><tr><th>Date</th><th>Time</th><th>Court</th><th>Venue</th><th>Division</th><th class="n">Rd</th><th>Home</th><th>Away</th><th class="off-col" hidden>Official</th></tr></thead><tbody></tbody></table></div>
     <div id="history-box" hidden><label for="next-history">Next season's venue history (paste it into the box above next season)</label><textarea id="next-history" class="mono" rows="3" readonly></textarea></div>
+    <h3 style="margin-top:18px">Standings from results</h3>
+    <label for="results">Results so far, one per line, division first (U10: Hawks 3 - 2 Owls; U10: Hawks w/o Owls)</label>
+    <textarea id="results" class="mono" rows="4" placeholder="U10: Hawks 3 - 2 Owls&#10;Adult: Rams 1 - 1 Kings"></textarea>
+    <label for="points">Points for a win-draw-loss</label><input id="points" placeholder="3-1-0">
+    <label style="font-weight:normal"><input type="checkbox" id="h2h" style="width:auto"> Break ties on points by the games between the tied teams</label>
+    <button type="button" class="secondary" id="show-standings">Show standings</button>
+    <button type="button" class="secondary" id="dl-standings" hidden>Download standings CSV</button>
+    <button type="button" class="secondary" id="dl-weekly">Download weekly update (text)</button>
+    <button type="button" class="secondary" id="dl-overdue">Download missing-scores list (text)</button>
+    <button type="button" class="secondary" id="dl-clinch">Download who-has-clinched list (text, top 2 per division)</button>
+    <button type="button" class="secondary" id="dl-remaining">Download strength of remaining schedule (text)</button>
+    <div id="standings-out" role="status"></div>
+    <label for="po-per">Play-off: teams from each division</label><input id="po-per" type="number" min="1" value="2" style="width:5em">
+    <label for="po-wc">Wildcards (best of the rest, across divisions)</label><input id="po-wc" type="number" min="0" value="0" style="width:5em">
+    <button type="button" class="secondary" id="show-playoffs">Seed a play-off from these standings</button>
+    <pre id="playoffs-out" class="mono" role="status"></pre>
     <button type="button" id="dl-csv">Download CSV</button>
     <button type="button" id="dl-grid">Download season grid CSV</button>
     <button type="button" id="dl-sheets">Download printable score sheets</button>
@@ -131,6 +149,24 @@
     <input type="number" id="ics-alarm" min="1" max="10080" step="1" placeholder="60">
     <button type="button" class="secondary" id="dl-ics">Download calendar (.ics)</button>
     <button type="button" class="secondary" id="dl-team-msgs">Download a message per team (.txt)</button>
+    <label for="book-min">Game length for the facility booking (minutes)</label>
+    <input type="number" id="book-min" min="10" max="480" step="5" placeholder="60" style="width:6em">
+    <button type="button" class="secondary" id="dl-bookings">Download facility booking request (text)</button>
+    <label for="cost-rates">Venue rates for the season cost (one per line, e.g. Riverside Park: 45/court-hour)</label>
+    <textarea id="cost-rates" rows="3" placeholder="Riverside Park: 45/court-hour"></textarea>
+    <label for="cost-extra">Other costs (insurance, trophies)</label>
+    <input type="number" id="cost-extra" min="0" step="1" placeholder="0" style="width:6em">
+    <label><input type="checkbox" id="cost-split"> Split by each division's share of games</label>
+    <button type="button" class="secondary" id="dl-cost">Download season cost and fee per team (text)</button>
+    <label for="duties">Team duties, one per line with teams per playing night (Snack stand: 2)</label>
+    <textarea id="duties" rows="3" placeholder="Snack stand: 2&#10;Scoreboard: 1"></textarea>
+    <button type="button" class="secondary" id="dl-duties">Download team duty rota (text)</button>
+    <label for="sheet-title">Title for the team sheets (league and season)</label>
+    <input id="sheet-title" type="text" maxlength="120" placeholder="Spring rec league">
+    <label for="sheet-contact">Contact line on each sheet (optional)</label>
+    <input id="sheet-contact" type="text" maxlength="160" placeholder="Organiser: name, phone or email">
+    <button type="button" class="secondary" id="dl-team-sheets">Download team sheets to print (each team's games and duties)</button>
+    <button type="button" class="secondary" id="dl-notices" hidden>Download rainout change notices (text)</button>
     <button type="button" class="secondary" id="dl-off-msgs" hidden>Download a message per official (.txt)</button>
     <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
     <button type="button" class="secondary" id="print-page">Print or save as PDF</button>
@@ -164,10 +200,18 @@
   </footer>
 
   <script type="module">
-    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages } from "./divisions.mjs";
-    import { dayIso } from "./calc.mjs";
+    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, buildDivisionsWithBlackouts, blackoutFitNote, applyDivisionRainouts, parseDivisionBlackouts, blackoutsFromCsv, parseDivisions as parseDivisionsText, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages, divisionsChangeNotices, divisionsBookings, divisionsFacilityCost, parseDivisionDuties, assignDivisionDuties, validateDivisionDuties, divisionsDutiesText, divisionsTeamSheetsHtml, availabilitySheetCsv, divisionsStandings, divisionsTieBreakNotes, divisionsStandingsCsv, divisionsPlayoffs, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining } from "./divisions.mjs";
+    import { dayIso, parseDate } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
+    $("#dl-avail").addEventListener("click", () => { const d = parseDivisionsText($("#divisions").value).divisions; if (!d.length) return; download("coach-availability-sheet.csv", availabilitySheetCsv(d), "text/csv"); record("availability_sheet_downloaded"); });
+    $("#blackoutsCsv").addEventListener("change", async (ev) => {
+      const f = ev.target.files[0], msg = $("#blackoutsCsvMsg");
+      if (!f) return;
+      const r = blackoutsFromCsv(await f.text(), parseDivisionsText($("#divisions").value).divisions);
+      if (r.text) $("#blackouts").value = [$("#blackouts").value.trim(), r.text].filter(Boolean).join("\n");
+      msg.textContent = (r.text ? `Added ${r.text.split("\n").length} team(s). ` : "") + r.errors.join(" ");
+    });
     const FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "blackouts", "rainouts", "venueHistory", "fairnessWeight", "officials"];
     const OPTS = ["balance", "flip", "relocate", "swapNights"];
     const EXAMPLE = {
@@ -176,7 +220,7 @@
       skip: "2026-11-26", courtClosures: "Gym A: 2026-12-03", travel: "Park - School: 25", links: "U10/Hawks, U12/Hawks\nU10/Owls, U12/Owls\nU12/Bears, Adult/Rams"
     };
     const STORE = "league-schedule-generator-divisions";
-    let last = null;
+    let last = null, lastMoves = [];
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const read = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]).concat([["seed", $("#seed").value], ["split", $("#split").checked ? "1" : ""], ["venueFairness", $("#venueFairness").checked ? "1" : ""]].concat(OPTS.map((o) => [o, $("#" + o).checked ? "1" : ""]))));
     const fill = (o) => { FIELDS.forEach((f) => { $("#" + f).value = o[f] || ""; }); $("#split").checked = Boolean(o.split); $("#venueFairness").checked = Boolean(o.venueFairness); OPTS.forEach((k) => { $("#" + k).checked = Boolean(o[k]); }); };
@@ -194,8 +238,8 @@
       const { spec, errors, warnings } = readDivisionsSpec(f);
       if (errors.length) { status.textContent = errors.join(" "); $("#report").hidden = true; return false; }
       let s, v;
-      let moved = null;
-      try { s = buildDivisions(spec); if ((f.blackouts || "").trim()) { const pb = parseDivisionBlackouts(f.blackouts, s.divisions); if (pb.errors.length) { status.textContent = pb.errors.join(" "); $("#report").hidden = true; return false; } moved = applyDivisionBlackouts(s, pb.blackouts, rainoutOptions(f)); s = moved.schedule; } if (f.rainouts.trim()) { const m2 = applyDivisionRainouts(s, f.rainouts, rainoutOptions(f)); moved = moved ? { moves: [...moved.moves, ...m2.moves], errors: [...moved.errors, ...m2.errors] } : m2; s = m2.schedule; } v = validateDivisions(s); } catch (e) { status.textContent = e.message; $("#report").hidden = true; return false; }
+      let moved = null, fitNote = "";
+      try { if ((f.blackouts || "").trim()) { const pb = parseDivisionBlackouts(f.blackouts, spec.divisions); if (pb.errors.length) { status.textContent = pb.errors.join(" "); $("#report").hidden = true; return false; } moved = buildDivisionsWithBlackouts(spec, pb.blackouts, rainoutOptions(f)); s = moved.schedule; fitNote = blackoutFitNote(moved.fit); } else s = buildDivisions(spec); if (f.rainouts.trim()) { const m2 = applyDivisionRainouts(s, f.rainouts, rainoutOptions(f)); moved = moved ? { moves: [...moved.moves, ...m2.moves], errors: [...moved.errors, ...m2.errors] } : m2; s = m2.schedule; } v = validateDivisions(s); } catch (e) { status.textContent = e.message; $("#report").hidden = true; return false; }
       let offs = null, offNote = "";
       if (f.officials.trim()) {
         const po = parseDivisionOfficials(f.officials, spec.divisions);
@@ -208,13 +252,15 @@
       document.querySelectorAll(".off-col").forEach((e) => { e.hidden = !offs; });
       $("#dl-off-msgs").hidden = !offs;
       last = s;
+      lastMoves = moved ? moved.moves : [];
+      $("#dl-notices").hidden = !lastMoves.length;
       const st = s.stats;
       status.textContent = "Built.";
       $("#big").innerHTML = [[st.matches, "matches"], [st.nights, "nights"], [st.trips, "venue changes"], ...(st.travelMinutes !== undefined ? [[st.travelMinutes, "minutes of travel"]] : []), [st.clashes, "linked-team clashes"], [Math.round(st.utilisation * 100) + "%", "court slots used"]]
         .map(([n, l]) => `<div><strong>${n}</strong>${l}</div>`).join("");
       const rain = moved ? (moved.moves.length ? `<div class="warn"><strong>Moved for rainouts:</strong><ul>${moved.moves.map((m) => `<li>${esc(m.division)} ${esc(m.home)} v ${esc(m.away)}: ${dayIso(m.from)} to ${dayIso(m.to)} ${esc(m.time)} ${esc(m.court)}</li>`).join("")}</ul></div>` : "") + (moved.errors.length ? `<div class="warn"><strong>Not moved:</strong><ul>${moved.errors.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : "") : "";
       const travelNote = warnings && warnings.length ? `<div class="warn"><strong>Travel table:</strong><ul>${warnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : "";
-      $("#notices").innerHTML = travelNote + rain + offNote + (s.conflicts.length ? `<div class="warn"><strong>Conflicts that could not be avoided:</strong><ul>${s.conflicts.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : "");
+      $("#notices").innerHTML = travelNote + (fitNote ? `<p class="note">${esc(fitNote)}</p>` : "") + rain + offNote + (s.conflicts.length ? `<div class="warn"><strong>Conflicts that could not be avoided:</strong><ul>${s.conflicts.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : "");
       $("#check-line").innerHTML = v.ok ? '<span class="pill good">checked</span> Every pair meets the right number of times, home and away is balanced, and no court is booked twice.' : `<span class="pill high">problem</span> ${v.errors.map(esc).join(" ")}`;
       const rows = [];
       for (const n of s.nights) for (const m of n.matches) rows.push(`<tr><td>${dayIso(n.day)}</td><td>${esc(m.time || "")}</td><td>${esc(m.court)}</td><td>${esc(m.venue || "")}</td><td>${esc(m.division)}</td><td class="n">${m.round + 1}</td><td>${esc(m.homeName)}</td><td>${esc(m.awayName)}</td>${offs ? `<td>${esc(m.official || "")}</td>` : ""}</tr>`);
@@ -251,7 +297,51 @@
     $("#dl-csv").addEventListener("click", () => { if (!last) return; download("division-schedule.csv", divisionsCsv(last), "text/csv"); record("divisions_csv_downloaded"); });
     $("#dl-ics").addEventListener("click", () => { if (!last) return; download("division-schedule.ics", divisionsIcs(last, { alarmMinutes: Number($("#ics-alarm").value) || null }), "text/calendar"); record("divisions_ics_downloaded"); });
     $("#dl-team-msgs").addEventListener("click", () => { if (!last) return; download("team-messages.txt", divisionsTeamMessages(last).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("divisions_text_shared"); });
+    $("#dl-cost").addEventListener("click", () => { if (!last) return; const x = Number($("#cost-extra").value || 0); const m = Number($("#book-min").value); const c = divisionsFacilityCost(last, $("#cost-rates").value, { minutes: m >= 10 && m <= 480 ? m : 60, extra: Number.isFinite(x) && x >= 0 ? x : 0, split: $("#cost-split").checked ? "games" : "team" }); download("season-cost.txt", "Season facility cost (arithmetic on the rates you typed; check against the venue's invoice)\n\n" + c.text, "text/plain"); record("divisions_cost_downloaded"); });
+    $("#dl-bookings").addEventListener("click", () => { if (!last) return; const m = Number($("#book-min").value); const b = divisionsBookings(last, { minutes: m >= 10 && m <= 480 ? m : 60 }); if (!b.venues.length) return; download("facility-booking-request.txt", `Facility booking request (${b.venues.length} venue${b.venues.length === 1 ? "" : "s"}). Please confirm or tell us which nights you cannot give.\n\n` + b.text, "text/plain"); record("divisions_bookings_downloaded"); });
+    $("#dl-duties").addEventListener("click", () => {
+      if (!last) return;
+      const pd = parseDivisionDuties($("#duties").value);
+      if (pd.errors.length || !pd.duties.length) { $("#form-status").textContent = pd.errors.join(" ") || 'Type at least one duty, like "Snack stand: 2".'; return; }
+      const dr = assignDivisionDuties(last, pd.duties), de = validateDivisionDuties(last, pd.duties, dr);
+      if (de.length) { $("#form-status").textContent = "Duty check failed: " + de[0]; return; }
+      download("team-duty-rota.txt", divisionsDutiesText(dr), "text/plain"); record("divisions_duties_downloaded");
+    });
+    $("#dl-team-sheets").addEventListener("click", () => {
+      if (!last) return;
+      let dr = null;
+      if ($("#duties").value.trim()) {
+        const pd = parseDivisionDuties($("#duties").value);
+        if (pd.errors.length) { $("#form-status").textContent = pd.errors.join(" "); return; }
+        dr = assignDivisionDuties(last, pd.duties);
+        const de = validateDivisionDuties(last, pd.duties, dr);
+        if (de.length) { $("#form-status").textContent = "Duty check failed: " + de[0]; return; }
+      }
+      download("team-sheets.html", divisionsTeamSheetsHtml(last, { title: $("#sheet-title").value, contact: $("#sheet-contact").value, duties: dr }), "text/html"); record("divisions_team_sheets_downloaded");
+    });
+    $("#dl-notices").addEventListener("click", () => { const n = divisionsChangeNotices(lastMoves); if (!n.group) return; download("rainout-change-notices.txt", [n.group, ...n.teams.map((x) => x.text)].join("\n\n----\n\n") + "\n", "text/plain"); record("divisions_notices_downloaded"); });
     $("#dl-off-msgs").addEventListener("click", () => { if (!last) return; download("official-messages.txt", divisionsOfficialMessages(last).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("divisions_text_shared"); });
+    let lastStandings = null;
+    $("#show-standings").addEventListener("click", () => {
+      if (!last) return;
+      const r = divisionsStandings(last, $("#results").value, { points: $("#points").value.trim() || "3-1-0", headToHead: $("#h2h").checked });
+      lastStandings = r;
+      $("#dl-standings").hidden = !r.tables.length;
+      $("#standings-out").innerHTML = (r.errors.length ? `<div class="warn"><strong>Not counted:</strong><ul>${r.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>` : "") + r.tables.map((t) => `<h4>${esc(t.division)}</h4><div class="scroll"><table><thead><tr><th class="n">#</th><th>Team</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th><th class="n">GF</th><th class="n">GA</th><th class="n">GD</th><th class="n">Pts</th></tr></thead><tbody>${t.rows.map((x) => `<tr><td class="n">${x.rank}</td><td>${esc(x.name)}</td>${[x.played, x.won, x.drawn, x.lost, x.gf, x.ga, x.gd, x.points].map((n) => `<td class="n">${n}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`).join("") + divisionsTieBreakNotes(r).map((x) => `<h4>${esc(x.division)}: why teams are ranked where they are</h4><ul>${x.notes.map((n) => `<li>${esc(n.text)}</li>`).join("")}</ul>`).join("");
+      record("divisions_standings_shown");
+    });
+    $("#show-playoffs").addEventListener("click", () => {
+      if (!last) return;
+      const r = divisionsStandings(last, $("#results").value, { points: $("#points").value.trim() || "3-1-0", headToHead: $("#h2h").checked });
+      const po = divisionsPlayoffs(r, { perDivision: $("#po-per").value, wildcards: $("#po-wc").value });
+      $("#playoffs-out").textContent = (po.errors.length ? po.errors.map((e) => "Note: " + e).join("\n") + "\n\n" : "") + po.text;
+      record("divisions_playoffs_shown");
+    });
+    $("#dl-clinch").addEventListener("click", () => { if (!last) return; download("clinch-watch.txt", divisionsRace(last, $("#results").value, { spots: 2 }).text + "\n", "text/plain"); record("divisions_clinch_downloaded"); });
+    $("#dl-remaining").addEventListener("click", () => { if (!last) return; download("remaining-schedule.txt", divisionsRemaining(last, $("#results").value, { points: $("#points").value.trim() || "3-1-0" }).text + "\n", "text/plain"); record("divisions_remaining_downloaded"); });
+    $("#dl-overdue").addEventListener("click", () => { if (!last) return; const n = new Date(); const today = parseDate(`${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`); download("missing-scores.txt", divisionsOverdue(last, $("#results").value, today).text || "No scores overdue.\n", "text/plain"); record("divisions_overdue_downloaded"); });
+    $("#dl-weekly").addEventListener("click", () => { if (!last) return; download("weekly-update.txt", divisionsWeeklyUpdate(last, $("#results").value, { points: $("#points").value.trim() || "3-1-0", headToHead: $("#h2h").checked }), "text/plain"); record("divisions_weekly_update_downloaded"); });
+    $("#dl-standings").addEventListener("click", () => { if (lastStandings) download("division-standings.csv", divisionsStandingsCsv(lastStandings), "text/csv"); });
     $("#dl-sheets").addEventListener("click", () => { if (!last) return; download("division-score-sheets.html", divisionsScoreSheetsHtml(last), "text/html"); record("divisions_score_sheets_downloaded"); });
     $("#dl-grid").addEventListener("click", () => { if (!last) return; download("division-season-grid.csv", divisionsSeasonGridCsv(last), "text/csv"); record("divisions_grid_downloaded"); });
     $("#copy-text").addEventListener("click", async () => { if (!last) return; try { await navigator.clipboard.writeText(divisionsText(last)); $("#form-status").textContent = "Copied."; } catch { $("#form-status").textContent = "Copy blocked by the browser; use Download CSV."; } record("divisions_text_copied"); });

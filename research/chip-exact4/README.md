@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: every other `chip-*` and `eda-*` project scores a design by the gate count ABC returns, and compares ABC scripts only with each other. None of them knows how far *any* script is from the best possible circuit. For 4-input functions that optimum can be computed exactly, so this project measures the distance. Produced with AI assistance (Claude). Preliminary and small: one Yosys version (0.33), 4-input single-output functions only, a generic 2-input gate set, a sample of 884 of the 65,536 functions.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-exact4/
+**Live page:** https://marisstella.app/research/chip-exact4/
 
 ![Mean gates above the exact minimum, by exact cost](experiments/gap_by_cost.svg)
 
@@ -14,7 +14,7 @@ Why it seemed worth doing: every other `chip-*` and `eda-*` project scores a des
 
 ## Method
 - **Functions.** A 4-input function is a 16-bit truth table. The 65,536 functions fall into 222 NPN classes (permute inputs, negate inputs, negate output); `exact.npn_classes` computes them (tested: 222 classes, sizes sum to 65,536).
-- **Exact minimum** (`src/chip_exact4/exact.py`). The fewest 2-input gates, any of the 16 gate types so inverters are free, in a circuit computing the function or its complement (as in Knuth, *TAOCP* vol. 4A, section 7.1.2). It is decided by SAT (CaDiCaL via `python-sat`): r gate nodes, each choosing two earlier signals and a normal gate type, one truth-table row per variable, for r = 0, 1, 2, ... until satisfiable. Cost is a class invariant, so 222 SAT searches cover every function (about 3 minutes). Checks: the number of functions at each cost, 10, 60, 456, 2474, 10624, 24184, 25008, 2720 for 0 to 7 gates, matches the table I recall from Knuth but I could not open the book here, so treat that match as unverified; independently, the SAT answer equals a brute-force enumeration of all circuits of up to 2 gates on a sample of functions, and known costs hold (AND 1, 4-input XOR 3, 4-input AND 3, 3-input majority 4).
+- **Exact minimum** (`src/chip_exact4/exact.py`). The fewest 2-input gates, any of the 16 gate types so inverters are free, in a circuit computing the function or its complement (as in Knuth, *TAOCP* vol. 4A, section 7.1.2). It is decided by SAT (CaDiCaL via `python-sat`): r gate nodes, each choosing two earlier signals and a normal gate type, one truth-table row per variable, for r = 0, 1, 2, ... until satisfiable. Cost is a class invariant, so 222 SAT searches cover every function (about 3 minutes). Checks: the number of functions at each cost, 10, 60, 456, 2474, 10624, 24184, 25008, 2720 for 0 to 7 gates, matches Knuth's table, and an independent exhaustive enumeration of every circuit of up to 6 gates (no shared code) reproduces it and all 222 class costs in `exact_costs.json` ([quality audit 2026-11-15](../../portfolio/quality/audits/2026-11-15-chip-exact4.json)); independently, the SAT answer equals a brute-force enumeration of all circuits of up to 2 gates on a sample of functions, and known costs hold (AND 1, 4-input XOR 3, 4-input AND 3, 3-input majority 4).
 - **ABC side** (`src/chip_exact4/abc.py`). Each function becomes `assign y = 16'h....[x]` and goes through `synth -flatten -noabc; abc -g AND,NAND,OR,NOR,XOR,XNOR,ANDNOT,ORNOT [script]`. Gate count excludes inverters (the exact count gives them away). Seven variants: Yosys default script, `-fast`, `strash; map`, `dc2`, `dch`, one `resyn2` pass, and three `resyn2` passes with `dch`. The sample is each class's representative plus up to three random members (seed 1), 884 functions. The run asserts that ABC never beats the exact minimum.
 - Means are over the sample and weight every class equally (about four functions each), not by class size (class sizes run from 2 to 768).
 
@@ -40,7 +40,7 @@ Gap by exact cost for the default flow: 0 gates at cost 0 to 2, 0.33 at 3, 1.16 
 
 ## Limitations
 - One Yosys/ABC build and fixed script strings; the gap is a property of those scripts, not of ABC as a whole. Other scripts (`&deepsyn`, `&if` with exact `lutexact`-style mapping) or a newer version may close it.
-- The cost model is a gate count with free inverters and equal gate weights. A cell library weights XOR and NAND differently; area and delay may rank scripts differently. The gap is in the measure the other `chip-*` projects use, nothing more.
+- The cost model is a gate count with free inverters and equal gate weights. A cell library weights XOR and NAND differently; area and delay may rank scripts differently. The gap is in the measure the other `chip-*` projects use, nothing more. ABC's `-g` mapping optimises against Yosys's own gate costs (inverters not free, XOR heavier), so part of the gap may be ABC optimising a different objective from the one it is scored on; ABC's exact-synthesis modes were not tried.
 - 4 inputs only, one output. Real blocks are larger, where an exact optimum is out of reach, so this result is a floor on how suboptimal ABC can be, not an estimate for big designs.
 - A sample of 884 of 65,536 functions; the standard errors are not computed and per-cost rows have 6 to 300 functions.
 - Mean gap is not weighted by class size. The "default" count has 27 varying classes out of 222 on only four members each, so that is a lower bound on the NPN dependence.

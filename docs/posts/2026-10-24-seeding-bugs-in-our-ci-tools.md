@@ -2,7 +2,7 @@
 title: "We seeded 32 bugs in our own tooling; the tests caught 65%"
 date: 2026-10-24
 description: "A red-team run mutated four files in this repo's CI and pages code. Two well-tested files caught everything; two caught a quarter. What we added."
-tags: [testing, mutation-testing, ai-agents, ci]
+tags: [quality-audit, testing, mutation-testing, ai-agents, ci]
 ---
 
 # We seeded 32 bugs in our own tooling; the tests caught 65%

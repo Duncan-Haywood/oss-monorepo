@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-10-31
+tagged: auto
+---
 # Polish 2026-10-31: `seo_title:` batch 10, 25 hand-written titles (2026-10-26 posts)
 
 **Weak surface.** A fresh build (1,321 tools, 6,073 pages) passes `check.mjs`: no dead links, no duplicate titles across 4,119 index pages. A scan found 700 pages with titles over 70 characters, most of them posts. `propose_seo_titles.py` reports 136 posts with no clean cut (the lister's own count was 158 before batch 9).

@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01AcxTtLASbpGd2kdzMSAVUj",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T15:12:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14067",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The changepoint-detector next: and its 1700-line README cost much of the run to read; most open items need real data that is not reachable."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-08-steep-bend-ranges-hold-80-percent.md"
+  ],
+  "goal": null,
+  "notes": "Small slice: replicated the steep-bend cell (173/217 = 80%), no retuning. wall-framing-takeoff skipped (332 commits this week, items need real inputs).",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,47 @@
+Two-sided week-block bootstrap p (2000 draws, floor 1/2001 x 2 = 0.001) vs normal-approximation p, all.
+austin 2022  a2i q0.1: -0.09%  p_normal~0.3  p_boot 0.3158  uncorrected    Holm(boot)    BH(boot)  
+austin 2022  a2i q0.5: -1.71%  p_normal~1.4e-06  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+austin 2022  a2i q0.9: -0.82%  p_normal~0.14  p_boot 0.1439  uncorrected    Holm(boot)    BH(boot)  
+austin 2023  a2i q0.1: +0.01%  p_normal~0.97  p_boot 0.9505  uncorrected    Holm(boot)    BH(boot)  
+austin 2023  a2i q0.5: -2.18%  p_normal~4e-05  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+austin 2023  a2i q0.9: -3.77%  p_normal~0.04  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+austin 2024  a2i q0.1: +2.73%  p_normal~1.7e-58  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+austin 2024  a2i q0.5: -0.03%  p_normal~0.94  p_boot 0.9415  uncorrected    Holm(boot)    BH(boot)  
+austin 2024  a2i q0.9: +0.92%  p_normal~0.19  p_boot 0.2089  uncorrected    Holm(boot)    BH(boot)  
+austin 2022  i2c q0.1: +1.90%  p_normal~3.2e-70  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+austin 2022  i2c q0.5: -0.83%  p_normal~9.6e-05  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+austin 2022  i2c q0.9: -2.95%  p_normal~0.0067  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+austin 2023  i2c q0.1: +0.64%  p_normal~0.0041  p_boot 0.0060  uncorrected *  Holm(boot)    BH(boot) *
+austin 2023  i2c q0.5: +0.14%  p_normal~0.41  p_boot 0.3828  uncorrected    Holm(boot)    BH(boot)  
+austin 2023  i2c q0.9: -0.84%  p_normal~0.0091  p_boot 0.0100  uncorrected *  Holm(boot)    BH(boot) *
+austin 2024  i2c q0.1: -0.10%  p_normal~0.71  p_boot 0.6937  uncorrected    Holm(boot)    BH(boot)  
+austin 2024  i2c q0.5: +0.25%  p_normal~0.2  p_boot 0.1919  uncorrected    Holm(boot)    BH(boot)  
+austin 2024  i2c q0.9: +1.36%  p_normal~3.1e-05  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+chicago 2022 a2i q0.1: +0.44%  p_normal~5.8e-12  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+chicago 2022 a2i q0.5: +1.54%  p_normal~1e-10  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+chicago 2022 a2i q0.9: -0.96%  p_normal~0.24  p_boot 0.2709  uncorrected    Holm(boot)    BH(boot)  
+chicago 2023 a2i q0.1: -0.35%  p_normal~0.038  p_boot 0.0320  uncorrected *  Holm(boot)    BH(boot) *
+chicago 2023 a2i q0.5: +0.62%  p_normal~0.0015  p_boot 0.0040  uncorrected *  Holm(boot)    BH(boot) *
+chicago 2023 a2i q0.9: -1.27%  p_normal~0.049  p_boot 0.0390  uncorrected *  Holm(boot)    BH(boot)  
+chicago 2024 a2i q0.1: +0.37%  p_normal~4.3e-131  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+chicago 2024 a2i q0.5: -0.46%  p_normal~0.00011  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+chicago 2024 a2i q0.9: -3.30%  p_normal~3.4e-06  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+sf 2022      a2i q0.1: -1.58%  p_normal~0.0002  p_boot 0.0030  uncorrected *  Holm(boot)    BH(boot) *
+sf 2022      a2i q0.5: -0.56%  p_normal~0.17  p_boot 0.1729  uncorrected    Holm(boot)    BH(boot)  
+sf 2022      a2i q0.9: -1.43%  p_normal~0.031  p_boot 0.0220  uncorrected *  Holm(boot)    BH(boot) *
+sf 2023      a2i q0.1: -1.88%  p_normal~2.1e-11  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+sf 2023      a2i q0.5: +0.83%  p_normal~0.055  p_boot 0.0380  uncorrected *  Holm(boot)    BH(boot)  
+sf 2023      a2i q0.9: +1.87%  p_normal~0.0018  p_boot 0.0030  uncorrected *  Holm(boot)    BH(boot) *
+sf 2024      a2i q0.1: +0.76%  p_normal~0.097  p_boot 0.0850  uncorrected    Holm(boot)    BH(boot)  
+sf 2024      a2i q0.5: +1.11%  p_normal~0.0023  p_boot 0.0060  uncorrected *  Holm(boot)    BH(boot) *
+sf 2024      a2i q0.9: +5.74%  p_normal~2.2e-31  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+sf 2022      i2c q0.1: +0.89%  p_normal~4.3e-08  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+sf 2022      i2c q0.5: +0.32%  p_normal~0.029  p_boot 0.0160  uncorrected *  Holm(boot)    BH(boot) *
+sf 2022      i2c q0.9: +0.11%  p_normal~0.71  p_boot 0.7226  uncorrected    Holm(boot)    BH(boot)  
+sf 2023      i2c q0.1: +2.25%  p_normal~1e-41  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+sf 2023      i2c q0.5: +2.32%  p_normal~6.3e-27  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+sf 2023      i2c q0.9: +1.17%  p_normal~2.2e-05  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+sf 2024      i2c q0.1: +1.60%  p_normal~6.1e-07  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+sf 2024      i2c q0.5: +2.34%  p_normal~2.7e-24  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+sf 2024      i2c q0.9: +2.70%  p_normal~3.2e-16  p_boot 0.0010  uncorrected *  Holm(boot) *  BH(boot) *
+uncorrected 33, Holm(boot) 22, BH(boot) 31 of 45

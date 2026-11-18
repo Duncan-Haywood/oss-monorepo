@@ -168,7 +168,7 @@
       $("#sens tbody").innerHTML = r.sens.map((s) => `<tr><td>${money(s.targetPerHour)} an hour${s.factor === 1 ? " (yours)" : ""}</td><td class="n">${s.keep}</td><td class="n">${s.reprice}</td><td class="n">${s.drop}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

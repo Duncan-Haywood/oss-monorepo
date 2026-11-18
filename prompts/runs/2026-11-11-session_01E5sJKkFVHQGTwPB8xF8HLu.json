@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKkFVHQGTwPB8xF8HLu",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T10:18:26Z",
+  "ended": "2026-11-11T10:28:49Z",
+  "wall_minutes": 10.84,
+  "tokens_in": 5431387,
+  "tokens_out": 45672,
+  "cost_usd": 3.0414,
+  "tool_calls": 47,
+  "task": "Deepen (flagship 4) changepoint-detector: step-robust omega for --model drift",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14762",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First driftNoiseML profiled sigma with a likelihood that dropped one log sigma^2 per change (unit-dependent bonus per change) and reported a sigma one step ahead of its changes; caught when TCPD cut counts disagreed between two runs.",
+    "Second version charged that term to every point and went unbounded (sigma to 0, q at grid top); replaced by holding sigma at the lag intercept."
+  ],
+  "integrity_issues": [
+    "The shipped estimator is the third version, chosen after the first version's TCPD scores and the second's TCPD q values and cut counts had been seen. The decision rule was fixed before the first run and not changed, but the TCPD figures are not a clean single pre-registered run; README and post say so."
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Flagship rows truncate `next:` at ~500 characters, so picking between flagships meant a separate yaml dump (PR #14757 is adding --venture for this)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/changepoint-detector/eval/tcpd-drift-ml.mjs",
+      "why": "The pre-registered rule's second half (beat the warning's refit on both sets) passed on the means, which would have put the drift model in the default consensus panel; not taken because every interval includes zero and the estimator was revised after seeing TCPD output.",
+      "did": "Made ML wander the default for --model drift only; panel step left for fresh labelled data.",
+      "result": "Headline agreed-changes line unchanged; no pinned real-series test moved."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-a-step-that-hides-in-its-own-noise-estimate.md",
+    "ventures/changepoint-detector/README.md#a-step-robust-omega-wander-chosen-with-the-changes-2026-11-11-later"
+  ],
+  "goal": "Fix the drift model's Nile miss (a step inflating the wander estimate) without losing TCPD F1.",
+  "notes": "Verification: node --test drift-level.test.mjs 9/9 pass; full venture suite via run_venture_tests.py changepoint-detector (result below). TCPD eval 566 ms for 38 series. Nile no-change ML reproduces Durbin & Koopman 15,099 / 1,469.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4ceb942d-40e1-584d-b4f6-a16d79a1ce2e",
+    "transcripts": 1,
+    "first": "2026-11-11T10:18:26Z",
+    "last": "2026-11-11T10:29:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 89,
+        "output": 45672,
+        "thinking": 13208,
+        "cache_read": 5297792,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133506,
+        "api_equivalent_usd": 3.0414,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 89,
+      "output": 45672,
+      "thinking": 13208,
+      "cache_read": 5297792,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133506,
+      "api_equivalent_usd": 3.0414,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 44,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.84,
+      "active_minutes": 10.84,
+      "model_minutes": 9.04,
+      "tool_minutes": 1.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician deriving, implementing and benchmarking a profile-likelihood variance estimate with two failed variants",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 328.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

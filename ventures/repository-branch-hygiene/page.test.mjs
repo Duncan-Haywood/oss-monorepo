@@ -98,3 +98,14 @@ test('index links one hop to the npm-deployment-evidence sibling', () => {
   );
   assert.match(siblingHtml, /npm deployment evidence/i);
 });
+
+// Closest sibling: one developer, one repository. This tool judges whether a
+// branch is safe to delete; the finder lists pushed commits no PR covers.
+test('index links one hop to the stranded-branch-finder sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/stranded-branch-finder\/"/,
+    'index must link ../stranded-branch-finder/ so a crawler reaches that tool in one hop',
+  );
+  assert.match(index, /stranded branch finder/i);
+});

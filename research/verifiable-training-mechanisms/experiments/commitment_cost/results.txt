@@ -1,0 +1,21 @@
+throughput here (bytes/s, 1 thread): sha256 1.30 GB/s, blake2b 0.79 GB/s, sha3_256 0.53 GB/s
+cpu count 4
+
+effective 1e+14 FLOP/s per device, 1048576 tokens/step, one device holds the full model (no sharding), fp32 weights
+params   ckpt GB   step s     hash s/ckpt    hash/step    worker store s=1 s for <=1%  
+1e+06    0.004     0.0629     0.00307        4.89%        2.4 GB         5           
+1e+08    0.400     6.29       0.307          4.89%        240.0 GB       5           
+1e+09    4.000     62.9       3.07           4.89%        2400.0 GB      5           
+7e+09    28.000    440        21.5           4.89%        16800.0 GB     5           
+7e+10    280.000   4.4e+03    215            4.89%        168000.0 GB    5           
+
+effective 4e+14 FLOP/s per device, 1048576 tokens/step, one device holds the full model (no sharding), fp32 weights
+params   ckpt GB   step s     hash s/ckpt    hash/step    worker store s=1 s for <=1%  
+1e+06    0.004     0.0157     0.00307        19.55%       2.4 GB         20          
+1e+08    0.400     1.57       0.307          19.55%       240.0 GB       20          
+1e+09    4.000     15.7       3.07           19.55%       2400.0 GB      20          
+7e+09    28.000    110        21.5           19.55%       16800.0 GB     20          
+7e+10    280.000   1.1e+03    215            19.55%       168000.0 GB    20          
+
+verifier storage: 32 B per commitment: s=1 19200 B, s=5 3840 B, s=20 960 B for 600 steps (independent of model size)
+worker storage for the unhashed path scales as ckpt * (steps/s); Adam state triples the bytes hashed.

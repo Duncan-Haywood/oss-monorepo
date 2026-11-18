@@ -1,0 +1,30 @@
+[package]
+name = "cyclehound"
+version = "0.1.0"
+edition = "2021"
+description = "Fast import-graph and circular-dependency checker for JavaScript and TypeScript: madge-compatible output, parallel, one binary"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/duncan-haywood/oss-monorepo"
+keywords = ["circular-dependency", "import-graph", "madge", "lint", "javascript"]
+categories = ["command-line-utilities", "development-tools"]
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[[bin]]
+name = "cyclehound"
+required-features = ["cli"]
+
+[features]
+default = ["cli"]
+# The directory walker; the browser build reads files the page hands it.
+cli = ["dep:ignore"]
+
+[dependencies]
+ignore = { version = "0.4", optional = true }
+rayon = "1"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

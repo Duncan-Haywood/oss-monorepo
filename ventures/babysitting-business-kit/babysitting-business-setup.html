@@ -23,6 +23,7 @@
   <script>/* offline + install; reading navigator.serviceWorker throws in sandboxed frames, so guard it */ try { if ("serviceWorker" in navigator && location.protocol !== "file:") addEventListener("load", () => { try { navigator.serviceWorker.register("sw.js").catch(() => {}); } catch { /* no service worker here */ } }); } catch { /* no service worker here */ }</script>
 </head>
 <body>
+<main>
   <p><a href="./index.html">← Babysitting Business Kit</a></p>
   <h1>Setting up your babysitting business</h1>
   <p>A one-person babysitting business needs less paperwork than most people expect. You are a sole proprietor the day you take paid work; an EIN is free; insurance and a separate bank account are good habits rather than federal rules; and a child care license is usually needed for care in <em>your</em> home, not for sits in the family's. Each section below says what the government page it comes from actually says, with the link, so you can check it. Rules change and differ by state: this is a starting point, not legal or tax advice.</p>
@@ -77,7 +78,9 @@
   <h3>What insurance does a babysitter need?</h3>
   <p>No federal rule requires it, but the SBA describes general liability insurance as coverage for any business against bodily injury, property damage and lawsuits, and professional liability insurance for businesses that provide services. If you drive children, ask your car insurer in writing whether your policy covers driving for pay.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Business, licensing, insurance and tax rules differ by state and city and can change; check with your local offices, an insurer or a tax preparer. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p>Not affiliated with the IRS, the SBA, Childcare.gov or any insurer, bank or church or denomination. Free and open source under the MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
   </footer>

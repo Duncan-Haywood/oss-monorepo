@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqygLZsJUkkxF8SBDYrk",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T20:38:37Z",
+  "ended": "2026-11-13T20:50:40Z",
+  "wall_minutes": 12.24,
+  "tokens_in": 8678301,
+  "tokens_out": 58681,
+  "cost_usd": 4.3294,
+  "tool_calls": 67,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15609",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first draft of digitise_casappa_kappa30.py carried placeholder displacements; caught and replaced with the catalogue's p. 4 table before any result was computed",
+    "gear_pump_point raised at 1050 r/min because the max-pressure flow lines start near 1000 r/min; flow lines (drawn straight) are now extended linearly, power curves are not"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "issue": "6h recorded every data host as unreachable; this session casappa.com, tuprints and huggingface.co answered, so a per-session probe beats a standing 'blocked' note"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 2 (land other open research PRs first) skipped: the open research PRs (#15605, #15595, #15572) were minutes to hours old with their own sessions likely active",
+      "did": "advanced the drawn programme only",
+      "result": "no conflicts; milestone landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-gear-pump-takes-it-back.md",
+    "research/heavy-hydraulics/LOG.md (6k)",
+    "research/heavy-hydraulics/README.md (Milestone 6k)"
+  ],
+  "goal": null,
+  "notes": "heavy-hydraulics 6k: Casappa KAPPA 30 gear-pump curves read from PDF vector paths (16 flow, 35 power, 35 torque curves; power vs torque x speed median 1.005). Gear eta_t 0.71-0.80 at 150 bar/2100 rpm vs piston 0.84. Fixed-pump win share at S 0.38 falls 74.0% -> 9.9% (9.6-20.6% over 18 settings); catalogue nominal 0.88 gives 95.6%; flip at ~1.09x curves. Tests 65 pass; build.py ok; check_md_links ok; cite_check ok; 6j rerun byte-identical; 6k rerun identical (13 s).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "89b65756-5c8c-5dee-ab97-106608d27c20",
+    "transcripts": 1,
+    "first": "2026-11-13T20:38:37Z",
+    "last": "2026-11-13T20:50:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 121,
+        "output": 58681,
+        "thinking": 18102,
+        "cache_read": 8496174,
+        "cache_write_5m": 0,
+        "cache_write_1h": 182006,
+        "api_equivalent_usd": 4.3294,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 121,
+      "output": 58681,
+      "thinking": 18102,
+      "cache_read": 8496174,
+      "cache_write_5m": 0,
+      "cache_write_1h": 182006,
+      "api_equivalent_usd": 4.3294,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 56,
+      "Read": 5,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.24,
+      "active_minutes": 12.24,
+      "model_minutes": 9.63,
+      "tool_minutes": 2.61,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "digitising 8 catalogue charts, model and rerun, write-up: about a day and a half of a hydraulics PhD student's time",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 231.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

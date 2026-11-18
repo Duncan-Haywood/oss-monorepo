@@ -14,7 +14,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2218; background: #f3ece0; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 760px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a4b12; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .7fr); gap: 18px; align-items: start; }
@@ -149,6 +149,11 @@
       @page { margin: 16mm; }
     }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #areas:empty{min-height:602px}}
+@media (scripting:enabled) and (min-width:784px){html:not(.pf-rows-ready) #areas:empty{min-height:94px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>
@@ -365,7 +370,7 @@
 
   <script type="module">
     import { calculateBid, PRODUCT_PRESETS, ADD_ON_PRESETS } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
     } from './proposal.mjs';
@@ -454,7 +459,7 @@
     }
 
     function count(event) {
-      recordUsage(localStorage, el('usageOptOut').checked, event);
+      recordUsage(usageStorage(), el('usageOptOut').checked, event);
     }
 
     function applyProductPreset(force) {
@@ -742,8 +747,15 @@
       + 'browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no '
       + 'warranty. It is not a building-code, energy-rating, ventilation, or moisture determination.';
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) {
         if (saved[field]) el(field).value = saved[field];
       }
@@ -802,7 +814,7 @@
     function showProposal() {
       const result = calculateBid(readInput());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -849,7 +861,7 @@
       }
       el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
       count('proposal_printed');
-      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el('proposalDoc').scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
       // This page prints two sheets, so the stylesheet is told which one is
       // going out. Cleared on `afterprint` below.
       document.body.classList.add('printing-proposal');
@@ -867,7 +879,7 @@
     document.addEventListener('change', refreshProposal);
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) el(field).value = '';
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';
@@ -886,8 +898,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

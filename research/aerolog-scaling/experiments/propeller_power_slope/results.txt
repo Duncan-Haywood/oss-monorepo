@@ -1,0 +1,9 @@
+curves 104; propellers 71
+s_P = dlnT/dlnV at constant shaft power, with J = k * J_peak-efficiency
+     k  median     5th    95th  share within 0.25 of -1
+   0.8   -0.67   -0.89   -0.33                     0.34
+   0.9   -0.88   -1.09   -0.52                     0.68
+   1.0   -1.10   -1.31   -0.88                     0.85
+   1.1   -1.33   -1.59   -1.09                     0.27
+   1.2   -1.54   -2.10   -1.25                     0.06
+check: at the peak (k = 1) s_P should be -1 up to the cubic-fit error; max |s_P+1| = 0.674

@@ -1,0 +1,109 @@
+Milestone 7: side-force feed-forward in the position loop, rigid centre-of-pressure geometries (signs above [-1.0, 1.0], below [1.0, -1.0]).
+6 seeds, best of 2 CMA-ES starts x 3200 evaluations on 16 episodes; held-out 64 episodes (seed 9999).
+6b = milestone 6b's retrained designs (ff off); 6b+ff = the same designs with the feed-forward on, not retrained; ff retrained = trained with it on (tau_ff chosen by CMA-ES).
+on/off = side force in/out of the held-out rollout. hurt axis: y when above, x when below. lever = multiple of the inherited 0.05 + 0.3 L.
+
+[above, 6b nocant] cant deg 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; hover W 366.8
+  lever 0   pos on 0.105 (median 0.105) off 0.105 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.033 helped 0.034 ratio 0.96 (0.97, 0.95, 0.96, 0.96, 0.96, 0.99); yaw 14.60; J -1.91; dead 0.000
+  lever 1   pos on 0.106 (median 0.106) off 0.106 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.034 helped 0.035 ratio 0.96 (0.96, 0.94, 0.96, 0.96, 0.96, 0.98); yaw 14.87; J -1.94; dead 0.000
+  lever 2   pos on 0.439 (median 0.414) off 0.439 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.331 helped 0.330 ratio 1.00 (1.00, 1.00, 1.00, 1.00, 1.01, 1.01); yaw 18.26; J -4.87; dead 0.099
+[above, 6b aware] cant deg 29.75, 34.50, 32.98, 33.48, 29.77, 35.04; hover W 458.8
+  lever 0   pos on 0.104 (median 0.103) off 0.103 on/off 1.002 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.029 helped 0.030 ratio 0.97 (0.98, 0.96, 0.98, 0.96, 0.95, 0.97); yaw 9.50; J -1.54; dead 0.000
+  lever 1   pos on 0.119 (median 0.107) off 0.104 on/off 1.142 (1.02, 1.03, 1.03, 1.03, 1.02, 1.72); late hurt 0.054 helped 0.031 ratio 1.91 (1.91, 2.15, 2.02, 2.09, 2.00, 1.31); yaw 9.78; J -1.68; dead 0.003
+  lever 2   pos on 0.327 (median 0.366) off 0.256 on/off 1.359 (1.56, 1.67, 1.19, 1.04, 1.57, 1.12); late hurt 0.244 helped 0.206 ratio 1.20 (1.27, 1.16, 1.18, 1.16, 1.32, 1.13); yaw 12.61; J -3.65; dead 0.060
+[above, 6b+ff tau 0.2] cant deg 29.75, 34.50, 32.98, 33.48, 29.77, 35.04; hover W 458.8
+  lever 0   pos on 0.213 (median 0.105) off 0.103 on/off 2.066 (1.01, 1.01, 1.00, 3.90, 1.00, 4.48); late hurt 0.131 helped 0.132 ratio 0.97 (0.96, 0.95, 0.98, 1.00, 0.95, 1.00); yaw 10.60; J -2.58; dead 0.031
+  lever 1   pos on 0.243 (median 0.106) off 0.104 on/off 2.345 (1.01, 1.01, 1.01, 4.30, 1.01, 5.74); late hurt 0.153 helped 0.158 ratio 0.89 (0.87, 0.83, 0.85, 0.98, 0.83, 0.99); yaw 11.06; J -2.89; dead 0.036
+  lever 2   pos on 0.481 (median 0.395) off 0.256 on/off 1.809 (1.85, 1.59, 1.45, 2.08, 1.53, 2.35); late hurt 0.359 helped 0.362 ratio 0.98 (0.98, 0.98, 1.00, 0.99, 0.95, 1.00); yaw 13.95; J -5.17; dead 0.102
+[above, 6b+ff tau 0.5] cant deg 29.75, 34.50, 32.98, 33.48, 29.77, 35.04; hover W 458.8
+  lever 0   pos on 0.161 (median 0.104) off 0.103 on/off 1.561 (1.00, 1.00, 1.00, 1.01, 1.00, 4.35); late hurt 0.082 helped 0.083 ratio 0.97 (0.99, 0.96, 0.98, 0.96, 0.95, 1.00); yaw 10.09; J -2.09; dead 0.016
+  lever 1   pos on 0.171 (median 0.106) off 0.104 on/off 1.645 (1.01, 1.01, 1.01, 1.48, 1.01, 4.36); late hurt 0.093 helped 0.092 ratio 1.02 (1.07, 1.02, 1.04, 1.01, 0.98, 1.00); yaw 10.36; J -2.18; dead 0.018
+  lever 2   pos on 0.383 (median 0.346) off 0.256 on/off 1.500 (1.53, 1.62, 1.10, 1.48, 1.53, 1.74); late hurt 0.281 helped 0.273 ratio 1.03 (1.05, 1.03, 1.06, 1.03, 1.02, 1.01); yaw 13.35; J -4.21; dead 0.081
+[above, 6b+ff tau 1] cant deg 29.75, 34.50, 32.98, 33.48, 29.77, 35.04; hover W 458.8
+  lever 0   pos on 0.111 (median 0.104) off 0.103 on/off 1.073 (1.00, 1.00, 1.00, 1.01, 1.00, 1.43); late hurt 0.036 helped 0.037 ratio 0.97 (0.99, 0.97, 0.98, 0.95, 0.95, 0.99); yaw 9.64; J -1.61; dead 0.003
+  lever 1   pos on 0.125 (median 0.106) off 0.104 on/off 1.205 (1.01, 1.01, 1.01, 1.01, 1.01, 2.18); late hurt 0.053 helped 0.046 ratio 1.22 (1.29, 1.25, 1.27, 1.25, 1.18, 1.06); yaw 9.90; J -1.75; dead 0.005
+  lever 2   pos on 0.361 (median 0.332) off 0.256 on/off 1.439 (1.54, 1.64, 0.99, 1.29, 1.54, 1.63); late hurt 0.268 helped 0.251 ratio 1.08 (1.12, 1.06, 1.12, 1.06, 1.10, 1.03); yaw 13.10; J -4.00; dead 0.073
+[above, 6b+ff tau 2] cant deg 29.75, 34.50, 32.98, 33.48, 29.77, 35.04; hover W 458.8
+  lever 0   pos on 0.104 (median 0.103) off 0.103 on/off 1.003 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.029 helped 0.030 ratio 0.97 (0.98, 0.96, 0.98, 0.96, 0.95, 0.97); yaw 9.50; J -1.54; dead 0.000
+  lever 1   pos on 0.117 (median 0.106) off 0.104 on/off 1.130 (1.01, 1.01, 1.01, 1.02, 1.01, 1.71); late hurt 0.048 helped 0.035 ratio 1.43 (1.51, 1.50, 1.51, 1.50, 1.40, 1.17); yaw 9.80; J -1.67; dead 0.003
+  lever 2   pos on 0.339 (median 0.368) off 0.256 on/off 1.386 (1.54, 1.65, 1.22, 1.12, 1.54, 1.24); late hurt 0.249 helped 0.225 ratio 1.12 (1.18, 1.09, 1.10, 1.10, 1.17, 1.07); yaw 12.81; J -3.77; dead 0.068
+[above, ff retrained] cant deg 33.63, 33.88, 34.96, 35.14, 32.90, 36.47; hover W 453.7
+  lever 0   pos on 0.104 (median 0.104) off 0.104 on/off 1.003 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.030 helped 0.032 ratio 0.96 (0.96, 0.95, 0.95, 0.95, 0.95, 0.97); yaw 9.48; J -1.55; dead 0.000
+  lever 1   pos on 0.118 (median 0.106) off 0.105 on/off 1.126 (1.01, 1.01, 1.01, 1.01, 1.00, 1.71); late hurt 0.044 helped 0.041 ratio 1.08 (0.94, 1.19, 1.40, 1.12, 0.81, 1.04); yaw 9.78; J -1.67; dead 0.003
+  lever 2   pos on 0.276 (median 0.223) off 0.222 on/off 1.310 (1.56, 1.36, 1.34, 0.78, 1.56, 1.26); late hurt 0.189 helped 0.180 ratio 1.05 (1.01, 1.11, 1.11, 1.09, 0.95, 1.03); yaw 12.17; J -3.17; dead 0.049
+[above, ff retrained, ff off] cant deg 33.63, 33.88, 34.96, 35.14, 32.90, 36.47; hover W 453.7
+  lever 0   pos on 0.104 (median 0.104) off 0.104 on/off 1.002 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.030 helped 0.032 ratio 0.95 (0.96, 0.95, 0.95, 0.95, 0.95, 0.97); yaw 9.48; J -1.54; dead 0.000
+  lever 1   pos on 0.120 (median 0.108) off 0.105 on/off 1.146 (1.03, 1.03, 1.04, 1.03, 1.03, 1.72); late hurt 0.058 helped 0.031 ratio 2.10 (2.18, 2.27, 2.36, 2.21, 2.28, 1.32); yaw 9.74; J -1.68; dead 0.003
+  lever 2   pos on 0.269 (median 0.281) off 0.222 on/off 1.379 (1.97, 1.41, 1.31, 0.80, 1.97, 0.80); late hurt 0.199 helped 0.154 ratio 1.30 (1.23, 1.40, 1.28, 1.39, 1.26, 1.23); yaw 11.83; J -3.08; dead 0.042
+  [above] 6b+ff tau 0.2 lever 0: minus 6b aware: hurt axis +0.1017 m (lower in 0 of 6), pos +0.1098 m (lower in 0), J -1.038 (better in 0); minus 6b nocant: yaw -4.00 deg (lower in 6), J -0.67 (better in 4)
+  [above] 6b+ff tau 0.2 lever 1: minus 6b aware: hurt axis +0.0988 m (lower in 4 of 6), pos +0.1248 m (lower in 4), J -1.205 (better in 4); minus 6b nocant: yaw -3.82 deg (lower in 6), J -0.95 (better in 4)
+  [above] 6b+ff tau 0.2 lever 2: minus 6b aware: hurt axis +0.1151 m (lower in 2 of 6), pos +0.1542 m (lower in 2), J -1.521 (better in 2); minus 6b nocant: yaw -4.31 deg (lower in 5), J -0.30 (better in 3)
+  [above] 6b+ff tau 0.5 lever 0: minus 6b aware: hurt axis +0.0528 m (lower in 0 of 6), pos +0.0574 m (lower in 0), J -0.543 (better in 1); minus 6b nocant: yaw -4.51 deg (lower in 6), J -0.18 (better in 5)
+  [above] 6b+ff tau 0.5 lever 1: minus 6b aware: hurt axis +0.0391 m (lower in 4 of 6), pos +0.0520 m (lower in 4), J -0.499 (better in 4); minus 6b nocant: yaw -4.52 deg (lower in 6), J -0.24 (better in 4)
+  [above] 6b+ff tau 0.5 lever 2: minus 6b aware: hurt axis +0.0372 m (lower in 4 of 6), pos +0.0564 m (lower in 4), J -0.565 (better in 4); minus 6b nocant: yaw -4.91 deg (lower in 6), J +0.66 (better in 5)
+  [above] 6b+ff tau 1 lever 0: minus 6b aware: hurt axis +0.0075 m (lower in 0 of 6), pos +0.0073 m (lower in 0), J -0.066 (better in 0); minus 6b nocant: yaw -4.96 deg (lower in 6), J +0.30 (better in 5)
+  [above] 6b+ff tau 1 lever 1: minus 6b aware: hurt axis -0.0009 m (lower in 5 of 6), pos +0.0065 m (lower in 5), J -0.065 (better in 5); minus 6b nocant: yaw -4.98 deg (lower in 6), J +0.19 (better in 5)
+  [above] 6b+ff tau 1 lever 2: minus 6b aware: hurt axis +0.0242 m (lower in 4 of 6), pos +0.0344 m (lower in 4), J -0.349 (better in 4); minus 6b nocant: yaw -5.16 deg (lower in 6), J +0.88 (better in 5)
+  [above] 6b+ff tau 2 lever 0: minus 6b aware: hurt axis +0.0000 m (lower in 0 of 6), pos +0.0000 m (lower in 0), J -0.000 (better in 2); minus 6b nocant: yaw -5.10 deg (lower in 6), J +0.37 (better in 6)
+  [above] 6b+ff tau 2 lever 1: minus 6b aware: hurt axis -0.0059 m (lower in 6 of 6), pos -0.0012 m (lower in 6), J +0.008 (better in 6); minus 6b nocant: yaw -5.08 deg (lower in 6), J +0.27 (better in 5)
+  [above] 6b+ff tau 2 lever 2: minus 6b aware: hurt axis +0.0054 m (lower in 3 of 6), pos +0.0120 m (lower in 3), J -0.121 (better in 3); minus 6b nocant: yaw -5.45 deg (lower in 6), J +1.10 (better in 5)
+  [above] ff retrained lever 0: minus 6b aware: hurt axis +0.0015 m (lower in 0 of 6), pos +0.0007 m (lower in 1), J -0.002 (better in 2); minus 6b nocant: yaw -5.12 deg (lower in 6), J +0.37 (better in 6)
+  [above] ff retrained lever 1: minus 6b aware: hurt axis -0.0099 m (lower in 6 of 6), pos -0.0009 m (lower in 5), J +0.009 (better in 5); minus 6b nocant: yaw -5.10 deg (lower in 6), J +0.27 (better in 5)
+  [above] ff retrained lever 2: minus 6b aware: hurt axis -0.0547 m (lower in 5 of 6), pos -0.0504 m (lower in 4), J +0.480 (better in 5); minus 6b nocant: yaw -6.10 deg (lower in 6), J +1.71 (better in 5)
+  [above] ff retrained, ff off lever 0: minus 6b aware: hurt axis +0.0015 m (lower in 0 of 6), pos +0.0006 m (lower in 1), J -0.001 (better in 3); minus 6b nocant: yaw -5.12 deg (lower in 6), J +0.37 (better in 6)
+  [above] ff retrained, ff off lever 1: minus 6b aware: hurt axis +0.0039 m (lower in 0 of 6), pos +0.0011 m (lower in 1), J -0.005 (better in 2); minus 6b nocant: yaw -5.13 deg (lower in 6), J +0.25 (better in 5)
+  [above] ff retrained, ff off lever 2: minus 6b aware: hurt axis -0.0452 m (lower in 4 of 6), pos -0.0578 m (lower in 4), J +0.571 (better in 4); minus 6b nocant: yaw -6.44 deg (lower in 6), J +1.80 (better in 6)
+  [above] ff retrained: chosen tau_ff s 0.36, 1.12, 1.99, 0.86, 0.21, 0.64
+
+[below, 6b nocant] cant deg 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; hover W 210.5
+  lever 0   pos on 0.132 (median 0.124) off 0.132 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.061 helped 0.057 ratio 1.06 (1.07, 1.04, 1.06, 1.07, 1.06, 1.06); yaw 17.22; J -2.24; dead 0.003
+  lever 1   pos on 0.147 (median 0.105) off 0.147 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.064 helped 0.066 ratio 0.96 (0.92, 0.99, 0.94, 0.98, 1.00, 0.97); yaw 17.71; J -2.38; dead 0.010
+  lever 2   pos on 1.010 (median 1.110) off 1.023 on/off 0.992 (1.00, 0.95, 1.00, 1.00, 1.00, 1.00); late hurt 0.839 helped 0.849 ratio 0.99 (0.98, 1.00, 1.00, 0.98, 0.98, 1.01); yaw 24.99; J -10.49; dead 0.266
+[below, 6b aware] cant deg 29.57, 31.79, 30.85, 30.53, 31.44, 31.32; hover W 339.7
+  lever 0   pos on 0.112 (median 0.111) off 0.112 on/off 1.002 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.040 helped 0.038 ratio 1.06 (1.06, 1.07, 1.05, 1.06, 1.06, 1.06); yaw 9.60; J -1.57; dead 0.000
+  lever 1   pos on 0.126 (median 0.103) off 0.100 on/off 1.261 (1.03, 2.41, 1.04, 1.04, 1.03, 1.03); late hurt 0.057 helped 0.028 ratio 3.41 (3.50, 1.27, 2.81, 4.63, 5.39, 2.85); yaw 9.98; J -1.73; dead 0.005
+  lever 2   pos on 0.379 (median 0.379) off 0.311 on/off 1.188 (1.06, 1.61, 1.20, 1.15, 1.07, 1.05); late hurt 0.285 helped 0.282 ratio 1.02 (1.04, 1.01, 0.99, 1.01, 1.10, 0.98); yaw 13.04; J -4.12; dead 0.086
+[below, 6b+ff tau 0.2] cant deg 29.57, 31.79, 30.85, 30.53, 31.44, 31.32; hover W 339.7
+  lever 0   pos on 0.621 (median 0.354) off 0.112 on/off 5.555 (2.51, 17.63, 5.62, 3.65, 2.67, 1.25); late hurt 0.503 helped 0.500 ratio 1.01 (1.01, 1.00, 1.00, 1.01, 1.01, 1.03); yaw 15.13; J -6.54; dead 0.148
+  lever 1   pos on 0.655 (median 0.431) off 0.100 on/off 6.565 (2.77, 20.03, 6.84, 5.00, 3.62, 1.13); late hurt 0.524 helped 0.529 ratio 0.96 (0.97, 1.00, 0.99, 0.98, 0.98, 0.86); yaw 15.64; J -6.89; dead 0.159
+  lever 2   pos on 0.865 (median 0.695) off 0.311 on/off 2.726 (1.90, 5.32, 2.29, 2.14, 3.28, 1.42); late hurt 0.717 helped 0.714 ratio 1.01 (1.01, 1.00, 1.02, 1.00, 0.99, 1.03); yaw 18.73; J -8.97; dead 0.216
+[below, 6b+ff tau 0.5] cant deg 29.57, 31.79, 30.85, 30.53, 31.44, 31.32; hover W 339.7
+  lever 0   pos on 0.205 (median 0.112) off 0.112 on/off 1.838 (1.00, 6.01, 1.00, 1.00, 1.00, 1.00); late hurt 0.126 helped 0.123 ratio 1.05 (1.06, 1.01, 1.05, 1.06, 1.06, 1.06); yaw 10.58; J -2.48; dead 0.026
+  lever 1   pos on 0.213 (median 0.102) off 0.100 on/off 2.140 (1.01, 7.76, 1.03, 1.02, 1.01, 1.01); late hurt 0.125 helped 0.125 ratio 1.00 (1.00, 1.00, 1.09, 1.00, 0.98, 0.95); yaw 10.95; J -2.60; dead 0.029
+  lever 2   pos on 0.493 (median 0.447) off 0.311 on/off 1.528 (1.24, 2.90, 1.26, 1.36, 1.38, 1.03); late hurt 0.388 helped 0.383 ratio 1.02 (1.03, 1.01, 1.01, 1.01, 1.02, 1.02); yaw 14.37; J -5.26; dead 0.112
+[below, 6b+ff tau 1] cant deg 29.57, 31.79, 30.85, 30.53, 31.44, 31.32; hover W 339.7
+  lever 0   pos on 0.154 (median 0.112) off 0.112 on/off 1.383 (1.00, 3.29, 1.00, 1.00, 1.00, 1.00); late hurt 0.080 helped 0.078 ratio 1.05 (1.06, 1.01, 1.05, 1.06, 1.06, 1.06); yaw 10.07; J -1.97; dead 0.013
+  lever 1   pos on 0.152 (median 0.102) off 0.100 on/off 1.523 (1.01, 4.05, 1.02, 1.02, 1.02, 1.01); late hurt 0.072 helped 0.066 ratio 1.20 (1.22, 1.02, 1.33, 1.25, 1.23, 1.13); yaw 10.30; J -1.98; dead 0.013
+  lever 2   pos on 0.443 (median 0.405) off 0.311 on/off 1.388 (1.05, 2.31, 1.26, 1.29, 1.39, 1.03); late hurt 0.341 helped 0.339 ratio 1.01 (1.03, 1.01, 1.00, 1.00, 1.02, 1.01); yaw 13.76; J -4.76; dead 0.102
+[below, 6b+ff tau 2] cant deg 29.57, 31.79, 30.85, 30.53, 31.44, 31.32; hover W 339.7
+  lever 0   pos on 0.130 (median 0.112) off 0.112 on/off 1.170 (1.00, 2.01, 1.00, 1.00, 1.00, 1.00); late hurt 0.059 helped 0.056 ratio 1.05 (1.06, 1.02, 1.05, 1.06, 1.06, 1.06); yaw 9.80; J -1.74; dead 0.005
+  lever 1   pos on 0.135 (median 0.102) off 0.100 on/off 1.349 (1.02, 3.00, 1.02, 1.02, 1.02, 1.02); late hurt 0.059 helped 0.047 ratio 1.48 (1.54, 1.07, 1.63, 1.62, 1.61, 1.41); yaw 10.10; J -1.81; dead 0.008
+  lever 2   pos on 0.411 (median 0.402) off 0.311 on/off 1.303 (1.04, 1.90, 1.16, 1.29, 1.39, 1.03); late hurt 0.310 helped 0.310 ratio 1.00 (1.03, 0.99, 1.00, 1.00, 1.02, 0.99); yaw 13.41; J -4.44; dead 0.091
+[below, ff retrained] cant deg 31.82, 34.21, 30.46, 31.11, 33.91, 35.34; hover W 311.4
+  lever 0   pos on 0.170 (median 0.114) off 0.113 on/off 1.508 (1.00, 1.85, 1.00, 1.00, 1.00, 3.19); late hurt 0.098 helped 0.096 ratio 1.05 (1.06, 1.02, 1.07, 1.06, 1.06, 1.01); yaw 10.24; J -2.11; dead 0.021
+  lever 1   pos on 0.161 (median 0.103) off 0.101 on/off 1.599 (1.02, 2.73, 1.01, 1.02, 1.02, 2.80); late hurt 0.083 helped 0.083 ratio 1.10 (1.12, 0.97, 0.98, 1.69, 0.86, 0.97); yaw 10.52; J -2.05; dead 0.021
+  lever 2   pos on 0.520 (median 0.483) off 0.378 on/off 1.381 (1.45, 1.51, 1.22, 1.23, 1.21, 1.67); late hurt 0.415 helped 0.409 ratio 1.02 (1.00, 1.04, 1.01, 1.00, 1.02, 1.02); yaw 15.04; J -5.51; dead 0.130
+[below, ff retrained, ff off] cant deg 31.82, 34.21, 30.46, 31.11, 33.91, 35.34; hover W 311.4
+  lever 0   pos on 0.113 (median 0.114) off 0.113 on/off 1.001 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.042 helped 0.039 ratio 1.06 (1.06, 1.07, 1.07, 1.06, 1.06, 1.06); yaw 9.51; J -1.57; dead 0.000
+  lever 1   pos on 0.105 (median 0.105) off 0.101 on/off 1.042 (1.03, 1.05, 1.04, 1.04, 1.05, 1.04); late hurt 0.041 helped 0.013 ratio 3.33 (2.23, 3.34, 4.50, 4.09, 2.97, 2.83); yaw 9.67; J -1.52; dead 0.000
+  lever 2   pos on 0.413 (median 0.408) off 0.378 on/off 1.097 (1.16, 1.09, 1.02, 1.14, 1.02, 1.16); late hurt 0.318 helped 0.320 ratio 0.99 (1.01, 0.98, 1.01, 0.99, 0.98, 0.99); yaw 13.70; J -4.45; dead 0.102
+  [below] 6b+ff tau 0.2 lever 0: minus 6b aware: hurt axis +0.4626 m (lower in 0 of 6), pos +0.5090 m (lower in 0), J -4.963 (better in 0); minus 6b nocant: yaw -2.10 deg (lower in 5), J -4.30 (better in 1)
+  [below] 6b+ff tau 0.2 lever 1: minus 6b aware: hurt axis +0.4672 m (lower in 1 of 6), pos +0.5293 m (lower in 0), J -5.167 (better in 0); minus 6b nocant: yaw -2.07 deg (lower in 5), J -4.51 (better in 1)
+  [below] 6b+ff tau 0.2 lever 2: minus 6b aware: hurt axis +0.4327 m (lower in 0 of 6), pos +0.4866 m (lower in 0), J -4.850 (better in 0); minus 6b nocant: yaw -6.25 deg (lower in 5), J +1.51 (better in 4)
+  [below] 6b+ff tau 0.5 lever 0: minus 6b aware: hurt axis +0.0854 m (lower in 1 of 6), pos +0.0932 m (lower in 0), J -0.902 (better in 0); minus 6b nocant: yaw -6.64 deg (lower in 6), J -0.24 (better in 5)
+  [below] 6b+ff tau 0.5 lever 1: minus 6b aware: hurt axis +0.0679 m (lower in 5 of 6), pos +0.0874 m (lower in 5), J -0.870 (better in 4); minus 6b nocant: yaw -6.76 deg (lower in 6), J -0.21 (better in 5)
+  [below] 6b+ff tau 0.5 lever 2: minus 6b aware: hurt axis +0.1032 m (lower in 1 of 6), pos +0.1148 m (lower in 1), J -1.140 (better in 1); minus 6b nocant: yaw -10.61 deg (lower in 6), J +5.22 (better in 5)
+  [below] 6b+ff tau 1 lever 0: minus 6b aware: hurt axis +0.0401 m (lower in 1 of 6), pos +0.0425 m (lower in 0), J -0.399 (better in 1); minus 6b nocant: yaw -7.16 deg (lower in 6), J +0.26 (better in 5)
+  [below] 6b+ff tau 1 lever 1: minus 6b aware: hurt axis +0.0146 m (lower in 5 of 6), pos +0.0260 m (lower in 5), J -0.258 (better in 5); minus 6b nocant: yaw -7.40 deg (lower in 6), J +0.40 (better in 6)
+  [below] 6b+ff tau 1 lever 2: minus 6b aware: hurt axis +0.0567 m (lower in 2 of 6), pos +0.0646 m (lower in 2), J -0.639 (better in 2); minus 6b nocant: yaw -11.23 deg (lower in 6), J +5.72 (better in 5)
+  [below] 6b+ff tau 2 lever 0: minus 6b aware: hurt axis +0.0183 m (lower in 0 of 6), pos +0.0188 m (lower in 0), J -0.169 (better in 2); minus 6b nocant: yaw -7.43 deg (lower in 6), J +0.49 (better in 6)
+  [below] 6b+ff tau 2 lever 1: minus 6b aware: hurt axis +0.0017 m (lower in 5 of 6), pos +0.0087 m (lower in 5), J -0.088 (better in 5); minus 6b nocant: yaw -7.61 deg (lower in 6), J +0.57 (better in 6)
+  [below] 6b+ff tau 2 lever 2: minus 6b aware: hurt axis +0.0252 m (lower in 3 of 6), pos +0.0319 m (lower in 3), J -0.313 (better in 3); minus 6b nocant: yaw -11.57 deg (lower in 6), J +6.05 (better in 5)
+  [below] ff retrained lever 0: minus 6b aware: hurt axis +0.0578 m (lower in 2 of 6), pos +0.0587 m (lower in 1), J -0.534 (better in 1); minus 6b nocant: yaw -6.98 deg (lower in 6), J +0.13 (better in 5)
+  [below] ff retrained lever 1: minus 6b aware: hurt axis +0.0264 m (lower in 4 of 6), pos +0.0355 m (lower in 3), J -0.326 (better in 4); minus 6b nocant: yaw -7.19 deg (lower in 6), J +0.33 (better in 5)
+  [below] ff retrained lever 2: minus 6b aware: hurt axis +0.1306 m (lower in 1 of 6), pos +0.1415 m (lower in 1), J -1.385 (better in 1); minus 6b nocant: yaw -9.95 deg (lower in 6), J +4.98 (better in 5)
+  [below] ff retrained, ff off lever 0: minus 6b aware: hurt axis +0.0013 m (lower in 2 of 6), pos +0.0017 m (lower in 1), J +0.002 (better in 3); minus 6b nocant: yaw -7.72 deg (lower in 6), J +0.66 (better in 6)
+  [below] ff retrained, ff off lever 1: minus 6b aware: hurt axis -0.0160 m (lower in 2 of 6), pos -0.0209 m (lower in 2), J +0.204 (better in 4); minus 6b nocant: yaw -8.04 deg (lower in 6), J +0.86 (better in 6)
+  [below] ff retrained, ff off lever 2: minus 6b aware: hurt axis +0.0332 m (lower in 2 of 6), pos +0.0348 m (lower in 2), J -0.326 (better in 2); minus 6b nocant: yaw -11.28 deg (lower in 6), J +6.04 (better in 6)
+  [below] ff retrained: chosen tau_ff s 0.70, 0.18, 0.41, 2.00, 0.20, 0.17
+

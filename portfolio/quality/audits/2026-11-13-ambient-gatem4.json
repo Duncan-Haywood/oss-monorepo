@@ -1,0 +1,229 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/ambient-gatem4",
+ "stratum": "research",
+ "seed": "2026-11-13-q-5db1",
+ "drawn_by": "sample",
+ "round": 71,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior embedded DSP / firmware engineer who ports audio front-ends to Cortex-M parts (the kind who reviews for an embedded-systems venue or signs off a vendor SDK port). They would check first that the instruction counts mean what a Cortex-M4 executes (IT blocks, condition-failed instructions, the uncounted libgcc divide), that a cycle figure rests on the Cortex-M4 TRM timings or a DWT read rather than a guessed CPI, and that the block-minimum floor is compared with the standard exact alternative (an O(1)-amortised streaming minimum, Lemire 2006) and the minimum-statistics literature (Martin 2001)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every headline number reproduces and three recompute independently. Rerun: `cd research && PYTHONPATH=ambient-gatem4/src /usr/bin/python3.13 ambient-gatem4/experiments/run.py` (2 min 28 s) is byte-identical to experiments/results.txt (diff empty). Independent: (1) my own clang 18 builds of adaptive_gate.c give llvm-size .text 252/258/236 at -Os (blocks 1/10/125) and 526/532/530/532/530/518/512 at -O2 for all seven blocks, equal to the table. (2) A static instruction model written from my own llvm-objdump of the -Os push (6 instructions per sample in the energy loop, 5 hooked per ring entry in the scan, straight-line paths read off the listing) driven by a pure-Python re-simulation of the C state machine (scratchpad model.py, imports nothing from ambient_gatem4) gives 3237.1 / 2096.0 / 1976.7 instructions per frame at blocks 1/10/125, matching 3237 / 2096 / 1977 exactly. (3) Headline arithmetic: (3237-2096)/3237 = 35.3%, (3237-1977)/3237 = 38.9%, 3237 x 3 x 50 = 0.486 M/s = 0.76% of 64 MHz. Not 4, and a medium defect: a probe (itprobe.py) shows Unicorn's code hook skips condition-failed instructions inside IT blocks (movs; cmp; it eq; moveq-fails; nop hooks 4 of 5), which a real Cortex-M4 still issues. The architectural count from the same model is 3486 / 2122 / 1982, so the exact gate is 7.7% higher than reported, the floor scan costs 6 not 5 instructions per entry, its share is 43.1% not 38.9%, and the block-10 cut is 39.1% not 35%. The direction of the conclusion (energy sum dominates once blocked) survives.",
+  "completeness": "README promises: 3 tests (ran: 3 passed in 10.0 s with clang 18.1.3, Unicorn 2.1.4, numpy 2.5.3), run.py reproduces results.txt (byte-identical, 2.5 min vs 'about 3 minutes'), flash sizes, libcall list (only __aeabi_uldivmod, confirmed by the test and by llvm-nm), instruction table for 7 block sizes at 2 opt levels, bit-exactness against the Python reference ('agrees' column all yes, and the test checks floor for blocks 1 and 10 and open/closed for block 1), the figure (experiments/block_instructions.png present; figure.py parses results.txt). Live page https://marisstella.app/research/ambient-gatem4/ could not be checked: the session proxy returned CONNECT 403. All README next steps are labelled as not done; two were taken up by research/ambient-gatesimd, which imports this harness.",
+  "verification": "`cd research/ambient-gatem4 && env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests`: 3 passed in ~10 s. The bit-exactness test is strong (it caught a mutant that perturbs the host divide). Nothing pins a number the README reports: four mutants via platform/ci/quality_mutate.py, 1 caught, 3 survived: doubling every counted instruction (m4.py:89), reporting llvm-size's data column instead of text (m4.py:45, every flash figure becomes 0), and counting the intercepted divide entry as an instruction (m4.py:86, removing the early return). The only count test is a ratio (block 10 < 0.75 x block 1), invariant to any uniform scaling. The tests also skip whenever clang/ld.lld/Unicorn are absent; research/_audit/audit.json records the CI reproducibility run as '3 skipped', so in CI they have never executed.",
+  "craft": "Read src/ambient_gatem4/m4.py (107 lines), tests/test_gatem4.py, experiments/run.py, experiments/figure.py, firmware/bench.c, and the compiled gate ../ambient-gatefw/firmware/adaptive_gate.c. Compact and readable: one Image class (compile, size, nm, link, objcopy), one Emu class with a divide intercept, the gate source compiled unchanged from the sibling. Defects, all low: Image leaks a mkdtemp directory per build (14 per experiment run plus 5 per test run, never removed); llvm-size and llvm-nm output parsed by column position; _call silently drops arguments beyond three; 'base = None' in run.py is dead; the README says counts are 'inside adaptive_gate_push' but they include bench_push's 5-instruction tail-call wrapper.",
+  "claims": "Checked: every number in Headline bullets 2-5 is in results.txt and recomputes (above); 'only library call is __aeabi_uldivmod, once per frame' holds (llvm-nm -u, divs == 1 per frame); 'bit-exact' holds for floor at every block and open/closed at block 1 as worded; 'lower bound' is stated for the divide. Problems: the headline percentages (35% cut, 39% floor-scan share, 5.7% at block 10) are presented as instruction shares while the counter silently drops condition-failed IT-block instructions, undisclosed anywhere (architectural 39%, 43%); Limitations says 'the 64-bit multiply-accumulate ... excluded or approximated' but the code has no 64-bit MAC and the muls/adds/adc sequence is counted in full; 'inside adaptive_gate_push' includes the driver wrapper. The 3-cycles-per-instruction figure is labelled as a guess, which is honest, though a TRM-based estimate was available.",
+  "fitness": "Job: a researcher deciding whether the block-minimum floor is worth porting and where to optimise next. The harness is reusable (ambient-gatesimd imports it unchanged and builds on its finding), the result is reproducible, and the qualitative answer (the 320-sample energy sum, not the floor, dominates once blocked) is sound and survives the IT correction. As research it is an engineering measurement, not a PhD-level contribution, and not in any programme in research/PROGRAMMES.md. The nearest prior work is uncited here: the sub-window minimum used by minimum-statistics noise estimation (Martin 2001, IEEE TSAP 9(5); cited only in the sibling projects) is the same block-minimum trick, and the exact alternative the comparison omits is the streaming min filter with at most 3 comparisons per element (Lemire 2006, Nordic J. Computing 13(4)), which would make the exact floor nearly as cheap as block 10 in instructions, at worst-case RAM equal to the window. The study therefore compares block minima only with a naive O(window) scan.",
+  "domain": "Against Cortex-M4 practice (Arm Cortex-M4 TRM instruction timings; DWT CYCCNT on hardware): the emulator count is a reasonable first proxy, honestly labelled 'not cycles'. A senior firmware engineer would not sign off the percentages as a cost model: condition-failed instructions are dropped by the counter but take a cycle on the core; the 64-bit divide, the only non-trivial routine, is left uncounted, which inflates every share (the denominators omit it); the cycle figure uses a guessed 3 CPI where the TRM gives about 8-10 cycles per energy-loop sample (LDRSH 2, MUL 1, ADD 1, ADC 1, SUBS 1, taken branch 1+P) for a CPI near 1.4-1.7; and one compiler (clang, not arm-none-eabi-gcc as a vendor SDK uses) at two levels. The conclusion's direction survives; the numbers are not what a port review would quote."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "instructions per frame at -Os, blocks 1/10/125 (results.txt 3237/2096/1977)",
+   "method": "independent static count from my own llvm-objdump listing of adaptive_gate_push plus a pure-Python re-simulation of the C state machine (no import of ambient_gatem4), Unicorn hook semantics",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/95f012f7-4c61-5a40-8a51-9d7c3b5e2898/scratchpad/gm4/model.py research/ambient-gateroc/src",
+   "expected": "3237 / 2096 / 1977",
+   "observed": "3237.1 / 2096.0 / 1976.7",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": ".text bytes at -Os and -O2 for blocks 1,2,5,10,25,50,125",
+   "method": "own clang 18 build of adaptive_gate.c with the README flags, llvm-size",
+   "command": "clang --target=thumbv7em-none-eabi -mcpu=cortex-m4 -mfloat-abi=soft -ffreestanding -O2 -DAGATE_BLOCK=$b -I research/ambient-gatefw/firmware -c research/ambient-gatefw/firmware/adaptive_gate.c -o g.o && llvm-size g.o",
+   "expected": "-Os 252/258/256/258/256/244/236; -O2 526/532/530/532/530/518/512",
+   "observed": "-Os 252 (b1), 258 (b10), 236 (b125); -O2 526/532/530/532/530/518/512",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "headline arithmetic: 35% cut, 39% floor-scan share, 0.49 M cycles/s, under 1% of 64 MHz",
+   "method": "hand arithmetic from the table",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/95f012f7-4c61-5a40-8a51-9d7c3b5e2898/scratchpad/gm4/model.py research/ambient-gateroc/src",
+   "expected": "35%, 39%, ~0.49 M/s, <1%",
+   "observed": "35.3%, 38.9%, 0.486 M/s, 0.76%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "do the counts include every instruction a Cortex-M4 issues?",
+   "method": "Unicorn probe of an IT block whose condition fails; architectural count from the same static model (Arm ARMv7-M: condition-failed instructions in an IT block are issued and execute as NOPs)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/95f012f7-4c61-5a40-8a51-9d7c3b5e2898/scratchpad/gm4/itprobe.py && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/95f012f7-4c61-5a40-8a51-9d7c3b5e2898/scratchpad/gm4/model.py research/ambient-gateroc/src",
+   "expected": "5 of 5 instructions hooked; counts equal architectural",
+   "observed": "4 of 5 hooked (failed moveq skipped); architectural 3486/2122/1982 vs reported 3237/2096/1977; scan share 43.1% vs 38.9%; cut 39.1% vs 35%",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiment reproduces committed results.txt",
+   "method": "rerun and diff",
+   "command": "cd research && PYTHONPATH=ambient-gatem4/src /usr/bin/python3.13 ambient-gatem4/experiments/run.py > out.txt && diff out.txt ambient-gatem4/experiments/results.txt",
+   "expected": "no diff, about 3 minutes",
+   "observed": "no diff, 2 min 28 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd research && PYTHONPATH=ambient-gatem4/src /usr/bin/python3.13 -m pytest ambient-gatem4 -q",
+   "expected": "3 pass",
+   "observed": "3 passed in 10.00s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "do the tests run in CI?",
+   "method": "read the repository reproducibility audit",
+   "command": "grep -n '\"slug\": \"ambient-gatem4\"' -A9 research/_audit/audit.json",
+   "expected": "tests executed",
+   "observed": "outcome not-run, tests_summary '3 skipped in 0.39s' (pytestmark skips without clang/Unicorn)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'only library call is __aeabi_uldivmod, once per frame'",
+   "method": "llvm-nm -u on my own object; divs counter",
+   "command": "llvm-nm -u g1.o (scratchpad build); test_one_divide_per_frame_and_cost_falls_with_block",
+   "expected": "__aeabi_uldivmod only, 1 per frame",
+   "observed": "__aeabi_uldivmod only (bl at push+0x2a); divs == 1 every frame",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Limitations: 'the 64-bit multiply-accumulate ... excluded or approximated'",
+   "method": "read the -Os disassembly",
+   "command": "llvm-objdump -d --no-show-raw-insn g1.o",
+   "expected": "a 64-bit MAC that is excluded",
+   "observed": "no SMLAL/UMLAL; the loop is ldrsh/muls/adds/adc/subs/bne, all counted",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'executed instructions inside adaptive_gate_push'",
+   "method": "disassemble bench.o",
+   "command": "llvm-objdump -d bench.o",
+   "expected": "count limited to adaptive_gate_push",
+   "observed": "includes bench_push's 5 instructions (mov, mov, movw, movt, b.w)",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/ambient-gatem4/",
+   "expected": "200",
+   "observed": "000 (proxy CONNECT 403 in this session; not checkable)",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "3 CPI 'pessimistic' cycle assumption",
+   "method": "Arm Cortex-M4 TRM instruction timings applied to the energy loop",
+   "command": "llvm-objdump -d g1.o (loop at push+0x16..0x24)",
+   "expected": "3 CPI is an upper bound",
+   "observed": "LDRSH 2 + MUL 1 + ADD 1 + ADC 1 + SUBS 1 + taken B 2-4 = 8-10 cycles per 6 instructions, CPI ~1.4-1.7: 3 CPI is pessimistic, the <1% claim holds",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "is the comparison against the standard exact alternative?",
+   "method": "literature: Lemire 2006 streaming min filter (<=3 comparisons per element); Martin 2001 sub-window minima",
+   "command": "grep -rn -i 'lemire\\|martin\\|deque' research/ambient-gatem4",
+   "expected": "exact O(1) streaming min considered; prior work cited",
+   "observed": "no match; block minima compared only with a naive 249-entry scan",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/ambient_gatem4/m4.py:89",
+   "change": "self.count += 1 -> self.count += 2 (every reported instruction count doubles)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/ambient_gatem4/m4.py:45",
+   "change": "self.text_bytes = int(sz[0]) -> int(sz[1]) (flash size reads the data column, 0)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/ambient_gatem4/m4.py:86",
+   "change": "remove the early return after the divide intercept (the divide entry is counted)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/ambient_gatem4/m4.py:66",
+   "change": "q, r = divmod(a, b) -> divmod(a, b + 1)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Instruction counts silently omit condition-failed instructions inside IT blocks (Unicorn's UC_HOOK_CODE does not fire for them; probe: 4 of 5 hooked), which a Cortex-M4 issues. Architectural counts are 3486/2122/1982 not 3237/2096/1977 at blocks 1/10/125 -Os; the floor scan is 6 not 5 instructions per entry, its share 43% not 39%, the block-10 cut 39% not 35%. Not disclosed in README or Limitations",
+   "where": "research/ambient-gatem4/src/ambient_gatem4/m4.py:83",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No test pins any reported number: doubling every counted instruction, zeroing every flash size, and counting the intercepted divide all leave the suite green (3 of 4 mutants survive); the only count test is a scale-invariant ratio. In CI the suite is skipped entirely (research/_audit/audit.json: '3 skipped')",
+   "where": "research/ambient-gatem4/tests/test_gatem4.py:41",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "The block-minimum floor is compared only with a naive O(window) scan; the standard exact alternative, a streaming min filter with at most 3 comparisons per element (Lemire 2006), is not considered, and the minimum-statistics sub-window trick (Martin 2001) is not cited here, so 'is the block-minimum floor worth it' is answered against a straw baseline",
+   "where": "research/ambient-gatem4/README.md:9",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "The uncounted 64-bit divide is left out of every denominator, so the stated shares (35% cut, 39% scan) are upper bounds, not lower; the README calls only the absolute counts a lower bound",
+   "where": "research/ambient-gatem4/README.md:16",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Limitations says the 64-bit multiply-accumulate is 'excluded or approximated'; there is no 64-bit MAC instruction and the muls/adds/adc loop is counted in full",
+   "where": "research/ambient-gatem4/README.md:43",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Counts are described as 'inside adaptive_gate_push' but include bench_push's 5-instruction tail-call wrapper",
+   "where": "research/ambient-gatem4/experiments/run.py:19",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Image leaks a mkdtemp build directory per instance (never removed); llvm-size/llvm-nm output parsed by column position; _call silently ignores arguments beyond three",
+   "where": "research/ambient-gatem4/src/ambient_gatem4/m4.py:36",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15589"
+ ],
+ "verdict": "A small, honest, reproducible measurement harness. The experiment reruns byte-identically, and an independent static count from my own disassembly and a pure-Python re-simulation of the gate reproduces 3237/2096/1977 instructions per frame exactly, as do the flash sizes. It misses the bar on verification (3 of 4 seeded mutants survive, including doubling every count; CI skips the suite) and on claims: the counter silently drops condition-failed IT-block instructions, which a Cortex-M4 issues, so the headline shares are understated (architectural: floor scan 43% not 39%, block-10 cut 39% not 35%), and the uncounted divide inflates every share. The conclusion that the energy sum dominates once blocked survives. As research it is an engineering note below the PhD bar, and it compares the block minimum only against a naive scan, not the exact O(1) streaming minimum (Lemire 2006)."
+}

@@ -25,6 +25,17 @@ export const SOURCES = {
   form: 'the site feedback form',
 };
 
+/** What is being asked for. Optional: a plain idea's kind is set at triage. */
+export const KINDS = {
+  product: 'a new product or tool',
+  feature: 'a feature for a tool already here',
+  research: 'a research question, investigated and written up openly',
+  writeup: 'a topic to write a guide, explainer or post about',
+};
+
+/** Verdicts of the prompt-injection screen (`screen.mjs`) that let work start. */
+const WORKABLE = new Set(['accepted', 'building', 'shipped']);
+
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const ID = /^R-\d{4}$/;
 
@@ -47,9 +58,24 @@ export function validateRequests(data, { exists = () => true } = {}) {
     if (r?.source !== 'owner' && !/^https:\/\/github\.com\//.test(r?.link || '') && r?.source !== 'form') {
       problems.push(`${at}: a request from an issue needs its issue link`);
     }
+    if (r?.feedback_id !== undefined && !Number.isInteger(r.feedback_id)) problems.push(`${at}: feedback_id is the form message's numeric id in site-feedback.json`);
+    if (r?.preview_ids !== undefined && !(Array.isArray(r.preview_ids) && r.preview_ids.every(Number.isInteger))) {
+      problems.push(`${at}: preview_ids lists the numeric ids of preview feedback already folded into next`);
+    }
     if (r?.status === 'declined' && !r?.reason?.trim()) problems.push(`${at}: a declined request says why (reason)`);
     if (r?.status === 'shipped' && !r?.project && !r?.live) problems.push(`${at}: a shipped request links its project or live page`);
     if (r?.project && !exists(r.project)) problems.push(`${at}: project ${r.project} is not in the tree`);
+    if (r?.kind !== undefined && !(r.kind in KINDS)) problems.push(`${at}: kind must be one of ${Object.keys(KINDS).join(', ')}`);
+    // Text from outside is screened before anyone builds from it, and a held
+    // request waits for the owner (README, "Screening").
+    if (r?.source !== 'owner') {
+      const sc = r?.screen;
+      if (!sc || !['clear', 'caution', 'hold'].includes(sc.verdict) || !Number.isInteger(sc.version)) {
+        problems.push(`${at}: a request from outside carries its injection screen (node portfolio/requests/intake.mjs)`);
+      } else if (sc.verdict === 'hold' && WORKABLE.has(r.status) && !sc.cleared?.trim()) {
+        problems.push(`${at}: held by the injection screen; it stays received or declined until the owner records screen.cleared`);
+      }
+    }
   }
   return problems;
 }

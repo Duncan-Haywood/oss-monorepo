@@ -3,7 +3,7 @@
 // markup. Scripts and templates are stripped before counting, because a tool
 // that builds an <h1> inside a template string is not a second heading.
 //   used by check.mjs; node platform/pages/page-identity.mjs <dist> to run alone
-import { promises as fs } from 'node:fs';
+import { promises as fs, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -55,16 +55,76 @@ export function checkPageIdentity(pages) {
   return problems;
 }
 
-export async function loadPages(site) {
+function h1TextOf(html) {
+  const m = /<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(stripNonMarkup(html));
+  return m ? m[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() : '';
+}
+
+/**
+ * A blog post whose `seo_title` repeats a tool page's title (2026-11-03: the
+ * cold email checker post copied its page's title) failed check.mjs, and that
+ * failure stopped every deploy until someone noticed. The tool page owns its
+ * title; the post is the one renamed, to its own headline (the h1, already
+ * escaped HTML), or with " · Blog" added when the headline clashes too.
+ * pages: Map of relative path -> html. Returns [{ rel, from, to, html }].
+ */
+export function resolvePostTitleClashes(pages, { prefix = 'writing/' } = {}) {
+  const taken = new Set();
+  for (const [rel, html] of pages) {
+    if (SKIP.has(rel) || rel.startsWith(prefix)) continue;
+    const t = titleOf(html);
+    if (t) taken.add(t);
+  }
+  const changes = [];
+  for (const [rel, html] of pages) {
+    if (!rel.startsWith(prefix)) continue;
+    const from = titleOf(html);
+    if (!from || !taken.has(from)) continue;
+    const headline = h1TextOf(html);
+    let to = headline && !taken.has(headline) ? headline : `${from} · Blog`;
+    for (let n = 2; taken.has(to); n++) to = `${from} · Blog ${n}`;
+    taken.add(to);
+    const quoted = (s) => `content="${s}"`;
+    const next = html
+      .replace(/<title>[\s\S]*?<\/title>/i, `<title>${to}</title>`)
+      .split(quoted(from)).join(quoted(to));
+    changes.push({ rel, from, to, html: next });
+  }
+  return changes;
+}
+
+export async function fixPostTitleClashes(site, { log = () => {} } = {}) {
+  const changes = resolvePostTitleClashes(await loadPages(site));
+  for (const { rel, from, to, html } of changes) {
+    await fs.writeFile(path.join(site, rel), html);
+    log(`warning: ${rel} reused the title "${from}" of another page; retitled "${to}". Give the post its own seo_title.`);
+  }
+  return changes;
+}
+
+/** Every .html page under `site`, as a Map of relative path to text, in
+ *  directory-walk order. The walk lists paths first; the reads then run 32 at
+ *  a time (a built site is ~8,500 pages, 1.1 GB), and the Map is filled in
+ *  walk order, so callers see the same keys in the same order as a serial
+ *  read (docs/history/pages-build-perf-2026-11-11-identity-preload-reads.md). */
+export async function loadPages(site, { cache = null } = {}) {
   const pages = new Map();
-  async function go(dir, prefix) {
-    for (const e of await fs.readdir(dir, { withFileTypes: true })) {
+  // `cache` (relative path -> text) holds pages a caller already read, so
+  // check.mjs does not read the whole site twice. Order still comes from this
+  // walk, so callers see the same keys in the same order either way.
+  const read = (rel) => cache?.get(rel) ?? readFileSync(path.join(site, rel), 'utf8');
+  // Sync reads, one after another: faster than 32 promise reads in flight on
+  // ~8,800 mostly small pages, and nothing runs beside this pass
+  // (docs/history/pages-build-perf-2026-11-12-share-identity-preload-sync.md).
+  // Still async to its callers.
+  function go(dir, prefix) {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
       const rel = prefix ? `${prefix}/${e.name}` : e.name;
-      if (e.isDirectory()) await go(path.join(dir, e.name), rel);
-      else if (e.name.endsWith('.html')) pages.set(rel, await fs.readFile(path.join(dir, e.name), 'utf8'));
+      if (e.isDirectory()) go(path.join(dir, e.name), rel);
+      else if (e.name.endsWith('.html')) pages.set(rel, read(rel));
     }
   }
-  await go(site, '');
+  go(site, '');
   return pages;
 }
 

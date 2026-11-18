@@ -1,0 +1,67 @@
+name: contingency-table-tests
+description: >-
+  Free browser tool, CLI and agent call for clinicians, trial statisticians,
+  lab scientists, epidemiologists, quality engineers and students: type four
+  counts or paste a table and get Fisher's exact test beside Boschloo's and
+  Barnard's unconditional tests and the mid-p, the chi-square family, odds
+  ratio, risk ratio and risk difference with intervals; Fisher-Freeman-Halton
+  for r x c tables; Cochran-Mantel-Haenszel with Breslow-Day-Tarone for strata;
+  McNemar for paired data. Matches scipy, statsmodels and R. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-17 on an explore run as a "research algorithms as tools" entry
+# (portfolio/research-tools/README.md). No venture in the tree ran Fisher's
+# exact test, Barnard's or Boschloo's test, the Mantel-Haenszel test or
+# McNemar's test (ab-test-significance-calculator runs a two-proportion z-test
+# and plans sample sizes for large A/B tests). Implemented from the papers'
+# mathematics; no third-party code was ported. scipy 1.18.1 (BSD-3-Clause) and
+# statsmodels 0.15.0 (BSD-3-Clause) were used only to produce
+# eval/reference.json; R's documentation was read for its published example
+# values.
+# Example data: Berkeley 1973 admissions (Bickel, Hammel & O'Connell 1975, via
+# R's UCBAdmissions from Rdatasets; data/SOURCE.md).
+#
+# First visitor: searches such as "fisher exact test calculator", "2x2
+# contingency table calculator", "barnard's test online", "boschloo test",
+# "mantel haenszel calculator", "mcnemar test calculator". Volume not measured
+# with an external tool.
+#
+# Alternatives: R (fisher.test, Exact, exact2x2), scipy and statsmodels (code),
+# GraphPad QuickCalcs and other web calculators (2x2 Fisher and chi-square,
+# usually without unconditional tests or strata). The differentiators here:
+# the unconditional exact tests and the mid-p side by side with Fisher, the
+# exact conditional odds-ratio interval, r x c exact, stratified and paired
+# designs in one page, and the exact size table that says why the default is
+# Boschloo (README, "The finding").
+#
+# Liability: statistical output from supplied counts, not advice; the page says
+# an association is not a cause and names the independence assumption. Data
+# never leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      People comparing two small groups will use a no-install tool that runs
+      Boschloo's and Barnard's tests beside Fisher's, with the exact size table
+      to say why, over a 2x2 calculator that offers Fisher and chi-square only.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a result that disagrees with scipy, statsmodels or R on the same table and settings beyond rounding (outside the documented Barnard tie handling), and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/contingency-table-tests/
+  analytics: null

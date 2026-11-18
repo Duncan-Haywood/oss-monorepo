@@ -132,7 +132,7 @@ node cli.mjs --provider github --snippet                                # refere
       $("#report-card").hidden = false;
       $("#status").textContent = "";
       record("verify_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return r;
     }
 

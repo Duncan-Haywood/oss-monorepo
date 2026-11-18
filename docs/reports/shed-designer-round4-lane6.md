@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # shed-designer round 4, lane 6: cutting layouts, plans and the HOA packet
 
 2026-10-30. This lane was built from the "Open" and "Next step" sections of the round2-lane5, round3-lane5, round3-looks and round3b-renders reports.

@@ -1,0 +1,6 @@
+least-squares kink on the levels: 1971Q2, BIC-style gain 140.1 against a bar of 10.6
+difference-based sup-Wald (critical 11): 0 slope break(s)
+growth before/after 1971Q2: 3.90 / 3.14 % a year
+n=150, growth 1.0 to 0.6 %/step, noise sd 1: break reported 47/200, within 10 points of the true one 17/200
+n=150, growth 1.0 to 0.2 %/step, noise sd 1: break reported 164/200, within 10 points of the true one 121/200
+n=204, growth 1.0 to 0.1 %/step, noise sd 1: break reported 191/200, within 10 points of the true one 153/200

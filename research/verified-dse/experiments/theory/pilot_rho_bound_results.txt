@@ -1,0 +1,4 @@
+m | cells | cells |G|<=k_last | cells ratio(x*)>=1 | violations emp<=bound | cells g>0 | median g | median bound (false cert) | median empirical | median emp/bound | max emp/bound
+8 | 40 | 40 | 29 | 0 | 7 | 0.0 | 0.000 | 0.000 | 0.258 | 0.707
+16 | 40 | 40 | 29 | 0 | 7 | 0.0 | 0.000 | 0.000 | 0.092 | 0.626
+24 | 40 | 40 | 29 | 0 | 7 | 0.0 | 0.000 | 0.000 | 0.041 | 0.478

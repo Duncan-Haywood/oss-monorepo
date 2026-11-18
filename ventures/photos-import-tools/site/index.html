@@ -35,6 +35,19 @@
       <li>Status and report files are written atomically, so a reader never sees a half-written file.</li>
     </ul>
   </section>
+  <section id="faq">
+    <h2>Questions</h2>
+    <h3>What happens if the import crashes halfway?</h3>
+    <p>Every file's state is recorded in a manifest on disk. Run the same <code>run</code> command again and it resumes from the manifest instead of starting over. It is also safe after Ctrl-C or a Photos.app timeout.</p>
+    <h3>Will it import the same photo twice?</h3>
+    <p>The manifest stops files it has already imported from being sent again. A file left <code>uncertain</code> by a Photos.app timeout may have been imported anyway, so the <code>preflight</code> command matches your files against the Photos library before you retry, and <code>skip-uncertain</code> clears them once you have decided.</p>
+    <h3>Does it handle RAW files as well as JPEG?</h3>
+    <p>Yes. JPEG and RAW each keep a separate manifest, chosen with <code>--media-type jpeg|raw</code>, so a RAW import needs its own <code>init</code> and <code>run</code> pass. The watchdog can supervise both phases in one unattended run.</p>
+    <h3>How do I know the copy from my SD card is intact?</h3>
+    <p><code>sd_offload.py</code> checks each file after copying. The default compares byte counts; <code>--verify hash</code> also compares SHA-256, which catches a same-size corrupted copy. It exits non-zero if any card fails, so a script cannot mistake a failed run for safe to eject.</p>
+    <h3>Does it send my photos or any data anywhere?</h3>
+    <p>No. It runs on your own Mac, makes no network calls and has no telemetry. Status and report files are written to local disk only.</p>
+  </section>
   <section>
     <h2>Status</h2>
     <p>Prototype. It runs on your Mac and talks to Photos.app; defaults reflect one machine's folder layout, so pass your own paths as the README describes.</p>

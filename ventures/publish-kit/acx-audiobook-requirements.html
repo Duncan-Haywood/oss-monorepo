@@ -23,6 +23,7 @@
   </style>
 </head>
 <body>
+<main>
 <p><a href="./index.html">← Publish Kit</a></p>
 <h1>ACX audiobook requirements, and how to check your files before you upload</h1>
 <p>ACX is the platform that distributes audiobooks to Audible, Amazon and Apple Books. It rejects a submission at quality review when a file breaks one of its published audio rules. The rejection email arrives days later and names the rule, not the file. Here is every file-level rule in one table, with what the <a href="./index.html#audiobook">free checker</a> does for each.</p>
@@ -61,7 +62,7 @@ publish-kit audiobook check masters/*.wav    # plus loudness
 publish-kit audiobook m4b --run              # one chaptered .m4b for direct sale
 publish-kit audiobook feed                   # a private podcast-style feed of the chapters</pre>
 <p>Each command takes <code>--json</code> and exits 1 when a rule fails, so an AI agent or a CI job can loop until the set passes. See <a href="./index.html#cli">the CLI</a>.</p>
-
+</main>
 <footer>
   <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or publishing-contract advice, and it does not replace a qualified professional. A clean result is not a promise that ACX, Audible or any retailer will accept your audiobook. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
   <p>Publish Kit is not affiliated with ACX, Audible or Amazon. Their names are used only to describe the requirements checked.</p>

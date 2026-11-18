@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqycXQsVLJT8tu67Q6mR",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T07:39:18Z",
+  "ended": "2026-11-17T07:49:35Z",
+  "wall_minutes": 10.59,
+  "tokens_in": 4301980,
+  "tokens_out": 29622,
+  "cost_usd": 2.3869,
+  "tool_calls": 43,
+  "task": "einvoice-preflight (flagship 5): reach the BR-FR-CDV (CDAR) rules the first cross-check missed",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16862",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/eval/cdar-crosscheck.mjs",
+      "issue": "It requires saxon-js/fontoxpath via createRequire from the venture dir; a scratchpad npm install needed NODE_PATH to resolve them (undocumented; this run added the NODE_PATH line to its header)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-six-french-status-rules-that-cannot-fire.md",
+    "ventures/einvoice-preflight/eval/cdar-crosscheck-2026-11-17.md (second-round section)"
+  ],
+  "goal": null,
+  "notes": "33 new mutations on FNFE's 59 CDAR examples (France_RFE 97ba0f3): 2,496/2,496 runs give the same BR-FR-CDV ids on fontoxpath (plain/cdar-fr.json) and Saxon-JS on FNFE's XSLT; 37 of 43 rules reached. The other six (BR-FR-CDV-01/04/05/06/10 context-is-the-element with test '.', 07_MDT-38_no count ge 0) cannot fire; no invoice number or no creation date passes the whole set. New FR-CDV-105..107 in cdar.mjs cover them: 0 findings on the 59 published messages, catch 177/177 mutated runs neither engine flags. Verification: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok (2599 tests); cdar.test.mjs with slimdom/fontoxpath installed 8/8 (the plain-route tests that CI skips without them); post front matter/links/similarity clean; venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d032ca44-03a0-5bdc-904e-b4d901591581",
+    "transcripts": 1,
+    "first": "2026-11-17T07:39:18Z",
+    "last": "2026-11-17T07:49:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 80,
+        "output": 29622,
+        "thinking": 7528,
+        "cache_read": 4182184,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119716,
+        "api_equivalent_usd": 2.3869,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 80,
+      "output": 29622,
+      "thinking": 7528,
+      "cache_read": 4182184,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119716,
+      "api_equivalent_usd": 2.3869,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 41,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.59,
+      "active_minutes": 10.59,
+      "model_minutes": 4.64,
+      "tool_minutes": 5.95,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an e-invoicing engineer reading the BR-FR-CDV Schematron, writing 33 targeted mutations, diagnosing six dead rules and adding three checks with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 419.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

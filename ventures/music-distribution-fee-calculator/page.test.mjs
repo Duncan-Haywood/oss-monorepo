@@ -56,3 +56,7 @@ test("the page tells the visitor the preset fees are unverified", () => {
 test("footer links to the Bandcamp sales report analyzer sibling", () => {
   assert.match(page("index.html"), /href="\.\.\/bandcamp-sales-report-analyzer\/"/);
 });
+
+test("footer links to the Chant Forge sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/chant-forge\/"/);
+});

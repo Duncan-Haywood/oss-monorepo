@@ -144,7 +144,7 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const keys = ["pkg", "size", "coating", "correction", "filmCostPerFt", "wastePct", "coatingCost", "coatingHrs", "consumables", "laborRate", "techs", "hoursPerDay", "cureDays", "bayOverheadPerDay", "redoPct", "redoCost", "marginPct", "minCharge"];
-    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const usd = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     let last = null;
 
     function read() {
@@ -162,7 +162,7 @@
       $("#sens").innerHTML = r.redos.map((x) => `<tr><th scope="row">${x.redoPct}%</th><td>${usd(x.cost)}</td><td>${usd(x.price)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Quote ${usd(r.job.price)}.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

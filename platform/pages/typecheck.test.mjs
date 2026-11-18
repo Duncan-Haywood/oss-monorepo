@@ -39,3 +39,26 @@ test("opted-in files are found per venture, and unknown slugs are skipped", () =
   assert.ok(files.includes("ventures/bai2-statement-reader/usage.mjs"));
   assert.ok(files.every((f) => f.startsWith("ventures/bai2-statement-reader/")));
 });
+
+test("walk skips node_modules, dist and dot directories, and a tsconfig venture is left to its own tsc", async () => {
+  const { mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+  const { join, dirname } = await import("node:path");
+  const { fileURLToPath } = await import("node:url");
+  const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+  const plain = join(root, "ventures", "zz-redteam-fixture");
+  const ts = join(root, "ventures", "zz-redteam-fixture-ts");
+  try {
+    for (const d of ["src", "node_modules/x", "dist", ".hidden"]) mkdirSync(join(plain, d), { recursive: true });
+    for (const d of ["src", "node_modules/x", "dist", ".hidden"]) writeFileSync(join(plain, d, "a.mjs"), "// @ts-check\n");
+    mkdirSync(ts, { recursive: true });
+    writeFileSync(join(ts, "a.mjs"), "// @ts-check\n");
+    writeFileSync(join(ts, "tsconfig.json"), "{}");
+    assert.deepEqual(optedInFiles(["zz-redteam-fixture"]), ["ventures/zz-redteam-fixture/src/a.mjs"]);
+    assert.deepEqual(optedInFiles(["zz-redteam-fixture-ts"]), []);
+    // a plain file (not a directory) under ventures/ is skipped, not walked
+    writeFileSync(join(root, "ventures", "zz-redteam-file"), "x");
+    assert.deepEqual(optedInFiles(["zz-redteam-file"]), []);
+  } finally {
+    for (const p of [plain, ts, join(root, "ventures", "zz-redteam-file")]) rmSync(p, { recursive: true, force: true });
+  }
+});

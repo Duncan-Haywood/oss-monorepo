@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [ai-bookkeeper]
+tagged: auto
+---
 # ai-bookkeeper: Firefly III config probe (2026-10-24)
 
 For the next run on the bank readers (flagship `ai-bookkeeper`, item 2).

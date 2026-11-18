@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVMxzqX56tz8YVDLRhu",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "0c205c8dd85c6aca752a84bcb7732da2c6108cc978592ce61cf06f10a91f1c08",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T12:11:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 6 shift-roster-builder: a real POS hourly export for --from-sales and the page",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": 14780,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "the model field from promptctl record conflicts with the session rule against model identifiers in pushed artifacts; left null"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "the first route (no --task) drew research; the scheduled brief is the ventures brief, so routed again with --task, which picked ventures",
+      "did": "followed prompts/ventures/prompt-1.md",
+      "result": "landed a flagship slice"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "row 1 (ai-bookkeeper) landed 0.6 h before this run with 76 commits in 7 days, so a sibling was likely on it; took flagship 6, whose next item (real POS export) needed only a reachable public file",
+      "did": "shift-roster-builder",
+      "result": "3 real-data faults fixed, backtest shipped"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-shift-roster-real-bakery-backtest.md"
+  ],
+  "goal": null,
+  "notes": "Data: Kaggle 'Bakery Sales' (hosubjeong) via the GitHub mirror mkzia/eas503 (raw.githubusercontent.com was the only reachable host; kaggle, uci, huggingface timed out). Licence unconfirmed, so not committed; eval script checks SHA-256 dbe0fa12. Verification: run_venture_tests.py shift-roster-builder ok (212.6 s); demand.test 31/31; page-sales 3/3; Chromium at 1280/390 px, no console errors, no sideways scroll. Result: half-life 4 beats plain average at 6/6 settings (0.3-2.6 person-hours/week, CI below 0); last-week-only worst (+5.1 to +13.9). Stranded PR #13070 (--split-shifts) left open, not touched.",
+  "corrections": [],
+  "redteam": null
+}

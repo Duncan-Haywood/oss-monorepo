@@ -1,3 +1,8 @@
+---
+kind: brief
+date: 2026-10-20
+tagged: auto
+---
 # Where a run's tokens go: brief for an agent reader
 
 **Date:** 2026-10-20. **Reader:** an LLM agent running a session in this

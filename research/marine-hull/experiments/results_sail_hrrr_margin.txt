@@ -1,0 +1,43 @@
+tau 240 s; every 4th window; hourly replan; margin = voluntary tack only if forecast gain > margin x one step of best model progress; header margin 0.5
+
+January: 72 windows from 9 stations
+ corridor 0.797; header 0.806; clairvoyant 0.995
+   hrrr_L1    margin 0.0: 0.730; minus header -3.2 pts (boot 95% -7.2..-1.7); tacks/day 76
+   hrrr_L1    margin 0.5: 0.759; minus header -0.5 pts (boot 95% -1.8..+0.0); tacks/day 70
+   hrrr_L1    margin 1.0: 0.763; minus header -0.2 pts (boot 95% -1.4..+0.0); tacks/day 64
+   hrrr_L1    margin 2.0: 0.774; minus header -0.1 pts (boot 95% -1.3..+0.0); tacks/day 62
+   hrrr_L1    margin 4.0: 0.784; minus header +0.0 pts (boot 95% -0.5..+0.1); tacks/day 62
+   hrrr_L1    margin 8.0: 0.792; minus header +0.0 pts (boot 95% -0.5..+0.1); tacks/day 50
+   hrrr_bc_L1 margin 0.0: 0.776; minus header -0.6 pts (boot 95% -1.8..-0.1); tacks/day 57
+   hrrr_bc_L1 margin 0.5: 0.788; minus header +0.0 pts (boot 95% -0.6..+0.2); tacks/day 52
+   hrrr_bc_L1 margin 1.0: 0.794; minus header +0.0 pts (boot 95% -0.0..+0.4); tacks/day 50
+   hrrr_bc_L1 margin 2.0: 0.795; minus header +0.0 pts (boot 95% -0.0..+0.5); tacks/day 48
+   hrrr_bc_L1 margin 4.0: 0.798; minus header +0.0 pts (boot 95% +0.0..+0.5); tacks/day 46
+   hrrr_bc_L1 margin 8.0: 0.798; minus header +0.0 pts (boot 95% +0.0..+0.5); tacks/day 45
+   T120       margin 0.0: 0.818; minus header +0.7 pts (boot 95% +0.1..+1.6); tacks/day 52
+   T120       margin 0.5: 0.808; minus header +0.4 pts (boot 95% +0.0..+0.8); tacks/day 46
+   T120       margin 1.0: 0.804; minus header +0.3 pts (boot 95% +0.0..+0.6); tacks/day 46
+   T120       margin 2.0: 0.805; minus header +0.2 pts (boot 95% +0.0..+0.7); tacks/day 46
+   T120       margin 4.0: 0.802; minus header +0.3 pts (boot 95% +0.0..+0.6); tacks/day 46
+   T120       margin 8.0: 0.804; minus header +0.3 pts (boot 95% +0.0..+0.7); tacks/day 46
+
+July: 80 windows from 10 stations
+ corridor 0.798; header 0.811; clairvoyant 0.990
+   hrrr_L1    margin 0.0: 0.742; minus header -5.5 pts (boot 95% -6.8..-3.7); tacks/day 66
+   hrrr_L1    margin 0.5: 0.766; minus header -1.8 pts (boot 95% -4.1..-0.4); tacks/day 54
+   hrrr_L1    margin 1.0: 0.782; minus header -0.9 pts (boot 95% -2.6..+0.0); tacks/day 46
+   hrrr_L1    margin 2.0: 0.789; minus header -0.4 pts (boot 95% -2.1..+0.0); tacks/day 46
+   hrrr_L1    margin 4.0: 0.799; minus header -0.1 pts (boot 95% -1.0..+0.0); tacks/day 44
+   hrrr_L1    margin 8.0: 0.801; minus header +0.0 pts (boot 95% -0.4..+0.0); tacks/day 42
+   hrrr_bc_L1 margin 0.0: 0.765; minus header -2.4 pts (boot 95% -4.7..-1.0); tacks/day 54
+   hrrr_bc_L1 margin 0.5: 0.784; minus header -0.4 pts (boot 95% -2.4..+0.0); tacks/day 46
+   hrrr_bc_L1 margin 1.0: 0.785; minus header -0.2 pts (boot 95% -2.2..+0.0); tacks/day 46
+   hrrr_bc_L1 margin 2.0: 0.791; minus header -0.3 pts (boot 95% -2.4..+0.0); tacks/day 44
+   hrrr_bc_L1 margin 4.0: 0.797; minus header -0.2 pts (boot 95% -1.9..+0.0); tacks/day 43
+   hrrr_bc_L1 margin 8.0: 0.804; minus header +0.0 pts (boot 95% -0.7..+0.0); tacks/day 42
+   T120       margin 0.0: 0.824; minus header +0.8 pts (boot 95% +0.1..+1.6); tacks/day 46
+   T120       margin 0.5: 0.816; minus header +0.0 pts (boot 95% +0.0..+0.9); tacks/day 44
+   T120       margin 1.0: 0.810; minus header +0.0 pts (boot 95% +0.0..+0.2); tacks/day 42
+   T120       margin 2.0: 0.810; minus header +0.0 pts (boot 95% -0.3..+0.0); tacks/day 41
+   T120       margin 4.0: 0.809; minus header +0.0 pts (boot 95% -0.3..+0.0); tacks/day 41
+   T120       margin 8.0: 0.805; minus header +0.0 pts (boot 95% -0.4..+0.0); tacks/day 42

@@ -1,0 +1,155 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtGrUGv7WD2SZAeJEcz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T22:07:02Z",
+  "ended": "2026-11-12T22:47:55Z",
+  "wall_minutes": 41.56,
+  "tokens_in": 36112975,
+  "tokens_out": 170839,
+  "cost_usd": 14.4466,
+  "tool_calls": 353,
+  "task": "Deepen (flagship 2) ai-bookkeeper item (8): state vendor discounts from the states' own pages",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15283",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "post description was 165 characters (limit 160); venture-preflight caught it before the merge",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".claude stop hook",
+      "issue": "After a merged PR deletes the remote branch and the local branch is reset to origin/main, the stop hook reports '9 unpushed commits' that are already on main; it compares against the deleted remote branch, not main."
+    },
+    {
+      "file": "ventures/ai-bookkeeper/cli.mjs",
+      "issue": "flag() consumes its argument silently, so a second read of the same flag returns null with no warning. Six commands had that bug, unseen because unit tests call the library functions, not the CLI. A one-line comment at flag() now warns about it, and cli-flags-once.test.mjs covers the cases."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The allocator again picked ai-bookkeeper, the same flagship as this session's previous run (PR #15278), because that PR had merged.",
+      "did": "Took the adjacent item (vendor discounts), which reused the verified-reading pipeline.",
+      "result": "15 states' discounts plus a CLI bug that had nullified --state due dates."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Delegated reading 19 states' discount rules to two subagents.",
+      "did": "Grep-verified every quote against the saved pages before coding.",
+      "result": "All quotes found (FL and LA after allowing for PDF columns and curly quotes); VA was left out because only the statute was found, as the agent advised."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-discount-for-filing-on-time.md",
+    "ventures/ai-bookkeeper/README.md (Vendor discounts read on the states' own pages; CLI read some flags only once)"
+  ],
+  "goal": null,
+  "notes": "venture-preflight ai-bookkeeper: clean after the post description fix. node --test salestax/property/calendar/page: 91 pass; cli-flags-once.test.mjs: 3 pass, the first 2 fail on the old code (checked with git stash); run_venture_tests ai-bookkeeper ok (40.3s). CLI end-to-end: WY monthly, $500 tax -> discount 9.75, due 2026-04-30 after the fix (2026-04-20 before).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ccaaa6d8-894e-5211-b0d5-c1bf07864a61",
+    "transcripts": 6,
+    "first": "2026-11-12T22:07:02Z",
+    "last": "2026-11-12T22:48:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 349,
+        "input": 699,
+        "output": 170839,
+        "thinking": 27641,
+        "cache_read": 35458521,
+        "cache_write_5m": 431590,
+        "cache_write_1h": 222165,
+        "api_equivalent_usd": 14.4466,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 349,
+      "input": 699,
+      "output": 170839,
+      "thinking": 27641,
+      "cache_read": 35458521,
+      "cache_write_5m": 431590,
+      "cache_write_1h": 222165,
+      "api_equivalent_usd": 14.4466,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 353,
+    "tools": {
+      "Bash": 327,
+      "Agent": 5,
+      "ScheduleWakeup": 5,
+      "SubagentHandback": 5,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "Read": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 41.56,
+      "active_minutes": 27.84,
+      "model_minutes": 16.69,
+      "tool_minutes": 11.15,
+      "waiting_on_human_minutes": 13.72,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 30.12
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "reading 19 states' discount rules from forms and statutes, discount engine shapes, CLI bug hunt and tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 41.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

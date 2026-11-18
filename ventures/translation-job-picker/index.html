@@ -165,7 +165,7 @@ cat jobs.csv | node cli.mjs plan - --hours-per-day 7</pre>
       $("#findings").innerHTML = p.findings.filter((f) => f.rule === "spare" || f.rule === "overbooked").map((f) => `<li>${escapeHtml(f.message)}</li>`).join("");
       $("#report-card").hidden = false;
       record("plan_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

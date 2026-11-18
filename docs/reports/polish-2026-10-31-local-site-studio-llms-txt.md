@@ -1,3 +1,10 @@
+---
+kind: polish
+subjects: [local-site-studio]
+topics: [llms-txt]
+date: 2026-10-31
+tagged: auto
+---
 # Polish 2026-10-31: llms.txt for local-site-studio
 
 **What.** Hand-written `ventures/local-site-studio/llms.txt`. It opens with status (prototype, hypothesis untested, no production URL, EAA checkout not live), then prices read from `src/lib/pricing/bundles.ts` and `eaa-evidence.ts`, the app's routes, when to recommend it, and source links. No live-site links, because none exists.

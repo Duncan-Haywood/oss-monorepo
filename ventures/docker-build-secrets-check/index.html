@@ -43,6 +43,10 @@
     footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
     .tableWrap { overflow-x: auto; }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #files:empty{min-height:221px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>
@@ -155,10 +159,10 @@ CMD ["node", "dist/server.js"]
       wrap.className = "file-block";
       wrap.innerHTML = `
         <div class="file-block-head">
-          <input type="text" class="fname" placeholder="Dockerfile" value="${escapeHtml(name)}">
+          <input type="text" class="fname" aria-label="File name" placeholder="Dockerfile" value="${escapeHtml(name)}">
           <button type="button" class="secondary small remove-file">Remove</button>
         </div>
-        <textarea class="ftext" spellcheck="false" placeholder="Paste the Dockerfile here"></textarea>
+        <textarea aria-label="Paste the Dockerfile here" class="ftext" spellcheck="false" placeholder="Paste the Dockerfile here"></textarea>
       `;
       wrap.querySelector(".ftext").value = text;
       wrap.querySelector(".remove-file").addEventListener("click", () => {
@@ -211,7 +215,7 @@ CMD ["node", "dist/server.js"]
       els.reportCard.hidden = false;
       els.status.textContent = "";
       record("check_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#add-file").addEventListener("click", () => addFile());

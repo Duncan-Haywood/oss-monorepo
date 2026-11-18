@@ -2,7 +2,7 @@
 
 numpy (the only dependency). **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.03). Why it seemed worth doing: simulators for sim-to-real training increasingly run in float32 (or lower) on GPUs, while the "reference" twin is float64. For a chaotic system the two trajectories must separate, so a float32 twin cannot be trusted state by state for long. I wanted to know how long it can, how that compares with a deliberate initial error, and whether the quantities a policy evaluation actually averages still agree once the trajectories have parted.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-f32shadow/
+**Live page:** https://marisstella.app/research/free-f32shadow/
 
 ## Question
 
@@ -10,7 +10,7 @@ For the Lorenz-63 and Rössler attractors integrated with the same RK4 scheme an
 
 ## Headline result (stylised; see Limitations)
 
-- **Departure time follows `ln(1/δ₀)/λ`, and float32 behaves like an initial error of about 5×10⁻⁶.** A float64 control started δ₀ away departs after a median `−1.07 + 1.11·ln(1/δ₀)` time units on Lorenz (1/λ = 1.11) and `−10.9 + 14.2·ln(1/δ₀)` on Rössler (1/λ = 14.2). Float32 arithmetic departs at a median 12.3 (Lorenz, q10–q90 10.0–14.7) and 164 (Rössler, 126–207), which matches a float64 start error of 5.6×10⁻⁶ and 4.5×10⁻⁶ respectively. That is about 100 times the float32 unit roundoff (6.0×10⁻⁸), not 1 times: rounding errors added at every step, not one rounding of the start, set the shadowing time. In Lorenz time units that is about 11 Lyapunov times to a distance of 1.
+- **Departure time follows `ln(1/δ₀)/λ`, and float32 behaves like an initial error of about 5×10⁻⁶.** A float64 control started δ₀ away departs after a median `−1.07 + 1.11·ln(1/δ₀)` time units on Lorenz (1/λ = 1.11) and `−10.9 + 14.2·ln(1/δ₀)` on Rössler (1/λ = 14.2). Float32 arithmetic departs at a median 12.3 (Lorenz, q10–q90 10.0–14.7) and 164 (Rössler, 126–207), which matches a float64 start error of 5.6×10⁻⁶ and 4.5×10⁻⁶ respectively. On Lorenz that is 3 to 4 times one float32 rounding of the state (unit roundoff 6.0×10⁻⁸ times a state size of about 25 to 30, so 1.5 to 1.8×10⁻⁶) and about 11 times the median error of a single float32 RK4 step (5×10⁻⁷), so errors accumulated over several steps, not one rounding of the start, set the shadowing time. (An earlier version said "about 100 times the unit roundoff", which compared an absolute distance with a relative unit; corrected after the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-free-f32shadow.json).) In Lorenz time units that is about 11 Lyapunov times to a distance of 1.
 - **The Lyapunov exponent is unchanged.** Lorenz 0.8995 (float64) vs 0.8997 (float32), standard error about 0.003; Rössler 0.0705 vs 0.0710, standard error 0.0006. (Literature value for Lorenz is about 0.906.)
 - **Time-averaged statistics survive.** After 200 time units on Lorenz and 2000 on Rössler, with 200 members each, float32 vs float64 differences in mean z, fraction of time with x>0 and the x sign-flip rate have Welch z between −1.1 and 1.1, in the same range as a float64 run with its start moved by 10⁻¹² (z between −1.3 and 0.8). The float32 ensemble is indistinguishable from re-running float64 with a different tiny perturbation, at this sample size.
 - **Even float16 passed the same tests on Lorenz, at this sample size** (100 members, t=50; z of −0.5, −0.9, −1.1), despite departing from float64 after a median of only 2.5 time units. With 100 members a bias under about a quarter of the member spread would not be seen, so this is "no evidence of bias", not proof of none.
@@ -30,8 +30,8 @@ Figure: `experiments/shadow_time.svg`. Full tables: `experiments/results.txt`.
 cd research/free-f32shadow
 PY=$(python3 ../../platform/ci/pyenv.py numpy)
 export PYTHONPATH=src
-"$PY" -m unittest discover -s tests -v          # 7 tests, ~3 s
-"$PY" experiments/run.py > experiments/results.txt   # ~3 min
+"$PY" -m unittest discover -s tests -v          # 7 tests, ~2 s
+"$PY" experiments/run.py > experiments/results.txt   # ~1–3 min
 python3 experiments/figure.py
 ```
 
@@ -46,6 +46,7 @@ Classical results, none reproduced from a specific paper: Lorenz (1963), "Determ
 - The "no statistical difference" results have limited power at 100 to 200 members; they exclude large biases, not small ones.
 - The `√steps` reading of the step-size trend rests on four step sizes.
 - Departure distance 1 is arbitrary (on Lorenz the attractor spans about 50); the log law makes the threshold shift every curve by a constant, but the equivalent δ₀ depends on it through the fitted intercept.
+- From the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-free-f32shadow.json): the tests catch 1 of 6 seeded mutants (forcing float64 arithmetic in place of float32, which is the project's whole mechanism, passes them); the t=100 Benettin estimate keeps its start-up transient, which is why Lorenz reads 0.8995 against about 0.906 (the float32-vs-float64 comparison is unaffected); and the nearest prior work (Sauer, Grebogi and Yorke on shadowing times of numerical chaotic orbits; the reduced-precision weather and climate work of Düben, Palmer and Klöwer and colleagues) is not yet cited or compared, so "statistics survive" is a replication of known behaviour on two toy systems, not a new result.
 
 ## Next steps
 

@@ -46,6 +46,10 @@
     pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
     code { overflow-wrap: anywhere; word-break: break-word; }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #files:empty{min-height:181px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>
@@ -178,10 +182,10 @@ jobs:
       wrap.className = "file-block";
       wrap.innerHTML = `
         <div class="file-block-head">
-          <input type="text" class="fname" placeholder=".github/workflows/ci.yml" value="${escapeHtml(name)}">
+          <input type="text" class="fname" aria-label="File name" placeholder=".github/workflows/ci.yml" value="${escapeHtml(name)}">
           <button type="button" class="secondary small remove-file">Remove</button>
         </div>
-        <textarea class="ftext" spellcheck="false" placeholder="Paste the workflow YAML here"></textarea>
+        <textarea aria-label="Paste the workflow YAML here" class="ftext" spellcheck="false" placeholder="Paste the workflow YAML here"></textarea>
       `;
       wrap.querySelector(".ftext").value = text;
       wrap.querySelector(".remove-file").addEventListener("click", () => {
@@ -242,7 +246,7 @@ jobs:
         els.reportCard.hidden = false;
         els.status.textContent = "";
         record("check_run");
-        els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
         return;
       }
       const results = compare(requiredNames, reports);
@@ -253,7 +257,7 @@ jobs:
       els.reportCard.hidden = false;
       els.status.textContent = "";
       record("check_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#add-file").addEventListener("click", () => addFile());

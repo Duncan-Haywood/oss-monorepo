@@ -5,7 +5,7 @@ A free tool that checks a Google Merchant Center / Meta Catalog product feed
 reports exactly which items would be flagged and why — before the crawler
 finds it.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/merchant-feed-check/
+**Live tool:** https://marisstella.app/merchant-feed-check/
 
 **What it is not:** a compliance guarantee, a Shopping-policy reviewer, or a
 substitute for reading your own disapproval notices. It answers one narrow
@@ -55,6 +55,12 @@ or JSON — entirely in the browser, and reports every item's data-
 specification errors and warnings, plus feed-level problems like duplicate
 IDs. No fetch happens from the page itself, so nothing you load ever leaves
 your device.
+
+CSV and TSV follow RFC 4180 quoting: a quoted cell may hold the delimiter, a
+doubled `""` quote, or a line break, so a multi-paragraph description from a
+Shopify or Excel export stays one item. Availability takes Google's
+`in_stock` / `out_of_stock` spelling as well as the spaced `in stock` form
+Meta uses.
 
 ## Quickstart (CLI)
 

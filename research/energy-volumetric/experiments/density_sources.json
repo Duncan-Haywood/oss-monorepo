@@ -1,0 +1,99 @@
+{
+ "Pb": {
+  "name": "Lead",
+  "cid": "5352425",
+  "records": [
+   "11.3437 at 61 °F (NTP, 1992) - Denser than water; will sink",
+   "11.34 g/cm³",
+   "11.34",
+   "11.3 @25 °C",
+   "11.34"
+  ]
+ },
+ "PbO2": {
+  "name": "Lead dioxide",
+  "cid": "14793",
+  "records": [
+   "9.375 at 66 °F (NTP, 1992) - Denser than water; will sink",
+   "9.375 g/cu cm",
+   "9.38 g/cm³",
+   "9.64 @25 °C"
+  ]
+ },
+ "H2SO4": {
+  "name": "Sulfuric acid",
+  "cid": "1118",
+  "records": [
+   "1.841 (EPA, 1998) - Denser than water; will sink",
+   "1.39 at 68 °F (USCG, 1999) - Denser than water; will sink",
+   "1.8302 g/cu cm",
+   "Brown, viscous liquid; density: 1.675-1.710 at 15 °C /Commercial acid/",
+   "Relative density (water = 1): 1.8 (20 °C)",
+   "1.84 (96-98% acid)",
+   "1.8302 @25 °C",
+   "1.84 (96-98% acid)"
+  ]
+ },
+ "H2O": {
+  "name": "Water",
+  "cid": "962",
+  "records": [
+   "1",
+   "0.9950 g/cu cm at 25 °C",
+   "Chemical and physical properties[Table#8152]",
+   "Expands on freezing. Temp of max density 3.98 °C. density: 1.000000g/mL at 3.98 °C; 0.917 g/cc at 0 °C (ice); 0.999868 at 0 °C/4 °C (liquid)",
+   "Weight of sea water: approximately 63.93 lb/cu ft at 15 °C; density of sea water: approximately 1.025 g/cu cm at 25 °C",
+   "Ice Properties[Table#8154]"
+  ]
+ },
+ "FePO4": {
+  "name": "Iron(III) phosphate",
+  "cid": "24861",
+  "records": [
+   "White, grayish-white, or light pink, orthorhombic or monoclinic crystals or amorphous powder. Loses water above 140 °C; density: 2.8. Practically insoluble in water; readily soluble in hydrochloric acid; slowly soluble in nitric acid. /Dihydrate/",
+   "2.87 @25 °C"
+  ]
+ },
+ "Li": {
+  "name": "Lithium",
+  "cid": "3028194",
+  "records": [
+   "0.53 at 68 °F (USCG, 1999) - Less dense than water; will float",
+   "0.534 g/cu cm at 25 °C",
+   "0.5 g/cm³",
+   "0.534 @25 °C"
+  ]
+ },
+ "S": {
+  "name": "Sulfur",
+  "cid": "5362487",
+  "records": [
+   "2.07 g/cu cm (Sulfur (rhombic)/; 2.00 (Sulfur (monoclinic)/",
+   "Amber-colored crystals. The stable at ordinary temperature, density: 2.06; when heated to 94.5 °C becomes opaque owing to formation of monoclinic sulfur /alpha-Sulfur/",
+   "Opaque, light- yellow, brittle, needle-like crystals; stable between 94.5 oto 120 °C. Passes slowly into the rhombic form on standing; density 1.96; mp 115.21 °C /beta-Sulfur/",
+   "2.1 g/cm³"
+  ]
+ },
+ "Zn": {
+  "name": "Zinc",
+  "cid": "23994",
+  "records": [
+   "7.133 g/cu cm at 25 °C; 6.830 g/cu cm at 419.5 °C (solid); 6.620 g/cu cm at 419.5 °C (liquid); 6.250 g/cu cm at 800 °C",
+   "7.1 g/cm³",
+   "7.134 @25 °C"
+  ]
+ },
+ "Al": {
+  "name": "Aluminum",
+  "cid": "5359268",
+  "records": [
+   "2.7 (NIOSH, 2024) - Denser than water; will sink",
+   "2.7 (NIOSH, 2024) - Denser than water; will sink",
+   "2.7 (NIOSH, 2024) - Denser than water; will sink",
+   "2.70",
+   "2.7 g/cm³",
+   "2.70",
+   "2.70"
+  ]
+ }
+}

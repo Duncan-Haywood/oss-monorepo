@@ -8,13 +8,14 @@ import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const BASE = 'https://duncan-haywood.github.io/oss-monorepo/';
+export const BASE = 'https://marisstella.app/';
 
 export function addLiveLink(readme, slug) {
   const url = `${BASE}${slug}/`;
   // Boundary after the slug: a link to `foo-bar` is not a link to `foo`.
-  // The old `monorepo-projects/` path still counts: 1,300+ READMEs carry it.
-  if (new RegExp(`(?:monorepo-projects|oss-monorepo)/${slug}(?![\\w.-])`).test(readme)) return readme;
+  // Old `monorepo-projects/` and `oss-monorepo/` GitHub Pages links still count
+  // as present; the READMEs were moved to marisstella.app on 2026-11-03.
+  if (new RegExp(`(?:monorepo-projects|oss-monorepo|marisstella\\.app)/${slug}(?![\\w.-])`).test(readme)) return readme;
   const lines = readme.split('\n');
   let i = 0;
   while (i < lines.length && (lines[i].trim() === '' || lines[i].startsWith('#'))) i++;

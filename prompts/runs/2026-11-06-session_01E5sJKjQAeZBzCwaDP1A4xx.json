@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01E5sJKjQAeZBzCwaDP1A4xx",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T10:22:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13540",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Names the 2026-10-31 title backlog as the next work, but it was already empty; the build (about 3 minutes here, not 7 to 20) plus scans found no defect."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No product or research change shipped: the polish sweep was clean, so the run lands only a report of measurements and false alarms.",
+      "did": "Wrote docs/reports/polish-2026-11-06-clean-sweep.md; no blog post.",
+      "result": "Thin deliverable, honest about it."
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-06-clean-sweep.md"
+  ],
+  "goal": null,
+  "notes": "Build, check.mjs, title and llms.txt checks, 390px reflow of 6 pages all clean.",
+  "corrections": [],
+  "redteam": null
+}

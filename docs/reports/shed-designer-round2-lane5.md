@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed Designer round 2, lane 5: buildability and cut sheet
 
 2026-10-30. Session https://claude.ai/code/session_01XpHqyfYShuVWnhpoKnwfev.

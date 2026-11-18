@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [changepoint-detector]
+tagged: auto
+---
 # changepoint-detector: calibrated meanvar penalty (2026-10-25)
 
 Negative result, not wired into `analyze`. Script `ventures/changepoint-detector/eval/meanvar-calibrated-penalty.mjs`,

@@ -1,0 +1,30 @@
+{"label": "interested", "subject": "Re: following up", "body": "Thanks for reaching out. This looks relevant to what our team is planning for Q1. Could we set up 30 minutes early next week? Tuesday or Wednesday morning works for me."}
+{"label": "interested", "subject": "Re: following up", "body": "Hi, I passed this to our ops lead and she'd like to see a demo. Please send over a few times."}
+{"label": "interested", "subject": "Re: following up", "body": "Timing is good, we just lost our SDR. Happy to chat. What does your calendar look like Thursday?"}
+{"label": "interested", "subject": "Re: following up", "body": "Yes, I'd be open to a call. My assistant Dana (dana@harborline.example) will find a slot."}
+{"label": "question", "subject": "Re: following up", "body": "Thanks. Before I book anything, does this integrate with Salesforce or only HubSpot?"}
+{"label": "question", "subject": "Re: following up", "body": "How is pricing structured? Per seat, per send, or flat?"}
+{"label": "question", "subject": "Re: following up", "body": "Where is the data stored, and do you have a SOC 2 report?"}
+{"label": "question", "subject": "Re: following up", "body": "Can you share two customer references in the logistics space?"}
+{"label": "question", "subject": "Re: following up", "body": "Is this a hosted service or do we run it ourselves?"}
+{"label": "objection", "subject": "Re: following up", "body": "We already use Outreach and the team just finished onboarding. I can't see us switching."}
+{"label": "objection", "subject": "Re: following up", "body": "Budget is frozen until the new fiscal year, so I can't take this on."}
+{"label": "objection", "subject": "Re: following up", "body": "Honestly our reps hate anything that adds clicks to their day."}
+{"label": "objection", "subject": "Re: following up", "body": "Legal won't let us send customer emails through a third-party model."}
+{"label": "not_now", "subject": "Re: following up", "body": "Not this quarter, we're mid-migration. Ping me in January."}
+{"label": "not_now", "subject": "Re: following up", "body": "Interesting but we're heads-down on a launch until the end of March. Try me again in April."}
+{"label": "not_now", "subject": "Re: following up", "body": "Let's revisit after our board meeting in two weeks."}
+{"label": "not_interested", "subject": "Re: following up", "body": "No thanks, we're all set."}
+{"label": "not_interested", "subject": "Re: following up", "body": "This isn't a fit for us. Best of luck."}
+{"label": "not_interested", "subject": "Re: following up", "body": "We don't do outbound at all, so no."}
+{"label": "unsubscribe", "subject": "Re: following up", "body": "Please remove me from your list. I never signed up for this."}
+{"label": "unsubscribe", "subject": "Re: following up", "body": "Stop emailing me."}
+{"label": "unsubscribe", "subject": "Re: following up", "body": "unsubscribe"}
+{"label": "unsubscribe", "subject": "Re: following up", "body": "Do not contact me or anyone at this company again. Reported to our compliance team."}
+{"label": "out_of_office", "subject": "Re: following up", "body": "I am out of the office until Monday 9 November with limited access to email. For urgent matters contact Priya at priya@harborline.example."}
+{"label": "out_of_office", "subject": "Re: following up", "body": "Automatic reply: I'm on parental leave and will return on 12 January. I will not be checking email."}
+{"label": "left_company", "subject": "Re: following up", "body": "Jordan no longer works at Harborline. Please contact info@harborline.example."}
+{"label": "left_company", "subject": "Re: following up", "body": "I've moved to a different role and no longer handle vendor tools. Try Sam Okafor, sam@harborline.example."}
+{"label": "bounce", "subject": "Re: following up", "body": "Delivery to the following recipient failed permanently: jordan@harborline.example. 550 5.1.1 User unknown."}
+{"label": "unclear", "subject": "Re: following up", "body": "Ok."}
+{"label": "unclear", "subject": "Re: following up", "body": "Sent from my iPhone"}

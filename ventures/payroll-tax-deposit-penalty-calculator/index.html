@@ -146,10 +146,15 @@
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
-    const money = (c) => "$" + dollars(c).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const money = (c) => {
+      const format = (c) => "$" + dollars(c).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (!(Number(c) < 0)) return format(c);
+      const text = format(Math.abs(c));
+      return /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
     const RULE = { monthly: "Monthly", semiweekly: "Semiweekly", "next-day": "$100k next-day" };
-    const today = () => new Date().toISOString().slice(0, 10);
+    const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     $("#asof").value = today();
 
     function run() {
@@ -172,7 +177,7 @@
         out.hidden = false;
         $("#form-status").textContent = "";
         record("deposits_calculated");
-        out.scrollIntoView({ behavior: "smooth", block: "start" });
+        out.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       } catch (e) {
         out.hidden = true;
         $("#form-status").textContent = e.message;

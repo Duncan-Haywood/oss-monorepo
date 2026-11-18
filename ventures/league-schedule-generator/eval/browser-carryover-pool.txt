@@ -1,0 +1,9 @@
+20 teams, 1 core(s): 20.2 s, worst frame gap 17 ms; Best of 8 searches for an even carry-over (carry-over / back-to-back home or away: 1678/124, 1940/104, 2086/110, 2140/102, 1746/118, 2352/86, 2202/98, 2098/98; kept 1678/124).
+ok   no page errors
+20 teams, 2 core(s): 10.0 s, worst frame gap 17 ms; Best of 8 searches for an even carry-over (carry-over / back-to-back home or away: 1678/124, 1940/104, 2086/110, 2140/102, 1746/118, 2352/86, 2202/98, 2098/98; kept 1678/124).
+ok   no page errors
+20 teams, 4 core(s): 6.1 s, worst frame gap 17 ms; Best of 8 searches for an even carry-over (carry-over / back-to-back home or away: 1678/124, 1940/104, 2086/110, 2140/102, 1746/118, 2352/86, 2202/98, 2098/98; kept 1678/124).
+ok   no page errors
+20 teams, 8 core(s): 6.3 s, worst frame gap 17 ms; Best of 8 searches for an even carry-over (carry-over / back-to-back home or away: 1678/124, 1940/104, 2086/110, 2140/102, 1746/118, 2352/86, 2202/98, 2098/98; kept 1678/124).
+ok   no page errors
+ok   every core count keeps the same season

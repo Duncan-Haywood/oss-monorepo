@@ -24,6 +24,11 @@ which the site shows under the "Start here" topic.
 | Someone who holds real data or can take a measurement | [Share real data](../posts/2026-10-30-start-here-share-real-data.md) |
 | A student or reviewer checking a research result | [Reproduce a result](../posts/2026-10-30-start-here-reproduce-a-result.md) |
 | A developer sending a first fix | [Your first pull request](../posts/2026-10-30-start-here-your-first-pull-request.md), then [Contributing](../posts/2026-10-29-start-here-contributing.md) |
+| A small-business owner who wants to help shape the tools | [Your know-how is what the tools are missing](../posts/2026-11-03-start-here-business-owners-shape-the-tools.md) |
+| An accountant, bookkeeper or tax preparer | [Accountants and bookkeepers](../posts/2026-11-03-start-here-accountants-and-bookkeepers.md) |
+| A tax-technology, AP, compliance or legal professional | [E-invoicing and compliance professionals](../posts/2026-11-03-start-here-einvoicing-and-compliance-professionals.md) |
+| A developer choosing where to contribute | [Developers, pick your stack](../posts/2026-11-03-start-here-developers-pick-a-stack.md) |
+| A UX designer, accessibility specialist or assistive-technology user | [Designers and accessibility](../posts/2026-11-03-start-here-designers-and-accessibility.md) |
 | A small business or tradesperson | [Free tools for your trade](../posts/2026-10-29-start-here-free-tools-for-your-trade.md), [AI Bookkeeper](../posts/2026-10-29-start-here-ai-bookkeeper.md), [Shift Roster Builder](../posts/2026-10-29-start-here-shift-roster-builder.md), [E-invoice preflight](../posts/2026-10-29-start-here-einvoice-preflight.md), [Sales Agent](../posts/2026-10-29-start-here-sales-agent.md), [League Schedule Generator](../posts/2026-10-29-start-here-league-schedule-generator.md), [Photo editing](../posts/2026-10-29-start-here-photo-editing.md), [Quick Pick](../posts/2026-10-29-start-here-quick-pick-survey.md) |
 | A freelancer or sole trader | [Tax set-aside calculators](../posts/2026-10-30-start-here-freelancer-tax-set-aside.md) |
 | A homeowner or builder | [Shed Designer](../posts/2026-10-30-start-here-shed-designer.md), [Wall Framing Takeoff](../posts/2026-10-29-start-here-wall-framing-takeoff.md), [House construction research](../posts/2026-10-30-start-here-house-construction-research.md) |

@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 400" font-family="sans-serif" font-size="12">
+<rect width="820" height="400" fill="#fff"/>
+<text x="16" y="22" font-size="13">Robots as 20% of the agents in three fitted crowd models (HERMES 3.6 m corridor, pooled over two runs)</text>
+<text x="160" y="103.0" text-anchor="end">social force</text>
+<text x="160" y="193.0" text-anchor="end">anticipation velocity</text>
+<text x="160" y="283.0" text-anchor="end">collision-free speed</text>
+<text x="170" y="48" font-size="12">people's delay per transit (s)</text>
+<line x1="201.1" x2="201.1" y1="58" y2="328" stroke="#eee"/>
+<text x="201.1" y="343" text-anchor="middle" font-size="11">0</text>
+<line x1="263.3" x2="263.3" y1="58" y2="328" stroke="#eee"/>
+<text x="263.3" y="343" text-anchor="middle" font-size="11">1</text>
+<line x1="325.6" x2="325.6" y1="58" y2="328" stroke="#eee"/>
+<text x="325.6" y="343" text-anchor="middle" font-size="11">2</text>
+<line x1="387.8" x2="387.8" y1="58" y2="328" stroke="#eee"/>
+<text x="387.8" y="343" text-anchor="middle" font-size="11">3</text>
+<line x1="450.0" x2="450.0" y1="58" y2="328" stroke="#eee"/>
+<text x="450.0" y="343" text-anchor="middle" font-size="11">4</text>
+<line x1="201.1" x2="201.1" y1="58" y2="328" stroke="#888"/>
+<rect x="191.8" y="68.4" width="9.3" height="15.3" fill="#1f78b4"/>
+<text x="204.1" y="81.7" font-size="9">-0.15</text>
+<rect x="197.4" y="85.7" width="3.7" height="15.3" fill="#33a02c"/>
+<text x="204.1" y="99.0" font-size="9">-0.06</text>
+<rect x="201.1" y="103.0" width="115.1" height="15.3" fill="#ff7f00"/>
+<text x="319.2" y="116.3" font-size="9">1.85</text>
+<rect x="201.1" y="120.3" width="247.6" height="15.3" fill="#e31a1c"/>
+<text x="451.8" y="133.6" font-size="9">3.98</text>
+<rect x="186.8" y="158.4" width="14.3" height="15.3" fill="#1f78b4"/>
+<text x="204.1" y="171.7" font-size="9">-0.23</text>
+<rect x="201.1" y="175.7" width="4.4" height="15.3" fill="#33a02c"/>
+<text x="208.5" y="189.0" font-size="9">0.07</text>
+<rect x="201.1" y="193.0" width="4.4" height="15.3" fill="#ff7f00"/>
+<text x="208.5" y="206.3" font-size="9">0.07</text>
+<rect x="201.1" y="210.3" width="127.6" height="15.3" fill="#e31a1c"/>
+<text x="331.7" y="223.6" font-size="9">2.05</text>
+<rect x="184.3" y="248.4" width="16.8" height="15.3" fill="#1f78b4"/>
+<text x="204.1" y="261.7" font-size="9">-0.27</text>
+<rect x="194.9" y="265.7" width="6.2" height="15.3" fill="#33a02c"/>
+<text x="204.1" y="279.0" font-size="9">-0.10</text>
+<rect x="181.2" y="283.0" width="19.9" height="15.3" fill="#ff7f00"/>
+<text x="204.1" y="296.3" font-size="9">-0.32</text>
+<rect x="201.1" y="300.3" width="28.0" height="15.3" fill="#e31a1c"/>
+<text x="232.1" y="313.6" font-size="9">0.45</text>
+<text x="500" y="48" font-size="12">close robot passes (clearance &lt; 0.5 m)</text>
+<line x1="500.0" x2="500.0" y1="58" y2="328" stroke="#eee"/>
+<text x="500.0" y="343" text-anchor="middle" font-size="11">0</text>
+<line x1="570.0" x2="570.0" y1="58" y2="328" stroke="#eee"/>
+<text x="570.0" y="343" text-anchor="middle" font-size="11">0.2</text>
+<line x1="640.0" x2="640.0" y1="58" y2="328" stroke="#eee"/>
+<text x="640.0" y="343" text-anchor="middle" font-size="11">0.4</text>
+<line x1="710.0" x2="710.0" y1="58" y2="328" stroke="#eee"/>
+<text x="710.0" y="343" text-anchor="middle" font-size="11">0.6</text>
+<line x1="780.0" x2="780.0" y1="58" y2="328" stroke="#eee"/>
+<text x="780.0" y="343" text-anchor="middle" font-size="11">0.8</text>
+<line x1="500.0" x2="500.0" y1="58" y2="328" stroke="#888"/>
+<rect x="500.0" y="68.4" width="26.2" height="15.3" fill="#1f78b4"/>
+<text x="529.2" y="81.7" font-size="9">0.07</text>
+<rect x="500.0" y="85.7" width="57.4" height="15.3" fill="#33a02c"/>
+<text x="560.4" y="99.0" font-size="9">0.16</text>
+<rect x="500.0" y="103.0" width="128.1" height="15.3" fill="#ff7f00"/>
+<text x="631.1" y="116.3" font-size="9">0.37</text>
+<rect x="500.0" y="120.3" width="202.3" height="15.3" fill="#e31a1c"/>
+<text x="705.3" y="133.6" font-size="9">0.58</text>
+<line x1="554.2" x2="554.2" y1="66.4" y2="137.6" stroke="#000" stroke-width="2" stroke-dasharray="3 2"/>
+<rect x="500.0" y="158.4" width="0.8" height="15.3" fill="#1f78b4"/>
+<text x="503.7" y="171.7" font-size="9">0.00</text>
+<rect x="500.0" y="175.7" width="0.8" height="15.3" fill="#33a02c"/>
+<text x="503.4" y="189.0" font-size="9">0.00</text>
+<rect x="500.0" y="193.0" width="0.8" height="15.3" fill="#ff7f00"/>
+<text x="503.7" y="206.3" font-size="9">0.00</text>
+<rect x="500.0" y="210.3" width="57.4" height="15.3" fill="#e31a1c"/>
+<text x="560.4" y="223.6" font-size="9">0.16</text>
+<line x1="500.4" x2="500.4" y1="156.4" y2="227.6" stroke="#000" stroke-width="2" stroke-dasharray="3 2"/>
+<rect x="500.0" y="248.4" width="9.8" height="15.3" fill="#1f78b4"/>
+<text x="512.8" y="261.7" font-size="9">0.03</text>
+<rect x="500.0" y="265.7" width="16.8" height="15.3" fill="#33a02c"/>
+<text x="519.8" y="279.0" font-size="9">0.05</text>
+<rect x="500.0" y="283.0" width="77.7" height="15.3" fill="#ff7f00"/>
+<text x="580.7" y="296.3" font-size="9">0.22</text>
+<rect x="500.0" y="300.3" width="219.5" height="15.3" fill="#e31a1c"/>
+<text x="722.5" y="313.6" font-size="9">0.63</text>
+<line x1="514.7" x2="514.7" y1="246.4" y2="317.6" stroke="#000" stroke-width="2" stroke-dasharray="3 2"/>
+<rect x="16" y="376" width="10" height="10" fill="#1f78b4"/><text x="30" y="385" font-size="11">hold the crowd's side</text>
+<rect x="211" y="376" width="10" height="10" fill="#33a02c"/><text x="225" y="385" font-size="11">follow local majority</text>
+<rect x="406" y="376" width="10" height="10" fill="#ff7f00"/><text x="420" y="385" font-size="11">lateral exit goal</text>
+<rect x="601" y="376" width="10" height="10" fill="#e31a1c"/><text x="615" y="385" font-size="11">hold the other side</text>
+<text x="500" y="360" font-size="10">dashed: person-person rate, no robots</text>
+</svg>

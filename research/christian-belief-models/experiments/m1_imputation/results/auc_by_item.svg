@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 452" font-family="sans-serif" font-size="13">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="10" y="22" font-size="15" font-weight="bold">How well other answers predict an unasked GSS item (AUC, 5-fold CV)</text>
+<line x1="330.0" y1="42" x2="330.0" y2="362" stroke="#ddd"/>
+<text x="330.0" y="378" text-anchor="middle" fill="#555">0.5</text>
+<line x1="414.0" y1="42" x2="414.0" y2="362" stroke="#ddd"/>
+<text x="414.0" y="378" text-anchor="middle" fill="#555">0.6</text>
+<line x1="498.0" y1="42" x2="498.0" y2="362" stroke="#ddd"/>
+<text x="498.0" y="378" text-anchor="middle" fill="#555">0.7</text>
+<line x1="582.0" y1="42" x2="582.0" y2="362" stroke="#ddd"/>
+<text x="582.0" y="378" text-anchor="middle" fill="#555">0.8</text>
+<line x1="666.0" y1="42" x2="666.0" y2="362" stroke="#ddd"/>
+<text x="666.0" y="378" text-anchor="middle" fill="#555">0.9</text>
+<line x1="750.0" y1="42" x2="750.0" y2="362" stroke="#ddd"/>
+<text x="750.0" y="378" text-anchor="middle" fill="#555">1.0</text>
+<text x="322" y="67.0" text-anchor="end">attends weekly or more</text>
+<line x1="414.1" y1="57.0" x2="414.1" y2="69.0" stroke="#bbb"/>
+<circle cx="633.2" cy="63.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<line x1="357.6" y1="57.0" x2="357.6" y2="69.0" stroke="#bbb"/>
+<circle cx="616.8" cy="63.0" r="5" fill="#d9822b" fill-opacity="0.85"/>
+<line x1="342.9" y1="57.0" x2="342.9" y2="69.0" stroke="#bbb"/>
+<circle cx="598.9" cy="63.0" r="5" fill="#2e9e6a" fill-opacity="0.85"/>
+<line x1="339.9" y1="57.0" x2="339.9" y2="69.0" stroke="#bbb"/>
+<circle cx="563.0" cy="63.0" r="5" fill="#a34fb5" fill-opacity="0.85"/>
+<text x="322" y="93.0" text-anchor="end">prays daily or more</text>
+<line x1="355.6" y1="83.0" x2="355.6" y2="95.0" stroke="#bbb"/>
+<circle cx="567.6" cy="89.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<line x1="403.3" y1="83.0" x2="403.3" y2="95.0" stroke="#bbb"/>
+<circle cx="604.1" cy="89.0" r="5" fill="#d9822b" fill-opacity="0.85"/>
+<line x1="358.5" y1="83.0" x2="358.5" y2="95.0" stroke="#bbb"/>
+<circle cx="583.0" cy="89.0" r="5" fill="#2e9e6a" fill-opacity="0.85"/>
+<line x1="362.6" y1="83.0" x2="362.6" y2="95.0" stroke="#bbb"/>
+<circle cx="544.6" cy="89.0" r="5" fill="#a34fb5" fill-opacity="0.85"/>
+<text x="322" y="119.0" text-anchor="end">knows God exists, no doubts</text>
+<line x1="346.7" y1="109.0" x2="346.7" y2="121.0" stroke="#bbb"/>
+<circle cx="574.8" cy="115.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<line x1="338.4" y1="109.0" x2="338.4" y2="121.0" stroke="#bbb"/>
+<circle cx="619.7" cy="115.0" r="5" fill="#d9822b" fill-opacity="0.85"/>
+<line x1="349.4" y1="109.0" x2="349.4" y2="121.0" stroke="#bbb"/>
+<circle cx="599.9" cy="115.0" r="5" fill="#2e9e6a" fill-opacity="0.85"/>
+<line x1="359.3" y1="109.0" x2="359.3" y2="121.0" stroke="#bbb"/>
+<circle cx="532.8" cy="115.0" r="5" fill="#a34fb5" fill-opacity="0.85"/>
+<text x="322" y="145.0" text-anchor="end">believes in life after death</text>
+<line x1="368.1" y1="135.0" x2="368.1" y2="147.0" stroke="#bbb"/>
+<circle cx="515.2" cy="141.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<line x1="361.5" y1="135.0" x2="361.5" y2="147.0" stroke="#bbb"/>
+<circle cx="495.1" cy="141.0" r="5" fill="#d9822b" fill-opacity="0.85"/>
+<line x1="362.3" y1="135.0" x2="362.3" y2="147.0" stroke="#bbb"/>
+<circle cx="538.1" cy="141.0" r="5" fill="#2e9e6a" fill-opacity="0.85"/>
+<line x1="394.9" y1="135.0" x2="394.9" y2="147.0" stroke="#bbb"/>
+<circle cx="460.6" cy="141.0" r="5" fill="#a34fb5" fill-opacity="0.85"/>
+<text x="322" y="171.0" text-anchor="end">sex before marriage always wrong</text>
+<line x1="423.3" y1="161.0" x2="423.3" y2="173.0" stroke="#bbb"/>
+<circle cx="625.3" cy="167.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<line x1="355.8" y1="161.0" x2="355.8" y2="173.0" stroke="#bbb"/>
+<circle cx="618.6" cy="167.0" r="5" fill="#d9822b" fill-opacity="0.85"/>
+<line x1="392.8" y1="161.0" x2="392.8" y2="173.0" stroke="#bbb"/>
+<circle cx="615.7" cy="167.0" r="5" fill="#2e9e6a" fill-opacity="0.85"/>
+<line x1="357.0" y1="161.0" x2="357.0" y2="173.0" stroke="#bbb"/>
+<circle cx="552.4" cy="167.0" r="5" fill="#a34fb5" fill-opacity="0.85"/>
+<text x="322" y="197.0" text-anchor="end">adultery always wrong</text>
+<line x1="379.8" y1="187.0" x2="379.8" y2="199.0" stroke="#bbb"/>
+<circle cx="521.9" cy="193.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<line x1="384.0" y1="187.0" x2="384.0" y2="199.0" stroke="#bbb"/>
+<circle cx="582.9" cy="193.0" r="5" fill="#d9822b" fill-opacity="0.85"/>
+<line x1="370.9" y1="187.0" x2="370.9" y2="199.0" stroke="#bbb"/>
+<circle cx="549.0" cy="193.0" r="5" fill="#2e9e6a" fill-opacity="0.85"/>
+<line x1="404.2" y1="187.0" x2="404.2" y2="199.0" stroke="#bbb"/>
+<circle cx="532.6" cy="193.0" r="5" fill="#a34fb5" fill-opacity="0.85"/>
+<text x="322" y="223.0" text-anchor="end">same-sex relations always wrong</text>
+<line x1="483.8" y1="213.0" x2="483.8" y2="225.0" stroke="#bbb"/>
+<circle cx="613.1" cy="219.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<line x1="434.8" y1="213.0" x2="434.8" y2="225.0" stroke="#bbb"/>
+<circle cx="644.3" cy="219.0" r="5" fill="#d9822b" fill-opacity="0.85"/>
+<line x1="468.0" y1="213.0" x2="468.0" y2="225.0" stroke="#bbb"/>
+<circle cx="626.9" cy="219.0" r="5" fill="#2e9e6a" fill-opacity="0.85"/>
+<line x1="464.4" y1="213.0" x2="464.4" y2="225.0" stroke="#bbb"/>
+<circle cx="585.3" cy="219.0" r="5" fill="#a34fb5" fill-opacity="0.85"/>
+<text x="322" y="249.0" text-anchor="end">opposes same-sex marriage</text>
+<line x1="532.5" y1="239.0" x2="532.5" y2="251.0" stroke="#bbb"/>
+<circle cx="652.7" cy="245.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<line x1="459.9" y1="239.0" x2="459.9" y2="251.0" stroke="#bbb"/>
+<circle cx="607.3" cy="245.0" r="5" fill="#d9822b" fill-opacity="0.85"/>
+<line x1="532.6" y1="239.0" x2="532.6" y2="251.0" stroke="#bbb"/>
+<circle cx="656.5" cy="245.0" r="5" fill="#2e9e6a" fill-opacity="0.85"/>
+<line x1="499.7" y1="239.0" x2="499.7" y2="251.0" stroke="#bbb"/>
+<circle cx="616.3" cy="245.0" r="5" fill="#a34fb5" fill-opacity="0.85"/>
+<text x="322" y="275.0" text-anchor="end">living together unmarried not acceptable</text>
+<line x1="383.5" y1="265.0" x2="383.5" y2="277.0" stroke="#bbb"/>
+<circle cx="596.0" cy="271.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<line x1="367.7" y1="265.0" x2="367.7" y2="277.0" stroke="#bbb"/>
+<circle cx="612.8" cy="271.0" r="5" fill="#d9822b" fill-opacity="0.85"/>
+<line x1="372.7" y1="265.0" x2="372.7" y2="277.0" stroke="#bbb"/>
+<circle cx="607.5" cy="271.0" r="5" fill="#2e9e6a" fill-opacity="0.85"/>
+<line x1="353.0" y1="265.0" x2="353.0" y2="277.0" stroke="#bbb"/>
+<circle cx="560.6" cy="271.0" r="5" fill="#a34fb5" fill-opacity="0.85"/>
+<text x="322" y="301.0" text-anchor="end">opposes abortion for any reason</text>
+<line x1="371.4" y1="291.0" x2="371.4" y2="303.0" stroke="#bbb"/>
+<circle cx="540.5" cy="297.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<line x1="340.9" y1="291.0" x2="340.9" y2="303.0" stroke="#bbb"/>
+<circle cx="563.6" cy="297.0" r="5" fill="#d9822b" fill-opacity="0.85"/>
+<line x1="347.9" y1="291.0" x2="347.9" y2="303.0" stroke="#bbb"/>
+<circle cx="522.3" cy="297.0" r="5" fill="#2e9e6a" fill-opacity="0.85"/>
+<line x1="410.2" y1="291.0" x2="410.2" y2="303.0" stroke="#bbb"/>
+<circle cx="507.4" cy="297.0" r="5" fill="#a34fb5" fill-opacity="0.85"/>
+<text x="322" y="327.0" text-anchor="end">divorce should be harder to get</text>
+<line x1="384.6" y1="317.0" x2="384.6" y2="329.0" stroke="#bbb"/>
+<circle cx="491.7" cy="323.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<line x1="375.4" y1="317.0" x2="375.4" y2="329.0" stroke="#bbb"/>
+<circle cx="522.0" cy="323.0" r="5" fill="#d9822b" fill-opacity="0.85"/>
+<line x1="362.4" y1="317.0" x2="362.4" y2="329.0" stroke="#bbb"/>
+<circle cx="504.8" cy="323.0" r="5" fill="#2e9e6a" fill-opacity="0.85"/>
+<line x1="352.6" y1="317.0" x2="352.6" y2="329.0" stroke="#bbb"/>
+<circle cx="439.2" cy="323.0" r="5" fill="#a34fb5" fill-opacity="0.85"/>
+<text x="322" y="353.0" text-anchor="end">ever divorced or separated</text>
+<line x1="380.6" y1="343.0" x2="380.6" y2="355.0" stroke="#bbb"/>
+<circle cx="507.6" cy="349.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<line x1="373.4" y1="343.0" x2="373.4" y2="355.0" stroke="#bbb"/>
+<circle cx="485.1" cy="349.0" r="5" fill="#d9822b" fill-opacity="0.85"/>
+<line x1="411.2" y1="343.0" x2="411.2" y2="355.0" stroke="#bbb"/>
+<circle cx="482.4" cy="349.0" r="5" fill="#2e9e6a" fill-opacity="0.85"/>
+<line x1="370.9" y1="343.0" x2="370.9" y2="355.0" stroke="#bbb"/>
+<circle cx="424.1" cy="349.0" r="5" fill="#a34fb5" fill-opacity="0.85"/>
+<circle cx="35" cy="398" r="5" fill="#2a6fdb"/><text x="44" y="402">Catholic</text>
+<circle cx="295" cy="398" r="5" fill="#d9822b"/><text x="304" y="402">Evangelical Protestant</text>
+<circle cx="555" cy="398" r="5" fill="#2e9e6a"/><text x="564" y="402">Mainline Protestant</text>
+<circle cx="35" cy="418" r="5" fill="#a34fb5"/><text x="44" y="422">Black Protestant</text>
+<line x1="295" y1="412" x2="295" y2="424" stroke="#bbb"/><text x="304" y="422">decade prior (boosting dots, 5-fold CV)</text>
+</svg>

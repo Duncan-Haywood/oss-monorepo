@@ -119,6 +119,7 @@ export const EXAMPLE_ITEMS = Object.freeze({
   paverBase: { name: 'Paver base, 0.5 cu ft bag (a 4" bed under each block)', unit: 'bag', price: 6 },
   roofSheet: { name: '7/16" OSB roof sheathing, 4x8', unit: 'sheet', price: 16 },
   siding8: { name: 'T1-11 siding panel, 4x8', unit: 'sheet', price: 52 },
+  siding8primed: { name: 'Primed wood panel siding, 19/32 in, 4x8 (Home Depot model 1277125)', unit: 'sheet', price: 48.78 },
   siding9: { name: 'T1-11 siding panel, 4x9', unit: 'sheet', price: 62 },
   siding10: { name: 'T1-11 siding panel, 4x10', unit: 'sheet', price: 72 },
   shingleBundle: { name: 'Architectural shingles (32.8 sq ft a bundle)', unit: 'bundle', price: 38 },

@@ -1,0 +1,35 @@
+| file | MP | CFA | noise-aware s, old | new | speed-up | added peak GB, old | new | per MP, new | same bytes |
+|---|---|---|---|---|---|---|---|---|---|
+| nef/Nikon D810.nef | 36.4 | RGGB | 8.75 | 8.80 | 0.99x | 2.86 | 2.44 | 0.067 | no |
+| nef/Nikon 800E.nef | 36.3 | RGGB | 8.48 | 8.26 | 1.03x | 2.88 | 2.44 | 0.067 | no |
+| pef/Pentax K-1 Mark II.pef | 36.1 | RGGB | 7.94 | 7.69 | 1.03x | 2.86 | 2.46 | 0.068 | yes |
+| arw/Sony ILCE-7M4 (A7M4).ARW | 32.7 | RGGB | 14.68 | 14.79 | 0.99x | 3.85 | 2.45 | 0.075 | no |
+| srw/Samsung NX1.srw | 28.0 | GRBG | 6.27 | 6.29 | 1.00x | 2.25 | 1.91 | 0.068 | no |
+| arw/Sony NEX-7.arw | 24.3 | RGGB | 5.24 | 5.31 | 0.99x | 1.98 | 1.67 | 0.069 | no |
+| arw/Sony ILCE-7M3 (A7M3).arw | 24.0 | RGGB | 10.40 | 10.67 | 0.97x | 2.61 | 1.70 | 0.071 | no |
+| srw/Samsung NX20.srw | 20.0 | GRBG | 4.52 | 4.85 | 0.93x | 1.72 | 1.49 | 0.075 | no |
+| srw/Samsung NX3000.srw | 20.0 | GRBG | 4.82 | 4.64 | 1.04x | 1.71 | 1.47 | 0.074 | no |
+| srw/Samsung EK-GN120 (Galaxy NX).srw | 19.9 | GRBG | 4.46 | 4.61 | 0.97x | 1.71 | 1.45 | 0.073 | no |
+| dng/Leica T (Typ 701).dng | 16.1 | RGGB | 5.94 | 5.89 | 1.01x | 1.80 | 1.18 | 0.073 | no |
+| raf/FujiFilm EX-2.raf | 16.0 | RBGBRGGGRGGBGGBGGRBRGRBGGGBGGRGGRGGB | 5.23 | 5.03 | 1.04x | 1.55 | 1.36 | 0.085 | no |
+| raf/Fujifilm X-E1.raf | 16.0 | GGRGGBGGBGGRBRGRBGGGBGGRGGRGGBRBGBRG | 5.59 | 5.44 | 1.03x | 1.59 | 1.39 | 0.087 | no |
+| dng/LG Nexus 5X.dng | 12.1 | RGGB | 4.53 | 4.45 | 1.02x | 1.03 | 0.93 | 0.077 | no |
+
+1 of 14 outputs byte-identical
+
+| file | codes differing | share | max diff | PSNR dB |
+|---|---|---|---|---|
+| arw/Sony ILCE-7M3 (A7M3) | 583 of 72,000,000 | 8.10e-06 | 63 | 117.9 |
+| arw/Sony ILCE-7M4 (A7M4) | 994 of 98,224,128 | 1.01e-05 | 102 | 117.8 |
+| arw/Sony NEX-7 | 623 of 73,011,456 | 8.53e-06 | 62 | 117.4 |
+| dng/LG Nexus 5X | 1,446 of 36,240,384 | 3.99e-05 | 99 | 115.6 |
+| dng/Leica T (Typ 701) | 963 of 48,254,976 | 2.00e-05 | 164 | 114.1 |
+| nef/Nikon 800E | 471 of 108,987,816 | 4.32e-06 | 155 | 117.2 |
+| nef/Nikon D810 | 187 of 109,105,920 | 1.71e-06 | 130 | 118.9 |
+| pef/Pentax K-1 Mark II | 0 of 108,456,960 | 0.00e+00 | 0 | inf |
+| raf/FujiFilm EX-2 | 584 of 47,941,632 | 1.22e-05 | 198 | 118.1 |
+| raf/Fujifilm X-E1 | 338 of 47,941,632 | 7.05e-06 | 81 | 118.3 |
+| srw/Samsung EK-GN120 (Galaxy NX) | 215 of 59,622,912 | 3.61e-06 | 67 | 122.9 |
+| srw/Samsung NX1 | 555 of 83,980,800 | 6.61e-06 | 136 | 119.0 |
+| srw/Samsung NX20 | 27 of 59,885,568 | 4.51e-07 | 102 | 126.2 |
+| srw/Samsung NX3000 | 522 of 59,885,568 | 8.72e-06 | 67 | 118.6 |

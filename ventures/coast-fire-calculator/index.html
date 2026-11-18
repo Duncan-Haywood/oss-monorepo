@@ -156,7 +156,7 @@
       $("#sens").innerHTML = r.sens.map((s) => `<tr><th scope="row">${(s.ret * 100).toFixed(1)}%</th><td>${usd(s.coast)}</td><td>${usd(s.atRetirement)}</td><td>${s.reached ? "Yes" : "Not yet"}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = r.coasting ? "You have reached your Coast FIRE number." : "You have not reached your Coast FIRE number yet.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -1,3 +1,9 @@
+---
+kind: brief
+subjects: [open-house-plans]
+date: 2026-10-21
+tagged: auto
+---
 # Open House Plans: brief for an agent reader
 
 **Date:** 2026-10-21. **Reader:** an LLM agent that will design a house for

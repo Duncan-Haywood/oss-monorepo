@@ -1,3 +1,10 @@
+---
+kind: analysis
+subjects: [ci]
+topics: [ci]
+date: 2026-10-29
+tagged: auto
+---
 # CI and application bloat audit (2026-10-29)
 
 **Asked by:** the owner ("do a blog report on the state of ci and application

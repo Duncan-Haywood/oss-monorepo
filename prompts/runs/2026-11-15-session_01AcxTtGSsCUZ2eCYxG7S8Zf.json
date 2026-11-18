@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtGSsCUZ2eCYxG7S8Zf",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T04:07:01Z",
+  "ended": "2026-11-15T04:18:17Z",
+  "wall_minutes": 11.59,
+  "tokens_in": 4588369,
+  "tokens_out": 34343,
+  "cost_usd": 2.6759,
+  "tool_calls": 38,
+  "task": "cell-fidelity milestone 5t: a sqrt(n) lithium-loss law in 5s's balance map as the union screen's fade list (programme draw)",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": 16086,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "first post draft failed check_post_frontmatter (description 192 > 160, seo_title 75 > 70); fixed before merge",
+    "LOG outcome first said 5 of 13 test pools had the DFN best in the raw top 4; recomputed from summary.json as 7 and corrected before commit"
+  ],
+  "integrity_issues": [
+    "the loss law was chosen on 27 dev designs from the same 17-pool family as the test pools, and the 100-cycle truth was read by earlier milestones; both disclosed in the plan and outcome",
+    "a three-list union was computed but not pre-registered; labelled descriptive in results, LOG, README and post"
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes hands off after 100 s and asks for no tracked edits until done, so a front-matter fix found by its first fast step voids the rest of the run; running check_post_frontmatter.py before the full run would have saved a cycle"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "the cloud-session note says a bare python3 often lacks numpy; here it also lacked pybamm, so any milestone needing new DFN runs is out of reach in this container without a long install; this one was designed to need none"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 2 asks to land open research PRs first; the four open research PRs (16080, 16073, 16057, 16056) were all updated within the previous two hours by live sessions",
+      "did": "left them to their owners and took the drawn programme's next milestone",
+      "result": "no collision; CLAIM CHECK showed no open cell-fidelity PR"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-slower-loss-law-fixes-the-battery-ranking-not-the-screen.md",
+    "research/cell-fidelity/LOG.md (5t plan and outcome)"
+  ],
+  "goal": "research portfolio: advance an open PhD-level programme by one pre-registered milestone",
+  "notes": "Milestone 5t: offline re-analysis of 5s's committed ten-cycle DFN lithium curves (no new simulation, stdlib, ~2 s). H116 supported (12/13 vs power-law map, sign p=0.003), H112 mixed (8/13 vs sqrt energy fit, bar 9), H113-H115 refuted (fade size 6/13; union misses up to 3.17%). 5n's union stays the procedure. Local checks: tests/test_losslaw.py + test_mapscreen.py 14 OK; research/_homepage/build.py ok; check_post_frontmatter ok; 5s report regenerates byte-identical. No agent doc in docs/reports: the programme's LOG.md is where the next run looks.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bb8208ef-abf2-5b02-86b3-8788f6e1f99e",
+    "transcripts": 1,
+    "first": "2026-11-15T04:07:01Z",
+    "last": "2026-11-15T04:18:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 70,
+        "output": 34343,
+        "thinking": 8847,
+        "cache_read": 4450977,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137322,
+        "api_equivalent_usd": 2.6759,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 70,
+      "output": 34343,
+      "thinking": 8847,
+      "cache_read": 4450977,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137322,
+      "api_equivalent_usd": 2.6759,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.59,
+      "active_minutes": 11.59,
+      "model_minutes": 6.21,
+      "tool_minutes": 5.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a battery-modelling PhD student choosing a loss law on dev data, pre-registering, coding the re-analysis, tests, figure and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 224.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

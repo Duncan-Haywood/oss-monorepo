@@ -22,6 +22,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; Actions runner starvation check</a></p>
   <h1>Add a starvation guard step to a GitHub Actions workflow</h1>
   <p>The <a href="why-is-my-github-actions-check-red-in-seconds.html">page-and-paste tool</a> and the <code>check.py</code> CLI both answer this for one run you already have the JSON for. This page is the other case: wiring the same check into your own repository so a starved run tells you so on its own, in its job summary, instead of showing up as one more red check to chase.</p>
@@ -75,7 +76,9 @@ jobs:
 
   <p><a href="./">&larr; Back to the checker</a> &middot; <a href="why-is-my-github-actions-check-red-in-seconds.html">Why is my check red in seconds with no output?</a></p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind, express or implied. They are not a substitute for reading GitHub's own billing and Actions usage pages. Verify before relying on the output.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working. Pin your own copy of <code>check.py</code> if this guard needs to keep working regardless.</p>
     <p>Everything the linked tool does runs in your browser; nothing you paste is uploaded. This workflow only ever talks to GitHub's own Actions API with GitHub's own token.</p>

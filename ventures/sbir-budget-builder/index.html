@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SBIR Budget Builder", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free SBIR and STTR proposal budget builder with fringe, MTDC indirect, fee, subaward percentage-of-work checks and CSV export. Runs in your browser.", "featureList": "SF424 R&R-style budget lines, percentage-of-work check, fee ceiling check, solicitation maximum check, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an SBIR or STTR budget?", "acceptedAnswer": {"@type": "Answer", "text": "The cost section of a Small Business Innovation Research or Technology Transfer proposal: personnel and fringe, equipment, materials, travel, subawards and consultants, indirect costs and a fee. Agencies use the SF424 R&R budget form or their own template, and the solicitation sets the limits."}}, {"@type": "Question", "name": "How much of the work must the small business do?", "acceptedAnswer": {"@type": "Answer", "text": "Under the SBA policy directive the small business must perform at least two thirds (66.67%) of the work in SBIR Phase I and half in Phase II. For STTR the small business must perform at least 40% and the partnering research institution at least 30%. The solicitation controls; every figure here is an editable input."}}, {"@type": "Question", "name": "How much fee or profit can I charge?", "acceptedAnswer": {"@type": "Answer", "text": "Most agencies allow a fee of up to about 7% of total costs. Some agencies and some topics allow less or none, so read the solicitation. The tool warns when the fee you enter is over the ceiling you enter."}}, {"@type": "Question", "name": "What is modified total direct cost (MTDC)?", "acceptedAnswer": {"@type": "Answer", "text": "A common indirect cost base that excludes equipment and the part of each subaward above $25,000. Your negotiated or provisional indirect rate applies to the base your rate agreement names; pick the base that matches it."}}, {"@type": "Question", "name": "Does this submit or store my proposal?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser and nothing is uploaded. You can download the budget as a CSV to paste into the agency's form."}}, {"@type": "Question", "name": "Is this grant-writing or legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. Eligibility, cost allowability, rates and the final budget are decided by your solicitation, your accountant and the agency."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1e3a8a; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1e3a8a; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1e3a8a; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1e3a8a; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e3a8a; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1e3a8a; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -106,11 +144,11 @@
       let h = "";
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
-      h += `<div class="finding"><h4>${a.allOk ? "Every check passes" : "A check fails"}: total price ${money(a.price)}</h4><p>Costs ${money(a.totalCosts)} plus fee ${money(a.fee)}.</p></div>`;
-      h += `<div class="finding"><h4>Rule checks</h4>${table(["Check", "Result", "Detail"], a.checks.map((c) => [esc(c.name), c.ok ? "OK" : "FAILS", esc(c.detail)]))}${a.subHeadroom !== null ? `<p>You could add about ${money(a.subHeadroom)} more to subawards before the small-business floor is reached.</p>` : ""}</div>`;
-      h += `<div class="finding"><h4>Budget lines</h4>${table(["Line", "Amount"], a.sf424.map(([k, v]) => [esc(k), money(v)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
-      h += `<div class="finding"><h4>People</h4>${table(["Person", "Effort", "Person-months", "Cost"], a.people.map((p) => [esc(p.name), p.effort + "%", p.personMonths, money(p.cost)]))}</div>`;
-      h += `<div class="finding"><h4>Fee scenarios</h4>${table(["Fee rate", "Fee", "Total price"], a.feeScenarios.map((f) => [f.rate + "%", money(f.fee), money(f.price)]))}</div>`;
+      h += `<div class="finding"><h3>${a.allOk ? "Every check passes" : "A check fails"}: total price ${money(a.price)}</h3><p>Costs ${money(a.totalCosts)} plus fee ${money(a.fee)}.</p></div>`;
+      h += `<div class="finding"><h3>Rule checks</h3>${table(["Check", "Result", "Detail"], a.checks.map((c) => [esc(c.name), c.ok ? "OK" : "FAILS", esc(c.detail)]))}${a.subHeadroom !== null ? `<p>You could add about ${money(a.subHeadroom)} more to subawards before the small-business floor is reached.</p>` : ""}</div>`;
+      h += `<div class="finding"><h3>Budget lines</h3>${table(["Line", "Amount"], a.sf424.map(([k, v]) => [esc(k), money(v)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>People</h3>${table(["Person", "Effort", "Person-months", "Cost"], a.people.map((p) => [esc(p.name), p.effort + "%", p.personMonths, money(p.cost)]))}</div>`;
+      h += `<div class="finding"><h3>Fee scenarios</h3>${table(["Fee rate", "Fee", "Total price"], a.feeScenarios.map((f) => [f.rate + "%", money(f.fee), money(f.price)]))}</div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

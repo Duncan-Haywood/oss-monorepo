@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01AcxTtHB9RkeCGNUNaeawET",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-04T06:24:09Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "run.py slack regex failed on OpenROAD 2025-03 output after a 15 min point"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/LOG.md",
+      "issue": "M77 said detail routing on mult24/32 was next without a cost; it is ~50 core-hours"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "No new blog post: the run produced a cost measurement and a parser fix only"
+    }
+  ],
+  "writeups": [
+    "research/verified-dse/LOG.md milestone 78"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}

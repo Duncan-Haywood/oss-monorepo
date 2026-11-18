@@ -1,0 +1,4 @@
+W = 12.23, rho = 0.201
+reps 499: clears the bar for 17/20 seeds; p 0.032 to 0.066; bar95 10.562 to 13.513
+W = 12.23, rho = 0.201
+reps 1999: clears the bar for 19/20 seeds; p 0.035 to 0.052; bar95 11.226 to 12.421

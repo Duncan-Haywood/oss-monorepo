@@ -76,3 +76,15 @@ test("rotki events: a Unix millisecond Timestamp is the date", () => {
   ].join("\n"));
   assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2022-07-27", 100000], ["2022-07-29", -2500]]);
 });
+
+// Third-party Stripe layouts found on GitHub, 2026-11-06 (rows made up by their
+// authors, layout only): one with Amount, Fee, Net and created_utc. The amount
+// read was the gross, so the fee vanished and the payout row no longer matched.
+test("Stripe balance export with Amount, Fee, Net and created_utc reads Net", () => {
+  const r = readStatement([
+    "balance_transaction_id,type,source,amount,fee,net,currency,created_utc,description,reporting_category",
+    "txn_1,charge,ch_1,45000.00,1330.00,43670.00,inr,2026-01-10T09:14:22Z,Payment for INV-2020,charge",
+    "txn_2,dispute,dp_1,-22000.00,1500.00,-23500.00,inr,2026-01-22T08:11:00Z,Chargeback,dispute",
+  ].join("\n"));
+  assert.deepEqual(r.rows.map((x) => x.cents), [4367000, -2350000]);
+});

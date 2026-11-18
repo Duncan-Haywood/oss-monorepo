@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVMcgDnLVsNpgectQsW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on revenue-generating products; merge when done",
+  "input_sha256": "2ee6c57f6993358e5b49e272326f782245bfeef51572ff8ccfd68ebe58a2a42c",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": "2026-11-18T02:56:00Z",
+  "ended": "2026-11-18T03:31:45Z",
+  "wall_minutes": 45,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 4): changepoint-detector uncertain anticipation lead",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": 17152,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/routing.json",
+      "issue": "the scheduled stored prompt is product-focused while the router can draw research; the two disagree for this routine and nothing says which wins"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "promptctl route drew research/0, but the scheduled prompt that started this run asks for product work (develop, deploy, market, sell); took allocate.py's venture pick (flagship changepoint-detector) and recorded the run as ventures/1",
+      "did": "venture flagship slice instead of a research programme step",
+      "result": "pre-registered slice shipped on CLI and page"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-changepoint-synthetic-control-uncertain-lead.md"
+  ],
+  "goal": "one p for a range of anticipation leads in the synthetic control, so users who do not know the lead exactly need not pick the best p",
+  "notes": "Pre-registration committed (eval/synth-lead-range-prereg-2026-11-18.md) before the confirmatory run at base 83000, 400 panels a cell. Max-scaled range test: size 3.8%/3.3% (A0/A4), power 54.8%/55.5% in E2/E4 vs 34.8%/27.8% stated, oracle 56.8%/59.3%, E0 53.5% vs 59.0%: all four bars pass. Naive smallest-of-5 p: size 5.3%/7.8%. Min-p (Westfall-Young) dropped after exploration: too coarse with 39 units. Ships --anticipation a-b on CLI and page; Prop 99 CA range p 0.026 for 0-2. Tests: node --test synth-lead-range, synth-cli, synth-page pass; full venture suite via run_venture_tests.py (see PR).",
+  "corrections": [],
+  "redteam": null
+}

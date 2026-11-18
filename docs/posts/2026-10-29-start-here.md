@@ -12,6 +12,16 @@ This repository is large: more than 1,300 free tools, about 1,000 open research 
 
 These posts answer it, one kind of reader at a time. Each one says who it is for, what you get, how to spend your first ten minutes, what it costs (nothing), where your data goes, and what the project does not do yet. Everything here is MIT licensed, so you may use it for anything, including commercially.
 
+## Help by profession
+
+Your professional judgement is what the agents cannot supply. Each guide below says which figures or pages need it and how a correction lands.
+
+- **[Small-business owners and managers](2026-11-03-start-here-business-owners-shape-the-tools.md):** five ways to shape the tools without code, from checking one against a job you did to asking for a custom build.
+- **[Accountants and bookkeepers](2026-11-03-start-here-accountants-and-bookkeepers.md):** tax bands, retirement limits and due dates typed from memory, and the bookkeeper's categorisation rules, waiting for an expert's check.
+- **[E-invoicing and compliance professionals](2026-11-03-start-here-einvoicing-and-compliance-professionals.md):** 76 country mandate pages, most built from vendor guides, to read against the official text.
+- **[Developers, by stack](2026-11-03-start-here-developers-pick-a-stack.md):** plain-JS calculators, Python checkers, Next.js apps, the site builder, MCP and research code, with test commands.
+- **[Designers and accessibility specialists](2026-11-03-start-here-designers-and-accessibility.md):** what the automated checks catch, what they miss, and where a human audit helps most.
+
 ## If you have an idea
 
 **[Bring an idea, get it built](2026-10-29-start-here-bring-an-idea.md).** This is the main pitch. You bring ideas, often a single sentence. AI coding agents do the development in public, with about $8,000 a month of compute shared across the repository (the owner's figure). The result stays open source, and you, or anyone, may deploy it and run it for profit. The post is also honest about the catch: an idea is weighed, not guaranteed, and nothing built here is exclusive.

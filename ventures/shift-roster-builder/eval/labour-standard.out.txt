@@ -1,0 +1,20 @@
+French bakery: 562717 EUR, 136451 tickets, 362189 items; 4.12 EUR a ticket.
+Work held at 844075 minutes in the file (money plan at 40 EUR per labor hour = 1.50 min a euro).
+
+1. a = 0 gives the money plan's shift lines: yes (179 h a week vs 179)
+   a = 1 gives the ticket plan's at 9.70 tickets per labor hour: yes (208 h vs 208)
+
+2-3. Ticket share a of the work (rest money). Plan from the whole file; backtest per tested week (mean person-hours).
+                           hours  <10:00   10-14  14:00+    short   over     off
+a = 0                        179      61      94      24     56.1   27.6   49.0%
+a = 0.25                     183      62      97      24     54.0   27.4   47.1%
+a = 0.5                      189      60     101      28     50.5   28.6   44.6%
+a = 0.75                     196      60     104      32     45.7   32.5   42.0%
+a = 1                        208      61     103      44     41.8   35.6   40.0%
+
+4. Item share b of the work, the rest half tickets, half money.
+                           hours  <10:00   10-14  14:00+    short   over     off
+b = 0                        189      60     101      28     50.5   28.6   44.6%
+b = 0.25                     183      63      96      24     51.2   28.4   45.1%
+b = 0.5                      175      61      90      24     51.5   28.3   45.1%
+b = 1                        176      64      88      24     52.8   27.7   45.9%

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 400" role="img" aria-label="Change in people's transit time with 20% robots by cause in four crowd settings" font-family="sans-serif" font-size="12">
+<style>text{fill:#222}@media (prefers-color-scheme: dark){text{fill:#ddd}}</style>
+<text x="340.0" y="22" text-anchor="middle" font-size="15">A crowd-side robot costs people less than a person does</text>
+<text x="340.0" y="40" text-anchor="middle">change in people's 8 m transit (s), 20% robots, 95% intervals</text>
+<line x1="64" x2="664" y1="294.1" y2="294.1" stroke="#888" stroke-opacity="0.25"/><text x="58" y="298.1" text-anchor="end">-2.0</text>
+<line x1="64" x2="664" y1="237.8" y2="237.8" stroke="#888" stroke-opacity="0.25"/><text x="58" y="241.8" text-anchor="end">-1.0</text>
+<line x1="64" x2="664" y1="181.6" y2="181.6" stroke="#888" stroke-opacity="0.25"/><text x="58" y="185.6" text-anchor="end">+0.0</text>
+<line x1="64" x2="664" y1="125.3" y2="125.3" stroke="#888" stroke-opacity="0.25"/><text x="58" y="129.3" text-anchor="end">+1.0</text>
+<line x1="64" x2="664" y1="69.1" y2="69.1" stroke="#888" stroke-opacity="0.25"/><text x="58" y="73.1" text-anchor="end">+2.0</text>
+<line x1="64" x2="664" y1="181.6" y2="181.6" stroke="#888"/>
+<rect x="79.0" y="181.6" width="27.0" height="23.6" fill="#2a6fdb"/>
+<line x1="92.5" x2="92.5" y1="224.1" y2="186.5" stroke="#555"/>
+<rect x="109.0" y="181.6" width="27.0" height="39.2" fill="#d9822b"/>
+<line x1="122.5" x2="122.5" y1="239.8" y2="201.6" stroke="#555"/>
+<rect x="139.0" y="181.6" width="27.0" height="31.7" fill="#1b9e77"/>
+<line x1="152.5" x2="152.5" y1="227.7" y2="198.1" stroke="#555"/>
+<rect x="169.0" y="181.6" width="27.0" height="7.5" fill="#9a4dc4"/>
+<line x1="182.5" x2="182.5" y1="203.1" y2="174.8" stroke="#555"/>
+<text x="139.0" y="326" text-anchor="middle">social force</text>
+<rect x="229.0" y="158.3" width="27.0" height="23.3" fill="#2a6fdb"/>
+<line x1="242.5" x2="242.5" y1="164.4" y2="152.2" stroke="#555"/>
+<rect x="259.0" y="181.6" width="27.0" height="23.6" fill="#d9822b"/>
+<line x1="272.5" x2="272.5" y1="212.3" y2="197.6" stroke="#555"/>
+<rect x="289.0" y="181.6" width="27.0" height="18.5" fill="#1b9e77"/>
+<line x1="302.5" x2="302.5" y1="205.6" y2="194.6" stroke="#555"/>
+<rect x="319.0" y="181.6" width="27.0" height="5.2" fill="#9a4dc4"/>
+<line x1="332.5" x2="332.5" y1="192.0" y2="181.2" stroke="#555"/>
+<text x="289.0" y="326" text-anchor="middle">collision-free speed</text>
+<rect x="379.0" y="119.3" width="27.0" height="62.3" fill="#2a6fdb"/>
+<line x1="392.5" x2="392.5" y1="159.2" y2="80.8" stroke="#555"/>
+<rect x="409.0" y="181.6" width="27.0" height="43.7" fill="#d9822b"/>
+<line x1="422.5" x2="422.5" y1="282.2" y2="171.9" stroke="#555"/>
+<rect x="439.0" y="181.6" width="27.0" height="53.6" fill="#1b9e77"/>
+<line x1="452.5" x2="452.5" y1="291.2" y2="189.1" stroke="#555"/>
+<rect x="469.0" y="171.7" width="27.0" height="9.9" fill="#9a4dc4"/>
+<line x1="482.5" x2="482.5" y1="220.7" y2="115.3" stroke="#555"/>
+<text x="439.0" y="326" text-anchor="middle">ORCA, street-like</text>
+<rect x="529.0" y="179.7" width="27.0" height="1.9" fill="#2a6fdb"/>
+<line x1="542.5" x2="542.5" y1="182.4" y2="177.0" stroke="#555"/>
+<rect x="559.0" y="181.6" width="27.0" height="2.4" fill="#d9822b"/>
+<line x1="572.5" x2="572.5" y1="186.5" y2="181.2" stroke="#555"/>
+<rect x="589.0" y="181.6" width="27.0" height="2.1" fill="#1b9e77"/>
+<line x1="602.5" x2="602.5" y1="185.5" y2="181.9" stroke="#555"/>
+<rect x="619.0" y="181.6" width="27.0" height="0.2" fill="#9a4dc4"/>
+<line x1="632.5" x2="632.5" y1="183.5" y2="180.0" stroke="#555"/>
+<text x="589.0" y="326" text-anchor="middle">ORCA, fitted</text>
+<rect x="64" y="342" width="12" height="12" fill="#2a6fdb"/><text x="82" y="352">robots vs density control</text>
+<rect x="364" y="342" width="12" height="12" fill="#d9822b"/><text x="382" y="352">robots vs people in their place</text>
+<rect x="64" y="360" width="12" height="12" fill="#1b9e77"/><text x="82" y="370">steering: line vs people's rule</text>
+<rect x="364" y="360" width="12" height="12" fill="#9a4dc4"/><text x="382" y="370">speed: 1.2 m/s cap vs people's</text>
+</svg>

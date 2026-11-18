@@ -182,7 +182,7 @@
         : `Search stopped at its limit after ${r.solver.nodes} nodes; this plan is within ${pct(r.solver.gapPct, 1)} of the continuous upper bound ${money(r.solver.lpBound)}.`;
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

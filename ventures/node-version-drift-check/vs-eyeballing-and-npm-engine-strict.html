@@ -41,6 +41,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">&larr; Back to the checker</a></p>
   <h1>This checker vs. eyeballing the files and npm's engine-strict</h1>
   <p>There are three ordinary ways to keep a repo's Node.js versions honest: read the files yourself during review, turn on <code>engine-strict</code> so an install under the wrong runtime fails, and look at what <code>npm ls</code> reports. Each answers a real question. None of them compares your Dockerfile, your workflow and your <code>.nvmrc</code> to each other, which is the question this checker is for.</p>
@@ -68,7 +69,9 @@
     <h3>Do I have to choose one?</h3>
     <p>No. Keep engine-strict if you want installs to fail on an unsupported runtime, and keep reading the files in review. This tool covers the part neither does, which is comparing every declared version to every other one, and to a dated end-of-life table, in a single pass.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the linked checker is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace running your tests on the Node.js version you actually deploy. The end-of-life dates come from a static table copied from nodejs.org/en/about/previous-releases on 2026-10-11 and may be out of date; check nodejs.org for the current schedule. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p>Descriptions of <code>engine-strict</code> and <code>npm ls</code> are based on npm's public documentation at docs.npmjs.com and are summarised, not quoted; check it for exact current behaviour. This page says "different job", not "better": npm's own checks remain the right tool for what they check.</p>
     <p class="note">npm is a trademark of its owner, named here only to describe what this tool is and is not. Node.js is a trademark of the OpenJS Foundation; Volta and nvm are the names of independent projects. They are named here only to describe which files this tool reads. Not affiliated with, endorsed by, or sponsored by Node.js, the OpenJS Foundation, Volta, nvm, npm or GitHub.</p>

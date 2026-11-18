@@ -1,0 +1,9 @@
+adaptive stall T=200, R=1.010: flagged  2 of 32, harmful 30, harmful and unflagged 28, median dL +0.0280, median stalled steps 78 of 200
+n=32 jobs, harmful 30, flagged by progress check 2, harmful and unflagged 28, median stalled steps 79
+k  cost  E[harmful caught by recompute]  E[harmful missed by both]  E[all jobs caught]  min catch among harmful
+1   0.2%    4.6 of 30 (15%)   23.5    4.7 of 32  0.05
+2   0.3%    8.4 of 30 (28%)   20.0    8.4 of 32  0.09
+5   0.8%   16.0 of 30 (53%)   12.7   16.0 of 32  0.21
+10  1.7%   22.5 of 30 (75%)    6.7   22.5 of 32  0.38
+20  3.3%   27.4 of 30 (91%)    2.3   27.5 of 32  0.62
+40  6.7%   29.5 of 30 (98%)    0.4   29.7 of 32  0.86

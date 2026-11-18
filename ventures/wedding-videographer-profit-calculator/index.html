@@ -36,7 +36,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -46,6 +46,12 @@
     </style>
   <style>.plat { border-top: 1px solid #ece7f2; margin-top: 10px; padding-top: 4px; } .plat .grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); } .num { text-align: right; }</style>
   <style>.num { text-align: right; } .tier { border-top: 1px solid #ece7f2; margin-top: 10px; padding-top: 4px; } .tier .grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }</style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #tiers:empty{min-height:947px}}
+@media (scripting:enabled) and (min-width:376px){html:not(.pf-rows-ready) #tiers:empty{min-height:680px}}
+@media (scripting:enabled) and (min-width:520px){html:not(.pf-rows-ready) #tiers:empty{min-height:413px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>
@@ -111,6 +117,7 @@
     <table>
       <tbody id="result-table"></tbody>
     </table>
+    <p class="note" id="pretax-note">Profit and hourly rates are before income tax and self-employment tax, which this calculator does not model. Take-home pay is lower; in the US, self-employment tax alone is 15.3% on 92.35% of net earnings, before income tax.</p>
     <div id="report-findings"></div>
     <h2 style="margin-top:22px">If edit hours change</h2>
     <table>
@@ -118,6 +125,7 @@
       <tbody id="sens-table"></tbody>
     </table>
     <h2 style="margin-top:22px">Deliverable ladder</h2>
+    <p class="note" id="ladder-note"></p>
     <table>
       <thead><tr><th scope="col">Tier</th><th scope="col" class="num">Price</th><th scope="col" class="num">Hours worked</th><th scope="col" class="num">Profit</th><th scope="col" class="num">True rate / hr</th></tr></thead>
       <tbody id="ladder-table"></tbody>
@@ -205,25 +213,26 @@
       const r = calculateBooking(input);
       if (r.error) { report.hidden = true; status.textContent = r.error; return; }
       const lad = deliverableLadder(input, readTiers());
-      $("#report-stats").innerHTML = `Worked <strong>${r.hoursWorked.toFixed(1)}</strong> hours for a <strong>${money(r.input.price)}</strong> package: true rate <strong>${rate(r.trueHourly)}</strong> an hour against a headline ${rate(r.headlineHourly)}.`;
+      $("#report-stats").innerHTML = `Worked <strong>${r.hoursWorked.toFixed(1)}</strong> hours for a <strong>${money(r.input.price)}</strong> package: true rate <strong>${rate(r.trueHourly)}</strong> an hour before tax, against a headline ${rate(r.headlineHourly)}.`;
       const rows = [
         ["Hours worked", r.hoursWorked.toFixed(1)], ["Edit + revision share of hours", Math.round(r.editShare * 100) + "%"],
-        ["Revenue (incl. extra-round fees)", money(r.revenue)], ["Costs", money(r.costs)], ["Profit per booking", money(r.profit)],
-        ["True hourly rate", rate(r.trueHourly)],
+        ["Revenue (incl. extra-round fees)", money(r.revenue)], ["Costs", money(r.costs)], ["Profit per booking, before income and self-employment tax", money(r.profit)],
+        ["True hourly rate, before tax", rate(r.trueHourly)],
         ["Minimum package price for target", r.minPrice === null ? "set a target" : money(r.minPrice)],
         ["Edit hours the booking can absorb at target", r.breakEvenEditHours === null ? "set a target" : r.breakEvenEditHours.toFixed(1)],
       ];
       $("#result-table").innerHTML = rows.map(([k, v]) => `<tr><th scope="row">${k}</th><td class="num">${v}</td></tr>`).join("");
       $("#report-findings").innerHTML = r.findings.map((f) =>
-        `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+        `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#sens-table").innerHTML = r.sensitivity.map((s) =>
         `<tr><td>${s.editHours.toFixed(1)} (${Math.round(s.multiplier * 100)}%)</td><td class="num">${s.hoursWorked.toFixed(1)}</td><td class="num">${money(s.profit)}</td><td class="num">${rate(s.trueHourly)}</td><td class="num">${s.minPrice === null ? "—" : money(s.minPrice)}</td></tr>`).join("");
-      $("#ladder-table").innerHTML = lad.error ? `<tr><td colspan="5">${esc(lad.error)}</td></tr>` : lad.rows.map((t) =>
+      $("#ladder-note").textContent = lad.error ? "" : `Each tier keeps your ${lad.nonEditHours.toFixed(1)} hours of shoot, travel, planning and revisions and the same costs; only the price and total edit hours change. The first row is your booking as entered, with ${lad.base.editHours.toFixed(1)} edit hours. Rates are before tax.`;
+      $("#ladder-table").innerHTML = lad.error ? `<tr><td colspan="5">${esc(lad.error)}</td></tr>` : [lad.base, ...lad.rows].map((t) =>
         `<tr><th scope="row">${esc(t.name)}</th><td class="num">${money(t.price)}</td><td class="num">${t.hoursWorked.toFixed(1)}</td><td class="num">${money(t.profit)}</td><td class="num">${rate(t.trueHourly)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "";
       record("profit_calculated");
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     resetTiers();

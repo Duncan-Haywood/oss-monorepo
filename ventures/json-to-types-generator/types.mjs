@@ -8,7 +8,7 @@ const GO_INITIALISMS = new Set(['id', 'url', 'uri', 'api', 'http', 'https', 'jso
 
 // Accepts one JSON value, NDJSON, or several JSON objects/arrays pasted back to back.
 export function parseSamples(text) {
-  const src = String(text).replace(/^﻿/, '').trim();
+  const src = String(text).replace(/^\uFEFF/, '').trim();
   if (!src) throw new Error('Paste some JSON first.');
   try { return [JSON.parse(src)]; } catch (first) {
     const chunks = splitTopLevel(src);

@@ -1,0 +1,447 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtK1q9Dy8ZuQwuM43Wb",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T03:06:31Z",
+  "ended": "2026-11-15T03:08:58Z",
+  "wall_minutes": 20.45,
+  "tokens_in": 5297317,
+  "tokens_out": 21283,
+  "cost_usd": 2.2581,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16076",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Second campaign was run with output piped through grep|sort, so it buffered silently past the 600 s foreground limit and moved to the background; three twilio.mjs mutants hit the 300 s suite timeout (counted caught by the tool, but by a hang, not an assertion)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list held 12 entries, all control-plane fixes already sitting in owner-approval PRs (#15945, #15728, #15871, #14877, #14698, #15561, #15248, #12928...); the list has no way to mark 'fix written, awaiting approval', so every run re-checks them."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "A random-draw campaign whose suite times out on mutants (missed-call-textback server tests hang 300 s when a signature mutant rejects requests) costs 15 min for 7 mutants; the probe measures only the clean baseline (0.5 s)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: did not re-fix the 12 open entries; each already has a written fix in an open control-plane PR waiting for owner approval, so a second copy would only duplicate it.",
+      "did": "Checked the open PR list and went to step 1.",
+      "result": "Time went to two campaigns and two real defects."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b (leave an automated guard): no class-level lint added. The float-vs-zero pattern is hard to lint without false positives; a grep across ventures for summed values compared with 0 in findings found one sibling (swim-lesson-pool-rental-profit-calculator), which already rounds to the cent.",
+      "did": "Fixed and tested the instance; noted the lesson in the post.",
+      "result": "No new CI guard this run."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-redteam-restaurant-break-even.md"
+  ],
+  "goal": null,
+  "notes": "Campaign 1: restaurant-delivery-commission-analyzer/calc.mjs, 12 mutants, 8 caught; 4 gaps, all now caught (line 456 re-applied by hand after the fix rewrote it). Real defects: two break-even cases (overall net after costs -5.3e-15; promo ratio 0.9999999999999911) read as losses; both fixed by comparing at the cent, failing-first tests (2 of 61 failed on old code). Campaign 2 (random draw): missed-call-textback/twilio.mjs, 7 mutants, 6 caught (3 only via 300 s timeout); escaped `!authToken && !header` accepted an empty-key signature; test added. Overall 19 seeded, 14 caught (0.737), 18 after fixes (0.947). Verification: run_venture_tests.py restaurant-delivery-commission-analyzer missed-call-textback -> 2 suites, 0 failed; check_post_frontmatter and check_post_links clean.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "test": "node --test ventures/restaurant-delivery-commission-analyzer/**/*.test.mjs  (in .)",
+        "seed": 1067084323,
+        "commit": "a89e0da66",
+        "sites": 594,
+        "baseline_seconds": 1.4,
+        "mutants": [
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 32,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "if (u8[0] === 0xff && u8[1] === 0xfe) return new TextDecoder(\"utf-16le\").decode(u8);",
+            "after": "if (u8[0] === 0xff && u8[2] === 0xfe) return new TextDecoder(\"utf-16le\").decode(u8);",
+            "line_text": "  if (u8[0] === 0xff && u8[1] === 0xfe) return new TextDecoder(\"utf-16le\").decode(u8);",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 90,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "if (!/\\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, \"\"))) continue;",
+            "after": "if (!/\\d/.test(s) || /[a-z]{4,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, \"\"))) continue;",
+            "line_text": "      if (!/\\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, \"\"))) continue;",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test had a three-letter word next to an amount; added 'a three-letter word in a cell is text'"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 93,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "if (/,\\d{1,2}$/.test(v) || /\\.\\d{3},/.test(v)) comma += 1;",
+            "after": "if (/,\\d{2,2}$/.test(v) || /\\.\\d{3},/.test(v)) comma += 1;",
+            "line_text": "      if (/,\\d{1,2}$/.test(v) || /\\.\\d{3},/.test(v)) comma += 1;",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test had one digit after a decimal comma ('12,5'); added a test"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 214,
+            "col": 16,
+            "operator": "eq-flip",
+            "before": "if (cols[f] === undefined || isBlank(get(line, f))) return { v: null };",
+            "after": "if (cols[f] !== undefined || isBlank(get(line, f))) return { v: null };",
+            "line_text": "    if (cols[f] === undefined || isBlank(get(line, f))) return { v: null };",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 227,
+            "col": 14,
+            "operator": "false-to-true",
+            "before": "let bad = false;",
+            "after": "let bad = true;",
+            "line_text": "    let bad = false;",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 324,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "if (packaging < 0) return { invalid: \"Packaging cost must be zero or more.\" };",
+            "after": "if (packaging < 1) return { invalid: \"Packaging cost must be zero or more.\" };",
+            "line_text": "  if (packaging < 0) return { invalid: \"Packaging cost must be zero or more.\" };",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 327,
+            "col": 99,
+            "operator": "or-to-and",
+            "before": "const inRange = orders.filter((x) => (opts.from == null || x.t >= opts.from) && (opts.to == null || x.t < opts.to + DAY));",
+            "after": "const inRange = orders.filter((x) => (opts.from == null || x.t >= opts.from) && (opts.to == null && x.t < opts.to + DAY));",
+            "line_text": "  const inRange = orders.filter((x) => (opts.from == null || x.t >= opts.from) && (opts.to == null || x.t < opts.to + DAY));",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 369,
+            "col": 160,
+            "operator": "plus-to-minus",
+            "before": "return { net: dNet, netAfter: dAfter, gain: dAfter - b.netAfter, gainPerOrder: b.orders ? (dAfter - b.netAfter) / b.orders : null, fee: b.gross * directPct + directFlat * b.orders };",
+            "after": "return { net: dNet, netAfter: dAfter, gain: dAfter - b.netAfter, gainPerOrder: b.orders ? (dAfter - b.netAfter) / b.orders : null, fee: b.gross * directPct - directFlat * b.orders };",
+            "line_text": "    return { net: dNet, netAfter: dAfter, gain: dAfter - b.netAfter, gainPerOrder: b.orders ? (dAfter - b.netAfter) / b.orders : null, fee: b.gross * directPct + directFlat * b.orders };",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 400,
+            "col": 53,
+            "operator": "plus-to-minus",
+            "before": "spend, marketing: spendRows.reduce((s, r) => s + r.marketing, 0), ads: spendRows.reduce((s, r) => s + r.ads, 0),",
+            "after": "spend, marketing: spendRows.reduce((s, r) => s - r.marketing, 0), ads: spendRows.reduce((s, r) => s + r.ads, 0),",
+            "line_text": "      spend, marketing: spendRows.reduce((s, r) => s + r.marketing, 0), ads: spendRows.reduce((s, r) => s + r.ads, 0),",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: promo.marketing and promo.ads were never asserted, only their total; added a test"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 456,
+            "col": 35,
+            "operator": "lt-to-le",
+            "before": "if (s.costsEntered && s.netAfter < 0) {",
+            "after": "if (s.costsEntered && s.netAfter <= 0) {",
+            "line_text": "  if (s.costsEntered && s.netAfter < 0) {",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": null,
+            "note": "gap: no case where net after costs is exactly 0; the fix changed this line to cents(s.netAfter) < 0, and the exact-zero test fails the <= mutant of the new line [rerun: line changed; triage by hand]; rerun reported the line changed, so the <= mutant was re-applied by hand to the new line (sed) and test 60 failed (1 of 61), then the file was restored [rerun: line changed; triage by hand]"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 469,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "if (dp.length >= 2) {",
+            "after": "if (dp.length >= 3) {",
+            "line_text": "  if (dp.length >= 2) {",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 470,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "const a = dp[0], b = dp[dp.length - 1];",
+            "after": "const a = dp[0], b = dp[dp.length - 2];",
+            "line_text": "    const a = dp[0], b = dp[dp.length - 1];",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/missed-call-textback/twilio.mjs",
+        "test": "node --test ventures/missed-call-textback/**/*.test.mjs  (in .)",
+        "seed": 503465456,
+        "commit": "54bd121ca",
+        "sites": 7,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/missed-call-textback/twilio.mjs",
+            "line": 7,
+            "col": 19,
+            "operator": "plus-to-minus",
+            "before": "const data = url + Object.keys(params).sort().map((k) => k + params[k]).join(\"\");",
+            "after": "const data = url - Object.keys(params).sort().map((k) => k + params[k]).join(\"\");",
+            "line_text": "  const data = url + Object.keys(params).sort().map((k) => k + params[k]).join(\"\");",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": "caught only by the 300 s suite timeout (server tests hang), not by an assertion; see the open run_suite killpg entry (PR #15945)"
+          },
+          {
+            "file": "ventures/missed-call-textback/twilio.mjs",
+            "line": 7,
+            "col": 61,
+            "operator": "plus-to-minus",
+            "before": "const data = url + Object.keys(params).sort().map((k) => k + params[k]).join(\"\");",
+            "after": "const data = url + Object.keys(params).sort().map((k) => k - params[k]).join(\"\");",
+            "line_text": "  const data = url + Object.keys(params).sort().map((k) => k + params[k]).join(\"\");",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/missed-call-textback/twilio.mjs",
+            "line": 11,
+            "col": 17,
+            "operator": "or-to-and",
+            "before": "if (!authToken || !header) return false;",
+            "after": "if (!authToken && !header) return false;",
+            "line_text": "  if (!authToken || !header) return false;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap (security): no test called validSignature with an empty auth token, so `!authToken && !header` accepted a signature forged with an empty HMAC key (TWILIO_AUTH_TOKEN set empty, REQUIRE_SIGNATURE=1). Added an assertion in server.test.mjs."
+          },
+          {
+            "file": "ventures/missed-call-textback/twilio.mjs",
+            "line": 11,
+            "col": 36,
+            "operator": "false-to-true",
+            "before": "if (!authToken || !header) return false;",
+            "after": "if (!authToken || !header) return true;",
+            "line_text": "  if (!authToken || !header) return false;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/missed-call-textback/twilio.mjs",
+            "line": 13,
+            "col": 18,
+            "operator": "eq-flip",
+            "before": "return a.length === b.length && timingSafeEqual(a, b);",
+            "after": "return a.length !== b.length && timingSafeEqual(a, b);",
+            "line_text": "  return a.length === b.length && timingSafeEqual(a, b);",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": "caught only by the 300 s suite timeout (server tests hang), not by an assertion; see the open run_suite killpg entry (PR #15945)"
+          },
+          {
+            "file": "ventures/missed-call-textback/twilio.mjs",
+            "line": 13,
+            "col": 31,
+            "operator": "and-to-or",
+            "before": "return a.length === b.length && timingSafeEqual(a, b);",
+            "after": "return a.length === b.length || timingSafeEqual(a, b);",
+            "line_text": "  return a.length === b.length && timingSafeEqual(a, b);",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": "caught only by the 300 s suite timeout (server tests hang), not by an assertion; see the open run_suite killpg entry (PR #15945)"
+          },
+          {
+            "file": "ventures/missed-call-textback/twilio.mjs",
+            "line": 25,
+            "col": 39,
+            "operator": "plus-to-minus",
+            "before": "headers: { Authorization: \"Basic \" + Buffer.from(`${accountSid}:${authToken}`).toString(\"base64\"), \"Content-Type\": \"application/x-www-form-urlencoded\" },",
+            "after": "headers: { Authorization: \"Basic \" - Buffer.from(`${accountSid}:${authToken}`).toString(\"base64\"), \"Content-Type\": \"application/x-www-form-urlencoded\" },",
+            "line_text": "    headers: { Authorization: \"Basic \" + Buffer.from(`${accountSid}:${authToken}`).toString(\"base64\"), \"Content-Type\": \"application/x-www-form-urlencoded\" },",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "issue": "The 'Delivery lost money overall' finding compared summed float net-after-costs with 0 directly, so three break-even orders (10.10 subtotal, 0.30 commission, 9.80 packaging) summing to -5.3e-15 showed both 'No order lost money' and 'Delivery lost money overall ... Net after costs is $0.00'. Fixed: compared at the cent.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16076"
+      },
+      {
+        "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "issue": "The promotions finding flagged an exact break-even as high ('$1.00 of profit per $1 spent ... the spend cost more than these orders earned') because the ratio was 0.9999999999999911. Fixed: promo carries profitBeforeSpend in dollars and the finding compares it with spend at the cent.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16076"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bda72cd8-0c91-5920-8b80-d58e431a5919",
+    "transcripts": 1,
+    "first": "2026-11-15T03:06:31Z",
+    "last": "2026-11-15T03:26:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 109,
+        "output": 21283,
+        "thinking": 4023,
+        "cache_read": 5198163,
+        "cache_write_5m": 0,
+        "cache_write_1h": 99045,
+        "api_equivalent_usd": 2.2581,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 109,
+      "output": 21283,
+      "thinking": 4023,
+      "cache_read": 5198163,
+      "cache_write_5m": 0,
+      "cache_write_1h": 99045,
+      "api_equivalent_usd": 2.2581,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.45,
+      "active_minutes": 20.45,
+      "model_minutes": 4.28,
+      "tool_minutes": 16.17,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "two mutation campaigns, two float-boundary bug repros and fixes with tests, a security test gap, and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 132.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

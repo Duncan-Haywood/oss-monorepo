@@ -2,7 +2,7 @@
 
 A follow-up to `research/robofab-solrefmap` (track `robofab`; its "separate timestep from `solref` in a full grid" next step). `robofab-solrefmap` tied the timestep to `solref` in its main grid and fixed it in its scan. Here the same jaw test (one part, the cover) is run over a full grid of `solref` and timestep at 400 and 800 m/s^2, then over a finer timestep ladder at three (acceleration, `solref`) pairs. I do not simulate an arm, only a prescribed constant upward acceleration of the jaws. All numbers are from `experiments/results.txt`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-solreftimestep/
+**Live page:** https://marisstella.app/research/robofab-solreftimestep/
 
 - **Neither a small `solref` nor a small timestep is enough alone; a coarse timestep always fails.** In the grid (solref 0.5, 0.3, 0.2 ms x timestep 0.4, 0.2, 0.1, 0.05 ms, two accelerations: 24 cells) the test reproduces the bound (ratio 1.01 to 1.02) in 6 cells; the other 18 return "none" (no force up to 60 N holds). No cell with timestep 0.4 ms holds, and no cell with `solref` 0.5 ms holds.
 - **Timestep above `solref`/2 is clamped by MuJoCo.** With the default `refsafe` option, the effective time constant is max(`solref`, 2 x timestep) (my reading of the MuJoCo documentation; the effective values are printed in `results.txt`, but I did not test the option off). Every ladder cell whose effective constant is above 0.2 ms fails at 800 m/s^2 (6 of 6 cells in the two 800 m/s^2 ladder rows with a timestep of at least 0.15 ms), consistent with `robofab-solrefmap`'s finding that only `solref` of 0.2 ms or below holds there.
@@ -44,6 +44,7 @@ Regenerate with `python experiments/figure.py` (parses `results.txt`).
 - The `refsafe` explanation is from documentation, not tested. The non-monotone timestep behaviour is unexplained and might be an artefact of this test harness rather than of MuJoCo's contact model.
 - Only MuJoCo 3.16.0, default `solimp`, `solref` damping ratio 1. Single deterministic runs; no seeds are involved.
 - Simulation only; no claim about a real gripper.
+- **Known gap (quality census 2026-11-17, [audit](../../portfolio/quality/audits/2026-11-17-robofab-solreftimestep.json)):** in 13 of the 15 failing ladder cells, "fails" is a creep of 2.1 to 3.6 mm that does not change with grip force and keeps contact, crossing the fixed 2 mm criterion, not a loss of grip (at 800 m/s^2, `solref` 0.2 ms, timestep 0.05 ms: 2.794 mm at both 2x and 10x the friction bound). The "none holds up to 60 N" cells should be read as "creeps past 2 mm", and the recommended `solref` 0.1 ms also exceeds 2 mm once the move lasts 0.2 s instead of 0.05 s. Reporting the worst displacement per cell, and a criterion that separates creep from slip, is the next fix. The same audit ran `refsafe` equal-effective-constant pairs and found identical trajectories, which supports the clamp reading above.
 
 ## Next steps
 

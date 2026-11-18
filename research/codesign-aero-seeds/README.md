@@ -2,7 +2,7 @@
 
 Seed-repeat follow-up to `codesign-aero-robust` (track 14, `codesign`; its "Next steps" asked for this). The same 50-airframe grid, the same three-gain roll controller and the same wide randomised plant, but the whole pipeline (CMA-ES seed, training episodes, held-out episodes) is repeated six times, so the ranks get intervals. Produced with AI assistance (Claude). **Stylised simulation: every constant and randomisation range is an assumed round number; roll axis only; no hardware, no PX4/ArduPilot software-in-the-loop. Six replicates is small: the intervals are ranges, not confidence intervals.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-seeds/
+**Live page:** https://marisstella.app/research/codesign-aero-seeds/
 
 ![Mean and min-max band of wide-plant RMS error per airframe over six replicates](experiments/seeds.png)
 
@@ -32,6 +32,7 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy cma matplotlib)
 RECUV and the Autonomous Systems IRT (UAV simulation, safe autonomy), as direction only; no paper of theirs is reproduced and nothing is affiliated with or endorsed by them.
 
 ## Limitations
+- **Known defect, not yet re-run (quality fix 2026-11-15, [parent audit](../../portfolio/quality/audits/2026-11-15-codesign-aero.json)).** `size()` here is a copy of `codesign-aero`'s and, like it, never checks that the 60-step mass closure converged. On a 40x40 grid of (L, D), 36 of the 1,071 points it calls feasible have no fixed point (no battery mass gives 15 min of hover) and are scored at an arbitrary mass. At this project's 9x9 grid values, the quoted winner L 0.190 m, D 0.101 m (exactly 0.19, 0.10125) has no fixed point, so 3 of the 6 nominal|wide replicate winners are not real designs; L 0.162 m (0.1625) does close. The parent now requires a closed mass (`closed` in `codesign-aero/src/codesign_aero/aero.py`); until this copy does the same and is re-run, treat rankings that touch the small-prop edge as unverified.
 - Six replicates; the "range" and "within 2 SE" figures are descriptive and the SE rests on n = 6.
 - The grid is coarse (9×9); neighbouring cells differ by less than the noise, so a finer grid would not resolve the ordering without more replicates.
 - The randomisation ranges are assumptions, the three-gain linear law is simple, and only roll is modelled. Not a safety case; no weapons or harmful payloads are modelled.

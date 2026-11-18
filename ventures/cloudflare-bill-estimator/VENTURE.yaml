@@ -1,5 +1,5 @@
 name: cloudflare-bill-estimator
-description: 'Free, zero-network, zero-dependency browser tool + CLI that estimates a monthly Cloudflare Workers, KV and R2 bill from the user''s own dashboard usage numbers (Worker requests and CPU time, KV reads and writes, R2 storage and Class A/B operations) at editable approximate list prices, allowances and the Workers Paid minimum, and ranks the changes that cut it most (edge caching, CPU trimming, KV read caching, redundant KV writes, R2 lifecycle, R2 write batching, CDN in front of R2) with a dollar saving each; accepts a product,usage CSV and a --budget CI gate. A deterministic calculator over the user''s inputs, not a bill reader and not a guarantee of spend.'
+description: 'Free, zero-network, zero-dependency browser tool + CLI that estimates a monthly Cloudflare Workers, KV and R2 bill from the user''s own dashboard usage numbers (Worker requests and CPU time, KV reads and writes, R2 storage and Class A/B operations) at editable approximate list prices, allowances and the Workers Paid subscription (added on top of usage), and ranks the changes that cut it most (edge caching, CPU trimming, KV read caching, redundant KV writes, R2 lifecycle, R2 write batching, CDN in front of R2) with a dollar saving each; accepts a product,usage CSV and a --budget CI gate. A deterministic calculator over the user''s inputs, not a bill reader and not a guarantee of spend.'
 stage: prototype
 
 owner: duncan
@@ -45,5 +45,5 @@ kill_criteria:
   - No external repository is found wiring cli.mjs into its own CI within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/cloudflare-bill-estimator/
+  production: https://marisstella.app/cloudflare-bill-estimator/
   analytics: null

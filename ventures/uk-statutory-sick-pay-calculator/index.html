@@ -143,7 +143,7 @@
       $("#rows").innerHTML = r.rows.length ? r.rows.map((x) => `<tr><td>${esc(x.era)}</td><td class="n">${x.days}</td><td class="n">${gbp(x.daily)}</td><td class="n">${gbp(x.amount)}</td></tr>`).join("") + `<tr class="total"><td>Total</td><td class="n">${r.paidDays}</td><td></td><td class="n">${gbp(r.total)}</td></tr>` : `<tr><td colspan="4">No SSP is payable for these dates.</td></tr>`;
       report.hidden = false;
       status.textContent = "Done. Verify the rate on GOV.UK before paying.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

@@ -1,0 +1,304 @@
+# Lane limits on the 28 season lengths with a stored lane answer (bowling-lane-table.mjs), 2026-11-18.
+# node eval/bowling-avoid-shapes-grid.mjs: search = assignLanes(..., { shapes: false }); page = bowlingSchedule().
+# Limited teams are spread over the league ((t * 7 + 3) mod n), not the shape slots, so the page's dealing is exercised.
+# Before the shape answers: page = search, 60 of 112 every team in target, 100 counts off. With the first 171 answers
+# (slots 0, 1, ...): page 106 of 112, 14 off. Re-run 2026-11-18 with the answers on other slots and the 5 former
+# timeouts (eval/bowling-avoid-slots.txt): page 112 of 112.
+
+teams weeks | kind | search: in-target off violations ms | page: in-target off violations ms
+12 18 | one team, last pair | 12/12 0 0 402 | 12/12 0 0 279
+12 18 | two teams, last pair | 12/12 0 0 300 | 12/12 0 0 322
+12 18 | one team, both ends | 12/12 0 0 340 | 12/12 0 0 319
+12 18 | three teams, a random pair each | 12/12 0 0 328 | 12/12 0 0 336
+12 24 | one team, last pair | 12/12 0 0 588 | 12/12 0 0 702
+12 24 | two teams, last pair | 12/12 0 0 409 | 12/12 0 0 416
+12 24 | one team, both ends | 12/12 0 0 473 | 12/12 0 0 582
+12 24 | three teams, a random pair each | 12/12 0 0 645 | 12/12 0 0 435
+12 30 | one team, last pair | 12/12 0 0 506 | 12/12 0 0 538
+12 30 | two teams, last pair | 12/12 0 0 512 | 12/12 0 0 537
+12 30 | one team, both ends | 12/12 0 0 506 | 12/12 0 0 490
+12 30 | three teams, a random pair each | 12/12 0 0 503 | 12/12 0 0 513
+14 14 | one team, last pair | 13/14 1 0 1985 | 14/14 0 0 300
+14 14 | two teams, last pair | 14/14 0 0 878 | 14/14 0 0 358
+14 14 | one team, both ends | 14/14 0 0 1194 | 14/14 0 0 328
+14 14 | three teams, a random pair each | 14/14 0 0 362 | 14/14 0 0 334
+14 21 | one team, last pair | 14/14 0 0 1101 | 14/14 0 0 493
+14 21 | two teams, last pair | 14/14 0 0 493 | 14/14 0 0 495
+14 21 | one team, both ends | 14/14 0 0 526 | 14/14 0 0 608
+14 21 | three teams, a random pair each | 14/14 0 0 545 | 14/14 0 0 546
+14 28 | one team, last pair | 14/14 0 0 1824 | 14/14 0 0 796
+14 28 | two teams, last pair | 14/14 0 0 901 | 14/14 0 0 761
+14 28 | one team, both ends | 14/14 0 0 695 | 14/14 0 0 695
+14 28 | three teams, a random pair each | 14/14 0 0 722 | 14/14 0 0 651
+14 35 | one team, last pair | 14/14 0 0 1717 | 14/14 0 0 1064
+14 35 | two teams, last pair | 14/14 0 0 814 | 14/14 0 0 895
+14 35 | one team, both ends | 14/14 0 0 860 | 14/14 0 0 954
+14 35 | three teams, a random pair each | 14/14 0 0 837 | 14/14 0 0 1090
+16 16 | one team, last pair | 14/16 2 0 3531 | 16/16 0 0 470
+16 16 | two teams, last pair | 16/16 0 0 1132 | 16/16 0 0 569
+16 16 | one team, both ends | 15/16 1 0 3161 | 16/16 0 0 502
+16 16 | three teams, a random pair each | 16/16 0 0 1015 | 16/16 0 0 711
+16 24 | one team, last pair | 15/16 1 0 3495 | 16/16 0 0 783
+16 24 | two teams, last pair | 16/16 0 0 871 | 16/16 0 0 778
+16 24 | one team, both ends | 16/16 0 0 871 | 16/16 0 0 878
+16 24 | three teams, a random pair each | 16/16 0 0 970 | 16/16 0 0 799
+16 32 | one team, last pair | 16/16 0 0 996 | 16/16 0 0 1035
+16 32 | two teams, last pair | 16/16 0 0 1012 | 16/16 0 0 1135
+16 32 | one team, both ends | 16/16 0 0 1185 | 16/16 0 0 1311
+16 32 | three teams, a random pair each | 16/16 0 0 1766 | 16/16 0 0 1122
+18 8 | one team, last pair | 17/18 1 0 2357 | 18/18 0 0 1
+18 8 | two teams, last pair | 16/18 2 0 2107 | 18/18 0 0 1
+18 8 | one team, both ends | 17/18 1 0 2304 | 18/18 0 0 1
+18 8 | three teams, a random pair each | 17/18 1 0 2199 | 18/18 0 0 1
+18 17 | one team, last pair | 18/18 0 0 1385 | 18/18 0 0 677
+18 17 | two teams, last pair | 18/18 0 0 1617 | 18/18 0 0 698
+18 17 | one team, both ends | 17/18 1 0 2367 | 18/18 0 0 639
+18 17 | three teams, a random pair each | 17/18 1 0 3177 | 18/18 0 0 745
+18 18 | one team, last pair | 16/18 3 0 3199 | 18/18 0 0 653
+18 18 | two teams, last pair | 16/18 2 0 2988 | 18/18 0 0 742
+18 18 | one team, both ends | 16/18 2 0 3020 | 18/18 0 0 714
+18 18 | three teams, a random pair each | 18/18 0 0 1739 | 18/18 0 0 913
+18 27 | one team, last pair | 17/18 1 0 3753 | 18/18 0 0 1203
+18 27 | two teams, last pair | 18/18 0 0 3596 | 18/18 0 0 1293
+18 27 | one team, both ends | 17/18 1 0 3416 | 18/18 0 0 1197
+18 27 | three teams, a random pair each | 18/18 0 0 1131 | 18/18 0 0 1190
+18 36 | one team, last pair | 17/18 1 0 4054 | 18/18 0 0 1548
+18 36 | two teams, last pair | 18/18 0 0 3453 | 18/18 0 0 1704
+18 36 | one team, both ends | 18/18 0 0 3484 | 18/18 0 0 1759
+18 36 | three teams, a random pair each | 18/18 0 0 1731 | 18/18 0 0 1524
+20 9 | one team, last pair | 19/20 1 0 2785 | 20/20 0 0 0
+20 9 | two teams, last pair | 17/20 4 0 2826 | 20/20 0 0 1
+20 9 | one team, both ends | 19/20 1 0 2802 | 20/20 0 0 378
+20 9 | three teams, a random pair each | 18/20 2 0 2795 | 20/20 0 0 391
+20 11 | one team, last pair | 19/20 1 0 2593 | 20/20 0 0 464
+20 11 | two teams, last pair | 20/20 0 0 1468 | 20/20 0 0 1415
+20 11 | one team, both ends | 20/20 0 0 2682 | 20/20 0 0 2289
+20 11 | three teams, a random pair each | 19/20 1 0 2570 | 20/20 0 0 1
+20 19 | one team, last pair | 19/20 1 0 3316 | 20/20 0 0 1035
+20 19 | two teams, last pair | 20/20 0 0 2155 | 20/20 0 0 2187
+20 19 | one team, both ends | 17/20 3 0 3561 | 20/20 0 0 995
+20 19 | three teams, a random pair each | 19/20 1 0 3431 | 20/20 0 0 1011
+20 20 | one team, last pair | 15/20 5 0 3291 | 20/20 0 0 910
+20 20 | two teams, last pair | 16/20 4 0 3425 | 20/20 0 0 911
+20 20 | one team, both ends | 17/20 3 0 3288 | 20/20 0 0 903
+20 20 | three teams, a random pair each | 19/20 1 0 3587 | 20/20 0 0 1042
+20 21 | one team, last pair | 19/20 1 0 3370 | 20/20 0 0 1056
+20 21 | two teams, last pair | 19/20 1 0 3397 | 20/20 0 0 1331
+20 21 | one team, both ends | 20/20 0 0 3225 | 20/20 0 0 3518
+20 21 | three teams, a random pair each | 20/20 0 0 2555 | 20/20 0 0 2562
+20 29 | one team, last pair | 20/20 0 0 3516 | 20/20 0 0 4221
+20 29 | two teams, last pair | 20/20 0 0 3396 | 20/20 0 0 3102
+20 29 | one team, both ends | 20/20 0 0 3303 | 20/20 0 0 3451
+20 29 | three teams, a random pair each | 20/20 0 0 3495 | 20/20 0 0 3285
+20 30 | one team, last pair | 15/20 5 0 4511 | 20/20 0 0 1637
+20 30 | two teams, last pair | 17/20 3 0 2647 | 20/20 0 0 1567
+20 30 | one team, both ends | 19/20 2 0 4180 | 20/20 0 0 1718
+20 30 | three teams, a random pair each | 20/20 0 0 3710 | 20/20 0 0 1567
+20 40 | one team, last pair | 18/20 2 0 5179 | 20/20 0 0 2149
+20 40 | two teams, last pair | 20/20 0 0 4988 | 20/20 0 0 5192
+20 40 | one team, both ends | 19/20 1 0 5337 | 20/20 0 0 2126
+20 40 | three teams, a random pair each | 20/20 0 0 4736 | 20/20 0 0 4743
+22 12 | one team, last pair | 21/22 1 0 2779 | 22/22 0 0 666
+22 12 | two teams, last pair | 21/22 1 0 2597 | 22/22 0 0 649
+22 12 | one team, both ends | 21/22 1 0 2597 | 22/22 0 0 627
+22 12 | three teams, a random pair each | 21/22 1 0 2727 | 22/22 0 0 610
+22 22 | one team, last pair | 16/22 7 0 4034 | 22/22 0 0 1169
+22 22 | two teams, last pair | 18/22 4 0 4421 | 22/22 0 0 1594
+22 22 | one team, both ends | 18/22 5 0 3973 | 22/22 0 0 1178
+22 22 | three teams, a random pair each | 19/22 3 0 3977 | 22/22 0 0 1215
+22 23 | one team, last pair | 21/22 1 0 3950 | 22/22 0 0 1696
+22 23 | two teams, last pair | 20/22 2 0 4051 | 22/22 0 0 1456
+22 23 | one team, both ends | 21/22 1 0 3889 | 22/22 0 0 1452
+22 23 | three teams, a random pair each | 22/22 0 0 3181 | 22/22 0 0 3202
+22 32 | one team, last pair | 21/22 1 0 5573 | 22/22 0 0 2300
+22 32 | two teams, last pair | 22/22 0 0 4955 | 22/22 0 0 4833
+22 32 | one team, both ends | 22/22 0 0 4794 | 22/22 0 0 4714
+22 32 | three teams, a random pair each | 22/22 0 0 5307 | 22/22 0 0 5115
+24 13 | one team, last pair | 22/24 2 0 2066 | 24/24 0 0 836
+24 13 | two teams, last pair | 22/24 2 0 2523 | 24/24 0 0 751
+24 13 | one team, both ends | 22/24 2 0 2788 | 24/24 0 0 877
+24 13 | three teams, a random pair each | 23/24 1 0 2950 | 24/24 0 0 754
+
+112 seasons (0 with no deal left out): every team in target, search 60, page 112; off-target counts search 100, page 0; limits broken search 0, page 0
+ms per season: search 2458, page 1214 (24 x 13 rows re-run after its last shape answer)
+
+# SAT answers per shape (python3 eval/bowling-avoid-shapes.py; CaDiCaL 1.5.3 via python-sat, 4 cores shared,
+# timeout 300 s for the grid's misses, 120 s for the extra 12-18 team shapes). TIMEOUT = no answer, left to the search.
+12 teams x 18 weeks, shape 0:0,1: SAT in 0.0 s
+12 teams x 18 weeks, shape 0:0,1;1:0,1: SAT in 0.0 s
+12 teams x 18 weeks, shape 0:0,1;1:0: SAT in 0.2 s
+12 teams x 18 weeks, shape 0:0: SAT in 0.1 s
+12 teams x 18 weeks, shape 0:0;1:0: SAT in 0.0 s
+12 teams x 18 weeks, shape 0:0;1:0;2:0: SAT in 0.0 s
+12 teams x 18 weeks, shape 0:0;1:0;2:1: SAT in 0.1 s
+12 teams x 18 weeks, shape 0:0;1:1: SAT in 0.0 s
+12 teams x 18 weeks, shape 0:0;1:1;2:2: SAT in 0.0 s
+12 teams x 24 weeks, shape 0:0,1: SAT in 0.2 s
+12 teams x 24 weeks, shape 0:0,1;1:0,1: SAT in 0.1 s
+12 teams x 24 weeks, shape 0:0,1;1:0: SAT in 0.5 s
+12 teams x 24 weeks, shape 0:0: SAT in 1.3 s
+12 teams x 24 weeks, shape 0:0;1:0: SAT in 0.5 s
+12 teams x 24 weeks, shape 0:0;1:0;2:0: SAT in 0.0 s
+12 teams x 24 weeks, shape 0:0;1:0;2:1: SAT in 0.2 s
+12 teams x 24 weeks, shape 0:0;1:1: SAT in 0.1 s
+12 teams x 24 weeks, shape 0:0;1:1;2:2: SAT in 0.2 s
+12 teams x 30 weeks, shape 0:0,1: SAT in 0.1 s
+12 teams x 30 weeks, shape 0:0,1;1:0,1: SAT in 0.6 s
+12 teams x 30 weeks, shape 0:0,1;1:0: SAT in 0.1 s
+12 teams x 30 weeks, shape 0:0: SAT in 0.7 s
+12 teams x 30 weeks, shape 0:0;1:0: SAT in 1.8 s
+12 teams x 30 weeks, shape 0:0;1:0;2:0: SAT in 0.1 s
+12 teams x 30 weeks, shape 0:0;1:0;2:1: SAT in 0.4 s
+12 teams x 30 weeks, shape 0:0;1:1: SAT in 0.8 s
+12 teams x 30 weeks, shape 0:0;1:1;2:2: SAT in 3.1 s
+14 teams x 14 weeks, shape 0:0,1: SAT in 0.2 s
+14 teams x 14 weeks, shape 0:0,1;1:0,1: SAT in 0.0 s
+14 teams x 14 weeks, shape 0:0,1;1:0: SAT in 0.1 s
+14 teams x 14 weeks, shape 0:0: SAT in 1.0 s
+14 teams x 14 weeks, shape 0:0;1:0: SAT in 1.5 s
+14 teams x 14 weeks, shape 0:0;1:0;2:0: SAT in 0.7 s
+14 teams x 14 weeks, shape 0:0;1:0;2:1: SAT in 0.3 s
+14 teams x 14 weeks, shape 0:0;1:1: SAT in 0.2 s
+14 teams x 14 weeks, shape 0:0;1:1;2:2: SAT in 0.1 s
+14 teams x 21 weeks, shape 0:0,1: SAT in 0.4 s
+14 teams x 21 weeks, shape 0:0,1;1:0,1: SAT in 0.1 s
+14 teams x 21 weeks, shape 0:0,1;1:0: SAT in 0.4 s
+14 teams x 21 weeks, shape 0:0: SAT in 1.2 s
+14 teams x 21 weeks, shape 0:0;1:0: SAT in 0.9 s
+14 teams x 21 weeks, shape 0:0;1:0;2:0: SAT in 0.9 s
+14 teams x 21 weeks, shape 0:0;1:0;2:1: SAT in 0.6 s
+14 teams x 21 weeks, shape 0:0;1:1: SAT in 0.5 s
+14 teams x 21 weeks, shape 0:0;1:1;2:2: SAT in 0.6 s
+14 teams x 28 weeks, shape 0:0,1: SAT in 0.8 s
+14 teams x 28 weeks, shape 0:0,1;1:0,1: SAT in 0.1 s
+14 teams x 28 weeks, shape 0:0,1;1:0: SAT in 2.6 s
+14 teams x 28 weeks, shape 0:0: SAT in 2.7 s
+14 teams x 28 weeks, shape 0:0;1:0: SAT in 2.8 s
+14 teams x 28 weeks, shape 0:0;1:0;2:0: SAT in 0.3 s
+14 teams x 28 weeks, shape 0:0;1:0;2:1: SAT in 1.2 s
+14 teams x 28 weeks, shape 0:0;1:1: SAT in 0.8 s
+14 teams x 28 weeks, shape 0:0;1:1;2:2: SAT in 0.8 s
+14 teams x 35 weeks, shape 0:0,1: SAT in 0.7 s
+14 teams x 35 weeks, shape 0:0,1;1:0,1: SAT in 0.1 s
+14 teams x 35 weeks, shape 0:0,1;1:0: SAT in 1.1 s
+14 teams x 35 weeks, shape 0:0: SAT in 1.2 s
+14 teams x 35 weeks, shape 0:0;1:0: SAT in 1.0 s
+14 teams x 35 weeks, shape 0:0;1:0;2:0: SAT in 0.8 s
+14 teams x 35 weeks, shape 0:0;1:0;2:1: SAT in 1.0 s
+14 teams x 35 weeks, shape 0:0;1:1: SAT in 1.3 s
+14 teams x 35 weeks, shape 0:0;1:1;2:2: SAT in 0.9 s
+16 teams x 16 weeks, shape 0:0,1: SAT in 6.7 s
+16 teams x 16 weeks, shape 0:0,1;1:0,1: SAT in 0.1 s
+16 teams x 16 weeks, shape 0:0,1;1:0: SAT in 0.7 s
+16 teams x 16 weeks, shape 0:0: SAT in 3.1 s
+16 teams x 16 weeks, shape 0:0;1:0: SAT in 1.4 s
+16 teams x 16 weeks, shape 0:0;1:0;2:0: SAT in 1.4 s
+16 teams x 16 weeks, shape 0:0;1:0;2:1: SAT in 0.4 s
+16 teams x 16 weeks, shape 0:0;1:1: SAT in 1.5 s
+16 teams x 16 weeks, shape 0:0;1:1;2:2: SAT in 0.4 s
+16 teams x 24 weeks, shape 0:0,1: SAT in 0.6 s
+16 teams x 24 weeks, shape 0:0,1;1:0,1: SAT in 0.5 s
+16 teams x 24 weeks, shape 0:0,1;1:0: SAT in 2.2 s
+16 teams x 24 weeks, shape 0:0: SAT in 24.2 s
+16 teams x 24 weeks, shape 0:0;1:0: SAT in 6.8 s
+16 teams x 24 weeks, shape 0:0;1:0;2:0: SAT in 10.3 s
+16 teams x 24 weeks, shape 0:0;1:0;2:1: SAT in 0.5 s
+16 teams x 24 weeks, shape 0:0;1:1: SAT in 34.5 s
+16 teams x 24 weeks, shape 0:0;1:1;2:2: SAT in 0.3 s
+16 teams x 32 weeks, shape 0:0,1: SAT in 0.9 s
+16 teams x 32 weeks, shape 0:0,1;1:0,1: SAT in 0.1 s
+16 teams x 32 weeks, shape 0:0,1;1:0: SAT in 3.1 s
+16 teams x 32 weeks, shape 0:0: SAT in 2.6 s
+16 teams x 32 weeks, shape 0:0;1:0: SAT in 3.0 s
+16 teams x 32 weeks, shape 0:0;1:0;2:0: SAT in 2.6 s
+16 teams x 32 weeks, shape 0:0;1:0;2:1: SAT in 2.5 s
+16 teams x 32 weeks, shape 0:0;1:1: SAT in 0.9 s
+16 teams x 32 weeks, shape 0:0;1:1;2:2: SAT in 3.0 s
+18 teams x 17 weeks, shape 0:0,1: SAT in 5.1 s
+18 teams x 17 weeks, shape 0:0,1;1:0,1: SAT in 7.2 s
+18 teams x 17 weeks, shape 0:0,1;1:0: SAT in 1.4 s
+18 teams x 17 weeks, shape 0:0: SAT in 5.4 s
+18 teams x 17 weeks, shape 0:0;1:0: SAT in 5.0 s
+18 teams x 17 weeks, shape 0:0;1:0;2:0: SAT in 4.9 s
+18 teams x 17 weeks, shape 0:0;1:0;2:1: SAT in 1.1 s
+18 teams x 17 weeks, shape 0:0;1:1: SAT in 16.6 s
+18 teams x 17 weeks, shape 0:0;1:1;2:2: SAT in 10.0 s
+18 teams x 18 weeks, shape 0:0,1: SAT in 2.1 s
+18 teams x 18 weeks, shape 0:0,1;1:0,1: SAT in 7.6 s
+18 teams x 18 weeks, shape 0:0,1;1:0: SAT in 1.4 s
+18 teams x 18 weeks, shape 0:0: SAT in 4.8 s
+18 teams x 18 weeks, shape 0:0;1:0: SAT in 2.5 s
+18 teams x 18 weeks, shape 0:0;1:0;2:0: SAT in 4.3 s
+18 teams x 18 weeks, shape 0:0;1:0;2:1: SAT in 4.4 s
+18 teams x 18 weeks, shape 0:0;1:1: SAT in 8.4 s
+18 teams x 18 weeks, shape 0:0;1:1;2:2: SAT in 1.6 s
+18 teams x 27 weeks, shape 0:0,1: SAT in 6.1 s
+18 teams x 27 weeks, shape 0:0,1;1:0,1: SAT in 0.7 s
+18 teams x 27 weeks, shape 0:0,1;1:0: SAT in 1.0 s
+18 teams x 27 weeks, shape 0:0: SAT in 48.0 s
+18 teams x 27 weeks, shape 0:0;1:0: SAT in 9.0 s
+18 teams x 27 weeks, shape 0:0;1:0;2:0: SAT in 10.5 s
+18 teams x 27 weeks, shape 0:0;1:0;2:1: SAT in 0.9 s
+18 teams x 27 weeks, shape 0:0;1:1: SAT in 39.3 s
+18 teams x 27 weeks, shape 0:0;1:1;2:2: SAT in 2.4 s
+18 teams x 36 weeks, shape 0:0,1: SAT in 2.8 s
+18 teams x 36 weeks, shape 0:0,1;1:0,1: SAT in 1.2 s
+18 teams x 36 weeks, shape 0:0,1;1:0: SAT in 1.7 s
+18 teams x 36 weeks, shape 0:0: SAT in 14.4 s
+18 teams x 36 weeks, shape 0:0;1:0: SAT in 13.9 s
+18 teams x 36 weeks, shape 0:0;1:0;2:0: SAT in 73.7 s
+18 teams x 36 weeks, shape 0:0;1:0;2:1: SAT in 1.1 s
+18 teams x 36 weeks, shape 0:0;1:1: SAT in 14.9 s
+18 teams x 36 weeks, shape 0:0;1:1;2:2: SAT in 1.6 s
+18 teams x 8 weeks, shape 0:0,1: SAT in 1.5 s
+18 teams x 8 weeks, shape 0:0,1;1:0,1: UNSAT in 0.0 s
+18 teams x 8 weeks, shape 0:0,1;1:0: SAT in 1.3 s
+18 teams x 8 weeks, shape 0:0: SAT in 1.0 s
+18 teams x 8 weeks, shape 0:0;1:0: SAT in 0.4 s
+18 teams x 8 weeks, shape 0:0;1:0;2:0: SAT in 4.5 s
+18 teams x 8 weeks, shape 0:0;1:0;2:1: SAT in 0.9 s
+18 teams x 8 weeks, shape 0:0;1:1: SAT in 1.4 s
+18 teams x 8 weeks, shape 0:0;1:1;2:1: SAT in 1.0 s
+18 teams x 8 weeks, shape 0:0;1:1;2:2: SAT in 3.7 s
+20 teams x 11 weeks, shape 0:0,1;1:2: SAT in 3.7 s
+20 teams x 11 weeks, shape 0:0: SAT in 4.1 s
+20 teams x 19 weeks, shape 0:0,1: SAT in 7.7 s
+20 teams x 19 weeks, shape 0:0: SAT in 48.5 s
+20 teams x 19 weeks, shape 0:0;1:1;2:2: SAT in 37.7 s
+20 teams x 20 weeks, shape 0:0,1: SAT in 8.8 s
+20 teams x 20 weeks, shape 0:0: SAT in 17.9 s
+20 teams x 20 weeks, shape 0:0;1:0: SAT in 31.9 s
+20 teams x 20 weeks, shape 0:0;1:1;2:2: SAT in 4.5 s
+20 teams x 21 weeks, shape 0:0: SAT in 18.4 s
+20 teams x 21 weeks, shape 0:0;1:0: SAT in 7.0 s
+20 teams x 30 weeks, shape 0:0,1: SAT in 50.4 s
+20 teams x 30 weeks, shape 0:0,1;1:0,1: SAT in 14.9 s
+20 teams x 30 weeks, shape 0:0,1;1:0: SAT in 9.1 s
+20 teams x 30 weeks, shape 0:0: SAT in 38.5 s
+20 teams x 30 weeks, shape 0:0;1:0: SAT in 12.3 s
+20 teams x 30 weeks, shape 0:0;1:0;2:0: SAT in 12.0 s
+20 teams x 30 weeks, shape 0:0;1:0;2:1: SAT in 31.5 s
+20 teams x 30 weeks, shape 0:0;1:1: SAT in 37.2 s
+20 teams x 30 weeks, shape 0:0;1:1;2:2: SAT in 3.5 s
+20 teams x 40 weeks, shape 0:0,1: SAT in 4.2 s
+20 teams x 40 weeks, shape 0:0: TIMEOUT after 300 s
+20 teams x 9 weeks, shape 0:0,1: SAT in 103.8 s
+20 teams x 9 weeks, shape 0:0: SAT in 26.7 s
+20 teams x 9 weeks, shape 0:0;1:0: UNSAT in 0.0 s
+20 teams x 9 weeks, shape 0:0;1:1;2:0: SAT in 26.9 s
+22 teams x 12 weeks, shape 0:0,1: SAT in 34.9 s
+22 teams x 12 weeks, shape 0:0: SAT in 102.2 s
+22 teams x 12 weeks, shape 0:0;1:0: SAT in 21.8 s
+22 teams x 12 weeks, shape 0:0;1:1;2:2: SAT in 199.3 s
+22 teams x 22 weeks, shape 0:0,1: SAT in 23.8 s
+22 teams x 22 weeks, shape 0:0: SAT in 27.5 s
+22 teams x 22 weeks, shape 0:0;1:0: SAT in 23.5 s
+22 teams x 22 weeks, shape 0:0;1:1;2:2: SAT in 119.7 s
+22 teams x 23 weeks, shape 0:0,1: SAT in 117.3 s
+22 teams x 23 weeks, shape 0:0: SAT in 138.6 s
+22 teams x 23 weeks, shape 0:0;1:0: TIMEOUT after 300 s
+22 teams x 32 weeks, shape 0:0: SAT in 44.4 s
+24 teams x 13 weeks, shape 0:0,1: TIMEOUT after 300 s
+24 teams x 13 weeks, shape 0:0: TIMEOUT after 300 s
+24 teams x 13 weeks, shape 0:0;1:0: TIMEOUT after 300 s
+24 teams x 13 weeks, shape 0:0;1:1;2:2: SAT in 66.0 s

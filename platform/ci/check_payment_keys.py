@@ -8,14 +8,20 @@ never allowed is wiring a specific account into the public tree, because
 then every copy pays that account, and if it is the owner's the liability is
 the owner's.
 
-So this does not look for payment SDKs. It looks for the three ways an
-account gets hardcoded:
+So this does not look for payment SDKs. It looks for the ways an account
+gets hardcoded:
 
-- a live Stripe secret or restricted key (`sk_live_`, `rk_live_`);
+- a live Stripe secret, restricted or publishable key (`sk_live_`,
+  `rk_live_`, `pk_live_`: client-only Checkout charges the account a
+  publishable key names, so it wires an account as surely as a secret does);
 - a Stripe Payment Link or donation link with a real link id
   (`buy.stripe.com/...`, `donate.stripe.com/...`);
+- a PayPal Payment Link (`paypal.com/ncp/payment/...`);
 - a PayPal hosted-button id (`hosted_button_id=...`, or the same in a form
-  input, JSON or object literal).
+  input, either attribute order, JSON or object literal).
+
+A donate-to-the-creator profile link (`paypal.me/...`, a coffee link) is the
+owner's stated choice (`goals.md`, the owner's priorities) and passes.
 
 Test-mode placeholders (`sk_test_checkout`) and env lookups pass. Lockfiles
 are skipped: they carry package authors' funding links, not ours.
@@ -32,10 +38,19 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES = REPO_ROOT / "ventures"
 
+# Each pattern carries a literal every match must contain. A plain bytes
+# `in` test on the raw file is far cheaper than decoding it and running the
+# regex, and almost no file holds any of these literals, so the regex runs
+# on a handful of files instead of all ~25,000 (docs/history/
+# ci-perf-2026-11-04-payment-keys-literal-prefilter.md).
 PATTERNS = (
-    ("live Stripe key", re.compile(r"(?<![A-Za-z0-9])[sr]k_live_[A-Za-z0-9]{16,}")),
-    ("Stripe payment link", re.compile(r"\b(?:buy|donate)\.stripe\.com/(?:test_)?[A-Za-z0-9]{10,}")),
-    ("PayPal hosted button", re.compile(r"""hosted_button_id(?:["']?\s*[:=]\s*["']?|["']\s+value=["'])[A-Z0-9]{8,}""")),
+    ("live Stripe key", b"k_live_", re.compile(r"(?<![A-Za-z0-9])[srp]k_live_[A-Za-z0-9]{16,}")),
+    ("Stripe payment link", b"stripe.com/", re.compile(r"\b(?i:(?:buy|donate)\.stripe\.com)/(?:test_)?[A-Za-z0-9]{10,}")),
+    ("PayPal payment link", b"paypal.com/ncp/payment/", re.compile(r"\b(?i:paypal\.com/ncp/payment)/[A-Za-z0-9]{8,}")),
+    ("PayPal hosted button", b"hosted_button_id", re.compile(
+        r"""(?i:hosted_button_id)(?:["']?\s*[:=]\s*["']?|["']\s+value=["'])[A-Z0-9]{8,}"""
+        # The same hidden input with value= written before name=.
+        r"""|(?i:value)=["'][A-Z0-9]{8,}["'][^<>]*?(?i:name)=["'](?i:hosted_button_id)["']""")),
 )
 
 # Anything text is scanned (a key in a .sh, .vue or .txt file is as public as
@@ -64,8 +79,12 @@ def findings_in(root: Path):
             continue
         if b"\0" in data[:8192]:
             continue
+        lowered = data.lower()  # hostnames are case-insensitive: BUY.Stripe.com is the same link
+        candidates = [(kind, pattern) for kind, needle, pattern in PATTERNS if needle in lowered]
+        if not candidates:
+            continue
         text = data.decode("utf-8", errors="ignore")
-        for kind, pattern in PATTERNS:
+        for kind, pattern in candidates:
             if pattern.search(text):
                 yield path, kind
 

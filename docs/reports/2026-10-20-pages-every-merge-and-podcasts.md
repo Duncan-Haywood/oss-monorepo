@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [pages]
+date: 2026-10-20
+tagged: auto
+---
 # The public site now redeploys on every merge; where the podcasts stand
 
 **Date:** 2026-10-20. **Asked by:** the owner ("i want the podcast episodes to

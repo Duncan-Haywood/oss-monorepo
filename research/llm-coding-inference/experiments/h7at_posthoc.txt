@@ -1,0 +1,8 @@
+cell | n | J | admitted | coverage % | misses below / above truth | mean J_hat (covered / missed) | mean pilot coder misses (covered / missed) | coder-negative variance over true (covered / missed)
+1.5B disapproval | 1000 | 0.135 | 35 | 74.3 | 9 / 0 | 0.342 / 0.371 | 10.731 / 7.333 | 0.709 / 0.478
+lr approval | 1000 | 0.117 | 43 | 69.8 | 13 / 0 | 0.290 / 0.314 | 15.300 / 11.462 | 0.775 / 0.554
+lr caring | 1000 | 0.255 | 295 | 87.8 | 36 / 0 | 0.391 / 0.483 | 7.347 / 3.750 | 0.786 / 0.402
+lr annoyance | 500 | 0.125 | 80 | 82.5 | 14 / 0 | 0.375 / 0.387 | 5.591 / 3.000 | 0.680 / 0.361
+lr annoyance | 2000 | 0.125 | 78 | 87.2 | 10 / 0 | 0.232 / 0.231 | 28.838 / 21.700 | 0.904 / 0.689
+lr realization | 1000 | 0.146 | 87 | 83.9 | 14 / 0 | 0.356 / 0.427 | 6.795 / 3.714 | 0.712 / 0.384
+lr disgust | 1000 | 0.179 | 180 | 87.8 | 22 / 0 | 0.339 / 0.406 | 6.778 / 3.636 | 0.783 / 0.402

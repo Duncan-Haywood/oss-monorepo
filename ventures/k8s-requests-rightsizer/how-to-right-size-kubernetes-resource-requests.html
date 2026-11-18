@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to Kubernetes Requests Rightsizer</a></p>
   <h1>How to right-size Kubernetes resource requests</h1>
   <p>Nodes are bought for what pods <strong>request</strong>, not for what they use. Requests are usually guessed once, copied between services and never revisited, so most clusters carry a lot of reserved-but-idle CPU and memory. Shrinking them is the cheapest cost cut in Kubernetes, and also the easiest to get wrong.</p>
@@ -57,7 +58,9 @@ kubectl get pods -A -o json</pre>
   <h3>Can I trust one kubectl top snapshot?</h3>
   <p>No. It is a single moment. Use it to find the obvious outliers, then confirm with p95 usage from your metrics system over days before lowering anything.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not engineering, financial or operational advice. It makes a recommendation from a snapshot, not a bill, usage must be sampled over a representative period, and you are responsible for verifying its output. Kubernetes and other product names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

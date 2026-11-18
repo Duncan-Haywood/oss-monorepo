@@ -15,7 +15,7 @@
 //
 //   * `.git/HEAD` in a real repository is a one-line file, either
 //     `ref: refs/heads/<branch>\n` (the normal case) or a bare 40-character
-//     hex SHA-1 (a detached HEAD). Nothing else a webserver would plausibly
+//     hex SHA-1 (64 in a SHA-256 repository: a detached HEAD). Nothing else a webserver would plausibly
 //     serve at that path looks like this.
 //   * `.git/config` in a real repository contains an INI-style `[core]`
 //     section -- every git repository's config starts with one, written by
@@ -42,9 +42,10 @@
 // re-implementing that full grammar, since the goal is distinguishing real
 // git content from an arbitrary error page, not validating a ref name.
 const HEAD_SYMBOLIC_RE = /^ref:\s+refs\/\S+$/;
-// A detached HEAD: a bare 40-character (SHA-1) hex commit id, nothing else
+// A detached HEAD: a bare hex commit id, 40 characters (SHA-1) or 64
+// (a SHA-256 repository, `git init --object-format=sha256`), nothing else
 // on the line.
-const HEAD_DETACHED_RE = /^[0-9a-f]{40}$/i;
+const HEAD_DETACHED_RE = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/i;
 // Every `git init`-created config file opens with a `[core]` section before
 // anything else -- distinctive enough on its own that no ordinary web page
 // or error page would happen to contain it verbatim.
@@ -140,8 +141,27 @@ export function buildReport(target, probe) {
       });
     }
     // else: neither response matched real git content -- protected (a 403,
-    // a 404, a redirect, or a "soft 404" page that answers every path with
-    // 200 but generic content). No finding.
+    // a 404, or a "soft 404" page that answers every path with 200 but
+    // generic content). No finding.
+
+    // A redirect is not evidence of protection: the probe does not follow it,
+    // and an http->https or apex->www hop commonly lands on the real .git
+    // file (quality audit 2026-11-17). Flag it so a CI gate does not pass green.
+    if (findings.length === 0) {
+      const redirected = [head, config].filter((r) => r.ok && r.status >= 300 && r.status < 400);
+      if (redirected.length) {
+        findings.push({
+          id: 'redirect-not-followed',
+          severity: 'warning',
+          title: 'A probe was redirected, so exposure is unverified',
+          detail:
+            `${redirected.map((r) => `${r.url} answered ${r.status}`).join('; ')}. This check does not ` +
+            'follow redirects, so it cannot say what the redirect target serves. Re-run it against the ' +
+            'final URL (for example the https:// or www. address the Location header names).',
+          evidenceUrl: redirected[0].url,
+        });
+      }
+    }
   }
 
   const dangerCount = findings.filter((f) => f.severity === 'danger').length;
@@ -152,7 +172,7 @@ export function buildReport(target, probe) {
     config,
     findings,
     dangerCount,
-    ok: !incomplete && dangerCount === 0,
+    ok: !incomplete && findings.length === 0,
     incomplete,
   };
 }

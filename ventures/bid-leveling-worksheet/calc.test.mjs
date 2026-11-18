@@ -69,3 +69,22 @@ test("csv export lists ranked bidders", () => {
   assert.match(out, /^rank,bidder/);
   assert.match(out, /1,Apex Mechanical,412000,6000,418000,0/);
 });
+
+test("median base averages the middle two for an even bidder count", () => {
+  const r = level(parseBids("item,estimate,A,B,C,D\nBASE,,100,200,300,500"));
+  assert.equal(r.summary.medianBase, 250);
+});
+
+test("excluded and unaddressed cells are counted separately", () => {
+  const b = level(parseBids(sampleCsv())).bidders.find((x) => x.name === "Brightline HVAC");
+  assert.equal(b.excludedCount, 3);
+  assert.equal(b.unknownCount, 1);
+});
+
+test("lowest leveled bidder is found wherever it sits in the sheet", () => {
+  const r = level(parseBids("item,estimate,A,B,C,D\nBASE,,400,300,200,100\nx,150,incl,incl,incl,excl"));
+  // D leveled 250, C 200, B 300, A 400
+  assert.equal(r.summary.lowLeveled, "C");
+  assert.deepEqual(r.ranked.map((x) => x.name), ["C", "D", "B", "A"]);
+  assert.equal(r.ranked[1].vsLowLeveled, 50);
+});

@@ -18,6 +18,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← pip-audit Triage</a></p>
   <h1>How to triage pip-audit findings without ignoring real risk</h1>
   <p><code>pip-audit</code> checks every package in an environment or requirements file against a vulnerability database and prints them in the order it found them, with no severity. On a service with a few hundred transitive dependencies that is a list nobody can act on in one sitting. Sorting it by whether your code imports the package turns it into a short first pass.</p>
@@ -41,7 +42,9 @@
   <h2>What this ranking cannot tell you</h2>
   <p>It reads import statements as text. It cannot see an import built from a variable, a plugin loaded through an entry point, or whether the vulnerable function is ever called. It also cannot see the dependency graph, so a package your code reaches only through another package is labelled not-referenced. Not imported lowers the urgency; it is not a certificate of safety, and this is not a security audit.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> Provided free and as-is. It is not security advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the triage</a>.</p>
   </footer>
 </body>

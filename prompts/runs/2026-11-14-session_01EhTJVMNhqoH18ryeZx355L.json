@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVMNhqoH18ryeZx355L",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (ventures brief)",
+  "input_sha256": "4e2352a9fa2c31eb11584516c1d676ea6013fdf7b16d5bd1d9485d73e31d4c81",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T21:55:58Z",
+  "ended": "2026-11-14T22:07:21Z",
+  "wall_minutes": 19.99,
+  "tokens_in": 11625709,
+  "tokens_out": 49187,
+  "cost_usd": 4.6444,
+  "tool_calls": 83,
+  "task": "Deepen (flagship 10) open-tennis-robots: the bus with several ESC brakes and bounces in a row; several bounces in a row on the contactor",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15994",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First python3 -c import of otr_cad.feeder failed: build123d missing; Feeder lives in params.py, which needs nothing",
+      "fix": "imported from otr_cad.params; build123d venv in scratchpad for the full suite"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "Without PyYAML it ran only open-tennis-robots' 0.4 s node suite and printed ok, silently skipping the Python and CAD suites; ran pytest directly instead"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "open-tennis-robots next: sat at 1960 of 2000 characters, so recording the landed slice meant rewriting an older sentence rather than adding one"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-the-tennis-feeders-brake-guard-was-reading-its-own-brake.md",
+    "ventures/open-tennis-robots/cad/README.md (Brakes and bounces in a row)"
+  ],
+  "goal": null,
+  "notes": "Finding: the firmware's single-threshold brake guard reads the pack on the fused side of the contactor, and braking lifts that reading 0.26 V, so it flipped brake/coast every 10 ms tick (126 flips per 20% slow-down in the model, 21 on the simulated board running the real firmware) for packs resting 27.19-27.78 V. Fixed with controller.BrakeGuard and REGEN_BRAKE_HYST_MV=700 (model needs >=597 mV). Bounce trains (1-10 opens): idle worst make 19.3 A = precharge closing; with stepper enabled early 32.1 A vs the one-bounce model's 24.9 A (that model was optimistic), still under 60 A. All figures assumed; nothing built. Verification (local, build123d 0.13.0 venv): cad/tests 120 passed in 445 s; tests/ 105 passed + 39 subtests (one earlier run had 1 failure because it overlapped the package regeneration; rerun clean); node platform/pages/venture-preflight.mjs open-tennis-robots: preflight clean; feeder package regenerated, design_rules [] and collisions []; promptctl validate ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "793a9434-2a86-55cc-98eb-da8960136267",
+    "transcripts": 1,
+    "first": "2026-11-14T21:55:58Z",
+    "last": "2026-11-14T22:15:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 79,
+        "input": 153,
+        "output": 49187,
+        "thinking": 14652,
+        "cache_read": 11454415,
+        "cache_write_5m": 0,
+        "cache_write_1h": 171141,
+        "api_equivalent_usd": 4.6444,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 79,
+      "input": 153,
+      "output": 49187,
+      "thinking": 14652,
+      "cache_read": 11454415,
+      "cache_write_5m": 0,
+      "cache_write_1h": 171141,
+      "api_equivalent_usd": 4.6444,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 77,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "Monitor": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.99,
+      "active_minutes": 15.76,
+      "model_minutes": 9.87,
+      "tool_minutes": 5.89,
+      "waiting_on_human_minutes": 4.23,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an electrical/firmware engineer modelling a guard sweep and an RK4 bounce train, firmware fix, sim test and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 129.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

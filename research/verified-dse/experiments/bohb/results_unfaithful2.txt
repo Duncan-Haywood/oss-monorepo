@@ -1,0 +1,20 @@
+# milestone 54: BOHB (KDE entrants inside Hyperband brackets), 4 cells, 100 paired seeds, eta 3, min obs 6, gamma 0.25, bw floor 0.3, random frac 0.33
+
+## mean regret % over cells (n/a: some seed could not afford the arm)
+budget (x routed cost) | rand | sh_r2 | hb | bohb | bohb_r4first
+15 | 2.68 | 3.92 | 2.52 | 1.83 | 2.34
+25 | 1.28 | 3.92 | 3.92 | 3.92 | 1.41
+40 | 0.34 | 3.92 | 3.92 | 3.92 | 0.94
+
+## worst-cell mean regret % (cell)
+15 | 5.1 (mult40 relaxed) | 8.5 (mult40 relaxed) | 6.8 (mult40 relaxed) | 5.1 (mult40 relaxed) | 5.9 (mult40 relaxed)
+25 | 3.0 (mult40 relaxed) | 8.5 (mult40 relaxed) | 8.5 (mult40 relaxed) | 8.5 (mult40 relaxed) | 4.8 (mult40 relaxed)
+40 | 0.9 (mult40 relaxed) | 8.5 (mult40 relaxed) | 8.5 (mult40 relaxed) | 8.5 (mult40 relaxed) | 3.8 (mult40 relaxed)
+
+## paired per-cell wins of bohb over hb and over rand (cells lower / higher mean regret), sign-test p two-sided
+bohb vs hb, B 15: wins 4, losses 0, p 0.125
+bohb vs hb, B 25: wins 0, losses 0, p 1.000
+bohb vs hb, B 40: wins 0, losses 0, p 1.000
+bohb vs rand, B 15: wins 4, losses 0, p 0.125
+bohb vs rand, B 25: wins 1, losses 3, p 0.625
+bohb vs rand, B 40: wins 1, losses 3, p 0.625

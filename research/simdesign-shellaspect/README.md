@@ -2,7 +2,7 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the "vary l/w to see when the gap to the closed form closes" next step of `simdesign-shellorder`. Produced with AI assistance (Claude). A stylised, preliminary scan of one idealised bar; nothing was made or tested. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-shellaspect/
+**Live page:** https://marisstella.app/research/simdesign-shellaspect/
 
 **Builds on.** `simdesign-shellorder` (model code copied unchanged: linear eigenbuckling of a 3D quadratic-hexahedron bar in scikit-fem, clamped at x = 0, steel E = 200 GPa, ν = 0.30, tip shear load in the width direction). Closed form: the cantilever lateral-torsional result of S. P. Timoshenko and J. M. Gere, *Theory of Elastic Stability*, 2nd ed., McGraw-Hill, 1961, as used in `simdesign-webbuckle`. scikit-fem: T. Gustafsson and G. D. McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52), 2369, 2020.
 
@@ -13,7 +13,7 @@ Cross-section fixed at w = 8 mm, b = 2 mm. The length is 24, 48, 96 and 192 mm (
 ```bash
 pip install numpy scipy scikit-fem pytest
 cd research/simdesign-shellaspect
-python -m pytest -q tests          # 2 tests, about 1 min
+python -m pytest -q tests          # 3 tests, about 1.5 min
 python experiments/scan.py         # about 6 min on one core; writes scan.txt
 ```
 
@@ -28,9 +28,10 @@ python experiments/scan.py         # about 6 min on one core; writes scan.txt
 - The excess over the closed form (0.145, 0.074, 0.038, 0.021) roughly halves each time the length doubles; excess × l/w is 0.43, 0.44, 0.46, 0.50. So the gap shrinks about as w/l and the two models converge for a slender bar. This is consistent with the short-bar explanation floated in `simdesign-shellorder` (shear deformation, clamp warping restraint), but this scan does not separate those two effects, so it is a consistency check, not a demonstration.
 - The l/w = 3 row reproduces `simdesign-shellorder`'s 12×4×2 value (9686.5 N) exactly.
 - The slow drift of excess × l/w upward at the longer lengths could be the fixed cross-section mesh (discretisation error does not shrink as the bar lengthens) or the closed form's own approximations; not tested. At l/w = 24 the 2.1% gap probably includes some mesh error: the earlier study found the 12×4×2 mesh about 0.6% above the finest at l/w = 3.
+- **The clamp's warping restraint may explain the whole gap at the longer lengths** (added after the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-simdesign-shellaspect.json)). The 3D clamp stops the section warping; the closed form lets it warp freely. A 1-D lateral-torsional model with the warping constant of a thin rectangle (`b³w³/144`) and a warping-fixed root, solved independently in that audit, predicts ratios of 1.044 at l/w = 12 and 1.021 at l/w = 24, against this scan's 1.038 and 1.021, and its correction shrinks about as 1/l like the scan's. Under an end moment, where the clamp matters less, the same 3D model matches its closed form to 0.3%. That estimate is the audit's, not re-run here; a warping-free clamp in the 3D model would settle it.
 
 ## Limitations
-One cross-section, one load case, one mesh per length, no refinement study at l/w ≥ 6, no extrapolation. The clamp is a rigid face, not a bracket corner. Steel properties and the closed form's torsion constant are assumptions carried from earlier projects.
+One cross-section, one load case, one mesh per length, no refinement study at l/w ≥ 6, no extrapolation. The clamp is a rigid face, not a bracket corner. Steel properties and the closed form's torsion constant are assumptions carried from earlier projects. Neither model includes in-plane bending before buckling, which for this 4:1 section would raise the classical load by a factor of about 1.077 (`1/√((1 − I_z/I_y)(1 − GJ/(E I_y)))`, ν = 0.3), the size of the gaps reported here.
 
 ## Next steps
 Refine the cross-section mesh at l/w = 12 to split mesh error from model difference; add a shear-deformable (Timoshenko) beam estimate to test the shear explanation; model the whole L-bracket as one 3D body.

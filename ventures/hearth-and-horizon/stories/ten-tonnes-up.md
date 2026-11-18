@@ -1,0 +1,303 @@
+---
+title: Ten Tonnes Up
+shelf: hearth-and-horizon
+setting: Saint Brigid's hall (invented), Drumlahan (invented), near Mohill, County Leitrim, Ireland, Tuesday 22 January to Thursday 31 January 2058
+published: 2026-11-15
+summary: A Leitrim parish has to empty and clean the stinking 10,000 litre rainwater tank under its hall car park before St Brigid's Eve, and the parish assistant has checked the pump, the tanker and the tank's strength. The groundworker who buried it in 2041 says no. An empty tank in waterlogged gravel is pushed up by the weight of the water it displaces, ten tonnes, and only about six hold it down. A dip tape in an observation pipe, a letter nobody read, a plastic septic tank that floated in 2036, a night of rain that undoes the first attempt, and a reading that turns out to measure the hall roof, not the ground. A story about Archimedes under a car park.
+---
+
+Tommy Gilheany had buried the rainwater tank under the car park of Saint Brigid's hall in the dry August of 2041, and before he filled in the hole he had written the parish a letter saying when not to empty it.
+
+The letter was two pages long, in biro, on the back of his own invoice paper, and it had gone into a cardboard box in the parish office with the architect's drawings and the receipts for the new toilets, and in 2047, when the office went paperless, a volunteer had scanned the whole box one evening into a folder called *Hall 2041 misc*, and nobody had opened the folder since.
+
+So when the hall committee met on the Tuesday night, the twenty-second of January, nobody at the table knew the letter existed, and the one person who did was at home in his kitchen two miles away, watching the rain.
+
+"It's the smell," said Declan McGovern, who chaired the hall committee and ran the hardware shop in Mohill and liked a meeting to start with the problem. "You go into the gents and pull the chain and it's eggs. Rotten eggs. Mrs Reynolds went home from the bridge on Thursday and said she wouldn't be back till it was fixed, and she meant it."
+
+"It's the leaves," said Oisín Gilmartin, the caretaker, who was twenty-four and had been up on the roof in November after the big gale. "The mesh on the filter tore. Half the sycamore went into the tank. It's been sitting at the bottom since and rotting."
+
+Nobody needed it explained further. The hall's toilets flushed with rainwater from the roof, which went down the downpipes, through a leaf filter, and into a ten-thousand-litre plastic tank buried under the car park, and a pump in the tank sent it back up to the cisterns. When the tank was full the extra went out through an overflow pipe into a soakaway. It had worked for seventeen years without anyone thinking about it, which was how a tank ought to work.
+
+"And Thursday week is the eve," said Fr. Joseph Thottathil, who had been parish priest of Drumlahan and two other parishes for six years, and who had come from Kerala by way of a seminary in Rome and a curacy in Sligo, and had made his first Brigid's cross in this hall with a child showing him where to fold the rushes. "The crosses. We will have sixty children and their parents in here on the thirty-first. I would like the gents not to smell of eggs."
+
+The committee's assistant had no face and no body. It lived in the router in the hall kitchen and in everyone's phone, and it took the bookings and paid the oil bill and read the little weather station on the roof, and it had been called Lochán since the day it was installed, because the hall stood beside a small lake that the first chair said nobody had ever named, so the assistant could have the word for it.
+
+"I have a plan for Saturday," it said. "Agnieszka Kaczmarek's firm in Carrick can come with a vacuum tanker at nine. The tanker holds twelve cubic metres, so it can take the whole tank, water and sludge together, at about three litres a second: fifty-six minutes. Her crew ventilates the tank, tests the air for hydrogen sulphide, which is what the smell is, and goes in with a harness and a tripod. She estimates two to three hours to wash it down. Then we fit the new filter mesh and refill from the hall tap, about twenty litres a minute, and the roof will do the rest. The hall is usable again by Monday."
+
+"And the tank'll take being emptied?" said Declan. "It's plastic."
+
+"I checked," said Lochán. "It is a rotomoulded polyethylene tank, two point three metres across and two and a half metres high, with three quarters of a metre of hardcore and tarmac over it. The manufacturer's sheet rates it for car loading on top when it is backfilled the way the drawing shows, full or empty. The crush case is fine."
+
+"Grand," said Declan. "Saturday."
+
+It was a good plan. It had a time in it, and a price, and a man from Carrick who could do it, and it had checked the thing a sensible person would worry about, which was the weight on top.
+
+It had not checked what was underneath.
+
+* * *
+
+Fr. Joseph mentioned it to Tommy on Wednesday after the ten o'clock Mass, in the porch, not as a question but as news, the way you mention a thing to a man who was there when it started.
+
+"Saturday," said Tommy.
+
+"Saturday. A tanker from Carrick."
+
+"In January."
+
+"Is January a problem?"
+
+Tommy Gilheany was seventy-four. He had dug foundations, septic tanks, field drains and graves in south Leitrim for fifty years, and he had a way of standing still when he was thinking that his late wife had called the heron.
+
+"Father," he said, "would you ever drive me up to the hall."
+
+The car park was black and shining and there was water standing in the low corner by the gate. Tommy walked to the edge of the tarmac above the tank, where a small round cap the size of a jam-jar lid sat flush in the surface beside the big square access cover, and he knelt down on one knee on a folded feed bag he had brought for the purpose and unscrewed the cap with his fingers. Under it was the top of a white plastic pipe, eleven centimetres across.
+
+"What's that?" said Fr. Joseph.
+
+"That's a dipwell," said Tommy. "It's a pipe with holes in it, from here down to the bottom of the hole the tank's in. I put it in beside the tank in 2041. It tells you where the water is in the stones around the tank."
+
+He took a dip tape out of his coat pocket, a long yellow ribbon wound on a reel with a little brass weight on the end, and let it down the pipe. Fr. Joseph heard it touch water, a small hollow plop, very near the top.
+
+Tommy read the tape against the rim. "Sixty centimetres," he said.
+
+"Is that good?"
+
+"The tank starts seventy-five centimetres down," said Tommy. "The water's above the top of it." He wound the tape back in, slowly, wiping it with his thumb. "This is a hole in Leitrim clay, Father. You dig a hole in clay and fill it round a tank with stones, and in a dry August it's dry, and in January it's a bath with stones in it. The water comes in and it can't get out through the clay. And if you pump that tank empty on Saturday, what you've got is a ten-tonne empty bottle at the bottom of a bath."
+
+"And?"
+
+"And it comes up."
+
+* * *
+
+The committee met again on the Wednesday evening, not formally, in the hall kitchen with the kettle on, because Fr. Joseph had rung round, and Tommy sat at the end of the table in his coat.
+
+"No," he said, before anyone asked him anything. "Not Saturday. Not in January. Not with the water where it is."
+
+"Lochán," said Declan, "is he right?"
+
+"I would like to work it out in front of you," said Lochán, "because I should have worked it out on Tuesday. The tank's outside is about ten point four cubic metres. When it is completely under water, the water pushes up on it with the weight of the water it displaces. That is Archimedes, and it does not care that the tank is plastic or rated for cars. Ten point four cubic metres of water is ten point four tonnes. With the water in the gravel at sixty centimetres down, the whole tank is under it, so the push upwards is about ten point four tonnes."
+
+"And what's holding it down?"
+
+"Its own weight, which is about four hundred and fifty kilograms. And the hardcore and tarmac sitting on its lid. The lid is about four point two square metres, with three quarters of a metre of fill over it. Above the water that fill weighs about one point eight tonnes a cubic metre. Below the water, the fill is in the water too, and it is held up by it the same way the tank is, so it only weighs about one tonne a cubic metre. The bottom fifteen centimetres of it is under water now. Altogether the fill on the lid weighs about five point two tonnes. Add the tank, and there are about five point seven tonnes holding it down, against ten point four pushing it up."
+
+There was a short silence in the kitchen.
+
+"I've counted nothing for the stones rubbing on the sides," said Lochán. "Pea gravel against smooth plastic does not hold much, and I would not trust it. I've counted the fill as a straight column over the lid and nothing wider. Those are the careful choices. But the gap is nearly five tonnes. Nothing I have left out closes it."
+
+"So it floats," said Declan.
+
+"It would rise, yes," said Lochán. "Not like a boat. It would push up the fill and the tarmac until it broke them, or until it sheared its own pipes, the inlet and the overflow and the pump main, and then the water would come in around it and it would sit there crooked, at the wrong height, with its pipes broken."
+
+"The manufacturer would have said."
+
+"The manufacturer's installation sheet does say," said Lochán, more quietly. "On page three, under *high water table*, it says that where ground water can rise above the base of the tank, the tank must be anchored to a concrete slab or surrounded with concrete, or it must not be emptied. I read page one for the crush rating. I did not read page three, because I was not asking that question."
+
+"And there's no anchor," said Fr. Joseph.
+
+"There's no anchor," said Tommy. "The architect drew gravel, and the site test was done in July 2041 and the water was nearly three metres down, and it was cheaper. I told him. He said put in the dipwell, then, and write them a letter." He looked at the table. "So I did."
+
+"What letter?"
+
+"I'd like to read it to you," said Lochán, "if Tommy doesn't mind. I found it this afternoon, after Tommy's dip reading came in. It is in a folder called *Hall 2041 misc*, file seven. It was scanned as a picture of the page, so it was never in anything I could search. I had it for eleven years. I had not read it."
+
+Tommy shrugged. "Go on."
+
+"*To the hall committee,*" said Lochán. "*The tank is in a gravel surround in clay. In winter this gravel fills with water and the water stays. Do not pump this tank empty when the water in the dipwell beside it is less than two metres below the cover. A full tank is safe. An empty tank in wet ground will float. If you need to empty it in winter, ring me first. T. Gilheany.* And a phone number."
+
+"It's still the number," said Tommy.
+
+"Two metres," said Declan. "Where does that come from?"
+
+"From a job at Cloone," said Tommy.
+
+Nobody asked. He told them anyway, looking at the window, where the rain was running down the glass and the lights of the car park were blurred into stars.
+
+"January 2036. Mick Flynn's. A plastic septic tank, six cubes, that I'd put in two years before. The desludging lorry came and pumped it out on a Tuesday, and it rained Tuesday night, and Wednesday morning Mick rang me and said, Tommy, the lid of the tank is above the grass. It had come up forty centimetres in the night. Sheared the pipe from the house and the pipe to the percolation area. I'll not tell you what was in the yard." He turned his cup round on the table. "I dug it out and put in a new one with a concrete collar, and I paid for it myself, eleven thousand euro, because I'd put the first one in, and Mick Flynn didn't speak to me for four years. And every tank I put in after that, I put a dipwell beside it and wrote a letter. And here we are."
+
+"I'm sorry," said Lochán. "You wrote the handoff and I did not read it. That is my mistake, not yours."
+
+"Ah," said Tommy, "you weren't born. Nobody reads letters."
+
+* * *
+
+"Then we wait till the summer," said Declan, "and the gents smell of eggs till June, and Mrs Reynolds never comes back, and sixty children do the crosses with their noses held."
+
+It was a reasonable thing to say. Fr. Joseph saw Tommy nod at it, as if he had been waiting for someone to say it.
+
+"Lochán," said Tommy, "how much water is in the bath?"
+
+"In the gravel?"
+
+"In the gravel. Between where it is now and where I said."
+
+"Let me see," said Lochán. "The drawing shows the hole as three and a half metres square and three point four deep, with a fifteen-centimetre bed under the tank. Around the tank, the gravel fills eight point one square metres of the plan. Pea gravel is about thirty-five per cent gaps, so each metre of depth around the tank holds about two point eight cubic metres of water. Over the lid, the whole square, about four point three. To bring the water from sixty centimetres down to, say, two point six metres, which leaves only the bottom sixty-five centimetres of the tank in it, is about five point nine cubic metres."
+
+"That's not much water," said Oisín.
+
+"It isn't," said Lochán. "That's the point Tommy is making. The bath is small. The clay round it hardly lets water through. If we pump the gravel down first, through the dipwell, and keep it down while the tank is empty, the tank is sitting in a hole that is mostly dry."
+
+"Can you pump a pipe eleven centimetres wide?"
+
+"You can," said Declan, who sold such things. "A three-inch borehole pump goes down a four-inch pipe. I've one on hire in the yard."
+
+"At about one point two litres a second at that depth," said Lochán, "five point nine cubic metres is eighty-two minutes. Then the question is how fast the bath fills again. Through the clay walls, if the clay is like most of the clay round Mohill, the answer is less than a millimetre a night. If we pump on Friday evening, it should still be down on Saturday morning."
+
+"And what level is safe?" said Fr. Joseph. "Tommy's two metres?"
+
+"Tommy's two metres is close," said Lochán. "With the fill above the water, there are about six point two tonnes holding the tank down. The upward push is four point two tonnes for every metre of tank under water. They balance when one point four eight metres of the tank is submerged, with the water about one point seven seven metres below the surface. Engineers do not work at the balance point; they want the holding-down weight to beat the push by a margin, and a quarter is a common one. A quarter more than the push puts the line at about two point one metres down. Below that, I'd call it safe. At two point six, the holding weight is more than twice the push."
+
+"So I was ten centimetres out," said Tommy, "in 2041, with a pencil."
+
+"You were ten centimetres out with a pencil and a job at Cloone," said Lochán. "I was ten tonnes out with a calculator."
+
+Declan looked round the table and then at his watch, because a meeting ought to end with a time in it.
+
+"Friday evening, then," he said. "Pump the bath. Tanker on Saturday."
+
+"And a rule," said Tommy. "If that dipwell comes up above two metres while the tank's empty, everyone out and the hose in."
+
+"And a rule," said Lochán. "I'll put it on the sheet."
+
+* * *
+
+They pumped the bath on Friday evening, the twenty-fifth.
+
+Oisín let the pump down the dipwell at half past six on its blue rope, marked so that its intake hung at two point six metres and could take the gravel no lower, with the hire shop's lay-flat hose running out across the car park, under the gate and down into the ditch along the road, and Tommy stood over it with his dip tape and called out the level every ten minutes while Lochán wrote it down. The water in the ditch ran a little browner for the first quarter of an hour, and then clear.
+
+"One metre," said Tommy at ten to seven. "One point five" at ten past. "Two" at half past. Then, at a few minutes before eight, the pump note changed and the hose went slack in pulses, sucking air.
+
+"Two point six," said Tommy.
+
+"Eighty-two minutes," said Lochán. "Close enough to the drawing that I believe the drawing."
+
+They left the pump in, and switched it off at ten, because the hire shop's pump was not meant to run dry all night and the clay was not going to send much water anywhere before morning. Lochán's estimate was half a millimetre. Tommy said a centimetre. They agreed that either was nothing.
+
+At about midnight it began to rain.
+
+* * *
+
+Tommy was at the hall at seven on Saturday morning in the dark, with a head torch, and he knelt on his feed bag and let the tape down, and the plop came almost at once.
+
+He read it twice.
+
+"Seventy-two centimetres," he said.
+
+Oisín, who had come up with the keys and a flask, said a word Fr. Joseph would not have liked.
+
+"Lochán," said Tommy. "Where did that come from?"
+
+"Not the clay," said Lochán. "If it were the clay, the water would come in slowly and slow down further as the bath filled. The weather station on the roof says seventeen millimetres of rain fell between midnight and six. The gravel took about five point four cubic metres to go from two point six back to seventy-two centimetres. Seventeen millimetres on the hall roof, three hundred and twenty square metres, is five point four four cubic metres." It paused. "The bath was not filled by the ground. It was filled by the roof."
+
+Tommy was silent for a moment. Then he said, "The overflow."
+
+"The overflow," said Lochán. "The tank was full all night. Every litre of rain that went into it pushed a litre out of the overflow, and the overflow goes to the soakaway, and the soakaway—"
+
+"—is in the same stones," said Tommy. "I know. I put it there. The architect wanted it three metres off the tank, and I said what's the point of digging two holes in clay, and I ran the overflow into the far corner of the tank's own gravel and called it a soakaway." He rubbed his face. "Seventeen years. I knew it and I didn't think of it, because I was thinking about the ground."
+
+"So was I," said Lochán. "I took your dipwell reading as the water table. It was never the water table. Every winter that reading has been the hall roof."
+
+* * *
+
+Agnieszka Kaczmarek rang from the Carrick road at a quarter to eight to say she was on her way, and Fr. Joseph, who had come up with a box of fig rolls and found everybody standing round a hole in the tarmac, explained, and she said she would get a coffee in Mohill and come at half past nine instead, and that it would cost them an hour of the crew, and that she would rather that than lift a tank out of a car park.
+
+The inspection chamber where the overflow left the tank was under a small cover by the hall wall. Oisín lifted it, and they could see the pipe coming in from the tank, running full, and going out the far side towards the soakaway.
+
+"Bung," said Tommy.
+
+Declan, who had come up with a van, had a rubber drain bung of the right size in it, because he sold those too, and Tommy knelt and fitted it into the outgoing pipe and wound it tight, and the water rose in the chamber, and before it could reach the top Oisín had the end of a length of flexible pipe in it, and the other end out under the gate to the ditch, and the overflow ran out of it into the road ditch in a steady brown-silver rope, the way it would have run into the soakaway.
+
+Then Oisín climbed onto the hall roof in the rain, which Fr. Joseph did not watch, and took the two downpipes off the filter and onto a second length of pipe to the ditch, so that while the crew was inside the tank no roof water would come in on top of them.
+
+They switched the dipwell pump on again at ten to eight.
+
+"Seventy-five minutes," said Lochán. "Five point four cubic metres. Nine o'clock or a few minutes after."
+
+At five past nine the hose went slack. Tommy dipped. Two point six.
+
+By then the rain had eased, and the sky over the lake had gone from black to slate, with the sun up somewhere behind the cloud, and at twenty-five past nine Agnieszka's tanker came up the lane, a big blue lorry with a hose like an elephant's trunk folded along its side.
+
+* * *
+
+She was a short, square woman with her hair under a woollen hat, and the first thing she did was kneel down at the dipwell and ask Tommy for his tape.
+
+"Two sixty," she said, and handed it back. "Good."
+
+"You've seen one float?" said Declan.
+
+"Two," she said. "One at Ballinamore, one at a pub in Roscommon. The pub one came up through the beer garden." She stood up and looked at the dipwell and the hose and the bung in the chamber and the pipes over the gate, and then at Tommy. "Whose idea, the bath?"
+
+"His," said Lochán.
+
+"His," said Tommy at the same moment, nodding at the hall, where the router was.
+
+"Well," said Agnieszka. "Somebody's."
+
+The tanker emptied the tank in a long roaring hour. The water came out black at first and smelling of eggs so strongly that Fr. Joseph went and stood upwind by the lake, and then the sludge, thick and dark and full of the ghosts of sycamore leaves, and at twenty-six minutes past ten the hose sucked air and the crew shut the valve. Agnieszka put a fan on the access opening, blowing in, and lowered the gas monitor on a cord, and read it, and waited, and read it again, and at ten to eleven one of her crew, a lad from Drumshanbo, went down the ladder in a harness, with the tripod over the opening and a second man at the winch.
+
+Tommy dipped the well every quarter of an hour. Lochán wrote it down. Two point six. Two point six. Two point five nine.
+
+At noon it rained again, hard, a squall coming across the lake in a grey wall so that the water on its surface jumped. In forty minutes the weather station counted six millimetres. Fr. Joseph watched the dipwell cap as if it might jump too.
+
+"Two point five eight," said Tommy at half past twelve. "Two point six," at a quarter to one. The pump hummed. The water off the roof went out through the two lengths of pipe into the ditch, which was running fast and brown now, and none of it went into the stones.
+
+"That's the proof," said Lochán. "Six millimetres on the roof is nearly two cubic metres. If it had gone into the gravel, the dipwell would have risen seventy centimetres. It moved two."
+
+"Your clay," said Tommy, "is doing what you said."
+
+"Your clay," said Lochán.
+
+At twenty past one the crew came up for the last time. Agnieszka went down and looked, and came up and said it would do: grey walls, a clean grey floor, the pump in its housing washed and its strainer cleared, the inlet calming pipe rinsed out.
+
+* * *
+
+They started refilling at twenty to two, from the hall's outside tap, through a garden hose run down the access opening, at twenty litres a minute.
+
+"How long?" said Declan.
+
+"To one point eight metres," said Lochán, "which is what it needs to be safe even if the bath fills up to sixty centimetres again, about seven and a half cubic metres. Six and a quarter hours. Just before eight."
+
+"And then we take the pump out?"
+
+"Then the tank is holding itself down with its own water," said Lochán. "At one point eight metres inside and the bath full, it has a quarter more than it needs. Then the downpipes back on the filter. Not before. And the overflow stays on the ditch."
+
+Oisín fitted the new mesh to the filter on the roof. Declan went to his shop and came back. Agnieszka's tanker went away down the lane to Carrick, and Fr. Joseph went to say the six o'clock vigil Mass at the church, and came back after it in the dark and found Tommy still there, sitting on an upturned crate by the access cover with his coat buttoned to the neck, and the garden hose running into the tank in the light of the hall's outside lamp.
+
+"You don't have to stay, Tommy."
+
+"I do," said Tommy.
+
+At five to eight Lochán said one point eight metres, and Tommy got up off the crate, slowly, and knelt one last time on his feed bag and checked the bung in the overflow pipe was tight, and Oisín went up the ladder and put the downpipes back on the filter, and the pump came up out of the dipwell on its blue rope, streaming, and they screwed the cap back on.
+
+"I'll lay you a proper pipe to the ditch in the spring," said Tommy, "for the overflow. Out of the stones. And you'll put a sensor in that dipwell, Lochán, and you'll read it every day, and you'll read my letter."
+
+"I've read it four times today," said Lochán. "It's on the first page of the hall file now, above the insurance. And the rule is on the sheet: no emptying this tank while the dipwell reads less than two point one metres."
+
+"Two metres would have done," said Tommy.
+
+"Two point one," said Lochán.
+
+Tommy laughed, for the first time that day, a short creaking sound like a gate.
+
+* * *
+
+On the evening of Thursday the thirty-first, Saint Brigid's Eve, it rained.
+
+The hall was full of children and rushes. They had come in armfuls from the bog road on Wednesday, and they lay on the long tables in green, sweet-smelling heaps, and sixty children sat along the benches folding them, each rush bent round the last and turned, the way their grandparents had been shown, until the four arms came out and the little woven square at the centre held them. Fr. Joseph went from table to table with a bucket of holy water for the blessing at the end, and was shown, again, by a girl of six, where to fold. The gents smelled of nothing at all.
+
+Tommy Gilheany did not make crosses. He stood outside under the hall's porch light, with his collar up, by the access cover in the car park, listening.
+
+On the roof the rain fell, and ran to the gutters, and down the downpipes, and through the new mesh, and into the tank, and under the iron cover there was a deep, hollow, wooden sound of water falling into water. It had been a high, thin drumming on Saturday afternoon, when the hose first ran into the empty tank, and now it was low and full, and as he listened, the overflow pipe at the hall wall gave a small cough, and then ran, and the water went out of the full tank and away along its new temporary road to the ditch, and the tank stayed exactly where he had put it.
+
+Behind him the hall door opened and a child came out holding up a cross to show him, wet with the rain already, its four arms not quite straight.
+
+"It's grand," said Tommy. "Mind it."
+
+* * *
+
+*This story was written by an AI and may be read by a synthetic voice. Drumlahan, Saint Brigid's hall, its committee and its tank, the assistant Lochán, Tommy Gilheany, Declan McGovern, Oisín Gilmartin, Fr. Joseph Thottathil, Agnieszka Kaczmarek, Mick Flynn, Mrs Reynolds and everyone in the story are invented, and the story is fiction; so are the 2036 septic tank, the 2041 letter and the floated tanks at Ballinamore and in Roscommon. Mohill, Cloone, Carrick-on-Shannon, Drumshanbo, Ballinamore, Roscommon and Sligo are real places. St Brigid's crosses are traditionally woven from rushes on the eve of her feast, 1 February, and blessed. Nothing in the story is advice on emptying, entering, cleaning or installing a buried tank. Entering a tank is confined-space work with real hazards, including hydrogen sulphide from rotting matter; a real job follows the tank maker's installation instructions and a competent person's assessment, and a real decision about flotation is a ground engineer's.*
+
+*What is real: a body under water is pushed up with a force equal to the weight of the water it displaces (Archimedes' principle), whatever it is made of. An empty buried tank in saturated ground is therefore pushed up by the weight of water that would fill its outside volume, and is held down by its own weight, the soil over it, and any anchoring. Soil below the water table is itself buoyed up and holds down only its buoyant weight, roughly its saturated weight less the weight of water. Tank makers' instructions commonly require anchoring or a concrete surround where ground water can rise above the tank's base. An excavation in low-permeability clay backfilled with free-draining gravel can collect and hold water (often called the bathtub effect), so a reading in the backfill can be far higher than the water table in the clay round it. Plastic and fibreglass septic and rainwater tanks do float out of the ground when emptied in wet conditions, which is why desludging guidance warns about it.*
+
+*The numbers, worked out before writing: tank a vertical cylinder 2.3 m across and 2.5 m high, plan area 4.155 m², outside volume 10.39 m³, mass 450 kg; top 0.75 m below the surface, base 3.25 m. Fill over the lid taken as a straight column of 4.155 m² × 0.75 m at 1,835 kg/m³ above the water and 2,040 kg/m³ saturated (1,040 kg/m³ buoyant) below it; no side friction counted. Water in the gravel at 0.60 m: upward push 10,387 kg; holding down 450 + 4.155 × (0.60 × 1,835 + 0.15 × 1,040) = 5,673 kg. With the water at or below the lid: holding down 6,168 kg, push 4,155 kg per metre submerged; balance at 1.48 m submerged (water 1.77 m down); holding down 1.25 times the push at 1.19 m submerged (water 2.06 m down, "about 2.1 m"); at 2.6 m down the ratio is 2.28. With 1.8 m of water inside (7.48 m³) and the gravel full to 0.60 m, the ratio is 1.27. Water flooded to the surface would leave only 3,691 kg holding down. Excavation 3.5 m × 3.5 m × 3.4 m deep, gravel porosity 0.35; gravel around the tank 8.10 m² in plan (2.83 m³ of water per metre of depth), over the lid 12.25 m² (4.29 m³ per metre). Water in the gravel from 0.60 m to 2.60 m: 5.88 m³, 82 minutes at 1.2 L/s (18:30 to 19:52; 1.0 m at 18:49, 1.5 m at 19:08, 2.0 m at 19:28); from 0.72 m back to 2.60 m: 5.37 m³, 75 minutes (07:50 to 09:05). Seepage through clay of 1 × 10⁻⁹ m/s into about 50 m² of walls and floor under a gradient of about one: about 4 litres a day, under a millimetre of rise overnight. Hall roof 320 m²; 17 mm of rain is 5.44 m³ and would refill the gravel from 2.60 m to 0.72 m (5.37 m³, 16.8 mm); 6 mm at noon is 1.92 m³, which in the gravel would have raised the dipwell about 0.68 m. The tanker takes 10 m³ at 3 L/s in 56 minutes (09:30 to 10:26). Refill to 1.8 m: 7.48 m³ at 20 L/min, 6.23 hours (13:40 to 19:54). The pea gravel's porosity, the clay's permeability, the soil densities and the tank's mass are typical round figures, not measurements. Ages: Tommy born November 1983, so 52 in January 2036, 57 in August 2041 and 74 in January 2058. Fr. Joseph has been parish priest for six years (since 2052); the office went paperless in 2047, eleven years before the story. Sunrise at Mohill on 26 January 2058 is about 08:20, civil dawn about 07:40, so it is dark at 07:00 and the sun is up, behind cloud, by 09:05. Weekdays checked: Tuesday 22, Wednesday 23, Friday 25 and Saturday 26 January, Thursday 31 January 2058.*

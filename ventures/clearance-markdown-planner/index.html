@@ -215,7 +215,7 @@
       if (useFit) $("#fit").textContent = `${fit.n} weeks with sales, price from ${money(fit.priceRange[0], 2)} to ${money(fit.priceRange[1], 2)}. Model: ${fit.model}. Raw elasticity ${fit.raw.toFixed(2)} (standard error ${fit.se.toFixed(2)}); used ${fit.elasticity.toFixed(2)} after blending with the typical -2.0 (your data carries ${pct(fit.dataWeight)} of the weight; 80% range ${fit.lo.toFixed(2)} to ${fit.hi.toFixed(2)}). Fit R²: ${fit.r2.toFixed(2)}. Weekly fade in demand: ${pct(1 - fit.decay, 1)}. Units per week at the current price, next week: ${num(fit.baseWeekly, 1)}.` + (elastIn !== null || baseIn !== null ? " You overrode some of these." : "");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the plan.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -1,0 +1,25 @@
+# Fly.io app for the igmp cloud worker. UNVERIFIED: written from Fly's documented fly.toml format,
+# never deployed from this repository; check `fly config validate` before relying on it.
+# A worker serves no HTTP, so there is no [http_service] section.
+#
+# From the package folder (ventures/ig-media-pipeline):
+#   fly apps create <your-app-name>                      # then set `app` below
+#   fly volumes create igmp_data --size 50 --region <region>
+#   fly secrets set AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=... ANTHROPIC_API_KEY=...
+#   cp deploy/worker.config.toml.example deploy/config.toml   # edit it; no secrets in it
+#   fly deploy . --config deploy/fly.toml --dockerfile deploy/Dockerfile
+app = "igmp-worker-CHANGE-ME"
+primary_region = "ams"
+
+# the settings file is placed into the machine at /config/config.toml (IGMP_CONFIG in the image)
+[[files]]
+  guest_path = "/config/config.toml"
+  local_path = "deploy/config.toml"
+
+[mounts]
+  source = "igmp_data"
+  destination = "/data"
+
+[[vm]]
+  size = "shared-cpu-2x"
+  memory = "4gb"

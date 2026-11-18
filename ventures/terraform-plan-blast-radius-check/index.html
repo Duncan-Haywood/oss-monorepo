@@ -238,7 +238,7 @@ node cli.mjs check plan.json --json</pre>
 
       els.reportCard.hidden = false;
       record("check_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#check").addEventListener("click", renderReport);

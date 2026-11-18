@@ -6,9 +6,9 @@
   --grid: #ebeae6;
   --text-primary: #0b0b0b;
   --text-secondary: #52514e;
-  --text-muted: #77766f;
-  --series-1: #2a78d6;
-  --band: rgba(42, 120, 214, 0.16);
+  --text-muted: #706f68; /* 4.66:1 on --surface-0 (was #77766f, 4.21:1; contrast sweep 2026-11-13) */
+  --series-1: #276ec5; /* 4.71:1 on --surface-0 (was #2a78d6, 4.08:1) */
+  --band: rgba(39, 110, 197, 0.16);
   --model-line: #a9a8a1;
   --outside: rgba(120, 118, 110, 0.10);
   --good: #0f7a3d;

@@ -1,9 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { budget, budgetText, budgetCsv } from "./budget.mjs";
+import { budget, budgetText, budgetCsv, priceSheet } from "./budget.mjs";
 import { main } from "./cli.mjs";
-import { samplePlan } from "./engine.mjs";
+import { samplePlan, takeoff } from "./engine.mjs";
 import { sampleFloor } from "./floor.mjs";
 import { sampleRoof } from "./roof.mjs";
 import { sampleFoundation } from "./foundation.mjs";
@@ -125,6 +125,18 @@ test("anchor bolts are budgeted from the foundation count at the typed price", (
   const a = b.lines.find((l) => l.item === "Anchor bolts (with nut and washer)");
   assert.equal(a.qty, 30);
   assert.equal(a.amount, 75);
+});
+
+test("sill plate boards and sill seal rolls are budgeted from the anchor-bolt plate count", () => {
+  const plan = full({ sillPlatePiece: 14, sillSealRoll: 20 });
+  plan.foundation = { ...plan.foundation, anchorBolts: {} };
+  const b = bud(plan);
+  const p = b.lines.find((l) => l.item === "Sill plate (pressure treated)");
+  assert.equal(p.qty, 10);
+  assert.equal(p.amount, 140);
+  const r = b.lines.find((l) => l.item === "Sill seal");
+  assert.equal(r.qty, 3);
+  assert.equal(r.amount, 60);
 });
 
 test("insulation bags are budgeted: wall, rim and attic lines, typed price over the plan's own", () => {
@@ -397,4 +409,194 @@ test("labor line for setting doors and windows counts framed openings (kings / 2
   assert.equal(l.qty, 12); // the sample plan frames 12 openings (24 king studs)
   assert.equal(l.amount, 1020); // 12 x 85 by hand
   assert.ok(!bud(full()).lines.some((x) => x.item === "Door and window setting"));
+});
+
+test("attic ventilation is priced from the ventilation counts: typed prices, hand product", () => {
+  const plan = { ...full({ ridgeVent: 14, soffitVent: 3, rafterBaffle: 2 }), ventilation: {} };
+  const ventOf = (p) => JSON.parse(run(p, "--sheathing", "--budget", "--ventilation", "--json").out);
+  const lines = ventOf(plan).lines;
+  const v = JSON.parse(run(plan, "--sheathing", "--ventilation", "--json").out).ventilation;
+  assert.ok(v.ok && v.ridgePieces > 0 && v.soffitUnits > 0);
+  const rv = lines.find((x) => x.item === "Ridge vent");
+  const sv = lines.find((x) => x.item === "Soffit vents");
+  assert.equal(rv.qty, v.ridgePieces);
+  assert.ok(Math.abs(rv.amount - v.ridgePieces * 14) <= 0.02);
+  assert.ok(Math.abs(sv.amount - v.soffitUnits * 3) <= 0.02);
+  if (v.baffles > 0) assert.ok(Math.abs(lines.find((x) => x.item === "Rafter baffles").amount - v.baffles * 2) <= 0.02);
+  const none = ventOf({ ...plan, prices: {} }).lines;
+  assert.equal(none.find((x) => x.item === "Ridge vent").amount, null, "no price typed: listed unpriced, not guessed");
+});
+
+test("ridge vent nail boxes are a budget line only when spacing and box size are typed (hand check)", () => {
+  const mk = (vent, prices) => ({ ...full({ ridgeVent: 14, ...prices }), ventilation: vent });
+  const get = (p) => JSON.parse(run(p, "--sheathing", "--budget", "--ventilation", "--json").out);
+  const line = (r) => r.lines.find((x) => x.item === "Ridge vent nail boxes");
+  assert.equal(line(get(mk({}))), undefined);
+  const p = mk({ ridgeNailSpacing: 12, ridgeNailBox: 100 }, { ridgeNailBox: 6 });
+  const v = JSON.parse(run(p, "--sheathing", "--ventilation", "--json").out).ventilation;
+  const l = line(get(p));
+  assert.ok(v.ridgeNailBoxes > 0 && l.qty === v.ridgeNailBoxes && l.unitPrice === 6);
+  assert.ok(Math.abs(l.amount - 6 * v.ridgeNailBoxes) < 0.005);
+  assert.equal(line(get(mk({ ridgeNailSpacing: 12, ridgeNailBox: 100 }))).amount, null);
+});
+
+test("a misspelt price name is reported as ignored, with the nearest name it reads", () => {
+  const b = bud(full({ laborWallFoo: 12, laborOpening: 85 }));
+  const ig = b.ignoredPrices.find((x) => x.name === "laborWallFoo");
+  assert.ok(ig, "typo listed");
+  assert.equal(ig.didYouMean, "laborWallFoot");
+  assert.ok(!b.ignoredPrices.some((x) => x.name === "laborOpening"), "a used rate is not listed");
+  assert.match(budgetText(b).join("\n"), /changed nothing[^\n]*laborWallFoo \(did you mean laborWallFoot\?\)/);
+  assert.deepEqual(bud(full()).ignoredPrices.filter((x) => x.name === "laborWallFoo"), []);
+});
+
+test("a typed price or allowance that is text, negative, NaN, Infinity or huge is refused and listed, never priced", () => {
+  const r = takeoff(samplePlan());
+  const base = budget(r, { laborWallFoot: 12 });
+  for (const v of [Infinity, -Infinity, NaN, 1e300, -5, "12", true, {}]) {
+    const b = budget(r, { laborWallFoot: v, laborOpening: 85 }, { permit: v });
+    assert.ok(Number.isFinite(b.total) && b.total < 1e9 * 10, `total stays finite for ${String(v)}`);
+    const names = b.refusedValues.map((x) => `${x.kind}:${x.name}`);
+    assert.ok(names.includes("price:laborWallFoot") && names.includes("allowance:permit"), `listed for ${String(v)}`);
+    assert.match(budgetText(b).join("\n"), /values refused[^\n]*price laborWallFoot/);
+  }
+  assert.deepEqual(base.refusedValues, []);
+  assert.deepEqual(budget(r, { laborWallFoot: 0 }).refusedValues, [], "zero is a legal price");
+});
+
+test("every unpriced line names the price that would fill it, and typing those prices prices the whole budget", async () => {
+  const { priceSheet } = await import("./budget.mjs");
+  const b0 = bud(full());
+  const un = b0.lines.filter((l) => l.amount == null);
+  assert.ok(un.length > 0);
+  assert.ok(un.every((l) => typeof l.priceKey === "string" && l.priceKey), "an unpriced line without a priceKey: " + un.filter((l) => !l.priceKey).map((l) => l.item).join("; "));
+  const rows = priceSheet(b0);
+  assert.equal(new Set(rows.map((r) => r.key)).size, rows.length);
+  const typed = Object.fromEntries(rows.map((r) => [r.key, 2]));
+  const b1 = bud(full(typed));
+  assert.deepEqual(b1.unpriced, [], "still unpriced after typing every row");
+  assert.ok(priceSheet(b1, typed).every((r) => r.price === 2));
+  assert.ok(rows.every((r) => r.price === null));
+});
+
+test("electrical rough-in counts become budget lines priced from the electrical settings", () => {
+  const plan = { ...full(), electrical: { receptaclePrice: 2, switchPrice: 3, boxPrice: 1.5, cablePrice: 100 } };
+  const b = bud(plan);
+  const el = JSON.parse(run(plan, "--electrical", "--json").out).electrical;
+  const get = (i) => b.lines.find((l) => l.section === "Electrical" && l.item === i);
+  assert.equal(get("Receptacles").qty, el.receptacles);
+  assert.equal(get("Receptacles").amount, +(el.receptacles * 2).toFixed(2));
+  assert.equal(get("Device boxes").qty, el.boxes);
+  assert.equal(get("Device boxes").amount, +(el.boxes * 1.5).toFixed(2));
+  assert.equal(get("Cable rolls").qty, el.cableRolls);
+  assert.equal(get("Cable rolls").amount, el.cableRolls * 100);
+  // a budget price key overrides the electrical setting; no price anywhere is listed, never guessed
+  const over = bud({ ...plan, prices: { receptacle: 5 } });
+  assert.equal(over.lines.find((l) => l.item === "Receptacles").unitPrice, 5);
+  const none = bud({ ...full(), electrical: {} });
+  assert.equal(none.lines.find((l) => l.item === "Receptacles").amount, null);
+});
+
+test("opening labor counts openings that share a king stud (header spans, not kings / 2)", () => {
+  const plan = { ...samplePlan(), prices: { laborOpening: 100 } };
+  plan.walls = [{ id: "W", length: 240, stud: "2x4", openings: [
+    { kind: "window", offset: 40, width: 36, height: 48, header: "2x6" },
+    { kind: "window", offset: 80.5, width: 36, height: 48, header: "2x6" },
+  ] }];
+  const t = takeoff(plan);
+  assert.equal(t.walls[0].members.filter((m) => m.kind === "king").length, 3); // 4-1/2 in apart: one shared king
+  const b = JSON.parse(run(plan, "--budget", "--json").out);
+  const l = b.lines.find((x) => x.item === "Door and window setting");
+  assert.equal(l.qty, 2); // kings / 2 would give 1
+  assert.equal(l.amount, 200);
+});
+
+test("flooring orders enter the budget with their own prices, typed keys override, labor per sq ft", async () => {
+  const flooring = {
+    rooms: [{ name: "Den", width: 144, depth: 120, kind: "plank" }, { name: "Bath", width: 96, depth: 60, kind: "tile" }, { name: "Bed", width: 144, depth: 144, kind: "carpet" }],
+    plank: { boxPrice: 50 }, tile: { tilePrice: 2, thinsetPrice: 20 }, carpet: { carpetPrice: 20, padPrice: 5 },
+  };
+  const b = bud({ ...full({ laborFlooringSqFt: 3, plankBox: 60 }), flooring });
+  const { layoutFlooring } = await import("./flooring.mjs");
+  const f = layoutFlooring(flooring);
+  const box = b.lines.find((l) => l.item === "Plank flooring boxes");
+  assert.equal(box.qty, f.plank.boxes);
+  assert.equal(box.unitPrice, 60, "typed plankBox beats the plan's boxPrice");
+  const tile = b.lines.find((l) => l.item === "Tiles");
+  assert.equal(tile.unitPrice, 2);
+  assert.equal(tile.qty, f.tile.tiles);
+  assert.equal(b.lines.find((l) => l.item === "Grout bags").amount, null, "no grout price: unpriced, not guessed");
+  const carpet = b.lines.find((l) => l.item === "Carpet");
+  assert.ok(Math.abs(carpet.qty - f.carpet.rollSqYd) < 0.01);
+  const lab = b.lines.find((l) => l.item === "Finish flooring installation");
+  assert.ok(Math.abs(lab.qty - (120 + 40 + 144)) < 0.01, "10x12 + 8x5 + 12x12 sq ft");
+  assert.ok(Math.abs(lab.amount - lab.qty * 3) < 0.02);
+});
+
+test("a typed cull allowance is its own lumber line, at the order's prices", () => {
+  const plan = { ...full(), culls: { pct: 0.05, bySize: { "2x6": 0.1 } } };
+  const b = bud(plan);
+  const r = JSON.parse(run(plan, "--sheathing", "--json").out);
+  const lines = b.lines.filter((l) => /cull allowance$/.test(l.item));
+  assert.ok(lines.length > 0);
+  assert.equal(lines.reduce((t, l) => t + l.qty, 0), r.summary.cullBoards);
+  assert.ok(Math.abs(lines.reduce((t, l) => t + l.amount, 0) - r.summary.cullCost) < 0.05 * lines.length);
+  assert.ok(Math.abs(b.sections.find((s) => s.name === "Lumber").subtotal - r.summary.costWithCulls) < 0.05 * (lines.length + 3));
+  assert.equal(bud(full()).lines.filter((l) => /cull allowance$/.test(l.item)).length, 0);
+});
+
+test("wall braces priced by the foot become a feet line; price each wins (hand check)", () => {
+  const b = bud({ ...full(), fasteners: { wallBracing: { pricePerFoot: 2 } } });
+  const l = b.lines.find((x) => x.item === "Wall braces (by the foot)");
+  assert.ok(l && l.unit === "ft" && Math.abs(l.amount - l.qty * 2) < 0.01, JSON.stringify(l));
+  const each = bud({ ...full({ wallBrace: 10 }), fasteners: { wallBracing: { pricePerFoot: 2 } } });
+  assert.ok(each.lines.some((x) => x.item === "Wall braces") && !each.lines.some((x) => x.item === "Wall braces (by the foot)"));
+});
+
+test("drip edge nail boxes are priced only when spacing and box size are typed", () => {
+  const withRoof = (roofing, prices) => { const p = full(prices); p.roof = { ...p.roof, roofing }; return bud(p); };
+  const line = (b) => b.lines.find((l) => l.item === "Drip edge nail boxes");
+  assert.equal(line(withRoof({ dripEdgeNailSpacing: 12 })), undefined);
+  const b = withRoof({ dripEdgeNailSpacing: 12, dripEdgeNailBox: 100 }, { dripEdgeNailBox: 7 });
+  assert.ok(line(b).qty > 0);
+  assert.equal(line(b).unitPrice, 7);
+  assert.ok(Math.abs(line(b).amount - 7 * line(b).qty) < 0.005);
+  assert.equal(line(withRoof({ dripEdgeNailSpacing: 12, dripEdgeNailBox: 100 })).amount, null);
+});
+
+test("roof sheathing nail boxes are a budget line only when the box size is typed", () => {
+  const withRoof = (sheet, prices) => { const p = full(prices); p.roof = { ...p.roof, sheet }; return bud(p); };
+  const line = (b) => b.lines.find((l) => l.item === "Roof sheathing nail boxes");
+  assert.equal(line(withRoof({})), undefined);
+  const b = withRoof({ nailBox: 500 }, { sheathingNailBox: 9 });
+  assert.ok(line(b).qty > 0 && line(b).unitPrice === 9);
+  assert.ok(Math.abs(line(b).amount - 9 * line(b).qty) < 0.005);
+  assert.equal(line(withRoof({ nailBox: 500 })).amount, null);
+});
+
+test("paint and fireblocking reach the budget: quantities from the takeoff, typed prices multiply them", () => {
+  const plan = { ...full(), studLength: 144, paint: { coats: 2, primerCoats: 1, gallonPrice: 30, fivePrice: 120, primerPrice: 25 }, fireblock: { intervalFt: 8, boardPrice: 4 } };
+  const r = JSON.parse(run(plan, "--sheathing", "--json").out);
+  const b = bud(plan);
+  const gal = b.lines.find((l) => l.item === "Paint gallons");
+  assert.equal(gal.qty, r.paint.paintGallons);
+  assert.equal(gal.unitPrice, 30);
+  assert.equal(b.lines.find((l) => l.item === "Primer gallons").amount, Math.round(r.paint.primerGallons * 25 * 100) / 100);
+  const fb = b.lines.find((l) => l.item === "Fireblocking boards");
+  assert.equal(fb.qty, r.fireblock.boards);
+  assert.equal(fb.amount, r.fireblock.boards * 4);
+  // a budget price overrides the setting, and with no price at all the line is listed unpriced
+  const over = bud({ ...plan, prices: { fireblockBoard: 5, paintGallon: 40 } });
+  assert.equal(over.lines.find((l) => l.item === "Fireblocking boards").unitPrice, 5);
+  assert.equal(over.lines.find((l) => l.item === "Paint gallons").unitPrice, 40);
+  const none = bud({ ...plan, paint: { coats: 2 }, fireblock: { intervalFt: 8 } });
+  assert.equal(none.lines.find((l) => l.item === "Fireblocking boards").amount, null);
+});
+
+test("budget, budgetCsv and priceSheet refuse a missing or malformed input with a clear message", () => {
+  for (const bad of [null, undefined, 5, "x"]) assert.throws(() => budget(bad), /needs a takeoff result/);
+  for (const bad of [null, 5, "x", {}, []]) {
+    assert.throws(() => budgetCsv(bad), /needs a budget/);
+    assert.throws(() => priceSheet(bad), /needs a budget/);
+  }
 });

@@ -1,0 +1,16 @@
+series per cell 200, replicates per null 199, seeds from 62,000,000; change at 60% of n, line 0.02 t, innovation sd 1
+cell | tested (not refused) | step | bend | unclear | right kind of tested | wrong kind of tested | bar | reported: hinge test rejects (99 reps) -> step / bend / unclear among those
+step 1, n 100, rho 0.5 | 200 | 17 | 8 | 175 | 8.5% | 4.0% | reported | 13 -> 1 / 3 / 9
+step 2, n 100, rho 0.5 | 200 | 68 | 9 | 123 | 34.0% | 4.5% | W holds | 22 -> 8 / 6 / 8
+step 3, n 100, rho 0.5 | 200 | 134 | 6 | 60 | 67.0% | 3.0% | W holds | 32 -> 15 / 5 / 12
+step 2, n 145, rho 0.5 | 200 | 86 | 10 | 104 | 43.0% | 5.0% | W holds | 30 -> 7 / 9 / 14
+step 2, n 100, rho 0 | 200 | 178 | 0 | 22 | 89.0% | 0.0% | W holds; U holds | 89 -> 77 / 0 / 12
+bend 0.04, n 100, rho 0.5 | 200 | 13 | 21 | 166 | 10.5% | 6.5% | reported | 38 -> 3 / 12 / 23
+bend 0.08, n 100, rho 0.5 | 200 | 22 | 52 | 126 | 26.0% | 11.0% | W FAILS | 124 -> 10 / 52 / 62
+bend 0.04, n 145, rho 0.5 | 200 | 14 | 41 | 145 | 20.5% | 7.0% | reported | 94 -> 6 / 38 / 50
+bend 0.08, n 100, rho 0 | 200 | 11 | 149 | 40 | 74.5% | 5.5% | W holds; U holds | 198 -> 11 / 149 / 38
+no change, n 100, rho 0 | 200 | 13 | 8 | 179 | - | - | N holds | 14 -> 0 / 4 / 10
+no change, n 100, rho 0.5 | 200 | 16 | 10 | 174 | - | - | N holds | 9 -> 1 / 5 / 3
+no change, n 145, rho 0.5 | 200 | 11 | 13 | 176 | - | - | N holds | 11 -> 0 / 7 / 4
+random walk, drift 0.02, n 100 | 195 | 5 | 129 | 61 | - | - | RW FAILS | 14 -> 0 / 13 / 1
+random walk, drift 0.02, n 145 | 162 | 3 | 112 | 47 | - | - | RW FAILS | 6 -> 0 / 6 / 0

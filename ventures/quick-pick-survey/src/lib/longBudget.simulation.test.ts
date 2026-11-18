@@ -8,7 +8,7 @@
 import { appendFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { selectNextPair, selectNextPairByInformation, selectNextPairHybrid } from "@/lib/pairing";
-import { simulate } from "@/lib/infoGainPairing.simulation.test";
+import { simulate } from "@/lib/infoGainSim";
 
 const median = (v: number[]) => [...v].sort((a, b) => a - b)[Math.floor(v.length / 2)];
 

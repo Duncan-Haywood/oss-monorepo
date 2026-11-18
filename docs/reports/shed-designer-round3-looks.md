@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer, round 3, lane 9: looks and rendering
 
 Goal: it must look good to the homeowner and the HOA (owner and builder walk-through, 2026-10-29).

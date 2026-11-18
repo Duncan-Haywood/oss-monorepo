@@ -1,0 +1,6 @@
+GoEmotions embarrassment, corpus 6000, prevalence 0.0042, coder J 0.114 (sens 0.120, spec 0.994), n 1000, 500 draws
+rule | share of draws using cells % | coverage % | half-width pts
+pooled | 0 | 93.6 | 0.391
+lib default | 0 | 93.6 | 0.382
+lib neg_guard=3 | 9 | 95.2 | 0.383
+lib default+neg3 | 0 | 94.8 | 0.379

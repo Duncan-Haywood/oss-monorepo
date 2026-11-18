@@ -29,6 +29,7 @@
 </style>
 </head>
 <body>
+<main>
 <p class="note"><a href="./">&larr; back to the tool</a></p>
 <h1>This tool vs. diffing the raw SBOM JSON files by hand</h1>
 <p class="lede">The obvious first move when you want to know what changed between two SBOMs is <code>diff old.json new.json</code>, or pasting both into a generic JSON-diff tool. Both are close to useless for this specific question, and the reason is structural rather than a quality problem with either approach: a SBOM document carries metadata that changes on every generation run, and that metadata buries the one thing you actually asked about.</p>
@@ -60,7 +61,7 @@
 <h3>Does either approach tell me if a change is safe?</h3>
 <p>No. Neither a raw diff nor this tool's structural comparison says anything about whether an added or updated package is vulnerable, malicious, or appropriately licensed — both only show you that a change happened. Deciding whether the change is safe to ship is a separate step this tool does not do.</p>
 </section>
-
+</main>
 <footer>
 <p><strong>No warranty.</strong> This page and the linked tool apply a structural comparison to files you supply. They are provided free and as-is, without warranty of any kind, express or implied, and they are not a security audit or a compliance attestation. <strong>You are responsible for verifying anything here before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
 <p><strong>This page names no specific product.</strong> "Diffing the raw JSON files" and "a generic online JSON-diff tool" describe a method and a category of tool, not any one company's product.</p>

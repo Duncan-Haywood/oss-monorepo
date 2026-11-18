@@ -8,6 +8,7 @@
 // "payee narration", the text a bank statement would carry in the memo.
 import { readFileSync } from "node:fs";
 import { suggest } from "../categorize.mjs";
+import { pathToFileURL } from "node:url";
 
 export const MAP = {
   "Expenses:Home:Rent": ["6080"], "Expenses:Home:Electricity": ["6140"], "Expenses:Home:Phone": ["6140"],
@@ -45,7 +46,7 @@ export function score(rows) {
   return o;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = (k, d) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
   const rows = parse(readFileSync(process.argv[2], "utf8"));
   const o = score(rows);

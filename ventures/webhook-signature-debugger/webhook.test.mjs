@@ -125,3 +125,35 @@ test('the published snippets actually verify what sign() produces', async () => 
     assert.equal(mod.default(body + ' ', h, secret, ts), false, p);
   }
 });
+
+// Red-team guards (2026-11-03): input errors must stop before any HMAC is computed.
+test('missing secret, body or signature returns an error without computing anything', async () => {
+  const h = await sign('github', { body, secret: 'k' });
+  const noSecret = await verify({ headers: headerText(h), body, secret: '' });
+  assert.equal(noSecret.ok, false);
+  assert.equal(noSecret.expected, null);
+  assert.equal(noSecret.received, null);
+  assert.ok(noSecret.findings.some((f) => f.severity === 'error' && /No signing secret/.test(f.message)));
+  const noBody = await verify({ headers: headerText(h), body: '', secret: 'k' });
+  assert.equal(noBody.expected, null);
+  assert.ok(noBody.findings.some((f) => /No request body/.test(f.message)));
+});
+
+test('Standard Webhooks without a timestamp header is reported as missing it', async () => {
+  const secret = 'whsec_' + Buffer.from('k').toString('base64');
+  const r = await verify({ headers: 'webhook-id: msg_1\nwebhook-signature: v1,abc', body, secret, now });
+  assert.equal(r.ok, false);
+  assert.equal(r.expected, null);
+  assert.ok(r.findings.some((f) => f.severity === 'error' && /timestamp header is missing/.test(f.message)));
+});
+
+test('two signatures (secret rotation) are noted; one is not', async () => {
+  const secret = 'whsec_' + Buffer.from('k').toString('base64');
+  const h = await sign('standard', { body, secret, ts, id: 'msg_1' });
+  const sig = h['webhook-signature'];
+  const two = await verify({ headers: headerText({ ...h, 'webhook-signature': `${sig} v1,AAAA` }), body, secret, now });
+  assert.equal(two.ok, true);
+  assert.ok(two.findings.some((f) => /2 signatures present/.test(f.message)));
+  const one = await verify({ headers: headerText(h), body, secret, now });
+  assert.ok(!one.findings.some((f) => /signatures present/.test(f.message)));
+});

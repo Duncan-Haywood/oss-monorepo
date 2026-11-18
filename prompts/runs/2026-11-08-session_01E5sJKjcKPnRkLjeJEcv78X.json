@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01E5sJKjcKPnRkLjeJEcv78X",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T12:21:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14040",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Top flagships need real inputs or are saturated (wall-framing-takeoff 333 commits/7d); a small perf slice was all that was reachable without outside data."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took a small performance fix on the photo-editing flagship rather than a milestone slice; milestones need real photographer data.",
+      "did": "Sped up near-duplicate grouping 11x; tried and dropped pigeonhole bucketing (no gain).",
+      "result": "19 cull tests pass; 5000 hashes 6.3s to 0.55s"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-08-culling-5000-photos-in-half-a-second.md"
+  ],
+  "goal": null,
+  "notes": "Did not run venture-preflight or flagships.yaml next: rewrite; modest slice.",
+  "corrections": [],
+  "redteam": null
+}

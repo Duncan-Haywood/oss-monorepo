@@ -2,7 +2,7 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5). `simdesign-patchsearch` found that the mass price of laser-cutting rules varied across seeds under the peak element stress (0.99–1.15), and `simdesign-filletfloor` ruled out a near-sharp fillet floor as the cause but left the real cause open. This project looks inside the search, gauge by gauge. Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model with assumed rule values, materials and load; a small, preliminary diagnostic.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-gaugescatter/
+**Live page:** https://marisstella.app/research/simdesign-gaugescatter/
 
 **Builds on.** `research/simdesign-filletfloor` and, through it, `simdesign-patchsearch`, `simdesign-meshmargin`, `simdesign-patchstress`, `simdesign-dfm` and `simdesign-bracket` in this repository (the model, rules and optimiser are copied into `src/simdesign_gaugescatter/` so the project stays self-contained; only the experiment scripts and tests differ); scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>); SciPy's `differential_evolution` (Storn and Price, 1997, *Journal of Global Optimization* 11:341–359). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
@@ -19,6 +19,7 @@ python experiments/miss_rate.py           # miss_rate.txt, miss_rate.json (about
 ```
 
 ## Results (from `experiments/results.txt` and `miss_rate.txt`)
+- **Superseded on a finer mesh (read first).** The follow-up `research/simdesign-gaugemesh` re-solved all 39 gauge-2 designs found feasible here at h = 1.5, 1.0 and 0.75 mm: none stays feasible. A one-line beam estimate agrees: the 33.3 g design (w = 14.407, r = 10.740) carries 6F(L - w/2)/(b w^2) + F/(w b) = 108.7 MPa against the 100 MPa limit, while this project's h = 2.5 mm mesh reads 100.0 MPa (131.1 MPa at h = 0.5). So the narrow 2 mm region, the two mass groups and gauge 2 winning are artefacts of the coarse mesh, and the findings below hold only for that mesh (quality audit `portfolio/quality/audits/2026-11-17-simdesign-gaugescatter.json`).
 - **Seed 0's high price is a missed sub-search, not a cost of the rules.** The best gauge is 2 mm in 4 of 5 seeds for both rules and twin. For seed 0 the rules sub-search at 2 mm returned no feasible design, so the search fell back to 3 mm (41.0 g against 35.6 g for the twin: price 1.153). For seeds 1–4 the price is 1.000, 1.000, 1.000 and 1.008. Across seeds 0–4 the price has sd 0.068; without seed 0 it is 0.004.
 - **The 2 mm gauge has a narrow feasible region.** On the grid only 13 of 900 (w, r) cells are feasible at 2 mm (rules and twin alike), against 405–637 at 3–8 mm. Over seeds 0–19 the rules sub-search missed it once (seed 0 again; 1 of 20) and the twin never did (0 of 20). This is one miss in 20, so the miss rate is only roughly known.
 - **Feasible results at 2 mm are bimodal.** The 19 feasible rules masses fall in two groups, 33.3–34.0 g (10 runs) and 35.3–35.6 g (9 runs); the twin shows the same split (10 and 10). Seed 4's 1.008 (35.59 g against 35.31 g) is a small difference inside the upper group. A rules run and a twin run on the same seed can in principle land in different groups, which would shift a price by about 0.06; we did not see that in seeds 1–4. We did not identify what the two groups are.
@@ -27,7 +28,7 @@ python experiments/miss_rate.py           # miss_rate.txt, miss_rate.json (about
 
 ## Limitations
 - One process, one load case, one mesh (h = 2.5 mm) and one stress measure (peak). Five seeds for the sub-search table, twenty for the gauge-2 miss rate.
-- The mesh dependence of the peak was not tested here; the narrow 2 mm region could itself be a mesh effect. Designs were not re-solved on a finer mesh in this project.
+- The mesh dependence of the peak was not tested here. It was tested in `simdesign-gaugemesh`, which found the narrow 2 mm region is a mesh effect (see the first Results bullet).
 - Why the rules search misses but the twin does not on seed 0 (the rule penalties reshape the landscape) is a hypothesis, not tested. The cause of the two mass groups is unknown.
 - Stylised 2D plane stress, assumed rule values and materials, polygonal fillet. Nothing was made or tested. Simulated results only.
 

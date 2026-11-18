@@ -1,0 +1,237 @@
+{
+  "date": "2026-11-12",
+  "subject": "research/accel-ihpprice",
+  "stratum": "research",
+  "seed": "2026-11-12",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), independent quality audit, round 42, see run record",
+  "status": "audited",
+  "professional": "a senior low-power digital/accelerator architect who has done clock-tree and SRAM energy budgeting from liberty data (Accelergy/CACTI-style estimation) on a real tapeout",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Note: the subject is not a die/wafer cost model (no dies-per-wafer or yield formulas exist in it); it prices idle flop clock energy and SRAM read energy from liberty files and places them against accel-fetchprice breakevens, so those were the outputs recomputed. Fetched the liberty files myself (raw.githubusercontent.com, ORFS at the pinned commit e5cc6e79, plus the 256x64 macro from IHP-GmbH/IHP-Open-PDK main, which gives the same 49.6340 pJ read) instead of running fetch_pdk.sh. Wrote an independent line-oriented liberty reader (scratchpad/ihp/scripts/indep.py): sg13g2_dfrbp_1 CLK 33.898 fJ (README 33.9), sg13g2_slgcp_1 25.255 fJ (25.3), sky130 dfxtp_1 46.358 fJ (46.4), dlclkp_1 39.657 fJ (39.7). Grepped all ten IHP macro read scalars (A_MEN&!A_WEN&A_REN) straight from the files: 15.5961 ... 122.3940 pJ, all match section C. The IHP macro header states the internal_power unit as 1e-12 J/toggle (capacitive_load_unit x V^2), which independently confirms the author's pJ reading over the uA x V x ns one. Independent verdict script (scratchpad/ihp/scripts/verdict.py) re-deriving ratio = w_saved/(extra_flops x cycles): 120 cells, ungated WS 92, G=24 WS 120, packed ungated 33/60, max G* 6, all as claimed. Hand: write/read 1.161 (512x64) to 1.293 (64x64), unpacked 460 to 3,610 flop-cycles. Copied a scratch tree with the fetched files and ran experiments/run.py: results.txt byte-identical to the committed one. Not 4 because two method choices (internal power averaged over every when-state and over the whole 0.02-2.5 ns slew axis) are unvalidated against a reference; I checked the first (hold-only D==Q,RESET_B=1 groups give 33.9 fJ too) but not the second (fast-slew entries are about 8% lower).",
+    "completeness": "Claimed and checked: the unit check (section B), flop/gate energies at three libraries, ten macro read/write energies, threshold table D, 120-cell verdict table E, node comparison F, the SVG figure (exists, 36 lines), 8 tests (8 present), live page https://marisstella.app/research/accel-ihpprice/ returns 200 and carries the '33 of the 60' result and the AI-assistance disclaimer. Reproduce works end to end once the libraries are present. No stubs or TODOs. Next steps (IHP RTL synthesis, latch-array weight store, ASAP7) honestly listed as not done.",
+    "verification": "'cd research/accel-ihpprice && python3 -m unittest discover -s tests': 8 tests, OK (skipped=1; the real-library test skips without pdk/). With the fetched libraries in a scratch copy the real-library test ran and passed. Four seeded mutations: pin_switch C*V^2 -> C*V caught; unpacked e_weight halved caught; min_group_size ceil -> round NOT caught; run.py ungated verdict comparing e_icg instead of e_flop NOT caught (no test covers experiments/run.py or pins results.txt, and the only real-data test is skipped by default). Survival 2/4.",
+    "craft": "Read src/accel_ihpprice/lib.py (174 lines), experiments/run.py (132), tests/test_lib.py (90), fetch_pdk.sh, pyproject.toml. Clean stdlib code, docstrings state units and sources. Defects: fetch_pdk.sh:10 ends the pinned-commit fetch with '|| true', so a failed fetch silently leaves ORFS at master HEAD and the 'pinned' claim is not enforced; min_group_size docstring says strict '<' but ceil gives '<=' at exact integers, and the test comment at tests/test_lib.py:61 says '<='; brace-counting regex parser (_block) has no guard for comments or quoted braces; files opened without close (ResourceWarning in tests); 'import math' inside a function; dead line 'fit = [v for v in verd]' in run.py.",
+    "claims": "Every number in README Results checked against results.txt and my recomputation: flop/gate fJ, 1.16-1.29 write/read, 72-497 and 460-3,610 flop-cycles, 1.6-13.0 pJ and 0.05-0.41 pJ thresholds, 92/120, 59/60 unpacked with the 1024x8 L2 B=16 exception, 33/60 packed, the 'from B=4 for four, B=8 for eight' L2 pattern, 28 cells flipped by gating, max G 6. All backed. SKY130 'lost at nearly every packed cell' checked against accel-gatedprice results.json: ungated wins 2 of 32 packed cells, backed. Partial: 'IHP's SRAM is dearer relative to its flops, by about 4 to 8 times when packed' divides range endpoints of different macro sets (72/18, 497/62); for like-width 64-bit macros the ratio is 1.2 to 3.7x. Limitations are honest (clock tree omitted, A_CLK only, macro/layer size confound). Disclaimer on the live page.",
+    "fitness": "A researcher can reuse the unit resolution for IHP liberty files and the ten macro read/write energies, which is a real, small contribution. Nearest prior work, none cited in this project: Eyeriss (Chen, Emer, Sze, ISCA 2016) dataflow taxonomy and energy analysis; Timeloop (Parashar et al., ISPASS 2019) and Accelergy (Wu, Emer, Sze, ICCAD 2019), which do exactly this per-action energy pricing from component tables, including PDK-derived plug-ins; CACTI for SRAM energy; Wu and Pedram (clock-gating of sequential circuits) and Horowitz (ISSCC 2014) for the flop/SRAM ratio question. Against that, the result (gate the stationary accumulators; ungated WS depends on the SRAM-to-flop energy ratio) is an expected consequence of the breakeven, not new. It is step nine of a chain of single-README projects with no paper or programme entry in research/PROGRAMMES.md, short of the PhD-level programme bar in research/CLAUDE.md.",
+    "domain": "An architect would check the flop energy definition first. Departures: (1) clock tree and wire capacitance omitted; in practice the clock network often costs as much as or more than the flop clock pins, and the ungated verdict is sensitive to it: scaling e_flop and e_icg by 1.5/2/3 drops packed ungated WS wins from 33 to 24/18/12 of 60 (verdict.py). The cross-node flop-cycle comparison survives if overhead scales alike, but the headline 'ungated WS wins about half the packed cells' does not. (2) Internal power averaged over the whole slew index (up to 2.5 ns) rather than at the design's clock slew. (3) Gate priced as idle CLK-pin energy only, no enable logic or area, so G=1 'wins' are not physical. (4) Macro energy is A_CLK only at typ corner, packed is a best case. (5) IHP cells filtered by capacity, SKY130 cells in accel-gatedprice not, so the two nodes' cell sets differ. Each is either disclosed or small, but together a senior reviewer would not sign off the ungated half of the conclusion without a sensitivity sweep."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "IHP sg13g2_dfrbp_1 idle CLK energy per cycle at 1.2 V",
+      "method": "independent line-oriented liberty reader over the ORFS-pinned IHP stdcell .lib; mean rise+fall per when-group, plus C_pin*V^2",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/ihp/scripts/indep.py /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/ihp/dl/orfs",
+      "expected": "33.90 fJ (README)",
+      "observed": "33.898 fJ; hold-only groups (D==Q, RESET_B=1) also 33.9 fJ",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "IHP sg13g2_slgcp_1 idle gate energy and SKY130 dfxtp_1 / dlclkp_1",
+      "method": "same independent reader on IHP and SKY130 HD tt_025C_1v80 libraries",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/ihp/scripts/indep.py /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/ihp/dl/orfs (SKY130 via the same pin_groups on sky130_fd_sc_hd__tt_025C_1v80.lib)",
+      "expected": "25.3, 46.4, 39.7 fJ",
+      "observed": "25.255, 46.358, 39.657 fJ",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Ten IHP macro read energies (A_CLK, A_MEN&!A_WEN&A_REN)",
+      "method": "grep of the scalar in each RM_IHPSG13_1P_*_typ_1p20V_25C.lib (ORFS pinned) and the 256x64 file from IHP-GmbH/IHP-Open-PDK main",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/ihp/dl/orfs && for f in RM_*typ_1p20V*; do grep -A2 'when : \"A_MEN  & !A_WEN & A_REN\"' $f | grep -o 'values ([0-9.]*)'; done",
+      "expected": "15.60 ... 122.39 pJ (section C)",
+      "observed": "15.5961, 33.7167, 26.4863, 58.6440, 37.8200, 39.0507, 49.6340, 68.8967, 91.8272, 122.3940; upstream IHP-Open-PDK 256x64 also 49.6340",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Energy unit of IHP internal_power",
+      "method": "IHP macro file header comment: internal_power unit '1e-12 * J/toggle' = capacitive_load_unit x voltage_unit^2",
+      "command": "sed -n 68,80p /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/ihp/dl/orfs/RM_IHPSG13_1P_256x64_c2_bm_bist_typ_1p20V_25C.lib",
+      "expected": "pJ reading (energy_unit_pj = 1)",
+      "observed": "header states pJ per toggle; current_unit 1uA reading would be 1000x low",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Verdict counts: 120 cells, ungated 92, G=24 120, packed ungated 33/60, max G* 6",
+      "method": "independent script re-deriving breakeven ratio = w_saved/(extra_flops*cycles) from the planebatch counts and the ten grepped read energies",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/ihp/scripts/verdict.py research/accel-ihpprice/data/fetchprice_results.json 415.618",
+      "expected": "120, 92, 120, 33/60, 6",
+      "observed": "(120, 92, 120, 33, 60, 6)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Write/read ratio range and unpacked flop-cycle range",
+      "method": "hand division of section C values by e_flop 33.90 fJ",
+      "command": "python3 -c \"print(80.02/68.90, 50.50/39.05, 15.5961/0.033898, 122.394/0.033898)\"",
+      "expected": "1.16 to 1.29; 460 to 3,610",
+      "observed": "1.161, 1.293; 460, 3611",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "experiments/run.py reproduces results.txt",
+      "method": "scratch copy with the fetched liberty files placed at pdk/orfs/flow/platforms",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/ihp/copy && python3 experiments/run.py && diff experiments/results.txt /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/ihp/orig_results.txt",
+      "expected": "identical",
+      "observed": "IDENTICAL",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run as documented",
+      "command": "cd research/accel-ihpprice && python3 -m unittest discover -s tests",
+      "expected": "8 tests pass",
+      "observed": "Ran 8, OK (skipped=1: real-library test skips without pdk/; passes in scratch copy with libraries)",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "SKY130 ungated WS 'lost at nearly every packed cell'",
+      "method": "accel-gatedprice experiments/results.json g_star rows",
+      "command": "cd research/accel-gatedprice && python3 -c \"import json;g=json.load(open('experiments/results.json'))['g_star'];p=[x for x in g if x['packed']];print(len(p),sum(x['ungated_ws_wins'] for x in p))\"",
+      "expected": "few wins",
+      "observed": "32 packed cells, 2 ungated wins",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'IHP SRAM dearer relative to flops by about 4 to 8 times when packed'",
+      "method": "like-for-like 64-bit macros: IHP packed 72-226 flop-cycles vs SKY130 64-bit 61.5",
+      "command": "python3 -c \"print(72/18, 497/62, 72/61.5, 226/61.5)\"",
+      "expected": "4 to 8x for comparable macros",
+      "observed": "4.0, 8.0 only from range endpoints of different macro sets; 1.2 to 3.7x for 64-bit macros",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "live page and disclaimer",
+      "method": "load served page",
+      "command": "curl -sS https://marisstella.app/research/accel-ihpprice/ | grep -o '33 of the 60\\|AI assistance'",
+      "expected": "200 with result and disclaimer",
+      "observed": "200, '33 of the 60' and AI-assistance disclaimer present",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "Sensitivity of the ungated verdict to omitted clock-tree energy",
+      "method": "scale e_flop and e_icg by 1.5, 2, 3 (clock-network overhead per flop)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/ihp/scripts/verdict.py research/accel-ihpprice/data/fetchprice_results.json 415.618",
+      "expected": "a robust headline survives modest overhead",
+      "observed": "packed ungated WS wins 33 -> 24 -> 18 -> 12 of 60; gated G=24 still 120/120 (max G* 9/12/18)",
+      "result": "partial"
+    },
+    {
+      "dimension": "fitness",
+      "what": "Prior work cited",
+      "method": "grep README for Eyeriss/Timeloop/Accelergy/CACTI/Horowitz",
+      "command": "grep -n 'Horowitz\\|Eyeriss\\|Sze\\|Accelergy\\|CACTI' research/accel-ihpprice/README.md",
+      "expected": "nearest prior work named",
+      "observed": "no matches; only sibling repo projects cited",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "fetch_pdk.sh enforces the pinned commit",
+      "method": "read script",
+      "command": "grep -n '|| true' research/accel-ihpprice/fetch_pdk.sh",
+      "expected": "failure to fetch the pin aborts",
+      "observed": "line 10: '... && git checkout -q \"$COMMIT\" || true' silently keeps master HEAD",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/accel-ihpprice/src/accel_ihpprice/lib.py:110",
+      "change": "pin_switch = cap_pf * vdd * vdd -> cap_pf * vdd",
+      "caught": true,
+      "test_cmd": "cd research/accel-ihpprice && python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/accel-ihpprice/src/accel_ihpprice/lib.py:174",
+      "change": "math.ceil(e_icg_pj / head) -> round(e_icg_pj / head)",
+      "caught": false,
+      "test_cmd": "cd research/accel-ihpprice && python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/accel-ihpprice/experiments/run.py:104",
+      "change": "ung = e_flop < ew * ratio -> e_icg < ew * ratio",
+      "caught": false,
+      "test_cmd": "cd research/accel-ihpprice && python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/accel-ihpprice/src/accel_ihpprice/lib.py:155",
+      "change": "unpacked e_weight access_pj -> access_pj / 2",
+      "caught": true,
+      "test_cmd": "cd research/accel-ihpprice && python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Headline 'ungated WS wins about half the packed cells' (33/60) rests on flop clock-pin energy with the clock tree and wire omitted; with a 2x clock-network overhead it falls to 18/60 and to 12/60 at 3x. No sensitivity sweep is reported, so the 'node-dependent' half of the conclusion is not robust as stated",
+      "where": "research/accel-ihpprice/README.md:32",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "No prior work cited (Eyeriss, Timeloop/Accelergy, CACTI, clock-gating literature, Horowitz 2014); the generalisation result is an expected consequence of the breakeven and novelty is not positioned; no programme or paper",
+      "where": "research/accel-ihpprice/README.md:9",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "Verdict logic in experiments/run.py and min_group_size rounding have no test that fails on a seeded bug; the only real-data test is skipped by default and nothing pins results.txt (2 of 4 mutations survived)",
+      "where": "research/accel-ihpprice/experiments/run.py:104",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "fetch_pdk.sh '|| true' lets a failed pinned-commit fetch silently fall back to ORFS master HEAD, so reproductions may read different liberty files",
+      "where": "research/accel-ihpprice/fetch_pdk.sh:10",
+      "category": "repo-hygiene",
+      "origin": "build"
+    },
+    {
+      "severity": "low",
+      "what": "'IHP SRAM dearer relative to flops by about 4 to 8 times when packed' divides range endpoints of different macro sets; for comparable 64-bit macros it is 1.2 to 3.7x",
+      "where": "research/accel-ihpprice/README.md:29",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "min_group_size docstring promises strict '<' but ceil returns G with equality ('<='), and the test comment says '<='",
+      "where": "research/accel-ihpprice/src/accel_ihpprice/lib.py:174",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Idle flop energy averages internal power over the full 0.02-2.5 ns input-slew axis instead of the design's clock slew (fast-slew entries ~8% lower); not discussed",
+      "where": "research/accel-ihpprice/src/accel_ihpprice/lib.py:104",
+      "category": "domain-rule",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14965"
+  ],
+  "verdict": "Every number checked is right: an independent liberty reader over files I fetched (ORFS at the pinned commit, and IHP-Open-PDK upstream for one macro) reproduces the IHP and SKY130 flop and gate energies, all ten macro read energies and the 92/120, 33/60, max-G 6 verdict counts, and run.py regenerates results.txt byte for byte. The unit question is settled by the IHP macro header. It falls short of the bar on verification (two of four seeded bugs survive; the verdict code and the real-library path are untested by default) and on research depth: no prior work is cited (Eyeriss, Timeloop/Accelergy, CACTI), and the 'ungated WS is node-dependent' half of the headline is not robust to the omitted clock-tree energy (33 to 18 of 60 packed wins at 2x). A useful, honest data point in a chain, not a publishable result."
+}

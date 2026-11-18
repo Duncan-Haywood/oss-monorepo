@@ -144,7 +144,7 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const keys = ["qty", "w", "h", "cutPath", "passes", "engravePct", "gap", "targetPerPiece", "setupMin", "loadMin", "finishMin", "machineRate", "laborRate", "overheadRate", "supplies", "scrapPct", "marginPct", "rushPct", "minCharge", "materials"];
-    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const usd = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     let last = null;
 
     function read() {
@@ -164,7 +164,7 @@
       $("#sens").innerHTML = r.sensitivity.map((x) => `<tr><th scope="row">${usd(x.sheetPrice)}</th><td>${usd(x.materialCost)}</td><td>${usd(x.perPiece)}</td><td>${usd(x.price)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Quote ${usd(r.best.perPiece)} per piece in ${r.best.material}.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

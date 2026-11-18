@@ -32,7 +32,7 @@ test("SEO basics", () => {
   const html = page("index.html");
   assert.match(html, /<title>Tile Layout Planner/);
   assert.match(html, /<meta name="description" content="[^"]{80,}/);
-  assert.match(html, /<link rel="canonical" href="\.\/index\.html">/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/example\.invalid\/tile-layout-planner\/">/);
   assert.match(html, /<meta property="og:title"/);
   assert.match(html, /<h1>/);
   assert.match(html, /<html lang="en">/);
@@ -134,7 +134,7 @@ test("the guide page carries the clauses, links both ways, and its worked exampl
   assert.match(guide, /No warranty/);
   assert.match(guide, /not installation instructions or a material guarantee/i);
   assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
-  assert.match(guide, /<link rel="canonical" href="\.\/how-many-tiles-do-i-need\.html">/);
+  assert.match(guide, /<link rel="canonical" href="https:\/\/example\.invalid\/tile-layout-planner\/how-many-tiles-do-i-need\.html">/);
   assert.match(guide, /href="\.\/"/);
   assert.match(page("index.html"), /href="\.\/how-many-tiles-do-i-need\.html"/);
   assert.match(page("sitemap.xml"), /how-many-tiles-do-i-need\.html/);

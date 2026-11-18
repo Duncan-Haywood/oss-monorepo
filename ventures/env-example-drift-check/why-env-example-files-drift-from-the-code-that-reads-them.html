@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to .env.example Drift Check</a></p>
   <h1>Why .env.example files drift from the code that reads them</h1>
 
@@ -88,7 +89,9 @@
   <h3>What about variables read from a config object instead of process.env directly?</h3>
   <p>Not scanned in v0. A codebase that centralizes all environment reads into one config module (a common and good pattern) means most of the actual <code>process.env.FOO</code> calls live in one or two files, which is exactly where pointing the CLI at that module still works well; a config object built dynamically from a list of names, rather than named <code>process.env.FOO</code> calls, is outside what a deterministic text scan can see.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it documents report whether a variable name appears on both sides of a text diff between an example file and scanned source code — nothing more. It is not security, legal, or engineering advice, and it is not a secrets scanner or a guarantee that your configuration is complete or safe. Verify by reading the actual files before relying on it.
     <a href="./">Back to the tool</a>.</p>
   </footer>

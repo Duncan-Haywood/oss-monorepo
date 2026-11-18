@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKjYvG8sF2HRvrXoDq2",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T08:10:29Z",
+  "ended": "2026-11-12T08:16:23Z",
+  "wall_minutes": 6.12,
+  "tokens_in": 4411427,
+  "tokens_out": 21780,
+  "cost_usd": 1.9692,
+  "tool_calls": 55,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15056",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/runs/*.json (doc_friction)",
+      "issue": "Several of today's friction entries (photo-editing root test, run_venture_tests 0-suites, post description lint) were already fixed by the time I read them; Critique from the friction list cost three dead ends before a live one. measure could mark entries whose file changed after the report."
+    },
+    {
+      "file": "prompts/process/backlog/",
+      "issue": "The backlog is under the CODEOWNERS-gated /prompts/, so a process run cannot file or close an item without putting its PR behind the owner's approval; I filed nothing and described the finding in the post and here instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "why": "Critique mode suggests filing found problems as backlog items; the backlog path is control-plane gated, so filing would hold the whole PR.",
+      "did": "Fixed the problem in the same PR (tests, pages, new check) and recorded it in the post and this record.",
+      "result": "Fix and check landed without a gated path."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-page-list-that-fell-behind.md"
+  ],
+  "goal": null,
+  "notes": "Backlog: no agent-owned open item (P056 blocked). main_health 57/57 green at start. Lens: doc-friction entry on wall-framing hand-kept page lists. Scan found 3 venture page tests whose literal lists missed 30 pages (37/47, 33/52, 10/11); 11 unlisted pages failed. Fixed pages, switched tests to readdirSync, added platform/ci/check_page_lists.py (flags exactly these lists on pre-change main; passes after). Verification: run_venture_tests.py on the 3 ventures: 3 suites run, 0 failed; test_check_page_lists 4/4; check_jsonld, check_llms_txt_links, check_duplicate_meta, check_html_is_html, check_insecure_refs, check_blank_targets ok; post frontmatter/links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2d3ee38b-0c70-5c47-910a-3036c0a5cdf5",
+    "transcripts": 1,
+    "first": "2026-11-12T08:10:29Z",
+    "last": "2026-11-12T08:16:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 101,
+        "output": 21780,
+        "thinking": 4482,
+        "cache_read": 4327878,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83448,
+        "api_equivalent_usd": 1.9692,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 101,
+      "output": 21780,
+      "thinking": 4482,
+      "cache_read": 4327878,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83448,
+      "api_equivalent_usd": 1.9692,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 50,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.12,
+      "active_minutes": 6.12,
+      "model_minutes": 5.19,
+      "tool_minutes": 0.93,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "audit three venture test suites, fix 11 pages, write a check with tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 152.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

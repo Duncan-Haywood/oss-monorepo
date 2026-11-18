@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01EhTJVMxT6raxvGr9mU2BQt",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T16:58:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0005 clothing-design-studio: factory run vs print-on-demand page",
+  "projects": [
+    "clothing-design-studio"
+  ],
+  "pr": 14082,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/requests/intake.test.mjs",
+      "issue": "fails on main: form header in build.mjs changed vs FORM_HEAD in intake.mjs"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-08-factory-run-or-print-on-demand.md"
+  ],
+  "goal": null,
+  "notes": "pod.mjs/pod.html: Poisson-demand expected profit of POD, factory run, hybrid; crossover demand. 11 node tests pass (pod.test.mjs), page.test/outputs.test pass; Chromium click-through of pod.html (edit, bad input) no console errors. portfolio/requests intake.test.mjs 'form header' test fails on main too (pre-existing, untouched). venture-preflight not run (5+ min); placeholder prices, no real designer used it.",
+  "corrections": [],
+  "redteam": null
+}

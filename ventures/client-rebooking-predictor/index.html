@@ -163,7 +163,7 @@
 
     function renderPlan() {
       if (!last) return;
-      const plan = contactPlan(last, { perWeek: Number($("#per-week").value) || 10, weeks: Number($("#plan-weeks").value) || 4 });
+      const plan = contactPlan(last, { perWeek: Number($("#per-week").value) || 10, weeks: Number($("#plan-weeks").value) || 4 }); /* zero-default: a plan of 0 contacts or 0 weeks lists nobody */
       plan.tpl = $("#tpl").value;
       plan_ = plan;
       $("#plan-summary").textContent = plan.items.length ? `${plan.items.length} contacts: about ${num(plan.expectedReturns, 1)} expected to book within the window${plan.expectedRevenue === null ? "" : `, roughly ${money(plan.expectedRevenue)} of one visit each`}. An estimate from past behaviour, not a promise.` : "Nobody is overdue or due, so there is nothing to plan.";
@@ -202,7 +202,7 @@
       renderPlan();
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

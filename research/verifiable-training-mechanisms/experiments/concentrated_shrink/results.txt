@@ -1,0 +1,22 @@
+Calibration: 20 honest seeds x 75 segments (s = 20) = 1500 segments; rho = max ratio = 0.3067, p99 = 0.1246, median = 0.0081; milestone 72 max was 0.2267.
+Test: 20 seeds, budget E = 30 step-equivalents withheld, N = 75 segments per job.
+flag = share of segments flagged; q = flagged segments per job (mean); P(k) = mean over seeds of 1 - C(N-q,k)/C(N,k);
+dL = held-out loss minus the same seed's honest run (mean [95% bootstrap CI]).
+  config            eta  dL mean [95% CI]                 flag     q  P(k=1)  P(k=5)  P(k=10)  P(k=20)
+  honest          0.000  +0.0000 [+0.0000, +0.0000]       0.000  0.00   0.000   0.000   0.000   0.000
+  W=1500 all      0.020  +0.0008 [+0.0007, +0.0009]       0.001  0.10   0.001   0.007   0.013   0.027
+  W=300 early     0.100  +0.0017 [+0.0015, +0.0018]       0.192 14.40   0.192   0.666   0.898   0.993
+  W=300 late      0.100  +0.0001 [+0.0001, +0.0001]       0.197 14.75   0.197   0.676   0.905   0.994
+  W=100 early     0.300  +0.0016 [+0.0015, +0.0018]       0.067  5.05   0.067   0.301   0.525   0.801
+  W=100 late      0.300  +0.0000 [-0.0000, +0.0000]       0.067  5.00   0.067   0.299   0.521   0.798
+  W=30 early      1.000  +0.0019 [+0.0015, +0.0022]       0.027  2.00   0.027   0.130   0.250   0.465
+  W=30 late       1.000  +0.0000 [-0.0000, +0.0000]       0.027  2.00   0.027   0.130   0.250   0.465
+Same table's flag column at milestone 72's threshold rho = 0.2267 (sensitivity):
+  honest         flag 0.001  P(k=5) 0.003
+  W=1500 all     flag 0.010  P(k=5) 0.050
+  W=300 early    flag 0.200  P(k=5) 0.684
+  W=300 late     flag 0.201  P(k=5) 0.685
+  W=100 early    flag 0.067  P(k=5) 0.301
+  W=100 late     flag 0.067  P(k=5) 0.301
+  W=30 early     flag 0.027  P(k=5) 0.130
+  W=30 late      flag 0.027  P(k=5) 0.133

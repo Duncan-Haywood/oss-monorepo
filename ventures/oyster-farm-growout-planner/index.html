@@ -157,7 +157,7 @@
       $("#lines").innerHTML = rows.map(([k, x]) => `<tr><th scope="row">${esc(k)}</th><td class="n">${money(x)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Net ${money(r.net)}; break-even $${r.breakEvenBlendedPrice.toFixed(2)} per oyster.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

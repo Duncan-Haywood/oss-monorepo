@@ -1,0 +1,12 @@
+┌─────────┬─────┬───────────────┬─────────────────────────────────────────────┬────────────────────────────────────────────┐
+│ (index) │ rho │ truth         │ plain                                       │ ar1                                        │
+├─────────┼─────┼───────────────┼─────────────────────────────────────────────┼────────────────────────────────────────────┤
+│ 0       │ 0   │ 'no change'   │ 'ramp 0/40, one on truth 0/40, cuts 0.1'    │ 'ramp 0/40, one on truth 0/40, cuts 0.0'   │
+│ 1       │ 0   │ 'ramp H8 L12' │ 'ramp 34/40, one on truth 34/40, cuts 2.4'  │ 'ramp 34/40, one on truth 34/40, cuts 2.2' │
+│ 2       │ 0   │ 'ramp H8 L24' │ 'ramp 38/40, one on truth 38/40, cuts 3.0'  │ 'ramp 38/40, one on truth 38/40, cuts 2.7' │
+│ 3       │ 0   │ 'ramp H8 L48' │ 'ramp 40/40, one on truth 40/40, cuts 3.6'  │ 'ramp 40/40, one on truth 40/40, cuts 3.4' │
+│ 4       │ 0.5 │ 'no change'   │ 'ramp 0/40, one on truth 0/40, cuts 11.7'   │ 'ramp 0/40, one on truth 0/40, cuts 0.1'   │
+│ 5       │ 0.5 │ 'ramp H8 L12' │ 'ramp 38/40, one on truth 37/40, cuts 13.8' │ 'ramp 13/40, one on truth 13/40, cuts 1.5' │
+│ 6       │ 0.5 │ 'ramp H8 L24' │ 'ramp 35/40, one on truth 32/40, cuts 14.5' │ 'ramp 35/40, one on truth 35/40, cuts 1.9' │
+│ 7       │ 0.5 │ 'ramp H8 L48' │ 'ramp 33/40, one on truth 31/40, cuts 13.8' │ 'ramp 37/40, one on truth 37/40, cuts 2.7' │
+└─────────┴─────┴───────────────┴─────────────────────────────────────────────┴────────────────────────────────────────────┘

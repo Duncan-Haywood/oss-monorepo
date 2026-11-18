@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01XpHqyeVvNabHsxF8XcywdL",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "work item on the repo performance and reliability engineering on the site. lots of painfully slow load speeds and downtime",
+  "input_sha256": "32949e19afab33163d5c452c9f920ffe245318b7a71d40971aabe7edfaaf3ace",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T04:05:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Owner: performance and reliability work on the site (slow loads, downtime). Live measurements, modulepreload on tool pages, no-retry site probe.",
+  "projects": [
+    "platform/pages",
+    "platform/ci",
+    "portfolio/work"
+  ],
+  "pr": 13709,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 15,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A hook rejects pgrep -f '[s]ite_probe.py' when the same name appears elsewhere in the command line (e.g. a following report call); split into two calls."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "The owner's message asked for a work item; the site-performance direction and its tasks already existed from 2026-11-06, so I advanced it with live data and a fix instead of adding a duplicate direction.",
+      "did": "site_probe.py, modulepreload pass, report, three new tasks",
+      "result": "landed"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-07-live-site-measurements.md",
+    "docs/posts/2026-11-07-tool-pages-load-their-modules-at-once.md"
+  ],
+  "goal": null,
+  "notes": "Live site reachable from the session today (it was blocked on 2026-11-06). site_probe: 1,112 requests 03:15-04:03 UTC, 100% ok, 4 deploys in the window, TTFB p50 ~160 ms p95 ~360 ms. Modulepreload: 211 pages, 1,515 links, deepest chain 11; HTTP/2 A/B at 150 ms/response DCL -29% to -61%, no page errors. Local build 2m08s; check.mjs dist: publishable, 7,438 pages, no dead links; node --test build/offline/check/build-determinism/preload: 422 pass; test_site_probe.py 9 OK; venture-sitemap-coverage 3 pass after adding fence-calculator.html (red on main from PR #13701). Downtime not reproduced; window is early in the UTC day, so the Worker-budget hypothesis stands.",
+  "corrections": [],
+  "redteam": null
+}

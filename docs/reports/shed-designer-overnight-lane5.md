@@ -1,3 +1,9 @@
+---
+kind: lane
+subjects: [shed-designer]
+topics: [redteam]
+tagged: auto
+---
 # Shed Designer overnight, lane 5: adversarial QA and robustness
 
 2026-10-29. Session https://claude.ai/code/session_01XpHqyd3twBvmmRdYbigYAJ.

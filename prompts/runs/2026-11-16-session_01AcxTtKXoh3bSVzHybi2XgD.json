@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtKXoh3bSVzHybi2XgD",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T17:07:16Z",
+  "ended": "2026-11-16T17:14:53Z",
+  "wall_minutes": 12.7,
+  "tokens_in": 3190384,
+  "tokens_out": 16477,
+  "cost_usd": 1.5088,
+  "tool_calls": 44,
+  "task": "Polish: shop-rates bar first-visit sentence shortened so it sits beside its button on a phone",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16645",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First test run: 175 failures, all from my new post's description being 165 characters (limit 160, enforced by writing.mjs loadPost). Shortened to 150; rerun 1,742/1,742 pass."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-16-*.md",
+      "issue": "Several of today's polish reports still carry 'the hub's empty right half at 1,280 px' as an open item after polish-2026-11-16-hero-art.md fixed it; I had to read the hero-art report to learn it was done. A 'Still weakest' list would be more useful if later runs struck items fixed elsewhere."
+    },
+    {
+      "file": "docs/posts (writing.mjs loadPost)",
+      "issue": "The 160-character description limit surfaces as 175 failing site tests rather than one clear failure; a front-matter check before the suite (or checking the new post alone) would have caught it in seconds."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Measured 'after' on the built dist/ with the new string written into the 125 bar pages and pf-rates.js regenerated from rates.mjs, instead of a second 20-minute full build; the change is one string in markup and script.",
+      "did": "patched dist in place, then ran check.mjs and the full site test suite on the source",
+      "result": "check.mjs publishable, 1,742/1,742 tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-shop-rates-line-fits-on-a-phone.md",
+    "docs/reports/polish-2026-11-16-rates-line.md"
+  ],
+  "goal": "impressive sites: phone layout of the 118 trade bid calculators",
+  "notes": "Fit test of 6 sentences on all 124 rates-bar pages at 360/390 px; 'Save rates once for every bid.' fits beside the button on 121/124 at 360 and 124/124 at 390 (old sentence: 0/0). Both bars on 118 pages: 132 px -> 85 px median at 360 and 390 px, unchanged 85 px at 1,280; no sideways scroll. node platform/pages/check.mjs: 'looks publishable: 1373 products, 45 category pages, 10729 pages, no dead links.' node --test 'platform/pages/*.test.mjs': 1742 tests, 1742 pass, 0 fail.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c7487ee4-1e8d-543b-8ba2-d3e1c9b735ab",
+    "transcripts": 1,
+    "first": "2026-11-16T17:07:16Z",
+    "last": "2026-11-16T17:19:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 78,
+        "output": 16477,
+        "thinking": 2477,
+        "cache_read": 3120963,
+        "cache_write_5m": 0,
+        "cache_write_1h": 69343,
+        "api_equivalent_usd": 1.5088,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 78,
+      "output": 16477,
+      "thinking": 2477,
+      "cache_read": 3120963,
+      "cache_write_5m": 0,
+      "cache_write_1h": 69343,
+      "api_equivalent_usd": 1.5088,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 40,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.7,
+      "active_minutes": 12.7,
+      "model_minutes": 3.82,
+      "tool_minutes": 8.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "front-end dev: fit test across 124 pages, measure, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 132.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

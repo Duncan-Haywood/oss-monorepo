@@ -1,0 +1,4 @@
+m | certified pilots | draws | violations of returned<=pilot-best | share of draws where search beats pilot-best | mean excess of pilot-best over pool minimum | mean realised regret
+8 | 1987 | 397400 | 0 | 0.609 | 0.0425 | 0.0131
+16 | 2649 | 529800 | 0 | 0.519 | 0.0302 | 0.0109
+24 | 3085 | 617000 | 0 | 0.391 | 0.0198 | 0.0082

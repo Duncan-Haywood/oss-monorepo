@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-10-30
+tagged: auto
+---
 # Polish 2026-10-30: the Pages build was red on two front-matter limits
 
 **Found.** `node platform/pages/build.mjs` on `main` (a2f2320e) threw in `writing.mjs`:

@@ -34,6 +34,7 @@
     .warn { background: #fff6e0; border: 1px solid #e8cf8a; border-radius: 8px; padding: 9px 12px; }
     .flag { display: inline-block; background: #fdecec; color: #8a1c1c; border-radius: 5px; padding: 1px 6px; margin: 1px 4px 1px 0; font-size: .8rem; }
   </style>
+<style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;min-width:0!important;overflow-x:auto}code{overflow-wrap:anywhere}pre{max-width:100%;overflow-x:auto}fieldset,section,form,div,main{min-width:0}input,select,textarea{max-width:100%}</style>
 </head>
 <body>
   <main>
@@ -94,7 +95,12 @@ curl "localhost:8080/v1/forecast?target=50000" -H "authorization: Bearer $API_KE
     const $ = (id) => document.getElementById(id);
     const el = (tag, text, cls) => { const e = document.createElement(tag); e.textContent = text; if (cls) e.className = cls; return e; };
     const pct = (x) => (x * 100).toFixed(0) + "%";
-    const money = (x) => "$" + Math.round(x).toLocaleString("en-US");
+    const money = (x) => {
+      const format = (x) => "$" + Math.round(x).toLocaleString("en-US");
+      if (!(Number(x) < 0)) return format(x);
+      const text = format(Math.abs(x));
+      return /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const day = (t) => (t == null ? "-" : new Date(t).toISOString().slice(0, 10));
     function table(head, rows) {
       const t = document.createElement("table"), hr = document.createElement("tr");

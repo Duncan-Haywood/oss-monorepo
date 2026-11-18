@@ -164,7 +164,7 @@ node cli.mjs analyze containers.csv --json</pre>
       els.estimate.textContent = report.count ? `A recommendation from a snapshot, not a bill. ${PRICES_AS_OF}. Usage must be sampled over a representative period, including peaks; test any change first.` : "";
       els.reportCard.hidden = false;
       record("analyze_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

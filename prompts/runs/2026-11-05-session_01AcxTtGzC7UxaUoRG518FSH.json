@@ -1,0 +1,47 @@
+{
+ "date": "2026-11-05",
+ "session": "https://claude.ai/code/session_01AcxTtGzC7UxaUoRG518FSH",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-05T11:45:06Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13310",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/build-data/LOG.md",
+   "issue": "Newest entry is at the top but older entries below run newest-first too; tail shows the oldest, cost me a wasted read."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-11-05-austin-permit-intervals-barely-narrow.md",
+  "research/build-data/LOG.md session 29"
+ ],
+ "goal": null,
+ "notes": "Austin a2i H2g backtest, 1 seed, one job at a time (5 min/year). H2g refuted on width half: 2 of 3 inside, 1 of 3 15% narrower.",
+ "corrections": [],
+ "redteam": null
+}

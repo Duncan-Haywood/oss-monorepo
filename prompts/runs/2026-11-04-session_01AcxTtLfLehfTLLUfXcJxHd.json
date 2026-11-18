@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01AcxTtLfLehfTLLUfXcJxHd",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-04T08:11:03Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13044",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post: small CI perf change, covered by the history doc",
+      "did": "history doc only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-04-payment-keys-literal-prefilter.md"
+  ],
+  "goal": null,
+  "notes": "Metric: check_payment_keys.py wall 9.0s (cProfile) -> 1.15s; its unit tests 7.4s -> 1.2s; taken locally with time/cProfile, 4-core sandbox. Portfolio validate 'Check no venture hardcodes' + tests were 8.2 of 111 job-min over 43 jobs (ci_profile --runs 600).",
+  "corrections": [],
+  "redteam": null
+}

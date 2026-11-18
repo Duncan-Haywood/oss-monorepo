@@ -19,6 +19,15 @@ class DeadLinks(unittest.TestCase):
             )
             self.assertEqual([u for _, u, _ in c.dead_links(root)], ["https://example.invalid/foo/other.html"])
 
+    def test_retired_host_is_flagged(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            v = root / "ventures" / "foo"
+            v.mkdir(parents=True)
+            (v / "guide.html").write_text("x")
+            (v / "llms.txt").write_text("- [old](https://duncan-haywood.github.io/monorepo-projects/foo/guide.html)\n")
+            self.assertEqual([w for _, _, w in c.dead_links(root)], ["retired address (use github.io/oss-monorepo/)"])
+
     def test_finds_only_dead_links(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
@@ -50,6 +59,23 @@ class DeadLinks(unittest.TestCase):
             (v / "llms.txt").write_text(
                 "- [ok](https://duncan-haywood.github.io/oss-monorepo/foo/guide.html)\n")
             self.assertEqual(c.dead_links(root), [])
+
+    def test_main_exit_code(self):
+        import contextlib, io
+        old = c.REPO
+        try:
+            with tempfile.TemporaryDirectory() as d:
+                root = Path(d)
+                v = root / "ventures" / "foo"
+                v.mkdir(parents=True)
+                (v / "llms.txt").write_text("- [ok](https://duncan-haywood.github.io/oss-monorepo/foo/)\n")
+                c.REPO = root
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(c.main(), 0)
+                    (v / "llms.txt").write_text("- [bad](https://duncan-haywood.github.io/oss-monorepo/nope/x.html)\n")
+                    self.assertEqual(c.main(), 1)
+        finally:
+            c.REPO = old
 
 
 if __name__ == "__main__":

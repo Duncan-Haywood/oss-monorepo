@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVNfHG35BkMjGtNZwb3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T22:02:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 3 sales-agent: the daily run reads the user's own sent mail as the done list",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": 14902,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "huggingface.co CONNECT refused (403) through the proxy, so the local-model items (1) and (3) were not possible"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "sales-agent buildable item (6) (daily run reading --mail) was already done: cli.mjs --tasks with --mail ran the inbox then the daily run. The real gap was the user's own sent mail being dropped, so the item was reinterpreted as 'sent mail as the done list'."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-sales-agent-sent-mail-done-list.md"
+  ],
+  "goal": null,
+  "notes": "Sales-agent suite 495/495 pass; daily-sent + mailfile tests 19/19. Enron sent-folder check (eval/sent-enron.mjs vs Python email reference): recipients 7,745 -> 7,801 of 7,836 after keeping apostrophes in local parts; day 7,836/7,836. venture-preflight run in background; CI on PR #14902.",
+  "corrections": [],
+  "redteam": null
+}

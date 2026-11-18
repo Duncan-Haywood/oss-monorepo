@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVPj9TX6VDfyiSKd36q",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ...)",
+  "input_sha256": "f0940a04757810de07f56e2c3705fe96e1a45d8de98448e85edef4ca28d67d12",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T12:04:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight: Peppol id rules on PartyIdentification and CompanyID (allocator row 3, BUILDABLE HERE item)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 16926,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace with a slightly longer value parked 6 items to NEXT.md without asking (default --make-room); fine, but surprising."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-peppol-id-rules-beyond-the-endpoint.md",
+    "ventures/einvoice-preflight/eval/party-id-peppol-differential-2026-11-17.md"
+  ],
+  "goal": "Apply OpenPeppol's PEPPOL-COMMON id rules where Peppol applies them (party ids and legal registration numbers), on JSON input and non-Peppol files, measured against Peppol's own rules on whole files.",
+  "notes": "INV-062 (blocking, fatal set) and INV-063 (warning set) on legal_id and new party_ids, read from UBL PartyIdentification/CompanyID and CII GlobalID/SpecifiedLegalOrganization. Whole-file differential vs Peppol's COMMON assertions (fontoxpath+slimdom): 0 disagreements on 9,431 files (seed 7) and 9,363 (seed 11). Found Peppol's CII R050 lacks the UBL rule's 11-digit test; kept stricter, counted apart. Verification: run_venture_tests.py einvoice-preflight ok (2640 tests); party-ids.test.mjs 7 pass; tests/test_endpoint.py 22 pass; post front matter/links/similarity clean; venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null
+}

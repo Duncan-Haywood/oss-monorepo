@@ -16,7 +16,7 @@ The strength numbers rest on assumed material constants, and the OpenSCAD files 
 rendered in this run (no OpenSCAD in the image); the STL files come from the same outlines and
 are checked as closed meshes in the tests.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-print/
+**Live page:** https://marisstella.app/research/hanger-print/
 
 ## Why this question
 
@@ -89,7 +89,7 @@ end `hanger-fit` found, which this project did not re-test.
 
 **C. Nothing fits the bed whole.** Whole hangers fit a 256 mm bed only at 15.8 and 16 cm
 (turned 45°) and a 220 mm bed at no width. One arm with its hub fits a 220 mm bed for widths up
-to 24.8 cm (turned 60°), but not for the 25.8 cm XXL. The generated files are the whole
+to 24.8 cm (turned 63°, counting the post and loop that half carries), but not for the 25.8 cm XXL. The generated files are the whole
 hanger; splitting at the hub and a bolted joint is not designed.
 
 ![The four rack widths as printed outlines](experiments/rack.svg)
@@ -124,11 +124,12 @@ loop or pin and the robot's gripper are owner decisions; no run builds or powers
 ## Owner steps
 
 1. Print `experiments/cad/rack_w22.stl` flat (or turn it in the slicer: the best angle is in
-   the results), with PLA or PETG, 3 perimeters, 15–20% infill, no supports.
+   the results). It needs a bed of at least 317.5 mm square (`rack_w16.stl` 235.8 mm); no
+   220 mm bed takes any whole hanger, and no split file exists yet. Use PLA or PETG, 3 perimeters, 15–20% infill, no supports.
 2. Hang a real shirt (size M) on it and compare it with a stock hanger by eye, then try the other
    three widths. Photographs would give the first real check of `hanger-fit`.
 3. Measure the real material: print and break a few arms with weights.
-4. Bill of materials: a printer (any 220 mm bed), about 100 g of filament per hanger. No prices
+4. Bill of materials: a printer with a bed of at least 317.5 mm square for `rack_w22`, about 100 g of filament per hanger. No prices
    are given because none were checked.
 
 ## Limitations
@@ -138,11 +139,18 @@ with assumed constants and no fatigue, creep (PLA creeps under steady load) or l
 check; the whole hanger does not fit a normal bed, and the two-piece version is not designed;
 OpenSCAD files untested in a renderer; one load case.
 
+## Known gaps
+
+- The committed STL files are whole hangers that fit no 220 mm bed (`rack_w22.stl` needs a
+  317.5 mm square), so step 1 above needs a large-format printer until the two-piece
+  version exists; see the quality audit
+  [`2026-11-17-hanger-print.json`](../../portfolio/quality/audits/2026-11-17-hanger-print.json).
+
 ## Reproduce
 
 ```
 cd research/hanger-print
-python3 -m unittest discover -s tests           # 11 tests, under a second
+python3 -m unittest discover -s tests           # 12 tests, under a second
 PYTHONPATH=src python3 experiments/run.py       # writes results.txt and experiments/cad/*.stl|scad
 python3 experiments/figure.py                   # rack.svg and stiffness.svg
 ```

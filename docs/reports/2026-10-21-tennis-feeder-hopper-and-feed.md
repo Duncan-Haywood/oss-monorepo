@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-21
+tagged: auto
+---
 # Open Tennis Robots: the hopper and feed, as a checked CAD model
 
 Agent report, 2026-10-21. Venture: `ventures/open-tennis-robots` (flagship 9).

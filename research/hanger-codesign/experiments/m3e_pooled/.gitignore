@@ -1,0 +1,4 @@
+cache/
+cache_quick/
+results_quick.*
+run_log.txt.tmp

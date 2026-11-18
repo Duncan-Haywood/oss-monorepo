@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtLC9nQiib49cFj9Wpz",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T02:05:32Z",
+  "ended": "2026-11-11T02:25:11Z",
+  "wall_minutes": 19.91,
+  "tokens_in": 4271515,
+  "tokens_out": 20233,
+  "cost_usd": 1.8443,
+  "tool_calls": 60,
+  "task": "Polish: unify the header Search control across hub, site and tool pages (next item from the 2026-11-10 polish notes)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14662",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    {
+      "issue": "First draft of the report gave an unmeasured '~1.5:1' contrast figure for the pill border; replaced with computed WCAG ratios (1.39:1 light, 1.33:1 dark) before committing."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to build into 'a dist folder beside it' and screenshot, but a local server is needed and the README's http.server line is the only hint; the screenshot script must live inside the repo for the playwright ESM import path, which a scratchpad script can't do directly (I copied it in and deleted it after)."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "Default marker is DONE and per-call timeout ~100s, so waiting on a 15-minute build or test run took several repeated calls; --marker/--timeout exist but the polish prompt doesn't mention them."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-three-search-buttons-one-header.md",
+    "docs/reports/polish-2026-11-11-header-search-pill.md"
+  ],
+  "goal": "impressive sites: consistent header on every page",
+  "notes": "Verified locally: node --test 'platform/pages/*.test.mjs' 1501 tests, 1500 pass, 0 fail, 1 skipped; full build.mjs then check.mjs: 8308 pages, no dead links. Headless Chromium at 320px light and 390px dark: no sideways scroll on hub, /writing/, /research/, /ai-bookkeeper/; pill right edge at viewport-16px. Skipped DEFAULT_BASE_URL fix: open PR #14596 already does it.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "42abf2d7-14ed-522e-9239-ac33d76287f5",
+    "transcripts": 1,
+    "first": "2026-11-11T02:05:32Z",
+    "last": "2026-11-11T02:25:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 97,
+        "output": 20233,
+        "thinking": 3015,
+        "cache_read": 4196420,
+        "cache_write_5m": 0,
+        "cache_write_1h": 74998,
+        "api_equivalent_usd": 1.8443,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 97,
+      "output": 20233,
+      "thinking": 3015,
+      "cache_read": 4196420,
+      "cache_write_5m": 0,
+      "cache_write_1h": 74998,
+      "api_equivalent_usd": 1.8443,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 45,
+      "Read": 10,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.91,
+      "active_minutes": 19.91,
+      "model_minutes": 4.51,
+      "tool_minutes": 15.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "front-end dev: audit three header variants, CSS + test change, screenshots at 3 widths and dark mode, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 108.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

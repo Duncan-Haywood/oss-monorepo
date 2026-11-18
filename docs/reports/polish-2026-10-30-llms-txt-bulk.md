@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [llms-txt]
+date: 2026-10-30
+tagged: auto
+---
 # Polish 2026-10-30: starter llms.txt for every tool page
 
 **What.** `platform/ci/gen_llms_txt.py` (tests in `test_gen_llms_txt.py`) wrote 1,286 `ventures/*/llms.txt`

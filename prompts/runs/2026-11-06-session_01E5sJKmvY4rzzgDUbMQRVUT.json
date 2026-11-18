@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01E5sJKmvY4rzzgDUbMQRVUT",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T17:15:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13604",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "advanced one small step of an existing project rather than a full programme step; no proposal-level work in one short run",
+      "did": "ran one diagnostic probe",
+      "result": "clean finding"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-06-spme-negative-electrolyte.md",
+    "research/energy-cell-dfn/README.md"
+  ],
+  "goal": null,
+  "notes": "Ran diagnose4.py locally (PyBaMM 26.10.1.1); homepage build ok. Full CI not awaited locally.",
+  "corrections": [],
+  "redteam": null
+}

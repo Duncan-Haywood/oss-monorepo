@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01AcxTtLrBXF2mB7RfGr4Mko",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T02:09:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13223",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_homepage/build.py",
+      "issue": "takes over 120 s in a cloud session; was moved to background and I did not wait for its ok"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Programme verified-dse has only multi-hour flow runs left, so I shipped a synthesis post from logged numbers instead of a new experiment; homepage build.py not confirmed ok.",
+      "did": "summary post + log entry",
+      "result": "merged-as-is pending"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-05-verified-dse-what-81-milestones-found.md",
+    "research/verified-dse/LOG.md milestone 82"
+  ],
+  "goal": null,
+  "notes": "No new experiment; every figure in the post was copied from LOG.md/PAPER.md. Ideas inbox, requests and security queue were empty.",
+  "corrections": [],
+  "redteam": null
+}

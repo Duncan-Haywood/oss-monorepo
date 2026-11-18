@@ -4,7 +4,7 @@ After using this, you can see whether keeping your old employer plan on COBRA or
 costs less over the months you need coverage, at five levels of medical care, and the dates you must act by —
 which used to mean comparing two plan PDFs and an election notice by hand.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/cobra-vs-marketplace-calculator/
+**Live tool:** https://marisstella.app/cobra-vs-marketplace-calculator/
 
 ```
 node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-deductible 3000 --cobra-deductible-met 2400 \
@@ -20,6 +20,14 @@ Exit 2 on bad input.
 A deterministic calculation over typed numbers and federal deadline rules dated in the source
 (`RULES_AS_OF`). It ignores provider networks, formularies, copays, cost-sharing reductions and state
 continuation laws. Not insurance or legal advice.
+
+## Known gaps
+
+From the quality audit of 2026-11-12 ([`portfolio/quality/audits/2026-11-12-cobra-vs-marketplace-calculator.json`](../../portfolio/quality/audits/2026-11-12-cobra-vs-marketplace-calculator.json)):
+
+- Totals treat the whole period as one plan year. Marketplace plans reset deductibles and out-of-pocket maximums every January 1 (45 CFR 147.104(f)), and most employer plans do too. When a coverage end date is given and the months cross January, the tool now says so; it does not yet split the costs at the reset. On the README example, the worst case for the marketplace can reach $19,660 across two plan years, not the $10,460 shown.
+- There is no premium tax credit table: you type the premium after the credit. From 2026 the enhanced credits have lapsed: Rev. Proc. 2025-25 caps the credit at 400% of the poverty line again, with 2.10% to 9.96% of income expected. The credit is also reconciled on full-year income at tax time, including wages earned before the job ended. The tool warns about neither.
+- Fixed this round: the "COBRA is always cheaper" verdict looked only at $0 of care. It is now exact over both plans' cost curves and has a "COBRA cheaper below $X" verdict. The first premium date is the latest possible one, not the date counted from your own election.
 
 ## Privacy
 

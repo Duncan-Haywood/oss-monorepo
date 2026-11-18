@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVLY1eTktAmAHgG987j",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products; merge when done.",
+  "input_sha256": "58b5cec786884831b6143a6022f8fc3e1c0cbaf7a02482c3dab18d5ce8f79fa6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T04:56:22Z",
+  "ended": "2026-11-17T05:11:04Z",
+  "wall_minutes": 31.3,
+  "tokens_in": 11618783,
+  "tokens_out": 45854,
+  "cost_usd": 4.3421,
+  "tool_calls": 100,
+  "task": "Deepen (flagship 12): ids-model-check -- CI runner parses each model once for all its IDS",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16821",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "Ran two 64-IDS benchmarks concurrently with a test that hung (the truncated-XML bug); the container hit its memory limit and the kernel killed processes. Re-ran one at a time with a peak-memory probe.",
+    "A git stash/stash-pop meant to compare against main ran on a clean tree (the work was already committed), so that one comparison actually ran the branch's code; redone against the git-archive copy of main in the scratchpad."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ids-model-check buildable listed \"Write dataType\" (typeRow), which eval/untyped-values-2026-11-17.md shows already landed; replaced it in this PR with the open dataType-mismatch hint."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "portfolio-pages build copies gitignored, untracked files under ventures/<slug>/eval/corpus (fetched by eval/fetch-audit-corpus.sh) into dist, so check.mjs fails locally on .csproj/.sln/.ids types that CI never sees; deleting the corpus first avoids it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-ids-ci-one-spec-665224-failures.md",
+    "ventures/ids-model-check/eval/ci-scale-2026-11-17.md"
+  ],
+  "goal": "Deepen a flagship: make the IDS GitHub Action / ci-cli usable on a real repository of exports and IDS files.",
+  "notes": "ci-cli.mjs parses each model and IDS once (8 pairs on 4 real opensourceBIM exports: 8.2-8.7 s -> 4.3-4.8 s; 56 pairs with 14 public IDS: 48.6-48.9 s -> 7.5-8.0 s, peak 1.55 GB -> 0.85 GB; stdout identical, JSON identical up to the failure cap). Found with 16 public IDS: a spec with no entity facet applies to all 665,224 MEP entities and the old runner OOMs at Node's 2 GB heap; checkIds now takes maxFailed (ci-cli default 1000, --max-failures / action input max-failures), counts exact via failedCount. Found while testing: parseXml and parseStep looped forever on truncated input (indexOf -1 sent the cursor back to 0); both now throw 'unterminated ...', every prefix of the sample STEP file ends. Local checks: node --test *.test.mjs in ventures/ids-model-check 111 pass, 1 skipped; run_workflow_locally --for-changes: ventures-tests and others green, prompts-ci failed only on this record's unfilled outcome (filled now), portfolio-pages 'Check the built artifact' failed only on the local untracked eval/corpus (deleted; not in the tree).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "54817e31-f66f-5c27-90de-de8e734e6e33",
+    "transcripts": 1,
+    "first": "2026-11-17T04:56:22Z",
+    "last": "2026-11-17T05:27:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 95,
+        "input": 180,
+        "output": 45854,
+        "thinking": 8470,
+        "cache_read": 11477497,
+        "cache_write_5m": 0,
+        "cache_write_1h": 141106,
+        "api_equivalent_usd": 4.3421,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 95,
+      "input": 180,
+      "output": 45854,
+      "thinking": 8470,
+      "cache_read": 11477497,
+      "cache_write_5m": 0,
+      "cache_write_1h": 141106,
+      "api_equivalent_usd": 4.3421,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 100,
+    "tools": {
+      "Bash": 95,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 31.3,
+      "active_minutes": 31.3,
+      "model_minutes": 9.31,
+      "tool_minutes": 21.99,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior JS engineer: profile CI runner, refactor to parse once, diagnose OOM on public IDS, fix two parser hangs with tests, benchmark and write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 138.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -166,9 +166,7 @@ export function calculateBid(input) {
   const annualPrice = initialPrice + recurringPrice * visitsPerYear;
   const annualRecurring = recurringPrice * visitsPerYear;
 
-  const hasProposed = input.proposedRecurring !== null
-    && input.proposedRecurring !== undefined
-    && input.proposedRecurring !== '';
+  const hasProposed = String(input.proposedRecurring ?? '').trim() !== '';
   const proposedRecurring = hasProposed
     ? number(input.proposedRecurring, 'Recurring price you are considering')
     : null;

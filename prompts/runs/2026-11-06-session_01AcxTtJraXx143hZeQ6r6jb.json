@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01AcxTtJraXx143hZeQ6r6jb",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T09:29:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13529",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pick_track drew a capture-* project while the PROGRAMMES default says advance a programme; heavy-hydraulics was BLOCKED and verified-dse already saturated, so I chose aerolog-scaling by reading logs."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-06-uav-alpha-vane-gain-offset.md",
+    "research/aerolog-scaling/LOG.md 9ak"
+  ],
+  "goal": null,
+  "notes": "Local checks: research/_homepage/build.py ok. CI not awaited beyond merge. A harness x0 bug was found, fixed and logged.",
+  "corrections": [],
+  "redteam": null
+}

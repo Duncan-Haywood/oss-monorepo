@@ -1,3 +1,10 @@
+---
+kind: note
+subjects: [distribution]
+topics: [distribution]
+date: 2026-10-29
+tagged: auto
+---
 # Distribution: state on 2026-10-29
 
 Asked for by the owner on 2026-10-29: "let's work more on distribution in

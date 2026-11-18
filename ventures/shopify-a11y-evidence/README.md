@@ -2,7 +2,7 @@
 
 Shopify merchants and agencies can paste an `axe-core` JSON export and create a dated, readable accessibility evidence record in seconds. The tool reports what the supplied automated test found; it does not claim that a storefront is compliant.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/shopify-a11y-evidence/
+**Live tool:** https://marisstella.app/shopify-a11y-evidence/
 
 ## Run it
 
@@ -23,3 +23,13 @@ Everything runs in the browser. The JSON is never uploaded and there are no cook
 The target user is a Shopify merchant or accessibility agency that needs evidence of what was tested and when, not an overlay or a compliance badge. Existing scanners often stop at a dashboard; this wedge produces a portable record and keeps storefront data local. A future version could accept scheduled exports or Shopify theme snapshots behind user-owned credentials, but the free core is useful without them. Potential revenue is a hosted history and agency workflow tier, with zero launch variable cost. The main risks are incomplete automated coverage and users mistaking a report for legal advice, so every result states that it is not a compliance determination and calls for manual review.
 
 This is distinct from `local-site-studio`'s EAA remediation service: it is a self-serve, Shopify-specific evidence artifact, and it currently requires no service engagement or live-site access. The quote page answers “what should this cost to fix.” The theme-area page answers “which Liquid file do I open first.” The compare page answers “what changed.” Keep all three as siblings of the evidence report. PR #1514 asked the same compare question on `index.html`; this sibling keeps that page as the single-scan record.
+
+## Known gaps
+
+Open after the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-shopify-a11y-evidence.json); the defects that audit marks fixed are not listed.
+
+- The before/after comparison calls a rule "Resolved" when it only moved to needs-review or the later scan is of another URL; rules are matched by id, not by failing element.
+- Theme-area routing misroutes some of Dawn's own markup (header account icon, cart-drawer checkout button); `/\b#cart\b/` and `/\b#search\b/` never match a bare selector.
+- The record leaves out failing element targets, the rule sets run and the test environment; best-practice rules are counted as violations with no label.
+- A JSON object that is not an axe export gives a clean "No violations" record instead of an error.
+- The theme-area ranking, the footer pattern and the WCAG tag label are untested (three seeded mutants survived).

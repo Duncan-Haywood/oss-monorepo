@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">S3 Storage Class Advisor</a> · guide</p>
   <h1>S3 storage classes compared: Standard vs IA vs Intelligent-Tiering vs Glacier</h1>
   <p>Short answer: the per-GB price is the smallest part of the decision. <strong>Object size, how often you read the data and how long objects live</strong> decide which class is cheapest, and the rows that look cheapest in the price table are the ones most likely to cost more.</p>
@@ -53,7 +54,9 @@
   <h3>Why not put everything in Glacier Instant Retrieval?</h3>
   <p>It stores at about $0.004 per GB but charges $0.03 per GB retrieved and $0.01 per 1,000 GETs, with a 90-day minimum and 128 KB minimum object size. It wins for data read once or twice a year and loses badly on anything read regularly.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not engineering, financial or operational advice, and you are responsible for verifying prices and limits against the current AWS documentation.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

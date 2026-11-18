@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-10-28
+tagged: auto
+---
 # Polish run, 2026-10-28: the "Saved bids" band was on 1,110 pages
 
 Track: polish (prompt 0). Surfaces looked at: hub, `/ai-bookkeeper/`, `/about/`,

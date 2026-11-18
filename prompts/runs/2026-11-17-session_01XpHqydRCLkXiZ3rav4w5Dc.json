@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqydRCLkXiZ3rav4w5Dc",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T03:38:04Z",
+  "ended": "2026-11-17T03:46:12Z",
+  "wall_minutes": 8.4,
+  "tokens_in": 9173171,
+  "tokens_out": 40914,
+  "cost_usd": 3.778,
+  "tool_calls": 76,
+  "task": "ids-model-check flagship: IDS editor rows for property values with no dataType (buildable item)",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16801",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "ifctester==0.9.0.post1 (the version earlier cross-checks used) had no matching distribution on pip here; used ifctester 0.8.0, which fails with ifcopenshell 0.9.0.post1 ('wrapped_data') and runs with 0.8.5",
+    "a Bash call writing two scratch files with heredocs and $SP was refused by the built-in removal safety check although it contained no rm; rewrote with the Write tool"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "picked shift-roster-builder (141 commits in 7 days) whose next: is almost all items needing a real site, account or person; the buildable remainder is 300+-copy LP tuning with shrinking returns, so the pick by session id among 'Deepen' rows sent a session to a saturated row while ids-model-check had a listed BUILDABLE HERE item"
+    },
+    {
+      "file": "ventures/ids-model-check/eval/crosscheck_ifctester.py",
+      "issue": "says 'pip install ifctester ifcopenshell' without versions; unpinned, pip pairs ifctester 0.8.0 with ifcopenshell 0.9.0.post1, which crash together"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "allocate.py's 'Start here' named shift-roster-builder; its next: is nearly all inputs-only (real site, real accounts, a manager's read) and the rest is marginal solver tuning",
+      "did": "took ids-model-check (flagship 12, no open PR, top BUILDABLE HERE item: a value row with no dataType)",
+      "result": "landed: 27 more editable facets on the public corpus, and found that an untyped TRUE on a boolean splits this checker and IfcTester"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-ids-load-bearing-true-two-checkers.md",
+    "ventures/ids-model-check/eval/untyped-values-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "Verification: node eval/editor-open.mjs (public 1,682 -> 1,709 editable facets, 83.6% -> 84.9%, 507/507 specs write back the same, 0 audit-error changes; IDS-Audit-tool and buildingSMART pass cases unchanged); python3 platform/ci/run_venture_tests.py ids-model-check: ok, 107 tests; IfcTester 0.8.0 cross-check on samples/tiny-house.ifc (untyped TRUE: ours 0 applicable, IfcTester 2; typed true: both 2 applicable 1 failing); Playwright on editor.html: 3 of 3 facets editable, Write dataType IFCBOOLEAN writes dataType + true, condition count 2 of 3, no console errors. No separate agent doc in docs/reports: the eval file and README carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5e9369f6-f79e-5740-8b86-99cd6ffd69b9",
+    "transcripts": 1,
+    "first": "2026-11-17T03:38:04Z",
+    "last": "2026-11-17T03:46:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 139,
+        "output": 40914,
+        "thinking": 8543,
+        "cache_read": 9028854,
+        "cache_write_5m": 0,
+        "cache_write_1h": 144178,
+        "api_equivalent_usd": 3.778,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 139,
+      "output": 40914,
+      "thinking": 8543,
+      "cache_read": 9028854,
+      "cache_write_5m": 0,
+      "cache_write_1h": 144178,
+      "api_equivalent_usd": 3.778,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 70,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.4,
+      "active_minutes": 8.4,
+      "model_minutes": 6.43,
+      "tool_minutes": 1.97,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a BIM tools developer adding untyped-value rows, the audit message, tests, a cross-check with IfcTester and a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 158.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

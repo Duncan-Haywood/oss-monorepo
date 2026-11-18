@@ -55,13 +55,14 @@ test("every static input has a label and nothing is sent anywhere", () => {
   }
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts/);
   assert.doesNotMatch(page("calc.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
+  assert.doesNotMatch(page("ratings.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
   assert.doesNotMatch(page("usage.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
   assert.doesNotMatch(html, /<form[^>]+action=/i);
 });
 
 test("the module scripts import only local files, and the inline script parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./ratings.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   assert.doesNotMatch(page("calc.mjs"), /^\s*import\s/m);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
@@ -84,7 +85,7 @@ test("every element the script looks up exists on the page", () => {
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["tournament_started", "example_loaded", "round_paired", "file_saved", "csv_downloaded", "text_shared"]) {
+  for (const e of ["tournament_started", "example_loaded", "round_paired", "file_saved", "csv_downloaded", "text_shared", "ratings_downloaded"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
@@ -132,4 +133,10 @@ test("the guide's worked example matches the pairing engine", () => {
   for (const s of swissStandings(players, rounds)) {
     assert.ok(guide.includes(`<tr><td>${s.rank}</td><td>${s.name.split(" ")[0]}</td><td>${s.score}</td><td>${s.buchholz}</td></tr>`), s.name);
   }
+});
+
+test("FAQ does not promise that nobody gets three of one colour in a row (quality audit 2026-11-10: false in 73 of 150 simulated events)", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.doesNotMatch(html, /nobody gets three in a row/);
 });

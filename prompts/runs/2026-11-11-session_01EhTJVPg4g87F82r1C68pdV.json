@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVPg4g87F82r1C68pdV",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T07:02:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "New Hearth & Horizon story, text only, with a blog post",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 14720,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The audio cap argues from GitHub Pages' 1 GB site limit, but the catalogue is now served by Cloudflare (root CLAUDE.md, Hosting). The 400 MB cap may be stale, and it decides whether creative runs can render audio. Worth a control-plane review."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-three-for-every-one.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, piece three-for-every-one (Wolbachia replacement threshold, Flores 2048-49). Text only: audio dirs total 423 MB, over the 400 MB cap. Numbers worked with a scratch script (single-population CI model, s=0.2, Wilson intervals) and stated in the story's closing note. Checks: node --test in the venture (0 fail), check_post_frontmatter exit 0, check_post_links 0 broken, platform/pages/writing.test.mjs 34 pass. Open PR #14715 is a different H&H story, so there is no duplicate.",
+  "corrections": [],
+  "redteam": null
+}

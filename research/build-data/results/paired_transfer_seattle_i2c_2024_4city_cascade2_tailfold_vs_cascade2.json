@@ -1,0 +1,307 @@
+{
+ "held_out": "seattle",
+ "test_year": 2024,
+ "n_test": 4314,
+ "seeds": 3,
+ "a": "cascade2",
+ "b": "cascade2_tailfold",
+ "note": "b minus a, days of mean pinball loss; negative = b better",
+ "transfer": {
+  "0.1": {
+   "diff": 0.0,
+   "lo": 0.0,
+   "hi": 0.0,
+   "rel_to_baseline": 0.0
+  },
+  "0.5": {
+   "diff": 0.0,
+   "lo": 0.0,
+   "hi": 0.0,
+   "rel_to_baseline": 0.0
+  },
+  "0.9": {
+   "diff": 0.0,
+   "lo": 0.0,
+   "hi": 0.0,
+   "rel_to_baseline": 0.0
+  }
+ },
+ "own_boosted": {
+  "0.1": {
+   "diff": 0.0,
+   "lo": 0.0,
+   "hi": 0.0,
+   "rel_to_baseline": 0.0
+  },
+  "0.5": {
+   "diff": 0.0,
+   "lo": 0.0,
+   "hi": 0.0,
+   "rel_to_baseline": 0.0
+  },
+  "0.9": {
+   "diff": 0.0,
+   "lo": 0.0,
+   "hi": 0.0,
+   "rel_to_baseline": 0.0
+  }
+ },
+ "by_class": {
+  "transfer": {
+   "0.1": {
+    "alteration": {
+     "n": 2789,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "demolition": {
+     "n": 398,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "electrical": {
+     "n": 7,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "fire": {
+     "n": 1,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "mechanical": {
+     "n": 8,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "new_construction": {
+     "n": 880,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "other": {
+     "n": 230,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "plumbing": {
+     "n": 1,
+     "mean": 0.0,
+     "contribution": 0.0
+    }
+   },
+   "0.5": {
+    "alteration": {
+     "n": 2789,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "demolition": {
+     "n": 398,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "electrical": {
+     "n": 7,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "fire": {
+     "n": 1,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "mechanical": {
+     "n": 8,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "new_construction": {
+     "n": 880,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "other": {
+     "n": 230,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "plumbing": {
+     "n": 1,
+     "mean": 0.0,
+     "contribution": 0.0
+    }
+   },
+   "0.9": {
+    "alteration": {
+     "n": 2789,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "demolition": {
+     "n": 398,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "electrical": {
+     "n": 7,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "fire": {
+     "n": 1,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "mechanical": {
+     "n": 8,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "new_construction": {
+     "n": 880,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "other": {
+     "n": 230,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "plumbing": {
+     "n": 1,
+     "mean": 0.0,
+     "contribution": 0.0
+    }
+   }
+  },
+  "own_boosted": {
+   "0.1": {
+    "alteration": {
+     "n": 2789,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "demolition": {
+     "n": 398,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "electrical": {
+     "n": 7,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "fire": {
+     "n": 1,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "mechanical": {
+     "n": 8,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "new_construction": {
+     "n": 880,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "other": {
+     "n": 230,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "plumbing": {
+     "n": 1,
+     "mean": 0.0,
+     "contribution": 0.0
+    }
+   },
+   "0.5": {
+    "alteration": {
+     "n": 2789,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "demolition": {
+     "n": 398,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "electrical": {
+     "n": 7,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "fire": {
+     "n": 1,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "mechanical": {
+     "n": 8,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "new_construction": {
+     "n": 880,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "other": {
+     "n": 230,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "plumbing": {
+     "n": 1,
+     "mean": 0.0,
+     "contribution": 0.0
+    }
+   },
+   "0.9": {
+    "alteration": {
+     "n": 2789,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "demolition": {
+     "n": 398,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "electrical": {
+     "n": 7,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "fire": {
+     "n": 1,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "mechanical": {
+     "n": 8,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "new_construction": {
+     "n": 880,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "other": {
+     "n": 230,
+     "mean": 0.0,
+     "contribution": 0.0
+    },
+    "plumbing": {
+     "n": 1,
+     "mean": 0.0,
+     "contribution": 0.0
+    }
+   }
+  }
+ }
+}

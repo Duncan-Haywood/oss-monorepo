@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-11-01
+tagged: auto
+---
 # Are any licences worth considering instead of MIT?
 
 Date: 2026-11-01. Asked by the owner: "report on whether any other types of

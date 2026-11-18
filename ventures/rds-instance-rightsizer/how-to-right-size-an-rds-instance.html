@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to RDS Instance Rightsizer</a></p>
   <h1>How to right-size an RDS instance</h1>
   <p>An RDS or Aurora instance is billed by the hour for its class whether the database is busy or idle, and the class is usually chosen once, at launch, with a margin nobody revisits. Four CloudWatch metrics are enough to find the instances that are too big, and the ones that are too small.</p>
@@ -60,7 +61,9 @@
   <h3>Is moving to Graviton worth it?</h3>
   <p>Usually. The Graviton classes (t4g, m6g, m7g, r6g, r7g) list about 5 to 12% below the equivalent x86 class at the same vCPU and memory. It needs an engine version that supports Graviton and a restart, so test it on a copy; Oracle and SQL Server cannot use it.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not engineering, financial or operational advice. It makes a recommendation from metrics, not a bill, metrics must be sampled over a representative period, prices are approximate, and you are responsible for verifying its output. AWS, Amazon RDS, Aurora and other product names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

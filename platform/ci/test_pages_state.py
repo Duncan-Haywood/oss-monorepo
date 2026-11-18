@@ -91,6 +91,15 @@ def branch(sha="a" * 40, message="Publish site built from " + "b" * 40, date=Non
     }
 
 
+class ReadRepo(unittest.TestCase):
+    def test_missing_default_branch_falls_back_to_main(self):
+        self.assertEqual(ps.read_repo(lambda path: {})["default_branch"], "main")
+
+    def test_default_branch_passed_through(self):
+        got = ps.read_repo(lambda path: {"default_branch": "trunk"})
+        self.assertEqual(got["default_branch"], "trunk")
+
+
 class PlanVerdict(unittest.TestCase):
     def test_private_with_pages_is_likely_up(self):
         verdict, reason = ps.plan_verdict(
@@ -268,6 +277,10 @@ class ReadPublishBranch(unittest.TestCase):
     def test_parses_the_built_from_sha(self):
         api = fake_api(branches={"gh-pages": branch()})
         self.assertEqual(ps.read_publish_branch(api)["built_from"], "b" * 40)
+
+    def test_reports_the_commit_date(self):
+        api = fake_api(branches={"gh-pages": branch(date="2026-01-02T03:04:05Z")})
+        self.assertEqual(ps.read_publish_branch(api)["date"], "2026-01-02T03:04:05Z")
 
 
 class Collect(unittest.TestCase):
@@ -500,6 +513,37 @@ class SourceNoteFromVerdict(unittest.TestCase):
         )
         text = ps.render(ps.collect(api))
         self.assertIn("source            actions", text)
+
+
+class MissingToken(unittest.TestCase):
+    def test_no_token_exits_2_with_a_message(self):
+        import contextlib
+        with unittest.mock.patch.object(ps, "api_token", return_value=None), \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            code = ps.main(["--repo", "o/r"])
+        self.assertEqual(code, 2)
+        self.assertIn("GH_TOKEN", err.getvalue())
+
+    def test_api_failure_exits_2_with_its_message(self):
+        import contextlib
+        with unittest.mock.patch.object(ps, "collect", side_effect=RuntimeError("boom")), \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            code = ps.main([], api=object())
+        self.assertEqual(code, 2)
+        self.assertIn("boom", err.getvalue())
+
+
+class BuildInputPatternsNonDictTest(unittest.TestCase):
+    def test_non_mapping_workflow_gives_none_not_a_crash(self):
+        import os
+        import tempfile
+        for text in ("", "- a\n- b\n", "just a string\n"):
+            with tempfile.NamedTemporaryFile("w", suffix=".yml", delete=False) as f:
+                f.write(text)
+            try:
+                self.assertIsNone(ps.build_input_patterns(f.name), text)
+            finally:
+                os.unlink(f.name)
 
 
 if __name__ == "__main__":

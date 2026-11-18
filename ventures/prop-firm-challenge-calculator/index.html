@@ -11,7 +11,7 @@
     :root{--bg:#eef1f6;--fg:#20232a;--card:#fff;--line:#c7d0dd;--field:#a7b2c4;--accent:#1f4fbf;--warn:#9a3d00;--ok:#0f6b3a;--res:#18233c;--res-fg:#f3f6ff;--res-warn:#ffd09c;--res-ok:#a9e6c3;--res-line:#ffffff2b;font-family:system-ui,sans-serif;color:var(--fg);background:var(--bg)}
     @media (prefers-color-scheme:dark){:root{--bg:#12151c;--fg:#e6e9f0;--card:#1b202b;--line:#333c4d;--field:#4a566b;--accent:#8fb2ff;--warn:#ffb27a;--ok:#7fd9a6}}
     body{max-width:1120px;margin:auto;padding:32px 16px;background:var(--bg);color:var(--fg)}
-    header{max-width:760px}h1{font-size:clamp(2rem,6vw,3.4rem);line-height:1;letter-spacing:-.04em;margin:8px 0 16px}
+    header{max-width:760px}h1{font-size:clamp(2rem,6vw,3rem);line-height:1;letter-spacing:-.04em;margin:8px 0 16px}
     a{color:var(--accent)}
     .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:18px;align-items:start}
     section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
@@ -41,6 +41,7 @@
     #result button.secondary{color:#bcd7ff;border-color:#bcd7ff}
     @media(max-width:820px){.layout{grid-template-columns:1fr}}
   </style>
+<style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;min-width:0!important;overflow-x:auto}code{overflow-wrap:anywhere}pre{max-width:100%;overflow-x:auto}fieldset,section,form,div,main{min-width:0}input,select,textarea{max-width:100%}</style><style>/* caption-in-block-table */caption{display:block;position:sticky;left:0}</style>
 </head>
 <body>
   <header>
@@ -138,7 +139,7 @@
 
   <script type="module">
     import { analyse, summaryText, toCsv, encodeState, decodeState, FIELDS } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const $ = (id) => document.getElementById(id);
     const usd = (n) => { const s = '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); return n < 0 ? '-' + s : s; };
@@ -220,8 +221,8 @@
     {
       const control = $('usageOptOut');
       try {
-        control.checked = readOptOut(localStorage);
-        control.addEventListener('change', () => writeOptOut(localStorage, control.checked));
+        control.checked = readOptOut(usageStorage());
+        control.addEventListener('change', () => writeOptOut(usageStorage(), control.checked));
       } catch { /* storage blocked: counting stays off the persisted path */ }
     }
     render(false);

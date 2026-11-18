@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01AcxTtKyW2YuNLjUgKupQLQ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T12:21:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13319",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "fetch_ndbc_buoys.py first version crashed on a 404 (46042 has no 2024 file) and wrote an empty July file for 46026; fixed by skipping missing files and months under 1000 records"
+  ],
+  "integrity_issues": [
+    "expectations E1-E5 for 5k were held before the run but not committed before it; the log entry says so"
+  ],
+  "doc_friction": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "issue": "none read in full; pick_track output was enough"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "pre-registration is the programme norm; I wrote expectations after the run and disclosed it in LOG.md",
+      "did": "labelled expectations informal",
+      "result": "negative result, disclosed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-05-hrrr-sailing-drone-open-water-buoys.md",
+    "research/marine-hull/LOG.md 5k"
+  ],
+  "goal": null,
+  "notes": "Ran run_sail_hrrr_buoy.py (2m44s). No tests changed; homepage build ok; check_post_frontmatter ok. NDBC and HRRR S3 reachable via proxy this session.",
+  "corrections": [],
+  "redteam": null
+}

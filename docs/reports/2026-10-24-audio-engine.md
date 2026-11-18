@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [audio]
+date: 2026-10-24
+tagged: auto
+---
 # One narration engine: what was measured, and why each default is what it is
 
 2026-10-24. Owner's request: "a better audio rendering system both in efficiency

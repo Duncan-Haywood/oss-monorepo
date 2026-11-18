@@ -138,8 +138,8 @@
     let last = null;
     const map = { creditvalue: "creditValue", prizepertic: "prizePerTicket", feespct: "feesPct", rentpersqft: "rentPerSqft", energymonthly: "energyMonthly", maintpct: "maintPct", targetpayback: "targetPaybackMonths", defaultsqft: "defaultSqft", maxpayoutpct: "maxPayoutPct", games: "games" };
     const IDLE = "Fill in your floor and games, then click Work out the games. Only what a credit earns and at least one game are required; the rest default to zero.";
-    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
-    const money2 = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(2);
+    const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
+    const money2 = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toFixed(2));
     const pct = (n) => (n * 100).toFixed(1) + "%";
 
     function download(name, body, type) {
@@ -162,7 +162,7 @@
       $("#prize-rows").innerHTML = r.prizeSweep.map((x) => `<tr><td class="n">${x.pct > 0 ? "+" : ""}${x.pct}%</td><td class="n">${money2(x.net)}</td><td class="n">${whole(x.annual)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

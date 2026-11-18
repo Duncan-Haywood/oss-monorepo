@@ -1,0 +1,27 @@
+# tests/min_fit_rpm_sweep.py --plant 0 --lags 0.8 --builds 1 --hold 3000 --extend 8 --told, after the release-timeout fix (2026-11-16, firmware/esp32/README.md "The slow drill's release timeout"). The build that aborted before.
+Part 1. Record drop / true drop per wheel, slow drill (shots after a fast shot and after a slow one).
+hold: host.HOLD_RPM (0 = the next shot's speeds sent straight after the release, as before)
+plant           hold    rpm band  drop from | wheels   mean     sd    min    max  >2% off
+first-order   3000/8   500-750          any |      6  1.000  0.002  0.996  1.001        0
+first-order   3000/8   500-750     loop fit |      6  1.000  0.002  0.996  1.001        0
+first-order   3000/8   750-1000         any |      6  0.999  0.001  0.998  1.001        0
+first-order   3000/8   750-1000    loop fit |      6  0.999  0.001  0.998  1.001        0
+first-order   3000/8  1000-1500         any |      6  0.999  0.003  0.994  1.002        0
+first-order   3000/8  1000-1500    loop fit |      6  0.999  0.003  0.994  1.002        0
+first-order   3000/8  1500-2500         any |      2  1.000  0.000  1.000  1.000        0
+first-order   3000/8  1500-2500    loop fit |      2  1.000  0.000  1.000  1.000        0
+first-order   3000/8  2500-9000         any |     40  1.000  0.003  0.993  1.008        0
+first-order   3000/8  2500-9000    loop fit |     40  1.000  0.003  0.993  1.008        0
+
+Part 2. fit_from_drops on calibration + slow drill logs, by floor: efficiency error, mean / worst %
+plant           hold  floor      rule | builds speed mean  worst | spin mean  worst
+first-order   3000/8      0  any drop |      1       0.00   0.00 |      0.17   0.17
+first-order   3000/8    500  any drop |      1       0.00   0.00 |      0.17   0.17
+first-order   3000/8    600  any drop |      1       0.01   0.01 |      0.34   0.34
+first-order   3000/8    700  any drop |      1       0.01   0.01 |      0.46   0.46
+first-order   3000/8    750  any drop |      1       0.01   0.01 |      0.45   0.45
+first-order   3000/8    800  any drop |      1       0.01   0.01 |      0.47   0.47
+first-order   3000/8   1000  any drop |      1       0.01   0.01 |      0.33   0.33
+first-order   3000/8    600 loop only |      1       0.01   0.01 |      0.34   0.34
+first-order   3000/8    700 loop only |      1       0.01   0.01 |      0.46   0.46
+first-order   3000/8    750 loop only |      1       0.01   0.01 |      0.45   0.45

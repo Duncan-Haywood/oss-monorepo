@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Medical Billing Pricing Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare percent-of-collections, per-claim and flat monthly pricing for a medical billing client against your cost to serve: margin, break-even volume, required price for a target margin and sensitivity to collections. Runs in your browser.", "featureList": "Margin by pricing model, break-even claim volume, required price for target margin, percent vs per-claim crossover, collections sensitivity, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What should a medical billing company charge?", "acceptedAnswer": {"@type": "Answer", "text": "Start from what the client costs you to serve: staff time per claim, clearinghouse fees, denial rework, software and onboarding. Then choose the price structure that earns your target margin at that client's volume and average collection per claim. Most small billing companies quote 4% to 9% of collections or a per-claim fee, but the right number is the one that covers your own cost plus margin, not the market average."}}, {"@type": "Question", "name": "Is percent of collections or per-claim pricing better?", "acceptedAnswer": {"@type": "Answer", "text": "Percent of collections pays more on practices whose claims collect a lot, such as surgical or specialty work, and less on low-dollar visits where the work per claim is the same. This tool finds the average collected per claim above which a given percentage out-earns your per-claim fee, so you can see which side your client falls on."}}, {"@type": "Question", "name": "When does a flat monthly fee work?", "acceptedAnswer": {"@type": "Answer", "text": "When the client's volume is steady and you have priced in a ceiling. A flat fee earns the same however many claims arrive, so the tool shows the claim volume above which the flat fee stops covering your cost and you should reprice."}}, {"@type": "Question", "name": "How small a practice can I afford to take on?", "acceptedAnswer": {"@type": "Answer", "text": "The tool computes the smallest monthly claim volume at which each offer breaks even and at which it reaches your target margin. Fixed costs per client, such as software and onboarding, make very small practices unprofitable at a percentage that works for larger ones."}}, {"@type": "Question", "name": "Is this billing, legal or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the figures you type. It does not check payer contracts, state rules on percentage-based billing, or what any client has agreed to. Review your own agreements with a qualified professional."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #0f766e; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #0a514c; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #0a514c; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #0f766e; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #0a514c; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -103,12 +141,12 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const r = a.result, o = a.opts, by = Object.fromEntries(r.offers.map((x) => [x.key, x]));
-      h += `<div class="finding"><h4>${esc(r.best.label)} earns you the most on this client: ${money(r.best.margin)} a month (${pct(r.best.marginPct)} margin)</h4><p>Serving ${o.claims.toLocaleString("en-US")} claims a month costs you ${money(r.cost.total)}, or ${money2(r.costPerClaim)} a claim. The practice collects ${money(r.collections)} a month, so the best offer is an effective ${pct(r.best.effectivePct)} of collections.</p></div>`;
-      h += `<div class="finding"><h4>The three prices side by side</h4>${table(["Offer", "You earn a month", "Margin a month", "Margin %", "Effective % of collections"], r.offers.map((x) => [esc(x.label), money(x.income), money(x.margin), pct(x.marginPct), pct(x.effectivePct)]))}</div>`;
-      h += `<div class="finding"><h4>The price that would hit your ${pct(o.targetMargin)} target</h4><p>At this volume you need ${money(r.req.revNeeded)} a month: ${pct(r.req.pctRate)} of collections, or ${money2(r.req.claimFee)} a claim, or a flat ${money(r.req.flatFee)}.</p></div>`;
-      h += `<div class="finding"><h4>How small a practice can you take?</h4>${table(["Offer", "Breaks even", "Reaches your target margin"], [["Percent of collections", vol(r.breakEven.pct), vol(r.atTarget.pct)], ["Per claim", vol(r.breakEven.claim), vol(r.atTarget.claim)], ["Flat monthly fee", vol(r.breakEven.flat, true), vol(r.atTarget.flat, true)]])}<p>Software and onboarding are a fixed cost per client, so a price that works for a large practice can lose money on a small one. A flat fee stops working above a ceiling.</p></div>`;
-      h += `<div class="finding"><h4>Percent or per claim?</h4><p>${o.pctRate > 0 ? `${pct(o.pctRate)} of collections out-earns ${money2(o.claimFee)} a claim only when a claim collects more than ${money2(r.beat)} on average. This client collects ${money2(o.avgCollected)}, so ${o.avgCollected > r.beat ? "the percentage pays more" : "the per-claim fee pays more"}.` : "Enter a percentage above zero to compare."}</p></div>`;
-      h += `<div class="finding"><h4>If the practice collects more or less per claim</h4>${table(["Collections per claim", "Average collected", "Percent: margin", "Per claim: margin", "Flat: margin"], a.rows.map((x) => [`${Math.round(x.mult * 100)}%`, money2(x.avg), money(x.pct), money(x.claim), money(x.flat)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>${esc(r.best.label)} earns you the most on this client: ${money(r.best.margin)} a month (${pct(r.best.marginPct)} margin)</h3><p>Serving ${o.claims.toLocaleString("en-US")} claims a month costs you ${money(r.cost.total)}, or ${money2(r.costPerClaim)} a claim. The practice collects ${money(r.collections)} a month, so the best offer is an effective ${pct(r.best.effectivePct)} of collections.</p></div>`;
+      h += `<div class="finding"><h3>The three prices side by side</h3>${table(["Offer", "You earn a month", "Margin a month", "Margin %", "Effective % of collections"], r.offers.map((x) => [esc(x.label), money(x.income), money(x.margin), pct(x.marginPct), pct(x.effectivePct)]))}</div>`;
+      h += `<div class="finding"><h3>The price that would hit your ${pct(o.targetMargin)} target</h3><p>At this volume you need ${money(r.req.revNeeded)} a month: ${pct(r.req.pctRate)} of collections, or ${money2(r.req.claimFee)} a claim, or a flat ${money(r.req.flatFee)}.</p></div>`;
+      h += `<div class="finding"><h3>How small a practice can you take?</h3>${table(["Offer", "Breaks even", "Reaches your target margin"], [["Percent of collections", vol(r.breakEven.pct), vol(r.atTarget.pct)], ["Per claim", vol(r.breakEven.claim), vol(r.atTarget.claim)], ["Flat monthly fee", vol(r.breakEven.flat, true), vol(r.atTarget.flat, true)]])}<p>Software and onboarding are a fixed cost per client, so a price that works for a large practice can lose money on a small one. A flat fee stops working above a ceiling.</p></div>`;
+      h += `<div class="finding"><h3>Percent or per claim?</h3><p>${o.pctRate > 0 ? `${pct(o.pctRate)} of collections out-earns ${money2(o.claimFee)} a claim only when a claim collects more than ${money2(r.beat)} on average. This client collects ${money2(o.avgCollected)}, so ${o.avgCollected > r.beat ? "the percentage pays more" : "the per-claim fee pays more"}.` : "Enter a percentage above zero to compare."}</p></div>`;
+      h += `<div class="finding"><h3>If the practice collects more or less per claim</h3>${table(["Collections per claim", "Average collected", "Percent: margin", "Per claim: margin", "Flat: margin"], a.rows.map((x) => [`${Math.round(x.mult * 100)}%`, money2(x.avg), money(x.pct), money(x.claim), money(x.flat)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

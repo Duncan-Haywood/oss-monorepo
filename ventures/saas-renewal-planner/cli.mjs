@@ -9,6 +9,7 @@
 
 import fs from "node:fs/promises";
 import { parseRenewals, plan, summarize, emailDraft, toIcs, money, MODEL_NOTE } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const FLAGS = { "--as-of": "asOf", "--buffer": "bufferPct", "--ask": "askPct", "--lead": "leadDays" };
 
@@ -92,7 +93,7 @@ async function readStdin() {
   return Buffer.concat(chunks).toString("utf8");
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   run(process.argv.slice(2)).then(({ exitCode, output }) => {
     (exitCode ? console.error : console.log)(output);
     process.exitCode = exitCode;

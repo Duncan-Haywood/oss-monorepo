@@ -48,7 +48,7 @@
 <body>
   <header>
     <p class="note">PRIVATE TUTOR EFFECTIVE HOURLY RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
-    <h1>What does tutoring really pay per hour? Your real rate after prep, travel, cancellations and fees</h1>
+    <h1>What does tutoring really pay per hour, after prep, travel and cancellations?</h1>
     <p>Enter your schedule, rate and the unbilled time around each session. You get your <strong>real hourly pay</strong>, <strong>yearly net</strong>, the <strong>session rate</strong> that breaks even or reaches your target, and a table by sessions per week.</p>
     <p class="note">It works from your own figures. It does not know what tutors near you charge.</p>
   </header>
@@ -149,7 +149,7 @@
       $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${x.sessions}</td><td class="n">${x.hoursWeek.toFixed(1)}</td><td class="n">${dollars(x.annualNet)}</td><td class="n">${dollars(x.hourly)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

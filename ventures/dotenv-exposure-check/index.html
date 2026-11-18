@@ -136,7 +136,7 @@
   <pre class="cmd"><code>node check.mjs https://example.com/ --json</code></pre>
   <p class="status-note">
     Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/dotenv-exposure-check" rel="noopener">check.mjs, probe.mjs, and analyze.mjs from the repo</a> —
-    exit code 1 if any path is exposed, so you can gate a deploy on it.
+    exit code 1 if any path is exposed or a request could not complete, so you can gate a deploy on it.
   </p>
 </div>
 
@@ -157,7 +157,7 @@
 <script type="module">
   import { checkSite } from './probe.mjs';
   import { buildReport } from './analyze.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -186,9 +186,13 @@
   }
 
   function render(report) {
-    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    els.verdict.className = `verdict ${report.ok && !report.incomplete ? 'ok' : 'bad'}`;
+    const unchecked = report.errors?.length ?? 0;
+    const uncheckedNote = unchecked > 0 ? ` ${unchecked} path(s) could not be checked, so this is not a clean result.` : '';
     if (report.exposedCount > 0) {
-      els.verdict.textContent = `${report.exposedCount} of ${report.pathsChecked} path(s) confirm a dotenv file is publicly exposed.`;
+      els.verdict.textContent = `${report.exposedCount} of ${report.pathsChecked} path(s) confirm a dotenv file is publicly exposed.${uncheckedNote}`;
+    } else if (unchecked > 0) {
+      els.verdict.textContent = `No exposed dotenv file found among the ${report.pathsChecked - unchecked} path(s) that answered.${uncheckedNote}`;
     } else {
       els.verdict.textContent = `No exposed dotenv file found (${report.pathsChecked} path(s) checked).`;
     }
@@ -206,7 +210,7 @@
       `<tr><td>${escapeHtml(c.path)}</td><td>${escapeHtml(rowFor(c))}</td></tr>`).join('');
 
     els.reportCard.hidden = false;
-    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
   }
 
   async function runLiveCheck() {
@@ -226,7 +230,7 @@
       } else {
         els.status.textContent = 'Done. This ran entirely in your browser; nothing was sent to us.';
       }
-      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
     } catch (err) {
       els.status.innerHTML = `<span class="error">${escapeHtml(err.message || String(err))}</span>`;
     } finally {
@@ -239,7 +243,7 @@
   $('#load-example').addEventListener('click', () => {
     render(EXAMPLE_REPORT);
     els.status.textContent = 'Worked example: .env exposed with a live-looking secret key name; the four other paths are all blocked.';
-    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+    recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
   });
 
   $('#clear').addEventListener('click', () => {
@@ -251,8 +255,8 @@
   {
     const usageControl = document.getElementById('usageOptOut');
     if (usageControl) {
-      usageControl.checked = readOptOut(localStorage);
-      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      usageControl.checked = readOptOut(usageStorage());
+      usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
     }
   }
 </script>

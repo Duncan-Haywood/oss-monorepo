@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVMnqewYZLM8J6St3a7",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled routine 4: continue work on the repo (develop, deploy, market, sell, support revenue products); merge when done",
+  "input_sha256": "dc155a04fe2dcba5c0651dc1147d19c15f738e4a006b385942cd68ec477ee86f",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T00:08:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: league-schedule-generator buildDivisions annealing tabled per night",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": 14935,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The cloud-session hook blocks foreground sleep; waiting on a long background test needs an until-loop, which the 'Long commands' note could say explicitly."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-12-divisions-anneal-tables.md",
+    "docs/posts/2026-11-12-the-scheduler-that-rescored-every-pair.md"
+  ],
+  "goal": null,
+  "notes": "Metric: divisions.test.mjs wall, node --test --test-reporter=dot, this 4-core container, back to back: 79.5 s before (change stashed) to 5.3 s after, 33/33 pass both. Test workload script (both suggestFairnessWeight calls of the slow test): 50.1 s to 1.85 s via `time node`. Equivalence: sha256 of JSON of 128 buildDivisions results + one suggestFairnessWeight sweep identical (952f1996...71951ec), 60.8 s to 2.05 s. Full venture suite all pass, 128 s wall (critical path best-of-k, unchanged). Profile before: clashCost 22.9 s self, travelMin closure 6.9 s of 50.4 s.",
+  "corrections": [],
+  "redteam": null
+}

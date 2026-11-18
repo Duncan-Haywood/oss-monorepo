@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01AcxTtHTfM3x9BHrgW9kd2B",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T09:10:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12790",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/history/ci-perf-2026-11-02-qps-simulations.md",
+      "issue": "Claimed simulate() cells are recomputed in four files; vitest list shows no re-registration, so the memoise advice cost me an experiment."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post: the run found no speed-up, only a metric and a correction; doc in docs/history instead."
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-03-qps-followup.md"
+  ],
+  "goal": null,
+  "notes": "Metric: quick-pick-survey CI 5 jobs/39.2 job-min/median 582 s (ci_profile --runs 600, 11-02) -> 2 jobs/15.2 job-min/median 455 s (--runs 200, 11-03). Memoisation experiment reverted: vitest list 43 tests before and after.",
+  "corrections": [],
+  "redteam": null
+}

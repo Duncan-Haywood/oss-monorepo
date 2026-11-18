@@ -35,3 +35,13 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, no warranty, independent-of-Amazon clause,
 # trademark used nominatively.
+
+hypotheses:
+  - claim: >-
+      Amazon sellers who edit inventory files in Excel will search the literal
+      symptoms ("Amazon flat file UPC leading zero", "inventory loader
+      processing report error") and return to a free, local checker whose
+      check-digit test restores a stripped UPC zero only when it validates,
+      measured as the share of file checks whose safe-fixes pass is used.
+    status: untested
+    evidence: in-repo

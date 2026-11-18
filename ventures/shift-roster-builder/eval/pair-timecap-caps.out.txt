@@ -1,0 +1,12 @@
+WEEK 30x84 week 0 (121 copies), caps only, starting objective 18121011.89
+  cap 2.0 s: 2.2 s wall, 0 moves, timed out true, starting count timed out true, gain 0.00, risk 261 h, pair hours null
+  cap 5.0 s: 5.1 s wall, 0 moves, timed out true, starting count timed out true, gain 0.00, risk 261 h, pair hours null
+  cap 10.0 s: 10.1 s wall, 0 moves, timed out true, starting count timed out false, gain 0.00, risk 261 h, pair hours 4118
+WEEK 60x168 week 0 (245 copies), caps only, starting objective 30027313.89
+  cap 2.0 s: 2.0 s wall, 0 moves, timed out true, starting count timed out false, gain 0.00, risk 292 h, pair hours 27
+  cap 5.0 s: 5.0 s wall, 0 moves, timed out true, starting count timed out false, gain 0.00, risk 292 h, pair hours 27
+  cap 10.0 s: 10.0 s wall, 0 moves, timed out true, starting count timed out false, gain 0.00, risk 292 h, pair hours 27
+WEEK 40x112 week 0 (149 copies), caps only, starting objective 16923814.78
+  cap 2.0 s: 2.0 s wall, 1 moves, timed out true, starting count timed out false, gain 107.45, risk 435 h, pair hours 217
+  cap 5.0 s: 5.0 s wall, 2 moves, timed out true, starting count timed out false, gain 113.67, risk 435 h, pair hours 210
+  cap 10.0 s: 10.0 s wall, 2 moves, timed out true, starting count timed out false, gain 113.67, risk 435 h, pair hours 210

@@ -4,7 +4,9 @@
 // Amounts stay the strings written in the file so the checks convert them
 // once. DTD and entity declarations are rejected by parseXmlTree.
 
-import { parseXmlTree } from "./ubl.mjs";
+import { parseXmlTree, registrationPlace, xmlValue } from "./ubl.mjs";
+import { parseDecimal } from "./numbers.mjs";
+import { unreadableLeaves } from "./xmlvalues.mjs";
 
 const CII_NS = "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100";
 
@@ -60,15 +62,81 @@ export function looksLikeCii(source) {
   return text.includes("CrossIndustryInvoice") || text.includes(CII_NS);
 }
 
-function ciiVatId(party) {
-  if (!party) return "";
+// BT-31/BT-48/BT-63, read with xmlValue (character references decoded, only
+// XML whitespace trimmed; see ubl.mjs) since 2026-11-17.
+function ciiVatNode(party) {
+  if (!party) return null;
   for (const registration of descendants(party, "SpecifiedTaxRegistration")) {
     const identifier = firstChild(registration, "ID");
     if (!identifier) continue;
     const scheme = (identifier.attrs && identifier.attrs.schemeID) ? identifier.attrs.schemeID.trim() : "";
-    if (scheme.toUpperCase() === "VA") return identifier.text.trim();
+    if (scheme.toUpperCase() === "VA") return identifier;
   }
-  return "";
+  return null;
+}
+
+function ciiVatId(party) {
+  const node = ciiVatNode(party);
+  return node ? xmlValue(node) : "";
+}
+
+// Every VA registration PEPPOL-COMMON-R056-2 reads that no party's vat_id
+// holds: its context is `ram:SpecifiedTaxRegistration[ram:ID/@schemeID =
+// 'VA']` anywhere, so it reaches PayeeTradeParty, ShipToTradeParty, a line's
+// ship-to and a second VA registration on the seller (added 2026-11-17).
+const CII_PARTY_KEYS = {
+  SellerTradeParty: ["supplier", "Seller"],
+  BuyerTradeParty: ["customer", "Buyer"],
+  SellerTaxRepresentativeTradeParty: ["tax_representative", "Tax representative"],
+  PayeeTradeParty: ["payee_party", "Payee"],
+  ShipToTradeParty: ["delivery_party", "Deliver-to party"],
+};
+function ciiVatRegistrations(root, primary) {
+  const found = [];
+  const walk = (node, ancestors) => {
+    if (node.name === "SpecifiedTaxRegistration") {
+      for (const identifier of node.children.filter((child) => child.name === "ID")) {
+        if (!identifier.attrs || identifier.attrs.schemeID !== "VA" || primary.has(identifier)) continue;
+        found.push({ ...registrationPlace(ancestors, CII_PARTY_KEYS, /^IncludedSupplyChainTradeLineItem$/, /TradeParty$/), value: xmlValue(identifier) });
+      }
+      return;
+    }
+    for (const child of node.children) walk(child, [...ancestors, node]);
+  };
+  walk(root, []);
+  return found;
+}
+
+// BT-30/BT-47 (legal_id) and BT-29/BT-46 with a scheme (party_ids), read the
+// same way for the seller, the buyer, the payee (BG-10, PayeeTradeParty) and
+// the tax representative (BG-11, SellerTaxRepresentativeTradeParty): Peppol's
+// `ram:ID | ram:GlobalID` contexts match them wherever they sit (endpoint.mjs,
+// INV-062/INV-063).
+function schemedIds(tradeParty) {
+  const mapped = {};
+  const legalId = firstChild(firstChild(tradeParty, "SpecifiedLegalOrganization"), "ID");
+  if (legalId && (legalId.text || "").trim()) {
+    mapped.legal_id = { id: legalId.text.trim(), scheme: legalId.attrs && legalId.attrs.schemeID ? String(legalId.attrs.schemeID).trim() : "" };
+  }
+  // BT-29/BT-46 with a scheme (GlobalID; an ID with a schemeID too, as Peppol's
+  // ram:ID context reads it): each one meets its scheme's PEPPOL-COMMON rule
+  // (endpoint.mjs, INV-062/INV-063).
+  const partyIds = [];
+  for (const child of (tradeParty && tradeParty.children) || []) {
+    if (child.name !== "GlobalID" && child.name !== "ID") continue;
+    const scheme = child.attrs && child.attrs.schemeID ? String(child.attrs.schemeID).trim() : "";
+    const id = (child.text || "").trim();
+    if (scheme && id) partyIds.push({ id, scheme });
+  }
+  if (partyIds.length) mapped.party_ids = partyIds;
+  return mapped;
+}
+
+// BG-10 / BG-11: only their schemed ids, for INV-062/INV-063.
+function sideParty(node) {
+  if (!node) return undefined;
+  const ids = schemedIds(node);
+  return Object.keys(ids).length ? ids : undefined;
 }
 
 function partyFrom(tradeParty) {
@@ -107,10 +175,7 @@ function partyFrom(tradeParty) {
     if (email) contact.email = email;
     if (Object.keys(contact).length) mapped.contact = contact;
   }
-  const legalId = firstChild(firstChild(tradeParty, "SpecifiedLegalOrganization"), "ID");
-  if (legalId && (legalId.text || "").trim()) {
-    mapped.legal_id = { id: legalId.text.trim(), scheme: legalId.attrs && legalId.attrs.schemeID ? String(legalId.attrs.schemeID).trim() : "" };
-  }
+  Object.assign(mapped, schemedIds(tradeParty));
   const uri = firstChild(firstChild(tradeParty, "URIUniversalCommunication"), "URIID");
   if (uri) {
     const id = (uri.text || "").trim();
@@ -137,11 +202,11 @@ function allowanceCharges(parent, name) {
     const indicator = textOf(child, "Indicator").toLowerCase();
     const amount = textOf(child, "ActualAmount");
     if (!indicator || !amount) continue;
-    const row = { kind: indicator === "true" || indicator === "1" ? "charge" : "allowance", amount: Number(amount) };
+    const row = { kind: indicator === "true" || indicator === "1" ? "charge" : "allowance", amount: parseDecimal(amount) ?? amount };
     const vat = firstChild(child, "CategoryTradeTax");
     if (vat) {
       const percent = textOf(vat, "RateApplicablePercent");
-      if (percent) row.tax_percent = Number(percent);
+      if (percent) row.tax_percent = parseDecimal(percent) ?? percent;
       const category = textOf(vat, "CategoryCode");
       if (category) row.tax_category = category;
     }
@@ -162,11 +227,11 @@ function logisticsCharges(settlement) {
     if (child.name !== "SpecifiedLogisticsServiceCharge") continue;
     const amount = textOf(child, "AppliedAmount");
     if (!amount) continue;
-    const row = { kind: "charge", amount: Number(amount) };
+    const row = { kind: "charge", amount: parseDecimal(amount) ?? amount };
     const vat = firstChild(child, "AppliedTradeTax");
     if (vat) {
       const percent = textOf(vat, "RateApplicablePercent");
-      if (percent) row.tax_percent = Number(percent);
+      if (percent) row.tax_percent = parseDecimal(percent) ?? percent;
       const category = textOf(vat, "CategoryCode");
       if (category) row.tax_category = category;
     }
@@ -199,6 +264,18 @@ function parseLine(line) {
   if (adjustments.length) mapped.adjustments = adjustments.map(({ kind, amount }) => ({ kind, amount }));
   const category = nestedText(tax, "CategoryCode");
   if (category) mapped.tax_category = category;
+  // Every schemed ram:ID / GlobalID / URIID in the line (BT-157 item id, and
+  // Extended's line-level parties): Peppol's COMMON id contexts reach them all
+  // (endpoint.mjs, inspectLineSchemedIds).
+  const schemeIds = [];
+  for (const name of ["ID", "GlobalID", "URIID"]) {
+    for (const node of descendants(line, name)) {
+      const scheme = node.attrs && node.attrs.schemeID ? String(node.attrs.schemeID).trim() : "";
+      const id = (node.text || "").trim();
+      if (scheme && id) schemeIds.push({ id, scheme });
+    }
+  }
+  if (schemeIds.length) mapped.scheme_ids = schemeIds;
   return mapped;
 }
 
@@ -232,7 +309,11 @@ function totalsFrom(settlement) {
   const currency = textOf(settlement, "InvoiceCurrencyCode");
   const taxAmounts = summation ? descendants(summation, "TaxTotalAmount") : [];
   const taxNode = taxAmounts.find((node) => !node.attrs || !node.attrs.currencyID || !currency || node.attrs.currencyID === currency) || taxAmounts[0];
+  // Two TaxTotalAmounts both marked in the invoice currency: the second is BT-111 in
+  // a VAT accounting currency that is the invoice currency, kept for INV-059.
+  const marked = currency ? taxAmounts.filter((node) => node.attrs && node.attrs.currencyID === currency) : [];
   return {
+    tax_accounting_currency: marked.length === 2 && marked[0] === taxNode ? marked[1].text.trim() : "",
     net: textOf(summation, "TaxBasisTotalAmount") || textOf(summation, "LineTotalAmount"),
     tax: taxNode ? taxNode.text.trim() : "",
     gross: textOf(summation, "GrandTotalAmount"),
@@ -307,6 +388,27 @@ export function parseCiiInvoice(source) {
       gross: totals.gross,
     },
   };
+  const payee = sideParty(firstChild(settlement, "PayeeTradeParty"));
+  if (payee) invoice.payee_party = payee;
+  // BG-11 also carries BT-63, its VAT number (INV-022/023/064; read since 2026-11-17).
+  const representativeNode = firstChild(agreement, "SellerTaxRepresentativeTradeParty");
+  const representativeVat = ciiVatId(representativeNode);
+  const representative = sideParty(representativeNode);
+  if (representative || representativeVat) {
+    invoice.tax_representative = { ...(representative || {}), ...(representativeVat ? { vat_id: representativeVat } : {}) };
+  }
+  const primary = new Set([
+    ciiVatNode(firstChild(agreement, "SellerTradeParty")),
+    ciiVatNode(firstChild(agreement, "BuyerTradeParty")),
+    ciiVatNode(representativeNode),
+  ]);
+  const registrations = ciiVatRegistrations(transaction || { name: "", children: [] }, primary);
+  if (registrations.length) invoice.vat_registrations = registrations;
+  // BG-13 deliver-to: ShipToTradeParty's ID and GlobalID (BT-71, the delivery
+  // location id) and any legal registration; Peppol's `ram:ID | ram:GlobalID`
+  // contexts match them as they do the seller's (added 2026-11-17).
+  const deliverTo = sideParty(firstChild(firstChild(transaction, "ApplicableHeaderTradeDelivery"), "ShipToTradeParty"));
+  if (deliverTo) invoice.delivery_party = deliverTo;
   const due = isoDate(nestedText(settlement, "SpecifiedTradePaymentTerms", "DueDateDateTime", "DateTimeString")
     || nestedText(settlement, "DueDateDateTime", "DateTimeString"));
   if (due) invoice.due_date = due;
@@ -326,6 +428,7 @@ export function parseCiiInvoice(source) {
   if (totals.prepaid !== "") invoice.totals.prepaid = totals.prepaid;
   if (totals.payable !== "") { invoice.totals.payable = totals.payable; invoice.totals.due = totals.payable; }
   if (totals.rounding !== "") invoice.totals.rounding = totals.rounding;
+  if (totals.tax_accounting_currency !== "") invoice.totals.tax_accounting_currency = totals.tax_accounting_currency;
 
   const taxBreakdown = [];
   for (const row of breakdown) {
@@ -350,5 +453,9 @@ export function parseCiiInvoice(source) {
     ...descendants(settlement || { name: "", children: [] }, "SpecifiedTradePaymentTerms").map((terms) => nestedText(terms, "Description")),
   ].filter(Boolean);
   if (notes.length) invoice.notes = notes;
+  // INV-065: an amount, quantity or date that String.trim() reads and XML does
+  // not (a no-break space at its end). Kept for checks.mjs; xmlvalues.mjs.
+  const unreadable = unreadableLeaves(tree);
+  if (unreadable.length) invoice.xml_values = unreadable;
   return invoice;
 }

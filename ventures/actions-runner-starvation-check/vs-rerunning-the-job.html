@@ -28,6 +28,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">&larr; Actions Runner Starvation Check</a></p>
   <h1>This checker vs. just re-running the job</h1>
 
@@ -80,7 +81,9 @@
   <h3>Is my run's JSON uploaded anywhere to get this verdict?</h3>
   <p>No. You fetch it yourself with your own <code>gh</code> CLI or token, paste it into this page, and the verdict is computed in your browser. Nothing about your run, your repository, or your token is sent anywhere -- the only network request in the whole flow is the one you made yourself to GitHub's API.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind, express or implied. They are not a substitute for reading GitHub's own billing and Actions usage pages, and they do not tell you why your account stopped getting runners, only whether a specific job got one. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
     <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded.</p>

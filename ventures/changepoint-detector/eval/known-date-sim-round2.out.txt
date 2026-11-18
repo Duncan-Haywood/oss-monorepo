@@ -1,0 +1,35 @@
+# round 2, matched rho capped at 0.95; 400 series per cell, 199 bootstrap replicates; rejections at p <= 0.05 among tested series
+## Size (null: line + AR(1))
+null       n  40 rho 0.0 date 50%  bootstrap   5.0%  F table   9.8%  refused 0/400
+null       n  40 rho 0.0 date 80%  bootstrap   5.0%  F table   8.0%  refused 0/400
+null       n  40 rho 0.4 date 50%  bootstrap   4.0%  F table  12.0%  refused 1/400
+null       n  40 rho 0.4 date 80%  bootstrap   4.8%  F table  12.3%  refused 3/400
+null       n  40 rho 0.8 date 50%  bootstrap   5.9%  F table  40.8%  refused 128/400
+null       n  40 rho 0.8 date 80%  bootstrap   9.2%  F table  26.6%  refused 182/400
+null       n 120 rho 0.0 date 50%  bootstrap   4.3%  F table   6.3%  refused 0/400
+null       n 120 rho 0.0 date 80%  bootstrap   4.3%  F table   6.8%  refused 0/400
+null       n 120 rho 0.4 date 50%  bootstrap   5.0%  F table   8.8%  refused 0/400
+null       n 120 rho 0.4 date 80%  bootstrap   6.3%  F table   9.5%  refused 0/400
+null       n 120 rho 0.8 date 50%  bootstrap   3.5%  F table  15.0%  refused 1/400
+null       n 120 rho 0.8 date 80%  bootstrap   5.3%  F table  11.5%  refused 0/400
+## Power (step of 1 innovation sd; slope change 0.05 per step at n 40, 0.02 at n 120)
+step 1     n  40 rho 0.0 date 50%  bootstrap  17.3%  F table  30.8%  refused 0/400
+slope      n  40 rho 0.0 date 50%  bootstrap  11.3%  F table  18.5%  refused 0/400
+step 1     n  40 rho 0.4 date 50%  bootstrap   7.8%  F table  26.3%  refused 1/400
+slope      n  40 rho 0.4 date 50%  bootstrap   5.0%  F table  13.0%  refused 1/400
+step 1     n  40 rho 0.8 date 50%  bootstrap   8.5%  F table  48.2%  refused 128/400
+slope      n  40 rho 0.8 date 50%  bootstrap   7.0%  F table  40.8%  refused 128/400
+step 1     n 120 rho 0.0 date 50%  bootstrap  61.0%  F table  65.8%  refused 0/400
+slope      n 120 rho 0.0 date 50%  bootstrap  39.3%  F table  46.0%  refused 0/400
+step 1     n 120 rho 0.4 date 50%  bootstrap  29.8%  F table  39.0%  refused 0/400
+slope      n 120 rho 0.4 date 50%  bootstrap  15.5%  F table  23.5%  refused 0/400
+step 1     n 120 rho 0.8 date 50%  bootstrap   6.8%  F table  26.3%  refused 1/400
+slope      n 120 rho 0.8 date 50%  bootstrap   5.3%  F table  15.8%  refused 1/400
+## Random walks (should mostly be refused)
+walk       n  40 rho 0.0 date 50%  bootstrap  11.1%  F table  62.2%  refused 220/400
+walk       n 120 rho 0.0 date 50%  bootstrap  23.0%  F table  59.2%  refused 248/400
+## Round 2 extra: n 60 and near-unit roots
+null       n  60 rho 0.8 date 50%  bootstrap   6.1%  F table  34.2%  refused 204/400
+null       n  60 rho 0.9 date 50%  bootstrap  18.2%  F table  54.5%  refused 290/400
+null       n 120 rho 0.9 date 50%  bootstrap   5.4%  F table  26.6%  refused 84/400
+null       n  40 rho 0.9 date 50%  bootstrap   8.4%  F table  48.1%  refused 163/400

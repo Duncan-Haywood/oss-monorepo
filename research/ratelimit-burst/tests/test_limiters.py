@@ -38,3 +38,16 @@ def test_poisson_long_run_rate_near_limit():
     for cls in LIMITERS:
         per_window, _ = poisson_overload(cls, 50, 100, 3.0, windows=300)
         assert 45 <= per_window <= 52, (cls.name, per_window)
+
+
+def test_sliding_counter_batched_arrivals_reach_2l_minus_1():
+    # Quality audit 2026-11-10: L requests in the last tick of a window, then
+    # L per tick, admit 2L - 1 in a rolling window; the one-per-tick searches
+    # never offer that and reported 1.4-1.5 L.
+    for limit, window in ((10, 20), (20, 40)):
+        lim, admitted = SlidingCounter(limit, window), []
+        for t in range(window - 1, 3 * window):
+            for _ in range(limit):
+                if lim.allow(t):
+                    admitted.append(t)
+        assert max_window_admitted(admitted, window) == 2 * limit - 1

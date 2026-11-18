@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-01
+tagged: auto
+---
 # Polish 2026-11-01: phone check of Research, Stories and Writing
 
 **What.** Built the site locally (`node platform/pages/build.mjs`, about 10 minutes) and loaded `/research/`, `/stories/` and `/writing/` from `dist` in Playwright at 390 px.

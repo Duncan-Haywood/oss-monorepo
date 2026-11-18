@@ -6,7 +6,8 @@
 //   node ventures/shed-designer/make-gallery.mjs           write the file
 //   node ventures/shed-designer/make-gallery.mjs --check   exit 1 if it is stale
 //
-// It takes under a minute: two design searches (designsearch.mjs). Each card's
+// It takes under a minute: three design searches (designsearch.mjs), run in
+// parallel worker threads (about 25 s serial, about 10 s on four cores). Each card's
 // strip picture is drawn by make-renders.mjs (galleryTargets), which redraws
 // only the cards whose design changed.
 //
@@ -20,7 +21,7 @@
 import { writeFileSync, readFileSync, readdirSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { generateGallery } from './gallery.mjs';
+import { generateGallery, gallerySearchesParallel } from './gallery.mjs';
 
 const OUT = fileURLToPath(new URL('./gallery-data.mjs', import.meta.url));
 const STAMP = fileURLToPath(new URL('./.gallery-stamp', import.meta.url));
@@ -53,7 +54,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     console.log('gallery-data.mjs was written from these sources already (.gallery-stamp); skipping the search');
     process.exit(0);
   }
-  const text = galleryModule(generateGallery());
+  const text = galleryModule(generateGallery(undefined, await gallerySearchesParallel()));
   if (process.argv.includes('--check')) {
     let now = '';
     try { now = readFileSync(OUT, 'utf8'); } catch { /* missing counts as stale */ }

@@ -51,9 +51,12 @@ test("every input has a label and nothing is sent anywhere", () => {
 
 test("the module scripts import only local files, and the inline script parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./import-shifts.mjs", "./import-staff.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./checkout.mjs", "./import-7shifts.mjs", "./import-deputy.mjs", "./import-shifts.mjs", "./import-square.mjs", "./import-staff.mjs", "./import-wheniwork.mjs", "./licence.mjs", "./staffpack.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
-  assert.doesNotMatch(page("calc.mjs"), /^\s*import\s/m);
+  // calc.mjs may import its own sibling modules (bnp.mjs), never anything remote or bare.
+  for (const m of page("calc.mjs").matchAll(/^\s*import\s.*?from\s+"([^"]+)"/gm)) assert.match(m[1], /^\.\/[\w-]+\.mjs$/, m[1]);
+  assert.doesNotMatch(page("bnp.mjs"), /^\s*import\s/m);
+  assert.doesNotMatch(page("bnp.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));
 });
@@ -156,17 +159,19 @@ test("wall-copy print view exists, prints the grid only, and never carries pay",
 test("labor-cost page's figures are what the engine returns for the sample cafe", async () => {
   const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts, laborPercent, dailyLabor } = await import("./calc.mjs");
   const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
-  const r = buildRoster(staff, slots, {});
+  const r = buildRoster(staff, slots);
   const html = page("labor-cost-percentage-by-day.html");
-  assert.equal(r.cost, 3622);
-  assert.equal(laborPercent(r.cost, 14000, 30).pct.toFixed(1), "25.9");
-  assert.equal(laborPercent(r.cost, 12000, 30).pct.toFixed(1), "30.2");
+  assert.equal(r.cost, 3690);
+  assert.equal(laborPercent(r.cost, 14000, 30).pct.toFixed(1), "26.4");
+  assert.equal(laborPercent(r.cost, 12000, 30).pct.toFixed(1), "30.8");
+  for (const t of ["26.4%", "30.8%", "$510 under", "$90 over", "220 hours", "$3,690"]) assert.ok(html.includes(t), t);
   const d = dailyLabor(r, staff, "1500 1600 1700 1900 2600 3200 2400");
   for (const day of d.days) {
     assert.ok(html.includes(`<td class="n">${day.pct.toFixed(1)}%</td>`), day.day);
     assert.ok(html.includes("$" + day.cost.toLocaleString("en-US")), day.day + " cost");
   }
-  assert.equal(d.worst.day, "Tue");
+  assert.equal(d.worst.day, "Mon");
+  assert.ok(html.includes("Monday is the worst day at 36.5%"));
   assert.match(page("sitemap.xml"), /labor-cost-percentage-by-day\.html/);
   assert.match(page("index.html"), /labor-cost-percentage-by-day\.html/);
   assert.ok(html.includes("No warranty"));
@@ -227,10 +232,13 @@ test("free-alternative page is linked, disclaims affiliation, and states no comp
 test("schedule template page's example grid is what the engine returns for the sample cafe", async () => {
   const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts, DAYS, fmtClock } = await import("./calc.mjs");
   const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
-  const r = buildRoster(staff, slots, {});
+  const r = buildRoster(staff, slots);
   const html = page("employee-schedule-template.html");
-  assert.equal(r.hours, 216);
-  assert.equal(r.cost, 3622);
+  assert.equal(r.hours, 220);
+  assert.equal(r.cost, 3690);
+  // Proven: "optimal" (the search's roster) or "improved" (column generation's, run first on a fresh build since 2026-11-13).
+  assert.ok(["optimal", "improved"].includes(r.optimality.status), r.optimality.status);
+  assert.ok(html.includes("220 of 235 hours covered, payroll $3,690"));
   for (const s of staff) {
     const cells = DAYS.map((_, d) => r.assignments.filter((a) => a.person === s.name && a.slot.day === d).map((a) => fmtClock(a.slot.startMin) + "-" + fmtClock(a.slot.endMin)).join(" ") || "off");
     const hours = r.people.find((x) => x.name === s.name).hours;
@@ -248,4 +256,16 @@ test("the open-shift preference select is labelled and feeds buildRoster's openS
   const html = page("index.html");
   assert.match(html, /<label for="openpref">/);
   assert.match(html, /openShiftWeight: \$\("#openpref"\)\.value === "shifts" \? 100 : 0/);
+});
+
+test("the cover finder offers hand-over chains when nobody can take the shift outright (2026-11-05)", () => {
+  const html = page("index.html");
+  assert.match(html, /coverChain\(lastIn\.staff, lastIn\.slots, last/);
+  assert.match(html, /Or hand shifts over/);
+});
+
+test("page: a schedule export with several locations or shift versions gets pickers that re-read the file (2026-11-13)", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  for (const id of ["import-shifts-pick", "import-shifts-loc", "import-shifts-use"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /importShiftsCsv\(shiftsFile\.text, \{ location: loc \|\| undefined/);
 });

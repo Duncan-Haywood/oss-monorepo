@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtKpwKthSoqR1bLouzq",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T15:07:07Z",
+  "ended": "2026-11-14T15:18:13Z",
+  "wall_minutes": 21.28,
+  "tokens_in": 3125695,
+  "tokens_out": 48233,
+  "cost_usd": 2.4531,
+  "tool_calls": 32,
+  "task": "creative: new Hearth & Horizon story 'Heard in Maracay' (heard-in-maracay)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15890",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The only Hearth & Horizon proposal (The Wet Bulb) carries its own note that it is too close to a finished story, so the headline shelf effectively had an empty queue; I wrote an unproposed story instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Next up had no usable Hearth & Horizon proposal (Wet Bulb flagged as near-duplicate) and the For Other Minds proposal was already taken by PR #15886",
+      "did": "Wrote an unproposed story on a topic DONE.md had never used (ionospheric NVIS radio), with every number scripted before drafting",
+      "result": "Story landed with tests green; DONE.md records it as not from a proposal"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-heard-in-maracay.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (headline SF shelf); piece: heard-in-maracay, about 5,500 words, text only (audio dirs 474 MB > 400 MB cap). Security queue empty, IDEAS.md and website requests empty. Numbers scripted in scratchpad: curved-Earth secant law (h 300 km), dipole-over-ground factor, NOAA sunrise, battery/cylinder timeline, weekdays. An adversarial re-read fixed: 'half its strength' (model says about a third), a garbled pyx/oils line, the radio running after the battery was out (now on reserve), and a licence claim about an unlicensed speaker on an international contact that I could not verify. Local checks: node generate.mjs plus node --test in ventures/hearth-and-horizon, 15/15 pass; run_workflow_locally --for-changes started (see PR). No separate agent doc: the DONE.md entry and BIBLE timeline row carry what the next run needs. run_workflow_locally --for-changes: 9/10 workflows passed and none failed; portfolio-pages.yml ran out of the local budget with no verdict (its site-builder test was still running at 275 s), so GitHub CI is the check for that one.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ee995fd6-08de-5d8d-bf9f-9bf27babfbcb",
+    "transcripts": 1,
+    "first": "2026-11-14T15:07:07Z",
+    "last": "2026-11-14T15:28:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 63,
+        "output": 48233,
+        "thinking": 25400,
+        "cache_read": 3014978,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110654,
+        "api_equivalent_usd": 2.4531,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 63,
+      "output": 48233,
+      "thinking": 25400,
+      "cache_read": 3014978,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110654,
+      "api_equivalent_usd": 2.4531,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.965,
+    "tool_calls": 32,
+    "tools": {
+      "Bash": 27,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.28,
+      "active_minutes": 21.28,
+      "model_minutes": 9.52,
+      "tool_minutes": 11.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "researching NVIS propagation and working out the numbers (about 3 h) plus drafting and revising a 5,500-word story (about 7 h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 407.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,236 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/chip-sharesign",
+ "stratum": "research",
+ "seed": "2026-11-13-r-1b81",
+ "drawn_by": "sample",
+ "round": 72,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a logic-synthesis / computer-arithmetic researcher reviewing for a workshop such as IWLS or ARITH. They would first ask what the two variants become after Yosys's coarse passes (opt_merge, alumacc: shared $alu chain or $macc carry-save), whether the 'unshared' control is really unshared, whether the comparison with chip-abc-orderpass uses the same metric, and where the work sits against common-subexpression elimination and resource sharing in high-level synthesis (De Micheli, Synthesis and Optimization of Digital Circuits, 1994, ch. 6; Hosangadi, Fallah and Kastner, CSE for multi-operand linear arithmetic, ASP-DAC/ASAP 2004-2005) and carry-save multi-operand addition (Wallace 1964; Dadda 1965).",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Installed Yosys 0.33 (git sha1 2584903a060, the version the README names) with apt. In a scratch copy, `python3 experiments/run.py` ran in 16 s and its output is byte-identical to experiments/results.txt (`diff` empty). Independent recomputation in /tmp/claude-0/-home-user-oss-monorepo/2857b237-e613-5436-b436-362d4f26d0ba/scratchpad/indep/indep.py, which imports nothing from the package: Verilog written by hand in a different text form (explicit `wire ab = a + b` for shared, explicit `(c + a) + b` for unshared), my own Yosys call ending in write_json, cells and longest path computed by my own graph walk over the JSON netlist (not stat/ltp), and a bit-level Python simulation of every gate netlist against the integer formula on 300 random vectors. For 5 designs x 5 scripts (50 netlists): every unshared count and depth matches results.txt exactly (e.g. addvar 16 2 dch_map 314/16, sumthree 16 2 resyn2_map 689/19); shared matches exactly for addvar and sumthree and within 1-2 cells for addconst (e.g. addconst 8 2 resyn2_map 58 vs 56, 16 2 yosys_default 106 vs 107), a text-form sensitivity that changes no sign; the one exception (addconst 16 2 strash_map, 159 vs 151) reproduces exactly. 0 simulation mismatches in all 50 netlists, so the miter result is confirmed independently. Summary statistics recomputed with /tmp/claude-0/-home-user-oss-monorepo/2857b237-e613-5436-b436-362d4f26d0ba/scratchpad/indep/stats.py using statistics.median: 54/55 shared-smaller, ratio range 0.598-1.053, medians 0.793/0.845/0.759/0.845/0.812, deeper 9/8/9/7/6, cells x depth smaller 9/7/9/8/8: all as printed. Not 4: one tool version, and score() would silently return 0 on a regex miss (flow.py:40).",
+  "completeness": "README promises 11 designs in three families (gens.py, run.py GRID: present), a miter proof for every pair (11/11 True in results.txt and in my rerun), five ABC scripts (flow.py:10-17), a unit test pinning operand-order insensitivity (test_operand_swap_is_not_unsharing: present, passes), regenerating results in 'about 30 s' (16 s here, byte-identical) and a figure (figure.py writes sharesign.svg; ran). The live page https://marisstella.app/research/chip-sharesign/ loads (HTTP 200) and matches the README. Nothing claimed as done is a stub; multipliers and SKY130 are labelled next steps.",
+  "verification": "`python3 -m unittest discover -s tests`: 3 tests OK in 0.46 s (ResourceWarnings for unclosed files). The tests check that the variants are equivalent at w=6,k=3, that operand swap is not unsharing, and that addconst's two variants score differently. They pin no score and have no negative equivalence test. Of 7 seeded mutants (platform/ci/quality_mutate.py), 2 were caught (addconst's unshared expression made shared, gens.py:20; a + changed to - in addconst's unshared output, gens.py:20, caught by the miter test) and 5 survived: cells + 1 in flow.py:40 (every number in results.txt changes); dch_map's script replaced by `strash; map` (flow.py:14, a headline column changes); `sat -verify` dropped from the miter (flow.py:47), so the equivalence gate returns True for anything; run.py:31 `>` -> `>=` in the headline 'shared larger' count; and sumthree's else-arm changed from c - a to c + a (gens.py:41, a design change both variants share, so legitimately not an equivalence failure, but no test notices the design changed). The equivalence gate and every headline number can be broken with all tests green.",
+  "craft": "Read src/chip_sharesign/flow.py (48 lines), gens.py (45), tests/test_gens.py (33), experiments/run.py (41), experiments/figure.py (26). Small, stdlib only, readable. Defects: flow.py is copied from chip-abc-orderpass (README says so), one of several copies across research/chip-*; score() returns 0 cells / 0 depth silently when the stat or ltp regex misses (flow.py:40); run.py computes `eq` but writes the row whatever it is, so a failed proof would still be scored (run.py:21-24); equivalent() discards Yosys stderr, so a parse error and a real inequivalence look the same (flow.py:48); files opened without close (test_gens.py:12, run.py:19, figure.py:4); sumthree's docstring says 'MUX of two sums' but the else arm is a difference (gens.py:36-41). A senior reviewer would ask for these before accepting it.",
+  "claims": "Checked against results.txt and my rerun: '54 of 55 (design, script) pairs' (pass); 'ratio 1.05' exception on strash_map (pass, addconst 16 2, 159/151); 'median 0.76 to 0.85' (pass); 'shared deeper in 9, 8, 9, 7, 6' and 'cells x depth smaller in 9, 7, 9, 8, 8' (pass); '11/11 proved' (pass). Unbacked or wrong: (1) README.md:25 and the live page say the sign flip of chip-abc-orderpass 'does not generalise ... no design shows it under those scripts'. chip-abc-orderpass's sign is on cells x depth (its README.md:12 and :27; its results.txt shows 1232 vs 1024 under dch_map), and under that metric this project's own results.txt shows shared LARGER in 3 of 11 designs under both dch_map and resyn2_map: addconst 16 2 (2520 vs 2170, 1.16x, close to orderpass's 1.20x on the same carry-select pattern), addvar 8 2 (1.08x / 1.10x) and addvar 16 2 (1.20x / 1.27x). The flip does reproduce; the claim compares cells here with cells x depth there. (2) README.md:11 says the unshared variant leaves 'no two $add cells [with] the same operands'; for k = 4 outputs y0 and y2 are both `a + b + c`, and a Yosys dump after alumacc shows 3 $alu (a shared a + b) plus 2 $macc in addvar 8 4 unshared, so 4 of the 11 designs compare full against partial sharing. (3) README.md:26 'Sharing costs depth': with `synth -noalumacc` the depth difference vanishes (addvar 16 2 dch_map 22 vs 22; sumthree 16 2 23 vs 23; addvar 8 4 15 vs 15), so the depth penalty is the $macc carry-save mapping the unshared text enables, not sharing. (4) Title (README.md:1) '55 of 55 runs but one' is an awkward way to say 54 of 55 (low). Limits, 'stylised', AI assistance and MIT are stated.",
+  "fitness": "Could a researcher build on it? The harness (generate, miter-prove, score under five ABC scripts) runs in 16 s and reproduces byte for byte, so it is reusable. The result is not new: that sharing a common sum reduces adder count is the textbook motivation for CSE and resource sharing (De Micheli 1994; Hosangadi/Fallah/Kastner 2004-05 for multi-operand arithmetic), and that a three-operand sum mapped carry-save (Yosys alumacc -> $macc) is shallower than two chained carry-propagate adds is the Wallace/Dadda argument; none of this is cited. The one question the project was opened to answer (does chip-abc-orderpass's sign flip generalise?) is answered wrongly by its own data. A researcher would have to redo the analysis before relying on it.",
+  "domain": "Compared against standard practice for a synthesis ablation: control isolates one factor, metric held constant across comparisons, and mechanism checked at the netlist. Sound: miter equivalence for every pair, five ABC scripts, one pinned tool version, depth and area reported separately. Departures: the shared/unshared factor is confounded with $alu chain vs $macc carry-save architecture (shown by -noalumacc, which removes the depth gap and widens the area gap); the k = 4 unshared control is partially shared; the generalisation claim switches metric; no prior work on CSE/resource sharing or carry-save addition is cited; one generic-gate library, no timing."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "cells and depth, shared and unshared, for addconst 8/2, addconst 16/2, addvar 8/4, addvar 16/2, sumthree 16/2 under all five scripts (50 netlists)",
+   "method": "independent hand-written Verilog in a different text form, own Yosys invocation to write_json, own cell count and longest-path walk (not stat/ltp, not the package)",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/2857b237-e613-5436-b436-362d4f26d0ba/scratchpad/indep && python3 -I indep.py",
+   "expected": "results.txt, e.g. addvar 16 2 dch_map 273/22 vs 314/16; sumthree 16 2 resyn2_map 412/27 vs 689/19; addconst 16 2 strash_map 159/18 vs 151/14",
+   "observed": "all unshared exact; addvar and sumthree shared exact; addconst shared within 1-2 cells (e.g. 8 2 resyn2_map 58 vs 56), no sign changes; the strash_map exception 159 vs 151 exact",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "gate netlists compute the stated function (independent of the Yosys miter)",
+   "method": "own bit-level Python simulator over the JSON gate netlist vs integer reference (a+b+c_i mod 2^w; s ? ... : c_i - a), 300 random vectors per netlist",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/2857b237-e613-5436-b436-362d4f26d0ba/scratchpad/indep && python3 -I indep.py",
+   "expected": "0 mismatches",
+   "observed": "0 mismatches in all 50 netlists",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "README summary statistics: 54/55, range, per-script medians, deeper counts, cells x depth counts",
+   "method": "own script over results.txt using statistics.median (not run.py's summary code)",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/2857b237-e613-5436-b436-362d4f26d0ba/scratchpad/indep/stats.py research/chip-sharesign/experiments/results.txt",
+   "expected": "54/55; 0.60-1.05; medians 0.76-0.85; deeper 9,8,9,7,6; AxD smaller 9,7,9,8,8",
+   "observed": "54/55; 0.598-1.053; 0.793/0.845/0.759/0.845/0.812; 9,8,9,7,6; 9,7,9,8,8",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "full experiment reproduces",
+   "method": "rerun in a scratch copy with Yosys 0.33 and diff",
+   "command": "cp -r research/chip-sharesign /tmp/claude-0/-home-user-oss-monorepo/2857b237-e613-5436-b436-362d4f26d0ba/scratchpad/cs && cd /tmp/claude-0/-home-user-oss-monorepo/2857b237-e613-5436-b436-362d4f26d0ba/scratchpad/cs && python3 experiments/run.py | diff - experiments/results.txt",
+   "expected": "no diff",
+   "observed": "byte-identical, 16 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README.md:25 'the sign flip of chip-abc-orderpass does not generalise; no design shows it under dch_map/resyn2_map'",
+   "method": "orderpass's metric is cells x depth (its README.md:12, :27); recompute that product from this project's results.txt",
+   "command": "awk 'NF==9 && $1!=\"family\" && ($4==\"dch_map\"||$4==\"resyn2_map\") && $5*$6>=$7*$8' research/chip-sharesign/experiments/results.txt",
+   "expected": "no rows if the claim holds",
+   "observed": "6 rows: addconst 16 2 (1.16x dch, 1.03x resyn2), addvar 8 2 (1.08x, 1.10x), addvar 16 2 (1.20x, 1.27x)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README.md:11 'no two $add cells have the same operands' in the unshared variant",
+   "method": "read generated Verilog and Yosys stat after `synth -run begin:fine` for addvar 8 4 unshared",
+   "command": "yosys -p 'read_verilog av84_0.v; synth -top top -flatten -noabc -run begin:fine; stat'",
+   "expected": "no shared a + b",
+   "observed": "y0 and y2 both a + b + c; 3 $alu (shared a + b) + 2 $macc",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "'Sharing costs depth' (README.md:26) is caused by sharing",
+   "method": "ablation: same designs with `synth -noalumacc` (no $macc carry-save mapping), dch_map",
+   "command": "yosys -q -p 'read_verilog addvar_16_2_{1,0}.v; synth -top top -flatten -noabc -noalumacc; abc -g ... -script dch.abc; stat; ltp -noff'",
+   "expected": "shared still deeper if sharing is the cause",
+   "observed": "depth equal: addvar 16 2 22 vs 22, addvar 8 4 15 vs 15, sumthree 16 2 23 vs 23 (with alumacc: 22 vs 16, 15 vs 15, 23 vs 17)",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "unit tests",
+   "method": "run",
+   "command": "python3 -m unittest discover -s tests",
+   "expected": "pass",
+   "observed": "3 tests OK in 0.46 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page loads and matches README",
+   "method": "curl",
+   "command": "curl -sS https://marisstella.app/research/chip-sharesign/",
+   "expected": "200, same numbers",
+   "observed": "200; same numbers, repeats the 'sign flip does not appear' claim",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure regenerates",
+   "method": "run figure.py in scratch copy",
+   "command": "python3 experiments/figure.py",
+   "expected": "sharesign.svg written",
+   "observed": "written",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "research/README.md:304 index line",
+   "method": "compare with results.txt",
+   "command": "grep -n chip-sharesign research/README.md",
+   "expected": "54 of 55, often deeper",
+   "observed": "matches",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/chip_sharesign/gens.py:20",
+   "change": "else f\"{w}'d{i} + a + b\" -> else f\"a + b + {w}'d{i}\"",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_sharesign/gens.py:20",
+   "change": "else f\"{w}'d{i} + a + b\" -> else f\"{w}'d{i} + a - b\"",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_sharesign/flow.py:40",
+   "change": "\"cells\": int(m.group(1)) if m else 0 -> \"cells\": int(m.group(1)) + 1 if m else 0",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_sharesign/flow.py:14",
+   "change": "\"dch_map\": \"strash; dch; map\" -> \"dch_map\": \"strash; map\"",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_sharesign/flow.py:47",
+   "change": "sat -verify -prove trigger 0 -> sat -prove trigger 0",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/run.py:31",
+   "change": "bigger = sum(r[4] > r[6] for r in rs) -> bigger = sum(r[4] >= r[6] for r in rs)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_sharesign/gens.py:41",
+   "change": "(c{i} - a) -> (c{i} + a)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Headline says chip-abc-orderpass's sign flip 'does not generalise ... no design shows it under dch_map and resyn2_map'; orderpass's sign is on cells x depth, and under that metric this project's own results.txt has shared larger in 3 of 11 designs under both scripts (addconst 16 2 1.16x under dch_map, close to orderpass's 1.20x; addvar 16 2 1.20x/1.27x). Repeated on the live page.",
+   "where": "research/chip-sharesign/README.md:25",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "'Sharing costs depth' attributes to sharing what is the $alu-chain vs $macc carry-save difference: the unshared text lets alumacc build $macc cells; with synth -noalumacc the depth gap disappears (22 vs 22, 23 vs 23). Factor not isolated.",
+   "where": "research/chip-sharesign/README.md:26",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "For k = 4 the 'unshared' variant still shares a + b between y0 and y2 (only odd outputs are re-associated), contradicting 'no two $add cells have the same operands'; 4 of 11 designs compare full vs partial sharing.",
+   "where": "research/chip-sharesign/src/chip_sharesign/gens.py:30",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Equivalence gate has no negative test: dropping `-verify` from `sat` makes equivalent() return True for anything and all tests pass; no test pins any score, so cells+1 or a changed ABC script survive.",
+   "where": "research/chip-sharesign/tests/test_gens.py:15",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "run.py computes the miter result but scores and reports the pair whatever it is; a failed proof would still enter the statistics.",
+   "where": "research/chip-sharesign/experiments/run.py:21",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "score() silently returns 0 cells / 0 depth when the stat or ltp regex misses, a perfect-looking score.",
+   "where": "research/chip-sharesign/src/chip_sharesign/flow.py:40",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "No prior work on common-subexpression elimination / resource sharing or carry-save multi-operand addition cited; the area result and the depth trade-off are textbook.",
+   "where": "research/chip-sharesign/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Title says '55 of 55 runs but one' for 54 of 55.",
+   "where": "research/chip-sharesign/README.md:1",
+   "category": "other",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15600"
+ ],
+ "verdict": "The numbers are right: the experiment reruns byte-identically under Yosys 0.33, and an independent harness (own Verilog, own JSON netlist walk, own gate simulator) reproduces every unshared score exactly and the shared ones within 1-2 cells with no sign change, with 0 functional mismatches. The interpretation is not: the headline that chip-abc-orderpass's sign flip 'does not generalise' compares cells here with cells x depth there, and under orderpass's own metric the flip appears in 3 of 11 designs under dch_map and resyn2_map, including the same carry-select pattern at 1.16x. The depth penalty credited to sharing is the $macc carry-save mapping the unshared text enables (it vanishes with -noalumacc), and the k = 4 unshared control is still partly shared. Tests catch 2 of 7 seeded mutants; dropping -verify from the miter survives. The finding that CSE saves area is textbook and uncited. Does not meet the bar (claims 1, verification 1)."
+}

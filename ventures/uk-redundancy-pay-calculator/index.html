@@ -128,7 +128,7 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const gbp = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(Number(n)).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    const gbp = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("£" + Math.abs(Number(n)).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0"));
     let last = null;
     const map = { dob: "dob", start: "start", end: "end", weekly: "weekly", offered: "offered", other: "other", rate: "rate", capYear: "capYear" };
     const IDLE = "Fill in the figures, then click Work out my redundancy pay.";
@@ -154,7 +154,7 @@
       $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("") || `<tr><td colspan="2">No statutory claim on these figures. Check your contract and your dates.</td></tr>`;
       report.hidden = false;
       status.textContent = "Done. Verify against the source named in the summary.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

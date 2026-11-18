@@ -1,0 +1,8 @@
+cells (omega, excess, se): [(3.0, -0.0068, 0.0044), (7.0, -0.0016, 0.0038), (15.0, 0.044, 0.0041)]
+observed fit chi2 / LOO RMS (se units):
+  linear  chi2 36.63 a 0.0022 p 0.00  LOO 8.03
+  power   chi2 2.68 a 0.0000 p 8.00  LOO 6.98
+  hinge   chi2 2.65 a 0.0055 p 7.00  LOO 7.62
+share of draws where each form has the worst LOO: {'linear': 0.751, 'power': 0.248, 'hinge': 0.001}
+share of draws with |LOO power - LOO hinge| < 1 se: 0.562
+hinge w0 bootstrap 2.5/50/97.5 percentiles: 6.0 7.0 7.0

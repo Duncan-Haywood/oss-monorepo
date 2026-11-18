@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [llms-txt]
+date: 2026-10-30
+tagged: auto
+---
 # Polish 2026-10-30: llms.txt generator reads `site/index.html`
 
 **What.** `gen_llms_txt.py` only looked at `<venture>/index.html`, but `platform/pages/build.mjs`

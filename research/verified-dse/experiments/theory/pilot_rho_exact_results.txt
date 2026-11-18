@@ -1,0 +1,4 @@
+m | guaranteed cells | cells with y ties | |z|>3 (emp vs exact) | max |z| | median emp | median exact | median |emp-exact| | median hit-bound minus exact
+8 | 11 | 11 | 0 | 1.99 | 0.490 | 0.513 | 0.031 | 0.066
+16 | 11 | 11 | 0 | 2.32 | 0.717 | 0.727 | 0.012 | 0.099
+24 | 11 | 11 | 0 | 1.89 | 0.877 | 0.875 | 0.010 | 0.067

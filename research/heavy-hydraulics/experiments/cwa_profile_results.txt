@@ -1,0 +1,7 @@
+Digging_profile: 80 s, mean 35.1 kW, peak 93.6 kW, peak/mean 2.67, p95/mean 2.16, share of time above mean 0.43, time <1 kW 0.04, energy 0.779 kWh, negative-power energy 0.00001 kWh (0.002% of positive)
+   best 3 s window mean 66.1 kW = 1.88 x mean; 1 s step change max 90.9 kW
+Grading_profile: 25 s, mean 56.5 kW, peak 133.1 kW, peak/mean 2.36, p95/mean 1.94, share of time above mean 0.51, time <1 kW 0.00, energy 0.394 kWh, negative-power energy 0.00000 kWh (0.000% of positive)
+   best 3 s window mean 85.0 kW = 1.51 x mean; 1 s step change max 121.5 kW
+ElectricExcavator_profile: 1779 s, mean 46.0 kW, peak 133.1 kW, peak/mean 2.89, p95/mean 2.20, share of time above mean 0.39, time <1 kW 0.02, energy 22.741 kWh, negative-power energy 0.00013 kWh (0.001% of positive)
+   best 3 s window mean 85.0 kW = 1.85 x mean; 1 s step change max 121.5 kW
+runtime on a battery of E kWh at the profile mean = E / mean kW; hours per 100 kWh: 2.17

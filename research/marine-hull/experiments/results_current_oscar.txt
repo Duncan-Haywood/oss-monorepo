@@ -1,0 +1,4 @@
+OSCAR points 6377 (13 dates, 4-degree grid, 60S-60N, ocean only), cos(lat) weighted
+speed m/s: weighted median 0.126, 75th 0.229, 90th 0.389, 95th 0.533, share above 0.2: 30.1%, above 0.3: 16.3%
+worst case: whole current cross-track: glider cannot hold the track 29.6% ; glider has lower energy per ground metre than the AUV in 69.0% of (ocean point, glider, AUV) triples
+random heading: cross component |V| sin(t): glider cannot hold the track 16.5% ; glider has lower energy per ground metre than the AUV in 82.5% of (ocean point, glider, AUV) triples

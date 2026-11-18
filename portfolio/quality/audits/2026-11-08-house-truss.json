@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-08",
+  "subject": "research/house-truss",
+  "stratum": "research",
+  "seed": "2026-11-08-b",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a licensed structural engineer (or truss designer working to ANSI/TPI 1 and NDS) who would first check member forces by statics, the NDS adjustment factors and the combined-stress equation, then ask where plates, bracing and TPI load cases are",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 1,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran `python3 -m pytest -q tests` (9 passed) and `experiments/run.py`, whose output is byte-identical to the committed results.txt. Recomputed independently with a different formulation (method-of-joints linear system in numpy, NDS 3.7.1 Cp and 3.9.2 written afresh, not the package code): (1) 24 ft, 24 in o.c., 4/12, 45+5 psf: member forces match the stiffness solver to 0.1 lb (heel top chord -2814.4 lb, bottom chord 2670.0, web -572.8/+685.9) and the heel top chord also matches hand statics -(1200-310)/sin(theta) = -2814.43; (2) top-chord demand/capacity 2.81 (2x4), 0.59 (2x6), 0.33 (2x8) reproduce results.txt table C exactly; hand arithmetic for the 2x6 case (L=75.89 in, FcE=2202 psi, Cp=0.812, fc=341, fb=642) gave 0.589; (3) bottom chord 1.05 (2x4) and 0.61 (2x6) match, and the lumber figure 60.6 bf / 1.263 bf per sq ft matches. Also hand-checked the stick side: 2x6 rafter at 12 ft plan span fails bending (1714 vs 1504 psi), 2x8 passes (986 vs 1389), and a 24 ft 2x10 joist passes total-load deflection at 0.93 while 2x8 fails. Caveat: the design values (SPF No. 2 Fb 875, Fc 1150, E 1.4M, Emin 510k, Ft 450) are consistent with my recollection of NDS Supplement 4A, but no copy was available to check them, so the independent check shares the author's inputs. Not compared with any truss program.",
+    "completeness": "README features checked by running them: cli `size --span 24` (2x6/2x6/2x4, 60.6 bf, stick 2x8+2x10, 2.304: matches README), `size --span 32 --snow 50 --pitch 6` works, `check --top 2x4 --bottom 2x4` prints the 2.81/1.05 FAILS table; solver, NDS checks, search, stick comparison, deflection, pitch and spacing sweeps (results.txt A to E) all exist and run. figure.py and lumber_vs_span.svg present. Claimed 'Next steps' (Ft check, Fink, overhang, unbalanced snow, comparison with a published truss) are honestly listed as not done. Stub: Truss.overhang_ft is a field that nothing reads. `--pitch 0` raises ZeroDivisionError.",
+    "verification": "Ran `python3 -m pytest -q tests`: 9 passed. Seeded five single-line mutations in src/house_truss/model.py one at a time, running the suite and reverting with `git checkout` each time: (1) (1 - fc/FcE) -> (1 + fc/FcE) in the NDS 3.9.2 interaction; (2) squared axial term -> power 1; (3) top-chord bending wL^2/8 -> wL^2/16; (4) FT 450 -> 900; (5) snow load-duration factor 1.15 -> 1.5. All five SURVIVED (9 passed each time). The solver is well tested against statics (apex load, heel force, equilibrium), but no test pins any demand/capacity ratio, any NDS adjustment, FT, CD or a lumber figure, so the entire design-check layer, which is what produces the headline, is unguarded. The only assertions on it are `not passes(2x4 truss)` and monotone lumber vs span.",
+    "craft": "Read model.py (235 lines), cli.py, tests, run.py. Clean, small, dependency-free, reuses house-framing's Cp and house-spans' sizing instead of copying them, with a clear docstring about what is not modelled. Defects: Truss.overhang_ft unused; `lightest` hardcodes `sizes[:2]` for webs; `_node_loads` computes `nodes` and per-node x it never uses; Fb1 computed in two branches; pitch 0 divides by zero; solver is an O(n^3) dense hand-written Gaussian elimination with no singularity guard (a mis-specified support would give silent garbage); buckling with fc >= FcE returns math.inf which prints as inf.",
+    "claims": "Each headline claim traced: 40% to 55% saving at 30 psf over 12 to 30 ft (results.txt A: 40.3 to 55.2), 39% to 53% at 50 psf (B: 38.8 to 53.3), governing ratios 2.81/0.59/1.05/0.61/0.17, pitch and spacing numbers (D, E), 9 tests, and 'no stick pair passes at 32 ft' all match files. The README is unusually candid: not a design, not compared with a truss program, Ft written from memory and unchecked, weak axis assumed braced, stick numbers light. Weaknesses: the headline compares a 24 in o.c. truss with 16 in stick framing and ignores plates, engineering and the ridge/collar ties the stick roof needs; the word 'Stylised' is applied to a result whose inputs are mostly standard values, contrary to research/CLAUDE.md's guidance to cite the source at the point of use (no NDS table is cited by number or edition).",
+    "fitness": "A researcher can run and extend it (small, pure Python, deterministic), and it makes an honest first-order lumber comparison. But there is one topology, one species/grade, no overhang, no wind or unbalanced snow, no TPI 1 load cases, and no comparison against a published truss example or program, so nobody can yet rely on the numbers beyond 'trusses use roughly half the lumber of stick framing'. Nearest prior work: ANSI/TPI 1 and plate vendors' design software (MiTek, Alpine) which do this properly; Wolfe and McCarthy, USDA Forest Products Laboratory research on metal-plate-connected truss design and lumber use (1980s); NAHB Research Center advanced-framing comparisons; textbook treatments (Breyer, Design of Wood Structures; Hibbeler, Structural Analysis, for the pin-jointed solution). The result is not new: that trusses use markedly less lumber than rafters plus joists is long established. The method is sound but elementary; the contribution is an open, runnable, dependency-free reproduction. It is a small single-session project, well below the programme bar in research/CLAUDE.md and PROGRAMMES.md (PhD-level, publishable).",
+    "domain": "Compared against NDS 2018 allowable-stress design (Cp, 3.9.2 interaction, CD, CF, Cr) and standard truss practice. Sound choices: pin-jointed determinate W layout, correct sign handling, Cp with c=0.8, bending between panel points in the top chord treated as simply supported (conservative against continuous-chord behaviour). Departures a truss engineer would flag first: no connector-plate design (usually governing), no eccentricity or joint slip, no heel/bearing check, panel-point loading assumed with chord bending analysed separately, a 15 psf top dead load applied both on plan and to a sloped chord without a slope correction (house-spans uses 15/cos), no bracing design (weak-axis assumed braced, a design burden left unspecified), no TPI minimum live/wind/uplift/concentrated loads, Ft unverified, SPF No. 2 only, no creep in deflection, and CR=1.15 applied to a truss chord. A truss designer would not sign it off, but the README never claims they would."
+  },
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Five hand-seeded mutations in the NDS check layer (interaction sign, squared term, bending coefficient, FT doubled, CD changed) all pass the 9-test suite; no test pins a demand/capacity ratio or a design value, so the code that produces the headline is unguarded",
+      "where": "research/house-truss/tests/test_truss.py"
+    },
+    {
+      "severity": "medium",
+      "what": "Ft = 450 psi and the other design values are unchecked against the NDS Supplement and not cited by table and edition",
+      "where": "research/house-truss/src/house_truss/model.py:11"
+    },
+    {
+      "severity": "medium",
+      "what": "Headline saving compares 24 in o.c. trusses without plates or engineering against 16 in stick framing with no thrust, ridge or collar ties; dead-load treatment differs between truss (on plan) and stick (on slope)",
+      "where": "research/house-truss/README.md"
+    },
+    {
+      "severity": "low",
+      "what": "pitch 0 raises ZeroDivisionError in the CLI; Truss.overhang_ft is an unused field; unused locals in _node_loads",
+      "where": "research/house-truss/src/house_truss/model.py:23"
+    }
+  ],
+  "fix_prs": [
+    "PR for branch claude/keen-sagan-o7euct: pinned ratio test added in this PR"
+  ],
+  "verdict": "The forces, NDS ratios and lumber counts reproduce to the digit from an independently formulated solver and hand arithmetic, and the README is candid about its limits, so the numbers are right for the stated model. It does not meet the bar because verification scores 1: all five seeded mutations in the NDS check code survived the suite, so a future edit could silently change the headline. As research it is a competent, elementary, not-new reproduction of established truss versus stick lumber savings, single-session and short of the repository's PhD-level programme bar, with no check against a truss program or a published design example."
+}

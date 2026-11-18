@@ -1,0 +1,51 @@
+0 dB white noise, gamma 0.25, 36 series x 12 windows per clip (12 seeds x 3 cameras); wrong = |error| > 2 ms.
+track<h> = first window searched +-1.5 s, later windows +-h ms about a prediction from earlier ESTIMATES (no truth).
+
+A. clip window_s none oracle20 track50 track20   (share of windows wrong)
+applause 2 0.000 0.000 0.000 0.000
+applause 3 0.000 0.000 0.000 0.000
+drama 2 0.000 0.000 0.000 0.000
+drama 3 0.000 0.000 0.000 0.000
+falling 2 0.000 0.000 0.000 0.000
+gong 2 0.000 0.000 0.000 0.000
+gong 3 0.000 0.000 0.000 0.000
+roll 2 0.000 0.000 0.000 0.000
+roll 3 0.000 0.000 0.000 0.000
+romans 2 0.000 0.000 0.000 0.000
+romans 3 0.000 0.000 0.000 0.000
+soft 2 0.248 0.000 0.278 0.278
+soft 3 0.000 0.000 0.000 0.000
+space2 2 0.655 0.583 0.650 0.738
+space2 3 0.620 0.562 0.623 0.690
+untie 2 0.338 0.000 0.361 0.361
+untie 3 0.000 0.000 0.000 0.000
+wallewal 2 0.262 0.005 0.225 0.171
+wallewal 3 0.030 0.000 0.030 0.000
+
+B. mean over clips: window_s set none oracle20 track50 track20
+2 all 0.150 0.059 0.151 0.155
+2 failing4 0.376 0.147 0.378 0.387
+3 all 0.072 0.062 0.073 0.077
+3 failing4 0.163 0.141 0.163 0.172
+
+C. series wrongness (3 s and 2 s): share of series with >=1 wrong window, and with >=6 wrong, for track20; share of series whose FIRST window is wrong
+clip window_s any>=1 >=6 first_wrong
+applause 2 0.000 0.000 0.000
+applause 3 0.000 0.000 0.000
+drama 2 0.000 0.000 0.000
+drama 3 0.000 0.000 0.000
+falling 2 0.000 0.000 0.000
+gong 2 0.000 0.000 0.000
+gong 3 0.000 0.000 0.000
+roll 2 0.000 0.000 0.000
+roll 3 0.000 0.000 0.000
+romans 2 0.000 0.000 0.000
+romans 3 0.000 0.000 0.000
+soft 2 0.278 0.278 0.278
+soft 3 0.000 0.000 0.000
+space2 2 1.000 0.917 0.528
+space2 3 1.000 0.833 0.528
+untie 2 0.361 0.361 0.361
+untie 3 0.000 0.000 0.000
+wallewal 2 0.222 0.167 0.194
+wallewal 3 0.000 0.000 0.000

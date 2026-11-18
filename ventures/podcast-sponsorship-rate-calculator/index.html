@@ -32,7 +32,7 @@
     .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -161,7 +161,7 @@
     };
 
     function money(n) {
-      const format = (n) => `$${n.toLocaleString()}`;
+      const format = (n) => `$${n.toLocaleString('en-US')}`;
       const text = format(Math.abs(n));
       return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     }
@@ -173,7 +173,7 @@
       }
       els.findings.innerHTML = findings.map((f) => `
         <div class="finding">
-          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <h3><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h3>
           <p>${f.detail}</p>
         </div>`).join("");
     }
@@ -188,7 +188,7 @@
 
       const result = computeRates({ downloads, niche, readType });
 
-      els.stats.textContent = `${downloads.toLocaleString()} downloads per episode, at the numbers entered above.`;
+      els.stats.textContent = `${downloads.toLocaleString('en-US')} downloads per episode, at the numbers entered above.`;
       els.ratesBody.innerHTML = PLACEMENTS.map((placement) => {
         const r = result.rates[placement];
         return `<tr><td>${PLACEMENT_LABELS[placement]}</td><td class="price">${money(r.low)} – ${money(r.high)}</td></tr>`;
@@ -196,7 +196,7 @@
       renderFindings(result.findings);
       els.reportCard.hidden = false;
       els.status.textContent = "";
-      if (scroll) els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calculate").addEventListener("click", () => {

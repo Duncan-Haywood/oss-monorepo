@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [ai-bookkeeper]
+date: 2026-11-01
+tagged: auto
+---
 # ai-bookkeeper README trimmed (2026-11-01)
 
 The README's "Next" section had grown to about 56 KB of dated records of slices that had already landed (gap probes, trade fixtures, property tests, sources read). A run that opened the README paid for all of it. The records moved verbatim to `ventures/ai-bookkeeper/HISTORY.md`; the README went from about 173 KB to 117 KB and keeps a pointer.

@@ -175,7 +175,7 @@
       $("#pt tbody").innerHTML = r.prices.map((p) => `<tr><td class="n">${money2(p.price)}${p.step === 0 ? " (now)" : ""}</td><td class="n">${money2(p.margin)}</td><td class="n">${money(p.monthlyChange)}</td><td class="n">${p.membersToHold === null ? "n/a" : Math.ceil(p.membersToHold) + " (" + (p.memberChangePct >= 0 ? "+" : "") + pct(p.memberChangePct, 0) + ")"}</td><td class="n">${p.breakEvenWashes === null ? "n/a" : p.breakEvenWashes.toFixed(1)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -56,6 +56,7 @@
 </style>
 </head>
 <body>
+<main>
 <p><a href="index.html">← Back to Chrome Extension Permission Checker</a></p>
 <h1>Chrome Extension Permission Checker vs. checking the manifest by hand</h1>
 <p>
@@ -116,7 +117,7 @@
 <p>A used-but-undeclared permission -- code calling a chrome.* API whose permission was never added to the manifest -- fails at runtime, independent of review, and catching it means diffing every file against the manifest again after every change. That is easy to skip on a routine feature addition, especially right before a submission deadline when a developer is focused on the one file they just edited. This tool re-scans every file it is given every time, so a permission gap introduced anywhere in the tree is caught the same way regardless of which file changed.</p>
 <h3>Does this replace deciding whether a permission is actually justified?</h3>
 <p>No. This tool answers whether a permission's code signature is present or absent -- it has no opinion on whether the feature that signature supports is worth the review scrutiny a broad permission invites. Chrome Web Store review ultimately judges justification, not just presence, and that judgment call is still yours.</p>
-
+</main>
 <footer>
   <p><strong>Evidence, not a determination.</strong> This is pattern-matching against known
   <code>chrome.*</code> API signatures in the source you point it at. A clean report describes

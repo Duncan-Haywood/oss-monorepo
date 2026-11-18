@@ -46,6 +46,12 @@ What still holds:
   Untyped `<button>` inside forms (5 of 1,300 venture pages, all intended submit buttons), `href="#"` anchors (7 files, all script-wired) and missing `rel="icon"` (1 page, bid-price-engine, a PWA with manifest icons) are clean too (2026-10-29).
   JSON-LD syntax is clean too (4,771 blocks on 3,286 venture pages, 0 invalid; `platform/ci/check_jsonld.py`, 2026-11-01).
   Missing local `src`/`href` files are clean too (3,307 venture pages, 0 missing; `platform/ci/check_local_assets.py`, 2026-11-01).
+  Plain-`http://` loaders (`platform/ci/check_insecure_refs.py`, 0 of 3,321 pages), stale `©` years and `lorem ipsum`/`FIXME` placeholders in venture pages are clean too (2026-11-02).
+  Positive `tabindex`, `autofocus`, meta refresh, `user-scalable=no`, obsolete tags (`marquee`, `center`, `font`) and `<img>` without width/height are clean too (0 real hits across venture pages; the two `<img>` matches are a user-supplied preview and demo text, 2026-11-02).
+  Relative links and images in `docs/posts/` are clean too (1,312 checked, 0 broken; `platform/ci/check_post_links.py`, 2026-11-03).
+  Duplicate ids and dangling `for`/`aria-*` targets are clean too (3,422 pages, 0; `platform/ci/check_dom_ids.py`, 2026-11-04).
+  Links and buttons with no accessible name are clean too (3,422 pages, 0; the three empty buttons are filled by script; `platform/ci/check_empty_controls.py`, 2026-11-04).
+  In-page `href="#frag"` links to a missing id or name are clean too (3,476 pages, 0; `platform/ci/check_fragment_links.py`, 2026-11-05).
   Only sweeps of a kind not listed are open.
 - **Not more admin.** A free-choice run that only writes plans, ledger prose
   or direction documents has wasted the slot. Build something.

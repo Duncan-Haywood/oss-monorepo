@@ -6,8 +6,7 @@ stale link there is read by crawlers and agents, so it is worth a check. Two
 kinds of link are resolved against the tree:
 
   - `github.com/<owner>/oss-monorepo/(tree|blob)/main/<path>`: the path exists;
-  - the Pages site (`.../oss-monorepo/`, the retired `.../monorepo-projects/`
-    path, or the `example.invalid` placeholder the build rewrites):
+  - the Pages site (`.../oss-monorepo/`, or the `example.invalid` placeholder the build rewrites):
     `<slug>/[page]` maps to `ventures/<slug>/[page|page.html|page/index.html]`,
     or names a page that the venture's build-time generator (`GENERATED_PAGES`) writes.
 
@@ -23,6 +22,9 @@ GH = re.compile(r"https://github\.com/[^/]+/(?:oss-monorepo|monorepo-projects)/(
 GENERATED = re.compile(r"^\s*'([\w-]+)':\s*(\[[^\]]*\]|'[\w.-]+')", re.M)
 SCRIPT = re.compile(r"'([\w.-]+)'")
 SITE = re.compile(r"https://(?:[\w-]+\.github\.io/(?:oss-monorepo|monorepo-projects)|example\.invalid)/(.*)", re.I)
+
+
+STALE_HOST = re.compile(r"https://[\w-]+\.github\.io/monorepo-projects(?:/|$)", re.I)
 
 
 def generated_pages(root: Path) -> dict[str, str]:
@@ -45,6 +47,9 @@ def dead_links(root: Path) -> list[tuple[Path, str, str]]:
     generated = generated_pages(root)
     for f in sorted((root / "ventures").glob("*/llms.txt")):
         for url in sorted(set(LINK.findall(f.read_text()))):
+            if STALE_HOST.match(url):
+                bad.append((f, url, "retired address (use github.io/oss-monorepo/)"))
+                continue
             m = GH.match(url)
             if m:
                 if not (root / m.group(1).split("#")[0].split("?")[0]).exists():

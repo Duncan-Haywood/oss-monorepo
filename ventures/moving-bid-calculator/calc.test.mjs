@@ -170,6 +170,29 @@ test('inventory presets are usable positive numbers', () => {
   }
 });
 
+// The presets are the starting points every bid on the page is built from, and
+// vs-a-bedroom-count-quote.html quotes them ("a 3-bedroom house (1,100 cu ft)").
+// Pinned so a change is a decision made in a diff, not a slip: red team
+// 2026-11-16 changed the garage line to 401 cu ft and every test passed.
+test('inventory presets are the shipped table, value for value', () => {
+  assert.deepEqual(INVENTORY_PRESETS.map((p) => [p.label, p.cubicFeet, p.clockHours]), [
+    ['Studio / 1 bedroom', 400, 2.5],
+    ['2 bedroom apartment', 700, 3.5],
+    ['3 bedroom house', 1100, 5],
+    ['4 bedroom house', 1500, 6.5],
+    ['Kitchen (packed)', 150, 1.25],
+    ['Garage / storage unit', 400, 1.5],
+    ['Upright piano', 60, 1],
+    ['Grand piano', 120, 2],
+    ['Gun safe / 400+ lb item', 30, 1.25],
+    ['Treadmill / elliptical', 40, 0.75],
+    ['Washer + dryer', 50, 0.6],
+    ['Dining set', 80, 0.5],
+    ['Home office', 120, 0.75],
+    ['Additional 100 cu ft', 100, 0.4],
+  ]);
+});
+
 test('access volume basis is the documented 200 cu ft van-load', () => {
   assert.equal(ACCESS_VOLUME_BASIS_CU_FT, 200);
   assert.ok(ACCESS_DEFAULTS.minutesPerFlightPer200CuFt > 0);
@@ -185,4 +208,133 @@ test('labor split names the parts of the day a bedroom-count quote hides', () =>
   assert.ok(names.includes('Drive time'));
   const shares = result.split.reduce((sum, row) => sum + row.share, 0);
   assert.ok(Math.abs(shares - 100) < 1e-6);
+});
+
+// Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-moving-bid-calculator.json):
+// the bid stopped at a lump sum, with no hourly rate, minimum or valuation line.
+// Figures below are worked by hand from the threeBed() job.
+test('hourly quote: suggested rate, break-even and minimum hours worked by hand', () => {
+  const r = calculateBid(threeBed());
+  const h = r.hourly;
+  // loaded wage 22 x 1.25 = 27.50; x 3 movers = 82.50; x 1.15 overhead = 94.875 per clock hour
+  assert.ok(Math.abs(h.variablePerHour - 94.875) < 1e-9);
+  // (150 + 40 + 35 + 0) x 1.15 = 258.75 fixed per job
+  assert.ok(Math.abs(h.fixedJobCost - 258.75) < 1e-9);
+  // price 1061.09 / 6.22 h = 170.59/h, posted rounded up to $175
+  assert.equal(h.rate, 175);
+  assert.equal(h.suggested, true);
+  // break-even 258.75 / (175 - 94.875) = 3.2293 h -> minimum rounds up to 3.5 h
+  assert.ok(Math.abs(h.breakEvenHours - 3.2293291731669) < 1e-9);
+  assert.equal(h.minimumHours, 3.5);
+  // margin from 258.75 / (175 x 0.8 - 94.875) = 5.7341 h
+  assert.ok(Math.abs(h.marginHours - 5.7340720221607) < 1e-9);
+  const [short, est, long] = h.scenarios;
+  assert.equal(est.billed, 175 * 6.22);
+  // a 25% overrun: hourly bills 7.775 h; the flat price keeps 1061.09 - (258.75 + 94.875 x 7.775)
+  assert.ok(Math.abs(long.flatProfit - (r.price - (258.75 + 94.875 * 7.775))) < 1e-9);
+  assert.ok(long.profit > long.flatProfit);
+  assert.ok(short.flatProfit > short.profit);
+});
+
+test('hourly quote: a short job bills the minimum, and a rate under labor cost has none', () => {
+  const tiny = calculateBid({ ...threeBed(), inventory: [{ name: 'Studio', cubicFeet: 400, clockHours: 1 }], driveHours: 0.5, quotedHourlyRate: 160 });
+  // break-even 258.75 / (160 - 94.875) = 3.973 h -> 4 h minimum; the 1.5 h job is billed 4 h
+  assert.equal(tiny.hourly.minimumHours, 4);
+  const est = tiny.hourly.scenarios[1];
+  assert.equal(est.billedHours, 4);
+  assert.equal(est.billed, 640);
+  assert.ok(est.profit > 0);
+  const low = calculateBid({ ...threeBed(), quotedHourlyRate: 90 });
+  assert.equal(low.hourly.belowLaborCost, true);
+  assert.equal(low.hourly.breakEvenHours, null);
+  assert.equal(low.hourly.minimumHours, null);
+  // a rate that covers labor but never the margin: break-even exists, margin hours do not
+  const thin = calculateBid({ ...threeBed(), quotedHourlyRate: 110 });
+  assert.ok(thin.hourly.breakEvenHours > 0);
+  assert.equal(thin.hourly.marginHours, null);
+  assert.throws(() => calculateBid({ ...threeBed(), quotedHourlyRate: 0 }), /greater than zero/);
+});
+
+test('hourly quote: a rate that clears the margin by under a dollar an hour still has margin hours', () => {
+  // zero margin, rate 50 cents over the 94.875/h crew cost: 258.75 / 0.5 = 517.5 h to earn it back
+  const r = calculateBid({ ...threeBed(), targetMargin: 0, quotedHourlyRate: 95.375 });
+  assert.ok(Math.abs(r.hourly.marginHours - 517.5) < 1e-6);
+  assert.equal(r.hourly.belowLaborCost, false);
+});
+
+test('hourly quote: a job with no costs at all is not "below labor cost"', () => {
+  // Every cost zero (a blank form) prices the job at $0 and suggests a $0 rate.
+  // The page then said "At $0.00/h the rate does not cover the crew's loaded
+  // labor of $0.00/h, so every extra hour loses more": no hour loses anything.
+  const r = calculateBid({ ...threeBed(), hourlyWage: 0, truckCost: 0, fuelTolls: 0, materials: 0 });
+  assert.equal(r.price, 0);
+  assert.equal(r.hourly.suggested, true);
+  assert.equal(r.hourly.belowLaborCost, false);
+  assert.ok(Object.is(r.hourly.rate, 0), 'the suggested rate is 0, not -0');
+});
+
+test('valuation: released value at 60 cents/lb and the full value charge', () => {
+  const r = calculateBid({ ...threeBed(), declaredValue: 40000, valuationRatePer1000: 8 });
+  // 1100 cu ft x 7 lb = 7,700 lb; x $0.60 = $4,620 cap on a total loss
+  assert.equal(r.valuation.estimatedWeight, 7700);
+  assert.ok(Math.abs(r.valuation.releasedLiabilityCap - 4620) < 1e-9);
+  // $40,000 / 1,000 x $8 = $320; exposure above released value 40,000 - 4,620
+  assert.equal(r.valuation.fullValueCharge, 320);
+  assert.ok(Math.abs(r.valuation.extraExposure - 35380) < 1e-9);
+  const own = calculateBid({ ...threeBed(), lbPerCuFt: 6.5, releasedValuePerLb: 0.75 });
+  assert.ok(Math.abs(own.valuation.releasedLiabilityCap - 1100 * 6.5 * 0.75) < 1e-9);
+  assert.equal(own.valuation.fullValueCharge, 0);
+});
+
+test('an inventory row with no clock hours adds none', () => {
+  const r = calculateBid({ ...threeBed(), inventory: [{ name: 'Boxes', cubicFeet: 100 }] });
+  assert.equal(r.inventory[0].clockHours, 0);
+  assert.equal(r.inventoryHours, 0);
+});
+
+test('hourly: a rate exactly at loaded labor with no fixed cost breaks even, it is not below labor', () => {
+  // No truck, fuel, materials or overhead, 0% margin: the suggested rate is
+  // the loaded labor rate itself, so every hour nets $0. The page used to say
+  // the rate "does not cover the crew's loaded labor", break-even "never".
+  const r = calculateBid({
+    inventory: [{ cubicFeet: 400, clockHours: 4 }],
+    crewSize: 2,
+    hourlyWage: 20,
+  });
+  const h = r.hourly;
+  assert.equal(h.rate, 40);
+  assert.equal(h.variablePerHour, 40);
+  assert.equal(h.belowLaborCost, false);
+  assert.equal(h.breakEvenHours, 0);
+  assert.equal(h.marginHours, 0);
+  assert.equal(h.minimumHours, 2);
+  for (const s of h.scenarios) assert.ok(s.profit >= 0);
+  // The same rate with a truck to pay for is still below workable: no
+  // number of hours covers a fixed cost at zero margin per hour.
+  const truck = calculateBid({ inventory: [{ cubicFeet: 400, clockHours: 4 }], crewSize: 2, hourlyWage: 20, truckCost: 100, quotedHourlyRate: 40 });
+  assert.equal(truck.hourly.breakEvenHours, null);
+  assert.equal(truck.hourly.minimumHours, null);
+  assert.equal(truck.hourly.belowLaborCost, false);
+  assert.equal(calculateBid({ ...threeBed(), quotedHourlyRate: 1 }).hourly.belowLaborCost, true);
+});
+
+// Red team 2026-11-16, second run: two mutants that went green.
+test('valuation: a declared value under the released cap exposes the mover to nothing extra', () => {
+  // 1,100 cu ft x 7 lb x $0.60 = $4,620 released cap; $3,000 declared is below it.
+  const r = calculateBid({ ...threeBed(), declaredValue: 3000, valuationRatePer1000: 8 });
+  assert.equal(r.valuation.extraExposure, 0);
+  assert.equal(calculateBid(threeBed()).valuation.extraExposure, 0);
+});
+
+test('a one-person, one-hour job still scores a proposed price per mover-hour', () => {
+  const r = calculateBid({
+    ...threeBed(),
+    inventory: [{ name: 'Treadmill', cubicFeet: 0, clockHours: 1 }],
+    carryFeet: 0,
+    driveHours: 0,
+    crewSize: 1,
+    proposedPrice: 150,
+  });
+  assert.equal(r.personHours, 1);
+  assert.equal(r.proposed.hourlyPerMover, 150);
 });

@@ -1,3 +1,9 @@
+---
+kind: analysis
+topics: [hosting]
+date: 2026-10-24
+tagged: auto
+---
 # Hosting alternatives to GitHub Pages, measured against our own build
 
 **Date:** 2026-10-24. **Asked by:** the owner ("a blog post on what some

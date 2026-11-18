@@ -2,7 +2,7 @@
 
 A follow-up to `research/robofab-armaccel` (track `robofab`; its "MuJoCo arm ... so the jaw bound is checked at the arm's accelerations" next step) and `research/robofab-graspmove`, which tested the bound `N >= m sqrt((g + a_up)^2 + a_side^2) / (2 mu)` only up to 40 m/s^2. `robofab-armaccel` reported accelerations of 28 to 837 m/s^2. Here the jaw assembly of `robofab-graspmove` is driven at 40 to 800 m/s^2 and the smallest holding force is found in MuJoCo for three parts. I do not simulate the arm itself, only a prescribed constant acceleration of the jaws. All numbers are from `experiments/results.txt`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-graspfast/
+**Live page:** https://marisstella.app/research/robofab-graspfast/
 
 - **With fine contact settings the bound holds up to 800 m/s^2.** With timestep 0.05 ms and contact time constant `solref` = 0.1 ms (Table B, 39 cases: link, finger_a and cover; static, up and side at 40 to 800 m/s^2, two mixed loads; mu = 0.5), the simulated minimum force is 0.89 to 1.02 times the bound (median 1.00). The lowest ratios (0.89 to 0.94) are the 0.36 g link at 40 m/s^2 and below, where the force is 3 to 17 mN and the 2 mm slip criterion lets a little creep through. At 400 and 800 m/s^2 every ratio is 1.00 or 1.01. The cover (5.95 g) needs 2.46 N per jaw at 400 m/s^2 up and 4.86 N at 800.
 - **The `graspmove` settings fail above 200 m/s^2, and it is the simulator.** With timestep 0.2 ms and `solref` = 0.5 ms (Table A), the bound is matched up to 200 m/s^2 (ratio 0.96 to 1.02 in the 27 cases that have a result) but at 400 and 800 m/s^2 no force up to 60 N holds any part: 12 of 39 cases have no result. A sweep on the cover at 400 m/s^2 up shows the pass or fail depends only on settings: timestep 0.2 or 0.1 ms with `solref` 0.5 ms fails; `solref` 0.2 ms passes at timesteps 0.1 and 0.05 ms (ratio 1.01), and so do the finer settings tried. This is the contact lag already seen in `robofab-graspmove` (slip of order `a * solref * t`), now bound at high acceleration.
@@ -12,10 +12,10 @@ A follow-up to `research/robofab-armaccel` (track `robofab`; its "MuJoCo arm ...
 ```bash
 pip install mujoco numpy
 cd research/robofab-graspfast
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 6 tests, < 1 s
-python3 experiments/run.py                                # about 1 min; writes experiments/results.{txt,json}
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, < 1 s
+python3 experiments/run.py                                # 1 to 3 min (the model is rebuilt at every bisection step); writes experiments/results.{txt,json}
 ```
-Produced with MuJoCo 3.15.0 and Python 3.13.
+Produced with MuJoCo 3.15.0 and Python 3.13. On MuJoCo 4.0.0 the run reproduces the same pass/fail pattern, but 7 numeric lines move by one bisection step, so the Table B range becomes 0.87 to 1.01 (quality audit `portfolio/quality/audits/2026-11-07-robofab-graspfast.json`); the exact edges of the ranges are version-dependent.
 
 ## Motivation
 
@@ -39,6 +39,7 @@ See the bullets above and `experiments/results.txt` (Table A: `graspmove` settin
 - Boxes only, rigid pads, assumed density and friction (one value, 0.5), no tipping or pad compliance, a 2 mm slip criterion that is a choice, and one grasp axis per part.
 - Three of the six free parts only. The "fine" settings were chosen after Table A failed, and I did not search the settings systematically; the sweep has six points on one case.
 - Whether the remaining 1 to 2% above the bound comes from the 2% bisection tolerance, the slip criterion or contact softness is not separated here.
+- The ratio near 1.00 is partly forced by the method, so it is weak evidence on its own. A force short of the bound by a fraction f lets the part slip roughly f·a·t²/2 over an acceleration phase of length t, so the 2 mm criterion over t = 0.05 s tolerates a deficit of only about 0.2% at 800 m/s² (about 4% at 40 m/s²), and the bisection returns the upper end of a 2% bracket, a bias of 0 to +2%. At high acceleration the test can hardly return anything but a ratio of about 1.00 to 1.02 once the contact is resolved; what the experiment shows is that coarse contact settings fail, not that friction holds beyond what a Coulomb model implies.
 
 ## Next steps
 

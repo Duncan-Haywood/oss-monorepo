@@ -14,7 +14,6 @@ class T(unittest.TestCase):
     def test_single_point_mass_on_one_link_matches_hand_value(self):
         # 1 joint is outside the model (needs n>=2 for a planar point), so check the mass of a 2-joint chain with
         # no rotor inertia and no servo/link mass: only the spoon is left, so the tip mass is the spoon mass.
-        global RHO_LINK
         import osrobot_dof.model as m
         old = m.RHO_LINK
         m.RHO_LINK = 0.0
@@ -46,3 +45,23 @@ class T(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Pinned(unittest.TestCase):
+    """Quality audit 2026-11-12: four seeded bugs in tip_mass and the gain survived the tests above.
+    These pin values from an independent closed-form 2R calculation (planar 2-link arm, L = 0.25 m each,
+    tip at (0.35, 0.05), elbow-down; point masses; gear^2 * I_rotor on each joint diagonal)."""
+    def test_two_joint_tip_mass_matches_closed_form(self):
+        self.assertAlmostEqual(tip_mass(2), 0.6280, places=3)
+        self.assertAlmostEqual(tip_mass(2, i_rotor=0.0), 0.1329, places=3)
+        self.assertAlmostEqual(tip_mass(2, i_rotor=3e-7), 1.618, places=2)
+        self.assertAlmostEqual(tip_mass(6), 0.502, places=3)       # experiments/results.txt
+
+    def test_damping_gain_scales_with_tip_mass(self):
+        # Constant damping ratio: kd = 1.28 * 2 * sqrt(KP m), so the free approach speed KP*LEAD*v/kd falls as 1/sqrt(m)
+        # and a heavier tip enters later on the same seed.
+        d = Design("none", 0.2)
+        light, heavy = run_trial(d, 0.0, 1, 0.3), run_trial(d, 0.0, 1, 1.2)
+        # 4x the mass halves the free approach speed: entry time 0.71 s -> 1.42 s (a fixed gain would give about 0.74 s)
+        self.assertAlmostEqual(light["t"], 0.71, places=2)
+        self.assertAlmostEqual(heavy["t"], 1.42, places=2)

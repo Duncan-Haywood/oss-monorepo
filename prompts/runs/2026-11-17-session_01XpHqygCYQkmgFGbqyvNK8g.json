@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqygCYQkmgFGbqyvNK8g",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T13:39:38Z",
+  "ended": "2026-11-17T13:44:46Z",
+  "wall_minutes": 20.03,
+  "tokens_in": 3789311,
+  "tokens_out": 25563,
+  "cost_usd": 2.0266,
+  "tool_calls": 41,
+  "task": "Critique mode (backlog had only owner rows): fix the top live doc-friction cluster an ordinary PR can reach",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16953",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/friction_rank.py",
+      "issue": "--live --ungated --days 3 grouped the hearth-and-horizon empty-shelf reports as 2 sessions (#7); a keyword grep over run records found 13 reports of the same problem in four days, because the reports are worded differently. The clustering underweights paraphrased friction."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/overlap.mjs",
+      "issue": "--shelf filtered stories but not DONE.md entries, so a Little Lamps name check ('Anne') hit science fiction DONE entries. Fixed here: entries carry their section's shelf."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-a-pool-of-unused-subjects-for-an-empty-story-shelf.md"
+  ],
+  "goal": "Save creative runs the several overlap probes they spend finding an unused subject when a Next up shelf is empty (13 run records, 2026-11-14..17).",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; route drew process/1. Backlog: only owner rows, so Critique. friction_rank.py --live --ungated --days 3 then a grep of prompts/runs/2026-11-1[4-7]*.json doc_friction for hearth-and-horizon: 13 records report an empty or unusable shelf, 3 report noisy common words. Shipped overlap.mjs --unused (subjects.txt pool of 49, live-checked against stories, DONE.md and BIBLE Next up; synonyms; Little Lamps checked on its own shelf; shuffled draw) and --titles (leak 30 -> 11 hits). Seeding check removed 6 of my own candidates as taken. Checks: venture node --test 19/19; check_post_frontmatter ok; check_post_links 0 broken; main_health.py 256/256 on main; run_workflow_locally --for-changes: 9/10 workflows passed. prompts validate failed only because it read this record before it was filled in; promptctl validate passes now. The cross-review and deploy jobs were selected but not run. prompts unittest: 136 OK. No agent doc: the README and BIBLE lines carry what the next run needs. Backlog ids touched: none. Metric to verify later: share of hearth-and-horizon creative records whose doc_friction reports an empty shelf/probing (13 in 2026-11-14..17).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4dde60be-beae-58fc-8c99-8a0b3f2f9a31",
+    "transcripts": 1,
+    "first": "2026-11-17T13:39:38Z",
+    "last": "2026-11-17T13:59:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 78,
+        "output": 25563,
+        "thinking": 5989,
+        "cache_read": 3692158,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97075,
+        "api_equivalent_usd": 2.0266,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 78,
+      "output": 25563,
+      "thinking": 5989,
+      "cache_read": 3692158,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97075,
+      "api_equivalent_usd": 2.0266,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 37,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.03,
+      "active_minutes": 20.03,
+      "model_minutes": 4.36,
+      "tool_minutes": 15.68,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "tool flag + curated 49-subject pool + tests + post, est. by a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 148.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

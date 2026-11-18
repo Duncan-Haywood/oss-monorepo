@@ -31,7 +31,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #3f4c59; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #8a2f0c; }
     .pill.medium { background: #fdf0d5; color: #6b500c; }
@@ -167,7 +167,7 @@
       const e = estimate(read());
       if (e.error) { $("#status").textContent = e.error; $("#report").hidden = true; return false; }
       $("#rows").innerHTML = e.cases.map((c) => `<tr><th scope="row">Tier ${c.tier}</th><td class="n">${c.hours}</td><td class="n">${money(c.revenue)}</td><td class="n">${money(c.cost)}</td><td class="n">${money(c.profit)}</td><td class="n">${money(c.hourly)}</td><td class="n">${money(c.feeForTarget)}</td></tr>`).join("");
-      $("#findings").innerHTML = e.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#findings").innerHTML = e.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const m = e.month;
       $("#month").textContent = `At ${e.o.shootsPerMonth} shoots a month you work about ${m.hours} hours and keep ${money(m.profit)} after overhead: ${money(m.effectiveHourly)} an hour. ` + (m.shootsToCoverOverhead === null ? "At this mix each shoot earns less than your target hourly, so more shoots never cover overhead." : `Pay above your target covers monthly overhead from about ${m.shootsToCoverOverhead} shoots.`);
       $("#report").hidden = false; $("#status").textContent = "Updated."; return true;

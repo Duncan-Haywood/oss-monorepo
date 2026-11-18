@@ -1,0 +1,230 @@
+"""Tests for platform/ci/quality_audit.py (the quality-audit programme, portfolio/quality/)."""
+import datetime as dt
+import importlib.util
+import unittest
+from pathlib import Path
+
+spec = importlib.util.spec_from_file_location("quality_audit", Path(__file__).with_name("quality_audit.py"))
+q = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(q)
+
+FULL = {d: 3 for d in q.DIMENSIONS}
+EV = {d: "ran the command and compared three outputs against the published table" for d in q.DIMENSIONS}
+
+
+def audit(subject="ventures/ai-bookkeeper", stratum="venture", date="2026-11-07", **kw):
+    a = {"_file": f"{date}-{subject.split('/')[-1]}.json", "date": date, "subject": subject, "stratum": stratum,
+         "status": "audited", "professional": "a CPA", "scores": dict(FULL), "evidence": dict(EV),
+         "defects": [], "fix_prs": [], "verdict": "fine"}
+    a.update(kw)
+    return a
+
+
+POP = {"flagship": ["ventures/a", "ventures/b"], "venture": [f"ventures/{c}" for c in "abcdefgh"],
+       "research": [f"research/r{i}" for i in range(10)], "platform": ["platform/p1", "platform/p2"]}
+
+
+class QualityAuditTest(unittest.TestCase):
+    def test_bar_needs_every_gate(self):
+        assert q.meets_bar(FULL)
+        for gate in q.GATES:
+            assert not q.meets_bar({**FULL, gate: 2}), gate
+        # a non-gate dimension below the bar is outweighed only while the median holds
+        assert q.meets_bar({**FULL, "fitness": 1})
+        assert not q.meets_bar({**FULL, "fitness": 1, "craft": 2, "domain": 2, "completeness": 2})
+
+
+    def test_finished_is_completeness(self):
+        assert q.finished(FULL) and not q.finished({**FULL, "completeness": 2})
+
+
+    def test_wilson_known_values(self):
+        lo, hi = q.wilson(40, 40)
+        assert round(lo, 3) == 0.912 and hi == 1.0
+        assert q.wilson(0, 0) == (0.0, 1.0)
+        lo, hi = q.wilson(5, 10)
+        assert round(lo, 3) == 0.237 and round(hi, 3) == 0.763
+
+
+    def test_validate_accepts_good_and_names_problems(self):
+        assert q.validate_audit(audit()) == []
+        bad = audit(scores={**FULL, "craft": 5}, evidence={**EV, "claims": "ok"}, stratum="other", professional="")
+        errs = "\n".join(q.validate_audit(bad))
+        for needle in ("scores.craft", "evidence.claims", "stratum", "professional"):
+            assert needle in errs
+        assert any("date" in e for e in q.validate_audit(audit(_file="2026-11-08-ai-bookkeeper.json")))
+        assert any("not a path" in e for e in q.validate_audit(audit(subject="ventures/no-such-thing-xyz", _file="2026-11-07-no-such-thing-xyz.json")))
+        assert any("severity" in e for e in q.validate_audit(audit(defects=[{"severity": "huge", "what": "x"}])))
+        assert any("fixed_by" in e for e in q.validate_audit(audit(defects=[{"severity": "low", "what": "x", "fixed_by": "u"}])))
+        assert q.validate_audit(audit(fix_prs=["u"], defects=[{"severity": "low", "what": "x", "fixed_by": "u"}])) == []
+
+
+    def test_unauditable_needs_no_scores(self):
+        assert q.validate_audit(audit(status="unauditable", scores={}, evidence={}, professional="")) == []
+
+
+
+    def test_draw_is_reproducible_and_stratified(self):
+        one = q.draw("2026-11-07", audits=[], pop=POP, today=dt.date(2026, 11, 7))
+        assert one == q.draw("2026-11-07", audits=[], pop=POP, today=dt.date(2026, 11, 7))
+        assert [p["stratum"] for p in one] == ["flagship", "venture", "venture", "research", "research", "platform"]
+        assert one[0]["subject"] == "ventures/a"
+        # a flagship is never drawn again in the venture stratum
+        assert all(p["subject"] not in POP["flagship"] for p in one if p["stratum"] == "venture")
+        assert len({p["subject"] for p in one}) == len(one)
+
+
+    def test_draw_rotates_flagships_and_skips_recent(self):
+        done = [audit(subject="ventures/a", stratum="flagship", date="2026-11-01")]
+        done += [audit(subject=f"research/r{i}", stratum="research", date="2026-11-01") for i in range(8)]
+        picks = q.draw("x", audits=done, pop=POP, today=dt.date(2026, 11, 7))
+        assert picks[0]["subject"] == "ventures/b"
+        assert sorted(p["subject"] for p in picks if p["stratum"] == "research") == ["research/r8", "research/r9"]
+        # a flagship audited within the week is not drawn again
+        recent = [audit(subject=f, stratum="flagship", date="2026-11-05") for f in POP["flagship"]]
+        assert all(p["stratum"] != "flagship" for p in q.draw("x", audits=recent, pop=POP, today=dt.date(2026, 11, 7)))
+        assert q.draw("x", audits=recent, pop=POP, today=dt.date(2026, 11, 13))[0]["stratum"] == "flagship"
+        # after the skip window they are eligible again
+        later = q.draw("x", audits=done, pop=POP, today=dt.date(2027, 3, 1))
+        assert len([p for p in later if p["stratum"] == "research"]) == 2
+
+
+    def test_summary_uses_latest_audit_and_reports_sampled_share(self):
+        rows = [
+            audit(subject="ventures/a", date="2026-11-01", scores={**FULL, "correctness": 1}),
+            audit(subject="ventures/a", date="2026-11-07"),  # re-audit after a fix replaces the row
+            audit(subject="ventures/b", scores={**FULL, "claims": 2}, defects=[{"severity": "high", "what": "x"}]),
+            audit(subject="ventures/c", stratum="flagship"),
+        ]
+        s = q.summarize(rows)
+        assert s["subjects"] == 3 and s["audits"] == 4
+        assert s["strata"]["venture"]["n"] == 2 and s["strata"]["venture"]["meets_bar"] == 1
+        assert s["sampled"]["n"] == 2  # the flagship is chosen, not sampled
+        assert s["defects"]["high"] == 1
+        assert s["rounds"]["2026-11-01"] == {"n": 1, "meets_bar": 0}
+        md = q.render_md(s)
+        assert "1 of 2" in md and "| `ventures/c` | flagship |" in md
+
+    def test_topical_audits_are_reported_apart_and_do_not_skip_the_draw(self):
+        rows = [
+            audit(subject="ventures/a"),
+            audit(subject="ventures/b", stratum="topical", scores={**FULL, "claims": 1}),
+        ]
+        s = q.summarize(rows)
+        assert s["sampled"]["n"] == 1 and s["sampled"]["meets_bar"] == 1
+        assert s["strata"]["topical"] == {"n": 1, "meets_bar": 0, "finished": 1, "ci": [0.0, 0.793]}
+        assert "ventures/b" not in q.last_audited(rows) and "ventures/a" in q.last_audited(rows)
+
+
+    def test_remote_audits_reads_a_ref_and_fails_soft(self):
+        # a ref that does not exist must give [] (no crash), and files already local are not repeated
+        assert q.remote_audits([], ref="no-such-ref-xyz") == []
+        local = q.load_audits()
+        extra = q.remote_audits(local, ref="HEAD")
+        assert all(a["_file"] not in {l["_file"] for l in local} for a in extra)
+
+    def test_free_seed_skips_seeds_already_used(self):
+        assert q.free_seed("2026-11-10", []) == "2026-11-10"
+        used = [audit(seed="2026-11-10"), audit(seed="2026-11-10-b"), audit(seed="2026-11-09")]
+        assert q.free_seed("2026-11-10", used) == "2026-11-10-c"
+        assert q.free_seed("2026-11-11", used) == "2026-11-11"
+
+    def test_claim_seed_adds_a_random_tail_so_concurrent_draws_differ(self):
+        assert q.claim_seed("2026-11-13-o", token="3fa2") == "2026-11-13-o-3fa2"
+        seeds = {q.claim_seed("2026-11-13-o") for _ in range(20)}
+        assert len(seeds) > 1 and all(s.startswith("2026-11-13-o-") for s in seeds)
+        # the tail survives the claim-PR title parse, so a later run sees it as held
+        assert q.free_seed("2026-11-13", [{"seed": "2026-11-13-3fa2"}, {"seed": "2026-11-13-b-0c1d"}]) == "2026-11-13-c"
+        assert q.parse_round_titles(["quality: round 70 (seed 2026-11-13-p-3fa2)"]) == [(70, "2026-11-13-p-3fa2")]
+        # and two seeds that differ only in the tail draw different subjects
+        pop = q.population()
+        a = q.draw("2026-11-13-o-0001", audits=[], pop=pop)
+        b = q.draw("2026-11-13-o-0002", audits=[], pop=pop)
+        assert [x["subject"] for x in a if x["stratum"] == "venture"] != [x["subject"] for x in b if x["stratum"] == "venture"]
+
+    def test_next_round_reads_post_names(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d)
+            assert q.next_round(p, ref="no-such-ref-xyz") == 1
+            for n in ("2026-11-09-quality-audit-round-9.md", "2026-11-10-quality-audit-round-41.md", "2026-11-10-other.md"):
+                (p / n).write_text("x")
+            assert q.next_round(p, ref="no-such-ref-xyz") == 42
+
+    def test_open_round_prs_count_toward_round_and_seed(self):
+        titles = ["quality: round 60 (seed 2026-11-13-f), 0 of 4 at the bar; Turo fixed + post",
+                  "quality fix: platform/agents toJson (control plane)", "Quality: Round 7", "polish: round 3 of x"]
+        prs = q.parse_round_titles(titles)
+        assert prs == [(60, "2026-11-13-f"), (7, None)]
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "2026-11-13-quality-audit-round-59.md").write_text("x")
+            assert q.next_round(Path(d), ref="no-such-ref-xyz", in_flight=(60, 7)) == 61
+        used = [audit(seed=f"2026-11-13{s}") for s in ("", "-b", "-c", "-d", "-e")]
+        assert q.free_seed("2026-11-13", used + [{"seed": "2026-11-13-f"}]) == "2026-11-13-g"
+
+    def test_population_reads_the_repository(self):
+        pop = q.population()
+        assert pop["flagship"] and all(p.startswith("ventures/") for p in pop["flagship"])
+        assert not any(p.split("/")[1].startswith("_") for p in pop["research"])
+
+
+class PostLimits(unittest.TestCase):
+    def test_sample_names_the_post_caps(self):
+        self.assertIn("description 60 to 160", q.post_limits())
+
+
+class ModeNote(unittest.TestCase):
+    def test_sample_says_when_today_is_another_mode(self):
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent))
+        import quality_metrics as qm
+        real = qm.mode_for
+        try:
+            qm.mode_for = lambda *a, **k: {"mode": "fix", "why": "w"}
+            note = q.mode_note("2026-11-14", [])
+            self.assertIn("`fix`", note)
+            self.assertIn("Five modes", note)
+            qm.mode_for = lambda *a, **k: {"mode": "sample", "why": "w"}
+            self.assertIsNone(q.mode_note("2026-11-14", []))
+        finally:
+            qm.mode_for = real
+
+    def _with_mode(self, mode, argv):
+        import contextlib, io, sys
+        sys.path.insert(0, str(Path(__file__).parent))
+        import quality_metrics as qm
+        real = qm.mode_for
+        out = io.StringIO()
+        try:
+            qm.mode_for = lambda *a, **k: {"mode": mode, "why": "w"}
+            with contextlib.redirect_stdout(out):
+                rc = q.main(argv)
+        finally:
+            qm.mode_for = real
+        return rc, out.getvalue()
+
+    def test_every_other_mode_names_its_command_and_post(self):
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent))
+        import quality_metrics as qm
+        self.assertEqual(set(q.MODE_STEPS), set(qm.MODES) - {"sample"})
+        for cmd, post in q.MODE_STEPS.values():
+            self.assertTrue(cmd.startswith("python3 platform/ci/quality_audit.py "))
+            self.assertIn("docs/posts/<date>-quality-", post)
+
+    def test_sample_withholds_the_draw_on_another_modes_day(self):
+        # Five quality runs on 2026-11-17 reported the draw-versus-mode clash although a NOTE sat above the draw.
+        rc, out = self._with_mode("census", ["sample"])
+        self.assertEqual(rc, 0)
+        self.assertIn("census --n 6", out)
+        self.assertIn("quality-census-", out)
+        self.assertNotIn("seed ", out)
+        rc, out = self._with_mode("census", ["sample", "--anyway", "--offline"])
+        self.assertEqual(rc, 0)
+        self.assertIn("deviation", out)
+        self.assertIn("seed ", out)
+
+
+if __name__ == "__main__":
+    unittest.main()

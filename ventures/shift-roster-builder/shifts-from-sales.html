@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%235f1b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shifts From Your Sales: Staff To Traffic</title>
+  <meta name="description" content="Paste an hourly sales export from your till and get the shifts to schedule, from sales per labor hour. Free, no account, nothing is uploaded.">
+  <link rel="canonical" href="./shifts-from-sales.html">
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 680px; margin: auto; padding: 22px; }
+    a { color: #1f5f86; }
+    h1 { font-size: 1.7rem; line-height: 1.12; margin: 0 0 8px; color: #1f4a5d; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 18px; margin: 16px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: flex-start; font-weight: 600; }
+    label.check input { width: auto; margin-top: 3px; }
+    textarea { font: 14px ui-monospace, monospace; min-height: 120px; }
+    button { display: inline-block; border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 12px 8px 0 0; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    footer { margin-top: 22px; }
+    .err { background: #f8d9d6; color: #6b1a12; border-radius: 10px; padding: 8px 12px; }
+    pre { background: #f4f6f8; border: 1px solid #d9dfe6; border-radius: 8px; padding: 10px; overflow: auto; font-size: 13px; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    td, th { border-bottom: 1px solid #ece7f2; padding: 4px 6px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Shifts from your sales</h1>
+  <p>Paste an hourly sales export (a date-time column and a sales column). Each weekday-hour is averaged, heads needed is sales divided by your sales per labor hour (at least your minimum), and each day's headcount is cut into shifts. Copy the result into the <a href="./">roster builder</a>. Square and Toast item exports work as they come (checked on real ones): net sales are used, and voided or refunded lines are left out. Square exports one date range at a time, so you can load several files at once: each file's columns are matched by name and a row two files share is counted once. Nothing is uploaded.</p>
+  <section class="card">
+    <label for="csv">Hourly sales (CSV)</label>
+    <textarea id="csv" placeholder="datetime,sales&#10;2026-10-05 09:00,120.50"></textarea>
+    <input id="file" type="file" multiple accept=".csv,.txt,text/csv,text/plain" aria-label="Load one or more CSV files">
+    <button type="button" id="sample">Try a made-up fortnight</button>
+    <p id="locpick" class="note" hidden><label for="loc">Location</label> <select id="loc"></select> Your export has several shops in it (a Location, Store or Site column, as Square and Toast exports have). Plan them as one, or pick one to plan it alone.</p>
+    <div class="row2">
+      <div><label for="count">Staff to</label><select id="count"><option value="">sales (money taken)</option><option value="tickets">customers (count each ticket, order or receipt number once)</option><option value="rows">rows (count each row as one customer)</option><option value="standard">minutes of work (a labour standard)</option></select></div>
+      <div id="stdbox" hidden><label for="std">Minutes of work per ticket, sale and item, plus fixed work</label><input id="std" value="1.5/ticket + 0.3/item" aria-describedby="stdnote"><p class="note" id="stdnote">Blend any of the three, e.g. <code>2/ticket + 0.05/sale</code>: the minutes a ticket takes at the till, a unit of money (bigger orders, more to pack) and an item (each thing picked). The rate is then minutes of work per labor hour: 60 is someone busy every minute, 45 leaves a quarter of each hour for cleaning and restocking. Work that does not grow with customers can be added as fixed minutes: <code>10/hour</code> in every hour you trade, <code>30/open</code> to set up in the first hour of the day and <code>45/close</code> to clean down in the last. If that work happens with the doors shut, write <code>20/before-open</code> or <code>45/after-close</code>: it goes in the hour before you open or after you close, so the opener comes in early or the closer stays on, and minimum staff does not apply to that hour. With the doors shut nobody waits on a customer, so that work is planned at 60 minutes a person and runs on into the next hour: <code>90/after-close</code> is one person staying two hours, not two people for one.</p><label for="shutmin">Staff with the doors shut</label><input id="shutmin" value="1" aria-describedby="shutnote"><p class="note" id="shutnote">The fewest people on in an hour of before-open or after-close work. Put 2 if nobody may open or lock up alone; the two then share the work. It can differ by weekday: <code>1, Fri/Sat=2</code> is one closer most nights and two on late Fridays and Saturdays.</p></div>
+      <div><label for="splh" id="splhlabel">Sales per labor hour ($)</label><input id="splh" inputmode="decimal" value="60"></div>
+      <div><label for="minstaff">Minimum staff while open</label><input id="minstaff" inputmode="numeric" value="1"></div>
+      <div><label for="minshift">Shortest shift (hours)</label><input id="minshift" inputmode="numeric" value="4"></div>
+      <div><label for="maxshift">Longest shift (hours)</label><input id="maxshift" inputmode="numeric" value="8"></div>
+    </div>
+    <label for="skip">Dates to leave out (optional, YYYY-MM-DD, comma separated)</label>
+    <input id="skip" placeholder="2026-11-26, 2026-12-25">
+    <label for="half">Weigh recent weeks more: half-life in weeks, or auto (optional)</label>
+    <input id="half" placeholder="blank: every week the same; auto: picked from your past weeks">
+    <p class="note">auto tests equal weights, half-lives of 8, 4 and 2 weeks and the last 4 weeks only on your own file (each past week planned from the weeks before it) and keeps whichever left the fewest hours short or spare. It needs 8 or more full weeks of dated sales; on a long file it takes a few seconds.</p>
+    <label class="check"><input type="checkbox" id="scoreclosed" checked> In the tests, a person staffed while the shop is normally shut counts as spare</label>
+    <p class="note">On (the default): minimum staff is needed only in hours your shop normally trades (sales on 1 in 5 of that weekday's dates or more) or sold in that day, so a plan that staffs a lunch closure or old closing hours is charged for it, and auto may pick the last 4 weeks only, which follows a change in opening hours fastest. Off: minimum staff counts as needed in every hour a plan staffs, and auto chooses among the weightings only.</p>
+    <label for="shortcost">A short hour costs this many times a spare one (optional; 1 = the same, 3 = being short is three times worse)</label>
+    <input id="shortcost" inputmode="decimal" placeholder="blank: staff for the average hour">
+    <p class="note">Planned from the average, an hour is short about half the time. With a number here each hour is staffed for that share of its past days instead: 1 staffs for the median day, 3 for 3 days in 4 (75%), 0.5 for 1 in 3.</p>
+    <p class="note">An extra person wanted for only an hour or two is checked against your past days before it becomes a whole shift. It goes in the cheapest shift that holds it, or is left out (and listed) when that shift's spare hours cost more than the short hours it saves, at this number or at 1 when blank. Minimum staff is always scheduled.</p>
+  </section>
+  <section class="card">
+    <h2 style="font-size:1.05rem;margin:0 0 6px">Shifts to schedule</h2>
+    <p id="problem" class="err" hidden></p>
+    <pre id="out" aria-live="polite"></pre>
+    <div id="summary" class="note"></div>
+    <div id="table"></div>
+    <button type="button" id="copy">Copy shifts</button>
+    <p id="status" role="status" class="note"></p>
+  </section>
+  <section class="card">
+    <h2 style="font-size:1.05rem;margin:0 0 6px">Test it on your past weeks</h2>
+    <p class="note">Each full week after the first four is planned from the weeks before it only, then compared hour by hour with what that week's sales needed. Tried for the plain average, three half-lives, the last four weeks and last week alone; with a short-cost number, each of those staffed for that share of past days too, scored as that many times the short hours plus the spare ones. Each plan is cut into shifts first, as above, so the hours added to reach the shortest shift count; with a short-cost number, a run shorter than the shortest shift is staffed only where that is cheaper than leaving it short. Needs dated rows and at least five full weeks.</p>
+    <button type="button" id="backtest">Test on my past weeks</button>
+    <div id="btout" aria-live="polite"></div>
+  </section>
+</main>
+<footer>
+    <p>Part of the free <a href="./">Shift Roster Builder</a>. This page works in your browser only: what you paste here is never sent anywhere. Not legal, tax, or financial advice; the shifts are arithmetic on the sales you paste, not a forecast, and you decide what to schedule. No warranty. Not affiliated with any scheduling, payroll or point-of-sale vendor.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support the project</a> (optional) · <a href="LICENSE" rel="noopener">MIT licence</a></p>
+  </footer>
+
+  <script type="module">
+    import { demandShifts, backtestSales, pickHalfLife } from "./demand.mjs";
+    import { record } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const sample = () => {
+      const rows = ["datetime,sales"];
+      for (let i = 5; i < 19; i++) {
+        const date = `2026-10-${String(i).padStart(2, "0")}`;
+        const wk = new Date(date + "T00:00:00Z").getUTCDay(), weekend = wk === 0 || wk === 6;
+        for (let h = 8; h < 18; h++) rows.push(`${date} ${String(h).padStart(2, "0")}:00,${Math.round((weekend ? 1.4 : 1) * (h === 8 || h === 12 || h === 13 ? 150 : 70))}`);
+      }
+      return rows.join("\n");
+    };
+    const num = (id) => { const v = $(id).value.trim(); return v === "" ? undefined : Number(v); };
+    // "auto" backtests the file, too slow to repeat on every keystroke, so the pick is kept until the sales or a
+    // setting that changes the backtest changes.
+    let autoKey = null, autoPick = null;
+    // What heads follow: money, tickets, rows, or a labour standard (minutes a ticket, a unit of money and an item).
+    const driver = () => { const c = $("#count").value; return c === "standard" ? { standard: $("#std").value, shutMin: $("#shutmin").value.trim() || undefined } : { count: c || undefined }; };
+    function run() {
+      const problem = $("#problem");
+      let r;
+      try {
+        const o = {
+          splh: num("#splh"), minStaff: num("#minstaff"), minShift: num("#minshift"), maxShift: num("#maxshift"),
+          skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), shortCost: num("#shortcost"),
+          ...driver(), scoreClosed: $("#scoreclosed").checked, location: $("#loc").value || undefined,
+        };
+        const half = $("#half").value.trim().toLowerCase();
+        let autoNote = null;
+        if (half === "auto") {
+          const key = JSON.stringify(o) + "\n" + $("#csv").value;
+          if (key !== autoKey) { autoPick = pickHalfLife($("#csv").value, o); autoKey = key; record("sales_auto_halflife"); }
+          o.halfLife = autoPick.halfLife; o.window = autoPick.window;
+          autoNote = autoPick.note.replace(" --half-life none turns it off; a number fixes it.", "");
+        } else o.halfLife = num("#half");
+        r = demandShifts($("#csv").value, o);
+        if (autoNote) r.notes.push(autoNote);
+        fillLocations(r.locations || []);
+        problem.hidden = true;
+      } catch (e) { problem.hidden = false; problem.textContent = e.message; $("#out").textContent = ""; $("#summary").textContent = ""; $("#table").innerHTML = ""; return; }
+      if (!r.rows && $("#csv").value.trim()) {
+        problem.hidden = false;
+        problem.textContent = [...r.notes, ...r.skipped.slice(0, 3)].join(" ") || "No sales rows could be read from that text.";
+        $("#out").textContent = ""; $("#summary").textContent = ""; $("#table").innerHTML = "";
+        return;
+      }
+      $("#out").textContent = r.shiftsText || "Paste sales above.";
+      const pageNote = (n) => n.replace(" (--keep-rare keeps it)", "").replace(" --open/--close or --keep-rare sets the hours yourself.", "");
+      const notes = [...r.notes.map(pageNote), ...r.skipped.slice(0, 5)];
+      $("#summary").innerHTML = r.rows ? `${r.needed} labor hours needed, ${r.scheduled} scheduled (${r.extra >= 0 ? `${r.extra} extra from minimum shift length` : `${-r.extra} fewer: short runs left unstaffed: a whole shift there costs more than it saves at your short cost (1 when blank)`}).<br>${notes.map(esc).join("<br>")}` : notes.map(esc).join("<br>");
+      $("#table").innerHTML = r.rows ? `<table><tr><th>Day</th><th>${r.count === "minutes" ? "Avg minutes of work" : r.count && r.count !== "sales" ? `Avg ${r.count}` : "Avg sales"}</th><th>Hours needed</th><th>Hours scheduled</th></tr>${r.days.map((d) => `<tr><td>${d.day}</td><td>${r.count && r.count !== "sales" ? "" : "$"}${Math.round(d.sales).toLocaleString("en-US")}</td><td>${d.needed}</td><td>${d.scheduled}</td></tr>`).join("")}</table>` : "";
+    }
+    // The location picker lists the sites the file names (before any pick), keeping the choice while it is still there.
+    function fillLocations(locs) {
+      const sel = $("#loc"), was = sel.value, key = locs.map((l) => `${l.name}|${l.rows}`).join("\n");
+      if (sel.dataset.key !== key) {
+        sel.dataset.key = key;
+        sel.innerHTML = [`<option value="">All ${locs.length} locations as one shop</option>`, ...locs.map((l) => `<option value="${esc(l.name)}">${esc(l.name)} (${l.rows} rows)</option>`)].join("");
+        sel.value = locs.some((l) => l.name === was) ? was : "";
+        if (locs.length > 1) record("sales_locations");
+      }
+      $("#locpick").hidden = locs.length < 2;
+    }
+    // The rate box's label follows what is counted.
+    const labelFor = () => { const c = $("#count").value; $("#stdbox").hidden = c !== "standard"; $("#splhlabel").textContent = c === "tickets" ? "Customers (tickets) per labor hour" : c === "rows" ? "Rows per labor hour" : c === "standard" ? "Minutes of work per labor hour" : "Sales per labor hour ($)"; };
+    $("#count").addEventListener("change", () => { if ($("#count").value === "standard") { $("#splh").value = "60"; record("sales_labour_standard"); } labelFor(); run(); });
+    document.addEventListener("input", run);
+    $("#sample").addEventListener("click", () => { $("#csv").value = sample(); run(); });
+    $("#file").addEventListener("change", async (e) => { const fs = [...e.target.files]; if (fs.length) { const texts = await Promise.all(fs.map((f) => f.text())); $("#csv").value = texts.map((t) => t.replace(/\s+$/, "")).join("\n"); run(); } });
+    $("#copy").addEventListener("click", async () => {
+      const t = $("#out").textContent; if (!t || t.startsWith("Paste")) return;
+      try { await navigator.clipboard.writeText(t); $("#status").textContent = "Copied. Paste it into the shifts box of the roster builder."; }
+      catch { $("#status").textContent = "Select the text above and copy it."; }
+    });
+    $("#backtest").addEventListener("click", () => {
+      const out = $("#btout");
+      let b;
+      const rc = num("#shortcost");
+      try { b = backtestSales($("#csv").value, { splh: num("#splh"), minStaff: num("#minstaff"), minShift: num("#minshift"), maxShift: num("#maxshift"), skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), shortCost: rc, shifts: true, ...driver(), scoreClosed: $("#scoreclosed").checked, location: $("#loc").value || undefined }); }
+      catch (e) { out.innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
+      if (!b.weeks) { out.innerHTML = `<p class="err">${b.notes.map(esc).join(" ")}</p>`; return; }
+      record("sales_backtest_run");
+      const f = (x) => x.toFixed(1);
+      for (const m of b.methods) m.label = m.label.replace(/--half-life (\d+)/, "half-life $1 weeks");
+      const best = b.methods.find((m) => m.id === b.best);
+      const hint = (m) => { const t = [m.halfLife ? `put ${m.halfLife} in the half-life box above` : "", m.window === 4 ? "put auto in the half-life box above, which picks the last 4 weeks when they test best" : "", m.shortCost ? `keep ${m.shortCost} in the short-cost box` : ""].filter(Boolean); return t.length ? ` (${t.join("; ")})` : ""; };
+      out.innerHTML = `<p class="note">${esc(b.notes.at(-1))}</p><div class="scroll"><table><tr><th>Method</th><th>Short</th><th>Over</th><th>Scheduled</th>${b.shortCost != null ? `<th>${b.shortCost} &times; short + over</th>` : ""}<th>vs default (95% CI)</th></tr>${b.methods.map((m) => `<tr${m.id === b.best ? ' style="font-weight:600"' : ""}><td>${esc(m.label)}</td><td>${f(m.short)}</td><td>${f(m.over)}</td><td>${f(m.scheduled)}</td>${b.shortCost != null ? `<td>${f(m.miss)}</td>` : ""}<td>${m.id === "all" ? "" : `${m.vsDefault >= 0 ? "+" : ""}${f(m.vsDefault)} (${f(m.ci[0])} to ${f(m.ci[1])})`}</td></tr>`).join("")}</table></div>`
+        + `<p class="note">Labor hours per week, scored on the shifts cut from each plan (${b.minShift} to ${b.maxShift} hours), so hours added to reach the shortest shift count as over. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that. `
+        + (b.scoreClosed ? "A person staffed in an hour your shop is normally shut, on a day it sold nothing then, counts as over. " : "Minimum staff counted as needed in every hour a plan staffs. ")
+        + (b.shortCost != null ? `Scored with a short hour costing ${b.shortCost} spare ones; the rows marked "short cost" staff each hour for that share of its past days. ` : "")
+        + (b.clear ? `Best on your sales: <strong>${esc(best.label)}</strong>${hint(best)}.` : `No method is clearly better than the plain average on your sales: leave the half-life${b.shortCost != null ? " and short-cost boxes" : " box"} empty.`)
+        + ` A test on your past weeks, not a promise about the next one.</p>`;
+    });
+    run();
+  </script>
+</body>
+</html>

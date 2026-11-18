@@ -1,0 +1,6 @@
+calm (median <= 0.2 m/s): 18 stations; readings above 0.2 m/s 32.5%
+   worst case: glider stalls 31.6%, wins 67.1% | random heading: stalls 17.9%, wins 81.1%
+moderate (0.2 < median <= 0.5): 30 stations; readings above 0.2 m/s 70.2%
+   worst case: glider stalls 66.6%, wins 32.5% | random heading: stalls 43.5%, wins 55.4%
+strong (median > 0.5): 16 stations; readings above 0.2 m/s 86.0%
+   worst case: glider stalls 84.0%, wins 15.6% | random heading: stalls 64.6%, wins 34.6%

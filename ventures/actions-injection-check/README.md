@@ -3,11 +3,12 @@
 A free tool that scans GitHub Actions workflow files for two documented
 injection patterns:
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/actions-injection-check/
+**Live tool:** https://marisstella.app/actions-injection-check/
 
 1. **Pwn request checkout** — a `pull_request_target` or `workflow_run`
    workflow that checks out an untrusted head (`github.event.pull_request.head.sha`,
-   `head.ref`, `github.head_ref`, or the `workflow_run` equivalents), so a
+   `head.ref`, `merge_commit_sha`, a `refs/pull/<n>/merge` or `/head` ref,
+   `github.head_ref`, or the `workflow_run` equivalents), so a
    later build/test/run step executes a stranger's fork with the base
    repository's secrets.
 2. **Script injection** — a `run:` step that interpolates an untrusted

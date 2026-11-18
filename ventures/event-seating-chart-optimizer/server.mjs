@@ -10,13 +10,14 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { validateSpec, parseGuests, parseRules, parseAccessTables, parseTableSizes, optimize, SAMPLE_GUESTS, SAMPLE_RULES } from "./calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const MAX_BODY = 64 * 1024;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
 
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:40rem;margin:0 auto;padding:1rem;color:#1a1a1a}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:7rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}.big{font-size:3rem;font-weight:700;margin:0}`;
-const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://duncan-haywood.github.io/monorepo-projects/event-seating-chart-optimizer/">Event Seating Chart Optimizer</a> (MIT).</p></body></html>`;
+const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://marisstella.app/event-seating-chart-optimizer/">Event Seating Chart Optimizer</a> (MIT).</p></body></html>`;
 
 export function emptyState() { return { fields: { guests: SAMPLE_GUESTS, rules: SAMPLE_RULES, seats: "8", tcount: "", sizes: "", access: "", meals: "" }, plan: null, choices: {}, title: "Find your table" }; }
 
@@ -40,7 +41,7 @@ export function buildPlan(f) {
 }
 
 const mealOptions = (f) => [...new Set(String(f.meals ?? "").split(/[,\n]/).map((m) => m.trim().slice(0, 40)).filter(Boolean))].slice(0, 12);
-const csvCell = (v) => { let t = String(v ?? ""); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+const csvCell = (v) => { let t = String(v ?? ""); if (/^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t)) t = "'" + t; return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
 export function mealCsv(state) {
   const rows = ["Name,Table,Meal"];
   for (const t of state.plan?.tables ?? []) for (const n of t.guests) rows.push([n, t.number, state.choices?.[n] ?? ""].map(csvCell).join(","));
@@ -150,7 +151,7 @@ export function handler(state, save, env = process.env) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const statePath = process.env.STATE || "state.json";
   let state = emptyState();
   try { state = { ...state, ...JSON.parse(fs.readFileSync(statePath, "utf8")) }; } catch (e) { if (e.code !== "ENOENT") throw e; }

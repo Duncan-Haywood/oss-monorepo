@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtLpJubDqyY5xK2JYXt",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T14:10:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14533",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "Landed a negative sourcing step (no model run) because no usable open dataset was found",
+      "did": "logged why two tank datasets cannot serve, plus a post",
+      "result": "small but honest; next run still needs a slender-hull curve"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-marine-hull-no-slender-curve.md",
+    "research/marine-hull/LOG.md milestone 3s"
+  ],
+  "goal": null,
+  "notes": "Zenodo/Crossref reachable; arXiv, MDPI not. Cost attach skipped.",
+  "corrections": [],
+  "redteam": null
+}

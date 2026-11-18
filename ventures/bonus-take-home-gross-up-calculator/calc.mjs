@@ -30,7 +30,7 @@ const r2 = (x) => Math.round(x * 100) / 100;
 
 export function money(x) {
   const n = Math.round(x);
-  return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US");
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US"));
 }
 export function pct(x, d = 1) {
   return (x * 100).toFixed(d) + "%";

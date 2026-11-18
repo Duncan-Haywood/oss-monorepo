@@ -1,0 +1,62 @@
+[
+ {
+  "city": "chicago",
+  "target": "a2i",
+  "ship": "baseline",
+  "coverage": 0.885,
+  "width": 55.3,
+  "widths": {
+   "baseline": 55.3,
+   "table3": 117.9,
+   "full": 66.9
+  }
+ },
+ {
+  "city": "sf",
+  "target": "a2i",
+  "ship": "baseline",
+  "coverage": 0.826,
+  "width": 32.6,
+  "widths": {
+   "baseline": 32.6,
+   "table3": 42.2,
+   "full": 61.6
+  }
+ },
+ {
+  "city": "sf",
+  "target": "i2c",
+  "ship": "baseline",
+  "coverage": 0.844,
+  "width": 373.5,
+  "widths": {
+   "baseline": 373.5,
+   "table3": 398.8,
+   "full": 403.5
+  }
+ },
+ {
+  "city": "austin",
+  "target": "a2i",
+  "ship": "baseline",
+  "coverage": 0.823,
+  "width": 156.1,
+  "widths": {
+   "baseline": 156.1,
+   "table3": 160.6,
+   "full": 169.8
+  }
+ },
+ {
+  "city": "austin",
+  "target": "i2c",
+  "ship": "table3",
+  "coverage": 0.836,
+  "width": 289.6,
+  "widths": {
+   "baseline": 324.1,
+   "table3": 289.6,
+   "full": 289.5
+  }
+ }
+]

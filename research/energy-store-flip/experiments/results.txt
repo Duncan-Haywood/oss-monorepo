@@ -67,3 +67,38 @@ district  weekly     0.10   -0.0053    0.0034    0.0024      0.67
 district  weekly     0.25   -0.0052    0.0034    0.0060      0.25
 district  monthly    0.10   +0.0298    0.0036    0.0036      0.50
 district  monthly    0.25   +0.0298    0.0036    0.0091      0.14
+
+E. One currency. Sections A to D set 2025-euro capex (head_2030 currency_year) against nominal 2015-2019 prices.
+   Here every capex row is deflated to the price year's euros with Eurostat HICP, all items, annual average
+   (prc_hicp_aind, data/hicp_annual.csv): factor HICP(year)/HICP(2025). Germany (DE) is the main basis, euro area (EA20) a check.
+   deflator DE:   0.7582 0.7612 0.7741 0.7885 0.7998
+   deflator EA20: 0.7766 0.7784 0.7904 0.8042 0.8138
+   joint flip = common multiplier on all capex at which store and pump tie; the store wins above it (capex is a larger part of the pump's cost of heat).
+scale     case      year    nominal   real_DE real_EA20    joint
+house     daily     2015    -0.0255   -0.0130   -0.0140    0.50
+house     daily     2016    -0.0265   -0.0143   -0.0152    0.48
+house     daily     2017    -0.0251   -0.0135   -0.0144    0.51
+house     daily     2018    -0.0115   -0.0007   -0.0015    0.78
+house     daily     2019    -0.0197   -0.0094   -0.0101    0.62
+house     weekly    2015    -0.0044   +0.0041   +0.0034    0.87
+house     weekly    2016    -0.0053   +0.0031   +0.0025    0.85
+house     weekly    2017    -0.0054   +0.0025   +0.0020    0.85
+house     weekly    2018    +0.0111   +0.0185   +0.0179    1.31
+house     weekly    2019    -0.0005   +0.0065   +0.0060    0.99
+district  daily     2015    -0.0122   -0.0050   -0.0056    0.59
+district  daily     2016    -0.0129   -0.0059   -0.0064    0.56
+district  daily     2017    -0.0126   -0.0059   -0.0064    0.58
+district  daily     2018    -0.0022   +0.0041   +0.0036    0.93
+district  daily     2019    -0.0083   -0.0024   -0.0028    0.72
+district  weekly    2015    -0.0068   -0.0016   -0.0020    0.68
+district  weekly    2016    -0.0072   -0.0021   -0.0025    0.66
+district  weekly    2017    -0.0084   -0.0036   -0.0039    0.61
+district  weekly    2018    +0.0013   +0.0059   +0.0055    1.06
+district  weekly    2019    -0.0054   -0.0011   -0.0014    0.75
+   store wins (real_DE < 0), of five years:
+   house     daily 5 (nominal 5)  weekly 0 (nominal 4)  monthly 0 (nominal 0)  seasonal 0 (nominal 0)
+   district  daily 4 (nominal 5)  weekly 4 (nominal 4)  monthly 0 (nominal 0)  seasonal 0 (nominal 0)
+   store-win share of draws, weekly house, real_DE basis, m_store and m_hp uniform on 1 +/- h (ASSUMED range):
+   h     2015   2016   2017   2018   2019
+   0.10   0.10   0.17   0.23   0.00   0.00
+   0.25   0.30   0.35   0.38   0.00   0.23

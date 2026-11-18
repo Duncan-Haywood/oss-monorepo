@@ -69,6 +69,20 @@ class PromptTestCase(unittest.TestCase):
 
 
 class RouteTest(PromptTestCase):
+    def setUp(self):
+        super().setUp()
+        from unittest import mock
+        patch = mock.patch.object(promptctl, "review_claimed", return_value=False)
+        patch.start()
+        self.addCleanup(patch.stop)
+
+    def test_a_claimed_review_is_not_drawn_again(self):
+        from unittest import mock
+        with mock.patch.object(promptctl, "review_claimed", return_value=True):
+            for seed in range(20):
+                r = promptctl.route(self.fx.root, rng=random.Random(seed))
+                self.assertNotEqual(r["track"], "review")
+
     def test_forced_track_uses_its_champion(self):
         r = promptctl.route(self.fx.root, track="research", rng=random.Random(0))
         self.assertEqual((r["track"], r["version"], r["role"]), ("research", 0, "champion"))
@@ -428,6 +442,15 @@ class RepositoryTest(unittest.TestCase):
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
         self.assertAlmostEqual(weights["perf"] / sum(weights.values()), 0.05, places=3)
 
+    def test_quality_audits_get_about_five_percent(self):
+        # The owner, 2026-11-07: measuring whether the work is "finished and accomplished
+        # to a high senior expert professional level or higher. This should be ongoing and
+        # very thorough" (prompts/quality/prompt-0.md, portfolio/quality/README.md).
+        tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
+        weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
+        self.assertAlmostEqual(weights["quality"] / sum(weights.values()), 0.05, places=3)
+        self.assertTrue((promptctl.ROOT / "quality" / "prompt-0.md").exists())
+
 
 
 
@@ -627,6 +650,23 @@ class WriteupTest(PromptTestCase):
 
 
 class BackfillPrTest(unittest.TestCase):
+    def test_shallow_boundary_commit_is_not_trusted(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as d:
+            src, dst = Path(d) / "src", Path(d) / "dst"
+            (src / "prompts" / "runs").mkdir(parents=True)
+            git = lambda *a, cwd=src: subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a],
+                                                     cwd=cwd, check=True, capture_output=True)
+            git("init", "-q")
+            (src / "prompts" / "runs" / "a.json").write_text(json.dumps({"pr": None}))
+            git("add", "-A")
+            git("commit", "-qm", "unrelated (#999)")
+            (src / "x").write_text("x")
+            git("add", "-A")
+            git("commit", "-qm", "later (#1000)")
+            git("clone", "-q", "--depth=1", f"file://{src}", str(dst), cwd=Path(d))
+            self.assertEqual(promptctl.backfill_prs(dst / "prompts", write=False), [])
+
     def test_pr_number_comes_from_the_squash_subject(self):
         import subprocess
         with tempfile.TemporaryDirectory() as d:
@@ -669,11 +709,13 @@ class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
     def test_changed_note_ignores_the_shallow_boundary(self):
         from unittest import mock
         run = mock.Mock(return_value=mock.Mock(stdout="abc123 2026-10-20T04:30:00+00:00\n"))
+        promptctl._GIT_MEMO.clear()
         with mock.patch.object(promptctl.subprocess, "run", run), \
                 mock.patch.object(promptctl, "_shallow_boundary", return_value={"abc123"}):
             note, changed = promptctl._changed_note("CLAUDE.md")
         self.assertEqual(changed, "")
         self.assertIn("shallow-clone edge", note)
+        promptctl._GIT_MEMO.clear()
         with mock.patch.object(promptctl.subprocess, "run", run), \
                 mock.patch.object(promptctl, "_shallow_boundary", return_value=set()):
             self.assertEqual(promptctl._changed_note("CLAUDE.md")[1], "2026-10-20T04:30:00+00:00")
@@ -694,3 +736,14 @@ class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
         import promptctl
         real = promptctl.measure(promptctl.ROOT)
         self.assertIn("doc_friction", real)
+
+
+class LastChangeIndexTest(unittest.TestCase):
+    def test_batch_index_matches_per_file_log(self):
+        promptctl._GIT_MEMO.clear()
+        idx = promptctl._last_change_index()
+        for path in ("CLAUDE.md", "prompt.md"):
+            if path in idx:
+                one = promptctl.subprocess.run(["git", "log", "-1", "--format=%H %cI", "--", path],
+                                               cwd=promptctl.ROOT.parent, capture_output=True, text=True).stdout.split()
+                self.assertEqual(list(idx[path]), one)

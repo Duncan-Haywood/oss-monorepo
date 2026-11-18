@@ -1,0 +1,8 @@
+NaijaSenti negative, nb-in-language, corpus 6000, prevalence 0.0200, coder J 0.342, n 1000, 500 draws
+pilot share | rule | share of draws using cells % | coverage % | half-width pts | mean pilot positives
+0.5 | pooled | 0 | 94.2 | 0.802 | 10.3
+0.5 | cells g0 | 99 | 92.0 | 0.737 | 10.3
+0.5 | cells g10 | 57 | 94.6 | 0.766 | 10.3
+0.5 | negcell k3 | 87 | 95.6 | 0.753 | 10.3
+0.5 | negcell k5 | 57 | 94.8 | 0.778 | 10.3
+0.5 | negcell k8 | 7 | 93.0 | 0.798 | 10.3

@@ -33,5 +33,5 @@ kill_criteria:
   - A report that a datapoint, unit or required field differs from the EFRAG VSME standard on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/vsme-report-builder/
+  production: https://marisstella.app/vsme-report-builder/
   analytics: null

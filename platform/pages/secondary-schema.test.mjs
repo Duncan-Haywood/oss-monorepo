@@ -50,6 +50,10 @@ test('every secondary prose page ships structured data', async () => {
     // An app view is exempt: FAQPage markup would describe a form, not an
     // answer, and Google treats schema that misdescribes a page as spam.
     if (controlCount(html) > 0) continue;
+    // So is a noindex page, such as a generated sample report
+    // (einvoice-preflight/sample-audit-pack.html): search engines skip it, so
+    // schema there earns no rich result, and FAQ markup would misdescribe it.
+    if (/<meta[^>]+name=["']robots["'][^>]+content=["'][^"']*noindex/i.test(html)) continue;
     checked += 1;
     if (!html.includes('application/ld+json')) offenders.push(displayPath);
   }

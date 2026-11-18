@@ -44,5 +44,5 @@ kill_criteria:
   - No external repository is found running dupehound within 120 days of a crates.io release.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/dupehound/
+  production: https://marisstella.app/dupehound/
   analytics: null

@@ -9,7 +9,7 @@ const RESERVED = new Set(('add all alter and any as asc between by case check co
 // ---------------------------------------------------------------- CSV parsing
 
 export function detectDelimiter(text) {
-  const head = text.replace(/^﻿/, '').split(/\r\n|\n|\r/).slice(0, 5).filter((l) => l.length);
+  const head = text.replace(/^\uFEFF/, '').split(/\r\n|\n|\r/).slice(0, 5).filter((l) => l.length);
   let best = ',', bestScore = 0;
   for (const d of [',', ';', '\t', '|']) {
     const counts = head.map((l) => countOutsideQuotes(l, d));
@@ -28,7 +28,7 @@ function countOutsideQuotes(line, d) {
 }
 
 export function parseCsv(text, delimiter) {
-  const src = text.replace(/^﻿/, '');
+  const src = text.replace(/^\uFEFF/, '');
   const d = delimiter || detectDelimiter(src);
   const rows = [];
   let row = [], field = '', inQ = false, i = 0, wasQuoted = false;

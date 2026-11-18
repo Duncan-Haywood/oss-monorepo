@@ -1,0 +1,47 @@
+# Milestone 1: panel gap, sheet pose and row drift (buildbot-sheathing)
+robot tip scatter 0.9 mm per nail; trials 20000 per cell; seed 1 (sheets), 2 (rows)
+
+## A. Joint window and stud budget against the gap (perfect placement, nominal aim)
+gap_in  joint_half_mm  stud_sigma_95_mm  tip_sigma_95_mm(perfect studs)
+0.0000          3.931             0.898     1.233
+0.0312          3.732             0.789     1.171
+0.0625          3.534             0.677     1.109
+0.0938          3.335             0.556     1.047
+0.1250          3.137             0.413     0.984
+0.1875          2.740             0.000     0.860
+studfind's 0.89 mm budget: clean sheets 0.952 without the gap, 0.748 with a 1/8 in gap the robot plans for, 0.562 (1.1 nails missed a sheet) if the robot aims for no gap but the sheet is hung with one
+
+## B. Sheet pose tolerance (1/8 in gap, stud 0.5 mm, tip 0.9 mm)
+nominal        translation sigma for 95%:   0.00 mm   rotation sigma for 95%:  0.0000 deg (= 0.00 mm at the top nail)
+edge 0.25 mm   translation sigma for 95%:   0.62 mm   rotation sigma for 95%:  0.0435 deg (= 0.92 mm at the top nail)
+edge 0.5 mm    translation sigma for 95%:   0.44 mm   rotation sigma for 95%:  0.0312 deg (= 0.66 mm at the top nail)
+edge 1 mm      translation sigma for 95%:   0.00 mm   rotation sigma for 95%:  0.0000 deg (= 0.00 mm at the top nail)
+## B. Sheet pose tolerance (1/8 in gap, stud 0.3 mm, tip 0.9 mm)
+nominal        translation sigma for 95%:   0.38 mm   rotation sigma for 95%:  0.0276 deg (= 0.58 mm at the top nail)
+edge 0.25 mm   translation sigma for 95%:   0.74 mm   rotation sigma for 95%:  0.0529 deg (= 1.12 mm at the top nail)
+edge 0.5 mm    translation sigma for 95%:   0.61 mm   rotation sigma for 95%:  0.0423 deg (= 0.89 mm at the top nail)
+edge 1 mm      translation sigma for 95%:   0.00 mm   rotation sigma for 95%:  0.0000 deg (= 0.00 mm at the top nail)
+clean sheets against rotation sigma (deg), stud 0.5 mm:
+  nominal      0:0.928  0.02:0.917  0.05:0.829  0.1:0.600  0.2:0.349  0.5:0.147  1:0.073
+  edge 0.5 mm  0:0.964  0.02:0.957  0.05:0.929  0.1:0.808  0.2:0.541  0.5:0.242  1:0.124
+clean sheets against translation sigma (mm), stud 0.5 mm:
+  nominal      0:0.928  0.5:0.886  1:0.760  2:0.508  3:0.364  5:0.230  8:0.144
+  edge 0.5 mm  0:0.964  0.5:0.946  1:0.891  2:0.693  3:0.530  5:0.349  8:0.224
+
+## C. A 10-sheet row (40 ft wall): share of trials with every joint window non-empty / clean sheet, by sheet
+   (gap set by a 1/8 in gauge with 0.5 mm scatter; width scatter 0.5 mm; stud 0.5 mm, tip 0.9 mm, edge aim 0.5 mm)
+butt, full 48 in, nominal aim  feasible 1.00 1.00 0.46 0.00 0.00 0.00 0.00 0.00 0.00 0.00
+                               clean    0.95 0.04 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00   (last sheet feasible in >=50%: 2)
+butt, full 48 in, edge aim     feasible 1.00 1.00 0.46 0.00 0.00 0.00 0.00 0.00 0.00 0.00
+                               clean    0.98 0.22 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00   (last sheet feasible in >=50%: 2)
+butt, 1/16 trim, edge aim      feasible 1.00 1.00 1.00 0.89 0.47 0.14 0.03 0.01 0.00 0.00
+                               clean    0.98 0.73 0.25 0.05 0.01 0.00 0.00 0.00 0.00 0.00   (last sheet feasible in >=50%: 4)
+butt, 1/8 trim, edge aim       feasible 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00
+                               clean    0.95 0.92 0.89 0.84 0.80 0.77 0.74 0.72 0.69 0.66   (last sheet feasible in >=50%: 10)
+stud, 1/16 trim, edge aim      feasible 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00
+                               clean    0.98 0.98 0.98 0.98 0.98 0.98 0.98 0.98 0.98 0.98   (last sheet feasible in >=50%: 10)
+                               realised gap < 0 at 0.1% of joints
+stud, 1/8 trim, edge aim       feasible 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00
+                               clean    0.96 0.95 0.96 0.95 0.96 0.96 0.95 0.95 0.96 0.95   (last sheet feasible in >=50%: 10)
+                               realised gap < 0 at 0.0% of joints
+stud-referenced, 1/16 in trim, width scatter 1 mm: realised gap < 0 at 5.6% of joints, every joint feasible in >= 1.000 of trials

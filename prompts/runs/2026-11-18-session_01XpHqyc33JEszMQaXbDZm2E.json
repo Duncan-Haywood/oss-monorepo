@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyc33JEszMQaXbDZm2E",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T00:38:31Z",
+  "ended": "2026-11-18T03:49:53Z",
+  "wall_minutes": 191.59,
+  "tokens_in": 8150703,
+  "tokens_out": 33284,
+  "cost_usd": 3.2873,
+  "tool_calls": 77,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17116",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First background launch: `mkdir -p dir && (...) &` backgrounded the mkdir too, so the nix build line ran before the directory existed; rerun with run_in_background."
+  ],
+  "integrity_issues": [
+    "An unplanned interim look at 14 designs (8 to 6) preceded the decision to extend the flow. Disclosed: a stopping rule (one more 75-minute launch, cap at milestone 143's 27 designs) was committed before any further result, and the interim numbers are reported in LOG.md, README and the post."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/LOG.md",
+      "issue": "Milestone 143's flow ran ~28 points/min; the ff corner ran ~20/min because 256-bit left clamps get much slower at ff, so a two-hour cap reached only 14 to 27 designs. Per-corner throughput is worth noting in the 'Next' line of corner milestones."
+    },
+    {
+      "file": "research/verified-dse/README.md",
+      "issue": "Status line said 'milestones 1 to 140 done' although 143 had landed; the status line is not updated by milestone PRs consistently."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "git merge origin/main on the shallow clone fails with 'refusing to merge unrelated histories'; the deepen step is documented but easy to miss before a merge attempt."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/verified-dse/experiments/corner_ff_blind/analyse.py",
+      "why": "Extended the flow past the first launch and capped the analysed prefix at 27 designs after an interim look, to compare corners on the same designs and to get power for the primary test.",
+      "did": "Committed STOP_RULE.md and the CAP before any further result; reported the interim look.",
+      "result": "Primary held at 27 designs (20 to 7, p = 0.019); the cap bound (31 complete)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-verified-dse-fast-corner.md",
+    "research/verified-dse/LOG.md (milestone 144)"
+  ],
+  "goal": null,
+  "notes": "Milestone 144 of verified-dse: 52 blind designs at SKY130 ff_n40C_1v95, 3,822 of 6,240 points over two launches (105 + 75 min, 4 cores). Six of seven predictions held; (5) refuted: ff moves the routed ranking more than ss (tau-b 0.19 vs 0.34). Side finding checked by STA: ff baselines slower than tt on four 256-bit left clamps come from ABC mapping a different netlist under the ff liberty. Checks: tests/test_corner_ff_blind.py and test_corner_ss_blind.py pass (8), _homepage/build.py ok, research_live_links ok, check_md_links ok, programme_check ok, check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "92551f64-39e8-5a0a-94cb-886c46799018",
+    "transcripts": 1,
+    "first": "2026-11-18T00:38:31Z",
+    "last": "2026-11-18T03:50:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 140,
+        "output": 33284,
+        "thinking": 5776,
+        "cache_read": 8023523,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127040,
+        "api_equivalent_usd": 3.2873,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 140,
+      "output": 33284,
+      "thinking": 5776,
+      "cache_read": 8023523,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127040,
+      "api_equivalent_usd": 3.2873,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 75,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 191.59,
+      "active_minutes": 191.59,
+      "model_minutes": 5.69,
+      "tool_minutes": 185.89,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "an EDA researcher setting up a new corner run, two flow launches, analysis, STA diagnosis and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 365.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

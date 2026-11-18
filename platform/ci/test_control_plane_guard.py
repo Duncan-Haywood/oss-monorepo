@@ -51,6 +51,34 @@ class Patterns(unittest.TestCase):
         self.assertEqual(guard.owner_logins(RULES), {"owner"})
 
 
+class MiddleSlashAnchors(unittest.TestCase):
+    """A pattern with a slash in the middle is anchored to the root, as in gitignore."""
+
+    def test_inner_slash_pattern_does_not_match_nested_copy(self):
+        rules = guard.parse_codeowners("docs/*.md @owner\n")
+        self.assertTrue(guard.owners_for("docs/a.md", rules))
+        self.assertFalse(guard.owners_for("ventures/docs/a.md", rules))
+
+
+class MainExitCode(unittest.TestCase):
+    def test_check_coverage_exit_code_follows_problems(self):
+        from unittest import mock
+
+        with mock.patch.object(guard, "check_coverage", return_value=[]):
+            self.assertEqual(guard.main(["--check-coverage"]), 0)
+        with mock.patch.object(guard, "check_coverage", return_value=["x has no code owner"]):
+            self.assertEqual(guard.main(["--check-coverage"]), 1)
+
+
+class QuestionMark(unittest.TestCase):
+    def test_question_mark_is_exactly_one_non_slash_character(self):
+        rules = guard.parse_codeowners("/key-?.pem @owner\n")
+        self.assertTrue(guard.owners_for("key-1.pem", rules))
+        self.assertFalse(guard.owners_for("key-12.pem", rules))
+        self.assertFalse(guard.owners_for("key-.pem", rules))
+        self.assertFalse(guard.owners_for("key-/.pem", rules))
+
+
 class RepoCodeowners(unittest.TestCase):
     def test_real_file_covers_every_sample(self):
         rules = guard.parse_codeowners(guard.CODEOWNERS.read_text(encoding="utf-8"))
@@ -65,6 +93,13 @@ class RepoCodeowners(unittest.TestCase):
 
 def review(login, state="APPROVED"):
     return {"user": {"login": login}, "state": state}
+
+
+class Star(unittest.TestCase):
+    def test_star_consumes_one_token_then_literal_follows(self):
+        rules = guard.parse_codeowners("*.pem @owner\n")
+        self.assertTrue(guard.owners_for("a.pem", rules))
+        self.assertFalse(guard.owners_for("apem", rules))
 
 
 class Audit(unittest.TestCase):
@@ -97,6 +132,100 @@ class Audit(unittest.TestCase):
         code, msg = guard.audit_verdict(["CLAUDE.md"], pr, [], {"owner"})
         self.assertEqual(code, 0)
         self.assertTrue(msg.startswith("::warning::"))
+
+
+class TrailingDoubleStar(unittest.TestCase):
+    def test_dir_double_star_matches_nested_depth(self):
+        rules = guard.parse_codeowners("/docs/** @owner\n")
+        self.assertTrue(guard.owners_for("docs/a/b/c.md", rules))
+        self.assertTrue(guard.owners_for("docs/a.md", rules))
+
+
+class Pagination(unittest.TestCase):
+    def test_gh_pages_stops_after_limit_full_pages(self):
+        from unittest import mock
+        with mock.patch.object(guard, "gh_get", return_value=[0] * 100) as get:
+            items = guard.gh_pages("/x", limit=3)
+        self.assertEqual(get.call_count, 3)
+        self.assertEqual(len(items), 300)
+
+
+class PrSummary(unittest.TestCase):
+    def test_pr_mode_lists_touched_control_plane_files(self):
+        import os
+        from unittest import mock
+
+        files = [{"filename": "CLAUDE.md"}, {"filename": "ventures/x/a.mjs"}]
+        out = []
+        with mock.patch.dict(os.environ, {"GITHUB_REPOSITORY": "o/r"}), \
+             mock.patch.object(guard, "gh_pages", return_value=files), \
+             mock.patch.object(guard, "summarize", side_effect=out.append):
+            code = guard.main(["--pr", "5"])
+        self.assertEqual(code, 0)
+        self.assertEqual(len(out), 1)
+        self.assertIn("- `CLAUDE.md`", out[0])
+        self.assertNotIn("ventures/x/a.mjs", out[0])
+
+
+class AuditCommitPicksFirstMergedPr(unittest.TestCase):
+    def test_reviews_are_read_for_the_first_merged_pr(self):
+        import os
+        from unittest import mock
+
+        prs = [
+            {"number": 1, "merged_at": "t", "user": {"login": "a"}},
+            {"number": 2, "merged_at": "t", "user": {"login": "b"}},
+        ]
+
+        def fake_get(path):
+            return prs if path.endswith("/pulls") else {"files": [{"filename": "CLAUDE.md"}]}
+
+        seen = []
+
+        def fake_pages(path):
+            seen.append(path)
+            return []
+
+        with mock.patch.dict(os.environ, {"GITHUB_REPOSITORY": "o/r"}), \
+             mock.patch.object(guard, "gh_get", side_effect=fake_get), \
+             mock.patch.object(guard, "gh_pages", side_effect=fake_pages), \
+             mock.patch.object(guard, "summarize"):
+            guard.main(["--audit-commit", "abc"])
+        self.assertEqual(seen, ["/repos/o/r/pulls/1/reviews"])
+
+
+class PagingAndCli(unittest.TestCase):
+    def test_gh_pages_stops_at_limit(self):
+        from unittest import mock
+
+        calls = []
+
+        def full_page(path):
+            calls.append(path)
+            return [1] * 100
+
+        with mock.patch.object(guard, "gh_get", side_effect=full_page):
+            items = guard.gh_pages("/x", limit=3)
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(len(items), 300)
+
+    def test_gh_pages_default_limit_is_30(self):
+        from unittest import mock
+
+        calls = []
+
+        def full_page(path):
+            calls.append(path)
+            return [1] * 100
+
+        with mock.patch.object(guard, "gh_get", side_effect=full_page):
+            guard.gh_pages("/x")
+        self.assertEqual(len(calls), 30)
+
+    def test_a_mode_flag_is_required(self):
+        with self.assertRaises(SystemExit) as cm:
+            guard.main([])
+        self.assertEqual(cm.exception.code, 2)
 
 
 if __name__ == "__main__":

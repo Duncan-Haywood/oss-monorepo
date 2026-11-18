@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2317324a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Stranded Branch Finder — Pushed Work With No Pull Request</title>
+  <meta name="description" content="Find git branches and commits that were pushed but sit in no pull request and not on main. A zero-dependency Python script plus a paste-in browser check. Free, MIT, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Stranded Branch Finder","applicationCategory":"DeveloperApplication","operatingSystem":"Any with Python 3 and git; browser check works anywhere","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Finds commits pushed to a remote that are in no pull request and not on the main branch, using only git. Built for teams and agent fleets that push branches nobody reviews."}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.starved { color: #9a3412; }
+    .verdict.pending { color: #7c5e10; }
+    .row { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid #e6eaf0; font-size: .92rem; }
+    .row:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.starved { background: #fde8e8; color: #9a3412; }
+    .pill.ran { background: #dcefe4; color: #14532d; }
+    .pill.pending { background: #fdf0d5; color: #7c5e10; }
+    .pill.skipped { background: #e3e9ef; color: #55606f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">STRANDED BRANCH FINDER · FREE · MIT</p>
+    <h1>Which pushed branches did nobody open a pull request for?</h1>
+    <p>A branch with no pull request is invisible to CI, code review and the next person who looks. Bots, scheduled agents and tired humans all leave them. This tool lists the commits that are on a remote, in no pull request and not on <code>main</code>, using only git: no token, no API.</p>
+    <p class="note">Built for an agent-driven repository where 102 branches held 186 such commits on one day of measurement; four finished ventures were found only this way.</p>
+  </header>
+<main>
+  <section class="card">
+    <h2>Quick check in your browser</h2>
+    <p>Run this in your clone, paste the output. Nothing leaves this page.</p>
+    <pre class="cmd"><code>git ls-remote origin 'refs/heads/*' 'refs/pull/*/head'</code></pre>
+    <textarea aria-label="git ls-remote output" id="payload" spellcheck="false" placeholder="3f2a...  refs/heads/main"></textarea>
+    <p>
+      <label>Base branch <input id="base" value="main" size="10"></label>
+      <label>Ignore patterns (comma separated) <input id="ignore" placeholder="dependabot/*, gh-pages" size="24"></label>
+    </p>
+    <p><button type="button" id="check">Check</button><button type="button" class="secondary" id="load-example">Load worked example</button></p>
+    <p class="note" id="status">Paste the output and click Check.</p>
+    <div id="rows" aria-live="polite"></div>
+    <p class="note">This quick check only compares each branch tip with the pull request heads. A branch listed here may still be fine (its work could be on main under other commit ids), and a branch not listed could carry commits pushed after its PR closed. The script below walks the commits and is exact.</p>
+  </section>
+
+  <section class="card">
+    <h2>The exact check: one Python file</h2>
+    <pre class="cmd"><code>python3 stranded.py                  # this branch; exit 1 means open a pull request
+python3 stranded.py --sweep          # every remote branch, tips from the last 14 days
+python3 stranded.py --sweep --since all --ignore 'dependabot/*'</code></pre>
+    <p>Get <a href="stranded.py" rel="noopener">stranded.py</a> (standard library only, needs git 2.20 or newer). It reads <code>refs/heads/*</code> and <code>refs/pull/*/head</code> over the ordinary git protocol and fetches commits only (<code>--filter=tree:0</code>) into a side repository, so shallow CI clones work. Squash merges are handled: a branch whose changes are already on main is not reported. Works with GitHub and Gitea; GitLab does not publish pull-request refs.</p>
+    <p>Put it in a scheduled workflow or an agent's finish step: exit 1 means unlanded work.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why not list branches with no open pull request in the GitHub UI?</h3>
+    <p>The UI shows branches and open pull requests separately, and a branch that had a pull request once looks the same as one that never did. This tool counts a commit as covered if any pull request, open or closed, ever pointed at it, and separates "pushed after the pull request closed" from "never had one".</p>
+    <h3>Does exit 0 mean it was merged?</h3>
+    <p>No. It means every commit is on the base or in some pull request. Git alone cannot see whether that pull request merged.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. The browser check runs locally; the script talks only to your own remote.</p>
+  </section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It reports what git shows; it does not delete or push anything. <strong>You are responsible for reviewing its output before acting on it</strong>: a listed branch may be intentionally parked. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may be moved or taken offline. If you need it to survive, get <a href="stranded.py" rel="noopener">stranded.py</a> and run it yourself.</p>
+  <p>Everything runs in your browser. There are no accounts, cookies or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Related: <a href="../actions-runner-starvation-check/">tell a real red CI check from a starved one</a>.</p>
+  <p class="support">Free and open source under the <a href="LICENSE" rel="noopener">MIT licence</a>.</p>
+</footer>
+<script type="module">
+  import { uncovered } from "./lsremote.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const A = "a".repeat(40), B = "b".repeat(40), C = "c".repeat(40);
+  const EXAMPLE = [`${A}\trefs/heads/main`, `${B}\trefs/heads/feature/shipped`, `${C}\trefs/heads/agent/forgotten-work`, `${B}\trefs/pull/41/head`].join("\n");
+  $("#load-example").addEventListener("click", () => { $("#payload").value = EXAMPLE; record("example_loaded"); });
+  $("#check").addEventListener("click", () => {
+    record("check_run");
+    try {
+      const ignore = $("#ignore").value.split(",").map((x) => x.trim()).filter(Boolean);
+      const rows = uncovered($("#payload").value, { base: $("#base").value.trim() || "main", ignore });
+      $("#status").textContent = rows.length ? `${rows.length} branch(es) whose tip is in no pull request:` : "Every branch tip is the head of a pull request or sits at the base.";
+      $("#rows").innerHTML = rows.map((r) => `<div class="row"><span><strong>${esc(r.branch)}</strong></span><span><code>${esc(r.tip.slice(0, 9))}</code></span></div>`).join("");
+    } catch (e) { $("#status").innerHTML = `<span class="error">${esc(e.message)}</span>`; $("#rows").innerHTML = ""; }
+  });
+  $("#optout").addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); $("#optout").textContent = usageOptedOut() ? "Usage counting is off (click to turn on)" : "Turn usage counting off"; });
+</script>
+</body>
+</html>

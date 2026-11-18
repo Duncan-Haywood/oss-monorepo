@@ -1,3 +1,7 @@
+---
+kind: note
+tagged: auto
+---
 # Third-party request check (2026-10-29)
 
 `platform/ci/check_third_party_requests.py` (CI step in `portfolio-validate.yml`)

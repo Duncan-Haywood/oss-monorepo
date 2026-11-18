@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [ai-bookkeeper]
+tagged: auto
+---
 # ai-bookkeeper: HCB held-out reading, pages 2 and 3 (2026-11-10)
 
 - `eval/hcb-memos.mjs` now takes `--orgpage N` (landed by a parallel session).

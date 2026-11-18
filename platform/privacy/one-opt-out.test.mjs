@@ -10,13 +10,13 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import {
   checkSource, checkAll, optOutUsage, resolveKey, describe,
-  checkPage, checkAllPages, checkOrder, checkAllPageOrders, describeOrder,
+  checkPage, checkAllPages, checkOrder, checkPageOrder, checkAllPageOrders, describeOrder, findPages,
 } from "./one-opt-out.mjs";
 
 const ONE_KEY = `
@@ -105,7 +105,12 @@ test("vendor-rate-break-even: one key, two encodings, which is the same failure"
   `);
   assert.equal(result.status, "two-encodings");
   assert.deepEqual(result.values, ["1", "true"]);
-  assert.match(describe({ name: "x", ...result }), /invisible to the other/);
+  // The whole sentence, not its tail: a `+` turned `-` in the message made it
+  // "NaNstored by one half is invisible to the other", which a tail-only match
+  // accepted (redteam 2026-11-12).
+  assert.equal(describe({ name: "x", ...result }),
+    `x: one key (${result.keys[0]}) written and read as "1" and "true", so a choice `
+    + `stored by one half is invisible to the other`);
 });
 
 test("a computed written value is not counted, only what a reader accepts", () => {
@@ -185,6 +190,30 @@ test("the restore must come before anything that counts", () => {
   assert.equal(checkOrder("recordUsage('x');").status, "no-restore");
 });
 
+test("checkPageOrder reports a page that counts before it restores, and passes one that does not", () => {
+  // checkOrder is tested above on a bare string, but the catalogue goes
+  // through checkPageOrder, and the catalogue is clean. Flipping its
+  // `!== "pass"` turned every records-first page into a pass, and nothing
+  // noticed (redteam 2026-11-12).
+  const dir = mkdtempSync(join(tmpdir(), "one-opt-out-order-"));
+  try {
+    writeFileSync(join(dir, "late.html"), `<script type="module">
+      recordUsage('page_viewed');
+      const usagePreference = 'widget-usage-preference';
+    </script>`);
+    writeFileSync(join(dir, "early.html"), `<script type="module">
+      const usagePreference = 'widget-usage-preference';
+      recordUsage('page_viewed');
+    </script>`);
+    writeFileSync(join(dir, "none.html"), `<script type="module">recordUsage('x');</script>`);
+    const late = checkPageOrder(join(dir, "late.html"));
+    assert.equal(late.status, "records-first", JSON.stringify(late));
+    assert.equal(late.call, "recordUsage(");
+    assert.equal(checkPageOrder(join(dir, "early.html")).status, "pass");
+    assert.equal(checkPageOrder(join(dir, "none.html")).status, "no-restore");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test("every page restores the control before it counts, and spells it one way", () => {
   // 2026-09-12: 3 pages carried two keys and 11 restored too late, every one
   // of them from the page-level half of this change. The two assertions are
@@ -227,4 +256,42 @@ test("every venture usage module spells the opt-out exactly one way", () => {
     results.filter((r) => r.status === "pass").length > 200,
     "most modules do offer an opt-out; if this drops, discovery broke, not the catalogue",
   );
+});
+
+test("findPages skips node_modules, dist and dot directories but finds the rest", () => {
+  // Mutant: `||` -> `&&` in the skip test made the walker descend into every
+  // directory, so a vendored or built copy of a page was audited as ours.
+  const dir = mkdtempSync(join(tmpdir(), "one-opt-out-walk-"));
+  try {
+    for (const skipped of ["node_modules", "dist", ".cache"]) {
+      mkdirSync(join(dir, skipped));
+      writeFileSync(join(dir, skipped, "index.html"), "<p>x</p>");
+    }
+    mkdirSync(join(dir, "app"));
+    writeFileSync(join(dir, "app", "index.html"), "<p>x</p>");
+    assert.deepEqual(findPages(dir), [join(dir, "app", "index.html")]);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("findPages skips an entry that vanishes mid-walk instead of crashing", () => {
+  // The readdir-then-stat race browser-signals.mjs already survives: a test
+  // file running in parallel removes its scratch venture under ventures/ while
+  // this walk is inside it (CI, 2026-10-21, ENOENT on
+  // ventures/discovery-probe-IUtDEq, in this file's suite). findPages threw on
+  // it until redteam 2026-11-12.
+  const dir = mkdtempSync(join(tmpdir(), "one-opt-out-vanish-"));
+  try {
+    writeFileSync(join(dir, "index.html"), "<p>x</p>");
+    symlinkSync(join(dir, "gone"), join(dir, "dangling"));
+    assert.deepEqual(findPages(dir), [join(dir, "index.html")]);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("describeOrder names only records-first results; describeOrder text says where to move the restore", () => {
+  // Mutants: `!==` -> `===` and `+` -> `-` in the message went unseen because
+  // the catalogue-wide test only calls describeOrder on a failing page, and
+  // the catalogue is clean.
+  assert.equal(describeOrder({ name: "a.html", status: "pass" }), "a.html: pass");
+  const msg = describeOrder({ name: "a.html", status: "records-first", call: "recordUsage(", line: 7 });
+  assert.match(msg, /^a\.html: `recordUsage\(` appears at line 7, above the restore\. Move the restore to the top of this script: anything counted before it is counted against the control's default state rather than the visitor's choice$/);
 });

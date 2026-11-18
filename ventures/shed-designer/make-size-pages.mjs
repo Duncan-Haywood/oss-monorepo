@@ -1,10 +1,11 @@
 // Writes one "how much lumber does an NxM shed take" page per common size,
 // plus an index, from the framing engine itself, so the counts on the pages are
 // the ones the tool prints. Run: node make-size-pages.mjs  (then commit the output).
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { PRESETS, buildShed } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { writeFacts } from './workedfacts.mjs';
+import { pathToFileURL } from 'node:url';
 
 export const SIZES = [
   [8, 8, '8x10'], [8, 10, '8x10'], [8, 16, '8x10'],
@@ -195,14 +196,22 @@ export function generate() {
   return { all, files };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { files } = generate();
   for (const [name, html] of Object.entries(files)) writeFileSync(new URL(name, import.meta.url), html);
   // Every hand-written page beside the tool (the marketing page, the HOA packet, any new one) goes in too, so a new page is never left out.
-  const hand = readdirSync(new URL('.', import.meta.url)).filter((f) => f.endsWith('.html') && f !== 'index.html' && !(f in files)).sort((x, y) => (x === HAND_FILE ? -1 : y === HAND_FILE ? 1 : x.localeCompare(y)));
+  const hand = readdirSync(new URL('.', import.meta.url)).filter((f) => f.endsWith('.html') && f !== 'index.html' && !(f in files) && !/<meta[^>]*robots[^>]*noindex/i.test(readFileSync(new URL(f, import.meta.url), 'utf8'))).sort((x, y) => (x === HAND_FILE ? -1 : y === HAND_FILE ? 1 : x.localeCompare(y)));
   const urls = ['', ...hand, ...Object.keys(files)];
   const base = 'https://example.invalid/shed-designer/';
-  writeFileSync(new URL('sitemap.xml', import.meta.url), `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((u) => `<url><loc>${base}${u}</loc></url>`).join('')}</urlset>`);
+  // sitemap.xml is committed, and platform/pages/generated-pages.mjs runs this
+  // script inside every site build, with test builds in parallel: a generator
+  // there "must write only gitignored files". Writing only on a real change
+  // keeps an unchanged sitemap untouched, so a parallel build never reads it
+  // mid-write and its mtime does not look like an edit made during a test run
+  // (build.test.mjs editedDuringRun named it on every failure, 2026-11-12).
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((u) => `<url><loc>${base}${u}</loc></url>`).join('')}</urlset>`;
+  const sitemapUrl = new URL('sitemap.xml', import.meta.url);
+  if (!existsSync(sitemapUrl) || readFileSync(sitemapUrl, 'utf8') !== sitemap) writeFileSync(sitemapUrl, sitemap);
   // The hand-written 8x12 page's tagged numbers come from the engine too (workedfacts.mjs),
   // so the site build publishes current ones even if the committed copy is a step behind.
   const refreshed = writeFacts();

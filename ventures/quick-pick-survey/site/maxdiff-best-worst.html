@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free MaxDiff (best-worst) ranking in your browser | Quick Pick</title>
+  <meta name="description" content="Rank 3 to 60 options by tapping the best and worst of four, the MaxDiff question, scored with the exact best-worst model. Rank ranges, team combine, no signup, nothing uploaded. Measured against plain pairs.">
+  <link rel="canonical" href="https://marisstella.app/quick-pick-survey/maxdiff-best-worst.html">
+  <meta property="og:title" content="Free MaxDiff (best-worst) ranking in your browser">
+  <meta property="og:description" content="Tap the best and worst of four; get an order with honest rank ranges. Exact best-worst model, team combine, free, nothing uploaded.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Free MaxDiff (best-worst) ranking in your browser","description":"Rank 3 to 60 options by tapping the best and worst of four, scored with the exact best-worst model. Rank ranges, team combine, free, nothing uploaded.","url":"https://marisstella.app/quick-pick-survey/maxdiff-best-worst.html","isPartOf":{"@type":"WebApplication","name":"Quick Pick","url":"https://marisstella.app/quick-pick-survey/rank.html","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}}</script>
+  <style>
+    :root{font:16px/1.55 system-ui,sans-serif;--ink:#20252b;--muted:#4f585f;--line:#d9d2c5;--accent:#8f3420;--panel:#fffdf8;--bg:#f5f1e8;color:var(--ink);background:var(--bg)}
+    @media (prefers-color-scheme: dark){:root{--ink:#ece7dd;--muted:#b4aca0;--line:#4a443b;--accent:#f0a183;--panel:#26231f;--bg:#1a1815}}
+    *{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--bg)}
+    main{max-width:760px;margin:auto;padding:2rem 1rem 3rem}
+    h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.15;margin:0 0 .75rem}
+    p.lede{font-size:1.1rem;color:var(--muted);margin-top:0}
+    section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.25rem;margin:1.25rem 0}
+    h2{margin:0 0 .5rem;font-size:1.2rem}
+    a{color:var(--accent)}
+    a.cta{display:inline-block;padding:.7rem 1.2rem;border-radius:8px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600}
+    @media (prefers-color-scheme: dark){a.cta{color:#1a1815}}
+    table{border-collapse:collapse;width:100%;font-size:.92rem}
+    th,td{border-bottom:1px solid var(--line);padding:.35rem .4rem;text-align:left}
+    td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+    .scroll-x{overflow-x:auto}
+    .muted{color:var(--muted);font-size:.9rem}
+    footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1rem;margin-top:2rem}
+  </style>
+</head>
+<body>
+<main>
+  <p class="muted"><a href="./">Quick Pick</a> / <a href="rank.html">rank a list</a> / best and worst of four</p>
+  <h1>Free MaxDiff ranking: tap the best and worst of four</h1>
+  <p class="lede">MaxDiff (best-worst scaling) asks one question again and again: of these four, which matters most and which matters least? It forces trade-offs that a 1-to-5 rating never does, and it is usually sold as a module in a paid survey tool. Here it runs in your browser for free, for one person or a small team, with an honest range for every place.</p>
+  <p><a class="cta" href="rank.html?mode=screens" data-event="maxdiff_page_start">Paste your list &rarr;</a></p>
+  <p class="muted">"Best and worst of four" is preselected on the ranker. 3 to 60 options, typed or pictures. No account, and nothing you type is uploaded.</p>
+
+  <section>
+    <h2>How it goes</h2>
+    <ol>
+      <li><strong>Paste the options</strong>, one per line: features, pain points, messages, values, names.</li>
+      <li><strong>Each screen shows four.</strong> Tap the one you like most, then the one you like least (keys 1 to 4 work too). Tap your "most" again to change it; Undo takes back a whole screen.</li>
+      <li><strong>The next four</strong> are the ones whose answer is expected to tell the most about your order, given everything so far. They are shown in shuffled order, so a place on the screen cannot creep into the result.</li>
+      <li><strong>It stops when the order is 90% settled</strong> (the same stop rule as the pair ranker, including a second check for people whose answers are close calls), or whenever you like.</li>
+      <li><strong>Send the link to your team.</strong> It carries the list and the mode, so everyone answers best and worst of four. Paste their result codes to get the team order, how much people agree, and 90% rank ranges for the group and for the wider group it stands for.</li>
+      <li><strong>Pairs or screens, which is quicker for you?</strong> The page times each answer on your device (seconds only, and only while the page is in front). If some of your team answer in pairs and some in screens, the combine compares their real seconds per answer and says which would reach a settled order sooner.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Measured against plain pairs</h2>
+    <p>Simulated people with known true preferences ran the page's own loop twice: pairs ("which of these two?") and best-worst screens of four. Each screen is two taps, a pair is one. Mean over 48 people per row (12 at 30 options); "true order" is the Spearman correlation between the order shown when it stopped and the person's real order (1 is exact).</p>
+    <div class="scroll-x"><table>
+      <thead><tr><th>Options</th><th>Person</th><th class="num">Pairs: picks</th><th class="num">true order</th><th class="num">Screens: screens</th><th class="num">taps</th><th class="num">true order</th></tr></thead>
+      <tbody>
+        <tr><td>8</td><td>ordinary</td><td class="num">38</td><td class="num">0.96</td><td class="num">13</td><td class="num">26</td><td class="num">0.96</td></tr>
+        <tr><td>15</td><td>ordinary</td><td class="num">70</td><td class="num">0.93</td><td class="num">27</td><td class="num">54</td><td class="num">0.94</td></tr>
+        <tr><td>8</td><td>close calls</td><td class="num">46</td><td class="num">0.87</td><td class="num">21</td><td class="num">42</td><td class="num">0.90</td></tr>
+        <tr><td>15</td><td>close calls</td><td class="num">109</td><td class="num">0.86</td><td class="num">47</td><td class="num">94</td><td class="num">0.90</td></tr>
+        <tr><td>30</td><td>ordinary</td><td class="num">150</td><td class="num">0.93</td><td class="num">65</td><td class="num">130</td><td class="num">0.95</td></tr>
+        <tr><td>30</td><td>close calls</td><td class="num">228</td><td class="num">0.84</td><td class="num">102</td><td class="num">204</td><td class="num">0.87</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted">"Ordinary": true likes spread over 6 logits; "close calls": over 3. These people answer the way the model assumes. A second set answers off-model (each option seen with Gaussian noise, highest is best, lowest is worst, and noisier than the first set). Screens still took fewer taps for an order as good or better in 5 of those 6 cases (15 ordinary options: 66 taps against 87 picks). The exception was close calls at 30 options: screens took 250 taps against 202 picks, though the pairs stopped on orders much worse than they claimed (a true 0.68 where the stop claimed 0.90) and the screens on better ones (0.81). What is not measured: a screen of four takes longer to read than a pair of two, and how much longer needs real people. Full tables, method and the raw rows: <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/quick-pick-survey/docs/RANK-PAGE.md">RANK-PAGE.md, "Best and worst of four"</a>.</p>
+  </section>
+
+  <section>
+    <h2>Why the exact model matters</h2>
+    <p>A common shortcut scores a best-worst answer as the pairs it implies: best beats the other three, and the other two beat the worst, five "wins" from two taps. Those five are not independent, so counting them as five answers makes the tool more sure than it should be: narrower ranges, and a stop that fires early. Quick Pick scores each screen with the sequential best-worst model instead: the best is a choice among the four, the worst a choice of the lowest among the remaining three, on the same scale as a pair (a screen of two is exactly one pair). The test suite checks that one screen moves the order less, and leaves wider ranges, than its five implied pairs would.</p>
+  </section>
+
+  <section>
+    <h2>Compared with what you'd use today</h2>
+    <ul>
+      <li><strong>MaxDiff in a paid survey platform</strong>: built for panels of hundreds, with segments and dashboards, priced to match. Use one of those for a market study. This is for a person or a team deciding something, free.</li>
+      <li><strong>Rating each option 1 to 5</strong>: quick, but everything comes back a 4. Best and worst forces the trade-off.</li>
+      <li><strong><a href="rank.html">Plain pairs</a></strong>: simpler to answer, and the better choice on a small screen or for pictures that need a close look. Screens needed fewer taps in 11 of the 12 simulated cases.</li>
+    </ul>
+    <p class="muted">Lists to start from: <a href="use-feature-backlog.html">a feature backlog</a>, <a href="use-customer-pain-points.html">customer pain points</a>, <a href="use-personal-values.html">personal values</a>, <a href="ready-lists.html">all ready lists</a>. Weighing options on several criteria? <a href="decide.html">Weigh criteria by picking pairs</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>Disclaimer.</strong> A ranking inferred from a limited number of answers is a statistical estimate, not a fact. Don't use it as the sole basis for a hiring, financial, medical or relationship decision.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, financial, medical or professional advice. You are responsible for reviewing its output before relying on it. MIT licensed (<a href="LICENSE">licence</a>).</p>
+    <p>This page counts anonymous events in your browser's local storage: a view of the page and, if you click through, a start (nothing about you or your list; off with Do Not Track, Global Privacy Control, or the switch on the <a href="rank.html">ranker</a>).</p>
+    <p><a href="./">About Quick Pick</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the creator</a></p>
+  </footer>
+</main>
+<script type="module">
+  import { record } from "./usage.mjs";
+  record("maxdiff_page_viewed");
+  document.querySelector("a.cta").addEventListener("click", () => record("maxdiff_page_start"));
+</script>
+</body>
+</html>

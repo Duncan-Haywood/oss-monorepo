@@ -1,0 +1,13 @@
+hover 2 min at DL 150 N/m2 (10a values): 107 Wh of 1628
+A. 10a model (L/D 12 x eta_c 0.85 = 10.2): range 167 km (published 94; 75 at 6 kg)
+B. implied L/D x eta_c (and L/D at eta_c 0.85) from published range, 20% reserve, 90% usable
+   94 km: 5.7  (L/D 6.8)
+   75 km @ 6 kg: 4.6  (L/D 5.4)
+   sensitivity DL 50: 94 km -> 5.5
+   sensitivity DL 100: 94 km -> 5.6
+   sensitivity DL 200: 94 km -> 5.8
+C. non-energy fraction (operating weight less pack)/MTOW vs assumed installed pack Wh/kg
+   150 Wh/kg: pack 10.9 kg, f_non 0.366, payload frac 0.188 / 0.240
+   170 Wh/kg: pack 9.6 kg, f_non 0.417, payload frac 0.188 / 0.240
+   190 Wh/kg: pack 8.6 kg, f_non 0.457, payload frac 0.188 / 0.240
+   220 Wh/kg: pack 7.4 kg, f_non 0.504, payload frac 0.188 / 0.240

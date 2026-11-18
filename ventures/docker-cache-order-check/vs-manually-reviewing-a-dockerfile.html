@@ -29,6 +29,7 @@
 </style>
 </head>
 <body>
+<main>
 <p class="note"><a href="./">&larr; back to the checker</a></p>
 <h1>This checker vs. reviewing a Dockerfile by eye</h1>
 <p class="lede">The usual way to catch a cache-busting Dockerfile is to read it top to bottom during code review and notice anything that looks wrong. That works well for the textbook case &mdash; a five-line Dockerfile with <code>COPY . .</code> sitting right above <code>RUN npm ci</code>. It works much less well the moment catching the mistake requires tracking state across the whole file: which manifest was copied where, whether an install command ever got an isolated copy at all, or whether a later instruction silently depends on an earlier one several lines up.</p>
@@ -60,7 +61,7 @@
 <h3>Is anything I paste into either process uploaded?</h3>
 <p>There is nothing to upload either way — reviewing a file by eye involves no tool at all, and this checker runs entirely in your browser against the text you paste in. The CLI makes no network call either; it only reads files already on your own disk.</p>
 </section>
-
+</main>
 <footer>
 <p><strong>No warranty.</strong> This page and the linked checker are provided free and as-is, without warranty of any kind, express or implied. They are not engineering advice, and they do not replace actually building the image and measuring your cache hit rate. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
 <p><strong>This page names no specific product.</strong> "Reviewing a Dockerfile by eye" describes a manual habit every developer already has access to, not any company's product or service.</p>

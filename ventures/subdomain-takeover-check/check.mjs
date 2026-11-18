@@ -2,7 +2,7 @@
 // CLI: for each hostname given, follows its CNAME chain (real DNS, over
 // Cloudflare's public DNS-over-HTTPS resolver), and when the chain ends at a
 // known takeover-prone provider, sends one live GET request to the hostname
-// to check whether that provider's own "nothing is claimed at this name"
+// (over HTTPS, retried once over plain HTTP when HTTPS gets no response) to check whether that provider's own "nothing is claimed at this name"
 // page comes back. Your machine, real requests -- no request goes through
 // this portfolio.
 //
@@ -18,10 +18,11 @@
 
 import { resolveCnameChain } from './lookup.mjs';
 import { fetchHostname } from './probe.mjs';
-import { classify, buildReport } from './analyze.mjs';
-import { matchProvider } from './fingerprints.mjs';
+import { classify, buildReport, verdictFor, parseHostname } from './analyze.mjs';
+import { providerForChain } from './fingerprints.mjs';
+import { pathToFileURL } from 'node:url';
 
-function formatText(report) {
+export function formatText(report) {
   const lines = [];
   lines.push(`Hostnames checked: ${report.hostnamesChecked}`);
   lines.push('');
@@ -54,7 +55,7 @@ function formatText(report) {
   return lines.join('\n');
 }
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const hostnames = [];
   let json = false;
   let timeoutMs;
@@ -73,9 +74,11 @@ function parseArgs(argv) {
  * request that classify() cannot use either way. */
 export async function runCheck(hostnames, { resolveCnameChainFn = resolveCnameChain, fetchHostnameFn = fetchHostname, timeoutMs } = {}) {
   const results = await Promise.all(
-    hostnames.map(async (hostname) => {
+    hostnames.map(async (input) => {
+      const { hostname, error } = parseHostname(input);
+      if (error) return classify(String(input), { chain: [String(input)], finalTarget: null, truncated: false, error }, null);
       const cname = await resolveCnameChainFn(hostname, timeoutMs ? { timeoutMs } : undefined);
-      if (cname.error || !cname.finalTarget || !matchProvider(cname.finalTarget)) {
+      if (cname.error || !cname.finalTarget || !providerForChain(cname.chain)) {
         return classify(hostname, cname, null);
       }
       const probe = await fetchHostnameFn(hostname, timeoutMs ? { timeoutMs } : undefined);
@@ -85,7 +88,7 @@ export async function runCheck(hostnames, { resolveCnameChainFn = resolveCnameCh
   return buildReport(hostnames, results);
 }
 
-async function main() {
+export async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.hostnames.length === 0) {
     console.error('Usage: node check.mjs <hostname> [<hostname> ...] [--json] [--timeout <ms>]');
@@ -100,9 +103,9 @@ async function main() {
   } else {
     console.log(formatText(report));
   }
-  process.exit(report.ok ? 0 : 1);
+  process.exit(verdictFor(report).exitCode);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }

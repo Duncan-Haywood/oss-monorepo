@@ -1,0 +1,3 @@
+Status;Transaction date (UTC);Settlement date (UTC);Counterparty name;Amount (Total);Currency;Operation type;Note
+Executed;02-03-2026 10:15:00;03-03-2026;Notion Labs;-12,00;EUR;Card;
+Executed;05-03-2026 09:00:00;05-03-2026;ACME SARL;1500,00;EUR;Transfer;Invoice 42

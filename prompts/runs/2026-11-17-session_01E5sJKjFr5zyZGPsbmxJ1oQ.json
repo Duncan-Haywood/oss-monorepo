@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKjFr5zyZGPsbmxJ1oQ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T11:19:04Z",
+  "ended": "2026-11-17T11:24:05Z",
+  "wall_minutes": 5.39,
+  "tokens_in": 3746299,
+  "tokens_out": 19762,
+  "cost_usd": 1.8854,
+  "tool_calls": 42,
+  "task": "ids-model-check flagship buildable: audit rule for entity facets naming an abstract class",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16919",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "Post description first written at 192 chars; check_post_frontmatter caught it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Every Deepen row (1-8) had an open PR 0-5 h old from concurrent sessions; picking an unclaimed buildable item meant reading each open PR's file list. A per-item claim marker would save time."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace OLD must be the unfolded value; copying it from the YAML with line breaks fails (the error message says so, which helped)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Top flagship row (ai-bookkeeper) and rows 2-7 were mid-flight in other open PRs; took flagship 12's buildable abstract-class audit item, which no open PR touched (#16913 changes ci/editor, not audit.mjs).",
+      "did": "Built the class-abstract audit warning on ids-model-check.",
+      "result": "Landed with tests and a real-corpus measurement; no conflict with open PRs."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-an-ids-rule-that-can-never-apply.md",
+    "ventures/ids-model-check/eval/abstract-classes-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: node --test *.test.mjs in the venture 138 pass; eval/run-testcases.mjs 334/334 (strict 333/334, unchanged); eval/editor-roundtrip.mjs 203,433 specs 0 errors 0 warnings; eval/abstract-classes.mjs: 2 hits in 64 public IDS (RVB BIM Norm v1.1 x2), 0 in 954 buildingSMART/IDS-Audit-tool specs. venture-preflight: first run failed on the post's description length (fixed, 160 cap); rerun clean after moving the fetched IDS/corpus checkouts out of the venture.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a44b5781-f223-5d14-9d5e-6ee377b81ba2",
+    "transcripts": 1,
+    "first": "2026-11-17T11:19:04Z",
+    "last": "2026-11-17T11:24:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 79,
+        "output": 19762,
+        "thinking": 4135,
+        "cache_read": 3651267,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94953,
+        "api_equivalent_usd": 1.8854,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 79,
+      "output": 19762,
+      "thinking": 4135,
+      "cache_read": 3651267,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94953,
+      "api_equivalent_usd": 1.8854,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.39,
+      "active_minutes": 5.39,
+      "model_minutes": 3.87,
+      "tool_minutes": 1.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior BIM tooling dev: rule, tests, corpus measurement, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 318.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

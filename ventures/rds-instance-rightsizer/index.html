@@ -181,7 +181,7 @@ node cli.mjs analyze instances.csv --json</pre>
       els.estimate.textContent = report.analysed ? `A recommendation from metrics, not a bill. Prices are ${PRICES_AS_OF}. Metrics must be sampled over a representative period, including peaks; test any change first.` : "";
       els.reportCard.hidden = false;
       record("analyze_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

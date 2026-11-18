@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer, round 4, lane 8: integration captain
 
 Run of 2026-10-30, about 20:20 to 21:55 UTC. Eight lanes merged into `ventures/shed-designer` while CI runs on `main` were mostly cancelled by concurrency, so lanes merged on local checks. This lane swept `main` on a cycle, fixed the breaks forward, and kept the all-pairs matrix up with each new option.

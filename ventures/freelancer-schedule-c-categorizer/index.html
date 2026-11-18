@@ -36,7 +36,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -142,7 +142,7 @@
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeBank, parseRules, parseBusinessRules, analyze, reportCsv, summaryText, sampleCsv, money, CATEGORIES } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeBank, parseRules, parseBusinessRules, analyze, reportCsv, summaryText, sampleCsv, money, CATEGORIES, detectDecimalComma } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -150,12 +150,12 @@
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     let last = null;
     const num = (id, dflt) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : dflt; };
-    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(money(Math.abs(n)));
     $("#cat-names").textContent = Object.entries(CATEGORIES).filter(([k]) => k !== "uncategorised").map(([k]) => k).join(", ");
 
     function run(text) {
       const d = detectDelimiter(text);
-      const b = normalizeBank(parseCsv(text, d), { decimalComma: d === ";", invertSign: $("#invert").checked, dayFirst: $("#dayfirst").checked });
+      const b = normalizeBank(parseCsv(text, d), { decimalComma: detectDecimalComma(parseCsv(text, d), d), invertSign: $("#invert").checked, dayFirst: $("#dayfirst").checked });
       if (b.error) { status.textContent = b.error; report.hidden = true; return false; }
       const rules = parseRules($("#rules").value), props = parseBusinessRules($("#props").value);
       const a = analyze(b.txns, { userRules: rules.rules, businessRules: props.rules, safeHarbor: num("#safe", 2500), year: num("#year", NaN) });
@@ -163,7 +163,7 @@
       last = a;
       const t = a.totals;
       $("#report-stats").innerHTML = `${t.txns} transaction(s) from ${t.from} to ${t.to}, <strong>${t.categorisedPct}%</strong> categorised. Income <strong>${usd(t.income)}</strong>, expenses <strong>${usd(t.expenses)}</strong>, net <strong>${usd(t.net)}</strong> before depreciation.`;
-      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
       $("#by-business").innerHTML = a.businesses.map((p) => `<h4>${esc(p.business)}</h4><div class="scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Item</th><th class="n" scope="col">Amount</th></tr></thead><tbody><tr><td>1, 6</td><th scope="row">Gross receipts and other business income</th><td class="n">${money(p.income)}</td></tr>${p.lines.filter((l) => l.amount).map((l) => `<tr><td>${l.line}</td><th scope="row">${esc(l.label)}${l.spent !== null ? ` (of ${usd(l.spent)} spent)` : ""}</th><td class="n">${money(l.amount)}</td></tr>`).join("")}<tr><td></td><th scope="row">Total expenses</th><td class="n">${money(p.expenses)}</td></tr><tr><td></td><th scope="row">Net profit before home office, depreciation and self-employment tax</th><td class="n">${money(p.net)}</td></tr></tbody></table></div><p class="note">${[p.estTaxPaid ? `Estimated tax payments ${usd(p.estTaxPaid)} (not an expense).` : "", p.equipmentHeldOut ? `Equipment and big purchases ${usd(p.equipmentHeldOut)} held out (depreciate or elect to expense).` : "", p.healthInsurance ? `Health insurance ${usd(p.healthInsurance)} goes on Schedule 1.` : "", p.retirement ? `Retirement contributions ${usd(p.retirement)} go on Schedule 1.` : ""].filter(Boolean).join(" ")}</p>`).join("");
       $("#uncat").innerHTML = a.uncategorised.length ? a.uncategorised.map((r) => `<tr><td>${r.date}</td><td>${esc(r.desc)}</td><td class="n">${money(r.amount)}</td></tr>`).join("") : `<tr><td colspan="3">Every transaction was categorised.</td></tr>`;
       $("#capex").innerHTML = a.capexCandidates.length ? a.capexCandidates.map((r) => `<tr><td>${r.date}</td><td>${esc(r.desc)}</td><td class="n">${money(r.amount)}</td><td>${esc(r.flags.join("; "))}</td></tr>`).join("") : `<tr><td colspan="4">None.</td></tr>`;
@@ -174,7 +174,7 @@
       $("#summary").value = summaryText(a);
       report.hidden = false;
       status.textContent = `Read ${b.txns.length} transaction(s).`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

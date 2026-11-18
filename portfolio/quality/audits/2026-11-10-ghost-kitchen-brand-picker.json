@@ -1,0 +1,274 @@
+{
+  "date": "2026-11-10",
+  "subject": "ventures/ghost-kitchen-brand-picker",
+  "stratum": "venture",
+  "seed": "2026-11-10",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a restaurant operations consultant who runs delivery-only kitchens and costs menus and labour for multi-brand operators",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 3,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran analyze() on the 7-brand example and recomputed per-order profit (6.86), monthly profit (5,249.43) and break-even by hand; an independent Fraction brute-force in Python agreed with calc.mjs on 300 random instances for both the base case and the 0.7/1.3 volume cases (0 mismatches). Not 4: the labour model is simplified and a garbage packaging value is accepted silently.",
+    "completeness": "Every README feature was exercised through calc.mjs (14-brand cap, per-brand profit per order/hour/break-even, four greedy rules, 25/50/100% more hours, +-30% orders, CSV with dropped list). The browser UI was not driven by a real browser here, only its source and tests read.",
+    "verification": "node --test: 25 pass. Ten hand-seeded mutations on a scratch copy: 3 caught (labour divisor, break-even weeks, hours divisor), 6 survived (WEEKS_PER_MONTH=4, exact-fit boundary, margin rule, extra-hours gain, +30%->+20%, CSV minus guard), 1 equivalent. The tests check structure and invariants, not dollar values.",
+    "craft": "Read calc.mjs (10 KB), calc.test.mjs, page.test.mjs, usage.mjs and index.html render code. Clean pure functions, CSV formula-injection guard, caps on inputs. Defects: silent 0 for packaging/fixed, EPS tolerance in two places, a page test that depends on repo layout (fails when the folder is copied).",
+    "claims": "Disclaimer, no-warranty, privacy and 'Not decided' are on the page and README; the served page, llms.txt, sitemap.xml and canonical at marisstella.app are all correct after the build rewrite (curl). 'Every combination checked exactly' is backed by solve() and a 300-case independent match. No reviews or unbacked numbers.",
+    "fitness": "An operator can type 7 brands and get which to keep, why the rest are dropped, rule comparison and a CSV in one pass; the stated limits (independence, no cannibalisation) are on the page. They would still need to adjust labour by hand.",
+    "domain": "Compared with how operators cost labour and kitchen capacity: paying only for prep minutes and treating total prep minutes as the capacity limit ignores minimum staffing, overlapping cooking and platform fees on a tax-inclusive subtotal. Knapsack framing is sound and the 25-30% fee stack is realistic."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Smash burger brand profit per order at $18/h labour",
+      "method": "hand: 24*(1-.34-.27)=9.36, -1.00 packaging, -(5/60)*18=1.50",
+      "command": "node scratchpad/run.mjs (analyze(EXAMPLE_ITEMS))",
+      "expected": "6.86",
+      "observed": "6.86",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Smash burger monthly profit",
+      "method": "hand: 185*(52/12)*6.86-250",
+      "command": "same run",
+      "expected": "5249.43",
+      "observed": "5249.43",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Optimal set and profit for the 7-brand example at 30 kitchen hours",
+      "method": "Python Fraction brute force over all 128 subsets, written separately",
+      "command": "python3 -I ref.py (example case)",
+      "expected": "chosen Smash burger+Late-night cookies+Breakfast burritos, 9026.67",
+      "observed": "same set, 9026.666666666666 at 28.33 h",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Exact optimum on 300 random instances (1-9 brands)",
+      "method": "python3 -I scratchpad/ref.py: independent exact-Fraction brute force over all subsets, 300 random instances of 1-9 brands, compared with calc.mjs analyze()",
+      "command": "python3 -I scratchpad/ref.py",
+      "expected": "0 mismatches",
+      "observed": "mismatch 0 of 300",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Volume check (orders x0.7 and x1.3) optimum on the same 300 instances",
+      "method": "python3 -I scratchpad/ref.py: independent exact-Fraction brute force over all subsets, 300 random instances of 1-9 brands, compared with calc.mjs analyze() at scale 0.7 and 1.3",
+      "command": "python3 -I scratchpad/ref.py",
+      "expected": "0 mismatches",
+      "observed": "vol mismatch 0",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Break-even orders a week, Smash burger",
+      "method": "hand: 250/(6.86*52/12)",
+      "command": "same run",
+      "expected": "8.41",
+      "observed": "8.41",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Input parsing of '1,200', '$20', '30%'",
+      "method": "hand reading of num() and a run with those strings",
+      "command": "node scratchpad/run.mjs",
+      "expected": "orders 1200, aov 20, food 30",
+      "observed": "orders 1200, aov 20, food 30",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Blank/garbage packaging ('abc') is flagged",
+      "method": "expected behaviour for a money field: warn or reject",
+      "command": "analyze with packaging 'abc'",
+      "expected": "a warning",
+      "observed": "ok:true, packaging silently 0, no warning",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "All README features present: 14-brand cap, per-brand profit/hour/break-even, 4 rules, 25/50/100% more hours, +-30% orders, CSV",
+      "method": "read calc.mjs analyze() and toCsv(); ran each",
+      "command": "node scratchpad/run.mjs",
+      "expected": "each output present",
+      "observed": "each present; the page UI was not driven in a browser",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer, no-warranty, privacy and not-advice text on the page",
+      "method": "page.test.mjs plus grep of index.html footer",
+      "command": "grep -n 'No warranty' index.html",
+      "expected": "present",
+      "observed": "present (footer, README)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Served llms.txt, sitemap and canonical point at marisstella.app",
+      "method": "load the served page, per the README rule",
+      "command": "curl https://marisstella.app/ghost-kitchen-brand-picker/{llms.txt,sitemap.xml,}",
+      "expected": "absolute marisstella.app URLs",
+      "observed": "all three rewritten correctly",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Every combination checked exactly (up to 14 brands)'",
+      "method": "calc.mjs solve(): 2^n mask loop",
+      "command": "read calc.mjs:99-117",
+      "expected": "exhaustive loop",
+      "observed": "exhaustive loop; 300-case agreement with brute force",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite passes in place",
+      "method": "node --test (in ventures/ghost-kitchen-brand-picker; run on a scratch copy, so the first two mutation runs carried one baseline failure, test 19 'sibling page', which needs the repo layout and was excluded)",
+      "command": "cd ventures/ghost-kitchen-brand-picker && node --test",
+      "expected": "all pass",
+      "observed": "25 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "An operator can enter 7 brands and get the keep/drop list with reasons and a CSV",
+      "method": "walked the example through analyze() and toCsv()",
+      "command": "node scratchpad/run.mjs",
+      "expected": "plan, dropped list with reasons, CSV",
+      "observed": "3 kept, 4 dropped with reasons, CSV rows correct",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "Labour treated as cost of prep minutes only; kitchen capacity = sum of prep minutes",
+      "method": "compare with restaurant labour costing (staffed hours are paid whether or not busy; cooking overlaps)",
+      "command": "read calc.mjs:77,81",
+      "expected": "a staffed-hours or concurrency model",
+      "observed": "serial prep minutes at 100% utilisation; disclosed under 'Not decided' only as 'every hour interchangeable'",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:14",
+      "change": "WEEKS_PER_MONTH 52/12 -> 4",
+      "caught": false,
+      "test_cmd": "node --test",
+      "note": "every monthly figure 7.7% low; no test pins a monthly figure"
+    },
+    {
+      "where": "calc.mjs:110",
+      "change": "used > hours + EPS -> used >= hours + EPS",
+      "caught": false,
+      "test_cmd": "node --test",
+      "note": "a set that exactly fills the hours is wrongly rejected; no boundary test"
+    },
+    {
+      "where": "calc.mjs:143",
+      "change": "margin rule sort: ratio to aov -> absolute perOrder",
+      "caught": false,
+      "test_cmd": "node --test",
+      "note": "rule comparison table changes, untested"
+    },
+    {
+      "where": "calc.mjs:160",
+      "change": "extra hours add = hours*f -> hours*f*0.5",
+      "caught": false,
+      "test_cmd": "node --test",
+      "note": "only a >=0 monotonic check exists"
+    },
+    {
+      "where": "calc.mjs:164",
+      "change": "volume check 1.3 -> 1.2",
+      "caught": false,
+      "test_cmd": "node --test",
+      "note": "label says 30% but computes 20%; untested"
+    },
+    {
+      "where": "calc.mjs:178",
+      "change": "CSV formula guard drops the minus sign",
+      "caught": false,
+      "test_cmd": "node --test",
+      "note": "only '=' is tested"
+    },
+    {
+      "where": "calc.mjs:107",
+      "change": "allow loss-making brands (guard removed)",
+      "caught": false,
+      "test_cmd": "node --test",
+      "note": "equivalent in effect: a negative-profit brand never raises the maximum, so not counted against the tests"
+    },
+    {
+      "where": "calc.mjs:77",
+      "change": "labour per order /60 -> /100",
+      "caught": true,
+      "test_cmd": "node --test",
+      "note": "3 tests failed"
+    },
+    {
+      "where": "calc.mjs:83",
+      "change": "break-even uses 4 weeks, not 52/12",
+      "caught": true,
+      "test_cmd": "node --test",
+      "note": "break-even test failed"
+    },
+    {
+      "where": "calc.mjs:81",
+      "change": "hoursPerWeek /60 -> /50",
+      "caught": true,
+      "test_cmd": "node --test",
+      "note": "4 tests failed"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Core constants and outputs are unpinned: changing WEEKS_PER_MONTH to 4, the exact-fit hour boundary, the margin-rule sort, the extra-hours gain, the +30% scale and the CSV minus guard all leave 25 tests green (6 of 9 non-equivalent seeded bugs survived). No test compares a monthly dollar figure to a hand value.",
+      "where": "calc.test.mjs:1",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Labour is charged on prep minutes only and capacity is the sum of prep minutes at 100% utilisation. Staffed hours are paid regardless of load and a line cooks several orders at once, so absolute profits and the hour budget are optimistic; the page notes 'every hour interchangeable' but not this.",
+      "where": "calc.mjs:77",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Blank or non-numeric packaging and monthly cost silently become 0 with no warning, and a blank monthly cost shows break-even 0.",
+      "where": "calc.mjs:75",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Source sitemap.xml, robots.txt and canonical use relative './' URLs, but the build rewrites them and the served files are correct.",
+      "where": "sitemap.xml:3",
+      "category": "source-only",
+      "origin": "audit"
+    }
+  ],
+  "fix_prs": [],
+  "recommended_fixes": [
+    "Add tests pinning the example's monthly profit (9,026.67), 52/12 weeks, an exact-fit hours case and the 1.3 scale label.",
+    "Warn when packaging or monthly cost is non-numeric.",
+    "Add a labour-model note (staffed hours vs prep minutes) to 'Not decided'."
+  ],
+  "verdict": "Finished and arithmetically correct: the exact knapsack matches an independent brute force on 300 random cases and by-hand figures on the example. It does not meet the bar because verification is 2: 6 of 9 non-equivalent seeded bugs survive 25 passing tests, including a wrong weeks-per-month constant, and the labour/capacity model (domain 2) is simpler than an operator's real cost. Fixing the tests is a few lines."
+}

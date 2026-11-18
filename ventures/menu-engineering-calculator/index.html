@@ -14,7 +14,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1ec; }
     body { max-width: 1180px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 780px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.3rem); line-height: .99; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .99; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f6b47; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .68fr); gap: 18px; align-items: start; }
@@ -36,6 +36,17 @@
     .primary:hover { background: #175538; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
     .result { position: sticky; top: 15px; background: #16261e; color: #eaf3ed; border-color: #16261e; }
+    /* pf-result-column: on a wide window the result card owns the right-hand
+       column for every row, and the form, proposal and FAQ stack on the left.
+       The card is taller than the form, so as one grid cell it set its row's
+       height and, being sticky, slid down over whatever came next in its
+       column (the FAQ, or the full-width proposal). With a column of its own it
+       has room to travel, pf-site.js caps it at the window's height, and it
+       covers nothing. Phones keep the single column. */
+    @media (min-width: 901px) {
+      main.layout > :not(.result), main.layout > section:not(.result), main.layout > #proposalSection { grid-column: 1; }
+      main.layout > .result { grid-column: 2; grid-row: 1 / span 2; }
+    }
     .result a { color: inherit; }
     .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
     .hero-label { font-size: .84rem; opacity: .82; margin: 0; }
@@ -73,6 +84,7 @@
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
     }
   </style>
+<style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;min-width:0!important;overflow-x:auto}code{overflow-wrap:anywhere}pre{max-width:100%;overflow-x:auto}fieldset,section,form,div,main{min-width:0}input,select,textarea{max-width:100%}</style>
 </head>
 <body>
   <header>
@@ -251,7 +263,7 @@
 
   <script type="module">
     import { calculateMenu, MAX_ITEMS, CLASS_LABELS } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const el = id => document.getElementById(id);
     const money2 = (value) => {
@@ -441,7 +453,7 @@
     }
 
     function count(event) {
-      recordUsage(localStorage, el('usageOptOut').checked, event);
+      recordUsage(usageStorage(), el('usageOptOut').checked, event);
     }
 
     el('addRow').addEventListener('click', () => {
@@ -485,8 +497,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

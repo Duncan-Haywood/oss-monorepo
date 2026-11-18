@@ -10,6 +10,7 @@
   <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
 </head>
 <body>
+<main>
   <p><a href="./">← CI Minutes Pricing Calculator</a></p>
   <h1>How to choose a CI provider by build minutes</h1>
   <p>Put your build minutes per month and growth rate into the <a href="./">calculator</a> to price GitHub Actions, CircleCI, GitLab, Bitbucket Pipelines and Buildkite side by side. These are the questions to settle before you trust the answer.</p>
@@ -19,7 +20,9 @@
   <p>Minutes you do not use. Caching dependencies, cancelling superseded runs, path filters and right-sized runners usually cut a CI bill more than switching vendor. Also check concurrency limits and queue time: a cheap provider that makes developers wait costs more in salary than it saves.</p>
   <h2>When should I switch CI providers?</h2>
   <p>When the 12-month spend under your growth rate differs enough to pay for the migration, which means rewriting pipeline config, moving secrets and re-tuning caches. Run the calculator with your growth rate before deciding, and remember macOS and Windows minutes bill at multiples of Linux.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
     <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
   </footer>

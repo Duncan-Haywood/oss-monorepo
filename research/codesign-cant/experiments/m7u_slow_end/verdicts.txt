@@ -1,0 +1,11 @@
+U1 held: 24 of 24 lag39 designs pass the margin test at 39.1 ms (need >= 22)
+U2 held (4 of 4): L2-45 at 39.1 ms, lag39 vs lag36: 7l above 150 vs 198; 7l below 167 vs 195; aware above 72 vs 93; aware below 73 vs 117
+U3 held (4 of 4): L2-45 at 36 ms, lag39 vs 1.15 x lag36: 7l above 109 vs 149 (x0.73); 7l below 132 vs 161 (x0.82); aware above 61 vs 63 (x0.97); aware below 59 vs 82 (x0.72)
+U4 held (4 of 4): worst identified L2-45, lag39 vs lag36: 7l above 150 vs 198; 7l below 167 vs 195; aware above 72 vs 93; aware below 73 vs 117
+U5 held: certified under all three identified laws: lag39 24 of 24 (need >= 22), lag36 20 of 24 (need <= 21)
+U6 held: at 45 ms lag39 certified 15 of 24 (lag36 10); L2-45 lag39 vs lag36: 7l above 215 vs 248; 7l below 225 vs 251; aware above 149 vs 168; aware below 141 vs 190
+U7 held: aware lag39 vs 7l lag39 at 39.1 ms: above L2-45 72 vs 150, mass +8.6%; below L2-45 73 vs 167, mass +28.8%
+U8 refuted: mean position kp lag39 vs lag36: 7l above 23.15 vs 25.26; 7l below 24.99 vs 24.59; aware above 20.80 vs 23.69; aware below 21.97 vs 21.26
+check: 7t's designs at 36 ms and 39.1 ms reproduce 7t's L2-45 counts (36 ms: 149, 161, 63, 82; 39.1 ms: 198, 195, 93, 117): 149, 161, 63, 82; 198, 195, 93, 117
+context: mean mass / D lag39 vs lag36: 7l above 1.307 vs 1.240 kg, 0.137 vs 0.121 m; 7l below 1.053 vs 1.050 kg, 0.124 vs 0.124 m; aware above 1.420 vs 1.419 kg, 0.103 vs 0.117 m; aware below 1.356 vs 1.338 kg, 0.111 vs 0.111 m
+context: median J at lever 1, 45 deg under the 36 ms law, lag39 vs lag36: 7l above -2.41 vs -4.61; 7l below -2.23 vs -2.86; aware above -1.83 vs -1.98; aware below -1.67 vs -1.98

@@ -1,0 +1,113 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { findSlots, describeSlot } from "./slots.mjs";
+import { triage, draftReply, SAMPLE_OFFER } from "./engine.mjs";
+const T = "2026-10-21"; // Wednesday
+
+test("weekday and time", () => {
+  const [s] = findSlots("How about Tuesday at 2pm?", T);
+  assert.deepEqual([s.date, s.time, s.weekday], ["2026-10-27", "14:00", "tuesday"]);
+  assert.equal(describeSlot(s), "Tuesday 27 October at 2pm");
+});
+test("part of day, tomorrow, bare hour", () => {
+  assert.equal(findSlots("Friday morning works", T)[0].part, "morning");
+  assert.equal(findSlots("free tomorrow at 10:30", T)[0].date, "2026-10-22");
+  assert.equal(findSlots("let's do Thursday at 3", T)[0].time, "15:00");
+});
+test("month day rolls to next year when past", () => {
+  assert.equal(findSlots("Nov 12 at 10:30am", T)[0].date, "2026-11-12");
+  assert.equal(findSlots("Jan 5 at 4pm", T)[0].date, "2027-01-05");
+  assert.equal(findSlots("Feb 30", T).length, 0);
+});
+test("refused days and no time give nothing", () => {
+  assert.equal(findSlots("I can't do Tuesday", T).length, 0);
+  assert.equal(findSlots("Thanks, tell me more", T).length, 0);
+  assert.equal(findSlots("", T).length, 0);
+});
+test("draft confirms the offered time, asks zone, invents nothing", () => {
+  const body = "Yes, open to a call. How about Tuesday at 2pm or Wednesday morning?";
+  const t = triage({ body, subject: "Re: x" }, T);
+  assert.equal(t.category, "interested");
+  const d = draftReply(t, { first_name: "Dana" }, { subject: "Re: x", body }, SAMPLE_OFFER);
+  assert.match(d.body, /Tuesday 27 October at 2pm works for me/);
+  assert.match(d.body, /Wednesday 28 October morning/);
+  assert.match(d.body, /time zone/);
+});
+test("without a slot the old draft stands", () => {
+  const t = triage({ body: "Sounds interesting, please book a call.", subject: "" }, T);
+  const d = draftReply(t, { first_name: "Dana" }, { subject: "x", body: "" }, SAMPLE_OFFER);
+  assert.doesNotMatch(d.body, /time zone/);
+});
+test("next <weekday> takes the following week and is flagged", () => {
+  // T is Wednesday 2026-10-21: "next Friday" is ambiguous, read as the 30th; "next Tuesday" is the 27th either way
+  const [f] = findSlots("How about next Friday at 11?", T);
+  assert.deepEqual([f.date, f.time, f.ambiguous], ["2026-10-30", "11:00", true]);
+  assert.equal(findSlots("next Tuesday at 2pm", T)[0].date, "2026-10-27");
+  assert.equal(findSlots("Friday at 11", T)[0].date, "2026-10-23");
+  assert.equal(findSlots("Friday at 11", T)[0].ambiguous, false);
+});
+test("after 3 is a lower bound, not a time", () => {
+  const [s] = findSlots("Thursday after 3pm works", T);
+  assert.deepEqual([s.date, s.time, s.after], ["2026-10-22", null, "15:00"]);
+  assert.equal(describeSlot(s), "Thursday 22 October after 3pm");
+});
+test("an ambiguous 'next Friday' is named in the draft", () => {
+  const body = "Happy to talk, how about next Friday at 11?";
+  const t = triage({ body, subject: "" }, T);
+  const d = draftReply(t, { first_name: "Dana" }, { subject: "x", body }, SAMPLE_OFFER);
+  assert.match(d.body, /Friday 30 October at 11am works for me/);
+  assert.match(d.body, /I read "next Friday at 11" as Friday 30 October/);
+});
+
+test("day-first dates, noon and 'the 14th'", () => {
+  const f = (t) => findSlots(t, "2026-11-05").map((s) => [s.date, s.time]);
+  assert.deepEqual(f("Can we do 12 Nov at 10:30?"), [["2026-11-12", "10:30"]]);
+  assert.deepEqual(f("the 3rd of December works"), [["2026-12-03", null]]);
+  assert.deepEqual(f("How about noon on Thursday?"), [["2026-11-12", "12:00"]]);
+  assert.deepEqual(f("Let's talk on the 14th at 3pm"), [["2026-11-14", "15:00"]]);
+  assert.deepEqual(f("the 2nd"), [["2026-12-02", null]]);
+  assert.deepEqual(f("this afternoon is bad, 31 Feb no"), []);
+  assert.deepEqual(f("Nov 12 at 10:30"), [["2026-11-12", "10:30"]]);
+});
+
+test("'the day after tomorrow' is two days on", () => {
+  const f = (t) => findSlots(t, "2026-11-05").map((s) => [s.date, s.time, s.part]);
+  assert.deepEqual(f("Can we do the day after tomorrow at 3pm?"), [["2026-11-07", "15:00", null]]);
+  assert.deepEqual(f("day after tomorrow morning"), [["2026-11-07", null, "morning"]]);
+  assert.deepEqual(f("can't do the day after tomorrow"), []);
+});
+
+test("'today' needs a time or part of day; 'in N days' counts forward", () => {
+  const f = (t) => findSlots(t, "2026-11-05").map((s) => [s.date, s.time, s.part]);
+  assert.deepEqual(f("Free today at 4pm?"), [["2026-11-05", "16:00", null]]);
+  assert.deepEqual(f("later today afternoon works"), [["2026-11-05", null, "afternoon"]]);
+  assert.deepEqual(f("Thanks for reaching out today, will think"), []);
+  assert.deepEqual(f("can't do today at 4pm"), []);
+  assert.deepEqual(f("in 3 days at 10am"), [["2026-11-08", "10:00", null]]);
+  assert.deepEqual(f("in a week, morning"), [["2026-11-12", null, "morning"]]);
+  assert.deepEqual(f("in 30 days"), []);
+});
+
+test("numeric dates, time before the day, one slot for 'Monday the 9th at 2pm'", () => {
+  const t = "2026-11-05";
+  const one = (s) => { const r = findSlots(s, t); assert.equal(r.length, 1, s); return r[0]; };
+  assert.deepEqual([one("Friday 11/13 at 2").date, one("Friday 11/13 at 2").time], ["2026-11-13", "14:00"]);
+  assert.equal(one("Thursday 13/11").date, "2026-11-13");
+  assert.equal(one("Monday the 9th at 2pm").time, "14:00");
+  assert.deepEqual([one("at noon tomorrow").date, one("at noon tomorrow").time], ["2026-11-06", "12:00"]);
+  assert.equal(one("2pm Thursday").time, "14:00");
+  assert.deepEqual([one("Tue 10 Nov, 9am").date, one("Tue 10 Nov, 9am").time], ["2026-11-10", "09:00"]);
+  // 11/12 reads either way: no invented date
+  assert.equal(findSlots("11/12", t).length, 0);
+});
+
+test("four-digit times are never guessed; 'morning at 10am', 'Friday the 13th', '10am on the 12th' give one exact slot", () => {
+  const t = "2026-11-05";
+  const f = (s) => findSlots(s, t).map((x) => [x.date, x.time, x.part]);
+  // "1430" used to be read as 14:00, an invented time; now the day stands alone and the draft asks
+  assert.deepEqual(f("Friday at 1430"), [["2026-11-06", null, null]]);
+  assert.deepEqual(f("Friday 14:30"), [["2026-11-06", "14:30", null]]);
+  assert.deepEqual(f("tomorrow morning at 10am"), [["2026-11-06", "10:00", null]]);
+  assert.deepEqual(f("Friday the 13th at 2pm"), [["2026-11-13", "14:00", null]]);
+  assert.deepEqual(f("10am on the 12th"), [["2026-11-12", "10:00", null]]);
+});

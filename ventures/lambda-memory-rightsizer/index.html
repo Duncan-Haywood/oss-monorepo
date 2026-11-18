@@ -158,7 +158,7 @@ node cli.mjs analyze logs.txt --json --prices my-prices.json</pre>
       els.estimate.textContent = report.count ? `${PRICES_AS_OF}. Duration at another size is modelled from the CPU-bound share you set, not measured; confirm with a real test.` : "";
       els.reportCard.hidden = false;
       record("analyze_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

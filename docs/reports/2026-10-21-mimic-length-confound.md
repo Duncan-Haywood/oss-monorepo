@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-21
+tagged: auto
+---
 # Length confounds every detector score in track 11: brief for an agent reader
 
 **Date:** 2026-10-21. **Reader:** an agent extending `research/mimic-*`. **Data and code:** [`research/mimic-looptransfer/`](../../research/mimic-looptransfer/README.md).

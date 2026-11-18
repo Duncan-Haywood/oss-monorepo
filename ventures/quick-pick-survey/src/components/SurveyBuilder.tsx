@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import type { Coverage, RankedItem } from "@/lib/groupRanking";
+import type { AgreementSummary, Coverage, PaceSummary, RankedItem } from "@/lib/groupRanking";
+import { CHECKOUT_URL } from "@/lib/checkout";
+import { buyLink } from "@/lib/licence";
 
-type Ranking = { title: string; participants: number; ranking: RankedItem[]; coverage?: Coverage };
+type Ranking = { title: string; participants: number; ranking: RankedItem[]; coverage?: Coverage; agreement?: AgreementSummary; pace?: PaceSummary; leftOut?: { slotClickers: number; slotBlocks?: number; slotBlockAnswers?: number; fast?: number; fastAnswers?: number; advice: string } };
+type Drop = "" | "fast" | "fast-answers" | "fast-blocks";
 
 const INPUT =
   "rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-amber-500 dark:border-neutral-700 dark:bg-neutral-900";
@@ -23,6 +26,9 @@ export function SurveyBuilder() {
   const [created, setCreated] = useState<{ slug: string; url: string; items: number } | null>(null);
   const [result, setResult] = useState<Ranking | null>(null);
   const [resultError, setResultError] = useState<string | null>(null);
+  const [licenceKey, setLicenceKey] = useState("");
+  const [brandName, setBrandName] = useState("");
+  const buy = buyLink(CHECKOUT_URL); // null while the report is dark
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
@@ -50,16 +56,19 @@ export function SurveyBuilder() {
     setBusy(false);
   }
 
-  async function showRanking(slug: string) {
+  const [drop, setDrop] = useState<Drop>("");
+
+  async function showRanking(slug: string, without: Drop = "") {
     setResultError(null);
     try {
-      const res = await fetch(`/api/admin/surveys/${slug}/ranking`);
+      const res = await fetch(`/api/admin/surveys/${slug}/ranking${without ? `?drop=${without}` : ""}`);
       if (!res.ok) {
         setResult(null);
         setResultError("Couldn't load the ranking.");
         return;
       }
       setResult(await res.json());
+      setDrop(without);
     } catch {
       setResult(null);
       setResultError("Couldn't reach the server.");
@@ -81,11 +90,16 @@ export function SurveyBuilder() {
         <label className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
           Question order
           <select className={INPUT} value={pairSelector} onChange={(e) => setPairSelector(e.target.value)} aria-label="Question order">
-            <option value="">Server default</option>
+            <option value="">Server default (Sharper, unless the server sets one)</option>
             <option value="standard">Standard</option>
-            <option value="staged">Sharper after 120 answers (large option lists)</option>
+            <option value="staged">Sharper: most informative pairs, from the first answer</option>
           </select>
         </label>
+        <p className="text-xs text-neutral-600 dark:text-neutral-400">
+          Sharper puts each person&apos;s likely favourites against each other, so at about 8 answers per option
+          it can often name their single favourite; Standard spreads answers across the whole list and almost never
+          can, and says who it&apos;s between instead (measured on real people&apos;s rankings).
+        </p>
         <button type="submit" disabled={busy || !title.trim() || !items.trim()} className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-neutral-950 disabled:opacity-50">
           {busy ? "…" : "Create survey"}
         </button>
@@ -100,7 +114,35 @@ export function SurveyBuilder() {
           <span>Created with {created.items} options.</span>
           <code className="font-mono text-xs">{created.url}</code>
           <button type="button" onClick={() => showRanking(created.slug)} className="font-semibold underline underline-offset-2">Show ranking</button>
+          {result && (result.pace?.fast ?? 0) > 0 && (
+            <button type="button" aria-pressed={drop === "fast"} onClick={() => showRanking(created.slug, drop === "fast" ? "" : "fast")} className="font-semibold underline underline-offset-2">
+              {drop === "fast" ? "Rank everyone again" : "Rank without the fast answerers"}
+            </button>
+          )}
+          {result && (result.pace?.checked ?? 0) >= 5 && (
+            // Answers, not people: someone careless on only some picks keeps a normal typical time but not on those picks.
+            <button type="button" aria-pressed={drop === "fast-answers"} onClick={() => showRanking(created.slug, drop === "fast-answers" ? "" : "fast-answers")} className="font-semibold underline underline-offset-2">
+              {drop === "fast-answers" ? "Count every answer again" : "Rank without the fast answers"}
+            </button>
+          )}
+          {result && (result.pace?.checked ?? 0) >= 5 && (
+            // People who answered properly, then turned quick partway through: their later answers, read against everyone's time at that point.
+            <button type="button" aria-pressed={drop === "fast-blocks"} onClick={() => showRanking(created.slug, drop === "fast-blocks" ? "" : "fast-blocks")} className="font-semibold underline underline-offset-2">
+              {drop === "fast-blocks" ? "Count every answer again" : "Rank without answers after someone sped up"}
+            </button>
+          )}
           <a href={`/api/admin/surveys/${created.slug}/ranking?format=csv`} className="font-semibold underline underline-offset-2">↓ CSV</a>
+          {buy && (
+            <span className="flex flex-wrap items-center gap-2">
+              <input className={INPUT} placeholder="Your name for the report" value={brandName} onChange={(e) => setBrandName(e.target.value)} aria-label="Name on the branded report" />
+              <input className={INPUT} placeholder="Licence key" value={licenceKey} onChange={(e) => setLicenceKey(e.target.value)} aria-label="Licence key" />
+              <a
+                href={`/api/admin/surveys/${created.slug}/ranking?format=report&key=${encodeURIComponent(licenceKey)}&name=${encodeURIComponent(brandName)}`}
+                target="_blank" rel="noreferrer" className="font-semibold underline underline-offset-2"
+              >Branded report</a>
+              <a href={buy} target="_blank" rel="noreferrer" className="underline underline-offset-2">Buy a licence key</a>
+            </span>
+          )}
         </div>
       )}
       {resultError && <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">{resultError}</p>}
@@ -119,6 +161,21 @@ function RankingTable({ r }: { r: Ranking }) {
       {r.coverage?.advice && (
         <p role="note" className="mt-1 rounded bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950 dark:text-amber-200">
           {r.coverage.advice}
+        </p>
+      )}
+      {r.leftOut?.advice && (
+        <p role="note" className="mt-1 rounded bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950 dark:text-amber-200">
+          {r.leftOut.advice}
+        </p>
+      )}
+      {r.agreement?.advice && (
+        <p role="note" className="mt-1 rounded bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950 dark:text-amber-200">
+          {r.agreement.advice}
+        </p>
+      )}
+      {r.pace?.advice && (
+        <p role="note" className="mt-1 rounded bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950 dark:text-amber-200">
+          {r.pace.advice}
         </p>
       )}
       {none ? (

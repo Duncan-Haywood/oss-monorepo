@@ -15,6 +15,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, extname } from 'node:path';
 import { detectApiUsage, parseManifest, buildReport } from './scan.mjs';
+import { pathToFileURL } from 'node:url';
 
 const SOURCE_EXTENSIONS = new Set(['.js', '.mjs', '.cjs', '.ts', '.tsx', '.jsx']);
 const MANIFEST_NAME = 'manifest.json';
@@ -120,7 +121,7 @@ function formatText(result) {
   lines.push('');
 
   for (const perm of report.permissions) {
-    const marker = { 'declared-and-detected': 'OK', 'declared-unused': 'X', 'detected-undeclared': '!' }[perm.status] ?? '?';
+    const marker = { 'declared-and-detected': 'OK', 'declared-unused': 'X', 'detected-undeclared': '!', 'detected-no-permission-needed': 'i' }[perm.status] ?? '?';
     const optNote = perm.optionalOnly ? ' (optional_permissions)' : '';
     lines.push(`[${marker}] ${perm.label} (${perm.id})${optNote} -- ${perm.status}`);
     if (perm.detectedCount > 0) {
@@ -128,7 +129,10 @@ function formatText(result) {
       for (const ex of perm.examples.slice(0, 3)) lines.push(`      ${ex.path}:${ex.line}  ${ex.snippet}`);
     }
     if (perm.status === 'declared-unused' && !perm.optionalOnly) {
-      lines.push('    Declared in permissions[] but no matching chrome.* call was found -- this is the #1 reason Chrome Web Store review flags a submission ("Purple Potassium"). Remove it, or move it to optional_permissions if it is only sometimes needed.');
+      lines.push('    Declared in permissions[] but no matching chrome.* call was found -- this is what Chrome Web Store review flags as excessive permissions ("Purple Potassium"). Remove it, or move it to optional_permissions if it is only sometimes needed.');
+    }
+    if (perm.status === 'detected-no-permission-needed') {
+      lines.push(`    Used without the permission, which is fine for most calls: ${perm.note}`);
     }
     if (perm.status === 'detected-undeclared') {
       lines.push('    Used in source but not declared anywhere in the manifest -- this will fail at runtime, not just at review.');
@@ -199,6 +203,6 @@ function main() {
   process.exit(result.report.ok ? 0 : 1);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }

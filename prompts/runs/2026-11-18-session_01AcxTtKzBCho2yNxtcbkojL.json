@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtKzBCho2yNxtcbkojL",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T04:06:33Z",
+  "ended": "2026-11-18T04:22:49Z",
+  "wall_minutes": 67.73,
+  "tokens_in": 7829526,
+  "tokens_out": 38801,
+  "cost_usd": 3.4766,
+  "tool_calls": 66,
+  "task": "research/verified-dse milestone 145: blind test at ff_n40C_1v95 of milestone 144's post-hoc reading that the clipped ladder loses on add-chain shift amounts",
+  "projects": [
+    "research/verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17172",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "the session's worker process restarted at 2,259 of 2,400 flow points and killed the background flow",
+      "fix": "run.py --resume ran the remaining 141 points; the table was intact"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/README.md",
+      "issue": "the Reproduce section says Yosys 0.70 from the nixpkgs cache, but nixpkgs-unstable now builds Yosys 0.71 and no nixpkgs revision is pinned anywhere in the project, so the tool version silently changed between milestones 144 and 145"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "a long foreground wait_for call (540 s) was killed with exit 137 when the worker restarted; the guidance on long commands does not mention that a worker restart also kills nohup'd background flows, so --resume support in every flow script is what saved the run"
+    },
+    {
+      "file": "research/verified-dse/tests/test_ladder_confirm*.py",
+      "issue": "test_designs_are_unseen had been failing since milestone 141 (its reruns of the blind designs count as 'seen'); research CI evidently does not run the project's full pytest suite, so four milestones merged with a red test"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-verified-dse-add-chains-at-ff.md",
+    "research/verified-dse/LOG.md (milestone 145)",
+    "research/verified-dse/PAPER.md (milestone 145 paragraph)"
+  ],
+  "goal": "advance the verified-dse programme by one pre-registered blind milestone",
+  "notes": "Flow: 20 fresh 128-bit designs (10 add-chain, 10 control) x 120 ABC sequences at ff_n40C_1v95, OpenROAD 26Q3 + Yosys 0.71, about 70 min on 4 cores. Predictions committed in 3b6e2c8f3 before any point. Four of seven held; the primary (Fisher, losses ADD 3/10 vs CTRL 0/10, p = 0.105) was refuted; the mean-edge difference held (+7.26 points, permutation p = 0.026), as did the mechanism (median r2-vs-routed tau-b 0.27 vs 0.47). A post-hoc confound section (labelled) shows the groups do not overlap in mapped delay. Local checks: tests/test_addchain_ff.py 4 passed; research/_homepage/build.py ok; check_md_links ok; check_posts ok; research_live_links no change. Full verified-dse suite: 2 pre-existing failures (test_ladder_confirm*.py::test_designs_are_unseen, failing since milestone 141 because milestones 141 to 144 rerun those blind designs at other operating points) fixed by excluding those rerun tables; then all pass (198 passed, 1 skipped, plus the 8 in the two fixed files).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "977dc30b-5d43-5b46-af69-dd7ca192390a",
+    "transcripts": 1,
+    "first": "2026-11-18T04:06:33Z",
+    "last": "2026-11-18T05:14:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 116,
+        "output": 38801,
+        "thinking": 9924,
+        "cache_read": 7683990,
+        "cache_write_5m": 0,
+        "cache_write_1h": 145420,
+        "api_equivalent_usd": 3.4766,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 116,
+      "output": 38801,
+      "thinking": 9924,
+      "cache_read": 7683990,
+      "cache_write_5m": 0,
+      "cache_write_1h": 145420,
+      "api_equivalent_usd": 3.4766,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 59,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 67.73,
+      "active_minutes": 67.41,
+      "model_minutes": 7.75,
+      "tool_minutes": 59.66,
+      "waiting_on_human_minutes": 0.32,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "design 20 parametrised RTL variants, pre-register, run and analyse a 2,400-point EDA sweep, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 287.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

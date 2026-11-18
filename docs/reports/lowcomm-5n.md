@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [lowcomm-training]
+tagged: auto
+---
 # lowcomm-training 5n (2026-10-28)
 
 Coordinated attack at k = 8 and 9 of M = 16 diverges on seeds 0 and 1

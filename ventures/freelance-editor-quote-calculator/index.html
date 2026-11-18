@@ -48,7 +48,7 @@
 <body>
   <header>
     <p class="note">FREELANCE EDITOR QUOTE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
-    <h1>Quote an editing job: flat fee, per-word rate, and what happens if the manuscript is slower than you thought</h1>
+    <h1>Quote an editing job: flat fee, per-word rate and what a slow manuscript costs you</h1>
     <p>Enter the word count, the level of edit and the hourly rate you need. You get the flat fee, the per-word and per-page equivalents clients compare, the working days the job needs, a rush surcharge, and what your fee pays per hour if you edit <strong>slower than planned</strong>.</p>
     <p class="note">Paces are in words per hour and you can change them. It works backwards from the income you want; it does not know market rates.</p>
   </header>
@@ -151,7 +151,7 @@
       $("#rows").innerHTML = r.sweep.map((x) => `<tr><td>${esc(x.label)}</td><td class="n">${x.pace}</td><td class="n">${x.hours.toFixed(1)}</td><td class="n">${dollars(x.fee)}</td><td class="n">${dollars(x.perWord)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

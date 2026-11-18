@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtLJYm8SkjQBdHpMUZw",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T17:06:42Z",
+  "ended": "2026-11-13T17:18:30Z",
+  "wall_minutes": 12.06,
+  "tokens_in": 3896162,
+  "tokens_out": 20959,
+  "cost_usd": 1.8593,
+  "tool_calls": 51,
+  "task": "perf: quick-pick-survey pairMix simulation on worker threads (item 1 of ci-perf-2026-11-13-qps-cell-workers.md)",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15558",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First baseline run used /usr/bin/time, which this container lacks (exit 127); reran with bash `time`."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "'Where to look' item 3 lists venture test suites, but nothing records which venture suites were already worked today; I had to grep docs/history to find that the qps simulation suite had a same-day predecessor."
+    },
+    {
+      "file": "docs/history/ci-perf-2026-11-13-qps-cell-workers.md",
+      "issue": "Its absolute times (127 s / 66 s, 230 s user) don't carry over: this container needed about 350 s of user time for the same suite. Perf docs should tell readers to compare within a run, not across docs (this run's doc says so)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-when-more-threads-stop-helping.md",
+    "docs/history/ci-perf-2026-11-13-qps-pairmix-workers.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of `npx vitest run --config vitest.simulations.config.ts` in ventures/quick-pick-survey (bash `time`, 4 cores, node 22.23.4). Before: 104.9 s and 99.6 s (user 346.6 s and 356.9 s). After: 93.8 s and 94.9 s (user 355.2 s and 359.4 s). About 8%, and the suite is now CPU-bound (user/4 is about 89 s). MEASURE lines byte-identical (sorted sha256 5a1e4e33...187da2). Parity test pairMix.test.ts catches the seed+1 and selector-swap mutations. tsc 0, eslint 0, test:fast 482/482, simulations 55/55. Pool reading: ci_profile --runs 300, 2026-11-13 16:48Z to 17:07Z, 277 jobs, 257.3 job-minutes, checkout 71.6. P063 and P064 are still owner-gated. CI: the Simulation tests step on the PR took 124 s, the same as the one pre-change run in the window. That is one sample each, so no CI saving is shown yet.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "414a5656-973e-562d-815a-5af9cc7f0af7",
+    "transcripts": 1,
+    "first": "2026-11-13T17:06:42Z",
+    "last": "2026-11-13T17:18:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 92,
+        "output": 20959,
+        "thinking": 3290,
+        "cache_read": 3811390,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84680,
+        "api_equivalent_usd": 1.8593,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 92,
+      "output": 20959,
+      "thinking": 3290,
+      "cache_read": 3811390,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84680,
+      "api_equivalent_usd": 1.8593,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.06,
+      "active_minutes": 12.06,
+      "model_minutes": 4.4,
+      "tool_minutes": 7.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile suite, refactor into worker module, parity test with mutations, before/after runs, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 161.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

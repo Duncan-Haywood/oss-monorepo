@@ -1,0 +1,41 @@
+# igmp settings for the cloud worker (`igmp worker`). Copy to config.toml, edit, and mount it at
+# /config/config.toml (the image sets IGMP_CONFIG to that path). No secrets go in this file:
+# AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY (the bucket) and ANTHROPIC_API_KEY come from the
+# environment.
+
+# The worker mirrors the bucket's library/ into worker_library_dir and scans those folders; what is
+# listed here is only used until the first mirror has run.
+library_roots = ["/data/library"]
+output_dir = "/data/out"            # finished photos/, reels/, carousels/, ready/ (pushed to outputs/)
+state_dir = "/data/state"           # the database, previews, caches (snapshotted to state/igmp.sqlite)
+worker_library_dir = "/data/library"
+
+# The worker only runs on the API (billed per token, batches at half price). The claude-code
+# backend uses a personal Claude plan and is refused here unless worker_allow_plan = true.
+backend = "api"
+model = "claude-opus-5-5"
+parallel = 4
+
+# Tools inside the image (Debian packages)
+rawtherapee_cli = "rawtherapee-cli"
+ffmpeg = "ffmpeg"
+ffprobe = "ffprobe"
+exiftool = "exiftool"
+
+# Music: "none" exports silent reels (add a sound in the Instagram app). With "auto", put licensed
+# tracks and their .license.json records in music_dir (on the /data volume).
+music = "none"
+# music_dir = "/data/music"
+
+# --- the bucket (docs/CLOUD.md) -------------------------------------------------------------------
+cloud_url = "s3://igmp-media"                                   # your bucket's name
+cloud_endpoint = "https://<account-id>.r2.cloudflarestorage.com" # S3-compatible endpoint (R2 shown)
+cloud_region = "auto"                                            # "auto" for R2; the region for S3/B2
+# cloud_prefix = ""                                              # a key prefix inside the bucket
+
+# --- the worker -----------------------------------------------------------------------------------
+worker_interval_s = 600             # seconds between cycles
+worker_tokens_per_day = 2000000     # hard cap: input + output + cache-write tokens per UTC day
+# worker_task_tokens = 12000        # per-task estimate used to trim batches (default: running average)
+# worker_lease_s = 1800             # how long a lease lasts without renewal (at least 2 x the interval)
+# worker_allow_plan = false

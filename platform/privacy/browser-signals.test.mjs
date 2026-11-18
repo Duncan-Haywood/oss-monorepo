@@ -9,7 +9,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
-import { checkModule, findUsageModules } from "./browser-signals.mjs";
+import { checkModule, findUsageModules, eventNamesFrom } from "./browser-signals.mjs";
 
 const REPO_ROOT = new URL("../../", import.meta.url).pathname;
 
@@ -161,6 +161,18 @@ test("discovery skips build output, so the count does not depend on who has buil
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
+test("discovery skips build output even when it is the only untracked file", () => {
+  // Red team 2026-11-14: \`if (paths.length === 0)\` mutated to \`=== 1\` went
+  // green, because the test above always hands check-ignore two untracked
+  // paths. A lone built copy must still be dropped.
+  const root = mkdtempSync(join(REPO_ROOT, "ventures", "discovery-lone-"));
+  try {
+    mkdirSync(join(root, "dist"), { recursive: true });
+    writeFileSync(join(root, "dist", "usage.mjs"), HONOURING);
+    assert.deepEqual(findUsageModules(root), []);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
 test("discovery outside the repository keeps everything, including a dist", () => {
   // The fixtures above live in a tmpdir, where `git check-ignore` cannot
   // answer. Keeping every path is the right failure: a checker that quietly
@@ -171,6 +183,23 @@ test("discovery outside the repository keeps everything, including a dist", () =
     mkdirSync(join(root, "dist"), { recursive: true });
     writeFileSync(join(root, "dist", "usage.mjs"), HONOURING);
     assert.deepEqual(findUsageModules(root), [join(root, "dist", "usage.mjs")]);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("discovery skips node_modules and dot-directories, each on its own", () => {
+  // Outside a repository git cannot filter anything (test above), so the
+  // name-based skip is the only thing keeping a dependency's or a cache's
+  // usage.mjs out of the catalogue. Each skip is checked alone: an `||`
+  // turned into `&&` keeps neither, and a test with only one kind of
+  // directory would not notice which half was lost (redteam 2026-11-12).
+  const root = mkdtempSync(join(tmpdir(), "discovery-skip-"));
+  try {
+    writeFileSync(join(root, "usage.mjs"), HONOURING);
+    mkdirSync(join(root, "node_modules", "dep"), { recursive: true });
+    writeFileSync(join(root, "node_modules", "dep", "usage.mjs"), HONOURING);
+    mkdirSync(join(root, ".cache"), { recursive: true });
+    writeFileSync(join(root, ".cache", "usage.mjs"), HONOURING);
+    assert.deepEqual(findUsageModules(root), [join(root, "usage.mjs")]);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
@@ -239,4 +268,39 @@ test("cli: importing the module does not run the scan", () => {
   const r = spawnSync(process.execPath, ["--input-type=module", "-e", `await import(${JSON.stringify(url)}); console.log("imported");`], { encoding: "utf8" });
   assert.equal(r.stdout, "imported\n");
   assert.equal(r.status, 0);
+});
+
+test("eventNamesFrom caps the probe list at 24 names, the default first", () => {
+  const names = Array.from({ length: 40 }, (_, i) => `evt_name${i}`);
+  const f = fixture(names.map((n) => `export const ${n} = "${n}";`).join("\n"));
+  try {
+    const got = eventNamesFrom(f.path);
+    assert.equal(got.length, 24);
+    assert.equal(got[0], "checked");
+  } finally { f.cleanup(); }
+});
+
+test("a recorder that only counts when called as (event, true) is still driven", async () => {
+  const f = fixture(`
+let n = 0;
+export function recordEvent(event, flag) { if (flag === true) globalThis.localStorage?.setItem("k", String(++n)); }
+`);
+  try {
+    // Control run must see a write: the (event, true) shape is the only one that triggers it.
+    const result = await checkModule(f.path);
+    assert.notEqual(result.status, "undrivable");
+  } finally { f.cleanup(); }
+});
+
+test("a factory that returns null is skipped, and the module's plain recorder still decides", async () => {
+  // Red team 2026-11-14: \`made && typeof made === "object"\` mutated to \`||\`
+  // went green; with it, typeof null === "object" sends null into
+  // Object.entries and the whole module reads as an error.
+  const { path, cleanup } = fixture(`
+    export function createUsage() { return null; }
+    ${HONOURING}
+  `);
+  try {
+    assert.equal((await checkModule(path)).status, "pass");
+  } finally { cleanup(); }
 });

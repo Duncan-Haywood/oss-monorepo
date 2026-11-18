@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [llm-coding-inference]
+tagged: auto
+---
 # llm-coding-inference milestone 6ab (2026-10-28)
 
 - Done: real Qwen2.5-1.5B zero-shot scores for the whole GoEmotions test part, fear and sadness, cached in `experiments/gollm_*.tsv` (resumable; `llm_code_goemotions.py`), and the comparison `h6ab_llm_goemotions.py`. Savings from a real LLM coder at a rare category: 6 to 12% of the 0.5-point audit; H3's 3x not met.

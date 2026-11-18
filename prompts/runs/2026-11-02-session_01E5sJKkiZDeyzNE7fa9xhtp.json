@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01E5sJKkiZDeyzNE7fa9xhtp",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T01:28:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12458",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/aerolog-scaling/experiments/gust_response/run.py",
+      "issue": "No dependency list; pip installed aerosandbox under /usr/bin/python3 while the default python3 is /usr/local/bin, costing several minutes."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-02-a-small-model-in-rough-air.md",
+    "research/aerolog-scaling/LOG.md (9s)"
+  ],
+  "goal": null,
+  "notes": "Milestone 9s Dryden turbulence. Thrust-law step blocked: UIUC host 403. paper/check_numbers.py all ok; research homepage build ok.",
+  "corrections": [],
+  "redteam": null
+}

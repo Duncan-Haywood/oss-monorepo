@@ -1,0 +1,15 @@
+10a base non-energy fraction fs + fp = 0.402
+
+A. One-way range (km) at 15% payload, vs cell Wh/kg (installed = x0.63) and f_non
+f_non |   250   300   400   500
+0.402 |   204   248   336   424
+0.480 |   166   202   275   348
+0.550 |   131   161   220   279
+0.620 |    97   120   165   210
+
+B. Cell Wh/kg needed for 100, 200, 300 km
+f_non | 100km 200km 300km
+0.402 |   132   246   359
+0.480 |   160   298   435
+0.550 |   197   367   536
+0.620 |   257   478   700

@@ -22,7 +22,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eef3f8; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 740px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0b6e8a; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .78fr); gap: 18px; align-items: start; }
@@ -319,13 +319,14 @@
     <p><strong>No warranty.</strong> This free tool is not electrical, engineering, code, legal, tax, or financial advice, and it does not tell you what to charge or whether a panel is safe. It is not a permit load calculation and it does not determine NEC or local-code compliance. Verify every figure against your own takeoff, the nameplate, the adopted code, and a licensed electrician before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose to put in the address bar, and it is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include the house, wages, costs, or prices.</p>
     <p>Pricing the service upgrade that charger may need on its own? The <a href="../electrical-panel-upgrade-bid-calculator/">electrical panel upgrade bid calculator</a> works out a 100A-to-200A panel or service change from feeder, circuits, and AFCI/GFCI &mdash; nothing uploaded.</p>
+    <p>Customer told they need a bigger service first? The <a href="../service-load-check/">service load check</a> runs the NEC 220.83 calculation and the 220.87 measured-demand check from their Green Button meter data, to see whether the existing service already has room &mdash; nothing uploaded.</p>
     <p>Buying the vans that need those chargers? The <a href="../fleet-ev-vs-diesel-tco-calculator/">fleet EV vs diesel TCO calculator</a> compares a small fleet's electric and gas or diesel costs year by year &mdash; nothing uploaded.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { calculateBid, defaultInputs, PANEL_WORK, LOCATION_PRESETS } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
     } from './proposal.mjs';
@@ -365,7 +366,7 @@
     }
 
     function count(event) {
-      recordUsage(localStorage, el('usageOptOut').checked, event);
+      recordUsage(usageStorage(), el('usageOptOut').checked, event);
     }
 
     function persistDraft() {
@@ -609,8 +610,15 @@
       + 'browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no '
       + 'warranty. It is not an electrical, building-code, utility-service, or load-calculation determination.';
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) {
         if (saved[field]) el(field).value = saved[field];
       }
@@ -666,7 +674,7 @@
     function showProposal() {
       const result = calculateBid(readInputs());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -713,7 +721,7 @@
       }
       el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
       count('proposal_printed');
-      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el('proposalDoc').scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
       // This page prints two sheets, so the stylesheet is told which one is
       // going out. Cleared on `afterprint` below.
       document.body.classList.add('printing-proposal');
@@ -738,7 +746,7 @@
     document.addEventListener('change', refreshProposal);
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) el(field).value = '';
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';
@@ -757,8 +765,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

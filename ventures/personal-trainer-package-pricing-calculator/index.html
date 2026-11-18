@@ -37,7 +37,7 @@
     .negative { color: #9a3412; }
     .finding { border-bottom: 1px solid #e7f0eb; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -47,6 +47,15 @@
     footer { margin-top: 28px; border-top: 1px solid #d6e6dd; padding-top: 16px; }
     [data-venue-field] { display: none; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 520px) { div.grid:has(#venue-model) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 438px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -58,7 +67,8 @@
     your gym or studio charges a <strong>flat per-session fee</strong> rather
     than a percentage cut, that fee does not shrink with your discount, so it
     takes a bigger bite out of a discounted package session than a full-price
-    one. This calculator compares your package to plain pay-per-session
+    one.</p>
+<p>This calculator compares your package to plain pay-per-session
     pricing on net take-home pay per hour, after your venue's cut, so you know
     which one you are actually choosing.</p>
     <p class="note">Nothing is uploaded. Your numbers are read in this
@@ -183,7 +193,7 @@
     const $ = (sel) => document.querySelector(sel);
 
     function money(n) {
-      const format = (v) => `$${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const format = (v) => `$${Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const value = Number(n) || 0;
       const text = format(Math.abs(value));
       return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
@@ -196,7 +206,7 @@
       }
       container.innerHTML = findings.map((f) => `
         <div class="finding">
-          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <h3><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h3>
           <p>${f.detail}</p>
         </div>`).join("");
     }
@@ -261,7 +271,7 @@
       els.report.hidden = false;
       els.status.textContent = "";
       record("comparison_calculated");
-      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calculate").addEventListener("click", () => {

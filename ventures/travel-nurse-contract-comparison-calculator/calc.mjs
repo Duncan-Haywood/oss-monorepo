@@ -15,7 +15,7 @@ export function money(n) {
 
 export function signedMoney(n) {
   const r = Math.round(n);
-  return (r < 0 ? "-$" : "+$") + money(r);
+  return ((t) => (r < 0 && /[1-9∞]/.test(t) ? "-$" : "+$") + t)(money(r));
 }
 
 function num(v) {

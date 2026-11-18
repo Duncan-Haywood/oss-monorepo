@@ -1,0 +1,3 @@
+1947Q1-2026Q2: n=318, best split 1973Q1, W 5.8 (bar 11), growth 2.82 to 1.79 % a year, reported: no
+1947Q1-2000Q4: n=216, best split 1973Q1, W 5.1 (bar 11), growth 2.82 to 1.66 % a year, reported: no
+1947Q1-1990Q4: n=176, best split 1973Q1, W 6.5 (bar 11), growth 2.82 to 1.27 % a year, reported: no

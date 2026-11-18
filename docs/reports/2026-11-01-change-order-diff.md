@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [wall-framing-takeoff]
+date: 2026-11-01
+tagged: auto
+---
 # Change-order diff for wall-framing-takeoff (2026-11-01)
 
 Added `ventures/wall-framing-takeoff/compare.mjs` (`budgetDiff`, `diffText`) and CLI `--compare=revised.json`.

@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqybr5jxp9X9CWS2S9RQ",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T16:38:07Z",
+  "ended": "2026-11-14T16:43:28Z",
+  "wall_minutes": 5.49,
+  "tokens_in": 4332269,
+  "tokens_out": 18608,
+  "cost_usd": 1.8524,
+  "tool_calls": 56,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15912",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First edit script chained after `git checkout -b` for a branch that already existed, so it silently didn't run; re-applied."
+  ],
+  "integrity_issues": [
+    "research/_homepage/template.html claimed '0 runtime dependencies'; 462 of 1,080 projects import third-party packages. Replaced with a build-time count (618 stdlib-only)."
+  ],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-14-footer-link-contrast.md",
+      "issue": "Its 'still weakest' item 3 (blog meta row) had already landed in #15905; the next-steps lists aren't pruned when an item lands, so each polish run re-checks them."
+    },
+    {
+      "file": "docs/reports/polish-2026-11-14-research-entities.md",
+      "issue": "Item 2 (product-side entity sweep) came up clean apart from blog pages, which open PR #15910 already covers."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-zero-dependencies-was-618.md",
+    "docs/reports/polish-2026-11-14-research-deps.md"
+  ],
+  "goal": null,
+  "notes": "Local verification: research build ok; test_research_homepage_publish.py 6 OK (new test FAILs on old builder); writing.test.mjs 39/39; check_post_frontmatter ok; check_md_links ok. Full build.mjs at 77d5d1d50 took ~4 min.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fa80ccdd-61a4-5eed-8005-b8bbe5f897c9",
+    "transcripts": 1,
+    "first": "2026-11-14T16:38:07Z",
+    "last": "2026-11-14T16:43:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 101,
+        "output": 18608,
+        "thinking": 2953,
+        "cache_read": 4253531,
+        "cache_write_5m": 0,
+        "cache_write_1h": 78637,
+        "api_equivalent_usd": 1.8524,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 101,
+      "output": 18608,
+      "thinking": 2953,
+      "cache_read": 4253531,
+      "cache_write_5m": 0,
+      "cache_write_1h": 78637,
+      "api_equivalent_usd": 1.8524,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 48,
+      "Read": 5,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.49,
+      "active_minutes": 5.49,
+      "model_minutes": 3.25,
+      "tool_minutes": 2.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "survey, measure imports, builder change, test, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 108.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

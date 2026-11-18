@@ -10,7 +10,12 @@ const table = [
   { upTo: 72, header: "2x10", plies: 2 },
   { upTo: 96, header: "2x12", plies: 3 },
 ];
-const planWith = (extra = {}) => ({ ...samplePlan(), headerTable: table, ...extra });
+// The sample's tees sit where these tests put windows; a tee inside an opening is refused, so clear them.
+const planWith = (extra = {}) => {
+  const p = { ...samplePlan(), headerTable: table, ...extra };
+  p.walls.forEach((w) => { w.tees = []; });
+  return p;
+};
 
 test("auto openings take the first row whose span covers the width", () => {
   const plan = planWith();
@@ -102,4 +107,21 @@ test("a bad per-wall table is reported with its wall", () => {
   const r = resolveHeaders(plan);
   assert.equal(r.ok, false);
   assert.match(r.errors[0], /^wall /);
+});
+
+test("hostile header tables and plans are refused with a reason, never thrown", () => {
+  for (const upTo of ["48", Infinity, 1e9, NaN, null]) {
+    assert.ok(validateHeaderTable([{ upTo, header: "2x6" }]).length, `upTo ${upTo}`);
+  }
+  for (const header of ["constructor", "toString", "__proto__", 7, null]) {
+    assert.ok(validateHeaderTable([{ upTo: 48, header }]).length, `header ${header}`);
+  }
+  const table = [{ upTo: 48, header: "2x6" }];
+  for (const plan of [null, "x", { walls: "x", headerTable: table }, { walls: [null], headerTable: table }, { walls: [{ id: "a", openings: [null] }], headerTable: table }]) {
+    const r = resolveHeaders(plan);
+    assert.equal(r.ok, false);
+    assert.ok(r.errors.length);
+  }
+  const r = resolveHeaders({ walls: [{ id: "a", openings: [{ kind: "door", offset: 10, width: "36", height: 80 }] }], headerTable: table });
+  assert.equal(r.ok, false);
 });

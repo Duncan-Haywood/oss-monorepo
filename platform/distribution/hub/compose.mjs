@@ -20,7 +20,9 @@ import crypto from 'node:crypto';
 import { tagUrl } from '../attribution.mjs';
 import { glen, graphemes, extract, thread, longPost, redditBody, hnComment, slides, videoScript } from './content.mjs';
 
-export const BASE_URL = 'https://duncan-haywood.github.io/oss-monorepo/';
+import { BASE_URL } from '../bluesky.mjs';
+
+export { BASE_URL };
 
 /** Short-post templates. `marker` must be the start of every post using it and unique among templates. */
 export const TEMPLATES = Object.freeze({
@@ -50,7 +52,8 @@ export function pickTemplate(item, platformId) {
 
 export { glen };
 export function clip(s, max) {
-  if (glen(s) <= max) return String(s);
+  // A string has no more graphemes than UTF-16 units, so a short one fits without segmenting.
+  if (String(s).length <= max || glen(s) <= max) return String(s);
   if (max <= 1) return '';
   return graphemes(s, max - 1).trimEnd() + '…';
 }
@@ -77,11 +80,24 @@ export function postItem(post) {
 /** Native platforms that get content from the post body (drafts the owner posts by hand, plus the carousel). */
 export const RICH = Object.freeze(['x', 'linkedin', 'reddit', 'hackernews', 'tiktok', 'youtube', 'instagram', 'medium', 'substack']);
 
+// extract() per item, remembered: a kit and the eight RICH variants of one post
+// each asked for it, so every post was extracted nine times (the real-post test
+// spent most of its 12 s there; docs/history/ci-perf-2026-11-14-hub-content-memo.md).
+// Keyed on the item object and checked against the body and description it was
+// computed from, so a changed item is extracted again.
+const extracted = new WeakMap();
+
 /** The post's own lead, findings and limits, or null when the item has no body worth extracting from. */
 export function contentOf(item) {
   if (item.type !== 'post' || !item.body) return null;
-  const c = extract(item.body, { description: item.description });
-  return c.points.length ? { ...c, title: item.title, description: item.description } : null;
+  let m = extracted.get(item);
+  if (!m || m.body !== item.body || m.description !== item.description) {
+    m = { body: item.body, description: item.description, c: extract(item.body, { description: item.description }) };
+    extracted.set(item, m);
+  }
+  const { c } = m;
+  // A fresh object and arrays per call, as before, so no caller sees another's edits.
+  return c.points.length ? { ...c, points: [...c.points], limits: [...c.limits], headings: [...c.headings], title: item.title, description: item.description } : null;
 }
 
 /** Disclosure for content the owner posts by hand in a community (Reddit, HN): affiliation and AI authorship, stated plainly. */

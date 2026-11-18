@@ -86,3 +86,20 @@ test("CSV has a row per overrun level", () => {
   const r = plan(sampleInput());
   assert.equal(toCsv(r).split("\n").length, r.overruns.length + 1);
 });
+
+test("well pump surge is three times its running watts and can set the peak", () => {
+  const s = sizeCheck({ ...base(), acTons: 0, sumpPumps: 0, wellHp: 2, range: 0, waterHeater: 0, baseWatts: 1000 });
+  assert.equal(s.biggest, "well pump");
+  assert.equal(s.runningW, 3000);
+  assert.equal(s.peakW, 7000);
+});
+
+test("margin table lists 20 to 40 percent with profit as price minus cost", () => {
+  const m = plan(sampleInput()).margins;
+  assert.deepEqual(m.map((x) => x.marginPct), [20, 25, 30, 35, 40]);
+  for (const x of m) {
+    const p = price(base(), x.marginPct);
+    assert.equal(x.profit, Math.round((p.price - p.cost) * 100) / 100);
+    assert.ok(x.profit > 0 && x.profit < x.price);
+  }
+});

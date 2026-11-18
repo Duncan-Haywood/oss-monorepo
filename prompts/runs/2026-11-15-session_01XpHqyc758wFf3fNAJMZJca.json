@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyc758wFf3fNAJMZJca",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T00:39:19Z",
+  "ended": "2026-11-15T00:51:05Z",
+  "wall_minutes": 12.01,
+  "tokens_in": 2688183,
+  "tokens_out": 20914,
+  "cost_usd": 1.6503,
+  "tool_calls": 30,
+  "task": "research/marine-hull milestone 6zzd: shrink the one-year learned seasonal correction toward a fitted first harmonic",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16034",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/posts (check_post_frontmatter.py)",
+      "issue": "seo_title 70-char limit only surfaces when the checker is run; the previous marine-hull post did not hint at it. Minor."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 2 (sweep every open research PR before building): pick_track's CLAIM CHECK showed no open PR naming marine-hull among 104 open PRs, so I did not audit the rest of the open research PRs one by one.",
+      "did": "Advanced the drawn programme directly.",
+      "result": "No collision; work merged."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-marine-hull-solar-boat-harmonic-seasonal-correction.md",
+    "research/marine-hull/LOG.md (6zzd entry)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered 8 predictions (commit 083848c4e) before the run; 3 held (H4, H5, H7). Checks: LC_k and LS_k rows reproduce 6zzb/6zzc counts exactly. Headline: the fitted harmonic alone (LHF_1) wins 126 of 168 pooled cells (LS_1 110, LC_1 97, AT_90 139); LHF_2 140, LHF_5 161. Local checks: tests.test_harmonic_season and tests.test_shrunk_season OK; research/_homepage/build.py ok; research_live_links 0 updates; check_md_links ok; post frontmatter/links/similarity ok. Run took about 25 minutes on 4 cores.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "03105aaa-fccc-5f11-82f4-050c812c9197",
+    "transcripts": 1,
+    "first": "2026-11-15T00:39:19Z",
+    "last": "2026-11-15T00:51:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 61,
+        "output": 20914,
+        "thinking": 2636,
+        "cache_read": 2599130,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88992,
+        "api_equivalent_usd": 1.6503,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 61,
+      "output": 20914,
+      "thinking": 2636,
+      "cache_read": 2599130,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88992,
+      "api_equivalent_usd": 1.6503,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 28,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.01,
+      "active_minutes": 12.01,
+      "model_minutes": 3.25,
+      "tool_minutes": 8.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, code and run a pre-registered simulation study plus write-up, by a grad student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 363.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

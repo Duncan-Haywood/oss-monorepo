@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>./index.html</loc></url>
+  <url><loc>./season-pack-for-league-organisers.html</loc></url>
   <url><loc>./multi-division-league-schedule.html</loc></url>
   <url><loc>./how-to-make-a-round-robin-schedule.html</loc></url>
   <url><loc>./round-robin-schedule-by-number-of-teams.html</loc></url>
@@ -8,6 +9,7 @@
   <url><loc>./tournament-bracket-by-number-of-teams.html</loc></url>
   <url><loc>./how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html</loc></url>
   <url><loc>./how-to-balance-home-and-away-games-in-a-round-robin.html</loc></url>
+  <url><loc>./how-to-balance-carry-over-in-a-round-robin.html</loc></url>
   <url><loc>./how-to-schedule-a-league-with-limited-courts-and-time-slots.html</loc></url>
   <url><loc>./round-robin-schedule-template.html</loc></url>
   <url><loc>./how-to-run-a-swiss-tournament.html</loc></url>
@@ -21,6 +23,7 @@
   <url><loc>./how-to-break-ties-in-league-standings.html</loc></url>
   <url><loc>./how-to-reschedule-a-rained-out-league-game.html</loc></url>
   <url><loc>./pickleball-league-schedule.html</loc></url>
+  <url><loc>./bowling-league-schedule.html</loc></url>
   <url><loc>./youth-soccer-league-schedule.html</loc></url>
   <url><loc>./adult-softball-league-schedule.html</loc></url>
   <url><loc>./rec-basketball-league-schedule.html</loc></url>

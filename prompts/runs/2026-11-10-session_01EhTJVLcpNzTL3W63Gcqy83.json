@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01EhTJVLcpNzTL3W63Gcqy83",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (develop, deploy, market, sell revenue software)",
+  "input_sha256": "18c8f87800781770b8b93b686e8f515238cb270bbed80bb05f969bb3e2e28335",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T19:01:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 4) changepoint-detector: item (a), a TCPD default chosen by split half",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 14582,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "the weighted draw routed to research; the scheduled message is the owner's ventures brief, so routed with --task",
+      "did": "route --task ventures brief",
+      "result": "ventures/1"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "item (a) asked for a default that beats 'no change'; none did out of sample, so a warning and page control shipped instead of changing a default pinned by ~100 real-series tests",
+      "did": "overcutWarning + page option",
+      "result": "F1 0.477 -> 0.655 when followed on TCPD (in-sample), 20 better 0 worse"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-changepoint-overcut-warning-tcpd.md"
+  ],
+  "goal": null,
+  "notes": "Split half on 31 TCPD series: no level candidate reliably beats zero (local floor +0.025, CI -0.093..0.136); local floor beats old default +0.211 (27/1). Over-cut warning fires on 20/31, following it: better on 20, worse on 0. Verification: venture test suite and venture-preflight run locally (see PR).",
+  "corrections": [],
+  "redteam": null
+}

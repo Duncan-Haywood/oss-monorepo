@@ -190,7 +190,7 @@ node cli.mjs quote event.csv --guests 60 --price 28 --json --fail-on error</pre>
       els.estimate.textContent = report.count ? `${MODEL_NOTE}.` : "";
       els.reportCard.hidden = false;
       record("quote_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

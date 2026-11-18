@@ -57,6 +57,7 @@
 </style>
 </head>
 <body>
+<main>
 <p><a href="index.html">&larr; CODEOWNERS Shadow Checker</a></p>
 <h1>This checker vs. reading CODEOWNERS by eye</h1>
 <p>
@@ -119,6 +120,7 @@
   <p>No. The CLI (check.mjs) reads files already on your machine and never makes a network request -- it does not need to, since resolving CODEOWNERS needs no GitHub API call. The browser report viewer only parses text you paste into it yourself, locally in your browser. The only thing stored is an anonymous local count of which features were used and the day, with no CODEOWNERS content and no file paths in it.</p>
   <p class="note">Want the exact before-and-after of a rule losing its review requirement? Read <a href="why-codeowners-review-stops-being-required.html">why a CODEOWNERS review requirement can silently stop firing</a>.</p>
 </section>
+</main>
 <footer>
   <p><strong>Evidence, not a determination.</strong> This resolves ownership against the file list
   you gave it. A rule matching nothing in your list is reported as a notice, not proof the pattern

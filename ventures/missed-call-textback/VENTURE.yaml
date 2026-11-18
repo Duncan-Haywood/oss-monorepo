@@ -1,0 +1,57 @@
+name: missed-call-textback
+description: >-
+  Open-source missed-call text-back for contractors and local service businesses: a calculator for what unanswered calls
+  cost (from the owner's own numbers), a message checker (names the business, STOP line, segment count), a guide, and a
+  self-host Twilio agent that texts each missed caller once per 24 hours, holds night calls until morning, answers
+  STOP/START/HELP, forwards real replies to the owner and checks Twilio's webhook signature. Runs on the deployer's own
+  Twilio account.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-06. ls ventures | grep for text/sms/call/missed found only sms-segment-cost-calculator (segment maths),
+# lead-response-time-analyzer and home-service-lead-roi-analyzer (analysis of existing leads); none sends a text-back.
+# Comparables (hosted, per-location monthly subscriptions): Podium, Smith.ai-style answering, GoHighLevel's missed-call
+# text-back; prices not re-checked from their pages today. Search phrases: "missed call text back", "missed call text
+# back for contractors", "auto reply to missed calls twilio", "missed call text back open source".
+# Volume not measured with an external tool.
+#
+# Who: owner-operator trades (plumbing, HVAC, electrical, roofing, cleaning, locksmith, pest control) who miss calls on
+# the job. Paying buyer, if any: a small business owner who wants it hosted and registered for them (10DLC setup is the
+# painful part) or an agency serving several trades. Hosted setup service and multi-number dashboard are not built.
+#
+# Path to revenue (payment rails stay off): the page and guide are a lead magnet; the self-host agent is MIT. Paid
+# options once there is demand: a done-for-you setup (registration plus deploy) sold through the owner's merchant of
+# record, and a hosted multi-location version. Neither is built; nothing waits on them.
+#
+# Liability: texting is regulated (US TCPA, carrier registration, CASL, PECR/GDPR). The agent only ever texts a number
+# that just called the deployer's own line, once per cooldown, with business name and STOP, honours STOP before anything
+# else and has a daily cap; the page says all of this is not legal advice and that registration is the deployer's job.
+#
+# Unverified: no real call or real Twilio account has been through it; the signature check was not compared with a
+# Twilio-published vector; whether a text-back to an inbound caller is acceptable in a given jurisdiction is a legal call.
+
+hypotheses:
+  - claim: >-
+      An owner-operator tradesperson who misses calls will use a free calculator to see what that costs and then self-host
+      or ask for a done-for-you setup of a text-back agent, because hosted subscriptions cost more than the texts do.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a deployed instance) engage by 2027-03-15.
+  - A real Twilio run shows the signature check or the STOP handling failing; fix before any further promotion.
+
+links:
+  production: https://marisstella.app/missed-call-textback/
+  analytics: null

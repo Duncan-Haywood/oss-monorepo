@@ -15,7 +15,7 @@
 // cutting-stock problem over a stock of 48 in boards, so it goes through the
 // same optimiser as the lumber, across every wall of the house at once. A
 // strip's remainder is the offcut the next wall's strip is cut from.
-import { THICK, EPS, DEPTH, optimizeStock, formatInches } from "./engine.mjs";
+import { THICK, EPS, DEPTH, optimizeStock, formatInches, samplePlan, defaultStock } from "./engine.mjs";
 
 /**
  * Sheathing past a wall's end at a corner (`sheathing.overhang`). The walls are
@@ -89,6 +89,34 @@ function bearingCentres(plan, w, ops, cover) {
     if (top >= cover - 0.5) out.push(c);
   }
   return out;
+}
+
+/**
+ * Refuses sheathing settings that are not real numbers in range. Before this a
+ * text or negative `minStrip`, `minCourse` or `rimLap` was accepted and gave a
+ * layout built on coerced values. Ranges are guard limits, not code values.
+ * @param {any} cfg
+ * @returns {string[]}
+ */
+export function sheathingErrors(cfg) {
+  if (cfg == null || typeof cfg !== "object" || Array.isArray(cfg)) return ["Sheathing settings are an object."];
+  const e = [];
+  const num = (k, lo, hi, nullOk = true) => {
+    const v = cfg[k];
+    if (v == null) { if (!nullOk) e.push(`sheathing ${k} must be a number.`); return; }
+    if (typeof v !== "number" || !Number.isFinite(v)) e.push(`sheathing ${k} must be a number.`);
+    else if (v < lo || v > hi) e.push(`sheathing ${k} must be from ${lo} to ${hi} in.`);
+  };
+  num("minStrip", 0, SHEET_WIDTH);
+  num("minCourse", 0, 240);
+  num("rimLap", 0, 48);
+  num("coverHeight", 0, 1200);
+  if (cfg.sheets != null && !Array.isArray(cfg.sheets)) e.push("sheathing sheets must be a list.");
+  else for (const [i, s] of (cfg.sheets || []).entries()) {
+    if (!s || typeof s !== "object") { e.push(`sheathing sheet ${i + 1} must be an object.`); continue; }
+    for (const k of ["width", "length", "price"]) if (typeof s[k] !== "number" || !Number.isFinite(s[k])) e.push(`sheathing sheet ${i + 1} ${k} must be a number.`);
+  }
+  return e;
 }
 
 /**
@@ -195,11 +223,16 @@ export function jointBlocking(w, ops, plan, y) {
  * @param {any} result the output of takeoff() (its `walls`)
  */
 export function sheathe(plan, result) {
+  if (!plan || typeof plan !== "object" || !result || !Array.isArray(result.walls)) return { ok: false, errors: ["Sheathing needs a plan and its framing result (with a list of walls)."] };
   const cfg = { ...defaultSheathing(), ...(plan.sheathing || {}) };
   const notes = [];
+  const bad = sheathingErrors(cfg);
+  if (bad.length) return { ok: false, errors: bad };
   const sheets = (cfg.sheets || []).filter((s) => s.width > 0 && s.length > 0 && s.price >= 0 && s.width <= SHEET_WIDTH + EPS);
   if (!sheets.length) return { ok: false, errors: ["List at least one sheet size for sheathing."] };
-  const wallHeight = result.walls.find((w) => !w.gable)?.height ?? (plan.studLength + 3 * THICK); // gable-only plan: the eave height
+  const flat = result.walls.filter((w) => !w.gable).map((w) => w.height);
+  const wallHeight = flat.length ? Math.max(...flat) : (plan.studLength + 3 * THICK); // gable-only plan: the eave height
+  if (flat.length && Math.min(...flat) < wallHeight - EPS) notes.push(`walls differ in height (${formatInches(Math.min(...flat))} to ${formatInches(wallHeight)}): sheets are cut for the tallest wall, so a shorter wall's panels are ordered at that height and trimmed on site.`);
   const cover = cfg.coverHeight > 0 ? cfg.coverHeight : wallHeight;
   if (cfg.orientation === "horizontal" && cfg.overhang) notes.push("Corner overhang is for vertical sheets; the horizontal layout ignores it.");
   if (cfg.orientation === "horizontal") return sheatheHorizontal(plan, result, cfg, sheets, cover);
@@ -300,8 +333,8 @@ export function sheathe(plan, result) {
   const stripArea = panelArea + cutoutArea;
   if (two) notes.push(`Walls are ${formatInches(cover + lap)} to cover and no sheet is that long: two courses, a ${formatInches(courses[0].sheet.length)} lower sheet and a ${formatInches(cover - courses[0].y1)} upper course, with the horizontal joint at ${formatInches(jointY)} on blocking set on edge between the studs.`);
   if (lap) notes.push(`Sheathing runs ${formatInches(lap)} below the bottom plate to cover the rim board; nail it to the rim as well as the plate.`);
-  const nailerLumber = nailerOrder(walls, plan);
   const gables = sheatheGables(plan, result, cfg, sheets, notes);
+  const nailerLumber = nailerOrder([...walls, ...(gables ? gables.walls : [])], plan);
   return {
     ok: true,
     gables,
@@ -436,9 +469,10 @@ function sheatheHorizontal(plan, result, cfg, sheets, cover) {
   const cutoutArea = panelAll.reduce((t, p) => t + p.cutouts.reduce((u, c) => u + area(c.x1 - c.x0, c.y1 - c.y0), 0), 0);
   const panelArea = panelAll.reduce((t, p) => t + area(p.width, p.height), 0) - cutoutArea;
   const naive = panelAll.reduce((t, p) => t + sheet.price * (p.height < sheet.width - EPS ? 1 / courses[p.course].perSheet : 1), 0);
+  const gables = sheatheGables(plan, result, cfg, sheets, notes);
   return {
     ok: true,
-    gables: sheatheGables(plan, result, cfg, sheets, notes),
+    gables,
     orientation: "horizontal",
     sheet,
     cover,
@@ -447,7 +481,7 @@ function sheatheHorizontal(plan, result, cfg, sheets, cover) {
     jointYs: courses.slice(1).map((c) => c.y0),
     walls,
     strips,
-    nailerLumber: nailerOrder(walls, plan),
+    nailerLumber: nailerOrder([...walls, ...(gables ? gables.walls : [])], plan),
     order: { label, qty: best.sheetsBought, price: sheet.price, cost: best.cost },
     orders,
     summary: {
@@ -492,7 +526,7 @@ function sheatheGables(plan, result, cfg, sheets, notes) {
     const mid = w.gable.peak;
     const base = THICK + plan.studLength;
     const slopeL = w.gable.pitch / 12;
-    const slopeR = (slopeL * mid) / (L - mid);
+    const slopeR = L - mid < EPS ? 0 : (slopeL * mid) / (L - mid);
     const topAt = (x) => {
       const slope = x <= mid ? slopeL : slopeR;
       return base + (x <= mid ? slopeL * x : slopeR * (L - x)) + 2 * THICK * Math.sqrt(1 + slope * slope);
@@ -502,11 +536,13 @@ function sheatheGables(plan, result, cfg, sheets, notes) {
     const found = panelBreaks(L, centres, SHEET_WIDTH, cfg.minStrip, ops.map((o) => [o.offset, o.offset + o.width]));
     if (!found) { notes.push(`${w.id}: gable wall with no stud within ${formatInches(SHEET_WIDTH)} of a panel edge; sheathe it by hand.`); continue; }
     // A joint over an opening with no stud in reach needs a nailer between the header and the sloped top plate, as on the straight walls.
+    const nailerPieces = [];
     for (const n of found.nailers) {
       const hdr = w.members.filter((m) => m.kind === "header" && m.x - EPS <= n && n <= m.x + m.length + EPS).sort((a, b) => b.y + b.h - (a.y + a.h))[0];
       const plateY = base + (n <= mid ? slopeL * n : slopeR * (L - n)); // underside of the top plate at the joint
       const len = hdr ? Math.round((plateY - (hdr.y + hdr.h)) * 16) / 16 : 0;
-      notes.push(`${w.id}: a gable panel joint at ${formatInches(n)} falls over an opening with no cripple under it; fit a ${w.stud} nailer${len > EPS ? ` about ${formatInches(len)} long` : ""} on end between the header and the sloped top plate there (not in the lumber order).`);
+      nailerPieces.push({ wall: w.id, x: n, size: w.stud, length: len > EPS ? len : null });
+      notes.push(`${w.id}: a gable panel joint at ${formatInches(n)} falls over an opening with no cripple under it; fit a ${w.stud} nailer${len > EPS ? ` about ${formatInches(len)} long` : ""} on end between the header and the sloped top plate there (added to the lumber order).`);
     }
     const panels = [];
     let bad = false;
@@ -527,10 +563,12 @@ function sheatheGables(plan, result, cfg, sheets, notes) {
       cutOut += area(open, 1);
       panels.push({ id: `${w.id}-${i + 1}`, x0: a, x1: b, width: b - a, height, bandHeights: courses.map((c) => c.y1 - c.y0), cutouts: ops.filter((op) => Math.min(b, op.offset + op.width) - Math.max(a, op.offset) > EPS).map((op) => op.label || op.kind), sheets: courses.map((c) => c.sheet.label || `${formatInches(c.sheet.width)} x ${formatInches(c.sheet.length)}`) });
       courses.forEach((c, ci) => {
-        // The top course is a trapezoid; two of them can nest when neither straddles the peak and the roof line stays above the course's bottom.
+        // The top course is a trapezoid; two of them can nest when it may straddle the peak (a three-point top) and the roof line stays above the course's bottom.
         const e1 = topAt(a) - c.y0, e2 = topAt(b) - c.y0;
-        const nestable = ci === courses.length - 1 && !(mid > a && mid < b) && Math.min(e1, e2) > EPS;
-        units.push({ panel: panels[panels.length - 1], ci, sheet: c.sheet, per: c.perSheet, height: c.y1 - c.y0, width: b - a, ref: `${w.id}-${i + 1}${ci ? "U" : ""}`, ...(nestable ? { e: [Math.min(e1, e2), Math.max(e1, e2)] } : {}) });
+        const straddle = mid > a && mid < b;
+        const eMid = topAt(mid) - c.y0;
+        const nestable = ci === courses.length - 1 && Math.min(e1, e2) > EPS;
+        units.push({ panel: panels[panels.length - 1], ci, sheet: c.sheet, per: c.perSheet, height: c.y1 - c.y0, width: b - a, ref: `${w.id}-${i + 1}${ci ? "U" : ""}`, ...(nestable ? { e: [Math.min(e1, e2), Math.max(straddle ? eMid : Math.max(e1, e2), e1, e2)], ...(straddle ? { prof: [[0, e1], [mid - a, eMid], [b - a, e2]] } : {}) } : {}) });
       });
     });
     if (bad) { notes.push(`${w.id}: a gable panel is taller than the listed sheets can cover; sheathe it by hand or list a longer sheet.`); continue; }
@@ -542,7 +580,7 @@ function sheatheGables(plan, result, cfg, sheets, notes) {
       for (const e of [p.x0, p.x1]) if (e > EPS && e < L - EPS && !centres.some((c) => Math.abs(c - e) < EPS) && !found.nailers.some((c) => Math.abs(c - e) < EPS)) check.push(`${p.id} has an edge at ${formatInches(e)} with no full-height stud under it`);
     }
     if (Math.abs(at - L) > EPS) check.push("panels do not reach the wall end");
-    walls.push({ id: w.id, peak: mid, panels, check });
+    walls.push({ id: w.id, peak: mid, panels, nailerPieces, jointBlocks: [], check });
   }
   if (!walls.length) return null;
   const plain = priceGableUnits(units, []);
@@ -554,8 +592,8 @@ function sheatheGables(plan, result, cfg, sheets, notes) {
   const { orders, count, cost, bound, proven, bought } = use;
   const names = walls.map((w) => w.id).join(", ");
   notes.push(use === nested
-    ? `Gable walls (${names}) are sheathed with vertical sheets; ${pairs.length} pair${pairs.length > 1 ? "s" : ""} of sloped top courses nest on one sheet (one turned end for end), which costs ${(plain.cost - nested.cost).toFixed(2)} less than buying each as its bounding box. Nailers over openings on gable walls are noted but not added to the lumber order.`
-    : `Gable walls (${names}) are sheathed with vertical sheets; each panel is bought as its bounding box${pairs.length ? " (nesting the offcut triangles did not lower the cost)" : ""}, so the order is an upper bound. Nailers over openings on gable walls are noted but not added to the lumber order.`);
+    ? `Gable walls (${names}) are sheathed with vertical sheets; ${pairs.length} pair${pairs.length > 1 ? "s" : ""} of sloped top courses nest on one sheet (one turned end for end), which costs ${(plain.cost - nested.cost).toFixed(2)} less than buying each as its bounding box. Nailers over openings on gable walls are in the nailer lumber order.`
+    : `Gable walls (${names}) are sheathed with vertical sheets; each panel is bought as its bounding box${pairs.length ? " (nesting the offcut triangles did not lower the cost)" : ""}, so the order is an upper bound. Nailers over openings on gable walls are in the nailer lumber order.`);
   return { walls, orders, summary: { panels: walls.reduce((t, w) => t + w.panels.length, 0), sheets: count, cost, bound, proven, areaCovered: covered, areaCutOut: cutOut, areaBought: bought, waste: bought > 0 ? (bought - covered) / bought : 0, nestedPairs: use === nested ? pairs.length : 0, unnestedCost: plain.cost } };
 }
 
@@ -569,14 +607,28 @@ function sheatheGables(plan, result, cfg, sheets, notes) {
  * Returns `{height, width}`, the saw kerf included.
  */
 export function nestedHeight(p, q, kerf = 0.125) {
-  const at = (u, x, mirror) => u.e[0] + ((u.e[1] - u.e[0]) * (mirror ? u.width - x : x)) / u.width;
+  // A course's top is a polyline `prof` of [distance from the left edge, height]; a plain `e` is a straight top.
+  const profOf = (u) => u.prof || [[0, u.e[0]], [u.width, u.e[1]]];
+  const val = (pts, x) => {
+    if (x <= pts[0][0]) return pts[0][1];
+    for (let k = 1; k < pts.length; k++) {
+      if (x <= pts[k][0]) { const [x0, y0] = pts[k - 1], [x1, y1] = pts[k]; return x1 > x0 ? y0 + ((y1 - y0) * (x - x0)) / (x1 - x0) : y1; }
+    }
+    return pts[pts.length - 1][1];
+  };
+  const top = (u) => Math.max(...profOf(u).map((pt) => pt[1]));
   let best = Infinity;
   for (const [fixed, turned] of [[p, q], [q, p]]) {
+    const fp = profOf(fixed), tp = profOf(turned);
     for (const mirror of [false, true]) {
       for (const d of [0, fixed.width - turned.width]) { // the turned course's left edge, from the fixed one's
         const lo = Math.max(0, d), hi = Math.min(fixed.width, d + turned.width);
-        let need = Math.max(p.e[1], q.e[1]);
-        if (hi > lo) for (const x of [lo, hi]) need = Math.max(need, at(fixed, x, false) + at(turned, d + turned.width - x, mirror));
+        let need = Math.max(top(p), top(q));
+        if (hi > lo) {
+          // The sum of two straight pieces is straight between breakpoints, so the worst case is at one.
+          const xs = [lo, hi, ...fp.map((pt) => pt[0]), ...tp.map((pt) => (mirror ? d + pt[0] : d + turned.width - pt[0]))].filter((x) => x >= lo - 1e-9 && x <= hi + 1e-9);
+          for (const x of xs) need = Math.max(need, val(fp, x) + val(tp, mirror ? x - d : d + turned.width - x));
+        }
         best = Math.min(best, need);
       }
     }
@@ -638,7 +690,7 @@ function priceGableUnits(units, pairs) {
 export function nailerCuts(s) {
   if (!s || !s.ok) return [];
   const map = new Map();
-  for (const w of s.walls) {
+  for (const w of [...s.walls, ...(s.gables ? s.gables.walls : [])]) {
     for (const [p, kind] of extraPieces(w)) {
       if (!(p.length > EPS)) continue;
       const key = `${kind}|${p.size}|${p.length}`;
@@ -769,4 +821,48 @@ export function sheathingText(s) {
   }
   for (const n of s.notes) out.push(`  - ${n}`);
   return out;
+}
+
+/**
+ * A plan for a plain rectangular house, for the sheathing page: four sheathed
+ * walls (front and back `length` long, sides `width`), corners and no tees,
+ * `windows` of 36 x 48 in and `doors` of 36 x 82.5 in spread evenly along the
+ * walls (doors on the front first, then the back; windows round robin from the
+ * front). Wall height is a precut stud length plus the plates. Openings are
+ * centred on equal divisions of their wall; one that would not fit is refused.
+ * @param {{length:number,width:number,height:"8ft"|"9ft"|"10ft",windows:number,doors:number,orientation?:string,sheetLength?:number}} o inches except counts
+ */
+export function houseSheathingPlan(o) {
+  const pre = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 }[o?.height];
+  if (!pre) return { ok: false, errors: ["Wall height must be 8ft, 9ft or 10ft (precut studs)."] };
+  const whole = (v) => Number.isInteger(v) && v >= 0 && v <= 40;
+  if (!whole(o.windows) || !whole(o.doors)) return { ok: false, errors: ["Windows and doors must be whole numbers from 0 to 40."] };
+  const side = (v) => typeof v === "number" && v >= 96 && v <= 1200;
+  if (!side(o.length) || !side(o.width)) return { ok: false, errors: ["House sides must be numbers from 8 ft to 100 ft (96 to 1200 in)."] };
+  if (o.orientation !== undefined && o.orientation !== "vertical" && o.orientation !== "horizontal") return { ok: false, errors: ['Orientation must be "vertical" or "horizontal".'] };
+  if (o.sheetLength !== undefined && o.sheetLength !== null && /** @type {any} */ (o.sheetLength) !== "" && o.sheetLength !== 0 && !(typeof o.sheetLength === "number" && o.sheetLength >= 48 && o.sheetLength <= 240)) return { ok: false, errors: ["Sheet length must be a number from 48 to 240 in."] };
+  // Each opening takes 36 in plus 12 in of wall either side, on its own wall.
+  const perWall = [0, 0, 0, 0];
+  for (let i = 0; i < o.doors; i++) perWall[i % 2 ? 2 : 0]++;
+  for (let i = 0; i < o.windows; i++) perWall[i % 4]++;
+  const lens = [o.length, o.width, o.length, o.width];
+  for (let wi = 0; wi < 4; wi++) {
+    if (perWall[wi] * 36 + (perWall[wi] + 1) * 12 > lens[wi]) return { ok: false, errors: [`${["Front", "Right", "Back", "Left"][wi]} wall (${lens[wi]} in) cannot fit ${perWall[wi]} openings of 36 in with 12 in between and at the ends; use fewer or a bigger house.`] };
+  }
+  const plan = samplePlan();
+  plan.studLength = pre;
+  plan.stock = defaultStock(pre);
+  const walls = /** @type {any[]} */ ([["Front", o.length], ["Right", o.width], ["Back", o.length], ["Left", o.width]]).map(([id, length]) => ({ id, length, stud: "2x4", corner: true, openings: [] }));
+  const place = [[], [], [], []];
+  for (let i = 0; i < o.doors; i++) place[i % 2 ? 2 : 0].push("door");
+  for (let i = 0; i < o.windows; i++) place[i % 4].push("window");
+  place.forEach((kinds, wi) => {
+    kinds.forEach((kind, k) => {
+      const width = 36, centre = (walls[wi].length * (k + 1)) / (kinds.length + 1);
+      walls[wi].openings.push({ kind, label: `${kind} ${wi + 1}.${k + 1}`, offset: Math.round(centre - width / 2), width, height: kind === "door" ? 82.5 : 48, header: "2x10" });
+    });
+  });
+  plan.walls = /** @type {any} */ (walls);
+  /** @type {any} */ (plan).sheathing = { ...defaultSheathing(), ...(o.orientation === "horizontal" ? { orientation: "horizontal" } : {}), ...(o.sheetLength ? { sheets: [{ label: `4x${o.sheetLength / 12}`, width: SHEET_WIDTH, length: o.sheetLength, price: (SHEET_WIDTH * o.sheetLength) / 144 }] } : {}) };
+  return { ok: true, plan };
 }

@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [saints-by-candlelight]
+date: 2026-10-20
+tagged: auto
+---
 # Saints by Candlelight: launch report (2026-10-20)
 
 **What it is.** A free bedtime podcast of Catholic and Orthodox stories of

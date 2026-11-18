@@ -1,4 +1,4 @@
-# What will the EU carbon border levy (CBAM) cost on your steel, aluminium, cement or fertiliser imports?
+# What will CBAM cost on your steel, aluminium, cement or fertiliser imports?
 
 > Free CBAM cost estimator for EU importers of steel, aluminium, cement, fertilisers and hydrogen: embedded emissions, free-allocation phase-out 2026 to 2034, certificates needed, cost per tonne, and the 50-tonne threshold. Runs in your browser; nothing is uploaded.
 

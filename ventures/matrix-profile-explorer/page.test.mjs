@@ -121,7 +121,7 @@ test("robots, sitemap, README, LICENSE, VENTURE.yaml and data source exist", () 
   assert.match(page("README.md"), /## Verification/);
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: matrix-profile-explorer$/m);
-  assert.match(page("VENTURE.yaml"), /production: https:\/\/duncan-haywood\.github\.io\/(?:oss-monorepo|monorepo-projects)\/matrix-profile-explorer\//);
+  assert.match(page("VENTURE.yaml"), /production: https:\/\/marisstella\.app\/matrix-profile-explorer\//);
   const src = page("data/SOURCE.md");
   assert.match(src, /https:\/\/gml\.noaa\.gov\/webdata\/ccgg\/trends\/co2\/co2_mm_mlo\.csv/);
   assert.match(src, /2026-10-20/);
@@ -132,4 +132,6 @@ test("footer links the sibling research-algorithm tools", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.match(html, /href="\.\.\/changepoint-detector\/"/);
   assert.match(html, /href="\.\.\/conformal-prediction-intervals\/"/);
+  assert.match(html, /href="\.\.\/survival-analysis\/"/);
+  assert.match(html, /href="\.\.\/fdr-multiple-testing\/"/);
 });

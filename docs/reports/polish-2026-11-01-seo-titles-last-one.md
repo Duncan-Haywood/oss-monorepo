@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-01
+tagged: auto
+---
 # Polish 2026-11-01: `seo_title:` backlog cleared
 
 **Weak surface.** The batch-11 note listed about 91 posts over the 70-character title budget. Re-counting over every post with no `seo_title:` found one left (`2026-11-01-correlated-noise-flight-test-fit`, 72 characters); earlier batches had cleared the rest.

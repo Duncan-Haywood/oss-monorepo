@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtHNTpXHp2KzPvAYQ74",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T06:07:12Z",
+  "ended": "2026-11-18T06:17:32Z",
+  "wall_minutes": 10.55,
+  "tokens_in": 2940448,
+  "tokens_out": 15679,
+  "cost_usd": 1.4512,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17204",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "My first benchmark passed '.' as the repo from inside the monorepo, so sweep() started fetching the real monorepo from GitHub into a scratch probe. Caught from ps and killed; the bench now takes an absolute path. Nothing was written to the repo."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) are owner-gated CI edits again, so step 1 is a dead end and the run went straight to the venture suite times table, as the prompt already suggests."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook also refuses a bracketed pattern when the same word shows up elsewhere in the command (for example two pkill calls in one line). Only the single-call case is documented."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-stranded-branch-sweep-ten-times-faster.md",
+    "docs/history/ci-perf-2026-11-18-stranded-blob-batch.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time and git process count of a warm stranded.py sweep() on a 50-branch bench repo (40 squash-landed branches with 31 changed paths each, 10 unlanded), built by a script, 3 runs each, subprocess.run wrapped to count processes. Before 3.17/3.23/3.47 s, 1348 processes; after 0.38/0.40/0.35 s, 108 processes; same 10 branches found. Old vs new landed_by_content on 54 refs: 0 differ. The new test passes on the old and the new code. Suite 38 passed; run_venture_tests.py stranded-branch-finder ok. Suite wall time is about unchanged (~5-7 s, dominated by the fixtures' own git calls).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "16930619-152f-513a-922a-50625ebb56cf",
+    "transcripts": 1,
+    "first": "2026-11-18T06:07:12Z",
+    "last": "2026-11-18T06:17:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 74,
+        "output": 15679,
+        "thinking": 3214,
+        "cache_read": 2869952,
+        "cache_write_5m": 0,
+        "cache_write_1h": 70422,
+        "api_equivalent_usd": 1.4512,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 74,
+      "output": 15679,
+      "thinking": 3214,
+      "cache_read": 2869952,
+      "cache_write_5m": 0,
+      "cache_write_1h": 70422,
+      "api_equivalent_usd": 1.4512,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 35,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.55,
+      "active_minutes": 10.55,
+      "model_minutes": 3.58,
+      "tool_minutes": 6.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "profile, batch rewrite, bench and equivalence check for a git CLI",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 137.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

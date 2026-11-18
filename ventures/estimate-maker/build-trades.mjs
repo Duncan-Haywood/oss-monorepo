@@ -3,6 +3,7 @@
 // reach the calculator that prices their trade. Run `node build-trades.mjs`
 // after a bid calculator is added; trades.test.mjs fails if the page is stale.
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 
 const root = new URL("../", import.meta.url);
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -52,6 +53,7 @@ li span, footer { font-size: .88rem; color: #4a5a52; }
 </style>
 </head>
 <body>
+<main>
 <h1>Free bid calculators by trade</h1>
 <p>Not sure which one fits, or your trade is not listed? <a href="../bid-price-engine/">Bid Price Engine</a> prices any job at the margin you choose, with starting inputs for each trade.</p>
 <p>Each calculator below prices one kind of job from labor hours, materials, overhead and the margin you want, and shows the walk-away price under which the job loses money. They run in your browser: nothing you type is uploaded. When the number is settled, put it on a quote with <a href="./">Estimate Maker</a>.</p>
@@ -61,6 +63,7 @@ li span, footer { font-size: .88rem; color: #4a5a52; }
 <ul id="list">
 ${items}
 </ul>
+</main>
 <footer>
 <p>No warranty. Figures are estimates from the inputs you enter, not legal, tax, or financial advice, and not a quote of record. Check local licensing and written-estimate rules. MIT licensed, <a href="https://github.com/sponsors/Duncan-Haywood">support the creator</a>.</p>
 <p><a href="./">Back to Estimate Maker</a></p>
@@ -80,6 +83,6 @@ q.addEventListener("input", filter);
 `;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   writeFileSync(new URL("./trade-bid-calculators.html", import.meta.url), renderPage(listTrades()));
 }

@@ -1,0 +1,85 @@
+{
+ "base_period_ns": {
+  "sad2b5": 24.15,
+  "sad1b8": 13.76,
+  "max3b6": 21.22,
+  "max3b5": 25.43,
+  "sat2b5": 25.15,
+  "sat1b9": 17.17,
+  "max3b6n": 10.98
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "designs": {
+  "sad1b8": [
+   "sadsh_w",
+   "sadsh_w",
+   {
+    "W": 128,
+    "SW": 8,
+    "K": 1
+   },
+   ""
+  ],
+  "max3b5": [
+   "maxsh_w",
+   "maxsh_w",
+   {
+    "W": 128,
+    "SW": 5,
+    "N": 3
+   },
+   ""
+  ],
+  "sat1b9": [
+   "satsh_w",
+   "satsh_w",
+   {
+    "W": 128,
+    "SW": 9,
+    "K": 1
+   },
+   ""
+  ],
+  "max3b6": [
+   "maxsh_w",
+   "maxsh_w",
+   {
+    "W": 128,
+    "SW": 6,
+    "N": 3
+   },
+   ""
+  ],
+  "max3b6n": [
+   "maxsh_w",
+   "maxsh_w",
+   {
+    "W": 64,
+    "SW": 6,
+    "N": 3
+   },
+   ""
+  ],
+  "sad2b5": [
+   "sadsh_w",
+   "sadsh_w",
+   {
+    "W": 128,
+    "SW": 5,
+    "K": 2
+   },
+   ""
+  ],
+  "sat2b5": [
+   "satsh_w",
+   "satsh_w",
+   {
+    "W": 128,
+    "SW": 5,
+    "K": 2
+   },
+   ""
+  ]
+ }
+}

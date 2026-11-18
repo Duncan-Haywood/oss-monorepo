@@ -16,6 +16,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 import fcntl
 
+from .aside import stepped_aside
 from .checks import check_invoice
 from .creditlink import credit_link_findings
 from .facturx import (
@@ -787,7 +788,9 @@ def main(argv: list[str] | None = None) -> int:
         except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError, DocumentError, EmbeddedInvoiceError) as exc:
             read_errors.append({"file": report_path.as_posix(), "error": str(exc)})
             continue
-        reports.append((report_path, check_invoice(invoice)))
+        # PINT and ZATCA files: EU-convention rules that fire falsely step aside (aside.py).
+        aside = stepped_aside(invoice)
+        reports.append((report_path, [e for e in check_invoice(invoice) if e.get("rule") not in aside]))
         invoices.append((report_path, invoice))
         if args.usage_file:
             _record_usage(args.usage_file)

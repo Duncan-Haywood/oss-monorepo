@@ -1,0 +1,261 @@
+{
+  "date": "2026-11-13",
+  "subject": "ventures/redirect-map-check",
+  "stratum": "venture",
+  "seed": "2026-11-13-j",
+  "drawn_by": "sample",
+  "round": 64,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a senior technical SEO running a site migration; they check first that the map has no loops or chains, that every old URL lands on a live 200 page in one hop with a permanent status, and that the server file they paste in (Apache, nginx, Netlify) does exactly what the spreadsheet says and nothing more (no prefix matches that catch other URLs, no rewritten status codes, query-string and trailing-slash behaviour understood)",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran the CLI on hand-built maps in scratchpad/rmc (m1.csv, m2.csv) and calc.mjs on sampleBrokenFile() and on 20,000-row maps. The graph core is right: /a->/b->/c->/d is reported as a 3-hop chain and flattened to /a /d, /b /d, /c /d (by hand: 3, 2 and 1 hops); /x<->/y is a loop on both rows; the broken sample gives 4 of 15 kept rows to the homepage, 27% (by hand: 17 rows minus one identical duplicate minus one case-variant = 15; 4/15 = 26.7%); the permanent/temporary split (301/308 vs 302/303/307) matches RFC 9110 sections 15.4.2-15.4.9. The written outputs are not right: (1) Apache output uses mod_alias `Redirect`, which per the Apache 2.4 mod_alias docs is a prefix match that appends extra path info, processed in file order with the first match winning; for m2.csv the tool writes `Redirect 301 /blog /news` before `Redirect 301 /blog/post-1 /articles/1` (so /blog/post-1 goes to /news/post-1) and `Redirect 301 / /home`, which matches every request on the site including /home itself (a site-wide loop); the tool's own message at calc.mjs:234 says the formats 'write exact matches'. (2) A 302 row is written as 301 in every output format (calc.mjs:396; /sale,/promo,302 -> `/sale  /promo  301!`) although index.html:130 says 'The cleaned map uses 301 unless a row says otherwise', and repair() lists no change for it. (3) /shop -> /shop/ is reported as an ERROR 'Redirects to itself ... ERR_TOO_MANY_REDIRECTS' and dropped from the output (calc.mjs:306); by RFC 3986 these are distinct URIs and adding a trailing slash is a normal one-hop redirect, a loop only if the server also strips it. 2: analysis right, the deployable files it writes are wrong in common cases. Vendor doc hosts (httpd.apache.org, docs.netlify.com, developers.cloudflare.com) were unreachable from this session, so the Apache and Netlify semantics are cited from the published docs as known, not refetched.",
+    "completeness": "Every README/page feature exercised end to end: loops, self-redirects, chains, conflicts, duplicates, case-duplicates, homepage share, spaces, fragments, missing slash, wildcard warning, other-host, temporary status, staging target, http target, --new-urls (target-missing; mutation at calc.mjs:358 caught), --old-urls coverage, --site, --case-sensitive, --fail-on, --json, --csv, --format shopify/netlify/apache/nginx/csv, --out, stdin. Space-separated and arrow input read. The VENTURE.yaml claim '20,000-row chain map in well under a second' holds: 20,000-hop chain 541 ms, 20,000 independent rows 491 ms on Node 22. No TODOs or stubs. Served page https://marisstella.app/redirect-map-check/ could not be loaded (proxy CONNECT 403), so only the source page was checked.",
+    "verification": "cd ventures/redirect-map-check && node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs: 41 tests, 41 pass (Node v22.23.4). Seven mutations via platform/ci/quality_mutate.py: 5 caught (chain threshold, PERMANENT set, homepage share, hop counting in resolveAll, new-URL lookup using the unflattened target), 2 survived (dropping the trailing-slash arm of the self-redirect check at calc.mjs:306; writing a row's own status instead of forcing 301 at calc.mjs:396). Render tests (calc.test.mjs:104-113) only regex-match the format strings; nothing checks that an Apache/nginx output behaves as an exact match or that ordering is safe.",
+    "craft": "Read calc.mjs (479 lines), cli.mjs (91 lines), index.html script, tests. Pure functions, linear memoised graph resolution (resolveAll, calc.mjs:157-178), injectable CLI io, parse never throws, CSV parser handles quotes, BOM, UTF-16. Defects: dense one-line statements; redundant condition at calc.mjs:214 (`/^(\\s*)(=|\\+|-|@)/.test(r.from) && /^=/.test(r.from)` is just the second test); `it.to &&` at calc.mjs:241 and :340 is always truthy; 451 (Unavailable For Legal Reasons, RFC 7725, not a redirect) is in the accepted redirect CODES set (calc.mjs:10); Netlify input such as `/old /new 302!` reads the status as '302!' and warns it is not a redirect code, then writes 301.",
+    "claims": "Backed: no upload (no network calls in calc.mjs/cli.mjs; page.test.mjs), no-warranty and not-affiliated text (README, index.html:157), platform limits flagged as 'from memory' (index.html:60,132,144), query-string and regex rules listed as not checked (index.html:133,150), 20k-row speed. Not backed: index.html:130 'The cleaned map uses 301 unless a row says otherwise' (a 302 row is written 301); calc.mjs:234 'the other formats here write exact matches' (Apache Redirect is a prefix match); the format option 'Netlify / Cloudflare Pages _redirects' (index.html:90) offers one file for both though, as I understand Cloudflare Pages' docs, it does not accept a 410 status or a force '!' (not re-verified: host unreachable). llms.txt links to the old github.io host in source; the build rewrites it and the served file could not be loaded, so filed as source-only.",
+    "fitness": "Walked the job: paste the old->new spreadsheet, fix loops, chains and conflicts, paste the new site's URL list, export the server file. The pre-flight analysis is what a technical SEO wants and is fast. The export is where they would stop: an Apache file with a '/' row or a parent/child pair redirects URLs the map never mentions; nginx output keys on $request_uri, so /about?utm_source=x does not match '/about' and falls through (the page discloses query handling is not checked); temporary rows silently become permanent; trailing-slash normalisation rows are dropped. Usable as a checker, not as the file you deploy without review.",
+    "domain": "Compared against RFC 9110 (status semantics: right), Google's guidance that mass redirects to the homepage are treated as soft 404s (right, 10% threshold is a stated heuristic), Apache 2.4 mod_alias Redirect semantics (prefix match, first match wins, URL-path does not see the query string: departs, should be RedirectMatch with an anchored escaped pattern or RewriteRule), RFC 3986 section 6.2.2.1 (path is case-sensitive: the default merges /About and /about and drops the second row from the export; flagged as an error, with a case-sensitive option), and the common practice that /x -> /x/ is a normal redirect (treated as a self-loop error)."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "3-hop chain flattened",
+      "method": "by hand from the graph /a->/b->/c->/d",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/27f32908-f8a8-5080-a56e-0c9dfcf6bcdb/scratchpad/rmc && printf 'Redirect from,Redirect to,Status\\n/a,/b,301\\n/b,/c,301\\n/c,/d,302\\n/x,/y,301\\n/y,/x,301\\n/p?id=1,/product-one,301\\n/old/,/new/,301\\n/new,/old,301\\n' > m1.csv && node /home/user/oss-monorepo/ventures/redirect-map-check/cli.mjs m1.csv --format apache",
+      "expected": "Chain of 3 (line 2), Chain of 2 (line 3); Redirect 301 /a /d, /b /d, /c /d",
+      "observed": "Chain of 3 redirects /a -> /b -> /c -> /d; Chain of 2; Redirect 301 /a /d, /b /d, /c /d",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "two-node loop",
+      "method": "by hand",
+      "command": "same as above (m1.csv)",
+      "expected": "loop error on lines 5 and 6, both rows left out of output",
+      "observed": "ERROR line 5 and line 6 Redirect loop /x -> /y -> /x; neither row in output",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "homepage share on the built-in broken sample",
+      "method": "by hand: 17 rows - 1 identical duplicate - 1 case variant = 15 kept; 4 to '/'; 4/15",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/27f32908-f8a8-5080-a56e-0c9dfcf6bcdb/scratchpad/rmc/t.mjs",
+      "expected": "4 of 15 rows (27%)",
+      "observed": "4 of 15 rows (27%) redirect to the homepage",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Apache output for a parent/child pair and a '/' source",
+      "method": "Apache 2.4 mod_alias docs: Redirect matches URL-path as a prefix and appends extra path; Redirects in one context are processed in order, first match wins, so the most specific must come first",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/27f32908-f8a8-5080-a56e-0c9dfcf6bcdb/scratchpad/rmc && printf 'from,to,code\\n/blog,/news,301\\n/blog/post-1,/articles/1,301\\n/,/home,301\\n/About,/company,301\\n/about,/team,301\\n/shop,/shop/,301\\n/sale,/promo,302\\n' > m2.csv && node /home/user/oss-monorepo/ventures/redirect-map-check/cli.mjs m2.csv --format apache --fail-on never",
+      "expected": "rules that redirect only the listed URLs (e.g. RedirectMatch 301 ^/blog$ /news, child before parent; no catch-all for '/')",
+      "observed": "Redirect 301 /blog /news ; Redirect 301 /blog/post-1 /articles/1 ; Redirect 301 / /home  (the first shadows the second, the third catches every URL including /home)",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "302 row status in the cleaned map",
+      "method": "the page's own claim (index.html:130) and RFC 9110 15.4.3: 302 is temporary; output should keep it",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/27f32908-f8a8-5080-a56e-0c9dfcf6bcdb/scratchpad/rmc && node /home/user/oss-monorepo/ventures/redirect-map-check/cli.mjs m2.csv --format netlify --fail-on never | grep promo",
+      "expected": "/sale  /promo  302!",
+      "observed": "/sale  /promo  301!",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "trailing-slash normalisation redirect /shop -> /shop/",
+      "method": "RFC 3986 6.2.3/6.2.2: /shop and /shop/ are different URIs; a one-hop slash redirect is not a loop on its own",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/27f32908-f8a8-5080-a56e-0c9dfcf6bcdb/scratchpad/rmc && node /home/user/oss-monorepo/ventures/redirect-map-check/cli.mjs m2.csv --format csv --fail-on never | grep -c shop",
+      "expected": "a warning at most, row kept in output (count 2: finding + row)",
+      "observed": "ERROR 'Redirects to itself ... ERR_TOO_MANY_REDIRECTS', row dropped (count 1)",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "permanent vs temporary status set",
+      "method": "RFC 9110 15.4: 301 and 308 permanent, 302/303/307 temporary",
+      "command": "sed -n 10,11p ventures/redirect-map-check/calc.mjs",
+      "expected": "PERMANENT = {301, 308}",
+      "observed": "PERMANENT = new Set([301, 308]); CODES also includes 451 (not a redirect, RFC 7725)",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run it",
+      "command": "cd ventures/redirect-map-check && node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs",
+      "expected": "all pass",
+      "observed": "41 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "VENTURE.yaml '20,000-row chain map in well under a second'",
+      "method": "run it",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/27f32908-f8a8-5080-a56e-0c9dfcf6bcdb/scratchpad/rmc/t.mjs",
+      "expected": "< 1000 ms",
+      "observed": "20k-hop chain 541 ms (19,999 chains, /p0 -> /p20000); 20k flat rows 491 ms",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "CLI flags end to end (--format netlify/nginx/csv, --fail-on, exit codes)",
+      "method": "run it",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/27f32908-f8a8-5080-a56e-0c9dfcf6bcdb/scratchpad/rmc && node /home/user/oss-monorepo/ventures/redirect-map-check/cli.mjs m1.csv --format nginx --fail-on never; echo $?",
+      "expected": "report, map $request_uri block, exit 0",
+      "observed": "as expected; exit 1 without --fail-on never",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "index.html:130 'cleaned map uses 301 unless a row says otherwise'",
+      "method": "run it",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/27f32908-f8a8-5080-a56e-0c9dfcf6bcdb/scratchpad/rmc/t.mjs (repair on /sale,/promo,302)",
+      "expected": "302 kept, or a change listed",
+      "observed": "text '/sale  /promo  301!', changes list silent on it",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "query-string and regex rules disclosed as not checked",
+      "method": "read index.html:133,150",
+      "command": "grep -n 'Not checked' ventures/redirect-map-check/index.html",
+      "expected": "disclosure present",
+      "observed": "present at index.html:133",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "served page and llms.txt",
+      "method": "load https://marisstella.app/redirect-map-check/",
+      "command": "curl -sS https://marisstella.app/redirect-map-check/",
+      "expected": "200",
+      "observed": "proxy CONNECT 403 from this session; not checked",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:322",
+      "change": "if (m.hops > LIMITS.maxHops) -> if (m.hops > 2)",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:11",
+      "change": "PERMANENT {301,308} -> {301,302,308}",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:306",
+      "change": "(tgt === src || noSlash(tgt) === noSlash(src)) -> (tgt === src)",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:342",
+      "change": "homepage share > LIMITS.homepageShare -> > 0.3",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:173",
+      "change": "hops: tail.hops + 1 -> hops: tail.hops",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:358",
+      "change": "have.has(noSlash(finalPath)) -> have.has(noSlash(key(it.to.path)))",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:396",
+      "change": "status: ... PERMANENT.has(it.status) ? it.status : 301 -> status: it.status",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Apache export uses mod_alias `Redirect`, a prefix match processed first-match-wins in file order: a '/' source becomes a site-wide redirect loop and a parent row (/blog) shadows its children (/blog/post-1); the tool's own text says the formats write exact matches",
+      "where": "ventures/redirect-map-check/calc.mjs:420",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "302/303/307 rows are written as 301 in every export, contradicting index.html:130 ('uses 301 unless a row says otherwise'), with no line in repair()'s change list; no test pins the behaviour",
+      "where": "ventures/redirect-map-check/calc.mjs:396",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "/x -> /x/ (trailing-slash normalisation) is reported as an error 'Redirects to itself' and dropped from the cleaned map; it is a normal one-hop redirect unless the server also strips the slash",
+      "where": "ventures/redirect-map-check/calc.mjs:306",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Exports for Apache (Redirect cannot see the query string), Netlify (needs its query-parameter syntax) and nginx (map on $request_uri misses any URL with extra params such as utm_source) do not behave as the spreadsheet for query-string sources; disclosed only as 'not checked'",
+      "where": "ventures/redirect-map-check/calc.mjs:422",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Case-insensitive matching is the default although URL paths are case-sensitive (RFC 3986 6.2.2.1) on Apache and nginx; the second case variant is dropped from the export",
+      "where": "ventures/redirect-map-check/calc.mjs:195",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "One _redirects file offered for both Netlify and Cloudflare Pages, but it writes the force flag '!' and 410 rows, which (as I recall Cloudflare's docs; host unreachable, not re-verified) Pages does not support",
+      "where": "ventures/redirect-map-check/index.html:90",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Netlify-style input with a force flag ('/old /new 302!') reads the status as invalid and writes 301; 451 accepted as a redirect code",
+      "where": "ventures/redirect-map-check/calc.mjs:246",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Tests for the self-redirect slash arm and for status preservation are missing (two mutations survived); render tests only regex-match strings",
+      "where": "ventures/redirect-map-check/calc.test.mjs:104",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt links to the old github.io host in source; the Pages build rewrites hosts at deploy and the served file could not be loaded",
+      "where": "ventures/redirect-map-check/llms.txt:9",
+      "category": "source-only",
+      "origin": "audit"
+    }
+  ],
+  "fix_prs": [
+    15469
+  ],
+  "verdict": "A careful, fast pre-flight checker whose graph analysis is right (chains, loops, conflicts, homepage share all recompute by hand; 20k rows in about half a second) and whose 41 tests catch 5 of 7 seeded bugs. It falls short of what a senior technical SEO would sign off on at the export step: the Apache file uses prefix-matching `Redirect` lines in map order, so a '/' row loops the whole site and parent rows shadow children; temporary statuses are silently rewritten as 301 against the page's own wording; and trailing-slash redirects are thrown out as self-loops. Finished (completeness 3), does not meet the bar (correctness 2, claims 2, median 2)."
+}

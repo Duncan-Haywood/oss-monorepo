@@ -1,0 +1,310 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVPE3zhV5yBSb4zi5Xn",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue products)",
+  "input_sha256": "869050f93a55a3e28c20fbcc822152ec5435caed662bdb90a169853ac4e17a29",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T21:57:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "redteam: sales-agent mailfile.mjs",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14904",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "redteam campaign on ventures/sales-agent/mime.mjs ran past the 10-min foreground limit",
+      "fix": "used --probe on the next campaign"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "--target skips the probe; mime.mjs is imported by many sales-agent suites, so its suite is slow, and the campaign was killed with nothing recorded. targets --probe 20 first, as the prompt says, would have caught it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Step 0: all 5 open entries are control plane with owner-gated PRs open (#12928, #14877, #14612, #14698, #14808). Campaign 1 mailfile.mjs 1/8 caught, 7 gaps guarded, rerun 8/8. Campaign 2 on mime.mjs killed at the 600 s tool limit (suite too slow, no record written, file restored). Campaign 3 platform/ci/check_blank_targets.py 7/8, survivor equivalent (--help text). Verification: node --test mailfile.test.mjs 15/15; run_venture_tests.py sales-agent ok; eval/mailfile-public.mjs on 11 public mbox files unchanged (11/11 split, 0 noText). Guard left: the class (body 'From' lines read as envelopes) is covered by three new split tests in the suite CI already runs; no new workflow.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/sales-agent/mailfile.mjs",
+        "test": "node --test ventures/sales-agent/**/*.test.mjs  (in .)",
+        "seed": 207454822,
+        "commit": "da3d4eea",
+        "sites": 88,
+        "baseline_seconds": 3.2,
+        "mutants": [
+          {
+            "file": "ventures/sales-agent/mailfile.mjs",
+            "line": 30,
+            "col": 152,
+            "operator": "const-plus-one",
+            "before": "export const addressOf = (from) => ((String(from || \"\").match(/<([^>]+)>/) || [])[1] || (String(from || \"\").match(/[^\\s<>\"',;]+@[^\\s<>\"',;]+/) || [\"\"])[0]).trim().toLowerCase();",
+            "after": "export const addressOf = (from) => ((String(from || \"\").match(/<([^>]+)>/) || [])[1] || (String(from || \"\").match(/[^\\s<>\"',;]+@[^\\s<>\"',;]+/) || [\"\"])[1]).trim().toLowerCase();",
+            "line_text": "export const addressOf = (from) => ((String(from || \"\").match(/<([^>]+)>/) || [])[1] || (String(from || \"\").match(/[^\\s<>\"',;]+@[^\\s<>\"',;]+/) || [\"\"])[0]).trim().toLowerCase();",
+            "caught": true,
+            "seconds": 3.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sales-agent/mailfile.mjs",
+            "line": 38,
+            "col": 94,
+            "operator": "const-plus-one",
+            "before": "const ENVELOPE = /^From \\S+ +(?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\\b.*\\b(?:19|20)\\d\\d\\b|.*\\b\\d{1,2}:\\d\\d(?::\\d\\d)?\\b.*\\b(?:19|20)\\d\\d\\b)/;",
+            "after": "const ENVELOPE = /^From \\S+ +(?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\\b.*\\b(?:19|20)\\d\\d\\b|.*\\b\\d{1,3}:\\d\\d(?::\\d\\d)?\\b.*\\b(?:19|20)\\d\\d\\b)/;",
+            "line_text": "const ENVELOPE = /^From \\S+ +(?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\\b.*\\b(?:19|20)\\d\\d\\b|.*\\b\\d{1,2}:\\d\\d(?::\\d\\d)?\\b.*\\b(?:19|20)\\d\\d\\b)/;",
+            "caught": false,
+            "seconds": 2.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "three-digit clock now read as an envelope; test: 'From fans: a 100:00 record in 2020' stays body"
+          },
+          {
+            "file": "ventures/sales-agent/mailfile.mjs",
+            "line": 64,
+            "col": 63,
+            "operator": "false-to-true",
+            "before": "if (!this.lines.length) { this.flush(); this.prevBlank = false; return; } // the first line of the file, or after blank lines only",
+            "after": "if (!this.lines.length) { this.flush(); this.prevBlank = true; return; } // the first line of the file, or after blank lines only",
+            "line_text": "      if (!this.lines.length) { this.flush(); this.prevBlank = false; return; } // the first line of the file, or after blank lines only",
+            "caught": false,
+            "seconds": 3.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "line after the first envelope became a candidate and was dropped; test: two envelope lines in a row"
+          },
+          {
+            "file": "ventures/sales-agent/mailfile.mjs",
+            "line": 72,
+            "col": 41,
+            "operator": "plus-to-minus",
+            "before": "if (this.cut || this.size + u.length + 2 > this.maxBytes) { if (!this.cut) { this.cut = true; this.truncated++; } return; }",
+            "after": "if (this.cut || this.size + u.length - 2 > this.maxBytes) { if (!this.cut) { this.cut = true; this.truncated++; } return; }",
+            "line_text": "    if (this.cut || this.size + u.length + 2 > this.maxBytes) { if (!this.cut) { this.cut = true; this.truncated++; } return; }",
+            "caught": false,
+            "seconds": 2.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "maxBytes off by 4 per line; test at maxBytes 40/39"
+          },
+          {
+            "file": "ventures/sales-agent/mailfile.mjs",
+            "line": 80,
+            "col": 77,
+            "operator": "const-plus-one",
+            "before": "if (this.carry) { this.line(this.carry.endsWith(\"\\r\") ? this.carry.slice(0, -1) : this.carry); this.carry = \"\"; }",
+            "after": "if (this.carry) { this.line(this.carry.endsWith(\"\\r\") ? this.carry.slice(1, -1) : this.carry); this.carry = \"\"; }",
+            "line_text": "    if (this.carry) { this.line(this.carry.endsWith(\"\\r\") ? this.carry.slice(0, -1) : this.carry); this.carry = \"\"; }",
+            "caught": false,
+            "seconds": 2.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "trailing CR on the unterminated last line; test"
+          },
+          {
+            "file": "ventures/sales-agent/mailfile.mjs",
+            "line": 80,
+            "col": 81,
+            "operator": "const-plus-one",
+            "before": "if (this.carry) { this.line(this.carry.endsWith(\"\\r\") ? this.carry.slice(0, -1) : this.carry); this.carry = \"\"; }",
+            "after": "if (this.carry) { this.line(this.carry.endsWith(\"\\r\") ? this.carry.slice(0, -2) : this.carry); this.carry = \"\"; }",
+            "line_text": "    if (this.carry) { this.line(this.carry.endsWith(\"\\r\") ? this.carry.slice(0, -1) : this.carry); this.carry = \"\"; }",
+            "caught": false,
+            "seconds": 2.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "trailing CR on the unterminated last line; test"
+          },
+          {
+            "file": "ventures/sales-agent/mailfile.mjs",
+            "line": 119,
+            "col": 134,
+            "operator": "const-plus-one",
+            "before": "return { replies: kept.map((k) => k.block).join(\"\\n---\\n\"), stats: { ...stats }, topSender: top ? { address: top[0], count: top[1] } : null, items: kept.map(({ from, subject }) => ({ from, subject })) };",
+            "after": "return { replies: kept.map((k) => k.block).join(\"\\n---\\n\"), stats: { ...stats }, topSender: top ? { address: top[0], count: top[2] } : null, items: kept.map(({ from, subject }) => ({ from, subject })) };",
+            "line_text": "      return { replies: kept.map((k) => k.block).join(\"\\n---\\n\"), stats: { ...stats }, topSender: top ? { address: top[0], count: top[1] } : null, items: kept.map(({ from, subject }) => ({ from, subject })) };",
+            "caught": false,
+            "seconds": 3.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "topSender.count undefined broke the page's 'most frequent sender' hint; test"
+          },
+          {
+            "file": "ventures/sales-agent/mailfile.mjs",
+            "line": 144,
+            "col": 211,
+            "operator": "div-to-times",
+            "before": "return `${s.messages} message${s.messages === 1 ? \"\" : \"s\"} read, ${s.kept} kept as replies${bits.length ? \"; left out: \" + bits.join(\", \") : \"\"}${s.truncated ? `; ${s.truncated} cut at ${Math.round(MAX_BYTES / 1000)} KB` : \"\"}.`;",
+            "after": "return `${s.messages} message${s.messages === 1 ? \"\" : \"s\"} read, ${s.kept} kept as replies${bits.length ? \"; left out: \" + bits.join(\", \") : \"\"}${s.truncated ? `; ${s.truncated} cut at ${Math.round(MAX_BYTES * 1000)} KB` : \"\"}.`;",
+            "line_text": "  return `${s.messages} message${s.messages === 1 ? \"\" : \"s\"} read, ${s.kept} kept as replies${bits.length ? \"; left out: \" + bits.join(\", \") : \"\"}${s.truncated ? `; ${s.truncated} cut at ${Math.round(MAX_BYTES / 1000)} KB` : \"\"}.`;",
+            "caught": false,
+            "seconds": 2.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "describe() said 200000000 KB; test"
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/check_blank_targets.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_blank_targets  (in platform/ci)",
+        "seed": 263735357,
+        "commit": "da3d4eea",
+        "sites": 9,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/check_blank_targets.py",
+            "line": 16,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "ROOT = Path(__file__).resolve().parents[2]",
+            "after": "ROOT = Path(__file__).resolve().parents[3]",
+            "line_text": "ROOT = Path(__file__).resolve().parents[2]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_blank_targets.py",
+            "line": 35,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "if not SAFE.search(_strip_values(m.group(0))):",
+            "after": "if not SAFE.search(_strip_values(m.group(1))):",
+            "line_text": "        if not SAFE.search(_strip_values(m.group(0))):",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_blank_targets.py",
+            "line": 36,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "yield m.group(0)",
+            "after": "yield m.group(1)",
+            "line_text": "            yield m.group(0)",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_blank_targets.py",
+            "line": 40,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "after": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[1])",
+            "line_text": "    ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "only the --help description line changes (docstring line 2 instead of 1); no exit code, output or check result differs"
+          },
+          {
+            "file": "platform/ci/check_blank_targets.py",
+            "line": 43,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "bad, pages = [], 0",
+            "after": "bad, pages = [], 1",
+            "line_text": "    bad, pages = [], 0",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_blank_targets.py",
+            "line": 47,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "pages += 1",
+            "after": "pages += 2",
+            "line_text": "        pages += 1",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_blank_targets.py",
+            "line": 52,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 2 if bad else 0",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_blank_targets.py",
+            "line": 52,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 1 if bad else 1",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/sales-agent/mailfile.mjs",
+        "issue": "MboxSplitter took any 'Word: ...' line after an unescaped body 'From ...' line as a header, so a reply paragraph 'From our side ...' followed by 'Note: ...' split the reply in two: the second half was dropped as a 'not a reply' message and the stats said 2 messages read. Same for a dated body line ('From Mon to Fri 9:00 to 17:00, all of 2026') followed by text. Fixed: a non-envelope candidate needs an exporter's first header (X-*, Return-Path, Received, ...) after it; an envelope-shaped one needs a header-shaped or blank line. Public mbox eval unchanged (11 of 11 split right, 0 no-text).",
+        "patched": true
+      },
+      {
+        "file": "ventures/sales-agent/mailfile.mjs",
+        "issue": "describe() wrote '1 not replies' and '1 duplicates' on the page and CLI. Fixed with singulars.",
+        "patched": true
+      }
+    ]
+  }
+}

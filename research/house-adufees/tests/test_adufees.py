@@ -54,3 +54,15 @@ def test_adu_totals():
 
 def test_unexplained_remainder():
     assert m.unexplained_after_sewer() == pytest.approx(16930 - 4925 - 6480)
+
+
+def test_headline_ratios_exact():
+    # quality audit 2026-11-13: these headline numbers were only range-checked
+    assert m.adu_discount(2000) == pytest.approx(1 - 2170 / 5400)
+    assert m.step_increase("house") == pytest.approx(5400 / 4925 - 1)
+    assert m.step_increase("adu") == pytest.approx(2170 / 2055 - 1)
+
+
+def test_tier_cap_at_22000():
+    s = m.schedule()[("2026-07-01", "inside Denver")]
+    assert m.house_sdc(23000) == pytest.approx(s["base_usd"] + s["first_22000_per_sqft"] * 22000 + s["over_22000_per_sqft"] * 1000)

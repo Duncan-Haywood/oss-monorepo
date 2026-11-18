@@ -34,6 +34,11 @@ export const RATE_MODEL = Object.freeze({
   assessments: Object.freeze({ rate: 0.0014, perTransaction: 0.02 }),
 });
 
+// Stripe's published standard US online card rate (stripe.com/pricing, read
+// 2026-11-04): a flat blend, so interchange, assessments and markup are not
+// separated. Used only in the page's answer lead; the audit does not use it.
+export const STRIPE_STANDARD_PUBLISHED = Object.freeze({ percent: 2.9, perTransaction: 0.3 });
+
 // A competitive interchange-plus quote for a small merchant, used as the
 // default comparison so the tool answers something on first load rather than
 // showing an empty panel.

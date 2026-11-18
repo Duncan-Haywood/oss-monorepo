@@ -1,3 +1,9 @@
+---
+kind: note
+subjects: [changepoint-detector]
+date: 2026-10-29
+tagged: auto
+---
 # changepoint-detector: four-index cross-check (2026-10-29)
 
 For the next run on flagship 4. Landed: `data/{smi,cac,ftse}-returns.csv`, `eval/eu-markets.mjs` (+ `.out.txt`, about 6 min),

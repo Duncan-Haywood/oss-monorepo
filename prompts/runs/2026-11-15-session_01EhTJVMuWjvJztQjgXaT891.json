@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVMuWjvJztQjgXaT891",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (continue work on the repo ... revenue generating software products)",
+  "input_sha256": "10da92409a39141f39a8a5a7699a4bcff42a9cb95da7bb1191077333847ca0c9",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T14:17:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship: rho-cut guard for --hinge-test",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 16232,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-a-bend-cuts-stickiness-a-random-walk-does-not.md"
+  ],
+  "goal": "Deepen flagship row 2 (changepoint-detector): the untested 'cut' guard idea from the failed hinge-guard round",
+  "notes": "Pre-registered (eval/hinge-cut-guard-prereg-2026-11-15.md, committed before the guard ran) on fresh seeds (+5e7). All four bars held: R (GCAG 1930-2024 knot 1974 p 0.001; long records unchanged; log GDP/productivity refused), P (n 95 slope 0.2: 83.0% vs 15.3%), S1 (12 cells 2.0-8.0%; 8.0% at n300 rho0.6 sits on the bar under both guards, line admits all there), S2 (9 unit-root cells <= 5.3%). Default guard switched to 'cut'; CLI and page report admittedByCut with both rhos and the bar. Local: node --test hinge-test.test.mjs 9/9; run_venture_tests.py changepoint-detector and venture-preflight run before merge (outputs in PR body).",
+  "corrections": [],
+  "redteam": null
+}

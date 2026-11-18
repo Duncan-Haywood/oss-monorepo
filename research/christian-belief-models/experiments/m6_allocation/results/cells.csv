@@ -1,0 +1,229 @@
+family,kind,pair,item,bias,N
+generation,generation,Catholic gen3 -> gen1,attend_weekly,-0.03138527594917184,2553
+generation,generation,Catholic gen3 -> gen1,pray_daily,-0.010411538457896996,1955
+generation,generation,Catholic gen3 -> gen1,god_no_doubt,-0.11396032765060748,1462
+generation,generation,Catholic gen3 -> gen1,afterlife,0.09869734676217923,1664
+generation,generation,Catholic gen3 -> gen1,premarsx_wrong,-0.04152698296380691,1607
+generation,generation,Catholic gen3 -> gen1,xmarsex_wrong,0.010141186778229172,1582
+generation,generation,Catholic gen3 -> gen1,homosex_wrong,-0.03934764881308017,1493
+generation,generation,Catholic gen3 -> gen1,samesex_marr_no,-0.08013458666035345,310
+generation,generation,Catholic gen3 -> gen1,cohab_not_ok,0.0033131219447967153,227
+generation,generation,Catholic gen3 -> gen1,abortion_no,-0.008695565325595012,1510
+generation,generation,Catholic gen3 -> gen1,divorce_harder,0.06810136891098412,1380
+generation,generation,Catholic gen3 -> gen1,ever_divorced,0.0796005132543386,1588
+generation,generation,Catholic gen3 -> gen1,pope_infallible,-0.033396343080537516,1147
+generation,generation,Catholic gen3 -> gen2,attend_weekly,-0.000517263391972056,2652
+generation,generation,Catholic gen3 -> gen2,pray_daily,-0.02369589752944412,1751
+generation,generation,Catholic gen3 -> gen2,god_no_doubt,-0.05160448114554095,1128
+generation,generation,Catholic gen3 -> gen2,afterlife,0.026326062182504106,1620
+generation,generation,Catholic gen3 -> gen2,premarsx_wrong,-0.013373939461620327,1676
+generation,generation,Catholic gen3 -> gen2,xmarsex_wrong,0.012088621739697603,1694
+generation,generation,Catholic gen3 -> gen2,homosex_wrong,-0.007172157942958668,1625
+generation,generation,Catholic gen3 -> gen2,samesex_marr_no,-0.014198687659349174,279
+generation,generation,Catholic gen3 -> gen2,cohab_not_ok,-0.06119487661599077,253
+generation,generation,Catholic gen3 -> gen2,abortion_no,0.018165384670503104,1747
+generation,generation,Catholic gen3 -> gen2,divorce_harder,0.02031408721249567,1487
+generation,generation,Catholic gen3 -> gen2,ever_divorced,0.03524281940833565,1680
+generation,generation,Catholic gen3 -> gen2,pope_infallible,-0.011461831341742446,810
+generation,generation,Catholic gen1 -> gen3,attend_weekly,-0.010429525651373228,10196
+generation,generation,Catholic gen1 -> gen3,pray_daily,0.060357741573891066,7047
+generation,generation,Catholic gen1 -> gen3,god_no_doubt,0.10090555541473711,4666
+generation,generation,Catholic gen1 -> gen3,afterlife,-0.06821606769037702,6576
+generation,generation,Catholic gen1 -> gen3,premarsx_wrong,0.012264730172246552,6392
+generation,generation,Catholic gen1 -> gen3,xmarsex_wrong,-0.032577402042815784,6375
+generation,generation,Catholic gen1 -> gen3,homosex_wrong,0.07622945749744175,6120
+generation,generation,Catholic gen1 -> gen3,samesex_marr_no,0.06323801605615287,1265
+generation,generation,Catholic gen1 -> gen3,abortion_no,-0.027661718841971328,6406
+generation,generation,Catholic gen1 -> gen3,divorce_harder,-0.08373392416707637,5600
+generation,generation,Catholic gen1 -> gen3,ever_divorced,-0.05419966062580704,6041
+generation,generation,Catholic gen1 -> gen3,pope_infallible,0.0770967679447046,3410
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,attend_weekly,0.010406184794901074,17596
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,pray_daily,-0.03252332818090109,10804
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,god_no_doubt,-0.06435369207903241,7444
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,afterlife,-0.04047038279166282,11568
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,premarsx_wrong,-0.17411571102696177,10552
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,xmarsex_wrong,-0.03709571172591053,10951
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,homosex_wrong,-0.09106262227106476,10659
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,samesex_marr_no,-0.12981876134439613,1713
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,cohab_not_ok,-0.11959308388935441,1480
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,abortion_no,0.001994821509310518,9970
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,divorce_harder,-0.03654399206606418,9587
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,ever_divorced,-0.08529534155602811,12078
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,attend_weekly,0.12328229952568917,13539
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,pray_daily,0.03490992145061911,6963
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,god_no_doubt,0.03878607588035443,4413
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,afterlife,-0.019369707127757874,8102
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,premarsx_wrong,-0.033292717538731836,8261
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,xmarsex_wrong,0.007431846851313262,8405
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,homosex_wrong,-0.014366618810450427,8038
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,samesex_marr_no,-0.027783760801844026,1102
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,cohab_not_ok,-0.024768683510944356,942
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,abortion_no,0.08602483260960758,7499
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,divorce_harder,-0.0072459146383977435,7542
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,ever_divorced,-0.02356971850826539,9739
+tradition: Catholic,tradition,Catholic -> Black Protestant,attend_weekly,0.05480379810419367,6245
+tradition: Catholic,tradition,Catholic -> Black Protestant,pray_daily,-0.05602338098532278,3603
+tradition: Catholic,tradition,Catholic -> Black Protestant,god_no_doubt,-0.06630741456522826,2239
+tradition: Catholic,tradition,Catholic -> Black Protestant,afterlife,0.031836241328590975,3853
+tradition: Catholic,tradition,Catholic -> Black Protestant,premarsx_wrong,-0.07381497536311543,3805
+tradition: Catholic,tradition,Catholic -> Black Protestant,xmarsex_wrong,-0.022265753005826783,3899
+tradition: Catholic,tradition,Catholic -> Black Protestant,homosex_wrong,-0.06451050109644785,3803
+tradition: Catholic,tradition,Catholic -> Black Protestant,samesex_marr_no,-0.09019150511975849,504
+tradition: Catholic,tradition,Catholic -> Black Protestant,cohab_not_ok,-0.07489193866694088,413
+tradition: Catholic,tradition,Catholic -> Black Protestant,abortion_no,0.06583492027417259,3564
+tradition: Catholic,tradition,Catholic -> Black Protestant,divorce_harder,0.1263862459478194,3415
+tradition: Catholic,tradition,Catholic -> Black Protestant,ever_divorced,-0.07117670792749553,2938
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,attend_weekly,-0.012424547712872935,17825
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,pray_daily,0.07443118001730342,10838
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,god_no_doubt,0.07257687093529097,7322
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,afterlife,0.06977346112701976,10963
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,premarsx_wrong,0.10470200779773886,10857
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,xmarsex_wrong,0.02310035839858615,10873
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,homosex_wrong,0.08600820607577098,10428
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,samesex_marr_no,0.08094668102128028,1869
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,cohab_not_ok,0.07282523419312359,1489
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,abortion_no,-0.040004739438850745,9737
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,divorce_harder,0.038512384507190134,9587
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,ever_divorced,0.0977709555406884,11109
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,attend_weekly,0.0643757534986227,13539
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,pray_daily,0.043610531950621145,6963
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,god_no_doubt,0.09829940458083597,4413
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,afterlife,0.03272679577828175,8102
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,premarsx_wrong,0.091211810874751,8261
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,xmarsex_wrong,0.04270871909137064,8405
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,homosex_wrong,0.05940129741471056,8038
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,samesex_marr_no,0.046700920404407376,1102
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,cohab_not_ok,0.08974941484678917,942
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,abortion_no,0.06212415441599284,7499
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,divorce_harder,0.033541362810675546,7542
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,ever_divorced,0.04581177263298239,9739
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,attend_weekly,0.11004944075595202,6245
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,pray_daily,-0.02122703814707294,3603
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,god_no_doubt,-0.019190235957044943,2239
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,afterlife,0.06619171226462939,3853
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,premarsx_wrong,0.07257192543996849,3805
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,xmarsex_wrong,0.07380930834453081,3899
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,homosex_wrong,0.004063984358195993,3803
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,samesex_marr_no,0.01623474600911401,504
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,cohab_not_ok,0.02215258298389189,413
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,abortion_no,0.019720966416247432,3564
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,divorce_harder,0.16102321651368362,3415
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,ever_divorced,0.02644679952630502,2938
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,attend_weekly,-0.09338877478426152,17825
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,pray_daily,-0.012477304512493292,10838
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,god_no_doubt,-0.0351955238229672,7322
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,afterlife,0.05066234492683497,10963
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,premarsx_wrong,0.00438478894453273,10857
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,xmarsex_wrong,-0.0029565493410164123,10873
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,homosex_wrong,0.011392318194033635,10428
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,samesex_marr_no,0.018540204879203548,1869
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,cohab_not_ok,-0.027303165338802227,1489
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,abortion_no,-0.07180358272445797,9737
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,divorce_harder,0.017085088736494114,9587
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,ever_divorced,0.07879990491691982,11109
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,attend_weekly,-0.0963914925591976,17596
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,pray_daily,-0.021277237948215233,10804
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,god_no_doubt,-0.06971905839892201,7444
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,afterlife,-0.0013013723086429119,11568
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,premarsx_wrong,-0.1083835092496474,10552
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,xmarsex_wrong,-0.02655834731253859,10951
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,homosex_wrong,-0.06796042601830277,10659
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,samesex_marr_no,-0.07505597470654035,1713
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,cohab_not_ok,-0.05923515492041315,1480
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,abortion_no,-0.058845823609622205,9970
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,divorce_harder,-0.006706753332069937,9587
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,ever_divorced,-0.0400423490005494,12078
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,attend_weekly,-0.043276816535235074,6245
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,pray_daily,-0.03486995197922582,3603
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,god_no_doubt,-0.08059007812087282,2239
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,afterlife,0.02700196472700489,3853
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,premarsx_wrong,-0.02897757924155947,3805
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,xmarsex_wrong,0.040766714495902856,3899
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,homosex_wrong,-0.038378373167276436,3803
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,samesex_marr_no,-0.037915286532189396,504
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,cohab_not_ok,-0.028099555110603858,413
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,abortion_no,-0.007515775715067452,3564
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,divorce_harder,0.09196926800322658,3415
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,ever_divorced,-0.06038886043132036,2938
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,attend_weekly,-0.025222709474827965,17825
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,pray_daily,0.1393757014988216,10838
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,god_no_doubt,0.12864551290520132,7322
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,afterlife,0.03736858855569336,10963
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,premarsx_wrong,0.06188128045846744,10857
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,xmarsex_wrong,-0.02748341681711408,10873
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,homosex_wrong,0.09402491667758539,10428
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,samesex_marr_no,0.049703426698915476,1869
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,cohab_not_ok,0.0756485842757057,1489
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,abortion_no,-0.09346374980155525,9737
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,divorce_harder,-0.048533221881424615,9587
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,ever_divorced,0.1708223011454406,11109
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,attend_weekly,-0.03502190014816148,17596
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,pray_daily,0.07353477580670142,10804
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,god_no_doubt,0.028317762322118467,7444
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,afterlife,-0.035065610055684204,11568
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,premarsx_wrong,-0.08102036943544749,10552
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,xmarsex_wrong,-0.043278962973858026,10951
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,homosex_wrong,-0.007074799271533205,10659
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,samesex_marr_no,-0.08216009004737246,1713
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,cohab_not_ok,-0.06657105601901464,1480
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,abortion_no,-0.06835661848397745,9970
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,divorce_harder,-0.14663180772750117,9587
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,ever_divorced,0.07260132487594384,12078
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,attend_weekly,0.06281743275080084,13539
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,pray_daily,0.17789058008604963,6963
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,god_no_doubt,0.18237078327935452,4413
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,afterlife,-0.00459976345721802,8102
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,premarsx_wrong,0.029448369478290687,8261
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,xmarsex_wrong,-0.01621246361674611,8405
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,homosex_wrong,0.08638520839299235,8038
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,samesex_marr_no,-0.011926502658983373,1102
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,cohab_not_ok,0.05260046120714529,942
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,abortion_no,0.021909317377203696,7499
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,divorce_harder,-0.049752640932154535,7542
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,ever_divorced,0.12660574927076043,9739
+period,period,Catholic <=2014 -> 2016-24,attend_weekly,0.049432196384921245,3344
+period,period,Catholic <=2014 -> 2016-24,pray_daily,0.035722477374946715,3343
+period,period,Catholic <=2014 -> 2016-24,god_no_doubt,-0.03955792001481706,2589
+period,period,Catholic <=2014 -> 2016-24,afterlife,-0.03057587569108078,1642
+period,period,Catholic <=2014 -> 2016-24,premarsx_wrong,0.049549353130730014,2213
+period,period,Catholic <=2014 -> 2016-24,xmarsex_wrong,0.0016928521820619435,2213
+period,period,Catholic <=2014 -> 2016-24,homosex_wrong,0.08205949061303214,2145
+period,period,Catholic <=2014 -> 2016-24,samesex_marr_no,0.39040343206391614,1254
+period,period,Catholic <=2014 -> 2016-24,cohab_not_ok,0.04338435643601987,254
+period,period,Catholic <=2014 -> 2016-24,abortion_no,0.030850849587164997,1650
+period,period,Catholic <=2014 -> 2016-24,divorce_harder,0.0944520102927438,1168
+period,period,Catholic <=2014 -> 2016-24,ever_divorced,-0.012029682930998542,1890
+period,period,Catholic <=2014 -> 2016-24,pope_infallible,0.027420744867532765,2659
+period,period,Evangelical Protestant <=2014 -> 2016-24,attend_weekly,-0.01535566717566933,3154
+period,period,Evangelical Protestant <=2014 -> 2016-24,pray_daily,0.0011137202531260604,3149
+period,period,Evangelical Protestant <=2014 -> 2016-24,god_no_doubt,-0.02243481526943214,2524
+period,period,Evangelical Protestant <=2014 -> 2016-24,afterlife,-0.01992390231671559,1783
+period,period,Evangelical Protestant <=2014 -> 2016-24,premarsx_wrong,0.016250714459538795,2036
+period,period,Evangelical Protestant <=2014 -> 2016-24,xmarsex_wrong,0.009960687613471242,2083
+period,period,Evangelical Protestant <=2014 -> 2016-24,homosex_wrong,0.09957453724291765,2013
+period,period,Evangelical Protestant <=2014 -> 2016-24,samesex_marr_no,0.35188101620184026,1048
+period,period,Evangelical Protestant <=2014 -> 2016-24,cohab_not_ok,0.1636192744586919,176
+period,period,Evangelical Protestant <=2014 -> 2016-24,abortion_no,0.003558786690741056,1604
+period,period,Evangelical Protestant <=2014 -> 2016-24,divorce_harder,0.11341040338856051,1157
+period,period,Evangelical Protestant <=2014 -> 2016-24,ever_divorced,-0.022423843358899243,1935
+period,period,Mainline Protestant <=2014 -> 2016-24,attend_weekly,0.007407793062043949,1708
+period,period,Mainline Protestant <=2014 -> 2016-24,pray_daily,0.012354291478088864,1697
+period,period,Mainline Protestant <=2014 -> 2016-24,god_no_doubt,-0.02071891525654035,1307
+period,period,Mainline Protestant <=2014 -> 2016-24,afterlife,-0.02083750232524051,817
+period,period,Mainline Protestant <=2014 -> 2016-24,premarsx_wrong,0.05174275809896482,1116
+period,period,Mainline Protestant <=2014 -> 2016-24,xmarsex_wrong,0.01135882969975155,1151
+period,period,Mainline Protestant <=2014 -> 2016-24,homosex_wrong,0.07379143549136236,1115
+period,period,Mainline Protestant <=2014 -> 2016-24,samesex_marr_no,0.4309903019352027,670
+period,period,Mainline Protestant <=2014 -> 2016-24,abortion_no,-0.012691128484932479,880
+period,period,Mainline Protestant <=2014 -> 2016-24,divorce_harder,0.09853144129204494,560
+period,period,Mainline Protestant <=2014 -> 2016-24,ever_divorced,-0.07756585122175197,1091
+period,period,Black Protestant <=2014 -> 2016-24,attend_weekly,0.02947421819200058,943
+period,period,Black Protestant <=2014 -> 2016-24,pray_daily,-0.058549669204459365,947
+period,period,Black Protestant <=2014 -> 2016-24,god_no_doubt,0.022846468145818255,732
+period,period,Black Protestant <=2014 -> 2016-24,afterlife,-0.019692274864030024,581
+period,period,Black Protestant <=2014 -> 2016-24,premarsx_wrong,-0.03208131281254917,641
+period,period,Black Protestant <=2014 -> 2016-24,xmarsex_wrong,-0.017766425742176573,622
+period,period,Black Protestant <=2014 -> 2016-24,homosex_wrong,0.13373198356207205,602
+period,period,Black Protestant <=2014 -> 2016-24,abortion_no,0.12589554281997517,494
+period,period,Black Protestant <=2014 -> 2016-24,divorce_harder,0.04774628096655198,413
+period,period,Black Protestant <=2014 -> 2016-24,ever_divorced,-0.10792157286111032,341

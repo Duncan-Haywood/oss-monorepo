@@ -6,13 +6,12 @@ source for **`chrome.*` API usage** and cross-checks it against your
 `host_permissions`. It names the exact permission behind the two problems that
 matter here:
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/chrome-extension-permission-check/
+**Live tool:** https://marisstella.app/chrome-extension-permission-check/
 
 - **Declared, not used** -- a permission sits in the manifest with no matching
-  API call anywhere in the source you point it at. This is what Chrome Web
-  Store's own troubleshooting documentation calls the single most common
-  review rejection reason ("**Purple Potassium**": excessive or unused
-  permissions).
+  API call anywhere in the source you point it at. Chrome Web Store
+  review rejects this under the violation it calls "**Purple Potassium**"
+  (excessive or unused permissions; see Google's troubleshooting page).
 - **Used, not declared** -- code calls a `chrome.*` API whose permission was
   never added to the manifest. This fails at **runtime**, independent of
   review.

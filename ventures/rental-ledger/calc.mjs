@@ -35,7 +35,7 @@ export const EXPENSE_LINES = {
 export const TYPES = { rent: "Rent received", deposit: "Security deposit received (not income)", expense: "Expense", improvement: "Improvement (depreciated)", principal: "Loan principal paid (not deductible)" };
 
 const int = (n) => Math.round(Number(n) || 0);
-export const isDate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(String(s || "")) && !Number.isNaN(Date.parse(s));
+export const isDate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(String(s || "")) && !Number.isNaN(Date.parse(s)) && new Date(s + "T00:00:00Z").toISOString().slice(0, 10) === s;
 const yearOf = (s) => (isDate(s) ? Number(String(s).slice(0, 4)) : NaN);
 const monthOf = (s) => (isDate(s) ? Number(String(s).slice(5, 7)) : NaN);
 
@@ -193,7 +193,7 @@ export function checks(data, year = TAX_YEAR) {
 // ---- CSV ---------------------------------------------------------------------------
 export function csvEscape(v) {
   let s = String(v ?? "");
-  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 export function toCsv(rows) { return rows.map((r) => r.map(csvEscape).join(",")).join("\n") + "\n"; }
@@ -212,7 +212,7 @@ export function scheduleECsv(sch) {
 export function parseCsv(text) {
   const rows = [];
   let cur = [], field = "", q = false;
-  const s = String(text || "").replace(/^﻿/, "");
+  const s = String(text || "").replace(/^\uFEFF/, "");
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (q) { if (c === '"' && s[i + 1] === '"') { field += '"'; i++; } else if (c === '"') q = false; else field += c; }

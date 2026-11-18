@@ -1,0 +1,44 @@
+# Milestone 8: complex-centrality rules under milestone 6's joint bootstrap
+B = 500 joint draws; worst-case regret over I, T, R; reference set = milestone 6's 23 rules + 6 cc rules
+
+## per cc rule: point fit | joint median [5%, 95%] | share of draws: beats dd-0.05 / beats top degree / minimax
+  cc-frac         0.057 | 0.055 [0.043, 0.072] | 0.000 / 0.000 / 0.000
+  cc-frac25       0.079 | 0.078 [0.059, 0.102] | 0.000 / 0.000 / 0.000
+  cc-abs2         0.038 | 0.033 [0.024, 0.053] | 0.000 / 0.736 / 0.000
+  cc-hood-frac    0.100 | 0.100 [0.073, 0.134] | 0.000 / 0.000 / 0.000
+  cc-hood-abs2    0.124 | 0.126 [0.095, 0.166] | 0.000 / 0.000 / 0.000
+  cc-spread-frac  0.048 | 0.045 [0.036, 0.064] | 0.000 / 0.084 / 0.000
+  dd-0.05         0.013 | 0.010 [0.003, 0.016] | 1.000 / 1.000 / 0.008
+  degree          0.041 | 0.039 [0.032, 0.048] | 0.000 / 0.000 / 0.000
+  greedy-T        0.003 | 0.005 [0.001, 0.024] | 0.724 / 1.000 / 0.476
+
+## median regret per family, joint draws
+  cc-frac         I 0.040  T 0.055  R 0.022
+  cc-frac25       I 0.054  T 0.078  R 0.031
+  cc-abs2         I 0.027  T 0.033  R 0.016
+  cc-hood-frac    I 0.072  T 0.100  R 0.045
+  cc-hood-abs2    I 0.096  T 0.126  R 0.062
+  cc-spread-frac  I 0.029  T 0.045  R 0.023
+  dd-0.05         I 0.007  T 0.004  R 0.003
+  degree          I 0.031  T 0.039  R 0.017
+
+## family of the worst case (share of draws)
+  cc-frac         I 0.02  T 0.98  R 0.00
+  cc-frac25       I 0.02  T 0.98  R 0.00
+  cc-abs2         I 0.26  T 0.72  R 0.02
+  cc-hood-frac    I 0.03  T 0.97  R 0.00
+  cc-hood-abs2    I 0.05  T 0.95  R 0.00
+  cc-spread-frac  I 0.00  T 1.00  R 0.00
+  dd-0.05         I 0.55  T 0.18  R 0.28
+
+## regret under T by the draw's refitted theta (median; n draws)
+  theta 0.40 (n  86): cc-abs2 0.0486  degree 0.0422  dd-0.05 0.0000
+  theta 0.50 (n 184): cc-abs2 0.0371  degree 0.0411  dd-0.05 0.0046
+  theta 0.60 (n 218): cc-abs2 0.0266  degree 0.0364  dd-0.05 0.0059
+  theta 0.75 (n  12): cc-abs2 0.0243  degree 0.0360  dd-0.05 0.0095
+
+H13 (dd-0.05 below every cc rule's worst case in >= 95% of draws): held; largest share of draws a cc rule matches or beats it: 0.000 (cc-frac)
+H14 (cc-abs2 below top degree's worst case in >= 50% of draws): held; 0.736
+H15 (under T, cc-abs2's median regret lower when theta >= 0.6 than when theta <= 0.4): held; 0.0266 against 0.0486 (n 230 and 86)
+prediction (not tested): no cc rule is minimax in any draw: largest share 0.000
+prediction (not tested): cc-abs2 median worst case in [0.03, 0.045]: 0.0335

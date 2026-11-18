@@ -42,7 +42,7 @@ def surf(af, ar, re, a_deg, n_crit, xtr):
     return cl1, cd1, cm1, a0 * k
 
 
-def modes(n, n_crit, xtr, alpha_trim_deg, same_cl=None):
+def modes(n, n_crit, xtr, alpha_trim_deg, same_cl=None, s_thrust=0.0):
     m, b = M_FULL * n ** 3, B_FULL * n
     s_w = b * b / AR_W
     c = b / AR_W
@@ -79,7 +79,8 @@ def modes(n, n_crit, xtr, alpha_trim_deg, same_cl=None):
     cda = 2 * cl_w * a_w / (np.pi * E * AR_W)
     # dimensional derivatives
     mass = m
-    xu = -(2 * cd_tot) * q * s_w / (mass * v)               # per unit u (cd ~ constant in speed)
+    # drag gives -2 D/(m V); thrust T = D (V/V0)^s_thrust adds s_thrust D/(m V); s_thrust = 0 is constant thrust
+    xu = (s_thrust - 2) * cd_tot * q * s_w / (mass * v)
     zu = -(2 * cl_w) * q * s_w / (mass * v)
     xa = (cl_w - cda) * q * s_w / mass
     za = -(cla + cd_tot) * q * s_w / mass
@@ -133,4 +134,5 @@ def main():
                 print("  n=0.1 vs 1: dV %+.1f%%; the mode structure changed (see eigenvalues)" % rel(ref["v_nd"], r2["v_nd"]))
 
 
-main()
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,248 @@
+family,kind,pair,item,bias,N,share,sd
+generation,generation,Catholic gen3 -> gen1,euthanasia_no,-0.0838635680363094,1385,0.41661711406334795,0.5840048442340176
+generation,generation,Catholic gen3 -> gen1,suicide_no,-0.07681658151932624,1479,0.550473663892778,0.567872857810097
+generation,generation,Catholic gen3 -> gen1,deathpen_oppose,-0.12382626482301046,2238,0.4118334428578579,0.5891577206709532
+generation,generation,Catholic gen3 -> gen1,marijuana_no,-0.1769445985138024,1394,0.797695816019699,0.48986802459417195
+generation,generation,Catholic gen3 -> gen1,porn_ban_all,-0.045503141900334,1617,0.3970684863988808,0.5783914474447053
+generation,generation,Catholic gen3 -> gen1,teensex_wrong,0.023594067132117313,1411,0.663553771910025,0.5237768089006022
+generation,generation,Catholic gen3 -> gen1,teen_pill_no,0.01168905227440381,1353,0.41739645634257877,0.5810510566725335
+generation,generation,Catholic gen3 -> gen1,abdefect_no,-0.03617546600341115,1504,0.28307657100733047,0.5066602412330476
+generation,generation,Catholic gen3 -> gen1,abrape_no,-0.10390479891924215,1482,0.35064333338790293,0.5055363356219357
+generation,generation,Catholic gen3 -> gen1,absingle_no,-0.04055345946056188,1495,0.6959929487258495,0.39511588094720634
+generation,generation,Catholic gen3 -> gen1,abpoor_no,-0.023638616692553516,1507,0.6507092755531559,0.44880773044393957
+generation,generation,Catholic gen3 -> gen1,abnomore_no,0.0035247667483260248,1514,0.6405049651805691,0.4354562878877426
+generation,generation,Catholic gen3 -> gen1,abhlth_no,-0.0548093576363014,1512,0.18714252042399507,0.4483934971096123
+generation,generation,Catholic gen3 -> gen2,euthanasia_no,-0.013487624155177569,1524,0.3234720497736867,0.5319722862722351
+generation,generation,Catholic gen3 -> gen2,suicide_no,0.004924274823582986,1555,0.4601646885232664,0.5361732501533981
+generation,generation,Catholic gen3 -> gen2,deathpen_oppose,0.009005577998527192,2353,0.27145787053693826,0.5099299434158554
+generation,generation,Catholic gen3 -> gen2,marijuana_no,-0.021516955452986708,1417,0.6929749240059804,0.49356986026092786
+generation,generation,Catholic gen3 -> gen2,porn_ban_all,0.0005791434649160543,1625,0.3641326886553412,0.5377561730218525
+generation,generation,Catholic gen3 -> gen2,teensex_wrong,-0.017408778561242566,1261,0.633671592470133,0.519788587373952
+generation,generation,Catholic gen3 -> gen2,teen_pill_no,-0.021648989153424503,1215,0.43292986694665,0.567178019876401
+generation,generation,Catholic gen3 -> gen2,abdefect_no,-0.003371137093060028,1729,0.2410934773051547,0.4587198406521883
+generation,generation,Catholic gen3 -> gen2,abrape_no,0.011663109414135814,1716,0.1950579031336886,0.4277054173308879
+generation,generation,Catholic gen3 -> gen2,absingle_no,0.006954298302052964,1726,0.5940299756230158,0.3764241344834957
+generation,generation,Catholic gen3 -> gen2,abpoor_no,0.006794181676481714,1735,0.571293758102392,0.43329449453487456
+generation,generation,Catholic gen3 -> gen2,abnomore_no,0.0035770119523688138,1732,0.605526419506953,0.39320039177344807
+generation,generation,Catholic gen3 -> gen2,abhlth_no,-0.00012660058387389816,1729,0.14364980066479974,0.39248855318938924
+generation,generation,Catholic gen1 -> gen3,euthanasia_no,0.0706153576343243,5783,0.2863745647314603,0.5050654163126534
+generation,generation,Catholic gen1 -> gen3,suicide_no,0.07065643731452703,5895,0.3954241537900063,0.5367442245514261
+generation,generation,Catholic gen1 -> gen3,deathpen_oppose,0.072533044441006,9132,0.2697415840314234,0.5206574902040838
+generation,generation,Catholic gen1 -> gen3,marijuana_no,0.11638958751896744,5503,0.6496055854388099,0.5328072393367602
+generation,generation,Catholic gen1 -> gen3,porn_ban_all,0.06983801348515734,6498,0.30282339986446793,0.5125043843779779
+generation,generation,Catholic gen1 -> gen3,teensex_wrong,0.01794158469383289,5183,0.6105068880671737,0.5325148837246377
+generation,generation,Catholic gen1 -> gen3,teen_pill_no,0.007722248400715226,5036,0.4037619310087369,0.5545985091591176
+generation,generation,Catholic gen1 -> gen3,abdefect_no,-0.018552388654139884,6354,0.23134866032985513,0.4511640833853983
+generation,generation,Catholic gen1 -> gen3,abrape_no,0.06020191635486552,6349,0.19354642339917819,0.41187566871368336
+generation,generation,Catholic gen1 -> gen3,absingle_no,0.021324978781884107,6346,0.5933926401902844,0.3744563154814326
+generation,generation,Catholic gen1 -> gen3,abpoor_no,-0.002485269895526665,6322,0.5693332100885051,0.4196509333708757
+generation,generation,Catholic gen1 -> gen3,abnomore_no,0.007374147486317484,6322,0.588390128402947,0.38043327104266045
+generation,generation,Catholic gen1 -> gen3,abhlth_no,0.038493563257037414,6373,0.11980135528455903,0.35716979059218085
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,euthanasia_no,0.01437196995143486,8676,0.42157581889436035,0.5226631801537157
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,suicide_no,-0.01369347741468252,8958,0.5626484348277746,0.5190775048306541
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,deathpen_oppose,0.062520339976953,14847,0.23440321502942735,0.48734797192402063
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,marijuana_no,-0.018063581460509903,9673,0.770070342042467,0.4353774022387966
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,porn_ban_all,-0.09116892027677237,10879,0.513451562851193,0.5226583035339565
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,teensex_wrong,-0.019439034372677688,7987,0.8107969319117628,0.39961024100075926
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,teen_pill_no,0.006016162779529433,7691,0.5315171318523911,0.5414011003760598
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,abdefect_no,0.004437652124436642,11315,0.29929670633916655,0.4665956398362091
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,abrape_no,0.021169012470454274,11215,0.28051999690550883,0.46229242005987237
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,absingle_no,0.004206941067935843,11408,0.7075046381179496,0.3668830256146701
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,abpoor_no,-0.0012049375614883173,11385,0.683156325194923,0.39927297169816117
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,abnomore_no,0.000817322071032911,11416,0.7078743387988858,0.36750044632742923
+tradition: Catholic,tradition,Catholic -> Evangelical Protestant,abhlth_no,0.02889089779622811,11320,0.1434520594670886,0.39030815145034975
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,euthanasia_no,0.06257597612134314,6458,0.23649291996134053,0.4720774512999475
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,suicide_no,0.048185573340496723,6545,0.3628019625982074,0.5086614589334593
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,deathpen_oppose,0.02051215722713179,11282,0.23043633391210588,0.4633750200210001
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,marijuana_no,-0.012422233020154438,7523,0.7294283774313799,0.45241485591800396
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,porn_ban_all,-0.04407063343522244,8349,0.3965911469056575,0.5060237402168034
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,teensex_wrong,0.01508177839274738,5065,0.6615003835752007,0.48508084705552906
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,teen_pill_no,0.03227378640685147,4912,0.4047711234913688,0.5378493234319149
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,abdefect_no,0.07763383851013836,9672,0.09884678393624025,0.33495160878249963
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,abrape_no,0.07253347108253999,9649,0.09089437022035596,0.3261442479696868
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,absingle_no,0.06691100196406846,9490,0.4650796388700493,0.41964915422481636
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,abpoor_no,0.07653272968983471,9531,0.4332812314184711,0.45338510460794146
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,abnomore_no,0.06650327010067858,9521,0.4747493870529228,0.43516941975905715
+tradition: Catholic,tradition,Catholic -> Mainline Protestant,abhlth_no,0.049092176184150085,9743,0.04439961024142343,0.24209478266902748
+tradition: Catholic,tradition,Catholic -> Black Protestant,euthanasia_no,-0.08500338735415036,3073,0.5197732925653638,0.5921904246610034
+tradition: Catholic,tradition,Catholic -> Black Protestant,suicide_no,-0.07015390553094669,3181,0.6299241854210599,0.5604906302194476
+tradition: Catholic,tradition,Catholic -> Black Protestant,deathpen_oppose,-0.07292651320691379,5036,0.51114646710756,0.6199455321725523
+tradition: Catholic,tradition,Catholic -> Black Protestant,marijuana_no,0.014588387074967568,3323,0.6938175838870296,0.5036242713848964
+tradition: Catholic,tradition,Catholic -> Black Protestant,porn_ban_all,0.04782120032725268,3626,0.3156241483791843,0.5543887285483773
+tradition: Catholic,tradition,Catholic -> Black Protestant,teensex_wrong,-0.009251734742041995,2553,0.7257843962686806,0.4892666984045493
+tradition: Catholic,tradition,Catholic -> Black Protestant,teen_pill_no,0.010911075001068526,2496,0.4104635058323952,0.5823397710203949
+tradition: Catholic,tradition,Catholic -> Black Protestant,abdefect_no,-0.06156081213585271,4208,0.29267734260346373,0.5365825715990813
+tradition: Catholic,tradition,Catholic -> Black Protestant,abrape_no,-0.006170351047954548,4197,0.25652857434238224,0.5150940406927216
+tradition: Catholic,tradition,Catholic -> Black Protestant,absingle_no,-0.01857261095272178,4251,0.6512205045716538,0.45319075205923265
+tradition: Catholic,tradition,Catholic -> Black Protestant,abpoor_no,0.018774915738498543,4236,0.5659293156412362,0.5190943859586369
+tradition: Catholic,tradition,Catholic -> Black Protestant,abnomore_no,0.003919986192771674,4233,0.5987788533066171,0.48254038926419374
+tradition: Catholic,tradition,Catholic -> Black Protestant,abhlth_no,-0.006744886576962997,4256,0.13142963934868243,0.41615939845903943
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,euthanasia_no,-0.030011606803701518,8754,0.32197271477730316,0.5238241621140386
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,suicide_no,0.011545003775249307,8990,0.4409952189643925,0.5390990079162985
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,deathpen_oppose,0.01036410547854194,14920,0.29974209664218404,0.5331547819444065
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,marijuana_no,0.005268239487189241,9472,0.6951159211844279,0.4996065634834822
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,porn_ban_all,0.04765842632413536,10952,0.33869790466396765,0.527322862862309
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,teensex_wrong,0.035537017959398676,7921,0.6269666625192847,0.5338497435536517
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,teen_pill_no,0.0039426465096525365,7674,0.4112688339623977,0.5631323677582087
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,abdefect_no,-0.04410289512469498,11513,0.24162695325485675,0.4630394485696847
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,abrape_no,-0.026238072498010134,11463,0.22617963642517097,0.4413785253362129
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,absingle_no,-0.008551272451986947,11484,0.613504602857958,0.4069855478159157
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,abpoor_no,-0.0016344329380174605,11488,0.5838532733217217,0.44597450712494147
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,abnomore_no,-0.012550898756970796,11504,0.60785099212438,0.41651232197337873
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Catholic,abhlth_no,-0.039596352725778994,11562,0.13691045472398894,0.38701902654016673
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,euthanasia_no,0.037621303995882205,6458,0.23649291996134053,0.4673625544464276
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,suicide_no,0.0632262950151311,6545,0.3628019625982074,0.5048863386551198
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,deathpen_oppose,-0.01113528710213818,11282,0.23043633391210588,0.46872444083808196
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,marijuana_no,0.004280375745309484,7523,0.7294283774313799,0.4563358532898709
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,porn_ban_all,0.026782817408928294,8349,0.3965911469056575,0.5055780605926881
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,teensex_wrong,0.02215417748854498,5065,0.6615003835752007,0.48975541126786903
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,teen_pill_no,0.03387674695597742,4912,0.4047711234913688,0.5398610540708343
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,abdefect_no,0.04698087825463457,9672,0.09884678393624025,0.3210702011131914
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,abrape_no,0.047860557317321334,9649,0.09089437022035596,0.31497176026189233
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,absingle_no,0.04611132731458295,9490,0.4650796388700493,0.41501029888585966
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,abpoor_no,0.06515437843768945,9531,0.4332812314184711,0.44784481735588133
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,abnomore_no,0.04960162221784692,9521,0.4747493870529228,0.42961257382377455
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Mainline Protestant,abhlth_no,0.01797376967609901,9743,0.04439961024142343,0.23130188529708104
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,euthanasia_no,-0.011534644043161069,3073,0.5197732925653638,0.5871008206569649
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,suicide_no,-0.020277418099387545,3181,0.6299241854210599,0.5595093364350981
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,deathpen_oppose,-0.0034334127086667054,5036,0.51114646710756,0.6186297510466048
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,marijuana_no,0.011341818485005928,3323,0.6938175838870296,0.5056496405909294
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,porn_ban_all,0.06854122586151001,3626,0.3156241483791843,0.5486917061990771
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,teensex_wrong,0.011381763322727778,2553,0.7257843962686806,0.4955220832820336
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,teen_pill_no,0.009641100153547244,2496,0.4104635058323952,0.5778131649759053
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,abdefect_no,-0.034617963671553176,4208,0.29267734260346373,0.53127280342992
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,abrape_no,-0.025647124781815273,4197,0.25652857434238224,0.5153985538012603
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,absingle_no,-0.014255057840650398,4251,0.6512205045716538,0.4545338012409793
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,abpoor_no,0.03400927081397609,4236,0.5659293156412362,0.5207453433917414
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,abnomore_no,0.02111966082687844,4233,0.5987788533066171,0.48225848298569607
+tradition: Evangelical Protestant,tradition,Evangelical Protestant -> Black Protestant,abhlth_no,-0.027515225835960486,4256,0.13142963934868243,0.4186132027216028
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,euthanasia_no,-0.0949772560117294,8754,0.32197271477730316,0.5283380356042314
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,suicide_no,-0.07999220973593124,8990,0.4409952189643925,0.5481386264459519
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,deathpen_oppose,-0.029450141583849676,14920,0.29974209664218404,0.5287205137972589
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,marijuana_no,-0.011130190672998364,9472,0.6951159211844279,0.5035754609012875
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,porn_ban_all,0.009151339006436665,10952,0.33869790466396765,0.5237339711493281
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,teensex_wrong,-0.01904830428330595,7921,0.6269666625192847,0.5285054765816158
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,teen_pill_no,-0.039507613567069166,7674,0.4112688339623977,0.5609760468019853
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,abdefect_no,-0.11064153832346302,11513,0.24162695325485675,0.4768130656701198
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,abrape_no,-0.10308017865131541,11463,0.22617963642517097,0.4558632534787038
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,absingle_no,-0.05702089071911243,11484,0.613504602857958,0.4082034246744039
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,abpoor_no,-0.0705175753070677,11488,0.5838532733217217,0.4496839535605972
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,abnomore_no,-0.05348096256790669,11504,0.60785099212438,0.4207249251704622
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Catholic,abhlth_no,-0.0762256010820492,11562,0.13691045472398894,0.3945630021354568
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,euthanasia_no,-0.08133507526675743,8676,0.42157581889436035,0.5215182455439932
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,suicide_no,-0.07465133632532295,8958,0.5626484348277746,0.5235031758763861
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,deathpen_oppose,-0.010731860634203033,14847,0.23440321502942735,0.47917042710772645
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,marijuana_no,-0.007454918645871111,9673,0.770070342042467,0.4379361769279364
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,porn_ban_all,-0.055997845937236834,10879,0.513451562851193,0.5189590098846856
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,teensex_wrong,-0.02096891460601802,7987,0.8107969319117628,0.4041549705432696
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,teen_pill_no,-0.03496809232211573,7691,0.5315171318523911,0.5420026243280829
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,abdefect_no,-0.09946801996422669,11315,0.29929670633916655,0.467203522681996
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,abrape_no,-0.08329221367041986,11215,0.28051999690550883,0.4641569572737368
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,absingle_no,-0.04366725107372993,11408,0.7075046381179496,0.3659284351205054
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,abpoor_no,-0.06057421628479631,11385,0.683156325194923,0.40015209276240493
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,abnomore_no,-0.047230805406953014,11416,0.7078743387988858,0.3673751436573623
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Evangelical Protestant,abhlth_no,-0.04459385940832475,11320,0.1434520594670886,0.38583778881028136
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,euthanasia_no,-0.11683423829163886,3073,0.5197732925653638,0.5924614489291572
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,suicide_no,-0.09486127476872963,3181,0.6299241854210599,0.5623650434059795
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,deathpen_oppose,-0.0841453271991543,5036,0.51114646710756,0.6281167177155165
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,marijuana_no,0.011623594642589219,3323,0.6938175838870296,0.5051562859708865
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,porn_ban_all,0.01129633042569872,3626,0.3156241483791843,0.549539112156409
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,teensex_wrong,0.01628684959535165,2553,0.7257843962686806,0.49546280177638835
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,teen_pill_no,-0.025081581412695286,2496,0.4104635058323952,0.581695269422871
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,abdefect_no,-0.1222977064143255,4208,0.29267734260346373,0.5469211037047901
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,abrape_no,-0.08254273985935975,4197,0.25652857434238224,0.5155564299629766
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,absingle_no,-0.05701063193247391,4251,0.6512205045716538,0.4576150946977137
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,abpoor_no,-0.035866956226124014,4236,0.5659293156412362,0.5283416129315686
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,abnomore_no,-0.020660576826350585,4233,0.5987788533066171,0.48714304758442495
+tradition: Mainline Protestant,tradition,Mainline Protestant -> Black Protestant,abhlth_no,-0.03390658730792015,4256,0.13142963934868243,0.4214292668969182
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,euthanasia_no,0.1112755381360403,8754,0.32197271477730316,0.5378778084626484
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,suicide_no,0.10501672034449222,8990,0.4409952189643925,0.5603919935418216
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,deathpen_oppose,0.05519422052378764,14920,0.29974209664218404,0.5521830426880223
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,marijuana_no,-0.04096829563305915,9472,0.6951159211844279,0.5117517739662826
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,porn_ban_all,-0.015138211158554793,10952,0.33869790466396765,0.5378715158580671
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,teensex_wrong,0.01718295577073925,7921,0.6269666625192847,0.5387845114196204
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,teen_pill_no,-0.015019096778393637,7674,0.4112688339623977,0.578199809064941
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,abdefect_no,0.00015537857350031437,11513,0.24162695325485675,0.4746774910978345
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,abrape_no,-0.0030515182850262834,11463,0.22617963642517097,0.46554785285357164
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,absingle_no,-0.009902640607546864,11484,0.613504602857958,0.4142749389703367
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,abpoor_no,-0.043548753932878936,11488,0.5838532733217217,0.45624672472418637
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,abnomore_no,-0.022283127811237313,11504,0.60785099212438,0.4242381380447517
+tradition: Black Protestant,tradition,Black Protestant -> Catholic,abhlth_no,-0.014953006658477014,11562,0.13691045472398894,0.39251452958274347
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,euthanasia_no,0.10684735539873658,8676,0.42157581889436035,0.5352665603289445
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,suicide_no,0.06862226132069327,8958,0.5626484348277746,0.5392705034143195
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,deathpen_oppose,0.14010524671150804,14847,0.23440321502942735,0.4939232664074854
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,marijuana_no,-0.039604878757337425,9673,0.770070342042467,0.44723511565923896
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,porn_ban_all,-0.10910365654027171,10879,0.513451562851193,0.535206867107492
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,teensex_wrong,-0.03289364001272144,7987,0.8107969319117628,0.41480073398711875
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,teen_pill_no,-0.07166069441143974,7691,0.5315171318523911,0.5603531793534938
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,abdefect_no,-0.007978622829292126,11315,0.29929670633916655,0.48794568788411036
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,abrape_no,0.03743317699009702,11215,0.28051999690550883,0.490489199985455
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,absingle_no,0.00102016745660638,11408,0.7075046381179496,0.37747737947693455
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,abpoor_no,-0.060523333023894565,11385,0.683156325194923,0.4122021790101769
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,abnomore_no,-0.02147478188765084,11416,0.7078743387988858,0.3730333875258415
+tradition: Black Protestant,tradition,Black Protestant -> Evangelical Protestant,abhlth_no,-0.0009510103940209846,11320,0.1434520594670886,0.39757776333946016
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,euthanasia_no,0.1988734733758925,6458,0.23649291996134053,0.4806715369909857
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,suicide_no,0.18607825478769757,6545,0.3628019625982074,0.517418225588347
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,deathpen_oppose,0.11934542540953264,11282,0.23043633391210588,0.4914043322011091
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,marijuana_no,-0.04288252098406542,7523,0.7294283774313799,0.4660357238934404
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,porn_ban_all,-0.05428840151670494,8349,0.3965911469056575,0.5277317289938614
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,teensex_wrong,0.0175855556032396,5065,0.6615003835752007,0.5032686301574602
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,teen_pill_no,0.0044596129444707255,4912,0.4047711234913688,0.556094797156666
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,abdefect_no,0.11010409256510398,9672,0.09884678393624025,0.33754938754731734
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,abrape_no,0.12842769805545623,9649,0.09089437022035596,0.352246966337151
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,absingle_no,0.07841798525723315,9490,0.4650796388700493,0.4270692026322943
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,abpoor_no,0.06602937699077999,9531,0.4332812314184711,0.4629841933735945
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,abnomore_no,0.05259753748184748,9521,0.4747493870529228,0.43498644805277914
+tradition: Black Protestant,tradition,Black Protestant -> Mainline Protestant,abhlth_no,0.06533664627829186,9743,0.04439961024142343,0.2428595391873079
+period,period,Catholic <=2014 -> 2016-24,euthanasia_no,-0.006543999338343043,1471,0.29450357039357866,0.5521865054719817
+period,period,Catholic <=2014 -> 2016-24,suicide_no,0.041710789291278805,1549,0.3480623320910059,0.5706864937771492
+period,period,Catholic <=2014 -> 2016-24,deathpen_oppose,-0.06638649508700945,3001,0.39777324462966346,0.6201891203437244
+period,period,Catholic <=2014 -> 2016-24,marijuana_no,0.114676674302437,1095,0.4214177791768027,0.6185626136405763
+period,period,Catholic <=2014 -> 2016-24,porn_ban_all,0.022003676494246394,2194,0.2897810109791126,0.5847978507043367
+period,period,Catholic <=2014 -> 2016-24,teensex_wrong,0.13489443761919423,2231,0.4913122221182558,0.6066035148063449
+period,period,Catholic <=2014 -> 2016-24,teen_pill_no,0.04693793035942012,2220,0.37375880162047964,0.6084359799290938
+period,period,Catholic <=2014 -> 2016-24,abdefect_no,-0.0366249590887649,1552,0.2449193063071759,0.5086046435485888
+period,period,Catholic <=2014 -> 2016-24,abrape_no,-0.004832472340758731,1564,0.21178005449478407,0.45533403461738875
+period,period,Catholic <=2014 -> 2016-24,absingle_no,-0.003995492822699176,1562,0.5723001360645411,0.39248638074668163
+period,period,Catholic <=2014 -> 2016-24,abpoor_no,-0.003152350525272296,1559,0.5458182731139684,0.44904588013342206
+period,period,Catholic <=2014 -> 2016-24,abnomore_no,-0.009960263605097608,1541,0.5408900060039651,0.44406684141742514
+period,period,Catholic <=2014 -> 2016-24,abhlth_no,0.012044964702497482,1569,0.11234852827943881,0.39123239743232263
+period,period,Evangelical Protestant <=2014 -> 2016-24,euthanasia_no,-0.005094410437831487,1404,0.43497825787662875,0.5753652333326197
+period,period,Evangelical Protestant <=2014 -> 2016-24,suicide_no,0.00996843514952428,1434,0.52777884229332,0.5765660010728074
+period,period,Evangelical Protestant <=2014 -> 2016-24,deathpen_oppose,-0.06786907544614529,2779,0.30688977554701047,0.5589655611848829
+period,period,Evangelical Protestant <=2014 -> 2016-24,marijuana_no,0.125514250777487,1142,0.5016588217117536,0.6072222391286124
+period,period,Evangelical Protestant <=2014 -> 2016-24,porn_ban_all,0.023814029117036173,2119,0.4735041681849769,0.5874580604229107
+period,period,Evangelical Protestant <=2014 -> 2016-24,teensex_wrong,0.06529374932704202,2063,0.7430628808328629,0.4876899034639261
+period,period,Evangelical Protestant <=2014 -> 2016-24,teen_pill_no,-0.0063113287937826,2047,0.5134629881547998,0.5985455419013477
+period,period,Evangelical Protestant <=2014 -> 2016-24,abdefect_no,-0.029411148310611035,1498,0.42850655633937007,0.5286017886105275
+period,period,Evangelical Protestant <=2014 -> 2016-24,abrape_no,-0.061911066941293,1498,0.398309597818072,0.5193379188931377
+period,period,Evangelical Protestant <=2014 -> 2016-24,absingle_no,-0.011597674565081761,1532,0.7503716832479789,0.3582609324636488
+period,period,Evangelical Protestant <=2014 -> 2016-24,abpoor_no,-0.009457039952235013,1532,0.7282905339399828,0.3792111552704714
+period,period,Evangelical Protestant <=2014 -> 2016-24,abnomore_no,0.0009894607074873996,1536,0.7200920816343132,0.37414535446298236
+period,period,Evangelical Protestant <=2014 -> 2016-24,abhlth_no,-0.007054063539694344,1499,0.19470339087376218,0.4756305781441044
+period,period,Mainline Protestant <=2014 -> 2016-24,euthanasia_no,0.026774823569073347,738,0.17616510116647313,0.47173482280585544
+period,period,Mainline Protestant <=2014 -> 2016-24,suicide_no,0.07078650810604428,766,0.22558148406659553,0.4857420643299942
+period,period,Mainline Protestant <=2014 -> 2016-24,deathpen_oppose,-0.06548317238228657,1543,0.3404385338151438,0.570389815947669
+period,period,Mainline Protestant <=2014 -> 2016-24,marijuana_no,0.10314316927867329,569,0.3684712849436555,0.5546684436372618
+period,period,Mainline Protestant <=2014 -> 2016-24,porn_ban_all,0.0034923993524716423,1113,0.31581777606320616,0.5732057420806752
+period,period,Mainline Protestant <=2014 -> 2016-24,teensex_wrong,0.1431549787164884,1115,0.506066639977935,0.5961175721947392
+period,period,Mainline Protestant <=2014 -> 2016-24,teen_pill_no,0.10167458322623824,1112,0.3382717670412028,0.5957425821537017
+period,period,Mainline Protestant <=2014 -> 2016-24,abdefect_no,0.026088949881604595,843,0.13365518220476857,0.44235489038217385
+period,period,Mainline Protestant <=2014 -> 2016-24,abrape_no,0.00869621573605811,847,0.10429200611856479,0.3845526856892798
+period,period,Mainline Protestant <=2014 -> 2016-24,absingle_no,0.0016383335785006836,833,0.4902727041336042,0.43094373277054526
+period,period,Mainline Protestant <=2014 -> 2016-24,abpoor_no,-0.022558337437399878,828,0.4755384438229096,0.482716215426959
+period,period,Mainline Protestant <=2014 -> 2016-24,abnomore_no,-0.00393505016031126,833,0.4616890714523097,0.44089446587351844
+period,period,Mainline Protestant <=2014 -> 2016-24,abhlth_no,-0.002941425042253136,850,0.05380177802402721,0.29379676300868834
+period,period,Black Protestant <=2014 -> 2016-24,euthanasia_no,0.006819361164892845,434,0.459159197083542,0.63214455517898
+period,period,Black Protestant <=2014 -> 2016-24,suicide_no,0.020278212133548745,472,0.5617062225267939,0.6401626553939805
+period,period,Black Protestant <=2014 -> 2016-24,deathpen_oppose,-0.04218790689313001,824,0.5591633156567056,0.6671913241710924
+period,period,Black Protestant <=2014 -> 2016-24,marijuana_no,0.2561927138091484,388,0.24457343226582612,0.5602659494434821
+period,period,Black Protestant <=2014 -> 2016-24,porn_ban_all,0.02613282702786085,598,0.29046188457231426,0.5979032406672707
+period,period,Black Protestant <=2014 -> 2016-24,teensex_wrong,0.08827973610542761,643,0.6636426331633131,0.618479928314413
+period,period,Black Protestant <=2014 -> 2016-24,teen_pill_no,0.02321569087143699,643,0.4081425232514266,0.6586900850536742
+period,period,Black Protestant <=2014 -> 2016-24,abdefect_no,0.01916271039548942,473,0.21277224241173834,0.49858700738405276
+period,period,Black Protestant <=2014 -> 2016-24,abrape_no,0.027551720358801074,478,0.1580369147115101,0.4676164566110329
+period,period,Black Protestant <=2014 -> 2016-24,absingle_no,0.03003092262390883,480,0.5002540576736451,0.541403350505932
+period,period,Black Protestant <=2014 -> 2016-24,abpoor_no,0.05607122134733211,482,0.41319984729276443,0.5374183912130303
+period,period,Black Protestant <=2014 -> 2016-24,abnomore_no,0.08845281977656078,469,0.3863953510365781,0.5293308237680706
+period,period,Black Protestant <=2014 -> 2016-24,abhlth_no,0.006307048537013318,479,0.08423270834872278,0.3685319878406626

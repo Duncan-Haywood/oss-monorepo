@@ -1,8 +1,18 @@
 {
   "zone": "marisstella.app",
   "addresses": [
-    { "local": "support", "purpose": "help with a tool, a product or a self-deploy" },
-    { "local": "hello", "purpose": "everything else: press, ideas, partnerships" }
+    {
+      "local": "support",
+      "purpose": "help with a tool, a product or a self-deploy"
+    },
+    {
+      "local": "hello",
+      "purpose": "everything else: press, ideas, partnerships"
+    },
+    {
+      "local": "accounts",
+      "purpose": "sign-ups and notices for the portfolio's platform accounts (portfolio/distribution/accounts.json)"
+    }
   ],
-  "forward_to_secret": "EMAIL_FORWARD_TO"
+  "deliver_to_worker": "monorepo-projects-edge"
 }

@@ -378,3 +378,17 @@ test("readSpec reports errors, empty inputs, and misspelled excluded roles", () 
   const capped = build(fields("A\nB", "2026-10-10, AM, X\n2026-10-17, AM, X\n2026-10-24, AM, X\n2026-10-31, AM, X", { defaultMax: "1" }));
   assert.equal(capped.stats.filled, 2);
 });
+
+test("an away date is honoured, not read as a role (quality audit round 65)", () => {
+  // Before: "except 2026-10-24" became a role named "2026-10-24" and Ana was still
+  // rostered on the 24th with only a spelling warning.
+  const r = build(fields("Ana: Sat; except 2026-10-24\nBen: Sat", "2026-10-17, AM, Greeter, 1\n2026-10-24, AM, Greeter, 1"));
+  assert.equal(validateRoster(r).ok, true);
+  const text = rosterText(r);
+  const the24th = text.slice(text.indexOf("Sat 24 Oct"));
+  assert.match(the24th, /Greeter: Ben/);
+  assert.doesNotMatch(the24th.split("\n\n")[0], /Ana/);
+  assert.equal(r.unfilled.length, 0);
+  const { errors } = readSpec(fields("Ana: Sat; away 10/24/2026, 13/45/2026", "2026-10-24, AM, Greeter, 1"));
+  assert.ok(errors.some((e) => /not a date/.test(e)), errors.join("; "));
+});

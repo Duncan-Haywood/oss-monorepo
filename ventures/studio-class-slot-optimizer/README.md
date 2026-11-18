@@ -4,7 +4,7 @@ A free browser tool for fitness, yoga, pilates and dance studios: **paste or upl
 class held: slot, attended, optional capacity) and see which timetable slots lose money, your break-even class size,
 and which classes are full enough to need a second one.** Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/studio-class-slot-optimizer/
+**Live tool:** https://marisstella.app/studio-class-slot-optimizer/
 
 After using this, you can now **decide which classes to cut, move or double from your own numbers**, which used to
 take a gut feeling about "the Tuesday noon class" or a booking-software report that shows attendance but not whether
@@ -28,6 +28,10 @@ it pays for the instructor.
 
 Membership and pack revenue that does not depend on one class, seasons, instructor draw and class-to-class feeding
 are not modelled, and a full room hides demand. Verified only against simulated timetables.
+
+Known gap (quality census 2026-11-15, [`portfolio/quality/audits/2026-11-15-studio-class-slot-optimizer.json`](../../portfolio/quality/audits/2026-11-15-studio-class-slot-optimizer.json)):
+a booking export with separate Day, Time and Class columns is grouped by the first matching column only (often
+"Day"), so different classes on the same day merge. Combine them into one slot column before pasting.
 
 ## Run
 

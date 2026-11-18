@@ -8,6 +8,7 @@ import { newState, updateSettings, saveArticle, removeArticle, importMarkdown, b
 import { plain } from "./markdown.mjs";
 import { WIDGET_JS } from "./widget.mjs";
 import { homePage, collectionPage, searchPage, articlePage, notFound, adminPage, editPage, gapsPage, importPage } from "./render.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 const readBody = (req, max = 400_000) => new Promise((resolve, reject) => {
@@ -138,7 +139,7 @@ export function handler(cfg) {
 
 function readJson(path, fallback) { try { return JSON.parse(fs.readFileSync(path, "utf8")); } catch (e) { if (e.code === "ENOENT") return fallback; throw e; } }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (!env.ADMIN_KEY || env.ADMIN_KEY.length < 12) { console.error("ADMIN_KEY (12+ characters) is required"); process.exit(1); }
   const statePath = env.STATE || "state.json";
   const saved = readJson(statePath, null);

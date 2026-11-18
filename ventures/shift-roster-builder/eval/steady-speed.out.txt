@@ -1,0 +1,39 @@
+# node eval/steady-speed.mjs, 2026-11-13, one cloud machine, nothing else running
+cafe: old 30.1 s, 138 rebuilds; new 20.5 s, 101 rebuilds; same roster true; seed 1/1; exposure 92/92; tied new 92 >=92 >=92 >=92 >=92 >=92
+spare: old 6.6 s, 27 rebuilds; new 6.3 s, 27 rebuilds; same roster true; seed 1/1; exposure 54/54; tied new 54
+salon: old 3.3 s, 80 rebuilds; new 3.2 s, 50 rebuilds; same roster true; seed 1/1; exposure 56/56; tied new 56 >=56 >=56 >=56 >=56
+retail: old 11.5 s, 102 rebuilds; new 8.7 s, 28 rebuilds; same roster true; seed 1/1; exposure 24/24; tied new 24 24 >=24 >=24 >=24 >=24
+clinic: old 15.2 s, 72 rebuilds; new 6.8 s, 37 rebuilds; same roster true; seed 1/1; exposure 30/30; tied new 30 >=30 >=30 >=30 >=30 >=30
+
+# case by case, calloutExposure with short cuts against rebuilding every case, six seeds per team (scratch run of the same functions)
+cafe seed 1: exposure full 92 fast 92 mism [] rebuilt 23/23 outright1 0 chain 0 ms 5189/4662
+cafe seed 2: exposure full 100 fast 100 mism [] rebuilt 23/23 outright1 0 chain 0 ms 5217/5240
+cafe seed 3: exposure full 140 fast 140 mism [] rebuilt 23/23 outright1 0 chain 0 ms 3526/3623
+cafe seed 4: exposure full 116 fast 116 mism [] rebuilt 23/23 outright1 0 chain 0 ms 3598/3625
+cafe seed 5: exposure full 132 fast 132 mism [] rebuilt 23/23 outright1 0 chain 0 ms 3965/4226
+cafe seed 6: exposure full 100 fast 100 mism [] rebuilt 23/23 outright1 0 chain 0 ms 4518/4310
+spare seed 1: exposure full 54 fast 54 mism [] rebuilt 27/27 outright1 0 chain 0 ms 6560/6947
+spare seed 2: exposure full 54 fast 54 mism [] rebuilt 27/27 outright1 0 chain 0 ms 6617/6725
+spare seed 3: exposure full 54 fast 54 mism [] rebuilt 27/27 outright1 0 chain 0 ms 6390/6525
+spare seed 4: exposure full 54 fast 54 mism [] rebuilt 27/27 outright1 0 chain 0 ms 6588/6798
+spare seed 5: exposure full 54 fast 54 mism [] rebuilt 27/27 outright1 0 chain 0 ms 6343/6371
+spare seed 6: exposure full 54 fast 54 mism [] rebuilt 27/27 outright1 0 chain 0 ms 6789/6815
+retail seed 1: exposure full 24 fast 24 mism [] rebuilt 5/17 outright1 6 chain 6 ms 1769/1778
+retail seed 2: exposure full 30 fast 30 mism [] rebuilt 8/17 outright1 6 chain 3 ms 2354/2096
+retail seed 3: exposure full 30 fast 30 mism [] rebuilt 8/17 outright1 6 chain 3 ms 2423/2209
+retail seed 4: exposure full 24 fast 24 mism [] rebuilt 7/17 outright1 6 chain 4 ms 1826/1778
+retail seed 5: exposure full 24 fast 24 mism [] rebuilt 5/17 outright1 6 chain 6 ms 2049/1655
+retail seed 6: exposure full 30 fast 30 mism [] rebuilt 8/17 outright1 6 chain 3 ms 2279/2467
+clinic seed 1: exposure full 30 fast 30 mism [] rebuilt 7/12 outright1 3 chain 2 ms 2584/1249
+clinic seed 2: exposure full 30 fast 30 mism [] rebuilt 7/12 outright1 3 chain 2 ms 2436/1181
+clinic seed 3: exposure full 45 fast 45 mism [] rebuilt 9/12 outright1 3 chain 0 ms 2600/1841
+clinic seed 4: exposure full 30 fast 30 mism [] rebuilt 7/12 outright1 3 chain 2 ms 2690/1200
+clinic seed 5: exposure full 45 fast 45 mism [] rebuilt 9/12 outright1 3 chain 0 ms 2686/1866
+clinic seed 6: exposure full 30 fast 30 mism [] rebuilt 7/12 outright1 3 chain 2 ms 2601/1370
+salon seed 1: exposure full 56 fast 56 mism [] rebuilt 10/16 outright1 6 chain 0
+salon seed 2: exposure full 56 fast 56 mism [] rebuilt 10/16 outright1 6 chain 0
+salon seed 3: exposure full 56 fast 56 mism [] rebuilt 10/16 outright1 6 chain 0
+salon seed 4: exposure full 56 fast 56 mism [] rebuilt 10/16 outright1 6 chain 0
+salon seed 5: exposure full 56 fast 56 mism [] rebuilt 10/16 outright1 6 chain 0
+salon seed 6: exposure full 56 fast 56 mism [] rebuilt 10/16 outright1 6 chain 0
+# (salon run separately with the same script; per-run ms omitted for it)

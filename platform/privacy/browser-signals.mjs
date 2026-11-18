@@ -43,7 +43,29 @@ const SIGNALS = [
 // says). Outside a repository -- the tmpdir fixtures in the test file -- git
 // exits non-zero with no output and everything is kept, which is correct
 // there: a fixture directory has no build output to confuse.
-function ignoredByGit(paths) {
+//
+// Perf (2026-11-07): `check-ignore` over the whole list cost ~1.3 s per walk
+// (1313 paths) and the suites walk several times per process. A tracked file
+// is exempt anyway, and one `ls-files` over the walk root answers "tracked?" for all of them in
+// ~20 ms, so only the untracked remainder goes to `check-ignore`. Same set
+// out; if `ls-files` fails (fixture outside the repo) nothing is tracked and
+// the old path runs unchanged.
+function trackedByGit(root) {
+  try {
+    const out = execFileSync("git", ["-C", REPO_ROOT, "ls-files", "-z", "--full-name", "--", root], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+      maxBuffer: 1 << 28,
+    });
+    return new Set(out.split("\0").filter(Boolean).map((p) => join(REPO_ROOT, p)));
+  } catch {
+    return new Set();
+  }
+}
+
+function ignoredByGit(allPaths, root) {
+  const tracked = trackedByGit(root);
+  const paths = allPaths.filter((p) => !tracked.has(p));
   if (paths.length === 0) return new Set();
   try {
     const out = execFileSync("git", ["-C", REPO_ROOT, "check-ignore", "--stdin", "-z"], {
@@ -89,7 +111,7 @@ export function findUsageModules(root = VENTURES) {
     }
   };
   walk(root);
-  const ignored = ignoredByGit(found);
+  const ignored = ignoredByGit(found, root);
   return found.filter((path) => !ignored.has(path)).sort();
 }
 

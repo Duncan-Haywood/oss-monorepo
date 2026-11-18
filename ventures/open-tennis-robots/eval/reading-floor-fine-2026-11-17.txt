@@ -1,0 +1,17 @@
+48 of 48 builds ran (calibration drill + held-out slow drill, hold mode, seed 7)
+
+plant            edges         | wheels    mean     sd >1% off | speed err spin mean spin worst | spin, true drops
+first-order 8k   1 us timer    |    408  0.9993  0.32%       0 |     0.07%     0.58%      1.56% |            0.02%
+first-order 8k   exact edges   |    408  0.9993  0.31%       0 |     0.06%     0.50%      1.01% |            0.02%
+first-order 8k   0.1 ms steps  |    408  1.0004  0.31%       0 |     0.04%     0.26%      0.62% |            0.02%
+first-order 8k   0.1 ms, exact |    408  1.0000  0.31%       0 |     0.06%     0.41%      1.44% |            0.01%
+ESC 50 ms told   1 us timer    |    408  0.9999  0.27%       0 |     0.02%     0.53%      1.47% |            0.03%
+ESC 50 ms told   exact edges   |    408  0.9999  0.24%       0 |     0.02%     0.32%      0.62% |            0.03%
+ESC 50 ms told   0.1 ms steps  |    408  1.0004  0.27%       0 |     0.04%     0.20%      0.40% |            0.02%
+ESC 50 ms told   0.1 ms, exact |    408  1.0004  0.25%       0 |     0.05%     0.30%      1.17% |            0.03%
+
+By speed band (both plants): reading sd, 1 us timer / exact edges / 0.1 ms steps / 0.1 ms, exact
+   1000-2000  rpm (n= 96 per mode): 0.34% / 0.33% / 0.31% / 0.35%
+   2000-3000  rpm (n=132 per mode): 0.30% / 0.26% / 0.28% / 0.28%
+   3000-4500  rpm (n=300 per mode): 0.30% / 0.26% / 0.28% / 0.27%
+   4500-9000  rpm (n=288 per mode): 0.28% / 0.28% / 0.29% / 0.27%

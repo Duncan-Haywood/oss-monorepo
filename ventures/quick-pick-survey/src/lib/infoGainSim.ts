@@ -1,0 +1,166 @@
+/**
+ * Synthetic respondent and Glicko-2 loop shared by the *.simulation.test.ts files.
+ * A plain module, not a test file: importing a test file registers its tests again
+ * in every importer (each poolCap/longBudget/... file re-ran the infoGain suite).
+ */
+import { applyComparison, DEFAULT_GLICKO_STATE, GLICKO_SCALE, ratingToLogit, type GlickoState } from "@/lib/glicko2";
+import {
+  AGREEMENT_WINDOW,
+  answerAgreement,
+  FIRST_OPTION_MIN_DECIDED,
+  type DecidedPick,
+  pairKey,
+  selectNextPair,
+  type PairItem,
+} from "@/lib/pairing";
+import { pickProbability, type LapseAnswer } from "@/lib/lapseEstimate";
+
+function mulberry32(seed: number): () => number {
+  let s = seed;
+  return () => {
+    s |= 0;
+    s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export type Policy = typeof selectNextPair;
+/**
+ * Reads the lapse share for the next update. With `oracle` set, each answer's
+ * `p` is the respondent's true chance of that pick (an upper bound on what
+ * their answers can say about e), not the ratings' chance before it. With
+ * `point`, the ratings' chance ignores rd (point ratings, no Glicko g).
+ */
+export type LapseSource = ((answers: readonly LapseAnswer[], states: ReadonlyMap<string, GlickoState>) => number) & { oracle?: boolean; point?: boolean };
+
+/**
+ * `lapse` is the share of answers given at random (an inconsistent respondent);
+ * `positionBias` is the share of answers that take the first option shown whatever
+ * the items are (negative: the second option). Both draw nothing extra at 0, so older seeds reproduce.
+ * Caution: the first option here is the policy's first id, which the selectors do not shuffle; the
+ * route shuffles slots per pair. Unshuffled, a first-option bias lands on the item the selector chose
+ * first and costs far more than it does live (information selector, 30 items, 300 answers, bias 0.5:
+ * 0.351 here, 0.611 shuffled; docs/INFORMATION-GAIN-SELECTOR.md, "Careless patterns that are not
+ * random"). Wrap the policy in a slot shuffle to measure what the route sees, as
+ * scripts/position-bias-shuffled-sweep.ts does ("Position bias behind the slot shuffle").
+ * `updateLapse` is the lapse share the Glicko update assumes (glicko2.ts; 0 is the published update),
+ * or a function that reads it before each answer from the answers so far and the current states
+ * (lapseEstimate.ts, the per-respondent estimate). `onLapse` sees the share each update used.
+ * `coverage95` is the share of item pairs whose 95% interval on the rating
+ * difference, sqrt(rd_a^2 + rd_b^2) wide each side, holds the true difference
+ * (truth is on a logit scale with slope 2, so true mu difference = 2 dt).
+ * `truthFor`, when given, replaces item i's drawn truth (the draw still happens,
+ * so the rest of the seed's stream is unchanged): a survey whose respondents
+ * share one truth plus a personal deviation (scripts/anchor-weight-sweep.ts).
+ * `chooser`, when given, may answer in the respondent's place: it sees the two
+ * ids in slot order, the honest chance of the first and the run's rand, and
+ * returns true (first), false (second) or undefined (answer as usual). A
+ * careless pattern that is not random, such as a favourite item or a trait
+ * shared across respondents (scripts/careless-pattern-sweep.ts). Undefined
+ * draws nothing extra, so older seeds reproduce.
+ */
+export type Chooser = (aId: string, bId: string, pA: number, rand: () => number) => boolean | undefined;
+
+export function simulate(policy: Policy, itemCount: number, budget: number, seed: number, lapse = 0, positionBias = 0, lapseFrom = 0, useAgreement = false, onAnswer?: (answered: number, rds: number[]) => void, updateLapse: number | LapseSource = 0, onLapse?: (answered: number, e: number) => void, truthFor?: (index: number, drawn: number) => number, chooser?: Chooser) {
+  const rand = mulberry32(seed);
+  const truth = new Map<string, number>();
+  const state = new Map<string, GlickoState>();
+  const timesShown = new Map<string, number>();
+  const items: PairItem[] = [];
+  for (let i = 0; i < itemCount; i++) {
+    const id = `item-${String(i).padStart(3, "0")}`;
+    const drawn = rand() * 2 - 1;
+    truth.set(id, truthFor ? truthFor(i, drawn) : drawn);
+    state.set(id, { ...DEFAULT_GLICKO_STATE });
+    items.push({
+      id,
+      rating: DEFAULT_GLICKO_STATE.rating,
+      rd: DEFAULT_GLICKO_STATE.rd,
+      category: `category-${i % 6}`,
+      dimensions: [`dimension-${i % 4}`],
+    });
+  }
+  const recent: string[] = [];
+  const picks: DecidedPick[] = [];
+  const history: LapseAnswer[] = [];
+  let firstPicks = 0;
+  for (let answered = 0; answered < budget; answered++) {
+    const live = items.map((item) => {
+      const s = state.get(item.id)!;
+      return { ...item, rating: s.rating, rd: s.rd };
+    });
+    const [aId, bId] = policy({
+      items: live,
+      timesShown,
+      recentPairKeys: new Set(recent),
+      answeredCount: answered,
+      // As the route: no share until FIRST_OPTION_MIN_DECIDED answers (it was
+      // passed from the first answer before 2026-11-10, which only mattered
+      // once the staged selector could switch before 120 answers).
+      firstOptionShare: answered >= FIRST_OPTION_MIN_DECIDED ? firstPicks / answered : undefined,
+      answerAgreement: useAgreement ? answerAgreement(picks.slice(-AGREEMENT_WINDOW)) : undefined,
+      rand,
+    });
+    const pA = 1 / (1 + Math.exp(-2 * (truth.get(aId)! - truth.get(bId)!)));
+    const pickedFirst = chooser?.(aId, bId, pA, rand) ?? (positionBias > 0 && rand() < positionBias ? true : positionBias < 0 && rand() < -positionBias ? false : lapse > 0 && answered >= lapseFrom && rand() < lapse ? rand() < 0.5 : rand() < pA);
+    if (pickedFirst) firstPicks++;
+    { const sa = state.get(aId)!, sb = state.get(bId)!; picks.push(pickedFirst ? { picked: sa.rating, other: sb.rating, pickedRd: sa.rd, otherRd: sb.rd } : { picked: sb.rating, other: sa.rating, pickedRd: sb.rd, otherRd: sa.rd }); }
+    const src = typeof updateLapse === "number" ? undefined : updateLapse;
+    const sa0 = state.get(aId)!, sb0 = state.get(bId)!;
+    const pModelA = src?.point ? 1 / (1 + Math.exp(-(sa0.rating - sb0.rating) / GLICKO_SCALE)) : pickProbability(sa0, sb0);
+    const before = src?.oracle ? (pickedFirst ? pA : 1 - pA) : pickedFirst ? pModelA : 1 - pModelA;
+    const e = typeof updateLapse === "number" ? updateLapse : Math.min(updateLapse(history, state), 0.95);
+    onLapse?.(answered, e);
+    const { a, b } = applyComparison(state.get(aId)!, state.get(bId)!, pickedFirst ? "A" : "B", e);
+    history.push(pickedFirst ? { picked: aId, other: bId, p: before } : { picked: bId, other: aId, p: before });
+    state.set(aId, a);
+    state.set(bId, b);
+    timesShown.set(aId, (timesShown.get(aId) ?? 0) + 1);
+    timesShown.set(bId, (timesShown.get(bId) ?? 0) + 1);
+    recent.push(pairKey(aId, bId));
+    if (recent.length > 10) recent.shift();
+    onAnswer?.(answered + 1, [...state.values()].map((s) => s.rd));
+  }
+  const entries = [...state.entries()];
+  const under = (t: number) => entries.filter(([, s]) => s.rd < t).length;
+  // Rank accuracy over every item, so a policy that finishes few items is not flattered.
+  const rankAccuracy = spearman(
+    entries.map(([id]) => truth.get(id)!),
+    entries.map(([, s]) => s.rating)
+  );
+  let pairs = 0, held = 0;
+  for (let i = 0; i < entries.length; i++) {
+    for (let j = i + 1; j < entries.length; j++) {
+      const [ia, sa] = entries[i], [ib, sb] = entries[j];
+      const est = ratingToLogit(sa.rating) - ratingToLogit(sb.rating);
+      const real = 2 * (truth.get(ia)! - truth.get(ib)!);
+      const half = (1.96 * Math.hypot(sa.rd, sb.rd)) / GLICKO_SCALE;
+      pairs++;
+      if (Math.abs(est - real) <= half) held++;
+    }
+  }
+  const coverage95 = pairs === 0 ? 1 : held / pairs;
+  return { under, rankAccuracy, coverage95, touched: timesShown.size, truth, states: state, history };
+}
+
+export function spearman(xs: number[], ys: number[]): number {
+  const rank = (v: number[]) => {
+    const order = v.map((x, i) => [x, i] as const).sort((a, b) => a[0] - b[0]);
+    const r = new Array<number>(v.length);
+    order.forEach(([, i], k) => (r[i] = k));
+    return r;
+  };
+  const rx = rank(xs);
+  const ry = rank(ys);
+  const n = xs.length;
+  const m = (n - 1) / 2;
+  let num = 0, dx = 0, dy = 0;
+  for (let i = 0; i < n; i++) {
+    num += (rx[i] - m) * (ry[i] - m);
+    dx += (rx[i] - m) ** 2;
+    dy += (ry[i] - m) ** 2;
+  }
+  return dx === 0 || dy === 0 ? 0 : num / Math.sqrt(dx * dy);
+}

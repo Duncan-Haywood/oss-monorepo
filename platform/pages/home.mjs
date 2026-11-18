@@ -8,6 +8,8 @@
 // search, counting and saved-bid code. Everything here is static markup and
 // inline SVG: no image is fetched, nothing needs JavaScript to read or click.
 
+import { formatCount } from './count.mjs';
+
 const esc = (value) =>
   String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
@@ -22,6 +24,10 @@ const ICON_PATHS = {
   services: '<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/><path d="m9 15 2 2 4-4"/>',
   logistics: '<path d="M2 7h11v9H2zM13 10h4l3 3v3h-7"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
   evidence: '<path d="M12 3 5 6v5c0 4.5 3 8.3 7 10 4-1.7 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/>',
+  // A paper form with a dollar sign, the US twin of the `uk-tax` page-with-pound glyph.
+  'personal-tax': '<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M14 11.5c-.4-.9-1.2-1.3-2.2-1.3-1.2 0-2 .6-2 1.5 0 2 4.4 1.1 4.4 3.3 0 .9-.9 1.6-2.2 1.6-1 0-1.9-.4-2.3-1.3M12 9v1.2M12 16.6v1.2"/>',
+  // A house with a heart: the household's own home, bills and family money.
+  household: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M12 17.5s-3-1.8-3-3.6c0-.9.7-1.6 1.5-1.6.6 0 1.1.3 1.5.9.4-.6.9-.9 1.5-.9.8 0 1.5.7 1.5 1.6 0 1.8-3 3.6-3 3.6z"/>',
   'uk-tax': '<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M14.5 11.5A2.3 2.3 0 0 0 10.4 13v4M9 17h6M9 14.5h4"/>',
   backoffice: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
   ci: '<circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="9" r="2"/><path d="M6 8v8M18 11c0 4-6 3-11 6"/>',
@@ -64,7 +70,7 @@ export function renderHowItWorks({ toolCount = 0, appCount = 0 } = {}) {
     {
       glyph: 'browser',
       title: 'Open a tool and type your numbers',
-      body: `${toolCount ? `${toolCount} tools` : 'Every tool'} run entirely in your browser. No account, no upload: the arithmetic happens on your device, and works offline once opened.`,
+      body: `${toolCount ? `${formatCount(toolCount)} tools` : 'Every tool'} run entirely in your browser. No account, no upload: the arithmetic happens on your device, and works offline once opened.`,
     },
     {
       glyph: 'code',
@@ -105,7 +111,7 @@ export function renderCategoryCard({ id, href, title, blurb, count, examples = [
           <div class="cat-head">
             <span class="cat-ico">${icon(id)}</span>
             <h3><a href="${esc(href)}" data-category="${esc(id)}">${esc(title)}</a></h3>
-            <span class="cat-count">${count}</span>
+            <span class="cat-count">${formatCount(count)}</span>
           </div>
           <p class="cat-blurb">${esc(blurb)}</p>
           <ul class="cat-examples">
@@ -113,7 +119,7 @@ ${examples
   .map((s) => `            <li><a href="${esc(s.slug)}/" data-tool="${esc(s.slug)}">${esc(cardName(s.title))}</a></li>`)
   .join('\n')}
           </ul>
-          <a class="cat-all" href="${esc(href)}" aria-label="${esc(`${note || `All ${count} tools`} in ${title}`)}">${esc(note || `All ${count} tools`)} →</a>
+          <a class="cat-all" href="${esc(href)}" aria-label="${esc(`${note || `All ${formatCount(count)} tools`} in ${title}`)}">${esc(note || `All ${formatCount(count)} tools`)} →</a>
         </li>`;
 }
 
@@ -175,7 +181,7 @@ export function renderResearchBand({ featured = [], themes = [], projects = [] }
   const chips = themes.map((t) => `<a href="${esc(`${researchPath}${topicsDir}/${t.id}/`)}" style="--theme:${colourFor(t.id)}">${esc(t.name)} <span>${t.count}</span></a>`);
   return `    <section class="band night" id="research" aria-labelledby="research-h">
       <p class="section-eyebrow">Open research</p>
-      <h2 id="research-h">${researchCount} reproducible research projects</h2>
+      <h2 id="research-h">${formatCount(researchCount)} reproducible research projects</h2>
       <p class="band-lede">Verification markets, scoring rules, decentralised training, chip design, energy and robotics. Each project states its question, ships runnable code and tests, and writes up what it found and where it falls short. <a href="${esc(researchPath)}">Browse all research →</a></p>
 ${cards.length ? `      <ul class="rcards">\n${cards.join('\n')}\n      </ul>` : ''}
 ${chips.length ? `      <p class="research-themes">${chips.join(' ')}</p>` : ''}
@@ -195,7 +201,7 @@ export function renderLatestWriting(posts = [], { writingPath = 'writing/', limi
   return `    <section class="band" id="writing" aria-labelledby="writing-h">
       <p class="section-eyebrow">Writing</p>
       <h2 id="writing-h">Notes from building it in public</h2>
-      <p class="band-lede">Essays drawn from this repository's own history and numbers. <a href="${esc(writingPath)}">Read all ${posts.length} posts →</a></p>
+      <p class="band-lede">What the tools turned up and how they were built, written from the repository's own records and numbers. <a href="${esc(writingPath)}">Read all ${formatCount(posts.length)} posts →</a></p>
       <ul class="posts">
 ${latest
   .map(
@@ -257,7 +263,7 @@ export const HOME_SECTIONS_CSS = `
 
     /* How it works: three numbered steps joined by a dashed rule. */
     .steps { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 16px;
-             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); counter-reset: step; position: relative; }
+             grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); counter-reset: step; position: relative; }
     .step { position: relative; padding: 22px 22px 20px; border: 1px solid var(--line); border-radius: 18px;
             background: linear-gradient(180deg, var(--panel), color-mix(in srgb, var(--panel) 92%, var(--hero-2))); }
     .step-ico { position: relative; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px;
@@ -315,10 +321,9 @@ export const HOME_SECTIONS_CSS = `
     .band.night a { color: var(--accent); }
     .band.night .section-eyebrow { color: #a8c7f0; }
     .rcards { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 14px;
-              grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+              grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); }
     .rcard a { display: flex; flex-direction: column; gap: 8px; height: 100%; padding: 18px 18px 20px; border-radius: 16px;
                border: 1px solid var(--line); background: var(--panel); color: var(--ink); text-decoration: none;
-               -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
                transition: transform .25s, border-color .25s, box-shadow .25s; }
     .rcard a:hover, .rcard a:focus-visible { transform: translateY(-4px); border-color: var(--theme);
                                              box-shadow: 0 24px 50px -28px var(--theme); }
@@ -333,7 +338,7 @@ export const HOME_SECTIONS_CSS = `
 
     /* Latest writing. */
     .posts { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 14px;
-             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+             grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); }
     .posts a { display: flex; flex-direction: column; gap: 8px; height: 100%; padding: 18px 20px; border-radius: 16px;
                border: 1px solid var(--line); background: var(--panel); color: var(--ink); text-decoration: none;
                transition: transform .25s, border-color .25s, box-shadow .25s; }

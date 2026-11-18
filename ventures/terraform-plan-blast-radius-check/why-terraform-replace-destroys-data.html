@@ -26,6 +26,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; Back to Terraform Plan Blast Radius Check</a></p>
   <h1>Why a Terraform replace destroys data, and why the plan won't always say which attribute forced it</h1>
 
@@ -93,7 +94,9 @@
     <p>Because the text output is designed for a human reading it top to bottom at the moment it is produced, and the two facts that matter most — which resources are replaced and why — are scattered through it and summarised at the end in columns that conflate a replacement with a creation and a deletion. The structured plan is the same information as data: one array of resource changes, each with an actions list, a replace_paths list, and an action_reason code. Anything can read it, including a CI gate that runs before the apply step.</p>
   </div>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page is informational only and is not legal, security, or other professional advice. See the disclaimer on <a href="./">the checker itself</a> for the full text.</p>
     <p><strong>Not affiliated with HashiCorp, Terraform, OpenTofu, GitLab, or any cloud provider.</strong> Terraform is a trademark of HashiCorp. Issues and incident reports are linked as public evidence of the failure being described, not as endorsements.</p>
     <p>Everything here runs client-side; nothing is uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

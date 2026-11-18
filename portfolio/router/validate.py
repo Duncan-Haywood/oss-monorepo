@@ -4,6 +4,7 @@
 Exits non-zero with a per-file report on the first invalid portfolio.
 Usage: python3 portfolio/router/validate.py
 """
+import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -15,8 +16,16 @@ except ImportError:
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES_DIR = REPO_ROOT / "ventures"
+# libyaml's parser when this PyYAML has it (CI's wheel does): the pure-Python
+# SafeLoader was ~11 s of this script's run over ~1,300 files.
+_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
 FLAGSHIPS_PATH = REPO_ROOT / "portfolio" / "flagships.yaml"
 FLAGSHIP_NEXT_MAX = 2000
+# `buildable:` leads the row in allocate.py's table uncut, so every venture
+# session reads it. With no cap it became a second history log: photo-editing's
+# reached 2,711 characters (2026-11-14), mostly work already landed, which also
+# let its `next:` dodge FLAGSHIP_NEXT_MAX. Items a session can start, no more.
+FLAGSHIP_BUILDABLE_MAX = 600
 
 VALID_STAGES = {"idea", "prototype", "launched", "revenue", "scaling", "winding-down"}
 LEAN_STAGES = {"idea", "prototype"}
@@ -127,11 +136,19 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
     """Fail fast on a `next:` over the cap; test_allocate only catches it after ~100 s."""
     if not path.is_file():
         return
+    text = path.read_text()
     try:
-        data = yaml.safe_load(path.read_text()) or {}
+        data = yaml.load(text, Loader=_LOADER) or {}
     except yaml.YAMLError as e:
         errors.append(f"flagships.yaml: not valid YAML: {e}")
         return
+    # A folded line ending in "word-" reads back as "word- next" (a broken path).
+    for m in re.finditer(r"[A-Za-z0-9]-\n {6}\S", text):
+        errors.append(
+            f"flagships.yaml:{text.count(chr(10), 0, m.start()) + 1}: folded line ends in a "
+            "hyphen, which YAML reads as '- '; edit with portfolio/router/flagship_field.py, "
+            "which rewraps without breaking at hyphens."
+        )
     for entry in data.get("flagships") or []:
         if not isinstance(entry, dict):
             continue
@@ -140,7 +157,25 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
             errors.append(
                 f"flagships.yaml: {entry.get('venture')} `next:` is {n} characters (cap "
                 f"{FLAGSHIP_NEXT_MAX}). Replace the item your slice landed instead of "
-                f"appending; history belongs in the venture's README."
+                f"appending (portfolio/router/flagship_field.py <venture> --replace OLD NEW); "
+                f"history belongs in the venture's README; "
+                f"`flagship_field.py {entry.get('venture')} --landed` lists the landed notes to cut, and "
+                f"`--park ITEM` moves an open item to ventures/{entry.get('venture')}/NEXT.md "
+                f"(it combines with --replace in one call)."
+            )
+        hosts = entry.get("hosts")
+        if hosts is not None and (not isinstance(hosts, list) or not all(
+                isinstance(h, str) and h.startswith(("https://", "http://")) for h in hosts)):
+            errors.append(
+                f"flagships.yaml: {entry.get('venture')} `hosts:` must be a list of http(s) URLs "
+                f"(allocate.py --venture probes each one), got {hosts!r}."
+            )
+        n = len(str(entry.get("buildable") or "").strip())
+        if n > FLAGSHIP_BUILDABLE_MAX:
+            errors.append(
+                f"flagships.yaml: {entry.get('venture')} `buildable:` is {n} characters (cap "
+                f"{FLAGSHIP_BUILDABLE_MAX}). Name only items a cloud session can start now and "
+                f"drop each one when it lands; landed work belongs in the README or eval/."
             )
 
 
@@ -163,7 +198,7 @@ def main():
             continue
         try:
             with open(yaml_path) as f:
-                data = yaml.safe_load(f)
+                data = yaml.load(f, Loader=_LOADER)
         except yaml.YAMLError as e:
             errors.append(f"{venture_dir.name}/VENTURE.yaml: not valid YAML: {e}")
             continue

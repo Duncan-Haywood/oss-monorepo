@@ -6,7 +6,7 @@ the exact set and order of signings with the highest profit for the day, the dri
 signing it turns down would need to pay, and what first-come and highest-fee-first booking leave behind. Browser
 page or zero-dependency CLI.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/mobile-signing-agent-day-picker/
+**Live tool:** https://marisstella.app/mobile-signing-agent-day-picker/
 
 ```
 node cli.mjs plan signings.csv --start 08:00 --end 17:00 --hourly 35 --per-mile 0.70 --json
@@ -19,7 +19,7 @@ Input: rows of `name,price,materials,service_min,earliest,latest_start,east_mile
 
 A signing earns fee less print and supply cost less your hourly cost of its appointment minutes. Each drive costs a
 per-mile amount plus the hourly cost of the drive minutes; drive minutes are straight-line miles x circuity /
-speed. Waiting for a window to open is free. You leaves the home base at shift start and must be home by shift
+speed. Waiting for a window to open is free. You leave the home base at shift start and must be home by shift
 end. The best day is found exactly by dynamic programming over (set of signings done, last signing), keeping every
 non-dominated (finish time, profit) pair per state; the tests check it against every ordering of every subset.
 A declined signing's break-even price is exact: its price plus the gap between the best day and the best day forced to

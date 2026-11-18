@@ -1,0 +1,19 @@
+contrast,group,outcome,estimate,lo,hi,n_a,n_b
+All modes 2021-24 minus all modes 2016-18,Catholics,weekly,-0.0547,-0.0932,-0.0162,2207,1137
+All modes 2021-24 minus all modes 2016-18,Non-Catholics with a religion/none,weekly,-0.0573,-0.0807,-0.0338,8441,4021
+All modes 2021-24 minus 2018,Catholics,weekly,-0.0516,-0.1028,-0.0004,2207,489
+All modes 2021-24 minus 2018,Non-Catholics with a religion/none,weekly,-0.0554,-0.0855,-0.0253,8441,1828
+In person 2022-24 minus in person 2016-18,Catholics,weekly,-0.0218,-0.0890,0.0453,542,1004
+In person 2022-24 minus in person 2016-18,Non-Catholics with a religion/none,weekly,-0.0156,-0.0535,0.0223,2102,3707
+In person 2022 minus in person 2018,Catholics,weekly,-0.0092,-0.1046,0.0862,315,419
+In person 2022 minus in person 2018,Non-Catholics with a religion/none,weekly,-0.0259,-0.0775,0.0258,1194,1649
+In person 2024 minus in person 2018,Catholics,weekly,-0.0327,-0.1201,0.0546,227,419
+In person 2024 minus in person 2018,Non-Catholics with a religion/none,weekly,0.0131,-0.0397,0.0659,908,1649
+"Web minus in person, 2022-24",Catholics,weekly,-0.0913,-0.1591,-0.0236,668,542
+"Web minus in person, 2022-24",Non-Catholics with a religion/none,weekly,-0.0641,-0.1029,-0.0253,2694,2102
+"Web minus in person, 2022",Catholics,weekly,-0.1225,-0.2190,-0.0259,347,315
+"Web minus in person, 2022",Non-Catholics with a religion/none,weekly,-0.0711,-0.1267,-0.0156,1268,1194
+"Web minus in person, 2024",Catholics,weekly,-0.0581,-0.1460,0.0297,321,227
+"Web minus in person, 2024",Non-Catholics with a religion/none,weekly,-0.0728,-0.1233,-0.0222,1426,908
+Web 2021 minus in person 2018,Catholics,weekly,-0.0766,-0.1347,-0.0185,708,419
+Web 2021 minus in person 2018,Non-Catholics with a religion/none,weekly,-0.0759,-0.1078,-0.0440,2745,1649

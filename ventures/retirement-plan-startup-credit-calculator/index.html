@@ -145,7 +145,7 @@
       $("#rows").innerHTML = r.years.map((y) => `<tr><td>Year ${y.year}</td><td class="n">${money(y.startup)}</td><td class="n">${money(y.auto)}</td><td class="n">${money(y.contrib)}</td><td class="n">${money(y.total)}</td></tr>`).join("") + `<tr class="total"><td>Five years</td><td class="n" colspan="3"></td><td class="n">${money(r.total5)}</td></tr>`;
       report.hidden = false;
       status.textContent = "Done. Verify against the sources named in the summary.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

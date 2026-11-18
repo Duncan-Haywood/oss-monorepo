@@ -43,12 +43,17 @@
     footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
     .tableWrap { overflow-x: auto; }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #files:empty{min-height:221px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>
     <p class="note">ACTIONS ARTIFACT POISONING CHECK · RUNS IN YOUR BROWSER</p>
     <h1>Can a fork PR's artifact get executed by your privileged workflow?</h1>
-    <p>A job triggered by <code>workflow_run</code> runs with your repository's full <code>GITHUB_TOKEN</code> and secrets, even though the run it reacts to was raised by a stranger's fork. GitHub's own Actions Security Lab, and independent research from Wiz, Legit Security and Orca Security, document the resulting attack as "artifact poisoning": the fork-triggered workflow uploads an artifact, your privileged handler downloads it, and if it executes anything from that artifact, the fork gets code execution in your context. Paste your workflow YAML below and this page finds both a downloaded artifact that gets executed later in the same job, and a download step with no <code>name:</code> pin, each with the exact fix.</p>
+    <p>A job triggered by <code>workflow_run</code> runs with your repository's full <code>GITHUB_TOKEN</code> and secrets, even though the run it reacts to was raised by a stranger's fork. GitHub's own Actions Security Lab, and independent research from Wiz, Legit Security and Orca Security, document the resulting attack as "artifact poisoning": the fork-triggered workflow uploads an artifact, your privileged handler downloads it, and if it executes anything from that artifact, the fork gets code execution in your context.</p>
+<p>Paste your workflow YAML below and this page finds both a downloaded artifact that gets executed later in the same job, and a download step with no <code>name:</code> pin, each with the exact fix.</p>
     <p class="note">Nothing is uploaded. The YAML you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own.</p>
   </header>
 <main>
@@ -154,10 +159,10 @@ jobs:
       wrap.className = "file-block";
       wrap.innerHTML = `
         <div class="file-block-head">
-          <input type="text" class="fname" placeholder=".github/workflows/ci.yml" value="${escapeHtml(name)}">
+          <input type="text" class="fname" aria-label="File name" placeholder=".github/workflows/ci.yml" value="${escapeHtml(name)}">
           <button type="button" class="secondary small remove-file">Remove</button>
         </div>
-        <textarea class="ftext" spellcheck="false" placeholder="Paste the workflow YAML here"></textarea>
+        <textarea aria-label="Paste the workflow YAML here" class="ftext" spellcheck="false" placeholder="Paste the workflow YAML here"></textarea>
       `;
       wrap.querySelector(".ftext").value = text;
       wrap.querySelector(".remove-file").addEventListener("click", () => {
@@ -211,7 +216,7 @@ jobs:
       els.reportCard.hidden = false;
       els.status.textContent = "";
       record("check_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#add-file").addEventListener("click", () => addFile());

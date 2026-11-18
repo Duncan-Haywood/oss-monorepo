@@ -33,8 +33,8 @@ export function ltcLimit(age) {
 
 // Self-employment tax on net profit; `otherWages` already used Social Security room.
 export function seTax(netProfit, otherWages = 0) {
-  if (netProfit < 400) return 0;
-  const base = netProfit * 0.9235;
+  const base = Math.max(0, netProfit) * 0.9235;
+  if (base < 400) return 0; // Schedule SE: the $400 floor is on net earnings, not profit
   const room = Math.max(0, SS_WAGE_BASE - otherWages);
   return Math.min(base, room) * 0.124 + base * 0.029;
 }

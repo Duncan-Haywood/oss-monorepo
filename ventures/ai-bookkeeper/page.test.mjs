@@ -199,3 +199,19 @@ test("tax-calendar page has the disclaimer, a labelled form and no network calls
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
   for (const m of html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)) JSON.parse(m[1]);
 });
+
+// The guides used to be 33 links in the header's note and 15 more in a footer "Also:" line
+// (docs/reports/polish-2026-11-13-bookkeeper-guides.md). They live in one #guides section now;
+// a new guide page that is not linked there fails here, so it never ends up orphaned in the footer.
+test("every guide page in this folder is linked from the #guides section, and the header stays short", async () => {
+  const { readdirSync } = await import("node:fs");
+  const html = page("index.html");
+  const section = html.match(/<section class="card" id="guides"[\s\S]*?<\/section>/);
+  assert.ok(section, "#guides section");
+  const linked = new Set([...section[0].matchAll(/href="\.\/([^"#]+\.html)"/g)].map((m) => m[1]));
+  const guides = readdirSync(new URL(".", import.meta.url)).filter((f) => f.endsWith(".html") && f !== "index.html");
+  assert.deepEqual(guides.filter((f) => !linked.has(f)), [], "add these to #guides in index.html");
+  assert.deepEqual([...linked].filter((f) => !guides.includes(f)), [], "#guides links a page that does not exist");
+  const header = html.match(/<header\b[^>]*>([\s\S]*?)<\/header>/)[1];
+  assert.ok((header.match(/<a\s/g) || []).length <= 8, "header links");
+});

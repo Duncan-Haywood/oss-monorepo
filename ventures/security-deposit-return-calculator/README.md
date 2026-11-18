@@ -5,7 +5,7 @@ raises: itemize a security deposit's deductions to see the refund or balance
 due, and calculate prorated rent for a partial first or last month. Entirely
 client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/security-deposit-return-calculator/
+**Live tool:** https://marisstella.app/security-deposit-return-calculator/
 
 After using this, you can now **turn a deposit amount and a list of
 deductions into a refund or balance figure, copy that out as the itemized
@@ -113,6 +113,14 @@ Control are honoured, and a button on the page turns counting off entirely.
 ```sh
 node --test calculator.test.mjs page.test.mjs
 ```
+
+## Known gaps
+
+From the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-security-deposit-return-calculator.json):
+no dates are collected, so the tool cannot count down a state's itemization
+deadline (CA 21 days, NY 14 days with forfeiture, TX 30 days) or date the
+statement; and `vs-a-spreadsheet.html` says the copy button disables itself
+after an edit, which `index.html` does not yet do.
 
 ## Status
 

@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed Designer round 2, lane 2: numbers that drift
 
 Session: https://claude.ai/code/session_01XpHqybgbjtZBC1yuM1sWw3 (2026-10-30). Brief: stop stated numbers drifting from the model ("software for the routine"), then the round-1 pricing open items. Mid-run, the parent session relayed the owner's store feedback (drop Menards; Lowe's looked cheaper only because its data was missing), which became the top item.

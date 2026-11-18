@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-20
+tagged: auto
+---
 # The site assistant: voice, chat and agent access to every tool
 
 **Date:** 2026-10-20. **Asked by:** the owner ("I want to add an ai assistant

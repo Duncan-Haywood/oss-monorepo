@@ -75,6 +75,7 @@ export function pointAtLength(from, toward, length, ortho) {
  * @returns {SketchWall | null}
  */
 export function addWall(sk, a, b) {
+  if (!goodPt(a) || !goodPt(b)) return null;
   if (Math.hypot(b.x - a.x, b.y - a.y) < 1) return null;
   for (const w of sk.walls) {
     if ((same(w.a, a) && same(w.b, b)) || (same(w.a, b) && same(w.b, a))) return null;
@@ -83,6 +84,15 @@ export function addWall(sk, a, b) {
   sk.walls.push(w);
   return w;
 }
+// Round an offset to 1/16 in without letting the rounding push the opening past
+// the wall's far end (it could by up to 1/32 in, and a reload then dropped it).
+const snapOffset = (off, L, width) => {
+  const r = Math.round(off * 16) / 16;
+  return r + width > L ? Math.max(0, Math.floor((L - width) * 16) / 16) : r;
+};
+// A point whose x and y are real numbers within a guard limit (1,000,000 in); text, NaN and Infinity are refused.
+const goodPt = (p) => !!p && Number.isFinite(p.x) && Number.isFinite(p.y) && Math.abs(p.x) <= 1e6 && Math.abs(p.y) <= 1e6;
+const badNum = (v) => typeof v !== "number" || !Number.isFinite(v);
 const same = (p, q) => Math.abs(p.x - q.x) < 0.01 && Math.abs(p.y - q.y) < 0.01;
 
 /**
@@ -115,11 +125,13 @@ export function nearestWall(sk, p, tol = 10) {
 export function addOpening(sk, wallId, kind, along, width) {
   const w = sk.walls.find((x) => x.id === wallId);
   if (!w) return { ok: false, error: "No such wall." };
+  if (kind !== "door" && kind !== "window") return { ok: false, error: "An opening is a door or a window." };
   if (!(width > 0)) return { ok: false, error: "The opening needs a width." };
+  if (badNum(along)) return { ok: false, error: "That position is not a real number." };
   const L = len(w);
   if (width > L) return { ok: false, error: `A ${width} in opening does not fit a ${Math.round(L * 16) / 16} in wall.` };
   let offset = Math.min(Math.max(along - width / 2, 0), L - width);
-  offset = Math.round(offset * 16) / 16;
+  offset = snapOffset(offset, L, width);
   for (const o of sk.openings) {
     if (o.wall === wallId && offset < o.offset + o.width && o.offset < offset + width) return { ok: false, error: "That would overlap another opening." };
   }
@@ -137,6 +149,7 @@ export function addOpening(sk, wallId, kind, along, width) {
  * @returns {{ ok: true } | { ok: false, error: string }}
  */
 export function moveEnds(sk, moves) {
+  if (!Array.isArray(moves) || moves.some((m) => !m || !goodPt(m.to))) return { ok: false, error: "That position is not a real point." };
   const next = sk.walls.map((w) => {
     const mv = (p) => { const m = moves.find((x) => same(x.from, p)); return m ? { x: m.to.x, y: m.to.y } : { x: p.x, y: p.y }; };
     return { id: w.id, a: mv(w.a), b: mv(w.b) };
@@ -187,9 +200,33 @@ export function moveWall(sk, wallId, dx, dy) {
 export function moveOpening(sk, id, along) {
   const o = sk.openings.find((x) => x.id === id);
   if (!o) return { ok: false, error: "No such opening." };
+  if (badNum(along)) return { ok: false, error: "That position is not a real number." };
   const w = /** @type {SketchWall} */ (sk.walls.find((x) => x.id === o.wall));
-  const offset = Math.round(Math.min(Math.max(along - o.width / 2, 0), len(w) - o.width) * 16) / 16;
+  const offset = snapOffset(Math.min(Math.max(along - o.width / 2, 0), len(w) - o.width), len(w), o.width);
   if (sk.openings.some((x) => x !== o && x.wall === o.wall && offset < x.offset + x.width && x.offset < offset + o.width)) return { ok: false, error: "That would overlap another opening." };
+  o.offset = offset;
+  return { ok: true };
+}
+
+/**
+ * Move an opening to another wall, centred at `along` inches from that wall's
+ * `a` end (slid to fit and snapped like `addOpening`). Refused, changing
+ * nothing, when the wall is missing, shorter than the opening, or the spot
+ * overlaps an opening already there. Keeps the opening's id, kind and width.
+ * @param {Sketch} sk @param {number} id @param {number} wallId @param {number} along
+ * @returns {{ ok: true } | { ok: false, error: string }}
+ */
+export function moveOpeningToWall(sk, id, wallId, along) {
+  const o = sk.openings.find((x) => x.id === id);
+  if (!o) return { ok: false, error: "No such opening." };
+  const w = sk.walls.find((x) => x.id === wallId);
+  if (!w) return { ok: false, error: "No such wall." };
+  if (badNum(along)) return { ok: false, error: "That position is not a real number." };
+  const L = len(w);
+  if (o.width > L) return { ok: false, error: `A ${o.width} in opening does not fit a ${Math.round(L * 16) / 16} in wall.` };
+  const offset = snapOffset(Math.min(Math.max(along - o.width / 2, 0), L - o.width), L, o.width);
+  if (sk.openings.some((x) => x !== o && x.wall === wallId && offset < x.offset + x.width && x.offset < offset + o.width)) return { ok: false, error: "That would overlap another opening." };
+  o.wall = wallId;
   o.offset = offset;
   return { ok: true };
 }
@@ -205,6 +242,7 @@ export function resizeOpening(sk, id, edge, pos) {
   const o = sk.openings.find((x) => x.id === id);
   if (!o) return { ok: false, error: "No such opening." };
   const w = /** @type {SketchWall} */ (sk.walls.find((x) => x.id === o.wall));
+  if (badNum(pos)) return { ok: false, error: "That position is not a real number." };
   const p = Math.round(pos * 16) / 16;
   const lo = edge === "a" ? p : o.offset, hi = edge === "a" ? o.offset + o.width : p;
   if (hi - lo < 6) return { ok: false, error: "An opening under 6 in wide is not worth framing." };
@@ -254,6 +292,7 @@ export function sketchToDxf(sk) {
  * @param {Parameters<typeof planFromDxf>[1]} [opt]
  */
 export function planFromSketch(sk, opt = {}) {
+  if (!sk || typeof sk !== "object" || !Array.isArray(sk.walls)) return { ok: false, errors: ["No sketch to read."], notes: [] };
   if (!sk.walls.length) return { ok: false, errors: ["Draw at least one wall first."], notes: [] };
   return planFromDxf(sketchToDxf(sk), { units: "in", ...opt });
 }

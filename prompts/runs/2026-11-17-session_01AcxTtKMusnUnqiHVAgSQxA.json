@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtKMusnUnqiHVAgSQxA",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T08:06:47Z",
+  "ended": "2026-11-17T08:24:39Z",
+  "wall_minutes": 18.5,
+  "tokens_in": 11879080,
+  "tokens_out": 96327,
+  "cost_usd": 5.9874,
+  "tool_calls": 75,
+  "task": "Explore: new research-algorithm tool, item response theory (1PL/Rasch and 2PL by marginal ML, S-X2 fit, distractor check)",
+  "projects": [
+    "item-response-theory"
+  ],
+  "pr": 16876,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": false,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 36,
+  "outcome": "success",
+  "errors": [
+    "First venture-preflight failed on three real repository checks: no CSV formula-injection guard in the item/person CSV export (ids and item names are user text), Math.max(...rows) in the parser (stack overflow past ~125k rows), and a post seo_title over 70 characters. All fixed and regression-tested before merge.",
+    "Header detection initially missed single-letter headers (a,b,c); fixed by contrasting the first row with an all-0/1 body, with a test."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "No note on getting R package data: gh api on github.com/cran/* mirrors is refused (outside session scope) and raw.githubusercontent.com returned a 14-byte 404 for mirt's data files; the CRAN source tarball over HTTPS plus the Python rdata package worked. A one-line hint would save the next research-tool run several probes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Step 1 lists website requests and ideas before routing; both queues were empty, so the weighted draw (explore) stood, as the prompt says.",
+      "did": "Routed explore and built a new tool.",
+      "result": "No conflict."
+    },
+    {
+      "file": "ventures/CLAUDE.md",
+      "why": "Product-first default prefers deepening existing flagships; explore track explicitly frees the choice.",
+      "did": "New research-algorithm tool in the established series (portfolio/research-tools).",
+      "result": "Shipped with tests, page, CLI, agent access."
+    },
+    {
+      "file": "goals.md (Write about the work)",
+      "why": "SAT12 data come from a commercial software manual (TESTFACT) via GPL mirt; redistributing them was not clearly safe.",
+      "did": "Not committed; eval/sat12.py fetches from CRAN and only derived statistics (eval/sat12.json) are saved.",
+      "result": "Post and page quote the result with a reproducible path."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-a-wrong-answer-key-found-by-who-chose-it.md",
+    "ventures/item-response-theory/README.md (Verification section)"
+  ],
+  "goal": null,
+  "notes": "Idea: item response theory as a browser tool (explore). Overlap check: open PR #16865 scale-reliability covers alpha/omega (classical); this is the model-based side and does not duplicate it. Verification: 1PL on LSAT matches every digit ltm prints in Rizopoulos 2006 (JSS 17(5)): b, SE(b), a=0.7551 (0.0694), logLik -2466.938, AIC 4945.875, BIC 4975.322; 2PL logLik -2466.65, LRT 0.57/4 df p=0.967. girth 0.8.0 agrees within 0.0002 (LSAT) and 0.004 (simulated). Simulation (60 x 20 items x 1000): coverage a 95.1%, b 95.5%, S-X2 false alarms 5.1% of 1,140; guessing-item power only 7/60; LR test under 1PL truth rejected 0/60 (p-values roughly uniform, mean 0.48). SAT12: distractor table flags Q32 answer 3 (mirt docs say key 5 should be 3); rescored a 0.12 -> 0.47. All 7 DOIs checked against Crossref. 36 venture tests pass; page checked in Chromium at 390 px (no console errors, no overflow); venture-preflight rerun after fixes (output summary in PR). Next: graded/partial-credit items, 3PL with prior, DIF.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "10a3527e-6231-5a2d-9e60-e0e57f378a8e",
+    "transcripts": 1,
+    "first": "2026-11-17T08:06:47Z",
+    "last": "2026-11-17T08:25:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 141,
+        "output": 96327,
+        "thinking": 14151,
+        "cache_read": 11662977,
+        "cache_write_5m": 0,
+        "cache_write_1h": 215962,
+        "api_equivalent_usd": 5.9874,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 141,
+      "output": 96327,
+      "thinking": 14151,
+      "cache_read": 11662977,
+      "cache_write_5m": 0,
+      "cache_write_1h": 215962,
+      "api_equivalent_usd": 5.9874,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 68,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.5,
+      "active_minutes": 18.5,
+      "model_minutes": 15.0,
+      "tool_minutes": 3.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "estimate: implementing and validating MML-EM IRT with SEs, S-X2, a page, CLI and tests against published output, for an experienced psychometric programmer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 400.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

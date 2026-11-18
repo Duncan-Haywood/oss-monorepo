@@ -1,0 +1,61 @@
+{
+ "date": "2026-11-09",
+ "subject": "research/quantization-twin",
+ "stratum": "research",
+ "seed": "2026-11-09",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a Kalman-filtering / estimation-with-quantized-measurements researcher (control or signal-processing faculty) who would first check the Riccati and Lyapunov formulas, then ask what Curry 1970, Gustafsson-Karlsson and Widrow-Kollar already established",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `PYTHONPATH=src python3 experiments/run.py` (pyenv /usr/local/bin/python3): output byte-identical to committed experiments/results.txt (diff reported IDENTICAL). Independent recomputation with my own numpy code (vectorised, 40 independent runs x 50k steps, different RNG, own Riccati iteration, no import of the package): R=1 twin gain 0.59741 (paper 0.597); R=1 D=4 real MSE Kt 1.149 / Ksh 1.031 vs paper 1.1477 / 1.0306, twin regret 11.5% vs 11.4%; R=1 D=8 real Kt 2.899 / Ksh 2.455 vs 2.8952 / 2.4601, regret 18.1% vs 18.7% (paper compares to grid-best, so 0.9% apart is expected); R=0.01 D=4 Kt 1.318 / Ksh 0.8035 vs 1.3206 / 0.8035, regret 64.1% vs 64.4%; Sheppard prediction R=1 D=8 1.7494 and R=0.01 D=4 0.7281 match the paper exactly. Error-recursion variance formula ((1-K)^2 Q + K^2 R)/(1-(1-K)^2 a^2) re-derived by hand from e' = (1-K)(a e + w) - K v. All numeric results reproduce; one stated number is wrong (see claims).",
+  "completeness": "README and whitepaper claim: closed-form MSE, Sheppard gain, paired simulation, a 12-configuration sweep, results.txt, regret.svg, whitepaper, 6 tests, 1 minute runtime. All present and working: unit tests ran, run.py ran (results identical), figure.py and regret.svg exist (not regenerated). The whitepaper's own listed next steps (dither, EKF, quantization-aware filter) are explicitly not done and not claimed. Single parameter point (a=0.9, Q=1), one seed per cell; stated as limitation.",
+  "verification": "`PYTHONPATH=src python3 -m unittest discover -s tests -v`: 6 tests OK in 0.6 s. Mutation 1 (mse(): (1-K)^2*a*a -> (1-K)^2*a) was caught by 1 test failure, then reverted. Mutation 2 (sheppard_gain: D*D/12.0 -> D*D/6.0, the core of the headline method) SURVIVED: all 6 tests passed, because the Sheppard tests only check D=0 reduction and monotonicity, never a value; reverted with git checkout. opt_gain/prior_var are never tested against a known Riccati value, best_gain and the headline regret numbers have no test (the 12-configuration table is only checked by eye). Seeds are fixed so tests are deterministic, but tolerances (3-5%) are loose.",
+  "craft": "Read src/quantization_twin/model.py (58 lines), tests/test_model.py, experiments/run.py, figure.py header, pyproject.toml. Clean, pure-Python, docstrings, closed-form Riccati (no iteration), paired common-random-numbers design is the right variance-reduction choice. Defects: no input validation (R<=0, D<0 silently give nan/odd), `from quantization_twin import *` in tests, run.py has no CLI/seed parameter or confidence interval, K* picked on a 0.02 grid from the same finite run that evaluates it (selection bias that produces the -1.0% regrets at D=0), mse() returns inf for unstable gain without a test. Small and honest; no dead code.",
+  "claims": "Checked each README/whitepaper claim against results.txt: twin regrets (1.4/11/19% at R=1; 1/6.7/26/64/42% at R=0.01), Sheppard gain within 1% of grid-best in all 12 configs (max 0.9%, and -1.0% noise at D=0), 28-43% under-prediction at D=8 (1.749 vs 2.439 = 28%, 1.61 vs 2.81 = 43%), 9% at D=4 R=0.01 (0.728 vs 0.8035): all backed. FAILED: the stated rule 'do not trust the MSE claim once D exceeds the state's standard deviation (about 1.5 here)': the stationary std is sqrt(Q/(1-a^2)) = sqrt(1/0.19) = 2.294 (computed), not 1.5; and the rule is inconsistent with the table, since at R=1, D=4 (> 2.29) the Sheppard MSE is accurate to 0.5% (1.0259 vs 1.0306) while at R=0.01 D=2 (< 2.29) it is accurate and D=4 is off 9%. So the threshold is wrong in value and not supported as a rule; the mechanism explanation (error becomes signal-dependent, 'mostly 0 and +-D') is asserted, not measured. Also 'matches simulation to 0.4% for D<=2' (R=0.01) is fine. Disclosure is honest: stylised, preliminary, simulation only, no robot/sensor data, no affiliation claim. One caveat: the README says 'Pure Python, no dependencies' and 'within 0.1% ... up to D=1' which is true.",
+  "fitness": "A researcher could reuse model.py (58 lines) to reproduce the sweep and extend it, and the whitepaper is readable. But the result is thin for a research stratum aimed at PhD level: one scalar plant, one (a,Q), one seed per cell, no confidence intervals, not part of any programme in research/PROGRAMMES.md (grep found no entry), no real sensor or data despite research/CLAUDE.md 'run the numbers, don't stylise' (parameters a=0.9, Q=1, R are chosen round numbers, with no datasheet). Nothing a robotics engineer could act on beyond the qualitative 'retune the noise level'.",
+  "domain": "Nearest prior work, from knowledge (no web search run, so not verified online): Gelb, Applied Optimal Estimation (1974), which already treats quantization as white noise D^2/12 added to R; Curry, Estimation and Control with Quantized Measurements (MIT Press, 1970), which analyses exactly the scalar quantized-measurement filter and the breakdown of the white-noise model; Widrow-Kollar (2008, cited) on when the quantization theorem/PQN model holds (it holds when the input's characteristic function is band-limited, i.e. D small relative to the total signal-plus-noise spread, which is the actual mechanism, not 'D versus state std'); Gustafsson and Karlsson (2009) on estimation from quantized observations, and Karlsson-Gustafsson particle filters/CRLB for quantized measurements; Delchamps (1990) on quantized-measurement control. The paper cites Kalman, Sheppard and Widrow-Kollar only, cites none of Curry, Gelb or the quantized-estimation literature, and does not compare against a quantization-aware filter or the CRLB, so it cannot say how far Sheppard-retuned fixed gain is from what is achievable. The finding that D^2/12 inflation works until D is comparable to the total measurement spread is a known consequence of the PQN model, so novelty is low; as a worked demonstration it is sound. The Sheppard correction is also applied to a fixed gain only; a practitioner would adaptively recompute P with the inflated R, which is the same here in steady state."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Stated threshold 'state std about 1.5' is wrong: sqrt(Q/(1-a^2)) = 2.294 for a=0.9, Q=1; and the 'D exceeds state std' rule is inconsistent with the table (R=1, D=4 > 2.29 yet Sheppard MSE is within 0.5%; R=0.01 diverges at D=4 by 9% but not D=2). Appears in README, whitepaper Finding 3.",
+   "where": "research/quantization-twin/README.md:1; research/quantization-twin/paper/whitepaper.md:Findings 3"
+  },
+  {
+   "severity": "medium",
+   "what": "Seeded mutation survived: changing sheppard_gain's D*D/12 to D*D/6 passes all 6 tests; the headline method has no value-level test, opt_gain has no known-value Riccati test, and best_gain and the sweep table are untested.",
+   "where": "research/quantization-twin/tests/test_model.py; src/quantization_twin/model.py:35"
+  },
+  {
+   "severity": "medium",
+   "what": "Prior work omitted: Curry 1970, Gelb 1974 (D^2/12 noise inflation is textbook), Gustafsson-Karlsson 2009; no quantization-aware filter or CRLB baseline, so novelty is low and the achievable gap is unknown. The mechanism is the PQN-validity condition, not state std.",
+   "where": "research/quantization-twin/paper/whitepaper.md:References"
+  },
+  {
+   "severity": "low",
+   "what": "K* is selected on a 0.02 grid from the same finite run that scores it, giving -1.0% regrets at D=0 and biasing regrets; single seed per cell, no confidence intervals.",
+   "where": "research/quantization-twin/src/quantization_twin/model.py:best_gain; experiments/run.py"
+  },
+  {
+   "severity": "low",
+   "what": "Parameters (a=0.9, Q=1, R values) are round figures with no datasheet or real-sensor source, against research/CLAUDE.md 'run the numbers'; project belongs to no programme in PROGRAMMES.md.",
+   "where": "research/quantization-twin/README.md"
+  },
+  {
+   "severity": "low",
+   "what": "No input validation for R<=0 or D<0.",
+   "where": "research/quantization-twin/src/quantization_twin/model.py"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, honest, reproducible stylised study: the code is correct, experiments rerun byte-for-byte, and four independent recomputations (own numpy code, different seed) agree with the paper to within about 0.5 percentage points, with the Sheppard predictions matching exactly. It does not meet the bar because claims is 2 and verification is 2: the paper's one explanatory rule (trust fails once D exceeds the state std, about 1.5) is numerically wrong (std is 2.29) and contradicted by its own table, and a seeded mutation of the Sheppard D^2/12 constant passed every test. Domain and fitness are held at 2 because the paper cites neither Curry (1970), Gelb nor the quantized-estimation literature, offers no quantization-aware baseline, and the central finding is the known validity condition of the pseudo-quantization-noise model, so it is a competent demonstration rather than a publishable result. Cheap fixes: correct 1.5 to 2.29 and restate the rule in terms of D versus the total measurement spread, add a value test for sheppard_gain/opt_gain, cite the prior work. Fix (same round, scores are pre-fix): threshold corrected to 2.29 and a known-value test added for opt_gain and sheppard_gain, which now catches the D*D/12 to D*D/6 mutation."
+}

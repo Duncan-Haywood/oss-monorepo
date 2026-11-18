@@ -10,6 +10,7 @@
 // Split: a line is "test" when a hash of its payee lands in the top fifth.
 import { readFileSync } from "node:fs";
 import { suggest } from "../categorize.mjs";
+import { pathToFileURL } from "node:url";
 
 export const MAP = {
   "Expenses:Operating:Food": ["6130"], "Expenses:Fundraising:Food": ["6130"],
@@ -32,13 +33,13 @@ export const INCOME = {
 
 export function parseLedger(text) {
   const rows = [];
-  let payee = null, acct = null, date = null;
-  const flush = () => { if (payee && acct) rows.push({ desc: payee, cat: acct, date }); payee = acct = null; };
+  let payee = null, acct = null, date = null, amount = null;
+  const flush = () => { if (payee && acct) rows.push({ desc: payee, cat: acct, date, amount }); payee = acct = amount = null; };
   for (const line of text.split(/\r?\n/)) {
     const h = line.match(/^(\d{4}\/\d\d\/\d\d)\s+(?:[*!]\s+)?(?:\([^)]*\)\s+)?(.+?)\s*$/);
     if (h) { flush(); date = h[1]; payee = h[2]; continue; }
     const p = line.match(/^\s+((?:Expenses|Income):[^\s$].*?)(?:\s{2,}|\t|$)/);
-    if (p && !acct) acct = p[1].trim();
+    if (p && !acct) { acct = p[1].trim(); const a = line.match(/(-?)\$(-?[\d,]+\.?\d*)\s*$/); amount = a ? Math.abs(parseFloat(a[2].replace(/,/g, ""))) : null; }
     if (!line.trim()) flush();
   }
   flush();
@@ -63,7 +64,7 @@ export function score(rows) {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = (k, d) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
   const file = process.argv[2] && !process.argv[2].startsWith("--") ? process.argv[2] : "/tmp/hc/main.ledger";
   const split = arg("--split", "all");

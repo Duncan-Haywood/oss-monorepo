@@ -1,0 +1,4 @@
+registered period 7: no list 56 changes; list 61 changes, factor 0.877
+registered period 365: no list 134 changes; list 125 changes, factor 0.894
+casual period 7: no list 70 changes; list 77 changes, factor 1.796
+casual period 365: no list 129 changes; list 120 changes, factor 1.032

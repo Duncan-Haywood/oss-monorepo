@@ -311,3 +311,91 @@ test("M8b stage move: only on a person's call, only an interested reply, only a 
   assert.match((await off.moveDeal("<4@x>")).error, /stage moves are off/);
   await new Promise((r) => srv.close(r));
 });
+
+test("M7d call prep and follow-up from the agent's own thread; a person who asked to stop gets a warning and no draft; HTTP needs the token", async () => {
+  const f = fakeImap({ messages: {
+    1: mail("Lee <lee@corp.example>", "Re: routes", "We use spreadsheets by hand today and it takes hours. Could you send a few times next week for a call?"),
+    2: mail("Dana <dana@bright.example>", "Re: routes", "Unsubscribe me please, stop emailing."),
+  } });
+  const port = await f.listen();
+  const env = { ADMIN_TOKEN: "x".repeat(16), DATA_DIR: mkdtempSync(join(tmpdir(), "sa-")), IMAP_HOST: "127.0.0.1", IMAP_PORT: String(port), IMAP_SECURE: "false", IMAP_USER: "me@example.com", IMAP_PASS: "pw", PORT: "0" };
+  const a = createAgent(env, { now: () => Date.parse("2026-10-26T10:00:00Z") });
+  await a.poll();
+  const p = a.prep("lee@corp.example", "");
+  assert.equal(p.stop, "");
+  assert.ok(p.history.length === 1 && p.known.length >= 1 && p.unknown.length >= 1);
+  const fu = a.followUp("lee@corp.example", "Wants fewer hours on routing.\nI will send the pricing sheet.\nNext call Thursday 2pm");
+  assert.ok(fu.draft && /pricing sheet/i.test(fu.draft.body));
+  const stop = a.followUp("dana@bright.example", "Spoke briefly.");
+  assert.equal(stop.draft, null);
+  assert.match(stop.issues.join(" "), /Do not send/);
+  assert.match(a.prep("dana@bright.example").brief, /./);
+  assert.ok(a.prep("not-an-email").error);
+  const audit = rf(join(env.DATA_DIR, "audit.jsonl"), "utf8");
+  assert.match(audit, /"event":"prep"/); assert.match(audit, /"event":"followup_drafted"/);
+  await new Promise((r) => a.server.listen(0, r));
+  const base = `http://127.0.0.1:${a.server.address().port}`;
+  assert.equal((await fetch(base + "/api/prep", { method: "POST", body: "{}" })).status, 401);
+  const r = await fetch(base + "/api/prep", { method: "POST", headers: { authorization: "Bearer " + env.ADMIN_TOKEN }, body: JSON.stringify({ email: "lee@corp.example" }) });
+  assert.equal(r.status, 200); assert.equal((await r.json()).email, "lee@corp.example");
+  assert.equal((await fetch(base + "/api/followup", { method: "POST", headers: { authorization: "Bearer " + env.ADMIN_TOKEN }, body: JSON.stringify({ email: "x" }) })).status, 422);
+  const home = await (await fetch(base + "/?token=" + env.ADMIN_TOKEN)).text();
+  assert.match(home, /id="calldesk"/); assert.match(home, /voice\.mjs\?token=/);
+  const mod = home.split('<script type="module">')[1].split("</script>")[0].replace(/^import .*?;\n/, "");
+  new (await import("node:vm")).Script(mod); // throws on a syntax error (a bad "\\n" escape once slipped through)
+  assert.equal((await fetch(base + "/voice.mjs")).status, 401);
+  const vm = await fetch(base + "/voice.mjs?token=" + env.ADMIN_TOKEN);
+  assert.equal(vm.status, 200); assert.match(await vm.text(), /export function appendDictation/);
+  a.server.close(); await f.close();
+});
+
+test("calendar file for a proposed exact time: served behind the token, tentative, audited, refused when there is none", async () => {
+  const env = { ADMIN_TOKEN: "i".repeat(16), DATA_DIR: mkdtempSync(join(tmpdir(), "sa-")), OFFER_JSON: "" };
+  const a = createAgent(env, { now: () => Date.parse("2026-11-02T10:00:00Z") });
+  await a.ingest([
+    { id: "<c1@x>", block: "From: Dana Ruiz <dana@bright.example>\nSubject: Re: routes\n\nSounds good. Can we talk Thursday at 2pm?" },
+    { id: "<c2@x>", block: "From: Lee <lee@corp.example>\nSubject: Re: routes\n\nYes, let's set up a call." },
+    { id: "<c3@x>", block: "From: Zed <zed@nobody.example>\nSubject: Re: routes\n\nUnsubscribe me please, stop emailing." },
+  ]);
+  const withSlot = a.state.items[0];
+  assert.equal(withSlot.triage.category, "interested");
+  assert.ok(withSlot.triage.slots?.[0]?.time, "the reply carries an exact time");
+  const v = a.invite("<c1@x>");
+  assert.match(v.ics, /STATUS:TENTATIVE/); assert.match(v.ics, /DTSTART:20261105T140000/); assert.match(v.ics.replace(/\r\n /g, ""), /mailto:dana@bright\.example/);
+  assert.match(a.invite("<c2@x>").error, /no proposed time/);
+  assert.match(a.invite("<c3@x>").error, /no proposed time/);
+  assert.equal(a.invite("<nope>"), null);
+  await new Promise((r) => a.server.listen(0, "127.0.0.1", r));
+  const base = `http://127.0.0.1:${a.server.address().port}`;
+  assert.equal((await fetch(base + "/api/invite?id=" + encodeURIComponent("<c1@x>"))).status, 401);
+  const res = await fetch(base + "/api/invite?id=" + encodeURIComponent("<c1@x>") + "&token=" + env.ADMIN_TOKEN);
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get("content-type"), /text\/calendar/);
+  assert.match(res.headers.get("content-disposition"), /attachment; filename="dana@bright.example-2026-11-05\.ics"/);
+  assert.equal((await fetch(base + "/api/invite?id=" + encodeURIComponent("<c2@x>") + "&token=" + env.ADMIN_TOKEN)).status, 422);
+  const page = await (await fetch(base + `/?token=${env.ADMIN_TOKEN}`)).text();
+  assert.match(page, /Calendar file for the time they proposed/);
+  assert.equal((page.match(/Calendar file for the time/g) || []).length, 1, "only the reply with an exact time gets the link");
+  a.server.close();
+  assert.match(readFileSync(join(env.DATA_DIR, "audit.jsonl"), "utf8"), /"invite"/);
+});
+
+test("a bounce naming five failed addresses stops all five, and a reply with a --- line stays one reply (2026-11-11)", async (t) => {
+  const bounce = readFileSync(new URL("../eval/bounce-corpus-mail/multi_address_bounce1.eml", import.meta.url), "latin1").replace(/\r?\n/g, "\r\n");
+  const failed = parseMessage(bounce).dsn.failed;
+  assert.equal(failed.length, 5);
+  const f = fakeImap({ messages: {
+    1: bounce,
+    2: mail("Lee <lee@corp.example>", "Re: routes", "Not interested, thanks.\r\n---\r\nLee Park | Corp\r\nPlease remove me from your list."),
+  } });
+  const port = await f.listen();
+  t.after(() => f.close());
+  const env = { ADMIN_TOKEN: "x".repeat(16), DATA_DIR: mkdtempSync(join(tmpdir(), "sa-")), IMAP_HOST: "127.0.0.1", IMAP_PORT: String(port), IMAP_SECURE: "false", IMAP_USER: "me@example.com", IMAP_PASS: "pw", PORT: "0", PROSPECTS_CSV: "" };
+  const a = createAgent(env, { now: () => Date.parse("2026-10-26T10:00:00Z") });
+  assert.equal(await a.poll(), 6, "five bounce blocks and one reply (before: one bounce block, and the reply cut at ---)");
+  const bounced = a.state.items.filter((i) => i.triage.category === "bounce").map((i) => i.triage.failed || i.from);
+  assert.equal(bounced.length, 5);
+  assert.equal(new Set(a.state.items.map((i) => i.id)).size, 6, "each block has its own id");
+  const lee = a.state.items.find((i) => /lee@/.test(i.from));
+  assert.equal(lee.triage.category, "not_interested", "the part before the --- line is what is read, as before");
+});

@@ -123,7 +123,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
   assert.match(page("README.md"), /No warranty/);
-  assert.match(page("README.md"), /https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/conformal-prediction-intervals\//);
+  assert.match(page("README.md"), /https:\/\/marisstella\.app\/conformal-prediction-intervals\//);
   assert.match(page("README.md"), /## Verification/);
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: conformal-prediction-intervals$/m);
@@ -133,4 +133,6 @@ test("footer links the sibling research-algorithm tools", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.match(html, /href="\.\.\/changepoint-detector\/"/);
   assert.match(html, /href="\.\.\/matrix-profile-explorer\/"/);
+  assert.match(html, /href="\.\.\/survival-analysis\/"/);
+  assert.match(html, /href="\.\.\/fdr-multiple-testing\/"/);
 });

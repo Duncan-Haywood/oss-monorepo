@@ -21,13 +21,14 @@
 
 import { availableParallelism } from 'node:os';
 import { createHash } from 'node:crypto';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Worker } from 'node:worker_threads';
 
 import { renderCard } from './sharecard.mjs';
+import { servedPath } from './served-path.mjs';
 
 export const PAGE_CARD_FILE = 'share-card.png';
 
@@ -112,7 +113,14 @@ const FOOTERS = {
 };
 const DEFAULT_FOOTER = 'Free · open source · MIT licensed';
 
-const decode = (s) => String(s ?? '')
+// Every entity below starts with `&`, so a string without one comes back as
+// it went in, without the fourteen passes; most meta values have none
+// (docs/history/pages-build-perf-2026-11-15-meta-content-backreference.md).
+const decode = (s) => {
+  const str = String(s ?? '');
+  return str.includes('&') ? decodeEntities(str) : str;
+};
+const decodeEntities = (str) => str
   .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
   .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
   .replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
@@ -121,14 +129,55 @@ const decode = (s) => String(s ?? '')
   .replace(/&amp;/g, '&');
 const escapeAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+// An inline data: favicon link (see `completeShareTags`).
+const DATA_ICON = /<link\b[^>]*\brel=["'](?:shortcut )?icon["'][^>]*\bhref=["']data:[^"']*["'][^>]*>/gi;
+
 // The whole tag, tolerating a `>` inside a quoted attribute value.
 const META = /<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi;
 
+// metaContent runs about fifteen times on one page's HTML: scan the tags once
+// per string (a one-slot memo) and compile each attr/key matcher once.
+let metaTagsFor = null;
+let metaTagsOf = [];
+const metaMatchers = new Map();
+
+// A tag's content value, double- or single-quoted. Spelled as two quoted
+// alternatives rather than `(["'])([\s\S]*?)\1`: both stop at the first
+// closing quote of the same kind, but on a two-byte string (any page with a
+// `—` in it) V8 runs a backreference under `i` about 20 times slower, about
+// 4 us a tag, and this runs on every meta read
+// (docs/history/pages-build-perf-2026-11-15-meta-content-backreference.md).
+const META_CONTENT = /\bcontent\s*=\s*(?:"([^"]*)"|'([^']*)')/i;
+
+function metaMatcher(attr, key) {
+  const id = `${attr}\0${key}`;
+  let test = metaMatchers.get(id);
+  if (!test) {
+    test = new RegExp(`\\b${attr}\\s*=\\s*["']${key.replace(/[:]/g, '\\:')}["']`, 'i');
+    metaMatchers.set(id, test);
+  }
+  return test;
+}
+
+// Where a tag may start (`META`'s own opening), and `META` anchored at one place.
+const META_START = /<meta\b/i;
+const META_AT = new RegExp(META.source, 'iy');
+
+function reparsesAs(html, at, tag) {
+  META_AT.lastIndex = at;
+  return META_AT.exec(html)?.[0] === tag;
+}
+
 function metaContent(html, attr, key) {
-  for (const m of html.matchAll(META)) {
-    if (new RegExp(`\\b${attr}\\s*=\\s*["']${key.replace(/[:]/g, '\\:')}["']`, 'i').test(m[0])) {
-      const c = /\bcontent\s*=\s*(["'])([\s\S]*?)\1/i.exec(m[0]);
-      return c ? decode(c[2]) : '';
+  if (metaTagsFor !== html) {
+    metaTagsOf = html.match(META) ?? [];
+    metaTagsFor = html;
+  }
+  const test = metaMatcher(attr, key);
+  for (const tag of metaTagsOf) {
+    if (test.test(tag)) {
+      const c = META_CONTENT.exec(tag);
+      return c ? decode(c[1] ?? c[2]) : '';
     }
   }
   return null;
@@ -209,14 +258,39 @@ export function completeShareTags(html, { card = '', siteName = 'Maris Stella La
   if (!/<\/head>/i.test(html)) return html;
   let next = html;
 
+  // The first matching tag's content, set in place. Stops at that tag: a
+  // `replace` over every tag scanned the rest of the page for nothing and
+  // compiled the matcher once per tag.
+  //
+  // When `metaContent`'s memo holds this page's tags, the edited tag is
+  // swapped into it rather than the memo dropped: the next read would
+  // otherwise rescan the whole page for its tags, two or three times a page
+  // (about 2 s a build). The swap is exactly what a rescan would find when
+  // every `<meta` before the tag began a matched tag (so no earlier attempt
+  // that failed could now run on into the edit) and the new tag still parses
+  // as one tag from the same place (the text after it is unchanged, so the
+  // scan resumes as before). Otherwise the memo is dropped, as it always was
+  // (docs/history/pages-build-perf-2026-11-15-share-memo-swap.md).
   const setContent = (attr, key, value) => {
-    let found = false;
-    next = next.replace(META, (tag) => {
-      if (found || !new RegExp(`\\b${attr}\\s*=\\s*["']${key.replace(/[:]/g, '\\:')}["']`, 'i').test(tag)) return tag;
-      found = true;
-      return tag.replace(/\bcontent\s*=\s*(["'])[\s\S]*?\1/i, () => `content="${escapeAttr(value)}"`);
-    });
-    return found;
+    const test = metaMatcher(attr, key);
+    let i = 0;
+    let gapEnd = 0;
+    let clean = true;
+    for (const m of next.matchAll(META)) {
+      if (clean && m.index > gapEnd && META_START.test(next.slice(gapEnd, m.index))) clean = false;
+      gapEnd = m.index + m[0].length;
+      if (!test.test(m[0])) { i += 1; continue; }
+      const tag = m[0].replace(META_CONTENT, () => `content="${escapeAttr(value)}"`);
+      const memo = metaTagsFor === next && metaTagsOf[i] === m[0];
+      next = next.slice(0, m.index) + tag + next.slice(gapEnd);
+      if (memo && clean && reparsesAs(next, m.index, tag)) {
+        metaTagsOf = metaTagsOf.slice();
+        metaTagsOf[i] = tag;
+        metaTagsFor = next;
+      }
+      return true;
+    }
+    return false;
   };
 
   if (card) {
@@ -277,8 +351,23 @@ export function completeShareTags(html, { card = '', siteName = 'Maris Stella La
   add('name', 'twitter:description', ogDescription ? tidy(ogDescription) : '');
 
   // One logo everywhere: drop an inline data: favicon (a different mark the
-  // research index used to carry) and make sure the scalable icon is linked.
-  next = next.replace(/\s*<link\b[^>]*\brel=["'](?:shortcut )?icon["'][^>]*\bhref=["']data:[^"']*["'][^>]*>/gi, '');
+  // research index used to carry), with the whitespace before it, and make
+  // sure the scalable icon is linked. The cheap `data:` test first: most pages
+  // have no data: URI at all. The link is matched without a leading `\s*`
+  // (which made the engine try the pattern from every whitespace run, 0.7 s a
+  // build) and the gap before it trimmed by hand: `\s` and `trimEnd` strip the
+  // same characters, and, as with `replace`, a gap never reaches back into the
+  // previous match. Same output
+  // (docs/history/pages-build-perf-2026-11-13-share-data-icon-scan.md).
+  if (/data:/i.test(next)) {
+    let out = '';
+    let last = 0;
+    for (const m of next.matchAll(DATA_ICON)) {
+      out += next.slice(last, m.index).trimEnd();
+      last = m.index + m[0].length;
+    }
+    if (last) next = out + next.slice(last);
+  }
   if (!/<link\b[^>]*rel=["'][^"']*\bicon\b[^"']*["'][^>]*favicon\.svg/i.test(next)) {
     tags.push(`<link rel="icon" href="${toRoot}favicon.svg" type="image/svg+xml">`);
   }
@@ -307,14 +396,49 @@ export function completeShareTags(html, { card = '', siteName = 'Maris Stella La
  * touched, so the workflow can prune what no build has used lately. Cards
  * drawn earlier in this process are also kept in memory, which is what makes
  * the test suite's repeat builds cheap without any cache directory.
+ *
+ * Several builds can share one cache directory at once: the site-builder suite
+ * runs four (two full catalogue builds and two fixture builds, which still
+ * card every post and research page) in separate processes. Until 2026-11-16
+ * each looked in the directory only before it started drawing and stored its
+ * cards only after it finished, so on a cold cache all four drew the same
+ * ~6,500 cards side by side, and a fresh cloud container (always cold) spent
+ * most of the suite's 340-410 s on that. Now a card is stored the moment it is
+ * drawn, each build draws its misses in its own shuffled order, and the
+ * directory is checked again just before each draw, so the builds split the
+ * work instead of repeating it
+ * (docs/history/pages-test-perf-2026-11-16-shared-card-cache.md). Entries are
+ * written to a temporary name and renamed, so a reader never copies half a PNG.
  */
+/**
+ * Off for one build: `renderCards` draws and copies nothing, so pages keep
+ * their share tags but their card files are absent. For fixture builds in the
+ * tests (`buildSite({ cards: false })`), which assert on markup only and whose
+ * own base URL gives every card a different key from the catalogue build's:
+ * the two fixture builds drew ~14,000 cards nobody read, most of a cold
+ * suite's drawing (docs/history/pages-test-perf-2026-11-16-shared-card-cache.md).
+ */
+let cardDrawing = true;
+export function setCardDrawing(on) { cardDrawing = Boolean(on); }
+
 export async function renderCards(jobs, {
   threads = Math.max(1, Math.min(8, availableParallelism())),
   cacheDir = process.env.PAGES_CARD_CACHE || '',
 } = {}) {
-  if (!jobs.length) return;
+  if (!jobs.length || !cardDrawing) return;
   if (cacheDir) await fs.mkdir(cacheDir, { recursive: true });
   const now = new Date();
+  const cachedPath = (key) => path.join(cacheDir, `${key}.png`);
+  const copyCached = async (job, key) => {
+    if (!cacheDir) return false;
+    try {
+      await fs.copyFile(cachedPath(key), job.file);
+      await fs.utimes(cachedPath(key), now, now);
+      return true;
+    } catch {
+      return false; // not cached (yet): drawn
+    }
+  };
   const todo = [];
   await mapLimit(jobs, 32, async (job) => {
     const key = cardKey(job.options);
@@ -323,25 +447,32 @@ export async function renderCards(jobs, {
     // times in one process (docs/history/pages-test-perf-2026-10-24.md).
     const png = drawnCards.get(key);
     if (png) return fs.writeFile(job.file, png);
-    if (cacheDir) {
-      const cached = path.join(cacheDir, `${key}.png`);
-      try {
-        await fs.copyFile(cached, job.file);
-        await fs.utimes(cached, now, now);
-        return undefined;
-      } catch {
-        // Not cached yet: drawn below.
-      }
-    }
+    if (await copyCached(job, key)) return undefined;
     todo.push({ job, key });
     return undefined;
   });
-  await drawCards(todo.map((t) => t.job), threads);
-  await mapLimit(todo, 32, async ({ job, key }) => {
-    const png = await fs.readFile(job.file);
-    drawnCards.set(key, png);
-    if (cacheDir) await fs.writeFile(path.join(cacheDir, `${key}.png`), png);
+  if (cacheDir) shuffle(todo);
+  await drawCards(todo, threads, {
+    // Another build sharing the directory may have drawn it since the pass above.
+    skip: ({ job, key }) => copyCached(job, key),
+    drawn: async ({ job, key }) => {
+      const png = await fs.readFile(job.file);
+      drawnCards.set(key, png);
+      if (!cacheDir) return;
+      const tmp = `${cachedPath(key)}.${process.pid}.${Math.random().toString(36).slice(2)}.tmp`;
+      await fs.writeFile(tmp, png);
+      await fs.rename(tmp, cachedPath(key));
+    },
   });
+}
+
+/** Fisher-Yates, in place. Only the order cards are drawn in depends on it. */
+function shuffle(items) {
+  for (let i = items.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+  return items;
 }
 
 const drawnCards = new Map();
@@ -362,30 +493,45 @@ function rendererVersion() {
 export const cardKey = (options) =>
   createHash('sha256').update(rendererVersion()).update(JSON.stringify(options ?? {})).digest('hex');
 
-async function drawCards(jobs, threads) {
-  if (!jobs.length) return;
-  if (jobs.length < 16 || threads === 1) {
-    for (const job of jobs) {
-      await fs.mkdir(path.dirname(job.file), { recursive: true });
-      await fs.writeFile(job.file, renderCard(job.options));
+/**
+ * Draw `entries` ({ job, key }) on a pool of workers. `skip(entry)` runs just
+ * before an entry is drawn and returns true when it no longer needs drawing;
+ * `drawn(entry)` runs as soon as its card is on disk.
+ */
+async function drawCards(entries, threads, { skip = async () => false, drawn = async () => {} } = {}) {
+  if (!entries.length) return;
+  if (entries.length < 16 || threads === 1) {
+    for (const entry of entries) {
+      if (await skip(entry)) continue;
+      await fs.mkdir(path.dirname(entry.job.file), { recursive: true });
+      await fs.writeFile(entry.job.file, renderCard(entry.job.options));
+      await drawn(entry);
     }
     return;
   }
-  const queue = [...jobs];
+  const queue = [...entries];
   const workerUrl = new URL('./share-worker.mjs', import.meta.url);
-  await Promise.all(Array.from({ length: Math.min(threads, jobs.length) }, () => new Promise((resolve, reject) => {
+  await Promise.all(Array.from({ length: Math.min(threads, entries.length) }, () => new Promise((resolve, reject) => {
     // `execArgv: []`: a worker inherits the parent's flags, and a build started
     // as `node --input-type=module -e ...` (gitops/tests) would pass a flag a
     // file-backed worker refuses.
     const worker = new Worker(workerUrl, { execArgv: [] });
-    const next = () => {
-      const job = queue.shift();
-      if (!job) { worker.terminate().then(() => resolve()); return; }
-      worker.postMessage(job);
+    let current = null;
+    const fail = (error) => { worker.terminate(); reject(error); };
+    const next = async () => {
+      for (;;) {
+        current = queue.shift();
+        if (!current) { worker.terminate().then(() => resolve()); return; }
+        if (!(await skip(current))) break;
+      }
+      worker.postMessage(current.job);
     };
-    worker.on('message', (msg) => (msg?.error ? (worker.terminate(), reject(new Error(msg.error))) : next()));
+    worker.on('message', (msg) => {
+      if (msg?.error) { fail(new Error(msg.error)); return; }
+      drawn(current).then(next).catch(fail);
+    });
     worker.on('error', reject);
-    next();
+    next().catch(fail);
   })));
 }
 
@@ -402,14 +548,21 @@ export async function mapLimit(items, limit, fn) {
   return out;
 }
 
-async function listHtml(dir, out = []) {
-  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+// Synchronous on purpose: `fs.promises` costs more per call than the work on
+// a site of ~8,800 mostly small pages, and nothing runs beside this pass
+// (docs/history/pages-build-perf-2026-11-12-share-identity-preload-sync.md).
+function listHtml(dir, out = []) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) await listHtml(full, out);
+    if (entry.isDirectory()) listHtml(full, out);
     else if (entry.name.endsWith('.html')) out.push(full);
   }
   return out;
 }
+
+const listHtmlOrNone = (dir) => {
+  try { return listHtml(dir); } catch { return []; }
+};
 
 /**
  * The pass itself: draw a card for every page still on the site-wide one,
@@ -417,21 +570,43 @@ async function listHtml(dir, out = []) {
  */
 export async function addShareCards({ outDir, baseUrl, siteName, siteCard = 'social-card.png', only = null }) {
   const files = only
-    ? (await Promise.all(only.map((dir) => listHtml(path.join(outDir, dir)).catch(() => [])))).flat()
-    : await listHtml(outDir);
-  // Each page is independent, so they are read and rewritten a few dozen at a
-  // time; one at a time, the disk sat idle between them. Results keep file order.
-  const results = await mapLimit(files, 32, async (file) => {
+    ? only.flatMap((dir) => listHtmlOrNone(path.join(outDir, dir)))
+    : listHtml(outDir);
+  // Read and rewritten one page after another with sync calls: measured on a
+  // full build, 32 promise reads in flight were slower than this
+  // (docs/history/pages-build-perf-2026-11-12-share-identity-preload-sync.md).
+  // `buildSite` awaits this pass with nothing beside it. Results keep file order.
+  const results = files.map((file) => {
     const relative = path.relative(outDir, file).split(path.sep).join('/');
-    const html = await fs.readFile(file, 'utf8');
-    const plan = pageCardPlan(html, relative, { baseUrl, siteCard });
-    const depth = relative.split('/').length - 1;
-    const toRoot = '../'.repeat(depth);
-    const url = baseUrl ? `${baseUrl}${relative.replace(/(^|\/)index\.html$/, '$1')}` : '';
-    const next = completeShareTags(html, { card: plan ? `${baseUrl}${plan.file}` : '', siteName, toRoot, url });
-    if (next !== html) await fs.writeFile(file, next);
+    const html = readFileSync(file, 'utf8');
+    const { next, plan } = shareTagsFor(html, relative, { baseUrl, siteName, siteCard });
+    if (next !== html) writeFileSync(file, next);
     return { relative, plan, changed: next !== html };
   });
+  return drawPlannedCards(outDir, results);
+}
+
+/**
+ * One page's share step, with no file access: its card plan (or null) and the
+ * page with complete share tags. `addShareCards` runs it over a tree;
+ * `build.mjs` runs it inside its one-walk page finish (`finishPagesInOneWalk`),
+ * so a full build reads and writes each page once for the title, sponsor,
+ * notice and share passes together.
+ */
+export function shareTagsFor(html, relative, { baseUrl, siteName, siteCard = 'social-card.png' }) {
+  const plan = pageCardPlan(html, relative, { baseUrl, siteCard });
+  const depth = relative.split('/').length - 1;
+  const toRoot = '../'.repeat(depth);
+  const url = baseUrl ? `${baseUrl}${servedPath(relative)}` : '';
+  const next = completeShareTags(html, { card: plan ? `${baseUrl}${plan.file}` : '', siteName, toRoot, url });
+  return { next, plan };
+}
+
+/**
+ * Draws the cards `results` plan (`{ relative, plan, changed }` per page, in
+ * walk order) and returns what `addShareCards` reports.
+ */
+export async function drawPlannedCards(outDir, results) {
   const jobs = results.filter((r) => r.plan).map((r) => ({ file: path.join(outDir, r.plan.file), options: r.plan.options }));
   const changed = results.filter((r) => r.changed).map((r) => r.relative);
   await renderCards(jobs);

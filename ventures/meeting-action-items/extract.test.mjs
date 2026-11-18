@@ -113,3 +113,10 @@ test("it makes no network calls", async () => {
   const src = (await import("node:fs/promises")).readFile(new URL("./extract.mjs", import.meta.url), "utf8");
   assert.doesNotMatch(await src, /fetch\(|XMLHttpRequest|WebSocket|sendBeacon/);
 });
+
+test("actionsCsv defuses spreadsheet formulas but leaves plain numbers alone", () => {
+  const csv = actionsCsv({ actions: [{ task: '=HYPERLINK("http://x","go")', owner: "@sum", due: null, confidence: "high", line: -3 }] });
+  assert.match(csv, /"'=HYPERLINK/);
+  assert.match(csv, /'@sum/);
+  assert.doesNotMatch(csv, /'-3/);
+});

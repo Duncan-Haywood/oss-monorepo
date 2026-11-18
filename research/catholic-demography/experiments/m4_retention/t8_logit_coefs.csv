@@ -1,0 +1,18 @@
+model,term,coef,se,lo,hi,odds_ratio,n
+A: cohort x Hispanic,const,0.6696,0.0474,0.5766,0.7626,1.9535,7155
+A: cohort x Hispanic,Born 1965-80,-0.2280,0.0816,-0.3880,-0.0680,0.7961,7155
+A: cohort x Hispanic,Born 1981-96,-0.7613,0.1257,-1.0076,-0.5149,0.4671,7155
+A: cohort x Hispanic,Hispanic,0.3575,0.1087,0.1444,0.5706,1.4297,7155
+A: cohort x Hispanic,Hispanic x Born 1965-80,0.3267,0.1527,0.0273,0.6260,1.3863,7155
+A: cohort x Hispanic,Hispanic x Born 1981-96,0.5556,0.2153,0.1336,0.9776,1.7430,7155
+"B: + generation, sex, BA, period",const,0.6995,0.0673,0.5675,0.8315,2.0127,7094
+"B: + generation, sex, BA, period",Born 1965-80,-0.1968,0.0813,-0.3562,-0.0374,0.8213,7094
+"B: + generation, sex, BA, period",Born 1981-96,-0.6252,0.1274,-0.8748,-0.3756,0.5351,7094
+"B: + generation, sex, BA, period",Hispanic,0.1065,0.1177,-0.1243,0.3372,1.1123,7094
+"B: + generation, sex, BA, period",Hispanic x Born 1965-80,0.2982,0.1536,-0.0030,0.5993,1.3474,7094
+"B: + generation, sex, BA, period",Hispanic x Born 1981-96,0.5116,0.2178,0.0846,0.9386,1.6680,7094
+"B: + generation, sex, BA, period",1st gen (foreign-born),0.3419,0.1019,0.1422,0.5417,1.4077,7094
+"B: + generation, sex, BA, period",2nd gen,0.1421,0.1083,-0.0702,0.3545,1.1527,7094
+"B: + generation, sex, BA, period",Female,0.1058,0.0626,-0.0169,0.2286,1.1116,7094
+"B: + generation, sex, BA, period",BA+,-0.1742,0.0688,-0.3092,-0.0393,0.8401,7094
+"B: + generation, sex, BA, period",Survey 2021-24,-0.2164,0.0719,-0.3572,-0.0755,0.8054,7094

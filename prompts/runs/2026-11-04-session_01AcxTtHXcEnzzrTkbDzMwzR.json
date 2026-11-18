@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01AcxTtHXcEnzzrTkbDzMwzR",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-04T06:15:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13023",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Also fixed two broken post front matters on main (blocked measuring); no blog post written, history doc only."
+    }
+  ],
+  "writeups": [
+    "docs/history/pages-test-perf-2026-11-04-determinism-parallel.md"
+  ],
+  "goal": null,
+  "notes": "metric: build-determinism.test.mjs wall time, 4-core sandbox node --test per file: 292.5 s before (per-file reading) -> 263 s after (time). Runner minutes not measured; P062 part 2 (shared build) remains.",
+  "corrections": [],
+  "redteam": null
+}

@@ -68,7 +68,7 @@
       <div><label for="pensionNet">Personal pension contributions you paid, net (£)</label><input id="pensionNet" type="number" min="0" step="1"></div>
       <div><label for="giftAidNet">Gift Aid donations you paid, net (£)</label><input id="giftAidNet" type="number" min="0" step="1"></div>
       <div><label for="slPaid">Student loan already deducted by payroll (£)</label><input id="slPaid" type="number" min="0" step="1"></div>
-      <div><label for="plan">Student loan</label><select id="plan"><option value="none">None</option><option value="1">Plan 1</option><option value="2">Plan 2</option><option value="4">Plan 4</option><option value="5">Plan 5</option></select></div>
+      <div><label for="plan">Student loan</label><select id="plan"><option value="none">None</option><option value="1">Plan 1</option><option value="2">Plan 2</option><option value="4">Plan 4</option><option value="5">Plan 5 (repayments from April 2026)</option></select></div>
       <div><label for="pgl">Postgraduate Loan?</label><select id="pgl"><option value="no">No</option><option value="yes">Yes</option></select></div>
     </div>
     <p>
@@ -133,7 +133,7 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const gbp = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(Number(n)).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    const gbp = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("£" + Math.abs(Number(n)).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0"));
     let last = null;
     const map = { employment: "employment", paye: "paye", tradingIncome: "tradingIncome", tradingExpenses: "tradingExpenses", rent: "rent", rentExpenses: "rentExpenses", mortgageInterest: "mortgageInterest", interest: "interest", dividends: "dividends", pensionNet: "pensionNet", giftAidNet: "giftAidNet", slPaid: "slPaid", plan: "plan", pgl: "pgl" };
     const IDLE = "Fill in what applies, then click Work out my bill. Leave the rest blank.";
@@ -162,7 +162,7 @@
       $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Verify against the source named in the summary.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [ai-bookkeeper]
+tagged: auto
+---
 # ai-bookkeeper: Schwab checking note lines (2026-10-27)
 
 Sweeping jbms/beancount-import's test data (GPL; `git clone --depth 1`, read only) through `readStatement`

@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to Cron DST Drift Check</a></p>
   <h1>Why cron jobs break across daylight saving</h1>
 
@@ -83,7 +84,9 @@
   <h3>Can this tell me what my scheduler will actually do at a DST transition?</h3>
   <p>No, and this is a named limitation rather than a hidden one. Different cron daemons, systemd timers, and language schedulers genuinely disagree on spring-forward and fall-back behavior — some skip, some fire once, some fire twice. This tool computes the timezone fact that is true regardless of implementation (does the local time exist, not exist, or exist twice) and leaves the scheduler-specific behavior to that scheduler's own documentation.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it documents report whether a named local time exists, doesn't exist, or exists twice, and what UTC time a fixed-UTC schedule needs per DST segment — nothing more. It is not engineering advice and does not know what your specific scheduler does with a skipped or ambiguous occurrence. Verify against your own scheduler's real behavior before relying on it.
     <a href="./">Back to the tool</a>.</p>
   </footer>

@@ -71,3 +71,38 @@ test("a wing at a different pitch is noted, not counted", () => {
   assert.equal(e.wings, 0);
   assert.match(eavesText(e).join("\n"), /own pitch/);
 });
+
+test("vented soffit panels: the ventilation intake area divided by one vented panel's label NFA", async () => {
+  const { layoutVentilation } = await import("./ventilation.mjs");
+  const roof = gable();
+  const vent = layoutVentilation({}, roof);
+  const nfa = 100;
+  const e = layoutEaves({ waste: 0, ventedPanelNfa: nfa }, roof, vent);
+  assert.equal(e.ok, true);
+  assert.equal(e.ventedPanels, Math.min(Math.ceil(vent.lowerSqIn / nfa - 1e-9), e.panels));
+  assert.match(eavesText(e).join("\n"), /Vented soffit:/);
+  // a panel that vents far more than needed still leaves at least one vented panel and never more than the order
+  const big = layoutEaves({ waste: 0, ventedPanelNfa: 400 }, roof, vent);
+  assert.equal(big.ventedFits, true);
+  // without the option or without a ventilation result nothing changes
+  assert.equal(layoutEaves({ waste: 0 }, roof, vent).ventedPanels, null);
+  assert.equal(layoutEaves({ waste: 0, ventedPanelNfa: nfa }, roof).ventedPanels, null);
+  assert.ok(validateEaves({ ventedPanelNfa: 0 }).length > 0);
+});
+
+test("frieze board by hand: a gable's two eave runs, packed and priced (2026-11-07)", async () => {
+  const { layoutRoof, sampleRoof } = await import("./roof.mjs");
+  const { samplePlan } = await import("./engine.mjs");
+  const roof = layoutRoof(sampleRoof(), { ...samplePlan(), walls: [] });
+  const off = layoutEaves({ waste: 0 }, roof);
+  assert.equal(off.frieze, null);
+  const on = layoutEaves({ waste: 0, frieze: true, friezePrice: 10 }, roof);
+  assert.ok(on.ok, JSON.stringify(on.errors));
+  // the frieze runs are the J-channel runs, so the feet match and the cost adds boards x price
+  assert.equal(on.frieze.feet, on.eaveFeet);
+  assert.equal(on.frieze.boards, 6); // each 504 in run = 2 x 192 + 120, and two 120 in offcuts do not fit one 192 in board
+  assert.equal(on.cost, on.frieze.boards * 10);
+  assert.ok(eavesText(on).some((x) => x.includes("Frieze board")));
+  assert.ok(layoutEaves({ frieze: "yes" }, roof).errors.length);
+  assert.ok(layoutEaves({ frieze: true, friezeStock: 10 }, roof).errors.length);
+});

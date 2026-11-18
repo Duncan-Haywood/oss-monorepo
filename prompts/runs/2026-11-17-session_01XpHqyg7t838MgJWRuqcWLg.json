@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqyg7t838MgJWRuqcWLg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T11:37:56Z",
+  "ended": "2026-11-17T12:25:14Z",
+  "wall_minutes": 47.56,
+  "tokens_in": 10481663,
+  "tokens_out": 40962,
+  "cost_usd": 4.0051,
+  "tool_calls": 93,
+  "task": "ai-bookkeeper (flagship row 1): BUILDABLE item, tesseract's four readings of CORD train shards 1-3 for the five-reading vote",
+  "projects": [
+    "ventures/ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16922",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "A combined Bash call that started a background OCR job with '&' plus a heredoc looked like it failed (the helper script and a folder seemed missing; its log stayed empty) but the job was running; I started a duplicate run and stopped it once I saw both in ps. Use run_in_background for long jobs, not '&' inside a foreground call."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper's buildable item said 'tesseract's four on CORD shards 1-3 for the five-reading vote', but eval/second-ocr-engine-2026-11-17.md had already scored that vote on train (510) with an older parser; the open part was re-scoring it with today's parser, which took reading two eval docs to work out."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-three-ocr-readings-agreeing-is-not-a-check.md",
+    "ventures/ai-bookkeeper/eval/lead-vote-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "Read CORD train shards 1-3 (600 photos) with RapidOCR (reproduced 539/583) and tesseract's four (~100 min, 4 cores). The five-reading vote read 526, below RapidOCR alone: 19 of 21 losses were an unconfirmed tesseract majority overriding RapidOCR's right total. New parseReceiptPasses option `lead` (CLI --rapidocr --four-pass and the page pass it): an outvoting total needs the receipt's arithmetic. Chosen on train among 3 variants (simplest, 542) before other sets were read. Train 526->542, tax 205->209 of 267; validation 87->87 (tax 40/3/4 -> 41/1/5); test 83->83 CLI, page 84->83 (scored once); SRD 186->188, tax 163->161; page wrong-with-no-warning unchanged (train 14, SRD 2). The gain is mostly on the set where it was chosen; on held-out sets it is about level, and the claim made is that the five-reading mode no longer loses totals against RapidOCR alone. Tests: node --test over the venture, 3346/3346 before the new file; receipt-lead-vote.test.mjs 4/4; run_venture_tests.py ai-bookkeeper rerun before merge. Page scored with Python RapidOCR as lead, not the JS port.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d8d1ef4f-8845-589e-b1c1-5bd68c4a31d3",
+    "transcripts": 1,
+    "first": "2026-11-17T11:37:56Z",
+    "last": "2026-11-17T12:25:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 89,
+        "input": 184,
+        "output": 40962,
+        "thinking": 7682,
+        "cache_read": 10341890,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139589,
+        "api_equivalent_usd": 4.0051,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 89,
+      "input": 184,
+      "output": 40962,
+      "thinking": 7682,
+      "cache_read": 10341890,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139589,
+      "api_equivalent_usd": 4.0051,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 93,
+    "tools": {
+      "Bash": 80,
+      "Write": 4,
+      "Edit": 4,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 47.56,
+      "active_minutes": 11.52,
+      "model_minutes": 7.04,
+      "tool_minutes": 4.48,
+      "waiting_on_human_minutes": 36.04,
+      "human_prompts": 8,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an ML engineer reading 1,400 receipt photos with two OCR engines, diagnosing vote losses, implementing and measuring a rule on four sets, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 249.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

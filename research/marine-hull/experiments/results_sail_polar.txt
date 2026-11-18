@@ -1,0 +1,15 @@
+default drone: 5 m sail 5 m2 AR 3, Wigley 5 x 0.5 x 0.25 m, keel span 1 m, CLmax 1.2, CD0 0.012, Fr cap 0.5
+speed (m/s) by true wind speed (rows) and true wind angle (cols)
+tws     30    40    50    60    90   120   150   180
+  3   1.25  1.58  1.86  1.95  2.01  1.80  1.29  0.00
+  5   1.95  2.58  2.78  2.91  3.01  2.74  2.02  1.22
+  8   2.85  3.40  3.50  3.50  3.50  3.50  3.00  1.90
+ 12   3.50  3.50  3.50  3.50  3.50  3.50  3.50  2.71
+default best upwind at 3 m/s: angle 48 deg, VMG 1.22 m/s, boat speed 1.82 m/s
+default best upwind at 5 m/s: angle 38 deg, VMG 1.99 m/s, boat speed 2.52 m/s
+default best upwind at 8 m/s: angle 40 deg, VMG 2.60 m/s, boat speed 3.40 m/s
+default best upwind at 12 m/s: angle 28 deg, VMG 3.09 m/s, boat speed 3.50 m/s
+sweep n=200 at 5 m/s: best upwind angle median 40 (10th 34, 90th 46, min 30, max 52) deg; VMG median 1.83 (10th 1.37, 90th 2.24) m/s
+sweep n=200 at 8 m/s: best upwind angle median 38 (10th 30, 90th 44, min 26, max 48) deg; VMG median 2.43 (10th 2.10, 90th 2.81) m/s
+S1: best angle at 5 m/s inside 35..55 deg in 180 of 200 draws
+analytic check: max L/D 12.92 at alpha 4.7; atan(D/L) = 4.43 deg; model apparent wind angle at equilibrium (twa 90, tws 0.3) = 4.43 deg, v = 3.88 m/s

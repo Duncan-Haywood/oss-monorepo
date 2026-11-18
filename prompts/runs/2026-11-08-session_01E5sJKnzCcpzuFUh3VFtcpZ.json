@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01E5sJKnzCcpzuFUh3VFtcpZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T11:13:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14025",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Flagship 1 next: names 'run it on the Schultz floors next', which several overlapping scheduled sessions all picked up at once"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Duplicate PRs: another session landed the identical --stack DXF change with the same numbers while I worked",
+      "did": "took main's code, docs and flagship text; dropped my post",
+      "result": "PR carries only this record"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Duplicate of another session's work; no new deliverable from this run.",
+  "corrections": [],
+  "redteam": null
+}

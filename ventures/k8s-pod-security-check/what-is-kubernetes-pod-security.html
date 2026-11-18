@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Kubernetes Pod Security Check</a></p>
   <h1>Kubernetes pod security: <code>privileged</code>, <code>hostPath</code>, root and how to fix each</h1>
   <p>A pod spec decides how much of the node each container can touch. Most pod-related incidents are not clever exploits. They are one setting that removed a boundary, such as a privileged container, a mounted Docker socket or a password committed in plain text.</p>
@@ -76,7 +77,9 @@ spec:
   <p><a href="./">Paste your YAML into Kubernetes Pod Security Check</a> to see every finding with its line, resource, container, risk and fix, or run the CLI in your own repository:</p>
   <pre><code>python3 check.py --fail-on-risk</code></pre>
   <p class="note">That exits with a nonzero status on any medium or high finding, so you can wire it into your own CI. Expect some findings to be deliberate (a node agent may truly need hostPath or a capability); review each one.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is a heuristic line scan, not a YAML parser, a security audit or a compliance claim; a clean scan does not mean your cluster is secure, only that these patterns were not found. Have a qualified person review anything that protects valuable data.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
     <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>

@@ -155,7 +155,7 @@
       $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${pctText(x.basisShare)}</td><td class="n">${dollars(x.nuaNet)}</td><td class="n">${dollars(x.iraNet)}</td><td class="n">${dollars(x.advantage)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtLMnipxE2RsSCNScDZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T01:08:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14396",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/README.md",
+      "issue": "Ukraine EDRPOU line still says RNOKPP check is open although it landed; python-stdnum is installed but not importable by bare python3 (needed PYTHONPATH)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-10-morocco-montenegro-macedonia-tax-id-check-digits.md"
+  ],
+  "goal": null,
+  "notes": "vat.test.mjs 33/33; 9000 random verdicts vs python-stdnum 2.2, 0 mismatches (caught a wrong mod-97 target). Ran only the venture's vat tests, not full CI locally.",
+  "corrections": [],
+  "redteam": null
+}

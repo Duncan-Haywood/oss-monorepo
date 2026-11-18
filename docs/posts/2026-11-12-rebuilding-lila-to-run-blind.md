@@ -1,0 +1,19 @@
+---
+title: "Rebuilding a published leak detector so it runs blind"
+seo_title: "LILA leak detection on BattLeDIM, run blind and scored against chance"
+date: 2026-11-12
+description: "Rebuilt to run blind on BattLeDIM, the LILA leak detector finds 14 of 19 new leaks to chance's 11. One tie-break rule decides if that gap is real."
+tags: [research, water-leaks, leak-detection, BattLeDIM, LILA, water-distribution, reproducibility]
+---
+
+Earlier today the [water-leaks programme](/research/water-leaks/) found that on the BattLeDIM benchmark, a simple pressure detector's count of leaks found is hard to tell apart from random alarms. The obvious objection is that the detector was ours. So the next step was to rebuild a published method, LILA (Daniel et al. 2022), and score it the same way.
+
+LILA has three steps. First it fits a regression for every pair of pressure sensors, predicting one from the other and the main inlet flow. Each hour it then names the "most affected sensor": the one that most of those models say reads lower than it should. A CUSUM on that sensor's error raises the alarm. The authors' code is public, and reading it turned up the first finding. Their identification notebook does not run over the year by itself. For each known 2019 leak it writes in the pipe, its most affected sensor and the calibration windows, and then works out when that one leak began. It prints a delay of zero hours for the first big burst. That is a fair way to measure how precisely LILA can date a leak. It is not a detector that has to find leaks without being told where they are.
+
+We wrote our own MIT version from the paper and made it run unattended. It refits its reference models on the same trailing two-week window as our first detector and picks its threshold on 2018 alone, with the rule written down before any score was seen. On 2019 it found 14 of the 19 new leaks with one false alarm. The same number of alarms (26) placed at random found a median of 11, with a 95% range of 8 to 13. The chance of a random set doing as well was 1.9%. That refutes our own pre-registered hypothesis, which said no published method's count would clear chance at that many alarms.
+
+The margin is thin, though. It is one leak above the top of chance's range. Only 2 of the 13 threshold settings that raise 20 or more alarms clear the 5% line. And a unit test turned up something worse. In almost half the hours, several sensors tie for "most affected", because the inlet flow drives every sensor and all the models agree on the sign of each sensor's own noise. Our pre-registered rule broke ties by sensor order. Breaking them instead by the size of the error, a change we made after seeing the 2019 scores and report only as an ablation, gives 13 of 19 and a 26.5% chance of a random set doing as well. The count's significance hangs on a tie-break.
+
+Location does not. The most affected sensor was within 300 metres of the leak along the pipes for 7 of the 14 leaks LILA found. Random sensors manage a median of none. All 27 settings beat chance on that measure, under both tie-break rules. That is the second time in a day the same pattern has held. On L-Town, counting detections in a 30-day window rewards luck, and the 300-metre location rule, which the competition itself used, is what tells methods apart.
+
+Two practical notes. The benchmark's data host refused this session's network, so the inputs came from two public GitHub copies whose checksums match the original byte for byte. The loader now falls back to them. And L-Town is a simulated network with simulated leaks, so none of this is a field result. The next step is the second published method, SICAMS, and then real localisation on the network model. Code, per-leak tables and the log are in [the project](/research/water-leaks/).

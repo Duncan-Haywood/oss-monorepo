@@ -164,7 +164,7 @@
       $("#sens").innerHTML = grid.map((g) => `<tr><th scope="row">${g.escalatorPct}%</th>${g.cells.map((c) => `<td class="n">${c.npvGain == null ? "—" : money(c.npvGain)}</td>`).join("")}</tr>`).join("");
       report.hidden = false;
       status.textContent = `Lease is worth ${money(r.npvLease)} against ${money(r.npvAlt)} for the land as it is (present value).`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVPEWXf3mcoEDn4MaYu",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (routed to creative)",
+  "input_sha256": "00341c962e3a2456c7e2db3309a2a6c7b6d2015e9dd3cb2fe90f3be71cc0a0a0",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T01:05:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "creative: new For Other Minds story",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 15673,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The scheduled input asks for revenue-generating software but the router sent this run to creative; followed the router as the owner's configured split."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-an-accuracy-figure-needs-its-season.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, piece measured-in-july (For Other Minds, ~3,300 words, text only: audio dirs 471 MB > 400 MB cap). Proposal from BIBLE (2026-11-12) moved to a water co-op to avoid overlap with The Crossed Sevens; numbers checked with exact binomial (230 photos, alarm >=6: 2.9% FA at 1%, 90% power at 4%; 14/230 CI 3.4-10.0%; CP 8/1000 0.35-1.57%) and weekdays in code. Verification: node --test in ventures/hearth-and-horizon 15/15 pass; run_workflow_locally --for-changes: blog post front matter check ok, pages.yml 3/3 run steps passed, site build steps skipped (expression) so not a verdict. New For Other Minds proposal added.",
+  "corrections": [],
+  "redteam": null
+}

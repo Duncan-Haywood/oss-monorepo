@@ -458,6 +458,20 @@ class LinkChecking(unittest.TestCase):
         (self.tmp / "same.html").write_text('<a href="#nope">x</a>', encoding="utf-8")
         self.assertEqual(len(links.check_site(self.tmp)), 2)
 
+    def test_a_data_attribute_is_neither_an_anchor_nor_a_link(self):
+        """`data-id="compare"` is no scroll target and `data-src` loads nothing:
+        `\\b(?:id|name)=` matched after the hyphen, so a dead `#compare`
+        passed and a lazy-load `data-src` with no file failed (red team
+        2026-11-17, the same regex as check_form_clobbering's false positive)."""
+        (self.tmp / "index.html").write_text('<div data-id="compare" aria-name="x">x</div>', encoding="utf-8")
+        (self.tmp / "guide.html").write_text('<a href="./#compare">x</a>', encoding="utf-8")
+        problems = links.check_site(self.tmp)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("compare", problems[0])
+        (self.tmp / "guide.html").unlink()
+        (self.tmp / "lazy.html").write_text('<img data-src="./later.png" src="data:,">', encoding="utf-8")
+        self.assertEqual(links.check_site(self.tmp), [])
+
     def test_accepts_a_fragment_that_matches_an_id(self):
         (self.tmp / "index.html").write_text('<section id="compare">x</section>', encoding="utf-8")
         (self.tmp / "guide.html").write_text(

@@ -1,0 +1,161 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01E5sJKnv4L8JuG1FX3ehMx3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T19:19:18Z",
+  "ended": "2026-11-10T19:55:07Z",
+  "wall_minutes": 36.09,
+  "tokens_in": 5652734,
+  "tokens_out": 39510,
+  "cost_usd": 3.0087,
+  "tool_calls": 53,
+  "task": "Deepen flagship 8 quick-pick-survey: replay the shipped selector and pooled ranking on real published rankings (PrefLib breakfast, T-shirt)",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14590",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "parseSoc's missing-name check used .some() over a sparse array and passed a file with a hole",
+      "fixed": "the new test caught it; every slot is now indexed"
+    },
+    {
+      "what": "Appended to the quick-pick-survey flagship next: and pushed it over the 2000-character cap; CI validate (portfolio/router/validate.py) went red",
+      "fixed": "rewrote next: to a short state-plus-next item, with history pointing to the docs"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Default is the top allocate.py flagship, but flagship 1 (wall-framing-takeoff) had 265 commits in 7 days and every next: item says it needs real inputs from a builder; I took flagship 8 instead because a public real dataset existed for its 'real respondent' item."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes ran over the 120 s foreground timeout; worth listing it with the other long commands that need run_in_background."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes reported the sweep clean but did not run the workflow whose portfolio/router/validate.py step caught the flagships.yaml next: length cap on GitHub; a touched portfolio/flagships.yaml should select it."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to 'rewrite that venture's next:', but not that validate.py caps it at 2000 characters; the quick-pick entry was already at ~2000, so any append fails."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took flagship 8 (quick-pick-survey), not the top row: flagship 1 is saturated and its items need real builder inputs, while flagship 8 had an outside-data item that public real data could answer.",
+      "did": "Measured the survey on PrefLib real rankings",
+      "result": "Landed a measurement and an opt-in rule; it changed the flagship's next: to a concrete, testable item"
+    },
+    {
+      "file": "ventures/quick-pick-survey/AGENTS.md",
+      "why": "`npm run verify` includes `next build`, which this change does not touch (lib + script + docs only).",
+      "did": "Ran typecheck, lint and the fast vitest suite (316 tests)",
+      "result": "all green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-pairwise-survey-on-real-rankings.md",
+    "ventures/quick-pick-survey/docs/REAL-RANKINGS.md"
+  ],
+  "goal": "Depth over calculators: a real-data measurement of a flagship's core method",
+  "notes": "Data: PrefLib 00035 breakfast and 00012 shirt, fetched from raw.githubusercontent.com and pinned by sha256, not committed (PrefLib-Data is GPL-3.0). SUSHI was rejected because its licence is research-only with no redistribution. Verification: npm run typecheck, npm run lint and vitest.fast (36 files, 316 tests) all pass. The new difference-rule test fails when the rule is ignored. Eval: 4 runs x 200 seeds, about 30 s each. Out-of-sample scoring was added after the first pass showed that scoring against the whole panel flatters large samples of a small panel.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4e7dfa37-8d7f-5d78-a700-9f217c0eb55b",
+    "transcripts": 1,
+    "first": "2026-11-10T19:19:18Z",
+    "last": "2026-11-10T19:55:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 96,
+        "output": 39510,
+        "thinking": 9464,
+        "cache_read": 5513207,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139431,
+        "api_equivalent_usd": 3.0087,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 96,
+      "output": 39510,
+      "thinking": 9464,
+      "cache_read": 5513207,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139431,
+      "api_equivalent_usd": 3.0087,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 47,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 36.09,
+      "active_minutes": 36.09,
+      "model_minutes": 8.47,
+      "tool_minutes": 27.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "data sourcing and licence check, eval harness, 4 parameter sweeps, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 332.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

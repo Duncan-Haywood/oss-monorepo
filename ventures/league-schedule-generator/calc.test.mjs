@@ -5,6 +5,7 @@ import {
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGrid, seasonGridCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, officialMessages, leaguePageHtml, scoreSheetsHtml, parseTimeLimits, parseCourtLimits, parseCourtClosures, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   weeklyUpdate, splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
+  blackoutsFromCsv, forfeitReport
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -314,6 +315,12 @@ test("results parse, and standings order by points then goal difference", () => 
   assert.equal(rows[0].rank, 1);
 });
 
+test("teams level on points and goal difference are split by goals scored before list order", () => {
+  const teams = ["A", "B", "C", "D"];
+  const { results } = parseResults("A 1 - 0 C\nB 3 - 2 D", teams);
+  assert.deepEqual(standings(teams, results).map((r) => r.name), ["B", "A", "D", "C"]);
+});
+
 test("a forfeit line awards the win at the walkover score and is ranked like a played result", () => {
   const teams = ["Hawks", "Owls", "Kites"];
   const { results, errors } = parseResults("Hawks w/o Owls\nkites WO hawks\nOwls walkover Kites\nHawks w/o Hawks\nGhosts w/o Owls", teams);
@@ -385,11 +392,12 @@ test("the example league validates and uses a makeup round for the blackout", ()
 });
 
 test("share links round-trip every field, including non-ASCII names, and reject junk", () => {
-  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", pins: "A v B -> 2026-12-01", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", courtLimits: "A: Court 1", courtClosures: "Court 2: 2026-10-13", officials: "Pat (A): Tue max 4", grounds: "A, B", linked: "A, B" };
+  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", pins: "A v B -> 2026-12-01", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", lateTeams: "2026-11-03 B", finishBy: "2026-12-15", timeLimits: "A: 18:00", courtLimits: "A: Court 1", courtClosures: "Court 2: 2026-10-13", officials: "Pat (A): Tue max 4", grounds: "A, B", linked: "A, B", duties: "Snack stand: 2", sheetTitle: "Spring", sheetContact: "Sam", platformLocation: "Rec Center", teamSnapDivision: "Coed", teamSnapArrival: "30", sportsEngineIds: "A = 1" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
-  assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false, scoring: "", rounds: "" });
+  assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false, scoring: "", rounds: "", balanceSeeds: false, gamesPerNight: "", carryOver: false, carryOverPick: "balanced", carryOverKeep: "" });
   assert.deepEqual(decodeFields("#s=" + code), decodeFields(code));
+  assert.equal(decodeFields(encodeFields({ finishBy: "<b>" })).finishBy, "", "finishBy must be a date");
   const again = decodeFields(code);
   assert.deepEqual(readSpec(again).spec.teams, readSpec(f).spec.teams);
   for (const junk of ["", null, "!!!", "bm90anNvbg", encodeFields({}).slice(0, 1), "W10"]) assert.equal(decodeFields(junk), null, String(junk));
@@ -2078,4 +2086,117 @@ test("playoffRace clinchedUnlessTied matches a brute force over every outcome", 
       if (r.clinchedUnlessTied) assert.ok(r.worstRank > spots);
     }
   }
+});
+
+test("head-to-head is applied again to a subset still level after the first mini-table", () => {
+  // Found by comparing the one-pass table with the recursive one over 200,000 random 6-team leagues
+  // (321 differ). The mini-table of the tied group leaves two teams level, and the matches between just those
+  // two must split them before overall goal difference does.
+  const teams = ["A", "B", "C", "D", "E", "F"];
+  const g = (a, b, ga, gb) => ({ a, b, ga, gb });
+  const res = [g(0, 1, 2, 0), g(0, 2, 1, 1), g(0, 3, 2, 2), g(1, 4, 0, 1), g(1, 5, 2, 1), g(2, 3, 1, 1), g(2, 4, 1, 0), g(2, 5, 1, 0), g(4, 5, 0, 1)];
+  const t = standings(teams, res, { headToHead: true }).map((r) => r.name).join("");
+  assert.equal(t, "CABFED");
+  // without the flag the overall tiebreaks decide as before
+  assert.equal(standings(teams, res).length, 6);
+});
+
+test("standings setScoring: 3-0 and 3-1 earn 3 points, a 3-2 win earns 2 and the loser 1", async () => {
+  const { standings } = await import("./calc.mjs");
+  const teams = ["Ace", "Bolt", "Cork"];
+  const results = [{ a: 0, b: 1, ga: 3, gb: 2 }, { a: 1, b: 2, ga: 3, gb: 0 }, { a: 2, b: 0, ga: 1, gb: 3 }];
+  const t = standings(teams, results, { setScoring: true });
+  const by = Object.fromEntries(t.map((r) => [r.name, r]));
+  assert.equal(by.Ace.points, 2 + 3);
+  assert.equal(by.Bolt.points, 1 + 3);
+  assert.equal(by.Cork.points, 0);
+  assert.equal(by.Ace.won, 2);
+  assert.equal(by.Bolt.lost, 1);
+  // default scoring is unchanged
+  assert.equal(standings(teams, results).find((r) => r.name === "Ace").points, 6);
+});
+
+test("blackoutsFromCsv reads a coach form export for one division, merges repeats and reports unknown teams", () => {
+  const teams = ["Hawks", "Owls", "Rams"];
+  const csv = '\uFEFFTimestamp,Team name,"Dates we cannot play"\r\n' +
+    '1,hawks,"2026-11-05; 2026-12-22 to 2026-12-30"\r\n' +
+    '2,Owls,none\r\n' +
+    '3,Hawks,2026-11-12\r\n' +
+    '4,Rams,"2026-11-10,\n2026-11-17"\r\n' +
+    '5,Nobody,2026-11-10\r\n';
+  const r = blackoutsFromCsv(csv, teams);
+  assert.equal(r.text, "Hawks: 2026-11-05, 2026-12-22 to 2026-12-30, 2026-11-12\nRams: 2026-11-10, 2026-11-17");
+  assert.equal(r.errors.length, 1);
+  assert.match(r.errors[0], /Row 6.*Nobody/);
+  const pb = parseBlackouts(r.text, teams);
+  assert.deepEqual(pb.errors, []);
+  assert.equal(pb.blackouts[0].length, 1 + 9 + 1);
+  assert.match(blackoutsFromCsv("Name,Dates\nx,y\n", teams).errors[0], /No team column/);
+  assert.match(blackoutsFromCsv("Team,Colour\nHawks,red\n", teams).errors[0], /No date column/);
+  assert.match(blackoutsFromCsv("Team,Dates\n", teams).errors[0], /header row/);
+});
+
+test("forfeitReport: counts walkover losses and flags teams at the limit", () => {
+  const teams = ["Hawks", "Owls", "Fox"];
+  const pr = parseResults("Hawks w/o Owls\nFox w/o Owls\nHawks 2 - 1 Fox\nOwls w/o Fox", teams);
+  const r = forfeitReport(teams, pr.results);
+  assert.deepEqual(r.rows, [{ team: "Owls", forfeits: 2 }, { team: "Fox", forfeits: 1 }]);
+  assert.deepEqual(r.flagged, ["Owls"]);
+  assert.deepEqual(forfeitReport(teams, pr.results, { limit: 1 }).flagged, ["Owls", "Fox"]);
+  assert.deepEqual(forfeitReport(teams, []).rows, []);
+});
+
+import { parseDate as _pd, parseDateList as _pdl, dayIso as _di } from "./calc.mjs";
+import _test from "node:test";
+import _assert from "node:assert/strict";
+_test("dates: day-first forms are read when unambiguous, US month-first kept otherwise", () => {
+  const iso = (t) => { const d = _pd(t); return d === null ? null : _di(d); };
+  _assert.equal(iso("25/12/2026"), "2026-12-25");
+  _assert.equal(iso("12/25/2026"), "2026-12-25");
+  _assert.equal(iso("5/6/2026"), "2026-05-06"); // ambiguous: month first, unchanged
+  _assert.equal(iso("31/04/2026"), null);       // April has 30 days
+  _assert.equal(iso("25.12.2026"), "2026-12-25");
+  _assert.equal(iso("05.06.2026"), "2026-06-05"); // dotted is always day first
+  _assert.equal(iso("25 Dec 2026"), "2026-12-25");
+  _assert.equal(iso("1st September 2026"), "2026-09-01");
+  _assert.equal(iso("Dec 25, 2026"), "2026-12-25");
+  _assert.equal(iso("Foo 25 2026"), null);
+  const r = _pdl("24 Dec 2026 to 26 Dec 2026, 31/12/2026");
+  _assert.equal(r.errors.length, 0);
+  _assert.deepEqual(r.days.map(_di), ["2026-12-24", "2026-12-25", "2026-12-26", "2026-12-31"]);
+});
+
+test("every field the page reads survives a share link (lateTeams and finishBy were dropped until 2026-11-13)", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  const body = html.slice(html.indexOf("function readFields()"), html.indexOf("function teamRows("));
+  const keys = [...body.matchAll(/(\w+): \$\("#\w+"\)/g)].map((m) => m[1]);
+  assert.ok(keys.length > 25, `found ${keys.length} fields in readFields`);
+  const back = decodeFields(encodeFields({ weekdays: ["Tue"] , ...Object.fromEntries(keys.map((k) => [k, k === "finishBy" ? "2026-12-15" : "x"])) }));
+  const lost = keys.filter((k) => !(k in back));
+  assert.deepEqual(lost, [], "add these to SHARE_KEYS and decodeFields in calc.mjs");
+});
+
+test("calendar ids name the fixture: a rainout keeps them, bumps SEQUENCE, and a withdrawal sends cancellations", () => {
+  const s = buildSchedule({ ...baseSpec(6), double: true });
+  const ids = s.rounds.flatMap((r) => r.matches.map((m) => m.fixture));
+  assert.equal(new Set(ids).size, ids.length);
+  const ev = (t) => new Map([...t.matchAll(/BEGIN:VEVENT\r\n([\s\S]*?)END:VEVENT/g)].map((m) => [m[1].match(/UID:(.*)\r\n/)[1], m[1]]));
+  const a = ev(scheduleIcs(s, 0, "20261001T000000Z"));
+  const day = s.rounds[0].day;
+  const r = applyRainouts(s, new Date(day * 86400000).toISOString().slice(0, 10));
+  assert.ok(r.moves.length > 0);
+  const b = ev(scheduleIcs(r.schedule, 0, "20261001T000000Z"));
+  assert.deepEqual([...b.keys()].sort(), [...a.keys()].sort());
+  const moved = [...b.values()].filter((x) => /SEQUENCE:1/.test(x));
+  assert.equal(moved.length, 1);
+  for (const x of a.values()) assert.match(x, /SEQUENCE:0/);
+  const w = applyWithdrawals(r.schedule, s.teams[5]);
+  const c = ev(scheduleIcs(w.schedule, 0, "20261001T000000Z"));
+  assert.deepEqual([...c.keys()].sort(), [...b.keys()].sort(), "withdrawn fixtures stay as cancelled events");
+  const cancelled = [...c.values()].filter((x) => /STATUS:CANCELLED/.test(x));
+  assert.equal(cancelled.length, 2);
+  for (const x of cancelled) assert.match(x, /SUMMARY:Cancelled: /);
+  const off = scheduleIcs(s, null, "20261001T000000Z", "Nobody");
+  assert.doesNotMatch(off, /STATUS:CANCELLED/);
 });

@@ -11,7 +11,7 @@ for p in ("capture-aliaswin", "capture-residgate", "capture-syncgate", "capture-
     sys.path.insert(0, str(root / p / "src"))
 from capture_realaudio import available_clips  # noqa: E402
 from capture_residgate.alias import dominant_period  # noqa: E402
-from capture_aliaswin import pair_at, gcc_search, shares, start_bin  # noqa: E402
+from capture_aliaswin import pair_at, gcc_search, shares, start_bin, track_series  # noqa: E402
 
 SEEDS, N_WIN, N_CAM, SNR, TOL = 12, 12, 3, 0, 2.0
 WINS = (1.0, 2.0, 3.0)

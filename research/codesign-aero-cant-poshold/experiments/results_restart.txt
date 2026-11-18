@@ -1,0 +1,26 @@
+Restart check: 3200+3200 evaluations, 8 seeds, held-out 64 episodes, physical model. J = sqrt((pos/0.1 m)^2+(yaw/10.0 deg)^2)
+
+[first]  bound  meanJ  medianJ  worst J  pos m  yaw deg   J per seed
+           0   4.40    3.80    7.82  0.338   26.38   2.92, 3.79, 3.82, 3.11, 7.82, 5.66, 4.80, 3.29
+          35   4.83    4.44    8.42  0.421   21.30   2.41, 4.06, 4.81, 2.81, 7.17, 8.42, 6.56, 2.41
+          80   3.56    3.13    6.49  0.285   20.26   2.85, 4.03, 3.98, 2.42, 6.49, 3.42, 2.43, 2.85
+
+  first bound 35 minus bound 0, J: mean +0.431, better in 4 of 8
+  first bound 35 minus bound 0, pos: mean +0.083, better in 3 of 8
+  first bound 35 minus bound 0, yaw: mean -5.077, better in 8 of 8
+  first bound 80 minus bound 0, J: mean -0.843, better in 6 of 8
+  first bound 80 minus bound 0, pos: mean -0.053, better in 4 of 8
+  first bound 80 minus bound 0, yaw: mean -6.118, better in 8 of 8
+
+[restarted]  bound  meanJ  medianJ  worst J  pos m  yaw deg   J per seed
+           0   4.36    3.54    7.82  0.329   26.31   3.17, 3.79, 2.96, 2.92, 7.82, 5.71, 5.19, 3.29
+          35   3.58    3.46    5.21  0.287   20.30   2.41, 4.06, 3.99, 2.92, 2.71, 4.93, 5.21, 2.41
+          80   3.11    2.86    4.03  0.235   19.90   2.85, 4.03, 4.02, 2.41, 2.87, 3.42, 2.43, 2.85
+
+  restarted bound 35 minus bound 0, J: mean -0.777, better in 4 of 8
+  restarted bound 35 minus bound 0, pos: mean -0.042, better in 4 of 8
+  restarted bound 35 minus bound 0, yaw: mean -6.016, better in 8 of 8
+  restarted bound 80 minus bound 0, J: mean -1.248, better in 6 of 8
+  restarted bound 80 minus bound 0, pos: mean -0.094, better in 3 of 8
+  restarted bound 80 minus bound 0, yaw: mean -6.412, better in 8 of 8
+

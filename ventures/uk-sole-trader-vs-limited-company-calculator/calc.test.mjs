@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { incomeTax, dividendTax, class4, employeeNi, employerNi, corporationTax, personalAllowance, soleTrader, limitedCompany, bestSalary, compare, summaryText, SAMPLE } from "./calc.mjs";
+import { incomeTax, dividendTax, class4, employeeNi, employerNi, corporationTax, personalAllowance, soleTrader, limitedCompany, bestSalary, maxAffordableSalary, compare, summaryText, SAMPLE } from "./calc.mjs";
 
 const near = (a, b, eps = 0.01) => assert.ok(Math.abs(a - b) <= eps, `${a} != ${b}`);
 
@@ -115,4 +115,34 @@ test("low profit still computes", () => {
   const r = compare({ ...SAMPLE, profit: "3000", costs: "1200" });
   assert.equal(r.ok, true);
   assert.ok(Number.isFinite(r.lc.takeHome));
+});
+
+// Regression: the salary search once picked a salary whose employer NI the company could
+// not pay (50,000 profit, 1,200 costs: salary 48,800 plus 6,570 employer NI from 48,800),
+// and the take-home ignored the shortfall, overstating the company by about £661.
+test("best salary plus its employer NI never exceeds profit after costs", () => {
+  for (let p = 10000; p <= 250000; p += 5000) {
+    for (const costs of [0, 1200, 3000]) {
+      for (const ea of [false, true]) {
+        const lc = bestSalary(p, costs, ea, true, 0);
+        assert.ok(lc.salary + lc.employerNi <= p - costs + 0.01, `profit ${p}, costs ${costs}, ea ${ea}: salary ${lc.salary} + NI ${lc.employerNi}`);
+      }
+    }
+  }
+  const at50 = compare({ ...SAMPLE, profit: "50000" });
+  assert.equal(at50.lc.salary, 12570);
+  near(at50.lc.takeHome, 37994.44);
+});
+
+test("maxAffordableSalary leaves room for employer NI", () => {
+  near(maxAffordableSalary(48800), (48800 + 750) / 1.15, 0.01); // s + 15% of (s - 5,000) = 48,800
+  assert.equal(maxAffordableSalary(4000), 4000);                  // under the secondary threshold: no NI
+  assert.equal(maxAffordableSalary(0), 0);
+});
+
+test("a custom salary the company cannot pay with its NI is refused, not modelled", () => {
+  const r = compare({ ...SAMPLE, profit: "50000", costs: "1200", salaryMode: "custom", salary: "48800" });
+  assert.equal(r.ok, false);
+  assert.match(r.errors[0], /employer NI/);
+  assert.equal(compare({ ...SAMPLE, profit: "50000", costs: "1200", salaryMode: "custom", salary: "12570" }).ok, true);
 });

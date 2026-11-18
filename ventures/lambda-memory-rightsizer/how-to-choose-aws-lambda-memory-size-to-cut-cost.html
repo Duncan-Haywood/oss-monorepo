@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to Lambda Memory Rightsizer</a></p>
   <h1>How to choose an AWS Lambda memory size to cut cost</h1>
   <p>Lambda bills <strong>memory &times; billed duration</strong>. Most teams set memory once, copy it to the next function, and never look again. The setting is usually wrong in one of two directions, and both cost money.</p>
@@ -52,7 +53,9 @@
   <h3>Is arm64 really cheaper?</h3>
   <p>Lambda lists arm64 at about 20% less per GB-second than x86_64, and many functions run at similar speed, but native dependencies and some runtimes differ. Measure duration on arm64 before assuming the saving.</p>
   
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not engineering, financial or operational advice, and you are responsible for verifying its output. Vendor and product names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

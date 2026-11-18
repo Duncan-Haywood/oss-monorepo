@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKk1AaCG6rSNpeE5rtE",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T16:18:46Z",
+  "ended": "2026-11-11T16:28:19Z",
+  "wall_minutes": 9.94,
+  "tokens_in": 4351748,
+  "tokens_out": 19516,
+  "cost_usd": 2.0114,
+  "tool_calls": 47,
+  "task": "perf: make loadPages (fixPostTitleClashes, check.mjs) and addModulePreloads read pages concurrently",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14829",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally.py --for-changes failed first: origin/main shared no commit with HEAD in the shallow clone; git fetch --depth=40 origin main fixed it, as its message said."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both perf backlog items (P063, P064) are still owner-gated; the 'not changed' lists in docs/history were the only quick source of landable work, which the prompt mentions only indirectly."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The hook refusing pgrep -f also refuses a bracketed pattern if the same word appears elsewhere in the command line (e.g. 'diff' in a file name); CLAUDE.md only mentions the bracket rule."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-two-more-passes-read-concurrently.md",
+    "docs/history/pages-build-perf-2026-11-11-identity-preload-reads.md"
+  ],
+  "goal": "Faster site build (the slowest local step agents wait on) with byte-identical output.",
+  "notes": "Metric: wall time of two build passes. Bench (scratchpad bench.mjs, HEAD copy vs working copy, performance.now(), 4 cores, alternating, warm page cache, 3 pairs). addModulePreloads on a full build with modulepreload links stripped, fresh copy each run: 3.71 s -> 2.74 s mean (-26%); loadPages+resolvePostTitleClashes on the finished build: 2.55 s -> 2.02 s (-21%). Old/new outputs identical in every pair (diff -rq; 1661 links on 231 pages; 8496 pages, 0 clashes). Whole-build check: baseline build 2m22s vs with change 2m05s (cache-warm, not a fair comparison); diff -rq of the two 1.1 GB trees differs only in version.json. Tests: node --test page-identity.test.mjs preload.test.mjs, 19 pass; mutation (Map filled in finishing order) makes the new order test fail. Saving is modest because on a warm cache the passes are mostly CPU; next lever is skipping the ~8,000 pages without module scripts.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d310a880-280f-5eea-a55d-972720df6cda",
+    "transcripts": 1,
+    "first": "2026-11-11T16:18:46Z",
+    "last": "2026-11-11T16:28:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 87,
+        "output": 19516,
+        "thinking": 3236,
+        "cache_read": 4255450,
+        "cache_write_5m": 0,
+        "cache_write_1h": 96211,
+        "api_equivalent_usd": 2.0114,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 87,
+      "output": 19516,
+      "thinking": 3236,
+      "cache_read": 4255450,
+      "cache_write_5m": 0,
+      "cache_write_1h": 96211,
+      "api_equivalent_usd": 2.0114,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 44,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.94,
+      "active_minutes": 9.94,
+      "model_minutes": 3.38,
+      "tool_minutes": 6.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: profile two passes, concurrent rewrite with order-preserving tests, two full builds and diffs, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 149.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

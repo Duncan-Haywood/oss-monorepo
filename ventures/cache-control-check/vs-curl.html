@@ -57,6 +57,7 @@
 </style>
 </head>
 <body>
+<main>
 <p><a href="index.html">&larr; Cache-Control Checker</a></p>
 <h1>This checker vs. reading headers with <code>curl -I</code></h1>
 <p>
@@ -118,6 +119,7 @@
   <p>No. The CLI's request goes directly from your machine to the URL you name, exactly like curl. The browser report viewer only parses JSON you paste into it yourself, locally in your browser -- nothing about the target, the headers, or the report is sent anywhere. The only thing stored is an anonymous local count of which features were used, with no target URLs or header values in it.</p>
   <p class="note">Chasing a specific symptom instead? <a href="why-isnt-my-cdn-caching-this.html">Why isn't my CDN caching this?</a> walks the six response-header reasons in the order worth checking them.</p>
 </section>
+</main>
 <footer>
   <p><strong>Evidence, not a determination.</strong> This checks a specific, well-documented set of
   caching-header patterns from one response. It is not a full caching or performance audit and

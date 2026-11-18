@@ -1,0 +1,19 @@
+cell-fidelity milestone 5zl: per design on 5z's 40 designs (5zk's x-resolved records), the oracle kappa* against
+25.3 x (measured OCP rise) / (the law's lever rise), read at the separator node (sep) and where the cycle-2
+plating was (w). No new simulation. Set medians.
+
+set           n    k*  k_sep   k_w   d99  ms99  mw99  need r_sep   r_w miss_s miss_w  sp_s  sp_w e_phys  e_sep    e_w   e_k*
+Ai2020        8  18.8   43.6  25.2  40.9  72.3  46.6  0.74  1.72  1.00  0.839  0.307  0.93  0.95  0.083  0.261  0.085  0.000
+Chen2020     12  36.6   40.5  37.7  24.5  37.5  30.5  1.44  1.60  1.49  0.531  0.148  0.38  0.83  0.082  0.101  0.025  0.000
+OKane2022    12  32.3   37.5  34.2  25.8  38.4  29.8  1.28  1.48  1.35  0.439  0.119  0.40  0.94  0.059  0.084  0.019  0.000
+NCA_Kim2011   8  23.6   17.3  26.4 127.8 106.8 128.9  0.93  0.68  1.04  0.252  0.056  0.90 -0.17  0.022  0.048  0.012  0.000
+
+(d99, ms99, mw99: law lever, separator-node and plating-weighted OCP rise from cycle 2 to 99, mV;
+ need = k*/25.3, the lever ratio the forecast needs; r_sep, r_w: the measured ratios; miss = |ln(k/k*)|;
+ sp = within-set Spearman(k, k*); e = |ln(L_pred(99)/L_DFN(99))| at 25.3, k_sep, k_w and the oracle k*)
+
+H195 (set median k_sep within 25% of 5zi's set k_path on all four sets): inconclusive
+H196 (set median k* within 25% of 5zi's set k* on all four sets): inconclusive
+H197 (|ln(k_w/k*)| below |ln(k_sep/k*)| on >= 3 of 4 sets, k_w within 25% of k* on Ai2020): inconclusive (4/4, Ai2020 miss)
+H198 (within-set Spearman(k_w, k*) >= 0.4 on >= 3 of 4 sets): supported (3 >= 0.4, 1 < 0.15)
+H199 (the forecast at k_w beats 25.3 on >= 3 of 4 sets): supported (3/4)

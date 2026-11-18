@@ -1,0 +1,27 @@
+# Saint Aelred's Abbey
+
+> A community of Benedictine monks living the Rule of Saint Benedict in prayer, work and hospitality.
+
+- Order: Benedictine monks
+- Place: Larkspur Hollow
+- Founded: 1952
+- Diocese: A made-up diocese
+- Address: 100 Abbey Road, Larkspur Hollow, VT 05000, United States
+- Email: office@example.org
+- Vocations: vocations@example.org
+- Phone: (555) 010-0142
+
+## Pages
+
+- [Home](index.html): welcome, times of prayer, coming events
+- [Our life](about.html): charism, daily life and history
+- [Horarium](horarium.html): the daily schedule of prayer, with the hours open to the public
+- [Vocations](vocations.html): who may apply, the stages of formation, Come and See retreats, the inquiry form
+- [Visit](visit.html): Mass, the guesthouse, retreats and directions
+- [Events](events.html): upcoming feasts and retreats
+- [News](news.html): news and letters
+- [Prayer requests](prayer.html): send a prayer intention
+- [Shop](shop.html): goods the community makes
+- [Give](give.html): online giving, cheques, Mass intentions, current needs, bequests
+- [Contact](contact.html): address, phone and email
+- [Privacy](privacy.html): what the site does with what you send

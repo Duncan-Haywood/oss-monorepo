@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtKUFNt9xfxiv1Szsfm",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T22:06:22Z",
+  "ended": "2026-11-10T22:13:31Z",
+  "wall_minutes": 7.3,
+  "tokens_in": 2785360,
+  "tokens_out": 31746,
+  "cost_usd": 1.9035,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14618",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Every Hearth & Horizon 'Next up' proposal is marked Done (305 Done lines); the list no longer proposes anything, so a run has to invent a topic and grep stories/ for overlap. Proposals should be refilled or the section renamed to a done log."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Audio cap exceeded (423 MB of 400) for many runs in a row; every creative run is text only until someone moves enclosures off Pages, which the prompt names but no run has picked up."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-10-lake-erie-seiche-fourteen-hours.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon (headline shelf). Piece: the-lake-comes-back-at-noon (4,578 words, text only; audio dirs 423 MB > 400 MB cap). Security queue empty; IDEAS.md and website requests empty; route drew creative. Checks: node generate.mjs, node --test 11/11 pass, check_post_frontmatter and check_post_links pass. No agent doc: nothing the next run needs beyond the BIBLE row.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2f5df3ea-4c36-52b7-a306-b863b0d897a6",
+    "transcripts": 1,
+    "first": "2026-11-10T22:06:22Z",
+    "last": "2026-11-10T22:13:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 60,
+        "output": 31746,
+        "thinking": 13096,
+        "cache_read": 2694116,
+        "cache_write_5m": 0,
+        "cache_write_1h": 91184,
+        "api_equivalent_usd": 1.9035,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 60,
+      "output": 31746,
+      "thinking": 13096,
+      "cache_read": 2694116,
+      "cache_write_5m": 0,
+      "cache_write_1h": 91184,
+      "api_equivalent_usd": 1.9035,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 28,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.3,
+      "active_minutes": 7.3,
+      "model_minutes": 6.44,
+      "tool_minutes": 0.85,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "researching, drafting and fact-checking a 4,500-word technical short story plus a 900-word explainer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 315.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -20,6 +20,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Release Notes Generator</a></p>
   <h1>How to write a changelog people read</h1>
   <p>A changelog answers one question for the person upgrading: <em>what changes for me?</em> A list of commit subjects usually answers a different one (what did the team do?). The fix is mostly editorial: keep what changes behaviour, say it from the user's side, and put anything that can break them first.</p>
@@ -50,7 +51,9 @@
   <h2>Using the generator</h2>
   <p>Paste commits into <a href="./">the tool</a> or run <code>node cli.mjs --from v1.2.0</code> in your repository, review the output, and commit it to <code>CHANGELOG.md</code>. For GitHub, choose the GitHub style and paste it into the release description.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> Provided free and as-is. This is general information about release practice, not professional advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Generate release notes</a>.</p>
   </footer>
 </body>

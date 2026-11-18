@@ -108,3 +108,11 @@ test('countByImpact and formatImpact stay readable', () => {
     '1 critical, 2 serious, 1 unknown',
   );
 });
+
+test('the record is dated by the scan timestamp, not the day it is generated', () => {
+  const r = buildReport({ timestamp: '2026-03-01T09:15:00.000Z', url: 'https://shop.example/', violations: [] });
+  assert.equal(r.date, '2026-03-01');
+  assert.match(reportAsText(r), /Checked: 2026-03-01/);
+  assert.equal(buildReport({ timestamp: '2026-03-01T09:15:00.000Z', violations: [] }, '2026-04-02').date, '2026-04-02');
+  assert.match(buildReport({ violations: [] }).date, /^\d{4}-\d{2}-\d{2}$/);
+});

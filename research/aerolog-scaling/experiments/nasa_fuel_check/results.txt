@@ -1,0 +1,34 @@
+Milestone 10c: 10b energy model and non-energy fraction against NASA fuel designs (Johnson et al. 2018, T10, T11)
+air density 0.985 kg/m3
+
+A. Implied sfc: model shaft energy against published takeoff fuel weight
+design               | shaft kWh/GW-t | fuel/GW  | implied sfc lb/hp/h | published MCP | ratio
+SBS turboshaft       |          229.1 | 0.0859   | 0.616               | 0.574         | 1.07
+tiltwing turboshaft  |          505.3 | 0.1816   | 0.591               | 0.491         | 1.20
+
+A2. Sensitivity of implied sfc ratio to reserve speed and reserve length
+  SBS turboshaft       reserve 20 min at   113 kn: ratio 1.07
+  SBS turboshaft       reserve 20 min at    85 kn: ratio 1.11
+  SBS turboshaft       reserve 30 min at   113 kn: ratio 1.01
+  SBS turboshaft       reserve  0 min at   113 kn: ratio 1.24
+  tiltwing turboshaft  reserve 20 min at   183 kn: ratio 1.20
+  tiltwing turboshaft  reserve 20 min at   137 kn: ratio 1.23
+  tiltwing turboshaft  reserve 30 min at   183 kn: ratio 1.15
+  tiltwing turboshaft  reserve  0 min at   183 kn: ratio 1.31
+
+B. Non-energy fraction (WO/GW without battery) across all published designs
+design                         | payload lb | fne    | class
+quadrotor electric (T9)        |        250 | 0.583  | battery
+SBS electric (T10)             |       1200 | 0.479  | battery
+SBS hybrid (T10)               |       1200 | 0.586  | fuel
+SBS turboshaft (T10)           |       1200 | 0.601  | fuel
+tiltwing turboelectric (T11)   |       3000 | 0.613  | fuel
+tiltwing turboshaft (T11)      |       3000 | 0.561  | fuel
+tiltwing tailprop (T11)        |       3000 | 0.617  | fuel
+
+P2: fuel/generator designs span 0.561 to 0.617, spread 0.056; battery-electric [0.583, 0.479]; inside band: [0.583]
+P3: turboshaft 1200 lb 0.601 vs turboshaft 3000 lb 0.561: difference 0.040
+
+C. Payload fraction check: 1 - fne - fuel/GW against published Wpayload/GW
+  SBS turboshaft       0.313 vs published 0.313
+  tiltwing turboshaft  0.257 vs published 0.257

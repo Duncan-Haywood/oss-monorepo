@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to Agent Permission Config Check</a></p>
   <h1>Why AI coding agent permission configs need a linter</h1>
 
@@ -78,7 +79,9 @@
   <h3>Does a clean result mean the config is safe?</h3>
   <p>No. A narrowly-scoped allow list can still grant more than a given workflow needs, and a config with no MCP servers at all trivially passes every MCP-related check. This tool proves the absence of four specific, named risky shapes — it does not and cannot prove the presence of safety.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it documents report whether your config contains one of a fixed, named set of risky shapes — nothing more. It is not security advice, and a clean result is not a guarantee that your configuration is safe. Verify by reading the actual files before relying on it, and rotate any credential you have reason to believe was exposed.
     <a href="./">Back to the tool</a>.</p>
   </footer>

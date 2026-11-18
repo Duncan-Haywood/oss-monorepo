@@ -1,3 +1,9 @@
+---
+kind: analysis
+topics: [depth]
+date: 2026-10-31
+tagged: auto
+---
 # flagships.yaml carried merge-conflict markers (2026-10-31)
 
 `portfolio/flagships.yaml` on main held `<<<<<<< HEAD` / `=======` / `>>>>>>> origin/main`

@@ -456,3 +456,59 @@ test('rounding is symmetric about zero', () => {
   assert.equal(money(-0.005), '-$0.01');
   assert.equal(money(-1.235), '-$1.24');
 });
+
+test('issue date must be a real calendar date, with or without a validity period', () => {
+  const base = { companyName: 'A Co', clientName: 'B', price: 1000 };
+  // Before: 'garbage' was printed as the issue date when validDays was 0, and
+  // 2026-02-30 silently became a 7 March expiry.
+  for (const issuedOn of ['garbage', '2026-02-30', '2026-13-01', '2026-00-10', '2026-04-31', '2027-02-29', '0000-01-01']) {
+    assert.throws(() => buildProposal({ ...base, issuedOn }), /Issue date/, issuedOn);
+    assert.throws(() => buildProposal({ ...base, issuedOn, validDays: 30 }), /Issue date/, issuedOn);
+  }
+  assert.equal(buildProposal({ ...base, issuedOn: '2028-02-29' }).issuedOn, '2028-02-29');
+  assert.throws(() => addDays('2026-02-30', 5), /real date/);
+});
+
+test('an expiry date past year 9999 is refused, not printed as +010009-12', () => {
+  const base = { companyName: 'A Co', clientName: 'B', price: 1000 };
+  assert.throws(() => buildProposal({ ...base, issuedOn: '9999-12-31', validDays: 3650 }), /Issue date|Valid days/);
+  assert.throws(() => addDays('9999-12-31', 1), /real date/);
+});
+
+test('a price too large to split into deposit and balance is refused', () => {
+  // Before: 1e308 gave an Infinity deposit, a -Infinity balance and "$∞" on the page.
+  assert.throws(() => buildProposal({ companyName: 'A Co', clientName: 'B', price: 1e308, depositPercent: 30 }), /Price must be at most/);
+  assert.equal(buildProposal({ companyName: 'A Co', clientName: 'B', price: 1e9 }).pricing.price, 1e9);
+});
+
+test('deposit and balance add up to the printed total when the calculated price has sub-cent digits', () => {
+  // Before: a calculator's price of 32.855 printed a $32.85 total over a
+  // $10.19 deposit and a $22.67 balance, which add to $32.86: the cent the
+  // rounding comment above buildProposal says it prevents.
+  const base = { companyName: 'A Co', clientName: 'B', issuedOn: '2026-01-01' };
+  const cents = (figure) => Math.round(Number(figure.replace(/[$,]/g, '')) * 100);
+  for (const [price, depositPercent] of [[32.855, 31], [788.685, 7], [498.525, 74], [1234.5678, 33.3]]) {
+    const { pricing } = buildProposal({ ...base, price, depositPercent });
+    assert.equal(
+      cents(money(pricing.depositAmount)) + cents(money(pricing.balanceAmount)),
+      cents(money(pricing.price)),
+      `${price} at ${depositPercent}%`,
+    );
+    assert.equal(pricing.price, Math.round(price * 100) / 100);
+  }
+});
+
+test('a price that rounds to $0.00 is refused like a zero price', () => {
+  // Before: 0.004 passed the "price a job" check and printed a $0.00 proposal.
+  const base = { companyName: 'A Co', clientName: 'B' };
+  assert.throws(() => buildProposal({ ...base, price: 0.004 }), /Price a job/);
+  assert.equal(buildProposal({ ...base, price: 0.005 }).pricing.price, 0.01);
+});
+
+test('valid days must be a whole number', () => {
+  // Before: 0.5 printed "held until <the issue date> (0.5 days from issue)".
+  const base = { companyName: 'A Co', clientName: 'B', price: 100, issuedOn: '2026-01-01' };
+  assert.throws(() => buildProposal({ ...base, validDays: 0.5 }), /whole number/);
+  assert.throws(() => buildProposal({ ...base, validDays: 29.9 }), /whole number/);
+  assert.equal(buildProposal({ ...base, validDays: 30 }).validUntil, '2026-01-31');
+});

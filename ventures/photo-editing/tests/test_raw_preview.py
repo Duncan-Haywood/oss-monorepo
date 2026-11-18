@@ -53,6 +53,21 @@ class ExtractPreviewTests(unittest.TestCase):
             self.assertIsNone(extract_preview(self._write(root, "d.orf", b"")))
             self.assertIsNone(extract_preview(root / "missing.raf"))
 
+    def test_lossless_and_high_precision_frames_are_sensor_data_not_previews(self) -> None:
+        # CR2 holds its sensor data as a lossless JPEG (SOF3) and DNG as lossless
+        # tiles or strips; both can claim more pixels than the real preview.
+        preview = _fake_jpeg(800, 600)
+        lossless = _fake_jpeg(2816, 3744).replace(b"\xff\xc0", b"\xff\xc3", 1)
+        twelve_bit = _fake_jpeg(4000, 3000).replace(b"\x0b\x08", b"\x0b\x0c", 1)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cr2 = self._write(root, "IMG_0002.CR2", b"II*\x00" + preview + b"\x00" * 40 + lossless)
+            self.assertEqual(extract_preview(cr2), preview)
+            dng = self._write(root, "b.dng", b"II*\x00" + twelve_bit + preview)
+            self.assertEqual(extract_preview(dng), preview)
+            only_sensor = self._write(root, "c.dng", b"II*\x00" + lossless + twelve_bit)
+            self.assertIsNone(extract_preview(only_sensor))
+
     def test_raw_extensions(self) -> None:
         self.assertTrue(is_raw_path(Path("x/IMG_1.CR3")))
         self.assertFalse(is_raw_path(Path("x/IMG_1.jpg")))
@@ -84,6 +99,30 @@ class RawAnalysisTests(unittest.TestCase):
             blur_m = analyze_media(tools, raw_blur, media_type="photo")
             self.assertGreater(sharp_m.sharpness, blur_m.sharpness)
             self.assertEqual(len(sharp_m.dhash), 16)
+
+    def test_a_real_lossless_jpeg_bigger_than_the_preview_is_not_scored(self) -> None:
+        # A real lossless JPEG stream (ffmpeg's ljpeg encoder, SOF3) with four
+        # times the preview's pixels, standing in for CR2/DNG sensor data. Before
+        # 2026-11-10 it won as the "preview" and ffmpeg scored it.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            preview = self._jpeg(root, "p.jpg", "testsrc2=size=640x480")
+            lossless_path = root / "l.jpg"
+            subprocess.run(
+                [FFMPEG, "-hide_banner", "-loglevel", "error", "-nostdin", "-f", "lavfi", "-i",
+                 "testsrc2=size=1280x960", "-frames:v", "1", "-c:v", "ljpeg", "-pix_fmt", "bgr24",
+                 "-strict", "-1", str(lossless_path)],
+                check=True,
+            )
+            lossless = lossless_path.read_bytes()
+            self.assertIn(b"\xff\xc3", lossless[:2000])
+            raw = root / "IMG_0003.CR2"
+            raw.write_bytes(b"II*\x00" + b"\x00" * 64 + preview + b"\x00" * 256 + lossless)
+            self.assertEqual(extract_preview(raw), preview)
+            only_sensor = root / "IMG_0004.dng"
+            only_sensor.write_bytes(b"II*\x00" + lossless)
+            with self.assertRaises(FfmpegMediaError):
+                analyze_media(find_ffmpeg_tools(), only_sensor, media_type="photo")
 
     def test_raw_without_a_preview_raises_so_the_caller_keeps_the_stand_in(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

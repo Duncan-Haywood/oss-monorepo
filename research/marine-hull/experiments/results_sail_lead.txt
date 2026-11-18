@@ -1,0 +1,17 @@
+every 4th window; hourly replan; shares of the no-corridor no-tack-cost bound
+
+January: 96 windows; header 0.889; 5c one-shot (15-min smoothed, whole day) 0.924
+  T=    0 min: 0.866; minus header -0.2 pts (boot 95% -1.1..-0.0); share of 5c gain kept -66%; tacks/day 148
+  T=   30 min: 0.896; minus header +1.6 pts (boot 95% +1.1..+2.6); share of 5c gain kept 20%; tacks/day 157
+  T=   60 min: 0.902; minus header +2.4 pts (boot 95% +1.8..+3.4); share of 5c gain kept 38%; tacks/day 180
+  T=  120 min: 0.906; minus header +3.0 pts (boot 95% +2.4..+3.9); share of 5c gain kept 51%; tacks/day 107
+  T=  240 min: 0.913; minus header +3.7 pts (boot 95% +3.1..+4.2); share of 5c gain kept 68%; tacks/day 114
+  T=  inf min: 0.924; minus header +4.4 pts (boot 95% +3.9..+5.0); share of 5c gain kept 100%; tacks/day 85
+
+July: 96 windows; header 0.873; 5c one-shot (15-min smoothed, whole day) 0.929
+  T=    0 min: 0.835; minus header -2.6 pts (boot 95% -3.1..-1.9); share of 5c gain kept -68%; tacks/day 246
+  T=   30 min: 0.882; minus header +1.9 pts (boot 95% +1.6..+2.6); share of 5c gain kept 16%; tacks/day 258
+  T=   60 min: 0.898; minus header +2.7 pts (boot 95% +2.3..+3.7); share of 5c gain kept 45%; tacks/day 234
+  T=  120 min: 0.905; minus header +3.2 pts (boot 95% +3.0..+4.1); share of 5c gain kept 58%; tacks/day 205
+  T=  240 min: 0.907; minus header +4.0 pts (boot 95% +3.5..+4.8); share of 5c gain kept 62%; tacks/day 190
+  T=  inf min: 0.929; minus header +5.4 pts (boot 95% +4.6..+6.5); share of 5c gain kept 100%; tacks/day 124

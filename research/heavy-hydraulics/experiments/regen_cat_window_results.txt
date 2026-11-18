@@ -1,0 +1,12 @@
+5000 force-model cycles (sourced margins)
+window s = spec low / measured / spec high (Cat 305.5E2 boom retract)
+
+central (300 kg, 0.8 m, 0.70): median recoverable energy 2.06 kJ
+  window 1.7 s: median mean power    1210 W, 95% rating (x1.24)  1.50 kW
+  window 2.1 s: median mean power     979 W, 95% rating (x1.24)  1.21 kW
+  window 2.5 s: median mean power     823 W, 95% rating (x1.24)  1.02 kW
+
+upper (600 kg, 1.2 m, 0.92): median recoverable energy 7.30 kJ
+  window 1.7 s: median mean power    4296 W, 95% rating (x1.24)  5.33 kW
+  window 2.1 s: median mean power    3478 W, 95% rating (x1.24)  4.31 kW
+  window 2.5 s: median mean power    2921 W, 95% rating (x1.24)  3.62 kW

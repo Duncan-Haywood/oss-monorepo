@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { promises as fs, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { promises as fs, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { clock, loadEpisodes, renderPodcastFeed } from './podcast.mjs';
@@ -63,7 +63,7 @@ test('the build puts a player on the post, a podcast page and an RSS feed with e
   });
   const out = mkdtempSync(path.join(os.tmpdir(), 'podcast-out-'));
   const pages = await buildWriting(out, BASE, { root });
-  assert.deepEqual(pages, ['a', 'b', 'podcast']);
+  assert.deepEqual(pages, ['a', 'b', 'topic/tools', 'podcast']);
   const w = path.join(out, WRITING_PATH);
   const postA = await fs.readFile(path.join(w, 'a/index.html'), 'utf8');
   const postB = await fs.readFile(path.join(w, 'b/index.html'), 'utf8');
@@ -95,7 +95,7 @@ test('the build puts a player on the post, a podcast page and an RSS feed with e
 test('no episodes: the podcast page still exists (it is in the top nav), with no feed', async () => {
   const root = repo({ posts: { '2026-10-20-a.md': post('A', '2026-10-20') } });
   const out = mkdtempSync(path.join(os.tmpdir(), 'podcast-none-'));
-  assert.deepEqual(await buildWriting(out, BASE, { root }), ['a', 'podcast']);
+  assert.deepEqual(await buildWriting(out, BASE, { root }), ['a', 'topic/tools', 'podcast']);
   const page = await fs.readFile(path.join(out, WRITING_PATH, 'podcast/index.html'), 'utf8');
   assert.match(page, /No episodes yet/);
   assert.match(page, /data-pfs-nav="podcast" href="[^"]*" aria-current="page"/);
@@ -117,4 +117,23 @@ test('writing.mjs loads on its own (no import cycle through podcast.mjs)', async
   const here = path.dirname(new URL(import.meta.url).pathname);
   const out = execFileSync(process.execPath, ['-e', `import(${JSON.stringify(path.join(here, 'writing.mjs'))}).then((m) => console.log(typeof m.buildWriting))`]);
   assert.equal(String(out).trim(), 'function');
+});
+
+test('episodes sort newest first, ties by slug, and voice falls back to empty', () => {
+  const root = repo({
+    scripts: {
+      '2026-10-20-b.md': script('B', '2026-10-20', 'b'),
+      '2026-10-20-a.md': script('A', '2026-10-20', 'a'),
+      '2026-10-25-c.md': script('C', '2026-10-25', 'c'),
+    },
+    audio: { '2026-10-20-a': 5, '2026-10-20-b': 5, '2026-10-25-c': 5 },
+  });
+  const m = path.join(root, 'docs/podcast/audio/manifest.json');
+  const man = JSON.parse(readFileSync(m, 'utf8'));
+  delete man['2026-10-20-b'].voice;
+  writeFileSync(m, JSON.stringify(man));
+  const eps = loadEpisodes(root);
+  assert.deepEqual(eps.map((e) => e.slug), ['c', 'a', 'b']);
+  assert.equal(eps[2].voice, '');
+  assert.equal(eps[1].voice, 'kokoro-82m-af_heart');
 });

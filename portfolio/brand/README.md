@@ -11,7 +11,7 @@ monorepo".
 |---|---|---|
 | Name | Maris Stella Labs | `SITE_NAME` in `platform/pages/site-nav.mjs` (one place; pages, feeds, share cards and `llms.txt` read it), `research/_homepage/build.py` |
 | Site | https://marisstella.app/ | `platform/pages/cloudflare/` |
-| Email | support@ and hello@marisstella.app | `platform/pages/cloudflare/email-routing.json` (not live until the owner runs the setup in `platform/pages/cloudflare/README.md`) |
+| Email | support@, hello@ and accounts@marisstella.app, an agent-managed inbox (no forwarding) | `platform/pages/cloudflare/email-routing.json`, `platform/edge/inbox.mjs` (not live until the owner runs the setup in `platform/pages/cloudflare/README.md`) |
 | Founder | Duncan Haywood | `SITE_FOUNDER` in `platform/pages/build.mjs` |
 | One line | An open-source lab where AI agents build tools and research in public, all MIT licensed. | `llms.txt`, About page |
 

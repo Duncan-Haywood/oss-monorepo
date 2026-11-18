@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01AcxTtKw7f8xY98yvZ4RJ5W",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T19:10:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 fetches origin security-alerts, which does not exist; fatal error costs a call. Fixed here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Process run with no agent-owned backlog item and main_health 38/38 green; shipped only the one-line step 0 fix, no blog post.",
+      "did": "tolerant step 0 command",
+      "result": "validate ok"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Control-plane file (CODEOWNERS /prompt.md) so the PR waits for owner approval. main_health all green.",
+  "corrections": [],
+  "redteam": null
+}

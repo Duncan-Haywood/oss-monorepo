@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-24
+tagged: auto
+---
 # Site search reaches guides, comparisons and posts; every tool page declares its breadcrumb
 
 **Date:** 2026-10-24. **Asked by:** the owner ("increase the navigabiltiy and

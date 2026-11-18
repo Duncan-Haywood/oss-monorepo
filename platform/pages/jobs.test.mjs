@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   COST_STRUCTURE_SLUGS,
+  JOBS_FIRST_VISIT_STATUS,
   BID_FOLLOW_UP_HELPERS,
   BID_OUTCOMES,
   BID_AMOUNT_HELPER,
@@ -61,6 +62,7 @@ import {
   MIN_SAVEABLE_FIELDS,
   SAVED_BIDS_KEY,
   injectSavedBids,
+  toolHeadingEnd,
   renderSavedBidsModule,
   renderSavedBidsStyle,
   SAVED_BIDS_STYLE_FILE,
@@ -243,6 +245,22 @@ test('the bar and its script land on a page with a form', () => {
   assert.match(module_(), new RegExp(SAVED_BIDS_KEY));
 });
 
+test('a first-time visitor reads what the Saved bids button is for', () => {
+  // The status line used to be empty until a bid was saved, so the band was a
+  // lone grey button. The sentence is in the built markup (no layout shift, and
+  // a crawler can read it) and the script writes the same words on start.
+  const out = injectSavedBids(page(inputs(6)), 'roofing-bid-calculator');
+  const status = /<span class="pf-jobs-status" id="pf-jobs-status" role="status">([^<]*)<\/span>/.exec(out);
+  assert.ok(status, 'status span present');
+  assert.equal(status[1], JOBS_FIRST_VISIT_STATUS);
+  assert.ok(module_().includes(JSON.stringify(JOBS_FIRST_VISIT_STATUS)));
+  // A visitor who has saved bids still sees the count instead.
+  assert.match(module_(), /saved === 1 \? '1 saved bid\.' : saved > 1 \? saved \+ ' saved bids\.'/);
+  // It names only what the panel does, and is short enough to sit beside the
+  // button at 390 px (measured: 35 characters and up wrapped on some pages).
+  assert.ok(JOBS_FIRST_VISIT_STATUS.length <= 34, JOBS_FIRST_VISIT_STATUS);
+});
+
 test('the band points at the backup panel, at the depth the page is served from', () => {
   // The person most likely to want a backup is the one who has just saved a
   // bid they care about — and the file is written on the hub, so without this
@@ -273,6 +291,25 @@ test('the bar anchors under the nav when there is no rates bar', () => {
   const html = page(`<nav class="pf-chrome pf-chrome-top">n</nav>${inputs(6)}`);
   const out = injectSavedBids(html, 'x');
   assert.ok(out.indexOf('pf-chrome-top') < out.indexOf('data-pf-jobs-root'));
+});
+
+test('with no rates bar, the bar sits under the heading block when there is one', () => {
+  const html = page(`<nav class="pf-chrome pf-chrome-top">n</nav><header><h1>Deck</h1></header><main>${inputs(6)}</main>`);
+  const out = injectSavedBids(html, 'x');
+  const bar = out.indexOf('data-pf-jobs-root');
+  assert.ok(out.indexOf('</header>') < bar && bar < out.indexOf('<main>'));
+});
+
+test('toolHeadingEnd trusts only a header around the h1 that holds no form control', () => {
+  const nav = '<nav class="pf-chrome pf-chrome-top"><header>chrome</header></nav>';
+  const ok = `${nav}<div class="wrap"><header class="hero"><p>e</p><h1 class="t">T</h1><p>p</p></header><main><input id="a"></main></div>`;
+  assert.equal(ok.slice(toolHeadingEnd(ok) - 9, toolHeadingEnd(ok)), '</header>');
+  assert.equal(toolHeadingEnd(ok), ok.indexOf('<main>'));
+  assert.equal(toolHeadingEnd(`${nav}<header><h1>T</h1><input id="a"></header>`), -1);
+  assert.equal(toolHeadingEnd(`${nav}<main><h1>T</h1></main>`), -1);
+  assert.equal(toolHeadingEnd(`${nav}<header>logo</header><h1>T</h1>`), -1, 'a closed header is not the h1\'s');
+  assert.equal(toolHeadingEnd('<body><p>no heading</p></body>'), -1);
+  assert.equal(toolHeadingEnd(null), -1);
 });
 
 test('every button this injects stays inside the root, so a sweep can tell them apart', () => {
@@ -3011,4 +3048,12 @@ test('a trade that charged only a dollar in total still takes part in the keep r
   ]);
   assert.match(sentence, /across 2 tools/);
   assert.match(sentence, /Tiny bid calculator kept the most/);
+});
+
+test('a blank bid name falls back to today, and a typed one is kept (trimmed, 60 chars)', () => {
+  // `(box.value || '')` guards a missing value; `&&` would make every name ''.
+  assert.match(
+    module_(),
+    /var name = \(box\.value \|\| ''\)\.replace\(\/\\s\+\/g, ' '\)\.trim\(\)\.slice\(0, 60\) \|\| today\(\);/,
+  );
 });

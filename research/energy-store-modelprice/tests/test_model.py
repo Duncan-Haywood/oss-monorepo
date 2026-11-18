@@ -38,3 +38,21 @@ def test_real_verdict_reproduces_energy_thermal_real_headline():
         real = price_sources(y)["real"]
         st, hp = case_costs(cheapest_mean(real, 365, .25), heating_season_mean(real, load_year(y)), "house", CASES[0])
         assert -0.028 < st - hp < -0.011
+
+
+def test_residual_fit_never_sees_the_held_out_year(monkeypatch):
+    # The study rests on leave-one-year-out: the fit for a test year must be
+    # trained on the other years only (quality audit round 69: a mutant that
+    # trained on all five years left every other test green).
+    import energy_store_modelprice.model as m
+    seen = {}
+    real_fit = m.isotonic_fit
+
+    def spy(xs, ys):
+        seen["n"] = len(xs)
+        return real_fit(xs, ys)
+
+    monkeypatch.setattr(m, "isotonic_fit", spy)
+    m.price_sources(2019)
+    others = sum(len(m.load_year_rows(y)) for y in m.YEARS if y != 2019)
+    assert seen["n"] == others

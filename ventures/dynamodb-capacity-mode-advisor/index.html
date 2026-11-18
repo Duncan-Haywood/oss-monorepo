@@ -161,7 +161,7 @@ node cli.mjs analyze metrics.csv --json --prices my-prices.json</pre>
       els.estimate.textContent = report.count ? `${PRICES_AS_OF}. Traffic inside a period is treated as flat; confirm any change on a non-critical table.` : "";
       els.reportCard.hidden = false;
       record("analyze_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

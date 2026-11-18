@@ -1,0 +1,11 @@
+noise (0.1,) of channel rms, records (1, 2) phugoid periods, 8 draws per design and scale; scales (0.75,)
+20 mode-matched designs
+
+20 designs; model trim speed median 21.09 m/s (min 21.09); u-channel rms over 1 phugoid period median 1.801 m/s
+error | dynamic-pressure error (Pa) | speed error dV = dq/(rho V) median (m/s) | as fraction of u rms: median, max | assumed in 9x/9y
+accuracy 0.25 % span | 17.24 | 0.667 | 0.37, 0.38 | noise 0.10, drift 0.10-0.20
+TEB 1.0 % span | 68.95 | 2.669 | 1.48, 1.54 | noise 0.10, drift 0.10-0.20
+TEB 2.0 % span | 137.90 | 5.338 | 2.96, 3.08 | noise 0.10, drift 0.10-0.20
+1 LSB (14 bit) | 0.42 | 0.016 | 0.01, 0.01 | noise 0.10, drift 0.10-0.20
+
+dynamic pressure at trim: median 272 Pa = 4.0 % of a 1 psi span; speed error at 1 % span is 12.7 % of trim speed

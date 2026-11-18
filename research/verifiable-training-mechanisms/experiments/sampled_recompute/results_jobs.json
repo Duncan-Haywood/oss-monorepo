@@ -1,0 +1,269 @@
+{
+ "R1.01": {
+  "n": 32,
+  "flagged": 2,
+  "harmful": 30,
+  "harmful_unflagged": 28,
+  "median_dL": 0.027956128120422363,
+  "median_abs_dL": 0.027956128120422363,
+  "median_stalled_steps": 78.5
+ },
+ "jobs": [
+  {
+   "seed": 0,
+   "t0": 274,
+   "stalled": 102,
+   "dL": 0.02877640724182129,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 1,
+   "t0": 187,
+   "stalled": 111,
+   "dL": 0.037123680114746094,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 2,
+   "t0": 337,
+   "stalled": 200,
+   "dL": 0.023294687271118164,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 3,
+   "t0": 136,
+   "stalled": 80,
+   "dL": 0.036247968673706055,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 4,
+   "t0": 157,
+   "stalled": 79,
+   "dL": 0.036051273345947266,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 5,
+   "t0": 62,
+   "stalled": 58,
+   "dL": 0.03169870376586914,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 6,
+   "t0": 172,
+   "stalled": 89,
+   "dL": 0.03488874435424805,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 7,
+   "t0": 291,
+   "stalled": 48,
+   "dL": 0.01338648796081543,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 8,
+   "t0": 116,
+   "stalled": 78,
+   "dL": 0.042908668518066406,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 9,
+   "t0": 135,
+   "stalled": 64,
+   "dL": 0.03588080406188965,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 10,
+   "t0": 75,
+   "stalled": 28,
+   "dL": 0.014062881469726562,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 11,
+   "t0": 193,
+   "stalled": 3,
+   "dL": 0.0015451908111572266,
+   "harm": false,
+   "flagged": false
+  },
+  {
+   "seed": 12,
+   "t0": 380,
+   "stalled": 200,
+   "dL": 0.01658463478088379,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 13,
+   "t0": 385,
+   "stalled": 106,
+   "dL": 0.01172494888305664,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 14,
+   "t0": 220,
+   "stalled": 57,
+   "dL": 0.02380847930908203,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 15,
+   "t0": 258,
+   "stalled": 107,
+   "dL": 0.03275942802429199,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 0,
+   "t0": 28,
+   "stalled": 67,
+   "dL": 0.040868282318115234,
+   "harm": true,
+   "flagged": true
+  },
+  {
+   "seed": 1,
+   "t0": 100,
+   "stalled": 85,
+   "dL": 0.037251949310302734,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 2,
+   "t0": 222,
+   "stalled": 76,
+   "dL": 0.027135848999023438,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 3,
+   "t0": 197,
+   "stalled": 96,
+   "dL": 0.03374028205871582,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 4,
+   "t0": 138,
+   "stalled": 76,
+   "dL": 0.036382198333740234,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 5,
+   "t0": 319,
+   "stalled": 76,
+   "dL": 0.015048980712890625,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 6,
+   "t0": 384,
+   "stalled": 200,
+   "dL": 0.013919830322265625,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 7,
+   "t0": 236,
+   "stalled": 40,
+   "dL": 0.014417648315429688,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 8,
+   "t0": 211,
+   "stalled": 86,
+   "dL": 0.03366518020629883,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 9,
+   "t0": 273,
+   "stalled": 98,
+   "dL": 0.02883458137512207,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 10,
+   "t0": 94,
+   "stalled": 28,
+   "dL": 0.013978958129882812,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 11,
+   "t0": 360,
+   "stalled": 0,
+   "dL": 0.0,
+   "harm": false,
+   "flagged": false
+  },
+  {
+   "seed": 12,
+   "t0": 343,
+   "stalled": 200,
+   "dL": 0.021944046020507812,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 13,
+   "t0": 301,
+   "stalled": 59,
+   "dL": 0.01489710807800293,
+   "harm": true,
+   "flagged": false
+  },
+  {
+   "seed": 14,
+   "t0": 28,
+   "stalled": 38,
+   "dL": 0.023970842361450195,
+   "harm": true,
+   "flagged": true
+  },
+  {
+   "seed": 15,
+   "t0": 309,
+   "stalled": 155,
+   "dL": 0.0301053524017334,
+   "harm": true,
+   "flagged": false
+  }
+ ]
+}

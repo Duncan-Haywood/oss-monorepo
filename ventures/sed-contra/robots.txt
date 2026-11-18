@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://marisstella.app/sed-contra/sitemap.xml

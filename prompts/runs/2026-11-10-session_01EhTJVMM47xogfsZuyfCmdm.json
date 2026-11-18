@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01EhTJVMM47xogfsZuyfCmdm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompt-1 text)",
+  "input_sha256": "dd742258ea88dae8e8c9695677f3733efc1ace4919c159995a5179f64f7b8d14",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T22:07:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 7 (photo-editing): pipeline grade stage develops DNG stills",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": 14616,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/tools/libraw_differential.py",
+      "issue": "--keep writes the LibRaw reference as an 8-bit PNG, so comparing a 16-bit master to it carries up to half a step of rounding; noted in the eval file."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-10-shootflow-pipeline-develops-dng.md",
+    "ventures/photo-editing/eval/pipeline-dng-grade-2026-11-10.md"
+  ],
+  "goal": null,
+  "notes": "Allocator row 1-5 flagships had heavy same-day activity; took photo-editing (no open PR) and its named next item. Real Nikon sensor DNG through run_local_pipeline: rendered, 74.5 s, master 4284x2844 rgb48le bit-identical to shootflow develop. Venture suite: 539 tests, 2 pre-existing environment failures identical on main (broken system PIL; chmod as root). ruff and mypy clean.",
+  "corrections": [],
+  "redteam": null
+}

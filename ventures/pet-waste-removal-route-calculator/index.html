@@ -45,11 +45,10 @@
     @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
   </style>
 </head>
-</head>
 <body>
   <header>
     <p class="note">PET WASTE REMOVAL ROUTE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
-    <h1>What does your pet waste route really pay per hour? Profit, break-even clients and the price you need</h1>
+    <h1>What does your pet waste route really pay per hour, and what should you charge?</h1>
     <p>Enter weekly clients, price per visit, minutes on site, drive time between yards, supplies and fixed costs. You get <strong>monthly profit</strong>, <strong>pay per hour including driving</strong>, <strong>break-even clients</strong>, the <strong>price per visit</strong> for the hourly pay you want, and a table showing what a tighter route is worth.</p>
     <p class="note">It works from your own figures. It does not know what other services charge.</p>
   </header>
@@ -149,7 +148,7 @@
       $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${x.drive}</td><td class="n">${x.hours.toFixed(1)}</td><td class="n">${dollars(x.profit)}</td><td class="n">${dollars(x.hourly)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

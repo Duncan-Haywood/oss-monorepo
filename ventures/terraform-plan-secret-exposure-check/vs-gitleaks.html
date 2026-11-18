@@ -29,6 +29,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; Back to Terraform Plan Secret Exposure Check</a></p>
   <h1>This checker vs. Gitleaks</h1>
 
@@ -80,7 +81,7 @@
       </tr>
       <tr>
         <td>I want the report to redact the matched value so it is safe to paste into an issue or a CI annotation.</td>
-        <td>This checker — every finding shows only the first and last four characters. Check your Gitleaks configuration and output format if you rely on it for the same guarantee; its default reporting is not built around that specific use case.</td>
+        <td>This checker — every finding shows at most the first and last four characters, and a URL's password not at all. Check your Gitleaks configuration and output format if you rely on it for the same guarantee; its default reporting is not built around that specific use case.</td>
       </tr>
       <tr>
         <td>I want broad, mature, actively maintained secret detection across many source types (files, archives, stdin, CI logs piped in) with a large, configurable rule set.</td>
@@ -116,7 +117,9 @@
     See also <a href="why-terraform-plan-json-leaks-secrets.html">why a Terraform plan can print a secret even though the schema has a <code>sensitive</code> flag</a>, or open <a href="./">the checker itself</a> to try it on a plan.
   </p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This is not security or compliance advice, and this page's description of Gitleaks is based on its own public documentation rather than a determination about either tool's quality. See the disclaimer on <a href="./">the checker itself</a> for the full text.</p>
     <p>Everything here runs client-side; nothing is uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
   </footer>

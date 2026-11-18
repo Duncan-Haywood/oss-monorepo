@@ -11,6 +11,8 @@ import {
   commentFor,
   describe,
   engines,
+  entryCandidates,
+  findExample,
   handle,
   main,
   pageEngines,
@@ -19,7 +21,9 @@ import {
   parseArgv,
   search,
   serve,
+  SITE,
   toJson,
+  usableResult,
 } from './tools.mjs';
 
 const REAL = '401k-loan-vs-withdrawal-calculator';
@@ -125,7 +129,7 @@ test('describe and call work on a fixture with DEFAULTS', async () => {
   const r = await call('sum-tool', 'lines', { stdin: 'x\ny\nz' }, root);
   assert.equal(r.result, 3);
   assert.deepEqual(r.args, ['<stdin>']);
-  await assert.rejects(call('sum-tool', 'nope', {}, root), /no exported function "nope"/);
+  await assert.rejects(call('sum-tool', 'nope', {}, root), /no exported function "nope" in sum-tool; it exports lines, total/);
   await assert.rejects(describe('../etc', root), /bad slug/);
   assert.deepEqual((await catalogue(root)).map((t) => t.slug), ['sum-tool']);
 });
@@ -201,14 +205,78 @@ test('every catalogue tool with an engine module is describable without a browse
   assert.ok(entries.length > 1000, `catalogue has ${entries.length} tools`);
   const failures = [];
   let callable = 0;
-  for (const t of entries) {
-    try {
-      const d = await describe(t.slug);
-      if (d.engines.some((e) => !e.skip && e.functions.length)) callable++;
-    } catch (e) {
-      failures.push(`${t.slug}: ${String(e?.message ?? e).split('\n')[0]}`);
-    }
+  // Batches of 16 overlap the file reads and module compiles; results are
+  // folded in catalogue order, so the failure list reads the same.
+  for (let i = 0; i < entries.length; i += 16) {
+    const batch = entries.slice(i, i + 16);
+    const results = await Promise.all(
+      batch.map((t) => describe(t.slug).then((d) => ({ d }), (e) => ({ e }))),
+    );
+    results.forEach((r, j) => {
+      if (r.e) failures.push(`${batch[j].slug}: ${String(r.e?.message ?? r.e).split('\n')[0]}`);
+      else if (r.d.engines.some((e) => !e.skip && e.functions.length)) callable++;
+    });
   }
   assert.deepEqual(failures, []);
   assert.ok(callable / entries.length > 0.95, `only ${callable} of ${entries.length} tools are callable`);
+});
+
+test('SITE is the origin the build publishes, not the retired Pages address', async () => {
+  const build = await fs.readFile(new URL('../pages/build.mjs', import.meta.url), 'utf8');
+  assert.equal(SITE, /export const DEFAULT_BASE_URL = '([^']+)'/.exec(build)[1]);
+  assert.doesNotMatch(SITE, /github\.io/);
+  assert.ok(search([{ slug: 'a-tool', title: 'A', description: 'd' }], 'a').tools[0].url.startsWith(SITE));
+});
+
+test('usableResult rejects NaN, ok:false and error results', () => {
+  assert.equal(usableResult({ a: 1, b: [2, { c: NaN }] }), false);
+  assert.equal(usableResult({ ok: false, errors: ['x'] }), false);
+  assert.equal(usableResult({ error: 'bad input' }), false);
+  assert.equal(usableResult(undefined), false);
+  assert.equal(usableResult({ a: Infinity }), true, 'Infinity can be an answer (never breaks even)');
+  assert.equal(usableResult(0), true);
+});
+
+test('entryCandidates puts the conventional names first, then entry-shaped names', () => {
+  const f = () => 1;
+  assert.deepEqual(entryCandidates({ money: f, calculateBid: f, analyze: f, limitOutcome: f, DEFAULTS: {} }), ['analyze', 'calculateBid', 'limitOutcome']);
+});
+
+test('findExample: DEFAULTS as input, a shipped sample through a parse step, and null when nothing runs', async () => {
+  const root = await fixtureRoot({
+    'ventures/sum-tool/index.html': page('Sum', 'd', 'import { compute } from "./calc.mjs";'),
+    'ventures/sum-tool/calc.mjs': 'export const DEFAULTS = { a: 1, b: 2 };\nexport function compute(o) { return { total: o.a + o.b }; }\n',
+    // DEFAULTS are options here; the rows come from the sample text through parseRows, wrapped.
+    'ventures/rows-tool/index.html': page('Rows', 'd', 'import { analyze } from "./calc.mjs";'),
+    'ventures/rows-tool/calc.mjs':
+      'export const DEFAULTS = { fee: 1 };\n' +
+      'export function sampleText() { return "x,2\\ny,3"; }\n' +
+      'export function parseRows(t) { return { rows: t.split("\\n").map((l) => ({ v: Number(l.split(",")[1]) })), warnings: [] }; }\n' +
+      'export function analyze(rows, o = {}) { return { sum: rows.map((r) => r.v).reduce((a, b) => a + b, 0) - (o.fee ?? 0) }; }\n',
+    'ventures/nan-tool/index.html': page('NaN', 'd', 'import { compute } from "./calc.mjs";'),
+    'ventures/nan-tool/calc.mjs': 'export const DEFAULTS = { a: 1 };\nexport function compute(o) { return { x: o.a * o.missing }; }\n',
+    'ventures/empty-tool/index.html': page('Empty', 'd', 'import { quoteJob } from "./calc.mjs";'),
+    'ventures/empty-tool/calc.mjs': 'export function quoteJob({ sqft = 0 } = {}) { return { price: sqft * 2 }; }\n',
+  });
+  assert.deepEqual(await findExample('sum-tool', root), { module: 'calc.mjs', function: 'compute', input: {} });
+  assert.deepEqual(await findExample('rows-tool', root), {
+    module: 'calc.mjs',
+    steps: [
+      { function: 'parseRows', text: 'x,2\ny,3' },
+      { function: 'analyze', args: ['<result of step 1>.rows'] },
+    ],
+  });
+  assert.equal(await findExample('nan-tool', root), null, 'a NaN result is a mismatch, not an example');
+  assert.equal(await findExample('empty-tool', root), null, 'an all-zero answer on {} teaches nothing');
+  const d = await describe('sum-tool', root, { example: true });
+  assert.equal(d.example.function, 'compute');
+  assert.deepEqual(d.example.input, {});
+  assert.equal((await describe('sum-tool', root)).example, undefined, 'off by default: the fleet test stays fast');
+});
+
+test('findExample gives a real catalogue tool a call that call() then runs', async () => {
+  const ex = await findExample(REAL);
+  assert.ok(ex, `${REAL} has an example`);
+  const r = await call(REAL, ex.function, { input: ex.input, args: ex.args, stdin: ex.text });
+  assert.ok(usableResult(r.result));
 });

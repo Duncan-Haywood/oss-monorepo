@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyfwUJodazKz5N6TyVR",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T21:38:36Z",
+  "ended": "2026-11-14T21:42:49Z",
+  "wall_minutes": 23.01,
+  "tokens_in": 7140279,
+  "tokens_out": 31927,
+  "cost_usd": 3.0421,
+  "tool_calls": 60,
+  "task": "Deepen flagship changepoint-detector (row 2 of allocate.py): round 16 of the watch, 'k without the loudest column', pre-registered on SKAB; hand-set --min-spread",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15988",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First create_pull_request call failed with an upstream connect error; the retry worked.",
+    "Two background wait commands were refused by the pgrep -f hook because the bracketed pattern also appeared elsewhere in the command line (the output-file path)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pgrep -f bracket advice is not enough: the hook also refuses the command when the unbracketed name appears anywhere else in the line (e.g. an output path). A one-line note saying so would save a retry."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-three-floors-for-a-loud-sensor-watch.md",
+    "ventures/changepoint-detector/README.md 'Round 16'"
+  ],
+  "goal": null,
+  "notes": "Round 16 (eval/watch-skab-loud.mjs, pre-registered in commit 351384517 before the scored run): loud column split off with its own spread k. Thermocouple k 22.4, others 2.60. T12 FAILS on (a) 2.47 false/100 pre-fault checks vs 2 and (b) 30 vs 31 faults; (c) passes 50.5% vs 36.8%. Round 15's R re-run matches its committed output (27/33, 59.3%, 1.40). Hand-set watch.mjs --min-spread <k|col=k,...> ships either way as pre-registered. Local checks: watch-loud/spread/floor/watch/watch-page tests 52/52 pass; post front matter, links and similarity clean; run_venture_tests changepoint-detector ok (171 s, 1 suite, 0 failed); venture-preflight clean for changepoint-detector.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b65a71d8-01b5-5e08-8326-0c007bfbf376",
+    "transcripts": 1,
+    "first": "2026-11-14T21:38:36Z",
+    "last": "2026-11-14T22:01:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 128,
+        "output": 31927,
+        "thinking": 4944,
+        "cache_read": 7015146,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125005,
+        "api_equivalent_usd": 3.0421,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 128,
+      "output": 31927,
+      "thinking": 4944,
+      "cache_read": 7015146,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125005,
+      "api_equivalent_usd": 3.0421,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 50,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "Monitor": 2,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.01,
+      "active_minutes": 6.8,
+      "model_minutes": 5.13,
+      "tool_minutes": 1.67,
+      "waiting_on_human_minutes": 16.21,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a statistician designing, pre-registering, running and writing up one benchmark round plus a CLI option with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 197.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

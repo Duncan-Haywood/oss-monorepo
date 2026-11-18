@@ -159,7 +159,7 @@
       $("#preview").innerHTML = rows.map((row) => `<tr><td>${esc(at(row, "Type"))}</td><td>${esc(at(row, "SKU"))}</td><td>${esc(at(row, "Name"))}</td><td>${esc(at(row, "Parent"))}</td><td class="n">${esc(at(row, "Regular price"))}</td><td class="n">${esc(at(row, "Sale price"))}</td><td class="n">${esc(at(row, "Stock"))}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Converted ${s.products} product(s) into ${s.simple + s.variable + s.variations} row(s).`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

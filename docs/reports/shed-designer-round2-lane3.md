@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed Designer round 2, lane 3: editor UX and clarity
 
 Session: https://claude.ai/code/session_01XpHqycJA9kKp6yr4akmWLq (2026-10-30). Built from the "Open" sections of round 1's lane 3, 4 and 5 reports.

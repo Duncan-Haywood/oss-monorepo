@@ -52,5 +52,5 @@ kill_criteria:
   - A user reports a net margin or quote that differs from the same load worked by hand with the stated formula.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/freight-broker-load-margin-calculator/
+  production: https://marisstella.app/freight-broker-load-margin-calculator/
   analytics: null

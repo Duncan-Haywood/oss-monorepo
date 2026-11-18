@@ -16,7 +16,9 @@ import { makeRecord, summary, buildEvidencePack, packSummary, entriesToCsv } fro
   const usagePreference = 'construction-evidence-log-usage-preference';
   // A few ventures import this file under `node --test`, with no DOM or a
   // stub one. Remembering a preference must not be what breaks that.
-  if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+  if (typeof document === 'undefined') return;
+  // Even `typeof localStorage` throws when the visitor blocks site data.
+  try { if (typeof localStorage === 'undefined') return; } catch { return; }
   if (typeof document.getElementById !== 'function') return;
   const usageControl = document.getElementById('usage');
   if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
@@ -31,7 +33,7 @@ import { makeRecord, summary, buildEvidencePack, packSummary, entriesToCsv } fro
 })();
 
 const $ = (id) => document.getElementById(id);
-const today = new Date().toISOString().slice(0, 10);
+const today = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 $('date').value = today;
 let latest = null;
 
@@ -236,7 +238,12 @@ $('download').addEventListener('click', () => {
 
 $('copy').addEventListener('click', async () => {
   if (!latest) return;
-  await navigator.clipboard.writeText(summary(latest));
+  try {
+    await navigator.clipboard.writeText(summary(latest));
+  } catch {
+    $('action-status').textContent = 'Copy was blocked by the browser. Use Download instead, or copy the summary by hand.';
+    return;
+  }
   $('action-status').textContent = 'Summary copied.';
   event('summary_copied');
 });

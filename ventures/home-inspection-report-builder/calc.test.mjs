@@ -38,7 +38,8 @@ test("normalise fixes severity, negative and reversed costs", () => {
   const n = normalise({ title: " X ", severity: "bogus", costLow: "900", costHigh: "-5" });
   assert.equal(n.severity, "info");
   assert.equal(n.title, "X");
-  assert.equal(n.costLow, 0);
+  // A negative high figure is unusable, so the one good figure stands for both ends.
+  assert.equal(n.costLow, 900);
   assert.equal(n.costHigh, 900);
   const m = normalise({ title: "Y", severity: "major", costLow: 500, costHigh: 200 });
   assert.equal(m.costLow, 200); assert.equal(m.costHigh, 500);
@@ -86,10 +87,129 @@ test("export then import round-trips; bad files are refused", () => {
   const header = { property: "1 Main St", client: "A", date: "2026-10-08", inspector: "B", license: "123" };
   const fs = [newFinding("roof-worn", { costLow: 1, costHigh: 2, note: "n" })];
   const back = parseImport(exportJson(header, fs));
-  assert.deepEqual(back.header, header);
+  assert.deepEqual(back.header, { ...header, scope: "", notInspected: "" });
   assert.equal(back.findings[0].title, fs[0].title);
   assert.equal(back.findings[0].costHigh, 2);
   assert.ok(parseImport("nope").error);
   assert.ok(parseImport('{"app":"other","findings":[]}').error);
   assert.deepEqual(parseImport(JSON.stringify({ app: "home-inspection-report-builder", findings: [1, null, { title: "t", severity: "zzz" }] })).findings.map((f) => f.severity), ["info"]);
+});
+
+// Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-home-inspection-report-builder.json, defect 0):
+// the page promised a report with safety and major items first, but both renderers only grouped by system.
+test("both reports open with every safety and major item, safety first, before the system sections", () => {
+  const fs = [
+    newFinding("roof-debris"),
+    newFinding("roof-worn"),
+    newFinding("elec-gfci"),
+    newFinding(null, { title: "Loose pool fence", system: "Pool", severity: "safety" }),
+  ];
+  const s = summarize(fs);
+  assert.deepEqual(s.priority.map((f) => f.severity), ["safety", "safety", "major"]);
+  const t = toText({}, fs);
+  const head = t.indexOf("SAFETY AND MAJOR ITEMS");
+  assert.ok(head > 0 && head < t.indexOf("\nROOF"));
+  const block = t.slice(head, t.indexOf("\nROOF")).trim().split("\n").slice(1);
+  assert.equal(block.length, 3);
+  assert.match(block[0], /^- \[Safety/);
+  assert.match(block[2], /^- \[Major/);
+  assert.ok(block.some((l) => /Loose pool fence \(Pool\)$/.test(l)));
+  assert.ok(!block.some((l) => l.includes(fs[0].title)));
+  const h = toHtml({}, fs);
+  assert.ok(h.indexOf("Safety and major items") < h.indexOf("<h3>Roof</h3>"));
+  assert.equal((h.match(/<ul class="priority">(.*?)<\/ul>/)[1].match(/<li>/g) || []).length, 3);
+  assert.doesNotMatch(toText({}, [newFinding("roof-debris")]), /SAFETY AND MAJOR/);
+});
+
+// Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-home-inspection-report-builder.json, defects 1, 2, 4).
+test("a bad cost never becomes a plausible range, and every repair is reported", () => {
+  const issues = [];
+  const n = normalise({ title: "Roof", severity: "major", costLow: 300, costHigh: "abc" }, issues);
+  assert.equal(n.costLow, 300); assert.equal(n.costHigh, 300);
+  assert.equal(issues.length, 1); assert.match(issues[0], /"Roof": high cost "abc"/);
+  assert.doesNotMatch(toText({}, [n]), /\$0 to \$300/);
+  const blank = [];
+  const b = normalise({ title: "Info", severity: "info", costLow: "", costHigh: 0 }, blank);
+  assert.equal(b.costHigh, 0); assert.deepEqual(blank, [], "blank and zero costs are not problems");
+});
+
+test("severity is read by id or label in any case; an unknown one is flagged, not silently downgraded", () => {
+  assert.equal(normalise({ title: "A", severity: "Safety" }).severity, "safety");
+  assert.equal(normalise({ title: "A", severity: "safety hazard" }).severity, "safety");
+  assert.equal(normalise({ title: "A", severity: " MAJOR " }).severity, "major");
+  const issues = [];
+  assert.equal(normalise({ title: "GFCI", severity: "urgent" }, issues).severity, "info");
+  assert.equal(issues.length, 1); assert.match(issues[0], /"GFCI": severity "urgent"/);
+});
+
+test("num reads plain decimals only", () => {
+  assert.ok(Number.isNaN(num("0x10")));
+  assert.ok(Number.isNaN(num("1e3")));
+  assert.equal(num("$1,200.50"), 1200.5);
+  assert.equal(num(".5"), 0.5);
+  assert.equal(num("-20"), -20);
+});
+
+test("parseImport returns warnings for repaired findings and for the 500 cap", () => {
+  const f = (i, extra = {}) => ({ title: "T" + i, severity: "minor", ...extra });
+  const ok = parseImport(JSON.stringify({ app: "home-inspection-report-builder", findings: [f(1)] }));
+  assert.deepEqual(ok.warnings, []);
+  const bad = parseImport(JSON.stringify({ app: "home-inspection-report-builder", findings: [f(1, { severity: "SAFTEY", costHigh: "x" })] }));
+  assert.equal(bad.warnings.length, 2);
+  const many = parseImport(JSON.stringify({ app: "home-inspection-report-builder", findings: Array.from({ length: 501 }, (_, i) => f(i)) }));
+  assert.equal(many.findings.length, 500);
+  assert.match(many.warnings[0], /501 findings; only the first 500/);
+  const five = parseImport(JSON.stringify({ app: "home-inspection-report-builder", findings: Array.from({ length: 6 }, (_, i) => f(i)) }));
+  assert.equal(five.findings.length, 6);
+});
+
+test("both reports carry a not-inspected record and the inspector's scope; saved files keep them", () => {
+  const fs = [newFinding("elec-gfci")];
+  const t = toText({}, fs);
+  assert.match(t, /NOT INSPECTED OR RESTRICTED\nNone recorded by the inspector\./);
+  assert.doesNotMatch(t, /SCOPE AND LIMITATIONS/);
+  const hdr = { notInspected: "Roof: viewed from ground, wet.\nCrawlspace: not entered.", scope: "Visual, non-invasive, per <agreement>." };
+  const t2 = toText(hdr, fs);
+  assert.ok(t2.indexOf("NOT INSPECTED") < t2.indexOf("SAFETY AND MAJOR"), "the record comes before the findings");
+  assert.match(t2, /SCOPE AND LIMITATIONS\nVisual, non-invasive/);
+  const h = toHtml(hdr, fs);
+  assert.match(h, /<h3>Not inspected or restricted<\/h3><p>Roof: viewed from ground, wet\.<br>Crawlspace: not entered\.<\/p>/);
+  assert.match(h, /per &lt;agreement&gt;/);
+  assert.match(h, /Limitations are set by the inspector&#39;s agreement/);
+  const back = parseImport(exportJson(hdr, fs));
+  assert.equal(back.header.notInspected, hdr.notInspected);
+  assert.equal(back.header.scope, hdr.scope);
+});
+
+// Red team 2026-11-16: findings.map(normalise) handed normalise the array index as `issues`, so a
+// bad cost on the second or later finding threw "issues.push is not a function" from summarize,
+// toText and toHtml (the page's "Download text" button), and the first finding's was dropped silently.
+test("a bad cost on any finding never crashes a report", () => {
+  const fs = [
+    { title: "GFCI", severity: "safety" },
+    { title: "Gutter", severity: "minor", costLow: "-5", costHigh: "abc" },
+    { title: "Flashing", severity: "urgent", costHigh: 400 },
+  ];
+  assert.equal(summarize(fs).total, 3);
+  assert.match(toText({}, fs), /Gutter/);
+  assert.match(toHtml({}, fs), /Flashing/);
+  assert.doesNotThrow(() => normalise(fs[1], 1), "a non-array issues argument is ignored");
+  const issues = [];
+  normalise(fs[1], issues);
+  assert.equal(issues.length, 2);
+});
+
+test("a single cost is used for both ends, whichever end it was entered in", () => {
+  const hiOnly = normalise({ title: "Roof", severity: "major", costHigh: 300 });
+  assert.equal(hiOnly.costLow, 300); assert.equal(hiOnly.costHigh, 300);
+  assert.doesNotMatch(toText({}, [hiOnly]), /\$0 to \$300/);
+  const loOnly = normalise({ title: "Roof", severity: "major", costLow: "250" });
+  assert.equal(loOnly.costLow, 250); assert.equal(loOnly.costHigh, 250);
+});
+
+test("saved files carry format version 1; exactly 500 findings load with no cap warning", () => {
+  assert.equal(JSON.parse(exportJson({}, [])).version, 1);
+  const r = parseImport(JSON.stringify({ app: "home-inspection-report-builder", findings: Array.from({ length: 500 }, (_, i) => ({ title: "T" + i, severity: "minor" })) }));
+  assert.equal(r.findings.length, 500);
+  assert.deepEqual(r.warnings, []);
 });

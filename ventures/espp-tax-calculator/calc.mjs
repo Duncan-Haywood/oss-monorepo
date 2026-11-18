@@ -165,7 +165,7 @@ export function sampleInput() {
   return { offerFmv: "40", purchaseFmv: "52", discount: "15", lookback: "yes", shares: "250", offerMonths: "6", salePrice: "60", ordRate: "35", ltcgRate: "18.8", otherGains: "" };
 }
 
-const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function reportCsv(a) {
   const rows = [["Strategy", "Months held", "Treatment", "Ordinary income", "Capital gain or loss", "Tax", "Net profit after tax"]];
   const line = (name, d) => rows.push([name, d.months, d.qualifying ? "qualifying" : "disqualifying", round2(d.ordinary), round2(d.capital), round2(d.tax), round2(d.netProfit)]);

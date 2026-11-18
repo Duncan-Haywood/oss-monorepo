@@ -3,7 +3,7 @@ description: >-
   Free browser calculator for the two dates that decide whether an unpaid
   subcontractor or supplier can still file a mechanics lien -- the
   preliminary notice and the lien filing -- for California, Texas, Florida,
-  Arizona and Washington, from the user's first and last day on the job,
+  Arizona, Washington, Georgia and Colorado, from the user's first and last day on the job,
   with weekend safe dates and days remaining. Entirely client-side, nothing
   uploaded.
 stage: prototype
@@ -26,9 +26,9 @@ owner: duncan
 # generation for paid notice-filing services -- a free, private date lookup
 # is the part they gate.
 #
-# Liability: the one risk is a wrong date. Mitigations: five states only,
-# each verified against multiple agreeing sources; first-tier claimants
-# only; unsupported states throw rather than guess; completion-based rules
+# Liability: the one risk is a wrong date. Mitigations: seven states only,
+# each verified against multiple agreeing sources; first- and second-tier
+# claimants (tier matters only for Georgia's notice), Texas notices month by month; unsupported states throw rather than guess; completion-based rules
 # fall back to the cautious (earlier) date; weekend dates show the last
 # business day; the page states three times (intro, "what this does not
 # cover", footer) that it is not legal advice and that lien rights are lost
@@ -70,5 +70,5 @@ kill_criteria:
   - A user reports relying on a date from the tool to skip a notice or filing without confirming the statute, despite the disclaimer -- at that point the wording, or whether to keep a legal-deadline tool at all, needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/mechanics-lien-deadline-calculator/
+  production: https://marisstella.app/mechanics-lien-deadline-calculator/
   analytics: null

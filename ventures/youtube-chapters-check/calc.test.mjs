@@ -120,3 +120,87 @@ test("findingsCsv escapes and decodeBuffer handles BOMs", () => {
   assert.equal(decodeBuffer(new Uint8Array([0xef, 0xbb, 0xbf, 0x30]).buffer), "0");
   assert.equal(decodeBuffer(new Uint8Array([0xff, 0xfe, 0x30, 0x00]).buffer), "0");
 });
+
+test("non-drop 23.976 and 29.97 timecodes count nominal frames per labelled second (SMPTE ST 12-1)", () => {
+  // 01:00:00:00 at 29.97 NDF is 108,000 frames x 1001/30000 = 3603.6 s, not 3600.
+  assert.ok(Math.abs(parseTimestamp("01:00:00:00", 29.97) - 3603.6) < 1e-6);
+  assert.ok(Math.abs(parseTimestamp("00:30:00:00", 23.976) - 1801.8) < 1e-6);
+  assert.ok(Math.abs(parseTimestamp("00:00:10:15", 29.97) - 315 * 1001 / 30000) < 1e-6);
+  assert.equal(parseTimestamp("00:00:10:15", 30), 10.5);
+  assert.equal(parseTimestamp("01:00:00;00", 29.97), 3600); // drop-frame labels track wall time
+});
+
+test("repair names every line it leaves out because the time is impossible", () => {
+  const r = repair(sampleBrokenFile());
+  assert.ok(!/everyone gets wrong/.test(r.text));
+  assert.ok(r.changes.some((c) => /line 6/.test(c) && /everyone gets wrong/.test(c)), r.changes.join(" | "));
+});
+
+// A Timeline > Export > Timeline Markers to EDL file as DaVinci Resolve writes it (CMX 3600 events, the
+// marker name in the |M: field of the comment line, timeline starting at 01:00:00:00).
+const resolveEdl = (fcm = "NON-DROP FRAME", sep = ":") => [
+  "TITLE: Timeline 1", `FCM: ${fcm}`, "",
+  `001  001      V     C        01:00:00${sep}00 01:00:00${sep}01 01:00:00${sep}00 01:00:00${sep}01  `,
+  " |C:ResolveColorBlue |M:Intro |D:1", "",
+  `002  001      V     C        01:00:48${sep}12 01:00:48${sep}13 01:00:48${sep}12 01:00:48${sep}13  `,
+  " |C:ResolveColorGreen |M:Why chapters help |D:1", "",
+  `003  001      V     C        01:03:15${sep}00 01:03:15${sep}01 01:03:15${sep}00 01:03:15${sep}01  `,
+  " |C:ResolveColorBlue |M:Setup | tools |D:1", "",
+].join("\r\n");
+
+test("a DaVinci Resolve marker EDL gives named chapters from 0:00", () => {
+  const r = validate(resolveEdl(), { fps: 25 });
+  assert.equal(r.summary.errors, 0, JSON.stringify(r.findings));
+  assert.deepEqual(r.chapters.map((c) => [c.seconds, c.title]), [[0, "Intro"], [48 + 12 / 25, "Why chapters help"], [195, "Setup | tools"]]);
+  assert.ok(titles(r).includes("Read as a DaVinci Resolve marker EDL"));
+  const fixed = repair(resolveEdl(), { fps: 25 });
+  assert.equal(fixed.text, "0:00 Intro\n0:48 Why chapters help\n3:15 Setup | tools\n");
+  assert.ok(fixed.changes.some((c) => c.includes("timeline start")));
+});
+
+test("the Resolve timeline start comes off the label, so 29.97 non-drop still starts at 0:00", () => {
+  // 01:00:00:00 at 29.97 NDF is 3603.6 s of real time; subtracting 3600 s after conversion would leave
+  // the first marker at 0:03 and fail YouTube's 0:00 rule.
+  const r = validate(resolveEdl(), { fps: 29.97 });
+  assert.equal(r.summary.errors, 0, JSON.stringify(r.findings));
+  assert.equal(r.chapters[0].seconds, 0);
+  assert.ok(Math.abs(r.chapters[1].seconds - (48 * 30 + 12) * 1001 / 30000) < 1e-9);
+  assert.ok(Math.abs(r.chapters[2].seconds - 195 * 30 * 1001 / 30000) < 1e-9);
+});
+
+test("a drop-frame Resolve EDL is read as drop-frame labels", () => {
+  const r = validate(resolveEdl("DROP FRAME", ";"), { fps: 29.97 });
+  assert.equal(r.summary.errors, 0, JSON.stringify(r.findings));
+  assert.equal(validate(resolveEdl("DROP FRAME"), { fps: 29.97 }).chapters[2].seconds, r.chapters[2].seconds);
+});
+
+test("a Resolve marker with no name is a blank-title error, not event-line text", () => {
+  const edl = resolveEdl().replace(" |C:ResolveColorBlue |M:Intro |D:1", " |C:ResolveColorBlue |D:1");
+  const r = validate(edl, { fps: 25 });
+  assert.equal(r.chapters[0].title, "");
+  assert.ok(titles(r).includes("Chapter has no title"));
+});
+
+test("an EDL with a 00:00:00:00 timeline start is not shifted", () => {
+  const r = validate(resolveEdl().replace(/01:0/g, "00:0"), { fps: 25 });
+  assert.deepEqual(r.chapters.map((c) => Math.floor(c.seconds)), [0, 48, 195]);
+  assert.ok(!repair(resolveEdl().replace(/01:0/g, "00:0"), { fps: 25 }).changes.some((c) => c.includes("timeline start")));
+});
+
+test("rule boundaries: 10 s passes, 9 s fails, 0:01 start fails, 59 is the last legal minute or second", () => {
+  assert.ok(!titles(validate("0:00 A\n0:10 B\n0:20 C")).includes("Chapter shorter than 10 seconds"));
+  assert.ok(titles(validate("0:00 A\n0:09 B\n0:20 C")).includes("Chapter shorter than 10 seconds"));
+  assert.ok(titles(validate("0:01 A\n0:20 B\n0:40 C")).includes("First chapter does not start at 0:00"));
+  assert.equal(parseTimestamp("0:59"), 59);
+  assert.equal(parseTimestamp("0:60"), null);
+  assert.equal(parseTimestamp("1:59:00"), 7140);
+  assert.equal(parseTimestamp("1:60:00"), null);
+  assert.ok(!titles(validate("0:00 A\n0:20 B\n0:40 C", { duration: 50 })).includes("Chapter shorter than 10 seconds"));
+  assert.ok(titles(validate("0:00 A\n0:20 B\n0:40 C", { duration: 49 })).includes("Chapter shorter than 10 seconds"));
+});
+
+test("WebVTT never writes '-->' inside a cue title", () => {
+  const vtt = toWebVtt([{ seconds: 0, title: "Before --> after" }, { seconds: 30, title: "B" }], 60);
+  assert.equal(vtt.split("\n").filter((l) => l.includes("-->")).length, 2);
+  assert.ok(vtt.includes("Before -> after"));
+});

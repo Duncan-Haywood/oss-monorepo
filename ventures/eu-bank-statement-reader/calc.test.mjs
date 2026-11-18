@@ -87,9 +87,17 @@ test("two MT940 statements on one account must join up", () => {
   assert.ok(!codes(joined).includes("CONTINUITY"));
 });
 
-test("camt: a reversal indicator flips the sign and pending entries stay out of the balance", () => {
+test("camt: a reversal keeps the sign of its CdtDbtInd and pending entries stay out of the balance", () => {
   const rev = sampleCamt().replace("<Sts>BOOK</Sts>\n        <BookgDt><Dt>2026-10-03</Dt></BookgDt>\n        <ValDt><Dt>2026-10-03</Dt></ValDt>\n        <AcctSvcrRef>BK0002", "<RvslInd>true</RvslInd><Sts>BOOK</Sts>\n        <BookgDt><Dt>2026-10-03</Dt></BookgDt>\n        <ValDt><Dt>2026-10-03</Dt></ValDt>\n        <AcctSvcrRef>BK0002");
-  assert.equal(analyze(rev).statements[0].entries[1].amount, 3550);
+  // ISO 20022 (camt.053 RvslInd usage): CdtDbtInd already gives the reversal
+  // entry's direction, so the reversal flag must not flip the sign again.
+  // Quality audit round 50 found it flipped (a returned DBIT read as +35.50).
+  assert.equal(analyze(rev).statements[0].entries[1].amount, -3550);
+  assert.ok(!codes(validate(rev)).includes("BALANCE"), "a reversal that the bank's own closing balance includes must reconcile");
+  // A returned direct debit: booked CRDT with RvslInd true, it adds to the balance.
+  const credited = rev.replace("<CdtDbtInd>DBIT</CdtDbtInd>", "<CdtDbtInd>CRDT</CdtDbtInd>");
+  assert.notEqual(credited, rev);
+  assert.equal(analyze(credited).statements[0].entries[1].amount, 3550);
   const pend = sampleCamt().replace("<Sts>BOOK</Sts>", "<Sts>PDNG</Sts>");
   const r = validate(pend);
   assert.ok(codes(r).includes("PENDING"));
@@ -119,4 +127,12 @@ test("the transactions CSV masks accounts by default, signs amounts and neutrali
 test("the findings CSV never contains an unmasked account", () => {
   const csv = findingsCsv(validate(sampleBroken()));
   assert.doesNotMatch(csv, /DE89370400440532013000/);
+});
+
+test("camt: balance dates are read from Bal/Dt/Dt, not left blank", () => {
+  // Quality audit round 50: the OFX DTASOF fell back to the last entry date
+  // because the outer <Dt> of <Dt><Dt>…</Dt></Dt> was read as the date.
+  const s = analyze(sampleCamt()).statements[0];
+  assert.equal(s.opening.date, "2026-10-02");
+  assert.equal(s.closing.date, "2026-10-03");
 });

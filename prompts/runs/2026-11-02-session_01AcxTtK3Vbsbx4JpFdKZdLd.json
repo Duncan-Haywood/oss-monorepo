@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01AcxTtK3Vbsbx4JpFdKZdLd",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T14:36:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12594",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Asks for a claim check and predictions before running; a scheduled run has no step reminding it to write predictions before launching a background replay, and I launched first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post or agent doc: a small programme step; the result is in verified-dse/LOG.md.",
+      "did": "log entry only",
+      "result": "ok"
+    },
+    {
+      "file": "research/verified-dse/LOG.md",
+      "why": "Predictions were not written before the run; disclosed in the entry as post hoc.",
+      "did": "flagged in the log",
+      "result": "honest but weaker"
+    }
+  ],
+  "writeups": [
+    "research/verified-dse/LOG.md milestone 63"
+  ],
+  "goal": null,
+  "notes": "Homepage build ok. Replays ran about 8 min each in background. No CI run waited on locally beyond the homepage build.",
+  "corrections": [],
+  "redteam": null
+}

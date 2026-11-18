@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [ai-bookkeeper]
+tagged: auto
+---
 # AI Bookkeeper: Actual Budget sample files (2026-10-26)
 
 Source: `packages/loot-core/src/mocks/files/` in actualbudget/actual (MIT, branch

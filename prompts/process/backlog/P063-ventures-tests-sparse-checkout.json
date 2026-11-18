@@ -1,0 +1,24 @@
+{
+  "id": "P063",
+  "title": "perf: ventures-tests checks out all 51k files to test the ventures a PR touches",
+  "status": "open",
+  "owner": "owner",
+  "effect": 1,
+  "cost": 1,
+  "problem": "ventures-tests.yml changed-ventures job: actions/checkout of the full depth-1 tree takes a median 22.7 s of a ~106 s job. It needs platform/, .github/, docs/, portfolio/ and the touched ventures only. The edit is in .github/, which CODEOWNERS holds for the owner, so a perf run cannot land it alone.",
+  "evidence": [
+    "run-step durations from actions/runs/<id>/jobs, 3 successful ventures-tests runs 2026-11-07: checkout 22.7 s avg, node --test step 50.0 s avg",
+    "git ls-files: 51058 files, ventures 26263, research 14435, prompts 5527",
+    "grep of ventures/**/*.{mjs,js,ts}: no import or read of a top-level research/ or prompts/ path; platform 1074 refs, .github 79, docs 71, portfolio 37",
+    "docs/history/ci-perf-2026-11-07-pool-reading-cache-hit-confirmed.md"
+  ],
+  "change": "checkout with filter: blob:none and a cone sparse-checkout of platform, .github, docs, portfolio; after 'Fetch the base commit', run git sparse-checkout add ventures/<slug> for each slug in `git diff --name-only --no-renames $BASE HEAD -- ventures`, or git sparse-checkout disable when BASE is empty or zero. Check venture suites that read another venture (a handful of prose refs only) and that clauses.mjs/typecheck.mjs see their ventures. Read the after number from ci_profile.py.",
+  "touches": [".github/workflows/ventures-tests.yml"],
+  "metric": "ventures tests checkout seconds per job (ci_profile.py)",
+  "baseline": "22.7 s per job, 2026-11-07",
+  "opened": "2026-11-07",
+  "source": "docs/history/ci-perf-2026-11-07-pool-reading-cache-hit-confirmed.md",
+  "pr": null,
+  "result": null,
+  "history": []
+}

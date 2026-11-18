@@ -1,0 +1,6 @@
+GoEmotions sadness, corpus 6000, prevalence 0.0222, coder J 0.412 (sens 0.444, spec 0.968), n 1000, 500 draws
+rule | share of draws using cells % | coverage % | half-width pts
+pooled | 0 | 92.4 | 0.802
+cells g10 | 67 | 94.2 | 0.753
+negcell k3 | 94 | 95.2 | 0.726
+negcell k5 | 73 | 94.6 | 0.754

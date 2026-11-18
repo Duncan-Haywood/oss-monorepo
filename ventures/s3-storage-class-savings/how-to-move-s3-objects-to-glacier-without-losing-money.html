@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to S3 Storage Class Savings</a></p>
   <h1>How to move S3 objects to Glacier without losing money</h1>
   <p>S3 Standard costs about $0.023 per GB-month in us-east-1; Glacier Deep Archive about $0.00099. The gap invites a lifecycle rule for everything old. The rule is right for large objects and wrong for small ones, and the bill is where you find out.</p>
@@ -56,7 +57,9 @@
   <h3>Where do I get an S3 Inventory report?</h3>
   <p>Enable S3 Inventory on the bucket (Management, Inventory configurations) with CSV output and the Size, LastModifiedDate and Storage class fields. AWS delivers the report to a destination bucket daily or weekly; download the file, decompress it, and use it here.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not engineering, financial or operational advice, its figures are estimates and not a bill, and you are responsible for verifying its output. Vendor and product names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

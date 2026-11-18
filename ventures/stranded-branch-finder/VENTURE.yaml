@@ -1,0 +1,37 @@
+name: stranded-branch-finder
+description: Finds git commits pushed to a remote that are in no pull request and not on main, using only git. A zero-dependency Python script plus a paste-in browser check, for repositories where bots and agents push branches nobody reviews.
+stage: prototype
+
+owner: duncan
+
+# Not a pipeline candidate write-up: a standalone port of platform/ci/unlanded_work.py,
+# built for this monorepo after 102 branches held 186 unlanded commits on one
+# measured day. Direction: portfolio/opinions/2026-11-03-requests-for-startups.md
+# ("tooling for a high-throughput agent dev shop").
+hypotheses:
+  - claim: Maintainers of repositories that bots or coding agents push to will run a git-only sweep when it is one file with no token.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Teams will put the exit code in a scheduled workflow or an agent finish step.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage (issues, stars, a pasted report) within 90 days of the page being reachable.
+  - No external repository is found running stranded.py in its own automation within 90 days.
+
+links:
+  production: https://marisstella.app/stranded-branch-finder/
+  analytics: null

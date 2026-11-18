@@ -1,0 +1,27 @@
+-- low-speed wave form m2, form factor 1984 --
+quantity    published  marine_hull   diff %
+Fn             0.2868     0.286841    +0.01
+1+k1            1.156      1.18508    +2.52
+RW [kN]        557.11      556.982    -0.02
+CA           0.000352  0.000352499    +0.14
+RA [kN]        221.98      220.572    -0.63
+RF x (1+k1) + RW + RA + RB, with published RF 869.63 and RB 0.049: 1808.2 kN (published sum without RAPP and RTR 0: 1784.4; +1.33%)
+RF from this module's ITTC-57 on S = 7381.45: 869.64 kN against 869.63 (+0.00%)
+-- low-speed wave form m2, form factor 1982 --
+quantity    published  marine_hull   diff %
+Fn             0.2868     0.286841    +0.01
+1+k1            1.156      1.15644    +0.04
+RW [kN]        557.11      556.982    -0.02
+CA           0.000352  0.000352499    +0.14
+RA [kN]        221.98      220.572    -0.63
+RF x (1+k1) + RW + RA + RB, with published RF 869.63 and RB 0.049: 1783.3 kN (published sum without RAPP and RTR 0: 1784.4; -0.06%)
+RF from this module's ITTC-57 on S = 7381.45: 869.64 kN against 869.63 (+0.00%)
+-- low-speed wave form m4, form factor 1982 --
+quantity    published  marine_hull   diff %
+Fn             0.2868     0.286841    +0.01
+1+k1            1.156      1.15644    +0.04
+RW [kN]        557.11      554.058    -0.55
+CA           0.000352  0.000352499    +0.14
+RA [kN]        221.98      220.572    -0.63
+RF x (1+k1) + RW + RA + RB, with published RF 869.63 and RB 0.049: 1780.4 kN (published sum without RAPP and RTR 0: 1784.4; -0.23%)
+RF from this module's ITTC-57 on S = 7381.45: 869.64 kN against 869.63 (+0.00%)

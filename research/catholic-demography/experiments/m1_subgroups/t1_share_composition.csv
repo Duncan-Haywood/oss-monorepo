@@ -1,0 +1,37 @@
+period,group,outcome,estimate,se,lo,hi,n
+1972-79,All adults,is_cath,0.2676,0.0060,0.2558,0.2794,10627
+1980-89,All adults,is_cath,0.2727,0.0062,0.2606,0.2849,14190
+1990-99,All adults,is_cath,0.2635,0.0061,0.2515,0.2755,13156
+2000-09,All adults,is_cath,0.2676,0.0069,0.2541,0.2810,14857
+2010-18,All adults,is_cath,0.2494,0.0066,0.2366,0.2623,11689
+2021-24,All adults,is_cath,0.2205,0.0061,0.2087,0.2324,10703
+2021,All adults,is_cath,0.2196,0.0085,0.2030,0.2362,3951
+2022,All adults,is_cath,0.2261,0.0115,0.2036,0.2487,3483
+2024,All adults,is_cath,0.2158,0.0117,0.1928,0.2388,3269
+2000-09,Share of Catholics: Hispanic,_e,0.3101,0.0159,0.2790,0.3411,3590
+2010-18,Share of Catholics: Hispanic,_e,0.3454,0.0174,0.3114,0.3795,2667
+2021-24,Share of Catholics: Hispanic,_e,0.3684,0.0174,0.3343,0.4025,2184
+2000-09,Share of Catholics: NH white,_e,0.6236,0.0153,0.5935,0.6537,3590
+2010-18,Share of Catholics: NH white,_e,0.5694,0.0169,0.5363,0.6026,2667
+2021-24,Share of Catholics: NH white,_e,0.5529,0.0184,0.5168,0.5889,2184
+2000-09,Share of Catholics: NH Black,_e,0.0230,0.0028,0.0175,0.0284,3590
+2010-18,Share of Catholics: NH Black,_e,0.0393,0.0057,0.0281,0.0504,2667
+2021-24,Share of Catholics: NH Black,_e,0.0397,0.0064,0.0271,0.0523,2184
+2000-09,Share of Catholics: NH other,_e,0.0434,0.0058,0.0320,0.0548,3590
+2010-18,Share of Catholics: NH other,_e,0.0458,0.0055,0.0350,0.0567,2667
+2021-24,Share of Catholics: NH other,_e,0.0391,0.0094,0.0207,0.0575,2184
+1980-89,Share of Catholics: 1st gen (foreign-born),_g,0.1572,0.0098,0.1381,0.1763,3483
+1990-99,Share of Catholics: 1st gen (foreign-born),_g,0.1980,0.0108,0.1769,0.2191,3173
+2000-09,Share of Catholics: 1st gen (foreign-born),_g,0.2752,0.0124,0.2510,0.2995,3202
+2010-18,Share of Catholics: 1st gen (foreign-born),_g,0.2886,0.0142,0.2608,0.3164,2654
+2021-24,Share of Catholics: 1st gen (foreign-born),_g,0.2423,0.0142,0.2143,0.2702,2174
+1980-89,Share of Catholics: 2nd gen,_g,0.1816,0.0080,0.1658,0.1974,3483
+1990-99,Share of Catholics: 2nd gen,_g,0.1505,0.0064,0.1379,0.1631,3173
+2000-09,Share of Catholics: 2nd gen,_g,0.1407,0.0078,0.1255,0.1559,3202
+2010-18,Share of Catholics: 2nd gen,_g,0.1451,0.0085,0.1284,0.1619,2654
+2021-24,Share of Catholics: 2nd gen,_g,0.1570,0.0104,0.1366,0.1774,2174
+1980-89,Share of Catholics: 3rd+ gen,_g,0.6612,0.0111,0.6394,0.6830,3483
+1990-99,Share of Catholics: 3rd+ gen,_g,0.6515,0.0112,0.6295,0.6735,3173
+2000-09,Share of Catholics: 3rd+ gen,_g,0.5841,0.0134,0.5578,0.6103,3202
+2010-18,Share of Catholics: 3rd+ gen,_g,0.5663,0.0160,0.5349,0.5976,2654
+2021-24,Share of Catholics: 3rd+ gen,_g,0.6007,0.0167,0.5679,0.6335,2174

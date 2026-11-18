@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [llms-txt]
+date: 2026-10-31
+tagged: auto
+---
 # Polish 2026-10-31: llms.txt lister skips NOT-A-VENTURE
 
 **What.** `platform/ci/missing_llms_txt.py` no longer lists ventures carrying a `NOT-A-VENTURE` marker (personal tools with no public surface). The previous run's report asked for this: the three it still listed (ai-first-markets, ig-media-pipeline, ubuntu-agent-server) all carry the marker. A test covers it.

@@ -13,10 +13,11 @@
 
 /** @typedef {{ id: string, name?: string, days: number, after?: string[], crew?: string, lag?: number, exposed?: boolean, derived?: string }} Activity */
 
-/** @param {Set<string>} off dates that are not worked besides weekends */
-const isWork = (/** @type {Date} */ d, off = new Set()) => d.getUTCDay() !== 0 && d.getUTCDay() !== 6 && !off.has(d.toISOString().slice(0, 10));
+// `off` holds the UTC-midnight timestamps of dates not worked besides weekends. Every date schedule() walks is a UTC midnight,
+// so a number lookup answers what the ISO-string lookup did without building a string a day (two thirds of the risk fuzz test's time).
+const isWork = (/** @type {Date} */ d, /** @type {Set<number>} */ off = new Set()) => d.getUTCDay() !== 0 && d.getUTCDay() !== 6 && !off.has(d.getTime());
 /** Date of working day index n (0 = start, rolled forward to a working day). */
-function dateOf(/** @type {Date} */ start, /** @type {number} */ n, /** @type {Set<string>} */ off = new Set()) {
+function dateOf(/** @type {Date} */ start, /** @type {number} */ n, /** @type {Set<number>} */ off = new Set()) {
   const d = new Date(start);
   while (!isWork(d, off)) d.setUTCDate(d.getUTCDate() + 1);
   let left = n;
@@ -125,11 +126,12 @@ export function quantities(result) {
  * @param {any} result the takeoff result
  */
 export function resolveRates(input, result) {
-  if (!input?.activities) return input;
+  // Not a list: hand it back so schedule() names the problem (a text `activities` threw `.map is not a function`).
+  if (!Array.isArray(input?.activities)) return input;
   const q = quantities(result);
   /** @type {string[]} */ const errors = [];
   const activities = input.activities.map((/** @type {any} */ a) => {
-    if (a.per == null) return a;
+    if (!a || typeof a !== "object" || a.per == null) return a; // a null entry: schedule() reports it
     if (!(a.rate > 0)) { errors.push(`${a.id}: "per" needs a positive "rate" (units per crew-day, your figure).`); return a; }
     if (!(a.per in q)) { errors.push(`${a.id}: the takeoff has no quantity "${a.per}" here (have: ${Object.keys(q).join(", ") || "none"}).`); return a; }
     const days = Math.max(a.minDays || 0, Math.ceil(q[a.per] / a.rate - 1e-9));
@@ -139,6 +141,12 @@ export function resolveRates(input, result) {
 }
 
 /** @param {any} input the plan's `schedule` object */
+const MAX_DAYS = 3650;
+// Dates far from today made the day-by-day calendar walk run for seconds (notBefore 9999-12-31 took 21 s): a guard, not a rule.
+const YEAR_LO = 1990, YEAR_HI = 2100;
+// A date that rolls over (2026-02-30 reads as March 2) is not a real day.
+const realDay = (/** @type {string} */ text, /** @type {Date} */ d) => d.toISOString().slice(0, 10) === text;
+const inRange = (/** @type {Date} */ t) => t.getUTCFullYear() >= YEAR_LO && t.getUTCFullYear() <= YEAR_HI;
 export function schedule(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) return { ok: false, errors: ["The schedule must be an object with `activities`."] };
   if (input.activities != null && !Array.isArray(input.activities)) return { ok: false, errors: ["`activities` must be a list."] };
@@ -148,7 +156,12 @@ export function schedule(input) {
     if (!a || typeof a !== "object" || Array.isArray(a)) { shape.push(`Activity ${i + 1} is not an object.`); return; }
     if (a.after != null && !Array.isArray(a.after)) shape.push(`${a.id ?? "Activity " + (i + 1)}: after must be a list of activity ids.`);
     if (a.days != null && typeof a.days !== "number") shape.push(`${a.id ?? "Activity " + (i + 1)}: days must be a number.`);
+    // A 1e9-day activity (or lag) made the calendar walk loop for minutes: cap both at ten years of working days (a guard, not a rule).
+    else if (a.days != null && !(Number.isFinite(a.days) && a.days <= MAX_DAYS)) shape.push(`${a.id ?? "Activity " + (i + 1)}: days must be a finite number of at most ${MAX_DAYS}.`);
+    if (a.lag != null && !(typeof a.lag === "number" && Number.isFinite(a.lag) && a.lag <= MAX_DAYS)) shape.push(`${a.id ?? "Activity " + (i + 1)}: lag must be a finite number of at most ${MAX_DAYS}.`);
   });
+  if (input.slips != null && !Array.isArray(input.slips)) shape.push("`slips` must be a list of {id, days}.");
+  else for (const sl of input.slips || []) if (!sl || typeof sl !== "object" || !(typeof sl.days === "number" && Number.isFinite(sl.days) && sl.days <= MAX_DAYS)) shape.push(`A slip needs a finite number of days of at most ${MAX_DAYS}.`);
   if (input.crews != null && (typeof input.crews !== "object" || Array.isArray(input.crews))) shape.push("`crews` must be an object of crew name to head count.");
   else for (const [c, n] of Object.entries(input.crews || {})) if (n != null && !(typeof n === "number" && Number.isFinite(n) && n >= 1)) shape.push(`crews.${c} must be a number of 1 or more (it is ${JSON.stringify(n)}); a crew of 0 could never start work.`);
   if (shape.length) return { ok: false, errors: shape };
@@ -158,19 +171,28 @@ export function schedule(input) {
   const wl = input?.weatherLoss;
   if (wl != null && !(typeof wl === "number" && wl >= 0 && wl <= 1)) return { ok: false, errors: ["weatherLoss must be a number from 0 to 1 (fraction of exposed working days lost)."] };
   const start = new Date((input.start || "2026-01-05") + "T00:00:00Z");
-  if (isNaN(start.getTime())) return { ok: false, errors: [`start "${input.start}" is not a date (YYYY-MM-DD).`] };
+  if (isNaN(start.getTime()) || !inRange(start) || !realDay(input.start || "2026-01-05", start)) return { ok: false, errors: [`start "${input.start}" is not a date (YYYY-MM-DD, ${YEAR_LO} to ${YEAR_HI}).`] };
   const offList = [...(input.holidays || []), ...(input.weatherDays || [])];
-  const badOff = offList.filter((/** @type {string} */ h) => isNaN(new Date(h + "T00:00:00Z").getTime()));
+  const badOff = offList.filter((/** @type {string} */ h) => { const t = new Date(h + "T00:00:00Z"); return isNaN(t.getTime()) || !inRange(t); });
   if (badOff.length) return { ok: false, errors: [`holidays and weatherDays must be YYYY-MM-DD dates; not: ${badOff.join(", ")}.`] };
-  const off = new Set(offList.map((/** @type {string} */ h) => new Date(h + "T00:00:00Z").toISOString().slice(0, 10)));
-  const date = (/** @type {number} */ n) => dateOf(start, n, off);
+  const off = new Set(offList.map((/** @type {string} */ h) => new Date(h + "T00:00:00Z").getTime()));
+  // Working-day calendar, extended on demand: date(n) used to walk from the start for every row, month and cash-flow day
+  // (quadratic in the schedule's length). Whole non-negative n read the memo; anything else keeps dateOf's own answer.
+  /** @type {string[]} */ const cal = [];
+  const calDay = new Date(start);
+  const date = (/** @type {number} */ n) => {
+    if (!Number.isInteger(n) || n < 0) return dateOf(start, n, off);
+    if (!cal.length) { while (!isWork(calDay, off)) calDay.setUTCDate(calDay.getUTCDate() + 1); cal.push(calDay.toISOString().slice(0, 10)); }
+    while (cal.length <= n) { calDay.setUTCDate(calDay.getUTCDate() + 1); if (isWork(calDay, off)) cal.push(calDay.toISOString().slice(0, 10)); }
+    return cal[n];
+  };
   // notBefore: "YYYY-MM-DD" on an activity = start no earlier than that date (a delivery, a permit, a long-lead window order). Your date, not a forecast.
   const nbErrors = [];
   const toIndex = (/** @type {Date} */ t) => { let n = 0; const d = new Date(start); while (!isWork(d, off)) d.setUTCDate(d.getUTCDate() + 1); while (d < t) { d.setUTCDate(d.getUTCDate() + 1); if (isWork(d, off)) n++; } return n; };
   const withNb = (/** @type {any} */ a) => {
     if (a.notBefore == null) return a;
     const t = new Date(a.notBefore + "T00:00:00Z");
-    if (typeof a.notBefore !== "string" || isNaN(t.getTime())) { nbErrors.push(`${a.id}: notBefore "${a.notBefore}" is not a date (YYYY-MM-DD).`); return a; }
+    if (typeof a.notBefore !== "string" || isNaN(t.getTime()) || !inRange(t) || !realDay(a.notBefore, t)) { nbErrors.push(`${a.id}: notBefore "${a.notBefore}" is not a date (YYYY-MM-DD).`); return a; }
     if (t <= start) return a;
     // first working day on or after t
     const d = new Date(t); while (!isWork(d, off)) d.setUTCDate(d.getUTCDate() + 1);
@@ -179,7 +201,7 @@ export function schedule(input) {
   const rawActs = /** @type {Activity[]} */ ((input?.activities || []).map(withNb));
   if (nbErrors.length) return { ok: false, errors: nbErrors };
   const hasMonthly = Object.keys(input?.weatherRate || {}).length > 0;
-  let acts = /** @type {Activity[]} */ (rawActs.map((/** @type {any} */ a) => !hasMonthly && wl && a.exposed && a.days > 0 ? { ...a, days: a.days + Math.ceil(a.days * wl - 1e-9), derived: `${a.derived ? a.derived + "; " : ""}+${Math.ceil(a.days * wl - 1e-9)}d weather allowance (${wl * 100}% of ${a.days}d)` } : a));
+  let acts = /** @type {Activity[]} */ (rawActs.map((/** @type {any} */ a) => !hasMonthly && wl && a.exposed && a.days > 0 ? { ...a, days: a.days + Math.ceil(a.days * wl - 1e-9), derived: `${a.derived ? a.derived + "; " : ""}+${Math.ceil(a.days * wl - 1e-9)}d weather allowance (${+(wl * 100).toFixed(4)}% of ${a.days}d)` } : a));
   if (input?.rateErrors?.length) return { ok: false, errors };
   if (!acts.length) return { ok: false, errors: ["The schedule has no activities."] };
   const ids = new Set();
@@ -220,7 +242,7 @@ export function schedule(input) {
   // crewOff: { crew: [YYYY-MM-DD] } days that crew is unavailable (another job, vacation); converted to project working-day indices.
   const crewOff = new Map();
   for (const [c, list] of Object.entries(input.crewOff || {})) {
-    if (!Array.isArray(list) || list.some((h) => typeof h !== "string" || isNaN(new Date(h + "T00:00:00Z").getTime()))) return { ok: false, errors: [`crewOff.${c} must be a list of YYYY-MM-DD dates.`] };
+    if (!Array.isArray(list) || list.some((h) => typeof h !== "string" || isNaN(new Date(h + "T00:00:00Z").getTime()) || new Date(h + "T00:00:00Z").toISOString().slice(0, 10) !== h)) return { ok: false, errors: [`crewOff.${c} must be a list of YYYY-MM-DD dates.`] };
     if (crews[c] == null) warn.push(`crewOff names crew "${c}", which has no count in \`crews\`; it is ignored.`);
     const set = new Set();
     for (const h of list) { const t = new Date(h + "T00:00:00Z"); if (!isWork(t, off) || t < start) continue; let n = 0; const d = new Date(start); while (!isWork(d, off)) d.setUTCDate(d.getUTCDate() + 1); while (d < t) { d.setUTCDate(d.getUTCDate() + 1); if (isWork(d, off)) n++; } set.add(n); }
@@ -236,7 +258,7 @@ export function schedule(input) {
   let deadline = null;
   if (input.deadline != null) {
     const t = new Date(input.deadline + "T00:00:00Z");
-    if (typeof input.deadline !== "string" || isNaN(t.getTime())) return { ok: false, errors: [`deadline "${input.deadline}" is not a date (YYYY-MM-DD).`] };
+    if (typeof input.deadline !== "string" || isNaN(t.getTime()) || !realDay(input.deadline, t)) return { ok: false, errors: [`deadline "${input.deadline}" is not a date (YYYY-MM-DD).`] };
     const d = new Date(t); while (!isWork(d, off)) d.setUTCDate(d.getUTCDate() - 1);
     const idx = d < start ? -1 : toIndex(d);
     const daysLate = (lv.end - 1) - idx;
@@ -251,7 +273,8 @@ export function schedule(input) {
   if (costed.length) {
     /** @type {Map<string, number>} */ const byMonth = new Map();
     /** @type {Map<string, number>} */ const byWeek = new Map();
-    const weekOf = (/** @type {string} */ ds) => { const d = new Date(ds + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); return d.toISOString().slice(0, 10); };
+    /** @type {Map<string, string>} */ const weekMemo = new Map();
+    const weekOf = (/** @type {string} */ ds) => { let w = weekMemo.get(ds); if (w === undefined) { const d = new Date(ds + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); w = d.toISOString().slice(0, 10); weekMemo.set(ds, w); } return w; };
     for (const a of /** @type {any[]} */ (costed)) {
       const st = /** @type {number} */ (lv.start.get(a.id)), fin = /** @type {number} */ (lv.finish.get(a.id));
       const n = Math.max(1, fin - st);
@@ -329,6 +352,7 @@ export function scheduleText(s) {
  * @param {any} s */
 export function scheduleCsv(s) {
   const q = (/** @type {any} */ v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  if (!s || typeof s !== "object") throw new TypeError("scheduleCsv needs a schedule result");
   if (!s.ok) return s.errors.map((/** @type {string} */ e) => q("error: " + e)).join("\n") + "\n";
   const rows = [["id", "name", "crew", "days", "start", "finish", "slack", "critical", "note"],
     ...s.rows.slice().sort((/** @type {any} */ a, /** @type {any} */ b) => a.leveledStart - b.leveledStart || a.es - b.es).map((/** @type {any} */ r) => [r.id, r.name ?? "", r.crew ?? "", r.days, r.startDate, r.finishDate, r.slack, r.critical ? "yes" : "no", r.derived ?? ""])];

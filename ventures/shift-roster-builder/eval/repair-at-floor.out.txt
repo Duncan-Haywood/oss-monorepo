@@ -1,0 +1,22 @@
+Small seeded weeks (6-10 people, 22-40 shifts, no budget): 60
+  identical open hours, open shifts, score and pay with and without the skip: 60 of 60
+  repair skipped at the floor on 16; repair ms those weeks spent before: 131 in all
+
+Bench builds on which the repair ran (20 s budget), before (repair runs) and after (skipped at the floor): 15
+build (P S week seed) | open before | open after | floor | repair ms before | after | build s before | after | skipped
+(40, 112, 2, 4) | 281 | 281 | 281 | 1429 | 0 | 15.2 | 13.7 | True
+(40, 112, 2, 5) | 281 | 281 | 281 | 1715 | 0 | 15.7 | 13.8 | True
+(40, 112, 2, 6) | 281 | 281 | 281 | 1792 | 0 | 15.6 | 13.6 | True
+(50, 140, 1, 4) | 172 | 172 | 172 | 1021 | 0 | 15.9 | 14.8 | True
+(50, 140, 1, 5) | 172 | 172 | 172 | 1008 | 0 | 15.6 | 14.4 | True
+(50, 140, 1, 6) | 172 | 172 | 172 | 1196 | 0 | 16.0 | 14.7 | True
+(50, 140, 2, 4) | 202 | 202 | 202 | 91 | 0 | 16.4 | 16.0 | True
+(50, 140, 2, 5) | 202 | 202 | 202 | 70 | 0 | 17.3 | 17.3 | True
+(50, 140, 2, 6) | 202 | 202 | 202 | 38 | 0 | 16.6 | 16.4 | True
+(60, 168, 0, 4) | 300 | 300 | 300 | 1454 | 0 | 19.2 | 17.8 | True
+(60, 168, 0, 5) | 300 | 300 | 300 | 1376 | 0 | 19.6 | 17.6 | True
+(60, 168, 0, 6) | 300 | 300 | 300 | 1480 | 0 | 20.4 | 18.6 | True
+(60, 168, 2, 4) | 183 | 183 | 183 | 999 | 0 | 19.0 | 17.7 | True
+(60, 168, 2, 5) | 183 | 183 | 183 | 1355 | 0 | 19.3 | 17.6 | True
+(60, 168, 2, 6) | 183 | 183 | 183 | 1630 | 0 | 19.3 | 17.3 | True
+same open hours on 15 of 15; build time 261.0 s -> 241.4 s in all (1.31 s a build), repair time before 16.7 s

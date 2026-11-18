@@ -14,7 +14,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e2620; background: #eef1ed; }
     body { max-width: 1180px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 830px; margin-bottom: 26px; }
-    h1 { font-size: clamp(1.9rem, 5.5vw, 3.1rem); line-height: 1.03; margin: 0 0 12px; letter-spacing: -.04em; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3rem); line-height: 1.03; margin: 0 0 12px; letter-spacing: -.04em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f4b28; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .68fr); gap: 18px; align-items: start; }
@@ -138,6 +138,15 @@
       @page { margin: 16mm; }
     }
 /* proposal:end */</style>
+  <!-- select-span:start -->
+  <style>
+    /* A field whose longest choice is wider than its column takes the whole row, so the choice
+       reads in full instead of being cut under the arrow. Written by platform/pages/select-span.mjs
+       (docs/reports/polish-2026-11-14-select-span.md); re-run it after changing the options. */
+    div.grid-two > label:has(> #density),
+    div.grid-two > label:has(> #acres) { grid-column: 1 / -1; }
+  </style>
+  <!-- select-span:end -->
 </head>
 <body>
 <main>
@@ -401,7 +410,7 @@
     priceJob,
     reviewJob,
   } from './calc.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
   import {
     DENSITY_FIELD_ID, FIELD_IDS, PROPOSAL_TERM_NUMBERS, PROPOSAL_TERM_TEXT,
     decodeInputs, shareUrl,
@@ -417,7 +426,7 @@
 
   /** One anonymous, device-local tally. Named `count` because
    * platform/proposal/adopt.mjs generates a call to it. */
-  function count(event) { recordUsage(globalThis.localStorage, el('optout').checked, event); }
+  function count(event) { recordUsage(usageStorage(), el('optout').checked, event); }
 
   // The one list of numeric field ids, imported rather than restated -- a
   // field that exists on the page but not in FIELD_IDS would be read by this
@@ -680,8 +689,15 @@
       };
     }
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) {
         if (saved[field]) el(field).value = saved[field];
       }
@@ -710,7 +726,7 @@
     function showProposal() {
       const result = priceJob(readInputs());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -755,7 +771,7 @@
       }
       el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
       count('proposal_printed');
-      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el('proposalDoc').scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
       // After paint, so the browser renders the document before the sheet is
       // captured; without it an empty page can go to the printer.
       requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
@@ -766,7 +782,7 @@
     document.addEventListener('change', refreshProposal);
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) el(field).value = '';
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';
@@ -785,8 +801,8 @@
     {
       const usageControl = el('optout');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
 

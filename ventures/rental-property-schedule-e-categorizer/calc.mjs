@@ -91,7 +91,7 @@ const ALIASES = {
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[-−]/.test(s) || /^\$?\s*[-−]/.test(s) || /-\s*$/.test(s);
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s) || /-\s*$/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -115,30 +115,32 @@ export function detectDelimiter(text) {
 
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
 const r2 = (n) => Math.round(n * 100) / 100;
-export const money = (n) => (n < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const usd = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 const isBlank = (s) => s === "" || /^[-–—\s]+$/.test(s);
 
 export function findColumns(header, aliases) {
@@ -156,7 +158,7 @@ export function findColumns(header, aliases) {
 // "2024-03-05", "03/05/2024", "3/5/24", "5 Mar 2024" -> "YYYY-MM-DD" or null.
 export function parseDate(v, dayFirst = false) {
   const s = String(v ?? "").trim();
-  let m = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+  let m = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?!\d)/);
   let y, mo, d;
   if (m) [y, mo, d] = [+m[1], +m[2], +m[3]];
   else if ((m = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4}|\d{2})(?!\d)/))) {
@@ -169,6 +171,9 @@ export function parseDate(v, dayFirst = false) {
     mo = "jan feb mar apr may jun jul aug sep oct nov dec".split(" ").indexOf(m[1].toLowerCase()) + 1; d = +m[2]; y = +m[3];
   } else return null;
   if (!(mo >= 1 && mo <= 12 && d >= 1 && d <= 31)) return null;
+  // 30 February, 31 April and 29 February in a common year are not days.
+  const t = new Date(Date.UTC(y, mo - 1, d));
+  if (t.getUTCMonth() !== mo - 1 || t.getUTCDate() !== d) return null;
   return `${y}-${String(mo).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
 
@@ -197,7 +202,7 @@ export function normalizeBank(table, { decimalComma = false, invertSign = false,
   for (const [f, at] of Object.entries(cols)) columns[f] = table[h][at].trim();
   const txns = [], skipped = [];
   for (let i = h + 1; i < table.length; i++) {
-    const line = table[i], lineNo = i + 1;
+    const line = table[i], lineNo = table[i].line ?? i + 1;
     const desc = get(line, "desc").replace(/\s+/g, " ");
     if (isTotal(desc) || isTotal(get(line, "date"))) { skipped.push({ line: lineNo, reason: "total or balance row" }); continue; }
     const date = parseDate(get(line, "date"), dayFirst);
@@ -268,7 +273,8 @@ function categorise(t, userRules) {
     if (/security dep|deposit/.test(d) && /security/.test(d)) return { key: "security_deposit", source: "built-in" };
     if (/\btransfer\b|xfer/.test(d)) return { key: "transfer", source: "built-in" };
     if (/late fee|pet rent|pet fee|laundry|application fee|app fee|parking rent/.test(d)) return { key: "other_income", source: "built-in" };
-    if (/\brent\b|rental|lease|tenant|zelle|venmo|apartment|unit\s?\w+|cash app|paypal|deposit/.test(d)) return { key: "rent", source: "built-in" };
+    // Word boundaries: "UNITED AIRLINES", "COMMUNITY BANK" and "ESCROW RELEASE" credits are not rent.
+    if (/\brent\b|\brental(?!\s+car)|\blease|tenant|zelle|venmo|apartment|\bunit\b|cash app|paypal|deposit/.test(d)) return { key: "rent", source: "built-in" };
     return { key: "uncategorised", source: "none" };
   }
   for (const [key, re] of DEFAULT_RULES) if (re.test(d)) return { key, source: "built-in" };
@@ -404,7 +410,7 @@ export function analyze(txns, opts = {}) {
 }
 
 const csvCell = (v) => { const s = String(v ?? ""); return /[",\n\r]/.test(s) || /^\s|\s$/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-const guard = (v) => (/^[=+\-@\t\r]/.test(String(v)) ? "'" + v : v);
+const guard = (v) => (/^[=+\-@\t\r]/.test(String(v)) && !/^-?\d+(\.\d+)?$/.test(String(v)) ? "'" + v : v);
 
 export function reportCsv(a) {
   const out = [["Date", "Description", "Amount", "Property", "Category", "Schedule E line", "Decided by", "Flags"]];
@@ -449,4 +455,24 @@ export function sampleCsv() {
     "03/26/2024,SQ *KEYS AND LOCKS,-64.00",
   ].join("\n");
   return { bank, rules: "", properties: "12 oak => 12 Oak St\n8 elm => 8 Elm Ave (Unit B)", interest: "12 Oak St, 3980.25" };
+}
+
+// Decimal comma or decimal point, read from the amounts themselves: a last
+// separator followed by one or two digits ("12,50", "1.234,56" or "12.50",
+// "1,234.56") is a vote, as is a "1.234,"/"1,234." grouping pattern. With no
+// telling value (whole numbers, "1,234") a semicolon-delimited file is taken
+// as decimal comma, as before. `table` is the parsed rows, header included.
+export function detectDecimalComma(table, delim = ",") {
+  let comma = 0, dot = 0;
+  for (const row of table) {
+    for (const cell of row) {
+      const s = String(cell ?? "").trim();
+      if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;
+      if (/^\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}/.test(s) || /\d:\d\d/.test(s)) continue;
+      const v = s.replace(/[^0-9.,]/g, "");
+      if (/,\d{1,2}$/.test(v) || /\.\d{3},/.test(v)) comma += 1;
+      else if (/\.\d{1,2}$/.test(v) || /,\d{3}\./.test(v)) dot += 1;
+    }
+  }
+  return comma === dot ? delim === ";" : comma > dot;
 }

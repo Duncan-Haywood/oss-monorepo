@@ -1,0 +1,5 @@
+# The survey markers buildingSMART's Simple-Scene copies into every
+# discipline's file on purpose (eval/federation-allow-2026-11-17.md).
+* "geo-reference"                 # one georeferencing proxy in all ten files
+IFCBUILDINGELEMENTPROXY "origin"  # the building's origin marker
+IFCGRID                           # no grid is shared in Simple-Scene: reported as unused

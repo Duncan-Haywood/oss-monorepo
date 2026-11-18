@@ -1,0 +1,104 @@
+# Milestone 11af: layer groups charged for vertical transits (vertical_transit.py)
+# semi + stacked group band pairs, R = 50 m, Lambda = 240/h; 11ac/11ad's 48 layouts; tau sweep (0.0, 1.0, 3.05, 6.0, 12.0) s (headline 3.05); search: best of 200 single-move descents over stack positions (exhaustive check at M = 12, k = 2, 3)
+# T = sum (W + c)[same group] + 4 c [crossed group below]; units: expected conflicts per hour
+
+## M = 12, tau = 3.05 s: per layout
+idx   sumW     x_c/W   c_ii/W  hub_sh  T1       Tbest/T1 used  tr_sh  en4/J4  wo4/be4  same4
+1200   10.222  0.1166  1.2624  0.429   24.317  0.6261   8    0.965  1.0053  1.0430   False
+1201   17.547  0.1099  0.6361  0.398   30.637  0.4610   8    0.985  1.0021  1.0993   False
+1202   13.505  0.0953  1.1168  0.356   29.873  0.6232   8    0.928  1.0028  1.0216   False
+1203    8.863  0.1316  1.5634  0.335   23.886  0.6497   8    0.997  1.0109  1.0524   False
+1204   12.387  0.1218  1.0943  0.438   27.451  0.6072   8    0.977  1.0015  1.0209   False
+1205   16.040  0.0943  0.7968  0.412   30.332  0.5114   8    0.953  1.0028  1.0986   False
+1206    7.101  0.1206  2.1096  0.332   22.936  0.7224   8    0.979  1.0011  1.0460   False
+1207    8.105  0.1412  1.0438  0.407   17.709  0.5850   8    0.975  1.0096  1.0524   False
+1208    2.977  0.1305  9.2565  0.419   30.918  0.9169   8    0.995  1.0005  1.0055   False
+1209    9.847  0.1550  1.3321  0.487   24.489  0.6335   8    0.989  1.0171  1.0604   False
+1210   14.015  0.1010  0.7223  0.442   25.552  0.4839   8    0.983  1.0133  1.0462   False
+1211   13.121  0.1016  0.9340  0.362   26.708  0.5396   8    0.978  1.0152  1.0602   False
+1212   11.511  0.1147  1.1033  0.303   25.531  0.5894   8    0.985  1.0090  1.0376   False
+1213    8.791  0.1234  1.1700  0.325   20.161  0.6046   8    0.980  1.0046  1.0418   False
+1214    8.304  0.1245  1.9033  0.431   25.144  0.6965   8    0.987  1.0027  1.0396   False
+1215    9.324  0.1124  1.2062  0.349   21.619  0.6024   8    0.981  1.0000  1.0686   True
+1216    6.021  0.1145  2.1170  0.415   19.458  0.7458   8    0.955  1.0010  1.0292   False
+1217    7.688  0.1156  1.4859  0.316   20.002  0.6479   8    0.986  1.0048  1.0426   False
+1218   10.657  0.1420  1.2884  0.336   25.902  0.6195   8    0.993  1.0065  1.0743   False
+1219   17.459  0.1037  1.0404  0.424   37.434  0.5758   8    0.976  1.0021  1.0449   False
+1220    8.512  0.1129  1.4403  0.391   21.732  0.6526   8    0.971  1.0004  1.0499   False
+1221   21.347  0.0792  0.6908  0.401   37.784  0.5149   8    0.887  1.0029  1.0550   False
+1222   16.742  0.0969  1.2854  0.507   39.884  0.6007   8    0.988  1.0000  1.0784   False
+1223    9.898  0.1177  1.0730  0.469   21.683  0.5676   8    0.940  1.0184  1.1716   False
+medians: x_c/W 0.1151, c_ii/W 1.1881, hub share 0.404, Tbest/T1 0.6059, groups used 8.0, transit share at best 0.979, en4/J4 1.0029, worst/best order 1.0481; same grouping at k=4 in 1/24
+
+## M = 12: by tau and cap k (medians over 24 layouts). T_k/T1 = best total with at most k groups over the one-group total; en/J = 11ad's en-route partition (best order) over the joint optimum at the same k; used = groups used by the best labelling
+tau     T2/T1   en/J2  used2  T3/T1   en/J3  used3  T4/T1   en/J4  used4  T6/T1   en/J6  used6  T8/T1   en/J8  used8
+ 0.00   0.6014  1.0000   2.0   0.4908  1.0001   3.0   0.4515  1.0016   4.0   0.4322  1.0022   6.0   0.4286  1.0015   8.0 
+ 1.00   0.6551  1.0000   2.0   0.5613  1.0002   3.0   0.5240  1.0022   4.0   0.5028  1.0019   6.0   0.4997  1.0017   8.0 
+ 3.05   0.7289  1.0004   2.0   0.6620  1.0008   3.0   0.6291  1.0029   4.0   0.6081  1.0018   6.0   0.6059  1.0015   8.0 
+ 6.00   0.7989  1.0014   2.0   0.7433  1.0043   3.0   0.7224  1.0049   4.0   0.7085  1.0017   6.0   0.7066  1.0011   8.0 
+12.00   0.8722  1.0039   2.0   0.8363  1.0057   3.0   0.8188  1.0073   4.0   0.8108  1.0021   6.0   0.8095  1.0011   8.0 
+groups used (best with at most 8), distribution by tau:
+  tau  0.00: 8:24; median 8.0
+  tau  1.00: 8:24; median 8.0
+  tau  3.05: 8:24; median 8.0
+  tau  6.00: 8:24; median 8.0
+  tau 12.00: 8:24; median 8.0
+11ad's en-route k=4 partition, best order, against the joint optimum with at most 8 groups, by tau: 0.00: 1.0568, 1.00: 1.0453, 3.05: 1.0332, 6.00: 1.0264, 12.00: 1.0210
+local search / exhaustive at k = 2, 3 over all tau: 240 of 240 cells equal (worst ratio 1.00000000)
+CPU s per layout (mean / max): cf_D+ 168 / 345, transit 2.7 / 3.8, searches 14 / 16
+
+## M = 16, tau = 3.05 s: per layout
+idx   sumW     x_c/W   c_ii/W  hub_sh  T1       Tbest/T1 used  tr_sh  en4/J4  wo4/be4  same4
+1600   10.370  0.1171  0.9248  0.306   21.174  0.5541   8    0.980  1.0009  1.0540   False
+1601   10.919  0.1195  0.9250  0.372   22.324  0.5348   8    0.986  1.0004  1.1251   False
+1602   14.293  0.1248  0.5602  0.432   24.083  0.4458   8    0.980  1.0271  1.0896   False
+1603    9.720  0.1247  1.1187  0.363   21.804  0.5843   8    0.984  1.0078  1.0615   False
+1604   11.704  0.1125  0.8515  0.291   22.987  0.5261   8    0.988  1.0035  1.0709   False
+1605   16.265  0.1103  0.7661  0.458   30.520  0.4903   8    0.966  1.0158  1.1414   False
+1606   12.036  0.0972  0.7066  0.294   21.711  0.4954   8    0.952  1.0048  1.0450   False
+1607    7.902  0.1166  1.2432  0.402   18.647  0.6105   8    0.989  1.0114  1.0205   False
+1608   11.087  0.1117  0.8074  0.308   21.277  0.5103   8    0.982  1.0007  1.1037   False
+1609   12.631  0.1055  0.8161  0.355   24.272  0.5230   8    0.956  1.0100  1.0937   False
+1610   15.830  0.0987  0.5477  0.322   26.063  0.4286   8    0.951  1.0153  1.1191   False
+1611    3.460  0.1808  2.7412  0.305   13.570  0.7779   8    0.988  1.0098  1.0211   False
+1612   13.566  0.0862  0.9685  0.305   27.874  0.5800   8    0.922  1.0008  1.0493   False
+1613   13.042  0.0872  0.9528  0.376   26.605  0.6079   8    0.866  1.0005  1.0680   False
+1614   10.909  0.1134  0.8745  0.396   21.686  0.5452   8    0.981  1.0017  1.0335   False
+1615    4.723  0.1572  2.1052  0.363   15.409  0.7200   8    0.993  1.0137  1.0250   False
+1616   12.215  0.1195  0.7702  0.363   23.082  0.5107   8    0.977  1.0012  1.1019   False
+1617    8.538  0.1350  1.0301  0.294   18.486  0.5821   8    0.968  1.0016  1.1054   False
+1618   12.781  0.1063  0.8021  0.371   24.392  0.5072   8    0.980  1.0000  1.1110   False
+1619    6.993  0.1162  1.5337  0.336   18.532  0.6591   8    0.978  1.0053  1.0360   False
+1620    6.183  0.1376  1.5328  0.395   16.510  0.6628   8    0.963  1.0065  1.0746   False
+1621   14.419  0.1004  0.5947  0.360   24.441  0.4338   8    0.972  1.0133  1.1222   False
+1622   12.034  0.0980  0.9141  0.368   24.214  0.5203   8    0.983  1.0052  1.1254   False
+1623    9.436  0.1403  1.7122  0.382   26.917  0.6758   8    0.982  1.0224  1.0472   False
+medians: x_c/W 0.1148, c_ii/W 0.9194, hub share 0.363, Tbest/T1 0.5400, groups used 8.0, transit share at best 0.980, en4/J4 1.0053, worst/best order 1.0728; same grouping at k=4 in 0/24
+
+## M = 16: by tau and cap k (medians over 24 layouts). T_k/T1 = best total with at most k groups over the one-group total; en/J = 11ad's en-route partition (best order) over the joint optimum at the same k; used = groups used by the best labelling
+tau     T2/T1   en/J2  used2  T3/T1   en/J3  used3  T4/T1   en/J4  used4  T6/T1   en/J6  used6  T8/T1   en/J8  used8
+ 0.00   0.5772  1.0002   2.0   0.4531  1.0040   3.0   0.4068  1.0059   4.0   0.3711  1.0074   6.0   0.3623  1.0027   8.0 
+ 1.00   0.6260  1.0003   2.0   0.5216  1.0046   3.0   0.4752  1.0063   4.0   0.4422  1.0077   6.0   0.4353  1.0027   8.0 
+ 3.05   0.6986  1.0020   2.0   0.6146  1.0056   3.0   0.5745  1.0053   4.0   0.5459  1.0061   6.0   0.5400  1.0029   8.0 
+ 6.00   0.7676  1.0045   2.0   0.6989  1.0073   3.0   0.6676  1.0068   4.0   0.6443  1.0066   6.0   0.6398  1.0034   8.0 
+12.00   0.8440  1.0071   2.0   0.7963  1.0096   3.0   0.7747  1.0081   4.0   0.7600  1.0078   6.0   0.7562  1.0042   8.0 
+groups used (best with at most 8), distribution by tau:
+  tau  0.00: 8:24; median 8.0
+  tau  1.00: 8:24; median 8.0
+  tau  3.05: 8:24; median 8.0
+  tau  6.00: 8:24; median 8.0
+  tau 12.00: 8:24; median 8.0
+11ad's en-route k=4 partition, best order, against the joint optimum with at most 8 groups, by tau: 0.00: 1.1048, 1.00: 1.0812, 3.05: 1.0592, 6.00: 1.0434, 12.00: 1.0275
+CPU s per layout (mean / max): cf_D+ 293 / 602, transit 3.6 / 5.6, searches 11 / 13
+
+## Prediction checks (tau = 3.05 s unless stated; each must hold at both M)
+(1) median cross transit / sum W: M=12 0.1151, M=16 0.1148 (in [0.002, 0.05]): False
+(2) median best (<= 8 groups) / T1: M=12 0.6059, M=16 0.5400 (<= 0.30): False
+(3) median groups used: M=12 8.0, M=16 8.0 (in [3, 6]): False
+(4) median en-route k=4 plan (best order) / joint k=4: M=12 1.0029, M=16 1.0053 (in [1.01, 1.10]): False
+(5) median worst / best order of the k=4 en-route plan: M=12 1.0481, M=16 1.0728 (>= 1.05): False
+(6) median hub share of cross transit weight: M=12 0.404, M=16 0.363 (in [0.30, 0.70]): True
+(7) median groups used over tau (0.0, 1.0, 3.05, 6.0, 12.0): M=12 [8.0, 8.0, 8.0, 8.0, 8.0]; M=16 [8.0, 8.0, 8.0, 8.0, 8.0] (non-increasing, <= 4 at 12 s): False
+(8) M=12 local search equals exhaustive at k=2,3: 240/240: True
+held: 2 of 8
+# runtime 3014 s

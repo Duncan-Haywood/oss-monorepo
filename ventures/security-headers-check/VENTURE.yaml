@@ -68,5 +68,5 @@ kill_criteria:
     independently of the network layer) no longer holds.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/security-headers-check/
+  production: https://marisstella.app/security-headers-check/
   analytics: null

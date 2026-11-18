@@ -1,0 +1,16 @@
+{
+  "_doc": "Named counts that docs may quote with <!-- count:NAME -->N<!-- /count -->. check_doc_counts.py re-computes each one and flags a doc whose number has drifted. A count is either a glob (files or dirs matched, relative to the repo root) or a command (argv list, no shell) plus a regex whose first group is the number. Add a count here before quoting it in a doc.",
+  "counts": {
+    "ventures": {"glob": "ventures/*/", "what": "directories under ventures/"},
+    "ventures-with-readme": {"glob": "ventures/*/README.md", "what": "ventures with a README"},
+    "ventures-missing-llms-txt": {"cmd": ["python3", "platform/ci/missing_llms_txt.py", "--count"], "regex": "^(\\d+)/", "what": "ventures that ship no llms.txt"},
+    "blog-posts": {"glob": "docs/posts/*.md", "what": "posts in docs/posts/"},
+    "agent-reports": {"glob": "docs/reports/*.md", "what": "agent docs in docs/reports/"},
+    "research-projects": {"glob": "research/*/README.md", "what": "research projects with a README"},
+    "run-records": {"glob": "prompts/runs/*.json", "what": "run records in prompts/runs/"},
+    "workflows": {"glob": ".github/workflows/*.yml", "what": "GitHub Actions workflow files"},
+    "seo-title-proposals": {"cmd": ["python3", "platform/pages/propose_seo_titles.py"], "regex": "(\\d+) proposed", "what": "posts over the title budget with a clean cut"},
+    "seo-title-no-clean-cut": {"cmd": ["python3", "platform/pages/propose_seo_titles.py"], "regex": "(\\d+) with no clean cut", "what": "posts over the title budget a person must title"},
+    "owner-decisions-open": {"cmd": ["python3", "portfolio/ledger/decision_queue.py"], "regex": "(\\d+) decisions,", "what": "open rows in the owner's decision queue"}
+  }
+}

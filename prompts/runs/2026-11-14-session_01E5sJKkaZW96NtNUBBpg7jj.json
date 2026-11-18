@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKkaZW96NtNUBBpg7jj",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T01:18:09Z",
+  "ended": "2026-11-14T01:23:38Z",
+  "wall_minutes": 5.69,
+  "tokens_in": 4033028,
+  "tokens_out": 26713,
+  "cost_usd": 2.182,
+  "tool_calls": 44,
+  "task": "Polish: the eight row-grid bid calculators' clipped selects (select-clip report item 1)",
+  "projects": [
+    "gutter-cleaning-bid-calculator",
+    "window-replacement-bid-calculator",
+    "hood-cleaning-bid-calculator",
+    "carpet-cleaning-bid-calculator",
+    "tree-service-bid-calculator",
+    "snow-removal-bid-calculator",
+    "flooring-bid-calculator",
+    "deck-bid-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15681",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "changed-ventures CI failed once: the report's front matter used topic 'forms', which is not in docs/taxonomy.json; fixed to [design]. `python3 platform/ci/doc_index.py check` would have caught it locally."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to build the full site first (3-20 min). For a per-venture CSS change, DIST=ventures with select-clip.mjs and rows-reserve.mjs served from ventures/ measured everything needed; the full build was not used. Worth saying that per-venture work can skip it."
+    },
+    {
+      "file": "platform/pages/rows-reserve.mjs",
+      "issue": "Any layout change to a row editor silently invalidates the reserved heights; nothing ties the two together except a later CLS measurement. This run remembered to re-run --write; a test can't catch an under-reserve."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Measured on venture sources rather than the built dist: the change is page-local CSS and the shared chrome does not style these rows",
+      "did": "select-clip.mjs with DIST pointed at before/after copies of the eight ventures",
+      "result": "The 1,280 px before count (34 crushed) matched the full-site run's figure, so the measurement agrees"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-eight-bid-calculators-that-hid-their-own-choices.md",
+    "docs/reports/polish-2026-11-14-row-cards.md"
+  ],
+  "goal": null,
+  "notes": "Clipped selects on the 8 pages: 1,280 px 55->0 (34 crushed ->0); 390 px 29->1; 320 px 39->16 (long option text on full-width selects). Venture suites: gutter 90, window 126, hood 126, carpet 125, tree 144, snow 98, flooring 121, deck 118 pass, 0 fail. rows-reserve.test 4/4. The rows host is taller (gutter 146->575 px at 1,280) because every choice is now readable. Site build suite (node --test platform/pages/*.test.mjs): 1,611 pass, 0 fail, 26 skipped.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "09cea63d-21b6-501e-a5b7-676896edeacd",
+    "transcripts": 1,
+    "first": "2026-11-14T01:18:09Z",
+    "last": "2026-11-14T01:23:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 75,
+        "output": 26713,
+        "thinking": 9647,
+        "cache_read": 3925156,
+        "cache_write_5m": 0,
+        "cache_write_1h": 107797,
+        "api_equivalent_usd": 2.182,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 75,
+      "output": 26713,
+      "thinking": 9647,
+      "cache_read": 3925156,
+      "cache_write_5m": 0,
+      "cache_write_1h": 107797,
+      "api_equivalent_usd": 2.182,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 37,
+      "Read": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.69,
+      "active_minutes": 5.69,
+      "model_minutes": 4.48,
+      "tool_minutes": 1.21,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "front-end dev: diagnose, restyle 8 pages, measure, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 137.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

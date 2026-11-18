@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01E5sJKjL9Jk2S51qhDZRYEV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read prompt.md",
+  "input_sha256": "94a6b2a74a2fe72d09d7042291a4072d20b259b937e79b5deda0279ae57c7410",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T00:19:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Flagship 1's remaining items need real inputs; fuzz coverage is complete. Landed a small CLI fix found by a --json probe instead.",
+      "did": "--json refusals as JSON on stdout",
+      "result": "cli tests 44 pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-07-framing-cli-json-refusals.md"
+  ],
+  "goal": null,
+  "notes": "Small slice; flagship next: unchanged (needs real inputs).",
+  "corrections": [],
+  "redteam": null
+}

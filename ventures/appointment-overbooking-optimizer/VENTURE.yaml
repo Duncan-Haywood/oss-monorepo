@@ -60,5 +60,5 @@ kill_criteria:
   - A user reports that the expected profit or overflow probability disagrees with a direct binomial or beta-binomial calculation on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/appointment-overbooking-optimizer/
+  production: https://marisstella.app/appointment-overbooking-optimizer/
   analytics: null

@@ -1,6 +1,6 @@
 """Milestone 54: BOHB proper (Falkner et al. 2018): Hyperband brackets whose entrants are chosen by a TPE/KDE density ratio fitted on the
 highest rung with enough observations, against random-entrant Hyperband, f3 successive halving, and random routing. Same tables, cost model,
-budgets and regret as milestone 23 (mf_tpe/tpe.py). Runs no flow. Writes results.txt and summary.json. Usage: python3 bohb.py"""
+budgets and regret as milestone 23 (mf_tpe/tpe.py). Runs no flow. Writes results.txt and summary.json. Usage: python3 bohb.py [unseen]  (the argument replays the held-out unseen designs of milestone 27 and writes results_unseen.txt / summary_unseen.json)"""
 import json
 import math
 import random
@@ -18,8 +18,18 @@ M = statistics.mean
 SEEDS = 100
 BUDGETS = (15, 25, 40)
 ETA = 3
-GAMMA, BW_FLOOR, P_RANDOM, MIN_OBS = 0.25, 0.3, 1 / 3, 6
-TABLES = {n: HERE.parent / n / "results.jsonl" for n in ("rung_bias", "large", "nonarith")}
+import os
+GAMMA, BW_FLOOR, P_RANDOM, MIN_OBS = (float(os.environ.get("BOHB_GAMMA", 0.25)), 0.3, float(os.environ.get("BOHB_PRANDOM", 1 / 3)), int(os.environ.get("BOHB_MINOBS", 6)))
+DEGRADE = float(os.environ.get("BOHB_DEGRADE", 0))
+PART = os.environ.get("BOHB_PART", "both")  # milestone 63: both | score | features
+TAG = os.environ.get("BOHB_TAG", "")  # sensitivity runs (milestone 57) write results<_unseen>_<TAG>.* instead of overwriting
+ARG = sys.argv[1] if len(sys.argv) > 1 else ""  # "unseen" (milestone 27) or "unfaithful" (milestone 68: mult20, mult28)
+HELD = ARG in ("unseen", "unfaithful", "unfaithful2")
+SUF = (f"_{ARG}" if HELD else "") + (f"_{TAG}" if TAG else "")
+# milestone 69: "unfaithful2" replays mult36 and mult40 (experiments/unfaithful/results_w36_40.jsonl)
+TABLES = {n: HERE.parent / n / "results.jsonl" for n in ((ARG,) if HELD else ("rung_bias", "large", "nonarith"))}
+if ARG == "unfaithful2":
+    TABLES = {"unfaithful": HERE.parent / "unfaithful" / "results_w36_40.jsonl"}
 RUNGS = ("r2", "r3", "r4")
 
 
@@ -107,6 +117,27 @@ def pct(v, lo):
     return None if v is None else (v / lo - 1) * 100
 
 
+def tau_b(a, b):
+    """Kendall tau-b of two score lists (O(n^2), pools are about 50)."""
+    c = d = ta = tb = 0
+    for i in range(len(a)):
+        for j in range(i + 1, len(a)):
+            x, y = a[i] - a[j], b[i] - b[j]
+            if x == 0 and y == 0:
+                continue
+            if x == 0:
+                ta += 1
+            elif y == 0:
+                tb += 1
+            elif (x > 0) == (y > 0):
+                c += 1
+            else:
+                d += 1
+    den = math.sqrt((c + d + ta) * (c + d + tb))
+    return (c - d) / den if den else None
+
+
+tau = {}
 reg = {}
 for name, path in TABLES.items():
     rows = [json.loads(l) for l in path.read_text().splitlines()]
@@ -124,6 +155,21 @@ for name, path in TABLES.items():
         sdv = [max(statistics.pstdev([f[j] for f in f2]), 1e-6) for j in range(2)]
         z = [tuple((f[j] - mu[j]) / sdv[j] for j in range(2)) for f in f2]
         cell = (tag, d)
+        if DEGRADE:  # milestone 62: corrupt R2 on purpose (its score and the KDE features), routed R4 untouched
+            nr = random.Random(zlib.crc32((tag + d).encode()))
+            for s_ in sc:
+                g_ = nr.gauss(0, 1)
+                if PART == "none":  # milestone 64: R2 score carries no information (ties broken at random)
+                    s_["r2"] = 1.0
+                if PART in ("both", "score"):
+                    s_["r2"] = s_["r2"] * math.exp(DEGRADE * g_)
+            z2 = [tuple(v + DEGRADE * nr.gauss(0, 1) for v in t) for t in z]
+            if PART in ("both", "features"):
+                z = z2
+            if PART == "none":  # features replaced by pure N(0,1) noise of the standardised scale
+                z = [tuple(nr.gauss(0, 1) for _ in t) for t in z]
+        r2s = [x["r2"] for x in sc]
+        tau[cell] = tau_b(r2s, ref)
         for B in BUDGETS:
             Bc = B * C["full"]
             for sd in range(SEEDS):
@@ -171,6 +217,7 @@ for ref_arm in ("hb", "rand"):
         p = min(1.0, 2 * sum(math.comb(n, k) for k in range(0, min(w, l) + 1)) / 2 ** n) if n else 1.0
         out.append(f"bohb vs {ref_arm}, B {B}: wins {w}, losses {l}, p {p:.3f}")
         summary[f"wins_{ref_arm}_B{B}"] = {"w": w, "l": l, "p": p}
-(HERE / "results.txt").write_text("\n".join(out) + "\n")
-(HERE / "summary.json").write_text(json.dumps(summary, indent=1))
+(HERE / f"cells{SUF}.json").write_text(json.dumps({f"{c[0]}/{c[1]}": {"tau_r2": tau[c], **{f"{a}_B{B}": reg[(c, B, a)] for B in BUDGETS for a in arms}} for c in cells}, indent=1))
+(HERE / f"results{SUF}.txt").write_text("\n".join(out) + "\n")
+(HERE / f"summary{SUF}.json").write_text(json.dumps(summary, indent=1))
 print("\n".join(out))

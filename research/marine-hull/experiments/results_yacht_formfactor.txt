@@ -1,0 +1,4 @@
+22 hulls; implied k = Rr(Fn 0.125)/RF, upper bound on form factor; HM k1 = its own form factor minus 1
+Cm 0.7: n22 implied k at Fn .125 median 0.064 (10-90%: 0.030 to 0.132, max 0.176); at Fn .150 median 0.172; HM k1 median 0.356 (10-90%: 0.323 to 0.378); share implied k < 0.25: 100%; share implied < HM k1 (paired): 100%
+Cm 0.8: n22 implied k at Fn .125 median 0.062 (10-90%: 0.029 to 0.129, max 0.172); at Fn .150 median 0.168; HM k1 median 0.317 (10-90%: 0.288 to 0.334); share implied k < 0.25: 100%; share implied < HM k1 (paired): 100%
+Cm 0.9: n22 implied k at Fn .125 median 0.061 (10-90%: 0.029 to 0.128, max 0.170); at Fn .150 median 0.166; HM k1 median 0.292 (10-90%: 0.265 to 0.308); share implied k < 0.25: 100%; share implied < HM k1 (paired): 100%

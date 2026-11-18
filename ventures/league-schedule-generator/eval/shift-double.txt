@@ -1,0 +1,13 @@
+Home-and-away season, break weight 10, seed 1, effort 1: carry-over / breaks (score), shift: false -> default
+| Teams | Before | Now | Score | Start |
+|---|---|---|---|---|
+| 11 | 487 / 31 | 497 / 23 | 797 -> 727 | shift starter, shift venues | 10 s
+| 13 | 719 / 43 | 733 / 35 | 1,149 -> 1,083 | shift starter, shift venues | 9 s
+| 17 | 1,333 / 87 | 1,285 / 65 | 2,203 -> 1,935 | shift starter, shift venues | 10 s
+| 19 | 1,525 / 119 | 1,311 / 87 | 2,715 -> 2,181 | starter, shift venues, mirror | 9 s
+| 21 | 1,891 / 171 | 1,937 / 97 | 3,601 -> 2,907 | shift starter, shift venues, mirror | 11 s
+| 23 | 2,381 / 211 | 2,189 / 109 | 4,491 -> 3,279 | starter, shift venues | 12 s
+| 25 | 2,889 / 262 | 2,685 / 117 | 5,509 -> 3,855 | shift starter, shift venues | 23 s
+| 26 | 2,714 / 164 | 2,714 / 164 | 4,354 -> 4,354 | weighted starter | 23 s
+| 27 | 3,315 / 304 | 3,359 / 148 | 6,355 -> 4,839 | shift starter, shift venues | 17 s
+| 29 | 3,885 / 370 | 3,951 / 165 | 7,585 -> 5,601 | shift starter, shift venues | 21 s

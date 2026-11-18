@@ -151,7 +151,7 @@
       $("#events").innerHTML = r.events.map((e) => `<tr class="${e.type}"><td>${esc(e.note)}</td><td>${at(e.start)}</td><td>${at(e.end)}</td><td>${fmtDuration(e.hours)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Arrive ${at(r.arrive)}; ${r.count.offDuty} reset(s), ${r.count.breaks} break(s), ${r.count.restarts} restart(s).`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

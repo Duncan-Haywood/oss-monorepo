@@ -1,0 +1,30 @@
+{"label": "unsubscribe", "subject": "Re: quick question", "body": "Ta bort mig från er lista, tack."}
+{"label": "unsubscribe", "subject": "Re: quick question", "body": "Proszę usunąć mój adres z waszej listy mailingowej."}
+{"label": "unsubscribe", "subject": "Re: quick question", "body": "Fjern mig fra jeres mailliste. Ingen flere henvendelser."}
+{"label": "unsubscribe", "subject": "Re: quick question", "body": "STOP"}
+{"label": "unsubscribe", "subject": "Re: quick question", "body": "Please do not email me or anyone at this company again. Our counsel has been copied."}
+{"label": "unsubscribe", "subject": "Re: quick question", "body": "How many times do I need to say it? Out. Of. Your. Database."}
+{"label": "not_interested", "subject": "Re: quick question", "body": "Appreciate the persistence but this isn't for us. Best of luck."}
+{"label": "not_interested", "subject": "Re: quick question", "body": "No gracias, ya tenemos una solución interna que nos funciona muy bien."}
+{"label": "not_interested", "subject": "Re: quick question", "body": "We looked at this category two years ago and decided against it. Still the same answer."}
+{"label": "not_interested", "subject": "Re: quick question", "body": "Hi, not relevant for a business our size. Thanks anyway."}
+{"label": "not_now", "subject": "Re: quick question", "body": "We're mid-migration to a new CRM. Reach out again once that's done, likely end of Q2."}
+{"label": "not_now", "subject": "Re: quick question", "body": "Interesting, but I'm underwater until the conference on the 20th. Try me the week after."}
+{"label": "not_now", "subject": "Re: quick question", "body": "Not this year. Our planning cycle closed in October. Come back in the new year."}
+{"label": "out_of_office", "subject": "Re: quick question", "body": "I am out of the office until Monday 17 November with limited access to email. For urgent matters contact my colleague Priya."}
+{"label": "out_of_office", "subject": "Re: quick question", "body": "Tack för ditt mejl. Jag är på semester till och med 24 november och svarar när jag är tillbaka."}
+{"label": "out_of_office", "subject": "Re: quick question", "body": "Auto-reply: I'm on a sabbatical through March and will not be checking this inbox."}
+{"label": "left_company", "subject": "Re: quick question", "body": "Hi, Marcus no longer works here. Try reaching our head of ops, Julia Weiss, julia@example.org."}
+{"label": "left_company", "subject": "Re: quick question", "body": "I think you have the wrong person; I handle facilities, not sales tooling."}
+{"label": "left_company", "subject": "Re: quick question", "body": "This mailbox is no longer monitored as the owner has left the organisation."}
+{"label": "interested", "subject": "Re: quick question", "body": "This looks relevant. Can you send me a time that works for a 20 minute demo next week?"}
+{"label": "interested", "subject": "Re: quick question", "body": "Yes, I'd like to learn more. My calendar: cal.example.com/dana. Grab anything open."}
+{"label": "interested", "subject": "Re: quick question", "body": "We've been looking for something like this. Who on your side can walk my team through it on Thursday?"}
+{"label": "interested", "subject": "Re: quick question", "body": "Intrigued. Let's talk. Call me on 555-0188 tomorrow after 2pm."}
+{"label": "question", "subject": "Re: quick question", "body": "What does it cost for a team of 12, and is there an annual option?"}
+{"label": "question", "subject": "Re: quick question", "body": "Does this work with Outlook or only Gmail?"}
+{"label": "question", "subject": "Re: quick question", "body": "Where is the data stored, and do you offer a DPA?"}
+{"label": "question", "subject": "Re: quick question", "body": "Can you share two customers in logistics I could speak with?"}
+{"label": "objection", "subject": "Re: quick question", "body": "We already pay for Outreach and the reps barely use it. Why would this be different?", "subtype": "competitor"}
+{"label": "objection", "subject": "Re: quick question", "body": "Our security team won't approve anything that reads our inbox.", "subtype": "authority"}
+{"label": "objection", "subject": "Re: quick question", "body": "Too expensive for what it does. We can do this with a VA for $600 a month.", "subtype": "price"}

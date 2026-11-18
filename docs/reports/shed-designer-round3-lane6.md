@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed Designer round 3, lane 6: where the money goes
 
 Session: https://claude.ai/code/session_01XpHqyg7ixNGUH3USNit4uK (2026-10-30).

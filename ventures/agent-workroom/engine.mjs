@@ -87,6 +87,30 @@ const DELETE = /^(?:delete|remove|drop)\s+(?:task\s+)?(.+?)[.!]?$/i;
 const ASSIGN = /^(?:assign|give)\s+(?:task\s+)?(.+?)\s+to\s+([\w-]+)[.!]?$/i;
 const AGENT = /^(?:add|new|hire)\s+(?:an?\s+)?agent\s+(?:called\s+|named\s+)?([\w-]+)[.!]?$/i;
 
+// Headset and hands-free commands. Each is anchored at both ends, so an
+// ordinary task title that merely starts with "go" or "show" still becomes a task.
+const SYNC = /^(?:refresh|sync|resync|reload|update|pull|pull requests|check (?:ci|github|the pull requests|pull requests)|(?:refresh|sync|update) (?:from )?github)[.!]?$/i;
+const HELP = /^(?:help|commands|what can i say\??)[.!]?$/i;
+const CONFIRM = /^(?:confirm|send|send it|post|post it|yes,? send(?: it)?|do it)[.!]?$/i;
+const CANCEL = /^(?:cancel|never ?mind|don'?t send(?: it)?|no,? (?:cancel|don'?t))[.!]?$/i;
+const GO = /^(?:go|walk|take me|teleport|jump|look)\s+(?:to|at|over to|back to)?\s*(?:the\s+)?(.+?)[.!]?$/i;
+const RECENTRE = /^(?:recentre|recenter|re-centre|re-center|reset (?:the )?view|go home|home)[.!]?$/i;
+const SELECT = /^(?:select|show|open|focus(?: on)?)\s+(?:task\s+|number\s+)?(#?\d+|one|two|three|four|five|six|seven|eight|nine|ten)[.!]?$/i;
+const ASK = /^(?:ask|tell)\s+([\w-]+)\s+(?:(?:on|about|in|for)\s+)?(?:(?:task|pr|pull request|number)\s+)?(#?\d+|one|two|three|four|five|six|seven|eight|nine|ten)?\s*,?\s*(?:to\s+)?(.+?)$/i;
+
+// Agents that answer an @mention on a pull request even without a desk here.
+const MENTIONABLE = /^(?:claude|copilot|codex)$/i;
+
+/** Where "go to …" points: the task board, the starting spot, or a known agent's desk. Null when it names none of them. */
+export function goTarget(text, agents = DEFAULT_AGENTS) {
+  const t = tidy(text).toLowerCase().replace(/[.!?]+$/, "");
+  if (/^(?:board|task board|wall|tasks|task wall|kanban)$/.test(t)) return { kind: "board" };
+  if (/^(?:start|centre|center|middle|home|back|beginning)$/.test(t)) return { kind: "home" };
+  const name = t.replace(/(?:'s|s')?\s*(?:desk|table|monitor|station)$/, "").replace(/'s$/, "").trim();
+  const agent = findAgent(name, agents);
+  return agent ? { kind: "desk", agent } : null;
+}
+
 /**
  * Read one line of input as a command. Anything that is not a recognised verb
  * is a new task, so "refactor the parser" just works.
@@ -97,6 +121,21 @@ export function parseCommand(text, agents = DEFAULT_AGENTS) {
   const line = tidy(text);
   if (!line) return { kind: "empty" };
   let m;
+  if (SYNC.test(line)) return { kind: "sync" };
+  if (HELP.test(line)) return { kind: "help" };
+  if (CONFIRM.test(line)) return { kind: "confirm" };
+  if (CANCEL.test(line)) return { kind: "cancel" };
+  if (RECENTRE.test(line)) return { kind: "go", target: { kind: "home" } };
+  if ((m = line.match(GO))) {
+    const target = goTarget(m[1], agents);
+    if (target) return { kind: "go", target };
+  }
+  if ((m = line.match(SELECT))) return { kind: "select", ref: m[1] };
+  if ((m = line.match(ASK))) {
+    const text = tidy(m[3]).replace(/^(?:to|please)\s+/i, "");
+    const agent = findAgent(m[1], agents) || (MENTIONABLE.test(m[1]) ? capitalise(m[1].toLowerCase()) : null);
+    if (text && agent) return { kind: "ask", agent, ref: m[2] || null, text };
+  }
   if ((m = line.match(AGENT))) return { kind: "agent", name: capitalise(m[1]) };
   if (ADD_PREFIX.test(line)) return { kind: "add", task: parseTask(line.replace(ADD_PREFIX, ""), agents) };
   if ((m = line.match(MARK))) return { kind: "move", ref: m[1], status: "done" };
@@ -154,6 +193,7 @@ export function addTask(state, fields, now = Date.now()) {
     tags: Array.isArray(fields.tags) ? fields.tags : [],
     url: fields.url || null,
     source: fields.source || "local",
+    sha: fields.sha || null,
     created: stamp(now),
     updated: stamp(now),
   };
@@ -194,7 +234,15 @@ export function addAgent(state, name) {
 }
 
 /** Run a parsed command. Returns the new state and a sentence to show (and speak back). */
+// Commands the page carries out itself (camera, network, confirmation); the
+// board is unchanged by them, so applyCommand hands them back untouched.
+export const PAGE_COMMANDS = new Set(["sync", "help", "confirm", "cancel", "go", "select", "ask"]);
+
+export const HELP_TEXT =
+  "Say a task to add it, or: start 2, move 3 to review, finish 4, assign 5 to Builder, go to the board, go to Claude's desk, refresh, select 3, ask Claude on 3 to add tests, then confirm or cancel.";
+
 export function applyCommand(state, command, now = Date.now()) {
+  if (PAGE_COMMANDS.has(command.kind)) return { state, message: null, page: true };
   switch (command.kind) {
     case "empty":
       return { state, message: "Type or say a task." };
@@ -263,6 +311,7 @@ export function pullToTask(pr, repo) {
     tags: [`pr-${pr.number}`],
     url: pr.html_url || `https://github.com/${repo}/pull/${pr.number}`,
     source: "github",
+    sha: typeof pr?.head?.sha === "string" && /^[0-9a-f]{7,40}$/.test(pr.head.sha) ? pr.head.sha : null,
   };
 }
 
@@ -278,8 +327,8 @@ export function mergePulls(state, pulls, repo, now = Date.now()) {
     if (!existing) {
       next = addTask(next, t, now).state;
       added++;
-    } else if (existing.status !== t.status || existing.title !== t.title) {
-      next = updateTask(next, t.id, { status: t.status, title: t.title }, now);
+    } else if (existing.status !== t.status || existing.title !== t.title || (t.sha && existing.sha !== t.sha)) {
+      next = updateTask(next, t.id, { status: t.status, title: t.title, sha: t.sha || existing.sha || null }, now);
       changed++;
     }
   }
@@ -356,6 +405,7 @@ export function loadState(json) {
       tags: Array.isArray(t.tags) ? t.tags.filter((x) => typeof x === "string").slice(0, 10) : [],
       url: typeof t.url === "string" && /^https:\/\//.test(t.url) ? t.url : null,
       source: t.source === "github" ? "github" : "local",
+      sha: typeof t.sha === "string" && /^[0-9a-f]{7,40}$/.test(t.sha) ? t.sha : null,
       created: typeof t.created === "string" ? t.created : stamp(0),
       updated: typeof t.updated === "string" ? t.updated : stamp(0),
     });
@@ -389,4 +439,44 @@ export function deskLayout(count, { radius = 560, centreZ = 420, maxSpread = 140
       rotateY: Math.round(-deg) || 0,
     };
   });
+}
+
+/** The repository and number of a task that came from a pull request, or null for a local task. */
+export function pullRef(task) {
+  if (!task || task.source !== "github") return null;
+  const m = String(task.id || "").match(/^gh:([A-Za-z0-9-]{1,39}\/[A-Za-z0-9._-]{1,100})#(\d+)$/);
+  return m ? { repo: m[1], number: Number(m[2]) } : null;
+}
+
+export function checkRunsApiUrl(repo, sha) {
+  return `https://api.github.com/repos/${repo}/commits/${sha}/check-runs?per_page=100`;
+}
+
+export function commentApiUrl(repo, number) {
+  return `https://api.github.com/repos/${repo}/issues/${number}/comments`;
+}
+
+const FAILED = new Set(["failure", "timed_out", "cancelled", "action_required", "startup_failure"]);
+
+/** GitHub's check-runs answer as one word for a monitor: failing, running, passing or none. */
+export function checkSummary(json) {
+  const runs = Array.isArray(json?.check_runs) ? json.check_runs : [];
+  if (!runs.length) return { state: "none", failed: 0, running: 0, total: 0 };
+  const failed = runs.filter((r) => r.status === "completed" && FAILED.has(r.conclusion)).length;
+  const running = runs.filter((r) => r.status !== "completed").length;
+  const state = failed ? "failing" : running ? "running" : "passing";
+  return { state, failed, running, total: runs.length };
+}
+
+/**
+ * The comment an "ask" command would post on a pull request. Coding agents
+ * that live in GitHub (the Claude Code action, Copilot, Codex) wake on an
+ * @mention, so the agent's name leads the comment. Nothing is sent from here:
+ * the page shows this and waits for "confirm".
+ */
+export function agentComment(agent, text) {
+  const handle = String(agent || "claude").toLowerCase().replace(/[^\w-]/g, "") || "claude";
+  const body = tidy(text).slice(0, 2000);
+  if (!body) return null;
+  return `@${handle} ${body}\n\n_Sent from Agent Workroom._`;
 }

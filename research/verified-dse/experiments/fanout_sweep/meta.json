@@ -1,0 +1,9 @@
+{
+ "base_period_ns": {
+  "fanaow24": 0.87,
+  "fanaow48": 1.29,
+  "fanaow96": 2.07,
+  "fanaow192": 3.63
+ },
+ "n_sequences": 40
+}

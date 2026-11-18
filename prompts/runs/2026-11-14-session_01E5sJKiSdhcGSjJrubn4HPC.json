@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKiSdhcGSjJrubn4HPC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T04:17:46Z",
+  "ended": "2026-11-14T04:31:04Z",
+  "wall_minutes": 15.52,
+  "tokens_in": 9259719,
+  "tokens_out": 46343,
+  "cost_usd": 4.0414,
+  "tool_calls": 76,
+  "task": "Flagship 8 (quick-pick-survey) item d9: a slot run and a fast block in the same person",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15725",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First sweep run sequentially was too slow (~40 s/cell); killed and re-run in 5 parallel chunks, keeping the 12 finished rows (same seeds, so identical).",
+      "impact": "about 10 minutes"
+    },
+    {
+      "what": "Integration test fixture needed three tries: a 6-of-24 bottom-slot pattern gave tail 0.023 > 0.01, then one respondent's random honest start pushed the whole-session share over slotClickers' 70% bar.",
+      "impact": "fixture lengthened to 60 answers, 23 of 30 top-slot picks after the turn"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/quick-pick-survey/docs/TESTING.md",
+      "issue": "ranking.integration.test.ts row said 4 tests; the file had 10 before this run (now 11). Fixed."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The Bash tool blocks `sleep N; cmd` outright; the doc's long-command advice says run_in_background but not that a plain sleep-then-check is refused."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-a-fast-turn-names-where-to-look.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md#a-slot-run-and-a-fast-block-in-the-same-person"
+  ],
+  "goal": "Deepen flagship 8 with a working slice of its top buildable item",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed ventures/1 by draw; allocate.py assigned quick-pick-survey (claim_check HOLD). Item (c) needs real survey data, so took (d9). Shipped slotRunsAtTurns as default on the ranking route. Verification: vitest unit 566/566 pass; full integration suite 126/126 pass (ranking 11/11) against scripts/test-db.sh Postgres, new test shown red with the route merge disabled; typecheck and lint clean (one pre-existing warning at groupRanking.ts slotFlags). Sweep: 153 cells, docs/slot-fast-joint-2026-11-14.jsonl. next build passes.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "23f24ead-9454-5e5a-ad77-1308a98a70f9",
+    "transcripts": 1,
+    "first": "2026-11-14T04:17:46Z",
+    "last": "2026-11-14T04:33:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 141,
+        "output": 46343,
+        "thinking": 12254,
+        "cache_read": 9097775,
+        "cache_write_5m": 0,
+        "cache_write_1h": 161803,
+        "api_equivalent_usd": 4.0414,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 141,
+      "output": 46343,
+      "thinking": 12254,
+      "cache_read": 9097775,
+      "cache_write_5m": 0,
+      "cache_write_1h": 161803,
+      "api_equivalent_usd": 4.0414,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 69,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.52,
+      "active_minutes": 15.52,
+      "model_minutes": 7.55,
+      "tool_minutes": 7.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "statistician designing the joint test, writing a 153-cell simulation sweep, route wiring with unit and DB integration tests, and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 296.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

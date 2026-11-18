@@ -16,7 +16,8 @@ export const DEFAULT_MARKUP = { 2026: 0.10, 2027: 0.20 };
 export const defaultMarkup = (year) => DEFAULT_MARKUP[year] ?? 0.30;
 
 // Annual net-mass threshold under which an importer is outside CBAM
-// (Regulation (EU) 2025/2083). Electricity and hydrogen are not counted.
+// (Regulation (EU) 2025/2083). Electricity and hydrogen are not counted, and are
+// never exempt: any hydrogen import needs a declarant.
 export const DE_MINIMIS_TONNES = 50;
 
 // intensity: tCO2e embedded per tonne of goods (direct + indirect where the
@@ -45,7 +46,11 @@ export const SAMPLE = {
 
 export function num(v) {
   if (v === "" || v == null) return null;
-  const n = Number(String(v).trim().replace(/\s/g, "").replace(",", "."));
+  let t = String(v).trim().replace(/\s/g, "");
+  // "1,200" or "12,500,000" is a thousands separator; "1,5" is a decimal comma.
+  if (/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(t)) t = t.replace(/,/g, "");
+  else t = t.replace(",", ".");
+  const n = Number(t);
   return Number.isFinite(n) ? n : NaN;
 }
 
@@ -82,7 +87,11 @@ export function compute(input) {
   const factor = CBAM_FACTOR[year];
   const markup = useDefaults ? defaultMarkup(year) : 0;
   const massCounted = lines.filter((l) => l.sector !== "hydrogen").reduce((s, l) => s + l.tonnes, 0);
-  const underThreshold = massCounted < DE_MINIMIS_TONNES;
+  // Regulation (EU) 2025/2083: the exemption covers importers whose goods do not
+  // exceed 50 t, and hydrogen and electricity are never exempt, so any hydrogen
+  // line puts the importer in scope.
+  const hasHydrogen = lines.some((l) => l.sector === "hydrogen" && l.tonnes > 0);
+  const underThreshold = massCounted <= DE_MINIMIS_TONNES && !hasHydrogen;
 
   let embedded = 0, freeAdj = 0, certs = 0, tonnesTotal = 0, valueTotal = 0, valueKnown = true;
   for (const l of lines) {
@@ -121,6 +130,7 @@ export function compute(input) {
 
   const findings = [];
   if (underThreshold) findings.push({ severity: "info", title: `Total mass ${r2(massCounted)} t is under the ${DE_MINIMIS_TONNES} t annual threshold, so you are likely outside CBAM obligations for the year. Keep records: the threshold is on net mass across all your CBAM goods (not hydrogen or electricity), and crossing it mid-year means applying for authorised declarant status first.` });
+  else if (hasHydrogen && massCounted <= DE_MINIMIS_TONNES) findings.push({ severity: "high", title: `Hydrogen imports are not covered by the ${DE_MINIMIS_TONNES} t exemption (Regulation (EU) 2025/2083): you need authorised CBAM declarant status before importing it, and an annual declaration surrendering certificates.` });
   else findings.push({ severity: "high", title: `Total mass ${r2(massCounted)} t is over the ${DE_MINIMIS_TONNES} t annual threshold: you need authorised CBAM declarant status before importing past it, and an annual declaration surrendering certificates.` });
   if (lines.some((l) => l.usedPreset)) findings.push({ severity: "medium", title: "Some lines use illustrative emission intensities and benchmarks from this page. Real figures come from your supplier's verified emissions data or the Commission's default values, and can differ by a large factor." });
   if (useDefaults) findings.push({ severity: "medium", title: `Default values carry a ${Math.round(markup * 100)}% mark-up in ${year}, applied here. Verified supplier data avoids it.` });

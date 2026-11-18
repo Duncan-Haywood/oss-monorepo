@@ -260,7 +260,9 @@ export function validate(input) {
 }
 
 export function reportCsv(res) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+// Formula guard: text starting = + - @ (or tab/CR) would run as a formula in a spreadsheet; prefix an apostrophe (plain numbers such as -12.50 stay numbers).
+const defuse = (s) => (/^[=+\-@\t\r]/.test(s) && !/^[+-]?\d[\d.,]*$/.test(s) ? "'" + s : s);
+  const q = (s) => `"${defuse(String(s)).replace(/"/g, '""')}"`;
   const rows = [["entity", "level", "path", "message"]];
   for (const p of res.problems) rows.push(["(input)", p.level, p.path, p.message]);
   for (const e of res.entities) for (const x of e.findings) rows.push([e.types.join("/") + (e.name ? ` ${e.name}` : ""), x.level, x.path, x.message]);

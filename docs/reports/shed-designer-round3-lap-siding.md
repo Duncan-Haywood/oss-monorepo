@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed Designer round 3, lane 4: horizontal lap siding
 
 2026-10-30. Session https://claude.ai/code/session_01XpHqybdbfUS98SKSQvtQEW.

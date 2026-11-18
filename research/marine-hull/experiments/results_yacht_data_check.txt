@@ -1,0 +1,5 @@
+rows 308 hulls 22
+every hull has the 14 Froude numbers: True
+any negative Rr: False
+hull-steps where Rr falls as Fn rises: 0 of 286
+Rr range per mille: 0.01 62.42

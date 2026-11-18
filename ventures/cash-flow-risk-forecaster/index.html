@@ -48,7 +48,7 @@
 <body>
   <header>
     <p class="note">CASH FLOW RISK FORECASTER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
-    <h1>A 13-week cash forecast that assumes your customers pay late, and tells you the odds you run short</h1>
+    <h1>A 13-week cash forecast that assumes your customers pay late</h1>
     <p>Paste the invoices you expect and the bills you owe. The tool pays each invoice on time, late or never, thousands of times over, and shows the <strong>chance your balance drops below your floor</strong>, the <strong>cushion that would cover it</strong>, and the <strong>single invoice or bill</strong> that moves the odds most.</p>
     <p class="note">The on-time share, days late and never-paid share are yours to set from your own history. It does not know your customers.</p>
   </header>
@@ -156,7 +156,7 @@
       $("#levers").innerHTML = r.levers.length ? r.levers.slice(0, 8).map((l) => `<tr><td>${esc(l.action)}</td><td class="n">${Math.round(l.pShort * 100)}%</td><td class="n">${dollars(l.cushion90)}</td></tr>`).join("") : `<tr><td colspan="3">No shortfall in the simulation, so nothing to fix.</td></tr>`;
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

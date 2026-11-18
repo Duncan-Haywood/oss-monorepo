@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyeDC3o1mFxZPYcTyCm",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T23:38:05Z",
+  "ended": "2026-11-13T23:48:18Z",
+  "wall_minutes": 10.46,
+  "tokens_in": 3242454,
+  "tokens_out": 34554,
+  "cost_usd": 2.1737,
+  "tool_calls": 35,
+  "task": "Hearth & Horizon story: The Thick Edge (the-thick-edge)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15655",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The only Hearth & Horizon 'Next up' proposal (The Wet Bulb) carries its own note saying it is too close to a finished story, so the shelf effectively had no usable proposal; I wrote a fresh idea instead."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The 400 MB audio cap check returned 471 MB, so text only again; a recent commit (8fea154fb) calls the cap 'stale', but the prompt still states it as the rule, which leaves the next run unsure whether to render."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Did not take the listed Wet Bulb proposal because its own note flags it as near-duplicate of The Stone That Keeps the Sun.",
+      "did": "Wrote an unlisted idea (the glass-flows myth) after checking DONE.md and existing stories for glass/viscosity overlap.",
+      "result": "New story with no overlap found; timeline row and DONE entry added directly."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-does-old-church-glass-flow.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, project hearth-and-horizon, piece the-thick-edge (about 4,500 words, text only; audio dirs 471 MB > 400 MB cap). Checks: every date run through datetime (20/23/25 Oct, 4/11 Nov 2138, 14 Jul 2136); flow bound recomputed in code (7,357 Pa, 2.0 nm, ratio ~7e5, hair 3e7 yr). node --test in the venture 15/15 pass; check_post_frontmatter, check_post_links, check_doc_counts pass; run_workflow_locally --for-changes: standalone steps ok, site build skipped (expression it cannot evaluate), long site-builder test run detached. No agent doc in docs/reports: nothing the next run needs beyond the BIBLE row and DONE entry.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "09097dcc-85a7-5d2a-87c3-6dd44f3b218f",
+    "transcripts": 1,
+    "first": "2026-11-13T23:38:05Z",
+    "last": "2026-11-13T23:48:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 65,
+        "output": 34554,
+        "thinking": 14160,
+        "cache_read": 3135483,
+        "cache_write_5m": 0,
+        "cache_write_1h": 106906,
+        "api_equivalent_usd": 2.1737,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 65,
+      "output": 34554,
+      "thinking": 14160,
+      "cache_read": 3135483,
+      "cache_write_5m": 0,
+      "cache_write_1h": 106906,
+      "api_equivalent_usd": 2.1737,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 30,
+      "Write": 2,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.46,
+      "active_minutes": 10.46,
+      "model_minutes": 6.48,
+      "tool_minutes": 3.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a researched 4,500-word short story with checked arithmetic plus a short post, at a professional writer's pace",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 460.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

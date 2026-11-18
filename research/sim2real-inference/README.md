@@ -4,7 +4,7 @@
 the work toward one publishable paper accumulates across sessions; it consolidates about 130
 small twin projects in this repository into one question (see [`PROPOSAL.md`](PROPOSAL.md)).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sim2real-inference/
+**Live page:** https://marisstella.app/research/sim2real-inference/
 
 **The question.** A digital twin (a simulator of a real robot) is biased, so evaluating a policy on
 the twin alone gives the wrong answer however many runs you make. Real trials are unbiased but

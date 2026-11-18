@@ -48,7 +48,6 @@ footer p{margin:.6rem 0}
 <tr><th scope="row">Deadhead (drive to first stop, home from last)</th><td>No natural column -- the sheet is built from miles and time <em>between</em> stops</td><td>Separate required fields, folded into both cost and paid hours</td></tr>
 <tr><th scope="row">Wait time past a contracted grace period</th><td>Tracked once someone thinks to subtract the grace period</td><td>Subtracted automatically before it is billed at the labor rate</td></tr>
 <tr><th scope="row">Quoting a new route to hit a target margin</th><td>Usually a flat percentage added on top of cost</td><td>Solves for the price where overhead, charged as a percentage of that same price, still leaves the target margin</td></tr>
-</tbody>
 </table>
 </div>
 </section>
@@ -77,7 +76,6 @@ footer p{margin:.6rem 0}
 <tr><th scope="row">Naive quote (margin only)</th><td>$118.20 &divide; (1 &minus; 20%) = $147.75</td></tr>
 <tr><th scope="row">Margin actually realized at that price, once 10% overhead is billed on it</th><td>$14.78, or <strong>10.00%</strong> &mdash; half the 20% target</td></tr>
 <tr><th scope="row">This calculator's quote (margin <em>and</em> overhead, same pass)</th><td>$118.20 &divide; (1 &minus; 20% &minus; 10%) = $168.86</td></tr>
-</tbody>
 </table>
 </div>
 <p>The naive quote undercounts because overhead is 10% of whatever the route bills, not 10% of the cost already on the sheet -- so it has to sit in the same division as the margin, not be added afterward. Leave it out of that division and the price still looks correctly marked up while the overhead it was supposed to fund eats half the intended margin. This calculator solves for the price with both terms in the same denominator, so the margin it prints is the margin the route actually clears.</p>

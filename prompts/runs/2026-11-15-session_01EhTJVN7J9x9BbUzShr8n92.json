@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVN7J9x9BbUzShr8n92",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompt-1.md)",
+  "input_sha256": "f8b232ca506c8d72d3376eb67396416f11f99bfcdcd3889523d7dd0a72682773",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T04:15:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship: Round 19, SMD at 10-minute buckets on three machines (dilution test)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 16068,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/monetization/monetization.py",
+      "issue": "`next` names only owner-gated steps (checkout links); considered R-0004 for a revenue run, nothing agent-doable"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-finer-server-data-faster-alerts-not-more-of-them.md"
+  ],
+  "goal": null,
+  "notes": "Pre-registered (commit edeee8d69) before any scored run. Pilot: one column 10-min after every point out of reach, step 6 ~70 s. Run 4,162 s on 4 cores. H reproduced Round 18 by machine exactly. D19 and D19' not met by any arm (K 19.3 pts vs 20). Finding: median delay 4-4.5 h -> 0.7-1.1 h at 10-min. Checks: node --test watch-smd*.test.mjs pass; run_venture_tests.py changepoint-detector: 1 suite, 0 failed; post front matter, links and similarity clean; venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null
+}

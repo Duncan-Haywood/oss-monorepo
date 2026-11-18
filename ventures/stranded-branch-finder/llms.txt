@@ -1,0 +1,13 @@
+# Stranded Branch Finder
+
+> Finds git commits pushed to a remote that are in no pull request and not on the main branch, using only git. A zero-dependency Python script plus a paste-in browser check. Free, MIT.
+
+Results report what git shows; a listed branch may be parked on purpose. Not legal, financial or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/stranded-branch-finder/)
+
+## Source
+
+- [Source and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stranded-branch-finder): MIT licensed.

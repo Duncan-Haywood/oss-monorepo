@@ -2,7 +2,7 @@
 
 Follow-up to `codesign-aero-skip` (track 14, `codesign`), whose "Next steps" asked for pitch and yaw coupling "so a nonlinear policy has structure a linear law cannot represent". This project adds it: three-axis attitude with Euler's rigid-body equations (gyroscopic term ω×Iω), a yaw axis that has reaction-torque authority only, and a residual network that sees all six states. It also adds an arm that needs no search: the analytic gyroscopic compensation, which is the part of the coupling a network could in principle learn. Produced with AI assistance (Claude). **Simulated; the plant, gust and randomisation ranges are the assumed round numbers of the earlier projects, not measurements; the yaw reaction-torque ratio and the Iz/Ix ratio are assumed and swept.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-coupled/
+**Live page:** https://marisstella.app/research/codesign-aero-coupled/
 
 ![Left: held-out error per airframe for PID, PID plus residual and PID plus gyroscopic compensation. Right: the 12-condition sweep](experiments/coupled.png)
 
@@ -32,6 +32,7 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy cma matplotlib)
 RECUV and the Autonomous Systems IRT (UAV simulation, safe autonomy), as direction only; nothing is affiliated with or endorsed by them.
 
 ## Limitations
+- **Known defect, not yet re-run (quality fix 2026-11-15, [parent audit](../../portfolio/quality/audits/2026-11-15-codesign-aero.json)).** `size()` here is a copy of `codesign-aero`'s and, like it, never checks that the 60-step mass closure converged. On a 40x40 grid of (L, D), 36 of the 1,071 points it calls feasible have no fixed point (no battery mass gives 15 min of hover) and are scored at an arbitrary mass. The airframes this project reports were not checked one by one against that set, and its cant or coupling terms may move it. The parent now requires a closed mass (`closed` in `codesign-aero/src/codesign_aero/aero.py`); until this copy does the same and is re-run, treat rankings that touch the small-prop edge as unverified.
 - The yaw reaction-torque ratio κ, Iz/Ix and the plant ranges are assumed, not measured on a build; the sweep covers Iz/Ix 1.0 to 3.0 and yaw ×1 to ×3 only. A real airframe with stronger yaw authority or fast flips could put the coupling in a regime the sweep did not reach.
 - Attitude only, no position loop, no rotor gyroscopics or blade flapping, step references rather than aggressive trajectories; coupling is small on this task by construction of its rates (peak ω×Iω share median 2.3%).
 - An 83-parameter network searched by CMA-ES with 480 or 2400 evaluations on 16 training episodes overfits; more training episodes, regularisation or PPO might change the sign. "Worse here" is not "worse always".

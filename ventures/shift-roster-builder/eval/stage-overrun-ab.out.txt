@@ -1,0 +1,7 @@
+48 weeks with both builds
+old: reached the pay floor >50 ms past budget 15; overruns ms [52, 85, 94, 116, 136, 139, 141, 149, 184, 230, 251, 286, 410, 641, 770]; open hours 11180; mean build 22.18 s, slowest 28.1 s; proven 5; first stage past budget {'coverPass': 12, 'none': 13, 'scoreFloor': 13, 'coverRepair': 7, 'dayLNS': 3}
+new: reached the pay floor >50 ms past budget 5; overruns ms [65, 109, 111, 196, 249]; open hours 11180; mean build 22.17 s, slowest 28.1 s; proven 5; first stage past budget {'coverPass': 10, 'none': 13, 'scoreFloor': 16, 'coverRepair': 7, 'dayLNS': 2}
+per week open hours new-old: [-1, -1, 2]
+weeks whose gap moved by more than $1: 3
+rule: (1) spent 15 -> 5: pass; (2) open hours +0: pass; (3) mean build -0.01 s: pass
+KEEP ON

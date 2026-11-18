@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtHjphKf4LVRQpRNVt4",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T09:06:57Z",
+  "ended": "2026-11-11T09:15:23Z",
+  "wall_minutes": 8.76,
+  "tokens_in": 4861374,
+  "tokens_out": 33714,
+  "cost_usd": 2.5595,
+  "tool_calls": 51,
+  "task": "catholic-demography milestone 5b: fertility vs immigration counterfactual (H4), GSS only",
+  "projects": [
+    "research/catholic-demography"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14745",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First full run crashed on a pandas NA in the period column (boolean value of NA is ambiguous); fixed with fillna, no method change.",
+    "First create_pull_request call failed with 'PullRequest.head (invalid)' because the push was still running in the background; retried after the push."
+  ],
+  "integrity_issues": [
+    "My first draft of the model-check bullet said the implied mothers' share was within about 3 points of observed for all but two cohorts; re-reading t26 showed it is 2.4-4.2 points above the current-Catholic share for every cohort born 1925-69. Corrected before commit, and an upper-bound specification was added (disclosed in the docstring and LOG as added after the first full run)."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Nothing wrong found; wait_for.py --until worked well for waiting on a background bootstrap without sleep."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Landing step 2 says to work through open research PRs first; the only one (#12154, a draft from 2026-10-31) is another programme's stale draft, and the step gives no age cutoff for leaving such drafts alone."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/catholic-demography/LOG.md",
+      "why": "The previous entry's 'Next' said to use NCHS births and ACS immigration series; NCHS births carry no religion, so they cannot split the Catholic inflow by themselves.",
+      "did": "Answered H4 from the GSS alone with a mother-to-child fertility counterfactual and an immigration composition contrast, plus a model check and an upper bound; outside series left as a later check.",
+      "result": "H4 decided (supported, robust to six alternatives); proposal updated."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Did not try to land draft PR #12154 (research/lowcomm-training, 11 days old, another programme).",
+      "did": "Left it alone and advanced the drawn programme.",
+      "result": "no conflict"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-catholic-share-immigration-not-fertility.md",
+    "research/catholic-demography/LOG.md (2026-11-11 entry)"
+  ],
+  "goal": null,
+  "notes": "Verification run here: test_cathdem.py 11 passed; research/_homepage/build.py ok; check_md_links ok; research_live_links --write clean; cite_check (README has no DOIs). Full 500-draw bootstrap run twice with identical point estimates and intervals. Headline: 1990-99 to 2010-18 change in Catholic share -1.39 [-2.67,-0.14]; immigration (1st gen) +1.07 [+0.52,+1.68], fertility -0.37 [-0.69,-0.02], difference +1.44 [+0.74,+2.10]; upper-bound fertility change +0.01. No separate docs/reports agent doc: the LOG entry is where the next run on this programme looks.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b9ece03e-d2ff-5c0a-b50e-5e2ff2c48c20",
+    "transcripts": 1,
+    "first": "2026-11-11T09:06:57Z",
+    "last": "2026-11-11T09:15:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 93,
+        "output": 33714,
+        "thinking": 10308,
+        "cache_read": 4744282,
+        "cache_write_5m": 0,
+        "cache_write_1h": 116999,
+        "api_equivalent_usd": 2.5595,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 93,
+      "output": 33714,
+      "thinking": 10308,
+      "cache_read": 4744282,
+      "cache_write_5m": 0,
+      "cache_write_1h": 116999,
+      "api_equivalent_usd": 2.5595,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 44,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.76,
+      "active_minutes": 8.76,
+      "model_minutes": 6.52,
+      "tool_minutes": 2.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a demographer designing, coding, bootstrapping and writing up a counterfactual accounting with sensitivities: about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 390.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

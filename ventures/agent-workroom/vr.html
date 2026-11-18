@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Agent Workroom VR — Run Your Coding Agents From a Headset, by Voice</title>
+  <meta name="description" content="A WebXR room for Meta Quest and other headsets: your AI coding agents at desks, their pull requests on a task board, red CI on their monitors. Talk to it (push to talk, on-device speech) or point with the controllers, and ask Claude on a pull request without taking the headset off.">
+  <meta property="og:title" content="Agent Workroom VR: run your coding agents from a headset">
+  <meta property="og:description" content="Agents at desks, pull requests on the wall, CI on the monitors. Push to talk; point and click with the controllers. Free, open source, nothing uploaded but what you send to GitHub.">
+  <link rel="canonical" href="./vr.html">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b7e40'/%3E%3C/svg%3E">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agent Workroom VR","applicationCategory":"DeveloperApplication","operatingSystem":"Meta Quest Browser and other WebXR browsers; any WebGL browser for the preview","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"license":"https://opensource.org/licenses/MIT"}
+  </script>
+  <style>
+    :root {
+      --bg: #f5f4f0; --ink: #1d1d1f; --muted: #5b5b63; --card: #fff; --line: #dcdad3; --accent: #3b5bdb; --accent-ink: #fff; --warn: #b35c00;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #16171b; --ink: #ececf1; --muted: #a2a2ad; --card: #202228; --line: #34363f; --accent: #748ffc; --accent-ink: #0b0c10; --warn: #ffa94d; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--ink); }
+    header, main, footer { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+    header { padding-top: 20px; }
+    h1 { font-size: 1.6rem; margin: 0 0 4px; }
+    h2 { font-size: 1.2rem; margin: 28px 0 8px; }
+    h3 { font-size: 1rem; margin: 16px 0 4px; }
+    p { margin: 0 0 10px; }
+    a { color: var(--accent); }
+    code, kbd { font: 0.9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; background: var(--card); }
+    .lede { color: var(--muted); max-width: 72ch; }
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); border-radius: 8px; padding: 7px 14px; }
+    button.secondary { background: transparent; color: var(--accent); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+    button:focus-visible, input:focus-visible, canvas:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    input[type=text], input[type=password] { border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 7px 10px; min-width: 0; }
+    [hidden] { display: none !important; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+    .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 12px 0; }
+    .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    #view { position: relative; margin-top: 12px; }
+    #gl { display: block; width: 100%; height: min(62vh, 560px); border-radius: 12px; background: #1b1c20; touch-action: none; }
+    #msg { min-height: 1.5em; font-weight: 500; }
+    #talk.on { background: #c92a2a; border-color: #c92a2a; color: #fff; }
+    .warn { color: var(--warn); }
+    table { border-collapse: collapse; width: 100%; }
+    td, th { border-top: 1px solid var(--line); padding: 6px 8px 6px 0; vertical-align: top; text-align: left; }
+    th { border-top: 0; color: var(--muted); font-weight: 600; font-size: 0.9rem; }
+    td:first-child { white-space: nowrap; }
+    @media (max-width: 560px) { td:first-child { white-space: normal; } }
+    footer { color: var(--muted); font-size: 0.9rem; padding-bottom: 40px; margin-top: 32px; border-top: 1px solid var(--line); padding-top: 16px; }
+  </style>
+</head>
+<body>
+<header>
+  <p><a href="./">← Agent Workroom (2D room and task table)</a></p>
+  <h1>Agent Workroom VR</h1>
+  <p class="lede">The same board, in a headset. Your coding agents sit at desks around you, each monitor showing what that agent is on and whether its CI is red; the wall in front is the task board. <strong>Talk to it</strong>: hold the grip and say "go to Claude's desk", "start 3", "refresh" or "ask Claude on 12 to add a test", then "confirm". Or point with a controller and pull the trigger.</p>
+</header>
+
+<main>
+  <div class="row">
+    <button type="button" id="enter" disabled>Checking for a headset…</button>
+    <button type="button" id="talk" class="secondary" title="Hold to talk (or hold Space in the preview)">Hold to talk</button>
+    <span id="voice-mode" class="lede"></span>
+  </div>
+  <p id="msg" role="status" aria-live="polite"></p>
+
+  <div id="view">
+    <canvas id="gl" tabindex="0" aria-label="Preview of the headset room. Drag to look, W A S D to walk, click a note, desk or button. Hold Space to talk. Everything here is also on the 2D page."></canvas>
+  </div>
+  <form class="row" id="cmd-form" autocomplete="off">
+    <label for="cmd" class="lede">Or type a command:</label>
+    <input id="cmd" type="text" style="flex:1;min-width:200px" placeholder="e.g. go to the board · start 2 · ask claude on 3 to add tests">
+    <button type="submit">Run</button>
+  </form>
+
+  <div class="grid">
+    <section class="panel">
+      <h2 style="margin-top:0">Repository</h2>
+      <p class="lede">Pull requests become tasks: draft = in progress, open = in review, merged = done. <code>claude/</code>, <code>codex/</code> and <code>copilot/</code> branches sit at that agent's desk.</p>
+      <form class="row" id="repo-form">
+        <label for="repo" hidden>Repository</label>
+        <input id="repo" type="text" placeholder="owner/repo" style="flex:1;min-width:160px">
+        <button type="submit">Pull</button>
+      </form>
+      <p><button type="button" class="secondary" id="use-this">Use this project's own repo</button></p>
+      <h3>GitHub token (optional)</h3>
+      <p class="lede">Only needed to see CI on the monitors and to post an "ask" comment. Use a <a href="https://github.com/settings/personal-access-tokens/new" rel="noopener">fine-grained token</a> for just that repository with <em>Pull requests: read and write</em> and <em>Checks: read</em>. It stays in this tab's memory: never saved, and sent only to <code>api.github.com</code>. Close the tab to forget it.</p>
+      <div class="row">
+        <label for="token" hidden>GitHub token</label>
+        <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" style="flex:1;min-width:160px">
+        <button type="button" class="secondary" id="forget">Forget</button>
+      </div>
+    </section>
+    <section class="panel">
+      <h2 style="margin-top:0">Voice</h2>
+      <p class="lede" id="voice-note"></p>
+      <div class="row">
+        <button type="button" class="secondary" id="prepare" hidden>Download the speech model now (≈41 MB)</button>
+        <label><input type="checkbox" id="prefer-local"> Always use on-device speech</label>
+      </div>
+      <p><label><input type="checkbox" id="speak-back" checked> Read replies aloud</label></p>
+    </section>
+  </div>
+
+  <h2>Controls</h2>
+  <div class="panel">
+    <table>
+      <thead><tr><th scope="col">Control</th><th scope="col">What it does</th></tr></thead>
+      <tbody>
+        <tr><td>Hold <kbd>grip</kbd> or <kbd>A</kbd>/<kbd>X</kbd></td><td>Push to talk. Let go and it acts on what you said. With hand tracking, pinch the <em>Talk</em> button on the panel instead.</td></tr>
+        <tr><td><kbd>trigger</kbd> (or pinch)</td><td>Select whatever the ray points at: a sticky note, a monitor, a panel button.</td></tr>
+        <tr><td>Left stick</td><td>Walk, in the direction you're looking.</td></tr>
+        <tr><td>Right stick</td><td>Snap turn left or right.</td></tr>
+        <tr><td>Preview</td><td>Drag to look, <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to walk, click to select, hold <kbd>Space</kbd> to talk.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Things to say</h2>
+  <div class="panel">
+    <table>
+      <thead><tr><th scope="col">Say</th><th scope="col">What happens</th></tr></thead>
+      <tbody>
+        <tr><td><code>go to the board</code> · <code>go to Claude's desk</code> · <code>recenter</code></td><td>Move to a spot in the room.</td></tr>
+        <tr><td><code>refresh</code> · <code>check CI</code></td><td>Pull the repository's pull requests again (and, with a token, their check runs).</td></tr>
+        <tr><td><code>select 3</code></td><td>Highlight task 3 so the panel's Start, Review and Done buttons act on it.</td></tr>
+        <tr><td><code>start 2</code> · <code>move login to review</code> · <code>finish 4</code></td><td>Move a task. The same commands as the 2D room, which shares this board.</td></tr>
+        <tr><td><code>fix the flaky upload test for Builder</code></td><td>Anything that isn't a command is a new task.</td></tr>
+        <tr><td><code>ask Claude on 12 to add a regression test</code></td><td>Drafts a pull-request comment that starts <code>@claude</code>, for agents that answer mentions (the Claude Code GitHub action, Copilot, Codex). Nothing is posted until you say <code>confirm</code> or press Send; <code>cancel</code> drops it. Needs a token.</td></tr>
+        <tr><td><code>help</code></td><td>Reads the list back.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section>
+    <h2>Questions</h2>
+    <h3>Which headsets work?</h3>
+    <p>Any browser with WebXR's <code>immersive-vr</code> mode: Meta Quest Browser is the main target. The <em>Enter VR</em> button only lights up where the browser offers it. Everywhere else the preview above shows the same room on a screen. This page was built and tested in a desktop browser without a headset, so expect rough edges on a real device and please report them.</p>
+    <h3>Does my voice go anywhere?</h3>
+    <p>Where the browser has built-in speech recognition (Chrome, Edge, Android), that is used, and some browsers, Chrome among them, send the audio to the browser maker's speech service. Where it doesn't (Quest Browser, Firefox), the page runs a small Whisper model (tiny, English) on your own device: the model is downloaded once from Hugging Face via the jsDelivr CDN and your audio never leaves the headset. Tick <em>Always use on-device speech</em> to use it everywhere. Recognition is push-to-talk only: the microphone is open only while you hold the button.</p>
+    <h3>Can it really talk to my agents?</h3>
+    <p>It talks to them where they already listen: on GitHub. "Ask Claude on 12 to …" posts a comment on pull request 12 that starts <code>@claude</code>, which the Claude Code GitHub action (and Copilot or Codex for <code>@copilot</code> / <code>@codex</code>) picks up if the repository has it installed. The comment is posted as you, with your token, only after you confirm, and says it was sent from Agent Workroom. Agents running in a terminal or a cloud session can't be reached from a web page; for those, use <em>Copy brief</em> on the 2D page.</p>
+    <h3>Where are my tasks?</h3>
+    <p>In this browser's local storage, shared with the 2D room on the same site. Nothing is uploaded to a server of ours.</p>
+  </section>
+</main>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a personal organiser, not project-management, security or engineering advice. Pull-request and CI state reflect only what GitHub returned when it was fetched. A comment you confirm is posted to GitHub as you and is public on a public repository. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Take the headset off if you feel unwell, and keep the play area clear.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> Free and experimental; it may change or go offline without notice.</p>
+  <p>Your tasks are never uploaded: there are no accounts, cookies or analytics vendors. Network calls: the GitHub API requests you ask for (pull requests, check runs, and a comment only when you confirm one); if you use on-device speech, the one-off download of the speech library from cdn.jsdelivr.net and the model from huggingface.co; and, if your browser's built-in recognition is used, whatever the browser maker's speech service does. Anonymous feature events (<code>vr_opened</code>, <code>vr_entered</code>, <code>vr_voice</code>, <code>vr_task_added</code>, <code>vr_pulled</code>, <code>vr_asked</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+
+<script type="module">
+  import {
+    STATUS_LABELS, HELP_TEXT, emptyState, loadState, parseCommand, applyCommand, updateTask, findTask, normaliseRepo,
+    pullsApiUrl, mergePulls, pullRef, checkRunsApiUrl, commentApiUrl, checkSummary, agentComment, agentSummary,
+  } from "./engine.mjs";
+  import {
+    multiply, perspective, compose, invertRigid, transformDir, playerOffset, goPose, buildScene, pickRay, wrapText,
+    STATUS_COLOURS, CI_COLOURS, ROOM,
+  } from "./xr.mjs";
+  import { createVoice, nativeRecognition } from "./voice.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+  const KEY = "agent-workroom-state";
+  const PREFER = "agent-workroom-vr-voice";
+  const THIS_REPO = "duncan-haywood/oss-monorepo";
+  const $ = (id) => document.getElementById(id);
+
+  let state = emptyState();
+  try { state = loadState(localStorage.getItem(KEY) || "null"); } catch { /* storage is optional */ }
+  let token = "";
+  const ui = { selected: null, ci: {}, pending: null, listening: null, heard: "", reply: "", voiceMode: "none" };
+  const player = { x: 0, z: 0, yaw: 0 };
+  let scene = { items: [], desks: [] };
+  let dirty = true;
+  record("vr_opened");
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* storage is optional */ }
+  }
+  // The 2D room in another tab writes the same key; follow it.
+  addEventListener("storage", (e) => {
+    if (e.key !== KEY) return;
+    state = loadState(e.newValue || "null");
+    dirty = true;
+  });
+
+  function say(message, { speak = true } = {}) {
+    if (!message) return;
+    ui.reply = message;
+    $("msg").textContent = message;
+    dirty = true;
+    if (speak && $("speak-back").checked && "speechSynthesis" in window) {
+      try { speechSynthesis.cancel(); speechSynthesis.speak(new SpeechSynthesisUtterance(message)); } catch { /* optional */ }
+    }
+  }
+
+  // ---------- commands ----------
+  function taskFor(ref) {
+    return ref ? findTask(state.tasks, ref) : state.tasks.find((t) => t.id === ui.selected) || null;
+  }
+
+  function run(line, via) {
+    const command = parseCommand(line, state.agents);
+    if (via === "voice") { ui.heard = line; record("vr_voice"); }
+    switch (command.kind) {
+      case "sync": return pull();
+      case "help": return say(HELP_TEXT);
+      case "cancel":
+        if (!ui.pending) return say("Nothing is waiting to be sent.");
+        ui.pending = null;
+        return say("Dropped it. Nothing was sent.");
+      case "confirm": return sendPending();
+      case "go": {
+        Object.assign(player, goPose(command.target, scene.desks));
+        moved();
+        const t = command.target;
+        return say(t.kind === "board" ? "At the board." : t.kind === "desk" ? `At ${t.agent}'s desk.` : "Back in the middle.");
+      }
+      case "select": {
+        const t = findTask(state.tasks, command.ref);
+        if (!t) return say(`There's no task ${command.ref}.`);
+        return selectTask(t);
+      }
+      case "ask": return draftAsk(command);
+    }
+    const before = state;
+    const r = applyCommand(state, command);
+    state = r.state;
+    if (command.kind === "add" && state !== before) {
+      record("vr_task_added");
+      ui.selected = state.tasks[state.tasks.length - 1].id;
+    }
+    save();
+    dirty = true;
+    say(r.message);
+  }
+
+  function selectTask(t) {
+    ui.selected = t.id;
+    dirty = true;
+    const ci = ui.ci[t.id];
+    say(`Task ${t.num}: ${t.title}. ${STATUS_LABELS[t.status]}${t.agent ? `, ${t.agent}` : ""}${ci && ci.state !== "none" ? `, CI ${ci.state}` : ""}.`);
+  }
+
+  function draftAsk(command) {
+    const t = taskFor(command.ref);
+    if (!t) return say(command.ref ? `No single task matches ${command.ref}.` : "Select a task first, or say its number: ask Claude on 3 to …");
+    const pr = pullRef(t);
+    if (!pr) return say(`Task ${t.num} isn't a pull request, so there's nowhere to ask. Pull the repository in first.`);
+    if (!token) return say("Asking needs a GitHub token. Paste one on the page, outside the headset, then try again.");
+    const body = agentComment(command.agent, command.text);
+    if (!body) return say("What should I ask?");
+    ui.pending = { ...pr, body, agent: command.agent, num: t.num };
+    ui.selected = t.id;
+    say(`Ready to post on pull request ${pr.number}: "${body.split("\n")[0]}". Say confirm to send it, or cancel.`);
+  }
+
+  async function sendPending() {
+    const p = ui.pending;
+    if (!p) return say("Nothing is waiting to be sent.");
+    if (!token) return say("The token is gone, so nothing was sent.");
+    say(`Posting on pull request ${p.number}…`, { speak: false });
+    try {
+      const res = await fetch(commentApiUrl(p.repo, p.number), {
+        method: "POST",
+        headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ body: p.body }),
+      });
+      if (res.status === 201) {
+        ui.pending = null;
+        record("vr_asked");
+        return say(`Posted. ${p.agent} should pick it up on pull request ${p.number} if it's installed there.`);
+      }
+      if (res.status === 401) return say("GitHub refused the token. Check it hasn't expired. Nothing was posted.");
+      if (res.status === 403 || res.status === 404) return say("That token can't comment on this repository. It needs pull requests: read and write. Nothing was posted.");
+      say(`GitHub answered ${res.status}. Nothing was posted.`);
+    } catch {
+      say("Couldn't reach GitHub. Nothing was posted.");
+    }
+  }
+
+  // ---------- GitHub ----------
+  const ghHeaders = () => ({ Accept: "application/vnd.github+json", ...(token ? { Authorization: `Bearer ${token}` } : {}) });
+
+  async function pull(repoInput) {
+    const repo = normaliseRepo(repoInput || state.repo || "");
+    if (!repo) return say("Set a repository first, on the page: owner slash repo.");
+    say(`Asking GitHub about ${repo}…`, { speak: false });
+    try {
+      const res = await fetch(pullsApiUrl(repo), { headers: ghHeaders() });
+      if (res.status === 401) return say("GitHub refused the token.");
+      if (res.status === 403 || res.status === 429) return say("GitHub's hourly limit is used up. A token raises it.");
+      if (res.status === 404) return say(`GitHub says ${repo} doesn't exist or this token can't see it.`);
+      if (!res.ok) return say(`GitHub answered ${res.status}.`);
+      const pulls = await res.json();
+      const r = mergePulls(state, Array.isArray(pulls) ? pulls : [], repo);
+      state = r.state;
+      $("repo").value = repo;
+      save();
+      record("vr_pulled");
+      let ciNote = token ? "" : " Add a token to see CI.";
+      if (token) {
+        const red = await checkCi();
+        ciNote = red.length ? ` CI is red on ${red.map((t) => t.num).join(", ")}.` : " No red CI.";
+      }
+      dirty = true;
+      say(`${r.added} new, ${r.changed} changed.${ciNote}`);
+    } catch {
+      say("Couldn't reach GitHub from this page.");
+    }
+  }
+
+  // Check runs for the open pull requests on the board: ten at most, so one refresh stays cheap.
+  async function checkCi() {
+    const open = state.tasks.filter((t) => t.sha && pullRef(t) && (t.status === "doing" || t.status === "review")).slice(0, 10);
+    await Promise.all(open.map(async (t) => {
+      try {
+        const { repo } = pullRef(t);
+        const res = await fetch(checkRunsApiUrl(repo, t.sha), { headers: ghHeaders() });
+        if (res.ok) ui.ci[t.id] = checkSummary(await res.json());
+      } catch { /* leave it unknown */ }
+    }));
+    return open.filter((t) => ui.ci[t.id]?.state === "failing");
+  }
+
+  // Refresh while the page is open: every 3 minutes with a token, every 10 without (GitHub allows 60 unsigned calls an hour).
+  let lastPull = 0;
+  setInterval(() => {
+    if (!state.repo || document.hidden && !xrSession) return;
+    if (Date.now() - lastPull < (token ? 3 : 10) * 60 * 1000) return;
+    lastPull = Date.now();
+    pull();
+  }, 30 * 1000);
+
+  $("repo").value = state.repo || "";
+  $("repo-form").addEventListener("submit", (e) => { e.preventDefault(); lastPull = Date.now(); pull($("repo").value); });
+  $("use-this").addEventListener("click", () => { $("repo").value = THIS_REPO; lastPull = Date.now(); pull(THIS_REPO); });
+  $("token").addEventListener("input", (e) => { token = e.target.value.trim(); });
+  $("forget").addEventListener("click", () => { token = ""; $("token").value = ""; ui.pending = null; say("Token forgotten.", { speak: false }); });
+  $("cmd-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const line = $("cmd").value;
+    $("cmd").value = "";
+    if (line.trim()) run(line, "text");
+  });
+
+  // ---------- voice ----------
+  let preferLocal = false;
+  try { preferLocal = localStorage.getItem(PREFER) === "local"; } catch { /* optional */ }
+  $("prefer-local").checked = preferLocal;
+  let voice;
+  function setupVoice() {
+    voice = createVoice({
+      prefer: preferLocal ? "local" : "auto",
+      lang: navigator.language || "en-US",
+      onText: (text) => run(text, "voice"),
+      onStatus: (s, detail) => {
+        ui.listening = s === "listening" ? "listening" : s === "loading" ? "loading" : s === "transcribing" ? "transcribing" : null;
+        $("talk").classList.toggle("on", s === "listening");
+        if (detail) { $("msg").textContent = detail; ui.reply = detail; }
+        dirty = true;
+      },
+    });
+    ui.voiceMode = voice.mode;
+    $("voice-mode").textContent = { native: "Voice: browser speech recognition", local: "Voice: on-device Whisper", none: "Voice: not available here" }[voice.mode];
+    $("prepare").hidden = voice.mode !== "local";
+    $("voice-note").textContent =
+      voice.mode === "native"
+        ? "This browser has built-in speech recognition, so that's used (it may send audio to the browser maker's speech service). Tick the box to use the on-device model instead."
+        : voice.mode === "local"
+          ? "This browser has no built-in speech recognition, so a small Whisper model runs on this device. The first press of Talk downloads it (about 41 MB, once); download it now if you're about to put the headset on."
+          : "This browser can't record audio from a page. Point and press instead.";
+    $("prefer-local").disabled = !nativeRecognition();
+    dirty = true;
+  }
+  setupVoice();
+  $("prefer-local").addEventListener("change", (e) => {
+    preferLocal = e.target.checked;
+    try { localStorage.setItem(PREFER, preferLocal ? "local" : "auto"); } catch { /* optional */ }
+    setupVoice();
+  });
+  $("prepare").addEventListener("click", () => voice.prepare().catch(() => {}));
+  const talk = $("talk");
+  talk.addEventListener("pointerdown", (e) => { e.preventDefault(); voice.press(); });
+  for (const ev of ["pointerup", "pointerleave", "pointercancel"]) talk.addEventListener(ev, () => voice.release());
+  talk.addEventListener("keydown", (e) => { if ((e.key === " " || e.key === "Enter") && !e.repeat) { e.preventDefault(); voice.press(); } });
+  talk.addEventListener("keyup", (e) => { if (e.key === " " || e.key === "Enter") voice.release(); });
+
+  // ---------- picking ----------
+  function activate(pick) {
+    if (!pick) return;
+    if (pick.kind === "task") {
+      const t = state.tasks.find((x) => x.id === pick.id);
+      if (t) selectTask(t);
+      return;
+    }
+    if (pick.kind === "agent") {
+      const a = agentSummary(state).find((x) => x.name === pick.agent);
+      return say(a ? `${a.name} has ${a.total} task${a.total === 1 ? "" : "s"}, ${a.counts.doing} in progress.` : pick.agent);
+    }
+    if (pick.kind !== "button") return;
+    switch (pick.id) {
+      case "talk": return voice.toggle();
+      case "sync": return pull();
+      case "help": return say(HELP_TEXT);
+      case "confirm": return sendPending();
+      case "cancel": return run("cancel", "button");
+      case "home": Object.assign(player, { x: 0, z: 0, yaw: 0 }); moved(); return say("Back in the middle.");
+      default: {
+        const t = state.tasks.find((x) => x.id === ui.selected);
+        if (!t) return say("Select a task first.");
+        state = updateTask(state, t.id, { status: pick.id });
+        save();
+        dirty = true;
+        return say(`Task ${t.num} moved to ${STATUS_LABELS[pick.id].toLowerCase()}.`);
+      }
+    }
+  }
+
+  // ---------- drawing ----------
+  const canvas = $("gl");
+  const gl = canvas.getContext("webgl", { xrCompatible: true, antialias: true, alpha: false });
+  if (!gl) say("This browser has no WebGL, so the room can't be drawn. The 2D page works without it.", { speak: false });
+
+  const VS = `attribute vec3 aPos; attribute vec2 aUv; attribute float aShade;
+    uniform mat4 uMvp; varying vec2 vUv; varying float vShade;
+    void main() { vUv = aUv; vShade = aShade; gl_Position = uMvp * vec4(aPos, 1.0); }`;
+  const FS = `precision mediump float; varying vec2 vUv; varying float vShade;
+    uniform vec4 uColour; uniform sampler2D uTex; uniform float uUseTex;
+    void main() { gl_FragColor = uUseTex > 0.5 ? texture2D(uTex, vUv) : vec4(uColour.rgb * vShade, uColour.a); }`;
+
+  let prog, loc, boxBuf, quadBuf;
+  function initGl() {
+    const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
+    prog = gl.createProgram();
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS));
+    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+    gl.linkProgram(prog);
+    loc = {
+      pos: gl.getAttribLocation(prog, "aPos"), uv: gl.getAttribLocation(prog, "aUv"), shade: gl.getAttribLocation(prog, "aShade"),
+      mvp: gl.getUniformLocation(prog, "uMvp"), colour: gl.getUniformLocation(prog, "uColour"),
+      tex: gl.getUniformLocation(prog, "uTex"), useTex: gl.getUniformLocation(prog, "uUseTex"),
+    };
+    // Unit cube with a fixed shade per face, so boxes read as solid without a lighting model.
+    const faces = [
+      [[0, 0, 1], 0.95], [[0, 0, -1], 0.75], [[1, 0, 0], 0.85], [[-1, 0, 0], 0.8], [[0, 1, 0], 1.0], [[0, -1, 0], 0.6],
+    ];
+    const v = [];
+    for (const [n, shade] of faces) {
+      const a = n.findIndex((x) => x !== 0);
+      const [u, w] = [0, 1, 2].filter((i) => i !== a);
+      const corner = (su, sw) => { const p = [0, 0, 0]; p[a] = n[a] * 0.5; p[u] = su * 0.5; p[w] = sw * 0.5; return [...p, 0, 0, shade]; };
+      for (const [su, sw] of [[-1, -1], [1, -1], [1, 1], [-1, -1], [1, 1], [-1, 1]]) v.push(...corner(su, sw));
+    }
+    boxBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, boxBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(v), gl.STATIC_DRAW);
+    const q = [
+      -0.5, -0.5, 0, 0, 1, 1, 0.5, -0.5, 0, 1, 1, 1, 0.5, 0.5, 0, 1, 0, 1,
+      -0.5, -0.5, 0, 0, 1, 1, 0.5, 0.5, 0, 1, 0, 1, -0.5, 0.5, 0, 0, 0, 1,
+    ];
+    quadBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(q), gl.STATIC_DRAW);
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+  }
+
+  // Colours as WebGL wants them; the 2D canvas parses CSS colours (hsl included) for us.
+  const colourCtx = document.createElement("canvas").getContext("2d");
+  const colourCache = new Map();
+  function rgba(css) {
+    if (colourCache.has(css)) return colourCache.get(css);
+    colourCtx.fillStyle = "#000";
+    colourCtx.fillStyle = css;
+    const hex = colourCtx.fillStyle;
+    const out = hex.startsWith("#")
+      ? [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).concat(1)
+      : (hex.match(/[\d.]+/g) || [0, 0, 0, 1]).map((x, i) => (i < 3 ? Number(x) / 255 : Number(x)));
+    colourCache.set(css, out);
+    return out;
+  }
+
+  // ---------- labels, painted onto canvases ----------
+  const PX = 800; // texture pixels per metre
+  const textures = new Map();
+  function texFor(item) {
+    const key = JSON.stringify([item.label, item.size[0], item.size[1], item.hovered || false]);
+    let t = textures.get(key);
+    if (!t) {
+      const c = document.createElement("canvas");
+      c.width = Math.min(1024, Math.round(item.size[0] * PX));
+      c.height = Math.min(1024, Math.round(item.size[1] * PX));
+      paint(c.getContext("2d"), c.width, c.height, item.label, item.hovered);
+      const tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      t = { tex, used: 0 };
+      textures.set(key, t);
+    }
+    t.used = frameNo;
+    return t.tex;
+  }
+  function sweepTextures() {
+    for (const [key, t] of textures) if (frameNo - t.used > 120) { gl.deleteTexture(t.tex); textures.delete(key); }
+  }
+
+  function roundRect(ctx, x, y, w, h, r, fill, stroke, lw = 0) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+    if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.stroke(); }
+  }
+  const FONT = "system-ui, -apple-system, 'Segoe UI', sans-serif";
+  function lines(ctx, text, x, y, width, size, colour, max, weight = "") {
+    ctx.font = `${weight} ${size}px ${FONT}`;
+    ctx.fillStyle = colour;
+    const ls = wrapText(text, width, (s) => ctx.measureText(s).width, max);
+    ls.forEach((l, i) => ctx.fillText(l, x, y + i * size * 1.2));
+    return y + ls.length * size * 1.2;
+  }
+
+  function paint(ctx, w, h, label, hovered) {
+    ctx.textBaseline = "top";
+    const s = h / 100; // scale fonts to the texture
+    switch (label.kind) {
+      case "heading":
+        roundRect(ctx, 0, 0, w, h, 14, label.colour);
+        ctx.font = `600 ${Math.round(h * 0.5)}px ${FONT}`;
+        ctx.fillStyle = "#fff";
+        ctx.fillText(label.text, 18, h * 0.24);
+        return;
+      case "note": {
+        roundRect(ctx, 2, 2, w - 4, h - 4, 10, label.high ? "#fff4e6" : "#fffbe6", label.selected ? "#3b5bdb" : hovered ? "#748ffc" : null, label.selected ? 8 : 5);
+        ctx.fillStyle = STATUS_COLOURS[label.status];
+        ctx.fillRect(10, 10, 10, h - 20);
+        lines(ctx, `#${label.num} ${label.text}`, 32, 12, w - (label.ci ? 92 : 50), Math.round(30 * s), "#1d1d1f", 2, "500");
+        if (label.agent) { ctx.font = `${Math.round(22 * s)}px ${FONT}`; ctx.fillStyle = "#5b5b63"; ctx.fillText(label.agent + (label.high ? " · urgent" : ""), 32, h - 30 * s); }
+        if (label.ci) { ctx.beginPath(); ctx.arc(w - 36, h / 2, 16, 0, Math.PI * 2); ctx.fillStyle = CI_COLOURS[label.ci]; ctx.fill(); }
+        return;
+      }
+      case "more":
+        roundRect(ctx, 2, 2, w - 4, h - 4, 10, "rgba(255,255,255,0.12)");
+        lines(ctx, label.text, 24, h * 0.3, w - 40, Math.round(26 * s), "#dcdad3", 1);
+        return;
+      case "monitor": {
+        roundRect(ctx, 0, 0, w, h, 16, "#111318", hovered ? "#748ffc" : "#2b2e36", 8);
+        ctx.fillStyle = label.colour;
+        ctx.font = `700 ${Math.round(h * 0.11)}px ${FONT}`;
+        ctx.fillText(label.agent, 24, 20);
+        let y = lines(ctx, label.task, 24, 30 + h * 0.13, w - 48, Math.round(h * 0.085), "#ececf1", 3);
+        if (label.status) {
+          ctx.font = `600 ${Math.round(h * 0.07)}px ${FONT}`;
+          ctx.fillStyle = STATUS_COLOURS[label.status];
+          ctx.fillText(STATUS_LABELS[label.status], 24, y + 10);
+        }
+        const bar = h - 70;
+        roundRect(ctx, 24, bar, w - 48, 18, 9, "#2b2e36");
+        if (label.progress) roundRect(ctx, 24, bar, Math.max(18, (w - 48) * label.progress / 100), 18, 9, label.colour);
+        ctx.font = `${Math.round(h * 0.06)}px ${FONT}`;
+        ctx.fillStyle = "#a2a2ad";
+        const c = label.counts;
+        ctx.fillText(`${c.todo} to do · ${c.doing} doing · ${c.review} review · ${c.done} done`, 24, h - 42);
+        if (label.ci && label.ci !== "none") {
+          ctx.textAlign = "right";
+          ctx.fillStyle = CI_COLOURS[label.ci];
+          ctx.font = `700 ${Math.round(h * 0.07)}px ${FONT}`;
+          ctx.fillText(`CI ${label.ci}`, w - 24, 24);
+          ctx.textAlign = "left";
+        }
+        return;
+      }
+      case "panel": {
+        roundRect(ctx, 0, 0, w, h, 18, "#15171c", "#3b5bdb", 6);
+        let y = 22;
+        const listen = label.listening === "listening" ? "● Listening… let go to send"
+          : label.listening === "loading" ? "Loading the speech model…"
+          : label.listening === "transcribing" ? "Working out what you said…"
+          : label.voiceMode === "none" ? "No microphone here: point and pull the trigger"
+          : "Hold grip or A/X to talk";
+        ctx.font = `700 ${Math.round(h * 0.075)}px ${FONT}`;
+        ctx.fillStyle = label.listening === "listening" ? "#ff8787" : "#ececf1";
+        ctx.fillText(listen, 26, y);
+        y += h * 0.11;
+        if (label.heard) y = lines(ctx, `You said: "${label.heard}"`, 26, y, w - 52, Math.round(h * 0.055), "#a2a2ad", 2) + 6;
+        if (label.reply) y = lines(ctx, label.reply, 26, y, w - 52, Math.round(h * 0.06), "#ececf1", 3) + 10;
+        if (label.task) y = lines(ctx, `Selected: ${label.task} (${STATUS_LABELS[label.taskStatus]})`, 26, y, w - 52, Math.round(h * 0.055), "#91a7ff", 2) + 6;
+        if (label.pending) {
+          roundRect(ctx, 18, y, w - 36, h - y - 14, 12, "#3d2e00", "#f08c00", 4);
+          lines(ctx, `Waiting to post on PR ${label.pending.number}: ${label.pending.body.split("\n")[0]}. Say "confirm" or press Send.`, 32, y + 12, w - 64, Math.round(h * 0.055), "#ffe8cc", 3, "500");
+        } else if (!label.repo) {
+          lines(ctx, "No repository yet: set one on the page to pull its pull requests in.", 26, y, w - 52, Math.round(h * 0.05), "#ffa94d", 2);
+        }
+        return;
+      }
+      case "button": {
+        const fill = label.disabled ? "#2b2e36" : label.active ? "#c92a2a" : hovered ? "#5c7cfa" : "#3b5bdb";
+        roundRect(ctx, 2, 2, w - 4, h - 4, 14, fill);
+        ctx.font = `600 ${Math.round(h * 0.42)}px ${FONT}`;
+        ctx.fillStyle = label.disabled ? "#6c6f78" : "#fff";
+        ctx.textAlign = "center";
+        ctx.fillText(label.text, w / 2, h * 0.28);
+        ctx.textAlign = "left";
+      }
+    }
+  }
+
+  let frameNo = 0;
+  const hovered = new Set();
+  function rebuild() {
+    scene = buildScene(state, ui);
+    for (const it of scene.items) if (it.pick && hovered.has(pickKey(it.pick))) it.hovered = true;
+    dirty = false;
+  }
+  const pickKey = (p) => `${p.kind}:${p.id || p.agent}`;
+
+  function drawMesh(buf, count, mvp, colour, tex) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.enableVertexAttribArray(loc.pos); gl.vertexAttribPointer(loc.pos, 3, gl.FLOAT, false, 24, 0);
+    gl.enableVertexAttribArray(loc.uv); gl.vertexAttribPointer(loc.uv, 2, gl.FLOAT, false, 24, 12);
+    gl.enableVertexAttribArray(loc.shade); gl.vertexAttribPointer(loc.shade, 1, gl.FLOAT, false, 24, 20);
+    gl.uniformMatrix4fv(loc.mvp, false, mvp);
+    if (tex) {
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.uniform1i(loc.tex, 0);
+      gl.uniform1f(loc.useTex, 1);
+    } else {
+      gl.uniform1f(loc.useTex, 0);
+      gl.uniform4fv(loc.colour, colour);
+    }
+    gl.drawArrays(gl.TRIANGLES, 0, count);
+  }
+
+  function drawScene(viewProj, time, extras = []) {
+    gl.useProgram(prog);
+    for (const it of scene.items) {
+      const bob = it.bob ? Math.sin(time / 300 + it.pos[0]) * 0.03 : 0;
+      const model = compose([it.pos[0], it.pos[1] + bob, it.pos[2]], it.yaw, it.size);
+      const mvp = multiply(viewProj, model);
+      if (it.mesh === "box") drawMesh(boxBuf, 36, mvp, rgba(it.colour));
+      else drawMesh(quadBuf, 6, mvp, null, texFor(it));
+    }
+    for (const e of extras) drawMesh(boxBuf, 36, multiply(viewProj, e.model), e.colour);
+  }
+
+  // ---------- the screen preview ----------
+  const look = { pitch: -0.12 };
+  const keys = new Set();
+  let lastT = performance.now();
+  const FOV = (70 * Math.PI) / 180;
+
+  function cameraModel() {
+    return compose([player.x, ROOM.eye, player.z], player.yaw, [1, 1, 1], look.pitch);
+  }
+  function resize() {
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    const w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+  }
+  function previewFrame(now) {
+    if (xrSession) return;
+    const dt = Math.min(0.1, (now - lastT) / 1000);
+    lastT = now;
+    const f = (keys.has("w") || keys.has("arrowup") ? 1 : 0) - (keys.has("s") || keys.has("arrowdown") ? 1 : 0);
+    const st = (keys.has("d") ? 1 : 0) - (keys.has("a") ? 1 : 0);
+    if (keys.has("arrowleft")) player.yaw += 1.6 * dt;
+    if (keys.has("arrowright")) player.yaw -= 1.6 * dt;
+    if (f || st) walk(f * 2 * dt, st * 2 * dt);
+    if (dirty) rebuild();
+    resize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.clearColor(0.1, 0.1, 0.12, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    const proj = perspective(FOV, canvas.width / Math.max(1, canvas.height), 0.05, 50);
+    drawScene(multiply(proj, invertRigid(cameraModel())), now);
+    frameNo++;
+    if (frameNo % 60 === 0) sweepTextures();
+    requestAnimationFrame(previewFrame);
+  }
+  function walk(forward, strafe) {
+    const s = Math.sin(player.yaw), c = Math.cos(player.yaw);
+    player.x += -s * forward + c * strafe;
+    player.z += -c * forward - s * strafe;
+    moved();
+  }
+  function moved() {
+    const lim = ROOM.half - 0.4;
+    player.x = Math.max(-lim, Math.min(lim, player.x));
+    player.z = Math.max(-lim, Math.min(lim, player.z));
+    if (xrSession && baseSpace) {
+      const o = playerOffset(player);
+      refSpace = baseSpace.getOffsetReferenceSpace(new XRRigidTransform(o.position, o.orientation));
+    }
+  }
+  function previewRay(e) {
+    const r = canvas.getBoundingClientRect();
+    const nx = ((e.clientX - r.left) / r.width) * 2 - 1, ny = 1 - ((e.clientY - r.top) / r.height) * 2;
+    const t = Math.tan(FOV / 2), aspect = r.width / Math.max(1, r.height);
+    const m = cameraModel();
+    const d = transformDir(m, [nx * t * aspect, ny * t, -1]);
+    const len = Math.hypot(...d);
+    return { origin: [m[12], m[13], m[14]], dir: d.map((v) => v / len) };
+  }
+  let drag = null;
+  canvas.addEventListener("pointerdown", (e) => { canvas.focus(); drag = { x: e.clientX, y: e.clientY, moved: 0 }; canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener("pointermove", (e) => {
+    if (drag) {
+      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      drag.moved += Math.abs(dx) + Math.abs(dy);
+      drag.x = e.clientX; drag.y = e.clientY;
+      player.yaw += dx * 0.005;
+      look.pitch = Math.max(-1.2, Math.min(1.2, look.pitch + dy * 0.004));
+      return;
+    }
+    const hit = pickRay(scene.items, ...Object.values(previewRay(e)));
+    const key = hit ? pickKey(hit.item.pick) : null;
+    if (!hovered.has(key) || hovered.size !== (key ? 1 : 0)) { hovered.clear(); if (key) hovered.add(key); dirty = true; }
+    canvas.style.cursor = key ? "pointer" : "grab";
+  });
+  canvas.addEventListener("pointerup", (e) => {
+    const wasClick = drag && drag.moved < 6;
+    drag = null;
+    if (!wasClick) return;
+    const { origin, dir } = previewRay(e);
+    const hit = pickRay(scene.items, origin, dir);
+    if (hit) activate(hit.item.pick);
+  });
+  canvas.addEventListener("keydown", (e) => {
+    const k = e.key.toLowerCase();
+    if (k === " ") { e.preventDefault(); if (!e.repeat) voice.press(); return; }
+    if (["w", "a", "s", "d", "arrowup", "arrowdown", "arrowleft", "arrowright"].includes(k)) { e.preventDefault(); keys.add(k); }
+  });
+  canvas.addEventListener("keyup", (e) => {
+    const k = e.key.toLowerCase();
+    if (k === " ") voice.release();
+    keys.delete(k);
+  });
+  canvas.addEventListener("blur", () => keys.clear());
+
+  // ---------- the headset ----------
+  let xrSession = null, baseSpace = null, refSpace = null;
+  const sticks = new Map(); // per input source: snap-turn latch and talk-button state
+
+  async function checkXr() {
+    const btn = $("enter");
+    let ok = false;
+    try { ok = Boolean(navigator.xr && await navigator.xr.isSessionSupported("immersive-vr")); } catch { ok = false; }
+    btn.disabled = !ok || !gl;
+    btn.textContent = ok ? "Enter VR" : "No headset found: use the preview below";
+  }
+
+  async function enterXr() {
+    if (xrSession) return xrSession.end();
+    try {
+      await gl.makeXRCompatible?.();
+      xrSession = await navigator.xr.requestSession("immersive-vr", { optionalFeatures: ["local-floor", "hand-tracking"] });
+    } catch (err) {
+      xrSession = null;
+      return say(`The headset said no: ${err?.message || err}.`, { speak: false });
+    }
+    record("vr_entered");
+    $("enter").textContent = "Exit VR";
+    xrSession.updateRenderState({ baseLayer: new XRWebGLLayer(xrSession, gl) });
+    try { baseSpace = await xrSession.requestReferenceSpace("local-floor"); }
+    catch { baseSpace = (await xrSession.requestReferenceSpace("local")).getOffsetReferenceSpace(new XRRigidTransform({ x: 0, y: -ROOM.eye, z: 0 })); }
+    moved();
+    xrSession.addEventListener("end", () => {
+      xrSession = null; baseSpace = null; refSpace = null;
+      $("enter").textContent = "Enter VR";
+      voice.release();
+      requestAnimationFrame(previewFrame);
+    });
+    // Trigger (or a pinch) selects what the ray points at; grip is push to talk.
+    xrSession.addEventListener("select", (e) => {
+      const ray = rayFor(e.frame, e.inputSource);
+      const hit = ray && pickRay(scene.items, ray.origin, ray.dir);
+      if (hit) activate(hit.item.pick);
+    });
+    xrSession.addEventListener("squeezestart", () => voice.press());
+    xrSession.addEventListener("squeezeend", () => voice.release());
+    xrSession.requestAnimationFrame(xrFrame);
+    say("Hold the grip to talk. Say help for the list.");
+  }
+  $("enter").addEventListener("click", enterXr);
+
+  function rayFor(frame, source) {
+    const pose = frame.getPose(source.targetRaySpace, refSpace);
+    if (!pose) return null;
+    const m = pose.transform.matrix;
+    return { origin: [m[12], m[13], m[14]], dir: [-m[8], -m[9], -m[10]], matrix: m };
+  }
+
+  function xrFrame(now, frame) {
+    const session = frame.session;
+    session.requestAnimationFrame(xrFrame);
+    const dt = Math.min(0.1, (now - lastT) / 1000);
+    lastT = now;
+    const viewer = frame.getViewerPose(refSpace);
+    if (!viewer) return;
+
+    // Controllers: rays, hover, sticks, A/X push to talk.
+    const extras = [];
+    const nowHovered = new Set();
+    for (const source of session.inputSources) {
+      const ray = rayFor(frame, source);
+      if (ray && source.targetRayMode !== "gaze") {
+        const hit = pickRay(scene.items, ray.origin, ray.dir);
+        const len = hit ? hit.distance : 3;
+        if (hit) nowHovered.add(pickKey(hit.item.pick));
+        extras.push({ model: multiply(ray.matrix, compose([0, 0, -len / 2], 0, [0.004, 0.004, len])), colour: hit ? [0.45, 0.56, 0.99, 1] : [0.9, 0.9, 0.9, 0.6] });
+        if (hit) extras.push({ model: compose(hit.point, 0, [0.02, 0.02, 0.02]), colour: [1, 1, 1, 1] });
+      }
+      const gp = source.gamepad;
+      if (!gp) continue;
+      const s = sticks.get(source) || { turned: false, talk: false };
+      const ax = gp.axes.length >= 4 ? gp.axes[2] : gp.axes[0] || 0;
+      const ay = gp.axes.length >= 4 ? gp.axes[3] : gp.axes[1] || 0;
+      if (source.handedness === "left") {
+        if (Math.hypot(ax, ay) > 0.15) {
+          const m = viewer.transform.matrix;
+          const fx = -m[8], fz = -m[10], fl = Math.hypot(fx, fz) || 1;
+          const fwd = [fx / fl, fz / fl], right = [-fwd[1], fwd[0]];
+          player.x += (fwd[0] * -ay + right[0] * ax) * 1.8 * dt;
+          player.z += (fwd[1] * -ay + right[1] * ax) * 1.8 * dt;
+          moved();
+        }
+      } else if (Math.abs(ax) > 0.7 && !s.turned) {
+        player.yaw += ax > 0 ? -Math.PI / 6 : Math.PI / 6;
+        s.turned = true;
+        moved();
+      } else if (Math.abs(ax) < 0.3) s.turned = false;
+      const talkDown = Boolean(gp.buttons[4]?.pressed);
+      if (talkDown && !s.talk) voice.press();
+      if (!talkDown && s.talk) voice.release();
+      s.talk = talkDown;
+      sticks.set(source, s);
+    }
+    if ([...nowHovered].join() !== [...hovered].join()) { hovered.clear(); nowHovered.forEach((k) => hovered.add(k)); dirty = true; }
+    if (dirty) rebuild();
+
+    const layer = session.renderState.baseLayer;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, layer.framebuffer);
+    gl.clearColor(0.1, 0.1, 0.12, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    const pose = frame.getViewerPose(refSpace);
+    for (const view of pose.views) {
+      const vp = layer.getViewport(view);
+      gl.viewport(vp.x, vp.y, vp.width, vp.height);
+      drawScene(multiply(view.projectionMatrix, view.transform.inverse.matrix), now, extras);
+    }
+    frameNo++;
+    if (frameNo % 90 === 0) sweepTextures();
+  }
+
+  // ---------- start ----------
+  const optout = $("optout");
+  const syncOptout = () => { optout.textContent = usageOptedOut() ? "Turn usage counting back on" : "Turn usage counting off"; };
+  optout.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); syncOptout(); });
+  syncOptout();
+
+  if (gl) {
+    initGl();
+    checkXr();
+    navigator.xr?.addEventListener?.("devicechange", checkXr);
+    requestAnimationFrame(previewFrame);
+  }
+  if (!state.tasks.length) say("No tasks yet. Pull a repository in, say a task, or load the example on the 2D page.", { speak: false });
+  window.__workroom = { run, get state() { return state; }, get ui() { return ui; }, get player() { return player; }, activate };
+</script>
+</body>
+</html>

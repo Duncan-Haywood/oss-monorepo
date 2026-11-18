@@ -14,8 +14,8 @@ owner: duncan
 # behind an env-var switch.
 #
 # Liability: first read of the Regulation's scope and dates; rejects bad input, says plainly that implementing acts and national enforcement decide, carries
-# no-warranty and not-legal-advice clauses. Dates and Article numbers were written from memory without network access to EUR-Lex in the building session
-# and must be verified (notably the 2025 postponement of due diligence to 18 Aug 2027 and the pending carbon-footprint method); ethical risk is false
+# no-warranty and not-legal-advice clauses. Dates and Article numbers were written from memory, then checked against the Official Journal text
+# on 2026-11-15 (incl. the 2025/1561 postponement of due diligence to 18 Aug 2027; carbon-footprint method still pending); ethical risk is false
 # comfort from an "out" result or a stale date.
 
 hypotheses:
@@ -40,5 +40,5 @@ kill_criteria:
   - A report that a date, scope or Article reference differs from the Regulation's text (or a later implementing act) on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/eu-battery-regulation-checker/
+  production: https://marisstella.app/eu-battery-regulation-checker/
   analytics: null

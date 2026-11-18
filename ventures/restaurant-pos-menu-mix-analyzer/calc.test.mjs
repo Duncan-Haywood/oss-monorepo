@@ -21,7 +21,7 @@ test("delimiter detection and utf-16 decoding", () => {
   assert.equal(detectDelimiter("a\tb\n1\t2"), "\t");
   const text = "Item,Qty,Net Sales\nBurger,2,20";
   const le = new Uint8Array([0xff, 0xfe, ...[...text].flatMap((c) => [c.charCodeAt(0), 0])]);
-  assert.equal(decodeBuffer(le.buffer), "﻿".slice(0, 0) + text);
+  assert.equal(decodeBuffer(le.buffer), "\uFEFF".slice(0, 0) + text);
 });
 
 test("header aliases: Toast, Square and Clover style names all resolve", () => {
@@ -246,4 +246,16 @@ test("no network: the calculation module makes no requests", () => {
     analyze(normalizeSales(parseCsv(s.sales)).items, { costList: parseCostList(s.costs).map });
   } finally { globalThis.fetch = saved; }
   assert.equal(called, 0);
+});
+
+test("a Plowhorse that loses money per plate has no break-even loss, not one over 100%", () => {
+  const a = analyze([
+    item("Horse", 100, 100 * 20, { cost: 21 }),  // cm -1, popular, below avg; 1 - cm / denom read 200%
+    item("Star", 100, 100 * 30, { cost: 6 }),
+    item("Rare", 2, 2 * 12, { cost: 6 }),
+    item("Rare2", 2, 2 * 12, { cost: 6 }),
+  ], { priceIncreasePct: 10, volumeLossPct: 5, periodWeeks: 4 });
+  const p = a.priceMove.items.find((x) => x.name === "Horse");
+  assert.ok(p);
+  assert.equal(p.breakEvenLossPct, null);
 });

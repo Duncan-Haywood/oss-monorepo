@@ -1,0 +1,177 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01AcxTtGRJC5SxpVcSRpXhpV",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T18:08:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13857",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "No new blog post: the run's output is a one-line front-matter fix and two tests; nothing a reader needs."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Red baseline on platform/pages/writing.mjs found main broken by a post missing description; fixed. Campaign on check_unrendered_placeholders.py: 4/8 caught, gaps closed with page-count and default-root tests. Open list's 2 entries are control-plane (own PR, owner approval). Redteam run without blog post: deviation-free skip, defect fix is small.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/check_unrendered_placeholders.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_unrendered_placeholders  (in platform/ci)",
+        "seed": 171148879,
+        "commit": "9c83ce5b",
+        "sites": 8,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/check_unrendered_placeholders.py",
+            "line": 16,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "ROOT = Path(__file__).resolve().parents[2]",
+            "after": "ROOT = Path(__file__).resolve().parents[3]",
+            "line_text": "ROOT = Path(__file__).resolve().parents[2]",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_unrendered_placeholders.py",
+            "line": 32,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "yield m.group(0)",
+            "after": "yield m.group(1)",
+            "line_text": "        yield m.group(0)",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_unrendered_placeholders.py",
+            "line": 36,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "after": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[1])",
+            "line_text": "    ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "argparse help text only"
+          },
+          {
+            "file": "platform/ci/check_unrendered_placeholders.py",
+            "line": 37,
+            "col": 47,
+            "operator": "div-to-times",
+            "before": "ap.add_argument(\"--root\", default=str(ROOT / \"ventures\"))",
+            "after": "ap.add_argument(\"--root\", default=str(ROOT * \"ventures\"))",
+            "line_text": "    ap.add_argument(\"--root\", default=str(ROOT / \"ventures\"))",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_unrendered_placeholders.py",
+            "line": 40,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "bad, pages = [], 0",
+            "after": "bad, pages = [], 1",
+            "line_text": "    bad, pages = [], 0",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_unrendered_placeholders.py",
+            "line": 48,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "pages += 1",
+            "after": "pages += 2",
+            "line_text": "        pages += 1",
+            "caught": false,
+            "seconds": 0.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_unrendered_placeholders.py",
+            "line": 54,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 2 if bad else 0",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_unrendered_placeholders.py",
+            "line": 54,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 1 if bad else 1",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "docs/posts/2026-11-07-a-survey-result-that-admits-its-ties.md",
+        "issue": "post from #13852 had no description front matter; writing.test.mjs red on main and the site build would fail",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13857"
+      }
+    ]
+  }
+}

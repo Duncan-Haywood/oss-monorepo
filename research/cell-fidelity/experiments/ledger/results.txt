@@ -1,0 +1,16 @@
+cell-fidelity milestone 5zj: where does Ai2020's unbooked lithium loss go? PyBaMM DFN lithium ledger at cycle 10
+(medians over designs, mmol; passed = charge the negative side reactions pass / F; booked = PyBaMM's 'Total lithium lost to side reactions')
+
+condition            variant fine  n    lost  partcl   elyte  booked  passed     SEI    plat    dneg    dpos  bk/pt neg/pt
+Ai2020@0.45x            both       8  18.261  18.261  -0.000   0.537  18.260   0.001   0.535 -31.642   9.962  0.029  1.863
+Ai2020@0.45x            both  yes  2   3.951   3.951   0.000   0.116   3.951   0.000   0.116 -15.748  11.796  0.029  3.851
+Ai2020@0.45x         plating       8  18.294  18.294   0.000   0.538  18.243   0.000   0.538 -31.620   9.889  0.029  1.855
+Ai2020@0.45x             sei       8   0.048   0.048  -0.000   0.001   0.048   0.001   0.000 -12.917  12.856  0.029342.560
+Chen2020@1.5x           both       2  11.041  11.041  -0.000  11.041  11.041   0.023  11.018-143.675 132.633  1.000 13.355
+NCA_Kim2011@0.875x      both       2  32.146  32.146   0.000  32.146  32.149   0.115  32.031 -36.074   3.927  1.000  1.131
+OKane2022@1.5x          both       2  10.283  10.283   0.000  10.283  10.282   0.022  10.261-145.111 134.829  1.000 14.414
+
+H187 (the side reactions pass the charge that leaves the particles, within 10%, on every Ai2020 design; so the booking variables under-count): supported
+H188 (SEI alone accounts for at least 80% of the Ai2020 particle loss on every design): refuted
+H189 (not numerical: a doubled mesh changes the Ai2020 particle loss at cycle 3 by under 5%): supported
+H190 (on the control sets the booked side reactions are within 5% of the particle loss): supported

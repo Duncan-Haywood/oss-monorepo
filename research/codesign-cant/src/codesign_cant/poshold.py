@@ -1,0 +1,275 @@
+"""codesign-cant milestone 6: position hold with the corrected side force, the shared thrust polytope and longer episodes with a wind step.
+
+A canted rotor tilts its thrust about its own arm. When the mixer moves thrust between rotors to make roll or pitch torque, the
+tangential components no longer cancel and the body feels a horizontal force. From the rows of `allocation.layout` (checked in
+tests/test_poshold.py), a delivered body torque (tau_x, tau_y, tau_z) brings the body-frame force
+
+    F_y = lat * tau_x,   F_x = lat * tau_y,   lat = sin(alpha) / (L cos(alpha) - kappa sin(alpha)),
+
+and yaw torque brings none (the tangents of the four rotors sum to zero). `codesign-aero-cant-poshold` used tan(alpha) / (L / sqrt 2),
+sqrt 2 too large, a per-axis torque box, and 2 s episodes. Here: the attitude-priority mixer on one thrust polytope (milestone 2),
+torque limits from the allocation with the collective held at hover, 6 s episodes in which the mean wind steps at 3 s (the drift
+test the earlier project deferred), and hover power priced as in milestones 2 and 4.
+
+The vehicle model (sizing closure, attitude dynamics, gust, plant randomisation) is `aero`'s. The translation model is
+`codesign-aero-cant-poshold`'s: perfect altitude hold (the vertical thrust balances weight through the tilt), drag 0.5 rho Cd A v|v|
+from the same gust that drives the disturbance torque, and the side force from the *delivered* (mixed, lagged, saturated) torque.
+Constants marked ASSUMED are inherited from that project; none is from a datasheet.
+"""
+import numpy as np
+
+from . import aero as A
+from .allocation import mix_priority
+
+T_END = 6.0
+STEPS = int(T_END / A.DT)
+T_WIND_STEP = 3.0                       # s: the mean wind steps here (drift test)
+WIND_STEP = 3.0                         # m/s per horizontal axis, random sign per episode and axis (ASSUMED; 3 -> 0 or 6 m/s)
+YAW_REF_DEG = 30.0                      # yaw steps +-30 deg, four segments of 1.5 s (as the earlier project, stretched to 6 s)
+POS_LO, POS_HI = np.array([-1.0, -1.0, -2.0]), np.array([1.0, 1.0, 0.5])   # log10 outer-loop kp (1/s^2), kd (1/s), ki (1/s^3); ASSUMED (inherited)
+POS_NOISE, VEL_NOISE = 0.02, 0.05       # m, m/s: GNSS-class noise (ASSUMED, inherited)
+OFFSET = 0.5                            # initial horizontal offset, uniform +-m per axis (ASSUMED, inherited)
+TILT_CMD_MAX = np.deg2rad(20.0)
+CD_A = 1.0                              # drag coefficient on the area in aero.size (ASSUMED, inherited)
+POS_SCALE_M, YAW_SCALE_DEG = 0.10, 10.0  # composite C = sqrt((pos / 0.10 m)^2 + (yaw / 10 deg)^2), one unit = 10 deg of yaw error
+DEAD_POS = 5.0
+TAU_FF = 0.5                            # s: default low-pass on the side-force feed-forward (milestone 7); may be a per-design array
+TAU_FF_RANGE = (0.05, 2.0)              # s: log-uniform range when CMA-ES chooses it (13th coordinate, `score`)
+
+
+def cop_signs(h):
+    """Per-axis gust-torque signs (roll, pitch) for `rollout(dist_sign=...)` of a rigid body whose centre of pressure sits a height h
+    above (h > 0) or below (h < 0) the centre of mass, z up. The drag F = (Fx, Fy, 0) acting at r = (0, 0, h) gives tau = r x F =
+    (-h Fy, h Fx, 0); in `rollout` the roll torque goes with Fy and the pitch torque with Fx, each as +kg v|v| times its sign, so
+    a rigid body has signs (-sign h, +sign h). The inherited model's (+1, +1) and its flip (-1, -1) are not rigid bodies: each puts
+    the centre of pressure below the centre of mass on one axis and above it on the other (tests/test_poshold.py)."""
+    s = float(np.sign(h))
+    return np.array([-s, s])
+
+
+def lateral_per_torque(alpha, L, kappa):
+    """Body horizontal force per unit roll (or pitch) torque for the canted X layout of `allocation` (closed form of its rows)."""
+    return np.sin(alpha) / (L * np.cos(alpha) - kappa * np.sin(alpha))
+
+
+def reference(episodes, seed, steps=None):
+    """Yaw step sequence, gust and sensor noise, initial offsets and wind-step signs; independent of the design.
+    steps (milestone 7d) lengthens the episode; the yaw sequence keeps four segments, each steps // 4 long."""
+    n = STEPS if steps is None else int(steps)
+    rng = np.random.default_rng(seed + 777)
+    yaw = np.repeat(rng.choice([-1.0, 1.0], size=(episodes, 4)), n // 4, axis=1) * np.deg2rad(YAW_REF_DEG)
+    gust_n = rng.standard_normal((episodes, 2, n))
+    gyro_n = rng.standard_normal((episodes, 3, n)) * 0.05
+    ang_n = rng.standard_normal((episodes, 3, n)) * 0.005
+    u0 = rng.uniform(-1, 1, size=(episodes, 2))
+    off = rng.uniform(-OFFSET, OFFSET, size=(episodes, 2))
+    pn = rng.standard_normal((episodes, 2, n)) * POS_NOISE
+    vn = rng.standard_normal((episodes, 2, n)) * VEL_NOISE
+    wsign = rng.choice([-1.0, 1.0], size=(episodes, 2))
+    return yaw, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign
+
+
+def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", integ_clip=0.3, ffi_clip=1.0, steps=None, diag=None, dead_tilt_deg=60.0, mixer_ideal=False, torque_room=1.0, pos_scale=1.0, mix_mode="hover", tilt_cone=False, tilt_rate=None, perr_max=None, sp_rate=None, trace=None):
+    """gains (N,9) physical: attitude PID roll/pitch kp, kd, ki; yaw kp, kd, ki; position kp, kd, ki.
+    Hold the origin from a random offset while yaw steps +-30 deg and the mean wind steps at 3 s. Roll and pitch references come from
+    the position loop; every torque request passes the attitude-priority mixer with the collective held at hover.
+    couple=False switches the side force off (an ablation; the real vehicle cannot do this).
+    dist_sign=-1 flips the gust's disturbance torque relative to its drag force (centre of pressure on the other side of the
+    centre of mass); the inherited model fixes it at +1, which makes the steady counter-torque's side force oppose the drag.
+    dist_sign may also be a pair (roll, pitch); `cop_signs` gives the pair for a rigid centre-of-pressure offset. lever_scale
+    multiplies the inherited centre-of-pressure lever (0.05 + 0.3 L, ASSUMED) and so the gust torque.
+    ff (milestone 7) is the gain of a side-force feed-forward in the position loop. The controller knows its own design (lat, the
+    nominal mass and motor lag) and what the mixer commanded, so it predicts the delivered torque through the nominal lag (as INDI
+    does in `aero`), turns it into the side force lat * tau, low-passes it with time constant tau_ff and subtracts it from the
+    horizontal acceleration the tilt has to make: the vehicle leans against its own side force. It uses only the previous step's
+    command (causal) and the nominal plant (the randomised mass, lag and torque scale are unknown to it). ff = 0 is milestones 6/6b.
+    ff_mode="integ" (milestone 7b) feeds forward only the steady part: the attitude integrator's torque ki * integ * tau_max_nom
+    (the controller's own estimate of the gust torque it is holding off), from the previous step, with no filter (tau_ff unused).
+    The proportional and derivative torque, which follow the tilt reference within the motor lag, are left out, so no fast loop
+    "tilt reference -> torque -> side force -> tilt reference" closes.
+    integ_clip, ffi_clip and steps (milestone 7d) are probes, not design choices: the attitude integrator's clip (rad s), the clip on
+    ki * integ in the integrator feed-forward (share of tau_max), and the episode length in steps (default 6 s); np.inf removes a
+    clip. diag, if a dict, receives per (design, episode) shares of alive steps with the roll/pitch integrator at its clip
+    ("integ_at_clip"), the integrator feed-forward at its clip ("ffi_at_clip"), the tilt command at TILT_CMD_MAX ("tilt_at_clip")
+    and the mixer scaling roll/pitch ("mix_rp"), and the step each episode died at ("t_dead", -1 if alive).
+    dead_tilt_deg, mixer_ideal, torque_room and pos_scale (milestone 7g) are probes too: the roll/pitch angle that counts as
+    divergence (deg); mixer_ideal=True delivers the clipped request with no polytope scaling (yaw and roll/pitch never compete);
+    torque_room multiplies every torque limit (requested and delivered, the controller's nominal ones too); pos_scale multiplies
+    the three position-loop gains; mix_mode="free" lets the mixer shift the collective ("airmode", `allocation.mix_priority`). With diag, also "dead_why" (1 roll/pitch past dead_tilt_deg, 2 position past DEAD_POS, 0
+    alive), "gust_over_tmax" (share of alive steps with the gust torque above the plant's torque limit on roll or pitch) and
+    "gust_peak" (peak over alive steps of that ratio).
+    tilt_cone, tilt_rate, perr_max and sp_rate (milestone 7k) are controller-side fixes a builder can make without retuning; all are
+    inert at their defaults. tilt_cone=True limits the tilt command's magnitude, sqrt(roll^2 + pitch^2) <= TILT_CMD_MAX, keeping its
+    direction (PX4's MPC_TILTMAX_AIR limits the angle of the thrust vector), where the default clips each axis on its own (which
+    lets the combined tilt reach about 55 deg at a 45 deg limit). tilt_rate (rad/s) slews the roll/pitch reference toward the
+    position loop's request at most that fast per axis. perr_max (m) clips the norm of the position error that enters the
+    proportional term only (a cascade's velocity-setpoint limit in acceleration form); the derivative and integral terms are
+    untouched. sp_rate (m/s) starts the setpoint at the vehicle's initial position and moves it toward the hold point at most that
+    fast (a speed-limited trajectory generator); the score still measures the distance to the hold point.
+    trace (milestone 7y), if a list, receives each step's horizontal position (N, E, 2), NaN once the episode has diverged; inert
+    at its default.
+    Returns per design: RMS position error (m) over the episode, over the last 3 s (after the wind step), RMS yaw error (deg),
+    RMS roll/pitch tracking error (deg), the share of episodes that diverged, and (dead_ep, (N, E)) which ones, with each episode's position RMS (pos_ep, (N, E))."""
+    if steps is None:
+        steps = STEPS
+        yaw_ref, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign = reference(episodes, seed)
+    else:
+        steps = int(steps)
+        yaw_ref, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign = reference(episodes, seed, steps)
+    N, E = gains.shape[0], episodes
+    kp = np.stack([gains[:, 0], gains[:, 0], gains[:, 3]], 1)[:, None, :]
+    kd = np.stack([gains[:, 1], gains[:, 1], gains[:, 4]], 1)[:, None, :]
+    ki = np.stack([gains[:, 2], gains[:, 2], gains[:, 5]], 1)[:, None, :]
+    kpp, kdp, kip = (gains[:, 6, None, None] * pos_scale, gains[:, 7, None, None] * pos_scale, gains[:, 8, None, None] * pos_scale)
+    pl = A.plant_draw(plant, episodes, seed)
+    I0 = sz["inertia"]
+    I = np.stack([I0, I0, I0 * A.IZ_RATIO], 1)[:, None, :] * pl["mass"][None, :, None]
+    tmax_nom = np.stack([sz["tau_max"], sz["tau_max"], sz["tau_yaw"]], 1) * torque_room
+    tmax = tmax_nom[:, None, :] * pl["tau"][None, :, None]
+    lag = (sz["lag"][:, None] * pl["lag"][None, :])[:, :, None]
+    kg = (0.5 * A.RHO * sz["area"] * sz["lever"] * lever_scale)[:, None, None]
+    dsg = np.broadcast_to(np.asarray(dist_sign, float), (2,))
+    kf = (0.5 * A.RHO * sz["area"] * CD_A)[:, None, None]
+    mass = sz["mass"][:, None] * pl["mass"][None, :]
+    lat = (lateral_per_torque(sz["alpha"], sz["L"], kappa) * (1.0 if couple else 0.0))[:, None]
+    mix_args = tuple(sz[k][:, None] for k in ("kr", "ky", "T_hover", "Tmax"))
+    v = np.transpose(gust_mean + gust_std * u0.T[None, :, :] + np.zeros((N, 1, 1)), (0, 2, 1))   # (N,E,2)
+    a = np.exp(-A.DT / 0.5)
+    k_step = int(T_WIND_STEP / A.DT)
+    mean_after = gust_mean + wind_step * wsign[None]                                               # (1,E,2)
+    th = np.zeros((N, E, 3)); om = np.zeros((N, E, 3)); tq = np.zeros((N, E, 3)); integ = np.zeros((N, E, 3))
+    th_prev = np.zeros((N, E, 3)); om_prev = np.zeros((N, E, 3))
+    lag_nom = sz["lag"][:, None, None]; m_nom = sz["mass"][:, None]
+    tq_hat = np.zeros((N, E, 3)); f_ff = np.zeros((N, E, 2)); b_ff = (A.DT / np.maximum(np.broadcast_to(np.asarray(tau_ff, float), (N,)), A.DT))[:, None, None]
+    spt = np.zeros((N, E, 2)) + off[None] if sp_rate is not None else None; rp_cmd = np.zeros((N, E, 2))
+    pos = np.zeros((N, E, 2)) + off[None]; vel = np.zeros((N, E, 2)); pint = np.zeros((N, E, 2))
+    s_ax = np.zeros((N, E, 2)); s_pos = np.zeros((N, E)); s_late = np.zeros((N, E)); s_yaw = np.zeros((N, E)); s_att = np.zeros((N, E))
+    n_steps = steps
+    alive = np.ones((N, E), bool)
+    if diag is not None:
+        dg = {k: np.zeros((N, E)) for k in ("integ_at_clip", "ffi_at_clip", "tilt_at_clip", "mix_rp")}; n_alive = np.zeros((N, E))
+        t_dead = np.full((N, E), -1); why = np.zeros((N, E), int); g_over = np.zeros((N, E)); g_peak = np.zeros((N, E))
+    for t in range(n_steps):
+        m_t = gust_mean if t < k_step else mean_after
+        v = a * v + (1 - a) * m_t + gust_std * np.sqrt(1 - a * a) * gust_n[:, :, t][None]
+        if spt is not None:
+            dn = np.sqrt((spt ** 2).sum(-1, keepdims=True)); spt = spt * np.maximum(dn - sp_rate * A.DT, 0.0) / np.maximum(dn, 1e-12)
+            ep = spt - (pos + pn[:, :, t][None])
+        else:
+            ep = -(pos + pn[:, :, t][None])
+        ev = vel + vn[:, :, t][None]
+        pint = np.clip(pint + ep * A.DT, -2.0, 2.0)
+        if perr_max is not None:
+            en = np.sqrt((ep ** 2).sum(-1, keepdims=True)); acc = kpp * ep * np.minimum(1.0, perr_max / np.maximum(en, 1e-12)) - kdp * ev + kip * pint
+        else:
+            acc = kpp * ep - kdp * ev + kip * pint
+        psi = th_prev[:, :, 2] + ang_n[:, 2, t][None]
+        c, s_ = np.cos(psi), np.sin(psi)
+        ab_x = c * acc[:, :, 0] + s_ * acc[:, :, 1]
+        ab_y = -s_ * acc[:, :, 0] + c * acc[:, :, 1]
+        if ff and ff_mode == "integ":
+            tq_i = np.clip(ki * integ, -ffi_clip, ffi_clip) * tmax_nom[:, None, :]
+            if diag is not None:
+                dg["ffi_at_clip"] += alive * (np.abs(ki * integ)[:, :, :2] >= ffi_clip).any(-1)
+            f_ff = np.stack([lat * tq_i[:, :, 1], lat * tq_i[:, :, 0]], -1)
+        if ff:
+            ab_x = ab_x - ff * f_ff[:, :, 0] / m_nom
+            ab_y = ab_y - ff * f_ff[:, :, 1] / m_nom
+        if tilt_cone:
+            rp_ref = np.stack([-ab_y / A.G, ab_x / A.G], -1)
+            rn = np.sqrt((rp_ref ** 2).sum(-1, keepdims=True)); rp_ref = rp_ref * np.minimum(1.0, TILT_CMD_MAX / np.maximum(rn, 1e-12))
+        else:
+            rp_ref = np.stack([np.clip(-ab_y / A.G, -TILT_CMD_MAX, TILT_CMD_MAX), np.clip(ab_x / A.G, -TILT_CMD_MAX, TILT_CMD_MAX)], -1)
+        if tilt_rate is not None:
+            dr = rp_ref - rp_cmd; rp_cmd = np.where(np.abs(dr) <= tilt_rate * A.DT, rp_ref, rp_cmd + np.sign(dr) * tilt_rate * A.DT); rp_ref = rp_cmd
+        refv = np.concatenate([rp_ref, np.broadcast_to(yaw_ref[:, t][None, :, None], (N, E, 1))], -1)
+        e = refv - (th_prev + ang_n[:, :, t][None])
+        integ = np.clip(integ + e * A.DT, -integ_clip, integ_clip)
+        if diag is not None:
+            dg["integ_at_clip"] += alive * (np.abs(integ[:, :, :2]) >= integ_clip).any(-1)
+            dg["tilt_at_clip"] += alive * (np.abs(rp_ref) >= TILT_CMD_MAX - 1e-12).any(-1)
+            n_alive += alive
+        gy = om_prev + gyro_n[:, :, t][None]
+        u = kp * e - kd * gy + ki * integ
+        req = np.clip(u, -1, 1) * tmax_nom[:, None, :]
+        mixed, s_rp, s_y = mix_priority(req, *mix_args, mode=mix_mode)
+        if mixer_ideal:
+            mixed, s_rp, s_y = req, np.ones_like(s_rp), np.ones_like(s_y)
+        if diag is not None:
+            dg["mix_rp"] += alive * (s_rp < 1 - 1e-9)
+        if sat is not None:
+            sat[:, 0] += (s_rp < 1 - 1e-9).mean(axis=1) / n_steps
+            sat[:, 1] += (s_y < 1 - 1e-9).mean(axis=1) / n_steps
+        if ff and ff_mode == "cmd":
+            tq_hat = np.clip(tq_hat + (mixed - tq_hat) * (A.DT / lag_nom), -tmax_nom[:, None, :], tmax_nom[:, None, :])
+            f_ff += (np.stack([lat * tq_hat[:, :, 1], lat * tq_hat[:, :, 0]], -1) - f_ff) * b_ff
+        tq += (mixed * pl["tau"][None, :, None] - tq) * (A.DT / lag)
+        tq = np.clip(tq, -tmax, tmax)
+        om_prev, th_prev = om, th
+        dist = np.zeros((N, E, 3)); dist[:, :, :2] = dsg * kg * v * np.abs(v)
+        if diag is not None:
+            ratio = (np.abs(dist[:, :, :2]) / tmax[:, :, :2]).max(-1)
+            g_over += alive * (ratio > 1.0); g_peak = np.where(alive, np.maximum(g_peak, ratio), g_peak)
+        om = om + (tq + dist - np.cross(om, I * om)) / I * A.DT
+        phi, tht, psi = th[:, :, 0], th[:, :, 1], th[:, :, 2]
+        p, q, r = om[:, :, 0], om[:, :, 1], om[:, :, 2]
+        th = th + np.stack([p + (q * np.sin(phi) + r * np.cos(phi)) * np.tan(tht), q * np.cos(phi) - r * np.sin(phi),
+                            (q * np.sin(phi) + r * np.cos(phi)) / np.cos(tht)], -1) * A.DT
+        sp, cp, st, cth, ss, cs = np.sin(phi), np.cos(phi), np.sin(tht), np.cos(tht), np.sin(psi), np.cos(psi)
+        Tz = mass * A.G / np.maximum(cp * cth, 0.2)
+        Fx, Fy = lat * tq[:, :, 1], lat * tq[:, :, 0]
+        ax = (Tz * (cp * st * cs + sp * ss) + Fx * cth * cs + Fy * (sp * st * cs - cp * ss)) / mass
+        ay = (Tz * (cp * st * ss - sp * cs) + Fx * cth * ss + Fy * (sp * st * ss + cp * cs)) / mass
+        wind = kf * v * np.abs(v) / mass[:, :, None]
+        vel = vel + np.stack([ax + wind[:, :, 1], ay + wind[:, :, 0]], -1) * A.DT
+        pos = pos + vel * A.DT
+        tilt_ok = (np.abs(phi) < np.deg2rad(dead_tilt_deg)) & (np.abs(tht) < np.deg2rad(dead_tilt_deg))
+        pos_ok = np.abs(pos).max(axis=2) < DEAD_POS
+        if diag is not None:
+            why = np.where(alive & ~tilt_ok, 1, np.where(alive & tilt_ok & ~pos_ok, 2, why))
+        alive &= tilt_ok & pos_ok
+        dead = ~alive
+        if trace is not None:
+            trace.append(np.where(alive[:, :, None], pos, np.nan))
+        if diag is not None:
+            t_dead = np.where(dead & (t_dead < 0), t, t_dead)
+        p2 = np.where(dead, DEAD_POS ** 2, (pos ** 2).sum(axis=2))
+        s_pos += p2
+        if t >= k_step:
+            s_ax += np.where(dead[:, :, None], DEAD_POS ** 2 / 2, pos ** 2)
+        if t >= k_step:
+            s_late += p2
+        s_yaw += np.where(dead, np.deg2rad(60.0) ** 2, (yaw_ref[:, t][None] - th[:, :, 2]) ** 2)
+        s_att += np.where(dead, np.deg2rad(60.0) ** 2, ((rp_ref - th[:, :, :2]) ** 2).mean(axis=2))
+    if diag is not None:
+        diag.update({k: v / np.maximum(n_alive, 1) for k, v in dg.items()}); diag["t_dead"] = t_dead
+        diag.update(dead_why=why, gust_over_tmax=g_over / np.maximum(n_alive, 1), gust_peak=g_peak)
+    return dict(pos=np.sqrt(s_pos / n_steps).mean(1), pos_late=np.sqrt(s_late / (n_steps - k_step)).mean(1),
+                yaw=np.rad2deg(np.sqrt(s_yaw / n_steps)).mean(1), att=np.rad2deg(np.sqrt(s_att / n_steps)).mean(1), dead=(~alive).mean(1), dead_ep=~alive, pos_ep=np.sqrt(s_pos / n_steps),
+                late_x=np.sqrt(s_ax[:, :, 0] / (n_steps - k_step)).mean(1), late_y=np.sqrt(s_ax[:, :, 1] / (n_steps - k_step)).mean(1))
+
+
+def phys_gains(g):
+    g = np.atleast_2d(g)
+    return np.concatenate([A.ctrl_gains(g[:, :6], "pid"), 10 ** (POS_LO + np.clip(g[:, 6:9], 0, 1) * (POS_HI - POS_LO))], axis=1)
+
+
+def score(x, episodes=8, seed=0, alpha_max=np.deg2rad(80.0), kappa_per_d=0.081, lam=0.03, couple=True, gust_std=4.0, wind_step=WIND_STEP, parts=False, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", twr=None, perr_max=None):
+    """x (N,12): arm length, propeller diameter, cant (unit cube), six attitude PID gains, three position gains (unit cube);
+    an optional 13th coordinate sets tau_ff log-uniformly on TAU_FF_RANGE (milestone 7).
+    J = -C - lam * P_hover / 100 W with C = sqrt((pos/0.10 m)^2 + (yaw/10 deg)^2); lam = 0.03 per 100 W is milestone 4's 0.3 deg per
+    100 W, since one unit of C is 10 deg of yaw error. -99 when infeasible ($300 cap, propellers clear).
+    twr (milestone 7h): thrust-to-weight per design (scalar or (N,)); None keeps aero.TWR = 2. Motor mass, cost and the torque
+    limits follow it through `aero.size`, and so does hover power through the mass.
+    perr_max (milestone 7l): passed to `rollout`; None (default) leaves the proportional position term unclipped."""
+    x = np.atleast_2d(x)
+    if x.shape[1] == 13 and ff_mode == "cmd":                # milestone 7: the 13th coordinate is the feed-forward filter constant, log-uniform
+        tau_ff = TAU_FF_RANGE[0] * (TAU_FF_RANGE[1] / TAU_FF_RANGE[0]) ** np.clip(x[:, 12], 0, 1)
+    L = A.L_RANGE[0] + x[:, 0] * (A.L_RANGE[1] - A.L_RANGE[0])
+    D = A.D_RANGE[0] + x[:, 1] * (A.D_RANGE[1] - A.D_RANGE[0])
+    alpha = alpha_max * np.clip(x[:, 2], 0, 1)
+    sz = A.size(L, D, alpha, kappa_per_d=kappa_per_d, twr=twr, actuator="hover")
+    out = rollout(sz, phys_gains(x[:, 3:12]), kappa_per_d * D, episodes, seed, gust_std, couple=couple, wind_step=wind_step, sat=sat, dist_sign=dist_sign, lever_scale=lever_scale, ff=ff, tau_ff=tau_ff, ff_mode=ff_mode, perr_max=perr_max)
+    C = np.sqrt((out["pos"] / POS_SCALE_M) ** 2 + (out["yaw"] / YAW_SCALE_DEG) ** 2)
+    J = np.where(sz["feasible"], -C - lam * sz["power"] / 100.0, -99.0)
+    return (J, sz, out) if parts else (J, sz)

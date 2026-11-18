@@ -61,3 +61,23 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   record("analysis_run");
   assert.equal(readUsage().analysis_run, 1);
 });
+
+// Red-team 2026-11-15: an `||` -> `&&` in the shape check and a flipped
+// catch in usageOptedOut() both passed this suite.
+test("stored JSON that is not an object (null, a number) is reset, not crashed on", () => {
+  for (const raw of ["null", "5"]) {
+    globalThis.localStorage = fakeStorage();
+    globalThis.localStorage.setItem("uk-employer-hiring-cost-calculator-usage", raw);
+    assert.doesNotThrow(() => record("analysis_run"));
+    assert.equal(readUsage().analysis_run, 1, raw);
+  }
+});
+
+test("a store whose reads throw is not read as an opt-out", () => {
+  globalThis.localStorage = {
+    getItem() { throw new Error("SecurityError"); },
+    setItem() {},
+    removeItem() {},
+  };
+  assert.equal(usageOptedOut(), false);
+});

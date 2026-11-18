@@ -1,0 +1,55 @@
+# Milestone 3b: a village random effect on the base adoption rate
+grid: 8100 points (I 900, T 3600, R 3600), S = 75, seeds (0, 1); sigma in [0.0, 0.25, 0.5, 0.75, 1.0, 1.25]; 200 synthetic datasets per process; beta held at the real-data leader logit; fit on 9 moments, held-out loss on the extended 8
+grid simulated in 857 s
+
+## sanity: milestone-3 subgrid (sigma 0; delta 0 for I and T), eight moments
+LOO mean loss I 0.1742, T 0.1837, R 0.1906; R better than I in 13/43 villages (milestone 3: I 0.1743, T 0.1841, R 0.1906, 13/43)
+
+## real data: non-leader take-up rate across villages mean 0.1868, SD 0.0809; ninth moment (mean squared rate) 0.0414
+in-sample I: I qN=0.050 qP=0.3 delta=+0.00 sigma=0.00  Q=4.220e-03  (best with sigma 0 on the milestone-3 subgrid: I qN=0.050 qP=0.3 delta=+0.00 sigma=0.00, Q=4.220e-03)
+   moments sim-data at fit: -0.0089 +0.0272 +0.0038 -0.0082 -0.0126 +0.0354 +0.0100 -0.0425 -0.0004
+in-sample T: T qN=0.075 qP=0.1 delta=-0.25 sigma=0.00 theta=0.50  Q=2.802e-03  (best with sigma 0 on the milestone-3 subgrid: T qN=0.075 qP=0.1 delta=+0.00 sigma=0.00 theta=0.60, Q=3.451e-03)
+   moments sim-data at fit: -0.0124 +0.0156 -0.0145 -0.0026 -0.0116 +0.0172 -0.0043 -0.0416 -0.0024
+in-sample R: R qN=0.100 qP=0.1 delta=-0.25 sigma=0.00 gamma=0.10  Q=2.473e-03  (best with sigma 0 on the milestone-3 subgrid: R qN=0.100 qP=0.1 delta=-0.25 sigma=0.00 gamma=0.10, Q=2.473e-03)
+   moments sim-data at fit: +0.0000 +0.0384 +0.0119 -0.0028 +0.0095 -0.0023 -0.0185 -0.0203 +0.0015
+LOO (fit 9, score 8) mean loss I 0.1813, T 0.1688, R 0.2102; R better than I in 14/43, T better than I in 23/43
+
+## H6: Bayesian village bootstrap of sigma-hat (B = 1000, nine moments, in sample)
+  I: sigma 0: 0.201, sigma 0.25: 0.420, sigma 0.5: 0.364, sigma 0.75: 0.015
+  T: sigma 0: 0.736, sigma 0.25: 0.263, sigma 0.5: 0.001
+  R: sigma 0: 0.709, sigma 0.25: 0.278, sigma 0.5: 0.013
+H6: I sigma-hat 0, sigma-hat = 0 in 0.201 of draws -> refuted
+
+synthetic selection done in 931 s
+
+## H7: real held-out losses against each random-effect process's synthetic spread
+  I process (I qN=0.050 qP=0.3 delta=+0.00 sigma=0.00): I real 0.1813 vs 5-95% 0.0439-0.0679 (share at or above real 0.000); T real 0.1688 vs 5-95% 0.0459-0.0782 (share at or above real 0.000); R real 0.2102 vs 5-95% 0.0448-0.0699 (share at or above real 0.000); R better than I in median 21/43 villages (5-95% 14-29), <= 14 in 0.080
+  T process (T qN=0.075 qP=0.1 delta=-0.25 sigma=0.00 theta=0.50): I real 0.1813 vs 5-95% 0.0617-0.3692 (share at or above real 0.190); T real 0.1688 vs 5-95% 0.0536-0.2917 (share at or above real 0.170); R real 0.2102 vs 5-95% 0.0642-0.3777 (share at or above real 0.160); R better than I in median 18/43 villages (5-95% 10-26), <= 14 in 0.220
+  R process (R qN=0.100 qP=0.1 delta=-0.25 sigma=0.00 gamma=0.10): I real 0.1813 vs 5-95% 0.0498-0.0865 (share at or above real 0.000); T real 0.1688 vs 5-95% 0.0589-0.1330 (share at or above real 0.010); R real 0.2102 vs 5-95% 0.0485-0.0840 (share at or above real 0.000); R better than I in median 24/43 villages (5-95% 17-30), <= 14 in 0.010
+H7: under the I random-effect process, 0.000 of synthetic datasets reach the real I held-out loss -> refuted
+
+## diagnostic: held-out squared error by moment, I family (real; 5-95% under each process)
+  m1 no adopting nb: real 0.00471; I 0.00163-0.00374; T 0.00124-0.00363; R 0.00213-0.00481
+  m2 nb of adopting leader: real 0.02989; I 0.00958-0.01967; T 0.01333-0.03536; R 0.00999-0.01919
+  m3 nb of non-adopting leader: real 0.01105; I 0.00419-0.00912; T 0.00242-0.00667; R 0.00513-0.01181
+  m4 own x share nb: real 0.00224; I 0.00025-0.00054; T 0.00061-0.00504; R 0.00037-0.00099
+  m5 own x 2nd nb: real 0.10345; I 0.01159-0.02692; T 0.02252-0.30759; R 0.01417-0.04074
+  m6 k=1: real 0.00671; I 0.00243-0.00544; T 0.00213-0.00529; R 0.00247-0.00467
+  m7 k=2: real 0.00978; I 0.00362-0.00769; T 0.00429-0.01012; R 0.00331-0.00707
+  m8 k>=3: real 0.01345; I 0.00258-0.00589; T 0.00615-0.01486; R 0.00388-0.00786
+  m9 rate^2: real 0.00130; I 0.00015-0.00034; T 0.00024-0.00243; R 0.00018-0.00044
+
+## leave-one-village-out confusion under the random-effect processes (rows: true process; columns: share choosing I, T, R)
+  I: I 0.370  T 0.240  R 0.390   recovered 0.370
+  T: I 0.205  T 0.775  R 0.020   recovered 0.775
+  R: I 0.450  T 0.055  R 0.495   recovered 0.495
+  in-sample (nine moments):
+  I: I 0.165  T 0.475  R 0.360   recovered 0.165
+  T: I 0.055  T 0.530  R 0.415   recovered 0.530
+  R: I 0.000  T 0.035  R 0.965   recovered 0.965
+
+## sigma recovery within the true family (in sample): share of datasets at each value
+  I (true sigma 0): 0: 0.42, 0.25: 0.28, 0.5: 0.30
+  T (true sigma 0): 0: 0.56, 0.25: 0.37, 0.5: 0.07
+  R (true sigma 0): 0: 0.50, 0.25: 0.45, 0.5: 0.05
+runtime 931 s

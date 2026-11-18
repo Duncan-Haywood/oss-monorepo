@@ -83,7 +83,7 @@ export default function App() {
     await saveVehicles(next); setVehicles(next); setNewVehicle(""); await pickVehicle(name);
   };
   const shareBackup = async () => {
-    const uri = FileSystem.cacheDirectory + `mileage-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    const uri = FileSystem.cacheDirectory + `mileage-backup-${new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10)}.json`;
     await FileSystem.writeAsStringAsync(uri, makeBackup({ trips, places, vehicles: vehicleList, activeVehicle: active }));
     if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(uri, { mimeType: "application/json", dialogTitle: "Mileage Log backup" });
   };
@@ -145,7 +145,7 @@ export default function App() {
           const sug = suggestFor(p);
           return (
             <View key={p.id} style={st.card}>
-              <Text>{new Date(p.startedAt).toLocaleString()} · {p.miles} mi</Text>
+              <Text>{new Date(p.startedAt).toLocaleString('en-US')} · {p.miles} mi</Text>
               <Text style={st.route}>{d.from || "Unnamed place"} → {d.to || "Unnamed place"}</Text>
               {d.unnamed.map((end) => (
                 <View key={end} style={st.row}>

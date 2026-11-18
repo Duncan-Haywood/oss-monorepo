@@ -1,6 +1,6 @@
 name: bank-statement-pdf-to-csv
 description: >-
-  Free browser tool that converts a text-based bank or credit card statement PDF into CSV for Xero,
+  Free browser tool that converts a bank or credit card statement PDF (text-based, or scanned and read by OCR in the browser) into CSV for Xero,
   QuickBooks Online or a spreadsheet, and proves the result against the statement itself: opening balance
   plus every row must equal the closing balance, each row is checked against the printed running balance,
   and a gap is reported with its amount, the line where the balance first breaks, and the likeliest cause
@@ -28,6 +28,11 @@ owner: duncan
 # Path to revenue (payment rails stay off): lead magnet for bookkeeping audiences, usage-counted. A paid
 # version, if usage appears, is batch conversion of many statements, saved bank profiles for layouts that
 # need hints, and OCR for scans behind a bring-your-own-key switch; none of it is built.
+#
+# 2026-11-17: OCR for scans and photos built (ocr.mjs, tesseract.js on click, balance-checked repair with a
+# misread gate; eval/scans-2026-11-17.txt). It was listed above as a paid-tier candidate; it ships free
+# because it runs on the visitor's machine at no per-user cost, and is the main reason someone with a paper
+# statement would pick this over a paid converter. Batch conversion stays the paid candidate.
 #
 # Liability: it writes a file from the user's own statement, shows every check it ran and what it cannot
 # check, and carries the no-warranty, independent-of-banks-and-vendors and financial-data clauses.
@@ -67,5 +72,5 @@ kill_criteria:
   - Real bank PDFs show the reader misreading most statements even with the balance check flagging it, at which point the extraction approach needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/bank-statement-pdf-to-csv/
+  production: https://marisstella.app/bank-statement-pdf-to-csv/
   analytics: null

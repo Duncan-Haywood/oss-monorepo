@@ -1,0 +1,12 @@
+series per cell 150, bootstrap reps 99, generator rho from the line residuals
+
+POWER: one slope change at 65% of the series, AR(1) noise sd 1 innovations; share with p <= 0.05, and level test dating within 5% of n
+n     rho   dSlope  levels  dated   differences
+145   0.5   0.02      14%     3%      0%
+145   0.5   0.04      40%    14%      0%
+145   0.5   0.08      94%    51%      0%
+145   0.3   0.04      71%    31%      0%
+300   0.6   0.02      57%    21%      0%
+300   0.6   0.04      99%    51%      0%
+60    0.3   0.10      35%    10%      0%
+60    0.3   0.20      83%    52%      0%

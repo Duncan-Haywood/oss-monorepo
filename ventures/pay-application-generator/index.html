@@ -162,7 +162,7 @@
       $("#rows").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.item)}</td><td>${esc(l.desc)}</td><td class="n">${dollars(l.c)}</td><td class="n">${dollars(l.d)}</td><td class="n">${dollars(l.e)}</td><td class="n">${dollars(l.f)}</td><td class="n">${dollars(l.g)}</td><td class="n">${l.pct == null ? "" : pctText(l.pct)}</td><td class="n">${dollars(l.balance)}</td><td class="n">${dollars(l.ret)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.lines.length} lines read; ${r.findings.filter((f) => f.severity !== "info").length} finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

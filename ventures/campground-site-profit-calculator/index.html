@@ -48,7 +48,7 @@
 <body>
   <header>
     <p class="note">CAMPGROUND SITE PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
-    <h1>Is your campground making money? Yearly profit, break-even occupancy and the nightly rate you need</h1>
+    <h1>Is your campground making money, and what nightly rate do you need?</h1>
     <p>Enter sites, months open, occupancy, nightly rate, commission, turnover labour and your fixed costs. You get <strong>yearly profit</strong>, <strong>break-even occupancy</strong>, the <strong>nightly rate</strong> that breaks even or reaches your target, and a table by occupancy.</p>
     <p class="note">It works from your own figures. It does not know what other parks charge.</p>
   </header>
@@ -66,6 +66,7 @@
       <div><label for="varnight">Utilities and supplies per occupied night, dollars</label><input id="varnight" inputmode="decimal" value="" placeholder="4"></div>
       <div><label for="turnmin">Turnover minutes per stay: check-in, pad and fire ring</label><input id="turnmin" inputmode="decimal" value="" placeholder="15"></div>
       <div><label for="wage">What an hour of that labour is worth, dollars</label><input id="wage" inputmode="decimal" value="" placeholder="16"></div>
+      <div><label for="burdenpct">Payroll burden on that wage: employer payroll taxes, unemployment insurance, workers' comp, % (0 for unpaid owner labour)</label><input id="burdenpct" inputmode="decimal" value="" placeholder="12"></div>
       <div><label for="platformpct">Booking-site commission, % of revenue</label><input id="platformpct" inputmode="decimal" value="" placeholder="8"></div>
       <div><label for="fixedyear">Yearly fixed costs: mortgage or lease, insurance, property tax, repairs, dollars</label><input id="fixedyear" inputmode="decimal" value="" placeholder="120000"></div>
       <div><label for="target">Profit you want per year, dollars</label><input id="target" inputmode="decimal" value="" placeholder="40000"></div>
@@ -91,7 +92,7 @@
   <section class="card" id="rules">
     <h2>What it does, and what it leaves to you</h2>
     <ul>
-      <li><strong>Counts:</strong> available nights = sites x months open x 30.4; occupied nights = available x occupancy; income per night = (nightly rate + fee per stay / average stay) x (1 - commission); labour per night = turnover minutes / 60 x wage / average stay; profit = occupied nights x (income - utilities - labour) - yearly fixed costs; break-even occupancy = the occupancy at which profit is zero; break-even rate = the nightly rate at which profit is zero at your occupancy.</li>
+      <li><strong>Counts:</strong> available nights = sites x months open x 30.4; occupied nights = available x occupancy; income per night = (nightly rate + fee per stay / average stay) x (1 - commission); labour per night = turnover minutes / 60 x wage x (1 + payroll burden) / average stay; profit = occupied nights x (income - utilities - labour) - yearly fixed costs; break-even occupancy = the occupancy at which profit is zero; break-even rate = the nightly rate at which profit is zero at your occupancy.</li>
       <li><strong>Not decided:</strong> what campers near you will pay, weekend versus weekday and peak versus shoulder-season mix, zoning, permits and health rules, lodging and sales taxes, income tax and depreciation, capital repairs, and weather closures.</li>
     </ul>
   </section>
@@ -128,7 +129,7 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     let last = null;
-    const map = { sites: "sites", openmonths: "openMonths", occupancy: "occupancy", nightly: "nightly", avgstay: "avgStay", stayfee: "stayFee", varnight: "varNight", turnmin: "turnMin", wage: "wage", platformpct: "platformPct", fixedyear: "fixedYear", target: "target" };
+    const map = { sites: "sites", openmonths: "openMonths", occupancy: "occupancy", nightly: "nightly", avgstay: "avgStay", stayfee: "stayFee", varnight: "varNight", turnmin: "turnMin", wage: "wage", burdenpct: "burdenPct", platformpct: "platformPct", fixedyear: "fixedYear", target: "target" };
     const IDLE = "Fill in your campground, then click Work out the profit.";
 
     function download(name, body, type) {
@@ -149,7 +150,7 @@
       $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${x.occ}%</td><td class="n">${x.nights}</td><td class="n">${dollars(x.revenue)}</td><td class="n">${dollars(x.profit)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

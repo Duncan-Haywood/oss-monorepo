@@ -1,0 +1,17 @@
+Post-hoc (written after reading results.txt): the stylised simulator against itself on fresh held-out episodes
+top ten by seed-9999 stylised J span -13.351 to -13.287 (spread 0.064); all 60 span -21.47 to -13.29
+fresh seed  rho all   rho top10
+9001         0.965     0.467
+9002         0.964    -0.224
+9003         0.965     0.382
+9004         0.950     0.358
+9005         0.959     0.309
+mean top-ten rho of the stylised simulator against itself: 0.258 (range -0.224 to 0.467)
+
+Six arms (law x cant bound), mean J; rank agreement with the stylised simulator
+arm order: pid/0, pid/80, indi/0, indi/80, geo/0, geo/80
+stylised    -18.91  -13.72  -17.29  -13.44  -17.88  -13.35
+torque      -23.47  -16.57  -19.27  -17.64  -21.90  -16.19   rho 0.943
+aero        -19.90  -15.52  -18.33  -15.50  -18.82  -14.25   rho 1.000
+aero_cop    -20.53  -15.14  -18.63  -15.58  -19.16  -14.40   rho 0.943
+aero_cop2   -19.81  -15.27  -18.45  -15.22  -18.84  -14.46   rho 1.000

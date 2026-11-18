@@ -4,7 +4,7 @@ A free browser tool for owners selling (and buyers pricing) a small SaaS, e-comm
 business: **enter trailing-12-month revenue and SDE and get a price range, the net after selling fees, the
 buyer's payback, and a ranked list of what is costing you multiple.** Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/online-business-valuation-calculator/
+**Live tool:** https://marisstella.app/online-business-valuation-calculator/
 
 After using this, you can now **set a defensible asking range and know which fix (owner hours, customer
 concentration, churn) adds the most sale price**, which used to mean a broker call or a guess.
@@ -19,6 +19,17 @@ concentration, churn) adds the most sale price**, which used to mean a broker ca
 
 Not modelled: inventory, debt, asset-only sales, earn-outs, tax on sale, marketplace demand. The multiples are
 unaudited heuristics, not calibrated against sales data.
+
+## Known gaps
+
+From the quality audit of 2026-11-13
+([`portfolio/quality/audits/2026-11-13-online-business-valuation-calculator.json`](../../portfolio/quality/audits/2026-11-13-online-business-valuation-calculator.json)):
+
+- The base multiples and band adjustments cite no public source. They need a sourced table
+  (broker reports or a published multiples dataset) or should be presented as user-set inputs.
+- Averaging the SDE and ARR values 50/50 is not broker practice; it prices the sample at 5.3x SDE.
+- No check that MRR x 12 is consistent with trailing revenue; a blank SaaS churn field reads as 0%.
+- Fixed in the same PR: lever values now equal the change in the midpoint (floor and blend included).
 
 ## Run
 

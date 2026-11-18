@@ -1,0 +1,29 @@
+# node eval/shift-search.mjs 10 <sizes> (2026-11-11, seed 1, effort 1, 4 processes in parallel, so seconds are loaded timings). off: shift: false; on: the default.
+{"n":9,"weight":10,"off":{"coe":89,"breaks":5,"score":139,"start":"starter"},"on":{"coe":89,"breaks":5,"score":139,"start":"starter"},"gain":0,"secondsOff":4.614,"secondsOn":3.902}
+{"n":10,"weight":10,"off":{"coe":108,"breaks":10,"score":208,"start":"circle"},"on":{"coe":108,"breaks":10,"score":208,"start":"circle"},"gain":0,"secondsOff":2.999,"secondsOn":2.756}
+{"n":11,"weight":10,"off":{"coe":141,"breaks":17,"score":311,"start":"circle"},"on":{"coe":153,"breaks":10,"score":253,"start":"shift starter, shift venues"},"gain":58,"secondsOff":3.215,"secondsOn":2.467}
+{"n":12,"weight":10,"off":{"coe":170,"breaks":14,"score":310,"start":"weighted starter"},"on":{"coe":170,"breaks":14,"score":310,"start":"weighted starter"},"gain":0,"secondsOff":5.562,"secondsOn":4.865}
+{"n":13,"weight":10,"off":{"coe":199,"breaks":25,"score":449,"start":"starter"},"on":{"coe":253,"breaks":12,"score":373,"start":"shift starter, shift venues"},"gain":76,"secondsOff":2.836,"secondsOn":2.691}
+{"n":14,"weight":10,"off":{"coe":252,"breaks":18,"score":432,"start":"starter"},"on":{"coe":252,"breaks":18,"score":432,"start":"starter"},"gain":0,"secondsOff":4.223,"secondsOn":3.499}
+{"n":17,"weight":10,"off":{"coe":313,"breaks":67,"score":983,"start":"starter"},"on":{"coe":343,"breaks":32,"score":663,"start":"shift starter, shift venues"},"gain":320,"secondsOff":2.153,"secondsOn":2.518}
+{"n":18,"weight":10,"off":{"coe":348,"breaks":40,"score":748,"start":"weighted starter"},"on":{"coe":348,"breaks":40,"score":748,"start":"weighted starter"},"gain":0,"secondsOff":3.669,"secondsOn":3.93}
+{"n":19,"weight":10,"off":{"coe":323,"breaks":75,"score":1073,"start":"starter"},"on":{"coe":323,"breaks":36,"score":683,"start":"starter, shift venues"},"gain":390,"secondsOff":2.334,"secondsOn":2.417}
+{"n":20,"weight":10,"off":{"coe":360,"breaks":52,"score":880,"start":"starter"},"on":{"coe":360,"breaks":52,"score":880,"start":"starter"},"gain":0,"secondsOff":2.393,"secondsOn":2.449}
+{"n":21,"weight":10,"off":{"coe":399,"breaks":104,"score":1439,"start":"starter"},"on":{"coe":475,"breaks":40,"score":875,"start":"shift starter, shift venues"},"gain":564,"secondsOff":2.026,"secondsOn":1.862}
+{"n":22,"weight":10,"off":{"coe":440,"breaks":66,"score":1100,"start":"starter"},"on":{"coe":440,"breaks":66,"score":1100,"start":"starter"},"gain":0,"secondsOff":2.033,"secondsOn":2.137}
+{"n":23,"weight":10,"off":{"coe":565,"breaks":127,"score":1835,"start":"starter"},"on":{"coe":565,"breaks":44,"score":1005,"start":"starter, shift venues"},"gain":830,"secondsOff":2.763,"secondsOn":2.536}
+{"n":24,"weight":10,"off":{"coe":570,"breaks":66,"score":1230,"start":"starter"},"on":{"coe":570,"breaks":66,"score":1230,"start":"starter"},"gain":0,"secondsOff":2.853,"secondsOn":2.797}
+{"n":25,"weight":10,"off":{"coe":665,"breaks":164,"score":2305,"start":"starter"},"on":{"coe":713,"breaks":48,"score":1193,"start":"shift starter, shift venues"},"gain":1112,"secondsOff":4.26,"secondsOn":4.145}
+{"n":26,"weight":10,"off":{"coe":716,"breaks":74,"score":1456,"start":"weighted starter"},"on":{"coe":716,"breaks":72,"score":1436,"start":"weighted starter, shift venues"},"gain":20,"secondsOff":4.897,"secondsOn":4.771}
+{"n":27,"weight":10,"off":{"coe":823,"breaks":174,"score":2563,"start":"starter"},"on":{"coe":923,"breaks":52,"score":1443,"start":"shift starter, shift venues"},"gain":1120,"secondsOff":2.867,"secondsOn":2.746}
+{"n":28,"weight":10,"off":{"coe":978,"breaks":76,"score":1738,"start":"weighted starter"},"on":{"coe":978,"breaks":76,"score":1738,"start":"weighted starter"},"gain":0,"secondsOff":5.373,"secondsOn":5.255}
+{"n":29,"weight":10,"off":{"coe":891,"breaks":206,"score":2951,"start":"starter"},"on":{"coe":1105,"breaks":56,"score":1665,"start":"shift starter, shift venues"},"gain":1286,"secondsOff":3.707,"secondsOn":3.775}
+{"n":30,"weight":10,"off":{"coe":1164,"breaks":92,"score":2084,"start":"weighted starter"},"on":{"coe":1110,"breaks":84,"score":1950,"start":"shift starter, shift venues"},"gain":134,"secondsOff":6.243,"secondsOn":6.433}
+{"n":33,"weight":10,"off":{"coe":1269,"breaks":280,"score":4069,"start":"starter"},"on":{"coe":1579,"breaks":64,"score":2219,"start":"shift starter, shift venues"},"gain":1850,"secondsOff":6.06,"secondsOn":5.92}
+{"n":34,"weight":10,"off":{"coe":1460,"breaks":142,"score":2880,"start":"weighted starter"},"on":{"coe":1460,"breaks":96,"score":2420,"start":"shift starter, shift venues"},"gain":460,"secondsOff":7.156,"secondsOn":7.128}
+{"n":35,"weight":10,"off":{"coe":1419,"breaks":310,"score":4519,"start":"starter"},"on":{"coe":1617,"breaks":68,"score":2297,"start":"shift starter, shift venues"},"gain":2222,"secondsOff":3.675,"secondsOn":3.853}
+{"n":36,"weight":10,"off":{"coe":1620,"breaks":170,"score":3320,"start":"weighted starter"},"on":{"coe":1752,"breaks":102,"score":2772,"start":"shift starter, shift venues"},"gain":548,"secondsOff":7.861,"secondsOn":8.032}
+{"n":37,"weight":10,"off":{"coe":1575,"breaks":351,"score":5085,"start":"starter"},"on":{"coe":1925,"breaks":72,"score":2645,"start":"shift starter, shift venues"},"gain":2440,"secondsOff":4.935,"secondsOn":4.797}
+{"n":38,"weight":10,"off":{"coe":1928,"breaks":154,"score":3468,"start":"weighted starter"},"on":{"coe":1928,"breaks":108,"score":3008,"start":"shift starter, shift venues"},"gain":460,"secondsOff":8.907,"secondsOn":9.025}
+{"n":39,"weight":10,"off":{"coe":1813,"breaks":404,"score":5853,"start":"starter"},"on":{"coe":2477,"breaks":76,"score":3237,"start":"shift starter, shift venues"},"gain":2616,"secondsOff":4.584,"secondsOn":4.598}
+{"n":40,"weight":10,"off":{"coe":2112,"breaks":120,"score":3312,"start":"weighted starter"},"on":{"coe":2112,"breaks":120,"score":3312,"start":"weighted starter"},"gain":0,"secondsOff":10.105,"secondsOn":9.862}

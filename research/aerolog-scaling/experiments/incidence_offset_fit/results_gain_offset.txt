@@ -1,0 +1,12 @@
+noise (0.1,) of channel rms, records (1, 2) phugoid periods, 8 draws per design and scale; scales (0.75,)
+20 mode-matched designs
+
+estimator | alpha bias (deg) | noise | periods | scale | fit failures | median |err| ph, sp, zeta (%) | median worst gust error | share of draws within 10% gust | designs with >=90% within 10% | median worst mode error
+LS | 0.60 deg | 0.10 | 1 | 0.75 | 0 of 160 | 1.84, 24.78, 12.96 | 37.7% | 0% | 0 of 20 | 18.2%
+OE | 0.60 deg | 0.10 | 1 | 0.75 | 80 of 160 | 17.06, 18.18, 16.67 | 15.8% | 35% | 0 of 20 | 9.7%
+OE+b | 0.60 deg | 0.10 | 1 | 0.75 | 0 of 160 | 0.35, 0.73, 1.36 | 5.7% | 76% | 14 of 20 | 3.1%
+OE+b+d | 0.60 deg | 0.10 | 1 | 0.75 | 0 of 160 | 0.55, 0.78, 1.60 | 6.1% | 76% | 11 of 20 | 3.2%
+LS | 0.60 deg | 0.10 | 2 | 0.75 | 87 of 160 | 0.88, 23.42, 69.02 | 27.3% | 0% | 0 of 20 | 15.0%
+OE | 0.60 deg | 0.10 | 2 | 0.75 | 88 of 160 | 2.79, 24.26, 8.03 | 25.4% | 0% | 0 of 20 | 15.5%
+OE+b | 0.60 deg | 0.10 | 2 | 0.75 | 4 of 160 | 0.08, 0.54, 1.37 | 5.2% | 76% | 10 of 20 | 3.1%
+OE+b+d | 0.60 deg | 0.10 | 2 | 0.75 | 5 of 160 | 0.08, 0.63, 1.53 | 5.7% | 77% | 10 of 20 | 3.1%

@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKkxYLxrZqdXrrbjydn",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T22:12:36Z",
+  "ended": "2026-11-13T22:33:55Z",
+  "wall_minutes": 21.48,
+  "tokens_in": 7677988,
+  "tokens_out": 32209,
+  "cost_usd": 3.1092,
+  "tool_calls": 71,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15637",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First file-access probe set sys.path[0] to the hook's folder, so five checks that import a sibling module crashed unseen; fixed the wrapper and re-ran, which surfaced check_markup_basics.py failing on .next."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Backlog held only owner/blocked rows again; most top friction rows (post limits, flagships cap, wait_for) were already fixed, so a live one (.next scanned by checks, 2 reports) had to be found by filtering run records by hand."
+    },
+    {
+      "file": "platform/ci/unwired_checks.py",
+      "issue": "In the cloud image it skips 15 pytest-style suites (no pytest), nine of them for checks this PR changed; they had to be run separately under pyenv's pytest."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-a-local-next-build-was-read-by-38-checks.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (no agent-owned backlog item). Lens: friction rows naming .next build output (percent-float.test.mjs 2026-11-12/13, inherited_keys.py). A real next build of ventures/vendor-watch plus an fs/audit-hook probe found 38 check_*.py and percent-float.test.mjs reading inside .next; check_markup_basics.py exited 1, and check_duplicate_meta.py gave a false finding. All are fixed. The guard test_build_output_skipped.py (12 checks, control plus .next) failed 12/12 on the old code. Verified: unwired_checks 93/108 pass, 15 skipped; the 9 relevant skipped suites plus the new test pass under pytest (27 passed, 12 subtests); percent-float passes; main_health was 64/64 before the change. Backlog ids touched: none.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7c3ddfcc-21ec-5b9b-8ae7-929ded960ac0",
+    "transcripts": 1,
+    "first": "2026-11-13T22:12:36Z",
+    "last": "2026-11-13T22:34:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 132,
+        "output": 32209,
+        "thinking": 9770,
+        "cache_read": 7558760,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119096,
+        "api_equivalent_usd": 3.1092,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 132,
+      "output": 32209,
+      "thinking": 9770,
+      "cache_read": 7558760,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119096,
+      "api_equivalent_usd": 3.1092,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 67,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.48,
+      "active_minutes": 21.48,
+      "model_minutes": 5.61,
+      "tool_minutes": 15.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "probe harness, 39-file fix, guard test and post for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 128.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

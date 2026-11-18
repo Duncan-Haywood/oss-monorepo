@@ -1,3 +1,9 @@
+---
+kind: lane
+subjects: [shed-designer]
+topics: [ci]
+tagged: auto
+---
 # shed-designer round 2, lane 4: test and CI infrastructure
 
 Date: 2026-10-30. Built from round 1's handoff reports (lane 2, 3 and 5 "Open" sections).

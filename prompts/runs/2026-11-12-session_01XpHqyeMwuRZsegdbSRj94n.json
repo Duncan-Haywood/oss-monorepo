@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyeMwuRZsegdbSRj94n",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T06:39:36Z",
+  "ended": "2026-11-12T06:55:05Z",
+  "wall_minutes": 15.71,
+  "tokens_in": 5083028,
+  "tokens_out": 23052,
+  "cost_usd": 2.2474,
+  "tool_calls": 54,
+  "task": "polish: fix the three pages that froze on an extra zero (item 1 of polish-2026-11-12-finding-headings-varied.md)",
+  "projects": [
+    "u-pick-farm-profit-planner",
+    "greenhouse-bench-planner",
+    "dining-room-table-mix-optimizer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15037",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "timing script started before the u-pick fix kept running the old O(n^2) code; killed and re-run",
+    "first browser timing script hung: page.evaluate takes no timeout option, so a blocked page never returned; replaced with Promise.race",
+    "push hook rejected a 190-character post description; shortened in a separate commit"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-12-finding-headings-varied.md",
+      "issue": "said dining-room froze on 'control #2' without naming the field; Node timing showed it was partiesPerService, which cost a timing pass"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "did not run the full node --test platform/pages/*.test.mjs suite: the diff touches no site-build code, only three ventures' calc.mjs/tests/llms.txt and docs",
+      "did": "ran the three venture suites via run_venture_tests.py and run_workflow_locally.py --for-changes",
+      "result": "venture suites pass"
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "the weakest item was a product defect (hung tabs), not visual; the previous polish note named it as the next job",
+      "did": "fixed it under polish",
+      "result": "three hangs fixed, measured in Chromium"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-one-extra-zero-hung-three-planners.md",
+    "docs/reports/polish-2026-11-12-input-freezes.md"
+  ],
+  "goal": null,
+  "notes": "Chromium, local build, value 100000 then the page's button, trivial evaluate timed (30 s cut-off, 200 ms floor): u-pick openDays >30 s -> 217 ms; greenhouse hold >30 s -> 203 ms; dining partiesPerService >30 s -> 206 ms. run_venture_tests.py on the 3 slugs: 3 suites, 0 failed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ba081a07-6ef3-5c16-a601-378c063b073d",
+    "transcripts": 1,
+    "first": "2026-11-12T06:39:36Z",
+    "last": "2026-11-12T06:55:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 96,
+        "output": 23052,
+        "thinking": 4359,
+        "cache_read": 4984286,
+        "cache_write_5m": 0,
+        "cache_write_1h": 98646,
+        "api_equivalent_usd": 2.2474,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 96,
+      "output": 23052,
+      "thinking": 4359,
+      "cache_read": 4984286,
+      "cache_write_5m": 0,
+      "cache_write_1h": 98646,
+      "api_equivalent_usd": 2.2474,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 49,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "Monitor": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.71,
+      "active_minutes": 15.71,
+      "model_minutes": 3.96,
+      "tool_minutes": 11.74,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "profile 3 calculators, fix 2 algorithms + 1 limit, tests, browser measurements, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 178.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

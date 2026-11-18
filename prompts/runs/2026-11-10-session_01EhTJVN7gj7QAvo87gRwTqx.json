@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01EhTJVN7gj7QAvo87gRwTqx",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (routed to research/marine-hull)",
+  "input_sha256": "37e10d0f0c9f8154855e0a52c1749847ecee0c19def746d027bf26cbc56b6538",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T18:59:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 14580,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "zenodo.org and arxiv.org were refused by the proxy this session; raw.githubusercontent.com worked for reading public geometry code, which is worth naming as a route for code-defined datasets"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "scheduled prompt asks for venture/revenue work but the router drew the research track; followed the router",
+      "did": "advanced research/marine-hull milestone 3u",
+      "result": "one pre-registered result landed"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Milestone 3u: SUBOFF bare-hull 1+k 1.169 (P1 held), Hoerner 1.071 is 8.4% low (P2 refuted), 3 m/s shortfall on bare hull too (P3 held). Local checks: pytest 112 passed; research/_homepage/build.py ok; research_live_links 0 updated; check_md_links ok; check_post_frontmatter and check_post_links clean.",
+  "corrections": [],
+  "redteam": null
+}

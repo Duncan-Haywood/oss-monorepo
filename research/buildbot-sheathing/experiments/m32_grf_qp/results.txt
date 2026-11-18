@@ -1,0 +1,165 @@
+# Milestone 32: the sign flips under a balance controller's ground reaction
+## A. Press the soles can balance (mu 0.5): milestone 31's pose (no lean) | leaned pose (com_dx) window
+robot z dy | no lean: max press (N) | com_dx (m) | leaned window (N) | IK residual (mm)
+  g1 0.4 -0.15 |   62.1 | +0.040 |   0.0- 73.4 | 0.033
+  g1 0.4 +0.00 |   79.6 | +0.040 |   0.0- 94.3 | 0.022
+  g1 0.4 +0.15 |   79.6 | +0.040 |   0.0-117.1 | 0.033
+  g1 0.6 -0.15 |   52.4 | +0.061 |   0.0- 68.6 | 0.020
+  g1 0.6 +0.00 |   52.4 | +0.061 |   0.0- 84.8 | 0.014
+  g1 0.6 +0.15 |   52.4 | +0.061 |   0.0- 89.9 | 0.020
+  g1 0.8 -0.15 |   39.0 | +0.082 |   0.0- 64.9 | 0.014
+  g1 0.8 +0.00 |   39.0 | +0.082 |   0.0- 76.5 | 0.009
+  g1 0.8 +0.15 |   39.0 | +0.082 |   0.0- 76.5 | 0.014
+  g1 1.0 -0.15 |   31.1 | +0.102 |   6.4- 61.9 | 0.006
+  g1 1.0 +0.00 |   31.1 | +0.102 |   6.4- 68.6 | 0.002
+  g1 1.0 +0.15 |   31.1 | +0.102 |   6.4- 68.6 | 0.006
+  g1 1.2 -0.15 |   25.9 | +0.124 |  11.8- 59.7 | 0.009
+  g1 1.2 +0.00 |   25.9 | +0.123 |  11.6- 63.4 | 0.004
+  g1 1.2 +0.15 |   25.9 | +0.124 |  11.7- 63.4 | 0.009
+  h1 0.4 -0.15 |   97.0 | +0.040 |   0.0-114.2 | 1.507
+  h1 0.4 +0.00 |  100.9 | +0.040 |   0.0-139.0 | 0.014
+  h1 0.4 +0.15 |  100.9 | +0.040 |   0.0-154.7 | 1.872
+  h1 0.6 -0.15 |   67.2 | +0.054 |   0.0-103.7 | 1.225
+  h1 0.6 +0.00 |   67.2 | +0.054 |   0.0-115.6 | 0.014
+  h1 0.6 +0.15 |   67.2 | +0.054 |   0.0-115.6 | 1.470
+  h1 0.8 -0.15 |   50.4 | +0.068 |   0.0- 95.7 | 1.151
+  h1 0.8 +0.00 |   50.4 | +0.068 |   0.0- 96.1 | 0.020
+  h1 0.8 +0.15 |   50.4 | +0.068 |   0.0- 96.1 | 1.397
+  h1 1.0 -0.15 |   40.3 | +0.082 |   0.0- 84.4 | 1.020
+  h1 1.0 +0.00 |   40.3 | +0.082 |   0.0- 84.4 | 0.012
+  h1 1.0 +0.15 |   40.3 | +0.082 |   0.0- 84.4 | 1.249
+  h1 1.2 -0.15 |   33.6 | +0.096 |   0.0- 76.6 | 0.707
+  h1 1.2 +0.00 |   33.6 | +0.096 |   0.0- 76.6 | 0.026
+  h1 1.2 +0.15 |   33.6 | +0.096 |   0.0- 76.6 | 1.293
+  h1 1.4 -0.15 |   28.8 | +0.110 |   3.7- 71.0 | 1.080
+  h1 1.4 +0.00 |   28.8 | +0.110 |   3.7- 71.0 | 0.025
+  h1 1.4 +0.15 |   28.8 | +0.110 |   3.7- 71.0 | 1.337
+  h1 1.6 -0.15 |   25.2 | +0.124 |   8.0- 66.8 | 1.179
+  h1 1.6 +0.00 |   25.2 | +0.124 |   8.0- 66.8 | 0.026
+  h1 1.6 +0.15 |   25.2 | +0.124 |   8.0- 66.8 | 1.409
+poses balancing the whole 25-50 N range when leaned: 36 of 36
+
+## B0. g1 hold: sides left_hip_pitch -, left_hip_roll +, left_hip_yaw -, left_knee -, left_ankle_pitch +, left_ankle_roll -, right_hip_pitch -, right_hip_roll +, right_hip_yaw -, right_knee -, right_ankle_pitch +, right_ankle_roll -; searched 4 (left_hip_roll, left_knee, right_hip_roll, right_knee); worst LP margin -45.50 N m
+## B0. g1 hold-min: sides left_hip_roll +, left_hip_yaw -, left_ankle_roll -, right_hip_roll -, right_hip_yaw -, right_ankle_roll -; searched 2 (left_hip_roll, right_hip_roll); worst LP margin 3.31 N m
+## B0. h1 hold: sides left_hip_yaw -, left_hip_roll +, left_hip_pitch +, left_knee +, left_ankle +, right_hip_yaw -, right_hip_roll +, right_hip_pitch +, right_knee +, right_ankle +; searched 0 (); worst LP margin -27.29 N m
+## B0. h1 hold-min: sides left_hip_yaw -, left_hip_roll +, right_hip_yaw -, right_hip_roll +; searched 0 (); worst LP margin -1.87 N m
+
+## B. Held sets per model (tau_f 0.2; moving joints held / loose ones listed)
+  g1 0.4 -0.15 | free: 19 (left_ankle_roll, right_ankle_roll, right_wrist_roll) | force: 19 (left_ankle_roll, right_ankle_roll, right_wrist_roll) | torque: 19 (left_hip_roll, right_hip_roll, right_wrist_roll) | hold: infeasible (margin -41.87 at 25 N) | hold-min: 21 (right_wrist_roll)
+  g1 0.4 +0.00 | free: 19 (left_ankle_roll, right_ankle_roll, right_wrist_roll) | force: 18 (left_ankle_roll, right_hip_roll, right_ankle_roll, right_wrist_roll) | torque: 21 (right_wrist_roll) | hold: infeasible (margin -40.88 at 25 N) | hold-min: 21 (right_wrist_roll)
+  g1 0.4 +0.15 | free: 15 (left_hip_roll, left_ankle_roll, right_hip_roll, right_hip_yaw, right_ankle_roll, waist_yaw, right_wrist_roll) | force: 16 (left_hip_roll, left_ankle_roll, right_hip_roll, right_ankle_roll, waist_yaw, right_wrist_roll) | torque: 20 (waist_yaw, right_wrist_roll) | hold: infeasible (margin -42.10 at 25 N) | hold-min: 20 (waist_yaw, right_wrist_roll)
+  g1 0.6 -0.15 | free: 19 (left_ankle_roll, right_ankle_roll, right_wrist_roll) | force: 19 (left_ankle_roll, right_ankle_roll, right_wrist_roll) | torque: 20 (right_ankle_roll, right_wrist_roll) | hold: infeasible (margin -33.18 at 25 N) | hold-min: 21 (right_wrist_roll)
+  g1 0.6 +0.00 | free: 19 (left_ankle_roll, right_ankle_roll, right_wrist_roll) | force: 18 (left_ankle_roll, right_hip_roll, right_ankle_roll, right_wrist_roll) | torque: 19 (left_ankle_roll, right_ankle_roll, right_wrist_roll) | hold: infeasible (margin -31.06 at 25 N) | hold-min: 21 (right_wrist_roll)
+  g1 0.6 +0.15 | free: 19 (left_ankle_roll, right_hip_yaw, right_ankle_roll) | force: 20 (left_ankle_roll, right_ankle_roll) | torque: 20 (left_hip_yaw, right_hip_yaw) | hold: infeasible (margin -33.25 at 25 N) | hold-min: 22 (-)
+  g1 0.8 -0.15 | free: 17 (left_ankle_roll, right_ankle_roll, right_shoulder_yaw, right_wrist_roll, right_wrist_yaw) | force: 15 (left_hip_pitch, left_knee, left_ankle_roll, right_ankle_roll, right_shoulder_yaw, right_wrist_roll, right_wrist_yaw) | torque: 17 (right_ankle_pitch, right_ankle_roll, right_shoulder_yaw, right_wrist_roll, right_wrist_yaw) | hold: infeasible (margin -18.55 at 25 N) | hold-min: 19 (right_shoulder_yaw, right_wrist_roll, right_wrist_yaw)
+  g1 0.8 +0.00 | free: 18 (left_ankle_roll, right_hip_roll, right_ankle_roll, right_wrist_roll) | force: 18 (left_hip_pitch, left_ankle_roll, right_ankle_roll, right_wrist_roll) | torque: 19 (left_ankle_roll, right_ankle_roll, right_wrist_roll) | hold: infeasible (margin -15.38 at 25 N) | hold-min: 21 (right_wrist_roll)
+  g1 0.8 +0.15 | free: 18 (left_hip_yaw, left_ankle_roll, right_hip_yaw, right_ankle_roll) | force: 19 (left_ankle_roll, right_hip_yaw, right_ankle_roll) | torque: 20 (left_hip_yaw, right_hip_yaw) | hold: infeasible (margin -18.56 at 25 N) | hold-min: 22 (-)
+  g1 1.0 -0.15 | free: 15 (left_hip_pitch, left_ankle_roll, right_hip_pitch, right_ankle_roll, right_shoulder_yaw, right_wrist_roll, right_wrist_yaw) | force: 15 (left_knee, left_ankle_pitch, left_ankle_roll, right_ankle_roll, right_shoulder_yaw, right_wrist_roll, right_wrist_yaw) | torque: 16 (left_hip_pitch, right_ankle_pitch, right_ankle_roll, right_shoulder_yaw, right_wrist_roll, right_wrist_yaw) | hold: infeasible (margin -9.81 at 25 N) | hold-min: 17 (left_hip_pitch, right_ankle_pitch, right_shoulder_yaw, right_wrist_roll, right_wrist_yaw)
+  g1 1.0 +0.00 | free: 14 (left_knee, left_ankle_roll, right_knee, right_ankle_roll, waist_roll, waist_pitch, right_wrist_roll, right_wrist_yaw) | force: 14 (left_knee, left_ankle_pitch, left_ankle_roll, right_ankle_roll, waist_roll, waist_pitch, right_wrist_roll, right_wrist_yaw) | torque: 14 (left_hip_roll, left_knee, right_hip_roll, right_knee, waist_roll, waist_pitch, right_wrist_roll, right_wrist_yaw) | hold: infeasible (margin -4.31 at 25 N) | hold-min: 16 (left_knee, right_knee, waist_roll, waist_pitch, right_wrist_roll, right_wrist_yaw)
+  g1 1.0 +0.15 | free: 15 (left_hip_pitch, left_hip_yaw, left_ankle_roll, right_hip_pitch, right_hip_yaw, right_ankle_roll, right_shoulder_roll) | force: 16 (left_hip_pitch, left_hip_yaw, left_ankle_roll, right_hip_yaw, right_ankle_roll, right_shoulder_roll) | torque: 19 (left_hip_pitch, right_hip_pitch, right_shoulder_roll) | hold: infeasible (margin -9.60 at 25 N) | hold-min: 19 (left_hip_pitch, right_hip_pitch, right_shoulder_roll)
+  g1 1.2 -0.15 | free: 13 (left_hip_pitch, left_knee, left_ankle_roll, right_hip_pitch, right_knee, right_ankle_roll, waist_pitch, right_shoulder_roll, right_wrist_roll) | force: 15 (left_knee, left_ankle_pitch, left_ankle_roll, right_ankle_roll, waist_pitch, right_shoulder_roll, right_wrist_roll) | torque: 13 (left_knee, left_ankle_roll, right_hip_pitch, right_knee, right_ankle_pitch, right_ankle_roll, waist_pitch, right_shoulder_roll, right_wrist_roll) | hold: infeasible (margin -8.42 at 25 N) | hold-min: 16 (left_knee, right_knee, right_ankle_pitch, waist_pitch, right_shoulder_roll, right_wrist_roll)
+  g1 1.2 +0.00 | free: 9 (left_hip_roll, left_knee, left_ankle_pitch, left_ankle_roll, right_knee, right_ankle_pitch, right_ankle_roll, waist_roll, right_shoulder_roll, right_shoulder_yaw, right_elbow, right_wrist_roll, right_wrist_yaw) | force: 12 (left_knee, left_ankle_pitch, left_ankle_roll, right_ankle_roll, waist_roll, right_shoulder_roll, right_shoulder_yaw, right_elbow, right_wrist_roll, right_wrist_yaw) | torque: 11 (left_hip_roll, left_knee, right_hip_roll, right_knee, right_ankle_pitch, waist_roll, right_shoulder_roll, right_shoulder_yaw, right_elbow, right_wrist_roll, right_wrist_yaw) | hold: infeasible (margin -4.15 at 25 N) | hold-min: 13 (left_knee, right_knee, right_ankle_pitch, waist_roll, right_shoulder_roll, right_shoulder_yaw, right_elbow, right_wrist_roll, right_wrist_yaw)
+  g1 1.2 +0.15 | free: 10 (left_hip_pitch, left_hip_yaw, left_knee, left_ankle_pitch, left_ankle_roll, right_hip_pitch, right_hip_yaw, right_knee, right_ankle_pitch, right_ankle_roll, waist_pitch, right_elbow) | force: 12 (left_hip_yaw, left_knee, left_ankle_pitch, left_ankle_roll, right_hip_pitch, right_hip_yaw, right_knee, right_ankle_roll, waist_pitch, right_elbow) | torque: 14 (left_hip_pitch, left_knee, left_ankle_pitch, right_hip_pitch, right_knee, right_ankle_pitch, waist_pitch, right_elbow) | hold: infeasible (margin -8.23 at 25 N) | hold-min: 15 (left_hip_pitch, left_knee, left_ankle_pitch, right_hip_pitch, right_knee, waist_pitch, right_elbow)
+  h1 0.4 -0.15 | free: 15 (-) | force: 14 (left_hip_roll) | torque: 15 (-) | hold: infeasible (margin -1.41 at 25 N) | hold-min: infeasible (margin -1.41 at 25 N)
+  h1 0.4 +0.00 | free: 14 (left_hip_roll) | force: 15 (-) | torque: 15 (-) | hold: 15 (-) | hold-min: 15 (-)
+  h1 0.4 +0.15 | free: 14 (right_shoulder_roll) | force: 14 (right_shoulder_roll) | torque: 14 (right_shoulder_roll) | hold: 14 (right_shoulder_roll) | hold-min: 14 (right_shoulder_roll)
+  h1 0.6 -0.15 | free: 15 (-) | force: 15 (-) | torque: 15 (-) | hold: 15 (-) | hold-min: 15 (-)
+  h1 0.6 +0.00 | free: 15 (-) | force: 15 (-) | torque: 15 (-) | hold: 15 (-) | hold-min: 15 (-)
+  h1 0.6 +0.15 | free: 14 (right_shoulder_roll) | force: 14 (right_shoulder_roll) | torque: 14 (right_shoulder_roll) | hold: 14 (right_shoulder_roll) | hold-min: 14 (right_shoulder_roll)
+  h1 0.8 -0.15 | free: 14 (torso) | force: 14 (torso) | torque: 14 (torso) | hold: 14 (torso) | hold-min: 14 (torso)
+  h1 0.8 +0.00 | free: 15 (-) | force: 15 (-) | torque: 15 (-) | hold: 15 (-) | hold-min: 15 (-)
+  h1 0.8 +0.15 | free: 14 (right_shoulder_roll) | force: 14 (right_shoulder_roll) | torque: 14 (right_shoulder_roll) | hold: 14 (right_shoulder_roll) | hold-min: 14 (right_shoulder_roll)
+  h1 1.0 -0.15 | free: 15 (-) | force: 14 (left_hip_pitch) | torque: 14 (left_hip_roll) | hold: 15 (-) | hold-min: 15 (-)
+  h1 1.0 +0.00 | free: 15 (-) | force: 14 (left_hip_pitch) | torque: 15 (-) | hold: 15 (-) | hold-min: 15 (-)
+  h1 1.0 +0.15 | free: 15 (-) | force: 15 (-) | torque: 15 (-) | hold: 15 (-) | hold-min: 15 (-)
+  h1 1.2 -0.15 | free: 14 (left_hip_pitch) | force: 13 (left_knee, right_hip_yaw) | torque: 12 (left_hip_roll, left_hip_pitch, right_hip_roll) | hold: 15 (-) | hold-min: 14 (left_hip_pitch)
+  h1 1.2 +0.00 | free: 14 (left_knee) | force: 14 (left_knee) | torque: 13 (left_hip_roll, right_hip_roll) | hold: infeasible (margin -3.04 at 25 N) | hold-min: 15 (-)
+  h1 1.2 +0.15 | free: 13 (left_knee, right_elbow) | force: 13 (left_knee, right_elbow) | torque: 13 (left_knee, right_elbow) | hold: infeasible (margin -7.31 at 25 N) | hold-min: 13 (left_knee, right_elbow)
+  h1 1.4 -0.15 | free: 13 (right_knee, right_shoulder_roll) | force: 13 (left_hip_yaw, right_shoulder_roll) | torque: 13 (right_knee, right_shoulder_roll) | hold: infeasible (margin -11.21 at 25 N) | hold-min: 12 (right_knee, right_ankle, right_shoulder_roll)
+  h1 1.4 +0.00 | free: 13 (left_knee, right_knee) | force: 13 (right_hip_pitch, right_knee) | torque: 13 (left_knee, right_knee) | hold: infeasible (margin -13.17 at 25 N) | hold-min: 13 (left_knee, right_knee)
+  h1 1.4 +0.15 | free: 14 (left_knee) | force: 14 (left_knee) | torque: 14 (left_knee) | hold: infeasible (margin -10.99 at 25 N) | hold-min: 14 (left_knee)
+  h1 1.6 -0.15 | free: 12 (left_hip_yaw, right_knee, right_shoulder_roll) | force: 13 (left_hip_yaw, right_shoulder_roll) | torque: 13 (right_knee, right_shoulder_roll) | hold: infeasible (margin -16.53 at 25 N) | hold-min: 11 (right_hip_pitch, right_knee, right_ankle, right_shoulder_roll)
+  h1 1.6 +0.00 | free: 13 (left_knee, right_shoulder_yaw) | force: 13 (right_knee, right_shoulder_yaw) | torque: 13 (left_knee, right_shoulder_yaw) | hold: infeasible (margin -17.80 at 25 N) | hold-min: 12 (left_knee, right_ankle, right_shoulder_yaw)
+  h1 1.6 +0.15 | free: 14 (left_knee) | force: 14 (left_knee) | torque: 14 (left_knee) | hold: infeasible (margin -16.06 at 25 N) | hold-min: 14 (left_knee)
+largest change of a waist or arm torque between models: 0.00e+00 N m
+
+## B2. Joints held at every pose whose torque flips sign across the grid, per model
+  g1 free: 2 held everywhere; flipping: right_wrist_pitch (-6.04 to +3.00)
+  g1 force: 3 held everywhere; flipping: right_wrist_pitch (-6.04 to +3.00)
+  g1 torque: 2 held everywhere; flipping: right_wrist_pitch (-6.04 to +3.00)
+  g1 hold: not every pose feasible
+  g1 hold-min: 8 held everywhere; flipping: right_wrist_pitch (-6.04 to +3.00)
+  h1 free: 6 held everywhere; flipping: right_hip_yaw (-16.73 to +28.15), right_hip_pitch (-26.59 to +77.71)
+  h1 force: 4 held everywhere; flipping: none
+  h1 torque: 6 held everywhere; flipping: left_hip_yaw (-13.69 to +2.50), right_hip_yaw (-8.52 to +4.50), right_hip_pitch (-26.50 to +77.22)
+  h1 hold: not every pose feasible
+  h1 hold-min: not every pose feasible
+
+## C. Single-2x stack, 12 bits: no backlash | 5 arcmin per-pose cal (pts) | one cal (pts), residual y surface (mm) [Jacobian part, flip part]
+  g1 0.4 -0.15 | 0.9598 | free -0.39 -22.79 -0.99 [-0.49, -0.51] | force -0.39 -6.00 -0.55 [-0.44, -0.11] | torque -0.78 -58.83 -1.50 [-0.94, -0.56] | hold - | hold-min -0.16 -23.30 -1.03 [-0.97, -0.06]
+  g1 0.4 +0.00 | 0.9553 | free -0.41 -14.30 -0.81 [-0.27, -0.53] | force -0.73 -6.79 -0.55 [-0.29, -0.26] | torque -0.20 -74.63 -1.74 [-0.70, -1.03] | hold - | hold-min -0.20 -13.72 -0.81 [-0.70, -0.11]
+  g1 0.4 +0.15 | 0.9558 | free -3.63 -85.59 +1.76 [+0.03, +1.73] | force -3.04 -92.91 +2.06 [-0.05, +2.11] | torque -1.98 -45.33 +1.16 [-0.37, +1.53] | hold - | hold-min -1.98 -13.62 +0.61 [-0.35, +0.95]
+  g1 0.6 -0.15 | 0.9627 | free -0.69 -1.54 -0.24 [-0.52, +0.29] | force -0.69 -1.23 -0.19 [-0.53, +0.34] | torque -0.43 -10.21 -0.72 [-0.82, +0.10] | hold - | hold-min -0.18 -11.03 -0.76 [-0.83, +0.07]
+  g1 0.6 +0.00 | 0.9590 | free -0.72 -5.02 -0.48 [-0.35, -0.12] | force -0.78 -2.49 -0.33 [-0.37, +0.05] | torque -0.72 -33.28 -1.16 [-0.64, -0.52] | hold - | hold-min -0.24 -5.48 -0.55 [-0.64, +0.09]
+  g1 0.6 +0.15 | 0.9579 | free -1.04 -23.87 +0.89 [-0.21, +1.11] | force -0.53 -42.15 +1.20 [-0.25, +1.45] | torque -1.10 -3.66 -0.45 [-0.49, +0.04] | hold - | hold-min +0.00 -0.11 +0.04 [-0.48, +0.51]
+  g1 0.8 -0.15 | 0.9644 | free -2.04 -18.60 -0.80 [-0.41, -0.39] | force -2.05 -17.18 -0.77 [-0.43, -0.34] | torque -1.54 -39.17 -1.19 [-0.55, -0.64] | hold - | hold-min -1.05 -21.53 -0.93 [-0.55, -0.38]
+  g1 0.8 +0.00 | 0.9610 | free -1.08 -1.08 -0.00 [-0.18, +0.18] | force -1.08 -1.11 +0.00 [-0.19, +0.20] | torque -1.07 -9.68 -0.66 [-0.32, -0.34] | hold - | hold-min -0.13 -0.34 -0.16 [-0.32, +0.16]
+  g1 0.8 +0.15 | 0.9592 | free -2.12 -25.83 +0.90 [-0.11, +1.01] | force -1.47 -44.23 +1.20 [-0.13, +1.33] | torque -0.96 -1.97 -0.32 [-0.26, -0.06] | hold - | hold-min +0.00 -1.16 +0.22 [-0.26, +0.48]
+  g1 1.0 -0.15 | 0.9601 | free -2.48 -41.78 -1.15 [-0.49, -0.66] | force -2.47 -40.20 -1.13 [-0.49, -0.64] | torque -1.46 -62.81 -1.49 [-0.49, -1.00] | hold - | hold-min -0.67 -19.61 -0.89 [-0.48, -0.41]
+  g1 1.0 +0.00 | 0.9569 | free -2.49 -2.49 +0.00 [+0.00, +0.00] | force -2.49 -2.49 +0.00 [+0.00, +0.00] | torque -0.86 -0.86 +0.00 [+0.00, +0.00] | hold - | hold-min -0.62 -0.62 +0.00 [+0.00, +0.00]
+  g1 1.0 +0.15 | 0.9595 | free -4.09 -36.91 +1.00 [+0.26, +0.74] | force -4.08 -38.43 +1.02 [+0.25, +0.78] | torque -1.27 -13.92 -0.78 [+0.25, -1.03] | hold - | hold-min -1.27 -3.62 +0.32 [+0.25, +0.07]
+  g1 1.2 -0.15 | 0.9488 | free -4.56 -90.78 -1.95 [-0.43, -1.52] | force -4.56 -90.75 -1.95 [-0.42, -1.53] | torque -4.56 -94.85 -2.63 [-0.28, -2.35] | hold - | hold-min -1.31 -59.59 -1.40 [-0.27, -1.13]
+  g1 1.2 +0.00 | 0.9455 | free -8.63 -25.48 -0.66 [-0.05, -0.62] | force -8.06 -15.66 -0.45 [-0.04, -0.41] | torque -4.69 -7.93 -0.31 [+0.10, -0.40] | hold - | hold-min -3.74 -6.78 -0.31 [+0.10, -0.40]
+  g1 1.2 +0.15 | 0.9480 | free -3.81 -66.87 +1.43 [+0.17, +1.26] | force -3.80 -69.42 +1.47 [+0.17, +1.30] | torque -0.00 -3.74 -0.45 [+0.31, -0.76] | hold - | hold-min -0.00 -14.73 +0.78 [+0.31, +0.48]
+  h1 0.4 -0.15 | 0.9767 | free +0.00 -4.50 -0.55 [-0.07, -0.48] | force -0.54 -1.32 -0.19 [-0.07, -0.12] | torque +0.00 -3.92 +0.58 [-0.40, +0.98] | hold - | hold-min -
+  h1 0.4 +0.00 | 0.9765 | free -0.53 -2.51 -0.38 [-0.07, -0.31] | force +0.00 +0.00 -0.03 [-0.08, +0.05] | torque +0.00 -2.65 +0.44 [-0.40, +0.84] | hold +0.00 -1.75 -0.40 [-0.40, +0.00] | hold-min +0.00 -1.75 -0.40 [-0.40, +0.00]
+  h1 0.4 +0.15 | 0.9767 | free -0.42 -1.52 -0.34 [-0.04, -0.29] | force -0.42 -1.22 -0.29 [-0.05, -0.24] | torque -0.42 -5.96 -0.67 [-0.38, -0.29] | hold -0.42 -5.96 -0.67 [-0.38, -0.29] | hold-min -0.42 -5.96 -0.67 [-0.38, -0.29]
+  h1 0.6 -0.15 | 0.9799 | free +0.00 +0.05 -0.02 [-0.10, +0.08] | force +0.00 +0.02 +0.02 [-0.11, +0.13] | torque +0.00 -3.19 +0.55 [-0.34, +0.89] | hold +0.00 -1.04 -0.26 [-0.34, +0.08] | hold-min +0.00 -1.04 -0.26 [-0.34, +0.08]
+  h1 0.6 +0.00 | 0.9766 | free +0.00 -0.00 -0.09 [-0.09, +0.00] | force +0.00 +0.00 -0.05 [-0.10, +0.05] | torque +0.00 -1.31 -0.33 [-0.33, +0.00] | hold +0.00 -1.31 -0.33 [-0.33, +0.00] | hold-min +0.00 -1.31 -0.33 [-0.33, +0.00]
+  h1 0.6 +0.15 | 0.9832 | free -0.11 -0.50 -0.22 [-0.04, -0.18] | force -0.11 -0.23 -0.17 [-0.04, -0.13] | torque -0.11 -2.02 -0.45 [-0.27, -0.18] | hold -0.11 -2.02 -0.45 [-0.27, -0.18] | hold-min -0.11 -2.02 -0.45 [-0.27, -0.18]
+  h1 0.8 -0.15 | 0.9795 | free -0.99 -3.35 -0.38 [-0.07, -0.31] | force -0.99 -2.92 -0.34 [-0.07, -0.26] | torque -0.99 -5.61 -0.53 [-0.22, -0.31] | hold -0.99 -5.61 -0.53 [-0.22, -0.31] | hold-min -0.99 -5.61 -0.53 [-0.22, -0.31]
+  h1 0.8 +0.00 | 0.9764 | free +0.00 +0.01 -0.06 [-0.06, +0.00] | force +0.00 +0.00 -0.02 [-0.07, +0.05] | torque +0.00 -0.47 -0.19 [-0.19, +0.00] | hold +0.00 -0.47 -0.19 [-0.19, +0.00] | hold-min +0.00 -0.47 -0.19 [-0.19, +0.00]
+  h1 0.8 +0.15 | 0.9837 | free -0.08 -0.70 -0.26 [-0.08, -0.18] | force -0.08 -0.52 -0.22 [-0.09, -0.13] | torque -0.08 -1.80 -0.42 [-0.24, -0.18] | hold -0.08 -1.80 -0.42 [-0.24, -0.18] | hold-min -0.08 -1.80 -0.42 [-0.24, -0.18]
+  h1 1.0 -0.15 | 0.9785 | free +0.00 -8.02 -0.72 [+0.03, -0.75] | force +0.00 -8.16 -0.73 [+0.03, -0.75] | torque -0.17 -5.70 -0.62 [-0.03, -0.58] | hold +0.00 -9.81 -0.79 [-0.03, -0.75] | hold-min +0.00 -9.81 -0.79 [-0.03, -0.75]
+  h1 1.0 +0.00 | 0.9765 | free +0.00 +0.00 +0.00 [+0.00, +0.00] | force -0.00 -0.00 +0.00 [+0.00, +0.00] | torque +0.00 +0.00 +0.00 [+0.00, +0.00] | hold +0.00 +0.00 +0.00 [+0.00, +0.00] | hold-min +0.00 +0.00 +0.00 [+0.00, +0.00]
+  h1 1.0 +0.15 | 0.9845 | free +0.00 -0.12 -0.13 [-0.13, +0.00] | force +0.00 -0.04 -0.09 [-0.13, +0.05] | torque +0.00 -0.51 -0.21 [-0.21, +0.00] | hold +0.00 -0.51 -0.21 [-0.21, +0.00] | hold-min +0.00 -0.51 -0.21 [-0.21, +0.00]
+  h1 1.2 -0.15 | 0.9766 | free -0.00 -18.51 -1.01 [+0.15, -1.16] | force -0.29 -11.74 -0.82 [+0.16, -0.97] | torque -0.26 -1.72 -0.31 [+0.12, -0.43] | hold +0.00 -4.35 -0.57 [+0.12, -0.69] | hold-min -0.00 -5.08 -0.61 [+0.12, -0.73]
+  h1 1.2 +0.00 | 0.9771 | free +0.00 -3.16 -0.50 [-0.03, -0.47] | force +0.00 -3.52 -0.52 [-0.02, -0.50] | torque -0.12 -0.83 +0.23 [-0.02, +0.25] | hold - | hold-min +0.00 +0.01 -0.02 [-0.02, -0.00]
+  h1 1.2 +0.15 | 0.9755 | free -0.30 -0.28 -0.07 [-0.26, +0.19] | force -0.30 -0.28 -0.03 [-0.25, +0.22] | torque -0.30 -0.30 -0.03 [-0.22, +0.19] | hold - | hold-min -0.30 -0.30 -0.03 [-0.22, +0.19]
+  h1 1.4 -0.15 | 0.9723 | free -0.91 -65.03 -1.59 [+0.06, -1.65] | force -1.34 -51.11 -1.38 [+0.08, -1.46] | torque -0.91 -6.65 -0.54 [-0.04, -0.50] | hold - | hold-min -0.91 -35.70 -1.22 [-0.04, -1.18]
+  h1 1.4 +0.00 | 0.9744 | free +0.00 +0.00 +0.02 [-0.07, +0.09] | force +0.00 -0.00 +0.02 [-0.06, +0.08] | torque +0.00 -4.93 +0.59 [-0.17, +0.76] | hold - | hold-min +0.00 +0.03 -0.08 [-0.17, +0.09]
+  h1 1.4 +0.15 | 0.9765 | free +0.00 -0.15 +0.07 [-0.26, +0.32] | force +0.00 -0.24 +0.11 [-0.24, +0.35] | torque +0.00 -0.06 -0.03 [-0.36, +0.33] | hold - | hold-min +0.00 -0.06 -0.03 [-0.36, +0.33]
+  h1 1.6 -0.15 | 0.9683 | free -1.61 -50.30 -1.34 [-0.03, -1.32] | force -1.60 -52.16 -1.36 [-0.01, -1.36] | torque -1.18 -4.86 -0.43 [-0.28, -0.15] | hold - | hold-min -1.19 -48.66 -1.37 [-0.28, -1.09]
+  h1 1.6 +0.00 | 0.9695 | free -0.57 -1.76 -0.28 [-0.16, -0.12] | force -0.57 -1.53 -0.26 [-0.14, -0.12] | torque -0.57 -2.97 +0.38 [-0.41, +0.79] | hold - | hold-min -0.57 -4.32 -0.52 [-0.41, -0.11]
+  h1 1.6 +0.15 | 0.9677 | free +0.00 -0.06 +0.07 [-0.34, +0.41] | force +0.00 -0.19 +0.11 [-0.32, +0.43] | torque +0.00 -0.21 -0.18 [-0.59, +0.41] | hold - | hold-min +0.00 -0.21 -0.18 [-0.59, +0.41]
+
+## C2. Worst over the grid, per robot and model: per-pose loss (pts) | one-cal loss (pts) | |residual y| (mm)
+  g1 free   (15 poses) | 8.63 at 1.2 +0.00 | 90.78 at 1.2 -0.15 | -1.950 at 1.2 -0.15
+  g1 force  (15 poses) | 8.06 at 1.2 +0.00 | 92.91 at 0.4 +0.15 | +2.056 at 0.4 +0.15
+  g1 torque (15 poses) | 4.69 at 1.2 +0.00 | 94.85 at 1.2 -0.15 | -2.632 at 1.2 -0.15
+  g1 hold-min (15 poses) | 3.74 at 1.2 +0.00 | 59.59 at 1.2 -0.15 | -1.401 at 1.2 -0.15
+  h1 free   (21 poses) | 1.61 at 1.6 -0.15 | 65.03 at 1.4 -0.15 | -1.587 at 1.4 -0.15
+  h1 force  (21 poses) | 1.60 at 1.6 -0.15 | 52.16 at 1.6 -0.15 | -1.385 at 1.4 -0.15
+  h1 torque (21 poses) | 1.18 at 1.6 -0.15 | 6.65 at 1.4 -0.15 | -0.669 at 0.4 +0.15
+  h1 hold   (12 poses) | 0.99 at 0.8 -0.15 | 9.81 at 1.0 -0.15 | -0.788 at 1.0 -0.15
+  h1 hold-min (20 poses) | 1.19 at 1.6 -0.15 | 48.66 at 1.6 -0.15 | -1.366 at 1.6 -0.15
+
+## D. G1 sweeps: mu and tau_f | hold feasible | hold-min feasible | flips under 'force' | worst |residual y| under hold-min (mm)
+  mu 0.3 tau_f 0.20 | 0/15 | 10/15 | - | 1.494
+  mu 0.5 tau_f 0.05 | 0/15 | 14/15 | waist_yaw, waist_roll, right_wrist_pitch | 2.183
+  mu 0.5 tau_f 0.20 | 0/15 | 15/15 | right_wrist_pitch | 1.401
+  mu 0.5 tau_f 0.50 | 0/15 | 15/15 | right_wrist_pitch | 1.292
+  mu 0.8 tau_f 0.20 | 0/15 | 15/15 | right_wrist_pitch | 1.396
+
+## F. Which single calibration pose leaves least (G1, 5 arcmin, not registered): model | worst |residual y| (mm) calibrated at 1.0 +0.00 | best pose and its worst | stack at the worst pose for that calibration (pts)
+  free     | 1.950 | 0.8 +0.00: 1.949 | 90.93 at 1.2 -0.15
+  torque   | 2.632 | 0.6 -0.15: 1.910 | 89.94 at 1.2 -0.15
+  hold-min | 1.401 | 1.2 +0.00: 1.094 | 36.67 at 1.2 -0.15
+
+## E. Hypotheses (registered in LOG.md before this run)
+H118 (a G1 hip yaw still flips under 'force', mu 0.5): none -> refuted
+H119 ('hold' feasible at every G1 grid pose, both press ends): infeasible at [(0.4, -0.15), (0.4, 0.0), (0.4, 0.15), (0.6, -0.15), (0.6, 0.0), (0.6, 0.15), (0.8, -0.15), (0.8, 0.0), (0.8, 0.15), (1.0, -0.15), (1.0, 0.0), (1.0, 0.15), (1.2, -0.15), (1.2, 0.0), (1.2, 0.15)]; 15 of 15 grid poses balance 25-50 N when leaned -> refuted
+H120 (under 'hold', one calibration still leaves > 1 mm at the worst G1 pose): no feasible poses -> not testable (no pose where 'hold' is feasible)
+(not registered) under 'hold-min', worst one-cal residual -1.401 mm at 1.2 -0.15; worst one-cal loss 59.59 pts
+
+(run time 200 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

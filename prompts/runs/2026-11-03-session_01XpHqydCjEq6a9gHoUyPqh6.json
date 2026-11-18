@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01XpHqydCjEq6a9gHoUyPqh6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "it'd be nice to build tools for catholic orgs. parishes. relgiious orgs. as a direction / standard problems they have.",
+  "input_sha256": "8fdd254fcc7e007fac8d72b76eac3b27c9fc9e5790fc258b7739730dd639a05d",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T05:51:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "New owner direction: tools for Catholic parishes and religious organisations, for their standard problems",
+  "projects": [
+    "parish-office"
+  ],
+  "pr": 12744,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 32,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "web-fetch agent got 404 on guessed vatican.va canon URLs",
+      "fix": "Fetched the correct range page (cann879-958) with curl through the proxy."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Owner directions are quoted in prompts/goals.md, which CODEOWNERS gates; the harness pins one branch, so a separate control-plane PR for the goals.md entry was not possible in this session. Recorded the direction in portfolio/DIRECTION.md and docs/reports instead, and queued the goals.md entry as a follow-up."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Did not edit prompts/goals.md (control plane, separate PR needed, single designated branch).",
+      "did": "Direction recorded in portfolio/DIRECTION.md, ventures/parish-office/ROADMAP.md and docs/reports/parish-office-direction.md.",
+      "result": "Direction visible to venture runs without waiting on owner approval."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-03-a-mass-intentions-book-that-reads-canon-law.md",
+    "docs/reports/parish-office-direction.md"
+  ],
+  "goal": "Open the direction with a roadmap of standard parish-office problems and ship the first module a parish can use today.",
+  "notes": "Engine checks cc. 948, 950, 951 §1-2, 953, 954, 955 §1-2, 956 and builds the c. 958 register; canon text fetched from vatican.va 2026-11-03. node --test: 32 pass (intentions 18, cli 3, usage, page). platform/pages/clauses.mjs parish-office: 3 pages carry their clauses. Headless Chromium at 390px: load example, auto-book, add intention, add 36 Masses, auto-book, reload keeps the book, no console errors, no horizontal scroll. router validate: all VENTURE.yaml valid. The 1991 collective-intentions decree was not found in an official fetchable text, so it is listed as not modelled.",
+  "corrections": [],
+  "redteam": null
+}

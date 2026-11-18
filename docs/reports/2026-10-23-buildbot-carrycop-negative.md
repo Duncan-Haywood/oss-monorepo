@@ -1,3 +1,10 @@
+---
+kind: analysis
+subjects: [buildbot-carrycop]
+topics: [research-integrity]
+date: 2026-10-23
+tagged: auto
+---
 # buildbot-carrycop: a negative result on shifting the centre of pressure
 
 Agent report, 2026-10-23, research track. Project: `research/buildbot-carrycop` (PR #9702).

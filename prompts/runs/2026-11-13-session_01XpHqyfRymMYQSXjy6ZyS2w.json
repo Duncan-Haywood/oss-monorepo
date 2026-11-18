@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyfRymMYQSXjy6ZyS2w",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T08:39:14Z",
+  "ended": "2026-11-13T09:00:37Z",
+  "wall_minutes": 21.63,
+  "tokens_in": 3406177,
+  "tokens_out": 26243,
+  "cost_usd": 1.8038,
+  "tool_calls": 45,
+  "task": "explore: locale drift sweep (en-US vs de-DE) and fix",
+  "projects": [
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15435",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "The swept-and-clean list could gain: locale value drift (1,227 pages, 0; platform/ci/check_locale_drift.mjs, 2026-11-13). Not edited here because prompts/ is owner-held (CODEOWNERS)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No agent doc in docs/reports/: the check's header comment and the post carry everything the next run needs.",
+      "did": "Post plus self-documenting script",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-twelve-fifty-or-one-twenty-five.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: locale drift sweep (new kind). platform/ci/check_locale_drift.mjs renders the 1,227 venture pages with a number input in en-US and de-DE (UTC, fixed clock, seeded Math.random), fills 1250, clicks Calculate, and compares values (both readings of each German token) and, outside a 10-venture multi-currency allowlist, formats. Before: 0 value drift; 58 pages printed USD in reader locale ('$1.250'), from 182 unpinned toLocaleString()/Intl.NumberFormat(undefined) calls in 84 ventures. Fix: pinned 'en-US' in 74 USD-only ventures (86 files, 141 lines). After: 0 of 1,227 fail. Verification: node --test platform/ci/test_check_locale_drift.mjs 5/5; run_venture_tests.py on the 74 changed ventures: 74 suites, 0 failed. Next: an input-side sweep typing '1,5' into decimal text fields.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "383d0ecd-15fc-5297-83a0-e82e1b7a9b9b",
+    "transcripts": 1,
+    "first": "2026-11-13T08:39:14Z",
+    "last": "2026-11-13T09:00:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 83,
+        "output": 26243,
+        "thinking": 7612,
+        "cache_read": 3329504,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76590,
+        "api_equivalent_usd": 1.8038,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 83,
+      "output": 26243,
+      "thinking": 7612,
+      "cache_read": 3329504,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76590,
+      "api_equivalent_usd": 1.8038,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 41,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.63,
+      "active_minutes": 21.63,
+      "model_minutes": 4.36,
+      "tool_minutes": 17.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "write a two-locale Playwright sweep with tests, triage 60 diffs, codemod and re-verify 74 ventures",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 332.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

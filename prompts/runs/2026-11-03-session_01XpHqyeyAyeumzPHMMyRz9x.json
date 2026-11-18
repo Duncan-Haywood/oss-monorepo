@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01XpHqyeyAyeumzPHMMyRz9x",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "having tons of lag on the site. can we look into this? fix it? do reflectives often to catch performance bugs like this?",
+  "input_sha256": "727182366de6b23b99cc7bb27dd11c5690cf55935dede962b31fab812ca37bb4",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T19:53:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "homepage lag: find and fix, add a frame-rate check",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": 12888,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "first build failed: new post's description was 192 chars (limit 160); shortened"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "the user's request set the task, so the routed explore brief was not followed",
+      "did": "fixed the reported homepage lag",
+      "result": "idle fps 7 -> 52 under a 4x CPU throttle"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-03-why-the-homepage-ran-at-seven-frames-a-second.md",
+    "docs/reports/2026-11-03-homepage-frame-rate.md"
+  ],
+  "goal": null,
+  "notes": "Ablation, headless Chromium, 4x CPU: baseline 5.3 fps, no aurora 15, no canvas 7.7, neither 56.7. After the fix: 52 fps idle and 48 scrolling (laptop), 50 and 46 (phone). framerate.mjs against production fails / and passes research/ and three tools. Wiring framerate into browser_checks nightly touches .github (control plane): separate PR.",
+  "corrections": [],
+  "redteam": null
+}

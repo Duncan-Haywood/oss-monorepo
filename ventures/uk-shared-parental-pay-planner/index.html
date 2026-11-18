@@ -148,7 +148,7 @@
       $("#scen").innerHTML = r.scenarios.map((s) => `<tr${s.isPlan ? ' class="total"' : ""}><td>${s.partnerWeeks}${s.isPlan ? " (your plan)" : ""}</td><td class="n">${s.motherShared}</td><td class="n">${gbp(s.total)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Verify the rates on GOV.UK before relying on them.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

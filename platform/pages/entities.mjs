@@ -74,6 +74,11 @@ export const NAMED_ENTITIES = Object.freeze({
   pi: 'π',
   mu: 'μ',
   rho: 'ρ',
+  // The rest of the Greek letters research titles reach for (`&gamma;-fold` in
+  // the custom-development direction menu, 2026-11-14).
+  gamma: 'γ', Gamma: 'Γ', delta: 'δ', Delta: 'Δ', epsilon: 'ε', zeta: 'ζ', eta: 'η',
+  theta: 'θ', Theta: 'Θ', kappa: 'κ', lambda: 'λ', Lambda: 'Λ', nu: 'ν', xi: 'ξ',
+  sigma: 'σ', Sigma: 'Σ', phi: 'φ', Phi: 'Φ', chi: 'χ', psi: 'ψ', Psi: 'Ψ', Pi: 'Π',
 
   larr: '←',
   rarr: '→',
@@ -124,4 +129,23 @@ export function unknownNamedEntities(html) {
     if (!Object.hasOwn(NAMED_ENTITIES, body)) unknown.add(`&${body};`);
   }
   return [...unknown];
+}
+
+// A double-escaped reference (`&amp;rsquo;`) renders as the literal text
+// `&rsquo;`. In prose it can be deliberate (a post about entities shows one in a
+// code span), but never in a menu choice, a page title or a heading: those are
+// built from authored titles that already carry HTML, escaped a second time.
+// The custom-development direction picker did exactly that until 2026-11-14
+// (50 of 1,080 choices, e.g. "market&rsquo;s").
+const CHROME_TEXT = /<(option|title|h1|h2)\b[^>]*>([\s\S]*?)<\/\1>|<optgroup\b[^>]*\blabel="([^"]*)"/gi;
+const DOUBLE_ESCAPED = /&amp;(#\d+|#x[0-9a-f]+|[a-z][a-z0-9]*);/gi;
+
+/** Double-escaped references inside `<option>`, `<title>`, `<h1>`, `<h2>` and optgroup labels, deduped, as visitors see them. */
+export function doubleEscapedInChrome(html) {
+  const found = new Set();
+  for (const m of String(html).matchAll(CHROME_TEXT)) {
+    const text = m[2] ?? m[3] ?? '';
+    for (const [, body] of text.matchAll(DOUBLE_ESCAPED)) found.add(`&${body};`);
+  }
+  return [...found];
 }

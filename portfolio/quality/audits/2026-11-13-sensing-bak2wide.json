@@ -1,0 +1,213 @@
+{
+  "date": "2026-11-13",
+  "subject": "research/sensing-bak2wide",
+  "stratum": "research",
+  "seed": "2026-11-13-j",
+  "drawn_by": "sample",
+  "round": 64,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a senior close-range photogrammetrist / camera-calibration specialist (the kind who reviews for the ISPRS Journal or The Photogrammetric Record). They would check first whether the k2 spread is simply what the r^4 term's pixel displacement at the edge of the used field predicts against the noise, whether the k1-k2 correlation and the precision of k2 are reported from the adjustment covariance (Fraser 1997; Remondino & Fraser 2006), and whether 'cover the image corners to recover higher-order radial terms' is presented as known calibration practice (Brown 1971; Zhang 2000; Bouguet's toolbox / OpenCV guidance) rather than as a finding",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 3,
+    "fitness": 1,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Rerun: experiments/run.py (driven from a scratch copy so results.txt is not overwritten) took 47 s and matches experiments/results.txt in every cell but one last digit (C, 2 px, f_err 0.0234 vs 0.0235: BLAS rounding). Independent recomputation (scratchpad (indep.py: own bumpy-ellipsoid sampler from the SURFACE constants, own orbit cameras, imports nothing from sensing_*), 200,000 surface samples): 95th-percentile normalised radius 0.268/0.372/0.464/0.544/0.617 at distance 4/3/2.5/2.2/2.0 vs reported 0.266/0.371/0.464/0.544/0.616; visible observations 0.274/0.170 of 12x1800 = 5,918/3,672 vs 5,927/3,676; dense r_max 0.347..0.868 sits just above the reported 0.337..0.845 (a 1,800-point sample max) and under the sphere bound Rmax/sqrt(d^2-Rmax^2) 0.351..0.886. Hand: (0.845/0.337)^4 = 39.5 ('about 40 times'). Cramer-Rao bound for (f,k1,k2) with poses and points known, 0.5 px: sd(k2) >= 0.079/0.021/0.0083/0.0040/0.0022, every reported spread (0.331/0.091/0.025/0.017/0.022) lies above it, as it must with poses free. Paired per-seed k1-only minus k1k2 surface error at distance 2: +0.0007 mean, t = 3.7 over 6 seeds, so the 'needs k2' claim holds; at distance 4 the k2 spread is unchanged with max_nfev 80 -> 400 (0.331 both), so the narrow-rig result is identifiability, not an unconverged solver. Not 4: k2_sd is a ddof=0 standard deviation over 6 seeds (0.331 is 0.363 with ddof=1; 0.022 is 0.025).",
+    "completeness": "README promises 4 tests (ran: 4 passed in 1.9 s), run.py writing results.txt (reproduces, 47 s against 'about 3 min'), sweeps A, B, C (all present in results.txt and run.py), wide_rig restoring constants and distance 4 = sensing-bak2 (both tested). Live page https://marisstella.app/research/sensing-bak2wide/ could not be loaded from this container (proxy CONNECT 403), so unverified. Next steps (principal point, real data, fixed-range FOV) are honestly listed as not done.",
+    "verification": "`cd research/sensing-bak2wide && PYTHONPATH=src python3 -m pytest -q -p no:cacheprovider tests`: 4 passed in 1.92 s. Four seeded mutants of wide.py with platform/ci/quality_mutate.py: 2 caught (bak2 focal not patched, F_PER_DIST 200 -> 150, both via the constant-restore test) and 2 survived: dividing the radius by the camera distance instead of the point depth (wide.py:48) and reporting the median as the 95th percentile (wide.py:50). No test pins any headline number (k2 spread at distance 2 vs 4, the k1-vs-k1k2 surface gap, the radius table); the one identifiability test is a single seed with a 0.1 tolerance, which the narrow rig at seed 0 (k2 = -0.067) also nearly passes. The solver core lives in sensing-bak2 and is not mutation-tested from here.",
+    "craft": "Read src/sensing_bak2wide/wide.py (58 lines), __init__.py, tests/test_wide.py, experiments/run.py, plus the imported sensing-bak2/bak2.py and sensing-recon/recon.py. Small and readable, but the whole experiment works by monkeypatching module-level constants of two other packages (wide.py:30-32) found through sys.path.insert on parents[3] (wide.py:15-18): any module that did `from sensing_recon.recon import F_PX` at import (sensing_bafocal does) keeps the old value silently, so correctness rests on the call path happening not to use it. A senior reviewer would ask for f and dist as parameters. run.py:21 uses np.std ddof=0 for a 6-sample spread; no seeds-or-reps option for a quick run.",
+    "claims": "Every number in README lines 3 and 22-27 and project.json is in results.txt and the independent checks above agree with the geometry ones; the 'k1 -0.192 to -0.195', 'f 0.6% off down from 1.1%', 'tri 0.0128 to 0.0164', noise table and k2 sweep all match results.txt. Limits are explicit and accurate (synthetic, FOV and range confounded, no principal point/decentring, 6 seeds). Gaps not changing a conclusion: 'standard deviation' is ddof=0; 'the surface needs k2' is stated without an uncertainty (it holds, paired t = 3.7, but the 0.0007 object-radius gap is not shown to be significant in the README); runtime 'about 3 min' measured 47 s.",
+    "fitness": "Could a researcher build on it? Sound and reproducible, but not new: the outcome is predicted by one line, the k2 term's displacement at the edge of the used field, 0.1 x 0.337^5 x 800 = 0.35 px at distance 4 (below the 0.5 px noise) against 0.1 x 0.845^5 x 400 = 17 px at distance 2, and by a known-geometry Cramer-Rao bound (above), and 'spread points to the image corners to recover k2' is standard calibration practice (Brown 1971 'Close-range camera calibration'; Fraser 1997 'Digital camera self-calibration', ISPRS J. 52; Zhang 2000; Remondino & Fraser 2006), none of which is cited. Synthetic one-object scene, 6 seeds, FOV confounded with range. A follow-up that measured how much of the k1-k2 correlation (about -0.96 here) the adjustment absorbs, or used real calibrated imagery, would be a contribution; this is a confirmatory exercise.",
+    "domain": "Compared against photogrammetric self-calibration practice: the bundle model (Brown radial polynomial, shared focal, sparse TRF least squares, similarity-aligned surface error) is standard and correctly implemented. Departures a calibration specialist would flag: precision is reported as a between-seed spread of coefficients over 6 seeds rather than from the adjustment covariance; the k1-k2 correlation (strongly negative, -0.96 even with known geometry) is never reported; distortion is judged by coefficient values rather than by pixel displacement at the edge of the format; no principal-point or decentring terms in a wide-angle model; the field of view is changed by moving the camera, which the README admits confounds it with perspective."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "95th-percentile normalised radius of visible points at distance 4 and 2",
+      "method": "independent dense Monte Carlo of the bumpy ellipsoid and orbit from the stated constants, no subject import (scratchpad (indep.py: own bumpy-ellipsoid sampler from the SURFACE constants, own orbit cameras, imports nothing from sensing_*))",
+      "command": "python3 -I indep.py",
+      "expected": "0.268 (d=4), 0.617 (d=2)",
+      "observed": "0.266, 0.616 (results.txt A)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "visible observation counts over 6 scenes at distance 4 and 2",
+      "method": "independent visibility share x 12 views x 1,800 points",
+      "command": "python3 -I indep.py",
+      "expected": "5,918 and 3,672",
+      "observed": "5,927 and 3,676",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "k2 spread is a feasible (above-bound) and identifiability-driven number",
+      "method": "Cramer-Rao bound, Fisher information of (f,k1,k2) with known geometry, sigma 0.5 px, own Jacobian",
+      "command": "python3 -I indep.py",
+      "expected": "reported sd >= 0.079, 0.021, 0.0083, 0.0040, 0.0022",
+      "observed": "0.331, 0.091, 0.025, 0.017, 0.022",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "'r^4 term grows about 40 times' and r^4 pixel size at the edge",
+      "method": "hand: (0.845/0.337)^4; 0.1 r^5 f",
+      "command": "python3 -c \"print((0.845/0.337)**4, 0.1*0.337**5*800, 0.1*0.845**5*400)\"",
+      "expected": "about 40",
+      "observed": "39.5; 0.35 px vs 17.2 px",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "results.txt reproduces",
+      "method": "rerun experiments/run.py from a scratch copy",
+      "command": "python3 rerun_exp.py <dir> && diff",
+      "expected": "identical",
+      "observed": "identical except C 2px f_err 0.0234 vs 0.0235; 47 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "k1-only vs k1k2 surface gap at distance 2 is real",
+      "method": "paired per-seed differences, t statistic",
+      "command": "run_trial_wide(dist=2.0, seed=0..5) paired",
+      "expected": "t > 2.6 (5 dof, 5%)",
+      "observed": "mean +0.0007, t = 3.72",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "narrow-rig k2 spread is not an unconverged solver",
+      "method": "rerun distance 4 with max_nfev 400 instead of 80",
+      "command": "run_trial_wide(dist=4.0, max_nfev=400, seed=0..5)",
+      "expected": "spread unchanged if identifiability-limited",
+      "observed": "0.331 at both",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "k2 'standard deviation over 6 seeds' 0.331 / 0.022",
+      "method": "recompute with ddof=1",
+      "command": "np.std(k2, ddof=1)",
+      "expected": "sample sd",
+      "observed": "0.363 / 0.025; run.py uses ddof=0",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "distorted observations stay inside the 640x480 image (visibility uses undistorted projection)",
+      "method": "independent count at distance 2",
+      "command": "python3 -I oob.py indep.py",
+      "expected": "negligible",
+      "observed": "0 at k2=-0.2 and +0.1; 0.10% at +0.4",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd research/sensing-bak2wide && PYTHONPATH=src python3 -m pytest -q -p no:cacheprovider tests",
+      "expected": "4 pass",
+      "observed": "4 passed in 1.92 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "live page",
+      "method": "curl",
+      "command": "curl -sS https://marisstella.app/research/sensing-bak2wide/",
+      "expected": "200",
+      "observed": "proxy CONNECT 403 from this container; unverified",
+      "result": "partial"
+    },
+    {
+      "dimension": "fitness",
+      "what": "prior calibration literature on corner coverage / k1-k2 correlation cited",
+      "method": "grep README for Brown 1971, Fraser 1997, Zhang 2000, Remondino & Fraser 2006",
+      "command": "grep -n 'Fraser\\|Zhang\\|Bouguet' research/sensing-bak2*/README.md",
+      "expected": "cited",
+      "observed": "none; only Brown 1966 and Triggs 2000",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/sensing_bak2wide/wide.py:31",
+      "change": "bak2.F_PX = f -> bak2.F_PX = recon.F_PX (renderer keeps 800 px)",
+      "caught": true,
+      "test_cmd": "cd research/sensing-bak2wide && PYTHONPATH=src python3 -m pytest -q -p no:cacheprovider tests"
+    },
+    {
+      "where": "src/sensing_bak2wide/wide.py:48",
+      "change": "np.hypot(...) / pc[:, 2] -> / dist (radius over camera distance, not depth)",
+      "caught": false,
+      "test_cmd": "cd research/sensing-bak2wide && PYTHONPATH=src python3 -m pytest -q -p no:cacheprovider tests"
+    },
+    {
+      "where": "src/sensing_bak2wide/wide.py:50",
+      "change": "np.percentile(r, 95) -> np.percentile(r, 50)",
+      "caught": false,
+      "test_cmd": "cd research/sensing-bak2wide && PYTHONPATH=src python3 -m pytest -q -p no:cacheprovider tests"
+    },
+    {
+      "where": "src/sensing_bak2wide/wide.py:23",
+      "change": "F_PER_DIST = 200.0 -> 150.0",
+      "caught": true,
+      "test_cmd": "cd research/sensing-bak2wide && PYTHONPATH=src python3 -m pytest -q -p no:cacheprovider tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Novelty and prior work: the finding (k2 is only identifiable when points reach large normalised radius) follows from a one-line pixel-displacement estimate (0.35 px vs 17 px at the field edge) and is standard calibration practice; Brown 1971, Fraser 1997, Zhang 2000 and Remondino & Fraser 2006 are not cited, and no analytical prediction (displacement or Cramer-Rao) is compared against the simulation",
+      "where": "research/sensing-bak2wide/README.md:7",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "No test pins any headline number: radius normalisation over camera distance instead of depth and median-for-95th-percentile both leave the suite green; the identifiability test is one seed with a 0.1 tolerance",
+      "where": "research/sensing-bak2wide/src/sensing_bak2wide/wide.py:48",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "k2 spread over 6 seeds reported as 'standard deviation' uses np.std ddof=0, understating the sample sd by about 9% (0.331 vs 0.363 at distance 4, 0.022 vs 0.025 at distance 2)",
+      "where": "research/sensing-bak2wide/experiments/run.py:21",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Experiment works by monkeypatching module-level constants of sensing_recon and sensing_bak2 through sys.path inserts; any module that copied F_PX at import (sensing_bafocal does) silently keeps the old focal",
+      "where": "research/sensing-bak2wide/src/sensing_bak2wide/wide.py:30",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Precision judged by between-seed coefficient spread; the k1-k2 correlation and adjustment covariance a photogrammetrist reports are absent",
+      "where": "research/sensing-bak2wide/README.md:24",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "README says the experiment takes about 3 min; measured 47 s",
+      "where": "research/sensing-bak2wide/README.md:19",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [
+    15469
+  ],
+  "verdict": "A small, honest and reproducible follow-up to sensing-bak2: rerunning gives results.txt to the last digit but one, and an independent sampler of the same scene reproduces the radius table and point counts, a Cramer-Rao bound sits under every reported k2 spread, and the k1-vs-k1k2 surface gap at distance 2 is real (paired t = 3.7). Limits are stated plainly. It misses the bar on verification (2 of 4 seeded mutants survive; no headline number is pinned by a test) and on the median: the result is what a one-line edge-displacement calculation predicts and what every calibration guide already says (cover the corners), the photogrammetric literature is not cited, precision is a ddof=0 spread over six seeds rather than an adjustment covariance, and the scene is synthetic with field of view confounded with range. Correct, finished, not new."
+}

@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01EhTJVMuuoYXtegLxgH5qez",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T23:00:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ai-bookkeeper gap probe 20",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12672",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Router output named the process track while the scheduled prompt asked for venture work; no stated precedence."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Scheduled run. Monetization next-step was owner-blocked (all dark paths built), state tax sites 403 through the proxy, so shipped gap probe 20 (27 descriptors, 5 trades): 5 to 27 right; ai-bookkeeper suite 2150 pass, probes 16-19 unchanged. Router suggested the process track but the task text was venture work; recorded as ventures/1.",
+  "corrections": [],
+  "redteam": null
+}

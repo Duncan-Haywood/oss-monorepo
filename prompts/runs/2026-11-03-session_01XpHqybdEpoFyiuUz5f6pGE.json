@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01XpHqybdEpoFyiuUz5f6pGE",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "i want to do a bunch of predictive models for individual catholic profiles on beliefs especially relating to marriage related beleifs and outcomes and adherance to catholic teaching. devotional levels. learning associations with the models and being able to predict lacking information. also on sub cultures within protestant orthodox and catholic. in the us and globablly and immigrant populations.",
+  "input_sha256": "313450dd644453f61e3ba920209fd514f1cd519f22bd7d9f7b17032d2daa204e",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T20:36:43Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "research/christian-belief-models"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12912",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First full run crashed in the temporal hold-out: an all-missing feature column in a pre-2014 training split broke HistGradientBoosting binning; fixed by dropping never-observed columns per split and rerun."
+  ],
+  "integrity_issues": [
+    "Six DOIs written from memory were wrong (3 resolved to unrelated papers, 3 did not exist); cite_check caught them and Crossref search supplied the correct ones before anything landed."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "New effort is steered to deep-tech programmes, but the owner asked directly for a sociology-of-religion programme; the brief gives no line for owner-requested non-deep-tech research."
+    },
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "Crossref 429s skip about a third of lookups in one burst; a short backoff-and-retry would turn SKIPs into verdicts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "Owner request names the topic; deep-tech default does not apply.",
+      "did": "Opened a humanities-theme programme with a plain Application section instead of a deep-tech one.",
+      "result": "programme_check passes"
+    },
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "A sibling open PR (#12893, catholic-demography) covers Catholic subgroup levels.",
+      "did": "Opened a separate predictive programme and cross-referenced it instead of extending that PR.",
+      "result": "distinct question (imputation and transfer), shared data"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-03-can-survey-answers-predict-catholic-beliefs-gss.md"
+  ],
+  "goal": null,
+  "notes": "Checks: pytest 6 passed; programme_check ok; _homepage/build.py ok; check_md_links ok; research_live_links ok; cite_check no FAIL (3 SKIP verified by direct Crossref lookup). Global data (EVS/WVS, ISSP via GESIS 403, Pew) needs named registration: owner step for milestone 4.",
+  "corrections": [],
+  "redteam": null
+}

@@ -90,7 +90,7 @@
   </footer>
   <script type="module">
     import { compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const FIELD_IDS = [
       'price', 'shippingCharged', 'listingFee', 'transactionRate', 'paymentRate',
@@ -103,7 +103,7 @@
     };
     const INPUTS_KEY = 'etsy-offsite-ads-inputs';
     const field = id => document.getElementById(id);
-    const money = value => `${value < 0 ? '−' : ''}$${Math.abs(value).toFixed(2)}`;
+    const money = value => `${value < 0 && Math.abs(value).toFixed(2) !== '0.00' ? '−' : ''}$${Math.abs(value).toFixed(2)}`;
     const currentInputs = () => Object.fromEntries(FIELD_IDS.map(id => [id, field(id).value]));
     const safe = fn => { try { return fn(); } catch { return undefined; } };
     let statusTimer;
@@ -201,8 +201,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

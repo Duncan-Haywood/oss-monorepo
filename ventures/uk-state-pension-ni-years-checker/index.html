@@ -127,7 +127,7 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const gbp = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const gbp = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("£" + Math.abs(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     let last = null;
     const map = { dob: "dob", today: "today", currentYears: "currentYears", futureYears: "futureYears", gapYears: "gapYears", yearCost: "yearCost", fullRate: "fullRate", forecast: "forecast", lifeTo: "lifeTo" };
     const IDLE = "Enter the details, then click Check my years.";
@@ -158,7 +158,7 @@
       $("#deadlines").innerHTML = gapDeadlines(parseDate(input.today)).map((d) => `<tr><td>${esc(d.year)}</td><td class="n">${esc(d.deadline)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Verify your record and the quote on GOV.UK before paying.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

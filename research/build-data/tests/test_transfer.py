@@ -22,5 +22,394 @@ class Harmonise(unittest.TestCase):
             self.assertIn(transfer.harmonise(s), transfer.CLASSES)
 
 
+@unittest.skipIf(transfer is None, "needs pandas and lightgbm")
+class IpcwCompleted(unittest.TestCase):
+    def test_weights_are_one_over_the_share_of_the_city_years_issue_windows_at_least_y(self):
+        """Session 88: rows completed by D keep weight 1/G(y), G per city-year from all its issue days."""
+        import datetime
+        import numpy as np, pandas as pd
+        D = datetime.date(2024, 1, 1)
+        # one city-year with windows 400, 300, 200, 100 days; a second city-year (other city) of one row
+        st = [(D - datetime.timedelta(days=k)).isoformat() for k in (400, 300, 200, 100)] + ["2022-06-01"]
+        d = pd.DataFrame(dict(start=st, y=[350.0, 50.0, 250.0, 10.0, 5.0], year=[2022, 2023, 2023, 2023, 2022],
+                              city=["a", "a", "a", "a", "b"]))
+        d.loc[0, "year"] = 2023  # all four "a" rows in one year
+        rows, w = transfer.ipcw_completed(d, D)
+        # seen: y <= window -> rows 0 (350<=400), 1 (50<=300), 3 (10<=100), 4; row 2 (250>200) is censored
+        self.assertEqual(list(rows.index), [0, 1, 3, 4])
+        # G(350) = 1/4 (only the 400-day window), G(50) = 4/4, G(10) = 1, other city-year G(5) = 1
+        np.testing.assert_allclose(w, [4.0, 1.0, 1.0, 1.0])
+        _, wf = transfer.ipcw_completed(d, D, floor=0.5)
+        np.testing.assert_allclose(wf, [2.0, 1.0, 1.0, 1.0])
+        self.assertEqual(len(rows), len(transfer.completed_by(d, D)))
+
+
+@unittest.skipIf(transfer is None, "needs pandas and lightgbm")
+class Frame(unittest.TestCase):
+    HDR = "city,permit_id,permit_type,work_class,estimated_cost,applied,issued,completed,area,description_len"
+
+    def write(self, rows, extra=""):
+        import tempfile
+        f = tempfile.NamedTemporaryFile("w", suffix=".csv", delete=False)
+        f.write(self.HDR + extra + "\n" + "\n".join(rows) + "\n")
+        f.close()
+        self.addCleanup(os.unlink, f.name)
+        return f.name
+
+    def test_cascade_uses_description_class_only_for_other(self):
+        p = self.write(["seattle,1,building,residential,100,2020-01-01,2020-02-01,,98101,40,new_construction",
+                        "seattle,2,electrical,residential,100,2020-01-01,2020-01-05,,98101,10,demolition",
+                        "seattle,3,building,residential,100,2020-01-01,2020-01-09,,98101,5,other"], ",desc_class")
+        self.assertEqual(list(transfer.frame(p, "a2i")[0].cls), ["other", "electrical", "other"])
+        self.assertEqual(list(transfer.frame(p, "a2i", "cascade")[0].cls), ["new_construction", "electrical", "other"])
+
+    def test_nodemo_folds_demolition_into_alteration_and_keeps_the_label(self):
+        """Session 76: cascade2_nodemo merges demolition into alteration, nothing else."""
+        p = self.write(["seattle,1,building,,100,2020-01-01,2020-02-01,,98101,40,other,demolition",
+                        "seattle,2,building,,100,2020-01-01,2020-01-05,,98101,10,other,alteration",
+                        "seattle,3,building,,100,2020-01-01,2020-01-09,,98101,5,other,new_construction"],
+                       ",desc_class,desc_class_v2")
+        self.assertEqual(list(transfer.frame(p, "a2i", "cascade2")[0].cls), ["demolition", "alteration", "new_construction"])
+        d = transfer.frame(p, "a2i", "cascade2_nodemo")[0]
+        self.assertEqual(list(d.cls), ["alteration", "alteration", "new_construction"])
+        self.assertEqual(list(d.cls_unfolded), ["demolition", "alteration", "new_construction"])
+
+    def test_cascade_refuses_an_old_pull(self):
+        p = self.write(["seattle,1,building,,100,2020-01-01,2020-02-01,,98101,40"])
+        with self.assertRaises(SystemExit):
+            transfer.frame(p, "a2i", "cascade")
+
+
+@unittest.skipIf(transfer is None, "needs pandas and lightgbm")
+class Paired(unittest.TestCase):
+    """Session 72: class configurations compared on the same test rows."""
+
+    def frames(self, classes):
+        import random, tempfile
+        hdr = Frame.HDR + ",desc_class,desc_class_v2"
+        out = {}
+        for ci, city in enumerate(["chicago", "sf", "seattle"]):
+            rng, rows = random.Random(ci), []
+            for i in range(900):
+                y = 2020 + i % 5
+                kind = ["new_construction", "electrical", "alteration"][i % 3]
+                lag = {"new_construction": 60, "electrical": 3, "alteration": 20}[kind] + rng.randint(0, 9)
+                d0 = "%d-%02d-%02d" % (y, 1 + i % 12, 1 + i % 27)
+                import datetime
+                d1 = (datetime.date.fromisoformat(d0) + datetime.timedelta(days=lag)).isoformat()
+                rows.append(f"{city},{city}{i},building,,{rng.randint(1, 9) * 1000},{d0},{d1},,1,{10 + i % 7},other,{kind}")
+            f = tempfile.NamedTemporaryFile("w", suffix=".csv", delete=False)
+            f.write(hdr + "\n" + "\n".join(rows) + "\n")
+            f.close()
+            self.addCleanup(os.unlink, f.name)
+            out[city] = transfer.frame(f.name, "a2i", classes)[0]
+        return out
+
+    def test_identical_runs_give_zero_and_a_better_class_gives_negative(self):
+        ft, fc = self.frames("type"), self.frames("cascade2")
+        rt = transfer.run(ft, "seattle", 2024, 1, keep_rows=True)
+        rc = transfer.run(fc, "seattle", 2024, 1, keep_rows=True)
+        z = transfer.paired(rt, rt, "type", "type")
+        for t in ("0.1", "0.5", "0.9"):
+            self.assertEqual((z["transfer"][t]["diff"], z["transfer"][t]["lo"], z["transfer"][t]["hi"]), (0.0, 0.0, 0.0))
+        pr = transfer.paired(rt, rc, "type", "cascade2")
+        # the work type sets the lag here, so knowing it must cut the median loss, CI below zero
+        self.assertLess(pr["transfer"]["0.5"]["hi"], 0)
+        self.assertLess(pr["own_boosted"]["0.5"]["hi"], 0)
+        # session 75: per-class contributions add up to the overall difference
+        bc = pr["by_class"]["transfer"]["0.5"]
+        self.assertAlmostEqual(sum(v["contribution"] for v in bc.values()), pr["transfer"]["0.5"]["diff"])
+        self.assertEqual(sum(v["n"] for v in bc.values()), pr["n_test"])
+
+    def test_select_scores_the_held_city_year_before_and_leaves_the_test_rows_alone(self):
+        """Session 83: select=True adds the transfer loss on the held-out city's year Y-1 without
+        changing any test-row loss (the extra rows are predicted, never trained on)."""
+        import numpy as np
+        fc = self.frames("cascade2")
+        r0 = transfer.run(fc, "seattle", 2024, 1, keep_rows=True)
+        r1 = transfer.run(fc, "seattle", 2024, 1, keep_rows=True, select=True)
+        self.assertNotIn("_select", r0)
+        for m in ("transfer", "own_boosted"):
+            for t in transfer.TAUS:
+                np.testing.assert_array_equal(r0["_rows"]["loss"][m][t], r1["_rows"]["loss"][m][t])
+        n23 = int((fc["seattle"].year == 2023).sum())
+        self.assertEqual(len(r1["_select"]["permit_id"]), n23)
+        self.assertEqual(len(r1["_select"]["loss"][0.9]), n23)
+        # session 84: the year Y-2 rows come back too, with labels and issue days for truncation
+        n22 = int((fc["seattle"].year == 2022).sum())
+        self.assertEqual(len(r1["_select2"]["loss"][0.5]), n22)
+        self.assertEqual(len(r1["_select2"]["start"]), n22)
+        self.assertTrue(all(str(s).startswith("2022") for s in r1["_select2"]["start"]))
+        np.testing.assert_array_equal(r1["_select"]["y"], fc["seattle"][fc["seattle"].year == 2023].y.to_numpy(float))
+        # session 85: and year Y-3
+        n21 = int((fc["seattle"].year == 2021).sum())
+        self.assertEqual(len(r1["_select3"]["loss"][0.9]), n21)
+        self.assertTrue(all(str(s).startswith("2021") for s in r1["_select3"]["start"]))
+
+    def test_es_truncate_keeps_only_source_rows_completed_by_the_decision_date(self):
+        """Session 85: es_truncate early-stops on the sources' year Y-1 rows completed by 1 January Y."""
+        import datetime
+        import pandas as pd
+        fc = self.frames("cascade2")
+        r = transfer.run(fc, "seattle", 2024, 1, select=True, es_truncate=True)
+        ca = pd.concat([fc[c][fc[c].year == 2023] for c in r["sources"]])
+        kept = transfer.completed_by(ca, datetime.date(2024, 1, 1))
+        self.assertEqual(r["n_source_es"], len(kept))
+        self.assertEqual(r["n_source_es_full"], len(ca))
+        end = pd.to_datetime(kept.start) + pd.to_timedelta(kept.y, unit="D")
+        self.assertTrue((end <= pd.Timestamp("2024-01-01")).all())
+
+    def test_deploy_trains_only_on_rows_known_at_the_decision_date_with_fixed_rounds(self):
+        """Session 86: deploy=True cuts the sources' training rows to those completed by 1 January Y,
+        fixes each quantile's rounds from years <= Y-4 early-stopped on Y-3, and leaves the test rows alone."""
+        import datetime
+        import numpy as np, pandas as pd
+        fc = self.frames("cascade2")
+        r0 = transfer.run(fc, "seattle", 2024, 1, keep_rows=True, select=True)
+        r = transfer.run(fc, "seattle", 2024, 1, keep_rows=True, select=True, deploy=True)
+        D = datetime.date(2024, 1, 1)
+        tr = pd.concat([fc[c][fc[c].year <= 2022] for c in r["sources"]])
+        self.assertEqual(r["deploy"]["n_train"], len(transfer.completed_by(tr, D)))
+        self.assertEqual(r["deploy"]["n_train_full"], len(tr))
+        self.assertEqual(r["n_source_train"], r["deploy"]["n_train"])
+        va = pd.concat([fc[c][fc[c].year == 2021] for c in r["sources"]])
+        self.assertEqual(r["deploy"]["n_rounds_val_full"], len(va))
+        self.assertTrue(all(1 <= v <= 300 for v in r["deploy"]["rounds"]["0"].values()))
+        np.testing.assert_array_equal(r0["_rows"]["y"], r["_rows"]["y"])
+        np.testing.assert_array_equal(r0["_rows"]["loss"]["own_baseline"][0.5], r["_rows"]["loss"]["own_baseline"][0.5])
+        self.assertIsNone(r0["deploy"])
+
+    def test_es3_trains_on_older_years_and_early_stops_on_y3_known_at_the_decision_date(self):
+        """Session 87: es3 trains on the sources' years <= Y-4 and Y-2 and early-stops on their Y-3, all cut
+        to rows completed by 1 January Y; its rounds are saved; the test rows are untouched."""
+        import datetime
+        import numpy as np, pandas as pd
+        fc = self.frames("cascade2")
+        r0 = transfer.run(fc, "seattle", 2024, 1, keep_rows=True, select=True)
+        r = transfer.run(fc, "seattle", 2024, 1, keep_rows=True, select=True, es3=True)
+        D = datetime.date(2024, 1, 1)
+        tr = pd.concat([fc[c][(fc[c].year <= 2020) | (fc[c].year == 2022)] for c in r["sources"]])
+        va = pd.concat([fc[c][fc[c].year == 2021] for c in r["sources"]])
+        self.assertEqual(r["n_source_train"], len(transfer.completed_by(tr, D)))
+        self.assertEqual(r["n_source_es"], len(transfer.completed_by(va, D)))
+        self.assertEqual(r["n_source_es_full"], len(va))
+        self.assertEqual(r["deploy"]["mode"], "es3")
+        for x in (r0, r):
+            self.assertTrue(all(1 <= v <= 300 for v in x["transfer_rounds"]["0"].values()))
+        np.testing.assert_array_equal(r0["_rows"]["y"], r["_rows"]["y"])
+        with self.assertRaises(SystemExit):
+            transfer.run(fc, "seattle", 2024, 1, es3=True, deploy=True)
+
+    def test_rounds_splits_match_run(self):
+        """Session 87: src/rounds.py fits the transfer model on the same rows run() does for each variant."""
+        import rounds
+        fc = self.frames("cascade2")
+        for v, kw in (("full", {}), ("es_truncate", dict(es_truncate=True)), ("es3", dict(es3=True))):
+            r = transfer.run(fc, "seattle", 2024, 1, **kw)
+            tr, ca, _, _ = rounds.splits(fc, "seattle", 2024, v)
+            self.assertEqual((len(tr), len(ca)), (r["n_source_train"], r["n_source_es"]), v)
+            out = rounds.rounds(fc, "seattle", 2024, v, 1)
+            self.assertEqual(out["rounds"]["0"], r["transfer_rounds"]["0"], v)
+
+    def test_ipcw_variants_use_the_cut_rows_and_reduce_to_them_with_unit_weights(self):
+        """Session 88: ipcw_cut / ipcw_es3 fit on exactly cut_only's / es3's rows; with floor=1 every weight is 1
+        and the fitted rounds equal the unweighted variant's."""
+        import rounds
+        fc = self.frames("cascade2")
+        for v, base in (("ipcw_cut", "cut_only"), ("ipcw_es3", "es3")):
+            tr, ca, w, wca = rounds.splits(fc, "seattle", 2024, v)
+            tb, cb, _, _ = rounds.splits(fc, "seattle", 2024, base)
+            self.assertEqual((len(tr), len(ca)), (len(tb), len(cb)), v)
+            self.assertEqual(len(w), len(tr))
+            self.assertTrue((w >= 1).all() and (w <= 20).all())
+            self.assertEqual(wca is None, v == "ipcw_cut")
+            self.assertEqual(rounds.rounds(fc, "seattle", 2024, v, 1, floor=1.0)["rounds"],
+                             rounds.rounds(fc, "seattle", 2024, base, 1)["rounds"], v)
+
+    def test_fixed_rounds_read_no_validation_set(self):
+        """Session 86: boosted.fit_predict(fixed=...) trains exactly that many rounds without Xca."""
+        import boosted
+        fc = self.frames("type")
+        d = fc["sf"]
+        x = transfer.feats(d)
+        pr, pz, rounds, _ = boosted.fit_predict(x, d.y.to_numpy(float), None, None, x.iloc[:5], seed=0,
+                                                fixed={t: 7 for t in transfer.TAUS})
+        self.assertIsNone(pz)
+        self.assertEqual(rounds, {t: 7 for t in transfer.TAUS})
+        self.assertEqual(len(pr[0.5]), 5)
+
+    def test_different_test_rows_are_refused(self):
+        ft = self.frames("type")
+        rt = transfer.run(ft, "seattle", 2024, 1, keep_rows=True)
+        rs = transfer.run(ft, "sf", 2024, 1, keep_rows=True)
+        with self.assertRaises(SystemExit):
+            transfer.paired(rt, rs, "type", "type")
+
+
+@unittest.skipIf(transfer is None, "needs pandas and lightgbm")
+class TailFold(unittest.TestCase):
+    """Session 77: the general fold rule reads only training-time rows."""
+
+    def frames(self, test_lag=5):
+        import pandas as pd, numpy as np
+        rng = np.random.default_rng(0)
+        out = {}
+        for city in ("sf", "austin", "seattle"):
+            rows = []
+            for year in range(2018, 2025):
+                for cls in ("demolition", "alteration", "new_construction"):
+                    n = 200
+                    if city == "seattle" and year == 2024:
+                        y = np.full(n, test_lag, float)  # test year: must not matter
+                    elif cls == "demolition" and city != "seattle":
+                        y = rng.uniform(0, 300, n)  # sources' demolition tail ~2x the target's
+                    else:
+                        y = rng.uniform(0, 150, n)
+                    rows.append(pd.DataFrame(dict(year=year, cls=cls, y=y)))
+            out[city] = pd.concat(rows, ignore_index=True)
+        return out
+
+    def test_flags_only_the_longer_source_tail_and_ignores_the_test_year(self):
+        fold, diag = transfer.tailfold_map(self.frames(), "seattle", 2024, n_boot=200)
+        self.assertEqual(fold, {"demolition": "alteration"})
+        self.assertGreater(diag["demolition"]["q90"]["lo"], 1)
+        fold2, _ = transfer.tailfold_map(self.frames(test_lag=10_000), "seattle", 2024, n_boot=200)
+        self.assertEqual(fold, fold2)
+
+    def test_small_classes_are_never_flagged_and_apply_fold_keeps_the_label(self):
+        fold, diag = transfer.tailfold_map(self.frames(), "seattle", 2024, min_n=10_000, n_boot=50)
+        self.assertEqual(fold, {})
+        self.assertNotIn("q90", diag["demolition"])
+        f = transfer.apply_fold(self.frames(), {"demolition": "alteration"})
+        d = f["seattle"]
+        self.assertFalse((d.cls == "demolition").any())
+        self.assertTrue((d.cls_unfolded == "demolition").any())
+
+
 if __name__ == "__main__":
     unittest.main()
+
+
+@unittest.skipIf(transfer is None, "needs pandas and lightgbm")
+class MinSupport(unittest.TestCase):
+    """Session 81: classes with fewer than k source training rows fold into 'other'."""
+
+    def frames(self):
+        import pandas as pd
+        src = pd.DataFrame(dict(year=[2018] * 5 + [2020] * 3, y=range(8),
+                                cls=["alteration"] * 4 + ["plumbing"] + ["plumbing"] * 3))
+        held = pd.DataFrame(dict(year=[2018] * 9, y=range(9), cls=["plumbing"] * 9))
+        return {"sf": src, "austin": held}
+
+    def test_counts_only_source_training_years(self):
+        fold, n = transfer.minsup_map(self.frames(), "austin", 2020, k=2)
+        self.assertEqual(n["plumbing"], 1)  # the 2020 rows are not training rows for Y=2020; Austin is never read
+        self.assertEqual(n["alteration"], 4)
+        self.assertEqual(fold, {c: "other" for c in transfer.CLASSES if c not in ("alteration", "other")})
+
+    def test_k_zero_folds_nothing_and_other_never_folds(self):
+        self.assertEqual(transfer.minsup_map(self.frames(), "austin", 2020, k=0)[0], {})
+        self.assertNotIn("other", transfer.minsup_map(self.frames(), "austin", 2020, k=10 ** 9)[0])
+
+    def test_name(self):
+        self.assertEqual(transfer.minsup_k("cascade2_minsup1000"), 1000)
+        self.assertIsNone(transfer.minsup_k("cascade2"))
+        self.assertIsNone(transfer.minsup_k("cascade2_minsupx"))
+
+
+@unittest.skipIf(transfer is None, "needs pandas and lightgbm")
+class MinSupportMissing(unittest.TestCase):
+    """Session 82: thin classes fold to a missing class (NaN), which the model treats as unseen."""
+
+    def test_name_and_target(self):
+        self.assertEqual(transfer.minsup_spec("cascade2_minsupna1000"), (1000, transfer.MISSING))
+        self.assertEqual(transfer.minsup_spec("cascade2_minsup1000"), (1000, "other"))
+        self.assertEqual(transfer.minsup_k("cascade2_minsupna100"), 100)
+        self.assertIsNone(transfer.minsup_spec("cascade2_minsupnax"))
+        self.assertNotIn(transfer.MISSING, transfer.CLASSES)
+
+    def test_folded_rows_are_nan_in_the_feature(self):
+        import pandas as pd
+        src = pd.DataFrame(dict(year=[2018] * 5, y=range(5), cls=["alteration"] * 4 + ["plumbing"]))
+        frames = {"sf": src, "austin": src.copy()}
+        fold, _ = transfer.minsup_map(frames, "austin", 2020, k=2, into=transfer.MISSING)
+        self.assertEqual(fold["plumbing"], transfer.MISSING)
+        d = transfer.apply_fold(frames, fold)["austin"]
+        d = d.assign(log_cost=0.0, desc_len=0, month=1, dow=0)
+        x = transfer.feats(d)
+        self.assertEqual(int(x.cls.isna().sum()), 1)
+        self.assertEqual(d.cls_unfolded.iloc[4], "plumbing")
+
+    def test_lightgbm_routes_missing_like_an_unseen_category(self):
+        # the premise of the rule: a NaN category and a category absent from training get the same prediction
+        import numpy as np, pandas as pd, lightgbm as lgb
+        rng = np.random.default_rng(0)
+        cats = ["alteration", "new_construction", "other"]
+        c = rng.choice(cats, 3000)
+        y = np.where(c == "alteration", 10.0, np.where(c == "new_construction", 50.0, 30.0)) + rng.normal(0, 1, 3000)
+        X = pd.DataFrame(dict(cls=pd.Categorical(c, categories=transfer.CLASSES), z=rng.normal(size=3000)))
+        m = lgb.train(dict(objective="quantile", alpha=0.5, verbose=-1, min_data_in_leaf=20, seed=0),
+                      lgb.Dataset(X, y), 50)
+        te = pd.DataFrame(dict(cls=pd.Categorical([None, "plumbing"], categories=transfer.CLASSES), z=[0.1, 0.1]))
+        p = m.predict(te)
+        self.assertAlmostEqual(p[0], p[1], places=9)
+
+
+@unittest.skipIf(transfer is None, "needs pandas and lightgbm")
+class MinSupportDrop(unittest.TestCase):
+    """Session 82, post hoc: the drop variant removes the sources' folded rows and keeps the held city's."""
+
+    def test_drop(self):
+        import pandas as pd
+        self.assertTrue(transfer.minsup_drop("cascade2_minsupdrop1000"))
+        self.assertFalse(transfer.minsup_drop("cascade2_minsupna1000"))
+        self.assertEqual(transfer.minsup_spec("cascade2_minsupdrop1000"), (1000, transfer.MISSING))
+        d = pd.DataFrame(dict(cls=["alteration", transfer.MISSING, transfer.MISSING]))
+        out = transfer.drop_source_rows({"sf": d, "austin": d}, "austin")
+        self.assertEqual(len(out["sf"]), 1)
+        self.assertEqual(len(out["austin"]), 3)
+
+
+@unittest.skipIf(transfer is None, "needs pandas and lightgbm")
+class CensoredPseudo(unittest.TestCase):
+    def test_km_matches_a_hand_worked_case(self):
+        """Session 89: times 1, 2+, 3, 4 (2 censored): S(1) = 3/4, S(3) = 3/4 * 1/2 = 3/8, S(4) = 0."""
+        import numpy as np
+        F = transfer.km_cdf_at([1, 2, 3, 4], [1, 0, 1, 1], [0.5, 1, 2, 3, 3.5, 4, 9])
+        np.testing.assert_allclose(F, [0, .25, .25, .625, .625, 1, 1])
+        # no censoring: KM is the empirical cdf
+        np.testing.assert_allclose(transfer.km_cdf_at([5, 1, 3], [1, 1, 1], [1, 3, 5]), [1 / 3, 2 / 3, 1])
+
+    def test_open_rows_split_into_portnoy_pseudo_rows(self):
+        """An open permit at quantile level tau_i: all weight on +inf for tau <= tau_i; else (tau - tau_i)/(1 - tau_i)
+        at its window and (1 - tau)/(1 - tau_i) at +inf, summing to 1."""
+        import datetime
+        import numpy as np, pandas as pd
+        D = datetime.date(2024, 1, 1)
+        st = [(D - datetime.timedelta(days=k)).isoformat() for k in (400, 300, 200, 100)]
+        # windows 400, 300, 200, 100; y: 100 (done), 250 (done), 900 (open at 200), 50 (done)
+        d = pd.DataFrame(dict(start=st, y=[100.0, 250.0, 900.0, 50.0], year=2023, cls="alteration"))
+        rows, W, info = transfer.censored_pseudo(d, D, d, taus=(0.1, 0.5, 0.9))
+        self.assertEqual(info["n_open"], 1)
+        self.assertEqual(list(rows.y), [100.0, 250.0, 50.0, 200.0, transfer.Y_INF])
+        # KM over 50, 100, 250 (events) and 200+ (censored): F(200) = 1 - (3/4)(2/3) = 1/2
+        np.testing.assert_allclose(W[0.1], [1, 1, 1, 0, 1])
+        np.testing.assert_allclose(W[0.5], [1, 1, 1, 0, 1])
+        np.testing.assert_allclose(W[0.9], [1, 1, 1, 0.8, 0.2])
+        # cap=True: the upper pseudo-row sits at the stratum's longest completed build (250), weights unchanged
+        rc, Wc, _ = transfer.censored_pseudo(d, D, d, taus=(0.9,), cap=True)
+        self.assertEqual(list(rc.y), [100.0, 250.0, 50.0, 200.0, 250.0])
+        np.testing.assert_allclose(Wc[0.9], W[0.9])
+
+    def test_cens_variants_reduce_to_the_cut_rows_when_nothing_is_open(self):
+        """In the fixture every source permit of years <= Y-2 finished before D, so cens_cut / cens_es3 train on
+        exactly cut_only's / es3's rows with unit weights."""
+        import rounds
+        fc = Paired.frames(self, "cascade2")
+        for v, base in (("cens_cut", "cut_only"), ("cens_es3", "es3")):
+            tr, ca, w, wca = rounds.splits(fc, "seattle", 2024, v)
+            tb, cb, _, _ = rounds.splits(fc, "seattle", 2024, base)
+            self.assertEqual((len(tr), len(ca)), (len(tb), len(cb)), v)
+            self.assertTrue(all((x == 1).all() for x in w.values()))
+            self.assertEqual(rounds.rounds(fc, "seattle", 2024, v, 1)["rounds"],
+                             rounds.rounds(fc, "seattle", 2024, base, 1)["rounds"], v)

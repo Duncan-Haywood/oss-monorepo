@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer, round 3, lane 7: foundation, floor, doors and windows as cost levers
 
 Run of 2026-10-30. The brief came from the owner's walk-through with a builder on 2026-10-29: a shed under 100 sq ft, about $2,000 against about $3,000 for the default, every part in play for cost, and some choices (siding, roofing) fixed to match the house.

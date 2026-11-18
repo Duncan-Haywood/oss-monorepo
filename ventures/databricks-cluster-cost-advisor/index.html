@@ -152,7 +152,7 @@ node cli.mjs analyze clusters.csv --json --prices my-prices.json</pre>
       els.estimate.textContent = report.count ? `${PRICES_AS_OF}. Numbers as supplied; a shorter autotermination means a cold restart, so test first.` : "";
       els.reportCard.hidden = false;
       record("analyze_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

@@ -147,7 +147,7 @@ export function scheduleE(books, { from = null, to = null, map = {} } = {}) {
 
 function money(c) { const v = Math.abs(c); return `$${Math.floor(v / 100).toLocaleString("en-US")}.${String(v % 100).padStart(2, "0")}`; }
 
-const q = (s) => (/[",\n]/.test(s) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+import { q } from "./csvq.mjs";
 // One row per property, line and account, then each property's lines 3, 20 and 21.
 export function scheduleECsv(se) {
   const d = (c) => (c / 100).toFixed(2);

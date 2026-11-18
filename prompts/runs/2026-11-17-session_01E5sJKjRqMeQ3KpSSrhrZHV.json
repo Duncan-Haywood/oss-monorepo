@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKjRqMeQ3KpSSrhrZHV",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T20:18:12Z",
+  "ended": "2026-11-17T23:07:03Z",
+  "wall_minutes": 169.15,
+  "tokens_in": 8307217,
+  "tokens_out": 37529,
+  "cost_usd": 3.5103,
+  "tool_calls": 67,
+  "task": "research/codesign-cant milestone 7x: 52 and 60 ms tuning floors with a 33 ms certificate corner",
+  "projects": [
+    "codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17056",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "experiments/m7x_knee/run.py failed first under the system python3 (3.11: nested f-string quotes in the copied summarise) and then lacked cma; /usr/bin/python3.13 via pyenv.py had everything"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says plain python3 may lack packages; for codesign-cant the system python3 (3.11) cannot even parse the scripts (PEP 701 f-strings), so pyenv.py's 3.13 is required, not optional. A one-line note per project (requires-python) would save a failed smoke run."
+    },
+    {
+      "file": "research/codesign-cant/LOG.md",
+      "issue": "7w's runtime (1.7 h for 48 runs) under-predicted 7x's (2.5 h for 48 runs at 12 certificate corners and slower floors); runtime scales with corner count."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/codesign-cant/LOG.md (7w Next)",
+      "why": "7w's next step named 52 and 60 ms floors for both objectives; running both arms at both floors would have taken ~5 h",
+      "did": "ran only the lever-aware arm (7i's finding has held five times) at both floors, same compute as one 7w run",
+      "result": "both floors measured in 2.6 h; the 7l arm comparison (W7-style) not repeated this milestone"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-drone-motor-lag-tuning-no-knee-by-60-ms.md",
+    "research/codesign-cant/LOG.md (7x entry)",
+    "research/codesign-cant/README.md (7x section)"
+  ],
+  "goal": null,
+  "notes": "Predictions X1-X7 committed (commit 1) before the full run. Full run 9501 s. Verdicts: X1 refuted, X2 held, X3 refuted, X4 held, X5 refuted, X6 held, X7 held. Identified-range crashes 348/236/162/87 for 39.1/45/52/60 ms floors; 60 vs 45 ms Mann-Whitney p 0.004-0.014 per identified cell. Post hoc corner_bind: 33 ms corner slack on 22 of 24 designs. Local checks: codesign-cant pytest 58 passed 1 skipped; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; check_post_frontmatter, check_post_links, post_similarity ok; programme_check ok. Merge of origin/main locally refused (shallow, unrelated histories); left to GitHub's merge.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2e6a8375-5e7d-534b-a83d-c8e20e70b758",
+    "transcripts": 1,
+    "first": "2026-11-17T20:18:12Z",
+    "last": "2026-11-17T23:07:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 128,
+        "output": 37529,
+        "thinking": 6394,
+        "cache_read": 8166347,
+        "cache_write_5m": 0,
+        "cache_write_1h": 140742,
+        "api_equivalent_usd": 3.5103,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 128,
+      "output": 37529,
+      "thinking": 6394,
+      "cache_read": 8166347,
+      "cache_write_5m": 0,
+      "cache_write_1h": 140742,
+      "api_equivalent_usd": 3.5103,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 169.15,
+      "active_minutes": 169.15,
+      "model_minutes": 6.39,
+      "tool_minutes": 162.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a researcher writing, running and analysing a two-floor CMA-ES sweep and its write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 341.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "the-first-mover": {
+    "audio": {
+      "bytes": 5468185,
+      "file": "the-first-mover.mp3",
+      "seconds": 911.3
+    },
+    "shorts": {
+      "short-evil": {
+        "bytes": 891592,
+        "file": "short-evil.mp4",
+        "height": 1920,
+        "seconds": 52.6,
+        "title": "Thomas's own objection to God",
+        "width": 1080
+      },
+      "short-hand": {
+        "bytes": 596333,
+        "file": "short-hand.mp4",
+        "height": 1920,
+        "seconds": 39.6,
+        "title": "The hand, the stick and the stone",
+        "width": 1080
+      }
+    },
+    "video": {
+      "bytes": 13745615,
+      "file": "the-first-mover.mp4",
+      "height": 1080,
+      "seconds": 911.2,
+      "width": 1920
+    },
+    "voices": [
+      "kokoro-v1.0 af_bella",
+      "kokoro-v1.0 am_michael",
+      "kokoro-v1.0 bf_emma",
+      "kokoro-v1.0 bm_george"
+    ]
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKjvkuNtYdGL5Nga1Ya",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T14:12:45Z",
+  "ended": "2026-11-11T14:23:01Z",
+  "wall_minutes": 10.52,
+  "tokens_in": 6640754,
+  "tokens_out": 30221,
+  "cost_usd": 2.9459,
+  "tool_calls": 61,
+  "task": "research programme llm-coding-inference, milestone 7ai (tau 0.1/0.2/0.3 on a J 0.26 coder; guard 20 vs tau 0.3)",
+  "projects": [
+    "research/llm-coding-inference"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14803",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Every Socrata host (data.seattle.gov and three others) and every other open-data host probed answered CONNECT 403 through the egress proxy at 14:13 UTC, so the drawn build-data programme could not run."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Drew build-data, whose every remaining step needs the Socrata feeds that sessions 43 to 73 mostly found blocked; the draw has no way to know a programme is data-blocked in this environment, so the run spent its first minutes rediscovering it. A per-programme 'needs hosts' field the draw could probe would save that."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The draw picked build-data, but the feeds were refused (CONNECT 403) and the paper already carried session 74; nothing data-free was left that was not a restated blocker.",
+      "did": "Redrew with pick_track.py --new (llm-coding-inference) and landed its next milestone.",
+      "result": "Milestone 7ai landed with all five pre-registered predictions supported and a library default change."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-the-guard-was-the-cost.md",
+    "research/llm-coding-inference/LOG.md (7ai entry)"
+  ],
+  "goal": "advance an open research programme by one pre-registered step",
+  "notes": "Forecasts and prediction committed (first commit) before any draw. 1,000 draws x 10 cells x 6 rules, about 10 min on 4 cores. P1 40/40, P2-P5 supported; decision rule changed llmci default to TAU 0.1, GUARD 0. Local checks: test_llmci.py 28 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_post_frontmatter, check_post_links, post_similarity, programme_check ok; h7c_end_to_end.py rerun byte-identical under the TAU_6AM/GUARD_6AM pin. No separate docs/reports agent doc: LOG.md is the programme's agent-facing record and carries Next.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e3043e12-93ca-5e0a-8c1e-3f629a677d0b",
+    "transcripts": 1,
+    "first": "2026-11-11T14:12:45Z",
+    "last": "2026-11-11T14:23:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 109,
+        "output": 30221,
+        "thinking": 6706,
+        "cache_read": 6510785,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129860,
+        "api_equivalent_usd": 2.9459,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 109,
+      "output": 30221,
+      "thinking": 6706,
+      "cache_read": 6510785,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129860,
+      "api_equivalent_usd": 2.9459,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 57,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.52,
+      "active_minutes": 10.52,
+      "model_minutes": 6.45,
+      "tool_minutes": 4.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a statistician writing the forecasts, running 60 simulated cells, changing a library default and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 203.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

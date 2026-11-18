@@ -5,7 +5,7 @@ and see whether a qualified charitable distribution (QCD) beats giving the same 
 Social Security, the senior deduction, federal and state tax for each route, what the gift really costs after tax,
 and how much of the required minimum distribution the QCD covers. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/qcd-calculator/
+**Live tool:** https://marisstella.app/qcd-calculator/
 
 After using this, you can **decide how much of this year's giving to send straight from the IRA** before the
 custodian's year-end deadline, instead of finding out at filing time.
@@ -18,7 +18,7 @@ custodian's year-end deadline, instead of finding out at filing time.
 - Taxable Social Security uses the statutory provisional-income tiers; the senior deduction phases out with AGI.
 - Ordinary-income brackets only (no preferential gain rates). Tax-year figures sit in `FIGURES` in `calc.mjs`.
 
-Not modelled: Medicare IRMAA (it uses AGI from two years earlier; the AGI line tells you the number to compare),
+Not modelled: head-of-household figures (pick single only if you file single; quality audit [2026-11-17](../../portfolio/quality/audits/2026-11-17-qcd-calculator.json)), the post-70½ deductible IRA contribution offset, the one-time split-interest QCD, Medicare IRMAA (it uses AGI from two years earlier; the AGI line tells you the number to compare),
 NIIT, AMT, gifts of appreciated stock, donor-advised funds (a QCD cannot go to one), state rules that differ from
 federal, the 35% cap on itemized benefit at the top bracket, and each spouse's separate QCD limit.
 

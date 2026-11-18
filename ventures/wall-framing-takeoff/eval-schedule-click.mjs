@@ -52,6 +52,18 @@ await page.fill("#dl", "2000-01-03");
 check(/Deadline 2000-01-03: \d+ working day\(s\) late/.test(await page.textContent("#out")), "deadline field: past date shows days late");
 await page.fill("#dl", "");
 check(!/Deadline/.test(await page.textContent("#out")), "deadline field: cleared removes the line");
+// the crew-days-off field: the concrete crew off on the sample's first working days pushes the finish out; a bad entry is named
+await page.fill("#dl", "");
+await page.fill("#co", "");
+const finishOf = (t) => (t.match(/\d{4}-\d{2}-\d{2}/g) || []).sort().pop();
+const base = finishOf(await page.textContent("#out"));
+await page.fill("#co", "concrete=2026-03-02 2026-03-03 2026-03-04");
+const off = await page.textContent("#out");
+check(finishOf(off) > base && !/NaN|undefined/.test(off), `crew days off: concrete away 3 days moves the last date ${base} -> ${finishOf(off)}`);
+await page.fill("#co", "concrete=soon");
+check(/Crew days off: write each as/.test(await page.textContent("#out")), "crew days off: bad entry is named");
+await page.fill("#co", "");
+check(finishOf(await page.textContent("#out")) === base, "crew days off: cleared restores the finish");
 // the activity-costs field: typed dollars by id give spend by month; a bad id or entry is named
 await page.fill("#ac", "roof=9500, walls=$18000");
 check(/Spend by month[^\n]*total \$27,500/.test(await page.textContent("#out")), "activity costs field: spend by month totals the typed costs");
@@ -87,6 +99,18 @@ await page.fill("#rg", "walls=9-14");
 check(/need min <= days <= max/.test(await page.textContent("#out")), "day ranges field: a range that excludes the typed days is refused");
 await page.fill("#rg", "");
 check(!/Schedule risk/.test(await page.textContent("#out")), "day ranges field: cleared removes the risk block");
+// long-lead orders: walls start 2026-03-02 + footings..slab; read the date from the report
+await page.fill("#lo", "windows=walls/42, trusses=roof/28/5");
+const lo1 = await page.textContent("#out");
+check(/Order-by dates/.test(lo1) && /windows/.test(lo1) && /trusses/.test(lo1) && /lead 28 d \+ 5 d buffer/.test(lo1), "long-lead orders field: order-by lines appear");
+await page.fill("#td", "2030-01-01");
+check(/LATE by/.test(await page.textContent("#out")), "long-lead orders: a far-future today flags items late");
+await page.fill("#lo", "windows=nope/42");
+check(/is not an activity id/.test(await page.textContent("#out")), "long-lead orders: unknown activity is named");
+await page.fill("#lo", "garbage");
+check(/Long-lead orders: write each as/.test(await page.textContent("#out")), "long-lead orders: bad text explained");
+await page.fill("#lo", ""); await page.fill("#td", "");
+check(!/Order-by dates/.test(await page.textContent("#out")), "long-lead orders: cleared removes the block");
 // invalid JSON must not export the previous schedule
 await page.fill("#src", "{not json");
 let downloaded = false;

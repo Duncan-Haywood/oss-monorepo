@@ -1,0 +1,10 @@
+Check: Catholic share 2024 = 0.2158
+H1a all gap 0.104 [0.027,0.180] vs NH white gap 0.051 [-0.026,0.128] -> supported
+H1b NH white Born 1945-64: 0.044 [-0.050,0.138] -> supported (CI within +-0.2)
+H1b NH white Born 1965-80: -0.284 [-0.477,-0.091] -> not refuted (CI crosses +-0.2)
+H1c NH white: 0.599 [0.448,0.750] -> supported
+H1c Hispanic: 0.477 [0.068,0.886] -> supported
+H2 NH white: retention [0.661, 0.633, 0.548] -> supported
+H2 Hispanic: retention [0.736, 0.757, 0.712] -> refuted
+Q3 weekly Hispanic - NH white 2010-18: -0.003 [-0.050,0.044]
+Q3 weekly Hispanic - NH white 2021-24: -0.058 [-0.104,-0.012]

@@ -30,7 +30,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-BASE = "https://duncan-haywood.github.io/oss-monorepo/research/"
+BASE = "https://marisstella.app/research/"
 LINE = "**Live page:** {url}"
 
 
@@ -104,7 +104,8 @@ def has_link(text, slug):
 
 
 def stale_link(slug):
-    """A live-page line for slug on an older Pages base (the site moved to /oss-monorepo/ in P047)."""
+    """A live-page line for slug on an older GitHub Pages base (/monorepo-projects/, then /oss-monorepo/;
+    the site moved to marisstella.app on 2026-10-30)."""
     return re.compile(r"^\*\*Live page:\*\* https://duncan-haywood\.github\.io/[^/\s]+/research/"
                       + re.escape(slug) + r"/[ \t]*$", re.M)
 

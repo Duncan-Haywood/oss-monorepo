@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-29
+tagged: auto
+---
 # The "Start here" onboarding series (2026-10-29)
 
 The blog had 1,150+ narrow feature posts and nothing telling a newcomer whether

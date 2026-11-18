@@ -2,7 +2,7 @@
 
 A follow-up to `research/robofab-graspmove` ("link the required acceleration to the `robofab-reach` arm") and `research/robofab-reach` (track `robofab`). `robofab-graspmove` asked how hard the jaws must squeeze under a given acceleration; `robofab-reach` found the shortest arm that reaches every pick and place point of a seven-part toy gripper. Here a vertical-plane two-link arm on that geometry carries each of the six free parts from its tray pick point to the lift point above its place point with a joint-space min-jerk move. I ask two things: how short can the carry be before the joint torque limit binds, and what jaw force does that move then demand? All numbers come from `experiments/results.txt`. Pure Python, no dependencies, simulation only.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-armaccel/
+**Live page:** https://marisstella.app/research/robofab-armaccel/
 
 - **Torque sets the carry time; the grip it demands is 5 to 100 times the static force.** For links of 0.12 m (1.5 times the `robofab-reach` minimum) and an assumed torque limit of 5 N m, the six carries take 0.06 to 0.10 s each (0.45 s in total) and the heaviest part (the 5.95 g cover) needs 1.25 N per jaw against 0.058 N at rest (21 times). With a 2 N m limit the total is 0.70 s and the cover needs 0.52 N; with 10 N m, 0.33 s and 2.49 N.
 - **A bigger arm is slower, not stronger.** At 2 N m the total carry time is 0.30 s for 0.08 m links, 0.70 s for 0.12 m and 0.85 s for 0.20 m, because the link inertia grows with length while the torque limit is fixed (link mass assumed 1 kg per metre of length).
@@ -11,7 +11,7 @@ A follow-up to `research/robofab-graspmove` ("link the required acceleration to 
 
 ```bash
 cd research/robofab-armaccel
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, < 1 s
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 11 tests, < 1 s
 PYTHONPATH=src python3 experiments/run.py                 # about 1 min; writes experiments/results.{txt,json}
 ```
 Produced with Python 3.11, standard library only.
@@ -26,7 +26,7 @@ The workcell-twin direction of the HIRO Group (Alessandro Roncone, <https://hiro
 
 ## Method
 
-`geometry.py` is a copy of the pick, lift and place targets and the base search of `robofab-reach` (shoulder height 0.1 m; tray 120 mm from the fixture; 10 mm base grid); the base is the feasible one closest to the fixture. `model.py` has the arm: two uniform rods (mass 1 kg per metre, assumed), a 0.1 kg gripper and the part as a point mass at the wrist, gravity in the plane. The mass matrix and gravity terms are checked in `tests/` against kinetic energy and potential energy computed independently from forward kinematics, and the torque equation against an energy balance over a move. Each carry is a min-jerk move in joint space from the inverse kinematics of the pick point to that of the lift point (elbow-up), with no check that the links clear the table or parts. `min_time` finds the shortest duration on a 0.01 s grid whose peak joint torque, over 100 samples, stays within the limit. The wrist's radial and vertical acceleration are taken by differentiating the kinematics, and the per-jaw force at each sample is `m sqrt((g + a_z)^2 + a_r^2) / (2 mu)` with mu = 0.5 and density 1240 kg/m^3 (the `robofab-graspmove` values). The grasp axis is taken as tangential to the turntable, so both accelerations lie along the pad faces.
+`geometry.py` is a copy of the pick, lift and place targets and the base search of `robofab-reach` (shoulder height 0.1 m; tray 120 mm from the fixture; 10 mm base grid); the base is the feasible one closest to the fixture. `model.py` has the arm: two uniform rods (mass 1 kg per metre, assumed), a 0.1 kg gripper and the part as a point mass at the wrist, gravity in the plane. The mass matrix and gravity terms are checked in `tests/` against kinetic energy and potential energy computed independently from forward kinematics, and the torque equation against an energy balance over a move; the wrist acceleration and the jaw-force bound are checked against the closed-form acceleration of a point on a circle (elbow held straight). Each carry is a min-jerk move in joint space from the inverse kinematics of the pick point to that of the lift point (elbow-up), with no check that the links clear the table or parts. `min_time` finds the shortest duration on a 0.01 s grid whose peak joint torque, over 100 samples, stays within the limit. The wrist's radial and vertical acceleration are taken by differentiating the kinematics, and the per-jaw force at each sample is `m sqrt((g + a_z)^2 + a_r^2) / (2 mu)` with mu = 0.5 and density 1240 kg/m^3 (the `robofab-graspmove` values). The grasp axis is taken as tangential to the turntable, so both accelerations lie along the pad faces.
 
 ## Results
 
@@ -36,6 +36,7 @@ See the bullets above and `experiments/results.txt`: three arm sizes (0.08, 0.12
 
 - Stylised. Every parameter other than the geometry is assumed: link mass per length, gripper mass, torque limits, friction, density. The torque limits of 2 to 10 N m on links of 0.08 to 0.2 m are far stronger than a small hobby arm of that size, so the accelerations are extreme; read the results as how the two limits trade off, not as achievable cycle times.
 - The carry time is quantised to 0.01 s, which is 10 to 20% of the shortest values; differences of that size are not meaningful.
+- Each carry uses only the radial distance from the base to each 3D target, so the base yaw swing between pick and place is neither timed nor loaded: the reported times leave out the turntable move and its tangential acceleration, which a real carry would add.
 - One move shape (min-jerk in joint space), one wrist orientation (not modelled), no collision of links with the table, no joint speed, backlash, motor dynamics or payload swing, and joint torque is the only arm limit.
 - The jaw bound is not re-simulated beyond 40 m/s^2 (see above).
 - Simulated results are not claims about physical arms or grippers.

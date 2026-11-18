@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01EhTJVLeKfRPjqi2SCAvn8K",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T12:00:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/duncan-haywood/oss-monorepo/pull/13449",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Routed to creative track; chose the top flagship (wall-framing-takeoff) because the scheduled prompt asked for revenue-product work."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-06-roof-framing-nails.md"
+  ],
+  "goal": null,
+  "notes": "fasteners.roofNails slice (rafter-to-plate, ridge, collar tie end nails); node --test fasteners.test.mjs 12 pass; CLI run on sample roof gave 500 roof nails. Scheduled run, routed creative but did flagship work instead.",
+  "corrections": [],
+  "redteam": null
+}

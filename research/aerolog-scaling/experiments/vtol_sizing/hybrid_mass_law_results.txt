@@ -1,0 +1,40 @@
+Milestone 10e: hybrid cargo VTOL with engine and tank mass (one-way, 20% reserve, payload >= 15% MTOW)
+
+A. Max range km, hybrid. f_non=0.479, tank 0.25 of fuel; rows engine kW/kg, cols chain efficiency
+p_eng |    0.12    0.18    0.25     0.3
+  0.5 |     204     314     442     534
+    1 |     758    1144    1500    1500
+    2 |    1034    1500    1500    1500
+    4 |    1173    1500    1500    1500
+    8 |    1242    1500    1500    1500
+
+B. Same, f_non 0.402 (10a) and 0.583 (NASA quadrotor), p_eng 1 kW/kg, eta 0.20
+f_non 0.402: hybrid 1500 km, battery 250 Wh/kg 204 km, battery 500 Wh/kg 424 km
+f_non 0.479: hybrid 1273 km, battery 250 Wh/kg 166 km, battery 500 Wh/kg 349 km
+f_non 0.583: hybrid 653 km, battery 250 Wh/kg 115 km, battery 500 Wh/kg 246 km
+
+C. Break-even range km (hybrid has larger payload fraction), f_non 0.479, battery 250 Wh/kg
+p_eng k_tank eta -> km
+  0.5   0.15 0.12 -> 159
+  0.5   0.15  0.2 -> 149
+  0.5   0.15  0.3 -> 145
+  0.5    0.5 0.12 -> 167
+  0.5    0.5  0.2 -> 153
+  0.5    0.5  0.3 -> 147
+    1   0.15 0.12 -> 71
+    1   0.15  0.2 -> 67
+    1   0.15  0.3 -> 65
+    1    0.5 0.12 -> 75
+    1    0.5  0.2 -> 69
+    1    0.5  0.3 -> 66
+    4   0.15 0.12 -> 6
+    4   0.15  0.2 -> 5
+    4   0.15  0.3 -> 4
+    4    0.5 0.12 -> 7
+    4    0.5  0.2 -> 6
+    4    0.5  0.3 -> 5
+
+D. Sensitivity of hybrid max range (km), base p_eng 1, tank 0.25, eta 0.20, f_non 0.479
+p_eng: (0.5, 1, 2) -> 351 1273 1500
+k_tank: (0.1, 0.25, 0.6) -> 1449 1273 991
+eta_chain: (0.12, 0.2, 0.3) -> 758 1273 1500

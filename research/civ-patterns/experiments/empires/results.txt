@@ -1,0 +1,70 @@
+Cliopatria v0.2.1: 1587 named polities; 43 parenthesised umbrella names (e.g. '(Holy Roman Empire)', often duplicating a member) set aside; 1 already present in 3400 BCE dropped; 1543 used, 1382 ended, 161 still mapped in 2024. 278 reappear under the same name after a gap (only the first run counts).
+Snapshot spacing (median years between mapped years, by era): -3400..-1000: 100, -1000..0: 6, 0..500: 5, 500..1000: 5, 1000..1500: 7, 1500..1800: 4, 1800..2025: 2
+
+## 1. Lifespan, and is the risk of ending constant with age? (k = 1: constant, k < 1: falls with age)
+all                                n=1543 ended=1382 KM median=    95y  k=0.830 [0.797, 0.865]  dAIC(exp-weib)= +87.2
+peak area >= 1 million km2         n= 224 ended= 195 KM median=    89y  k=0.912 [0.818, 1.018]  dAIC(exp-weib)=  +0.8
+started 1500 CE or later           n= 615 ended= 454 KM median=    65y  k=0.773 [0.717, 0.832]  dAIC(exp-weib)= +50.7
+started before 1500 CE             n= 928 ended= 928 KM median=   111y  k=0.934 [0.889, 0.982]  dAIC(exp-weib)=  +5.5
+whole named span (gaps included)   n=1543 ended=1351 KM median=   117y  k=0.843 [0.809, 0.878]  dAIC(exp-weib)= +71.6
+Empirical hazard by age, all polities:
+  age    0-25  :  351 ends /     33135 polity-years =  10.59 per 1000 years (per-century risk 0.65)
+  age   25-50  :  168 ends /     26893 polity-years =   6.25 per 1000 years (per-century risk 0.46)
+  age   50-100 :  243 ends /     38787 polity-years =   6.26 per 1000 years (per-century risk 0.47)
+  age  100-200 :  293 ends /     46979 polity-years =   6.24 per 1000 years (per-century risk 0.46)
+  age  200-400 :  220 ends /     39034 polity-years =   5.64 per 1000 years (per-century risk 0.43)
+  age  400-800 :   90 ends /     18212 polity-years =   4.94 per 1000 years (per-century risk 0.39)
+  age  800-5000:   17 ends /      4716 polity-years =   3.60 per 1000 years (per-century risk 0.30)
+Empirical hazard by age, peak area >= 1 million km2:
+  age    0-25  :   48 ends /      4917 polity-years =   9.76 per 1000 years (per-century risk 0.62)
+  age   25-50  :   27 ends /      3957 polity-years =   6.82 per 1000 years (per-century risk 0.49)
+  age   50-100 :   37 ends /      5564 polity-years =   6.65 per 1000 years (per-century risk 0.49)
+  age  100-200 :   36 ends /      6488 polity-years =   5.55 per 1000 years (per-century risk 0.43)
+  age  200-400 :   33 ends /      5415 polity-years =   6.09 per 1000 years (per-century risk 0.46)
+  age  400-800 :   14 ends /      1210 polity-years =  11.57 per 1000 years (per-century risk 0.69)
+  age 800-5000: no exposure
+Peak >= 1M km2: mean observed duration 123y (Arbesman 2011, Taagepera's 41 empires: mean 220y), median 74y
+
+## 2. Do polities that start bigger last longer? (initial mapped area, so long life cannot inflate it)
+Weibull PH, n=1543, covariates log10(initial area) + start era (base (-3400, -1000)): k=0.929
+  hazard ratio per tenfold initial area: 1.064 [1.004, 1.129]
+  initial area quartile  0-25  (       47-     13767 km2): n=386 KM median   104y
+  initial area quartile 25-50  (    13767-     71612 km2): n=385 KM median    94y
+  initial area quartile 50-75  (    71612-    274927 km2): n=386 KM median   103y
+  initial area quartile 75-100 (   274927-  22278223 km2): n=386 KM median    69y
+
+## 3. Median lifespan by the era a polity started in (Kaplan-Meier)
+   -3400 to -1000: n=  26 KM median   350y  share > 200y 0.69  (snapshot spacing ~100y)
+   -1000 to     0: n= 170 KM median   153y  share > 200y 0.37  (snapshot spacing ~6y)
+       0 to   500: n=  94 KM median    98y  share > 200y 0.34  (snapshot spacing ~5y)
+     500 to  1000: n= 258 KM median   117y  share > 200y 0.35  (snapshot spacing ~5y)
+    1000 to  1500: n= 380 KM median    99y  share > 200y 0.20  (snapshot spacing ~7y)
+    1500 to  1800: n= 182 KM median   113y  share > 200y 0.23  (snapshot spacing ~4y)
+    1800 to  2025: n= 433 KM median    46y  share > 200y 0.00  (snapshot spacing ~2y)
+
+## 4. Backtest: polities mapped at a cutoff year; P(still under the same name 100 years later)
+cutoff 1600: 81 polities mapped, 28 gone by 1700 (base rate 0.35); trained on 986
+   exponential  Brier 0.232  AUC 0.406  mean forecast 0.42
+   weibull      Brier 0.228  AUC 0.585  mean forecast 0.41
+   piecewise    Brier 0.225  AUC 0.606  mean forecast 0.42
+cutoff 1700: 84 polities mapped, 41 gone by 1800 (base rate 0.49); trained on 1030
+   exponential  Brier 0.254  AUC 0.503  mean forecast 0.42
+   weibull      Brier 0.259  AUC 0.459  mean forecast 0.40
+   piecewise    Brier 0.261  AUC 0.465  mean forecast 0.41
+cutoff 1800: 96 polities mapped, 75 gone by 1900 (base rate 0.78); trained on 1110
+   exponential  Brier 0.298  AUC 0.485  mean forecast 0.42
+   weibull      Brier 0.308  AUC 0.510  mean forecast 0.41
+   piecewise    Brier 0.306  AUC 0.503  mean forecast 0.42
+cutoff 1900: 67 polities mapped, 53 gone by 2000 (base rate 0.79); trained on 1289
+   exponential  Brier 0.271  AUC 0.348  mean forecast 0.47
+   weibull      Brier 0.284  AUC 0.557  mean forecast 0.45
+   piecewise    Brier 0.283  AUC 0.595  mean forecast 0.45
+   pooled exponential  Brier 0.265  AUC 0.663
+   pooled weibull      Brier 0.271  AUC 0.563
+   pooled piecewise    Brier 0.270  AUC 0.570
+   (The exponential gives every polity at a cutoff the same forecast, so its pooled AUC only reflects the different forecasts across cutoffs; within a cutoff its AUC is 0.5 by construction, ties counting half.)
+   Brier(weibull) - Brier(exponential) +0.0056 [+0.0028, +0.0086]
+
+## 5. Today's polities (mapped in 2024): P(still under the same name and continuous in 2124)
+161 polities; median age 58y; expected share still continuous in 2124: 0.53 (weibull), 0.54 (piecewise). Oldest five: Kingdom of Bhutan (1636); Kingdom of Great Britain (1709); Nepal (1775); United States of America (1776); Netherlands Antilles (1815)
+Caveat: Cliopatria ends a polity whenever its name changes (e.g. 'Canada' starts in 1932, 'Republic of Iraq' in 2014), so these are probabilities that the mapped entity keeps its name and continuity, not that a country or people disappears.

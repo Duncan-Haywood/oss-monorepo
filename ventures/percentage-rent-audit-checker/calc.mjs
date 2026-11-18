@@ -21,7 +21,7 @@ function num(v, name, { min = 0, max = Infinity, fallback } = {}) {
 
 export function money(n) {
   const v = Math.round(Math.abs(n) * 100) / 100;
-  return (n < 0 ? "-$" : "$") + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 }
 
 // Natural breakpoint: the sales level at which the percentage rate produces exactly the base rent.

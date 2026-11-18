@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-10-28
+tagged: auto
+---
 # Polish 2026-10-28: shorter `/compare/<product>/` titles
 
 **Weak surface.** The previous polish report (`polish-2026-10-28-site-title-suffix.md`) listed 46

@@ -269,6 +269,10 @@ export function diffSnapshots(baseline, current, { ignore = [] } = {}) {
     const before = baseMap.get(name);
     const after = curMap.get(name);
     if (!before) {
+      if (ignoreSet.has(name.toLowerCase())) {
+        ignoredChanges.push({ name, kind: "added", afterVersion: after.version, afterHasInstallScript: after.hasInstallScript, afterScripts: after.scripts, riskTags: after.riskTags });
+        continue;
+      }
       added.push({ name: after.name, version: after.version, hasInstallScript: after.hasInstallScript, scripts: after.scripts, riskTags: after.riskTags });
       continue;
     }

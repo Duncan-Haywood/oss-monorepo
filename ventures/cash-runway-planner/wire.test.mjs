@@ -44,11 +44,17 @@ function fakeDom({ values, storageThrows = false, hash = '', search = '', clipbo
   for (let index = 1; index <= MAX_ITEMS; index += 1) {
     rows[`#item-row-${index}`] = { hidden: index > VISIBLE_ITEMS };
   }
-  const form = {
-    elements: fields,
-    addEventListener: (type, fn) => handlers.set(type, fn),
-    reset: () => { form.wasReset = true; },
-  };
+  // Like the real page: the form holds <button id="reset">, and a named
+  // control shadows the method, so `form.reset` is that button, not a
+  // function. The stub used to give it a working reset(), which is how a
+  // reset that threw on every click passed here (red team 2026-11-14).
+  class FakeForm {
+    reset() { this.wasReset = true; }
+  }
+  const form = new FakeForm();
+  form.elements = fields;
+  form.addEventListener = (type, fn) => handlers.set(type, fn);
+  form.reset = buttons['#reset'];
   const nodes = { '#forecast': form, '#output': output, '#usage': usage, '#shareStatus': shareStatus, ...buttons, ...rows };
 
   const store = new Map();
@@ -63,6 +69,7 @@ function fakeDom({ values, storageThrows = false, hash = '', search = '', clipbo
     createElement: () => ({ click() {}, set href(_v) {}, get href() { return ''; } }),
   };
   globalThis.localStorage = storage;
+  globalThis.HTMLFormElement = FakeForm;
   const clipboard = { writeText: async () => { if (clipboardFails) throw new Error('denied'); } };
   // Node ships a read-only `navigator`, so the browser one has to be defined
   // over it rather than assigned.

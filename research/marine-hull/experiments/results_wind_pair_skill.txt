@@ -1,0 +1,32 @@
+
+San Francisco (target) with Alameda (neighbour, ~15 km): fit January, test July
+  lead   6 min: n= 7419, persistence RMSE/comp 0.89 m/s; skill self +0.079, with neighbour +0.080, neighbour adds +0.002
+  lead  12 min: n= 7418, persistence RMSE/comp 0.96 m/s; skill self +0.088, with neighbour +0.091, neighbour adds +0.003
+  lead  18 min: n= 7417, persistence RMSE/comp 1.01 m/s; skill self +0.085, with neighbour +0.089, neighbour adds +0.004
+  lead  30 min: n= 7415, persistence RMSE/comp 1.09 m/s; skill self +0.076, with neighbour +0.081, neighbour adds +0.006
+  lead  60 min: n= 7410, persistence RMSE/comp 1.23 m/s; skill self +0.049, with neighbour +0.053, neighbour adds +0.004
+  lead 120 min: n= 7400, persistence RMSE/comp 1.45 m/s; skill self +0.024, with neighbour +0.022, neighbour adds -0.002
+
+Alameda (target) with San Francisco (neighbour, ~15 km): fit January, test July
+  lead   6 min: n= 7417, persistence RMSE/comp 0.55 m/s; skill self +0.030, with neighbour +0.032, neighbour adds +0.002
+  lead  12 min: n= 7415, persistence RMSE/comp 0.65 m/s; skill self +0.030, with neighbour +0.034, neighbour adds +0.004
+  lead  18 min: n= 7413, persistence RMSE/comp 0.71 m/s; skill self +0.027, with neighbour +0.031, neighbour adds +0.005
+  lead  30 min: n= 7410, persistence RMSE/comp 0.81 m/s; skill self +0.019, with neighbour +0.029, neighbour adds +0.009
+  lead  60 min: n= 7405, persistence RMSE/comp 0.96 m/s; skill self -0.015, with neighbour +0.011, neighbour adds +0.026
+  lead 120 min: n= 7395, persistence RMSE/comp 1.17 m/s; skill self -0.081, with neighbour -0.034, neighbour adds +0.047
+
+Pensacola (target) with Dauphin Island (neighbour, ~70 km): July first half fit, second half test
+  lead   6 min: n= 3679, persistence RMSE/comp 0.63 m/s; skill self +0.033, with neighbour +0.034, neighbour adds +0.001
+  lead  12 min: n= 3678, persistence RMSE/comp 0.80 m/s; skill self +0.038, with neighbour +0.040, neighbour adds +0.002
+  lead  18 min: n= 3677, persistence RMSE/comp 0.93 m/s; skill self +0.042, with neighbour +0.046, neighbour adds +0.004
+  lead  30 min: n= 3675, persistence RMSE/comp 1.11 m/s; skill self +0.055, with neighbour +0.064, neighbour adds +0.009
+  lead  60 min: n= 3670, persistence RMSE/comp 1.41 m/s; skill self +0.080, with neighbour +0.103, neighbour adds +0.023
+  lead 120 min: n= 3660, persistence RMSE/comp 1.69 m/s; skill self +0.108, with neighbour +0.126, neighbour adds +0.018
+
+Dauphin Island (target) with Pensacola (neighbour, ~70 km): July first half fit, second half test
+  lead   6 min: n= 3679, persistence RMSE/comp 0.72 m/s; skill self +0.020, with neighbour +0.022, neighbour adds +0.002
+  lead  12 min: n= 3678, persistence RMSE/comp 0.94 m/s; skill self +0.028, with neighbour +0.032, neighbour adds +0.003
+  lead  18 min: n= 3677, persistence RMSE/comp 1.09 m/s; skill self +0.035, with neighbour +0.040, neighbour adds +0.005
+  lead  30 min: n= 3675, persistence RMSE/comp 1.33 m/s; skill self +0.045, with neighbour +0.053, neighbour adds +0.008
+  lead  60 min: n= 3670, persistence RMSE/comp 1.77 m/s; skill self +0.073, with neighbour +0.087, neighbour adds +0.014
+  lead 120 min: n= 3660, persistence RMSE/comp 2.25 m/s; skill self +0.111, with neighbour +0.123, neighbour adds +0.012

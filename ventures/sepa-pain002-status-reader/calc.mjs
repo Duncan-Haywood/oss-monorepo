@@ -485,7 +485,7 @@ function finalize(result) {
 // Re-submission worksheet and CSV. A leading = + - @ is neutralised so a spreadsheet cannot run it.
 // ---------------------------------------------------------------------------------------------
 
-const q = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return `"${s.replace(/"/g, '""')}"`; };
+const q = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return `"${s.replace(/"/g, '""')}"`; };
 
 export function resubmissionCsv(result) {
   const rows = [["block", "end_to_end_id", "status", "reason_code", "reason", "category", "action", "amount", "currency", "creditor", "creditor_iban_masked", "debtor_iban_masked", "bank_note"].join(",")];

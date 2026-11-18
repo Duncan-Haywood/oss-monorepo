@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01E5sJKjD59u6ns3RTZ82kNd",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T11:25:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14264",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Scheduled run on the creative track; picked Saints by Candlelight (H&H had the three most recent pieces).",
+      "did": "Wrote episode 79 (Luke 10), text only because audio is 423 MB",
+      "result": "node --test 14/14 pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-09-saints-by-candlelight-good-samaritan-jericho-road.md"
+  ],
+  "goal": null,
+  "notes": "Project saints-by-candlelight, episode 79 slug the-good-samaritan-and-the-road-down-to-jericho; 6,735 words; text only (audio 423 MB over 400 MB line).",
+  "corrections": [],
+  "redteam": null
+}

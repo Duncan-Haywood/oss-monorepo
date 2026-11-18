@@ -1,0 +1,41 @@
+Milestone 10j: hybrid with engine sized for cruise, battery for hover (one-way, 20% reserve, payload >= 15% MTOW)
+
+A. Break-even km vs 250 Wh/kg battery aircraft, f_non 0.479 (10e hover-sized: p_eng 0.5 -> 153, 1 -> 69, 4 -> 6)
+p_eng k_tank eta V -> km
+  0.5   0.15 0.12 30 -> 56
+  0.5   0.15  0.2 30 -> 53
+  0.5   0.15  0.3 30 -> 52
+  0.5    0.5 0.12 30 -> 59
+  0.5    0.5  0.2 30 -> 55
+  0.5    0.5  0.3 30 -> 53
+    1   0.15 0.12 30 -> 37
+    1   0.15  0.2 30 -> 35
+    1   0.15  0.3 30 -> 34
+    1    0.5 0.12 30 -> 39
+    1    0.5  0.2 30 -> 36
+    1    0.5  0.3 30 -> 35
+    4   0.15 0.12 30 -> 22
+    4   0.15  0.2 30 -> 21
+    4   0.15  0.3 30 -> 21
+    4    0.5 0.12 30 -> 23
+    4    0.5  0.2 30 -> 22
+    4    0.5  0.3 30 -> 21
+
+B. Max range km (cap 1500), f_non 0.479, tank 0.25; rows p_eng kW/kg, cols chain efficiency (10e: 0.5 -> 204/314/442/534)
+p_eng |    0.12    0.18    0.25     0.3
+  0.5 |     855    1282    1500    1500
+    1 |     979    1468    1500    1500
+    2 |    1040    1500    1500    1500
+    4 |    1071    1500    1500    1500
+
+C. Sensitivity of max range (km), base p_eng 1, tank 0.25, eta 0.20, V 30, p_batt 1500, f_non 0.479
+p_eng: (0.5, 1, 2) -> 1424 1500 1500
+eta_chain: (0.12, 0.2, 0.3) -> 979 1500 1500
+k_tank: (0.1, 0.25, 0.6) -> 1500 1500 1274
+V: (20, 30, 40) -> 1500 1500 1500
+p_batt: (800, 1500, 3000) -> 1303 1500 1500
+e_cell: (200, 250, 400) -> 1500 1500 1500
+
+D. Mass split at 150 km, base case (fractions of MTOW)
+hover power 129 W/kg, 1.2 x cruise power 35 W/kg, battery shortfall 94 W/kg
+free (payload) fraction: cruise-sized hybrid 0.398, hover-sized (10e) 0.338, battery 0.183

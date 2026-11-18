@@ -25,6 +25,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; Back to Kubernetes Deprecated API Check</a></p>
   <h1>Why a manifest that applied yesterday fails after a Kubernetes upgrade</h1>
 
@@ -61,7 +62,9 @@
     <p>No. The removal happens on the API server side, at the target cluster's Kubernetes version — the manifest's <code>apiVersion</code> field is what has to change, regardless of which <code>kubectl</code> or CI runner applies it.</p>
   </div>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This is not infrastructure or compliance advice. See the disclaimer on <a href="./">the checker itself</a> for the full text.</p>
     <p>Everything here runs client-side; nothing is uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
   </footer>

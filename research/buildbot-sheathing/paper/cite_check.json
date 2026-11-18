@@ -1,0 +1,70 @@
+{
+ "arxiv:1703.06907": {
+  "checked": "2026-11-17",
+  "title": "Domain Randomization for Transferring Deep Neural Networks from Simulation to the Real World (2017)"
+ },
+ "arxiv:1909.05700": {
+  "checked": "2026-11-17",
+  "title": "A Transition-Aware Method for the Simulation of Compliant Contact with Regularized Friction (2019)"
+ },
+ "arxiv:2110.10107": {
+  "checked": "2026-11-17",
+  "title": "An Unconstrained Convex Formulation of Compliant Contact (2021)"
+ },
+ "arxiv:2502.08844": {
+  "checked": "2026-11-17",
+  "title": "MuJoCo Playground (2025)"
+ },
+ "doi:10.1002/eqe.495": {
+  "checked": "2026-11-17",
+  "title": "Hysteretic models that incorporate strength and stiffness deterioration (2005)"
+ },
+ "doi:10.1007/BF01580066": {
+  "checked": "2026-11-17",
+  "title": "A survey of research in the application of tolerance analysis to the design of mechanical assemblies (1991)"
+ },
+ "doi:10.1007/s41693-017-0003-5": {
+  "checked": "2026-11-17",
+  "title": "Mobile robotic fabrication at 1:1 scale: the In situ Fabricator (2017)"
+ },
+ "doi:10.1007/s41693-024-00122-0": {
+  "checked": "2026-11-17",
+  "title": "Adaptive robotic construction of wood frames (2024)"
+ },
+ "doi:10.1016/j.autcon.2015.09.011": {
+  "checked": "2026-11-17",
+  "title": "Robotic timber construction — Expanding additive fabrication to new dimensions (2016)"
+ },
+ "doi:10.1016/j.autcon.2024.105444": {
+  "checked": "2026-11-17",
+  "title": "Feedback-driven adaptive multi-robot timber construction (2024)"
+ },
+ "doi:10.1016/j.engstruct.2009.03.023": {
+  "checked": "2026-11-17",
+  "title": "Plastic models for analysis of fully anchored light-frame timber shear walls (2009)"
+ },
+ "doi:10.1016/j.ergon.2014.06.007": {
+  "checked": "2026-11-17",
+  "title": "A biomechanical assessment of hand/arm force with pneumatic nail gun actuation systems (2014)"
+ },
+ "doi:10.1061/(ASCE)0733-9445(2001)127:4(433)": {
+  "checked": "2026-11-17",
+  "title": "Cyclic Analysis of Wood Shear Walls (2001)"
+ },
+ "doi:10.1061/(ASCE)0733-9445(2005)131:2(345)": {
+  "checked": "2026-11-17",
+  "title": "Analytical Model for Sheathing-to-Framing Connections in Wood Shear Walls and Diaphragms (2005)"
+ },
+ "doi:10.1109/IROS.2012.6386109": {
+  "checked": "2026-11-17",
+  "title": "MuJoCo: A physics engine for model-based control (2012)"
+ },
+ "doi:10.34770/0w80-p436": {
+  "checked": "2026-11-17",
+  "title": "Adaptive Multi-Robot Timber Construction Dataset (2024)"
+ },
+ "doi:10.5194/isprs-archives-XLIII-B1-2022-453-2022": {
+  "checked": "2026-11-17",
+  "title": "AUTONOMOUS SENSING AND LOCALIZATION OF A MOBILE ROBOT FOR MULTI-STEP ADDITIVE MANUFACTURING IN CONSTRUCTION (2022)"
+ }
+}

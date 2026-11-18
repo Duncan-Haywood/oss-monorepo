@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtLVucooYpKkkCHmHBp",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T06:06:34Z",
+  "ended": "2026-11-14T06:16:14Z",
+  "wall_minutes": 9.87,
+  "tokens_in": 4886393,
+  "tokens_out": 29687,
+  "cost_usd": 2.3105,
+  "tool_calls": 55,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15755",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "`git checkout -b` on a branch the container had already created stopped an && chain before the commit; the push sent main's tip to the work branch (harmless, then committed and pushed properly)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Recommends `git fetch --deepen=500 origin main` for history; after any --shallow-since fetch (which several tools run) that fails with 'error in object: unshallow'. `python3 platform/ci/shallow_repair.py` fixes the clone; CLAUDE.md is control plane so not edited."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "measure's 14-day --shallow-since fetch does not go through platform/ci/shallow_repair.py (control plane, not wired here); it can fail or leave the bad entry for the next tool."
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "The 2026-11-13T23:31 'shorter than 6h after the suggested fetch' report was already fixed by #15677 (7 h window); friction tables still list it as live because only the file's own date is compared."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-one-bad-line-in-git-shallow.md",
+    "docs/reports/shallow-fetch-repair-2026-11-14.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (backlog: owner rows only). main_health 66/66 green. Checked friction candidates: pick_track shallow message (fixed by #15677), post front-matter field naming (already fixed), pyenv stdout (already fixed). The quality queue's back-fetch failed in this session: reproduced as a git/GitHub shallow bug (depth=1, then --shallow-since 7h ok, then --shallow-since 2 days rc 128 'error in object: unshallow'); dropping absent-object lines from .git/shallow fixes it (891 commits fetched). New platform/ci/shallow_repair.py, wired into quality_metrics, pick_track, allocate, workctl, direction/report. Queue went 5/5 unknown -> answered in 20 s. 24 run records (2026-10-15..24) hit the same error. Tests: test_shallow_repair 5 OK, quality 40 OK, router 96 OK, work/direction/research _shared OK. No backlog ids touched.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "21558234-6722-5bfe-8af9-d155359df261",
+    "transcripts": 1,
+    "first": "2026-11-14T06:06:34Z",
+    "last": "2026-11-14T06:16:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 103,
+        "output": 29687,
+        "thinking": 8175,
+        "cache_read": 4791537,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94753,
+        "api_equivalent_usd": 2.3105,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 103,
+      "output": 29687,
+      "thinking": 8175,
+      "cache_read": 4791537,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94753,
+      "api_equivalent_usd": 2.3105,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 51,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.87,
+      "active_minutes": 9.87,
+      "model_minutes": 5.72,
+      "tool_minutes": 4.15,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "diagnose a git shallow-protocol failure, write helper + tests, wire 5 call sites, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 129.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

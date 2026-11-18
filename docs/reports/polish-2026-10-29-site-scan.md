@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: whole-site structural scan, and what is still weakest
 
 **What I did.** Built the site (`node platform/pages/build.mjs`, 3,490 `index.html`) and scanned every

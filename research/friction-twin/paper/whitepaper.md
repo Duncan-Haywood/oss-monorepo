@@ -3,7 +3,10 @@
 *Stylised: a point mass with viscous plus Coulomb friction, closed forms plus a fine-step RK4 check; pure Python, every number is from `experiments/results.txt` (deterministic, under 1 s). The "real" system is itself simulated; no lab or field data, no noise. Negative and out-of-model results are marked.*
 
 ## Question
-Sliding friction in joints, wheels and gearboxes has a dry (Coulomb) part that does not vanish at low speed. A twin that models friction as viscous only, `m v' = −k v`, with `k` fitted to logged decelerations, is the default in many simulators. How wrong is its stopping distance, where does the error change sign, and can any single viscous `k` be made safe over a wide speed range?
+Sliding friction in joints, wheels and gearboxes has a dry (Coulomb) part that does not vanish at low speed. A twin that models friction as viscous only, `m v' = −k v`, with `k` fitted to logged decelerations, is a common simplification in hand-built twins and controller models (mainstream physics engines such as MuJoCo, through `frictionloss`, do offer a dry-friction term). How wrong is its stopping distance, where does the error change sign, and can any single viscous `k` be made safe over a wide speed range?
+
+## What is known and what this note adds
+None of the individual results below is new. The stopping time and distance of a mass under linear-plus-constant drag are textbook closed forms; the bias of a least-squares slope forced through the origin when the true relation has an intercept is standard regression; and fitting a constant plus speed-dependent road load to coast-down data is the industry procedure (SAE J1263 and SAE J2263 fit `F = A + Bv + Cv²`, the affine repair here plus a quadratic term). Friction modelling and identification are surveyed by Armstrong-Hélouvry et al. (1994) and Olsson et al. (1998). What this note adds is a small, checked worked example for digital-twin readers: how far a viscous-only twin's stopping distance is off, where the error changes sign, and that no single viscous gain is safe over a wide speed range. It is teaching material, not a research contribution (correction of 2026-11-12, quality audit round 53, `portfolio/quality/audits/2026-11-12-friction-twin.json`).
 
 ## Model
 Real: `m v' = −b v − c` for `v > 0` (it stops at a finite time and stays). Integrating `dx = m v dv/(−(bv+c))` gives exactly `T(v0) = (m/b) ln(1 + b v0/c)` and `D(v0) = (m/b)[v0 − (c/b) ln(1 + b v0/c)]`, which tends to `m v0²/(2c)` at low speed and `m v0/b` at high speed. Twin: `D_tw = m v0/k`, it slows as `e^{−kt/m}` and never stops. Fit: least squares of deceleration on speed through the origin, `k = Σ a v/Σ v²`; for speeds uniform on `[v1, v2]`, `k = b + c·E[v]/E[v²]`, always above `b`. Affine regression on `(1, v)` recovers `(b, c)` and is the repair when the model class is allowed to change.
@@ -23,6 +26,8 @@ One degree of freedom, symmetric friction, no stiction or Stribeck dip, no noise
 Stick-slip under a position loop with the same friction (joint with `deadband-twin`); noisy-log identification of `(b, c)` and its sample size; Stribeck curves; certifying a braking margin from the affine twin plus a confidence set (link to `twin-certification`).
 
 ## References
+- SAE J1263 (rev. 2010). *Road Load Measurement and Dynamometer Simulation Using Coastdown Techniques.* SAE International.
+- SAE J2263 (rev. 2020). *Road Load Measurement Using Onboard Anemometry and Coastdown Techniques.* SAE International.
 - Olsson, H., Åström, K. J., Canudas de Wit, C., Gäfvert, M. & Lischinsky, P. (1998). Friction models and friction compensation. *European Journal of Control* 4(3), 176–195.
 - Armstrong-Hélouvry, B., Dupont, P. & Canudas de Wit, C. (1994). A survey of models, analysis tools and compensation methods for the control of machines with friction. *Automatica* 30(7), 1083–1138.
 - Zhao, W., Queralta, J. P. & Westerlund, T. (2020). Sim-to-real transfer in deep reinforcement learning for robotics: a survey. *IEEE SSCI*.

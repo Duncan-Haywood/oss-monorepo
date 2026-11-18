@@ -58,6 +58,9 @@ const TYPES = {
   780: "invoice",
   877: "invoice",
   935: "invoice",
+  // PINT's InvoiceTypeCode list (PINT-UBL 1.1) adds 480; Japan's invoice for a seller not
+  // registered for consumption tax and the UAE's commercial invoice use it (2026-11-12).
+  480: "invoice",
   81: "credit_note",
   83: "credit_note",
   396: "credit_note",

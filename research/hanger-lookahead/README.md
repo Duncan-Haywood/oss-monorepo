@@ -1,8 +1,8 @@
 # hanger-lookahead — should a laundry-hanging arm also steer clear of the other arm's next pick? A paired test on 1000 loads
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-lookahead/
+**Live page:** https://marisstella.app/research/hanger-lookahead/
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-lookahead/
+**Live page:** https://marisstella.app/research/hanger-lookahead/
 
 [`hanger-avoidpaired`](../hanger-avoidpaired) showed that picking a garment clear of the other arm's pick in progress gains a little (+1 to +10 garments an hour). Its first next step was to plan against the other arm's *next* move. **That does not help: lookahead is measurably worse than avoiding the current pick in 14 of 18 settings** (up to −11.3 an hour for aiming at 0.15 m), indistinguishable from it in the other 4, and better in none (best: pinching at 0.30 m, +0.40, interval −0.03 to 0.84). A negative result.
 

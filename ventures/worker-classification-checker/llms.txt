@@ -6,7 +6,7 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/worker-classification-checker/)
+- [The tool](https://marisstella.app/worker-classification-checker/)
 
 ## Source
 

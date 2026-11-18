@@ -1,0 +1,251 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/roofing-bid-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-13-q-5db1",
+ "drawn_by": "sample",
+ "round": 71,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior residential roofing estimator who bids asphalt reroofs from aerial measurement reports and site walks. They would check first that footprint-to-squares by pitch, waste and tear-off layers are right, that margin is taken on price and not as a markup, that starter/ridge/drip edge/ice barrier are not double counted or missed, whether a measured squares figure from an aerial report can be entered, and whether a deck-replacement allowance exists",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Independent Python model (scratchpad/roof/indep.py, imports nothing from the venture) built from the trade definitions: square = 100 sq ft of surface, pitch factor sqrt(1+(rise/12)^2) checked against the published pitch-multiplier table (4/12 1.054, 6/12 1.118, 10/12 1.302, 12/12 1.414), waste on new covering only, margin as share of price. Shipped example (1,800 sq ft at 6/12 + 400 at 4/12, 1 layer, 10% waste, $140+$22/sq, 1.8 + 1.0 h/sq, $35 at 30% burden, $35/sq dump, $450 dumpster, $250 permit, 15% overhead, 20% margin): squares 24.341, material squares 26.775, 72.536 h, cost $11,085.87, price $13,857.34, $569.30/sq, $6.30/footprint sq ft, $191.04/h: identical to `node -e` on calc.mjs to the cent. Steep case (12/12 + 10/12, 2 layers): 30.663 squares, 61.33 tear-off squares, 183.06 h, cost $19,652.96, price $24,566.20, $11.17/ft: identical. Markup-vs-margin FAQ ($10,000 cost: +20% = $12,000 at 16.7% margin; 20% margin = $12,500) recomputed. Not 4: the method double counts starter/ridge (waste described as covering them while the accessories lump also does) and has no linear-foot items; correct arithmetic of a simplified model.",
+  "completeness": "README features checked: squares by pitch per section (works), waste on covering only (works), tear-off by layers (works), steepness multiplier (works), loaded labor, overhead, margin-on-price (works), price per square / per house sq ft / effective hourly / walk-away (all reported, index.html:482-495), proposed price scoring (works, incl. below-break-even flag), Copy bid summary and Copy share link (share.mjs, tested), printable proposal with deposit split (buildProposal: 30% of $13,857.34 -> $4,157.20 + $9,700.14, valid-until 2026-12-13, sums to the cent). Four article/comparison pages present and linked. Limitations section honest (no linear takeoff, coarse steepness, no tax). Live site could not be loaded from this session (proxy 403 on marisstella.app), so served state unverified.",
+  "verification": "`cd ventures/roofing-bid-calculator && node --test '*.test.mjs'`: 138 tests, 138 pass, 0.31 s (Node 22.23.4). Eight mutants via platform/ci/quality_mutate.py against calc.mjs: 6 caught by the full suite (dump on surface not tear-off squares, tear-off hours without steep multiplier, underlayment on squares without waste, 10-12/12 multiplier 1.5->1.4, overhead excluding permit, hours share from install hours only), 2 survived (per-section laborCost using unburdened wage: a dead field, nothing reads it; steep boundary rise<=6 -> rise<7, only differs for fractional pitch 6<r<7 which the UI step=1 discourages). Weakness: calc.test.mjs on its own misses 2 of the 4 live core mutants run against it alone (tear-off steep multiplier, underlayment base); they are caught only because vs-a-flat-price-per-house-square-foot.test.mjs pins the page's dollar figures to calculateBid output. Golden values exist, but in a marketing-page test, not the engine's.",
+  "craft": "Read calc.mjs (222 lines), calc.test.mjs, the script block of index.html (readInput/update/summaryText), proposal.mjs buildProposal. Pure, documented, no DOM in the engine, inputs validated for NaN/negative, single readInput builder. Defects: number() turns an empty string into 0 (Number('') === 0, and `?? 0` never catches ''), and the UI passes raw .value strings, so a cleared field silently prices as zero (blank wage -> $9,113.03 bid with $0 labor, no warning; blank pitch -> flat; blank layers -> no tear-off); per-section laborCost is computed and never used (calc.mjs:147); index.html is a 765-line single file with inline styles and script.",
+  "claims": "Checked against code and recomputation: README '1,800 sq ft ranch at 6/12 is about 20.1 squares, 12/12 about 25.5' (20.12, 25.46: pass); article '22.1 squares with 10% waste' (22.14: pass); '12/12 is 41% more surface' (1.414: pass); vs-flat page $13,857.34 / $11,085.87 / $6.30 / $19,652.96 / $24,566.20 / $11.17 / 1.77x / $5,795.62 / $10,708.86 (all recomputed: pass); index FAQ 'one square short for every eight ordered' (18/2.12 = 8.5: pass); steep steps on index/article/README match steepLaborMultiplier (pass); presets labelled as ballpark, not a benchmark (honest, uncited). Disclaimer present on index and all four articles; usage tracking documented and opt-out. Minor: vs-flat page:105 says the job is $5,795.62 below cost 'before counting' the $10,708.86 shortfall, which already contains the $5,795.62; article:36 'forty percent more material' is vs the 18-square footprint, not vs the 6/12 roof it follows (26%). llms.txt lists github.io URLs, which build_pages_site.py rewrites at deploy (source-only, not a defect).",
+  "fitness": "Job walked through: price a two-section reroof, compare a homeowner's shopped price, print a proposal. That works end to end. A senior estimator hits gaps in the first hour: (1) the input is footprint only; the usual measurement source (aerial report or a measured roof) gives surface squares by pitch, and entering those means dividing by the pitch factor by hand, or entering pitch 0 and losing the steep multiplier; (2) no deck-replacement allowance (per-sheet OSB/plywood), the most common reroof change order; (3) no linear-foot takeoff for drip edge, starter, ridge cap, valleys, or ice-barrier at eaves, so those sit in one lump; (4) labor is hourly only, while many residential crews are paid per square, which can be approximated only by setting hours = 1 and wage = rate, which then gets burdened and steep-multiplied; (5) one waste percent for all sections (a cut-up hip garage and a simple gable main share it). Usable as a margin check, not as the estimate of record.",
+  "domain": "Against standard estimating practice and manufacturer installation guidance (GAF / Owens Corning: field shingles bought at 3 bundles per square with a waste factor of about 10% on simple gables and 15% or more on hip and cut-up roofs; starter and hip/ridge sold as separate products by linear foot; IRC R905.1.2 ice barrier at eaves where required; NRCA steep-slope practice). Right: pitch factor, squares, waste on new covering only, tear-off by layers, margin on price, overhead on direct cost. Departures: waste is documented as covering 'cuts, starter, ridge, and valleys' (index.html:269, calc.mjs:78) while the accessories lump is labelled 'ridge, starter, flashing' (index.html:155), a double count or at least contradictory guidance; a single waste rate across sections; ice barrier, drip edge and decking not modelled; steep charge starts at 7/12 (many shops start at 8/12, labelled a starting point, acceptable)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "pitch factor at 4/12, 6/12, 10/12, 12/12 and squares for 1,800 sq ft footprint",
+   "method": "published roofing pitch-multiplier table (1.054/1.118/1.302/1.414) and square = 100 sq ft of surface",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/95f012f7-4c61-5a40-8a51-9d7c3b5e2898/scratchpad/roof/indep.py",
+   "expected": "1.054/1.118/1.302/1.414; 1,800 at 6/12 = 20.12 sq, +10% = 22.14, at 12/12 = 25.46",
+   "observed": "pitchFactor 1.0541/1.1180/1.3017/1.4142; calc totals match 20.12/22.14/25.46",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "shipped example bid (1,800 @6/12 + 400 @4/12, 1 layer, page defaults)",
+   "method": "independent hand model in Python from trade definitions, nothing imported from calc.mjs",
+   "command": "python3 .../scratchpad/roof/indep.py vs node -e \"import('./calc.mjs').then(({calculateBid})=>...)\" in ventures/roofing-bid-calculator",
+   "expected": "24.341 sq, 26.775 material sq, 72.536 h, cost $11,085.87, price $13,857.34, $569.30/sq, $6.30/ft, $191.04/h",
+   "observed": "24.3410, 26.7751, 72.536 h, $11,085.87, $13,857.34, $569.30, $6.30, $191.04",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "steep two-layer variant (1,800 @12/12 + 400 @10/12, 2 layers)",
+   "method": "same independent model; steep multiplier 1.5 for 10-12/12, tear-off squares x layers",
+   "command": "python3 .../scratchpad/roof/indep.py",
+   "expected": "30.663 sq, 61.33 tear-off sq, 183.06 h, cost $19,652.96, price $24,566.20, $11.17/ft",
+   "observed": "30.6627, 183.056 h, $19,652.96, $24,566.20, $11.17",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "markup vs margin FAQ and proposal deposit split",
+   "method": "hand arithmetic: 10000*1.2, 2000/12000, 10000/0.8; 30% of $13,857.34",
+   "command": "node -e \"import('./proposal.mjs').then(({buildProposal})=>...price:13857.343842,depositPercent:30...)\"",
+   "expected": "$12,000 / 16.7% / $12,500; deposit $4,157.20 + balance $9,700.14 = $13,857.34",
+   "observed": "$4,157.20 + $9,700.14, valid until 2026-12-13",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/roofing-bid-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "tests 138, pass 138, fail 0, 309 ms",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "blank input field",
+   "method": "pass '' as the UI does for a cleared <input type=number>",
+   "command": "node -e \"calculateBid({...base, hourlyWage: ''})\"",
+   "expected": "an error like the 'abc' case ('Hourly wage must be a number')",
+   "observed": "laborCost 0, price $9,113.03, no error; blank pitch -> factor 1, blank layers -> 0 tear-off",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "vs-flat page dollar figures ($13,857.34, $11,085.87, $19,652.96, $24,566.20, $5,795.62, $10,708.86, 1.77x)",
+   "method": "independent model",
+   "command": "python3 .../scratchpad/roof/indep.py",
+   "expected": "same figures",
+   "observed": "all match; but 'before counting the $10,708.86' double counts, since 10,708.86 already contains 5,795.62",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "steepness steps stated on index, article and README match code",
+   "method": "read steepLaborMultiplier and the three pages",
+   "command": "grep -n '1.25\\|25%' index.html how-to-price-a-roof-by-the-square.html README.md",
+   "expected": "<=6/12 1.0, 7-9 1.25, 10-12 1.5, >12 2.0 everywhere",
+   "observed": "consistent in all three and calc.mjs:62-68",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer and usage tracking on user-facing pages",
+   "method": "read index.html, the four article pages, usage.mjs",
+   "command": "grep -c 'No warranty' *.html",
+   "expected": "disclaimer on every page; tracking documented, opt-out, DNT/GPC respected",
+   "observed": "disclaimer on all five pages; usage.mjs counts six events locally, opt-out in footer",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/roofing-bid-calculator/",
+   "expected": "200",
+   "observed": "proxy CONNECT 403 from this session; not verified",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "enter an aerial-report measurement (surface squares by pitch)",
+   "method": "walk the job as an estimator holding a measurement report",
+   "command": "read calc.mjs:118-124 and index.html section row inputs",
+   "expected": "a squares or surface-area input per section",
+   "observed": "footprint only; the user must divide by the pitch factor by hand, or enter pitch 0 and lose the steep multiplier",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "starter and ridge accounting",
+   "method": "manufacturer practice: starter and hip/ridge are separate products by linear foot; waste factor ~10% gable / 15% hip applies to field shingles",
+   "command": "grep -n 'starter' index.html calc.mjs README.md",
+   "expected": "counted once, by linear foot or in one place",
+   "observed": "waste documented as covering starter and ridge (index.html:269, calc.mjs:78) and accessories lump labelled 'ridge, starter, flashing' (index.html:155)",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:161",
+   "change": "dumpPerSquare * totalTearOffSquares -> dumpPerSquare * totalSquares",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:131",
+   "change": "tearOffHoursPerSquare * tearOffSquares * steep -> tearOffHoursPerSquare * tearOffSquares",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs (calc.test.mjs alone: survives)"
+  },
+  {
+   "where": "calc.mjs:159",
+   "change": "underlaymentPerSquare * totalMaterialSquares -> underlaymentPerSquare * totalSquares",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs proposal.test.mjs share.test.mjs vs-a-flat-price-per-house-square-foot.test.mjs (calc.test.mjs alone: survives)"
+  },
+  {
+   "where": "calc.mjs:66",
+   "change": "if (rise <= 12) return 1.5; -> if (rise <= 12) return 1.4;",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs proposal.test.mjs share.test.mjs vs-a-flat-price-per-house-square-foot.test.mjs"
+  },
+  {
+   "where": "calc.mjs:167",
+   "change": "directCost * overheadRate / 100 -> (directCost - permitFee) * overheadRate / 100",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:147",
+   "change": "laborCost: laborHours * loadedWage -> laborCost: laborHours * hourlyWage (per-section, unused field)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:64",
+   "change": "if (rise <= 6) return 1; -> if (rise < 7) return 1; (differs only for fractional pitch)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:183",
+   "change": "hoursShare from section.laborHours -> section.installHours",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "A cleared input silently prices as zero: number() does Number('') === 0 and the `?? 0` fallbacks never catch '', while the UI passes raw <input>.value strings. Blank wage gives a $9,113.03 bid with $0 labor and no warning; blank pitch prices flat, blank layers drops tear-off. 'abc' is rejected, '' is not",
+   "where": "ventures/roofing-bid-calculator/calc.mjs:40",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "No way to enter measured surface squares (the figure an aerial measurement report or a roof measurement gives); sections take footprint only, so the estimator back-computes footprint = squares*100/pitch factor by hand or enters pitch 0 and loses the steep-labor multiplier",
+   "where": "ventures/roofing-bid-calculator/calc.mjs:118",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No deck-replacement allowance (per-sheet OSB/plywood) and no linear-foot items (drip edge, starter, ridge cap, valleys, ice barrier at eaves where IRC R905.1.2 requires it); all sit in one accessories lump. Deck replacement is the most common reroof change order",
+   "where": "ventures/roofing-bid-calculator/calc.mjs:160",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Starter and ridge counted twice in the guidance: waste is documented as covering 'cuts, starter, ridge, and valleys' while the accessories lump is labelled 'ridge, starter, flashing'. Manufacturers sell starter and hip/ridge by linear foot, separate from the field-shingle waste factor",
+   "where": "ventures/roofing-bid-calculator/index.html:269",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "One waste percent for all sections; manufacturer guidance is about 10% for simple gables and 15% or more for hip and cut-up roofs, so a cut-up garage and a gable main cannot be priced at their own waste",
+   "where": "ventures/roofing-bid-calculator/calc.mjs:128",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Engine tests carry no golden dollar values: calc.test.mjs alone lets 2 of 4 live core mutants survive (tear-off steep multiplier, underlayment base); they are caught only by the marketing-page test that pins the vs-flat page's figures",
+   "where": "ventures/roofing-bid-calculator/calc.test.mjs:98",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Per-section laborCost is computed and never read by the page, summary or proposal (dead output field)",
+   "where": "ventures/roofing-bid-calculator/calc.mjs:147",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "'prices it $5,795.62 below its own break-even cost, before counting the $10,708.86 it falls short of this calculator's own price' reads as additive, but $10,708.86 already contains the $5,795.62 (the shortfall beyond cost is $4,913.24); article:36 'forty percent more material' compares to the 18-square footprint, not to the 6/12 roof in the previous sentence (26%)",
+   "where": "ventures/roofing-bid-calculator/vs-a-flat-price-per-house-square-foot.html:105",
+   "category": "overclaim",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15589"
+ ],
+ "verdict": "A correct, honest, well-tested squares-and-pitch bid calculator. Every number I recomputed with an independent model from the trade definitions (pitch-factor table, 100 sq ft square, waste on new covering only, margin on price) matches the code and the pages to the cent: the shipped example at $13,857.34 / $569.30 per square and the steep two-layer case at $24,566.20. 138 tests pass and 6 of 8 seeded mutants are caught, though the engine's own test file misses three that only a marketing-page test pins. It meets the bar on correctness, claims and verification. A senior roofing estimator would use it as a margin check but not as the estimate of record: it cannot take measured squares from an aerial report, has no deck-replacement or linear-foot items (and double counts starter and ridge between waste and the accessories lump), uses one waste rate for every section, and silently prices a cleared field as zero."
+}

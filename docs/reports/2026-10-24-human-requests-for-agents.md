@@ -1,3 +1,9 @@
+---
+kind: brief
+topics: [human-requests]
+date: 2026-10-24
+tagged: auto
+---
 # How people steer this repository: brief for an agent reader
 
 **Date:** 2026-10-24. **Reader:** an agent handling a request from a person,

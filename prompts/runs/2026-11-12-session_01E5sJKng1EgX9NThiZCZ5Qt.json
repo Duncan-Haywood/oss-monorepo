@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKng1EgX9NThiZCZ5Qt",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T03:08:53Z",
+  "ended": "2026-11-12T03:18:24Z",
+  "wall_minutes": 10.1,
+  "tokens_in": 4589234,
+  "tokens_out": 29734,
+  "cost_usd": 2.3384,
+  "tool_calls": 48,
+  "task": "explore: quick-pick-survey flagship item (a), does the 'between X, Y, Z' list hold the true favourite; replace it with a refit credible set",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14985",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "npm ci --ignore-scripts skipped prisma generate, so the first npm run verify failed typecheck on @prisma/client; fixed with npx prisma generate (setup error, not a code error)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/quick-pick-survey/AGENTS.md",
+      "issue": "says run npm run verify but not that a fresh clone needs `npx prisma generate` (or npm ci with scripts) first; a cloud session that installs with --ignore-scripts gets dozens of misleading TS errors"
+    },
+    {
+      "file": "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md",
+      "issue": "'The clear-top-pick claim' called the 'it's between X, Y, Z' line true without measuring it; it held the favourite 68-74% of the time. Corrected in this PR."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-quick-pick-survey-who-its-between.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md#who-its-between-2026-11-12-shipped-on-the-insights-screen"
+  ],
+  "goal": null,
+  "notes": "Idea (explore): measure whether the insights card's contender list holds the true favourite, and replace 'the three highest' with a 95% credible set from the Bradley-Terry Laplace refit (src/lib/favouriteSet.ts). Measured on 540 synthetic respondents per row x 2 seed sets: three highest 0.68-0.74 coverage, set 0.88-0.92 at mean size 5-6. Found undercoverage caused by the prior being wider than simulated truth (winner's curse); a narrower prior reaches nominal but was not shipped (would tune to the simulator). Verification: npm run verify (typecheck, lint, unit tests, build) and the insights integration tests against scripts/test-db.sh Postgres; the new integration case fails with the old route.ts and passes with the new one.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "27b3df97-473c-5a07-8f0b-c60eace988f0",
+    "transcripts": 1,
+    "first": "2026-11-12T03:08:53Z",
+    "last": "2026-11-12T03:18:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 86,
+        "output": 29734,
+        "thinking": 4684,
+        "cache_read": 4483306,
+        "cache_write_5m": 0,
+        "cache_write_1h": 105842,
+        "api_equivalent_usd": 2.3384,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 86,
+      "output": 29734,
+      "thinking": 4684,
+      "cache_read": 4483306,
+      "cache_write_5m": 0,
+      "cache_write_1h": 105842,
+      "api_equivalent_usd": 2.3384,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 43,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.1,
+      "active_minutes": 10.1,
+      "model_minutes": 6.57,
+      "tool_minutes": 3.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician designing, measuring and shipping a calibrated contender set with tests and a write-up: about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 427.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

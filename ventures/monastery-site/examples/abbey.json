@@ -1,0 +1,163 @@
+{
+  "community": {
+    "name": "Saint Aelred's Abbey",
+    "kind": "monks",
+    "order": "Benedictine monks",
+    "place": "Larkspur Hollow",
+    "tagline": "A community of Benedictine monks living the Rule of Saint Benedict in prayer, work and hospitality.",
+    "founded": "1952",
+    "patron": "Saint Aelred of Rievaulx",
+    "diocese": "A made-up diocese",
+    "motto": "Ut in omnibus glorificetur Deus",
+    "superior": "Abbot Gregory (fictional)",
+    "fictional": true
+  },
+  "site": { "url": "", "theme": "benedictine", "language": "en" },
+  "contact": {
+    "address": { "street": "100 Abbey Road", "city": "Larkspur Hollow", "region": "VT", "postalCode": "05000", "country": "United States" },
+    "phone": "(555) 010-0142",
+    "phoneHours": "Porter's lodge, 9 am to 5 pm, Monday to Saturday",
+    "email": "office@example.org",
+    "vocationsEmail": "vocations@example.org",
+    "guestEmail": "guesthouse@example.org",
+    "mapUrl": "https://www.openstreetmap.org/"
+  },
+  "home": {
+    "headline": "Seeking God together in prayer, work and hospitality",
+    "lede": "Twenty-two monks living the Rule of Saint Benedict in the hills, singing the Divine Office seven times a day.",
+    "welcomeTitle": "Welcome",
+    "welcome": [
+      "Our life is simple: we pray, we work, and we receive guests as Christ. The church is open from Vigils to Compline, and you are welcome at every hour of the Office.",
+      "This website is a made-up example of the free monastery site template. Every name and detail here is invented."
+    ]
+  },
+  "about": {
+    "lede": "A monastery is a school of the Lord's service. Here is how we live it.",
+    "intro": ["Saint Aelred's was founded by six monks who came to the hills to build a house of prayer. Today the community farms, makes bread and receives about two thousand guests a year."],
+    "charism": ["We follow the Rule of Saint Benedict: the Work of God, sacred reading, manual labour and a stable life in one community under an abbot. Our particular work is hospitality, and the guesthouse is the heart of it."],
+    "values": [
+      { "title": "Prayer", "text": "The Divine Office sung in choir seven times a day, and the conventual Mass." },
+      { "title": "Work", "text": "The farm, the bakery and the bindery support the community and the poor." },
+      { "title": "Hospitality", "text": "Guests stay with us for a day or a week of silence and prayer." }
+    ],
+    "dailyLife": ["The day begins with Vigils before dawn and ends with Compline and the Great Silence. Between them come Lauds, Mass, the little hours, Vespers, the morning and afternoon work, and lectio divina."],
+    "history": [
+      { "year": "1952", "text": "Six monks arrive and convert a dairy barn into the first chapel." },
+      { "year": "1971", "text": "The abbey church is consecrated." },
+      { "year": "2019", "text": "The new guesthouse opens with twenty rooms." }
+    ]
+  },
+  "horarium": {
+    "lede": "Visitors are welcome at every hour marked open to the public. Sunday times differ.",
+    "days": [
+      { "label": "Monday to Saturday", "items": [
+        { "time": "4:30 am", "name": "Vigils", "public": true },
+        { "time": "6:30 am", "name": "Lauds", "public": true },
+        { "time": "7:00 am", "name": "Conventual Mass", "public": true },
+        { "time": "8:15 am", "name": "Terce, then work", "public": false },
+        { "time": "12:00 pm", "name": "Sext", "public": true },
+        { "time": "12:20 pm", "name": "Dinner", "public": false },
+        { "time": "2:00 pm", "name": "None, then work", "public": false },
+        { "time": "5:30 pm", "name": "Vespers", "public": true },
+        { "time": "7:30 pm", "name": "Compline", "public": true, "note": "The Great Silence follows." }
+      ] },
+      { "label": "Sundays and solemnities", "items": [
+        { "time": "5:00 am", "name": "Vigils", "public": true },
+        { "time": "7:30 am", "name": "Lauds", "public": true },
+        { "time": "10:00 am", "name": "Conventual Mass", "public": true },
+        { "time": "4:30 pm", "name": "Vespers and Benediction", "public": true },
+        { "time": "7:30 pm", "name": "Compline", "public": true }
+      ] }
+    ],
+    "note": "Times change on some feasts. Call the porter's lodge before a long journey."
+  },
+  "vocations": {
+    "lede": "We welcome Catholic men who feel drawn to a life of prayer, work and stability in community.",
+    "intro": ["Discernment begins with a letter and usually continues with a visit. There is no pressure and no commitment: a monastery that is right for you will still be here after you have taken your time."],
+    "director": { "name": "Father Benedict (fictional)", "title": "vocation director", "email": "vocations@example.org" },
+    "requirements": [
+      "Catholic men, baptised and confirmed, between about 21 and 40",
+      "Good physical and psychological health, able to follow the common life",
+      "A college degree or several years of steady work",
+      "Free of debts, or with a clear plan to settle them before entry",
+      "At least two years since entering or returning to the Church"
+    ],
+    "requirementsNote": "Each man is different; write to us even if you do not fit every point.",
+    "stages": [
+      { "name": "Visits and live-in", "duration": "a few weeks", "text": "Stay in the guesthouse, then live a week or two inside the enclosure with the monks." },
+      { "name": "Postulancy", "duration": "6 to 12 months", "text": "You live the monastic day while keeping your own clothes, and the community gets to know you." },
+      { "name": "Novitiate", "duration": "1 year", "text": "You receive the habit and study the Rule, the Psalms and monastic history under the novice master." },
+      { "name": "Temporary vows", "duration": "3 years", "text": "Vows of stability, conversion of life and obedience, renewed until solemn profession." },
+      { "name": "Solemn vows", "duration": "for life", "text": "Lifelong profession in this community. Some monks are later called to the priesthood." }
+    ],
+    "retreats": [
+      { "name": "Come and See weekend", "start": "2027-03-12", "end": "2027-03-14", "text": "Three days of the Office, work alongside the monks and conversations with the vocation director." },
+      { "name": "Summer monastic experience", "start": "2027-07-05", "end": "2027-07-18", "text": "Two weeks living the monastic day for men 21 to 40." }
+    ],
+    "faq": [
+      { "q": "I have student loans. Can I still apply?", "a": "Yes, write to us. We will talk through a plan to pay them before entry; many men have done this." },
+      { "q": "Do I need to know Latin or music?", "a": "No. You will learn the chant in the novitiate, and Latin as far as the Office needs." },
+      { "q": "Can my family visit?", "a": "Yes. Families are welcome in the guesthouse, and monks may visit home in some circumstances." },
+      { "q": "How long does it take to make vows?", "a": "About two years to first vows, and three more to solemn vows." }
+    ]
+  },
+  "giving": {
+    "lede": "We live from the work of our hands and the generosity of friends. Your gift supports the care of our elderly monks, the formation of young monks and the guesthouse.",
+    "legalName": "Saint Aelred's Abbey, Inc. (fictional)",
+    "online": [
+      { "label": "Give online", "url": "https://example.org/give", "recurring": true },
+      { "label": "Give to the roof appeal", "url": "https://example.org/roof" }
+    ],
+    "onlineText": "Give by card or bank transfer on our secure donation page. A monthly gift is the steadiest help you can give.",
+    "check": { "payableTo": "Saint Aelred's Abbey", "memo": "Write the purpose in the memo line if your gift is for a particular need." },
+    "massIntentions": { "title": "Mass intentions", "text": "The monk-priests offer Mass for your intentions, living or deceased. Write to the office with the intention and an offering." },
+    "otherWays": [
+      { "title": "Stock and donor-advised funds", "text": "Write to the office for transfer instructions." },
+      { "title": "Gifts in kind", "text": "Seeds, tools and books for the library are always welcome. Please ask first." }
+    ],
+    "campaign": { "name": "The abbey church roof", "text": "The slate roof of the church is seventy years old and leaks in heavy rain.", "goal": 400000, "raised": 152000, "asOf": "2026-10-01", "url": "https://example.org/roof" },
+    "needs": [
+      { "title": "Care of our elderly monks", "text": "Six monks are over eighty. Your gifts provide for their nursing care at home in the monastery." },
+      { "title": "Formation", "text": "Books, study and travel for the novices and the young monks in vows." }
+    ],
+    "plannedGiving": { "text": "A bequest to the abbey supports monastic life for generations. Please speak with your own attorney; this is the information they will need.", "legalName": "Saint Aelred's Abbey, Inc. (fictional)", "taxId": "00-0000000 (fictional)" },
+    "taxStatement": "This is a made-up example. A real community writes here the tax statement its accountant gives it, or leaves it out.",
+    "email": "office@example.org"
+  },
+  "visit": {
+    "lede": "Guests are received as Christ (Rule of Saint Benedict, chapter 53). Come for an hour of prayer, a day of quiet or a private retreat.",
+    "publicPrayer": ["All are welcome at the Divine Office and at Mass in the abbey church. Visitors sit in the nave; the choir is reserved for the monks."],
+    "guesthouse": {
+      "title": "The guesthouse",
+      "text": ["Twenty single rooms for men and women making a private retreat of up to a week. Guests share the monks' meals in silence and may speak with a monk on request."],
+      "details": ["Stays of one to seven nights", "A suggested offering per night, and no one is turned away for lack of means", "Two rooms with step-free access"],
+      "email": "guesthouse@example.org"
+    },
+    "directions": ["Two hours by car from the nearest city. The nearest train station is 20 miles away; the guestmaster can sometimes meet a train."],
+    "etiquette": ["Please dress modestly in the church.", "Silence is kept in the cloister, the church and the guesthouse corridors.", "Photography is welcome outside, but not during the Office."]
+  },
+  "events": [
+    { "name": "Advent day of recollection", "start": "2026-12-05", "time": "9:30 am to 3:30 pm", "location": "Guesthouse conference room", "text": "Two conferences, Mass and Vespers with the monks. Lunch provided; registration requested." },
+    { "name": "Come and See weekend", "start": "2027-03-12", "end": "2027-03-14", "text": "For men discerning a monastic vocation.", "url": "vocations.html#retreats", "linkText": "About the weekend" },
+    { "name": "Feast of Saint Benedict", "start": "2027-07-11", "time": "10:00 am", "text": "Solemn Mass followed by a picnic for friends of the abbey." }
+  ],
+  "news": [
+    { "title": "Two novices receive the habit", "date": "2026-09-14", "body": ["On the feast of the Exaltation of the Cross, two postulants received the habit and began the novitiate.", "Please keep Brother Anselm and Brother Mark (fictional) in your prayers."] },
+    { "title": "Harvest at the farm", "date": "2026-10-20", "body": ["The orchard gave its best apple harvest in a decade, and the bakery's apple bread is back in the shop."] }
+  ],
+  "prayer": { "intro": ["The monks pray for every intention sent to us at Vespers each evening, and remember them at the conventual Mass on the first Friday of each month."] },
+  "shop": {
+    "lede": "Bread, honey and bookbinding from the monks' workshops.",
+    "url": "https://example.org/shop",
+    "items": [
+      { "name": "Abbey bread", "text": "Whole wheat and rye, baked on Tuesdays and Fridays." },
+      { "name": "Wildflower honey", "text": "From the abbey's thirty hives." },
+      { "name": "Hand-bound journals", "text": "Sewn and bound in the bindery." }
+    ],
+    "hours": "The shop by the gate is open Monday to Saturday, 10 am to 4 pm."
+  },
+  "newsletter": { "url": "https://example.org/newsletter", "text": "A letter from the Abbot three times a year." },
+  "media": { "livestream": "https://example.org/live" },
+  "social": [ { "label": "YouTube", "url": "https://example.org/youtube" }, { "label": "Instagram", "url": "https://example.org/instagram" } ],
+  "forms": { "action": "" }
+}

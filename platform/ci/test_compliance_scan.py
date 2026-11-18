@@ -66,6 +66,12 @@ class Scan(unittest.TestCase):
                    "<p>Jobber says it serves over 200,000 users (as of 2026-10).</p>")
         self.assertEqual(self.found("unsourced-competitor-figure"), ["ventures/a/vs-jobber.html"])
 
+    def test_competitor_professional_count_is_found_too(self):
+        self.write("ventures/a/vs-housecall-pro.html",
+                   "<p>It is used by over 200,000 field service professionals.</p>")
+        self.assertEqual(self.found("unsourced-competitor-figure"),
+                         ["ventures/a/vs-housecall-pro.html"])
+
     def test_real_key_is_found_and_placeholders_are_not(self):
         self.write("infra/notes.md", f"key = {REAL_AWS}\n")
         self.write("docs/example.md", "AKIAIOSFODNN7EXAMPLE and sk-ant-api03-" + "x" * 40 + "\n")
@@ -100,6 +106,26 @@ class Scan(unittest.TestCase):
         self.write("ventures/etsy-fee-calculator/index.html", "<p>Etsy fees</p>")
         self.assertEqual(scan.main(["--root", root, "--json"]), 0)
         self.assertEqual(scan.main(["--root", root, "--strict", "--json"]), 1)
+
+    def test_default_root_is_the_repository_root(self):
+        # The scan defaults to the checkout it lives in: platform/ci/ is two levels down.
+        self.assertTrue((scan.REPO_ROOT / "platform" / "ci" / "compliance_scan.py").is_file())
+
+    def test_text_of_skips_binary_suffixes_and_lockfiles_separately(self):
+        # Either condition alone must skip: a lockfile with a text body, and a
+        # .png whose name is not in SKIP_NAMES.
+        self.write("a/package-lock.json", "{}")
+        self.write("a/pic.png", "plain text")
+        self.write("a/ok.txt", "hello")
+        self.assertIsNone(scan.text_of(self.root / "a/package-lock.json"))
+        self.assertIsNone(scan.text_of(self.root / "a/pic.png"))
+        self.assertEqual(scan.text_of(self.root / "a/ok.txt"), "hello")
+
+    def test_cookie_scan_skips_test_files_and_non_source_suffixes_separately(self):
+        line = 'document.cookie = "id=1; max-age=999";'
+        self.write("ventures/ref/pages.test.mjs", line)  # a test file, source suffix
+        self.write("ventures/ref/notes.md", line)  # not a test, not a source suffix
+        self.assertEqual(self.found("tracking-cookie"), [])
 
 
 if __name__ == "__main__":

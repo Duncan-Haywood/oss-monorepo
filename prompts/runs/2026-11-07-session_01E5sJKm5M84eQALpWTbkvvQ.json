@@ -1,0 +1,53 @@
+{
+ "date": "2026-11-07",
+ "session": "https://claude.ai/code/session_01E5sJKm5M84eQALpWTbkvvQ",
+ "track": "quality",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-07T19:31:26Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13871",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "prompts/quality/prompt-0.md",
+   "issue": "Says use --seed <date>-b only if an open PR holds today's seed; earlier rounds already used -a..-d but the plain seed was still free, so the check needs the audits dir, not only open PRs."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/quality/prompt-0.md",
+   "why": "Step 4 asks for small safe fixes with tests; I fixed none (rounding, BASE_URL, tomllib touch published output) and left them open in the audit files.",
+   "did": "listed defects in audits and post",
+   "result": "no fix PRs"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-07-quality-audit-round-6.md"
+ ],
+ "goal": null,
+ "notes": "seed 2026-11-07; subjects einvoice-preflight, mcp-supply-chain-watch, wedding-day-timeline-builder, build-data, robofab-cell-fesc, platform/distribution; 1 of 6 meets bar (1 of 5 non-flagship); fix PRs none.",
+ "corrections": [],
+ "redteam": null
+}

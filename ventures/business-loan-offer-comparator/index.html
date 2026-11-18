@@ -166,7 +166,7 @@
       $("#flags").innerHTML = r.results.flatMap((x) => x.flags.map((f) => `<div class="finding"><h4><span class="pill medium">check</span>${esc(x.name)}</h4><p>${esc(f)}</p></div>`)).join("") || "<p class=\"note\">Nothing unusual flagged.</p>";
       report.hidden = false;
       status.textContent = "Done. Scroll down for the comparison.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

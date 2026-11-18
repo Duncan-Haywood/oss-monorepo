@@ -6,7 +6,7 @@ export const DAY = 86400000;
 export function parseCsv(text) {
   const rows = [];
   let row = [], cell = "", q = false;
-  const src = String(text).replace(/^﻿/, "");
+  const src = String(text).replace(/^\uFEFF/, "");
   const delim = (src.split("\n")[0].match(/\t/g) || []).length > (src.split("\n")[0].match(/,/g) || []).length ? "\t" : ",";
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
@@ -80,7 +80,7 @@ export function parseAuths(text) {
   if (rows.length < 2) { out.errors.push("Add a header row and at least one authorization."); return out; }
   const head = rows[0].map((h) => h.trim().toLowerCase());
   const col = {};
-  for (const [k, names] of Object.entries(ALIASES)) col[k] = head.findIndex((h) => names.includes(h));
+  for (const [k, names] of Object.entries(ALIASES)) col[k] = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   for (const k of ["client", "code", "approved", "start", "end"]) {
     if (col[k] < 0) { out.errors.push(`No ${k === "approved" ? "units approved" : k} column found. Expected a header such as "${ALIASES[k][0]}".`); }
   }

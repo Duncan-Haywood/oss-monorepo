@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKj915hrZ2rXe1TAiJw",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T15:52:30Z",
+  "ended": "2026-11-13T16:48:24Z",
+  "wall_minutes": 58.02,
+  "tokens_in": 8352947,
+  "tokens_out": 49585,
+  "cost_usd": 3.7491,
+  "tool_calls": 73,
+  "task": "Deepen flagship 9 (league-schedule-generator): the 19-team walk cost and a faster floor at 22-25 teams",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15528",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/README.md",
+      "issue": "'Pricing the balanced least' put the 19-team cost on out-of-budget balanced walks, and flagships.yaml's next: repeated it as 'cut the 19-team walk cost'; a CPU profile showed the walks under 1 s of 143 s, with the floor programme's double loop the real cost. Corrected in place."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took two next: items together (19-team cost and 22-25 floor) because one profile showed they had the same cause.",
+      "did": "One algorithmic change (minPlusStep) plus a page size limit raised from 21 to 22.",
+      "result": "Identical seasons and 3.8x less worker time over 15 runs; 22 teams gain 1-2 seasons per seed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-a-faster-break-floor-for-league-schedules.md",
+    "ventures/league-schedule-generator/README.md (A faster break floor)",
+    "ventures/league-schedule-generator/eval/faster-floor.txt"
+  ],
+  "goal": null,
+  "notes": "Profiled 19 teams seed 3 page run with node --cpu-prof: run/trial/popcount in orient.mjs about 140 of 143 s, walk 0.8 s. minPlusStep eliminates round r's host bits along paths/cycles; equal to the double loop on 300 random cases (byes, repeats). Same-machine A/B with cached lists, 16-20 teams x seeds 1-3, --page: identical results and frontiers on all 15; floorPricedS 484.9 -> 126.5 s. 22-25 teams with --max-teams 25: 22 gains on every seed in 35-64 s (page limit now 22), 23 nothing, 24-25 gain but take 136-426 s. Verification: python3 platform/ci/run_venture_tests.py league-schedule-generator -> ok (202.5 s); the suite includes the three new tests (orient 9, floor-priced 17); post front matter and link checks clean; venture-preflight clean; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "eab7f9fa-bad9-570b-8fbd-6396d8e04af0",
+    "transcripts": 1,
+    "first": "2026-11-13T15:52:30Z",
+    "last": "2026-11-13T16:50:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 130,
+        "output": 49585,
+        "thinking": 17867,
+        "cache_read": 8213552,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139265,
+        "api_equivalent_usd": 3.7491,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 130,
+      "output": 49585,
+      "thinking": 17867,
+      "cache_read": 8213552,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139265,
+      "api_equivalent_usd": 3.7491,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 69,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 58.02,
+      "active_minutes": 58.02,
+      "model_minutes": 8.48,
+      "tool_minutes": 49.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "profiling, deriving and testing an exact variable-elimination step for a DP, A/B over 27 timed runs, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 266.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

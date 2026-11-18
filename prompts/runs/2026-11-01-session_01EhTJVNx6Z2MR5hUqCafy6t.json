@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01EhTJVNx6Z2MR5hUqCafy6t",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T23:57:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 1 wall-framing-takeoff: ventilation fuzz test",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": 12438,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/CLAUDE.md",
+      "why": "Dropped a planned standalone ventilation calculator page: new calculators are discouraged; shipped an engine invariant test instead.",
+      "did": "fuzz test",
+      "result": "300 seeds, 74 valid roofs, all invariants held"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Ran node --test ventilation-fuzz.test.mjs ventilation.test.mjs: pass. Small slice; no real vent order available.",
+  "corrections": [],
+  "redteam": null
+}

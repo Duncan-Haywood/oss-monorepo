@@ -1,0 +1,32 @@
+# milestone 61: Spearman rho between tau(R2,R4) and gain = random - BOHB regret (points), over cells; 95% bootstrap over cells
+all | B 15 | bohb | n 50 | rho +0.19 [-0.13, +0.48]
+all | B 15 | bohb_r4first | n 50 | rho +0.21 [-0.11, +0.51]
+all | B 25 | bohb | n 50 | rho +0.14 [-0.18, +0.44]
+all | B 25 | bohb_r4first | n 50 | rho +0.14 [-0.18, +0.42]
+all | B 40 | bohb | n 50 | rho +0.08 [-0.24, +0.39]
+all | B 40 | bohb_r4first | n 50 | rho -0.06 [-0.38, +0.27]
+tight | B 15 | bohb | n 25 | rho +0.14 [-0.35, +0.58]
+tight | B 15 | bohb_r4first | n 25 | rho +0.12 [-0.32, +0.52]
+tight | B 25 | bohb | n 25 | rho +0.13 [-0.35, +0.60]
+tight | B 25 | bohb_r4first | n 25 | rho +0.03 [-0.43, +0.52]
+tight | B 40 | bohb | n 25 | rho +0.00 [-0.47, +0.46]
+tight | B 40 | bohb_r4first | n 25 | rho -0.18 [-0.61, +0.27]
+relaxed | B 15 | bohb | n 25 | rho +0.12 [-0.39, +0.56]
+relaxed | B 15 | bohb_r4first | n 25 | rho +0.13 [-0.38, +0.57]
+relaxed | B 25 | bohb | n 25 | rho +0.05 [-0.42, +0.47]
+relaxed | B 25 | bohb_r4first | n 25 | rho +0.09 [-0.42, +0.53]
+relaxed | B 40 | bohb | n 25 | rho +0.02 [-0.46, +0.45]
+relaxed | B 40 | bohb_r4first | n 25 | rho -0.08 [-0.57, +0.39]
+
+## five worst BOHB cells at 15 (regret %, tau R2) and five lowest-tau cells (tau, BOHB regret at 15)
+relaxed/barrel64: 15.9 %, tau 0.25
+tight/barrel64: 14.1 %, tau 0.49
+tight/adder_op16: 12.5 %, tau 0.77
+relaxed/barrel16: 7.6 %, tau 0.17
+tight/alu32: 7.6 %, tau 0.42
+--
+relaxed/barrel16: tau 0.17, bohb 7.6 %, rand 3.1 %
+relaxed/barrel64: tau 0.25, bohb 15.9 %, rand 15.1 %
+relaxed/sbox: tau 0.26, bohb 1.6 %, rand 1.4 %
+relaxed/mult16: tau 0.30, bohb 0.0 %, rand 3.7 %
+tight/alu8: tau 0.31, bohb 3.6 %, rand 5.5 %

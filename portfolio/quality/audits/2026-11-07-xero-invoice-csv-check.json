@@ -1,0 +1,78 @@
+{
+ "date": "2026-11-07",
+ "subject": "ventures/xero-invoice-csv-check",
+ "stratum": "venture",
+ "seed": "2026-11-07",
+ "auditor": "agent session (Claude), 2026-11-07 round 1",
+ "status": "audited",
+ "professional": "a senior bookkeeper/accountant who imports sales invoices into Xero regularly, for UK and US client organisations; first checks: does the cleaned file keep every date and amount meaning the same in the client's org date format, are tax-inclusive files handled, and do the rules match Xero's current template",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran calc.mjs on hand-built CSVs (scratchpad scripts t1.mjs, t2.mjs) and the page in Chromium/Playwright. Recomputed by hand: (1) Excel serial 46300 -> 2026-10-05 (45658 = 1 Jan 2025, +365 = 46023 = 1 Jan 2026, +277 days = 5 Oct) matches parseDate; (2) BOM + quoted-comma file: INV-1 net 2x57.50 + 1x12.00x0.9 = 125.80 matches summary.groups, and a TaxAmount 1.80 against 20% of 10.80 (=2.16) is rightly flagged; (3) 1,500 x 1.234 = 1851 and '1.234,56' -> 1234.56 match; (4) broken sample control total 1450+1800+25 = 3275.00 GBP matches the page. Wrong outputs: in a month-first (US) file, repair() rewrites serial 46300 (5 Oct 2026) as '05/10/2026', which a MM/DD organisation imports as 10 May 2026; this happens even when the user picks 'Month first' on the page (Playwright: downloaded cleaned CSV contains 'A,2,05/10/2026,12/27/2026'), and re-validating the cleaned file raises no finding. A tax-inclusive line (UnitAmount 120.00 incl. 20% VAT, TaxAmount 20.00) gets a false 'TaxAmount 20.00 does not match 20% of 120.00' warning and its 120.00 is reported as 'net before tax' in the control totals.",
+  "completeness": "Checked each README feature end to end: header spelling/typo hints, required columns (missing *DueDate/*AccountCode/*TaxType all reported), unterminated quotes, cell counts, per-invoice agreement, interleaved-invoice warning and regroup, date order detection (dmy/mdy/mixed), invalid dates (2026-02-30, 31/04/2026), serials, two-digit years, number formats, account-name-in-code, bare-% tax type, scientific-notation invoice number, currency, email, Total/TaxAmount agreement, crossCheck against chart/contacts/tax rates (wired in index.html:184), control totals, repair, splitter (1,200 lines of 3-line invoices -> parts of 498/498/204 lines, no invoice straddles, 1,200 lines total), findings CSV. All present and working on the happy path. Partial: the 'encoding' check (README.md:30) only detects UTF-8-read-as-Latin-1 mojibake; a Windows-1252 file with 'Müller' decodes to 'M\\ufffdller' with no warning (Playwright run). No stubs or TODOs found.",
+  "verification": "`node --test '*.test.mjs'` in the venture: 56 tests, 56 pass, 0 fail (~0.3 s). Seeded mutation in parseDate (calc.mjs:116, unknown-order branch `b > 12` -> `b >= 12`, so an ambiguous 03/12/2026 is read month-first instead of the documented day-first default): 56/56 still pass, not caught. Reverted with git checkout; git diff on the venture is empty. Tests also do not cover the serial-date-in-MM/DD-file repair path or tax-inclusive amounts, which is where the real defects are. page.test.mjs asserts disclaimer text and no network calls by regex only; it does not load the page.",
+  "craft": "Read calc.mjs (649 lines), index.html script block, page.test.mjs. Pure functions, no DOM in the engine, parser handles quoted newlines and doubled quotes, page HTML-escapes findings, no console errors in Chromium, no horizontal scroll at 375 px. Defects: very long one-line statements (calc.mjs:298 holds five checks on one line; 320, 323-336) that a reviewer would reject; discount parsing duplicated three times (calc.mjs:312, 320, 324); dead variable `lineOf` kept alive with `void lineOf` (calc.mjs:413, 452); `g_ok` defined after first use (387); summary.rows and summary.lines are the same value; decodeBuffer (calc.mjs:21-24) is UTF-8 only with no fallback or warning for replacement characters; control totals silently drop lines whose quantity or amount does not parse (broken sample's 'three' line is left out of 3275.00 without saying so).",
+  "claims": "Backed: disclaimer, no-warranty, not-affiliated and privacy text present (index.html footer, asserted in page.test.mjs); 'nothing uploaded' holds (no fetch/XHR in calc.mjs or page script); 'rules read from memory' caveat is stated honestly on the page and in calc.mjs:2-3; 500-line limit is hedged ('check the current limit'). Not backed or contradicted: 'Safe fixes change only things with one reasonable reading' (README.md:46, page FAQ) is false for serial dates in a month-first file; the fix note says account codes and contacts are 'left exactly as they are' (index.html:203) while repair trims contacts, strips '.0' from codes and mapAccountNames swaps names for codes; 'Not checked: ... that contacts, accounts, tax rates ... exist' (index.html:127) contradicts the step-2 cross-check on the same page; README lists 'encoding' as a check but cp1252 files pass silently; llms.txt:5 says 'Results are estimates from the numbers typed in' (boilerplate from a calculator) and llms.txt:9 points at the retired github.io URL instead of marisstella.app.",
+  "fitness": "Walked the job as a bookkeeper: (a) UK client, day-first file from a billing export with a semicolon separator, £ amounts and a serial date: findings are accurate, safe fixes produce an importable-looking comma file, splitter would handle a 2,000-line migration. That job finishes. (b) US client (MM/DD org) with one Excel serial date: the 'safe' cleaned file silently moves the invoice date by months, which the bookkeeper would only find after posting; this breaks the core promise. (c) A file whose amounts are tax-inclusive (common for UK/AU/NZ retail exports; Xero's import screen asks whether amounts are tax exclusive, inclusive or no tax) gets a false warning on every line with TaxAmount and wrong 'net before tax' control totals. No way to tell the tool the file's tax basis. Useful for (a), unreliable for (b) and noisy for (c).",
+  "domain": "Xero's own help pages (central.xero.com, www.xero.com) were blocked by this session's proxy (curl CONNECT 403; WebFetch ENOTFOUND), as were third-party guides; so compared against the auditor's recollection of Xero's published SalesInvoiceTemplate.csv and import help, labelled as such. Column set matches the template as recalled (*ContactName, EmailAddress, PO address lines, *InvoiceNumber, Reference, *InvoiceDate, *DueDate, Total, InventoryItemCode, *Description, *Quantity, *UnitAmount, Discount, *AccountCode, *TaxType, TaxAmount, tracking pairs, Currency, BrandingTheme), matched by name so order does not matter. Departures a practitioner would raise: no tax-exclusive/inclusive/no-tax mode, which Xero's import dialog asks for (as recalled), so TaxAmount/Total checks assume exclusive; 'a negative invoice is a credit note, which Xero imports from its own template' (calc.mjs:373) conflicts with the auditor's recollection that the invoice import creates a credit note when an invoice's total is negative (unverified here); AccountCode/TaxType/UnitAmount required on every line even when InventoryItemCode is given, where an item's defaults may fill them (unverified); invoice-number case-collision claim (calc.mjs:375) unsourced; ISO and DD/MM dates mixed in one file (the broken sample) draw no warning although Xero reads one org format. Date-order detection, refusing to guess ambiguous dates, and splitting at invoice boundaries are sound practice."
+ },
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Safe fixes rewrite Excel serial dates as DD/MM/YYYY regardless of the file's detected or user-chosen order, so in a month-first (US) file serial 46300 (5 Oct 2026) becomes 05/10/2026 = 10 May 2026 in a MM/DD organisation; the re-validated cleaned file raises nothing. Reproduced in Chromium with 'Month first' selected.",
+   "where": "ventures/xero-invoice-csv-check/calc.mjs:436"
+  },
+  {
+   "severity": "medium",
+   "what": "No tax-inclusive mode: a tax-inclusive line with correct TaxAmount gets a false 'TaxAmount does not match' warning, and its gross amount is reported as 'net before tax' in the control totals.",
+   "where": "ventures/xero-invoice-csv-check/calc.mjs:320-336"
+  },
+  {
+   "severity": "medium",
+   "what": "Windows-1252 files are decoded as UTF-8 with replacement characters (Müller -> M�ller) and no warning, although README lists an encoding check; the mojibake regex only catches the reverse case.",
+   "where": "ventures/xero-invoice-csv-check/calc.mjs:21-24, 197"
+  },
+  {
+   "severity": "medium",
+   "what": "Seeded mutation in the unknown-order date branch was not caught by any of 56 tests; the serial-date-in-MM/DD repair path and tax-inclusive amounts are untested.",
+   "where": "ventures/xero-invoice-csv-check/calc.test.mjs"
+  },
+  {
+   "severity": "low",
+   "what": "Negative-invoice finding says credit notes need their own template; this conflicts with the auditor's recollection that the invoice import creates a credit note for a negative total (Xero help unreachable to verify).",
+   "where": "ventures/xero-invoice-csv-check/calc.mjs:373"
+  },
+  {
+   "severity": "low",
+   "what": "Page contradicts itself: 'Not checked: that contacts, accounts, tax rates ... exist' while step 2 checks exactly that; fix note says contacts and account codes are left exactly as they are while repair trims contacts and strips/swaps codes.",
+   "where": "ventures/xero-invoice-csv-check/index.html:127, 203"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt carries calculator boilerplate ('estimates from the numbers typed in') and the retired github.io URL instead of https://marisstella.app/xero-invoice-csv-check/.",
+   "where": "ventures/xero-invoice-csv-check/llms.txt:5, 9"
+  },
+  {
+   "severity": "low",
+   "what": "Control totals silently exclude lines whose quantity or unit amount does not parse, with no note that the total is incomplete.",
+   "where": "ventures/xero-invoice-csv-check/calc.mjs:320, 383"
+  },
+  {
+   "severity": "low",
+   "what": "Dead code (`lineOf`, `void lineOf`), discount parsing duplicated three times, multi-check one-liners.",
+   "where": "ventures/xero-invoice-csv-check/calc.mjs:298, 312, 320, 324, 413, 452"
+  }
+ ],
+ "fix_prs": [
+  13760
+ ],
+ "verdict": "A real, carefully scoped tool that does most of what it says: on a day-first UK file its findings, recomputed by hand (serial 46300 = 5 Oct 2026, invoice nets, decimal-comma and thousands parsing, control totals 3275.00), are right, and the splitter keeps 1,200 lines of invoices whole. It does not meet the bar because its headline 'safe fixes' can silently corrupt dates: in a month-first file an Excel serial date is written as DD/MM/YYYY (calc.mjs:436), turning 5 October into 10 May for a US organisation, even when the user chose 'Month first'. It has no tax-inclusive mode, so inclusive files get false TaxAmount warnings and wrong net totals; cp1252 files pass the advertised encoding check; and a seeded date-parsing mutation passed all 56 tests. Xero's help pages were blocked by the proxy, so the domain comparison rests on the auditor's recollection of the template and is marked as such; the column set matches it. Correctness 2, verification 2, claims 2: not at the senior-bookkeeper bar, finished by its own README."
+}

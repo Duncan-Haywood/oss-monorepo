@@ -12,7 +12,7 @@
 // preparer). Integer cents: month k carries floor(base*k/life) less the months
 // before it, so the last month closes the cost exactly. Pure functions.
 
-import { parseCsv, parseCents, parseDate } from "./bank.mjs";
+import { parseCsv, parseCents, parseDate, MAX_CENTS } from "./bank.mjs";
 
 export const ASSET_ACCOUNT = "1500", ACCUM = "1590", DEPR_EXPENSE = "6950", GAIN_LOSS = "4150";
 const METHODS = new Set(["straight-line", "expense"]);
@@ -90,7 +90,7 @@ export function addAsset(booksIn, { name, date, cost, lifeMonths = 60, salvage =
   const salv = typeof salvage === "number" ? Math.round(salvage * 100) : parseCents(String(salvage));
   if (!name?.trim()) throw new Error("An asset needs a name.");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? "") || !parseDate(date)) throw new Error(`Date ${date} is not a YYYY-MM-DD date.`);
-  if (!Number.isFinite(cents) || cents <= 0) throw new Error("Cost must be a positive amount.");
+  if (!Number.isFinite(cents) || cents <= 0 || cents > MAX_CENTS) throw new Error("Cost must be a positive amount of at most 100 billion.");
   if (!Number.isFinite(salv) || salv < 0 || salv >= cents) throw new Error("Salvage value must be zero or more and less than the cost.");
   if (!METHODS.has(method)) throw new Error(`Method must be one of ${[...METHODS].join(", ")}.`);
   if (method === "straight-line" && (!Number.isInteger(lifeMonths) || lifeMonths < 2 || lifeMonths > 600)) throw new Error("Life must be a whole number of months, 2 to 600.");
@@ -113,7 +113,7 @@ export function disposeAsset(booksIn, id, { date, proceeds = 0, account = "1000"
   if (date < a.date) throw new Error("Disposal cannot be before the asset was placed in service.");
   if (books.lockedThrough && date <= books.lockedThrough) throw new Error(`${date} is in the period locked through ${books.lockedThrough}. Unlock it first.`);
   const p = typeof proceeds === "number" ? Math.round(proceeds * 100) : parseCents(String(proceeds));
-  if (!Number.isFinite(p) || p < 0) throw new Error("Proceeds must be zero or more.");
+  if (!Number.isFinite(p) || p < 0 || p > MAX_CENTS) throw new Error("Proceeds must be zero or more, at most 100 billion.");
   a.disposed = { date, proceeds: p, account };
   ensureAssetAccounts(books);
   return { books, asset: a };
@@ -144,7 +144,7 @@ export function addAssetsCsv(booksIn, text, opts = {}) {
   const problems = [];
   if (rows.length < 2) return { books: booksIn, added: 0, problems: ["No asset rows found. Expected a header: name,date,cost,life_months[,salvage,method]."] };
   const head = rows[0].map((h) => h.trim().toLowerCase());
-  const col = (...n) => head.findIndex((h) => n.includes(h));
+  const col = (...n) => (n.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   const c = { name: col("name", "asset"), date: col("date", "in service", "placed in service"), cost: col("cost", "amount"), life: col("life_months", "life", "months"), salvage: col("salvage"), method: col("method") };
   for (const k of ["name", "date", "cost"]) if (c[k] === -1) problems.push(`Missing column "${k}".`);
   if (problems.length) return { books: booksIn, added: 0, problems };

@@ -1,0 +1,14 @@
+✔ [4/6] Built TheismFormal.Anderson
+✔ [5/6] Built TheismFormal
+Build completed successfully.
+'TheismFormal.Anderson.model_has_row_block' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Anderson.row_block_gives_model' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Anderson.no_contingent_proposition' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Anderson.full_semantics_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Anderson.a5'_holds' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Anderson.ne_everyone' does not depend on any axioms
+'TheismFormal.ontological_fails_S4' does not depend on any axioms
+'TheismFormal.honorius' does not depend on any axioms
+'TheismFormal.Anderson.weak_model_form' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.Anderson.weak_model_of' does not depend on any axioms
+'TheismFormal.Anderson.weak_full_semantics_model' does not depend on any axioms

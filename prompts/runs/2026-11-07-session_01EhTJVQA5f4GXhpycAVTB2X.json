@@ -1,0 +1,48 @@
+{
+ "date": "2026-11-07",
+ "session": "https://claude.ai/code/session_01EhTJVQA5f4GXhpycAVTB2X",
+ "track": "creative",
+ "prompt_version": 0,
+ "input": null,
+ "input_sha256": null,
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-07T00:57:54Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "Scheduled: develop revenue products; shipped sales channel comparison for R-0005",
+ "projects": [
+  "ventures/clothing-design-studio"
+ ],
+ "pr": 13681,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 8,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [],
+ "deviations": [
+  {
+   "file": "prompts/creative/prompt-0.md",
+   "why": "Routed track is creative, but the scheduled prompt explicitly asked for revenue-generating software, so I did venture work.",
+   "did": "clothing-design-studio feature",
+   "result": "landed"
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "Routed to creative track but the scheduled prompt asked for revenue products, so worked on the owner-requested clothing studio (R-0005). Checked einvoice-preflight Bulgaria page first: already current, nothing to change. channels.test.mjs 8 pass; studio suite 344 pass; Chromium over HTTP, no console errors. Fee defaults are examples, not real price lists.",
+ "corrections": [],
+ "redteam": null
+}

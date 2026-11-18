@@ -1,0 +1,28 @@
+Real-air Dryden turbulence: L fixed in metres (full-size chords l; the model sees l/n chords); n = 0.2
+level factor for equal sigma_w (m/s): sigma_alpha(model)/sigma_alpha(full) = 1/sqrt(n) = 2.236
+
+L = 25 full-size chords (model sees 125). reference n=1 rms (dn, q sqrt(L/g), theta) per unit rms alpha_g: 6.5979 0.8432 0.9485
+  similar n=0.2, shape only:     d(dn)  -38.0%  d(q)   34.2%  d(theta)  183.5%
+  similar n=0.2, same sigma_w:   d(dn)   38.6%  d(q)  200.1%  d(theta)  533.9%
+  best   naca4412 k 1.75 AR  8: d(dn)  -16.3%  d(q)  -20.7%  d(theta)   51.0%
+  best   naca5406 k 2.00 AR 10: d(dn)  -10.5%  d(q)  -18.9%  d(theta)   54.3%
+  best   naca5406 k 2.00 AR 12: d(dn)   -8.2%  d(q)  -18.0%  d(theta)   55.0%
+  17 power-matched cases (shape only): worst of three within 5%: 0; within 10%: 0
+
+L = 62.5 full-size chords (model sees 312). reference n=1 rms (dn, q sqrt(L/g), theta) per unit rms alpha_g: 5.3646 0.9353 1.4474
+  similar n=0.2, shape only:     d(dn)  -49.3%  d(q)    9.8%  d(theta)  112.6%
+  similar n=0.2, same sigma_w:   d(dn)   13.4%  d(q)  145.5%  d(theta)  375.4%
+  best   naca5406 k 1.75 AR 10: d(dn)  -32.7%  d(q)  -31.2%  d(theta)   25.5%
+  best   naca4412 k 2.00 AR  8: d(dn)  -32.7%  d(q)  -33.1%  d(theta)   23.0%
+  best   naca5406 k 2.00 AR 12: d(dn)  -26.3%  d(q)  -36.5%  d(theta)   16.2%
+  17 power-matched cases (shape only): worst of three within 5%: 0; within 10%: 0
+
+L = 125 full-size chords (model sees 625). reference n=1 rms (dn, q sqrt(L/g), theta) per unit rms alpha_g: 4.1272 0.8988 1.9185
+  similar n=0.2, shape only:     d(dn)  -52.6%  d(q)   -9.1%  d(theta)   33.5%
+  similar n=0.2, same sigma_w:   d(dn)    6.1%  d(q)  103.2%  d(theta)  198.5%
+  best   naca5406 k 1.75 AR 10: d(dn)  -37.4%  d(q)  -43.8%  d(theta)  -20.6%
+  best   naca5406 k 1.50 AR 10: d(dn)  -44.3%  d(q)  -32.2%  d(theta)   -4.5%
+  best   naca4412 k 2.00 AR  8: d(dn)  -37.4%  d(q)  -45.2%  d(theta)  -22.0%
+  17 power-matched cases (shape only): worst of three within 5%: 0; within 10%: 0
+
+across all three L (shape only): cases within 5% on all metrics: 0 of 17; within 10%: 0; best worst-case 51.0% (('naca4412', 1.75, 8))

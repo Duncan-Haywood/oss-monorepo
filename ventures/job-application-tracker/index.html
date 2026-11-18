@@ -205,7 +205,7 @@
       if (b.dataset.act === "snooze") { apps = apps.map((x) => (x.id === id ? { ...x, followUp: new Date(Date.parse(todayIso() + "T00:00:00Z") + 3 * 86400000).toISOString().slice(0, 10) } : x)); persist(); render(); }
       if (b.dataset.act === "edit") {
         editing = id; $("#f-company").value = a.company; $("#f-role").value = a.role; $("#f-source").value = a.source; $("#f-link").value = a.link; $("#f-salary").value = a.salary ?? ""; $("#f-status").value = a.status; $("#f-applied").value = a.applied; $("#f-followup").value = a.followUp; $("#f-notes").value = a.notes;
-        $("#form-title").textContent = "Edit application"; $("#cancel").hidden = false; $("#save").textContent = "Save changes"; $("#app-form").scrollIntoView({ behavior: "smooth" });
+        $("#form-title").textContent = "Edit application"; $("#cancel").hidden = false; $("#save").textContent = "Save changes"; $("#app-form").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
       }
     });
     document.addEventListener("change", (e) => {

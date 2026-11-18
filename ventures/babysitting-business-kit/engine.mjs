@@ -89,6 +89,8 @@ export function toMin(hhmm) {
   if (!m) return NaN;
   let h = Number(m[1]);
   const min = Number(m[2] || 0);
+  // 8:75pm or 13pm is a typo, not 9:15pm or 1am the next day: refuse it (24:00 ends a day).
+  if (min > 59 || h > 24 || (h === 24 && min > 0) || (m[3] && h > 12)) return NaN;
   if (m[3]) {
     const pm = m[3].toLowerCase() === "pm";
     if (h === 12) h = pm ? 12 : 0;
@@ -416,7 +418,7 @@ export function taxSummary(desk, year, today = `${year}-12-31`) {
   const net = r2(income - expenses - mileage);
   const seBase = Math.max(0, net) * 0.9235;
   const wageBase = SS_WAGE_BASE[year] || SS_WAGE_BASE[2027];
-  const seTax = net >= 400 ? r2(Math.min(seBase, wageBase) * 0.124 + seBase * 0.029) : 0;
+  const seTax = seBase >= 400 ? r2(Math.min(seBase, wageBase) * 0.124 + seBase * 0.029) : 0;
   const incomeTaxable = Math.max(0, net - seTax / 2);
   const incomeTax = r2((incomeTaxable * num(p.taxRate)) / 100);
   const stateTax = r2((incomeTaxable * num(p.stateTaxRate)) / 100);
@@ -430,19 +432,23 @@ export function taxSummary(desk, year, today = `${year}-12-31`) {
     return { quarter: i + 1, through, due: d, income: r2(inc), suggested: r2(inc * (setAsidePct / 100)), past: d < today };
   });
   const flags = [];
-  if (net >= 400) flags.push(`Net profit is $${net}. At $400 or more you owe self-employment tax and file Schedule C and Schedule SE with your Form 1040, even if you owe no income tax.`);
+  if (seBase >= 400) flags.push(`Net profit is $${net}. When 92.35% of it is $400 or more you owe self-employment tax and file Schedule C and Schedule SE with your Form 1040, even if you owe no income tax.`);
   else flags.push(`Net profit is under $400 so far: no self-employment tax yet. If you have no other income you may not need to file; check the Form 1040 instructions.`);
-  const threshold = HOUSEHOLD_THRESHOLD[year];
+  // A year with no figure on file uses the latest one (it rises with inflation,
+  // so the warning stays on rather than vanishing), and says which year it is.
+  const thresholdYear = HOUSEHOLD_THRESHOLD[year] ? year : Math.max(...Object.keys(HOUSEHOLD_THRESHOLD).map(Number));
+  const threshold = HOUSEHOLD_THRESHOLD[thresholdYear];
+  const thresholdNote = thresholdYear === year ? "" : ` (the ${thresholdYear} threshold; the ${year} one is not on file yet)`;
   for (const [fid, amt] of Object.entries(byFamily)) {
     if (fid === "gift certificates") continue; // bought by anyone, not one family's pay
     if (threshold && amt >= threshold) {
       const f = desk.families.find((x) => x.id === fid);
-      flags.push(`${f ? f.name : "One family"} paid you $${amt} this year (at or over $${threshold}). If that family controls how and when you work in their home, the IRS can treat you as their household employee (Publication 926), and they would owe the nanny tax and give you a W-2. Babysitters who run their own business for many families are usually self-employed. Talk it through with the family.`);
+      flags.push(`${f ? f.name : "One family"} paid you $${amt} this year (at or over $${threshold}${thresholdNote}). If that family controls how and when you work in their home, the IRS can treat you as their household employee (Publication 926), and they would owe the nanny tax and give you a W-2. Babysitters who run their own business for many families are usually self-employed. Talk it through with the family.`);
     }
   }
   const appTotal = Object.entries(byMethod).filter(([m]) => /venmo|paypal|cash ?app|square|stripe/i.test(m));
   const appSum = appTotal.reduce((a, [, v]) => a + v, 0);
-  if (appSum > 0) flags.push(`$${r2(appSum)} came through payment apps. A Form 1099-K arrives only above $${FORM_1099K.amount.toLocaleString()} and ${FORM_1099K.count} payments, but every dollar is income whether or not a form arrives, cash too.`);
+  if (appSum > 0) flags.push(`$${r2(appSum)} came through payment apps. A Form 1099-K arrives only above $${FORM_1099K.amount.toLocaleString('en-US')} and ${FORM_1099K.count} payments, but every dollar is income whether or not a form arrives, cash too.`);
   if (sits.length && !totalMiles) flags.push("No miles logged. Driving between sits (not from home to your first sit if home is not your main place of business) can be deductible; log miles on each sit.");
   flags.push("Families who claim the child and dependent care credit (Form 2441) or a dependent-care FSA need your name, address and taxpayer ID. For a sole proprietor that is your Social Security number: the IRS instructions for Form W-10 say that for individuals and sole proprietors the taxpayer ID is an SSN, and Form 2441's instructions ask families for an individual provider's SSN. Form W-10 is the IRS form for giving it to them. The family statement below has the totals they need.");
   return { year, income, byMonth: byMonth.map(r2), byFamily, byMethod, expenses, expenseByCat, mileage, totalMiles, net, seTax, incomeTax, stateTax, setAside, setAsidePct, quarters, flags, sits: sits.length, unpaid: unpaid(desk, today) };

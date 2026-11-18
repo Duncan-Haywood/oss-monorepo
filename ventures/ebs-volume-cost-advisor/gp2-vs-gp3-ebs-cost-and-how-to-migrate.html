@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">EBS Volume Cost Advisor</a> · guide</p>
   <h1>gp2 vs gp3: EBS volume cost and how to migrate</h1>
   <p>Short answer: for almost every general-purpose volume, <strong>gp3 is 20% cheaper than gp2</strong> and faster by default, and you can switch live. The savings that matter most are elsewhere: provisioned-IOPS volumes billing for IOPS they never use, and volumes nobody has attached for months.</p>
@@ -55,7 +56,9 @@
   <h3>Why is my io1 volume so expensive?</h3>
   <p>io1 and io2 charge $0.065 per provisioned IOPS-month on top of $0.125 per GB. A volume provisioned at 20,000 IOPS but peaking at 6,000 pays for 14,000 IOPS it never uses. If the peak fits gp3's 16,000 IOPS and 1,000 MiB/s ceiling, gp3 costs a small fraction of that.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not engineering, financial or operational advice, and you are responsible for verifying prices and limits against the current AWS documentation. Vendor and product names are trademarks of their owners and are used only to describe what the tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

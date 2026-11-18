@@ -28,6 +28,17 @@ def test_prior_excludes_a_stronger_false_peak():
 
 def test_negative_delay_and_bins():
     rng = np.random.default_rng(3)
-    x = rng.standard_normal(16000)
+    x = rng.standard_normal(48000)
     assert abs(gcc_search(np.roll(x, 40), x, 0.0, 0.0, 0.5) - (-40 / 16000)) < 1e-5
     assert [start_bin(s) for s in (0.1, 0.5, 0.9, 1.0, 2.0)] == [0, 1, 1, 2, 2]
+
+
+def test_track_series_follows_clean_delay():
+    from capture_aliaswin import track_series
+    rng = np.random.default_rng(3)
+    x = rng.standard_normal(48000)
+    from capture_audiosync import fractional_delay
+    taus = [0.100, 0.103, 0.106, 0.109]
+    wins = [(x, fractional_delay(x, t, 16000)) for t in taus]
+    est = track_series(wins, [0, 300, 600, 900], 0.25, 0.02)
+    assert np.allclose(est, taus, atol=5e-4)

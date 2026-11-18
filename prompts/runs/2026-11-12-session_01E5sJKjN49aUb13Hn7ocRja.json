@@ -1,0 +1,426 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKjN49aUb13Hn7ocRja",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T04:09:06Z",
+  "ended": "2026-11-12T04:10:04Z",
+  "wall_minutes": 7.35,
+  "tokens_in": 2636732,
+  "tokens_out": 16568,
+  "cost_usd": 1.5211,
+  "tool_calls": 32,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14998",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says to fix each open defect, but all 5 are control-plane edits that already have open PRs waiting on the owner; the open list doesn't say so, so each run re-checks them by hand. redteam.py open could print the PR that carries the fix."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for a guard that runs without a red-team run. The defects here are product-logic bugs in one checker, with no class of files a lint could cover, and the existing ventures-tests run already executes the new tests on every PR.",
+      "did": "Added tests to the suite CI already runs; no new lint.",
+      "result": "New tests run on every ics-calendar-check change via ventures-tests."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: the open defects are all control-plane, with PRs already open (#12928, #14877, #14612, #14808, #14698).",
+      "did": "Left them for owner approval rather than opening duplicates.",
+      "result": "No duplicate control-plane PRs."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-calendar-checker-read-tokyo-time-as-utc.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: sales-agent/holidays.mjs 8/8; ics-calendar-check/calc.mjs 5/10 -> 9/10 (1 equivalent). Verification: run_venture_tests.py ics-calendar-check ok; calc.test.mjs 26/26; post checks clean. Guard: tests in the existing ventures-tests suite (no new lint).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/sales-agent/holidays.mjs",
+        "test": "node --test ventures/sales-agent/**/*.test.mjs  (in .)",
+        "seed": 683356058,
+        "commit": "847c2effb",
+        "sites": 370,
+        "baseline_seconds": 7.3,
+        "mutants": [
+          {
+            "file": "ventures/sales-agent/holidays.mjs",
+            "line": 44,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "{ date: ymd(y, 1, nth(y, 1, 1, 3)), name: \"Washington's Birthday\" },",
+            "after": "{ date: ymd(y, 2, nth(y, 1, 1, 3)), name: \"Washington's Birthday\" },",
+            "line_text": "    { date: ymd(y, 1, nth(y, 1, 1, 3)), name: \"Washington's Birthday\" },",
+            "caught": true,
+            "seconds": 7.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sales-agent/holidays.mjs",
+            "line": 49,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "{ date: ymd(y, 9, nth(y, 9, 1, 2)), name: \"Columbus Day\" },",
+            "after": "{ date: ymd(y, 9, nth(y, 9, 2, 2)), name: \"Columbus Day\" },",
+            "line_text": "    { date: ymd(y, 9, nth(y, 9, 1, 2)), name: \"Columbus Day\" },",
+            "caught": true,
+            "seconds": 7.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sales-agent/holidays.mjs",
+            "line": 60,
+            "col": 66,
+            "operator": "const-plus-one",
+            "before": "const l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);",
+            "after": "const l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 12 * h + 22 * l) / 451);",
+            "line_text": "  const l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);",
+            "caught": true,
+            "seconds": 6.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sales-agent/holidays.mjs",
+            "line": 85,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "fixed.push([11, 25, \"Christmas Day\"], [11, 26, \"Boxing Day\"]);",
+            "after": "fixed.push([11, 25, \"Christmas Day\"], [11, 27, \"Boxing Day\"]);",
+            "line_text": "  fixed.push([11, 25, \"Christmas Day\"], [11, 26, \"Boxing Day\"]);",
+            "caught": true,
+            "seconds": 6.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sales-agent/holidays.mjs",
+            "line": 97,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "while ([0, 6].includes(dow(y, m, d + n)) || taken.has(date)) date = shift(y, m, d, ++n);",
+            "after": "while ([1, 6].includes(dow(y, m, d + n)) || taken.has(date)) date = shift(y, m, d, ++n);",
+            "line_text": "    while ([0, 6].includes(dow(y, m, d + n)) || taken.has(date)) date = shift(y, m, d, ++n);",
+            "caught": true,
+            "seconds": 6.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sales-agent/holidays.mjs",
+            "line": 118,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "{ date: ymd(y, 4, 24 - ((dow(y, 4, 24) + 6) % 7)), name: \"Victoria Day\" }, // the Monday on or before 24 May",
+            "after": "{ date: ymd(y, 4, 25 - ((dow(y, 4, 24) + 6) % 7)), name: \"Victoria Day\" }, // the Monday on or before 24 May",
+            "line_text": "    { date: ymd(y, 4, 24 - ((dow(y, 4, 24) + 6) % 7)), name: \"Victoria Day\" }, // the Monday on or before 24 May",
+            "caught": true,
+            "seconds": 6.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sales-agent/holidays.mjs",
+            "line": 164,
+            "col": 8,
+            "operator": "eq-flip",
+            "before": "if (p === \"qc\") out.push({ date: victoria, name: \"National Patriots' Day\" });",
+            "after": "if (p !== \"qc\") out.push({ date: victoria, name: \"National Patriots' Day\" });",
+            "line_text": "  if (p === \"qc\") out.push({ date: victoria, name: \"National Patriots' Day\" });",
+            "caught": true,
+            "seconds": 6.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sales-agent/holidays.mjs",
+            "line": 173,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "{ date: y === 2025 ? \"2025-07-30\" : ymd(y, 7, nth(y, 7, 3, 1)), name: \"Regatta Day\" });",
+            "after": "{ date: y === 2025 ? \"2025-07-30\" : ymd(y, 7, nth(y, 7, 3, 2)), name: \"Regatta Day\" });",
+            "line_text": "      { date: y === 2025 ? \"2025-07-30\" : ymd(y, 7, nth(y, 7, 3, 1)), name: \"Regatta Day\" });",
+            "caught": true,
+            "seconds": 6.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/ics-calendar-check/calc.mjs",
+        "test": "node --test ventures/ics-calendar-check/**/*.test.mjs  (in .)",
+        "seed": 885626170,
+        "commit": "847c2effb",
+        "sites": 300,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 12,
+            "col": 28,
+            "operator": "eq-flip",
+            "before": "if (b[0] === 0xfe && b[1] === 0xff) return new TextDecoder(\"utf-16be\").decode(b.subarray(2));",
+            "after": "if (b[0] === 0xfe && b[1] !== 0xff) return new TextDecoder(\"utf-16be\").decode(b.subarray(2));",
+            "line_text": "  if (b[0] === 0xfe && b[1] === 0xff) return new TextDecoder(\"utf-16be\").decode(b.subarray(2));",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "UTF-16BE BOM was never tested: added a FE FF case to the decodeBuffer test."
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 73,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "const dt = new Date(Date.UTC(y, m - 1, d));",
+            "after": "const dt = new Date(Date.UTC(y, m - 2, d));",
+            "line_text": "  const dt = new Date(Date.UTC(y, m - 1, d));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 132,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "return pad(h1.toString(16), 8) + pad(h2.toString(16), 8) + \"@ics-calendar-check\";",
+            "after": "return pad(h1.toString(16), 8) + pad(h2.toString(16), 9) + \"@ics-calendar-check\";",
+            "line_text": "  return pad(h1.toString(16), 8) + pad(h2.toString(16), 8) + \"@ics-calendar-check\";",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "makeUid format was never asserted: test now requires exactly 16 hex digits before the domain."
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 185,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "range(\"BYMINUTE\", 0, 59);",
+            "after": "range(\"BYMINUTE\", 0, 60);",
+            "line_text": "  range(\"BYMINUTE\", 0, 59);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "BYMINUTE=60 was never tried: added."
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 191,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "else if (m[1] !== undefined && (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "after": "else if (m[2] !== undefined && (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "line_text": "      else if (m[1] !== undefined && (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "m[2] (the weekday) is always defined when the regex matches; when m[1] is undefined, Number(undefined) is NaN so both comparisons are false and nothing is pushed either way. Same findings for every input."
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 191,
+            "col": 57,
+            "operator": "or-to-and",
+            "before": "else if (m[1] !== undefined && (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "after": "else if (m[1] !== undefined && (Number(m[1]) === 0 && Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "line_text": "      else if (m[1] !== undefined && (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "neither 0MO nor 54FR was tried: added both."
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 206,
+            "col": 24,
+            "operator": "eq-flip",
+            "before": "if (/\\r\\n/.test(text) === false && /\\n/.test(text)) {",
+            "after": "if (/\\r\\n/.test(text) !== false && /\\n/.test(text)) {",
+            "line_text": "  if (/\\r\\n/.test(text) === false && /\\n/.test(text)) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 296,
+            "col": 29,
+            "operator": "and-to-or",
+            "before": "if (!u.error && u.ms < s.ms) findings.push(F(\"error\", rr.line, `${at}UNTIL is before DTSTART`, \"The series ends before it begins.\"));",
+            "after": "if (!u.error || u.ms < s.ms) findings.push(F(\"error\", rr.line, `${at}UNTIL is before DTSTART`, \"The series ends before it begins.\"));",
+            "line_text": "                if (!u.error && u.ms < s.ms) findings.push(F(\"error\", rr.line, `${at}UNTIL is before DTSTART`, \"The series ends before it begins.\"));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 350,
+            "col": 55,
+            "operator": "eq-flip",
+            "before": "for (const ev of cal.children.filter((c) => c.name === \"VEVENT\")) {",
+            "after": "for (const ev of cal.children.filter((c) => c.name !== \"VEVENT\")) {",
+            "line_text": "    for (const ev of cal.children.filter((c) => c.name === \"VEVENT\")) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 358,
+            "col": 53,
+            "operator": "plus-to-minus",
+            "before": "if (!get(ev, \"DTSTAMP\")) { add.push(\"DTSTAMP:\" + fmtUtc(now)); changes.push(`${label}: added DTSTAMP`); }",
+            "after": "if (!get(ev, \"DTSTAMP\")) { add.push(\"DTSTAMP:\" - fmtUtc(now)); changes.push(`${label}: added DTSTAMP`); }",
+            "line_text": "      if (!get(ev, \"DTSTAMP\")) { add.push(\"DTSTAMP:\" + fmtUtc(now)); changes.push(`${label}: added DTSTAMP`); }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/ics-calendar-check/calc.mjs",
+        "issue": "UNTIL vs a TZID DTSTART compared wall-clock digits with UTC: false 'UNTIL is before DTSTART' error for DTSTART;TZID=Asia/Tokyo:20260105T090000 with UNTIL=20260105T050000Z, and a missed error for the New York mirror case. Now compared as instants via instantCompare.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14998"
+      },
+      {
+        "file": "ventures/ics-calendar-check/calc.mjs",
+        "issue": "RRULE parts RFC 5545 3.3.10 forbids or bounds were unchecked: BYSECOND=99, BYWEEKNO with FREQ=MONTHLY, BYYEARDAY with DAILY/WEEKLY/MONTHLY, BYSETPOS with no other BY part all returned no findings.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14998"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f5643ede-b8b4-5dac-9a9b-fe8c4794d34a",
+    "transcripts": 1,
+    "first": "2026-11-12T04:09:06Z",
+    "last": "2026-11-12T04:16:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 61,
+        "output": 16568,
+        "thinking": 3507,
+        "cache_read": 2551777,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84894,
+        "api_equivalent_usd": 1.5211,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 61,
+      "output": 16568,
+      "thinking": 3507,
+      "cache_read": 2551777,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84894,
+      "api_equivalent_usd": 1.5211,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 32,
+    "tools": {
+      "Bash": 28,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.35,
+      "active_minutes": 7.35,
+      "model_minutes": 3.86,
+      "tool_minutes": 3.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "reading the checker, writing 4 test groups, two fixes against RFC 5545, a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 197.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

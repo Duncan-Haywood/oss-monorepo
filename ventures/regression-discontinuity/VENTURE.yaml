@@ -1,0 +1,60 @@
+name: regression-discontinuity
+description: >-
+  Free browser tool, CLI and agent call for economists, policy analysts,
+  education and health researchers and students whose treatment switches on
+  at a threshold of a score, income, age or vote margin: upload one row per
+  unit and get the jump at the cutoff with robust bias-corrected confidence
+  intervals, an MSE-optimal bandwidth, fuzzy RD for partial take-up, a
+  bandwidth sweep, placebo cutoffs, covariate balance and a density test.
+  Matches rdrobust at fixed bandwidths. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-17 on an explore run, as a research algorithm tool beside
+# difference-in-differences and synthetic-control; no venture README mentioned
+# regression discontinuity. Implemented from the papers' definitions; no
+# third-party code was ported. rdrobust 2.1.1 (GPL-3.0) was run only as an
+# external program to produce eval/reference.json; its source was not read.
+# Example data are simulated (eval/simulate.py; data/SOURCE.md).
+#
+# First visitor: searches such as "regression discontinuity calculator",
+# "regression discontinuity online", "rdrobust online", "fuzzy regression
+# discontinuity", "McCrary density test"; students in applied econometrics
+# courses and analysts without R or Stata. Volume not measured with an
+# external tool.
+#
+# Alternatives: R and Stata rdrobust, rddensity and rdlocrand; Python
+# rdrobust (all need an environment and code). Not surveyed for hosted web
+# versions. The differentiators here are no install, the validity checks on
+# one page with a reading in words, and tests pinned to rdrobust.
+#
+# Liability: statistical output from supplied data, not policy, legal or
+# financial advice; the page states the identification limits. Data never
+# leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Analysts and students with a threshold design will use a no-install
+      tool that reports robust bias-corrected intervals with the standard
+      validity checks, and will link or cite it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports estimates that disagree with rdrobust at the same bandwidths on the same data and specification, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/regression-discontinuity/
+  analytics: null

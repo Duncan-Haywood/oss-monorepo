@@ -1,0 +1,26 @@
+anemometer height uncorrected (speed factor 1.000)
+every 4th window; hourly replan; shares of the no-corridor no-tack-cost bound; HRRR hourly cycle issued >= L h before replan, L in (1, 3)
+
+January: 72 windows from 9 stations; header 0.889
+  T0      : 0.883; minus header +0.0 pts (boot 95% -0.4..+0.3); tacks/day 134
+  hrrr_L1 : 0.862; minus header -0.7 pts (boot 95% -1.9..-0.2); tacks/day 356
+  hrrr_bc_L1: 0.874; minus header +0.1 pts (boot 95% -0.3..+0.4); tacks/day 190
+  hrrr_L3 : 0.857; minus header -1.1 pts (boot 95% -3.3..-0.3); tacks/day 364
+  hrrr_bc_L3: 0.876; minus header -0.0 pts (boot 95% -0.3..+0.2); tacks/day 235
+  T120    : 0.911; minus header +2.1 pts (boot 95% +1.8..+2.8); tacks/day 164
+  hrrr_L1 minus hrrr_L3: +0.2 pts (boot 95% -0.1..+0.7)
+  hrrr_bc_L1 minus hrrr_bc_L3: -0.0 pts (boot 95% -0.2..+0.2)
+  hrrr_L1 minus T0: -0.4 pts (boot 95% -1.5..+0.2)
+  hrrr_bc_L1 minus T0: +0.3 pts (boot 95% -0.0..+0.7)
+
+July: 80 windows from 10 stations; header 0.898
+  T0      : 0.888; minus header -0.2 pts (boot 95% -0.9..-0.0); tacks/day 96
+  hrrr_L1 : 0.856; minus header -1.7 pts (boot 95% -2.5..-0.9); tacks/day 256
+  hrrr_bc_L1: 0.878; minus header -0.6 pts (boot 95% -1.1..-0.1); tacks/day 132
+  hrrr_L3 : 0.860; minus header -2.0 pts (boot 95% -3.3..-1.3); tacks/day 194
+  hrrr_bc_L3: 0.876; minus header -0.5 pts (boot 95% -1.1..-0.3); tacks/day 180
+  T120    : 0.920; minus header +2.4 pts (boot 95% +2.0..+3.0); tacks/day 74
+  hrrr_L1 minus hrrr_L3: +0.2 pts (boot 95% -0.0..+0.4)
+  hrrr_bc_L1 minus hrrr_bc_L3: +0.1 pts (boot 95% -0.1..+0.3)
+  hrrr_L1 minus T0: -0.8 pts (boot 95% -1.1..-0.3)
+  hrrr_bc_L1 minus T0: -0.1 pts (boot 95% -0.5..+0.1)

@@ -1,0 +1,51 @@
+{
+ "date": "2026-11-03",
+ "session": "https://claude.ai/code/session_01XpHqybxCM6zFE8diwJuyor",
+ "track": "research",
+ "prompt_version": 1,
+ "input": "demographic comparititve analysis on catholic sub populations as an ongoing research path.",
+ "input_sha256": "53e2b01f27a900d06e375125da2fcaf56bcd96e405b5d030df1f8e11ee3dc6c2",
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-03T20:03:04Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 12893,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/catholic-demography/cathdem/recode.py",
+   "issue": "pyreadstat fails on the GSS R3a value labels (UnicodeDecodeError); pandas.read_stata with convert_categoricals=False works, as marriage-divorce-evidence already does."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "research/CLAUDE.md",
+   "why": "New programme is social science, outside the 2026-11-01 deep-tech direction, because the owner asked for it directly.",
+   "did": "Opened catholic-demography with a 'Deep-tech application: none' section.",
+   "result": "Proposal passes programme_check; milestone 1 landed on real GSS data."
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "Local checks: pytest 7 passed; programme_check ok; build.py ok (1062 projects); check_md_links ok; cite_check 17/17 ok. GSS zip and dta SHA-256 match committed SHA256SUMS.",
+ "corrections": [],
+ "redteam": null
+}

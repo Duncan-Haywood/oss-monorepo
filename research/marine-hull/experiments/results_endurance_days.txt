@@ -1,0 +1,18 @@
+
+### e_cycle = 0 J
+glider (90 cases): range km median 2919 (10th 1213, 90th 4883); days median 164 (10th 41, 90th 386); speed median 0.21 m/s
+AUV hotel 8 W (3 hulls): range km 363 to 445; days 5.0 to 5.1; speed 0.83 to 1.03 m/s
+   glider range exceeds the best AUV range in 90/90; the glider needs more than the AUV's days in 90/90
+AUV hotel 104 W (3 hulls): range km 64 to 69; days 0.5 to 0.5; speed 1.50 to 1.50 m/s
+   glider range exceeds the best AUV range in 90/90; the glider needs more than the AUV's days in 90/90
+AUV hotel 175 W (3 hulls): range km 41 to 43; days 0.3 to 0.3; speed 1.50 to 1.50 m/s
+   glider range exceeds the best AUV range in 90/90; the glider needs more than the AUV's days in 90/90
+
+### e_cycle = 1351 J
+glider (90 cases): range km median 2265 (10th 1080, 90th 3270); days median 127 (10th 36, 90th 270); speed median 0.21 m/s
+AUV hotel 8 W (3 hulls): range km 363 to 445; days 5.0 to 5.1; speed 0.83 to 1.03 m/s
+   glider range exceeds the best AUV range in 90/90; the glider needs more than the AUV's days in 90/90
+AUV hotel 104 W (3 hulls): range km 64 to 69; days 0.5 to 0.5; speed 1.50 to 1.50 m/s
+   glider range exceeds the best AUV range in 90/90; the glider needs more than the AUV's days in 90/90
+AUV hotel 175 W (3 hulls): range km 41 to 43; days 0.3 to 0.3; speed 1.50 to 1.50 m/s
+   glider range exceeds the best AUV range in 90/90; the glider needs more than the AUV's days in 90/90

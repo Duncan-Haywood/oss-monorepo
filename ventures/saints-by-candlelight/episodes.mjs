@@ -145,6 +145,8 @@ function footer() {
   <p><strong>Privacy.</strong> No accounts, cookies or analytics vendor. We count anonymous events in this browser only (pages opened and episodes played, nothing about you). <button id="usageToggle" type="button">Turn off counting</button></p>
   <p>Want shorter stories, or to learn a language by listening? Try <a href="../listen-and-learn-audio/">Listen &amp; Learn Audio</a>: graded audio stories and podcast-style episodes, free in your browser.</p>
   <p>For ten-minute saints stories for small children, see Little Lamps in <a href="../hearth-and-horizon/">Hearth &amp; Horizon</a>.</p>
+  <p>For one-minute Catholic videos (apologetics with sources, saints of the day), see <a href="../catholic-shorts/">Catholic Shorts</a>.</p>
+  <p>For grown-ups: <a href="../sed-contra/">Sed Contra</a> stages Thomas Aquinas's Summa as stories, podcast and video, with his own words checked word for word.</p>
   <p>Stories, audio and cover: <a href="${LICENSE_URL}" rel="license">${LICENSE_NAME}</a>. Code: MIT. <a href="${SOURCE_URL}">Source</a> · <a href="${HUB}">More free tools</a> · <a href="${SPONSOR_URL}">Sponsor on GitHub</a></p>
 </div></footer>`;
 }
@@ -368,4 +370,37 @@ export function renderSitemap(episodes) {
 ${urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n')}
 </urlset>
 `;
+}
+
+/** "1 to 19", "1 to 3, 5 and 8 to 9" for sorted episode numbers. */
+export function numberRanges(numbers) {
+  const runs = [];
+  for (const n of numbers) {
+    const last = runs[runs.length - 1];
+    if (last && n === last[1] + 1) last[1] = n;
+    else runs.push([n, n]);
+  }
+  const parts = runs.map(([a, b]) => (a === b ? `${a}` : `${a} to ${b}`));
+  return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}` : parts[0] || 'none';
+}
+
+export const AUDIO_STATUS_START = '<!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->';
+export const AUDIO_STATUS_END = '<!-- /audio-status -->';
+
+/** The one-line audio summary PRODUCTION.md carries, derived from the episodes and the manifest. */
+export function audioStatusLine(episodes, audio = {}) {
+  const voiced = episodes.filter((ep) => audio[ep.slug]).map((ep) => ep.number);
+  const silent = episodes.filter((ep) => !audio[ep.slug]).map((ep) => ep.number);
+  const minutes = voiced.map((n) => Math.round((audio[episodes[n - 1].slug].seconds || 0) / 60)).filter((m) => m > 0);
+  const span = minutes.length ? ` (${Math.min(...minutes)} to ${Math.max(...minutes)} minutes each)` : '';
+  return `Audio: ${voiced.length} of ${episodes.length} episodes, number${voiced.length === 1 ? '' : 's'} ${numberRanges(voiced)}${span}. ` +
+    `Text only: ${silent.length ? `episode${silent.length === 1 ? '' : 's'} ${numberRanges(silent)}` : 'none'}.`;
+}
+
+/** PRODUCTION.md with the text between the audio-status markers replaced by audioStatusLine. */
+export function withAudioStatus(production, episodes, audio = {}) {
+  const start = production.indexOf(AUDIO_STATUS_START);
+  const end = production.indexOf(AUDIO_STATUS_END);
+  if (start < 0 || end < start) throw new Error('PRODUCTION.md: audio-status markers missing');
+  return `${production.slice(0, start + AUDIO_STATUS_START.length)}\n${audioStatusLine(episodes, audio)}\n${production.slice(end)}`;
 }

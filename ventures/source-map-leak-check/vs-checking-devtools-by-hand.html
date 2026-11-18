@@ -41,6 +41,7 @@
 </style>
 </head>
 <body>
+<main>
 <p><a href="index.html">← Back to the Source Map Leak Checker</a></p>
 <h1>Source Map Leak Checker vs. checking devtools by hand</h1>
 <p>
@@ -78,7 +79,7 @@
 <p>Three ways this scripted check catches and a quick devtools look easily misses: (1) a script that references a map which 404s or 403s -- devtools just shows you the minified code with no indication of whether the reference itself is a stray leftover or was never a problem; you'd have to separately try to load the .map URL. (2) A vendor or third-party bundle carrying its own sourceMappingURL comment independently of your own build -- easy to skip when you're eyeballing the entry bundle you wrote and not the ten other script tags the page also loads. (3) An inline data: URI source map, which some bundlers embed directly in the script rather than as a separate file -- devtools will resolve it the same way, but a person scanning file sizes or thinking 'no separate .map request, so no map' would miss it.</p>
 <h3>Why does this matter for CI, not just a one-time check?</h3>
 <p>A devtools check is a point-in-time, manual look. A deploy pipeline, a CDN config change, or a new vendor dependency can reintroduce an exposed map at any point after the last time someone happened to look. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching a regression the day it ships rather than the next time someone thinks to check by hand.</p>
-
+</main>
 <footer>
   <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
   kind, express or implied. It is not security advice, and it does not replace a qualified

@@ -145,7 +145,9 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const val = (id) => { const t = $("#" + id).value.trim(); return t === "" ? NaN : Number(t); };
+    // "1,200" and "12,345.67" read as numbers; anything else (e.g. "1,5") is left for the parser to reject.
+    const ungroup = (s) => (/^\s*[+-]?\d{1,3}(,\d{3})+(\.\d*)?\s*$/.test(s) ? s.replace(/,/g, "") : s);
+    const val = (id) => { const t = $("#" + id).value.trim(); return t === "" ? NaN : Number(ungroup(t)); };
     const be = (x) => (Number.isFinite(x) ? "+" + pct(x, 0) : "never");
     const call = { try: ["good", "Try it"], marginal: ["medium", "Marginal"], thin: ["info", "Too few orders"], skip: ["high", "Skip"] };
     let last = null;
@@ -178,7 +180,7 @@
       $("#grid tbody").innerHTML = r.bundles.map((b) => `<tr><td>${esc(b.a)} + ${esc(b.b)}</td>${b.grid.map((g) => `<td class="n">${money(g.profit)}<br><span class="note">(${be(g.breakEven)})</span></td>`).join("")}</tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

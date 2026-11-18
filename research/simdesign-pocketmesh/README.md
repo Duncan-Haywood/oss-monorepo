@@ -2,7 +2,7 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the first "next step" of `simdesign-gaugebasins`: repeat the web-width scan on finer meshes. Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model with assumed rule values, materials and load; a small, preliminary experiment.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-pocketmesh/
+**Live page:** https://marisstella.app/research/simdesign-pocketmesh/
 
 **Builds on.** `research/simdesign-gaugebasins` (model, rules and optimiser copied into `src/simdesign_pocketmesh/` so the project stays self-contained; only the experiment script and tests differ), and through it `simdesign-gaugemesh` and `simdesign-dfm`. scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
@@ -36,6 +36,13 @@ Smallest feasible w (mm) and feasible w below 15.4 mm, by mesh size h:
 - Gauge 2 mm only, one process, one load, the peak stress measure, four values of r and a 0.1 mm step in w. No search was run on the finer meshes, so the effect on the optimiser's answer is inferred from the feasible boundary, not measured.
 - Three mesh sizes do not establish convergence; the feasible boundary was still moving between 2.0 and 1.5 mm. The mesh-noise interpretation (non-monotone peak stress) is read off a few rows of `meshscan.json`, not tested.
 - Stylised 2D plane stress, assumed rule values and materials. Nothing was made or tested. Simulated results only.
+
+## Known gaps
+
+From the [2026-11-17 census quality audit](../../portfolio/quality/audits/2026-11-17-simdesign-pocketmesh.json), not yet fixed:
+
+- The feasible window is capped from above: the slenderness rule `w/b <= 8` (`src/simdesign_pocketmesh/dfm.py:23`) allows w up to 16.0 mm at b = 2 mm, and elementary beam theory (6F(L - w/2)/(b w^2) + F/(b w) = 100 MPa) puts the floor near w = 15.0 mm. So the boundary rising from 14.4 to 15.7 mm is a window shrinking against a hard cap, and at h = 1.0 mm the audit found none of 10 probed points feasible.
+- No test pins an FE stress against a reference value; seeded changes to the load, the shear stress and the stress limit left every test green (audit `mutations`).
 
 ## Next steps
 Extend the scan to h = 1.0 and 0.75 mm to see whether the boundary converges; rerun the differential-evolution search at h = 1.5 mm and report the mass of its best feasible design against the 2.5 mm result.

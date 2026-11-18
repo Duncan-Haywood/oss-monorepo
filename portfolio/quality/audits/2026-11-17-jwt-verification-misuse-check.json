@@ -1,0 +1,268 @@
+{
+  "date": "2026-11-17",
+  "subject": "ventures/jwt-verification-misuse-check",
+  "stratum": "venture",
+  "seed": "2026-11-17-5b6c",
+  "drawn_by": "census",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a senior application security engineer reviewing auth code for JWT misuse (reference points: RFC 8725 JWT BCP, RFC 7519, the jsonwebtoken / PyJWT / jose / golang-jwt / auth0 java-jwt / jjwt docs, and Semgrep's JWT rule packs); first checks: does every claimed pattern fire on real code in each claimed language, does it stay quiet on comments, strings and pinned safe calls, does it catch the algorithm-confusion and audience/issuer gaps the BCP names, and do its risk texts match what the current library versions actually do",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran check.py and classify.mjs over 7 hand-written fixtures (safe/bad in JS, Python, Go, Java; /tmp/claude-0/audit-jwt/fx) and against the real libraries (jsonwebtoken 9.0.2 and jose 5.9.6 installed from npm in /tmp/claude-0/audit-jwt/npm, PyJWT 2.15.0 under python3.13). True positives confirmed against library behaviour: jwt.decode returns a forged alg:none payload (jsonwebtoken and jose.decodeJwt both ACCEPT {sub:admin}); PyJWT options={'verify_signature': False} ACCEPTs a forged token; ignoreExpiration:true and verify_exp False ACCEPT an expired token; all flagged, plus alg none, weak literals ('shhhhh', 'secret', 'changeme'), req.query key, WithoutClaimsValidation, ParseUnverified, Algorithm.none(). Python and browser engines agree on all 32 findings (diff empty). Wrong: (1) Go jwt.Parse with no WithValidMethods is suppressed for the WHOLE FILE when any `.Method` appears, so an ordinary handler's `if r.Method != http.MethodGet` hides it (bad.go: 0 findings), and one pinned Parse hides every unpinned Parse in the same file (bad2.go:6-7 missed); (2) the 'let the token choose' pattern the guide itself warns about, `algorithms=[jwt.get_unverified_header(token)['alg']]`, is not flagged (PyJWT ACCEPTs it), nor are mixed-family lists ['RS256','HS256']; (3) verify_aud False (PyJWT ACCEPTs a token for another audience) and jsonwebtoken verify with no audience option (ACCEPTs aud:'other-service') are not flagged; (4) false positives on safe code: a string literal, a trailing // or # comment, a Python docstring, a template literal and the interior line of a /* */ block comment each produce findings (safe.js 6/7/10/12, safe.py 5/8/9: 11 findings on two safe files); (5) destructured imports (`const { decode } = require('jsonwebtoken')`, `from jwt import decode`) and jose/nimbus/jjwt unsecured parsing are invisible. The claimed core patterns are found on the common call shapes; the misses and noise are what a reviewer hits in the first hour.",
+    "completeness": "Every row of the README table exercised on fixtures: 9 of 9 types fire on at least one claimed shape (decode-without-verify in JS/Go/Java/python-jose; verify-disabled both forms; alg-none JS/Py/Go/Java; not-pinned JS/Py/Go; expiry JS/Py/Go; nbf JS; hardcoded/weak secret JS/Py/Go/Java incl. jjwt setSigningKey; user-controlled key). CLI --format json and --fail-on-risk work; browser page tests (page.test.mjs) pass; served page HTTP 200 at https://marisstella.app/jwt-verification-misuse-check/ with the no-warranty footer and usage.mjs; opt-out button present (index.html:115); served-copy reports no placeholder or retired origin. Partial: the Go not-pinned rule is file-scoped and suppressible as above; 'A comment on its own line is ignored' fails for block-comment interior lines.",
+    "verification": "`/usr/bin/python3.13 -m unittest test_check`: 30 tests OK; `node --test '*.test.mjs'`: 31 pass, 0 fail. The parity test (check.py vs classify.mjs on a fixture) is real. Eight mutants via platform/ci/quality_mutate.py with both suites: 2 caught (kid exemption on user keys, verify=False regex), 6 survived: weak-secret length 16->8 in check.py and classify.mjs, `unpinned = \"algorithms\" not in third` -> False in check.py and classify.mjs (no test has an options object without algorithms, the core JS rule), Go `.Method` suppression removed, Python `**kwargs` exemption removed. The tests pin the happy-path fixture, not the decision branches.",
+    "craft": "Read check.py (559 lines), classify.mjs (438), test_check.py, classify.test.mjs, usage.mjs. Tidy stdlib-only code, bounded call scanning (MAX_CALL_CHARS), ReDoS-aware STRING_ARG, never prints secret values, duplicated engine held by a parity test. Defects: string and trailing-comment content is scanned as code (_blank_comments only drops whole lines starting with a prefix, check.py:240); pin checks are substring tests (`\"algorithms\" in third`, check.py:421/454) so `{ audience: 'algorithms-api' }` counts as pinned; the Go rule is a whole-file `break` on a loose regex (check.py:174,465).",
+    "claims": "Checked: no-network claim (grep of check.py/classify.mjs for fetch/urllib/socket/XMLHttpRequest: none) pass; disclaimer and 'not a security audit' on page footer (index.html:112), guide footer, README pass; 'flags some safe code', variable options trusted, jwt-decode not flagged are disclosed (README Limits) pass; guide's decode-vs-verify and alg-none explanations match jsonwebtoken docs and RFC 8725 \u00a72.1/\u00a73.1 pass; usage tracking is localStorage only and honours DNT/GPC (usage.mjs:31-40) pass. Partial: README:47 'A comment on its own line is ignored' false inside /* */ blocks; risk text 'the library trusts the token's own alg header' for unpinned jsonwebtoken verify overstates v9 (it REJECTs alg none and RS/HS confusion, accepting only other algorithms of the key's family); 'jwt.decode(..., verify=False) switches signature verification off' is true only for PyJWT 1.x (2.15 ignores the kwarg and still requires algorithms); llms.txt:5 carries calculator boilerplate 'Results are estimates from the numbers typed in, not legal, tax, financial...' that does not describe a code scanner.",
+    "fitness": "Job walked: an appsec engineer reviewing a mixed Node/Python/Go service for JWT misuse before release, then wiring --fail-on-risk into CI. It finds the loud mistakes (jwt.decode on the auth path, verify_signature False, ignoreExpiration, literal secrets) with good fix text. But on the fixtures 11 of 32 findings are on safe files (strings, docstrings, trailing and block comments), which makes --fail-on-risk impractical without an ignore mechanism (none exists), while the Go handler file, the header-derived alg, the missing aud/iss checks and destructured imports are silent. Nearest tools: Semgrep's jwt rules (AST-aware, no comment/string noise, cover jose and audience), CodeQL's JWT queries, Bandit has none. Useful as a quick paste-and-look; not a gate.",
+    "domain": "Against RFC 8725: \u00a73.1 pinning algorithms (rule present; mixed RS/HS lists and header-derived algorithms not flagged, departs), \u00a73.1 reject none (pass), \u00a73.5 sufficient HMAC key entropy (16-char floor, guide recommends 32 bytes; pass with a low floor), \u00a73.8 validate issuer and \u00a73.9 audience (not modelled at all, departs; jsonwebtoken ACCEPTed a foreign aud), \u00a73.10 kid lookups (kid exemption present, pass). Library currency: does not distinguish jsonwebtoken <9 (CVE-2022-23540/23541, unpinned verify genuinely dangerous) from 9.x (mitigated), nor PyJWT 1.x verify=False from 2.x. Library coverage misses panva jose (jwtVerify/decodeJwt), Nimbus SignedJWT.parse without verify and jjwt parseClaimsJwt/unsecured(). A senior reviewer would accept the rule list as a starting checklist, not the method as a review."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "jsonwebtoken 9.0.2: jwt.decode on a forged alg:none token, and the tool flags jwt.decode",
+      "method": "jsonwebtoken README ('decode ... does not verify whether the signature is valid') + running the library",
+      "command": "node /tmp/claude-0/audit-jwt/npm/lib.cjs; python3 check.py --format json /tmp/claude-0/audit-jwt/fx",
+      "expected": "library accepts forged claims; tool flags bad.js:5",
+      "observed": "decode-forged ACCEPT {\"sub\":\"admin\"}; bad.js:5 jwt-decode-without-verify",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "PyJWT 2.15.0 options={'verify_signature': False} and verify_exp False; tool flags both incl. a multi-line call",
+      "method": "PyJWT docs (options) + running PyJWT",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-jwt/pylib.py; python3 check.py --format json /tmp/claude-0/audit-jwt/fx",
+      "expected": "library accepts forged/expired tokens; tool flags bad.py:6, 15, 43",
+      "observed": "ACCEPT {'sub': 'admin'} / ACCEPT expired; bad.py:6, 15, 43 flagged",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Go jwt.Parse with no WithValidMethods inside an HTTP handler that checks r.Method",
+      "method": "golang-jwt v5 docs: WithValidMethods or a token.Method type assertion in the keyfunc pins the method; r.Method is the HTTP verb, unrelated",
+      "command": "python3 check.py --format json /tmp/claude-0/audit-jwt/fx/bad.go",
+      "expected": "jwt-algorithms-not-pinned at bad.go:12",
+      "observed": "[] (no findings)",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Two Parse calls in one Go file, one pinned, one not",
+      "method": "golang-jwt v5 docs: options are per parser/call",
+      "command": "python3 check.py --format json /tmp/claude-0/audit-jwt/fx/bad2.go",
+      "expected": "not-pinned at bad2.go:6 and 7",
+      "observed": "only weak-secret at 7, WithoutClaimsValidation at 8, ParseUnverified at 9; no pin findings",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Algorithm taken from the unverified header: algorithms=[jwt.get_unverified_header(token)['alg']]",
+      "method": "RFC 8725 \u00a73.1 and the tool's own guide ('never let the token choose'); PyJWT run",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-jwt/pylib.py; python3 check.py --format json /tmp/claude-0/audit-jwt/fx/bad.py",
+      "expected": "a finding at bad.py:22",
+      "observed": "PyJWT ACCEPT; tool silent at bad.py:21-22 and on the mixed ['RS256','HS256'] list at bad.py:25 and bad.js:7",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Audience not checked: PyJWT verify_aud False, jsonwebtoken verify with no audience option",
+      "method": "RFC 8725 \u00a73.9 + running both libraries",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-jwt/pylib.py; node /tmp/claude-0/audit-jwt/npm/lib.cjs",
+      "expected": "a finding (aud check disabled/absent)",
+      "observed": "PyJWT verify_aud False ACCEPT aud 'other'; jsonwebtoken noaud-check ACCEPT; tool silent (bad.py:28)",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "False positives on safe files: string literal, template literal, trailing comment, block-comment interior, docstring",
+      "method": "hand-written safe.js / safe.py where every jwt mention is in a comment or string and the real call is pinned with aud/iss",
+      "command": "python3 check.py --format json /tmp/claude-0/audit-jwt/fx/safe.js /tmp/claude-0/audit-jwt/fx/safe.py",
+      "expected": "0 findings",
+      "observed": "11 findings (safe.js 6,7,7,10,10,12; safe.py 5,5,8,9,9)",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "jsonwebtoken 9 unpinned verify: does the token's alg header decide?",
+      "method": "jsonwebtoken 9 changelog/README (algorithms default from key type) + running the library",
+      "command": "node /tmp/claude-0/audit-jwt/npm/lib.cjs",
+      "expected": "tool's text 'the library trusts the token's own alg header' holds",
+      "observed": "alg none REJECT 'jwt signature is required'; RS/HS confusion REJECT 'invalid algorithm'; HS384 with HS secret ACCEPT: only within-family choice; text overstates for v9",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Python and browser engines agree",
+      "method": "own parity script over 7 fixtures",
+      "command": "node /tmp/claude-0/audit-jwt/parity.mjs > js.txt; python3 check.py --format json /tmp/claude-0/audit-jwt/fx | ... > py.txt; diff py.txt js.txt",
+      "expected": "identical",
+      "observed": "PARITY-OK, 32 findings each",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Destructured / aliased imports and other major libraries",
+      "method": "common idioms from jsonwebtoken, PyJWT, jose, Nimbus, jjwt docs",
+      "command": "python3 check.py --format json /tmp/claude-0/audit-jwt/fx",
+      "expected": "README scope is jwt.* calls; destructured decode is a common idiom",
+      "observed": "bad.js:12-15, bad.py:31,37, Bad.java:11-13 silent",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suites",
+      "method": "run",
+      "command": "cd ventures/jwt-verification-misuse-check && /usr/bin/python3.13 -m unittest test_check && node --test '*.test.mjs'",
+      "expected": "pass",
+      "observed": "Ran 30 tests OK; node 31 pass 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Shipped page, disclaimer and usage tracking",
+      "method": "curl live page; served-copy",
+      "command": "curl -sS https://marisstella.app/jwt-verification-misuse-check/ | grep -c -i 'no warranty\\|usage.mjs'; node platform/pages/served-copy.mjs jwt-verification-misuse-check",
+      "expected": "200, disclaimer, local-only usage, no stale origins",
+      "observed": "HTTP 200, 2 matches; no placeholder or retired origin left",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:47 'A comment on its own line is ignored'",
+      "method": "fixture safe.js lines 8-11 (/* ... */ with an unprefixed interior line)",
+      "command": "python3 check.py --format json /tmp/claude-0/audit-jwt/fx/safe.js",
+      "expected": "no finding at line 10",
+      "observed": "jwt-algorithms-not-pinned and jwt-expiry-disabled at safe.js:10",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "llms.txt disclaimer line fits the product",
+      "method": "read",
+      "command": "sed -n 5p ventures/jwt-verification-misuse-check/llms.txt",
+      "expected": "a scanner disclaimer",
+      "observed": "'Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.'",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "check.py:331",
+      "change": "if literal.lower() in WEAK_LITERALS or n < 16: -> if literal.lower() in WEAK_LITERALS or n < 8:",
+      "caught": false,
+      "test_cmd": "bash -c \"/usr/bin/python3.13 -m unittest test_check && node --test '*.test.mjs'\""
+    },
+    {
+      "where": "classify.mjs:282",
+      "change": "if (WEAK_LITERALS.has(lower) || n < 16) { -> if (WEAK_LITERALS.has(lower) || n < 8) {",
+      "caught": false,
+      "test_cmd": "bash -c \"/usr/bin/python3.13 -m unittest test_check && node --test '*.test.mjs'\""
+    },
+    {
+      "where": "check.py:421",
+      "change": "unpinned = \"algorithms\" not in third -> unpinned = False",
+      "caught": false,
+      "test_cmd": "bash -c \"/usr/bin/python3.13 -m unittest test_check && node --test '*.test.mjs'\""
+    },
+    {
+      "where": "classify.mjs:356",
+      "change": "unpinned = !third.includes(\"algorithms\"); -> unpinned = false;",
+      "caught": false,
+      "test_cmd": "bash -c \"/usr/bin/python3.13 -m unittest test_check && node --test '*.test.mjs'\""
+    },
+    {
+      "where": "check.py:465",
+      "change": "if \"WithValidMethods\" in cleaned or GO_METHOD_CHECK.search(cleaned): -> if \"WithValidMethods\" in cleaned:",
+      "caught": false,
+      "test_cmd": "bash -c \"/usr/bin/python3.13 -m unittest test_check && node --test '*.test.mjs'\""
+    },
+    {
+      "where": "check.py:454",
+      "change": "if not disabled and \"algorithms\" not in call and \"**\" not in call: -> if not disabled and \"algorithms\" not in call:",
+      "caught": false,
+      "test_cmd": "bash -c \"/usr/bin/python3.13 -m unittest test_check && node --test '*.test.mjs'\""
+    },
+    {
+      "where": "check.py:362",
+      "change": "if USER_KEY.search(key) and not re.search(r\"\\bkid\\b\", key): -> if USER_KEY.search(key):",
+      "caught": true,
+      "test_cmd": "bash -c \"/usr/bin/python3.13 -m unittest test_check && node --test '*.test.mjs'\""
+    },
+    {
+      "where": "check.py:445",
+      "change": "if re.search(r\"\\bverify\\s*=\\s*False\\b\", call): -> if re.search(r\"\\bverify\\s*=\\s*True\\b\", call):",
+      "caught": true,
+      "test_cmd": "bash -c \"/usr/bin/python3.13 -m unittest test_check && node --test '*.test.mjs'\""
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Go unpinned-Parse rule is file-scoped and suppressed by any `.Method` text: `if r.Method != http.MethodGet` in a handler (the usual Go HTTP idiom) hides an unpinned jwt.Parse, and one pinned Parse hides every unpinned Parse in the same file. Repro: bad.go (handler with r.Method + jwt.Parse(tok, kf)) -> 0 findings.",
+      "where": "ventures/jwt-verification-misuse-check/check.py:174",
+      "category": "logic-error",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17037"
+    },
+    {
+      "severity": "medium",
+      "what": "Header-derived and mixed-family algorithm lists are not flagged: `algorithms=[jwt.get_unverified_header(token)['alg']]` (the guide's own 'never let the token choose') and `['RS256','HS256']` pass because the check is only `\"algorithms\" in call`; get_unverified_header itself is not a rule. RFC 8725 \u00a73.1.",
+      "where": "ventures/jwt-verification-misuse-check/check.py:454",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Audience and issuer validation (RFC 8725 \u00a73.8/\u00a73.9) is not modelled: PyJWT options verify_aud False and jsonwebtoken verify with no audience option both accept a token minted for another service and produce no finding.",
+      "where": "ventures/jwt-verification-misuse-check/check.py:91",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Comments and strings are scanned as code except whole lines starting with a comment prefix: trailing // and # comments, string and template literals, Python docstrings and unprefixed lines inside /* */ blocks all raise findings (11 on two safe files), contradicting README:47 'A comment on its own line is ignored' for block comments and making --fail-on-risk noisy with no ignore mechanism.",
+      "where": "ventures/jwt-verification-misuse-check/check.py:240",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Core decision branches untested: 6 of 8 seeded mutants survived, including making every JS options object count as pinned (check.py:421, classify.mjs:356), the 16-character weak-secret floor, and the Go suppression.",
+      "where": "ventures/jwt-verification-misuse-check/test_check.py:1",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Destructured/aliased imports (`const { decode } = require('jsonwebtoken')`, `from jwt import decode`) and other major libraries (panva jose decodeJwt/jwtVerify, Nimbus SignedJWT.parse without verify, jjwt parseClaimsJwt/unsecured()) are invisible; README implies JS/Python/Java coverage generally.",
+      "where": "ventures/jwt-verification-misuse-check/check.py:164",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Risk text overstates current libraries: unpinned jsonwebtoken 9 verify rejects alg none and RS/HS confusion (only same-family algorithms float), yet the finding says 'the library trusts the token's own alg header'; 'verify=False switches signature verification off' holds only for PyJWT 1.x. Name the version split (CVE-2022-23540/23541).",
+      "where": "ventures/jwt-verification-misuse-check/check.py:428",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt carries calculator boilerplate 'Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.' which does not describe a code scanner.",
+      "where": "ventures/jwt-verification-misuse-check/llms.txt:5",
+      "category": "stale-docs",
+      "origin": "maintenance",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17037"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17037"],
+  "verdict": "An honest, tidy, zero-dependency JWT grep with good fix text and a real Python/browser parity test, short of what an appsec reviewer would sign off. Against jsonwebtoken 9.0.2, jose 5.9.6 and PyJWT 2.15.0 run locally, its headline true positives are right (jwt.decode and decodeJwt accept forged alg:none claims; verify_signature False and ignoreExpiration accept forged/expired tokens; all flagged), and both engines agree on 32 findings. But a Go handler that checks r.Method hides its unpinned jwt.Parse, the header-derived algorithm the guide warns about is not flagged, audience/issuer checks (RFC 8725 \u00a73.8-3.9) are absent, and strings, docstrings, trailing and block comments produce 11 false findings on two safe files, so --fail-on-risk is not a usable gate. 6 of 8 seeded mutants survived. Does not meet the bar (correctness 2, verification 2, median 2); finished (completeness 3). Small fixes: tighten GO_METHOD_CHECK to a keyfunc type assertion and make the Go rule per call, add `get_unverified_header` and mixed RS/HS lists as rules, strip string/comment spans before matching, add tests for an options object without algorithms."
+}

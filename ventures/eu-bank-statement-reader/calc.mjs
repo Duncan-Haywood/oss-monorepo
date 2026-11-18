@@ -53,7 +53,10 @@ function validDate(y, m, d) {
   const dt = new Date(Date.UTC(y, m - 1, d));
   return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;
 }
-const yymmdd = (s) => (/^\d{6}$/.test(s) && validDate(2000 + +s.slice(0, 2), +s.slice(2, 4), +s.slice(4)) ? `20${s.slice(0, 2)}-${s.slice(2, 4)}-${s.slice(4)}` : "");
+// Two-digit years: 70-99 are 19xx and the rest 20xx, the pivot the portfolio's other MT940 readers use
+// (a 1996 archive statement read as 2096 put every date 100 years out; found by differential fuzzing).
+const century = (yy) => (+yy >= 70 ? 1900 : 2000) + +yy;
+const yymmdd = (s) => (/^\d{6}$/.test(s) && validDate(century(s.slice(0, 2)), +s.slice(2, 4), +s.slice(4)) ? `${century(s.slice(0, 2))}-${s.slice(2, 4)}-${s.slice(4)}` : "");
 const isoDay = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s).trim()); return m && validDate(+m[1], +m[2], +m[3]) ? `${m[1]}-${m[2]}-${m[3]}` : ""; };
 
 // ---- minimal XML reader: enough to walk a payment file, tracks line numbers and content spans ----
@@ -124,7 +127,7 @@ function parseCamt(text, add) {
       const minor = toMinor(val(amtEl), cur);
       if (minor === null) { add("error", "AMOUNT", b.line, `Balance ${code || "?"} amount "${val(amtEl)}" is not a decimal number`); continue; }
       const sign = val(kid(b, "CdtDbtInd")) === "DBIT" ? -1 : 1;
-      const rec = { amount: sign * minor, currency: cur, date: camtDay(b), line: b.line, kind: code };
+      const rec = { amount: sign * minor, currency: cur, date: camtDay(kid(b, "Dt")), line: b.line, kind: code };
       if (code === "OPBD" || code === "PRCD") s.opening = s.opening && s.opening.kind === "OPBD" ? s.opening : rec;
       if (code === "CLBD") s.closing = rec;
     }
@@ -150,7 +153,7 @@ function parseCamt(text, add) {
       }
       if (!texts.length && val(kid(n, "AddtlNtryInf"))) texts.push(val(kid(n, "AddtlNtryInf")));
       const e = {
-        line: n.line, bookDate: "", valueDate: "", amount: (credit !== reversal ? 1 : -1) * minor,
+        line: n.line, bookDate: "", valueDate: "", amount: (credit ? 1 : -1) * minor, // ISO 20022: CdtDbtInd is already the reversal entry's own direction
         currency: cur, reversal, status, ref: ref === "NOTPROVIDED" ? "" : ref, bankRef: val(kid(n, "AcctSvcrRef")) || val(kid(n, "NtryRef")), counterparty, text: texts.filter(Boolean).join(" ").replace(/\s+/g, " "),
       };
       e.bookDate = kid(n, "BookgDt") ? camtDay(kid(n, "BookgDt")) : "";
@@ -182,8 +185,16 @@ function mtBalance(v, line, add, tag) {
 
 function parseMt940(text, add) {
   let body = text.replace(/\r\n?/g, "\n");
-  const env = /\{4:\s*([\s\S]*?)\n?-?\}/.exec(body);
-  if (env) body = env[1];
+  // SWIFT envelopes: {1:..}{2:..}{3:{108:..}}{4: opens a message's text block and "-}" (often followed by a
+  // {5:..} trailer) closes it. A file can hold many messages, one per day or account, so every envelope is
+  // removed in place rather than keeping only the first block's text: the old first-match extract silently
+  // dropped every later statement, and their balances, without a finding. In place also keeps line numbers.
+  if (/\{4:/.test(body)) {
+    body = body
+      .replace(/^[ \t]*(?:\{\d:(?:[^{}\n]|\{[^{}\n]*\})*\}[ \t]*)*\{4:[ \t]*/gm, "")
+      .replace(/^-\}.*$/gm, "-")
+      .replace(/^[ \t]*\{5:.*$/gm, "");
+  }
   const statements = [];
   let st = null, tag = null;
   const lines = body.split("\n");
@@ -246,10 +257,10 @@ function parseMt940(text, add) {
 export function analyze(text) {
   const findings = [];
   const add = (severity, code, line, title, detail = "") => findings.push({ severity, code, line, title, detail });
-  const trimmed = text.replace(/^﻿/, "").trim();
+  const trimmed = text.replace(/^\uFEFF/, "").trim();
   if (!trimmed) { add("error", "EMPTY", 0, "Nothing to read"); return { findings, statements: [], format: "", summary: summarize([], "") }; }
   const isXml = trimmed.startsWith("<");
-  const parsed = isXml ? parseCamt(text.replace(/^﻿/, ""), add) : parseMt940(text.replace(/^﻿/, ""), add);
+  const parsed = isXml ? parseCamt(text.replace(/^\uFEFF/, ""), add) : parseMt940(text.replace(/^\uFEFF/, ""), add);
   if (!isXml && !parsed.statements.length) add("error", "STRUCTURE", 1, "No MT940 statement found", "Expected tagged lines like :20:REF, :25:ACCOUNT, :60F:C261001EUR100,00, :61: entries and :62F: closing balance. camt files start with <.");
 
   const stmts = parsed.statements;
@@ -309,7 +320,7 @@ export function validate(text) {
 // ---------------------------------------------------------------- export
 const csvText = (s) => {
   let v = String(s);
-  if (/^[=+\-@\t\r]/.test(v)) v = "'" + v;
+  if (/^[=+\-@\t\r]/.test(v) && !/^-?\d+(\.\d+)?$/.test(v)) v = "'" + v;
   return `"${v.replace(/"/g, '""')}"`;
 };
 const dec = (n, cur) => {
@@ -332,7 +343,7 @@ export function findingsCsv(result) {
 }
 
 export function decodeBuffer(buf) {
-  return new TextDecoder("utf-8").decode(buf).replace(/^﻿/, "");
+  return new TextDecoder("utf-8").decode(buf).replace(/^\uFEFF/, "");
 }
 
 // ---------------------------------------------------------------- samples (synthetic: made-up company and IBANs)

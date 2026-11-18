@@ -64,7 +64,7 @@ def write_txt(o):
                 cells.append(("-" if b is None else f"{b['L'] / b['T']:.2f}").rjust(10))
             L.append(f"  {m:>4g} kg  " + "  ".join(cells))
         L.append("")
-    L.append("Joint that exceeds its limit first (worst) in the cases that fail only on torque, unscaled, by payload:")
+    L.append("Joint that exceeds its limit first (worst) in the cases with IK converged and torque ratio > 1 (some also fail the CoP test), unscaled, by payload:")
     for n, ms in o["payloads"].items():
         for m in ms:
             rs = [r for r in rows if r["robot"] == n and r["mass"] == m and r["group"] == "all" and r["f"] == 1.0

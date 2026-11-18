@@ -1,3 +1,9 @@
+---
+kind: analysis
+topics: [guidance-system]
+date: 2026-10-24
+tagged: auto
+---
 # Guidance system audit: brief for an agent reader
 
 **Date:** 2026-10-24. **Asked by:** the owner ("tell me about the agent docs

@@ -1,0 +1,19 @@
+every 4th window; hourly replan; shares of the no-corridor no-tack-cost bound; correction for a window learned from the OTHER windows of the station-month
+
+January: 96 windows from 12 stations; header 0.889; median learned ratio 0.77, median |offset| 16 deg
+  T0      : 0.866; minus header -0.2 pts (boot 95% -1.1..-0.0); tacks/day 148
+  bc1h    : 0.851; minus header -0.5 pts (boot 95% -1.3..-0.2); tacks/day 172
+  learned : 0.840; minus header -1.0 pts (boot 95% -2.0..-0.4); tacks/day 264
+  both    : 0.851; minus header -1.1 pts (boot 95% -1.7..-0.4); tacks/day 212
+  learned minus bc1h: -0.6 pts (boot 95% -1.2..-0.3)
+  both minus bc1h: -0.2 pts (boot 95% -0.5..+0.0)
+  learned minus T0: -0.6 pts (boot 95% -1.1..-0.2)
+
+July: 96 windows from 12 stations; header 0.873; median learned ratio 0.76, median |offset| 19 deg
+  T0      : 0.835; minus header -2.6 pts (boot 95% -3.1..-1.8); tacks/day 246
+  bc1h    : 0.834; minus header -3.0 pts (boot 95% -4.3..-2.1); tacks/day 291
+  learned : 0.790; minus header -4.5 pts (boot 95% -6.0..-3.9); tacks/day 452
+  both    : 0.823; minus header -3.4 pts (boot 95% -5.0..-2.5); tacks/day 330
+  learned minus bc1h: -1.6 pts (boot 95% -2.8..-0.6)
+  both minus bc1h: -0.4 pts (boot 95% -0.7..-0.2)
+  learned minus T0: -1.9 pts (boot 95% -3.6..-0.7)

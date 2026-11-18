@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -147,7 +147,7 @@
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
     <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>payback_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p>Buying for a business, farm or nonprofit? The <a href="../commercial-solar-ppa-lease-buy-calculator/">commercial solar buy vs PPA vs lease calculator</a> compares the three quote types. Own the house? The <a href="../property-tax-appeal-calculator/">property tax appeal calculator</a> checks whether your assessment is too high. Solar installer? The <a href="../solar-pv-bid-calculator/">solar PV bid calculator</a> prices a job.</p>
+    <p>Buying for a business, farm or nonprofit? The <a href="../commercial-solar-ppa-lease-buy-calculator/">commercial solar buy vs PPA vs lease calculator</a> compares the three quote types. Own the house? The <a href="../property-tax-appeal-calculator/">property tax appeal calculator</a> checks whether your assessment is too high. Solar installer? The <a href="../solar-pv-bid-calculator/">solar PV bid calculator</a> prices a job. Already have solar and weighing a battery? The <a href="../home-battery-planner/">home battery planner</a> replays one through a year of your own meter data.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -158,7 +158,7 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(money(Math.abs(n)));
     const KEYS = ["systemKw", "costPerWatt", "incentives", "kwhPerKw", "usage", "importRate", "exportRate", "selfShare", "escalation", "degradation", "om", "inverterCost", "inverterYear", "years", "discount", "loan", "apr", "loanYears"];
     const yrs = (v) => (v === null ? "not reached" : v.toFixed(1));
     let last = null;
@@ -173,12 +173,12 @@
       const b = a.base;
       const tiles = [[b.payback === null ? "None" : yrs(b.payback) + " yrs", "simple payback"], [usd(b.gain), "net gain after " + a.p.years + " years"], [usd(b.year1), "savings in year 1"], [b.irr === null ? "n/a" : (b.irr * 100).toFixed(1) + "%", "internal rate of return"]];
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#size-table tbody").innerHTML = a.scenarios.map((s, i) => `<tr class="${i === 0 ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${yrs(s.payback)}</td><td class="n">${usd(s.gain)}</td><td class="n">${usd(s.npv)}</td></tr>`).join("");
       $("#year-table tbody").innerHTML = b.rows.map((r) => `<tr><td>${r.year}</td><td class="n">${usd(r.savings)}</td><td class="n">${usd(r.om + r.loanPaid)}</td><td class="n">${usd(r.net)}</td><td class="n${r.cumulative >= 0 ? " hot" : ""}">${usd(r.cumulative)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

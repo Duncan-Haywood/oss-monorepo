@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -56,6 +56,15 @@
     button.danger { background: #fde8e8; color: #9a3412; }
     .sr { position: absolute; left: -9999px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#t-cat) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 243px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header class="noprint">
@@ -256,7 +265,7 @@
         kpi(s.logged ? pct(s.businessUse) : "–", "business use " + (s.haveOdo ? "(of year miles)" : "(of logged miles)")),
         kpi(String(s.trips), "trips logged"),
       ].join("");
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const row = (l, v) => `<tr><th scope="row">${l}</th><td class="n">${v === null ? "add odometer readings" : Math.round(v).toLocaleString("en-US")}</td></tr>`;
       $("#sched").innerHTML = row("Total miles driven in the year", s.yearMiles) + row("Business miles", s.by.business.miles) + row("Commuting miles", s.by.commute.miles) + row("Other miles", s.haveOdo ? s.otherMiles : null);
       $("#months").innerHTML = s.months.map((m) => `<tr><th scope="row">${m.key}</th><td class="n">${Math.round(m.business)}</td><td class="n">${Math.round(m.other)}</td><td class="n">${money(m.deduction)}</td></tr>`).join("");
@@ -303,7 +312,7 @@
       clearForm();
       $("#t-date").value = d.date; $("#t-cat").value = d.category; $("#t-from").value = d.from; $("#t-to").value = d.to; $("#t-purpose").value = d.purpose; $("#t-client").value = d.client; $("#t-vehicle").value = d.vehicle; $("#t-miles").value = d.miles || "";
       $("#form-status").textContent = `Filled from your usual ${d.to} trip. Check the miles (or enter odometer readings), then save.`;
-      $("#form-title").scrollIntoView({ behavior: "smooth" });
+      $("#form-title").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     });
 
     function readForm() {
@@ -337,7 +346,7 @@
         editing = t.id; $("#t-date").value = t.date; $("#t-cat").value = t.category; $("#t-from").value = t.from; $("#t-to").value = t.to; $("#t-purpose").value = t.purpose; $("#t-client").value = t.client; $("#t-vehicle").value = t.vehicle || "";
         $("#t-odo-start").value = t.odoStart; $("#t-odo-end").value = t.odoEnd; $("#t-miles").value = t.miles || ""; $("#t-tolls").value = t.tolls || ""; $("#t-parking").value = t.parking || "";
         $("#form-title").textContent = "2. Edit trip"; $("#save-trip").textContent = "Update trip"; $("#cancel-edit").hidden = false;
-        $("#form-title").scrollIntoView({ behavior: "smooth" });
+        $("#form-title").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
       } else if (del) {
         state.trips = state.trips.filter((t) => t.id !== del.dataset.del); save(); render();
       }

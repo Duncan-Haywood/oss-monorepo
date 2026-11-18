@@ -26,6 +26,27 @@ const esc = (value) =>
   String(value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 /**
+ * A still's <img> source attributes. A close crop (`hero`, 600 x 375) is used
+ * when there is one; its 1,200 px twin (`heroWide`) goes in a srcset so a
+ * 3x phone showing a 290 px gallery card gets 870+ px of image, not 600
+ * (polish-2026-11-17-gallery-crops.md, "Still weakest" 2). `sizes` is the
+ * slot's CSS width, so a 1x or 2x screen keeps the 600 px file.
+ */
+// The gallery card's CSS width, measured in polish-2026-11-17-hero-srcset.md:
+// 82% of the band (about 290 px at 390) up to 640 px, then 280 px at every
+// wider width (the scrolling grid settles on the minmax minimum). So a 1x
+// screen and a 2x desktop (560) keep the 600 px crop; a phone at 2x (about
+// 640) or 3x (about 960) and a 3x desktop (840) take the 1,200.
+export const GALLERY_SIZES = '(max-width: 640px) 82vw, 280px';
+
+export function stillSrc(s, sizes) {
+  const src = `${SHOWCASE_DIR}/${esc(s.hero || s.file)}`;
+  const dims = s.hero ? 'width="600" height="375"' : 'width="960" height="600"';
+  if (!s.hero || !s.heroWide) return `src="${src}" ${dims}`;
+  return `src="${src}" srcset="${src} 600w, ${SHOWCASE_DIR}/${esc(s.heroWide)} 1200w" sizes="${sizes}" ${dims}`;
+}
+
+/**
  * The showcase manifest, keeping only stills of tools this build publishes, so
  * a renamed or withdrawn tool drops out instead of becoming a dead card.
  */
@@ -34,7 +55,14 @@ export function loadShowcase(publishedSlugs, source = SHOWCASE_SOURCE) {
   if (!existsSync(file)) return { shots: [], reel: null };
   const manifest = JSON.parse(readFileSync(file, 'utf8'));
   const published = new Set(publishedSlugs);
-  const shots = (manifest.shots ?? []).filter((s) => published.has(s.slug) && existsSync(path.join(source, s.file)));
+  const shots = (manifest.shots ?? [])
+    .filter((s) => published.has(s.slug) && existsSync(path.join(source, s.file)))
+    // A hero crop whose file is missing drops out; the hero falls back to the full still.
+    // So does its 1,200 px version (`heroWide`), which only adds a srcset entry.
+    .map(({ hero, heroWide, ...s }) => {
+      if (!hero || !existsSync(path.join(source, hero))) return s;
+      return heroWide && existsSync(path.join(source, heroWide)) ? { ...s, hero, heroWide } : { ...s, hero };
+    });
   const reel = manifest.reel && ['webm', 'mp4', 'poster'].every((k) => existsSync(path.join(source, manifest.reel[k])))
     ? { ...manifest.reel, tools: (manifest.reel.tools ?? []).filter((slug) => published.has(slug)) }
     : null;
@@ -43,7 +71,7 @@ export function loadShowcase(publishedSlugs, source = SHOWCASE_SOURCE) {
 
 /** Publish the files the showcase names, and nothing else from that folder. */
 export async function copyShowcase(outDir, showcase, source = SHOWCASE_SOURCE) {
-  const files = [...showcase.shots.map((s) => s.file)];
+  const files = showcase.shots.flatMap((s) => [s.file, s.hero, s.heroWide].filter(Boolean));
   if (showcase.reel) files.push(showcase.reel.webm, showcase.reel.mp4, showcase.reel.poster);
   if (!files.length) return 0;
   await fs.mkdir(path.join(outDir, SHOWCASE_DIR), { recursive: true });
@@ -92,12 +120,15 @@ export function renderShowcaseSection({ shots, reel }, titleFor = (slug) => slug
         <figcaption>Recorded from the live tools: each one loads its own worked example and shows the answer.</figcaption>
       </figure>`
     : '';
+  // A card is about 280 to 440 px wide, where a full 1,280 px still drops its
+  // text to about 3 px; a shot's `hero` crop (capture.mjs, HERO_VIEWPORT: the
+  // tool's drawing or answer laid out 720 px wide) stays legible, so it wins.
   const gallery = shots.length
     ? `      <ul class="shots">
 ${shots
   .map(
     (s) => `        <li class="shot"><a href="${esc(s.slug)}/" data-tool="${esc(s.slug)}">
-          <img src="${SHOWCASE_DIR}/${esc(s.file)}" width="960" height="600" loading="lazy" decoding="async"
+          <img ${stillSrc(s, GALLERY_SIZES)} loading="lazy" decoding="async"
                alt="${esc(titleFor(s.slug))} with its worked example loaded">
           <span class="shot-name">${esc(titleFor(s.slug))}</span>
           <span class="shot-cap">${esc(s.caption)}</span>
@@ -115,6 +146,43 @@ ${gallery}
     </section>`;
 }
 
+/**
+ * The tools the hub's hero shows beside its search, in order: the top
+ * flagship (a trades bid, "price the job"), a seller's fee check ("check the
+ * fees"), and last, seen whole on top of the other two, the most visual drawing. Any not published drops out and the
+ * next still in the manifest takes its place.
+ */
+export const HERO_TOOLS = ['wall-framing-takeoff', 'ebay-fee-calculator', 'container-load-planner'];
+
+/**
+ * Three framed stills cascading down the hero's right column on wide screens
+ * (polish-2026-11-16-hero-art.md: at 1,280 px the right 35% of the hero was
+ * empty starfield). Each is a link to its tool. Hidden below 1,180 px, where
+ * there is no column for it, and lazy, so a phone never fetches the images.
+ * A still's `hero` crop (capture.mjs, HERO_VIEWPORT: the tool's drawing or
+ * table at 720 px, saved 600 x 375) is used when there is one; the full-page
+ * still drops its text to about 3 px at this size.
+ */
+export function renderHeroArt(shots, titleFor = (slug) => slug, order = HERO_TOOLS) {
+  const bySlug = new Map(shots.map((s) => [s.slug, s]));
+  const picked = order.map((slug) => bySlug.get(slug)).filter(Boolean);
+  for (const s of shots) if (picked.length < 3 && !picked.includes(s)) picked.push(s);
+  if (picked.length < 2) return '';
+  return `      <div class="hero-art" aria-label="Three of the tools, each with its worked example loaded" role="group">
+${picked
+  .slice(0, 3)
+  .map(
+    (s, i) => `        <a class="hero-card hero-card-${i + 1}" href="${esc(s.slug)}/" data-tool="${esc(s.slug)}">
+          <span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i><span>${esc(titleFor(s.slug))}</span></span>
+          <img ${stillSrc(s, '300px')} loading="lazy" decoding="async"
+               alt="${esc(titleFor(s.slug))}: ${esc(s.caption)}">
+        </a>`,
+  )
+  .join('\n')}
+        <a class="hero-art-more" href="#showcase">See them working</a>
+      </div>`;
+}
+
 export const HOME_MOTION_CSS = `
     /* ---- Motion and imagery (showcase.mjs) ---------------------------------- */
     /* The hero is dark in both colour schemes. Its tokens are redefined here so
@@ -127,12 +195,18 @@ export const HOME_MOTION_CSS = `
             border-bottom: 1px solid #1e2c42; }
     .hero a { color: var(--accent); }
     .hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; display: block; }
-    .aurora { position: absolute; inset: -20%; z-index: -2; filter: blur(70px); opacity: .35; pointer-events: none; }
+    /* Soft colour from radial gradients, not a blur filter. A filter: blur()
+       over blended, moving circles re-rasterised the whole hero every frame
+       (5 fps on a throttled laptop CPU, 2026-11-03); gradients on their own
+       layers move on the compositor at no paint cost. */
+    .aurora { position: absolute; inset: -20%; z-index: -2; opacity: .35; pointer-events: none; }
     .aurora i { position: absolute; width: 46vw; height: 46vw; max-width: 720px; max-height: 720px; border-radius: 50%;
-                mix-blend-mode: screen; animation: drift 22s ease-in-out infinite alternate; }
-    .aurora i:nth-child(1) { background: #1f4e8c; left: 2%; top: 4%; }
-    .aurora i:nth-child(2) { background: #3a6ea5; right: 0; top: -8%; animation-duration: 28s; animation-delay: -6s; }
-    .aurora i:nth-child(3) { background: #5b7799; left: 34%; bottom: -14%; animation-duration: 34s; animation-delay: -12s; opacity: .7; }
+                --c: #1f4e8c; background: radial-gradient(closest-side, var(--c) 35%, transparent);
+                will-change: transform; animation: drift 22s ease-in-out infinite alternate; }
+    .aurora i:nth-child(1) { left: 2%; top: 4%; }
+    .aurora i:nth-child(2) { --c: #3a6ea5; right: 0; top: -8%; animation-duration: 28s; animation-delay: -6s; }
+    .aurora i:nth-child(3) { --c: #5b7799; left: 34%; bottom: -14%; animation-duration: 34s; animation-delay: -12s; opacity: .7; }
+    .hero.paused .aurora i { animation-play-state: paused; }
     @keyframes drift { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(6vw, 4vw) scale(1.15); }
                        100% { transform: translate(-4vw, 6vw) scale(.92); } }
     .hero::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
@@ -143,16 +217,37 @@ export const HOME_MOTION_CSS = `
                            mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 75%); }
     .hero h1 { font-size: clamp(2.3rem, 6.4vw, 4.6rem); max-width: 18ch; }
     .grad { background: linear-gradient(100deg, #a8c7f0 0%, #b4c6de 30%, #dfe8f5 55%, #a8c7f0 80%);
-            background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
-            animation: sheen 9s linear infinite; }
-    @keyframes sheen { to { background-position: -220% 0; } }
+            -webkit-background-clip: text; background-clip: text; color: transparent; }
     .ticker { margin: 0 0 18px; font-size: clamp(1rem, 1.8vw, 1.2rem); color: var(--muted); }
     .ticker b { display: inline-block; color: var(--ink); font-weight: 750;
                 border-bottom: 2px solid var(--accent); transition: opacity .35s, transform .35s; }
     @media (min-width: 720px) { .ticker b { min-width: 6ch; } }
+    /* The words turn, so the line is as tall as its longest one before the
+       first paint: a hidden copy of the sentence with that word (data-longest,
+       set by the build) shares the grid cell with the real one. Bold all
+       through, so it errs tall. The motion script's fit() then pins the exact
+       height. Not under reduced motion, where the word never changes. */
+    @media (prefers-reduced-motion: no-preference) {
+      .ticker[data-longest] { display: grid; }
+      .ticker[data-longest] > span, .ticker[data-longest]::after { grid-area: 1 / 1; }
+      .ticker[data-longest]::after { content: "Built for " attr(data-longest) " and anyone with numbers to run.";
+                                     visibility: hidden; font-weight: 750; pointer-events: none;
+                                     padding-bottom: 2px; /* the word's underline */ }
+    }
     .ticker b.out { opacity: 0; transform: translateY(-.4em); }
-    .hero .stats { background: rgba(14, 20, 38, .6); border-color: var(--line);
-                   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+    /* Phones: the search box is the hub's main control, and it has to be on
+       the first screen. With the 2.3rem headline floor (4 lines at 320 to
+       390 px) the input ended at 629 px on a 375 px iPhone SE-class phone,
+       whose Safari shows about 553 px, and at 730 px on 320 x 640. A 1.85rem
+       headline (3 lines from 360 px) and tighter gaps above the search end it
+       at 538 and 631 px (polish-2026-11-12-hub-short-phones.md). */
+    @media (max-width: 480px) {
+      .hero-inner { padding-top: 24px; }
+      .hero h1 { font-size: 1.85rem; margin-bottom: 12px; }
+      .ticker { margin-bottom: 12px; }
+      .search { margin-top: 20px; }
+    }
+    .hero .stats { background: rgba(14, 20, 38, .72); border-color: var(--line); }
     .hero .stats div { border-color: var(--line); }
     .hero .stats dd a { color: var(--ink); }
     .hero .search input { background: rgba(10, 16, 32, .75); border-color: rgba(148,170,210,.35);
@@ -160,12 +255,42 @@ export const HOME_MOTION_CSS = `
     .hero .search input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(168,199,240,.18), 0 10px 40px rgba(58,110,165,.25); outline: none; }
     .hero .search button { box-shadow: 0 6px 24px rgba(168,199,240,.25); }
 
+    /* The hero's right column (renderHeroArt): only where there is room for
+       it beside a readable lede and a four-up stats row. */
+    .hero-art { display: none; }
+    @media (min-width: 1180px) {
+      .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 0 56px; align-items: start; }
+      /* Up beside the ticker line: the h1 ends above it, and the ticker's words
+         stop well short of this column. */
+      .hero-art { display: block; position: relative; height: 516px; margin-top: -34px; }
+      .hero-card { position: absolute; width: 300px; display: block; border-radius: 12px; overflow: hidden;
+                   border: 1px solid var(--line); background: #0b1020; text-decoration: none;
+                   box-shadow: 0 24px 60px -24px rgba(0, 0, 0, .75), 0 0 0 1px rgba(255,255,255,.03);
+                   transition: transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s, border-color .3s; }
+      .hero-card img { display: block; width: 100%; height: auto; aspect-ratio: 960 / 600; }
+      .hero-card .frame-bar { padding: 7px 10px; gap: 5px; font-size: .72rem; }
+      .hero-card .frame-bar i { width: 8px; height: 8px; }
+      .hero-card .frame-bar span { margin-left: 6px; color: #dfe8f5; font-weight: 600; }
+      /* Each card lies over the one above, so every title bar shows and the
+         last, most visual still is seen whole. */
+      .hero-card-1 { top: 0; left: 0; z-index: 1; transform: rotate(-2deg); }
+      .hero-card-2 { top: 128px; left: 40px; z-index: 2; transform: rotate(1.5deg); }
+      .hero-card-3 { top: 256px; left: 10px; z-index: 3; transform: rotate(-1deg); }
+      .hero-card:hover, .hero-card:focus-visible { z-index: 4; transform: translateY(-8px) rotate(0); border-color: var(--accent);
+                                                   box-shadow: 0 30px 70px -24px rgba(40, 80, 180, .7); }
+      .hero-art-more { position: absolute; right: 0; bottom: 0; font-size: .85rem; font-weight: 650; }
+      .hero-art-more::after { content: " ↓"; }
+    }
+    @media (min-width: 1180px) and (prefers-reduced-motion: reduce) {
+      .hero-card { transition: none; }
+    }
+
     /* The moving shelf. Without motion it is a row you can scroll sideways. */
     .marquee { margin: 0; padding: 18px 0; overflow: hidden; display: grid; gap: 10px;
                border-bottom: 1px solid var(--line); background: var(--panel);
                -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
                        mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
-    .marquee-row { display: flex; width: max-content; }
+    .marquee-row { display: flex; width: max-content; will-change: transform; }
     .marquee-track { list-style: none; margin: 0; padding: 0 10px 0 0; display: flex; gap: 10px; }
     .marquee-track a, .marquee-track span { display: inline-block; white-space: nowrap; padding: 8px 15px; border-radius: 999px;
                        border: 1px solid var(--line); background: var(--bg); color: var(--ink);
@@ -224,7 +349,7 @@ export const HOME_MOTION_CSS = `
     .motion .reveal.in { opacity: 1; transform: none; }
 
     @media (prefers-reduced-motion: reduce) {
-      .aurora i, .grad, .marquee-row { animation: none; }
+      .aurora i, .marquee-row { animation: none; }
       .marquee { overflow-x: auto; }
       .marquee-track[aria-hidden="true"] { display: none; }
       .frame, .reel:hover .frame { transform: none; }
@@ -235,6 +360,12 @@ export const HOME_MOTION_CSS = `
       .shots { grid-auto-columns: 82%; }
       .frame { transform: none; }
     }`;
+
+/** The audience name with the most characters: the hero ticker reserves the
+ *  height of its sentence with this word before the words start turning. */
+export function longestWord(words) {
+  return words.reduce((best, w) => (w.length > best.length ? w : best), '');
+}
 
 /** Hero decoration: the drifting colour and the canvas the script draws on. */
 export const HERO_BACKDROP_HTML = `    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -260,50 +391,72 @@ export const HOME_MOTION_SCRIPT = `
         const pointer = { x: -9999, y: -9999 };
         const size = () => {
           const box = canvas.getBoundingClientRect();
-          dpr = Math.min(window.devicePixelRatio || 1, 2);
+          // Drawn at CSS pixels: soft dots need no retina detail, and a 2x
+          // canvas is four times the pixels to clear, draw and upload each frame.
+          dpr = 1;
           w = box.width; h = box.height;
           canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          const count = Math.min(110, Math.round((w * h) / 9000));
+          const count = Math.min(90, Math.round((w * h) / 11000));
           points = Array.from({ length: count }, (_, i) => ({
             x: Math.random() * w, y: Math.random() * h,
             vx: (Math.random() - .5) * .35, vy: (Math.random() - .5) * .35,
             r: Math.random() * 1.6 + .6, c: colours[i % colours.length],
           }));
         };
-        const draw = () => {
+        // Lines are batched into a few paths by strength, and the dots' glow
+        // is a wider faint disc, not shadowBlur: a stroke per pair and a
+        // blurred shadow per dot cost most of a frame on a slow laptop.
+        const bands = 4, reach = 130, reach2 = reach * reach;
+        const draw = (step = 1) => {
           ctx.clearRect(0, 0, w, h);
-          const reach = 130;
           for (const p of points) {
             const dx = pointer.x - p.x, dy = pointer.y - p.y, d = Math.hypot(dx, dy);
-            if (d < 200 && d > 1) { p.vx += dx / d * .012; p.vy += dy / d * .012; }
-            p.vx *= .992; p.vy *= .992;
-            p.x += p.vx; p.y += p.vy;
+            if (d < 200 && d > 1) { p.vx += dx / d * .012 * step; p.vy += dy / d * .012 * step; }
+            p.vx *= Math.pow(.992, step); p.vy *= Math.pow(.992, step);
+            p.x += p.vx * step; p.y += p.vy * step;
             if (p.x < 0 || p.x > w) p.vx *= -1;
             if (p.y < 0 || p.y > h) p.vy *= -1;
           }
+          const paths = Array.from({ length: bands }, () => new Path2D());
           for (let i = 0; i < points.length; i++) {
             const a = points[i];
             for (let j = i + 1; j < points.length; j++) {
-              const b = points[j], d = Math.hypot(a.x - b.x, a.y - b.y);
-              if (d < reach) {
-                ctx.strokeStyle = 'rgba(' + a.c + ',' + (0.22 * (1 - d / reach)).toFixed(3) + ')';
-                ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+              const b = points[j], dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy;
+              if (d2 < reach2) {
+                const band = Math.min(bands - 1, Math.floor((1 - Math.sqrt(d2) / reach) * bands));
+                paths[band].moveTo(a.x, a.y); paths[band].lineTo(b.x, b.y);
               }
             }
           }
-          for (const p of points) {
-            ctx.fillStyle = 'rgba(' + p.c + ',.9)';
-            ctx.shadowColor = 'rgba(' + p.c + ',.9)'; ctx.shadowBlur = 8;
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+          ctx.lineWidth = 1;
+          paths.forEach((path, band) => {
+            ctx.strokeStyle = 'rgba(' + colours[0] + ',' + (0.22 * (band + .5) / bands).toFixed(3) + ')';
+            ctx.stroke(path);
+          });
+          for (const c of colours) {
+            const glow = new Path2D(), dot = new Path2D();
+            for (const p of points) {
+              if (p.c !== c) continue;
+              glow.moveTo(p.x + p.r * 3, p.y); glow.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
+              dot.moveTo(p.x + p.r, p.y); dot.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            }
+            ctx.fillStyle = 'rgba(' + c + ',.12)'; ctx.fill(glow);
+            ctx.fillStyle = 'rgba(' + c + ',.9)'; ctx.fill(dot);
           }
-          ctx.shadowBlur = 0;
         };
-        const loop = () => { if (!running) return; draw(); frame = requestAnimationFrame(loop); };
+        // About 30 frames a second is plenty for a slow drift, and halves the work.
+        let last = 0;
+        const loop = (now) => {
+          if (!running) return;
+          frame = requestAnimationFrame(loop);
+          if (now - last < 30) return;
+          draw(last ? Math.min(3, (now - last) / 16.7) : 1); last = now;
+        };
         const update = () => {
           const should = !still && visible && !document.hidden;
-          if (should && !running) { running = true; frame = requestAnimationFrame(loop); }
+          canvas.parentElement.classList.toggle('paused', !visible || document.hidden);
+          if (should && !running) { running = true; last = 0; frame = requestAnimationFrame(loop); }
           if (!should && running) { running = false; cancelAnimationFrame(frame); }
         };
         size(); draw();
@@ -322,6 +475,32 @@ export const HOME_MOTION_SCRIPT = `
       const word = document.querySelector('.ticker b');
       const words = word ? JSON.parse(word.dataset.words || '[]') : [];
       if (word && words.length > 1 && !still) {
+        // Hold the line at the height of its tallest word. On a phone "Roofers"
+        // fits on one line and "Amazon sellers & KDP authors" takes two, so the
+        // line wrapped and unwrapped as the words turned and moved the search
+        // box, stats and the hero's backdrop 20 px up or down, for as long as
+        // the page was open (CLS 0.087 on the hub under Lighthouse's devtools
+        // throttling, 2026-11-11, docs/reports/polish-2026-11-11-wft-perf-hypotheses.md).
+        // Measured here, at the end of the body, and not by an inline script
+        // beside the line: an inline script waits for the stylesheets above it,
+        // so the browser painted half a hero first (CLS 0.89 when tried).
+        // System fonts, so no font swap changes the answer later.
+        const line = word.closest('.ticker');
+        const fit = () => {
+          if (!line) return;
+          const shown = word.textContent;
+          let max = 0;
+          line.style.minHeight = '';
+          for (const w of words) { word.textContent = w; max = Math.max(max, line.offsetHeight); }
+          word.textContent = shown;
+          line.style.minHeight = max + 'px';
+        };
+        fit();
+        let width = innerWidth, refit;
+        addEventListener('resize', () => {
+          if (innerWidth === width) return;
+          width = innerWidth; clearTimeout(refit); refit = setTimeout(fit, 100);
+        });
         let at = 0;
         setInterval(() => {
           if (document.hidden) return;
@@ -339,7 +518,7 @@ export const HOME_MOTION_SCRIPT = `
           const start = performance.now(), span = 1400;
           const step = (now) => {
             const t = Math.min(1, (now - start) / span), eased = 1 - Math.pow(1 - t, 3);
-            el.textContent = String(Math.round(target * eased));
+            el.textContent = Math.round(target * eased).toLocaleString('en-US');
             if (t < 1) requestAnimationFrame(step);
           };
           requestAnimationFrame(step);
@@ -376,12 +555,19 @@ export const HOME_MOTION_SCRIPT = `
       }
 
       // ---- Pointer light on cards -------------------------------------------
+      // At most once a frame: pointer events can arrive faster than frames.
+      let lit = null, litFrame = 0;
       document.addEventListener('pointermove', (e) => {
-        const card = e.target.closest && e.target.closest('.cat, .pillar, .featured li, .step');
-        if (!card) return;
-        const box = card.getBoundingClientRect();
-        card.style.setProperty('--mx', (e.clientX - box.left) + 'px');
-        card.style.setProperty('--my', (e.clientY - box.top) + 'px');
+        lit = e;
+        if (litFrame) return;
+        litFrame = requestAnimationFrame(() => {
+          litFrame = 0;
+          const card = lit.target.closest && lit.target.closest('.cat, .pillar, .featured li, .step');
+          if (!card) return;
+          const box = card.getBoundingClientRect();
+          card.style.setProperty('--mx', (lit.clientX - box.left) + 'px');
+          card.style.setProperty('--my', (lit.clientY - box.top) + 'px');
+        });
       }, { passive: true });
 
       // ---- The recording plays only while it is on screen --------------------

@@ -4,7 +4,7 @@ After using this, you can now **ship a feature to 10% of users, then staff-only,
 then everyone, and switch it off in one request**, from one small server you run,
 instead of paying a feature-flag service per seat or per monthly active user.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/flag-keeper/
+**Live tool:** https://marisstella.app/flag-keeper/
 
 Three parts, all free and MIT:
 
@@ -156,3 +156,13 @@ Related ventures, same buyer: [drip-keeper](../drip-keeper/),
 [status-keeper](../status-keeper/), [webhook-relay](../webhook-relay/).
 
 Support the project: <https://github.com/sponsors/Duncan-Haywood>.
+
+## Known gaps (quality census, 2026-11-15)
+
+From [`portfolio/quality/audits/2026-11-15-flag-keeper.json`](../../portfolio/quality/audits/2026-11-15-flag-keeper.json); the segment-shape crash, SDK throw and SemVer pre-release order it found are fixed. Still open:
+
+- A disabled prerequisite serves its off variant, so a dependant requiring `off` is satisfied; LaunchDarkly counts an off prerequisite as failed. Decide and document.
+- Variant membership uses `in`, so variants named `toString` or `constructor` pass validation (use `Object.hasOwn`).
+- Admin PUTs with a bare JSON value as body return 500, not 400.
+- The rate limiter resets every IP's count once 10,000 IPs are tracked.
+- Server tests leave the HTTP server open when an assertion fails, so a failure hangs instead of going red.

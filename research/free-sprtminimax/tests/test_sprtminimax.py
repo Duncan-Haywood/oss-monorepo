@@ -34,6 +34,7 @@ class Minimax(unittest.TestCase):
         self.assertLessEqual(rej1, 0.05 + 1e-6)
         self.assertAlmostEqual(r["worst"], worst_case(r["policy"], cap, P1, P0)[0])
         self.assertLessEqual(r["worst"], n)  # never worse than the fixed test
+        self.assertLessEqual(r["worst"] - r["value"], 1e-3)  # cutting planes converged: grid LP value equals the true worst case
 
     def test_minimax_never_worse_than_average_on_the_worst_case(self):
         n, _ = fixed_n(P0, P1, 0.05, 0.05)

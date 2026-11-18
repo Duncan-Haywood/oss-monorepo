@@ -1,0 +1,179 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01E5sJKjwiDGyWYy1Xn8HJCP",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T19:10:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13385",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "No blog post: a one-link fix and an 8/8 campaign gave little to report",
+      "did": "skipped post and agent doc",
+      "result": "none"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Open entry (framerate.mjs nightly) is control plane, needs owner approval; left. Campaign on platform/ci/check_input_bounds.py: 8/8 caught. Local checks: siblings.test.mjs 20 pass, repository-branch-hygiene page.test.mjs 8 pass.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/check_input_bounds.py",
+        "test": "/usr/local/bin/python3 -m pytest -q -x -p no:cacheprovider test_check_input_bounds.py  (in platform/ci)",
+        "seed": 271138841,
+        "commit": "0968fb727",
+        "sites": 20,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 142,
+            "col": 36,
+            "operator": "ge-to-gt",
+            "before": "too_high = declared_max >= limit if op == \">=\" else declared_max > limit",
+            "after": "too_high = declared_max > limit if op == \">=\" else declared_max > limit",
+            "line_text": "            too_high = declared_max >= limit if op == \">=\" else declared_max > limit",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 176,
+            "col": 15,
+            "operator": "plus-to-minus",
+            "before": "source + \"\\n\" + \"\\n\".join(p.read_text(encoding=\"utf-8\", errors=\"replace\") for p in pages)",
+            "after": "source - \"\\n\" + \"\\n\".join(p.read_text(encoding=\"utf-8\", errors=\"replace\") for p in pages)",
+            "line_text": "        source + \"\\n\" + \"\\n\".join(p.read_text(encoding=\"utf-8\", errors=\"replace\") for p in pages)",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 176,
+            "col": 22,
+            "operator": "plus-to-minus",
+            "before": "source + \"\\n\" + \"\\n\".join(p.read_text(encoding=\"utf-8\", errors=\"replace\") for p in pages)",
+            "after": "source + \"\\n\" - \"\\n\".join(p.read_text(encoding=\"utf-8\", errors=\"replace\") for p in pages)",
+            "line_text": "        source + \"\\n\" + \"\\n\".join(p.read_text(encoding=\"utf-8\", errors=\"replace\") for p in pages)",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 188,
+            "col": 43,
+            "operator": "times-to-div",
+            "before": "field_bounds = [(op, limit * 100) for op, limit in field_bounds]",
+            "after": "field_bounds = [(op, limit / 100) for op, limit in field_bounds]",
+            "line_text": "                field_bounds = [(op, limit * 100) for op, limit in field_bounds]",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 188,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "field_bounds = [(op, limit * 100) for op, limit in field_bounds]",
+            "after": "field_bounds = [(op, limit * 101) for op, limit in field_bounds]",
+            "line_text": "                field_bounds = [(op, limit * 100) for op, limit in field_bounds]",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 203,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "root = Path(argv[1]) if len(argv) > 1 else Path(\"ventures\")",
+            "after": "root = Path(argv[1]) if len(argv) > 2 else Path(\"ventures\")",
+            "line_text": "    root = Path(argv[1]) if len(argv) > 1 else Path(\"ventures\")",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 206,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return 2",
+            "after": "return 3",
+            "line_text": "        return 2",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 225,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 0",
+            "after": "return 1",
+            "line_text": "    return 0",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/stranded-branch-finder/index.html",
+        "issue": "Shipped as a crawlable orphan, turning platform/pages/siblings.test.mjs red on main (budget 0, measured 1). Fixed by linking it from repository-branch-hygiene's footer, with a page.test.mjs assertion.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13385"
+      }
+    ]
+  }
+}

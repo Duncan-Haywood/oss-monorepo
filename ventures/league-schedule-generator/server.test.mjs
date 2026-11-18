@@ -118,3 +118,41 @@ test("unpublished leagues take no scores; the waiting list is capped", async () 
   assert.equal(s.state.pending.length, 100);
   s.close();
 });
+
+test("calendar feeds: subscribe links, a whole-league feed, and ids that survive a rainout", async () => {
+  const s = await boot();
+  const form = (extra = {}) => ({ ...Object.fromEntries(Object.entries(s.state.fields).map(([k, v]) => [k, Array.isArray(v) ? v.join(",") : v === true ? "1" : v === false ? "" : String(v)])), ...extra, act: "publish" });
+  assert.equal((await post(s.base + "/admin/save?key=adm", form())).status, 303);
+  const html = await (await fetch(s.base + "/league?t=tok")).text();
+  const host = new URL(s.base).host;
+  assert.ok(html.includes(`webcal://${host}/league/ics?t=tok&amp;team=all`), "whole-league webcal link");
+  assert.ok(html.includes(`webcal://${host}/league/ics?t=tok&amp;team=0`), "team webcal link");
+  assert.ok(html.includes("calendar.google.com/calendar/render?cid=webcal%3A%2F%2F"), "Google Calendar add-by-URL link");
+  const all = await fetch(s.base + "/league/ics?t=tok&team=all");
+  assert.equal(all.status, 200);
+  assert.match(all.headers.get("content-disposition"), /^inline/);
+  const allText = await all.text();
+  assert.match(allText, /X-WR-CALNAME:League schedule/);
+  assert.equal((await fetch(s.base + "/league/ics?t=tok")).status, 404);
+  assert.equal((await fetch(s.base + "/league/ics?t=tok&team=")).status, 404);
+  const ev = (t) => new Map([...t.matchAll(/BEGIN:VEVENT\r\n([\s\S]*?)END:VEVENT/g)].map((m) => [m[1].match(/UID:(.*)\r\n/)[1], m[1]]));
+  const before = ev(await (await fetch(s.base + "/league/ics?t=tok&team=0")).text());
+  const firstDay = [...before.values()][0].match(/DTSTART[^:]*:(\d{4})(\d\d)(\d\d)/).slice(1).join("-");
+  assert.equal((await post(s.base + "/admin/save?key=adm", form({ rainouts: firstDay }))).status, 303);
+  const after = ev(await (await fetch(s.base + "/league/ics?t=tok&team=0")).text());
+  assert.deepEqual([...after.keys()].sort(), [...before.keys()].sort(), "same event ids after the rainout");
+  const moved = [...after.entries()].filter(([u, b]) => b !== before.get(u).replace(/DTSTAMP:.*\r\n/, (x) => b.match(/DTSTAMP:.*\r\n/)[0]));
+  assert.ok(moved.length >= 1);
+  for (const [, b] of moved) assert.match(b, /SEQUENCE:1/);
+  s.close();
+});
+
+test("publicBase prefers PUBLIC_URL and refuses odd hosts", async () => {
+  const { publicBase, calendarLinks } = await import("./server.mjs");
+  assert.equal(publicBase({ headers: { host: "a.example:8080" } }, {}), "http://a.example:8080");
+  assert.equal(publicBase({ headers: { host: "a.example", "x-forwarded-proto": "https" } }, {}), "https://a.example");
+  assert.equal(publicBase({ headers: { host: "a.example" } }, { PUBLIC_URL: "https://league.example.org/" }), "https://league.example.org");
+  assert.equal(publicBase({ headers: { host: 'x"><script>' } }, {}), null);
+  assert.equal(publicBase({ headers: {} }, {}), null);
+  assert.doesNotMatch(calendarLinks(null, "tok", 0), /webcal/);
+});

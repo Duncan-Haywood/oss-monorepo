@@ -39,7 +39,6 @@
     .scroll { overflow-x: auto; }
   </style>
 </head>
-</head>
 <body>
   <header>
     <p class="note">POOL OPENING AND CLOSING PRICE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
@@ -147,7 +146,7 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const keys = ["lengthFt", "widthFt", "avgDepthFt", "shape", "cover", "condition", "lines", "baseCloseHrs", "baseOpenHrs", "lineCloseHrs", "driveHrs", "crew", "laborRate", "closeChemPer10k", "openChemPer10k", "closeSupplies", "openSupplies", "redoPct", "redoCost", "bundlePct", "marginPct", "minCharge", "dayHrs"];
-    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const usd = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     let last = null;
 
     function read() {
@@ -165,7 +164,7 @@
       $("#sens").innerHTML = r.sizes.map((x) => `<tr><th scope="row">${x.gallons.toLocaleString("en-US")}</th><td>${usd(x.closePrice)}</td><td>${usd(x.openPrice)}</td><td>${usd(x.season)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Close ${usd(r.close.price)}, open ${usd(r.open.price)}.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

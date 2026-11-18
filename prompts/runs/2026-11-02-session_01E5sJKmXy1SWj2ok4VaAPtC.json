@@ -1,0 +1,178 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01E5sJKmXy1SWj2ok4VaAPtC",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md",
+  "input_sha256": "94a6b2a74a2fe72d09d7042291a4072d20b259b937e79b5deda0279ae57c7410",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T17:39:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12623",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "no blog post: small fix run",
+      "did": "skipped post",
+      "result": "ok"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Line 39 and 216 mutants triaged equivalent with weak justification; lines 83/86 got a new test.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/podcast.mjs",
+        "test": "node --test platform/pages/podcast.test.mjs  (in .)",
+        "seed": 693808087,
+        "commit": "9ac37b80",
+        "sites": 38,
+        "baseline_seconds": 0.5,
+        "mutants": [
+          {
+            "file": "platform/pages/podcast.mjs",
+            "line": 39,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "const FILE_RE = /^(\\d{4}-\\d{2}-\\d{2})-([a-z0-9][a-z0-9-]*)\\.md$/;",
+            "after": "const FILE_RE = /^(\\d{5}-\\d{2}-\\d{2})-([a-z0-9][a-z0-9-]*)\\.md$/;",
+            "line_text": "const FILE_RE = /^(\\d{4}-\\d{2}-\\d{2})-([a-z0-9][a-z0-9-]*)\\.md$/;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/podcast.mjs",
+            "line": 39,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "const FILE_RE = /^(\\d{4}-\\d{2}-\\d{2})-([a-z0-9][a-z0-9-]*)\\.md$/;",
+            "after": "const FILE_RE = /^(\\d{4}-\\d{2}-\\d{3})-([a-z0-9][a-z0-9-]*)\\.md$/;",
+            "line_text": "const FILE_RE = /^(\\d{4}-\\d{2}-\\d{2})-([a-z0-9][a-z0-9-]*)\\.md$/;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/podcast.mjs",
+            "line": 39,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "const FILE_RE = /^(\\d{4}-\\d{2}-\\d{2})-([a-z0-9][a-z0-9-]*)\\.md$/;",
+            "after": "const FILE_RE = /^(\\d{4}-\\d{2}-\\d{2})-([a-z0-10][a-z0-9-]*)\\.md$/;",
+            "line_text": "const FILE_RE = /^(\\d{4}-\\d{2}-\\d{2})-([a-z0-9][a-z0-9-]*)\\.md$/;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "const-plus-one on a regex digit-count literal is not behaviour visible to a test; file names in repo are validated by loadEpisodes already"
+          },
+          {
+            "file": "platform/pages/podcast.mjs",
+            "line": 68,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "const stem = name.slice(0, -3);",
+            "after": "const stem = name.slice(0, -4);",
+            "line_text": "    const stem = name.slice(0, -3);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/podcast.mjs",
+            "line": 83,
+            "col": 25,
+            "operator": "or-to-and",
+            "before": "voice: audio.voice || '',",
+            "after": "voice: audio.voice && '',",
+            "line_text": "      voice: audio.voice || '',",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/podcast.mjs",
+            "line": 86,
+            "col": 41,
+            "operator": "eq-flip",
+            "before": "return episodes.sort((a, b) => (a.date === b.date ? a.slug.localeCompare(b.slug) : b.date.localeCompare(a.date)));",
+            "after": "return episodes.sort((a, b) => (a.date !== b.date ? a.slug.localeCompare(b.slug) : b.date.localeCompare(a.date)));",
+            "line_text": "  return episodes.sort((a, b) => (a.date === b.date ? a.slug.localeCompare(b.slug) : b.date.localeCompare(a.date)));",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/podcast.mjs",
+            "line": 91,
+            "col": 25,
+            "operator": "div-to-times",
+            "before": "const h = Math.floor(t / 3600);",
+            "after": "const h = Math.floor(t * 3600);",
+            "line_text": "  const h = Math.floor(t / 3600);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/podcast.mjs",
+            "line": 216,
+            "col": 75,
+            "operator": "true-to-false",
+            "before": "await fs.mkdir(path.join(outDir, PODCAST_PATH, topic.id), { recursive: true });",
+            "after": "await fs.mkdir(path.join(outDir, PODCAST_PATH, topic.id), { recursive: false });",
+            "line_text": "    await fs.mkdir(path.join(outDir, PODCAST_PATH, topic.id), { recursive: true });",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "recursive:false only matters if docs/podcast dir tree is missing; build creates parents already"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "docs/posts/2026-11-02-cold-email-opt-outs-in-five-languages.md",
+        "issue": "seo_title 73 chars and description 162 chars exceeded limits, turning podcast/writing suites red (broke site build)",
+        "patched": true
+      }
+    ]
+  }
+}

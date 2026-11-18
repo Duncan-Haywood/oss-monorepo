@@ -263,6 +263,89 @@ test("saving the visitor's own draft is not a usage counter", () => {
   } finally { v.cleanup(); }
 });
 
+test("a gated draft save does not vouch for an ungated counter on the same page", () => {
+  // Quality audit 2026-11-07-privacy, defect 0: the checker returned `pass`
+  // on the first gated write, so this page passed while counting every
+  // visitor regardless of Global Privacy Control.
+  const v = venture({
+    "index.html": page(`
+      const save = (state) => {
+        if (navigator.globalPrivacyControl) return;
+        localStorage.setItem('probe-draft', JSON.stringify(state));
+      };
+      const track = (event) => {
+        const data = JSON.parse(localStorage.getItem('probe-usage') || '{}');
+        data[event] = (data[event] || 0) + 1;
+        localStorage.setItem('probe-usage', JSON.stringify(data));
+      };
+    `),
+  });
+  try {
+    const result = checkInlinePage(v.page);
+    assert.equal(result.status, "unguarded");
+    assert.equal(result.ungatedCounters.length, 1);
+  } finally { v.cleanup(); }
+});
+
+test("an ungated inline `Number(...) + 1` counter is caught beside a gated one", () => {
+  const v = venture({
+    "index.html": page(`
+      const track = (e) => {
+        if (navigator.doNotTrack === '1') return;
+        const k = 'probe:' + e;
+        localStorage.setItem(k, String(Number(localStorage.getItem(k) || 0) + 1));
+      };
+      const visits = () => {
+        localStorage.setItem('probe-visits', String(Number(localStorage.getItem('probe-visits') || 0) + 1));
+      };
+    `),
+  });
+  try {
+    assert.equal(checkInlinePage(v.page).status, "unguarded");
+  } finally { v.cleanup(); }
+});
+
+test("an ungated draft and opt-out preference beside a gated counter still pass", () => {
+  // The shape all 15 real inline pages use: the counter is gated, the
+  // visitor's own data and their opt-out choice are not, and must not be.
+  const v = venture({
+    "index.html": page(`
+      usage.addEventListener('change', () => {
+        try { localStorage.setItem(usagePreference, usage.checked ? '1' : '0'); } catch {}
+      });
+      const saveState = (data) => { try { localStorage.setItem('probe-state', JSON.stringify(data)); } catch {} };
+      const track = (event) => {
+        if (navigator.doNotTrack === '1' || navigator.globalPrivacyControl) return;
+        try {
+          const data = JSON.parse(localStorage.getItem(key) || '{}');
+          data[event] = (data[event] || 0) + 1;
+          localStorage.setItem(key, JSON.stringify(data));
+        } catch {}
+      };
+    `),
+  });
+  try {
+    assert.equal(checkInlinePage(v.page).status, "pass");
+  } finally { v.cleanup(); }
+});
+
+test("a counter-shaped write inside a predicate-guarded writer passes", () => {
+  const v = venture({
+    "index.html": page(`
+      const countable = () => !navigator.doNotTrack && !navigator.globalPrivacyControl;
+      const bump = (key) => {
+        try { localStorage.setItem(key, String(Number(localStorage.getItem(key) || 0) + 1)); } catch {}
+      };
+      const record = (e) => { if (countable()) bump('probe:' + e); };
+    `),
+  });
+  try {
+    const result = checkInlinePage(v.page);
+    assert.equal(result.status, "pass");
+    assert.equal(result.via, "predicate");
+  } finally { v.cleanup(); }
+});
+
 test("ventures with a usage module are left to browser-signals.mjs", () => {
   const v = venture({
     "index.html": page("import './usage.mjs';"),

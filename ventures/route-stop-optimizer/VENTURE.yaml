@@ -2,8 +2,10 @@ name: route-stop-optimizer
 description: >-
   Free browser tool for mobile service businesses, couriers, inspectors and
   sales reps: paste a day's stops as latitude/longitude with service minutes and
-  customer time windows and get the drive-time-minimising order (exact up to 12
-  stops, 2-opt/Or-opt beyond), split across up to 20 drivers. Shows arrival
+  customer time windows (and optional loads with a vehicle capacity) and get the
+  drive-time-minimising order (exact up to 12 stops; beyond that 2-opt/Or-opt
+  plus a CVRPTW string-removal engine that averages 0.44% above the best-known
+  Solomon benchmark solutions), split across up to 20 drivers. Shows arrival
   times, what it saves against your current order in miles, hours, fuel and
   labor (per day and per year), and what the customer windows cost. Exports CSV
   and opens the route in Google Maps. Nothing is uploaded.
@@ -61,5 +63,5 @@ kill_criteria:
   - A user reports an order worse than their own on the same coordinates under the stated travel model, or a window violation the page did not flag.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/route-stop-optimizer/
+  production: https://marisstella.app/route-stop-optimizer/
   analytics: null

@@ -335,6 +335,15 @@ test("inside the phase-in the QBI deduction falls linearly; a service business l
   assert.equal(estimatedTax(books("250000.00"), { ...o, qbiRange: 100, qbiMinimum: { floor: 0, threshold: 1000 } }).qbiDeduction, 0);
 });
 
+test("a service business above the phase-in range gets no $400 minimum: none of its QBI counts (199A(d)(3), (i)(2))", () => {
+  const o = { year: 2026, wageBase: 18450000, service: true };
+  const above = estimatedTax(books("400000.00"), o);
+  assert.equal(above.qbiDeduction, 0);
+  assert.ok(!above.warnings.some((w) => /minimum QBI deduction/.test(w)));
+  // A non-service business with the same profit and no staff still gets the floor.
+  assert.equal(estimatedTax(books("400000.00"), { year: 2026, wageBase: 18450000 }).qbiDeduction, 40000);
+});
+
 test("itemised deductions replace the standard deduction only when larger", () => {
   const base = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000 });
   const small = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000, itemized: 1000000 });
@@ -421,12 +430,12 @@ test("built-in 2026 earned income credit reproduces Rev. Proc. 2025-32", () => {
   assert.equal(estimatedTax(books("1.00"), { year: 2026, wages: 1500000, eitcChildren: 1, investmentIncome: 1250000, qbi: false }).eitcCredit, 0);
 });
 
-test("eitcTable computes the credit at the midpoint of Schedule EIC's $50 bands", () => {
+test("eitcTable computes the credit at the midpoint of Schedule EIC's $50 bands, to the dollar", () => {
   const eic = (wages, eitcTable) => estimatedTax(books("1.00"), { year: 2026, wages: wages * 100, withholding: 0, eitcChildren: 0, qbi: false, eitcTable }).eitcCredit;
   assert.ok(Math.abs(eic(5010, false) - 38327) < 10); // exact: 0.0765 x 5,010 = 383.27 (plus the $1 book's profit)
-  assert.ok(Math.abs(eic(5010, true) - 38441) < 10); // band 5,000-5,050, midpoint 5,025 -> 384.41
+  assert.equal(eic(5010, true), 38400); // band 5,000-5,050, midpoint 5,025 -> 384.41, printed as $384 (the 2025 table prints the same rule; eic-table.test.mjs)
   assert.equal(eic(5040, true), eic(5010, true));
-  assert.equal(eic(9010, true), 66402);      // plateau unchanged
+  assert.equal(eic(9010, true), 66400);      // plateau: the maximum to the dollar (664, Rev. Proc. 2025-32)
 });
 
 test("a flat state rate is applied to AGI less the state deduction and kept out of the federal total", () => {

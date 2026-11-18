@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [build-data]
+tagged: auto
+---
 # build-data milestone 7 (agent note)
 
 - `research/build-data/src/pooled.py` runs the pooled-plus-local-sample learning curve; `src/summarise_m7.py` makes `results/m7_table.md`. Feeds: `python3 src/permits.py pull --out DIR` took about 15 min (Austin is last); then `python3 src/pooled.py DIR --target a2i|i2c --seeds 1` takes about 15 min per target on 4 cores with the default 200,000-row cap per source city (the uncapped run was far too slow).

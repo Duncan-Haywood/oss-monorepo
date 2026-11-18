@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [verifiable-training-mechanisms]
+tagged: auto
+---
 # verifiable-training-mechanisms milestone 48 (agent note)
 
 - Milestone 47's `grad`/`eval` sites had the wrong sign (descent, not ascent); fixed in `experiments/bit_flips_worst/run.py`, old outputs kept in `wrong_sign/`. Anything citing "single-weight plants are a poor attack" is withdrawn.

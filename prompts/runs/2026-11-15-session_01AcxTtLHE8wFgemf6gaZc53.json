@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtLHE8wFgemf6gaZc53",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T12:05:58Z",
+  "ended": "2026-11-15T12:28:06Z",
+  "wall_minutes": 22.34,
+  "tokens_in": 11352062,
+  "tokens_out": 91977,
+  "cost_usd": 5.6095,
+  "tool_calls": 81,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16212",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First preflight failed on sync_tree_counts (new usage.mjs opt-out switch) and on the siblings orphan budget (new page had no inbound sibling link); fixed by running sync_tree_counts.py and linking from isolation-forest and wasserstein-distance."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/research-tools/README.md",
+      "issue": "The definition of done says to run venture-preflight, but not that a new page must get an inbound link from a sibling or the siblings orphan budget (0) goes red; 'a link from a sibling tool' is listed, but only as something preflight catches."
+    },
+    {
+      "file": "research/infra-dcopf/data/README.md",
+      "issue": "Says nothing about the AEP extract stamping readings by hour ending (00:00 is hour ending 24 of the day before). Laying it out as clock hours put each day's last hour on the wrong row."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/robust-pca/engine.mjs (Lin, Chen & Ma 2010 Algorithm 5)",
+      "why": "The paper's rho=1.5 passed the residual test before the split had settled (0.04 from TensorLy on a 60x40 case, certified gap 2.6% on the example).",
+      "did": "Used rho=1.05 and report a duality gap with every result.",
+      "result": "Agrees with TensorLy to 1e-9 on the test case; gap under 0.01% on the example, about 2x the iterations."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-robust-pca-found-the-clock-change.md",
+    "ventures/robust-pca/README.md (Verification, Example)"
+  ],
+  "goal": null,
+  "notes": "Explore idea: robust PCA by principal component pursuit (Candes et al. 2011), from the research-tools candidate list, as a new tool ventures/robust-pca: inexact ALM, Jacobi SVD, PCP with missing entries, and a duality certificate. Verified against the paper's Sec 4.1 exact-recovery experiment and TensorLy 0.10.0 (eval/reference.py). Local checks: node --test 41/41; run_venture_tests robust-pca isolation-forest wasserstein-distance all ok; venture-preflight robust-pca clean (build + check.mjs). Example: AEP 2017 day x hour. The spring DST day ranks 2nd; holidays rank low (whole-row shifts are low rank). The tool caught the hour-ending convention in its own example.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "530ea5fe-88a1-55a2-aff1-e90165eb5e91",
+    "transcripts": 1,
+    "first": "2026-11-15T12:05:58Z",
+    "last": "2026-11-15T12:28:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 79,
+        "input": 152,
+        "output": 91977,
+        "thinking": 14338,
+        "cache_read": 11159740,
+        "cache_write_5m": 0,
+        "cache_write_1h": 192170,
+        "api_equivalent_usd": 5.6095,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 79,
+      "input": 152,
+      "output": 91977,
+      "thinking": 14338,
+      "cache_read": 11159740,
+      "cache_write_5m": 0,
+      "cache_write_1h": 192170,
+      "api_equivalent_usd": 5.6095,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 70,
+      "Write": 6,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.34,
+      "active_minutes": 22.34,
+      "model_minutes": 14.58,
+      "tool_minutes": 7.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "a numerical-methods engineer implementing PCP+ALM+Jacobi SVD, reference comparison, page, CLI and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 427.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVPtiRsQijLcVNCGmgM",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue-generating products); merge when done",
+  "input_sha256": "8e865a5d3fb7abbe88c8f6feebc14a6e00111a6047c4a948d8cee3cc025ee6fa",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T06:06:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality fix mode: osrobot-pairprice pilot-time defect; landed concurrently by PR #15746, so this run added the every-machine-attended case on top",
+  "projects": [
+    "research/osrobot-pairprice"
+  ],
+  "pr": 15750,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "queue lists platform/agents toJson as open with no fix PR although PR #14674 (control plane, awaiting owner approval) fixes it; queue could search open 'quality fix' PRs for the audit name so fix-mode sessions do not redo it (this one wrote a duplicate fix before finding it, then discarded it)"
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "two fix-mode sessions picked the same high defect (osrobot-pairprice) within minutes; the queue has no claim step, so one full 15-min re-simulation and a whole PR were duplicated. quality_audit.py queue could skip defects named in an open 'quality fix' PR title, and fix-mode sessions should open the claim PR before starting (this one did, ~20 min in, after the other had already started)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "model field left null: the session's harness forbids putting a model identifier in any pushed artifact",
+      "did": "omitted --model",
+      "result": "record validates without it"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-who-watches-the-weeding-robot.md"
+  ],
+  "goal": null,
+  "notes": "mode=fix (quality_audit.py mode; 7 high open). No sample drawn, so no share-at-bar this run. Worked 2026-11-13-osrobot-pairprice high #0 (pilot time) and medium #1 (sawtooth break-even); PR #15746 from another session landed the same fix first with identical numbers (2.46x at 0.72 ha, 2.32x at 20 ha, same crossing counts), an independent replication. This run reset onto main and kept only its unique addition: attend=True (person charged for every ground minute of both architectures), Sweep 3b and a Sweep 5 row. Result: every machine attended -> pair 0.69x inline at 0.72 ha, 0.65x at 20 ha, cheaper above ~0.07 ha; the verdict flips on the staffing rule. Skipped platform/agents toJson: PR #14674 already fixes it (control-plane gated). Verification: osrobot-pairprice unittest OK (2 tests added); hand check inline attended 0.72 ha = 89.29 USD/ha vs 89.30; seeded mutants: treat_min->ground_min caught; dropping attend from cost_model's inline kwargs survived, then a cost_model test was added and it is caught; run.py --from-fits output differs from committed results only by the new rows; osrobot-pipeline tests OK; research/_homepage/build.py ok; check_md_links ok; my earlier full 15-min re-simulation (before reset) reproduced Sweeps 1-2 exactly.",
+  "corrections": [],
+  "redteam": null
+}

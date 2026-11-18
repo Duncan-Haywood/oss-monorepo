@@ -6,10 +6,10 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/gutter-install-bid-calculator/)
-- [How much to charge to install gutters](https://duncan-haywood.github.io/oss-monorepo/gutter-install-bid-calculator/how-much-to-charge-to-install-gutters.html)
-- [This calculator vs. a flat $4.50-a-foot special](https://duncan-haywood.github.io/oss-monorepo/gutter-install-bid-calculator/vs-a-flat-per-foot-special.html)
-- [This calculator vs. JobNimbus](https://duncan-haywood.github.io/oss-monorepo/gutter-install-bid-calculator/vs-jobnimbus.html)
+- [The tool](https://marisstella.app/gutter-install-bid-calculator/)
+- [How much to charge to install gutters](https://marisstella.app/gutter-install-bid-calculator/how-much-to-charge-to-install-gutters.html)
+- [This calculator vs. a flat $4.50-a-foot special](https://marisstella.app/gutter-install-bid-calculator/vs-a-flat-per-foot-special.html)
+- [This calculator vs. JobNimbus](https://marisstella.app/gutter-install-bid-calculator/vs-jobnimbus.html)
 
 ## Source
 

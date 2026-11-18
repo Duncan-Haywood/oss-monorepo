@@ -2,7 +2,7 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the "replace the `MAX_SLENDER` guard in the bracket chain with a lower bound on the governing factor and rerun the optimiser" next step of `simdesign-webbuckle`, `simdesign-webshell` and `simdesign-shellorder`. Produced with AI assistance (Claude). A stylised 2D plane-stress model with a closed-form buckling check and assumed rule values, material and load; preliminary, nothing was made or tested.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-buckleguard/
+**Live page:** https://marisstella.app/research/simdesign-buckleguard/
 
 **Builds on.** `simdesign-dfm` (the process rules and the differential-evolution optimiser), `simdesign-widerweb` (the same code and bracket: L-shape, arms of 80 mm, tip load 100 N, steel sheet E = 200 GPa, ν = 0.30, working stress 100 MPa, tip limit 4 mm) and `simdesign-webbuckle` (the lateral-torsional buckling closed forms of Timoshenko and Gere, *Theory of Elastic Stability*, 2nd ed., McGraw-Hill, 1961; the page-level references are unchecked there too, only the two coefficients are verified numerically). `simdesign-shellorder` found a 3D finite-element critical load about 14% above the closed form for a short bar (l/w = 3), so the closed form was not unsafe in the one case checked. It builds on none of the CU Boulder groups in `prompt.md`.
 
@@ -33,7 +33,9 @@ Lightest feasible design found, three seeds each:
 | buckling ≥ 3 | 1.5 mm | 18.5–18.8 | 31.1–31.4 | 3.5–3.6 |
 | none | 1.5 mm | 18.3–18.8 | 31.0–31.4 | 3.4–3.6 |
 
-- **The old rule cost about 12% of mass here.** It forces the 2 mm gauge (at b = 1.5 mm it allows only w ≤ 12 mm, where the peak stress is 227 to 266 MPa for fillets of 4, 8 and 12 mm against the 100 MPa limit); the buckling guard lets the 1.5 mm gauge be used at w ≈ 18.7 mm (w/b ≈ 12.5), 4 to 5 g lighter.
+> **Correction (2026-11-17).** The [quality audit](../../portfolio/quality/audits/2026-11-17-simdesign-buckleguard.json) found that the 100 MPa fillet stress that decides feasibility is not mesh-converged. Both optima below pass at the h = 1.5 mm mesh used here and fail on finer meshes: the buckling-guard design (b = 1.5, w = 18.72) reads 98.7, 111.5, 111.5 and 112.8 MPa at h = 1.5, 1.0, 0.75 and 0.5 mm; the old-rule design (b = 2, w = 15.61) reads 98.7, 100.6, 105.9 and 107.7 MPa. The direction (the buckling guard lets a thinner gauge through) survives; the 12% figure is a coarse-mesh number and should not be quoted until `guards.py` is rerun at h ≤ 0.75 mm. The audit's finer-mesh search puts the gap nearer 30% (old rule pushed to 3 mm), from one run.
+
+- **The old rule cost about 12% of mass here (coarse mesh, see the correction above).** It forces the 2 mm gauge (at b = 1.5 mm it allows only w ≤ 12 mm, where the peak stress is 227 to 266 MPa for fillets of 4, 8 and 12 mm against the 100 MPa limit); the buckling guard lets the 1.5 mm gauge be used at w ≈ 18.7 mm (w/b ≈ 12.5), 4 to 5 g lighter.
 - **At K = 3 the guard does not bind.** The unguarded optimum already has a factor of 3.4 to 3.6 (seeds differ in the fillet radius, 7.7 to 14.5 mm, a flat region of the objective). The stress limit, not buckling, sets the width.
 - **Sensitivity to K (one seed, `sensitivity.txt`).** At 1.5 mm gauge the optimum is 31.0 g for K = 1, 31.3 g for K = 3, and the search found no feasible design for K ≥ 5 within the bounds (w ≤ 25 mm) and budget. At 2 mm the mass is 35.9 g up to K = 5, 40.7 g at K = 8 and no feasible design at K = 12. At 3 mm the design is 44.2 g for every K tested (its factor is 17).
 - The old rule and the buckling check point opposite ways at fixed gauge (`simdesign-webbuckle`): the rule caps w, but buckling safety grows with w. The guard replaces a ceiling with a floor.

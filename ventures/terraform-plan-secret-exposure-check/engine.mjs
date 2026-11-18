@@ -44,7 +44,9 @@ export const SECRET_PATTERNS = [
   {
     code: "url-embedded-credentials",
     label: "URL with an embedded username:password",
-    re: /\b[a-zA-Z][a-zA-Z0-9+.-]*:\/\/[^\s:@/]+:[^\s@/]+@[^\s/]+/,
+    // The user part may be empty: "redis://:password@host" is how Redis
+    // URLs carry a password-only AUTH (red-team run 2026-11-17).
+    re: /\b[a-zA-Z][a-zA-Z0-9+.-]*:\/\/[^\s:@/]*:[^\s@/]+@[^\s/]+/,
   },
 ];
 
@@ -80,9 +82,25 @@ export const KNOWN_LEAK_CASES = [
 export function redact(value) {
   const s = String(value);
   if (s.length <= 8) return "*".repeat(s.length);
-  const keep = 4;
+  // At most a quarter of the value on each side, so a 9-character match
+  // shows 4 of 9 characters, not 8 of 9.
+  const keep = Math.min(4, Math.floor(s.length / 4));
   const stars = "*".repeat(Math.min(s.length - keep * 2, 24));
   return `${s.slice(0, keep)}${stars}${s.slice(-keep)}`;
+}
+
+/**
+ * Redacts one pattern match. A URL keeps its scheme, user and host, which
+ * identify it, and loses the whole password: the generic first-4/last-4 cut
+ * kept the end of the password whenever the host was short
+ * ("postgres://admin:hunter2@db" showed "...2@db"; red-team run 2026-11-17).
+ */
+export function redactMatch(code, matched) {
+  if (code === "url-embedded-credentials") {
+    const m = /^([^:]+:\/\/)([^\s:@/]*):[^\s@/]+@(.*)$/.exec(matched);
+    if (m) return `${m[1]}${m[2]}:********@${m[3]}`;
+  }
+  return redact(matched);
 }
 
 // --- Sensitive-map lookup ---------------------------------------------
@@ -155,7 +173,7 @@ export function checkResourceChange(resourceChange) {
           path: formatPath(path) || "(root)",
           code: hit.code,
           label: hit.label,
-          redacted: redact(hit.matched),
+          redacted: redactMatch(hit.code, hit.matched),
         });
       }
     });
@@ -164,11 +182,18 @@ export function checkResourceChange(resourceChange) {
   return findings;
 }
 
-/** Checks `output_changes` the same way -- outputs are `sensitive` as a whole, not per-path. */
+/**
+ * Checks `output_changes` the same way. Terraform's plan JSON marks an output
+ * sensitive with `before_sensitive` / `after_sensitive` set to `true` on the
+ * change (internal/command/jsonplan/plan.go); there is no `sensitive` key on
+ * output_changes. A bare `sensitive: true` is still honoured for hand-written
+ * input. Quality audit 2026-11-17: reading only `sensitive` flagged every
+ * correctly declared `sensitive = true` output.
+ */
 export function checkOutputChange(name, outputChange) {
   const findings = [];
   for (const side of ["before", "after"]) {
-    if (outputChange.sensitive) continue;
+    if (outputChange.sensitive === true || outputChange[`${side}_sensitive`] === true) continue;
     walkStrings(outputChange[side], [], undefined, (text, path) => {
       for (const hit of matchPatterns(text)) {
         findings.push({
@@ -177,7 +202,7 @@ export function checkOutputChange(name, outputChange) {
           path: formatPath(path) || "(root)",
           code: hit.code,
           label: hit.label,
-          redacted: redact(hit.matched),
+          redacted: redactMatch(hit.code, hit.matched),
         });
       }
     });

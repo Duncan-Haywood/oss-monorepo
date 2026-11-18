@@ -1,3 +1,9 @@
+---
+kind: brief
+topics: [llms-txt]
+date: 2026-10-21
+tagged: auto
+---
 # Adding a marketing page and llms.txt to a product: brief for an agent reader
 
 **Date:** 2026-10-21. **Reader:** an agent about to add a landing page or an

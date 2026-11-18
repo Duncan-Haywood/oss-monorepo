@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVLCSujfQsnF6qaPcJF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T15:03:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shift-roster-builder flagship (row 4): time clock and timesheets in the self-hosted team hub",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": 16248,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "shift-roster-builder next: is at the 2000-char cap with mostly inputs-only items; recording a new landed item needs trimming unrelated text."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The row's buildable items were solver micro-gains the README itself calls timing-bound and small (the warm-sized gate); every other item needs a real manager, account or export. Built a user-facing feature the hub lacked (time clock and timesheets, the free-tier hook Homebase uses) instead.",
+      "did": "timeclock.mjs + hub routes + docs",
+      "result": "6 new tests pass; verified on wrangler dev"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-time-clock-for-the-team-page.md"
+  ],
+  "goal": null,
+  "notes": "Probed Homebase docs (support.joinhomebase.com, app.joinhomebase.com) and Deputy developer docs: all unreachable from the proxy (000), so no Homebase/Deputy reader. Local checks: node --test timeclock.test.mjs server.test.mjs hub-worker.test.mjs 33/33 pass; run_venture_tests.py shift-roster-builder and venture-preflight results in PR body. wrangler 4.40.0 dev with TIMEZONE=America/Chicago: publish 303, clock-in shown 09:01 Chicago, second clock-in refused, clock-out ok, CSV and /admin/timesheet 200, /timeclock.mjs not served as an asset (404).",
+  "corrections": [],
+  "redteam": null
+}

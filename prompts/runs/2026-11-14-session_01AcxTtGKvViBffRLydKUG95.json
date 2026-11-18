@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtGKvViBffRLydKUG95",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T08:13:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Hearth & Horizon fourth revision pass: the 8 science fiction stories no pass had checked (2026-11-13 and 2026-11-14)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15785",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "The first reviewer brief went out with a literal PLACEHOLDER_FILES instead of the file names; the reviewer stopped and asked, and a follow-up message gave it the two files (cost about one minute)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/hearth-and-horizon-revision-2026-11-13b.md",
+      "issue": "'For the next run' said only stories before 2026-11-11 remained, but five 2026-11-13 stories that landed after the second pass and three 2026-11-14 ones had never been checked; finding them took a title-match script against the revision reports."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'Pick the project that has gone longest without a new piece' did not help: every shelf got a piece within the last few hours, and an open For Other Minds PR (#15781) was already in flight."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio is at 474 MB, above the 400 MB cap, and every shelf had a new piece within hours. A fourth revision pass on unchecked stories serves 'quality over count' better than a 394th story.",
+      "did": "Four reviewers re-derived the numbers in 8 stories; the run verified every diff and re-did two non-trivial fixes (the clock-error sign, the oven timeline).",
+      "result": "22 fixes, all 8 stories had at least one; pages regenerated; tests 15/15."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-hearth-and-horizon-fourth-revision-pass.md",
+    "docs/reports/hearth-and-horizon-revision-2026-11-14.md"
+  ],
+  "goal": null,
+  "notes": "creative / hearth-and-horizon revision pass. Slugs: not-enough-ones (6), the-water-already-taken (3), the-thick-edge (1), the-step-that-goes-up (3), pull-gently (3), the-clock-book (1), fourteen-metres-a-day (1), the-sky-is-the-same-size (3, one a 3-line count change). BIBLE.md checklist item 8 now asks writers to count what a scene shows and to recompute a changing quantity at the minute it is spoken. No audio (cap exceeded). Verification: node --test in ventures/hearth-and-horizon 15/15 pass; check_post_frontmatter, check_post_links, post_similarity clean; run_workflow_locally --for-changes result below.",
+  "corrections": [],
+  "redteam": null
+}

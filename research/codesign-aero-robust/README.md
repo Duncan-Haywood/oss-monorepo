@@ -2,7 +2,7 @@
 
 Robustness follow-up to `codesign-aero` (track 14, `codesign`; its "Next steps" asked for this): the airframe grid of that project is re-scored with per-episode randomisation of torque authority, inertia and motor lag, with gains tuned on the nominal plant (the original pipeline), on a narrow randomised plant and on a wide one. Produced with AI assistance (Claude). **Stylised simulation: every constant, and the randomisation ranges, are assumed round numbers; roll axis only; no hardware, no PX4/ArduPilot software-in-the-loop; the policy is a three-gain linear law. The "mass" multiplier scales roll inertia only, not the thrust margin.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-robust/
+**Live page:** https://marisstella.app/research/codesign-aero-robust/
 
 ![Held-out RMS error of 50 airframes, nominal against wide randomised plant](experiments/ranking.png)
 
@@ -31,6 +31,7 @@ PYTHONPATH=src "$PY" -m pytest -q tests     # 7 tests
 RECUV and the Autonomous Systems IRT (UAV simulation, safe autonomy), as direction only; no paper of theirs is reproduced and nothing is affiliated with or endorsed by them.
 
 ## Limitations
+- **Known defect, not yet re-run (quality fix 2026-11-15, [parent audit](../../portfolio/quality/audits/2026-11-15-codesign-aero.json)).** `size()` here is a copy of `codesign-aero`'s and, like it, never checks that the 60-step mass closure converged. On a 40x40 grid of (L, D), 36 of the 1,071 points it calls feasible have no fixed point (no battery mass gives 15 min of hover) and are scored at an arbitrary mass. None of the airframes this README quotes falls in that set at its printed (rounded) value, but rounding near the fold can flip the answer, so this is not a clearance. The parent now requires a closed mass (`closed` in `codesign-aero/src/codesign_aero/aero.py`); until this copy does the same and is re-run, treat rankings that touch the small-prop edge as unverified.
 - One tuning run per cell and 64 held-out episodes: differences of a few tenths of a degree between neighbouring cells (the 0.17° regret, rank 2 versus 3) are within the tuning noise and are not claimed as ordering.
 - The randomisation ranges are my assumptions; narrower or wider ranges, or randomising gust level and sensor lag, were not tried.
 - Gains are not tuned jointly with the airframe here (the grid is ground truth, as in `codesign-aero`), so this says nothing about how joint CMA-ES behaves under randomisation.

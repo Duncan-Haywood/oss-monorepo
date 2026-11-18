@@ -2,7 +2,7 @@
 
 **Why this was worth doing.** `accel-lut` found the weight-sharing product-table engine did not beat an int8 MAC engine, but only under an *assumed* table-read cost, and it ignored the registers a table engine needs. Its next steps asked for an RTL engine through Yosys. This project writes both engines in Verilog, checks them bit for bit against an integer NumPy reference, and counts what Yosys makes of them. **Result: negative.** The table engine's datapath is 2.4x (N=8) to 11.6x (N=128) the area of the MAC engine, because it must keep one accumulator per output, and it takes 1.1x to 3.0x the cycles. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-lutrtl/
+**Live page:** https://marisstella.app/research/accel-lutrtl/
 
 **Builds on.** `research/accel-lut` (the idea and the cost model it questions) and `research/accel-sparse` (the digits MLP, not retrained here). Weight sharing with a codebook is the idea of Han, Mao and Dally (2016), "Deep Compression", ICLR (written from memory, **not re-verified in this run**). No CU Boulder group's work is built on or implied.
 
@@ -43,6 +43,21 @@ Its energy model charged the table engine a table read and an add per weight. Th
 - ROM logic from random constants is not a memory macro; the break-even column is the honest way to read the storage trade.
 - One multiplier and one accumulator per engine; a parallel or double-buffered table engine was not built.
 - No clock frequency estimate, so cycles are not seconds.
+- Missing baseline (quality audit round 50,
+  [`2026-11-12-accel-lutrtl.json`](../../portfolio/quality/audits/2026-11-12-accel-lutrtl.json)):
+  a MAC engine that decodes the same shared codebook (EIE-style weight
+  sharing) stores the same index bits as the table engine. The storage halving
+  above comes from weight sharing, not from the product table, so the
+  break-even column compares the table engine with the wrong MAC. The auditor
+  built that engine with this flow: about 1,786 GE of datapath at N=8, against
+  4,614 for the table engine, with MAC cycle counts. It is not yet in `run.py`.
+- "A table engine needs all N accumulators live" holds for this
+  input-stationary design, not for every table engine. Nearest prior work, not
+  yet compared: UCNN (Hegde et al., ISCA 2018), LUT-GEMM (Park et al., 2022)
+  and T-MAC (Wei et al., 2024).
+- The three RTL tests skip when `iverilog`/`yosys` are missing, and no CI job
+  installs them, so CI does not simulate the RTL. Run them locally with both
+  tools installed (`apt-get install iverilog yosys`).
 
 ## Next steps
 Toggle-count energy from the simulation; an iCE40 or SKY130 flow for real LUT and clock numbers; a double-buffered table; the same comparison on `accel-kws` features once data is reachable.

@@ -172,3 +172,14 @@ test('loadEntries drops non-object rows and never throws on malformed JSON', () 
   assert.deepEqual(loadEntries('[1,2,{"state":"CA"}]'), [{ state: 'CA' }]);
   assert.deepEqual(loadEntries(JSON.stringify(sampleEntries())), sampleEntries());
 });
+
+test('Michigan crosses on exactly $100,000 and on exactly 200 transactions (OR rule)', () => {
+  assert.equal(thresholdFor('MI').amount, 100000);
+  assert.equal(checkEntry({ state: 'MI', grossSales: 100000, transactionCount: 0 }).crossed, true);
+  assert.equal(checkEntry({ state: 'MI', grossSales: 99999, transactionCount: 0 }).crossed, false);
+  assert.equal(checkEntry({ state: 'MI', grossSales: 0, transactionCount: 200 }).crossed, true);
+});
+
+test('sample entries keep Idaho at $61,000 so the demo shows an under-threshold row', () => {
+  assert.equal(sampleEntries().find((e) => e.state === 'ID').grossSales, 61000);
+});

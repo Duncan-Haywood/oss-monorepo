@@ -1,0 +1,252 @@
+{
+  "date": "2026-11-10",
+  "subject": "ventures/ghost-members-export-analyzer",
+  "stratum": "venture",
+  "seed": "2026-11-10",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a newsletter operator / email-deliverability lead who runs a paid Ghost publication and cleans member lists",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 1,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran the real calc.mjs (analyze) on a 300-row Ghost-style export generated in the scratchpad (random labels, tiers, comp, unsubscribed, deleted rows, sent 0/3/9/10/11/25/40) and diffed against a separate Python csv-module implementation written from the page's stated rules: live/paid/comp/free/removed 285/36/7/242/15, MRR 288, processing 19.152 (36x8x2.9% + 36x0.30), conversion 36/278 = 0.1295, judged 154, bands never/low/mid/high 61/16/44/33, quiet 39, unsubscribed-free 28, prospects 25, four label rows and all 12 growth months: every value identical. Two edge probes found model/wording departures: a member exactly 90 days old is not 'quiet' although the page says 'at least this many days' (strict > in code); a bare open-rate of 0.5 is read as 50% but 1 as 1%. Not capped at 2 because outputs were recomputed, but held at 3 not 4 because the input layout is from memory, never checked against a real Ghost export.",
+    "completeness": "Every README feature is present and populated on the 500-row example and my 300-row file: paid/free/comp, conversion, engagement bands, quiet and unsubscribed counts with savings, label table with small-group marking, paid-by-tier, growth and removals by month, engaged prospects, growth CSV download, Load example, Clear, date-format detection. No stubs or TODOs. Gap: the README says what the quiet members are but the tool outputs only a count; emails are dropped at parse so the publisher cannot get the list to act on.",
+    "verification": "`node --test '*.test.mjs'` in the subject: 27 pass, 0 fail, about 0.19 s. Hand-seeded 7 mutations in calc.mjs, reverted each with git checkout (git status clean afterwards, 27 pass again): only 2 caught (dropping the fixed processing fee; letting comp count as paid). 5 survived with all 27 tests green: engaged threshold 0.6 -> 0.7, quiet age > -> >=, minSends >= -> >, prospect threshold 0.6 -> 0.5, and conversion denominator excluding comp -> including comp (the stated 'comp never in conversion' rule has no test with a comp member). Every user-visible threshold is untested at its boundary. page.test.mjs is mostly string greps of the HTML, which fits a disclaimer check but proves nothing about numbers.",
+    "craft": "Read calc.mjs (317 lines), calc.test.mjs, page.test.mjs, usage.mjs, usage.test.mjs and the index.html script. Pure functions, no DOM, small module, clean aliasing, delimiter/BOM/UTF-16/day-first date handling, HTML-escaped output, localStorage guarded, opt-out and DNT honoured. Defects: a negative email_count is accepted (sent -5 is stored); a bare open-rate of 1 is read as 1% but 0.5 as 50%; the sample-data generator ships inside the production calc.mjs; delimiter detection counts separators inside quoted fields; the quiet filter treats a member with no parseable signup date as old enough to flag.",
+    "claims": "Checked the privacy claims (no network calls, usage counters local only, emails and names not kept), the disclaimer and independence text, the 'matched by alias from memory, no real export available' admission (present on the page, README and VENTURE.yaml - honest), the 27-test claim, MIN_GROUP of 5, bands and thresholds as written on the page, and llms.txt (github.io host is the pre-deploy source URL that build_pages_site.py rewrites; not a served defect). Weakness: the page and README sell 'free-to-paid conversion' when the figure is the current share of non-comp members with a Stripe id or tier (no cohort, and churned payers with an old Stripe id still count; the model list admits the Stripe-id caveat). The statement in VENTURE.yaml that no Admin screen ranks inactive members is unverified.",
+    "fitness": "Job walked through: a Ghost publisher exports members, drops the CSV, sees paid/free/comp, never-opened share and an estimated saving. The headline job, deciding whom to re-engage or remove, ends at a count: the tool deliberately discards emails and offers no download of the quiet list or a Ghost filter recipe (e.g. open count 0 and created before date), so the publisher must redo the selection in Ghost Admin. The 'paid' flag over-counts anyone whose subscription ended but whose Stripe id remains, and the example is the only data the tool has ever read; the real export layout is unconfirmed. Good: assumptions are typed, tables are scrollable, runs on a phone.",
+    "domain": "A newsletter operator / email deliverability practitioner would check: are opens trustworthy, is the removal advice staged, are costs real. The page stages removal (send a re-engagement email first) and warns that blocked tracking undercounts opens, which is right. It does not mention Apple Mail Privacy Protection, which inflates opens automatically since 2021 and so overstates the 'engaged' and prospect pool; 60% as 'engaged' and the 20/60 band cuts are uncited. 'Conversion' is an end-state paid share, not a funnel conversion, and the 5 to 10% benchmark is hedged but unsourced. Savings multiply flagged members by the typed per-1000 rate and linear per-member plan cost, which the page admits may not match Ghost(Pro) tier pricing."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "live/paid/comp/free/removed counts on a 300-row generated Ghost-style export",
+      "method": "independent Python csv reimplementation written from the page's stated rules, different language and parser",
+      "command": "python3 ref.py (independent csv-module reference) vs node run.mjs on a 300-row seeded export, scratchpad",
+      "expected": "285/36/7/242/15",
+      "observed": "285/36/7/242/15",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "MRR, Stripe processing and free-to-paid share",
+      "method": "hand arithmetic: 36x$8=288; 288x2.9%+36x$0.30=19.152; 36/(285-7)=0.1295; Stripe published 2.9%+30c US card rate",
+      "command": "same",
+      "expected": "mrr 288, processing 19.152, conv 0.12949640",
+      "observed": "identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "engagement bands, judged count, quiet, unsubscribed-free and prospects",
+      "method": "independent Python with the stated thresholds (20%, 60%, minSends 10, 90 days)",
+      "command": "same",
+      "expected": "never 61, low 16, mid 44, high 33; judged 154; quiet 39; unsubFree 28; prospects 25",
+      "observed": "identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "labels (members, paid) and 12-month growth table incl. removals",
+      "method": "independent Python grouping by label and by YYYY-MM",
+      "command": "same",
+      "expected": "twitter 120/20, podcast 66/15, import 68/4, search 55/6; growth 2025-07..2026-06 as ref",
+      "observed": "identical for all 4 labels and 12 months",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "quiet-member age boundary against the page wording 'joined at least this many days ago'",
+      "method": "page text index.html:81 and the model list says 'at least'",
+      "command": "node edge.mjs: member created exactly 90 days before asOf, quietDays 90",
+      "expected": "flagged quiet (at least 90 days)",
+      "observed": "not flagged at 90d, flagged at 91d (code uses strict >)",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "bare open-rate column parsing",
+      "method": "Ghost exports integer percentages; code treats a value <=1 with a decimal point as a fraction",
+      "command": "edge.mjs rate column 1, 0.5, 50, 100",
+      "expected": "1 -> 1%, 0.5 -> 0.5%, 50 -> 50%, 100 -> 100%",
+      "observed": "1 -> 1%, 0.5 -> 50%, 50 -> 50%, 100 -> 100%",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "README feature list: counts, conversion, bands, quiet list+savings, label table, tiers, growth/removals, engaged prospects",
+      "method": "load the 500-row example and the 300-row export; read the findings and each table",
+      "command": "node run.mjs; sampleCsv() via calc.test",
+      "expected": "all present",
+      "observed": "all present and populated; quiet count shown but no list of who to remove",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "growth-table CSV download and Load example/Clear buttons",
+      "method": "read index.html handlers lines 187-210",
+      "command": "grep download, load-example, clear-all",
+      "expected": "wired",
+      "observed": "wired (download only the growth table)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'nothing is uploaded / no network calls'",
+      "method": "grep calc.mjs, index.html for fetch/XHR/beacon/WebSocket/remote script src; read usage.mjs",
+      "command": "grep + page.test.mjs",
+      "expected": "none",
+      "observed": "none; usage events local-storage only, DNT/GPC honoured",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'emails and names are not kept'",
+      "method": "calc.test.mjs asserts JSON of members has no address; normalizeRows reads email only to drop empty rows",
+      "command": "read calc.mjs normalizeRows",
+      "expected": "not retained",
+      "observed": "not retained",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README 'Tests: node --test'",
+      "method": "run in the subject dir on Node v22.23.4",
+      "command": "node --test; node --test '*.test.mjs'",
+      "expected": "passes",
+      "observed": "27 pass, 0 fail both ways",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "llms.txt URL and README live URL",
+      "method": "README says marisstella.app; llms.txt points at the github.io host; platform/ci/build_pages_site.py rewrite_base_urls rewrites hosts at deploy",
+      "command": "read files",
+      "expected": "consistent",
+      "observed": "llms.txt source URL is the old github.io host; build rewrites it",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "page: Ghost takes no cut of membership revenue; Ghost(Pro) priced by member count; Stripe 2.9%+30c default",
+      "method": "outside knowledge of Ghost's published 0% transaction-fee policy and Stripe's US card pricing; not fetched in the session",
+      "command": "none (no network check)",
+      "expected": "true",
+      "observed": "consistent with my knowledge, unverified in session",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "VENTURE.yaml comment 'no Admin screen ranks them' (inactive members)",
+      "method": "Ghost Admin has an email open-rate member filter as I recall it; not verifiable offline",
+      "command": "none",
+      "expected": "unknown",
+      "observed": "unverified",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:bandOf",
+      "change": "engaged threshold rate < 0.6 -> rate < 0.7",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:quiet filter",
+      "change": "asOf - created > quietDays*DAY -> >=",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:quiet filter",
+      "change": "m.sent >= minSends -> m.sent > minSends",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:prospects",
+      "change": "openRate >= 0.6 -> >= 0.5",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:summary.conversion",
+      "change": "denominator nonComp -> live.length (comp counted as non-converters)",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:processing",
+      "change": "drop the $0.30 fixed fee term",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:normalizeRows paid",
+      "change": "remove !isComp so comp members with a tier count as paid",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Seeded mutations in core thresholds go undetected: 5 of 7 (engaged cutoff, quiet age comparison, minSends comparison, prospect cutoff, conversion denominator counting comp) leave all 27 tests green; no test has a comp member in the conversion case or checks any threshold at its boundary",
+      "where": "ventures/ghost-members-export-analyzer/calc.test.mjs",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "The headline job (who to re-engage or remove) ends in a count: emails are discarded at parse and there is no download or filter recipe for the quiet free members, so the user cannot act on the result",
+      "where": "ventures/ghost-members-export-analyzer/index.html:110, calc.mjs:224",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Quiet-member age uses strict > while the page says 'joined at least this many days ago' (a member exactly N days old is not flagged)",
+      "where": "ventures/ghost-members-export-analyzer/calc.mjs:224",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "'Free-to-paid conversion' is the current share of non-comp members holding a Stripe id or tier; former payers with a lingering Stripe id count as paid and the label overstates what is measured",
+      "where": "ventures/ghost-members-export-analyzer/calc.mjs:254",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Open-based engagement bands and prospects ignore Apple Mail Privacy Protection auto-opens, which inflate opens; page only warns about undercounting; band cutoffs are uncited",
+      "where": "ventures/ghost-members-export-analyzer/index.html (Engagement bullet), calc.mjs:ENGAGEMENT_BANDS",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Column names and value wording are from memory; never read a real Ghost export (disclosed); bare open-rate 1 vs 0.5 is read as 1% vs 50%; negative email_count accepted",
+      "where": "ventures/ghost-members-export-analyzer/calc.mjs:12,166,172",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "The sample-data generator (sampleCsv) ships inside the production calc.mjs and the parser counts delimiters inside quoted fields; a quiet filter accepts undated members as old enough",
+      "where": "ventures/ghost-members-export-analyzer/calc.mjs:296",
+      "category": "code-craft",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "The arithmetic is right: every count, band, label row, growth month and money figure matched an independent Python recomputation on a 300-row Ghost-style export, the privacy and disclaimer claims are backed by files, and the page candidly says the column names are from memory. It does not meet the bar because verification scores 1: five of seven seeded threshold mutations (engaged cutoff, quiet age and minSends comparisons, prospect cutoff, and counting comp members in the conversion denominator) left all 27 tests green, so the rules that decide who is flagged are protected only by the two happy-path cases. Fitness and domain are 2: the tool tells a publisher how many members look removable but discards the list, labels a paid-share as conversion, and treats opens as trustworthy without noting Apple Mail Privacy Protection. Worst defect: untested core thresholds (medium), with the missing quiet-member export the biggest product gap."
+}

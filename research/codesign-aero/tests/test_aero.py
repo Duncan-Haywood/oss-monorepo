@@ -23,6 +23,46 @@ class SizingTests(unittest.TestCase):
         self.assertTrue(np.isfinite(s["mass"]) and not bool(s["feasible"]))
 
 
+    def test_closure_not_cost_cap_screens_small_props(self):
+        # README: the closure check removes the diverging small-prop designs; no closed design reaches the cost cap.
+        L, D = np.meshgrid(np.linspace(*A.L_RANGE, 40), np.linspace(*A.D_RANGE, 40))
+        s = A.size(L, D)
+        overlap_ok = np.sqrt(2) * L >= 1.05 * D
+        self.assertGreater(int((overlap_ok & ~s["closed"]).sum()), 0)
+        self.assertEqual(int((s["closed"] & (s["cost"] > A.COST_CAP)).sum()), 0)
+
+    def test_unclosed_mass_is_infeasible(self):
+        # Quality census 2026-11-15: no mass closes at L 0.146, D 0.097 (m_new > m from 0.5 to 20 kg), so it is not a design.
+        for m in (0.5, 1.0, 2.0, 5.0, 10.0):
+            self.assertGreater(float(A._mass_update(m, 0.146, 0.097)), m)
+        s = A.size(0.146, 0.097)
+        self.assertFalse(bool(s["closed"]))
+        self.assertFalse(bool(s["feasible"]))
+
+    def test_slow_near_fold_design_still_closes(self):
+        # Converges slowly near the fold (still moving at 200 iterations); it has a fixed point, so it is a design.
+        s = A.size(0.17026, 0.10179)
+        self.assertTrue(bool(s["closed"]))
+        self.assertAlmostEqual(float(s["mass"]), float(A._mass_update(s["mass"], 0.17026, 0.10179)), places=3)
+
+    def test_every_feasible_design_is_a_fixed_point(self):
+        L, D = np.meshgrid(np.linspace(*A.L_RANGE, 40), np.linspace(*A.D_RANGE, 40))
+        s = A.size(L, D)
+        f = s["feasible"]
+        self.assertGreater(int(f.sum()), 0)
+        res = np.abs(A._mass_update(s["mass"], L, D) - s["mass"])[f]
+        self.assertLess(float((res / s["mass"][f]).max()), 1e-4)
+
+    def test_hover_endurance_matches_requirement(self):
+        # Independent of the closure loop: battery energy at the closed mass gives 15 min of actuator-disc hover.
+        L, D = 0.2, 0.15
+        s = A.size(L, D)
+        m = float(s["mass"]); T = m * A.G / 4
+        p_ideal = 4 * T * np.sqrt(T / (2 * A.RHO * np.pi * D ** 2 / 4))
+        minutes = float(s["wh"]) * A.DOD / (p_ideal / (A.FM * A.ETA)) * 60
+        self.assertAlmostEqual(minutes, A.ENDURANCE_MIN, places=6)
+        self.assertTrue(bool(s["closed"]))
+
 class RolloutTests(unittest.TestCase):
     def test_deterministic(self):
         x, g = np.array([[0.4, 0.4]]), np.array([[0.5, 0.5, 0.5]])

@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVPtbVCWb2RLin1iZS1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T21:08:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ai-bookkeeper flagship item (5): receipts with two or three tax lines where OCR lost one",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16339",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "I ran the bare `promptctl.py route` first and it drew process for the scheduled ventures brief; `route --task` picked ventures. The same report as several runs today: the scheduled brief always names a task, so the default command block could carry --task."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-ai-bookkeeper-three-tax-lines-one-tax.md",
+    "ventures/ai-bookkeeper/eval/receipt-tax-lines-2026-11-15.md"
+  ],
+  "goal": "Deepen flagship ai-bookkeeper (row 1 of allocate.py)",
+  "notes": "Rebuilt the SRD page readings (tesseract.js 5.1.1, four passes, ~25 min); reproduced baseline exactly (totals 156/196, tax 136/185). Tax block rule + pre-tip Total as a closing target + voteTax pooling of one reading's tax-line sum against another's subtotal: SRD tax 136 -> 138 of 185 (1173, 1182 fixed, none broken), totals unchanged. CORD train first caught 7 breakages (service charge, rounding, fee lines); excluded, CORD 322/46/41 unchanged. Verification: run_venture_tests.py ai-bookkeeper ok (3262 tests); check_post_frontmatter ok; main_health 231/231 at start.",
+  "corrections": [],
+  "redteam": null
+}

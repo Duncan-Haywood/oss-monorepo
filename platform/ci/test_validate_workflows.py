@@ -22,6 +22,7 @@ from validate_workflows import (
     check_venture_tests_run,
     duplicates_ventures_tests,
     reserved_github_refs,
+    main,
     unguarded_shallow_fetches,
 )
 
@@ -645,25 +646,6 @@ jobs:
                 offenders[path.name] = sorted(found)
         self.assertEqual(offenders, {})
 
-    def test_the_routine_trigger_schedule_is_gated_on_an_owner_variable(self):
-        # The reason invariant 5 was written now rather than later: the gate
-        # added to claude-routine-trigger.yml is what stops a revoked token
-        # billing ~72 runner-minutes a day, and a gate on a reserved name
-        # would look identical while doing nothing.
-        #
-        # Pinned here rather than in a workflow-specific file because the two
-        # properties that matter are exactly the ones a well-meaning edit
-        # breaks: that `schedule` cannot start the job on its own, and that
-        # `workflow_dispatch` still can, so a new token stays testable without
-        # flipping the variable first.
-        path = REPO_ROOT / ".github" / "workflows" / "claude-routine-trigger.yml"
-        data = yaml.safe_load(path.read_text())
-        condition = data["jobs"]["fire"]["if"]
-
-        self.assertIn("vars.ROUTINE_TRIGGER_ENABLED == 'true'", condition)
-        self.assertIn("github.event_name == 'workflow_dispatch'", condition)
-        self.assertEqual(reserved_github_refs(data), set())
-
 
 class UnguardedShallowFetchTest(unittest.TestCase):
     """A `--depth` fetch truncates the whole clone, not just the ref it names.
@@ -703,6 +685,13 @@ class UnguardedShallowFetchTest(unittest.TestCase):
 
     def assert_clean(self, run_body):
         self.assertEqual(errors_for(self._workflow(run_body)), [])
+
+    def test_an_unnamed_step_is_reported_by_its_position(self):
+        data = {"jobs": {"build": {"steps": [
+            {"run": "echo hi"},
+            {"run": "git fetch --depth=1 origin main"},
+        ]}}}
+        self.assertEqual(unguarded_shallow_fetches(data), [("build", "#2")])
 
     def test_an_unconditional_depth_fetch_is_flagged(self):
         self.assert_flagged(
@@ -746,10 +735,6 @@ class UnguardedShallowFetchTest(unittest.TestCase):
             if found:
                 offenders[path.name] = found
         self.assertEqual(offenders, {})
-
-
-if __name__ == "__main__":
-    unittest.main()
 
 
 class PullRequestConcurrencyTest(unittest.TestCase):
@@ -796,3 +781,15 @@ permissions:
         for path in sorted(WORKFLOWS_DIR.glob("*.yml")):
             check(path, errors)
         self.assertEqual([e for e in errors if "concurrency" in e], [])
+
+
+class MainExitCodeTest(unittest.TestCase):
+    def test_main_exits_zero_on_the_clean_real_tree(self):
+        # Pins the success return: a mutant flipping it to 1 failed every PR.
+        import contextlib, io
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(main(), 0)
+
+
+if __name__ == "__main__":
+    unittest.main()

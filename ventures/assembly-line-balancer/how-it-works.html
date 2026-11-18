@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23285e3c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How the Assembly Line Balancer Works | Bounds, Search, Benchmark</title>
+  <meta name="description" content="How the free assembly line balancer finds the fewest stations or the shortest cycle: lower bounds, priority rules, a branch, bound and remember search, and its results on Scholl's 269 SALBP-1 benchmark problems.">
+  <meta property="og:title" content="How the Assembly Line Balancer works">
+  <meta property="og:description" content="Lower bounds, priority rules and an exact search, and how it did on Scholl's benchmark lines.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="./how-it-works.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"How the Assembly Line Balancer works","about":"Simple assembly line balancing (SALBP-1 and SALBP-2)","isPartOf":{"@type":"SoftwareApplication","name":"Assembly Line Balancer"}}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17211b; background: #eef3ef; --accent: #285e3c; --accent2: #1d4a2e; --ink2: #4d5c52; --line: #cbd8ce; }
+    body { max-width: 820px; margin: 0 auto; padding: 32px 16px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.08; letter-spacing: -.03em; margin: 0 0 14px; }
+    h2 { font-size: 1.25rem; margin: 30px 0 8px; }
+    p, li { line-height: 1.55; }
+    a { color: var(--accent2); }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; font-variant-numeric: tabular-nums; margin: 10px 0; }
+    th, td { border-bottom: 1px solid var(--line); padding: 5px 8px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    code { font-size: .9em; }
+    footer { margin-top: 30px; font-size: .84rem; color: var(--ink2); }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Back to the line balancer</a></p>
+  <h1>How the line balancer works</h1>
+  <p>A line makes one unit every <em>cycle time</em>. Takt is the cycle the customer sets: the production time you have in a period divided by the units needed in it, so 27,000 seconds for 450 units is a 60-second takt. Each task has a time and a list of tasks that must be done before it. A balance puts every task in a station, in order along the line, so that no station holds more work than the cycle time and no task sits upstream of something it depends on.</p>
+  <p>There are two classic questions, known in the literature as the <em>simple assembly line balancing problem</em> (SALBP). Type 1 fixes the cycle time and asks for the fewest stations, which is the number of operators on a one-person-per-station line. Type 2 fixes the stations and asks for the shortest cycle, the most output from the people you have. Both are NP-hard, so a solver either searches cleverly or settles for a rule of thumb.</p>
+
+  <h2>1. Lower bounds: how few stations could possibly do</h2>
+  <ul>
+    <li><strong>Total work.</strong> The work has to fit: total task time divided by the cycle time, rounded up.</li>
+    <li><strong>Long tasks.</strong> Two tasks each longer than half the cycle cannot share a station, so every such task needs its own (two tasks of exactly half can pair up). A weighted count of tasks longer than a third of the cycle gives a third bound.</li>
+    <li><strong>Heads.</strong> A task cannot start before all the work that must precede it, so its own time plus its predecessors', divided by the cycle, is a station it cannot come before.</li>
+  </ul>
+  <p>The bounds and the earliest and latest station of each task follow those collected by Scholl and Klein (1997, <em>INFORMS Journal on Computing</em> 9(4), the SALOME paper).</p>
+
+  <h2>2. A quick balance from priority rules</h2>
+  <p>Fill each station in turn with the highest-priority task that is ready and still fits, and open a new station when nothing fits. The page tries four priorities: ranked positional weight (a task's time plus the time of everything after it; Helgeson and Birnie, 1961), number of followers, longest task, and longest path to the end of the line. It runs each one forwards and also on the line reversed (filling from the last station back), and keeps the best. These are the methods most courses teach, and they are often optimal. When they are not, they are a station or two off, and nothing tells you which case you are in.</p>
+
+  <h2>3. The exact search, and when it says "proved"</h2>
+  <p>Starting from the lower bound, the page asks: is there a balance with this many stations? The first count with a yes is optimal. Each question is answered by searching station by station:</p>
+  <ul>
+    <li>Only <strong>maximal</strong> loads are tried, ones to which no further ready task would fit. Some optimal balance always uses only maximal loads (Jackson, 1956).</li>
+    <li>A target of <em>m</em> stations allows <em>m</em> &times; cycle &minus; total work of idle time in all. A load that would push the idle total over that is never tried. Tasks past their latest possible station, or too many long tasks for the stations left, end a branch.</li>
+    <li>Every set of tasks already placed is <strong>remembered</strong>. If the search reaches the same set again with no fewer stations used, it skips it. The order of the earlier stations no longer matters. States are explored by cyclic best-first search, one per station level per round, least idle first. This is the idea of Sewell and Jacobson's branch, bound and remember algorithm (2012, <em>INFORMS Journal on Computing</em> 24(3)). The code here is our own simpler version of it.</li>
+    <li>Half the search budget goes forwards and half to the reversed line, after the bidirectional idea in SALOME.</li>
+  </ul>
+  <p>If the search finishes, the answer is <strong>proved</strong>: no balance with fewer stations exists for the times and precedences typed. If the time limit runs out first, the page shows the best balance found and the count it has proved is needed. It never calls an unfinished answer optimal. Type 2 uses the same yes-or-no search inside a binary search on the cycle time, which works because a balance that fits one cycle time also fits any longer one.</p>
+
+  <h2>4. How it did on the standard benchmark</h2>
+  <p>Armin Scholl's 1993 data set is the standard test for line balancing: 269 type 1 problems on 25 precedence graphs from 7 to 297 tasks, drawn from industry and from the literature. The published optima are on <a href="https://assembly-line-balancing.de/">assembly-line-balancing.de</a>. <code>bench/scholl.mjs</code> reads the data set's zip as published and runs the engine on every problem with the page's default limit of 4 seconds. It checks every balance with code separate from the solver, and writes <code>bench/salbp1.md</code>.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>SALBP-1, 4 s per problem</th><th>Problems</th></tr></thead>
+      <tbody>
+        <tr><td>Same station count as the published optimum</td><td id="b1agree">258 of 269</td></tr>
+        <tr><td>Proved optimal by this engine within the limit</td><td id="b1proved">249 of 269</td></tr>
+        <tr><td>More stations than the published optimum</td><td id="b1worse">10</td></tr>
+        <tr><td>Fewer stations than the published optimum (would mean a bug)</td><td>0</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The ten misses are on the hardest graphs: six on Scholl's own 297-task graph (one station over each), two on Barthol2 (148 tasks, two stations over) and two on Wee-Mag (75 tasks, one over). On each of them the page says "best found" and gives the proved bound, so you know to raise the time limit or look harder. One more Wee-Mag problem (cycle 47) is listed on the site as still open between 32 and 33 stations; the engine finds 33 and cannot close it either. Published exact methods do better on these hard graphs. The point of the table is that you can see exactly where this one stands.</p>
+  <p id="salbp2">The same data set has 302 type 2 problems (a number of stations given, the shortest cycle wanted). At 4 seconds each the engine gave the published optimal cycle time on 256 of 302 and proved it optimal on 251 of 302. It was longer on 42, and shorter on none (<code>bench/salbp2.md</code>). Type 2 is harder for this engine, likely because each step of its binary search on the cycle time is a full yes-or-no search of its own.</p>
+
+  <h2>5. What it does not model</h2>
+  <p>This is the simple problem: one product, fixed task times, one operator per station, no parallel stations, no zoning (tasks that must or must not share a station), no tool or space limits, no ergonomic load. On a real line those often decide the balance. Use this answer as a lower limit and a first layout, and check it on the floor.</p>
+
+  <footer>
+    <p><strong>No warranty. This is a planning estimate, not engineering advice.</strong> It balances the times and precedences you type. Provided free and as-is; you are responsible for verifying the output before relying on it. Not affiliated with or endorsed by the authors cited or by assembly-line-balancing.de.</p>
+    <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/assembly-line-balancer">Source and benchmark output</a>. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the work</a>. <a href="../">More free tools</a>.</p>
+  </footer>
+</body>
+</html>

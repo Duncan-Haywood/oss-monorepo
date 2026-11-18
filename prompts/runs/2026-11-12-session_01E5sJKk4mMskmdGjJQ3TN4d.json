@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKk4mMskmdGjJQ3TN4d",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T09:17:50Z",
+  "ended": "2026-11-12T09:40:49Z",
+  "wall_minutes": 23.31,
+  "tokens_in": 6993687,
+  "tokens_out": 32916,
+  "cost_usd": 2.8417,
+  "tool_calls": 69,
+  "task": "perf: quick-pick-survey information selector pair loop (largest landable consumer after owner-gated P063/P064)",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15076",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First full simulation run used npm ci --ignore-scripts, so pooling.simulation.test.ts could not load the Prisma client (suite exit 1 in both phases)",
+      "fix": "npx prisma generate, then ran that file alone on both versions: 13/13 pass each"
+    },
+    {
+      "what": "The first parity test missed changes to the repeat penalty (0.5, 0.04)",
+      "fix": "Added a fixed case that brackets the penalty between 0.0493 and 0.0512; every behaviour-changing mutation fails now"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) touch CODEOWNERS paths again; the prompt already says to skip to steps 2-4, which worked."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The stop hook asks for a commit while a long before/after benchmark has the original file swapped into the working tree; I staged the new blob with git update-index instead. A note on benchmarking from a separate worktree would avoid this."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/history/ci-perf-2026-11-08-qps-simulation-floor-reading.md",
+      "why": "Its top suggestion was worker threads for cell(); a profile showed the time was in the pair loop itself, which also serves the live route",
+      "did": "Optimised the loop in place, keeping the floats exact",
+      "result": "Suite 630 s to 151 s, MEASURE output byte-identical, and live selector 3-5x faster at 500 items"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-quick-pick-survey-a-string-per-pair.md",
+    "docs/history/ci-perf-2026-11-12-qps-information-selector-loop.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md (Per-item terms section)"
+  ],
+  "goal": null,
+  "notes": "Metric: quick-pick-survey simulation suite wall time (npx vitest run --config vitest.simulations.config.ts --reporter=json, 4-core container, back to back): before 630 s, after 151 s (poolCapDeep4000 555 to 150 s, pairMix 238 to 70 s, poolCapDeep2000 129 to 38 s). The 14 MEASURE lines are byte-identical; 41/41 tests pass both times (plus pooling 13/13 both after prisma generate). Live selector (pairLatency.test.ts with PAIR_BENCH, median of 15 calls): at 500 items and 300 answers, information 32.9 to 12.8 ms, staged 49.5 to 10.0 ms. Profile (node --cpu-prof, cell(500,800,1), 9.1 s to 2.0 s): pairKey array, sort and join per pair, plus per-pair closures, were most of the self time. npm run verify exit 0 (470/470 tests, build ok). Parity test: 10 behaviour-changing mutations all caught. CI check-run result in PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "81dc6711-2bf3-5d3e-b75b-a41e5717ca8f",
+    "transcripts": 1,
+    "first": "2026-11-12T09:17:50Z",
+    "last": "2026-11-12T09:41:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 150,
+        "output": 32916,
+        "thinking": 6862,
+        "cache_read": 6893015,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100522,
+        "api_equivalent_usd": 2.8417,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 150,
+      "output": 32916,
+      "thinking": 6862,
+      "cache_read": 6893015,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100522,
+      "api_equivalent_usd": 2.8417,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 1,
+      "Monitor": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.31,
+      "active_minutes": 9.44,
+      "model_minutes": 6.72,
+      "tool_minutes": 2.73,
+      "waiting_on_human_minutes": 13.87,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "profile, exact-float rewrite of a hot loop, parity test with mutations, two 10-minute benchmark runs, docs and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 176.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

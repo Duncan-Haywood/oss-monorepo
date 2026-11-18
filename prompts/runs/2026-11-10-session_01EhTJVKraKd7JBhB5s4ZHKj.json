@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01EhTJVKraKd7JBhB5s4ZHKj",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo (revenue ventures)",
+  "input_sha256": "87ca7e65ac0d48899fdc7b72f83a8170f0fc693ee151d9b9c1ae12c674e43676",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T18:02:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "platform/ci",
+    "ventures/shed-designer"
+  ],
+  "pr": 14570,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/CLAUDE.md",
+      "issue": "Says run_venture_tests.py is the venture test command and 'a local pass is the CI pass'; until this PR it ran node --test only, so Python ventures showed '0 suites run'. The text is CODEOWNERS-gated, so it is left as is; the script now covers the gap."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog file sits under CODEOWNERS-gated prompts/, so a critique finding cannot be filed as a backlog row without holding the PR for the owner; the finding went into the blog post and this record instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Critique asks to file problems as backlog items; prompts/ is CODEOWNERS-gated, so I fixed the problem directly in the ungated script instead of filing a row.",
+      "did": "shipped the fix in platform/ci/run_venture_tests.py",
+      "result": "6 ventures' Python tests (32 beyond #14569's 45) now run in ventures-tests.yml"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-naming-a-path-is-not-running-its-tests.md"
+  ],
+  "goal": "Critique mode (backlog had only owner/blocked rows): close the gap where venture Python tests no workflow names never run in CI.",
+  "notes": "Lens: checks that never fire. Started from a 2026-11-10 doc_friction report (run_venture_tests.py said '0 suites run' for photo-editing). Scan: 53 ventures with Python tests, 47 covered by a workflow step, 6 not (stranded-branch-finder 37, workflow-audit 16, actions-runtime-deprecation-check 9, actions-continue-on-error-check 8, local-site-studio 7, shed-designer pytest-style). Verification: platform/ci test_run_venture_tests 13 OK (5 new); run_venture_tests.py on those ventures all ok; main_health.py 55/55 green before change. Follow-up: shed-designer's test_recheck_prices.py is pytest-style and still unrun (unittest sees 0 tests). No backlog ids touched. Also fixed a stale shed-designer browser test (picker.browser.test.mjs: filled length '10' when the default is already 10 ft, so it timed out); passes now. Overlap: PR #14569 (another session, same friction report) merged first with a looser 'any workflow names the path' rule that found 2 ventures; merged main and kept its structure, adding the step-level rule (test_commands/python_run_elsewhere) that finds 4 more, unittest exit-5 as no-tests, and the command in skip notes. Post rewritten as a follow-up.",
+  "corrections": [],
+  "redteam": null
+}

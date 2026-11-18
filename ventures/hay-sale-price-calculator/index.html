@@ -138,7 +138,7 @@
   </footer>
 
   <script type="module">
-    import { analyze, sensitivity, sampleInput, toCsv, money } from "./calc.mjs";
+    import { analyze, sensitivity, sampleInput, toCsv, money, money2 } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -160,11 +160,11 @@
       if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
       last = r;
       $("#advice").innerHTML = r.advice.map((a) => `<div class="finding"><span class="pill ${r.anyProfit ? "info" : "high"}">${r.anyProfit ? "result" : "loss"}</span>${esc(a)}</div>`).join("");
-      $("#lines").innerHTML = r.channels.map((c) => `<tr><th scope="row">${esc(c.label)}${c.key === r.best ? " ★" : ""}</th><td class="n">${Math.round(c.soldTons)}</td><td class="n">${money(c.pricePerTon)}</td><td class="n">${money(c.breakEvenPerTon)}</td><td class="n">${money(c.breakEvenPerBale)}</td><td class="n">${money(c.net)}</td><td class="n">${money(c.netPerAcre)}</td></tr>`).join("");
+      $("#lines").innerHTML = r.channels.map((c) => `<tr><th scope="row">${esc(c.label)}${c.key === r.best ? " ★" : ""}</th><td class="n">${Math.round(c.soldTons)}</td><td class="n">${money(c.pricePerTon)}</td><td class="n">${money(c.breakEvenPerTon)}</td><td class="n">${money2(c.breakEvenPerBale)}</td><td class="n">${money(c.net)}</td><td class="n">${money(c.netPerAcre)}</td></tr>`).join("");
       $("#sens").innerHTML = sensitivity(input, r.best).map((row) => `<tr><th scope="row">${Math.round(row.yieldFactor * 100)}%</th>${row.cells.map((c) => `<td class="n">${money(c.net)}</td>`).join("")}</tr>`).join("");
       report.hidden = false;
       status.textContent = `Best: ${r.channels.find((c) => c.key === r.best).label}, net ${money(r.channels.find((c) => c.key === r.best).net)}.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

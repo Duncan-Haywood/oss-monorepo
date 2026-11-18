@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyeZuzMcNpnZP5WKcQR",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T05:46:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 2) ai-bookkeeper: item (2) bank readers on real public US exports",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15744",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "blog post description/seo_title over the length caps",
+      "fix": "shortened; check_post_frontmatter.py passes"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py record",
+      "issue": "run_workflow_locally.py says not to change tracked files while it runs; writing the run record then is safe only because the record is a new untracked file, which neither tool says."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-a-semicolon-in-the-memo-hid-a-whole-statement.md",
+    "ventures/ai-bookkeeper/README.md (Credit unions and the US Bank memo)"
+  ],
+  "goal": null,
+  "notes": "Searched GitHub code for US Bank and credit-union CSV exports. A real US Bank card export read 0 of 57 rows (semicolons in the memo outvoted commas in pickDelimiter); fixed by preferring a delimiter that splits a line into known column names. MCC read from that memo: first-seen purchases with a suggestion 18 -> 33 of 55, no earlier suggestion changed, 13 of 15 new ones right by eye. Credit-union layout named. eval/us-bank-exports.mjs: 48 files, 4,506 rows, 48/48 named, 0 unexplained skips, 0 wrong signs. ai-bookkeeper suite passes (run_venture_tests.py). Not found: US Bank checking, non-Chase business account.",
+  "corrections": [],
+  "redteam": null
+}

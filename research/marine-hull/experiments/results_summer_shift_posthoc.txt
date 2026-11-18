@@ -1,0 +1,17 @@
+Milestone 6zzn post hoc: larger brightening of lag 3, local summer (s) and whole year (y), high-amplitude points (no predictions)
+  rule        hi168  pp72   km-only  dark-only  both
+  AT_90          25    43       143          0     0
+  G3s+3          32    44       136          0     0
+  G3s+4          57    47       111          0     0
+  G3s+5          70    47        98          0     0
+  G3s+6          80    48        88          0     0
+  G3s+8         100    49        68          0     0
+  G3s+10        124    50        44          0     0
+  G3y+3           9    42       159          0     0
+  G3y+4          11    43       157          0     0
+  G3y+5          17    44       151          0     0
+  G3y+6          21    46       147          0     0
+  G3y+8          44    45       124          0     0
+  G3y+10         91    47        75          2     0
+  G2y-3         125    49        43          0     0
+  G2y+3         140    44         0         28     0

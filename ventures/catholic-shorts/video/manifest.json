@@ -1,0 +1,42 @@
+{
+  "call-no-man-father": {
+    "bytes": 905283,
+    "seconds": 64.1,
+    "voice": "kokoro-v1.0 am_michael"
+  },
+  "do-catholics-worship-mary": {
+    "bytes": 918277,
+    "seconds": 62.5,
+    "voice": "kokoro-v1.0 am_michael"
+  },
+  "is-the-eucharist-just-a-symbol": {
+    "bytes": 981400,
+    "seconds": 67.9,
+    "voice": "kokoro-v1.0 am_michael"
+  },
+  "martin-de-porres-and-the-broom": {
+    "bytes": 951500,
+    "seconds": 63.4,
+    "voice": "kokoro-v1.0 am_michael"
+  },
+  "the-last-pew": {
+    "bytes": 830588,
+    "seconds": 60.3,
+    "voice": "kokoro-v1.0 am_michael"
+  },
+  "the-priest-who-proposed-the-big-bang": {
+    "bytes": 1071950,
+    "seconds": 68.6,
+    "voice": "kokoro-v1.0 am_michael"
+  },
+  "where-is-purgatory-in-the-bible": {
+    "bytes": 921034,
+    "seconds": 63.5,
+    "voice": "kokoro-v1.0 am_michael"
+  },
+  "why-confess-to-a-priest": {
+    "bytes": 916611,
+    "seconds": 64.5,
+    "voice": "kokoro-v1.0 am_michael"
+  }
+}

@@ -28,15 +28,42 @@ export const DRAFT_SYSTEM = [
 
 const parseJson = (text) => { const m = String(text).match(/\{[\s\S]*\}/); if (!m) throw new Error("the model did not return JSON"); return JSON.parse(m[0]); };
 
+// Model readings that end the cadence with no draft and no task, and the rules' readings a person always sees.
+const CLOSES = new Set(["not_interested", "left_company"]);
+const VISIBLE = new Set(["unclear", "question", "objection"]);
+
 /** Combine the rules' triage with the model's. The model may only keep or lower how much contact follows. */
 export function mergeTriage(rules, model, today) {
   if (!model || !CATEGORIES[model.category]) return { ...rules, source: "rules" };
   if (rules.category === "bounce" || rules.category === "unsubscribe") return { ...rules, source: "rules" };
+  // A permanent stop (the suppression list, a dead address) comes from the rules or a person, never from a model alone
+  // (2026-11-12, eval/README.md "A local model on every reply set"): a 7B model read "Do you handle unsubscribe links?" as
+  // an opt-out and "Can you resend the attachment? It didn't open" as a bounce. The rules' answer stands and runInbox
+  // tells the person what the model read; nothing is sent without their approval either way.
+  if (model.category === "unsubscribe" || model.category === "bounce") {
+    return { ...rules, source: "rules", modelSaid: model.category, modelEvidence: String(model.evidence || "").slice(0, 300) };
+  }
+  // Nor does a model pause a reply the rules read as interested: the same 7B model read "Call me later today, around 3pm" and
+  // "Now is actually a perfect time ... Wednesday at 10?" as not now. Lower is not always safer; a paused hot lead is lost.
+  // Chosen on the scored sets themselves (eval/README.md), so it is a tuned policy: 421/472 vs 407, false stops 26 vs 41.
+  if (rules.category === "interested" && model.category !== "interested") return { ...rules, source: "rules", modelSaid: model.category };
+  // Nor does a model close quietly a reply the rules leave in front of a person (2026-11-12, eval/README.md "The 37 false
+  // stops, by what a person would see"). not_interested and left_company end the cadence with no draft and no task, so a
+  // wrong one is a lead lost without anyone reading it; unclear, question and objection all reach a person. On the 792
+  // scored replies the 7B model's closes from those three were right 11 of 25 times. Its close becomes a flag: the rules'
+  // answer stands and runInbox adds a task saying what the model read.
+  if (CLOSES.has(model.category) && VISIBLE.has(rules.category)) return { ...rules, source: "rules", modelSaid: model.category };
+  // Nor does a model turn a question into an objection: that drops the "answer their question" task and drafts a rebuttal
+  // to "What does it cost for a team of 12?". The 7B model did it 14 times over the 792, right 3 times.
+  if (rules.category === "question" && model.category === "objection") return { ...rules, source: "rules", modelSaid: model.category };
   // Allowed: anything from "unclear"; a move to the same or less contact; or a move between two categories that both
   // end in a draft awaiting approval (question -> interested). Never from a no-contact category to a drafting one.
   const lower = CATEGORIES[model.category].rank <= CATEGORIES[rules.category].rank;
   const bothDraft = CATEGORIES[rules.category].outbound && CATEGORIES[model.category].outbound;
   if (rules.category !== "unclear" && !lower && !bothDraft) return { ...rules, source: "rules", modelSaid: model.category };
+  // Equal rank is not enough: out_of_office and not_now share rank 2, but only not_now drafts (a reply to an auto-responder).
+  // Fixed 2026-11-12, after a 7B model read four away notices as "not now".
+  if (rules.category !== "unclear" && !CATEGORIES[rules.category].outbound && CATEGORIES[model.category].outbound) return { ...rules, source: "rules", modelSaid: model.category };
   const date = /^\d{4}-\d{2}-\d{2}$/.test(model.return_date || "") && model.return_date >= today ? model.return_date : null;
   return {
     category: model.category,
@@ -48,11 +75,19 @@ export function mergeTriage(rules, model, today) {
   };
 }
 
+export const CATEGORY_ALIASES = Object.freeze({
+  unsubscribed: "unsubscribe", unsubcribe: "unsubscribe", "opt-out": "unsubscribe", opt_out: "unsubscribe",
+  uninterested: "not_interested", "not interested": "not_interested", "not now": "not_now", "out of office": "out_of_office",
+  "left company": "left_company", wrong_person: "left_company", bounced: "bounce",
+});
+
 /** Ask the model to triage one reply. Throws on a bad answer; callers fall back to the rules. */
 export async function modelTriage(config, reply, today, opts = {}) {
   const prompt = `Today is ${today}.\nSubject: ${reply.subject || ""}\nReply:\n${String(reply.body).slice(0, 4000)}`;
   const out = await complete(config, { system: TRIAGE_SYSTEM, prompt, maxTokens: 300, fetch: opts.fetch });
   const j = parseJson(out.text);
+  // Small local models misspell the label now and then (Qwen2.5 7B, 9 of 788 answers, 2026-11-12): map the near misses.
+  j.category = CATEGORY_ALIASES[String(j.category || "").toLowerCase().trim()] || j.category;
   if (!CATEGORIES[j.category]) throw new Error(`unknown category "${j.category}"`);
   return j;
 }

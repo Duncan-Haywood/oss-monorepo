@@ -14,10 +14,13 @@ import { scheduleC, scheduleCCsv, selfEmployment, contractors1099, contractors10
 import { form941, form940 } from "./payroll.mjs";
 import { taxDepreciation, taxDepreciationCsv } from "./taxdepr.mjs";
 import { mileageDeduction } from "./deductions.mjs";
+import { q } from "./csvq.mjs";
 
 const d = (c) => (c / 100).toFixed(2);
-const q = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
-const csv = (rows) => rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
+
+// Amounts are bare numbers (a negative stays negative); every other cell is text and goes through q.
+const NUM = /^-?\d+(\.\d+)?$/;
+const csv = (rows) => rows.map((r) => r.map((c) => (typeof c === "number" || NUM.test(String(c)) ? String(c) : q(c))).join(",")).join("\n") + "\n";
 
 export function taxPack(books, year) {
   year = Number(year);

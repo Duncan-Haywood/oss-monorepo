@@ -1,0 +1,8 @@
+[men]
+x: A > B > C
+y: B > C > A
+z: C > A > B
+[women]
+A: y > z > x
+B: z > x > y
+C: x > y > z

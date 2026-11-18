@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-01
+tagged: auto
+---
 # Polish 2026-11-01: `seo_title:` batch 13, backlog closed
 
 **Weak surface.** Two 2026-11-01 posts (excavator battery runtime, Peace Bridge changepoint) had headlines over the 70-character title budget.

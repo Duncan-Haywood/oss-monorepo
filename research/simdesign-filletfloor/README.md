@@ -2,7 +2,7 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), and a negative result for one explanation. `simdesign-patchsearch` found that the mass price of laser-cutting rules varied across seeds under the peak element stress (0.99–1.15) but barely under a 3 mm patch average (1.03–1.05), and suggested, without testing it, that this was because laser designs use a nearly sharp inner fillet (floor r_min = 0.2 mm) where the peak depends on the mesh. This project raises the floor and looks. Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model with assumed rule values, materials and load.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-filletfloor/
+**Live page:** https://marisstella.app/research/simdesign-filletfloor/
 
 **Builds on.** `research/simdesign-patchsearch` and, through it, `simdesign-meshmargin`, `simdesign-patchstress`, `simdesign-dfm` and `simdesign-bracket` in this repository (the model, rules, optimiser and patch measure are copied into `src/simdesign_filletfloor/` so the project stays self-contained; only the experiment script and two tests differ); scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>); SciPy's `differential_evolution` (Storn and Price, 1997, *Journal of Global Optimization* 11:341–359). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
@@ -37,6 +37,23 @@ python experiments/run.py            # writes experiments/results.txt and result
 - The limit is the peak limit reused for the patch measure (not calibrated), as in `simdesign-patchsearch`; patch-searched masses are not a design recommendation.
 - The peak-scatter cause is not identified; this project only rules out one explanation.
 - Stylised 2D plane stress, assumed rule values and materials, polygonal fillet. Nothing was made or tested. Simulated results only.
+
+## Known gaps (quality audit 2026-11-17)
+
+From [`portfolio/quality/audits/2026-11-17-simdesign-filletfloor.json`](../../portfolio/quality/audits/2026-11-17-simdesign-filletfloor.json):
+
+- **No "feasible" design meets the 100 MPa limit on a converged mesh.** The optimiser's 2.5 mm mesh reads the
+  fillet stress about 27% low (seed 0: 99.8 MPa there, 122 at 1.25 mm, about 137 extrapolated). The
+  `peak_check` values in `experiments/results.json` for the peak-measure designs run 113 to 146 MPa, so the
+  price ratios above compare parts that all fail the limit by different amounts.
+- **The scatter has a more likely cause than the search landscape:** the coarse-mesh error differs design
+  to design (`simdesign-gaugemesh` later confirmed a mesh effect).
+- **The hypothesis was already answered on disk:** `simdesign-patchsearch/experiments/results.json` has the
+  laser designs at fillets of 8.5 to 13.6 mm. No stress-constrained optimisation literature is cited
+  (Duysinx and Bendsoe 1998; Le et al. 2010; Holmberg et al. 2013).
+- All four seeded mutants (plane strain, heaviest gauge kept, clamp exclusion removed, top-element patch)
+  leave the 6 tests green; no test compares a stress or deflection with beam theory.
+- The mesher raises a TypeError at h = 0.3 mm (`model.py:71`), which blocks the convergence study.
 
 ## Next steps
 Find the cause of the peak-measure scatter (per-gauge sub-search results, more seeds, or a different optimiser); calibrate a patch limit against a graded-mesh converged solution or a cited stress-concentration chart; apply the patch measure to `simdesign-holes`.

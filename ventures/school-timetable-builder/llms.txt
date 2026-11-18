@@ -1,0 +1,29 @@
+# School Timetable Builder
+
+> Free, MIT-licensed school timetable generator that runs in the browser (nothing uploaded) or as a dependency-free Node command line. Input is plain text, one line per lesson; output is a weekly timetable with no class, teacher or room double-booked, viewable and printable per class, teacher and room, and exportable as CSV.
+
+- Page: https://marisstella.app/school-timetable-builder/
+- Guide for schools: https://marisstella.app/school-timetable-builder/free-school-timetable-generator.html
+- Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/school-timetable-builder
+
+## Input
+
+- `days: Mon, Tue, Wed, Thu, Fri`, `periods: 6`, `breaks after: 2, 4`
+- `rooms: Lab 1 (lab), Gym (gym)`; a lesson option `lab` means any lab, `room Lab 1` pins one
+- `7A: Maths / Okafor / 5` (class / subject / teacher / periods per week); options `double`, `2 doubles`, a room type or `room <name>`
+- `7A+7B: PE / Garcia / 2 / double / gym` joint classes; `Okafor+Ng` two teachers
+- `teacher Okafor: off Mon 1-2, Fri; max 5 per day`, `class 7A: off Fri 6`
+
+## Guarantees and limits
+
+- Hard: no clashes for classes, teachers or rooms; periods off respected; doubles inside one block; room types matched; every lesson placed. Checked by an independent validator; any remaining clash is listed, never hidden.
+- Soft (minimised, not proven optimal): class gaps, teacher gaps, same subject twice in a day, teacher daily maximum, late class starts.
+- A counting check before solving explains overloaded teachers, classes and rooms.
+- Benchmark: 21 of 21 synthetic fully booked schools (4 to 40 classes) solved clash-free in 0.2 to 2.3 s (eval/benchmark-2026-11-16.md). Synthetic, not real schools.
+- Not covered: substitution/cover planning, option blocks, split sites, drag-and-drop editing.
+
+## CLI
+
+`node cli.mjs school.txt [--seed N] [--csv out.csv] [--json]`; exit 0 clean, 1 hard problems remain, 2 input error.
+
+The result is a draft timetable to be checked by the person responsible for it, not professional advice.

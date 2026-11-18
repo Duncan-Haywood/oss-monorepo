@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23573b6e'/%3E%3Cpath%20d='M5%2027L27%205'%20stroke='%23f2c14e'%20stroke-width='3'/%3E%3Ccircle%20cx='10'%20cy='20'%20r='2.5'%20fill='%23fff'/%3E%3Ccircle%20cx='17'%20cy='14'%20r='2.5'%20fill='%23fff'/%3E%3Ccircle%20cx='22'%20cy='11'%20r='2.5'%20fill='%23fff'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Method Comparison Tool — Passing-Bablok, Deming regression and Bland-Altman from your CSV, free online</title>
+  <meta name="description" content="Free online method comparison for two measurement methods: Passing-Bablok regression with confidence intervals and the CUSUM linearity test, Deming and weighted Deming regression with jackknife intervals, Bland-Altman limits of agreement, and the bias at your decision levels. Runs in your browser.">
+  <meta property="og:title" content="Do two measurement methods agree? Passing-Bablok, Deming and Bland-Altman in your browser">
+  <meta property="og:description" content="Paste paired readings from an old and a new method. Passing-Bablok and Deming regression with intervals, Bland-Altman limits, and the difference at decision levels. Worked on 4,212 NHANES blood-pressure pairs.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Method comparison tool: Passing-Bablok, Deming and Bland-Altman", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compares two measurement methods on the same samples: Passing-Bablok regression (1983) with rank-based confidence intervals and the CUSUM linearity test, Deming regression (Cornbleet and Gochman 1979) and weighted Deming (Linnet 1990) with jackknife intervals, Bland-Altman limits of agreement (1986, 1999), Kendall's tau-b, and the difference between the methods at decision levels. Runs in your browser.", "featureList": "Passing-Bablok regression, Passing Bablok confidence interval, CUSUM linearity test, Deming regression, weighted Deming regression, jackknife standard error, error variance ratio, Bland-Altman plot, limits of agreement, percentage difference, bias at medical decision level, method comparison study, method validation, CSV download", "citation": ["https://doi.org/10.1515/cclm.1983.21.11.709", "https://doi.org/10.1093/clinchem/25.3.432", "https://doi.org/10.1002/sim.4780091210", "https://doi.org/10.1093/clinchem/39.3.424", "https://doi.org/10.1016/S0140-6736(86)90837-8", "https://doi.org/10.1177/096228029900800204", "https://doi.org/10.1080/01621459.1966.10480879", "https://doi.org/10.1080/01621459.1968.10480934", "https://doi.org/10.1142/S0218195992000020"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just use ordinary least squares or the correlation?", "acceptedAnswer": {"@type": "Answer", "text": "Least squares assumes the x method has no error. When both methods have error, its slope is pulled toward zero, so it reports a proportional difference that is not there. On the NHANES blood-pressure example the least-squares slope is 0.87 while Passing-Bablok and Deming give 1.02. A high correlation only says the two methods rise together; two methods can correlate at 0.99 and still differ by a clinically important amount."}}, {"@type": "Question", "name": "Passing-Bablok or Deming?", "acceptedAnswer": {"@type": "Answer", "text": "Deming regression assumes normally distributed errors with a known ratio of the two methods' error variances (lambda, 1 by default) and gives standard errors that make the bias at any level easy to compute. Passing-Bablok makes no assumption about the error distribution and resists outliers, but needs the two methods to be strongly positively correlated and a linear relationship, which the CUSUM test checks. The tool shows both; when they disagree, look at the outliers and the Bland-Altman plot."}}, {"@type": "Question", "name": "What is lambda, the error-variance ratio?", "acceptedAnswer": {"@type": "Answer", "text": "Lambda is the variance of the new method's measurement error divided by the comparison method's. If you know each method's repeatability standard deviation, from replicate measurements, enter both and the tool sets lambda to their squared ratio. With lambda 1 and the same scale, Deming regression is orthogonal regression."}}, {"@type": "Question", "name": "When should I use weighted Deming or percentage differences?", "acceptedAnswer": {"@type": "Answer", "text": "When the scatter grows with the level, as with many lab assays where the error is a constant percentage. The tool tests whether the size of the differences rises with the mean and says so. Weighted Deming (Linnet 1990) weights each sample by one over its level squared, and the percentage Bland-Altman plot expresses the limits as percentages."}}, {"@type": "Question", "name": "How do I read the result at a decision level?", "acceptedAnswer": {"@type": "Answer", "text": "Enter the values where a decision changes, such as a diagnostic cut-off. For each, the tool gives the expected difference between the methods there (intercept plus (slope minus 1) times the level) with a 95% interval: from the Deming jackknife, and for up to 500 pairs from a bootstrap of Passing-Bablok. Compare it with the difference you could accept; that limit comes from your field, not from this tool."}}, {"@type": "Question", "name": "How many samples can it handle?", "acceptedAnswer": {"@type": "Answer", "text": "Up to 20,000 pairs. Passing-Bablok needs the median of every pairwise slope, which is 8,850,570 slopes for the NHANES example; instead of listing them, the tool counts how many fall below a trial value with a merge-sort inversion count and bisects, so the whole analysis takes one to two seconds. Below 600 pairs it sorts every slope, and the tests check that both ways give the same answer."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every number is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #221a2b; background: #f3f0f5; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #573b6e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #3b2550; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b2550; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #574e5e; }
+    .card { background: #fff; border: 1px solid #ddd3e3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b255010; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7a6e82; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #573b6e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #ebe4f0; color: #3b2550; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece6f0; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #574e5e; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd3e3; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #7a6e82; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary p { margin: 6px 0; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .legend span { display: inline-block; margin-right: 14px; }
+    .sw { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 5px; }
+    pre { background: #f5f2f7; border: 1px solid #e3dbe8; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">METHOD COMPARISON · PASSING-BABLOK · DEMING · WEIGHTED DEMING · BLAND-ALTMAN · DECISION LEVELS · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Do the old and the new method agree, and where do they not?</h1>
+    <p>You measured the same samples two ways: a new assay against the current one, a new analyser against the reference lab, a cuff against a mercury column. Paste the pairs and get <strong>Passing-Bablok regression</strong> (1983) with its intervals and linearity test, <strong>Deming</strong> and <strong>weighted Deming regression</strong> with jackknife intervals, the <strong>Bland-Altman</strong> bias and limits of agreement, and the <strong>difference between the methods at your decision levels</strong>.</p>
+    <p class="note">Nothing you enter leaves this browser tab. A statistical estimate from the readings you give, not medical, laboratory accreditation or regulatory advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your paired readings</h2>
+    <label for="data">CSV or tab-separated, one sample per row, a column for each method. The first numeric column is the comparison method (x), the second the new method (y); columns named id, sample or seqn are skipped.</label>
+    <textarea id="data" spellcheck="false"></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <div class="grid">
+      <div><label for="xcol">Comparison method column x (blank: first)</label><input id="xcol" type="text" placeholder="e.g. old_method"></div>
+      <div><label for="ycol">New method column y (blank: second)</label><input id="ycol" type="text" placeholder="e.g. new_method"></div>
+      <div><label for="levels">Decision levels, comma-separated (optional)</label><input id="levels" type="text" placeholder="e.g. 120, 140"></div>
+      <div><label for="lambda">Error-variance ratio λ for Deming (y / x)</label><input id="lambda" type="number" min="0.0001" step="any" value="1"></div>
+      <div><label for="sdx">Or repeatability SD of x (optional)</label><input id="sdx" type="number" min="0" step="any"></div>
+      <div><label for="sdy">and repeatability SD of y</label><input id="sdy" type="number" min="0" step="any"></div>
+      <div><label for="scale">Bland-Altman differences</label><select id="scale"><option value="difference">y − x (same units)</option><option value="percent">Percentage of the pair's mean</option></select></div>
+      <div><label for="mult">Limits of agreement: bias ± this many SD</label><input id="mult" type="number" min="0.5" max="5" step="any" value="1.96"></div>
+    </div>
+    <div>
+      <button type="button" class="secondary" id="ex-bp">Example: mercury vs oscillometric blood pressure, 4,212 adults (NHANES, real)</button>
+      <button type="button" class="secondary" id="ex-peakflow">Example: peak flow meters, Bland &amp; Altman 1986 (real)</button>
+      <button type="button" class="secondary" id="ex-lab">Example: 20 lab samples (made up)</button>
+    </div>
+    <button type="button" id="analyze">Compare</button>
+    <span class="note" id="status" role="status"></span>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <div class="summary" id="summary"></div>
+    <div id="notes"></div>
+    <h3>The two methods against each other</h3>
+    <div id="scatter"></div>
+    <p class="note legend"><span><i class="sw" style="background:#9a8fa3"></i>identity (perfect agreement)</span><span><i class="sw" style="background:#d1495b"></i>Passing-Bablok</span><span><i class="sw" style="background:#2e86ab"></i>Deming</span><span><i class="sw" style="background:#e3a72f"></i>least squares (for contrast)</span></p>
+    <h3>Regression</h3>
+    <div class="scroll"><table id="reg"></table></div>
+    <p class="note" id="checks"></p>
+    <h3>Bland-Altman plot</h3>
+    <div id="ba"></div>
+    <div class="scroll"><table id="batable"></table></div>
+    <div id="dl-box" hidden><h3>At your decision levels</h3><div class="scroll"><table id="dl"></table></div></div>
+    <button type="button" class="secondary" id="download">Download the pairs with fits and differences (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Example: mercury against oscillometric blood pressure in 4,212 adults</h2>
+    <p>In the 2017-2018 National Health and Nutrition Examination Survey, adults had their blood pressure taken twice in random order: by a physician with a mercury sphygmomanometer, and by a technician with an Omron HEM-907XL oscillometric cuff, three readings each. Taking the mean of each set of three, the oscillometric device reads systolic pressure <strong>1.3 mmHg lower</strong> on average (95% CI 1.0 to 1.6), and for 95% of people the two differ by between <strong>-20.9 and +18.2 mmHg</strong>: close on average, far apart for some individuals.</p>
+    <p>Least squares, which treats the mercury reading as exact, gives a slope of <strong>0.87</strong>, as if the cuff under-read high pressures by 13%. That is the attenuation Cornbleet and Gochman warned about in 1979: both methods have error, and the error in x drags the slope toward zero. Passing-Bablok gives <strong>1.023</strong> (95% CI 1.000 to 1.041) and Deming <strong>1.017</strong> (0.995 to 1.039). At 130 mmHg, Deming puts the cuff <strong>1.2 mmHg</strong> below mercury (0.9 to 1.6). The CUSUM test finds no curvature (p = 0.88). Passing-Bablok used all 8,850,570 pairwise slopes.</p>
+    <p class="note">Data: CDC/NCHS, NHANES 2017-2018 files BPX_J, BPXO_J and DEMO_J (public domain); not survey-weighted, so these describe the sample, not the U.S. population. The NCHS report on the study (Ostchega et al. 2021) has the official analysis.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not just use ordinary least squares or the correlation?</h3>
+    <p>Least squares assumes the x method has no error. When both methods have error, its slope is pulled toward zero, so it reports a proportional difference that is not there. On the NHANES blood-pressure example the least-squares slope is 0.87 while Passing-Bablok and Deming give 1.02. A high correlation only says the two methods rise together; two methods can correlate at 0.99 and still differ by a clinically important amount.</p>
+    <h3>Passing-Bablok or Deming?</h3>
+    <p>Deming regression assumes normally distributed errors with a known ratio of the two methods' error variances (lambda, 1 by default) and gives standard errors that make the bias at any level easy to compute. Passing-Bablok makes no assumption about the error distribution and resists outliers, but needs the two methods to be strongly positively correlated and a linear relationship, which the CUSUM test checks. The tool shows both; when they disagree, look at the outliers and the Bland-Altman plot.</p>
+    <h3>What is lambda, the error-variance ratio?</h3>
+    <p>Lambda is the variance of the new method's measurement error divided by the comparison method's. If you know each method's repeatability standard deviation, from replicate measurements, enter both and the tool sets lambda to their squared ratio. With lambda 1 and the same scale, Deming regression is orthogonal regression.</p>
+    <h3>When should I use weighted Deming or percentage differences?</h3>
+    <p>When the scatter grows with the level, as with many lab assays where the error is a constant percentage. The tool tests whether the size of the differences rises with the mean and says so. Weighted Deming (Linnet 1990) weights each sample by one over its level squared, and the percentage Bland-Altman plot expresses the limits as percentages.</p>
+    <h3>How do I read the result at a decision level?</h3>
+    <p>Enter the values where a decision changes, such as a diagnostic cut-off. For each, the tool gives the expected difference between the methods there (intercept plus (slope minus 1) times the level) with a 95% interval: from the Deming jackknife, and for up to 500 pairs from a bootstrap of Passing-Bablok. Compare it with the difference you could accept; that limit comes from your field, not from this tool.</p>
+    <h3>How many samples can it handle?</h3>
+    <p>Up to 20,000 pairs. Passing-Bablok needs the median of every pairwise slope, which is 8,850,570 slopes for the NHANES example; instead of listing them, the tool counts how many fall below a trial value with a merge-sort inversion count and bisects, so the whole analysis takes one to two seconds. Below 600 pairs it sorts every slope, and the tests check that both ways give the same answer.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Every number is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>Passing-Bablok</strong> (Passing &amp; Bablok 1983). Every pairwise slope except identical points and slopes of exactly −1; pairs with the same x count as infinite. The slope is the median shifted by K, the number of slopes below −1, which makes it symmetric in x and y. The confidence interval takes the slopes at ranks K + M1 and K + M2, M1 = round((N − C)/2), M2 = N − M1 + 1, C = z √(n(n−1)(2n+5)/18). The intercept is the median of y − bx, its interval from the slope's limits. Readings with up to 9 decimals are scaled to integers first, so ties and slopes of −1 are found exactly. Above 600 pairs, each order statistic is found by bisection on the slope t, counting slopes below t as the inversions between the order of x and the order of y − tx (the counting idea of Dillencourt, Mount &amp; Netanyahu 1992).</p>
+    <p><strong>CUSUM linearity test</strong> (Passing &amp; Bablok 1983). Points above the line score √(L/l), points below −√(l/L); summed in order along the line, the largest absolute sum over √(l + L + 1) is compared with the Kolmogorov distribution. With the line fitted to the same points this is conservative: in simulation it raised at most 0.1% false alarms at the nominal 5%, and caught a moderate curve 87.8% of the time.</p>
+    <p><strong>Deming regression</strong> (Cornbleet &amp; Gochman 1979) with λ = error variance of y over error variance of x. <strong>Weighted Deming</strong> (Linnet 1990): weights 1/level² from the estimated true values, iterated to convergence. Standard errors by the jackknife (Linnet 1990, 1993), intervals with Student's t on n − 2 degrees of freedom; the difference at a level Xc is a + (b − 1)Xc with its standard error from the jackknife covariance of a and b.</p>
+    <p><strong>Bland-Altman</strong> (1986, 1999). Differences y − x (or percentages of the pair's mean) against the pair's mean; bias, SD, limits bias ± 1.96 SD; standard errors s/√n for the bias and √(3s²/n) for each limit, t on n − 1 degrees of freedom; trend tests of the differences, and of their size, on the mean. <strong>Kendall's tau-b</strong> by Knight's (1966) O(n log n) method.</p>
+    <p><strong>Checked</strong> against an independent Python reference (<code>eval/make_reference.py</code>): Deming by its closed form in numpy (agreeing to 1e-10) and by scipy's iterative orthogonal distance regression (to its own tolerance, about 1e-5), weighted Deming by a separate iteration and by orthogonal regression at the final weights, the jackknife by refitting each leave-one-out set from scratch, Passing-Bablok by listing every slope in exact fractions (to 1e-12), and Kendall's tau from scipy, on 33 generated data sets and the 4,212 NHANES pairs. The 1986 paper's peak-flow example gives its published bias and limits. On 1,000 simulated data sets of 60 pairs with constant error, the 95% intervals covered the true slope 95.5% (Deming) and 95.4% (Passing-Bablok) of the time.</p>
+<pre>@article{passing1983new, author={Passing, H. and Bablok, W.}, title={A new biometrical procedure for testing the equality of measurements from two different analytical methods}, journal={Journal of Clinical Chemistry and Clinical Biochemistry}, volume={21}, number={11}, pages={709--720}, year={1983}, doi={10.1515/cclm.1983.21.11.709}}
+@article{cornbleet1979incorrect, author={Cornbleet, P. J. and Gochman, N.}, title={Incorrect least-squares regression coefficients in method-comparison analysis}, journal={Clinical Chemistry}, volume={25}, number={3}, pages={432--438}, year={1979}, doi={10.1093/clinchem/25.3.432}}
+@article{linnet1990estimation, author={Linnet, Kristian}, title={Estimation of the linear relationship between the measurements of two methods with proportional errors}, journal={Statistics in Medicine}, volume={9}, number={12}, pages={1463--1473}, year={1990}, doi={10.1002/sim.4780091210}}
+@article{linnet1993evaluation, author={Linnet, Kristian}, title={Evaluation of regression procedures for methods comparison studies}, journal={Clinical Chemistry}, volume={39}, number={3}, pages={424--432}, year={1993}, doi={10.1093/clinchem/39.3.424}}
+@article{bland1986statistical, author={Bland, J. Martin and Altman, Douglas G.}, title={Statistical methods for assessing agreement between two methods of clinical measurement}, journal={The Lancet}, volume={327}, number={8476}, pages={307--310}, year={1986}, doi={10.1016/S0140-6736(86)90837-8}}
+@article{bland1999measuring, author={Bland, J. Martin and Altman, Douglas G.}, title={Measuring agreement in method comparison studies}, journal={Statistical Methods in Medical Research}, volume={8}, number={2}, pages={135--160}, year={1999}, doi={10.1177/096228029900800204}}
+@article{knight1966computer, author={Knight, William R.}, title={A computer method for calculating Kendall's tau with ungrouped data}, journal={Journal of the American Statistical Association}, volume={61}, number={314}, pages={436--439}, year={1966}, doi={10.1080/01621459.1966.10480879}}
+@article{sen1968estimates, author={Sen, Pranab Kumar}, title={Estimates of the regression coefficient based on Kendall's tau}, journal={Journal of the American Statistical Association}, volume={63}, number={324}, pages={1379--1389}, year={1968}, doi={10.1080/01621459.1968.10480934}}
+@article{dillencourt1992randomized, author={Dillencourt, Michael B. and Mount, David M. and Netanyahu, Nathan S.}, title={A randomized algorithm for slope selection}, journal={International Journal of Computational Geometry \& Applications}, volume={2}, number={1}, pages={1--27}, year={1992}, doi={10.1142/S0218195992000020}}</pre>
+    <p class="note">Limits: up to 20,000 pairs, one value per method per sample (average replicates first). No regression-based or log-scale limits of agreement, no repeated-measures Bland-Altman, no outlier rule; Passing-Bablok intervals at decision levels are bootstrapped up to 500 pairs.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not medical, laboratory accreditation, regulatory or other professional advice, and a result from it is not a method validation or verification report. Results are a statistical estimate from the readings you enter; a standard, accreditation body or regulator may require a different protocol, sample size or acceptance criterion. You are responsible for any decision you make with it.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, CDC, NCHS, Omron, CLSI, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs pairs.csv --levels 120,140</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/method-comparison" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: <a href="../inter-rater-agreement/">inter-rater agreement</a> for kappa and the ICC between raters, <a href="../scale-reliability/">scale reliability</a> for Cronbach's alpha and omega, and <a href="../gage-rr/">Gage R&amp;R</a> for whether one gauge, used by several operators, can tell parts apart.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, toCsv, fmt } from "./engine.mjs";
+    import { EXAMPLES } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const g = (v, s = 4) => (Number.isFinite(v) ? Number(v.toPrecision(s)).toString() : "–");
+    const ci = (c, s = 4) => (c && Number.isFinite(c[0]) ? `${g(c[0], s)} to ${g(c[1], s)}` : "–");
+    let last = null;
+    function inputs() {
+      const o = { text: $("#data").value, xColumn: $("#xcol").value.trim(), yColumn: $("#ycol").value.trim(), baScale: $("#scale").value };
+      o.decisionLevels = $("#levels").value; // the engine reads "120, 140" as two levels and "6,000" as one
+      const lam = Number($("#lambda").value);
+      if (lam > 0) o.lambda = lam;
+      const sx = Number($("#sdx").value), sy = Number($("#sdy").value);
+      if (sx > 0 && sy > 0) { o.sdX = sx; o.sdY = sy; }
+      const m = Number($("#mult").value);
+      if (m >= 0.5 && m <= 5) o.loaMultiplier = m;
+      return o;
+    }
+    function axes(W, H, L, B, T, R, x0, x1, y0, y1, xl, yl) {
+      const sx = (x) => L + ((x - x0) / (x1 - x0)) * (W - L - R), sy = (y) => H - B - ((y - y0) / (y1 - y0)) * (H - T - B);
+      let out = `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="none" stroke="#b6abbd"/>`;
+      out += `<text x="${(L + W - R) / 2}" y="${H - 8}" font-size="13" text-anchor="middle" fill="#574e5e">${esc(xl)} (${g(x0)} to ${g(x1)})</text>`;
+      out += `<text x="14" y="${(T + H - B) / 2}" font-size="13" text-anchor="middle" fill="#574e5e" transform="rotate(-90 14 ${(T + H - B) / 2})">${esc(yl)} (${g(y0)} to ${g(y1)})</text>`;
+      return { sx, sy, out };
+    }
+    function scatterSvg(r) {
+      const W = 900, H = 520, L = 34, B = 34, T = 10, R = 12;
+      let lo = Math.min(...r.x, ...r.y), hi = Math.max(...r.x, ...r.y);
+      const pad = (hi - lo) * 0.03 || 1; lo -= pad; hi += pad;
+      const a = axes(W, H, L, B, T, R, lo, hi, lo, hi, `${r.xName} (x)`, `${r.yName} (y)`);
+      let out = a.out;
+      const rad = r.n > 1500 ? 1.6 : r.n > 300 ? 2.4 : 3.6, op = r.n > 1500 ? 0.35 : 0.7;
+      for (let i = 0; i < r.n; i++) out += `<circle cx="${a.sx(r.x[i]).toFixed(1)}" cy="${a.sy(r.y[i]).toFixed(1)}" r="${rad}" fill="#573b6e" fill-opacity="${op}"/>`;
+      const line = (b0, b1, col, w, dash = "") => { const y0 = b0 + b1 * lo, y1 = b0 + b1 * hi; out += `<line x1="${a.sx(lo).toFixed(1)}" y1="${a.sy(y0).toFixed(1)}" x2="${a.sx(hi).toFixed(1)}" y2="${a.sy(y1).toFixed(1)}" stroke="${col}" stroke-width="${w}" ${dash}/>`; };
+      out = `<clipPath id="clip"><rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}"/></clipPath>` + out + `<g clip-path="url(#clip)">`;
+      line(0, 1, "#9a8fa3", 2, 'stroke-dasharray="6 5"');
+      line(r.ols.intercept, r.ols.slope, "#e3a72f", 2);
+      line(r.deming.intercept, r.deming.slope, "#2e86ab", 2.5);
+      if (Number.isFinite(r.passingBablok.slope)) line(r.passingBablok.intercept, r.passingBablok.slope, "#d1495b", 2.5);
+      out += "</g>";
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter plot of the new method against the comparison method with the identity, Passing-Bablok, Deming and least-squares lines">${out}</svg>`;
+    }
+    function baSvg(r) {
+      const ba = r.blandAltman, W = 900, H = 340, L = 34, B = 34, T = 10, R = 12;
+      let x0 = Math.min(...ba.means), x1 = Math.max(...ba.means);
+      const px = (x1 - x0) * 0.03 || 1; x0 -= px; x1 += px;
+      let y0 = Math.min(...ba.diffs, ba.lowerCI[0]), y1 = Math.max(...ba.diffs, ba.upperCI[1]);
+      const py = (y1 - y0) * 0.05 || 1; y0 -= py; y1 += py;
+      const u = ba.scale === "percent" ? "%" : "";
+      const a = axes(W, H, L, B, T, R, x0, x1, y0, y1, "mean of the two methods", `${ba.scale === "percent" ? "percentage difference" : "difference"} y − x`);
+      let out = a.out;
+      const band = (c, col) => { out += `<rect x="${L}" y="${a.sy(c[1]).toFixed(1)}" width="${W - L - R}" height="${(a.sy(c[0]) - a.sy(c[1])).toFixed(1)}" fill="${col}" fill-opacity=".15"/>`; };
+      band(ba.biasCI, "#2e86ab"); band(ba.lowerCI, "#d1495b"); band(ba.upperCI, "#d1495b");
+      const rad = r.n > 1500 ? 1.6 : r.n > 300 ? 2.4 : 3.6, op = r.n > 1500 ? 0.35 : 0.7;
+      for (let i = 0; i < r.n; i++) out += `<circle cx="${a.sx(ba.means[i]).toFixed(1)}" cy="${a.sy(ba.diffs[i]).toFixed(1)}" r="${rad}" fill="#573b6e" fill-opacity="${op}"/>`;
+      const h = (y, col, w, dash, label) => { out += `<line x1="${L}" y1="${a.sy(y).toFixed(1)}" x2="${W - R}" y2="${a.sy(y).toFixed(1)}" stroke="${col}" stroke-width="${w}" ${dash}/><text x="${W - R - 6}" y="${(a.sy(y) - 5).toFixed(1)}" font-size="12" text-anchor="end" fill="${col}">${label}</text>`; };
+      if (y0 < 0 && y1 > 0) h(0, "#9a8fa3", 1.5, 'stroke-dasharray="6 5"', "");
+      h(ba.bias, "#2e86ab", 2.5, "", `bias ${g(ba.bias)}${u}`);
+      h(ba.lower, "#d1495b", 2, 'stroke-dasharray="8 4"', `lower limit ${g(ba.lower)}${u}`);
+      h(ba.upper, "#d1495b", 2, 'stroke-dasharray="8 4"', `upper limit ${g(ba.upper)}${u}`);
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Bland-Altman plot: differences against means with the bias and limits of agreement">${out}</svg>`;
+    }
+    function show(r) {
+      last = r;
+      $("#results").hidden = false;
+      $("#summary").innerHTML = r.summary.map((s) => `<p>${esc(s)}</p>`).join("");
+      $("#notes").innerHTML = r.warnings.map((n) => `<p class="warn">${esc(n)}</p>`).join("");
+      $("#scatter").innerHTML = scatterSvg(r);
+      $("#ba").innerHTML = baSvg(r);
+      const row = (name, f, withCI = true) => `<tr><td>${name}</td><td class="n">${g(f.intercept, 5)}</td><td class="n">${withCI ? ci(f.interceptCI) : "–"}</td><td class="n">${g(f.slope, 5)}</td><td class="n">${withCI ? ci(f.slopeCI, 5) : "–"}</td></tr>`;
+      $("#reg").innerHTML = `<tr><th>Method</th><th class="n">Intercept</th><th class="n">95% CI</th><th class="n">Slope</th><th class="n">95% CI</th></tr>` +
+        row("Passing-Bablok", r.passingBablok) + row(`Deming (λ = ${g(r.lambda, 3)})`, r.deming) + (r.weightedDeming ? row("Weighted Deming", r.weightedDeming) : "") + row("Least squares (assumes x exact)", r.ols, false);
+      const cu = r.cusum;
+      $("#checks").textContent = `Kendall's tau-b ${fmt(r.kendall.tau, 3)}${r.kendall.p < 1e-4 ? " (p < 0.0001)" : ` (p ${fmt(r.kendall.p, 4)})`}; Pearson r ${fmt(r.ols.r, 4)}, which measures association, not agreement. ` +
+        (cu && Number.isFinite(cu.p) ? `CUSUM linearity test p ${fmt(cu.p, 3)} (${cu.above} points above the Passing-Bablok line, ${cu.below} below). ` : "") +
+        `Passing-Bablok used ${r.passingBablok.N.toLocaleString("en-US")} slopes (${r.passingBablok.algorithm}).`;
+      const ba = r.blandAltman, u = ba.scale === "percent" ? "%" : "";
+      $("#batable").innerHTML = `<tr><th>Bland-Altman</th><th class="n">Estimate</th><th class="n">95% CI</th></tr>` +
+        `<tr><td>Bias (mean of y − x${u ? ", %" : ""})</td><td class="n">${g(ba.bias)}${u}</td><td class="n">${ci(ba.biasCI)}</td></tr>` +
+        `<tr><td>Lower limit of agreement</td><td class="n">${g(ba.lower)}${u}</td><td class="n">${ci(ba.lowerCI)}</td></tr>` +
+        `<tr><td>Upper limit of agreement</td><td class="n">${g(ba.upper)}${u}</td><td class="n">${ci(ba.upperCI)}</td></tr>` +
+        `<tr><td>SD of the differences</td><td class="n">${g(ba.sd)}${u}</td><td class="n">${ba.outside} of ${ba.n} pairs outside the limits</td></tr>` +
+        `<tr><td>Trend of the differences with the level (slope per unit)</td><td class="n">${g(ba.trend.slope, 3)}</td><td class="n">p ${fmt(ba.trend.p, 4)}</td></tr>`;
+      $("#dl-box").hidden = !r.decision.length;
+      $("#dl").innerHTML = `<tr><th>Level (x)</th><th class="n">Deming y − x</th><th class="n">95% CI</th><th class="n">Weighted Deming</th><th class="n">Passing-Bablok</th><th class="n">95% CI (bootstrap)</th></tr>` +
+        r.decision.map((d) => `<tr><td>${g(d.level)}</td><td class="n">${g(d.deming.bias)}</td><td class="n">${ci(d.deming.ci)}</td><td class="n">${d.weightedDeming ? `${g(d.weightedDeming.bias)} (${ci(d.weightedDeming.ci)})` : "–"}</td><td class="n">${g(d.passingBablok.bias)}</td><td class="n">${ci(d.passingBablok.ci)}</td></tr>`).join("");
+    }
+    function run() {
+      const t0 = performance.now();
+      $("#status").textContent = "Working…";
+      setTimeout(() => {
+        let r;
+        try { r = analyze(inputs()); } catch (e) { $("#status").textContent = e.message; $("#results").hidden = true; return; }
+        $("#status").textContent = `Done in ${Math.round(performance.now() - t0)} ms.`;
+        show(r);
+        record("analysis_run");
+      }, 10);
+    }
+    function loadExample(key, quiet = false) {
+      const ex = EXAMPLES[key];
+      $("#data").value = ex.text;
+      $("#xcol").value = ""; $("#ycol").value = "";
+      $("#levels").value = ex.levels;
+      $("#status").textContent = ex.label;
+      if (quiet) { try { show(analyze(inputs())); } catch { /* the page still works without the first render */ } return; }
+      record("example_loaded");
+      run();
+    }
+    $("#analyze").addEventListener("click", run);
+    $("#ex-bp").addEventListener("click", () => loadExample("bp"));
+    $("#ex-peakflow").addEventListener("click", () => loadExample("peakflow"));
+    $("#ex-lab").addEventListener("click", () => loadExample("lab"));
+    $("#file").addEventListener("change", async (e) => {
+      const f = e.target.files?.[0];
+      if (f) { $("#data").value = await f.text(); run(); }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "method-comparison.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    const syncOpt = () => { $("#optout").textContent = usageOptedOut() ? "Turn usage counting back on" : "Turn usage counting off"; };
+    $("#optout").addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); syncOpt(); });
+    syncOpt();
+    loadExample("lab", true);
+  </script>
+</body>
+</html>

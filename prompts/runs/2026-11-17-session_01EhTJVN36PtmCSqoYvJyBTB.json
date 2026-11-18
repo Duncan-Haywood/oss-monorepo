@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVN36PtmCSqoYvJyBTB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production",
+  "input_sha256": "530693e2f7bc93130d6a154bf2c615dcb747e2859868f5dc678ed07fb66fd51a",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T15:05:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16973",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "claim_check / open-PR search at start would not have caught it: PR #16970 was opened and merged while this run worked the same buildable item; a claim commit right after picking the item (allocate.py says so) is the guard, and this run skipped it"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "allocate picked row 7 chant-forge; the routine asks for revenue-generating products, so took row 3 einvoice-preflight (B2B compliance, no PR in 24h, a no-network buildable item)",
+      "did": "built the deliver-to id slice, found PR #16970 had landed the same item an hour earlier (merge conflict), reset the branch to main and took the next buildable item, CII line ids",
+      "result": "line ids: 581 Peppol misses to 0 on two seeds"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Differential eval/party-id-peppol-differential.mjs 60 7 / 60 11 with 2 new CII line places: before (main readers) 581/9,472 disagreements, after 0/9,439 and 0/9,377. node --test '*.test.mjs': 2217 pass 0 fail; pytest tests: 430 passed. The first slice (deliver-to ids) duplicated PR #16970 and was dropped. Local run_workflow_locally --for-changes on the first commit: 13/13; re-run on this diff before merge.",
+  "corrections": [],
+  "redteam": null
+}

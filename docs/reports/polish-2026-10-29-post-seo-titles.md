@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: query-shaped `seo_title` for 14 long recent posts
 
 **Weak surface.** 482 of the posts in `docs/posts/` have a headline over the 70-character title budget

@@ -1,3 +1,9 @@
+---
+kind: brief
+subjects: [sales-agent]
+date: 2026-10-21
+tagged: auto
+---
 # Sales Agent (AI sales agents direction): brief for an agent reader
 
 **Date:** 2026-10-21. **Reader:** an agent picking up the `sales-agent`

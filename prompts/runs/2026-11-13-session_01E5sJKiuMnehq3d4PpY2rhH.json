@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKiuMnehq3d4PpY2rhH",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T21:10:16Z",
+  "ended": "2026-11-13T21:53:30Z",
+  "wall_minutes": 43.49,
+  "tokens_in": 10670817,
+  "tokens_out": 71723,
+  "cost_usd": 5.0665,
+  "tool_calls": 75,
+  "task": "capture-sync milestone 2 (H4, threshold theory), drawn by pick_track.py",
+  "projects": [
+    "research/capture-sync"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15619",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "partial",
+  "errors": [
+    "zenodo.org refused by the egress proxy (403 on CONNECT), so LibriWASN, the real-device data milestone 2 named, could not be fetched; step split into 2a (done) and 2b (harness committed, not run)",
+    "first full run used np.convolve with 0.8 s impulse responses and was on course for ~80 min; stopped before any result was read and rerun with fftconvolve (same seeds)",
+    "git ls-tree -l on a blob-less clone fetched blobs one by one and hung; stopped"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "'Outbound hosts' does not say zenodo.org can be refused in some sessions while a sibling session the same day reached it; a programme built on a Zenodo dataset should plan for a mirror or a GitHub-hosted alternative"
+    },
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "doi.org and arxiv.org both unreachable in this session, so new citations cannot be machine-checked; fell back to web search and said so in the README"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/capture-sync/PROPOSAL.md",
+      "why": "milestone 2 asks for the threshold theory against the step 1 LibriWASN grid, which was unreachable",
+      "did": "checked the theory on Gaussian Monte Carlo and on real speech plus real babble (MS-SNSD via GitHub) with simulated rooms, and committed the LibriWASN harness for step 2b",
+      "result": "H4 on speech held (80% of cells within x2); unplanned finding that PHAT wins in babble"
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 2 (land open research PRs first): PR 15572 was green and updated by its own session minutes earlier",
+      "did": "left it to its owner rather than merging another session's live PR",
+      "result": "no conflict"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-can-theory-predict-when-audio-sync-fails.md",
+    "research/capture-sync/LOG.md (step 2a plan and outcome)"
+  ],
+  "goal": "advance a PhD-level research programme with a theory-vs-data result",
+  "notes": "Pre-registered plan committed before the full run. Results: (a) Gaussian check 32/36 cells within x2, failed the 90% bar narrowly; (b) H4 on speech 137/171 (80%), held; (c) failed; (d) exploratory, blind theory probability beats PSR for PHAT in 12/12 cells. Local verification: pytest 13 passed (capture-sync), research/_homepage/build.py ok, research_live_links ok, check_md_links ok, post frontmatter/links/similarity ok, programme_check ok. No separate agent doc in docs/reports: LOG.md carries the next-run note (step 2b needs zenodo.org).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f830ecb7-d281-50bf-8e67-12b8ed939abf",
+    "transcripts": 1,
+    "first": "2026-11-13T21:10:16Z",
+    "last": "2026-11-13T21:53:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 140,
+        "output": 71723,
+        "thinking": 29462,
+        "cache_read": 10478707,
+        "cache_write_5m": 0,
+        "cache_write_1h": 191970,
+        "api_equivalent_usd": 5.0665,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 140,
+      "output": 71723,
+      "thinking": 29462,
+      "cache_read": 10478707,
+      "cache_write_5m": 0,
+      "cache_write_1h": 191970,
+      "api_equivalent_usd": 5.0665,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 58,
+      "Write": 5,
+      "ToolSearch": 3,
+      "WebSearch": 3,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__list_pull_requests": 1,
+      "TaskStop": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 43.49,
+      "active_minutes": 43.49,
+      "model_minutes": 11.96,
+      "tool_minutes": 31.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "theory derivation, implementation, two experiment harnesses and write-up for a signal-processing researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 315.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

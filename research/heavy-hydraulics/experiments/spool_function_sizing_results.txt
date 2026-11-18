@@ -1,0 +1,39 @@
+pump 45 L/min; p_n 10.91 bar; load factor 0.346; LS standby 2 L/min; eta 0.883; 3,000 cycles per cell, same cycles as 2n and 5p
+envelope spools: arm B (22.5 L/min), bucket D (45 L/min), boom D (45 L/min), swing D (45 L/min)
+
+per function, envelope, orifice: energy-weighted extra OC drop while moving 2.33 bar; break-even dp_ls = 23.0 bar
+  10:0.754 12:0.793 14:0.830 16:0.869 18:0.906 20:0.943 22:0.981 24:1.018 26:1.056 28:1.094 30:1.130 32:1.168 34:1.205 36:1.242 38:1.280 40:1.317
+  dp_ls 14: LS/OC median 0.830 (0.671 to 1.005); LS worse in 5.3% of cycles
+  dp_ls 25: LS/OC median 1.037 (0.837 to 1.257); LS worse in 60.6% of cycles
+
+per function, envelope, power law: energy-weighted extra OC drop while moving 2.18 bar; break-even dp_ls = 22.7 bar
+  10:0.758 12:0.797 14:0.835 16:0.873 18:0.911 20:0.949 22:0.987 24:1.024 26:1.062 28:1.100 30:1.136 32:1.174 34:1.212 36:1.249 38:1.287 40:1.324
+  dp_ls 14: LS/OC median 0.835 (0.674 to 1.012); LS worse in 6.2% of cycles
+  dp_ls 25: LS/OC median 1.043 (0.840 to 1.265); LS worse in 61.8% of cycles
+
+per function, per cycle, orifice: energy-weighted extra OC drop while moving 4.11 bar; break-even dp_ls = 25.6 bar
+  10:0.719 12:0.755 14:0.792 16:0.828 18:0.864 20:0.900 22:0.936 24:0.972 26:1.007 28:1.044 30:1.080 32:1.115 34:1.151 36:1.186 38:1.222 40:1.257
+  dp_ls 14: LS/OC median 0.792 (0.632 to 0.967); LS worse in 2.6% of cycles
+  dp_ls 25: LS/OC median 0.990 (0.789 to 1.207); LS worse in 47.1% of cycles
+
+per function, per cycle, power law: energy-weighted extra OC drop while moving 4.62 bar; break-even dp_ls = 26.2 bar
+  10:0.710 12:0.745 14:0.782 16:0.817 18:0.852 20:0.888 22:0.924 24:0.960 26:0.996 28:1.031 30:1.066 32:1.100 34:1.135 36:1.171 38:1.206 40:1.242
+  dp_ls 14: LS/OC median 0.782 (0.622 to 0.965); LS worse in 2.4% of cycles
+  dp_ls 25: LS/OC median 0.977 (0.781 to 1.200); LS worse in 43.2% of cycles
+
+constant open-centre drop while moving (bar) -> break-even dp_ls (bar)
+  0: 20.6
+  1: 21.8
+  2: 23.0
+  3: 24.3
+  4: 25.5
+  5: 26.7
+  6: 28.0
+  8: 30.5
+  drop at which the break-even margin is 25 bar: 3.60 bar (slope 1.24 bar of margin per bar of drop)
+
+F1 HOLDS (envelope break-even 21.5 to 24.0: 23.0)
+F2 HOLDS (envelope extra drop 0.5 to 2.5 bar: 2.33)
+F3 HOLDS (per-cycle break-even strictly between 23.0 and 26.5: 25.6)
+F4 HOLDS (envelope LS/OC > 1 at 25 bar: 1.037; < 0.9 at 14 bar: 0.830)
+F5 HOLDS (drop for a 25 bar break-even 3 to 4.5 bar: 3.60)

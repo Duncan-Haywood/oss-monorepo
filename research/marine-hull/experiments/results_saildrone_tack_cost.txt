@@ -1,0 +1,11 @@
+pairs 24555: tack 1147, steady 23408
+wind 4-6 m/s: tack pairs 309, steady 8019, loss 326 s
+wind 6-8 m/s: tack pairs 332, steady 7380, loss 258 s
+wind 8-10 m/s: tack pairs 247, steady 4580, loss 135 s
+wind 10-14 m/s: tack pairs 259, steady 3429, loss 116 s
+pooled loss 218 s per tack
+mean |rel| of tack pairs: 50.1 deg
+mean |rel| of steady pairs: 53.4 deg
+matched on |rel| (30-45, 45-60, 60-80) within each wind bin (cells with >= 5 tack and >= 20 steady pairs): pooled loss 373 s per tack
+bootstrap over 670 drone-days, unmatched: 95% interval 127 to 301 s (n=500)
+bootstrap over 670 drone-days, matched on |rel|: 95% interval 300 to 439 s (n=500)

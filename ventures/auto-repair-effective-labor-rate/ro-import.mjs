@@ -80,7 +80,7 @@ export function parseNumber(cell) {
 
 /** Split text into rows of cells: tab-separated when tabs appear, else commas; quotes honoured. */
 export function parseTable(text) {
-  const source = String(text ?? '').replace(/^﻿/, '');
+  const source = String(text ?? '').replace(/^\uFEFF/, '');
   const delimiter = source.includes('\t') ? '\t' : ',';
   const rows = [];
   let row = [];

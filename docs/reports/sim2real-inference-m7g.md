@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [sim2real-inference]
+tagged: auto
+---
 # sim2real-inference m7g: larger-n certificate check (agent doc)
 
 - Added `experiments/m7g_large_n/largen.py` (seconds). Result: fixed-weight PPI-EB narrower than real-only on 0/42 pairs up to n = 1,920; analytic crossover n* 2,567 to 276,681 (twin mean exact).

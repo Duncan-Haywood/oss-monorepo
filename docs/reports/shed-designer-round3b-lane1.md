@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer, round 3b lane 1: new shed styles (lean-to)
 
 Session: 2026-10-30. PR #11564.

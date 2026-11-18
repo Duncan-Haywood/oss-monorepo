@@ -1,0 +1,22 @@
+name: permit-packet-preflight
+description: Paste a city's published residential permit submittal checklist, add your packet's file names, and see which required items have no matching file before you submit. Browser or CLI, nothing uploaded.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small builders and homeowners lose weeks to permit packets bounced for a missing sheet or form, and would run a free completeness check first.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three builders or permit expediters run it twice within 90 days.
+links:
+  production: https://marisstella.app/permit-packet-preflight/
+  analytics: null

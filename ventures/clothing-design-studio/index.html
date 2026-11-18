@@ -1,0 +1,1383 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clothing Design Studio: Design a T-Shirt or Hoodie by Voice, Cost It, Get a Tech Pack</title>
+  <meta name="description" content="Free clothing design software for independent designers: say or click changes to a tee, sweatshirt or hoodie, compare three versions, cost every piece from your manufacturer's prices, and download a tech pack and quote request. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M11%207l-6%204%203%205%203-2v12h10V14l3%202%203-5-6-4q-5%204-10%200z'%20fill='%23efe4cc'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Clothing Design Studio: say what you want, see it on the garment, know what it costs">
+  <meta property="og:description" content="Design tees, sweatshirts and hoodies by voice or mouse, compare versions, cost them from your manufacturer's quote, and export a tech pack. Free and open source.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Clothing Design Studio",
+    "applicationCategory": "DesignApplication",
+    "operatingSystem": "Any modern browser",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "voice and typed design commands, drag and resize artwork on the garment, t-shirt long-sleeve crewneck and hoodie, fabric and weight, screen print, high-density and puff print, DTG, DTF, embroidery, 3D puff embroidery, sublimation, fabric and method compatibility notes, three alternatives to compare, unit cost and break-even from a supplier sheet, tech pack and quote request, product description, captions and store CSV, optional own-key or local AI",
+    "description": "A free browser studio for independent clothing designers: design a garment by speaking, typing or dragging, cost it from a manufacturer's prices, and export a tech pack. Runs on the visitor's device."
+  }
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Do I need to pay or sign up?","acceptedAnswer":{"@type":"Answer","text":"No. The studio is free and open source (MIT) and runs in your browser. The command box understands a fixed set of design commands with no AI at all. If you want it to understand freer speech, you can add your own AI key or point it at a model running on your own computer; that is optional and never required."}},{"@type":"Question","name":"Where do the prices come from?","acceptedAnswer":{"@type":"Answer","text":"From your manufacturer. The studio ships an example sheet with round placeholder numbers so the page has something to show, and it says so next to every figure. Type your manufacturer's quote in, or import it as a CSV, and every cost on the page uses it."}},{"@type":"Question","name":"Can it print a 3D, raised design?","acceptedAnswer":{"@type":"Answer","text":"It lets you choose raised methods (high-density screen print, puff print and 3D puff embroidery) and draws them with a shadow so you can see the effect. It also notes where a raised method suits the artwork poorly, for example fine painted detail, which usually reproduces better flat with the raised ink on an outline or halo."}},{"@type":"Question","name":"Can I put a famous old painting on a shirt?","acceptedAnswer":{"@type":"Answer","text":"Often, if the painting is in the public domain and the photograph you use is released for reuse. Several museums publish open-access images; the studio lists some. Check each image's terms yourself: the studio does not check rights."}},{"@type":"Question","name":"Is my design uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Designs and uploaded images stay in your browser. A share link carries the design inside the link, without uploaded images. If you add an AI key, your command text and a short description of the design go to the provider you chose; with a local model, nothing leaves your computer."}}]}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; --accent2:#2a2320; --gold:#b98a2e; --ok:#24603a; --warn:#fbf0e1;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1280px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    .eyebrow { color: var(--accent); font-weight: 800; letter-spacing: .12em; font-size: .75rem; text-transform: uppercase; margin: 0; }
+    h1 { font: 700 clamp(1.9rem, 4.6vw, 3rem)/1.05 Georgia, "Times New Roman", serif; letter-spacing: -.02em; margin: 8px 0 10px; max-width: 900px; }
+    .lede { max-width: 760px; line-height: 1.55; margin: 0 0 16px; }
+    a { color: var(--accent); }
+    .workspace { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 16px; align-items: start; }
+    @media (max-width: 900px) { .workspace { grid-template-columns: minmax(0, 1fr); } }
+    section, .panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    input, select, textarea, button { font: inherit; }
+    input:not([type]), input[type=text], input[type=number], input[type=password], input[type=email], input[type=url], select, textarea { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+    .row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .btn { cursor: pointer; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--accent2); background: var(--card); color: var(--accent2); font-weight: 650; }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn[disabled] { opacity: .4; cursor: not-allowed; }
+    .btn.small { padding: 4px 10px; font-size: .85rem; }
+    .bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0; }
+    #stage { background: radial-gradient(circle at 50% 40%, #fff, #eee6da); border-radius: 12px; border: 1px solid var(--line); touch-action: none; outline: none; }
+    #stage:focus-visible { box-shadow: 0 0 0 3px #2f7de155; }
+    #stage svg { width: 100%; height: auto; display: block; max-height: 70vh; }
+    #stage .hit { cursor: move; }
+    #stage .handle { cursor: nwse-resize; }
+    #stage [data-handle=rotate] { cursor: grab; }
+    .command { display: flex; gap: 6px; }
+    .command input { flex: 1; font-size: 1.05rem; padding: 10px 12px; }
+    #mic[aria-pressed=true] { background: var(--accent); color: #fff; }
+    .log { list-style: none; padding: 0; margin: 8px 0 0; max-height: 220px; overflow: auto; font-size: .9rem; }
+    .log li { padding: 6px 0; border-top: 1px dashed var(--line); }
+    .log .words { color: var(--muted); font-style: italic; }
+    .log .miss { color: #9a3412; }
+    .engine { font-size: .75rem; color: var(--muted); }
+    .swatches { display: flex; flex-wrap: wrap; gap: 5px; }
+    .swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); cursor: pointer; padding: 0; }
+    .swatch[aria-pressed=true] { box-shadow: 0 0 0 2px var(--accent); }
+    .motifs { display: flex; flex-wrap: wrap; gap: 6px; }
+    .motifs button { width: 54px; height: 54px; padding: 6px; border: 1px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer; color: #3a2a12; }
+    .motifs svg { width: 100%; height: 100%; }
+    .variants { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .variant { border: 1px solid var(--line); border-radius: 10px; padding: 6px; background: #fff; text-align: center; font-size: .8rem; }
+    .variant svg { width: 100%; height: auto; }
+    .variant button { margin-top: 4px; }
+    .notes { background: var(--warn); border-left: 4px solid var(--gold); padding: 8px 10px; border-radius: 6px; font-size: .88rem; margin: 8px 0; }
+    .notes:empty { display: none; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+    td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; vertical-align: top; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .big { font-size: 1.4rem; font-weight: 750; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin: 8px 0; }
+    .kpi { background: #faf6ef; border-radius: 10px; padding: 8px 10px; }
+    .kpi span { display: block; font-size: .78rem; color: var(--muted); }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    details > summary { cursor: pointer; font-weight: 700; }
+    pre { white-space: pre-wrap; background: #faf6ef; padding: 8px; border-radius: 8px; font-size: .85rem; max-height: 260px; overflow: auto; }
+    .muted { color: var(--muted); font-size: .88rem; }
+    /* Tool output tables scroll inside their box on a phone, not the page (launch calendar: 372 px in a 324 px panel). */
+    .workspace output, #ix-cal-out, #sep-out { display: block; max-width: 100%; overflow-x: auto; }
+    .pf-jump { --jump-fg: var(--accent2); --jump-line: var(--line); --jump-bg: var(--card); --jump-hover: var(--accent); --jump-margin: 0 0 16px; }
+    .stages a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .stages { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 4px 20px; }
+    .stages h3 { font-size: .9rem; margin: 10px 0 4px; color: var(--accent); }
+    .stages ul { margin: 0; padding-left: 18px; line-height: 1.6; font-size: .92rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+    .sr { position: absolute; left: -9999px; }
+  </style>
+  <!-- select-span:start -->
+  <style>
+    /* A field whose longest choice is wider than its column takes the whole row, so the choice
+       reads in full instead of being cut under the arrow. Written by platform/pages/select-span.mjs
+       (docs/reports/polish-2026-11-14-select-span.md); re-run it after changing the options. */
+    div.row > div:has(> #fabric),
+    div.row > div:has(> #sel-method),
+    div.row > div:has(> #garment),
+    div.row > div:has(> #sel-area) { grid-column: 1 / -1; }
+  </style>
+  <!-- select-span:end -->
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">Free clothing design studio</p>
+    <h1>Say what you want on the shirt. See it, change it, know what it costs.</h1>
+    <p class="lede">For independent designers starting a clothing line: design a tee, long-sleeve, sweatshirt or hoodie by talking, typing or dragging, compare three versions side by side, cost every piece from your manufacturer's prices, and download the tech pack and quote request to send them.</p>
+    <nav class="pf-jump" aria-label="On this page and next">
+      <a class="pf-jump-main" href="#h-design">Start designing</a>
+      <a href="launch.html">Launch path: what to decide, in order</a>
+      <a href="how-much-does-it-cost-to-make-a-t-shirt.html">What does a t-shirt cost to make?</a>
+      <a href="for-independent-clothing-designers.html">Who it is for</a>
+      <a href="#tools">Every tool</a>
+    </nav>
+  </header>
+
+  <div class="workspace">
+    <div>
+      <section aria-labelledby="h-design">
+        <h2 id="h-design" class="sr">Design</h2>
+        <form class="command" id="command-form" autocomplete="off">
+          <label for="command" class="sr">Tell the studio what to change</label>
+          <input id="command" type="text" placeholder='Try: make it cream and add a halo, then embroider it in 3D' aria-describedby="command-help">
+          <button type="button" class="btn" id="mic" aria-pressed="false" title="Speak a command">🎙 Speak</button>
+          <button class="btn primary" type="submit">Apply</button>
+        </form>
+        <p class="muted" id="command-help">Examples: <span id="examples"></span></p>
+        <div class="bar">
+          <button class="btn small" type="button" id="undo">Undo</button>
+          <button class="btn small" type="button" id="redo">Redo</button>
+          <button class="btn small" type="button" id="flip" aria-pressed="false">Show back</button>
+          <button class="btn small" type="button" id="variants-btn">Show 3 versions</button>
+          <button class="btn small" type="button" id="share">Copy share link</button>
+          <span class="engine" id="engine-label">Commands: built-in (no AI, nothing sent)</span>
+        </div>
+        <div id="stage" tabindex="0" aria-label="Garment preview. Drag artwork to move it, the corner handle to resize, the top dot to rotate. With the preview focused: arrow keys move, plus and minus resize, Delete removes."></div>
+        <details id="turn-panel">
+          <summary>Turn the garment (preview)</summary>
+          <p class="muted">Approximate: the drawing is turned and shaded, with no drape, seams or sleeves, so it shows how artwork sits as the garment turns, not fit.</p>
+          <div class="bar">
+            <label for="turn-angle" class="sr">Turn angle in degrees</label>
+            <input id="turn-angle" type="range" min="0" max="359" step="1" value="0" style="flex:1">
+            <button class="btn small" type="button" id="turn-spin" aria-pressed="false">Spin</button>
+          </div>
+          <div id="turn-view"></div>
+        </details>
+        <details id="gl-panel">
+          <summary>3D garment (preview)</summary>
+          <p class="muted">A solid shape built from the drawing's outline, with your front and back artwork mapped on. Drag to turn it, scroll to zoom. It has no drape, seams or real sleeves, so it shows how artwork sits on a rounded body, not fit. Runs in your browser; nothing is sent.</p>
+          <div class="bar"><button class="btn small" type="button" id="gl-spin" aria-pressed="false">Spin</button> <button class="btn small" type="button" id="gl-vr" hidden title="Needs a headset with WebXR, such as Quest Browser">View in VR</button></div>
+          <div id="gl-view"></div>
+        </details>
+        <div class="notes" id="compat" aria-live="polite"></div>
+        <ul class="log" id="log" aria-live="polite" aria-label="Changes made from commands"></ul>
+      </section>
+
+      <section id="compare" hidden aria-labelledby="h-compare">
+        <h2 id="h-compare">Three versions to compare</h2>
+        <p class="muted">Each is one change away from your design. Say "go with the second one", or click.</p>
+        <div class="variants" id="variants"></div>
+      </section>
+    </div>
+
+    <div>
+      <section aria-labelledby="h-garment">
+        <h2 id="h-garment">Garment and fabric</h2>
+        <label for="name">Design name</label>
+        <input id="name" type="text" maxlength="80">
+        <div class="row">
+          <div><label for="garment">Garment</label><select id="garment"></select></div>
+          <div><label for="fabric">Fabric</label><select id="fabric"></select></div>
+        </div>
+        <div class="row">
+          <div><label for="gsm">Fabric weight (gsm)</label><input id="gsm" type="number" min="80" max="600" step="5"></div>
+          <div><label for="colour">Garment colour</label><input id="colour" type="color" style="height:36px;padding:2px"></div>
+        </div>
+        <p class="muted" id="fabric-note"></p>
+        <div class="swatches" id="swatches" aria-label="Garment colours"></div>
+      </section>
+
+      <section aria-labelledby="h-art">
+        <h2 id="h-art">Artwork</h2>
+        <div class="motifs" id="motifs" aria-label="Add a motif"></div>
+        <div class="bar">
+          <input id="text-input" type="text" maxlength="60" placeholder="Text to add" aria-label="Text to add" style="flex:1;width:auto">
+          <button class="btn small" type="button" id="add-text">Add text</button>
+          <label class="btn small" style="margin:0">Upload image<input id="upload" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="sr"></label>
+        </div>
+        <details>
+          <summary>Public-domain paintings to start from</summary>
+          <p class="muted">Many old paintings of saints and angels are in the public domain, and these collections publish images released for reuse. Check the terms on each image: the studio does not check rights.</p>
+          <p><a href="artwork.html">Search two museum collections here and check each painting prints sharp at your size</a></p>
+          <ul id="pd-sources" class="muted"></ul>
+        </details>
+        <div id="selected-panel" hidden>
+          <h3>Selected: <span id="sel-label"></span></h3>
+          <div class="row">
+            <div><label for="sel-area">Placement</label><select id="sel-area"></select></div>
+            <div><label for="sel-method">Decoration method</label><select id="sel-method"></select></div>
+          </div>
+          <div class="row3">
+            <div><label for="sel-width">Width (cm)</label><input id="sel-width" type="number" min="1" max="40" step="0.5"></div>
+            <div><label for="sel-rotate">Rotation (degrees)</label><input id="sel-rotate" type="number" min="0" max="359" step="1"></div>
+            <div><label for="sel-colours">Ink colours (screen)</label><input id="sel-colours" type="number" min="1" max="12" step="1"></div>
+          </div>
+          <div class="row">
+            <div><label for="sel-ink">Ink or thread colour</label><input id="sel-ink" type="color" style="height:36px;padding:2px"></div>
+            <div style="align-self:end"><button class="btn small" type="button" id="remove">Remove this artwork</button></div>
+          </div>
+          <p class="muted" id="method-note"></p>
+        </div>
+      </section>
+
+      <section aria-labelledby="h-sep">
+        <h2 id="h-sep">Separate a painting for screen print</h2>
+        <p class="muted">Reduces a painting to a few flat inks, shows how much each covers, warns about lines too fine for the screen, counts the screens (with a white underbase on dark garments), and builds a raised-outline layer for high-density or puff ink. Runs in your browser; the image is not uploaded.</p>
+        <div class="row3">
+          <div><label for="sep-colours">Inks (2 to 8)</label><input id="sep-colours" type="number" min="2" max="8" step="1" value="4"></div>
+          <div><label for="sep-width">Printed width (cm)</label><input id="sep-width" type="number" min="5" max="50" step="1" value="25"></div>
+          <div><label for="sep-line">Raised line (mm)</label><input id="sep-line" type="number" min="0.3" max="3" step="0.1" value="0.8"></div>
+        </div>
+        <div class="row3">
+          <div><label for="sep-bg">Paper around the art</label><select id="sep-bg"><option value="auto">Remove the surround</option><option value="all">Remove it inside holes too</option><option value="none">Keep everything</option></select></div>
+          <div><label for="sep-crop">Trim edges (%: left, top, right, bottom)</label><input id="sep-crop" value="0,0,0,0" inputmode="decimal"></div>
+          <div><label for="sep-knock">Leave unprinted (hex colours, comma separated)</label><input id="sep-knock" placeholder="#969696" autocomplete="off"></div>
+        </div>
+        <div class="bar">
+          <label class="btn small" style="margin:0">Choose a painting<input id="sep-file" type="file" accept="image/png,image/jpeg,image/webp" class="sr"></label>
+          <button class="btn small" type="button" id="sep-brief" disabled>Download printer brief</button>
+          <button class="btn small" type="button" id="sep-films" disabled>Download films (printable page)</button>
+          <button class="btn small" type="button" id="sep-apply" disabled>Use this screen count on the selected artwork</button>
+          <button class="btn small" type="button" id="sep-tradeoff" disabled>How many inks is it worth?</button>
+        </div>
+        <div class="row3">
+          <div><label for="ht-lpi">Halftone lines per inch</label><input id="ht-lpi" type="number" min="15" max="85" step="1" value="45"></div>
+          <div><label for="ht-mesh">Screen mesh (0 = unknown)</label><input id="ht-mesh" type="number" min="0" max="500" step="10" value="230"></div>
+          <div><label for="ht-ink">Single ink colour</label><input id="ht-ink" type="color" value="#000000"></div>
+        </div>
+        <div class="bar"><button class="btn small" type="button" id="sep-halftone" disabled>Download one-ink halftone film</button></div>
+        <p class="muted">Paintings are shaded, and flat inks flatten the shading. An index separation prints the same inks as a scatter of square dots, one per finest dot the mesh holds, so the eye mixes them with the bare garment into the in-between tones. Same screens, finer films.</p>
+        <div class="row3">
+          <div><label for="ix-gain">Dot gain on press (% of a dot's area, 0 = none)</label><input id="ix-gain" type="number" min="0" max="100" step="1" value="0"></div>
+          <div><label for="ix-inks">Inks for the dots</label><select id="ix-inks"><option value="0">The flat separation's inks</option><option value="0.5">Chosen for the dots, seen from 0.5 m</option><option value="1" selected>Chosen for the dots, seen from 1 m</option><option value="3">Chosen for the dots, seen from 3 m</option><option value="s1">From the printer's stock, seen from 1 m</option><option value="s3">From the printer's stock, seen from 3 m</option></select></div>
+          <div><label for="ix-singles">Single dots</label><select id="ix-singles"><option value="3" selected>None, refined (closest; a few seconds longer)</option><option value="0">None, quick cleanup</option><option value="-1">Keep them (only if your mesh holds single dots)</option></select></div>
+        </div>
+        <p class="muted">A dot one cell wide is the first thing a screen loses: it may not wash out of the stencil or may not print. "None" makes every dot on every film touch at least one more of its own ink: each single dot is either given up to a neighbour or grown into a pair, whichever keeps the print closer to the painting, and "refined" then moves dots around under the same rule. On nine paintings that was closer to the painting from 1 m than plain dots in 33 of 36 runs, and it does not fall apart on a press that drops single dots.</p>
+        <p class="muted">Dots can only mix colours between their inks and the garment, and the flat separation's inks are averages, so they sit inside the painting's colours. "Chosen for the dots" tries inks moved outwards to reach the painting's darks, lights and strong colours, weighed against how grainy far-apart inks look from that distance, and keeps whichever set (the flat inks included) comes out closest to the painting. It takes a few seconds longer.</p>
+        <details id="ix-stock-box">
+          <summary>The printer's stock inks</summary>
+          <p class="muted">Every ink "Chosen for the dots" picks is a custom mix, and shops charge to match each one. "From the printer's stock" picks as many inks as you have screens from the shelf below, the set whose dots come closest to the painting, so nothing needs mixing. Paste the printer's own list, one ink per line: a name and a colour (#RRGGBB or three numbers 0-255). The list filled in here is a made-up starter shelf of common colour names with approximate colours, not any ink maker's swatches.</p>
+          <textarea id="ix-stock" rows="8" style="width:100%;font-family:monospace" aria-label="Stock inks, one per line: name and colour"></textarea>
+          <p id="ix-stock-msg" class="muted" aria-live="polite"></p>
+        </details>
+        <details id="ix-calib">
+          <summary>Measure dot gain from a proof</summary>
+          <p class="muted">Ink spreads on press, so dots print larger than their film and the print comes out darker. Download the calibration strip (per ink: a solid square, a 50% checkerboard of single dots, a bare square), ask the printer to run it on your garment, photograph it flat in even light, and pick the three colours from that one photo (the middle of the checkerboard). The gain it shows goes into the box above and the next index separation spaces its dots to allow for it.</p>
+          <div class="bar"><button class="btn small" type="button" id="ix-calib-films" disabled>Download calibration strip</button></div>
+          <div class="row3">
+            <div><label for="ix-cal-garment">Bare garment in the photo</label><input id="ix-cal-garment" type="color" value="#f2f2f2"></div>
+            <div><label for="ix-cal-solid">Solid ink square</label><input id="ix-cal-solid" type="color" value="#202020"></div>
+            <div><label for="ix-cal-patch">Checkerboard (middle)</label><input id="ix-cal-patch" type="color" value="#a1a1a1"></div>
+          </div>
+          <div class="bar"><button class="btn small" type="button" id="ix-cal-read">Read the gain</button></div>
+          <p id="ix-cal-out" aria-live="polite"></p>
+        </details>
+        <div class="bar">
+          <button class="btn small" type="button" id="sep-index" disabled>Index separation (dots, for paintings)</button>
+          <button class="btn small" type="button" id="sep-index-films" disabled>Download index films</button>
+          <button class="btn small" type="button" id="sep-index-brief" disabled>Download index brief</button>
+        </div>
+        <div id="sep-out" aria-live="polite"></div>
+      </section>
+
+      <section aria-labelledby="h-cost">
+        <h2 id="h-cost">Cost, price and break-even</h2>
+        <p class="placeholder" id="example-warning">These costs use the example supplier sheet: round placeholder numbers, not a quote. Replace them with your manufacturer's prices below.</p>
+        <div class="row3">
+          <div><label for="quantity">Quantity (garments)</label><input id="quantity" type="number" min="1" step="1"></div>
+          <div><label for="price">Selling price (incl. tax)</label><input id="price" type="number" min="0" step="0.5"></div>
+          <div><label for="target">Target margin (%)</label><input id="target" type="number" min="0" max="95" step="1"></div>
+        </div>
+        <div class="row3">
+          <div><label for="tax">Sales tax / VAT in price (%)</label><input id="tax" type="number" min="0" max="30" step="0.5"></div>
+          <div><label for="channel">Shop or marketplace commission (%)</label><input id="channel" type="number" min="0" max="60" step="0.5"></div>
+          <div><label for="payfee">Card fee (%)</label><input id="payfee" type="number" min="0" max="10" step="0.1"></div>
+        </div>
+        <div class="row3">
+          <div><label for="payfixed">Card fee per order</label><input id="payfixed" type="number" min="0" max="5" step="0.05"></div>
+          <div><label for="unsold">Expected unsold (%)</label><input id="unsold" type="number" min="0" max="90" step="1"></div>
+          <div><label for="marketing">Launch marketing budget</label><input id="marketing" type="number" min="0" step="50"></div>
+        </div>
+        <output id="results" aria-live="polite"></output>
+        <p class="muted" id="brief-file">Launch brief across devices: <button class="btn small" type="button" id="brief-dl">Download brief file</button> <label class="btn small" for="brief-up">Load a brief file</label><input type="file" id="brief-up" accept="application/json,.json" hidden> <span id="brief-msg" role="status"></span></p>
+        <details>
+          <summary>Supplier sheet (your manufacturer's prices)</summary>
+          <p class="muted">Prices per metre of fabric, per garment for cut and sew, and setup plus per-piece for each decoration method. Per-colour methods (screen, high-density, puff) multiply by the ink colours.</p>
+          <div class="row3">
+            <div><label for="s-name">Supplier name</label><input id="s-name" type="text"></div>
+            <div><label for="s-currency">Currency</label><select id="s-currency"><option>EUR</option><option>USD</option><option>GBP</option><option>CHF</option></select></div>
+            <div><label for="s-moq">Minimum order</label><input id="s-moq" type="number" min="0" step="1"></div>
+          </div>
+          <div class="row3">
+            <div><label for="s-fabric">Fabric price per metre</label><input id="s-fabric" type="number" min="0" step="0.1"></div>
+            <div><label for="s-metres">Metres per garment</label><input id="s-metres" type="number" min="0" step="0.05"></div>
+            <div><label for="s-cutsew">Cut and sew per garment</label><input id="s-cutsew" type="number" min="0" step="0.1"></div>
+          </div>
+          <div class="row3">
+            <div><label for="s-setup">Decoration setup (selected method)</label><input id="s-setup" type="number" min="0" step="1"></div>
+            <div><label for="s-perunit">Decoration per piece (selected method)</label><input id="s-perunit" type="number" min="0" step="0.1"></div>
+            <div><label for="s-wastage">Fabric wastage (%)</label><input id="s-wastage" type="number" min="0" max="50" step="1"></div>
+          </div>
+          <div class="row3">
+            <div><label for="s-trims">Labels and trims per garment</label><input id="s-trims" type="number" min="0" step="0.05"></div>
+            <div><label for="s-packaging">Packaging per garment</label><input id="s-packaging" type="number" min="0" step="0.05"></div>
+            <div><label for="s-freight">Freight to you per garment</label><input id="s-freight" type="number" min="0" step="0.05"></div>
+          </div>
+          <p id="bom-row" hidden><button class="btn small" type="button" id="bom-use">Fill trims and packaging from my bill of materials</button> <span id="bom-note" aria-live="polite"></span></p>
+          <div class="row3">
+            <div><label for="s-duty">Import duty (%)</label><input id="s-duty" type="number" min="0" max="60" step="0.5"></div>
+            <div><label for="s-dest">Look it up for selling in</label><select id="s-dest"><option value="">Choose a market</option><option value="US">United States</option><option value="EU">European Union</option><option value="UK">United Kingdom</option></select></div>
+            <div><label for="s-origin">Made in</label><select id="s-origin"><option value="">Other</option><option>Bangladesh</option><option>Cambodia</option><option>Nepal</option></select></div>
+          </div>
+          <p class="muted" id="s-duty-note">Fills the duty box from the tariff heading for this garment and fabric (rates typed from memory, unchecked: see <a href="duty.html">import duty</a>). Check the figure with your customs broker.</p>
+          <div class="bar">
+            <button class="btn small" type="button" id="sheet-export">Download sheet (CSV)</button>
+            <label class="btn small" style="margin:0">Import sheet (CSV)<input id="sheet-import" type="file" accept=".csv,text/csv" class="sr"></label>
+            <button class="btn small" type="button" id="sheet-reset">Back to example numbers</button>
+          </div>
+          <p class="muted" id="sheet-status" aria-live="polite"></p>
+        </details>
+      </section>
+
+      <section aria-labelledby="h-export">
+        <h2 id="h-export">Tech pack, quote request and launch kit</h2>
+        <div class="bar">
+          <button class="btn small" type="button" id="techpack">Open printable tech pack</button>
+          <button class="btn small" type="button" id="techpack-json">Download tech pack (JSON)</button>
+          <button class="btn small" type="button" id="save-file">Save design file</button>
+          <label class="btn small" style="margin:0">Open design file<input id="open-file" type="file" accept=".json,application/json" class="sr"></label>
+        </div>
+        <details>
+          <summary>Quote request to send your manufacturer</summary>
+          <pre id="quote"></pre>
+          <button class="btn small" type="button" id="copy-quote">Copy</button>
+        </details>
+        <details>
+          <summary>Launch kit: product description, captions, hashtags, store file</summary>
+          <p class="muted">Drafts built from the design's own facts. Edit before posting; nothing is posted for you.</p>
+          <h3>Product description</h3><pre id="lk-desc"></pre>
+          <h3>Captions</h3><pre id="lk-captions"></pre>
+          <h3>Hashtags</h3><pre id="lk-tags"></pre>
+          <button class="btn small" type="button" id="lk-csv">Download store import CSV (Shopify-style)</button>
+        </details>
+      </section>
+
+      <section aria-labelledby="h-shop">
+        <h2 id="h-shop">Storefront: one file you can put on any web host</h2>
+        <p class="muted">Makes a single shop page for this design. Checkout is off until you add your own payment link (an https link from Stripe, PayPal, Lemon Squeezy or similar); until then buyers get an order-by-email button. You handle payment, tax, delivery and returns; we hold no keys and see nothing. The page states only the shipping and returns text you type here.</p>
+        <div class="row">
+          <div><label for="sh-brand">Brand name</label><input id="sh-brand" type="text" maxlength="60"></div>
+          <div><label for="sh-email">Contact email</label><input id="sh-email" type="email"></div>
+          <div><label for="sh-cur">Currency</label><select id="sh-cur"><option>EUR</option><option>USD</option><option>GBP</option></select></div>
+          <div><label for="sh-link">Your payment link (https)</label><input id="sh-link" type="url" placeholder="https://buy.stripe.com/..."></div>
+        </div>
+        <div class="row">
+          <div><label for="sh-ship">Shipping terms</label><input id="sh-ship" type="text" placeholder="Where from, cost, how long"></div>
+          <div><label for="sh-ret">Returns terms</label><input id="sh-ret" type="text" placeholder="Your returns and cancellation terms"></div>
+        </div>
+        <p class="muted">The shop holds the designs on its shelf. Put the current design on the shelf (with the payment link above for this product), change the design, add the next one. Same name replaces. With an empty shelf the download holds the current design alone. The shelf stays in this browser.</p>
+        <ul id="sh-shelf" class="muted"></ul>
+        <output id="sh-out" aria-live="polite"></output>
+        <div class="bar"><button class="btn small" type="button" id="sh-add">Put this design on the shelf</button> <button class="btn small" type="button" id="sh-dl">Download storefront (HTML)</button></div>
+      </section>
+
+      <section aria-labelledby="h-clr">
+        <h2 id="h-clr">Unsold stock: a markdown ladder</h2>
+        <p class="muted">How much of the run sells at full price, what each markdown recovers after tax and fees, and what is left. Weekly sales and how much a discount lifts them are guesses until you have real sales: replace them.</p>
+        <div class="row">
+          <div><label for="c-rate">Sales a week at full price</label><input id="c-rate" type="number" min="0" step="any" value="4"></div>
+          <div><label for="c-weeks">Full-price weeks</label><input id="c-weeks" type="number" min="0" max="520" step="1" value="8"></div>
+          <div><label for="c-el">Discount lift (elasticity)</label><input id="c-el" type="number" min="0" max="6" step="0.1" value="2"></div>
+          <div><label for="c-scrap">Leftover unit fetches</label><input id="c-scrap" type="number" min="0" step="any" value="0"></div>
+        </div>
+        <label for="c-steps">Markdown steps, one per line: percent off, weeks</label>
+        <textarea id="c-steps" rows="3" spellcheck="false">30, 4
+50, 4</textarea>
+        <output id="clr-out" aria-live="polite"></output>
+      </section>
+
+      <section aria-labelledby="h-mkt">
+        <h2 id="h-mkt">Launch marketing: what ads can afford, and a week-by-week calendar</h2>
+        <p class="muted">Works back from your break-even. The click price and conversion rate are placeholders until you run a small test: replace them. Drafts only; nothing is posted or bought for you.</p>
+        <div class="row">
+          <div><label for="m-cpc">Cost per click</label><input id="m-cpc" type="number" min="0.01" step="any"></div>
+          <div><label for="m-conv">Clicks that buy (%)</label><input id="m-conv" type="number" min="0.1" max="30" step="0.1"></div>
+          <div><label for="m-weeks">Launch weeks</label><input id="m-weeks" type="number" min="2" max="12" step="1"></div>
+          <div><label for="m-posts">Posts per week</label><input id="m-posts" type="number" min="1" max="14" step="1"></div>
+        </div>
+        <details id="test-box">
+          <summary>Read a first small ad test</summary>
+          <p class="muted">Spent a little on one ad? Type what happened. The numbers stay in this browser. You get your real click price and conversion rate, a 95% range (small tests are noisy), and whether the test already settles it.</p>
+          <div class="row">
+            <div><label for="t-spend">Spent on the test</label><input id="t-spend" type="number" min="0" step="any"></div>
+            <div><label for="t-clicks">Clicks it bought</label><input id="t-clicks" type="number" min="0" step="1"></div>
+            <div><label for="t-orders">Orders from those clicks</label><input id="t-orders" type="number" min="0" step="1"></div>
+          </div>
+          <output id="test-out" aria-live="polite"></output>
+          <div class="bar"><button class="btn small" type="button" id="t-apply" disabled>Use these numbers in the plan</button></div>
+        </details>
+        <details id="split-box">
+          <summary>Split the ad budget over channels</summary>
+          <p class="muted">One channel per line: name, cost per click, % of clicks that buy, optional cap (most it can absorb), and "tested" if the numbers came from a test. Cheapest sale first; channels above break-even get nothing; untested ones get a small test share first.</p>
+          <textarea id="split-in" aria-label="Channels: name, cost per click, percent that buy, optional cap, tested" rows="4" spellcheck="false" placeholder="search, 0.60, 2.0, 200, tested&#10;social, 0.40, 1.2, , guess"></textarea>
+          <output id="split-out" aria-live="polite"></output>
+        </details>
+        <output id="mkt-out" aria-live="polite"></output>
+        <div class="bar"><button class="btn small" type="button" id="mkt-csv">Download calendar (CSV)</button></div>
+      </section>
+
+      <section aria-labelledby="h-ai">
+        <h2 id="h-ai">Optional: a model for freer speech</h2>
+        <p class="muted">Off by default. The built-in commands need no AI. With your own key, or a model on your own computer (Ollama, LM Studio, llama.cpp), the model rewrites what you say into the same commands, so it can only do what a typed command could, and every change is listed with an Undo. Your words and a one-line description of the design go to the provider you pick; nothing goes to us.</p>
+        <div class="row">
+          <div><label for="ai-provider">Provider</label>
+            <select id="ai-provider"><option value="">Off (built-in commands)</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="ollama">Ollama on this computer</option><option value="lmstudio">LM Studio on this computer</option><option value="llamacpp">llama.cpp on this computer</option></select></div>
+          <div><label for="ai-model">Model name</label><input id="ai-model" type="text" placeholder="e.g. llama3.2"></div>
+        </div>
+        <label for="ai-key">API key (hosted providers only)</label>
+        <input id="ai-key" type="password" autocomplete="off">
+        <label style="font-weight:400"><input id="ai-remember" type="checkbox"> Remember the key in this browser</label>
+      </section>
+    </div>
+  </div>
+
+  <!-- tools -->
+  <section id="tools" aria-labelledby="tools-h">
+    <h2 id="tools-h">Every tool, in launch order (50)</h2>
+    <p class="muted">Each runs in your browser, free. The <a href="launch.html">launch path</a> says why each stage comes where it does.</p>
+    <div class="stages">
+    <div class="stage">
+      <h3>1. Design the thing</h3>
+      <ul>
+        <li><a href="sunglasses.html">Sunglasses designer</a></li>
+        <li><a href="wardrobe.html">Capsule wardrobe planner</a></li>
+        <li><a href="fit.html">Size finder and size run</a></li>
+        <li><a href="camera.html">Try it on from a photo</a></li>
+        <li><a href="artwork.html">Public-domain paintings, checked for print</a></li>
+        <li><a href="pattern.html">Pattern pieces, graded, SVG and DXF</a></li>
+        <li><a href="drape.html">Virtual drape: sew the pattern onto a body</a></li>
+      </ul>
+    </div>
+    <div class="stage">
+      <h3>2. Know what one piece costs</h3>
+      <ul>
+        <li><a href="how-much-does-it-cost-to-make-a-t-shirt.html">Worked example: what a t-shirt costs</a></li>
+        <li><a href="bom.html">Bill of materials and order</a></li>
+        <li><a href="quotes.html">Compare factory quotes</a></li>
+        <li><a href="tiers.html">Fabric price tiers</a></li>
+        <li><a href="shrink.html">Fabric shrinkage allowance</a></li>
+        <li><a href="gsm.html">Fabric gsm, kilos and metres</a></li>
+        <li><a href="freight.html">Freight per garment</a></li>
+        <li><a href="duty.html">Import duty by destination</a></li>
+        <li><a href="import-duty-on-clothing.html">Worked example: duty on a hoodie</a></li>
+        <li><a href="parcel.html">Duty on a single parcel</a></li>
+        <li><a href="fx.html">Factory currency risk</a></li>
+      </ul>
+    </div>
+    <div class="stage">
+      <h3>3. Set the price</h3>
+      <ul>
+        <li><a href="prices.html">Price by market</a></li>
+        <li><a href="pricepoint.html">Best price from a price test</a></li>
+        <li><a href="returns.html">Returns: what an order really earns</a></li>
+        <li><a href="discount.html">Discount: orders a sale needs</a></li>
+        <li><a href="bundle.html">Set pricing: is a bundle discount worth it?</a></li>
+        <li><a href="repeat.html">Repeat customers: what can you pay to win one?</a></li>
+        <li><a href="wholesale.html">Wholesale price</a></li>
+        <li><a href="sunglasses-profit-margin.html">Worked example: sunglasses margin</a></li>
+      </ul>
+    </div>
+    <div class="stage">
+      <h3>4. Commit to a first run</h3>
+      <ul>
+        <li><a href="orderlines.html">Colour and size order matrix</a></li>
+        <li><a href="preorder.html">Pre-order planner</a></li>
+        <li><a href="clothing-minimum-order-quantity.html">Worked example: reaching a 300-piece MOQ</a></li>
+        <li><a href="pod.html">Factory run or print-on-demand</a></li>
+        <li><a href="startup.html">Start-up budget</a></li>
+        <li><a href="cashflow.html">Launch cash flow</a></li>
+        <li><a href="financing.html">Financing a run: the real yearly rate</a></li>
+      </ul>
+    </div>
+    <div class="stage">
+      <h3>5. Make it and check it</h3>
+      <ul>
+        <li><a href="timeline.html">Production timeline</a></li>
+        <li><a href="tna.html">Time and action calendar</a></li>
+        <li><a href="spec.html">Measurement spec and sample check</a></li>
+        <li><a href="colour.html">Colour approval: lab dip delta E</a></li>
+        <li><a href="testing.html">Safety tests to ask for</a></li>
+        <li><a href="inspection.html">Final inspection sample size</a></li>
+        <li><a href="labels.html">Label checker</a></li>
+        <li><a href="barcodes.html">Barcodes (GTIN)</a></li>
+      </ul>
+    </div>
+    <div class="stage">
+      <h3>6. Sell it and keep selling</h3>
+      <ul>
+        <li><a href="channels.html">Where to sell</a></li>
+        <li><a href="salestax.html">US sales tax</a></li>
+        <li><a href="eutax.html">EU VAT and one-stop shop</a></li>
+        <li><a href="eprfr.html">French textile eco-contribution</a></li>
+        <li><a href="greenclaims.html">Green claims checker for your copy</a></li>
+        <li><a href="linesheet.html">Wholesale line sheet</a></li>
+        <li><a href="partners.html">Partner-brand commission</a></li>
+        <li><a href="reorder.html">Reorder planner</a></li>
+        <li><a href="adspend.html">Ad spend: what a customer may cost</a></li>
+      </ul>
+    </div>
+    </div>
+  </section>
+  <!-- /tools -->
+
+  <section id="faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <h3>Do I need to pay or sign up?</h3>
+    <p>No. The studio is free and open source (MIT) and runs in your browser. The command box understands a fixed set of design commands with no AI at all. If you want it to understand freer speech, you can add your own AI key or point it at a model running on your own computer; that is optional and never required.</p>
+    <h3>Where do the prices come from?</h3>
+    <p>From your manufacturer. The studio ships an example sheet with round placeholder numbers so the page has something to show, and it says so next to every figure. Type your manufacturer&#x27;s quote in, or import it as a CSV, and every cost on the page uses it.</p>
+    <h3>Can it print a 3D, raised design?</h3>
+    <p>It lets you choose raised methods (high-density screen print, puff print and 3D puff embroidery) and draws them with a shadow so you can see the effect. It also notes where a raised method suits the artwork poorly, for example fine painted detail, which usually reproduces better flat with the raised ink on an outline or halo.</p>
+    <h3>Can I put a famous old painting on a shirt?</h3>
+    <p>Often, if the painting is in the public domain and the photograph you use is released for reuse. Several museums publish open-access images; the studio lists some. Check each image&#x27;s terms yourself: the studio does not check rights.</p>
+    <h3>Is my design uploaded?</h3>
+    <p>No. Designs and uploaded images stay in your browser. A share link carries the design inside the link, without uploaded images. If you add an AI key, your command text and a short description of the design go to the provider you chose; with a local model, nothing leaves your computer.</p>
+  </section>  <!-- journey -->
+  <nav class="journey" aria-label="Launch path" style="margin-top:24px;padding:12px 14px;border:1px solid #ddd2c4;border-radius:12px;background:#fffdf9;font-size:.9rem;line-height:1.55">
+    <strong>1. Design the thing</strong> on the <a href="launch.html">launch path for a clothing line</a>.
+    <div>Also at this stage: <a href="sunglasses.html">Sunglasses designer</a> · <a href="wardrobe.html">Capsule wardrobe planner</a> · <a href="fit.html">Size finder and size run</a> · <a href="camera.html">Try it on from a photo</a></div>
+    <div>Next: <a href="sunglasses.html">Sunglasses designer</a></div>
+  </nav>
+  <!-- /journey -->
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, manufacturing or intellectual-property advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including the rights to any artwork you use, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser. Your designs, images and prices are saved in this browser's local storage and never uploaded; we have no accounts, tracking cookies or analytics vendor. Speaking a command uses your browser's own speech recognition, which in Chrome and Edge sends the audio to the browser maker to be transcribed (the page asks first). If you add an AI key, your command text goes to the provider you chose. We count anonymous events in this browser only (which features get used, nothing you typed). <button class="btn small" type="button" id="optout">Turn usage counting off</button> <span id="optout-status"></span></p>
+    <p>Free and open source under the <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Request a feature or give feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the work (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+  <script type="module">
+    import { GARMENTS, FABRICS, METHODS, COLOURS, PX_PER_CM, compatibilityNotes } from "./catalogue.mjs";
+    import { MOTIFS, PUBLIC_DOMAIN_SOURCES } from "./motifs.mjs";
+    import { printResolution, resolutionSummary, takeHandoff } from "./artwork.mjs";
+    import { newDesign, History, variants, applyOp, encodeDesign, decodeDesign, sanitizeDesign, OpError } from "./design.mjs";
+    import { EXAMPLES, parseClause } from "./commands.mjs";
+    import { answerQuestion } from "./answers.mjs";
+    import { interpret } from "./ai.mjs";
+    import { renderDesign, placementBox, esc } from "./render.mjs";
+    import { renderTurntable } from "./turntable.mjs";
+    import { EXAMPLE_SUPPLIER, supplierToCsv, supplierFromCsv } from "./suppliers.mjs";
+    import { dutyPctFor } from "./duty.mjs";
+    import { economics, quantityBreaks, money, DEFAULT_PLAN } from "./costing.mjs";
+    import { loadBomExtras } from "./bom.mjs";
+    import { briefFromStudio, saveBrief, loadBrief, briefToFile, briefFromFile } from "./launchbrief.mjs";
+    import { techPack, techPackHtml, quoteRequest } from "./techpack.mjs";
+    import { launchKit } from "./launchkit.mjs";
+    import { storefront } from "./storefront.mjs";
+    import { addToShelf, removeFromShelf, shelfToShop, loadShelf } from "./shelf.mjs";
+    import { clearancePlan } from "./clearance.mjs";
+    import { marketingPlan, calendarCsv, learnFromTest, channelSplit, DEFAULT_ASSUMPTIONS } from "./marketing.mjs";
+    import { inkTradeoff } from "./inktradeoff.mjs";
+    import { singleInkFilm, contrastInk, halftoneSvg, halftoneBrief } from "./halftone.mjs";
+    import { separate, films, previewRgba, separationBrief } from "./separation.mjs";
+    import { chooseIndexInks } from "./inkfit.mjs";
+    import { chooseStockInks, parseStockList, stockBrief, STARTER_STOCK } from "./stockinks.mjs";
+    import { indexSeparate, compareFlatIndex, indexFilms, indexPreviewRgba, indexBrief, calibrationFilms, gainFromPatch, cleanLoneDots } from "./indexsep.mjs";
+    import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = s => document.querySelector(s);
+    const DESIGN_KEY = "clothing-design-studio-design";
+    const SHEET_KEY = "clothing-design-studio-sheet";
+    const PLAN_KEY = "clothing-design-studio-plan";
+    const AI_KEY = "clothing-design-studio-ai";
+    const store = {
+      get(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } },
+      set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } },
+    };
+
+    // ---- state ----
+    let initial = null;
+    const hash = new URLSearchParams(location.hash.slice(1)).get("d");
+    if (hash) { try { initial = decodeDesign(hash); } catch { initial = null; } }
+    if (!initial) { const saved = store.get(DESIGN_KEY); if (saved) initial = sanitizeDesign(saved); }
+    if (!initial) {
+      initial = newDesign({ name: "Halo tee" });
+      initial = applyOp(initial, { op: "add", kind: "motif", motif: "halo", label: "Sunburst halo", method: "high-density", colours: 1, w: 20 });
+    }
+    const history = new History(initial);
+    let sheet = store.get(SHEET_KEY) ?? structuredClone(EXAMPLE_SUPPLIER);
+    let plan = { ...DEFAULT_PLAN, ...(store.get(PLAN_KEY) || {}) };
+    let currentVariants = [];
+    const d = () => history.present;
+
+    // ---- static controls ----
+    $("#examples").innerHTML = EXAMPLES.slice(0, 6).map(e => `<button type="button" class="btn small ex">${esc(e)}</button>`).join(" ");
+    document.querySelectorAll(".ex").forEach(b => b.addEventListener("click", () => { $("#command").value = b.textContent; runCommand(b.textContent, "example"); }));
+    $("#garment").innerHTML = Object.values(GARMENTS).map(g => `<option value="${g.id}">${g.label}</option>`).join("");
+    $("#fabric").innerHTML = Object.values(FABRICS).map(f => `<option value="${f.id}">${f.label} (${f.gsm[0]}–${f.gsm[1]} gsm)</option>`).join("");
+    $("#sel-method").innerHTML = Object.values(METHODS).map(m => `<option value="${m.id}">${m.label}</option>`).join("");
+    const swatchNames = ["black", "white", "cream", "bone", "heather grey", "charcoal", "navy", "burgundy", "forest green", "olive", "sage", "sand", "chocolate", "dusty pink", "sky blue"];
+    $("#swatches").innerHTML = swatchNames.map(n => `<button type="button" class="swatch" data-colour="${n}" title="${n}" aria-label="${n}" style="background:${COLOURS[n]}"></button>`).join("");
+    $("#motifs").innerHTML = Object.values(MOTIFS).map(m => `<button type="button" data-motif="${m.id}" title="Add ${m.label}" aria-label="Add ${m.label}"><svg viewBox="0 0 100 100">${m.svg}</svg></button>`).join("");
+    $("#pd-sources").innerHTML = PUBLIC_DOMAIN_SOURCES.map(s => `<li><a href="${s.url}" rel="noopener" target="_blank">${esc(s.name)}</a></li>`).join("");
+
+    // ---- applying changes ----
+    function commit(ops, event = "edit") {
+      try {
+        history.apply(ops);
+        recordUsage(event);
+        render();
+        return null;
+      } catch (e) {
+        if (e instanceof OpError) return e.message;
+        throw e;
+      }
+    }
+
+    const log = (html, cls = "") => {
+      const li = document.createElement("li");
+      li.className = cls;
+      li.innerHTML = html;
+      $("#log").prepend(li);
+    };
+
+    function aiConfig() {
+      const provider = $("#ai-provider").value;
+      if (!provider) return null;
+      return { provider, model: $("#ai-model").value.trim() || undefined, apiKey: $("#ai-key").value.trim() || undefined, browser: true };
+    }
+
+    async function runCommand(text, via = "typed") {
+      if (!text.trim()) return;
+      const out = await interpret(text, d(), aiConfig(), { timeline: [...history.past, history.present] });
+      recordUsage(via === "voice" ? "voice_command" : "command");
+      const engine = out.source === "model" ? `model (${out.local ? "on your computer" : $("#ai-provider").value})` : "built-in";
+      $("#engine-label").textContent = `Last command: ${engine}${out.error ? ` (model failed: ${out.error}; used built-in)` : ""}`;
+      for (const step of out.result.steps) {
+        let err = null;
+        for (const u of step.ui) {
+          if (u.ui === "undo") { for (let i = 0; i < (u.count ?? 1); i++) history.undo(); render(); }
+          else if (u.ui === "restore") { const t = [...history.past, history.present][u.index]; if (t && t !== history.present) { history.replace(t); render(); } }
+          else if (u.ui === "redo") { history.redo(); render(); }
+          else if (u.ui === "variants") showVariants();
+          else if (u.ui === "pick") pickVariant(u.index - 1);
+          else if (u.ui === "techpack") openTechPack();
+          else if (u.ui === "upload") $("#upload").click();
+        }
+        if (step.ops.length) err = commit(step.ops, "command_op");
+        log(`${err ? `<span class="miss">Could not: ${esc(err)}</span>` : esc(step.did)} <span class="words">“${esc(step.words)}”</span> <span class="engine">${engine}</span>`);
+      }
+      for (const q of out.result.questions || []) {
+        recordUsage("question_answered");
+        log(`<span class="engine">You asked:</span> <span class="words">“${esc(q.words)}”</span> ${esc(answerQuestion(q, d(), { parse: parseClause, sheet }).text)}`);
+      }
+      for (const no of out.result.declined || []) log(`<span class="miss">Left alone (you said no):</span> <span class="words">“${esc(no.words)}”</span>`);
+      for (const miss of out.result.unmatched) log(`<span class="miss">Not understood:</span> <span class="words">“${esc(miss)}”</span> <span class="engine">Try one of the examples, or add a model below.</span>`);
+    }
+
+    $("#command-form").addEventListener("submit", e => { e.preventDefault(); const t = $("#command").value; $("#command").value = ""; runCommand(t); });
+    $("#undo").addEventListener("click", () => { history.undo(); render(); });
+    $("#redo").addEventListener("click", () => { history.redo(); render(); });
+    $("#flip").addEventListener("click", () => commit({ op: "side", value: d().side === "front" ? "back" : "front" }, "flip"));
+
+    // ---- speech (opt-in) ----
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let rec = null;
+    let speechOk = false;
+    $("#mic").addEventListener("click", () => {
+      if (!Recognition) { log('<span class="miss">This browser has no speech recognition. Chrome, Edge and Safari do; or type the command.</span>'); return; }
+      if (rec) { rec.stop(); return; }
+      if (!speechOk) {
+        speechOk = confirm("Speaking uses your browser's built-in speech recognition. In Chrome and Edge your audio is sent to Google or Microsoft to be turned into text; Safari can do it on your device. Nothing is sent to us. Continue?");
+        if (!speechOk) return;
+      }
+      rec = new Recognition();
+      rec.lang = navigator.language || "en-US";
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.onresult = ev => {
+        for (let i = ev.resultIndex; i < ev.results.length; i++) {
+          const r = ev.results[i];
+          $("#command").value = r[0].transcript;
+          if (r.isFinal) { $("#command").value = ""; runCommand(r[0].transcript, "voice"); }
+        }
+      };
+      rec.onend = () => { rec = null; $("#mic").setAttribute("aria-pressed", "false"); $("#mic").textContent = "🎙 Speak"; };
+      rec.onerror = ev => log(`<span class="miss">Speech stopped: ${esc(ev.error)}</span>`);
+      rec.start();
+      $("#mic").setAttribute("aria-pressed", "true");
+      $("#mic").textContent = "■ Stop";
+    });
+
+    // ---- direct manipulation ----
+    const stage = $("#stage");
+    let drag = null;
+    function svgPoint(ev) {
+      const svg = stage.querySelector("svg");
+      const pt = svg.createSVGPoint();
+      pt.x = ev.clientX; pt.y = ev.clientY;
+      return pt.matrixTransform(svg.getScreenCTM().inverse());
+    }
+    stage.addEventListener("pointerdown", ev => {
+      const t = ev.target.closest("[data-id]");
+      if (!t) return;
+      const id = Number(t.dataset.id);
+      const start = d().selected === id ? d() : applyOp(d(), { op: "select", id });
+      const p = start.placements.find(q => q.id === id);
+      drag = { id, mode: t.dataset.handle || "move", start, from: svgPoint(ev), p, box: placementBox(start, p), moved: false };
+      stage.setPointerCapture(ev.pointerId);
+      if (start !== d()) { history.replace(start); render(); }
+      ev.preventDefault();
+    });
+    stage.addEventListener("pointermove", ev => {
+      if (!drag) return;
+      const at = svgPoint(ev);
+      let next;
+      if (drag.mode === "move") {
+        next = applyOp(drag.start, { op: "moveTo", x: drag.p.x + (at.x - drag.from.x) / PX_PER_CM, y: drag.p.y + (at.y - drag.from.y) / PX_PER_CM });
+      } else if (drag.mode === "scale") {
+        const d0 = Math.hypot(drag.from.x - drag.box.cx, drag.from.y - drag.box.cy) || 1;
+        const d1 = Math.hypot(at.x - drag.box.cx, at.y - drag.box.cy);
+        next = applyOp(drag.start, { op: "width", value: drag.p.w * (d1 / d0) });
+      } else {
+        const ang = Math.atan2(at.y - drag.box.cy, at.x - drag.box.cx) * 180 / Math.PI + 90;
+        next = applyOp(drag.start, { op: "rotate", deg: Math.round(ang / 5) * 5 - (drag.p.rotate || 0) });
+      }
+      drag.moved = true;
+      history.present = next;
+      renderStage();
+    });
+    const endDrag = () => {
+      if (!drag) return;
+      if (drag.moved) {
+        const final = history.present;
+        history.present = drag.start;
+        history.replace(final);
+        recordUsage(`drag_${drag.mode}`);
+      }
+      drag = null;
+      render();
+    };
+    stage.addEventListener("pointerup", endDrag);
+    stage.addEventListener("pointercancel", endDrag);
+    stage.addEventListener("keydown", ev => {
+      if (!d().placements.length) return;
+      const step = ev.shiftKey ? 2 : 0.5;
+      const map = { ArrowUp: { op: "move", dx: 0, dy: -step }, ArrowDown: { op: "move", dx: 0, dy: step }, ArrowLeft: { op: "move", dx: -step, dy: 0 }, ArrowRight: { op: "move", dx: step, dy: 0 },
+        "+": { op: "scale", factor: 1.05 }, "=": { op: "scale", factor: 1.05 }, "-": { op: "scale", factor: 0.95 }, Delete: { op: "remove" }, Backspace: { op: "remove" } };
+      if ((ev.ctrlKey || ev.metaKey) && ev.key === "z") { history.undo(); render(); ev.preventDefault(); return; }
+      const op = map[ev.key];
+      if (op) { commit(op, "keyboard"); ev.preventDefault(); }
+    });
+
+    // ---- form controls ----
+    $("#name").addEventListener("change", e => commit({ op: "name", value: e.target.value }));
+    $("#garment").addEventListener("change", e => commit({ op: "garment", value: e.target.value }));
+    $("#fabric").addEventListener("change", e => commit({ op: "fabric", value: e.target.value }));
+    $("#gsm").addEventListener("change", e => { const err = commit({ op: "gsm", value: e.target.value }); if (err) log(`<span class="miss">${esc(err)}</span>`); });
+    $("#colour").addEventListener("change", e => commit({ op: "colour", value: e.target.value, name: e.target.value }));
+    $("#swatches").addEventListener("click", e => { const b = e.target.closest("[data-colour]"); if (b) commit({ op: "colour", value: b.dataset.colour }, "swatch"); });
+    $("#motifs").addEventListener("click", e => { const b = e.target.closest("[data-motif]"); if (b) commit({ op: "add", kind: "motif", motif: b.dataset.motif, label: MOTIFS[b.dataset.motif].label }, "add_motif"); });
+    $("#add-text").addEventListener("click", () => { const t = $("#text-input").value.trim(); if (t) { commit({ op: "add", kind: "text", text: t, label: `"${t}"` }, "add_text"); $("#text-input").value = ""; } });
+    $("#sel-area").addEventListener("change", e => commit({ op: "area", value: e.target.value }));
+    $("#sel-method").addEventListener("change", e => commit({ op: "method", value: e.target.value }));
+    $("#sel-width").addEventListener("change", e => commit({ op: "width", value: e.target.value }));
+    $("#sel-rotate").addEventListener("change", e => { const p = selected(); if (p) commit({ op: "rotate", deg: Number(e.target.value) - (p.rotate || 0) }); });
+    $("#sel-colours").addEventListener("change", e => commit({ op: "inkColours", value: e.target.value }));
+    $("#sel-ink").addEventListener("change", e => { const err = commit({ op: "ink", value: e.target.value }); if (err) log(`<span class="miss">${esc(err)}</span>`); });
+    $("#remove").addEventListener("click", () => commit({ op: "remove" }));
+
+    $("#upload").addEventListener("change", async e => {
+      const file = e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const src = await downscale(file, 1400);
+      const original = await pixelSize(file);
+      const img = new Image();
+      img.onload = () => commit({ op: "add", kind: "image", src, aspect: img.naturalHeight / img.naturalWidth || 1, label: file.name.slice(0, 40), method: "dtg", srcPx: original }, "upload_image");
+      img.src = src;
+    });
+    // the stored copy is downscaled for the preview; keep the file's own size for the print check
+    function pixelSize(file) {
+      if (file.type === "image/svg+xml") return Promise.resolve(null);
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => { resolve({ w: img.naturalWidth, h: img.naturalHeight }); URL.revokeObjectURL(img.src); };
+        img.onerror = () => resolve(null);
+        img.src = URL.createObjectURL(file);
+      });
+    }
+    function downscale(file, max) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = () => {
+          if (file.type === "image/svg+xml") return resolve(reader.result);
+          const img = new Image();
+          img.onload = () => {
+            const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+            const c = document.createElement("canvas");
+            c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+            c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+            resolve(c.toDataURL(file.type === "image/png" ? "image/png" : "image/jpeg", 0.88));
+          };
+          img.onerror = reject;
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // plan and supplier inputs
+    const planFields = { target: "targetMarginPct", tax: "salesTaxPct", channel: "channelFeePct", payfee: "paymentFeePct", payfixed: "paymentFixed", unsold: "unsoldPct", marketing: "marketingBudget" };
+    for (const [id, key] of Object.entries(planFields)) {
+      $("#" + id).value = plan[key];
+      $("#" + id).addEventListener("input", e => { const v = Number(e.target.value); if (Number.isFinite(v) && v >= 0) { plan[key] = v; store.set(PLAN_KEY, plan); renderCost(); renderMarketing(); renderClearance(); } });
+    }
+    $("#quantity").addEventListener("change", e => commit({ op: "quantity", value: e.target.value }));
+    $("#price").addEventListener("change", e => commit({ op: "price", value: e.target.value }));
+
+    function sheetEdited(mutate) {
+      sheet = structuredClone(sheet);
+      if (sheet.example) { sheet.example = false; sheet.name = "My supplier"; sheet.id = "mine"; }
+      mutate(sheet);
+      store.set(SHEET_KEY, sheet);
+      render();
+    }
+    const sheetNum = (id, fn) => $("#" + id).addEventListener("change", e => { const v = Number(e.target.value); if (Number.isFinite(v) && v >= 0) sheetEdited(s => fn(s, v)); });
+    $("#s-name").addEventListener("change", e => sheetEdited(s => { s.name = e.target.value.slice(0, 120) || s.name; }));
+    $("#s-currency").addEventListener("change", e => sheetEdited(s => { s.currency = e.target.value; }));
+    sheetNum("s-moq", (s, v) => { s.moq = v; });
+    sheetNum("s-fabric", (s, v) => { s.fabrics[d().fabric] = v; });
+    sheetNum("s-metres", (s, v) => { s.metresPerGarment[d().garment] = v; });
+    sheetNum("s-cutsew", (s, v) => { s.cutAndSew[d().garment] = v; });
+    sheetNum("s-setup", (s, v) => { const p = selected(); if (p) s.methods[p.method] = { ...(s.methods[p.method] || { perUnit: 0 }), setup: v }; });
+    sheetNum("s-perunit", (s, v) => { const p = selected(); if (p) s.methods[p.method] = { ...(s.methods[p.method] || { setup: 0 }), perUnit: v }; });
+    sheetNum("s-wastage", (s, v) => { s.wastagePct = v; });
+    sheetNum("s-trims", (s, v) => { s.trimsPerUnit = v; });
+    sheetNum("s-packaging", (s, v) => { s.packagingPerUnit = v; });
+    sheetNum("s-freight", (s, v) => { s.freightPerUnit = v; });
+    sheetNum("s-duty", (s, v) => { s.dutyPct = v; });
+    {
+      const e = loadBomExtras();
+      if (e) {
+        $("#bom-row").hidden = false;
+        $("#bom-use").addEventListener("click", () => {
+          const n = loadBomExtras(); if (!n) return;
+          sheetEdited(s => { s.trimsPerUnit = n.trimsPerUnit; s.packagingPerUnit = n.packagingPerUnit; });
+          $("#bom-note").textContent = `Set trims ${n.trimsPerUnit.toFixed(2)} and packaging ${n.packagingPerUnit.toFixed(2)} per garment (waste included) from the bill of materials.`;
+        });
+      }
+    }
+    const lookUpDuty = () => {
+      const dest = $("#s-dest").value; if (!dest) return;
+      const g = d().garment, f = FABRICS[d().fabric];
+      const price = (sheet.fabrics[d().fabric] || 0) * (sheet.metresPerGarment[g] || 0) * (1 + (sheet.wastagePct || 0) / 100) + (sheet.cutAndSew[g] || 0);
+      const origin = $("#s-origin").value;
+      const pct = dutyPctFor({ garmentId: g, polyesterShare: f ? f.polyester : 0, destination: dest, origin, haveOriginProof: false, factoryPrice: price, freightPerGarment: sheet.freightPerUnit || 0 });
+      const note = $("#s-duty-note");
+      if (pct === null) { note.textContent = "Type the fabric price, metres and cut-and-sew above first, so there is a factory price to work from."; return; }
+      sheetEdited(s => { s.dutyPct = pct; });
+      note.textContent = `Set to ${pct}% for ${dest}. Rates typed from memory, unchecked.` + (origin ? ` Zero-duty entry from ${origin} needs an origin proof; use the import duty page to apply it.` : "");
+    };
+    $("#s-dest").addEventListener("change", lookUpDuty);
+    $("#s-origin").addEventListener("change", lookUpDuty);
+    $("#sheet-export").addEventListener("click", () => download(`${slugify(sheet.name)}.csv`, supplierToCsv(sheet), "text/csv"));
+    $("#sheet-import").addEventListener("change", async e => {
+      const f = e.target.files[0]; e.target.value = "";
+      if (!f) return;
+      try { sheet = supplierFromCsv(await f.text()); store.set(SHEET_KEY, sheet); $("#sheet-status").textContent = `Imported ${sheet.name}.`; recordUsage("sheet_import"); render(); }
+      catch (err) { $("#sheet-status").textContent = `Could not import: ${err.message}`; }
+    });
+    $("#sheet-reset").addEventListener("click", () => { sheet = structuredClone(EXAMPLE_SUPPLIER); try { localStorage.removeItem(SHEET_KEY); } catch {} render(); });
+
+    // exports
+    function openTechPack() {
+      const w = window.open("", "_blank");
+      if (!w) { log('<span class="miss">The browser blocked the new tab; allow pop-ups for this page, or download the JSON.</span>'); return; }
+      w.document.write(techPackHtml(d()));
+      w.document.close();
+      recordUsage("techpack_open");
+    }
+    $("#techpack").addEventListener("click", openTechPack);
+    $("#techpack-json").addEventListener("click", () => { download(`${slugify(d().name)}-tech-pack.json`, JSON.stringify(techPack(d(), { supplier: sheet }), null, 2), "application/json"); recordUsage("techpack_json"); });
+    $("#save-file").addEventListener("click", () => download(`${slugify(d().name)}.design.json`, JSON.stringify(d(), null, 2), "application/json"));
+    $("#open-file").addEventListener("change", async e => {
+      const f = e.target.files[0]; e.target.value = "";
+      if (!f) return;
+      try { history.replace(sanitizeDesign(JSON.parse(await f.text()))); render(); } catch { log('<span class="miss">That file is not a design saved by this studio.</span>'); }
+    });
+    $("#copy-quote").addEventListener("click", () => navigator.clipboard?.writeText($("#quote").textContent).then(() => recordUsage("quote_copy")));
+    const SHOP_KEY = "clothing-design-studio-shop";
+    const shopFields = { brand: "#sh-brand", email: "#sh-email", currency: "#sh-cur", link: "#sh-link", shipping: "#sh-ship", returns: "#sh-ret" };
+    const shopState = () => Object.fromEntries(Object.entries(shopFields).map(([k, sel]) => [k, $(sel).value]));
+    const SHELF_KEY = "clothing-design-studio-shelf";
+    let shelf = loadShelf(store.get(SHELF_KEY), sanitizeDesign);
+    const buildShop = () => {
+      const o = shopState();
+      const { designs, paymentLinks } = shelf.length ? shelfToShop(shelf) : { designs: [d()], paymentLinks: o.link ? { [d().name]: o.link } : {} };
+      return storefront(designs, { brand: o.brand, email: o.email, currency: o.currency, shipping: o.shipping, returns: o.returns, paymentLinks });
+    };
+    const showShelf = () => {
+      const ul = $("#sh-shelf"); ul.textContent = "";
+      for (const e of shelf) {
+        const li = document.createElement("li");
+        li.textContent = `${e.design.name} (${e.design.price}) ${e.link ? "· payment link set " : "· order by email "}`;
+        const b = document.createElement("button"); b.type = "button"; b.className = "btn small"; b.textContent = "Remove";
+        b.addEventListener("click", () => { shelf = removeFromShelf(shelf, e.design.name); store.set(SHELF_KEY, shelf); showShelf(); showShop(); });
+        li.append(b); ul.append(li);
+      }
+    };
+    const showShop = () => { const r = buildShop(); $("#sh-out").textContent = (r.warnings.length ? "Before you publish: " + r.warnings.join(" ") : "Ready to download.") + ` (${r.products.length} ${r.products.length === 1 ? "product" : "products"})`; store.set(SHOP_KEY, shopState()); };
+    { const saved = store.get(SHOP_KEY) ?? {}; for (const [k, sel] of Object.entries(shopFields)) { if (saved[k]) $(sel).value = saved[k]; $(sel).addEventListener("input", showShop); } showShelf(); showShop(); }
+    $("#sh-add").addEventListener("click", () => {
+      const r = addToShelf(shelf, d(), $("#sh-link").value);
+      if (r.full) { $("#sh-out").textContent = "The shelf is full (24 designs). Remove one first."; return; }
+      shelf = r.shelf; store.set(SHELF_KEY, shelf); showShelf(); showShop(); recordUsage("storefront_shelf_add");
+    });
+    $("#sh-dl").addEventListener("click", () => { download(`${shelf.length > 1 ? "shop" : slugify(d().name)}-store.html`, buildShop().html, "text/html"); recordUsage("storefront_download"); });
+    $("#lk-csv").addEventListener("click", () => { download(`${slugify(d().name)}-products.csv`, launchKit(d()).storeCsv, "text/csv"); recordUsage("store_csv"); });
+    $("#share").addEventListener("click", () => {
+      const url = `${location.href.split("#")[0]}#d=${encodeDesign(d())}`;
+      navigator.clipboard?.writeText(url);
+      log(`Share link copied${d().placements.some(p => p.kind === "image") ? " (uploaded images are not in the link; send the design file instead)" : ""}.`);
+      recordUsage("share_link");
+    });
+    $("#brief-dl").addEventListener("click", () => {
+      const text = briefToFile(loadBrief());
+      $("#brief-msg").textContent = text ? "" : "Cost a design above first; there is no brief yet.";
+      if (text) download("launch-brief.json", text, "application/json");
+    });
+    $("#brief-up").addEventListener("change", async ev => {
+      const f = ev.target.files[0]; if (!f) return;
+      const { brief, error } = briefFromFile(await f.text());
+      if (error) { $("#brief-msg").textContent = error; return; }
+      saveBrief(brief);
+      $("#brief-msg").textContent = `Loaded: ${brief.quantity} at ${brief.price} ${brief.currency}. The launch tools now start from it.`;
+    });
+    function download(name, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    const slugify = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "design";
+
+    // ---- colour separation ----
+    let lastSep = null, lastPixels = null, lastIndex = null, lastIndexCmp = [], lastInkPick = null, lastStockPick = null;
+    $("#ix-stock").value = STARTER_STOCK.map(s => `${s.name}, ${s.hex}`).join("\n");
+    $("#ix-inks").addEventListener("change", e => { if (e.target.value.startsWith("s")) $("#ix-stock-box").open = true; });
+    function sepExtras() {
+      const p = $("#sep-crop").value.split(/[ ,]+/).filter(Boolean).map(Number);
+      if (p.length && (p.length !== 4 || p.some(v => !(v >= 0 && v <= 90)))) throw new Error("Trim edges needs four percentages from 0 to 90, e.g. 0,0,10,0.");
+      const [left, top, right, bottom] = p.length ? p.map(v => v / 100) : [0, 0, 0, 0];
+      const knockOut = $("#sep-knock").value.split(/[ ,]+/).filter(Boolean);
+      return { background: $("#sep-bg").value, crop: { left, top, right, bottom }, knockOut };
+    }
+    function runSeparation() {
+      if (!lastPixels) return;
+      try {
+        lastSep = separate(lastPixels, { colours: $("#sep-colours").value, widthCm: $("#sep-width").value, raisedLineMm: $("#sep-line").value, garment: d().colour, ...sepExtras() });
+      } catch (e) { $("#sep-out").innerHTML = `<p class="miss">${esc(e.message)}</p>`; return; }
+      const sp = lastSep, c = document.createElement("canvas");
+      c.width = sp.width; c.height = sp.height;
+      c.getContext("2d").putImageData(new ImageData(previewRgba(sp), sp.width, sp.height), 0, 0);
+      $("#sep-out").innerHTML = `<img alt="Flat-colour separation preview on the garment colour" src="${c.toDataURL()}" style="max-width:100%;image-rendering:pixelated;border:1px solid #888">
+        <p><strong>${sp.screens} screens</strong> (${sp.inks.length} inks${sp.underbase ? " + white underbase" : ""}) at ${sp.widthCm} x ${sp.heightCm} cm. Raised outline covers ${sp.raised.coveragePct}%.</p>
+        <ol>${sp.inks.map(i => `<li><span style="display:inline-block;width:1em;height:1em;background:${i.hex};border:1px solid #888;vertical-align:-2px"></span> ${i.hex}: ${i.coveragePct}% of the artwork${i.thinSharePct >= 10 ? `, ${i.thinSharePct}% too fine` : ""}</li>`).join("")}</ol>
+        <ul class="muted">${sp.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`;
+      for (const id of ["#sep-brief", "#sep-films", "#sep-apply", "#sep-tradeoff", "#sep-halftone", "#sep-index"]) $(id).disabled = false;
+      lastIndex = null; $("#sep-index-films").disabled = true; $("#sep-index-brief").disabled = true;
+    }
+    $("#sep-file").addEventListener("change", e => {
+      const file = e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        const k = Math.min(1, 1200 / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement("canvas"); // 1200: the index separation's finest grid
+        c.width = Math.max(1, Math.round(img.naturalWidth * k)); c.height = Math.max(1, Math.round(img.naturalHeight * k));
+        const x = c.getContext("2d"); x.drawImage(img, 0, 0, c.width, c.height);
+        lastPixels = x.getImageData(0, 0, c.width, c.height);
+        URL.revokeObjectURL(img.src);
+        runSeparation();
+        recordUsage("separate_painting");
+      };
+      img.onerror = () => { $("#sep-out").innerHTML = `<p class="miss">That image could not be read.</p>`; };
+      img.src = URL.createObjectURL(file);
+    });
+    for (const id of ["#sep-colours", "#sep-width", "#sep-line", "#sep-bg", "#sep-crop", "#sep-knock"]) $(id).addEventListener("change", runSeparation);
+    $("#sep-brief").addEventListener("click", () => { if (lastSep) { download("separation-brief.txt", separationBrief(lastSep), "text/plain"); recordUsage("separation_brief"); } });
+    $("#sep-films").addEventListener("click", () => {
+      if (!lastSep) return;
+      const pages = films(lastSep).map(f => `<section style="page-break-after:always"><h2>${esc(f.name)} (${esc(f.ink)})</h2>${f.svg}</section>`).join("");
+      download("films.html", `<!doctype html><meta charset="utf-8"><title>Films</title><body style="font-family:sans-serif">${pages}</body>`, "text/html");
+      recordUsage("separation_films");
+    });
+    $("#ht-ink").addEventListener("input", e => { e.target.dataset.set = "1"; });
+    $("#sep-halftone").addEventListener("click", () => {
+      if (!lastSep) return;
+      try {
+        if (!$("#ht-ink").dataset.set) $("#ht-ink").value = contrastInk(lastSep.garment);
+        const h = singleInkFilm(lastSep, { ink: $("#ht-ink").value, lpi: Number($("#ht-lpi").value) || 45, mesh: Number($("#ht-mesh").value) || 0 });
+        const brief = halftoneBrief(h, { name: "One-ink halftone" });
+        download("halftone-film.html", `<!doctype html><meta charset="utf-8"><title>Halftone film</title><body style="font-family:sans-serif">${halftoneSvg(h)}<pre>${esc(brief)}</pre></body>`, "text/html");
+        $("#sep-out").insertAdjacentHTML("beforeend", `<pre class="muted">${esc(brief)}</pre>`);
+        recordUsage("separation_halftone");
+      } catch (e) { $("#sep-out").insertAdjacentHTML("beforeend", `<p class="miss">${esc(e.message)}</p>`); }
+    });
+    $("#sep-index").addEventListener("click", () => {
+      if (!lastSep || !lastPixels) return;
+      try {
+        const ixo = { crop: sepExtras().crop, dotGainPct: Number($("#ix-gain").value) || 0 }, inkSel = $("#ix-inks").value;
+        const fromStock = inkSel.startsWith("s"), forM = Number(fromStock ? inkSel.slice(1) : inkSel) || 0;
+        lastStockPick = null;
+        if (fromStock) {
+          const parsed = parseStockList($("#ix-stock").value);
+          $("#ix-stock-msg").textContent = `${parsed.inks.length} inks read.` + parsed.errors.map(e => ` Line ${e.line} skipped: ${e.reason}.`).join("");
+          lastStockPick = chooseStockInks(lastPixels, lastSep, parsed.inks, { ...ixo, metres: forM });
+          recordUsage("separation_index_stock");
+        }
+        lastInkPick = !fromStock && forM ? chooseIndexInks(lastPixels, lastSep, { ...ixo, metres: forM }) : null;
+        lastIndex = lastStockPick ? lastStockPick.idx : lastInkPick ? lastInkPick.idx : indexSeparate(lastPixels, lastSep, ixo);
+        const singles = Number($("#ix-singles").value);
+        if (singles >= 0) lastIndex = cleanLoneDots(lastIndex, { metres: forM || 1, passes: singles });
+        lastIndexCmp = compareFlatIndex(lastSep, lastIndex, [0.5, 1, 3]);
+      } catch (e) { $("#sep-out").insertAdjacentHTML("beforeend", `<p class="miss">${esc(e.message)}</p>`); return; }
+      const ix = lastIndex, c = document.createElement("canvas");
+      c.width = ix.width; c.height = ix.height;
+      c.getContext("2d").putImageData(new ImageData(indexPreviewRgba(ix), ix.width, ix.height), 0, 0);
+      $("#sep-out").insertAdjacentHTML("beforeend", `<h3>Index separation</h3><img id="sep-index-preview" alt="Index separation preview: square dots of each ink on the garment colour" src="${c.toDataURL()}" style="max-width:100%;border:1px solid #888">
+        <p><strong>${ix.screens} screens</strong>, square dots of ${ix.dotMm} mm (${ix.width} x ${ix.height}), ${ix.garmentPct}% bare garment between them${ix.dotGainPct ? `, spaced for ${ix.dotGainPct}% dot gain (distances below are for a press with that gain)` : ""}. <span id="sep-index-singles">${ix.loneCleanup ? `No single dots: ${ix.loneCleanup.before} cleaned up${ix.loneCleanup.passes ? `, then ${ix.loneCleanup.changed} cells moved in ${ix.loneCleanup.passes} refining passes` : ""}.` : `${ix.inks.map(i => i.loneDotPct).join("%, ")}% of each ink's dots are single dots; a mesh that cannot hold them will lose them.`}</span></p>
+        <table id="sep-index-table"><caption>Distance from the painting (mean delta E after a rough eye blur; lower is closer)</caption><tr><th>Seen from</th><th>Flat inks</th><th>Index dots</th></tr>${lastIndexCmp.map(r => `<tr><td>${r.metres} m</td><td>${r.flat}</td><td${r.index < r.flat ? ' style="font-weight:bold"' : ""}>${r.index}</td></tr>`).join("")}</table>
+        ${lastInkPick ? `<p id="sep-index-inks">${lastInkPick.refit ? `<strong>Inks chosen for the dots</strong> (closest seen from ${lastInkPick.metres} m): ${ix.inks.map(i => `<span style="display:inline-block;width:1em;height:1em;background:${i.flatHex};border:1px solid #888"></span> ${i.flatHex} &rarr; <span style="display:inline-block;width:1em;height:1em;background:${i.hex};border:1px solid #888"></span> ${i.hex}`).join("; ")}. Ask the printer to match these, not the flat ones.` : `The flat separation's inks stayed closest seen from ${lastInkPick.metres} m, so they are kept.`} <span class="muted">Tried: ${lastInkPick.candidates.map(c => `${esc(c.label)} ${c.deltaE}`).join(", ")}.</span></p>` : ""}
+        ${lastStockPick ? `<p id="sep-index-stock"><strong>Inks from the printer's stock</strong> (closest seen from ${lastStockPick.metres} m, no mixing): ${lastStockPick.inks.map((h, p) => `screen ${p + 1}: <span style="display:inline-block;width:1em;height:1em;background:${h};border:1px solid #888"></span> ${esc(lastStockPick.names[p])}`).join("; ")}. <span class="muted">Tried: ${lastStockPick.candidates.map(c => `${esc(c.label)} ${c.deltaE}`).join(", ")}.</span></p><pre class="muted">${esc(stockBrief(lastStockPick, lastSep))}</pre>` : ""}
+        <ul class="muted">${ix.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`);
+      $("#sep-index-films").disabled = false; $("#sep-index-brief").disabled = false; $("#ix-calib-films").disabled = false;
+      recordUsage("separation_index");
+    });
+    $("#sep-index-films").addEventListener("click", () => {
+      if (!lastIndex) return;
+      const pages = indexFilms(lastIndex).map(f => `<section style="page-break-after:always"><h2>${esc(f.name)} (${esc(f.ink)})</h2>${f.svg}</section>`).join("");
+      download("index-films.html", `<!doctype html><meta charset="utf-8"><title>Index films</title><body style="font-family:sans-serif">${pages}</body>`, "text/html");
+      recordUsage("separation_index_films");
+    });
+    $("#ix-calib-films").addEventListener("click", () => {
+      if (!lastIndex) return;
+      const pages = calibrationFilms(lastIndex).map(f => `<section style="page-break-after:always"><h2>${esc(f.name)} (${esc(f.ink)})</h2><p>Solid | 50% checkerboard | bare</p>${f.svg}</section>`).join("");
+      download("calibration-strip.html", `<!doctype html><meta charset="utf-8"><title>Dot gain calibration strip</title><body style="font-family:sans-serif">${pages}</body>`, "text/html");
+      recordUsage("separation_index_calibration");
+    });
+    $("#ix-cal-read").addEventListener("click", () => {
+      try {
+        const r = gainFromPatch({ garment: $("#ix-cal-garment").value, solid: $("#ix-cal-solid").value, patch: $("#ix-cal-patch").value });
+        $("#ix-gain").value = r.dotGainPct;
+        $("#ix-cal-out").innerHTML = `<strong>${r.dotGainPct}% dot gain</strong> (the checkerboard prints ${r.coveragePct}% inked, against 50% on the film). Entered above; run the index separation again.${r.warnings.map(w => `<br><span class="miss">${esc(w)}</span>`).join("")}`;
+        recordUsage("separation_index_gain_read");
+      } catch (e) { $("#ix-cal-out").innerHTML = `<span class="miss">${esc(e.message)}</span>`; }
+    });
+    $("#sep-index-brief").addEventListener("click", () => { if (lastIndex) { download("index-separation-brief.txt", indexBrief(lastIndex, lastIndexCmp), "text/plain"); recordUsage("separation_index_brief"); } });
+    $("#sep-apply").addEventListener("click", () => {
+      if (!lastSep) return;
+      const err = commit({ op: "inkColours", value: lastSep.screens }, "separation_apply");
+      log(err ? `<span class="miss">${esc(err)}</span>` : `Selected artwork set to ${lastSep.screens} screens.`);
+    });
+
+    $("#sep-tradeoff").addEventListener("click", () => {
+      if (!lastPixels) return;
+      try {
+        const r = inkTradeoff(lastPixels, d(), sheet, { widthCm: $("#sep-width").value, raisedLineMm: $("#sep-line").value });
+        $("#sep-out").insertAdjacentHTML("beforeend", `<table><caption>Inks against cost per garment (your supplier sheet, ${esc(r.currency)})</caption><tr><th>Inks</th><th>Screens</th><th>Landed</th><th>Extra</th><th>Distance from painting</th></tr>${r.table.map(t => `<tr${t.inks === r.recommended ? ' style="font-weight:bold"' : ""}><td>${t.inks}</td><td>${t.screens}</td><td>${t.landed.toFixed(2)}</td><td>${t.extraCost ? "+" + t.extraCost.toFixed(2) : ""}</td><td>${t.meanDeltaE}</td></tr>`).join("")}</table><p class="muted">${esc(r.note)}</p>`);
+        recordUsage("separation_tradeoff");
+      } catch (e) { $("#sep-out").insertAdjacentHTML("beforeend", `<p class="miss">${esc(e.message)}</p>`); }
+    });
+
+    // variants
+    function showVariants() {
+      currentVariants = variants(d());
+      $("#compare").hidden = false;
+      $("#variants").innerHTML = currentVariants.map((v, i) => `<div class="variant"><strong>${i + 1}. ${esc(v.label)}</strong>${renderDesign(v.design, { uid: "v" + i, side: v.design.placements.find(p => p.id === v.design.selected)?.area === "back" ? "back" : v.design.side })}<div class="muted">${esc(v.why)}</div><button class="btn small" type="button" data-pick="${i}">Use this one</button></div>`).join("");
+      recordUsage("variants");
+    }
+    function pickVariant(i) {
+      if (!currentVariants.length) showVariants();
+      const v = currentVariants[i];
+      if (!v) return;
+      history.replace(v.design);
+      log(`Using version ${i + 1}: ${esc(v.label)}`);
+      recordUsage("variant_pick");
+      render();
+      showVariants();
+    }
+    $("#variants-btn").addEventListener("click", showVariants);
+    $("#variants").addEventListener("click", e => { const b = e.target.closest("[data-pick]"); if (b) pickVariant(Number(b.dataset.pick)); });
+
+    // AI settings
+    const savedAi = store.get(AI_KEY);
+    if (savedAi) { $("#ai-provider").value = savedAi.provider || ""; $("#ai-model").value = savedAi.model || ""; $("#ai-key").value = savedAi.apiKey || ""; $("#ai-remember").checked = !!savedAi.apiKey; }
+    const saveAi = () => {
+      const v = { provider: $("#ai-provider").value, model: $("#ai-model").value };
+      if ($("#ai-remember").checked) v.apiKey = $("#ai-key").value;
+      store.set(AI_KEY, v);
+      $("#engine-label").textContent = v.provider ? `Commands: ${v.provider} model, built-in if it fails` : "Commands: built-in (no AI, nothing sent)";
+    };
+    ["#ai-provider", "#ai-model", "#ai-key", "#ai-remember"].forEach(s => $(s).addEventListener("change", saveAi));
+
+    // usage opt-out
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").disabled = true; $("#optout").textContent = "Usage counting is off"; $("#optout-status").textContent = "Local counts deleted. Nothing had left this device anyway."; });
+    if (usageOptedOut()) { $("#optout").disabled = true; $("#optout").textContent = "Usage counting is off"; }
+
+    // ---- rendering ----
+    const selected = () => d().placements.find(p => p.id === d().selected) ?? null;
+
+    function renderStage() {
+      stage.innerHTML = renderDesign(d(), { guides: true, interactive: true, uid: "stage" });
+      renderTurn();
+      scheduleGl();
+    }
+
+    // 3D preview: loaded on first open, redrawn (debounced) after edits while open
+    let glView = null, glTimer = null;
+    async function renderGl() {
+      if (!$("#gl-panel").open) return;
+      if (!glView) {
+        const { mountViewer } = await import("./viewer3d.mjs");
+        glView = mountViewer($("#gl-view"));
+      }
+      glView.setDesign(d());
+      if (glView.vrSupported && await glView.vrSupported()) $("#gl-vr").hidden = false;
+    }
+    $("#gl-vr").addEventListener("click", async () => {
+      try { if (!(await glView?.enterVR?.())) alert("VR is not available here, or the preview is not ready yet."); }
+      catch (e) { alert("Could not start VR: " + (e.message || e)); }
+    });
+    function scheduleGl() { clearTimeout(glTimer); glTimer = setTimeout(renderGl, 250); }
+    $("#gl-panel").addEventListener("toggle", renderGl);
+    $("#gl-spin").addEventListener("click", () => {
+      const btn = $("#gl-spin"), on = btn.getAttribute("aria-pressed") !== "true";
+      btn.setAttribute("aria-pressed", String(on)); btn.textContent = on ? "Stop" : "Spin";
+      glView?.spin(on);
+    });
+
+    let spin = null;
+    function renderTurn() {
+      if (!$("#turn-panel").open) return;
+      $("#turn-view").innerHTML = renderTurntable(d(), Number($("#turn-angle").value), { uid: "turn" });
+    }
+    $("#turn-panel").addEventListener("toggle", renderTurn);
+    $("#turn-angle").addEventListener("input", renderTurn);
+    $("#turn-spin").addEventListener("click", () => {
+      const btn = $("#turn-spin");
+      if (spin) { clearInterval(spin); spin = null; btn.setAttribute("aria-pressed", "false"); btn.textContent = "Spin"; return; }
+      btn.setAttribute("aria-pressed", "true"); btn.textContent = "Stop";
+      spin = setInterval(() => { $("#turn-angle").value = (Number($("#turn-angle").value) + 4) % 360; renderTurn(); }, 60);
+    });
+
+    function renderCost() {
+      const design = d();
+      let html = "";
+      try {
+        const e = economics(design, sheet, plan);
+        const c = e.currency;
+        html += `<div class="kpis">
+          <div class="kpi"><span>Cost per garment, landed</span><div class="big">${money(e.cost.landed, c)}</div></div>
+          <div class="kpi"><span>Left per sale after cost, tax and fees</span><div class="big">${money(e.profitPerSale, c)}</div></div>
+          <div class="kpi"><span>Margin</span><div class="big">${e.marginPct ?? "n/a"}%</div></div>
+          <div class="kpi"><span>Sales to break even</span><div class="big">${e.breakEvenUnits ?? "never"}</div></div>
+          <div class="kpi"><span>Cash needed up front</span><div class="big">${money(e.cashUpFront, c)}</div></div>
+          <div class="kpi"><span>Price for a ${plan.targetMarginPct}% margin</span><div class="big">${money(e.priceForTargetMargin, c)}</div></div>
+        </div>`;
+        const briefSaved = !e.cost.landed ? false : saveBrief(briefFromStudio(design, sheet, plan, e.cost));
+        if (briefSaved) html += `<p class="muted">These numbers now start the launch tools: <a href="cashflow.html">cash flow</a>, <a href="preorder.html">pre-order</a>, <a href="wholesale.html">wholesale</a>, <a href="reorder.html">reorder</a> and <a href="tna.html">time and action</a>. They stay in this browser.</p>`;
+        html += `<p class="muted">If ${e.sellableUnits} of ${design.quantity} sell at ${money(e.price, c)}: ${e.profitIfSellable >= 0 ? "profit" : "loss"} of ${money(Math.abs(e.profitIfSellable), c)} after the run and the launch budget.</p>`;
+        if (e.notes.length) html += `<div class="notes">${e.notes.map(esc).join("<br>")}</div>`;
+        html += `<table><caption class="sr">Cost per garment</caption><tr><th>Cost per garment</th><th class="num">${c}</th><th>How</th></tr>${e.cost.lines.map(l => `<tr><td>${esc(l.label)}</td><td class="num">${l.value.toFixed(2)}</td><td class="muted">${esc(l.detail)}</td></tr>`).join("")}<tr><th>Landed</th><th class="num">${e.cost.landed.toFixed(2)}</th><td></td></tr></table>`;
+        html += `<h3>Cost per garment at other run sizes</h3><table><tr>${quantityBreaks(design, sheet).map(q => `<th class="num">${q.quantity}${q.belowMoq ? "*" : ""}</th>`).join("")}</tr><tr>${quantityBreaks(design, sheet).map(q => `<td class="num">${q.landed.toFixed(2)}</td>`).join("")}</tr></table>${sheet.moq ? `<p class="muted">* below the minimum order of ${sheet.moq}.</p>` : ""}`;
+      } catch (err) {
+        html = `<p class="notes">${esc(err.message)} Fill it in under "Supplier sheet".</p>`;
+      }
+      $("#results").innerHTML = html;
+      $("#example-warning").hidden = !sheet.example;
+    }
+
+    function render() {
+      const design = d();
+      renderStage();
+      $("#name").value = design.name;
+      $("#garment").value = design.garment;
+      $("#fabric").value = design.fabric;
+      $("#gsm").value = design.gsm;
+      $("#colour").value = design.colour;
+      $("#quantity").value = design.quantity;
+      $("#price").value = design.price;
+      $("#fabric-note").textContent = FABRICS[design.fabric].note;
+      $("#flip").textContent = design.side === "front" ? "Show back" : "Show front";
+      $("#flip").setAttribute("aria-pressed", String(design.side === "back"));
+      document.querySelectorAll(".swatch").forEach(b => b.setAttribute("aria-pressed", String(COLOURS[b.dataset.colour] === design.colour)));
+      $("#undo").disabled = !history.past.length;
+      $("#redo").disabled = !history.future.length;
+      const p = selected();
+      $("#selected-panel").hidden = !p;
+      if (p) {
+        $("#sel-label").textContent = p.kind === "text" ? `text "${p.text}"` : p.label || p.kind;
+        $("#sel-area").innerHTML = Object.entries(GARMENTS[design.garment].areas).map(([id, a]) => `<option value="${id}">${a.label}</option>`).join("");
+        $("#sel-area").value = p.area;
+        $("#sel-method").value = p.method;
+        $("#sel-width").value = p.w;
+        $("#sel-rotate").value = p.rotate || 0;
+        $("#sel-colours").value = p.colours || 1;
+        $("#sel-colours").disabled = METHODS[p.method].setup !== "per-colour";
+        $("#sel-ink").disabled = p.kind === "image";
+        if (p.ink) $("#sel-ink").value = p.ink;
+        $("#method-note").textContent = METHODS[p.method].note;
+        if (p.kind === "image" && p.srcPx) {
+          try {
+            const r = printResolution({ widthPx: p.srcPx.w, heightPx: p.srcPx.h, printWidthCm: p.w, method: p.method });
+            $("#method-note").textContent += " " + resolutionSummary(r, `The original (${p.srcPx.w} x ${p.srcPx.h} px)`);
+          } catch { /* unknown method or size: leave the method note alone */ }
+        }
+      }
+      const notes = [...new Set(design.placements.flatMap(q => compatibilityNotes(design.fabric, q.method, { colour: design.colour, gsm: design.gsm })))];
+      $("#compat").innerHTML = notes.map(esc).join("<br>");
+      // supplier fields for the current garment, fabric and method
+      $("#s-name").value = sheet.name;
+      $("#s-currency").value = sheet.currency;
+      $("#s-moq").value = sheet.moq ?? "";
+      $("#s-fabric").value = sheet.fabrics[design.fabric] ?? "";
+      $("#s-metres").value = sheet.metresPerGarment[design.garment] ?? "";
+      $("#s-cutsew").value = sheet.cutAndSew[design.garment] ?? "";
+      $("#s-setup").value = p ? sheet.methods[p.method]?.setup ?? "" : "";
+      $("#s-perunit").value = p ? sheet.methods[p.method]?.perUnit ?? "" : "";
+      $("#s-setup").disabled = $("#s-perunit").disabled = !p;
+      $("#s-wastage").value = sheet.wastagePct ?? 0;
+      $("#s-trims").value = sheet.trimsPerUnit ?? 0;
+      $("#s-packaging").value = sheet.packagingPerUnit ?? 0;
+      $("#s-freight").value = sheet.freightPerUnit ?? 0;
+      $("#s-duty").value = sheet.dutyPct ?? 0;
+      renderCost();
+      renderMarketing(); renderClearance();
+      $("#quote").textContent = quoteRequest(design);
+      const kit = launchKit(design);
+      $("#lk-desc").textContent = kit.description;
+      $("#lk-captions").textContent = kit.captions.join("\n\n");
+      $("#lk-tags").textContent = kit.hashtags.join(" ");
+      if (!store.set(DESIGN_KEY, design)) {
+        store.set(DESIGN_KEY, { ...design, placements: design.placements.filter(q => q.kind !== "image") });
+      }
+    }
+
+
+    // ---- unsold stock ----
+    function renderClearance() {
+      let html = "";
+      try {
+        const e = economics(d(), sheet, plan);
+        const steps = $("#c-steps").value.split("\n").map(l => l.trim()).filter(Boolean).map(l => { const [o, w] = l.split(/[ ,]+/).map(Number); return { offPct: o, weeks: w }; });
+        const r = clearancePlan({ landed: e.cost.landed, price: d().price, quantity: d().quantity, weeklyRate: Number($("#c-rate").value), fullPriceWeeks: Number($("#c-weeks").value), elasticity: Number($("#c-el").value), scrapPerUnit: Number($("#c-scrap").value), steps, currency: e.currency }, plan);
+        html = `<div class="kpis"><div class="kpi"><span>Sold at full price</span><div class="big">${r.fullPriceSharePct}%</div></div><div class="kpi"><span>Sold in all</span><div class="big">${r.sellThroughPct}%</div></div><div class="kpi"><span>Left unsold</span><div class="big">${r.unsold}</div></div><div class="kpi"><span>Profit after the ladder</span><div class="big">${money(r.totalProfit, r.currency)}</div></div></div>`;
+        html += `<table><caption class="sr">Markdown ladder</caption><tr><th>Stage</th><th class="num">Price</th><th class="num">Weeks</th><th class="num">Sold</th><th class="num">Profit per sale</th><th class="num">Left</th></tr>${r.rows.map(x => `<tr><td>${esc(x.label)}</td><td class="num">${x.price.toFixed(2)}</td><td class="num">${x.weeks}</td><td class="num">${x.sold}</td><td class="num">${x.profitPerSale.toFixed(2)}</td><td class="num">${x.stockLeft}</td></tr>`).join("")}</table>`;
+        if (r.notes.length) html += `<div class="notes">${r.notes.map(esc).join("<br>")}</div>`;
+      } catch (err) {
+        html = `<p class="notes">${esc(err.message)}</p>`;
+      }
+      $("#clr-out").innerHTML = html;
+    }
+    for (const id of ["c-rate", "c-weeks", "c-el", "c-scrap", "c-steps"]) $("#" + id).addEventListener("input", renderClearance);
+
+    // ---- launch marketing ----
+    const MKT_KEY = "clothing-design-studio-marketing";
+    let mkt = { ...DEFAULT_ASSUMPTIONS, ...(store.get(MKT_KEY) || {}) };
+    let lastMkt = null;
+    const mktFields = { "m-cpc": "cpc", "m-conv": "conversionPct", "m-weeks": "weeks", "m-posts": "postsPerWeek" };
+    for (const [id, key] of Object.entries(mktFields)) {
+      $("#" + id).value = mkt[key];
+      $("#" + id).addEventListener("input", e => { const v = Number(e.target.value); if (Number.isFinite(v) && v > 0) { mkt[key] = v; store.set(MKT_KEY, mkt); renderMarketing(); } });
+    }
+    function renderMarketing() {
+      let html = "";
+      lastMkt = null;
+      try {
+        const e = economics(d(), sheet, plan);
+        const m = marketingPlan({ design: d(), econ: e, adBudget: plan.marketingBudget, assumptions: mkt });
+        lastMkt = m;
+        const c = e.currency, a = m.ads;
+        html += `<div class="kpis">
+          <div class="kpi"><span>Cost per sale from ads</span><div class="big">${a.cac == null ? "n/a" : money(a.cac, c)}</div></div>
+          <div class="kpi"><span>Most an ad-driven sale can cost</span><div class="big">${money(a.breakEvenCac, c)}</div></div>
+          <div class="kpi"><span>Revenue per ${c} of ads to break even</span><div class="big">${a.breakEvenRoas ?? "n/a"}</div></div>
+          <div class="kpi"><span>Sales the ad budget buys</span><div class="big">${a.paidSales ?? "n/a"}</div></div>
+        </div>`;
+        html += `<div class="notes">${esc(a.verdict)}<br>${m.notes.length ? m.notes.map(esc).join("<br>") : ""}</div>`;
+        html += `<table><caption class="sr">Launch calendar</caption><tr><th>Week</th><th>Phase</th><th class="num">Ad spend</th><th class="num">Sales target</th><th>Tasks (drafts)</th></tr>${m.calendar.map(w => `<tr><td>${w.week}</td><td>${esc(w.phase)}<br><span class="muted">${esc(w.goal)}</span></td><td class="num">${w.adSpend.toFixed(2)}</td><td class="num">${w.salesTarget}</td><td><ul>${w.tasks.map(t => `<li>${esc(t)}</li>`).join("")}</ul></td></tr>`).join("")}</table>`;
+      } catch (err) {
+        html = `<p class="notes">${esc(err.message)}</p>`;
+      }
+      $("#mkt-out").innerHTML = html;
+      $("#mkt-csv").disabled = !lastMkt;
+      if (typeof renderSplit === "function") renderSplit();
+    }
+    function renderSplit() {
+      let html = "";
+      const lines = $("#split-in").value.split("\n").map(l => l.trim()).filter(Boolean);
+      if (lines.length) {
+        try {
+          const e = economics(d(), sheet, plan);
+          const channels = lines.map(l => { const p = l.split(",").map(x => x.trim()); return { name: p[0], cpc: Number(p[1]), conversionPct: Number(p[2]), cap: Number(p[3]) || 0, tested: /^tested$/i.test(p[4] || "") }; });
+          const r = channelSplit({ channels, adBudget: plan.marketingBudget, profitPerSale: e.profitPerSale });
+          html = `<table><caption class="sr">Budget by channel</caption><tr><th>Channel</th><th class="num">Cost per sale</th><th class="num">Spend</th><th class="num">Sales</th><th>Why</th></tr>${r.rows.map(x => `<tr><td>${esc(x.name)}</td><td class="num">${x.cac ?? "n/a"}</td><td class="num">${x.spend.toFixed(2)}</td><td class="num">${x.sales}</td><td>${esc(x.reason)}</td></tr>`).join("")}</table><div class="notes">${r.notes.map(esc).join("<br>")}</div>`;
+        } catch (err) { html = `<p class="notes">${esc(err.message)}</p>`; }
+      }
+      $("#split-out").innerHTML = html;
+    }
+    $("#split-in").addEventListener("input", renderSplit);
+    let lastTest = null;
+    function renderTest() {
+      const v = id => Number($("#" + id).value);
+      let html = "";
+      lastTest = null;
+      if ($("#t-spend").value && $("#t-clicks").value) {
+        try {
+          const e = economics(d(), sheet, plan);
+          const r = learnFromTest({ spend: v("t-spend"), clicks: v("t-clicks"), orders: v("t-orders") || 0, profitPerSale: e.profitPerSale, price: e.price, remainingBudget: Math.max(0, plan.marketingBudget - v("t-spend")) });
+          if (r.assumptions) {
+            lastTest = r;
+            html = `<div class="kpis">
+              <div class="kpi"><span>Click price</span><div class="big">${money(r.cpc, e.currency)}</div></div>
+              <div class="kpi"><span>Clicks that buy</span><div class="big">${r.conversionPct}%</div><span class="muted">95% range ${r.range.conversionPct[0]} to ${r.range.conversionPct[1]}%</span></div>
+              <div class="kpi"><span>Cost per sale</span><div class="big">${r.cac == null ? "no sale yet" : money(r.cac, e.currency)}</div></div>
+            </div>`;
+          }
+          html += `<div class="notes">${esc(r.message)}</div>`;
+        } catch (err) { html = `<p class="notes">${esc(err.message)}</p>`; }
+      }
+      $("#test-out").innerHTML = html;
+      $("#t-apply").disabled = !lastTest;
+    }
+    for (const id of ["t-spend", "t-clicks", "t-orders"]) $("#" + id).addEventListener("input", renderTest);
+    $("#t-apply").addEventListener("click", () => {
+      if (!lastTest) return;
+      mkt = { ...mkt, ...lastTest.assumptions };
+      store.set(MKT_KEY, mkt);
+      $("#m-cpc").value = mkt.cpc; $("#m-conv").value = mkt.conversionPct;
+      renderMarketing(); renderClearance();
+      recordUsage("ad_test_applied");
+    });
+    $("#mkt-csv").addEventListener("click", () => {
+      if (!lastMkt) return;
+      const url = URL.createObjectURL(new Blob([calendarCsv(lastMkt)], { type: "text/csv" }));
+      const a = document.createElement("a"); a.href = url; a.download = "launch-calendar.csv"; a.click(); URL.revokeObjectURL(url);
+      recordUsage("marketing_csv");
+    });
+
+    // a painting chosen on artwork.html arrives once through local storage
+    try {
+      const h = takeHandoff(localStorage);
+      if (h) {
+        const img = new Image();
+        img.onload = () => { commit({ op: "add", kind: "image", src: h.src, aspect: img.naturalHeight / img.naturalWidth || 1, label: h.label, method: "dtg", srcPx: h.widthPx && h.heightPx ? { w: h.widthPx, h: h.heightPx } : undefined }, "artwork_handoff"); if (h.credit) log(`Added ${esc(h.label)}. Credit: ${esc(h.credit)}`); };
+        img.src = h.src;
+      }
+    } catch { /* storage blocked: nothing to pick up */ }
+
+    render();
+    recordUsage("open");
+  </script>
+</body>
+</html>

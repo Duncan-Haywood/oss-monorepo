@@ -35,6 +35,13 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .edit td { padding: 3px 3px; }
     .edit input, .edit select { padding: 5px 6px; font-size: 14px; min-width: 64px; }
+    /* A select in a table row sizes to its longest option, so "window", "Front" and "2x10" are never
+       cut to "windo", "Fron" and "2x1" (measured 2026-11-14: 57 clipped selects here). The table
+       already scrolls inside its card on a phone. The cap keeps a long typed wall name from widening the column. */
+    .edit select { min-width: max-content; min-width: calc-size(max-content, min(size, 14em)); }
+    /* Settings whose default option is longer than one grid track take two tracks, from the width
+       at which the grid has two columns (below it, span 2 would add a column). */
+    @media (min-width: 480px) { .grid > .wide { grid-column: span 2; } }
     .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 8px 0 12px; }
     .big div { background: #f5f2ea; border-radius: 9px; padding: 10px; }
     .big strong { display: block; font-size: 1.35rem; color: #33302a; }
@@ -49,6 +56,15 @@
     a.cta.alt { background: #dfeaf0; color: #14465e; }
     a.cta:focus-visible { outline: 3px solid #14465e; outline-offset: 2px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 440px) { div.grid:has(#plateLaps) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 532px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -62,7 +78,7 @@
   <section class="card" aria-labelledby="h-settings">
     <h2 id="h-settings">1. Wall settings</h2>
     <div class="grid">
-      <div><label for="height">Wall height</label>
+      <div class="wide"><label for="height">Wall height</label>
         <select id="height"><option value="8ft">8 ft wall (92-5/8" precut studs)</option><option value="9ft">9 ft wall (104-5/8" precut)</option><option value="10ft">10 ft wall (116-5/8" precut)</option><option value="custom">Custom stud length</option></select></div>
       <div><label for="studLength">Stud length</label><input id="studLength" value="92-5/8"></div>
       <div><label for="spacing">Stud spacing on center</label>
@@ -76,8 +92,9 @@
       <div><label for="cornerStuds">Extra studs at a corner</label><input id="cornerStuds" type="number" min="0" max="4" step="1" value="2"></div>
       <div><label for="teeStuds">Extra studs where a wall meets this one</label><input id="teeStuds" type="number" min="0" max="4" step="1" value="2"></div>
       <div><label for="blockRows">Rows of blocking between studs</label><input id="blockRows" type="number" min="0" max="6" step="1" value="0"></div>
-      <div><label for="plateLaps">Plates at corners</label><select id="plateLaps"><option value="">Every plate ends at the wall end</option><option value="lap">Lap plates at corners (top plate runs through, cap laps the other way)</option></select></div>
-      <div><label for="advFrame">Advanced framing</label><select id="advFrame"><option value="">Standard (3-stud corners, 2 backing studs at tees)</option><option value="corners">Two-stud corners (drywall clips; engineer's call)</option><option value="tees">Ladder blocking at tees instead of backing studs</option><option value="both">Both</option><option value="single">Single top plate (framing stacks over studs; engineer's call)</option></select></div>
+      <div class="wide"><label for="plateLaps">Plates at corners</label><select id="plateLaps"><option value="">Every plate ends at the wall end</option><option value="lap">Lap plates at corners (top plate runs through, cap laps the other way)</option></select></div>
+      <div class="wide"><label for="advFrame">Advanced framing</label><select id="advFrame"><option value="">Standard (3-stud corners, 2 backing studs at tees)</option><option value="corners">Two-stud corners (drywall clips; engineer's call)</option><option value="tees">Ladder blocking at tees instead of backing studs</option><option value="both">Both</option><option value="single">Single top plate (framing stacks over studs; engineer's call)</option></select></div>
+      <div><label for="cullPct">Spare boards for culls (% of each size)</label><input id="cullPct" type="number" min="0" max="50" step="0.5" value="0"></div>
       <div><label for="fireBlock">Fire blocking</label><select id="fireBlock"><option value="">Only the rows above</option><option value="fire">Add rows so no stud run passes 10 ft</option></select></div>
     </div>
   </section>
@@ -109,7 +126,7 @@
   <section class="card" aria-labelledby="h-walls">
     <h2 id="h-walls">2. Walls</h2>
     <p class="note">"Corner at start" adds corner backing at the start end. "Walls meet at" lists where other walls tee into this one (comma-separated positions), which adds backing there. "Butts into" is optional and used with the corner-lap setting: <code>Front @ 14'</code> means this wall's start ends against wall Front 14' along it (add <code>end</code> for its far end); its cap plate then runs over that wall and that wall's cap is cut for it.</p>
-    <table class="edit"><thead><tr><th>Name</th><th>Length</th><th>Studs</th><th>Treated bottom plate</th><th>Corner at start</th><th>Walls meet at</th><th>Butts into (tee lap)</th><th>Gable pitch (rise per 12 in)</th><th>Gable peak at</th><th>Partition (no sheathing)</th><th>Free ends (drywall bead)</th><th></th></tr></thead><tbody id="walls"></tbody></table>
+    <table class="edit"><thead><tr><th>Name</th><th>Length</th><th>Studs</th><th>Treated bottom plate</th><th>Corner at start</th><th>Walls meet at</th><th>Butts into (tee lap)</th><th>Gable pitch (rise per 12 in)</th><th>Gable peak at</th><th>Partition (no sheathing)</th><th>Free ends (drywall bead)</th><th>Steps (position : stud length, ...)</th><th></th></tr></thead><tbody id="walls"></tbody></table>
     <button type="button" class="secondary" id="addWall">Add a wall</button>
   </section>
 
@@ -144,9 +161,10 @@
     <button type="button" class="secondary" id="csv">Download CSV</button>
     <button type="button" class="secondary" id="drawings">Download wall drawings (printable)</button>
     <button type="button" class="secondary" id="drawingsPdf">Download wall drawings (PDF)</button>
+    <button type="button" class="secondary" id="openingsCsvBtn" title="Doors and windows grouped into marks, with rough and unit sizes, header, sill height and where each sits">Download door and window schedule (CSV)</button>
     <button type="button" class="secondary" id="panelOrderBtn">Download shop-panel lumber order (needs a panel length above)</button>
     <button type="button" class="secondary" id="savePlan">Save plan file</button>
-    <label for="openPlan" style="display:inline-block;font-weight:600">Open plan file</label> <input type="file" id="openPlan" accept=".json,application/json,.dxf" style="width:auto">
+    <label for="openPlan" style="display:inline-block;font-weight:600">Open plan file</label> <input type="file" id="openPlan" accept=".json,application/json,.dxf,.ifc" style="width:auto"> <span id="ifcStoreyWrap" hidden><label for="ifcStorey">Storey</label> <select id="ifcStorey" style="width:auto"></select></span>
     <p><input type="checkbox" id="sheath" style="width:auto"> <label for="sheath" style="display:inline">Also lay out wall sheathing (4 x 8 to 4 x 12 sheets, 1 per square foot)</label>
       <input type="checkbox" id="sheathH" style="width:auto;margin-left:1rem"> <label for="sheathH" style="display:inline">sheets long side along the wall</label>
       <input type="checkbox" id="sheathO" style="width:auto;margin-left:1rem"> <label for="sheathO" style="display:inline">run sheathing past corners</label>
@@ -187,6 +205,8 @@
       <div><label for="inWinU">Window U-factor, BTU/h per sq ft per F (blank: windows left out of the heat loss)</label><input id="inWinU" type="number" min="0.05" max="2" step="0.01" placeholder="e.g. 0.30"></div>
       <div><label for="inDoorU">Door U-factor (blank: doors left out)</label><input id="inDoorU" type="number" min="0.05" max="2" step="0.01" placeholder="e.g. 0.40"></div>
       <div><label for="inSlabF">Slab edge F-factor, BTU/h per ft of edge per F, from your code table (blank: slab edge left out; slab-on-grade only)</label><input id="inSlabF" type="number" min="0" max="2" step="0.01" placeholder="e.g. 0.54"></div>
+      <div><label for="inCeilR">Ceiling under the attic, whole-ceiling R typed (blank: see next field; needs the attic fill option)</label><input id="inCeilR" type="number" min="1" max="100" step="0.5" placeholder="e.g. 40"></div>
+      <div><label for="inCeilAtt">Ceiling R from the attic fill (used when no R is typed above)</label><select id="inCeilAtt"><option value="">Ceiling left out</option><option value="true">Attic fill R plus wall film and drywall</option></select></div>
       <div><label for="inAch50">Air leakage, ACH50 from a blower-door test (blank: left out; needs N and volume too)</label><input id="inAch50" type="number" min="0" max="40" step="0.1" placeholder="e.g. 3"></div>
       <div><label for="inNFac">N-factor (ACH50 divisor for your climate and height)</label><input id="inNFac" type="number" min="5" max="40" step="0.5" placeholder="e.g. 20"></div>
       <div><label for="inVol">Conditioned volume, cu ft</label><input id="inVol" type="number" min="100" max="200000" step="100" placeholder="e.g. 16000"></div>
@@ -197,7 +217,7 @@
       <div><label for="inAtticBag">Attic bag volume (cu ft; blank: no bag count)</label><input id="inAtticBag" type="number" min="0" step="0.1" placeholder="e.g. 40"></div>
       <div><label for="inAtticHeel">Attic heel height at the eave (in; blank: not checked for eave compression)</label><input id="inAtticHeel" type="number" min="1" max="30" step="0.5" placeholder="e.g. 5"></div>
     </div>
-    <p><input type="checkbox" id="stOn" style="width:auto"> <label for="stOn" style="display:inline">Also lay out a stair (equal risers under the code limit, notch geometry, stringers and treads, the stairwell opening; a rise over 147 in splits at a landing; the lumber joins the order)</label></p>
+    <p><input type="checkbox" id="stOn" style="width:auto"> <label for="stOn" style="display:inline">Also lay out a stair (equal risers under the code limit, notch geometry, stringers and treads, the stairwell opening; a rise over 151 in splits at a landing; the lumber joins the order)</label></p>
     <div class="grid" id="stFields" hidden>
       <div><label for="stRise">Total rise, finished floor to finished floor</label><input id="stRise" type="text" placeholder="e.g. 9' 0&quot;"></div>
       <div><label for="stTread">Tread run, in (blank: from the 2R+T comfort rule)</label><input id="stTread" type="number" min="10" max="14" step="0.0625" placeholder="10"></div>
@@ -229,6 +249,8 @@
       <div><label for="dkStair">Stair down to grade</label><select id="dkStair"><option value="">None</option><option value="true">Yes (rise taken from the deck height)</option></select></div>
       <div><label for="dkBorder">Picture-frame border</label><select id="dkBorder"><option value="">None</option><option value="1">1 course</option><option value="2">2 courses</option><option value="3">3 courses</option></select></div>
       <div><label for="dkBlocking">Blocking: rows so no joist run is longer than, in (blank: none)</label><input id="dkBlocking" type="number" min="24" max="240" step="1" placeholder="e.g. 96"></div>
+      <div><label for="dkJoistCheck">Joist check: dead psf, live psf, Fb psi, Fv psi, E psi[, deflection ratio] (all yours, adjusted; blank: off)</label><input id="dkJoistCheck" type="text" placeholder="e.g. 10, 40, 1000, 175, 1400000"></div>
+      <div><label for="dkBeamCheck">Beam check: dead psf, live psf, Fb psi, Fv psi, E psi[, deflection ratio] (all yours, adjusted; blank: off)</label><input id="dkBeamCheck" type="text" placeholder="e.g. 10, 40, 1000, 175, 1400000"></div>
       <div><label for="dkPostCheck">Post check: dead psf, live psf, fc psi, Emin psi[, fcPerp psi] (all yours, adjusted; blank: off)</label><input id="dkPostCheck" type="text" placeholder="e.g. 10, 40, 1000, 400000, 565"></div>
     </div>
     <p><input type="checkbox" id="trOn" style="width:auto"> <label for="trOn" style="display:inline">Also count interior trim (baseboard between doors; casing legs, head and window sill; packed into stock boards; lengths and widths are the trim you buy)</label></p>
@@ -327,6 +349,9 @@
       <div><label for="faHdPrice">Price per hold-down (blank: none)</label><input id="faHdPrice" type="number" min="0" step="0.01" placeholder="e.g. 14"></div>
       <div><label for="faPsOn">Plate straps across plate joints</label><select id="faPsOn"><option value="" selected>none</option><option value="1">1 per top- and cap-plate joint (and single-top-plate tie)</option><option value="2">2 per joint</option></select></div>
       <div><label for="faPsPrice">Price per plate strap (blank: none)</label><input id="faPsPrice" type="number" min="0" step="0.01" placeholder="e.g. 3.5"></div>
+      <div><label for="faWbOn">Diagonal wall braces</label><select id="faWbOn"><option value="" selected>none</option><option value="1">one per 300 in of wall (walls 48 in or longer)</option></select></div>
+      <div><label for="faWbSpacing">Brace spacing, in (blank: 300)</label><input id="faWbSpacing" type="number" min="1" step="1" placeholder="300"></div>
+      <div><label for="faWbPrice">Price per brace (blank: none)</label><input id="faWbPrice" type="number" min="0" step="0.01" placeholder="e.g. 12"></div>
       <div><label for="faRtOn">Rafter ties (needs the roof option)</label><select id="faRtOn"><option value="" selected>none</option><option value="1">1 per rafter bearing (2 per truss)</option><option value="2">2 per rafter bearing (4 per truss)</option></select></div>
       <div><label for="faRtPrice">Price per rafter tie (blank: none)</label><input id="faRtPrice" type="number" min="0" step="0.01" placeholder="e.g. 1.5"></div>
     </div>
@@ -394,8 +419,12 @@
 
   <section class="card" aria-labelledby="h-budget" id="budgetCard" hidden>
     <h2 id="h-budget">Budget from your prices</h2>
-    <p class="note">Type one price per line as <code>name, number</code> (names: anchorBolt, atticFillBag, baseboard, casing, concreteYd, deckConcreteBag, deckScrewBox, laborDormerSqFt, cornerBeadStick, cornerBoard, doubleJoistHanger, downspoutElbow, downspoutPiece, downspoutStrap, dormerBoardFoot, dormerRoofSqFt, dripEdgePiece, drywallCompoundPail, drywallScrewThousand, drywallSheet, drywallTapeRoll, fasciaBoard, floorSheet, formPlywoodSheet, gravelYd, gutterCap, gutterCorner, gutterHanger, gutterSection, hangerNail, handrailBracket, handrailFoot, headFlashing, holdDown, houseWrapRoll, insulationBag, jChannel, joistHanger, laborConcreteYd, laborDeckSqFt, laborDrywallSheet, laborEavesFoot, laborFloorSqFt, laborFoundationSqFt, laborGutterFoot, laborHoldDown, laborInsulationBag, laborOpening, laborRoofSquare, laborSidingSqFt, laborStairRiser, laborTrimFoot, laborWallFoot, laborWallSheet, nailBox, openingTape, overhead, plateStrap, profit, rebarLb, ridgeBundle, roofSheet, shingleBundle, shoeMoulding, sidingBoard, sidingStarter, soffitPanel, stairBaluster, stairConnector, stairRailPost, stairRiserBoard, starterBundle, truss, underlaymentRoll, vaporBarrierSqFt, wallSheet; tax, contingency, overhead and profit as fractions, e.g. <code>tax, 0.07</code>; overhead and profit give a bid price). Lump sums such as a permit or a dumpster go in as <code>allowance Permit, 1200</code>: untaxed, no contingency, added before overhead and profit. Lumber uses the board prices in the stock table. A quantity with no price is listed and left out of the total. No price is supplied by this tool.</p>
-    <p><label>Add a price line <select id="priceName" aria-label="Price name to add"><option value="">choose a name</option><option value="anchorBolt">anchorBolt</option><option value="laborDormerSqFt">laborDormerSqFt</option><option value="atticFillBag">atticFillBag</option><option value="baseboard">baseboard</option><option value="casing">casing</option><option value="concreteYd">concreteYd</option><option value="deckConcreteBag">deckConcreteBag</option><option value="deckScrewBox">deckScrewBox</option><option value="cornerBeadStick">cornerBeadStick</option><option value="cornerBoard">cornerBoard</option><option value="doubleJoistHanger">doubleJoistHanger</option><option value="downspoutElbow">downspoutElbow</option><option value="downspoutPiece">downspoutPiece</option><option value="downspoutStrap">downspoutStrap</option><option value="dormerBoardFoot">dormerBoardFoot</option><option value="dormerRoofSqFt">dormerRoofSqFt</option><option value="dripEdgePiece">dripEdgePiece</option><option value="drywallCompoundPail">drywallCompoundPail</option><option value="drywallScrewThousand">drywallScrewThousand</option><option value="drywallSheet">drywallSheet</option><option value="drywallTapeRoll">drywallTapeRoll</option><option value="fasciaBoard">fasciaBoard</option><option value="floorSheet">floorSheet</option><option value="formPlywoodSheet">formPlywoodSheet</option><option value="gravelYd">gravelYd</option><option value="gutterCap">gutterCap</option><option value="gutterCorner">gutterCorner</option><option value="gutterHanger">gutterHanger</option><option value="gutterSection">gutterSection</option><option value="hangerNail">hangerNail</option><option value="headFlashing">headFlashing</option><option value="handrailBracket">handrailBracket</option><option value="handrailFoot">handrailFoot</option><option value="holdDown">holdDown</option><option value="houseWrapRoll">houseWrapRoll</option><option value="insulationBag">insulationBag</option><option value="jChannel">jChannel</option><option value="joistHanger">joistHanger</option><option value="laborConcreteYd">laborConcreteYd</option><option value="laborDeckSqFt">laborDeckSqFt</option><option value="laborDrywallSheet">laborDrywallSheet</option><option value="laborEavesFoot">laborEavesFoot</option><option value="laborFloorSqFt">laborFloorSqFt</option><option value="laborFoundationSqFt">laborFoundationSqFt</option><option value="laborGutterFoot">laborGutterFoot</option><option value="laborHoldDown">laborHoldDown</option><option value="laborInsulationBag">laborInsulationBag</option><option value="laborOpening">laborOpening</option><option value="laborRoofSquare">laborRoofSquare</option><option value="laborSidingSqFt">laborSidingSqFt</option><option value="laborStairRiser">laborStairRiser</option><option value="laborTrimFoot">laborTrimFoot</option><option value="laborWallFoot">laborWallFoot</option><option value="laborWallSheet">laborWallSheet</option><option value="nailBox">nailBox</option><option value="openingTape">openingTape</option><option value="plateStrap">plateStrap</option><option value="rebarLb">rebarLb</option><option value="ridgeBundle">ridgeBundle</option><option value="roofSheet">roofSheet</option><option value="shingleBundle">shingleBundle</option><option value="shoeMoulding">shoeMoulding</option><option value="sidingBoard">sidingBoard</option><option value="sidingStarter">sidingStarter</option><option value="soffitPanel">soffitPanel</option><option value="stairBaluster">stairBaluster</option><option value="stairRailPost">stairRailPost</option><option value="stairConnector">stairConnector</option><option value="stairRiserBoard">stairRiserBoard</option><option value="starterBundle">starterBundle</option><option value="truss">truss</option><option value="underlaymentRoll">underlaymentRoll</option><option value="vaporBarrierSqFt">vaporBarrierSqFt</option><option value="wallSheet">wallSheet</option></select></label> <button type="button" class="secondary" id="priceAddBtn">Add line</button></p>
+    <p class="note">Type one price per line as <code>name, number</code> (names: wallBrace, plankBox, plankUnderlaymentRoll, floorTile, thinsetBag, groutBag, carpetSqYd, carpetPadSqYd, tackStrip, transitionBar, paintGallon, paintPail, primerGallon, fireblockBoard, laborFlooringSqFt, anchorBolt, sillPlatePiece, sillSealRoll, receptacle, electricalSwitch, electricalBox, cableRoll, ridgeVent, soffitVent, rafterBaffle, atticFillBag, baseboard, casing, concreteYd, deckConcreteBag, deckScrewBox, laborDormerSqFt, cornerBeadStick, cornerBoard, doubleJoistHanger, downspoutElbow, downspoutPiece, downspoutStrap, splashBlock, leafGuard, gutterSealant, dormerBoardFoot, dormerRoofSqFt, dripEdgePiece, drywallCompoundPail, drywallScrewThousand, drywallSheet, drywallTapeRoll, fasciaBoard, floorSheet, formPlywoodSheet, gravelYd, gutterCap, gutterCorner, gutterHanger, gutterSection, hangerNail, handrailBracket, handrailFoot, headFlashing, holdDown, houseWrapRoll, insulationBag, jChannel, joistHanger, laborConcreteYd, laborDeckSqFt, laborDrywallSheet, laborEavesFoot, laborFloorSqFt, laborFoundationSqFt, laborGutterFoot, laborHoldDown, laborInsulationBag, laborOpening, laborRoofSquare, laborSidingSqFt, laborStairRiser, laborTrimFoot, laborWallFoot, laborWallSheet, nailBox, openingTape, caulkTube, floorAdhesiveTube, floorFastenerBox, floorNailBox, overhead, plateStrap, profit, rebarLb, ridgeBundle, roofSheet, roofingNailBox, sidingNailBox, iceShieldRoll, valleyFlashingRoll, pipeBoot, sheathingNailBox, dripEdgeNailBox, ridgeNailBox, underlaymentNailBox, shingleBundle, shoeMoulding, sidingBoard, sidingStarter, soffitPanel, stairBaluster, stairConnector, stairRailPost, stairRiserBoard, starterBundle, truss, underlaymentRoll, vaporBarrierSqFt, wallSheet; tax, contingency, overhead and profit as fractions, e.g. <code>tax, 0.07</code>; overhead and profit give a bid price). Lump sums such as a permit or a dumpster go in as <code>allowance Permit, 1200</code>: untaxed, no contingency, added before overhead and profit. Lumber uses the board prices in the stock table. A quantity with no price is listed and left out of the total. No price is supplied by this tool.</p>
+    <p><label>Add a price line <select id="priceName" aria-label="Price name to add"><option value="">choose a name</option><option value="anchorBolt">anchorBolt</option><option value="wallBrace">wallBrace</option><option value="sillPlatePiece">sillPlatePiece</option><option value="sillSealRoll">sillSealRoll</option><option value="pipeBoot">pipeBoot</option><option value="sheathingNailBox">sheathingNailBox</option><option value="dripEdgeNailBox">dripEdgeNailBox</option><option value="ridgeNailBox">ridgeNailBox</option><option value="underlaymentNailBox">underlaymentNailBox</option><option value="laborDormerSqFt">laborDormerSqFt</option><option value="atticFillBag">atticFillBag</option><option value="baseboard">baseboard</option><option value="casing">casing</option><option value="concreteYd">concreteYd</option><option value="deckConcreteBag">deckConcreteBag</option><option value="deckScrewBox">deckScrewBox</option><option value="cornerBeadStick">cornerBeadStick</option><option value="cornerBoard">cornerBoard</option><option value="doubleJoistHanger">doubleJoistHanger</option><option value="downspoutElbow">downspoutElbow</option><option value="downspoutPiece">downspoutPiece</option><option value="downspoutStrap">downspoutStrap</option><option value="splashBlock">splashBlock</option><option value="gutterSealant">gutterSealant</option><option value="leafGuard">leafGuard</option><option value="dormerBoardFoot">dormerBoardFoot</option><option value="dormerRoofSqFt">dormerRoofSqFt</option><option value="dripEdgePiece">dripEdgePiece</option><option value="drywallCompoundPail">drywallCompoundPail</option><option value="drywallScrewThousand">drywallScrewThousand</option><option value="drywallSheet">drywallSheet</option><option value="drywallTapeRoll">drywallTapeRoll</option><option value="fasciaBoard">fasciaBoard</option><option value="floorSheet">floorSheet</option><option value="formPlywoodSheet">formPlywoodSheet</option><option value="gravelYd">gravelYd</option><option value="gutterCap">gutterCap</option><option value="gutterCorner">gutterCorner</option><option value="gutterHanger">gutterHanger</option><option value="gutterSection">gutterSection</option><option value="hangerNail">hangerNail</option><option value="headFlashing">headFlashing</option><option value="handrailBracket">handrailBracket</option><option value="handrailFoot">handrailFoot</option><option value="holdDown">holdDown</option><option value="houseWrapRoll">houseWrapRoll</option><option value="insulationBag">insulationBag</option><option value="jChannel">jChannel</option><option value="joistHanger">joistHanger</option><option value="laborConcreteYd">laborConcreteYd</option><option value="laborDeckSqFt">laborDeckSqFt</option><option value="laborDrywallSheet">laborDrywallSheet</option><option value="laborEavesFoot">laborEavesFoot</option><option value="laborFloorSqFt">laborFloorSqFt</option><option value="laborFoundationSqFt">laborFoundationSqFt</option><option value="laborGutterFoot">laborGutterFoot</option><option value="laborHoldDown">laborHoldDown</option><option value="laborInsulationBag">laborInsulationBag</option><option value="laborOpening">laborOpening</option><option value="laborRoofSquare">laborRoofSquare</option><option value="laborSidingSqFt">laborSidingSqFt</option><option value="laborStairRiser">laborStairRiser</option><option value="laborTrimFoot">laborTrimFoot</option><option value="laborWallFoot">laborWallFoot</option><option value="laborWallSheet">laborWallSheet</option><option value="nailBox">nailBox</option><option value="openingTape">openingTape</option><option value="plateStrap">plateStrap</option><option value="rebarLb">rebarLb</option><option value="ridgeBundle">ridgeBundle</option><option value="roofSheet">roofSheet</option><option value="iceShieldRoll">iceShieldRoll</option><option value="valleyFlashingRoll">valleyFlashingRoll</option><option value="roofingNailBox">roofingNailBox</option><option value="sidingNailBox">sidingNailBox</option><option value="shingleBundle">shingleBundle</option><option value="shoeMoulding">shoeMoulding</option><option value="sidingBoard">sidingBoard</option><option value="sidingStarter">sidingStarter</option><option value="soffitPanel">soffitPanel</option><option value="stairBaluster">stairBaluster</option><option value="stairRailPost">stairRailPost</option><option value="stairConnector">stairConnector</option><option value="stairRiserBoard">stairRiserBoard</option><option value="starterBundle">starterBundle</option><option value="truss">truss</option><option value="underlaymentRoll">underlaymentRoll</option><option value="vaporBarrierSqFt">vaporBarrierSqFt</option><option value="wallSheet">wallSheet</option></select></label> <button type="button" class="secondary" id="priceAddBtn">Add line</button></p>
+    <details id="priceSheet" open><summary>Price sheet: the prices this plan still needs (<span id="priceSheetCount">0</span>)</summary>
+      <p class="note">One box per price this plan's quantities need, with the unit it is quoted in. Fill what you know; every box writes the line in the text area below, and leaving one empty keeps that line out of the total. Nothing is pre-filled: no price is stated or implied.</p>
+      <div id="priceSheetRows"></div>
+    </details>
     <textarea id="priceText" rows="5" style="width:100%" aria-label="Unit prices, one per line" placeholder="wallSheet, 24&#10;laborWallFoot, 11&#10;tax, 0.07"></textarea>
     <p><button type="button" class="secondary" id="budgetCsvBtn">Download budget CSV</button></p>
     <div id="budgetOut"></div>
@@ -412,6 +441,33 @@
     <p><label><input type="checkbox" id="propPartial" aria-label="Issue even if some lines are unpriced"> Issue even if some lines are unpriced (the gap is printed)</label></p>
     <p><button type="button" class="secondary" id="propBtn">Preview proposal</button> <button type="button" class="secondary" id="propDl">Download proposal (.txt)</button> <button type="button" class="secondary" id="propPrint">Open printable page</button></p>
     <div id="propOut"></div>
+  </section>
+  <section class="card" aria-labelledby="h-pkg" id="pkgCard" hidden>
+    <h2 id="h-pkg">Branded bid package</h2>
+    <p class="note">The proposal above on your letterhead, plus a quantities appendix with no unit prices, as one page you print or save as PDF. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the free proposal above is unchanged. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p id="buyRow" hidden><a id="buyLink" class="button" rel="noopener" target="_blank">Buy a licence key</a></p>
+    <p><label>Licence key <input id="pkgKey" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="pkgCheck">Check key</button> <span id="pkgState" role="status"></span></p>
+    <div id="pkgFields" hidden>
+      <p><label>Company <input id="pkgCo" aria-label="Company" style="width:14em"></label> <label>Licence no. <input id="pkgLic" aria-label="Contractor licence number" style="width:8em"></label> <label>Accent <input id="pkgAccent" aria-label="Accent colour" type="color" value="#1f3a5f"></label></p>
+      <p><label>Address <input id="pkgAddr" aria-label="Address" style="width:16em"></label> <label>Phone <input id="pkgPhone" aria-label="Phone" style="width:9em"></label> <label>Email <input id="pkgMail" aria-label="Email" style="width:13em"></label></p>
+      <p><label>Logo (PNG, JPEG, WebP or GIF) <input id="pkgLogo" aria-label="Logo file" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label></p>
+      <p><button type="button" class="secondary" id="pkgOpen">Open branded package</button></p>
+    </div>
+    <p class="note">An estimate from the prices you typed, not a contract or a legal document. Have it checked against your licence, local law and your customer's agreement before you send it.</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-sens" id="sensCard" hidden>
+    <h2 id="h-sens">Price sensitivity: what if a section's price moves?</h2>
+    <p class="note">Moves each budget section alone by the swing below and shows what it does to your cost and bid price (tax, contingency, overhead and profit restack as in the budget), and how far a section can rise before a fixed bid has no profit left. A what-if over the prices you typed, not a forecast. Nothing is uploaded.</p>
+    <p><label for="sensPct">Swing (percent, 1 to 100)</label> <input type="number" id="sensPct" min="1" max="100" step="1" value="10" style="width:5em"></p>
+    <div id="sensOut"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-co" id="coCard" hidden>
+    <h2 id="h-co">Change order: what the change costs</h2>
+    <p class="note">Save the budget above as the original, change the plan or the prices, and this lists every line that moved, by section, with the effect on cost and on the bid price (overhead and profit follow at the rates you typed). A line priced on one side only is named, not netted. Nothing is uploaded; the saved original lives in this tab only.</p>
+    <p><button type="button" class="secondary" id="coSave">Save this budget as the original</button> <button type="button" class="secondary" id="coClear" hidden>Forget the original</button> <span id="coState" role="status"></span></p>
+    <div id="coOut"></div>
   </section>
 
   <section class="card" aria-labelledby="h-bids" id="bidsCard" hidden>
@@ -527,24 +583,28 @@
   </section>
 
   </main>
-  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li></ul></nav>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="sheathing-calculator.html">Wall sheathing calculator (sheets, cut-outs, cheapest length)</a></li><li><a href="soffit-fascia-calculator.html">Soffit and fascia calculator (soffit panels, fascia, J-channel, frieze)</a></li><li><a href="retaining-wall-calculator.html">Retaining wall block calculator (blocks, caps, gravel, fabric, geogrid)</a></li><li><a href="paver-calculator.html">Paver patio calculator (pavers, base, sand, edge restraint)</a></li><li><a href="board-foot-calculator.html">Board foot calculator (board feet, cubic feet and cost)</a></li><li><a href="dormer-calculator.html">Dormer framing calculator (gable and shed: cheek studs, rafters, valleys, roof opening)</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator (blocks, mortar, grout, rebar)</a></li><li><a href="foundation-calculator.html">Foundation calculator (footing, stem wall and slab concrete, rebar)</a></li><li><a href="floor-calculator.html">Floor joist and subfloor calculator (joists, rim, blocking, sheets)</a></li><li><a href="nail-calculator.html">Framing nail calculator (nails and boxes by connection)</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule (marks, rough openings, headers)</a></li><li><a href="header-calculator.html">Header size checker (windows and doors against your own span table)</a></li><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator (blocks and boards for tall wall cavities)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator (when to order long-lead items)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="vs-stud-per-foot-rule.html">Takeoff vs. the stud-per-foot rule</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, grout, carpet)</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="water-supply-sizing-calculator.html">Water supply pipe sizing (peak gpm, pipe size, pressure at each fixture)</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, backer board, membrane)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator (trunk, flex, boots, registers)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li><li><a href="fence-calculator.html">Fence calculator (posts, rails, pickets, concrete)</a></li></ul></nav>
   <footer>
+    <p>Got the house as an IFC model and a client's IDS? <a href="../ids-model-check/">IDS Model Check</a> checks the model against it in your browser.</p>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>proposal_previewed</code>, <code>proposal_printed</code>, <code>proposal_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>dormer_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>proposal_previewed</code>, <code>proposal_printed</code>, <code>proposal_downloaded</code>, <code>bid_package_unlocked</code>, <code>bid_package_opened</code>, <code>bids_leveled</code>, <code>change_order_saved</code>, <code>sensitivity_run</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>openings_csv_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>dormer_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>ifc_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
+    <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Before you submit a building permit packet, the <a href="../permit-packet-preflight/">permit packet preflight</a> checks your files against the city's own checklist. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
+    import { expandSteppedWalls } from "./stepwall.mjs";
     import { planFromDxf } from "./dxf.mjs";
+    import { loadIfcEngine, openingSizes } from "./ifcwasm.mjs";
     import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch, fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners } from "./sketch.mjs";
     import { drawingSetHtml } from "./drawings.mjs";
+    import { layoutOpeningSchedule, openingScheduleCsv } from "./openingschedule.mjs";
     import { drawingSetPdf } from "./pdf.mjs";
-    import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
+    import { panelMaxError, panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
     import { sheathe, defaultSheathing, nailerCuts } from "./sheathing.mjs";
     import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
     import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
@@ -559,9 +619,14 @@
     import { layoutDeck, deckText } from "./deck.mjs";
     import { layoutStair, linkStairReaction, layoutStairWithLanding, layoutWinders, winderText, stairCuts, stairText, landingCuts, landingText, STAIR_LIMITS } from "./stairs.mjs";
     import { layoutFasteners, fastenerText } from "./fasteners.mjs";
-    import { budget, budgetCsv } from "./budget.mjs";
+    import { budget, budgetCsv, priceSheet } from "./budget.mjs";
     import { proposal, proposalText, proposalHtml } from "./bidletter.mjs";
+    import { bidPackageHtml } from "./bidpackage.mjs";
+    import { buyLink, checkLicence } from "./licence.mjs";
+    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { levelBids } from "./bidlevel.mjs";
+    import { budgetDiff } from "./compare.mjs";
+    import { sensitivity } from "./sensitivity.mjs";
     import { schedule, scheduleText, sampleSchedule, resolveRates } from "./schedule.mjs";
     import { resolveHeaders } from "./headers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -593,12 +658,25 @@
       return { gable: { pitch, ...(String(w.peak || "").trim() ? { peak: L(w.peak, `wall ${w.id}, gable peak`) } : {}) } };
     }
 
+    // "10 ft : 6 ft, 20 ft : 9 ft": where each step starts along the wall and the stud length from there on; blank: a level wall
+    function stepsField(w, L, bad) {
+      const t = String(w.steps ?? "").trim();
+      if (!t) return {};
+      const steps = [];
+      for (const part of t.split(",").map((x) => x.trim()).filter(Boolean)) {
+        const q = part.split(":").map((x) => x.trim());
+        if (q.length !== 2 || !q[0] || !q[1]) { bad.push(`Wall ${w.id}, steps: write each one as  10 ft : 6 ft  (position along the wall, then stud length from there), separated by commas.`); return {}; }
+        steps.push({ at: L(q[0], `wall ${w.id}, step position`), studLength: L(q[1], `wall ${w.id}, step stud length`) });
+      }
+      return steps.length ? { steps } : {};
+    }
+
     function fromPlan(plan) {
       return {
-        walls: plan.walls.map((w) => ({ id: w.id, length: len(w.length), stud: w.stud || "2x4", treatedPlate: Boolean(w.treatedPlate), corner: Boolean(w.corner), tees: (w.tees || []).map(len).join(", "), tee: w.tee ? `${w.tee.wall} @ ${len(w.tee.at)}${w.tee.end === "end" ? " end" : ""}` : "", gable: w.gable ? String(w.gable.pitch) : "", peak: w.gable?.peak !== undefined ? len(w.gable.peak) : "", partition: w.sheathed === false, freeEnds: String(w.freeEnds || 0) })),
+        walls: plan.walls.map((w) => ({ id: w.id, length: len(w.length), stud: w.stud || "2x4", treatedPlate: Boolean(w.treatedPlate), corner: Boolean(w.corner), tees: (w.tees || []).map(len).join(", "), tee: w.tee ? `${w.tee.wall} @ ${len(w.tee.at)}${w.tee.end === "end" ? " end" : ""}` : "", gable: w.gable ? String(w.gable.pitch) : "", peak: w.gable?.peak !== undefined ? len(w.gable.peak) : "", partition: w.sheathed === false, freeEnds: String(w.freeEnds || 0), steps: (w.steps || []).map((s) => `${len(s.at)} : ${len(s.studLength)}`).join(", ") })),
         openings: plan.walls.flatMap((w) => (w.openings || []).map((o) => ({ wall: w.id, kind: o.kind, label: o.label || "", offset: len(o.offset), width: len(o.width), height: len(o.height), headerHeight: o.headerHeight ? len(o.headerHeight) : "", header: o.header || "2x10", plies: o.headerPlies ?? "", jacks: o.jacks ?? 1, sillPlies: o.sillPlies }))),
         stock: plan.stock.map((s) => ({ size: s.size, length: len(s.length), price: s.price, label: s.label || "" })),
-        settings: { studLength: plan.studLength, spacing: plan.studSpacing, headerHeight: plan.defaultHeaderHeight, lap: plan.topPlateLap, kerf: plan.kerf, cornerStuds: plan.cornerExtraStuds, teeStuds: plan.teeExtraStuds, blockRows: plan.blocking?.rows || 0, fire: Boolean(plan.blocking?.fire), plateLaps: Boolean(plan.plateLaps), advFrame: plan.advanced ? (plan.advanced.singleTopPlate ? "single" : plan.advanced.twoStudCorners && plan.advanced.ladderTees ? "both" : plan.advanced.twoStudCorners ? "corners" : plan.advanced.ladderTees ? "tees" : "") : "" },
+        settings: { studLength: plan.studLength, spacing: plan.studSpacing, headerHeight: plan.defaultHeaderHeight, lap: plan.topPlateLap, kerf: plan.kerf, cornerStuds: plan.cornerExtraStuds, teeStuds: plan.teeExtraStuds, blockRows: plan.blocking?.rows || 0, fire: Boolean(plan.blocking?.fire), plateLaps: Boolean(plan.plateLaps), cullPct: plan.culls?.pct ? Math.round(plan.culls.pct * 1000) / 10 : 0, advFrame: plan.advanced ? (plan.advanced.singleTopPlate ? "single" : plan.advanced.twoStudCorners && plan.advanced.ladderTees ? "both" : plan.advanced.twoStudCorners ? "corners" : plan.advanced.ladderTees ? "tees" : "") : "" },
       };
     }
 
@@ -615,6 +693,7 @@
       $("#blockRows").value = String(s.blockRows || 0);
       $("#fireBlock").value = s.fire ? "fire" : "";
       $("#plateLaps").value = s.plateLaps ? "lap" : "";
+      $("#cullPct").value = String(s.cullPct || 0);
       $("#advFrame").value = s.advFrame || "";
     }
 
@@ -635,6 +714,7 @@
         cornerExtraStuds: Math.max(0, Math.round(Number($("#cornerStuds").value) || 0)),
         teeExtraStuds: Math.max(0, Math.round(Number($("#teeStuds").value) || 0)),
         plateLaps: $("#plateLaps").value === "lap",
+        ...(Number($("#cullPct").value) > 0 ? { culls: { pct: Math.min(50, Number($("#cullPct").value)) / 100 } } : {}),
         advanced: { twoStudCorners: ["corners", "both"].includes($("#advFrame").value), ladderTees: ["tees", "both"].includes($("#advFrame").value), singleTopPlate: $("#advFrame").value === "single" },
         blocking: { rows: Math.max(0, Math.min(6, Math.round(Number($("#blockRows").value) || 0))), fire: $("#fireBlock").value === "fire" },
         stock: ui.stock.map((s) => ({ size: s.size, length: L(s.length, `${s.size} board`), price: Number(s.price), ...(s.label ? { label: s.label } : {}) })),
@@ -643,6 +723,7 @@
           tees: String(w.tees || "").split(",").map((t) => t.trim()).filter(Boolean).map((t) => L(t, `wall ${w.id}, walls meet at`)),
           ...teeField(w, L, bad),
           ...gableField(w, L, bad),
+          ...stepsField(w, L, bad),
           ...(w.partition ? { sheathed: false } : {}),
           ...(Number(w.freeEnds) > 0 ? { freeEnds: Math.min(2, Math.round(Number(w.freeEnds))) } : {}),
           openings: [],
@@ -722,6 +803,8 @@
           ins.assembly = {};
           if ($("#inContR").value.trim()) ins.assembly.continuousR = Number($("#inContR").value);
           if ($("#inAssumedF").value.trim()) ins.assembly.assumedFramingFraction = Number($("#inAssumedF").value);
+          if ($("#inCeilR").value.trim()) ins.assembly.ceilingR = Number($("#inCeilR").value);
+          else if ($("#inCeilAtt").value) ins.assembly.ceilingFromAttic = true;
           for (const [id, k] of [["inWinU", "windowU"], ["inDoorU", "doorU"], ["inSlabF", "slabEdgeF"], ["inAch50", "ach50"], ["inNFac", "nFactor"], ["inVol", "volumeCuFt"], ["inDeltaF", "designDeltaF"], ["inHdd", "heatingDegreeDays"]]) if ($("#" + id).value.trim()) ins.assembly[k] = Number($("#" + id).value);
         }
         if ($("#inAtticR").value.trim()) {
@@ -745,6 +828,12 @@
           const n = $("#dkPostCheck").value.split(",").map((x) => x.trim()).filter(Boolean).map(Number);
           if ((n.length !== 4 && n.length !== 5) || n.some((x) => !Number.isFinite(x))) bad.push("Deck post check: write dead psf, live psf, fc psi, Emin psi and optionally fcPerp psi.");
           else dk.postCheck = { deadPsf: n[0], livePsf: n[1], fc: n[2], emin: n[3], ...(n.length === 5 ? { fcPerp: n[4] } : {}) };
+        }
+        for (const [id, key, label] of [["#dkJoistCheck", "joistCheck", "Deck joist check"], ["#dkBeamCheck", "beamCheck", "Deck beam check"]]) {
+          if (!$(id).value.trim()) continue;
+          const n = $(id).value.split(",").map((x) => x.trim()).filter(Boolean).map(Number);
+          if ((n.length !== 5 && n.length !== 6) || n.some((x) => !Number.isFinite(x) || x < 0)) bad.push(label + ": write dead psf, live psf, Fb psi, Fv psi, E psi and optionally a deflection ratio.");
+          else dk[key] = { deadPsf: n[0], livePsf: n[1], Fb: n[2], Fv: n[3], E: n[4], ...(n.length === 6 ? { deflLimit: n[5] } : {}) };
         }
         plan.deck = dk;
       }
@@ -841,6 +930,7 @@
         if (hd.wallEnds || hd.openingMinWidth != null) fa.holdDowns = hd;
         if ($("#faRtOn").value) { fa.rafterTies = { perBearing: Number($("#faRtOn").value) }; if ($("#faRtPrice").value.trim()) fa.rafterTies.price = Number($("#faRtPrice").value); }
         if ($("#faPsOn").value) { fa.plateStraps = { perJoint: Number($("#faPsOn").value) }; if ($("#faPsPrice").value.trim()) fa.plateStraps.price = Number($("#faPsPrice").value); }
+        if ($("#faWbOn").value) { const wb = {}; if ($("#faWbSpacing").value.trim()) wb.spacing = Number($("#faWbSpacing").value); if ($("#faWbPrice").value.trim()) wb.price = Number($("#faWbPrice").value); fa.wallBracing = Object.keys(wb).length ? wb : true; }
         plan.fasteners = fa;
       }
       if ($("#fnOn").checked) {
@@ -926,6 +1016,7 @@
         <td>${f("walls", i, "peak", w.peak, `Wall ${i + 1} gable peak position`, 'placeholder="middle"')}</td>
         <td>${chk("walls", i, "partition", w.partition, `Wall ${i + 1} is an interior partition without sheathing`)}</td>
         <td>${sel("walls", i, "freeEnds", String(w.freeEnds || 0), ["0", "1", "2"], `Wall ${i + 1} free ends, where the wall ends without meeting another wall`)}</td>
+        <td>${f("walls", i, "steps", w.steps, `Wall ${i + 1} steps, position and stud length`, 'placeholder="level"')}</td>
         <td>${del("walls", i, `Remove wall ${i + 1}`)}</td></tr>`).join("");
     }
     function renderOpenings() {
@@ -1050,7 +1141,7 @@
     function renderEaves(ea) {
       $("#eavesCard").hidden = !ea;
       if (!ea) return;
-      $("#eavesOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(eavesText(ea).join("\n"))}</pre><p class="note">Runs come from the roof's eave and rake overhangs; each course is packed first fit decreasing into the stock length you typed. Not counted: corner mitres, vented-panel mix, frieze, drip edge, nails, caulk and paint. Not checked against a real soffit order.</p>`;
+      $("#eavesOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(eavesText(ea).join("\n"))}</pre><p class="note">Runs come from the roof's eave and rake overhangs; each course is packed first fit decreasing into the stock length you typed. Not counted: corner mitres, frieze, drip edge, nails, caulk and paint. Not checked against a real soffit order.</p>`;
     }
     function renderTrim(tr) {
       $("#trimCard").hidden = !tr;
@@ -1098,7 +1189,7 @@
       if (pb.bad.length) { $("#bidsOut").innerHTML = `<div class="err"><ul>${pb.bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`; return; }
       if (!pb.bids.length) { $("#bidsOut").innerHTML = ""; return; }
       const lv = levelBids(last.budget, pb.bids);
-      const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const m = (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#bidsOut").innerHTML = `<table><thead><tr><th>Bidder</th><th class="n">As bid</th><th class="n">Added to level</th><th class="n">Leveled</th></tr></thead><tbody>${lv.bidders.map((b) => `<tr><td>${esc(b.bidder)}</td><td class="n">${m(b.bidTotal)}</td><td class="n">${m(b.additions)}</td><td class="n">${m(b.leveledTotal)}</td></tr>`).join("")}</tbody></table>
         <ul>${lv.bidders.flatMap((b) => b.flags.map((f) => `<li>${esc(b.bidder)}: ${esc(f.kind)} ${esc(f.item)}: ${esc(f.note)}</li>`)).join("")}</ul>
         ${lv.bidders.some((b) => b.unleveled.length) ? `<p class="note">No price anywhere, so not leveled: ${esc(lv.bidders.filter((b) => b.unleveled.length).map((b) => `${b.bidder} (${b.unleveled.join(", ")})`).join("; "))}.</p>` : ""}
@@ -1108,6 +1199,25 @@
       if (!bidsRecorded) { bidsRecorded = true; record("bids_leveled"); }
     }
     let bidsRecorded = false;
+    let priceSheetSig = null;
+    function setPriceLine(key, value) {
+      const lines = ($("#priceText").value || "").split(/\n/).filter((x) => x.trim() && x.split(/[,=:\t]+/)[0].trim() !== key);
+      if (value !== "" && Number.isFinite(Number(value)) && Number(value) >= 0) lines.push(`${key}, ${value}`);
+      $("#priceText").value = lines.join("\n");
+      renderBudget();
+      try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ }
+    }
+    function renderPriceSheet(b, typed) {
+      const rows = priceSheet(b, typed);
+      $("#priceSheetCount").textContent = String(rows.filter((r) => r.price == null).length);
+      const sig = rows.map((r) => r.key).join("|");
+      const box = $("#priceSheetRows");
+      if (sig === priceSheetSig && box.contains(document.activeElement)) return;
+      if (sig === priceSheetSig) { rows.forEach((r) => { const el = box.querySelector(`[data-key="${r.key}"]`); if (el && el.value === "" && r.price != null) el.value = String(r.price); }); return; }
+      priceSheetSig = sig;
+      box.innerHTML = rows.length ? `<table><thead><tr><th>Item</th><th class="n">Qty</th><th>Price per</th><th>Price ($)</th></tr></thead><tbody>${rows.map((r) => `<tr><td>${esc(r.section)}: ${esc(r.items.join(", "))}</td><td class="n">${r.qty}</td><td>${esc(r.unit)}</td><td><input type="number" min="0" step="any" inputmode="decimal" data-key="${esc(r.key)}" value="${r.price == null ? "" : r.price}" aria-label="Price per ${esc(r.unit)} for ${esc(r.items.join(", "))} (${esc(r.key)})" style="width:7em"></td></tr>`).join("")}</tbody></table>` : `<p class="note">Every line in this plan has a price.</p>`;
+    }
+    $("#priceSheetRows").addEventListener("input", (e) => { const t = e.target; if (t && t.dataset && t.dataset.key) setPriceLine(t.dataset.key, t.value.trim()); });
     function renderBudget() {
       const card = $("#budgetCard");
       if (!last) { card.hidden = true; return; }
@@ -1116,19 +1226,54 @@
       const res = { ...last.result, floor: last.floor, roof: last.roof, foundation: last.foundation, drywall: last.drywall, insulation: last.insulation, trim: last.trim, siding: last.siding, eaves: last.eaves, gutters: last.gutters, fasteners: last.fasteners };
       const b = budget(res, pr.prices, pr.allowances);
       last.budget = b;
-      const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      renderPriceSheet(b, pr.prices);
+      const m = (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#budgetOut").innerHTML = `<table><thead><tr><th>Section</th><th>Item</th><th class="n">Qty</th><th>Unit</th><th class="n">Price</th><th class="n">Amount</th></tr></thead><tbody>${b.lines.map((l) => `<tr><td>${esc(l.section)}</td><td>${esc(l.item)}</td><td class="n">${l.qty}</td><td>${esc(l.unit)}</td><td class="n">${l.unitPrice == null ? "no price" : m(l.unitPrice)}</td><td class="n">${l.amount == null ? "" : m(l.amount)}</td></tr>`).join("")}</tbody></table>
         <p><strong>Materials ${m(b.materials)}</strong>${b.taxRate ? `; tax ${m(b.tax)}` : ""}${b.contingencyRate ? `; contingency ${m(b.contingency)}` : ""}${b.labor ? `; labor ${m(b.labor)}` : ""}; <strong>total ${m(b.total)}</strong>${b.overheadRate || b.profitRate ? `; overhead ${m(b.overhead)}; profit ${m(b.profit)}; <strong>bid price ${m(b.bid)}</strong> (profit ${b.marginPct}% of the bid)` : ""}</p>
         ${b.unpriced.length ? `<p class="note">Not in the total, no price typed: ${esc(b.unpriced.join("; "))}.</p>` : ""}
+        ${b.ignoredPrices.length ? `<p class="note" id="ignoredPrices">Typed prices that changed nothing (not a price name this plan reads, or no such quantity in this plan): ${esc(b.ignoredPrices.map((x) => x.name + (x.didYouMean ? ` (did you mean ${x.didYouMean}?)` : "")).join(", "))}.</p>` : ""}
         <p class="note">Excludes equipment, permits, delivery and overhead. An estimate from the prices you typed, not a quote.</p>`;
       card.hidden = false;
       $("#proposalCard").hidden = false;
+      $("#pkgCard").hidden = false;
       renderBids();
+      renderChange();
+      renderSens();
     }
+    function renderSens() {
+      const card = $("#sensCard");
+      if (!last?.budget) { card.hidden = true; return; }
+      card.hidden = false;
+      const m = (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const sg = (v) => (v >= 0 ? "+" : "") + m(v);
+      let sv;
+      try { sv = sensitivity(last.budget, Number($("#sensPct").value)); } catch (e) { $("#sensOut").innerHTML = `<div class="err">${esc(e.message)}</div>`; return; }
+      $("#sensOut").innerHTML = `<table><thead><tr><th>Section</th><th class="n">Subtotal</th><th class="n">Bid if +${sv.pct}%</th><th class="n">Bid if -${sv.pct}%</th><th class="n">Bid change</th><th class="n">Profit gone after</th></tr></thead><tbody>${sv.rows.map((r) => `<tr><td>${esc(r.section)}</td><td class="n">${m(r.subtotal)}</td><td class="n">${sg(r.bidUp)}</td><td class="n">${sg(r.bidDown)}</td><td class="n">${r.bidUpPct}%</td><td class="n">${r.profitAbsorbsPct == null ? "" : r.profitAbsorbsPct + "% rise"}</td></tr>`).join("")}</tbody></table>`
+        + `<p>Everything +${sv.pct}% together: cost ${m(sv.allUp.total)}, bid ${m(sv.allUp.bid)} (now ${m(sv.total)} and ${m(sv.bid)}).</p>`
+        + (sv.unpriced.length ? `<p class="note">${sv.unpriced.length} unpriced line(s) are left out, as in the budget.</p>` : "");
+    }
+    $("#sensPct").addEventListener("input", () => { if (last?.budget) { renderSens(); record("sensitivity_run"); } });
+    let coBase = null;
+    function renderChange() {
+      const card = $("#coCard");
+      if (!last?.budget) { card.hidden = true; return; }
+      card.hidden = false;
+      $("#coClear").hidden = !coBase;
+      if (!coBase) { $("#coState").textContent = ""; $("#coOut").innerHTML = ""; return; }
+      const d = budgetDiff(coBase, last.budget);
+      const m = (v) => (v >= 0 ? "+" : "") + v.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const t = d.totals;
+      $("#coState").textContent = d.lines.length ? `${d.lines.length} line${d.lines.length === 1 ? "" : "s"} changed against the saved original.` : "No line differs from the saved original.";
+      $("#coOut").innerHTML = (d.lines.length ? `<table><thead><tr><th>Section</th><th>Item</th><th>Change</th><th class="n">Before</th><th class="n">After</th><th>Unit</th><th class="n">Amount</th></tr></thead><tbody>${d.lines.map((l) => `<tr><td>${esc(l.section)}</td><td>${esc(l.item)}</td><td>${esc(l.status)}</td><td class="n">${l.qtyBefore}</td><td class="n">${l.qtyAfter}</td><td>${esc(l.unit)}</td><td class="n">${l.dAmount == null ? "no price" : m(l.dAmount)}</td></tr>`).join("")}</tbody></table>` : "")
+        + `<p><strong>Cost total ${m(t.total.delta)}</strong>${d.pctOfBase == null ? "" : ` (${d.pctOfBase >= 0 ? "+" : ""}${d.pctOfBase.toFixed(1)}% of the original)`}${t.bid.before || t.bid.after ? `; <strong>bid price ${m(t.bid.delta)}</strong>` : ""}. By section: ${esc(d.sections.map((x) => `${x.name} ${m(x.delta)}`).join(", ") || "none")}.</p>`
+        + (d.unpricedChanges.length ? `<p class="note">A side has no price, so not in the total: ${esc(d.unpricedChanges.join("; "))}.</p>` : "");
+    }
+    $("#coSave").addEventListener("click", () => { if (!last?.budget) return; coBase = JSON.parse(JSON.stringify(last.budget)); record("change_order_saved"); renderChange(); $("#coState").textContent = "Original saved. Now change the plan or prices."; });
+    $("#coClear").addEventListener("click", () => { coBase = null; renderChange(); });
     function buildProposal() {
       if (!last?.budget) return null;
       const lines = (id) => $(id).value.split(/\n/).map((x) => x.trim()).filter(Boolean);
-      return proposal(last.budget, { client: $("#propClient").value.trim(), project: $("#propProject").value.trim(), date: new Date().toISOString().slice(0, 10), validDays: Math.max(1, Math.round(Number($("#propDays").value) || 30)), inclusions: lines("#propIncl"), exclusions: lines("#propExcl"), terms: lines("#propTerms"), payments: lines("#propPay").map((x) => { const i = x.lastIndexOf(","); return { name: x.slice(0, i < 0 ? x.length : i).trim() || x, pct: i < 0 ? NaN : Number(x.slice(i + 1)) }; }), partial: $("#propPartial").checked });
+      return proposal(last.budget, { client: $("#propClient").value.trim(), project: $("#propProject").value.trim(), date: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10), validDays: Math.max(1, Math.round(Number($("#propDays").value) || 30)), inclusions: lines("#propIncl"), exclusions: lines("#propExcl"), terms: lines("#propTerms"), payments: lines("#propPay").map((x) => { const i = x.lastIndexOf(","); return { name: x.slice(0, i < 0 ? x.length : i).trim() || x, pct: i < 0 ? NaN : Number(x.slice(i + 1)) }; }), partial: $("#propPartial").checked });
     }
     function showProposal() {
       if (!run()) return null;
@@ -1137,9 +1282,10 @@
       return q;
     }
     function run() {
-      const { plan, bad, source } = toPlan();
+      let { plan, bad, source } = toPlan();
       $("#errors").innerHTML = "";
       if (bad.length) { $("#errors").innerHTML = `<ul>${bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; }
+      { const ex = /** @type {any} */ (expandSteppedWalls(plan)); if (!ex.ok) { $("#errors").innerHTML = `<ul>${ex.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; } plan = ex.plan; }
       let result, nailers = [], floor = null, stairs = null, deck = null, floorExtra = [], roof = null, foundation = null, drywall = null;
       try {
         if (plan.foundation) {
@@ -1227,7 +1373,7 @@
       }
       last = { plan, result, nailers, floor, deck, stairs, roof, foundation, drywall, insulation, trim, siding, eaves, gutters, dormer, fasteners };
       const s = result.summary;
-      const money = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const money = (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#summary").innerHTML = `<div class="big">
         <div><strong>${money(s.cost)}</strong>order cost at your prices</div>
         <div><strong>${s.boards}</strong>boards for ${s.pieces} pieces</div>
@@ -1236,6 +1382,7 @@
         <div><strong>${money(s.naiveCost)}</strong>if every piece were bought on its own board</div>
       </div><p class="note">${s.walls} walls, ${s.wallFeet.toFixed(1)} ft of wall; ${s.fullHeightMembers} full-height studs, kings and backing. Bought ${s.boughtFeet.toFixed(1)} ft of board for ${s.neededFeet.toFixed(1)} ft of pieces.</p>`;
       $("#order").innerHTML = `<table><thead><tr><th class="n">Qty</th><th>Size</th><th>Length</th><th>Note</th><th class="n">Price each</th><th class="n">Total</th></tr></thead><tbody>${result.orders.flatMap((o) => o.lines.map((l) => `<tr><td class="n">${l.qty}</td><td>${esc(o.size)}</td><td>${formatLength(l.length)}</td><td>${esc(l.label)}</td><td class="n">${money(l.price)}</td><td class="n">${money(l.price * l.qty)}</td></tr>`)).join("")}</tbody></table>
+        ${result.culls && result.culls.length ? `<p class="note">Cull allowance (${result.summary.cullBoards} spare boards, ${money(result.summary.cullCost)}, kept apart from the exact order above): ${result.culls.map((l) => `${l.qty} x ${esc(l.size)} ${formatLength(l.length)} (${(100 * l.pct).toFixed(1)}%)`).join(", ")}. Order with culls: ${money(result.summary.costWithCulls)}.</p>` : ""}
         <p class="note">${result.orders.map((o) => `${esc(o.size)}: ${esc(o.method)}${o.proven ? ", proven cheapest" : `, within ${money(o.cost - o.bound)} of the bound`}; first fit decreasing would cost ${money(o.ffdCost)}.`).join(" ")}</p>`;
       $("#notes").innerHTML = result.notes.length ? `<h3>Notes</h3><ul>${result.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : "";
       $("#cuts").innerHTML = `<table><thead><tr><th class="n">Qty</th><th>Size</th><th class="n">Length</th><th>Piece</th><th>Walls</th></tr></thead><tbody>${result.cuts.map((c) => `<tr><td class="n">${c.qty}</td><td>${esc(c.size)}</td><td class="n">${formatInches(c.length)}</td><td>${esc(c.kind)}</td><td>${esc(c.walls.join(", "))}</td></tr>`).join("")}</tbody></table>`;
@@ -1301,6 +1448,8 @@
         $("#inEff").value = ins.assembly ? "true" : "";
         $("#inContR").value = ins.assembly?.continuousR ?? "";
         $("#inAssumedF").value = ins.assembly?.assumedFramingFraction ?? "";
+        $("#inCeilR").value = ins.assembly?.ceilingR ?? "";
+        $("#inCeilAtt").value = ins.assembly?.ceilingFromAttic ? "true" : "";
         for (const [id, k] of [["inWinU", "windowU"], ["inDoorU", "doorU"], ["inSlabF", "slabEdgeF"], ["inAch50", "ach50"], ["inNFac", "nFactor"], ["inVol", "volumeCuFt"], ["inDeltaF", "designDeltaF"], ["inHdd", "heatingDegreeDays"]]) $("#" + id).value = ins.assembly?.[k] ?? "";
         $("#inAtticR").value = ins.attic?.rValue != null ? String(ins.attic.rValue) : ""; $("#inAtticPer").value = ins.attic?.rPerInch != null ? String(ins.attic.rPerInch) : "";
         $("#inAtticBag").value = ins.attic?.bagCuFt != null ? String(ins.attic.bagCuFt) : "";
@@ -1312,6 +1461,7 @@
       $("#dkJoist").value = dkp?.joist || "2x8"; $("#dkSpacing").value = dkp?.spacing != null ? String(dkp.spacing) : ""; $("#dkBeam").value = dkp?.beam || "2x10";
       $("#dkPost").value = dkp?.postSize || "6x6"; $("#dkFree").value = dkp?.freestanding ? "true" : ""; $("#dkStair").value = dkp?.stairs ? "true" : ""; $("#dkBorder").value = dkp?.border === true ? "1" : dkp?.border ? String(dkp.border) : "";
       $("#dkBlocking").value = dkp?.blocking?.every > 0 ? String(dkp.blocking.every) : "";
+      for (const [id, key] of [["#dkJoistCheck", "joistCheck"], ["#dkBeamCheck", "beamCheck"]]) { const c = dkp?.[key]; $(id).value = c ? [c.deadPsf, c.livePsf, c.Fb, c.Fv, c.E, ...(c.deflLimit != null ? [c.deflLimit] : [])].join(", ") : ""; }
       { const pc = dkp?.postCheck; $("#dkPostCheck").value = pc ? [pc.deadPsf, pc.livePsf, pc.fc, pc.emin, ...(pc.fcPerp != null ? [pc.fcPerp] : [])].join(", ") : ""; }
       $("#dkGuard").value = dkp?.guard === false ? "none" : dkp?.guard ? "always" : "";
       { const gs = dkp?.guard && typeof dkp.guard === "object" && Array.isArray(dkp.guard.sides) ? dkp.guard.sides.join(",") : ""; $("#dkGuardSides").value = [...$("#dkGuardSides").options].some((o) => o.value === gs) ? gs : ""; }
@@ -1352,6 +1502,7 @@
       $("#faHdEnds").value = fa?.holdDowns?.wallEnds ? "true" : ""; $("#faHdOpen").value = fa?.holdDowns?.openingMinWidth != null ? String(fa.holdDowns.openingMinWidth) : ""; $("#faHdPrice").value = fa?.holdDowns?.price != null ? String(fa.holdDowns.price) : "";
       $("#faRtOn").value = fa?.rafterTies ? String(fa.rafterTies.perBearing ?? 1) : ""; $("#faRtPrice").value = fa?.rafterTies?.price != null ? String(fa.rafterTies.price) : "";
       $("#faPsOn").value = fa?.plateStraps ? String(fa.plateStraps.perJoint ?? 1) : ""; $("#faPsPrice").value = fa?.plateStraps?.price != null ? String(fa.plateStraps.price) : "";
+      { const wb = fa?.wallBracing; $("#faWbOn").value = wb ? "1" : ""; $("#faWbSpacing").value = wb && wb.spacing != null ? String(wb.spacing) : ""; $("#faWbPrice").value = wb && wb.price != null ? String(wb.price) : ""; }
       const fn = plan.foundation;
       $("#fnOn").checked = Boolean(fn); $("#fnFields").hidden = !fn;
       if (fn) {
@@ -1412,7 +1563,7 @@
         later(run, 0);
       }
     });
-    $("#addWall").addEventListener("click", () => { ui.walls.push({ id: `Wall ${ui.walls.length + 1}`, length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "", partition: false, freeEnds: "0" }); renderAll(); later(run, 0); });
+    $("#addWall").addEventListener("click", () => { ui.walls.push({ id: `Wall ${ui.walls.length + 1}`, length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "", partition: false, freeEnds: "0", steps: "" }); renderAll(); later(run, 0); });
     $("#addOpening").addEventListener("click", () => { ui.openings.push({ wall: ui.walls[0]?.id || "", kind: "window", label: "", offset: "24", width: "36", height: "48", headerHeight: "", header: "2x10", plies: "", jacks: 1 }); renderOpenings(); later(run, 0); });
     $("#addStock").addEventListener("click", () => { ui.stock.push({ size: "2x4", length: "8'", price: 8, label: "" }); renderStock(); });
     $("#resetStock").addEventListener("click", () => { ui.stock = defaultStock(parseLength($("#studLength").value) || PRECUT["8ft"]).map((s) => ({ size: s.size, length: formatLength(s.length), price: s.price, label: s.label || "" })); renderStock(); later(run, 0); });
@@ -1422,7 +1573,7 @@
     $("#sheathR").addEventListener("change", () => run());
     $("#run").addEventListener("click", () => { if (run()) record("takeoff_run"); });
     $("#example").addEventListener("click", () => { if (load(samplePlan())) { record("example_loaded"); $("#status").textContent = "Example: an invented 40 x 28 ft ranch, not a real plan."; } });
-    $("#clear").addEventListener("click", () => { ui.walls = [{ id: "Wall 1", length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "", partition: false, freeEnds: "0" }]; ui.openings = []; renderAll(); run(); $("#status").textContent = "Started an empty plan with one wall."; });
+    $("#clear").addEventListener("click", () => { ui.walls = [{ id: "Wall 1", length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "", partition: false, freeEnds: "0", steps: "" }]; ui.openings = []; renderAll(); run(); $("#status").textContent = "Started an empty plan with one wall."; });
     $("#wallPick").addEventListener("change", showWall);
     const download = (name, type, text) => {
       const a = document.createElement("a");
@@ -1432,11 +1583,22 @@
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     };
     $("#csv").addEventListener("click", () => { if (run() && last) { download("framing-takeoff.csv", "text/csv", toCsv(last.result)); record("csv_downloaded"); } });
-    $("#drawingsPdf").addEventListener("click", () => { if (run() && last) { download("wall-drawings.pdf", "application/pdf", drawingSetPdf(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0) })); record("drawings_pdf_downloaded"); } });
-    $("#drawings").addEventListener("click", () => { if (run() && last) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0), sheathPsf: Math.max(0, parseFloat($("#sheathPsf").value) || 0), panelSheets: $("#panelSheets").checked })); record("drawings_downloaded"); } });
+    // 0 = whole walls; a size outside 6 in to 100 ft is refused (the engine throws on it), never passed on.
+    function panelMaxIn() { const v = Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0); return v > 0 && panelMaxError(v) ? -1 : v; }
+    function panelMaxOk() { if (panelMaxIn() < 0) { $("#status").textContent = "Longest shop panel: " + panelMaxError(Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0)) + "."; return false; } return true; }
+    $("#drawingsPdf").addEventListener("click", () => { if (run() && last && panelMaxOk()) { download("wall-drawings.pdf", "application/pdf", drawingSetPdf(last.result, last.plan, { panelMax: panelMaxIn() })); record("drawings_pdf_downloaded"); } });
+    $("#openingsCsvBtn").addEventListener("click", () => {
+      if (!run() || !last) return;
+      const sch = layoutOpeningSchedule(last.plan.openingSchedule || {}, last.plan);
+      if (!sch.ok) { $("#errors").innerHTML = `<ul>${sch.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return; }
+      if (!sch.rows.length) { $("#errors").innerHTML = "<ul><li>No doors or windows in the plan, so there is no schedule to download.</li></ul>"; return; }
+      download("door-window-schedule.csv", "text/csv", openingScheduleCsv(sch)); record("openings_csv_downloaded");
+    });
+    $("#drawings").addEventListener("click", () => { if (run() && last && panelMaxOk()) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan, { panelMax: panelMaxIn(), sheathPsf: Math.max(0, parseFloat($("#sheathPsf").value) || 0), panelSheets: $("#panelSheets").checked })); record("drawings_downloaded"); } });
     $("#panelOrderBtn").addEventListener("click", () => {
       if (!run() || !last) return;
-      const panelMax = Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0);
+      const panelMax = panelMaxIn();
+      if (panelMax < 0) { panelMaxOk(); return; }
       if (!panelMax) { $("#status").textContent = "Enter the longest shop panel (e.g. 12 ft) in the wall settings first."; return; }
       const po = panelOrder(last.result, last.plan, panelMax, last.nailers);
       download("shop-panel-lumber-order.txt", "text/plain", [...panelOrderText(po), "", ...panelPullText(po)].join("\n") + "\n");
@@ -1450,11 +1612,31 @@
     });
     $("#priceText").addEventListener("input", () => { renderBudget(); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } });
     $("#bidText").addEventListener("input", renderBids);
+    {
+      const buy = buyLink(CHECKOUT_URL);
+      if (buy) { $("#buyLink").href = buy; $("#buyRow").hidden = false; }
+      let logo = "";
+      $("#pkgLogo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { logo = ""; return; } const r = new FileReader(); r.onload = () => { logo = String(r.result); }; r.readAsDataURL(f); });
+      $("#pkgCheck").addEventListener("click", async () => {
+        $("#pkgState").textContent = "Checking...";
+        const v = await checkLicence($("#pkgKey").value, { url: VALIDATE_URL });
+        $("#pkgState").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (no licence is on sale yet)");
+        $("#pkgFields").hidden = !v.valid;
+        if (v.valid) record("bid_package_unlocked");
+      });
+      $("#pkgOpen").addEventListener("click", () => {
+        const q = showProposal(); if (!q) return;
+        const html = bidPackageHtml(q, last.budget, { company: $("#pkgCo").value, licenseNo: $("#pkgLic").value, accent: $("#pkgAccent").value, address: $("#pkgAddr").value, phone: $("#pkgPhone").value, email: $("#pkgMail").value, logo });
+        const url = URL.createObjectURL(new Blob([html], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000);
+        record("bid_package_opened");
+      });
+    }
     $("#propBtn").addEventListener("click", () => { if (showProposal()) record("proposal_previewed"); });
     $("#propPrint").addEventListener("click", () => { const q = showProposal(); if (!q) return; const url = URL.createObjectURL(new Blob([proposalHtml(q)], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000); record("proposal_printed"); });
     $("#propDl").addEventListener("click", () => { const q = showProposal(); if (q && q.ok) { download("framing-proposal.txt", "text/plain", proposalText(q).join("\n") + "\n"); record("proposal_downloaded"); } });
     $("#budgetCsvBtn").addEventListener("click", () => { if (run() && last?.budget) { download("framing-budget.csv", "text/csv", budgetCsv(last.budget)); record("budget_csv_downloaded"); } });
     $("#savePlan").addEventListener("click", () => { const { source, bad } = toPlan(); if (bad.length) { run(); return; } download("framing-plan.json", "application/json", JSON.stringify(source, null, 2)); record("plan_saved"); });
+    let ifcBytes = null, ifcName = "";
     $("#openPlan").addEventListener("change", async (e) => {
       const input = /** @type {HTMLInputElement} */ (e.target);
       const file = input.files && input.files[0];
@@ -1462,19 +1644,45 @@
       try {
         const base = samplePlan();
         let plan, dxfNote = "";
-        if (/\.dxf$/i.test(file.name)) {
-          const r = planFromDxf(await file.text());
+        $("#ifcStoreyWrap").hidden = true;
+        if (/\.(dxf|ifc)$/i.test(file.name)) {
+          let dxfText, ifcSizes;
+          if (/\.ifc$/i.test(file.name)) {
+            ifcBytes = new Uint8Array(await file.arrayBuffer());
+            const eng = await loadIfcEngine();
+            const info = eng.plan(ifcBytes, 0);
+            if (info.error) { $("#status").textContent = `Could not read ${file.name}: ${info.error}`; return; }
+            const sel = $("#ifcStorey");
+            sel.replaceChildren(...info.storeys.map((st) => new Option(`${st.index}: ${st.name || "storey"} (${st.elevation.toFixed(2)} m)`, String(st.index))));
+            $("#ifcStoreyWrap").hidden = info.storeys.length < 2;
+            ifcName = file.name;
+            dxfText = eng.dxf(ifcBytes, Number(sel.value) || 0);
+            ifcSizes = openingSizes(eng.plan(ifcBytes, Number(sel.value) || 0));
+            if (!dxfText) { $("#status").textContent = `Could not read walls from ${file.name}.`; return; }
+            dxfNote = ` IFC read in your browser (lowest storey first; pick another above).`;
+          }
+          const r = planFromDxf(dxfText ?? await file.text(), ifcSizes ? { openingSize: ifcSizes } : {});
           if (!r.ok) { $("#status").textContent = `Could not read ${file.name}: ${r.errors.join(" ")}`; return; }
           plan = r.plan;
-          dxfNote = ` ${r.stats.walls} walls, ${r.stats.tees} tees, ${r.stats.openings} openings. ${r.notes.join(" ")}`;
+          dxfNote += ` ${r.stats.walls} walls, ${r.stats.tees} tees, ${r.stats.openings} openings. ${r.notes.join(" ")}`;
         } else plan = JSON.parse(await file.text());
         for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock"]) if (!(k in plan)) plan[k] = base[k];
         load(plan);
-        if (dxfNote) record("dxf_opened"); else record("plan_opened");
+        if (dxfNote) { if (/\.ifc$/i.test(file.name)) record("ifc_opened"); else record("dxf_opened"); } else record("plan_opened");
         $("#status").textContent = `Opened ${file.name}.${dxfNote}`;
       } catch (err) {
         $("#status").textContent = `Could not read ${file.name} as a plan file.`;
       }
+    });
+    $("#ifcStorey").addEventListener("change", async () => {
+      if (!ifcBytes) return;
+      const eng = await loadIfcEngine();
+      const r = planFromDxf(eng.dxf(ifcBytes, Number($("#ifcStorey").value)), { openingSize: openingSizes(eng.plan(ifcBytes, Number($("#ifcStorey").value))) });
+      if (!r.ok) { $("#status").textContent = `Could not read that storey of ${ifcName}: ${r.errors.join(" ")}`; return; }
+      const base = samplePlan(), plan = r.plan;
+      for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock"]) if (!(k in plan)) plan[k] = base[k];
+      load(plan);
+      $("#status").textContent = `Opened ${ifcName}, storey ${$("#ifcStorey").value}. ${r.stats.walls} walls, ${r.stats.tees} tees, ${r.stats.openings} openings. ${r.notes.join(" ")}`;
     });
     $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
     $("#flOn").addEventListener("change", () => { $("#flFields").hidden = !$("#flOn").checked; if ($("#flOn").checked) record("floor_on"); });

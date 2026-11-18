@@ -128,7 +128,7 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const keys = ["lumper", "linehaul", "apr", "waitHours", "freeHours", "detentionRate", "hourlyValue", "perMonth", "routes"];
-    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const usd = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     let last = null;
 
     function read() {
@@ -147,7 +147,7 @@
       $("#sens").innerHTML = sensitivity(input).map((x) => `<tr><th scope="row">${usd(x.lumper)}</th><td>${usd(x.refunded)}</td><td>${usd(x.net)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Best route: ${r.best.name}, leaving you out ${usd(r.best.net)}.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

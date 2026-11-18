@@ -1,0 +1,30 @@
+Reactant densities in model.py against PubChem Density records (g/cm3)
+
+species    model  sourced min     max   n  verdict
+Pb        11.340       11.300  11.344   5  inside  (CID 5352425)
+PbO2       9.380        9.375   9.640   4  inside  (CID 14793)
+H2SO4      1.830        1.830   1.841   5  inside  (CID 1118)
+H2O        1.000        0.995   0.995   1  inside  (CID 962)
+FePO4      3.070        2.870   2.870   1  OUTSIDE  (CID 24861)
+Li         0.534        0.534   0.534   2  inside  (CID 3028194)
+S          2.070        2.070   2.070   1  inside  (CID 5362487)
+Zn         7.140        7.133   7.134   2  inside  (CID 23994)
+Al         2.700        2.700   2.700   3  inside  (CID 5359268)
+
+Not checkable here (no Density record): LiC6, Li0.5CoO2, liquid O2, liquid H2.
+
+Wh/L (O2 from air) at the model densities, and with every sourced density set to its
+low and to its high end (all species together, a worst-case bracket):
+couple        model    light    dense  swing
+lead_acid       724      724      731    0.9% of model
+li_ion_lco     1382     1382     1382    0.0% of model
+li_ion_lfp     1040     1000     1000    0.0% of model
+li_s           2843     2843     2843    0.0% of model
+zn_air         9659     9649     9651    0.0% of model
+al_air         5887     5865     5865    0.0% of model
+li_o2          6104     6104     6104    0.0% of model
+h2_o2          1314     1314     1314    0.0% of model
+
+Ranking by Wh/L, model: zn_air > li_o2 > al_air > li_s > li_ion_lco > h2_o2 > li_ion_lfp > lead_acid
+Ranking by Wh/L, light: zn_air > li_o2 > al_air > li_s > li_ion_lco > h2_o2 > li_ion_lfp > lead_acid
+Ranking by Wh/L, dense: zn_air > li_o2 > al_air > li_s > li_ion_lco > h2_o2 > li_ion_lfp > lead_acid

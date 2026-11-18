@@ -83,3 +83,36 @@ test("omitted payment stays silent", () => {
   assert.deepEqual(inspectPaymentIban(invoice()), []);
   assert.deepEqual(checkInvoice(invoice()), []);
 });
+
+test("BBAN structure per the registry: right length and mod-97 but letters where digits belong is INV-024", () => {
+  // DE BBAN is 8n10n; build a mod-97-valid IBAN with a letter inside it.
+  const bban = "3704004405A2013000";
+  const n = [...(bban + "DE00")].map((c) => parseInt(c, 36)).join("");
+  let r = 0; for (const d of n) r = (r * 10 + Number(d)) % 97;
+  const iban = "DE" + String(98 - r).padStart(2, "0") + bban;
+  assert.deepEqual(inspectPaymentIban(invoice(iban)).map((f) => f.rule), ["INV-024"]);
+});
+
+test("countries added from the registry are known (OM, SV, RU) and checked", () => {
+  assert.deepEqual(inspectPaymentIban(invoice("OM810180000001299123456")), []);
+  assert.deepEqual(inspectPaymentIban(invoice("OM81018000000129912345")).map((f) => f.rule), ["INV-024"]);
+});
+
+test("national check digits: BE, ES, ME, NO", () => {
+  for (const ok of ["BE68539007547034", "ES9121000418450200051332", "ME25505000012345678951", "NO9386011117947"]) {
+    assert.deepEqual(inspectPaymentIban(invoice(ok)), [], ok);
+  }
+  // keep the IBAN mod-97 valid but break the national digits: swap in a recomputed IBAN check.
+  const recheck = (cc, bban) => {
+    const n = [...(bban + cc + "00")].map((c) => parseInt(c, 36)).join("");
+    let r = 0; for (const d of n) r = (r * 10 + Number(d)) % 97;
+    return cc + String(98 - r).padStart(2, "0") + bban;
+  };
+  for (const [cc, bban] of [["BE", "539007547035"], ["ES", "21000418460200051332"], ["ME", "505000012345678952"], ["NO", "86011117948"]]) {
+    assert.deepEqual(inspectPaymentIban(invoice(recheck(cc, bban))).map((f) => f.rule), ["INV-025"], cc);
+  }
+});
+
+test("inspectPaymentIban returns no findings for a missing or non-object invoice", () => {
+  for (const bad of [null, undefined, 5, "x"]) assert.deepEqual(inspectPaymentIban(bad), []);
+});

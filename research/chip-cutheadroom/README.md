@@ -2,7 +2,7 @@
 
 Track 3 (LLM chip-design loops, `PROJECTS.md`). Why it seemed worth doing: `chip-exact4` showed that Yosys/ABC lands about 1.2 gates above the proven minimum on *isolated* 4-input functions, which suggests a proposer that rewrites small cones with exact optima should find easy wins in real netlists. This asks how many wins there are in the netlists the flow actually produces. Produced with AI assistance (Claude). Preliminary and small: six stylised blocks.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-cutheadroom/
+**Live page:** https://marisstella.app/research/chip-cutheadroom/
 
 ![Gates after the fast flow and the default flow, and the headroom for exact 4-cut rewriting](experiments/headroom.svg)
 
@@ -22,7 +22,7 @@ Track 3 (LLM chip-design loops, `PROJECTS.md`). Why it seemed worth doing: `chip
 ## Reproduce
 ```
 apt-get install -y yosys
-python3 experiments/run.py && python3 experiments/figure.py   # about 1 minute; stdlib only
+python3 experiments/run.py && python3 experiments/figure.py   # about 5 seconds with Yosys 0.33; stdlib only
 python3 -m unittest discover -s tests
 ```
 
@@ -48,3 +48,7 @@ Cuts of 5 and 6 inputs with sampled SAT costs; allow duplication of shared logic
 
 ## Outside dependencies
 Yosys and ABC (apt). No LLM API, OpenROAD or PDK. Exact costs and `exact.py` are copied from `chip-exact4` (MIT).
+
+## Known gaps
+
+From the quality census of 2026-11-15 ([audit](../../portfolio/quality/audits/2026-11-15-chip-cutheadroom.json)): the cut-size bound, the cone-of-3 threshold behind headline 3 and the `$_ORNOT_` semantics can each be changed with every test green (the MFFC rule now has a test); exact-synthesis cut rewriting after ABC (Riener et al., DATE 2019, mockturtle; Haaswijk et al., TCAD 2020) is not yet cited or compared, and no standard benchmark (EPFL, ISCAS) is run; headline 3 rests on one single-pass, positive-gain measurement.

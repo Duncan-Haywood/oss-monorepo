@@ -1,0 +1,22 @@
+A. CD0 needed for L/D 6.8 (and 5.4 for the 75 km @ 6 kg case); negative = unreachable even with CD0 = 0
+   S 0.5 m2 AR  8 CL 1.28: CD0 +0.107 (L/D 6.8)  +0.156 (L/D 5.4)
+   S 0.5 m2 AR 10 CL 1.28: CD0 +0.123 (L/D 6.8)  +0.172 (L/D 5.4)
+   S 0.5 m2 AR 12 CL 1.28: CD0 +0.134 (L/D 6.8)  +0.183 (L/D 5.4)
+   S 0.7 m2 AR  8 CL 0.91: CD0 +0.093 (L/D 6.8)  +0.128 (L/D 5.4)
+   S 0.7 m2 AR 10 CL 0.91: CD0 +0.101 (L/D 6.8)  +0.136 (L/D 5.4)
+   S 0.7 m2 AR 12 CL 0.91: CD0 +0.107 (L/D 6.8)  +0.142 (L/D 5.4)
+   S 1.0 m2 AR  8 CL 0.64: CD0 +0.074 (L/D 6.8)  +0.098 (L/D 5.4)
+   S 1.0 m2 AR 10 CL 0.64: CD0 +0.078 (L/D 6.8)  +0.102 (L/D 5.4)
+   S 1.0 m2 AR 12 CL 0.64: CD0 +0.081 (L/D 6.8)  +0.105 (L/D 5.4)
+B. L/D at a clean-aircraft CD0 0.035 (AR 10)
+   S 0.5: 12.8
+   S 0.7: 13.4
+   S 1.0: 12.5
+C. sensitivity to S at CD0 0.07, AR 10
+   L/D ['9.5', '8.9', '7.4'] spread 28%
+D. L/D of a clean polar at 0.7 m2 vs CD0 (AR 10)
+   CD0 0.03: 14.5
+   CD0 0.05: 11.0
+   CD0 0.07: 8.9
+   CD0 0.09: 7.4
+   CD0 0.11: 6.4

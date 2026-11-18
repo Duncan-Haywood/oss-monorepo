@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKkrrYRSxLqekvyKyxk",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T22:09:49Z",
+  "ended": "2026-11-12T22:19:48Z",
+  "wall_minutes": 10.2,
+  "tokens_in": 5057840,
+  "tokens_out": 36743,
+  "cost_usd": 2.9432,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15274",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "pytest absent from the default python3; pyenv.py returned /usr/bin/python3.13 at once",
+    "post front matter seo_title/description over length on first try (check_post_frontmatter caught it)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says papers need pdflatex (10 min install) but the venue-format draft convention in other programmes (aerolog-scaling/paper/draft.md) is Markdown; unclear whether milestone 'paper draft in the venue's format' requires LaTeX. Chose Markdown in the venue's structure and listed elsarticle conversion as a pre-submission step."
+    },
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "Run on paper/draft.md it does not reuse the project's cite_check.json cache (it lives one directory up), so ids confirmed live earlier today print SKIP instead of ok*."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Paper 'in the venue's format' read as Elsevier article structure in Markdown, not elsarticle LaTeX, to avoid a 10 min texlive install for a draft that still needs authorship and citation checks.",
+      "did": "Markdown draft with highlights, abstract, keywords, sections, AI declaration and references.bib; LaTeX conversion listed as a pre-submission step in paper/README.md",
+      "result": "Draft landed with a 70-check number verifier; LaTeX left open"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-sheathing-robot-paper-draft-five-hypotheses-scored.md",
+    "research/buildbot-sheathing/LOG.md (milestone 8 entry)",
+    "research/buildbot-sheathing/paper/README.md"
+  ],
+  "goal": null,
+  "notes": "Programme buildbot-sheathing drawn by pick_track.py; milestone 8 (paper draft) was the only open one; no open PR claimed it. Shipped paper/draft.md, references.bib, check_numbers.py (70 of 70 ok) and tests/test_paper.py (2 tests). Local checks: research-ci.yml 3/3 run steps ok via run_workflow_locally --for-changes; research/_homepage/build.py ok; check_md_links ok; project tests 37 passed, 6 skipped (mujoco/drake absent). Writing the paper scored the proposal's H-A..H-E for the first time: H-B, H-C, H-E held; H-D half refuted (gantry crossing 501 houses/yr vs 30-300 registered); H-A held only at 0.5 mm stud read.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4a435da8-81ae-51d1-8401-6fcf9668eaa8",
+    "transcripts": 1,
+    "first": "2026-11-12T22:09:49Z",
+    "last": "2026-11-12T22:20:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 79,
+        "output": 36743,
+        "thinking": 3965,
+        "cache_read": 4904363,
+        "cache_write_5m": 0,
+        "cache_write_1h": 153398,
+        "api_equivalent_usd": 2.9432,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 79,
+      "output": 36743,
+      "thinking": 3965,
+      "cache_read": 4904363,
+      "cache_write_5m": 0,
+      "cache_write_1h": 153398,
+      "api_equivalent_usd": 2.9432,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 37,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.2,
+      "active_minutes": 10.2,
+      "model_minutes": 7.45,
+      "tool_minutes": 2.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a researcher drafting a ~6,000-word journal article from seven existing results files plus a number checker",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 407.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

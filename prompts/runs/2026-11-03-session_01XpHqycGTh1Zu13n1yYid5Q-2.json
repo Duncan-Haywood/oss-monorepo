@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01XpHqycGTh1Zu13n1yYid5Q",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "i think it also makes sense to vamp up the structure of the task and direction handling system.",
+  "input_sha256": "9582808a7df1dd22a6810ebfda9cf4712d0d8272ea613d67078f0ac634f7a899",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T20:28:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 12929,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Reusing the designated branch after a squash merge needs a force push, which the auto-mode classifier refuses; merging main into the old tip works instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Owner-directed interactive run, follow-up to PR 12905; did not use the routed track draw.",
+      "did": "built portfolio/work registry + workctl",
+      "result": "validate ok, 6 tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-03-directions-get-a-registry-and-a-task-picker.md",
+    "portfolio/work/README.md"
+  ],
+  "goal": null,
+  "notes": "workctl.py validate ok (30 directions, 14 tasks); 6 tests pass run directly (no pytest in bare python3); check_post_frontmatter and check_md_links pass. Control-plane follow-up (prompt.md pointer, CI step) left for an owner-approved PR.",
+  "corrections": [],
+  "redteam": null
+}

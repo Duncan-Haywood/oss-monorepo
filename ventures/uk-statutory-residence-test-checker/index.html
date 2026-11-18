@@ -71,7 +71,7 @@
     </div>
     <fieldset><legend>Work</legend><div class="grid">
       <div><label for="fullTimeAbroad">Full-time work abroad all year?</label><span class="note"> 35+ hours a week on average, no break of 31+ days.</span><select id="fullTimeAbroad"><option value="no">No</option><option value="yes">Yes</option></select></div>
-      <div><label for="ukWorkDays">UK days you worked 3+ hours</label><span class="note"> Counts for the work tie (40+) and overseas test 3 (under 31).</span><input id="ukWorkDays" type="number" min="0" step="1" placeholder="0"></div>
+      <div><label for="ukWorkDays">UK days you worked more than 3 hours</label><span class="note"> Counts for the work tie (40+) and overseas test 3 (under 31).</span><input id="ukWorkDays" type="number" min="0" step="1" placeholder="0"></div>
       <div><label for="ukFullTimeWork">Full-time work in the UK over a 365-day period?</label><span class="note"> 75%+ of days over 3 hours, no break of 31+ days, spanning part of this year.</span><select id="ukFullTimeWork"><option value="no">No</option><option value="yes">Yes</option></select></div>
     </div></fieldset>
     <fieldset><legend>Homes</legend><div class="grid">
@@ -85,7 +85,7 @@
       <div><label for="accommodation">Accommodation tie?</label><span class="note"> Somewhere to live available for 91+ days that you spent at least one night in (16 nights if it is a close relative's).</span><select id="accommodation"><option value="no">No</option><option value="yes">Yes</option></select></div>
       <div><label for="prev1">UK days in the previous tax year</label><span class="note"> Leave blank to count from your stays.</span><input id="prev1" type="number" min="0" step="1" placeholder="from stays"></div>
       <div><label for="prev2">UK days two tax years ago</label><span class="note"> Leave blank to count from your stays.</span><input id="prev2" type="number" min="0" step="1" placeholder="from stays"></div>
-      <div><label for="mostElsewhere">Most days in any one other country this year</label><span class="note"> Leavers only: the country tie needs more UK days than this.</span><input id="mostElsewhere" type="number" min="0" step="1" placeholder="0"></div>
+      <div><label for="mostElsewhere">Most days in any one other country this year</label><span class="note"> Leavers only: the country tie needs at least this many UK days (a draw counts).</span><input id="mostElsewhere" type="number" min="0" step="1" placeholder="0"></div>
     </div></fieldset>
     <p>
       <button type="button" id="calc">Run the test</button>
@@ -175,7 +175,7 @@
       $("#ties").innerHTML = v.ties ? v.ties.list.map((t) => `<tr><td>${esc(t.label)}</td><td>${t.present ? "Yes" : "No"}</td></tr>`).join("") + `<tr class="total"><td>${v.ties.count} present, ${v.ties.needed} needed</td><td></td></tr>` : `<tr><td colspan="2">An automatic test decided, so ties were not needed.</td></tr>`;
       report.hidden = false;
       status.textContent = "Done. Verify with HMRC's RDR3 guidance named in the summary.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

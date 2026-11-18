@@ -181,7 +181,7 @@
     let last = null;
     const map = { tubs: "tubs", price: "price", addonprice: "addOnPrice", addonpct: "addOnPct", weekdaysopen: "weekdaysOpen", weekenddaysopen: "weekendDaysOpen", openhours: "openHours", washminutes: "washMinutes", cleanupminutes: "cleanupMinutes", washesweekday: "washesWeekday", washesweekend: "washesWeekend", peakfirstmonth: "peakFirstMonth", peakmonths: "peakMonths", peakpct: "peakPct", offpct: "offPct", fswashesperday: "fsWashesPerDay", fsprice: "fsPrice", fsminutes: "fsMinutes", fswage: "fsWage", gallonsperwash: "gallonsPerWash", waterper1000: "waterPer1000", heatperwash: "heatPerWash", suppliesperwash: "suppliesPerWash", towelperwash: "towelPerWash", cardpct: "cardPct", repairspct: "repairsPct", attendanthours: "attendantHours", attendantwage: "attendantWage", burdenpct: "burdenPct", rent: "rent", utilitiesbase: "utilitiesBase", insurance: "insurance", softwaremarketing: "softwareMarketing", otherfixed: "otherFixed", ownerpay: "ownerPay", tubcost: "tubCost", sqft: "sqft", buildpersqft: "buildPerSqft", permits: "permits", signagepos: "signagePos", inventory: "inventory", cashreserve: "cashReserve", otherstartup: "otherStartup", startmonth: "startMonth", startutilpct: "startUtilPct", rampmonths: "rampMonths", ltcpct: "ltcPct", loanrate: "loanRate", termyears: "termYears", horizonmonths: "horizonMonths", exitmultiple: "exitMultiple", targetyield: "targetYield", targetpayback: "targetPayback" };
     const IDLE = "Fill in your shop, then click Work out the shop. Only tubs, price and weekday washes per tub are required; the rest default to zero or the neutral choice.";
-    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
     const pct = (n) => (n === null ? "n/a" : (n * 100).toFixed(1) + "%");
     const cov = (n) => (n === null ? "no loan" : n.toFixed(2));
 
@@ -204,7 +204,7 @@
       $("#month-rows").innerHTML = r.months.map((x) => `<tr><td class="n">${x.month}</td><td>${x.calendar}</td><td class="n">${Math.round(x.washes)}</td><td class="n">${whole(x.revenue)}</td><td class="n">${whole(x.operating)}</td><td class="n">${whole(x.cash)}</td><td class="n">${whole(x.cumulative)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

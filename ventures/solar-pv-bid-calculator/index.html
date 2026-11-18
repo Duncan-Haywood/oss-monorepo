@@ -14,7 +14,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2430; background: #f3efe6; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 740px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #ac4f09; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .78fr); gap: 18px; align-items: start; }
@@ -108,6 +108,15 @@
       @page { margin: 16mm; }
     }
   </style>
+  <!-- select-span:start -->
+  <style>
+    /* A field whose longest choice is wider than its column takes the whole row, so the choice
+       reads in full instead of being cut under the arrow. Written by platform/pages/select-span.mjs
+       (docs/reports/polish-2026-11-14-select-span.md); re-run it after changing the options. */
+    div.fields > label:has(> #roofPreset),
+    div.fields > label:has(> #electricalPreset) { grid-column: 1 / -1; }
+  </style>
+  <!-- select-span:end -->
 </head>
 <body>
   <header>
@@ -290,6 +299,7 @@
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or electrical-code advice, and it does not tell you what to charge. It is not a structural, interconnection, or incentive determination. Verify every figure against your own payroll, invoices, AHJ and utility requirements, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose into the address bar and is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include your system size, wages, costs, or prices.</p>
     <p>See also: <a href="./how-much-to-charge-to-install-solar-panels.html">how much to charge to install solar panels</a> &middot; <a href="./vs-aurora-solar.html">this calculator vs. Aurora Solar</a> &middot; <a href="./vs-a-flat-price-per-watt.html">this calculator vs. a flat price-per-watt quote</a>.</p>
+    <p>Laying out the strings? The <a href="../pv-string-sizer/">PV string sizer</a> checks modules per string against the cold-weather Voc and the inverter&rsquo;s MPPT window &mdash; nothing uploaded.</p>
     <p>Quoting backup power rather than an array? The <a href="../standby-generator-bid-calculator/">standby generator bid calculator</a> prices the gas run, the transfer switch, and the fuel instead of a flat hang &mdash; nothing uploaded.</p>
     <p class="support">Free and open source. If it keeps you from matching a losing per-watt quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
       <p>Homeowner comparing a solar quote? The <a href="../solar-payback-calculator/">solar payback calculator</a> shows payback and how a lower export credit changes it &mdash; nothing uploaded.</p>
@@ -297,7 +307,7 @@
 
   <script type="module">
     import { calculateBid, formatBidSummary, ROOF_PRESETS, ELECTRICAL_PRESETS, SYSTEM_PRESETS } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
     import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
       overlongTermsNote } from './proposal-terms.mjs';
@@ -341,7 +351,7 @@
     el('electricalPreset').value = 'none';
 
     function count(event) {
-      recordUsage(localStorage, el('usageOptOut').checked, event);
+      recordUsage(usageStorage(), el('usageOptOut').checked, event);
     }
 
     function readInput() {
@@ -577,8 +587,15 @@
       + 'browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no '
       + 'warranty. It is not an electrical, structural, building-code, utility-interconnection, or energy-production determination.';
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) {
         if (saved[field]) el(field).value = saved[field];
       }
@@ -629,7 +646,7 @@
     function showProposal() {
       const result = calculateBid(readInput());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -679,7 +696,7 @@
       }
       el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
       count('proposal_printed');
-      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el('proposalDoc').scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
       // After paint, so the browser renders the document before the sheet is
       // captured; without it an empty page can go to the printer.
       requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
@@ -690,7 +707,7 @@
     document.addEventListener('change', refreshProposal);
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) el(field).value = '';
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';
@@ -709,8 +726,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

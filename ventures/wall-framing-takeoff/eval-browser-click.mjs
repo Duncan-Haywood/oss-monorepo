@@ -68,6 +68,11 @@ await page.waitForFunction(() => document.querySelector("#fastenersOut")?.textCo
 const nailTxt = await page.textContent("#fastenersOut");
 const nailOk = /Sheathing nails/.test(nailTxt) && !/NaN|undefined/.test(nailTxt) && (await page.textContent("#budgetOut")).includes("Framing nails");
 console.log(nailOk ? "ok: nails by connection with sheathing, box count and budget line" : "FAIL: nails card\n" + nailTxt.slice(0, 400));
+// Wall braces: the select and a price reach the fasteners card and the budget line.
+await page.selectOption("#faWbOn", "1"); await page.fill("#faWbPrice", "12");
+await page.waitForFunction(() => /wall brace\(s\)/.test(document.querySelector("#fastenersOut")?.textContent || ""));
+const wbTxt = await page.textContent("#fastenersOut");
+console.log(/\d+ wall brace\(s\) at 45 degrees/.test(wbTxt) && !/NaN|undefined/.test(wbTxt) ? "ok: wall braces from the page controls" : "FAIL: wall braces\n" + wbTxt.slice(0, 400));
 // Piers: a typed group reaches the foundation card with its name, concrete and rebar.
 await page.check("#fnOn");
 await page.fill("#fnPiers", "6, 24, 12, 8, 30, 4, 4, deck posts");
@@ -234,6 +239,25 @@ await page.click("#run");
 await page.waitForFunction(() => /Stringer connection and bearing: write connector lb/.test(document.body.textContent));
 console.log("ok: malformed stringer connector/bearing refused on the page");
 await page.fill("#stCheck2", "");
+// Notched support (#stCheck3): "throat" and inches reach the saved plan; a bad value is refused.
+await page.fill("#stCheck", "40, 12, 900, 180, 1300000, 240");
+await page.fill("#stCheck3", "5");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer check \(/.test(document.querySelector("#stairsOut")?.textContent || ""));
+const [svs3] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const sk3 = JSON.parse(await (await import("node:fs/promises")).readFile(await svs3.path(), "utf8")).stairs?.stringerCheck;
+console.log(sk3 && sk3.notchedSupport === 5 ? "ok: stringer notched support typed on the page, saved in the plan" : "FAIL: notchedSupport " + JSON.stringify(sk3));
+await page.fill("#stCheck3", "throat");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer check \(/.test(document.querySelector("#stairsOut")?.textContent || ""));
+const [svs4] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const sk4 = JSON.parse(await (await import("node:fs/promises")).readFile(await svs4.path(), "utf8")).stairs?.stringerCheck;
+console.log(sk4 && sk4.notchedSupport === true ? "ok: stringer notched support 'throat' saved as true" : "FAIL: notchedSupport throat " + JSON.stringify(sk4));
+await page.fill("#stCheck3", "-2");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer notched at the support: write throat/.test(document.body.textContent));
+console.log("ok: malformed notched support refused on the page");
+await page.fill("#stCheck3", "");
 await page.fill("#stCheck", "");
 // Winders: typed treads, turn and radius reach the stairs card (a zero pivot fails and the smallest radius is solved).
 await page.fill("#stWinders", "3, 90, 0");
@@ -293,6 +317,17 @@ await page.click("#run");
 await page.waitForFunction(() => /Deck post check: write dead psf/.test(document.body.textContent));
 console.log("ok: malformed deck post check refused on the page");
 await page.fill("#dkPostCheck", "");
+// Deck joist and beam checks: typed figures reach the deck card; a short entry is refused.
+await page.fill("#dkJoistCheck", "10, 40, 1000, 175, 1400000");
+await page.fill("#dkBeamCheck", "10, 40, 1000, 175, 1400000");
+await page.click("#run");
+await page.waitForFunction(() => /Joist check \(typed figures/.test(document.querySelector("#deckOut")?.textContent || "") && /Beam check \(typed figures/.test(document.querySelector("#deckOut")?.textContent || ""));
+console.log("ok: deck joist and beam checks typed on the page and shown on the deck card");
+await page.fill("#dkBeamCheck", "10, 40");
+await page.click("#run");
+await page.waitForFunction(() => /Deck beam check: write dead psf/.test(document.body.textContent));
+console.log("ok: malformed deck beam check refused on the page");
+await page.fill("#dkJoistCheck", ""); await page.fill("#dkBeamCheck", "");
 // Deck blocking: a typed spacing adds rows to the deck card.
 await page.fill("#dkBlocking", "48");
 await page.click("#run");
@@ -338,6 +373,12 @@ await page.waitForFunction(() => /Wall framing/.test(document.querySelector("#bu
 const budTxt = await page.textContent("#budgetOut");
 const budOk = !/NaN|undefined/.test(budTxt) && /total/.test(budTxt) && /labor/.test(budTxt);
 console.log(budOk ? "ok: budget from typed prices on the page" : "FAIL: budget: " + budTxt.slice(0, 200));
+// a misspelt price name is listed with a "did you mean" instead of a silent zero (2026-11-02)
+await page.fill("#priceText", "wallSheet, 20\nlaborWallFoo, 10");
+await page.click("#run");
+await page.waitForFunction(() => document.querySelector("#ignoredPrices"), null, { timeout: 90000 });
+const ignTxt = await page.textContent("#ignoredPrices");
+console.log(/laborWallFoo/.test(ignTxt) && /did you mean laborWallFoot/.test(ignTxt) && /laborWallFoo \(did/.test(ignTxt) ? "ok: misspelt price listed with the nearest name" : "FAIL: ignoredPrices: " + ignTxt);
 // the price-name picker appends a "name, " line once and does not duplicate it
 await page.fill("#priceText", "wallSheet, 20");
 await page.selectOption("#priceName", "laborHoldDown");
@@ -462,6 +503,17 @@ const [sv6] = await Promise.all([page.waitForEvent("download"), page.click("#sav
 const saved6 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv6.path(), "utf8"));
 const slabOk = !/NaN|undefined/.test(inTxt) && /slab edge/i.test(inTxt) && saved6.insulation?.assembly?.slabEdgeF === 0.54 && saved6.insulation?.assembly?.windowU === 0.3;
 console.log(slabOk ? "ok: insulation slab edge F-factor, card and saved plan" : "FAIL: slab edge: " + (await page.textContent("#errors")).slice(0, 300) + inTxt.slice(0, 400));
+// ceiling under the attic on the insulation card (2026-11-03: page controls for ceilingR / ceilingFromAttic, engine-only before)
+await page.fill("#inAtticR", "38");
+await page.fill("#inDeltaF", "60");
+await page.fill("#inCeilR", "40");
+await page.click("#run");
+await page.waitForFunction(() => /Ceiling under the attic/.test(document.querySelector("#insulationOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
+const ceTxt = await page.textContent("#insulationOut");
+const [sv8] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved8 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv8.path(), "utf8"));
+const ceilOk = !/NaN|undefined/.test(ceTxt) && /Ceiling under the attic: .* at R-40\.0/.test(ceTxt) && saved8.insulation?.assembly?.ceilingR === 40;
+console.log(ceilOk ? "ok: insulation ceiling under the attic, card and saved plan" : "FAIL: ceiling: " + (await page.textContent("#errors")).slice(0, 300) + ceTxt.slice(0, 500));
 // allowances on the price box and the customer proposal card (2026-11-01)
 await page.fill("#priceText", "wallSheet, 20\nlaborWallFoot, 10\noverhead, 0.1\nprofit, 0.1\nallowance Permit, 1200");
 await page.fill("#propClient", "Test Client"); await page.fill("#propExcl", "Painting");
@@ -481,4 +533,4 @@ if (popup) { await popup.waitForLoadState("load").catch(() => {}); printTxt = aw
 console.log(printOk ? "ok: proposal printable page opens, has client, allowance, exclusion, no script" : "FAIL: printable page: " + (popup ? printTxt.slice(0, 400) : "no popup"));
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || !propOk || !printOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || !ceilOk || !propOk || !printOk || horizontal.includes("CHECK FAILED") ? 1 : 0);

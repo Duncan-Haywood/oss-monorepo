@@ -44,6 +44,7 @@ import path from 'node:path';
 import process from 'node:process';
 
 import { REPO_ROOT, discoverSurfaces, isPublishable, publishedPages } from './build.mjs';
+import { pathToFileURL } from 'node:url';
 
 /**
  * PRODUCT_PLAYBOOK.md 5b, first clause: free and as-is, no warranty of any
@@ -86,6 +87,14 @@ export const NOT_AFFILIATED = /not\s+affiliated\s+with/i;
 // -- and deriving that class a second time from filenames would let a page be
 // one kind for the disclaimer check and the other kind for the budget.
 export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
+  // Compares against "working out loan versus withdrawal by hand" -- a manual
+  // spreadsheet method anyone can use, not a company or product this could be
+  // mistaken for.
+  '401k-loan-vs-withdrawal-calculator/vs-working-it-out-by-hand.html',
+  // Compares against "a whiteboard or spreadsheet rotation" -- a manual method
+  // any coach already uses, not a company or product this could be mistaken
+  // for.
+  'youth-lineup-rotator/vs-a-whiteboard-or-spreadsheet-rotation.html',
   // Compares against "eyeballing the decoded payload" -- a manual review habit
   // any developer already has, not a company or product this could be
   // mistaken for.
@@ -2808,6 +2817,6 @@ export async function main(
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   process.exit(await main());
 }

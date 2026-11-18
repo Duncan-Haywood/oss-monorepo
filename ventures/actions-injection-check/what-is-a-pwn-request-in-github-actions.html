@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Actions Injection Check</a></p>
   <h1>What is a "pwn request" in GitHub Actions?</h1>
   <p><code>pull_request</code>, the ordinary PR trigger, runs with a read-only token and no repository secrets — safe even against a hostile fork, because there is nothing valuable for the fork's code to reach. <code>pull_request_target</code> exists for the cases that need more: commenting on the PR, labeling it, or building it with real credentials. It runs in the context of the <em>base</em> repository, with the base repository's secrets and a privileged <code>GITHUB_TOKEN</code> — but the event that triggers it is still raised by whoever opened the pull request, who might be a stranger.</p>
@@ -41,7 +42,9 @@
   <p><a href="./">Paste your workflow YAML into Actions Injection Check</a> to find every <code>pull_request_target</code>/<code>workflow_run</code> checkout of an untrusted ref across every workflow file at once, or run the CLI in your own repository:</p>
   <pre><code>python3 check.py --fail-on-risk</code></pre>
   <p class="note">That exits with a nonzero status if any workflow has this pattern (or the related script-injection pattern) — wire it into your own CI to block a newly-added one before it merges.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit or a compliance attestation, and a clean scan does not mean a workflow is secure — only that this one documented pattern was not found.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
     <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>

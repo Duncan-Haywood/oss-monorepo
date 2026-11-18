@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtHffvBX5wQaxUkX2Ny",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T00:07:27Z",
+  "ended": "2026-11-18T00:12:43Z",
+  "wall_minutes": 5.43,
+  "tokens_in": 2425116,
+  "tokens_out": 16987,
+  "cost_usd": 1.3359,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17111",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Shell has no /usr/bin/time; timed with date +%s.%N and bc instead. Minor."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "Limits (description <= 160, seo_title <= 70) are only learned by failing the check; prompts/perf/prompt-0.md 'Land and write it up' could link them."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-the-lineup-tool-was-busy-making-arrays.md",
+    "docs/history/ci-perf-2026-11-18-lineup-cost-scratch.md"
+  ],
+  "goal": null,
+  "notes": "Metric: youth-lineup-rotator calc.test.mjs wall time, `node --test calc.test.mjs` on an idle 4-core container, 3 runs each: before 5.53/5.71/5.55 s, after 2.24/2.11/2.01 s. User-facing: one buildLineup of the page's example roster, median of 7 seeds, 179 ms -> 82 ms. 24-lineup benchmark (8 presets x 3 seeds) output sha256 fa22df95... identical before and after; 5.7-6.1 s -> 1.8-2.2 s. Profile (node --cpu-prof): lineupCost 4.49 s self of ~5.7 s before. Pin test vs the old allocating cost on 2,400 random grids; mutants 15->16, onField[p], count[ns], dropped played.fill all fail it. Full suite 30/30 pass. Candidates timed with suite_file_times.py: support-agent eval 5.8 s, garmin citydata 4.6 s, s3 engine 4.3 s.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a1e6c7f2-666d-56a2-b375-1b5e322b50aa",
+    "transcripts": 1,
+    "first": "2026-11-18T00:07:27Z",
+    "last": "2026-11-18T00:12:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 63,
+        "output": 16987,
+        "thinking": 2203,
+        "cache_read": 2359547,
+        "cache_write_5m": 0,
+        "cache_write_1h": 65506,
+        "api_equivalent_usd": 1.3359,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 63,
+      "output": 16987,
+      "thinking": 2203,
+      "cache_read": 2359547,
+      "cache_write_5m": 0,
+      "cache_write_1h": 65506,
+      "api_equivalent_usd": 1.3359,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 32,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.43,
+      "active_minutes": 5.43,
+      "model_minutes": 3.4,
+      "tool_minutes": 2.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile, rewrite a hot function bit-identically, write a pin test and mutation-check it, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 224.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -149,7 +149,9 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const val = (id) => { const t = $("#" + id).value.trim(); return t === "" ? NaN : Number(t); };
+    // "1,200" and "12,345.67" read as numbers; anything else (e.g. "1,5") is left for the parser to reject.
+    const ungroup = (s) => (/^\s*[+-]?\d{1,3}(,\d{3})+(\.\d*)?\s*$/.test(s) ? s.replace(/,/g, "") : s);
+    const val = (id) => { const t = $("#" + id).value.trim(); return t === "" ? NaN : Number(ungroup(t)); };
     const delta = (d) => (Math.abs(d) < 0.5 ? "—" : (d > 0 ? "+" : "−") + money(Math.abs(d)));
     let last = null;
 
@@ -187,7 +189,7 @@
       $("#long tbody").innerHTML = r.longRows.map((x) => `<tr><td>${Math.round(x.change * 100)}% longer</td><td class="n">${money(x.cost)}</td><td class="n">${delta(x.delta)}</td><td class="n">${x.unserved}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

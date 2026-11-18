@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A rail transfer of grain between two rail stations of c_Estaciones (Q0736 to SC283, Clave transporte 04) in one hopper car, with trackage rights paid.
+     Synthetic and unstamped: SAT's test RFC EKU9003173C9, made-up plates, permits and
+     policies. Expects no finding (cartaporte31.test.mjs); eval/cartaporte-mutations.mjs
+     plants defects in it and eval/cartaporte-xsd-diff.mjs mutates it against xmllint. -->
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:cartaporte31="http://www.sat.gob.mx/CartaPorte31" Version="4.0" Serie="CP" Folio="4" Fecha="2026-11-10T07:00:00" SubTotal="0" Moneda="XXX" Total="0" TipoDeComprobante="T" Exportacion="01" LugarExpedicion="86000" NoCertificado="30001000000500003416" Sello="" Certificado="">
+  <cfdi:Emisor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" RegimenFiscal="601"/>
+  <cfdi:Receptor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" DomicilioFiscalReceptor="86000" RegimenFiscalReceptor="601" UsoCFDI="S01"/>
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="50221101" NoIdentificacion="GRANO" Cantidad="80" ClaveUnidad="TNE" Descripcion="Grano de cereal" ValorUnitario="0" Importe="0" ObjetoImp="01"/>
+  </cfdi:Conceptos>
+  <cfdi:Complemento>
+    <cartaporte31:CartaPorte Version="3.1" IdCCP="CCC4D5E6-7F80-4B92-9C3D-4E5F6A7B8C9D" TranspInternac="No" TotalDistRec="240">
+      <cartaporte31:Ubicaciones>
+        <cartaporte31:Ubicacion TipoUbicacion="Origen" IDUbicacion="OR000030" RFCRemitenteDestinatario="EKU9003173C9" NumEstacion="Q0736" NombreEstacion="SANTO NINO" TipoEstacion="01" FechaHoraSalidaLlegada="2026-11-10T05:00:00"/>
+        <cartaporte31:Ubicacion TipoUbicacion="Destino" IDUbicacion="DE000030" RFCRemitenteDestinatario="EKU9003173C9" NumEstacion="SC283" NombreEstacion="HUAXTITLA" TipoEstacion="03" FechaHoraSalidaLlegada="2026-11-10T17:00:00" DistanciaRecorrida="240"/>
+      </cartaporte31:Ubicaciones>
+      <cartaporte31:Mercancias PesoBrutoTotal="80000" UnidadPeso="KGM" NumTotalMercancias="1">
+        <cartaporte31:Mercancia BienesTransp="50221101" Descripcion="Grano de cereal" Cantidad="80" ClaveUnidad="TNE" PesoEnKg="80000"/>
+        <cartaporte31:TransporteFerroviario TipoDeServicio="TS01" TipoDeTrafico="TT01">
+          <cartaporte31:DerechosDePaso TipoDerechoDePaso="CDP114" KilometrajePagado="40"/>
+          <cartaporte31:Carro TipoCarro="TC08" MatriculaCarro="A00012" GuiaCarro="GUIA0001" ToneladasNetasCarro="80"/>
+        </cartaporte31:TransporteFerroviario>
+      </cartaporte31:Mercancias>
+    </cartaporte31:CartaPorte>
+  </cfdi:Complemento>
+</cfdi:Comprobante>

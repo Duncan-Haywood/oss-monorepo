@@ -118,5 +118,90 @@ class Cli(unittest.TestCase):
             self.assertEqual(self.run_cli(d).returncode, 1)
 
 
+DAYS = 86400
+
+
+def _log(*commits):
+    """commits: (name, ts_days, [(path, lines), ...])"""
+    out = []
+    for name, day, files in commits:
+        out.append(f"@@|{name}|{name.lower()}@x.io|{int(day * DAYS)}")
+        out += [f"{n}\t0\t{p}" for p, n in files]
+    return "\n".join(out) + "\n"
+
+
+class AdvertisedConstants(unittest.TestCase):
+    """Pin the numbers the page promises (500-line cap, 180-day half-life,
+    90-day window, 50% bus-factor cut, 80% single-owner cut). Quality audit
+    2026-11-10 found every one of these could change with all tests green."""
+
+    def share(self, log, now):
+        r = bf.analyze(bf.parse_log(log), depth=1, now=now * DAYS)
+        return next(d for d in r["directories"] if d["dir"] == "src")
+
+    def test_file_lines_are_capped_at_500(self):
+        log = _log(("Ann", 100, [("src/a", 600)]), ("Ann", 100, [("src/b", 1)]), ("Ann", 100, [("src/c", 1)]),
+                   ("Bob", 100, [("src/a", 250)]), ("Bob", 100, [("src/b", 250)]), ("Bob", 100, [("src/c", 2)]))
+        d = self.share(log, 100)
+        # Ann 500+1+1 = 502, Bob 502: tie broken by email, share exactly 0.5.
+        self.assertEqual(d["ownerShare"], 0.5)
+
+    def test_half_life_is_180_days(self):
+        log = _log(("Ann", 0, [("src/a", 100)]), ("Ann", 0, [("src/a", 100)]), ("Ann", 0, [("src/a", 100)]),
+                   ("Bob", 180, [("src/a", 100)]), ("Bob", 180, [("src/a", 100)]), ("Bob", 180, [("src/a", 100)]))
+        d = self.share(log, 180)
+        self.assertEqual(d["owner"], "Bob")
+        self.assertAlmostEqual(d["ownerShare"], 2 / 3, places=4)
+
+    def test_inactive_window_is_90_days(self):
+        log = _log(*[("Ann", 0, [("src/a", 10)])] * 3)
+        self.assertEqual(self.share(log, 89)["status"], "single-owner")
+        self.assertEqual(self.share(log, 91)["status"], "orphaned")
+
+    def test_single_owner_cut_is_80_percent(self):
+        def log(ann, bob):
+            return _log(("Ann", 0, [("src/a", ann)]), ("Ann", 0, [("src/a", 1)]), ("Ann", 0, [("src/a", 1)]),
+                        ("Bob", 0, [("src/a", bob)]))
+        self.assertEqual(self.share(log(78, 20), 0)["status"], "single-owner")  # 80/100
+        self.assertEqual(self.share(log(77, 21), 0)["status"], "shared")        # 79/100
+
+    def test_bus_factor_cut_is_half(self):
+        log = _log(("Ann", 0, [("src/a", 50)]), ("Bob", 0, [("src/a", 30)]), ("Cy", 0, [("src/a", 20)]))
+        self.assertEqual(self.share(log, 0)["busFactor"], 1)
+        log = _log(("Ann", 0, [("src/a", 49)]), ("Bob", 0, [("src/a", 31)]), ("Cy", 0, [("src/a", 20)]))
+        self.assertEqual(self.share(log, 0)["busFactor"], 2)
+
+
+class OrphanCut(unittest.TestCase):
+    def test_departed_owner_with_half_or_more_is_orphaned(self):
+        def run(ann):
+            log = _log(*[("Ann", 0, [("src/a", ann)])] * 3, ("Bob", 200, [("src/a", 100 - 3 * ann)]))
+            r = bf.analyze(bf.parse_log(log), depth=1, half_life_days=10**9, now=200 * DAYS)
+            return r["directories"][0]["status"]
+        self.assertEqual(run(18), "orphaned")   # Ann 54% and silent 200 days
+        self.assertEqual(run(16), "shared")     # Ann 48%
+
+
+class LiveRepoMeasuresFromToday(unittest.TestCase):
+    def test_untouched_repo_is_orphaned_when_cli_runs_git(self):
+        with tempfile.TemporaryDirectory() as d:
+            old = "2020-01-01T00:00:00Z"
+            env = {**os.environ, "GIT_AUTHOR_NAME": "T", "GIT_AUTHOR_EMAIL": "t@x.io",
+                   "GIT_COMMITTER_NAME": "T", "GIT_COMMITTER_EMAIL": "t@x.io",
+                   "GIT_AUTHOR_DATE": old, "GIT_COMMITTER_DATE": old}
+            run = lambda *a: subprocess.run(["git", "-C", d, *a], check=True, capture_output=True, env=env)
+            run("init", "-q")
+            os.makedirs(os.path.join(d, "src"))
+            for i in range(3):
+                with open(os.path.join(d, "src", "f.py"), "a") as f:
+                    f.write(f"x{i}\n")
+                run("add", ".")
+                run("commit", "-qm", f"c{i}")
+            p = subprocess.run([sys.executable, os.path.join(HERE, "busfactor.py"), d, "--since=20.years",
+                                "--format", "json"], capture_output=True, text=True)
+            self.assertEqual(p.returncode, 0, p.stderr)
+            self.assertEqual(json.loads(p.stdout)["directories"][0]["status"], "orphaned")
+
+
 if __name__ == "__main__":
     unittest.main()

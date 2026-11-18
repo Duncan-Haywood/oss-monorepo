@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01AcxTtLwQJX91MEBPvav1Ny",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md",
+  "input_sha256": "94a6b2a74a2fe72d09d7042291a4072d20b259b937e79b5deda0279ae57c7410",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-04T18:41:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13143",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "three detail-route launches wrote no rows: OpenROAD 2025-03 log format (u^2, no 'max') not accepted by parsers; about 3 h lost"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/LOG.md",
+      "issue": "M78 fixed the 'worst slack max' regex in run.py only; chip-pnr parse.py had the same issue and a second one (u^2), costing three failed multi-hour launches"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-04-does-global-route-rank-match-detail-route-on-a-24-bit-multiplier.md",
+    "docs/reports/verified-dse-milestone-79.md"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}

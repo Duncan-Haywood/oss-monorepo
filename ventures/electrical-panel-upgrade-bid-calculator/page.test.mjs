@@ -156,3 +156,10 @@ test('index links one hop to the ev-charger-bid-calculator sibling', () => {
   );
   assert.match(html, /EV charger installation bid calculator/i);
 });
+
+// The service load check answers whether this job is needed at all (NEC
+// 220.83 / 220.87 on the existing service); one hop so crawlers reach it.
+test('index links one hop to the service-load-check sibling', () => {
+  assert.match(html, /href="\.\.\/service-load-check\/"/, 'index must link ../service-load-check/');
+  assert.match(html, /service load check/i);
+});

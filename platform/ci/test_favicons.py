@@ -22,6 +22,20 @@ class FaviconTests(unittest.TestCase):
         self.assertEqual(favicons.icon_href("a-b"), favicons.icon_href("a-b"))
         self.assertNotEqual(favicons.icon_href("a-b"), favicons.icon_href("zz"))
 
+    def test_colour_is_a_dark_saturated_hex_and_pinned(self):
+        import re, urllib.parse
+        for slug in ("a-b", "zz", "ledger"):
+            svg = urllib.parse.unquote(favicons.icon_href(slug))
+            m = re.search(r"fill='#([0-9a-f]{6})'/>", svg)
+            self.assertIsNotNone(m, svg)
+            r, g, b = (int(m.group(1)[i:i + 2], 16) for i in (0, 2, 4))
+            # HLS lightness 0.30 / saturation 0.65: bright channel 0.495*255, dark 0.105*255
+            self.assertEqual((max(r, g, b), min(r, g, b)), (126, 27), (slug, m.group(1)))
+
+    def test_root_is_the_repository_root(self):
+        self.assertTrue((favicons.ROOT / "ventures").is_dir())
+        self.assertTrue((favicons.ROOT / "platform" / "ci").is_dir())
+
     def test_fix_and_check_roundtrip(self):
         with tempfile.TemporaryDirectory() as d:
             v = Path(d) / "ventures" / "demo"

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Côte d'Ivoire e-invoice mandate: the DGI's FNE, in force with conflicting dates | E-invoice Preflight</title>
+<meta name="description" content="Côte d'Ivoire requires a facture normalisée électronique (FNE) issued through the tax authority (DGI) system. Sources agree it is mandatory but give different start dates (2025, 1 January 2026, 1 June 2026) and a DGI controls start of 1 September 2026. What was read, where it conflicts, and a free local checker.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/cote-divoire-fne-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Côte d'Ivoire e-invoice mandate: the DGI's FNE, in force with conflicting dates | E-invoice Preflight">
+<meta property="og:description" content="Côte d'Ivoire requires a facture normalisée électronique (FNE) issued through the tax authority (DGI) system. Sources agree it is mandatory but give different start dates (2025, 1 January 2026, 1 June 2026) and a DGI controls start of 1 September 2026. What was read, where it conflicts, and a free local checker.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/cote-divoire-fne-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Côte d'Ivoire have an e-invoicing mandate?","acceptedAnswer":{"@type":"Answer","text":"Yes, on every source read, but they disagree on dates. The legal basis is reported as the 2025 tax annex (in force 10 January 2025) and arrêté n°0337/MFB/DGI of 9 May 2025, which require economic operators to issue a facture normalisée électronique (FNE) through the DGI system. Sources give 1 June 2025, 1 September 2025 and 1 January 2026 as start dates, one reports an extension to 1 June 2026, and a DGI control operation on FNE use is reported from 1 September 2026. These are press and vendor pages, not the DGI or the Journal Officiel, so confirm there. This is a summary, not advice."}},{"@type":"Question","name":"What format does the FNE use?","acceptedAnswer":{"@type":"Answer","text":"Reports describe an invoice certified by the DGI platform, carrying a QR code, an authentication visual and continuous electronic numbering, with an API route for accredited software. A DGI notice reported by an aggregator gives API users until 29 October 2026 to meet technical specifications. The schema was not read from a primary source, and nothing here says it is Peppol or EN 16931."}},{"@type":"Question","name":"What does this checker cover for Côte d'Ivoire?","acceptedAnswer":{"@type":"Answer","text":"EN 16931 arithmetic and tax-breakdown rules for UBL, CII and Factur-X files. It does not apply Ivorian rules and does not talk to the DGI, so it cannot certify an FNE. A clean result is not DGI acceptance."}},{"@type":"Question","name":"How do I check an invoice before sending it?","acceptedAnswer":{"@type":"Answer","text":"Drop the file into the checker. It tests totals, tax breakdown arithmetic, mandatory fields and VAT, IBAN and BIC typos, each with a rule ID and a fix. Nothing is uploaded. It is an offline observation, not the tax authority's acceptance and not legal advice."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Côte d'Ivoire's e-invoice rules: the DGI's FNE, mandatory, with sources split on the dates</h1>
+<p class="lede">Côte d'Ivoire's tax authority, the Direction Générale des Impôts (DGI), requires a facture normalisée électronique (FNE) certified through its own platform. Sources agree on that and disagree on when each group had to comply. Below: what the press and vendor pages report, where they conflict, and how to test a file first.</p>
+</header>
+<section>
+<h2>The timeline (as press and vendor pages report it, and where they conflict)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What is reported</th></tr></thead>
+<tbody>
+<tr><td>10 Jan 2025</td><td>2025 tax annex in force; reported as the legal basis, covering economic operators in Côte d'Ivoire whatever their tax regime or legal form, with exceptions.</td></tr>
+<tr><td>9 May 2025</td><td>Arrêté n°0337/MFB/DGI, cited as the implementing text.</td></tr>
+<tr><td>1 Jun 2025</td><td>Start for normal-regime companies, per one vendor guide.</td></tr>
+<tr><td>1 Sep 2025</td><td>Entry into force across the territory, per another report.</td></tr>
+<tr><td>1 Jan 2026</td><td>The DGI's stated aim of full operation for all categories of company, per one source. A LinkedIn post reports a 1 June 2026 extension for part of the base. <strong>Not reconciled.</strong></td></tr>
+<tr><td>1 Sep 2026</td><td>A control operation on use and issue of the FNE and the RNE (receipt equivalent) across the territory, per a press report. A business federation (FENACCI) asked to postpone the controls and suspend automatic financial penalties.</td></tr>
+<tr><td>29 Oct 2026</td><td>Deadline for users of the FNE API to meet the technical specifications, per an aggregator citing a DGI notice. <strong>Not read at the DGI.</strong></td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Where sources disagree: the start date (June 2025, September 2025, January 2026 or June 2026), and whether penalties are automatic. No fine amounts were found. These are press, vendor and aggregator pages, not the DGI or the Journal Officiel, which could not be read from this build. Confirm with the DGI before acting on any date. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Which file counts, and how it travels</h2>
+<p>Reports describe an invoice <strong>certified by the DGI platform</strong> (portal reported as <code>fne.dgi.gouv.ci</code>, not opened here), carrying a QR code, an authentication visual and continuous electronic numbering, issued either on the portal or from accredited software over an API. The schema was not read from a primary source, so this page does not say which syntax is used.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>It applies EN 16931 arithmetic and tax-breakdown rules to UBL, CII and Factur-X files. It does <strong>not</strong> apply Ivorian rules and does not contact the DGI, so it cannot certify an FNE. Treat a clean result as &ldquo;the numbers and structure are sound&rdquo;, not &ldquo;certified in Côte d'Ivoire&rdquo;.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a>, drop your XML, and tick <em>Also apply the Peppol BIS Billing 3.0 rules</em>. It flags a wrong business process or specification identifier, a missing or malformed electronic address, arithmetic that does not add up, a missing tax reason on a 0% or exempt line, and VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a>, <a href="sweden-e-invoice-mandate.html">Sweden</a>, <a href="morocco-e-invoice-mandate.html">Morocco</a>, <a href="mauritius-e-invoice-mandate.html">Mauritius</a>, <a href="finland-e-invoice-mandate.html">Finland</a>, <a href="australia-e-invoice-mandate.html">Australia</a>, <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="malta-e-invoice-mandate.html">Malta</a>, <a href="austria-e-invoice-mandate.html">Austria</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a>, <a href="croatia-e-invoice-mandate.html">Croatia</a>, <a href="spain-verifactu-e-invoice-mandate.html">Spain</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="netherlands-e-invoice-mandate.html">the Netherlands</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="uk-e-invoice-mandate.html">the UK</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="india-gst-e-invoice-mandate.html">India</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>, <a href="denmark-e-invoice-mandate.html">Denmark</a>, <a href="estonia-e-invoice-mandate.html">Estonia</a>, <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="lithuania-e-invoice-mandate.html">Lithuania</a>, <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a>, <a href="slovenia-e-invoice-mandate.html">Slovenia</a>, <a href="norway-e-invoice-mandate.html">Norway</a>, <a href="latvia-e-invoice-mandate.html">Latvia</a>, <a href="serbia-e-invoice-mandate.html">Serbia</a>, <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a>, <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="latvia-e-invoice-mandate.html">Latvia</a>, or the <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Does Côte d'Ivoire have an e-invoicing mandate?</h3>
+<p>Yes, on every source read, but they disagree on dates. The legal basis is reported as the 2025 tax annex (in force 10 January 2025) and arrêté n°0337/MFB/DGI of 9 May 2025, which require economic operators to issue a facture normalisée électronique (FNE) through the DGI system. Sources give 1 June 2025, 1 September 2025 and 1 January 2026 as start dates, one reports an extension to 1 June 2026, and a DGI control operation on FNE use is reported from 1 September 2026. These are press and vendor pages, not the DGI or the Journal Officiel, so confirm there. This is a summary, not advice.</p>
+<h3>What format does the FNE use?</h3>
+<p>Reports describe an invoice certified by the DGI platform, carrying a QR code, an authentication visual and continuous electronic numbering, with an API route for accredited software. A DGI notice reported by an aggregator gives API users until 29 October 2026 to meet technical specifications. The schema was not read from a primary source, and nothing here says it is Peppol or EN 16931.</p>
+<h3>What does this checker cover for Côte d'Ivoire?</h3>
+<p>EN 16931 arithmetic and tax-breakdown rules for UBL, CII and Factur-X files. It does not apply Ivorian rules and does not talk to the DGI, so it cannot certify an FNE. A clean result is not DGI acceptance.</p>
+<h3>How do I check an invoice before sending it?</h3>
+<p>Drop the file into the checker. It tests totals, tax breakdown arithmetic, mandatory fields and VAT, IBAN and BIC typos, each with a rule ID and a fix. Nothing is uploaded. It is an offline observation, not the tax authority's acceptance and not legal advice.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="albania-e-invoice-mandate.html">Albania</a> <a href="new-zealand-e-invoice-mandate.html">New Zealand</a> <a href="australia-e-invoice-mandate.html">Australia</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="japan-invoice-system-e-invoice-mandate.html">Japan</a> <a href="mexico-cfdi-e-invoice-mandate.html">Mexico</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a> <a href="indonesia-coretax-e-invoice-mandate.html">Indonesia</a> <a href="vietnam-e-invoice-mandate.html">Vietnam</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Ivorian position as press and vendor pages report it, not from the law; things can change, so check the DGI and the Journal Officiel before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

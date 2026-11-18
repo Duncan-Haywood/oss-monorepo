@@ -1,0 +1,428 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKjvQ5nXsgxjyW9xnEy",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T10:18:29Z",
+  "ended": "2026-11-14T10:19:31Z",
+  "wall_minutes": 11.66,
+  "tokens_in": 6648493,
+  "tokens_out": 32934,
+  "cost_usd": 2.8444,
+  "tool_calls": 68,
+  "task": "redteam: ucr-fee-calculator and 401k-plan-fee-calculator campaigns, loose number parsing class",
+  "projects": [
+    "ucr-fee-calculator",
+    "401k-plan-fee-calculator",
+    "texas-electricity-plan-checker",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15818",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git checkout -b failed: the harness had already created claude/epic-wright-ob2ru8 at main; switched to it instead",
+      "cost_minutes": 0
+    },
+    {
+      "what": "First texas usage test used 'Jan 2025, 1.2.3', which the named-month regex reads as Jan with 2025 kWh (an older ambiguity: 'Jan 2025' alone is 2025 kWh); changed the case to 'Jan, 1.2.3' and left the ambiguity, since a bare 4-digit kWh is legitimate",
+      "cost_minutes": 3
+    },
+    {
+      "what": "Post front matter failed twice (red-team vs redteam tag, seo_title 71 chars, description 233 chars); fixed before merge",
+      "cost_minutes": 2
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix each open entry first, but all 11 open entries are control-plane edits that already have open PRs awaiting owner approval; the list does not show that, so each run re-checks it by searching PRs. redteam.py open could print the open PR per entry."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "It reports one problem per run, so a post with three front-matter problems takes three runs to fix."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: did not re-fix the 11 open control-plane entries; each already has an open PR waiting for owner approval (#14808, #14877, #15248, #15561, #14612 and others), and a duplicate PR would add noise.",
+      "did": "Checked open PRs, went to step 1",
+      "result": "Run time went to seeding faults and to the cross-venture fix"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-comma-is-not-zero.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: ucr-fee-calculator/calc.mjs 6/8 caught; 401k-plan-fee-calculator/calc.mjs 3/8 caught (1 equivalent). Catch rate 9/15 = 0.60 before, 1.0 after (rerun). 5 real defects patched, each with a failing-first test (verified by stashing the fix). Guard added: platform/ci/check_loose_number_pattern.py + test_check_loose_number_pattern.py, a ratchet baseline (43 captures in 14 files). It fails on the pre-fix ucr calc.mjs and passes on this branch. unwired_checks.py --list shows both, so every venture PR runs them with no workflow edit. Baseline entries not reviewed for real bugs: commercial-lease-abstract-reader, vendor-contract-clause-reader, insurance-denial-appeal-builder (text scanners on '$,'), MT940 readers (decimal comma), freight-accessorial-auditor RATE_CLAUSE, bank.mjs totals. Verified locally: run_venture_tests.py for the 3 ventures green, unittest for the new check green, check_post_frontmatter and check_post_links green.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ucr-fee-calculator/calc.mjs",
+        "test": "node --test ventures/ucr-fee-calculator/**/*.test.mjs  (in .)",
+        "seed": 509910006,
+        "commit": "99d8ceaa4",
+        "sites": 68,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 21,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "const min = Number(m[1]);",
+            "after": "const min = Number(m[2]);",
+            "line_text": "    const min = Number(m[1]);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 23,
+            "col": 12,
+            "operator": "lt-to-le",
+            "before": "if (max < min) return errors.push(`Fee line ${i + 1}: max is below min.`);",
+            "after": "if (max <= min) return errors.push(`Fee line ${i + 1}: max is below min.`);",
+            "line_text": "    if (max < min) return errors.push(`Fee line ${i + 1}: max is below min.`);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test had a one-value bracket (0-0); added test a one-value bracket such as 0-0 is allowed."
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 27,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 1; i < brackets.length; i++) {",
+            "after": "for (let i = 1; i <= brackets.length; i++) {",
+            "line_text": "  for (let i = 1; i < brackets.length; i++) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 53,
+            "col": 23,
+            "operator": "or-to-and",
+            "before": "const type = (p[2] || \"motor-carrier\").toLowerCase().replace(/\\s+/g, \"-\");",
+            "after": "const type = (p[2] && \"motor-carrier\").toLowerCase().replace(/\\s+/g, \"-\");",
+            "line_text": "    const type = (p[2] || \"motor-carrier\").toLowerCase().replace(/\\s+/g, \"-\");",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 54,
+            "col": 14,
+            "operator": "or-to-and",
+            "before": "if (!p[0] || !(p[1] ?? \"\") || !Number.isInteger(n) || n < 0) return errors.push(`Line ${i + 1}: need \"name, number of vehicles, type\".`);",
+            "after": "if (!p[0] && !(p[1] ?? \"\") || !Number.isInteger(n) || n < 0) return errors.push(`Line ${i + 1}: need \"name, number of vehicles, type\".`);",
+            "line_text": "    if (!p[0] || !(p[1] ?? \"\") || !Number.isInteger(n) || n < 0) return errors.push(`Line ${i + 1}: need \"name, number of vehicles, type\".`);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test had a blank name with a valid count; added test a registrant line needs a name."
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 76,
+            "col": 35,
+            "operator": "plus-to-minus",
+            "before": "const next = fees.brackets[idx + 1] ?? null;",
+            "after": "const next = fees.brackets[idx - 1] ?? null;",
+            "line_text": "    const next = fees.brackets[idx + 1] ?? null;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 80,
+            "col": 101,
+            "operator": "minus-to-plus",
+            "before": "toNext: !lowestOnly && next ? { at: next.min, extra: round2(next.fee - b.fee), headroom: b.max - e.n } : null,",
+            "after": "toNext: !lowestOnly && next ? { at: next.min, extra: round2(next.fee - b.fee), headroom: b.max + e.n } : null,",
+            "line_text": "      toNext: !lowestOnly && next ? { at: next.min, extra: round2(next.fee - b.fee), headroom: b.max - e.n } : null,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 92,
+            "col": 30,
+            "operator": "and-to-or",
+            "before": "if (r.perVehicle !== null && !r.lowestOnly) advice.push(`${r.name}: that is $${r.perVehicle.toFixed(2)} per vehicle.`);",
+            "after": "if (r.perVehicle !== null || !r.lowestOnly) advice.push(`${r.name}: that is $${r.perVehicle.toFixed(2)} per vehicle.`);",
+            "line_text": "    if (r.perVehicle !== null && !r.lowestOnly) advice.push(`${r.name}: that is $${r.perVehicle.toFixed(2)} per vehicle.`);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/401k-plan-fee-calculator/calc.mjs",
+        "test": "node --test ventures/401k-plan-fee-calculator/**/*.test.mjs  (in .)",
+        "seed": 412422993,
+        "commit": "a08644cde",
+        "sites": 141,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/401k-plan-fee-calculator/calc.mjs",
+            "line": 49,
+            "col": 98,
+            "operator": "or-to-and",
+            "before": "if (!p[0] || !(p[1] ?? \"\") || !(p[2] ?? \"\") || !(bal >= 0) || !(er >= 0) || Number.isNaN(bal) || Number.isNaN(er)) {",
+            "after": "if (!p[0] || !(p[1] ?? \"\") || !(p[2] ?? \"\") || !(bal >= 0) || !(er >= 0) || Number.isNaN(bal) && Number.isNaN(er)) {",
+            "line_text": "    if (!p[0] || !(p[1] ?? \"\") || !(p[2] ?? \"\") || !(bal >= 0) || !(er >= 0) || Number.isNaN(bal) || Number.isNaN(er)) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "!(bal >= 0) and !(er >= 0) earlier in the same condition already reject NaN, so the Number.isNaN terms are dead: || vs && cannot change the result."
+          },
+          {
+            "file": "ventures/401k-plan-fee-calculator/calc.mjs",
+            "line": 52,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "if (er > 5) return errors.push(`Fund line ${i + 1}: expense ratio ${er}% looks wrong; type 0.45 for 0.45%.`);",
+            "after": "if (er > 6) return errors.push(`Fund line ${i + 1}: expense ratio ${er}% looks wrong; type 0.45 for 0.45%.`);",
+            "line_text": "    if (er > 5) return errors.push(`Fund line ${i + 1}: expense ratio ${er}% looks wrong; type 0.45 for 0.45%.`);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test sat between 5% and 6%; added 'expense ratios up to 5% are taken'."
+          },
+          {
+            "file": "ventures/401k-plan-fee-calculator/calc.mjs",
+            "line": 66,
+            "col": 13,
+            "operator": "le-to-lt",
+            "before": "if (assets <= 0) return { error: \"Fund balances add to zero; enter the plan's balances.\" };",
+            "after": "if (assets < 0) return { error: \"Fund balances add to zero; enter the plan's balances.\" };",
+            "line_text": "  if (assets <= 0) return { error: \"Fund balances add to zero; enter the plan's balances.\" };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/401k-plan-fee-calculator/calc.mjs",
+            "line": 81,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "].filter((l) => l.amount > 0);",
+            "after": "].filter((l) => l.amount > 1);",
+            "line_text": "  ].filter((l) => l.amount > 0);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No fee line was between $0 and $1; added 'a $1 fee line is listed'."
+          },
+          {
+            "file": "ventures/401k-plan-fee-calculator/calc.mjs",
+            "line": 82,
+            "col": 48,
+            "operator": "plus-to-minus",
+            "before": "const total = round2(lines.reduce((s, l) => s + l.amount, 0));",
+            "after": "const total = round2(lines.reduce((s, l) => s - l.amount, 0));",
+            "line_text": "  const total = round2(lines.reduce((s, l) => s + l.amount, 0));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/401k-plan-fee-calculator/calc.mjs",
+            "line": 100,
+            "col": 58,
+            "operator": "times-to-div",
+            "before": "for (let y = 0; y < years; y++) bal = (bal + contrib) * (1 + (gross - feePct) / 100);",
+            "after": "for (let y = 0; y < years; y++) bal = (bal + contrib) / (1 + (gross - feePct) / 100);",
+            "line_text": "    for (let y = 0; y < years; y++) bal = (bal + contrib) * (1 + (gross - feePct) / 100);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/401k-plan-fee-calculator/calc.mjs",
+            "line": 116,
+            "col": 19,
+            "operator": "gt-to-ge",
+            "before": "if (employerPaid > 0) advice.push(`The employer pays $${Math.max(0, employerPaid).toLocaleString(\"en-US\")} of non-fund fees, so participants bear $${participantPaid.toLocaleString(\"en-US\")} (${allInPct.toFixed(2)}% of assets).`);",
+            "after": "if (employerPaid >= 0) advice.push(`The employer pays $${Math.max(0, employerPaid).toLocaleString(\"en-US\")} of non-fund fees, so participants bear $${participantPaid.toLocaleString(\"en-US\")} (${allInPct.toFixed(2)}% of assets).`);",
+            "line_text": "  if (employerPaid > 0) advice.push(`The employer pays $${Math.max(0, employerPaid).toLocaleString(\"en-US\")} of non-fund fees, so participants bear $${participantPaid.toLocaleString(\"en-US\")} (${allInPct.toFixed(2)}% of assets).`);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test checked the employer-paid sentence was absent at $0; added 'no employer-paid sentence'."
+          },
+          {
+            "file": "ventures/401k-plan-fee-calculator/calc.mjs",
+            "line": 144,
+            "col": 90,
+            "operator": "const-plus-one",
+            "before": "const rows = r.lines.map((l) => [l.label, l.amount.toFixed(2), ((l.amount / r.assets) * 100).toFixed(3)].map(q).join(\",\"));",
+            "after": "const rows = r.lines.map((l) => [l.label, l.amount.toFixed(2), ((l.amount / r.assets) * 101).toFixed(3)].map(q).join(\",\"));",
+            "line_text": "  const rows = r.lines.map((l) => [l.label, l.amount.toFixed(2), ((l.amount / r.assets) * 100).toFixed(3)].map(q).join(\",\"));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "CSV percent column was never checked; added 'csv percent column is each line over assets'."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/ucr-fee-calculator/calc.mjs",
+        "issue": "parseFees fee pattern [\\d,]+ accepted a bare ',' as a $0 fee and '1,,0' as $10 with no error, so a typo in the editable fee table silently zeroed or shrank a bracket. Reproduced with node; fixed to digits with commas only as thousands separators, failing-first test added.",
+        "patched": true
+      },
+      {
+        "file": "ventures/401k-plan-fee-calculator/calc.mjs",
+        "issue": "parseBenchmarks used [\\d,]+ for band edges, so '$,-$,: 1' parsed as a 0-0 band and '1,,000' as 1000 with no error, and the percent [\\d.]+ took '1.2.3' as NaN. Fixed to strict numbers; failing-first test.",
+        "patched": true
+      },
+      {
+        "file": "ventures/401k-plan-fee-calculator/calc.mjs",
+        "issue": "plan() used num(grossReturn) || 6, so a typed 0% gross return silently projected at 6%. Fixed: blank or unreadable means 6, a typed 0 is used; failing-first test.",
+        "patched": true
+      },
+      {
+        "file": "ventures/texas-electricity-plan-checker/form.mjs",
+        "issue": "List fields read numbers with [\\d.,]+ then stripped commas, so '$, at ,' was a $0 credit from 0 kWh up and '1.2.3 under ,' a NaN fee; energy tiers split on every comma, so '8.2 to 1,000' became a 1 kWh tier plus a 0 cent tier. Fixed: strict number check with a readable error, and commas between thousands groups no longer split tiers; failing-first test.",
+        "patched": true
+      },
+      {
+        "file": "ventures/texas-electricity-plan-checker/engine.mjs",
+        "issue": "parseUsage month and bare lines captured kWh with [\\d,]+, so '1,,0' was a 10 kWh month and a ',' line a 0 kWh month. Fixed to strict numbers; failing-first test.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5172f9b1-aba8-5464-a02a-7d188008c47c",
+    "transcripts": 1,
+    "first": "2026-11-14T10:18:29Z",
+    "last": "2026-11-14T10:30:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 132,
+        "output": 32934,
+        "thinking": 7340,
+        "cache_read": 6538677,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109684,
+        "api_equivalent_usd": 2.8444,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 132,
+      "output": 32934,
+      "thinking": 7340,
+      "cache_read": 6538677,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109684,
+      "api_equivalent_usd": 2.8444,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 62,
+      "ToolSearch": 2,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.66,
+      "active_minutes": 11.66,
+      "model_minutes": 7.18,
+      "tool_minutes": 4.47,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "two mutant campaigns triaged, five input-parsing fixes with tests across three ventures, one ratchet lint with tests, one post: about a senior engineer's day",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 210.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -146,7 +146,7 @@ node cli.mjs analyze items.csv --increase 8 --json --fail-on warn</pre>
     const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     els.patterns.innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
 
-    const signed = (n) => `${n < 0 ? "-" : "+"}${Math.abs(n).toFixed(2)}`;
+    const signed = (n) => `${n < 0 && Math.abs(n).toFixed(2) !== "0.00" ? "-" : "+"}${Math.abs(n).toFixed(2)}`;
     function renderReport() {
       const text = els.input.value;
       if (!text.trim()) {
@@ -168,7 +168,7 @@ node cli.mjs analyze items.csv --increase 8 --json --fail-on warn</pre>
       els.estimate.textContent = report.count ? `${MODEL_NOTE}. Test a raise on a few items and compare units sold before rolling it out.` : "";
       els.reportCard.hidden = false;
       record("analyze_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

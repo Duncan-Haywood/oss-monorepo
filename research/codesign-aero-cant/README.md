@@ -2,7 +2,9 @@
 
 Follow-up to `codesign-aero-coupled` (track 14, `codesign`). That project found yaw, which has only weak reaction-torque authority, sets the attitude error (about 29° RMS on 30° steps) and that changing the control-law class (residual network, gyroscopic compensation) changed nothing, while tripling yaw authority helped. This project asks the co-design question that follows: if authority is the limit, can the airframe supply it? The new design variable is the rotor cant angle α. Produced with AI assistance (Claude). **Simulated; the reaction-torque ratio, plant ranges, gust model and cost model are assumed round numbers inherited from the earlier projects and swept where stated; they are not measurements.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-cant/
+**Live page:** https://marisstella.app/research/codesign-aero-cant/
+
+**Correction (2026-11-12).** The torque limits this project inherited understate yaw authority by 2× to 2.8× and overstate roll authority above TWR 2 (checked against a full four-rotor allocation in [`codesign-cant`](../codesign-cant/), milestone 1). Rerun with corrected limits, cant's advantage and its 35° plateau survive the correction.
 
 ![Left: held-out error against cant angle, with the reaction-torque ratio swept. Right: joint co-design with cant fixed at 0 or free](experiments/cant.png)
 
@@ -26,6 +28,7 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy cma matplotlib)
 ```
 
 ## Limitations
+- **Known defect, not yet re-run (quality fix 2026-11-15, [parent audit](../../portfolio/quality/audits/2026-11-15-codesign-aero.json)).** `size()` here is a copy of `codesign-aero`'s and, like it, never checks that the 60-step mass closure converged. On a 40x40 grid of (L, D) at the default cant and model settings, 36 of the 1,071 points it calls feasible have no fixed point (no battery mass gives 15 min of hover) and are scored at an arbitrary mass. The airframes this project reports were not checked one by one against that set, and its cant or coupling terms may move it. The parent now requires a closed mass (`closed` in `codesign-aero/src/codesign_aero/aero.py`); until this copy does the same and is re-run, treat rankings that touch the small-prop edge as unverified.
 - The tilted thrust vectors are modelled only through their vertical and tangential components. Not modelled: lower rotor efficiency when tilted, internal force fighting under manoeuvre, roll/pitch cross-coupling from tilt, motor-mount mass. All make the real benefit smaller than here.
 - The cost, mass and motor models are the earlier projects' assumed fits; κ is swept over ×0.5 to ×3 only in the grid, not in the joint run.
 - Cant is capped at 35°; the joint optimum sits on the cap.

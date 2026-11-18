@@ -8,7 +8,7 @@
 // Month k carries floor(cents*k/months) less the months before it, so the last month
 // closes the amount exactly. Pure functions.
 
-import { parseCents, parseDate } from "./bank.mjs";
+import { parseCents, parseDate, MAX_CENTS } from "./bank.mjs";
 
 export const PREPAID_ACCOUNT = "1400", DEFAULT_EXPENSE = "6030";
 
@@ -50,7 +50,8 @@ export function addPrepaid(booksIn, { name, date, amount, months = 12, expenseAc
   const cents = typeof amount === "number" ? Math.round(amount * 100) : parseCents(String(amount ?? ""));
   if (!name?.trim()) throw new Error("A prepaid item needs a name.");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? "") || !parseDate(date)) throw new Error(`Date ${date} is not a YYYY-MM-DD date.`);
-  if (!Number.isFinite(cents) || cents <= 0) throw new Error("Amount must be a positive amount.");
+  if (!Number.isFinite(cents) || cents <= 0 || cents > MAX_CENTS) throw new Error("Amount must be a positive amount of at most 100 billion.");
+  if (typeof months === "boolean" || months === null || String(months).trim() === "") throw new Error("Months must be a whole number, 2 to 60.");
   months = Number(months);
   if (!Number.isInteger(months) || months < 2 || months > 60) throw new Error("Months must be a whole number, 2 to 60.");
   if (!books.accounts.some((a) => a.code === expenseAccount && a.type === "expense")) throw new Error(`${expenseAccount} is not an expense account in the chart.`);

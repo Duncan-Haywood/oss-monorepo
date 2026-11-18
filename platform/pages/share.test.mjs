@@ -4,10 +4,11 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 
 import { fillText, fitText, font, measureText, wrapText } from './fontraster.mjs';
-import { accentFor, cardKey, cardTitle, completeShareTags, crumbsOf, mapLimit, pageCardPlan, renderCards, researchTopicColour, siteAddress } from './share.mjs';
+import { accentFor, addShareCards, cardKey, cardTitle, completeShareTags, crumbsOf, mapLimit, pageCardPlan, renderCards, researchTopicColour, setCardDrawing, siteAddress } from './share.mjs';
 import { CARD_HEIGHT, CARD_WIDTH, quantize, renderCard, renderMarkIcon, renderSiteCard } from './sharecard.mjs';
 
 const PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -145,6 +146,49 @@ test('completeShareTags points at the page card and fills the twitter: and size 
   assert.equal(completeShareTags(out, { card: `${BASE}research/energy-tou/share-card.png`, toRoot: '../../' }), out);
 });
 
+test('tags read after an edit see the edit, with the tag memo swapped in place or dropped', () => {
+  // completeShareTags edits og:image and og:image:alt, then reads them back
+  // for the twitter: tags; the memo of the page's tags must follow each edit
+  // (docs/history/pages-build-perf-2026-11-15-share-memo-swap.md).
+  const card = `${BASE}research/energy-tou/share-card.png`;
+  const alt = (html) => [
+    /property="og:image:alt" content="([^"]*)"/.exec(html)?.[1],
+    /name="twitter:image:alt" content="([^"]*)"/.exec(html)?.[1],
+    /name="twitter:image" content="([^"]*)"/.exec(html)?.[1],
+  ];
+  const withAlt = page().replace('</head>', '<meta property="og:image:alt" content="An old alt">\n</head>');
+  // A stray tag opening before the edited one, whose quote never closes: the
+  // memo cannot be swapped there and is dropped, so the reads still agree.
+  const stray = withAlt.replace('<title>', '<meta name="stray" content="never closed><title>');
+  for (const html of [withAlt, stray, withAlt.replace(/"/g, "'")]) {
+    pageCardPlan(html, 'research/energy-tou/index.html', { baseUrl: BASE });
+    const out = completeShareTags(html, { card, toRoot: '../../' });
+    const [ogAlt, twitterAlt, twitterImage] = alt(out.replace(/'/g, '"'));
+    assert.equal(ogAlt, 'Does a battery pay? — Maris Stella Labs');
+    assert.equal(twitterAlt, ogAlt);
+    assert.equal(twitterImage, card);
+  }
+});
+
+test('the data: icon strip takes the whitespace before each link, as the one-regex form did', () => {
+  // The form before 2026-11-13 (docs/history/pages-build-perf-2026-11-13-share-data-icon-scan.md).
+  const before = /\s*<link\b[^>]*\brel=["'](?:shortcut )?icon["'][^>]*\bhref=["']data:[^"']*["'][^>]*>/gi;
+  const icon = '<link rel="icon" href="data:image/svg+xml,%3Csvg%3E">';
+  const heads = [
+    `<head>\n  ${icon}\n</head>`,
+    `<head>${icon}${icon}</head>`,
+    `<head>\n${icon}\n \t${icon.replace('icon"', 'shortcut icon"')}\n</head>`,
+    `<head>  \n${icon.toUpperCase().replace('DATA:', 'data:')}</head>`,
+    `${icon}<head></head>`,
+    `<head><link rel="stylesheet" href="data:text/css,a"> <meta name="x" content="data:"></head>`,
+  ];
+  for (const head of heads) {
+    const html = `<!doctype html><html>${head}<body>data:</body></html>`;
+    const opts = { toRoot: '../' };
+    assert.equal(completeShareTags(html, opts), completeShareTags(html.replace(before, ''), opts), head);
+  }
+});
+
 test("a page's own relative og:image is kept, made absolute, and copied to twitter:image", () => {
   const html = page({ image: 'renders/og-8x12-share.jpg' });
   const url = `${BASE}ventures/shed-designer/`;
@@ -241,6 +285,36 @@ test('the card cache copies an unchanged card and draws a changed one', async ()
   assert.notEqual(cardKey({ headline: 'Cache A' }), cardKey({ headline: 'Cache B' }));
 });
 
+test('builds sharing a cache directory at once store every card whole, under its key', async () => {
+  // Two concurrent renders over the same cards, as the site-builder suite's
+  // parallel builds are: each takes cards the other stored mid-run, and no
+  // temporary file or half-written entry is left in the directory.
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'cards-shared-'));
+  const cacheDir = path.join(dir, 'cache');
+  const options = Array.from({ length: 20 }, (_, i) => ({ headline: `Shared cache card ${i}` }));
+  const jobs = (side) => options.map((o, i) => ({ file: path.join(dir, side, `${i}.png`), options: o }));
+  await Promise.all([renderCards(jobs('a'), { cacheDir, threads: 2 }), renderCards(jobs('b'), { cacheDir, threads: 2 })]);
+  assert.deepEqual(readdirSync(cacheDir).sort(), options.map((o) => `${cardKey(o)}.png`).sort());
+  for (const [i, o] of options.entries()) {
+    const want = renderCard(o);
+    assert.deepEqual(readFileSync(path.join(cacheDir, `${cardKey(o)}.png`)), want);
+    for (const side of ['a', 'b']) assert.deepEqual(readFileSync(path.join(dir, side, `${i}.png`)), want);
+  }
+});
+
+test('with card drawing off (a fixture build), renderCards writes no card and no cache entry', async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'cards-off-'));
+  const cacheDir = path.join(dir, 'cache');
+  setCardDrawing(false);
+  try {
+    await renderCards([{ file: path.join(dir, 'out', 'a.png'), options: { headline: 'Drawing off' } }], { cacheDir });
+  } finally {
+    setCardDrawing(true);
+  }
+  assert.equal(existsSync(path.join(dir, 'out', 'a.png')), false);
+  assert.equal(existsSync(cacheDir), false);
+});
+
 test('a card drawn earlier in the process is reused byte for byte, with no cache directory', async () => {
   const dir = mkdtempSync(path.join(os.tmpdir(), 'cards-mem-'));
   const options = { headline: 'Gutter guard bid calculator', kicker: 'Trades', address: 'example.test/gutter/' };
@@ -304,4 +378,37 @@ test('renderCards takes its cache directory from PAGES_CARD_CACHE', async () => 
   } finally {
     if (saved === undefined) delete process.env.PAGES_CARD_CACHE; else process.env.PAGES_CARD_CACHE = saved;
   }
+});
+
+test('addShareCards links the favicon relative to each page depth', async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'share-depth-'));
+  const { mkdirSync } = await import('node:fs');
+  mkdirSync(path.join(dir, 'a', 'b'), { recursive: true });
+  const head = '<!doctype html><html><head><title>T</title></head><body></body></html>';
+  writeFileSync(path.join(dir, 'index.html'), head);
+  writeFileSync(path.join(dir, 'a', 'index.html'), head);
+  writeFileSync(path.join(dir, 'a', 'b', 'index.html'), head);
+  // Pages with a card of their own, so no card is drawn.
+  await addShareCards({ outDir: dir, baseUrl: BASE, siteName: 'S', siteCard: 'social-card.png', only: null }).catch(() => {});
+  assert.match(readFileSync(path.join(dir, 'index.html'), 'utf8'), /href="favicon\.svg"/);
+  assert.match(readFileSync(path.join(dir, 'a', 'index.html'), 'utf8'), /href="\.\.\/favicon\.svg"/);
+  assert.match(readFileSync(path.join(dir, 'a', 'b', 'index.html'), 'utf8'), /href="\.\.\/\.\.\/favicon\.svg"/);
+});
+
+test('the CLI exits 2 with a usage line when --base is missing', () => {
+  const r = spawnSync(process.execPath, [new URL('./share.mjs', import.meta.url).pathname, os.tmpdir()], { encoding: 'utf8', env: { ...process.env, PAGES_BASE_URL: '' } });
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /usage: share\.mjs/);
+});
+
+test('the CLI with no arguments at all prints the usage line and exits 2', () => {
+  const r = spawnSync(process.execPath, [new URL('./share.mjs', import.meta.url).pathname], { encoding: 'utf8', env: { ...process.env, PAGES_BASE_URL: 'https://example.test/' } });
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /usage: share\.mjs/);
+});
+
+test('an og:image with a scheme that contains a digit is absolute and left byte for byte', () => {
+  const image = 'X2y://CDN.example/x.jpg';
+  const out = completeShareTags(page({ image }), { url: `${BASE}ventures/shed-designer/` });
+  assert.ok(out.includes(`property="og:image" content="${image}"`));
 });

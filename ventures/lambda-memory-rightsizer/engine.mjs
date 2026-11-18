@@ -125,7 +125,11 @@ export function analyze(parsed, opts = {}) {
   return { count: stats.count, skipped: parsed.skipped, arch, invocations, stats, scenarios, current, best, monthlyNow, monthlyBest, armSaving, findings };
 }
 
-function fmt(n) { return `$${n.toFixed(n >= 100 ? 0 : 2)}`; }
+function fmt(n) {
+  const format = (n) => `$${n.toFixed(n >= 100 ? 0 : 2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+}
 
 export function summarize(report) {
   if (!report.count) return { status: "none", errors: 0, warns: 0, infos: 0, text: "No Lambda REPORT lines recognised. Paste lines like: REPORT RequestId: ... Duration: 102.25 ms Billed Duration: 103 ms Memory Size: 512 MB Max Memory Used: 82 MB" };

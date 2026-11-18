@@ -17,7 +17,12 @@ export function corporateCheckDigit(base12) {
 // Returns { ok, number, kind, problems: [...] }. kind is "corporate" when the
 // check digit fits, "other" when it does not (individual, or a typo).
 export function checkRegistrationNumber(raw) {
-  const s = String(raw || "").trim().toUpperCase().replace(/[\s-]/g, "").replace(/^Ｔ/, "T");
+  // Full-width forms (Ｔ, ０-９, －, ー, spaces) are what Japanese users paste.
+  const s = String(raw || "")
+    .normalize("NFKC")
+    .trim()
+    .toUpperCase()
+    .replace(/[\s\-\u2010-\u2015\u2212\u30FC]/g, "");
   const digits = s.replace(/^T/, "");
   const problems = [];
   if (!s.startsWith("T")) problems.push("A registration number starts with the letter T.");
@@ -40,6 +45,8 @@ export function checkRegistrationNumber(raw) {
 // Revisions in the 2026 tax reform are not applied. null = outside the measure.
 export function transitionalShare(isoDate) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate || "")) return null;
+  const dt = new Date(`${isoDate}T00:00:00Z`);
+  if (Number.isNaN(dt.getTime()) || dt.toISOString().slice(0, 10) !== isoDate) return null;
   if (isoDate < "2023-10-01") return null;
   if (isoDate <= "2026-09-30") return 0.8;
   if (isoDate <= "2029-09-30") return 0.5;

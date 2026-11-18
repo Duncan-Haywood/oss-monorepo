@@ -70,8 +70,12 @@ owner: duncan
 # 2024-80 and Notice 2025-67 respectively) against each other -- both
 # agreed on every figure. WebFetch against the primary IRS notice PDFs
 # (irs.gov/pub/irs-drop/n-25-67.pdf) did not return extractable text in
-# this session, so the primary source was not read directly; this is
-# secondary-source compiled data, and the product page says so.
+# this session, so the primary source was not read directly.
+# Update 2026-11-17: the primary notice was read with pdftotext
+# (platform/ci/check_plan_limits_2026.py pins its figures). Every 2025 and
+# 2026 figure in calc.mjs matches it; the FAQ's IRA aside did not ($7,000
+# and $1,000 for 2026, really $7,500 and $1,100) and was corrected, and the
+# footer now cites the primary notice.
 #
 # Scoring against portfolio/pipeline/README.md's rubric (0-10; gates in
 # bold must clear 5):
@@ -168,5 +172,5 @@ kill_criteria:
     feedback) within 90 days of that same window.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/mega-backdoor-roth-calculator/
+  production: https://marisstella.app/mega-backdoor-roth-calculator/
   analytics: null

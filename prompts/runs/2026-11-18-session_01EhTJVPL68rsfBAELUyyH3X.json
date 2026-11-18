@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVPL68rsfBAELUyyH3X",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... merge when done)",
+  "input_sha256": "3f292b268e63b0d72b6982886f7530a713ccb708bab3de8d9cc166b1c9e89c6c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T05:12:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship: few-donor size and power with one shocked donor",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 17182,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "changepoint-detector next: sits at exactly 2000 of 2000 characters after this edit; the next run will need to park items to NEXT.md."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-changepoint-synthetic-control-one-shocked-donor.md"
+  ],
+  "goal": null,
+  "notes": "Pre-registered simulation (eval/synth-few-power-prereg-2026-11-18.md, committed before the confirmatory run, base 83000, 400 panels a cell): 11/16/21 units, 2 sd step reaches rank 1 in 54-60% with clean donors, 35-40% with one donor shocked by the same amount, 6-13% twice; leaving it out beforehand restores 56-58%; gap unbiased throughout. All six bars passed. FEW DONORS note (CLI and page) now quotes the nearest row and advises pre-declared exclusion. Local checks: node --test on the synth tests 22/22; run_venture_tests.py changepoint-detector 856 tests ok; check_posts ok; validate.py.",
+  "corrections": [],
+  "redteam": null
+}

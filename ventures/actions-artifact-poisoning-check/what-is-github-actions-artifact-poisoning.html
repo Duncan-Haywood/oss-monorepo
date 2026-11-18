@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Actions Artifact Poisoning Check</a></p>
   <h1>What is GitHub Actions artifact poisoning?</h1>
   <p><code>workflow_run</code> is a trigger that fires when a separate workflow run completes — commonly used so a privileged workflow can react to an unprivileged <code>pull_request</code> build without inheriting the fork's ability to change what that workflow does by editing the workflow file itself. The <code>workflow_run</code> job runs in the context of the <em>base</em> repository, with the base repository's <code>GITHUB_TOKEN</code> and secrets — but the run it reacts to was still triggered by whoever opened the pull request, who might be a stranger.</p>
@@ -50,7 +51,9 @@ jobs:
   <p><a href="./">Paste your workflow YAML into Actions Artifact Poisoning Check</a> to find every <code>workflow_run</code> job that downloads and later executes an artifact, and every unscoped download, across every workflow file at once, or run the CLI in your own repository:</p>
   <pre><code>python3 check.py --fail-on-risk</code></pre>
   <p class="note">That exits with a nonzero status if any workflow has either pattern — wire it into your own CI to block a newly-added one before it merges.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit or a compliance attestation, and a clean scan does not mean a workflow is safe — only that these two documented patterns were not found.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
     <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>

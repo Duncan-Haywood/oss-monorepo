@@ -1,0 +1,26 @@
+name: cash-application-matcher
+description: Free browser tool that proposes which open invoices each bank receipt pays (multi-invoice payments, early-pay discounts, bank charges, short-pays), with a confidence and a reason for each.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: AR clerks and bookkeepers who apply cash by hand will run a bank export against an open-invoice export in a free local tool, because multi-invoice payments with fees or discounts are the slow part of the job; measured as the share of match_run events followed by applications_exported (local counters only, no reading yet, added 2026-11-17).
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing a confidence tier with a one-sentence reason (High, Medium, Review) lets a clerk post High rows without re-checking them; on the generated benchmark High proposals were 99.8% exact (eval/synthetic.mjs), not yet measured on a real statement.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: false
+kill_criteria:
+  - No organic visits, exports or repeat local usage after 90 days of availability.
+links:
+  production: https://marisstella.app/cash-application-matcher/
+  analytics: null

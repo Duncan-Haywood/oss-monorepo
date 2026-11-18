@@ -148,7 +148,7 @@ node cli.mjs --compare</code></pre>
 
     const $ = (sel) => document.querySelector(sel);
     const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 
     for (const k of PATTERN_KEYS) $("#pattern").insertAdjacentHTML("beforeend", `<option value="${k}">${escapeHtml(PATTERNS[k].name)}</option>`);
     function fillCrews() {
@@ -163,7 +163,7 @@ node cli.mjs --compare</code></pre>
       const key = $("#pattern").value, crew = $("#crew").value;
       const anchor = $("#anchor").value.trim() || today;
       const from = $("#from").value.trim() || anchor;
-      const count = Math.min(Math.max(parseInt($("#count").value, 10) || 56, 1), 730);
+      const count = Math.min(Math.max(parseInt($("#count").value, 10) || 56, 1), 730); /* zero-default: a 0-day schedule is empty; the clamp below is 1 */
       return { key, crew, anchor, from, count };
     }
 

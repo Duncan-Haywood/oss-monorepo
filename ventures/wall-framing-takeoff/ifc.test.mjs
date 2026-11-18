@@ -139,3 +139,13 @@ test("a multi-storey IFC is read one storey at a time", () => {
   assert.equal(planFromIfc(twoStorey, { storey: "upper" }).plan.walls.length, 4);
   assert.equal(planFromIfc(twoStorey, { storey: 3 }).ok, false);
 });
+
+// Wall thickness from the body's rectangle profile (XDim = length, YDim = thickness), metres.
+test("wall thickness is read from a body rectangle profile and reported", () => {
+  const body = (n, y) => `#${n}0=IFCCARTESIANPOINT((0.,0.));\n#${n}1=IFCAXIS2PLACEMENT2D(#${n}0,$);\n#${n}2=IFCRECTANGLEPROFILEDEF(.AREA.,$,#${n}1,10.,${y});\n#${n}3=IFCEXTRUDEDAREASOLID(#${n}2,$,$,2.7);\n#${n}4=IFCSHAPEREPRESENTATION(#1,'Body','SweptSolid',(#${n}3));\n`;
+  const t = ifc.replace("ENDSEC;\nEND-ISO", () => `${body(50, 0.2)}#505=IFCPRODUCTDEFINITIONSHAPE($,$,(#504));\n#506=IFCWALL('gx',#2,'Thick',$,$,#133,#505,$,.STANDARD.);\nENDSEC;\nEND-ISO`);
+  const r = planFromIfc(t);
+  assert.ok(r.ok, r.errors?.join());
+  assert.ok(r.notes.some((n) => /Wall thickness read for 1 wall \(7\.9 to 7\.9 in/.test(n) && /2x6/.test(n)), r.notes.join("\n"));
+  assert.ok(!planFromIfc(ifc).notes.some((n) => /Wall thickness/.test(n)));
+});

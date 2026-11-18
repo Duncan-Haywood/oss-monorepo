@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; Back to Kubernetes Resource Limits Check</a></p>
   <h1>Why a missing resource limit can take down an entire node</h1>
 
@@ -61,7 +62,9 @@
     <p>Not automatically. A CPU limit is enforced through the kernel's CFS bandwidth controller, which grants a fixed quota once per scheduling period (typically 100ms) with no rollover of unused quota into the next period. A container with bursty CPU use -- busy for 20ms, idle for the rest of a period, repeated -- can be throttled inside that pattern even while the node as a whole has spare CPU sitting idle. This is a well-documented behaviour, tracked upstream as kubernetes/kubernetes#67577, and it is why several engineering teams have published posts about removing CPU limits while keeping CPU requests. A limit is still the right call for strict multi-tenant isolation; the point is that it is a trade-off to make deliberately, not a box to tick alongside every other resource field.</p>
   </div>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This is not infrastructure or capacity-planning advice. See the disclaimer on <a href="./">the checker itself</a> for the full text.</p>
     <p>Everything here runs client-side; nothing is uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
   </footer>

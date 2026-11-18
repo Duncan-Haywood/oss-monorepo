@@ -1,0 +1,23 @@
+station month  hours  free_km/day(6h beam)  corridor_km/day: mean_of_4_lines  worst_line  best_line  share_days>=86(mean of lines)
+41009 202401  4460      158      126      117      136     0.86
+41009 202407  4461       86       68       64       71     0.15
+41010 202407  4461       99       78       72       84     0.37
+42036 202401  4463      161      128      122      136     0.81
+42036 202407  4463       58       45       44       46     0.07
+42040 202401  4463      173      139      130      147     0.89
+42040 202407  4463       89       70       65       75     0.23
+44009 202401  4458      163      131      125      135     0.87
+44009 202407  4461      104       82       68       96     0.42
+44013 202401  4463      162      131      123      140     0.86
+44013 202407  4462       77       61       53       67     0.07
+44025 202407  4462      111       88       75      100     0.46
+46011 202401  4463      130      104       88      118     0.64
+46011 202407  4460      116       92       74      108     0.50
+46013 202401  4462      136      109       92      124     0.66
+46013 202407  4464      119       95       70      115     0.47
+46026 202401  4463      136      109       95      122     0.63
+46054 202401  4462      144      115       85      139     0.68
+46054 202407  4462      172      138      100      168     0.82
+202401: 9 buoys; median corridor mean km/day 126 (min 104); median corridor/free 0.80 (min 0.80); median worst line 117; median share of days >= 86 km/day 0.81 (min 0.63)
+202407: 10 buoys; median corridor mean km/day 80 (min 45); median corridor/free 0.79 (min 0.77); median worst line 69; median share of days >= 86 km/day 0.40 (min 0.07)
+fraction of buoy-months where corridor mean > 2x solar ceiling (172 km/day): 0/19

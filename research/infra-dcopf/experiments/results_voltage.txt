@@ -1,0 +1,42 @@
+case30 load 0.6  AC opt cost 300.1, vmax at AC opt 1.0289
+   as shipped         v_viol  0  vmin 0.9748  vmax 1.0000  loss    1.3 MW  cost above AC opt   0.123 %  q_viol 0
+   clamped to band    v_viol  0  vmin 0.9748  vmax 1.0000  loss    1.3 MW  cost above AC opt   0.123 %  q_viol 0
+   uniform 1.050      v_viol  0  vmin 1.0265  vmax 1.0500  loss    1.2 MW  cost above AC opt  -0.021 %  q_viol 0
+   uniform+Qok 1.050  v_viol  0  vmin 1.0265  vmax 1.0500  loss    1.2 MW  cost above AC opt  -0.021 %  q_viol 0
+   per-gen Q rule     v_viol  0  vmin 0.9748  vmax 1.0000  loss    1.3 MW  cost above AC opt   0.123 %  q_viol 0
+   P-fixed AC OPF     feasible  vmin 0.9774  vmax 1.0290  slack   34.3 MW  cost above AC opt   0.078 %
+case30 load 0.8  AC opt cost 432.6, vmax at AC opt 1.0465
+   as shipped         v_viol  0  vmin 0.9667  vmax 1.0000  loss    1.9 MW  cost above AC opt   0.152 %  q_viol 0
+   clamped to band    v_viol  0  vmin 0.9667  vmax 1.0000  loss    1.9 MW  cost above AC opt   0.152 %  q_viol 0
+   uniform 1.050      v_viol  0  vmin 1.0188  vmax 1.0500  loss    1.8 MW  cost above AC opt  -0.014 %  q_viol 0
+   uniform+Qok 1.050  v_viol  0  vmin 1.0188  vmax 1.0500  loss    1.8 MW  cost above AC opt  -0.014 %  q_viol 0
+   per-gen Q rule     v_viol  0  vmin 0.9667  vmax 1.0000  loss    1.9 MW  cost above AC opt   0.152 %  q_viol 0
+   P-fixed AC OPF     feasible  vmin 0.9733  vmax 1.0462  slack   40.7 MW  cost above AC opt   0.069 %
+case30 load 1.0  AC opt cost 578.5, vmax at AC opt 1.0990
+   as shipped         v_viol  0  vmin 0.9583  vmax 1.0000  loss    3.0 MW  cost above AC opt  -0.311 %  q_viol 0
+   clamped to band    v_viol  0  vmin 0.9583  vmax 1.0000  loss    3.0 MW  cost above AC opt  -0.311 %  q_viol 0
+   uniform 1.050      v_viol  0  vmin 1.0109  vmax 1.0500  loss    2.7 MW  cost above AC opt  -0.518 %  q_viol 0
+   uniform+Qok 1.050  v_viol  0  vmin 1.0109  vmax 1.0500  loss    2.7 MW  cost above AC opt  -0.518 %  q_viol 0
+   per-gen Q rule     v_viol  0  vmin 0.9583  vmax 1.0000  loss    3.0 MW  cost above AC opt  -0.311 %  q_viol 0
+   P-fixed AC OPF     no solution from pandapower (not proof of infeasibility)
+case39 load 0.6  AC opt cost 15361.3, vmax at AC opt 1.0600
+   as shipped         v_viol 15  vmin 0.9820  vmax 1.0794  loss   17.8 MW  cost above AC opt  -0.062 %  q_viol 3
+   clamped to band    v_viol 14  vmin 0.9820  vmax 1.0792  loss   17.9 MW  cost above AC opt  -0.061 %  q_viol 4
+   uniform 1.005      v_viol  0  vmin 0.9984  vmax 1.0597  loss   18.6 MW  cost above AC opt  -0.020 %  q_viol 5
+   uniform+Qok: no setpoint on the grid satisfies both
+   per-gen Q rule     not feasible after 80 passes (heuristic)
+   P-fixed AC OPF     feasible  vmin 0.9556  vmax 1.0600  slack  394.7 MW  cost above AC opt   0.023 %
+case39 load 0.8  AC opt cost 26865.6, vmax at AC opt 1.0600
+   as shipped         v_viol  5  vmin 0.9820  vmax 1.0670  loss   31.7 MW  cost above AC opt   0.031 %  q_viol 3
+   clamped to band    v_viol  5  vmin 0.9820  vmax 1.0669  loss   31.7 MW  cost above AC opt   0.032 %  q_viol 3
+   uniform 1.010      v_viol  0  vmin 0.9963  vmax 1.0573  loss   32.6 MW  cost above AC opt   0.068 %  q_viol 3
+   uniform+Qok: no setpoint on the grid satisfies both
+   per-gen Q rule     not feasible after 80 passes (heuristic)
+   P-fixed AC OPF     feasible  vmin 0.9820  vmax 1.0600  slack  532.3 MW  cost above AC opt   0.039 %
+case39 load 1.0  AC opt cost 41872.3, vmax at AC opt 1.0600
+   as shipped         v_viol  1  vmin 0.9820  vmax 1.0636  loss   45.8 MW  cost above AC opt   0.043 %  q_viol 1
+   clamped to band    v_viol  1  vmin 0.9820  vmax 1.0600  loss   45.8 MW  cost above AC opt   0.044 %  q_viol 1
+   uniform 1.015      v_viol  0  vmin 0.9947  vmax 1.0547  loss   46.5 MW  cost above AC opt   0.066 %  q_viol 3
+   uniform+Qok: no setpoint on the grid satisfies both
+   per-gen Q rule     v_viol  0  vmin 0.9820  vmax 1.0600  loss   45.8 MW  cost above AC opt   0.045 %  q_viol 0
+   P-fixed AC OPF     no solution from pandapower (not proof of infeasibility)

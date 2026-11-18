@@ -2,7 +2,7 @@
 
 Follow-up to `codesign-agri` and to `codesign-agri-sweep` (track 14, `codesign`; agriculture). The sweep's next step was to source the invented constants; for the stem pull-off force there are two published measurements, and one of them is four times the value `codesign-agri` assumed. Produced with AI assistance (Claude). **Simulated; the pull-off median and the grip-force limit are sourced, the bruise threshold, friction, ripeness law, prices and every other constant are inherited assumptions.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-agri-pulloff/
+**Live page:** https://marisstella.app/research/codesign-agri-pulloff/
 
 ![Median best J at 40 evaluations against the median stem pull-off force, for the 8 N and 10 N grip bounds](experiments/pulloff.png)
 

@@ -172,7 +172,7 @@ node cli.mjs check dist --strict                    # also fail on a missing Ama
 
       els.reportCard.hidden = false;
       record("check_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#check").addEventListener("click", renderReport);

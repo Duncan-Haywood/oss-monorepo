@@ -9,8 +9,10 @@ Findings never repeat the reason text or category code.
 
 from __future__ import annotations
 
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 from typing import Any
+
+from .numbers import parse_decimal
 
 # UNECE 5305 / Peppol categories that require an exemption reason (text or
 # code) when they appear on a line. S / H / AA stay out — they are taxed.
@@ -107,11 +109,7 @@ def _usable_reason_code(value: Any) -> bool:
 
 
 def _number(value: Any) -> Decimal | None:
-    try:
-        result = Decimal(str(value))
-    except (InvalidOperation, ValueError, TypeError):
-        return None
-    return result if result.is_finite() else None
+    return parse_decimal(value)
 
 
 def _finding(rule: str, message: str, fix: str, path: str) -> dict[str, str]:

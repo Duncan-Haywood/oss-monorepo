@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqybrbFqfkBc5okVDnSW",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T03:39:13Z",
+  "ended": "2026-11-16T04:16:18Z",
+  "wall_minutes": 54.92,
+  "tokens_in": 16033703,
+  "tokens_out": 53430,
+  "cost_usd": 5.5535,
+  "tool_calls": 122,
+  "task": "Flagship 9 league-schedule-generator: wait-free designs for odd leagues of 33 to 63 teams at 9 time slots (incl. 37 fully booked)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16441",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "First background solver run used /usr/bin/time, which is not installed in the container; reran without it.",
+    "Started the 6-slot odd sizes (31-47) and the 3k+2 sizes (35, 41) with long budgets before noticing they are all at 3 or fewer spare slots, where the cyclic method has never worked; stopped them after 8-12 min."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Pointed this session at the 29-team row item; claim_check then showed #16440 had claimed the second item (40/46 three-session designs) one minute earlier, so the claim step cost a PR retitle. Expected with overlapping schedules; no fix proposed."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "league-schedule-generator next: was at 1997/2000 characters, so even a one-clause update needed a --park; the cap forces parking every run for this flagship."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "The top next: item (29 on 5x9) had absorbed hours of solver time on earlier runs with a proof that the group method cannot work, and the second item was claimed by #16440. I took an item not listed in next:: odd leagues above 31 teams had no designs although MAX_TEAMS is 64.",
+      "did": "Ran eval/odd-cyclic.py on the n = 3k sizes 33-63 at 9 slots and eval/odd-orbit.py on 37 (the parked NEXT.md item) and 43; stored seven designs.",
+      "result": "Seven sizes from 377-2,643 waits to 0 (37 teams 701 to 0, 2,783 s solve), builds 3-7x faster; 43 on 7x9 stopped at 39 min; 35, 41, 47 recorded as the 3k+2 case beside 29."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-big-odd-leagues-one-night-is-the-season.md",
+    "ventures/league-schedule-generator/README.md (Big odd leagues at 9 slots)",
+    "ventures/league-schedule-generator/eval/odd-cyclic.txt"
+  ],
+  "goal": "Deepen flagship 9",
+  "notes": "Verification: run_venture_tests.py league-schedule-generator ok (554 tests, 238.8 s); doubleheader.test.mjs 32/32; venture-preflight clean; post checks clean. Tool waits before/after via node eval/odd-cyclic-check.mjs (seeds 1-3): 33:6:9 377->0, 39:7:9 583->0, 45:8:9 966->0, 51:9:9 1354->0, 57:10:9 1896->0, 63:11:9 2643->0. 49:9:9 already 0 (design not stored). 37:6:9 701->0 by eval/odd-orbit.py (SAT 2,783 s). 43:7:9 orbit run stopped after 39 min, no answer. Merged origin/main after #16440 landed on the same flagship row and llms.txt (conflicts resolved by hand); suite re-run on the merged tree: ok, 555 tests, 172.6 s.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0f3f3d18-aefc-50ae-ac61-4920bd6fe95d",
+    "transcripts": 1,
+    "first": "2026-11-16T03:39:13Z",
+    "last": "2026-11-16T04:34:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 117,
+        "input": 223,
+        "output": 53430,
+        "thinking": 18793,
+        "cache_read": 15869716,
+        "cache_write_5m": 0,
+        "cache_write_1h": 163764,
+        "api_equivalent_usd": 5.5535,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 117,
+      "input": 223,
+      "output": 53430,
+      "thinking": 18793,
+      "cache_read": 15869716,
+      "cache_write_5m": 0,
+      "cache_write_1h": 163764,
+      "api_equivalent_usd": 5.5535,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 122,
+    "tools": {
+      "Bash": 107,
+      "TaskStop": 5,
+      "mcp__github__update_pull_request": 3,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 54.92,
+      "active_minutes": 54.92,
+      "model_minutes": 9.39,
+      "tool_minutes": 45.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a scheduling engineer: run the existing cyclic and orbit scripts over 17 sizes, triage the tight ones, store and test 7 designs, write README, eval logs and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 180.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

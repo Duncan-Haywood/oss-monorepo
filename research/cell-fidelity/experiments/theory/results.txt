@@ -1,0 +1,32 @@
+cell-fidelity milestone 3 (theory, part 1): the affine-residual bound on screen-then-verify
+benchmark: 128 Sobol designs (milestone 2); target DFN@100; tau = 0.01; pools: 30 of 64 (milestone 4's)
+kappa = min over u >= 0, c of max |u s - c - f| in Wh/kg; kappa_q over the top 25% by s with the top 25% by f
+
+A. per screen cell: residual, raw error and screening cost
+cell       kappa_all  kappa_q x* in top q raw |s-f|      u  R med R bound med top1 reg 2 kappa_all
+SPM@2          23.30    18.33        True    152.29   0.21    6.0        43.0     9.86       46.60
+SPM@10         21.04    18.33        True    124.05   0.25    3.5        34.5    15.19       42.09
+SPM@30         20.78    18.33        True     87.64   0.32    4.0        33.5    15.19       41.56
+SPM@100        20.69    18.33        True      7.13   0.50    3.5        34.5    15.19       41.37
+SPMe@2         42.57    12.75        True     85.74   0.04    3.0        62.0     1.64       85.15
+SPMe@10        42.27    12.45        True     75.84   0.04    1.0        61.5     0.00       84.54
+SPMe@30        42.59    13.95        True     47.97   0.06   13.0        62.0     3.21       85.18
+SPMe@100       42.76    15.72       False      9.47   0.10   19.0        62.0     9.32       85.51
+DFN@2          24.71     7.16        True     87.94   0.55    3.0        42.0     1.64       49.42
+DFN@10         16.99     4.33        True     75.84   0.60    1.0        29.5     0.00       33.98
+DFN@30         10.70     3.85        True     49.87   0.74    1.0        18.0     0.00       21.39
+
+C1 bound check over 11 cells x 30 pools: 0 violations
+
+B. hypotheses
+H11 Spearman over 11 cells with median R: kappa_q 0.717, raw median |s-f| -0.069 (difference +0.786); kappa_all 0.525 (extra) -> supported
+H12 on the 121 designs SPMe completed: kappa_all SPM@100 11.03 vs SPMe@100 42.76 Wh/kg (ratio 0.26) -> supported
+H13 Spearman(least-squares affine residual, SPMe r_min): SPMe@100 -0.816, SPM@100 +0.258 (|difference| +0.558); residual RMS SPMe 17.73, SPM 4.37 Wh/kg -> supported
+
+C. H14: corollary T1 <= c_h + N (c_s + p c_h) against GP-EI at m = 9 DFN@100 calls (220.4 s)
+screen      p(2kq)     N*    N=16 pred/obs    N=32 pred/obs    N=64 pred/obs    N=96 pred/obs
+SPM@2        0.531   14.7         lose/win         lose/win         lose/win        lose/lose
+SPM@100      0.531   13.9         lose/win         lose/win         lose/win         lose/win
+DFN@2        0.141   40.9          win/win          win/win         lose/win        lose/lose
+DFN@10       0.031   45.1          win/win          win/win        lose/lose        lose/lose
+H14 calls right: 8 of 16 -> refuted

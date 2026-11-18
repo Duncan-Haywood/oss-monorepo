@@ -1,0 +1,3 @@
+Transaction ID,Transaction date,Type,Description,Payout date,Gross amount,Fee,Net amount
+T1,2026-10-03 12:00,Sales,Card sale,2026-10-05,50.00,0.65,49.35
+T2,2026-10-04 12:00,Refund,Refund,2026-10-06,-10.00,0,-10.00

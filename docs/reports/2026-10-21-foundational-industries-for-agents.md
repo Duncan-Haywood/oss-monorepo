@@ -1,3 +1,8 @@
+---
+kind: brief
+date: 2026-10-21
+tagged: auto
+---
 # Applied R&D for foundational industries: brief for an agent reader
 
 **Date:** 2026-10-21. **Asked by:** the owner, who first asked which industries

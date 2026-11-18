@@ -233,7 +233,7 @@ node cli.mjs split junit.xml --shards 4 --max-imbalance-pct 20   # exit 1 if unb
 
       els.card.hidden = false;
       record("balance_run");
-      els.card.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.card.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#balance").addEventListener("click", renderReport);

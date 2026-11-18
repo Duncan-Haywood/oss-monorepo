@@ -7,7 +7,7 @@ check, amounts are read as exact cents (`34,50` and `1,200.50` both work; an amb
 rows are grouped into the FRST / RCUR / FNAL / OOFF blocks banks require, and no file is written while any
 collection has an error. The list is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/csv-to-sepa-pain008/
+**Live tool:** https://marisstella.app/csv-to-sepa-pain008/
 
 ## Why use it
 
@@ -31,7 +31,7 @@ order is name, IBAN, amount, mandate id, mandate date, reference, sequence.
 ## Files
 
 - `index.html`: the tool's page.
-- `calc.mjs`: the logic (`convert`, `checkCreditorId`, `checkIban`, `parseCents`, `buildXml`), kept separate from the page so it can be tested.
+- `calc.mjs`: the logic (`convert`, `targetClosedReason` and `nextTargetDay` for the TARGET closing-day calendar, `checkCreditorId`, `checkIban`, `parseCents`, `buildXml`), kept separate from the page so it can be tested.
 - `usage.mjs`: anonymous, opt-in-only usage counters (off by default; see `portfolio/usage/README.md` in the monorepo).
 - `*.test.mjs`: tests for the logic and the page. When the sibling `sepa-pain001-validator` is present, a test checks that this tool's output passes it.
 

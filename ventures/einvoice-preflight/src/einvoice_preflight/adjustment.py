@@ -11,8 +11,10 @@ ignored.
 
 from __future__ import annotations
 
-from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from decimal import Decimal, ROUND_HALF_UP
 from typing import Any
+
+from .numbers import parse_decimal
 
 from .linenet import is_negative_invoice
 from .reference import looks_like_placeholder
@@ -26,11 +28,7 @@ def _money(value: Any) -> Decimal | None:
 
 
 def _number(value: Any) -> Decimal | None:
-    try:
-        result = Decimal(str(value))
-    except (InvalidOperation, ValueError, TypeError):
-        return None
-    return result if result.is_finite() else None
+    return parse_decimal(value)
 
 
 def normalize_kind(value: Any) -> str | None:
@@ -155,7 +153,9 @@ def _inspect_row(row: Any, index: int, negative: bool = False) -> list[dict[str,
             base = None
     if "percent" in row and row.get("percent") not in (None, ""):
         percent = _number(row.get("percent"))
-        if percent is None or percent < 0 or percent > 100:
+        # A negative invoice may state the percentage with the sign of its amounts
+        # (OpenPeppol's PINT A-NZ negative invoice: -10% of 1500 = -150.00).
+        if percent is None or percent < (-100 if negative else 0) or percent > 100:
             findings.append(_finding(
                 "INV-051",
                 "Header allowance or charge percentage is missing or invalid.",

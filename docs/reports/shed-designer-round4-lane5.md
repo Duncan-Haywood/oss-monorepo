@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer, round 4, lane 5: floorless and foundation options
 
 Run of 2026-10-30. The brief came from round 3 lane 7's "Open" list:

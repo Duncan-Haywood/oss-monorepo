@@ -22,7 +22,17 @@ function rng(seed) {
 test("lengths parse the way a framer writes them", () => {
   assert.equal(parseLength("12' 6-1/2\""), 150.5);
   assert.equal(parseLength("12ft 6in"), 150);
+  // curly quotes and one-glyph fractions from phone keyboards
+  assert.equal(parseLength("8\u2019 6\u201d"), 102);
+  assert.equal(parseLength("8\u2019"), 96);
+  assert.equal(parseLength("8' 6\u00bd\""), 102.5);
+  assert.equal(parseLength("5\u00be"), 5.75);
+  assert.equal(parseLength("\u215d\""), 0.625);
   assert.equal(parseLength("150 1/2"), 150.5);
+  // thousands separators: exact 3-digit groups only
+  assert.equal(parseLength("1,200"), 1200);
+  assert.equal(parseLength("1,200'"), 14400);
+  assert.ok(Number.isNaN(parseLength("1,5")));
   assert.equal(parseLength("92-5/8"), 92.625);
   assert.equal(parseLength("40'"), 480);
   assert.equal(parseLength("1/8"), 0.125);
@@ -731,6 +741,19 @@ test("nested gable courses: two like trapezoids turned against each other fill a
   assert.ok(Math.abs(nestedHeight(r, r).height - 60.125) < 1e-9);
 });
 
+test("nested gable courses: a peaked top (three points) nests by its breakpoints, hand heights", async () => {
+  const { nestedHeight } = await import("./sheathing.mjs");
+  // 48 wide, 20 at both ends and 44 at the middle peak (x = 24). Turned over itself the peak meets the peak:
+  // 44 + 44 = 88 at x = 24 when mirrored onto itself; shifted halves can't help at equal width, so 88.
+  const peaked = { width: 48, e: [20, 44], prof: [[0, 20], [24, 44], [48, 20]] };
+  assert.ok(Math.abs(nestedHeight(peaked, peaked).height - 88.125) < 1e-9);
+  // against a flat 30 in rectangle: the peak (44) plus 30 = 74
+  const flat = { width: 48, e: [30, 30] };
+  assert.ok(Math.abs(nestedHeight(peaked, flat).height - 74.125) < 1e-9);
+  // a straight 2-point top with the same ends gives the old answer (no prof): unchanged API
+  assert.ok(Math.abs(nestedHeight({ width: 48, e: [20, 44] }, { width: 48, e: [20, 44] }).height - 64.125) < 1e-9);
+});
+
 test("gable wall sheathing: sloped top courses nest on one sheet when the full order is cheaper, never dearer", () => {
   const plan = { ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 6 } }] };
   const { s } = sheathed(plan);
@@ -821,8 +844,21 @@ test("sheathing: a gable wall joint over a wide opening gets a nailer note with 
   assert.deepEqual(s.gables.walls[0].check, []);
 });
 
+test("sheathing: gable nailers join the nailer lumber order and the cut list", () => {
+  const plan = { ...base(), studSpacing: 24, walls: [{ id: "G", length: 240, stud: "2x4", corner: false, gable: { pitch: 6, peak: 120 }, openings: [{ kind: "window", offset: 30, width: 120, height: 48, header: "2x10", headerHeight: 80 }] }] };
+  const r = takeoff(plan);
+  const s = sheathe({ ...plan, sheathing: defaultSheathing() }, r);
+  const pieces = s.gables.walls[0].nailerPieces;
+  assert.ok(pieces.length > 0 && pieces.every((p) => p.length > 0 && p.size === "2x4"));
+  const qty = s.nailerLumber.cuts.filter((c) => c.kind === "nailer").reduce((t, c) => t + c.qty, 0);
+  assert.equal(qty, pieces.length);
+  assert.equal(nailerCuts(s).reduce((t, c) => t + c.qty, 0), pieces.length);
+  assert.ok(s.nailerLumber.orders.length > 0 && s.nailerLumber.cost >= 0);
+  assert.ok(s.notes.some((n) => /added to the lumber order/.test(n)));
+});
+
 test("takeoff returns an error naming the piece when a header is longer than every board", () => {
-  const plan = { ...samplePlan(), walls: [{ id: "G", length: 480, stud: "2x4", corner: true, openings: [{ kind: "door", offset: 24, width: 192, height: 84, header: "2x10" }] }] };
+  const plan = { ...samplePlan(), walls: [{ id: "G", length: 480, stud: "2x4", corner: true, openings: [{ kind: "door", offset: 24, width: 192, height: 82.5, header: "2x10" }] }] };
   plan.stock = plan.stock.filter((s) => s.size !== "2x10" || s.length <= 192);
   const r = takeoff(plan);
   assert.equal(r.ok, false);
@@ -846,4 +882,378 @@ test("horizontal sheets: every course joint is backed by joint blocks, also with
     assert.ok(blocks.every((b) => b.size === "2x4" && b.length >= 1));
   }
   assert.equal(nailerCuts(s).filter((c) => c.kind === "sheathing joint block").reduce((t, c) => t + c.qty, 0), w.jointBlocks.length);
+});
+
+test("hostile plans are refused with a reason, not silently framed or thrown on", () => {
+  const bad = (edit) => { const p = samplePlan(); edit(p.walls[0]); return takeoff(p); };
+  for (const jacks of [-3, 1.5, 99]) {
+    const r = bad((w) => { w.openings[0].jacks = jacks; });
+    assert.ok(r.errors?.some((e) => /jacks must be a whole number/.test(e)), `jacks ${jacks}`);
+  }
+  for (const plies of [0, 1.5, 1e9]) {
+    const r = bad((w) => { w.openings[0].headerPlies = plies; });
+    assert.ok(r.errors?.some((e) => /header plies must be a whole number/.test(e)), `plies ${plies}`);
+  }
+  for (const kings of [-1, 1e9]) {
+    const r = bad((w) => { w.openings[0].kings = kings; });
+    assert.ok(r.errors?.some((e) => /kings must be a whole number/.test(e)), `kings ${kings}`);
+  }
+  const r = bad((w) => { w.length = 1e12; });
+  assert.ok(r.errors?.some((e) => /at most 12000 inches/.test(e)));
+});
+
+test("validatePlan refuses wrong-shaped walls, tees, openings and stock instead of throwing", () => {
+  const mk = (f) => { const p = samplePlan(); f(p); return p; };
+  const cases = [
+    [(p) => { p.walls[0].tees = 5; }, /"tees" must be a list/],
+    [(p) => { p.walls[0].openings = [null]; }, /"openings" must be a list of objects/],
+    [(p) => { p.walls[0].openings = "x"; }, /"openings" must be a list of objects/],
+    [(p) => { p.walls = [null]; }, /Wall number 1 must be an object/],
+    [(p) => { p.stock = [null]; }, /"stock" must be a list/],
+  ];
+  for (const [f, re] of cases) {
+    const p = mk(f);
+    let r;
+    assert.doesNotThrow(() => { r = takeoff(p); });
+    assert.equal(r.ok, false);
+    assert.ok(r.errors.some((e) => re.test(e)), String(r.errors));
+  }
+});
+
+test("parseLength reads metric lengths (mm, cm, m)", () => {
+  assert.ok(Math.abs(parseLength("2500mm") - 98.4252) < 1e-3);
+  assert.ok(Math.abs(parseLength("250 cm") - 98.4252) < 1e-3);
+  assert.ok(Math.abs(parseLength("2.5m") - 98.4252) < 1e-3);
+  assert.ok(Math.abs(parseLength("2,5 m") - 98.4252) < 1e-3);
+  assert.equal(parseLength("8 ft"), 96);
+  assert.ok(Number.isNaN(parseLength("5 mm x")));
+});
+
+test("backing stud counts must be whole numbers 0 to 6 (1e9 used to hang, -5 and 1.5 were accepted)", () => {
+  for (const key of ["cornerExtraStuds", "teeExtraStuds"]) {
+    for (const bad of [1e9, -5, 1.5, 7, NaN, "2"]) {
+      const p = samplePlan();
+      p[key] = bad;
+      const r = takeoff(p);
+      assert.equal(r.ok, false, `${key}=${bad}`);
+      assert.ok(r.errors.some((e) => /whole number from 0 to 6/.test(e)), String(r.errors));
+    }
+    for (const good of [0, 1, 2, 6]) {
+      const p = samplePlan();
+      p[key] = good;
+      assert.equal(takeoff(p).ok, true, `${key}=${good}`);
+    }
+  }
+});
+
+test("a tee wall inside an opening, or two tees listed on top of each other, is refused", async () => {
+  const { takeoff } = await import("./engine.mjs");
+  const mk = (tees) => ({
+    studSpacing: 16, studLength: 92.625, kerf: 0.125, topPlateLap: 24, defaultHeaderHeight: 82.5,
+    stock: [96, 120, 144, 168, 192].map((length) => ({ size: "2x4", length, price: 8 })).concat([{ size: "2x10", length: 96, price: 30 }, { size: "2x10", length: 192, price: 60 }]),
+    walls: [{ id: "A", length: 480, stud: "2x4", tees, openings: [{ kind: "door", label: "Entry", offset: 204, width: 38, height: 82.5, header: "2x10" }] }],
+  });
+  const inside = takeoff(mk([220]));
+  assert.equal(inside.ok, false);
+  assert.match(inside.errors.join(" "), /tee at 18' 4" falls inside the Entry/);
+  const dup = takeoff(mk([100, 100.5]));
+  assert.equal(dup.ok, false);
+  assert.match(dup.errors.join(" "), /closer than a stud thickness/);
+  assert.equal(takeoff(mk([100, 300])).ok, true);
+});
+
+test("validatePlan wants real numbers: strings, booleans, null and NaN are refused, not coerced or thrown", () => {
+  const plan = (edit) => { const p = samplePlan(); p.walls = [p.walls[0]]; edit(p); return p; };
+  for (const [name, edit] of [
+    ["studSpacing string", (p) => { p.studSpacing = "16"; }],
+    ["topPlateLap true", (p) => { p.topPlateLap = true; }],
+    ["kerf null", (p) => { p.kerf = null; }],
+    ["defaultHeaderHeight NaN", (p) => { p.defaultHeaderHeight = NaN; }],
+    ["defaultHeaderHeight text", (p) => { p.defaultHeaderHeight = "x"; }],
+    ["opening offset null", (p) => { p.walls[0].openings[1].offset = null; }],
+    ["opening offset text", (p) => { p.walls[0].openings[1].offset = "x"; }],
+    ["opening width string", (p) => { p.walls[0].openings[1].width = "72"; }],
+  ]) {
+    const r = takeoff(plan(edit)); // must not throw
+    assert.equal(r.ok, false, name);
+    assert.match(r.errors.join(" "), /must be a number of inches/, name);
+  }
+  assert.equal(takeoff(plan(() => {})).ok, true);
+  const noHeader = takeoff(plan((p) => { delete p.defaultHeaderHeight; }));
+  assert.equal(noHeader.ok, false);
+  assert.match(noHeader.errors.join(" "), /Default header height must be a number/);
+});
+
+test("blocking rows must be a whole number 0 to 20 and blocking an object (1e9 rows used to hang the takeoff)", () => {
+  const withBlocking = (blocking) => { const p = samplePlan(); p.blocking = blocking; return p; };
+  for (const [name, b] of [["1e9", { rows: 1e9 }], ["negative", { rows: -3 }], ["fraction", { rows: 1.5 }], ["string", { rows: "3" }], ["21", { rows: 21 }], ["text", "x"], ["list", [1]]]) {
+    const t = Date.now();
+    const r = takeoff(withBlocking(b));
+    assert.equal(r.ok, false, name);
+    assert.match(r.errors.join(" "), /[Bb]locking/, name);
+    assert.ok(Date.now() - t < 2000, `${name} refused quickly`);
+  }
+  for (const b of [undefined, null, {}, { rows: 0 }, { rows: 2, fire: true, stagger: true }, { rows: 20 }]) assert.equal(takeoff(withBlocking(b)).ok, true, JSON.stringify(b));
+});
+
+test("a lumber-list board over 1200 in is refused (1e9 used to throw a raw RangeError out of takeoff)", () => {
+  const p = samplePlan();
+  p.stock = p.stock.map((s) => ({ ...s, length: 1e9 }));
+  const r = takeoff(p); // must not throw
+  assert.equal(r.ok, false);
+  assert.match(r.errors.join(" "), /over 1200 inches/);
+  assert.equal(takeoff(samplePlan()).ok, true);
+});
+
+test("an opening kind other than window or door, and a door taller than its header height, are refused", () => {
+  const withOp = (f) => { const p = samplePlan(); f(p.walls[0].openings[0]); return takeoff(p); };
+  const kind = withOp((o) => { o.kind = "garage"; });
+  assert.equal(kind.ok, false);
+  assert.match(kind.errors.join(" "), /kind must be "window" or "door"/);
+  const tall = withOp((o) => { o.height = 500; }); // Entry door: header at 82.5 in, opening 500 in
+  assert.equal(tall.ok, false);
+  assert.match(tall.errors.join(" "), /below the floor/);
+  assert.equal(withOp((o) => { o.height = 82.5; }).ok, true);
+  assert.equal(takeoff(samplePlan()).ok, true);
+});
+
+test("a non-numeric headerHeight or tee is refused with a reason (headerHeight 'x' used to throw a raw error; a string tee passed by coercion)", () => {
+  const p = samplePlan();
+  p.walls[0].openings[0].headerHeight = "x";
+  const r = takeoff(p); // must not throw
+  assert.equal(r.ok, false);
+  assert.match(r.errors.join(" "), /headerHeight/);
+  const q = samplePlan();
+  q.walls[0].tees = ["20"];
+  const r2 = takeoff(q);
+  assert.equal(r2.ok, false);
+  assert.match(r2.errors.join(" "), /tee must be a number/);
+  assert.equal(takeoff(samplePlan()).ok, true);
+});
+
+test("redteam 2026-11-03: a single-ply header and a four-ply header are accepted, only 0 and 5 are refused", () => {
+  const ok = (plies) => { const p = samplePlan(); p.walls[0].openings[0].headerPlies = plies; return validatePlan(p); };
+  assert.deepEqual(ok(1).filter((e) => /header plies/.test(e)), []);
+  assert.deepEqual(ok(4).filter((e) => /header plies/.test(e)), []);
+  assert.ok(ok(5).some((e) => /header plies must be a whole number/.test(e)));
+});
+
+test("redteam 2026-11-03: a gable header is checked at the edge of its default jacks, to the eighth of an inch", () => {
+  const at = (h) => validatePlan({ ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 6 }, openings: [{ kind: "window", label: "w", offset: 30, width: 30, height: 30, header: "2x8", headerHeight: h }] }] });
+  assert.deepEqual(at(101), []); // 1/8 in under the sloped plate at the header's low end
+  assert.ok(at(101.5).some((e) => /does not fit under the sloped top plate \(3\/8" too tall/.test(e)));
+
+});
+
+test("a wall id that is not non-empty text is refused (an object id used to pass and print [object Object])", () => {
+  for (const bad of [{ a: 1 }, 7, true, "  ", ["x"]]) {
+    const p = samplePlan();
+    p.walls[0].id = bad;
+    const r = takeoff(p);
+    assert.equal(r.ok, false, JSON.stringify(bad));
+    assert.match(r.errors.join(" "), /needs a name/);
+  }
+  assert.equal(takeoff(samplePlan()).ok, true);
+});
+
+test("a wall marked bearing:false frames one header ply per opening, and says so", async () => {
+  const { layoutWall, samplePlan } = await import("./engine.mjs");
+  const mk = (bearing) => {
+    const plan = samplePlan();
+    const wall = { id: "P", stud: "2x4", length: 144, ...(bearing === undefined ? {} : { bearing }), openings: [{ kind: "door", label: "D", offset: 48, width: 32, height: 80, header: "2x6" }] };
+    return { plan, ...layoutWall(plan, wall) };
+  };
+  const plies = (r) => r.members.filter((m) => m.kind === "header").length;
+  assert.equal(plies(mk(undefined)), 2);
+  assert.equal(plies(mk(true)), 2);
+  const nb = mk(false);
+  assert.equal(plies(nb), 1);
+  assert.ok(nb.notes.some((n) => /single-ply headers/.test(n) && /D/.test(n)));
+  assert.ok(!mk(undefined).notes.some((n) => /single-ply/.test(n)));
+});
+
+test("a single-slope (shed) wall: peak at the wall end, one sloped plate run, studs rise to 4:12 x 192 in = 64 in, layout verifies", () => {
+  const plan = { ...base(), walls: [{ id: "S", length: 192, gable: { pitch: 4, peak: 192 } }] };
+  assert.deepEqual(validatePlan(plan), []);
+  const w = layoutWall(plan, plan.walls[0]);
+  assert.deepEqual(verifyWall(w, plan.walls[0]), []);
+  assert.equal(w.gable.peakRise, 64);
+  const tall = Math.max(...w.members.filter((m) => m.kind === "stud").map((m) => m.h));
+  assert.equal(tall, plan.studLength + 64); // end stud at the high end reaches the full rise
+  // top plate lies along one slope: total length = run x sqrt(1 + (4/12)^2) = 192 x 1.0540
+  const top = w.members.filter((m) => m.kind === "plate" && m.label === "top plate").reduce((s, m) => s + m.length, 0);
+  assert.ok(Math.abs(top - 192 * Math.sqrt(1 + 1 / 9)) < 1e-6);
+  assert.ok(w.members.every((m) => Number.isFinite(m.x + m.y + m.w + m.h + m.length)));
+});
+
+test("a gable peak between 'clear of the end studs' and the wall end is still refused", () => {
+  const plan = { ...base(), walls: [{ id: "S", length: 192, gable: { pitch: 4, peak: 190 } }] };
+  assert.ok(validatePlan(plan).length > 0);
+});
+
+test("a wall's own studLength (9 ft beside 8 ft) sets that wall's studs and height, and the layout self-check stays clean", () => {
+  const plan = samplePlan();
+  const base = takeoff(plan);
+  plan.walls[0].studLength = PRECUT["9ft"];
+  const r = takeoff(plan);
+  assert.equal(r.ok, true);
+  const front = r.walls.find((w) => w.id === "Front");
+  const right = r.walls.find((w) => w.id === "Right");
+  // bottom plate + studs + two top plates: 1.5 + 104.625 + 3
+  assert.equal(front.height, 1.5 + PRECUT["9ft"] + 3);
+  assert.equal(right.height, base.walls.find((w) => w.id === "Right").height);
+  assert.ok(front.members.filter((m) => m.kind === "stud").every((m) => m.h === PRECUT["9ft"]));
+  assert.ok(right.members.filter((m) => m.kind === "stud").every((m) => m.h === PRECUT["8ft"]));
+  // a longer stud on one wall changes the order
+  assert.notEqual(JSON.stringify(r.cuts), JSON.stringify(base.cuts));
+  // out-of-range and non-numeric values are refused with the wall named
+  plan.walls[0].studLength = 10;
+  assert.match(takeoff(plan).errors.join(" "), /Front: stud length must be between 24 and 240/);
+  plan.walls[0].studLength = "9ft";
+  assert.match(takeoff(plan).errors.join(" "), /Front: "studLength" must be a number/);
+});
+
+test("typed cull allowance adds whole spare boards per order line, apart from the layout order", () => {
+  const plan = samplePlan();
+  const none = takeoff(plan);
+  assert.deepEqual(none.culls, []);
+  assert.equal(none.summary.cullBoards, undefined);
+  const r = takeoff({ ...plan, culls: { pct: 0.05, bySize: { "2x6": 0.1 } } });
+  assert.ok(r.ok);
+  assert.equal(r.summary.cost, none.summary.cost, "layout order cost is unchanged");
+  assert.equal(r.summary.bound, none.summary.bound);
+  let boards = 0, cost = 0;
+  for (const o of r.orders) for (const l of o.lines) {
+    const pct = o.size === "2x6" ? 0.1 : 0.05;
+    const want = Math.ceil(l.qty * pct - 1e-9);
+    const got = r.culls.find((c) => c.size === o.size && c.length === l.length && c.label === l.label);
+    assert.equal(got ? got.qty : 0, want);
+    boards += want; cost += want * l.price;
+  }
+  assert.equal(r.summary.cullBoards, boards);
+  assert.ok(Math.abs(r.summary.cullCost - cost) < 1e-9);
+  assert.ok(Math.abs(r.summary.costWithCulls - (none.summary.cost + cost)) < 1e-9);
+  assert.match(toCsv(r), /^cull,/m);
+  assert.doesNotMatch(toCsv(none), /^cull,/m);
+});
+
+test("cull allowance refuses rates outside 0 to 50% and non-objects", () => {
+  for (const culls of [{ pct: 0.6 }, { pct: -0.1 }, { pct: "5" }, { bySize: { "2x4": 2 } }, [], 5]) {
+    const r = takeoff({ ...samplePlan(), culls });
+    assert.equal(r.ok, false, JSON.stringify(culls));
+  }
+  assert.ok(takeoff({ ...samplePlan(), culls: { pct: 0 } }).ok);
+});
+
+test("a wall too long for one board with only an opening between its jacks splices the plates over the header", () => {
+  const plan = base();
+  const wall = { id: "A", length: 245, openings: [{ kind: "window", offset: 28, width: 189, height: 48, sill: 30, header: "2x10" }] };
+  const w = layoutWall(plan, wall);
+  assert.deepEqual(verifyWall(w, wall), []);
+  assert.ok(w.notes.some((n) => /over a header/.test(n)), w.notes.join("; "));
+  assert.ok(w.joints.top.length >= 1 && w.joints.cap.length >= 1);
+  for (const c of w.joints.cap) for (const t of w.joints.top) assert.ok(Math.abs(c - t) >= plan.topPlateLap - 1e-9);
+});
+
+test("a whole-house order (180+ lengths, 900+ pieces, 7 boards) finishes and sits within 1% of its bound", async () => {
+  const { optimizeStock } = await import("./engine.mjs");
+  let s = 987654321;
+  const r = () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const lens = Array.from({ length: 190 }, () => Math.round((8 + r() * 100) * 8) / 8);
+  const pieces = Array.from({ length: 950 }, (_, i) => ({ length: lens[Math.floor(r() * lens.length)], qty: 1, ref: `p${i}` }));
+  const stock = [96, 104, 116, 120, 144, 192, 240].map((length) => ({ length, price: Math.round(length / 12 * 0.75 * 100) / 100 }));
+  const t0 = Date.now();
+  const o = optimizeStock(pieces, stock);
+  const ms = Date.now() - t0;
+  assert.ok(o.bound <= o.cost + 1e-9, "the bound is a floor");
+  assert.ok(o.cost <= o.bound * 1.01, `cost ${o.cost} within 1% of bound ${o.bound}`);
+  assert.equal(o.bars.reduce((n, b) => n + b.cuts.length, 0), 950, "every piece is cut");
+  assert.ok(ms < 30000, `took ${ms} ms`);
+});
+
+test("layoutWall, layoutFasteners and layoutInsulation refuse missing plan or result with a plain message", async () => {
+  const { layoutWall } = await import("./engine.mjs");
+  const { layoutFasteners } = await import("./fasteners.mjs");
+  const { layoutInsulation } = await import("./insulation.mjs");
+  assert.throws(() => layoutWall({}, null), /layoutWall needs/);
+  assert.throws(() => layoutWall(null, {}), /layoutWall needs/);
+  assert.throws(() => layoutFasteners({}, {}, {}), /layoutFasteners needs/);
+  assert.throws(() => layoutInsulation({}, {}, undefined), /layoutInsulation needs/);
+});
+
+test("a door wider than 4 ft on the default jacks and kings gets a note; explicit jacks or a narrow door do not", () => {
+  const plan = base();
+  const mk = (extra, width = 120) => ({ id: "W", length: 288, openings: [{ kind: "door", label: "Garage", offset: 60, width, height: 82.5, header: "2x12", ...extra }] });
+  const wide = layoutWall(plan, mk({}));
+  assert.ok(wide.notes.some((n) => /Garage \(120"\) wider than 4 ft.*default 1 jack and 1 king/.test(n)), wide.notes.join("\n"));
+  assert.ok(!layoutWall(plan, mk({ jacks: 2 })).notes.some((n) => /wider than 4 ft/.test(n)));
+  assert.ok(!layoutWall(plan, mk({ kings: 2 })).notes.some((n) => /wider than 4 ft/.test(n)));
+  assert.ok(!layoutWall(plan, mk({}, 36)).notes.some((n) => /wider than 4 ft/.test(n)));
+});
+
+// The table is filled on weights / gcd (2026-11-12 perf pass). Pin it against the plain DP on
+// the original weights, values and counts both, including caps that are not multiples of the gcd.
+function referenceKnapsack(weights, values, bounds, caps) {
+  const top = Math.max(...caps);
+  const chunks = [];
+  weights.forEach((w, i) => {
+    let left = Math.min(bounds[i], Math.floor(top / w));
+    for (let k = 1; left > 0; k *= 2) {
+      const take = Math.min(k, left);
+      chunks.push({ i, n: take, w: w * take, v: values[i] * take });
+      left -= take;
+    }
+  });
+  const best = new Float64Array(top + 1);
+  const keep = chunks.map(() => new Uint8Array(top + 1));
+  chunks.forEach((ch, k) => {
+    if (ch.v <= 0) return;
+    for (let c = top; c >= ch.w; c--) {
+      const cand = best[c - ch.w] + ch.v;
+      if (cand > best[c] + 1e-12) { best[c] = cand; keep[k][c] = 1; }
+    }
+  });
+  return caps.map((cap) => {
+    const counts = new Array(weights.length).fill(0);
+    let c = cap;
+    for (let k = chunks.length - 1; k >= 0; k--) if (keep[k][c]) { counts[chunks[k].i] += chunks[k].n; c -= chunks[k].w; }
+    return { value: best[cap], counts };
+  });
+}
+
+test("boundedKnapsackMulti on weights with a common factor matches the unscaled table exactly", async () => {
+  const { boundedKnapsackMulti } = await import("./engine.mjs");
+  let s = 11;
+  const r = () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+  for (let t = 0; t < 300; t++) {
+    const g = 1 + Math.floor(r() * 4);
+    const n = 1 + Math.floor(r() * 10);
+    const w = Array.from({ length: n }, () => g * (1 + Math.floor(r() * 200)));
+    const v = Array.from({ length: n }, () => (r() < 0.1 ? -r() : r() * 3));
+    const b = Array.from({ length: n }, () => 1 + Math.floor(r() * 5));
+    const caps = Array.from({ length: 1 + Math.floor(r() * 3) }, () => 100 + Math.floor(r() * 1500));
+    assert.deepEqual(boundedKnapsackMulti(w, v, b, caps), referenceKnapsack(w, v, b, caps), `case ${t}, gcd ${g}`);
+  }
+});
+
+test("boundedKnapsackMulti equals one knapsack per capacity", async () => {
+  const { boundedKnapsack, boundedKnapsackMulti } = await import("./engine.mjs");
+  let s = 42;
+  const r = () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+  for (let t = 0; t < 20; t++) {
+    const n = 3 + Math.floor(r() * 8);
+    const w = Array.from({ length: n }, () => 20 + Math.floor(r() * 200));
+    const v = Array.from({ length: n }, () => r() * 2);
+    const b = Array.from({ length: n }, () => 1 + Math.floor(r() * 4));
+    const caps = [300, 500, 900].map((c) => c + Math.floor(r() * 50));
+    const multi = boundedKnapsackMulti(w, v, b, caps);
+    caps.forEach((cap, k) => {
+      const one = boundedKnapsack(w, v, b, cap);
+      assert.ok(Math.abs(multi[k].value - one.value) < 1e-9);
+      const used = multi[k].counts.reduce((a, c, i) => a + c * w[i], 0);
+      assert.ok(used <= cap);
+      const val = multi[k].counts.reduce((a, c, i) => a + c * v[i], 0);
+      assert.ok(Math.abs(val - multi[k].value) < 1e-9);
+    });
+  }
 });

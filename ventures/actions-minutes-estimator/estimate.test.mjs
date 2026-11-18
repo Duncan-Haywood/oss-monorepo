@@ -423,6 +423,13 @@ test('an unclassifiable runner is reported and left out of the totals', () => {
   assert.ok(findingIds(result).includes('runner-unknown'));
 });
 
+test('an hourly schedule is not "more often than hourly"; every 30 minutes is', () => {
+  const at = (cron) =>
+    findingIds(estimate([readWorkflowSource(`on:\n  schedule:\n    - cron: "${cron}"\njobs:\n  a:\n    runs-on: ubuntu-latest\n`, 'c.yml')]));
+  assert.equal(at('41 * * * *').includes('cron-very-frequent'), false);
+  assert.equal(at('*/30 * * * *').includes('cron-very-frequent'), true);
+});
+
 test('findings come back most severe first', () => {
   const workflow = readWorkflowSource(
     'on:\n  push:\n  pull_request:\njobs:\n  a:\n    runs-on: macos-latest\n',
@@ -626,4 +633,29 @@ test('a plain `if:` is flagged without claiming the job is switched off', () => 
   const finding = estimate([workflow]).findings.find((f) => f.id === 'job-conditional');
   assert.match(finding.title, /has an `if:` condition/);
   assert.doesNotMatch(finding.detail, /switched off entirely/);
+});
+
+test('compact `steps:` sequences (dash at the key indent) keep every later job', () => {
+  // Before 2026-11-16 the reader returned null for `steps:` and ended the
+  // `jobs:` mapping there, so the Windows job below vanished from the bill.
+  const wf = readWorkflowSource(
+    'on: push\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n    - run: make test\n' +
+      '  build:\n    runs-on: windows-latest\n    steps:\n    - uses: actions/checkout@v4\n    - run: make\n',
+  );
+  assert.deepEqual(wf.jobs.map((j) => j.id), ['test', 'build']);
+  assert.deepEqual(parseYaml('steps:\n- run: a\n- run: b\nname: x\n'), { steps: [{ run: 'a' }, { run: 'b' }], name: 'x' });
+});
+
+test('an apostrophe in a bare value does not keep the trailing comment', () => {
+  assert.deepEqual(parseYaml("name: Don't deploy # on forks\n"), { name: "Don't deploy" });
+});
+
+test('`- - x` and a flow list wrapped inside a sequence item parse as sequences', () => {
+  assert.deepEqual(parseYaml('m:\n  - - x\n    - y\n'), { m: [['x', 'y']] });
+  assert.deepEqual(parseYaml('- [a,\n   b]\n'), [['a', 'b']]);
+});
+
+test('flow collections: quoted commas stay in one item, flow-mapping keys keep every character', () => {
+  assert.deepEqual(parseYaml('os: ["ubuntu, latest", windows-latest]\n'), { os: ['ubuntu, latest', 'windows-latest'] });
+  assert.deepEqual(parseYaml('include: {os: linux, node: 20}\n'), { include: { os: 'linux', node: 20 } });
 });

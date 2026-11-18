@@ -199,3 +199,28 @@ test('a half extra pass on pet rooms scales only the pet bucket', () => {
   assert.ok(Math.abs(half.petExtraHours - full.petExtraHours / 2) < 1e-9);
   assert.ok(Math.abs(half.extractionHours - full.extractionHours) < 1e-9);
 });
+
+// Red-team 2026-11-11: `otherJobCost ?? 1` and `onSiteHours === 1 ? null`
+// both passed the suite, because every fixture set otherJobCost and none
+// landed on exactly one on-site hour.
+test('a missing other-job-cost field is $0, not a hidden default', () => {
+  const withField = calculateJob({ ...house(), otherJobCost: 0 });
+  const without = house();
+  delete without.otherJobCost;
+  const result = calculateJob(without);
+  assert.equal(result.otherJobCost, 0);
+  assert.equal(result.jobCost, withField.jobCost);
+  assert.equal(result.quotedPrice, withField.quotedPrice);
+});
+
+test('exactly one on-site hour gives an on-site rate equal to the quote', () => {
+  const result = calculateJob({
+    rooms: [{ name: 'Living room', squareFeet: 280, productionRate: 280 }],
+    hourlyWage: 20,
+    targetMargin: 30,
+    travelMinutes: 30,
+  });
+  assert.equal(result.onSiteHours, 1);
+  assert.equal(result.onSiteHourlyRate, result.quotedPrice);
+  assert.ok(Math.abs(result.effectiveHourlyRate - result.quotedPrice / 1.5) < 1e-9);
+});

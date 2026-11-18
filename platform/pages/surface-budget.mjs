@@ -62,6 +62,7 @@ import process from 'node:process';
 
 import { COMPARISON_FILE_PATTERN, REPO_ROOT, comparisonText, discoverSurfaces } from './build.mjs';
 import { COMPARISON_DISCLAIMER_EXEMPT } from './clauses.mjs';
+import { pathToFileURL } from 'node:url';
 
 /**
  * Generic-method comparison pages one venture may carry without a recorded
@@ -370,7 +371,7 @@ async function main(argv) {
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main(process.argv.slice(2)).then((code) => {
     process.exitCode = code;
   });

@@ -55,6 +55,7 @@ import {
   readMeta,
   subcategoryFor,
 } from './build.mjs';
+import { pathToFileURL } from 'node:url';
 
 /**
  * Committed orphan budget. `--check` fails when the measured count exceeds it,
@@ -268,7 +269,7 @@ async function main(argv) {
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main(process.argv.slice(2)).then((code) => {
     process.exitCode = code;
   });

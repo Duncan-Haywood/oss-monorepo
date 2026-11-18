@@ -1,0 +1,15 @@
+{"kind":"budget","n":5,"C":3,"spread":6,"strategy":"adaptive","runs":12,"budgets":[10,21,41],"spearman":[0.392,0.625,0.85],"bestRight":[3,7,9]}
+{"kind":"budget","n":5,"C":3,"spread":6,"strategy":"random","runs":12,"budgets":[10,21,41],"spearman":[0.45,0.442,0.6],"bestRight":[6,4,6]}
+{"kind":"stop","n":5,"C":3,"spread":6,"runs":12,"max":41,"picks":40.9,"confidence":0.736,"trueSpearman":0.85,"bestRight":9,"atCap":11}
+{"kind":"budget","n":5,"C":3,"spread":3,"strategy":"adaptive","runs":12,"budgets":[10,21,41],"spearman":[0.342,0.55,0.567],"bestRight":[3,3,7]}
+{"kind":"budget","n":5,"C":3,"spread":3,"strategy":"random","runs":12,"budgets":[10,21,41],"spearman":[0.308,0.383,0.408],"bestRight":[3,4,7]}
+{"kind":"stop","n":5,"C":3,"spread":3,"runs":12,"max":41,"picks":41,"confidence":0.685,"trueSpearman":0.567,"bestRight":7,"atCap":12}
+{"kind":"budget","n":8,"C":4,"spread":6,"strategy":"adaptive","runs":12,"budgets":[26,52,104],"spearman":[0.421,0.548,0.702],"bestRight":[3,3,4]}
+{"kind":"budget","n":8,"C":4,"spread":6,"strategy":"random","runs":12,"budgets":[26,52,104],"spearman":[0.331,0.361,0.585],"bestRight":[2,2,2]}
+{"kind":"stop","n":8,"C":4,"spread":6,"runs":12,"max":104,"picks":104,"confidence":0.761,"trueSpearman":0.702,"bestRight":4,"atCap":12}
+{"kind":"budget","n":8,"C":4,"spread":3,"strategy":"adaptive","runs":12,"budgets":[26,52,104],"spearman":[0.292,0.442,0.669],"bestRight":[4,6,6]}
+{"kind":"budget","n":8,"C":4,"spread":3,"strategy":"random","runs":12,"budgets":[26,52,104],"spearman":[0.248,0.333,0.413],"bestRight":[0,1,3]}
+{"kind":"stop","n":8,"C":4,"spread":3,"runs":12,"max":104,"picks":104,"confidence":0.748,"trueSpearman":0.669,"bestRight":6,"atCap":12}
+{"kind":"budget","n":12,"C":5,"spread":6,"strategy":"adaptive","runs":12,"budgets":[58,115,230],"spearman":[0.485,0.627,0.781],"bestRight":[2,4,5]}
+{"kind":"budget","n":12,"C":5,"spread":6,"strategy":"random","runs":12,"budgets":[58,115,230],"spearman":[0.467,0.447,0.557],"bestRight":[0,1,1]}
+{"kind":"stop","n":12,"C":5,"spread":6,"runs":12,"max":230,"picks":225,"confidence":0.83,"trueSpearman":0.781,"bestRight":5,"atCap":11}

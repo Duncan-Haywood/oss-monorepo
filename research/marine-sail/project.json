@@ -1,0 +1,7 @@
+{
+ "theme": "osrobot",
+ "programme": "marine-hull",
+ "title": "How much does tacking cost a wing-sail drone, and does a tack-aware router win it back?",
+ "lede": "in 54 simulated 38 km beats of a 4 m wing-sail drone (parametric wind and tide), a router blind to the tack stall loses a mean 4.5% in steady wind (max 9.8% at a 120 s tack), planning with the cost cuts that to 1.0%, and a greedy layline controller loses up to 17.6% with a 0.5 m/s tide and 3 to 25% when the wind shifts",
+ "summary": "Milestone 5 of track 23's marine-sail step, filed under the marine-hull programme. A stdlib force-balance polar for a 4 m wing-sail drone (finite-wing lift slope, induced drag, ITTC-1957 friction, an unsourced Froude wave term, keel induced drag; best upwind VMG 2.08 m/s at 35 deg in 8 m/s wind) feeds an isochrone router over 38.6 km upwind in steady, oscillating (+-15 deg) and veering (60 deg) winds, 4, 8 and 12 m/s, with and without a 0.5 m/s tide. Tack stalls of 30, 60 and 120 s are charged. Planning blind to the stall loses a mean 4.5% (max 9.8%) in steady wind; planning with it loses 1.0% (max 3.4%); a greedy layline controller loses up to 17.6% in a tide and 3 to 25% in shifting wind. Wind and tide are parametric because recorded fields were unreachable; craft and wave-drag coefficients are not sourced; no published polar check; leeway ignored. Preliminary; simulation only."
+}

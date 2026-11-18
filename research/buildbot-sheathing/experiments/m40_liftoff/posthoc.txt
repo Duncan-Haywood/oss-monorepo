@@ -1,0 +1,11 @@
+# Milestone 40, post hoc: the loose nose-moving joints by how the press reaches them (F_r 0, H 0, exact sensor)
+robot | kind | loose | below tau_f | enter above, one sign | rise through tau_f | change sign
+  g1 | arm   |  20 |  10 |   2 |   2 |   6
+  g1 | leg   |  15 |   0 |   0 |   1 |  14
+  g1 | waist |   6 |   1 |   0 |   2 |   3
+  g1 | all   |  41 |  11 |   2 |   5 |  23
+  h1 | arm   |   1 |   0 |   0 |   0 |   1
+  h1 | leg   |  13 |   0 |   0 |   1 |  12
+  h1 | waist |   1 |   0 |   0 |   1 |   0
+  h1 | all   |  15 |   0 |   0 |   2 |  13
+both robots: 56 loose; 11 below tau_f, 2 set on entering the window, 7 rise through it, 36 change sign (4% deterministic under a rising press, post hoc)

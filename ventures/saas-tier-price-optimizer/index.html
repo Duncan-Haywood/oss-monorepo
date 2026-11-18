@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SaaS Tier Price Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste what surveyed customers would pay for each plan and find the Good-Better-Best prices that earn the most profit. Runs in your browser.", "featureList": "Optimal 2-3 plan price ladder from a willingness-to-pay survey, customer self-selection model, comparison with current prices, price sensitivity, best single-plan baseline, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price Good-Better-Best SaaS plans?", "acceptedAnswer": {"@type": "Answer", "text": "Ask a sample of customers or prospects the most they would pay per month for each plan, paste one row per person, and the tool tests the price ladders that matter. Each respondent is assumed to buy the plan that leaves them the most surplus (their maximum price minus the price), or nothing if no plan has any. It returns the prices that earn the most profit, who ends up on each plan, and what that is worth against your current prices."}}, {"@type": "Question", "name": "Why not price each plan at what the average customer would pay?", "acceptedAnswer": {"@type": "Answer", "text": "Because customers choose between plans. Raising the middle plan can push people to the cheap one or up to the top one. The tool prices the whole ladder together, which is what moves the numbers."}}, {"@type": "Question", "name": "How many survey responses do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Enough that the answer does not swing when a few change. Try deleting a handful of rows and re-running: if the prices jump, collect more. With under 30 rows treat the result as a direction, not a number."}}, {"@type": "Question", "name": "Is a willingness-to-pay survey reliable?", "acceptedAnswer": {"@type": "Answer", "text": "Stated prices usually run above what people pay. Use the result to rank ladders and see how fragile your prices are, then test the top candidate on real signups. This is arithmetic on your survey, not pricing or financial advice."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1d4ed8; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #173da9; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #173da9; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #173da9; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -86,14 +124,14 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       const b = a.best, pct = (x) => Math.round((100 * x) / b.total) + "%";
-      h += '<div class="finding"><h4>Best prices: ' + a.names.map((n, t) => esc(n) + " " + money(b.prices[t])).join(" · ") + "</h4><p>Profit per month across the " + a.rows + " survey lines: " + money(b.profit) + " on " + money(b.revenue) + " revenue. " + pct(b.paying) + " of respondents buy a plan, " + pct(b.none) + " buy nothing.</p></div>";
+      h += '<div class="finding"><h3>Best prices: ' + a.names.map((n, t) => esc(n) + " " + money(b.prices[t])).join(" · ") + "</h3><p>Profit per month across the " + a.rows + " survey lines: " + money(b.profit) + " on " + money(b.revenue) + " revenue. " + pct(b.paying) + " of respondents buy a plan, " + pct(b.none) + " buy nothing.</p></div>";
       if (a.now) {
         const d = b.profit - a.now.profit;
-        h += '<div class="finding"><h4>Against your current prices (' + a.names.map((n, t) => money(a.now.prices[t])).join(" · ") + ")</h4><p>" + (d > 1e-9 ? "The suggested ladder earns " + money(d) + " more per month" + (a.now.profit > 0 ? " (" + Math.round((100 * d) / a.now.profit) + "% more)" : "") + " on this survey." : "Your current prices already earn as much as any ladder tried on this survey.") + " Current prices: " + pct(a.now.paying) + " buy, profit " + money(a.now.profit) + ".</p></div>";
+        h += '<div class="finding"><h3>Against your current prices (' + a.names.map((n, t) => money(a.now.prices[t])).join(" · ") + ")</h3><p>" + (d > 1e-9 ? "The suggested ladder earns " + money(d) + " more per month" + (a.now.profit > 0 ? " (" + Math.round((100 * d) / a.now.profit) + "% more)" : "") + " on this survey." : "Your current prices already earn as much as any ladder tried on this survey.") + " Current prices: " + pct(a.now.paying) + " buy, profit " + money(a.now.profit) + ".</p></div>";
       }
-      h += '<div class="finding"><h4>Who buys what</h4>' + table(["Plan", "Price", "Customers", "Share", "Profit"], a.names.map((n, t) => [esc(n), money(b.prices[t]), String(Math.round(b.buyers[t] * 100) / 100), pct(b.buyers[t]), money(b.buyers[t] * (b.prices[t] - a.costs[t]))])) + "</div>";
-      h += '<div class="finding"><h4>How fragile are these prices?</h4><p class="note">Change in profit if one price is 10% lower or higher and the rest stay. Large negatives mean that price matters most; test it first.</p>' + table(["Plan", "10% lower", "10% higher"], a.sens.map((s) => [esc(s.name), money(Math.round(s.down)), money(Math.round(s.up))])) + "</div>";
-      if (a.names.length > 1 && a.single) h += '<div class="finding"><h4>Is a ladder worth it?</h4><p>Offering only one plan, the best is ' + esc(a.single.plan) + " at " + money(a.single.price) + ", earning " + money(a.single.profit) + ". The ladder above earns " + money(b.profit) + ".</p></div>";
+      h += '<div class="finding"><h3>Who buys what</h3>' + table(["Plan", "Price", "Customers", "Share", "Profit"], a.names.map((n, t) => [esc(n), money(b.prices[t]), String(Math.round(b.buyers[t] * 100) / 100), pct(b.buyers[t]), money(b.buyers[t] * (b.prices[t] - a.costs[t]))])) + "</div>";
+      h += '<div class="finding"><h3>How fragile are these prices?</h3><p class="note">Change in profit if one price is 10% lower or higher and the rest stay. Large negatives mean that price matters most; test it first.</p>' + table(["Plan", "10% lower", "10% higher"], a.sens.map((s) => [esc(s.name), money(Math.round(s.down)), money(Math.round(s.up))])) + "</div>";
+      if (a.names.length > 1 && a.single) h += '<div class="finding"><h3>Is a ladder worth it?</h3><p>Offering only one plan, the best is ' + esc(a.single.plan) + " at " + money(a.single.price) + ", earning " + money(a.single.profit) + ". The ladder above earns " + money(b.profit) + ".</p></div>";
       h += '<p><button type="button" class="secondary" id="csv">Download result (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

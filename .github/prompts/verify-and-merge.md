@@ -26,7 +26,9 @@ node --test platform/daily/*.test.mjs
 (cd platform/audio && python3 -m unittest test_narrate)  # the narration engine; needs numpy, ffmpeg for the Master case
 node --test platform/counter/*.test.mjs
 node --test platform/edge/*.test.mjs           # the site's feedback/counts Worker (platform/edge)
+node --test platform/ci/*.test.mjs             # venture YAML readers guard (PR #16739)
 node --test portfolio/requests/*.test.mjs       # the open custom development request queue
+node --test portfolio/monetization/*.test.mjs   # the monetization and GTM evaluation (evaluate.mjs --check too)
 node --test platform/uitest/*.test.mjs        # browser half skips unless PLAYWRIGHT=/opt/node-tools/node_modules/playwright/index.js
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 node --test research/marriage-divorce-evidence/app/tests/*.test.mjs
@@ -36,6 +38,7 @@ python3 platform/ci/run_venture_tests.py --changed   # every venture your branch
 (cd platform/ci && rc=0; for m in test_*.py; do python3 -m unittest "${m%.py}" || { echo "FAILED $m"; rc=1; }; done; exit $rc)  # runs every module, lists each failure
 (cd platform/ci/agent_review && python3 -m unittest test_review)
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline -q  # >4 min in a shallow clone (router's real-portfolio tests; run reports 2026-10-19): run_in_background
+python3 -m pytest portfolio/work -q                      # directions and tasks registry (workctl.py), under 1 s
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
 python3 -m pytest prompts -q && python3 prompts/promptctl.py validate   # prompt.md, prompts/, run records

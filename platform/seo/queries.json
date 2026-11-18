@@ -1,0 +1,31 @@
+{
+  "_comment": "Tracked search queries for marisstella.app. tier: brand (our own name; ranks first once indexed), name (a product's exact name; ranks once that page is indexed), intent (what a person with the problem types; the real goal). expect is the URL prefix that counts as a hit. Add queries freely; never delete one that has observations, set retired: true instead, so the history keeps meaning. See platform/seo/README.md.",
+  "site": "https://marisstella.app/",
+  "queries": [
+    {"id": "brand-name", "tier": "brand", "query": "Maris Stella Labs", "expect": "https://marisstella.app/"},
+    {"id": "brand-domain", "tier": "brand", "query": "marisstella.app", "expect": "https://marisstella.app/"},
+    {"id": "brand-free-tools", "tier": "brand", "query": "Maris Stella Labs free open-source tools", "expect": "https://marisstella.app/"},
+
+    {"id": "name-wall-framing-takeoff", "tier": "name", "query": "Wall Framing Takeoff free private in your browser", "expect": "https://marisstella.app/wall-framing-takeoff/"},
+    {"id": "name-ai-bookkeeper", "tier": "name", "query": "AI Bookkeeper double-entry books that learn from your corrections", "expect": "https://marisstella.app/ai-bookkeeper/"},
+    {"id": "name-changepoint-detector", "tier": "name", "query": "Changepoint Detector when did your series change", "expect": "https://marisstella.app/changepoint-detector/"},
+    {"id": "name-einvoice-preflight", "tier": "name", "query": "E-invoice Preflight catch defects before submission", "expect": "https://marisstella.app/einvoice-preflight/"},
+    {"id": "name-league-schedule-generator", "tier": "name", "query": "League Schedule Generator free private in your browser", "expect": "https://marisstella.app/league-schedule-generator/"},
+    {"id": "name-chant-forge", "tier": "name", "query": "Chant Forge GABC chant to MIDI", "expect": "https://marisstella.app/chant-forge/"},
+    {"id": "name-open-tennis-robots", "tier": "name", "query": "Open Tennis Robots DIY tennis ball machine ball collecting robot", "expect": "https://marisstella.app/open-tennis-robots/"},
+    {"id": "name-hreflang-reciprocity-check", "tier": "name", "query": "hreflang Reciprocity Check", "expect": "https://marisstella.app/hreflang-reciprocity-check/"},
+
+    {"id": "intent-wall-framing", "tier": "intent", "query": "free wall framing calculator studs headers cripples", "expect": "https://marisstella.app/wall-framing-takeoff/"},
+    {"id": "intent-round-robin", "tier": "intent", "query": "free round robin league schedule generator with dates", "expect": "https://marisstella.app/league-schedule-generator/"},
+    {"id": "intent-shift-roster", "tier": "intent", "query": "free employee shift schedule maker for a restaurant no signup", "expect": "https://marisstella.app/shift-roster-builder/"},
+    {"id": "intent-changepoint", "tier": "intent", "query": "online changepoint detection paste csv", "expect": "https://marisstella.app/changepoint-detector/"},
+    {"id": "intent-einvoice", "tier": "intent", "query": "validate UBL CII Factur-X invoice online free", "expect": "https://marisstella.app/einvoice-preflight/"},
+    {"id": "intent-gabc-midi", "tier": "intent", "query": "convert GABC Gregorian chant to MIDI", "expect": "https://marisstella.app/chant-forge/"},
+    {"id": "intent-1099k", "tier": "intent", "query": "will I get a 1099-K checker by platform", "expect": "https://marisstella.app/1099-k-threshold-checker/"},
+    {"id": "intent-ebay-fees", "tier": "intent", "query": "ebay fee and profit calculator", "expect": "https://marisstella.app/ebay-fee-calculator/"},
+    {"id": "intent-hreflang", "tier": "intent", "query": "check hreflang return tags missing reciprocal", "expect": "https://marisstella.app/hreflang-reciprocity-check/"},
+    {"id": "intent-jsonld-drift", "tier": "intent", "query": "check JSON-LD matches visible page content", "expect": "https://marisstella.app/structured-data-drift-check/"},
+    {"id": "intent-ai-bookkeeping", "tier": "intent", "query": "free AI bookkeeping categorize bank CSV in browser", "expect": "https://marisstella.app/ai-bookkeeper/"},
+    {"id": "intent-diy-ball-machine", "tier": "intent", "query": "DIY tennis ball machine open source build", "expect": "https://marisstella.app/open-tennis-robots/"}
+  ]
+}

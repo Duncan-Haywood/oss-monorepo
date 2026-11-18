@@ -49,6 +49,7 @@ function parseArgs(s) {
 
 /** @param {string} text */
 export function parseStep(text) {
+  if (typeof text !== "string") text = "";
   const body = text.replace(/\/\*[\s\S]*?\*\//g, "");
   const data = body.slice(Math.max(0, body.indexOf("DATA;")));
   /** @type {Map<string, { type: string, args: any[] }>} */
@@ -65,6 +66,7 @@ const SI_PREFIX = { MILLI: 0.001, CENTI: 0.01, DECI: 0.1, KILO: 1000 };
 
 export function planFromIfc(text, opt = {}) {
   const notes = [];
+  if (typeof text !== "string") return { ok: false, errors: ["The IFC must be text (a STEP file's contents)."], notes };
   if (!/ISO-10303-21/.test(text.slice(0, 200))) return { ok: false, errors: ["This does not look like an IFC (STEP) file; it should start with ISO-10303-21. IFCZIP and IFCXML are not read."], notes };
   const ents = parseStep(text);
   const get = (r) => (typeof r === "string" ? ents.get(r) : undefined);
@@ -153,6 +155,7 @@ export function planFromIfc(text, opt = {}) {
   const lines = [];
   let nWalls = 0, noGeom = 0, nOpen = 0, nMesh = 0, nHeights = 0;
   const sizes = [];
+  const thick = [];
   const r16 = (v) => Math.round(v * 16) / 16;
   for (const [eid, e] of ents) {
     if (e.type !== "IFCWALL" && e.type !== "IFCWALLSTANDARDCASE") continue;
@@ -187,6 +190,12 @@ export function planFromIfc(text, opt = {}) {
       }
     }
     if (!local) { noGeom++; continue; }
+    // thickness: the Body's rectangle profile (short side)
+    for (const r of reps(e)) if (r.args[1] === "Body") for (const it of r.args[3] ?? []) {
+      const sol = get(it);
+      const prof = sol?.type === "IFCEXTRUDEDAREASOLID" ? get(sol.args[0]) : null;
+      if (prof?.type === "IFCRECTANGLEPROFILEDEF" && prof.args[3] > 0 && prof.args[4] > 0) thick.push(Math.min(prof.args[3], prof.args[4]) * toIn);
+    }
     const a = apply(T, local[0]), b = apply(T, local[1]);
     lines.push({ layer: "A-WALL", a, b });
     nWalls++;
@@ -215,6 +224,10 @@ export function planFromIfc(text, opt = {}) {
   if (!nWalls) return { ok: false, errors: [`No IfcWall with an Axis line or a rectangle profile was found${noGeom ? ` (${noGeom} wall${noGeom === 1 ? "" : "s"} had other geometry: swept or boolean bodies are not read)` : ""}.`], notes };
   if (noGeom) notes.push(`${noGeom} wall${noGeom === 1 ? "" : "s"} skipped: geometry other than an Axis line or a rectangle profile.`);
   if (nMesh) notes.push(`${nMesh} wall${nMesh === 1 ? "" : "s"} had no axis: centre line taken from the plan bounding box of the body mesh (the longer side is the length; check that no wall is L-shaped or slanted).`);
+  if (thick.length) {
+    const fat = thick.filter((t) => t >= 6 && t <= 10).length;
+    notes.push(`Wall thickness read for ${thick.length} wall${thick.length === 1 ? "" : "s"} (${Math.min(...thick).toFixed(1)} to ${Math.max(...thick).toFixed(1)} in, finishes included).${fat ? ` ${fat} measure 6 to 10 in, which often means 2x6 framing: every wall is still framed 2x4 until you set "stud" per wall.` : ""}`);
+  }
   notes.push(`Read ${nWalls} wall${nWalls === 1 ? "" : "s"} and ${nOpen} door/window${nOpen === 1 ? "" : "s"} from the IFC; an opening's placement origin is taken as the near end of its width, running along its local X.`);
 
   const g = (c, v) => `${c}\n${v}\n`;

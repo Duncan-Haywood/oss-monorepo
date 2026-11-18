@@ -2,7 +2,7 @@
 
 Follow-up to `codesign-aero-mlp` (track 14, `codesign`), whose "Next steps" asked to start the network at the tuned PID with a linear skip path. Here the controller is u = PID + a 31-parameter residual network that is exactly zero at the start, so the search begins at the PID and can only add to it. Produced with AI assistance (Claude). **Simulated; the plant, gust and randomisation ranges are the assumed round numbers of the earlier projects, not measurements.** Six airframes, three CMA-ES seeds each.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-skip/
+**Live page:** https://marisstella.app/research/codesign-aero-skip/
 
 ![Held-out error per airframe: PID at 96 and 576 evaluations, PID plus residual](experiments/skip.png)
 
@@ -30,6 +30,7 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy cma matplotlib)
 RECUV and the Autonomous Systems IRT (UAV simulation, safe autonomy), as direction only; nothing is affiliated with or endorsed by them.
 
 ## Limitations
+- **Known defect, not yet re-run (quality fix 2026-11-15, [parent audit](../../portfolio/quality/audits/2026-11-15-codesign-aero.json)).** `size()` here is a copy of `codesign-aero`'s and, like it, never checks that the 60-step mass closure converged. On a 40x40 grid of (L, D), 36 of the 1,071 points it calls feasible have no fixed point (no battery mass gives 15 min of hover) and are scored at an arbitrary mass. None of the airframes this README quotes falls in that set at its printed (rounded) value, but rounding near the fold can flip the answer, so this is not a clearance. The parent now requires a closed mass (`closed` in `codesign-aero/src/codesign_aero/aero.py`); until this copy does the same and is re-run, treat rankings that touch the small-prop edge as unverified.
 - Six airframes and three seeds; gaps under about 0.1° are not resolved, and one airframe (L 0.190, D 0.186) carries most of the mean difference because its PID96 seeds scatter widely.
 - The residual is a 6-unit network searched by CMA-ES with sigma 0.1 and parameter scale 1.0; a gradient learner (PPO), a different scale or a wider network might find something this search did not. "No gain here" is not "no gain possible".
 - Roll only, so the plant has nothing a linear law cannot do. The residual's best case is the nonlinearity of torque saturation and the quadratic gust drag, which the PID already handles to the noise floor. Plant ranges are assumed round numbers from `codesign-aero`. Not a safety case; no weapons or harmful payloads are modelled.

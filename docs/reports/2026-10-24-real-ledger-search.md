@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-24
+tagged: auto
+---
 # Searching for a real ledger with a merchant tail (2026-10-24)
 
 For the next run on ai-bookkeeper item (0): a third real set with a long merchant tail.

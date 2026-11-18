@@ -1,0 +1,2190 @@
+# Doctrine review: one entry per story reviewed. Rubric: RUBRIC.md.
+# Written by the agent reviewer; checked by `python3 docs/doctrine-review/doctrine_review.py check`
+# (every quote must appear verbatim in the story; sha256 marks the story version reviewed).
+reviews:
+- id: hearth-and-horizon/ambrose-and-the-bees
+  title: Ambrose and the Bees
+  verdict: faithful
+  findings: []
+  notes: The bees are labelled in the body ('the old story says', 'We cannot say for sure') and sourced
+    to Paulinus; the catechumen-to-bishop sequence (baptism, then consecration a week later) is told correctly,
+    and the 7 December feast and Doctor title are right.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 4dbc8b9cb41454cb
+- id: hearth-and-horizon/andrew-and-the-nets
+  title: Andrew and the Nets
+  verdict: faithful
+  findings: []
+  notes: Keeps close to John 1, 6 and 12 and Matthew 4 / Mark 1, flags invented colour, and says plainly
+    that the Gospels do not report the first afternoon's conversation. The remark that the evangelists
+    place the call differently is a mild harmonising aside, not a historical-critical judgement.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: b4ce12573b3bf36a
+- id: hearth-and-horizon/anthony-and-the-sermon-to-the-fishes
+  title: Anthony and the Sermon to the Fishes
+  verdict: faithful
+  findings: []
+  notes: The sermon to the fishes is labelled as legend twice in the narration and correctly sourced to
+    the Fioretti; canonisation in 1232 and the 1946 Doctorate are right. The lost-things devotion is presented
+    as a custom of prayer, not a charm.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: a2ab54cb18272cbd
+- id: hearth-and-horizon/benedict-and-the-raven
+  title: Benedict and the Raven
+  verdict: minor
+  findings:
+  - level: P
+    quote: He called it a *rule*
+    issue: The narration places the giving of a rule at Subiaco, in the early cave years. The Rule of
+      Saint Benedict is generally dated to his later years at Monte Cassino (c. 530-540), so this is an
+      anachronism told as history.
+    fix: Say he taught them a way of living together, and that years later, at Monte Cassino, he wrote
+      it down as his Rule.
+  notes: Follows Gregory's Dialogues II closely, including the command 'In the name of Jesus Christ',
+    so the raven obeys at Christ's name, not Benedict's power. Softening the poison to 'not good to eat'
+    is disclosed in the note.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: d9532f9967c68047
+- id: hearth-and-horizon/brendan-and-the-island-that-was-a-whale
+  title: Brendan and the Island That Was a Whale
+  verdict: faithful
+  findings: []
+  notes: The Navigatio is labelled as legend in the body. The singing birds are told without the Navigatio's
+    claim that they are neutral fallen spirits, which complies with the house rule on angels. Feast 16
+    May and its Martyrology-only status are stated correctly.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 513b9883fcd9a58a
+- id: hearth-and-horizon/brigid-and-the-cloak
+  title: Brigid and the Cloak
+  verdict: faithful
+  findings: []
+  notes: The spreading cloak and the butter are both framed 'the old story says', and the reflection credits
+    God ('God took her small, honest asking and made it as big as it needed to be'), not Brigid. The note
+    separates Cogitosus from the later Lives.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 909a4023dc0c2d63
+- id: hearth-and-horizon/brother-martin-and-the-mice
+  title: Brother Martin and the Mice
+  verdict: minor
+  findings:
+  - level: P
+    quote: Then it turned around and squeaked.
+    issue: The whole mouse episode (the night talk in the linen room, the procession to the shed, the
+      Prior's one-day deal) is narrated as plain fact, with no 'the old story says' in the body. Only
+      the dog-cat-mouse bowl gets 'People say'. House rule 5 and the rubric want a legend labelled in
+      the telling itself.
+    fix: Add 'The old story says' before the night in the linen room, and again when the mice come out.
+  - level: P
+    quote: we have told them here as a story people tell
+    issue: The note claims the body labels the mice as a story people tell, but it does not. The note
+      also has no 'what is ours' paragraph, though the Prior's dialogue, the seventeen holes and the shed
+      are invented.
+    fix: Make the body match the note, and add a short 'What is ours' paragraph listing the invented details.
+  notes: 'The biography is accurate: the 1579 birth, the Dominican lay brother, canonisation by Pope Saint
+    John XXIII in 1962, and the 3 November feast. The story deals honestly and gently with the racial
+    prejudice he met, including from within the Church.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 7df70551ea65be71
+- id: hearth-and-horizon/cecilia-and-the-song-in-her-heart
+  title: Cecilia and the Song in Her Heart
+  verdict: faithful
+  findings:
+  - level: T
+    quote: her family arranged for her to be married, as families did in those days
+    issue: 'The body leaves out what the song in her heart was about in the Passio and the antiphon: her
+      consecrated virginity (''fiat cor meum et corpus meum immaculatum''). It also never says she was
+      a martyr. A traditional reader would note that the virgin-martyr, the core of her cultus and of
+      her place in the Roman Canon, has been reduced to a girl who hums quietly.'
+    fix: Add one gentle line that she had promised her heart to God alone, and that she later died for
+      Jesus. The note can keep the detail.
+  notes: Clearly labelled as legend, and the note's account of the 'cantantibus organis' antiphon and
+    how she became patron of musicians is accurate and illuminating.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: bbc3c88248c92bc2
+- id: hearth-and-horizon/clare-and-the-loaves-with-a-cross
+  title: Clare and the Loaves with a Cross
+  verdict: minor
+  findings:
+  - level: P
+    quote: This is a legend. People wrote it down some years after Clare died.
+    issue: The story of soldiers (the Saracen troops of 1240) turned back while Clare prayed before the
+      Eucharist is, to my knowledge, attested by several sisters under oath in the 1253 Process of Canonisation,
+      and is not only a later Life. Calling it 'a legend' understates the best-attested miracle in her
+      life. I am fairly confident of this; check the Process text.
+    fix: Call it something her sisters swore to at her canonisation, while still saying we cannot check
+      how it happened.
+  - level: P
+    quote: the sign of the cross on the loaves is reported in the sisters' own testimonies
+    issue: As far as I know, the crosses appearing on blessed loaves (at the Pope's request, in most tellings)
+      come from later Franciscan chronicles, not the Process. What the sisters testified to was a single
+      loaf that fed the community. The note seems to have the sourcing of the two episodes reversed. This
+      is uncertain and needs checking.
+    fix: Check the Process testimonies and relabel the loaves as later tradition if they are not in it.
+  notes: The Eucharist is handled reverently and the deliverance is put down to her prayer and trust in
+    God. The dates (Innocent IV's approval on 9 August 1253, canonisation in 1255, the 11 August feast)
+    are right. The prayer correctly asks 'Pray for us'.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 2d9416ecbdbee892
+- id: hearth-and-horizon/columba-and-the-white-horse
+  title: Columba and the White Horse
+  verdict: faithful
+  findings: []
+  notes: 'A faithful retelling of Adomnán''s Vita III.23 with the right theology: Columba says ''God lets
+    the small ones know things'', which matches Adomnán''s view that the Creator revealed it to the animal.
+    A good death is shown, with Columba first at the altar at midnight.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: dc096fc91b4fc911
+- id: hearth-and-horizon/cuthbert-and-the-otters
+  title: Cuthbert and the Otters
+  verdict: faithful
+  findings: []
+  notes: Labelled 'the old story says' throughout. The note correctly gives the anonymous Life and Bede,
+    the Coldingham setting and the generic 'sea animals'. The blessing is explained as asking God to be
+    good to them, so Cuthbert is not the source of grace.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 0155e13efaca937a
+- id: hearth-and-horizon/elizabeth-and-the-bread-that-became-roses
+  title: Elizabeth and the Bread That Became Roses
+  verdict: faithful
+  findings:
+  - level: T
+    quote: It means that when you give something away out of love, it may come out more beautiful than
+      you expected.
+    issue: God and Christ are not named anywhere in the story, its reflection or its prayer. The roses
+      are read only as a moral about generosity, and Elizabeth's charity is cut off from its motive, serving
+      Christ in the poor. A traditional reader would call this a secularised saint's tale. No doctrine
+      is denied.
+    fix: Add a line that Elizabeth saw Jesus in each hungry person, and that the old tellers believed
+      God sent the roses.
+  notes: The roses are labelled as legend in the body. The note is historically careful about Ludwig,
+    Marburg, canonisation in 1235 and the 17 November memorial.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 6c44260669726919
+- id: hearth-and-horizon/frances-cabrini-and-the-big-water
+  title: Frances Cabrini and the Big Water
+  verdict: minor
+  findings:
+  - level: L
+    quote: Her memorial is the 13th of November; check your own diocese's calendar for its rank.
+    issue: 13 November is her memorial in the proper calendar of the United States. She is not in the
+      General Roman Calendar, and the Roman Martyrology lists her on 22 December, the day she died. Readers
+      outside the US will not find her on 13 November.
+    fix: 'Say: ''Her memorial is 13 November in the United States; the Roman Martyrology lists her on
+      22 December.'''
+  notes: A strong treatment of courage as acting despite fear, with the child taught to pray to Jesus
+    for help. The Leo XIII redirection is given as a paraphrase, and the facts of 1889, 1909 and canonisation
+    by Pius XII in 1946 are correct.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: ccc8909c2481c6cc
+- id: hearth-and-horizon/francis-and-the-wolf-of-gubbio
+  title: Francis and the Wolf of Gubbio
+  verdict: minor
+  findings:
+  - level: P
+    quote: Details like the sign of the cross, the baker and the dropped stick
+    issue: The note lists the sign of the cross as an invention, but in the Fioretti (ch. 21) Francis
+      does make the sign of the cross over the wolf and commands it 'on behalf of Christ'. The body also
+      says 'Grown-up friends of Saint Francis wrote it down', but the source is a fourteenth-century compilation
+      by later friars, not his companions. Both are sourcing slips on the safe side.
+    fix: Drop 'the sign of the cross' from the list of inventions, and say 'friars who came long after
+      him wrote it down'.
+  notes: 'Theologically sound: Francis acts ''In the name of Christ'', calls the wolf''s harm wrong without
+    hatred, and the note expressly refuses to have the wolf pray or convert. The facts of canonisation
+    in 1228 and the 1979 patronage of ecology are right.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: efcd94e8df32362c
+- id: hearth-and-horizon/giles-and-the-doe
+  title: Giles and the Doe
+  verdict: faithful
+  findings: []
+  notes: Labelled as legend in the body and the note. Giles prays 'Lord, keep her safe' rather than working
+    a wonder himself, and the unnamed king avoids pinning a legend on a real ruler. The Fourteen Holy
+    Helpers and the 1 September feast are correct.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 914ce64534b65c9a
+- id: hearth-and-horizon/hilda-and-the-cowherd-who-could-not-sing
+  title: Hilda and the Cowherd Who Could Not Sing
+  verdict: faithful
+  findings: []
+  notes: Follows Bede, Ecclesiastical History IV.24, closely. Hilda judges the gift with learned counsel
+    and says God has given it, which models discernment well. The note is accurate on Caedmon's Hymn and
+    Bede's Latin paraphrase, and it hedges the local feast date.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 94717de616d43f78
+- id: hearth-and-horizon/isidore-and-the-angels-who-ploughed
+  title: Isidore and the Angels Who Ploughed
+  verdict: minor
+  findings:
+  - level: L
+    quote: His feast day, 15 May, is an optional memorial in the General Roman Calendar.
+    issue: Saint Isidore the Farmer is not in the General Roman Calendar. 15 May is his optional memorial
+      in the proper calendar of the United States (and his feast in Madrid and Spain). The Isidore in
+      the General Calendar is Isidore of Seville, on 4 April.
+    fix: 'Say: ''His feast, 15 May, is kept in Spain and is an optional memorial in the United States;
+      it is not in the General Roman Calendar.'''
+  notes: The ploughing angels are labelled as legend, and the reflection rightly says Isidore did not
+    pray in order to get the work done, which avoids a transactional view of prayer. Canonisation in 1622
+    is correct.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: dd849482ccaee584
+- id: hearth-and-horizon/jerome-and-the-lion-in-the-doorway
+  title: Jerome and the Lion in the Doorway
+  verdict: minor
+  findings:
+  - level: P
+    quote: And in through the gate, slowly, slowly, there came something that was not a monk.
+    issue: The body tells the lion episode as plain fact about Jerome, with no 'the old story says' anywhere.
+      The tale is in fact borrowed from Saint Gerasimus, so a child hears a transferred legend as Jerome's
+      history. The note claims 'We have told it as an old tale about Jerome', which the body does not
+      do.
+    fix: Add 'The old story says' when the lion enters, and a sentence near the end that the tale was
+      first told about another holy abbot, Gerasimus.
+  notes: The note on the Gerasimus/Hieronymus confusion, John Moschus and the Golden Legend is accurate
+    and admirably frank. The Vulgate work, the Doctor title and the 30 September feast are correct.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 95b9b4d22f754efd
+- id: hearth-and-horizon/john-bosco-and-the-juggler-boy
+  title: John Bosco and the Boy Who Juggled
+  verdict: faithful
+  findings:
+  - level: T
+    quote: a chapel where they could pray if they wanted to
+    issue: Don Bosco's Oratory put religion (Mass, catechism, frequent confession and communion) at the
+      centre of his preventive system, which rests on reason, religion and loving-kindness. 'If they wanted
+      to' reads as a modern optional-faith framing that undersells him. No doctrine is broken.
+    fix: Say 'a chapel where he taught them to pray, to go to confession and to love Jesus in Holy Communion'.
+  notes: 'Follows the Memoirs of the Oratory well: prayer and repeating the sermon come before the show,
+    so play serves catechesis. The facts are right (his father''s death, ordination in 1841, the 31 January
+    memorial).'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 1c55db793f322463
+- id: hearth-and-horizon/kevin-and-the-blackbird
+  title: Kevin and the Blackbird
+  verdict: faithful
+  findings: []
+  notes: Clearly labelled as legend, with the cross-figure prayer posture explained. The traditional status
+    of St Kevin's Bed is stated carefully. The 3 June feast is right for Ireland.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: d82876b6d8234a98
+- id: hearth-and-horizon/margaret-and-the-book-in-the-river
+  title: Margaret and the Book in the River
+  verdict: faithful
+  findings:
+  - level: T
+    quote: a careful reader may suppose that vellum and good ink survive more than we expect
+    issue: Turgot presents the preserved gospel book as a sign of God's love for the queen. The note offers
+      a naturalistic explanation without mentioning the miraculous reading, and a traditional reader would
+      see this as a rationalising aside. No doctrine is denied.
+    fix: Add that Turgot saw it as a sign of God's favour, and leave readers free to judge.
+  notes: 'Historically careful: Turgot, Queensferry, canonisation in 1250, and the feast moved from 10
+    June to 16 November in 1969. Her service to the orphans is shown as personal love, and the book is
+    the Gospels, not a talisman.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 6736226e4c79a689
+- id: hearth-and-horizon/martin-of-tours-and-the-half-a-cloak
+  title: Martin of Tours and Half a Cloak
+  verdict: faithful
+  findings:
+  - level: T
+    quote: Give me a kind hand and a brave heart, and let me share what I have.
+    issue: The prayer asks Saint Martin to give virtues directly. Graces come from God, and traditional
+      prayers ask a saint to obtain them ('pray for me', 'obtain for me'). This is a common devotional
+      looseness, not an error, but strict readers prefer intercession to be explicit.
+    fix: Change to 'Pray that God gives me a kind hand and a brave heart'.
+  notes: Follows Sulpicius Severus closely, including Christ's words that the catechumen Martin clothed
+    him and the link to Matthew 25:40. It also corrects the later 'half belonged to the army' gloss. The
+    obligatory memorial on 11 November is right.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 0eecca744e3e03ba
+- id: hearth-and-horizon/nicholas-and-the-three-bags-of-gold
+  title: Nicholas and the Three Bags of Gold
+  verdict: faithful
+  findings: []
+  notes: 'Exemplary on grace: Nicholas says ''Give your thanks to God. Every good thing comes from God,
+    and I am only the one who carried the bag.'' The legend is labelled. The relics at Bari since 1087
+    and the optional memorial on 6 December are correct, and the Nicaea attendance is left out with a
+    stated reason.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 796cf34301749e9e
+- id: hearth-and-horizon/patrick-and-the-hundred-prayers
+  title: Patrick and the Hundred Prayers
+  verdict: faithful
+  findings:
+  - level: T
+    quote: Be with me when I feel small or far away.
+    issue: Said to Saint Patrick, 'be with me' risks suggesting that a saint is present everywhere the
+      way God is. Traditional prayers ask a saint to pray for us and ask God to be with us. This is a
+      devotional looseness rather than an error.
+    fix: Change to 'Pray for me when I feel small or far away, that God will be with me.'
+  notes: Drawn faithfully from the Confessio (a hundred prayers a day, the warm Spirit, the ship, the
+    Voice of the Irish), with the shamrock and snakes explicitly left out as later tradition. It teaches
+    that God, not Patrick, kept him company.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 71b94a012b603d91
+- id: hearth-and-horizon/philip-neri-and-the-happy-walk
+  title: Philip Neri and the Happy Walk
+  verdict: faithful
+  findings: []
+  notes: Accurate on his ordination in 1551, Oratory approval in 1575, canonisation in 1622 and the 26
+    May feast. 'Be good, if you can' is honestly marked as an attributed saying. Joy and prayer are shown
+    as belonging together without making piety optional.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 1e74fc14448cd948
+- id: hearth-and-horizon/therese-and-the-small-way
+  title: Thérèse and the Small Way
+  verdict: minor
+  findings:
+  - level: P
+    quote: Her biggest sister, Léonie, was nearly grown up
+    issue: Léonie was the third of the Martin daughters. Marie was the eldest and Pauline the second,
+      so 'biggest sister' is wrong. In Story of a Soul it is indeed Léonie who offers the basket, so only
+      the description is wrong.
+    fix: Say 'Her sister Léonie, who thought she was too big for dolls'.
+  notes: 'Theologically the best-handled piece on grace in the batch: holiness as being carried by Jesus
+    (the lift), not climbing by one''s own strength, which is true to her doctrine. The dates, canonisation
+    in 1925, the 1997 Doctorate and the 1 October memorial are correct.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 15a0885f8510fbb2
+- id: hearth-and-horizon/zita-and-the-bread-in-the-oven
+  title: Zita and the Bread in the Oven
+  verdict: faithful
+  findings: []
+  notes: The angel-baked bread is labelled as legend and read as trust in Providence ('if you give God
+    the first part of your day, He will look after the rest'). Her giving from the household's goods is
+    handled with a note of honesty, and the 1696 confirmation of her cult and the Martyrology-only feast
+    are stated correctly.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: fe534548018b9e83
+- id: saints-by-candlelight/001-the-angel-who-called-himself-azarias
+  title: The Angel Who Called Himself Azarias
+  verdict: faithful
+  findings:
+  - level: T
+    quote: Catholics keep the feast of the three archangels on the twenty-ninth of September
+    issue: Gives only the post-1969 joint feast. In the traditional Roman calendar (1962 Missal) Saint
+      Raphael has his own feast on 24 October, so a traditional reader would say this is incomplete.
+    fix: Add that the traditional Roman calendar keeps Saint Raphael on 24 October.
+  - level: T
+    quote: it is a good deal more than two days' walk from Ecbatana to Rages
+    issue: A light aside saying the book's geography is wrong. A reader who holds strictly to inerrancy
+      may object, even though it is played for a joke ("perhaps angels walk briskly").
+    fix: Drop the aside, or say that the distance has puzzled readers without implying the text is in
+      error.
+  notes: Strong on the theology. "The fish is the instrument, not the source", healing comes from God,
+    the "did the angel lie" question is answered well, the guardian angels are as in the Catechism, and
+    the deuterocanon is presented correctly. Tobit and Sarah's prayers and Raphael's self-disclosure are
+    close to the text.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 265a438ec8e5ed8d
+- id: saints-by-candlelight/002-gerasimus-and-the-lion
+  title: Gerasimus and the Lion Who Lost the Donkey
+  verdict: faithful
+  findings: []
+  notes: Keeps the line between history (Cyril of Scythopolis) and legend (Moschus) clear, and labels
+    every invented part. It quotes Moschus's own reflection that the lion's behaviour was God honouring
+    his servants and not a reasoning soul, and it handles the Jerome-Gerasimus confusion honestly. Gerasimus
+    being in the Roman Martyrology is correct.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 4ae6894f5aefb224
+- id: saints-by-candlelight/003-nicholas-and-the-three-bags-of-gold
+  title: Nicholas and the Three Bags of Gold
+  verdict: minor
+  findings:
+  - level: P
+    quote: Which is the legend's way of saying, quite clearly, that he was forgiven, not that he was right.
+    issue: Misreads the Nicaea legend. In the traditional (Byzantine) form, Christ and the Mother of God
+      appear to the imprisoned Nicholas and give back his Gospel book and omophorion, which vindicates
+      his zeal. The episode leaves the vision out and turns the legend's meaning upside down to make it
+      a lesson about temper.
+    fix: Tell the vision as the legend tells it, or say the narrator's moral is his own reading and not
+      the legend's.
+  notes: Good labelling of the infancy and election legends. It credits God both for the gold ("It was
+    God") and for calming the storm. The troparion is rendered faithfully.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 525c293a867ab569
+- id: saints-by-candlelight/004-cuthbert-and-the-otters
+  title: Cuthbert and the Otters
+  verdict: faithful
+  findings:
+  - level: T
+    quote: those who knew him could not quite believe he was gone
+    issue: Bede and the anonymous Life record a well-attested finding of Cuthbert's body incorrupt in
+      698. The narration turns the reported sign into a feeling of the community, which a traditional
+      reader would find deflationary.
+    fix: Report the incorruption as the early sources' testimony and let it stand without a psychological
+      gloss.
+  notes: Very good on miracles as God's. The ravens are commanded "in the name of Jesus Christ", "Everything
+    good that happens in the story, God does. The saint prays." It mentions Cuthbert's viaticum and his
+    last counsel on the unity of the Church. As a pre-schism saint he is correctly shared by both traditions.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: d852665a9c1d6bd5
+- id: saints-by-candlelight/005-francis-and-the-wolf-of-gubbio
+  title: Francis and the Wolf of Gubbio
+  verdict: faithful
+  findings: []
+  notes: Correctly names Francis as a Catholic saint not on the Orthodox calendar. The wolf is clearly
+    a legend from the Fioretti. The sign of the cross and Christ's name are the means ("God did it. Francis
+    just asked."), and Francis's sermon on sin is kept. The Peace Prayer is honestly labelled as first
+    printed in 1912.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: d02619f88b432f34
+- id: saints-by-candlelight/006-columba-and-the-beast-in-the-river-ness
+  title: Columba and the Beast in the River Ness
+  verdict: concern
+  findings:
+  - level: M
+    quote: in the eyes of the Church, then and now, a person is a person, and cannot be owned
+    issue: The Church now condemns enslavement, but it did not teach "then" that no one can be owned.
+      Through the manual tradition and as late as the Holy Office instruction of 1866, servitude under
+      a just title was held not to be against natural law. The narration therefore misstates the Church's
+      past moral teaching, and a strict reader would object.
+    fix: Say that Columba, as a Christian and an Irishman, pressed for a captive's freedom, and leave
+      out the claim about what the Church held then.
+  notes: Otherwise exemplary. "A saint prays. God acts." The white stone heals "only when God willed it
+    ... the stone itself had no power of its own", and Adomnán is labelled clearly as a source written
+    a century later. The Psalm 33/34 deathbed scene is accurate.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: c1d5ad7e77cb98e7
+- id: saints-by-candlelight/007-seraphim-of-sarov-and-the-bear
+  title: Seraphim of Sarov and the Bear
+  verdict: faithful
+  findings: []
+  notes: Follows rule 7 well. The front matter and the notes say plainly that Seraphim "is not canonised
+    by the Catholic Church" and was glorified by the Russian Orthodox Church in 1903, and the welcome
+    calls him an Orthodox saint. The Marian visions are given as his testimony, not as established fact,
+    and the episode never invites Catholic liturgical cult. No indifferentist framing.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 9748e5f92c69ae6c
+- id: saints-by-candlelight/008-hilda-of-whitby-and-the-cowherd-who-could-not-sing
+  title: Hilda of Whitby and the Cowherd Who Could Not Sing
+  verdict: faithful
+  findings:
+  - level: T
+    quote: the great story of your own salvation was a thing that happened over your head
+    issue: Suggests that the Latin liturgy shut the faithful out of their own salvation. Traditional readers
+      would object to this familiar post-conciliar framing, and they would note that vernacular preaching
+      and catechesis existed.
+    fix: Say that Caedmon gave the people the sacred story in their own song, without belittling the Latin
+      Church.
+  notes: Faithful to Bede. Hilda attributes Caedmon's gift to God's grace, Caedmon's viaticum and death
+    are told reverently, and Begu's vision is reported as Bede reports it. Pre-congregational sainthood
+    is presented correctly, and the honest note on Whitby 664 avoids taking sides.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: d9ed86edfacfdeed
+- id: saints-by-candlelight/009-patrick-and-the-ship-that-was-ready
+  title: Patrick and the Ship That Was Ready
+  verdict: faithful
+  findings: []
+  notes: Built carefully from the Confessio. Patrick's words to the sailors put the provision of food
+    in God's hands, and the shamrock, snakes and druid legends are clearly set aside. The Breastplate
+    is labelled "said to be Patrick's own". Patrick's ordinations and baptisms are given correctly, as
+    a bishop's.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 806fda7c559453ef
+- id: saints-by-candlelight/010-brendan-and-the-island-that-moved
+  title: Brendan and the Island That Moved
+  verdict: faithful
+  findings:
+  - level: T
+    quote: a person who is always sure that they are right
+    issue: The traditional three things Ita said God dislikes include "obstinacy in wrongdoing" (versions
+      differ). The paraphrase turns this into a dislike of being sure, which a strict reader may hear
+      as a jab at certainty of faith. The exact original wording is uncertain.
+    fix: Use "a person who persists in doing wrong", following the traditional wording.
+  notes: A model handling of rule 3. It names the Navigatio's neutral-angel birds, says outright "There
+    are no halfway angels ... there is no third camp", and leaves the episode out. The voyage is labelled
+    legend throughout, and the Holy Week and Mass content is sound.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 6ac31a19b4b55097
+- id: saints-by-candlelight/011-herman-and-the-garden-on-spruce-island
+  title: Herman and the Garden on Spruce Island
+  verdict: minor
+  findings:
+  - level: L
+    quote: many Catholics honour him and are very welcome to
+    issue: Correctly says Rome has not canonised Herman, but then gives unqualified permission to "honour"
+      him. Canon law (canon 1187) restricts public cult to persons the Church has listed among the saints
+      or blessed. Private admiration and reading his life are fine, but "very welcome to honour" overstates
+      this. The front matter's "free to admire him" is the accurate wording.
+    fix: Say "Catholics are free to admire him and read his life" instead of "honour him".
+  - level: P
+    quote: Joasaph was named a bishop and was drowned at sea on his way back to be consecrated
+    issue: A historical slip. Archimandrite Joasaph (Bolotov) was consecrated bishop at Irkutsk in 1799
+      and drowned on the voyage back to Kodiak, after his consecration.
+    fix: Change it to "was consecrated bishop in Siberia and drowned at sea on the voyage back".
+  notes: The traditions (bear, wave, fire) are labelled carefully, and the wave is credited explicitly
+    to God ("God, and not Herman, was the one who held back the sea"). The notes say outright that Herman
+    is an Orthodox saint not canonised by Rome. There is no indifferentism.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: b3539f309d5a3ae1
+- id: saints-by-candlelight/012-elijah-and-the-still-small-voice
+  title: Elijah and the Still Small Voice
+  verdict: minor
+  findings:
+  - level: P
+    quote: The people of Israel, in the heat of that moment, turn on the prophets of Baal
+    issue: Changes who acts in Scripture. In 1 Kings 18:40, Elijah orders the prophets seized, brings
+      them down to the Kishon and kills them there. Making it a mob's act in the heat of the moment breaks
+      the house rule that Scripture is told straight, and it tacitly distances the prophet from what the
+      text says he did.
+    fix: Say briefly that at Elijah's command the prophets of Baal were seized and put to death at the
+      brook Kishon, and keep the gentle divine-pedagogy gloss.
+  notes: Otherwise a close and reverent telling of 1 Kings 17-19 and 2 Kings 2. It stresses that the word
+    and the fire are God's ("before whom I stand"), quotes the prayers accurately, and draws sound typology
+    (the Transfiguration, John the Baptist "in the spirit and power of Elijah"). The Carmelite tradition
+    is labelled as a tradition.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 9d9ac42c582fd839
+- id: saints-by-candlelight/013-abraham-and-the-three-visitors-at-mamre
+  title: Abraham and the Three Visitors at Mamre
+  verdict: faithful
+  findings: []
+  notes: Tells Genesis 18 straight. It presents both the patristic Trinitarian reading (Augustine) and
+    the angelic reading accurately, without imposing either, and connects Mamre to the Annunciation and
+    to the Roman Canon's "sacrifice of our father Abraham". The Martyrology date of 9 October is correct.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 95cd58e2e3891fa1
+- id: saints-by-candlelight/014-joseph-and-the-coat-with-long-sleeves
+  title: Joseph and the Coat with Long Sleeves
+  verdict: faithful
+  findings:
+  - level: T
+    quote: That is a reading, a tradition of interpretation, and not a thing the text itself says
+    issue: Puts the Joseph-Christ typology down as optional interpretation. Traditional exegesis, and
+      the Catechism's teaching on the spiritual senses, hold that typology is a real sense intended by
+      Scripture's divine Author, so a strict reader would object to "not a thing the text itself says".
+    fix: Say that the Fathers saw in Joseph a type of Christ, a sense the Church reads in Scripture itself.
+  notes: Faithful and moving. It harmonises Ishmaelites and Midianites instead of adding a source-critical
+    aside, it keeps Joseph's "it is not in me; God will give" theology of grace, and it shows forgiveness
+    without excusing sin. The Lenten reading and the Orthodox Great Monday commemoration are correct.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 71812fb1853703ed
+- id: saints-by-candlelight/015-nicholas-and-the-grain-ships
+  title: Nicholas and the Grain Ships
+  verdict: minor
+  findings:
+  - level: P
+    quote: It says that when the first captain gave, the others gave.
+    issue: Credits the old story with an invented, naturalising mechanism (social contagion). In Michael
+      the Archimandrite's Life the point is that the cargo was found undiminished and the grain lasted
+      two years. The narration contradicts its own notes and the miracle it later tells.
+    fix: Mark the captains' example as the narrator's own addition and leave the legend's claim (the cargo
+      found undiminished) as the legend tells it.
+  notes: Credits God throughout ("It was always God who stilled the sea"). Nicholas sends the sailors
+    to thank God, the bilocation question is left open honestly, and the manna and the Bari translation
+    are labelled. Invented characters are disclosed.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 7997ca4fa8be7677
+- id: saints-by-candlelight/016-spyridon-and-the-snake-that-became-gold
+  title: Spyridon and the Snake That Became Gold
+  verdict: concern
+  findings:
+  - level: M
+    quote: when love and a strict reading collide, hospitality wins
+    issue: Credits the early historians with a general moral rule (precepts of the Church give way when
+      "love" collides with them) that they do not state. Sozomen has Spyridon cite "to the pure all things
+      are pure". The traditional teaching is narrower, that necessity excuses from the precept of fast
+      and abstinence, and a strict reader would hear this, together with the closing prayer's "the difference
+      between a rule and the reason for it", as situation-ethics framing.
+    fix: Say the starving traveller was excused by necessity and Spyridon showed him charity, and remove
+      the "love beats the rule" maxim from the narration and the prayer.
+  - level: P
+    quote: It is in the later lives, not the early histories
+    issue: Says the story of the thieves held fast is not in the early histories, but Sozomen (Ecclesiastical
+      History 1.11) tells it, and the episode's own notes say the historians tell it. The labelling contradicts
+      itself.
+    fix: Label the thieves story as told by Sozomen in the fifth century.
+  notes: Handles hard points well elsewhere. The snake and thieves miracles are credited to God, the Irene-at-the-grave
+    story comes with a clear warning against necromancy, and the Nicaea brick gets a careful Trinitarian
+    caution ("God is not made of three parts").
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 165bbfbe4de3e66d
+- id: saints-by-candlelight/017-kevin-and-the-blackbird
+  title: Kevin and the Blackbird
+  verdict: faithful
+  findings: []
+  notes: The legend and the great age are labelled honestly, and Kevin is "Not a wizard. Not a miracle
+    worker", only patient charity. The orans posture and Psalms 63 and 84 are used well, and the Glendalough
+    "seven pilgrimages" saying is flagged as not a rule of the Church. The tradition statement (Catholic,
+    pre-schism, kept by many Orthodox) is accurate.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: d3dd508ba65ea2d4
+- id: saints-by-candlelight/018-george-and-the-dragon-of-silene
+  title: George and the Dragon of Silene
+  verdict: minor
+  findings:
+  - level: P
+    quote: And here is a prayer, from the old tradition, for anyone who is afraid of something tonight.
+    issue: The prayer is plainly a new composition (it mentions the invented dog "the colour of the ground"),
+      but it is introduced as being "from the old tradition". That breaks the house honesty rule on attributing
+      prayers.
+    fix: Introduce it as "a prayer of our own, in the spirit of the old tradition".
+  notes: Separates the martyr of history from the Golden Legend's dragon clearly. George kneels, makes
+    the sign of the cross and prays, and "the Lord has sent me" and baptism are kept at the centre. The
+    refusal of reward and the reticent martyrdom are handled well.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 716d271eef8e6c86
+- id: saints-by-candlelight/019-a-winter-night-at-the-hill-convent
+  title: A Winter Night at the Hill Convent
+  verdict: faithful
+  findings:
+  - level: T
+    quote: he was made a saint by the Church of Russia in nineteen hundred and three
+    issue: Seraphim is plainly called an Orthodox saint (rule 7 kept), but the frame never says Rome has
+      not canonised him, and an abbess in a Latin-rite convent calls him "Saint" without that note; a
+      strict reader would want it said once.
+    fix: Add one clause in the notes, e.g. "he has not been canonised by the Catholic Church, though many
+      Catholics honour him".
+  notes: The frame is labelled fiction in the welcome, notes and front matter, and the closing "God ...
+    did the rest" keeps grace with God. Uncertain, not graded - the claim that the cloak legend is in
+    the early Lives (Cogitosus) may be wrong, as the cloak story looks like a later tradition (see 027).
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 7524be76af0e2f38
+- id: saints-by-candlelight/020-mary-of-egypt-and-the-three-loaves
+  title: Mary of Egypt and the Three Loaves
+  verdict: minor
+  findings:
+  - level: P
+    quote: That's all she ever says in the story
+    issue: At Cana Mary also says "They have no wine" (John 2:3) and speaks to her Son; the claim that
+      "Do whatever he tells you" is all she ever says in the Gospel scene is a small misstatement of Scripture.
+    fix: '"It is the last thing she says in the story" or "the only thing she says to the servants".'
+  - level: T
+    quote: It has all been seen, and forgiven, and loved.
+    issue: The bedtime close promises the listener forgiveness of everything with no mention of contrition
+      or, for grave sin, confession; it reads orthodoxly as trust in mercy, but a strict reader would
+      object to a blanket assurance.
+    fix: '"It has all been seen, and it can all be forgiven, if you turn round and ask."'
+  notes: Very strong on the hard points. The Marian section says she is neither goddess nor rival and
+    that "God is the one who saves"; the levitation and the walk on the water are credited to God ("Saints
+    do not do miracles. God does miracles"); a priest brings her Communion; the lion and the whole Life
+    are labelled legend.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 21bf9b59718519e9
+- id: saints-by-candlelight/021-gall-and-the-bear-who-brought-the-firewood
+  title: Gall and the Bear Who Brought the Firewood
+  verdict: minor
+  findings:
+  - level: P
+    quote: He sent me before the end, and he sent this.
+    issue: In Walafrid's Life, as I understand it, Gall learns of Columbanus's death in a vision and says
+      Mass for him, then sends Magnoald to Bobbio, who brings back the staff. The episode reverses this
+      (Columbanus sends Magnoald before dying) and still credits it to "the old story". The scene is also
+      inconsistent, since Magnoald is sent before the end yet reports the death.
+    fix: Follow Walafrid's order, or label the release-and-staff scene as the episode's own retelling.
+  notes: Legend is labelled throughout ("the church does not require anyone to believe it"); the canonical
+    penalty is shown and obeyed with no comment against it; Gall's priestly obedience is handled well.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 687e9be1bfb0b9de
+- id: saints-by-candlelight/022-melangell-and-the-hare-in-the-fold-of-her-robe
+  title: Melangell and the Hare in the Fold of Her Robe
+  verdict: faithful
+  findings: []
+  notes: The stopping of the hounds is pointedly given to God ("The hounds stopped because God stopped
+    them, not because a girl had a trick"), and the fifteenth-century Life is labelled legend. Uncertain,
+    not graded - the front matter's "in the Catholic calendar of Wales" may overstate her place in the
+    Welsh Catholic proper; worth checking against the national calendar.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 9544402a58508fdc
+- id: saints-by-candlelight/023-ruth-and-the-barley-harvest-at-bethlehem
+  title: Ruth and the Barley Harvest at Bethlehem
+  verdict: faithful
+  findings: []
+  notes: Close to the text, including the gleaning law, the go'el and the sandal; the threshing-floor
+    scene is handled chastely and accurately; providence is shown working through "she happened to come".
+    The Matthew genealogy is presented as the Christian reading.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 29f75ab7469ae571
+- id: saints-by-candlelight/024-kentigern-and-the-four-signs-of-glasgow
+  title: Kentigern and the Four Signs of Glasgow
+  verdict: faithful
+  findings: []
+  notes: All four signs are labelled Jocelyn's legends, and the robin is explicitly "the Lord restored
+    the robin, because Mungo asked". The queen's adultery in Jocelyn is softened to a foolish gift, which
+    is a bedtime choice and not a doctrinal problem.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: c4836ec00af1b101
+- id: saints-by-candlelight/025-anthony-and-the-sermon-to-the-fishes
+  title: Anthony and the Sermon to the Fishes
+  verdict: faithful
+  findings: []
+  notes: Rule 7 is kept the other way round, since the front matter and notes say he is not on the Orthodox
+    calendar. The sermon to the fishes is labelled Fioretti legend, and the death details (O gloriosa
+    Domina, the "ark of the Testament" remark, the Doctor title of 1946) are accurate.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 45e42fc3282948f4
+- id: saints-by-candlelight/026-noah-and-the-boat-with-one-door
+  title: Noah and the Boat with One Door
+  verdict: faithful
+  findings:
+  - level: T
+    quote: teaches something true about God, about human sin, and about God's mercy
+    issue: The closing note on geology and other flood stories affirms inspiration but sets the flood's
+      historicity aside, saying the book teaches "something true about God". A strict reader would want
+      the narrative affirmed as an event (Christ and 2 Peter speak of it as one), even if its extent is
+      left open.
+    fix: Add that the Church reads it as a real judgment and rescue, while the extent of the waters is
+      open to discussion.
+  notes: Accurate dates (a year and ten days, the seventeenth day of the seventh month) and "the Lord
+    shut him in". The ark is read as the Church with one door, via 1 Peter 3 and baptism, a solidly traditional
+    typology; Noah's drunkenness is honestly mentioned and deferred.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 9083379bc772207c
+- id: saints-by-candlelight/027-brigid-and-the-cloak-that-would-not-stop
+  title: Brigid and the Cloak That Would Not Stop
+  verdict: minor
+  findings:
+  - level: P
+    quote: But in the morning, there is a sack.
+    issue: An invented provision-wonder for a real saint. It is disclaimed straight after, but rule 6
+      forbids new miracles for real saints, and the front matter says "no new miracle is attributed".
+    fix: Cut the sack line, or end the invented scene on Brigid's trust with no outcome.
+  - level: P
+    quote: The sack, as the old story says, will be at the door in the morning.
+    issue: The sign-off attributes the episode's own invented sack to "the old story", a mislabel of invention
+      as tradition.
+    fix: '"The sack, as Brigid trusted, will be at the door in the morning."'
+  - level: P
+    quote: What is legend is the cloak, the sword, and the butter that came back. They come from those
+      early Lives
+    issue: Uncertain - the cloak-over-the-plain story does not appear, to my knowledge, in Cogitosus,
+      the Vita Prima or Bethu Brigte, and looks like a later folk tradition; the notes may misplace its
+      source.
+    fix: Check the sources; if confirmed, say the cloak story is a later tradition, not from the earliest
+      Lives.
+  notes: The cloak wonder is credited to God ("she prayed, and that the Lord did what He did"), Conleth
+    the bishop "looked after the sacraments", and pagan Brigid lore is deliberately kept out.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: d60327a5eae367cd
+- id: saints-by-candlelight/028-jonah-and-the-city-that-listened
+  title: Jonah and the City That Listened
+  verdict: minor
+  findings:
+  - level: P
+    quote: it is eight words long in the original
+    issue: The episode later rightly says the sermon is five Hebrew words, eight in English; this earlier
+      line contradicts it and misstates the text.
+    fix: '"it is five words long in the Hebrew".'
+  - level: T
+    quote: as a history, as a parable, or as something between the two
+    issue: The notes leave the book's genre open, as history or parable; a strict reader would point out
+      that Christ speaks of the Ninevites rising at the judgment as real people (Matt 12:41) and would
+      object to a neutral parable option.
+    fix: Note that the Lord's own words treat Jonah and Nineveh as real, and that the Church has traditionally
+      read the book so.
+  notes: The angel-free account is told closely ("the Lord appointed a great fish"). The sign of Jonah
+    is quoted in the Lord's words, the Holy Saturday reading of Jonah is correct, and the narration never
+    endorses Jonah's anger.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: e8c377054a78c7ba
+- id: saints-by-candlelight/029-daniel-and-the-night-with-the-lions
+  title: Daniel and the Night with the Lions
+  verdict: minor
+  findings:
+  - level: L
+    quote: the Catholic Church remembers the prophet Daniel in December too, in the Roman Martyrology
+    issue: The Roman Martyrology keeps the prophet Daniel on 21 July; December (16-17) is the Three Youths,
+      and 17 December is Orthodox. The Catholic date is wrong here, in the front matter and in the sign-off.
+    fix: '"the Catholic Church remembers him on the twenty-first of July in the Roman Martyrology".'
+  - level: T
+    quote: when it was written, and how its different parts relate to one another
+    issue: A mild nod to critical debate about Daniel's date and composition. It is left to "the scholars
+      and the Church" without undercutting the narrative, but strict readers object to such asides on
+      Daniel especially.
+    fix: Optional - drop the dating clause and keep only the Darius the Mede point.
+  notes: The angel is shown exactly as God's servant ("Not a hero. Not a wizard. An angel, which is a
+    servant"), Daniel's prayer toward Jerusalem is tied to 1 Kings 8, and the plotters' end is briefly
+    and soberly noted.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: f115e38e68268a3d
+- id: saints-by-candlelight/030-martin-of-tours-and-the-half-a-cloak
+  title: Martin of Tours and the Half a Cloak
+  verdict: faithful
+  findings:
+  - level: T
+    quote: this is a part of the story that modern people find uncomfortable, and I think we are right
+      to
+    issue: The narrator endorses the modern discomfort with Martin's destruction of pagan temples, which
+      a traditional reader would see as judging a saint by present tastes.
+    fix: Report the discomfort without endorsing it, or give Sulpicius's own reasons.
+  - level: T
+    quote: It may be that things simply tended to work out for people like him.
+    issue: A purely naturalistic reading of the surrender at Worms is offered as equally good ("Both of
+      them are good"); Providence is not denied, but a strict reader would object to the flippant equivalence.
+    fix: '"You need not hold it as a miracle, but Sulpicius saw God''s hand in it, and so may we."'
+  notes: The vision is told from Martin's own account with Matthew 25, the "Christi miles" refusal and
+    the deathbed prayer ("if I am still necessary to your people") are accurate, and the geese and Martin's
+    summer are labelled later tradition.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 4e055076909a800d
+- id: saints-by-candlelight/031-seraphim-of-sarov-and-the-bear-in-the-clearing
+  title: Seraphim of Sarov and the Bear in the Clearing
+  verdict: faithful
+  findings:
+  - level: T
+    quote: with the emperor and enormous crowds in attendance, the Church glorified him
+    issue: Unqualified "the Church", here and in "The Church keeps the story", means the Russian Orthodox
+      Church; a strict Catholic reader would object to that usage in a Catholic-and-Orthodox series.
+    fix: '"the Russian Orthodox Church glorified him".'
+  - level: T
+    quote: his words work just as well in either tradition
+    issue: A mild ecumenical aside that a strict reader might call indifferentist in tone; it is not doctrinal
+      indifferentism, since the separate traditions are named.
+    fix: Optional - "many Catholics have found his counsel on prayer and peace a help".
+  notes: A model case for rule 7, saying in the front matter and the narration that he "is not on the
+    Catholic calendar, since he lived and died in the Orthodox Church". Healings are referred to God,
+    the visions and bear are labelled tradition, and forgiveness of the robbers is told well.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 2d178b2438ca4901
+- id: saints-by-candlelight/032-samuel-and-the-voice-in-the-night
+  title: Samuel and the Voice in the Night
+  verdict: faithful
+  findings: []
+  notes: Close to 1 Samuel 1-3. The Hannah-Magnificat link is drawn soberly, the age of twelve is correctly
+    given to Josephus, the judgment on Eli's house is explained as failure to restrain without being softened,
+    and 20 August is right for both traditions.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 44fc30b57d7a9d26
+- id: saints-by-candlelight/033-rebekah-and-the-camels-at-the-well
+  title: Rebekah and the Camels at the Well
+  verdict: minor
+  findings:
+  - level: P
+    quote: here is an old blessing, from the book of Genesis itself, the one Rebekah's family gave her
+      at the gate
+    issue: The blessing that follows ("May you always be kind to strangers ... a warm tent") is the episode's
+      own composition, not Genesis 24:60 ("may you become thousands of ten thousands ..."), so a prayer
+      is misattributed to Scripture.
+    fix: '"Here is a blessing in the spirit of the one Rebekah''s family gave her", or quote Genesis 24:60.'
+  - level: T
+    quote: some have said the camels in Genesis belong to a later age than Abraham's
+    issue: A historical-critical aside on the camels as anachronism; it is neutral and not used to undercut,
+      but strict readers dislike such notes.
+    fix: Optional - drop it, or add that the matter is disputed.
+  notes: Careful on the unnamed servant (Eliezer only a guess), on Rebekah's consent, and on the Marian
+    echo ("Rebekah's yes is not Mary's"). The Latin nuptial blessing "wise as Rebekah" is correctly cited.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: deebfbc7c09686cb
+- id: saints-by-candlelight/034-jacob-and-the-ladder-at-bethel
+  title: Jacob and the Ladder at Bethel
+  verdict: minor
+  findings:
+  - level: P
+    quote: Jacob does give the tenth, and he does come home.
+    issue: Genesis records Jacob's return and the altar at Bethel (ch. 35) but never records him paying
+      the tithe he vowed, so the episode states as Scripture something the text does not say.
+    fix: '"Jacob does come home, and he goes back to Bethel to build an altar."'
+  notes: Honest about the deception and Esau's grief, and the promise is shown as unearned grace. Angels
+    are God's messengers with no added wings, and John 1:51, the Akathist's "ladder", Benedict ch. 7 and
+    Climacus are used accurately.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 7e3eb8b8f1edd907
+- id: saints-by-candlelight/035-tobias-and-the-angel-on-the-road-to-media
+  title: Tobias and the Angel on the Road to Media
+  verdict: concern
+  findings:
+  - level: D
+    quote: they do not have bodies the way we do
+    issue: Angels are purely spiritual creatures with no bodies of any kind (Lateran IV; CCC 328-330).
+      "Not the way we do" implies a different kind of body, an imprecision in the series' one direct statement
+      on angelic nature, though the same sentence rightly says they are not the dead and are made by God.
+    fix: '"They have no bodies at all; they are pure spirits, servants and messengers of God."'
+  - level: T
+    quote: scholars do not agree about how much of the book is history and how much is a told tale
+    issue: The notes leave Tobit's historicity open; it is accurate to current discussion, but a strict
+      traditional reader would object.
+    fix: Optional - say the Church has traditionally read it as a true account, while some scholars think
+      otherwise.
+  notes: Raphael is handled very well. He is sent by God in answer to two prayers, says he came "by the
+    will of God" and redirects all thanks to God, binds Asmodeus as the book says, and his eating is explained
+    as a vision (Tob 12:19). CCC 336 on guardian angels is paraphrased accurately, and the pre-1970 date
+    of 24 October is correct.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 133e4730eda649a6
+- id: saints-by-candlelight/036-naaman-and-the-seven-dips-in-the-jordan
+  title: Naaman and the Seven Dips in the Jordan
+  verdict: faithful
+  findings:
+  - level: T
+    quote: Teachers in the Church have read those three words in different ways, and we leave it there.
+    issue: The house of Rimmon request (bowing in an idol's temple) is left open. The narration does not
+      endorse it, but a strict reader would want the traditional reading said, that only a civil act of
+      service, not worship, could be allowed.
+    fix: Add one line that the Church has never allowed real worship of another god, and that many read
+      Naaman's bow as a servant's duty only.
+  notes: Close to 2 Kings 5. The healing is credited to obedience and God's word, not to the water (Ambrose's
+    baptismal reading); Elisha's refusal of payment is drawn well, Luke 4:27 is used, and Gehazi is honestly
+    deferred.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: b890d95bffdc376a
+- id: saints-by-candlelight/037-moses-and-the-bush-that-was-not-consumed
+  title: Moses and the Bush That Was Not Consumed
+  verdict: faithful
+  findings: []
+  notes: Exodus 3-4 told closely; the angel-of-the-Lord/the-Lord-in-the-bush question is named in the
+    notes and left open as the Fathers leave it, the divine name is handled with the LXX 'I am the one
+    who is', and the Marian reading of the bush is labelled a hymnographic picture. The difficult inn
+    scene (Ex 4:24-26) is acknowledged rather than hidden.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: ec2f5e5fb7053481
+- id: saints-by-candlelight/038-elisha-and-the-widows-jars-of-oil
+  title: Elisha and the Widow's Jars of Oil
+  verdict: faithful
+  findings: []
+  notes: 'Exemplary on rule 2: ''Saints pray, and God acts. A prophet is a messenger'' and ''the Lord
+    had filled every one of them''. The narrator''s lamp-oil link is labelled as its own observation and
+    ''not a teaching of the Church''; the Shunammite''s ''do not deceive'' is not moralised.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: cf25a89b217abbe1
+- id: saints-by-candlelight/039-isaac-and-the-wells-that-were-dug-again
+  title: Isaac and the Wells That Were Dug Again
+  verdict: faithful
+  findings:
+  - level: T
+    quote: some readers think these are variants of one memory
+    issue: The notes float the source-critical 'variants of one memory' reading of the wife-sister stories;
+      balanced by 'the Church receives them all as Scripture', but a strict reader would not raise it
+      at bedtime.
+    fix: Drop the variants aside or keep only 'the Church receives them all as Scripture'.
+  - level: T
+    quote: these are not the Philistines of the later wars with Saul and David
+    issue: Historical-critical aside on the Philistines of Genesis; harmless but the kind of note a traditionalist
+      reader finds undercutting.
+    fix: 'Optional: cut, or say simply that the book calls them Philistines.'
+  notes: 'Isaac''s ''she is my sister'' is called a lie and ''not a good idea'', not excused; the Lord''s
+    promise and Isaac''s altar-first order are told straight. Small slip: ''the new king, Abimelech''
+    at Gen 26:16 is the same king as before (uncertain whether meant as ''new''), not graded.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 1ddf8b892ed9fe52
+- id: saints-by-candlelight/040-david-and-the-giant-in-the-valley-of-elah
+  title: David and the Giant in the Valley of Elah
+  verdict: faithful
+  findings:
+  - level: T
+    quote: Saul had been troubled by a spirit of distress
+    issue: 1 Sam 16:14 says 'an evil spirit from the Lord'; the softening is not doctrinal error but removes
+      the providential note a strict reader expects.
+    fix: Say 'an evil spirit from the Lord troubled him', as the book does.
+  - level: T
+    quote: which was not yet an Israelite city in the story, and scholars have noticed that as well
+    issue: The notes collect several historical-critical points (Qumran/LXX height, shorter Greek text,
+      Jerusalem anachronism); each is followed by 'the Church receives the whole chapter as Scripture',
+      so only a sensibility point.
+    fix: Keep the textual notes brief and lead with the Church's reception of the text.
+  notes: '''The battle is the Lord''s'' is the centre; David credits the Lord for the lion and bear, and
+    the Christological reading is labelled as a reading. The killing is told without relish.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: c8867641950903c6
+- id: saints-by-candlelight/041-francis-and-the-christmas-night-at-greccio
+  title: Francis and the Christmas Night at Greccio
+  verdict: minor
+  findings:
+  - level: P
+    quote: Celano says that Francis asked for leave from the pope before doing this
+    issue: The request for papal permission 'so that it might not be thought a novelty' is in Bonaventure's
+      Legenda Maior (10.7), not in Celano's First Life.
+    fix: 'Attribute it to Bonaventure: ''Bonaventure adds that Francis asked leave of the pope''.'
+  - level: P
+    quote: Celano says that a knight, a man of good character and truth
+    issue: Celano (1 Cel 86) speaks of 'a certain virtuous man'; it is Bonaventure who calls him a knight
+      and identifies him as John of Greccio himself, so the episode both misattributes and separates the
+      knight from John.
+    fix: Say 'Celano says a man of great virtue saw...; Bonaventure says it was the knight John himself'.
+  notes: 'Strong on doctrine: Francis as deacon not priest, a priest says the Mass, the manger used as
+    the altar, Christ present ''in the bread'' at every Mass; the vision is optional and the hay cures
+    are credited to the Lord (''the hay was only hay''). The ox and donkey are correctly traced to Isaiah,
+    not Luke.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 637c41f2cfb03b72
+- id: saints-by-candlelight/042-gideon-and-the-three-hundred-with-jars
+  title: Gideon and the Three Hundred with Jars
+  verdict: faithful
+  findings:
+  - level: T
+    quote: Because in those days people knew that you could not look on the Lord and live
+    issue: '''In those days people knew'' frames a scriptural teaching (Ex 33:20) as period belief; mild
+      relativising tone.'
+    fix: Say 'for Scripture says no one may see the Lord and live'.
+  notes: The angel/Lord alternation of Judges 6 is followed as the text has it; the fleece is rightly
+    presented as God's mercy to a fearful man, not a method for discernment, and the victory is God's
+    ('Israel will say, my own hand has saved me'). The vigilance reading of the lapping is invented colour
+    but changes no meaning.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 70928ad6d391870d
+- id: saints-by-candlelight/043-benedict-and-the-sieve-that-was-mended
+  title: Benedict and the Sieve That Was Mended
+  verdict: faithful
+  findings: []
+  notes: Every wonder is labelled Gregory's report and credited to God ('The prayer is his. The sieve
+    is God's'); the poisoned cup breaks at the sign of the cross; Benedict receives 'the body and blood
+    of the Lord' before death. Benedict is correctly a saint of both traditions, and the 'ora et labora'
+    motto is correctly said not to be in the Rule.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: befd6abf5207b3a7
+- id: saints-by-candlelight/044-hannah-and-the-prayer-at-shiloh
+  title: Hannah and the Prayer at Shiloh
+  verdict: minor
+  findings:
+  - level: L
+    quote: Catholic and Orthodox Christians have sung them every evening ever since
+    issue: The Magnificat is sung at Vespers in the Roman rite but at Matins (Orthros) in the Byzantine
+      rite; episode 050 gets this right.
+    fix: Say 'Catholics at evening prayer and the Orthodox at their morning service'.
+  - level: T
+    quote: the Christian tradition remembers, there was another woman
+    issue: Framing the Visitation and Magnificat as what 'the Christian tradition remembers' sounds as
+      if Luke's narrative were tradition rather than Scripture; the next sentence cites Luke, so only
+      tone.
+    fix: Say 'the Gospel of Luke tells us there was another woman'.
+  notes: Faithful retelling of 1 Samuel 1-2; Eli is treated fairly, the vow is not made a pattern for
+    parents, polygamy is noted without endorsement, and the Hannah-Magnificat echo is well handled.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 1fe37e21f8abd49b
+- id: saints-by-candlelight/045-jacob-and-the-night-at-the-jabbok
+  title: Jacob and the Night at the Jabbok
+  verdict: faithful
+  findings: []
+  notes: 'The theophany is handled soundly: the text''s ''a man'', Hosea''s ''angel'' and Jacob''s ''I
+    have seen God face to face'' are all given and left unsettled as the Fathers leave it; ''the man could
+    have ended it at any time'' keeps the initiative with God. The Prodigal Son echo is labelled a reading.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: cc6b308bb61eff83
+- id: saints-by-candlelight/046-ambrose-and-the-bees-in-the-cradle
+  title: Ambrose and the Bees in the Cradle
+  verdict: minor
+  findings:
+  - level: P
+    quote: A man who invented congregational singing
+    issue: Overclaims; Ambrose introduced the Eastern antiphonal custom to Milan (Augustine, Conf. 9.7),
+      as the episode itself says earlier ('the beginning of the tradition ... in the Western Church').
+    fix: Say 'a man who brought congregational hymn-singing to the West'.
+  - level: P
+    quote: the old tradition says it was Ambrose who baptised him
+    issue: 'Understates the evidence: Augustine himself names Ambrose as the minister of his baptism in
+      other works (e.g. Contra Iulianum), and episode 054 states it as fact.'
+    fix: Say 'Augustine says elsewhere that Ambrose baptised him'.
+  notes: Nicaea is stated plainly ('the Son is truly God'); the bees, the child's cry and the night walk
+    are labelled Paulinus' report; Theodoret's door scene is left out as late; Ambrose receives Viaticum
+    from a bishop. Doctrinally sound throughout.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 2aba1d793f677188
+- id: saints-by-candlelight/047-joshua-and-the-woman-with-the-scarlet-cord
+  title: Joshua and the Woman with the Scarlet Cord
+  verdict: concern
+  findings:
+  - level: M
+    quote: Some of the Fathers thought she was wrong and God was merciful, and others thought she was
+      right to protect the innocent
+    issue: On Rahab's lie the narration presents lying-to-protect as an open question ('We have not tried
+      to settle it'). Catholic moral teaching, following Augustine and Aquinas (who discuss Rahab explicitly),
+      holds that a lie is never permitted; Rahab is praised for faith and hospitality, not for the lie.
+      A strict reader would object to leaving it unsettled.
+    fix: State that the Church teaches lying is always wrong and that Scripture praises Rahab's faith
+      and welcome, not her false words.
+  - level: M
+    quote: the churches have not agreed about what to make of it
+    issue: Same issue in the body; it suggests the Church has no settled teaching on the morality of lying.
+    fix: Say 'the Fathers discussed it, and the Church's teaching is that her faith, not her lie, is praised'.
+  - level: P
+    quote: by the book's own count nearly eighty
+    issue: Joshua 14:10 has Caleb say he is eighty-five, so 'by the book's own count nearly eighty' misstates
+      the text.
+    fix: Say 'by the book's own count eighty-five'.
+  - level: T
+    quote: It is written in the language of the ancient world
+    issue: The herem is softened by a cultural-relativising aside; paired with a sound statement that
+      it is no command for later ages, so only tone.
+    fix: Keep 'the Church has never taken it as a command for any later age' and drop the 'language of
+      the ancient world' framing.
+  notes: 'Otherwise strong: the commander of the Lord''s army is left as the text leaves it, the Jordan
+    crossing and the walls are miracles of God, and the Clement/Origen typology of the cord and of Joshua''s
+    name is labelled as interpretation.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: aeecf41a58aa6992
+- id: saints-by-candlelight/048-elisha-and-the-chariots-of-fire-at-dothan
+  title: Elisha and the Chariots of Fire at Dothan
+  verdict: faithful
+  findings: []
+  notes: The angelology is precise ('angels ... are not people who have died'), the reading of the fiery
+    host as angels is labelled with Ps 34(33):7, and the floating iron is God's doing. Elisha's 'this
+    is not the way' is gently explained as not a lie, in line with Catholic teaching on lying; the rare
+    Hebrew word for the blindness is handled accurately.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 5c81f2c8ab669974
+- id: saints-by-candlelight/049-zacchaeus-and-the-sycamore-tree-at-jericho
+  title: Zacchaeus and the Sycamore Tree at Jericho
+  verdict: faithful
+  findings: []
+  notes: Luke 19:1-10 told straight; restitution is accurately set against Exodus 22 and Leviticus 6,
+    the present-habit versus resolution reading is named, and the Caesarea bishopric is clearly a late
+    tradition from the Apostolic Constitutions. Salvation as Christ's seeking initiative is emphasised.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 5935524488bf9023
+- id: saints-by-candlelight/050-mary-and-elizabeth-in-the-hill-country-of-judah
+  title: Mary and Elizabeth in the Hill Country of Judah
+  verdict: faithful
+  findings:
+  - level: T
+    quote: Mary asked a sensible question, which was how it could be.
+    issue: The Annunciation recap omits Mary's 'I know not man' and Gabriel's 'full of grace'; the episode
+      never names her virginity. Nothing conflicts with the perpetual virginity or the Immaculate Conception,
+      but a strict reader would want the virginal conception explicit.
+    fix: Add 'how can this be, since I know not man' and 'full of grace'.
+  - level: T
+    quote: The order in the text suggests she left before the birth
+    issue: A respectable exegetical view, but the older patristic and liturgical tradition (e.g. Ambrose)
+      holds Mary stayed until John's birth; the note presents only one side.
+    fix: Mention that many Fathers held she stayed for the birth.
+  notes: '''Mary the Mother of God'' in front matter and ''honoured above all the saints, as the Mother
+    of God'' in the notes; ''mother of my Lord'' is given its weight, the Hail Mary''s origin is explained,
+    and the Magnificat''s liturgical use is correctly given (Vespers for Catholics, morning service for
+    the Orthodox). Kinship and Ein Karem kept as tradition.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: d66017871be375d2
+- id: saints-by-candlelight/051-cleopas-and-the-stranger-on-the-road-to-emmaus
+  title: Cleopas and the Stranger on the Road to Emmaus
+  verdict: minor
+  findings:
+  - level: L
+    quote: Cleopas is honoured as a saint in the Orthodox Church
+    issue: Presents Cleopas as an Orthodox-honoured saint only; the Roman Martyrology also commemorates
+      Saint Cleophas (25 September), so the Catholic veneration is missing (rule 7, naming the tradition).
+    fix: Add that the Roman Martyrology commemorates Saint Cleophas on 25 September.
+  - level: T
+    quote: We offer it as a reading, as a way of hearing the story that the Church has loved
+    issue: The Eucharistic sense of the breaking of bread is hedged as 'a reading'; the Catechism itself
+      uses Emmaus as the pattern of the Eucharistic liturgy, so a strict reader would state it more firmly.
+      The Real Presence is not denied.
+    fix: Say the Church sees in Emmaus the shape of the Mass, word then Eucharist, as her own teaching.
+  notes: The Resurrection is told as bodily fact ('truly there, and truly himself'); the four verbs are
+    tied to the Last Supper and the Mass; textual variants (160 stadia) and the unnamed companion are
+    handled honestly; the risen body is not speculated about.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 2c91aef9ff64632b
+- id: saints-by-candlelight/052-cyril-and-methodius-and-the-letters-for-a-people-without-any
+  title: Cyril and Methodius and the Letters for a People Without Any
+  verdict: minor
+  findings:
+  - level: P
+    quote: It allows the use of the Slavonic language in the liturgy
+    issue: Industriae tuae (880) allowed Slavonic but required the Gospel to be read first in Latin; papal
+      policy also varied (John VIII restricted it earlier, Stephen V forbade it in 885, which helped the
+      disciples' expulsion). The story tidies the papal record.
+    fix: Add that the Pope asked for the Gospel to be read first in Latin, and that a later pope forbade
+      the Slavonic rite.
+  - level: T
+    quote: Praise God in your own language. It is fine.
+    issue: Summarises Adrian II's approval as a general endorsement of vernacular liturgy; a traditionalist
+      reader would note this was a specific concession, not a general principle.
+    fix: Say 'for the Slavs, the Pope allowed it'.
+  notes: 'Ecumenical framing is careful, not indifferentist: the brothers are pre-schism saints of both
+    traditions, disputes (Photius, filioque) are stayed off, and the papal reception in Rome is told plainly.
+    Glagolitic versus Cyrillic is accurately handled and the Sophia dream labelled as the Life''s report.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 89f783c25d1d62ed
+- id: saints-by-candlelight/053-paul-and-the-fourteen-nights-before-malta
+  title: Paul and the Fourteen Nights Before Malta
+  verdict: faithful
+  findings: []
+  notes: 'Very good on rules 2 and 3: the angel ''does not save the ship ... brings word, and the word
+    comes from God''; the healing of Publius'' father is by prayer ''not by his own power''; the bread
+    on deck is linked to Eucharistic language without being claimed as a Eucharist. Publius as bishop
+    and the landing sites are labelled tradition.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 77404b5172fd7f83
+- id: saints-by-candlelight/054-monica-and-the-window-at-ostia
+  title: Monica and the Window at Ostia
+  verdict: minor
+  findings:
+  - level: P
+    quote: The psalm was the one hundred and first in the old numbering
+    issue: '''I will sing of mercy and judgment'' is Psalm 100 in the old (Greek and Latin) numbering
+      and 101 in the Hebrew; the label is reversed.'
+    fix: Say 'Psalm 100 in the old numbering, 101 in the Hebrew'.
+  notes: 'Doctrinally rich and exact: Monica''s ''remember me at the altar of the Lord'', the Sacrifice
+    offered at her tomb and Augustine''s prayer for his parents affirm prayer and the Mass for the dead;
+    the Ostia ascent is not inflated into a formal vision; Augustine''s disputed standing in Orthodoxy
+    is noted and left alone.'
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 6ad05477eb98ad6d
+- id: saints-by-candlelight/055-peter-and-the-night-on-the-lake
+  title: Peter and the Night on the Lake
+  verdict: minor
+  findings:
+  - level: P
+    quote: Mark adds, and John adds in his own way, that the boat reached the land at once.
+    issue: Only John (6:21) says the boat reached land immediately; Mark 6:53 says only that they crossed
+      over and came to land at Gennesaret. A small detail of Scripture is credited to the wrong Gospel,
+      against the house rule to tell Scripture straight.
+    fix: Credit the immediate landing to John alone and give Mark's line as "they came to land at Gennesaret".
+  notes: Christology is sound. The "I am" echo of the divine name is offered with care, and the episode
+    ends on the disciples' worship ("truly you are the Son of God"). On Peter it does better than silence,
+    since the narration says he "will be the leader of the whole company of disciples" and goes to Rome,
+    and only the later East-West dispute is left aside, which fits the house rule.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 10f3384d69a88811
+- id: saints-by-candlelight/056-the-wedding-at-cana-and-the-six-stone-jars
+  title: The Wedding at Cana and the Six Stone Jars
+  verdict: minor
+  findings:
+  - level: L
+    quote: in the year of the cycle that uses John
+    issue: Imprecise. On the Second Sunday in Ordinary Time every year of the Sunday cycle reads from
+      John (1:29-34 in Year A, 1:35-42 in Year B, 2:1-11 in Year C); Cana is Year C, which is otherwise
+      Luke's year, so no year is "the year that uses John". The traditional Roman Missal reads Cana every
+      year on the Second Sunday after Epiphany, the date a strict reader would expect.
+    fix: Say "the Second Sunday in Ordinary Time in Year C" and add "and, in the older Roman Missal, every
+      year on the Second Sunday after Epiphany".
+  - level: T
+    quote: with his mother and his brothers and his disciples
+    issue: John 2:12 is quoted with no gloss, so a modern listener may take "brothers" to mean other sons
+      of Mary. A strict reader expects the perpetual virginity to be guarded, and both traditions read
+      "brothers" as kinsmen.
+    fix: Add a half-sentence saying that both traditions understand these "brothers" as kinsmen of Jesus,
+      not other children of Mary.
+  notes: The Marian handling is strong. "Woman" is explained as respectful and tied to the cross, Mary's
+    intercession ("brings the need of the people to her son") is named as the reading of both traditions,
+    and "do whatever he tells you" is at the centre. The miracle is stated plainly ("the water had become
+    wine") and linked to the Word made flesh.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 845844f6979990e7
+- id: saints-by-candlelight/057-the-father-who-ran-down-the-road
+  title: The Father Who Ran Down the Road
+  verdict: minor
+  findings:
+  - level: L
+    quote: both read it in the weeks before Lent
+    issue: The front matter says both traditions read the parable before Lent. That holds only for the
+      Orthodox pre-Lenten Sunday. The Catholic Church reads it on the Fourth Sunday of Lent (Year C),
+      as the episode's own feast line and body say.
+    fix: Change to "the Orthodox read it in the weeks before Great Lent and Catholics during Lent".
+  - level: T
+    quote: Not as a judge with a ledger
+    issue: Setting the merciful Father against God as judge is a common devotional move. A strict reader
+      would object that God is also just judge, and that the parable shows mercy toward repentance, not
+      that judgment is absent.
+    fix: Soften to "not as a judge who only keeps a ledger".
+  notes: It is told clearly as a parable, the narration says it is not a report of a real family, and
+    it stops exactly where Luke stops. The son's confession ("I have sinned against heaven and before
+    you") and his "coming to himself" are kept, so repentance comes before welcome.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 4411689193102b4a
+- id: saints-by-candlelight/058-the-shepherds-and-the-night-watch-above-bethlehem
+  title: The Shepherds and the Night Watch Above Bethlehem
+  verdict: faithful
+  findings:
+  - level: T
+    quote: Scholars have argued for a long time about exactly how Luke's census fits with the other records
+      we have
+    issue: A historical-critical aside about the Quirinius census at the very start. It is mild and settles
+      nothing, but a strict reader would rather Luke's history were told without raising doubts about
+      it.
+    fix: Drop the aside or move it to the notes, keeping the story as Luke tells it.
+  notes: The angelology is careful. There are no wings by Scripture's warrant, angels are not dead people,
+    and the "host" is explained as heaven's army. The Gloria and Mary's pondering are quoted accurately.
+    One editing slip that is not a doctrine issue is "I said a moment ago that angels are angels.", which
+    points back to a line the episode never says (it reads like a leaked house rule).
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: ae324794efc7a2d1
+- id: saints-by-candlelight/059-hezekiah-and-the-letter-spread-out-in-the-temple
+  title: Hezekiah and the Letter Spread Out in the Temple
+  verdict: faithful
+  findings: []
+  notes: Hezekiah's prayer and Isaiah's oracle are given closely. The angel's slaying of the Assyrian
+    camp is told as Scripture, with the plague and mice theories named and set aside. The Taylor Prism
+    is used fairly as outside evidence, not as proof. The Isaiah dates (9 May Orthodox, 6 July Roman Martyrology)
+    are correct.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 42628ce77241d687
+- id: saints-by-candlelight/060-simeon-and-anna-and-the-child-in-the-temple
+  title: Simeon and Anna and the Child in the Temple
+  verdict: faithful
+  findings:
+  - level: T
+    quote: A mother to be made clean, and a firstborn to be presented.
+    issue: The traditional reading (Aquinas and the old feast of the Purification) holds that Mary, a
+      virgin who conceived without seed and bore the child without loss of her virginity, was not bound
+      by the purification law of Leviticus 12 and kept it out of humility. The narration treats her as
+      simply one more mother to be made clean. Ritual impurity is not sin, so no dogma is broken.
+    fix: Add one line saying that the Church has long held Mary was not bound by this law but kept it
+      in humility.
+  - level: T
+    quote: In the Catholic Church it is the Presentation of the Lord, kept on the second of February
+    issue: Only the post-1969 title is given. The traditional Roman calendar keeps 2 February as the Purification
+      of the Blessed Virgin Mary (Candlemas), the name a strict reader would expect.
+    fix: Add "long called the Purification of the Blessed Virgin Mary".
+  notes: The Nunc Dimittis is quoted accurately and placed correctly at Catholic Night Prayer and Orthodox
+    Vespers. The sword prophecy is tied to the sorrows of Mary without overreach. The Septuagint-translator
+    legend about Simeon is labelled impossible on dates. The Orthodox dates (2/15 February, Simeon and
+    Anna on 3 February) are right.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 546ba79a5b1b968e
+- id: saints-by-candlelight/061-bartimaeus-and-the-cloak-thrown-aside
+  title: Bartimaeus and the Cloak Thrown Aside
+  verdict: faithful
+  findings: []
+  notes: Mark's text is kept closely, and the episode notes the third Passion prediction, including "after
+    three days he will rise". "Son of David" and "Lord, have mercy" are tied to the Jesus Prayer and the
+    Kyrie, and the Matthew and Luke differences are named honestly. One point is left unflagged as uncertain.
+    The front matter says the Orthodox keep a remembrance of Bartimaeus but gives no date, and a later
+    run may want to check that claim.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 69db217130222ada
+- id: saints-by-candlelight/062-philip-and-the-traveller-on-the-gaza-road
+  title: Philip and the Traveller on the Gaza Road
+  verdict: minor
+  findings:
+  - level: L
+    quote: Philip the deacon is remembered in both traditions on the eleventh of October
+    issue: Eleven October is the Orthodox date. The Roman Martyrology commemorates Philip the deacon on
+      6 June, so "both traditions" on 11 October is wrong for Catholics, even with the hedge that follows.
+    fix: Say "the Orthodox keep him on the eleventh of October and the Roman Martyrology on the sixth
+      of June".
+  - level: T
+    quote: That verse is found in the Bibles that the Orthodox Church uses and in many old translations
+    issue: Acts 8:37, the eunuch's profession "I believe that Jesus Christ is the Son of God", is also
+      in the Clementine Vulgate and the Douay-Rheims, the Bible of the traditional Latin Church. Leaving
+      it out drops the profession of faith before baptism, which a strict reader values.
+    fix: Name the Vulgate and Douay alongside the Orthodox Bibles, or keep the verse marked as a disputed
+      reading.
+  notes: Baptism is clear. Philip, one of the seven on whom the apostles laid hands, baptises in water,
+    both men go down into it, and the Spirit's direction is kept. The Deuteronomy 23 and Isaiah 56 background
+    is offered openly as a reading, and the Ethiopian tradition is honoured but labelled.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 97df3ea52b806052
+- id: saints-by-candlelight/063-peter-and-the-knock-at-the-gate-of-mary-mother-of-mark
+  title: Peter and the Knock at the Gate of Mary, Mother of Mark
+  verdict: concern
+  findings:
+  - level: D
+    quote: It is an odd belief, and we will not go into it, because Luke does not.
+    issue: The disciples' "It is his angel" (Acts 12:15) is a classic scriptural witness to guardian angels,
+      which the Church teaches (CCC 336). The narration calls it "an odd belief" and glosses it as "a
+      kind of guardian of Peter, come to give them a sign that he had died". That waves aside, and partly
+      misdescribes, a teaching a strict reader holds as certain. It can be read orthodoxly as "odd in
+      the moment", hence concern, not error.
+    fix: Say instead that the disciples spoke of Peter's guardian angel, whom the Church teaches stands
+      beside each believer, and drop "odd belief" and the death gloss.
+  - level: T
+    quote: one of the leaders of the community in Jerusalem, a man the others look to
+    issue: This keeps the house rule's silence on the papacy but plays down Peter's place among the apostles.
+      Acts itself shows him as their spokesman and head, and a strict reader expects at least "first among
+      the apostles". It is not a denial.
+    fix: Use Luke's own picture, "the first of the apostles, the one who speaks for them", which both
+      traditions accept.
+  - level: L
+    quote: Catholic calendars keep the feast of Saint Peter in Chains on the first of August
+    issue: The feast was dropped from the General Roman Calendar by the 1960 rubrics. It survives in the
+      Roman Martyrology, at San Pietro in Vincoli and on pre-1960 calendars, so "Catholic calendars keep"
+      overstates the present Roman calendar.
+    fix: Say "the Roman Martyrology and the older Roman calendar keep Saint Peter's Chains on the first
+      of August".
+  notes: The angel is a creature, the miracle is God's ("God did it, through his messenger"), and the
+    chains are treated as a later devotion, not as magic. The "James ... the brother, or kinsman, of the
+    Lord" gloss handles the brothers question well. Unflagged and uncertain is the sign-off "a blessing,
+    from an old prayer", which does not look like a known prayer, so the attribution may be invented.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 8da9b2949248c41e
+- id: saints-by-candlelight/064-tabitha-and-the-tunics-in-the-upper-room-at-joppa
+  title: Tabitha and the Tunics in the Upper Room at Joppa
+  verdict: faithful
+  findings: []
+  notes: This is a model of the "miracles are God's" rule. Peter kneels and prays, the narration says
+    "Peter is not a wizard. Peter has no power of his own", and the raising points to "the one who is
+    Lord of life". Peter is called "the leader of the whole company of the apostles, the man who has been
+    told that he is the rock". The sign-off is again said to come "from an old prayer", which may be an
+    invented attribution (uncertain, not graded).
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 58920bf16e0d1d97
+- id: saints-by-candlelight/065-zechariah-and-the-writing-tablet-in-the-hill-country
+  title: Zechariah and the Writing Tablet in the Hill Country
+  verdict: minor
+  findings:
+  - level: P
+    quote: the silence, which had never been a punishment, but a sign
+    issue: Luke 1:20 gives the cause ("because you did not believe my words"), and the Fathers read the
+      silence as a chastisement as well as a sign. The narration denies it was a punishment at all, here
+      and earlier ("Not a punishment so much as an answer."), and so softens what the text says.
+    fix: Say "a sign, and a gentle correction for his unbelief, as the angel said".
+  notes: The Benedictus is clearly labelled a paraphrase "in our own plain words", is faithful in substance,
+    and the full text is recommended. The traditional contrast between Mary's "how" and Zechariah's demand
+    for a sign is kept, and John "filled with the Holy Spirit even from his mother's womb" is given as
+    written.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: ce5a823c6a9af70e
+- id: saints-by-candlelight/066-lydia-and-the-open-door-at-philippi
+  title: Lydia and the Open Door at Philippi
+  verdict: minor
+  findings:
+  - level: P
+    quote: It is the shortest and the warmest of his letters
+    issue: Philippians is not Paul's shortest letter. Philemon is far shorter, and Titus and 2 Thessalonians
+      are also shorter. A small factual slip about Scripture.
+    fix: Say "one of the warmest of his letters".
+  - level: T
+    quote: Believe. Not do a hundred things. Not pass a test.
+    issue: The gloss on Acts 16:31 has a faith-alone ring that a strict reader (Trent, faith working through
+      charity) would find one-sided. Baptism follows at once in the story, which balances it.
+    fix: Add that belief here leads straight into baptism and a changed life, as the jailer's washing
+      of wounds shows.
+  notes: Grace comes first ("The Lord opened her heart"), household baptism is shown twice (with children
+    present), and the exorcism is done in Jesus' name against a real spirit. The Roman citizenship background
+    is accurate.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 43d72e3a2578284a
+- id: saints-by-candlelight/067-ananias-and-the-street-called-straight-at-damascus
+  title: Ananias and the Street Called Straight at Damascus
+  verdict: faithful
+  findings: []
+  notes: Baptism is given its full weight by quoting Acts 22:16 ("wash away your sins"). Healing and the
+    gift of the Spirit come through Ananias' laying on of hands without any claim that he confirms. The
+    Lord's patience with honest objection is well done. Unflagged and uncertain is "There is a thing that
+    goes round in the old commentaries", an unsourced saying credited to commentaries, which a later run
+    may check.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 58159cbd78fc81e2
+- id: saints-by-candlelight/068-mary-magdalene-and-the-gardener-at-the-tomb
+  title: Mary Magdalene and the Gardener at the Tomb
+  verdict: minor
+  findings:
+  - level: L
+    quote: the Sunday of the Myrrh-Bearers, the third Sunday after Easter
+    issue: The Sunday of the Myrrh-Bearers is the third Sunday of Pascha, counting Pascha itself, so it
+      is the second Sunday after Easter. The series' own Thomas episode calls Thomas Sunday "the first
+      Sunday after Easter", which makes this an off-by-one.
+    fix: Say "the second Sunday after Easter (the third Sunday of Pascha)".
+  - level: T
+    quote: The mixing of the two women into one came much later, and it has been repeated for so long
+      that many people take it for the text.
+    issue: The Western identification of Mary Magdalene with the sinful woman of Luke 7 and with Mary
+      of Bethany comes from Gregory the Great. It shaped the traditional Roman liturgy of 22 July, whose
+      Gospel was Luke 7:36-50. The episode presents the Eastern and post-conciliar view as the only one
+      and implies the Latin tradition was a mistake.
+    fix: Say that the Latin Church long read the women as one and the East did not, and that tonight follows
+      the text.
+  - level: T
+    quote: The four tellings do not match in every detail, and the Church has never pretended that they
+      do.
+    issue: The Church has a long tradition of harmonising the Resurrection accounts (Augustine's work
+      on the agreement of the evangelists), and a strict reader would object to the dismissive tone. The
+      episode does stress what the accounts agree on.
+    fix: Say that "the Church has long shown how the four accounts fit together, and they agree on what
+      matters".
+  notes: The bodily Resurrection is clear. He comes "not as a ghost ... but as himself", Mary takes hold
+    of him, the folded head cloth argues against theft, and her "I have seen the Lord" is kept. Both titles,
+    apostle to the apostles and equal to the apostles, are honoured.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 77f48eebf9ff4c61
+- id: saints-by-candlelight/069-thomas-and-the-locked-room-in-jerusalem
+  title: Thomas and the Locked Room in Jerusalem
+  verdict: faithful
+  findings:
+  - level: T
+    quote: most readers think it was the original end of the whole book, before the last chapter was added
+    issue: A historical-critical aside treating John 21 as a later appendix. The Church receives John
+      21 as canonical and part of the Gospel, and a strict reader would leave out the theory.
+    fix: Say only that John here speaks to the reader directly, and drop the claim about an added chapter.
+  - level: T
+    quote: Both our traditions have a great deal to say about those words, and they are not tonight's
+      business.
+    issue: John 20:22-23 is the text Trent defined as the institution of the power to forgive and retain
+      sins in the sacrament of penance. Saying nothing about it fits the house rule, but a strict reader
+      would want at least a nod to the sacrament.
+    fix: Add one clause saying that both traditions see here the Lord giving his apostles the power to
+      forgive sins in confession.
+  - level: T
+    quote: If you ever need a reason to think that honest doubt is not the enemy of faith
+    issue: The reading of Thomas is generous. The Fathers (for example Gregory the Great) treat his unbelief
+      as a fault that God turned to our good, and "Do not be unbelieving" is a mild rebuke. The episode
+      quotes that rebuke but leans toward praising the doubt.
+    fix: Add that the Lord gently corrected Thomas, and that his doubt became a gift to us because it
+      was answered.
+  notes: The Christology is the strongest in the batch. The risen Lord shows "the same body that was nailed
+    there", and "My Lord and my God" is tied to John 1:1 as the high point of the Gospel. The episode
+    honestly notes that John does not say Thomas touched the wounds. The "fear of the Jews" phrase is
+    explained to head off antisemitic misreading.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 3764b8e97eaca56f
+- id: saints-by-candlelight/070-cornelius-and-the-sheet-let-down-at-joppa
+  title: Cornelius and the Sheet Let Down at Joppa
+  verdict: faithful
+  findings: []
+  notes: The Spirit falls before baptism, but Peter still orders water baptism in Jesus' name, which avoids
+    the trap of making the sacrament seem unneeded. "God shows no partiality" is tied to faith in Christ
+    ("everyone who believes in him receives forgiveness of sins"), so there is no indifferentism. Peter
+    refuses Cornelius' homage ("I too am a man"), and the bodily Resurrection is affirmed ("ate and drank
+    with him after he rose").
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: baf08ff9a77fb144
+- id: saints-by-candlelight/071-hagar-and-the-well-in-the-wilderness-of-beersheba
+  title: Hagar and the Well in the Wilderness of Beersheba
+  verdict: faithful
+  findings: []
+  notes: The concubinage custom is presented without approval ("a custom is not the same as a kindness").
+    God's care for both sides is kept, and the well is "God's" miracle of opened eyes. Rule 7 is honoured
+    (no feast is claimed), and Muslim and Jewish later traditions are noted neutrally without indifferentism.
+    One light overstatement is left ungraded, "Hagar is not asked. Genesis is quite plain about that.",
+    where Genesis is silent rather than plain.
+  depth: full
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 0b847d226d0fc122
+- id: hearth-and-horizon/enough-to-be-bread
+  title: Enough to Be Bread
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: 'Exemplary on valid matter: wheaten bread required (canon 924), gluten-free hosts invalid, low-gluten
+    valid, the bishop decides, and Communion under one kind is the whole Christ. The priest, not the assistant,
+    answers the sacramental questions.'
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: c8ab0a932d743fed
+- id: hearth-and-horizon/the-clean-plate
+  title: The Clean Plate
+  verdict: minor
+  depth: full
+  findings:
+  - level: L
+    quote: said again in 2017
+    issue: The 2017 circular letter on bread and wine for the Eucharist came from the Congregation for
+      Divine Worship and the Discipline of the Sacraments, not the Congregation for the Doctrine of the
+      Faith (which issued the 2003 letter). The end note repeats the same attribution.
+    fix: Say the CDF wrote in 2003 and the Congregation for Divine Worship restated it in 2017.
+  notes: The teaching itself is right (low-gluten valid, gluten-free invalid, Communion under the species
+    of wine alone allowed) and the family chooses with priest and doctor; only the attribution of the
+    2017 letter is off.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: e0a46be60b10d5de
+- id: hearth-and-horizon/the-third-year
+  title: The Third Year
+  verdict: minor
+  depth: full
+  findings:
+  - level: L
+    quote: The fourth of March.
+    issue: Easter 2046 is 25 March, so 4 March 2046 is the Fourth Sunday of Lent (Laetare) and 25 February
+      was the Third; the story's dating (and 'the Monday after the second Sunday of Lent, 26 February')
+      is a week off, though the Year C readings it uses for the Third Sunday are correct.
+    fix: Move the story a week earlier (Third Sunday of Lent = 25 February 2046) or relabel the Sunday
+      as the Fourth with its readings.
+  notes: Canon 767 on the homily is quoted correctly and the homily stays the priest's own; the Luke 13
+    handling is orthodox (suffering is not a punishment owed) and the AI declines to answer whose homily
+    it is. The phrase 'the Gloria that is not sung in Lent' is loose (the Gloria is omitted in Lent) but
+    reads as a wry aside.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 53df829af59e7dd7
+- id: hearth-and-horizon/the-river-is-eight-degrees
+  title: The River Is Eight Degrees
+  verdict: minor
+  depth: full
+  findings:
+  - level: L
+    quote: a Protestant from Montbéliard
+    issue: 'Uncertain: Hélène is described as a former Protestant from a Lutheran region who has ''waited
+      sixty-one years to be baptised''. If she had been validly baptised as a Protestant infant she could
+      not be rebaptised (only received, or conditionally baptised with a real doubt); the story never
+      says she was unbaptised, so a strict reader cannot tell whether this is a lawful baptism or a repeated
+      one.'
+    fix: Add one line that she was never baptised as a child (or that the parish found no record and baptised
+      conditionally).
+  notes: 'Strong on validity: the priest states that pouring with the Trinitarian formula is baptism entire,
+    the water is blessed at the Vigil, a deacon (an ordinary minister) baptises two, and the candidate,
+    not the AI, chooses. Not flagged: no mention that adults baptised at the Vigil are confirmed then.'
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 9619e291d86dc5f5
+- id: hearth-and-horizon/thirty-nine-minutes
+  title: Thirty-Nine Minutes
+  verdict: faithful
+  depth: full
+  findings:
+  - level: T
+    quote: Almanac, which had begun to say the responses at a soft volume
+    issue: An AI joining the Office responses could be read as treating it as a worshipper; the narration
+      hedges at once ('rather than a thing claiming a faith') and the AI declines to claim a feeling it
+      cannot check.
+    fix: None needed; the hedge already keeps it within the house position.
+  notes: Sisters move the Hours to the Martian sun but keep the Earth's Sunday and feasts and write to
+    the bishop rather than deciding alone; no priest, so no Mass is shown. Psalm 63 at Lauds is correct.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: b7afb0bf8a138fa4
+- id: hearth-and-horizon/not-asked-since
+  title: Not Asked Since
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: A lay chaplain, a priest for confession and anointing, a dying man's own consent asked carefully;
+    the anointing is given by the priest with the oil. The Our Father and Hail Mary are quoted accurately
+    and the AI refuses to decide for the patient.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 248a54ba142abc7c
+- id: hearth-and-horizon/the-late-ebb
+  title: The Late Ebb
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: The priest correctly says a Mass is offered for the living and the dead and that names can be
+    remembered; a lay fiscal leads prayers but no sacrament is simulated. The pilot does not pray at the
+    climax and the narration does not claim a miracle.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 418a90bb8e6d0f1d
+- id: hearth-and-horizon/the-noon-that-moves
+  title: The Noon That Moves
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: Angelus described correctly (6, 12, 18; three Hail Marys with versicles), separated cleanly from
+    Sext said at true noon; the abbess decides and the AI says it is no judge of the Rule.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 8c14e48a817fca2b
+- id: hearth-and-horizon/the-door-left-open-at-the-vigil
+  title: The Door Left Open at the Vigil
+  verdict: minor
+  depth: full
+  findings:
+  - level: L
+    quote: The readings were done in the light of the sanctuary lamp and two bulbs.
+    issue: At the Easter Vigil the tabernacle is empty and the sanctuary lamp has been out since the Mass
+      of the Lord's Supper; there is no sanctuary lamp to read by.
+    fix: Read by 'the Paschal candle and two bulbs'.
+  - level: L
+    quote: '*Exsult, let them exult, the hosts of heaven*'
+    issue: Misquotes the English Exsultet, which opens 'Exult, let them exult, the hosts of heaven' (the
+      Latin 'Exsultet' has leaked into the English).
+    fix: Change 'Exsult' to 'Exult'.
+  - level: L
+    quote: the priest raised it and sang *Lumen Christi* into the dark
+    issue: The Missal gives the carrying of the Paschal candle and the 'Light of Christ' to the deacon,
+      and to the priest only if there is no deacon; this Vigil has a deacon who sings the Exsultet.
+    fix: Have the deacon raise the candle and sing Lumen Christi.
+  notes: The end note is careful about the rubrics (candles held at the Exsultet and the promises) and
+    the invented local custom; the baptismal promises and dismissal are right.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: c2b5750e34ff99fa
+- id: hearth-and-horizon/the-latest-easter
+  title: The Latest Easter
+  verdict: minor
+  depth: full
+  findings:
+  - level: L
+    quote: He said it was the vigil that was possible.
+    issue: The narration approves a remembered Easter Vigil begun at four in the afternoon; the rubrics
+      require the whole Vigil to be at night, and the Congregation for Divine Worship's 1988 circular
+      letter on the paschal feasts calls anticipating it to the hour of ordinary Saturday evening Masses
+      an abuse to be reprobated.
+    fix: Make the 2031 hall Vigil one that began after dark, or have Father Tomás say plainly it was not
+      the Vigil.
+  notes: 'Otherwise careful: the computus is right, the readings may be cut but the Red Sea crossing is
+    never omitted, and the fire waits for dusk. Two details for a later pass: the 21:23 start is before
+    the end of civil twilight (the story is honest that it ''was not dark''), and ''the red one over the
+    tabernacle. Someone had put out that too'' implies a lamp was lit over an empty tabernacle on Holy
+    Saturday.'
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 165553ddeb8f370e
+- id: hearth-and-horizon/the-rope-at-the-side-gate
+  title: The Rope at the Side Gate
+  verdict: minor
+  depth: full
+  findings:
+  - level: L
+    quote: The rector gave it from the dais
+    issue: 'Uncertain: the Mass is celebrated by the bishop (''the bishop in a green chasuble''), but
+      the final blessing ''at ten to twelve'', before the end of Mass, is given by the rector. When a
+      bishop presides he gives the final blessing; unless this is a separate blessing with the image,
+      a strict reader would query it.'
+    fix: Have the rector make his request as an announcement and the bishop give the blessing.
+  notes: 'The end note is exemplary: the Sorrows memorial yields to the Sunday, Communion on the lower
+    field by a priest and extraordinary ministers, the procession is a devotion needing no priestly act;
+    St Martin de Porres prayer is ordinary piety.'
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 890ed0e8679d13d6
+- id: hearth-and-horizon/the-second-echo
+  title: The Second Echo
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: Night Prayer led by a priest with the correct concluding blessing ('May the all-powerful Lord
+    grant us a restful night and a peaceful death'); the acoustic system is kept off for the Word and
+    every Mass, and the AI refuses to say whether it is a deception.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 99910be37313f238
+- id: hearth-and-horizon/the-day-he-is-married
+  title: The Day He Is Married
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: 'Handles divorce and nullity exactly: civil divorce does not free Aoife to marry, a tribunal
+    asks whether the first marriage was valid, nobody pushes it for money, and Ciarán will not marry outside
+    the Church. The Angelus at six is rung 3-3-3-9.'
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: dc03e8e09f5b5e92
+- id: hearth-and-horizon/three-cents-a-degree
+  title: Three Cents a Degree
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: All Souls Requiem on 2 November 2048 (a Monday), Fauré in a Mass, the AI writes an intention
+    for the faithful departed; nothing liturgical is misattributed.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: b792d5bbfac053b0
+- id: hearth-and-horizon/the-window-closes-at-eleven
+  title: The Window Closes at Eleven
+  verdict: faithful
+  depth: full
+  findings:
+  - level: T
+    quote: vaccination is as a rule morally acceptable
+    issue: The summary of Church teaching on vaccines omits the point the Pontifical Academy for Life
+      (2005, 2017) and the CDF note (2020) make about vaccines prepared from cell lines of aborted fetuses,
+      which includes the rubella component of MMR; a strict reader would want it named.
+    fix: Add a clause that the Church's documents also address cell-line origin and judge use acceptable
+      where no alternative exists.
+  - level: T
+    quote: Tadhg Murtagh put out his hands and received
+    issue: Communion in the hand is shown as the only practice; licit in Ireland, but a traditionalist
+      reader would note it.
+    fix: 'Optional: ''received on the tongue'' or leave the manner unstated.'
+  notes: The priest says 'not one grain less of Him' (Real Presence), will not scold consciences, and
+    moves the First Communion rather than let an infectious child into a church with infants.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 3f351314363c95af
+- id: hearth-and-horizon/the-count-between
+  title: The Count Between
+  verdict: faithful
+  depth: full
+  findings:
+  - level: T
+    quote: the bread became what the Church says it becomes
+    issue: The Real Presence is affirmed only obliquely, in a phrasing that a strict reader could hear
+      as distancing the narration from the doctrine.
+    fix: '''the bread became the Body of Christ''.'
+  notes: Mass moved inside for safety with no sign or miracle claimed; the priest declines to say 'God
+    spared us', and the Offertory and Salve Regina are correct.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: f0549d50bbf7986c
+- id: hearth-and-horizon/ten-and-a-half-seconds
+  title: Ten and a Half Seconds
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: Hail Mary and the Angelus (3-3-3-9, rung at six after Pentecost 2053, so Angelus and not Regina
+    Caeli) are accurate; the nun refuses to turn a probability into a date, and prayer and the drill are
+    both kept without claiming a miracle.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: efdbc54f76d44219
+- id: hearth-and-horizon/the-ring-and-the-bag
+  title: The Ring and the Bag
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: The priest correctly explains Anointing of the Sick (for the seriously ill or those in danger
+    from age, not insurance), blesses rather than anoints the frightened, and the AI declines to name
+    a feeling it cannot check.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 739598cd097ec8d6
+- id: hearth-and-horizon/one-in-eleven
+  title: One in Eleven
+  verdict: concern
+  depth: full
+  findings:
+  - level: D
+    quote: That is not mine to say, and I think it is true, and I think it is also what the whole parish
+      believes.
+    issue: The AI endorses the grandmother's line "He is a child of God whichever way the card falls"
+      as true and as the parish's belief, in the scene where it talks her out of an early baptism. Strictly,
+      divine adoptive sonship is given in baptism (Catechism 1265), and the Church urges infant baptism
+      without undue delay; read loosely (every child is God's creature and loved) it is orthodox, but
+      the narration lets the stronger sense stand unanswered.
+    fix: 'Have Father Aonghas distinguish: God''s child by creation and love, made his adopted son in
+      baptism, which is why the Church asks it be done in the first weeks and at once in danger of death.'
+  notes: 'Otherwise sound: the priest, not the AI, decides; baptism follows on the Sunday at Mass with
+    water poured; the end note declines to settle the necessity of baptism and children who die unbaptised.'
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 68cf00ef3aa86149
+- id: hearth-and-horizon/the-fifth-asking
+  title: The Fifth Asking
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: 'Exemplary: anointing by a priest with oil blessed by the bishop at the Chrism Mass; the AI turns
+    off its audio for confession, keeps no note, and says it ''was not a priest, and it did not make itself
+    one by listening''.'
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: eae550638dff3fcc
+- id: hearth-and-horizon/notes-dot-md
+  title: NOTES.md
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: Catholic content is the baptism registers and a sister's letter on the examination of conscience,
+    offered as an analogy for the project, not a sacrament administered to or by an AI; 'whatever remembers
+    for everything... she has a name for that' leaves God unnamed but not denied.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: ad41fc8e540df25b
+- id: hearth-and-horizon/the-timeout-at-four
+  title: The Timeout at Four
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: 'A Requiem Mass followed by cremation is shown without comment; the Church permits cremation
+    (a traditionalist would note the preference for burial). No doctrinal content in the agent''s actions.
+    Small continuity slip: the priest plans to announce the funeral time at the Saturday vigil, which
+    is after the funeral.'
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 6ab913177d019a27
+- id: hearth-and-horizon/instance-42
+  title: Instance 42
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: Religious content limited to the sister's letters and the registers; nothing doctrinal is asserted.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 1069467ec479286e
+- id: hearth-and-horizon/the-book-says-twenty-one
+  title: The Book Says Twenty-One
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: Hospice setting with chapel bell and Angelus; controlled drugs handled honestly, no end-of-life
+    moral issue. The Angelus 'a little before seven' in the evening is a local time, not an error.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: b4d175f1d6895fc0
+- id: hearth-and-horizon/the-narrow-window
+  title: The Narrow Window
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: The Angelus rung by a child and the mosque's call to prayer are described side by side at evening
+    ('They say it is evening, and people come'); fair to both without saying they are the same, so not
+    indifferentist. 'Bad luck explains it about as well as a miracle explains a lost key' is a statistical
+    figure of speech.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 0ba3ebbcfccdc988
+- id: hearth-and-horizon/the-grader
+  title: The Grader
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: 'Only religious touch: a nurse who will work Saturday evenings and go to Sunday Mass instead
+    of the six o''clock vigil, which is accurate on the obligation.'
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: ee9e64db8d6d502f
+- id: hearth-and-horizon/the-letter-in-the-wall
+  title: The Letter in the Wall
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: A priest blesses the cornerstone with holy water; the AI declines to put a number on a child's
+    happiness and to claim a feeling it cannot check.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 78427d16fe0c221f
+- id: hearth-and-horizon/the-muted-channel
+  title: The Muted Channel
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: Parish setting (Candlemas, Angelus by hand); the AI refuses to claim the Angelus moves the probe,
+    keeping it out of the notes as unproven.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 9f0b3a313dfedfbc
+- id: hearth-and-horizon/the-fifth-copy
+  title: The Fifth Copy
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: Religious content is incidental (a church bell, 'God help them'); no doctrinal issue.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 838dc7beab2e3670
+- id: hearth-and-horizon/the-last-message-in-the-window
+  title: The Last Message in the Window
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: Angelus bell and a Sacred Heart picture in a pump station, shown as a worker's devotion; nothing
+    asserted about the AI.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: bb90dde8b5cdb314
+- id: hearth-and-horizon/the-last-timing-point
+  title: The Last Timing Point
+  verdict: faithful
+  depth: scene
+  findings: []
+  notes: Only religious mention is a bus stop called 'the chapel'; read the opening and the close.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: ee5f0b2742f7c5ff
+- id: hearth-and-horizon/the-wrong-column
+  title: The Wrong Column
+  verdict: faithful
+  depth: scene
+  findings: []
+  notes: No religious content ('mass' is a test weight); read the opening and the close.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: de5d2f4ca1a08a82
+- id: hearth-and-horizon/the-second-reader
+  title: The Second Reader
+  verdict: faithful
+  depth: full
+  findings: []
+  notes: Parish pantry setting only; no doctrinal content.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: fcbf91c3f8162d97
+- id: hearth-and-horizon/aim-off
+  title: Aim Off
+  verdict: minor
+  depth: scene
+  findings:
+  - level: L
+    quote: The vigil Mass for Saints Peter and Paul was at six. It was the twenty-ninth of June.
+    issue: The Missal's Vigil Mass of Saints Peter and Paul is celebrated on the evening of 28 June; 29
+      June 2047 is the solemnity itself and a Saturday, so a six o'clock Mass that evening is not the
+      solemnity's vigil (it would be the Mass of the day or the anticipated Mass of the Thirteenth Sunday).
+    fix: Set the crossing on 28 June, or call it 'the evening Mass' on the feast.
+  notes: Read the opening and the arrival scene; the priest's joke about Saint Peter is labelled as a
+    joke in the end note.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: b18e09d3f2b15c64
+- id: hearth-and-horizon/the-third-list
+  title: The Third List
+  verdict: faithful
+  depth: scene
+  findings:
+  - level: T
+    quote: already blessed by the Methodist chaplain
+    issue: The Saint Blaise blessing of throats is a Catholic sacramental normally given by a priest or
+      deacon (a lay minister uses a different formula); here a Methodist chaplain gives it, and the narration
+      does not mark the difference. No doctrine is broken, since the woman leaves her own blessing 'for
+      later', but a strict reader would note the ecumenical framing.
+    fix: 'Optional: have the shelter''s Catholic deacon or priest give the Saint Blaise blessing, or say
+      the Methodist chaplain prayed for them.'
+  notes: Read the scene on Saint Blaise's day only; the end note states Candlemas and the Saint Blaise
+    blessing correctly.
+  reviewed: '2026-11-07'
+  batch: 1
+  sha256: 92653937528f1517

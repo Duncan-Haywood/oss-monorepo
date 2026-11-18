@@ -1,0 +1,280 @@
+{
+  "note": "Fresh held-out pieces for the liquescent detector (scan.mjs liquescentTail), chosen on 2026-11-14 after its thresholds were frozen on the 21 pieces of scan-pages.json and shape-fresh-pages.json, and listed here before any of their pages was scanned. Chosen as every GregoBase 1908 piece in corpus/gregobase-1908/ not used before with at least one liquescent (~) and an arabic page number, plus every unused one with three or more liquescents and a bracketed page number. Arabic page p is printed on leaf p+26 of this archive.org scan; bracketed page [p] (Missae votivae, Pro aliquibus locis) on leaf p+585 (leaf 701 reads [116], leaf 703 [118]). Leaves around them are read and the piece found by local alignment.",
+  "pieces": [
+    {
+      "name": "GregoBase 3415 (Stabant)",
+      "gabc": "corpus/gregobase-1908/3415.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 425",
+          "leaf": 425
+        },
+        {
+          "page": "leaf 426",
+          "leaf": 426
+        },
+        {
+          "page": "401",
+          "leaf": 427
+        },
+        {
+          "page": "leaf 428",
+          "leaf": 428
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3421 (Narraverunt)",
+      "gabc": "corpus/gregobase-1908/3421.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 433",
+          "leaf": 433
+        },
+        {
+          "page": "leaf 434",
+          "leaf": 434
+        },
+        {
+          "page": "409",
+          "leaf": 435
+        },
+        {
+          "page": "leaf 436",
+          "leaf": 436
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3424 (Ambulate)",
+      "gabc": "corpus/gregobase-1908/3424.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 444",
+          "leaf": 444
+        },
+        {
+          "page": "leaf 445",
+          "leaf": 445
+        },
+        {
+          "page": "420",
+          "leaf": 446
+        },
+        {
+          "page": "leaf 447",
+          "leaf": 447
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3447 (Assumpta est)",
+      "gabc": "corpus/gregobase-1908/3447.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 543",
+          "leaf": 543
+        },
+        {
+          "page": "leaf 544",
+          "leaf": 544
+        },
+        {
+          "page": "519",
+          "leaf": 545
+        },
+        {
+          "page": "leaf 546",
+          "leaf": 546
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3460 (Frumentum)",
+      "gabc": "corpus/gregobase-1908/3460.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 397",
+          "leaf": 397
+        },
+        {
+          "page": "leaf 398",
+          "leaf": 398
+        },
+        {
+          "page": "373",
+          "leaf": 399
+        },
+        {
+          "page": "leaf 400",
+          "leaf": 400
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3417 (Audi filia et vide (Tract.))",
+      "gabc": "corpus/gregobase-1908/3417.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 638",
+          "leaf": 638
+        },
+        {
+          "page": "leaf 639",
+          "leaf": 639
+        },
+        {
+          "page": "[55]",
+          "leaf": 640
+        },
+        {
+          "page": "leaf 641",
+          "leaf": 641
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3419 (Gaudeamus... Mariae... Boni Consilii)",
+      "gabc": "corpus/gregobase-1908/3419.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 740",
+          "leaf": 740
+        },
+        {
+          "page": "leaf 741",
+          "leaf": 741
+        },
+        {
+          "page": "[157]",
+          "leaf": 742
+        },
+        {
+          "page": "leaf 743",
+          "leaf": 743
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3428 (Erit quasi signum)",
+      "gabc": "corpus/gregobase-1908/3428.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 783",
+          "leaf": 783
+        },
+        {
+          "page": "leaf 784",
+          "leaf": 784
+        },
+        {
+          "page": "[200]",
+          "leaf": 785
+        },
+        {
+          "page": "leaf 786",
+          "leaf": 786
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3435 (Ave Maria (Alleluia))",
+      "gabc": "corpus/gregobase-1908/3435.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 667",
+          "leaf": 667
+        },
+        {
+          "page": "leaf 668",
+          "leaf": 668
+        },
+        {
+          "page": "[84]",
+          "leaf": 669
+        },
+        {
+          "page": "leaf 670",
+          "leaf": 670
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3443 (Dominus dabit)",
+      "gabc": "corpus/gregobase-1908/3443.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 756",
+          "leaf": 756
+        },
+        {
+          "page": "leaf 757",
+          "leaf": 757
+        },
+        {
+          "page": "[173]",
+          "leaf": 758
+        },
+        {
+          "page": "leaf 759",
+          "leaf": 759
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3458 (Corona aurea)",
+      "gabc": "corpus/gregobase-1908/3458.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 728",
+          "leaf": 728
+        },
+        {
+          "page": "leaf 729",
+          "leaf": 729
+        },
+        {
+          "page": "[145]",
+          "leaf": 730
+        },
+        {
+          "page": "leaf 731",
+          "leaf": 731
+        }
+      ]
+    }
+  ]
+}

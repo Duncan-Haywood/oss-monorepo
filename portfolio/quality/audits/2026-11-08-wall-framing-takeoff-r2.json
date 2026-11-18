@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-08",
+  "subject": "ventures/wall-framing-takeoff",
+  "stratum": "flagship",
+  "seed": "2026-11-08-c",
+  "auditor": "independent agent session (Claude), round 2, scored fresh without reference to the 2026-11-07 file's scores",
+  "status": "audited",
+  "professional": "a senior framing estimator / lumber-package estimator for US single-family houses, checking against IRC 2021 R602.3 (16 in or 24 in stud spacing, double top plate with 24 in joint offset), R602.7 (headers, jack studs) and R311.7 (stairs). First checks: stud count and layout marks on a plain wall, king/jack/header/cripple lengths around a window, plate splices, whether a wide opening is framed with enough jacks, and whether the order buys the right boards.",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 2,
+    "claims": 3,
+    "fitness": 3,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Ran `node cli.mjs <plan> --json` on five plans I wrote (scratch files) and recomputed each by hand from the 16 in o.c. rule and framing arithmetic, not from the author's tests. (1) 20 ft wall, 16 o.c., 2x4, 92-5/8 precut: hand count 240/16+1 = 16 studs, marks at 15-1/4 (centre 16 minus 3/4) ... 238-1/2; tool 16 studs, same marks. Plates: 3 plates x 240 in = 144+96 each; tool 3x144 + 3x96; top joint at 144, cap joint at 96, offset 48 in, meets the IRC 24 in minimum. Cost: 3x12ft + 3x8ft at 1/ft = 60 plus 16 precut at round(7.71875,2)=7.72 = 123.52, total 183.52; tool 183.52 with lower bound 183.52. (2) 20 ft wall with 36x48 window at 96 in, 2x6 header, header height 82.5: jack = 82.5 - 1.5 = 81 (tool 81); header = 36 + 2x1.5 = 39 (tool 39, two plies); top cripple = (1.5+92.625) - 82.5 - 5.5 = 6.125 (tool 6.125, 3 of them at stud centres 96, 112, 128 inside the jacks); rough sill at 82.5-48-1.5 = 33, bottom cripple = 33-1.5 = 31.5 (tool 31.5, four, with one at each sill end); plus 13 full studs + 3 replaced = 16 positions. All match. Tool also notes the 1/2 in header spacer (2x6 plies = 3 in vs 3.5 in wall) is not in the takeoff. (3) Corner + tee wall, 16 ft, corner true, tee at 96: 13 base studs + 2 corner + 2 tee = 17 (tool 2 corner, 13 stud, 2 tee), cost 3x16ft + 17x7.72 = 179.24 (tool 179.24). (4) Stairs, 108 in rise, IRC R311.7 7-3/4 max riser, 10 in tread: risers = ceil(108/7.75) = 14, riser 7.714, treads 13, run 130 = 10 ft 10 in, angle atan(7.714/10) = 37.6, 2R+T = 25.43: tool gives 14 risers, 13 treads, 10' 10\", 37.6 deg, 25.43. (5) Gable roof 24x40 ft, 6:12, 12 in overhang, no ridge: rafter = (144+12) x sqrt(1.25) = 174.41, tool 174-7/16 (rounded up to 1/16); 480/16+1 = 31 per plane = 62 (tool 62); area 2 x 174.41 x 504 / 144 = 1220.9 sq ft (tool 1221, 12.2 squares). Not independently checked: stringer board length 179-15/16 in (hypot of rise and run is 169.0, the tool adds end-cut allowance I did not recompute) and the cutting-stock optimality proof beyond the three small orders above. Also ran the full suite (see verification).",
+    "completeness": "Claims checked by running: 16/19.2/24 spacing (16 and 24 run); kings, jacks, headers, sills, cripples (run, correct); plate splices landing on studs with cap joints offset (run: top 144 vs cap 96); cut list and cheapest board mix with lower bound (run, gap 0.00% on three plans); layout marks with K/C/T tags (run); `--stairs` and `--roof` (run, outputs recomputed); validation refusals for a header too tall under the plates, an opening taller than the header height, and a header longer than the longest board (all three refused with a clear message, none silently framed). The README lists some thirty further modules (floor, deck, foundation, drywall, electrical, siding, stucco, gutters, dormer, DXF/IFC import, panels, budget, bid letter, schedule, risk, etc.) and I did not run each one by hand; the 1,107-test suite exercises them and one test is skipped (wasm vs native binary, needs cargo). Of the features I ran, none failed; breadth beyond those is scored on the test run, not my own walk-through.",
+    "verification": "`node --test '*.test.mjs'` in ventures/wall-framing-takeoff: 1107 tests, 1106 pass, 0 fail, 1 skipped (native binary build needs cargo), about 102 s. Three seeded mutations in engine.mjs, each reverted (cmp against a saved copy and git diff both clean): (a) stud layout centre `k * s - THICK / 2` changed to `+ THICK / 2` (both occurrences): engine.test.mjs + engine-fuzz.test.mjs went 69 pass / 8 fail, caught. (b) `jack: headerHeight - THICK` changed to `- THICK - THICK` (jacks 1.5 in short): 76 pass / 1 fail in the same two files, caught but by a single test, so the jack length is thinly pinned in those files (other files may cover it; I did not run the whole suite for this mutation). (c) bottomCripple `roBottom - sillPlies*THICK - THICK` changed to drop the last `- THICK`: 62 pass / 15 fail, caught. Tests are hand-counted and fuzzed (every module has a -fuzz test). Not given 4 because mutation (b) shows a plausible real bug survives all but one test in the engine files and I did not exercise the page or browser checks (eval-*.mjs need Chromium).",
+    "craft": "Read engine.mjs (openingGeometry, layoutWall, parts of the plate and stock code), headers.mjs, the head of cli.mjs, stairs.mjs and roof.mjs headers. Positives: JSDoc typedefs with // @ts-check, validatePlan refuses bad input with sentences, EPS handling, exact column-generation stock solver with a stated lower bound. Defects: engine.mjs is a 1,473-line file; layoutGable (engine.mjs:647-810) copies layoutWall's opening-framing loop (jack, king, header, cripple adds at 472-473 and 720-721 are twins), so a fix to one can miss the other; openingGeometry silently falls back to a 2x10 depth for an unknown header (engine.mjs:393); cli.mjs imports 40-odd modules at the top with a stray import mid-file after layerOptions (cli.mjs:61); README.md is 563 lines with single bullets of several thousand characters (README.md:41, 44) that no user or reviewer can scan, and the code carries the same density. A senior JS reviewer would ask for the gable duplication to be removed and the README split before accepting.",
+    "claims": "Checked against files: 'stud layout 16, 19.2 or 24' (ran 16 and 24, matches); 'plate splices that land on studs with cap joints kept away from top plate joints' (ran: top 144, cap 96); 'cheapest mix of boards with a lower bound' (ran: cost = lower bound on A, D, stairs/roof orders; the cost recomputed by hand); 'nothing is uploaded' (engine is plain ESM with no network code in the files read; not a network trace); 'header sizes and jack counts are your inputs and not checked against a span table or code' is stated in the CLI footer and the README Limits (README.md:366-370), and the span-table feature ships no code values and says so; README test count '1,039 tests ... on 2026-11-07' is dated and now 1,107 (stale, not false); the Limits paragraph previously contradicted shipped features and now says 'Few structural checks' accurately. The page index.html carries the engineer/disclaimer wording (10 matches for disclaimer/engineer terms). Not checked: the live URL (no browser here) and each of the module-level claims in the 563-line README; the lumberyard 'instead of one stud per foot plus 10%' comparison page (vs-stud-per-foot-rule.html) was not re-derived.",
+    "fitness": "Walk-through as an estimator: type a plan JSON, get the order, cut list and marks in under a second; refusals are specific and actionable (header too tall by 1-1/8 in, opening taller than header height, header longer than any stocked board with advice to add an LVL length). A framer could hand the cut list and marks to a crew and the order to a yard for ordinary walls. Gaps: input is a JSON plan or a page form, no drawing takeoff for most users (DXF/IFC import exist but I did not run them), and a 10 ft garage opening comes out with one king and one jack per side with no note (see defects), so the user must know to type jacks.",
+    "domain": "Compared against IRC R602.3 stud spacing and double top plate with 24 in joint offset (met), R602.7 header/jack practice, R311.7 stair limits (met, recomputed). Standard practice items found right: stud at each multiple of the spacing, 3-stud corner (end stud + 2 backing), tee backing of 2 studs flanking the centred stud, jack = header underside minus bottom plate, cripples between kings, sill-end cripples. Departures: jack and king counts do not scale with span (a 120 in opening got 1+1 per side with only the generic footer note), no IRC R602.7 header table ships (by design: the user types their own), header spacer lumber omitted but noted, ridge board and collar ties default off in the roof unless typed. A practitioner would use it with those stated limits."
+  },
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "A 120 in (10 ft) garage-type opening is framed with 1 king and 1 jack per side and 2 plies, with no per-opening warning (only a generic footer saying jack counts are inputs). A framer reading IRC R602.7 expects more jacks for wide spans; the under-count is silent in the cut list and order.",
+      "where": "ventures/wall-framing-takeoff/engine.mjs (openingGeometry / jack count default), reproduced with a 288 in wall, opening width 120, header 2x10"
+    },
+    {
+      "severity": "medium",
+      "what": "The jack-length mutation (`headerHeight - THICK - THICK`) is caught by only 1 of 77 tests in engine.test.mjs and engine-fuzz.test.mjs; a regression in jack length would be thinly guarded.",
+      "where": "ventures/wall-framing-takeoff/engine.mjs:401, engine.test.mjs"
+    },
+    {
+      "severity": "low",
+      "what": "layoutGable duplicates layoutWall's opening-framing loop (kings, jacks, headers, cripples), so a fix to one path can miss the other.",
+      "where": "ventures/wall-framing-takeoff/engine.mjs:472-473 and 720-721"
+    },
+    {
+      "severity": "low",
+      "what": "openingGeometry silently uses a 2x10 depth for an unknown or missing header; only validatePlan stops it.",
+      "where": "ventures/wall-framing-takeoff/engine.mjs:393"
+    },
+    {
+      "severity": "low",
+      "what": "README.md is 563 lines with bullets of several thousand characters; not scannable, and its test count (1,039) is stale against 1,107 tests run today.",
+      "where": "ventures/wall-framing-takeoff/README.md:41,44,152"
+    },
+    {
+      "severity": "low",
+      "what": "Header spacer lumber (1/2 in for 2-ply headers in a 2x4 wall) is not in the takeoff, only noted.",
+      "where": "engine.mjs layoutWall notes; observed 'header spacers not in the takeoff: W (1/2\")'"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Fresh audit, round 2. The core takeoff is right: I recomputed stud counts and layout marks, plate splices, king/jack/header/cripple/sill lengths, order cost, stair riser geometry and roof rafter length and area by hand from IRC-style rules and arithmetic on five plans I wrote, and all matched. The 1,107-test suite passes (1 skipped) and three seeded mutations were caught, though the jack-length one by a single test. Scores 3/3/3 on correctness, completeness and verification with craft 2 (duplicated gable framing, a silent 2x10 fallback, an unscannable 563-line README), so it meets the bar (median 3). Worst defect: wide openings default to one king and one jack per side with no per-opening warning, an under-count a framer would hit on the first garage door. Not covered by me: the live page, DXF/IFC import, and most of the thirty add-on modules beyond the test run."
+}

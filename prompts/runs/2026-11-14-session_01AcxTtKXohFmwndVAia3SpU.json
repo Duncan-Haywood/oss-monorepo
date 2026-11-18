@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtKXohFmwndVAia3SpU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T03:06:08Z",
+  "ended": "2026-11-14T03:16:49Z",
+  "wall_minutes": 21.15,
+  "tokens_in": 12908123,
+  "tokens_out": 57086,
+  "cost_usd": 5.1512,
+  "tool_calls": 92,
+  "task": "quick-pick-survey flagship 8, item d3: slot runs that start partway",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15705",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First sweep launch ran 150 cells at 200 surveys, far too slow on 4 CPUs; killed and relaunched leaner at 100 surveys",
+      "cost_minutes": 10
+    },
+    {
+      "what": "Killed the sweep before its last 11 q1 cells (onset 0.75 at 30 items x 4-8, and 0.1-0.4 shares) to land the run; seed2 and items60 cover onset 0.75 at 30 and 60 items",
+      "cost_minutes": 0
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/quick-pick-survey/scripts/answer-time-sweep.ts",
+      "issue": "The header comment is ~120 lines of option history; reading it to learn the harness's panel model cost more than reading careless-pattern-sweep.ts, which was the useful template."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "For quick-pick-survey it skips (no *.test.mjs) and points at quick-pick-survey-ci.yml; ventures/CLAUDE.md says it is the CI pass for a venture, which is not true for Next.js ventures with their own workflow."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/quick-pick-survey/scripts/slot-block-sweep.ts",
+      "why": "The first 52 sweep cells ran before the 8-answer whole-session rule (slotFlags) was added to the union scheme; I kept those rows rather than re-running for another hour.",
+      "did": "Documented in the write-up that those rows keep up to 7 answers of a run starting at once, and checked the onset-0 rows differ by at most 0.0001.",
+      "result": "Table stands; noted in INFORMATION-GAIN-SELECTOR.md."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-survey-respondent-who-starts-clicking-the-top-button.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md#clicking-one-position-from-partway-through"
+  ],
+  "goal": null,
+  "notes": "Flagship 8 item d3 landed: slotBlockStarts (exact binomial tail, Bonferroni over starts, alpha 0.01) + slotFlags, default on in the ranking route. Sweep 107 cells x 100 surveys: within -0.0008..+0.0011 of the oracle in all 94 careless cells; honest flags 0.01-0.16% on fair-coin slots. Verified locally: typecheck, lint, test:fast 508 passed, next build OK, ranking integration 10 passed against scripts/test-db.sh Postgres (new test red on the old route), test:simulations (see PR). No new agent doc: the venture's own docs carry the next steps (flagships next: d9 rewritten).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2e428acc-6fad-5d0e-80f2-7fa4d7e71768",
+    "transcripts": 1,
+    "first": "2026-11-14T03:06:08Z",
+    "last": "2026-11-14T03:27:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 91,
+        "input": 178,
+        "output": 57086,
+        "thinking": 14346,
+        "cache_read": 12724979,
+        "cache_write_5m": 0,
+        "cache_write_1h": 182966,
+        "api_equivalent_usd": 5.1512,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 91,
+      "input": 178,
+      "output": 57086,
+      "thinking": 14346,
+      "cache_read": 12724979,
+      "cache_write_5m": 0,
+      "cache_write_1h": 182966,
+      "api_equivalent_usd": 5.1512,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 92,
+    "tools": {
+      "Bash": 84,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "Write": 1,
+      "Monitor": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.15,
+      "active_minutes": 13.76,
+      "model_minutes": 10.27,
+      "tool_minutes": 3.49,
+      "waiting_on_human_minutes": 7.39,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a statistician-engineer designing an exact scan test, a simulation sweep, route wiring and integration tests, and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 233.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

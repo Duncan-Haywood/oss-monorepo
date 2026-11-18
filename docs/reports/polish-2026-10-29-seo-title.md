@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [blog-posts, seo]
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: optional `seo_title:` for blog posts
 
 **Weak surface.** `polish-2026-10-28-compare-titles.md` listed about 570 blog headlines over the 70-character

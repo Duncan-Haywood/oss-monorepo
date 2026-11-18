@@ -1,0 +1,47 @@
+A margin-backoff rule for an empty margin-shifted set (research/grid-linopf)
+Plan, rule B and predictions B1 to B7: LOG.md 2026-11-17 (committed before this ran).
+vlin.MARGIN = {'load': 0.001, 'slack': 0.1, 'ang': 0.01, 'v': 0.001, 'q': 0.1}; backoff margins x 2^-k, k = 1..3
+
+Development: 34 cases with a PIPS AC optimum; rule B per case (shifted OPF gap over each solver's own unshifted optimum)
+  case240_pserc      sad  panel pips+ipopt none solves by k=3: frozen   k=0 pips:x ipopt:x | k=1 pips:x ipopt:x | k=2 pips:x ipopt:x | k=3 pips:x ipopt:x
+  case240_pserc      typ  panel pips+ipopt none solves by k=3: frozen   k=0 pips:x ipopt:x | k=1 pips:x ipopt:x | k=2 pips:x ipopt:x | k=3 pips:x ipopt:x
+  case24_ieee_rts    api  panel pips+ipopt k=1                          k=0 pips:x ipopt:x | k=1 pips:+0.158%
+  case73_ieee_rts    api  panel pips+ipopt k=1                          k=0 pips:x ipopt:x | k=1 pips:+1.041%
+  rule keeps the frozen margins at k = 0 on 30 of 34; fires on 2: [('case24_ieee_rts', 'api', 1), ('case73_ieee_rts', 'api', 1)]
+
+Development cases where rule B fires: frozen repair vs rule B (30 rounds)
+case               kind   k  frozen@  B@   cost% frozen / B   B last state if not clean
+  case24_ieee_rts    api   1      10     8   +0.711 / +0.168   
+  case73_ieee_rts    api   1    None     8   - / +0.956   
+  lost 0, gained 1; development finishers within 30 rounds: frozen 31 of 34, rule B 32
+
+B1 (case73 API: fires, stops at k = 1): held (k = 1; k=1)
+B2 (case73 API clean within 30 rounds under B): held (8)
+B3 (fires on exactly the four previous both-solver failures): refuted
+B4 (at most 1 frozen finisher lost where it fires): held (0)
+B5 (case73 API finish within +1 % of the AC optimum): held (+0.956 %)
+
+Held-out: rule B on 19 cases that reach the repair under the one protocol (reference at the largest unit)
+  case1354_pegase  api  panel ipopt      frozen                       k=0 ipopt:+1.876%  (3423 s)
+  case1354_pegase  sad  panel pips+ipopt frozen                       k=0 pips:+0.031%  (100 s)
+  case1354_pegase  typ  panel pips+ipopt frozen                       k=0 pips:+0.030%  (87 s)
+  case1888_rte     api  panel ipopt      frozen                       k=0 ipopt:+0.210%  (2097 s)
+  case1888_rte     sad  panel ipopt      frozen                       k=0 ipopt:+2.409%  (694 s)
+  case1888_rte     typ  panel ipopt      frozen                       k=0 ipopt:+0.831%  (947 s)
+  case1951_rte     sad  panel ipopt      frozen                       k=0 ipopt:+0.045%  (560 s)
+  case1951_rte     typ  panel ipopt      frozen                       k=0 ipopt:+0.007%  (457 s)
+  case2000_goc     sad  panel pips+ipopt frozen                       k=0 pips:+0.073%  (161 s)
+  case2000_goc     typ  panel pips+ipopt frozen                       k=0 pips:+0.005%  (159 s)
+  case500_goc      api  panel pips+ipopt frozen                       k=0 pips:+0.432%  (14 s)
+  case500_goc      sad  panel pips+ipopt frozen                       k=0 pips:+0.434%  (13 s)
+  case500_goc      typ  panel pips+ipopt frozen                       k=0 pips:+0.008%  (11 s)
+  case588_sdet     api  panel pips+ipopt k=1                          k=0 pips:x ipopt:x | k=1 pips:+0.006%  (696 s)
+  case588_sdet     sad  panel pips+ipopt frozen                       k=0 pips:+0.142%  (16 s)
+  case588_sdet     typ  panel pips+ipopt frozen                       k=0 pips:+0.012%  (14 s)
+  case793_goc      api  panel pips+ipopt frozen                       k=0 pips:x ipopt:+0.429%  (27 s)
+  case793_goc      sad  panel pips+ipopt frozen                       k=0 pips:+0.278%  (20 s)
+  case793_goc      typ  panel pips+ipopt frozen                       k=0 pips:+0.018%  (19 s)
+Held-out cases where rule B fires: frozen J vs rule B J (20 rounds)
+  case588_sdet     api  k=1  frozen@19  B@19    best point cost vs PGLib: frozen +0.868 %, B +0.655 %; B best: nOv 0, maxLd 0.9996, V 0, Q 0
+B6 (fires on at most 3 held-out cases): held (1 of 19)
+B7 (where it fires: gains >= 1, loses none): refuted (gained 0, lost 0)

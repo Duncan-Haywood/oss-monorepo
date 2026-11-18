@@ -1,0 +1,28 @@
+Milestone 10b: 10a model against NASA concept vehicles (Johnson et al. 2018, Tables 9 and 10)
+air density 0.985 kg/m3 (5000 ft, ISA+20 C)
+
+A. Energy model: battery fraction at installed 400 Wh/kg
+design        | Wh/kg GW | published fb | u implied | fb at u=1  fb at u=0.8
+quadrotor     |     77.8 | 0.217        | 0.896     | 0.194      0.243
+side-by-side  |    109.4 | 0.306        | 0.894     | 0.273      0.342
+
+P1: u calibrated on the quadrotor = 0.896; predicted side-by-side battery fraction 0.305 vs published 0.306 (-0.3%)
+
+B. Gross weight closure at u calibrated on the quadrotor, using each design's published non-energy fraction
+quadrotor     predicted DGW    1250 lb vs published 1252 (-0.2%)
+side-by-side  predicted DGW    5559 lb vs published 5585 (-0.5%)
+
+B2. Swapping non-energy fractions (does one design's fraction transfer?)
+side-by-side  with quadrotor's fraction 0.583: DGW   10727 lb vs published 5585 (+92.1%)
+quadrotor     with side-by-side's fraction 0.479: DGW     822 lb vs published 1252 (-34.3%)
+
+C. Published non-energy fractions against 10a's assumed 0.40
+quadrotor     0.583
+side-by-side  0.479
+
+D. Max one-way range (km), 15% payload fraction, one hover pair, 20 min reserve, u from A, base 10a gave 203 km at 250 Wh/kg
+design        fne    | 250 Wh/kg   400 Wh/kg  (installed)
+quadrotor     0.583 |       58        127
+quadrotor     0.400 |      137        253
+side-by-side  0.479 |      138        272
+side-by-side  0.400 |      186        348

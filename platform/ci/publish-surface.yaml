@@ -89,9 +89,6 @@ workflows:
 - workflow: ci-profile-ci.yml
   classification: none
   publishes: []
-- workflow: claude-routine-trigger.yml
-  classification: none
-  publishes: []
 - workflow: cloudflare-email.yml
   classification: none
   publishes: []
@@ -120,6 +117,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: devsec-toolkit-ci.yml
+  classification: none
+  publishes: []
+- workflow: direction-report.yml
   classification: none
   publishes: []
 - workflow: distribute-bluesky.yml
@@ -426,6 +426,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: ventures-tests.yml
+  classification: none
+  publishes: []
+- workflow: workflow-self-audit.yml
   classification: none
   publishes: []
 - workflow: world-clock-widget-ci.yml

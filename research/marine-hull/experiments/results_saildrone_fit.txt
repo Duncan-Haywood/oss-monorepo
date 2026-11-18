@@ -1,0 +1,41 @@
+blocks 131536; 2018 fit cells (>= 30 blocks): 158 of 204, covering 77911 blocks
+
+fit grid: weighted mean-square error (m/s)^2 on 2018 cell means (sail_area rows, hull_scale columns)
+area\hs       1     1.5       2       3       4       6       8
+   0.5    0.030   0.045   0.100   0.206   0.294   0.437   0.531
+     1    0.251   0.078   0.031   0.049   0.106   0.214   0.306
+   1.5    0.599   0.250   0.115   0.036   0.040   0.110   0.188
+     2    0.943   0.475   0.251   0.083   0.038   0.057   0.117
+     3    1.538   0.940   0.597   0.254   0.119   0.040   0.049
+     5    2.401   1.702   1.228   0.701   0.419   0.158   0.070
+
+best grid point: sail_area 0.5, hull_scale 1, MSE 0.030; default (5, 1) MSE 2.401
+refined fit: sail_area 0.45 m2, hull_scale 1.00, MSE 0.026
+
+test: 329 2019 drone-days, observed median 79 km/day
+model daily distance / observed (median, 10th, 90th), by daily mean wind; 1.00 is perfect; n in brackets
+ default:
+    0- 4 m/s [122] median 2.68  10th 1.98  90th 3.64
+    4- 6 m/s [ 60] median 2.73  10th 2.00  90th 3.58
+    6- 8 m/s [ 66] median 2.26  10th 1.91  90th 3.53
+    8-10 m/s [ 52] median 1.96  10th 1.65  90th 2.35
+   10-30 m/s [ 29] median 1.61  10th 1.37  90th 2.13
+    0-30 m/s [329] median 2.39  10th 1.69  90th 3.46
+ fitted:
+    0- 4 m/s [122] median 0.81  10th 0.56  90th 1.09
+    4- 6 m/s [ 60] median 0.95  10th 0.76  90th 1.26
+    6- 8 m/s [ 66] median 0.92  10th 0.77  90th 1.36
+    8-10 m/s [ 52] median 0.90  10th 0.78  90th 1.13
+   10-30 m/s [ 29] median 0.92  10th 0.80  90th 1.08
+    0-30 m/s [329] median 0.89  10th 0.68  90th 1.18
+ empirical:
+    0- 4 m/s [122] median 0.95  10th 0.75  90th 1.16
+    4- 6 m/s [ 60] median 0.93  10th 0.81  90th 1.18
+    6- 8 m/s [ 66] median 0.98  10th 0.89  90th 1.47
+    8-10 m/s [ 52] median 0.96  10th 0.88  90th 1.22
+   10-30 m/s [ 29] median 0.96  10th 0.85  90th 1.21
+    0-30 m/s [329] median 0.96  10th 0.81  90th 1.23
+ scalar 0.33 x default (all winds): median 0.79  10th 0.56  90th 1.14
+median absolute daily-distance error: fitted 0.15, empirical 0.10, scalar 0.24
+
+FITTED PARAMS for 6n: sail_area=0.450 hull_scale=1.000

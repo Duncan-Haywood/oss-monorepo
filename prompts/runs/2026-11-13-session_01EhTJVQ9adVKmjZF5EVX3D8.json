@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVQ9adVKmjZF5EVX3D8",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled routine: ventures brief (continue work on the repo ...)",
+  "input_sha256": "dad579ed8218448eb224620d3de26aa4747187c67db9459eb143cf460acc2f69",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T18:08:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 9 (league-schedule-generator): fit the round-robin plan to team blackout dates",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 15567,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The league-schedule-generator next: was almost all carry-over research; the user-facing gap (blocked matches pushed to end-of-season makeups) sat as a vague last item, 'a real league's travel and blackout dates', although a measurable step needed no outside input."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took a lower item of next: (blackout dates) over the top one (the 20-team carry-over gap): fewer makeup games and shorter seasons help every organiser with a blackout list, while the carry-over gap is a research margin few leagues notice.",
+      "did": "Blackout fit in buildSchedule",
+      "result": "640 random leagues: makeups -28%, season 18.04 -> 17.22 weeks, breaks -27%, 0 invalid"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-league-schedule-blackout-dates-on-the-bye.md"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py league-schedule-generator -> ok (231.5 s, 0 failed); node --test blackout-fit.test.mjs 5/5; node eval/blackout-fit.mjs 8 1 -> eval/blackout-fit.txt (640 leagues, 0 invalid); timing 0.2-0.5 s at 16-30 teams (scratch script). Post checks: frontmatter ok, 0 broken links, similarity below 0.25. Venture preflight: see the PR body. CI: 'validate' failed on platform/privacy/optout-persistence.test.mjs (1323 switches found, 1322 pinned). main was red too: gaussian-process-regression's usage.mjs had landed without the +1. Raised the constant with a note, per the test's own instructions.",
+  "corrections": [],
+  "redteam": null
+}

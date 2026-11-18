@@ -36,7 +36,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -45,11 +45,21 @@
     footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
     </style>
   <style>.plat { border-top: 1px solid #ece7f2; margin-top: 10px; padding-top: 4px; } .plat .grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); } .num { text-align: right; }</style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #distributors:empty{min-height:2824px}}
+@media (scripting:enabled) and (min-width:376px){html:not(.pf-rows-ready) #distributors:empty{min-height:1855px}}
+@media (scripting:enabled) and (min-width:408px){html:not(.pf-rows-ready) #distributors:empty{min-height:1671px}}
+@media (scripting:enabled) and (min-width:568px){html:not(.pf-rows-ready) #distributors:empty{min-height:1671px}}
+@media (scripting:enabled) and (min-width:664px){html:not(.pf-rows-ready) #distributors:empty{min-height:1257px}}
+@media (scripting:enabled) and (min-width:724px){html:not(.pf-rows-ready) #distributors:empty{min-height:1137px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>
     <p class="note">MUSIC DISTRIBUTION FEE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Which music distributor leaves you the most?</h1>
+    <p class="answer-source" data-answer-lead>DistroKid's Musician plan costs $24.99 a year for unlimited releases and keeps no cut of royalties, while CD Baby charges $9.99 per single plus 9% of the royalties it collects, so a flat plan wins once you release more than a couple of tracks a year or earn more than a few hundred dollars a year in royalties. Source: the distributors' pricing pages as reported in independent 2026 guides, cross-checked by web search because the pricing pages were not fetchable from this build; third-party figures vary on add-ons. As of 2026-11-03.</p>
     <p>Enter how many releases you put out a year and how many streams you get a month. You see what you keep on each distributor after its yearly plan, per-release fee and royalty cut, and the <strong>streams-per-month crossover</strong> where a flat plan starts to beat a revenue share. Every distributor's pricing page quotes only its own scheme; this puts them side by side.</p>
     <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device.</p>
   </header>
@@ -125,6 +135,7 @@
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Already distributing? <a href="../distrokid-royalty-to-journal/">DistroKid royalty to journal</a> turns a DistroKid earnings report into Xero or QuickBooks journals by store and month.</p>
     <p>Sell on Bandcamp? The <a href="../bandcamp-sales-report-analyzer/">Bandcamp sales report analyzer</a> shows what fees and refunds took from your sales.</p>
+    <p>Making the music yourself? <a href="../chant-forge/">Chant Forge</a> turns public-domain Gregorian chant into MIDI choir lines with a genre backing you can preview in the browser.</p>
     <p>Selling digital products instead? The <a href="../course-platform-fee-calculator/">course platform fee calculator</a> compares Gumroad, Podia and Teachable the same way.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -171,12 +182,12 @@
       $("#result-table").innerHTML = r.rows.map((x) =>
         `<tr><th scope="row">${esc(x.name)}</th><td class="num">${money(x.totalCost)}</td><td class="num">${x.costPercentOfRoyalties === null ? "—" : x.costPercentOfRoyalties.toFixed(1) + "%"}</td><td class="num">${money(x.net)}</td></tr>`).join("");
       $("#report-findings").innerHTML = r.findings.map((f) =>
-        `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+        `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#ladder-table").innerHTML = r.ladder.map((l) => `<tr><td>${l.streams.toLocaleString("en-US")}</td><td>${esc(l.winner)}</td><td class="num">${money(l.net)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "";
       record("fees_compared");
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     resetRows();

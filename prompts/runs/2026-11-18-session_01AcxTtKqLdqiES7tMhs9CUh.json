@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtKqLdqiES7tMhs9CUh",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T01:10:53Z",
+  "ended": "2026-11-18T01:18:48Z",
+  "wall_minutes": 8.22,
+  "tokens_in": 6058672,
+  "tokens_out": 40509,
+  "cost_usd": 3.0158,
+  "tool_calls": 54,
+  "task": "quality track, fix mode: two high defects from queue --severity high",
+  "projects": [
+    "ventures/docker-base-image-pin-check",
+    "ventures/ubuntu-agent-server"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 3,
+  "review_findings": null,
+  "tests_added": 24,
+  "outcome": "success",
+  "errors": [
+    "First version of the ubuntu-agent-server pipeline test fake passed `gh pr create` through to the real gh CLI; the sandbox returned 403 and nothing was created. The fake now intercepts every gh call.",
+    "First CI run: devsec-toolkit's catalogue risk-set test failed (it mirrors the pin check's RISK_CLASSIFICATIONS; the new 'unresolved' class was unmapped) and portfolio/distribution/versions.json was stale. Fixed by mapping 'unresolved' in devsec-toolkit/catalog.py and running versions.mjs --write.",
+    "Second CI run: platform/pages faq-visible.test.mjs failed because the FAQ JSON-LD in docker-base-image-pin-check/index.html still carried the old build-arg answer after the visible copy changed. Synced."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Steps 1 and 5 describe a sample round only; the mode for the day (fix) is announced by `quality_audit.py sample`, so the track prompt sends you to a command whose real job here is to redirect you. One line naming `quality_audit.py mode` first would save a step."
+    },
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "`queue` marks rows an open PR's title names, but PR #17124 (ice-dam, Section 179, Obsidian) was not flagged in the queue output; I found the overlap only by searching PR titles by hand."
+    },
+    {
+      "file": "ventures/docker-base-image-pin-check/README.md",
+      "issue": "Nothing in the venture says devsec-toolkit/catalog.py mirrors its risk classes, so a new class breaks another venture's test; `run_venture_tests.py --changed` on the one venture did not reach it."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "A visible FAQ edit on a venture page needs the JSON-LD changed too, and only platform/pages faq-visible.test.mjs (in the 130 s site suite, not the venture's own tests) catches it. The CI log tail of 500 lines did not reach the failing subtest; `--test-reporter=dot` locally named it in one line."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-quality-fix-the-gates-that-passed-what-they-should-stop.md"
+  ],
+  "goal": null,
+  "notes": "Mode fix (seeded draw; 25 high defects open). Queue seed 2026-11-18-a280. Skipped ice-dam-removal-bid-calculator, bonus-depreciation-calculator and obsidian-plugin-review-check (claimed by open PR #17124). Fixed: docker-base-image-pin-check audit 2026-11-17 defects 0 (high), 2, 3, 4, 5; ubuntu-agent-server audit 2026-11-17 defects 1 (high), 2, 3, 4, 8. Open highs 25 -> 23. Local checks: docker-base-image-pin-check `python3 -m unittest test_check` 60 OK, `node --test classify.test.mjs page.test.mjs usage.test.mjs` 66/66 (after the uppercase-digest tests were inverted to match go-digest's ^[a-f0-9]{64}$); ubuntu-agent-server `pytest tests` 49 passed. Mutations via quality_mutate.py, all caught: RISK set without UNRESOLVED; ARG parse after first FROM (JS); dry-run label dropped; `if dry_run:` inverted; gitleaks result ignored (the last two survived in the audit). Playwright load of the page with a build-arg Dockerfile: verdict and unresolved row correct, no page errors. Scores not changed this round per README; a reaudit session re-checks.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "48d48b32-f34b-5c68-a9d3-4df192aa7c40",
+    "transcripts": 1,
+    "first": "2026-11-18T01:10:53Z",
+    "last": "2026-11-18T01:19:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 102,
+        "output": 40509,
+        "thinking": 5733,
+        "cache_read": 5931202,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127368,
+        "api_equivalent_usd": 3.0158,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 102,
+      "output": 40509,
+      "thinking": 5733,
+      "cache_read": 5931202,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127368,
+      "api_equivalent_usd": 3.0158,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 51,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.22,
+      "active_minutes": 8.22,
+      "model_minutes": 7.18,
+      "tool_minutes": 1.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a senior engineer: ARG scoping and parity port ~3.5h, runner fix and pipeline tests ~2h, docs/post ~0.5h",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 199.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

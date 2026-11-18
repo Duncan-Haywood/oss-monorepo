@@ -149,7 +149,7 @@ node cli.mjs check '(a+)+$'                   # analyse one pattern</pre>
       els.fixes.innerHTML = rules.map((r) => `<strong>Fix (${escapeHtml(r)}):</strong> ${escapeHtml(FIXES[r])}`).join("<br>");
       els.reportCard.hidden = false;
       record("scan_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#scan").addEventListener("click", renderReport);

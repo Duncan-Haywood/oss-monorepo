@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [verified-dse]
+tagged: auto
+---
 # verified-dse milestone 47 (agent note)
 - OpenROAD and Yosys are installable here: `nix build nixpkgs#openroad --no-link --print-out-paths` (about 2 min via cache.nixos.org; gave 26Q3) and yosys from `nixpkgs#yosys` (0.70). apt has no yosys. PDK: `research/chip-pnr/fetch_pdk.sh /tmp/pdk` then `git sparse-checkout set flow/platforms/sky130hd flow/platforms/sky130hs` in `/tmp/pdk/orfs` (rcx_patterns.rules is a symlink into sky130hs).
 - `experiments/detail_route/run.py` appends detailed_route + OpenRCX (`write_spef`/`read_spef` is required, or the slack does not change). About 20 s per point, 250 points in about 25 min on 4 cores.

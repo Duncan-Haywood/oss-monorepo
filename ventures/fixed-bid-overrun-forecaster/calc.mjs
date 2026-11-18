@@ -2,7 +2,7 @@
 // Pure arithmetic over the numbers the user enters; nothing here is advice.
 
 export const money = (n) =>
-  (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
+  ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
 export const pct = (n, d = 1) => `${(n * 100).toFixed(d)}%`;
 const round2 = (n) => Math.round(n * 100) / 100;
 
@@ -79,7 +79,7 @@ export function forecast({ price, budget, percentComplete, actualCost, plannedPe
 
 // Status history: header period,percent_complete,actual_cost[,planned_percent]
 export function parseSnapshots(text) {
-  const rows = String(text).replace(/^﻿/, "").split(/\r?\n/).map((l) => l.split(/[,\t]/).map((c) => c.trim())).filter((r) => r.some(Boolean));
+  const rows = String(text).replace(/^\uFEFF/, "").split(/\r?\n/).map((l) => l.split(/[,\t]/).map((c) => c.trim())).filter((r) => r.some(Boolean));
   if (rows.length < 3) return { error: "Need a header and at least two status rows." };
   const out = [];
   for (let i = 1; i < rows.length; i++) {

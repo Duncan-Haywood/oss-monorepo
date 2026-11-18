@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 551" width="760" height="551" role="img" aria-label="Grouped bar chart: share of designs sent to DFN and recall of mis-scored designs for five cut-off strategies on five PyBaMM parameter sets">
+<style>text{font:12px system-ui,sans-serif;fill:#222}.s{font-size:11px;fill:#555}@media (prefers-color-scheme:dark){text{fill:#ddd}.s{fill:#aaa}rect.bg{fill:#111}line{stroke:#555}}</style>
+<rect class="bg" width="760" height="551" fill="#fff"/>
+<text x="12" y="22" style="font-weight:600">Finding the designs SPMe mis-scores: DFN calls (bar) and recall (label)</text>
+<rect x="12" y="29" width="10" height="10" fill="#8a8a8a"/><text class="s" x="26" y="38">oracle (DFN only the untrusted)</text>
+<rect x="382" y="29" width="10" height="10" fill="#d1883a"/><text class="s" x="396" y="38">F: fixed cut-off r &lt;= 0.07</text>
+<rect x="12" y="45" width="10" height="10" fill="#5b8fd1"/><text class="s" x="26" y="54">C_8: cut-off from 8 random DFN runs (median)</text>
+<rect x="382" y="45" width="10" height="10" fill="#3aa37a"/><text class="s" x="396" y="54">B_3: bottom-up, stop after 3 trusted</text>
+<rect x="12" y="61" width="10" height="10" fill="#1f5f46"/><text class="s" x="26" y="70">B_3 + flag SPMe runs that stop early (post hoc)</text>
+<text x="12" y="128.5">OKane2022</text><text class="s" x="12" y="142.5">33 of 256 mis-scored</text>
+<rect x="170" y="96" width="56.7" height="11" fill="#8a8a8a"/><text class="s" x="230.7" y="106">13% of designs, recall 1.00</text>
+<rect x="170" y="109" width="60.2" height="11" fill="#d1883a"/><text class="s" x="234.2" y="119">14% of designs, recall 0.94</text>
+<rect x="170" y="122" width="99.7" height="11" fill="#5b8fd1"/><text class="s" x="273.7" y="132">23% of designs, recall 1.00</text>
+<rect x="170" y="135" width="72.2" height="11" fill="#3aa37a"/><text class="s" x="246.2" y="145">16% of designs, recall 1.00</text>
+<rect x="170" y="148" width="72.2" height="11" fill="#1f5f46"/><text class="s" x="246.2" y="158">16% of designs, recall 1.00</text>
+<text x="12" y="211.5">Ai2020</text><text class="s" x="12" y="225.5">57 of 64 mis-scored</text>
+<rect x="170" y="179" width="391.9" height="11" fill="#8a8a8a"/><text class="s" x="565.9" y="189">89% of designs, recall 1.00</text>
+<rect x="170" y="192" width="302.5" height="11" fill="#d1883a"/><text class="s" x="476.5" y="202">69% of designs, recall 0.77</text>
+<rect x="170" y="205" width="433.1" height="11" fill="#5b8fd1"/><text class="s" x="607.1" y="215">98% of designs, recall 1.00</text>
+<rect x="170" y="218" width="419.4" height="11" fill="#3aa37a"/><text class="s" x="593.4" y="228">95% of designs, recall 1.00</text>
+<rect x="170" y="231" width="419.4" height="11" fill="#1f5f46"/><text class="s" x="593.4" y="241">95% of designs, recall 1.00</text>
+<text x="12" y="294.5">Ecker2015</text><text class="s" x="12" y="308.5">1 of 64 mis-scored</text>
+<rect x="170" y="262" width="6.9" height="11" fill="#8a8a8a"/><text class="s" x="180.9" y="272">2% of designs, recall 1.00</text>
+<rect x="170" y="275" width="13.8" height="11" fill="#d1883a"/><text class="s" x="187.8" y="285">3% of designs, recall 1.00</text>
+<rect x="170" y="288" width="82.5" height="11" fill="#5b8fd1"/><text class="s" x="256.5" y="298">19% of designs, recall 1.00</text>
+<rect x="170" y="301" width="27.5" height="11" fill="#3aa37a"/><text class="s" x="201.5" y="311">6% of designs, recall 1.00</text>
+<rect x="170" y="314" width="27.5" height="11" fill="#1f5f46"/><text class="s" x="201.5" y="324">6% of designs, recall 1.00</text>
+<text x="12" y="377.5">Mohtat2020</text><text class="s" x="12" y="391.5">6 of 64 mis-scored</text>
+<rect x="170" y="345" width="41.2" height="11" fill="#8a8a8a"/><text class="s" x="215.2" y="355">9% of designs, recall 1.00</text>
+<rect x="170" y="358" width="1.0" height="11" fill="#d1883a"/><text class="s" x="175.0" y="368">0% of designs, recall 0.00</text>
+<rect x="170" y="371" width="96.2" height="11" fill="#5b8fd1"/><text class="s" x="270.2" y="381">22% of designs, recall 0.17</text>
+<rect x="170" y="384" width="20.6" height="11" fill="#3aa37a"/><text class="s" x="194.6" y="394">5% of designs, recall 0.00</text>
+<rect x="170" y="397" width="61.9" height="11" fill="#1f5f46"/><text class="s" x="235.9" y="407">14% of designs, recall 1.00</text>
+<text x="12" y="460.5">NCA_Kim2011</text><text class="s" x="12" y="474.5">52 of 64 mis-scored</text>
+<rect x="170" y="428" width="357.5" height="11" fill="#8a8a8a"/><text class="s" x="531.5" y="438">81% of designs, recall 1.00</text>
+<rect x="170" y="441" width="398.8" height="11" fill="#d1883a"/><text class="s" x="572.8" y="451">91% of designs, recall 1.00</text>
+<rect x="170" y="454" width="405.6" height="11" fill="#5b8fd1"/><text class="s" x="579.6" y="464">92% of designs, recall 1.00</text>
+<rect x="170" y="467" width="385.0" height="11" fill="#3aa37a"/><text class="s" x="559.0" y="477">88% of designs, recall 1.00</text>
+<rect x="170" y="480" width="385.0" height="11" fill="#1f5f46"/><text class="s" x="559.0" y="490">88% of designs, recall 1.00</text>
+<line x1="170.0" y1="92" x2="170.0" y2="495" stroke="#ccc" stroke-dasharray="2,3"/><text class="s" x="160.0" y="519">0%</text>
+<line x1="280.0" y1="92" x2="280.0" y2="495" stroke="#ccc" stroke-dasharray="2,3"/><text class="s" x="270.0" y="519">25%</text>
+<line x1="390.0" y1="92" x2="390.0" y2="495" stroke="#ccc" stroke-dasharray="2,3"/><text class="s" x="380.0" y="519">50%</text>
+<line x1="500.0" y1="92" x2="500.0" y2="495" stroke="#ccc" stroke-dasharray="2,3"/><text class="s" x="490.0" y="519">75%</text>
+<line x1="610.0" y1="92" x2="610.0" y2="495" stroke="#ccc" stroke-dasharray="2,3"/><text class="s" x="600.0" y="519">100%</text>
+<text class="s" x="170" y="535">share of the pool sent to 100-cycle DFN</text></svg>

@@ -27,7 +27,7 @@ def check(slug, days=14, remote="origin", ref=None):
     ref = ref or f"{remote}/main"
     if git("rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}")[0] != 0:
         # Without the ref both searches come back empty, which would read as "no duplicate".
-        raise RuntimeError(f"{ref} not found: run `git fetch --depth=40 {remote} main` first")
+        raise RuntimeError(f"{ref} not found: run `python3 platform/ci/fetch_ref.py main --remote {remote}` first")
     rc, out = git("ls-tree", "-d", "--name-only", ref, f"ventures/{slug}")
     on_main = rc == 0 and bool(out.strip())
     rc, out = git("log", ref, f"--since={days} days ago", "--fixed-strings",

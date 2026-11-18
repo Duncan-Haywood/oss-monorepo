@@ -1,0 +1,6 @@
+GoEmotions amusement, corpus 6000, prevalence 0.0412, coder J 0.772 (sens 0.826, spec 0.946), n 1000, 500 draws
+rule | share of draws using cells % | coverage % | half-width pts
+pooled | 0 | 94.0 | 0.938
+cells g10 | 100 | 87.4 | 0.605
+negcell k3 | 71 | 96.0 | 0.744
+negcell k5 | 33 | 96.6 | 0.865

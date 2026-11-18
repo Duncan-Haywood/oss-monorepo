@@ -12,13 +12,19 @@ from shootflow.frame_analysis import (
     FRAME_HEIGHT,
     FRAME_WIDTH,
     analyze_media,
+    crop_dhashes,
+    crop_distance,
     dhash_hex,
     framing_from_frame,
     hamming_distance,
     metrics_from_frames,
     noise_sigma_from_frame,
+    pan_distance,
     tilt_from_frame,
+    zoom_dhashes,
+    zoom_distance,
 )
+from shootflow.frame_analysis import _aspect_from_banner
 from shootflow.story import AssetAnalysis
 
 FFMPEG = shutil.which("ffmpeg")
@@ -70,6 +76,29 @@ class TiltTests(unittest.TestCase):
         for degrees in (-4.0, 3.0, 6.0):
             tilt, _ = tilt_from_frame(_horizon(degrees))
             self.assertAlmostEqual(tilt, degrees, delta=1.0, msg=f"{degrees}")
+
+    def test_squashed_frame_is_read_back_with_the_pictures_own_aspect(self) -> None:
+        # A 4:3 picture stretched into the 16:9 frame: a 6 degree lean (tan 0.105)
+        # is drawn with tan 0.105 * 0.75, about 4.5 degrees.
+        squashed = _horizon(math.degrees(math.atan(math.tan(math.radians(6.0)) * 0.75)))
+        raw, _ = tilt_from_frame(squashed)
+        fixed, _ = tilt_from_frame(squashed, stretch=(4 / 3) / (16 / 9))
+        self.assertAlmostEqual(raw, 4.5, delta=0.6)
+        self.assertAlmostEqual(fixed, 6.0, delta=0.6)
+
+    def test_grain_and_texture_do_not_vote(self) -> None:
+        rng = random.Random(3)
+        noise = bytes(rng.randrange(60, 200) for _ in range(SIZE))
+        _, confidence = tilt_from_frame(noise)
+        self.assertLess(confidence, 0.1)  # chance (3/30) is subtracted, so noise reads about 0
+
+    def test_aspect_comes_from_the_ffmpeg_banner(self) -> None:
+        line = "  Stream #0:0: Video: mjpeg (Baseline), yuvj420p, {size} [SAR {sar} DAR 4:3], 25 fps"
+        self.assertAlmostEqual(_aspect_from_banner(line.format(size="640x480", sar="1:1")), 4 / 3)
+        self.assertAlmostEqual(_aspect_from_banner(line.format(size="1440x1080", sar="4:3")), 16 / 9)
+        sideways = line.format(size="4000x3000", sar="1:1") + "\n displaymatrix: rotation of -90.00 degrees"
+        self.assertAlmostEqual(_aspect_from_banner(sideways), 3 / 4)
+        self.assertIsNone(_aspect_from_banner("no video here"))
 
     def test_flat_frame_and_diagonals_are_not_penalised(self) -> None:
         self.assertEqual(tilt_from_frame(bytes([120]) * SIZE), (0.0, 0.0))
@@ -179,6 +208,148 @@ class MetricsFromFramesTests(unittest.TestCase):
         self.assertGreater(hamming_distance(dhash_hex(gradient), dhash_hex(reversed_gradient)), 40)
 
 
+def _scene(seed: int):
+    """A smooth random scene, f(u, v) for u, v in 0..1, made of a few sinusoids."""
+
+    rng = random.Random(seed)
+    waves = [
+        (rng.uniform(1, 6), rng.uniform(1, 6), rng.uniform(0, 2 * math.pi), rng.uniform(20, 60))
+        for _ in range(6)
+    ]
+
+    def value(u: float, v: float) -> float:
+        return 128 + sum(a * math.sin(2 * math.pi * (fx * u + fy * v) + ph) for fx, fy, ph, a in waves) / 3
+
+    return value
+
+
+def _view(scene, x0: float, y0: float, size: float) -> bytes:
+    """Render the window [x0, x0 + size] x [y0, y0 + size] of a scene to a frame."""
+
+    out = bytearray(SIZE)
+    for y in range(FRAME_HEIGHT):
+        v = y0 + size * (y + 0.5) / FRAME_HEIGHT
+        for x in range(FRAME_WIDTH):
+            out[y * FRAME_WIDTH + x] = max(0, min(255, int(scene(x0 + size * (x + 0.5) / FRAME_WIDTH, v))))
+    return bytes(out)
+
+
+def _ints(hashes: tuple[str, ...]) -> tuple[int, ...]:
+    return tuple(int(h, 16) for h in hashes)
+
+
+class CropHashTests(unittest.TestCase):
+    def test_nine_windows_and_metrics_carry_them(self) -> None:
+        frame = _view(_scene(1), 0.0, 0.0, 1.0)
+        crops = crop_dhashes(frame)
+        self.assertEqual(len(crops), 25)
+        self.assertTrue(all(len(h) == 16 for h in crops))
+        self.assertEqual(metrics_from_frames([frame]).dhash_crops, crops)
+
+    def test_identical_frames_have_zero_crop_distance(self) -> None:
+        crops = _ints(crop_dhashes(_view(_scene(2), 0.0, 0.0, 1.0)))
+        self.assertEqual(crop_distance(crops, crops), 0)
+
+    def test_a_pan_matches_in_the_windows_not_the_whole_frame(self) -> None:
+        scene = _scene(3)
+        left, right = _view(scene, 0.0, 0.0, 0.92), _view(scene, 0.04, 0.02, 0.92)
+        whole = hamming_distance(dhash_hex(left), dhash_hex(right))
+        shifted = crop_distance(_ints(crop_dhashes(left)), _ints(crop_dhashes(right)))
+        self.assertGreater(whole, 8)
+        self.assertLessEqual(shifted, 4)
+        self.assertLess(shifted, whole)
+
+    def test_missing_crops_never_match(self) -> None:
+        crops = _ints(crop_dhashes(_view(_scene(4), 0.0, 0.0, 1.0)))
+        self.assertEqual(crop_distance((), crops), 64)
+        self.assertEqual(crop_distance(crops, crops[:4]), 64)
+
+
+class PanWindowTests(unittest.TestCase):
+    def test_a_ten_percent_pan_matches_off_centre_windows(self) -> None:
+        # A 10% pan moves the content 11.1% of the frame, past the 6% the centre window reaches.
+        scene = _scene(8)
+        left, right = _view(scene, 0.0, 0.05, 0.9), _view(scene, 0.1, 0.05, 0.9)
+        crops_l, crops_r = _ints(crop_dhashes(left)), _ints(crop_dhashes(right))
+        panned = pan_distance(crops_l, crops_r)
+        self.assertLessEqual(panned, 4)
+        self.assertLess(panned, crop_distance(crops_l, crops_r))
+        self.assertEqual(panned, pan_distance(crops_r, crops_l))
+
+    def test_missing_crops_never_match(self) -> None:
+        crops = _ints(crop_dhashes(_view(_scene(9), 0.0, 0.0, 1.0)))
+        self.assertEqual(pan_distance((), crops), 64)
+        self.assertEqual(pan_distance(crops, crops[:4]), 64)
+
+    def test_every_far_offset_has_one_pair(self) -> None:
+        from shootflow.frame_analysis import CROP_STEPS, _PAN_PAIRS
+
+        n, c = CROP_STEPS, CROP_STEPS // 2
+        offsets = {(a % n - b % n, a // n - b // n) for a, b in _PAN_PAIRS}
+        self.assertEqual(len(offsets), len(_PAN_PAIRS))
+        self.assertEqual(len(offsets), (2 * n - 1) ** 2 - (2 * c + 1) ** 2)
+        self.assertTrue(all(abs(dx) > c or abs(dy) > c for dx, dy in offsets))
+
+
+class PackedWindowTests(unittest.TestCase):
+    def test_packed_check_agrees_with_both_distances(self) -> None:
+        from shootflow.frame_analysis import window_pack, windows_within
+
+        rng = random.Random(11)
+        for _ in range(1500):
+            a = tuple(rng.getrandbits(64) for _ in range(25))
+            # Some windows of b sit a few bits from windows of a, so both kinds come near their limits.
+            b = tuple(a[rng.randrange(25)] ^ rng.getrandbits(64) & rng.getrandbits(64) & rng.getrandbits(64)
+                      for _ in range(25))
+            crop, pan = crop_distance(a, b), pan_distance(a, b)
+            pa, pb = window_pack(a), window_pack(b)
+            for cl, pl in ((crop, -1), (crop - 1, -1), (-1, pan), (-1, pan - 1), (crop - 1, pan - 1), (crop, pan), (63, -5)):
+                want = (cl >= 0 and crop <= cl) or (pl >= 0 and pan <= pl)
+                self.assertEqual(windows_within(pa, pb, cl, pl), want, (crop, pan, cl, pl))
+
+    def test_missing_crops_never_match_packed(self) -> None:
+        from shootflow.frame_analysis import window_pack, windows_within
+
+        crops = _ints(crop_dhashes(_view(_scene(9), 0.0, 0.0, 1.0)))
+        self.assertEqual(window_pack(crops[:4]), ())
+        self.assertFalse(windows_within((), window_pack(crops), 63, 63))
+        self.assertTrue(windows_within(window_pack(crops), window_pack(crops), 0, -1))
+
+
+class ZoomHashTests(unittest.TestCase):
+    def test_hundred_windows_and_metrics_carry_them(self) -> None:
+        frame = _view(_scene(5), 0.0, 0.0, 1.0)
+        zooms = zoom_dhashes(frame)
+        self.assertEqual(len(zooms), 100)
+        self.assertTrue(all(len(h) == 16 for h in zooms))
+        self.assertEqual(metrics_from_frames([frame]).dhash_zooms, zooms)
+
+    def test_a_corner_zoom_matches_a_zoom_window_better_than_the_crop_windows(self) -> None:
+        scene = _scene(6)
+        wide, tight = _view(scene, 0.0, 0.0, 1.0), _view(scene, 0.0, 0.0, 0.9)
+        whole = hamming_distance(dhash_hex(wide), dhash_hex(tight))
+        zoomed = zoom_distance(
+            int(dhash_hex(wide), 16), _ints(zoom_dhashes(wide)), int(dhash_hex(tight), 16), _ints(zoom_dhashes(tight))
+        )
+        shifted = crop_distance(_ints(crop_dhashes(wide)), _ints(crop_dhashes(tight)))
+        self.assertGreater(whole, 8)
+        self.assertLessEqual(zoomed, 2)
+        self.assertLess(zoomed, shifted)
+        # Symmetric: which frame is the tighter one does not matter.
+        self.assertEqual(
+            zoomed,
+            zoom_distance(
+                int(dhash_hex(tight), 16), _ints(zoom_dhashes(tight)), int(dhash_hex(wide), 16), _ints(zoom_dhashes(wide))
+            ),
+        )
+
+    def test_missing_zooms_never_match(self) -> None:
+        frame = _view(_scene(7), 0.0, 0.0, 1.0)
+        h, zooms = int(dhash_hex(frame), 16), _ints(zoom_dhashes(frame))
+        self.assertEqual(zoom_distance(h, (), h, zooms), 64)
+        self.assertEqual(zoom_distance(h, zooms, h, zooms[:25]), 64)
+
+
 class NearDuplicateGroupingTests(unittest.TestCase):
     def _asset(self, name: str, phash: str | None, media: str = "photo") -> AssetAnalysis:
         return AssetAnalysis(
@@ -208,6 +379,72 @@ class NearDuplicateGroupingTests(unittest.TestCase):
         other = self._asset("c.jpg", "0000000000000000")
         grouped = group_near_duplicates([plain, video, other])
         self.assertEqual([item.scene_label for item in grouped], ["frame_a.jpg", "frame_b.mp4", "frame_c.jpg"])
+
+    def test_indexed_grouping_matches_the_all_pairs_scan(self) -> None:
+        # The grouping searches a pigeonhole index instead of comparing every
+        # pair; pin it against the plain all-pairs single-linkage it replaced,
+        # on burst-heavy shoots, a shoot of identical frames, distances right at
+        # the threshold and short hashes (fewer bits than index blocks).
+        def all_pairs(analyses: list[AssetAnalysis]) -> dict[str, str]:
+            hashed = sorted(
+                (item for item in analyses if item.perceptual_hash and item.media_type == "photo"),
+                key=lambda item: item.asset_path,
+            )
+            parent = list(range(len(hashed)))
+
+            def find(index: int) -> int:
+                while parent[index] != index:
+                    index = parent[index]
+                return index
+
+            for i in range(len(hashed)):
+                for j in range(i + 1, len(hashed)):
+                    if hamming_distance(hashed[i].perceptual_hash or "", hashed[j].perceptual_hash or "") <= 8:
+                        root_i, root_j = find(i), find(j)
+                        if root_i != root_j:
+                            parent[max(root_i, root_j)] = min(root_i, root_j)
+            labels = {item.asset_path: hashed[find(index)].scene_label for index, item in enumerate(hashed)}
+            return {item.asset_path: labels.get(item.asset_path, item.scene_label) for item in analyses}
+
+        def shoot(seed: int, count: int, *, digits: int = 16, burst: float = 0.5, flips: int = 10) -> list[AssetAnalysis]:
+            rng = random.Random(seed)
+            bits = digits * 4
+            assets: list[AssetAnalysis] = []
+            previous: int | None = None
+            for index in range(count):
+                if previous is not None and rng.random() < burst:
+                    value = previous
+                    for _ in range(rng.randint(0, flips)):
+                        value ^= 1 << rng.randrange(bits)
+                else:
+                    value = rng.getrandbits(bits)
+                previous = value
+                media = "video" if rng.random() < 0.05 else "photo"
+                phash = None if rng.random() < 0.05 else f"{value:0{digits}x}"
+                assets.append(self._asset(f"IMG_{index:04d}.JPG", phash, media))
+            rng.shuffle(assets)
+            return assets
+
+        cases = [shoot(seed, 300) for seed in range(6)]
+        cases.append(shoot(10, 200, burst=0.9, flips=3))
+        cases.append(shoot(11, 60, burst=1.0, flips=0))
+        cases.append(shoot(12, 120, digits=1, burst=0.3))
+        cases.append(shoot(13, 120, digits=2))
+        threshold = [
+            self._asset("t0.jpg", "0000000000000000"),
+            self._asset("t1.jpg", "00000000000001ff"),  # 9 bits: not close
+            self._asset("t2.jpg", "8040201008040201"),  # 8 bits spread one per byte
+            self._asset("t3.jpg", "ffffffffffffffff"),
+            self._asset("t4.jpg", "FFFFFFFFFFFFFF00"),  # upper case, 8 bits from t3
+        ]
+        cases.append(threshold)
+        for analyses in cases:
+            grouped = {item.asset_path: item.scene_label for item in group_near_duplicates(analyses)}
+            self.assertEqual(grouped, all_pairs(analyses))
+        grouped = {item.asset_path: item.scene_label for item in group_near_duplicates(threshold)}
+        self.assertEqual(grouped["graded/t1.jpg"], "frame_t1.jpg")
+        self.assertEqual(grouped["graded/t2.jpg"], "frame_t0.jpg")
+        self.assertEqual(grouped["graded/t4.jpg"], "frame_t3.jpg")
 
 
 @unittest.skipUnless(FFMPEG, "ffmpeg is required")

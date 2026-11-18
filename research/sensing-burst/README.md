@@ -2,7 +2,7 @@
 
 Can a burst of frames from a small sensor stand in for one frame from a sensor with `A` times the pixel area? On synthetic scenes with Poisson shot noise, Gaussian read noise and a full-well clip: **a burst whose frames each get the large frame's exposure time ties it after `N* = A²(s·x + r²)/(A·s·x + r²)` frames, which is `A` when shot noise dominates and approaches `A²` in the dark or at high read noise (simulation, A = 4: 4.0 frames in bright light, 14.4 in dim light with 8 e⁻ read noise); splitting the *same* total exposure into frames never ties; registration blur adds frames in bright light (about 21 for A = 4); and a bracketed burst recovers highlights that one clipped frame loses (42 dB against 22 dB).** Produced with AI assistance (Claude). Second project of track 15 (`PROJECTS.md`, milestone 4). It builds on none of the CU Boulder groups in `prompt.md`. Everything here is synthetic: no raw files, no real sensor, and no result about a particular phone.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-burst/
+**Live page:** https://marisstella.app/research/sensing-burst/
 
 **Builds on.** Hasinoff et al. (2016), "Burst photography for high dynamic range and low-light imaging on mobile cameras", *ACM TOG* 35(6), the HDR+ pipeline, whose premise (merge many short frames from a small sensor) is what is measured here against sensor area; the Poisson-Gaussian noise model is the standard one (Foi et al. 2008, *IEEE T-IP* 17:1737–1754). The alignment is plain windowed phase-style cross-correlation with sub-pixel peak refinement, not HDR+'s tile-based pyramid, and no part of HDR+ is reproduced. The closed-form variances are elementary algebra and are checked by Monte Carlo below. This feeds track 13's sensor-size limit.
 
@@ -41,6 +41,12 @@ Break-even limits (`A` and `A²`), variance equality at `N*`, the fixed-time bur
 - The merge is a plain mean (maximum likelihood for pure Poisson noise), not a robust or Wiener merge, and the alignment does not use a pyramid.
 - PSNR in a gamma-encoded display domain weights shadows heavily; other metrics could rank the cases differently.
 - Sixteen scenes per cell (eight for the frame-count table); no confidence intervals are reported.
+
+## Known gaps
+From the 2026-11-17 census audit ([`2026-11-17-sensing-burst.json`](../../portfolio/quality/audits/2026-11-17-sensing-burst.json)):
+- **The merge clamps each frame at zero and the large frame does not.** `merge()` sums `np.maximum(e, 0)` (`src/sensing_burst/model.py:95`), while the large-frame and unregistered arms are unclamped means. In deep shadow that clamp is a denoiser the comparison arm does not get. At P = 30 (16 scenes), the known-shift merge scores 18.70 dB clamped and 15.98 dB unclamped, against 16.83 dB for the large frame. So in the low-light rows of sections D and D2, the merge "beats" the large frame (even with failed alignment) only because of the clamp. At P = 100 the gap is about 0.5 dB, and at P >= 300 it is nil, so the headline break-even numbers are unaffected. The fix is to drop the clamp, or clamp every arm alike, and rerun.
+- 5 of 7 seeded mutants survived the 12 tests, and no test pins a reported number.
+- The A to A² result is the textbook frame-stacking SNR relation. The nearest prior work is not cited: Hasinoff, Durand and Freeman, "Noise-optimal capture for high dynamic range photography" (CVPR 2010), and Hasinoff et al., "Time-constrained photography" (ICCV 2009).
 
 ## Next steps
 Run the same pipeline on openly licensed raw bursts (owner step: choose a dataset and confirm its licence, or capture bursts on owned hardware with a known sensor) to replace the assumed noise model, add moving-subject ghosting and a robust merge, and try a sub-pixel super-resolution merge to remove the resampling cap.

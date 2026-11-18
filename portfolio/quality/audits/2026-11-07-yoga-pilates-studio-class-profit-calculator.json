@@ -1,0 +1,71 @@
+{
+ "date": "2026-11-07",
+ "subject": "ventures/yoga-pilates-studio-class-profit-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-07",
+ "auditor": "agent session (Claude), 2026-11-07 round 2",
+ "status": "audited",
+ "professional": "a fitness-business consultant who builds P&Ls for boutique yoga/pilates studios (or the studio owner's accountant); first checks: does revenue per reservation follow how people actually pay (drop-in, pack with breakage, membership), is teacher cost and processing netted correctly, are owner hours priced, do break-even and target-price figures reproduce, and what happens when the inputs are impossible (more classes than room hours)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran calc.mjs (node, scratchpad e.mjs/n.mjs) and the page in Chromium via Playwright (executable /opt/pw-browsers/chromium-1243, 'Load an example'). Wrote an independent model in Python (scratchpad ind.py) from the README prose only and compared on the shipped sample (24 classes, 14 cap, 9 booked, 8% late, 25/35/40 drop-in/pack/member mix): (1) revenue per class by hand 53.82 drop-in + 63.00 pack (200/(10x0.92) x 2.898) + 63.00 member (140/8 x 3.6) + 4.32 fees = 184.14, x24 = 4,419.36, matches season.revenue; (2) owner after-pay: 4419.36 - 3% processing 132.58 - fixed (4140 x 12/52 = 955.38) - 34 owner hours x $35 = 2,141.39, matches tool and page; hire/flat 55 x 1.08 x 24 = 1,425.60 -> 1,485.79 (tool 1,485.79); rent (7.65 booked, 28 room hours x $30 = 840, kept software+insurance 69.23, 25 owner hours) = 1,859.53 (tool 1,859.53); (3) break-even by bisection: owner 4.504 -> tool 4.6 (rounded up to a tenth), hire 5.881 -> 5.9, rent 4.407 -> 4.5, all match; drop-in price for 25% margin hiring 15.3498 -> tool 15.35; max flat teacher pay 69.697 -> tool 69.7; late-cancel cost 135.91 -> tool 135.91. The page table shows the same numbers. Nothing wrong found in the arithmetic. Wrong-in-practice behaviour: the model accepts impossible schedules (see craft/defects): 120 classes with a 40-hour room gives 'room used 140 of 40 hours (350%)' and a headline $16,208.51/week owner result with no error.",
+  "completeness": "Checked each README/page claim end to end: three payer types with pack breakage (works), late-cancel/fee logic (works), processing (works), three teacher pay models (works, table shows all three and names the best), fixed costs at 12/52 weekly (works), three setups with owner hours priced (works), break-even per setup (works), drop-in price for target margin (works), max flat pay (works), volume table of five attendance levels (works), CSV download (Playwright download had header + 5 rows), share link (#classesPerWeek=10&... filled the form and ran; unknown key 'evil' ignored), usage opt-out button (works), 375 px viewport no horizontal scroll, no console errors, no network requests off-origin, three sibling links resolve to real ventures (page.test.mjs). No stubs/TODOs. Gaps: sitemap.xml and canonical are relative ('./index.html'), which are not valid for crawlers; VENTURE.yaml stage still 'prototype'.",
+  "verification": "`node --test '*.test.mjs'` in the venture: 37 tests, 37 pass, 0 fail (~0.2 s). Seeded 7 one-line mutations in calc.mjs, one at a time, each followed by `git checkout calc.mjs`: perHead Math.max->Math.min (2 tests failed), late-fee x1.1 (2 failed), rent admin hours using adminHours instead of rentedAdminHours (1 failed), revenue-share pay x0.9 (1 failed), pack breakage sign flipped (1 failed), processing computed excluding fees (1 failed), break-even threshold >= -1e-9 changed to >= 50 (1 failed). All 7 caught. Tests use hand-checkable 'plain studio' fixtures with closed-form expectations (break-even 3.0 and 5.5, margin target hit). Weaker: there is no test of the schedule-versus-room-hours case, blank-field defaults, or the rendered page (page.test.mjs asserts by regex only; it never loads the page). Working tree confirmed clean afterwards (git diff empty, 37/37 pass again).",
+  "craft": "Read calc.mjs (259 lines), usage.mjs, usage.test.mjs, calc.test.mjs, page.test.mjs and the index.html script block. Good: pure functions with no DOM in the engine, findings HTML-escaped on the page, share payload whitelists keys, usage storage guarded with try/catch, break-even scanned with an epsilon, no NaN on zero reservations (tested). Defects: readInput treats a blank field as 'use the default' (calc.mjs:28), so clearing Late-cancel to mean 0% silently runs at 8% and clearing Drop-in price silently runs at $26 while the field still shows blank (Playwright: field value '' after the run, headline unchanged at $2,141.39); no check that classes x (class + changeover) fits in roomHoursAvailable (calc.mjs:44-50); num() accepts '0x10' as 16 and strips commas so '26,5' becomes 265 in programmatic or share-link input (the page's type=number inputs block typed commas); ownerMaxTeachHours must be >0 even when the owner-teaches setup is not the one being asked about (calc.mjs:59); advice lines 190-211 are 300 to 600 characters on one line, which a reviewer would split; per-head pay minimum is applied to the average attendance rather than a distribution (calc.mjs:96).",
+  "claims": "Checked: 'Nothing is uploaded' (no fetch/XHR/sendBeacon in calc.mjs, usage.mjs or the page script; Playwright saw no off-origin requests); 'usage counted only in local storage' (localStorage held {\"example_loaded\":1}; after pressing the opt-out the key was removed and reloading + loading the example wrote nothing); disclaimer present in the footer ('No warranty ... not legal, tax, or financial advice ... responsible for reviewing and verifying') and asserted in page.test.mjs; 'not modelled' list on the page and README (retail, workshops, tips, sales tax, advertising, seasonality, waitlists, contractor status, income tax) is explicit and matches the code; the example is labelled 'made-up numbers'; contractor-status caveat appears on the page. Not backed: llms.txt:9 points to the retired github.io URL, not https://marisstella.app/yoga-pilates-studio-class-profit-calculator/ (the VENTURE.yaml link is correct), and llms.txt says 'Results are estimates from the numbers typed in' which is fine here; sitemap.xml and the canonical link are relative paths. 'Not modelled' omits third-party class platforms (ClassPass-type payouts), intro offers and discounts, which are central revenue lines for boutique studios. The usage counters are local-only, so they can never be read by the owner (the 'measurement' direction is satisfied only in letter).",
+  "fitness": "Walked the studio owner's job: type a typical week, see profit per class and per room hour, see whether to teach, hire (three pay models) or give up the lease for hourly rent, and read the break-even attendance and the drop-in price for a target margin. That works in about a minute with the example and the numbers reproduce. Limits an owner hits in the first hour: the whole timetable is one 'average class', so a 6 a.m. class with 3 people and a Saturday class that is full are averaged (the sibling studio-class-slot-optimizer covers slots but is a separate tool); no way to enter ClassPass-type bookings, intro offers or discounted packs; nothing warns when the typed schedule cannot fit the room (120 classes x 70 min in 40 h still prints profit); blank fields silently take defaults. Useful for a first decision, not enough to replace the owner's spreadsheet.",
+  "domain": "Compared against standard studio P&L practice as the auditor knows it (no external source was fetched; labelled as recollection): revenue per visit by payer type, pack breakage (unused credits raise the value of used ones), members valued at monthly price over visits, card processing on gross including fees, payroll extras on hired teachers, rent vs hourly-room trade-off, owner hours costed at a market rate. Method matches that practice, and the revenue-share and per-head models are the ones studios actually offer. Departures a consultant would raise: no third-party aggregator line, no intro-offer or discount line, classes treated as identical (per-head minimum applied to mean attendance understates the minimum's cost when attendance varies), late-cancel fees charged on members' late cancels at the same enforcement rate as on non-members (README states members pay either way but does not say fees also apply, calc.mjs:87), pack breakage treated as steady income with no cash-versus-recognition note, sales tax out of scope (declared)."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "No check that the typed timetable fits the room: 120 classes with 15 minutes changeover in a 40-hour room reports 350% room use in prose yet still prints $16,208.51 a week; 300 classes of 240 minutes (1,275 room hours in a 168-hour week) is accepted without error.",
+   "where": "ventures/yoga-pilates-studio-class-profit-calculator/calc.mjs:44"
+  },
+  {
+   "severity": "medium",
+   "what": "Blank fields silently take non-zero defaults (late-cancel 8%, drop-in price $26, rent-share etc.) and the box stays empty, so a user who clears a field to mean zero gets a result for different inputs with no notice.",
+   "where": "ventures/yoga-pilates-studio-class-profit-calculator/calc.mjs:28"
+  },
+  {
+   "severity": "medium",
+   "what": "Model omits third-party class-platform bookings, intro offers and discounted packs, and does not list them under 'Not modelled'; all classes are treated as one average class.",
+   "where": "ventures/yoga-pilates-studio-class-profit-calculator/index.html:130"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt links to the retired github.io address instead of https://marisstella.app/yoga-pilates-studio-class-profit-calculator/.",
+   "where": "ventures/yoga-pilates-studio-class-profit-calculator/llms.txt:9"
+  },
+  {
+   "severity": "low",
+   "what": "sitemap.xml <loc>, robots Sitemap line and the canonical link are relative ('./index.html'), which crawlers do not accept as sitemap or canonical URLs.",
+   "where": "ventures/yoga-pilates-studio-class-profit-calculator/sitemap.xml:3"
+  },
+  {
+   "severity": "low",
+   "what": "num() accepts hex ('0x10' -> 16) and treats a decimal comma as a thousands separator ('26,5' -> 265) for share-link or programmatic input.",
+   "where": "ventures/yoga-pilates-studio-class-profit-calculator/calc.mjs:8"
+  },
+  {
+   "severity": "low",
+   "what": "Per-head pay minimum is applied to average attendance, not per class, so its cost is understated when attendance varies; late fees are also charged on members' late cancels without the README saying so.",
+   "where": "ventures/yoga-pilates-studio-class-profit-calculator/calc.mjs:96"
+  },
+  {
+   "severity": "low",
+   "what": "Advice strings are 300 to 600 characters on a single line; page.test.mjs checks the page by regex only and never loads it; usage counters are local-only and unreadable by the owner.",
+   "where": "ventures/yoga-pilates-studio-class-profit-calculator/calc.mjs:190-211"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, honest, correctly-computed planning calculator. Every output I recomputed from README prose in an independent Python model matches the tool and the Chromium page to the cent (owner 2,141.39, hire 1,485.79, rent 1,859.53, break-evens 4.6/5.9/4.5, target price 15.35, max flat pay 69.70, late-cancel cost 135.91), 37/37 tests pass, and all 7 seeded mutations in core logic were caught, so it meets the owner's bar on correctness, verification and claims, with disclaimer, not-modelled list and local-only usage tracking all verified in the browser. It does not clear a senior consultant's bar on fitness and domain: it treats every class as an average one, has no ClassPass-type or intro-offer revenue and does not say so, accepts impossible schedules (120 classes in a 40-hour room still prints a profit), and silently replaces a blank field with a non-zero default. Small fixes: add a room-hours fit error, reject or flag blank fields, correct llms.txt and sitemap URLs. Scores before any fix; no fix PR yet."
+}

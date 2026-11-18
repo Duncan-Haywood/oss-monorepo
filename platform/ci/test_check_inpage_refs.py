@@ -39,6 +39,11 @@ class InpageRefs(unittest.TestCase):
             with contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(main(["--root", str(root)]), 0)
 
+    def test_percent_encoded_fragment_matches_decoded_id(self):
+        # Browsers decode the fragment before matching, so this link works.
+        self.assertEqual(broken('<h2 id="caf\u00e9"></h2><a href="#caf%C3%A9">x</a>'), [])
+        self.assertEqual(len(broken('<a href="#caf%C3%A9">x</a>')), 1)
+
     def test_default_root_is_the_repo_root(self):
         self.assertTrue((ROOT / "ventures").is_dir())
 

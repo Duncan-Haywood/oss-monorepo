@@ -51,3 +51,30 @@ test("payee memory returns the most frequent account, not the runner-up", () => 
   assert.equal(s.account, "6130");
   assert.ok(Math.abs(s.confidence - 4 / 5.5) < 1e-9);
 });
+
+test("Form 2290 (heavy highway use tax) is a 6110 keyword, only that exact form number", () => {
+  const re = BUILT_IN.find(([a, , r]) => a === "6110" && r.test("irs form 2290"))?.[2];
+  assert.ok(re);
+  assert.ok(!re.test("form 2291"));
+});
+
+test("Food 4 Less is matched as a grocery/meal keyword, Food 5 Less is not", () => {
+  const hit = (s) => BUILT_IN.find(([a, d, re]) => a === "6130" && d === "out" && re.test(s));
+  assert.ok(hit("food 4 less #12"));
+  assert.ok(!hit("food 5 less #12"));
+});
+
+test("trainClassifier counts each confirmed line once per account", () => {
+  const hist = Array.from({ length: 3 }, () => historyRecord({ desc: "zorblax widgets", cents: -5000 }, "6120"));
+  const m = trainClassifier(hist);
+  assert.equal(m.classes.get("6120").n, 3);
+  assert.equal(m.n, 3);
+});
+
+test("an unresolved line lists up to three learned alternatives, best first", () => {
+  const hist = ["6120", "6130", "6140", "6150"].flatMap((a) => Array.from({ length: 2 }, () => historyRecord({ desc: "zorblax widgets", cents: -5000 }, a)));
+  const model = { rules: [], codes: null, memory: new Map(), classifier: trainClassifier(hist) };
+  const s = suggest({ desc: "zorblax widgets", cents: -5000 }, model);
+  assert.equal(s.source, "none");
+  assert.equal(s.alternatives.length, 3);
+});

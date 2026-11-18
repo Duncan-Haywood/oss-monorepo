@@ -1,0 +1,25 @@
+# Poor Clares of Brigid's Hill
+
+> Contemplative nuns living the Gospel in poverty, enclosure and joy, and praying for the world day and night.
+
+- Order: Poor Clare nuns
+- Place: Brigid's Hill
+- Founded: 1928
+- Address: 12 Monastery Lane, Brigid's Hill, OH 44000, United States
+- Email: sisters@example.org
+- Vocations: discern@example.org
+- Phone: (555) 010-0177
+
+## Pages
+
+- [Home](index.html): welcome, times of prayer, coming events
+- [Our life](about.html): charism, daily life and history
+- [Horarium](horarium.html): the daily schedule of prayer, with the hours open to the public
+- [Vocations](vocations.html): who may apply, the stages of formation, Come and See retreats, the inquiry form
+- [Visit](visit.html): Mass, the guesthouse, retreats and directions
+- [Events](events.html): upcoming feasts and retreats
+- [Prayer requests](prayer.html): send a prayer intention
+- [Shop](shop.html): goods the community makes
+- [Give](give.html): online giving, cheques, Mass intentions, current needs, bequests
+- [Contact](contact.html): address, phone and email
+- [Privacy](privacy.html): what the site does with what you send

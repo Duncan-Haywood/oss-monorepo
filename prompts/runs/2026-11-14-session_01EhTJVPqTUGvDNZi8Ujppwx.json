@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVPqTUGvDNZi8Ujppwx",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T02:09:09Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 5): einvoice-preflight, Brazil cCredPres table and presumed-credit rules",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15688",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "primary-source hosts (retsinformation.dk, likumi.lv, dfe-portal.svrs.rs.gov.br and others) refused by the agent proxy",
+      "fix": "used the flagship's cCredPres item instead of the mandate-date item; sources are transcriptions pinned by commit and SHA-256 and cross-checked"
+    },
+    {
+      "what": "inherited_keys.py flagged CP_RULE[p.kind]",
+      "fix": "Object.hasOwn guard"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight next: lists 'primary-source mandate dates' as open, but every primary host it needs is refused from a cloud session; that item is effectively inputs-only here"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-a-sample-invoice-that-went-stale-in-two-weeks.md",
+    "ventures/einvoice-preflight/eval/ccredpres-2026-11-14.md"
+  ],
+  "goal": "ship an NF-e presumed-credit check that names SEFAZ rejection codes, and bring the cClassTrib table current",
+  "notes": "ccredpres.mjs + build-ccredpres-data.mjs (13 codes, IT 2025.002 1.70, biuspoly/RNFe@b744e7d4cd9b, two older independent copies agree except the 1.70 flag change). BR-058..BR-061 map NT 2025.002 UB120-UB130 (cStat 1049/1050/1053-1056/1058/1060/1107/1124); BR-056 gCredPresOper case names 1175 and honours the indBemMovelUsado exception. cClassTrib table: UPDATES overlay to 1.71 (410014 credPres off, 410022-025 NF-e on, 410028 NFS-e off, 550002 NF-e off, 9 new codes); after it, 0 differences with the 173-code copy on every field read. Corpus: 127 GitHub files, 15 with gCredPresOper, 6 errors all on samples/tests incl. Unimake's 410014 sample dated after 1.70. Verification: node --test '*.test.mjs' in the venture: 1804 tests, 1734 pass, 0 fail; run_venture_tests.py einvoice-preflight ok; validate.py ok; post frontmatter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null
+}

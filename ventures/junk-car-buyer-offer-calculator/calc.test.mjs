@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULTS, analyze, carEconomics, breakEvenScrapPrice, maxTowMiles, breakEvenSellThrough, num, money, toCsv } from "./calc.mjs";
+import { DEFAULTS, analyze, carEconomics, breakEvenScrapPrice, maxTowMiles, breakEvenSellThrough, num, money, toCsv, scrapLadder, weightLadder } from "./calc.mjs";
 
 const near = (a, b, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `${a} vs ${b}`);
 
@@ -72,4 +72,29 @@ test("parsing, formatting and csv", () => {
   const csv = toCsv(analyze({}));
   assert.match(csv, /^scrap_price_per_ton,profit_at_ask,max_offer/);
   assert.equal(toCsv(analyze({ weightLbs: 0 })), "");
+});
+
+test("a blank or mistyped field is reported, not replaced by the example value", () => {
+  const a = analyze({ converterValue: "" });
+  assert.equal(a.result, null);
+  assert.match(a.warnings.join(" "), /converterValue is blank/);
+  assert.equal(analyze({ weightLbs: "3,2OO" }).result, null);
+  assert.equal(analyze({ converterValue: "0" }).result.converter, 0);
+});
+
+test("an ask that clears break-even but not the target is a counter, not a buy", () => {
+  const a = analyze({ sellerAsk: 400 }); // net 453.90 leaves 53.90, under the 100 target
+  assert.equal(a.result.buy, false);
+  assert.equal(analyze({ sellerAsk: 353.9 }).result.buy, true);
+});
+
+test("with no parts, sell-through is 0 when the ask already works", () => {
+  assert.equal(breakEvenSellThrough({ ...DEFAULTS, partsRetail: 0, sellerAsk: 100 }), 0);
+  assert.ok(Number.isNaN(breakEvenSellThrough({ ...DEFAULTS, partsRetail: 0, sellerAsk: 900 })));
+});
+
+test("ladder labels stay rounded for an awkward input (rung() used to spread the raw value back over them)", () => {
+  const o = { ...DEFAULTS, weightLbs: 3333, scrapPricePerTon: 217 };
+  for (const x of weightLadder(o)) assert.ok(Number.isInteger(x.weightLbs), String(x.weightLbs));
+  for (const x of scrapLadder(o)) assert.ok(Number.isInteger(x.scrapPricePerTon), String(x.scrapPricePerTon));
 });

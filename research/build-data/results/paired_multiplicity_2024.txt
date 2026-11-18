@@ -1,0 +1,18 @@
+Approximate p from the normal approximation to each cell's bootstrap interval (draws not saved).
+15 cells, test year 2024; family-wise alpha 0.05 (Holm), FDR 0.05 (Benjamini-Hochberg).
+austin  a2i q0.1: +2.73%  p~1.7e-58  uncorrected *  Holm *  BH *
+austin  a2i q0.5: -0.03%  p~0.94  uncorrected    Holm    BH  
+austin  a2i q0.9: +0.92%  p~0.19  uncorrected    Holm    BH  
+austin  i2c q0.1: -0.10%  p~0.71  uncorrected    Holm    BH  
+austin  i2c q0.5: +0.25%  p~0.2  uncorrected    Holm    BH  
+austin  i2c q0.9: +1.36%  p~3.1e-05  uncorrected *  Holm *  BH *
+chicago a2i q0.1: +0.37%  p~4.3e-131  uncorrected *  Holm *  BH *
+chicago a2i q0.5: -0.46%  p~0.00011  uncorrected *  Holm *  BH *
+chicago a2i q0.9: -3.30%  p~3.4e-06  uncorrected *  Holm *  BH *
+sf      a2i q0.1: +0.84%  p~0.077  uncorrected    Holm    BH  
+sf      a2i q0.5: +1.11%  p~0.0062  uncorrected *  Holm *  BH *
+sf      a2i q0.9: +5.77%  p~9e-30  uncorrected *  Holm *  BH *
+sf      i2c q0.1: +1.27%  p~4.7e-05  uncorrected *  Holm *  BH *
+sf      i2c q0.5: +2.10%  p~5.8e-21  uncorrected *  Holm *  BH *
+sf      i2c q0.9: +2.13%  p~9.6e-12  uncorrected *  Holm *  BH *
+uncorrected 10, Holm 10, BH 10 of 15

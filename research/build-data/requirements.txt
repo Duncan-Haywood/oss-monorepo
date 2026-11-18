@@ -1,0 +1,10 @@
+# Everything src/ and tests/ import, so one call covers the suite:
+#   PY=$(python3 platform/ci/pyenv.py pytest -r research/build-data/requirements.txt)
+# (baselines.py needs xgboost and scikit-learn; boosted.py needs lightgbm.)
+pandas
+numpy
+scipy
+scikit-learn
+lightgbm
+xgboost
+pytest

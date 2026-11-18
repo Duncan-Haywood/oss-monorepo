@@ -1,8 +1,8 @@
 # STR Turnover Scheduler
 
-Free, private browser tool for Airbnb / VRBO hosts, co-hosts and small cleaning companies: paste your calendar (iCal) feeds and it builds the cleaning schedule. One job per checkout, assigned to cleaners day by day with travel time, same-day turnover windows checked against the clean time, double bookings across feeds flagged, the smallest crew that clears every deadline, and the margin on each property's cleaning fee. Exports a schedule CSV, a text message per cleaner and a calendar file.
+Free, private browser tool for Airbnb / VRBO hosts, co-hosts and small cleaning companies: paste your calendar (iCal) feeds and it builds the cleaning schedule. One job per checkout, assigned to cleaners day by day with travel time, same-day turnover windows checked against the clean time, double bookings across feeds flagged, the smallest crew its greedy sweep finds that clears every deadline (never too few; one too many in 83 of 400 tested days, `crew-exact.test.mjs`), and the margin on each property's cleaning fee. Exports a schedule CSV, a text message per cleaner and a calendar file.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/str-turnover-scheduler/
+**Live tool:** https://marisstella.app/str-turnover-scheduler/
 
 After using this, you know how many cleaners you need next fortnight and which turnovers will go wrong, which used to take an evening with three calendar tabs.
 

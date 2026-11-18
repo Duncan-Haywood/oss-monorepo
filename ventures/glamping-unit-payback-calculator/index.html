@@ -151,7 +151,7 @@
     const map = { units: "units", unitcost: "unitCost", sharedcost: "sharedCost", peakdays: "peakDays", peakadr: "peakAdr", peakocc: "peakOcc", shoulderdays: "shoulderDays", shoulderadr: "shoulderAdr", shoulderocc: "shoulderOcc", offdays: "offDays", offadr: "offAdr", offocc: "offOcc", avgstay: "avgStay", cleaningfee: "cleaningFee", turncost: "turnCost", varnight: "varNight", platformpct: "platformPct", fixedyear: "fixedYear", maintpct: "maintPct", loanpct: "loanPct", rate: "rate", loanyears: "loanYears", targetyears: "targetYears" };
     const IDLE = "Fill in your site, then click Work out the payback.";
     const yrs = (n) => (n === null ? "never" : n.toFixed(1) + " yr");
-    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
 
     function download(name, body, type) {
       const a = document.createElement("a");
@@ -173,7 +173,7 @@
       $("#unit-rows").innerHTML = r.unitSweep.map((x) => `<tr><td class="n">${x.units}</td><td class="n">${whole(x.investment)}</td><td class="n">${whole(x.noi)}</td><td class="n">${whole(x.noiPerUnit)}</td><td class="n">${(x.yieldOnCost * 100).toFixed(1)}%</td><td class="n">${yrs(x.payback)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

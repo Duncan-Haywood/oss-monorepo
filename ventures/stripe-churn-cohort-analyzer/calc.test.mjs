@@ -5,7 +5,7 @@ import { parseCsv, normalizeRows, analyze, sampleCsv, parseDate, simulatePriceIn
 const csv = (rows) => rows.join("\n");
 
 test("parseCsv handles quotes, embedded commas, CRLF and BOM", () => {
-  const t = parseCsv('﻿a,b\r\n"x, y","he said ""hi"""\r\n\r\n1,2');
+  const t = parseCsv('\uFEFFa,b\r\n"x, y","he said ""hi"""\r\n\r\n1,2');
   assert.deepEqual(t, [["a", "b"], ["x, y", 'he said "hi"'], ["1", "2"]]);
 });
 
@@ -172,4 +172,57 @@ test("churn reduction: floors at zero churn and reports empty input", () => {
   const { subs } = normalizeRows(parseCsv(sampleCsv()));
   assert.equal(simulateChurnReduction(subs, { reductionPts: 99 }).reducedChurn, 0);
   assert.match(simulateChurnReduction([]).invalid, /No subscriptions/);
+});
+
+// Red-team gap tests, 2026-11-16 (prompts/runs/2026-11-16-session_01EhTJVMWEWjfG8yqSCF8XUS.json).
+test("skipped rows name their file line after blank lines, CRLF and a quoted line break", () => {
+  const text = 'id,Start Date (UTC),Amount,Plan\r\na,2026-01-01,10,"Pro\r\nannual"\r\n\r\nb,garbage,10,Pro\r\nc,2026-01-01,,Pro\r\n';
+  assert.deepEqual(normalizeRows(parseCsv(text)).skipped, [{ line: 5, reason: "unreadable start date" }, { line: 6, reason: "unreadable amount" }]);
+});
+
+test("a blank quantity counts as one seat", () => {
+  const { subs } = normalizeRows(parseCsv("id,Start Date (UTC),Amount,Quantity\na,2026-01-01,30,"));
+  assert.equal(subs[0].mrr, 30);
+});
+
+test("early-life finding fires at exactly 10 cancellations, 40% early", () => {
+  const rows = ["id,Start Date (UTC),Canceled At (UTC),Amount,Interval"];
+  for (let i = 0; i < 4; i++) rows.push(`e${i},2026-01-05,2026-02-05,10,month`);
+  for (let i = 0; i < 6; i++) rows.push(`l${i},2025-01-05,2026-06-05,10,month`);
+  const r = analyze(normalizeRows(parseCsv(csv(rows))).subs, { asOf: new Date("2026-06-30T00:00:00Z") });
+  assert.ok(r.findings.some((f) => /first three months/.test(f.title)));
+});
+
+test("concentration finding names the largest subscription wherever it sits in the file", () => {
+  const rows = ["id,Customer ID,Start Date (UTC),Amount,Interval"];
+  for (let i = 0; i < 6; i++) rows.push(`s${i},c${i},2026-01-01,${50 + i},month`);
+  rows.push("big,BigCo,2026-01-01,1000,month");
+  const r = analyze(normalizeRows(parseCsv(csv(rows))).subs, { asOf: new Date("2026-03-31T00:00:00Z") });
+  assert.ok(r.findings.some((f) => /over 20% of MRR/.test(f.title) && /BigCo/.test(f.detail)));
+});
+
+test("planChurn counts only cancellations inside each window month", () => {
+  const { subs } = normalizeRows(parseCsv(csv([
+    "id,Start Date (UTC),Canceled At (UTC),Amount",
+    "a,2026-01-05,,10", "b,2026-01-05,2026-03-10,10", "c,2026-01-05,2026-02-10,10", "d,2026-01-05,,10",
+  ])));
+  assert.ok(Math.abs(planChurn(subs, "all", { asOf: new Date("2026-04-15T00:00:00Z") }) - 2 / 7) < 1e-12);
+});
+
+test("churn reduction refuses a book with no live MRR", () => {
+  const { subs } = normalizeRows(parseCsv(csv(["id,Start Date (UTC),Canceled At (UTC),Amount", "a,2026-01-05,2026-02-10,10"])));
+  assert.match(simulateChurnReduction(subs, { asOf: new Date("2026-04-15T00:00:00Z") }).invalid, /No active/);
+});
+
+test("sample data keeps its shape: 308 subscriptions, 153 canceled", () => {
+  const lines = sampleCsv().split("\n").slice(1);
+  assert.equal(lines.length, 308);
+  assert.equal(lines.filter((l) => l.includes(",canceled,")).length, 153);
+});
+
+test("parseDate refuses an impossible day instead of rolling it into the next month", () => {
+  assert.equal(parseDate("2026-02-30"), null);
+  assert.equal(parseDate("2026-04-31 10:00"), null);
+  assert.equal(parseDate("2026-02-28 23:30").toISOString(), "2026-02-28T23:30:00.000Z");
+  assert.ok(parseDate("1772409600") instanceof Date);
 });

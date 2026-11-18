@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-10-31
+tagged: auto
+---
 # Polish 2026-10-31: `seo_title:` batch 5, 22 hand-written titles (2026-10-28 and 2026-10-29 posts)
 
 **Weak surface.** `propose_seo_titles.py` reports 246 posts over the 70-character title budget with no clean ": " or "? " cut.

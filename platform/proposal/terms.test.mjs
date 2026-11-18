@@ -89,6 +89,11 @@ test('a deposit that is not a usable number never reaches the panel', () => {
   assert.equal(decodeTerms('depositPercent=abc').depositPercent, undefined);
 });
 
+test('a deposit of exactly zero is a usable number and travels', () => {
+  // non-negative means zero is allowed; a "no deposit" bid must not lose its 0
+  assert.equal(decodeTerms(encodeTerms({ depositPercent: '0' })).depositPercent, '0');
+});
+
 test('a null or missing deposit is empty, not a deposit of zero', () => {
   // Number(null) is 0, so only the explicit null check keeps a cleared field off the link
   for (const empty of [null, undefined]) {
@@ -199,7 +204,7 @@ test('applyTerms writes the fields and lets the page recompute', () => {
 test('the note names the box on screen, not the id in the markup', () => {
   const long = 'x'.repeat(MAX_TERM_TEXT + 1);
   assert.equal(overlongTermsNote({ paymentTerms: 'Net 30.' }), '');
-  assert.match(overlongTermsNote({ paymentTerms: long }), /^your payment terms is too long/);
+  assert.match(overlongTermsNote({ paymentTerms: long }), /^your payment terms are too long/);
   assert.match(
     overlongTermsNote({ paymentTerms: long, proposalNotes: long }),
     /^your payment terms and notes are too long/,

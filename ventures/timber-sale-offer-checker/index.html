@@ -156,7 +156,7 @@
       $("#warnings").textContent = p.warnings.join(" ");
       report.hidden = false;
       status.textContent = `Offer ${money(r.offered)} against ${money(r.fairValue)} at your prices.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

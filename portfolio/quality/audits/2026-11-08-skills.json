@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-08",
+  "subject": "platform/skills",
+  "stratum": "platform",
+  "seed": "2026-11-08",
+  "auditor": "agent session (Claude), see run record",
+  "status": "unauditable",
+  "defects": [
+    {"severity": "low", "what": "platform/skills holds only an empty .gitkeep (0 bytes), so it is a placeholder with no code, tests or docs; nothing to run, recompute or mutate. platform/README.md line 41 says honestly 'Placeholder for shared agent skills', so no claim is false, but the directory counts as one of the 20 platform subjects in the sample population.", "where": "platform/skills/.gitkeep"}
+  ],
+  "fix_prs": [],
+  "verdict": "Unauditable, recorded as a finding rather than swapped for another draw. `python3 platform/ci/quality_audit.py sample --seed 2026-11-08` drew platform/skills (of 20). `ls -la platform/skills` shows only a 0-byte .gitkeep; `git ls-files platform/skills` lists only that file; `git log` shows it was added in an unrelated commit (6eb7b1f0). No file in the repository other than platform/README.md (line 41, 'Placeholder for shared agent skills') mentions the path, so no claim is unbacked. There is no logic, test suite or output to score. Suggested follow-up: either fill it or exclude empty placeholder directories from the platform population so a draw is not spent on them."
+}

@@ -1,0 +1,273 @@
+{
+  "date": "2026-11-10",
+  "subject": "ventures/tournament-pairing-manager",
+  "stratum": "venture",
+  "seed": "2026-11-10",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a chess tournament director (US Chess / FIDE certified) who runs club Swiss events, checking pairings, colour allocation and Buchholz/Sonneborn-Berger by hand",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 3,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran `node --test '*.test.mjs'` (82 pass) and then drove calc.mjs directly with throwaway scripts (not in the repo). (1) Recomputed score, Buchholz, Buchholz cut 1 and Sonneborn-Berger for a 9-player, 4-round event with byes and draws in a separate Python implementation written from the FIDE/US Chess definitions: all 36 values identical to swissStandings. (2) Round 1 for 8 and 9 players is 1v5, 2v6, 3v7, 4v8 with the bye to the lowest seed, which is the FIDE Dutch (C.04.3) top-half v bottom-half result; round 2 after all favourites win is 1v3, 2v4, 5v7, 6v8, again what the Dutch system gives. (3) Brute-force check over every non-rematch perfect matching, 1,200 rounds (300 random events, 6 to 14 players, 4 rounds): with colours off the tool's total squared score gap equals the brute-force minimum in 1,200 of 1,200; with colours on it is above the minimum in 12 of 1,200 (a deliberate trade against colour penalty, but not documented). (4) Standard seeding order for 16 (1,16,8,9,4,13,5,12,2,15,7,10,3,14,6,11) matches the usual bracket seeding; 8-player double elimination has 15 matches (2n-1 with reset), as the textbook count. Outputs are right for the stated model. Not full marks: Buchholz ignores byes (FIDE C.07 uses a virtual opponent), round-1 colours go to White for the whole top half (FIDE alternates by board), and the colour claim on the page fails (see claims).",
+    "completeness": "Claimed features checked: Swiss rounds with byes, no rematches, withdrawals, configurable points, undo: worked (suite plus direct runs). Standings with five tiebreaks and tied flag: worked. Single and double elimination with byes, third place, grand-final reset, result pruning: worked, tests play out 13 field sizes. CSV, plain-text pairings, save/load JSON: tested and worked. how-to page worked example is recomputed by page.test.mjs (passes). No stubs or TODOs found. Not claimed and absent: accelerated pairings, FIDE colour-preference rules, team events, tie-break by direct encounter. The served site could not be loaded (outbound proxy returned no response), so live-page behaviour was checked from index.html source and the module only.",
+    "verification": "`cd ventures/tournament-pairing-manager; node --test '*.test.mjs'`: 82 pass, 0 fail, 6.4 s. Nine hand-seeded mutations in calc.mjs, each reverted (git status clean afterwards): caught: rematch penalty 1,000,000 -> 0 (16 tests fail), Sonneborn-Berger ignoring result points (1), score-gap cost 400 -> 4 (1), bye to highest instead of lowest rank (1). SURVIVED (82 pass): Buchholz cut 1 dropping the best opponent instead of the weakest, default tiebreak order moved to wins-first, progressive score zeroed, colour run penalty 400 -> 0, colour imbalance weight 6 -> 0. So 5 of 9 survived: the tiebreak order and cut-1 direction (which decide prizes) and the colour logic have no test that would fail. The 3-in-a-row test uses one 16-player event and passes even with the run penalty removed.",
+    "craft": "Read calc.mjs (524 lines), calc.test.mjs, page.test.mjs, and the script block of index.html. Pure, DOM-free functions; clear naming; branch-and-bound search with a node budget. Defects: `var match` declared in both branches of an if/else (hoisting, lines ~257-259); `rank` variable assigned in the standings loop and never read, and `r.tied = false` set then overwritten (dead code); pairSwissRound hits its 400,000-node budget silently on a large colour-balanced field (one round of a 64-player event took 3.9 s on the main thread, no note is returned that the search was cut short, so the result may not be the lowest-cost one); no input validation on points (NaN or negative win value flows into sorting). Otherwise tidy and short.",
+    "claims": "Checked: 'no rematches, one game per player per round, byes spread evenly' (backed by tests for 14 field sizes, true). 'nobody eliminated from a double-elimination bracket before a second loss' (tested, true). 'Not an implementation of any federation's official pairing rules' (present in README and page disclaimer, true and appropriately limiting). Privacy and 'nothing uploaded' (module has no network calls; page script only imports calc.mjs and usage.mjs). FALSE: index.html FAQ says 'over a six-round event nobody gets three in a row'. I ran 150 six-round colour-balanced events (8 to 20 players): 73 had at least one player with WWW or BBB (22 of 30 at 8 players, 9 of 30 at 20 players; example p4 WBWBBB). The only test is one 16-player event. Also index.html says the suite 'plays out hundreds of random events'; the suite runs 14 Swiss fields and about 13 x (1 + 6) bracket playouts, roughly a hundred, not hundreds. README's `node --test` is fine. llms.txt links use the duncan-haywood.github.io host (source-only: the Pages build rewrites it, not checked on the served file because the network was unavailable).",
+    "fitness": "Walked the job of a club organiser: paste 8 to 32 names with ratings, get round 1, enter results, get round 2 and standings, export CSV. Works end to end in the module and the how-to example; 8 to 32 players pair in well under 1.5 s. A 64-player event with colour balance stalls for about 4 s in one round. The colour sheet is what a chess director checks first, and a majority of simulated events hand someone three of one colour, which a USCF or FIDE director would have to repair by hand. For pickleball, darts and esports (no colours) it is solid.",
+    "domain": "Compared with FIDE Handbook C.04.3 (Dutch system) and US Chess rules 27 to 29. Matches: no rematches, score-group pairing, top-half v bottom-half, bye to the lowest-ranked player without one, absolute no-rematch. Departs: (a) global cost search instead of the Dutch lexicographic criteria, so floaters and score-group residue differ from official pairings in some rounds (suboptimal squared-gap in 1% of rounds with colours on); (b) colours not allocated by FIDE C.04.3 rules (no absolute prohibition on three in a row, round 1 gives every top-half player White rather than alternating down the boards); (c) Buchholz ignores byes and unplayed games, where FIDE C.07 gives a virtual opponent; (d) no accelerated pairing or colour preference after withdrawals. The disclaimer states it is not an official implementation, which is honest, but a TD would not rate-report from it without re-checking every round."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Score, Buchholz, Buchholz cut 1, Sonneborn-Berger for a 9-player 4-round event with 4 byes and draws",
+      "method": "Independent Python implementation from FIDE C.07 / US Chess tiebreak definitions",
+      "command": "python3 c.py on the same results JSON vs swissStandings",
+      "expected": "36 values from Python",
+      "observed": "all 36 identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Round 1 pairing for 8 and 9 players",
+      "method": "FIDE Handbook C.04.3 Dutch system: top half v bottom half, bye to lowest seed",
+      "command": "pairSwissRound(mk(8)/mk(9), [], {colours:true})",
+      "expected": "1v5 2v6 3v7 4v8, bye p9",
+      "observed": "1v5 2v6 3v7 4v8, bye p9",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Round 2 after favourites win, 8 players",
+      "method": "FIDE Dutch system S1/S2 split within each score group",
+      "command": "pairSwissRound after round 1 all 'a'",
+      "expected": "1v3 2v4 5v7 6v8",
+      "observed": "1v3 2v4 5v7 6v8",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Pairing minimises the sum of squared score gaps among non-rematch matchings (colours off)",
+      "method": "Exhaustive enumeration of all perfect matchings, 1,200 rounds, 6 to 14 players",
+      "command": "node b.mjs (throwaway script)",
+      "expected": "0 rounds above minimum",
+      "observed": "0 of 1200 above minimum",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Same, colours on",
+      "method": "Exhaustive enumeration of all perfect matchings",
+      "command": "node b.mjs",
+      "expected": "0 above minimum (or documented trade-off)",
+      "observed": "12 of 1200 above minimum, trade-off undocumented",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Standard bracket seed order for 16 and match count for 8-player double elimination with reset",
+      "method": "Textbook single-elimination seeding; double elimination has 2n-1 matches with reset",
+      "command": "seedPositions(16); buildBracket(8,{format:'double'}).matches.length",
+      "expected": "1,16,8,9,4,13,5,12,2,15,7,10,3,14,6,11 and 15",
+      "observed": "same and 15",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Buchholz treatment of byes",
+      "method": "FIDE Handbook C.07 virtual-opponent rule",
+      "command": "swissStandings on 9-player event, compare bye-holders' Buchholz",
+      "expected": "bye round contributes a virtual opponent score",
+      "observed": "bye round contributes nothing",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Round 1 colour allocation with colours on",
+      "method": "FIDE C.04.3 alternate colours down the boards",
+      "command": "pairSwissRound(mk(8), [], {colours:true})",
+      "expected": "p1 W, p2 B, p3 W, p4 B",
+      "observed": "p1,p2,p3,p4 all first-listed (White)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "FAQ: over a six-round event nobody gets three of the same colour in a row",
+      "method": "Simulate 150 six-round events, 8 to 20 players",
+      "command": "node d.mjs",
+      "expected": "0 events with WWW or BBB",
+      "observed": "73 of 150 events",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "index.html: test suite plays out hundreds of random events",
+      "method": "count loops in calc.test.mjs",
+      "command": "read calc.test.mjs lines 95-245",
+      "expected": "hundreds",
+      "observed": "14 Swiss fields + 13 single + 12 x 6 double playouts, about 100",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "README/page: no rematches, one game per player per round, nobody eliminated before second loss",
+      "method": "run tests and 300 random events",
+      "command": "node --test '*.test.mjs'; node a.mjs",
+      "expected": "no rematches",
+      "observed": "validateSwiss ok for all 300 events and 32 to 200 player runs",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer: not an implementation of federation rules, verify before rating submission",
+      "method": "grep README.md and index.html",
+      "command": "grep -n 'warranty\\|federation' README.md index.html",
+      "expected": "present",
+      "observed": "present in both",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Features: Swiss, single, double elimination, third place, reset, withdrawals, CSV, text export, save/load, worked example",
+      "method": "run suite and module",
+      "command": "node --test '*.test.mjs'",
+      "expected": "82 pass",
+      "observed": "82 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "Large field with colours on stays responsive",
+      "method": "time pairSwissRound for 64 players",
+      "command": "node (64 players, 4 rounds, colours true)",
+      "expected": "under 1 s per round",
+      "observed": "round 4 took 3,929 ms",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:103",
+      "change": "buchholzCut1: drop oppScores[0] (weakest) -> drop the strongest",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:106",
+      "change": "default tiebreak order: buchholz first -> wins first",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:96",
+      "change": "progressive += score -> += 0",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:189",
+      "change": "colour run penalty 400 -> 0",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:187",
+      "change": "colour imbalance weight 6 -> 0",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:198",
+      "change": "rematch penalty 1,000,000 -> 0",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:104",
+      "change": "Sonneborn-Berger r.pts * score -> score",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:197",
+      "change": "score-gap cost multiplier 400 -> 4",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:241",
+      "change": "bye candidate order lowest-ranked first -> highest-ranked first",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "The page FAQ promises that over a six-round event nobody gets three of the same colour in a row; 73 of 150 simulated colour-balanced six-round events (8 to 20 players) gave someone WWW or BBB, and the only test is one 16-player event",
+      "where": "ventures/tournament-pairing-manager/index.html:139",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "Five of nine seeded mutations survive: the Buchholz-cut-1 direction, the default tiebreak order, progressive score and both colour penalties are untested, although tiebreak order decides prizes",
+      "where": "ventures/tournament-pairing-manager/calc.test.mjs",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Colour allocation does not follow FIDE/US Chess rules: round 1 gives White to the whole top half instead of alternating down the boards, and no hard limit on three in a row",
+      "where": "ventures/tournament-pairing-manager/calc.mjs:167-192",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Buchholz and Sonneborn-Berger ignore byes (no virtual opponent as in FIDE C.07), so a player who received a bye is ranked lower than under official tiebreaks; the page lists the tiebreaks without saying so",
+      "where": "ventures/tournament-pairing-manager/calc.mjs:100-104",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "The branch-and-bound search silently stops at a 400,000-node budget; a 64-player colour-balanced round took 3.9 s on the UI thread and the returned pairing is then not guaranteed lowest-cost, with no note to the organiser",
+      "where": "ventures/tournament-pairing-manager/calc.mjs:206-232",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "index.html says the suite plays out hundreds of random events; it runs about a hundred",
+      "where": "ventures/tournament-pairing-manager/index.html:125",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Dead code and style: `rank` assigned but never read, `r.tied = false` overwritten, `var match` declared in both branches of an if/else",
+      "where": "ventures/tournament-pairing-manager/calc.mjs:115-124",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "With colours on, 1% of rounds pair above the minimum score-gap cost as a trade for colour penalties, undocumented in the method text",
+      "where": "ventures/tournament-pairing-manager/index.html:121-122",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14507"
+  ],
+  "verdict": "The arithmetic is right: standings, Buchholz, cut 1 and Sonneborn-Berger match an independent Python implementation exactly, rounds 1 and 2 match the FIDE Dutch pairing, and with colours off the pairing equals the brute-force optimum in 1,200 of 1,200 rounds. The bar is missed on claims and verification. The FAQ promise that nobody gets three of one colour over six rounds is false in roughly half of simulated events (73 of 150), and 5 of 9 seeded mutations survive, including the tiebreak order and the Buchholz cut-1 direction that decide who wins a prize. A tournament director would also find colour allocation and bye handling in tiebreaks departing from FIDE and US Chess rules, which the disclaimer covers only in general terms. Correct for pickleball, darts and esports use; not something a chess TD could sign off for rated events. Worst defect: the false three-in-a-row colour claim. Finished (completeness 3) but does not meet the bar."
+}

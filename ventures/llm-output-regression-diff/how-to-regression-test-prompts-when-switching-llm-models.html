@@ -10,6 +10,7 @@
   <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; } pre { background: #f7f9fb; padding: 12px; border-radius: 8px; overflow-x: auto; }</style>
 </head>
 <body>
+<main>
   <p><a href="./">← LLM Output Regression Diff</a></p>
   <h1>How to regression-test prompts when switching LLM models</h1>
   <p>Switching model or editing a prompt changes outputs in ways unit tests do not see. Save before and after outputs, then run the <a href="./">diff tool</a> over them.</p>
@@ -23,7 +24,9 @@
   <p>That the candidate is as good. These are deterministic text checks. They catch format and contract breaks cheaply, and they leave factual accuracy, tone and safety to your own evaluation and review.</p>
   <h2>A minimal CI step</h2>
   <pre>- run: node cli.mjs diff baseline.jsonl candidate.jsonl --max-regressions 0</pre>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not professional advice; a clean diff does not prove a change is safe. <strong>Best-effort hosting, no SLA.</strong></p>
     <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
   </footer>

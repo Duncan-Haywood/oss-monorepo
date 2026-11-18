@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKj6X1NvjD8jYCFKV1V",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T00:09:32Z",
+  "ended": "2026-11-14T00:51:13Z",
+  "wall_minutes": 41.95,
+  "tokens_in": 11083109,
+  "tokens_out": 52353,
+  "cost_usd": 4.5987,
+  "tool_calls": 77,
+  "task": "research/cell-fidelity milestone 5m: successive halving over resumed DFN runs where fade keeps reordering designs after cycle 10",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15662",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First bench resumed PyBaMM runs from the whole solution (starting_solution=sol), which doubled memory; one run was OOM-killed at 13 of 15 GB. Stopped after 2 designs, deleted, restarted with 10-cycle chunks resumed from sol.last_state (plan amended in LOG.md before any fresh result was read).",
+    "3 uninterrupted DFN@100 resume-check runs on Ai2020 at 0.3x/0.4375x were OOM-killed at 3 workers; re-run with WORKERS=1.",
+    "11 of 64 Ai2020@0.3x designs failed in the first cycle (IDA error-test failures), dropped, as at 0.25x in 5h."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/cell-fidelity/experiments/fade/run.py",
+      "issue": "5l charged DFN@k as k/100 of a DFN@100 run in development; measured, the first 10 cycles cost 15-17%. Carried into this milestone's dev replay and made H83 mixed. Future dev replays should charge a measured first-chunk share."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No note that PyBaMM Simulation.solve(starting_solution=full_solution) doubles memory on long cycling runs; resuming from sol.last_state in chunks is exact and lean. Worth a line next to the other cloud-session traps."
+    },
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "arxiv.org 403 through the proxy, so two well-known arXiv ids could not be resolved; noted in the README as the guidance asks."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-when-the-best-battery-design-starts-in-the-middle.md",
+    "research/cell-fidelity/LOG.md (5m plan and outcome)"
+  ],
+  "goal": "Advance the cell-fidelity programme (track 16, drawn by pick_track.py) with one pre-registered step on fresh data",
+  "notes": "Routed research/0 by weighted draw; security queue empty; IDEAS.md and website requests empty. pick_track drew track 16 -> cell-fidelity. Milestone 5m: dev replay on 27 conditions picked ladder 10->16, 20->8, 50->3 (exact 26/27). Fresh: 216 PyBaMM runs on Ai2020@0.3x, Ai2020@0.4375x, Ecker2015@0.75x. Verdicts H82 mixed (2.7% miss on Ai2020@0.3x), H83 mixed (0.24-0.29 of all-DFN), H84/H85/H86 supported (resume bit-identical on 23 designs). Post hoc: best design ranks 28th at cycle 10 on Ai2020@0.3x. Checks: tests 135 passed (cell-fidelity), research/_homepage/build.py ok, research_live_links ok, check_md_links ok, cite_check (2 arXiv ids host-refused). run_workflow_locally --for-changes run locally; see PR for CI.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "45b2d044-266a-577b-9198-7cb553ce7668",
+    "transcripts": 1,
+    "first": "2026-11-14T00:09:32Z",
+    "last": "2026-11-14T00:51:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 150,
+        "output": 52353,
+        "thinking": 11102,
+        "cache_read": 10911873,
+        "cache_write_5m": 0,
+        "cache_write_1h": 171086,
+        "api_equivalent_usd": 4.5987,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 150,
+      "output": 52353,
+      "thinking": 11102,
+      "cache_read": 10911873,
+      "cache_write_5m": 0,
+      "cache_write_1h": 171086,
+      "api_equivalent_usd": 4.5987,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 71,
+      "Write": 2,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 41.95,
+      "active_minutes": 12.47,
+      "model_minutes": 8.4,
+      "tool_minutes": 4.07,
+      "waiting_on_human_minutes": 29.48,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a battery-modelling researcher designing, running and writing up one pre-registered 216-run PyBaMM benchmark step",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 347.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

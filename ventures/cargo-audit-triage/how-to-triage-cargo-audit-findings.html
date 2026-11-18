@@ -18,6 +18,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← cargo-audit Triage</a></p>
   <h1>How to triage cargo audit findings without ignoring real risk</h1>
   <p><code>cargo audit</code> checks every crate in your <code>Cargo.lock</code> against the RustSec advisory database and prints them in lockfile order, with no sense of which ones your code touches. On a workspace with a few hundred transitive crates that is a list nobody can act on in one sitting, and it also mixes real vulnerabilities with unmaintained, unsound and yanked warnings. Sorting it by whether your code uses the crate turns it into a short first pass.</p>
@@ -41,7 +42,9 @@
   <h2>What this ranking cannot tell you</h2>
   <p>It reads <code>use</code> and path expressions as text. It cannot see macros that expand to a crate path, a crate re-exported under another name, a renamed dependency (<code>package = "..."</code> in Cargo.toml), feature-gated code, or whether the vulnerable function is ever called. It also cannot see the dependency graph, so a crate your code reaches only through another crate is labelled not-referenced. Not used lowers the urgency; it is not a certificate of safety, and this is not a security audit.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> Provided free and as-is. It is not security advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the triage</a>.</p>
   </footer>
 </body>

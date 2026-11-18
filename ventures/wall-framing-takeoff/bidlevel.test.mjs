@@ -67,3 +67,20 @@ test("CLI --level-bids levels plan bids against the budget", async () => {
   assert.equal(ok.code, 0);
   assert.equal(JSON.parse(ok.out).bidders[0].bidTotal, 100);
 });
+
+test("hostile bids are refused with a reason, never thrown or summed", () => {
+  const b = { lines: [{ item: "Studs", qty: 100, unit: "ea", unitPrice: 3 }] };
+  for (const amount of [NaN, Infinity, -5, 1e300, "9"]) {
+    const r = levelBids(b, [{ bidder: "A", lines: [{ item: "Studs", amount }] }]);
+    assert.equal(r.bidders[0].bidTotal, 0, String(amount));
+    assert.ok(r.errors.some((e) => /must be a number/.test(e)), String(amount));
+    assert.ok(Number.isFinite(r.bidders[0].leveledTotal));
+  }
+  const d = levelBids(b, [{ bidder: "A", lines: [{ item: "Studs", amount: 100 }] }, { bidder: "A", lines: [{ item: "Studs", amount: 50 }] }]);
+  assert.equal(d.bidders.length, 1);
+  assert.equal(d.bidders[0].bidTotal, 100);
+  assert.ok(d.errors.some((e) => /listed twice/.test(e)));
+  for (const bad of [[null], [{ bidder: "A", lines: 5 }], [{ bidder: "A", lines: [null] }], [{ lines: [] }], "x", null]) {
+    assert.doesNotThrow(() => levelBids(b, /** @type {any} */ (bad)));
+  }
+});

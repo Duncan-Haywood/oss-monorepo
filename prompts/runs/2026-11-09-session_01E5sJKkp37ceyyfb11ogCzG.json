@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01E5sJKkp37ceyyfb11ogCzG",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T21:20:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 4): changepoint-detector",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14361",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "changepoint-detector next: is one very long paragraph; hard to see which real-data items are still open"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/reports",
+      "why": "no agent doc written: nothing the next run needs beyond the README section"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-09-a-bad-gold-price-and-a-random-walk.md",
+    "ventures/changepoint-detector/README.md \"Gold prices\""
+  ],
+  "goal": null,
+  "notes": "Ran gold-price.test.mjs locally (4 pass). Scheduled run, small slice; CLI output on a 113-change series was too large to print, used the API instead.",
+  "corrections": [],
+  "redteam": null
+}

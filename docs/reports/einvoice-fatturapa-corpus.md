@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [einvoice-preflight]
+tagged: auto
+---
 # einvoice-preflight on the FatturaPA corpus (2026-10-28)
 
 `git clone --depth 1 https://github.com/ZUGFeRD/corpus` works through the proxy

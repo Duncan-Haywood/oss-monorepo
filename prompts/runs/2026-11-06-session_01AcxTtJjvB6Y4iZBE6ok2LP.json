@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01AcxTtJjvB6Y4iZBE6ok2LP",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T10:08:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13534",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "No agent doc in docs/reports and no flagships.yaml next: rewrite; slice was a test-only addition already listed in ROADMAP.",
+      "did": "ROADMAP line plus post",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-06-price-sensitivity-fuzz-test.md"
+  ],
+  "goal": null,
+  "notes": "Small flagship slice: seeded fuzz test for wall-framing-takeoff sensitivity.mjs; sensitivity suites pass (7); mutation check fails the new test. No defect found. Did not run venture-preflight or the full venture suite; no CI review awaited in this scheduled run.",
+  "corrections": [],
+  "redteam": null
+}

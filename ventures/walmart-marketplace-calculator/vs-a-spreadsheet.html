@@ -23,6 +23,7 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet price a Walmart Marketplace listing correctly?","acceptedAnswer":{"@type":"Answer","text":"It can, but the one-line version most sellers start with — sale price times one referral percentage — misses the per-item referral floor that bites cheap SKUs, the WFS size-tier fulfillment fee and storage, and the shipping label cost on a seller-fulfilled order. A spreadsheet can model all of those correctly too, but it has to carry a formula for each one and get the size-tier and floor logic right, and it still stops at the fee — it does not answer whether WFS beats seller fulfilled, whether a price match still leaves a profit, or the other listing-level decisions below."}},{"@type":"Question","name":"What does a one-line referral-percentage spreadsheet miss?","acceptedAnswer":{"@type":"Answer","text":"The per-item referral floor: Walmart charges the larger of the category percentage or a fixed minimum, so a cheap SKU's real referral fee is the floor, not the percentage — a formula that only multiplies price by rate understates the fee on exactly the listings where margin is already thin. It also misses WFS's size-tier fulfillment fee, which is a step function of dimensions and weight rather than a percentage, and the storage fee for however long the unit sits."}},{"@type":"Question","name":"What decisions does this calculator answer that a fee spreadsheet does not?","acceptedAnswer":{"@type":"Answer","text":"Whether WFS or shipping the order yourself nets more on this SKU's numbers, whether matching a lower competing offer still leaves a profit, whether a seller-fulfilled 2-day label still beats WFS after take rate, whether WFS still beats seller fulfilled once Walmart's return rate is counted, whether pulling leftover WFS units beats paying aged storage, whether extra Walmart Connect ad spend still covers its own attributed sales, and whether a smaller box crosses a WFS size-tier boundary and cuts the fee. A referral-fee spreadsheet answers none of these; each is a separate comparison this calculator runs from the same inputs."}},{"@type":"Question","name":"Is anything I enter uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator this page links to runs entirely in your browser. The optional Copy shareable link feature puts your inputs in the URL fragment, which browsers never send to a server."}}]}</script>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; Walmart Marketplace WFS vs seller-fulfilled calculator</a></p>
   <h1>This calculator vs. a spreadsheet</h1>
   <p>
@@ -95,7 +96,9 @@
     Open the <a href="./">Walmart Marketplace calculator</a> to run the
     comparison on your own numbers.
   </p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This is not tax, financial, or business advice. Verify every rate against your current Seller Center fee preview before relying on it.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
     <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>

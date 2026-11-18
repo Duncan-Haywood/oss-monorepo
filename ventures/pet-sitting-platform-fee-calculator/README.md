@@ -4,7 +4,7 @@ A free browser tool: **type your bookings, price and the marketplace's cut, and 
 hour on Rover, Wag or another platform versus booking clients directly.** It shows the break-even number of direct
 bookings per month, the platform price that would net the same, and take-home at 0-100% direct. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/pet-sitting-platform-fee-calculator/
+**Live tool:** https://marisstella.app/pet-sitting-platform-fee-calculator/
 
 After using this, you can **decide whether building a direct client base is worth the software and marketing cost**, and
 what to charge on the platform so a marketplace booking pays what a direct one does.
@@ -18,6 +18,14 @@ what to charge on the platform so a marketplace booking pays what a direct one d
 
 Not modelled: whether your platform agreement allows moving a client direct (many restrict it), income and
 self-employment tax, insurance, owner-side fees, tips and cancellations.
+
+## Known gaps
+
+From the quality audit of 2026-11-12 ([`portfolio/quality/audits/2026-11-12-pet-sitting-platform-fee-calculator.json`](../../portfolio/quality/audits/2026-11-12-pet-sitting-platform-fee-calculator.json)):
+
+- The platform fee is taken from the price the client pays. Wag no longer publishes a percentage; its help centre says owners pay about 1.67 times the walker's rate, which is where the 40% preset comes from. Type the owner's price, not your own rate, or the Wag take-home is understated. The page says so; the model does not convert a walker rate for you.
+- Rover's owner-side service fee and any pilot pricing are not modelled; only the sitter-side cut is.
+- Income and self-employment tax are ignored.
 
 ## Run
 

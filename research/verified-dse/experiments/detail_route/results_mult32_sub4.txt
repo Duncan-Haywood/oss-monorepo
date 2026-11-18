@@ -1,0 +1,15 @@
+Milestone 80: mult32 relaxed, 4 ok points evenly spaced in R4 rank, detail-routed. OpenROAD 2025-03, Yosys 0.51
+
+tau-b(r1, R5) = 0.6666666666666666
+tau-b(r2, R5) = 0.6666666666666666
+tau-b(r3, R5) = 0.3333333333333333
+tau-b(r4, R5) = 0.6666666666666666
+
+R4 rank -> R5 rank (1 = best):
+  R4 # 1  R4 330859.5  R5 302186.4  R5 rank  1  droute 1234s  drc 0
+  R4 # 2  R4 335687.7  R5 307617.2  R5 rank  2  droute 2001s  drc 0
+  R4 # 3  R4 362588.6  R5 329576.8  R5 rank  4  droute 1192s  drc 0
+  R4 # 4  R4 375288.8  R5 325343.3  R5 rank  3  droute 1152s  drc 0
+
+R4 pick regret vs R5: 0.0%  R2 pick regret: 1.8%
+detail-route time s: median 1213, max 2001

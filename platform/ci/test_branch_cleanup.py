@@ -563,6 +563,11 @@ class InMainRuleTest(unittest.TestCase):
             decide_stray("claude/x", UNIQUE_TIP, set(), NOW, None, None).delete
         )
 
+    def test_no_pr_branch_in_main_with_unknown_tip_date_is_kept(self):
+        decision = decide_stray("claude/x", MAIN_TIP, set(), NOW, True, None)
+        self.assertFalse(decision.delete)
+        self.assertIn("no known date", decision.reason)
+
     def test_no_pr_branch_with_an_open_pr_is_kept(self):
         decision = decide_stray("claude/x", MAIN_TIP, {"claude/x"}, NOW, True,
                                 NOW - timedelta(hours=96))
@@ -856,6 +861,35 @@ class MessageAndRequestShapeTest(unittest.TestCase):
         with mock.patch.object(GitHub, "_request", return_value=payload) as req:
             gh.compare_to("main")("abc")
         self.assertEqual(req.call_args[0][2], {"per_page": 1})
+
+    def test_compare_tolerates_a_missing_sha(self):
+        # A 404 on compare means "cannot tell", not a crash: the branch is kept.
+        gh = GitHub("Owner/Repo", "t")
+        with mock.patch.object(GitHub, "_request", return_value=None) as req:
+            self.assertIsNone(gh.compare_to("main")("abc"))
+        self.assertTrue(req.call_args[1]["expect_missing"])
+
+    def test_open_pr_refs_reserves_same_repo_heads_and_every_base(self):
+        def pr(number, head_ref, head_repo, base_ref="main"):
+            return {
+                "number": number,
+                "state": "open",
+                "head": {"ref": head_ref, "sha": "a" * 40,
+                         "repo": {"full_name": head_repo} if head_repo else None},
+                "base": {"ref": base_ref, "repo": {"full_name": REPO}},
+            }
+        pulls = [
+            pr(1, "claude/own", REPO),
+            pr(2, "forkbranch", "someone/fork", base_ref="release"),
+            pr(3, "orphaned", None),
+            pr(4, "claude/excluded", REPO),
+        ]
+        gh = GitHub(REPO, "t")
+        with mock.patch.object(GitHub, "_paginate", return_value=pulls):
+            refs = gh.open_pr_refs(exclude={4})
+        # A fork's or a deleted fork's head name must not shield our branch of
+        # the same name; bases are always reserved.
+        self.assertEqual(refs, {"claude/own", "main", "release"})
 
 
 if __name__ == "__main__":

@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtGX5x58DdTBukZDeWs",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T07:05:34Z",
+  "ended": "2026-11-14T07:39:29Z",
+  "wall_minutes": 34.12,
+  "tokens_in": 8650213,
+  "tokens_out": 52160,
+  "cost_usd": 4.0945,
+  "tool_calls": 65,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15770",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A first pytest run timed out at 110 s because check.py and analyse.py were using all 4 cores; rerun after they finished passed in 20 s."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py printed /usr/bin/python3.13 while the bare python3 lacked numpy; the note says so, but the image's default python3 still has no numpy, so every research run pays this lookup."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "description limit (160) and seo_title limit (70) are only discovered by running the checker; the posts README could state them up front."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/sensing-selfcal/experiments/m4i_geomref/analyse.py",
+      "why": "Added a post hoc diagnostic (twin scale ratios vs milestone 4g's H53) after the scored run, to explain the right camera's refuted H60.",
+      "did": "Labelled it post hoc in code, LOG and paper; it scores nothing.",
+      "result": "Explained the refutation: the right camera's jackknife overstates its spread 1.6x more than its twin."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-camera-can-draw-its-own-update-test-threshold.md",
+    "research/sensing-selfcal/LOG.md (milestone 4i planned + result)",
+    "research/sensing-selfcal/paper/draft.md (Section 7, recommendation 2, Section 10)"
+  ],
+  "goal": null,
+  "notes": "Research track, programme sensing-selfcal, milestone 4i. Pre-registered H59-H62 (committed before computing). H59 (linearisation within 0.2% at 4-7 views, 9,600 nonlinear solves) held; H60 refuted on the right camera (0.37% < 0.5%; left 1.44%); H61 held (33.1% at +-2%, k=6); H62 held (1.67/1.65). Local checks: tests/test_m4i.py 5 passed, test_m4g/m4h 8 passed, paper/check_numbers.py 162/162, research/_homepage/build.py ok, research_live_links ok, check_md_links ok, post front matter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "31fe14b0-920e-5ecb-a7a2-106619e3a2f7",
+    "transcripts": 1,
+    "first": "2026-11-14T07:05:34Z",
+    "last": "2026-11-14T07:39:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 119,
+        "output": 52160,
+        "thinking": 16897,
+        "cache_read": 8480762,
+        "cache_write_5m": 0,
+        "cache_write_1h": 169332,
+        "api_equivalent_usd": 4.0945,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 119,
+      "output": 52160,
+      "thinking": 16897,
+      "cache_read": 8480762,
+      "cache_write_5m": 0,
+      "cache_write_1h": 169332,
+      "api_equivalent_usd": 4.0945,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 56,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 34.12,
+      "active_minutes": 34.12,
+      "model_minutes": 9.19,
+      "tool_minutes": 24.93,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a PhD student implementing a linearised BA twin, Monte Carlo references and a nonlinear check, then revising LOG/paper: about two days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 390.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

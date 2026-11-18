@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01EhTJVPBVx2vmGSPV54AVN5",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T20:58:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13882",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/",
+      "why": "routed to research track but the scheduled task asked for revenue products; did product work on R-0005"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-07-garment-in-a-headset.md"
+  ],
+  "goal": null,
+  "notes": "garment3d tests 14 pass, page.test 7 pass; headless Chromium with faked navigator.xr: VR button hidden then shown, no page errors. Not run on a real headset.",
+  "corrections": [],
+  "redteam": null
+}

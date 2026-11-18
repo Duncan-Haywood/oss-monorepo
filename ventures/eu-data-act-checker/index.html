@@ -144,7 +144,7 @@
       $("#ladder-rows").innerHTML = r.ladder.map((l) => `<tr><td>${SIZE_LABEL[l.size]}</td><td>${esc(label(l))}</td><td>${esc(l.via)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Check with your national authority before relying on this.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

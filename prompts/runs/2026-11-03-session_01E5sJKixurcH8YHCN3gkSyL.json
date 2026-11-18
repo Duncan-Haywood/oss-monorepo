@@ -1,0 +1,81 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01E5sJKixurcH8YHCN3gkSyL",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Owner pasted an interview transcript with a clothing designer and asked to work on it: AI-assisted clothing design (voice and point-and-click design, fabric choice and prices from manufacturers, manufacturing, store, marketing, VR later).",
+  "input_sha256": "e76cad7b33c5dfbcc1052c1a51baa2aea17de93c355ccbe9ae307a3e17046942",
+  "follow_up_inputs": [
+    "Owner pasted a second interview: sunglasses with the brand's logo on a stock frame and case (about 20 EUR to make, 60-70 to sell), full-wardrobe sets started small with pricing tiers and audience targeting, in-house plus partner brands, and virtual try-on."
+  ],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T22:24:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Owner request R-0005: AI-assisted clothing design studio from an interview transcript",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 12940,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 69,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First garment drawing was about twice too tall for its cm scale, so tech-pack measurements from the shoulder were wrong; caught when the quote request said a front print started 52 cm below the shoulder. Redrawn at 6 px/cm to size-M proportions, with a test that checks width and length.",
+      "fixed": true
+    },
+    {
+      "what": "Supplier CSV parser accepted 'abc' as 0; caught by a test, fixed.",
+      "fixed": true
+    },
+    {
+      "what": "Wardrobe planner first produced 'cream jeans' and linen in a cold-winter capsule; items now carry the colours they are made in and season/climate filter eligibility; tests cover both.",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Preflight stops at sync_tree_counts --check after a 5+ minute start; a new venture always changes that count, so running sync_tree_counts.py first could be part of the new-venture steps in PRODUCT_PLAYBOOK.md section 7."
+    },
+    {
+      "file": "portfolio/requests/intake.test.mjs",
+      "issue": "'the page builds the header intake parses' fails on main, independent of this change."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "The interviewed designer said they would prefer the software not be open source. The repository's licensing rule (MIT) is a hard limit, so the software is MIT; the designer's own designs, artwork and brand are never committed (everything stays in their browser). Raised with the owner in the session reply rather than decided silently.",
+      "did": "Shipped MIT; flagged the conflict to the owner",
+      "result": "pending owner"
+    },
+    {
+      "file": "portfolio/requests/README.md",
+      "why": "The request's ask is the owner's paraphrase with the designer's name removed (a private individual); the marketing page quotes three short, unattributed phrases from the interview.",
+      "did": "anonymised",
+      "result": "no personal data in the tree"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-03-a-clothing-design-studio-you-can-talk-to.md",
+    "docs/posts/2026-11-03-sunglasses-and-a-wardrobe-that-starts-small.md"
+  ],
+  "goal": null,
+  "notes": "Local verification: node --test ventures/clothing-design-studio/*.test.mjs 54/54 pass; run_venture_tests.py clothing-design-studio ok; clauses.mjs 3 pages ok; router validate ok; driven in headless Chromium (commands, variants, pick, drag, costing), no console errors, no horizontal scroll at 390px. venture-preflight run after sync_tree_counts.py. Follow-up in the same PR: sunglasses.html + eyewear.mjs, wardrobe.html + wardrobe.mjs, shared sellingSide in costing.mjs; 69/69 tests; both pages driven in headless Chromium, no console errors, no horizontal scroll at 390px.",
+  "corrections": [],
+  "redteam": null
+}

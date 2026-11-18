@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import re
 from decimal import Decimal
 from xml.etree import ElementTree
 from typing import Any
+
+from .xmlvalues import unreadable_leaves
+from .numbers import parse_decimal
 
 
 def _children(element: ElementTree.Element, name: str) -> list[ElementTree.Element]:
@@ -18,8 +22,28 @@ def _text(element: ElementTree.Element, name: str, required: bool = True) -> str
 
 
 def _number(value: str) -> int | float:
-    number = Decimal(value)
+    # A ValueError, not decimal.InvalidOperation (an ArithmeticError), so the CLI
+    # reports one unreadable file instead of crashing the whole batch.
+    number = parse_decimal(value)
+    if number is None:
+        raise ValueError(f"UBL amount is not a number: {value[:40]!r}")
     return int(number) if number == number.to_integral_value() else float(number)
+
+
+def _line_tax_amount(line: ElementTree.Element) -> str:
+    """cac:ItemPriceExtension/cac:TaxTotal/cbc:TaxAmount on a line, or ""."""
+    for extension in (c for c in line if c.tag.rsplit("}", 1)[-1] == "ItemPriceExtension"):
+        for total in (c for c in extension if c.tag.rsplit("}", 1)[-1] == "TaxTotal"):
+            return _text(total, "TaxAmount", required=False)
+    return ""
+
+
+def _line_amount_with_vat(line: ElementTree.Element) -> str:
+    """cac:ItemPriceExtension/cbc:Amount on a line (UAE BTAE-10, Oman BTOM-017), or ""."""
+    for extension in (c for c in line if c.tag.rsplit("}", 1)[-1] == "ItemPriceExtension"):
+        for amount in (c for c in extension if c.tag.rsplit("}", 1)[-1] == "Amount"):
+            return (amount.text or "").strip()
+    return ""
 
 
 def _nested_text(element: ElementTree.Element, container: str, field: str) -> str:
@@ -55,6 +79,26 @@ def _party_identifier(party: ElementTree.Element) -> str:
     )
 
 
+def _party_vat_id(party: ElementTree.Element) -> str:
+    """BT-31/BT-48/BT-63: the first VAT-scheme PartyTaxScheme/CompanyID."""
+    vat_id = ""
+    for scheme in _children(party, "PartyTaxScheme"):
+        # A national tax number uses TaxScheme/ID "FC"; only VAT (or an
+        # unlabelled scheme whose number starts with a country prefix) is a
+        # VAT ID. CIUS-RO puts a buyer that is not VAT registered in an
+        # unlabelled scheme with its bare fiscal code; BR-CO-9 reads only "VAT".
+        scheme_id = _nested_text(scheme, "TaxScheme", "ID").upper()
+        if scheme_id and scheme_id != "VAT":
+            continue
+        vat_id = _text(scheme, "CompanyID", required=False)
+        if not scheme_id and vat_id and not re.match(r"[A-Za-z]{2}", vat_id.strip()):
+            vat_id = ""
+            continue
+        if vat_id:
+            break
+    return vat_id
+
+
 def _party(element: ElementTree.Element) -> dict[str, Any]:
     party = next(iter(_children(element, "Party")), element)
     identifier = _party_identifier(party)
@@ -65,22 +109,61 @@ def _party(element: ElementTree.Element) -> dict[str, Any]:
         party, "PartyLegalEntity", "RegistrationName"
     ) or _text(party, "Name")
     mapped: dict[str, Any] = {"id": identifier, "name": name}
-    vat_id = ""
-    for scheme in _children(party, "PartyTaxScheme"):
-        # A national tax number uses TaxScheme/ID "FC"; only VAT (or an
-        # unlabelled scheme) is a VAT ID.
-        scheme_id = _nested_text(scheme, "TaxScheme", "ID").upper()
-        if scheme_id and scheme_id != "VAT":
-            continue
-        vat_id = _text(scheme, "CompanyID", required=False)
-        if vat_id:
-            break
+    vat_id = _party_vat_id(party)
     if vat_id:
         mapped["vat_id"] = vat_id
+    legal_id = _legal_id(party)
+    if legal_id:
+        mapped["legal_id"] = legal_id
+    party_ids = _party_ids(party)
+    if party_ids:
+        mapped["party_ids"] = party_ids
     endpoint = _endpoint(party)
     if endpoint:
         mapped["endpoint"] = endpoint
     return mapped
+
+
+def _scheme_attr(element: ElementTree.Element) -> str:
+    for key, attr in element.attrib.items():
+        if key.rsplit("}", 1)[-1] == "schemeID":
+            return (attr or "").strip()
+    return ""
+
+
+def _legal_id(party: ElementTree.Element) -> dict[str, str] | None:
+    """BT-30/BT-47: the first PartyLegalEntity's CompanyID and its schemeID.
+
+    Mirrors ubl.mjs so the CLI's INV-062 (endpoint.py) reads an XML file the
+    way the page does, not only a JSON invoice.
+    """
+    for entity in party.iter():
+        if entity.tag.rsplit("}", 1)[-1] != "PartyLegalEntity":
+            continue
+        for node in entity.iter():
+            if node.tag.rsplit("}", 1)[-1] != "CompanyID":
+                continue
+            value = (node.text or "").strip()
+            if not value:
+                return None
+            return {"id": value, "scheme": _scheme_attr(node)}
+    return None
+
+
+def _party_ids(party: ElementTree.Element) -> list[dict[str, str]]:
+    """BT-29/BT-46: every PartyIdentification/ID that names a scheme (ubl.mjs)."""
+    found: list[dict[str, str]] = []
+    for identification in party.iter():
+        if identification.tag.rsplit("}", 1)[-1] != "PartyIdentification":
+            continue
+        for node in identification:
+            if node.tag.rsplit("}", 1)[-1] != "ID":
+                continue
+            scheme = _scheme_attr(node)
+            value = (node.text or "").strip()
+            if scheme and value:
+                found.append({"id": value, "scheme": scheme})
+    return found
 
 
 def _endpoint(party: ElementTree.Element) -> dict[str, str] | None:
@@ -105,6 +188,23 @@ _DOCUMENT_ROOTS = {
 }
 
 
+def _line_scheme_ids(line: Any) -> list[dict[str, str]]:
+    # Every schemed EndpointID, PartyIdentification/ID and CompanyID inside a UBL
+    # line, in ubl.mjs's order: Peppol's COMMON id contexts name no parent, so a
+    # line-level Delivery/DeliveryParty or an Item's ManufacturerParty is checked too.
+    nodes = [node for node in line.iter() if _local(node) == "EndpointID"]
+    for identification in (node for node in line.iter() if _local(node) == "PartyIdentification"):
+        nodes.extend(child for child in identification if _local(child) == "ID")
+    nodes.extend(node for node in line.iter() if _local(node) == "CompanyID")
+    found: list[dict[str, str]] = []
+    for node in nodes:
+        scheme = (node.get("schemeID") or "").strip()
+        value = (node.text or "").strip()
+        if scheme and value:
+            found.append({"id": value, "scheme": scheme})
+    return found
+
+
 def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     """Map a local UBL Invoice, CreditNote, or DebitNote into the checker shape."""
     raw = source.encode() if isinstance(source, str) else source
@@ -124,7 +224,13 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         quantity = _text(line, quantity_name)
         price = _text(line, "PriceAmount")
         net = _text(line, "LineExtensionAmount")
-        category = next(iter(_children(line, "ClassifiedTaxCategory")), line)
+        # Two categories on a line (PINT MY: SST and the tourism tax, scheme AAL): the
+        # VAT/GST one is the line's rate, whichever comes first (as ubl.mjs).
+        categories = _children(line, "ClassifiedTaxCategory")
+        category = next(
+            (c for c in categories if _nested_text(c, "TaxScheme", "ID").upper() in ("", "VAT", "GST")),
+            categories[0] if categories else line,
+        )
         percent = _text(category, "Percent", required=False)
         price_node = next(iter(_children(line, "Price")), None)
         base_quantity = _text(price_node, "BaseQuantity", required=False) if price_node is not None else ""
@@ -138,16 +244,26 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         }
         if base_quantity:
             mapped_line["price_base_quantity"] = _number(base_quantity)
+        # A line's own VAT amount where PINT states one (Oman's BTOM-016).
+        line_tax = _line_tax_amount(line)
+        if parse_decimal(line_tax) is not None:
+            mapped_line["tax_amount"] = _number(line_tax)
+        line_amount = _line_amount_with_vat(line)
+        if parse_decimal(line_amount) is not None:
+            mapped_line["amount_with_vat"] = _number(line_amount)
         line_adjustments = _line_adjustments(line)
         if line_adjustments:
             mapped_line["adjustments"] = line_adjustments
         mapped_line.update(_tax_category_fields(category))
+        scheme_ids = _line_scheme_ids(line)
+        if scheme_ids:
+            mapped_line["scheme_ids"] = scheme_ids
         lines.append(mapped_line)
 
     supplier = next(iter(_children(root, "AccountingSupplierParty")), root)
     customer = next(iter(_children(root, "AccountingCustomerParty")), root)
     total = next(iter(_children(root, "LegalMonetaryTotal")), root)
-    tax_totals = _children(root, "TaxTotal")
+    tax_totals = _header_tax_totals(root)
     if not tax_totals:
         raise ValueError("UBL field TaxAmount is missing")
     # BT-110 is in the document currency; a second TaxTotal in the VAT
@@ -160,6 +276,16 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         return not code or not doc_currency or code == doc_currency
 
     chosen = [item for item in tax_totals if _same_currency(item)] or tax_totals
+    # When the VAT accounting currency is the document currency (ZATCA requires
+    # BT-111 in SAR), the repeat is the TaxTotal with no TaxSubtotal.
+    # That repeat is kept as totals.tax_accounting_currency so INV-059 can compare it.
+    with_subtotal = [item for item in chosen if _has_subtotal(item)]
+    accounting_repeat = None
+    if len(chosen) > 1 and with_subtotal:
+        repeats = [item for item in chosen if not _has_subtotal(item)]
+        if len(repeats) == 1:
+            accounting_repeat = parse_decimal(_text(repeats[0], "TaxAmount", required=False))
+        chosen = with_subtotal
     tax_total = sum((Decimal(_text(item, "TaxAmount")) for item in chosen), Decimal("0"))
     due_date = _text(root, "DueDate", required=False)
     type_code = (
@@ -168,6 +294,7 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         or _text(root, "DebitNoteTypeCode", required=False)
     )
     original = _billing_reference(root)
+    reasons = _credit_reason_codes(root)
     invoice = {
         "invoice_number": _text(root, "ID"),
         "issue_date": _text(root, "IssueDate"),
@@ -176,6 +303,7 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         "document_type": document_type,
         **({"document_code": type_code} if type_code else {}),
         **({"original_invoice": original} if original else {}),
+        **({"credit_reason_codes": reasons} if reasons else {}),
         "currency": _text(root, "DocumentCurrencyCode"),
         "supplier": _party(supplier),
         "customer": _party(customer),
@@ -185,9 +313,42 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
             # UBL permits a TaxTotal per tax scheme; the invoice tax is their sum.
             "tax": _number(str(tax_total)),
             "gross": _number(_text(total, "TaxInclusiveAmount")),
+            **({"tax_accounting_currency": accounting_repeat} if accounting_repeat is not None else {}),
             **_optional_monetary_totals(total),
         },
     }
+    # BG-10 payee and BG-11 tax representative: only their schemed ids (ubl.mjs).
+    for key, tag in (("payee_party", "PayeeParty"), ("tax_representative", "TaxRepresentativeParty")):
+        node = next((child for child in root if child.tag.rsplit("}", 1)[-1] == tag), None)
+        if node is None:
+            continue
+        side: dict[str, Any] = {}
+        legal = _legal_id(node)
+        if legal:
+            side["legal_id"] = legal
+        ids = _party_ids(node)
+        if ids:
+            side["party_ids"] = ids
+        if key == "tax_representative":
+            # BT-63, its VAT number (checks.py INV-022/023; ubl.mjs, 2026-11-17).
+            vat_id = _party_vat_id(node)
+            if vat_id:
+                side["vat_id"] = vat_id
+        if side:
+            invoice[key] = side
+    # cac:Delivery/cac:DeliveryParty: Peppol's PartyIdentification/ID and
+    # CompanyID contexts reach its ids too (ubl.mjs).
+    deliver_to: dict[str, Any] = {}
+    for delivery in (child for child in root if child.tag.rsplit("}", 1)[-1] == "Delivery"):
+        for node in (child for child in delivery if child.tag.rsplit("}", 1)[-1] == "DeliveryParty"):
+            legal = _legal_id(node)
+            if legal and "legal_id" not in deliver_to:
+                deliver_to["legal_id"] = legal
+            ids = _party_ids(node)
+            if ids:
+                deliver_to["party_ids"] = deliver_to.get("party_ids", []) + ids
+    if deliver_to:
+        invoice["delivery_party"] = deliver_to
     payment = _payee_payment(root)
     terms_days = _payment_terms_days(root)
     if terms_days:
@@ -206,9 +367,19 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     if period:
         invoice["period"] = period
     invoice.update(_commercial_references(root))
+    # BT-24 and the UBL ProfileID: aside.py reads them to spot PINT and ZATCA files.
+    specification = _text(root, "CustomizationID", required=False)
+    if specification:
+        invoice["specification_id"] = specification
+    business_process = _text(root, "ProfileID", required=False)
+    if business_process:
+        invoice["profile_id"] = business_process
     adjustments = _header_adjustments(root)
     if adjustments:
         invoice["adjustments"] = adjustments
+    unreadable = unreadable_leaves(root)
+    if unreadable:
+        invoice["xml_values"] = unreadable
     return invoice
 
 
@@ -245,10 +416,38 @@ def _tax_category_fields(category: ElementTree.Element) -> dict[str, str]:
     return extras
 
 
+def _local(element: ElementTree.Element) -> str:
+    return element.tag.rsplit("}", 1)[-1]
+
+
+def _header_tax_totals(root: ElementTree.Element) -> list[ElementTree.Element]:
+    """Document-level TaxTotal elements (BG-22/BG-23): children of the root.
+
+    A line may carry its own TaxTotal (ZATCA's KSA-11/12 line VAT and its
+    prepayment lines' KSA-31/32 subtotal), which is not the document's
+    breakdown. Fall back to every TaxTotal only when none sits at the root.
+    """
+    direct = [child for child in list(root) if _local(child) == "TaxTotal"]
+    return direct or _children(root, "TaxTotal")
+
+
+def _has_subtotal(total: ElementTree.Element) -> bool:
+    return any(_local(child) == "TaxSubtotal" for child in list(total))
+
+
+def _header_subtotals(root: ElementTree.Element) -> list[ElementTree.Element]:
+    return [
+        child
+        for total in _header_tax_totals(root)
+        for child in list(total)
+        if _local(child) == "TaxSubtotal"
+    ]
+
+
 def _tax_breakdown(root: ElementTree.Element) -> list[dict[str, Any]]:
-    """Map TaxTotal/TaxSubtotal rows into tax_breakdown."""
+    """Map document-level TaxTotal/TaxSubtotal rows into tax_breakdown."""
     rows: list[dict[str, Any]] = []
-    for subtotal in _children(root, "TaxSubtotal"):
+    for subtotal in _header_subtotals(root):
         taxable = _text(subtotal, "TaxableAmount", required=False)
         tax = _text(subtotal, "TaxAmount", required=False)
         category = next(iter(_children(subtotal, "TaxCategory")), None)
@@ -269,6 +468,11 @@ def _tax_breakdown(root: ElementTree.Element) -> list[dict[str, Any]]:
             row["tax"] = _number(tax)
         if tax_id:
             row["tax_category"] = tax_id
+        # A tax other than VAT/GST (Malaysia's tourism tax, scheme AAL) can be a flat
+        # amount with no percentage; the scheme is kept only then (as ubl.mjs).
+        scheme_id = _nested_text(category, "TaxScheme", "ID").upper() if category is not None else ""
+        if scheme_id and scheme_id not in ("VAT", "GST"):
+            row["tax_scheme"] = scheme_id
         if row:
             rows.append(row)
     return rows
@@ -277,7 +481,7 @@ def _tax_breakdown(root: ElementTree.Element) -> list[dict[str, Any]]:
 def _document_exemption(root: ElementTree.Element) -> dict[str, str]:
     """Map TaxSubtotal/TaxCategory exemption reason when present."""
     extras: dict[str, str] = {}
-    for subtotal in _children(root, "TaxSubtotal"):
+    for subtotal in _header_subtotals(root):
         for category in _children(subtotal, "TaxCategory"):
             reason = _text(category, "TaxExemptionReason", required=False)
             if reason and "tax_exemption_reason" not in extras:
@@ -353,6 +557,21 @@ def _invoice_period(root: ElementTree.Element) -> dict[str, str] | None:
                 period["end"] = end
             return period
     return None
+
+
+def _credit_reason_codes(root: ElementTree.Element) -> list[str]:
+    """Header-level DiscrepancyResponse/ResponseCode values (BTAE-03); mirrors ubl.mjs."""
+    codes: list[str] = []
+    for child in root:
+        if child.tag.rsplit("}", 1)[-1] != "DiscrepancyResponse":
+            continue
+        for code in child:
+            if code.tag.rsplit("}", 1)[-1] == "ResponseCode":
+                value = (code.text or "").strip()
+                if value:
+                    codes.append(value)
+                break
+    return codes
 
 
 def _billing_reference(root: ElementTree.Element) -> str:

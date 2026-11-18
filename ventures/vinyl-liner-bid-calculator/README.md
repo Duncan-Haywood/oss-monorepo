@@ -5,7 +5,7 @@ liner replacement from the liner square feet a water-surface special cannot
 see, the hopper, the stairs, the bead, and the track — and shows the margin
 before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/vinyl-liner-bid-calculator/
+**Live tool:** https://marisstella.app/vinyl-liner-bid-calculator/
 
 **After using this, you can now send a vinyl-liner price that includes the
 walls, hopper, and stairs**, which used to take a spreadsheet that still

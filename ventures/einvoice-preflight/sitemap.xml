@@ -7,6 +7,12 @@
     <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/index.html</loc>
   </url>
   <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/audit-pack-for-accountants.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/sample-audit-pack.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/create.html</loc>
   </url>
   <url>
@@ -61,6 +67,12 @@
     <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/italy-sdi-e-invoice-mandate.html</loc>
   </url>
   <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/sdi-error-codes.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/br-fr-error-codes.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/netherlands-e-invoice-mandate.html</loc>
   </url>
   <url>
@@ -68,6 +80,12 @@
   </url>
   <url>
     <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/e-invoicing-mandates-by-country.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/e-invoicing-deadlines-2027.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/which-e-invoice-mandate-applies.html</loc>
   </url>
   <url>
     <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/slovakia-e-invoice-mandate.html</loc>
@@ -116,6 +134,9 @@
   </url>
   <url>
     <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/sweden-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/new-zealand-e-invoice-mandate.html</loc>
   </url>
   <url>
     <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/latvia-e-invoice-mandate.html</loc>
@@ -221,5 +242,80 @@
   </url>
   <url>
     <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/uzbekistan-soliq-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/uganda-efris-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/rwanda-eis-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/benin-e-mecef-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/ethiopia-eis-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/ghana-e-vat-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/zambia-smart-invoice-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/bangladesh-nbr-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/tanzania-efd-vfd-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/albania-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/mauritius-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/morocco-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/cote-divoire-fne-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/china-fapiao-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/ukraine-erpn-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/bolivia-sin-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/azerbaijan-e-qaime-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/armenia-src-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/georgia-rs-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/moldova-e-factura-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/qatar-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/tunisia-el-fatoora-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/el-salvador-dte-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/mauritania-stt-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/malawi-mra-eis-e-invoice-mandate.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/namibia-namra-e-invoice-mandate.html</loc>
   </url>
 </urlset>

@@ -377,9 +377,15 @@ export function estimate(shed, prices = examplePrices()) {
     if (type === 'T1-11' || type === 'LP SmartSide' || type === 'LP SmartSide 7/16') {
       // Panel siding is its own sheathing: one panel per 4 ft column, the length that reaches.
       const by = { 96: 0, 108: 0, 120: 0 };
-      for (const x of shed.sidingFull) by[x.length] += 1;
-      by[96] += sidingUpperSheets(shed);
-      const keys = type === 'T1-11' ? ['siding8', 'siding9', 'siding10'] : type === 'LP SmartSide' ? ['lpPanel', 'lpPanel9', 'lpPanel10'] : ['lpPanel76', 'lpPanel76x9', 'lpPanel76x10'];
+      if (d.sidingRun === 'horizontal') {
+        // Panels on their side: a whole 4x8 per full piece; the short top row and the gable
+        // pieces packed by their bounding boxes (so a gable triangle is never under-counted).
+        by[96] = sheetCount2d(shed.sidingFull.map((x) => x.piece));
+      } else {
+        for (const x of shed.sidingFull) by[x.length] += 1;
+        by[96] += sidingUpperSheets(shed);
+      }
+      const keys = type === 'T1-11' ? [d.sidingPrimed ? 'siding8primed' : 'siding8', 'siding9', 'siding10'] : type === 'LP SmartSide' ? ['lpPanel', 'lpPanel9', 'lpPanel10'] : ['lpPanel76', 'lpPanel76x9', 'lpPanel76x10'];
       [96, 108, 120].forEach((len, i) => line('Siding', label(keys[i]), by[len], 'sheet', item(keys[i]), src(keys[i])));
       // The panel rule makes the price jump about as the walls rise: a column that
       // outgrows a 10 ft panel switches to a 4x8 with a strip above it, which can
@@ -404,7 +410,11 @@ export function estimate(shed, prices = examplePrices()) {
       const now = [96, 108, 120].reduce((t, len, i) => t + by[len] * [p8, p9, p10][i], 0);
       const best = steps.map((dz) => ({ dz, cost: sidingAt(dz) })).reduce((a, b) => (b.cost < a.cost - 0.005 ? b : a), { dz: 0, cost: now });
       if ((tall || strips) && needs.length === shed.sidingFull.length && best.dz > 0 && now - best.cost >= 1) {
-        const fmt = (x) => `$${x.toFixed(2)}`;
+        const fmt = (x) => {
+          const format = (x) => `$${x.toFixed(2)}`;
+          const text = format(Math.abs(x));
+          return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+        };
         notes.push(`Siding: each 4 ft column takes the shortest panel that reaches its top (4x8 ${fmt(p8)}, 4x9 ${fmt(p9)}, 4x10 ${fmt(p10)}); `
           + `a column taller than 10 ft takes a 4x8 with a strip cut from another 4x8 above it, Z-flashed at the joint. `
           + `Here ${[tall && `${tall} use a 9 or 10 ft panel`, strips && `${strips} use a strip`].filter(Boolean).join(' and ')} (of ${shed.sidingFull.length} columns). `
@@ -664,6 +674,8 @@ export function estimate(shed, prices = examplePrices()) {
     // Z-flashing over every door and window head and over any horizontal siding joint.
     let zIn = shed.framedOpenings.reduce((t, op) => t + op.width + 9, 0);
     if (!shed.lap?.length) zIn += (shed.sidingUpper || []).length * 48;
+    // Horizontal panel siding: Z-flashing along every row joint (IRC R703.3.1).
+    zIn += (shed.sidingJoints || []).reduce((t, j) => t + j.len, 0);
     if (d.siding) line('Fasteners and sealants', label('zFlashing'), Math.ceil(zIn / 120), 'piece', item('zFlashing'), src('zFlashing'));
   }
   // Consumables the build steps call for: adhesive under the subfloor (a tube
@@ -808,6 +820,7 @@ export function cutSheetCsv(est) {
  */
 export function sourceLabel(s) {
   if (!s) return '';
+  if (s.swap) return s.store ? `your swap, ${s.store}` : 'your swap';
   if (s.kind === 'yours') return 'your price';
   const tag = s.kind === 'derived' ? ' (scaled)' : s.kind === 'estimate' ? ' (estimate)' : '';
   if (!s.store && !s.seen) return s.kind === 'estimate' ? 'estimate' : tag.trim();

@@ -1,0 +1,66 @@
+cell-fidelity milestone 6a: SPM, SPMe and DFN (PyBaMM 26.10.1.1, default options, isothermal) against measured constant-current discharges (pybamm-data v1.0.2)
+capacity to V_cut (2.8 V Ecker2015, 3.05 V Ai2020); error = (Q_model - Q_meas)/Q_meas; RMSE over the time both curves cover
+
+condition        Q_meas Ah model     Q Ah     err  RMSE mV   r_min     sec
+Ecker2015@1C        0.1610 SPM     0.1625  +0.95%     48.4   1.000    0.12
+Ecker2015@1C        0.1610 SPMe    0.1624  +0.88%     39.6   0.867    0.22
+Ecker2015@1C        0.1610 DFN     0.1624  +0.88%     39.5   0.862    0.42
+
+Ecker2015@5C        0.1521 SPM     0.1500  -1.37%     82.1   1.000    0.12
+Ecker2015@5C        0.1521 SPMe    0.1481  -2.62%     81.4   0.420    0.23
+Ecker2015@5C        0.1521 DFN     0.1479  -2.75%     85.6   0.401    0.42
+
+Ai2020@0.1C         2.3323 SPM     2.4321  +4.28%     53.1   1.000    0.08
+Ai2020@0.1C         2.3323 SPMe    2.4316  +4.26%     52.1   0.971    0.24
+Ai2020@0.1C         2.3323 DFN     2.4316  +4.26%     52.1   0.969    0.32
+
+Ai2020@0.5C         2.3077 SPM     2.4097  +4.42%     67.7   1.000    0.08
+Ai2020@0.5C         2.3077 SPMe    2.4060  +4.26%     54.9   0.857    0.20
+Ai2020@0.5C         2.3077 DFN     2.4059  +4.26%     53.2   0.839    0.31
+
+Ai2020@1C           2.2788 SPM     2.3847  +4.65%     90.8   1.000    0.08
+Ai2020@1C           2.2788 SPMe    2.3746  +4.20%     54.0   0.716    0.26
+Ai2020@1C           2.2788 DFN     2.3732  +4.14%     46.3   0.667    0.39
+
+Ai2020@2C           2.2258 SPM     2.3369  +4.99%    151.0   1.000    0.10
+Ai2020@2C           2.2258 SPMe    2.3059  +3.60%     53.3   0.439    0.25
+Ai2020@2C           2.2258 DFN     2.2725  +2.10%     18.6   0.303    0.31
+
+condition        SPMe r_min   excess |SPMe-DFN| |DFN-meas|
+Ecker2015@1C          0.867   +0.00%      0.00%      0.88%
+Ecker2015@5C          0.420   -0.13%      0.13%      2.75%
+Ai2020@0.1C           0.971   -0.00%      0.00%      4.26%
+Ai2020@0.5C           0.857   +0.00%      0.00%      4.26%
+Ai2020@1C             0.716   +0.06%      0.06%      4.14%
+Ai2020@2C             0.439   +1.50%      1.50%      2.10%
+
+H61 (DFN within SPMe + 1 pt everywhere): supported; SPMe closer than DFN by at most +0.13% (refuted if > +2%)
+H62 (Spearman(SPMe r_min, excess) <= -0.6): mixed; rho = -0.143 over 6
+H63 (on SPMe r_min >= 0.5, |SPMe-DFN| < |DFN-meas| on >= 2/3): supported; trusted ['Ecker2015@1C', 'Ai2020@0.1C', 'Ai2020@0.5C', 'Ai2020@1C'], reduction smaller on ['Ecker2015@1C', 'Ai2020@0.1C', 'Ai2020@0.5C', 'Ai2020@1C']
+
+Post hoc (after the verdicts, not pre-registered)
+A. Ai2020 rate capability, Q(rate)/Q(0.1C), so the rate-independent capacity offset cancels; error in points
+  isothermal: 0.5C measured 0.9895, SPM +0.13, SPMe -0.00, DFN -0.00; 1C measured 0.9771, SPM +0.34, SPMe -0.05, DFN -0.11; 2C measured 0.9543, SPM +0.65, SPMe -0.60, DFN -1.98
+  lumped: 0.5C measured 0.9895, SPM +0.13, SPMe +0.01, DFN +0.01; 1C measured 0.9771, SPM +0.36, SPMe +0.01, DFN -0.02; 2C measured 0.9543, SPM +0.75, SPMe -0.17, DFN -0.47
+B. lumped thermal against isothermal: capacity error, voltage RMSE [mV], peak cell temperature rise [K]
+  condition        model  err iso err lump RMSE iso RMSE lump    dT r_min lump
+  Ecker2015@1C     SPM     +0.95%   +0.96%     48.4      48.5   0.1      1.000
+  Ecker2015@1C     SPMe    +0.88%   +0.88%     39.6      39.8   0.1      0.867
+  Ecker2015@1C     DFN     +0.88%   +0.88%     39.5      39.7   0.1      0.862
+  Ecker2015@5C     SPM     -1.37%   -0.75%     82.1      79.2   0.9      1.000
+  Ecker2015@5C     SPMe    -2.62%   -1.67%     81.4      55.1   1.2      0.430
+  Ecker2015@5C     DFN     -2.75%   -1.78%     85.6      57.9   1.3      0.411
+  Ai2020@0.1C      SPM     +4.28%   +4.28%     53.1      53.0   0.2      1.000
+  Ai2020@0.1C      SPMe    +4.26%   +4.26%     52.1      52.1   0.7      0.971
+  Ai2020@0.1C      DFN     +4.26%   +4.26%     52.1      52.1   0.2      0.970
+  Ai2020@0.5C      SPM     +4.42%   +4.42%     67.7      67.5   1.4      1.000
+  Ai2020@0.5C      SPMe    +4.26%   +4.27%     54.9      55.0   1.6      0.859
+  Ai2020@0.5C      DFN     +4.26%   +4.27%     53.2      53.5   1.6      0.846
+  Ai2020@1C        SPM     +4.65%   +4.67%     90.8      90.6   3.3      1.000
+  Ai2020@1C        SPMe    +4.20%   +4.27%     54.0      55.6   3.9      0.726
+  Ai2020@1C        DFN     +4.14%   +4.23%     46.3      49.2   4.1      0.701
+  Ai2020@2C        SPM     +4.99%   +5.10%    151.0     150.7   7.5      1.000
+  Ai2020@2C        SPMe    +3.60%   +4.07%     53.3      66.6   9.4      0.493
+  Ai2020@2C        DFN     +2.10%   +3.75%     18.6      46.3  10.4      0.469
+  dT is the lumped run's peak X-averaged temperature minus the sets' 298.15 K ambient.
+C. Ai2020 measured peak temperature rise [K] (pybamm-data *_discharge_T.txt, second column): 0.5C 1.57, 1C 4.04, 2C 10.41; lumped DFN above: 0.5C 1.64, 1C 4.06, 2C 10.37

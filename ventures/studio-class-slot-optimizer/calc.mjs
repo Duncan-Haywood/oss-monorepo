@@ -22,7 +22,7 @@ const mean = (v) => v.reduce((s, x) => s + x, 0) / v.length;
 const variance = (v) => (v.length < 2 ? 0 : v.reduce((s, x) => s + (x - mean(v)) ** 2, 0) / (v.length - 1));
 const quantile = (sorted, q) => sorted[Math.min(sorted.length - 1, Math.max(0, Math.round(q * (sorted.length - 1))))];
 
-export const money = (v) => (Number.isFinite(v) ? (v < 0 ? "-$" : "$") + Math.abs(Math.round(v)).toLocaleString("en-US") : "n/a");
+export const money = (v) => (Number.isFinite(v) ? ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(v)).toLocaleString("en-US")) : "n/a");
 export const pct = (v, d = 0) => (Number.isFinite(v) ? (v * 100).toFixed(d) + "%" : "n/a");
 
 function splitLine(line) {
@@ -36,7 +36,7 @@ export function parseRows(text) {
   let cols = { slot: 0, attended: 1, capacity: 2 };
   let start = 0;
   const first = splitLine(lines[0]).map((c) => c.toLowerCase());
-  if (first.some((c) => /[a-z]/.test(c) && /slot|class|time|attend|capacity|cap|count|size|people|head|sign/.test(c))) {
+  if (first.some((c) => /[a-z]/.test(c) && /slot|class|time|attend|capacity|cap|count|size|people|head|sign/.test(c)) && !first.some((c) => c !== "" && Number.isFinite(Number(c.replace(/,/g, ""))))) {
     start = 1;
     const find = (re) => first.findIndex((c) => re.test(c));
     const slot = find(/slot|class|time|name|day/), att = find(/attend|count|people|head|checked|sign|size|booked/), cap = find(/capacity|cap|max|spots|limit/);

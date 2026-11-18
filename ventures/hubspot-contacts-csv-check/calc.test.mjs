@@ -188,7 +188,7 @@ test("csv helpers round trip quotes, commas and newlines", () => {
 });
 
 test("a byte-order mark and CRLF line endings are tolerated", () => {
-  const r = validate("﻿Email,First Name\r\na@b.example,A\r\n");
+  const r = validate("\uFEFFEmail,First Name\r\na@b.example,A\r\n");
   assert.deepEqual(r.findings.filter((f) => f.severity !== "info"), []);
   assert.equal(r.summary.contacts, 1);
 });

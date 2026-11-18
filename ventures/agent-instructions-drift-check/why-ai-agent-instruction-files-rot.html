@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to Agent Instructions Drift Check</a></p>
   <h1>Why AGENTS.md and CLAUDE.md files rot</h1>
 
@@ -81,7 +82,9 @@
   <h3>Can it resolve a shorthand reference that relies on nearby prose for its directory?</h3>
   <p>No, and this is a named limitation rather than a hidden one. A sentence that names a full path once and then refers back to it later with just the filename ("the same <code>validate.py</code> as above") will report the later, shorter reference as not found even though the earlier, fuller path exists. The fix in the instructions file is usually to repeat the full path, which also makes the file easier for a human skimmer to follow.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it documents report whether a referenced path, script, or known shell pattern matches what it was told about your repo — nothing more. It is not legal, security, or engineering advice, and a clean result is not a guarantee that your instructions are correct or complete. Verify by reading the actual files before relying on it.
     <a href="./">Back to the tool</a>.</p>
   </footer>

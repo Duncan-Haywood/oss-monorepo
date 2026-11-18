@@ -1,0 +1,170 @@
+{
+ "daily": {
+  "kind": "daily",
+  "start": "2026-11-01T00:00:00+00:00",
+  "end": "2026-11-02T00:00:00+00:00",
+  "ref": "origin/main",
+  "commits": 220,
+  "baseline_commits_per_period": 273.4,
+  "project_commits": 177,
+  "high_value_share": 0.831,
+  "baseline_high_value_share": 0.742,
+  "tiers": {
+   "flagship": 104,
+   "request": 0,
+   "programme": 43,
+   "feeds-programme": 0,
+   "venture": 26,
+   "research": 3,
+   "calculator": 1
+  },
+  "areas": {
+   "records": 12,
+   "platform": 10,
+   "ci": 6,
+   "agent-docs": 6,
+   "guidance": 5,
+   "other": 2,
+   "portfolio": 1,
+   "writing": 1
+  },
+  "overhead_share": 0.109,
+  "runs": 157,
+  "tracks": {
+   "ventures": 51,
+   "research": 43,
+   "creative": 20,
+   "redteam": 16,
+   "process": 9,
+   "polish": 8,
+   "perf": 5,
+   "explore": 5
+  },
+  "track_weights": {
+   "ventures": 0.29,
+   "research": 0.29,
+   "process": 0.1,
+   "explore": 0.05,
+   "redteam": 0.07,
+   "perf": 0.05,
+   "creative": 0.1,
+   "polish": 0.05,
+   "review": 0
+  },
+  "outcomes": {
+   "success": 129,
+   "partial": 28
+  },
+  "suggestions": [
+   {
+    "kind": "untouched",
+    "text": "No commits this period on flagship 7: ventures/photo-editing. Next: `--picks` also reports `reject_reasons` (why picks were rejected, 2026-10-30, made-up folder only). `shootflow cull --thumbs` (2026-10-29) adds a thumbnail contact sheet by burst to the report. `shootflow cull` (2026-10-29) turns that into a standalone ..."
+   },
+   {
+    "kind": "untouched",
+    "text": "No commits this period on flagship 10: ventures/open-tennis-robots. Next: The feeder CAD v0.1 package is in (manufacturing/feeder/: launcher head, trunnion cheeks, turntable, 2040 base with brackets, mast, 3 m net beam, poles and camera bar; the build tilts the head through -15..+45 deg for collisions and sizes wind ballast). The ..."
+   },
+   {
+    "kind": "untouched",
+    "text": "No commits this period on programme research/lowcomm-training. Next: A predictive theory of low-communication training (DiLoCo-style local SGD): which of sync interval, compression, delay, momentum and robust aggregation set the final loss, checked on real small-transformer training"
+   },
+   {
+    "kind": "calculator",
+    "text": "1 commits landed on calculators: brand-deal-rate-calculator (1). They are maintain-only (prompts/goals.md, 'Depth over calculators'); fixes are fine, features are effort better spent on a flagship."
+   },
+   {
+    "kind": "orphan-research",
+    "text": "3 commits went to research projects no programme builds on (energy-cell-dfn, civ-patterns). Attach each to a programme in research/PROGRAMMES.md, or propose one if three or more share a question."
+   },
+   {
+    "kind": "unranked",
+    "text": "A large share of effort went to projects on no ranked list: hearth-and-horizon (16 commits, ~1402 h). If they earn it, add them to portfolio/flagships.yaml (venture) or research/PROGRAMMES.md (research) with a `next`, in a PR that says why; if not, point the next runs back at the ranked list."
+   },
+   {
+    "kind": "keep-going",
+    "text": "Deep projects that got work: wall-framing-takeoff (~1085 h), hearth-and-horizon (~1402 h), verified-dse (~397 h), einvoice-preflight (~1825 h), ai-bookkeeper (~1716 h), llm-coding-inference (~307 h). Keep slices on these landing; each run should leave the next one a working step and an updated `next`."
+   }
+  ]
+ },
+ "weekly": {
+  "kind": "weekly",
+  "start": "2026-10-26T00:00:00+00:00",
+  "end": "2026-11-02T00:00:00+00:00",
+  "ref": "origin/main",
+  "commits": 1891,
+  "baseline_commits_per_period": 2355.0,
+  "project_commits": 1475,
+  "high_value_share": 0.736,
+  "baseline_high_value_share": 0.543,
+  "tiers": {
+   "flagship": 748,
+   "request": 0,
+   "programme": 338,
+   "feeds-programme": 1,
+   "venture": 353,
+   "research": 17,
+   "calculator": 18
+  },
+  "areas": {
+   "records": 97,
+   "ci": 96,
+   "platform": 87,
+   "guidance": 63,
+   "portfolio": 24,
+   "other": 21,
+   "agent-docs": 15,
+   "writing": 13
+  },
+  "overhead_share": 0.148,
+  "runs": 1376,
+  "tracks": {
+   "ventures": 469,
+   "research": 345,
+   "creative": 156,
+   "redteam": 123,
+   "process": 122,
+   "explore": 56,
+   "polish": 56,
+   "review": 29,
+   "perf": 20
+  },
+  "track_weights": {
+   "ventures": 0.29,
+   "research": 0.29,
+   "process": 0.1,
+   "explore": 0.05,
+   "redteam": 0.07,
+   "perf": 0.05,
+   "creative": 0.1,
+   "polish": 0.05,
+   "review": 0
+  },
+  "outcomes": {
+   "success": 1211,
+   "partial": 162,
+   "failed": 3
+  },
+  "suggestions": [
+   {
+    "kind": "calculator",
+    "text": "18 commits landed on calculators: brand-deal-rate-calculator (1), actions-minutes-estimator (1), breakeven-roas-calculator (1), cannabis-280e-tax-calculator (1), child-tax-credit-calculator (1), commercial-photo-license-calculator (1). They are maintain-only (prompts/goals.md, 'Depth over calculators'); fixes are fine, features are effort better spent on a flagship."
+   },
+   {
+    "kind": "sprawl",
+    "text": "4 new projects under 20 size-hours started this period (actions-continue-on-error-check, hanger-3dradius, marine-colregs, marine-path). Fold the idea into an existing flagship or programme, or write the 300-hour plan before the next slice."
+   },
+   {
+    "kind": "orphan-research",
+    "text": "17 commits went to research projects no programme builds on (civ-levers, energy-cell-dfn, hanger-3dradius, marine-colregs, marine-path, buildbot-carrycop, capture-trackprior, civ-patterns). Attach each to a programme in research/PROGRAMMES.md, or propose one if three or more share a question."
+   },
+   {
+    "kind": "unranked",
+    "text": "A large share of effort went to projects on no ranked list: shed-designer (134 commits, ~1433 h, new), hearth-and-horizon (116 commits, ~1402 h). If they earn it, add them to portfolio/flagships.yaml (venture) or research/PROGRAMMES.md (research) with a `next`, in a PR that says why; if not, point the next runs back at the ranked list."
+   },
+   {
+    "kind": "keep-going",
+    "text": "Deep projects that got work: wall-framing-takeoff (~1085 h), ai-bookkeeper (~1716 h), shed-designer (~1433 h), hearth-and-horizon (~1402 h), changepoint-detector (~392 h), einvoice-preflight (~1825 h). Keep slices on these landing; each run should leave the next one a working step and an updated `next`."
+   }
+  ]
+ }
+}

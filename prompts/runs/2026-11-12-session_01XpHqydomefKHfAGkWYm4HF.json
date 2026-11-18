@@ -1,0 +1,272 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqydomefKHfAGkWYm4HF",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T03:41:40Z",
+  "ended": "2026-11-12T03:42:14Z",
+  "wall_minutes": 28.16,
+  "tokens_in": 6473597,
+  "tokens_out": 24639,
+  "cost_usd": 2.5914,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14996",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First campaign aimed --target at ventures/shift-roster-builder/demand.mjs without probing; its suite is the whole venture glob, far over 10 min, and the foreground command was killed at 550 s. The file was restored (git status clean)."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Warns that --target skips the probe, but `targets --probe 20` lists only a sample, so a recently changed file may not appear and there's no single-file probe; I had to time the venture glob by hand. A `targets --probe 20 --only <file>` would help."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The stop hook asks to commit uncommitted changes while a mutation campaign holds a live mutant in a tracked file. Following it would commit a seeded bug; the hook should skip while redteam.py campaign is running."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all five open defects are control-plane changes with open owner-gated PRs already, so I fixed none of them and created no duplicate PRs.",
+      "did": "Checked each against main and open PRs; left them for the owner's approval.",
+      "result": "No duplicate work."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-redteam-league-schedule-ten-searches-were-two.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/league-schedule-generator/carryover.mjs (changed on main in the last 2 days). Suite 427 tests, 62 s baseline. Guard added: three tests in the venture suite (huge seed, two-team league, double-round-robin initial host); no new CI lint (the seed class is specific to this mixer). Full venture suite 430/430 after the fix.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/league-schedule-generator/carryover.mjs",
+        "test": "node --test ventures/league-schedule-generator/**/*.test.mjs  (in .)",
+        "seed": 1014323543,
+        "commit": "2db29abe",
+        "sites": 3202,
+        "baseline_seconds": 62.4,
+        "mutants": [
+          {
+            "file": "ventures/league-schedule-generator/carryover.mjs",
+            "line": 217,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "18: { even: [1, 1, 7, 2, 10, 3, 6, 4, 8, 5, 12, 9, 14, 11, 13, 15, 16] },",
+            "after": "18: { even: [1, 1, 7, 2, 10, 4, 6, 4, 8, 5, 12, 9, 14, 11, 13, 15, 16] },",
+            "line_text": "  18: { even: [1, 1, 7, 2, 10, 3, 6, 4, 8, 5, 12, 9, 14, 11, 13, 15, 16] },",
+            "caught": true,
+            "seconds": 49.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/carryover.mjs",
+            "line": 221,
+            "col": 177,
+            "operator": "const-plus-one",
+            "before": "34: { even: [1, 1, 17, 2, 7, 3, 11, 4, 8, 5, 19, 6, 29, 9, 31, 10, 28, 12, 32, 13, 25, 14, 16, 15, 22, 18, 24, 20, 23, 21, 30, 26, 27], odd: [1, 1, 28, 2, 10, 3, 16, 4, 9, 5, 7, 6, 27, 8, 19, 11, 25, 12, 13, 14, 24, 15, 31, 17, 32, 18, 21, 20, 29, 22, 26, 23, 30] },",
+            "after": "34: { even: [1, 1, 17, 2, 7, 3, 11, 4, 8, 5, 19, 6, 29, 9, 31, 10, 28, 12, 32, 13, 25, 14, 16, 15, 22, 18, 24, 20, 23, 21, 30, 26, 27], odd: [1, 1, 28, 2, 10, 3, 16, 4, 9, 5, 8, 6, 27, 8, 19, 11, 25, 12, 13, 14, 24, 15, 31, 17, 32, 18, 21, 20, 29, 22, 26, 23, 30] },",
+            "line_text": "  34: { even: [1, 1, 17, 2, 7, 3, 11, 4, 8, 5, 19, 6, 29, 9, 31, 10, 28, 12, 32, 13, 25, 14, 16, 15, 22, 18, 24, 20, 23, 21, 30, 26, 27], odd: [1, 1, 28, 2, 10, 3, 16, 4, 9, 5, 7, 6, 27, 8, 19, 11, 25, 12, 13, 14, 24, 15, 31, 17, 32, 18, 21, 20, 29, 22, 26, 23, 30] },",
+            "caught": true,
+            "seconds": 60.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/carryover.mjs",
+            "line": 356,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "[11, 5, 8, 4, 3, 1, 9, 10, 2, 6, 7, 0],",
+            "after": "[11, 5, 8, 4, 3, 1, 9, 10, 2, 7, 7, 0],",
+            "line_text": "      [11, 5, 8, 4, 3, 1, 9, 10, 2, 6, 7, 0],",
+            "caught": true,
+            "seconds": 60.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/carryover.mjs",
+            "line": 508,
+            "col": 16,
+            "operator": "gt-to-ge",
+            "before": "if (++swapGen > 0xfffffffe) { swapStamp.fill(0); swapGen = 1; }",
+            "after": "if (++swapGen >= 0xfffffffe) { swapStamp.fill(0); swapGen = 1; }",
+            "line_text": "  if (++swapGen > 0xfffffffe) { swapStamp.fill(0); swapGen = 1; }",
+            "caught": false,
+            "seconds": 61.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Moves the stamp-table wrap one generation earlier (0xfffffffe instead of 0xffffffff), after ~4.3 billion teamSwapRounds calls; both reset to a cleared table, so marks stay correct either way and no run reaches it."
+          },
+          {
+            "file": "ventures/league-schedule-generator/carryover.mjs",
+            "line": 568,
+            "col": 103,
+            "operator": "true-to-false",
+            "before": "export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true, fromStarter = false, weightedStarter = true, shift = true } = {}) {",
+            "after": "export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = false, fromStarter = false, weightedStarter = true, shift = true } = {}) {",
+            "line_text": "export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true, fromStarter = false, weightedStarter = true, shift = true } = {}) {",
+            "caught": true,
+            "seconds": 45.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/carryover.mjs",
+            "line": 889,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "const R = opp.length, N = opp[0].length;",
+            "after": "const R = opp.length, N = opp[1].length;",
+            "line_text": "  const R = opp.length, N = opp[0].length;",
+            "caught": false,
+            "seconds": 61.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "byeStretches sized its table from opp[1]: a two-team league has one round, so lowCarryOverRounds(2) crashed. No test ran n = 2 through the carry-over search; carryover.test.mjs now does."
+          },
+          {
+            "file": "ventures/league-schedule-generator/carryover.mjs",
+            "line": 1219,
+            "col": 58,
+            "operator": "eq-flip",
+            "before": "const h = host[Math.min(k, o) * N + Math.max(k, o)] === k ? 1 : 0;",
+            "after": "const h = host[Math.min(k, o) * N + Math.max(k, o)] !== k ? 1 : 0;",
+            "line_text": "      const h = host[Math.min(k, o) * N + Math.max(k, o)] === k ? 1 : 0;",
+            "caught": true,
+            "seconds": 60.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/carryover.mjs",
+            "line": 1320,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "if (t < u) host[t * N + u] = k === 0 && initialHost ? initialHost[t * N + u] : (k <= 1 ? start[r][t] : rand() < 0.5) ? t : u;",
+            "after": "if (t < u) host[t * N + u] = k === 1 && initialHost ? initialHost[t * N + u] : (k <= 1 ? start[r][t] : rand() < 0.5) ? t : u;",
+            "line_text": "      if (t < u) host[t * N + u] = k === 0 && initialHost ? initialHost[t * N + u] : (k <= 1 ? start[r][t] : rand() < 0.5) ? t : u;",
+            "caught": false,
+            "seconds": 63.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Restart 0 ignored initialHost (it seeded restart 1 instead), so with restarts = 1 the host lowCarryOverDoubleRounds hands over was dropped. carryover.test.mjs now checks two opposite hosts give different seasons with one restart."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/league-schedule-generator/carryover.mjs",
+        "issue": "carryOverTrySeed: a typed seed of about 1e21 or more (readSpec keeps any finite number) made seed * 7919 swamp i * 104729 in floating point, so tries 1-9 of the 'ten searches' got one seed (2 distinct seeds of 10). Fixed by folding an unsafe seed to seed >>> 0 (what mulberry32 reads) before mixing; every seed whose product is a safe integer keeps its exact tries. Test: best-of-k.test.mjs 'a huge typed seed...'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14996"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7f1faef2-a6ed-53e2-883d-1890097d7f1c",
+    "transcripts": 1,
+    "first": "2026-11-12T03:41:40Z",
+    "last": "2026-11-12T04:09:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 162,
+        "output": 24639,
+        "thinking": 6815,
+        "cache_read": 6370445,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102990,
+        "api_equivalent_usd": 2.5914,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 162,
+      "output": 24639,
+      "thinking": 6815,
+      "cache_read": 6370445,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102990,
+      "api_equivalent_usd": 2.5914,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 28.16,
+      "active_minutes": 21.95,
+      "model_minutes": 4.52,
+      "tool_minutes": 17.42,
+      "waiting_on_human_minutes": 6.21,
+      "human_prompts": 17,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "a senior engineer running mutation tests over a 1,500-line module, triaging three escapes and fixing one numeric bug",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 115.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

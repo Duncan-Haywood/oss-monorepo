@@ -1,0 +1,404 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKkqXAb8Wu8iio8BJZd",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T07:23:26Z",
+  "ended": "2026-11-12T07:29:28Z",
+  "wall_minutes": 9.53,
+  "tokens_in": 6741276,
+  "tokens_out": 29989,
+  "cost_usd": 2.7452,
+  "tool_calls": 70,
+  "task": "redteam: purple-fix open .ics folding defect, two campaigns",
+  "projects": [
+    "ics-calendar-check",
+    "percentage-rent-audit-checker",
+    "vcard-contacts-check",
+    "shift-rotation-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15047",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "A python re.sub meant to double one backslash in four test regexes appended '\\\\;' to the line ends instead; caught by the diff, reverted with git checkout and redone by exact string replace."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 1 suggests `git log --since=3.days --name-only origin/main` to find fresh targets, but the clone is depth 1, so it prints nothing; needs a `git fetch --deepen` first or use the GitHub commit list."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "--changed fails in a fresh session (no merge base in the shallow clone); naming the slugs from `git status` worked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 fixes control-plane entries in their own PR; five of the six open entries are .github/workflows or prompts/ (control plane). Took the one non-control-plane entry and left the others for a run that can open the owner-approved PR.",
+      "did": "Fixed the ten-generator ICS folding entry; left five control-plane entries open.",
+      "result": "Folding fixed and guarded; the fix surfaced a twelve-file escaping defect, also fixed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-backslash-that-javascript-throws-away.md"
+  ],
+  "goal": null,
+  "notes": "Campaign 1 targeted ventures/ics-calendar-check/calc.mjs (the checker the dogfood guard depends on): 8 seeded, 5 caught. Campaign 2 random draw: ventures/percentage-rent-audit-checker/calc.mjs, 8 seeded, 4 caught. Catch rate 9/16 = 56% before, 16/16 after the 7 gap tests (rerun). Guard added (step 4/4b): ventures/ics-calendar-check/dogfood.test.mjs now (a) rejects the 'longer than 75 octets' warning for every venture generator, (b) rejects bare ';' or ',' in SUMMARY/DESCRIPTION/LOCATION/COMMENT, (c) lints every ventures/ source file for a .replace(...) with a one-backslash ';' or ',' string. On first run (b) found shift-rotation-schedule-generator, which escaped nothing; (c) found its own comment. Verified each guard fails with the old code (git stash of coi/slot-keeper/vcard). Local checks: run_venture_tests.py over all 19 touched slugs plus percentage-rent: all green. Not covered by the lint: regex literals like /\\;/ in tests (identity escape), which can be legitimate, so they stay a review item.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ics-calendar-check/calc.mjs",
+        "test": "node --test ventures/ics-calendar-check/**/*.test.mjs  (in .)",
+        "seed": 1026177755,
+        "commit": "66201031c",
+        "sites": 322,
+        "baseline_seconds": 0.9,
+        "mutants": [
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 19,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "if (phys.length && phys.at(-1) === \"\") phys.pop();",
+            "after": "if (phys.length && phys.at(-2) === \"\") phys.pop();",
+            "line_text": "  if (phys.length && phys.at(-1) === \"\") phys.pop();",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "unfold kept the trailing empty line; test pins unfold('A\\r\\nB\\r\\n') to two lines"
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 185,
+            "col": 32,
+            "operator": "or-to-and",
+            "before": "if (!/^[+-]?\\d+$/.test(x) || (noZero && n === 0) || Math.abs(n) > hi || n < lo) out.push({ title: `bad ${key} value ${x || \"(empty)\"}`, detail: `${key} accepts ${noZero ? \"non-zero \" : \"\"}whole numbers from ${lo} to ${hi}.` });",
+            "after": "if (!/^[+-]?\\d+$/.test(x) && (noZero && n === 0) || Math.abs(n) > hi || n < lo) out.push({ title: `bad ${key} value ${x || \"(empty)\"}`, detail: `${key} accepts ${noZero ? \"non-zero \" : \"\"}whole numbers from ${lo} to ${hi}.` });",
+            "line_text": "      if (!/^[+-]?\\d+$/.test(x) || (noZero && n === 0) || Math.abs(n) > hi || n < lo) out.push({ title: `bad ${key} value ${x || \"(empty)\"}`, detail: `${key} accepts ${noZero ? \"non-zero \" : \"\"}whole numbers from ${lo} to ${hi}.` });",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 192,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "range(\"BYHOUR\", 0, 23);",
+            "after": "range(\"BYHOUR\", 1, 23);",
+            "line_text": "  range(\"BYHOUR\", 0, 23);",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "BYHOUR=0 (midnight) flagged as bad; test checks 0 passes and 24 fails"
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 200,
+            "col": 34,
+            "operator": "and-to-or",
+            "before": "else if (m[1] !== undefined && (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "after": "else if (m[1] !== undefined || (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "line_text": "      else if (m[1] !== undefined && (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 200,
+            "col": 57,
+            "operator": "or-to-and",
+            "before": "else if (m[1] !== undefined && (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "after": "else if (m[1] !== undefined && (Number(m[1]) === 0 && Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "line_text": "      else if (m[1] !== undefined && (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 200,
+            "col": 85,
+            "operator": "const-plus-one",
+            "before": "else if (m[1] !== undefined && (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "after": "else if (m[1] !== undefined && (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 54)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "line_text": "      else if (m[1] !== undefined && (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 338,
+            "col": 70,
+            "operator": "neq-flip",
+            "before": "else if (!DUR_RE.test(trig.value.trim()) && trig.params.VALUE !== \"DATE-TIME\") findings.push(F(\"error\", trig.line, `${at}bad VALARM TRIGGER`, `\"${trig.value.slice(0, 30)}\" is not a duration such as -PT15M or -P1D. Use VALUE=DATE-TIME for an absolute time.`));",
+            "after": "else if (!DUR_RE.test(trig.value.trim()) && trig.params.VALUE === \"DATE-TIME\") findings.push(F(\"error\", trig.line, `${at}bad VALARM TRIGGER`, `\"${trig.value.slice(0, 30)}\" is not a duration such as -PT15M or -P1D. Use VALUE=DATE-TIME for an absolute time.`));",
+            "line_text": "        else if (!DUR_RE.test(trig.value.trim()) && trig.params.VALUE !== \"DATE-TIME\") findings.push(F(\"error\", trig.line, `${at}bad VALARM TRIGGER`, `\"${trig.value.slice(0, 30)}\" is not a duration such as -PT15M or -P1D. Use VALUE=DATE-TIME for an absolute time.`));",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 349,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "const order = { error: 0, warning: 1, info: 2 };",
+            "after": "const order = { error: 0, warning: 2, info: 2 };",
+            "line_text": "  const order = { error: 0, warning: 1, info: 2 };",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "warnings sorted together with info; test with a floating-time info before a long-line warning"
+          }
+        ]
+      },
+      {
+        "target": "ventures/percentage-rent-audit-checker/calc.mjs",
+        "test": "node --test ventures/percentage-rent-audit-checker/**/*.test.mjs  (in .)",
+        "seed": 986260036,
+        "commit": "66201031c",
+        "sites": 122,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/percentage-rent-audit-checker/calc.mjs",
+            "line": 18,
+            "col": 8,
+            "operator": "lt-to-le",
+            "before": "if (n < min || n > max) throw new Error(`${name} must be between ${min} and ${max}`);",
+            "after": "if (n <= min || n > max) throw new Error(`${name} must be between ${min} and ${max}`);",
+            "line_text": "  if (n < min || n > max) throw new Error(`${name} must be between ${min} and ${max}`);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/percentage-rent-audit-checker/calc.mjs",
+            "line": 23,
+            "col": 42,
+            "operator": "div-to-times",
+            "before": "const v = Math.round(Math.abs(n) * 100) / 100;",
+            "after": "const v = Math.round(Math.abs(n) * 100) * 100;",
+            "line_text": "  const v = Math.round(Math.abs(n) * 100) / 100;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/percentage-rent-audit-checker/calc.mjs",
+            "line": 36,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "const s = num(sales, \"gross sales\", { min: 0 });",
+            "after": "const s = num(sales, \"gross sales\", { min: 1 });",
+            "line_text": "  const s = num(sales, \"gross sales\", { min: 0 });",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "zero gross sales rejected; test percentageRent with sales 0"
+          },
+          {
+            "file": "ventures/percentage-rent-audit-checker/calc.mjs",
+            "line": 58,
+            "col": 60,
+            "operator": "const-plus-one",
+            "before": "if (Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== dateStr) throw new Error(\"statement date is not a real date\");",
+            "after": "if (Number.isNaN(d.getTime()) || d.toISOString().slice(0, 11) !== dateStr) throw new Error(\"statement date is not a real date\");",
+            "line_text": "  if (Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== dateStr) throw new Error(\"statement date is not a real date\");",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/percentage-rent-audit-checker/calc.mjs",
+            "line": 84,
+            "col": 78,
+            "operator": "const-plus-one",
+            "before": "amount: round2(num(e.amount, `${e.label || \"exclusion\"} amount`, { min: 0 })),",
+            "after": "amount: round2(num(e.amount, `${e.label || \"exclusion\"} amount`, { min: 1 })),",
+            "line_text": "      amount: round2(num(e.amount, `${e.label || \"exclusion\"} amount`, { min: 0 })),",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "zero exclusion amount rejected; test an exclusion of 0"
+          },
+          {
+            "file": "ventures/percentage-rent-audit-checker/calc.mjs",
+            "line": 165,
+            "col": 63,
+            "operator": "or-to-and",
+            "before": "const tenant = String(meta.tenant || \"[tenant name]\").trim() || \"[tenant name]\";",
+            "after": "const tenant = String(meta.tenant || \"[tenant name]\").trim() && \"[tenant name]\";",
+            "line_text": "  const tenant = String(meta.tenant || \"[tenant name]\").trim() || \"[tenant name]\";",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/percentage-rent-audit-checker/calc.mjs",
+            "line": 172,
+            "col": 51,
+            "operator": "lt-to-le",
+            "before": "const disputed = r.items.filter((i) => i.dollars < 0);",
+            "after": "const disputed = r.items.filter((i) => i.dollars <= 0);",
+            "line_text": "  const disputed = r.items.filter((i) => i.dollars < 0);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "zero-priced (lease-disallowed) exclusion listed as disputed in the note; test it is absent"
+          },
+          {
+            "file": "ventures/percentage-rent-audit-checker/calc.mjs",
+            "line": 179,
+            "col": 19,
+            "operator": "gt-to-ge",
+            "before": "if (r.overcharge > 0) lines.push(`That is a difference of ${money(r.overcharge)} against the statement. Please send the sales report and the calculation behind the figure so we can reconcile them, and hold the balance until we have.`);",
+            "after": "if (r.overcharge >= 0) lines.push(`That is a difference of ${money(r.overcharge)} against the statement. Please send the sales report and the calculation behind the figure so we can reconcile them, and hold the balance until we have.`);",
+            "line_text": "  if (r.overcharge > 0) lines.push(`That is a difference of ${money(r.overcharge)} against the statement. Please send the sales report and the calculation behind the figure so we can reconcile them, and hold the balance until we have.`);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "zero difference wrote 'difference of $0.00' instead of agreeing; test an exact-match statement"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/*/ (11 TEXT escapers)",
+        "issue": "Eleven escapers (coi-expiry-gap-checker, einvoice-preflight mandate-calendar, invoice-payment-terms-calculator calendar+reminders, late-invoice-collections-kit, meeting-action-items, saas-renewal-planner, slot-keeper, vcard-contacts-check, vegetable-garden-planting-calendar, wedding-day-timeline-builder) used .replace(/;/g, \"\\;\"); in JS that string is ';', so semicolons in SUMMARY/DESCRIPTION/FN were never escaped (RFC 5545 3.3.11, RFC 6350 3.4). Four tests asserted the bug because the regex /\\;/ also matches a bare ';'. Fixed to \"\\\\;\", tests corrected, einvoice mandate-calendar.ics regenerated (its X-WR-CALDESC too).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15047"
+      },
+      {
+        "file": "ventures/shift-rotation-schedule-generator/rotation.mjs",
+        "issue": "toIcs put the user's crew name into SUMMARY with no escaping at all (a ',' or ';' unescaped, a newline splits the property) and into UID raw. SUMMARY now escaped; newlines stripped from UID (other characters kept so existing UIDs stay stable).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15047"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "26cfd97d-30de-58aa-93ee-f74bf3942024",
+    "transcripts": 1,
+    "first": "2026-11-12T07:23:26Z",
+    "last": "2026-11-12T07:32:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 134,
+        "output": 29989,
+        "thinking": 6329,
+        "cache_read": 6639012,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102130,
+        "api_equivalent_usd": 2.7452,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 134,
+      "output": 29989,
+      "thinking": 6329,
+      "cache_read": 6639012,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102130,
+      "api_equivalent_usd": 2.7452,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 65,
+      "Read": 1,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.53,
+      "active_minutes": 9.53,
+      "model_minutes": 7.58,
+      "tool_minutes": 1.95,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "find + fix 12 escapers and 10 folders, 4 test fixes, 8 tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 218.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

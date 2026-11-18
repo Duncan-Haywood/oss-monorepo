@@ -23,9 +23,25 @@ test("a goods-heavy business above 2% uses the sector rate", () => {
   assert.equal(r.frsRate, 14.5);
 });
 
-test("first-year discount takes 1 point off the sector rate but not off the limited cost rate", () => {
+test("first-year discount takes 1 point off the sector rate and off the limited cost rate (SI 2017/295: 15.5%)", () => {
   assert.equal(compute({ ...base, goodsSpend: "5000", firstYear: "yes" }).frsRate, 13.5);
-  assert.equal(compute({ ...base, firstYear: "yes" }).frsRate, 16.5);
+  assert.equal(compute({ ...base, firstYear: "yes" }).frsRate, 15.5);
+});
+
+// Quality audit 2026-11-13 (round 67): a first-year limited cost trader on £60k ex VAT pays
+// 15.5% x £72,000 = £11,160 against standard £12,000 - £260 = £11,740, so the scheme wins by £580.
+test("first-year limited cost trader: verdict uses 15.5%", () => {
+  const r = compute({ sector: "6", turnover: "60000", goodsSpend: "300", otherPurchases: "1000", capitalSpend: "0", firstYear: "yes" });
+  assert.equal(r.frsNet, 11160);
+  assert.equal(r.stdNet, 11740);
+  assert.equal(r.better, "frs");
+  assert.equal(r.saving, 580);
+});
+
+test("catering and the catch-all sector are in the list", () => {
+  assert.equal(SECTORS.find((s) => /^Catering services/.test(s.label)).rate, 12.5);
+  assert.equal(SECTORS.find((s) => /^Any other activity/.test(s.label)).rate, 12);
+  assert.equal(SECTORS[6].label, "Computer and IT consultancy or data processing");
 });
 
 test("under £1,000 goods is limited cost even above 2% of a small turnover", () => {

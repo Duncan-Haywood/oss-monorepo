@@ -84,3 +84,16 @@ def test_cli(capsys):
     assert "truss:" in capsys.readouterr().out
     main(["check", "--span", "24", "--top", "2x6", "--bottom", "2x6"])
     assert "top chord" in capsys.readouterr().out
+
+
+def test_demand_capacity_ratios_are_pinned():
+    # Values recomputed independently in the 2026-11-08 quality audit (portfolio/quality/audits/2026-11-08-house-truss.json):
+    # method-of-joints solve plus NDS 3.7.1 Cp and 3.9.2 / 3.9.1 written afresh. 24 ft, 4/12, 24 in o.c.
+    def r(size_top, size_bottom):
+        return checks(Truss(24, 4.0, 24.0, size_top, size_bottom, "2x4"))[0]
+
+    assert r("2x4", "2x4")["top chord"] == pytest.approx(2.81, abs=0.005)
+    assert r("2x6", "2x4")["top chord"] == pytest.approx(0.59, abs=0.005)
+    assert r("2x4", "2x4")["bottom chord"] == pytest.approx(1.05, abs=0.005)
+    assert r("2x4", "2x6")["bottom chord"] == pytest.approx(0.61, abs=0.005)
+    assert board_feet(Truss(24, 4.0, 24.0, "2x6", "2x6", "2x4")) == pytest.approx(60.6, abs=0.05)

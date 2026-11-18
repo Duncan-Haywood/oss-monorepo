@@ -1,7 +1,7 @@
 ---
 title: The Lake Under the Stairs
 shelf: hearth-and-horizon
-setting: Sankt Urban, an invented Benedictine priory above Zell on the Mosel, Germany, 2 to 9 October 2047
+setting: Sankt Urban, an invented Benedictine priory above Zell on the Mosel, Germany, 7 to 14 October 2047
 published: 2026-10-31
 summary: A priory's wall sensor says the wine cellar's air is fine at 0.5 per cent carbon dioxide. A second sensor laid on the floor says 3.4. The old cellarer has gone down alone for fifty-one harvests with a candle; the cellar assistant tells him what it measured, what it did not, and why the gas rises from the floor like water in a tank.
 ---
@@ -14,7 +14,7 @@ Brother Konrad Schäfer had gone down the fourteen steps into the cellar of Sank
 
 It lived in a grey box beside the cellar door and spoke through a small speaker that Brother Konrad had once covered with a tea towel, in 2044, in protest, and then uncovered again because he could not hear the weather. It was called Pegel, which is the German word for the gauge you read the river by, and it had been bought by the priory's treasurer with a diocesan grant to watch the temperatures of the tanks. Eighteen months later it also watched the cellar's air, because the grant had a line about safety and the supplier had a sensor to sell.
 
-It was Monday 2 October 2047. The grapes had come in on the Saturday and the Sunday. In the cellar below the yard, three thousand litres of Riesling must stood in six steel tanks of five hundred litres each, with the yeast already working, and a sound that Brother Konrad had loved since he was twenty-three came up the stairwell: a long, soft, continuous hiss, like rain on a far roof.
+It was Monday 7 October 2047. The grapes had come in on the Saturday and the Sunday. In the cellar below the yard, three thousand litres of Riesling must stood in six steel tanks of five hundred litres each, with the yeast already working, and a sound that Brother Konrad had loved since he was twenty-three came up the stairwell: a long, soft, continuous hiss, like rain on a far roof.
 
 ---
 
@@ -184,7 +184,7 @@ The fermentation peaked on the Saturday and fell quickly, as it does: by Monday 
 
 The Prior read the remark and did not strike it out.
 
-On Monday evening, 9 October, after Compline, when the monks had said the short reading that begins *Be sober, be watchful*, Brother Konrad stood on the top step of the cellar stairs with the key in his hand and the porch light on his face. It was green, because the fan was on. The hiss from the tanks had thinned to an occasional murmur, like a person turning in sleep.
+On Monday evening, 14 October, after Compline, when the monks had said the short reading that begins *Be sober, be watchful*, Brother Konrad stood on the top step of the cellar stairs with the key in his hand and the porch light on his face. It was green, because the fan was on. The hiss from the tanks had thinned to an occasional murmur, like a person turning in sleep.
 
 Under his feet the fan ran, a low steady hum, patient as a bell in a far tower. Down at the bottom of the fourteen steps, thirty centimetres off the stone, a small grey probe went on counting what no one could smell. Brother Konrad stayed where he was until the light had been green for an hour; then he locked the door, and put the key on its hook, and went up to bed.
 

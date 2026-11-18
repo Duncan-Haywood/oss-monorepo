@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-10-30
+tagged: auto
+---
 # Polish 2026-10-30: `seo_title:` batch 3, the next 25 long headlines
 
 **Weak surface.** 491 posts in `docs/posts/` had a headline over the 70-character title budget and no

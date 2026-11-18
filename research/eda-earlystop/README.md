@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-checkorder` found that after random and directed simulation, the remaining ~7,400 CPU-s is formal working on mutants that no simulation kills, and listed "let the cascade stop formal early" as its next step. The `eda-verify` log has the formal seconds and outcome for every mutant, so a time cap on the formal stage can be costed exactly, without re-running any tool. Produced with AI assistance (Claude). Stylised and preliminary: a re-analysis of one design (the `chip-accel` MAC engine, p = 8, 4-bit), 91 mutants, one solver.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-earlystop/
+**Live page:** https://marisstella.app/research/eda-earlystop/
 
 **Builds on.** `research/eda-checkorder` (the cascade replay; this project imports its loader and cost model), `research/eda-verify` (the log `experiments/mutants.jsonl`), `research/chip-accel`. No CU Boulder lab's work is built on and no affiliation is implied.
 
@@ -27,6 +27,10 @@ python -m unittest discover -s tests
 Figure: `experiments/figure.svg`.
 
 ## Limitations
+- **The proof-time gap comes from how `eda-verify` runs formal, not only from the problem** (found by quality audit round 49, `portfolio/quality/audits/2026-11-12-eda-earlystop.json`). Formal is two phases (`research/eda-verify/src/eda_verify/checks.py`, `formal`): a bounded `sat -seq` search with a 150 s solver timeout under a 210 s wall-clock cap, then `equiv_induct` with a 240 s cap. 15 of the 16 proofs are logged at 221 to 225 s, about 210 s of exhausted bounded search plus 11 to 15 s of induction, and the timeouts sit at 445 to 451 s (210 + 240). So the "price of about 93 s per proof" is the price of running the bounded search first; running induction first, or capping each phase separately, would likely keep most proofs for a small fraction of the time. That alternative is not tested here, and it is the obvious next experiment.
+- Times are wall-clock seconds as logged (the README's "CPU-s" means logged wall-clock seconds, one run at a time).
+- Only two formal kills (40.6 s and 52.5 s in the log) ever reach formal under the cascade, so "no kill lost" at a 60 s cap rests on those two mutants; the 21 to 164 s kill range is over all formal runs, most of which the cheap stages already kill.
+- No prior work on solver cutoffs or mutant timeouts in mutation testing is compared against here.
 - A replay on one design, one solver (Yosys' built-in SAT, 22-cycle bound), one mutant set. The tight gap between kill times and proof times may be specific to this solver and design family; nothing here shows it transfers.
 - The 170 s cap is chosen with the log in view, so the sweep is descriptive, not a validated rule. The held-out check has two folds of about 45 mutants each.
 - "Killable" is defined by the checkers themselves (`eda-verify`), so cap results that depend on formal kills are not independent of that definition. In this log every formal kill is also found by a cheap stage in some seed, so formal adds no kill beyond simulation here; the cap's only cost is proofs.

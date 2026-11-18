@@ -114,7 +114,11 @@ const WRITE_PATTERNS = [
       const match = /\.search\s*=\s*(.*)$/.exec(line);
       if (!match) return false;
       const rhs = match[1].trim().replace(/;$/, "").trim();
-      return !/^(""|''|``)$/.test(rhs);
+      if (/^(""|''|``)$/.test(rhs)) return false;
+      // A boolean, number or null is never a query string: it is an options
+      // object's `search` flag (`opts.search = true` in a venture CLI read as a
+      // share leak and first went red in CI; run-record doc friction, 2026-11-14).
+      return !/^(true|false|null|undefined|-?\d+(\.\d+)?)$/.test(rhs);
     },
     why: "assigns a non-empty query string, which the server sees",
   },
@@ -230,7 +234,12 @@ export async function findShareSources(root) {
 export function checkSource(text) {
   /** @type {{line: number, id: string, why: string, source: string}[]} */
   const findings = [];
-  const lines = String(text ?? "").split(/\r?\n/);
+  text = String(text ?? "");
+  // Perf (2026-11-07): every write pattern needs a `?`, `.search` or
+  // `searchParams` on the line (searchParams contains `.search`), so a file
+  // with none of them has no findings and skips the per-line regexes.
+  if (!text.includes("?") && !text.includes(".search")) return findings;
+  const lines = text.split(/\r?\n/);
   lines.forEach((line, index) => {
     if (isExempt(line)) return;
     for (const { id, test: matches, why } of WRITE_PATTERNS) {
@@ -258,10 +267,15 @@ export async function checkVentures(root) {
   const files = await findShareSources(root);
   /** @type {{file: string, line: number, id: string, why: string, source: string}[]} */
   const findings = [];
-  for (const file of files) {
-    for (const finding of await checkFile(file)) {
-      findings.push({ file, ...finding });
-    }
+  // Perf (2026-11-07): read in bounded parallel batches (the serial awaits
+  // over ~8k files were mostly idle); results keep the sorted file order.
+  const BATCH = 64;
+  for (let i = 0; i < files.length; i += BATCH) {
+    const batch = files.slice(i, i + BATCH);
+    const results = await Promise.all(batch.map((file) => checkFile(file)));
+    results.forEach((found, j) => {
+      for (const finding of found) findings.push({ file: batch[j], ...finding });
+    });
   }
   return { checked: files.length, findings };
 }

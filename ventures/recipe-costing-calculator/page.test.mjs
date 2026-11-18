@@ -53,3 +53,7 @@ test("pantry and recipe boxes are labelled", () => {
   assert.match(html, /<label for="pantry">/);
   assert.match(html, /<label for="recipes">/);
 });
+
+test("links to its sibling, the allergen label maker", () => {
+  assert.match(page("index.html"), /href="\.\.\/allergen-label-maker\/"/);
+});

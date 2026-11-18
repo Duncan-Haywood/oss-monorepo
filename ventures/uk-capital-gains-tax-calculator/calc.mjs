@@ -17,7 +17,7 @@ export const HIGH_RATE = 0.24;
 // 2026/27 has the same exempt amount, rates, allowance and band as 2025/26 (GOV.UK "Capital Gains Tax rates and allowances", checked 2026-10-28).
 export const YEARS = { 2025: "2025/26", 2026: "2026/27" };
 
-const money = (n) => (n < 0 ? "-" : "") + "GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0"));
 const r2 = (n) => Math.round(n * 100) / 100;
 
 export function parse(input) {
@@ -80,7 +80,7 @@ export function compute(input) {
     findings.push({ severity: "info", title: `Net gains of ${money(net)} are covered by the ${money(AEA)} annual exempt amount${lossUsed ? ` and ${money(lossUsed)} of brought-forward losses` : ""}: no Capital Gains Tax.` });
   } else {
     findings.push({ severity: "high", title: `Capital Gains Tax for ${label}: ${money(tax)} on ${money(taxable)} of taxable gain, an effective ${effective}% of the net gain.` });
-    findings.push({ severity: "medium", title: `${atLow ? `${money(atLow)} at ${LOW_RATE * 100}% (${money(taxLow)})` : ""}${atLow && atHigh ? " and " : ""}${atHigh ? `${money(atHigh)} at ${HIGH_RATE * 100}% (${money(taxHigh)})` : ""}. Your unused basic-rate band for gains was ${money(bandLeft)} (${money(BASIC_BAND)} less your ${money(taxableIncome)} of taxable income).` });
+    findings.push({ severity: "medium", title: `${atLow ? `${money(atLow)} at ${+(LOW_RATE * 100).toFixed(4)}% (${money(taxLow)})` : ""}${atLow && atHigh ? " and " : ""}${atHigh ? `${money(atHigh)} at ${+(HIGH_RATE * 100).toFixed(4)}% (${money(taxHigh)})` : ""}. Your unused basic-rate band for gains was ${money(bandLeft)} (${money(BASIC_BAND)} less your ${money(taxableIncome)} of taxable income).` });
   }
   if (net > 0 && lossUsed) findings.push({ severity: "info", title: `Brought-forward losses are used only to bring gains down to the ${money(AEA)} exempt amount: ${money(lossUsed)} used, ${money(lossAfter)} left to carry forward.` });
   if (net > 0 && atHigh > 0 && bandLeft > 0) findings.push({ severity: "medium", title: `Only ${money(bandLeft)} of gains fall in the 18% band. Spreading a sale across two tax years, or having a spouse or civil partner own part of the asset before sale, can use a second allowance and band; transfers between spouses are no-gain-no-loss.` });

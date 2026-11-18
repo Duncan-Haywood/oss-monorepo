@@ -6,7 +6,7 @@ A free tool for developers and repo maintainers: resolves a `CODEOWNERS` file th
 never win ownership of anything because a broader rule listed later always overrides
 them.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/codeowners-shadow-check/
+**Live tool:** https://marisstella.app/codeowners-shadow-check/
 
 This is the single most common way a `CODEOWNERS` file quietly stops doing what its
 author intended. A specific rule (`/src/payments/*.js @payments-team`) works perfectly
@@ -59,7 +59,9 @@ repository being checked, so nothing needs fetching from another origin at all.
   finite file list rather than the whole repository.
 - **Uncovered files** — files in your list with no matching rule, which fall back to
   the repository's default reviewers, if any.
-- **Syntax errors** — an owner that isn't `@user`, `@org/team`, or an email address.
+- **Syntax errors** — an owner that isn't `@user`, `@org/team`, or an email address, and
+  the gitignore syntax GitHub says does not work in CODEOWNERS: `!` negation, `[ ]`
+  character ranges and `\#` escapes.
 
 ## Further reading
 
@@ -115,3 +117,11 @@ Assertions across the parsing, gitignore-style pattern matching, and last-match-
 resolution logic (`codeowners.test.mjs`), the CLI's file-discovery and argument parsing
 (`check.test.mjs`), the usage counter (`usage.test.mjs`), and the page's structure,
 disclaimers, and worked example (`page.test.mjs`).
+
+## Known gaps
+
+From the quality census of 2026-11-15 ([audit](../../portfolio/quality/audits/2026-11-15-codeowners-shadow-check.json)); the worst defect it found is fixed.
+
+- Lines with invalid owners still take part in last-match resolution; GitHub skips them.
+- Files whose winning rule has no owners (no review required) are counted as covered and not listed on the page.
+- `!` negation, `[ ]` ranges and `\#` escapes, which GitHub's docs say do not work in CODEOWNERS, are flagged as syntax errors (since 2026-11-16) but still resolved as literal patterns, because the docs do not say what GitHub does with them.

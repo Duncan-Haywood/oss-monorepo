@@ -1,0 +1,214 @@
+# The portfolio's SOC 2 control register.
+#
+# One entry per control in ventures/soc2-readiness-checker/calc.mjs (the
+# repository's own checker, so the self-assessment and the public tool cannot
+# drift apart), mapped to the 2017 Trust Services Criteria (revised points of
+# focus, 2022). `python3 platform/ci/soc2_controls.py` checks that every
+# control is here, that every evidence path exists, and scores the answers
+# with the checker.
+#
+# answer: yes | partial | no | na, as an auditor would test it today, from
+#   files. Anything this repository cannot show (account settings, devices)
+#   is `no` until there is evidence, even when it is probably true.
+# evidence: repository paths that show the control working. A path ending in
+#   `/` is a directory.
+# owner: true when only the owner can close the gap (account settings, money,
+#   signatures). Agents close the rest.
+#
+# This is a readiness self-assessment, not an audit. Only a licensed CPA firm
+# can issue a SOC 2 report; nothing here says the portfolio has one.
+
+assessed: 2026-11-03
+scope: [security, availability, confidentiality, privacy]
+
+controls:
+  gov-policies:
+    tsc: [CC1.1, CC2.1, CC5.3]
+    answer: partial
+    evidence: [docs/security/policies/, docs/legal/privacy-baseline.md]
+    gap: Written 2026-11-03; the owner has not yet approved them, and no yearly review has happened.
+    owner: true
+  gov-roles:
+    tsc: [CC1.3]
+    answer: yes
+    evidence: [docs/security/policies/information-security.md, .github/CODEOWNERS]
+  gov-risk:
+    tsc: [CC3.1, CC3.2, CC3.3, CC3.4]
+    answer: partial
+    evidence: [docs/security/soc2/risk-register.md]
+    gap: First register written 2026-11-03; the yearly cycle has not run once yet.
+  gov-oversight:
+    tsc: [CC1.2, CC4.2]
+    answer: no
+    evidence: []
+    gap: No recorded owner review of security. The yearly review in information-security.md is where it goes.
+    owner: true
+  gov-aup:
+    tsc: [CC1.1, CC1.5]
+    answer: partial
+    evidence: [prompts/goals.md, CLAUDE.md, AGENTS.md]
+    gap: Agents load the rules every session (the workforce here), but there is no acceptance record per agent family.
+  hr-bg:
+    tsc: [CC1.4]
+    answer: na
+    note: No employees or contractors; the workforce is the owner and AI agents.
+  hr-training:
+    tsc: [CC1.4, CC2.2]
+    answer: na
+    note: No human staff to train. Agent instructions play the part (gov-aup).
+  hr-offboard:
+    tsc: [CC6.2, CC6.3]
+    answer: partial
+    evidence: [docs/security/agent-hardening.md]
+    gap: Agents often push as the owner, so an agent family cannot be removed on its own (agent-hardening.md, owner step 1).
+    owner: true
+  ac-mfa:
+    tsc: [CC6.1]
+    answer: no
+    evidence: []
+    gap: MFA on the owner's GitHub, Cloudflare, npm, PyPI and email accounts is not evidenced in any file. Record it in access-control.md's account table.
+    owner: true
+  ac-sso:
+    tsc: [CC6.1]
+    answer: na
+    note: One human account holder; a central identity provider adds nothing until there is a second.
+  ac-review:
+    tsc: [CC6.2, CC6.3]
+    answer: no
+    evidence: [docs/security/policies/access-control.md]
+    gap: The quarterly review procedure is written; no review has been recorded yet.
+  ac-least:
+    tsc: [CC6.3]
+    answer: partial
+    evidence: [.github/workflows/actions-permissions-check-ci.yml, .github/rulesets/main.json, docs/security/agent-hardening.md]
+    gap: Workflows declare least permissions and publishing jobs name Environments, but agents still hold the owner's admin role and secrets are not yet moved into the Environments.
+    owner: true
+  ac-passwords:
+    tsc: [CC6.1]
+    answer: no
+    evidence: []
+    gap: No evidence of a password manager for the owner's accounts.
+    owner: true
+  cm-review:
+    tsc: [CC8.1]
+    answer: partial
+    evidence: [.github/CODEOWNERS, platform/ci/agent_review/README.md, .github/workflows/agent-cross-review.yml]
+    gap: Control-plane changes need the owner; other changes are reviewed by two bots, not a second person, by design (CLAUDE.md, "Ship without review ceremony"). Record this as an accepted risk (R3).
+  cm-cicd:
+    tsc: [CC8.1]
+    answer: yes
+    evidence: [.github/workflows/portfolio-pages.yml, .github/workflows/ventures-tests.yml, .github/workflows/portfolio-validate.yml]
+  cm-separation:
+    tsc: [CC8.1, CC5.2]
+    answer: partial
+    evidence: [.github/workflows/portfolio-pages.yml, .github/rulesets/main.json]
+    gap: Production deploys only from main through CI, but whoever can merge can deploy; the ruleset is not yet applied.
+    owner: true
+  op-logging:
+    tsc: [CC7.2]
+    answer: partial
+    evidence: [.github/workflows/control-plane-guard.yml]
+    gap: GitHub keeps Actions logs and the security log, Cloudflare keeps its own; neither is kept a year or reviewed on a schedule.
+  op-monitoring:
+    tsc: [CC7.2, CC7.3]
+    answer: partial
+    evidence: [platform/ci/main_health.py, .github/workflows/security-alert-queue.yml]
+    gap: Health and alert queues exist and agents work them; nobody is on call.
+  op-vuln:
+    tsc: [CC7.1]
+    answer: partial
+    evidence: [.github/workflows/security-alert-queue.yml, platform/ci/compliance_scan.py, docs/security/policies/vulnerability-management.md]
+    gap: Fix deadlines are written (vulnerability-management.md) but there is no dependabot.yml and no record of deadlines met.
+  op-pentest:
+    tsc: [CC4.1]
+    answer: no
+    evidence: []
+    gap: No independent test. Costs money; an owner decision.
+    owner: true
+  op-endpoint:
+    tsc: [CC6.8]
+    answer: no
+    evidence: []
+    gap: Agent sessions run in ephemeral cloud containers, but the owner's own devices are not evidenced.
+    owner: true
+  op-network:
+    tsc: [CC6.6]
+    answer: na
+    note: No servers or private network. Everything served runs on Cloudflare Workers and GitHub Pages; the Hetzner cluster was deleted on 2026-10-01.
+  dt-rest:
+    tsc: [CC6.1, C1.1]
+    answer: yes
+    evidence: [docs/security/soc2/vendors.md]
+    note: Inherited from the vendors. The only private data is in Cloudflare D1, which Cloudflare encrypts at rest; GitHub encrypts Actions secrets. Everything else is public by design.
+  dt-transit:
+    tsc: [CC6.7]
+    answer: yes
+    evidence: [platform/ci/check_insecure_refs.py, portfolio/hosting/README.md]
+  dt-backup:
+    tsc: [A1.2, A1.3]
+    answer: partial
+    evidence: [docs/security/policies/business-continuity.md]
+    gap: Code and the site rebuild from git; D1 relies on Cloudflare Time Travel. No restore test has been recorded.
+  dt-retention:
+    tsc: [C1.1, C1.2, P4.2]
+    answer: partial
+    evidence: [docs/security/policies/data-handling.md, platform/edge/inbox.mjs, platform/edge/inbox.test.mjs]
+    gap: Classification and retention are written and the inbox purge is code; the first real deletion has not been observed in production.
+  dt-secrets:
+    tsc: [CC6.1]
+    answer: partial
+    evidence: [.github/workflows/actions-secret-leak-check-ci.yml, platform/ci/compliance_scan.py, docs/security/agent-hardening.md]
+    gap: Secrets live in GitHub and Cloudflare secret stores and scans look for leaks; there is no rotation record, and push protection is not evidenced.
+    owner: true
+  ir-plan:
+    tsc: [CC7.3, CC7.4]
+    answer: yes
+    evidence: [docs/security/policies/incident-response.md, SECURITY.md]
+  ir-exercise:
+    tsc: [CC7.4, CC7.5]
+    answer: no
+    evidence: []
+    gap: No tabletop or post-incident review yet. An agent can run a tabletop against incident-response.md.
+  ir-notify:
+    tsc: [CC2.3, CC7.4, P6.6]
+    answer: yes
+    evidence: [docs/security/policies/incident-response.md]
+  vm-inventory:
+    tsc: [CC9.2]
+    answer: yes
+    evidence: [docs/security/soc2/vendors.md]
+  vm-review:
+    tsc: [CC9.2]
+    answer: partial
+    evidence: [docs/security/soc2/vendors.md]
+    gap: The inventory names where each critical vendor's report lives; nobody has obtained and read them yet (Cloudflare's and GitHub's need an account to download).
+    owner: true
+  vm-terms:
+    tsc: [CC2.3]
+    answer: na
+    note: No customer contracts. Website requests (portfolio/requests/) are free, MIT licensed and process no client data on the portfolio's systems; revisit if one does.
+  av-dr:
+    tsc: [A1.2, A1.3, CC9.1]
+    answer: partial
+    evidence: [docs/security/policies/business-continuity.md, portfolio/hosting/README.md]
+    gap: The GitHub Pages fallback is documented and automatic; a timed recovery test is not recorded.
+  av-capacity:
+    tsc: [A1.1]
+    answer: partial
+    evidence: [platform/edge/README.md, platform/pages/cloudflare/README.md]
+    gap: The commitment is stated (best effort, no SLA) and free-plan limits are known; there is no capacity dashboard.
+  cf-nda:
+    tsc: [C1.1]
+    answer: na
+    note: Nobody but the owner and agents sees confidential data; agents are bound by the repository's rules, not contracts.
+  cf-disposal:
+    tsc: [C1.2]
+    answer: partial
+    evidence: [platform/edge/inbox.mjs, docs/security/policies/data-handling.md]
+    gap: Data deletion is coded; device disposal is the owner's and not evidenced.
+    owner: true
+  pr-notice:
+    tsc: [P1.1, P4.3, P5.1, P5.2]
+    answer: partial
+    evidence: [docs/legal/privacy-baseline.md, platform/pages/build.mjs, docs/security/policies/data-handling.md]
+    gap: The notice and the request procedure exist; there is no request log yet, and the contact address depends on email routing being switched on.

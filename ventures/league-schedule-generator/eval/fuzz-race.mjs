@@ -4,6 +4,9 @@
 // ("clinched" or "eliminated" under bounds must hold under exact); magic is only set for "alive" teams and
 // lies within the points still available; playoffOdds gives a clinched team 1, an eliminated team 0, chances
 // summing to the number of spots, and the same answer twice; standings rank 1..n with points matching a recount.
+// Tie-breaks (2026-11-02): 25 random score lines per league are played into the remaining fixtures and the
+// final table is ranked with goal difference and with recursive head-to-head; every team's real rank must lie
+// inside [bestRank, worstRank], a clinched team must finish in a place and an eliminated one must not.
 // Usage: node eval/fuzz-race.mjs [count] [seed]
 import { roundRobin, playoffRace, playoffOdds, standings, mulberry32 } from "../calc.mjs";
 
@@ -71,6 +74,20 @@ for (let i = 0; i < count; i++) {
     if (s.status === "clinched" && row.status !== "clinched") fail("bounds-clinched-wrong", { n, s, row });
     if (s.status === "eliminated" && row.status !== "eliminated") fail("bounds-eliminated-wrong", { n, s, row });
     if (s.bestRank > row.bestRank || s.worstRank < row.worstRank) fail("bounds-not-safe", { n, s, row });
+  }
+
+  for (let trial = 0; trial < 25; trial++) {
+    const played = results.concat(remaining.map(([a, b]) => ({ a, b, ga: int(0, 4), gb: int(0, 4) })));
+    for (const headToHead of [false, true]) {
+      stats.tiebreakTables = (stats.tiebreakTables || 0) + 1;
+      const fin = standings(teams, played, { ...scoring, adjustments, headToHead });
+      for (const f of fin) {
+        const row = exact.find((x) => x.index === f.index);
+        if (f.rank < row.bestRank || f.rank > row.worstRank) fail("tiebreak-rank-outside-bounds", { n, headToHead, f, row });
+        if (row.status === "clinched" && f.rank > k) fail("tiebreak-clinched-missed", { n, headToHead, f, row });
+        if (row.status === "eliminated" && f.rank <= k) fail("tiebreak-eliminated-made-it", { n, headToHead, f, row });
+      }
+    }
   }
 
   const o1 = playoffOdds(teams, results, remaining, spots, { ...opts, runs: 400, seed: 3 });

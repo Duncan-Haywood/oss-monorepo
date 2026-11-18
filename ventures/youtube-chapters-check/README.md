@@ -7,7 +7,7 @@ Premiere Pro, DaVinci or Audacity marker exports into a description-ready list, 
 chapters.json, ffmpeg chapter metadata or a WebVTT chapters track. The text is read locally and
 never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/youtube-chapters-check/
+**Live tool:** https://marisstella.app/youtube-chapters-check/
 
 ## Run it
 
@@ -19,6 +19,15 @@ To run the tests (Node 20 or newer):
 ```
 node --test ventures/youtube-chapters-check/
 ```
+
+## Known gaps
+
+- DaVinci Resolve marker EDLs (Timeline Markers to EDL) are read from the record-in timecode, named
+  from the `|M:` field, with the timeline start hour taken off the label before the frame-rate
+  conversion. The tests use hand-written EDLs in the layout Resolve writes (CMX 3600 events, each
+  followed by a ` |C:... |M:name |D:n` line), not a file exported from Resolve itself. Added after
+  [the 2026-11-17 audit](../../portfolio/quality/audits/2026-11-17-youtube-chapters-check.json)
+  found the EDL export unread.
 
 ## Files
 

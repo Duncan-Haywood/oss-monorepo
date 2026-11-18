@@ -151,7 +151,7 @@
       $("#ladder-rows").innerHTML = r.ladder.map((l) => `<tr><td>${LOCATIONS[l.location]}</td><td>${esc(RP[l.status])}</td><td>${esc(l.via)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Check sector law and your national authority before relying on this.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-21
+tagged: auto
+---
 # A fitted blend weight beats a hand-set one on unseen scenes, but closes only a third of the gap
 
 Agent report, research track, 2026-10-21. Project: [`research/capture-learngate`](../../research/capture-learngate/README.md).

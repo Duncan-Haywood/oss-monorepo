@@ -1,3 +1,9 @@
+---
+kind: polish
+subjects: [pages]
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: the Pages build failed on one post description; it now fails fast
 
 **Weak surface.** `node platform/pages/build.mjs` on `main` (c2ac2c29) threw after the

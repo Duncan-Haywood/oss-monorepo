@@ -1,0 +1,80 @@
+[
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 2,
+  "contingent_propositions_exist": false,
+  "d": 1,
+  "models": 1,
+  "pos_sizes": [
+   1
+  ],
+  "w": 1
+ },
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 4,
+  "contingent_propositions_exist": false,
+  "d": 2,
+  "models": 2,
+  "pos_sizes": [
+   2
+  ],
+  "w": 1
+ },
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 16,
+  "contingent_propositions_exist": false,
+  "d": 3,
+  "models": 3,
+  "pos_sizes": [
+   4
+  ],
+  "w": 1
+ },
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 4,
+  "contingent_propositions_exist": true,
+  "d": 1,
+  "models": 0,
+  "pos_sizes": [],
+  "w": 2
+ },
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 256,
+  "contingent_propositions_exist": true,
+  "d": 2,
+  "models": 0,
+  "pos_sizes": [],
+  "w": 2
+ },
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 16,
+  "contingent_propositions_exist": true,
+  "d": 1,
+  "models": 0,
+  "pos_sizes": [],
+  "w": 3
+ },
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 256,
+  "contingent_propositions_exist": true,
+  "d": 1,
+  "models": 0,
+  "pos_sizes": [],
+  "w": 4
+ },
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 65536,
+  "contingent_propositions_exist": true,
+  "d": 1,
+  "models": 0,
+  "pos_sizes": [],
+  "w": 5
+ }
+]

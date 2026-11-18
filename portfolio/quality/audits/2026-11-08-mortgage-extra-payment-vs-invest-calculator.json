@@ -1,0 +1,56 @@
+{
+ "date": "2026-11-08",
+ "subject": "ventures/mortgage-extra-payment-vs-invest-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-08",
+ "auditor": "agent session (Claude), 2026-11-08 round",
+ "status": "audited",
+ "professional": "a fee-only CFP (certified financial planner) who answers 'pay down the mortgage or invest' for clients. They would check first: that the amortised payment and payoff month are right, that the three paths spend the same cash, that the break-even return is after-tax and lies above the mortgage rate when gains are taxed, that a recast is modelled as a lower payment over the same term with a fee, and that the limits (risk, liquidity, tax treatment) are stated.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Recomputed with an independent Python re-implementation (scratchpad ref.py, written for this audit from the stated model, plus a closed-form check) against calc.mjs run in Node. Defaults (balance 320000, 6.5%, 27 y, 400 extra, 25000 lump, 7% return, 15% gains tax, fee 300): (1) final wealth invest 488,497.46, prepay 484,804.26, recast 484,427.56, identical to the cent in both; the invest path also equals the closed form FV = 25000(1+g)^324 + 400((1+g)^324-1)/g less 15% of gain (488,497.46). (2) Interest paid 359,679.40 / 177,047.51 / 331,579.44, payoff months 324 / 189 / 324 and payments 2,097.78 / 2,497.78 / 1,933.89 match; payment(300000, 6%, 360) = 1,798.65, the textbook figure. (3) Break-even return 6.9443% by my own bisection vs 6.94427% in the tool; above the 6.5% mortgage rate, as it must be when gains are taxed. (4) With return = mortgage rate and no tax or fee all three paths end at 495,124.3587 in both. (5) interestTaxSavingPct 24: invest 763,473.80, prepay 656,211.35 in both. Edge probes: lump 500000 > balance warns and pays off at month 0; return -60 and years 0.04 return warnings, not NaN. Page not loaded in a browser (only its source and page.test.mjs read), so not 4.",
+  "completeness": "README claims checked: three-path comparison with after-tax wealth (works), months and interest saved (verified, payoff 189 vs 324 months), break-even return by bisection (works), sensitivity table 2 to 12% (analyze returns 6 rows), CSV export (toCsv, tested for 29 lines), input warnings (works), usage counters and opt-out (usage.test.mjs passes). The 'Not modelled' list (ARMs, escrow, penalties, PMI, liquidity, retirement accounts, dividend tax drag) is honest, and VENTURE.yaml lists a retirement-account option, risk band and printable summary as 'not built'. Stage is prototype and the one hypothesis is untested. Did not drive the rendered page in a browser.",
+  "verification": "Ran `node --test calc.test.mjs page.test.mjs usage.test.mjs` in ventures/mortgage-extra-payment-vs-invest-calculator: 28 tests, 28 pass, 0 fail, 0.27 s (calc.test.mjs alone has 15). Four hand-seeded mutations in calc.mjs, each reverted with git checkout (git status clean afterwards). A, `basis += contrib` replaced by `basis += 0` (tax charged on contributions, not just gains): caught, 1 failure. D, bisection direction flipped in breakEvenReturn: caught, 1 failure. B, gains tax scaled by 0.9 (`gain * 0.9`): 15 of 15 pass, NOT caught, because every tax-bearing assertion is an inequality or has 0.5 tolerance with tax set to 0. C, interest tax saving doubled (`/ 100` to `/ 50`): 15 of 15 pass, NOT caught; the only test is `b.rows[0].final > a.rows[0].final`. So the tie-to-the-mortgage-rate property is well guarded, but the tax logic that the 'after tax' headline depends on is pinned by no exact value; no test asserts any dollar figure at the default inputs. Two of four survived: score 2.",
+  "craft": "Read calc.mjs (172 lines, whole), calc.test.mjs, page.test.mjs, usage.mjs head, index.html metadata. Good: pure functions, zero dependencies, a header comment that states the model, input cleaning with defaults, explicit refusal of absurd years-left, bisection bracketed with early exits. Defects: clean() silently replaces an unparsable field with the default instead of warning (typing 'abc' as the rate runs a 6.5% loan); a recast with lump 0 still deducts the fee and invests a negative amount at start (inv = -fee) with no warning; analyze() recomputes simulate() three extra times per sensitivity row and 80 bisection steps x 2 simulations, fine at this size; no exported test for the lump > balance recast path values. Acceptable for a senior JS reviewer with those notes.",
+  "claims": "Checked: 'nothing leaves the browser' backed by page.test.mjs grep for fetch/XHR/beacon and local-only imports (passes); disclaimer 'No warranty ... not financial advice' present at README.md and index.html:72, and asserted by a test; privacy line and the three usage events match the code (tested); 'return equal to the mortgage rate ... tie' reproduced; break-even and months saved reproduced. Weak: README.md:23 says the paths 'tie to the cent' but the test tolerance is 0.5 dollars (the tie is in fact exact to 1e-4 in my run, so the claim is true but the test does not back it); README says `node --test` runs the tests, which Node 22 rejects as a directory (working: `node --test calc.test.mjs ...`); llms.txt links to the retired duncan-haywood.github.io host; sitemap.xml and robots.txt use relative URLs (`./index.html`, `Sitemap: ./sitemap.xml`), which crawlers ignore, and canonical is `./index.html`; 'Independent of brokers and tax authorities' is unbacked filler. No claim a user would act on was false.",
+  "fitness": "Walked the job as a homeowner: enter balance, rate, years left, extra monthly, lump sum, expected return, tax; get three final-wealth numbers, payoff month, interest saved, the break-even return and a sensitivity grid, then download a CSV. The library path produces all of this correctly. First-hour gaps: the 'interest tax saving' is a user-guessed share, with no standard-deduction comparison; no pre-tax retirement-account option (the most common alternative to prepaying); a single constant return with no risk band; a user who types text in a field silently gets defaults. A homeowner can finish the stated job and the page says what it leaves out.",
+  "domain": "Compared against the standard amortisation formula (checked to the cent), the usual 'guaranteed return of paying down debt vs expected after-tax return' framing, and standard recast practice (lump to principal, fee, re-amortise over the remaining term). The model matches: fixed rate, equal cash out, break-even above the mortgage rate when gains are taxed, a recast that invests the freed payment. Departures a CFP would flag, all disclosed: flat end-of-period capital gains tax with no dividend drag or loss offset, itemiser benefit as a flat share of interest rather than a marginal-rate, above-standard-deduction calculation, no emergency liquidity or risk pricing, no tax-advantaged account. A planner would use it as a first-pass illustration with those limits."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The after-tax headline is guarded by no exact-value test: seeded mutations scaling the gains tax by 0.9 and doubling the interest tax saving both left all 15 calc tests green. A regression in the tax logic would ship, and no test asserts any dollar figure at the default inputs (verified here: invest 488,497.46, prepay 484,804.26, recast 484,427.56, break-even 6.944%).",
+   "where": "ventures/mortgage-extra-payment-vs-invest-calculator/calc.mjs:95"
+  },
+  {
+   "severity": "low",
+   "what": "clean() replaces any unparsable field with its default silently, so a typo in the rate or balance produces a confident result for a loan the user did not describe, with no warning.",
+   "where": "ventures/mortgage-extra-payment-vs-invest-calculator/calc.mjs:46"
+  },
+  {
+   "severity": "low",
+   "what": "A recast with a zero lump sum still pays the fee and starts the investment account at minus the fee, with no warning that there is nothing to recast.",
+   "where": "ventures/mortgage-extra-payment-vs-invest-calculator/calc.mjs:75"
+  },
+  {
+   "severity": "low",
+   "what": "README claims paths 'tie to the cent' while the test tolerance is 0.5 dollars; README says `node --test` runs the suite, which Node 22 rejects as a directory argument.",
+   "where": "ventures/mortgage-extra-payment-vs-invest-calculator/README.md:23"
+  },
+  {
+   "severity": "low",
+   "what": "sitemap.xml, the robots.txt Sitemap line and the canonical link use relative URLs that crawlers ignore, and llms.txt links to the retired github.io host instead of marisstella.app.",
+   "where": "ventures/mortgage-extra-payment-vs-invest-calculator/sitemap.xml:3"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The arithmetic a financial planner checks first is right: an independent Python model and a closed-form check matched all three final-wealth figures, interest paid, payoff months, payments and the 6.944% break-even at the defaults to the cent, the textbook 1,798.65 payment, the rate-equals-return tie, and an itemiser case. The venture is finished for a prototype (completeness 3, limits honestly listed) but does not meet the bar because verification is 2: 28 tests pass, yet seeded bugs that rescaled the gains tax and doubled the interest tax saving both left every test green, so the 'after-tax' result is unpinned. Recheck with `node --test calc.test.mjs page.test.mjs usage.test.mjs` and the sed mutations at calc.mjs `const gain = Math.max(0, inv - basis)` and the `interestTaxSavingPct / 100` line. Small safe fix: add tests asserting the default-input dollar figures above and a tax-saving exact case; make clean() warn on unparsable fields."
+}

@@ -29,13 +29,19 @@
 // prove a page shipped and its links resolve, but not that the calculator
 // computes.
 
-import { promises as fs } from 'node:fs';
+import { promises as fs, readFileSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
+import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import { SITE_COUNT_PAGES, ungroupedCounts } from './count.mjs';
 import { checkPageIdentity, loadPages } from './page-identity.mjs';
+import { doubleEscapedInChrome } from './entities.mjs';
+import { rawMarkdownLeaks } from './raw-markdown.mjs';
+import { mapLimit } from './share.mjs';
+import { servedPath } from './served-path.mjs';
 
 const execFileAsync = promisify(execFile);
 
@@ -116,6 +122,8 @@ export const WRITING_DIR = 'writing';
 // The open book (`updates.mjs`): indexed pages about what the repository ships.
 export const UPDATES_DIR = 'updates';
 export const CHANGELOG_DIR = 'changelog';
+// The work queue (`queue.mjs`): read-only view of what the agents take next.
+export const QUEUE_DIR = 'queue';
 export const ASK_DIR = 'ask';
 // The lab (`lab.mjs`): `noindex` experiments in what the site can be.
 export const LAB_DIR = 'lab';
@@ -146,7 +154,7 @@ export const FEEDBACK_DIR = 'feedback';
 // request queue and how to add to it, linked from the footer, not a tool.
 export const CUSTOM_DEV_DIR = 'custom-development';
 
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR]);
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -221,6 +229,8 @@ async function readBasePath(site) {
 }
 
 /** Every `<loc>` in the sitemap tree, following the index into each sitemap. */
+const SITEMAP_STALE_SLACK_MS = 1000;
+
 async function collectSitemapUrls(site, basePath, relative, seen, out, problems) {
   if (seen.has(relative)) return;
   seen.add(relative);
@@ -287,12 +297,18 @@ async function collectSitemapUrls(site, basePath, relative, seen, out, problems)
  * `.mjs` parses as ESM, `.js` as a classic script, matching what the `type`
  * attribute tells the browser.
  */
-async function checkInlineScripts(site, servedPages, problems) {
+async function checkInlineScripts(site, servedPages, problems, readPage = (r) => fs.readFile(path.join(site, r), 'utf8')) {
   const scratch = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-parse-'));
   const jobs = [];
+  // Most inline scripts are the site's own, injected into every page, so the
+  // same body turns up thousands of times: 7,333 blocks but 1,462 distinct
+  // ones on 2026-10-30, and one `node --check` each was two thirds of this
+  // file's run time. A body parses the same wherever it sits, so each distinct
+  // (body, goal) is checked once and its verdict reported for every page.
+  const byBody = new Map();
 
   for (const relative of servedPages) {
-    const html = await fs.readFile(path.join(site, relative), 'utf8');
+    const html = await readPage(relative);
     let index = 0;
     for (const match of html.matchAll(SCRIPT_BLOCK_RE)) {
       const [, attrs, body] = match;
@@ -315,34 +331,73 @@ async function checkInlineScripts(site, servedPages, problems) {
       if (!JS_SCRIPT_TYPES.has(type)) continue;
 
       const extension = type === 'module' || type === 'module-shim' ? 'mjs' : 'js';
-      const scratchFile = path.join(scratch, `${relative.replace(/[^\w.-]/g, '_')}.${index}.${extension}`);
+      const key = `${extension}:${createHash('sha1').update(body).digest('hex')}`;
+      const seen = byBody.get(key);
+      if (seen) {
+        seen.sites.push({ relative, index });
+        continue;
+      }
+      const scratchFile = path.join(scratch, `${jobs.length}.${extension}`);
       await fs.writeFile(scratchFile, body);
-      jobs.push({ relative, index, scratchFile });
+      const job = { scratchFile, sites: [{ relative, index }] };
+      byBody.set(key, job);
+      jobs.push(job);
     }
   }
 
-  // Bounded concurrency: one `node --check` per inline script, a few hundred on
-  // a full artifact, and spawning them all at once is what makes a check that
-  // should take seconds take minutes.
+  // Bounded concurrency: one `node --check` per distinct inline script, about
+  // 1,500 on a full artifact, and spawning them all at once is what makes a
+  // check that should take seconds take minutes.
+  //
+  // Most bodies are fine, and one process per body was the whole cost (about
+  // 1,460 spawns, ~20 s of the run). One child parses them all in-process
+  // (parse-batch.mjs); only a body it does not vouch for is spawned with
+  // `node --check`, so the verdict and its message are still node's.
+  const parsed = await parseBatch(jobs);
+  const pending = jobs.filter((_, i) => !parsed.has(i));
   const LIMIT = 8;
   let next = 0;
   async function worker() {
-    while (next < jobs.length) {
-      const job = jobs[next++];
+    while (next < pending.length) {
+      const job = pending[next++];
       try {
         await execFileAsync(process.execPath, ['--check', job.scratchFile]);
       } catch (error) {
         const detail = String(error.stderr || error.message)
           .split('\n')
           .find((line) => /^\w*(Syntax)?Error\b/.test(line.trim())) ?? 'failed to parse';
-        problems.push(
-          `${job.relative}: inline <script> block ${job.index} does not parse, so the browser runs none of it -> ${detail.trim()}`,
-        );
+        for (const { relative, index } of job.sites) {
+          problems.push(
+            `${relative}: inline <script> block ${index} does not parse, so the browser runs none of it -> ${detail.trim()}`,
+          );
+        }
       }
     }
   }
-  await Promise.all(Array.from({ length: Math.min(LIMIT, jobs.length) }, worker));
+  await Promise.all(Array.from({ length: Math.min(LIMIT, pending.length) }, worker));
   await fs.rm(scratch, { recursive: true, force: true });
+}
+
+/** Indexes of `jobs` that parse cleanly, from one child process; empty on any trouble. */
+async function parseBatch(jobs) {
+  if (!jobs.length) return new Set();
+  try {
+    const child = execFile(
+      process.execPath,
+      ['--experimental-vm-modules', '--no-warnings', fileURLToPath(new URL('./parse-batch.mjs', import.meta.url))],
+      { maxBuffer: 64 * 1024 * 1024 },
+    );
+    const done = new Promise((resolve, reject) => {
+      let out = '';
+      child.stdout.on('data', (chunk) => (out += chunk));
+      child.on('error', reject);
+      child.on('close', (code) => (code === 0 ? resolve(out) : reject(new Error(`exit ${code}`))));
+    });
+    child.stdin.end(JSON.stringify(jobs.map((job) => [job.scratchFile, path.extname(job.scratchFile).slice(1)])));
+    return new Set(JSON.parse(await done));
+  } catch {
+    return new Set();
+  }
 }
 
 /**
@@ -504,15 +559,25 @@ export const SERVED_EXTENSIONS = new Map([
   ['.ico', 'stock'],
   ['.pdf', 'stock'],
   ['.webp', 'stock'],
+  // einvoice-preflight's mandate calendar feed; standard MIME databases type .ics as text/calendar.
+  ['.ics', 'stock'],
+  // chant-forge's sample chants (corpus/*.gabc), fetched as text by its studio page; fetch().text() ignores the type.
+  ['.gabc', 'stock'],
   // shed-designer's share picture (renders/og-*-share.jpg): JPEG because not every link
   // scraper reads WebP; mime.types lists image/jpeg jpeg jpg.
   ['.jpg', 'stock'],
   ['.mp4', 'stock'],
   ['.webm', 'stock'],
+  // sed-contra's video captions (<track> and podcast:transcript); mime-db, which Cloudflare's asset server uses, types .vtt as text/vtt.
+  ['.vtt', 'stock'],
   // Podcast audio (hearth-and-horizon, podcast.mjs); nginx's mime.types maps mp3 to audio/mpeg.
   ['.mp3', 'stock'],
   // The research pages' self-hosted fonts; mime.types lists font/woff2 woff2.
   ['.woff2', 'stock'],
+  // einvoice-preflight's Factur-X writer fetches fonts/PreflightSans-*.ttf as bytes (arrayBuffer, so the type
+  // does not gate it); mime-db, which Cloudflare's asset server uses, types .ttf as font/ttf. nginx's stock
+  // mime.types has no ttf line, hence 'conf'.
+  ['.ttf', 'conf'],
   ['.mjs', 'conf'],
   ['.webmanifest', 'conf'],
   ['.csv', 'conf'],
@@ -531,9 +596,22 @@ export const SERVED_EXTENSIONS = new Map([
   ['.eml', 'stock'],
   // wall-framing-takeoff's IFC fixtures (STEP text); same note: no location block on the retired origin.
   ['.ifc', 'stock'],
+  // ids-model-check's sample models in the other two IFC forms (2026-11-16): ifcXML text and a zip holding an .ifc. The page
+  // never fetches them; a visitor who opens one directly downloads it, which is what they want from a sample model.
+  ['.ifcxml', 'stock'],
+  ['.ifczip', 'stock'],
+  // systemd-unit-hardening-check's test fixtures (fixtures/*.service, *.service.d/*.conf), plain unit-file text its page never
+  // fetches. mime-db (Cloudflare's asset server) types .conf as text/plain; .service has no entry, so a visitor who opens one
+  // directly downloads it rather than reading it, harmless for a fixture (added 2026-11-11 after PR #14794 broke the pages check).
+  ['.conf', 'stock'],
+  ['.service', 'stock'],
   // dupehound's browser build (WebAssembly); mime.types lists application/wasm wasm (nginx 1.21+),
   // and GitHub Pages serves it as application/wasm.
   ['.wasm', 'stock'],
+  // isolation-forest's UCI benchmark fixtures (data/*.data, comma-separated text) that its tests read and its
+  // page never fetches. mime-db has no .data entry, so a visitor who opens one directly downloads it, harmless for
+  // a fixture (added 2026-11-13 after PR #15447 broke the pages check).
+  ['.data', 'stock'],
 ]);
 
 /**
@@ -583,7 +661,7 @@ export function llmsTxtMissingDate(texts) {
   return undated.length === texts.size ? [] : undated;
 }
 
-export async function checkSite(site, { minProducts = 1 } = {}) {
+export async function checkSite(site, { minProducts = 1, pageCache = null } = {}) {
   const problems = [];
 
   if (!(await exists(site))) return [`${site} is not a directory`];
@@ -716,7 +794,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
   }
 
-  for (const dir of [UPDATES_DIR, CHANGELOG_DIR, STORIES_DIR]) {
+  for (const dir of [UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, STORIES_DIR]) {
     // Optional, like the writing pages: a fixture build may write neither.
     const relative = path.join(dir, 'index.html');
     const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
@@ -757,6 +835,20 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       if (hubHtml !== null && !/href="engineering\/"/.test(hubHtml)) {
         problems.push(`${ENGINEERING_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
       }
+    }
+  }
+
+  // Counts a reader sees on the site's own index pages are grouped the same
+  // way everywhere ("1,073 projects"), via `formatCount` in count.mjs. Until
+  // 2026-11-11 the research index printed "1073 research projects" beside
+  // "8,985 unit tests"; a template that interpolates a bare `.length` again
+  // shows up here instead of on the page.
+  for (const relative of SITE_COUNT_PAGES) {
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    if (html === null) continue;
+    const found = ungroupedCounts(html);
+    if (found.length) {
+      problems.push(`${relative}: count written without a thousands separator (use formatCount): ${[...new Set(found)].slice(0, 3).join('; ')}`);
     }
   }
 
@@ -922,7 +1014,13 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   {
     const texts = new Map();
     for (const product of productDirs) {
-      const text = await fs.readFile(path.join(site, product, 'llms.txt'), 'utf8').catch(() => null);
+      // Sync: ~1,400 small files, and an awaited read each was ~0.5 s of waiting.
+      let text = null;
+      try {
+        text = readFileSync(path.join(site, product, 'llms.txt'), 'utf8');
+      } catch {
+        // no llms.txt for this product
+      }
       if (text !== null) texts.set(product, text);
     }
     for (const product of llmsTxtMissingDate(texts)) {
@@ -980,9 +1078,34 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   const files = await walk(site);
   const servedPages = files.filter((f) => f.endsWith('.html'));
 
+  // The walk has already listed every file, so "does this target exist" is a
+  // lookup for the tens of thousands of links that resolve. A miss still asks
+  // the disk, so a symlink or an empty directory reads as it always did.
+  const siteRoot = path.resolve(site);
+  const known = new Set();
+  for (const relative of files) {
+    for (let p = relative; p !== '.'; p = path.dirname(p)) known.add(path.join(siteRoot, p));
+  }
+  const present = (target) => known.has(target) || exists(target);
+
   problems.push(...checkServedExtensions(files));
 
-  await checkInlineScripts(site, servedPages, problems);
+  // Four passes read every served page (inline scripts, hidden-attribute
+  // contrast, canonical origin, placeholder origin). One read per page, shared.
+  // About 260 MB of HTML on the real site. Read synchronously: the first pass
+  // awaited ~9,900 promise reads one after another, about 3 s of a 22 s run
+  // spent waiting on the thread pool, where a sync read of a small page costs
+  // well under a tenth of a millisecond
+  // (docs/history/ci-perf-2026-11-15-check-sync-page-reads.md). A caller that
+  // passes `pageCache` gets the texts back, so `main` does not read them again.
+  const pageReads = pageCache ?? new Map();
+  const readPage = (relative) => {
+    let text = pageReads.get(relative);
+    if (text === undefined) pageReads.set(relative, (text = readFileSync(path.join(site, relative), 'utf8')));
+    return text;
+  };
+
+  await checkInlineScripts(site, servedPages, problems, readPage);
 
   // ---- Elements hidden in markup that CSS puts back on the page -----------
   //
@@ -993,7 +1116,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     const sheetCache = new Map();
     const seen = new Set();
     for (const relative of servedPages) {
-      const html = await fs.readFile(path.join(site, relative), 'utf8');
+      const html = await readPage(relative);
       if (!HIDDEN_ATTR_RE.test(html)) continue;
       const css = await linkedStylesheets(site, relative, html, sheetCache);
       if (!css) continue;
@@ -1002,6 +1125,36 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
         seen.add(problem);
         problems.push(`${relative}: ${problem}`);
       }
+    }
+  }
+
+  // ---- Entities escaped twice in menus, titles and headings ----------------
+  //
+  // `&amp;rsquo;` shows a visitor the literal text "&rsquo;". The custom-
+  // development direction picker printed 50 such choices until 2026-11-14,
+  // because research titles arrive as HTML and were escaped again. Prose is
+  // left alone: posts about entities show them on purpose.
+  for (const relative of servedPages) {
+    const html = await readPage(relative);
+    if (!html.includes('&amp;')) continue;
+    const found = doubleEscapedInChrome(html);
+    if (found.length) {
+      problems.push(`${relative}: entity escaped twice in a menu, title or heading (decode authored HTML before escapeHtml): ${found.slice(0, 5).join(' ')}`);
+    }
+  }
+
+  // ---- Markdown shown as source ------------------------------------------
+  //
+  // `code`, *emphasis* or [text](path) in a page's visible text means a renderer missed it:
+  // 40 pages did until 2026-11-14 (raw-markdown.mjs says which renderers). The engineering
+  // page is exempt: it lists commit titles as GitHub shows them, asterisks and all.
+  for (const relative of servedPages) {
+    if (relative.startsWith('engineering/')) continue;
+    const html = await readPage(relative);
+    if (!/[`*[]/.test(html)) continue;
+    const found = rawMarkdownLeaks(html);
+    if (found.length) {
+      problems.push(`${relative}: Markdown shown as source text (render it, or put it in <code>): ${found.join(' | ')}`);
     }
   }
 
@@ -1078,7 +1231,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   if (siteBase) {
     const prefix = `${siteBase.origin}${siteBase.pathname}`;
     for (const relative of servedPages) {
-      const html = await fs.readFile(path.join(site, relative), 'utf8');
+      const html = await readPage(relative);
       const canonical = /<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=["']([^"']+)["']/i.exec(html);
       if (!canonical) continue;
       if (/^https?:/i.test(canonical[1]) && !canonical[1].startsWith(prefix)) {
@@ -1097,7 +1250,9 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       // Resolving both sides and comparing is what makes the relative form
       // checkable at all: a canonical is right when it resolves to the URL the
       // page is served at, whatever spelling it uses to get there.
-      const pageUrl = new URL(relative.replace(/(^|\/)index\.html$/, '$1'), siteBase).href;
+      // Served at, as Cloudflare serves it: `page.html` at `page`
+      // (`served-path.mjs`); the `.html` spelling is a 307 to that.
+      const pageUrl = new URL(servedPath(relative), siteBase).href;
       let resolved;
       try {
         resolved = new URL(canonical[1], pageUrl).href;
@@ -1145,7 +1300,11 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
         const tag = [...html.matchAll(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi)]
           .find((m) => new RegExp(`\\b${attr}=["']${value}["']`, 'i').test(m[0]));
         if (!tag) continue;
-        const content = /\bcontent=(["'])([\s\S]*?)\1/i.exec(tag[0])?.[2] ?? '';
+        // Two quoted alternatives, not `(["'])...\1`: the same match, without
+        // the `i` backreference V8 runs about 20 times slower on two-byte
+        // pages (share.mjs, META_CONTENT).
+        const quoted = /\bcontent=(?:"([^"]*)"|'([^']*)')/i.exec(tag[0]);
+        const content = quoted ? quoted[1] ?? quoted[2] : '';
         // Entities are one character to a reader and to the count that matters.
         const length = content.replace(/&(?:[a-z][a-z0-9]*|#\d+|#x[0-9a-f]+);/gi, ' ').length;
         if (length > SNIPPET_MAX) {
@@ -1171,15 +1330,40 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   // that something did. Markup edges between HTML pages only -- see `navigable`.
   const outboundPages = new Map();
 
-  for (const relative of files) {
-    const extension = path.extname(relative).toLowerCase();
-    if (!TEXT_EXTENSIONS.has(extension)) continue;
-
-    const text = await fs.readFile(path.join(site, relative), 'utf8');
-    if (text.includes(PLACEHOLDER_ORIGIN)) {
-      problems.push(`${relative}: still contains ${PLACEHOLDER_ORIGIN}`);
+  // A (directory, link) pair repeats across a product's own pages and scripts:
+  // 450k lookups but 276k distinct pairs on 2026-11-15. Resolving is pure
+  // string work (path.resolve/relative/normalize were ~3.8 s self time of a
+  // 22 s run, partly from re-resolving the site root per link), so the root is
+  // resolved once and each pair once. Holds the resolved path, or null when it
+  // escapes the site root.
+  const resolvedLinks = new Map();
+  const resolveLink = (dir, cleaned) => {
+    const key = `${dir}\0${cleaned}`;
+    let resolved = resolvedLinks.get(key);
+    if (resolved === undefined) {
+      resolved = path.resolve(siteRoot, dir, cleaned);
+      if (path.relative(siteRoot, resolved).startsWith('..')) resolved = null;
+      resolvedLinks.set(key, resolved);
     }
-    if (!LINKED_EXTENSIONS.has(extension)) continue;
+    return resolved;
+  };
+  const deployIndex = path.resolve(site, DEPLOY_DIR, 'index.html');
+  const devPrefix = path.resolve(site, DEV_DIR) + path.sep;
+
+  // Files are read synchronously (see readPage); up to 32 callbacks overlap only
+  // on the disk lookups for a link the walk did not list. Each file's problems
+  // are kept apart and joined in file order, so the report reads the same as a
+  // serial pass.
+  const linkProblems = await mapLimit(files, 32, async (relative) => {
+    const extension = path.extname(relative).toLowerCase();
+    if (!TEXT_EXTENSIONS.has(extension)) return [];
+
+    const found = [];
+    const text = extension === '.html' ? readPage(relative) : readFileSync(path.join(site, relative), 'utf8');
+    if (text.includes(PLACEHOLDER_ORIGIN)) {
+      found.push(`${relative}: still contains ${PLACEHOLDER_ORIGIN}`);
+    }
+    if (!LINKED_EXTENSIONS.has(extension)) return found;
 
     // REFERENCE_RE only makes sense against real markup: an `.html` file with
     // its <script>/<style> bodies stripped. A `.mjs`/`.js` file has no such
@@ -1204,6 +1388,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       ...[...text.matchAll(DYNAMIC_IMPORT_RE)].map((m) => m[1]),
     ];
     const navigable = new Set(markupTargets);
+    const dir = path.dirname(relative);
     for (const target of targets) {
       // SCRIPT_OR_STYLE_RE only strips `<script>` wrappers inside HTML; a
       // `.mjs`/`.js` file has no such wrapper, so its raw source is scanned
@@ -1217,31 +1402,30 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       const cleaned = decodeURIComponent(target.split('#')[0].split('?')[0]);
       if (!cleaned) continue;
 
-      const from = path.resolve(site, path.dirname(relative));
-      let resolved = path.resolve(from, cleaned);
-      if (path.relative(path.resolve(site), resolved).startsWith('..')) {
-        problems.push(`${relative}: link escapes the site root -> ${target}`);
+      let resolved = resolveLink(dir, cleaned);
+      if (resolved === null) {
+        found.push(`${relative}: link escapes the site root -> ${target}`);
         continue;
       }
       if (cleaned.endsWith('/')) resolved = path.join(resolved, 'index.html');
       else if (!path.extname(resolved)) {
         // A extension-less link is served as a directory if one is there.
-        if (await exists(path.join(resolved, 'index.html'))) resolved = path.join(resolved, 'index.html');
+        if (await present(path.join(resolved, 'index.html'))) resolved = path.join(resolved, 'index.html');
         else if (extension !== '.html') {
           // A bundler-style import ('./App', './src/store') names a module
           // without its extension (React Native sources shipped as files).
           for (const ext of ['.js', '.jsx', '.mjs', '.ts', '.tsx']) {
-            if (await exists(resolved + ext)) { resolved += ext; break; }
+            if (await present(resolved + ext)) { resolved += ext; break; }
           }
         }
       }
       // Every tool page footer links `deploy/?app=<slug>` (the "Run your own copy" link), and the page is
       // written after this check runs.
-      if (resolved === path.resolve(site, DEPLOY_DIR, 'index.html')) continue;
+      if (resolved === deployIndex) continue;
       // Everything under dev/ (the dashboard, its stats.json and dev/analyses/)
       // is written by publish-branch.sh after this check, on the same terms.
-      if (resolved.startsWith(path.resolve(site, DEV_DIR) + path.sep)) continue;
-      if (!(await exists(resolved))) problems.push(`${relative}: dead link -> ${target}`);
+      if (resolved.startsWith(devPrefix)) continue;
+      if (!(await present(resolved))) found.push(`${relative}: dead link -> ${target}`);
       else {
         inboundLinks.add(resolved);
         if (extension === '.html' && navigable.has(target) && resolved.endsWith('.html')) {
@@ -1251,7 +1435,9 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
         }
       }
     }
-  }
+    return found;
+  });
+  for (const found of linkProblems) problems.push(...found);
 
   // ---- Orphaned pages: a link resolving is not the same as a link existing -
   //
@@ -1346,13 +1532,27 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   }
 
   const listed = new Map();
-  await collectSitemapUrls(site, basePath, 'sitemap.xml', new Set(), listed, problems);
+  const sitemapsRead = new Set();
+  await collectSitemapUrls(site, basePath, 'sitemap.xml', sitemapsRead, listed, problems);
+  // Only build.mjs writes the sitemaps. A generator run on its own over an
+  // existing dist (`writing.mjs --out=dist`) adds pages no sitemap can list
+  // yet, and each used to print its own "absent" line, burying any real
+  // omission (two runs on 2026-11-16 reported it). Pages written after the
+  // newest sitemap are grouped into one line that says why.
+  let newestSitemap = 0;
+  for (const rel of sitemapsRead) {
+    const stat = await fs.stat(path.join(site, rel)).catch(() => null);
+    if (stat) newestSitemap = Math.max(newestSitemap, stat.mtimeMs);
+  }
+  const newerThanSitemaps = [];
 
   // A URL that 404s is worse than no sitemap at all: it teaches a crawler the
   // site is broken.
   for (const [urlPath, source] of listed) {
+    // Cloudflare serves `page.html` at `page` (`served-path.mjs`), which is
+    // how build.mjs lists it, so an extensionless URL resolves to that file.
     const target = urlPath === '' || urlPath.endsWith('/') ? `${urlPath}index.html` : urlPath;
-    if (!(await exists(path.join(site, target)))) {
+    if (!(await present(path.join(siteRoot, target))) && !(await present(path.join(siteRoot, `${target}.html`)))) {
       problems.push(`${source}: lists a URL that did not ship -> /${urlPath}`);
     }
   }
@@ -1364,18 +1564,46 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     // indexed it would be the search result for a calculator. A page that
     // declares noindex and is then listed in a sitemap is the contradiction;
     // one that declares it and stays out is correct.
-    if (NOINDEX_RE.test(await fs.readFile(path.join(site, page), 'utf8'))) {
+    // The page was read once already (readPage); this pass used to read all
+    // ~9,900 again, one awaited read at a time.
+    if (NOINDEX_RE.test(readPage(page))) {
       continue;
     }
-    const candidates = [page];
+    const candidates = [page, servedPath(page)];
     if (page.endsWith('/index.html')) candidates.push(page.slice(0, -'index.html'.length));
     if (page === 'index.html') candidates.push('');
     if (!candidates.some((c) => listed.has(c))) {
-      problems.push(`${page}: served but absent from every sitemap`);
+      const stat = newestSitemap ? await fs.stat(path.join(site, page)).catch(() => null) : null;
+      // A second of slack: a full build writes pages and sitemaps in one pass.
+      if (stat && stat.mtimeMs > newestSitemap + SITEMAP_STALE_SLACK_MS) newerThanSitemaps.push(page);
+      else problems.push(`${page}: served but absent from every sitemap`);
     }
+  }
+  if (newerThanSitemaps.length) {
+    const shown = newerThanSitemaps.slice(0, 5).join(', ');
+    const more = newerThanSitemaps.length > 5 ? ` and ${newerThanSitemaps.length - 5} more` : '';
+    problems.push(
+      `${newerThanSitemaps.length} page(s) absent from every sitemap were written after the newest ` +
+        `sitemap (${shown}${more}): a generator ran on its own after build.mjs, which alone writes ` +
+        'sitemaps. Rebuild with build.mjs to tell a real omission from that.',
+    );
   }
 
   return problems;
+}
+
+/**
+ * Whether search hygiene (unique titles, one h1, title length) fails the run.
+ * It does on a pull request and on a local run, where the author can fix it.
+ * It does not on a deploy of `main` (push, schedule, manual run): there a
+ * duplicate title blocked every deploy for over an hour on 2026-11-03 while
+ * the site went stale. Disclaimers, leaked files, dead links and the product
+ * count stay fatal everywhere. PAGES_HYGIENE=fatal|warn overrides.
+ */
+export function hygieneIsFatal(env = process.env) {
+  if (env.PAGES_HYGIENE === 'fatal') return true;
+  if (env.PAGES_HYGIENE === 'warn') return false;
+  return !['push', 'schedule', 'workflow_dispatch'].includes(env.GITHUB_EVENT_NAME);
 }
 
 const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));
@@ -1388,10 +1616,17 @@ if (invokedDirectly) {
   // does not require touching this number, while a collapse still fails.
   // Real-site search hygiene (unique titles, one h1). Kept out of checkSite
   // so the minimal fixtures in check.test.mjs need no <title>/<h1>.
-  const problems = [
-    ...(await checkSite(site, { minProducts: 20 })),
-    ...(await exists(site) ? checkPageIdentity(await loadPages(site)) : []),
-  ];
+  // checkSite has already read every page; the hygiene pass reuses the texts.
+  const pageCache = new Map();
+  const problems = await checkSite(site, { minProducts: 20, pageCache });
+  const hygiene = await exists(site) ? checkPageIdentity(await loadPages(site, { cache: pageCache })) : [];
+  if (hygieneIsFatal()) problems.push(...hygiene);
+  else if (hygiene.length > 0) {
+    // A deploy of main: the PR that caused this should have been stopped by
+    // its own run. Blocking here only freezes the live site (2026-11-03).
+    console.warn(`${hygiene.length} search-hygiene warning(s), not blocking this deploy (fix them in a PR):`);
+    for (const problem of hygiene) console.warn(`::warning title=page identity::${problem}`);
+  }
 
   if (problems.length > 0) {
     console.error(`${problems.length} problem(s) in ${site}:`);

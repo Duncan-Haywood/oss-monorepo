@@ -21,7 +21,7 @@ OPENAI_BASE_URL=http://127.0.0.1:8787/openai/v1
 ```
 
 Browser simulator (paste a usage log, nothing uploaded):
-<https://duncan-haywood.github.io/oss-monorepo/llm-spend-guard/>.
+<https://marisstella.app/llm-spend-guard/>.
 
 ## Why use this
 
@@ -46,7 +46,11 @@ What this does differently:
 1. **Worst-case holds.** Each call reserves its worst case (a high input
    estimate plus the full output cap) against every budget it belongs to
    *before* it is sent. Real usage then replaces the hold, so a budget is
-   never promised twice.
+   never promised twice for text calls. Images and documents (above all
+   ones sent by URL or file id), server-side tool fees such as web search,
+   and long-context or one-hour-cache price tiers are not in the estimate,
+   so a call carrying them can cost more than its hold (quality audit
+   round 62, `portfolio/quality/blind-pairs/2026-11-13-h/llm-spend-guard.json`).
 2. **Per-run breakers for agents.** The guard catches the same request
    repeated *n* times in a window, calls or dollars per minute over a limit,
    and a per-run step cap. A stuck tool-call loop stops in seconds, not when
@@ -107,8 +111,13 @@ Anonymous traffic is capped too.
 - Routes: `POST /anthropic/v1/messages` and `POST /openai/v1/chat/completions`
   (also the bare `/v1/...` paths). Streams pass through byte for byte. They
   are settled from the usage they report: OpenAI streams get
-  `stream_options.include_usage` switched on. A stream that ends early is
+  `stream_options.include_usage` switched on. A stream that ends early, or
+  closes without the provider's end marker (`message_stop`, `[DONE]`), is
   charged at its hold.
+- OpenAI `n` greater than 1 is refused (400, `n-unsupported`): the hold
+  covers one choice and the provider bills every one.
+- A price for `gpt-5` also prices its dated snapshots (`gpt-5-2025-08-07`)
+  and `-latest`, never a variant such as `gpt-5-pro` or `gpt-5-mini`.
 - Scope headers: `x-guard-user`, `x-guard-feature`, `x-guard-run`.
 - Refusals use the provider's own error shape. **402** means a budget is
   spent (SDKs do not retry it). **429 + Retry-After** means a breaker is

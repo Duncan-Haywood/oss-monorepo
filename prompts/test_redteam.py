@@ -157,10 +157,35 @@ class CampaignTest(unittest.TestCase):
                 redteam.campaign(self.target, 2, seed=1, repo=self.repo, timeout=5)
 
 
+class RecordPathTest(unittest.TestCase):
+    def test_missing_record_fails_before_the_campaign_runs(self):
+        with mock.patch.object(redteam, "campaign") as camp:
+            with self.assertRaises(SystemExit) as cm:
+                redteam.main(["campaign", "--target", "x.py", "--record", "/nonexistent/run.json"])
+        self.assertIn("no such run record", str(cm.exception))
+        camp.assert_not_called()
+
+
 class TallyTest(unittest.TestCase):
     def test_never_measured_is_not_zero(self):
         t = redteam.tally([{"track": "ventures"}])
         self.assertEqual((t["redteam_runs"], t["catch_rate"]), (0, None))
+
+
+class OpenDefects(unittest.TestCase):
+    def test_lists_only_unpatched_real_defects_oldest_first(self):
+        recs = [
+            ("b.json", {"redteam": {"campaigns": [], "real_defects": [
+                {"file": "x.mjs", "issue": "fixed", "patched": True},
+                {"file": "y.mjs", "issue": "still wrong", "patched": False}]}}),
+            ("a.json", {"redteam": {"campaigns": [], "real_defects": [
+                {"file": "z.py", "issue": "later fixed", "patched": True, "patched_in": "pr"},
+                {"file": "w.py", "issue": "open too"}]}}),
+            ("c.json", {"track": "ventures"}),
+        ]
+        found = redteam.open_defects(recs)
+        self.assertEqual([(d["record"], d["index"], d["file"]) for d in found],
+                         [("a.json", 1, "w.py"), ("b.json", 1, "y.mjs")])
 
 
 if __name__ == "__main__":

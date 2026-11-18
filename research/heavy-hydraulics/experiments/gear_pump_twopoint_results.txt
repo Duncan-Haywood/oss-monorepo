@@ -1,0 +1,86 @@
+Milestone 7m: 7k's one-number idle rule with a two-point drag read (the picks' quartiles; or the 72 L/min read plus kW_o's drive extra) in place of the pick-weighted kW_w; 7j's 22 idle conditions, 14 variants, 196 cells each, 4312 cells
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps and drive loss as gear_pump_stepup.py; neutral readings as excavator_idle_standby.py)
+
+Pick weight w(q) (7e, central setting): 106 sizes from 51.5 to 108.5 L/min; q25 = 64, q* (median) = 72, q75 = 79 L/min
+
+Per variant (central condition): kW_w, kW_q*, kW_2, kW_72x and the ratios kW_w/kW_2, kW_w/kW_72x (Q_L = the family's largest size):
+  casappa                       Q_L 157.3  kW_w 2.806  kW_q* 2.663  kW_2 2.816  kW_72x 2.663  w/2 0.996  w/72x 1.054
+  danfoss                       Q_L 182.6  kW_w 3.152  kW_q* 3.434  kW_2 3.363  kW_72x 3.434  w/2 0.937  w/72x 0.918
+  marzocchi                     Q_L 180.5  kW_w 2.848  kW_q* 2.868  kW_2 2.851  kW_72x 2.868  w/2 0.999  w/72x 0.993
+  bench                         Q_L 154.2  kW_w 2.350  kW_q* 2.328  kW_2 2.314  kW_72x 2.328  w/2 1.016  w/72x 1.010
+  rexroth                       Q_L 133.2  kW_w 2.081  kW_q* 2.051  kW_2 2.044  kW_72x 2.051  w/2 1.018  w/72x 1.015
+  azpu                          Q_L 136.7  kW_w 2.009  kW_q* 1.926  kW_2 1.981  kW_72x 1.926  w/2 1.014  w/72x 1.043
+  azpf                          Q_L  58.9  kW_w 2.137  kW_q* 2.121  kW_2 2.108  kW_72x 2.121  w/2 1.014  w/72x 1.008
+  azpf_spin                     Q_L  58.9  kW_w 2.315  kW_q* 2.286  kW_2 2.273  kW_72x 2.464  w/2 1.018  w/72x 0.940
+  azpf_gear                     Q_L  58.9  kW_w 2.423  kW_q* 2.403  kW_2 2.390  kW_72x 2.689  w/2 1.014  w/72x 0.901
+  azpf_gear98                   Q_L  58.9  kW_w 2.641  kW_q* 2.642  kW_2 2.627  kW_72x 3.147  w/2 1.005  w/72x 0.839
+  azpn                          Q_L  75.6  kW_w 2.047  kW_q* 2.060  kW_2 2.025  kW_72x 2.060  w/2 1.011  w/72x 0.994
+  azpn_spin                     Q_L  75.6  kW_w 2.083  kW_q* 2.060  kW_2 2.044  kW_72x 2.095  w/2 1.019  w/72x 0.994
+  azpn_gear                     Q_L  75.6  kW_w 2.125  kW_q* 2.060  kW_2 2.101  kW_72x 2.137  w/2 1.011  w/72x 0.994
+  azpn_gear98                   Q_L  75.6  kW_w 2.210  kW_q* 2.060  kW_2 2.218  kW_72x 2.222  w/2 0.996  w/72x 0.994
+kappa_2 (slope of kW_w on the read over the 14 variants): pooled with condition fixed effects 0.859; per condition 0.838 to 0.872
+kappa_x (slope of kW_w on the read over the 14 variants): pooled with condition fixed effects 0.721; per condition 0.707 to 0.732
+kappa_q (slope of kW_w on the read over the 14 variants): pooled with condition fixed effects 0.818; per condition 0.803 to 0.831
+
+Fits to all 4312 cells (coefficients; in-sample RMS over all cells and over the 308 diagonals):
+  owh   +0.8214, +0.0329, -0.4350, -0.0402;  cells 0.0043, diagonals 0.0045
+  owdw  +0.8208, +0.0359, -0.4350;  cells 0.0039, diagonals 0.0045
+  owdq  +0.8203, +0.0327, -0.4350;  cells 0.0048, diagonals 0.0048
+  owh2  +0.8218, +0.0325, -0.4350, -0.0339;  cells 0.0044, diagonals 0.0050
+  owd2  +0.8201, +0.0335, -0.4350;  cells 0.0045, diagonals 0.0050
+  owdx  +0.8181, +0.0313, -0.4350;  cells 0.0054, diagonals 0.0059
+  -d/b (standby kW against drag kW, both per idle hour): owh 1.22, owh2 1.04
+
+(A) leave-one-condition-and-maker-family-out, RMS over 308 diagonals (max per-condition RMS; mean bias):
+  owh   0.0056  (max 0.0064; bias +0.0000)
+  owdw  0.0056  (max 0.0069; bias -0.0000)
+  owdq  0.0065  (max 0.0085; bias -0.0001)
+  owh2  0.0067  (max 0.0084; bias -0.0001)
+  owd2  0.0066  (max 0.0084; bias -0.0000)
+  owdx  0.0070  (max 0.0106; bias -0.0003)
+
+(B1) nine half-idle-speed conditions held out together, RMS over 126 diagonals (mean bias):
+  owh   0.0059  (+0.0002)
+  owdw  0.0059  (+0.0006)
+  owdq  0.0076  (+0.0021)
+  owh2  0.0073  (+0.0003)
+  owd2  0.0074  (+0.0015)
+  owdx  0.0076  (+0.0025)
+(B2) S = 0.20 and 0.50 held out together, RMS over 28 diagonals (mean bias):
+  owh   0.0057  (+0.0012)
+  owdw  0.0059  (-0.0011)
+  owdq  0.0070  (-0.0014)
+  owh2  0.0070  (-0.0006)
+  owd2  0.0070  (-0.0012)
+  owdx  0.0082  (-0.0017)
+
+Per variant, (A) error pooled over the 22 conditions (RMS): owdw / owdq / owd2 / owdx
+  casappa                       0.0036 / 0.0072 / 0.0041 / 0.0092
+  danfoss                       0.0080 / 0.0142 / 0.0126 / 0.0106
+  marzocchi                     0.0020 / 0.0027 / 0.0026 / 0.0049
+  bench                         0.0040 / 0.0043 / 0.0049 / 0.0062
+  rexroth                       0.0028 / 0.0026 / 0.0032 / 0.0042
+  azpu                          0.0032 / 0.0042 / 0.0034 / 0.0057
+  azpf                          0.0051 / 0.0048 / 0.0056 / 0.0053
+  azpf_spin                     0.0049 / 0.0053 / 0.0060 / 0.0030
+  azpf_gear                     0.0045 / 0.0050 / 0.0056 / 0.0027
+  azpf_gear98                   0.0020 / 0.0028 / 0.0027 / 0.0100
+  azpn                          0.0013 / 0.0020 / 0.0013 / 0.0016
+  azpn_spin                     0.0018 / 0.0023 / 0.0017 / 0.0021
+  azpn_gear                     0.0050 / 0.0048 / 0.0052 / 0.0050
+  azpn_gear98                   0.0151 / 0.0129 / 0.0156 / 0.0145
+
+Predictions (LOG.md 7m):
+  PT1 pooled kappa_2 in [0.95, 1.05]: refuted (0.859)
+  PT2 owh2 d < 0 and -d/b in [0.90, 1.10]: held (d -0.0339, -d/b 1.04)
+  PT3 owd2 (A) at most 0.0062: refuted (0.0066; owdw here 0.0056)
+  PT4 owdx (A) at most 0.0062: refuted (0.0070)
+  PT5 better of owd2/owdx (A) below owdq's 0.0065: refuted (owd2 0.0066; owdq here 0.0065)
+  PT6 Danfoss (A) under owd2 below owdq's: held (0.0126 against 0.0142)
+  PT7 owd2 B1 and B2 both at most 0.0070: refuted (B1 0.0074, B2 0.0070)
+
+Post hoc, not registered (found on reading the table above): for the AZPF family q* = 72 L/min lies above its largest size, so kW_72x's read on the variant's own curve already carries the drive extra and the extra term counts it twice. kW_72h reads q* on the family's catalogue curve instead, as kW_o reads 85 L/min:
+  kW_72h at the central condition: casappa 2.663, danfoss 3.434, marzocchi 2.868, bench 2.328, rexroth 2.051, azpu 1.926, azpf 2.121, azpf_spin 2.299, azpf_gear 2.406, azpf_gear98 2.625, azpn 2.060, azpn_spin 2.095, azpn_gear 2.137, azpn_gear98 2.222
+  kappa_h pooled 0.845; owdh fit +0.8201, +0.0330, -0.4350; (A) 0.0071; B1 0.0080; B2 0.0077; Danfoss (A) 0.0140
+
+Sources: as gear_pump_onerule.py (7j), gear_pump_ratio.py (7k) and gear_pump_onepoint.py (7l); kW_2 and kW_72x read on each condition's own idle curves at quantiles of 7e's central pick weight.

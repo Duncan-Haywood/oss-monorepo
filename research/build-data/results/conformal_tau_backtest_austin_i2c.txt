@@ -1,0 +1,4 @@
+austin i2c 2022 pair 0.1_0.9 (fallback) cov 0.786 [0.777,0.795] w 307.8 vs ref 307.8 (+0%) inside=True narrower15=False
+austin i2c 2023 pair 0.2_0.75 cov 0.842 [0.835,0.849] w 283.6 vs ref 301.9 (+6%) inside=False narrower15=False
+austin i2c 2024 pair 0.2_0.65 cov 0.835 [0.828,0.842] w 237.6 vs ref 290.9 (+18%) inside=False narrower15=True
+inside 77-83%: 1 of 3 ; narrower by 15%: 1 of 3

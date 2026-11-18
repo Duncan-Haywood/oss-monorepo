@@ -1,7 +1,7 @@
 ---
 title: "A CI check for the marketing claims we promised not to make"
 date: 2026-10-25
-description: "check_jsonld.py already bans fake review markup."
+description: "A CI tripwire for visible social-proof claims such as \"trusted by 10,000 teams\", the half of the no-fake-reviews rule that check_jsonld.py did not cover."
 tags: [ci, honest-marketing, tooling]
 ---
 

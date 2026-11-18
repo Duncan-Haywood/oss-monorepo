@@ -12,6 +12,10 @@ test("parsing helpers: numbers, dates, delimiters, utf-16", () => {
   assert.equal(parseNumber("$1,234.50"), 1234.5);
   assert.equal(parseNumber("($12.00)"), -12);
   assert.equal(parseNumber("1.234,50", true), 1234.5);
+  assert.equal(parseDate("02/30/2026"), null, "30 February is not a day");
+  assert.equal(parseDate("2026-04-31"), null, "31 April is not a day");
+  assert.equal(parseDate("2027-02-29"), null, "29 February 2027 is not a day");
+  assert.equal(parseDate("2028-02-29"), "2028-02-29");
   assert.equal(parseDate("01/03/2024"), "2024-01-03");
   assert.equal(parseDate("03/04/2024", true), "2024-04-03");
   assert.equal(detectDelimiter("a;b\n1;2"), ";");
@@ -171,4 +175,13 @@ test("the sample data reads cleanly and shows the interesting cases", () => {
 
 test("the engine makes no network calls", () => {
   assert.doesNotMatch(readFileSync(new URL("./calc.mjs", import.meta.url), "utf8"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
+});
+
+test("delivery meals are meals at 50%, not travel, while an Uber ride stays travel", () => {
+  const a = run(H + "01/02/2024,UBER EATS 8005928996,-30\n01/03/2024,UBER *EATS HELP.UBER.COM,-10\n01/04/2024,UBEREATS,-20\n01/05/2024,UBER TRIP HELP.UBER.COM,-25\n01/06/2024,ZELLE FROM CLIENT,500");
+  const lines = a.businesses[0].lines;
+  const meals = lines.find((l) => l.key === "meals");
+  const travel = lines.find((l) => l.key === "travel");
+  near(meals.spent, 60); near(meals.amount, 30);
+  near(travel.amount, 25);
 });

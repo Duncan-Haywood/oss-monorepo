@@ -59,3 +59,21 @@ test("the schedule table escapes the month and prints every number", async () =>
   const page = renderDashboard({ company: "<i>Co", summary: null, rows: [], currency: "usd", lastSyncAt: null, lineCount: 0, skipped: 0 });
   assert.doesNotMatch(page, /<i>Co/); assert.match(page, /No data yet/); assert.match(page, /accounting, tax or audit advice/);
 });
+
+test("a credit-only month prints one sign, not +-$79 (red team 2026-11-17)", async () => {
+  const { scheduleTable, renderDashboard } = await import("./page.mjs");
+  const html = scheduleTable([{ month: "2026-02", opening: 0, billed: -7900, recognized: -7900, closing: 0, future: false }], "usd");
+  assert.doesNotMatch(html, /\+-|--|-\+/);
+  assert.match(html, /<td>-\$79<\/td><td>\+\$79<\/td>/);
+  const pos = scheduleTable([{ month: "2026-01", opening: 0, billed: 7900, recognized: 0, closing: 7900, future: false }], "usd");
+  assert.match(pos, /<td>\+\$79<\/td><td>\$0<\/td>/);
+  const dash = renderDashboard({ company: "Co", summary: { deferredNow: 0, lastMonth: null, backlog: 0 }, rows: [], currency: "usd", lastSyncAt: null, lineCount: 0, skipped: 0 });
+  assert.doesNotMatch(dash, /Credit notes reduce revenue in the month they are issued/, "linked credit notes reverse the line's remainder (linkCredits)");
+  assert.match(dash, /names the invoice line it credits/);
+});
+
+test("the browser demo keeps one currency and journals in its minor unit", () => {
+  const html = page("index.html");
+  assert.match(html, /oneCurrency\(/);
+  assert.match(html, /journal\([^;]*currency: cur/);
+});

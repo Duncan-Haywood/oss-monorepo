@@ -5,7 +5,7 @@ a winter the way the job actually costs money — minutes on the route, a loaded
 truck, salt, and the storm count you expect — and shows the seasonal, the
 per-push, and the storm count where a cheap quote dies.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/snow-removal-bid-calculator/
+**Live tool:** https://marisstella.app/snow-removal-bid-calculator/
 
 **After using this, you can now price a driveway route as per-push, seasonal,
 and ice-event, and see how many storms a $350 seasonal actually survives,
@@ -59,8 +59,9 @@ winter. This tool exists for that bid window.
    after ice is already paid. That is the number a cheap seasonal dies on —
    not driveway size.
 
-It then reports per-site seasonal and per-push (so you can quote a homeowner
-or a property manager), walk-away prices, effective hourly, and a score of
+It then reports each stop's own seasonal and per-push price (its minutes,
+deadhead and salt, so you can quote a homeowner or a property manager; the
+route average per stop is shown too, labelled as an average), walk-away prices, effective hourly, and a score of
 any number already on the table. **Copy bid summary** turns the result into a
 plain-text draft.
 

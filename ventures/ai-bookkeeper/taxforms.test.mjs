@@ -182,7 +182,8 @@ test("Schedule SE: 92.35% of profit, 15.3% under the wage base, half deductible"
   assert.equal(se.tax, 1412955);
   assert.equal(se.deduction, 706478);
   assert.equal(se.warnings.length, 0); // 2025 base matches the IRS Schedule SE instructions
-  assert.ok(selfEmployment(10000000, { year: 2026 }).warnings.some((w) => /unchecked/.test(w)));
+  assert.deepEqual(selfEmployment(10000000, { year: 2026 }).warnings, []);
+  assert.ok(selfEmployment(10000000, { year: 2028 }).warnings.some((w) => /No wage base/.test(w)));
 });
 
 test("Schedule SE: social security stops at the wage base, wages use it up, tiny and negative profits owe nothing", () => {
@@ -195,7 +196,7 @@ test("Schedule SE: social security stops at the wage base, wages use it up, tiny
   assert.ok(selfEmployment(1000000, { year: 2031 }).warnings.some((w) => /No wage base/.test(w)));
   const y27 = selfEmployment(30000000, { year: 2027 });
   assert.equal(y27.socialSecurity, Math.round(19230000 * 0.124)); // $192,300, SSA Oct 2026
-  assert.ok(y27.warnings.some((w) => /192,300/.test(w)));
+  assert.deepEqual(y27.warnings, []);
 });
 
 test("estimated payment dates roll off weekends", () => {

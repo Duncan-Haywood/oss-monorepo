@@ -173,7 +173,7 @@
       $("#st tbody").innerHTML = r.sensitivity.map((s) => `<tr><td class="n">${s.hoursPerWeek}${s.extraHours === 0 ? " (yours)" : ""}</td><td class="n">${pct(s.timePct)}</td><td class="n">${pct(s.effective)}</td><td class="n">${money(s.deduction)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

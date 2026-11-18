@@ -254,6 +254,8 @@ export function loadUpdates(root = DEFAULT_ROOT, { published = new Set(), resear
     // History may end inside the window: a shallow checkout, or the merge cap.
     shallow: historyStart(root) || (merges?.length ?? 0) >= CHANGELOG_MERGES,
     entries: changelogEntries(merges, { published, researchSlugs, titles, now }),
+    // Raw merges, so build.mjs can hand them to the work queue's progress view without a second git log.
+    merges,
     researchLog: loadResearchLog(root),
     researchSlugs,
     launched: readJson(path.join(root, 'platform', 'pages', 'launched.json'))?.launched ?? {},
@@ -315,7 +317,8 @@ const STYLE = `
     --accent:#8fb0ff; --soft:#1c2531; --k-tools:#7fd8c0; --k-research:#d2b0f5; --k-site:#8fb0ff; --k-platform:#e7c76a; } }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .wrap { max-width:960px; margin:0 auto; padding:24px 16px 72px; --pf-hero-pull:24px; }
+  .wrap { max-width:1120px; margin:0 auto; padding:24px 16px 72px; --pf-hero-pull:24px; }
+  main :is(p, li) { max-width:78ch; }
   a { color:var(--accent); }
   h1 { font-size:2.1rem; line-height:1.15; margin:.3em 0 .25em; letter-spacing:-.015em; }
   h2 { font-size:1.4rem; margin:2.2em 0 .5em; letter-spacing:-.01em; }
@@ -326,7 +329,7 @@ const STYLE = `
   .jump a { display:inline-block; padding:5px 12px; border:1px solid var(--line); border-radius:999px; background:var(--panel);
     text-decoration:none; color:var(--ink); font-size:.9rem; }
   .jump a:hover { border-color:var(--accent); }
-  .tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap:12px; margin:1em 0; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap:12px; margin:1em 0; }
   @media (max-width:600px) { .tiles { grid-template-columns:repeat(2, minmax(0, 1fr)); } .tile b { font-size:1.6rem; } }
   .tile { position:relative; overflow:hidden; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px 18px 15px;
     transition:transform .18s, border-color .18s, box-shadow .18s; }
@@ -338,7 +341,7 @@ const STYLE = `
   .pf-hero h1 { font-size:clamp(2rem,4.6vw,2.8rem); } .pf-hero .jump a { background:var(--panel); color:var(--ink); border-color:var(--line); }
   .pf-hero .jump a:hover { border-color:var(--accent); }
   .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:0 0 14px; }
-  .cols { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; }
+  .cols { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap:14px; }
   .cols .card { margin:0; }
   .log { list-style:none; margin:0; padding:0; }
   .log li { padding:9px 0; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }
@@ -405,7 +408,7 @@ function entryHtml(e, toRoot, { pill = true } = {}) {
   const pages = e.pages
     .map((p) => `<a class="goto" href="${esc(toRoot + p.href)}">${p.kind === 'tool' ? 'Open' : 'Read'} ${esc(p.label)} →</a>`)
     .join(' ');
-  return `<li data-kind="${e.kind}">${pill ? `<span class="pill k-${e.kind}">${esc(KIND_LABEL[e.kind])}</span>` : ''}${inline(e.title, '', { linkPrs: false })}
+  return `<li data-kind="${e.kind}">${pill ? `<span class="pill k-${e.kind}">${esc(KIND_LABEL[e.kind])}</span>` : ''}${inline(e.title, '', { linkPrs: false, entities: false })}
 <span class="meta"> · ${pr}</span>${pages ? `<br>${pages}` : ''}</li>`;
 }
 
@@ -733,6 +736,7 @@ ${activeHtml}
 ${researchLogHtml}
 
 <h2 id="in-progress">In progress</h2>
+<p class="muted">What gets picked up next, in order, is on the <a href="../queue/">work queue</a>.</p>
 ${inProgress}
 
 <h2 id="direction">Direction: where this is going</h2>

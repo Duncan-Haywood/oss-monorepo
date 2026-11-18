@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to Supabase Bill Estimator</a></p>
   <h1>How to reduce your Supabase bill: levers ranked by dollar impact</h1>
   <p>A Supabase Pro invoice is a $25 organization fee plus compute for each project, then metered overage on database disk, egress, file storage, monthly active users, Edge Function invocations and Realtime messages. The useful question is not "how do I spend less" but "which line, changed by how much, saves the most". That is arithmetic you can do before the invoice, from the numbers on your dashboard's Usage page.</p>
@@ -27,10 +28,10 @@
   <p>Every project beyond the first adds an instance, and many sit on a larger size than their CPU and memory graphs justify. Check the observability charts for a week; if CPU stays low, step down a size. Compute is billed per hour, so the change takes effect immediately.</p>
 
   <h2>2. Trim egress</h2>
-  <p>Egress beyond the included 250 GB is billed per GB. Put a CDN or cache headers in front of storage files, select only the columns you render instead of <code>select *</code>, enable compression and serve resized images. If 30% of 900 GB goes away, you stop paying for 200 GB of overage.</p>
+  <p>Supabase meters egress twice: uncached egress at $0.09 a GB and cached egress (cache hits served from its CDN) at $0.03 a GB, each with its own 250 GB monthly quota on Pro. Select only the columns you render instead of <code>select *</code>, enable compression and serve resized images: that removes uncached egress. Serving storage files through the Smart CDN does not remove egress, it moves cache hits to the cheaper cached meter, so the saving is about two thirds of the moved gigabytes' price, not all of it. The dashboard's Total Egress includes the cached part, so enter uncached egress as total minus cached.</p>
 
   <h2>3. Shrink the database</h2>
-  <p>Disk is billed per GB above the included 8 GB and it does not shrink on its own. Archive old rows, drop unused indexes and vacuum table bloat. Disk is the one line that only goes down if you act.</p>
+  <p>Disk is billed on the provisioned size, per GB above the 8 GB included for each project's database. Deleting rows does not shrink a provisioned disk by itself: archive old rows, drop unused indexes and vacuum table bloat, then reduce the disk size in the project's settings. Disk is the one line that only goes down if you act.</p>
 
   <h2>4. Clean up storage and cache Edge Functions</h2>
   <p>Orphaned uploads and duplicate objects pay rent forever; set expiry on temporary files. For Edge Functions, cache responses and batch calls so fewer invocations run.</p>
@@ -39,14 +40,14 @@
   <p>Realtime messages are billed per million: batch updates and broadcast less often. Monthly active users beyond the included 100,000 cost per thousand, so bot and throwaway sign-ups are a direct cost; CAPTCHA and email verification remove them.</p>
 
   <h2>6. Consolidate organizations</h2>
-  <p>Each Pro organization carries its own fixed fee. Small side projects can often live in one organization.</p>
+  <p>Each Pro organization carries its own fixed fee, and also its own quotas and $10 compute credit. Merging two organizations saves one fee but gives up one set of quotas, so it pays only when the second organization was using little of its allowance. The estimator offers this lever only when the arithmetic still saves money.</p>
 
   <h2>Run it on your numbers</h2>
   <p>Enter your usage in the <a href="./">estimator</a> or from the CLI, and gate a budget in CI:</p>
   <pre>node cli.mjs estimate usage.csv --budget 500</pre>
 
   <h2>What this cannot see</h2>
-  <p>Plans, regions, spend cap settings, enterprise contracts and price changes are outside it. Prices here are approximate Pro-plan list prices and editable. The estimate is arithmetic on your inputs, never a bill reader.</p>
+  <p>The Pro spend cap is on by default: with it on, overage on disk, egress, storage, monthly active users, Edge Functions and Realtime is not billed and those services are restricted instead (compute is never capped). The estimator prices the overage as if the cap were off and states what the bill would be with it on. Plans other than Pro, regions, read replicas, IPv4, point-in-time recovery, custom domains, enterprise contracts and price changes are outside it. Prices here are approximate Pro-plan list prices and editable. The estimate is arithmetic on your inputs, never a bill reader.</p>
 
   <h2>Common questions</h2>
   <h3>Which Supabase costs usually dominate?</h3>
@@ -56,7 +57,9 @@
   <h3>Do the savings add up?</h3>
   <p>No. Levers can act on overlapping usage, so each is calculated alone and the list is a ranking, not a plan total.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not financial, engineering or operational advice, and you are responsible for verifying its output. Supabase is a trademark of its owner; this project is not affiliated with or endorsed by Supabase Inc.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

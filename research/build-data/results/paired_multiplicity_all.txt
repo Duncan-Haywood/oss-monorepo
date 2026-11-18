@@ -1,0 +1,48 @@
+Approximate p from the normal approximation to each cell's bootstrap interval (draws not saved).
+45 cells, test year all; family-wise alpha 0.05 (Holm), FDR 0.05 (Benjamini-Hochberg).
+austin 2022  a2i q0.1: -0.09%  p~0.3  uncorrected    Holm    BH  
+austin 2022  a2i q0.5: -1.71%  p~1.4e-06  uncorrected *  Holm *  BH *
+austin 2022  a2i q0.9: -0.82%  p~0.14  uncorrected    Holm    BH  
+austin 2023  a2i q0.1: +0.01%  p~0.97  uncorrected    Holm    BH  
+austin 2023  a2i q0.5: -2.18%  p~4e-05  uncorrected *  Holm *  BH *
+austin 2023  a2i q0.9: -3.77%  p~0.04  uncorrected *  Holm    BH  
+austin 2024  a2i q0.1: +2.73%  p~1.7e-58  uncorrected *  Holm *  BH *
+austin 2024  a2i q0.5: -0.03%  p~0.94  uncorrected    Holm    BH  
+austin 2024  a2i q0.9: +0.92%  p~0.19  uncorrected    Holm    BH  
+austin 2022  i2c q0.1: +1.90%  p~3.2e-70  uncorrected *  Holm *  BH *
+austin 2022  i2c q0.5: -0.83%  p~9.6e-05  uncorrected *  Holm *  BH *
+austin 2022  i2c q0.9: -2.95%  p~0.0067  uncorrected *  Holm    BH *
+austin 2023  i2c q0.1: +0.64%  p~0.0041  uncorrected *  Holm    BH *
+austin 2023  i2c q0.5: +0.14%  p~0.41  uncorrected    Holm    BH  
+austin 2023  i2c q0.9: -0.84%  p~0.0091  uncorrected *  Holm    BH *
+austin 2024  i2c q0.1: -0.10%  p~0.71  uncorrected    Holm    BH  
+austin 2024  i2c q0.5: +0.25%  p~0.2  uncorrected    Holm    BH  
+austin 2024  i2c q0.9: +1.36%  p~3.1e-05  uncorrected *  Holm *  BH *
+chicago 2022 a2i q0.1: +0.44%  p~5.8e-12  uncorrected *  Holm *  BH *
+chicago 2022 a2i q0.5: +1.54%  p~1e-10  uncorrected *  Holm *  BH *
+chicago 2022 a2i q0.9: -0.96%  p~0.24  uncorrected    Holm    BH  
+chicago 2023 a2i q0.1: -0.35%  p~0.038  uncorrected *  Holm    BH  
+chicago 2023 a2i q0.5: +0.62%  p~0.0015  uncorrected *  Holm *  BH *
+chicago 2023 a2i q0.9: -1.27%  p~0.049  uncorrected *  Holm    BH  
+chicago 2024 a2i q0.1: +0.37%  p~4.3e-131  uncorrected *  Holm *  BH *
+chicago 2024 a2i q0.5: -0.46%  p~0.00011  uncorrected *  Holm *  BH *
+chicago 2024 a2i q0.9: -3.30%  p~3.4e-06  uncorrected *  Holm *  BH *
+sf 2022      a2i q0.1: -1.58%  p~0.0002  uncorrected *  Holm *  BH *
+sf 2022      a2i q0.5: -0.56%  p~0.17  uncorrected    Holm    BH  
+sf 2022      a2i q0.9: -1.43%  p~0.031  uncorrected *  Holm    BH *
+sf 2023      a2i q0.1: -1.88%  p~2.1e-11  uncorrected *  Holm *  BH *
+sf 2023      a2i q0.5: +0.83%  p~0.055  uncorrected *  Holm    BH  
+sf 2023      a2i q0.9: +1.87%  p~0.0018  uncorrected *  Holm *  BH *
+sf 2024      a2i q0.1: +0.76%  p~0.097  uncorrected    Holm    BH  
+sf 2024      a2i q0.5: +1.11%  p~0.0023  uncorrected *  Holm *  BH *
+sf 2024      a2i q0.9: +5.74%  p~2.2e-31  uncorrected *  Holm *  BH *
+sf 2022      i2c q0.1: +0.89%  p~4.3e-08  uncorrected *  Holm *  BH *
+sf 2022      i2c q0.5: +0.32%  p~0.029  uncorrected *  Holm    BH *
+sf 2022      i2c q0.9: +0.11%  p~0.71  uncorrected    Holm    BH  
+sf 2023      i2c q0.1: +2.25%  p~1e-41  uncorrected *  Holm *  BH *
+sf 2023      i2c q0.5: +2.32%  p~6.3e-27  uncorrected *  Holm *  BH *
+sf 2023      i2c q0.9: +1.17%  p~2.2e-05  uncorrected *  Holm *  BH *
+sf 2024      i2c q0.1: +1.60%  p~6.1e-07  uncorrected *  Holm *  BH *
+sf 2024      i2c q0.5: +2.34%  p~2.7e-24  uncorrected *  Holm *  BH *
+sf 2024      i2c q0.9: +2.70%  p~3.2e-16  uncorrected *  Holm *  BH *
+uncorrected 33, Holm 24, BH 29 of 45

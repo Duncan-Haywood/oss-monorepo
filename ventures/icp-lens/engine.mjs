@@ -14,7 +14,7 @@ export const MIN_PER_CLASS = 8;
 
 /** RFC 4180-ish CSV (also accepts tabs from a spreadsheet paste). -> string[][] */
 export function parseCsv(text) {
-  text = String(text ?? "").replace(/^﻿/, "");
+  text = String(text ?? "").replace(/^\uFEFF/, "");
   const first = text.split(/\r?\n/, 1)[0] || "";
   const sep = first.includes("\t") && !first.includes(",") ? "\t" : ",";
   const rows = []; let row = [], cur = "", q = false;

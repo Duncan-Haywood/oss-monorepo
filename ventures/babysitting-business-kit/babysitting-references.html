@@ -23,6 +23,7 @@
   <script>/* offline + install; reading navigator.serviceWorker throws in sandboxed frames, so guard it */ try { if ("serviceWorker" in navigator && location.protocol !== "file:") addEventListener("load", () => { try { navigator.serviceWorker.register("sw.js").catch(() => {}); } catch { /* no service worker here */ } }); } catch { /* no service worker here */ }</script>
 </head>
 <body>
+<main>
   <p><a href="./index.html">← Babysitting Business Kit</a></p>
   <h1>Babysitting references</h1>
   <p>Ask two or three people who have seen you with children and are not relatives. Ask each one separately, and get two separate yeses: one to give their phone number or email to new families, and one to put their words on your website. Keep a note of who said what, follow up once if they have not answered in about five days, and thank them after a family calls.</p>
@@ -75,7 +76,9 @@
   <h3>Can I put parents' reviews on my babysitting website?</h3>
   <p>Only with their clear yes, in their own words, and never edited to say more than they said. Show a first name and last initial rather than a full name, and leave children's names and photos out unless the parents agree to that too.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Privacy and screening rules differ by state; check what applies where you live. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p>Not affiliated with Care.com, Sittercity, UrbanSitter or any church or denomination. Free and open source under the MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
   </footer>

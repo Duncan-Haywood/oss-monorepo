@@ -24,10 +24,10 @@ from urllib.parse import unquote, urlsplit
 
 # href/src on any element, plus the ES module specifiers the calculators use to
 # pull in `calc.mjs` and `usage.mjs`.
-ATTR_RE = re.compile(r"""\b(?:href|src)\s*=\s*["']([^"']+)["']""", re.IGNORECASE)
+ATTR_RE = re.compile(r"""(?<![\w-])(?:href|src)\s*=\s*["']([^"']+)["']""", re.IGNORECASE)
 IMPORT_RE = re.compile(r"""\bfrom\s+["'](\.{1,2}/[^"']+)["']""")
 
-ID_RE = re.compile(r"""\b(?:id|name)\s*=\s*["']([^"']+)["']""", re.IGNORECASE)
+ID_RE = re.compile(r"""(?<![\w-])(?:id|name)\s*=\s*["']([^"']+)["']""", re.IGNORECASE)
 
 SKIP_PREFIXES = ("http://", "https://", "//", "mailto:", "tel:", "data:", "javascript:")
 

@@ -110,7 +110,7 @@ export function projectReport(books, { from = null, to = null } = {}) {
 
 function money(c) { const v = Math.abs(c); return `${c < 0 ? "-" : ""}$${Math.floor(v / 100).toLocaleString("en-US")}.${String(v % 100).padStart(2, "0")}`; }
 
-const q = (s) => (/[",\n]/.test(s) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+import { q } from "./csvq.mjs";
 // One row per project and account, then each project's revenue, cost and net.
 export function projectCsv(r) {
   const d = (c) => (c / 100).toFixed(2);

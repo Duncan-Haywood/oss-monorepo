@@ -1,0 +1,5 @@
+GoEmotions neutral, LLM Qwen2.5-1.5B-Instruct, corpus 6683, prevalence 0.2327, coder J 0.194 (sens 0.641, spec 0.554), n 500, 500 draws
+rule | share of draws using cells % | coverage % | half-width pts
+pooled | 0 | 95.4 | 3.506
+shipped default (neg_guard 3) | 6 | 95.8 | 3.498
+neg_guard=3 alone | 100 | 93.8 | 3.483

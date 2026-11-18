@@ -2,7 +2,7 @@
 
 **How did religion begin and change?** This project is a heavily cited synthesis of what the evidence shows, from the cognitive science of belief and the first burials through Göbekli Tepe, the first states, the Axial Age, Israelite monotheism and the "Big Gods" debate, to early Christianity, the East–West Schism and today's data. The evidence is read through several lenses: evolutionary and cognitive science, archaeology, historical criticism, sociology, and Catholic and Orthodox theology. Each lens is labelled, and where the evidence is contested we say so. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/religion-origins/
+**Live page:** https://marisstella.app/research/religion-origins/
 
 ## Contents
 - [`reports/Development of religion.md`](reports/Development%20of%20religion.md) — the synthesis report (about 10,500 words, 229 linked citations, a "what replicated" table and a confidence section).

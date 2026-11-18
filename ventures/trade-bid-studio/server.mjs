@@ -9,6 +9,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { buildProposal, renderProposalHtml, escapeHtml as esc, money, formatDate, COMPANY_FIELDS } from "./proposal.mjs";
+import { pathToFileURL } from "node:url";
 
 const MAX_BODY = 64 * 1024, MAX_PROPOSALS = 2000;
 const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
@@ -19,7 +20,7 @@ export const DISCLAIMER = "This proposal states the price offered by the busines
 
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:56rem;margin:0 auto;padding:1rem;color:#1a1a1a}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:.35rem .5rem;text-align:left;vertical-align:top}textarea,input,select{width:100%;font:inherit;box-sizing:border-box}textarea{min-height:5rem}button,.btn{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0;cursor:pointer}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}.pill{border-radius:1rem;padding:.1rem .6rem;font-size:.85rem;background:#eee}.pill.accepted{background:#d7f0dd}.pill.declined{background:#f6d9d9}.pr-doc{border:1px solid #ccc;padding:1rem}.pr-head{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}.pr-sign{display:none}.pr-price td:last-child{text-align:right}.pr-total{font-weight:700}.row2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}@media(max-width:40rem){.row2{grid-template-columns:1fr}}label{display:block;margin:.5rem 0}`;
 const page = (title, body, head = "") => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">${head}<title>${esc(title)}</title><style>${CSS}</style></head><body>${body}</body></html>`;
-const foot = `<p class="note">Sent with <a href="https://duncan-haywood.github.io/monorepo-projects/trade-bid-studio/">Trade Bid Studio</a> estimate hub (free, MIT, self-hosted by the business that sent this). The software performs no legal review.</p>`;
+const foot = `<p class="note">Sent with <a href="https://marisstella.app/trade-bid-studio/">Trade Bid Studio</a> estimate hub (free, MIT, self-hosted by the business that sent this). The software performs no legal review.</p>`;
 
 export function emptyState() { return { company: {}, proposals: [] }; }
 
@@ -59,7 +60,7 @@ function adminPage(state, env, q, now, note = "", prefill = null) {
 }
 
 export const csvOf = (state) => {
-  const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return `"${s.replace(/"/g, '""')}"`; };
+  const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return `"${s.replace(/"/g, '""')}"`; };
   return [["reference", "customer", "job", "price", "deposit_percent", "status", "created", "accepted_by", "accepted_at"].join(","),
     ...state.proposals.map((r) => [r.proposal.reference, r.proposal.client.name, r.proposal.job.title, r.proposal.pricing.price, r.proposal.pricing.depositPercent, r.status, r.createdAt, r.acceptedBy || "", r.acceptedAt || ""].map(cell).join(","))].join("\r\n") + "\r\n";
 };
@@ -143,7 +144,7 @@ export function handler(state, save, env = process.env, now = Date.now) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const statePath = process.env.STATE || "state.json";
   let state = emptyState();
   try { state = { ...state, ...JSON.parse(fs.readFileSync(statePath, "utf8")) }; } catch (e) { if (e.code !== "ENOENT") throw e; }

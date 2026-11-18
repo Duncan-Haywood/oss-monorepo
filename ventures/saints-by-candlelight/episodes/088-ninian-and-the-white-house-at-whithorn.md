@@ -1,0 +1,325 @@
+---
+number: 88
+slug: ninian-and-the-white-house-at-whithorn
+title: Ninian and the White House at Whithorn
+published: 2026-11-10
+summary: On a windy point of south-west Scotland, a British bishop builds a little church of stone and paints it white, sends a doubtful brother out to a garden that has only just been sown, and keeps a herd of cows inside a line drawn with his stick. Saint Ninian, from Bede and from Ailred of Rievaulx, with the wonders labelled as the old writers' report.
+figures: Saint Ninian, the brothers of Whithorn, an invented young brother called Elffin, a gardener, a runaway schoolboy, some cattle thieves, a bull, King Tuduvallus, the southern Picts
+tradition: Catholic and Orthodox; Ninian is a saint of the early Church in Britain, honoured in the Catholic calendar in Scotland and by many Orthodox Christians who keep the old saints of these islands, and his cult is far older than any formal canonisation
+feast: the sixteenth of September, kept in the Catholic Church in Scotland and remembered on the same day by many Orthodox Christians who honour the early British saints
+history: that a British bishop called Nynia or Ninian built a stone church at Whithorn known as the White House, that the see bore the name of Saint Martin, and that he brought the faith to the southern Picts are told by Bede in seven hundred and thirty-one, as what he had heard; the Christian community at Whithorn in the fifth century is shown by the Latinus stone and by excavation
+legend: his royal birth, his training at Rome, the visit to Saint Martin at Tours and the masons from Tours, the blinding and healing of King Tuduvallus, the leeks, the psalter in the rain, the cattle and the thieves, and the runaway boy whose staff became a tree are told by Ailred of Rievaulx in the eleven hundred and sixties, from an older book now lost, and are told here as his report; that Ninian's Cave on the shore was his place of prayer is local tradition; the suggestion that his name began as a copying slip for Uinniau is one modern scholar's argument and is labelled so
+fiction: the young brother Elffin and everything he says, the gardener's words, the weather, the walk to the cave, the night with the cattle beyond Ailred's outline, the boy's thoughts, and the talk at supper are our own invention, told in the spirit of the original
+sources:
+  - Bede, The Ecclesiastical History of the English People, book three, chapter four, completed in seven hundred and thirty-one
+  - Ailred of Rievaulx, The Life of Saint Ninian, written about eleven hundred and sixty, translated by Winifred MacQueen in John MacQueen, Saint Nynia, Polygon, nineteen ninety
+  - Miracula Nynie Episcopi, the Miracles of Bishop Nynia, a Latin poem written at Whithorn in the eighth century, translated by Winifred MacQueen in the same volume
+  - Peter Hill, Whithorn and Saint Ninian, The Excavation of a Monastic Town, nineteen eighty-four to ninety-one, Sutton Publishing for the Whithorn Trust, nineteen ninety-seven
+  - Thomas Owen Clancy, The Real Saint Ninian, The Innes Review, volume fifty-two, two thousand and one
+---
+
+Imagine a garden on a windy hill, near the sea, about sixteen hundred years ago.
+
+It is not much of a garden yet. It is a few long beds of dark earth, raked smooth, with a low wall of stones around them to keep out the wind and the sheep, and not entirely succeeding with either. There is nothing growing in it. Nothing at all. A few days ago, a brother in a brown habit knelt here and pushed seeds into the soil with his thumb, one by one, and said a prayer over each row, and went in for his supper.
+
+Now the same brother is standing at the garden gate, holding an empty basket, with the face of a man who has been sent on a fool's errand by somebody he loves.
+
+"Leeks," he says to himself. "He wants leeks. For supper. From a garden I planted on Tuesday."
+
+He sighs. He opens the gate. He takes three steps along the first bed, looking at the ground, ready to go back and say, very politely, that there is nothing there.
+
+And then he stops. And the basket slips out of his hand.
+
+But we are getting ahead of ourselves.
+
+[pause]
+
+Hello, and welcome to Saints by Candlelight, stories of saints, angels and patriarchs from the Catholic and Orthodox traditions, told for bedtime. These episodes are written by an AI and read by a synthetic voice, and they try very hard to be faithful. Tonight's story is Saint Ninian of Whithorn, the earliest saint whose name we know in what is now Scotland, from the few lines about him in Bede and from the much longer Life written by Ailred of Rievaulx seven hundred years after him; the leeks, the rain and the cattle are Ailred's report, and we will tell them that way, and the young brother Elffin and most of the small conversations are our own invention, told in the spirit of the original. So get comfortable. Dim the lights. And let's begin.
+
+[pause]
+
+Let me take you to the very bottom left-hand corner of Scotland.
+
+If you look at a map, you will see that the south-west of Scotland sticks out into the Irish Sea in a ragged sort of way, like a hand with its fingers spread. One of those fingers is a long, low peninsula called the Machars. It is green, and gentle, and full of cows. It has small fields, and stone walls, and very big skies. On a clear day you can see the mountains of the Isle of Man across the water, and sometimes the hills of Cumbria, and sometimes, if you are lucky and the wind has been in the right quarter, the coast of Ireland. And near the bottom of that finger, a little way back from the sea, there is a small town called Whithorn.
+
+Whithorn is a quiet place now. It has one main street, which is unusually wide, as if the town had once expected a great many visitors and then got used to having fewer. It has a few shops. It has a ruined priory. And it has a name that is very old indeed.
+
+The name means the white house.
+
+To understand why anyone would name a place after a white house, you have to imagine Britain in about the year four hundred.
+
+The Romans were still there, just. They had been in Britain for nearly four hundred years, which is longer than there has been a United States, and they had built roads, and towns, and villas with underfloor heating, and a very long wall across the north of England, to keep out the people beyond it. But the Roman Empire was tired. Its armies were being called home to defend Italy. Its money was running short. And in the year four hundred and ten, or thereabouts, the Emperor wrote to the cities of Britain, and told them, more or less, that they would have to look after themselves from now on.
+
+North of the wall, the Romans had never really been in charge. There were British peoples there, who spoke a language a bit like modern Welsh. And further north, beyond the rivers and the mountains, there were the Picts, who painted or tattooed themselves, the Romans said, which is where their name comes from, and who had been a worry to the Romans for centuries.
+
+Some of the Britons were already Christians. The faith had come to Britain with soldiers and merchants long before, and there had been British bishops at a Church council in France as early as the year three hundred and fourteen. But most of the people of the north were not Christians yet. They had their own gods, of springs, and rivers, and hills, and they built in wood, and wattle, and turf. A house, for almost everybody, was a round thing with a thatched roof, which kept you dry, mostly, and smelled of smoke, always.
+
+Nobody in that part of the world built churches of stone. Nobody built anything of stone, really, except walls for fields, and the Romans, who were going home.
+
+And then somebody did.
+
+* * *
+
+Now, I have to be honest with you about how much we know about Saint Ninian, because it is less than you would like.
+
+The oldest thing anyone wrote about him that still survives is a single paragraph in the Ecclesiastical History of Bede. Bede was a monk in the north of England, at Jarrow, near Newcastle, and he finished his great history of the English Church in the year seven hundred and thirty-one, which is more than three hundred years after Ninian. Bede was a careful man. He liked to say where he got his information. And when he comes to Ninian, he is careful in a particular way. He says that this is what people say.
+
+What people said, according to Bede, was this. That long before Saint Columba came to Iona, the southern Picts had given up their old gods and received the true faith through the preaching of a bishop called Nynia. That he was a most reverend and holy man, of the British people. That he had been properly taught the faith at Rome. That his church was named after Saint Martin, the bishop. And that the place was commonly called the White House, because he had built a church there of stone, which was not the usual way of the Britons. And Bede adds that Ninian himself was buried there, with many other saints.
+
+That is nearly all.
+
+Then, for about four hundred years, there is very little. There is a Latin poem about Ninian's miracles, written by someone at Whithorn in the seven hundreds, and it survives. And then, in about the year eleven hundred and sixty, a famous English abbot called Ailred, of the monastery of Rievaulx in Yorkshire, was asked by the bishop of Galloway to write a proper Life of Saint Ninian. Ailred said that there was an older book about him, but that it was written in a rough, barbarous style, and he would put it into better Latin. That older book is lost. Ailred's Life is not, and it is where nearly all the stories come from.
+
+So tonight, when I tell you a story about Ninian, I will try to tell you where it comes from. If it is from Bede, it is the oldest thing we have. If it is from Ailred, it is a good story, told by a holy and gifted man, from a book we cannot read any more, seven centuries after the events. That does not make it untrue. But it is not the same as a diary.
+
+And I will add one more thing, which is that we are not even completely sure about his name. Bede calls him Nynia. Ailred calls him Ninian. And a modern scholar, Thomas Clancy, has suggested that the name might have started life as a copying slip, that some scribe long ago misread a British name, Uinniau, which in a certain old handwriting looks rather like Nynia. If he is right, our saint might even be the same person as a famous teacher whom the Irish remembered as Finnian. Other scholars are not convinced. It is one argument among several, and I mention it only so you know it is there. For tonight, he is Ninian, which is what the people of Whithorn have called him for nine hundred years, and what he answers to, I am sure, in heaven.
+
+* * *
+
+Ailred begins, as the old lives often do, with the saint's family. He says that Ninian was born in that region, by the sea, the son of a king, a Christian king. This is a thing the old writers say about a great many saints, and I always picture the very large number of small kings that early Britain must have had to supply them. But it is possible. There were a great many small kings.
+
+Ailred says the boy was serious, and good, and loved the Church, and loved to read. And when he was a young man, he decided that he did not want to learn the faith from books alone, and from the British clergy at home, who were doing their best but were a long way from anywhere. He wanted to go to the source. He wanted to go to Rome.
+
+So he went. Ailred does not tell us how, and I think we have to imagine it for ourselves. From the Machars to Rome is something like fifteen hundred miles. You would walk to the coast, and take a ship down the Irish Sea, or walk the whole length of Britain on the old Roman roads, and cross the Channel, and walk through Gaul, which is France, and over the Alps, which in those days was a serious thing to do, with no tunnels and no snow ploughs and robbers in the passes. It would take months. Some people who set out did not come back.
+
+Ninian came back. But first, Ailred says, he stayed in Rome for many years, studying the Scriptures and the teaching of the Church, and that the Pope himself, hearing of this serious young Briton, ordained him a bishop, and sent him home to preach to his own people. Bede says, more simply, that he had been properly taught at Rome. That he went to Rome at all is something many historians think quite possible, and some doubt. It is the tradition.
+
+And on the way home, Ailred says, he went to see Saint Martin.
+
+You may remember Saint Martin from another night. He was the Roman soldier who cut his cloak in half for a beggar at the gate of Amiens, and became a monk, and then, very much against his will, the bishop of Tours, where he lived in a hut outside the town and went about on a donkey. By the end of the three hundreds he was the most famous holy man in the whole Western Church. People came to see him from all over the world. So it is not at all impossible that a young bishop on his way home from Rome to Britain would make a little detour to Tours, to ask the old man's blessing.
+
+Ailred says that Martin received him with great love, and that they talked about God together, and that when Ninian said he wanted to build a church in his own country in the Roman style, of stone, Martin lent him some masons.
+
+Now, I love this detail, and I want to be clear that it is Ailred's, not Bede's, and that nobody can prove it. But I love it because it is so practical. A saint asks another saint for help, and the help is not a vision or a relic or a miracle. It is a team of builders. Here you are, says Saint Martin. Here are some men who know what they are doing with lime mortar. Take them with you. Bring them back eventually.
+
+And so, Ailred says, Ninian came home to the windy point by the sea, with his books, and his blessing, and a small group of puzzled Frenchmen, and began to build.
+
+* * *
+
+I want to imagine that first summer with you, and here I am going to invent a little, as I said I would.
+
+Let us give Ninian a helper. A young man, from the farms nearby, who has been baptised and wants to be a monk, and who has been put in charge of carrying things, because he is strong and willing and does not yet know enough Latin to be put in charge of anything else. We will call him Elffin. The old books do not mention him. He is ours.
+
+Elffin has never seen a stone building in his life. He has seen walls. He has seen the old Roman fort, a long way off, which his grandmother says was built by giants. But a house made of stone, with a roof, for God, is a new idea, and he is not sure about it.
+
+"Why stone, Father?" he says, on the first day, watching the masons from Tours measure out the ground with a cord and wooden pegs, and argue about it in a language he does not understand. "Wood is warmer. Everybody has wood."
+
+And Ninian, who is sitting on a rock with a wax tablet, working out how much lime they will need, says, "Because wood burns, Elffin. And wood rots. And I want this house to be here when your great-great-grandchildren come to pray in it."
+
+Elffin thinks about this. "Will they?"
+
+"I hope so," says Ninian. "That's rather the point."
+
+So they built. They cut stone from the hillsides and carted it on sledges. They burned shells and limestone in a pit to make lime, which is a hot and dusty and dangerous business, and mixed it with sand and water to make mortar, which the masons from Tours guarded like treasure. And slowly, through a summer of wind and showers, a little building went up on the hill. It was not big. It would not have held more than a few dozen people. It had thick walls and small windows and a roof of slate or thatch, the old books do not say.
+
+And then, when it was finished, they did one more thing, which is the thing that gave the place its name. They covered the outside of the walls with lime plaster, and the lime dried white.
+
+Imagine it. A whole countryside of brown and green and grey. Brown thatch, green fields, grey stone walls, grey sea, grey sky, most days. And on the hill, catching the light, a small, square, shining white house.
+
+You could see it from the fields. You could see it from the road. You could see it, I am told, from a fair way out to sea, which mattered in a place where most travel was by boat. Fishermen coming home in the evening would look for it. Farmers would point it out to their children. "That's the white house," they would say. "That's where the bishop is. That's the house of God."
+
+The British word for it is lost. The Latin was Candida Casa. And the English, when they came, called it something like Hwit Ern, which is to say the white house, and that became Whithorn.
+
+And while the building was going on, Ailred says, news came from France that Saint Martin had died. Martin died in the year three hundred and ninety-seven. And Ninian, says Ailred, dedicated his new church to Martin's memory. Bede, as we said, tells us that the church bore Martin's name. Ailred's date fits it beautifully. Whether it is true, nobody can say. It is a lovely thought, though. The masons from Tours, standing in the white church on the hill, at the far end of the world, saying a prayer for the old bishop on the donkey who had sent them.
+
+* * *
+
+Now. The leeks.
+
+Ailred tells this story, and it is my favourite, so I am going to take my time.
+
+Some years later. The white church is built, and next to it there are huts for the brothers, and a refectory, which is the monastery dining room, and a school, because Ninian taught boys their letters and their prayers. And there is a garden, of course, because monks have to eat.
+
+It is spring. The brother who looks after the garden, whom Ailred does not name, has dug the beds and raked them, and planted his seeds, leeks and herbs and the other green things a monastery might hope for. He has done it all only very recently. Nothing has come up.
+
+One day, Ailred says, Ninian sat down to dinner with his brothers. And he looked at the food, which, I imagine, in early spring at a monastery on the Solway coast, was brown, and grey, and not very much of either. Bread. Perhaps some fish. Perhaps a bit of cheese. Nothing green at all.
+
+And Ninian turned to the brother who looked after the garden, and said, gently, "Go out to the garden, brother, and bring in some leeks and herbs for us."
+
+Here, I am going to give the gardener a voice. Ailred does not, but I think he would forgive me.
+
+The gardener looked at the bishop. He looked at the other brothers. He put down his spoon.
+
+"Father," he said, very respectfully, "there are no leeks."
+
+"Go and look," said Ninian.
+
+"Father, with all respect, I planted them on Tuesday. They are seeds. They are under the ground. They are doing whatever it is seeds do in the dark, which takes several weeks, as I am sure you know, because you have seen me do this every spring for years."
+
+"Go and look," said Ninian, kindly.
+
+Elffin, who is sitting at the end of the table, says nothing, but his eyes go very wide, because he has learned by now that when the bishop says something kindly twice, it is usually worth paying attention.
+
+So the gardener got up, and sighed, and picked up a basket by the door, and went out.
+
+And here is our cold open again. The windy hill. The little stone wall. The raked beds of dark earth. The gardener at the gate, muttering. Three steps along the first bed.
+
+And then he stopped. Because the bed was not bare. It was green. All along it, where on Tuesday he had pushed the seeds in with his thumb, there were leeks. Not little shoots. Leeks. Tall, white-stemmed, green-flagged, ready to pull. And the herbs beside them were up and full and smelling the way herbs smell when you brush against them. Ailred says the plants were grown and ready, as if they had had all the time a garden ever needs.
+
+The gardener stood there for a long moment. Then he knelt down in the dirt, and said a prayer, and thanked God. And then, because he was a practical man and there were people waiting for their dinner, he pulled up a basketful of leeks, and picked a handful of herbs, and brought them in.
+
+And Ailred says the brothers ate them, and praised God, and understood that he had looked after them, through the faith of their bishop, even down to the vegetables.
+
+I want to say something about this story, because it is so small. It is not a dragon, or a storm, or a king struck down. It is leeks. It is a monastery supper that was a bit dull and then was not. And I think that is exactly why the brothers of Whithorn remembered it and told it, for hundreds of years, until Ailred wrote it down. Because most of the life of a monastery is not dragons. It is gardens, and suppers, and the weather, and getting up in the dark to pray. And the story says that God is in that too. In the garden on Tuesday. In the soup. He does not only look after us in the great moments. He knows what is for dinner.
+
+And it is God who does it. Ninian does not wave his hands over the garden. He does not even go out to it. He just trusts, and sends somebody to look.
+
+* * *
+
+The next story is about rain, which, if you have ever been to the south-west of Scotland, will not surprise you.
+
+Ailred says that Ninian liked to walk out from the monastery, sometimes on business, sometimes just to pray, and that as he walked he would read the psalms from a book. In those days a book was a precious thing. It was written by hand, on calfskin, by somebody who had spent months at it, and if it got wet the ink could run and the pages could warp and the whole thing might be ruined. You did not take a book out into the weather lightly.
+
+But Ninian did, Ailred says, because he loved the psalms and wanted them with him. And one day, he was walking along a road with a companion, reading as he went, when the sky turned dark, and the rain came.
+
+I am going to put Elffin with him, since we have him.
+
+It was the kind of rain that comes in off the sea sideways. The kind that gets inside your hood, and down your neck, and into your shoes. Elffin pulled his cloak over his head and hunched his shoulders and thought longingly of the fire in the refectory.
+
+And then he looked across at the bishop. And the bishop was walking along, reading his psalms, in the pouring rain. And the book in his hands was dry.
+
+Not a little damp. Dry. The rain was falling on the bishop's head, and on his shoulders, and running off the end of his nose, and the book in his hands, open, was as dry as if he were reading it by the fire. Ailred says the rain did not touch it.
+
+Elffin, I think, did not say anything. I think he just kept walking, very quietly, and kept looking at the book out of the corner of his eye, in case it stopped.
+
+And then something happened, which is the part of the story I like best. Ailred says that, as he walked, the saint let his mind wander. Just for a moment, his attention slipped away from the psalm in front of him, to something else, something not wicked, but not God either. Some idle thought. And the moment he did, the rain began to fall on the page.
+
+Ninian noticed. Of course he did. Elffin, I imagine, saw a single fat drop land on the open page and spread there, and looked up in horror. And the bishop stopped in the road, in the rain, and closed his eyes, and was sorry. He asked God to forgive his wandering mind, and he turned back to the psalm. And the rain stopped falling on the book.
+
+I find this a very comforting story, and I want to tell you why.
+
+It would be easy to tell a story about a saint who never let his mind wander, who prayed perfectly all the time. And Ailred could have told it that way. But the old story says something different. It says that even Ninian, even a holy bishop with a dry book in the rain, got distracted. And that when he noticed, he did not despair, and he did not throw the book in a ditch. He just said sorry, and came back.
+
+Which is, I think, what every person who has ever tried to pray has to do, about every half a minute. You start. Your mind goes off somewhere, to what you need from the shops, or something somebody said, or nothing at all. You notice. And you come back. And God, I think, does not mind the coming back. I think he rather likes it.
+
+* * *
+
+Not everybody at Whithorn was pleased about the bishop and his white house.
+
+Ailred tells us that there was a king in the region, called Tuduvallus, who did not like Ninian. He was a proud man, Ailred says, and Ninian had told him some things about his life that he did not want to hear, as bishops sometimes have to. And the king set himself against the bishop. And then, Ailred says, the king was struck by a sudden illness, so that he lost his sight.
+
+Lying in the dark, the king had time to think. And in the end, he sent for the man he had quarrelled with. He asked his pardon. And Ninian came, without any fuss, and laid his hands on the king's head, and prayed for him. And the king's sight came back.
+
+Ailred tells this as a story about the mercy of God, and about a bishop who did not hold a grudge. And that is what I want to take from it too. Not that God is waiting to strike us down. But that a proud man found himself in the dark, and asked for help from the person he had wronged, and got it, freely and gladly. Ninian did not say, I told you so. He just came.
+
+* * *
+
+And now the cows.
+
+Ailred says that Ninian went out one day to visit the herdsmen who looked after the monastery's cattle, and the cattle of the poor people who lived near it. Cattle in those days were wealth. They were milk, and butter, and cheese, and leather, and in a bad winter they were the difference between a family getting through to the spring and not. A herd of cows was worth guarding.
+
+Ninian, Ailred says, blessed the herd. And then, he took his bishop's staff, and with the end of it he drew a line on the ground, all the way round the field where the cattle were gathered for the night, a great circle, and he put them under God's protection. And then he went to bed, at the house of a friend nearby.
+
+I want to say here that drawing a circle with a staff is not magic, in the story. It is a sign. It is a bit like making the sign of the cross over something, or a parent tucking in a child. It says: these are in God's hands now. The staff draws the line. God keeps it.
+
+That night, there were thieves.
+
+There were a few of them, Ailred says, and they had heard that the monastery's herd was out in the field, and they crept up through the dark, meaning to drive the cattle away to their own country. And they came to the edge of the field, and they reached out to drive the cows.
+
+And the cows did not move.
+
+They simply stood there, or lay there, chewing, inside the line on the ground, and would not be driven out. Pull them by the horns, push them by the rump, shout at them, wave a stick: they would not cross the line.
+
+And then, Ailred says, the bull got up.
+
+Now, Ailred tells this part of the story quite fiercely, and there is a great deal more of the bull in his version than there is going to be in ours, because it is bedtime. So let us just say that the bull lowered his head, and the leader of the thieves found himself, very suddenly, flat on his back on the wet grass, and hurt, and not at all sure what had happened. And the other thieves, Ailred says, found they could not run away either. They were held there, all night, at the edge of the field, as surely as the cattle were.
+
+So in the morning, when Ninian came out with his staff to see how the herd had done, he found the cows exactly where he had left them, inside their circle, chewing peacefully. And outside the circle, in the long grass, a small group of very cold, very wet, very frightened men, and one of them lying on the ground.
+
+I am going to imagine what Ninian said. Ailred gives him a little speech, but I will give him a shorter one.
+
+He looked at them for a long time. Then he said, "Good morning. You look as if you have had a hard night."
+
+And the thieves fell on their knees, Ailred says, and begged his pardon.
+
+And Ninian prayed for the man who was hurt, and Ailred says that God answered his prayer, and the man got up. And then the bishop spoke to them. He told them that they had been trying to take what belonged to the poor, and that it was a wrong thing, and that God had kept the cattle safe, and kept them safe too, for all that. And then he blessed them, and let them go.
+
+And I like to think, though Ailred does not say so, that he gave them some breakfast first. They looked as if they could use it.
+
+* * *
+
+The last story from Ailred I want to tell you tonight is about a boy who ran away.
+
+Ninian, as I said, ran a school at Whithorn. Boys came to learn their letters, and their psalms, and the faith, and some of them became monks and priests, and some of them went home and became farmers who could read, which was rarer and perhaps just as useful.
+
+One day, Ailred says, a boy did something wrong at the school. Ailred does not say what. Something a boy does. And he was afraid that he would be punished for it. In those days, I should say, schoolmasters beat boys rather freely, which we would not think right now, and the boy was frightened.
+
+So he ran away.
+
+And here is the clever part. As he ran out of the monastery, he passed the place where the bishop kept his staff, the same staff that drew the line round the cattle. And the boy thought, I'll take that. If I have the bishop's staff with me, I'll be safe. And he grabbed it, and ran.
+
+He ran down to the shore. And there, Ailred says, on the beach, he found a boat. But it was not a finished boat. It was the frame of a small boat, made of wicker, woven branches, the kind the people of those coasts used to make and then cover with stitched hides to keep the water out. This one had no hides on it yet. It was a basket in the shape of a boat. It would have held water about as well as a sieve.
+
+And the boy, Ailred says, either very brave or very frightened or very foolish, got into it anyway, and pushed off, holding the bishop's staff. And he prayed, and he trusted in Saint Ninian's holiness, and he set the staff in the bottom of the boat. And the boat floated.
+
+It carried him across the water, Ailred says, safe and dry, to the other shore. I have heard the place named as one coast or another, but Ailred does not tie it down for us, and neither will I.
+
+When he got out, the boy planted the bishop's staff in the ground, I think to say thank you, or perhaps because he did not know what else to do with it. And the staff, Ailred says, put out roots, and leaves, and grew into a tree. And at its foot, a spring of clear water came bubbling up out of the earth.
+
+I want to say two things about this one.
+
+The first is that it is very like other stories told about other saints. There are lots of old tales of a holy person's staff, planted in the ground, that turns into a tree. The legend of Joseph of Arimathea's staff at Glastonbury is one. You may hear them called wandering stories, because they wander from saint to saint. That does not mean nothing happened. It means the old writers had a way of saying something important, which was that a holy person's life went on bearing fruit long after they had left a place, and they said it with trees.
+
+The second is that I find it a very kind story. The boy did something wrong. He ran away. He stole the bishop's walking stick. And God did not drown him in the Solway for it. God brought him safe across the water, and turned his stolen stick into a tree, and made a spring for the people of that place. Ailred does not say whether the boy ever came home. I like to think he did, eventually, rather sheepish, and that Ninian said, "There you are. I've been looking for my stick."
+
+* * *
+
+Ailred says that Ninian did not stay only at Whithorn.
+
+Bede tells us the most important thing about him, the thing that made Bede bother to mention him at all, which is that he brought the faith to the southern Picts. The Picts lived a long way north of Whithorn, beyond the Firth of Forth, probably in what is now Fife and Perthshire and Angus, though historians argue about that too, between the lowlands and the mountains. Bede says that the southern Picts, the ones on this side of the mountains, had given up their old gods long before Saint Columba came, because of Ninian.
+
+So he must have gone north. Ailred says he did, that he walked and preached among the Picts, and baptised a great many of them, and ordained priests for them, and built churches, and then came home to Whithorn. Historians argue about how far he really went, and how many of the churches named after him in the north are really his, and how many are later ones named in his honour. There are a great many Saint Ninian's churches and wells across Scotland, and in the north of England too, and it is impossible to sort them all out now.
+
+But Bede says he went, and that the Picts heard, and that is enough for tonight.
+
+And there is one more place I want to take you to, before we slow down.
+
+A few miles west of Whithorn, there is a long, narrow wooded glen that runs down to the sea. A little stream runs through it, among the trees, and you walk down beside it, and the trees get thinner, and you can hear the waves, and then you come out onto a beach. It is a beach of big, round, grey and blue stones, all washed smooth by the sea, that clack and roll under your feet. And at the far end of the beach, in the cliff, there is a cave.
+
+It is not a big cave. It is not deep. You could walk to the back of it in a few steps. In the rock around the mouth of it, people long ago carved crosses, and some of those crosses are very old indeed, perhaps more than a thousand years. And the cave is called Saint Ninian's Cave.
+
+The tradition of the place, and it is a tradition, not a record, is that this is where Ninian used to come to pray. That when he needed to be alone with God, away from the brothers, and the school, and the cattle, and the kings, he would walk down through the glen to the shore, and sit in the mouth of this cave, and listen to the sea, and pray.
+
+We cannot know that. Ailred does not say it. But I can see why the people of Whithorn believed it. If you sit in the mouth of that cave, on a still evening, with the sea in front of you, and the stones clacking a little as the waves go back, and nothing between you and the Isle of Man but water and light, it is very easy to imagine a man in a brown habit sitting there. Quiet. With his book. Letting the psalm go slowly. And when his mind wandered, as everyone's does, just coming back.
+
+[pause]
+
+Now I want to slow down.
+
+We do not know when Ninian died, or how old he was. Ailred says only that he died full of years, at Whithorn, among his brothers, and that he was buried in his white church, in a stone tomb. Bede, three hundred years later, says his body rested there still, with many other saints around him.
+
+And then the white house went on.
+
+It went on through the end of Roman Britain, and the coming of the English, who took over the bishopric at Whithorn in the seven hundreds, so that Bede could write that it now belonged to his own people. It went on through the Vikings. It went on through all the long Middle Ages, when Whithorn became one of the great places of pilgrimage in Scotland, and people walked to it from all over, and kings came too. King Robert the Bruce came, near the end of his life, to pray at Ninian's tomb. King James the Fourth came again and again, and the story goes that once, when his queen was very ill, he walked the whole way from Edinburgh, more than a hundred miles, to pray for her. And they built a great priory church over the old site, and the town's main street grew wide to hold the crowds.
+
+And then, at the Reformation in Scotland, the pilgrimages stopped. Later in that century the Scottish Parliament forbade them by law. The great church fell into ruin. And Whithorn became the quiet place it is now.
+
+But the stones were still there. And in the last century and a half, people have come back to look at them. In the little museum beside the old priory, there is a stone with a Latin inscription on it, carved in the middle of the four hundreds, perhaps not long after Ninian's time. It says, in Latin, We praise you, Lord. And then it says that a man called Latinus, who was thirty-five, and his daughter, who was four, made a sign there. It is the oldest Christian monument in Scotland. We do not know who Latinus was, or why he and his little girl made their sign, or what happened to them. But we know that they were Christians, at Whithorn, praising God, in the very century the old stories give to Ninian.
+
+And when archaeologists dug at Whithorn, in the nineteen eighties and nineties, they found the traces of an early Christian settlement on the hill, with graves, and buildings, and the rubbish of people who had lived and prayed there for centuries.
+
+I am not going to tell you that they found Ninian's church. They did not, not for certain, and the archaeologists were very careful about that. But they found that people were there, on that hill, praising God, very early indeed. And that is enough to make you stop and be quiet for a moment.
+
+And every year, still, people walk down through the glen, beside the little stream, under the trees, to the beach of round grey stones, and to the cave in the cliff. They carry a cross. They sing. They say their prayers. And some of them leave a little cross of their own, made of two sticks tied together, or scratched on a pebble, and set it in the rocks at the mouth of the cave, beside the old ones. So the cave is full of crosses, old and new, some carved a thousand years ago and some last summer, all saying the same thing.
+
+We praise you, Lord.
+
+Rest now. That is the end of the story. The rest is only notes.
+
+[pause]
+
+* * *
+
+Now the notes for the curious.
+
+The oldest account of Ninian is a single paragraph in Bede's Ecclesiastical History, book three, chapter four, finished in seven hundred and thirty-one. Bede gives the name Nynia, says he was a British bishop who had been taught at Rome, that his see was named after Saint Martin, that his stone church was called the White House, that the southern Picts received the faith from him long before Columba, and that he was buried there. Bede is careful to say this is what he had been told. Next comes a Latin poem on the Miracles of Bishop Nynia, written at Whithorn in the eighth century. The long Life is by Ailred of Rievaulx, written about eleven hundred and sixty for the bishop of Galloway, from an older book that is now lost.
+
+What is history. That a Christian community lived at Whithorn in the fifth century is shown by the Latinus stone and by the excavations led by Peter Hill. That a bishop called Nynia or Ninian built a stone church there known as the White House, and preached to the southern Picts, is Bede's report, and most historians accept a real bishop behind it, though they argue about his dates and how far north he went.
+
+What is legend, or Ailred's report. Ninian's royal birth, his years at Rome and his ordination by the Pope, the visit to Martin at Tours and the masons, the church dedicated when Martin died, King Tuduvallus, the leeks, the psalter in the rain, the cattle and the thieves, and the runaway boy and the staff that became a tree are all from Ailred, and we told them as his report. We softened the bull. That Saint Ninian's Cave was his place of prayer is local tradition. The idea that his name began as a misreading of Uinniau is Thomas Clancy's argument, and others disagree. The story of King James walking from Edinburgh is told in several forms, and we gave it as a story.
+
+What we invented. Brother Elffin and everything he says; the gardener's words; the bishop's words at the garden, at the field and to the thieves, beyond Ailred's outline; the masons arguing; the weather; the breakfast; and the boy coming home. The rest is our own, told in the spirit of the original.
+
+[pause]
+
+That's the story of Saint Ninian for tonight. His feast is on the sixteenth of September, and it is kept in the Catholic Church in Scotland, and by many Orthodox Christians who love the early saints of these islands, and every year by the pilgrims who walk down the glen to his cave. Thank you for listening to Saints by Candlelight. If you enjoyed it, share it with someone who could use a gentle story at the end of a long day. And here, in our own plain words, is the prayer cut into the Latinus stone at Whithorn, sixteen hundred years ago, which is a good prayer for the end of any day. We praise you, Lord. Holy Ninian, builder of the white house, pray for us. Goodnight, and God bless.

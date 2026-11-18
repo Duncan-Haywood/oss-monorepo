@@ -128,7 +128,7 @@
       a.click();
     }
     function run() {
-      const today = $("#today").value || new Date().toISOString().slice(0, 10);
+      const today = $("#today").value || new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
       const text = $("#text").value;
       const r = scan(text, today);
       if (r.errors) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
@@ -142,7 +142,7 @@
       }).join("") || "<p>No flagged wording found.</p>";
       report.hidden = false;
       status.textContent = "Done. This is a keyword scan, not clearance.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

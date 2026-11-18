@@ -59,7 +59,7 @@
 
   <section class="card">
     <h2>1. Your trades</h2>
-    <p class="note">A CSV or pasted spreadsheet range with a header row. Columns: date, symbol, action (buy/sell), quantity, price (or amount), and optionally account (anything containing IRA, Roth or 401 is treated as retirement) and cost basis for sells. Without a basis column, sales use first-in, first-out lots from the same list, so include the original purchases.</p>
+    <p class="note">A CSV or pasted spreadsheet range with a header row (a title or account line above it, as in some broker exports, is skipped). Columns: date (the trade date is used when there is also a settlement date), symbol, action (buy/sell), quantity, price (or amount), and optionally account (anything containing IRA, Roth or 401 is treated as retirement) and cost basis for sells. Without a basis column, sales use first-in, first-out lots from the same list, so include the original purchases.</p>
     <label for="file">Choose a CSV file</label>
     <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
     <label for="paste">…or paste the list</label>
@@ -151,7 +151,7 @@
       $("#notes").innerHTML = [...r.notes, ...r.errors].map((n) => `<p>${esc(n)}</p>`).join("");
       report.hidden = false;
       status.textContent = `${r.sales.length} sale${r.sales.length === 1 ? "" : "s"} checked.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#validate").addEventListener("click", async () => {

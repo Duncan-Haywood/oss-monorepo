@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [llm-coding-inference]
+tagged: auto
+---
 # llm-coding-inference milestone 6c (2026-10-25)
 
 For the next run on this programme.

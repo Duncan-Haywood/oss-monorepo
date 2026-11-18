@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer round 3b, lane 5: are the defaults optimal, and are they a good deal?
 
 Session: https://claude.ai/code/session_01XpHqydkF4sUA1mkqDAyNmJ, 2026-10-30.

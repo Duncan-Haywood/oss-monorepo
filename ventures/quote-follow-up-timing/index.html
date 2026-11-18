@@ -176,7 +176,7 @@
       $("#oq tbody").innerHTML = r.openQuotes.slice(0, 100).map((q) => `<tr><td class="n">${q.days}</td><td class="n">${pct(q.chance, 0)}</td><td class="n">${q.value === null ? "" : money(q.value)}</td><td class="n">${q.expected === null ? "" : money(q.expected)}</td><td>${q.past ? "older than any win" : q.thin ? "thin data" : ""}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     const num1 = (v) => (Number.isFinite(v) ? v.toFixed(1) : "n/a");

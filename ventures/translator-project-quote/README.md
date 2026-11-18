@@ -5,7 +5,7 @@ fuzzy matches, QA, rush work, and desktop publishing take different amounts of
 time. This free browser calculator turns those assumptions into a transparent
 weighted-word quote floor and target-margin comparison.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/translator-project-quote/
+**Live tool:** https://marisstella.app/translator-project-quote/
 
 Open [`index.html`](index.html) directly or serve this directory as static
 files. The worked example is editable and the calculation needs no account,
@@ -58,6 +58,14 @@ this browser so they are typed once; the client's details are never saved.
 These are arithmetic comparisons, not a recommended rate, a translation
 quality judgment, or a profitability determination. The user owns the rate,
 match discount, quality process, and final decision.
+
+**Known gaps** (quality audit 2026-11-10,
+`portfolio/quality/audits/2026-11-10-translator-project-quote.json`): one
+fuzzy band only, where a CAT analysis gives several (100%, 95-99%, 85-94%,
+75-84%) each with its own grid rate; no separate reviser rate for an ISO
+17100 revision step; and the rush fee is grossed up by the margin, so a 50%
+rush on a 320 job quotes 533.33 rather than 480. Tests never vary the fuzzy
+rate or the rush fee.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it

@@ -5,7 +5,7 @@
 off a line steered by plain line-of-sight (LOS) guidance by a computable amount; integral LOS removes the
 drift, unless its gain is too high for the look-ahead.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/marine-path/
+**Live page:** https://marisstella.app/research/marine-path/
 
 ## Result
 
@@ -39,9 +39,24 @@ ground km (thrust x speed through water / 0.5).
 
 Damping, rudder and wave-force coefficients are placeholders for a 200 kg craft, not read from a datasheet
 or from Fossen's MSS; the wave term is a sum of sinusoids, not a JONSWAP spectrum; no wind; no
-MPC arm; no propulsion lag; a straight line only; the transient from the 15 m start is in the rms and energy
-figures; no field data. The ranking of LOS against ILOS is a property of this model until checked on logged
+MPC arm; no propulsion lag; a straight line only; the transient from the 15 m start is in the energy figures
+(the rms is taken over the last half of the run, so it is not); no field data. The ranking of LOS against ILOS is a property of this model until checked on logged
 tracks.
+
+## Known gaps (quality audit 2026-11-17)
+
+From [`portfolio/quality/audits/2026-11-17-marine-path.json`](../../portfolio/quality/audits/2026-11-17-marine-path.json):
+
+- **The 8 ILOS losses come from the placeholder sway model, not from guidance alone.** A linearisation of
+  the closed loop is unstable only at look-ahead 6 m, gain 2, and only with sway included (largest real part
+  +0.029 with sway, -0.012 without); freezing sway drops that case's rms from 2.32 m to 0.10 m. Until the
+  coefficients are sourced and a stability check precedes the sweep, read that result as a model artefact.
+- **H3's energy difference is the start-up transient.** Both methods hold the same heading and speed in
+  steady state; the median gap falls from 1.03% at 600 s to 0.10% at 6,000 s and 0.03% at 20,000 s.
+- **H1 and H2 reproduce known results** (Borhaug, Pavlov and Pettersen 2008; Caharija et al. 2016, IEEE
+  TCST, not yet cited); nothing here is new until the gain rule or field tracks are added.
+- Four of six seeded mutants (including a sway sign flip) leave the 7 tests green; energy and the
+  oscillation are untested.
 
 ## Next steps
 

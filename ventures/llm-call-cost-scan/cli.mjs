@@ -11,6 +11,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { scanSource, mergeScans, estimateMonthly, summarize, DEFAULT_PRICES, PRICES_AS_OF } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const SCAN_EXTENSIONS = new Set([".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx", ".py"]);
 const IGNORE_DIRS = new Set(["node_modules", ".git", "dist", "build", "out", "coverage", "vendor", ".next", ".venv", "venv", "target", "__pycache__"]);
@@ -105,7 +106,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stat
   return { exitCode, output: lines.join("\n") };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

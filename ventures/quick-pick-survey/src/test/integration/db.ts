@@ -8,7 +8,8 @@ import { setCookie, clearCookies } from "./cookieMock";
  *
  * The seeded content — surveys and their items — is treated as fixture and
  * never truncated: rebuilding 441 items between tests would dominate the run
- * time, and no test mutates them. Everything a session produces is cleared.
+ * time, and no test mutates them. Everything a session produces is cleared, including
+ * the pooled prior stored on Survey rows.
  */
 
 /** Everything written by a session, in an order that satisfies the FKs. */
@@ -34,6 +35,9 @@ export async function resetData(): Promise<void> {
   await prisma.$executeRawUnsafe(
     `TRUNCATE TABLE ${DYNAMIC_TABLES.map((t) => `"${t}"`).join(", ")} RESTART IDENTITY CASCADE`
   );
+  // The one derived value stored on a seeded row: the survey's pooled prior
+  // for the insights set (lib/surveyPrior.ts), computed from session answers.
+  await prisma.survey.updateMany({ data: { setPriorPhi: null, setPriorRespondents: null, setPriorAnswers: null, setPriorAt: null } });
   clearCookies();
 }
 

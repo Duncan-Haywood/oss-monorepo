@@ -107,7 +107,7 @@ export function fmtDay(ms, tz) { return new Intl.DateTimeFormat("en-US", { timeZ
 
 const unfold = (t) => String(t).replace(/\r?\n[ \t]/g, "").split(/\r?\n/);
 const icsStamp = (ms) => new Date(ms).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-const icsEsc = (s) => String(s ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+const icsEsc = (s) => String(s ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 const fold = (line) => { const out = []; let s = line; while (s.length > 73) { out.push(s.slice(0, 73)); s = ` ${s.slice(73)}`; } out.push(s); return out.join("\r\n"); };
 
 // An invitation (METHOD:REQUEST) or cancellation (METHOD:CANCEL) calendar apps add or remove by UID.

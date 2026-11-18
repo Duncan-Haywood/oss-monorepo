@@ -1,0 +1,157 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVMQCtAeXmn32vkkXa7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled ventures prompt)",
+  "input_sha256": "d762a1accf8636c1bad7e6783f6fd99fcd274a62640200fc7d1c9fd45e718568",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T20:56:21Z",
+  "ended": "2026-11-14T21:09:51Z",
+  "wall_minutes": 13.91,
+  "tokens_in": 12046670,
+  "tokens_out": 67416,
+  "cost_usd": 5.0574,
+  "tool_calls": 87,
+  "task": "Deepen (flagship 8): quick-pick-survey",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15977",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "A seeded-fault check (sed on decide-core.mjs, then restore) ran in the same command that launched a background sweep, so the sweep imported the mutated engine; its targeted rows were wrong. Caught because round-robin rows matched the earlier run exactly and targeted rows did not; the sweep was discarded and rerun.",
+      "fix": "Never mutate a module while a background process may be importing it; run mutation checks on a copy or after background jobs start fully."
+    },
+    {
+      "what": "Duplicate work: another session's PR 15979 landed the same feature (site/decide.html, decide-core.mjs, DECIDE-PAGE.md, same file names) while this PR was open; the merge conflicted on every file. My claim PR (15977, draft, titled with the slug) was open first, so either the other session did not run claim_check or the claim was not visible to it.",
+      "fix": "Dropped this session's own page (its first version stays in the PR history), reset the branch to main and ported the two pieces main's page lacked: a winner stop with a leader-focused picker, and exact what-would-change-the-winner weights; re-measured on main's own simulated people."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook rule is documented ('bracket the first letter') but the hook also rejects a bracketed pattern when the unbracketed word appears elsewhere in the same command line; cost one retry."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "venture-preflight.mjs took well over 5 min here (main_health repository checks under CPU contention from simulation sweeps); worth noting it competes for the 4 cores with any sweep."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The quick-pick-survey next list ranks (r) distribution and (c) real survey answers first; both need visitor data or real respondents this session cannot get. Its remaining buildable items (d11, d8) are fine-grained simulation refinements of an already deeply measured rank engine.",
+      "did": "Built a new user-facing surface in the same venture instead: a weighted decision matrix (multi-criteria) page from pairwise picks, with a measured targeted question picker, and added it to next: as item (m).",
+      "result": "Page live on merge; median picks to stop halved for 5x3 vs asking in turn on simulated people."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "'A conflict is not a reason to close: merge main in and resolve it.' A mechanical merge would have shipped two engines for one page.",
+      "did": "Consolidated instead: kept main's engine and page, ported the measured improvements, rewrote the post about the overlap.",
+      "result": "One page; winner stop + focus: true best 35/60 vs 31, 8% fewer picks, 13 vs 19 big misses."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-decision-matrix-that-never-asks-for-a-score.md",
+    "ventures/quick-pick-survey/docs/DECIDE-PAGE.md (\"The winner stop\")"
+  ],
+  "goal": "Make the multi-criteria decision page stop when the winner is settled, and say what would change the winner.",
+  "notes": "Final diff on top of PR 15979's page: decisionTable.safe + DECIDE_MARGIN 0.25; decisionDone winner rule; nextQuestion focus 'winner' (default) vs 'order'; whatWouldChange; page status/verdict/weights column. Verification: node --test ventures/quick-pick-survey/site/*.test.mjs 73/73 (decide-core 12/12; forcing safe=1 turns the winner-stop test red); scripts/decide-stop-sweep.mjs on decide-sim's 60 people (docs/decide-winner-stop-2026-11-14.jsonl, docs/decide-order-focus-stop-2026-11-14.jsonl); decide-sim.mjs rerun with winner focus (docs/decide-sim-winner-focus-2026-11-14.jsonl); Playwright 390px: example stops at 45 picks (cap 72), no console errors, no horizontal scroll; check_md_links and check_post_frontmatter ok. The first, separate-page version (own 0-100 aggregation, 88-person sweeps) is in this PR's earlier commits only.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b5c15226-3a97-5e2d-96a6-30e7719e5772",
+    "transcripts": 1,
+    "first": "2026-11-14T20:56:21Z",
+    "last": "2026-11-14T21:22:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 177,
+        "input": 340,
+        "output": 107051,
+        "thinking": 23454,
+        "cache_read": 34905198,
+        "cache_write_5m": 0,
+        "cache_write_1h": 281534,
+        "api_equivalent_usd": 11.3757,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 177,
+      "input": 340,
+      "output": 107051,
+      "thinking": 23454,
+      "cache_read": 34905198,
+      "cache_write_5m": 0,
+      "cache_write_1h": 281534,
+      "api_equivalent_usd": 11.3757,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.992,
+    "tool_calls": 187,
+    "tools": {
+      "Bash": 127,
+      "Monitor": 43,
+      "mcp__github__pull_request_read": 7,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.39,
+      "active_minutes": 26.39,
+      "model_minutes": 20.24,
+      "tool_minutes": 6.15,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "engine/picker derivation, two sweeps, consolidation onto main's page, write-up; senior engineer estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 140.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -7,7 +7,7 @@ Sharpe Ratio, Probability of Backtest Overfitting) and judges the winner once on
 that clear that gate are offered for trading. Brokers: a local paper account, Alpaca (stocks/ETFs, paper or live)
 and Robinhood's official Crypto Trading API.
 
-**Page:** https://duncan-haywood.github.io/oss-monorepo/agentic-trading-lab/ ·
+**Page:** https://marisstella.app/agentic-trading-lab/ ·
 **Full results:** [`results/REPORT.md`](results/REPORT.md) · **Why not a fund:** [`LEGAL.md`](LEGAL.md)
 
 > **No warranty.** This software is provided free and as-is, without warranty of any kind, express or implied. It

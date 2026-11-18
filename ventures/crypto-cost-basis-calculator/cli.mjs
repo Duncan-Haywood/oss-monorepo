@@ -16,6 +16,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import process from "node:process";
 import { analyze, planSale, idRecord, donationPlan, parsePrices, parse1099da, reconcile1099da, harvestPlan, waitPlan, toForm8949Csv, toTurboTaxCsv, turboTaxSkipped, toIncomeCsv, form8949Totals, form8949BoxTotals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
 import { convertMany, FORMAT_LABELS } from "./importers.mjs";
+import { pathToFileURL } from "node:url";
 
 const USAGE = `Crypto cost basis from exchange CSVs: lot matching, method comparison, Form 8949 style rows.
 
@@ -121,7 +122,7 @@ export function parseArgs(argv) {
   return opts;
 }
 
-const usd = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
 // files: [{ name, text }]. Returns { result, formats, notes, csv, error }.
 export function run(files, opts = {}) {
@@ -141,7 +142,7 @@ export function render({ result, formats, notes }, opts = {}) {
   const s = result.summary, t = totalsLine(result);
   out.push("", `Sales in ${result.year}, ${METHOD_LABELS[result.method]}${opts.perWallet ? ", per wallet" : ""}`);
   out.push(`  short-term ${usd(s.shortGain)}   long-term ${usd(s.longGain)}   total ${usd(s.totalGain)}   income received ${usd(result.income)}`);
-  out.push(`  estimated tax ${usd(result.tax)} at ${(opts.shortRate ?? 0.24) * 100}% short / ${(opts.longRate ?? 0.15) * 100}% long`);
+  out.push(`  estimated tax ${usd(result.tax)} at ${+((opts.shortRate ?? 0.24) * 100).toFixed(4)}% short / ${+((opts.longRate ?? 0.15) * 100).toFixed(4)}% long`);
   if (t) out.push(`  ${t}`);
   if (result.carryChain.length) {
     out.push("", `Loss limit and carryforward (${usd(opts.lossLimit || 3000)} a year; years chained from the first sale in the file):`);
@@ -265,4 +266,4 @@ export async function main(argv) {
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) process.exitCode = await main(process.argv.slice(2));
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) process.exitCode = await main(process.argv.slice(2));

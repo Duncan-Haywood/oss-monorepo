@@ -5,7 +5,7 @@ epoxy, flake, metallic, or 1-day polyaspartic job the way the trade actually
 bids one — grind hours, flake load, waste, cracks, and the drive — and shows
 the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/epoxy-garage-floor-bid-calculator/
+**Live tool:** https://marisstella.app/epoxy-garage-floor-bid-calculator/
 
 **After using this, you can now send a two-car flake number that includes the
 grind and the bags, which used to take a copied $4/sq ft special and a guess.**
@@ -88,6 +88,13 @@ Events counted: `bid_calculated`, `garage_size_changed`, `system_changed`,
 - Starting kit prices and grind rates are ballpark figures, not coverage
   guarantees or a surface-profile specification.
 - No moisture-test interpretation and no product-warranty language.
+- Known gaps from [quality audit round 50](../../portfolio/quality/audits/2026-11-12-epoxy-garage-floor-bid-calculator.json):
+  - Kit cost is a flat $/sq ft, with no solids, mils or gallons behind it,
+    so the tool cannot produce a material order. The polyaspartic default
+    ($4.25/sq ft) is about three times a build-up from a typical data sheet.
+  - Travel is one round trip for one person whatever the system, so a
+    two-day epoxy job costs the same to reach as a one-day polyaspartic
+    one. The time the polyaspartic guide sells never shows in the price.
 
 ## Disclaimer
 

@@ -1,0 +1,30 @@
+# milestone 70: R4-probe gate, m 6, threshold tau<0.4, 40 cells (), 100 paired seeds
+
+## mean regret %, all cells (n=40)
+budget | rand | bohb | bohb_r4first | probe_bohb | probe_r4first | gate
+15 | 3.56 | 2.62 | 3.03 | 3.38 | 3.14 | 3.35
+25 | 1.77 | 2.05 | 1.37 | 1.40 | 1.38 | 1.40
+40 | 0.36 | 1.38 | 0.65 | 1.15 | 0.46 | 1.05
+## mean regret %, relaxed multiplier cells (4) (n=4)
+budget | rand | bohb | bohb_r4first | probe_bohb | probe_r4first | gate
+15 | 3.35 | 2.31 | 2.31 | 3.19 | 2.18 | 3.10
+25 | 1.46 | 4.39 | 1.24 | 1.75 | 1.04 | 1.68
+40 | 0.32 | 6.29 | 0.04 | 3.66 | 0.08 | 3.29
+## mean regret %, other cells (n=36)
+budget | rand | bohb | bohb_r4first | probe_bohb | probe_r4first | gate
+15 | 3.59 | 2.66 | 3.11 | 3.40 | 3.24 | 3.37
+25 | 1.81 | 1.78 | 1.38 | 1.36 | 1.42 | 1.37
+40 | 0.37 | 0.83 | 0.72 | 0.87 | 0.50 | 0.80
+
+## gate fallback rate (share of seeds where tau of the 6 probes < threshold), per cell class, by budget
+relaxed multiplier: B15 0.33, B25 0.33, B40 0.33
+other: B15 0.23, B25 0.23, B40 0.23
+
+## per relaxed multiplier cell, regret % at B40 (bohb / r4first / gate / rand) and tau(R2,R4)
+mult16: 0.00 / 0.00 / 0.00 / 0.55; tau 0.30
+mult24: 11.35 / 0.02 / 6.29 / 0.11; tau 0.54
+mult32: 13.78 / 0.08 / 6.65 / 0.30; tau 0.57
+mult8: 0.04 / 0.04 / 0.21 / 0.32; tau 0.61
+gate vs bohb, B 15: lower in 10, higher in 26, sign-test p 0.011
+gate vs bohb, B 25: lower in 14, higher in 18, sign-test p 0.597
+gate vs bohb, B 40: lower in 11, higher in 13, sign-test p 0.839

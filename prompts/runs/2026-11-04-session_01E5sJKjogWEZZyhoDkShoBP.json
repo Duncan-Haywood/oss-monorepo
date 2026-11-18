@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01E5sJKjogWEZZyhoDkShoBP",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-04T07:30:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13037",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/runs/ (record template)",
+      "issue": "None found beyond the 40 min full run being impractical; added condition filter."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Skipped venture-preflight: change touches only a test file and docs.",
+      "did": "ran the affected integration test",
+      "result": "measurement landed; guard fix not rerun"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-04-why-more-answers-scored-lower-in-a-pairwise-survey.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md"
+  ],
+  "goal": null,
+  "notes": "Ran the clean condition only at 1000 items x 3000 answers x 3 respondents through routes and Postgres 16 (571 s). The first run's final expects failed because bias80 was absent; guarded them. Dip is a coverage effect; fixed-set score not yet run. Full CI not run locally; the change is a test file and docs.",
+  "corrections": [],
+  "redteam": null
+}

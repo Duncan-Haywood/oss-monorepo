@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01E5sJKjkXkN2kRGXodWNgbb",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow",
+  "input_sha256": "719c8d7b4c198edd9b8075363658ea70ede808ca0dc1d6ca4ebf5e22e8bddb1c",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T10:11:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13779",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "ci_profile prints progress lines to stdout, burying the table; no flag to quiet it"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No post written: small internal perf change, documented in docs/history instead",
+      "did": "history doc only",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-07-harness-file-index-scandir.md"
+  ],
+  "goal": null,
+  "notes": "Metric: harness unittest wall time 11.9s -> 3.9s (time, one run each, same machine); file index output list-equal to old (51274 entries).",
+  "corrections": [],
+  "redteam": null
+}

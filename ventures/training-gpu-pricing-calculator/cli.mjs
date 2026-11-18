@@ -20,6 +20,9 @@ function loadProviders(file) {
   if (!file) return merged;
   let over;
   try { over = JSON.parse(readFileSync(file, "utf8")); } catch (e) { fail(`could not read --prices ${file}: ${e.message}`); }
+  const isObj = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
+  if (!isObj(over)) fail(`--prices ${file} must be a JSON object of provider overrides, keyed by provider`);
+  for (const [k, v] of Object.entries(over)) if (!isObj(v)) fail(`--prices ${file}: "${k}" must be an object of rate fields`);
   for (const [k, v] of Object.entries(over)) {
     const base = merged[k] || { label: k, url: "", idleBilled: true, interruptionPct: 0, storagePerGbMonth: 0, rates: {} };
     merged[k] = { ...base, ...v, rates: { ...base.rates, ...(v.rates || {}) } };

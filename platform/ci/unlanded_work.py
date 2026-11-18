@@ -75,7 +75,9 @@ from pathlib import Path
 PROBE_DIRNAME = "unlanded-probe.git"
 DEFAULT_SINCE_DAYS = 14
 # Branches that are never anyone's unlanded work.
-NOT_WORK_BRANCHES = ("gh-pages",)
+# security-alerts and usage-data hold generated files only and are never merged
+# (.github/workflows/security-alert-queue.yml, site-usage-pull.yml).
+NOT_WORK_BRANCHES = ("gh-pages", "security-alerts", "usage-data")
 # Prefixes of branches that only preserve history, such as the copies of
 # oss-research-monorepo's branches (research/_mirror/archive.py).
 NOT_WORK_PREFIXES = ("archive/",)
@@ -186,8 +188,14 @@ def landed_by_content(probe, tip_ref, base_ref):
     other commit ids (a squash merge, or a cherry-pick). Conservative: an
     added path counts if base has it, a modified path only if base's copy is
     byte-identical, a deleted path only if base lacks it."""
-    out = git(["diff", "--name-status", "--no-renames", f"{base_ref}...{tip_ref}"],
-              probe, check=False)
+    proc = subprocess.run(
+        ["git", "diff", "--name-status", "--no-renames", f"{base_ref}...{tip_ref}"],
+        cwd=probe, capture_output=True, text=True,
+        env=dict(os.environ, GIT_TERMINAL_PROMPT="0"),
+    )
+    if proc.returncode != 0:  # e.g. no merge base (an orphan branch): not provably landed
+        return False
+    out = proc.stdout
     changes = [line.split("\t", 1) for line in out.splitlines() if "\t" in line]
     if not changes:
         return True
@@ -428,6 +436,9 @@ def print_sweep(found, since):
             "was left on purpose,\nand a new venture may duplicate one already on "
             "main (portfolio/pipeline/duplicate_check.py)."
         )
+    # Branches with a PR are the other half of land-your-work.md's sweep.
+    print("Open PRs that stopped moving (green and quiet, orphan drafts): "
+          "python3 platform/ci/stalled_prs.py")
 
 
 def main(argv=None):

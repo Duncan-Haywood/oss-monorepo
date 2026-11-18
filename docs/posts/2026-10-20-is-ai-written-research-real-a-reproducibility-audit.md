@@ -2,7 +2,7 @@
 title: "Is AI-written research real? We re-ran it and read it"
 date: 2026-10-20
 description: "761 AI-written research projects: no fabricated result found, 102 of 103 re-runs matched, but three quarters start from assumed inputs, not data."
-tags: [research, reproducibility, ai-agents, open-science, measurement]
+tags: [quality-audit, research, reproducibility, ai-agents, open-science, measurement]
 ---
 
 # Is AI-written research real? We re-ran it and read it

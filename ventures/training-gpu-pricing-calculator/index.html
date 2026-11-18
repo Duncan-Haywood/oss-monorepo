@@ -45,7 +45,7 @@
 <body>
   <header>
     <p class="note">GPU CLOUD PRICING CALCULATOR · RUNS IN YOUR BROWSER</p>
-    <h1>What will your GPU workload cost on each GPU cloud, and when is it cheaper to buy the card?</h1>
+    <h1>What will your GPU workload cost on each GPU cloud?</h1>
     <p>Pick a <strong>GPU</strong>, enter the <strong>busy GPU-hours per month</strong> and how much of the rented time the GPU is really busy. Get <strong>RunPod, Lambda, Vast.ai, CoreWeave, AWS, Google Cloud and Modal</strong> priced side by side, the 12-month spend, and the <strong>hours a month above which owning the card wins</strong> — before you leave an H100 idling on a bill.</p>
     <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and approximate list prices you can edit. It cannot see your cloud account or your invoice.</p>
   </header>
@@ -186,7 +186,7 @@ node cli.mjs providers</pre>
       $("#estimate").textContent = `${PRICES_AS_OF}. Busy hours grow from ${hours} to ${proj.endBusyHours} a month over 12 months. Your numbers and editable prices; not a quote.`;
       $("#report-card").hidden = false;
       record("compare_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#calc").addEventListener("click", render);
 

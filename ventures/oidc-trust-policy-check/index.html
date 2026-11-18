@@ -200,7 +200,7 @@ aws iam get-role --role-name my-deploy-role \
 
 <script type="module">
   import { analyzeTrustPolicyText } from './analyze.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -274,7 +274,7 @@ aws iam get-role --role-name my-deploy-role \
       ' This reads the trust policy only — not the permissions the role grants, and not who can push to the ref you pinned.';
 
     els.reportCard.hidden = false;
-    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
   }
 
   function runCheck(text, event) {
@@ -291,7 +291,7 @@ aws iam get-role --role-name my-deploy-role \
 
     render(report);
     els.status.textContent = '';
-    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+    recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, event);
   }
 
   $('#check').addEventListener('click', () => {
@@ -326,8 +326,8 @@ aws iam get-role --role-name my-deploy-role \
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
 </script>

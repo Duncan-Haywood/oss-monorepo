@@ -1,0 +1,177 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01E5sJKkKQBME5phb1pGkxvs",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T18:18:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13861",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/README.md",
+      "issue": "Report authors keep using kinds/topics outside taxonomy (agent-note, measurement, aeo, reflow); CI never runs doc_index check so nothing tells them."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Catch rate 6/8 on validate_workflows.py, 8/8 after fix. Did not add post: small purple-team fix run. Open control-plane items left.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/validate_workflows.py",
+        "test": "/usr/local/bin/python3 -m unittest test_validate_workflows  (in platform/ci)",
+        "seed": 763618543,
+        "commit": "1b3ae43f",
+        "sites": 42,
+        "baseline_seconds": 2.5,
+        "mutants": [
+          {
+            "file": "platform/ci/validate_workflows.py",
+            "line": 120,
+            "col": 38,
+            "operator": "div-to-times",
+            "before": "WORKFLOWS_DIR = REPO_ROOT / \".github\" / \"workflows\"",
+            "after": "WORKFLOWS_DIR = REPO_ROOT / \".github\" * \"workflows\"",
+            "line_text": "WORKFLOWS_DIR = REPO_ROOT / \".github\" / \"workflows\"",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/validate_workflows.py",
+            "line": 177,
+            "col": 28,
+            "operator": "true-to-false",
+            "before": "if \"on\" not in data and True not in data:",
+            "after": "if \"on\" not in data and False not in data:",
+            "line_text": "    if \"on\" not in data and True not in data:",
+            "caught": true,
+            "seconds": 2.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/validate_workflows.py",
+            "line": 327,
+            "col": 42,
+            "operator": "and-to-or",
+            "before": "if _SHALLOW_FETCH.search(run) and _SHALLOW_GUARD not in run:",
+            "after": "if _SHALLOW_FETCH.search(run) or _SHALLOW_GUARD not in run:",
+            "line_text": "            if _SHALLOW_FETCH.search(run) and _SHALLOW_GUARD not in run:",
+            "caught": true,
+            "seconds": 2.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/validate_workflows.py",
+            "line": 328,
+            "col": 57,
+            "operator": "or-to-and",
+            "before": "found.append((job_name, step.get(\"name\") or f\"#{index + 1}\"))",
+            "after": "found.append((job_name, step.get(\"name\") and f\"#{index + 1}\"))",
+            "line_text": "                found.append((job_name, step.get(\"name\") or f\"#{index + 1}\"))",
+            "caught": false,
+            "seconds": 2.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test pinned unnamed-step \"#N\" label or main() success exit code"
+          },
+          {
+            "file": "platform/ci/validate_workflows.py",
+            "line": 455,
+            "col": 37,
+            "operator": "or-to-and",
+            "before": "for step in job.get(\"steps\") or []:",
+            "after": "for step in job.get(\"steps\") and []:",
+            "line_text": "        for step in job.get(\"steps\") or []:",
+            "caught": true,
+            "seconds": 2.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/validate_workflows.py",
+            "line": 562,
+            "col": 13,
+            "operator": "minus-to-plus",
+            "before": "if paths - {f\"ventures/{slug}/**\", f\".github/workflows/{name}\"}:",
+            "after": "if paths + {f\"ventures/{slug}/**\", f\".github/workflows/{name}\"}:",
+            "line_text": "    if paths - {f\"ventures/{slug}/**\", f\".github/workflows/{name}\"}:",
+            "caught": true,
+            "seconds": 2.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/validate_workflows.py",
+            "line": 565,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "for job in (data.get(\"jobs\") or {}).values():",
+            "after": "for job in (data.get(\"jobs\") and {}).values():",
+            "line_text": "    for job in (data.get(\"jobs\") or {}).values():",
+            "caught": true,
+            "seconds": 2.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/validate_workflows.py",
+            "line": 628,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 0",
+            "after": "return 1",
+            "line_text": "    return 0",
+            "caught": false,
+            "seconds": 2.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test pinned unnamed-step \"#N\" label or main() success exit code"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "docs/reports (19 files)",
+        "issue": "main was red: test_doc_index RealTree failed on 19 report front-matter problems (missing kind, unknown kinds/topics/subject) because no PR workflow runs doc_index check. Fixed by backfill + hand edits. The workflow wiring remains open (control plane).",
+        "patched": true,
+        "patched_in": "this PR"
+      }
+    ]
+  }
+}

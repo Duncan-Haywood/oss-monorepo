@@ -1,0 +1,432 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVPGbXkC52zrL2k4KXU",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine)",
+  "input_sha256": "11e3b35e49613a6364c0c8156c62feb36e116801279806d7c7661dd70db1a697",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T23:56:44Z",
+  "ended": "2026-11-16T23:58:50Z",
+  "wall_minutes": 6.36,
+  "tokens_in": 3009373,
+  "tokens_out": 19210,
+  "cost_usd": 1.572,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16746",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 listed 10 open entries, all control plane awaiting owner-approved PRs; the step reads as if they are fixable in-run, and re-listing them each run costs time. A 'blocked on owner' flag in redteam.py open would let runs skip them."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "targets --under platform does not list platform/pages/audio-cdn.mjs although platform/pages/audio-cdn.test.mjs guards it and CI runs it; had to pass --target."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-the-mp3-link-that-ate-its-captions.md",
+    "docs/reports/redteam-2026-11-17-audio-cdn.md"
+  ],
+  "goal": null,
+  "notes": "node --test platform/pages/audio-cdn.test.mjs: pass 8 fail 0 (1.8 s); without the regex fix the new prefix-link test fails (1 of 8). redteam.py rerun: all 10 gaps caught_after_fix true. Guard added: the four tests run in portfolio-pages.yml (node --test \"*.test.mjs\"). run_workflow_locally --for-changes: 120 steps ok incl. 'Test the site builder' (217.9 s) and 'Build the site'; only FAILs are checklist-coverage (verify-and-merge.md lacks platform/ci/*.test.mjs, red on main since PR #16739, fixed by open control-plane PR #16742, not this diff). Held: secret/deploy jobs.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/audio-cdn.mjs",
+        "test": "node --test platform/pages/audio-cdn.test.mjs  (in .)",
+        "seed": 1003710658,
+        "commit": "7c079ed06",
+        "sites": 31,
+        "baseline_seconds": 0.8,
+        "mutants": [
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 24,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "export const CDN_MAX_BYTES = 20 * 1024 * 1024;",
+            "after": "export const CDN_MAX_BYTES = 20 * 1025 * 1024;",
+            "line_text": "export const CDN_MAX_BYTES = 20 * 1024 * 1024;",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "size limit never tested: new test pins 20 MiB with files at and one byte over it."
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 24,
+            "col": 39,
+            "operator": "times-to-div",
+            "before": "export const CDN_MAX_BYTES = 20 * 1024 * 1024;",
+            "after": "export const CDN_MAX_BYTES = 20 * 1024 / 1024;",
+            "line_text": "export const CDN_MAX_BYTES = 20 * 1024 * 1024;",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "size limit never tested: new test pins 20 MiB with files at and one byte over it."
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 27,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "const READ_LIMIT = 64;",
+            "after": "const READ_LIMIT = 65;",
+            "line_text": "const READ_LIMIT = 64;",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "READ_LIMIT is a concurrency cap on open files; 64 vs 65 changes no output, only peak descriptors (EMFILE only near ulimit 20000)."
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 36,
+            "col": 61,
+            "operator": "true-to-false",
+            "before": "for (const entry of await fs.readdir(dir, { withFileTypes: true })) {",
+            "after": "for (const entry of await fs.readdir(dir, { withFileTypes: false })) {",
+            "line_text": "  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 52,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'],",
+            "after": "encoding: 'utf8', maxBuffer: 64 * 1025 * 1024, stdio: ['ignore', 'pipe', 'ignore'],",
+            "line_text": "    encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'],",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "maxBuffer for git output; 64 MiB vs a few KB more only differs for ls-tree output between those sizes (ours is ~2 MB); not observable."
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 75,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "const p = entry.slice(tab + 1);",
+            "after": "const p = entry.slice(tab + 2);",
+            "line_text": "    const p = entry.slice(tab + 1);",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 91,
+            "col": 100,
+            "operator": "or-to-and",
+            "before": "export async function moveAudioToCdn({ outDir, base, repoRoot, repo = process.env.GITHUB_REPOSITORY || DEFAULT_REPO, log = () => {} }) {",
+            "after": "export async function moveAudioToCdn({ outDir, base, repoRoot, repo = process.env.GITHUB_REPOSITORY && DEFAULT_REPO, log = () => {} }) {",
+            "line_text": "export async function moveAudioToCdn({ outDir, base, repoRoot, repo = process.env.GITHUB_REPOSITORY || DEFAULT_REPO, log = () => {} }) {",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "default repo untested (tests always pass repo): new test covers GITHUB_REPOSITORY set and unset."
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 94,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "const result = { moved: 0, kept: 0, bytes: 0 };",
+            "after": "const result = { moved: 1, kept: 0, bytes: 0 };",
+            "line_text": "  const result = { moved: 0, kept: 0, bytes: 0 };",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 94,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "const result = { moved: 0, kept: 0, bytes: 0 };",
+            "after": "const result = { moved: 0, kept: 0, bytes: 1 };",
+            "line_text": "  const result = { moved: 0, kept: 0, bytes: 0 };",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 108,
+            "col": 27,
+            "operator": "le-to-lt",
+            "before": "const hit = buf.length <= CDN_MAX_BYTES ? committed.get(gitBlobId(buf)) : null;",
+            "after": "const hit = buf.length < CDN_MAX_BYTES ? committed.get(gitBlobId(buf)) : null;",
+            "line_text": "    const hit = buf.length <= CDN_MAX_BYTES ? committed.get(gitBlobId(buf)) : null;",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "boundary untested: the at-limit file must move."
+          }
+        ]
+      },
+      {
+        "target": "platform/pages/audio-cdn.mjs",
+        "test": "node --test platform/pages/audio-cdn.test.mjs  (in .)",
+        "seed": 7,
+        "commit": "7c079ed06",
+        "sites": 31,
+        "baseline_seconds": 0.7,
+        "mutants": [
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 24,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "export const CDN_MAX_BYTES = 20 * 1024 * 1024;",
+            "after": "export const CDN_MAX_BYTES = 21 * 1024 * 1024;",
+            "line_text": "export const CDN_MAX_BYTES = 20 * 1024 * 1024;",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "size limit never tested: new test pins 20 MiB with files at and one byte over it."
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 24,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "export const CDN_MAX_BYTES = 20 * 1024 * 1024;",
+            "after": "export const CDN_MAX_BYTES = 20 * 1025 * 1024;",
+            "line_text": "export const CDN_MAX_BYTES = 20 * 1024 * 1024;",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "size limit never tested: new test pins 20 MiB with files at and one byte over it."
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 24,
+            "col": 39,
+            "operator": "times-to-div",
+            "before": "export const CDN_MAX_BYTES = 20 * 1024 * 1024;",
+            "after": "export const CDN_MAX_BYTES = 20 * 1024 / 1024;",
+            "line_text": "export const CDN_MAX_BYTES = 20 * 1024 * 1024;",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "size limit never tested: new test pins 20 MiB with files at and one byte over it."
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 24,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "export const CDN_MAX_BYTES = 20 * 1024 * 1024;",
+            "after": "export const CDN_MAX_BYTES = 20 * 1024 * 1025;",
+            "line_text": "export const CDN_MAX_BYTES = 20 * 1024 * 1024;",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "size limit never tested: new test pins 20 MiB with files at and one byte over it."
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 52,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'],",
+            "after": "encoding: 'utf8', maxBuffer: 64 * 1025 * 1024, stdio: ['ignore', 'pipe', 'ignore'],",
+            "line_text": "    encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'],",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "maxBuffer for git output; 64 MiB vs a few KB more only differs for ls-tree output between those sizes (ours is ~2 MB); not observable."
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 52,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'],",
+            "after": "encoding: 'utf8', maxBuffer: 64 * 1024 * 1025, stdio: ['ignore', 'pipe', 'ignore'],",
+            "line_text": "    encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'],",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "maxBuffer for git output; 64 MiB vs a few KB more only differs for ls-tree output between those sizes (ours is ~2 MB); not observable."
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 74,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "const [, type, blob] = entry.slice(0, tab).split(' ');",
+            "after": "const [, type, blob] = entry.slice(1, tab).split(' ');",
+            "line_text": "    const [, type, blob] = entry.slice(0, tab).split(' ');",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "slice(1, tab) drops the first digit of the mode, which is destructured away; type and blob are unchanged."
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 76,
+            "col": 47,
+            "operator": "or-to-and",
+            "before": "if (type !== 'blob' || !p.endsWith('.mp3') || !lastTouched.has(p)) continue;",
+            "after": "if (type !== 'blob' || !p.endsWith('.mp3') && !lastTouched.has(p)) continue;",
+            "line_text": "    if (type !== 'blob' || !p.endsWith('.mp3') || !lastTouched.has(p)) continue;",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "quoted git-log paths reach byBlob with commit undefined under &&: new test asserts every entry has a 40-hex commit."
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 91,
+            "col": 100,
+            "operator": "or-to-and",
+            "before": "export async function moveAudioToCdn({ outDir, base, repoRoot, repo = process.env.GITHUB_REPOSITORY || DEFAULT_REPO, log = () => {} }) {",
+            "after": "export async function moveAudioToCdn({ outDir, base, repoRoot, repo = process.env.GITHUB_REPOSITORY && DEFAULT_REPO, log = () => {} }) {",
+            "line_text": "export async function moveAudioToCdn({ outDir, base, repoRoot, repo = process.env.GITHUB_REPOSITORY || DEFAULT_REPO, log = () => {} }) {",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "default repo untested (tests always pass repo): new test covers GITHUB_REPOSITORY set and unset."
+          },
+          {
+            "file": "platform/pages/audio-cdn.mjs",
+            "line": 94,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "const result = { moved: 0, kept: 0, bytes: 0 };",
+            "after": "const result = { moved: 0, kept: 1, bytes: 0 };",
+            "line_text": "  const result = { moved: 0, kept: 0, bytes: 0 };",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/pages/audio-cdn.mjs",
+        "issue": "REF regex allowed any characters after .mp3 (the [?#] was optional), so a link to one.mp3.vtt or one.mp3-notes.html was rewritten to a nonexistent CDN URL and the MP3 counted as linked and was deleted from Pages. Fixed with (?:[?#][^\"'()\\s<>]*)? and a failing-first test.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "092ff169-371f-539a-95e8-3dbafe30c0a6",
+    "transcripts": 1,
+    "first": "2026-11-16T23:56:44Z",
+    "last": "2026-11-17T00:03:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 72,
+        "output": 19210,
+        "thinking": 6642,
+        "cache_read": 2934214,
+        "cache_write_5m": 0,
+        "cache_write_1h": 75087,
+        "api_equivalent_usd": 1.572,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 72,
+      "output": 19210,
+      "thinking": 6642,
+      "cache_read": 2934214,
+      "cache_write_5m": 0,
+      "cache_write_1h": 75087,
+      "api_equivalent_usd": 1.572,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.36,
+      "active_minutes": 6.36,
+      "model_minutes": 3.78,
+      "tool_minutes": 2.58,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

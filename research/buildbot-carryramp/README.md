@@ -2,7 +2,7 @@
 
 Track 20, robots on the residential building site (`PROJECTS.md`). It follows [`buildbot-carrycop`](../buildbot-carrycop), whose "Next steps" asked for a time-varying centre of pressure (CoP): that project held the CoP at a constant offset and found the speed ceiling barely moved. Here the CoP rolls linearly along the sole during single support, as a human foot does. Produced with AI assistance (Claude). Simulated and preliminary; **the answer is again mostly no**.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-carryramp/
+**Live page:** https://marisstella.app/research/buildbot-carryramp/
 
 **Headline.** 1,680 cases (G1 at 0, 3, 4, 5 kg; H1 at 0, 10, 14 kg; eight CoP sweeps; 5 step lengths x 6 single-support times).
 - **G1: no new gain.** Fastest feasible step is 0.25, 0.20, 0.10 m/s at 0, 3, 4 kg and none at 5 kg with the CoP at the sole point (sweep 0>0, reproducing `buildbot-carryphase`). The only improvement is at 4 kg, to 0.13 m/s (one grid cell), with any sweep that starts 6 cm behind the sole point and ends at +3 or +6 cm, or −3>+3 cm; the constant −6 cm CoP of `buildbot-carrycop` gives the same 0.13.
@@ -27,7 +27,7 @@ With the CoP p(t) = c0 + (c1 − c0) t/T the linear inverted pendulum (Kajita et
 ```bash
 pip install mujoco numpy matplotlib pytest
 cd research/buildbot-carryramp
-python -m pytest -q tests          # 7 tests: orbit endpoints, equation of motion, equality with carryphase and carrycop orbits
+python -m pytest -q tests          # 14 tests: orbit endpoints, equation of motion, equality with carryphase and carrycop orbits, that score() hands carryphase the sweep in heel-to-toe order, and four stored G1 4 kg rows re-scored (about 12 s; the MuJoCo rows skip offline)
 python experiments/run.py          # 1,680 cases, about 35 minutes on 4 CPUs, deterministic; writes results.json, results.txt
 python experiments/figure.py
 ```

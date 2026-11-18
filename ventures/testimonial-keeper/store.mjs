@@ -6,7 +6,7 @@ export const SLUG_RE = /^[a-z0-9][a-z0-9-]{1,31}$/;
 
 export const newState = () => ({ forms: {}, items: [], rate: {} });
 
-const clean = (s, max) => String(s ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f‪-‮⁦-⁩]/g, "").replace(/[ \t]+/g, " ").trim().slice(0, max);
+const clean = (s, max) => String(s ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f\u202a-\u202e\u2066-\u2069]/g, "").replace(/[ \t]+/g, " ").trim().slice(0, max);
 
 export function createForm(state, { slug, title, prompt }, now) {
   const s = String(slug || "").toLowerCase();
@@ -73,6 +73,6 @@ export function stats(state) {
 }
 
 export function toCsv(items) {
-  const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   return [["id", "form", "status", "name", "role", "company", "rating", "text", "email", "date"], ...items.map((i) => [i.id, i.form, i.status, i.name, i.role, i.company, i.rating ?? "", i.text, i.email, new Date(i.at).toISOString().slice(0, 10)])].map((r) => r.map(cell).join(",")).join("\n") + "\n";
 }

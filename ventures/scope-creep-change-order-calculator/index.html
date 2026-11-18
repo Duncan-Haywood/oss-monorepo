@@ -139,7 +139,7 @@ node cli.mjs --price 6000 --hours 60 --file requests.txt --max-creep-pct 20   # 
       csv = toCsv(r);
       $("#report-card").hidden = false;
       record("order_built");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#calc").addEventListener("click", render);
 

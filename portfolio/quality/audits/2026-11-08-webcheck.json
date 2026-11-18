@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-08",
+  "subject": "platform/webcheck",
+  "stratum": "platform",
+  "seed": "2026-11-08-c",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a senior front-end build-tooling engineer who maintains an HTML linter or validator (html-validate, HTMLHint class). First check: does the page-level tokenizer agree with the WHATWG HTML tokenizer and with a real browser on comments, custom elements, attribute quoting and data-* attributes, and does the gate produce no false positives that teach people to ignore it.",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 3,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran it: `node platform/webcheck/check_pages.mjs --quiet` -> '3579 pages checked, all sound.' (10.6 s); `node --test platform/webcheck/*.test.mjs` -> 63 tests, 61 pass, 0 fail, 2 skipped (shallow clone). Recomputed against Google Chrome (playwright-core, /usr/bin/google-chrome, scratchpad wc/diff.mjs) on 20 hand-built pages, comparing checkPageIntegrity verdict with Chrome's real pageerror events. AGREE (13): basic ok, unclosed textarea, syntax error, missing id, classic-script import, bad JSON-LD, missing querySelector id, module top-level await, text/template, etc. DISAGREE (7): (1) `<!-- <div id=\"ghost\"></div> --><script>getElementById('ghost').textContent=..` Chrome throws null deref, checker passes (declaredIds regex reads HTML comments); (2) `<div data-id=\"price\">` + getElementById('price'): Chrome throws, checker passes (`\\bid=` matches inside data-id); (3) `<script data-type=\"x\">foo(</script>`: Chrome SyntaxError, checker passes (scriptType regex `\\btype\\s*=` matches data-type and skips the syntax check); (4) `<input id=price>` unquoted id (valid HTML5) + getElementById('price'): Chrome fine, checker FLAGS a missing id (false positive); (5) `<style-guide>` custom element: checker FLAGS '<style> is never closed' (RAW regex uses \\b, so `style-` matches), Chrome fine; (6) `<title-bar>` same false positive; (7) `<!-- <script> -->` or `<!-- <textarea> -->` in a comment: checker FLAGS unclosed, Chrome ignores the comment. Second recompute: 60 randomly chosen real pages from ventures/ loaded in Chrome (scratchpad wc/real.mjs): 0 pageerrors, 0 checker flags, so no disagreement on the real catalogue today. Third: `grep` of ventures/ for `<script data-type=`, unquoted `id=x` and `<style-*>` custom elements finds 0 pages, so none of the seven divergences affects a shipped page yet. Verdict: right on the real defects it was built for and on today's catalogue, wrong on 7 of 20 valid-HTML probes.",
+    "completeness": "Claims checked: (a) sweeps every .html under ventures/ with no skip list - worked, 3579 pages, exits 1 on a bad page (verified a flagged page exits non-zero via the unclosed-textarea unit tests and mutation runs); (b) unclosed raw-text elements - works; (c) inline script parse via vm.SourceTextModule fast path and `node --check` fallback - works with and without --experimental-vm-modules (self re-exec confirmed); (d) JSON-LD validity - works; (e) missing ids for getElementById/querySelector/$() - works; (f) merge-conflict markers - works; (g) requiredIds/requiredText options - tested; (h) CI wiring in .github/workflows/page-integrity-ci.yml - present, runs the unit tests and the sweep. No stubs or TODOs found. Gap: it sweeps only ventures/ (ROOTS = ['ventures']); research/ (11 html) and portfolio/ (19) and platform/ (5) pages are not swept. There is no README in platform/webcheck/.",
+    "verification": "Test command: `node --test --experimental-vm-modules platform/webcheck/*.test.mjs` -> 63 tests, 61 pass, 2 skipped (history-blob tests need non-shallow clone; skip logic is correct and distinguishes shallow from full). Five single-line mutations in page-integrity.mjs, each reverted from a saved copy (git diff clean afterwards). M1 drop `querySelector` lookup pattern: CAUGHT (1 fail). M4 drop the '>>>>>>>' merge marker: CAUGHT. M3 write module scripts as .cjs instead of .mjs: CAUGHT only when run without --experimental-vm-modules (CI's mode); SURVIVED under the flag because the in-process fast path hides it. M2 change `opened !== closed` to `opened < closed` in the raw-text balance check: SURVIVED (55/55 pass), showing the surplus-open branch is barely exercised, since parsePage's `unclosed` returns first. M5 remove 'title' from RAW_TEXT_ELEMENTS (an unclosed <title> would no longer be detected): SURVIVED under both modes. Net: 3 of 5 caught (2 of 5 if the flagged-run mode is used). Positives: tests pin the checker against the exact git blobs of the two real dead products, and lexer findings 1-32 each have a regression test. Negatives: no test for any of the seven divergences above, nothing asserts the title claim in the header comment.",
+    "craft": "Read page-integrity.mjs (1106 lines), check_pages.mjs, history-blob.mjs and the test files. Good: dependency-free, returns findings rather than throwing, shallow-clone handling is careful, self re-exec for the vm flag, honest comments recording measured costs. Defects: (1) the page tokenizer is a regex scan (`RAW` regex with \\b, `\\bid=` and `\\btype=` regexes) instead of the HTML tokenizer states, which is the root cause of all seven divergences; (2) ~380 lines are a hand-written JavaScript lexer (scanSource) with 32 review findings and a comment-intersection hack (queriedIds) to hide its misparses, a sign of the wrong tool (a real parser such as acorn, or Chrome, would settle it); (3) about 40% of the file is narrative comments that restate history, which a reviewer would move to docs; (4) the `opened !== closed` balance check is effectively dead (M2 survived); (5) inline-script-braces.test.mjs duplicates a narrower, regex version of what checkScriptSyntax already does; (6) catch-all `catch {}` in parsesAsModule and isShallowClone silently map any error to a fallback (acceptable here, but undocumented in the first). No unhandled input crashes found.",
+    "claims": "Checked: platform/README.md line 27 says 'fails on any product page a browser would not actually run' - overstated: it checks only ventures/, only parse/structure/id lookups, and cannot see runtime errors (Chrome showed runtime_throw `null.x=1` passes) or the data-type bypass above; check_pages.mjs header correctly says 'every .html file under ventures/' and that arithmetic is out of scope, so the module is more honest than the README. page-integrity.mjs says 'a hard gate across all 161 products' (stale: 1339 venture dirs, 3579 html) and the workflow comment says 'all 61 tests pass, none skip' (now 63 tests; 2 skip in a shallow clone). The docstring 'a check that cries wolf is one the next session turns off' is the author's own bar, and it is breached by the custom-element and HTML-comment false positives. No marketing claims, no disclaimer needed. Backed claims: no-skip-list sweep (check_pages.mjs), history-pinned tests (page-integrity.test.mjs blobs 1a8feb3 etc., skipped honestly when shallow), `~1,700 scripts` perf note points to docs/history/ci-perf-2026-11-02-page-integrity-sweep.md which exists.",
+    "fitness": "Job walked through: a session edits a venture page, pushes; page-integrity-ci.yml runs the tests and the sweep (10.6 s here for 3579 pages, no install, no browser). I re-created both historical failure modes (unclosed textarea, syntax error) and the checker flagged both with a one-line cause; it also caught a missing id, a classic-script import, bad JSON-LD and a conflict marker. Zero false positives and zero false negatives on 60 random real pages against Chrome. This does what the repo needs it to do today. Held at 3 not 4 because it neither executes the page nor covers research/ and portfolio/ pages.",
+    "domain": "Compared against the WHATWG HTML tokenizer and real browser behaviour. Departures: comments are not tokenized (markup inside `<!-- -->` is treated as live), tag names are matched by `\\b` so custom elements `style-x`/`title-x` are misread as raw-text elements, attribute names are matched by suffix so data-id and data-type masquerade as id and type, unquoted attribute values are ignored, SVG `<title>`/`<style>` context is not modelled, and `<script>` body ends are matched by `</script\\s*>` (a browser also ends on `</script/` and `</script ` followed by attributes). A senior HTML-tooling engineer would require a real tokenizer (parse5) or a browser smoke test and would not accept regex tag matching. The hard parse-error gate for inline scripts (V8 SourceTextModule / node --check) is the right primitive and is correct."
+  },
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "False positive: markup-like text inside an HTML comment is treated as live, so `<!-- <script> -->` or `<!-- <textarea> -->` reports '<script> is never closed' on a page Chrome renders fine. Violates the module's own no-crying-wolf rule; would turn the sweep red for a commented-out tag.",
+      "where": "platform/webcheck/page-integrity.mjs:88"
+    },
+    {
+      "severity": "medium",
+      "what": "False positive: RAW regex `<(textarea|script|style|title)\\b` matches custom elements such as `<style-guide>` and `<title-bar>` (\\b between 'e' and '-'), reporting a nonexistent unclosed element.",
+      "where": "platform/webcheck/page-integrity.mjs:88"
+    },
+    {
+      "severity": "medium",
+      "what": "False negative: scriptType regex `\\btype\\s*=` matches `data-type=`, so `<script data-type=\"x\">` with a real syntax error is classed as non-JS and skipped; Chrome throws a SyntaxError and the checker passes the page.",
+      "where": "platform/webcheck/page-integrity.mjs:71"
+    },
+    {
+      "severity": "medium",
+      "what": "False negative: declaredIds regex `\\bid=` matches `data-id=` and ids inside HTML comments and script comments, so a lookup of an id that does not exist passes (Chrome throws a null dereference).",
+      "where": "platform/webcheck/page-integrity.mjs:246"
+    },
+    {
+      "severity": "low",
+      "what": "False positive: unquoted `id=price` (valid HTML5) is not recognised, so getElementById('price') is reported as a missing id.",
+      "where": "platform/webcheck/page-integrity.mjs:246"
+    },
+    {
+      "severity": "low",
+      "what": "Mutation survivors show test gaps: removing 'title' from RAW_TEXT_ELEMENTS and weakening the `opened !== closed` check both leave all tests green; the .mjs/.cjs choice is only tested when node runs without --experimental-vm-modules.",
+      "where": "platform/webcheck/page-integrity.mjs:62,1041,221"
+    },
+    {
+      "severity": "low",
+      "what": "Sweep covers only ventures/; 11 research, 19 portfolio and 5 platform html pages are never checked, while platform/README.md says 'any product page'. Stale counts in comments (161 products, 61 tests) and no README in platform/webcheck/.",
+      "where": "platform/webcheck/check_pages.mjs:62; platform/README.md:27"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Does not meet the bar (verification 2, correctness 2, claims 2; median 2); finished (completeness 3). The gate does its real job: it passes 3579 venture pages in 10.6 s, agrees with Google Chrome on 60 randomly drawn real pages (0 errors, 0 flags), and flags both historical dead-page failures plus missing ids, bad JSON-LD and conflict markers. But its regex pseudo-tokenizer disagrees with Chrome on 7 of 20 valid-HTML probes (comments, custom elements, data-* attributes, unquoted ids): two false positives that violate its own no-crying-wolf rule and two false negatives that let a syntax-error script or a null-deref lookup pass. None affects a shipped page today (greps find 0 matching pages). Of 5 seeded mutations the suite caught 3 (M3 only in CI's no-flag mode); removing 'title' detection and weakening the balance check passed all 63 tests. Recompute spot-check: `cd /tmp/claude-0/-home-user-oss-monorepo/68aeab8f-155c-5d39-8a95-cd8445fbd134/scratchpad/wc && node --experimental-vm-modules --disable-warning=ExperimentalWarning diff.mjs` (needs /opt/node-tools playwright-core and google-chrome) or, without a browser, `node --experimental-vm-modules -e \"import('/home/user/oss-monorepo/platform/webcheck/page-integrity.mjs').then(m=>console.log(m.checkPageIntegrity('<!doctype html><title>t</title><!-- <script> --><p>hi</p>')))\"` which wrongly reports '<script> is never closed'."
+}

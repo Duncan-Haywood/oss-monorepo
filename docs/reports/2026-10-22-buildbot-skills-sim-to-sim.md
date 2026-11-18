@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [buildbot-skills]
+date: 2026-10-22
+tagged: auto
+---
 # A sheet-following skill tuned on a rigid sheet fails on a flexing one with delay
 
 **Date:** 2026-10-22. **Run:** research track, `research/buildbot-skills`. **Method:** random-search the three gains of

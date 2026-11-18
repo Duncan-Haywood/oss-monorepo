@@ -53,3 +53,20 @@ test('no posts yet', () => {
   assert.equal(r.lastPost, null);
   assert.equal(r.daysSinceLastPost, null);
 });
+
+test('CLI summary agrees with the JSON report: open count, and single-project prefixes hidden', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const script = new URL('./writing-backlog.mjs', import.meta.url).pathname;
+  const json = JSON.parse(execFileSync('node', [script, '--json'], { encoding: 'utf8' }));
+  const text = execFileSync('node', [script], { encoding: 'utf8' });
+  const open = json.tracks.filter((t) => t.posts.length === 0).length;
+  assert.ok(text.includes(`${open} of ${json.tracks.length} research tracks have no post`));
+  const multi = json.tracks.filter((t) => t.projects > 1);
+  const listedLines = text.split('\n').filter((l) => /^ {2}\S+\s+\d+ projects/.test(l));
+  assert.equal(listedLines.length, multi.length);
+});
+
+test('a digit-leading research directory is a track; a dot-leading one is not', () => {
+  const root = repo({ projects: ['9lives-a', '.hidden-a'] });
+  assert.deepEqual(researchTracks(root).map((t) => t.prefix), ['9lives']);
+});

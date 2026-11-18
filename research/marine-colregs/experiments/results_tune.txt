@@ -1,0 +1,44 @@
+/usr/local/lib/python3.11/dist-packages/cma/s.py:17: UserWarning: Could not import matplotlib.pyplot, therefore ``cma.plot()`` etc. is not available
+  _warnings.warn('Could not import matplotlib.pyplot, therefore'
+train 46 encounters (offsets +-50), test 69 (offsets -100/0/+100); budget 90 evals per run, 3 runs per method; default weights (1.0, 0.02, 3.0)
+cma seed 1: train loss 0.0641 w=[0.148, 0.002, 146.01]
+cma seed 2: train loss 0.0639 w=[0.118, 0.002, 135.428]
+cma seed 3: train loss 0.0641 w=[0.144, 0.002, 39.904]
+random seed 1: train loss 0.0648 w=[0.36, 0.002, 165.982]
+random seed 2: train loss 0.0646 w=[0.206, 0.002, 870.982]
+random seed 3: train loss 0.1072 w=[0.064, 0.002, 156.014]
+
+== held-out test (offsets -100/0/+100 m)
+config    sigma  safe %  compl %  both %  detour m    loss
+default     0.0    87.0     84.1    81.2      26.1  0.2015
+default     0.3    93.2     78.7    75.4      27.4  0.2601
+default     0.6    90.3     76.8    69.6      29.7  0.3192
+cma1        0.0    87.0     85.5    82.6      21.3  0.1846
+cma1        0.3    89.9     91.8    87.0      29.0  0.1449
+cma1        0.6    85.5     95.7    85.5      31.4  0.1606
+cma2        0.0    87.0     85.5    82.6      21.1  0.1845
+cma2        0.3    89.9     91.8    87.0      28.7  0.1448
+cma2        0.6    83.6     95.7    83.6      31.1  0.1798
+cma3        0.0    87.0     85.5    82.6      21.3  0.1846
+cma3        0.3    89.9     91.8    87.0      29.0  0.1449
+cma3        0.6    85.5     95.7    85.5      31.5  0.1607
+rand1       0.0    87.0     85.5    82.6      21.9  0.1849
+rand1       0.3    90.3     91.8    87.4      29.7  0.1405
+rand1       0.6    86.5     95.7    86.5      32.3  0.1514
+rand2       0.0    87.0     85.5    82.6      21.7  0.1847
+rand2       0.3    90.3     91.8    87.4      29.4  0.1403
+rand2       0.6    86.0     95.7    86.0      32.0  0.1561
+rand3       0.0    85.5     85.5    81.2      20.9  0.1988
+rand3       0.3    89.4     91.8    86.5      28.6  0.1496
+rand3       0.6    83.6     95.7    83.6      31.0  0.1797
+
+== mean test loss over sigma {0,0.3,0.6}
+default    0.2602
+cma1       0.1634
+cma2       0.1697
+cma3       0.1634
+rand1      0.1589
+rand2      0.1604
+rand3      0.1760
+cma: mean 0.1655 min 0.1634 max 0.1697
+rand: mean 0.1651 min 0.1589 max 0.1760

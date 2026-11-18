@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01EhTJVNF2zpANbgyiqX3A8z",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T07:59:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13274",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The router drew the research track, but the scheduled task asked for revenue-product work; followed the task and advanced flagship request R-0005.",
+      "did": "Shipped a venture slice instead of a research programme step.",
+      "result": "One slice landed."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Venture suite 229/229; Chromium load of fit.html: 2 lay drawings, 1 CSV link, no errors.",
+  "corrections": [],
+  "redteam": null
+}

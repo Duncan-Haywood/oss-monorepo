@@ -1,0 +1,10 @@
+BJsales: n 150, 1 to 150, natural logs
+  trend: 12 change(s)
+  mean (level only): 25 change(s), rangeWarning
+  mean, ar1 auto: 1 change(s)
+  trend, noise-floor 1: 12 change(s)
+uspop: n 19, 1790 to 1970, natural logs
+  trend: 1 change(s)
+  mean (level only): 8 change(s)
+  mean, ar1 auto: 0 change(s)
+  trend, noise-floor 1: 1 change(s)

@@ -1,3 +1,9 @@
+---
+kind: note
+subjects: [shed-designer]
+date: 2026-10-30
+tagged: auto
+---
 # Shed Designer: prices a person should check in a browser (2026-10-30, updated by r4 lane 4)
 
 The owner asked that every line be priced at both Home Depot and Lowe's. Lowe's hides prices until a store is chosen and returns 403 to automated reads, so every Lowe's price in `lowes.mjs` comes from a search engine's copy of the page. Round 4 lane 4 made a second search pass on 2026-10-30 (`docs/reports/shed-designer-round4-lane4.md`). For each line still open, check it in a browser with a store selected, and record the store, the date and the item number in the note.

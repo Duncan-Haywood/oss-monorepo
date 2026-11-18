@@ -1,0 +1,4 @@
+n 612; freeze months (fdd >= 19): 1958-01 1963-01 1970-01 1977-02 1981-02 1984-01 1985-02 1990-01
+mean: 148 changes, 13 within 2 months of a big freeze, 8 of 8 big freezes found
+mean --ar1: 10 changes, 3 within 2 months of a big freeze, 3 of 8 big freezes found
+meanvar: 32 changes, 5 within 2 months of a big freeze, 5 of 8 big freezes found

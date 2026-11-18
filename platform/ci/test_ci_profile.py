@@ -139,6 +139,21 @@ class Main(unittest.TestCase):
             self.assertEqual(data["totals"]["jobs"], 1)
             self.assertEqual(data["rows"][0]["workflow"], "Research")
 
+    def test_steps_view_lists_heaviest_step_first(self):
+        slow = [step("Run big build", "00:10", "01:10"), step("Run small", "01:10", "01:20")]
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "runs.json")
+            with open(path, "w", encoding="utf-8") as handle:
+                json.dump({"window": "w", "jobs": [job(steps=slow), job(steps=slow)]}, handle)
+            out = io.StringIO()
+            with unittest.mock.patch("sys.stdout", out):
+                self.assertEqual(cp.main(["--from-json", path, "--steps", "1", "--json"]), 0)
+            rows = json.loads(out.getvalue())
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(rows[0]["step"], "Run big build")
+            self.assertEqual(rows[0]["runs"], 2)
+            self.assertEqual(rows[0]["minutes"], 2.0)
+
     def test_api_failure_exits_2(self):
         def api(path):
             raise RuntimeError("GET failed: HTTP 403")
@@ -151,3 +166,29 @@ class Main(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_http_api_retries_truncated_body():
+    import http.client
+    import io
+    import ci_profile
+
+    calls = []
+
+    class Resp(io.BytesIO):
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    class Bad(Resp):
+        def read(self, *a):
+            raise http.client.IncompleteRead(b"", 5)
+
+    def opener(req, timeout=0):
+        calls.append(1)
+        return Bad() if len(calls) < 3 else Resp(b'{"ok": 1}')
+
+    assert ci_profile.http_api(opener=opener)("x") == {"ok": 1}
+    assert len(calls) == 3

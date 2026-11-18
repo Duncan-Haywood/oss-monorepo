@@ -2,7 +2,7 @@
 
 **Price a monthly bookkeeping retainer from the work the client actually brings, and find which current clients underpay you.** Enter a prospect's monthly transactions, accounts, payroll runs, AR/AP volume and sales-tax filings, the state of their books (clean, average, messy) and your target hourly rate, and get the minimum monthly fee, a recommended fee, a one-time cleanup quote and a walk-away price. Paste your existing clients with fee and hours and get them ranked by effective hourly, with the raise each needs. Browser page or zero-dependency CLI, for independent bookkeepers and fractional accountants.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/bookkeeping-client-fee-calculator/
+**Live tool:** https://marisstella.app/bookkeeping-client-fee-calculator/
 
 After using this, you can now quote a new client a monthly fee you know clears your target hourly rate, and see which current clients need a raise, which used to take a spreadsheet and a guess at how long each client really takes.
 
@@ -12,7 +12,7 @@ node cli.mjs roster fixtures/roster.csv --target 80
 cat clients.csv | node cli.mjs roster - --json
 ```
 
-Roster rows: `client,fee,hours[,software]`. See `fixtures/roster.csv`.
+Roster rows: `client,fee,hours[,software]`. Quote a field that contains a comma (`"Smith, Jones"`, `"$1,200"`); an unquoted `$1,200` is refused rather than read as a $1 fee. See `fixtures/roster.csv`.
 
 ## Your numbers, not market rates
 

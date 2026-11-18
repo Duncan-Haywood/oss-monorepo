@@ -2,7 +2,7 @@
 
 Follow-up to `chip-systolic-hidewide` in the LLM chip-design-loop track (`PROJECTS.md`, track 3). That project listed "P = 32 at F = 32", "R = 4" and "simulate the MAC engine at H = 16 against NumPy" as next steps. This project runs the same F-16-4 network at F = 16 and 32 with P up to 32, arrays 2x16 and 4x8 added, and every MAC engine's RTL simulated. Produced with AI assistance (Claude). Preliminary and small: one toy network family, one seed, one tool version, one generic-gate synthesis script, no LLM in the loop.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-systolic-p32/
+**Live page:** https://marisstella.app/research/chip-systolic-p32/
 
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed. The dataflow is the textbook systolic idea of H. T. Kung, "Why systolic architectures?", *IEEE Computer* 15(1):37-46, 1982, <https://doi.org/10.1109/MC.1982.1653825> (details as cited in `chip-systolic-batch`; the paper was not read in full here). Code is copied (MIT, same author) from `research/chip-systolic-hidewide` (itself copied from `chip-systolic-hidden`; the H = 16 changes are described there) and changed only in the sweep script and one added test; the generators are unchanged. Earlier changes in `chip-systolic-hidewide`:: H = 16; the index width now covers max(F, H) (it covered only F, which breaks when H > F); and the activation buffers hold max(F, H) entries per row, with the input repacked on load (they held F, which cannot store a hidden vector wider than the input). The README is new.
 
@@ -30,7 +30,7 @@ All 20 simulated designs (12 array runs, 8 MAC-engine runs) matched the NumPy re
 | 16 | 1x4: 245106 | P=8: 188680 | 1.30 |
 | 32 | 2x8: 458345 | P=32: 358488 | 1.28 |
 
-- **Negative result.** The best MAC engine beats the best array by 23% to 30% in cells x cycles per vector at both F. The gap is essentially the same as in `chip-systolic-hidewide` (1.30 and 1.27); the only change in a best design is P = 32 at F = 32 (358488 against P = 16's 360932, 0.7% better).
+- **Negative result.** The best MAC engine needs 23% (F = 16) and 22% (F = 32) fewer cells x cycles per vector than the best array; put the other way, the best array needs 30% and 28% more. The gap is essentially the same as in `chip-systolic-hidewide` (1.30 and 1.27); the only change in a best design is P = 32 at F = 32 (358488 against P = 16's 360932, 0.7% better).
 - **The P optimum was at the edge, and the edge is not an open end.** P = 32 has the same cycle count as P = 16 (36 at F = 16, 52 at F = 32), since layer 1 has only 16 hidden outputs to spread across lanes. Only the synthesised cell count differs (5637 against 6043 at F = 16; 6894 against 6941 at F = 32), a small synthesis effect that this study did not investigate. At F = 16, P = 32 (202932) is behind P = 8 (188680).
 - **R = 4 and 2x16 do not help.** 4x8 is behind 2x8 at both F (270580 against 268037 at F = 16; 476416 against 458345 at F = 32), and 2x16 is behind 1x4 / 2x8 (394944; 586068).
 

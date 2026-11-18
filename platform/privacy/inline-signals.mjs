@@ -54,6 +54,11 @@
 // of those indirections still has to be *branched on*, so none of them is a
 // back door.
 //
+// Every counter-shaped write (one that increments a stored value) must carry
+// its own guard: a gated draft save elsewhere on the page does not vouch for
+// it. Writes that are not counter-shaped -- the visitor's draft, the opt-out
+// preference -- may be ungated, and the page passes on its gated counter.
+//
 // What it cannot see: a guard chained more than two hops, or one assembled
 // dynamically. Those return `unguarded` rather than passing, so the error is
 // toward a false alarm a human resolves, never toward a silent pass. No
@@ -62,6 +67,7 @@
 
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const REPO_ROOT = new URL("../../", import.meta.url).pathname;
 const VENTURES = join(REPO_ROOT, "ventures");
@@ -92,7 +98,11 @@ export function findInlineUsagePages(root = VENTURES) {
   const found = [];
   for (const slug of readdirSync(root).sort()) {
     const dir = join(root, slug);
-    if (!statSync(dir).isDirectory()) continue;
+    // A directory another process removes between readdir and stat (a test's
+    // scratch venture) is not a venture.
+    let isDir = false;
+    try { isDir = statSync(dir).isDirectory(); } catch { /* vanished */ }
+    if (!isDir) continue;
     if (!existsSync(join(dir, "VENTURE.yaml"))) continue;
     if (!existsSync(join(dir, "index.html"))) continue;
     // A venture with a usage module is `browser-signals.mjs`'s subject, and
@@ -307,22 +317,63 @@ function markersFor(text) {
 // named function whose body writes to storage. A venture passes when some
 // third function branches on the predicate and calls the writer inside that
 // branch. Two hops, no further.
+// `if (countable()) store(...)`, with or without a wrapping block, and the
+// `predicate() && writer(...)` short-circuit spelling of the same.
+function guardPattern(predicate, writer) {
+  return new RegExp(
+    `(?:if\\s*\\(\\s*!?${predicate}\\s*\\(|${predicate}\\s*\\(\\s*\\)\\s*&&)` +
+    `[^;]{0,200}?\\b${writer}\\s*\\(`,
+  );
+}
+
 function guardedByPredicate(text) {
   const { predicates, writers } = namedFunctions(text);
   if (predicates.size === 0 || writers.size === 0) return null;
 
   for (const predicate of predicates) {
     for (const writer of writers) {
-      // `if (countable()) store(...)`, with or without a wrapping block, and
-      // the `predicate() && writer(...)` short-circuit spelling of the same.
-      const guarded = new RegExp(
-        `(?:if\\s*\\(\\s*!?${predicate}\\s*\\(|${predicate}\\s*\\(\\s*\\)\\s*&&)` +
-        `[^;]{0,200}?\\b${writer}\\s*\\(`,
-      );
-      if (guarded.test(text)) {
+      if (guardPattern(predicate, writer).test(text)) {
         return SIGNAL_NAMES.find((n) => text.includes(n)) ?? SIGNAL_NAMES[0];
       }
     }
+  }
+  return null;
+}
+
+// Every offset at which `text` writes to storage.
+function writeOffsets(text) {
+  const offsets = [];
+  for (let at = text.indexOf(WRITE); at !== -1; at = text.indexOf(WRITE, at + WRITE.length)) {
+    offsets.push(at);
+  }
+  return offsets;
+}
+
+// Is the write at `at` branched on a signal before it, inside the function
+// that contains it? Returns the marker that guards it, or null.
+function writeIsGuarded(text, at, markers) {
+  // Walk *outward* through enclosing blocks, not just the innermost one.
+  // The innermost block around the write is usually a `try {`, and every
+  // one of these ventures wraps the storage write in one -- so stopping at
+  // the first brace looks past the guard and reports a correctly-gated
+  // counter as unguarded.
+  let cursor = at;
+  for (let depth = 0; depth < MAX_ENCLOSING_BLOCKS; depth += 1) {
+    const bodyStart = enclosingBodyStart(text, cursor);
+    const bodyEnd = enclosingBodyEnd(text, at);
+    const body = text.slice(bodyStart, bodyEnd);
+
+    if (markers.some((m) => body.includes(m))) {
+      return branchesOnSignal(text.slice(bodyStart, at), markers);
+    }
+    // Stop at the function that contains the write. Widening past it
+    // reaches module scope, where *any* sibling function's signal read
+    // would satisfy the check -- precisely the "signal read in a sibling
+    // function" case this must reject. Blocks inside the function (`try`,
+    // `if`, `for`) are widened through; the function body is the last one.
+    if (isFunctionBody(text, bodyStart)) return null;
+    if (bodyStart <= 1) return null;
+    cursor = bodyStart - 2; // step outside this block's opening brace
   }
   return null;
 }
@@ -347,38 +398,24 @@ export function checkInlinePage(pagePath) {
   const readsSignal = sources.some((s) => SIGNAL_NAMES.some((n) => s.text.includes(n)));
   if (!readsSignal) return { name, status: "no-counter" };
 
-  for (const { text } of sources) {
+  // Every write is judged, not just the first guarded one. Returning `pass`
+  // on the first gated write let a GPC-gated save vouch for an ungated
+  // counter elsewhere on the same page (quality audit 2026-11-07-privacy,
+  // defect 0). Writes that are not counter-shaped (drafts, the opt-out
+  // preference itself) may stay ungated; a counter-shaped one may not.
+  let verdict = null;
+  const ungatedCounters = [];
+  for (const { file, text } of sources) {
     const markers = markersFor(text);
-    let from = 0;
-    for (;;) {
-      const at = text.indexOf(WRITE, from);
-      if (at === -1) break;
-      from = at + WRITE.length;
-
-      // Walk *outward* through enclosing blocks, not just the innermost one.
-      // The innermost block around the write is usually a `try {`, and every
-      // one of these ventures wraps the storage write in one -- so stopping at
-      // the first brace looks past the guard and reports a correctly-gated
-      // counter as unguarded.
-      let cursor = at;
-      for (let depth = 0; depth < MAX_ENCLOSING_BLOCKS; depth += 1) {
-        const bodyStart = enclosingBodyStart(text, cursor);
-        const bodyEnd = enclosingBodyEnd(text, at);
-        const body = text.slice(bodyStart, bodyEnd);
-
-        if (markers.some((m) => body.includes(m))) {
-          const signal = branchesOnSignal(text.slice(bodyStart, at), markers);
-          if (signal) return { name, status: "pass", signal };
-          break;
-        }
-        // Stop at the function that contains the write. Widening past it
-        // reaches module scope, where *any* sibling function's signal read
-        // would satisfy the check -- precisely the "signal read in a sibling
-        // function" case this must reject. Blocks inside the function (`try`,
-        // `if`, `for`) are widened through; the function body is the last one.
-        if (isFunctionBody(text, bodyStart)) break;
-        if (bodyStart <= 1) break;
-        cursor = bodyStart - 2; // step outside this block's opening brace
+    const covered = predicateCoveredSpans(text);
+    for (const at of writeOffsets(text)) {
+      const signal = writeIsGuarded(text, at, markers);
+      if (signal) {
+        verdict ??= { name, status: "pass", signal };
+        continue;
+      }
+      if (isCounterWrite(text, at) && !covered.some(([a, b]) => at >= a && at < b)) {
+        ungatedCounters.push(`${relative(REPO_ROOT, file)}:${lineOf(text, at)}`);
       }
     }
   }
@@ -386,13 +423,57 @@ export function checkInlinePage(pagePath) {
   // Nothing matched at the write site. Before failing, try the one indirect
   // shape this checker understands: a signal-reading predicate guarding a call
   // to a separate writer.
-  for (const { text } of sources) {
-    if (!text.includes(WRITE)) continue;
-    const signal = guardedByPredicate(text);
-    if (signal) return { name, status: "pass", signal, via: "predicate" };
+  if (!verdict) {
+    for (const { text } of sources) {
+      if (!text.includes(WRITE)) continue;
+      const signal = guardedByPredicate(text);
+      if (signal) { verdict = { name, status: "pass", signal, via: "predicate" }; break; }
+    }
   }
-  return { name, status: "unguarded" };
+  if (ungatedCounters.length > 0) return { name, status: "unguarded", ungatedCounters };
+  return verdict ?? { name, status: "unguarded" };
 }
+
+function lineOf(text, at) {
+  return text.slice(0, at).split("\n").length;
+}
+
+// Is the write at `at` shaped like a usage counter? Every counter in the tree
+// (15 pages, surveyed 2026-11-16) increments a stored value right before or
+// inside the write: `data[event] = (data[event] || 0) + 1;` or
+// `setItem(k, String(Number(getItem(k) || 0) + 1))`. Drafts and the opt-out
+// preference never do. The window is the write's own statement plus the
+// source before it back to the previous closing brace, so a sibling
+// function's increment does not leak in.
+const INCREMENT = /\|\|\s*0\s*\)\s*\+\s*1\b|\+\+|\+=\s*1\b/;
+function isCounterWrite(text, at) {
+  const before = text.slice(Math.max(0, at - 300), at);
+  const prefix = before.slice(before.lastIndexOf("}") + 1);
+  const end = text.indexOf(";", at);
+  const statement = text.slice(at, end === -1 ? Math.min(text.length, at + 300) : end);
+  return INCREMENT.test(prefix) || INCREMENT.test(statement);
+}
+
+// Source spans of writer functions that a signal predicate guards a call to:
+// a counter-shaped write inside one of them is covered by that guard.
+function predicateCoveredSpans(text) {
+  const { predicates, writers } = namedFunctions(text);
+  const spans = [];
+  for (const writer of writers) {
+    const isGuarded = [...predicates].some((p) => guardPattern(p, writer).test(text));
+    if (!isGuarded) continue;
+    for (const match of text.matchAll(DEFINITION)) {
+      if ((match[1] ?? match[2]) !== writer) continue;
+      const start = match.index;
+      const body = definitionBody(text, start + match[0].length);
+      const bodyAt = text.indexOf(body, start);
+      if (bodyAt !== -1) spans.push([start, bodyAt + body.length]);
+    }
+  }
+  return spans;
+}
+
+export const _internals = { writeOffsets, writeIsGuarded, markersFor, namedFunctions };
 
 export function checkAllInline(root = VENTURES) {
   return findInlineUsagePages(root).map(checkInlinePage);
@@ -408,11 +489,12 @@ export function claimsUsageCounter(pagePath) {
   return PROMISE.test(readFileSync(pagePath, "utf8"));
 }
 
-if (import.meta.url === `file://${process.argv[1] ?? ""}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const results = checkAllInline();
   const unguarded = results.filter((r) => r.status === "unguarded");
   for (const r of unguarded) {
-    console.error(`UNGUARDED ${r.name}: writes a usage count with no signal branch before it`);
+    const where = r.ungatedCounters ? ` (${r.ungatedCounters.join(", ")})` : "";
+    console.error(`UNGUARDED ${r.name}: writes a usage count with no signal branch before it${where}`);
   }
   const passed = results.filter((r) => r.status === "pass").length;
   const none = results.filter((r) => r.status === "no-counter").length;

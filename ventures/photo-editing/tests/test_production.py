@@ -86,9 +86,9 @@ class ProductionPlanningTests(unittest.TestCase):
             carousel.inputs,
             (
                 "analysis/instagram_storylines.json",
-                "graded/grade_asset_00002/portrait-a.nef",
+                "graded/grade_asset_00002/portrait-a.nef.tif",
                 "graded/grade_asset_00003/portrait-b.jpg",
-                "graded/grade_asset_00004/portrait-c.arw",
+                "graded/grade_asset_00004/portrait-c.arw.tif",
             ),
         )
 
@@ -112,8 +112,8 @@ class ProductionPlanningTests(unittest.TestCase):
         self.assertEqual(
             grade_outputs,
             [
-                "graded/grade_asset_00000/IMG_0001.CR3",
-                "graded/grade_asset_00001/IMG_0001.CR3",
+                "graded/grade_asset_00000/IMG_0001.CR3.tif",
+                "graded/grade_asset_00001/IMG_0001.CR3.tif",
             ],
         )
         self.assertEqual(len(set(proxy_outputs)), 2)

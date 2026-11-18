@@ -1,0 +1,72 @@
+# Milestone 110: keep schedules on 26 held-out designs (cached tables, no flow run)
+
+table | clock | design | n | routed/r2 cost | skip share | skip-r1 % | 105-style % | random 8 % | k(skip) | random k(skip) %
+fanout_rich | tight | bcastadd64 | 50 | 5.62 | 0.31 | 0.36 | 0.36 | 2.27 | 15 | 0.95
+fanout_rich | relaxed | bcastadd64 | 50 | 4.68 | 0.34 | 0.00 | 0.00 | 6.19 | 16 | 3.00
+fanout_rich | tight | fanao96 | 50 | 2.88 | 0.45 | 11.56 | 2.08 | 6.21 | 22 | 0.55
+fanout_rich | relaxed | fanao96 | 50 | 2.87 | 0.45 | 10.67 | 1.76 | 6.25 | 22 | 0.98
+hostile | tight | bcastmix192 | 60 | 2.06 | 0.55 | 49.85 | 38.14 | 0.00 | 33 | 0.00
+hostile | relaxed | bcastmix192 | 60 | 2.05 | 0.56 | 49.85 | 38.39 | 0.00 | 33 | 0.00
+hostile | tight | cmp128 | 50 | 1.65 | 0.67 | 0.00 | 0.00 | 4.64 | 33 | 0.68
+hostile | relaxed | cmp128 | 50 | 1.53 | 0.71 | 0.00 | 0.00 | 10.99 | 35 | 3.15
+hostile | tight | gf2mat48 | 50 | 13.01 | 0.22 | 0.00 | 3.75 | 2.32 | 11 | 1.41
+hostile | relaxed | gf2mat48 | 50 | 2.69 | 0.47 | 1.14 | 2.78 | 0.79 | 23 | 0.12
+hostile | tight | rotmix64 | 50 | 3.21 | 0.42 | 0.00 | 0.00 | 13.73 | 21 | 6.52
+hostile | relaxed | rotmix64 | 50 | 2.96 | 0.44 | 0.00 | 0.00 | 16.09 | 22 | 6.59
+hostile | tight | xbar16 | 50 | 4.85 | 0.33 | 0.00 | 13.90 | 12.76 | 16 | 9.48
+hostile | relaxed | xbar16 | 50 | 3.16 | 0.43 | 0.00 | 4.06 | 7.46 | 21 | 2.95
+large | tight | adder_op64 | 50 | 3.04 | 0.44 | 0.00 | 0.00 | 4.44 | 21 | 1.32
+large | relaxed | adder_op64 | 50 | 2.19 | 0.54 | 0.00 | 0.00 | 3.76 | 27 | 0.61
+large | tight | adder_ripple64 | 52 | 2.33 | 0.52 | 0.00 | 0.00 | 0.00 | 26 | 0.00
+large | relaxed | adder_ripple64 | 52 | 1.39 | 0.76 | 0.00 | 0.00 | 0.00 | 39 | 0.00
+large | tight | mult16 | 50 | 8.94 | 0.25 | 0.74 | 0.74 | 1.67 | 12 | 0.96
+large | relaxed | mult16 | 50 | 3.74 | 0.38 | 0.00 | 0.00 | 8.20 | 19 | 3.77
+large | tight | mult24 | 50 | 14.76 | 0.22 | 0.00 | 0.00 | 1.59 | 10 | 1.18
+large | relaxed | mult24 | 50 | 5.87 | 0.30 | 11.35 | 11.35 | 8.14 | 15 | 3.78
+large | tight | mult32 | 50 | 19.86 | 0.20 | 0.00 | 0.00 | 2.75 | 10 | 2.42
+large | relaxed | mult32 | 50 | 8.18 | 0.26 | 13.17 | 13.17 | 7.00 | 13 | 4.58
+nonarith | tight | alu32 | 50 | 2.43 | 0.51 | 0.00 | 14.94 | 7.17 | 25 | 2.01
+nonarith | relaxed | alu32 | 50 | 1.91 | 0.60 | 0.00 | 0.00 | 5.94 | 29 | 1.19
+nonarith | tight | barrel128 | 50 | 4.01 | 0.37 | 0.00 | 0.00 | 12.74 | 18 | 5.59
+nonarith | relaxed | barrel128 | 50 | 4.03 | 0.37 | 0.00 | 0.00 | 11.97 | 18 | 5.25
+nonarith | tight | barrel64 | 50 | 2.51 | 0.49 | 26.26 | 26.89 | 19.50 | 24 | 7.00
+nonarith | relaxed | barrel64 | 50 | 2.50 | 0.50 | 29.22 | 26.89 | 19.16 | 24 | 6.32
+nonarith | tight | popcount128 | 52 | 2.77 | 0.46 | 0.00 | 2.15 | 2.42 | 23 | 0.91
+nonarith | relaxed | popcount128 | 52 | 1.93 | 0.59 | 0.00 | 0.57 | 3.80 | 30 | 0.49
+nonarith | tight | popcount64 | 50 | 2.22 | 0.54 | 0.00 | 4.90 | 2.58 | 26 | 0.50
+nonarith | relaxed | popcount64 | 50 | 1.57 | 0.70 | 0.00 | 2.75 | 4.15 | 34 | 0.28
+unfaithful | tight | mult20 | 50 | 16.72 | 0.21 | 0.00 | 0.00 | 3.29 | 10 | 3.06
+unfaithful | relaxed | mult20 | 50 | 5.76 | 0.31 | 0.00 | 0.00 | 8.18 | 15 | 3.54
+unfaithful | tight | mult28 | 50 | 21.02 | 0.20 | 0.00 | 0.00 | 3.80 | 9 | 3.27
+unfaithful | relaxed | mult28 | 50 | 8.35 | 0.26 | 6.89 | 6.89 | 4.98 | 13 | 3.33
+unfaithful | tight | mult36 | 50 | 21.69 | 0.20 | 0.00 | 0.00 | 4.62 | 9 | 4.57
+unfaithful | relaxed | mult36 | 50 | 9.75 | 0.25 | 6.46 | 6.46 | 4.80 | 12 | 2.76
+unfaithful | tight | mult40 | 50 | 22.02 | 0.20 | 0.00 | 0.00 | 2.84 | 9 | 2.47
+unfaithful | relaxed | mult40 | 50 | 9.99 | 0.24 | 8.52 | 8.52 | 8.67 | 12 | 6.51
+unseen | tight | crc32 | 50 | 2.03 | 0.57 | 0.00 | 0.36 | 2.82 | 28 | 0.31
+unseen | relaxed | crc32 | 50 | 1.60 | 0.68 | 0.00 | 0.00 | 1.65 | 34 | 0.02
+unseen | tight | decmux64 | 51 | 1.32 | 0.80 | 0.00 | 0.00 | 4.08 | 40 | 0.48
+unseen | relaxed | decmux64 | 51 | 1.24 | 0.84 | 0.00 | 0.00 | 14.16 | 42 | 0.52
+unseen | tight | prio64 | 50 | 1.32 | 0.80 | 0.00 | 0.00 | 5.11 | 39 | 0.78
+unseen | relaxed | prio64 | 50 | 1.21 | 0.85 | 0.00 | 0.00 | 3.28 | 42 | 0.23
+unseen | tight | sbox | 50 | 1.89 | 0.60 | 0.00 | 0.00 | 4.08 | 30 | 1.27
+unseen | relaxed | sbox | 50 | 1.68 | 0.66 | 1.59 | 0.00 | 4.15 | 33 | 0.45
+unseen | tight | sort8x8 | 50 | 2.72 | 0.47 | 0.00 | 8.85 | 4.38 | 23 | 0.78
+unseen | relaxed | sort8x8 | 50 | 2.11 | 0.56 | 0.00 | 13.85 | 7.63 | 27 | 1.14
+
+cells: 52 (26 designs, 7 tables)
+mean regret: skip-r1 4.38%, 105-style 4.89%, random 8 5.95%
+skip-r1 vs 105-style: better in 13, worse in 6, tied in 33 (sign test p = 0.167)
+equal cost: skip-r1 4.38% vs random 2.31%: better in 37, worse in 13, tied in 2 (sign test p = 0.001); design bootstrap 95% CI of the mean difference -1.31 to 6.88 points
+equal cost: 105-style 4.89% vs random 1.76%: better in 27, worse in 23, tied in 2 (sign test p = 0.672)
+median skip-r1 share of all-routed cost: 0.46 overall; 0.26 in 23 cells with routed/r2 > 3, 0.56 in 29 cells at or below
+cells with routed/r2 > 3: skip-r1 better than equal-cost random in 18, worse in 5, tied in 0
+post hoc (added after the first run): mean regret in cells with routed/r2 > 3: skip-r1 2.07%, equal-cost random 3.59%; at or below: 6.21% and 1.29%
+post hoc: cells with regret above 5%: skip-r1 11, equal-cost random 8; worst cell skip-r1 49.85%, random 9.48%
+post hoc: without bcastmix192 (two outcome classes, milestone 28): skip-r1 2.56%, equal-cost random 2.40%
+
+(1) skip-r1 <= 105-style + 0.3: True
+(2) both beat random 8: True
+(3) equal-cost random beats skip-r1 in mean regret: True
+(4) skip-r1 share lower where routed/r2 > 3: True
+(5) skip-r1 beats equal-cost random in more high-ratio cells than it loses: True

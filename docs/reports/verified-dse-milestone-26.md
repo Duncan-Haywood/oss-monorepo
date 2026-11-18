@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [verified-dse]
+tagged: auto
+---
 # verified-dse milestone 26 (for the next run)
 
 - Landed: `experiments/corner_replay/replay.py`, the milestone 13 eta grid replayed on the ss table (`corner_ss`) plus a tt-eta-on-ss section. Stdlib only, about 100 s, no flow. Predictions were written after starting the script but before opening its output (disclosed in LOG.md). 0 of 3 held cleanly.

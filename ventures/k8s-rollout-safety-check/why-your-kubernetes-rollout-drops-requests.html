@@ -22,6 +22,7 @@
   </style>
 </head>
 <body>
+<main>
   <h1>Why your Kubernetes rollout drops requests</h1>
   <p class="note">A practical guide · <a href="./">back to the rollout safety checker</a></p>
 
@@ -89,7 +90,9 @@ terminationGracePeriodSeconds: 45</code></pre>
     <li><strong>A PodDisruptionBudget below the replica count</strong>, so a node drain can make progress but not take everything.</li>
   </ol>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page is free and as-is, without warranty of any kind, express or implied. It is general technical writing, not a production-readiness audit or advice about your specific cluster, and it does not replace a qualified professional. Test any change here against your own workload before applying it to production.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These pages are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
     <p><a href="./">Kubernetes Rollout Safety Check</a> · <a href="vs-kube-score.html">compared with kube-score</a> · <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional and changes nothing about the tool.</p>

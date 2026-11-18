@@ -1,0 +1,24 @@
+Dryden vertical turbulence, L in full-size chords (scaled by n for the model); rms as percent difference from n = 1
+
+L = 25 chords. reference n=1: rms dn 6.5979, q sqrt(L/g) 0.8432, theta 0.9485 (per unit rms alpha_g)
+  similar n=0.2 (4412, k 1, AR 10): d(dn)    1.7%  d(q)   28.6%  d(theta)   34.6%
+  best   naca5406 k 1.20 AR 10: d(dn)   14.6%  d(q)   14.8%  d(theta)    9.0%
+  best   naca4412 k 1.20 AR 10: d(dn)   13.2%  d(q)   17.3%  d(theta)   13.6%
+  best   naca4412 k 1.30 AR 10: d(dn)   18.7%  d(q)   12.6%  d(theta)    6.7%
+  17 power-matched cases: worst of three within 5%: 0; within 10%: 0
+
+L = 62.5 chords. reference n=1: rms dn 5.3646, q sqrt(L/g) 0.9353, theta 1.4474 (per unit rms alpha_g)
+  similar n=0.2 (4412, k 1, AR 10): d(dn)    0.0%  d(q)   24.4%  d(theta)   36.3%
+  best   naca5406 k 1.20 AR 10: d(dn)   10.7%  d(q)    9.2%  d(theta)    8.9%
+  best   naca4412 k 1.20 AR 10: d(dn)    9.6%  d(q)   11.9%  d(theta)   14.0%
+  best   naca4412 k 1.30 AR 10: d(dn)   14.1%  d(q)    6.9%  d(theta)    6.7%
+  17 power-matched cases: worst of three within 5%: 0; within 10%: 0
+
+L = 125 chords. reference n=1: rms dn 4.1272, q sqrt(L/g) 0.8988, theta 1.9185 (per unit rms alpha_g)
+  similar n=0.2 (4412, k 1, AR 10): d(dn)   -0.9%  d(q)   25.9%  d(theta)   40.1%
+  best   naca5406 k 1.20 AR 10: d(dn)    9.0%  d(q)    7.6%  d(theta)   10.3%
+  best   naca4412 k 1.30 AR 10: d(dn)   12.2%  d(q)    5.3%  d(theta)    8.1%
+  best   naca4412 k 1.20 AR 10: d(dn)    7.9%  d(q)   10.8%  d(theta)   15.8%
+  17 power-matched cases: worst of three within 5%: 0; within 10%: 0
+
+across all three L: cases within 5% on all metrics: 0 of 17; within 10%: 0; best worst-case 14.8% (('naca5406', 1.2, 10))

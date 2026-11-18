@@ -11,7 +11,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Vehicle Wrap Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Waste-inclusive material pricing, install complexity multiplier, rush fee, actual roll usage check, shareable bid link, saved quote that reopens, printable customer proposal with scope, deposit split, price-held date and signature line","description":"Browser-local calculator that prices a vehicle wrap install from surface area, material waste factor, laminate, install complexity, and labor, flags the loss from quoting material at bare surface area instead of what the roll actually consumes, and checks real roll usage against the quote's breakeven."}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the calculator price material from a waste-inclusive square footage instead of the vehicle's bare surface area?","acceptedAnswer":{"@type":"Answer","text":"Because that is what actually gets bought and consumed. Wrap film comes off a roll, and cutting around mirrors, door handles, pillars, and compound curves wastes a real share of every roll — typically 15-30% depending on the vehicle. Pricing material at the bare surface area quotes the vehicle, not the roll, and under-buys the job every time."}},{"@type":"Question","name":"What happens if I quote material at the bare surface area and ignore the waste factor?","acceptedAnswer":{"@type":"Answer","text":"You still have to buy and consume the waste-inclusive material to actually cover the vehicle, so the gap between the two prices comes straight out of the job's margin — the calculator reports that gap directly as the waste-blind loss per job."}},{"@type":"Question","name":"Why is there a separate complexity multiplier for install hours?","acceptedAnswer":{"@type":"Answer","text":"A flat panel — a box truck side, a straight fleet van — installs much faster per square foot than a sedan or SUV with mirrors, handles, and compound curves. A single flat installed rate per square foot underprices labor on the harder vehicle every time; the multiplier keeps that difference visible instead of averaging it away."}},{"@type":"Question","name":"Does anything about my costs or roll usage get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. No account and no network requests — the vehicle, your rates, your prices, and your proposal terms stay in this browser. The quote itself saves to this browser's local storage as you type, so it is still here on your next visit, and \"Start a fresh quote\" clears it. \"Copy bid link\" puts the same numbers — including the deposit and payment terms on the proposal panel below — in a URL you can send yourself or a partner instead; treat a copied link like your rate sheet, since it carries your material and labor costs. The business details saved for the printed proposal live in this browser's local storage separately, and \"Forget my business details\" clears them. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
 <style>
-:root{font:16px/1.5 system-ui,sans-serif;color:#161c22;background:#eef2f6}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,3.9rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #cfd9e3;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0d243c08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #e3e9ef;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#175a8c;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #b7c7d6;border-radius:8px;font:inherit;background:#fdfeff}.result{background:#0f3a5c;color:#fff;border-color:#0f3a5c;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#516475}.result .note{color:#cfe0ee}.err{color:#ffd9a6;font-weight:700}.warn{background:#fff4e0;border:1px solid #f0c987;color:#7a4b06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#0a2740;border-color:#3b8bc9;color:#c9e6ff}.summary-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #b7c7d6;background:#fff;cursor:pointer;color:#161c22}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+:root{font:16px/1.5 system-ui,sans-serif;color:#161c22;background:#eef2f6}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,3rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #cfd9e3;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0d243c08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #e3e9ef;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#175a8c;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #b7c7d6;border-radius:8px;font:inherit;background:#fdfeff}.result{background:#0f3a5c;color:#fff;border-color:#0f3a5c;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#516475}.result .note{color:#cfe0ee}.err{color:#ffd9a6;font-weight:700}.warn{background:#fff4e0;border:1px solid #f0c987;color:#7a4b06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#0a2740;border-color:#3b8bc9;color:#c9e6ff}.summary-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #b7c7d6;background:#fff;cursor:pointer;color:#161c22}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
 /* proposal:begin — generated by platform/proposal/adopt.mjs */
     .proposal-status { font-size: .8rem; color: #5c5854; }
 
@@ -81,7 +81,16 @@
       a { text-decoration: none; color: inherit; }
       @page { margin: 16mm; }
     }
-/* proposal:end */</style></head>
+/* proposal:end */
+    /* pf-result-column: on a wide window the result card owns the right-hand
+       column for every row and everything else stacks on the left, so the
+       sticky card has room to travel and never slides over the FAQ or the
+       proposal (docs/reports/polish-2026-11-11-result-column.md). */
+    @media (min-width: 721px) {
+      main.layout > :not(.result), main.layout > section:not(.result), main.layout > #proposalSection { grid-column: 1; }
+      main.layout > .result { grid-column: 2; grid-row: 1 / span 2; }
+    }
+</style></head>
 <body>
 <header><p>FOR INDEPENDENT VEHICLE WRAP &amp; GRAPHICS SHOPS</p><h1>The roll decides your material cost, not the vehicle.</h1><p class="lede">A wrap coverage chart tells you the vehicle's bare surface area — but vinyl gets bought and consumed by the linear foot off a 60&Prime; roll, and cutting around mirrors, handles, pillars, and compound curves wastes a real share of every roll. This free calculator prices a wrap from that waste-inclusive material total, then shows exactly what a bare-surface-area quote loses on every job, and lets you plug in the real roll usage once the install is done.</p></header>
 
@@ -425,8 +434,15 @@ persist();
         "Install, seal edges, and post-heat for a durable finish; leave the vehicle clean"
       ];
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) {
         if (saved[field]) el(field).value = saved[field];
       }
@@ -455,7 +471,7 @@ persist();
     function showProposal() {
       const result = calculateQuote(readInput());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -500,7 +516,7 @@ persist();
       }
       el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
       count('proposal_printed');
-      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el('proposalDoc').scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
       // After paint, so the browser renders the document before the sheet is
       // captured; without it an empty page can go to the printer.
       requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
@@ -511,7 +527,7 @@ persist();
     document.addEventListener('change', refreshProposal);
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) el(field).value = '';
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';

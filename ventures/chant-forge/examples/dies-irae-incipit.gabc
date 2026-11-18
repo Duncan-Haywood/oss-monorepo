@@ -1,0 +1,9 @@
+name: Dies irae (first line only);
+mode: 1;
+office-part: Sequentia;
+% Demo input, NOT a corpus entry. This is the widely quoted opening motif
+% (F E F D E C D D), typed from memory, not transcribed from a scan of the
+% 1908 Vatican Graduale. Check it against a cited public-domain edition before
+% it goes into corpus/ or into any release.
+%%
+(c4) DI(f)es(e) i(f)rae,(d) di(e)es(c) il(d)la(d.) (:)

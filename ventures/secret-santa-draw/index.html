@@ -40,6 +40,15 @@
     code { background: #f6ebe8; padding: 1px 5px; border-radius: 4px; }
     @media (max-width: 720px) { body { padding: 16px; } }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 520px) { div.row:has(#mode) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 378px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -213,7 +222,7 @@
       $("#result").hidden = false;
       $("#result-title").textContent = title;
       $("#result-body").innerHTML = html;
-      $("#result").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#result").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#make-link").addEventListener("click", () => {
@@ -237,7 +246,7 @@
       if (!out) return;
       record("pass_started");
       startReveal(out.group, out.assign, true);
-      $("#reveal-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#reveal-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     });
 
     $("#show-list").addEventListener("click", () => {

@@ -1,0 +1,68 @@
+== seeds 7-12 (this run): 48 builds
+build (P S week seed) | floor | no reserve | 2 s reserve | repair ms (2 s) | gains (2 s)
+(80, 224, 0, 7) | 257 | 257 | 257 | 0 | -
+(80, 224, 0, 8) | 257 | 257 | 257 | 0 | -
+(80, 224, 0, 9) | 257 | 257 | 257 | 0 | -
+(80, 224, 0, 10) | 257 | 258 | 258 | 594 | 0
+(80, 224, 0, 11) | 257 | 257 | 257 | 792 | 0
+(80, 224, 0, 12) | 257 | 257 | 257 | 0 | -
+(80, 224, 1, 7) | 331 | 331 | 331 | 0 | -
+(80, 224, 1, 8) | 331 | 331 | 331 | 0 | -
+(80, 224, 1, 9) | 331 | 331 | 331 | 0 | -
+(80, 224, 1, 10) | 331 | 331 | 331 | 0 | -
+(80, 224, 1, 11) | 331 | 331 | 331 | 0 | -
+(80, 224, 1, 12) | 331 | 331 | 331 | 0 | -
+(80, 224, 2, 7) | 281 | 281 | 281 | 0 | -
+(80, 224, 2, 8) | 281 | 281 | 281 | 0 | -
+(80, 224, 2, 9) | 281 | 281 | 281 | 0 | -
+(80, 224, 2, 10) | 281 | 281 | 281 | 0 | -
+(80, 224, 2, 11) | 281 | 281 | 281 | 0 | -
+(80, 224, 2, 12) | 281 | 281 | 281 | 1012 | 3
+(90, 252, 0, 7) | 352 | 353 | 353 | 923 | 3
+(90, 252, 0, 8) | 352 | 354 | 353 | 732 | 3
+(90, 252, 0, 9) | 352 | 355 | 355 | 1384 | 6
+(90, 252, 0, 10) | 352 | 355 | 355 | 1166 | 1
+(90, 252, 0, 11) | 352 | 360 | 358 | 667 | 2
+(90, 252, 0, 12) | 352 | 356 | 356 | 717 | 0
+(90, 252, 1, 7) | 219 | 219 | 219 | 1533 | 0
+(90, 252, 1, 8) | 219 | 223 | 223 | 1348 | 0
+(90, 252, 1, 9) | 219 | 227 | 226 | 1398 | 1
+(90, 252, 1, 10) | 219 | 220 | 220 | 1359 | 2
+(90, 252, 1, 11) | 219 | 223 | 224 | 1386 | 3
+(90, 252, 1, 12) | 219 | 220 | 222 | 1211 | 1
+(90, 252, 2, 7) | 374 | 374 | 374 | 153 | 1
+(90, 252, 2, 8) | 374 | 374 | 374 | 0 | -
+(90, 252, 2, 9) | 374 | 374 | 374 | 44 | 0
+(90, 252, 2, 10) | 374 | 374 | 374 | 0 | -
+(90, 252, 2, 11) | 374 | 374 | 374 | 171 | 2
+(90, 252, 2, 12) | 374 | 374 | 374 | 80 | 1
+(100, 280, 0, 7) | 358 | 372 | 371 | 1048 | 5
+(100, 280, 0, 8) | 358 | 376 | 377 | 908 | 3
+(100, 280, 0, 9) | 358 | 374 | 372 | 822 | 1
+(100, 280, 0, 10) | 358 | 378 | 374 | 642 | 8
+(100, 280, 0, 11) | 358 | 373 | 374 | 778 | 1
+(100, 280, 0, 12) | 358 | 375 | 372 | 990 | 4
+(100, 280, 1, 7) | 344 | 345 | 345 | 672 | 4
+(100, 280, 1, 8) | 344 | 350 | 349 | 904 | 3
+(100, 280, 1, 9) | 344 | 348 | 345 | 727 | 5
+(100, 280, 1, 10) | 344 | 346 | 345 | 856 | 2
+(100, 280, 1, 11) | 344 | 348 | 348 | 649 | 1
+(100, 280, 1, 12) | 344 | 346 | 349 | 624 | 4
+flow: 15255 open hours in all, 159 above the proven floors, at the floor on 24, build ms mean 21414
+flow2000: 15244 open hours in all, 148 above the proven floors, at the floor on 24, build ms mean 21338
+flow2000 vs flow: fewer open on 10, more on 5, tied 33, net +11 h covered (sign test p = 0.302)
+
+== seeds 4-6 (eval/repair-flow-e2e.jsonl): 24 builds
+flow: 7633 open hours in all, 85 above the proven floors, at the floor on 14, build ms mean 21729
+flow2000: 7613 open hours in all, 65 above the proven floors, at the floor on 13, build ms mean 21570
+flow2000 vs flow: fewer open on 7, more on 3, tied 14, net +20 h covered (sign test p = 0.344)
+
+== pooled, seeds 4-12: 72 builds
+flow: 22888 open hours in all, 244 above the proven floors, at the floor on 38, build ms mean 21519
+flow2000: 22857 open hours in all, 213 above the proven floors, at the floor on 37, build ms mean 21415
+flow2000 vs flow: fewer open on 17, more on 8, tied 47, net +31 h covered (sign test p = 0.108)
+
+== noise floor: no reserve run twice, 24 builds on 90 x 252 and 100 x 280 weeks 0-1
+second run vs first: fewer open on 1, more on 1, tied 22, net +1 h (sign test p = 1)
+2 s reserve vs first run, same builds: fewer open on 10, more on 5, tied 9, net +11 h
+2 s reserve vs second run, same builds: fewer open on 10, more on 5, tied 9, net +10 h

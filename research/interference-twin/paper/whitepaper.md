@@ -9,7 +9,7 @@ Victim noise 1; echo `S(r) = s₀(r₀/r)⁴`, detect iff `S ≥ T(1+I)`, clear-
 ## Results
 (all from `experiments/results.txt`; `K = 4`, `q = 0.1`, `N = 10`, 4000 geometries for marginals, 2000 simulated missions per range.)
 1. Closed form vs Monte Carlo (K = 1, q = 0.2): within 0.003 at five ranges.
-2. Mean interference 36.9; mean-rise range 63.7 m with real Pd 0.858 there; real range at Pd ≥ 0.9 is 58.4 m. Real Pd falls from 0.98 (40 m) to 0.656 and stays at 0.656 from about 90 m to 158 m, the probability that no interferer hits the frame; clear-air twin range 158.1 m has real Pd 0.
+2. Mean interference 36.9; mean-rise range 63.7 m with real Pd 0.858 there; real range at Pd ≥ 0.9 is 58.4 m. Real Pd falls from 0.98 (40 m) to 0.656 and stays at 0.656 from about 90 m to 158 m, the probability that no interferer hits the frame; the clear-air twin's 158.1 m is the end of that plateau: real Pd is 0.656 just inside it and 0 beyond it.
 3. 3-of-10 missions: Brier clear 0.0027, mean-rise 0.6896, all calibrated models 0.0027. 9-of-10 missions: clear 0.6360, mean-rise 0.1296, i.i.d.-geometry 0.1011, geometry-blind exact 0.1007, geometry-aware 0.0892. Within-mission geometry persistence changes mission probabilities by up to 0.04 (e.g. 0.947 vs 0.983 at 40 m, 0.417 vs 0.383 at 70 m) but barely changes the Brier score of a geometry-blind forecaster; knowing the geometry does.
 4. Over `q ∈ {0.02, 0.05, 0.1, 0.2, 0.4}` the mean-rise range is 92.9, 75.3, 63.7, 53.8, 45.3 m against real Pd ≥ 0.9 ranges 158.1, 70.2, 58.4, 48.5, 40.4 m.
 

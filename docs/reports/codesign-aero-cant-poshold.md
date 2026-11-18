@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [codesign-aero-cant-poshold]
+tagged: auto
+---
 # codesign-aero-cant-poshold (for the next run)
 
 - Landed 2026-10-26: position hold + lateral force of canted rotors; result in `research/codesign-aero-cant-poshold/README.md`. The five parent READMEs' "add position hold" next step is done; stop copying that line forward.

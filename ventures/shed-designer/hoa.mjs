@@ -32,13 +32,15 @@ const shade = (rgb, f) => rgb.map((c) => c * f);
  * does not know is drawn as lap if its name says so, otherwise as panels.
  * @param {string} type
  */
-export function sidingLook(type) {
+export function sidingLook(type, run = 'vertical') {
   const t = String(type || '').toLowerCase();
   if (t === 'vinyl') return { direction: 'horizontal', pattern: 'lap', spacing: 4, label: 'vinyl lap siding (horizontal, 4" reveal)' };
   const lap = LAP_PRODUCTS[type];
   if (lap) return { direction: 'horizontal', pattern: 'lap', spacing: lap.exposure, label: `${lap.short} siding (horizontal, ${fmtIn(lap.exposure)} exposure)` };
   if (t === 'fiber cement' || /lap|hardie|plank|clapboard/.test(t)) return { direction: 'horizontal', pattern: 'lap', spacing: 7, label: `${type} lap siding (horizontal, 7" exposure)` };
-  if (t === 't1-11') return { direction: 'vertical', pattern: 'grooves', spacing: 8, label: 'T1-11 panel siding (vertical grooves 8" apart)' };
+  if (t === 't1-11') return run === 'horizontal'
+    ? { direction: 'horizontal', pattern: 'grooves', spacing: 8, label: 'T1-11 panel siding laid horizontally (level grooves 8" apart)' }
+    : { direction: 'vertical', pattern: 'grooves', spacing: 8, label: 'T1-11 panel siding (vertical grooves 8" apart)' };
   if (t === 'board and batten') return { direction: 'vertical', pattern: 'battens', spacing: 5.5, label: 'board and batten (vertical battens about 5-1/2" apart)' };
   return { direction: 'vertical', pattern: 'panel', spacing: 48, label: `${type} panel siding (smooth, 4 ft panel joints)` };
 }
@@ -100,7 +102,7 @@ export function packetSummary(shed) {
   const d = shed.design;
   const k = shed.dims;
   const area = (d.length * d.width) / 144;
-  const look = sidingLook(d.sidingType);
+  const look = sidingLook(d.sidingType, d.sidingRun);
   const ops = shed.framedOpenings;
   const count = (kind) => ops.filter((o) => o.kind === kind);
   const list = (kind) => {
@@ -183,7 +185,7 @@ export function elevationSvg(shed, name) {
   const sid = d.siding ? fin.hex : '#e9d9b5';
   const roofC = roofHex(d);
   const trim = trimHex(d);
-  const look = sidingLook(d.sidingType);
+  const look = sidingLook(d.sidingType, d.sidingRun);
   const z0 = k.floorless ? k.sidingBottom : Math.max(0, k.skidTop - 1);
 
   // Extent of the drawing, in inches. Text is sized to the shed so every

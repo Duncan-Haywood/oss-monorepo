@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseSignings, parseClock, normalizeOptions, simulate, optimize, plan, summarize, signingValue, clock, money, MAX_JOBS } from "./engine.mjs";
+import { parseSignings, parseClock, normalizeOptions, simulate, optimize, plan, summarize, signingValue, clock, money, MAX_JOBS, INPUT_NOTES } from "./engine.mjs";
+import { readFileSync } from "node:fs";
 
 const O = normalizeOptions({});
 
@@ -146,4 +147,20 @@ test("a fourteen signing queue solves quickly", () => {
 
 test("money formats", () => {
   assert.equal(money(-3.456), "-$3.46");
+});
+
+test("input notes are about signings, and the example row parses (quality audit 2026-11-12)", () => {
+  assert.equal(parseSignings(INPUT_NOTES[0].what).signings.length, 1);
+  assert.doesNotMatch(JSON.stringify(INPUT_NOTES), /flat fix|\bshop\b|tire shop|\bvan\b/i);
+  assert.doesNotMatch(readFileSync(new URL("./README.md", import.meta.url), "utf8"), /You leaves/);
+});
+
+test("idle finding fires above 30 waiting minutes and not without waiting (quality audit 2026-11-12)", () => {
+  const rows = readFileSync(new URL("./fixtures/signings.csv", import.meta.url), "utf8");
+  const p = plan(parseSignings(rows), {});
+  assert.ok(p.idleMinutes > 100 && p.idleMinutes < 130, `idle ${p.idleMinutes}`);
+  assert.ok(p.findings.some((f) => f.rule === "idle"));
+  const one = plan(parseSignings("Near,125,14,60,08:00,17:00,1,0"), {});
+  assert.equal(one.accepted, 1);
+  assert.ok(!one.findings.some((f) => f.rule === "idle"));
 });

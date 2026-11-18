@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVPjbFZGhNRUYcEDbZh",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products; merge when done.",
+  "input_sha256": "58b5cec786884831b6143a6022f8fc3e1c0cbaf7a02482c3dab18d5ce8f79fa6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T07:57:42Z",
+  "ended": "2026-11-13T08:10:45Z",
+  "wall_minutes": 13.46,
+  "tokens_in": 6878182,
+  "tokens_out": 44238,
+  "cost_usd": 3.1684,
+  "tool_calls": 69,
+  "task": "Deepen (flagship 7, photo-editing): move the lossless-JPEG de-stuffing into the C reader",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15425",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first full-suite run lacked PYTHONPATH=src (ModuleNotFoundError); rerun with it",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/eval/pixel3-lossless-tiles-2026-11-13.md",
+      "issue": "said Python de-stuffing was 'about half of a tile's time'; measured at about 8% (0.10 ms of ~1.25 ms). The real limits were the numpy prediction pass and per-tile table builds (the Pixel writes new Huffman tables per tile). Corrected in eval/native-destuff-2026-11-13.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Default route drew the research track; the scheduled routine's own message asks for revenue/venture work, so I routed with --task as prompt.md allows",
+      "did": "ventures/1 via --task",
+      "result": "landed a flagship slice"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The named item (de-stuffing into C) alone gave under 10%, so I widened the slice to the whole tile decode (12-bit table, C prediction)",
+      "did": "moved the full tile decode into C",
+      "result": "Pixel read about 2x faster on 4 CPUs, same sensels"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-half-that-was-eight-percent.md",
+    "ventures/photo-editing/eval/native-destuff-2026-11-13.md"
+  ],
+  "goal": null,
+  "notes": "Pixel 3 XL DNG parse_raw, 3 alternating runs before/after: 4 threads best 0.207-0.218 s -> 0.091-0.107 s; 1 thread 0.320-0.349 -> 0.214-0.217. 0 of 12,192,768 sensels differ from LibRaw; sensel SHA unchanged. tests/test_ljpeg_native.py + test_ljpeg_fast.py: 31 passed, 1725 subtests (venv with numpy, rawpy). Full photo-editing suite: 893 passed, 6 skipped, 2168 subtests (94 s).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3bac0836-7421-5301-a35f-09a5e952f311",
+    "transcripts": 1,
+    "first": "2026-11-13T07:57:42Z",
+    "last": "2026-11-13T08:11:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 126,
+        "output": 44238,
+        "thinking": 9709,
+        "cache_read": 6761712,
+        "cache_write_5m": 0,
+        "cache_write_1h": 116344,
+        "api_equivalent_usd": 3.1684,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 126,
+      "output": 44238,
+      "thinking": 9709,
+      "cache_read": 6761712,
+      "cache_write_5m": 0,
+      "cache_write_1h": 116344,
+      "api_equivalent_usd": 3.1684,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 66,
+      "mcp__github__search_pull_requests": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.46,
+      "active_minutes": 13.46,
+      "model_minutes": 7.84,
+      "tool_minutes": 5.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: profile, C decoder rewrite with fuzz equivalence test, benchmarks, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 189.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

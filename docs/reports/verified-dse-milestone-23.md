@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [verified-dse]
+tagged: auto
+---
 # verified-dse milestone 23 (for the next run)
 
 - Landed: TPE (BOHB model) baseline, `research/verified-dse/experiments/mf_tpe/tpe.py`, 100 seeds, about 20 minutes. Negative: no TPE arm beats never cutting on R2 (f3) or random routing; weaker than GP-EI (milestone 22). Logged with predictions written before the run (3 of 4 held).

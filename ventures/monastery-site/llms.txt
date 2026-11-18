@@ -1,0 +1,21 @@
+# Monastery site: a free website builder for Catholic monasteries and convents
+
+> A free, open-source, opinionated website builder for Catholic monks and nuns. One form or one community.json builds a complete static site: horarium, vocations with an inquiry form, giving that links to the community's own donation page, prayer requests, visiting and the guesthouse, events, news, shop, contact and privacy, with structured data, a sitemap and llms.txt. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). It handles no money and writes no tax claims: the giving page links to the community's own donation page. Not legal, tax or financial advice. Not affiliated with any order or diocese.
+
+## Pages
+
+- [The builder](index.html): fill in the form, preview, read the launch checklist, download the site as a .zip.
+- [Example: a community of monks](demo/abbey/index.html): a made-up Benedictine abbey.
+- [Example: a community of nuns](demo/sisters/index.html): a made-up Poor Clare monastery.
+
+## Command line and engine
+
+- `node build.mjs community.json --out site/` writes the site; `--zip FILE`, `--check`, `--json`. Exit 1 on a high finding.
+- `site.mjs` exports `buildSite(config)` (every file as a Map), `checkSite(config)` (findings with level high, medium, low), `THEMES`, `contrast`, `parseLines`, `toLines`.
+- Config: see `examples/abbey.json` and `examples/sisters.json`.
+
+## Source
+
+- [Source code, README and roadmap](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/monastery-site)

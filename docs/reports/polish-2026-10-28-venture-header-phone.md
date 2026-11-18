@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-10-28
+tagged: auto
+---
 # Polish 2026-10-28: venture header full width on phones
 
 **Weak surface.** On a phone, product pages (`/ai-bookkeeper/` and every venture page with the injected

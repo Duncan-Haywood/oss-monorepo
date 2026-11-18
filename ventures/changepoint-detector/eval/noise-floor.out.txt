@@ -1,0 +1,4 @@
+austres (no documented break), changes found by k:
+  trend: k=0: 10, k=0.5: 4, k=1: 3, k=2: 1
+  mean, ar1 auto: k=0: 9, k=0.5: 3, k=1: 2, k=2: 1
+200 synthetic series, one 1.5-sd step at 60: found with k=0 160, with k=1 160; floor changed the answer on 15; floor bound on 15

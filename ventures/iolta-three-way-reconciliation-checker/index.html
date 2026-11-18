@@ -148,7 +148,7 @@
       $("#clients").innerHTML = r.clients.map((c) => `<tr><td>${esc(c.name)}</td><td class="n">${money(c.book)}</td><td class="n">${money(c.cleared)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Verify against your bank statement and your jurisdiction's rule.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

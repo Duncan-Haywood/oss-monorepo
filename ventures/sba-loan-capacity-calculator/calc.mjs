@@ -8,7 +8,7 @@ export function num(v) {
   const n = typeof v === "number" ? v : parseFloat(String(v ?? "").replace(/[$,%\s]/g, ""));
   return Number.isFinite(n) ? n : NaN;
 }
-export const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
 export const ratio = (n) => (Number.isFinite(n) ? n.toFixed(2) + "x" : "n/a");
 
 export const DEFAULTS = {

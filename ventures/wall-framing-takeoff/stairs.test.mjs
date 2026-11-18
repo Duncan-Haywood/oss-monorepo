@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan, formatLength } from "./engine.mjs";
 import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText, checkPostSlenderness, checkLandingPostColumn, checkLandingJoists, flightPostLoad } from "./stairs.mjs";
-import { checkStringer, checkTread, checkGuardPost } from "./stairs.mjs";
+import { checkStringer, checkTread, checkGuardPost, layoutRail } from "./stairs.mjs";
 import { checkWinders, winderText, layoutLandingGuard } from "./stairs.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
@@ -46,8 +46,8 @@ test("stairwell opening: headroom at the edge is x*R/T minus the floor above", (
   assert.ok(ok.opening.ok);
 });
 
-test("a rise over 147 in needs a landing; a narrow or shallow-tread stair is refused", () => {
-  assert.match(layoutStair({ totalRise: 150 }, plan()).errors[0], /landing/);
+test("a rise over 151 in needs a landing; a narrow or shallow-tread stair is refused", () => {
+  assert.match(layoutStair({ totalRise: 152 }, plan()).errors[0], /landing/);
   assert.match(layoutStair({ totalRise: 100, tread: 9 }, plan()).errors[0], /minimum/);
   assert.match(validateStair({ totalRise: 100, width: 30 })[0], /minimum/);
 });
@@ -77,9 +77,9 @@ test("stair lumber joins the cutting-stock order", () => {
   assert.match(stairText(l).join("\n"), /risers of/);
 });
 
-test("a rise of exactly 147 in is one flight; 147-1/8 in needs a landing", () => {
-  assert.deepEqual(validateStair({ totalRise: 147 }), []);
-  assert.match(validateStair({ totalRise: 147.125 })[0], /landing/);
+test("a rise of exactly 151 in is one flight; 151-1/8 in needs a landing", () => {
+  assert.deepEqual(validateStair({ totalRise: 151 }), []);
+  assert.match(validateStair({ totalRise: 151.125 })[0], /landing/);
 });
 
 test("the stringer angle is atan(riser/tread) in degrees", () => {
@@ -592,4 +592,111 @@ test("stringer minimum throat: each check solved for depth, the largest governs"
   // at the minimum throat bending stress equals the typed Fb
   const at = checkStringer({ ...base, stringer: { ...base.stringer, throat: r.minThroat } }, c);
   assert.ok(Math.abs(at.fb - 1200) < 1e-6);
+});
+
+test("validateStair refuses non-number inputs and zero limits instead of throwing", () => {
+  const base = sampleStair();
+  for (const bad of [{ tread: "10" }, { totalRise: "108" }, { width: "36" }, { treadThickness: -1 }, { treadThickness: "x" }, { openingLength: -5 }, { floorThickness: -2 }, { stringerSpacing: 1e-9 }, { limits: { maxRiser: 0 } }]) {
+    const r = layoutStair({ ...base, ...bad });
+    assert.equal(r.ok, false, JSON.stringify(bad));
+    assert.ok(r.errors.length > 0);
+  }
+  assert.equal(layoutStair(base).ok, true);
+});
+
+test("hostile landing and stair sizes are refused, not turned into billions of posts (2026-11-03)", async () => {
+  const { layoutLandingPosts, sizeLandingFootings } = await import("./stairs.mjs");
+  assert.throws(() => layoutLandingPosts(48, 48, 40, 1e-9), RangeError);
+  assert.throws(() => layoutLandingPosts(1e9, 48, 40, 96), RangeError);
+  assert.throws(() => layoutLandingPosts("48", 48, 40, 96), RangeError);
+  assert.equal(layoutLandingPosts(48, 48, 40, 96).count, 4); // normal case unchanged
+  assert.equal(sizeLandingFootings("48", 48, 96, { soilBearing: 1500 }).ok, false);
+  assert.equal(sizeLandingFootings(48, 48, 96, { soilBearing: "1500" }).ok, false);
+  assert.equal(sizeLandingFootings(48, 48, 1e-9, { soilBearing: 1500 }).ok, false);
+  assert.equal(sizeLandingFootings(48, 48, 96, { soilBearing: 1500, liveLoad: "40" }).ok, false);
+  assert.equal(sizeLandingFootings(48, 48, 96, { soilBearing: 1500 }).ok, true);
+  assert.equal(checkPostSlenderness("40", "4x4").ok, false);
+  assert.equal(checkPostSlenderness(-5, "4x4").ok, false);
+  assert.equal(checkPostSlenderness(40, "4x4").ok, true);
+  assert.ok(validateStair({ ...sampleStair(), treadThickness: 1e9 }).length > 0);
+  assert.ok(validateStair({ ...sampleStair(), nosing: 99 }).length > 0);
+  assert.deepEqual(validateStair(sampleStair()), []);
+});
+
+test("layoutStair refuses null/non-object settings and a bad rail with a reason (2026-11-07)", () => {
+  for (const bad of [null, undefined, 5, "x", []]) {
+    const r = layoutStair(bad, plan());
+    assert.equal(r.ok, false);
+    assert.match(r.errors[0], /object/);
+  }
+  for (const sides of ["x", -1, 0, 3, 1.5, NaN]) {
+    const r = layoutStair({ totalRise: 108, tread: 10, rail: { sides } }, plan());
+    assert.equal(r.ok, false, `sides ${sides}`);
+  }
+  assert.equal(layoutStair({ totalRise: 108, tread: 10, rail: "yes" }, plan()).ok, false);
+  assert.equal(layoutStair({ totalRise: 108, tread: 10, rail: { sides: 2 } }, plan()).ok, true);
+});
+
+import { checkSpiral, spiralText } from "./stairs.mjs";
+test("spiral stair: hand-computed", () => {
+  // 60 in outer diameter, 4 in pole, 12 treads per turn, 110 in rise.
+  const c = checkSpiral({ totalRise: 110, outerDiameter: 60, poleDiameter: 4, treadsPerTurn: 12 });
+  assert.equal(c.risers, 12); // ceil(110 / 9.5) = 12
+  assert.ok(Math.abs(c.riser - 110 / 12) < 1e-9);
+  assert.ok(Math.abs(c.clearWidth - 28) < 1e-9); // 30 - 2
+  assert.ok(Math.abs(c.walkDepth - 14 * (Math.PI / 6)) < 1e-9); // 7.330
+  assert.equal(c.ok, true);
+  assert.equal(c.maxTreadsPerTurn, 13); // floor(2 pi 14 / 6.75) = floor(13.03)
+  // 48 in outer diameter leaves 22 in clear: fails width.
+  const n = checkSpiral({ totalRise: 110, outerDiameter: 48 });
+  assert.equal(n.ok, false); assert.match(n.problems[0], /clear width/);
+  // 16 treads per turn: depth 14 * pi/8 = 5.50 in < 6.75.
+  const d = checkSpiral({ totalRise: 110, outerDiameter: 60, treadsPerTurn: 16 });
+  assert.equal(d.ok, false); assert.ok(d.problems.some((p) => /deep/.test(p)));
+  // Low rise per turn: 6 treads of 9 in = 54 in < 78 headroom.
+  assert.equal(checkSpiral({ totalRise: 54, outerDiameter: 60, treadsPerTurn: 6 }).ok, false);
+  assert.equal(checkSpiral({ totalRise: 0, outerDiameter: 60 }).ok, false);
+  assert.equal(checkSpiral({ totalRise: 100, outerDiameter: 3, poleDiameter: 4 }).ok, false);
+  assert.ok(spiralText(c)[0].includes("12 risers"));
+});
+
+test("checkStringer and layoutRail refuse what layoutStair did not make (2026-11-08)", () => {
+  for (const v of [null, 5, "x", {}]) {
+    const r = checkStringer(v, {});
+    assert.equal(r.ok, false);
+    assert.ok(r.errors[0].includes("layoutStair"));
+    assert.throws(() => layoutRail(v, {}, []), /layoutRail needs/);
+  }
+});
+
+test("winder support boards: 4 supports of 36 in from 96 in stock is 2 to a board, so 2 boards (hand)", () => {
+  const f = layoutWinders({ count: 3, innerRadius: 12, supportStock: 96 }).framing;
+  assert.deepEqual(f.boards, { stock: 96, perBoard: 2, count: 2, kerf: 0 });
+  assert.equal(layoutWinders({ count: 4, innerRadius: 16, width: 42, supportStock: 96 }).framing.boards.count, 3); // 5 supports, 2 per board
+  assert.equal(layoutWinders({ count: 3, innerRadius: 12, supportStock: 30 }).framing.boards, null);
+  assert.equal(layoutWinders({ count: 3, innerRadius: 12 }).framing.boards, undefined);
+});
+
+test("winder support boards with kerf: three 32 in supports fit 96 in only without kerf (hand)", () => {
+  const w = { count: 5, innerRadius: 12, width: 32, supportStock: 96 };
+  assert.equal(layoutWinders(w).framing.boards.count, 2); // 6 supports, 3 per board
+  const k = layoutWinders({ ...w, supportKerf: 0.125 }).framing.boards; // 96.25 needed
+  assert.equal(k.perBoard, 2);
+  assert.equal(k.count, 3); // 6 supports, 2 per board
+});
+
+test("2026-11-09: winder and landing-stair entry points refuse a missing settings object with a reason", () => {
+  for (const bad of [null, 5, "x", []]) {
+    assert.equal(checkWinders(bad).ok, false);
+    assert.equal(layoutStairWithLanding(bad).ok, false);
+  }
+});
+
+test("landing guard: refuses a bad edge list with a reason, not a TypeError", () => {
+  for (const bad of [null, undefined, {}, 5, [], [NaN], [-4], ["36"], [36, null]]) {
+    const g = /** @type {any} */ (layoutLandingGuard(/** @type {any} */ (bad)));
+    assert.equal(g.ok, false);
+    assert.match(g.errors[0], /open edge lengths/);
+  }
+  assert.equal(layoutLandingGuard([96], /** @type {any} */ (null)).posts.count, 3);
 });

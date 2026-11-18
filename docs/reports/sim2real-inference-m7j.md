@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [sim2real-inference]
+tagged: auto
+---
 # sim2real-inference m7j: for the next run
 
 - Result: valid finite-pool betting interval, pendulum, n = 960: N = 20,000 wins 20/21 (median ratio 0.84 to 0.86); N = 4,000 wins 7/21; split f = 0.1 vs 0.5 matters only at n = 240.

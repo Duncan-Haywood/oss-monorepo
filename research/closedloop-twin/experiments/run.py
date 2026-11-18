@@ -24,7 +24,7 @@ for tau in (0.5, 0.1):
         print("%-5g %-5g %-10.4f %-10.4f %-11.4f %.4f" % (tau, k2, m, pole(A, B, k2), pred_sd(RHO, B, K, k2, S, tau, 500), sd))
 
 print("\n== 1. Held-out validation is blind to the dither (n=500, 300 fits; tau=0 is the minimum-norm fit) ==")
-print("Held-out = one-step MSE of the fitted twin on 20000 fresh transitions of the SAME logging controller, divided by sigma^2=1.")
+print("Held-out = one-step MSE of the fitted twin on 4000 fresh transitions of the SAME logging controller, divided by sigma^2=1.")
 print("tau    heldout MSE  mean b_hat  mean pole(k2=0.05)  sd pole(k2=0.05)  P(pole<1)")
 rng = random.Random(2)
 for tau in (1.0, 0.3, 0.1, 0.03, 0.0):

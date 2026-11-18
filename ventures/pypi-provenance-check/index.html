@@ -164,7 +164,7 @@ echo "pip\nsix==1.17.0" | node cli.mjs -         # freeform list on stdin</pre>
       </tr>`).join("");
       els.reportCard.hidden = false;
       record("check_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#check").addEventListener("click", checkProvenance);

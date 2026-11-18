@@ -1,0 +1,167 @@
+period: 2026-11
+entries:
+  - venture: parish-office
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New direction from the owner (2026-11-03): tools for Catholic parishes and
+        other religious organisations, for the standard problems they have. Started
+        ventures/parish-office with a ROADMAP of the standard parish-office problems
+        as modules, and landed the first: a Mass intentions book (the canon 958
+        register) that books intentions into free Masses and checks cc. 948, 950,
+        951 §1-2, 953, 954, 955 §1-2 and 956, quoting vatican.va text fetched the
+        same day; register CSV, year summary, CLI and page. 32 tests on made-up
+        books; driven in headless Chromium (load example, book, add Masses, reload)
+        with no console errors. Not yet tried on a real parish's book.
+    mrr_end: 0
+  - venture: monastery-site
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New direction from the owner (2026-11-03): an opinionated, high-quality
+        website builder for Catholic monks' and nuns' communities, with vocations
+        and donations set up well. Started ventures/monastery-site: a pure engine
+        that builds twelve page types from one community.json, six palettes checked
+        to WCAG AA, a launch checklist, a CLI, and a no-code builder page with live
+        preview and .zip download; two fictional demo sites. 39 tests; driven in
+        headless Chromium with no console errors. Outreach kit (OUTREACH.md) for the
+        owner's own emails; nothing sent. Not yet used by a real community.
+    mrr_end: 0
+  - venture: clothing-design-studio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Owner request R-0005 (from an interview with a clothing designer):
+        AI-assisted clothing design. Started ventures/clothing-design-studio: a
+        browser studio where a tee, long-sleeve, crewneck or hoodie (drawn to
+        size-M scale) is edited by spoken or typed commands through a
+        deterministic parser (each change listed with its words and undoable;
+        optional own-key or local model rewrites free speech into the same
+        commands) or by drag, resize and rotate; three alternatives to pick by
+        voice; 9 fabrics and 8 methods with compatibility notes; landed cost,
+        margin after VAT and fees, break-even and target price from a supplier
+        sheet (CSV in and out; shipped figures are labelled placeholders); tech
+        pack, quote request and launch kit. 54 tests; driven in headless
+        Chromium with no console errors. A second interview added a
+        sunglasses designer (stock frame, 52x18-145 sizing with range checks,
+        logos on temple, lens and case, cost per pair, quote request asking for
+        EN ISO 12312-1 and the FDA drop-ball test) and a capsule wardrobe
+        planner (audience profile, outfit count by a stated colour rule,
+        in-house vs partner-brand pieces, first drop within a budget). 69
+        tests. Not yet used by the designer.
+    mrr_end: 0
+  - venture: concrete-maturity
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/concrete-maturity, a free
+        in-browser and CLI concrete maturity calculator for the construction
+        direction. Reads a logger CSV (several sensors, deg F or C, US/ISO/
+        day-first timestamps or elapsed time), computes Nurse-Saul or
+        equivalent-age maturity, fits logarithmic, hyperbolic and exponential
+        strength-maturity curves to lab breaks (chosen by AICc), and reports
+        each sensor's estimated strength, time to target or a projection, with
+        the lowest sensor marked governing. Explainer page with a worked
+        made-up example, llms.txt, post. 23 tests; driven in headless Chromium
+        with no console errors and no overflow at 390 px. Not yet run on a real
+        project's record.
+    mrr_end: 0
+  - venture: water-supply-sizing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/water-supply-sizing, peak
+        water demand by Hunter's 1940 binomial method worked exactly for a mix
+        of fixtures (convolution, 1% tail, optional zero truncation) and a
+        copper/PEX pipe tree sized by uniform friction rate with the pressure at
+        every end and an optional trim. Reproduces BMS65 Table 2 (13 of 14
+        legible rows to four decimals); the exact tail rule steps up a few
+        fixtures before Hunter's table (99 vs 107 flush valves for m = 8).
+        27 tests; driven in headless Chromium at 1280 and 390 px with no
+        console errors. Not yet checked against a designer's real sizing.
+    mrr_end: 0
+  - venture: sprinkler-hydraulic-calc
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/sprinkler-hydraulic-calc,
+        fire sprinkler hydraulics for tree, looped and gridded systems by the
+        global gradient algorithm (heads as emitters, shut like check valves
+        at negative pressure), NFPA 13 Hazen-Williams, density/min pressure,
+        hose allowance, flow-test supply curve, design and operating points,
+        N^1.85 graph and network sketch. Agrees with EPANET 2.2 on 59 of 61
+        seeded networks to 4.6e-7 psi / 1.4e-6 gpm (the other two have heads
+        at negative pressure, where EPANET 2.2 emitters draw water in). 17
+        tests; driven in headless Chromium at 1280 and 390 px with no console
+        errors. Not yet checked against a designer's real calculation.
+    mrr_end: 0
+  - venture: elevator-traffic-analysis
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/elevator-traffic-analysis,
+        up-peak lift round trip time by the Barney and dos Santos formulae with
+        Peters (2000) corrections (jerk-limited flight times in three regimes,
+        unequal floors, express zone), a design search over lifts, loads and
+        speeds, and a Poisson-arrival lobby simulation. Formula within -0.83%
+        to +1.39% of 20,000 sampled trips over 27 buildings; simulated mean
+        wait about 0.5 of the interval at 80% of the formula's handling
+        capacity and about 1.0 at 100%. 22 tests; driven in headless Chromium
+        at 1280 and 390 px with no console errors. Not yet checked against a
+        consultant's real analysis.
+    mrr_end: 0
+  - venture: texas-electricity-plan-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/texas-electricity-plan-checker,
+        which bills a household's own months (Smart Meter Texas CSV or monthly
+        kWh) on each retail plan's EFL terms (base, tiers, TDU, credit bands,
+        minimum-usage fees, time-of-use windows), reads pasted EFL text, checks
+        every plan against its label's own 500/1,000/2,000 kWh prices, and reads
+        a credit from the three prices alone. On 200 ResStock AMY2018 homes
+        (simulated) in five Oncor/CenterPoint counties, the invented credit plan
+        with the lowest 1,000 kWh price (8.1 cents) was cheapest for 54 and
+        dearest for 138; median home collected its credit 4.5 of 12 months. 29
+        tests; driven in headless Chromium at 1280 and 390 px with no console
+        errors. Not yet checked on a real EFL PDF or a real SMT download.
+    mrr_end: 0
+  - venture: school-timetable-builder
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/school-timetable-builder, a
+        browser and CLI school timetable generator (plain-text lessons, doubles,
+        room types, joint classes, teachers' periods off and daily max), with a
+        counting feasibility check, greedy plus simulated-annealing solver and
+        an independent validator. 21 of 21 synthetic fully booked schools (4 to
+        40 classes) solved clash-free in 0.2 to 2.3 s. 32 tests; driven in
+        headless Chromium at 1200 and 390 px with no console errors. Not yet
+        tried on a real school's timetable or the ITC 2011 archive.
+    mrr_end: 0
+  - venture: cash-application-matcher
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/cash-application-matcher, a
+        browser page and Node CLI that proposes which open invoices each bank
+        receipt pays: remittance invoice numbers, payer names (truncation,
+        suffixes, abbreviations), a bounded subset search over the customer's
+        open invoices with 2/10 net 30 discounts and a bank-charge limit, FIFO
+        ties, short-pays and late discounts flagged for review. On a seeded
+        synthetic benchmark (1,606 generated receipts, not real statements)
+        High proposals were 99.8% exact, Medium 97.3%, Review 63.5%; every
+        High/Medium miss was an equal-amount swap. 23 tests, three seeded bugs
+        caught; driven in headless Chromium at 1200 and 390 px with no console
+        errors. Not yet run on a real company's AR and bank exports.
+    mrr_end: 0

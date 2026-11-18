@@ -16,7 +16,7 @@
 // DNS lookup path reachable from a static page with no server of its own.
 
 import {
-  unquoteTxtData, selectSpfRecords, parseSpfMechanisms, walkSpfChain, normalizeDomainKey,
+  unquoteTxtData, selectSpfRecords, selectDmarcRecords, parseSpfMechanisms, walkSpfChain, normalizeDomainKey,
   analyzeDkim, analyzeDmarc, analyzeBimi, buildReport,
 } from './analyze.mjs';
 
@@ -129,7 +129,8 @@ export async function resolveSpfChain(domain, { fetchTxt = dohQueryTxt, queryCou
         queue.push(key);
       }
     }
-    if (parsed.redirect) {
+    // RFC 7208 s6.1: redirect= is ignored when the record has "all".
+    if (parsed.redirect && parsed.allQualifier === null) {
       const key = normalizeDomainKey(parsed.redirect);
       if (key && !queued.has(key)) {
         queued.add(key);
@@ -215,9 +216,35 @@ export async function resolveDkim(domain, { fetchTxt = dohQueryTxt, timeoutMs, s
   return { selectorResults, errors };
 }
 
+/** The most names the DMARC tree walk queries (DMARCbis caps it at 8). */
+export const MAX_DMARC_QUERIES = 8;
+
+/**
+ * Finds the DMARC record that applies to `domain`. When _dmarc.<domain>
+ * holds no v=DMARC1 record, RFC 7489 s6.6.3 step 3 has the receiver look
+ * at the organizational domain instead. RFC 7489 finds that domain with
+ * the Public Suffix List; this follows the DMARCbis DNS tree walk instead
+ * (draft-ietf-dmarc-dmarcbis, "DNS Tree Walk"), which needs no list:
+ * drop the leftmost label and query again, stopping before the bare TLD,
+ * at the first name that answers, and after at most 8 queries. For names
+ * under a registrable domain (mail.zendesk.com -> zendesk.com) both give
+ * the same record. A name with several v=DMARC1 records stops the walk
+ * (step 5: no policy applies), and a transport failure stops it as an
+ * error, never as "absent".
+ *
+ * @returns {{records: string[], error: string|null, foundAt: string|null}}
+ */
 export async function resolveDmarc(domain, { fetchTxt = dohQueryTxt, timeoutMs } = {}) {
-  const result = await fetchTxt(`_dmarc.${normalizeDomainKey(domain)}`, { timeoutMs });
-  return result.ok ? { records: result.records, error: null } : { records: [], error: result.error };
+  const labels = normalizeDomainKey(domain).split('.').filter(Boolean);
+  const names = [labels.join('.')];
+  const start = labels.length > MAX_DMARC_QUERIES ? labels.length - (MAX_DMARC_QUERIES - 1) : 1;
+  for (let i = start; i <= labels.length - 2; i += 1) names.push(labels.slice(i).join('.'));
+  for (const name of names.slice(0, MAX_DMARC_QUERIES)) {
+    const result = await fetchTxt(`_dmarc.${name}`, { timeoutMs });
+    if (!result.ok) return { records: [], error: result.error, foundAt: null };
+    if (selectDmarcRecords(result.records).length) return { records: result.records, error: null, foundAt: name };
+  }
+  return { records: [], error: null, foundAt: null };
 }
 
 export async function resolveBimi(domain, { fetchTxt = dohQueryTxt, timeoutMs } = {}) {
@@ -242,7 +269,7 @@ export async function runFullCheck(domain, opts = {}) {
   ]);
 
   const dkim = analyzeDkim(dkimRaw.selectorResults);
-  const dmarc = analyzeDmarc(dmarcRaw.records);
+  const dmarc = analyzeDmarc(dmarcRaw.records, { foundAt: dmarcRaw.foundAt, domain: key });
   const bimi = analyzeBimi(bimiRaw.records, dmarc);
 
   return buildReport(key, {

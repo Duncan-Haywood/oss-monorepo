@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [sales-agent]
+tagged: auto
+---
 # Sales agent M7a: call prep (2026-10-24)
 
 Landed `ventures/sales-agent/prep.mjs`, `prep.test.mjs` (5 tests), `cli.mjs --prep`.

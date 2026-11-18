@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01EhTJVKyq9HMdDW9scv4wKv",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T01:57:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Door and window schedule for wall-framing-takeoff",
+  "projects": [
+    "ventures/wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12699",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Router drew creative but the scheduled task asked for revenue-product work; deepened the top flagship.",
+      "did": "Built --openings schedule",
+      "result": "6 tests pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Ran cli.test.mjs and openingschedule.test.mjs locally (37 pass). CI not awaited beyond merge check.",
+  "corrections": [],
+  "redteam": null
+}

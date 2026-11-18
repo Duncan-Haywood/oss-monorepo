@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVLRbSr8UzCUWBiqEdQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "7eab53d2d124d76d4c0792e7bcacb742bd07a4a55c29819a50a6cd23cbc24081",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T18:18:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 9) league-schedule-generator: other constructions for 12 teams (152 vs 120)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": 14847,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Top Deepen row (ai-bookkeeper) had an open PR and sales-agent's items all need real inputs or a key; took flagship 9's buildable 12-team item instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took flagship 9 rather than the top Deepen row: rows 1-2 were held by an open PR or needed outside inputs.",
+      "did": "refill search for 12 teams",
+      "result": "152 to 136 (floor 120), 9 teams 71 to 69"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-twelve-teams-take-the-rounds-out.md"
+  ],
+  "goal": null,
+  "notes": "New eval/round-refill.mjs: LNS that takes 2-5 rounds out and refills by DFS with incremental carry-over pruning. 12 teams 152->136 non-cyclic (3 of 4 seeds, 420 s each), 9 teams 71->69; stored in carryover.mjs TIMETABLES and used as the starter-path start. 11 teams tied 115, 14 teams worse (220 vs 212), recorded in eval/round-refill.txt. Verification: node --test starter.test.mjs 9/9 pass; run_venture_tests.py league-schedule-generator and venture-preflight results in the PR. Full suite first failed 1 test (12-team season, seed 2, weight 10: 596/46 vs the old 618/40, the stored leg replacing the starter); fixed by making the stored timetable a third start (constructionStarts). Then python3 platform/ci/run_venture_tests.py league-schedule-generator: ok (263.5 s, 0 failed); node platform/pages/venture-preflight.mjs league-schedule-generator: preflight clean.",
+  "corrections": [],
+  "redteam": null
+}

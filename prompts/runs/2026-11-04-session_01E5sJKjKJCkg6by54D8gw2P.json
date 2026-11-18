@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01E5sJKjKJCkg6by54D8gw2P",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-04T02:40:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12982",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first 3000-answer run hit the test's fixed 15 min timeout; a container restart killed the second run"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "step 0 fetches origin/security-alerts, which does not exist; the command just fails"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-04-ranking-survey-3000-answers-fallback-helps-clean-got-worse.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md"
+  ],
+  "goal": null,
+  "notes": "Integration test passed at 1000 items x 3000 answers; clean Spearman drop vs 1000 answers unexplained. venture-preflight not run (test knob + docs only).",
+  "corrections": [],
+  "redteam": null
+}

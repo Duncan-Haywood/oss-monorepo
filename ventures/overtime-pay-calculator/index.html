@@ -34,7 +34,7 @@
     .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -51,11 +51,17 @@
       .rate-row .remove-rate { grid-area: remove; }
     }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #rate-rows:empty{min-height:258px}}
+@media (scripting:enabled) and (min-width:484px){html:not(.pf-rows-ready) #rate-rows:empty{min-height:86px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>
     <p class="note">OVERTIME PAY CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>What's the overtime pay — and what if there were two rates?</h1>
+    <p class="answer-source" data-answer-lead>Under the federal FLSA, a covered, non-exempt employee must be paid at least one and one-half times their regular rate for hours over 40 in a workweek, and a week worked at two rates uses the weighted-average regular rate, not either rate alone. Source: U.S. Department of Labor, Wage and Hour Division, Fact Sheet #23 (revised October 2019) and 29 CFR 778.115. As of 2026-11-08, the federal rule; a state, contract or union agreement can require more.</p>
     <p>Two calculators for the arithmetic a payroll week raises: standard
     time-and-a-half overtime for one hourly rate, and the FLSA
     <strong>weighted-average (blended rate)</strong> method for a workweek
@@ -187,7 +193,7 @@
     const $ = (sel) => document.querySelector(sel);
 
     function money(n) {
-      const format = (v) => `$${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const format = (v) => `$${Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const value = Number(n) || 0;
       const text = format(Math.abs(value));
       return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
@@ -200,7 +206,7 @@
       }
       container.innerHTML = findings.map((f) => `
         <div class="finding">
-          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <h3><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h3>
           <p>${f.detail}</p>
         </div>`).join("");
     }
@@ -224,7 +230,7 @@
       singleEls.report.hidden = false;
       singleEls.status.textContent = "";
       record("overtime_calculated");
-      singleEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      singleEls.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calculate-single").addEventListener("click", () => {
@@ -306,7 +312,7 @@
       blendedEls.report.hidden = false;
       blendedEls.status.textContent = "";
       record("blended_calculated");
-      blendedEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      blendedEls.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     const COPY_HINT = "Copies every pay rate and its hours, the blended regular rate, the overtime premium, and the total as plain text to paste into a payroll record or a pay question. The “arithmetic only” note is copied with it.";

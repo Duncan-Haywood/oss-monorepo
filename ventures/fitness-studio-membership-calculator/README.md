@@ -2,7 +2,7 @@
 
 A free browser tool for boutique gym, yoga, pilates and CrossFit owners: **type your members, price, churn, joins and costs and see what a member is worth**, what it costs to win one, how fast they pay it back, where the member count settles, how many members cover fixed costs, class-capacity utilization, and what a point of churn or $10 of price is worth.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/fitness-studio-membership-calculator/
+**Live tool:** https://marisstella.app/fitness-studio-membership-calculator/
 
 After using this, you can **decide whether to spend the next dollar on ads or on retention**, which used to be a gut call.
 
@@ -11,6 +11,8 @@ After using this, you can **decide whether to spend the next dollar on ads or on
 Contribution per member-month = `price - (price x card% + fixed fee) - variable cost`. Lifetime = `100 / churn%` months. LTV = contribution x lifetime (undiscounted, contribution not revenue). CAC = marketing spend / new members. Payback = CAC / contribution. Each projected month: `members = members x (1 - churn) + joins`; profit = members x contribution - fixed - marketing. Steady state = joins / churn. Capacity = classes/week x 52/12 x spots; utilization = members x visits / capacity. Scenarios re-run the projection with churn +/-1 point, price +$10 and +5 joins a month.
 
 Not modelled: seasonality, churn that varies by tenure, discounting, intro-offer cohorts, tiers, retail, personal training, taxes.
+
+The what-if rows: "5 more new members a month" charges those joins at your current cost per join (marketing spend / new members), so it compares fairly with the churn and price rows. "Price up $10" assumes no member leaves over the rise, and "1 point less churn" carries no retention cost; enter what a retention programme would cost under fixed costs to compare. (Quality audit round 49, `portfolio/quality/audits/2026-11-12-fitness-studio-membership-calculator.json`.)
 
 ## Run
 

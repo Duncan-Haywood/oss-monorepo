@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to Postgres EXPLAIN Analyzer</a></p>
   <h1>How to read a Postgres EXPLAIN ANALYZE plan and fix a slow query</h1>
   <p>A plan is a tree. Postgres runs the leaves first and feeds rows upward, so read it from the most indented line outward and ask one question at each node: <em>how much time was spent here, and why?</em></p>
@@ -52,7 +53,9 @@
   <h3>How do I stop a sort from spilling to disk?</h3>
   <p>Raise work_mem for that query with SET LOCAL, or add an index that already returns rows in the ORDER BY order. Sort Method: external merge Disk means it spilled.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not engineering or database-administration advice, and you are responsible for testing any index or setting on your own data. PostgreSQL is a trademark of its owner; this project is not affiliated with or endorsed by it.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

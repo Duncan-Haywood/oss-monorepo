@@ -1,0 +1,61 @@
+name: sed-contra
+description: >-
+  Free stories, podcast episodes, long-form videos and vertical shorts that
+  dramatise one article of Thomas Aquinas's Summa Theologiae at a time:
+  invented people argue it out in ordinary places, and every line read as
+  Thomas is his own text in the public-domain 1920 Dominican translation,
+  checked word for word by a script. Catholic evangelisation and apologetics
+  that gives the objections their full strength. CC BY-SA for anyone to repost.
+stage: prototype
+
+owner: duncan
+
+# Origin (2026-11-03): the owner's idea, "catholic evangelical and apologetic
+# works written. adaptations of thomistic ideas into fiction podcasts short
+# form video etc." and "long form video as well. using ai to create but also
+# potentially programatically creating." Siblings: catholic-shorts (one-minute
+# apologetics answers, PR #12741 when this started), saints-by-candlelight and
+# hearth-and-horizon (stories). This one is the long-form, Thomistic, fiction
+# format; its shorts are cut from its own episodes.
+#
+# Shape: $0 per viewer. One plain-text script per episode; render.py voices it
+# offline with Kokoro (Apache-2.0 weights), typesets the video cards with
+# Pillow and joins them with ffmpeg; generate.mjs builds the pages and the
+# podcast feed. A depth project: a season is about ten articles, and the
+# Summa has more than 2,500.
+hypotheses:
+  - claim: People who land on an episode page from search play the long-form video or the podcast past half way often enough (video_finished / video_played) to justify a fortnightly episode.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Catechists, RCIA leaders or Catholic creators download the CC BY-SA videos (video_downloaded, short_downloaded) once they find them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 3
+  protected: true
+
+kill_criteria:
+  - Fewer than ten video_finished or audio_finished events within 120 days of the site being indexed and the owner deciding on (or declining) YouTube and podcast-directory listings.
+  - Video files outgrow the free host's per-file or total limits and no free CC-friendly host (Internet Archive) can carry them.
+
+links:
+  production: https://marisstella.app/sed-contra/
+  analytics: null
+
+channel_notes: >-
+  Organic search for the question and the article ("aquinas five ways
+  explained", "first mover argument story", "summa theologiae 1 2 3
+  explained"); the podcast feed in Podcast Index, Apple and Spotify; RCIA,
+  confirmation and Catholic-school teachers who need a 15-minute class video;
+  Catholic creators reposting the shorts under CC BY-SA. YouTube, TikTok and
+  podcast-directory accounts under the portfolio's public name are the owner's
+  decision.

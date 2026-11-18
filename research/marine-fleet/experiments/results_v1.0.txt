@@ -1,0 +1,18 @@
+cases 2916
+track    100 km: fleet wins 729/972; time ratio best/single median 0.48 min 0.050; median fleet size where fleet wins 6
+track    400 km: fleet wins 727/972; time ratio best/single median 0.35 min 0.036; median fleet size where fleet wins 6
+track   1600 km: fleet wins 728/972; time ratio best/single median 0.35 min 0.032; median fleet size where fleet wins 6.0
+by payload cost share (all tracks):
+  payload 0.0: fleet wins 729/729 (100%); median n 16; median energy ratio 0.32
+  payload 0.1: fleet wins 729/729 (100%); median n 6; median energy ratio 0.24
+  payload 0.3: fleet wins 726/729 (100%); median n 2.0; median energy ratio 0.36
+  payload 0.5: fleet wins 0/729 (0%); median n 0; median energy ratio 1.00
+by hotel-load exponent:
+  hotel_exp 0.0: fleet wins 726/972 (75%)
+  hotel_exp 0.5: fleet wins 729/972 (75%)
+  hotel_exp 1.0: fleet wins 729/972 (75%)
+by base distance:
+  base    1 km: fleet wins 729/972 (75%)
+  base   10 km: fleet wins 729/972 (75%)
+  base   30 km: fleet wins 726/972 (75%)
+fleet affordable and winning: 2184/2916; median time ratio among them 0.29; median energy ratio 0.31; fleet slower: 0

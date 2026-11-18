@@ -1,0 +1,68 @@
+== T0 respondents by year and mode (all adults)
+ year  In person  Phone  Video  Web
+ 2010       1824    211      0    0
+ 2012       1712    258      0    0
+ 2014       2199    333      0    0
+ 2016       2665    195      0    0
+ 2018       2094    245      0    0
+ 2021          0    293    218 3521
+ 2022       1562    201    148 1633
+ 2024       1174    254    119 1762
+
+== T1 Catholic attendance by year and mode
+ year      mode outcome  estimate    lo    hi   n
+ 2010       All  weekly     0.252 0.199 0.306 482
+ 2010 In person  weekly     0.244 0.188 0.301 427
+ 2010     Phone  weekly     0.270 0.114 0.426  53
+ 2012       All  weekly     0.253 0.188 0.318 443
+ 2012 In person  weekly     0.243 0.174 0.313 370
+ 2012     Phone  weekly     0.292 0.152 0.432  71
+ 2014       All  weekly     0.237 0.202 0.272 606
+ 2014 In person  weekly     0.227 0.191 0.262 505
+ 2014     Phone  weekly     0.293 0.185 0.401  99
+ 2016       All  weekly     0.233 0.189 0.276 648
+ 2016 In person  weekly     0.243 0.197 0.290 585
+ 2016     Phone  weekly     0.120 0.037 0.202  60
+ 2018       All  weekly     0.227 0.181 0.273 489
+ 2018 In person  weekly     0.237 0.189 0.285 419
+ 2018     Phone  weekly     0.162 0.058 0.266  68
+ 2021       All  weekly     0.173 0.142 0.204 820
+ 2021     Phone  weekly     0.332 0.202 0.463  59
+ 2021     Video  weekly     0.192 0.080 0.303  53
+ 2021       Web  weekly     0.161 0.128 0.194 708
+ 2022       All  weekly     0.179 0.132 0.226 742
+ 2022 In person  weekly     0.228 0.145 0.311 315
+ 2022     Phone  weekly     0.192 0.074 0.309  51
+ 2022       Web  weekly     0.106 0.059 0.152 347
+ 2024       All  weekly     0.176 0.142 0.209 645
+ 2024 In person  weekly     0.205 0.131 0.278 227
+ 2024     Phone  weekly     0.307 0.146 0.468  66
+ 2024     Video  weekly     0.021 0.011 0.031  31
+ 2024       Web  weekly     0.146 0.107 0.186 321
+
+== T2 contrasts in weekly attendance (percentage points = x100)
+                                 contrast                              group outcome  estimate     lo     hi  n_a  n_b
+All modes 2021-24 minus all modes 2016-18                          Catholics  weekly    -0.055 -0.093 -0.016 2207 1137
+All modes 2021-24 minus all modes 2016-18 Non-Catholics with a religion/none  weekly    -0.057 -0.081 -0.034 8441 4021
+             All modes 2021-24 minus 2018                          Catholics  weekly    -0.052 -0.103 -0.000 2207  489
+             All modes 2021-24 minus 2018 Non-Catholics with a religion/none  weekly    -0.055 -0.085 -0.025 8441 1828
+In person 2022-24 minus in person 2016-18                          Catholics  weekly    -0.022 -0.089  0.045  542 1004
+In person 2022-24 minus in person 2016-18 Non-Catholics with a religion/none  weekly    -0.016 -0.053  0.022 2102 3707
+      In person 2022 minus in person 2018                          Catholics  weekly    -0.009 -0.105  0.086  315  419
+      In person 2022 minus in person 2018 Non-Catholics with a religion/none  weekly    -0.026 -0.078  0.026 1194 1649
+      In person 2024 minus in person 2018                          Catholics  weekly    -0.033 -0.120  0.055  227  419
+      In person 2024 minus in person 2018 Non-Catholics with a religion/none  weekly     0.013 -0.040  0.066  908 1649
+             Web minus in person, 2022-24                          Catholics  weekly    -0.091 -0.159 -0.024  668  542
+             Web minus in person, 2022-24 Non-Catholics with a religion/none  weekly    -0.064 -0.103 -0.025 2694 2102
+                Web minus in person, 2022                          Catholics  weekly    -0.122 -0.219 -0.026  347  315
+                Web minus in person, 2022 Non-Catholics with a religion/none  weekly    -0.071 -0.127 -0.016 1268 1194
+                Web minus in person, 2024                          Catholics  weekly    -0.058 -0.146  0.030  321  227
+                Web minus in person, 2024 Non-Catholics with a religion/none  weekly    -0.073 -0.123 -0.022 1426  908
+            Web 2021 minus in person 2018                          Catholics  weekly    -0.077 -0.135 -0.019  708  419
+            Web 2021 minus in person 2018 Non-Catholics with a religion/none  weekly    -0.076 -0.108 -0.044 2745 1649
+
+== T3 adjusted web minus in-person gap (Catholics, 2022 and 2024)
+                        model  web_minus_inperson     lo     hi    n
+                   unadjusted              -0.096 -0.164 -0.027 1156
++ age, sex, ethnicity, degree              -0.098 -0.166 -0.031 1156
+

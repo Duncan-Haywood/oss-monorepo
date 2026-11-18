@@ -46,6 +46,10 @@
     footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
     details summary { cursor: pointer; font-weight: 600; margin-top: 6px; }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #runs:empty{min-height:424px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>
@@ -148,7 +152,7 @@ python3 check.py run1.xml run2.xml --json      # machine-readable</code></pre>
           <input type="text" placeholder="Run label (optional)" value="${escapeAttr(label)}" data-role="label">
           <button type="button" class="secondary tiny" data-role="remove">Remove</button>
         </div>
-        <textarea spellcheck="false" placeholder='<?xml version="1.0"?><testsuite>...</testsuite>' data-role="xml">${escapeHtml(xml)}</textarea>`;
+        <textarea aria-label="JUnit XML for this run" spellcheck="false" placeholder='<?xml version="1.0"?><testsuite>...</testsuite>' data-role="xml">${escapeHtml(xml)}</textarea>`;
       wrap.querySelector('[data-role="remove"]').addEventListener("click", () => {
         if (els.runs.children.length <= 1) return;
         wrap.remove();
@@ -227,7 +231,7 @@ python3 check.py run1.xml run2.xml --json      # machine-readable</code></pre>
         ? "Only one run given — flakiness detection is limited to Surefire's own retry elements. Add a second run for full coverage."
         : "";
       record("check_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#check").addEventListener("click", () => runCheck(collectRuns()));

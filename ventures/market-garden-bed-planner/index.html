@@ -186,7 +186,7 @@
       $("#range-note").textContent = `In ${r.farm.draws} simulated seasons (yield swing ${pct(r.farm.yieldSd, 0)}, price swing ${pct(r.farm.priceSd, 0)}, half of it shared across crops, sales capped at your stated demand) the plan earned between ${money(r.range.p10)} and ${money(r.range.p90)} in the middle 80%, and lost money in ${pct(r.lossRisk, 0)}. This is the spread your own assumptions imply, not a forecast.`;
       report.hidden = false;
       status.textContent = "Done. Scroll down for the plan.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVQ6fkubZn36Gx5ZrEi",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T09:04:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight: English text for the BR-FR messages (flagship 5 open item)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 16881,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Translation of 384 messages delegated to four parallel subagents (one per quarter of the list) to keep the main context small; merged output checked by script (keys, codes, ids, no French left) and a sample read by hand.",
+      "did": "4 subagents, then script checks",
+      "result": "384/384 translated, 0 prefix mismatches"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-france-br-fr-error-codes-in-english.md"
+  ],
+  "goal": "Deepen flagship einvoice-preflight: make the French BR-FR rule findings readable by non-French sellers",
+  "notes": "All 384 distinct BR-FR/BR-FR-CDV messages translated (plain/br-fr-en.json); findings carry English in message and French in message_fr; report drops the always-empty 'Valeur actuelle' slot and the code prefix. New page br-fr-error-codes.html (195 codes) generated from the sets. Local: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok, 2608 tests, 0 failed (before the page was added); br-fr-codes-page/br-fr-en/france/page tests 28 pass after. Phone-width render checked (no page horizontal scroll). Open: real platform rejection compared with the English; the empty value slot could be filled by compiling value-of.",
+  "corrections": [],
+  "redteam": null
+}

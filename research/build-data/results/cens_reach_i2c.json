@@ -1,0 +1,752 @@
+{
+ "austin 2021": {
+  "n": 714568,
+  "n_open": 9138,
+  "strata": {
+   "sf:alteration": {
+    "n": 610041,
+    "share_weight_at_inf": 0.010920116048711992,
+    "longest_completed_days": 24615.0,
+    "q99_completed_days": 1116.0
+   },
+   "sf:new_construction": {
+    "n": 9710,
+    "share_weight_at_inf": 0.01839482029444524,
+    "longest_completed_days": 12902.0,
+    "q99_completed_days": 2210.0
+   },
+   "sf:demolition": {
+    "n": 4316,
+    "share_weight_at_inf": 0.01615007451521378,
+    "longest_completed_days": 7148.0,
+    "q99_completed_days": 1946.0
+   },
+   "sf:sign": {
+    "n": 10394,
+    "share_weight_at_inf": 0.0034392543937485677,
+    "longest_completed_days": 5928.0,
+    "q99_completed_days": 1955.0
+   },
+   "sf:other": {
+    "n": 271,
+    "share_weight_at_inf": 0.01274824345515976,
+    "longest_completed_days": 3211.0,
+    "q99_completed_days": 2506.030000000005
+   },
+   "sf:electrical": {
+    "n": 1,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 932.0,
+    "q99_completed_days": 932.0
+   },
+   "sf:plumbing": {
+    "n": 1,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 824.0,
+    "q99_completed_days": 824.0
+   },
+   "seattle:alteration": {
+    "n": 50793,
+    "share_weight_at_inf": 0.01386732027027493,
+    "longest_completed_days": 6154.0,
+    "q99_completed_days": 1465.0
+   },
+   "seattle:new_construction": {
+    "n": 11951,
+    "share_weight_at_inf": 0.027160082280175735,
+    "longest_completed_days": 4644.0,
+    "q99_completed_days": 1982.2499999999982
+   },
+   "seattle:other": {
+    "n": 7944,
+    "share_weight_at_inf": 0.017807074975533764,
+    "longest_completed_days": 4824.0,
+    "q99_completed_days": 2171.75
+   },
+   "seattle:electrical": {
+    "n": 465,
+    "share_weight_at_inf": 0.014980415018708606,
+    "longest_completed_days": 2752.0,
+    "q99_completed_days": 2001.9199999999992
+   },
+   "seattle:demolition": {
+    "n": 8404,
+    "share_weight_at_inf": 0.015917123745423423,
+    "longest_completed_days": 5238.0,
+    "q99_completed_days": 3987.0
+   },
+   "seattle:fire": {
+    "n": 72,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 1674.0,
+    "q99_completed_days": 1360.8900000000028
+   },
+   "seattle:plumbing": {
+    "n": 41,
+    "share_weight_at_inf": 0.024390243902439025,
+    "longest_completed_days": 1637.0,
+    "q99_completed_days": 1355.0299999999995
+   },
+   "seattle:mechanical": {
+    "n": 141,
+    "share_weight_at_inf": 0.04533135516965392,
+    "longest_completed_days": 3544.0,
+    "q99_completed_days": 1306.8000000000009
+   },
+   "seattle:sign": {
+    "n": 23,
+    "share_weight_at_inf": 0.01428571428571428,
+    "longest_completed_days": 812.0,
+    "q99_completed_days": 756.1399999999998
+   }
+  },
+  "open_tau_i_q10_q50_q90": {
+   "sf": [
+    0.8999147567637451,
+    0.9574240787580203,
+    0.9924836524855968
+   ],
+   "seattle": [
+    0.6019752198914994,
+    0.8216507840352942,
+    0.9666445268885011
+   ]
+  },
+  "open_share_tau_i_above_0.9": {
+   "sf": 0.8992258972554539,
+   "seattle": 0.35415641908509593
+  },
+  "strata_not_identified_q90": [],
+  "rows_in_not_identified_strata": 0,
+  "share_open": 0.012788146124651538
+ },
+ "austin 2022": {
+  "n": 732863,
+  "n_open": 7073,
+  "strata": {
+   "sf:alteration": {
+    "n": 623634,
+    "share_weight_at_inf": 0.007738664300585998,
+    "longest_completed_days": 24615.0,
+    "q99_completed_days": 1162.0
+   },
+   "sf:new_construction": {
+    "n": 9744,
+    "share_weight_at_inf": 0.01785707859659943,
+    "longest_completed_days": 12902.0,
+    "q99_completed_days": 2210.0
+   },
+   "sf:demolition": {
+    "n": 4361,
+    "share_weight_at_inf": 0.012723640845695447,
+    "longest_completed_days": 7148.0,
+    "q99_completed_days": 1946.0
+   },
+   "sf:sign": {
+    "n": 10525,
+    "share_weight_at_inf": 0.002418506642138528,
+    "longest_completed_days": 5928.0,
+    "q99_completed_days": 1955.2600000000057
+   },
+   "sf:other": {
+    "n": 271,
+    "share_weight_at_inf": 0.006631213370957242,
+    "longest_completed_days": 3211.0,
+    "q99_completed_days": 2450.079999999992
+   },
+   "sf:electrical": {
+    "n": 1,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 932.0,
+    "q99_completed_days": 932.0
+   },
+   "sf:plumbing": {
+    "n": 1,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 824.0,
+    "q99_completed_days": 824.0
+   },
+   "seattle:alteration": {
+    "n": 53582,
+    "share_weight_at_inf": 0.01176331101185585,
+    "longest_completed_days": 6154.0,
+    "q99_completed_days": 1484.0
+   },
+   "seattle:new_construction": {
+    "n": 12786,
+    "share_weight_at_inf": 0.026982488355560733,
+    "longest_completed_days": 6040.0,
+    "q99_completed_days": 1994.9899999999998
+   },
+   "seattle:other": {
+    "n": 8184,
+    "share_weight_at_inf": 0.014310128315405422,
+    "longest_completed_days": 4824.0,
+    "q99_completed_days": 2223.879999999999
+   },
+   "seattle:electrical": {
+    "n": 479,
+    "share_weight_at_inf": 0.012312111439246735,
+    "longest_completed_days": 2870.0,
+    "q99_completed_days": 2225.100000000001
+   },
+   "seattle:demolition": {
+    "n": 9001,
+    "share_weight_at_inf": 0.015747125607253328,
+    "longest_completed_days": 5238.0,
+    "q99_completed_days": 3979.4000000000015
+   },
+   "seattle:fire": {
+    "n": 72,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 1674.0,
+    "q99_completed_days": 1360.8900000000028
+   },
+   "seattle:plumbing": {
+    "n": 42,
+    "share_weight_at_inf": 0.023809523809523808,
+    "longest_completed_days": 1637.0,
+    "q99_completed_days": 1347.800000000001
+   },
+   "seattle:mechanical": {
+    "n": 157,
+    "share_weight_at_inf": 0.05390231713262309,
+    "longest_completed_days": 3544.0,
+    "q99_completed_days": 1283.3999999999992
+   },
+   "seattle:sign": {
+    "n": 23,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 812.0,
+    "q99_completed_days": 753.4800000000002
+   }
+  },
+  "open_tau_i_q10_q50_q90": {
+   "sf": [
+    0.900608377651174,
+    0.9710839673087536,
+    0.9947420103516156
+   ],
+   "seattle": [
+    0.5820935476533469,
+    0.828671859937684,
+    0.9748536626264032
+   ]
+  },
+  "open_share_tau_i_above_0.9": {
+   "sf": 0.905481309316289,
+   "seattle": 0.3701570680628272
+  },
+  "strata_not_identified_q90": [],
+  "rows_in_not_identified_strata": 0,
+  "share_open": 0.009651189922263778
+ },
+ "sf 2021": {
+  "n": 1899265,
+  "n_open": 8571,
+  "strata": {
+   "austin:plumbing": {
+    "n": 399933,
+    "share_weight_at_inf": 0.003528090955235002,
+    "longest_completed_days": 21997.0,
+    "q99_completed_days": 905.0
+   },
+   "austin:new_construction": {
+    "n": 244031,
+    "share_weight_at_inf": 0.00611889176348564,
+    "longest_completed_days": 22016.0,
+    "q99_completed_days": 1326.820000000007
+   },
+   "austin:electrical": {
+    "n": 529100,
+    "share_weight_at_inf": 0.0022736722736722737,
+    "longest_completed_days": 21987.0,
+    "q99_completed_days": 1004.0
+   },
+   "austin:mechanical": {
+    "n": 405150,
+    "share_weight_at_inf": 0.0016142169566827102,
+    "longest_completed_days": 22008.0,
+    "q99_completed_days": 925.0
+   },
+   "austin:alteration": {
+    "n": 220879,
+    "share_weight_at_inf": 0.006929469726802236,
+    "longest_completed_days": 14098.0,
+    "q99_completed_days": 1995.1199999999953
+   },
+   "austin:other": {
+    "n": 7448,
+    "share_weight_at_inf": 0.003713321922229686,
+    "longest_completed_days": 12646.0,
+    "q99_completed_days": 2683.069999999976
+   },
+   "austin:demolition": {
+    "n": 12385,
+    "share_weight_at_inf": 0.013308144923342183,
+    "longest_completed_days": 9546.0,
+    "q99_completed_days": 2216.200000000028
+   },
+   "austin:sign": {
+    "n": 502,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 9542.0,
+    "q99_completed_days": 9360.0
+   },
+   "austin:fire": {
+    "n": 3,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 895.0,
+    "q99_completed_days": 879.9399999999999
+   },
+   "seattle:alteration": {
+    "n": 50793,
+    "share_weight_at_inf": 0.01386732027027493,
+    "longest_completed_days": 6154.0,
+    "q99_completed_days": 1465.0
+   },
+   "seattle:new_construction": {
+    "n": 11951,
+    "share_weight_at_inf": 0.027160082280175735,
+    "longest_completed_days": 4644.0,
+    "q99_completed_days": 1982.2499999999982
+   },
+   "seattle:other": {
+    "n": 7944,
+    "share_weight_at_inf": 0.017807074975533764,
+    "longest_completed_days": 4824.0,
+    "q99_completed_days": 2171.75
+   },
+   "seattle:electrical": {
+    "n": 465,
+    "share_weight_at_inf": 0.014980415018708606,
+    "longest_completed_days": 2752.0,
+    "q99_completed_days": 2001.9199999999992
+   },
+   "seattle:demolition": {
+    "n": 8404,
+    "share_weight_at_inf": 0.015917123745423423,
+    "longest_completed_days": 5238.0,
+    "q99_completed_days": 3987.0
+   },
+   "seattle:fire": {
+    "n": 72,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 1674.0,
+    "q99_completed_days": 1360.8900000000028
+   },
+   "seattle:plumbing": {
+    "n": 41,
+    "share_weight_at_inf": 0.024390243902439025,
+    "longest_completed_days": 1637.0,
+    "q99_completed_days": 1355.0299999999995
+   },
+   "seattle:mechanical": {
+    "n": 141,
+    "share_weight_at_inf": 0.04533135516965392,
+    "longest_completed_days": 3544.0,
+    "q99_completed_days": 1306.8000000000009
+   },
+   "seattle:sign": {
+    "n": 23,
+    "share_weight_at_inf": 0.01428571428571428,
+    "longest_completed_days": 812.0,
+    "q99_completed_days": 756.1399999999998
+   }
+  },
+  "open_tau_i_q10_q50_q90": {
+   "austin": [
+    0.9125868720303263,
+    0.9664829109235866,
+    0.9957237608432753
+   ],
+   "seattle": [
+    0.6019752198914994,
+    0.8216507840352942,
+    0.9666445268885011
+   ]
+  },
+  "open_share_tau_i_above_0.9": {
+   "austin": 0.9382074028754971,
+   "seattle": 0.35415641908509593
+  },
+  "strata_not_identified_q90": [],
+  "rows_in_not_identified_strata": 0,
+  "share_open": 0.004512798372001801
+ },
+ "sf 2022": {
+  "n": 1965663,
+  "n_open": 9251,
+  "strata": {
+   "austin:plumbing": {
+    "n": 417066,
+    "share_weight_at_inf": 0.003961003773983015,
+    "longest_completed_days": 21997.0,
+    "q99_completed_days": 910.0
+   },
+   "austin:new_construction": {
+    "n": 252888,
+    "share_weight_at_inf": 0.007084344390203005,
+    "longest_completed_days": 22016.0,
+    "q99_completed_days": 1307.4100000000035
+   },
+   "austin:electrical": {
+    "n": 547503,
+    "share_weight_at_inf": 0.002679437372945902,
+    "longest_completed_days": 21987.0,
+    "q99_completed_days": 1006.0
+   },
+   "austin:mechanical": {
+    "n": 416324,
+    "share_weight_at_inf": 0.0019359921599523449,
+    "longest_completed_days": 22008.0,
+    "q99_completed_days": 929.0
+   },
+   "austin:alteration": {
+    "n": 226442,
+    "share_weight_at_inf": 0.006265392506355353,
+    "longest_completed_days": 14098.0,
+    "q99_completed_days": 2003.0
+   },
+   "austin:other": {
+    "n": 7499,
+    "share_weight_at_inf": 0.003002859815299966,
+    "longest_completed_days": 12646.0,
+    "q99_completed_days": 2692.75
+   },
+   "austin:demolition": {
+    "n": 13110,
+    "share_weight_at_inf": 0.01006761120746142,
+    "longest_completed_days": 9546.0,
+    "q99_completed_days": 2329.850000000004
+   },
+   "austin:sign": {
+    "n": 502,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 9542.0,
+    "q99_completed_days": 9360.0
+   },
+   "austin:fire": {
+    "n": 3,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 895.0,
+    "q99_completed_days": 879.9399999999999
+   },
+   "seattle:alteration": {
+    "n": 53582,
+    "share_weight_at_inf": 0.01176331101185585,
+    "longest_completed_days": 6154.0,
+    "q99_completed_days": 1484.0
+   },
+   "seattle:new_construction": {
+    "n": 12786,
+    "share_weight_at_inf": 0.026982488355560733,
+    "longest_completed_days": 6040.0,
+    "q99_completed_days": 1994.9899999999998
+   },
+   "seattle:other": {
+    "n": 8184,
+    "share_weight_at_inf": 0.014310128315405422,
+    "longest_completed_days": 4824.0,
+    "q99_completed_days": 2223.879999999999
+   },
+   "seattle:electrical": {
+    "n": 479,
+    "share_weight_at_inf": 0.012312111439246735,
+    "longest_completed_days": 2870.0,
+    "q99_completed_days": 2225.100000000001
+   },
+   "seattle:demolition": {
+    "n": 9001,
+    "share_weight_at_inf": 0.015747125607253328,
+    "longest_completed_days": 5238.0,
+    "q99_completed_days": 3979.4000000000015
+   },
+   "seattle:fire": {
+    "n": 72,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 1674.0,
+    "q99_completed_days": 1360.8900000000028
+   },
+   "seattle:plumbing": {
+    "n": 42,
+    "share_weight_at_inf": 0.023809523809523808,
+    "longest_completed_days": 1637.0,
+    "q99_completed_days": 1347.800000000001
+   },
+   "seattle:mechanical": {
+    "n": 157,
+    "share_weight_at_inf": 0.05390231713262309,
+    "longest_completed_days": 3544.0,
+    "q99_completed_days": 1283.3999999999992
+   },
+   "seattle:sign": {
+    "n": 23,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 812.0,
+    "q99_completed_days": 753.4800000000002
+   }
+  },
+  "open_tau_i_q10_q50_q90": {
+   "austin": [
+    0.9183902291819477,
+    0.9671458690405228,
+    0.994088768615317
+   ],
+   "seattle": [
+    0.5820935476533469,
+    0.828671859937684,
+    0.9748536626264032
+   ]
+  },
+  "open_share_tau_i_above_0.9": {
+   "austin": 0.949461926168097,
+   "seattle": 0.3701570680628272
+  },
+  "strata_not_identified_q90": [],
+  "rows_in_not_identified_strata": 0,
+  "share_open": 0.0047063001134986
+ },
+ "seattle 2021": {
+  "n": 2454165,
+  "n_open": 13643,
+  "strata": {
+   "sf:alteration": {
+    "n": 610041,
+    "share_weight_at_inf": 0.010920116048711992,
+    "longest_completed_days": 24615.0,
+    "q99_completed_days": 1116.0
+   },
+   "sf:new_construction": {
+    "n": 9710,
+    "share_weight_at_inf": 0.01839482029444524,
+    "longest_completed_days": 12902.0,
+    "q99_completed_days": 2210.0
+   },
+   "sf:demolition": {
+    "n": 4316,
+    "share_weight_at_inf": 0.01615007451521378,
+    "longest_completed_days": 7148.0,
+    "q99_completed_days": 1946.0
+   },
+   "sf:sign": {
+    "n": 10394,
+    "share_weight_at_inf": 0.0034392543937485677,
+    "longest_completed_days": 5928.0,
+    "q99_completed_days": 1955.0
+   },
+   "sf:other": {
+    "n": 271,
+    "share_weight_at_inf": 0.01274824345515976,
+    "longest_completed_days": 3211.0,
+    "q99_completed_days": 2506.030000000005
+   },
+   "sf:electrical": {
+    "n": 1,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 932.0,
+    "q99_completed_days": 932.0
+   },
+   "sf:plumbing": {
+    "n": 1,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 824.0,
+    "q99_completed_days": 824.0
+   },
+   "austin:plumbing": {
+    "n": 399933,
+    "share_weight_at_inf": 0.003528090955235002,
+    "longest_completed_days": 21997.0,
+    "q99_completed_days": 905.0
+   },
+   "austin:new_construction": {
+    "n": 244031,
+    "share_weight_at_inf": 0.00611889176348564,
+    "longest_completed_days": 22016.0,
+    "q99_completed_days": 1326.820000000007
+   },
+   "austin:electrical": {
+    "n": 529100,
+    "share_weight_at_inf": 0.0022736722736722737,
+    "longest_completed_days": 21987.0,
+    "q99_completed_days": 1004.0
+   },
+   "austin:mechanical": {
+    "n": 405150,
+    "share_weight_at_inf": 0.0016142169566827102,
+    "longest_completed_days": 22008.0,
+    "q99_completed_days": 925.0
+   },
+   "austin:alteration": {
+    "n": 220879,
+    "share_weight_at_inf": 0.006929469726802236,
+    "longest_completed_days": 14098.0,
+    "q99_completed_days": 1995.1199999999953
+   },
+   "austin:other": {
+    "n": 7448,
+    "share_weight_at_inf": 0.003713321922229686,
+    "longest_completed_days": 12646.0,
+    "q99_completed_days": 2683.069999999976
+   },
+   "austin:demolition": {
+    "n": 12385,
+    "share_weight_at_inf": 0.013308144923342183,
+    "longest_completed_days": 9546.0,
+    "q99_completed_days": 2216.200000000028
+   },
+   "austin:sign": {
+    "n": 502,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 9542.0,
+    "q99_completed_days": 9360.0
+   },
+   "austin:fire": {
+    "n": 3,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 895.0,
+    "q99_completed_days": 879.9399999999999
+   }
+  },
+  "open_tau_i_q10_q50_q90": {
+   "sf": [
+    0.8999147567637451,
+    0.9574240787580203,
+    0.9924836524855968
+   ],
+   "austin": [
+    0.9125868720303263,
+    0.9664829109235866,
+    0.9957237608432753
+   ]
+  },
+  "open_share_tau_i_above_0.9": {
+   "sf": 0.8992258972554539,
+   "austin": 0.9382074028754971
+  },
+  "strata_not_identified_q90": [],
+  "rows_in_not_identified_strata": 0,
+  "share_open": 0.005559120923002325
+ },
+ "seattle 2022": {
+  "n": 2529874,
+  "n_open": 12504,
+  "strata": {
+   "sf:alteration": {
+    "n": 623634,
+    "share_weight_at_inf": 0.007738664300585998,
+    "longest_completed_days": 24615.0,
+    "q99_completed_days": 1162.0
+   },
+   "sf:new_construction": {
+    "n": 9744,
+    "share_weight_at_inf": 0.01785707859659943,
+    "longest_completed_days": 12902.0,
+    "q99_completed_days": 2210.0
+   },
+   "sf:demolition": {
+    "n": 4361,
+    "share_weight_at_inf": 0.012723640845695447,
+    "longest_completed_days": 7148.0,
+    "q99_completed_days": 1946.0
+   },
+   "sf:sign": {
+    "n": 10525,
+    "share_weight_at_inf": 0.002418506642138528,
+    "longest_completed_days": 5928.0,
+    "q99_completed_days": 1955.2600000000057
+   },
+   "sf:other": {
+    "n": 271,
+    "share_weight_at_inf": 0.006631213370957242,
+    "longest_completed_days": 3211.0,
+    "q99_completed_days": 2450.079999999992
+   },
+   "sf:electrical": {
+    "n": 1,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 932.0,
+    "q99_completed_days": 932.0
+   },
+   "sf:plumbing": {
+    "n": 1,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 824.0,
+    "q99_completed_days": 824.0
+   },
+   "austin:plumbing": {
+    "n": 417066,
+    "share_weight_at_inf": 0.003961003773983015,
+    "longest_completed_days": 21997.0,
+    "q99_completed_days": 910.0
+   },
+   "austin:new_construction": {
+    "n": 252888,
+    "share_weight_at_inf": 0.007084344390203005,
+    "longest_completed_days": 22016.0,
+    "q99_completed_days": 1307.4100000000035
+   },
+   "austin:electrical": {
+    "n": 547503,
+    "share_weight_at_inf": 0.002679437372945902,
+    "longest_completed_days": 21987.0,
+    "q99_completed_days": 1006.0
+   },
+   "austin:mechanical": {
+    "n": 416324,
+    "share_weight_at_inf": 0.0019359921599523449,
+    "longest_completed_days": 22008.0,
+    "q99_completed_days": 929.0
+   },
+   "austin:alteration": {
+    "n": 226442,
+    "share_weight_at_inf": 0.006265392506355353,
+    "longest_completed_days": 14098.0,
+    "q99_completed_days": 2003.0
+   },
+   "austin:other": {
+    "n": 7499,
+    "share_weight_at_inf": 0.003002859815299966,
+    "longest_completed_days": 12646.0,
+    "q99_completed_days": 2692.75
+   },
+   "austin:demolition": {
+    "n": 13110,
+    "share_weight_at_inf": 0.01006761120746142,
+    "longest_completed_days": 9546.0,
+    "q99_completed_days": 2329.850000000004
+   },
+   "austin:sign": {
+    "n": 502,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 9542.0,
+    "q99_completed_days": 9360.0
+   },
+   "austin:fire": {
+    "n": 3,
+    "share_weight_at_inf": 0.0,
+    "longest_completed_days": 895.0,
+    "q99_completed_days": 879.9399999999999
+   }
+  },
+  "open_tau_i_q10_q50_q90": {
+   "sf": [
+    0.900608377651174,
+    0.9710839673087536,
+    0.9947420103516156
+   ],
+   "austin": [
+    0.9183902291819477,
+    0.9671458690405228,
+    0.994088768615317
+   ]
+  },
+  "open_share_tau_i_above_0.9": {
+   "sf": 0.905481309316289,
+   "austin": 0.949461926168097
+  },
+  "strata_not_identified_q90": [],
+  "rows_in_not_identified_strata": 0,
+  "share_open": 0.004942538640264298
+ }
+}

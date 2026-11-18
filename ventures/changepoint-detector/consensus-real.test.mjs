@@ -1,0 +1,59 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+
+test('eval/consensus-real.mjs output is current', () => {
+  const out = execFileSync('node', [new URL('./eval/consensus-real.mjs', import.meta.url).pathname], { encoding: 'utf8' });
+  assert.equal(out, readFileSync(new URL('./eval/consensus-real.out.txt', import.meta.url), 'utf8'));
+});
+
+test('the documented seat-belt and Nile changes are found by every setting; Lake Huron 1925 by four of six; 1946 temperature only three', () => {
+  const out = readFileSync(new URL('./eval/consensus-real.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /documented 1983-02: 1983-02 found by 6\/6 \(all\)/);
+  assert.match(out, /documented 1899: 1899 found by 6\/6 \(all\)/);
+  assert.match(out, /documented 1925: 1925 found by 4\/6 \(most\)/);
+  assert.match(out, /documented 1946: 1946 found by 3\/6 \(most\)/);
+});
+
+test('second batch: US inflation breaks by every setting (--ar1 keeps its cuts); real rate, Saudi oil and Michigan-Huron by most', () => {
+  const out = readFileSync(new URL('./eval/consensus-real.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /documented 1973Q3: 1973Q3 found by 6\/6 \(all\)/);
+  assert.match(out, /documented 1981Q4: 1981Q4 found by 6\/6 \(all\)/);
+  assert.match(out, /documented 1980Q4: 1980Q4 found by 5\/6 \(most\)/);
+  assert.match(out, /documented 1982: 1982 found by 5\/6 \(most\)/);
+  assert.match(out, /documented 1999: 1999 found by 4\/6 \(most\)/);
+});
+
+test('third batch: airmiles 1946 by 4/6; UK gas 1970 by only 1/6 (negative); saving rate 2008-07 by 6/6 but two undocumented changes also by 6/6', () => {
+  const out = readFileSync(new URL('./eval/consensus-real.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /documented 1946: 1946 found by 4\/6 \(most\)/);
+  assert.match(out, /documented 1970: 1970Q2 found by 1\/6 \(few\)/);
+  assert.match(out, /documented 2008: 2008-07 found by 6\/6 \(all\)/);
+  assert.match(out, /1999-04  6\/6  down  all/);
+  assert.match(out, /2005-01  6\/6  down  all/);
+});
+
+test('fourth batch: Maria is inside a 6/6 group (span, not label), Argentina 1989Q2 by 6/6, 1991Q2 not listed, coal 1887 by 4/6', () => {
+  const out = readFileSync(new URL('./eval/consensus-real.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /documented 2017-09-20: 2017-10-07 found by 6\/6 \(all\)/);
+  assert.match(out, /documented 1989Q2: 1989Q2 found by 6\/6 \(all\)/);
+  assert.match(out, /documented 1991Q2: not in the list/);
+  assert.match(out, /documented 1887: 1887 found by 4\/6 \(most\)/);
+});
+
+test('fifth batch: 9/11 arrivals from the US 3/6, Olympics 2000Q3 not listed, Peace Bridge 2009-06 not listed, 2002 air passengers 3/6', () => {
+  const out = readFileSync(new URL('./eval/consensus-real.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /documented 2000Q3: not in the list/);
+  assert.match(out, /documented 2001Q3: 2001Q3 found by 3\/6 \(most\)/);
+  assert.match(out, /documented 2009-06: not in the list/);
+  assert.match(out, /documented 2002: 2002 found by 3\/6 \(most\)/);
+});
+
+test('sixth batch: Nightingale 1855 sanitary commission found at 1855-04 by 5/6; Canada fertility 1946 by 4/6, 1960 not listed (1963 is)', () => {
+  const out = readFileSync(new URL('./eval/consensus-real.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /documented 1855-03: 1855-04 found by 5\/6 \(most\)/);
+  assert.match(out, /documented 1946: 1946 found by 4\/6 \(most\)/);
+  assert.match(out, /documented 1960: not in the list/);
+  assert.match(out, /1963  4\/6  down  most/);
+});

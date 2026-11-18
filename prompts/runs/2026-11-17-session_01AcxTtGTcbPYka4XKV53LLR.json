@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtGTcbPYka4XKV53LLR",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T18:06:56Z",
+  "ended": "2026-11-17T18:45:29Z",
+  "wall_minutes": 38.83,
+  "tokens_in": 11334933,
+  "tokens_out": 65070,
+  "cost_usd": 4.9833,
+  "tool_calls": 80,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17023",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First smoke run: the rise from zero had no plan at the G1's high poses because a leaned stance balances only above 4-12 N of press; fixed by starting the rise where the stance balances (disclosed post hoc in LOG and run.py), which became the milestone's main finding.",
+    "Guessed a citation title for Buchalter et al. 2002 in a first draft of the bib; caught before commit and replaced with the title from a catalogue search."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/buildbot-sheathing/paper/build_latex.py",
+      "issue": "New author-year citations must also be added to its CITES list or tests/test_latex.py fails with 'unconverted citations'; nothing in the paper README or research CLAUDE.md says so."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py returned /usr/bin/python3.13 at once (it already had mujoco and scipy), so the 'run it in the background, can take minutes' advice did not apply here; harmless."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing/LOG.md (milestone 40 plan)",
+      "why": "The registered model started the rise at F_r; the smoke run showed the leaned poses do not balance there.",
+      "did": "Started the rise at each pose's lowest balancing press, disclosed as a post hoc change, and reported the balance limit itself as a finding.",
+      "result": "Run completed on every pose but one; the stance finding is the headline consequence."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Unregistered post hoc census of window straddlers added to explain why no joint was set.",
+      "did": "Kept it in a separate posthoc.py/posthoc.txt, labelled not registered.",
+      "result": "Shows 36 of 56 loose joints change sign in the window."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-nailer-recoil-lift-off-humanoid-stance.md",
+    "research/buildbot-sheathing/LOG.md (milestone 40 planned and result)",
+    "research/buildbot-sheathing/paper/draft.md section 5.11 paragraph"
+  ],
+  "goal": null,
+  "notes": "Routed research/0 by weighted draw; pick_track drew buildbot-sheathing. Milestone 40: recoil bracket 0.087-8.7 N s from published data; quasi-static re-press sets none of 56 loose joints; 0.012 mm spec stands; 12 of 35 leaned stances need 3.7-11.8 N press to balance. Local checks: tests 204 passed 4 skipped; check_numbers 330/330; homepage build ok; check_md_links ok; cite_check ok for the new DOI. Full run 1061 s on 4 processes.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2d23e5ec-7299-5100-a197-c607323f41ee",
+    "transcripts": 1,
+    "first": "2026-11-17T18:06:56Z",
+    "last": "2026-11-17T18:45:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 147,
+        "output": 65070,
+        "thinking": 24939,
+        "cache_read": 11153453,
+        "cache_write_5m": 0,
+        "cache_write_1h": 181333,
+        "api_equivalent_usd": 4.9833,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 147,
+      "output": 65070,
+      "thinking": 24939,
+      "cache_read": 11153453,
+      "cache_write_5m": 0,
+      "cache_write_1h": 181333,
+      "api_equivalent_usd": 4.9833,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 67,
+      "WebSearch": 3,
+      "WebFetch": 3,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 38.83,
+      "active_minutes": 38.83,
+      "model_minutes": 12.89,
+      "tool_minutes": 25.94,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "sourcing the recoil bracket, writing and running a quasi-static re-press model on an existing whole-body stack, and the write-ups: a research engineer's two working days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 200.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

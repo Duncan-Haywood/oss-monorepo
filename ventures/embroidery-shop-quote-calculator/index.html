@@ -195,7 +195,7 @@ node cli.mjs quote --quantity 24 --garment-cost 4.5 --stitches 7500 --colors 4</
       $("#findings").innerHTML = a.findings.map((f) => `<li>${escapeHtml(f.message)}</li>`).join("") || "<li>No warnings at these numbers.</li>";
       $("#report-card").hidden = false;
       record("quote_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

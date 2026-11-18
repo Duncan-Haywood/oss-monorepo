@@ -1,0 +1,17 @@
+A. CD0 needed (span 1.98 m fixed, AR = b^2/S); chord = S/b
+   S 0.3 m2 AR 13.1 chord 0.15 m CL 2.13 CDi 0.139: CD0 +0.175 (L/D 6.8)  +0.257 (L/D 5.4)
+   S 0.4 m2 AR 9.8 chord 0.20 m CL 1.60 CDi 0.104: CD0 +0.131 (L/D 6.8)  +0.192 (L/D 5.4)
+   S 0.5 m2 AR 7.8 chord 0.25 m CL 1.28 CDi 0.083: CD0 +0.105 (L/D 6.8)  +0.154 (L/D 5.4)
+   S 0.6 m2 AR 6.5 chord 0.30 m CL 1.07 CDi 0.069: CD0 +0.088 (L/D 6.8)  +0.128 (L/D 5.4)
+   S 0.7 m2 AR 5.6 chord 0.35 m CL 0.91 CDi 0.059: CD0 +0.075 (L/D 6.8)  +0.110 (L/D 5.4)
+   S 0.8 m2 AR 4.9 chord 0.40 m CL 0.80 CDi 0.052: CD0 +0.066 (L/D 6.8)  +0.096 (L/D 5.4)
+   S 1.0 m2 AR 3.9 chord 0.51 m CL 0.64 CDi 0.042: CD0 +0.053 (L/D 6.8)  +0.077 (L/D 5.4)
+B. L/D at clean CD0 0.035 and 0.05
+   S 0.3: 12.3  11.3
+   S 0.4: 11.5  10.4
+   S 0.5: 10.8  9.6
+   S 0.6: 10.2  8.9
+   S 0.7: 9.7  8.4
+   S 0.8: 9.2  7.8
+   S 1.0: 8.4  7.0
+C. smallest CD0 that gives L/D 6.8 anywhere on S 0.3-1.0: CD0 0.053 at S 1.00 m2

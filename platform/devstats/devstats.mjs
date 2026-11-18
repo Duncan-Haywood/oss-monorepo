@@ -11,15 +11,23 @@
 //      (fromCI) every completed workflow run of the last two weeks: passed,
 //      failed and cancelled per day, by workflow and trigger, durations,
 //      re-runs, what is red on main now and how long main took to recover,
-//      and (fromDelivery) the DORA delivery metrics over the last 3 days.
+//      and (fromDelivery) the DORA delivery metrics over the last 3 days, and
+//      (ownerHeld) the open PRs that touch a CODEOWNERS path and wait on the owner.
 // A metric whose source was unavailable is reported as `null` with the reason,
 // never as zero.
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { fromAllocation } from './allocation.mjs';
 
 const DAY = 86_400_000;
+
+const readText = (file) => { try { return readFileSync(file, 'utf8'); } catch { return null; } };
+
+// Tallies keyed by text from outside (a fork's branch name, a workflow's `name:`)
+// start with no prototype, so `__proto__` or `constructor` is an ordinary key.
+const dict = () => Object.create(null);
 
 export function quantile(values, q) {
   const xs = values.filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
@@ -73,11 +81,27 @@ export function fromGit(repo, { days = 30, now = Date.now(), ref = 'HEAD' } = {}
   const reverts = merges.filter((m) => /^Revert\b|\brevert(s|ed)?\b.*#\d+/i.test(m.subject)).length;
   const fixForward = merges.filter((m) => /\b(fix(es)?|repair|unbreak)\b.*\bmain\b|main (is )?red/i.test(m.subject)).length;
 
+  // A shallow clone's boundary commits have no visible parent, so git diffs
+  // them against nothing and every file in the tree looks added. The deploy
+  // clones 3000 commits, less than the 30-day window, so without this the page
+  // counted the whole portfolio as added this month.
+  let shallow = new Set();
+  try {
+    const file = git(repo, ['rev-parse', '--git-path', 'shallow']).trim();
+    const abs = path.isAbsolute(file) ? file : path.join(repo, file);
+    if (existsSync(abs)) shallow = new Set(readFileSync(abs, 'utf8').split('\n').map((l) => l.trim()).filter(Boolean));
+  } catch {
+    // No shallow file: a full clone.
+  }
   const added = (glob) => {
     try {
-      return git(repo, ['log', ref, `--since=${since}`, '--diff-filter=A', '--format=', '--name-only', '--', glob])
-        .split('\n')
-        .filter(Boolean).length;
+      let count = 0;
+      let skip = false;
+      for (const line of git(repo, ['log', ref, `--since=${since}`, '--diff-filter=A', '--format=@%H', '--name-only', '--', glob]).split('\n')) {
+        if (line.startsWith('@')) skip = shallow.has(line.slice(1).trim());
+        else if (line.trim() && !skip) count += 1;
+      }
+      return count;
     } catch {
       return null;
     }
@@ -121,7 +145,7 @@ export function fromRuns(repo, { days = 30, now = Date.now() } = {}) {
     }
   }
   const group = (key) => {
-    const out = {};
+    const out = dict();
     for (const r of recs) {
       const k = key(r) ?? 'unknown';
       const g = (out[k] ??= { runs: 0, success: 0, ci_failures: [], cost: [], active: [], leverage: [] });
@@ -147,7 +171,7 @@ export function fromRuns(repo, { days = 30, now = Date.now() } = {}) {
         }]),
     );
   };
-  const friction = {};
+  const friction = dict();
   for (const r of recs) for (const f of r.doc_friction ?? []) if (f?.file) friction[f.file] = (friction[f.file] ?? 0) + 1;
   return {
     available: true,
@@ -291,8 +315,8 @@ export function ciActivity({ counts = { per_day: {}, capped_days: [] }, sample =
   const totals = tally();
   for (const t of Object.values(counts.per_day)) for (const o of OUTCOMES) totals[o] += t[o] ?? 0;
 
-  const byEvent = {};
-  const byWorkflow = {};
+  const byEvent = dict();
+  const byWorkflow = dict();
   const durations = [];
   let reruns = 0;
   let wallMinutes = 0;
@@ -328,7 +352,7 @@ export function ciActivity({ counts = { per_day: {}, capped_days: [] }, sample =
     .filter((r) => ['passed', 'failed'].includes(outcomeOf(r.conclusion)))
     .sort((a, b) => (a.created_at ?? '').localeCompare(b.created_at ?? ''));
   const spells = [];
-  const redSince = {};
+  const redSince = dict();
   for (const r of mainRuns) {
     const name = r.name ?? 'unknown';
     if (outcomeOf(r.conclusion) === 'failed') redSince[name] ??= r.created_at;
@@ -491,7 +515,79 @@ export async function fromDelivery({ token, repo, gitRepo, now = Date.now(), fet
   }
 }
 
-export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchImpl = globalThis.fetch } = {}) {
+// ---------------------------------------------------------------------------
+// Pull requests that wait on the owner: open, from this repository, and
+// touching a path `.github/CODEOWNERS` gives an owner (agent instructions,
+// prompts, hooks, CI). Agents open these and move on, and the owner's daily
+// brief never listed them: on 2026-11-14 the fix for a router bug that had
+// kept the review track from running for 3,232 runs (PR #14686) had waited
+// three days, and three `prompts: review` PRs from 2026-10-31 and 2026-11-01
+// were still open. platform/ci/owner_held_prs.py is the full, local listing;
+// this is the same rule, read on every publish so the brief can show it.
+
+/** CODEOWNERS pattern to RegExp: the subset control_plane_guard.py's
+ * pattern_regex covers (anchoring, trailing-slash directories, `*`, `**`, `?`). */
+export function codeownersRegex(pattern) {
+  const anchored = pattern.startsWith('/') || pattern.replace(/\/+$/, '').includes('/');
+  const body = pattern.replace(/^\/+|\/+$/g, '');
+  const dirOnly = pattern.endsWith('/');
+  let out = '';
+  for (let i = 0; i < body.length;) {
+    if (body.startsWith('**/', i)) { out += '(?:.*/)?'; i += 3; }
+    else if (body.startsWith('/**', i) && i + 3 === body.length) { out += '/.*'; i += 3; }
+    else if (body[i] === '*') { out += '[^/]*'; i += 1; }
+    else if (body[i] === '?') { out += '[^/]'; i += 1; }
+    else { out += body[i].replace(/[.*+?^${}()|[\]\\/]/g, '\\$&'); i += 1; }
+  }
+  return new RegExp(`${anchored ? '^' : '^(?:.*/)?'}${out}${dirOnly ? '/.*$' : '(?:/.*)?$'}`);
+}
+
+export function parseCodeowners(text) {
+  const rules = [];
+  for (const raw of String(text ?? '').split('\n')) {
+    const line = raw.split('#')[0].trim();
+    if (!line) continue;
+    const [pattern, ...owners] = line.split(/\s+/);
+    rules.push([codeownersRegex(pattern), owners]);
+  }
+  return rules;
+}
+
+/** True when the last matching rule names an owner (an owner-less rule unowns, as on GitHub). */
+export function isOwned(file, rules) {
+  let owners = [];
+  for (const [re, o] of rules) if (re.test(file)) owners = o;
+  return owners.length > 0;
+}
+
+// Each PR costs one files request; the oldest are checked first, since a held
+// PR is by definition one that has waited. The publish's token allows 1,000
+// requests an hour and the rest of this collector makes about 130.
+export const OWNER_HELD_MAX = 120;
+
+export async function ownerHeld(open, { codeowners, repo, now, token, api, fetch: fetchImpl }) {
+  const rules = parseCodeowners(codeowners);
+  if (!rules.length) return { available: false, reason: 'no .github/CODEOWNERS in this checkout' };
+  const mine = open
+    .filter((p) => String(p.head?.repo?.full_name ?? '').toLowerCase() === repo.toLowerCase())
+    .sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)));
+  const checked = mine.slice(0, OWNER_HELD_MAX);
+  const held = [];
+  for (const p of checked) {
+    const files = await ghPages(fetchImpl, token, `${api}/pulls/${p.number}/files`, 1);
+    const owned = files.map((f) => f.filename).filter((f) => f && isOwned(f, rules));
+    if (!owned.length) continue;
+    held.push({
+      number: p.number, title: p.title, draft: Boolean(p.draft),
+      age_days: Math.floor((now - Date.parse(p.created_at)) / DAY),
+      owned_files: owned.slice(0, 5), owned_count: owned.length,
+      also_unowned: files.length - owned.length,
+    });
+  }
+  return { available: true, count: held.length, checked: checked.length, of: mine.length, prs: held };
+}
+
+export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchImpl = globalThis.fetch, codeowners = null } = {}) {
   if (!token || !repo) return { available: false, reason: 'no GITHUB_TOKEN in this build (the publish workflow supplies one)' };
   const api = `https://api.github.com/repos/${repo}`;
   try {
@@ -505,7 +601,7 @@ export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchIm
     const sample = merged.slice(0, 40);
     let reviewed = 0;
     const firstReview = [];
-    const reviewStates = {};
+    const reviewStates = dict();
     for (const p of sample) {
       const reviews = await ghPages(fetchImpl, token, `${api}/pulls/${p.number}/reviews`, 1);
       for (const r of reviews) if (r.state) reviewStates[r.state] = (reviewStates[r.state] ?? 0) + 1;
@@ -523,9 +619,9 @@ export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchIm
 
     // Per PR head branch: how many distinct commits saw a failing run before
     // the first commit whose runs all passed. A proxy for CI iterations.
-    const byBranch = {};
+    const byBranch = dict();
     for (const r of prRuns.filter(decided)) {
-      const b = (byBranch[r.head_branch] ??= {});
+      const b = (byBranch[r.head_branch] ??= dict());
       const c = (b[r.head_sha] ??= { at: r.created_at, failed: false });
       if (r.conclusion !== 'success') c.failed = true;
       if (r.created_at < c.at) c.at = r.created_at;
@@ -542,10 +638,18 @@ export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchIm
       if (green === 0) firstTry += 1;
     }
 
-    const failingWorkflows = {};
+    const failingWorkflows = dict();
     for (const r of mainRuns.filter((x) => x.conclusion === 'failure')) failingWorkflows[r.name] = (failingWorkflows[r.name] ?? 0) + 1;
 
     const branches = await ghPages(fetchImpl, token, `${api}/branches`, 30);
+    // Its own try: a failure here must not take the rest of the snapshot with it.
+    let held;
+    try {
+      held = codeowners == null ? { available: false, reason: 'no CODEOWNERS text passed' }
+        : await ownerHeld(open, { codeowners, repo, now, token, api, fetch: fetchImpl });
+    } catch (err) {
+      held = { available: false, reason: err.message };
+    }
     const openAges = open.map((p) => hours(p.created_at, new Date(now).toISOString()) / 24);
     return {
       available: true,
@@ -553,7 +657,7 @@ export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchIm
       pr_cycle_hours: { n: cycle.length, p50: round(quantile(cycle, 0.5)), p90: round(quantile(cycle, 0.9)) },
       prs_closed_unmerged_7d: closed.filter((p) => !p.merged_at && p.closed_at && Date.parse(p.closed_at) > now - 7 * DAY).length,
       first_review_hours: { sampled: sample.length, reviewed, p50: round(quantile(firstReview, 0.5)), p90: round(quantile(firstReview, 0.9)) },
-      review_states: reviewStates,
+      review_states: Object.fromEntries(Object.entries(reviewStates)),
       open_prs: {
         count: open.length,
         drafts: open.filter((p) => p.draft).length,
@@ -577,6 +681,7 @@ export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchIm
         branches_seen: Object.keys(byBranch).length,
       },
       branches: { count: branches.length, capped: branches.length >= 3000 },
+      owner_held: held,
     };
   } catch (err) {
     return { available: false, reason: err.message };
@@ -590,7 +695,8 @@ export async function collect(repo, { now = Date.now(), token, ghRepo, fetch, pr
     inventory: inventory(repo),
     git: fromGit(repo, { now }),
     runs: fromRuns(repo, { now }),
-    github: await fromGitHub({ token, repo: ghRepo, now, fetch }),
+    allocation: fromAllocation(repo, { now }),
+    github: await fromGitHub({ token, repo: ghRepo, now, fetch, codeowners: readText(path.join(repo, '.github', 'CODEOWNERS')) }),
     ci: await fromCI({ token, repo: ghRepo, now, fetch, previous: previous?.ci?.available ? previous.ci : null }),
     delivery: await fromDelivery({ token, repo: ghRepo, gitRepo: repo, now, fetch }),
   };

@@ -1,0 +1,11 @@
+light-air blocks: 2018 33680, 2019 18921; fit cells 96, covering 33680 blocks
+best grid: sail_area 0.5, hull_scale 0.5, MSE 0.0533; 6n drone (0.9,1.2) MSE 0.0592
+refined: sail_area 0.30, hull_scale 0.30, MSE 0.0531
+6n drone       2019 wind 0-4 m/s: n  18921 coverage 0.545
+6n drone       2019 wind 0-2 m/s: n   6665 coverage 0.245
+6n drone       2019 wind 2-3 m/s: n   6252 coverage 0.668
+6n drone       2019 wind 3-4 m/s: n   6004 coverage 0.748
+light-air fit  2019 wind 0-4 m/s: n  18921 coverage 0.645
+light-air fit  2019 wind 0-2 m/s: n   6665 coverage 0.344
+light-air fit  2019 wind 2-3 m/s: n   6252 coverage 0.774
+light-air fit  2019 wind 3-4 m/s: n   6004 coverage 0.844

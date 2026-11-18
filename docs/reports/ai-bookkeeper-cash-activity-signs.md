@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [ai-bookkeeper]
+tagged: auto
+---
 # ai-bookkeeper: sign inference on brokerage cash-activity files (2026-10-25)
 
 For the next run. `readStatement` in `ventures/ai-bookkeeper/bank.mjs` flips

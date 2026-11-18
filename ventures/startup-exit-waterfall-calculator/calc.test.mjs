@@ -141,3 +141,66 @@ test("formatters", () => {
   assert.equal(pct(0.1234), "12.3%");
   assert.equal(money(null), "n/a");
 });
+
+// SAFEs and convertible notes that have not converted by the sale.
+test("a post-money SAFE converts to its cap percentage of the company, itself included", () => {
+  // 1,000,000 shares; $1M at a $10M post-money cap = 10% of the post-SAFE company.
+  const m = normalize(base({ preferred: [], safes: [{ name: "S", amount: "1000000", cap: "10000000" }] }));
+  const s = m.preferred[0];
+  near(s.shares, 1000000 / 9, 1e-6); // 1/9 of the others = 10% of the total
+  near(s.shares / (1000000 + s.shares), 0.1, 1e-9);
+  const w = waterfallAt(m, 20000000);
+  assert.equal(w.converts[0], true);
+  near(pay(w, "S"), 2000000, 1); // 10% of $20M
+  near(pay(w, "Founders"), 18000000, 1);
+});
+
+test("a SAFE takes its money back when the sale is below its cap", () => {
+  const m = normalize(base({ preferred: [], safes: [{ name: "S", amount: "1000000", cap: "10000000" }] }));
+  const w = waterfallAt(m, 5000000); // 10% of 5M = 500k < 1M
+  assert.equal(w.converts[0], false);
+  near(pay(w, "S"), 1000000);
+  near(pay(w, "Founders"), 4000000);
+});
+
+test("an uncapped SAFE is a 1x claim and never converts", () => {
+  const m = normalize(base({ preferred: [], safes: [{ amount: "500000", cap: "" }] }));
+  assert.equal(m.preferred[0].shares, 0);
+  const w = waterfallAt(m, 5000000);
+  near(pay(w, "SAFE"), 500000);
+  near(pay(w, "Founders"), 4500000);
+});
+
+test("two SAFEs share the post-money maths and a shortfall pari passu", () => {
+  const m = normalize(base({ preferred: [], safes: [{ name: "A", amount: "1000000", cap: "10000000" }, { name: "B", amount: "1000000", cap: "20000000" }] }));
+  const total = 1000000 + m.preferred[0].shares + m.preferred[1].shares;
+  near(m.preferred[0].shares / total, 0.1, 1e-9);
+  near(m.preferred[1].shares / total, 0.05, 1e-9);
+  const w = waterfallAt(m, 1000000); // $2M of claims on $1M
+  near(pay(w, "A"), 500000);
+  near(pay(w, "B"), 500000);
+});
+
+test("a convertible note carries simple interest and converts at its pre-money cap", () => {
+  const m = normalize(base({ preferred: [], notes: [{ name: "N", principal: "500000", rate: "8", years: "2", cap: "5000000" }] }));
+  const n = m.preferred[0];
+  near(n.claim, 580000);
+  near(n.shares, 580000 / (5000000 / 1000000), 1e-6); // 116,000 shares at $5.00
+  const low = waterfallAt(m, 1000000);
+  near(pay(low, "N"), 580000);
+  const high = waterfallAt(m, 20000000);
+  assert.equal(high.converts[0], true);
+  near(pay(high, "N"), 20000000 * 116000 / 1116000, 1);
+});
+
+test("SAFE ownership of 100% or more is refused", () => {
+  assert.ok(normalize(base({ preferred: [], safes: [{ amount: "10000000", cap: "10000000" }] })).error);
+});
+
+test("payouts still add up to net proceeds with SAFEs, notes and preferred together", () => {
+  const m = normalize(base({ safes: [{ amount: "1000000", cap: "12000000" }], notes: [{ principal: "300000", rate: "6", years: "1", cap: "6000000" }] }));
+  for (const x of [0, 1e5, 1e6, 3e6, 1e7, 5e7]) {
+    const w = waterfallAt(m, x);
+    near(w.distributed + w.unallocated, w.net, 1);
+  }
+});

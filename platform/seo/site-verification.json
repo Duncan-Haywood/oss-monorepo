@@ -1,0 +1,6 @@
+{
+  "_comment": "Search-engine ownership tokens for https://marisstella.app/. They are public by design (each engine reads them off the live home page), so they belong here, not in secrets. Paste the content= value of the meta tag each tool offers: Google Search Console (URL-prefix property, 'HTML tag' method) into google, Bing Webmaster Tools ('Meta tag' method, msvalidate.01) into bing. The build puts them in the home page <head>; probe.py audit checks they are live. Empty means not verified yet. See platform/seo/README.md, 'Owner steps'.",
+  "google": [],
+  "bing": [],
+  "yandex": []
+}

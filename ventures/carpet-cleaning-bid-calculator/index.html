@@ -14,7 +14,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a221c; background: #f3eee6; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 740px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a3d1b; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
@@ -123,7 +123,46 @@
       a { text-decoration: none; color: inherit; }
       @page { margin: 16mm; }
     }
-/* proposal:end */</style>
+/* proposal:end */
+    /* pf-result-column: on a wide window the result card owns the right-hand
+       column for every row and everything else stacks on the left, so the
+       sticky card has room to travel and never slides over the FAQ or the
+       proposal (docs/reports/polish-2026-11-11-result-column.md). */
+    @media (min-width: 781px) {
+      main.layout > :not(.result), main.layout > section:not(.result), main.layout > #proposalSection { grid-column: 1; }
+      main.layout > .result { grid-column: 2; grid-row: 1 / span 3; }
+    }
+</style>
+  <!-- row-cards:start -->
+  <style>
+    /* Rows as wrapping cards at every width. As a table, these rows put 5 to 8 controls in the
+     form column, so a select showed 25 to 40 px of its choice ("Lo", "Ins") at 1,280 px. Here each
+     control takes the width its longest option needs and the row wraps instead
+     (docs/reports/polish-2026-11-14-row-cards.md; measure with platform/pages/select-clip.mjs). */
+    .room-row, .uph-row { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: flex-end; border: 1px solid #e6ddd0; border-radius: 9px; padding: 11px; margin-bottom: 10px; }
+    .room-row > label, .uph-row > label { flex: 1 1 auto; min-width: 0; gap: 4px; font-size: .8rem; }
+    .room-row > label:has(> input[type=text]), .uph-row > label:has(> input[type=text]) { flex: 2 1 12rem; }
+    .room-row > label:has(> input[type=number]):not(:has(select)), .uph-row > label:has(> input[type=number]):not(:has(select)) { flex: 1 1 6.5rem; }
+    .room-row > label:has(> input[type=checkbox]), .uph-row > label:has(> input[type=checkbox]) { flex: 0 0 auto; }
+    .room-row select, .uph-row select { max-width: 100%; }
+    .room-row .lbl, .uph-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+    .room-row > .remove .lbl, .uph-row > .remove .lbl { font: inherit; letter-spacing: normal; text-transform: none; color: inherit; }
+    .room-row > .remove, .uph-row > .remove { flex: 0 0 auto; margin-left: auto; padding: 6px 10px; font-size: .8rem; }
+    .room-head, .uph-head { display: none; }
+  </style>
+  <!-- row-cards:end -->
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #rooms:empty{min-height:1490px}html:not(.pf-rows-ready) #upholstery:empty{min-height:183px}}
+@media (scripting:enabled) and (min-width:348px){html:not(.pf-rows-ready) #upholstery:empty{min-height:119px}}
+@media (scripting:enabled) and (min-width:380px){html:not(.pf-rows-ready) #rooms:empty{min-height:1170px}}
+@media (scripting:enabled) and (min-width:496px){html:not(.pf-rows-ready) #upholstery:empty{min-height:82px}}
+@media (scripting:enabled) and (min-width:568px){html:not(.pf-rows-ready) #rooms:empty{min-height:985px}}
+@media (scripting:enabled) and (min-width:656px){html:not(.pf-rows-ready) #rooms:empty{min-height:840px}}
+@media (scripting:enabled) and (min-width:784px){html:not(.pf-rows-ready) #rooms:empty{min-height:840px}html:not(.pf-rows-ready) #upholstery:empty{min-height:82px}}
+@media (scripting:enabled) and (min-width:856px){html:not(.pf-rows-ready) #upholstery:empty{min-height:82px}}
+@media (scripting:enabled) and (min-width:984px){html:not(.pf-rows-ready) #rooms:empty{min-height:985px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>
@@ -309,7 +348,7 @@
 
   <script type="module">
     import { calculateJob, SOIL_PRESETS, ROOM_NAME_PRESETS, UPHOLSTERY_PRESETS } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
     import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
       overlongTermsNote } from './proposal-terms.mjs';
@@ -459,7 +498,7 @@
     }
 
     function count(event) {
-      recordUsage(localStorage, el('usageOptOut').checked, event);
+      recordUsage(usageStorage(), el('usageOptOut').checked, event);
     }
 
     function clearOutputs(message, isError) {
@@ -733,8 +772,15 @@
         "Move and replace light furniture; corner blocks under damp legs"
       ];
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) {
         if (saved[field]) el(field).value = saved[field];
       }
@@ -763,7 +809,7 @@
     function showProposal() {
       const result = calculateJob(readInput());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -808,7 +854,7 @@
       }
       el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
       count('proposal_printed');
-      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el('proposalDoc').scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
       // After paint, so the browser renders the document before the sheet is
       // captured; without it an empty page can go to the printer.
       requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
@@ -819,7 +865,7 @@
     document.addEventListener('change', refreshProposal);
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) el(field).value = '';
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';
@@ -838,8 +884,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

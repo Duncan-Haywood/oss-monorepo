@@ -53,6 +53,20 @@ natural_sound = true    # keep the clips' own sound under the music; loud moment
 # reel_workers = 4        # reels in progress at once (Claude calls stay within `parallel`)
 # reel_render_slots = 2   # reels rendering at once (each render uses every core for its segments)
 # posts_per_week = 3      # the posting queue in ready/index.csv
+
+# Cards to cloud (docs/CLOUD.md). `igmp ingest` copies SD cards and camera SSDs into ingest_root
+# (default: the last library root; a spool under state_dir while that drive is away), verified.
+# ingest_root = "/Volumes/PhotoDrive/2026"
+# ingest_location = ""    # place label for ingested shots (or `igmp ingest --location Harbor`)
+# ingest_camera = "Pocket3"  # camera for files that carry no model (DJI clips when exiftool is missing)
+# With cloud_url set, ingest also pushes each shot to an S3-compatible bucket, and `igmp worker` on
+# a cloud machine makes the photos and reels from there. Keys come from the environment
+# (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY), never from this file.
+# cloud_url = "s3://igmp-media"        # or "file:///Volumes/NAS/igmp"
+# cloud_endpoint = "https://<account id>.r2.cloudflarestorage.com"   # Cloudflare R2, B2, MinIO...
+# cloud_region = "auto"
+# cloud_video = "proxy"   # clips go up as 1920 px H.264 copies (the reel size); "original" as shot
+# worker_tokens_per_day = 2000000      # the worker's hard daily cap on API tokens
 """
 
 REEL_CLASSES = ("short", "medium", "long")

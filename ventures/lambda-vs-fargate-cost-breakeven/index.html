@@ -185,7 +185,7 @@ node cli.mjs compare workload.txt --expect fargate     # exit 1 when another pla
       $("#estimate").textContent = `An estimate, not a bill. ${PRICES_AS_OF}.`;
       $("#report-card").hidden = false;
       record("compare_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

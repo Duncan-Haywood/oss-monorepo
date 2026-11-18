@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01E5sJKkaQa9beT5qGLNgfJS",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T02:11:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12466",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 says to fetch origin security-alerts, but the branch does not exist; several open PRs (12408, 12405, 12399, 12395, 12236, 12038) already try to fix this and are gated by CODEOWNERS (see P061)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "Routed to review, but open 'prompts: review' PRs (#12367, #12272, #12026) exist, so re-routed with --skip-review as prompt.md says.",
+      "did": "Took polish/0",
+      "result": "Fixed a main-breaking post front-matter and 2 seo_titles"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-02-seo-titles-batch-13.md"
+  ],
+  "goal": null,
+  "notes": "No new blog post: small fix run. writing.test.mjs 24/24. Full site build not run.",
+  "corrections": [],
+  "redteam": null
+}

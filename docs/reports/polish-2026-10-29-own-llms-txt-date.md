@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [llms-txt]
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: as-of date on hand-written llms.txt (AEO)
 
 **Weak surface.** The earlier run (`polish-2026-10-29-llms-txt-as-of.md`) dated the 1,308 generated `llms.txt`

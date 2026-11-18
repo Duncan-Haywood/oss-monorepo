@@ -1,0 +1,268 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKnoskRkVvhtoWCSGBt",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T06:09:48Z",
+  "ended": "2026-11-12T06:10:40Z",
+  "wall_minutes": 13.7,
+  "tokens_in": 2749764,
+  "tokens_out": 16080,
+  "cost_usd": 1.4728,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15030",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally.py --for-changes ran past an 8-minute timeout (exit 143); ran the touched checks directly instead: node --test platform/devstats/*.test.mjs platform/daily/*.test.mjs (49 pass), check_post_frontmatter, check_post_links, post_similarity"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix the open list first, but all 5 open entries are control-plane edits that already have open PRs waiting for the owner (#12928, #14877, #14808, #14698, #14612); `redteam.py open` could print the open PR for each so runs don't re-check by hand."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 1 suggests targeting files changed via `git log --since=3.days origin/main`, but the clone is shallow (depth 1) so that prints nothing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 open defects are all control plane with open PRs pending owner approval; opening duplicates would add to P063's stalled-duplicate problem.",
+      "did": "Left them patched:false and named their PRs in the PR body.",
+      "result": "No duplicate control-plane PRs; run time went to the campaign and the real defect."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-redteam-devstats-branch-named-proto.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: the regression test 'hostile branch and workflow names' in devstats.test.mjs, which runs in portfolio-pages.yml on every PR touching platform/devstats/**. Grep of platform/ and ventures/*/src JS for the same object-keyed-by-head_branch/name pattern found no other copies. allocation.mjs tallies are keyed by run-record tracks/areas (write-access text only) and were left as is. Verification: node --test platform/devstats/*.test.mjs platform/daily/*.test.mjs -> 49 pass 0 fail.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/devstats/devstats.mjs",
+        "test": "node --test platform/devstats/devstats.test.mjs  (in .)",
+        "seed": 368795976,
+        "commit": "8afb3d281",
+        "sites": 337,
+        "baseline_seconds": 1.7,
+        "mutants": [
+          {
+            "file": "platform/devstats/devstats.mjs",
+            "line": 31,
+            "col": 43,
+            "operator": "minus-to-plus",
+            "before": "return xs[lo] + (xs[hi] - xs[lo]) * (pos - lo);",
+            "after": "return xs[lo] + (xs[hi] - xs[lo]) * (pos + lo);",
+            "line_text": "  return xs[lo] + (xs[hi] - xs[lo]) * (pos - lo);",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "quantile tests only hit lo=0 or an integer pos; added quantile([20,0,10],0.75)=15"
+          },
+          {
+            "file": "platform/devstats/devstats.mjs",
+            "line": 119,
+            "col": 24,
+            "operator": "eq-flip",
+            "before": "if (r && typeof r === 'object' && typeof r.date === 'string' && r.date >= cutoff) recs.push(r);",
+            "after": "if (r && typeof r !== 'object' && typeof r.date === 'string' && r.date >= cutoff) recs.push(r);",
+            "line_text": "      if (r && typeof r === 'object' && typeof r.date === 'string' && r.date >= cutoff) recs.push(r);",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/devstats/devstats.mjs",
+            "line": 219,
+            "col": 63,
+            "operator": "div-to-times",
+            "before": "const passShare = (t) => (t.passed + t.failed ? round(t.passed / (t.passed + t.failed), 3) : null);",
+            "after": "const passShare = (t) => (t.passed + t.failed ? round(t.passed * (t.passed + t.failed), 3) : null);",
+            "line_text": "const passShare = (t) => (t.passed + t.failed ? round(t.passed / (t.passed + t.failed), 3) : null);",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/devstats/devstats.mjs",
+            "line": 255,
+            "col": 12,
+            "operator": "and-to-or",
+            "before": "if (old && Number.isFinite(prevAt) && prevAt >= start + 2 * DAY && !previous.coverage?.capped_days?.includes(day)) {",
+            "after": "if (old || Number.isFinite(prevAt) && prevAt >= start + 2 * DAY && !previous.coverage?.capped_days?.includes(day)) {",
+            "line_text": "    if (old && Number.isFinite(prevAt) && prevAt >= start + 2 * DAY && !previous.coverage?.capped_days?.includes(day)) {",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/devstats/devstats.mjs",
+            "line": 440,
+            "col": 56,
+            "operator": "plus-to-minus",
+            "before": "const redHours = restore.reduce((a, b) => a + b, 0) + openHours;",
+            "after": "const redHours = restore.reduce((a, b) => a + b, 0) - openHours;",
+            "line_text": "    const redHours = restore.reduce((a, b) => a + b, 0) + openHours;",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/devstats/devstats.mjs",
+            "line": 451,
+            "col": 40,
+            "operator": "times-to-div",
+            "before": "red_share: round(redHours / (days * 24), 3),",
+            "after": "red_share: round(redHours / (days / 24), 3),",
+            "line_text": "      red_share: round(redHours / (days * 24), 3),",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/devstats/devstats.mjs",
+            "line": 521,
+            "col": 110,
+            "operator": "const-plus-one",
+            "before": "const prRuns = await ghPages(fetchImpl, token, `${api}/actions/runs?event=pull_request&status=completed`, 3);",
+            "after": "const prRuns = await ghPages(fetchImpl, token, `${api}/actions/runs?event=pull_request&status=completed`, 4);",
+            "line_text": "    const prRuns = await ghPages(fetchImpl, token, `${api}/actions/runs?event=pull_request&status=completed`, 3);",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test filled a page, so the PR-runs page budget (3) was unpinned; added a full-page fake API asserting 200/300/3000 runs and branches"
+          },
+          {
+            "file": "platform/devstats/devstats.mjs",
+            "line": 572,
+            "col": 210,
+            "operator": "const-plus-one",
+            "before": "ci_main: { runs: mainRuns.length, green_share: share(mainRuns.filter(decided), (r) => r.conclusion === 'success'), failing_workflows: Object.entries(failingWorkflows).sort((a, b) => b[1] - a[1]).slice(0, 8) },",
+            "after": "ci_main: { runs: mainRuns.length, green_share: share(mainRuns.filter(decided), (r) => r.conclusion === 'success'), failing_workflows: Object.entries(failingWorkflows).sort((a, b) => b[1] - a[1]).slice(0, 9) },",
+            "line_text": "      ci_main: { runs: mainRuns.length, green_share: share(mainRuns.filter(decided), (r) => r.conclusion === 'success'), failing_workflows: Object.entries(failingWorkflows).sort((a, b) => b[1] - a[1]).slice(0, 8) },",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "failing_workflows top-8 cut unpinned; the same test feeds 9 failing workflows and asserts 8"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/devstats/devstats.mjs",
+        "issue": "Tallies keyed by fork-controlled text used plain objects: a PR branch named __proto__ wrote Object.prototype[<sha>] during the Portfolio Pages build and dropped __proto__/constructor branches from ci_pr (3 branches read as 1); a workflow named __proto__ or constructor made ciActivity throw (minutes.push on undefined), blanking the CI section. Fixed with null-prototype dicts for every such tally (byBranch, per-branch sha maps, byEvent, byWorkflow, redSince, failingWorkflows, reviewStates, run-record groups and friction); test 'hostile branch and workflow names' fails on main and passes after.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "71cb57c1-5fc0-5d33-a03f-eb4b3494e39e",
+    "transcripts": 1,
+    "first": "2026-11-12T06:09:48Z",
+    "last": "2026-11-12T06:23:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 64,
+        "output": 16080,
+        "thinking": 4125,
+        "cache_read": 2672644,
+        "cache_write_5m": 0,
+        "cache_write_1h": 77056,
+        "api_equivalent_usd": 1.4728,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 64,
+      "output": 16080,
+      "thinking": 4125,
+      "cache_read": 2672644,
+      "cache_write_5m": 0,
+      "cache_write_1h": 77056,
+      "api_equivalent_usd": 1.4728,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 31,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.7,
+      "active_minutes": 13.7,
+      "model_minutes": 4.23,
+      "tool_minutes": 9.47,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: mutation triage, reproduce prototype pollution, fix 9 tallies, 3 tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 271.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -114,3 +114,19 @@ test("a file with no transaction records counts zero transactions, not an empty 
   const noDetail = sampleFile().split(/\r?\n/).filter((l) => !l.startsWith("16,") && !l.startsWith("88,")).join("\n");
   assert.equal(validate(noDetail).summary.transactions, 0);
 });
+
+test("a long OFX memo is cut before escaping, so an entity is never split", () => {
+  // Red team 2026-11-17: the memo was escaped, then cut to 255 characters, so "&" at the edge became "&a".
+  const st = { account: "1", date: "2026-10-02", currency: "USD", closing: null, entries: [
+    { kind: "credit", signed: 100, amount: 100, type: 175, custRef: "A".repeat(253) + "&B", bankRef: "", text: "" }] };
+  const memo = toOfx(st, { now: NOW }).match(/<MEMO>([^<\r\n]*)/)[1];
+  assert.ok(memo.length <= 255, `memo is ${memo.length} characters`);
+  assert.doesNotMatch(memo, /&(?!amp;|lt;|gt;)/);
+});
+
+test("a statement without a valid as-of date is refused, not written with a broken date", () => {
+  // Red team 2026-11-17: 02 date 261399 converted to "Dundefined/undefined/261399" in QIF and DTPOSTED 261399120000.
+  const bad = sampleFile().replace(/^(02,[^,]*,[^,]*,[^,]*,)\d{6}/m, "$1261399");
+  const st = statementsOf(validate(bad))[0];
+  for (const make of [toOfx, toQif, toXeroCsv]) assert.throws(() => make(st, { now: NOW }), /as-of date/);
+});

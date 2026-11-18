@@ -4,108 +4,15 @@
  * `pairing.simulation.test.ts`, 10 seeded respondents per cell.
  */
 import { describe, expect, it } from "vitest";
-import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "@/lib/glicko2";
 import {
   expectedVarianceReduction,
-  pairKey,
   selectNextPair,
   selectNextPairByInformation,
   selectNextPairHybrid,
   type InformationOptions,
   type PairItem,
 } from "@/lib/pairing";
-
-function mulberry32(seed: number): () => number {
-  let s = seed;
-  return () => {
-    s |= 0;
-    s = (s + 0x6d2b79f5) | 0;
-    let t = Math.imul(s ^ (s >>> 15), 1 | s);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-type Policy = typeof selectNextPair;
-
-/**
- * `lapse` is the share of answers given at random (an inconsistent respondent);
- * `positionBias` is the share of answers that take the first option shown whatever
- * the items are (negative: the second option). Both draw nothing extra at 0, so older seeds reproduce.
- */
-export function simulate(policy: Policy, itemCount: number, budget: number, seed: number, lapse = 0, positionBias = 0) {
-  const rand = mulberry32(seed);
-  const truth = new Map<string, number>();
-  const state = new Map<string, GlickoState>();
-  const timesShown = new Map<string, number>();
-  const items: PairItem[] = [];
-  for (let i = 0; i < itemCount; i++) {
-    const id = `item-${String(i).padStart(3, "0")}`;
-    truth.set(id, rand() * 2 - 1);
-    state.set(id, { ...DEFAULT_GLICKO_STATE });
-    items.push({
-      id,
-      rating: DEFAULT_GLICKO_STATE.rating,
-      rd: DEFAULT_GLICKO_STATE.rd,
-      category: `category-${i % 6}`,
-      dimensions: [`dimension-${i % 4}`],
-    });
-  }
-  const recent: string[] = [];
-  let firstPicks = 0;
-  for (let answered = 0; answered < budget; answered++) {
-    const live = items.map((item) => {
-      const s = state.get(item.id)!;
-      return { ...item, rating: s.rating, rd: s.rd };
-    });
-    const [aId, bId] = policy({
-      items: live,
-      timesShown,
-      recentPairKeys: new Set(recent),
-      answeredCount: answered,
-      firstOptionShare: answered > 0 ? firstPicks / answered : undefined,
-      rand,
-    });
-    const pA = 1 / (1 + Math.exp(-2 * (truth.get(aId)! - truth.get(bId)!)));
-    const pickedFirst = positionBias > 0 && rand() < positionBias ? true : positionBias < 0 && rand() < -positionBias ? false : lapse > 0 && rand() < lapse ? rand() < 0.5 : rand() < pA;
-    if (pickedFirst) firstPicks++;
-    const { a, b } = applyComparison(state.get(aId)!, state.get(bId)!, pickedFirst ? "A" : "B");
-    state.set(aId, a);
-    state.set(bId, b);
-    timesShown.set(aId, (timesShown.get(aId) ?? 0) + 1);
-    timesShown.set(bId, (timesShown.get(bId) ?? 0) + 1);
-    recent.push(pairKey(aId, bId));
-    if (recent.length > 10) recent.shift();
-  }
-  const entries = [...state.entries()];
-  const under = (t: number) => entries.filter(([, s]) => s.rd < t).length;
-  // Rank accuracy over every item, so a policy that finishes few items is not flattered.
-  const rankAccuracy = spearman(
-    entries.map(([id]) => truth.get(id)!),
-    entries.map(([, s]) => s.rating)
-  );
-  return { under, rankAccuracy };
-}
-
-function spearman(xs: number[], ys: number[]): number {
-  const rank = (v: number[]) => {
-    const order = v.map((x, i) => [x, i] as const).sort((a, b) => a[0] - b[0]);
-    const r = new Array<number>(v.length);
-    order.forEach(([, i], k) => (r[i] = k));
-    return r;
-  };
-  const rx = rank(xs);
-  const ry = rank(ys);
-  const n = xs.length;
-  const m = (n - 1) / 2;
-  let num = 0, dx = 0, dy = 0;
-  for (let i = 0; i < n; i++) {
-    num += (rx[i] - m) * (ry[i] - m);
-    dx += (rx[i] - m) ** 2;
-    dy += (ry[i] - m) ** 2;
-  }
-  return dx === 0 || dy === 0 ? 0 : num / Math.sqrt(dx * dy);
-}
+import { simulate, type Policy } from "@/lib/infoGainSim";
 
 const median = (v: number[]) => [...v].sort((a, b) => a - b)[Math.floor(v.length / 2)];
 const seeds = (n: number) => Array.from({ length: n }, (_, i) => 1000 + i * 7);
@@ -152,9 +59,39 @@ describe("information-gain selector vs the shipped selector", () => {
       console.log(`MEASURE ${items} items ${budget} answers`, JSON.stringify({ shipped, info, conflict, coverage, hybrid, hybrid60, hybrid200 }));
       // Measured 2026-10-20 (docs/INFORMATION-GAIN-SELECTOR.md): rank accuracy is higher at every cell.
       expect(info.rank).toBeGreaterThan(shipped.rank);
-      // Measured 2026-10-21: the hybrid (switch at 120 answers) never does worse than shipped on rank or rd<150.
+      // Measured 2026-10-21: the hybrid never does worse than shipped on rank.
       expect(hybrid.rank).toBeGreaterThanOrEqual(shipped.rank);
-      expect(hybrid.under150).toBeGreaterThanOrEqual(shipped.under150);
+      // On rd<150 it keeps up once there are enough answers. Since 2026-11-10
+      // a 41-item list, and since 2026-11-13 every list, uses the information
+      // selector from the first answer: at 90 answers it has fewer items under
+      // rd 150 than shipped (the stricter bar, not the couple screen's), but
+      // reaches the couple screen's own bar sooner (tests below).
+      if (budget >= 300) expect(hybrid.under150).toBeGreaterThanOrEqual(shipped.under150);
+    }, 120_000);
+  }
+});
+
+/** Answers until `need` items are under rd 200, the couple screen's bar (couples.ts). */
+function answersToCoupleBar(policy: Policy, items: number, seed: number, need = 8): number {
+  let at = Infinity;
+  // Every list measured reaches the bar inside 60 answers; 300 bounds the long lists' cost.
+  simulate(policy, items, Math.min(8 * items, 300), seed, 0, 0, 0, false, (answered, rds) => {
+    if (at === Infinity && rds.filter((rd) => rd < 200).length >= need) at = answered;
+  });
+  return at;
+}
+
+describe("the couple screen's bar by list length (2026-11-10)", () => {
+  // scripts/couple-bar-sweep.ts prints the full table (8 to 120 items, 30 seeds);
+  // scripts/long-list-switch-sweep.ts the lists over 120 (2026-11-13), where the
+  // staged default used to wait 120 answers and so equalled shipped here.
+  for (const items of [11, 41, 220]) {
+    it(`${items} items: the staged default reaches 8 items under rd 200 no later than shipped`, () => {
+      const s = seeds(10).map((x) => answersToCoupleBar(selectNextPair, items, x));
+      const h = seeds(10).map((x) => answersToCoupleBar((i) => selectNextPairHybrid(i), items, x));
+      console.log(`MEASURE couple bar ${items} items`, JSON.stringify({ shipped: median(s), staged: median(h) }));
+      expect(median(h)).toBeLessThan(median(s));
+      expect(Math.max(...h)).toBeLessThanOrEqual(Math.max(...s));
     }, 120_000);
   }
 });

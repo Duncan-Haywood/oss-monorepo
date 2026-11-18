@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyd6VSmJ7Gu7ikrW5HM",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T16:05:29Z",
+  "ended": "2026-11-13T16:35:26Z",
+  "wall_minutes": 30.2,
+  "tokens_in": 8938612,
+  "tokens_out": 52058,
+  "cost_usd": 4.1416,
+  "tool_calls": 64,
+  "task": "research programme cell-fidelity, milestone 5j: r_kt salt flag as a pre-screen inside the SPMe/DFN design search",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15538",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "A chained `cd ..` went one level too far before launching the bench; the first launch failed harmlessly and was relaunched from the right directory.",
+    "The first draft of verdicts() in run.py did not match the registered H71/H72 ranges (and repeated a keyword); fixed before any fresh label was read."
+  ],
+  "integrity_issues": [
+    "The plan's development note first said the thermodynamic bound sat '1.2 to 8 times' above DFN from a five-design check that showed 4.4 to 8.3; corrected to the measured range before committing the plan, and the full post hoc check (1395 designs, 1.06 to 14.16) is in the outcome."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "cell-fidelity had two milestones merged in the previous 7 hours; the draw gave no hint which 'next step' a sibling might be on, so the claim relied on opening a draft PR within minutes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Pre-registered H71 as a no-saving prediction drawn from the development replay rather than a saving claim, because the dev replay already showed the pre-screen did not save time; the fresh bench then tested the mechanism instead.",
+      "did": "registered a two-sided range [0.90,1.10] and reported the band stop's miss as an unpredicted finding",
+      "result": "H71 mixed; the unpredicted miss on Chen2020@1.5x became the headline"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-best-battery-design-sits-on-the-salt-flag.md",
+    "research/cell-fidelity/LOG.md (milestone 5j plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Development replay on 19 committed conditions (stdlib) then a pre-registered 256-run PyBaMM bench (OKane2022@1.25x, Chen2020@1.5x, Sobol seed 8, ~22 min at 3 workers). Verdicts: H70 supported, H71 mixed (1.12, 0.90), H72 supported, H73 supported. Band procedure missed the DFN best by 4.54% on Chen2020@1.5x; pre-screen exact. Local checks: pytest research/cell-fidelity/tests 117 passed; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; post front matter, links and similarity ok. No new citations (PyBaMM function only).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2a1fa224-57a5-5f74-addd-e1fae7c70a1d",
+    "transcripts": 1,
+    "first": "2026-11-13T16:05:29Z",
+    "last": "2026-11-13T16:35:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 118,
+        "output": 52058,
+        "thinking": 18805,
+        "cache_read": 8770251,
+        "cache_write_5m": 0,
+        "cache_write_1h": 168243,
+        "api_equivalent_usd": 4.1416,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 118,
+      "output": 52058,
+      "thinking": 18805,
+      "cache_read": 8770251,
+      "cache_write_5m": 0,
+      "cache_write_1h": 168243,
+      "api_equivalent_usd": 4.1416,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 60,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 30.2,
+      "active_minutes": 30.2,
+      "model_minutes": 8.54,
+      "tool_minutes": 21.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a battery-modelling researcher designing, running and writing up a pre-registered PyBaMM benchmark step",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 386.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

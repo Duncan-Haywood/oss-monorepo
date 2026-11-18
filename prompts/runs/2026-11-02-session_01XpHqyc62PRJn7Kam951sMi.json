@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01XpHqyc62PRJn7Kam951sMi",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "looking into monetization plans and business model for the things in this repo. this should be a continual thing to focus on.",
+  "input_sha256": "3aa611c3887b34705f0c0c28577ac32ec671072191d1ef05ec7f81f448d74242",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T03:30:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "monetization plan and business model per product (owner request)",
+  "projects": [
+    "portfolio/monetization",
+    "wall-framing-takeoff",
+    "league-schedule-generator",
+    "shift-roster-builder",
+    "einvoice-preflight",
+    "ai-bookkeeper",
+    "sales-agent"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12487",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/requests/README.md",
+      "issue": "The request queue is the only non-control-plane way to make an owner ask recurring; a 'continual focus' ask has no dedicated slot in routing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Direct owner request, so the routed process track was not followed.",
+      "did": "Worked the request directly and recorded it as track ventures.",
+      "result": "Plan landed in one PR."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Wiring monetization tests into CI means editing .github/ (control plane); kept out of this PR so the PR isn't held for owner approval.",
+      "did": "Tests run locally only.",
+      "result": "8 passed locally."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Competitor prices read via web search 2026-11-02 (sources in models.yaml). Traffic figure computed from portfolio/usage/site-visits.json. Checks: monetization.py --check ok; pytest portfolio/monetization 8 passed; requests.test.mjs 2 pass; check_payment_keys clean.",
+  "corrections": [],
+  "redteam": null
+}

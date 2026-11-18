@@ -1,0 +1,231 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/horse-boarding-stall-profit-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-12-l",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a boarding barn manager or equine extension agent who builds horse-enterprise budgets. They would check first that the per-horse margin (board less feed, bedding and labour) and the break-even board price come out of the stated algebra, how care labour is costed (hours per horse per month at a wage), whether fixed costs include depreciation and interest on the barn investment, and whether full, partial and pasture board can be priced separately",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran compute() through node on the shipped calc.mjs and recomputed by hand from first principles (unit economics: horses x (collected board+extras - feed - bedding - labour) - fixed), not from the author's tests. (a) SAMPLE (20 stalls, 85%, $550 board, $40 extras, $160 feed, $55 bedding, 20 min/day, $15/h, $3,000 fixed, 3% unpaid): hand 17 horses, income 590 x 0.97 = 572.30, labour 20 x 30.4/60 x 15 = 152.00, margin 205.30, profit 17 x 205.30 - 3000 = 490.10; tool profit 490.1, margin 205.3. Break-even horses 3000/205.30 = 14.613 (73.06%); tool 14.6128 / 73.064. Break-even board (3000/17 + 367)/0.97 - 40 = 520.28; tool 520.28. Target board (5000/17 + 367)/0.97 - 40 = 641.56; tool 641.56. (b) A second barn the author never used (10 stalls, 80%, $600 board, $200 feed, $60 bedding, 30 min/day at $18, $2,500 fixed, no extras or bad debt): hand 8 horses, labour 30 x 30.4/60 x 18 x 8 = 2,188.80, profit 4800 - 2080 - 2188.80 - 2500 = -1,968.80, break-even board 2500/8 + 260 + 273.60 = 846.10; tool -1968.8 and 846.1, with the 'Even full' (376.5%) finding. (c) Calendar standard: 365/12 = 30.4167 days/month, the tool hard-codes 30.4; on the sample that moves profit from 488.68 (standard) to 490.10 (tool), $1.42 or 0.3%, a rounding choice, not an error a user would act on. (d) Hourly-pay finding: (490.10 + 2584)/172.27 h = $17.85/h; tool $17.85. All recomputed outputs agree to the cent.",
+    "completeness": "README/page claims checked end to end: monthly profit, per stall, break-even occupancy, break-even and target board, occupancy table 50-100% plus current, findings (loss, short of target, unreachable, >100%, within 10 points, hourly pay, unpaid board >=5%), text summary and CSV download (code read, sweepCsv run), print, usage opt-out, blank optional fields, error messages. All present and working in calc.mjs runs; the served page https://marisstella.app/horse-boarding-stall-profit-calculator/ returned 200 and its llms.txt points at marisstella.app (the source github.io link is rewritten at deploy). README test command from the repo root runs 21/21. No TODOs or stubs. 3.",
+    "verification": "`cd ventures/horse-boarding-stall-profit-calculator && node --test '*.test.mjs'`: 21 tests, 21 pass, 0.14 s. Tests pin the headline profit to the stated rule, round-trip break-even and target prices, and check validation. Six mutations with quality_mutate.py in private copies: DAYS 30.4 -> 30 caught; break-even price dropping `- p.extras` caught; but the occupancy table's profit dropping the unpaid share (calc.mjs:43) SURVIVED (the sweep test checks only ordering and row count), the 10-point break-even warning threshold 10 -> 5 SURVIVED, the hourly-pay finding using profit instead of profit + labour SURVIVED (a wrong dollar figure shown to the user), and the unpaid-board finding >= 5 -> > 5 SURVIVED. 4 of 6 survived, including two user-visible numbers. 2.",
+    "craft": "Read calc.mjs (100 lines), index.html script, usage.mjs, all three test files. Pure functions, clear validation messages, escaped HTML, money rounded only at output. Defects: occupancy accepts 0.85 as 0.85 percent with no hint (calc.mjs:25), so a user who types a fraction gets 0.17 horses and a large loss; DAYS = 30.4 is an approximation of 365/12; very long one-line expressions in compute() and the findings; profit is computed twice by two formulas (compute line 50 and profitAt line 43), which is how the sweep mutant can drift unseen. 3.",
+    "claims": "Checked: 'Nothing uploaded' (no fetch/XHR/beacon in index.html, calc.mjs or usage.mjs, read); 'a test in the code asserts there are no network calls' (page.test.mjs:20-21 covers index.html and calc.mjs but not usage.mjs, which also has none: backed with a gap); usage counting local-only and off under DNT/GPC (usage.mjs read); the formula in 'What it does' matches calc.mjs exactly; 'It does not know what other barns charge' and VENTURE.yaml 'no market rate is claimed' hold (SAMPLE labelled illustrative); disclaimer present (No warranty, not legal/tax/accounting/financial advice, verify before changing a rate) and asserted by page.test.mjs; 'Not decided' lists zoning, insurance, contracts, tax, depreciation, board-type mix. 3.",
+    "fitness": "Walked the job of a 20-stall owner deciding whether to raise board: enter costs, read break-even board and the occupancy table, download CSV. It answers that for a single-price barn. A barn manager hits in the first hour: no full/partial/pasture board mix (most small barns mix them; listed as not decided), labour only as per-horse minutes, so fixed chores (arena, fencing, maintenance) must be folded into fixed costs by hand, no depreciation or return on the barn/land investment, no seasonal hay price or feed calculator from bale weight and price. Usable as a first-pass worksheet, not as the enterprise budget an extension agent would build. 2.",
+    "domain": "Compared with the structure of extension horse-boarding enterprise budgets (University of Maryland RES-10 and Ohio State as summarised by a web search; the PDF fetch failed through the proxy, so their figures are not confirmed here): those split variable costs per horse (hay, grain, bedding, farrier/vet if included, labour in hours per horse per month) from fixed costs including depreciation, interest on investment, insurance and taxes. The tool's margin/break-even algebra is the standard contribution-margin method and is right; it departs in leaving depreciation and capital return out of the model (users can type them into fixed costs, but are not prompted), and its example 20 min/day (about 10 h/month per horse) sits well below the roughly 21-39 h/month per horse the search attributed to the Ohio State and Maryland budgets (unconfirmed), so the worked example likely flatters profit. 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Monthly profit on the SAMPLE barn",
+      "method": "hand recomputation of unit economics: 17 x ((550+40) x 0.97 - 160 - 55 - 20x30.4/60x15) - 3000",
+      "command": "node -e \"import('./calc.mjs').then(m=>console.log(m.compute(m.SAMPLE).profit))\"",
+      "expected": "490.10",
+      "observed": "490.1",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Break-even and target board price on SAMPLE",
+      "method": "hand algebra: (fixed+target)/horses + variable, divided by collected share, less extras",
+      "command": "node -e compute(SAMPLE).breakEvenPrice/.targetPrice",
+      "expected": "520.28 / 641.56",
+      "observed": "520.28 / 641.56",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Profit and break-even board for a new 10-stall barn (80%, $600, $200 feed, $60 bedding, 30 min at $18, $2,500 fixed)",
+      "method": "hand recomputation",
+      "command": "node -e compute({stalls:'10',occupancy:'80',boardPrice:'600',feed:'200',bedding:'60',careMin:'30',wage:'18',fixedMonth:'2500',...})",
+      "expected": "-1968.80 / 846.10, break-even 376.5% flagged",
+      "observed": "-1968.8 / 846.1, 'Even full' finding",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Days per month used for labour hours",
+      "method": "calendar standard 365/12 = 30.4167",
+      "command": "grep -n DAYS calc.mjs",
+      "expected": "30.4167 (sample profit 488.68)",
+      "observed": "30.4 (sample profit 490.10)",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Hourly pay finding on SAMPLE",
+      "method": "hand: (profit + labour) / labour hours = (490.10 + 2584) / 172.27",
+      "command": "node -e compute(SAMPLE).findings",
+      "expected": "$17.85",
+      "observed": "$17.85",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite",
+      "method": "run",
+      "command": "node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "21/21 pass, 0.14 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Seeded mutations survive",
+      "method": "quality_mutate.py, 6 mutants",
+      "command": "python3 platform/ci/quality_mutate.py calc.mjs ...",
+      "expected": "most caught",
+      "observed": "2 caught, 4 survived",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Served page and llms.txt",
+      "method": "curl https://marisstella.app/horse-boarding-stall-profit-calculator/",
+      "command": "curl -sS https://marisstella.app/horse-boarding-stall-profit-calculator/llms.txt",
+      "expected": "200, marisstella.app link",
+      "observed": "200, link rewritten to marisstella.app",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "FAQ: 'a test in the code asserts there are no network calls'",
+      "method": "read page.test.mjs",
+      "command": "grep -n doesNotMatch page.test.mjs",
+      "expected": "all shipped scripts scanned",
+      "observed": "index.html and calc.mjs scanned, usage.mjs not (it has no network calls)",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer and not-decided list",
+      "method": "read index.html footer and #rules",
+      "command": "grep -n 'No warranty\\|Not decided' index.html",
+      "expected": "no-warranty, not-advice, limits listed",
+      "observed": "present, asserted by page.test.mjs",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "Fractional occupancy entry",
+      "method": "run",
+      "command": "node -e compute({...SAMPLE,occupancy:'0.85'}).horses",
+      "expected": "a warning or rejection for a likely fraction",
+      "observed": "0.17 horses accepted silently",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "Fixed-cost structure vs extension enterprise budgets",
+      "method": "UMD RES-10 / Ohio State budget structure (search summary; PDF not fetched)",
+      "command": "read calc.mjs and index.html #rules",
+      "expected": "depreciation and interest on investment modelled or prompted",
+      "observed": "one fixed-cost box; depreciation listed as not decided",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:18",
+      "change": "const DAYS = 30.4; -> const DAYS = 30;",
+      "caught": true,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:55",
+      "change": "u.k - p.extras; -> u.k;",
+      "caught": true,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:43",
+      "change": "(price + p.extras) * u.k - u.variable -> (price + p.extras) - u.variable",
+      "caught": false,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:67",
+      "change": "p.occupancy - breakEvenOcc < 10 -> p.occupancy - breakEvenOcc < 5",
+      "caught": false,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:69",
+      "change": "const unpaid = profit + labour; -> const unpaid = profit;",
+      "caught": false,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:73",
+      "change": "if (p.badDebt >= 5) -> if (p.badDebt > 5)",
+      "caught": false,
+      "test_cmd": "node --test *.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "The occupancy table's profit (profitAt) is a second formula separate from the headline profit, and no test pins its values: dropping the unpaid-board share from it leaves every test green, so the table could disagree with the headline unseen",
+      "where": "ventures/horse-boarding-stall-profit-calculator/calc.mjs:43",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Hourly-pay finding and the warning thresholds (10-point margin, 5% unpaid board) are untested: computing the hourly figure from profit alone (a wrong dollar figure shown to the owner) survives",
+      "where": "ventures/horse-boarding-stall-profit-calculator/calc.mjs:69",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "One board price and per-horse labour only: no full/partial/pasture mix, no fixed (non-per-horse) labour, no depreciation or interest on the barn investment, which extension horse-boarding budgets carry; users are not prompted to add them to fixed costs",
+      "where": "ventures/horse-boarding-stall-profit-calculator/calc.mjs:38",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Occupancy typed as a fraction (0.85) is accepted as 0.85 percent with no warning",
+      "where": "ventures/horse-boarding-stall-profit-calculator/calc.mjs:25",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Days per month hard-coded as 30.4 rather than 365/12 (30.4167); 0.3% of profit on the sample",
+      "where": "ventures/horse-boarding-stall-profit-calculator/calc.mjs:18",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Worked example uses 20 care minutes per horse per day (about 10 h/month), well below the labour hours per horse that extension budgets reportedly use (about 21-39 h/month, unconfirmed here), so the example likely flatters profit; labelled illustrative",
+      "where": "ventures/horse-boarding-stall-profit-calculator/calc.mjs:6",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "FAQ says a test asserts there are no network calls, but the test scans index.html and calc.mjs only, not usage.mjs (which has none today)",
+      "where": "ventures/horse-boarding-stall-profit-calculator/page.test.mjs:21",
+      "category": "overclaim",
+      "origin": "claims"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15198"
+  ],
+  "verdict": "A small, correct contribution-margin worksheet: every output recomputed by hand on two barns (profit 490.10 and -1,968.80, break-even board 520.28 and 846.10, target board 641.56, hourly pay $17.85) matches to the cent, the disclaimer and limits are honest, and the served page works. It misses the bar on verification: 4 of 6 seeded mutants survived, including the occupancy table's profit formula and the hourly-pay figure, both user-visible. A barn manager or extension agent would also want board-type mix, fixed labour and depreciation/capital return before using it as an enterprise budget."
+}

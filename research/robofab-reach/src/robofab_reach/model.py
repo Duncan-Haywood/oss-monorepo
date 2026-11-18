@@ -51,7 +51,7 @@ def targets(fixture=(0.0, 0.0), tray_gap=120.0, tray_cols=3, tray_pitch=50.0):
         cx, cy, cz = centre(b)
         pts[n] = {"place": (fx + cx, fy + cy, cz), "lift": (fx + cx, fy + cy, b[5] + LIFT)}
         row, col = divmod(i - 1, tray_cols)
-        pts[n]["pick"] = (fx + 40 + tray_gap + row * tray_pitch, fy + col * tray_pitch, GRIPPER[n][5] - GRIPPER[n][2] / 2)
+        pts[n]["pick"] = (fx + 40 + tray_gap + row * tray_pitch, fy + col * tray_pitch, (GRIPPER[n][5] - GRIPPER[n][2]) / 2)
     return pts
 
 

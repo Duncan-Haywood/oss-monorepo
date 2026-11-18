@@ -1,0 +1,5 @@
+Carry-over: 136 (lower is fairer; 120 is the floor for this many games, but no 12-team round robin can go below 124; an exhaustive search proved it). At worst, 2 different team(s) meet the same opponent straight after the same other team (8 such pair(s) repeat). Best of 16 searches for an even carry-over, 11 different results (carry-over / back-to-back home or away: 170/14 ×2, 174/14 ×2, 172/14, 168/14 ×2, 264/10 ×3, 188/14, 200/14, 196/18, 170/20, 256/12, 136/20; kept 136/20).
+ok   the 12-team search keeps 136, not below the proved 124
+ok   the line says 124 is the least possible
+ok   the line does not claim 124 is reached
+ok   no page errors

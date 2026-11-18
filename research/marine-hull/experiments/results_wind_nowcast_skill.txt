@@ -1,0 +1,21 @@
+buoys with both months: 8 (41009 42036 42040 44009 44013 46011 46013 46054); lags 6 x (u, v); 10-minute steps
+
+lead  10 min: 35552 July test rows, 8 buoys; persistence RMSE per component 0.67 m/s
+  ridge AR skill vs persistence : pooled -0.005; per-buoy median +0.002 (min -0.013, max +0.010); buoys > 0: 7/8
+  damped trend skill            : pooled -0.071; per-buoy median -0.053 (min -0.089, max -0.039); buoys > 0: 0/8
+
+lead  20 min: 35544 July test rows, 8 buoys; persistence RMSE per component 0.88 m/s
+  ridge AR skill vs persistence : pooled +0.003; per-buoy median +0.006 (min -0.009, max +0.022); buoys > 0: 7/8
+  damped trend skill            : pooled -0.140; per-buoy median -0.102 (min -0.184, max -0.087); buoys > 0: 0/8
+
+lead  30 min: 35536 July test rows, 8 buoys; persistence RMSE per component 1.01 m/s
+  ridge AR skill vs persistence : pooled +0.010; per-buoy median +0.009 (min -0.001, max +0.030); buoys > 0: 7/8
+  damped trend skill            : pooled -0.203; per-buoy median -0.147 (min -0.273, max -0.127); buoys > 0: 0/8
+
+lead  60 min: 35512 July test rows, 8 buoys; persistence RMSE per component 1.28 m/s
+  ridge AR skill vs persistence : pooled +0.021; per-buoy median +0.014 (min +0.008, max +0.040); buoys > 0: 8/8
+  damped trend skill            : pooled -0.392; per-buoy median -0.283 (min -0.576, max -0.253); buoys > 0: 0/8
+
+lead 120 min: 35464 July test rows, 8 buoys; persistence RMSE per component 1.64 m/s
+  ridge AR skill vs persistence : pooled +0.038; per-buoy median +0.033 (min +0.007, max +0.060); buoys > 0: 8/8
+  damped trend skill            : pooled -0.715; per-buoy median -0.539 (min -1.098, max -0.453); buoys > 0: 0/8

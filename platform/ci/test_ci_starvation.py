@@ -233,6 +233,37 @@ class Fetch(unittest.TestCase):
         self.assertEqual(len(rows), 1)
 
 
+class GhSubprocessWrappers(unittest.TestCase):
+    """`gh_api` and `git_remote_repo` shell out; pin how they call and decode."""
+
+    def _proc(self, rc=0, out="", err=""):
+        return unittest.mock.Mock(returncode=rc, stdout=out, stderr=err)
+
+    def test_gh_api_asks_for_text_and_does_not_raise_on_failure(self):
+        with unittest.mock.patch.object(
+            cs.subprocess, "run", return_value=self._proc(out="{}")
+        ) as run:
+            cs.gh_api("repos/o/n")
+        kw = run.call_args.kwargs
+        self.assertIs(kw["text"], True)
+        self.assertIs(kw["check"], False)
+
+    def test_gh_api_failure_is_a_runtime_error_not_a_subprocess_one(self):
+        with unittest.mock.patch.object(
+            cs.subprocess, "run", return_value=self._proc(rc=1, err="HTTP 404")
+        ):
+            with self.assertRaisesRegex(RuntimeError, "HTTP 404"):
+                cs.gh_api("repos/o/n")
+
+    def test_git_remote_repo_never_raises_on_a_failing_git(self):
+        with unittest.mock.patch.object(
+            cs.subprocess, "run", return_value=self._proc(rc=128)
+        ) as run:
+            self.assertIsNone(cs.git_remote_repo())
+        self.assertIs(run.call_args.kwargs["check"], False)
+        self.assertIs(run.call_args.kwargs["text"], True)
+
+
 class ResolveRepo(unittest.TestCase):
     """The HTTPS route has to work out what `gh` got free from the git remote."""
 

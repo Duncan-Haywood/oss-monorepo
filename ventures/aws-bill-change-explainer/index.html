@@ -203,7 +203,7 @@ node cli.mjs compare export.csv --max-increase-pct 15 --max-increase-usd 500</pr
 
       els.reportCard.hidden = false;
       record("compare_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#explain").addEventListener("click", renderReport);

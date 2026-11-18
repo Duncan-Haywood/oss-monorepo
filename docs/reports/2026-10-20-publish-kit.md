@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [publish-kit]
+date: 2026-10-20
+tagged: auto
+---
 # Publish Kit: tools for an AI agent to publish podcasts, audiobooks and books
 
 **Date:** 2026-10-20. **Asked by:** the owner: "I want to make tools for

@@ -4,7 +4,7 @@ A free browser tool for Amazon sellers: **drop in the Seller Central
 Transaction report CSV and see profit per SKU.** The file is read in the
 browser; nothing is uploaded. Independent of Amazon and not affiliated with it.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/amazon-seller-profit-analyzer/
+**Live tool:** https://marisstella.app/amazon-seller-profit-analyzer/
 
 After using this, you can now **see which SKUs make money after referral fees,
 FBA fees, refunds, ads and storage, and how much of each sale Amazon keeps**,
@@ -40,7 +40,11 @@ SKU's Order and Refund rows, so it reconciles to the report. Profit subtracts
 unit cost × net units (or all units, if refunded units are not restocked); a
 SKU with no cost shows no profit rather than counting as free. Rows not tied to
 a sale are grouped by description (ads, subscription, storage/inventory,
-claims, reimbursements); transfers are payouts and are excluded. Not modelled:
+claims, reimbursements); transfers are payouts and are excluded. Anything in
+`total` beyond the itemised columns (the Regulatory Fee, tax lines) is shown as
+its own waterfall line, so the waterfall sums to the payout. The referral fee
+Amazon kept on a refund compares the refund's returned referral with the
+refunded units' share of the order's referral, not the whole order's. Not modelled:
 inbound freight, prep, packaging, taxes, returns not yet processed, fees
 outside the period, currency conversion.
 

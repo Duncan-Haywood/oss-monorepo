@@ -5,6 +5,7 @@
 // and the drafts wait in the approval queue. It reads no website, scrapes nothing and guesses no email address: every
 // fact in a brief is a field of your export, named, so a person can check it.
 import { parseCsv, toCsv, iso, toDay, DAY, firstName, footer, checkDraft } from "./engine.mjs";
+import { suppressionIndex } from "./suppression.mjs";
 
 // Header aliases, so a HubSpot "Company name" and a Pipedrive "Organization - Name" land in the same place.
 const ALIASES = {
@@ -99,8 +100,7 @@ export function runResearch(input) {
   const today = input.today || iso(Date.now());
   const rows = (Array.isArray(input.crm) ? input.crm : parseCsv(input.crm)).map(normalizeRow);
   const existing = new Map((Array.isArray(input.existing) ? input.existing : parseCsv(input.existing)).filter((p) => p.email).map((p) => [p.email.toLowerCase(), p]));
-  const sup = new Set(), supDomains = new Set();
-  for (const s of String(input.suppression || "").split(/[\n,;]+/).map((x) => x.trim().toLowerCase()).filter(Boolean)) (s.startsWith("@") ? supDomains.add(s.slice(1)) : sup.add(s));
+  const supBy = suppressionIndex(input.suppression);
   const icp = input.icp || {}, offer = input.offer || {};
   const top = input.top ?? 25, minScore = input.minScore ?? 40, cool = (input.cooldownDays ?? 90) * DAY;
   const dropped = [], held = [], seen = new Set(), candidates = [];
@@ -110,7 +110,7 @@ export function runResearch(input) {
     const drop = (reason) => dropped.push({ ...id, reason });
     if (!r.email) return drop("no email address (nothing is guessed)");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(r.email)) return drop("not a valid email address");
-    if (sup.has(r.email) || supDomains.has(r.email.split("@")[1])) return drop("on your suppression list");
+    if (supBy(r.email)) return drop("on your suppression list");
     if (r.bounce && !/^(0|n|no|false)$/i.test(r.bounce)) return drop(`the export records a hard bounce (${r.bounce})`);
     if (/^(unsubscribed|opted[- ]?out|do not email|non-?marketing.*unsub)/i.test(r.marketing_status || "")) return drop(`marketing status "${r.marketing_status}"`);
     if (truthy(r.do_not_contact)) return drop("opted out or marked do-not-contact in the export");

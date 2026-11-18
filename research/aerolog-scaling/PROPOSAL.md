@@ -31,7 +31,7 @@ around the quantities that do.
 Similitude and dynamically scaled flight testing:
 - Wolowicz, Brown and Gilbert, "Similitude requirements and scaling relationships as applied to model testing", NASA TP-1435, 1979, https://ntrs.nasa.gov/citations/19790022005. The scaling table this programme starts from; pre-electric, no battery or motor scaling, no low-Re drag estimate for small models.
 - Chambers, "Modeling flight: the role of dynamically scaled free-flight models in support of NASA's aerospace programs", NASA SP-2009-575, 2009, https://ntrs.nasa.gov/citations/20110012492. History of the practice and its failures; qualitative, not a per-quantity error budget.
-- Jordan, Langford, Belcastro and Foster, "Development of a dynamically scaled generic transport model testbed for flight research experiments", AUVSI Unmanned Unlimited, 2004, https://ntrs.nasa.gov/citations/20040085988 (the AirSTAR testbed; a companion report is NTRS 20050232785). A 5.5%-scale transport flown for upset research; one airframe, jet-powered, and no energy-storage question.
+- Jordan, Langford, Belcastro and Foster, "Development of a dynamically scaled generic transport model testbed for flight research experiments", AUVSI Unmanned Systems North America, 2004 (venue corrected 2026-11-03 from the NTRS record), https://ntrs.nasa.gov/citations/20040085988 (the AirSTAR testbed; a companion report is NTRS 20050232785). A 5.5%-scale transport flown for upset research; one airframe, jet-powered, and no energy-storage question.
 
 Low-Reynolds-number aerodynamics:
 - Mueller and DeLaurier, "Aerodynamics of small vehicles", *Annual Review of Fluid Mechanics* 35, 2003, doi:10.1146/annurev.fluid.35.101101.161102. Why drag rises and lift falls below Re of about 2e5; survey, not a scaling rule for a given airframe.
@@ -46,7 +46,7 @@ Delivery-drone energy, cost and operations:
 - Murray and Chu, "The flying sidekick traveling salesman problem", *Transportation Research Part C* 54, 2015, doi:10.1016/j.trc.2015.03.005. Operations side, for the later fleet milestone.
 
 Design tools and full-size concepts:
-- Sharpe, AeroSandbox (MIT thesis, 2021), https://github.com/peterdsharpe/AeroSandbox. Differentiable aircraft design tool (MIT licence); the intended engine for full-size and model sizing.
+- Sharpe, AeroSandbox (MIT S.M. thesis, 2021), https://github.com/peterdsharpe/AeroSandbox. Differentiable aircraft design tool (MIT licence); the intended engine for full-size and model sizing.
 - Johnson, Silva and Solis, "Concept vehicles for VTOL air taxi operations", AHS Technical Conference, 2018, https://ntrs.nasa.gov/citations/20180003381. Open full-size VTOL sizing method that transfers to cargo.
 - Raymer, *Aircraft Design: A Conceptual Approach*, AIAA, 6th ed. 2018. Weight and drag build-up relations for the full-size side.
 - Hoekstra and Ellerbroek, "BlueSky ATC simulator project", ICRAT 2016, https://github.com/TUDelft-CNS-ATM/bluesky. For the later airspace milestone.

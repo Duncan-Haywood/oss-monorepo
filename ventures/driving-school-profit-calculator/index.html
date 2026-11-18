@@ -42,7 +42,7 @@
 <body>
   <header>
     <p class="note">DRIVING SCHOOL PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
-    <h1>What does one driving-school car really earn, and should you instruct, employ or lease it out?</h1>
+    <h1>What does one driving-school car really earn?</h1>
     <p>Enter your lesson, block-lesson and road-test prices, car minutes, fuel and wear, cancellation rate, office rent and the car's cost. You get <strong>profit per lesson and per car hour, the price each offer needs for your target margin, break-even lessons per week, what late cancellations cost, and what the same car nets you instructing it yourself, employing an instructor on a share of each lesson, or leasing it to an independent instructor by the week</strong>.</p>
     <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. Tips are left out on purpose. A planning estimate, not a contract or an estimate of record.</p>
   </header>
@@ -150,7 +150,7 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const keys = ["lessonQty", "lessonPrice", "lessonMin", "lessonMat", "blockQty", "blockPrice", "blockMin", "blockMat", "testQty", "testPrice", "testMin", "testMat", "noShowPct", "carHoursPerWeek", "ownerRate", "instructorPayPct", "payrollPct", "carLeaseWeek", "officeRentPerMonth", "carCost", "carYears", "otherFixedMonth", "addonAttachPct", "addonPrice", "addonCost", "targetMarginPct"];
-    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const usd = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     let last = null;
 
     function read() {
@@ -168,7 +168,7 @@
       $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.booked}</td><td>${x.hours}</td><td>${x.utilizationPct}%</td><td>${usd(x.owner)}</td><td>${usd(x.employ)}</td><td>${usd(x.rent)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Weekly result with you instructing: ${usd(r.season.ownerAfterPay)} after your pay.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVMcKdjndLDdK2UK4xB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (owner's standing ventures brief)",
+  "input_sha256": "4d189532f1555e145fb8c80d45ccb1b2d91b3508fa6e67c43cc59e3071567acf",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T12:00:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 6) shift-roster-builder: play the order-free pair pass's rosters through seeded weeks of call-outs",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16203",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "a Bash call writing the eval with a heredoc was refused by the rm safety check (no rm in it)",
+      "fix": "wrote the file with the Write tool"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder/cli.mjs",
+      "issue": "--second-callout-order-free help said 'one swap per person', but the landed rule (README 'An order-free pair check') is up to two give-ups per person; fixed"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "the row's other open item, a cheaper 500-check screen for the order-free check, was dropped rather than queued: the played result shows the order-free pass does not pay for itself, so speeding it up is not worth a run",
+      "did": "replaced the item with the played result",
+      "result": "next: line 1980 of 2000 characters, validate.py clean"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-shift-roster-order-free-check-played.md",
+    "ventures/shift-roster-builder/README.md (The order-free pass played)"
+  ],
+  "goal": null,
+  "notes": "New eval eval/pair-order-free-played.mjs (+ .out.txt): 15 seeded weeks built, the order-free pass gave its own roster on 3; played (5 comparisons, 84-200 disrupted weeks each) it opened no fewer hours than the default pair check (no sign test below p 0.33), moved more people in all five, owed more premium in four, cost more score and took up to 4.4x as long (1,295 s vs 298 s on 30x84 week 0). Default stays; opt-in kept. Cover and default-pair cells reproduce eval/pair-played-big.out.txt exactly except 30x84 week 0's changes/premiums (time-gated reissues). No agent doc in docs/reports: README section carries what the next run needs. Local: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (232.1s, 630 tests), 0 failed.",
+  "corrections": [],
+  "redteam": null
+}

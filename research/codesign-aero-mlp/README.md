@@ -2,7 +2,7 @@
 
 Follow-up to `codesign-aero` (track 14, `codesign`; its "Next steps" asked for "a small neural policy" in place of the linear law) on the wide randomised plant of `codesign-aero-robust`. Instead of PPO, the 31-parameter network is trained by CMA-ES, the same optimiser as the PID gains, so only the controller class differs. Produced with AI assistance (Claude). **Simulated; the plant, gust and randomisation ranges are the assumed round numbers of the earlier projects, not measurements.** Six airframes only, three CMA-ES seeds each.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-mlp/
+**Live page:** https://marisstella.app/research/codesign-aero-mlp/
 
 ![Held-out error per airframe, PID and neural controllers](experiments/mlp.png)
 
@@ -30,6 +30,7 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy cma matplotlib)
 RECUV and the Autonomous Systems IRT (UAV simulation, safe autonomy), as direction only; nothing is affiliated with or endorsed by them.
 
 ## Limitations
+- **Known defect, not yet re-run (quality fix 2026-11-15, [parent audit](../../portfolio/quality/audits/2026-11-15-codesign-aero.json)).** `size()` here is a copy of `codesign-aero`'s and, like it, never checks that the 60-step mass closure converged. On a 40x40 grid of (L, D), 36 of the 1,071 points it calls feasible have no fixed point (no battery mass gives 15 min of hover) and are scored at an arbitrary mass. None of the airframes this README quotes falls in that set at its printed (rounded) value, but rounding near the fold can flip the answer, so this is not a clearance. The parent now requires a closed mass (`closed` in `codesign-aero/src/codesign_aero/aero.py`); until this copy does the same and is re-run, treat rankings that touch the small-prop edge as unverified.
 - Six airframes and three seeds; gaps under about 0.1° are not resolved.
 - Evolution strategies, not PPO: a gradient-based learner or a better initialisation (for example starting the network at the tuned PID) might do better. The network has no skip path, so it must learn the linear behaviour from scratch.
 - Roll only, one hidden width (6), and the plant ranges are assumptions. Not a safety case; no weapons or harmful payloads are modelled.

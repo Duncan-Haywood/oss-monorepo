@@ -1,0 +1,19 @@
+stat pre s | binds ok, binds low (< 0.8 x truth) | median floor / truth by scenario and SNR
+min 0 1.25 | 71 58 | equal12:0.83 equal25:0.85 equal60:1.01 equal200:1.82 wb12:0.56 wb25:0.57 wb60:0.63 wb200:1.36
+min 0 1.5 | 54 23 | equal12:0.83 equal25:0.85 equal60:1.01 equal200:1.82 wb12:0.56 wb25:0.57 wb60:0.63 wb200:1.36
+min 0 2 | 23 7 | equal12:0.83 equal25:0.85 equal60:1.01 equal200:1.82 wb12:0.56 wb25:0.57 wb60:0.63 wb200:1.36
+2nd 0 1.25 | 48 27 | equal12:0.89 equal25:0.90 equal60:1.05 equal200:1.82 wb12:0.62 wb25:0.65 wb60:0.72 wb200:1.36
+2nd 0 1.5 | 36 7 | equal12:0.89 equal25:0.90 equal60:1.05 equal200:1.82 wb12:0.62 wb25:0.65 wb60:0.72 wb200:1.36
+2nd 0 2 | 17 2 | equal12:0.89 equal25:0.90 equal60:1.05 equal200:1.82 wb12:0.62 wb25:0.65 wb60:0.72 wb200:1.36
+med 0 1.25 | 48 22 | equal12:0.89 equal25:0.90 equal60:1.05 equal200:1.82 wb12:0.62 wb25:0.65 wb60:0.72 wb200:1.36
+med 0 1.5 | 36 3 | equal12:0.89 equal25:0.90 equal60:1.05 equal200:1.82 wb12:0.62 wb25:0.65 wb60:0.72 wb200:1.36
+med 0 2 | 18 0 | equal12:0.89 equal25:0.90 equal60:1.05 equal200:1.82 wb12:0.62 wb25:0.65 wb60:0.72 wb200:1.36
+min 1 1.25 | 71 58 | equal12:0.83 equal25:0.85 equal60:1.01 equal200:1.82 wb12:0.56 wb25:0.57 wb60:0.63 wb200:1.42
+min 1 1.5 | 54 23 | equal12:0.83 equal25:0.85 equal60:1.01 equal200:1.82 wb12:0.56 wb25:0.57 wb60:0.63 wb200:1.42
+min 1 2 | 23 7 | equal12:0.83 equal25:0.85 equal60:1.01 equal200:1.82 wb12:0.56 wb25:0.57 wb60:0.63 wb200:1.42
+2nd 1 1.25 | 48 27 | equal12:0.89 equal25:0.90 equal60:1.05 equal200:1.82 wb12:0.63 wb25:0.65 wb60:0.72 wb200:1.42
+2nd 1 1.5 | 36 7 | equal12:0.89 equal25:0.90 equal60:1.05 equal200:1.82 wb12:0.63 wb25:0.65 wb60:0.72 wb200:1.42
+2nd 1 2 | 17 2 | equal12:0.89 equal25:0.90 equal60:1.05 equal200:1.82 wb12:0.63 wb25:0.65 wb60:0.72 wb200:1.42
+med 1 1.25 | 48 22 | equal12:0.89 equal25:0.90 equal60:1.05 equal200:1.82 wb12:0.63 wb25:0.65 wb60:0.72 wb200:1.42
+med 1 1.5 | 36 3 | equal12:0.89 equal25:0.90 equal60:1.05 equal200:1.82 wb12:0.63 wb25:0.65 wb60:0.72 wb200:1.42
+med 1 2 | 18 0 | equal12:0.89 equal25:0.90 equal60:1.05 equal200:1.82 wb12:0.63 wb25:0.65 wb60:0.72 wb200:1.42

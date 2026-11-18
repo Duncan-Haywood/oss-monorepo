@@ -6,7 +6,7 @@ description: >-
   release-blocking mistake, since the two live in separate files with
   nothing forcing them to move together), flags manifest fields left as the
   obsidian-sample-plugin template's own placeholder values (id
-  "sample-plugin", name "Sample Plugin", author "Your Name"), and scans
+  "sample-plugin", name "Sample Plugin", description "Demonstrates some of the capabilities of the Obsidian API.", author "Obsidian"), and scans
   JavaScript/TypeScript source for innerHTML/outerHTML/insertAdjacentHTML
   assignments (the cross-site-scripting pattern Obsidian's own developer
   guidelines name explicitly) plus informational notes on direct
@@ -101,5 +101,5 @@ kill_criteria:
     here no longer maps to a real review cause.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/obsidian-plugin-review-check/
+  production: https://marisstella.app/obsidian-plugin-review-check/
   analytics: null

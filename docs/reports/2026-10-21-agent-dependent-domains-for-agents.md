@@ -1,3 +1,8 @@
+---
+kind: brief
+date: 2026-10-21
+tagged: auto
+---
 # Domains agents depend on: brief for an agent reader
 
 **Date:** 2026-10-21. **Asked by:** the owner ("what industries do you think

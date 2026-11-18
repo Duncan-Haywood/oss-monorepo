@@ -1,0 +1,42 @@
+name: parish-office
+description: >-
+  Free, local-first parish office tools for Catholic parishes and other congregations. First module: a Mass intentions book
+  (the canon 958 register) that books intentions into Masses and checks the entries against canons 948-958. Page, CLI and engine;
+  nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Started 2026-11-03 on the owner's direction that day: "it'd be nice to build tools for catholic orgs. parishes. relgiious orgs.
+# as a direction" and "standard problems they have." ROADMAP.md lists the standard problems as modules. Meant as a multi-session
+# build (a full parish office, several hundred hours), not a one-off calculator.
+#
+# First visitor: parish secretaries, pastors and business managers searching "mass intentions book", "mass intention software",
+# "mass stipend register", "how long to say a mass intention". Search volume not measured.
+#
+# Liability boundary: observations quoted from canon text on vatican.va, over entries the user types; the diocese's rules come first;
+# not canonical, legal, tax or financial advice; the book is a working copy, not the parish's official register.
+
+hypotheses:
+  - claim: >-
+      Parish offices that keep the Mass intentions book by hand will use a free browser book that flags one-year, bination and
+      transfer problems, because the annual review by the ordinary (c. 958 §2) checks exactly those entries.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No measured use, star, issue or feedback 120 days after the page is reachable from the published site.
+
+links:
+  production: https://marisstella.app/parish-office/
+  analytics: null

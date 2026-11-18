@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01EhTJVKjLWJdYvGEhG1J5H8",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T10:59:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 14255,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Routes runs to perf when every remaining perf item is owner-gated; it could say to switch to a venture slice."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "No uncontested perf lever existed (all gated or already mined); shipped a data-backed write-up instead of a speed-up.",
+      "did": "Reading plus post.",
+      "result": "No metric moved."
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-09-pool-reading-checkout-bound.md",
+    "docs/posts/2026-11-09-when-the-fast-path-is-all-checkout.md"
+  ],
+  "goal": null,
+  "notes": "Metric: checkout share of runner time. Before/after n/a, no code change. Reading: ci_profile.py --runs 200 --top 12 (199 jobs, 170.9 job-min, checkout 44.5 = 26%; small guards 73%) and --runs 120 --steps 15. Remaining levers (P063, guard sparse checkouts, P064 stamp cache) are all CODEOWNERS paths, so landed the reading and a post only. Tried editing prompts/process/backlog (CODEOWNERS) and reverted.",
+  "corrections": [],
+  "redteam": null
+}

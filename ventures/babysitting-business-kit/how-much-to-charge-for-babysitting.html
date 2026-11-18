@@ -23,6 +23,7 @@
   <script>/* offline + install; reading navigator.serviceWorker throws in sandboxed frames, so guard it */ try { if ("serviceWorker" in navigator && location.protocol !== "file:") addEventListener("load", () => { try { navigator.serviceWorker.register("sw.js").catch(() => {}); } catch { /* no service worker here */ } }); } catch { /* no service worker here */ }</script>
 </head>
 <body>
+<main>
   <p><a href="./index.html">← Babysitting Business Kit</a></p>
   <h1>How much to charge for babysitting</h1>
   <p>Charge the going hourly rate where you live for one child, then add a few clear lines on top: so much per hour for each extra child, a late-night rate, a holiday rate, a minimum booking, a last-minute fee and a cancellation fee. Write them down once as a rate card, and every quote becomes a sum a family can check. This page does not give a national "average rate", because the honest answer is local; it shows how to find yours and how each line works.</p>
@@ -79,7 +80,9 @@
   <h3>Should babysitters have a minimum booking?</h3>
   <p>A minimum covers the travel and the evening you set aside, which cost the same for a 90-minute sit as for a three-hour one. With a three-hour minimum at $20 an hour, a 6:00 to 7:30 pm sit is quoted at $60.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. The example rates are arithmetic illustrations, not market data. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p>Not affiliated with Care.com, Sittercity, UrbanSitter or the IRS. Free and open source under the MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
   </footer>

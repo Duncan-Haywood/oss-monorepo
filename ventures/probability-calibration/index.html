@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232b2d5c'/%3E%3Cpath%20d='M6%2026%20L26%206'%20stroke='%23b8bce8'%20stroke-width='2'/%3E%3Cpath%20d='M6%2026%20H11%20V20%20H16%20V15%20H21%20V9%20H26'%20fill='none'%20stroke='%23ffb347'%20stroke-width='2.6'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Probability Calibration Check — reliability diagram, Brier score decomposition, free</title>
+  <meta name="description" content="Free online calibration check for probability forecasts: a stable CORP reliability diagram, the Brier and log score split into miscalibration, discrimination and uncertainty, expected calibration error, calibration slope, a resampling test and an isotonic or Platt recalibration map. Nothing is uploaded.">
+  <meta property="og:title" content="When these forecasts said 70%, did it happen 70% of the time?">
+  <meta property="og:description" content="Reliability diagram, Brier score decomposition and calibration tests for any yes/no forecasts, in your browser. On 2,930 NFL games, FiveThirtyEight's Elo forecasts pass the shape test but overforecast home wins; the 2020 season alone accounts for much of it.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Probability calibration check", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks yes/no probability forecasts against outcomes: CORP reliability diagram with consistency bands, exact Brier and log score decomposition, binned expected calibration error and Murphy decomposition, Spiegelhalter's z test, Cox calibration slope and intercept, AUC, and isotonic or Platt recalibration. Runs in the browser.", "license": "https://opensource.org/licenses/MIT"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does it mean for forecasts to be calibrated?", "acceptedAnswer": {"@type": "Answer", "text": "Of all the times the forecast said 70%, the event happened about 70% of the time, and the same for every other probability. Calibration is about honesty, not skill: always forecasting the base rate is calibrated but useless."}}, {"@type": "Question", "name": "What is a CORP reliability diagram?", "acceptedAnswer": {"@type": "Answer", "text": "A reliability diagram whose curve comes from isotonic regression of the outcomes on the forecasts instead of from bins. Dimitriadis, Gneiting and Jordan (2021) showed it does not depend on a bin count, uses every forecast, and gives an exact split of the score into miscalibration, discrimination and uncertainty."}}, {"@type": "Question", "name": "Why not just use expected calibration error (ECE)?", "acceptedAnswer": {"@type": "Answer", "text": "ECE depends on how many bins you choose and where their edges fall. On this page's NFL example it ranges from 0.019 to 0.043 depending on the bins, more than double, while the CORP miscalibration is one number. The tool reports ECE too, for comparison with papers that use it."}}, {"@type": "Question", "name": "What do miscalibration, discrimination and uncertainty mean?", "acceptedAnswer": {"@type": "Answer", "text": "Uncertainty is the score of always forecasting the base rate. Discrimination is how much the recalibrated forecasts improve on that by telling events from non-events. Miscalibration is how much the forecasts lose by not being calibrated: the most an order-preserving recalibration could take off the score. Score equals miscalibration minus discrimination plus uncertainty, exactly."}}, {"@type": "Question", "name": "What does the calibration slope say?", "acceptedAnswer": {"@type": "Answer", "text": "It is the slope of a logistic regression of the outcome on the log-odds of the forecast. A slope of 1 means the spread is right; below 1 the forecasts are too extreme (overconfident), above 1 too timid. The intercept shows whether they run high or low overall."}}, {"@type": "Question", "name": "How many forecasts do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 10, but a few hundred before the curve means much. The consistency band shows how far a truly calibrated forecaster's curve would wander with your sample size, so a wide band is the tool telling you the sample is small."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d1f3d; background: #f0f0f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #3c3f8f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2b2d5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2b2d5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4d4f6b; }
+    .card { background: #fff; border: 1px solid #d8d9ea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2b2d5c10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #77799a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3c3f8f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e5f3; color: #2b2d5c; }
+    button:disabled { opacity: .6; cursor: progress; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e6f1; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4d4f6b; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d8d9ea; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #77799a; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .chart { max-width: 620px; }
+    .summary { font-size: 1.02rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 12px 0; }
+    .stat { background: #f1f1f9; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.35rem; color: #2b2d5c; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .82rem; color: #4d4f6b; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .key { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+    pre { background: #f3f3fa; border: 1px solid #dfe0ee; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PROBABILITY CALIBRATION · CORP RELIABILITY DIAGRAM · BRIER SCORE DECOMPOSITION · CALIBRATION SLOPE · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>When these forecasts said 70%, did it happen 70% of the time?</h1>
+    <p>Paste yes/no forecasts and what happened: a model's predicted probabilities on a test set, a weather service's chance of rain, a credit model's default risk, a forecaster's or a pundit's win probabilities. The tool draws a <strong>reliability diagram</strong> that does not depend on a bin count (the CORP method of Dimitriadis, Gneiting &amp; Jordan 2021), splits the <strong>Brier and log scores</strong> exactly into miscalibration, discrimination and uncertainty, tests whether the gaps are more than chance, and gives a <strong>recalibration map</strong> you can apply to new forecasts.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">A CSV with a header row and one row per forecast: a probability column (0 to 1, or 0 to 100 as percentages) and an outcome column (1/0, yes/no, true/false or a label)</label>
+    <textarea id="csv" spellcheck="false" placeholder="chance_of_rain,rained&#10;0.3,0&#10;0.7,1&#10;0.1,0&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: FiveThirtyEight's NFL Elo home-win forecasts, 2,930 games, 2010-2020</button>
+    <p class="note" id="data-status">Rows with a missing forecast or outcome are skipped and counted.</p>
+
+    <div class="grid">
+      <div><label for="forecast-col">Forecast column</label><select id="forecast-col"></select></div>
+      <div><label for="outcome-col">Outcome column</label><select id="outcome-col"></select></div>
+      <div><label for="positive">Outcome value that counts as the event (optional)</label><input id="positive" type="text" placeholder="e.g. rain, default, 1"></div>
+    </div>
+    <div class="grid">
+      <div><label for="bins">Bins for ECE and the Murphy split</label><select id="bins"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option><option value="20">20</option></select></div>
+      <div><label for="binning">Bin edges</label><select id="binning"><option value="width" selected>Equal width</option><option value="count">Equal count</option></select></div>
+      <div><label for="resamples">Resamples for the test and band</label><select id="resamples"><option value="0">None (fast)</option><option value="200">200</option><option value="500" selected>500</option><option value="1000">1,000</option></select></div>
+      <div><label for="level">Consistency band</label><select id="level"><option value="0.9" selected>90%</option><option value="0.95">95%</option></select></div>
+    </div>
+    <button type="button" id="analyze">Check calibration</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div class="stats" id="stats"></div>
+    <div id="warnings"></div>
+    <h3>Reliability diagram (CORP)</h3>
+    <p class="note"><span class="key" style="background:#ff8c1a"></span>recalibrated forecast (isotonic fit) <span class="key" style="background:#c9cbef"></span>where a calibrated forecaster's curve would fall, by resampling <span class="key" style="background:#2b2d5c"></span>the diagonal; bars at the bottom: how many forecasts at each value</p>
+    <div class="chart" id="diagram" role="img" aria-label="Reliability diagram: the observed event rate against the forecast probability, with the diagonal, the consistency band and a histogram of the forecasts"></div>
+    <h3>The score, split exactly</h3>
+    <p class="note">Score = miscalibration − discrimination + uncertainty. Lower scores are better; miscalibration is what recalibrating could save, discrimination what the forecasts know beyond the base rate.</p>
+    <div class="scroll">
+      <table id="decomp-table">
+        <thead><tr><th>Score</th><th class="n">Score</th><th class="n">Miscalibration</th><th class="n">Discrimination</th><th class="n">Uncertainty</th><th class="n">After recalibration</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <h3>Tests</h3>
+    <div class="scroll">
+      <table id="test-table">
+        <thead><tr><th>Test</th><th class="n">Statistic</th><th class="n">p-value</th><th>Reads as</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <h3>Binned view</h3>
+    <p class="note" id="bin-line"></p>
+    <div class="scroll">
+      <table id="bin-table">
+        <thead><tr><th>Forecast range</th><th class="n">Forecasts</th><th class="n">Mean forecast</th><th class="n">Happened</th><th class="n">Gap</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <h3>Recalibrate a new forecast</h3>
+    <div class="grid">
+      <div><label for="new-p">A forecast from the same source (0 to 1)</label><input id="new-p" type="text" inputmode="decimal" value="0.7"></div>
+    </div>
+    <p id="new-out" class="summary"></p>
+    <p class="note">Isotonic recalibration follows the curve above (linear between its steps); Platt scaling uses the fitted calibration intercept and slope. Both are fitted on these data, so check them on forecasts they were not fitted to.</p>
+    <p class="note" id="settings-line"></p>
+    <button type="button" class="secondary" id="download">Download forecasts with recalibrated values (CSV)</button>
+    <button type="button" class="secondary" id="download-report">Download the report (text)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>The reliability curve.</strong> The forecasts are sorted and the outcomes regressed on them under one constraint, that a higher forecast never gets a lower recalibrated value: isotonic regression, computed by the pool-adjacent-violators algorithm (Ayer et al. 1955), with equal forecasts pooled first. The resulting step function is the CORP reliability diagram of Dimitriadis, Gneiting &amp; Jordan (2021): <em>consistent</em> (a calibrated forecaster's curve tends to the diagonal), <em>optimally binned</em> (the algorithm picks the bins), <em>reproducible</em> and based on <em>pool-adjacent-violators</em>. Unlike a binned chart it has no bin count to choose.</p>
+    <p><strong>The decomposition.</strong> With S the mean score, x the forecasts, c their isotonic recalibration and r the base rate, <code>S(x) = MCB − DSC + UNC</code>, where <code>MCB = S(x) − S(c)</code>, <code>DSC = S(r) − S(c)</code> and <code>UNC = S(r)</code>. It holds exactly for the Brier score (Brier 1950) and for the log score, because the isotonic fit minimises every proper score at once. The binned Murphy (1973) split, reliability − resolution + uncertainty, is shown for comparison; with forecasts that vary inside a bin it leaves a remainder, reported as the within-bin term.</p>
+    <p><strong>Is it more than chance?</strong> Outcomes are redrawn as if the forecasts were true (each a coin with that probability), the isotonic fit is redone, and the band shows where the middle 90% of those curves fall. The same draws give a p-value: the share of calibrated worlds with at least the observed miscalibration (this tool's addition, using CORP's MCB as the statistic). Alongside: Spiegelhalter's (1986) z test, the observed against expected count of events (calibration in the large), Cox's (1958) calibration intercept and slope from a logistic regression on the log-odds of the forecast, the binned expected and maximum calibration error (Naeini, Cooper &amp; Hauskrecht 2015) and the AUC (Hanley &amp; McNeil 1982), which measures ranking only.</p>
+    <p>Verified by tests in the source against an independent computation (<code>eval/reference.py</code>): on the example and two further cases, the Brier and log scores and both CORP decompositions match <strong>scikit-learn 1.9.1</strong>'s isotonic regression, <code>brier_score_loss</code> and <code>log_loss</code> to 10⁻¹⁰; the isotonic fit matches value for value; the AUC matches <code>roc_auc_score</code>; the calibration intercept and slope match its unpenalised logistic regression to 10⁻⁶; and Spiegelhalter's and the observed/expected z match numpy with p-values from <strong>scipy 1.18.1</strong>.</p>
+    <h3>BibTeX</h3>
+    <pre>@article{dimitriadis2021stable,
+  author  = {Dimitriadis, Timo and Gneiting, Tilmann and Jordan, Alexander I.},
+  title   = {Stable reliability diagrams for probabilistic classifiers},
+  journal = {Proceedings of the National Academy of Sciences},
+  volume  = {118}, number = {8}, pages = {e2016191118}, year = {2021},
+  doi     = {10.1073/pnas.2016191118}
+}
+@article{ayer1955empirical,
+  author  = {Ayer, Miriam and Brunk, H. D. and Ewing, G. M. and Reid, W. T. and Silverman, Edward},
+  title   = {An empirical distribution function for sampling with incomplete information},
+  journal = {The Annals of Mathematical Statistics},
+  volume  = {26}, number = {4}, pages = {641--647}, year = {1955},
+  doi     = {10.1214/aoms/1177728423}
+}
+@article{brier1950verification,
+  author  = {Brier, Glenn W.},
+  title   = {Verification of forecasts expressed in terms of probability},
+  journal = {Monthly Weather Review},
+  volume  = {78}, number = {1}, pages = {1--3}, year = {1950},
+  doi     = {10.1175/1520-0493(1950)078&lt;0001:VOFEIT&gt;2.0.CO;2}
+}
+@article{murphy1973new,
+  author  = {Murphy, Allan H.},
+  title   = {A new vector partition of the probability score},
+  journal = {Journal of Applied Meteorology},
+  volume  = {12}, number = {4}, pages = {595--600}, year = {1973},
+  doi     = {10.1175/1520-0450(1973)012&lt;0595:ANVPOT&gt;2.0.CO;2}
+}
+@article{spiegelhalter1986probabilistic,
+  author  = {Spiegelhalter, David J.},
+  title   = {Probabilistic prediction in patient management and clinical trials},
+  journal = {Statistics in Medicine},
+  volume  = {5}, number = {5}, pages = {421--433}, year = {1986},
+  doi     = {10.1002/sim.4780050506}
+}
+@article{cox1958two,
+  author  = {Cox, D. R.},
+  title   = {Two further applications of a model for binary regression},
+  journal = {Biometrika},
+  volume  = {45}, number = {3/4}, pages = {562--565}, year = {1958},
+  doi     = {10.2307/2333203}
+}
+@inproceedings{naeini2015obtaining,
+  author    = {Naeini, Mahdi Pakdaman and Cooper, Gregory F. and Hauskrecht, Milos},
+  title     = {Obtaining well calibrated probabilities using {B}ayesian binning},
+  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume    = {29}, number = {1}, pages = {2901--2907}, year = {2015},
+  doi       = {10.1609/aaai.v29i1.9602}
+}
+@article{hanley1982meaning,
+  author  = {Hanley, James A. and McNeil, Barbara J.},
+  title   = {The meaning and use of the area under a receiver operating characteristic ({ROC}) curve},
+  journal = {Radiology},
+  volume  = {143}, number = {1}, pages = {29--36}, year = {1982},
+  doi     = {10.1148/radiology.143.1.7063747}
+}</pre>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>Calibration is not skill.</strong> Forecasting the base rate every time is perfectly calibrated and useless. Read miscalibration and discrimination together; the AUC and the discrimination term say how much the forecasts know.</li>
+      <li><strong>In-sample recalibration flatters.</strong> The isotonic and Platt maps are fitted to these outcomes, so the "after recalibration" score is optimistic. Fit them on one period and check them on the next.</li>
+      <li><strong>Independence is assumed.</strong> The tests and band treat outcomes as independent given the forecasts. Forecasts of the same storm, the same borrower or the same team over a season are often correlated, which makes the p-values too small.</li>
+      <li><strong>A shift can pass the shape test.</strong> A forecaster who is a few points too high everywhere can show little miscalibration on the curve while the observed/expected count says otherwise; on the example, the resampling test finds nothing (p = 0.289 with the default 500 resamples) and the count test does (p = 0.025). Read both.</li>
+      <li><strong>Size.</strong> Up to 200,000 forecasts; resampling 500 times takes a few seconds per 100,000.</li>
+      <li>Not modelled: forecasts of more than two outcomes (multiclass or ordinal calibration), forecasts of a number (use <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> to check interval coverage) and calibration that drifts over time, beyond splitting the file by period yourself.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What does it mean for forecasts to be calibrated?</h3>
+    <p>Of all the times the forecast said 70%, the event happened about 70% of the time, and the same for every other probability. Calibration is about honesty, not skill: always forecasting the base rate is calibrated but useless.</p>
+    <h3>What is a CORP reliability diagram?</h3>
+    <p>A reliability diagram whose curve comes from isotonic regression of the outcomes on the forecasts instead of from bins. Dimitriadis, Gneiting and Jordan (2021) showed it does not depend on a bin count, uses every forecast, and gives an exact split of the score into miscalibration, discrimination and uncertainty.</p>
+    <h3>Why not just use expected calibration error (ECE)?</h3>
+    <p>ECE depends on how many bins you choose and where their edges fall. On this page's NFL example it ranges from 0.019 to 0.043 depending on the bins, more than double, while the CORP miscalibration is one number. The tool reports ECE too, for comparison with papers that use it.</p>
+    <h3>What do miscalibration, discrimination and uncertainty mean?</h3>
+    <p>Uncertainty is the score of always forecasting the base rate. Discrimination is how much the recalibrated forecasts improve on that by telling events from non-events. Miscalibration is how much the forecasts lose by not being calibrated: the most an order-preserving recalibration could take off the score. Score equals miscalibration minus discrimination plus uncertainty, exactly.</p>
+    <h3>What does the calibration slope say?</h3>
+    <p>It is the slope of a logistic regression of the outcome on the log-odds of the forecast. A slope of 1 means the spread is right; below 1 the forecasts are too extreme (overconfident), above 1 too timid. The intercept shows whether they run high or low overall.</p>
+    <h3>How many forecasts do I need?</h3>
+    <p>At least 10, but a few hundred before the curve means much. The consistency band shows how far a truly calibrated forecaster's curve would wander with your sample size, so a wide band is the tool telling you the sample is small.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    <p class="note">Example data: FiveThirtyEight's NFL Elo pre-game probabilities that the home team wins, with the results, for the 2,930 games of the 2010 to 2020 seasons that did not end in a tie, from the <code>nfl_games.csv</code> file of the fivethirtyeight/nfl-elo-game repository (MIT licence, copyright 2021 ABC News Internet Ventures), retrieved on 2026-11-16. In those seasons home teams won 56.5% of games against an average forecast of 58.4%; in 2020, a season played mostly in empty or limited-capacity stadiums, they won 50.0% against 58.5%.</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician or a regulator's validation method. Results are statistical estimates from the data you enter; a gap between forecast and outcome is not proof of an error or of a cause.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, FiveThirtyEight, ABC News, the National Football League, the scikit-learn or scipy projects, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is stored by us.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs forecasts.csv</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/probability-calibration" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> gives intervals with guaranteed coverage, the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed, <a href="../fdr-multiple-testing/">multiple testing correction</a> says which of many results still stand, <a href="../survival-analysis/">survival analysis</a> estimates time to an event, <a href="../spc-control-charts/">control charts</a> tell a process change from noise, the <a href="../isolation-forest/">isolation forest</a> finds unusual rows, <a href="../gaussian-process-regression/">Gaussian process regression</a> fits a smooth curve with uncertainty, <a href="../inter-rater-agreement/">inter-rater agreement</a> says whether raters agree beyond chance, and the <a href="../mann-kendall-trend/">Mann-Kendall trend test</a> says whether a series is going up or down.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv, profileColumns, recalibrator, toCsv, report, fmt, fmtP, pct } from "./engine.mjs";
+    import { EXAMPLE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    let last = null;
+
+    function options(sel, names, chosen) {
+      sel.innerHTML = names.map((n) => `<option value="${esc(n)}"${n === chosen ? " selected" : ""}>${esc(n)}</option>`).join("");
+    }
+
+    function refreshColumns() {
+      const text = $("#csv").value;
+      let p;
+      try {
+        p = parseCsv(text);
+      } catch (e) {
+        for (const id of ["#forecast-col", "#outcome-col"]) $(id).innerHTML = "";
+        $("#data-status").textContent = text.trim() ? e.message : "Paste a table or load the example.";
+        return;
+      }
+      const prof = profileColumns(p);
+      const numeric = prof.filter((c) => c.kind === "prob" || c.kind === "number").map((c) => c.name);
+      const others = prof.filter((c) => c.kind !== "empty").map((c) => c.name);
+      let guess = {};
+      try {
+        guess = analyzeColumns(text);
+      } catch {
+        /* the analysis will say what is wrong */
+      }
+      options($("#forecast-col"), numeric, guess.forecast);
+      options($("#outcome-col"), others, guess.outcome);
+      $("#data-status").textContent = `${p.rows.length.toLocaleString("en-US")} rows, ${p.header.length} columns.`;
+    }
+    function analyzeColumns(text) {
+      return analyze({ csv: text, resamples: 0 }).columns;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+
+    function inputs() {
+      return {
+        csv: $("#csv").value,
+        forecastColumn: $("#forecast-col").value || null,
+        outcomeColumn: $("#outcome-col").value || null,
+        positive: $("#positive").value.trim() || null,
+        bins: Number($("#bins").value),
+        binning: $("#binning").value,
+        resamples: Number($("#resamples").value),
+        level: Number($("#level").value),
+      };
+    }
+
+    // ---------- the reliability diagram (plain SVG) ----------
+    function drawDiagram(r) {
+      const W = 560, H = 584, L = 56, T = 14, P = 470, HB = 50;
+      const sx = (v) => L + v * P;
+      const sy = (v) => T + (1 - v) * P;
+      let s = `<rect x="${L}" y="${T}" width="${P}" height="${P}" fill="none" stroke="#cfd0e6"/>`;
+      for (let k = 0; k <= 10; k += 2) {
+        const v = k / 10;
+        s += `<line x1="${sx(v)}" x2="${sx(v)}" y1="${T}" y2="${T + P}" stroke="#eeeef6"/><line x1="${L}" x2="${L + P}" y1="${sy(v)}" y2="${sy(v)}" stroke="#eeeef6"/>`;
+        s += `<text x="${sx(v)}" y="${T + P + HB + 18}" font-size="12" text-anchor="middle" fill="#4d4f6b">${v.toFixed(1)}</text><text x="${L - 6}" y="${sy(v) + 4}" font-size="12" text-anchor="end" fill="#4d4f6b">${v.toFixed(1)}</text>`;
+      }
+      if (r.consistency) {
+        const b = r.consistency.band;
+        const up = b.map((g) => `${sx(g.x).toFixed(1)},${sy(g.upper).toFixed(1)}`);
+        const lo = b.slice().reverse().map((g) => `${sx(g.x).toFixed(1)},${sy(g.lower).toFixed(1)}`);
+        s += `<polygon points="${up.concat(lo).join(" ")}" fill="#c9cbef" fill-opacity="0.75"/>`;
+      }
+      s += `<line x1="${sx(0)}" y1="${sy(0)}" x2="${sx(1)}" y2="${sy(1)}" stroke="#2b2d5c" stroke-width="1.2" stroke-dasharray="5 4"/>`;
+      // the CORP step function: flat over each block, joined at block ends
+      let d = "";
+      r.blocks.forEach((k, i) => {
+        d += `${i ? "L" : "M"}${sx(k.lo).toFixed(1)},${sy(k.value).toFixed(1)} L${sx(k.hi).toFixed(1)},${sy(k.value).toFixed(1)} `;
+      });
+      s += `<path d="${d}" fill="none" stroke="#ff8c1a" stroke-width="2.6"/>`;
+      // histogram of forecasts
+      const nb = 50;
+      const h = new Array(nb).fill(0);
+      for (const v of r.forecasts) h[Math.min(nb - 1, Math.floor(v * nb))]++;
+      const hmax = Math.max(...h);
+      const base = T + P + HB;
+      h.forEach((c, i) => {
+        if (!c) return;
+        const hh = (c / hmax) * (HB - 8);
+        s += `<rect x="${(sx(i / nb) + 0.5).toFixed(1)}" y="${(base - hh).toFixed(1)}" width="${(P / nb - 1).toFixed(1)}" height="${hh.toFixed(1)}" fill="#8f92c9"/>`;
+      });
+      s += `<text x="${L + P / 2}" y="${H - 2}" font-size="12" text-anchor="middle" fill="#4d4f6b">forecast probability</text>`;
+      s += `<text x="14" y="${T + P / 2}" font-size="12" text-anchor="middle" fill="#4d4f6b" transform="rotate(-90 14 ${T + P / 2})">recalibrated (observed) probability</text>`;
+      $("#diagram").innerHTML = `<svg viewBox="0 0 ${W + 30} ${H + 6}" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+    }
+
+    function verdict(p, alpha, yes, no) {
+      return Number.isFinite(p) ? (p < alpha ? yes : no) : "n/a";
+    }
+
+    function render(r) {
+      last = r;
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      const stats = [
+        [r.consistency ? (r.calibrated ? "consistent" : "miscalibrated") : "see tests", r.consistency ? `resampling test, p = ${fmtP(r.consistency.pValue)}` : "no resampling run"],
+        [`${pct(r.meanForecast)} vs ${pct(r.baseRate)}`, "average forecast vs how often it happened"],
+        [fmt(r.brier.score, 4), `Brier score (base rate alone ${fmt(r.brier.unc, 4)})`],
+        [fmt(r.brier.mcb, 3), `miscalibration, ${pct(r.brier.mcb / r.brier.score)} of the score`],
+        [fmt(r.cox.slope, 3), "calibration slope (1 is right)"],
+        [fmt(r.auc, 3), "AUC (ranking only)"],
+      ];
+      $("#stats").innerHTML = stats.map(([b, sp]) => `<div class="stat"><b>${esc(b)}</b><span>${esc(sp)}</span></div>`).join("");
+      $("#warnings").innerHTML = [...(r.skipped ? [`${r.skipped} row${r.skipped === 1 ? " was" : "s were"} skipped (missing or unreadable forecast or outcome).`] : []), ...r.warnings].map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      drawDiagram(r);
+      const row = (name, d) => `<tr><td>${name}</td><td class="n">${fmt(d.score, 5)}</td><td class="n">${fmt(d.mcb, 4)}</td><td class="n">${fmt(d.dsc, 4)}</td><td class="n">${fmt(d.unc, 5)}</td><td class="n">${fmt(d.recalibrated, 5)}</td></tr>`;
+      $("#decomp-table tbody").innerHTML = row("Brier", r.brier) + row("Log (natural)", r.log);
+      const a = r.alpha;
+      const tests = [
+        ["Resampling test, CORP miscalibration", r.consistency ? fmt(r.consistency.mcbObserved, 4) : "not run", r.consistency ? r.consistency.pValue : NaN, verdict(r.consistency ? r.consistency.pValue : NaN, a, "the curve departs from the diagonal more than chance", "the curve is within chance of the diagonal")],
+        ["Observed vs expected events", `${r.inTheLarge.observed.toLocaleString("en-US")} vs ${fmt(r.inTheLarge.expected, 6)} (z ${fmt(r.inTheLarge.z, 3)})`, r.inTheLarge.p, verdict(r.inTheLarge.p, a, r.inTheLarge.z < 0 ? "too high overall" : "too low overall", "right on average")],
+        ["Spiegelhalter z", fmt(r.spiegelhalter.z, 3), r.spiegelhalter.p, verdict(r.spiegelhalter.p, a, "miscalibrated", "no evidence of miscalibration")],
+        ["Calibration intercept (Cox)", `${fmt(r.cox.intercept, 3)} ± ${fmt(r.cox.se.intercept, 2)}`, NaN, "0 is right; below 0 runs high"],
+        ["Calibration slope (Cox)", `${fmt(r.cox.slope, 3)} ± ${fmt(r.cox.se.slope, 2)}`, NaN, Math.abs(r.cox.slope - 1) > 2 * r.cox.se.slope ? (r.cox.slope < 1 ? "too extreme" : "too timid") : "spread about right"],
+      ];
+      $("#test-table tbody").innerHTML = tests.map(([n, st, p, v]) => `<tr><td>${esc(n)}</td><td class="n">${esc(st)}</td><td class="n">${Number.isFinite(p) ? fmtP(p) : ""}</td><td>${esc(v)}</td></tr>`).join("");
+      const b = r.binned;
+      $("#bin-line").textContent = `${b.bins.length} ${b.binning === "count" ? "equal-count" : "equal-width"} bins with forecasts. Expected calibration error ${fmt(b.ece, 3)}, maximum ${fmt(b.mce, 3)}. Murphy split: reliability ${fmt(b.reliability, 4)} − resolution ${fmt(b.resolution, 4)} + uncertainty ${fmt(b.uncertainty, 4)}, with ${fmt(b.withinBin, 2)} left over from forecasts that vary inside a bin. Change the bin count and these move; the CORP figures above do not.`;
+      $("#bin-table tbody").innerHTML = b.bins.map((x) => `<tr><td>${x.lo.toFixed(2)} to ${x.hi.toFixed(2)}</td><td class="n">${x.n.toLocaleString("en-US")}</td><td class="n">${pct(x.meanForecast)}</td><td class="n">${pct(x.observed)}</td><td class="n">${(x.gap >= 0 ? "+" : "") + (x.gap * 100).toFixed(1)} pts</td></tr>`).join("");
+      showNew();
+      $("#settings-line").textContent = `Columns: forecast ${r.columns.forecast}, outcome ${r.columns.outcome}${r.columns.positive ? ` (event: ${r.columns.positive})` : ""}. ${r.n.toLocaleString("en-US")} forecasts, ${r.events.toLocaleString("en-US")} events, ${r.uniqueForecasts.toLocaleString("en-US")} distinct values. ${r.consistency ? `${r.settings.resamples} resamples, ${Math.round(r.settings.level * 100)}% band, seed ${r.settings.seed}.` : "No resampling."}`;
+    }
+
+    function showNew() {
+      if (!last) return;
+      const v = Number($("#new-p").value);
+      if (!(v >= 0 && v <= 1)) {
+        $("#new-out").textContent = "Enter a probability between 0 and 1.";
+        return;
+      }
+      const iso = recalibrator(last, "isotonic")(v);
+      const platt = recalibrator(last, "platt")(v);
+      $("#new-out").textContent = `A forecast of ${pct(v)} recalibrates to ${pct(iso)} (isotonic) or ${pct(platt)} (Platt).`;
+    }
+    $("#new-p").addEventListener("input", showNew);
+
+    function run() {
+      $("#status").textContent = "Computing…";
+      $("#analyze").disabled = true;
+      setTimeout(() => {
+        try {
+          const t0 = performance.now();
+          const r = analyze(inputs());
+          render(r);
+          record("analysis_run");
+          $("#status").textContent = `Done in ${((performance.now() - t0) / 1000).toFixed(1)} s.`;
+        } catch (e) {
+          $("#results").hidden = true;
+          $("#status").textContent = e.message;
+        } finally {
+          $("#analyze").disabled = false;
+        }
+      }, 20);
+    }
+    $("#analyze").addEventListener("click", run);
+    function loadExample(csv) {
+      $("#csv").value = csv;
+      $("#positive").value = "";
+      refreshColumns();
+      record("example_loaded");
+      run();
+    }
+    $("#load-example").addEventListener("click", () => loadExample(EXAMPLE_CSV));
+    function save(text, name, type) {
+      const blob = new Blob([text], { type });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    }
+    $("#download").addEventListener("click", () => last && save(toCsv(last), "recalibrated.csv", "text/csv"));
+    $("#download-report").addEventListener("click", () => last && save(report(last) + "\n", "calibration-report.txt", "text/plain"));
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

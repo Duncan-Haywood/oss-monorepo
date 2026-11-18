@@ -1,0 +1,41 @@
+{
+  "version": "1.2.0",
+  "chapters": [
+    {
+      "startTime": 0.0,
+      "title": "Four in the morning"
+    },
+    {
+      "startTime": 84.73,
+      "title": "The case against"
+    },
+    {
+      "startTime": 196.48,
+      "title": "On the contrary"
+    },
+    {
+      "startTime": 232.84,
+      "title": "The first way"
+    },
+    {
+      "startTime": 450.79,
+      "title": "Four more ways"
+    },
+    {
+      "startTime": 629.5,
+      "title": "The reply about evil"
+    },
+    {
+      "startTime": 716.8,
+      "title": "The reply about nature"
+    },
+    {
+      "startTime": 781.47,
+      "title": "First light"
+    },
+    {
+      "startTime": 835.34,
+      "title": "Notes for listeners"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVKQDZkbv4KKfVRA2L2",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "7eab53d2d124d76d4c0792e7bcacb742bd07a4a55c29819a50a6cd23cbc24081",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T06:13:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: new venture conjoint-analysis (choice-based conjoint design + multinomial logit + WTP + share simulator)",
+  "projects": [
+    "conjoint-analysis"
+  ],
+  "pr": 17202,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 44,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Post front matter over limits (description 162, seo_title 72)",
+      "fix": "Shortened; caught by the push hook before reaching main"
+    },
+    {
+      "what": "sibling-links gate: new tool had no linking sibling",
+      "fix": "Linked from van-westendorp-pricing-analyzer and gabor-granger-price-analyzer"
+    },
+    {
+      "what": "Unwired tree checks: check_zero_default flagged `Number(seed) || 1`; check_csv_formula_guard flagged the CSV exporter",
+      "fix": "Finite check for the seed; apostrophe guard on =,+,-,@,tab,CR cells except plain numbers, with a test"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "The new-tool registration checklist (build.mjs slugs, launched.json, optout-switches, research-tools README, ventures-readme, a sibling link) lives only in earlier commits; copying gage-rr's diff was the fastest guide."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-what-one-segment-conjoint-gets-wrong-and-right.md"
+  ],
+  "goal": "Ship a free, verified CBC design and analysis tool where buyers currently pay for survey suites; the 1,400 existing ventures had no general conjoint tool.",
+  "notes": "Idea: choice-based conjoint (CBC) as a research-algorithm venture. Engine pinned to statsmodels 0.15.0 ConditionalLogit on 4 simulated studies (beta 1e-7, SE 1e-6, LL 1e-9). Coverage: homogeneous 95.0% model / 94.8% robust over 2,400 intervals; heterogeneous: coefficients shrink 7-15%, model SEs understate spread 5-19%, robust within 6%, WTP within $0.01-0.10. Playwright smoke: example in 1.9 s, no console errors, no overflow at 375 px. Local run_workflow_locally --for-changes: first run stopped on post front matter (fixed); second run flagged sibling-links (fixed, siblings.mjs --check ok, siblings.test 20/20); run_venture_tests on the 3 touched ventures 0 failed. Next: hierarchical Bayes / mixed logit for individual utilities; prohibited pairs in design. Final local sweep (run_workflow_locally --for-changes origin/main --foreground): 16 workflows' run: steps passed (portfolio-validate 100/100, portfolio-pages 12/12, pages 6/6, sibling-links 2/2, prompts-ci 2/2, ...); ventures-tests' unwired checks failed on two real issues (zero-default seed, CSV formula guard), both fixed, after which run_venture_tests --since origin/main: 3 suites 0 failed, 232/232 unwired checks pass. uses: steps and secret-reading jobs (cross-review, deploy) were not run locally.",
+  "corrections": [],
+  "redteam": null
+}

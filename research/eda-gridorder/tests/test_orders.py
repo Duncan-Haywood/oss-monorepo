@@ -26,6 +26,10 @@ class T(unittest.TestCase):
         self.assertEqual([orders.radical_inverse(i, 2) for i in (1, 2, 3, 4)], [0.5, 0.25, 0.75, 0.125])
         self.assertAlmostEqual(orders.radical_inverse(2, 3), 2 / 3)
 
+    def test_halton_first_points(self):
+        # radical inverses of i=1,2,3 in bases 2,3,5 snapped to the grid sizes, worked by hand in the round-59 audit
+        self.assertEqual(orders.halton(self.sp.all(), self.sp.sizes)[:3], [(4, 1, 0), (2, 3, 0), (6, 0, 1)])
+
     def test_farthest_point_second_pick_is_a_corner(self):
         sizes = [3, 3]
         ds = list(itertools.product(range(3), range(3)))
@@ -53,6 +57,29 @@ class T(unittest.TestCase):
 
     def test_first_budget_at(self):
         self.assertEqual(bench.first_budget_at([0.1, 0.5, 0.9, 1.0], 0.9), 3)
+
+    def test_pinned_against_independent_recompute(self):
+        # Values from an independent recomputation (exact fractions, own Halton, maximin and
+        # hypervolume; quality audit 2026-11-13). They pin the bases, the maximin rule and the curve.
+        ds, s = self.sp.all(), self.sp.sizes
+        self.assertEqual(orders.halton(ds, s)[:3], [(4, 1, 0), (2, 3, 0), (6, 0, 1)])
+        self.assertEqual(orders.farthest_point(ds, s)[:3], [(3, 2, 0), (7, 0, 1), (0, 4, 1)])
+        got = {
+            "halton": bench.curve(self.sp, orders.halton(ds, s), [8])[0],
+            "farthest": bench.curve(self.sp, orders.farthest_point(ds, s), [4])[0],
+            "lexicographic": bench.curve(self.sp, orders.lexicographic(ds, s), [16])[0],
+        }
+        self.assertAlmostEqual(got["halton"], 0.926, places=3)
+        self.assertAlmostEqual(got["farthest"], 0.889, places=3)
+        self.assertAlmostEqual(got["lexicographic"], 0.664, places=3)
+
+    def test_bootstrap_interval_is_95_percent(self):
+        vals = [float(i % 2) for i in range(400)]
+        m, lo, hi = bench.mean_ci(vals)
+        self.assertAlmostEqual(m, 0.5)
+        # sd of the mean is 0.025, so a 95% interval is about 0.45 to 0.55, a 50% one 0.483 to 0.517
+        self.assertLess(lo, 0.47)
+        self.assertGreater(hi, 0.53)
 
 
 if __name__ == "__main__":

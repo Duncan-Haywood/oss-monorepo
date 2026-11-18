@@ -55,6 +55,9 @@ const TEST_FILE = /\.test\.m?js$/;
 export async function readServer(sourceDir) {
   const names = await fs.readdir(sourceDir).catch(() => []);
   if (!names.includes('Dockerfile') || !names.includes('render.yaml')) return { skip: 'no Dockerfile + render.yaml' };
+  // A static site (render.yaml `runtime: static`, an nginx Dockerfile) has no server to deploy.
+  const render = await fs.readFile(path.join(sourceDir, 'render.yaml'), 'utf8').catch(() => '');
+  if (/^\s*runtime:\s*static\b/m.test(render)) return { skip: 'static site, no server' };
   const all = [];
   const walk = async (dir) => {
     for (const e of await fs.readdir(dir, { withFileTypes: true })) {

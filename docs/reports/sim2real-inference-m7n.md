@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [sim2real-inference]
+tagged: auto
+---
 # sim2real-inference m7n: for the next run
 
 - Result: the betting interval for the residual R - T plus the twin-mean interval reproduces the combined interval (median error 0.4%, 336 cells). The win is decided by residual interval vs real-only interval. A variance-only model of that ratio fails (median error 33%; cart-pole about 48%, where the residual interval alone is wider than the real-only one).

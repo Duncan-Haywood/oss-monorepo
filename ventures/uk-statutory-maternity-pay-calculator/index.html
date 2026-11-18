@@ -144,7 +144,7 @@
       $("#rows").innerHTML = r.rows.length ? r.rows.map((x) => `<tr><td>${esc(x.phase)}</td><td class="n">${x.weeks}</td><td class="n">${gbp(x.weekly)}</td><td class="n">${gbp(x.total)}</td></tr>`).join("") + `<tr class="total"><td>Total</td><td class="n">39</td><td></td><td class="n">${gbp(r.smpTotal)}</td></tr>` : `<tr><td colspan="4">No SMP is payable on these details.</td></tr>`;
       report.hidden = false;
       status.textContent = "Done. Verify the rate on GOV.UK before paying.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

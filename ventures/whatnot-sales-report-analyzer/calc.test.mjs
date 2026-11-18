@@ -25,7 +25,7 @@ test("commission is on the price and processing on price plus shipping plus tax 
 test("CSV parsing handles quoted fields, delimiters, BOM and UTF-16", () => {
   const rows = parseCsv('a,b\n"Card, rare","say ""hi"""\n');
   assert.deepEqual(rows[1], ["Card, rare", 'say "hi"']);
-  assert.equal(parseCsv("﻿x,y\r\n1,2\r\n")[0][0], "x");
+  assert.equal(parseCsv("\uFEFFx,y\r\n1,2\r\n")[0][0], "x");
   assert.equal(detectDelimiter("a;b\n1;2"), ";");
   assert.equal(parseNumber("$1,234.56"), 1234.56);
   assert.equal(parseNumber("(4.00)"), -4);
@@ -154,4 +154,21 @@ test("the example loads, reconciles and produces a summary", () => {
   const t = summaryText(r);
   assert.match(t, /Whatnot sales 2026-/);
   assert.match(t, /nothing uploaded/);
+});
+
+test("processing fee is charged on price plus buyer shipping plus tax (hand sum)", () => {
+  // 20 + 5 + 1.60 = 26.60; 26.60 * 2.9% + 0.30 = 1.07140; commission 8% of 20 = 1.60
+  const f = scheduleFee(20, 5, 1.6);
+  near(f.processing, 26.6 * 0.029 + 0.3, 1e-9);
+  near(f.commission, 1.6, 1e-9);
+  near(f.fee, 1.6 + 1.0714, 1e-9);
+});
+
+// Red-team 2026-11-14: Math.min(...items.map()) overflowed the call stack past
+// about 125k items.
+test("200,000 items are analysed without a stack overflow", () => {
+  const base = normalizeRows(parseCsv(sampleCsv())).items;
+  const items = Array.from({ length: 200000 }, (_, i) => ({ ...base[i % base.length] }));
+  const r = analyze(items);
+  assert.equal(r.summary.from, Math.min(...base.map((x) => x.t)));
 });

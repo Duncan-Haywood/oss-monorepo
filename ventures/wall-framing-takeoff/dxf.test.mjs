@@ -233,3 +233,33 @@ test("nested block symbols: a door made of a leaf block inside a frame block, mi
   assert.ok(r.ok, r.errors.join());
   assert.deepEqual(r.plan.walls[0].openings.map((o) => [o.kind, o.offset, o.width]), [["door", 204, 36]]);
 });
+
+test("planFromDxf and parseDxf refuse a DXF that is not text instead of throwing (2026-11-05)", () => {
+  for (const v of [null, undefined, 5, {}, [], true]) {
+    const r = planFromDxf(v);
+    assert.equal(r.ok, false);
+    assert.match(r.errors[0], /must be text/);
+    assert.deepEqual(parseDxf(v).segs, []);
+  }
+});
+
+test("a door drawn 1.4 in from a wall end slides in to 3 in; a far one is left alone", () => {
+  const lines = house().filter((l) => l[0] !== "A-DOOR");
+  lines.push(["A-DOOR", ft(40) - 38 - 1.4, 0, ft(40) - 1.4, 0]);
+  const r = planFromDxf(dxf(lines));
+  const o = r.plan.walls[0].openings[0];
+  assert.equal(480 - (o.offset + o.width), 3);
+  assert.match(r.notes.join(" "), /moved in to 3/);
+  const r2 = planFromDxf(dxf(house()));
+  assert.equal(r2.plan.walls[0].openings[0].offset, 204);
+  assert.doesNotMatch(r2.notes.join(" "), /moved in to 3/);
+});
+
+test("planFromDxf treats null or non-object options as none (was a raw TypeError)", () => {
+  const base = planFromDxf(dxf(house()));
+  for (const bad of [null, 5, "x", [], NaN]) {
+    const r = planFromDxf(dxf(house()), bad);
+    assert.equal(r.ok, base.ok);
+  }
+  assert.equal(planFromDxf(null, null).ok, false);
+});

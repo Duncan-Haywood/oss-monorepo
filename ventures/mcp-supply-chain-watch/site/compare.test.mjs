@@ -138,3 +138,37 @@ test("formatChange and renderMarkdown never leak into an unhandled default", () 
   assert.match(md, /# MCP supply-chain watch/);
   assert.match(md, /not a safety certification/);
 });
+
+const { cases: CASES } = JSON.parse(readFileSync(join(root, "tests/cases.json"), "utf8"));
+
+for (const testCase of CASES) {
+  test(`shared case: ${testCase.name}`, () => {
+    const report = compare(parseManifest(JSON.stringify(testCase.before)), parseManifest(JSON.stringify(testCase.after)));
+    assert.equal(report.changes.length, testCase.expected.length);
+    testCase.expected.forEach((want, index) => {
+      const got = report.changes[index];
+      assert.deepEqual(
+        { kind: got.kind, severity: got.severity, tool: got.tool, bucket: got.bucket ?? null },
+        { kind: want.kind, severity: want.severity, tool: want.tool, bucket: want.bucket },
+      );
+      if (want.reason === null) assert.equal(got.reason, undefined);
+      else assert.ok(got.reason.includes(want.reason), `${got.reason} should include ${want.reason}`);
+    });
+  });
+}
+
+test("JS and Python give the same changes and reasons on every shared case", async () => {
+  const { mkdtempSync, writeFileSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const folder = mkdtempSync(join(tmpdir(), "mcp-watch-"));
+  for (const [index, testCase] of CASES.entries()) {
+    const before = join(folder, `${index}-before.json`);
+    const after = join(folder, `${index}-after.json`);
+    writeFileSync(before, JSON.stringify(testCase.before));
+    writeFileSync(after, JSON.stringify(testCase.after));
+    const js = compare(parseManifest(JSON.stringify(testCase.before)), parseManifest(JSON.stringify(testCase.after)));
+    const py = pythonReport(before, after);
+    const pick = ({ kind, severity, tool, bucket, reason }) => ({ kind, severity, tool, bucket, reason });
+    assert.deepEqual(js.changes.map(pick), py.changes.map(pick), testCase.name);
+  }
+});

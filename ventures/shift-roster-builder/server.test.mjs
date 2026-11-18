@@ -311,3 +311,66 @@ test("a manager gives a called-out shift to a cover in one click", async () => {
   assert.equal(s.state.callouts.length, 0);
   s.close();
 });
+
+test("calendar feed keeps earlier weeks and uses stable event ids", async () => {
+  const s = await boot();
+  const staff = "name, wage, max hours, min hours, availability\nAna, 23.17, 40, 0, any";
+  const shifts = "day, start, end, people needed, label\nMon, 9, 17, 1, day";
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-19", staff, shifts });
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-26", staff, shifts });
+  const body = await (await fetch(s.base + "/team/feed.ics?t=tm&person=Ana")).text();
+  assert.equal((body.match(/BEGIN:VEVENT/g) || []).length, 2);
+  assert.match(body, /DTSTART:20261019T090000/);
+  assert.match(body, /DTSTART:20261026T090000/);
+  assert.match(body, /UID:roster-2026-10-19-Ana-0-540-1020-day@/);
+  assert.match(body, /REFRESH-INTERVAL/);
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-26", staff, shifts });
+  const again = await (await fetch(s.base + "/team/feed.ics?t=tm&person=Ana")).text();
+  assert.equal((again.match(/BEGIN:VEVENT/g) || []).length, 2);
+  assert.equal((await fetch(s.base + "/team/feed.ics?t=tm&person=Nobody")).status, 404);
+  s.close();
+});
+
+// Before 2026-11-15 the request checks rebuilt the roster from the draft lists, so after an approved trade the rebuilt
+// week no longer matched the published one and a call-out on a traded shift read "not in the current roster".
+test("after an approved trade, a call-out on the traded shift still gets cover candidates", async () => {
+  const s = await boot();
+  const staff = "name, wage, max hours, min hours, availability\nAna, 23.17, 40, 0, any\nBen, 19.43, 40, 0, any\nCy, 17.10, 40, 0, any";
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-19", staff, shifts: "day, start, end, people needed, label\nMon, 9, 17, 1, day\nTue, 9, 13, 1, am" });
+  const a = s.state.published.assignments, A = a[0], B = a.find((x) => x.person && x.person !== A.person);
+  const val = (x) => [x.person, x.slot.day, x.slot.startMin, x.slot.endMin].join("|");
+  await post(s.base + "/team/trade?t=tm", { mine: val(A), theirs: val(B) });
+  assert.equal((await post(s.base + "/admin/trade?key=adm", { i: "0", act: "approve" })).status, 303);
+  assert.equal((await post(s.base + "/team/callout?t=tm", { shift: val(A) })).status, 200);
+  const admin = await (await fetch(s.base + "/admin?key=adm")).text();
+  assert.doesNotMatch(admin, /not in the current roster/);
+  assert.match(admin, /Give to /);
+  s.close();
+});
+
+test("editing the draft after publishing does not change the checks on the published week", async () => {
+  const s = await boot();
+  const staff = "name, wage, max hours, min hours, availability\nAna, 23.17, 40, 0, Mon 9-17\nBen, 19.43, 40, 0, any";
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-19", staff, shifts: "day, start, end, people needed, label\nMon, 9, 17, 1, day" });
+  // The manager starts next week's draft with a broken line; the call-out on this week is still checked.
+  await post(s.base + "/admin/save?key=adm", { act: "save", staff: "name, wage\nnot a staff line", shifts: "" });
+  const shift = s.state.published.assignments.find((x) => x.person);
+  await post(s.base + "/team/callout?t=tm", { shift: [shift.person, shift.slot.day, shift.slot.startMin, shift.slot.endMin].join("|") });
+  const admin = await (await fetch(s.base + "/admin?key=adm")).text();
+  assert.doesNotMatch(admin, /no longer build/);
+  assert.match(admin, /Give to /);
+  s.close();
+});
+
+test("BUILD_IN_BROWSER on the Node server: the page builds, the server checks the posted roster", async () => {
+  const s = await boot({ ...env, BUILD_IN_BROWSER: "1" });
+  const staff = "name, wage, max hours, min hours, availability\nAna, 23.17, 40, 0, any";
+  const shifts = "day, start, end, people needed, label\nMon, 9, 17, 1, day";
+  assert.match(await (await fetch(s.base + "/admin?key=adm")).text(), /import\("\/calc\.mjs"\)/);
+  assert.equal((await post(s.base + "/admin/save?key=adm", { act: "publish", staff, shifts })).status, 400);
+  assert.equal(s.state.published, null);
+  assert.equal((await post(s.base + "/admin/save?key=adm", { act: "publish", staff, shifts, owner: "[0]" })).status, 303);
+  assert.equal(s.state.published.assignments[0].person, "Ana");
+  assert.equal(s.state.published.staffText, staff);
+  s.close();
+});

@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01AcxTtLzBEcx7hrJkx5uPG3",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T08:07:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13276",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "flagship 1 next: lists only items needing real inputs, so a run without them falls back to hardening sweeps"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "flagship's open items need real inputs; did a small hostile-input hardening slice instead",
+      "did": "planFromSketch null guard",
+      "result": "43 tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-05-wall-framing-sketch-null-input.md"
+  ],
+  "goal": null,
+  "notes": "Small slice; ran sketch and hostile-entrypoints suites only.",
+  "corrections": [],
+  "redteam": null
+}

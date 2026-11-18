@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -47,6 +47,15 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
     </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#feemode) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 448px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -150,7 +159,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr, detectDecimalComma } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -162,7 +171,7 @@
 
     function run(text) {
       const delim = detectDelimiter(text);
-      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";", feeMode: $("#feemode").value, feePct: $("#feepct").value === "" ? 0 : Number($("#feepct").value), fixedFee: num("#fixedfee") });
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: detectDecimalComma(parseCsv(text, delim), delim), feeMode: $("#feemode").value, feePct: $("#feepct").value === "" ? 0 : Number($("#feepct").value), fixedFee: num("#fixedfee") });
       if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
       const day = (id) => { const v = $(id).value; return v ? Date.parse(v + "T00:00:00Z") : null; };
       const r = analyze(n.rows, { costPerOrder: num("#cost"), hoursDefault: num("#hoursdefault"), target: num("#target"), targetHourly: num("#targethourly"), hoursList: $("#hourslist").value, feePct: $("#feepct").value === "" ? 0 : Number($("#feepct").value), fixedFee: num("#fixedfee"), from: day("#from"), to: day("#to") });
@@ -171,7 +180,7 @@
       const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
       const span = s.from !== null ? `${dateStr(s.from)} to ${dateStr(s.to)}. ` : "";
       $("#report-stats").innerHTML = `${span}${s.orders} orders${s.tips ? ` and ${s.tips} tips` : ""}: order value ${cur}${money(s.gross)}, fee ${cur}${money(s.fee)} (<strong>${pct(s.feeRate)} observed</strong>), net ${cur}${money(s.net)}, refunds ${cur}${money(s.refundNet)}, withdrawal costs ${cur}${money(s.moveFees)}, your costs ${cur}${money(s.orderCosts)}, <strong>take-home ${cur}${money(s.takeHome)}</strong>, which is <strong>${rate(s.takeHomePerOrder)} per order</strong> against an average order value of ${rate(s.avgOrderGross)}.`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const be = r.breakEven;
       $("#by-product").innerHTML = r.byProduct.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${g.orders}</td><td class="n">${money(g.gross)}</td><td class="n">${money(g.fee)}</td><td class="n">${pct(g.feeRate)}</td><td class="n">${money(g.net)}</td><td class="n">${money(g.refundNet)}</td><td class="n">${money(g.takeHome)}</td><td class="n">${rate(g.takeHomePerOrder)}</td><td class="n">${rate(g.netPerHour)}</td><td class="n">${be ? money(be.priceWithRefunds) : "–"}</td></tr>`).join("");
       $("#by-month").innerHTML = r.byMonth.length ? r.byMonth.map((m) => `<tr><th scope="row">${esc(m.label)}</th><td class="n">${m.orders}</td><td class="n">${money(m.gross)}</td><td class="n">${money(m.fee)}</td><td class="n">${money(m.net)}</td><td class="n">${money(m.takeHome)}</td></tr>`).join("") : `<tr><td colspan="6">The file has no dates.</td></tr>`;
@@ -184,7 +193,7 @@
       $("#skipped").textContent = notes.join(" ");
       report.hidden = false;
       status.textContent = `Read ${n.rows.length} rows.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

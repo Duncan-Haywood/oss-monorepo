@@ -518,7 +518,7 @@ export function mergeProposals(existing, incoming) {
 export function proposalsToCsv(proposals, today) {
   const cell = (v) => {
     const s = String(v ?? "");
-    const safe = /^[=+\-@\t\r]/.test(s) ? "'" + s : s; // spreadsheet formula injection
+    const safe = /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" + s : s; // spreadsheet formula injection
     return /[",\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
   };
   const head = ["Number", "Client", "Title", "Issued", "Valid until", "Status", "Model", "Value"];

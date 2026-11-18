@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer overnight, lane 1: land + structural correctness
 
 Session: https://claude.ai/code/session_01XpHqydjPUYuhxkkTPrf1fd, 2026-10-29, 04:20 to about 06:00 UTC.

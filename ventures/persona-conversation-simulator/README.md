@@ -6,7 +6,7 @@ style, who will clash and why. Then play out a **salary negotiation, a freelance
 meeting about a slipping deadline, an offsite plan or a housemates' chore argument** between them. Run it once to read the
 transcript, or hundreds of times to see how often a deal closes or a meeting falls apart with that cast.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/persona-conversation-simulator/
+**Live tool:** https://marisstella.app/persona-conversation-simulator/
 
 Uses: rehearse a hard conversation against a character like the one you are worried about, think through a team's dynamics,
 teach negotiation or conflict styles, or write characters whose arguments stay consistent.
@@ -25,7 +25,7 @@ refuses profile links, social-site names, @handles, emails and phone numbers in 
   conflict style from assertiveness (0.6 E + 0.4 (100 - A)) and cooperativeness (0.75 A + 0.25 O); "how to talk to them" tips;
   a word list that turns a description into trait scores, with negation ("not shy") and intensity ("very blunt").
 - `dynamics.mjs`: pairwise friction and rapport from trait gaps and shared extremes, each note naming the traits behind it;
-  expected share of airtime; group notes (who dominates, who goes quiet, escalation risk).
+  share of airtime (measured from 200 simulated group meetings, so it matches the many-runs table); group notes (who dominates, who goes quiet, escalation risk).
 - `sim.mjs`: the rules engine. Each turn picks who speaks (weighted towards extraversion and whoever was just asked) and what
   they do (open, concede, hold, ask, accept, walk away; or propose, support, object, counter, ask, summarise, vent, digress)
   with odds from their traits and the tension so far. Same seed and cast, same transcript. `runMany` replays it with

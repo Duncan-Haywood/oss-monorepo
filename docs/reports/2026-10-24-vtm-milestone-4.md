@@ -1,3 +1,9 @@
+---
+kind: milestone
+subjects: [verifiable-training-mechanisms]
+date: 2026-10-24
+tagged: auto
+---
 # verifiable-training-mechanisms, milestone 4 (agent notes)
 
 - Library `src/vtm/contract.py`: `optimal_contract(P, c, target, stake, basis)` is the hidden-action LP; `brute_force_two_signal` is its independent check. Needs numpy and scipy.

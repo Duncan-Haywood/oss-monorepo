@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqydtW9ckFiZ8qba1186",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T04:39:29Z",
+  "ended": "2026-11-13T05:06:33Z",
+  "wall_minutes": 40.96,
+  "tokens_in": 16962572,
+  "tokens_out": 100128,
+  "cost_usd": 7.2103,
+  "tool_calls": 98,
+  "task": "Flagship 10 open-tennis-robots, buildable item: the servo's 5-6 V supply and the cable runs to the turntable, clear of the head out to the hard stops' 36.4 deg reach",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15380",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First elevation-loop model used a cubic Bezier with both end tangents vertical; with a clip under the pivot the control points are collinear, so the family can only make a straight line (and folded curves pass the curvature test). Found by exploring a quintic family; added a fold guard (tangent may not turn >90 deg between samples) to _cable_loop_range.",
+    "An exploratory scratch script split its own source on a marker string and broke (wasted one background run).",
+    "Existing test_elevation_sweep_can_fail asserted Feeder(mast_top_z=700).check() == []; the new cable rule correctly flags that design too, so the test now filters the cable rule out.",
+    "Post front matter: description 233 chars and seo_title 80 chars; caught by venture-preflight and fixed.",
+    "Two new geometry tests were first appended to ElevationStopTest, which has no setUpClass fixture; moved to a new CableGeometryTest class."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "Without build123d in python3 it reports the open-tennis-robots suite as failed with ModuleNotFoundError in a FeederParamsTest (test_take_up_parts_match_the_design imports build123d unguarded). With PATH pointing at a venv holding build123d it passed in 0.3 s, which suggests the CAD tests were not what ran; I ran cad/tests with pytest directly."
+    },
+    {
+      "file": "ventures/open-tennis-robots/cad/otr_cad/params.py",
+      "issue": "_hose_curve_range/_hose_curve_range_3d have the same blind spot I fixed in the new cable function: a fold back along a straight line has zero cross product, so it passes the curvature limit. Hose tangents are rarely collinear, so it is probably harmless, but nobody has checked."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-wiring-a-head-that-turns-and-tilts.md",
+    "ventures/open-tennis-robots/cad/README.md (Cables to the head)"
+  ],
+  "goal": null,
+  "notes": "Landed: Feeder.cable_twist, cable_loop_design (checked over the actuator's whole travel, -30.3 to +45.8 deg), servo_supply, check_cables; CAD parts cable_clip, cable_gland, cable_clamp and cable_crossbar, plus a 14 mm grommet hole in the motor plate; package.cable_sweep (7 elevations x straight and +-36.4 deg, no clash); regenerated feeder package (design_rules [] and collisions []). Finding: a clip under the pivot cannot work (about 8.4 mm of slack possible at R 30 over the 106 mm span, about 13 needed); the loop behind the pivot gives a 353-398 mm window, cut at 376. Servo: 20 AWG leads, 5.68 V at stall; 26 AWG gives 4.88 V and lifts the ground 0.56 V. electronics.md's 6-7.4 V BEC changed to a 6 V buck. No agent doc: everything the next run needs is in cad/README.md and flagships.yaml next. Verification: cad/tests pytest (build123d 0.13.0 venv): 64 passed, then 2 failed because I had put two new geometry tests in ElevationStopTest, which has no parts fixture; moved them to their own CableGeometryTest class, and all 5 cable tests passed (168 s). node platform/pages/venture-preflight.mjs open-tennis-robots: clean, after fixing the post's front-matter lengths. Feeder package regenerated (4 min 14 s), manifest design_rules [] and collisions [].",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7e778b76-9a40-59e0-804b-5d9103037488",
+    "transcripts": 1,
+    "first": "2026-11-13T04:39:29Z",
+    "last": "2026-11-13T05:20:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 93,
+        "input": 180,
+        "output": 100128,
+        "thinking": 48122,
+        "cache_read": 16729761,
+        "cache_write_5m": 0,
+        "cache_write_1h": 232631,
+        "api_equivalent_usd": 7.2103,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 93,
+      "input": 180,
+      "output": 100128,
+      "thinking": 48122,
+      "cache_read": 16729761,
+      "cache_write_5m": 0,
+      "cache_write_1h": 232631,
+      "api_equivalent_usd": 7.2103,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 98,
+    "tools": {
+      "Bash": 96,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 40.96,
+      "active_minutes": 40.96,
+      "model_minutes": 17.17,
+      "tool_minutes": 23.79,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a mechanical/electrical engineer routing a pan-tilt cable harness with a slack analysis, three printed parts and a supply-drop calc",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 138.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

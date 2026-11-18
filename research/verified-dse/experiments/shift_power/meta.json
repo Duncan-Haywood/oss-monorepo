@@ -1,0 +1,68 @@
+{
+ "base_period_ns": {
+  "lzcnorm128": 61.06,
+  "muxshl128": 14.29,
+  "alignsh128": 7.96,
+  "lzcnorm96": 34.79,
+  "muxshl64": 6.66,
+  "alignsh64": 4.42
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "designs": {
+  "lzcnorm96": [
+   "lzcnorm_w",
+   "lzcnorm_w",
+   {
+    "W": 96,
+    "LW": 7
+   },
+   ""
+  ],
+  "lzcnorm128": [
+   "lzcnorm_w",
+   "lzcnorm_w",
+   {
+    "W": 128,
+    "LW": 8
+   },
+   ""
+  ],
+  "alignsh64": [
+   "alignsh_w",
+   "alignsh_w",
+   {
+    "W": 64,
+    "DW": 6
+   },
+   ""
+  ],
+  "alignsh128": [
+   "alignsh_w",
+   "alignsh_w",
+   {
+    "W": 128,
+    "DW": 7
+   },
+   ""
+  ],
+  "muxshl64": [
+   "muxshl_w",
+   "muxshl_w",
+   {
+    "W": 64,
+    "SW": 6
+   },
+   ""
+  ],
+  "muxshl128": [
+   "muxshl_w",
+   "muxshl_w",
+   {
+    "W": 128,
+    "SW": 7
+   },
+   ""
+  ]
+ }
+}

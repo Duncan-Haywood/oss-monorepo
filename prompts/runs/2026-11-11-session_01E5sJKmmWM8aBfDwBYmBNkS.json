@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKmmWM8aBfDwBYmBNkS",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T21:18:03Z",
+  "ended": "2026-11-11T21:27:41Z",
+  "wall_minutes": 10.38,
+  "tokens_in": 6101277,
+  "tokens_out": 32130,
+  "cost_usd": 2.8701,
+  "tool_calls": 55,
+  "task": "Deepen (flagship 3) sales-agent, buildable item (6): the mail-file path on real public Takeout/Thunderbird mbox files",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14893",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First push blocked by the post front-matter hook: description 163 chars (limit 160); shortened and pushed again.",
+    "CI Portfolio validate failed: sales-agent next: 2,171 chars (cap 2,000); trimmed the mail-files history to one sentence.",
+    "After that, Portfolio validate failed on main itself: PR #14896 left quick-pick-survey next: at 2,195 chars. Merged main in and shortened its 'measured, not shipped' list to names (the details are in INFORMATION-GAIN-SELECTOR.md), 2,000 chars."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "sales-agent buildable (1)/(3) need huggingface.co etc.; all returned 000 (no connection) through the proxy in this session too, so only (6) was buildable; recorded that in the row."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "main was red from another PR's quick-pick-survey next: overflow; fixed forward in this PR rather than wait",
+      "did": "shortened one sentence to its item names; details remain in the venture's doc",
+      "result": "validate passes locally"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-the-from-line-that-splits-your-mailbox.md",
+    "ventures/sales-agent/eval/README.md (Public mbox files)"
+  ],
+  "goal": null,
+  "notes": "Model hosts (huggingface.co, hf-mirror, ollama, gpt4all) unreachable; took item (6). Found 11 public mbox files via GitHub code search (X-Gmail-Labels / X-Mozilla-Status); fetched at run time, counts only, not committed (licences unknown); left out a personal mailbox. Reader matched Python mailbox/email on all files including two faults; fixed both: (1) unescaped body 'From ' lines split messages (envelope check: next line header with space after colon, or envelope-with-date line); (2) declared MIME boundary absent from body -> fallback to the body's first '--' line followed by Content- header. Enron 0* (32,211 msgs): mboxrd round trip unchanged (32,210 identical); new --mboxo mode: 139 messages hold 157 such lines, naive split cuts 139, new splitter 0 extra splits (first version 7, URL lines matched header regex, fixed). Venture suite 490/490 before the last tweak; mailfile+page tests 23/23 after; venture-preflight run in background.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "81bf98f1-29f1-5988-b521-3164bc80d8a3",
+    "transcripts": 1,
+    "first": "2026-11-11T21:18:03Z",
+    "last": "2026-11-11T21:28:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 100,
+        "output": 32130,
+        "thinking": 8682,
+        "cache_read": 5972090,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129087,
+        "api_equivalent_usd": 2.8701,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 100,
+      "output": 32130,
+      "thinking": 8682,
+      "cache_read": 5972090,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129087,
+      "api_equivalent_usd": 2.8701,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 53,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.38,
+      "active_minutes": 10.38,
+      "model_minutes": 8.12,
+      "tool_minutes": 2.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "find and vet public mbox files, two parser fixes with tests, Enron-scale check, docs and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 209.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

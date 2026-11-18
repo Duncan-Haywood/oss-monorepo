@@ -44,6 +44,24 @@ export function workersDevHeaders() {
     `  X-Robots-Tag: noindex\n`;
 }
 
+/** Baseline response headers for every static file, on both Workers. Before
+ *  2026-11-10 the site sent none (quality audit, portfolio/quality/audits/
+ *  2026-11-10-platform-pages-cloudflare.json). Deliberately left out:
+ *  frame protection (X-Frame-Options, frame-ancestors), because the tools
+ *  are meant to be embedded on other sites (embed.mjs), and a Content-
+ *  Security-Policy, which needs an inventory of every page's inline scripts
+ *  and endpoints first. HSTS omits includeSubDomains and preload: both are
+ *  hard to undo, and no subdomain is served yet. */
+export const SECURITY_HEADERS = Object.freeze({
+  'Strict-Transport-Security': 'max-age=31536000',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+});
+
+export function securityHeaders() {
+  return '/*\n' + Object.entries(SECURITY_HEADERS).map(([k, v]) => `  ${k}: ${v}\n`).join('');
+}
+
 export async function split(siteDir, shardDir) {
   await fs.mkdir(shardDir, { recursive: true });
   for (const d of SHARD_DIRS) {
@@ -54,7 +72,9 @@ export async function split(siteDir, shardDir) {
   const site = await survey(siteDir);
   const shard = await survey(shardDir);
   // After the count: Cloudflare reads _headers as configuration, not an asset.
-  await fs.writeFile(path.join(siteDir, '_headers'), workersDevHeaders());
+  await fs.writeFile(path.join(siteDir, '_headers'), workersDevHeaders() + securityHeaders());
+  // The shard serves its own assets, so its responses need the rule too.
+  await fs.writeFile(path.join(shardDir, '_headers'), securityHeaders());
   const problems = [];
   for (const [name, s] of [['site', site], ['shard', shard]]) {
     if (s.files > MAX_FILES) problems.push(`${name}: ${s.files} files, over the free plan's ${MAX_FILES}`);

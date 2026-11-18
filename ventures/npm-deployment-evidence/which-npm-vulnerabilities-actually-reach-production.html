@@ -22,6 +22,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← npm deployment evidence</a></p>
   <h1>Which npm vulnerabilities actually reach production?</h1>
   <p><code>npm audit</code> returns 94 findings and a customer's security questionnaire asks whether your deployed application is affected. The honest answer needs a distinction the audit output does not draw: which of those packages your running application actually loads, and which exist only so that your tests, bundler, linter and type checker can run.</p>
@@ -57,7 +58,9 @@
   <h3>Is this a security scanner?</h3>
   <p>No, and it deliberately does not try to be. It reads a <code>package-lock.json</code> you supply and reports which dependencies reach the production path and which npm marks dev-only. It has no vulnerability database, makes no network calls, and never uploads the lockfile. Use it to give a scanner's output the reachability context it lacks, not to replace the scanner.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This free page is not security, legal, or compliance advice, and it does not certify that an application is secure, unaffected, or compliant. It reports what a lockfile records about dependency paths; a lockfile can be out of date, and reachability in the dependency graph is not the same as reachability of vulnerable code at runtime. Verify with a qualified professional before relying on it in an audit or a customer response. To the maximum extent permitted by law, the authors accept no liability for loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p><a href="./">Use the tool</a> · <a href="LICENSE" rel="noopener">Licence</a></p>

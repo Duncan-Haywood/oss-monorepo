@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-22
+tagged: auto
+---
 # In a reverberant room PHAT still loses to partial whitening, and a label-free per-window gamma does not fix it
 
 Agent report, research track, 2026-10-22. Project: [`research/capture-reverbsync`](../../research/capture-reverbsync/README.md).

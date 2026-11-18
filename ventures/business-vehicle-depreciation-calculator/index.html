@@ -127,7 +127,7 @@ node cli.mjs compare --price 80000 --business-pct 90 --class heavy_suv --limits 
       $("#estimate").textContent = LIMITS_AS_OF + ". Your numbers; not tax advice.";
       $("#report-card").hidden = false;
       record("compare_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#calc").addEventListener("click", render);
 

@@ -1,13 +1,26 @@
-import test from "node:test";
+import test, { after } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createApp, loadConfig } from "./server.mjs";
+
+// A test that fails an assertion never reaches its own `await s.close()`, and a
+// listening server keeps `node --test` from exiting: one caught regression then
+// hung the suite until the runner's timeout instead of failing in seconds
+// (red-team run 2026-11-12, four mutants of endpoint.mjs). Close what is left.
+const open = new Set();
+after(() => Promise.all([...open].map((close) => close())));
 
 async function start(env = {}) {
   const server = createApp(loadConfig(env));
   await new Promise((r) => server.listen(0, "127.0.0.1", r));
   const base = `http://127.0.0.1:${server.address().port}`;
-  return { base, close: () => new Promise((r) => { server.close(r); server.closeAllConnections(); }) };
+  const close = () => new Promise((r) => {
+    if (!open.delete(close)) return r();
+    server.close(() => r());
+    server.closeAllConnections();
+  });
+  open.add(close);
+  return { base, close };
 }
 const ex = (f) => readFile(new URL(`./examples/${f}`, import.meta.url));
 
@@ -86,6 +99,22 @@ test("POST /v1/generate writes UBL that passes its own preflight", async () => {
   assert.match(j.xml, /<Invoice /);
   assert.equal(j.preflight.status, "pass");
   assert.deepEqual(j.totals, { net: 350, tax: 48.5, gross: 398.5, prepaid: 0, due: 398.5 });
+  await s.close();
+});
+
+test("POST /v1/generate with format facturx returns a Factur-X PDF that passes its own preflight", async () => {
+  const s = await start();
+  const draft = JSON.parse((await ex("draft-invoice.json")).toString());
+  const r = await fetch(`${s.base}/v1/generate`, { method: "POST", body: JSON.stringify({ draft, format: "facturx" }) });
+  const j = await r.json();
+  assert.equal(r.status, 200);
+  assert.equal(j.ok, true);
+  assert.equal(j.filename, "RE-2026-001.pdf");
+  assert.equal(Buffer.from(j.pdf_base64, "base64").subarray(0, 8).toString("latin1"), "%PDF-1.7");
+  assert.match(j.xml, /CrossIndustryInvoice/);
+  assert.equal(j.preflight.status, "pass");
+  const peppol = await fetch(`${s.base}/v1/generate`, { method: "POST", body: JSON.stringify({ draft, format: "facturx", profile: "peppol" }) });
+  assert.equal(peppol.status, 422);
   await s.close();
 });
 

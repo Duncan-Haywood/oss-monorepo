@@ -62,13 +62,22 @@ documented piece of it.
                   stage in the same file, not a registry pull. Skipped.
   - `scratch`  -- `FROM scratch`, Docker's empty virtual base image. It is
                   not pulled from anywhere and cannot be repointed. Skipped.
-  - `variable` -- the reference contains a build-arg substitution (`$FOO` or
-                  `${FOO}`) anywhere in it, so the actual image cannot be
-                  determined from this file alone. Skipped -- resolve the
-                  build arg's value yourself and re-run.
+  - `unresolved` -- the reference uses a build arg (`$FOO`, `${FOO}`) that
+                  no `ARG` line before the first `FROM` gives a default, so
+                  the image cannot be known from this file. Flagged and
+                  counted as a risk: nothing in the file shows it is pinned.
+
+Build args. An `ARG NAME=value` before the first `FROM` is a global build arg
+and the only kind a `FROM` line can use (Docker's Dockerfile reference,
+"Understand how ARG and FROM interact"). Such defaults are substituted
+(`$X`, `${X}`, `${X:-word}`, `${X-word}`, `${X:+word}`, `${X+word}`) and the
+result classified as above, with the original text kept in `from_arg`. A
+`--build-arg` at build time can override a default; this tool reads the
+file, so it checks the default a plain `docker build` would use.
 
 Exit status: 0 normally (even with mutable findings, unless --fail-on-risk),
-2 if --fail-on-risk was given and at least one mutable finding exists.
+2 if --fail-on-risk was given and at least one mutable or unresolved finding
+exists.
 """
 
 import argparse
@@ -82,15 +91,83 @@ MUTABLE = "mutable"
 STAGE = "stage"
 SCRATCH = "scratch"
 VARIABLE = "variable"
+UNRESOLVED = "unresolved"
 
-RISK_CLASSIFICATIONS = frozenset({MUTABLE})
+RISK_CLASSIFICATIONS = frozenset({MUTABLE, UNRESOLVED})
 
-# A digest reference is `@<algorithm>:<hex>` -- sha256 is what every current
-# registry and buildkit version actually produces, but the reference grammar
+# A digest reference is `@<algorithm>:<hex>`. The reference grammar
 # (github.com/distribution/reference) allows any lowercase alphanumeric
-# algorithm name, so this does not hardcode "sha256" the way it would if it
-# only mattered for messaging.
-_DIGEST_RE = re.compile(r"^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[0-9a-f]{32,}$")
+# algorithm name with at least 32 hex characters, and the OCI image spec
+# (descriptor.md, "Registered algorithms") fixes the two registered ones:
+# sha256 is exactly 64 and sha512 exactly 128 lowercase hex characters.
+# Docker rejects `@sha256:` with 40 hex characters or upper case, so those
+# are not pinned.
+_DIGEST_RE = re.compile(r"^(?P<algo>[a-z0-9]+(?:[+._-][a-z0-9]+)*):(?P<hex>[0-9a-fA-F]{32,})$")
+_REGISTERED_DIGEST_HEX = {"sha256": 64, "sha512": 128}
+
+
+def digest_is_valid(digest):
+    match = _DIGEST_RE.match(digest)
+    if not match:
+        return False
+    want = _REGISTERED_DIGEST_HEX.get(match.group("algo"))
+    if want is None:
+        return True
+    hex_part = match.group("hex")
+    return len(hex_part) == want and hex_part == hex_part.lower()
+
+
+_ARG_RE = re.compile(r"^\s*ARG\s+(?P<body>.+?)\s*$", re.IGNORECASE)
+_VAR_RE = re.compile(
+    r"\$(?:\{(?P<braced>[A-Za-z_][A-Za-z0-9_]*)(?:(?P<op>:?[-+])(?P<word>[^}]*))?\}"
+    r"|(?P<bare>[A-Za-z_][A-Za-z0-9_]*))"
+)
+
+
+def parse_arg(body, args):
+    """Record each `NAME` or `NAME=value` of one ARG instruction in args.
+    A name with no default maps to None. Values may use earlier args."""
+    for token in body.split():
+        name, eq, value = token.partition("=")
+        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+            continue
+        if not eq:
+            args.setdefault(name, None)
+            continue
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        expanded, missing = expand_args(value, args)
+        args[name] = None if missing else expanded
+
+
+def expand_args(text, args):
+    """Substitute build args the way a plain `docker build` (no --build-arg)
+    would. Returns (text, names_with_no_value)."""
+    missing = []
+
+    def sub(match):
+        name = match.group("braced") or match.group("bare")
+        value = args.get(name)
+        is_set = value is not None
+        op = match.group("op")
+        word = match.group("word") or ""
+        if op == ":-":
+            return value if is_set and value != "" else word
+        if op == "-":
+            return value if is_set else word
+        if op == ":+":
+            return word if is_set and value != "" else ""
+        if op == "+":
+            return word if is_set else ""
+        if not is_set:
+            missing.append(name)
+            return match.group(0)
+        return value
+
+    out = _VAR_RE.sub(sub, text)
+    if "$" in out and not missing:
+        missing.append(out)
+    return out, missing
 
 # Matches a `FROM` instruction, tolerating the optional `--platform=...` flag
 # and an optional `AS <stage-name>` suffix. Dockerfile instructions are
@@ -133,7 +210,9 @@ def split_name_and_ref(ref):
 
 def classify_from(ref, stage_names):
     """Classify one `FROM` reference. Returns (classification, name, tag, digest)."""
-    if ref in stage_names:
+    # BuildKit matches stage names case-insensitively; scan_text stores them
+    # lowercased.
+    if ref.lower() in stage_names:
         return STAGE, ref, None, None
     if ref.lower() == "scratch":
         return SCRATCH, ref, None, None
@@ -143,7 +222,7 @@ def classify_from(ref, stage_names):
     name, tag, digest = split_name_and_ref(ref)
 
     if digest is not None:
-        if _DIGEST_RE.match(digest.lower()):
+        if digest_is_valid(digest):
             return PINNED, name, None, digest
         # Malformed digest-shaped suffix -- not a form buildkit would accept,
         # but not this tool's job to validate Dockerfile syntax either. Treat
@@ -156,28 +235,81 @@ def classify_from(ref, stage_names):
 def remediation_command(name, tag):
     """The exact, read-only command to look up the digest a mutable tag
     currently resolves to. This tool never runs it."""
+    if not tag:
+        # A malformed digest on a tagged image (`node:18@sha256:abc`) keeps
+        # its tag in `name`; look that tag up rather than `node:18:latest`.
+        name, tag, _ = split_name_and_ref(name)
     ref = f"{name}:{tag}" if tag else f"{name}:latest"
     return f"docker buildx imagetools inspect {ref}"
 
 
-def scan_text(text, filename="<Dockerfile>"):
-    """Scan one Dockerfile's text. Returns a list of finding dicts."""
-    findings = []
-    stage_names = set()
+def logical_lines(text):
+    """Join backslash-continued lines into one instruction, the way BuildKit
+    reads them, and drop comment lines. Returns (start_lineno, text) pairs.
+    Comment and blank lines inside a continuation are skipped, as BuildKit
+    does. Mirrors classify.mjs's logicalLines."""
+    out = []
+    buffer = None
+    start = 0
     for lineno, line in enumerate(text.splitlines(), start=1):
         stripped = line.strip()
-        if stripped.startswith("#"):
+        if buffer is None:
+            if stripped.startswith("#"):
+                continue
+            start = lineno
+            buffer = ""
+        elif not stripped or stripped.startswith("#"):
             continue
+        trimmed = line.rstrip()
+        if trimmed.endswith("\\"):
+            buffer += trimmed[:-1] + " "
+        else:
+            out.append((start, buffer + line))
+            buffer = None
+    if buffer is not None:
+        out.append((start, buffer))
+    return out
+
+
+def scan_text(text, filename="<Dockerfile>", stats=None):
+    """Scan one Dockerfile's text. Returns a list of finding dicts. When
+    `stats` is a dict, its "from_lines" count is increased by the number of
+    FROM instructions read, findings or not."""
+    findings = []
+    stage_names = set()
+    global_args = {}
+    seen_from = False
+    for lineno, line in logical_lines(text):
+        if not seen_from:
+            arg = _ARG_RE.match(line)
+            if arg:
+                parse_arg(arg.group("body"), global_args)
+                continue
         match = _FROM_RE.match(line)
         if not match:
             continue
+        seen_from = True
+        if stats is not None:
+            stats["from_lines"] = stats.get("from_lines", 0) + 1
         ref = match.group("ref")
         alias = match.group("alias")
-        classification, name, tag, digest = classify_from(ref, stage_names)
+        original = ref
+        missing = []
+        if looks_variable(ref):
+            ref, missing = expand_args(ref, global_args)
+        if missing:
+            classification, name, tag, digest = UNRESOLVED, original, None, None
+            _, _, after_at = original.rpartition("@")
+            if "@" in original and "$" not in after_at and digest_is_valid(after_at):
+                # The digest is literal even though the name varies.
+                classification, digest = PINNED, after_at
+                name = original.rsplit("@", 1)[0]
+        else:
+            classification, name, tag, digest = classify_from(ref, stage_names)
         if alias:
-            stage_names.add(alias)
-        if classification not in (PINNED, MUTABLE):
-            continue  # stage/scratch/variable: not a third-party pull, not this tool's concern
+            stage_names.add(alias.lower())
+        if classification not in (PINNED, MUTABLE, UNRESOLVED):
+            continue  # stage/scratch: not a third-party pull, not this tool's concern
         finding = {
             "file": filename,
             "line": lineno,
@@ -186,8 +318,18 @@ def scan_text(text, filename="<Dockerfile>"):
             "digest": digest,
             "classification": classification,
         }
+        if original != ref or missing:
+            finding["from_arg"] = original
         if classification == MUTABLE:
             finding["remediation"] = remediation_command(name, tag)
+        if classification == UNRESOLVED:
+            names = sorted({m for m in missing if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", m)})
+            finding["unresolved_args"] = names
+            finding["note"] = (
+                "no ARG default before the first FROM sets "
+                + (", ".join(names) if names else "this substitution")
+                + "; give it one pinned to a digest, or check what --build-arg passes"
+            )
         findings.append(finding)
     return findings
 
@@ -210,7 +352,7 @@ def discover_dockerfiles(root):
     return sorted(files)
 
 
-def scan_path(root):
+def scan_path(root, stats=None):
     """Scan every Dockerfile under root. Returns a flat list of findings."""
     findings = []
     for path in discover_dockerfiles(root):
@@ -219,7 +361,7 @@ def scan_path(root):
         except OSError as exc:
             print(f"warning: could not read {path}: {exc}", file=sys.stderr)
             continue
-        findings.extend(scan_text(text, filename=str(path)))
+        findings.extend(scan_text(text, filename=str(path), stats=stats))
     return findings
 
 
@@ -227,30 +369,45 @@ def has_unresolved_risk(findings):
     return any(f["classification"] in RISK_CLASSIFICATIONS for f in findings)
 
 
-def render_text(findings, root):
+def render_text(findings, root, from_lines=None):
     if not findings:
         files = discover_dockerfiles(root)
         if not files:
             return "No Dockerfile, Dockerfile.*, or *.dockerfile found under " + str(root)
+        if from_lines:
+            return (
+                f"Scanned {len(files)} Dockerfile(s); all {from_lines} FROM line(s) are "
+                "scratch or earlier build stages, so nothing is pulled from a registry."
+            )
         return f"Scanned {len(files)} Dockerfile(s); no FROM lines found to classify."
 
     mutable = [f for f in findings if f["classification"] == MUTABLE]
     pinned = [f for f in findings if f["classification"] == PINNED]
+    unresolved = [f for f in findings if f["classification"] == UNRESOLVED]
 
     lines = []
+    for f in unresolved:
+        lines.append(f"?? {f['file']}:{f['line']}  FROM {f['image']} (build arg with no default)")
+        lines.append(f"     {f['note']}")
+        lines.append("")
     for f in mutable:
         ref_display = f"{f['image']}:{f['tag']}" if f["tag"] else f"{f['image']} (no tag -- resolves to :latest)"
         if f.get("digest"):
             ref_display = f"{f['image']}@{f['digest']} (malformed digest)"
+        if f.get("from_arg"):
+            ref_display += f" (from {f['from_arg']} with its ARG defaults)"
         lines.append(f"!! {f['file']}:{f['line']}  FROM {ref_display}")
         if f.get("remediation"):
             lines.append(f"     fix: {f['remediation']}")
         lines.append("")
 
-    lines.append(
-        f"{len(mutable)} mutable base image reference(s) found, {len(pinned)} already pinned to a digest."
-    )
-    if mutable:
+    summary = f"{len(mutable)} mutable base image reference(s) found, {len(pinned)} already pinned to a digest."
+    if unresolved:
+        summary += f" {len(unresolved)} built from a build arg with no default, so not shown to be pinned."
+    lines.append(summary)
+    if unresolved and not mutable:
+        lines.append("No mutable tag was found, but the unresolved line(s) above are not shown to be pinned.")
+    elif mutable:
         lines.append(
             "A tag -- even a specific-looking one like :18 -- can be repointed at a "
             "different image by its publisher at any time. Run the imagetools command "
@@ -273,16 +430,17 @@ def main(argv=None):
     parser.add_argument(
         "--fail-on-risk",
         action="store_true",
-        help="exit 2 when any mutable (unpinned) base image reference is found",
+        help="exit 2 when any mutable or unresolved (unpinned) base image reference is found",
     )
     args = parser.parse_args(argv)
 
-    findings = scan_path(args.path)
+    stats = {}
+    findings = scan_path(args.path, stats=stats)
 
     if args.format == "json":
         print(json.dumps(findings, indent=2))
     else:
-        print(render_text(findings, args.path))
+        print(render_text(findings, args.path, stats.get("from_lines", 0)))
 
     if args.fail_on_risk and has_unresolved_risk(findings):
         return 2

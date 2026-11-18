@@ -2,7 +2,7 @@
 
 Track 8 (task-specific AI accelerators) in `PROJECTS.md`, milestone 5 re-run. `accel-sparse` swept pruning, int4/int8, ternary and binary MLPs but on scikit-learn's 8x8 digits, because Speech Commands was unreachable that day. On digits, a ternary pruned-50% MLP stayed within 1 point of float32 with no multiplier. Here the same 13 designs, the same training code and the same energy model run on the Speech Commands v0.02 MFCC features of `accel-kws`. **Headline: on this task no multiplier-free design comes within 5 points of float32.** The digits conclusion does not transfer. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-kwssparse/
+**Live page:** https://marisstella.app/research/accel-kwssparse/
 
 **Builds on.** `research/accel-sparse` (model, quantisers, pruning schedule and cost model are imported unchanged), `research/accel-kws` (MFCC front end, 11-class task, features from `prepare_features.py`). Ideas as cited in `accel-sparse`: Zhu and Gupta (2017) gradual pruning, Li and Liu (2016) ternary weight networks, Courbariaux et al. (2015) BinaryConnect. Those citations were not re-checked here. No CU Boulder group's work is built on or implied.
 
@@ -46,6 +46,9 @@ Test accuracy over 5 seeds; drop is paired against float32 (`experiments/results
 - Accuracies (about 72% for float32) are those of a one-hidden-layer MLP on pooled MFCCs, far below published keyword-spotting models; a larger or convolutional model might tolerate ternary weights. Only hidden width 64 was run, so "ternary fails" is for this size.
 - Ternary and binary were trained for the same 30 epochs as the others with the straight-through estimator and no tuning (no learning-rate, threshold or width search); a tuned or wider ternary net could close part of the gap. This is a negative result under an untuned recipe.
 - Energy is modelled from assumed 45 nm constants, with no RTL, synthesis or silicon. Seeds vary initialisation only, not the data split.
+- "Multiplier-free" counts only the per-weight arithmetic: the per-tensor scale multiply of a ternary or binary layer, biases and requantisation are not priced for any design (`accel-sparse/src/accel_sparse/cost.py`, `layer_energy_pj`). They are a few dozen operations per layer against thousands of weights here, so they would not move the ranking, but the label is not literal.
+- The "cheapest design within N points" lines pick on test accuracy, not validation accuracy (`experiments/run.py`, `report`), so the pick and its reported accuracy come from the same split.
+- The tests pin the energy and storage model to hand computations and recompute every figure in `results.json` from its stored nonzero counts (added 2026-11-16 after quality audit `portfolio/quality/audits/2026-11-07-accel-kwssparse.json`); the accuracies themselves are not reproduced in CI, as the features are not committed.
 
 ## Next steps
 Widen the hidden layer under ternary weights until it matches int8 accuracy and compare the energy at equal accuracy; add the lookup-table variant; synthesise the pruned int8 engine.

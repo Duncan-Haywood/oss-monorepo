@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23284a3c'/%3E%3Cpath%20d='M16%209l6%207-6%207-6-7z'%20fill='%23fff'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Meta-Analysis Calculator: Random Effects, Forest Plot, I² and Prediction Interval</title>
+  <meta name="description" content="Free meta-analysis calculator. Paste study results (2x2 counts, means and SDs, or estimates with confidence intervals) and get the pooled effect with REML, DerSimonian-Laird or Paule-Mandel, Hartung-Knapp intervals, I-squared, a prediction interval, a forest plot, a funnel plot with Egger's test, leave-one-out and meta-regression. Checked against statsmodels and metafor. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Meta-analysis in your browser: pooled effect, heterogeneity and the next study's range">
+  <meta property="og:description" content="Random-effects meta-analysis on your own CSV: REML, DL and Paule-Mandel, Hartung-Knapp intervals, I-squared with its interval, a prediction interval, forest and funnel plots, Egger's test and meta-regression.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Meta-Analysis Calculator: Random Effects, Forest Plot and Meta-Regression", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Pool study results with a random-effects model (REML, DerSimonian-Laird or Paule-Mandel), with Hartung-Knapp intervals, I-squared and its confidence interval, a prediction interval, forest and funnel plots, Egger's test, leave-one-out and meta-regression on a moderator. Runs in the browser.", "isAccessibleForFree": true, "license": "https://opensource.org/licenses/MIT"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+    {"@type": "Question", "name": "Fixed effect or random effects?", "acceptedAnswer": {"@type": "Answer", "text": "A common-effect (fixed) model assumes every study measures the same true effect and differs only by chance. A random-effects model lets the true effect vary between studies and estimates the mean of that distribution. When studies differ in population, dose or setting, the random-effects model is the honest default; the two agree when heterogeneity is zero."}},
+    {"@type": "Question", "name": "What does I-squared mean?", "acceptedAnswer": {"@type": "Answer", "text": "The share of the spread in study results that reflects real differences between studies rather than chance. It is not the size of those differences: tau, the standard deviation of the true effects, is. With few studies I-squared is very uncertain, which is why its confidence interval is shown."}},
+    {"@type": "Question", "name": "Why show a prediction interval?", "acceptedAnswer": {"@type": "Answer", "text": "The confidence interval says where the average effect is. The prediction interval says where the true effect of a new study, in a new setting, is likely to fall. With large heterogeneity a treatment can help on average and still do nothing, or harm, in some settings; the prediction interval shows that and the confidence interval hides it."}},
+    {"@type": "Question", "name": "Should I use the Hartung-Knapp interval?", "acceptedAnswer": {"@type": "Answer", "text": "With few studies, usually yes. The usual Wald interval treats the between-study variance as known. In simulations on this page the 95% Wald interval covered the true mean 87 to 94% of the time, and the Hartung-Knapp interval 93 to 96%."}},
+    {"@type": "Question", "name": "Does a significant Egger's test prove publication bias?", "acceptedAnswer": {"@type": "Answer", "text": "No. It says small studies report different effects from large ones. Publication bias is one cause; others are real differences in small studies (different patients, more intensive treatment), poorer methods in small studies, and chance. With fewer than 10 studies the test has little power."}}
+  ]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b211e; background: #f2f5f3; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #23614a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d3b30; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3b30; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b5650; }
+    .card { background: #fff; border: 1px solid #d3ddd8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3b3010; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8379; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #23614a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e0ece6; color: #1d3b30; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3ebe7; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4b5650; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.chosen td { font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d3ddd8; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 170px; padding: 9px 10px; border: 1px solid #6c8379; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+    .summary li { margin: 4px 0; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    pre { background: #f3f7f5; border: 1px solid #dde7e2; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">RANDOM EFFECTS · REML · HARTUNG-KNAPP · I² · PREDICTION INTERVAL · FOREST AND FUNNEL PLOTS · META-REGRESSION · NOTHING UPLOADED</p>
+    <h1>What do these studies say together, and how much do they disagree?</h1>
+    <p>Paste one row per study: event counts in two groups, means and SDs, or an estimate with its confidence interval. You get the <strong>pooled effect</strong> from a random-effects model (REML, DerSimonian-Laird or Paule-Mandel) with the usual and the <strong>Hartung-Knapp</strong> interval, <strong>heterogeneity</strong> (Q, I² with its own interval, &tau;²), a <strong>prediction interval</strong> for the next study, a <strong>forest plot</strong>, a <strong>funnel plot</strong> with Egger's test, <strong>leave-one-out</strong> checks and a <strong>meta-regression</strong> on a study-level moderator.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical estimates from the results you supply, not advice. Not legal, tax, or financial advice, and not medical advice or a substitute for a systematic review.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your studies</h2>
+    <label for="csv">CSV with a header row, one study a row (comma, tab or semicolon)</label>
+    <textarea id="csv" spellcheck="false" placeholder="study,events_t,n_t,events_c,n_c&#10;Smith 2019,12,100,20,98&#10;...&#10;&#10;or: study,mean1,sd1,n1,mean2,sd2,n2&#10;or: study,or,lower,upper&#10;or: study,yi,sei"></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: 13 BCG vaccine trials (Colditz et al. 1994)</button>
+    <p class="note" id="data-status">Column names are matched loosely: tpos/tneg/cpos/cneg, events_t/n_t/events_c/n_c, mean1/sd1/n1/mean2/sd2/n2, yi/sei, yi/vi or estimate/lower/upper.</p>
+
+    <div class="grid">
+      <div><label for="layout">Layout</label><select id="layout">
+        <option value="auto">Detect from the column names</option>
+        <option value="cells">2x2 counts: events and non-events per group</option>
+        <option value="totals">Events and totals per group</option>
+        <option value="continuous">Means, SDs and sizes</option>
+        <option value="generic-ci">Estimate with a confidence interval</option>
+        <option value="generic-se">Effect and standard error</option>
+        <option value="generic-var">Effect and variance</option>
+      </select></div>
+      <div><label for="measure">Effect measure</label><select id="measure">
+        <option value="auto">Automatic (RR for counts, Hedges' g for means)</option>
+        <option value="RR">Risk ratio</option>
+        <option value="OR">Odds ratio</option>
+        <option value="RD">Risk difference</option>
+        <option value="SMD">Standardised mean difference (Hedges' g)</option>
+        <option value="MD">Mean difference</option>
+      </select></div>
+      <div><label for="ratio">Estimates are ratios (OR, RR, HR)?</label><select id="ratio">
+        <option value="auto">Detect</option>
+        <option value="yes">Yes: pool on the log scale</option>
+        <option value="no">No: pool as given</option>
+      </select></div>
+      <div><label for="method">Between-study variance</label><select id="method">
+        <option value="REML">REML (default)</option>
+        <option value="DL">DerSimonian-Laird</option>
+        <option value="PM">Paule-Mandel</option>
+        <option value="FE">None: common (fixed) effect</option>
+      </select></div>
+      <div><label for="confidence">Interval level</label><select id="confidence">
+        <option value="0.95">95%</option>
+        <option value="0.9">90%</option>
+        <option value="0.99">99%</option>
+      </select></div>
+      <div><label for="moderator">Meta-regression on (optional)</label><select id="moderator"></select></div>
+    </div>
+    <button type="button" id="analyze">Pool the studies</button>
+    <p class="note" id="busy" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <ul class="summary" id="summary"></ul>
+    <div id="warnings"></div>
+    <h3>Forest plot</h3>
+    <div id="forest"></div>
+    <div id="study-table"></div>
+    <h3>Every estimator side by side</h3>
+    <div id="methods"></div>
+    <h3>Funnel plot</h3>
+    <div id="funnel"></div>
+    <div id="loo"></div>
+    <div id="reg"></div>
+    <button type="button" class="secondary" id="download">Download the full result (JSON)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>Effect sizes.</strong> From counts: the log risk ratio, log odds ratio or risk difference with their large-sample variances; a table with a zero cell gets 0.5 added to every cell, and a study with no events in either group is left out of a ratio analysis. From means: the mean difference, or Hedges' g with the small-sample correction J = 1 - 3/(4df - 1) (Hedges 1981) and the variance in Borenstein et al. (2009, ch. 4). From an estimate and interval: the standard error is the interval's width over 2 &times; 1.96, on the log scale for ratios.</p>
+    <p><strong>Pooling.</strong> Each study is weighted by 1/(v<sub>i</sub> + &tau;²). The between-study variance &tau;² is estimated by restricted maximum likelihood (Fisher scoring; Viechtbauer 2005), the DerSimonian &amp; Laird (1986) method of moments, or Paule &amp; Mandel (1982); &tau;² = 0 gives the common-effect model. The Wald interval uses the normal quantile; the Knapp-Hartung interval (Knapp &amp; Hartung 2003; also called Hartung-Knapp-Sidik-Jonkman) scales the variance by the weighted residual mean square and uses t on k - 1 df.</p>
+    <p><strong>Heterogeneity.</strong> Cochran's Q; I² = &tau;²/(&tau;² + s²) with s² the typical within-study variance (Higgins &amp; Thompson 2002; for DL this equals (Q - df)/Q); the Q-profile interval for &tau;², carried to I² (Viechtbauer 2007). <strong>Prediction interval:</strong> estimate &plusmn; t<sub>k-2</sub> &radic;(&tau;² + SE²) (Riley, Higgins &amp; Deeks 2011). <strong>Small-study effects:</strong> Egger's regression of y/SE on 1/SE, intercept tested with t on k - 2 df (Egger et al. 1997). <strong>Meta-regression:</strong> a mixed-effects model with one moderator, &tau;² by the chosen estimator, R² as the share of &tau;² explained.</p>
+    <p><strong>Checked.</strong> On the bundled trials every estimate agrees with statsmodels 0.15.0 (DerSimonian-Laird, Paule-Mandel, Hartung-Knapp, Q) and with REML found by a separate likelihood maximisation in scipy, to 1e-6 or better, and with the analysis of the same trials printed in metafor's README to every digit shown (&tau;² 0.3132, I² 92.22%, Hartung-Knapp interval -1.1084 to -0.3206 on the log scale). In 2000 simulated meta-analyses for each of six settings (5 to 20 studies), the 95% Wald interval covered the true mean 87 to 94% of the time and the Hartung-Knapp interval 93 to 96%; the prediction interval held 85 to 93% of the true study effects.</p>
+    <pre>@article{dersimonian1986meta, author = {DerSimonian, Rebecca and Laird, Nan}, title = {Meta-analysis in clinical trials}, journal = {Controlled Clinical Trials}, volume = {7}, number = {3}, pages = {177--188}, year = {1986}, doi = {10.1016/0197-2456(86)90046-2}}
+@article{viechtbauer2005bias, author = {Viechtbauer, Wolfgang}, title = {Bias and efficiency of meta-analytic variance estimators in the random-effects model}, journal = {Journal of Educational and Behavioral Statistics}, volume = {30}, number = {3}, pages = {261--293}, year = {2005}, doi = {10.3102/10769986030003261}}
+@article{paule1982consensus, author = {Paule, Robert C. and Mandel, John}, title = {Consensus values and weighting factors}, journal = {Journal of Research of the National Bureau of Standards}, volume = {87}, number = {5}, pages = {377--385}, year = {1982}, doi = {10.6028/jres.087.022}}
+@article{knapp2003improved, author = {Knapp, Guido and Hartung, Joachim}, title = {Improved tests for a random effects meta-regression with a single covariate}, journal = {Statistics in Medicine}, volume = {22}, number = {17}, pages = {2693--2710}, year = {2003}, doi = {10.1002/sim.1482}}
+@article{higgins2002quantifying, author = {Higgins, Julian P. T. and Thompson, Simon G.}, title = {Quantifying heterogeneity in a meta-analysis}, journal = {Statistics in Medicine}, volume = {21}, number = {11}, pages = {1539--1558}, year = {2002}, doi = {10.1002/sim.1186}}
+@article{riley2011interpretation, author = {Riley, Richard D. and Higgins, Julian P. T. and Deeks, Jonathan J.}, title = {Interpretation of random effects meta-analyses}, journal = {BMJ}, volume = {342}, pages = {d549}, year = {2011}, doi = {10.1136/bmj.d549}}
+@article{viechtbauer2007confidence, author = {Viechtbauer, Wolfgang}, title = {Confidence intervals for the amount of heterogeneity in meta-analysis}, journal = {Statistics in Medicine}, volume = {26}, number = {1}, pages = {37--52}, year = {2007}, doi = {10.1002/sim.2514}}
+@article{egger1997bias, author = {Egger, Matthias and Davey Smith, George and Schneider, Martin and Minder, Christoph}, title = {Bias in meta-analysis detected by a simple, graphical test}, journal = {BMJ}, volume = {315}, number = {7109}, pages = {629--634}, year = {1997}, doi = {10.1136/bmj.315.7109.629}}
+@article{hedges1981distribution, author = {Hedges, Larry V.}, title = {Distribution theory for Glass's estimator of effect size and related estimators}, journal = {Journal of Educational Statistics}, volume = {6}, number = {2}, pages = {107--128}, year = {1981}, doi = {10.3102/10769986006002107}}
+@article{colditz1994efficacy, author = {Colditz, Graham A. and Brewer, Timothy F. and Berkey, Catherine S. and Wilson, Mary E. and Burdick, Elisabeth and Fineberg, Harvey V. and Mosteller, Frederick}, title = {Efficacy of {BCG} vaccine in the prevention of tuberculosis: meta-analysis of the published literature}, journal = {JAMA}, volume = {271}, number = {9}, pages = {698--702}, year = {1994}, doi = {10.1001/jama.1994.03510330076038}}</pre>
+  </section>
+
+  <section class="card">
+    <h2>Limits</h2>
+    <ul>
+      <li><strong>Garbage in.</strong> A pooled estimate is only as good as the studies and how they were found. This tool does not search, screen or judge risk of bias; a systematic review does, and its protocol matters more than the choice of estimator.</li>
+      <li><strong>Few studies.</strong> With fewer than about five studies &tau;² is barely estimable, I² can swing from 0 to 90% with one study, and the Wald interval is too narrow. Read the Hartung-Knapp interval and the I² interval.</li>
+      <li><strong>Large-sample variances.</strong> The variances of log ratios and Hedges' g are approximations that need a fair number of events and participants per study. Rare events, many zero cells or tiny trials call for exact or one-stage models (for example the Mantel-Haenszel or Peto methods, or a binomial-normal model), which are not here.</li>
+      <li><strong>Moderators.</strong> A meta-regression compares studies, not people: a slope across studies can differ from the effect within any of them (ecological bias), and with fewer than 10 studies per moderator it is exploratory.</li>
+      <li>Not modelled: dependent effect sizes from one study (multilevel models), network meta-analysis, individual participant data, trim-and-fill and selection models for publication bias, subgroup tests by a categorical column, and Bayesian estimators.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Fixed effect or random effects?</h3>
+    <p>A common-effect (fixed) model assumes every study measures the same true effect and differs only by chance. A random-effects model lets the true effect vary between studies and estimates the mean of that distribution. When studies differ in population, dose or setting, the random-effects model is the honest default; the two agree when heterogeneity is zero.</p>
+    <h3>What does I-squared mean?</h3>
+    <p>The share of the spread in study results that reflects real differences between studies rather than chance. It is not the size of those differences: tau, the standard deviation of the true effects, is. With few studies I-squared is very uncertain, which is why its confidence interval is shown.</p>
+    <h3>Why show a prediction interval?</h3>
+    <p>The confidence interval says where the average effect is. The prediction interval says where the true effect of a new study, in a new setting, is likely to fall. With large heterogeneity a treatment can help on average and still do nothing, or harm, in some settings; the prediction interval shows that and the confidence interval hides it.</p>
+    <h3>Should I use the Hartung-Knapp interval?</h3>
+    <p>With few studies, usually yes. The usual Wald interval treats the between-study variance as known. In simulations on this page the 95% Wald interval covered the true mean 87 to 94% of the time, and the Hartung-Knapp interval 93 to 96%.</p>
+    <h3>Does a significant Egger's test prove publication bias?</h3>
+    <p>No. It says small studies report different effects from large ones. Publication bias is one cause; others are real differences in small studies (different patients, more intensive treatment), poorer methods in small studies, and chance. With fewer than 10 studies the test has little power.</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, it is not medical advice, and it does not replace a qualified statistician or a systematic review conducted to a published standard. Results are statistical estimates from the study results you enter; they say nothing about any individual patient or decision. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the Cochrane Collaboration, the authors of metafor or statsmodels, or any software vendor. The example data are published trial counts as compiled by Colditz et al. (1994).</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs data/bcg-vaccine-trials.csv --moderator ablat</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/meta-analysis" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: <a href="../contingency-table-tests/">contingency table tests</a> for one study's 2x2 table (Fisher's, Boschloo's and Mantel-Haenszel across strata), <a href="../fdr-multiple-testing/">false discovery rate control</a> when you ran many tests, <a href="../inter-rater-agreement/">inter-rater agreement</a> for two reviewers screening the same studies, <a href="../survival-analysis/">survival analysis</a> for time-to-event data, and <a href="../probability-calibration/">probability calibration</a> for forecasts.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, parseCsv, detectLayout, toNumber, fmt, formatP, pEq } from "./engine.mjs";
+    import { BCG_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    let last = null;
+
+    function refreshColumns() {
+      const text = $("#csv").value;
+      const keep = $("#moderator").value;
+      $("#moderator").innerHTML = '<option value="">None</option>';
+      if (!text.trim()) { $("#data-status").textContent = "Paste a CSV or load the example."; return; }
+      try {
+        const { header, rows } = parseCsv(text);
+        const { layout, map } = detectLayout(header, $("#layout").value);
+        const used = new Set(Object.values(map));
+        const numeric = header.filter((h, i) => !used.has(h) && rows.filter((r) => Number.isFinite(toNumber(r[i]))).length >= Math.max(2, rows.length * 0.8));
+        $("#moderator").innerHTML += numeric.map((h) => `<option value="${esc(h)}"${h === keep ? " selected" : ""}>${esc(h)}</option>`).join("");
+        $("#data-status").textContent = `${rows.length} rows, read as ${layout}: ${Object.entries(map).map(([k, v]) => `${k} = "${v}"`).join(", ")}.`;
+      } catch (e) { $("#data-status").textContent = e.message; }
+    }
+
+    function readInput() {
+      return {
+        csv: $("#csv").value, layout: $("#layout").value, measure: $("#measure").value, ratio: $("#ratio").value,
+        method: $("#method").value, confidence: Number($("#confidence").value), moderator: $("#moderator").value,
+      };
+    }
+
+    // Axis helpers: ratios are drawn on the log scale with ratio-valued ticks.
+    function ticks(lo, hi, ratio) {
+      if (ratio) {
+        const nice = [0.01, 0.02, 0.05, 0.1, 0.2, 0.25, 0.5, 1, 2, 4, 5, 10, 20, 50, 100].filter((t) => Math.log(t) >= lo && Math.log(t) <= hi);
+        return (nice.length > 7 ? nice.filter((t, i) => i % 2 === 0 || t === 1) : nice).map((t) => ({ at: Math.log(t), label: String(t) }));
+      }
+      const step = Math.pow(10, Math.floor(Math.log10((hi - lo) / 4 || 1)));
+      const s = [1, 2, 2.5, 5, 10].map((m) => m * step).find((m) => (hi - lo) / m <= 6) || step * 10;
+      const out = [];
+      for (let t = Math.ceil(lo / s) * s; t <= hi + 1e-12; t += s) out.push({ at: t, label: fmt(Math.abs(t) < 1e-12 ? 0 : t) });
+      return out;
+    }
+
+    function forest(r) {
+      const ratio = r.input.ratio, S = r.studies, P = r.pooled;
+      const rowH = 22, top = 26, W = 760, L = 210, R = 190;
+      const extra = r.prediction ? 3 : 2;
+      const H = top + (S.length + extra) * rowH + 34;
+      const vals = [...S.flatMap((s) => [s.lower, s.upper]), P.lower, P.upper, ...(r.prediction ? [r.prediction.lower, r.prediction.upper] : []), 0];
+      let lo = Math.min(...vals), hi = Math.max(...vals);
+      const pad = (hi - lo) * 0.04; lo -= pad; hi += pad;
+      const X = (v) => L + ((v - lo) / (hi - lo)) * (W - L - R);
+      const cx = (v) => Math.max(L, Math.min(W - R, X(v)));
+      const b = (x) => fmt(ratio ? Math.exp(x) : x);
+      const maxW = Math.max(...S.map((s) => s.weight));
+      let g = "";
+      g += `<text x="8" y="16" font-size="12" font-weight="700" fill="#1b211e">Study</text><text x="${W - R + 8}" y="16" font-size="12" font-weight="700" fill="#1b211e">${esc(ratio ? r.input.measure === "GENLOG" ? "Ratio" : r.input.measure : "Effect")} [${Math.round(r.input.confidence * 100)}% CI]</text><text x="${W - 8}" y="16" font-size="12" font-weight="700" text-anchor="end" fill="#1b211e">Weight</text>`;
+      S.forEach((s, i) => {
+        const y = top + i * rowH + rowH / 2;
+        const half = 3 + 6 * Math.sqrt(s.weight / maxW);
+        g += `<text x="8" y="${y + 4}" font-size="12" fill="#1b211e">${esc(s.label.length > 30 ? s.label.slice(0, 29) + "…" : s.label)}</text>`;
+        g += `<line x1="${cx(s.lower)}" x2="${cx(s.upper)}" y1="${y}" y2="${y}" stroke="#35443d" stroke-width="1.4"/>`;
+        g += `<rect x="${X(s.yi) - half}" y="${y - half}" width="${2 * half}" height="${2 * half}" fill="#23614a"/>`;
+        g += `<text x="${W - R + 8}" y="${y + 4}" font-size="12" fill="#1b211e">${b(s.yi)} [${b(s.lower)}, ${b(s.upper)}]</text><text x="${W - 8}" y="${y + 4}" font-size="12" text-anchor="end" fill="#4b5650">${(100 * s.weight).toFixed(1)}%</text>`;
+      });
+      const yP = top + (S.length + 0.7) * rowH;
+      g += `<polygon points="${X(P.lower)},${yP} ${X(P.estimate)},${yP - 8} ${X(P.upper)},${yP} ${X(P.estimate)},${yP + 8}" fill="#b4541b"/>`;
+      g += `<text x="8" y="${yP + 4}" font-size="12" font-weight="700" fill="#1b211e">${r.input.method === "FE" ? "Common effect" : `Random effects (${esc(r.input.method)})`}</text><text x="${W - R + 8}" y="${yP + 4}" font-size="12" font-weight="700" fill="#1b211e">${b(P.estimate)} [${b(P.lower)}, ${b(P.upper)}]</text>`;
+      if (r.prediction) {
+        const yR = yP + rowH;
+        g += `<line x1="${cx(r.prediction.lower)}" x2="${cx(r.prediction.upper)}" y1="${yR}" y2="${yR}" stroke="#b4541b" stroke-width="2" stroke-dasharray="5 3"/>`;
+        g += `<text x="8" y="${yR + 4}" font-size="12" fill="#1b211e">Prediction interval</text><text x="${W - R + 8}" y="${yR + 4}" font-size="12" fill="#1b211e">[${b(r.prediction.lower)}, ${b(r.prediction.upper)}]</text>`;
+      }
+      const axisY = H - 30;
+      g += `<line x1="${X(0)}" x2="${X(0)}" y1="${top - 4}" y2="${axisY}" stroke="#8a968f" stroke-dasharray="3 3"/>`;
+      g += `<line x1="${X(P.estimate)}" x2="${X(P.estimate)}" y1="${top - 4}" y2="${axisY}" stroke="#b4541b55"/>`;
+      g += `<line x1="${L}" x2="${W - R}" y1="${axisY}" y2="${axisY}" stroke="#35443d"/>`;
+      for (const t of ticks(lo, hi, ratio)) g += `<line x1="${X(t.at)}" x2="${X(t.at)}" y1="${axisY}" y2="${axisY + 4}" stroke="#35443d"/><text x="${X(t.at)}" y="${axisY + 16}" font-size="11" text-anchor="middle" fill="#4b5650">${t.label}</text>`;
+      return `<div class="scroll"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Forest plot" style="min-width:620px">${g}</svg></div>`;
+    }
+
+    function funnel(r) {
+      const S = r.studies, W = 640, H = 330, L = 56, R = 14, T = 14, B = 40;
+      const fe = r.byMethod.find((m) => m.method === "FE").estimate;
+      const seMax = Math.max(...S.map((s) => s.sei)) * 1.08;
+      const z = 1.959963984540054;
+      const xs = [...S.map((s) => s.yi), fe - z * seMax, fe + z * seMax];
+      const lo = Math.min(...xs), hi = Math.max(...xs);
+      const X = (v) => L + ((v - lo) / (hi - lo)) * (W - L - R);
+      const Y = (se) => T + (se / seMax) * (H - T - B);
+      let g = `<polygon points="${X(fe)},${Y(0)} ${X(fe - z * seMax)},${Y(seMax)} ${X(fe + z * seMax)},${Y(seMax)}" fill="#23614a12" stroke="#8a968f" stroke-dasharray="4 3"/>`;
+      g += `<line x1="${X(r.pooled.estimate)}" x2="${X(r.pooled.estimate)}" y1="${T}" y2="${H - B}" stroke="#b4541b"/>`;
+      g += S.map((s) => `<circle cx="${X(s.yi)}" cy="${Y(s.sei)}" r="4" fill="#23614a"><title>${esc(s.label)}</title></circle>`).join("");
+      for (const t of ticks(lo, hi, r.input.ratio)) g += `<text x="${X(t.at)}" y="${H - B + 16}" font-size="11" text-anchor="middle" fill="#4b5650">${t.label}</text>`;
+      for (let i = 0; i <= 4; i++) { const se = (seMax * i) / 4; g += `<text x="${L - 6}" y="${Y(se) + 4}" font-size="11" text-anchor="end" fill="#4b5650">${se.toFixed(2)}</text>`; }
+      g += `<text x="${(L + W - R) / 2}" y="${H - 6}" font-size="12" text-anchor="middle" fill="#1b211e">${r.input.ratio ? "effect (log scale)" : "effect"}; standard error down the side, larger studies at the top</text>`;
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Funnel plot">${g}</svg><p class="legend"><span><span class="swatch" style="background:#23614a"></span>study</span><span><span class="swatch" style="background:#b4541b"></span>pooled estimate</span><span>dashed: 95% region around the common effect</span></p>`;
+    }
+
+    function bubble(r) {
+      const g0 = r.regression, W = 640, H = 300, L = 56, R = 14, T = 14, B = 40;
+      const pts = g0.points, xs = pts.map((p) => p.x), ys = pts.map((p) => p.yi);
+      const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+      const px = (x1 - x0) * 0.06 || 1, py = (y1 - y0) * 0.1 || 1;
+      const X = (v) => L + ((v - x0 + px) / (x1 - x0 + 2 * px)) * (W - L - R);
+      const Y = (v) => T + (1 - (v - y0 + py) / (y1 - y0 + 2 * py)) * (H - T - B);
+      const w = pts.map((p) => 1 / (p.vi + g0.tau2)), wmax = Math.max(...w);
+      const line = (x) => g0.intercept.estimate + g0.slope.estimate * x;
+      let g = `<line x1="${X(x0)}" x2="${X(x1)}" y1="${Y(line(x0))}" y2="${Y(line(x1))}" stroke="#b4541b" stroke-width="2"/>`;
+      g += pts.map((p, i) => `<circle cx="${X(p.x)}" cy="${Y(p.yi)}" r="${3 + 9 * Math.sqrt(w[i] / wmax)}" fill="#23614a55" stroke="#23614a"><title>${esc(p.label)}</title></circle>`).join("");
+      for (const t of ticks(x0 - px, x1 + px, false)) g += `<text x="${X(t.at)}" y="${H - B + 16}" font-size="11" text-anchor="middle" fill="#4b5650">${t.label}</text>`;
+      for (const t of ticks(y0 - py, y1 + py, r.input.ratio)) g += `<text x="${L - 6}" y="${Y(t.at) + 4}" font-size="11" text-anchor="end" fill="#4b5650">${t.label}</text>`;
+      g += `<text x="${(L + W - R) / 2}" y="${H - 6}" font-size="12" text-anchor="middle" fill="#1b211e">${esc(g0.moderator)}</text>`;
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Meta-regression bubble plot">${g}</svg>`;
+    }
+
+    function render(r) {
+      const ratio = r.input.ratio, b = (x) => fmt(ratio ? Math.exp(x) : x), cl = `${Math.round(r.input.confidence * 100)}%`;
+      $("#summary").innerHTML = r.summary.map((s) => `<li>${esc(s)}</li>`).join("");
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      $("#forest").innerHTML = forest(r);
+      const counts = r.studies.some((s) => s.events1 !== undefined);
+      $("#study-table").innerHTML = `<div class="scroll"><table><thead><tr><th>Study</th>${counts ? '<th class="n">Events / n (1)</th><th class="n">Events / n (2)</th>' : ""}<th class="n">${ratio ? "log effect" : "Effect"}</th><th class="n">SE</th><th class="n">Weight (random)</th><th class="n">Weight (common)</th></tr></thead><tbody>${r.studies.map((s) => `<tr><td>${esc(s.label)}${s.corrected ? " *" : ""}</td>${counts ? `<td class="n">${s.events1} / ${s.n1}</td><td class="n">${s.events2} / ${s.n2}</td>` : ""}<td class="n">${s.yi.toFixed(4)}</td><td class="n">${s.sei.toFixed(4)}</td><td class="n">${(100 * s.weight).toFixed(1)}%</td><td class="n">${(100 * s.weightFE).toFixed(1)}%</td></tr>`).join("")}</tbody></table></div>`;
+      $("#methods").innerHTML = `<div class="scroll"><table><thead><tr><th>Estimator</th><th class="n">&tau;²</th><th class="n">I²</th><th class="n">Pooled</th><th class="n">${cl} Wald CI</th><th class="n">${cl} Hartung-Knapp CI</th></tr></thead><tbody>${r.byMethod.map((m) => `<tr${m.method === r.input.method ? ' class="chosen"' : ""}><td>${esc(m.name)}</td><td class="n">${fmt(m.tau2, 4)}</td><td class="n">${(100 * m.I2).toFixed(1)}%</td><td class="n">${b(m.estimate)}</td><td class="n">${b(m.lower)} to ${b(m.upper)}</td><td class="n">${m.hk ? `${b(m.hk.lower)} to ${b(m.hk.upper)}` : "—"}</td></tr>`).join("")}</tbody></table></div>
+        <p class="note">Q = ${fmt(r.heterogeneity.Q)} on ${r.heterogeneity.df} df (${pEq(r.heterogeneity.pQ)}); H² from Q ${fmt(r.heterogeneity.H2)}; &tau;² ${cl} interval ${r.heterogeneity.tau2CI ? `${fmt(r.heterogeneity.tau2CI.lower, 4)} to ${fmt(r.heterogeneity.tau2CI.upper, 4)}` : "—"} (Q-profile).</p>`;
+      $("#funnel").innerHTML = funnel(r) + (r.egger ? `<p class="note">Egger's test: intercept ${fmt(r.egger.intercept)} (SE ${fmt(r.egger.seIntercept)}), t = ${fmt(r.egger.t)} on ${r.egger.df} df, ${pEq(r.egger.p)}.</p>` : "");
+      $("#loo").innerHTML = r.leaveOneOut ? `<h3>Leave one out</h3><div class="scroll"><table><thead><tr><th>Without</th><th class="n">Pooled</th><th class="n">${cl} CI</th><th class="n">&tau;²</th><th class="n">I²</th></tr></thead><tbody>${r.leaveOneOut.map((l) => `<tr><td>${esc(l.omitted)}</td><td class="n">${b(l.estimate)}</td><td class="n">${b(l.lower)} to ${b(l.upper)}</td><td class="n">${fmt(l.tau2, 4)}</td><td class="n">${(100 * l.I2).toFixed(1)}%</td></tr>`).join("")}</tbody></table></div>` : "";
+      if (r.regression) {
+        const g = r.regression;
+        $("#reg").innerHTML = `<h3>Meta-regression on ${esc(g.moderator)}</h3>${bubble(r)}
+          <div class="scroll"><table><thead><tr><th>Term</th><th class="n">Estimate${ratio ? " (log)" : ""}</th><th class="n">SE</th><th class="n">p</th><th class="n">${cl} CI</th><th class="n">Hartung-Knapp p</th></tr></thead><tbody>
+          ${[["Intercept", g.intercept], [g.moderator, g.slope]].map(([n, c]) => `<tr><td>${esc(n)}</td><td class="n">${c.estimate.toFixed(4)}</td><td class="n">${c.se.toFixed(4)}</td><td class="n">${formatP(c.p)}</td><td class="n">${c.lower.toFixed(4)} to ${c.upper.toFixed(4)}</td><td class="n">${formatP(c.hk.p)}</td></tr>`).join("")}</tbody></table></div>
+          <p class="note">Residual &tau;² ${fmt(g.tau2, 4)} (without the moderator ${fmt(g.tau2Without, 4)})${g.R2 !== null ? `; R² ${(100 * g.R2).toFixed(1)}%` : ""}. Residual heterogeneity Q = ${fmt(g.QE.stat)} on ${g.QE.df} df (${pEq(g.QE.p)}). Bubble size is the study's weight.</p>`;
+      } else $("#reg").innerHTML = "";
+      $("#results").hidden = false;
+    }
+
+    function runAnalysis() {
+      $("#busy").textContent = "";
+      try { last = analyze(readInput()); render(last); return true; }
+      catch (e) { $("#results").hidden = true; $("#busy").textContent = `Could not pool: ${e.message}`; return false; }
+    }
+
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#layout").addEventListener("change", refreshColumns);
+    $("#file").addEventListener("change", async (event) => { const f = event.target.files[0]; if (f) { $("#csv").value = await f.text(); refreshColumns(); } });
+    $("#analyze").addEventListener("click", () => { if (runAnalysis()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = BCG_CSV; $("#layout").value = "auto"; $("#measure").value = "RR"; $("#method").value = "REML"; refreshColumns();
+      $("#moderator").value = "ablat";
+      if (runAnalysis()) { record("example_loaded"); $("#data-status").textContent = "Example: 13 trials of the BCG vaccine against tuberculosis (Colditz et al. 1994): vaccinated and unvaccinated participants with and without TB, and each trial's absolute latitude (ablat), used here as the moderator."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([JSON.stringify(last, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "meta-analysis.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    refreshColumns();
+  </script>
+</body>
+</html>

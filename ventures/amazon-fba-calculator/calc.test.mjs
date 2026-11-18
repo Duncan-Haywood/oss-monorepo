@@ -2335,3 +2335,27 @@ test("compareRemoteFulfillment ignores a typed return mix and rejects impossible
   assert.throws(() => compareRemoteFulfillment({ ...NARF_BASE, narfTakePct: 140 }), /at most 100/);
   assert.throws(() => remoteFulfillmentNote({}), /missing rows/);
 });
+
+// Red-team gap tests (2026-11-03): each pins a line a seeded mutant escaped through.
+test("LIL heavy large-standard band: first band fee is $1.11", () => {
+  near(defaultLowInventoryFee({ sizeTier: "large_standard", weightLb: 5, daysOfSupply: 10 }), 1.11, "heavy thin");
+});
+
+test("compareLowInventory with no inventory entered charges no suggested fee", () => {
+  const r = compareLowInventory({});
+  assert.equal(r.applies, false);
+  assert.equal(r.suggestedFee, 0);
+});
+
+test("couponedListing feeTotal is the path fees plus the coupon fee", () => {
+  const list = calculateListing(base);
+  const c = couponedListing(base, { couponPercent: 0, couponFee: 0.6 });
+  near(c.feeTotal, list.selected.feeTotal + 0.6, "fee total includes redemption fee");
+});
+
+test("returnsSummary says a loss-making completed sale loses at any return rate", () => {
+  const typed = { fulfillmentMethod: "fba", selected: { profitBeforeReturns: -1, profit: -2, returnDrag: 1, breakEvenReturnRate: 0 } };
+  assert.match(returnsSummary({ typedRate: 10, handling: 2, unsellable: 20, typed }), /already loses money/);
+  typed.selected.breakEvenReturnRate = 0.01;
+  assert.match(returnsSummary({ typedRate: 10, handling: 2, unsellable: 20, typed }), /about 1\.0%/);
+});

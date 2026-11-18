@@ -1,0 +1,310 @@
+# Atheism, Orthodoxy or Catholicism: which premises and numbers does each conclusion depend on?
+
+An open research programme ([PROPOSAL.md](PROPOSAL.md), [LOG.md](LOG.md)) that puts the case
+between **naturalism (atheism)**, **Eastern Orthodox Christianity** and **Catholicism** into two
+checkable forms: machine-checked symbolic logic (a decision procedure in Python and Lean 4 proofs)
+and a probabilistic evidence ledger of Bayes factors with a source on every entry.
+
+**Live page:** https://marisstella.app/research/theism-formal-evidence/
+
+The aim is not to announce a winner. It is to show exactly which premise, and which number, each
+side's conclusion rests on, so a reader can change one entry and see what follows.
+
+## Headline results (milestone 1)
+
+**Logic** ([E1 results](experiments/e1_arguments/results.md)):
+
+- All 10 standard arguments in the catalogue are **valid as stated**: the Kalam, the contingency argument, the modal ontological argument and its reverse, Mackie's logical problem of evil, Rowe's evidential argument, Schellenberg's hiddenness argument, and the Honorius and Florence arguments between Rome and Orthodoxy. Validity never decides the debate; the premises do.
+- The **free will defence** set (God exists, evil exists, and there is a morally sufficient reason for permitting it) is **consistent**. So Mackie's argument needs the extra premise that no such reason can exist.
+- The **modal ontological argument** (□(G → □G), ◇G ⊢ G) needs a symmetric accessibility relation. It is valid in B and S5, and two-world countermodels refute it in K, T and S4. Its **reverse** (◇¬G ⊢ ¬G) is valid already in T. So on the logic alone the atheist mirror is the stronger argument. In S5 the three claims cannot all hold, which makes the whole dispute "is God's existence possible, or is God's non-existence possible?"
+- **Rome vs Orthodoxy:** the eight claims behind the Honorius and Florence disputes have exactly two minimal inconsistent sets and 16 coherent positions. The Catholic position gives up "Honorius's condemned letter was ex cathedra" and "the Filioque is false". The Orthodox position gives up "ex cathedra papal teaching cannot err" and "Florence (1439) was ecumenical".
+
+**Evidence** ([E2 results](experiments/e2_ledger/results.md); ledger in [`src/ledger.py`](src/ledger.py)):
+
+- Unwin's published 67% (*The Probability of God*, 2003) reproduces exactly from his 50% prior and six factors.
+- **Christianity vs everything else:** the resurrection testimony carries **98.5%** of the variance of the log odds. The Bayes factor it needs to make Christianity more likely than not is only **7.3** under even priors, and 0.5 to 294 across a 3 × 3 grid of priors. The published endpoints are about 1 (a Humean sceptic) and 10^44 (the McGrews' own product of 10^2, 10^39 and 10^3, read from their text in E26). The case for Christianity stands or falls on one contested number, and the bar is far lower than either side usually implies.
+- **Theism vs naturalism:** the prior carries **54%** of the variance and fine-tuning (a swept range) **31%**. Every item with a published figure carries under 6%. Taking the midpoint of every range except the resurrection item, P(naturalism) = 0.76. In a Monte Carlo over the ranges and priors, P(naturalism) has a median of 0.69 and a 5–95% range of 0.004 to 0.999.
+- **Catholic vs Orthodox:** no one has published likelihood ratios for primacy, canon 28, Honorius, the Filioque or doctrinal development. The ledger holds symmetric placeholders until an elicitation from scholars on both sides (milestone M3). The prior choice (Pew's head-count shares or equal shares) is so far the only thing that separates them.
+
+**Limits.** These are model outputs given stated inputs, not findings about whether God exists.
+Most ranges are swept, not sourced, and each entry says which (`basis`). The ledger treats items
+as independent. A crude ρ = 0.5 discount barely moves the theism result: the share of draws with
+P(N) > 0.5 goes from 58% to 55%. The Lean files were first compiled on 2026-11-11 (E11 below);
+they built unchanged. The McGrews' 10^44 was a secondary report until E26 read it in their own text.
+
+**M2 results (2026-11-07).** *Leave-one-out (E3):* at the midpoints P(naturalism) is 0.76, and
+dropping any one of three theism-level items flips it below 0.5: natural evil (to 0.09),
+moral evil (0.42), and hiddenness (exactly 0.5, a boundary case). Dropping fine-tuning, the
+largest variance contributor, moves it up to 0.99. So the verdict at midpoints is fragile to the
+evil items, which is the reverse of what the variance shares alone suggest; the earlier
+prediction that no sourced item could move it by 0.1 failed. *Gödel's argument (E4):* in an
+exhaustive search of S5 models under full property semantics, Scott's axioms (A1 to A5) have
+exactly one model per individual when there is one world, and none with two to five worlds
+(up to the sizes tried): the modal collapse of Sobel (1987) shows up as "the argument is
+satisfiable only where possibility is trivial". Sizes with 6 or more cells (property sets too
+large to enumerate) are not covered, and general models are not excluded by search.
+
+**M2 (part), Shermer's published inputs (E6, 2026-11-08).** The six D values of Shermer's
+*God's Number Is Up* (Scientific American, July 2004) are transcribed from the column and run through
+Unwin's formula. They multiply to 2.5×10^−4, so P(God) = 0.025%, not the 2% the column states; the
+stated bottom line is about 82 times too large in odds for its own inputs. Unwin's 67% does reproduce.
+Which side is a slip is not knowable from the column; no claim is made. Order of application is
+irrelevant. Swinburne's four inputs are transcribed in E25 below.
+
+**M4 (part), shared-cause dependence (E5, 2026-11-07).** Replacing the crude ρ discount, the
+resurrection testimony items share one latent source reliability. The combined Bayes factor is
+then BF = 1 + ω(L − 1), with L the independent product (10^44, the McGrews' figure, confirmed
+in their own text by E26) and ω the credence a sceptic still gives the source after the reports; the formula
+agrees with direct enumeration of the joint model. Dependence acts on log BF only by log ω, not
+per item: ω = 10^−12 still leaves BF ≈ 10^32. At even priors the testimony stops lifting
+P(Christian) to 0.5 only if ω < 10^−43.2 (10^−41.5 at 0.1/0.1 priors). E2's ρ would have to be
+0.024 to say the same. So given a large product L, correlated reliability alone cannot defeat it;
+the dispute moves to L itself, i.e. the per-item ratios, which this ledger does not source.
+Limit: the model assumes the unreliable route yields reports under both hypotheses alike.
+
+**M2 (part), a theorem for Anderson's repair (E10, 2026-11-10).** E7 to E9 searched for models
+of Anderson's emendation of Gödel's argument. E10 proves what they were finding: over any finite
+property algebra (the unions of the blocks of some partition of world-individual cells), Anderson's
+axioms have a model exactly when one block is made of whole individuals, one model per such block.
+So the God-like individual has no contingent property, and the algebra cannot contain "being such
+that p" for any contingent p: the repair avoids modal collapse only for propositions its property
+space cannot express. Under full property semantics there is no model with two or more worlds at
+any finite size. The exhaustive search agrees on all 563 partitions it was run on. Finite models,
+S5, constant domain only; the proof is in `experiments/e10_theorem/results.md` and, since E11, in Lean.
+
+**M2 (part), Lean compiled, and a correction: Anderson's own A2 (E11, 2026-11-11).** The Lean
+files now compile (Lean 4.15.0, no `sorry`; `lean/build.sh`), and E10's theorem is proved in
+`lean/TheismFormal/Anderson.lean` for every block algebra, finite or not. Checking the
+literature turned up a modelling error: E7 to E10 gave Anderson's emendation Scott's A2 ("exactly
+one of a property and its complement is positive"), but Anderson keeps only "if a property is
+positive, its complement is not" (Benzmüller & Fuenmayor 2020). So E7's "Anderson's repair
+collapses under full property semantics" is true of a hybrid, not of Anderson's system. With his own
+A2 (prediction written before the run, proved in Lean, search agrees on all 573 partitions
+checked): models are exactly the principal filters at a non-empty union of blocks H that is the
+union of the rows of the individuals whose hull is H. Under full property semantics that means one
+model per individual at every number of worlds, with the God-like individual free to have
+contingent properties, so modal collapse is not forced, as Benzmüller & Fuenmayor's model finder
+found for two worlds and one entity. Constant domain, S5, extensional properties; Anderson's
+intended varying-domain reading is not covered.
+
+**M2 (part), varying domains (E12, 2026-11-11).** Anderson intends worlds with different
+domains and quantifiers over what exists. With them (and his own A2), every model of his four
+axioms has a God-like individual existing at every world, for any property algebra: the
+argument's conclusion follows, proved in Lean 4 (`lean/TheismFormal/Varying.lean`). But the axiom
+"necessary existence is positive" (A5'), idle under a constant domain, now carries the weight:
+without it 1,612 of 8,534 models found have a world with no God-like existent. Under full
+property semantics a model exists exactly for each individual that exists at every world, and
+none if no individual does. Prediction written before the search; the search agrees with it on
+all 17,440 (domain, algebra) frames checked. Whenever "exists" is expressible as a property, it is
+positive. Possibilist reading of "x has f necessarily"; other variants not covered.
+
+**M2 (part), actualist necessity and de re vs de dicto (E13, 2026-11-11).** Reading "x has f
+necessarily" actualistically too (box (x exists -> x has f)), every model of Anderson's four
+axioms still has some God-like individual at every world (Lean 4,
+`lean/TheismFormal/Actualist.lean`). But under both readings the de re claim, one God-like
+individual existing at every world, fails in some models: 580 of 3,638 (actualist) and 382 of
+6,706 (possibilist) models found share God-likeness between individuals that each exist at only
+some worlds. The smallest is two worlds, two individuals and one block, proved in Lean under both
+readings. Under full property semantics de re always holds. Prediction written before the
+search; it matched on all 17,440 frames. So the argument shows "necessarily something God-like
+exists", and "something God-like necessarily exists" only when the properties separate
+individuals.
+
+**M2 (part), plain necessary existence closes the de re gap (E14, 2026-11-11).** Replacing
+Anderson's essence-based A5' with A5₀, "the property *exists at every world* is positive", every
+God-like individual of every model exists at every world, for any algebra and any domains (Lean 4,
+`lean/TheismFormal/Plain.lean`; the proof uses only A2 and A5₀). Plain necessary existence implies
+Anderson's, and in all 17,440 frames searched (up to 6 cells) every A5₀ model also satisfies A5':
+2,516 of E13's 3,638 models survive, and the 1,122 lost include all 580 de re failures. So the
+step from "necessarily something God-like exists" to "a God-like being exists necessarily" costs
+either a property space that separates individuals or a different premise from Anderson's.
+
+**M2 (part), A5₀ does not imply A5' (E15, 2026-11-12).** E14 conjectured that every A5₀ model
+satisfies Anderson's A5'. It is false: an exact census finds 4,608 of 57,413 A5₀ models at
+2 worlds x 4 individuals and 11,520 of 160,645 at 3 x 3 where A5' fails (none at 4 x 2, as
+predicted). The smallest has 8 cells and 3 blocks with every individual existing somewhere,
+proved in Lean 4 (`lean/TheismFormal/Closure.lean`, `cm8`). The reason, also proved: given A1 and
+A5₀, A5' holds exactly when Anderson's necessary existents' cells form a property
+(`a5a_iff_closed`), which full property semantics guarantees and a coarse algebra need not. So the
+two necessary-existence axioms are independent, not nested; A5₀'s de re result stands.
+
+**M2 (part), the model counts proved (E16, 2026-11-12).** The closed-form model counts of E13 and
+E14, until now checked by search up to 6 cells, are Lean 4 theorems for any block algebra and any
+domains (`lean/TheismFormal/Models.lean`, `model_iff`, `a5a_iff`, `a5z_iff`): the models of A1,
+A2, A3' are in bijection with the admissible sets of blocks H, and A5' or A5₀ each add that one
+row property is in the algebra and contains H ([results](experiments/e16_model_theorems/results.md)).
+
+**M2 (part), Fitting's variant has the same de re gap (E17, 2026-11-12).** In Fitting's variant
+of Gödel's argument (positive properties are extensions, as Benzmüller & Fuenmayor 2020 encode
+it), the models over any block algebra and any domains are "contains b" for one block b per world,
+and A5 asks only that b have an existent at every world (Lean 4, `lean/TheismFormal/Fitting.lean`,
+`model_iff`, `model_a5_iff`). So the argument proves "at every world something God-like exists"
+in every model (`de_dicto`) but not "some one being is God-like and exists at every world": that
+fails in 33,102 of 131,573 models with rigid positivity in an exhaustive search of 119,890 frames,
+all in coarse algebras (`cm_de_re`). Under full property semantics the God-like being is unique and,
+with rigid positivity (A4, not in B&F's encoding), exists at every world (`de_re_full`); without A4
+each world can have a different one (`cm_no_a4`). Unlike Anderson's, Fitting's NE is always in the
+algebra (`ne_in_algebra`) ([results](experiments/e17_fitting/results.md)).
+
+**M2 (part), agreement with the published Isabelle/HOL proofs (E18, 2026-11-12).** We
+transcribed every claim of Fuenmayor & Benzmüller's Archive of Formal Proofs formalisation of
+Fitting's variant (`FittingProof.thy`) into our finite semantics: 17 theorems and 4 Nitpick
+countermodels. All of them reproduce in an exhaustive search of 2,070,148 frames (modal logic K
+and S5, full and coarse algebras, empty domains allowed). There are 0 failures of any proved
+theorem, and every countermodel appears at the size the AFP and B&F 2020 report.
+
+The AFP file includes Fitting's axiom 11.11 (A4: positivity is rigid), which B&F 2020's Fig. 6
+omits. Its "de re" conclusion is weaker than E17's, so E17's de re gap is not a gap in any
+published theorem. Without A4, the de re conclusion still holds in K. The de dicto one holds in
+S5 but fails in K (Lean 4, `lean/TheismFormal/AFP.lean`: `afp_de_re_K`, `afp_de_dicto_K_A4`,
+`cm_dedicto_noA4`) ([results](experiments/e18_afp_crosscheck/results.md)).
+
+**M2 (part), Anderson's variant needs only symmetry (E19, 2026-11-12).** All claims of the AFP's
+formalisation of Anderson's variant (`AndersonProof.thy`) reproduce in an exhaustive search of
+8,112,532 frames (every accessibility relation up to 3 worlds × 2 individuals, empty domains
+allowed, full and coarse algebras). On the 17,742 frames where the two overlap, the S5 models
+are exactly E12's. The file proves its conclusion (God necessarily exists) in S5. The conclusion
+holds in every model on a symmetric frame, with or without reflexivity, transitivity or A4a. It
+fails in K, T, K4 and S4: in S4, in 96,036 of 136,466 models; the smallest has 2 worlds and 1
+individual. Proved in Lean 4 for any frame, domains and property collection
+(`lean/TheismFormal/AndersonK.lean`: `nec_exists_symm`, `essential_symm`, `essential_refl`,
+`domain_nonempty_symm`). So the modal premise Anderson's argument rests on is the B axiom, as for
+the Hartshorne–Plantinga argument (H2) ([results](experiments/e19_afp_anderson/results.md)).
+
+**M2 (part), the middle steps need an algebra that separates individuals, not a frame condition (E20, 2026-11-12).**
+Once the properties include "is x", its complement and existence (true under full semantics),
+GodIsEssential holds in every Kripke frame from A1a, A2 and T2, and GodExistenceImpliesNecExistence
+from A2 and T2 alone: no reflexivity, symmetry or rigid positivity. Proved in Lean 4
+(`lean/TheismFormal/AndersonFull.lean`: `essential_any`, `geine_any`, `god_unique`). In any
+algebra, a failure of GodIsEssential needs a second God-like individual at an accessible world
+(`essential_failure`). Over 6,884,324 frames up to 3 worlds × 2 individuals, 0 of 71,002
+separating stage-III models fail either step, and all of E19's failures are in non-separating
+algebras. The conclusion still needs symmetry: `cm_s4_full` is a Lean-certified S4 countermodel
+under full semantics, 2 worlds and 1 individual ([results](experiments/e20_full_semantics/results.md)).
+
+**M2 (part), exactly which frames let GodIsEssential fail (E21, 2026-11-13).**
+With rigid positivity (A4a), GodIsEssential holds at a world whenever every world it sees lies on
+some cycle, of any length (`essential_a4`; the AFP assumes reflexivity). Without A4a it holds when
+every edge out of the world lies on a cycle (`essential_cycle_edges`). Both are Lean 4 theorems
+for any frame, domains and property collection, from an exact per-model condition
+(`essential_iff`, `lean/TheismFormal/AndersonFrames.lean`). Over 6,884,324 frames up to 3 worlds,
+the A4a condition is exact: failures occur at precisely the worlds that see a world on no cycle,
+1,048 of 1,048 cases. The no-A4a converse we predicted was refuted at 226 worlds; the exact
+condition there depends on the algebra and is open ([results](experiments/e21_frame_characterisation/results.md)).
+
+**M2 (part), the A4a condition is exact at every size (E22, 2026-11-13).**
+For every serial frame of any size, GodIsEssential holds at a world in every model of Anderson's
+axioms with rigid positivity (A1a, A2, T2, A4a, with or without A5) **if and only if** every world
+it sees lies on a cycle (`essential_a4_iff`, `essential_a4_iff_III`,
+`lean/TheismFormal/AndersonTransient.lean`). The new half is a Lean-built countermodel for any
+world that sees a transient world: two individuals, constant domains, rigid positivity and a block
+algebra. Built in E19's own search code, it passes every check on 9,502 (frame, world, successor)
+cases up to 8 worlds ([results](experiments/e22_transient_countermodel/results.md)).
+
+**M2 (part), the no-A4a condition is exact too, over general collections (E23, 2026-11-14).**
+Without rigid positivity, GodIsEssential holds at a world w in every model of A2 and T2 (any
+frame), and of A1a, A2, T2, A5 (any serial frame), **if and only if** every world v that w sees
+has some world u reachable from v with u seeing v and seeing only worlds w sees
+(`essential_back_iff`, `essential_back_iff_III`, `lean/TheismFormal/AndersonHorn.lean`). E21
+proved this condition sufficient but its search, over block algebras only, found 24 cases where
+it fails yet no model breaks the step. The countermodel here is a property collection that is not
+a block algebra: every set of cells closed under the Horn rules that T2 forces on two God-like
+individuals. A definition-level check (independent code) passes at all 60 failing cases up to 3
+worlds, including all 24 of E21's, and on every serial frame up to 4 worlds
+([results](experiments/e23_horn_countermodel/results.md)). So E21's "depends on the algebra" is
+right for partitions and wrong for the Lean semantics.
+
+**M2 (part), the exact no-A4a condition for block algebras (E24, 2026-11-14).**
+When every property has a complement (block algebras, and full semantics), GodIsEssential holds
+at w in every model of A2 and T2 (any frame), and of A1a, A2, T2, A5 (any serial frame), **if and
+only if** no world v that w sees is *separable*: there are no sets of worlds A containing every
+world w sees and S omitting v such that, at every world t reachable from v, t's successors lie
+inside A iff inside S, and miss A iff they miss S (`essential_sep_iff`, `essential_sep_iff_III`,
+`lean/TheismFormal/AndersonSep.lean`). The countermodel is a Boolean algebra of four blocks. At 3
+worlds the separable pairs are exactly E21's 36 block-algebra failures; at 4 worlds, 10,464 pairs
+against E23's 14,688 for general collections. A definition-level check passes at all 11,628
+separable cases up to 4 worlds ([results](experiments/e24_block_separation/results.md)).
+
+**M2 (part), separability has no closed-form condition: it is NP-complete (E27, 2026-11-15).**
+E24's condition quantifies over two sets of worlds. Is there a simple graph test for it, as
+there is (E23's back witness, polynomial) when properties need not have complements? No, unless
+P = NP. A hypergraph becomes a serial frame (w sees v; v sees one world per edge; each edge world
+sees v and its points; each point sees only itself), and v is separable from w **iff** the
+hypergraph can be 2-coloured with no one-coloured edge (`NP.sep_iff`,
+`lean/TheismFormal/AndersonNP.lean`, no `sorry`). That problem is NP-complete (set splitting,
+Garey &amp; Johnson SP4), so deciding separability is NP-complete and deciding whether
+GodIsEssential holds at w in every block-algebra model is coNP-complete. Complements change not
+only the condition but its complexity. Checks: a new decider matches exhaustive search on every
+serial relation up to 4 worlds (11,628 separable triples, E24's count) and 2-colourability on
+all 2,046 hypergraphs with up to 4 points and 4 edges; the Fano plane gives a 16-world frame where
+GodIsEssential holds in every block-algebra model but not in every general one. Open: whether
+hardness survives in reflexive or transitive frames
+([results](experiments/e27_separability_np/results.md)).
+
+**M2 (part), Swinburne's 0.97 reproduced (E25, 2026-11-15).** Swinburne's Bayesian case for the
+incarnation and resurrection (*The Resurrection of God Incarnate*, 2003) has four inputs, quoted
+with the book's page numbers in Otte's NDPR review: P(theism) = 1/2, P(divided incarnation | God)
+= 1/2, P(evidence | incarnation) = 1/10 (p. 212), P(evidence | no incarnation) = 1/1000 (p. 213).
+Exact arithmetic gives **100/103 = 0.9709**, so the published "around .97" follows from its
+inputs (Shermer's 2% did not, E6). The whole historical case enters as a likelihood ratio of
+100, two orders of magnitude, against up to 10^44 claimed for the testimony elsewhere (E5). The
+posterior falls to 1/2 if the evidence-without-incarnation input rises from 1/1000 to 1/30, if
+the two priors multiply to less than 1/101 (P(theism) below about 1/50), or if more than 97/101 of the
+incarnation probability goes to a unified rather than divided incarnation (Otte's coherence
+point). Otte's own suggestion of 1/3 for incarnation leaves it at 20/21 = 0.952. The "0.97 to
+0.33" sensitivity the proposal attributed to critics is not in Otte's review and is withdrawn
+until sourced ([results](experiments/e25_swinburne/results.md)). The book itself has not been
+read; the inputs rest on the review's quotations.
+
+**M2 (part), the McGrews' 10^44 from their own text (E26, 2026-11-15).** The largest number in
+the resurrection debate, the McGrews' Bayes factor of 10^44 (*The Argument from Miracles*,
+Blackwell Companion to Natural Theology, 2009), read in the authors' draft: the women's testimony
+10^2, each of thirteen disciples 10^3 multiplied "under the assumption of independence" to 10^39,
+Paul's conversion 10^3. The product is exactly 10^44, and against their illustrative prior of
+10^-40 it gives 0.99990001, so "in excess of .9999" holds (by 10^-8). The disciples carry 88.6% of
+the log factor. What carries the 10^39 is the multiplication: a mixture bound shows that if, given
+no resurrection, one explanation covering the whole group (shared vision, a common source, the
+"general reliability" premise every factor assumes) has probability q, the disciples' factor is at
+most 1/q. The McGrews put their own modified vision theory below 10^-3 per disciple; read at group
+level that caps the whole case at 10^8, which overcomes priors down to 10^-8 but not 10^-40. The
+10^39 needs q ≤ 10^-39. Under independence, 12 disciples at 10^3 each would do and 11 would not
+([results](experiments/e26_mcgrew/results.md)). Martin's alternative of 1/500, which the
+McGrews report, gives Swinburne's model 50/53 = 0.943. Page numbers are the draft's, not yet
+matched to the Blackwell pages.
+
+## Layout
+
+- `src/logic.py`: decision procedures (S5 exact, K/T/B/S4 by certified countermodels, monadic first-order exact), minimal inconsistent and maximal consistent subsets.
+- `src/arguments.py`: the 11 arguments, each with its published source.
+- `src/ledger.py`, `src/bayes.py`: hypotheses, priors, the 13 evidence items, and the posterior arithmetic.
+- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) E12's varying-domain theorems (`TheismFormal/Varying.lean`) E13's actualist ones (`TheismFormal/Actualist.lean`) E14's plain-necessity ones (`TheismFormal/Plain.lean`) E15's closure condition and 8-cell countermodel (`TheismFormal/Closure.lean`) E16's model characterisations (`TheismFormal/Models.lean`) E17's theorems on Fitting's variant (`TheismFormal/Fitting.lean`) E18's K-logic corollaries (`TheismFormal/AFP.lean`) E19's frame-condition theorems for Anderson's variant (`TheismFormal/AndersonK.lean`) E20's separating-algebra theorems and certified S4 countermodel (`TheismFormal/AndersonFull.lean`) E21's frame-condition theorems (`TheismFormal/AndersonFrames.lean`) E22's countermodel and exact characterisation (`TheismFormal/AndersonTransient.lean`) E23's no-A4a characterisation (`TheismFormal/AndersonHorn.lean`), E24's block-algebra one (`TheismFormal/AndersonSep.lean`) and E27's NP-hardness reduction (`TheismFormal/AndersonNP.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
+- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`, `experiments/e12_varying_domains/run.py`, `experiments/e13_actualist_necessity/run.py`, `experiments/e14_plain_necessity/run.py`, `experiments/e15_a5z_not_a5/run.py`, `experiments/e17_fitting/run.py`, `experiments/e18_afp_crosscheck/run.py`, `experiments/e19_afp_anderson/run.py`, `experiments/e20_full_semantics/run.py`, `experiments/e21_frame_characterisation/run.py`, `experiments/e22_transient_countermodel/run.py`, `experiments/e23_horn_countermodel/run.py`, `experiments/e25_swinburne/run.py`, `experiments/e26_mcgrew/run.py`: these regenerate `results.md` and `results.json`. `experiments/e27_separability_np/run.py` (35 s) regenerates `results.json`; its `results.md` is written by hand from it.
+- `test_theism.py`: 36 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
+
+## Run
+
+```
+python3 research/theism-formal-evidence/test_theism.py
+python3 research/theism-formal-evidence/experiments/e1_arguments/run.py
+python3 research/theism-formal-evidence/experiments/e2_ledger/run.py
+python3 research/theism-formal-evidence/experiments/e3_leave_one_out/run.py
+python3 research/theism-formal-evidence/experiments/e4_godel_scott/run.py
+python3 research/theism-formal-evidence/experiments/e5_shared_cause/run.py
+python3 research/theism-formal-evidence/experiments/e6_shermer_check/run.py
+python3 research/theism-formal-evidence/experiments/e26_mcgrew/run.py
+python3 research/theism-formal-evidence/experiments/e27_separability_np/run.py   # about 35 s
+python3 research/theism-formal-evidence/experiments/e10_theorem/run.py   # about 6 s
+python3 research/theism-formal-evidence/experiments/e11_anderson_a2/run.py   # about 5 s
+python3 research/theism-formal-evidence/experiments/e12_varying_domains/run.py   # about 2 min
+python3 research/theism-formal-evidence/experiments/e13_actualist_necessity/run.py   # about 4 min
+python3 research/theism-formal-evidence/experiments/e14_plain_necessity/run.py   # about 2 min
+python3 research/theism-formal-evidence/experiments/e15_a5z_not_a5/run.py --3x3   # about 30 s
+research/theism-formal-evidence/lean/build.sh   # downloads Lean 4.15.0 (~250 MB) if lake is not on PATH; needs zstd
+```
+
+To use your own numbers, edit the `lo`/`hi` of any item in `src/ledger.py` (or a prior in
+`PRIOR_DEFAULT`) and rerun E2.
+
+Related programmes: [`christian-belief-models`](../christian-belief-models) and
+[`catholic-demography`](../catholic-demography) (what Catholics and Orthodox believe and practise,
+from surveys) and [`religion-origins`](../religion-origins).

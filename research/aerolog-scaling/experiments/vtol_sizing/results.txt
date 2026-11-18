@@ -1,0 +1,45 @@
+Milestone 10a: cargo VTOL sizing, battery against hybrid (one-way range, 20% reserve, payload >= 15% of MTOW)
+
+A. Base case (L/D 12, DL 150 N/m2, structure 0.35, FM 0.7): max range km vs payload and cell Wh/kg
+payload kg |    200    250    300    400    500 | hybrid, chain eff 0.12 0.18 0.25 (cap 1500 km)
+         5 |    137    175    213    289    366 |  1433  1500  1500
+        25 |    155    198    241    327    413 |  1500  1500  1500
+       100 |    159    203    247    334    422 |  1500  1500  1500
+       250 |    160    204    248    336    423 |  1500  1500  1500
+       500 |    160    204    248    336    424 |  1500  1500  1500
+
+B. Cell specific energy needed (Wh/kg) for 100, 200, 300 km at payload 100 kg, 15% payload fraction, over the sweep
+LD  DL  fs   | 100km 200km 300km
+ 10 100 0.30 |   135   260   380
+ 10 100 0.35 |   150   285   420
+ 10 100 0.45 |   195   365   535
+ 10 200 0.30 |   145   270   400
+ 10 200 0.35 |   165   305   445
+ 10 200 0.45 |   210   390   575
+ 12 100 0.30 |   115   215   320
+ 12 100 0.35 |   130   240   355
+ 12 100 0.45 |   165   310   450
+ 12 200 0.30 |   125   230   335
+ 12 200 0.35 |   140   255   375
+ 12 200 0.45 |   180   330   485
+ 16 100 0.30 |   100   165   240
+ 16 100 0.35 |   100   185   270
+ 16 100 0.45 |   130   235   345
+ 16 200 0.30 |   100   180   255
+ 16 200 0.35 |   110   200   285
+ 16 200 0.45 |   145   255   370
+
+C. Hybrid break-even: shortest one-way range (km) beyond which hybrid has the larger payload fraction, 100 kg payload
+cell 250 Wh/kg: hybrid lighter from 20 km (chain efficiency 0.25)
+cell 350 Wh/kg: hybrid lighter from 35 km (chain efficiency 0.25)
+cell 500 Wh/kg: hybrid lighter from 55 km (chain efficiency 0.25)
+
+D. Linearity check (prediction 2): range at 100 kg per 100 Wh/kg of cell energy (base case)
+ranges 159 247 334 422  steps 88 88 88
+
+E. Sensitivity of base-case 250 Wh/kg range (100 kg) to each input, one at a time, low / base / high
+LD     (10, 12, 16) -> 169 203 270 km
+DL     (100, 150, 250) -> 210 203 191 km
+fs     (0.3, 0.35, 0.45) -> 227 203 154 km
+FM     (0.6, 0.7, 0.75) -> 196 203 206 km
+kpack  (0.6, 0.7, 0.8) -> 172 203 234 km

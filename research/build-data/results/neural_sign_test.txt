@@ -1,0 +1,4 @@
+all: n=45 neural ahead 18; sign p=0.233; mean +0.22% (95% boot -0.30, +0.75)
+2022: n=15 neural ahead 9; sign p=0.607; mean -0.42% (95% boot -1.29, +0.36)
+2023: n=15 neural ahead 6; sign p=0.607; mean -0.06% (95% boot -0.79, +0.63)
+2024: n=15 neural ahead 3; sign p=0.035; mean +1.14% (95% boot +0.21, +2.13)

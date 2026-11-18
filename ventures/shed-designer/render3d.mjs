@@ -68,7 +68,7 @@ export const TRIM_COLORS = Object.fromEntries(Object.entries(TRIM_FINISHES).map(
  * 32 asphalt shingle courses, 64 T1-11 grooves, 256 window glass. A shingle face's colour blend
  * (0 to 0.5) rides in the fraction.
  */
-export const FINISH = { dots: 1, glitter: 2, lap: 4, batten: 8, metal: 16, shingle: 32, grooves: 64, glass: 256 };
+export const FINISH = { dots: 1, glitter: 2, lap: 4, batten: 8, metal: 16, shingle: 32, grooves: 64, glass: 256, groovesLevel: 512 };
 
 /** Signed area of a 2D polygon. @param {[number, number][]} pts */
 function area2(pts) {
@@ -184,13 +184,14 @@ export function solidsOf(shed, heat) {
   const out = [];
   for (const m of shed.members) {
     const color = heat ? heat.get(m.id) || HEAT_NONE : /^PT /.test(m.material) ? COLORS.pt : (m.kind === 'header' || m.kind === 'ridge board' || m.kind === 'ridge beam') ? COLORS.header : COLORS.framing;
-    out.push({ geom: m.geom, color: /** @type {any} */ (color), layer: layerOf(m), id: m.id });
+    // A bottom plate framed across a door is drawn as it ends up, with the door piece sawn out.
+    for (const geom of m.finished || [m.geom]) out.push({ geom, color: /** @type {any} */ (color), layer: layerOf(m), id: m.id });
   }
   if (heat) return out;
   const pal = paletteOf(d);
   const siding = pal.siding;
   // Lap siding is modelled course by course, so it needs no painted-on shadow lines.
-  const texture = d.sidingType === 'board and batten' ? FINISH.batten : d.sidingType === 'vinyl' ? FINISH.lap : d.sidingType === 'T1-11' ? FINISH.grooves : 0;
+  const texture = d.sidingType === 'board and batten' ? FINISH.batten : d.sidingType === 'vinyl' ? FINISH.lap : d.sidingType === 'T1-11' ? (d.sidingRun === 'horizontal' ? FINISH.groovesLevel : FINISH.grooves) : 0;
   for (const p of shed.panels) {
     const sheathing = p.kind === 'roof sheathing' || p.kind === 'wall sheathing';
     // A gambrel's gussets are part of the roof frame like a truss's; its loft floor, like a truss attic's deck, is plywood like the floor.
@@ -385,6 +386,8 @@ void main(){ vec3 n = normalize(vn); vec3 base = vc.rgb; vec3 an = abs(n);
  if (has(f, 8.0)) { float bx = an.x > an.y ? vp.y : vp.x; if (fract(bx / 8.0) < 0.3) base *= 0.85; }
  // T1-11: a groove every 8".
  if (has(f, 64.0)) { float bx = an.x > an.y ? vp.y : vp.x; if (fract(bx / 8.0) < 0.05) base *= 0.72; }
+ // T1-11 laid horizontally: the grooves run level, 8" apart.
+ if (has(f, 512.0) && fract(vp.z / 8.0) < 0.05) base *= 0.72;
  // Window glass reflects the sky: haze low, blue high, with a faint diagonal glint.
  if (has(f, 256.0)) { float k = clamp((vp.z - 30.0) / 70.0, 0.0, 1.0); float bx = an.x > an.y ? vp.y : vp.x;
   base = mix(vec3(0.8, 0.86, 0.88), vec3(0.36, 0.56, 0.8), k) + (fract((bx + vp.z) / 36.0) < 0.12 ? 0.07 : 0.0); }
@@ -564,7 +567,7 @@ export function createViewer(canvas, { presentation = false } = {}) {
     cam.target = [d.length / 2, d.width / 2, d.peak / 2.4];
     cam.fit = Math.hypot(d.length + 2 * d.overhang, d.width + 2 * d.overhang, d.peak) * 1.35;
     if (!fitted || refit) { cam.dist = cam.fit; cam.pan = [0, 0, 0]; fitted = true; }
-    draw();
+    paint();
   }
 
   function draw() {
@@ -807,30 +810,49 @@ export function createViewer(canvas, { presentation = false } = {}) {
     e.preventDefault();
   });
   function zoom(f) { cam.dist = Math.max(cam.fit * 0.25, Math.min(cam.fit * 3, cam.dist * f)); requestDraw(); }
-  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => draw()).observe(canvas);
+  // A canvas off the page (the gallery and compare thumbnails) is only ever
+  // seen through snapshot(), which draws, so the calls before it do not: on
+  // SwiftShader each frame costs real CPU, and a thumbnail was drawn three or
+  // four times (show, view, the resize callback, snapshot) for one picture.
+  // Every draw clears and repaints from the viewer's state, so the one frame
+  // snapshot() draws is the picture the extra frames ended on.
+  let painted = false;
+  function paint() {
+    if (!canvas.isConnected) return;
+    painted = true;
+    draw();
+  }
+  // The first resize callback comes just after show() has drawn at this size;
+  // redraw only when the size actually changed (or nothing is drawn yet).
+  const sizeChanged = () => {
+    const dpr = Math.min(2, globalThis.devicePixelRatio || 1);
+    const w = canvas.clientWidth; const h = canvas.clientHeight;
+    return Boolean(w && h) && (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr));
+  };
+  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { if (canvas.isConnected && (!painted || sizeChanged())) paint(); }).observe(canvas);
 
   return {
     show,
     draw,
     zoom,
-    setLayer(name, on) { if (on) visible.add(name); else visible.delete(name); draw(); },
-    setDimensions(on) { showDims = on; draw(); },
+    setLayer(name, on) { if (on) visible.add(name); else visible.delete(name); paint(); },
+    setDimensions(on) { showDims = on; paint(); },
     /** Board outlines on or off (presentation mode turns them off). */
-    setOutlines(on) { outlines = on; draw(); },
+    setOutlines(on) { outlines = on; paint(); },
     /** Lawn, shadow and sky on or off. */
-    setScenery(on) { scenery = on; draw(); },
-    view(theta, phi) { cam.theta = theta; cam.phi = phi; cam.dist = cam.fit; cam.pan = [0, 0, 0]; draw(); },
-    reset() { cam.theta = -0.95; cam.phi = 0.42; cam.dist = cam.fit; cam.pan = [0, 0, 0]; draw(); },
+    setScenery(on) { scenery = on; paint(); },
+    view(theta, phi) { cam.theta = theta; cam.phi = phi; cam.dist = cam.fit; cam.pan = [0, 0, 0]; paint(); },
+    reset() { cam.theta = -0.95; cam.phi = 0.42; cam.dist = cam.fit; cam.pan = [0, 0, 0]; paint(); },
     panBy,
     /** Show these members (by id) in orange, over everything; [] clears. */
-    highlight(ids) { setHighlight(ids); draw(); },
+    highlight(ids) { setHighlight(ids); paint(); },
     pick,
     /** Called with the member id under a click (null for none). */
     set onPick(fn) { onPick = fn; },
     /** How far the view is panned from the shed's centre, in inches (for tests). */
     panned() { return Math.hypot(...cam.pan); },
-    snapshot() { draw(); return canvas.toDataURL('image/png'); },
+    snapshot() { painted = true; draw(); return canvas.toDataURL('image/png'); },
     /** Show a picture of the viewer's own on the big poster (it stays in the browser). */
-    setPosterImage(img) { posterImage = img; if (textures.big) { gl.deleteTexture(textures.big); delete textures.big; } draw(); },
+    setPosterImage(img) { posterImage = img; if (textures.big) { gl.deleteTexture(textures.big); delete textures.big; } paint(); },
   };
 }

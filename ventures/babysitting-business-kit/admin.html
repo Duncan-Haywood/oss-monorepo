@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← The app</a> · <a href="https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/self-host.html">Self-hosting guide</a></p>
   <h1>Server status</h1>
   <p>This page talks only to the server it was loaded from. The admin key stays in this tab (session storage) and is sent as a header, never in the address.</p>
@@ -44,7 +45,9 @@
     </div>
   </div>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice. You run this server on your own account and are its operator: you are responsible for its data, its backups and checking its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p>Free and open source under the MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
   </footer>
@@ -62,14 +65,14 @@
       const r = await api("/api/status");
       if (!r.ok) { $("out").hidden = true; return say(r.status === 401 ? "That key was not accepted." : `The server answered ${r.status}.`, true); }
       const s = await r.json();
-      say(`Updated ${new Date(s.time).toLocaleString()}.`);
+      say(`Updated ${new Date(s.time).toLocaleString('en-US')}.`);
       $("versions").innerHTML = `<p>App ${esc(s.app)} · Node ${esc(s.node)}${s.commit ? ` · build ${esc(String(s.commit).slice(0, 12))}` : ""} · up ${Math.round(s.uptimeSeconds / 3600)} h</p>`;
       const by = Object.entries(s.counts.leadsByStatus).map(([k, v]) => `${esc(k)} ${v}`).join(", ") || "none";
       $("counts").innerHTML = `<p>${s.counts.leads} leads (${by}) · ${s.counts.families} families · ${s.counts.bookings} sits · ${s.counts.references} references</p><p>Last morning digest: ${esc(s.lastDigest || "none since the server started")}</p>`;
       $("integrations").innerHTML = s.integrations.map((i) => `<tr><th scope="row">${esc(i.name)}</th><td class="${i.configured ? "on" : "off"}">${i.configured ? "on" : "off"}</td></tr>`).join("");
       const b = s.backup, d = s.disk;
       $("disk").innerHTML = `<p>State file ${mb(d.stateBytes)} · ${d.snapshots} snapshots (${mb(d.snapshotBytes)}, newest ${esc(d.newestSnapshot || "none")}, keeping ${b.keep}) · free ${mb(d.freeBytes)} of ${mb(d.totalBytes)}</p>` +
-        `<p>Off-site copy: ${b.lastOffsite ? esc(new Date(b.lastOffsite).toLocaleString()) : "never"}${b.lastOffsiteError ? ` <span class="err">(${esc(b.lastOffsiteError)})</span>` : ""}</p>`;
+        `<p>Off-site copy: ${b.lastOffsite ? esc(new Date(b.lastOffsite).toLocaleString('en-US')) : "never"}${b.lastOffsiteError ? ` <span class="err">(${esc(b.lastOffsiteError)})</span>` : ""}</p>`;
       const snaps = await (await api("/api/backups")).json();
       $("snapshots").innerHTML = (snaps.length ? `<thead><tr><th scope="col">Snapshot</th><th scope="col">Size</th><th scope="col">Actions</th></tr></thead>` : "") + snaps.map((x) => `<tr><td>${esc(x.name)}</td><td>${mb(x.size)}</td><td><button type="button" class="plain" data-dl="${esc(x.name)}">Download</button> <button type="button" class="plain" data-restore="${esc(x.name)}">Restore</button></td></tr>`).join("");
       $("out").hidden = false;
@@ -79,7 +82,7 @@
       if (!r.ok) return say(`Download failed (${r.status}).`, true);
       const a = document.createElement("a");
       a.href = URL.createObjectURL(await r.blob());
-      a.download = name || `babysitting-desk-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = name || `babysitting-desk-${new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10)}.json`;
       a.click();
     }
     async function restore(body, label) {

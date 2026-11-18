@@ -65,3 +65,26 @@ test("csv and money", () => {
   assert.equal(csv.trim().split("\n").length, 4);
   assert.match(csv, /Large squares/);
 });
+
+test("per-bale break-even is shown to the cent (audit 2026-11-15)", () => {
+  const r = analyze({ acres: 80, tonsPerAcre: 4, growCostPerAcre: 240, makeCostPerTon: 30, storageLossPct: 5, smallPrice: 8, largePrice: 130, roundPrice: 95 });
+  assert.equal(r.channels[0].breakEvenPerBale, 3.63);
+  assert.match(r.advice.join(" "), /\$3\.63 a bale/);
+});
+
+test("ranking puts the highest net first (audit 2026-11-15)", () => {
+  const r = analyze({ acres: 80, tonsPerAcre: 4, growCostPerAcre: 240, makeCostPerTon: 30, storageLossPct: 5, smallPrice: 8, largePrice: 130, roundPrice: 95 });
+  assert.deepEqual(r.ranked, ["large", "small", "round"]);
+  assert.equal(r.best, "large");
+  const nets = r.channels.map((c) => c.net);
+  assert.equal(r.channels.find((c) => c.key === r.best).net, Math.max(...nets));
+});
+
+test("non-numeric input is an error, not $NaN (audit 2026-11-15)", () => {
+  assert.match(analyze({ acres: 80, tonsPerAcre: 4, growCostPerAcre: "abc" }).error, /number/);
+  assert.match(analyze({ acres: 80, tonsPerAcre: 4, smallPrice: "1,200" }).error, /number/);
+});
+
+test("default extra storage loss per bale type is pinned", () => {
+  assert.deepEqual(analyze(sampleInput()).channels.map((c) => c.lossPct - analyze(sampleInput()).inputs.storageLossPct), [0, 1, 4]);
+});

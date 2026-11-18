@@ -1,3 +1,9 @@
+---
+kind: lane
+subjects: [shed-designer]
+topics: [seo, llms-txt]
+tagged: auto
+---
 # shed-designer overnight, lane 4: cost honesty, marketing page, llms.txt, SEO
 
 Date: 2026-10-29. Session: https://claude.ai/code/session_01XpHqyeS6gsz3tkQdJ13SA8

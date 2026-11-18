@@ -1,0 +1,4 @@
+1980Q3 value 0.3
+break after 1980Q2 (new regime starts 1980Q3): before mean -1.57, after mean 4.96, SSE 186.2
+break after 1980Q3 (new regime starts 1980Q4): before mean -1.51, after mean 5.19, SSE 166.8
+break after 1980Q4 (new regime starts 1981Q1): before mean -1.35, after mean 5.29, SSE 182.9

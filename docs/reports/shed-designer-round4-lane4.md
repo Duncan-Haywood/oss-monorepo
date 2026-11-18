@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed Designer, round 4, lane 4: finishes and price data (2026-10-30)
 
 This lane works from the `price-gaps`, `round3-lap-siding`, `round2-lane2`, `round2-lane5` and `round3-lane1` reports. Every price below was read on 2026-10-30 from a search engine's copy of a store page, because Home Depot and Lowe's refuse automated reads. Each line in the tool links its page and says how old the copy was where the result showed it.

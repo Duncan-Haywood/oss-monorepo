@@ -1,0 +1,13 @@
+1978: 365 days, 6 holidays: changes 19 -> 17, factor 0.923
+1979: 365 days, 6 holidays: changes 22 -> 18, factor 0.879
+1980: 366 days, 6 holidays: changes 24 -> 18, factor 0.861
+1981: 365 days, 6 holidays: changes 21 -> 17, factor 0.897
+1982: 365 days, 6 holidays: changes 24 -> 22, factor 0.902
+1983: 365 days, 6 holidays: changes 21 -> 19, factor 0.917
+1984: 366 days, 6 holidays: changes 22 -> 18, factor 0.889
+1985: 365 days, 6 holidays: changes 23 -> 17, factor 0.842
+1986: 365 days, 6 holidays: changes 22 -> 20, factor 0.840
+1987: 365 days, 6 holidays: changes 19 -> 19, factor 0.860
+1988: 366 days, 6 holidays: changes 22 -> 20, factor 0.873
+per-year totals: 239 -> 205
+1978-1988: 4018 days, 66 holidays: changes 199 -> 164, factor 0.875

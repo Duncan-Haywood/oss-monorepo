@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to package.json Exports Drift Check</a></p>
   <h1>Why package.json exports fields drift from what you actually publish</h1>
 
@@ -86,7 +87,9 @@
   <h3>What about the "main", "module", and "types" fields?</h3>
   <p>Out of scope for v0, on purpose. "exports" is the field that changed Node's resolution behaviour and is the sharpest, most all-or-nothing failure mode — a wrong entry there can make an entire subpath unimportable rather than just a fallback. "main"/"module"/"types" pointing at missing files is a real but softer version of the same problem, and TypeScript's own tooling (tsc, arethetypeswrong) already checks the "types" case specifically.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it documents report whether a literal path named in a package.json "exports" map exists against a file listing you provided — nothing more. It is not engineering advice, and it is not a guarantee that your package will install or import cleanly. Verify by actually running <code>npm publish --dry-run</code> and testing the tarball before relying on it.
     <a href="./">Back to the tool</a>.</p>
   </footer>

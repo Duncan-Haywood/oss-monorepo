@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree
 
+from .xmlvalues import unreadable_leaves
 from .facturx import EmbeddedInvoiceError, extract_embedded_invoice_xml, looks_like_pdf
 
 __all__ = [
@@ -150,7 +151,11 @@ def parse_bytes(data: bytes) -> tuple[dict[str, Any], str]:
         root = ElementTree.fromstring(data)
     except ElementTree.ParseError as exc:
         raise DocumentError(f"The XML is not well formed: {exc}") from exc
-    return (_parse_ubl(root) if syntax == "ubl" else _parse_cii(root)), syntax
+    document = _parse_ubl(root) if syntax == "ubl" else _parse_cii(root)
+    unreadable = unreadable_leaves(root)
+    if unreadable:
+        document["xml_values"] = unreadable
+    return document, syntax
 
 
 # --------------------------------------------------------------------------
@@ -427,6 +432,22 @@ def _parse_cii(root: Any) -> dict[str, Any]:
             vat_id=_cii_vat_id(party),
             country=_text(party, f"{{{RAM}}}PostalTradeAddress", f"{{{RAM}}}CountryID"),
         )
+        document[key].update(_cii_party_identifiers(party))
+    # BG-10 payee and BG-11 tax representative: only their schemed ids (cii.mjs).
+    for key, parent, tag in (("payee_party", settlement, "PayeeTradeParty"), ("tax_representative", agreement, "SellerTaxRepresentativeTradeParty")):
+        node = None if parent is None else parent.find(f"{{{RAM}}}{tag}")
+        side = {k: v for k, v in _cii_party_identifiers(node).items() if k != "endpoint"}
+        if key == "tax_representative" and _cii_vat_id(node):
+            # BT-63, its VAT number (checks.py INV-022/023; cii.mjs, 2026-11-17).
+            side["vat_id"] = _cii_vat_id(node)
+        if side:
+            document[key] = side
+    # BG-13 deliver-to: ShipToTradeParty's ID/GlobalID (BT-71) and legal id (cii.mjs).
+    delivery = None if transaction is None else transaction.find(f"{{{RAM}}}ApplicableHeaderTradeDelivery")
+    ship_to = None if delivery is None else delivery.find(f"{{{RAM}}}ShipToTradeParty")
+    side = {k: v for k, v in _cii_party_identifiers(ship_to).items() if k != "endpoint"}
+    if side:
+        document["delivery_party"] = side
 
     lines = [] if transaction is None else transaction.findall(f"{{{RAM}}}IncludedSupplyChainTradeLineItem")
     document["lines"] = [_parse_cii_line(line) for line in lines]
@@ -435,6 +456,37 @@ def _parse_cii(root: Any) -> dict[str, Any]:
     document["totals"] = _parse_cii_totals(settlement)
     document["payment"] = _parse_cii_payment(settlement)
     return document
+
+
+def _cii_party_identifiers(party: Any) -> dict[str, Any]:
+    """BT-30/47 legal_id, BT-29/46 party_ids and BT-34/49 endpoint, as cii.mjs maps them.
+
+    endpoint.py checks each against its scheme's PEPPOL-COMMON rule (INV-041,
+    INV-062), so a CII file read by the CLI meets the same checks as the page.
+    """
+    if party is None:
+        return {}
+    mapped: dict[str, Any] = {}
+    legal = party.find(f"{{{RAM}}}SpecifiedLegalOrganization/{{{RAM}}}ID")
+    if legal is not None and (legal.text or "").strip():
+        mapped["legal_id"] = {"id": legal.text.strip(), "scheme": (legal.get("schemeID") or "").strip()}
+    party_ids = []
+    for child in party:
+        if child.tag not in (f"{{{RAM}}}GlobalID", f"{{{RAM}}}ID"):
+            continue
+        scheme = (child.get("schemeID") or "").strip()
+        value = (child.text or "").strip()
+        if scheme and value:
+            party_ids.append({"id": value, "scheme": scheme})
+    if party_ids:
+        mapped["party_ids"] = party_ids
+    uri = party.find(f"{{{RAM}}}URIUniversalCommunication/{{{RAM}}}URIID")
+    if uri is not None:
+        value = (uri.text or "").strip()
+        scheme = (uri.get("schemeID") or "").strip()
+        if value or scheme:
+            mapped["endpoint"] = {"id": value, "scheme": scheme}
+    return mapped
 
 
 def _cii_vat_id(party: Any) -> str | None:
@@ -446,6 +498,19 @@ def _cii_vat_id(party: Any) -> str | None:
         if identifier is not None and (identifier.get("schemeID") or "").upper() == "VA":
             return (identifier.text or "").strip() or None
     return None
+
+
+def _cii_line_scheme_ids(line: Any) -> list[dict[str, str]]:
+    # Every schemed ram:ID / GlobalID / URIID in the line: Peppol's COMMON id
+    # contexts reach them all (cii.mjs, endpoint.mjs inspectLineSchemedIds).
+    found: list[dict[str, str]] = []
+    for name in ("ID", "GlobalID", "URIID"):
+        for node in line.iter(f"{{{RAM}}}{name}"):
+            scheme = (node.get("schemeID") or "").strip()
+            value = (node.text or "").strip()
+            if scheme and value:
+                found.append({"id": value, "scheme": scheme})
+    return found
 
 
 def _parse_cii_line(line: Any) -> dict[str, Any]:
@@ -475,6 +540,7 @@ def _parse_cii_line(line: Any) -> dict[str, Any]:
         "charges": _line_allowance_charges(
             settlement, f"{{{RAM}}}SpecifiedTradeAllowanceCharge", f"{{{RAM}}}ChargeIndicator", f"{{{RAM}}}ActualAmount", True
         ),
+        **({"scheme_ids": ids} if (ids := _cii_line_scheme_ids(line)) else {}),
     }
 
 
@@ -586,6 +652,9 @@ def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
         }
         if source.get("vat_id"):
             mapped["vat_id"] = source["vat_id"]
+        for key in ("legal_id", "party_ids", "endpoint"):
+            if source.get(key):
+                mapped[key] = source[key]
         return mapped
 
     lines = []
@@ -604,6 +673,8 @@ def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
         reason = line.get("tax_reason") or header_reason
         if reason:
             mapped_line["tax_reason"] = reason
+        if line.get("scheme_ids"):
+            mapped_line["scheme_ids"] = line["scheme_ids"]
         lines.append(mapped_line)
 
     totals_src = document.get("totals") if isinstance(document.get("totals"), dict) else {}
@@ -669,6 +740,11 @@ def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
         payment["terms_days"] = payment_src["terms_days"]
     if payment:
         invoice["payment"] = payment
+    for key in ("payee_party", "tax_representative", "delivery_party"):
+        if isinstance(document.get(key), dict):
+            invoice[key] = document[key]
+    if isinstance(document.get("xml_values"), list):
+        invoice["xml_values"] = document["xml_values"]
     return invoice
 
 

@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01XpHqydXC15EHFbWHux7bWt",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "project management view only on the site about what's getting addressed in what order?",
+  "input_sha256": "4aef521d10435b4a94ab41a7d8bf3ff4b5bfd24008733f9937c5d5077ce7cf8e",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T05:19:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Read-only project-management view on the site: what the agents take next, and in what order",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12511",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First full site build failed: the new post's seo_title was 72 characters, over the 70 limit enforced by writing.mjs",
+      "fix": "shortened it"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The queue order (security, IDEAS.md, requests, flagships) is spread across prompt.md, ideas.py and allocate.py, with no single machine-readable statement of it; the new page restates it, so a change to prompt.md's order needs a matching change in platform/pages/queue.mjs"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "This was a direct request that fits no track, so I routed it to process (repo work) rather than ventures",
+      "did": "routed with --track process",
+      "result": "no effect on the work"
+    },
+    {
+      "file": "platform/pages/queue.mjs",
+      "why": "Did not call allocate.py from the page build: it is slow and runs git. Flagships come straight from flagships.yaml in file order, which is the order allocate.py gives dispatchable flagships",
+      "did": "line-parsed flagships.yaml",
+      "result": "the page order matches allocate.py's top ten today"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-02-the-work-queue-in-public.md"
+  ],
+  "goal": null,
+  "notes": "New page queue/ (platform/pages/queue.mjs, 10 tests), wired into build.mjs, the sitemap, llms.txt, the footer nav and the updates page. Local checks: queue.test.mjs 10/10; updates, site-nav, custom-development and feedback tests 50/50; full build, check.mjs and pages suite: see the PR.",
+  "corrections": [],
+  "redteam": null
+}

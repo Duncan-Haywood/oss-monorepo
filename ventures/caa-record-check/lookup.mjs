@@ -47,18 +47,21 @@ async function dohQuery(name, type, { fetchImpl = globalThis.fetch, timeoutMs = 
 }
 
 /**
- * Looks up the CAA record set that actually governs certificate issuance for
- * `hostname`, per RFC 8659's tree-walk: a CA does not stop at the exact name
- * you point it at. It (1) follows a CNAME at the exact name once, since CAA
- * for an aliased name is evaluated at the alias's target, and (2) if the
- * resulting name carries no CAA records of its own, walks up one label at a
- * time -- `app.staging.example.com` -> `staging.example.com` ->
- * `example.com` -> `com` -- stopping at the first name that has ANY CAA
- * record set (even an empty, disallow-nothing one is still "found here" if
- * a zero-record answer at that exact name is distinguishable... in practice
- * DNS cannot distinguish "no CAA records" from "domain doesn't publish CAA",
- * so this keeps walking until it gets a non-empty answer or runs out of
- * labels, exactly matching what a real CA's own resolver does).
+ * Looks up the CAA record set that governs certificate issuance for
+ * `hostname`, per RFC 8659 section 3 (RelevantCAASet): a CA checks CAA at the
+ * name itself, and if nothing is there, at each parent label in turn --
+ * `app.staging.example.com` -> `staging.example.com` -> `example.com` ->
+ * `com` -- stopping at the first name with a non-empty CAA record set.
+ *
+ * Aliases: CAA(X) is an ordinary DNS lookup, so when X is a CNAME the answer
+ * is the CAA record set at X's target, and only at that target. The search
+ * does NOT climb the target's own parents; it goes on to X's parent. (RFC
+ * 6844 climbed the target's tree; RFC 8659 dropped that.) The resolver
+ * follows aliases on every CAA query, so a CNAME at an ancestor label is
+ * covered too. For the typed name this module also asks for the CNAME
+ * explicitly and, if the CAA answer came back empty, queries the target's CAA
+ * once more, so the alias is reported and a resolver that does not chase it
+ * still gives the RFC answer.
  *
  * Most simple "CAA lookup" tools query only the exact name you type and stop
  * -- which reports "no CAA record" (and therefore "any CA may issue") for a
@@ -80,12 +83,8 @@ export async function resolveCaaSet(hostname, { fetchImpl, timeoutMs, dohQueryFn
   const queriedName = stripTrailingDot(hostname).toLowerCase();
   const opts = { fetchImpl, timeoutMs };
 
-  // Step 1: a single CNAME hop at the exact name. A chain of CNAMEs pointing
-  // through several aliases is rare for the name someone types into this
-  // tool (that shape is CDN/load-balancer territory, not a bare "does my
-  // domain have a working CAA record" question), so one hop covers the
-  // common case -- a redirect to a hosting provider's own name -- without
-  // this tool's tree-walk needing full loop protection on top of it.
+  // The typed name's CNAME target, if any: reported to the user, and queried
+  // for CAA (exactly, not its parents) if the typed name's own answer is empty.
   let canonicalName = queriedName;
   const cnameResult = await dohQueryFn(queriedName, CNAME_TYPE, opts);
   if (cnameResult.ok && !cnameResult.nxdomain) {
@@ -93,21 +92,32 @@ export async function resolveCaaSet(hostname, { fetchImpl, timeoutMs, dohQueryFn
     if (cname) canonicalName = stripTrailingDot(cname.data).toLowerCase();
   }
 
-  // Step 2: walk up from the canonical name until a non-empty CAA answer.
-  const labels = canonicalName.split('.').filter(Boolean);
   const walkedNames = [];
+  const fail = (error) => ({ ok: false, queriedName, canonicalName, foundAtName: null, records: [], walkedNames, error });
+  const caaAt = async (name) => {
+    walkedNames.push(name);
+    const result = await dohQueryFn(name, CAA_TYPE, opts);
+    if (!result.ok) return { error: result.error };
+    const caaAnswers = result.answers.filter((a) => a && a.type === CAA_TYPE);
+    if (!caaAnswers.length) return { records: null };
+    // A resolver that followed an alias labels the records with the target.
+    const owner = caaAnswers[0].name ? stripTrailingDot(caaAnswers[0].name).toLowerCase() : name;
+    return { records: caaAnswers.map((a) => parseCaaData(String(a.data))), owner };
+  };
+
+  // Climb the typed name's own labels (never the alias target's).
+  const labels = queriedName.split('.').filter(Boolean);
   for (let dropped = 0; dropped <= Math.min(labels.length - 1, MAX_TREE_WALK_LABELS); dropped++) {
     const name = labels.slice(dropped).join('.');
     if (!name) break;
-    walkedNames.push(name);
-    const result = await dohQueryFn(name, CAA_TYPE, opts);
-    if (!result.ok) {
-      return { ok: false, queriedName, canonicalName, foundAtName: null, records: [], walkedNames, error: result.error };
+    let found = await caaAt(name);
+    if (found.error) return fail(found.error);
+    if (!found.records && dropped === 0 && canonicalName !== queriedName) {
+      found = await caaAt(canonicalName);
+      if (found.error) return fail(found.error);
     }
-    const caaAnswers = result.answers.filter((a) => a && a.type === CAA_TYPE);
-    if (caaAnswers.length > 0) {
-      const records = caaAnswers.map((a) => parseCaaData(String(a.data)));
-      return { ok: true, queriedName, canonicalName, foundAtName: name, records, walkedNames, error: null };
+    if (found.records) {
+      return { ok: true, queriedName, canonicalName, foundAtName: found.owner, records: found.records, walkedNames, error: null };
     }
     // Empty answer at this name: per RFC 8659, keep walking up. Reaching the
     // top-level domain with nothing found means no CAA record exists

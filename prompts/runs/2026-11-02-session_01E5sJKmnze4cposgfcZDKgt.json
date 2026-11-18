@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01E5sJKmnze4cposgfcZDKgt",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md (scheduled run)",
+  "input_sha256": "f413fcc6eeac6dacbc031c32c2c57ebe5f2a5a407b6c1a0ee7b3e3a0d3e2e4f0",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T11:30:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "research/verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12575",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post in docs/posts; run was a small programme step.",
+      "did": "LOG and PAPER only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "research/verified-dse/LOG.md milestone 62",
+    "research/verified-dse/PAPER.md"
+  ],
+  "goal": null,
+  "notes": "Milestone 62: degrade R2 with noise and replay BOHB (8 min, no flow). Tau 0.62->0.06 costs BOHB 0.8 of its 0.94pt win at 15 equivalents. No blog post this run (short scheduled run).",
+  "corrections": [],
+  "redteam": null
+}

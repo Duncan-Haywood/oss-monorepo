@@ -33,5 +33,5 @@ for c,w in enumerate(W):
         for s in range(S):
             if not el[p][s]:ub[idx(p,s)]=0
     t=time.time()
-    res=milp(cost,constraints=LinearConstraint(A,lo,hi),integrality=np.ones(nv),bounds=Bounds(0,ub),options={'time_limit':300})
+    res=milp(cost,constraints=LinearConstraint(A,lo,hi),integrality=np.ones(nv),bounds=Bounds(0,ub),options={'time_limit':float(__import__('os').environ.get('TL','300'))})
     print(c,res.status,res.message[:40],'min open hours',res.fun,'dual bound',getattr(res,'mip_dual_bound',None),'engine open',w.get('engineOpen'),'engine floor',w.get('engineFloor'),'%.1fs'%(time.time()-t))

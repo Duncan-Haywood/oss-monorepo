@@ -3,6 +3,7 @@
 
     python3 platform/ci/ci_profile.py                    # last 300 completed runs
     python3 platform/ci/ci_profile.py --runs 1000 --top 25
+    python3 platform/ci/ci_profile.py --steps 20         # heaviest single steps, any workflow
     python3 platform/ci/ci_profile.py --save runs.json   # keep the raw payload
     python3 platform/ci/ci_profile.py --from-json runs.json --json
 
@@ -31,6 +32,7 @@ enough for ~50 runs). One request per 100 runs listed, plus one per run.
 from __future__ import annotations
 
 import argparse
+import http.client
 import json
 import os
 import statistics
@@ -150,6 +152,32 @@ def summarise(jobs):
     return rows
 
 
+def step_table(jobs, limit):
+    """Heaviest work steps across all workflows: (workflow, job, step, runs, minutes, median s)."""
+    acc = defaultdict(list)
+    for job in jobs:
+        profile = job_profile(job)
+        if not profile:
+            continue
+        for name, seconds in profile["work_steps"]:
+            acc[(profile["workflow"], profile["job"], name)].append(seconds)
+    rows = [
+        {"workflow": w, "job": j, "step": n, "runs": len(v),
+         "minutes": round(sum(v) / 60, 1), "median_seconds": round(statistics.median(v))}
+        for (w, j, n), v in acc.items()
+    ]
+    rows.sort(key=lambda r: -r["minutes"])
+    return rows[:limit]
+
+
+def render_steps(rows):
+    lines = [f"{'workflow':28} {'job':22} {'runs':>5} {'min':>7} {'med s':>6}  step"]
+    for r in rows:
+        lines.append(f"{r['workflow'][:28]:28} {r['job'][:22]:22} {r['runs']:>5} "
+                     f"{r['minutes']:>7} {r['median_seconds']:>6}  {r['step'][:60]}")
+    return "\n".join(lines)
+
+
 def totals(rows):
     minutes = sum(r["job_minutes"] for r in rows)
     checkout = sum(r["job_minutes"] * r["checkout_share"] for r in rows)
@@ -205,13 +233,19 @@ def http_api(token=None, opener=urllib.request.urlopen):
         if token:
             headers["Authorization"] = f"Bearer {token}"
         url = API_ROOT + path.lstrip("/")
-        try:
-            with opener(urllib.request.Request(url, headers=headers), timeout=60) as response:
-                return json.loads(response.read().decode("utf-8"))
-        except urllib.error.HTTPError as exc:
-            raise RuntimeError(f"GET {url} failed: HTTP {exc.code}") from exc
-        except urllib.error.URLError as exc:
-            raise RuntimeError(f"GET {url} failed: {exc.reason}") from exc
+        # A truncated body (IncompleteRead) through the proxy killed a 600-run
+        # reading after minutes; retry the transient cases, not HTTP errors.
+        for attempt in range(3):
+            try:
+                with opener(urllib.request.Request(url, headers=headers), timeout=60) as response:
+                    return json.loads(response.read().decode("utf-8"))
+            except urllib.error.HTTPError as exc:
+                raise RuntimeError(f"GET {url} failed: HTTP {exc.code}") from exc
+            except urllib.error.URLError as exc:
+                raise RuntimeError(f"GET {url} failed: {exc.reason}") from exc
+            except (http.client.IncompleteRead, ConnectionError, TimeoutError):
+                if attempt == 2:
+                    raise RuntimeError(f"GET {url} failed: truncated or reset three times")
     return call
 
 
@@ -251,6 +285,8 @@ def main(argv=None, api=None):
     parser.add_argument("--repo", default=os.environ.get("GITHUB_REPOSITORY") or DEFAULT_REPO)
     parser.add_argument("--runs", type=int, default=300, help="recent completed runs to read")
     parser.add_argument("--top", type=int, default=20, help="workflows to list")
+    parser.add_argument("--steps", type=int, metavar="N",
+                        help="list the N heaviest single steps across workflows instead")
     parser.add_argument("--json", action="store_true", help="machine-readable rows")
     parser.add_argument("--save", metavar="PATH", help="also write the raw jobs payload here")
     parser.add_argument("--from-json", dest="from_json", metavar="PATH",
@@ -271,6 +307,10 @@ def main(argv=None, api=None):
         print(f"error: {exc}", file=sys.stderr)
         return 2
 
+    if args.steps:
+        steps = step_table(payload.get("jobs") or [], args.steps)
+        print(json.dumps(steps, indent=2) if args.json else render_steps(steps))
+        return 0
     rows = summarise(payload.get("jobs") or [])
     if args.json:
         print(json.dumps({"window": payload.get("window"), "totals": totals(rows), "rows": rows},

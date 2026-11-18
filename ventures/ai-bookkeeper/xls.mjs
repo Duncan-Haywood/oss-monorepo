@@ -121,7 +121,8 @@ function xlString(d, p, lenBytes = 2) {
 
 function serialToIso(v, epoch1904) {
   const d = new Date(Date.UTC(1899, 11, 30) + (Math.floor(v) + (epoch1904 ? 1462 : 0)) * 86400000);
-  return d.toISOString().slice(0, 10);
+  // A damaged file can hold a serial outside the Date range: keep the number, don't throw.
+  return Number.isNaN(d.getTime()) ? String(v) : d.toISOString().slice(0, 10);
 }
 const csvCell = (s) => (/[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
 
@@ -194,6 +195,9 @@ export function xlsToCsv(bytes) {
   if (!best || !best.cells) throw new Error("this workbook has no cells with data");
   const width = Math.max(...best.rows.filter(Boolean).map((r) => r.length));
   const lines = [];
-  for (const r of best.rows) { if (!r) continue; lines.push(Array.from({ length: width }, (_, i) => csvCell(r[i] ?? "")).join(",")); }
+  // Cells past a row's last one are empty, so they are padded as commas in one go: a damaged
+  // cell can claim column 65535 and make every row that wide (a 20 MB CSV, 1.5 s per file cell
+  // by cell; docs/history/ci-perf-2026-11-13-xls-row-padding.md). Same bytes either way.
+  for (const r of best.rows) { if (!r) continue; lines.push(Array.from({ length: r.length }, (_, i) => csvCell(r[i] ?? "")).join(",") + ",".repeat(width - r.length)); }
   return lines.join("\n") + "\n";
 }

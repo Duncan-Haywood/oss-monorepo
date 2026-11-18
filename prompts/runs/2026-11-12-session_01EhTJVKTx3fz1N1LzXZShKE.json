@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVKTx3fz1N1LzXZShKE",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support products); merge when done",
+  "input_sha256": "08886939e25fb8f1628b1992f5c838d70b318a02cd55703d1338188ea0273720",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T14:14:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality round 51 (mode sample, seed 2026-11-12-j)",
+  "projects": [
+    "ventures/mobile-signing-agent-day-picker",
+    "ventures/survival-analysis",
+    "research/free-lorenzhorizon",
+    "research/sensing-bafocal"
+  ],
+  "pr": 15147,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Parallel auditors share one scratchpad; two wrote indep.py there and one overwrote the other's, so the lead could not rerun the first auditor's script. Suggest per-subject scratch subfolders in the procedure."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-quality-audit-round-51.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-12-j (round 50 / seed -i was open as PR #15144). Subjects: ventures/mobile-signing-agent-day-picker (bar: yes), ventures/survival-analysis (yes), research/sensing-bafocal (no, verification 2), research/free-lorenzhorizon (no, verification 1, claims 2). Share meeting bar this round 2 of 4; sampled on main 31 of 214 (Wilson 10%-20%). Seeded bugs caught 26 of 32. Spot checks by the lead: notary leg-1 margin $63.87 by hand = CLI; survival Cox Breslow HR 4.523 / -2LL 172.759 and 3.648, 4.975 / 144.559, medians 23/8 = Kleinbaum & Klein; Lorenz parameter slope 1.009 without the saturated row (auditor script output); bafocal k1 6-seed run (mean -0.1965, sd 0.040) which found an extra overclaim. Fix PR: #15147 (all four subjects; every surviving core mutation re-seeded after the fix and now caught). Local checks: node --test in both ventures (31/31, 46/46), pytest lorenz 8/8, bafocal 7/7, quality_audit validate 254 files 0 problems, post frontmatter/links/similarity clean.",
+  "corrections": [],
+  "redteam": null
+}

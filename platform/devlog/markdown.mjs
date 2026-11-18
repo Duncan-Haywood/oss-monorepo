@@ -6,6 +6,8 @@
 
 export const REPO_BLOB = 'https://github.com/Duncan-Haywood/oss-monorepo/blob/main/';
 export const REPO_PULL = 'https://github.com/Duncan-Haywood/oss-monorepo/pull/';
+// Images need the file's bytes, not GitHub's file page; raw serves an SVG as image/svg+xml.
+export const REPO_RAW = 'https://raw.githubusercontent.com/Duncan-Haywood/oss-monorepo/main/';
 
 export const esc = (v) =>
   String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -24,8 +26,39 @@ export function resolveHref(href, fromPath = '') {
   return REPO_BLOB + parts.join('/');
 }
 
-/** Inline spans on raw (unescaped) text. Code spans are cut out first so nothing inside them is formatted. */
-export function inline(text, fromPath = '', { linkPrs = true } = {}) {
+/** An image source: http(s) kept, a repository path served raw from GitHub, anything else (data:, javascript:) dropped. */
+export function resolveImageSrc(src, fromPath = '') {
+  const url = resolveHref(src, fromPath);
+  if (!url || url.startsWith('#')) return null;
+  return url.startsWith(REPO_BLOB) ? REPO_RAW + url.slice(REPO_BLOB.length) : url;
+}
+
+// An HTML entity an author typed (&minus;, &radic;, &#8722;) is kept as itself after escaping, so
+// the page shows "−" rather than the literal text "&minus;" (blog posts and research log lines on
+// /updates/ did until 2026-11-14; the research pages' own builder got the same fix in PR #15883).
+// Inside a code span it stays literal, which is how a post shows the entity's source. Safe: an
+// entity decodes to text, never to markup (`&lt;b&gt;` reads as "<b>", it does not open a tag).
+const TYPED_ENTITY = /&amp;(#\d{1,7}|#x[0-9a-fA-F]{1,6}|[a-zA-Z][a-zA-Z0-9]{1,31});/g;
+// What `esc` itself writes; *em* may open after any other entity (`*K*&radic;*P*`).
+// A paired, attribute-free <sub>…</sub> or <sup>…</sup> (p<sub>s</sub>, CO<sub>2</sub>, N<sup>1.85</sup>)
+// is the one raw HTML kept: seven posts used it and showed the tags as text until 2026-11-14. No
+// attributes and a closing tag on the same line, so it cannot open anything else or run on.
+const SUB_SUP = /&lt;(sub|sup)&gt;((?:(?!&lt;\/?su[bp]&gt;).){1,80}?)&lt;\/\1&gt;/g;
+// *em* may also open after a slash or an opening quote: "1/*e*", "Deira/*de ira*" and "“*x*”" showed
+// their asterisks until 2026-11-14 (CommonMark treats both as emphasis).
+const EM_OPEN = /(^|[\s(/“‘]|&(?:quot|#39);|&(?!(?:amp|lt|gt|quot|#39);)#?[a-zA-Z0-9]+;)\*([^*\s.][^*]*)\*/g;
+const EM_OPEN_PLAIN = /(^|[\s(/“‘]|&(?:quot|#39);)\*([^*\s.][^*]*)\*/g;
+// A code span is a backtick run closed by a run of the same length, so `` `x` `` shows `x` with its
+// backticks (one space either side trimmed, as CommonMark does). Only single runs matched until
+// 2026-11-14, and double-backtick spans in eight posts showed as raw text.
+const CODE_SPAN = /(?<!`)(`+)(?!`)(.+?)(?<!`)\1(?!`)/g;
+const trimCode = (c) => (c.length > 2 && c.startsWith(' ') && c.endsWith(' ') && c.trim() ? c.slice(1, -1) : c);
+
+/**
+ * Inline spans on raw (unescaped) text. Code spans are cut out first so nothing inside them is formatted.
+ * `entities: false` shows a typed entity as its source text, for text GitHub shows plainly (commit titles).
+ */
+export function inline(text, fromPath = '', { linkPrs = true, entities = true } = {}) {
   // Links first, so a label written in code (`[`file`](file)`) stays a link;
   // then code spans, so nothing inside them is formatted.
   // A link written wholly inside a code span (`[title](post.md)`) is shown as
@@ -33,25 +66,44 @@ export function inline(text, fromPath = '', { linkPrs = true } = {}) {
   const held = [];
   const raw = [];
   const hold = (html, src = '') => `\u0000${(raw.push(src), held.push(html)) - 1}\u0000`;
-  let s = String(text).replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (src, label, href) => {
+  // Images before links, so `![alt](src)` is not read as `!` plus a link.
+  let s = String(text).replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (src, alt, href) => {
+    const url = resolveImageSrc(href, fromPath);
+    return hold(url ? `<img src="${esc(url)}" alt="${esc(alt)}" loading="lazy" style="max-width:100%;height:auto">` : esc(alt), src);
+  });
+  s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (src, label, href) => {
     const url = resolveHref(href, fromPath);
-    const inner = inline(label, fromPath, { linkPrs: false });
+    const inner = inline(label, fromPath, { linkPrs: false, entities });
     return hold(url ? `<a href="${esc(url)}">${inner}</a>` : inner, src);
   });
-  s = s.replace(/`([^`]+)`/g, (_, code) => hold(`<code>${esc(code.replace(/\u0000(\d+)\u0000/g, (_m, i) => raw[Number(i)]))}</code>`));
-  s = esc(s)
+  s = s.replace(CODE_SPAN, (_, _ticks, code) => hold(`<code>${esc(trimCode(code).replace(/\u0000(\d+)\u0000/g, (_m, i) => raw[Number(i)]))}</code>`));
+  s = esc(s);
+  // Tags before entities, so a typed "&lt;sub&gt;" stays text.
+  if (entities) s = s.replace(SUB_SUP, '<$1>$2</$1>').replace(TYPED_ENTITY, '&$1;');
+  s = s
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>')
+    .replace(entities ? EM_OPEN : EM_OPEN_PLAIN, '$1<em>$2</em>')
     .replace(/(^|[\s(])_([^_\s][^_]*)_(?=[\s.,;:)]|$)/g, '$1<em>$2</em>');
   if (linkPrs) s = s.replace(/(^|[\s(])#(\d{3,5})\b/g, `$1<a href="${REPO_PULL}$2">#$2</a>`);
   return s.replace(/\u0000(\d+)\u0000/g, (_, i) => held[Number(i)]);
 }
 
 const isTableSep = (line) => /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$/.test(line);
-const cells = (line) => line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim());
+// A cell may hold an escaped pipe, `\|` (GFM; also inside code, as in `` `\|\|` ``). Split on the
+// others only, then unescape: four red-team posts showed "`\ \ &&`" for `||` → `&&` until 2026-11-14.
+const cells = (line) =>
+  line.trim().replace(/^\|/, '').replace(/(?<!\\)\|$/, '').split(/(?<!\\)\|/).map((c) => c.trim().replace(/\\\|/g, '|'));
 
-/** Block-level rendering. Handles headings, fenced code, lists, tables, quotes and paragraphs. */
-export function renderMarkdown(src, { fromPath = '', dropTitle = false } = {}) {
+/**
+ * Block-level rendering. Handles headings, fenced code, lists, tables, quotes and paragraphs.
+ *
+ * The page owns `<h1>`. With `dropTitle` the source's `# ` title is that h1,
+ * so `##` renders as `<h2>` (levels as written, never above h2). Before
+ * 2026-11-11 every level moved down one, so each blog post went h1 -> h3 and
+ * failed Lighthouse's heading-order audit (352 of the site's pages). Without
+ * `dropTitle` the source's own `#` is not the page title and moves down one.
+ */
+export function renderMarkdown(src, { fromPath = '', dropTitle = false, shift = dropTitle ? 0 : 1 } = {}) {
   const lines = String(src).replace(/\r\n?/g, '\n').split('\n');
   const html = [];
   let i = 0;
@@ -81,7 +133,7 @@ export function renderMarkdown(src, { fromPath = '', dropTitle = false } = {}) {
         droppedTitle = true;
         continue;
       }
-      const level = Math.min(6, m[1].length + 1); // the page owns <h1>
+      const level = Math.min(6, Math.max(2, m[1].length + shift)); // the page owns <h1>
       html.push(`<h${level}>${inline(m[2], fromPath)}</h${level}>`);
       continue;
     }
@@ -102,7 +154,7 @@ export function renderMarkdown(src, { fromPath = '', dropTitle = false } = {}) {
       flush();
       const body = [];
       while (i < lines.length && /^\s*>/.test(lines[i])) body.push(lines[i++].replace(/^\s*>\s?/, ''));
-      html.push(`<blockquote>${renderMarkdown(body.join('\n'), { fromPath })}</blockquote>`);
+      html.push(`<blockquote>${renderMarkdown(body.join('\n'), { fromPath, shift })}</blockquote>`);
       continue;
     }
     if ((m = /^(\s*)([-*+]|\d+[.)])\s+/.exec(line))) {
@@ -131,7 +183,7 @@ export function renderMarkdown(src, { fromPath = '', dropTitle = false } = {}) {
             const [first, ...rest] = it;
             const nested = rest.some((r) => /^\s*([-*+]|\d+[.)])\s+/.test(r) || r === '');
             return nested
-              ? `<li>${inline(first, fromPath)}${renderMarkdown(rest.join('\n'), { fromPath })}</li>`
+              ? `<li>${inline(first, fromPath)}${renderMarkdown(rest.join('\n'), { fromPath, shift })}</li>`
               : `<li>${inline([first, ...rest.map((r) => r.trim())].join(' '), fromPath)}</li>`;
           })
           .join('')}</${tag}>`,
@@ -170,6 +222,7 @@ export function summaryOf(src, max = 280) {
     if (!t || /^(#|```|\||>|<!--)/.test(t)) continue;
     const plain = t
       .replace(/^\s*([-*+]|\d+[.)])\s+/gm, '')
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
       .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
       .replace(/[`*_]/g, '')
       .replace(/\s+/g, ' ')

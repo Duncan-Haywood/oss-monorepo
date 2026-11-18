@@ -37,7 +37,7 @@
     .price.warn { color: #9a3412; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -46,6 +46,15 @@
     .error { color: #9a3412; font-weight: 600; }
     footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 560px) { div.grid:has(#turnaround) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -242,7 +251,7 @@
     const $ = (sel) => document.querySelector(sel);
 
     function money(n) {
-      const format = (n) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const format = (n) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const text = format(Math.abs(n));
       return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     }
@@ -254,7 +263,7 @@
       }
       container.innerHTML = findings.map((f) => `
         <div class="finding">
-          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <h3><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h3>
           <p>${f.detail}</p>
         </div>`).join("");
     }
@@ -335,7 +344,7 @@
       invoiceEls.report.hidden = false;
       invoiceEls.status.textContent = "";
       record("invoice_calculated");
-      invoiceEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      invoiceEls.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     const COPY_HINT = 'Copies the line items, the total, and the "arithmetic only" note as plain text to paste into an invoice or email.';
@@ -436,7 +445,7 @@
       agencyEls.report.hidden = false;
       agencyEls.status.textContent = "";
       record("agency_offer_checked");
-      agencyEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      agencyEls.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#check-agency-offer").addEventListener("click", () => {

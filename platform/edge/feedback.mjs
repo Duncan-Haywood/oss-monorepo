@@ -4,7 +4,9 @@
 
 import { SLUG_RE } from '../counter/core.mjs';
 
-export const FEEDBACK_TYPES = Object.freeze(['problem', 'idea', 'other']);
+// `idea`, `research` and `topic` are requests: they join the custom-development
+// queue (portfolio/requests/intake.mjs).
+export const FEEDBACK_TYPES = Object.freeze(['problem', 'idea', 'research', 'topic', 'other']);
 export const MESSAGE_MIN = 5;
 export const MESSAGE_MAX = 4000;
 const PAGE_RE = /^\/[A-Za-z0-9._~/%-]{0,200}$/;

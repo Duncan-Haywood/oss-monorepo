@@ -48,7 +48,7 @@
 <body>
   <header>
     <p class="note">HORSE BOARDING STALL PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
-    <h1>Is your boarding barn making money? Monthly profit, break-even occupancy and the board price you need</h1>
+    <h1>Is your boarding barn making money, and what board price do you need?</h1>
     <p>Enter stalls, occupancy, board, feed, bedding, the time you spend on care and your fixed costs. You get <strong>monthly profit</strong>, <strong>break-even occupancy</strong>, the <strong>board price</strong> that breaks even or reaches your target, and a table by occupancy.</p>
     <p class="note">It works from your own figures. It does not know what other barns charge.</p>
   </header>
@@ -148,7 +148,7 @@
       $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${x.occ}%</td><td class="n">${x.horses.toFixed(1)}</td><td class="n">${dollars(x.revenue)}</td><td class="n">${dollars(x.profit)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

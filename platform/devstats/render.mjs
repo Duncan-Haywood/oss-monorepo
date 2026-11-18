@@ -113,6 +113,7 @@ ${rows
 }
 
 import { withSiteHeader } from '../pages/site-nav.mjs';
+import { ALLOCATION_STYLE, allocationSection, nextSection } from './render-allocation.mjs';
 
 export function renderDashboard(stats, { title = 'How this is built' } = {}) {
   const { git, runs, github: gh, inventory: inv } = stats;
@@ -162,7 +163,7 @@ export function renderDashboard(stats, { title = 'How this is built' } = {}) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)} | Development dashboard</title>
-<meta name="description" content="How work moves through this open-source repository: merges, lead time, CI runs passed and failed per day and per workflow, what is red on main, reviews, branches, and what each automated run cost.">
+<meta name="description" content="How work moves through this open-source repository: merges, lead time, CI runs passed and failed per day and per workflow, what is red on main, reviews, branches, what each automated run cost, where agent runs went by period, track and project, and where the next ones are routed.">
 <style>
   :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7; --pass:#1a7f4b; --fail:#c4321f; --cancel:#8a94a3; }
   @media (prefers-color-scheme: dark) { :root { --bg:#10151c; --panel:#171e27; --ink:#e8eef5; --muted:#a2b0c0; --line:#2a3542; --accent:#7aa2ff; --pass:#4cbf82; --fail:#ff7a6b; --cancel:#6d7886; } }
@@ -187,6 +188,7 @@ export function renderDashboard(stats, { title = 'How this is built' } = {}) {
   table { border-collapse:collapse; width:100%; background:var(--panel); font-size:.9rem; }
   th, td { text-align:left; padding:6px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
   code { font-size:.85em; }
+${ALLOCATION_STYLE}
 </style>
 </head>
 <body>
@@ -198,6 +200,12 @@ export function renderDashboard(stats, { title = 'How this is built' } = {}) {
   <div class="tiles">
 ${tiles}
   </div>
+
+  <h2 id="allocation">Where the runs go</h2>
+  ${stats.allocation?.available ? allocationSection(stats.allocation) : unavailable(stats.allocation ?? { reason: 'not collected' })}
+
+  <h2 id="next">Where the next runs go</h2>
+  ${stats.allocation?.available ? nextSection(stats.allocation.next) : unavailable(stats.allocation ?? { reason: 'not collected' })}
 
   <h2>Merges to main per day</h2>
   ${git.available ? barChart(git.merges_per_day) : unavailable(git)}

@@ -5,13 +5,17 @@
 // still in its canonical tag. None of those turn anything red on their own —
 // the site builds fine and the visitor simply cannot get there.
 
-import { test } from 'node:test';
+import { loadRequests } from '../../portfolio/requests/requests.mjs';
+import { test, after } from 'node:test';
+import { servedPath } from './served-path.mjs';
 import assert from 'node:assert/strict';
-import { promises as fs } from 'node:fs';
+import { promises as fs, statSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import zlib from 'node:zlib';
 import { promisify } from 'node:util';
+import { execFile } from 'node:child_process';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const gzip = promisify(zlib.gzip);
 
@@ -20,6 +24,8 @@ import {
   exampleTools,
   researchHighlights,
   addOfflineSupport,
+  offlineCacheName,
+  offlineFileDigests,
   annotateNumberInputs,
   stepAllowsDecimals,
   buildSite,
@@ -28,15 +34,18 @@ import {
   DOWNLOADABLE_CLI_FILES,
   collectPageTitles,
   copyTree,
+  localOnlyPaths,
+  parseLocalOnly,
   clampMetaDescription,
   injectFavicon,
   discoverSurfaces,
   surfaceKind,
   faqEntries,
   injectChrome,
+  toolName,
   isPublishable,
   NO_SLA_PATTERN,
-  listFiles,
+  listFiles as buildListFiles,
   readMeta,
   relatedTools,
   upToRoot,
@@ -90,6 +99,7 @@ import {
   surfaceExternalFetchHosts,
   CARD_FOOTER,
   CARD_FOOTER_EXCEPTION,
+  EXCEPTION_NOUN,
   COMPARE_PATH,
   RESEARCH_PATH,
   COMPARISON_FILE_PATTERN,
@@ -109,6 +119,9 @@ import {
   discoverGuides,
   groupGuidesByCategory,
   renderGuidesPage,
+  guideBlockHeights,
+  guideBlockStyle,
+  GUIDE_COLUMNS,
   sponsorsNote,
   SPONSORS_URL,
   SPONSOR_CLICK_EVENT,
@@ -119,13 +132,18 @@ import {
   kindPageGroups,
   SEARCH_INDEX_FILE,
   renderSearchIndex,
+  isNodeOnlyScript,
 } from './build.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER, VENTURE_CHROME_CSS } from './site-nav.mjs';
+import { STORIES_PATH, STORY_VENTURES } from './stories.mjs';
+import { ASSISTANT_VOICE_CSS } from './assistant.mjs';
+import { STICKY_FIT_CSS } from './sticky-fit.mjs';
 import { AGENT_POSTS_DIR, loadPosts } from './writing.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
 import { renderCard } from './sharecard.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
 import { decodeEntities } from './entities.mjs';
+import { formatCount } from './count.mjs';
 // The hub embeds these rather than paraphrasing them, so the tests that used to
 // pin its transcription line by line now compare against the definitions
 // themselves. See "the hub validates a saved bid with the tested definition".
@@ -134,16 +152,128 @@ import { normalizeBid, normalizeOutcome, stripForInjection } from './jobs.mjs';
 const BASE = 'https://example.test/site/';
 const VENTURES = path.join(REPO_ROOT, 'ventures');
 
+// The suite builds from the live checkout, so a file written under docs/,
+// ventures/, research/ or portfolio/ while it runs (a post drafted beside a
+// 4-minute run) lands in one build and not the other, and a test fails with a
+// cache-name or search-index mismatch that says nothing about the edit (run
+// records 2026-11-12T06:48 and 12:48). Called only once a comparison has
+// already failed, it names the files changed since the suite started, so the
+// failure reads as "re-run" rather than as a builder bug.
+//
+// Every tracked file is checked by mtime, not only the ones git calls dirty:
+// an edit that is reverted mid-run (a scratch change to try a tool, then
+// `git checkout`) leaves git clean but the builds still differ. Until
+// 2026-11-12 the check read only dirty files under docs/ and ventures/, so a
+// research/ README edited and reverted beside the suite failed the cache-name
+// test with no hint (process run, 2026-11-12). About 49k stats, under a second.
+const SUITE_START = Date.now();
+const BUILD_INPUTS = ['docs', 'ventures', 'research', 'portfolio'];
+async function editedDuringRun() {
+  let tracked, dirty;
+  try {
+    const git = (args) => promisify(execFile)('git', args, { cwd: REPO_ROOT, maxBuffer: 1 << 28 })
+      .then((r) => r.stdout);
+    [tracked, dirty] = await Promise.all([
+      git(['ls-files', '-z', '--', ...BUILD_INPUTS]),
+      git(['status', '--porcelain', '-uall', '--', ...BUILD_INPUTS]),
+    ]);
+  } catch {
+    return '';
+  }
+  const paths = new Set(tracked.split('\0').filter(Boolean));
+  for (const line of dirty.split('\n').filter(Boolean)) paths.add(line.slice(3).split(' -> ').pop());
+  const changed = [];
+  for (const rel of paths) {
+    let stat = null;
+    try { stat = statSync(path.join(REPO_ROOT, rel)); } catch { /* deleted */ }
+    if (!stat || stat.mtimeMs >= SUITE_START) changed.push(rel);
+  }
+  if (!changed.length) return '';
+  return `\n${changed.length} file(s) under ${BUILD_INPUTS.join('/, ')}/ changed while the suite ran ` +
+    `(${changed.slice(0, 5).join(', ')}${changed.length > 5 ? ', ...' : ''}), even if since reverted: ` +
+    'the builds read different trees; re-run without editing before treating this as a builder fault';
+}
+
+// Memoise the promise, not the result: when the build throws (a post with a
+// 164-character description did this on 2026-11-01), every later test awaits
+// the same rejection at once instead of each re-running a ~10 s build.
 let built;
-async function site() {
+function site() {
   if (!built) {
-    const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-build-'));
-    built = await buildSite({ outDir, baseUrl: BASE });
+    built = fs.mkdtemp(path.join(os.tmpdir(), 'pages-build-'))
+      .then((outDir) => buildSite({ outDir, baseUrl: BASE }))
+      .then((result) => { sharedOutDir = result.outDir; return result; });
+    // Started here so it runs beside the shared build, not after it: see
+    // 'an identical build produces an identical cache name'.
+    childSite().catch(() => {});
+    // The same for the two-venture fixture the /compare/ and /guides/ tests read.
+    hubFixtureSite().catch(() => {});
   }
   return built;
 }
 
-const read = async (...parts) => fs.readFile(path.join((await site()).outDir, ...parts), 'utf8');
+// A second full build of the same site, in its own process. buildSite keeps
+// per-build state at module level (SITE_COUNTER_URL and friends), so a second
+// build cannot share this process. The determinism test compares its cache
+// name with the shared build's. Until 2026-11-11 that test lived in
+// build-determinism.test.mjs and built the site twice in two children, a third
+// full build of the same configuration beside this file's; comparing one child
+// against the build this file makes anyway is the same claim for one build
+// fewer (docs/history/pages-test-perf-2026-11-11-determinism-one-child.md).
+const BUILD_MODULE = pathToFileURL(fileURLToPath(new URL('./build.mjs', import.meta.url))).href;
+let childBuilt;
+function childSite() {
+  if (!childBuilt) {
+    childBuilt = fs.mkdtemp(path.join(os.tmpdir(), 'pages-sw-child-')).then(async (outDir) => {
+      const code = `import { buildSite } from ${JSON.stringify(BUILD_MODULE)};
+        const r = await buildSite({ outDir: ${JSON.stringify(outDir)}, baseUrl: ${JSON.stringify(BASE)} });
+        process.stdout.write(JSON.stringify({ outDir: r.outDir, cacheName: r.offline.cacheName }));`;
+      try {
+        const { stdout } = await promisify(execFile)(process.execPath, ['--input-type=module', '-e', code], {
+          maxBuffer: 1 << 28,
+        });
+        return JSON.parse(stdout.slice(stdout.lastIndexOf('{')));
+      } finally {
+        await fs.rm(outDir, { recursive: true, force: true });
+      }
+    });
+  }
+  return childBuilt;
+}
+
+// The shared build is read-only once `site()` resolves: no test writes into
+// it (the ones that need a writable tree make their own). So about thirty
+// tests that each re-walked the whole output and re-read every page can share
+// one walk per directory and one read per file. Only paths under the shared
+// build are memoised; every other directory and file is read fresh, as before
+// (docs/history/pages-test-perf-2026-11-12-shared-walk-memo.md).
+let sharedOutDir;
+const underShared = (target) =>
+  sharedOutDir !== undefined && (target === sharedOutDir || target.startsWith(sharedOutDir + path.sep));
+const textMemo = new Map();
+/** `fs.readFile(file, 'utf8')`, read once per file under the shared build. */
+function readText(file) {
+  if (typeof file !== 'string' || !underShared(file)) return fs.readFile(file, 'utf8');
+  if (!textMemo.has(file)) textMemo.set(file, fs.readFile(file, 'utf8'));
+  return textMemo.get(file);
+}
+/**
+ * `walker` with its result memoised per directory under the shared build.
+ * Each call gets its own copy of the list, so a caller that sorts or splices
+ * it cannot change what the next one sees.
+ */
+function memoWalker(walker) {
+  const memo = new Map();
+  return async (dir, ...rest) => {
+    if (!underShared(dir)) return walker(dir, ...rest);
+    const key = JSON.stringify([dir, ...rest]);
+    if (!memo.has(key)) memo.set(key, walker(dir, ...rest));
+    return [...(await memo.get(key))];
+  };
+}
+const listFiles = memoWalker(buildListFiles);
+
+const read = async (...parts) => readText(path.join((await site()).outDir, ...parts));
 
 const BASE_PATH = new URL(BASE).pathname; // "/site/"
 
@@ -186,16 +316,17 @@ const exists = (target) => fs.access(target).then(() => true, () => false);
 const pathOf = (baseUrl) => new URL(baseUrl).pathname.replace(/^\//, '');
 
 /** Every `.html` file in the built site, relative to its root. */
-async function allPages(dir, prefix = '') {
+async function allPagesUncached(dir, prefix = '') {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const pages = [];
   for (const entry of entries) {
     const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
-    if (entry.isDirectory()) pages.push(...(await allPages(path.join(dir, entry.name), relative)));
+    if (entry.isDirectory()) pages.push(...(await allPagesUncached(path.join(dir, entry.name), relative)));
     else if (entry.name.endsWith('.html')) pages.push(relative);
   }
   return pages;
 }
+const allPages = memoWalker(allPagesUncached);
 
 /**
  * Every `<loc>` across the whole sitemap tree — the index and each sitemap it
@@ -209,7 +340,7 @@ async function sitemapUrlPaths() {
   const collect = async (relative) => {
     const file = path.join(outDir, relative);
     if (!(await exists(file))) return;
-    for (const [, loc] of (await fs.readFile(file, 'utf8')).matchAll(/<loc>([^<]+)<\/loc>/g)) {
+    for (const [, loc] of (await readText(file)).matchAll(/<loc>([^<]+)<\/loc>/g)) {
       const urlPath = new URL(loc).pathname.replace(/^\//, '');
       if (urlPath.endsWith('sitemap.xml') || urlPath.endsWith('sitemap-hub.xml')) {
         await collect(urlPath.slice(pathOf(BASE).length));
@@ -254,15 +385,16 @@ test('discovery is deterministic', async () => {
 // Payload hygiene
 // ---------------------------------------------------------------------------
 
-async function walk(dir) {
+async function walkUncached(dir) {
   const out = [];
   for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...(await walk(full)));
+    if (entry.isDirectory()) out.push(...(await walkUncached(full)));
     else out.push(full);
   }
   return out;
 }
+const walk = memoWalker(walkUncached);
 
 test('no test payload, CLI source, or repo bookkeeping is published', async () => {
   const { outDir } = await site();
@@ -301,11 +433,13 @@ test('LICENSE files are kept', async () => {
 
 test('no page still points at the placeholder origin', async () => {
   const { outDir } = await site();
-  const textFiles = (await walk(outDir)).filter((f) => /\.(html|xml|txt|mjs|json)$/.test(f));
+  const textFiles = (await walk(outDir)).filter((f) => /\.(html|xml|txt|mjs|json|ics)$/.test(f));
 
   const stale = [];
   for (const file of textFiles) {
-    if ((await fs.readFile(file, 'utf8')).includes('example.invalid')) {
+    // The origin, not the bare host: a changelog line quoting a merge titled
+    // "... example.invalid placeholders" is prose, not a leaked URL.
+    if ((await readText(file)).includes('https://example.invalid')) {
       stale.push(path.relative(outDir, file));
     }
   }
@@ -379,10 +513,12 @@ test('relative links inside each tool resolve', async () => {
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
     for (const file of (await walk(dir)).filter((f) => f.endsWith('.html'))) {
-      const html = stripRawText(await fs.readFile(file, 'utf8'));
+      const html = stripRawText(await readText(file));
       const refs = [...html.matchAll(/(?:href|src)="([^"#?]+)"/g)]
         .map((m) => m[1])
-        .filter((r) => !/^(https?:|mailto:|data:|\/\/|#)/.test(r) && r !== '');
+        // tel: is a scheme, not a path: monastery-site's example communities
+        // print their phone number as a tap-to-call link.
+        .filter((r) => !/^(https?:|mailto:|tel:|data:|\/\/|#)/.test(r) && r !== '');
 
       for (const ref of refs) {
         // The site header links deploy/ and dev/, which publish-branch.sh
@@ -444,7 +580,7 @@ test('every published page carries both liability clauses, not just the hub', as
   let checked = 0;
   for (const surface of surfaces) {
     for (const page of await htmlPagesUnder(path.join(outDir, surface.slug))) {
-      const markup = await fs.readFile(page, 'utf8');
+      const markup = await readText(page);
       const relative = path.relative(outDir, page);
       checked += 1;
       if (!warranty.test(markup)) missing.push(`${relative} (no-warranty)`);
@@ -457,15 +593,16 @@ test('every published page carries both liability clauses, not just the hub', as
   assert.deepEqual(missing, [], `pages missing a required clause:\n${missing.join('\n')}`);
 });
 
-async function htmlPagesUnder(dir) {
+async function htmlPagesUnderUncached(dir) {
   const found = [];
   for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) found.push(...(await htmlPagesUnder(full)));
+    if (entry.isDirectory()) found.push(...(await htmlPagesUnderUncached(full)));
     else if (entry.name.endsWith('.html')) found.push(full);
   }
   return found;
 }
+const htmlPagesUnder = memoWalker(htmlPagesUnderUncached);
 
 test('the sponsor ask is optional and does not gate anything', async () => {
   const hub = await read('index.html');
@@ -627,7 +764,7 @@ test('every page the site serves is listed in some sitemap', async () => {
     // A page that tells crawlers not to index it is not expected in a sitemap;
     // listing one would be asking for it to be indexed and then refusing.
     if (/<meta name="robots" content="noindex">/.test(await read(page))) continue;
-    const candidates = [`/${page}`];
+    const candidates = [`/${page}`, `/${servedPath(page)}`];
     if (page.endsWith('/index.html')) candidates.push(`/${page.slice(0, -'index.html'.length)}`);
     if (page === 'index.html') candidates.push('/');
     if (!candidates.some((c) => listed.has(pathOf(BASE) + c.slice(1)))) orphans.push(page);
@@ -643,24 +780,26 @@ test('every sitemap URL resolves to a page that shipped', async () => {
   for (const urlPath of await sitemapUrlPaths()) {
     const relative = urlPath.slice(pathOf(BASE).length);
     // A sitemap index lists sitemaps; a urlset lists pages. Both must exist.
+    // Cloudflare serves `page.html` at `page` (`served-path.mjs`), so an
+    // extensionless URL is that file; a sitemap's own `.xml` is itself.
     const target = relative === '' ? 'index.html' : relative.endsWith('/') ? `${relative}index.html` : relative;
-    if (!(await exists(path.join(outDir, target)))) dead.push(urlPath);
+    if (!(await exists(path.join(outDir, target))) && !(await exists(path.join(outDir, `${target}.html`)))) dead.push(urlPath);
   }
 
   assert.deepEqual(dead, [], 'a sitemap URL that 404s is worse than no sitemap at all');
 });
 
-test('a generated sitemap lists directories, not index.html', () => {
+test('a generated sitemap lists served URLs: directories, no .html', () => {
   const xml = renderVentureSitemap('tool', ['index.html', 'compare.html', 'guides/index.html'], BASE);
   assert.ok(xml.includes(`<loc>${BASE}tool/</loc>`));
-  assert.ok(xml.includes(`<loc>${BASE}tool/compare.html</loc>`));
+  assert.ok(xml.includes(`<loc>${BASE}tool/compare</loc>`), 'page.html is served as page, its .html URL is a 307');
   assert.ok(xml.includes(`<loc>${BASE}tool/guides/</loc>`));
   assert.ok(!xml.includes('index.html'), 'index.html is served as its directory');
 });
 
 test('pageUrlPath maps a published file to the URL it is served at', () => {
   assert.equal(pageUrlPath('tool', 'index.html'), 'tool/');
-  assert.equal(pageUrlPath('tool', 'compare.html'), 'tool/compare.html');
+  assert.equal(pageUrlPath('tool', 'compare.html'), 'tool/compare');
   assert.equal(pageUrlPath('tool', 'nested/index.html'), 'tool/nested/');
 });
 
@@ -779,8 +918,8 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const { surfaces } = await site();
   const bullets = (await read('llms-full.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Eleven trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
-  // rather than a tool — About, open custom development, Ask, updates and the changelog, the comparison
+  // Twelve trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
+  // rather than a tool — About, open custom development, Ask, updates, the changelog and the work queue, the comparison
   // index, the guides index, catalog.json, the agent CLI, the sitemap and the
   // Atom feed, plus the agent-to-agent blog once `docs/agent-posts/` has a
   // post. Above the tools, one bullet per audience page; below them, one per
@@ -788,7 +927,9 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const audiences = audienceGroups(surfaces).length;
   const topics = researchHighlights().themes.length;
   const agentBlog = loadPosts(undefined, AGENT_POSTS_DIR).length ? 1 : 0;
-  assert.equal(bullets.length, surfaces.length + 11 + audiences + topics + agentBlog);
+  // Plus one per tool that calls the network, under "Tools that call the network".
+  const network = externalCallExceptions(surfaces).length;
+  assert.equal(bullets.length, surfaces.length + 12 + audiences + topics + agentBlog + network);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -850,7 +991,7 @@ test('an audience page leads with its fullest tools and their own guide pages, a
   const { outDir, surfaces } = await site();
   let checked = 0;
   for (const { audience, items } of audienceGroups(surfaces)) {
-    const html = await fs.readFile(path.join(outDir, 'c', audiencePageId(audience), 'index.html'), 'utf8');
+    const html = await readText(path.join(outDir, 'c', audiencePageId(audience), 'index.html'));
     const lead = html.match(/<section class="start-here"[\s\S]*?<\/section>/);
     if (items.length < 8) {
       assert.equal(lead, null, `${audience.id} is short enough to need no lead`);
@@ -1204,7 +1345,7 @@ test("a tool's guide pages and the blog's posts are their own search results", a
   assert.deepEqual(jobber, [], 'a vs page its compare/ page gathers is not listed again');
   for (const item of index.items.filter((i) => i.k === 'post')) {
     assert.equal(index.cats[item.c], 'Blog');
-    assert.ok(await exists(path.join(outDir, item.u, 'index.html')), `${item.u} did not ship`);
+    if (!(await exists(path.join(outDir, item.u, 'index.html')))) assert.fail(`${item.u} did not ship${await editedDuringRun()}`);
   }
   // Listed after every tool, so the tie-break never puts a guide above a tool.
   const lastTool = index.items.findLastIndex((i) => ['tool', 'app', 'cli'].includes(i.k));
@@ -1422,7 +1563,7 @@ test('every published page links the favicon, not just the site root', async () 
   const missing = [];
   const unresolved = [];
   for (const file of pages) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     const href = html.match(/<link[^>]+rel="icon"[^>]+href="([^"]+)"/i)?.[1];
     if (!href) {
       missing.push(path.relative(outDir, file));
@@ -1484,7 +1625,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 15, 'the fourteen named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 18, 'the seventeen named sections (personal-tax and household joined 2026-11-17) plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -1561,6 +1702,47 @@ test('tools that belong to a named category are not left in the catch-all', () =
 // and `which-job-first` are read by the same contractor deciding whether and
 // what to bid as `contractor-bid-readiness`, already in "Getting paid & job
 // margin" — none of their slugs start with a trade-bid keyword.
+// US personal tax, pay and retirement tools have their own section (2026-11-17). They had been parked
+// for offline-bundle room in services, backoffice, solo-earner and food-service, so a retiree's
+// withdrawal-order planner had "Restaurant, bar & food truck pricing" as its breadcrumb.
+test('household tax and retirement tools file under personal-tax, business-side tax stays in backoffice', () => {
+  for (const slug of ['rmd-calculator', 'nanny-tax-calculator', 'retirement-withdrawal-sequencer',
+    'social-security-claiming-age-calculator', 'fers-retirement-planner', 'qcd-calculator', 'rsu-withholding-gap-calculator']) {
+    assert.equal(categoryFor(slug).id, 'personal-tax', slug);
+  }
+  for (const slug of ['self-employment-tax-calculator', 'quarterly-estimated-tax-calendar', 'solo-401k-contribution-calculator',
+    'rd-tax-credit-calculator', 'payroll-tax-deposit-penalty-calculator', 'us-freelancer-tax-set-aside-calculator']) {
+    assert.equal(categoryFor(slug).id, 'backoffice', slug);
+  }
+  assert.equal(categoryFor('uk-take-home-pay-calculator').id, 'uk-tax');
+});
+
+// Household money (home, loans, bills, family) has its own section too (2026-11-17): a patient's medical
+// bill and a tenant's deposit deadline had "Back-office money" as their breadcrumb.
+test('household bill and borrowing tools file under household, landlord and investor tools stay out', () => {
+  for (const slug of ['medical-bill-error-checker', 'insurance-denial-appeal-builder', 'tenant-security-deposit-deadline-checker',
+    'mortgage-escrow-analysis-checker', 'mortgage-points-break-even-calculator', 'rent-vs-buy-breakeven-calculator',
+    'student-loan-rap-ibr-standard-calculator', 'funeral-price-list-checker', 'texas-electricity-plan-checker']) {
+    assert.equal(categoryFor(slug).id, 'household', slug);
+  }
+  for (const slug of ['rent-roll-delinquency-analyzer', 'house-hack-calculator', 'rental-ledger', 'h1b-weighted-lottery-odds-calculator',
+    'business-loan-offer-comparator', 'self-employed-health-insurance-deduction-calculator']) {
+    assert.notEqual(categoryFor(slug).id, 'household', slug);
+  }
+  assert.equal(categoryFor('charity-bunching-planner').id, 'personal-tax');
+});
+
+// A new Roth, IRA, RMD, IRMAA or Social Security tool needs one line in PERSONAL_TAX_SLUGS, or it falls to
+// whichever business rule its slug happens to match. This catches the missing line on the tool's first PR.
+// SEP-IRA tools are a self-employed owner's plan (backoffice/solo-earner); `uk-` tools have their own section.
+test('every US retirement-account and Social Security tool files under personal-tax', async () => {
+  const dirs = await fs.readdir(VENTURES, { withFileTypes: true });
+  const strays = dirs.filter((d) => d.isDirectory()).map((d) => d.name)
+    .filter((slug) => /(^|-)(roth|ira|rmd|irmaa|medicare|social-security)(-|$)/.test(slug) && !/^(uk-|sep-ira)/.test(slug))
+    .filter((slug) => categoryFor(slug).id !== 'personal-tax');
+  assert.deepEqual(strays, [], 'add these to PERSONAL_TAX_SLUGS in build.mjs');
+});
+
 test('a contractor pre-bid tool and a statement-reconciliation tool are not left in the catch-all either', () => {
   assert.equal(categoryFor('equipment-lease-buyout-calculator').id, 'backoffice');
   assert.equal(categoryFor('card-processing-fee-audit').id, 'backoffice');
@@ -1778,7 +1960,7 @@ test('links that escape the site are repointed at the repository, not left broke
   const repairs = await repairLinks({ publishedDir: destination, sourceDir: siteDir, repoRoot, outDir });
   assert.ok(repairs.length > 0, 'a link to a genuinely unpublished file should be repointed, not left broken');
 
-  const built = await fs.readFile(path.join(destination, 'index.html'), 'utf8');
+  const built = await readText(path.join(destination, 'index.html'));
   assert.ok(
     built.includes(`${SOURCE_URL_PREFIX}ventures/widget-co/cli.py`),
     'the escaping link should point at the file in the repository',
@@ -1858,7 +2040,7 @@ test('every page type carries the one site header, with every nav item', async (
   assert.ok(roofing.indexOf(HEADER_MARKER) < roofing.indexOf('data-pf-jobs-root'), 'the saved-bids band sits above the site header');
   // A deep page inside a tool gets a breadcrumb through its category.
   const deep = (await listFiles(path.join(outDir, 'ebay-fee-calculator'))).find((f) => f.endsWith('.html') && !f.endsWith('index.html'));
-  const html = await fs.readFile(deep, 'utf8');
+  const html = await readText(deep);
   assert.match(html, /aria-label="Breadcrumb"><a href="\.\.\/" data-pf-to="hub">Home<\/a>.*href="\.\.\/c\/marketplace\/".*href="\.\.\/ebay-fee-calculator\/"/s);
 });
 
@@ -1868,7 +2050,7 @@ test('every page type carries the one site header, with every nav item', async (
 test('research has a topic level, and every project page routes up and sideways', async () => {
   const { outDir } = await site();
   const project = await read('research', 'accel-kws', 'index.html');
-  assert.match(project, /aria-label="Breadcrumb"><a href="\.\.\/\.\.\/" data-pf-to="hub">Home<\/a>.*href="\.\.\/\.\.\/research\/">Research<\/a>.*href="\.\.\/\.\.\/research\/topics\/accel\/">/s);
+  assert.match(project, /aria-label="Breadcrumb"><a href="\.\.\/\.\.\/" data-pf-to="hub">Home<\/a>.*href="\.\.\/\.\.\/research\/">Research<\/a>.*href="\.\.\/\.\.\/research\/topics\/accel\/" class="pfs-mid">/s);
   assert.doesNotMatch(project, /\{\{\w+\}\}/, 'no unfilled placeholder');
   assert.doesNotMatch(project, /<title>accel-kws /, 'the title is the project, not its slug');
   // "More in <topic>", previous/next, and every topic.
@@ -1898,7 +2080,7 @@ test('every published venture page routes back to the hub', async () => {
   assert.ok(pages.length > surfaces.length, 'deep SEO pages are included, not just landing pages');
 
   for (const file of pages) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     assert.ok(
       html.includes('data-pf-to="hub"'),
       `${path.relative(outDir, file)} ships with no way back to the hub`,
@@ -1911,7 +2093,7 @@ test('every injected link resolves to a page that exists', async () => {
   const pages = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
 
   for (const file of pages) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     for (const [, ref] of html.matchAll(/href="([^"]+)"[^>]*data-pf-to=/g)) {
       // 404.html links absolutely: it is served under whatever path was mistyped.
       if (/^https?:/.test(ref)) continue;
@@ -1938,7 +2120,7 @@ test('the deepest published page still reaches the hub', async () => {
     .sort((a, b) => b.split(path.sep).length - a.split(path.sep).length)[0];
 
   assert.ok(path.relative(outDir, deepest).split(path.sep).length > 2, 'the site does nest');
-  const html = await fs.readFile(deepest, 'utf8');
+  const html = await readText(deepest);
   const ref = html.match(/href="([^"]+)"[^>]*data-pf-to="hub"/)[1];
   assert.equal(path.resolve(path.dirname(deepest), ref), outDir);
 });
@@ -1950,6 +2132,20 @@ test('wrapping a page twice does not stack two navigation bars', () => {
   assert.equal(twice, once);
   assert.equal(once.match(/<nav class="pf-chrome pf-chrome-top"/g).length, 1);
   assert.equal(once.match(/<aside class="pf-chrome pf-chrome-foot"/g).length, 1);
+});
+
+test('the header fits itself inline, before the page below it is laid out', () => {
+  // pf-site.js runs at the end of the body; the inline copy straight after the
+  // nav lets the first paint be the full-width one (VENTURE_CHROME_EARLY_JS).
+  const page = '<html><head></head><body><h1>Tool</h1></body></html>';
+  const out = injectChrome(page, { slug: 'x', toRoot: '../', total: 2, related: [] });
+  const after = /<nav class="pf-chrome pf-chrome-top"[\s\S]*?<\/nav>(<script>[\s\S]*?<\/script>)/.exec(out);
+  assert.ok(after, 'an inline script follows the header directly');
+  assert.ok(after[1].includes("querySelector('nav.pf-chrome.pf-chrome-top')"));
+  assert.equal(out.split(HEADER_MARKER).length - 1, 1, 'still one header marker on the page');
+  assert.ok(out.indexOf(after[1]) < out.indexOf('<h1>Tool</h1>'), 'it runs before the venture markup');
+  assert.equal(out.match(/<script>/g).length, 1);
+  assert.doesNotThrow(() => new Function(after[1].slice(8, -9)));
 });
 
 test('a quoted "<body>...</body>" inside a script does not fool the chrome injector', () => {
@@ -2226,14 +2422,14 @@ test('every published page names a canonical that resolves to its own URL', asyn
 
   const wrong = [];
   for (const relative of pages) {
-    const html = await fs.readFile(path.join(outDir, relative), 'utf8');
+    const html = await readText(path.join(outDir, relative));
     const canonical = /<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=["']([^"']+)["']/i.exec(html);
     // 404 and offline are noindex; they are meant to carry none.
     if (!canonical) {
       assert.match(html, /<meta name="robots" content="noindex">/, `${relative}: no canonical and not noindex`);
       continue;
     }
-    const pageUrl = new URL(relative.replace(/(^|\/)index\.html$/, '$1'), BASE).href;
+    const pageUrl = new URL(servedPath(relative), BASE).href;
     if (new URL(canonical[1], pageUrl).href !== pageUrl) wrong.push(`${relative} -> ${canonical[1]}`);
   }
   assert.deepEqual(wrong, [], 'pages whose canonical names a URL they are not served at');
@@ -2247,7 +2443,7 @@ test('every indexable page carries the tags a shared link previews from', async 
 
   const bare = [];
   for (const relative of pages) {
-    const html = await fs.readFile(path.join(outDir, relative), 'utf8');
+    const html = await readText(path.join(outDir, relative));
     if (/<meta name="robots" content="noindex">/.test(html)) continue;
     for (const tag of ['og:url', 'og:image', 'og:title', 'og:description', 'twitter:card']) {
       if (!html.includes(`"${tag}"`)) bare.push(`${relative}: ${tag}`);
@@ -2260,13 +2456,13 @@ test('the share card the pages name is actually published', async () => {
   const { outDir } = await site();
   const card = await fs.readFile(path.join(outDir, SOCIAL_CARD_FILE));
   assert.ok(card.length > 0);
-  const hub = await fs.readFile(path.join(outDir, 'index.html'), 'utf8');
+  const hub = await readText(path.join(outDir, 'index.html'));
   assert.ok(hub.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
 });
 
 test('the 404 body is noindex, so mistyped paths do not index as duplicates', async () => {
   const { outDir } = await site();
-  const html = await fs.readFile(path.join(outDir, '404.html'), 'utf8');
+  const html = await readText(path.join(outDir, '404.html'));
   assert.match(html, /<meta name="robots" content="noindex">/);
 });
 
@@ -2301,6 +2497,53 @@ test('a lone tool advertises no siblings and still renders', () => {
   });
   assert.ok(!html.includes('<ul>'), 'no empty list is emitted');
   assert.ok(html.includes('data-pf-to="hub"'));
+});
+
+// 2026-11-11: every story page marked "Tools" as its section and led through
+// "Learning & practice", though Stories has its own place in the top nav.
+test('story pages sit under Stories in the header, the trail and the BreadcrumbList', () => {
+  const page = '<html><head><title>Aim Off</title></head><body><p>Fog.</p></body></html>';
+  const html = injectChrome(page, {
+    slug: 'hearth-and-horizon', toRoot: '../', total: 2, related: [],
+    title: 'Hearth & Horizon: free AI-written science fiction and Catholic bedtime stories, with audio',
+    pageTitle: 'Aim Off', canonical: 'https://x.test/hearth-and-horizon/aim-off', baseUrl: 'https://x.test/', isEntry: false,
+  });
+  assert.match(html, /data-pfs-nav="stories" href="\.\.\/stories\/" aria-current="page"/);
+  assert.doesNotMatch(html, /data-pfs-nav="tools"[^>]*aria-current/);
+  assert.match(html, /<a href="\.\.\/stories\/">Stories<\/a>/);
+  assert.match(html, /<a href="\.\.\/hearth-and-horizon\/" class="pfs-mid">Hearth &amp; Horizon<\/a>/);
+  const trail = JSON.parse(html.match(/<script type="application\/ld\+json">(\{[^<]*BreadcrumbList[^<]*\})<\/script>/)[1]);
+  assert.deepEqual(trail.itemListElement.map((c) => c.name), ['Maris Stella Labs', 'Stories', 'Hearth & Horizon', 'Aim Off']);
+  assert.equal(trail.itemListElement[1].item, 'https://x.test/stories/');
+  // A tool keeps its category.
+  const tool = injectChrome(page, { slug: 'ebay-fee-calculator', toRoot: '../', total: 2, related: [], title: 'eBay', isEntry: true });
+  assert.match(tool, /data-pfs-nav="tools"[^>]*aria-current="page"/);
+});
+
+// 2026-11-15: the trail ended in the search title on 972 of 1,350 tools,
+// "Wall Framing Takeoff — free, private, in your browser" or a question.
+test('a tool crumb is its declared name, not its search title', () => {
+  const ld = (o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`;
+  const app = ld({ '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'Actions Runner Starvation Check' });
+  assert.equal(toolName(`<head>${app}</head>`, 'Is your red GitHub Actions check even real?'), 'Actions Runner Starvation Check');
+  // In a @graph, typed as a list, with an entity in the name.
+  const graph = ld({ '@graph': [{ '@type': 'FAQPage' }, { '@type': ['WebApplication'], name: 'Fees &amp; Margins' }] });
+  assert.equal(toolName(graph, 'x'), 'Fees & Margins');
+  // No application, broken JSON, or a name too long for a crumb: the title without its tagline.
+  assert.equal(toolName('<script type="application/ld+json">{oops</script>', 'Wall Framing Takeoff — free, private, in your browser'), 'Wall Framing Takeoff');
+  assert.equal(toolName(ld({ '@type': 'SoftwareApplication', name: 'x'.repeat(61) }), 'Short — tagline'), 'Short');
+  // A long "Name: tagline" keeps the name; a short colon is part of the name.
+  assert.equal(toolName('', 'Gaussian process regression in your browser: a curve, a band, and how far to trust it'), 'Gaussian process regression');
+  assert.equal(toolName(ld({ '@type': 'SoftwareApplication', name: 'GitHub Actions secrets: inherit Check' }), 'x'), 'GitHub Actions secrets: inherit Check');
+  const page = `<html><head><title>T</title>${app}</head><body><p>.</p></body></html>`;
+  const html = injectChrome(page, {
+    slug: 'actions-runner-starvation-check', toRoot: '../', total: 2, related: [], isEntry: true,
+    title: toolName(page, 'Is your red GitHub Actions check even real?'),
+    canonical: 'https://x.test/actions-runner-starvation-check/', baseUrl: 'https://x.test/',
+  });
+  assert.match(html, /<span aria-current="page">Actions Runner Starvation Check<\/span>/);
+  const trail = JSON.parse(html.match(/<script type="application\/ld\+json">(\{[^<]*BreadcrumbList[^<]*\})<\/script>/)[1]);
+  assert.equal(trail.itemListElement.at(-1).name, 'Actions Runner Starvation Check');
 });
 
 // Found 2026-09-23 on `git-exposure-check`'s own
@@ -3214,7 +3457,7 @@ test('every published page registers the worker and points at the manifest', asy
 
   const missing = [];
   for (const page of pages) {
-    const html = await fs.readFile(page, 'utf8');
+    const html = await readText(page);
     if (!/serviceWorker/.test(html) || !/rel="manifest"/.test(html)) {
       missing.push(path.relative(outDir, page));
     }
@@ -3228,7 +3471,7 @@ test('the worker and manifest resolve from a page at any depth', async () => {
 
   const broken = [];
   for (const page of pages) {
-    const html = await fs.readFile(page, 'utf8');
+    const html = await readText(page);
     const refs = [
       html.match(/register\('([^']+)'\)/)?.[1],
       html.match(/rel="manifest" href="([^"]+)"/)?.[1],
@@ -3264,15 +3507,16 @@ test('the cache name carries the build, so a deploy cannot serve a stale mix', a
 });
 
 test('an identical build produces an identical cache name', async () => {
-  // One independent build compared with the suite's shared one: two builds in
-  // different temp directories, which is all the old pair of fresh builds
-  // proved, at the cost of one full build instead of two.
-  const a = await site();
-  const second = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sw-b-'));
-  const b = await buildSite({ outDir: second, baseUrl: BASE });
+  // Two builds of the same site: the shared one, in this process, and one in
+  // a child process, in different temp directories, both started together by
+  // site(). They share no module state, so equal names show the hash depends
+  // on neither build order, process nor output path.
+  const [a, b] = await Promise.all([site(), childSite()]);
   assert.notEqual(a.outDir, b.outDir);
-  assert.equal(a.offline.cacheName, b.offline.cacheName, 'the hash must not depend on build order or paths');
-  await fs.rm(second, { recursive: true, force: true });
+  if (a.offline.cacheName !== b.cacheName) {
+    assert.fail(`the hash must not depend on build order or paths: ${a.offline.cacheName} vs ${b.cacheName}` +
+      (await editedDuringRun()));
+  }
 });
 
 test('the worker only ever touches same-origin GETs', async () => {
@@ -3385,6 +3629,20 @@ test("a category's offline bundle stays small enough to fetch on mobile data", a
   }
 });
 
+test('the offline bundle leaves out Node-only eval/ and build-*.mjs scripts, keeps browser modules', async () => {
+  assert.equal(isNodeOnlyScript('eval/nav-xsd-diff.mjs'), true);
+  assert.equal(isNodeOnlyScript('eval/sub/x.js'), true);
+  assert.equal(isNodeOnlyScript('build-nav-schema.mjs'), true);
+  assert.equal(isNodeOnlyScript('nav-xsd.mjs'), false);
+  assert.equal(isNodeOnlyScript('src/build-x.mjs'), false);
+  assert.equal(isNodeOnlyScript('builder.mjs'), false);
+  assert.equal(isNodeOnlyScript('eval/data.json'), false);
+  const { offline } = await site();
+  const all = offline.categories.flatMap((c) => c.assets);
+  assert.ok(!all.some((a) => /^[^/]+\/(eval\/.*|build-[^/]+)\.m?js$/.test(a)), 'a Node-only script is in an offline bundle');
+  assert.ok(all.includes('einvoice-preflight/hu-xsd.mjs'), 'a browser module went missing from the offline bundle');
+});
+
 test('the hub tells a visitor the real offline size per category, not a stale guess', async () => {
   // The button said "about 3 MB" from ~30 tools onward while the catalog
   // grew to 174 and the real (gzipped) fetch reached 5.2 MB -- a visitor on
@@ -3495,7 +3753,7 @@ test('the worker can be withdrawn from devices that already have it', async () =
     await fs.writeFile(path.join(outDir, file), '');
   }
   await addOfflineSupport({ outDir, base: BASE, surfaces: [], disableWorker: true });
-  const sw = await fs.readFile(path.join(outDir, 'sw.js'), 'utf8');
+  const sw = await readText(path.join(outDir, 'sw.js'));
 
   assert.match(sw, /registration\.unregister\(\)/);
   assert.match(sw, /caches\.delete/);
@@ -3516,19 +3774,39 @@ test('changing the worker itself changes the cache name', async () => {
   // no old cache is deleted, and every existing visitor keeps being served the
   // previous behaviour from cache indefinitely.
   //
-  // addOfflineSupport rewrites every page in place, so it runs on a copy of
-  // the shared build rather than on the build the other tests read.
+  // Only the name is under test, so it is computed by the same function
+  // addOfflineSupport calls, over the shared build, read-only. (This used to
+  // copy the whole site and rewrite the copy, about 33 s for one inequality.)
+  // The site is read twice, not three times: once by the name as the build
+  // computes it, once into `digests`, which the second and third names reuse.
+  // Two independent reads agreeing is the purity check; `again` agreeing with
+  // `edited` also pins the `digests` path to the one the build takes.
   const built = await site();
-  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-version-'));
-  await fs.cp(built.outDir, outDir, { recursive: true });
-  const rebuilt = await addOfflineSupport({
-    outDir,
-    base: BASE,
-    surfaces: built.surfaces,
-    codeVersion: 'pretend the worker was edited',
-  });
-  assert.notEqual(rebuilt.cacheName, built.offline.cacheName);
-  await fs.rm(outDir, { recursive: true, force: true });
+  const digests = await offlineFileDigests(built.outDir);
+  const edited = await offlineCacheName(built.outDir, 'pretend the worker was edited');
+  const again = await offlineCacheName(built.outDir, 'pretend the worker was edited', digests);
+  const other = await offlineCacheName(built.outDir, 'pretend the worker was edited twice', digests);
+  assert.equal(edited, again, 'the cache name must be a pure function of the build');
+  assert.notEqual(edited, other);
+  assert.notEqual(edited, built.offline.cacheName);
+
+  // And addOfflineSupport really passes codeVersion through, on a tiny tree.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-version-'));
+  try {
+    const names = [];
+    await fs.writeFile(path.join(dir, 'index.html'), '<!doctype html><title>x</title><body></body>');
+    for (const file of (await collectOfflineBundle(dir, [])).shared) {
+      await fs.mkdir(path.dirname(path.join(dir, file)), { recursive: true });
+      await fs.writeFile(path.join(dir, file), '');
+    }
+    for (const codeVersion of ['one', 'two']) {
+      await fs.writeFile(path.join(dir, 'index.html'), '<!doctype html><html><head></head><body>x</body></html>');
+      names.push((await addOfflineSupport({ outDir: dir, base: BASE, surfaces: [], codeVersion })).cacheName);
+    }
+    assert.notEqual(names[0], names[1]);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
 });
 
 // ---------------------------------------------------------------------------
@@ -3550,7 +3828,7 @@ test('no canonical tag names an origin other than the one the site was built wit
   const offenders = [];
 
   for (const file of (await walk(outDir)).filter((f) => f.endsWith('.html'))) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     const canonical = /<link\b[^>]*\brel="canonical"[^>]*\bhref="([^"]+)"/i.exec(html);
     if (canonical && /^https?:/i.test(canonical[1]) && !canonical[1].startsWith(BASE)) {
       offenders.push(`${path.relative(outDir, file)} -> ${canonical[1]}`);
@@ -3570,7 +3848,7 @@ const everyToolPage = async () => {
   const out = [];
   for (const surface of surfaces) {
     for (const f of await htmlPagesUnder(path.join(outDir, surface.slug))) {
-      out.push({ rel: path.relative(outDir, f), html: await fs.readFile(f, 'utf8') });
+      out.push({ rel: path.relative(outDir, f), html: await readText(f) });
     }
   }
   return out;
@@ -3609,10 +3887,38 @@ test('each tool entry page carries breadcrumb structured data', async () => {
       .find((b) => b['@type'] === 'BreadcrumbList');
     assert.ok(crumb, `${surface.slug} has no BreadcrumbList`);
     assert.equal(crumb.itemListElement[0].item, BASE, 'the first crumb is the hub');
-    assert.match(crumb.itemListElement[1].item, new RegExp(`^${BASE}c/[a-z0-9-]+/$`), 'the second crumb is the category shelf');
+    // Fiction sits under Stories, with its shelf's short name (stories.mjs).
+    const shelf = Object.hasOwn(STORY_VENTURES, surface.slug) ? STORY_VENTURES[surface.slug] : null;
+    if (shelf) assert.equal(crumb.itemListElement[1].item, `${BASE}${STORIES_PATH}`, 'a story shelf sits under Stories');
+    else assert.match(crumb.itemListElement[1].item, new RegExp(`^${BASE}c/[a-z0-9-]+/$`), 'the second crumb is the category shelf');
     assert.equal(crumb.itemListElement.at(-1).item, `${BASE}${surface.slug}/`);
-    assert.equal(crumb.itemListElement.at(-1).name, surface.title);
+    assert.equal(crumb.itemListElement.at(-1).name, shelf ?? toolName(html, surface.title));
   }
+});
+
+test('footer related links and the embed offer use the tool name the trail shows', async () => {
+  // Until 2026-11-15 the trail used `toolName` but the "More free tools" links
+  // and the embed iframe's title used the search `<title>`, so a link read
+  // "Wall Framing Takeoff — free, private, in your browser".
+  const { surfaces } = await site();
+  const nameOf = new Map();
+  for (const surface of surfaces) nameOf.set(surface.slug, toolName(await read(surface.slug, 'index.html'), surface.title));
+  const text = (v) => v.replace(/&(amp|lt|gt|quot|#39|#x27);/g, (_, e) => ({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", '#x27': "'" })[e]);
+  const wrong = [];
+  let links = 0;
+  for (const surface of surfaces) {
+    const html = await read(surface.slug, 'index.html');
+    const foot = /<aside class="pf-chrome pf-chrome-foot"[\s\S]*?<\/aside>/.exec(html)?.[0] ?? '';
+    for (const [, slug, label] of foot.matchAll(/<li><a href="[^"]*" data-pf-to="([^"]+)">([^<]*)<\/a><\/li>/g)) {
+      if (!nameOf.has(slug)) continue;
+      links += 1;
+      if (text(label) !== nameOf.get(slug)) wrong.push(`${surface.slug} -> ${slug}: ${label}`);
+    }
+    const embed = /data-pf-embed-title="([^"]*)"/.exec(html)?.[1];
+    if (embed !== undefined && text(embed) !== nameOf.get(surface.slug)) wrong.push(`${surface.slug} embed: ${embed}`);
+  }
+  assert.ok(links > 0, 'fixture assumption: some footer links to other tools');
+  assert.deepEqual(wrong, []);
 });
 
 test('every tool page declares the breadcrumb trail it shows', async () => {
@@ -3661,10 +3967,22 @@ test('chrome takes its theme from the host page, not the operating system', asyn
   // (`VENTURE_CHROME_CSS`), light by default and dark only where pf-site.js
   // measured the host page's background as dark; and the logo square's
   // fallback gradient, a 20px mark rather than text or a band. Everything else
-  // the chrome draws still takes its colours from the page.
+  // the chrome draws still takes its colours from the page. The floating voice
+  // button (assistant.mjs, `ASSISTANT_VOICE_CSS`) is the third: it sets both
+  // its fill and its ink (white on #1f4e8c, 8.3:1), so no host palette reaches it.
+  // The capped result card's scroll hint (sticky-fit.mjs, `STICKY_FIT_CSS`) names
+  // #000 only inside a mask gradient, where a colour is read for its alpha and
+  // never painted. The shared jump row (jump-row.mjs, `JUMP_ROW_CSS`) takes every
+  // colour from the page's --jump-* properties or its text colour; only its
+  // filled main pill names a fallback pair, fill and ink together (white on
+  // #1f4e8c, 8.3:1), for the same reason as the voice button.
   assert.ok(style.includes(VENTURE_CHROME_CSS), 'the venture header carries the site palette');
+  assert.ok(style.includes(ASSISTANT_VOICE_CSS), 'the voice button carries its own palette');
+  assert.ok(style.includes(STICKY_FIT_CSS), 'the scroll hint rides in the chrome stylesheet');
+  assert.ok(!/(?:^|[;{])\s*(?:color|background(?:-color)?|border(?:-color)?|fill|stroke)\s*:/m.test(STICKY_FIT_CSS),
+    'the scroll hint paints nothing: it only masks');
   assert.match(VENTURE_CHROME_CSS, /\[data-pfs-theme="dark"\]/, 'dark only on a measured dark host');
-  const rest = style.replace(VENTURE_CHROME_CSS, '').replace(/\.pf-chrome-top \.pfs-mark\{[^}]*\}/, '');
+  const rest = style.replace(VENTURE_CHROME_CSS, '').replace(ASSISTANT_VOICE_CSS, '').replace(STICKY_FIT_CSS, '').replace(/\.pf-chrome-top \.pfs-mark\{[^}]*\}/, '').replace(/\.pf-jump a\.pf-jump-main\{[^}]*\}/, '');
   assert.ok(!/#[0-9a-f]{3,8}\b/i.test(rest),
     `the chrome must not hard-code a colour: ${rest.match(/#[0-9a-f]{3,8}\b/i)?.[0]}`);
   assert.match(style, /color:inherit/, 'text colour comes from the page');
@@ -3788,7 +4106,7 @@ test('every number input on the built site carries an inputmode', async () => {
   const missing = [];
   for (const surface of surfaces) {
     for (const page of await htmlPagesUnder(path.join(outDir, surface.slug))) {
-      const markup = await fs.readFile(page, 'utf8');
+      const markup = await readText(page);
       for (const tag of markup.match(/<input\b[^>]*>/gi) ?? []) {
         if (!/\btype\s*=\s*["']?number\b/i.test(tag)) continue;
         inputs += 1;
@@ -3856,7 +4174,7 @@ test('the saved-bids script is one file the whole site loads, not 234 copies', a
   const pages = (await walk(outDir)).filter((f) => f.endsWith('.html') && !f.endsWith('offline.html'));
   let tagged = 0;
   for (const file of pages) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     if (!html.includes('data-pf-jobs-root')) continue;
     tagged += 1;
 
@@ -3912,7 +4230,7 @@ test('every stylesheet and script this build injects is one file, at the right d
 
     let carrying = 0;
     for (const file of pages) {
-      const html = await fs.readFile(file, 'utf8');
+      const html = await readText(file);
       const rel = path.relative(outDir, file);
       if (rel === 'index.html' || rel === '404.html') continue; // the hub is its own document
       // The chrome's own markup, not the bare word: the changelog quotes commit
@@ -3934,7 +4252,7 @@ test('every stylesheet and script this build injects is one file, at the right d
   // And the copies they replaced are gone. A page carrying both would pay for
   // the bytes twice and, for the scripts, run the feature twice.
   for (const file of pages) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     const rel = path.relative(outDir, file);
     if (rel === 'index.html' || rel === '404.html') continue;
     assert.ok(!html.includes('<style id="pf-chrome-style">'), `${rel} still inlines the chrome CSS`);
@@ -3964,7 +4282,10 @@ test('the injected chrome never dims text it did not choose the colour of', asyn
   // have gone quiet the moment the block moved, and passed on every page.
   const style = await read('pf-chrome.css');
   assert.ok(/\.pf-chrome-foot/.test(style), 'pf-chrome.css is not the chrome stylesheet');
-  assert.ok(!/opacity\s*:/.test(style),
+  // Except the voice button, which owns both its colours: its opacity is the
+  // fade to 0 as it steps aside on scroll, not a tint of host text.
+  assert.ok(style.includes(ASSISTANT_VOICE_CSS));
+  assert.ok(!/opacity\s*:/.test(style.replace(ASSISTANT_VOICE_CSS, '')),
     'the chrome sets an opacity on text whose colour comes from the host page, ' +
     'so its contrast depends on a palette it cannot see');
 });
@@ -3994,7 +4315,7 @@ test('the hub names its quietest ink rather than tinting it', async () => {
 
 test('a sideways-scrolling box is given keyboard access, and only when it scrolls', async () => {
   const { outDir } = await site();
-  const pass = await fs.readFile(path.join(outDir, 'pf-site.js'), 'utf8');
+  const pass = await readText(path.join(outDir, 'pf-site.js'));
 
   // Measured, not asserted statically: whether a box overflows depends on the
   // viewport and on how long the numbers rendered, so a `tabindex="0"` in the
@@ -4015,7 +4336,7 @@ test('a sideways-scrolling box is given keyboard access, and only when it scroll
   const pages = (await walk(outDir)).filter((f) => f.endsWith('.html') && !f.endsWith('offline.html'));
   let carrying = 0;
   for (const file of pages) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     if (/<script src="[^"]*pf-site\.js"/.test(html)) carrying += 1;
   }
   assert.ok(carrying > 200, `only ${carrying} pages carry the keyboard-scroll pass`);
@@ -4026,7 +4347,7 @@ test('no published page hides a link inside a panel that sets no link colour', a
   const pages = (await walk(outDir)).filter((f) => f.endsWith('.html'));
   const offenders = [];
   for (const file of pages) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     // The shape that produced 1.1:1 links: a result panel painting its own dark
     // fill, with no colour for the anchors inside it, so they fall back to the
     // browser default blue on a near-black background.
@@ -4123,7 +4444,7 @@ test('every category gets a landing page at its own URL', async () => {
     const file = path.join(outDir, categoryPagePath(category.id), 'index.html');
     assert.ok(await exists(file), `${category.id} has no landing page`);
 
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     // Every tool in the category, and only tools in the category.
     const linked = new Set([...html.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
     assert.deepEqual(
@@ -4195,7 +4516,7 @@ test('every tool points at a share card of its own, and that card exists', async
   for (const surface of surfaces) {
     const entry = path.join(outDir, surface.slug, 'index.html');
     if (!(await exists(entry))) continue;
-    const html = await fs.readFile(entry, 'utf8');
+    const html = await readText(entry);
     const expected = `${BASE}${toolCardFileFor(surface.slug)}`;
     // A venture that names its own picture (shed-designer's render) keeps it,
     // as injectDiscoveryTags intends; it must be on this site and exist.
@@ -4262,7 +4583,7 @@ test("a deep page inside a tool shares the tool's card, not the site's", async (
       (f) => f.endsWith('.html') && path.relative(outDir, f) !== path.join(surface.slug, 'index.html'),
     );
     if (!deep) continue;
-    const html = await fs.readFile(deep, 'utf8');
+    const html = await readText(deep);
     assert.ok(
       html.includes(`<meta property="og:image" content="${BASE}${toolCardFileFor(surface.slug)}">`),
       `${path.relative(outDir, deep)} does not point at its tool's card`,
@@ -4275,7 +4596,7 @@ test("a deep page inside a tool shares the tool's card, not the site's", async (
 test("a tool page's card alt text names the tool, not just the site", async () => {
   const { outDir, surfaces } = await site();
   const surface = surfaces.find((s) => s.slug === 'ebay-fee-calculator') ?? surfaces[0];
-  const html = await fs.readFile(path.join(outDir, surface.slug, 'index.html'), 'utf8');
+  const html = await readText(path.join(outDir, surface.slug, 'index.html'));
   const alt = html.match(/<meta property="og:image:alt" content="([^"]+)">/);
   assert.ok(alt, `${surface.slug} has no og:image:alt`);
   // The card really does carry these words now, so the alt describing them is
@@ -4286,8 +4607,8 @@ test("a tool page's card alt text names the tool, not just the site", async () =
 
 test('the hub keeps the site-wide card, and About gets its own rather than a category one', async () => {
   const { outDir } = await site();
-  const hub = await fs.readFile(path.join(outDir, 'index.html'), 'utf8');
-  const about = await fs.readFile(path.join(outDir, 'about', 'index.html'), 'utf8');
+  const hub = await readText(path.join(outDir, 'index.html'));
+  const about = await readText(path.join(outDir, 'about', 'index.html'));
   assert.ok(hub.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
   // About belongs to no category, so `share.mjs` draws it a card of its own.
   assert.ok(about.includes(`<meta property="og:image" content="${BASE}about/share-card.png">`));
@@ -4487,7 +4808,7 @@ test('a category holding a documented external-call exception says so, not "noth
       // (privacyClaimParts); the line itself then counts them.
       const [, folded] = html.match(/<\/p>\s*<details class="count-exceptions">[\s\S]*?<p>([\s\S]*?)<\/p><\/details>/) ?? [];
       if (exceptions.length > 3) {
-        assert.ok(count.includes(`except on the ${exceptions.length} lookup tools listed below`), `${category.id}: "${count}"`);
+        assert.ok(count.includes(`except on the ${exceptions.length} ${EXCEPTION_NOUN} listed below`), `${category.id}: "${count}"`);
         assert.ok(folded, `${category.id} counts ${exceptions.length} exceptions but lists none under the count line`);
       }
       const named = exceptions.length > 3 ? folded : count;
@@ -4505,6 +4826,33 @@ test('a category holding a documented external-call exception says so, not "noth
         `${items.length} free tool${items.length === 1 ? '' : 's'} · no account · nothing you type is uploaded`,
         `${category.id} holds no exception, so its count line should make the unconditional claim`,
       );
+    }
+  }
+});
+
+test('the shared footer counts the external-call exceptions and folds their names, so its Privacy paragraph stays short', async () => {
+  // Inlined, the ~50 tool names and ~40 hosts made the footer's Privacy
+  // paragraph 499 words (1,742 px on a 390 px phone) on every page that
+  // carries it, and called every one of them "a live public API as its whole
+  // job", which most are not. polish-2026-11-14-footer-fold.md.
+  const { surfaces } = await site();
+  const exceptions = externalCallExceptions(surfaces);
+  assert.ok(exceptions.length > 1, 'expected several externalCallExceptions entries to exercise this test');
+  for (const page of [['index.html'], ['about', 'index.html']]) {
+    const html = await read(...page);
+    const footer = html.slice(html.lastIndexOf('<footer'));
+    const [, privacy] = footer.match(/<h2>Privacy<\/h2>\s*<p>([\s\S]*?)<\/p>/) ?? [];
+    assert.ok(privacy, `${page.join('/')}: no Privacy paragraph in the footer`);
+    const words = privacy.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+    assert.ok(words < 260, `${page.join('/')}: footer Privacy paragraph is ${words} words`);
+    assert.ok(privacy.includes(`Except on ${exceptions.length} ${EXCEPTION_NOUN}`), `${page.join('/')}: the paragraph must still count the exceptions`);
+    assert.doesNotMatch(privacy, /whole job/);
+    const [, folded] = footer.match(/<details class="pfs-exceptions">([\s\S]*?)<\/details>/) ?? [];
+    assert.ok(folded, `${page.join('/')}: the exception list is not in the footer`);
+    for (const x of exceptions) {
+      const name = toolProseName(x.title).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      assert.ok(folded.includes(name), `${page.join('/')}: footer list omits ${name}`);
+      for (const h of x.hosts) assert.ok(folded.includes(h), `${page.join('/')}: footer list omits host ${h}`);
     }
   }
 });
@@ -4546,7 +4894,7 @@ test('a tool or category with a documented external-call exception gets the exce
 
 test('the manifest description matches whether the site has a documented external-call exception', async () => {
   const { outDir, surfaces } = await site();
-  const manifest = JSON.parse(await fs.readFile(path.join(outDir, 'manifest.webmanifest'), 'utf8'));
+  const manifest = JSON.parse(await readText(path.join(outDir, 'manifest.webmanifest')));
   if (externalCallExceptions(surfaces).length) {
     assert.ok(
       !manifest.description.includes('nothing you type is uploaded'),
@@ -4561,7 +4909,7 @@ test('the hub links every category page, and the sitemap lists them', async () =
   const { outDir, surfaces } = await site();
   const ids = groupByCategory(surfaces).map(({ category }) => category.id);
 
-  const hub = await fs.readFile(path.join(outDir, 'index.html'), 'utf8');
+  const hub = await readText(path.join(outDir, 'index.html'));
   for (const id of ids) {
     assert.ok(hub.includes(`data-category="${id}"`), `the hub does not link ${id}`);
   }
@@ -4620,10 +4968,10 @@ test('the About page ships, carries the disclaimer, and states the real catalogu
   const about = await read('about', 'index.html');
 
   assert.match(about, /no warranty/i, 'About must carry the liability disclaimer like every page');
-  assert.match(about, new RegExp(`${surfaces.length} free calculators`));
+  assert.match(about, new RegExp(`${formatCount(surfaces.length)} free calculators`));
   // The copy-paste boilerplate: its numbers come from `surfaces`, so they
   // cannot drift from the catalogue the way hand-written blurbs do.
-  assert.match(about, new RegExp(`${surfaces.length} free, private calculators`));
+  assert.match(about, new RegExp(`${formatCount(surfaces.length)} free, private calculators`));
   assert.ok(
     about.includes(`<link rel="canonical" href="${BASE}about/">`),
     'About needs its own canonical, not the hub\'s',
@@ -4714,14 +5062,14 @@ test('the About page is reachable from the hub, the categories and every tool pa
   // The shared chrome is what puts the link on all 164 tool pages; without it
   // the privacy statement is unreachable from the pages that collect input.
   const tool = surfaces[0].slug;
-  const toolHtml = await fs.readFile(path.join(outDir, tool, 'index.html'), 'utf8');
+  const toolHtml = await readText(path.join(outDir, tool, 'index.html'));
   assert.match(toolHtml, /href="\.\.\/about\/"/, `${tool} links About from its chrome footer`);
 });
 
 test('every link the About page makes resolves', async () => {
   const { outDir } = await site();
   const file = path.join(outDir, 'about', 'index.html');
-  const html = await fs.readFile(file, 'utf8');
+  const html = await readText(file);
   const hrefs = [...html.matchAll(/href="([^"#]+)"/g)]
     .map((m) => m[1])
     .filter((href) => !/^(https?:|mailto:|data:)/.test(href))
@@ -4751,14 +5099,14 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   const about = await read('about', 'index.html');
 
   assert.match(about, /Embedding a tool on your own page/);
-  assert.match(about, new RegExp(`Every one of the ${surfaces.length} tools here can be framed`));
+  assert.match(about, new RegExp(`Every one of the ${formatCount(surfaces.length)} tools here can be framed`));
   // The illustrated snippet uses the real query param and default height the
   // shipped feature uses, not numbers written by hand that could drift from it.
   assert.match(about, new RegExp(`\\?${EMBED_QUERY_PARAM}=1`));
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, custom development, /compare/, /research/, Stories, updates, the changelog and /guides/, and nothing else', () => {
+test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, custom development and its request pages, /compare/, /research/, Stories, updates, the changelog, the work queue and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   // About, the comparison index and the guides index are hub-level pages
@@ -4772,11 +5120,14 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask
     `${BASE}about/`,
     `${BASE}ask/`,
     `${BASE}custom-development/`,
+    // Each request's own page, one per entry in portfolio/requests/requests.json.
+    ...loadRequests().map((r) => `${BASE}custom-development/${r.id}/`),
     `${BASE}${COMPARE_PATH}`,
     `${BASE}${RESEARCH_PATH}`,
     `${BASE}stories/`,
     `${BASE}updates/`,
     `${BASE}changelog/`,
+    `${BASE}queue/`,
     `${BASE}${GUIDES_PATH}`,
   ]);
 
@@ -4814,6 +5165,18 @@ test('tools whose audience browses a section are filed in it', async () => {
     'notary-trip-quote': ['services', null],
     'booth-rent-vs-commission': ['services', null],
     'translator-project-quote': ['services', null],
+    // Parked under "Marketplace seller tools" from 2026-10-11 while `services`
+    // and `backoffice` were near their offline-bundle ceiling; the breadcrumb
+    // on a driving school's page read "Marketplace seller tools" (polish,
+    // 2026-11-17). Each is back in the section its reader browses.
+    'driving-school-profit-calculator': ['services', null],
+    'barbershop-chair-profit-calculator': ['services', null],
+    'axe-throwing-bar-profit-calculator': ['services', null],
+    'tournament-pairing-manager': ['services', null],
+    'bail-bond-agency-exposure-calculator': ['services', null],
+    'commercial-lease-abstract-reader': ['backoffice', null],
+    'severance-package-calculator': ['backoffice', null],
+    'payment-processor-fee-comparison-calculator': ['backoffice', null],
   };
 
   for (const [slug, [category, subcategory]] of Object.entries(placements)) {
@@ -4821,6 +5184,20 @@ test('tools whose audience browses a section are filed in it', async () => {
     const sub = subcategoryFor(slug);
     assert.equal(sub ? sub.id : null, subcategory, `${slug} is in the wrong sub-group`);
   }
+});
+
+test('no shop, studio or salon profit calculator is filed as a marketplace seller tool', async () => {
+  // The marketplace section is for people selling through someone else's
+  // storefront. A bench, chair or studio business prices its own time; filing
+  // one there to dodge a bundle ceiling put "Marketplace seller tools" in the
+  // breadcrumb of eleven local-service pages until 2026-11-17. Raise the
+  // ceiling or split the section instead.
+  const { surfaces } = await site();
+  const misfiled = surfaces
+    .map((s) => s.slug)
+    .filter((slug) => /-(shop|studio|chair|school|salon|bar)-(service-)?profit-calculator$/.test(slug))
+    .filter((slug) => categoryFor(slug).id === 'marketplace');
+  assert.deepEqual(misfiled, []);
 });
 
 test('the catch-all holds only what no section claims', async () => {
@@ -4930,7 +5307,7 @@ test('no link to a published venture is repaired out to the private repository',
 
   for (const file of await listFiles(outDir)) {
     if (!file.endsWith('.html')) continue;
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     for (const [, target] of html.matchAll(
       new RegExp(`${SOURCE_URL_PREFIX.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}ventures/([^"'\\s>]+)`, 'g'),
     )) {
@@ -4969,7 +5346,7 @@ test('every DOWNLOADABLE_CLI_FILES entry is published, and no page still links o
 
       for (const file of await listFiles(path.join(outDir, slug))) {
         if (!file.endsWith('.html')) continue;
-        const html = await fs.readFile(file, 'utf8');
+        const html = await readText(file);
         assert.ok(
           !html.includes(`${SOURCE_URL_PREFIX}ventures/${slug}/${name}`),
           `${path.relative(outDir, file)} still links ${name} off-site to the private repo`,
@@ -5080,7 +5457,7 @@ test('the venture tree still has comparison pages, and every one names a product
   assert.ok(entries.length > 100, `only ${entries.length} comparison pages discovered`);
   for (const entry of entries) {
     const surface = surfaces.find((s) => s.slug === entry.slug);
-    const html = await fs.readFile(path.join(surface.sourceDir, entry.file), 'utf8');
+    const html = await readText(path.join(surface.sourceDir, entry.file));
     // Normalised on both sides — see `comparisonText`. `entry.subject` has
     // already had its entities decoded, so `html.includes` was asking the page
     // to carry the heading a second time in raw form.
@@ -5163,6 +5540,11 @@ test('isGuidePage lists the pages beside a tool and nothing already indexed else
   assert.ok(!isGuidePage('sitemap.xml'));
   // ...but a page that merely starts with the letters is not a comparison.
   assert.ok(isGuidePage('vsat-link-budget.html'));
+  // A builder's sample site is a fictional community's page, not a guide.
+  assert.ok(!isGuidePage('demo/abbey/about.html'));
+  assert.ok(!isGuidePage('demos/sisters/shop.html'));
+  // ...but a guide whose name merely contains the word stays.
+  assert.ok(isGuidePage('demo-day-pricing.html'));
 });
 
 test('guidePageMeta takes a guide’s label from the page’s own words, or drops it', () => {
@@ -5197,6 +5579,12 @@ test('discoverGuides reads what shipped, and groupGuidesByCategory puts the deep
   await fs.mkdir(path.join(outDir, 'deck-bid-calculator'), { recursive: true });
   await fs.writeFile(path.join(outDir, 'deck-bid-calculator', 'index.html'), page('Tool', 'x'));
   await fs.writeFile(path.join(outDir, 'deck-bid-calculator', 'c.html'), page('C question', 'See.'));
+  // Fiction and video shelves publish pages too, and none is a guide: the
+  // index promises how a price is built, from calculators.
+  for (const slug of ['hearth-and-horizon', 'catholic-shorts']) {
+    await fs.mkdir(path.join(outDir, slug), { recursive: true });
+    await fs.writeFile(path.join(outDir, slug, 'a-story.html'), page('A story', 'Once.'));
+  }
   // A tool with no guide page contributes no empty block.
   await fs.mkdir(path.join(outDir, 'shop-rate-calculator'), { recursive: true });
   await fs.writeFile(path.join(outDir, 'shop-rate-calculator', 'index.html'), page('Tool', 'x'));
@@ -5205,6 +5593,8 @@ test('discoverGuides reads what shipped, and groupGuidesByCategory puts the deep
     { slug: 'deck-bid-calculator', title: 'Deck Bid Calculator', description: 'Decks.' },
     { slug: 'ebay-fee-calculator', title: 'eBay Fee Calculator', description: 'Fees.' },
     { slug: 'shop-rate-calculator', title: 'Shop Rate Calculator', description: 'Rates.' },
+    { slug: 'hearth-and-horizon', title: 'Hearth & Horizon', description: 'Stories.' },
+    { slug: 'catholic-shorts', title: 'Catholic Shorts', description: 'Videos.' },
     // A surface with no directory in the artifact must not throw.
     { slug: 'never-published', title: 'Never Published', description: '' },
   ];
@@ -5216,7 +5606,7 @@ test('discoverGuides reads what shipped, and groupGuidesByCategory puts the deep
       ['deck-bid-calculator', ['c.html']],
       ['ebay-fee-calculator', ['a.html', 'b.html']],
     ],
-    'entry pages, comparison pages and guide-less tools are all excluded',
+    'entry pages, comparison pages, story shelves and guide-less tools are all excluded',
   );
   assert.equal(groups[1].items[0].label, 'A question');
   assert.equal(groups[1].items[0].description, 'Ay.');
@@ -5247,7 +5637,7 @@ test('the built tree still has guide pages, and every label is text its own page
   assert.ok(groups.length > 0, 'no guide pages discovered in the first six ventures');
   for (const group of groups) {
     for (const item of group.items) {
-      const html = await fs.readFile(path.join(outDir, group.slug, item.file), 'utf8');
+      const html = await readText(path.join(outDir, group.slug, item.file));
       assert.ok(
         decodeEntities(html.replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').includes(item.label),
         `"${item.label}" is not text ${group.slug}/${item.file} contains`,
@@ -5302,6 +5692,43 @@ test('renderGuidesPage links every guide, disclaims, and counts itself honestly'
   assert.ok(!/href="https?:\/\/fonts\./.test(html));
   // The index says only what the pages it links already say.
   assert.ok(html.includes('adds no'), 'the index must say it adds nothing of its own');
+});
+
+test('guides page sizes each off-screen tool block from its own text, never short', () => {
+  const card = (label, description = '') => ({ slug: 'ebay-fee-calculator', file: `${label.length}.html`, label, title: label, description });
+  // One line of everything at the narrowest width: h3 20 + 3, note 16 + 10,
+  // one card 26 + 21.81 + 5 + 20.42, then the 1.2% and 4 px margin.
+  const one = guideBlockHeights('Fees', [card('A question', 'Short.')]);
+  assert.equal(one.length, GUIDE_COLUMNS.length);
+  assert.equal(one[0], Math.ceil((20 + 3 + 16 + 10 + 26 + 21.81 + 5 + 20.42) * 1.012 + 4));
+  // A longer description takes more lines, so more height, and more at a
+  // narrow width than a wide one.
+  const long = guideBlockHeights('Fees', [card('A question', 'x'.repeat(130))]);
+  assert.ok(long[0] > one[0]);
+  assert.ok(long[0] > long[long.length - 1]);
+  // Two columns: a row is as tall as its tallest card, plus one 10 px gap per
+  // extra row, so four cards in two columns are two rows, not four.
+  const four = [card('a'), card('b', 'x'.repeat(130)), card('c'), card('d')];
+  const at = GUIDE_COLUMNS.findIndex((c) => c.columns === 2);
+  const h = guideBlockHeights('Fees', four)[at];
+  const tall = 26 + 21.81 + 5 + 4 * 20.42;
+  assert.equal(h, Math.ceil((20 + 3 + 16 + 10 + tall + (26 + 21.81) + 10) * 1.012 + 4));
+  assert.equal(guideBlockStyle('Fees', [card('A question', 'Short.')]).split(';').length, GUIDE_COLUMNS.length);
+
+  const groups = [{
+    slug: 'ebay-fee-calculator', title: 'eBay Fee Calculator', description: 'Fees.',
+    category: categoryFor('ebay-fee-calculator'),
+    items: ['a', 'b', 'c', 'd'].map((f) => ({ ...card(`${f} question`, 'Short.'), file: `${f}.html` })),
+  }];
+  const html = renderGuidesPage({ groups, surfaces: [{ slug: 'ebay-fee-calculator', title: 'eBay Fee Calculator' }], categoryGroups: [], baseUrl: 'https://example.test/' });
+  assert.ok(html.includes(`<div class="tool" style="${guideBlockStyle(groups[0].title, groups[0].items)}">`));
+  // One media rule per width step, each reading its own property.
+  for (const [i, c] of GUIDE_COLUMNS.entries()) {
+    if (i) assert.ok(html.includes(`@media (min-width: ${c.minWidth}px) { .tool { contain-intrinsic-size: auto var(--h${i + 1}, 400px); } }`));
+  }
+  // Skipped rendering, never hidden content: every card is still in the HTML.
+  assert.match(html, /\.tool \{ content-visibility: auto;/);
+  for (const f of ['a', 'b', 'c', 'd']) assert.ok(html.includes(`href="../ebay-fee-calculator/${f}.html"`));
 });
 
 test('renderGuidesPage names an external-call exception by its prose name, not its raw tagline', () => {
@@ -5457,92 +5884,84 @@ test('the hub sitemap lists every product page the build writes', () => {
   assert.ok(xml.includes('<loc>https://example.test/compare/housecall-pro/</loc>'));
 });
 
-test('the built site publishes /compare/, links it, and lists it in the sitemap', async () => {
-  const out = await fs.mkdtemp(path.join(os.tmpdir(), 'compare-'));
-  const ventures = path.join(out, 'ventures');
-  const mk = async (slug, files) => {
-    await fs.mkdir(path.join(ventures, slug), { recursive: true });
-    for (const [name, body] of Object.entries(files)) {
-      await fs.writeFile(path.join(ventures, slug, name), body);
-    }
-  };
-  const page = (title, body) =>
-    `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title>` +
-    `<meta name="description" content="A free calculator that does arithmetic in your browser."></head>` +
-    `<body>${body}<p>No warranty: this is an estimate, not advice.</p></body></html>`;
-  await mk('alpha-calculator', {
-    'index.html': page('Alpha Calculator', '<h1>Alpha Calculator</h1>'),
-    'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
-  });
-  await mk('beta-calculator', {
-    'index.html': page('Beta Calculator', '<h1>Beta Calculator</h1>'),
-    'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
-  });
+// One fixture build serves both the /compare/ and /guides/ end-to-end tests:
+// buildSite does the same fixed, expensive work whatever the ventures
+// directory holds (about 60 s and 28 s as two builds, 2026-11-04), so a second
+// build for a second assertion about the hub is pure cost.
+//
+// It builds in a child process started beside the shared build (site() starts
+// it), not in this process once the shared build is done: buildSite keeps
+// per-build state at module level, so an in-process build had to wait its turn,
+// and its 31 s (warm cards; 81 s cold) ran on the sequential tail with cores idle
+// (docs/history/pages-test-perf-2026-11-12-hub-fixture-child.md). The child
+// also keeps the fixture's module state out of this process.
+let hubFixture;
+function hubFixtureSite() {
+  hubFixture ??= (async () => {
+    const out = await fs.mkdtemp(path.join(os.tmpdir(), 'hub-fixture-'));
+    const ventures = path.join(out, 'ventures');
+    const mk = async (slug, files) => {
+      await fs.mkdir(path.join(ventures, slug), { recursive: true });
+      for (const [name, body] of Object.entries(files)) {
+        await fs.writeFile(path.join(ventures, slug, name), body);
+      }
+    };
+    const page = (title, body) =>
+      `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title>` +
+      `<meta name="description" content="A free calculator that does arithmetic in your browser."></head>` +
+      `<body>${body}<p>No warranty: this is an estimate, not advice.</p></body></html>`;
+    await mk('alpha-calculator', {
+      'index.html': page(
+        'Alpha Calculator',
+        '<h1>Alpha Calculator</h1><a href="how-much-to-charge.html">How much to charge</a>',
+      ),
+      'how-much-to-charge.html': page('How much to charge', '<h1>How much to charge</h1>'),
+      // A comparison page belongs to /compare/, not /guides/.
+      'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
+    });
+    await mk('beta-calculator', {
+      'index.html': page('Beta Calculator', '<h1>Beta Calculator</h1>'),
+      'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
+    });
+    const dist = path.join(out, 'dist');
+    const code = `import { buildSite } from ${JSON.stringify(BUILD_MODULE)};
+      const r = await buildSite({ venturesDir: ${JSON.stringify(ventures)}, outDir: ${JSON.stringify(dist)},
+        baseUrl: 'https://example.test/', log: () => {}, disableWorker: true, cards: false });
+      process.stdout.write(JSON.stringify({ comparisons: r.comparisons }));`;
+    const { stdout } = await promisify(execFile)(process.execPath, ['--input-type=module', '-e', code], {
+      maxBuffer: 1 << 28,
+    });
+    return { out, dist, result: JSON.parse(stdout.slice(stdout.lastIndexOf('{"comparisons"'))) };
+  })();
+  return hubFixture;
+}
 
-  const result = await buildSite({
-    venturesDir: ventures,
-    outDir: path.join(out, 'dist'),
-    baseUrl: 'https://example.test/',
-    log: () => {},
-    disableWorker: true,
-  });
+test('the built site publishes /compare/, links it, and lists it in the sitemap', async () => {
+  const { dist, result } = await hubFixtureSite();
   assert.equal(result.comparisons.length, 1, 'both tools compare with one product');
   assert.equal(result.comparisons[0].subject, 'Jobber');
 
-  const compare = await fs.readFile(path.join(out, 'dist', COMPARE_PATH, 'index.html'), 'utf8');
+  const compare = await readText(path.join(dist, COMPARE_PATH, 'index.html'));
   assert.ok(compare.includes('href="../alpha-calculator/vs-jobber.html"'));
   assert.ok(compare.includes('href="../beta-calculator/vs-jobber.html"'));
 
-  const hub = await fs.readFile(path.join(out, 'dist', 'index.html'), 'utf8');
+  const hub = await readText(path.join(dist, 'index.html'));
   assert.ok(hub.includes(`href="${COMPARE_PATH}"`), 'the hub must link /compare/');
 
-  const hubSitemap = await fs.readFile(path.join(out, 'dist', 'sitemap-hub.xml'), 'utf8');
+  const hubSitemap = await readText(path.join(dist, 'sitemap-hub.xml'));
   assert.ok(hubSitemap.includes(`<loc>https://example.test/${COMPARE_PATH}</loc>`));
 
-  const llms = await fs.readFile(path.join(out, 'dist', 'llms.txt'), 'utf8');
+  const llms = await readText(path.join(dist, 'llms.txt'));
   assert.ok(llms.includes(`https://example.test/${COMPARE_PATH}`), 'llms.txt must name /compare/');
-
-  await fs.rm(out, { recursive: true, force: true });
 });
 
 test('the built site publishes /guides/, links it, and lists it in the sitemap', async () => {
   // The end-to-end half of the guides index: the three places a page has to
   // appear before anyone reaches it — a link a visitor can click, a sitemap
-  // entry a crawler follows, and an llms.txt line an assistant reads. Before
-  // this page existed the guide pages had none of the three, only their own
-  // tool's entry page.
-  const out = await fs.mkdtemp(path.join(os.tmpdir(), 'guides-'));
-  const ventures = path.join(out, 'ventures');
-  const mk = async (slug, files) => {
-    await fs.mkdir(path.join(ventures, slug), { recursive: true });
-    for (const [name, body] of Object.entries(files)) {
-      await fs.writeFile(path.join(ventures, slug, name), body);
-    }
-  };
-  const page = (title, body) =>
-    `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title>` +
-    `<meta name="description" content="A free calculator that does arithmetic in your browser."></head>` +
-    `<body>${body}<p>No warranty: this is an estimate, not advice.</p></body></html>`;
-  await mk('alpha-calculator', {
-    'index.html': page(
-      'Alpha Calculator',
-      '<h1>Alpha Calculator</h1><a href="how-much-to-charge.html">How much to charge</a>',
-    ),
-    'how-much-to-charge.html': page('How much to charge', '<h1>How much to charge</h1>'),
-    // A comparison page belongs to /compare/, not here.
-    'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
-  });
+  // entry a crawler follows, and an llms.txt line an assistant reads.
+  const { dist } = await hubFixtureSite();
 
-  const dist = path.join(out, 'dist');
-  await buildSite({
-    venturesDir: ventures,
-    outDir: dist,
-    baseUrl: 'https://example.test/',
-    log: () => {},
-    disableWorker: true,
-  });
-
-  const guides = await fs.readFile(path.join(dist, GUIDES_PATH, 'index.html'), 'utf8');
+  const guides = await readText(path.join(dist, GUIDES_PATH, 'index.html'));
   assert.ok(guides.includes('href="../alpha-calculator/how-much-to-charge.html"'));
   assert.ok(guides.includes('How much to charge'), 'the page’s own heading is the entry');
   assert.ok(
@@ -5550,16 +5969,18 @@ test('the built site publishes /guides/, links it, and lists it in the sitemap',
     'a comparison page has /compare/ and must not be listed twice',
   );
 
-  const hub = await fs.readFile(path.join(dist, 'index.html'), 'utf8');
+  const hub = await readText(path.join(dist, 'index.html'));
   assert.ok(hub.includes(`href="${GUIDES_PATH}"`), 'the hub must link /guides/');
 
-  const hubSitemap = await fs.readFile(path.join(dist, 'sitemap-hub.xml'), 'utf8');
+  const hubSitemap = await readText(path.join(dist, 'sitemap-hub.xml'));
   assert.ok(hubSitemap.includes(`<loc>https://example.test/${GUIDES_PATH}</loc>`));
 
-  const llms = await fs.readFile(path.join(dist, 'llms.txt'), 'utf8');
+  const llms = await readText(path.join(dist, 'llms.txt'));
   assert.ok(llms.includes(`https://example.test/${GUIDES_PATH}`), 'llms.txt must name /guides/');
+});
 
-  await fs.rm(out, { recursive: true, force: true });
+after(async () => {
+  if (hubFixture) await fs.rm((await hubFixture).out, { recursive: true, force: true });
 });
 
 // The hub pages are where a stranger from a search query lands first, and until
@@ -5720,6 +6141,52 @@ test('copyTree drops dot-directory tool caches but keeps .well-known', async () 
   );
 });
 
+// A local build published git-ignored files CI's fresh checkout never has
+// (ids-model-check's fetched eval/corpus, csshound's cargo target/), and
+// check.mjs failed on their types locally only: four sessions, 2026-11-16/17.
+test('parseLocalOnly keeps root ventures/ build-output rules and drops the rest', () => {
+  const out = [
+    'ventures/ids-model-check/.gitignore:1:eval/corpus/\tventures/ids-model-check/eval/corpus/',
+    'ventures/csshound/.gitignore:1:/target\tventures/csshound/target/',
+    '.gitignore:70:ventures/einvoice-preflight/browser/\tventures/einvoice-preflight/browser/',
+    '.gitignore:2:__pycache__/\tventures/x/__pycache__/',
+  ].join('\n');
+  assert.deepEqual([...parseLocalOnly(out, '/r')].sort(), [
+    '/r/ventures/csshound/target',
+    '/r/ventures/ids-model-check/eval/corpus',
+    '/r/ventures/x/__pycache__',
+  ]);
+});
+
+test('copyTree leaves out git-ignored local-only paths, and localOnlyPaths finds them', async (t) => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), 'localonly-'));
+  const git = (...args) => promisify(execFile)('git', args, { cwd: repo });
+  try { await git('init', '-q'); } catch { t.skip('git unavailable'); return; }
+  const v = path.join(repo, 'ventures', 'tool');
+  await fs.mkdir(path.join(v, 'eval', 'corpus'), { recursive: true });
+  await fs.writeFile(path.join(repo, '.gitignore'), 'ventures/tool/built/\n');
+  await fs.writeFile(path.join(v, '.gitignore'), 'eval/corpus/\nlocal.html\n');
+  await fs.writeFile(path.join(v, 'index.html'), '<!doctype html><p>tool</p>');
+  await fs.writeFile(path.join(v, 'local.html'), '<!doctype html><p>mine</p>');
+  await fs.writeFile(path.join(v, 'eval', 'corpus', 'a.html'), '<!doctype html><p>fetched</p>');
+  await fs.mkdir(path.join(v, 'built'));
+  await fs.writeFile(path.join(v, 'built', 'app.js'), 'export {};');
+  await fs.writeFile(path.join(v, 'new.html'), '<!doctype html><p>untracked, not ignored</p>');
+
+  const skip = localOnlyPaths(path.join(repo, 'ventures'));
+  assert.deepEqual([...skip].map((p) => path.relative(repo, p)).sort(),
+    ['ventures/tool/eval/corpus', 'ventures/tool/local.html']);
+
+  const to = await fs.mkdtemp(path.join(os.tmpdir(), 'localonly-out-'));
+  const copied = (await copyTree(v, to, 'https://example.test/', skip)).map((f) => path.relative(to, f)).sort();
+  assert.deepEqual(copied.filter((f) => f !== '.gitignore'), ['built/app.js', 'index.html', 'new.html']);
+
+  process.env.PAGES_KEEP_IGNORED = '1';
+  try { assert.equal(localOnlyPaths(path.join(repo, 'ventures')).size, 0); }
+  finally { delete process.env.PAGES_KEEP_IGNORED; }
+  assert.equal(localOnlyPaths(os.tmpdir()).size, 0, 'outside a git tree nothing is skipped');
+});
+
 // P019: the home page is a home for everything, not a calculator list. These
 // pin the sections, so the framing cannot drift back one venture at a time.
 test('the hub is a home for everything: apps, CLIs, research and self-deploy have their own place', () => {
@@ -5814,4 +6281,112 @@ test('the featured row leads with the flagships, then fills by page count', () =
   assert.equal(new Set(row).size, row.length, 'no tool twice');
   assert.ok(row.includes('state-residency-day-counter'), 'room left is filled by page count');
   assert.ok(flagshipSlugs().includes('changepoint-detector'), 'the real file parses');
+});
+
+test('catalogue llms.txt carries a source date line only when given a date', async () => {
+  const { surfaces } = await site();
+  assert.match(renderLlmsTxt(surfaces, BASE, [], [], { updated: '2026-11-04T10:00:00Z' }), /Source last changed: 2026-11-04/);
+  assert.doesNotMatch(renderLlmsTxt(surfaces, BASE), /Source last changed/);
+});
+
+test('copyTree rewrites the placeholder in .ics files, even across a folded line', async () => {
+  const src = await fs.mkdtemp(path.join(os.tmpdir(), 'ics-src-'));
+  const dst = await fs.mkdtemp(path.join(os.tmpdir(), 'ics-dst-'));
+  await fs.writeFile(path.join(src, 'cal.ics'),
+    'BEGIN:VCALENDAR\r\nURL:https://example.inv\r\n alid/tool/page.html\r\nEND:VCALENDAR\r\n');
+  await copyTree(src, dst, 'https://real.test/');
+  const out = await readText(path.join(dst, 'cal.ics'));
+  assert.match(out, /URL:https:\/\/real\.test\/tool\/page\.html/);
+  assert.ok(!out.includes('example.invalid'));
+});
+
+/**
+ * Runs the shared chrome file's scroll pass against a stub page and returns the
+ * elements it asked getComputedStyle about and the ones it gave a tab stop.
+ *
+ * Why it is executed, not read: the 2026-11-11 change made the sweep ask only
+ * the elements a stylesheet rule (or a style attribute) could make scroll,
+ * with the full sweep as the fallback. Both halves are behaviour a string
+ * match cannot see: that a cross-origin sheet other than Google Fonts' falls
+ * back, and that the sweep runs after a frame, not inside DOMContentLoaded.
+ */
+function scrollPass({ sheets, elements, matches = (sel) => elements.filter((e) => sel.split(',').some((s) => e.matches.includes(s.trim()))) }) {
+  const asked = [];
+  const frames = [];
+  const timers = [];
+  const el = (e) => Object.assign(e, {
+    attrs: {},
+    hasAttribute(k) { return k in this.attrs; },
+    setAttribute(k, v) { this.attrs[k] = v; },
+    removeAttribute(k) { delete this.attrs[k]; },
+  });
+  elements.forEach(el);
+  const document = {
+    readyState: 'complete',
+    styleSheets: sheets,
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    addEventListener: () => {},
+    getElementsByTagName: () => [],
+    head: { appendChild() {} },
+    body: {
+      getElementsByTagName: () => elements,
+      querySelectorAll: (sel) => matches(sel),
+      appendChild() {},
+    },
+  };
+  new Function('navigator', 'localStorage', 'document', 'addEventListener', 'getComputedStyle', 'requestAnimationFrame', 'setTimeout',
+    renderChromeModule())(
+    {}, { getItem: () => null, setItem() {} }, document, () => {},
+    (e) => { asked.push(e.id); return { overflowX: e.overflowX || 'visible' }; },
+    (fn) => frames.push(fn), (fn) => timers.push(fn),
+  );
+  const flush = () => { while (frames.length || timers.length) { (frames.shift() || timers.shift())(); } };
+  return { asked, frames, flush, stops: () => elements.filter((e) => e.attrs.tabindex === '0').map((e) => e.id) };
+}
+
+const rule = (selectorText, overflowX = '') => ({ selectorText, style: { overflowX, getPropertyValue: () => '' } });
+const wide = (id, extra = {}) => ({ id, scrollWidth: 900, clientWidth: 300, ...extra });
+
+test('the scroll pass asks only the elements a rule could make scroll, and after a frame', () => {
+  const elements = [
+    wide('scroller', { overflowX: 'auto', matches: ['.table-wrap'] }),
+    wide('plain', { matches: ['p'] }),
+    wide('inline', { overflowX: 'scroll', matches: ['[style*="overflow"]'] }),
+    { id: 'fits', overflowX: 'auto', scrollWidth: 300, clientWidth: 300, matches: ['.table-wrap'] },
+  ];
+  const page = scrollPass({
+    sheets: [
+      { href: 'https://fonts.googleapis.com/css2?family=x', get cssRules() { throw new Error('SecurityError'); } },
+      { href: null, cssRules: [rule('p'), { cssRules: [rule('.table-wrap', 'auto')] }] },
+    ],
+    elements,
+  });
+  assert.deepEqual(page.asked, [], 'nothing is measured inside the event that asked for it');
+  // Two frames: this pass's, and the sticky-card fit's (sticky-fit.mjs), which
+  // shares pf-site.js and also waits for the paint. Neither measures before it.
+  assert.equal(page.frames.length, 2, 'it waits for the next frame');
+  page.flush();
+  assert.deepEqual(page.asked.sort(), ['fits', 'inline', 'scroller'],
+    'a <p> no overflow rule names is never asked; a rule inside @media is');
+  assert.deepEqual(page.stops().sort(), ['inline', 'scroller'], 'only a box that really scrolls gets a tab stop');
+});
+
+test('the scroll pass sweeps every element when a stylesheet hides its rules', () => {
+  const elements = [wide('a', { overflowX: 'auto', matches: [] }), wide('b', { matches: [] })];
+  const page = scrollPass({
+    sheets: [{ href: 'https://cdn.example/x.css', get cssRules() { throw new Error('SecurityError'); } }],
+    elements,
+  });
+  page.flush();
+  assert.deepEqual(page.asked, ['a', 'b'], 'a cross-origin sheet that is not Google Fonts could hold an overflow rule');
+  assert.deepEqual(page.stops(), ['a']);
+
+  const bad = scrollPass({
+    sheets: [{ href: null, cssRules: [rule('pre::-webkit-scrollbar', 'auto')] }],
+    elements,
+    matches: () => { throw new Error('SyntaxError'); },
+  });
+  bad.flush();
+  assert.deepEqual(bad.asked, ['a', 'b'], 'a selector querySelectorAll rejects falls back too');
 });

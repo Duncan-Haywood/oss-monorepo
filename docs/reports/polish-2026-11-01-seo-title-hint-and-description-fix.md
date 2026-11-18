@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-01
+tagged: auto
+---
 # Polish 2026-11-01: seo_title error names the fixer script; one 175-character description cut
 
 **Weak surface.** The previous note suggested pointing the build's over-budget error at `propose_seo_titles.py`. Also, `writing.test.mjs` was red on main: the Guatemala/Panama/Uzbekistan e-invoicing post had a 175-character description (limit 160).

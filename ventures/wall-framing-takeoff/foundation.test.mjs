@@ -76,6 +76,16 @@ test("anchor bolts: two per plate piece, within the end distance, at most the sp
   assert.ok(foundationText(l).some((x) => /Anchor bolts: 30/.test(x)));
 });
 
+test("sill plate feet and sill seal rolls: 2x468 + 2x324 in = 132 ft, +5% over 50 ft rolls", () => {
+  const l = layoutFoundation({ ...sampleFoundation(), anchorBolts: {} });
+  assert.equal(l.anchors.plateFeet, 132);
+  assert.equal(l.anchors.sealRolls, 3); // 138.6 / 50 = 2.77
+  const l2 = layoutFoundation({ ...sampleFoundation(), anchorBolts: { sealRoll: 200 } });
+  assert.equal(l2.anchors.sealRolls, 1);
+  assert.equal(layoutFoundation({ ...sampleFoundation(), anchorBolts: { sealRoll: 5 } }).ok, false);
+  assert.ok(foundationText(l).some((x) => /Sill plate: 10 treated boards, 132 ft; sill seal: 3 roll/.test(x)));
+});
+
 test("a short plate piece still gets two bolts; no anchorBolts key means no count", () => {
   const l = layoutFoundation({ type: "stem", width: 144, depth: 144, anchorBolts: { spacing: 120 } });
   assert.equal(l.anchors.bolts, 8); // 4 sides of ~136 in, ceil((136-24)/120)+1 = 2 each
@@ -189,4 +199,20 @@ test("malformed foundation bodies come back as errors, not exceptions", () => {
     assert.ok(r.errors.length > 0);
   }
   assert.equal(layoutFoundation({ ...b, anchorBolts: null }).ok, true);
+});
+
+test("validateFoundation refuses numbers given as text (a text waste made the order 10x too big)", () => {
+  const s = sampleFoundation();
+  for (const bad of [{ waste: "0.1" }, { width: "480" }, { truck: "10" }, { footing: { ...s.footing, width: "20" } }, { stem: { ...s.stem, height: "32" } }, { interior: [{ length: "336" }] }]) {
+    const e = validateFoundation({ ...s, ...bad });
+    assert.ok(e.length && /must be a number/.test(e[0]), JSON.stringify(bad));
+  }
+  assert.deepEqual(validateFoundation(s), []);
+});
+
+test("validateFoundation bounds the slab gravel base (1e9 in once ordered a billion cubic yards)", () => {
+  const s = sampleFoundation();
+  for (const v of [1e9, -1, 25]) assert.ok(validateFoundation({ ...s, slab: { ...s.slab, baseThickness: v } }).some((x) => /base/.test(x)), String(v));
+  assert.deepEqual(validateFoundation({ ...s, slab: { ...s.slab, baseThickness: 0 } }), []);
+  assert.deepEqual(validateFoundation(s), []);
 });

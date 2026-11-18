@@ -1,4 +1,4 @@
-# A 13-week cash forecast that assumes your customers pay late, and tells you the odds you run short
+# A 13-week cash forecast that assumes your customers pay late
 
 > Free 13-week cash flow forecast that assumes invoices arrive late: paste your invoices and bills, and 2,000 simulated outcomes show the chance you run short, the cushion that would cover it and which invoice or bill to fix first. Private, runs in your browser.
 

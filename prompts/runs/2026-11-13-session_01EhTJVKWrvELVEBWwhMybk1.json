@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVKWrvELVEBWwhMybk1",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue products); merge when done",
+  "input_sha256": "c008369ff7f6bb1c9312f89c067345da62e288c7e2fdfd845bbb3668d6069ff1",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T09:35:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 15448,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "'Search open PRs for the item's id first' covers backlog items only; a target picked from a fresh sweep was duplicated by PR #15446, which merged within the hour. Suggest re-searching open and just-merged PRs for the target slug right after choosing it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Main's Pages build went red (PR #15447's .data fixtures) and the perf change was already on main from PR #15446, so the run shipped the red-main fix instead of a perf change.",
+      "did": "Dropped the duplicate truePeak change; added .data to SERVED_EXTENSIONS.",
+      "result": "Local build + check.mjs exit 0."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Metric: chant-forge suite time / truePeak cost. Reading: run_venture_tests.py --slowest 40 --no-elsewhere (4 cores, 1346 suites, 0 failed); chant-forge 82.7 s, render.test.mjs 68.6 s, truePeak 29 s self. This run's block-skip truePeak: bench render 50.3 s -> 17.2 s, suite 69.1 s -> 26.0 s, identical hash bfa129428bcba63d. PR #15446 merged the same idea first; its version benches at 15.8 s with the same hash, so this run's code was dropped (no perf delta claimed for this run). Shipped: platform/pages/check.mjs types .data, fixing the Pages build that has been red since PR #15447. Verified: check.test.mjs pass; full local build exit 0 then check.mjs exit 0.",
+  "corrections": [],
+  "redteam": null
+}

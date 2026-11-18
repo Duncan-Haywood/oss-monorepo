@@ -207,19 +207,21 @@ export function optimizeCuts(pieces, stocks, kerf = 0.125) {
 
   /** @param {number} B @param {Piece[]} [list] longest first */
   const plan = (B, list = desc) => {
-    /** @type {{ cap: number, cuts: Piece[] }[]} */
+    // `sum` is the cuts' lengths added left to right, so cap - (sum + p.len + kerf * n)
+    // is the same float usedLength([...cuts, p], kerf) gave, without copying the bin per piece.
+    /** @type {{ cap: number, cuts: Piece[], sum: number }[]} */
     const bins = [];
     for (const p of list) {
       let bestBin = null;
       let bestLeft = Infinity;
       for (const b of bins) {
-        const left = b.cap - usedLength([...b.cuts, p], kerf);
+        const left = b.cap - (b.sum + p.len + kerf * b.cuts.length);
         if (left >= -1e-9 && left < bestLeft) { bestLeft = left; bestBin = b; }
       }
-      if (bestBin) bestBin.cuts.push(p);
+      if (bestBin) { bestBin.cuts.push(p); bestBin.sum += p.len; }
       else {
         const cap = p.len <= B + 1e-9 ? B : /** @type {Stock} */ (sorted.find((s) => s.length + 1e-9 >= p.len)).length;
-        bins.push({ cap, cuts: [p] });
+        bins.push({ cap, cuts: [p], sum: p.len });
       }
     }
     return toBoards(bins.map((b) => b.cuts));

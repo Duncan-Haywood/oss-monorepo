@@ -1,0 +1,47 @@
+name: monastery-site
+description: >-
+  A free, opinionated website builder for Catholic monasteries, convents, abbeys and friaries. One form or one community.json builds a
+  complete static site: horarium, vocations with an inquiry form, giving that links to the community's own donation page, prayer
+  requests, visiting and the guesthouse, events, news, shop and contact, with structured data, a sitemap and llms.txt. Builder page,
+  CLI and engine; nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Started 2026-11-03 on the owner's direction that day: "a template website for catholic monks and nuns for their communities. like
+# all the features of the best ones but customizable for their personal community. well supported set up for receiving donations
+# vocations inquiry about section etc." and "maybe highly opinionated wesite builder for catholic monks and nuns communities."
+# Sibling of ventures/parish-office in the religious-organisations direction (portfolio/DIRECTION.md). A multi-session build.
+#
+# First visitor: the sister, brother or oblate who looks after a community's website or social media, and vocation directors.
+# Searches: "monastery website template", "convent website", "website for religious community", "catholic religious order
+# website builder". Search volume not measured.
+#
+# Outreach: the owner's own one-to-one emails to communities (OUTREACH.md). Agents never send email.
+#
+# Liability boundary: the builder writes the community's own words onto pages; it handles no money, writes no tax claims and
+# collects nothing. Not legal, tax or financial advice.
+
+hypotheses:
+  - claim: >-
+      Small contemplative communities with no website, or one nobody can edit, will publish a site from a free builder that ships
+      vocations and giving pages ready, because building those pages is the work they cannot get done.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No measured builder download, community reply, star, issue or feedback 120 days after the page is reachable from the published site.
+
+links:
+  production: https://marisstella.app/monastery-site/
+  analytics: null

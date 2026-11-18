@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01XpHqydn6h7DqouvkG9VNAh",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T21:37:40Z",
+  "ended": "2026-11-11T21:43:13Z",
+  "wall_minutes": 5.91,
+  "tokens_in": 4574104,
+  "tokens_out": 23779,
+  "cost_usd": 2.1744,
+  "tool_calls": 49,
+  "task": "Deepen flagship 4 (changepoint-detector): print layout for several-column reports past about six columns",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14899",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "CI validate failed: flagships.yaml changepoint-detector next: was 2,220 chars (cap 2,000) after I appended instead of replacing; trimmed and re-pushed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Row 3's full next: is a single ~2,000-character line; finding a self-contained buildable item meant reading the README sections it cites. A BUILDABLE HERE note like sales-agent's would have saved the scan."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-seven-columns-of-road-casualties-on-paper.md",
+    "ventures/changepoint-detector/README.md ('Wide sets in print')"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed ventures/1 by draw; took allocate.py start-here row (changepoint-detector). Picked the print-layout item from next:(a) because it was buildable locally with a measurable before/after. eval/multi-report-print.mjs: before 3/4 cases clipped on A4 (joint table 814/1081/2156 px vs 680; chart 1078/1792 px vs 1009), after 4/4 fit. multi-report.test.mjs 7/7 locally; samples regenerate byte-identical. Real data added: R Seatbelts (Rdatasets, raw.githubusercontent answered 200). Finding: joint meanvar fit cuts 1983-02 (seat-belt law) with over-cut warning; per-column panel agrees only on PetrolPrice; several-column mode lacks a season term (now the next item in flagships.yaml). No agent doc in docs/reports: README section and flagships next: carry what the next run needs. run_venture_tests.py changepoint-detector: ok (265.1 s), 1 suite, 0 failed. venture-preflight changepoint-detector: clean. run_workflow_locally --for-changes: verdict void (HEAD moved during the sweep when I committed the record); relied on PR CI.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ce8b4607-d6d0-52d0-b539-da17aaf2d603",
+    "transcripts": 1,
+    "first": "2026-11-11T21:37:40Z",
+    "last": "2026-11-11T21:43:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 91,
+        "output": 23779,
+        "thinking": 5119,
+        "cache_read": 4473547,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100466,
+        "api_equivalent_usd": 2.1744,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 91,
+      "output": 23779,
+      "thinking": 5119,
+      "cache_read": 4473547,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100466,
+      "api_equivalent_usd": 2.1744,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 45,
+      "Write": 1,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.91,
+      "active_minutes": 5.91,
+      "model_minutes": 4.17,
+      "tool_minutes": 1.74,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: diagnose print clipping, build Chromium print harness, grouped layout, tests, real dataset, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 275.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

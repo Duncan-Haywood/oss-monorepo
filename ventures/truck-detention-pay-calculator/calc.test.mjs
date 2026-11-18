@@ -91,3 +91,9 @@ test("yearly figure scales one load's claim by loads per month", () => {
 });
 
 test("hoursText formats minutes", () => assert.equal(hoursText(125), "2h 05m"));
+
+test("an arrival dated 30 February is an input error, not 2 March", () => {
+  const opts = { freeMinutes: 120, incrementMinutes: 15, ratePerHour: 50, capHours: 0 };
+  assert.ok(stopDetention({ arrival: "2026-02-30T08:00", departure: "2026-03-02T12:00" }, opts).error);
+  assert.equal(stopDetention({ arrival: "2024-02-29T08:00", departure: "2024-02-29T12:00" }, opts).onSiteMinutes, 240);
+});

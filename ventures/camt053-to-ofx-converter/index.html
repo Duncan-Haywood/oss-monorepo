@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -102,7 +102,7 @@
   <section class="card">
     <h2>The model, and what it leaves out</h2>
     <ul>
-      <li><strong>camt.053 / 052 / 054:</strong> each Stmt, Rpt or Ntfctn is one statement with Acct, Bal (OPBD opening, CLBD closing) and Ntry entries. Credits are positive, debits negative, and a reversal indicator flips the sign. Entries whose status is not BOOK are listed but left out of the balance check.</li>
+      <li><strong>camt.053 / 052 / 054:</strong> each Stmt, Rpt or Ntfctn is one statement with Acct, Bal (OPBD opening, CLBD closing) and Ntry entries. Credits are positive and debits negative. A reversal keeps the sign of its own CRDT/DBIT indicator, as ISO 20022 defines it: a returned direct debit is booked CRDT with RvslInd true, so it adds to the balance. Entries whose status is not BOOK are listed but left out of the balance check.</li>
       <li><strong>MT940:</strong> :20: starts a statement, :25: is the account, :60F:/:60M: the opening balance, :61: an entry (C credit, D debit, RC/RD reversals) with its :86: text, :62F:/:62M: the closing balance. Amounts use a comma. A SWIFT <code>{4:</code> envelope is stripped. German-style <code>?20</code>/<code>?32</code> subfields give the remittance text and counterparty.</li>
       <li><strong>Balance check:</strong> opening + booked entries must equal closing, in whole minor units with no floating point. A difference is an error and names the amount.</li>
       <li><strong>Continuity:</strong> consecutive statements of one account should join: one statement's closing is the next one's opening.</li>
@@ -168,13 +168,13 @@
       const s = r.summary;
       const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
       $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${esc(s.format || "unrecognised")}, ${s.statements} statement${s.statements === 1 ? "" : "s"}, ${s.entries} entr${s.entries === 1 ? "y" : "ies"}`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#statements").innerHTML = r.statements.map((st) => `<tr><td>${esc(st.id)}</td><td>${esc(maskAccount(st.account))}</td><td>${esc(st.currency)}</td><td class="n">${st.opening ? money(st.opening.amount, st.opening.currency) : "—"}</td><td class="n">${st.closing ? money(st.closing.amount, st.closing.currency) : "—"}</td><td class="n">${st.entries.length}</td></tr>`).join("") || `<tr><td colspan="6">No statement found.</td></tr>`;
       $("#entries").innerHTML = r.statements.flatMap((st) => st.entries.map((e) => `<tr><td>${e.line}</td><td>${esc(e.bookDate)}</td><td>${esc(e.counterparty)}</td><td>${esc(e.ref || e.bankRef)}</td><td>${esc(e.text)}</td><td class="n">${money(e.amount, e.currency)}</td></tr>`)).join("") || `<tr><td colspan="6">No entries.</td></tr>`;
       $("#which").innerHTML = r.statements.map((st, i) => `<option value="${i}">${esc(st.id || "(no id)")} · ${esc(maskAccount(st.account))} · ${esc(st.currency)} · ${st.entries.length} entries</option>`).join("");
       report.hidden = false;
       status.textContent = errs ? `Found ${errs} error(s).` : `No errors in ${s.entries} entr${s.entries === 1 ? "y" : "ies"}.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#validate").addEventListener("click", async () => {

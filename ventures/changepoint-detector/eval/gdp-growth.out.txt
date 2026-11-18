@@ -1,0 +1,3 @@
+model mean: 10 [1950Q4, 1953Q3, 1954Q2, 1957Q4, 1958Q2, 1973Q3, 1975Q2, 1979Q1, 1983Q1, 1984Q3]
+model mean, ar1 auto: 0 []
+model meanvar: 1 [1984Q3]

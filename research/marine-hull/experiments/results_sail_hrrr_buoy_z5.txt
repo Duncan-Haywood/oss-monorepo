@@ -1,0 +1,47 @@
+anemometer height 5.0 (speed factor 1.067)
+every 4th window; hourly replan; shares of the no-corridor no-tack-cost bound; HRRR newest cycle issued >= 3 h before replan
+
+January: 72 windows from 9 stations; header 0.892
+  T0      : 0.884; minus header +0.1 pts (boot 95% -0.1..+0.3); tacks/day 156
+  hrrr    : 0.854; minus header -1.0 pts (boot 95% -3.7..-0.1); tacks/day 386
+  hrrr_bc : 0.882; minus header -0.1 pts (boot 95% -0.4..+0.3); tacks/day 250
+  T120    : 0.914; minus header +2.0 pts (boot 95% +1.4..+2.7); tacks/day 165
+  hrrr minus T0: -0.5 pts (boot 95% -1.7..-0.2)
+  hrrr_bc minus hrrr: +0.7 pts (boot 95% +0.1..+2.6)
+  hrrr minus T120: -3.4 pts (boot 95% -5.4..-2.3)
+    41009: n=8 hrrr-header +0.2  bc-header +0.8  T0-header +0.8
+    42036: n=8 hrrr-header -0.1  bc-header +0.2  T0-header +0.3
+    42040: n=8 hrrr-header +1.8  bc-header +1.7  T0-header +0.5
+    44009: n=8 hrrr-header -0.3  bc-header -0.1  T0-header +0.1
+    44013: n=8 hrrr-header -0.4  bc-header -0.1  T0-header +0.1
+    46011: n=8 hrrr-header -4.1  bc-header -0.9  T0-header -1.1
+    46013: n=8 hrrr-header -11.3  bc-header -1.6  T0-header -1.6
+    46026: n=8 hrrr-header -1.3  bc-header -1.2  T0-header -0.3
+    46054: n=8 hrrr-header -6.4  bc-header -0.2  T0-header +0.0
+
+July: 80 windows from 10 stations; header 0.898
+  T0      : 0.884; minus header -0.2 pts (boot 95% -0.6..+0.1); tacks/day 100
+  hrrr    : 0.848; minus header -1.7 pts (boot 95% -3.0..-1.1); tacks/day 239
+  hrrr_bc : 0.868; minus header -0.9 pts (boot 95% -1.7..-0.2); tacks/day 210
+  T120    : 0.920; minus header +2.5 pts (boot 95% +2.0..+3.1); tacks/day 82
+  hrrr minus T0: -1.3 pts (boot 95% -2.1..-0.8)
+  hrrr_bc minus hrrr: +0.5 pts (boot 95% +0.3..+0.9)
+  hrrr minus T120: -5.1 pts (boot 95% -6.4..-3.6)
+    41009: n=8 hrrr-header -4.3  bc-header -0.8  T0-header -0.2
+    41010: n=8 hrrr-header -1.8  bc-header -1.1  T0-header -0.6
+    42036: n=8 hrrr-header -6.2  bc-header -4.1  T0-header -0.8
+    42040: n=8 hrrr-header -2.9  bc-header -1.4  T0-header -1.1
+    44009: n=8 hrrr-header -2.7  bc-header -0.9  T0-header +0.0
+    44013: n=8 hrrr-header -1.2  bc-header -4.2  T0-header -0.6
+    44025: n=8 hrrr-header -1.5  bc-header -0.9  T0-header +0.1
+    46011: n=8 hrrr-header -1.3  bc-header -0.6  T0-header -0.0
+    46013: n=8 hrrr-header -1.1  bc-header -0.1  T0-header -0.2
+    46054: n=8 hrrr-header -0.7  bc-header -0.0  T0-header -0.0
+
+HRRR error against observation (mean absolute speed m/s, mean absolute direction deg, mean speed bias m/s), by lead:
+  202401 0-3h: |dspeed| 1.25, |ddir| 25, bias +0.40 (n=288)
+  202401 3-6h: |dspeed| 1.20, |ddir| 24, bias +0.39 (n=288)
+  202401 6-12h: |dspeed| 1.30, |ddir| 26, bias +0.41 (n=216)
+  202407 0-3h: |dspeed| 1.38, |ddir| 29, bias +0.26 (n=320)
+  202407 3-6h: |dspeed| 1.44, |ddir| 28, bias +0.37 (n=320)
+  202407 6-12h: |dspeed| 1.38, |ddir| 30, bias +0.40 (n=240)

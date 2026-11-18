@@ -22,7 +22,7 @@
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "featureList": [
     "Follows RFC 8659's tree-walk up the DNS hierarchy to the ancestor domain whose CAA records actually apply, not just the exact hostname typed",
-    "Follows a single CNAME hop first, since CAA for an aliased name is evaluated at the alias's target",
+    "Follows a CNAME at the name you enter to its target, then climbs your own name's parent labels, as RFC 8659 section 3 specifies",
     "Decodes CAA data in both the modern presentation format and the older RFC 3597 generic-hex encoding some resolvers still return",
     "Parses the RFC 8657 CA-account-authorization parameters (accounturi, validationmethods) inside an issue/issuewild value without losing the issuer domain",
     "Flags a critical-flagged, unrecognized property tag -- a configuration that silently blocks every CA that does not implement it, per RFC 8659",
@@ -164,7 +164,7 @@
 <script type="module">
   import { resolveCaaSet } from './lookup.mjs';
   import { classify, buildReport, KNOWN_CAS } from './analyze.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -225,8 +225,8 @@
     els.findings.innerHTML = findingsHtml.join('') || '<p>No syntax findings.</p>';
 
     els.foundAt.textContent = analysis.noCaaAnywhere
-      ? `No CAA record found from ${lookup.canonicalName} up through the top level.`
-      : `Found at: ${lookup.foundAtName}${lookup.foundAtName !== lookup.canonicalName ? ' (an ancestor of the name you entered, not the exact name)' : ''}`;
+      ? `No CAA record found from ${lookup.queriedName} up through the top level.`
+      : `Found at: ${lookup.foundAtName}${lookup.foundAtName === lookup.queriedName ? '' : lookup.foundAtName === lookup.canonicalName ? ' (the CNAME target of the name you entered)' : ' (an ancestor of the name you entered, not the exact name)'}`;
 
     els.recordsTable.innerHTML = lookup.records.map((rec) => rec.ok
       ? `<tr><td>${rec.flag}${rec.critical ? ' (critical)' : ''}</td><td>${escapeHtml(rec.tag)}</td><td>${escapeHtml(rec.value)}</td></tr>`
@@ -238,7 +238,7 @@
       `<td class="${v.wildcard.authorized ? 'yes' : 'no'}">${v.wildcard.authorized ? 'authorized' : 'blocked'}</td></tr>`).join('');
 
     els.reportCard.hidden = false;
-    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
   }
 
   async function runLiveCheck() {
@@ -258,7 +258,7 @@
       els.status.textContent = result.category === 'lookup-error'
         ? ''
         : 'Done. This ran entirely in your browser; nothing was sent to us.';
-      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
     } catch (err) {
       els.status.innerHTML = `<span class="error">${escapeHtml(err.message || String(err))}</span>`;
     } finally {
@@ -271,7 +271,7 @@
   $('#load-example').addEventListener('click', () => {
     render(EXAMPLE_REPORT);
     els.status.textContent = "Worked example: a domain whose CAA record only names DigiCert, so Let's Encrypt (checked here) is blocked.";
-    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+    recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
   });
 
   $('#clear').addEventListener('click', () => {
@@ -284,8 +284,8 @@
   {
     const usageControl = document.getElementById('usageOptOut');
     if (usageControl) {
-      usageControl.checked = readOptOut(localStorage);
-      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      usageControl.checked = readOptOut(usageStorage());
+      usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
     }
   }
 

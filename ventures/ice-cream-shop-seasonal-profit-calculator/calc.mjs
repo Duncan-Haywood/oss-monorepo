@@ -19,8 +19,8 @@ const num = (v) => {
   return Number.isFinite(n) ? n : NaN;
 };
 const opt = (v, d) => (String(v ?? "").trim() === "" ? d : num(v));
-const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
-const money2 = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(2);
+const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
+const money2 = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toFixed(2));
 const DAYS = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 export function parseMonths(text) {
@@ -124,7 +124,7 @@ export function compute(raw) {
   if (totals.operating <= 0) findings.push({ severity: "high", title: `The year loses ${whole(-totals.operating)} before any loan payment. Traffic or spend per customer would have to rise, or costs fall, before the shop pays for itself.` });
   else if (totals.netAfterDebt < 0) findings.push({ severity: "high", title: `Operating profit of ${whole(totals.operating)} does not cover ${whole(totals.debt)} of loan payments; the shortfall is ${whole(-totals.netAfterDebt)} a year.` });
   if (totals.dscr !== null && totals.dscr < 1.25 && totals.operating > 0) findings.push({ severity: "medium", title: `Operating profit covers the loan ${totals.dscr.toFixed(2)} times. Many lenders look for 1.25 or more; yours may differ.` });
-  if (i.ownerDrawTarget > 0 && totals.netAfterDebt < i.ownerDrawTarget) findings.push({ severity: "medium", title: `After the loan the shop leaves ${whole(totals.netAfterDebt)} a year against your ${whole(i.ownerDrawTarget)} owner draw target, a gap of ${whole(i.ownerDrawTarget - totals.netAfterDebt)}.` });
+  if (i.ownerDrawTarget > 0 && totals.netAfterDebt < i.ownerDrawTarget) findings.push({ severity: "medium", title: `After the loan the shop ${totals.netAfterDebt < 0 ? `loses ${whole(-totals.netAfterDebt)}` : `leaves ${whole(totals.netAfterDebt)}`} a year against your ${whole(i.ownerDrawTarget)} owner draw target, a gap of ${whole(i.ownerDrawTarget - totals.netAfterDebt)}.` });
   for (const r of losers) findings.push({ severity: "medium", title: `${r.month}: open ${r.days} days it loses ${whole(-r.before)} even before fixed costs, because labor and utilities exceed what ${Math.round(r.cust)} customers a day leave. Closing that month saves ${whole(-r.before)}.` });
   if (reserve > 0) findings.push({ severity: "medium", title: `Across the slow months cash falls ${whole(reserve)} below its earlier high, counting rent, fixed costs and loan payments. That is the reserve to hold before opening.` });
   const best = [...rows].sort((a, b) => b.profit - a.profit)[0];
@@ -150,7 +150,7 @@ export function summaryText(r) {
   return L.join("\n");
 }
 
-const csvCell = (v) => { const s = String(v); return /^[=+\-@\t\r]/.test(s) || /[",\n]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) ? "'" : "") + s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { const s = String(v); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) || /[",\n]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" : "") + s.replace(/"/g, '""')}"` : s; };
 export function monthsCsv(r) {
   const head = ["month", "days_open", "customers_per_day", "revenue", "product_cost", "card_fees", "labor", "utilities", "fixed", "profit", "break_even_customers_per_day", "verdict"];
   const lines = [head.join(",")];

@@ -48,7 +48,7 @@
 <body>
   <header>
     <p class="note">FARRIER VISIT PRICING CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
-    <h1>What to charge a farrier visit: trip charge, price per horse and what small stops really cost</h1>
+    <h1>What to charge a farrier visit: a trip charge plus a price per horse</h1>
     <p>Enter drive time, minutes per horse, materials, your yearly fixed costs and the income you want. You get a <strong>trip charge</strong> plus a <strong>per-horse rate</strong>, the price for each stop size, and how the flat per-horse rate you charge today performs.</p>
     <p class="note">It works backwards from your costs. It does not know what other farriers charge.</p>
   </header>
@@ -151,7 +151,7 @@
       $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${x.n}</td><td class="n">${x.minutes}</td><td class="n">${dollars(x.price)}</td><td class="n">${dollars(x.perHorse)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

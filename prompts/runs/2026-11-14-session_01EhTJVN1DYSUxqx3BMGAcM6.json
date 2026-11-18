@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVN1DYSUxqx3BMGAcM6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T02:13:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 2) ai-bookkeeper: item (5) receipts through real OCR",
+  "projects": [
+    "ventures/ai-bookkeeper"
+  ],
+  "pr": 15687,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "eval/srd-cli.mjs shard 4 stopped on SROIE 427.jpg (damaged JPEG; tesseract refused it, CLI said 'tesseract is needed')",
+      "fix": "ocr.mjs retries through an ImageMagick PNG copy; error quotes tesseract when it fails for another reason"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: sits at 1986-2000 of 2000 characters, so adding one number meant three rounds of trimming wording"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-ai-bookkeeper-cli-four-readings.md"
+  ],
+  "goal": null,
+  "notes": "CLI receipts --four-pass (tesseract binary + ImageMagick grey copy at 2,000 px, existing vote). tesseract-ocr 5.3.4 installed via apt in the container. SRD 196 labelled US photos: two-pass 113 -> four-pass 131 (held-out odd half 58 -> 66 of 97). SROIE 625: 492 -> 503. Vote weights unchanged; nothing tuned. Damaged-JPEG retry fixed. Venture suite run locally with run_venture_tests.py ai-bookkeeper (output in PR).",
+  "corrections": [],
+  "redteam": null
+}

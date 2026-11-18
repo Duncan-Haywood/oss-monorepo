@@ -172,7 +172,7 @@
       $("#pt tbody").innerHTML = r.prices.map((p) => `<tr><td class="n">${money2(p.price)}</td><td class="n">${money2(p.netPerBuyer)}</td><td class="n">${money(p.net)}</td><td class="n">${p.buyersToMatch === null ? "n/a" : p.buyersToMatch.toFixed(1)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

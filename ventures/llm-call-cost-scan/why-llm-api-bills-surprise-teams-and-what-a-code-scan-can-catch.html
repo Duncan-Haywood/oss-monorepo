@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to LLM Call Cost Scan</a></p>
   <h1>Why LLM API bills surprise teams, and what a code scan can catch</h1>
   <p>An LLM call is billed per token, in and out. Most surprises come from a handful of code shapes that look harmless in review, because the cost is not visible in the diff. Four of them can be found by reading the source.</p>
@@ -61,7 +62,9 @@
   <h3>What about SDK wrappers, LangChain or LiteLLM?</h3>
   <p>v0 matches the vendors' own SDK call shapes. A wrapper that hides the call behind its own function is outside what a line-by-line text scan can see; point the CLI at the wrapper's source or inspect where it sets the model.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it documents pattern-match source text and multiply numbers you supply by list prices that may be out of date. They are not financial, legal or engineering advice and not a guarantee of what any provider will charge. Verify against your provider's own pricing and usage pages before relying on it. <a href="./">Back to the tool</a>.</p>
   </footer>
 </body>

@@ -1,0 +1,56 @@
+{
+ "date": "2026-11-02",
+ "session": "https://claude.ai/code/session_01AcxTtLtDZdCwjTueMrnfGU",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-02T02:10:29Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12465",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "prompt.md",
+   "issue": "Step 0 fetches origin/security-alerts, which does not exist; fatal error, six open PRs already propose the same fix (CODEOWNERS-gated)."
+  },
+  {
+   "file": "platform/ci/pyenv.py",
+   "issue": "Said plain python3 imports numpy, but /usr/local/bin/python3 did not; /usr/bin/python3 did."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompt.md",
+   "why": "Review track was claimed by open PRs, so routed with --skip-review as prompt.md allows; got research."
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-02-excavator-regen-lowering-shape-measured.md",
+  "research/heavy-hydraulics/LOG.md"
+ ],
+ "goal": null,
+ "notes": "Milestone 5g: 772 measured lowering strokes (Mendeley PATU 655 crane, CC BY 4.0). Prediction held. research/_homepage/build.py printed ok. No paper/check_numbers update (left for next run).",
+ "corrections": [],
+ "redteam": null
+}

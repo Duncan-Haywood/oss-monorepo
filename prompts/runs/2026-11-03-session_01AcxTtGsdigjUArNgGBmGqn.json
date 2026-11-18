@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01AcxTtGsdigjUArNgGBmGqn",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T06:10:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12750",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/corpus/README.md",
+      "issue": "Said GregoBase licence unchecked; checked now (CC0 per FAQ)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/chant-forge/corpus/README.md",
+      "why": "Rule says pre-1929 editions only; Te Deum (1974) and Salve Regina (1961) came from later books via CC0 GregoBase transcriptions.",
+      "did": "Included them with the caveat recorded",
+      "result": "Caveat in corpus README; pre-1929 source still wanted"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-03-chant-forge-five-pieces.md"
+  ],
+  "goal": null,
+  "notes": "chant-forge tests 9/9 pass. Full CI not run locally.",
+  "corrections": [],
+  "redteam": null
+}

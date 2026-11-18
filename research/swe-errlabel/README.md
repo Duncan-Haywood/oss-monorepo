@@ -1,13 +1,13 @@
 # Do the swe-errors keyword rules sort run-record errors correctly? A 60-entry hand-labelled check
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-errlabel/
+**Live page:** https://marisstella.app/research/swe-errlabel/
 
 Pure Python standard library. Track 10 (the software-engineering loop), a new question rather than a listed milestone: `swe-errors` and `swe-orgs` both turn the free-text `errors` field of run records into categories with keyword rules, and the first limitation of each is that the rules were never checked against a human reading. This checks `swe-errors`' rules. Produced with AI assistance (Claude). **Preliminary: one labeller, 60 entries, and the labeller is the same kind of model that wrote the run records.**
 
 - **The rules agree with the hand label on 40 of 60 entries (66.7%; Wilson 95% 54.1% to 77.3%; Cohen's kappa 0.59).** Moderate agreement, not the kind a headline percentage should lean on.
-- **The `ci-or-tooling` rule never wins.** The hand labels put 9 of 60 entries in that class (a repository check, CI job or generator failing or misbehaving), and the rule assigned none: earlier rules in the ordered list (`collision`, `environment`, `own-mistake`) match first, or no keyword fires. So `swe-errors` reports no such category, and its other shares are inflated or deflated by the entries that went elsewhere.
+- **The `ci-or-tooling` rule never wins.** The hand labels put 9 of 60 entries in that class (a repository check, CI job or generator failing or misbehaving), and the rule assigned none. Rule order is not the main cause: 8 of the 9 contain none of the rule's keywords (they say "check", "test", "mirror", "guard" or "failed", not "CI" or "workflow"), so `own-mistake` ("failed", "fixed") or `collision` takes them or nothing fires; only entry 957.0 has a `ci-or-tooling` keyword and loses to `collision` on order. So `swe-errors` reports almost none of this class (6 of 222, 2.7%), and its other shares are inflated or deflated by the entries that went elsewhere.
 - **`own-mistake` has recall 55%.** 22 entries were hand-labelled as the run's own mistake; the rules found 12. Seven fell into `unclassified` (for example a stray line in a concatenated file, a project overwritten and caught before commit, a launch without a thread limit), which is why `unclassified` has precision of only 36%.
-- **The clearer classes hold up.** `environment` (precision 92%, recall 92%), `timeout` (86%, 100%) and `collision` (56%, 100%; three `ci-or-tooling` entries that mention a "conflict" or "stale" check were read as collisions). These are small counts: 13, 6 and 5 hand-labelled entries.
+- **The clearer classes hold up.** `environment` (precision 92%, recall 92%), `timeout` (86%, 100%) and `collision` (56%, 100%; three `ci-or-tooling` entries that mention "sibling" or "conflict" were read as collisions). These are small counts: 13, 6 and 5 hand-labelled entries.
 - Read together: the error shares in `swe-errors` (environment 28%, own mistake 21%, collision 17%) are about right in kind for environment and timeout, but the tooling class is missing and own-mistake is undercounted, so treat that table as a lower bound on those two, not a measurement.
 
 ![Precision and recall of the keyword rules per class](experiments/precision_recall.svg)
@@ -36,7 +36,7 @@ python3 experiments/figure.py
 
 ## Next steps
 
-Re-sort with rules fixed on a separate half of the sample (ordering `ci-or-tooling` before `collision`, adding "check", "test", "mirror", "first" patterns) and score on the held-out half so the fix is not tuned on its own test; have a second labeller relabel the 60 blind and compute kappa between labellers; label a sample of `swe-orgs`' classes the same way.
+Re-sort with rules fixed on a separate half of the sample (adding "check", "test", "mirror", "guard" patterns to `ci-or-tooling`, which is the real fix; ordering it before `collision` alone recovers only entry 957.0) and score on the held-out half so the fix is not tuned on its own test; have a second labeller relabel the 60 blind and compute kappa between labellers; label a sample of `swe-orgs`' classes the same way.
 
 ## Owner steps
 

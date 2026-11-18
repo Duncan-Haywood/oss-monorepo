@@ -6,7 +6,7 @@ mill-and-overlay versus full-depth, mix tons from thickness, the street
 apron, failed base, and the sawcut — and shows the margin before the
 price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/asphalt-driveway-pave-bid-calculator/
+**Live tool:** https://marisstella.app/asphalt-driveway-pave-bid-calculator/
 
 **After using this, you can now** send a paving bid that names the
 method, the tons, and the walk-away number, **which used to take**
@@ -90,6 +90,12 @@ Events counted: `bid_calculated`, `preset_applied`, `method_changed`,
   recommendation.
 - Night work, traffic control, and utility conflicts are not modelled as
   their own rows yet — fold them into site hours or travel.
+- Labor is crew hours × one hourly wage; there is no crew-size input.
+  Enter the wage for the whole crew (a five-person crew at $38 is $190 an
+  hour), or labor is priced as if one person paved the job. The default $38
+  is one hand's wage, so the default examples under-price labor. Found by
+  the [2026-11-12 quality audit](../../portfolio/quality/audits/2026-11-12-asphalt-driveway-pave-bid-calculator.json);
+  a crew-size field is the planned fix.
 
 ## Disclaimer
 

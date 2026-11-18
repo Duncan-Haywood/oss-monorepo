@@ -6,6 +6,7 @@ import math
 import os
 import stat
 import tempfile
+import threading
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -26,7 +27,10 @@ from shootflow.ffmpeg_media import (
 from shootflow.faces import FaceReport, detect_faces
 from shootflow.frame_analysis import FrameMetrics, analyze_media
 from shootflow.production import ProductionJob, ProductionPlan
-from shootflow.raw_preview import extract_preview, is_raw_path
+from shootflow.camera_profiles import CAMERA_PROFILES_DIR, profile_for
+from shootflow.lens_profiles import LENS_MEMORY_FILE, LENS_PROFILES_DIR, LensProfileError, load_db, load_lens_memory
+from shootflow.raw_develop import DevelopError, DevelopSettings, develop_file, still_for_review
+from shootflow.raw_preview import is_developable_path, is_raw_path, needs_profile_path
 from shootflow.production_status import (
     ProductionJobStatus,
     ProductionStatusError,
@@ -55,6 +59,10 @@ _STORY_PRODUCTION_ADAPTER = "story-production-local"
 _PACKAGE_PRODUCTION_ADAPTER = "package-production-local"
 _FFMPEG_PROXY_PRODUCTION_ADAPTER = "ffmpeg-proxy-production-local"
 _FFMPEG_GRADE_PRODUCTION_ADAPTER = "ffmpeg-grade-production-local"
+GRADE_SCOPE_ENV = "SHOOTFLOW_GRADE_SCOPE"
+GRADE_SCOPES = ("all", "selected")
+REVIEW_GRADE_NOTE_SUFFIX = ".review-grade.json"
+LENS_NOTE_SUFFIX = ".lens.json"
 _PRODUCTION_ADAPTER_OUTPUT_KINDS: dict[str, tuple[str, ...] | None] = {
     _DRY_RUN_PRODUCTION_ADAPTER: None,
     _METADATA_PRODUCTION_ADAPTER: None,
@@ -1148,12 +1156,17 @@ def _materialize_ffmpeg_proxy_production_outputs(
         tools = find_ffmpeg_tools()
         with tempfile.TemporaryDirectory(prefix="shootflow-raw-") as scratch:
             if is_raw_path(source_path):
-                # No RAW developer: the proxy is the camera's own embedded JPEG, downscaled.
-                preview = extract_preview(source_path)
-                if preview is None:
-                    raise FfmpegMediaError(f"no embedded JPEG preview in {source_path.name}; develop it first")
-                source_path = Path(scratch) / "preview.jpg"
-                source_path.write_bytes(preview)
+                # The camera's own embedded JPEG, downscaled; a DNG with none is
+                # developed at half size from its sensor data instead.
+                try:
+                    still = still_for_review(source_path, scratch)
+                except DevelopError as exc:
+                    raise FfmpegMediaError(f"could not develop {source_path.name}: {exc}") from exc
+                if still is None:
+                    raise FfmpegMediaError(
+                        f"no embedded JPEG preview in {source_path.name}; convert it to DNG to develop it"
+                    )
+                source_path = still
             for output in action.outputs:
                 _validate_ffmpeg_output(root, output)
                 encode_new_output(
@@ -1173,14 +1186,43 @@ def _materialize_ffmpeg_grade_production_outputs(
     *,
     trusted_plan: ProductionPlan | None = None,
 ) -> tuple[str, ...]:
-    """Encode a graded master, applying the shoot LUT when one is present."""
+    """Encode a graded master, applying the shoot LUT when one is present.
+
+    A DNG still is first developed from its sensor data into a 16-bit TIFF in
+    a scratch directory (``raw_develop.develop_file``: linearization, black and
+    white levels, as-shot white balance, camera matrix, BaselineExposure,
+    orientation), and that TIFF is graded into ``graded/<job>/<name>.dng.tif``.
+    A Canon CR2 is developed the same way with its camera's ``.dcp`` profile
+    from the workspace's ``color/camera-profiles/`` (``camera_profiles``: by
+    file name, then by the profile's own camera tag, then Adobe Standard);
+    with no profile for its camera it stops here naming the folder. Other RAW
+    formats stop here with a message naming the DNG route.
+
+    With lensfun XML files in the workspace's ``color/lens-profiles/``, each
+    DNG and CR2 is also corrected for its lens (distortion, lateral colour and
+    vignetting, as ``shootflow develop --lens-db``; a file's own lens warp
+    wins), and a ``<master>.lens.json`` note beside the master says which lens
+    was corrected, or why none was.
+    """
 
     _validate_grade_action_shape(action, expected_adapter=_FFMPEG_GRADE_PRODUCTION_ADAPTER)
     if trusted_plan is None:
         raise ProductionAdapterError("ffmpeg grade production adapter requires a trusted plan")
     root = _workspace_root(workspace_root)
-    source_path = _ffmpeg_source_path(root, action.inputs[0], label="grade production source input")
+    source_path = _ffmpeg_source_path(
+        root, action.inputs[0], label="grade production source input", allow_raw=True
+    )
+    if is_raw_path(source_path) and not is_developable_path(source_path):
+        raise ProductionAdapterError(
+            f"{source_path.name}: only DNG, Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF and Canon CR3 raw files are developed "
+            f"for grading; convert "
+            f"{source_path.suffix.upper().lstrip('.')} to DNG (Adobe's free DNG Converter) and ingest the DNG"
+        )
     _verify_grade_dependency_outputs(root, action=action, trusted_plan=trusted_plan)
+    review_source: str | None = None
+    if grade_scope() == "selected" and action.outputs[0] not in _storyline_selected_outputs(root, trusted_plan):
+        review_source = _verified_proxy_output(root, action=action, trusted_plan=trusted_plan)
+        source_path = _ffmpeg_source_path(root, review_source, label="review grade proxy input")
     materialized: list[str] = []
     try:
         lut_path: str | None = None
@@ -1188,22 +1230,204 @@ def _materialize_ffmpeg_grade_production_outputs(
             require_workspace_file(root, SHOOT_LOOK_LUT_PATH, label="shoot look LUT")
             lut_path = SHOOT_LOOK_LUT_PATH
         tools = find_ffmpeg_tools()
-        for output in action.outputs:
-            _validate_ffmpeg_output(root, output)
-            encode_new_output(
-                root,
-                output,
-                build_command=lambda temp_path: grade_command(
-                    tools,
-                    source_path,
-                    temp_path,
-                    lut_path=lut_path,
-                ),
-            )
-            materialized.append(output)
+        with tempfile.TemporaryDirectory(prefix="shootflow-develop-") as scratch:
+            lens_note: dict | None = None
+            if review_source is None and is_developable_path(source_path):
+                developed = Path(scratch) / "developed.tif"
+                try:
+                    lens_db = _workspace_lens_db(root)
+                    dcp = _camera_profile(root, source_path).profile if needs_profile_path(source_path) else None
+                    memory = _workspace_lens_memory(root) if lens_db is not None else None
+                    settings = (DevelopSettings(dcp=dcp, lens_db=lens_db, lens_memory=memory)
+                                if dcp or lens_db else None)
+                    report = develop_file(source_path, developed, settings)
+                except (DevelopError, OSError, ValueError) as exc:
+                    raise ProductionAdapterError(f"could not develop {source_path.name}: {exc}") from exc
+                if lens_db is not None:
+                    lens_note = {"lens": report.lens, "notes": list(report.lens_notes), "lens_files": lens_db.files}
+                source_path = developed
+            for output in action.outputs:
+                _validate_ffmpeg_output(root, output)
+                encode_new_output(
+                    root,
+                    output,
+                    build_command=lambda temp_path: grade_command(
+                        tools,
+                        source_path,
+                        temp_path,
+                        lut_path=lut_path,
+                    ),
+                )
+                materialized.append(output)
+                if review_source is not None:
+                    _write_review_grade_note(root, output=output, proxy=review_source)
+                if lens_note is not None:
+                    _write_lens_note(root, output=output, **lens_note)
     except FfmpegMediaError as exc:
         raise ProductionAdapterError(str(exc)) from exc
     return tuple(materialized)
+
+
+_LENS_DB_CACHE: dict[tuple, object] = {}
+_LENS_DB_LOCK = threading.Lock()  # grade jobs run on several threads; parse a database once
+
+
+def _workspace_lens_memory(root: Path) -> dict | None:
+    """The shoot's lens memory, ``color/lens-profiles/lens-memory.json`` (``shootflow develop --lens-memory``
+    writes one), read only: the grade stage uses remembered lenses and never adds to them. None when absent."""
+
+    path = root / LENS_PROFILES_DIR / LENS_MEMORY_FILE
+    if path.is_symlink():
+        raise DevelopError(f"{path.relative_to(root)} is a symlink; lens profiles must live in the workspace")
+    if not path.is_file():
+        return None
+    try:
+        return load_lens_memory(str(path))
+    except LensProfileError as exc:
+        raise DevelopError(str(exc)) from None
+
+
+def _workspace_lens_db(root: Path):
+    """The lensfun database in ``color/lens-profiles/``, or None when the folder is absent or holds no XML.
+
+    Symlinked folders are refused and symlinked files skipped, as for camera profiles. The parsed
+    database is kept per process, keyed by each file's name, size and modification time, so a shoot
+    of hundreds of raws reads the XML once and an edited file is read again.
+    """
+
+    directory = root / LENS_PROFILES_DIR
+    for part in (root / Path(LENS_PROFILES_DIR).parts[0], directory):
+        if part.is_symlink():
+            raise DevelopError(f"{part.relative_to(root)} is a symlink; lens profiles must live in the workspace")
+    if not directory.is_dir():
+        return None
+    files = sorted(p for p in directory.glob("*.xml") if p.is_file() and not p.is_symlink())
+    if not files:
+        return None
+    key = (str(directory),) + tuple((p.name, p.stat().st_size, p.stat().st_mtime_ns) for p in files)
+    with _LENS_DB_LOCK:
+        db = _LENS_DB_CACHE.get(key)
+        if db is None:
+            try:
+                db = load_db([str(p) for p in files])
+            except LensProfileError as exc:
+                raise DevelopError(f"{LENS_PROFILES_DIR}: {exc}") from None
+            if len(_LENS_DB_CACHE) > 8:
+                _LENS_DB_CACHE.clear()
+            _LENS_DB_CACHE[key] = db
+    return db
+
+
+def lens_note_path(graded_output: str) -> str:
+    return graded_output + LENS_NOTE_SUFFIX
+
+
+def _write_lens_note(root: Path, *, output: str, lens: str | None, notes: list[str], lens_files: int) -> None:
+    note = {
+        "kind": "lens_correction",
+        "graded_output": output,
+        "lens_database": f"{LENS_PROFILES_DIR}/ ({lens_files} XML file{'s' if lens_files != 1 else ''})",
+        "corrected": lens is not None,
+        "lens": lens,
+        "notes": notes,
+    }
+    note_path = _workspace_output_path(root, lens_note_path(output))
+    _reject_symlink_path(note_path.parent, root, "lens note directory")
+    try:
+        with note_path.open("x", encoding="utf-8") as handle:
+            handle.write(json.dumps(note, ensure_ascii=True, indent=2, sort_keys=True) + "\n")
+    except FileExistsError as exc:
+        raise ProductionAdapterError(f"Refusing to overwrite existing lens note: {note_path.name}") from exc
+
+
+def _camera_profile(root: Path, source_path: Path):
+    """The CR2's camera profile from ``color/camera-profiles/`` (no symlinks on the way)."""
+
+    directory = root / CAMERA_PROFILES_DIR
+    for part in (root / Path(CAMERA_PROFILES_DIR).parts[0], directory):
+        if part.is_symlink():
+            raise DevelopError(f"{part.relative_to(root)} is a symlink; camera profiles must live in the workspace")
+    return profile_for(source_path, directory)
+
+
+def grade_scope() -> str:
+    """Which assets get a full-resolution master: ``all`` (default) or ``selected``.
+
+    Read from ``SHOOTFLOW_GRADE_SCOPE``. Under ``selected`` an asset that the
+    storyline will not pick for any reel, reel variant, carousel or photo set
+    is graded from its review proxy instead (same LUT, proxy resolution), with
+    a ``<master>.review-grade.json`` note beside it. The storyline is a pure
+    function of the verified analyses, which are final once the look stage has
+    run, so the grade stage computes the same picks the story stage will.
+    """
+
+    value = os.environ.get(GRADE_SCOPE_ENV, "").strip().lower() or "all"
+    if value not in GRADE_SCOPES:
+        raise ProductionAdapterError(
+            f"{GRADE_SCOPE_ENV} must be one of {', '.join(GRADE_SCOPES)}, not {value!r}"
+        )
+    return value
+
+
+def review_grade_note_path(graded_output: str) -> str:
+    return graded_output + REVIEW_GRADE_NOTE_SUFFIX
+
+
+def _storyline_selected_outputs(root: Path, trusted_plan: ProductionPlan) -> frozenset[str]:
+    try:
+        plan = build_storyline_plan(load_asset_analyses(trusted_plan, root))
+    except (AnalysisLoaderError, StoryPlanError) as exc:
+        raise ProductionAdapterError(f"could not work out the storyline picks for grading: {exc}") from exc
+    sequences = [plan.reel, plan.carousel, plan.photo_set] + [variant.sequence for variant in plan.reel_variants]
+    return frozenset(path for sequence in sequences for path in sequence.asset_paths)
+
+
+def _verified_proxy_output(root: Path, *, action: ProductionWorkerAction, trusted_plan: ProductionPlan) -> str:
+    manifest = load_production_status_manifest(root, trusted_plan=trusted_plan)
+    statuses = {status.job_id: status for status in manifest.job_statuses}
+    jobs = {job.job_id: job for job in trusted_plan.jobs}
+    for dependency_id in action.depends_on:
+        analysis_job = jobs.get(dependency_id)
+        if analysis_job is None or analysis_job.output_kind != "vlm_asset_analysis":
+            continue
+        for proxy_id in analysis_job.depends_on:
+            proxy_job = jobs.get(proxy_id)
+            status = statuses.get(proxy_id)
+            if proxy_job is None or proxy_job.output_kind != "proxy_media" or status is None:
+                continue
+            if status.state != "succeeded":
+                raise ProductionAdapterError(f"Review grade proxy is not succeeded: {proxy_id}")
+            output, _sha256, _content = _verified_dependency_output(
+                root,
+                dependency_job=proxy_job,
+                dependency_status=status,
+                label="review grade proxy",
+            )
+            return output
+    raise ProductionAdapterError(f"No verified proxy to review-grade from: {action.job_id}")
+
+
+def _write_review_grade_note(root: Path, *, output: str, proxy: str) -> None:
+    note = {
+        "kind": "review_grade",
+        "graded_output": output,
+        "graded_from": proxy,
+        "reason": (
+            "Not picked for any reel, reel variant, carousel or photo set, so it was graded from "
+            f"its review proxy ({GRADE_SCOPE_ENV}=selected), not from the original."
+        ),
+        "full_master": (
+            "Grade the original yourself, or move this file and the graded file aside, reset the "
+            f"job in production_status.json and rerun with {GRADE_SCOPE_ENV}=all."
+        ),
+    }
+    note_path = _workspace_output_path(root, review_grade_note_path(output))
+    _reject_symlink_path(note_path.parent, root, "review grade note directory")
+    try:
+        with note_path.open("x", encoding="utf-8") as handle:
+            handle.write(json.dumps(note, ensure_ascii=True, indent=2, sort_keys=True) + "\n")
+    except FileExistsError as exc:
+        raise ProductionAdapterError(f"Refusing to overwrite existing review grade note: {note_path.name}") from exc
 
 
 def _ffmpeg_source_path(root: Path, input_ref: str, *, label: str, allow_raw: bool = False) -> Path:
@@ -1242,6 +1466,7 @@ def _materialize_story_production_outputs(
     try:
         analyses = load_asset_analyses(trusted_plan, root)
         storyline_plan = build_storyline_plan(analyses)
+        _refuse_review_grades_in_storyline(root, storyline_plan)
         content = storyline_artifact_bytes(
             storyline_plan,
             allowed_asset_paths=_planned_graded_outputs(trusted_plan),
@@ -1253,6 +1478,20 @@ def _materialize_story_production_outputs(
         _write_production_output_bytes(root, output=output, content=content, label="story production")
         materialized.append(output)
     return tuple(materialized)
+
+
+def _refuse_review_grades_in_storyline(root: Path, storyline_plan) -> None:
+    sequences = [storyline_plan.reel, storyline_plan.carousel, storyline_plan.photo_set] + [
+        variant.sequence for variant in storyline_plan.reel_variants
+    ]
+    for sequence in sequences:
+        for path in sequence.asset_paths:
+            note = root / review_grade_note_path(path)
+            if note.exists() or note.is_symlink():
+                raise ProductionAdapterError(
+                    f"{path} was picked for a deliverable but holds only a proxy-resolution review grade "
+                    f"({review_grade_note_path(path)}); grade its original before the story stage"
+                )
 
 
 def _materialize_package_production_outputs(
@@ -1365,6 +1604,8 @@ def _validate_grade_action_shape(
         raise ProductionAdapterError("Grade production adapter requires exactly one graded output")
     output_path = Path(action.outputs[0])
     expected_name = Path(action.inputs[0]).name
+    if action.output_kind == "graded_photo" and is_developable_path(Path(expected_name)):
+        expected_name += ".tif"
     if (
         len(output_path.parts) != 3
         or output_path.parts[0] != "graded"

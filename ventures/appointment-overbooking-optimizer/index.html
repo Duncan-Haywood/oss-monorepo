@@ -55,6 +55,15 @@
     .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
     .check input { width: auto; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 500px) { div.row3:has(#handling) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 392px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -205,7 +214,7 @@
       $("#bt-note").textContent = h ? `Fitted on the first ${h.trainDays} days, asked for the central 80% range of show-ups on the last ${h.testDays}: ${pct(h.coverage80, 0)} of days landed inside (target about 80%). Average log score ${h.meanLogScoreClustered.toFixed(3)} with clustering, ${h.meanLogScoreIndependent.toFixed(3)} assuming independent patients. ${h.clusteringHelps ? "Allowing for clustered days predicted better." : "Clustering did not improve the forecast on these days."}` : (r.mode === "history" ? "Not enough days to hold out a check period." : "No history supplied, so there is nothing to check the forecast against.");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -117,7 +117,9 @@ band). A run seeds small bugs into one file at a time with
 `redteam.py campaign`, runs that file's own tests, and restores the file. The
 share caught is the **catch rate**. It also hunts for real defects, the
 **error rate**. Then it adds a test for every escaped bug that matters and
-proves it with `redteam.py rerun`. The mutants and their results go into the
+proves it with `redteam.py rerun`. It is a purple team (owner, 2026-11-03):
+real defects it finds it fixes, and `redteam.py open` lists any an earlier run
+left unpatched, which the next run fixes first. The mutants and their results go into the
 run record, and `measure` derives both rates from them under "Red team / blue
 team", so no rate is ever typed by hand.
 
@@ -144,7 +146,7 @@ python3 prompts/promptctl.py validate
 python3 prompts/runcost.py attach prompts/runs/<record>.json --human-hours H --human-basis "..."
 python3 prompts/runcost.py report
 python3 prompts/derive.py fetch [--refresh] && python3 prompts/derive.py build && python3 prompts/derive.py report
-python3 prompts/redteam.py campaign|rerun|tally|targets
+python3 prompts/redteam.py campaign|rerun|tally|targets|open
 python3 -m unittest discover -s prompts
 ```
 

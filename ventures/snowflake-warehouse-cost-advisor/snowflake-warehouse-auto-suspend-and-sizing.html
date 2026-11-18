@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">Snowflake Warehouse Cost Advisor</a> · guide</p>
   <h1>Snowflake warehouse cost: AUTO_SUSPEND, idle warehouses and sizing</h1>
   <p>Short answer: <strong>a warehouse bills credits for every second it runs, whether or not a query is running</strong>. Most avoidable spend is idle tail after queries finish, warehouses nobody uses, and sizes bigger than the queries need.</p>
@@ -54,7 +55,9 @@
   <h3>Does a smaller warehouse always cost less?</h3>
   <p>No. Credits per hour halve with each size, but a query that does not scale down can take more than twice as long. Short queries are the safe candidates; try one size down on one warehouse and compare runtimes before rolling it out.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not engineering, financial, legal or compliance advice, and you are responsible for verifying prices and features against the current AWS documentation and for the performance effect of any warehouse change. Vendor and product names are trademarks of their owners and are used only to describe what the tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

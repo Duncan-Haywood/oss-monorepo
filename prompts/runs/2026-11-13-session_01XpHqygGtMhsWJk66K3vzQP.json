@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqygGtMhsWJk66K3vzQP",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T10:37:51Z",
+  "ended": "2026-11-13T10:38:50Z",
+  "wall_minutes": 9.69,
+  "tokens_in": 11949359,
+  "tokens_out": 124423,
+  "cost_usd": 7.6175,
+  "tool_calls": 138,
+  "task": "quality audit round 63 (mode sample, seed 2026-11-13-i)",
+  "projects": [
+    "ventures/social-security-survivor-spousal-benefit-calculator",
+    "ventures/iban-list-check",
+    "research/hanger-sharedpile",
+    "research/verifier-bribery"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15464",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "quality_mutate.py run with a repo-relative test path failed its baseline ('Could not find ...calc.test.mjs'); the test command runs inside the subject's copy, so it needs a path relative to the subject",
+      "fixed": "reran with 'calc.test.mjs'"
+    },
+    {
+      "what": "post description was 163 chars; check_post_frontmatter caught it",
+      "fixed": "shortened"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "quality_mutate.py's test command runs with the subject directory as cwd; the README example does not say so, and a repo-relative path makes the baseline fail"
+    },
+    {
+      "file": "research/_homepage/projects.json",
+      "issue": "one project's summary text (verifier-bribery) is duplicated inside another theme's long HTML summary, so a claim correction has to be made in two places; nothing flags the copy"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "step 4 says fix small defects; the verifier-bribery S_c defect needs Result 1 of the paper restated and tables regenerated, which is research work, not a small fix",
+      "did": "qualified the claim in README, research index and homepage cards, and listed it under Known gaps",
+      "result": "claim no longer overstated on any served surface; paper fix left to a research run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-quality-audit-round-63.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-13-i, round 63, mode sample. Subjects: ventures/social-security-survivor-spousal-benefit-calculator, ventures/iban-list-check, research/hanger-sharedpile, research/verifier-bribery. Share meeting the bar: 0 of 4 (all sampled: 31 of 266, Wilson 8-16%). Seeded bugs caught 6 of 23. Fix PR: #15464 (SS widow's limit and spousal excess, never-claimed deaths; IBAN --column by name, 00/01/99, 12 countries, groups box; hanger headline figures + wait test; verifier-bribery claim qualified + Known gaps). Spot-checks by the orchestrator: SS spousal 325 by hand and RIB-LIM traced in code; IBAN 12 new examples by independent mod-97; hanger wait mutant re-run (caught); verifier-bribery S=0.6/0.9 m=4 profit 1.0 re-run. No agent doc in docs/reports: nothing a next run needs beyond the audit files and Known gaps.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "096f4309-df66-5732-9d71-6aa6a7962eea",
+    "transcripts": 5,
+    "first": "2026-11-13T10:37:51Z",
+    "last": "2026-11-13T10:47:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 134,
+        "input": 268,
+        "output": 124423,
+        "thinking": 38844,
+        "cache_read": 11456689,
+        "cache_write_5m": 367533,
+        "cache_write_1h": 124869,
+        "api_equivalent_usd": 7.6175,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 134,
+      "input": 268,
+      "output": 124423,
+      "thinking": 38844,
+      "cache_read": 11456689,
+      "cache_write_5m": 367533,
+      "cache_write_1h": 124869,
+      "api_equivalent_usd": 7.6175,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.959,
+    "tool_calls": 138,
+    "tools": {
+      "Bash": 125,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.69,
+      "active_minutes": 6.67,
+      "model_minutes": 5.54,
+      "tool_minutes": 1.13,
+      "waiting_on_human_minutes": 3.02,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 15.33
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "four independent expert audits (~2.5 h each) plus four fix sets with tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 183.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

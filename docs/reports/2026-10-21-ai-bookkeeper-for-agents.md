@@ -1,3 +1,9 @@
+---
+kind: brief
+subjects: [ai-bookkeeper]
+date: 2026-10-21
+tagged: auto
+---
 # Extending AI Bookkeeper: brief for an agent reader
 
 **Date:** 2026-10-21. **Reader:** an agent about to deepen

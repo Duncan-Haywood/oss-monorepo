@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { pairKey, selectNextPair, selectNextPairHybrid, surveyConfidence } from "@/lib/pairing";
+import { FIRST_OPTION_MIN_DECIDED, pairKey, resolvePairSelector, selectNextPair, selectNextPairHybrid, surveyConfidence } from "@/lib/pairing";
 import { loadRatedItems } from "@/lib/participantRatings";
 
 const RECENT_TRIALS_TO_AVOID = 10;
-/** Decided answers before a first-option share means anything (30 coin flips: sd 0.09). */
-const FIRST_OPTION_MIN_DECIDED = 30;
 
 /**
  * How long a shown-but-unanswered question stays the *same* question.
@@ -107,10 +105,13 @@ export async function POST(req: NextRequest) {
 
     const recentPairKeys = new Set(recentTrials.map((t) => pairKey(t.itemAId, t.itemBId)));
 
-    // "staged": shipped selector for the first 120 answers, then the
-    // information score (docs/INFORMATION-GAIN-SELECTOR.md). The survey's own
-    // setting wins; unset follows PAIR_SELECTOR. Off by default.
-    const selector = participant.survey.pairSelector ?? process.env.PAIR_SELECTOR;
+    // "staged": the information score from the first answer at every list
+    // length (hybridSwitchAt, docs/INFORMATION-GAIN-SELECTOR.md, "Lists over
+    // 120 items"). The survey's own setting wins, then PAIR_SELECTOR; with
+    // neither, staged (defaultPairSelector: since 2026-11-13 at every length,
+    // from 2026-11-12 up to 120 items only).
+    const { selector, ignored } = resolvePairSelector(participant.survey.pairSelector, process.env.PAIR_SELECTOR, items.length);
+    if (ignored.length) console.warn(`trials/next: ignored unknown pair selector ${ignored.map((v) => JSON.stringify(v)).join(", ")}`);
     const choosePair = selector === "staged" ? selectNextPairHybrid : selectNextPair;
     const [pickedA, pickedB] = choosePair({
       items: items.map((i) => ({ id: i.id, rating: i.rating, rd: i.rd, category: i.category, dimensions: i.dimensions })),

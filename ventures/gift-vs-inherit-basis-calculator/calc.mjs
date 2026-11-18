@@ -39,7 +39,9 @@ const totalRate = (o) => (o.fedRate + o.niitRate + o.stateRate) / 100;
 // the donor's basis, below the fair value at the gift the loss uses fair value, in between there is neither gain nor loss.
 export function giftGain(price, basis, valueAtGift) {
   if (price > basis) return price - basis;
-  if (price < valueAtGift) return price - valueAtGift;
+  // Treas. Reg. 1.1015-1(a)(2): the loss basis is fair value only when the donor's basis is higher than fair value.
+  if (basis > valueAtGift && price < valueAtGift) return price - valueAtGift;
+  if (basis <= valueAtGift && price < basis) return price - basis;
   return 0;
 }
 

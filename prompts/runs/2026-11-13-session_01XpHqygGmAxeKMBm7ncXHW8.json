@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqygGmAxeKMBm7ncXHW8",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T16:45:53Z",
+  "ended": "2026-11-13T16:55:23Z",
+  "wall_minutes": 9.68,
+  "tokens_in": 4894330,
+  "tokens_out": 25621,
+  "cost_usd": 2.2648,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15548",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A `sed -n 1,15p $f` with an empty $f read stdin and hung until the 120 s tool timeout; killed it.",
+    "First CI run of the change was red (86/104). Under Python 3.11 locally, 15 pytest-style test files ran 0 tests under unittest and reported OK; 3.12 on CI exits 5. Two tests need yaml, which the runner lacks. A report with no front matter landed on main meanwhile. Fixed: pytest for files with no TestCase, missing third-party packages reported as skips by name, and the new report backfilled.",
+    "Duplicate work: a redteam run (commit 0a6dfd409, 16:58) landed the same unwired-suite idea while this PR waited on CI, so the merge conflicted. Consolidated: kept its structure; this PR now adds the CI wiring (run_venture_tests never ran the suites), pytest for 15 plain-function suites, named skips for missing packages, doc_index check, and 2 more reports backfilled. My first post was replaced with one covering only the difference."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/main_health.py",
+      "issue": "Reported 62/62 green while test_doc_index.py was red: it runs check_*.py only, not unit tests or doc_index.py check. It now includes doc_index check, and unwired_checks runs the unwired tests."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "The open-defects list (44 sessions of friction in 3 days, per friction_rank) still lists entries #15215 partly covered (the unwired check_*.py now run on venture PRs). redteam.py has no way to mark 'partly covered' or 'awaiting owner PR', and it is control plane, so nothing was changed."
+    },
+    {
+      "file": "platform/ci/unwired_checks.py",
+      "issue": "'python3 -m unittest <module>' on a pytest-style file passes with 0 tests on Python 3.11 (the cloud image) but exits 5 on 3.12 (the CI runner), so a local 'all pass' can hide unrun tests."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searched open PRs for 'unwired' before starting and found none. The redteam session had not opened its PR yet and landed the same idea 2 h later. The search cannot see unopened work."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Critique did not follow the doc-friction table's top rows. About 20 process runs today had already worked through them (pyenv/infra-dcopf, wait_for, cite_check and quality seeds were all fixed). Instead I took the 'checks that never fire' lens.",
+      "did": "Listed the platform/ci unit tests no workflow names (71 of 121) and ran them all. One was red. Fixed it and wired the rest through unwired_checks.",
+      "result": "helped: a red test on main found and fixed; 104 checks and tests now run on venture PRs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-suites-that-ran-zero-tests.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty. Routed process/1 by weighted draw. Backlog: owner/blocked rows only, so Critique. main_health.py 62/62 before. No backlog ids touched. The control-plane follow-up (an unwired_checks.py step in portfolio-validate.yml, plus docs/reports/** and docs/taxonomy.json paths) goes in its own PR from the restarted branch after this one merges. Verification: unwired_checks.py 104/104 (26 s); unittest test_unwired_checks test_run_venture_tests test_main_health, 41 OK; doc_index check ok; check_post_frontmatter rc 0; promptctl validate ok. No agent doc: the post and the unwired_checks docstring cover it. Consolidated with redteam commit 0a6dfd409 after a merge conflict. Final: 105/105 unwired checks and suites with pytest; 90 pass and 15 named skips under bare Python 3.12 (runner-like).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fa61752f-9e0f-57fa-a856-5a0fb6c5cbff",
+    "transcripts": 1,
+    "first": "2026-11-13T16:45:53Z",
+    "last": "2026-11-13T16:55:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 101,
+        "output": 25621,
+        "thinking": 8967,
+        "cache_read": 4795113,
+        "cache_write_5m": 0,
+        "cache_write_1h": 99116,
+        "api_equivalent_usd": 2.2648,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 101,
+      "output": 25621,
+      "thinking": 8967,
+      "cache_read": 4795113,
+      "cache_write_5m": 0,
+      "cache_write_1h": 99116,
+      "api_equivalent_usd": 2.2648,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 51,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.68,
+      "active_minutes": 9.68,
+      "model_minutes": 4.24,
+      "tool_minutes": 5.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "survey of unwired tests, triage of 43 tag problems, runner change with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 132.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

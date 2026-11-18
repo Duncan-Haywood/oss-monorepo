@@ -29,7 +29,7 @@
     .headline.medium { color: #7c5e10; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -121,7 +121,7 @@
   <section class="card" id="tailor-card" hidden>
     <h2>Suggest wording changes (optional)</h2>
     <p class="note">Without a key you get, for each missing term, the line of your resume closest to how the posting uses it, and a plain instruction. With your own key from Anthropic, OpenAI, Google Gemini or any OpenAI-compatible endpoint, a model rewrites up to five of your existing lines. Your resume text and the posting are then sent from this browser to the provider you choose, and nowhere else; the key stays in this tab and is not saved. Suggestions are drafts: keep a change only if it is true.</p>
-    <p class="note">To keep everything on your own computer, run a model locally with Ollama, LM Studio or llama.cpp and pick it below: no key, no cost per use, and the text goes only to your machine. Name a model you have downloaded (for Ollama, <code>ollama list</code> shows them). The local server must allow this page: start Ollama with <code>OLLAMA_ORIGINS=https://duncan-haywood.github.io</code> set, or switch on CORS in LM Studio's server settings. Your browser may ask whether this site may reach devices on your network.</p>
+    <p class="note">To keep everything on your own computer, run a model locally with Ollama, LM Studio or llama.cpp and pick it below: no key, no cost per use, and the text goes only to your machine. Name a model you have downloaded (for Ollama, <code>ollama list</code> shows them). The local server must allow this page: start Ollama with <code>OLLAMA_ORIGINS=https://marisstella.app</code> set, or switch on CORS in LM Studio's server settings. Your browser may ask whether this site may reach devices on your network.</p>
     <label for="prov">AI provider (optional)</label>
     <select id="prov"><option value="">None: no AI call</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="ollama">Ollama (on your computer, no key)</option><option value="lmstudio">LM Studio (on your computer, no key)</option><option value="llamacpp">llama.cpp server (on your computer, no key)</option><option value="openai-compatible">Other (OpenAI-compatible URL)</option></select>
     <label for="model">Model (required except for Anthropic)</label>
@@ -207,7 +207,7 @@ Reach me at jordan.rivera@example.com`;
       }
       els.findings.innerHTML = findings.map((f) => `
         <div class="finding">
-          <h4><span class="pill ${f.severity}">${escapeHtml(f.severity)}</span>${escapeHtml(f.title)}</h4>
+          <h3><span class="pill ${f.severity}">${escapeHtml(f.severity)}</span>${escapeHtml(f.title)}</h3>
           <p>${escapeHtml(f.detail)}</p>
         </div>`).join("");
     }
@@ -218,14 +218,14 @@ Reach me at jordan.rivera@example.com`;
       els.headline.className = `headline ${level}`;
       els.headline.textContent = headline;
       els.stats.innerHTML = `
-        <span>${result.stats.characters.toLocaleString()} characters</span>
-        <span>${result.stats.lines.toLocaleString()} lines</span>
+        <span>${result.stats.characters.toLocaleString('en-US')} characters</span>
+        <span>${result.stats.lines.toLocaleString('en-US')} lines</span>
         <span>${result.stats.highCount} high · ${result.stats.mediumCount} medium · ${result.stats.lowCount} low</span>`;
       renderFindings(result.findings);
       els.reportCard.hidden = false;
       els.status.textContent = "";
       record("check_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#check").addEventListener("click", () => {
@@ -290,7 +290,7 @@ Nice to have:
       $("#matched-list").innerHTML = result.matched.map((m) => chip(m.term, "")).join("") || `<li class="note">None yet.</li>`;
       card.hidden = false;
       record("match_run");
-      card.scrollIntoView({ behavior: "smooth", block: "start" });
+      card.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#match").addEventListener("click", () => {

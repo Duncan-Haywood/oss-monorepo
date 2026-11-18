@@ -1,3 +1,9 @@
+---
+kind: analysis
+topics: [review, compliance]
+date: 2026-10-20
+tagged: auto
+---
 # Compliance review: laws, platform terms and ethics
 
 **Date:** 2026-10-20. **Asked by:** the owner ("is anything on my repo

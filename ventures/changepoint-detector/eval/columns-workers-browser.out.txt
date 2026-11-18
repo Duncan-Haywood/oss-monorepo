@@ -1,0 +1,7 @@
+currency returns, 3 columns (1751 points), browser cores 4: results shown after 3.8 s with the panels on workers, 7.5 s with every panel in the one main worker
+ok   currency returns, 3 columns: panels on workers give the Node summary and agreed table
+ok   currency returns, 3 columns: the one-worker fallback gives the same
+European index returns, 4 columns (1859 points), browser cores 4: results shown after 7.2 s with the panels on workers, 15.8 s with every panel in the one main worker
+ok   European index returns, 4 columns: panels on workers give the Node summary and agreed table
+ok   European index returns, 4 columns: the one-worker fallback gives the same
+ok   without workers the page runs it on the main thread and gets the same result

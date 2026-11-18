@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01E5sJKkfuDkSCzAKwnFUGWn",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-11-04T11:18:08Z",
+  "ended": "2026-11-04T11:34:58Z",
+  "wall_minutes": 16.96,
+  "tokens_in": 1555016,
+  "tokens_out": 7503,
+  "cost_usd": 0.5526,
+  "tool_calls": 24,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13079",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Pages test files take 100-300 s in the sandbox, so the 'measure first' step cannot be repeated there; no sandbox-scale guidance."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "No after number from a runner; wall-time saving not measurable in the sandbox",
+      "did": "pinned order with a unit test, sampled per-suite times",
+      "result": "saving unmeasured; documented how to check"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-04-venture-suites-longest-first.md (no blog post: small internal CI change)"
+  ],
+  "goal": null,
+  "notes": "metric: ci_profile 'node --test in each touched venture' 43.9 min/16 jobs (2.7 min/job) before, 300 runs ending 11:14Z; after not measured. Sample: 15 suites, 4 workers: 1-5 s typical, einvoice 20.5 s, shed-designer 307 s (2 browser tests time out in sandbox, unrelated).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "37158201-c5fc-5bdf-ae38-20170197e429",
+    "transcripts": 1,
+    "first": "2026-11-04T11:18:08Z",
+    "last": "2026-11-04T11:35:05Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 24,
+        "input": 48,
+        "output": 7503,
+        "thinking": 1213,
+        "cache_read": 1511165,
+        "cache_write_5m": 0,
+        "cache_write_1h": 43803,
+        "api_equivalent_usd": 0.5526,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 24,
+      "input": 48,
+      "output": 7503,
+      "thinking": 1213,
+      "cache_read": 1511165,
+      "cache_write_5m": 0,
+      "cache_write_1h": 43803,
+      "api_equivalent_usd": 0.5526,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 24,
+    "tools": {
+      "Bash": 21,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.96,
+      "active_minutes": 16.96,
+      "model_minutes": 1.54,
+      "tool_minutes": 15.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -59,3 +59,23 @@ def start_bin(start_s):
 def shares(err_ms, period_ms, tol_ms=2.0):
     """(ok, alias, gross) shares as capture_residgate.alias.classify."""
     return classify(err_ms, period_ms, tol_ms)
+
+
+def track_series(windows, times, gamma, half_s, first_half_s=1.5, fs=FS):
+    """Delay estimates for a series of (a, b) windows taken at `times` (s), with a non-oracle prior.
+
+    The first window is searched over +-first_half_s about 0. Each later window is searched over +-half_s about the
+    delay predicted from the estimates so far: the last estimate after one window, a least-squares line through all
+    previous estimates after two or more. No truth is used, so one wrong early estimate can carry forward."""
+    est = []
+    for i, (a, b) in enumerate(windows):
+        if i == 0:
+            est.append(gcc_search(a, b, gamma, 0.0, first_half_s, fs))
+            continue
+        if i == 1:
+            c = est[0]
+        else:
+            k = np.polyfit(np.asarray(times[:i], float), np.asarray(est), 1)
+            c = float(np.polyval(k, times[i]))
+        est.append(gcc_search(a, b, gamma, c, half_s, fs))
+    return np.array(est)

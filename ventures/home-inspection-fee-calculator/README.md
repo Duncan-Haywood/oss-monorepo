@@ -12,7 +12,7 @@ without underpricing the extra time it actually takes, which used to mean
 guessing at a flat per-square-foot number that priced an easy slab job and a
 hard crawlspace job the same.**
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/home-inspection-fee-calculator/
+**Live tool:** https://marisstella.app/home-inspection-fee-calculator/
 
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. The deterministic calculation works with no
@@ -41,6 +41,15 @@ same walk-through.
 See
 [how to price a home inspection](how-to-price-a-home-inspection.html)
 for a full worked example with every line item shown.
+
+## Known gaps
+
+Found by the quality audit of 2026-11-12 (`portfolio/quality/audits/2026-11-12-home-inspection-fee-calculator.json`), not yet fixed:
+
+- **Add-ons are marked up.** An add-on's fee is added to cost and then divided by (1 - margin), so a $150 radon test adds $200 to the price at a 25% margin. The pages describe add-ons as priced at their own flat fee. Either keep add-ons out of the margin or call the field the add-on's cost.
+- Report-writing time and drive time are not priced; travel is mileage only.
+- The default time constants and add-on fees are not cited; the 0.70 mileage default is the IRS 2025 rate (2026 is 72.5 cents).
+- The 1.25-hour small-home floor and the weekly-goal comparison are untested (seeded changes to both left the tests green).
 
 ## Privacy and usage
 

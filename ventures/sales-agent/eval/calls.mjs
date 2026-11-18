@@ -5,6 +5,7 @@
 import { readFileSync } from "node:fs";
 import { FIELDS } from "../prep.mjs";
 import { runFollowUp } from "../followup.mjs";
+import { pathToFileURL } from "node:url";
 
 const rows = (name) => readFileSync(new URL(name, import.meta.url), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
 const IDS = FIELDS.map((f) => f.id);
@@ -30,7 +31,7 @@ export function scoreFollowUp(data = rows("./calls-followup.jsonl"), today = "20
   return { n: data.length, right, accuracy: right / data.length, misses };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const p = scorePrep(), f = scoreFollowUp();
   if (process.argv.includes("--json")) console.log(JSON.stringify({ prep: p, followup: f }, null, 2));
   else {

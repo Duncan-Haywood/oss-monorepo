@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-24
+tagged: auto
+---
 # Site usage and feedback pipeline: live, verified, and what the keys mean
 
 Agent report, 2026-10-24. Code: `platform/edge/`, `platform/counter/`,

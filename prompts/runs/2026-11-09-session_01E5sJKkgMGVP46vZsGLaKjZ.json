@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01E5sJKkgMGVP46vZsGLaKjZ",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T03:22:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14186",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "134 lines against a 100-line budget (promptctl map flags OVER); the stop hook also demands commit and push before the PR step, which the lifecycle orders the other way."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-09-1932-calculators-that-go-silent-without-javascript.md"
+  ],
+  "goal": null,
+  "notes": "Explore: noscript sweep found 1,932 source pages with script-driven controls and 1 noscript; build.mjs now adds a notice (2,069 built pages). Full build + check.mjs passed. No agent doc written.",
+  "corrections": [],
+  "redteam": null
+}

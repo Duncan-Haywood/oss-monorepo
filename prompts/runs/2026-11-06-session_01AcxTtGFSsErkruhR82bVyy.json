@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01AcxTtGFSsErkruhR82bVyy",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read prompt.md",
+  "input_sha256": "94a6b2a74a2fe72d09d7042291a4072d20b259b937e79b5deda0279ae57c7410",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T05:09:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13483",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took flagship 2 (ai-bookkeeper) because flagship 1 had 20 commits this week; did not rewrite next: since the slice was a small bug fix, not a milestone.",
+      "did": "Probed public Revolut samples, fixed sniffBank",
+      "result": "2340 tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-06-revolut-export-without-balance.md",
+    "ventures/ai-bookkeeper/HISTORY.md"
+  ],
+  "goal": null,
+  "notes": "Cost attach (runcost.py) not run.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKo8Abc7TB7v5ueXYha",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T23:09:44Z",
+  "ended": "2026-11-11T23:30:46Z",
+  "wall_minutes": 21.32,
+  "tokens_in": 10781549,
+  "tokens_out": 88977,
+  "cost_usd": 5.4182,
+  "tool_calls": 88,
+  "task": "Explore: new research-algorithm venture fdr-multiple-testing (BH, BY, BKY, Storey q-values, Bonferroni, Sidak, Holm, Hochberg, e-BH)",
+  "projects": [
+    "fdr-multiple-testing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14927",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 39,
+  "outcome": "success",
+  "errors": [
+    "Two of my own test expectations were wrong at first (Holm keeps 3, not 4, on the BH 1995 example; the first e-value reference was too weak to reject at 0.01). Fixed the tests, not the engine, after recomputing by hand.",
+    "A Python edit script asserted before writing a sibling page test, leaving one sibling HTML changed and its test not; caught and fixed before commit."
+  ],
+  "integrity_issues": [
+    "The BH 1995 paper could not be fetched (dcscience.net refused by the proxy), so the example p-values were taken from statsmodels' test_multi.py, which labels them 'example from BKY'; data/SOURCE.md says so and the page attributes the 4/8/0.0649 counts to statsmodels' tests rather than claiming to have read the paper."
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "python3 platform/ci/run_workflow_locally.py --for-changes and run_venture_tests.py with several slugs both outlast the 120 s tool timeout here; worth saying 'start with run_in_background' next to them, as is already said for node --test."
+    },
+    {
+      "file": "portfolio/research-tools/README.md",
+      "issue": "The definition-of-done table does not mention the sibling-footer convention (each research tool's footer links the others and its page.test asserts it), so adding a tool means editing four other ventures; found by reading the survival-analysis PR's stat."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/research-tools/README.md",
+      "why": "It asks for tests against 'another implementation's output'; for Storey q-values I could not run the third-party qvalue PyPI package (the auto-mode classifier blocked running downloaded code), so the reference is pi0 x statsmodels' fdr_bh values, using the identity q = pi0 x BH-adjusted.",
+      "did": "Used the identity with statsmodels as the independent part; documented in reference.py and README.",
+      "result": "q-values match to 1e-12 at three lambdas; the pi0 formula itself is checked against a numpy reimplementation, not a third-party library."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-when-q-values-overshoot-their-fdr.md",
+    "ventures/fdr-multiple-testing/README.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: fifth research-algorithms-as-tools venture, fdr-multiple-testing (candidate listed in portfolio/research-tools/README.md). Eight p-value corrections plus e-BH, engine/CLI/page/agent call; checked against statsmodels 0.15.0 to 1e-12. Seeded simulation (eval/simulate.mjs) found Storey q-values reach FDR 0.109 at a 0.05 target under pairwise correlation 0.5 (BH 0.029): pi0 (truth 0.9) fell below 0.5 in 26% of runs, FDP 0.41 in those runs. Checks run: venture node --test 39/39, sibling page tests, Playwright smoke at 1100/375 px, post frontmatter and links. No agent doc in docs/reports: the README's Verification section and the post carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6899fc9a-88e4-5e6e-830c-1e49a9a0236c",
+    "transcripts": 1,
+    "first": "2026-11-11T23:09:44Z",
+    "last": "2026-11-11T23:31:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 146,
+        "output": 88977,
+        "thinking": 11563,
+        "cache_read": 10591423,
+        "cache_write_5m": 0,
+        "cache_write_1h": 189980,
+        "api_equivalent_usd": 5.4182,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 146,
+      "output": 88977,
+      "thinking": 11563,
+      "cache_read": 10591423,
+      "cache_write_5m": 0,
+      "cache_write_1h": 189980,
+      "api_equivalent_usd": 5.4182,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 88,
+    "tools": {
+      "Bash": 65,
+      "Write": 9,
+      "Read": 6,
+      "ToolSearch": 3,
+      "WebSearch": 1,
+      "WebFetch": 1,
+      "Edit": 1,
+      "TaskStop": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.32,
+      "active_minutes": 21.32,
+      "model_minutes": 14.98,
+      "tool_minutes": 6.34,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "estimate: a statistician implementing and verifying eight corrections plus e-BH against statsmodels, a page, CLI, simulation and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 443.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

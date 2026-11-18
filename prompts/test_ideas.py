@@ -57,8 +57,43 @@ class IdeasTest(unittest.TestCase):
         ]
         self.assertEqual([r["id"] for r in ideas.site_ideas(records, "2026-10-01")], [3])
 
+    def test_untriaged_skips_ideas_a_request_covers(self):
+        site = [{"id": 3, "type": "idea"}, {"id": 4, "type": "idea"}]
+        reqs = [{"id": "R-0004", "source": "form", "feedback_id": 3}]
+        self.assertEqual([r["id"] for r in ideas.untriaged(site, reqs)], [4])
+
+    def test_open_requests_orders_building_then_accepted_then_received(self):
+        reqs = [
+            {"id": "R-1", "source": "issue", "status": "received", "received": "2026-10-01"},
+            {"id": "R-2", "source": "form", "status": "accepted", "received": "2026-10-05"},
+            {"id": "R-3", "source": "issue", "status": "building", "received": "2026-10-09"},
+            {"id": "R-4", "source": "owner", "status": "building", "received": "2026-09-01"},
+            {"id": "R-5", "source": "issue", "status": "shipped", "received": "2026-09-01"},
+            {"id": "R-6", "source": "issue", "status": "accepted", "received": "2026-10-02"},
+        ]
+        self.assertEqual([r["id"] for r in ideas.open_requests(reqs)], ["R-3", "R-6", "R-2", "R-1"])
+
+    def test_requests_file_reads(self):
+        self.assertIsInstance(ideas._requests(ideas.REQUESTS), list)
+        self.assertEqual(ideas._requests(ideas.ROOT / "no-such-file.json"), [])
+
     def test_missing_site_feedback_file_is_empty(self):
         self.assertEqual(ideas._site_records(ideas.ROOT / "no-such-file.json"), [])
+
+    def test_search_issues_none_without_gh(self):
+        from unittest import mock
+        with mock.patch.object(ideas.shutil, "which", return_value=None):
+            self.assertIsNone(ideas.search_issues("x"))
+
+    def test_search_issues_empty_and_failed(self):
+        from unittest import mock
+        ok = mock.Mock(returncode=0, stdout="")
+        bad = mock.Mock(returncode=1, stdout="")
+        with mock.patch.object(ideas.shutil, "which", return_value="/bin/gh"):
+            with mock.patch.object(ideas.subprocess, "run", return_value=ok):
+                self.assertEqual(ideas.search_issues("x"), [])
+            with mock.patch.object(ideas.subprocess, "run", return_value=bad):
+                self.assertIsNone(ideas.search_issues("x"))
 
     def test_take_out_of_range(self):
         with self.assertRaises(ValueError):

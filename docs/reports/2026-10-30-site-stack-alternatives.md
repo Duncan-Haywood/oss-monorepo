@@ -1,3 +1,9 @@
+---
+kind: analysis
+topics: [languages]
+date: 2026-10-30
+tagged: auto
+---
 # The site's stack: what other languages and frameworks would buy (2026-10-30)
 
 The owner asked what the repository is made of, and whether another language

@@ -1,0 +1,66 @@
+tradition,target,n
+Catholic,attend_weekly,17825
+Catholic,pray_daily,10838
+Catholic,god_no_doubt,7322
+Catholic,afterlife,10963
+Catholic,premarsx_wrong,10857
+Catholic,xmarsex_wrong,10873
+Catholic,homosex_wrong,10428
+Catholic,samesex_marr_no,1869
+Catholic,cohab_not_ok,1489
+Catholic,abortion_no,9737
+Catholic,divorce_harder,9587
+Catholic,ever_divorced,11109
+Catholic,pope_infallible,5413
+Evangelical Protestant,attend_weekly,17596
+Evangelical Protestant,pray_daily,10804
+Evangelical Protestant,god_no_doubt,7444
+Evangelical Protestant,afterlife,11568
+Evangelical Protestant,premarsx_wrong,10552
+Evangelical Protestant,xmarsex_wrong,10951
+Evangelical Protestant,homosex_wrong,10659
+Evangelical Protestant,samesex_marr_no,1713
+Evangelical Protestant,cohab_not_ok,1480
+Evangelical Protestant,abortion_no,9970
+Evangelical Protestant,divorce_harder,9587
+Evangelical Protestant,ever_divorced,12078
+Evangelical Protestant,pope_infallible,1
+Mainline Protestant,attend_weekly,13539
+Mainline Protestant,pray_daily,6963
+Mainline Protestant,god_no_doubt,4413
+Mainline Protestant,afterlife,8102
+Mainline Protestant,premarsx_wrong,8261
+Mainline Protestant,xmarsex_wrong,8405
+Mainline Protestant,homosex_wrong,8038
+Mainline Protestant,samesex_marr_no,1102
+Mainline Protestant,cohab_not_ok,942
+Mainline Protestant,abortion_no,7499
+Mainline Protestant,divorce_harder,7542
+Mainline Protestant,ever_divorced,9739
+Mainline Protestant,pope_infallible,1
+Black Protestant,attend_weekly,6245
+Black Protestant,pray_daily,3603
+Black Protestant,god_no_doubt,2239
+Black Protestant,afterlife,3853
+Black Protestant,premarsx_wrong,3805
+Black Protestant,xmarsex_wrong,3899
+Black Protestant,homosex_wrong,3803
+Black Protestant,samesex_marr_no,504
+Black Protestant,cohab_not_ok,413
+Black Protestant,abortion_no,3564
+Black Protestant,divorce_harder,3415
+Black Protestant,ever_divorced,2938
+Black Protestant,pope_infallible,0
+Orthodox,attend_weekly,205
+Orthodox,pray_daily,169
+Orthodox,god_no_doubt,120
+Orthodox,afterlife,91
+Orthodox,premarsx_wrong,111
+Orthodox,xmarsex_wrong,117
+Orthodox,homosex_wrong,112
+Orthodox,samesex_marr_no,52
+Orthodox,cohab_not_ok,27
+Orthodox,abortion_no,97
+Orthodox,divorce_harder,68
+Orthodox,ever_divorced,126
+Orthodox,pope_infallible,0

@@ -32,7 +32,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -48,6 +48,15 @@
     .few { color: #6a7580; font-style: italic; }
     .bar { display: inline-block; height: 8px; background: #c4553a; border-radius: 4px; vertical-align: middle; margin-left: 6px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#dateorder) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 257px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -158,7 +167,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, normalizeBookings, analyze, reportCsv, summaryText, sampleCsv, money, decodeBuffer } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, normalizeBookings, analyze, reportCsv, summaryText, sampleCsv, money, decodeBuffer, detectDecimalComma } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -166,7 +175,7 @@
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     let last = null;
     const num = (id, dflt) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : dflt; };
-    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(money(Math.abs(n)));
     const rate = (x) => (x === null ? "–" : x.toFixed(1) + "%");
 
     function tableRows(list, max) {
@@ -178,7 +187,7 @@
 
     function run(text) {
       const d = detectDelimiter(text);
-      const n = normalizeBookings(parseCsv(text, d), { decimalComma: d === ";", dateOrder: $("#dateorder").value });
+      const n = normalizeBookings(parseCsv(text, d), { decimalComma: detectDecimalComma(parseCsv(text, d), d), dateOrder: $("#dateorder").value });
       if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
       const a = analyze(n.records, { noticeHours: num("#notice", 24), defaultPrice: num("#price", 0), minNoShows: num("#minns", 2), feePct: num("#fee", 0), preventPct: num("#prevent", 0), collectPct: num("#collect", 100) });
       if (a.invalid) { status.textContent = a.invalid; report.hidden = true; return false; }
@@ -186,7 +195,7 @@
       const s = a.summary, w = a.whatIf;
       $("#big").innerHTML = [[rate(s.noShowRate), `no-show rate (${s.noShows} of ${s.bookings})`], [rate(s.lateCancelRate), `late-cancel rate (${s.lateCancels}, under ${s.noticeHours} h notice)`], [usd(s.lostRevenue), "lost to no-shows"], [usd(s.lateCancelRevenue), "late-cancel revenue at risk"]].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
       $("#report-stats").textContent = `${s.firstDay} to ${s.lastDay} (${s.spanDays} days). ${s.bookings} bookings counted: ${s.completed} attended, ${s.noShows} no-show, ${s.cancelled} cancelled by the client (${s.earlyCancels} with enough notice, ${s.lateCancels} late, ${s.cancelledUnknown} of unknown notice). Left out: ${s.providerCancelled} cancelled by the business, ${s.open} still open, ${n.duplicates} duplicate row(s). Prices: ${s.priceSources.file} from the file, ${s.priceSources["service average"]} from the service average, ${s.priceSources.placeholder} from the ${usd(s.defaultPrice)} placeholder.`;
-      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
       $("#what-if").innerHTML = `Your assumptions: a ${w.feePct}% deposit or no-show fee prevents ${w.preventPct}% of no-shows and late cancels, and is collected on ${w.collectPct}% of the rest. On ${usd(w.noShowLost + w.lateCancelLost)} of lost and at-risk revenue that is <strong>${usd(w.recoveredVisits)}</strong> of kept visits plus <strong>${usd(w.feesCollected)}</strong> of fees, about <strong>${usd(w.total)}</strong> over this period` + (w.perYear !== null ? ` (roughly ${usd(w.perYear)} a year)` : " (the file covers under four weeks, so no yearly figure is given)") + `. These are your assumptions, not a forecast: nothing here knows how your clients would react to a fee.`;
       fill("#by-weekday", a.byWeekday, "No dates.");
       fill("#by-hour", a.byHour, "The file has no appointment times, so there is no hour-of-day breakdown.");
@@ -201,7 +210,7 @@
       $("#summary").value = summaryText(a);
       report.hidden = false;
       status.textContent = `Read ${n.records.length} booking row(s).`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

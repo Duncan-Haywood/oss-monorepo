@@ -110,7 +110,7 @@ function detectDelimiter(text) {
 
 // ---------- analysis ----------
 function prepare(input) {
-  const text = String(input || "").replace(/^﻿/, "");
+  const text = String(input || "").replace(/^\uFEFF/, "");
   const delim = detectDelimiter(text);
   const parsed = parseCsv(text, delim);
   const rows = parsed.rows.filter((r) => !(r.cells.length === 1 && r.cells[0].trim() === ""));

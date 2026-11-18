@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [verified-dse]
+tagged: auto
+---
 # verified-dse milestone 15 (2026-10-26)
 
 For the next run: the larger non-arithmetic table is `research/verified-dse/experiments/nonarith/results.jsonl` (600 flow runs, replayable without tools). The R2-cut floor is driven by one design per family (barrel64 here), so the open step is a pilot statistic that flags such designs (LOG.md, "Next").

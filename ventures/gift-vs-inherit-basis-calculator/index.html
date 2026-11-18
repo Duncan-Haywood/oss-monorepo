@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Gift vs Inherit Basis Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare gifting appreciated property now with letting it pass at death: carryover versus stepped-up basis, capital gains tax, Form 709 and estate tax. Runs in your browser.", "featureList": "Carryover vs step-up basis, estate tax check, Form 709 flag, years-to-death sensitivity, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the difference between carryover basis and stepped-up basis?", "acceptedAnswer": {"@type": "Answer", "text": "If you give someone an appreciated asset while you are alive, they take over your cost basis (IRC section 1015) and owe capital gains tax on all the growth since you bought it when they sell. If they inherit it at your death, their basis resets to the fair market value on the date of death (IRC section 1014), so the growth during your lifetime is never taxed."}}, {"@type": "Question", "name": "Should I put my child on the deed to my house?", "acceptedAnswer": {"@type": "Answer", "text": "Usually not for tax reasons alone. A lifetime gift of the house gives your child your low basis, loses the home sale exclusion on their share, and can be a Medicaid look-back transfer. A transfer-on-death deed, a revocable trust or a life estate deed (where your state allows it) can move the house at death and keep the step-up. This tool prices the tax side so you can take the comparison to an attorney."}}, {"@type": "Question", "name": "When does gifting beat inheriting?", "acceptedAnswer": {"@type": "Answer", "text": "When the estate is large enough that the federal estate tax (40% above the exemption) outweighs the capital gains tax the recipient will pay, so moving future growth out of the estate saves more than the lost step-up costs. Below the exemption, which is 15,000,000 per person in 2026, inheriting nearly always wins for appreciated property."}}, {"@type": "Question", "name": "Do I need to file Form 709?", "acceptedAnswer": {"@type": "Answer", "text": "A gift to one person above the annual exclusion (19,000 in 2026) needs a gift tax return, even if no tax is due because it just uses lifetime exemption. A gift of a share of a house to each of two children is tested per recipient."}}, {"@type": "Question", "name": "What if the property has lost value?", "acceptedAnswer": {"@type": "Answer", "text": "A gift of loss property uses the lower fair value at the date of the gift for any loss the recipient later claims, so a loss cannot be passed on. An inheritance resets basis down to the date-of-death value. Either way the paper loss is not usable, so selling before is the case to ask a professional about."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the figures you type, with simplifications listed under Not decided. State inheritance and estate taxes, gift splitting, trusts and Medicaid planning all change the answer."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1e3a8a; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1e3a8a; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1e3a8a; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1e3a8a; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e3a8a; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1e3a8a; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -104,10 +142,10 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const r = a.result;
-      h += `<div class="finding"><h4>Lowest tax on these figures: ${r.best}</h4><p>In ${a.opts.years} years the share is worth ${money(r.futureValue)} against a cost basis of ${money(r.gift.basis)}, a built-in gain of ${money(r.builtInGain)}. ${a.giftBeatsInherit ? "Gifting wins here because the estate tax it avoids is larger than the capital gains tax the recipient will owe." : "Gifting hands over the low basis, so the recipient owes " + money(r.gift.gainTax) + " in capital gains tax that inheriting would erase" + (r.estateOverExemption ? ", but your estate is over the exemption, so check the estate tax line" : "") + "."}</p></div>`;
-      h += `<div class="finding"><h4>Three paths, same date</h4>${table(["Path", "Basis for the seller", "Capital gains tax", "Estate tax", "Total"], [["Inherit it", money(r.inherit.basis), money(r.inherit.gainTax), money(r.inherit.estateTax), money(r.inherit.total)], ["Gift it now", money(r.gift.basis), money(r.gift.gainTax), money(r.gift.estateTax), money(r.gift.total)], ["Sell now", money(r.sellNow.basis), money(r.sellNow.gainTax), money(r.sellNow.estateTax), money(r.sellNow.total)]])}<p>Inheriting saves ${money(a.stepUpTax)} of gain tax against a gift; a gift changes the estate tax by ${money(a.estateTaxSaved)}.</p></div>`;
-      h += `<div class="finding"><h4>Form 709</h4><p>${r.needs709 ? "This gift is above the annual exclusion of " + money(r.exclusionUsed) + ", so a gift tax return is due. Taxable gift " + money(r.taxableGift) + "; lifetime exemption left after it " + money(r.lifetimeExemptionLeft) + "." : "The gift is within the annual exclusion of " + money(r.exclusionUsed) + ", so no Form 709 for this gift."}</p></div>`;
-      h += `<div class="finding"><h4>How the answer moves with time</h4>${table(["Years to death", "Value then", "Gift now (total)", "Inherit (total)", "Lowest"], a.rows.map((x) => [x.years, money(x.fv), money(x.gift), money(x.inherit), x.best]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>Lowest tax on these figures: ${r.best}</h3><p>In ${a.opts.years} years the share is worth ${money(r.futureValue)} against a cost basis of ${money(r.gift.basis)}, a built-in gain of ${money(r.builtInGain)}. ${a.giftBeatsInherit ? "Gifting wins here because the estate tax it avoids is larger than the capital gains tax the recipient will owe." : "Gifting hands over the low basis, so the recipient owes " + money(r.gift.gainTax) + " in capital gains tax that inheriting would erase" + (r.estateOverExemption ? ", but your estate is over the exemption, so check the estate tax line" : "") + "."}</p></div>`;
+      h += `<div class="finding"><h3>Three paths, same date</h3>${table(["Path", "Basis for the seller", "Capital gains tax", "Estate tax", "Total"], [["Inherit it", money(r.inherit.basis), money(r.inherit.gainTax), money(r.inherit.estateTax), money(r.inherit.total)], ["Gift it now", money(r.gift.basis), money(r.gift.gainTax), money(r.gift.estateTax), money(r.gift.total)], ["Sell now", money(r.sellNow.basis), money(r.sellNow.gainTax), money(r.sellNow.estateTax), money(r.sellNow.total)]])}<p>Inheriting saves ${money(a.stepUpTax)} of gain tax against a gift; a gift changes the estate tax by ${money(a.estateTaxSaved)}.</p></div>`;
+      h += `<div class="finding"><h3>Form 709</h3><p>${r.needs709 ? "This gift is above the annual exclusion of " + money(r.exclusionUsed) + ", so a gift tax return is due. Taxable gift " + money(r.taxableGift) + "; lifetime exemption left after it " + money(r.lifetimeExemptionLeft) + "." : "The gift is within the annual exclusion of " + money(r.exclusionUsed) + ", so no Form 709 for this gift."}</p></div>`;
+      h += `<div class="finding"><h3>How the answer moves with time</h3>${table(["Years to death", "Value then", "Gift now (total)", "Inherit (total)", "Lowest"], a.rows.map((x) => [x.years, money(x.fv), money(x.gift), money(x.inherit), x.best]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

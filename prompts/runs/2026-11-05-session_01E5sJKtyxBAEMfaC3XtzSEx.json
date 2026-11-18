@@ -1,0 +1,179 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01E5sJKtyxBAEMfaC3XtzSEx",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T14:23:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13338",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "no blog post: small run",
+      "did": "skipped post",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/bid-leveling-worksheet/calc.mjs",
+        "test": "node --test ventures/bid-leveling-worksheet/**/*.test.mjs  (in .)",
+        "seed": 732234938,
+        "commit": "9b3e400c9",
+        "sites": 106,
+        "baseline_seconds": 0.5,
+        "mutants": [
+          {
+            "file": "ventures/bid-leveling-worksheet/calc.mjs",
+            "line": 15,
+            "col": 28,
+            "operator": "eq-flip",
+            "before": "else if (c === \",\" || c === \"\\t\") { row.push(cell); cell = \"\"; }",
+            "after": "else if (c === \",\" || c !== \"\\t\") { row.push(cell); cell = \"\"; }",
+            "line_text": "    else if (c === \",\" || c === \"\\t\") { row.push(cell); cell = \"\"; }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bid-leveling-worksheet/calc.mjs",
+            "line": 75,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;",
+            "after": "return s.length % 3 ? s[m] : (s[m - 1] + s[m]) / 2;",
+            "line_text": "  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added median/count/ordering tests in calc.test.mjs"
+          },
+          {
+            "file": "ventures/bid-leveling-worksheet/calc.mjs",
+            "line": 93,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "if (c.kind === \"priced\") { adds.push({ item: it.item, kind: \"priced\", amount: c.amount }); addTotal += c.amount; continue; }",
+            "after": "if (c.kind !== \"priced\") { adds.push({ item: it.item, kind: \"priced\", amount: c.amount }); addTotal += c.amount; continue; }",
+            "line_text": "      if (c.kind === \"priced\") { adds.push({ item: it.item, kind: \"priced\", amount: c.amount }); addTotal += c.amount; continue; }",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bid-leveling-worksheet/calc.mjs",
+            "line": 97,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "if (c.kind === \"unknown\") unknownCount++; else excludedCount++;",
+            "after": "if (c.kind !== \"unknown\") unknownCount++; else excludedCount++;",
+            "line_text": "      if (c.kind === \"unknown\") unknownCount++; else excludedCount++;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added median/count/ordering tests in calc.test.mjs"
+          },
+          {
+            "file": "ventures/bid-leveling-worksheet/calc.mjs",
+            "line": 102,
+            "col": 101,
+            "operator": "plus-to-minus",
+            "before": "return { name, base: valid ? base : null, adds, addTotal: r2(addTotal), leveled: valid ? r2(base + addTotal) : null, excludedCount, unknownCount, unreadable, flags: [] };",
+            "after": "return { name, base: valid ? base : null, adds, addTotal: r2(addTotal), leveled: valid ? r2(base - addTotal) : null, excludedCount, unknownCount, unreadable, flags: [] };",
+            "line_text": "    return { name, base: valid ? base : null, adds, addTotal: r2(addTotal), leveled: valid ? r2(base + addTotal) : null, excludedCount, unknownCount, unreadable, flags: [] };",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bid-leveling-worksheet/calc.mjs",
+            "line": 109,
+            "col": 58,
+            "operator": "minus-to-plus",
+            "before": "const lowLeveled = [...ranked].sort((a, b) => a.leveled - b.leveled)[0];",
+            "after": "const lowLeveled = [...ranked].sort((a, b) => a.leveled + b.leveled)[0];",
+            "line_text": "  const lowLeveled = [...ranked].sort((a, b) => a.leveled - b.leveled)[0];",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added median/count/ordering tests in calc.test.mjs"
+          },
+          {
+            "file": "ventures/bid-leveling-worksheet/calc.mjs",
+            "line": 129,
+            "col": 44,
+            "operator": "eq-flip",
+            "before": "excluded: it.cells.filter((c) => c.kind === \"excluded\").length,",
+            "after": "excluded: it.cells.filter((c) => c.kind !== \"excluded\").length,",
+            "line_text": "    excluded: it.cells.filter((c) => c.kind === \"excluded\").length,",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bid-leveling-worksheet/calc.mjs",
+            "line": 154,
+            "col": 26,
+            "operator": "plus-to-minus",
+            "before": "return lines.join(\"\\n\") + \"\\n\";",
+            "after": "return lines.join(\"\\n\") - \"\\n\";",
+            "line_text": "  return lines.join(\"\\n\") + \"\\n\";",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/babysitting-business-kit/intake.mjs",
+        "issue": "meet-and-greet.html had a hand-added <main> landmark the generator lacked, so the page test was red on main; generator now emits <main>, test asserts it",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13338"
+      }
+    ]
+  }
+}

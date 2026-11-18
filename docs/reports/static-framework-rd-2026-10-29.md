@@ -1,3 +1,8 @@
+---
+kind: note
+date: 2026-10-29
+tagged: auto
+---
 # A static framework for a site written by agents: R&D direction (2026-10-29)
 
 The owner asked what it would look like to build a static web framework for

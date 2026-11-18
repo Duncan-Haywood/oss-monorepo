@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to Structured Data Drift Check</a></p>
   <h1>Why Google requires structured data to match visible text</h1>
 
@@ -103,7 +104,9 @@
   <h3>How does the two-lockfile-style diff this tool's siblings use apply to a single page?</h3>
   <p>It doesn't, directly -- this tool checks one page's JSON-LD against that same page's own visible text, not two point-in-time snapshots against each other. The shared idea with this portfolio's other checkers is the same deterministic, no-network, no-verdict shape: read exactly what is already present, compare two specific things character by character, and report precisely where they part ways rather than issuing an opinion.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it documents report whether a JSON-LD claim's exact text is present in the page's own visible copy. Nothing here is SEO, legal, or marketing advice, a Search Console substitute, or a guarantee about rich-result eligibility or rankings. Verify by reading the actual page and Google's current documentation before relying on it.
     <a href="./">Back to the tool</a>.</p>
   </footer>

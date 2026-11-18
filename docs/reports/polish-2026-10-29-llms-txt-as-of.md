@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [llms-txt]
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: an as-of date in every generated llms.txt (AEO)
 
 **Weak surface.** The polish prompt asks answer-first pages to carry an as-of date. The generated

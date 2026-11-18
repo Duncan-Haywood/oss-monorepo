@@ -1,0 +1,47 @@
+{
+ "date": "2026-11-10",
+ "session": "https://claude.ai/code/session_01E5sJKmHYqrAMFWHebdyiU9",
+ "track": "process",
+ "prompt_version": 1,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-10T11:22:03Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14506",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "prompts/quality/prompt-0.md",
+   "issue": "Mentions only open quality PRs for seed collisions; sampler now reads merged audits on origin/main, but the prompt is CODEOWNERS-gated so the clause was not added."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-11-10-quality-sampler-sees-merged-rounds.md",
+  "docs/reports/quality-sampler-remote-audits.md"
+ ],
+ "goal": null,
+ "notes": "Backlog had only owner/blocked rows; main_health 55/55 green; critique mode fixed quality_audit sample via doc_friction. No backlog ids touched.",
+ "corrections": [],
+ "redteam": null
+}

@@ -1,0 +1,45 @@
+
+== online-retail-ii, 2000 GBP per labor hour, minimum staff 1 (101 tested weeks)
+  plain average: scheduled 121.9; short + over old score 60.1, new score 68.8
+  (1) rules off minus rules on: old score +3.9 (+3.8 to +4.0), new score +7.4 (+6.9 to +7.9)
+  auto, old score: A 59.0 (all 4, hl2 66, hl8 31); B 59.0 (all 4, hl2 66, hl8 31); B vs A +0.0 (+0.0 to +0.0)
+  auto, new score: A 67.7 (all 4, hl2 66, hl8 31); B 62.7 (all 4, hl2 4, last4 93); B vs A -5.0 (-7.0 to -3.0)
+  weightings vs plain, new score: hl8 -1.2 (-2.3 to -0.1); hl4 -1.1 (-3.0 to +0.7); hl2 -1.8 (-3.9 to +0.2); last4 -6.6 (-9.4 to -3.8)
+
+== online-retail-ii, 2000 GBP per labor hour, minimum staff 2 (101 tested weeks)
+  plain average: scheduled 147.4; short + over old score 42.1, new score 59.5
+  (1) rules off minus rules on: old score -0.1 (-0.1 to -0.0), new score +7.0 (+6.1 to +7.8)
+  auto, old score: A 40.8 (all 4, hl2 65, hl8 29, hl4 3); B 40.8 (all 4, hl2 65, hl8 29, hl4 3); B vs A +0.0 (+0.0 to +0.0)
+  auto, new score: A 58.1 (all 4, hl2 65, hl8 29, hl4 3); B 44.9 (all 4, hl2 1, last4 96); B vs A -13.2 (-15.0 to -11.5)
+  weightings vs plain, new score: hl8 -1.6 (-2.5 to -0.7); hl4 -1.8 (-3.3 to -0.2); hl2 -2.1 (-3.8 to -0.3); last4 -14.9 (-17.5 to -12.3)
+
+== online-retail-ii, 4000 GBP per labor hour, minimum staff 1 (101 tested weeks)
+  plain average: scheduled 77.7; short + over old score 27.5, new score 36.1
+  (1) rules off minus rules on: old score -0.1 (-0.1 to -0.0), new score +3.4 (+3.0 to +3.9)
+  auto, old score: A 25.7 (all 4, hl2 62, hl4 8, hl8 27); B 25.7 (all 4, hl2 62, hl4 8, hl8 27); B vs A +0.0 (+0.0 to +0.0)
+  auto, new score: A 34.4 (all 4, hl2 62, hl4 8, hl8 27); B 28.2 (all 4, hl2 3, last4 94); B vs A -6.2 (-7.4 to -5.1)
+  weightings vs plain, new score: hl8 -1.5 (-2.4 to -0.6); hl4 -2.0 (-3.2 to -0.8); hl2 -2.3 (-3.6 to -1.0); last4 -8.2 (-10.0 to -6.5)
+
+== online-retail-ii, 4000 GBP per labor hour, minimum staff 2 (101 tested weeks)
+  plain average: scheduled 139.0; short + over old score 9.5, new score 26.9
+  (1) rules off minus rules on: old score -0.1 (-0.1 to -0.0), new score +7.0 (+6.1 to +7.8)
+  auto, old score: A 9.5 (all 101); B 9.5 (all 101); B vs A +0.0 (+0.0 to +0.0)
+  auto, new score: A 26.9 (all 101); B 12.9 (all 4, last4 97); B vs A -14.0 (-15.1 to -12.9)
+  weightings vs plain, new score: hl8 +0.0 (+0.0 to +0.0); hl4 +0.0 (+0.0 to +0.0); hl2 +0.2 (-0.1 to +0.5); last4 -14.1 (-15.2 to -13.0)
+
+== online-retail-ii, 8000 GBP per labor hour, minimum staff 1 (101 tested weeks)
+  plain average: scheduled 69.5; short + over old score 6.4, new score 15.1
+  (1) rules off minus rules on: old score -0.1 (-0.1 to -0.0), new score +3.4 (+3.0 to +3.9)
+  auto, old score: A 6.4 (all 101); B 6.4 (all 101); B vs A +0.0 (+0.0 to +0.0)
+  auto, new score: A 15.1 (all 101); B 8.8 (all 4, last4 97); B vs A -6.3 (-7.1 to -5.6)
+  weightings vs plain, new score: hl8 +0.0 (+0.0 to +0.0); hl4 +0.0 (+0.0 to +0.0); hl2 +0.2 (-0.1 to +0.5); last4 -6.4 (-7.1 to -5.6)
+
+== online-retail-ii, 8000 GBP per labor hour, minimum staff 2 (101 tested weeks)
+  plain average: scheduled 139.0; short + over old score 1.9, new score 19.2
+  (1) rules off minus rules on: old score -0.1 (-0.1 to -0.0), new score +7.0 (+6.1 to +7.8)
+  auto, old score: A 1.9 (all 101); B 1.9 (all 101); B vs A +0.0 (+0.0 to +0.0)
+  auto, new score: A 19.2 (all 101); B 4.7 (all 4, last4 97); B vs A -14.5 (-15.4 to -13.5)
+  weightings vs plain, new score: hl8 +0.0 (+0.0 to +0.0); hl4 +0.0 (+0.0 to +0.0); hl2 +0.0 (+0.0 to +0.0); last4 -14.6 (-15.5 to -13.7)
+
+== Pre-registered test, 6 settings: (1) rules not shown to hurt under the new score at 6 of 6; (2) auto B not clearly worse than A under the new score at 6 of 6.
+AGREES: both conditions hold at every setting.

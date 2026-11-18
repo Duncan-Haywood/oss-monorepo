@@ -8,7 +8,7 @@ total, and rows downloaded twice (QIF has no transaction ID). It gives a line nu
 writes a repaired file, optionally with dates rewritten to a four-digit year in the order you
 confirm. The file is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/qif-file-check/
+**Live tool:** https://marisstella.app/qif-file-check/
 
 ## Run it
 
@@ -18,8 +18,25 @@ key; the work happens in your browser and nothing you paste is uploaded.
 To run the tests (Node 20 or newer):
 
 ```
-node --test ventures/qif-file-check/
+cd ventures/qif-file-check && node --test '*.test.mjs'
 ```
+
+## Known gaps
+
+From the quality audit of 2026-11-13
+([`portfolio/quality/audits/2026-11-13-qif-file-check.json`](../../portfolio/quality/audits/2026-11-13-qif-file-check.json)):
+
+- Investment (`!Type:Invst`) records are checked like bank records: a share
+  transfer (`ShrsIn`) with no `T` line is reported as an error, and every
+  investment record warns "No payee or memo".
+- Calendar-impossible dates such as 02/30/2024 are not flagged (only month
+  and day ranges are checked).
+- Split totals are compared loosely enough that a seeded change to compare
+  them in dimes was not caught by any test.
+- Fixed on 2026-11-13: list sections of a full Quicken export (`!Type:Cat`,
+  `!Account` blocks and the like) were checked as transactions; stray
+  letters before an amount (`l2.50`, `DR12.50`) were stripped as if they
+  were a currency code.
 
 ## Files
 

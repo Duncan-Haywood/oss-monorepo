@@ -82,3 +82,20 @@ test("the guide's table is the arithmetic, and the engine achieves it", () => {
     assert.equal(counts[n - 1], extra === 0 ? lo : lo + 1, `${n} players max`);
   }
 });
+
+test("comparison page: disclaimer, FAQ matches JSON-LD, linked and in sitemap", () => {
+  const name = "vs-a-whiteboard-or-spreadsheet-rotation.html";
+  const html = page(name);
+  assert.match(html, /<strong>No warranty\.<\/strong>/);
+  assert.match(html, /Nothing leaves your browser/);
+  assert.match(html, /<link rel="canonical" href="\.\/vs-a-whiteboard-or-spreadsheet-rotation\.html">/);
+  const faq = JSON.parse([...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => m[1])[0]);
+  assert.equal(faq["@type"], "FAQPage");
+  for (const q of faq.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  assert.match(page("index.html"), /href="\.\/vs-a-whiteboard-or-spreadsheet-rotation\.html"/);
+  assert.match(page("sitemap.xml"), /vs-a-whiteboard-or-spreadsheet-rotation\.html/);
+  assert.match(page("llms.txt"), /vs-a-whiteboard-or-spreadsheet-rotation\.html/);
+});

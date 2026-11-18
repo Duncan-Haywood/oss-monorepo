@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   PACKS, normalize, similarity, grade, parseCommand, newProgress, updateStreak,
-  recordAnswer, planSession, mastered, shareText, xpFor, MAX_BOX,
+  recordAnswer, planSession, mastered, shareText, xpFor, MAX_BOX, PASS, CLOSE,
 } from "./drill.mjs";
 
 test("normalize drops case, accents and punctuation", () => {
@@ -88,4 +88,45 @@ test("share text states streak, XP and mastery without personal data", () => {
   p = updateStreak(p, "2026-10-01");
   assert.equal(mastered(p, "fr"), 1);
   assert.match(shareText(p, "fr"), /1-day streak learning French hands-free: 30 XP, 1\/12/);
+});
+
+// Quality audit 2026-11-09 (portfolio/quality/audits/2026-11-09-hands-free-language-coach.json):
+// meaning-inverting near-misses passed, and PASS, CLOSE and the streak gap
+// were not pinned by any test.
+test("a dropped or swapped negation is never a pass", () => {
+  for (const heard of ["Yo entiendo", "Lo entiendo"]) {
+    const g = grade(heard, "No entiendo");
+    assert.notEqual(g.verdict, "pass", heard);
+    assert.equal(g.negationMismatch, true, heard);
+  }
+  assert.notEqual(grade("Je comprends pas", "Je ne comprends pas").verdict, "pass");
+  assert.notEqual(grade("Ich verstehe", "Ich verstehe nicht").verdict, "pass");
+  assert.notEqual(grade("Nao entendi", "Entendi").verdict, "pass");
+  assert.equal(grade("no entiendo", "No entiendo").verdict, "pass");
+  assert.equal(grade("nao entendi", "Não entendi").verdict, "pass");
+});
+
+test("the alternative that keeps the negation wins", () => {
+  const g = grade(["Lo entiendo", "No entiendo"], "No entiendo");
+  assert.equal(g.verdict, "pass");
+  assert.equal(g.score, 1);
+});
+
+test("PASS and CLOSE bands sit where the page says", () => {
+  assert.equal(PASS, 0.8);
+  assert.equal(CLOSE, 0.55);
+  // "abcdefghij" vs one, three and five substitutions: 0.9, 0.7, 0.5.
+  assert.equal(grade("abcdefghiX", "abcdefghij").verdict, "pass");
+  assert.equal(grade("abcdefgXXX", "abcdefghij").verdict, "close");
+  assert.equal(grade("abcdeXXXXX", "abcdefghij").verdict, "miss");
+  // 0.75 is close, not pass: a 0.6 threshold would pass it.
+  assert.equal(grade("abcXdefX", "abcydefz").verdict, "close");
+});
+
+test("a missed day breaks the streak", () => {
+  let p = updateStreak(newProgress(), "2026-10-01");
+  p = updateStreak(p, "2026-10-03");
+  assert.equal(p.streak, 1);
+  p = updateStreak(p, "2026-10-04");
+  assert.equal(p.streak, 2);
 });

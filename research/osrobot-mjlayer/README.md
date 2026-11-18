@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-mjmodulus` (track 9, open-source purpose-built robots), taking its "Next steps" item in part: put bone behind the tissue. That project showed the half-space Hertz model is out of range at published 4 to 45 kPa face moduli. Here the tissue is a layer of thickness h bonded to rigid bone, using published bottom-effect corrections, and the question is the **force budget**: the force at which the tip has indented 30 % of the layer. In the direction of the CAIRO Lab interest in assistive robotics; nothing here is affiliated with or endorsed by it. Produced with AI assistance (Claude). Stdlib Python only. Closed-form contact models, not a finite-element run; **not a safety case**.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-mjlayer/
+**Live page:** https://marisstella.app/research/osrobot-mjlayer/
 
 ![Force budget against layer thickness](experiments/budget.svg)
 
@@ -11,7 +11,7 @@ Follow-up to `osrobot-mjmodulus` (track 9, open-source purpose-built robots), ta
 - **The simulated trial forces (12.6, 20.2 and 53.3 N) are 1.3 to 1000 times that budget** in every cell of the sweep. In most cells the model's depth at those forces exceeds the layer thickness itself (for example 52.7 mm of indentation in a 15 mm lip at 10 kPa and 53.3 N), which means the tissue is fully compressed against bone and the formula is extrapolated past anything it describes. What happens at the bone, a much higher local pressure, is not computed here.
 - **Two published corrections agree** to within about 40 % on the budget (largest gap at the biggest tip, 15 mm, thinnest layer, stiffest tissue: 2.2 N against 3.0 N), so the budget is a property of the geometry and not of one fit.
 - **A larger tip helps by a factor of a few, not by orders of magnitude**: 4 to 15 mm raises the budget about 3 times. Together with `osrobot-mjmodulus` (Hertz is only valid for tips of 73 mm and up at 53 N), the design levers are a force limit of order newtons and a compliant pad, not a 65 N cap.
-- This also says the `osrobot-mjpress` forces are not self-consistent with a soft face (its kinematic lips have stiffness 75,000 N/m): a real arm would meet the face at forces one to three orders of magnitude lower, which is what the next step should simulate.
+- This also says the `osrobot-mjpress` forces are not self-consistent with a soft face (its kinematic lips are labelled 75,000 N/m; the `osrobot-mjface` correction of 2026-11-13 found MuJoCo reads that per kg, so the simulated face is 22,500 N/m and its trial peaks are stale, which widens the gap rather than closing it): a real arm would meet the face at forces one to three orders of magnitude lower, which is what the next step should simulate.
 
 ## Where the numbers come from
 | Input | Value | Source |
@@ -35,7 +35,7 @@ python3 experiments/figure.py              # experiments/budget.svg
 ```
 
 ## Limitations
-- A bonded, homogeneous, linear elastic layer on rigid bone. Real lips are layered, nonlinear, viscoelastic, have a cavity behind them (teeth, tongue), and the contact is not bonded to a flat substrate. The polynomials are fits for micro-scale indentation, applied here at tissue scale and past χ ≈ 1 for the deep cases; the budget (χ ≈ 0.3 to 0.6) is inside the range the source studies, the depth figures at trial forces are not.
+- A bonded, homogeneous, linear elastic layer on rigid bone. Real lips are layered, nonlinear, viscoelastic, have a cavity behind them (teeth, tongue), and the contact is not bonded to a flat substrate. The polynomials are fits for micro-scale indentation, applied here at tissue scale and past χ ≈ 1 for the deep cases; the budget cells sit at χ ≈ 0.25 to 0.95 and δ/R 0.1 to 1.5, while Dal Fabbro et al. validate the corrections by FEA only for χ < 0.4 and δ/R ≤ 1, so 21 of the 36 budget cells (and every depth figure at trial forces) are extrapolated (quality audit [2026-11-17](../../portfolio/quality/audits/2026-11-17-osrobot-mjlayer.json)).
 - A 30 % depth limit is a judgement, and indentation depth is not a pressure or injury limit.
 - Moduli and thicknesses come from small studies read as summaries; the thickness table is for the lip, not the cheek.
 - No finite-element cross-check was run (no solver available in the container without numpy); the two published corrections are the only independent check.

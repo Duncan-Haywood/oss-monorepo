@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Actions Transitive Pin Check</a></p>
   <h1>What is a transitive GitHub Actions dependency?</h1>
   <p>Every <code>uses:</code> line in your own workflow file is a direct dependency — the thing you chose and, ideally, pinned yourself. A reusable workflow or a composite action is just another file with its own steps, and if one of those steps has its own <code>uses:</code> line, that is a transitive dependency: something your workflow depends on that you did not write, did not review, and cannot see by reading your own repository. Pinning your direct reference to a commit SHA fixes what that one line points to. It says nothing about what the file at that commit itself loads.</p>
@@ -37,7 +38,9 @@
   <p><a href="./">Paste a workflow into Actions Transitive Pin Check</a> to fetch every pinned reference's own definition from <code>raw.githubusercontent.com</code> and flag one that loads something unpinned underneath, or run the CLI in your own repository:</p>
   <pre><code>node check.mjs --fail-on-risk</code></pre>
   <p class="note">That exits nonzero if any pinned reference loads an unpinned one underneath it — wire it into your own CI to block a newly-introduced gap before it merges.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit or a compliance attestation, and a clean scan does not mean a workflow is safe from supply-chain risk — only that this one specific gap was not found.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
     <p>The workflow YAML you paste in the linked tool is read in your browser and never uploaded; the transitive check makes a direct browser request to <code>raw.githubusercontent.com</code> for each pinned reference's own file, unauthenticated, and reads nothing else.</p>

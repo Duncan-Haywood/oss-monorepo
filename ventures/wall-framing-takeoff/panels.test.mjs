@@ -116,3 +116,13 @@ test("a gable wall's sloped plates are trimmed along the slope, not by their hor
   const total = parts.flatMap((p) => p.pieces).filter((x) => x.label === "top plate").reduce((t, x) => t + x.length * x.qty, 0);
   assert.ok(Math.abs(total - sloped.reduce((t, m) => t + m.length, 0)) < 0.2, `top plate pieces ${total} vs whole ${sloped.reduce((t, m) => t + m.length, 0)}`);
 });
+
+test("panelMaxError: text, NaN, tiny and huge panel sizes are refused (a 0.5 in panel size ran for 5 s and returned nonsense)", async () => {
+  const { panelMaxError, panelizeWall, panelOrder } = await import("./panels.mjs");
+  const { samplePlan, takeoff } = await import("./engine.mjs");
+  for (const v of ["16", NaN, Infinity, null, undefined, -5, 0, 0.5, 1e-9, 1201, 1e12]) assert.ok(panelMaxError(/** @type {any} */ (v)), String(v));
+  for (const v of [6, 96, 144, 1200]) assert.equal(panelMaxError(v), null);
+  const r = takeoff(samplePlan());
+  assert.throws(() => panelizeWall(r.walls[0], 0.5), /6 to 1200/);
+  assert.throws(() => panelOrder(r, samplePlan(), /** @type {any} */ ("16")), /number of inches/);
+});

@@ -36,7 +36,7 @@ const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9#&]+/g, " ").
 export function parseCsv(text) {
   const rows = [];
   let row = [], cur = "", q = false, line = 1, rowLine = 1;
-  const src = String(text).replace(/^﻿/, "");
+  const src = String(text).replace(/^\uFEFF/, "");
   const push = () => { row.push(cur); cur = ""; };
   const endRow = () => { push(); if (row.some((c) => c.trim() !== "")) rows.push({ line: rowLine, cells: row }); row = []; };
   for (let i = 0; i < src.length; i++) {
@@ -83,7 +83,7 @@ export const isoDay = (n) => new Date(n * DAY).toISOString().slice(0, 10);
 export const yearOf = (n) => new Date(n * DAY).getUTCFullYear();
 const LONG = { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" };
 export const longDay = (n) => new Date(n * DAY).toLocaleDateString("en-US", LONG);
-export const dollars = (cents) => (cents < 0 ? "-" : "") + "$" + (Math.abs(cents) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const dollars = (cents) => ((t) => (cents < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + (Math.abs(cents) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
 // Cash, check, card, ACH and the like are money; anything that names property is non-cash.
 // A vehicle is non-cash with its own form; stock is non-cash. A pledge is not a gift yet.

@@ -1,3 +1,9 @@
+---
+kind: note
+subjects: [einvoice-preflight]
+date: 2026-11-01
+tagged: auto
+---
 # einvoice-preflight: CEN unit-test corpus is not usable as-is (agent note, 2026-11-01)
 
 - Re-ran `node eval/official-examples.mjs` on current heads of ConnectingEurope/eInvoicing-EN16931, OpenPEPPOL/peppol-bis-invoice-3 and itplr-kosit/xrechnung-testsuite (all reachable via `git clone --depth 1` from a cloud session; gov and tax-authority hosts all timed out). Counts match the README tables (31 / 13 / 72 files, same rules firing: placeholder ids, INV-012, INV-030 note). No regression, no new false positive. The `XRechnung-O.xml` INV-040/041 hits are real (empty and `XX` placeholder addresses in the file).

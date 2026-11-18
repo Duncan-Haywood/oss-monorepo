@@ -1,0 +1,21 @@
+design bayes3 x=[113.125, 0.288, 0.204, 1.16] (positive thickness um, positive porosity, negative porosity, N/P)
+SPMe, charge 5.0 A
+   c1 discharge: 8.513 Ah, 6129 s; c_e min/max over space and time 72/3229 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)
+   c1 charge: 4.675 Ah, 3366 s; c_e min/max over space and time -37/3229 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)
+   c2 discharge: 0.082 Ah, 59 s; c_e min/max over space and time -37/2519 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)
+   c2 charge: 0.355 Ah, 256 s; c_e min/max over space and time -9/2425 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)
+SPMe, charge 2.0 A
+   c1 discharge: 8.513 Ah, 6129 s; c_e min/max over space and time 72/3229 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)
+   c1 charge: 7.756 Ah, 13961 s; c_e min/max over space and time 72/3229 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)
+   c2 discharge: 7.580 Ah, 5458 s; c_e min/max over space and time 72/3229 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)
+   c2 charge: 7.600 Ah, 13680 s; c_e min/max over space and time 72/3229 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)
+DFN, charge 5.0 A
+   c1 discharge: 8.388 Ah, 6039 s; c_e min/max over space and time 4/3658 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)
+   c1 charge: 5.579 Ah, 4017 s; c_e min/max over space and time 4/3380 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)
+   c2 discharge: 5.579 Ah, 4017 s; c_e min/max over space and time 41/3433 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)
+   c2 charge: 5.604 Ah, 4035 s; c_e min/max over space and time 41/3340 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)
+DFN, charge 2.0 A
+   c1 discharge: 8.388 Ah, 6039 s; c_e min/max over space and time 4/3658 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)
+   c1 charge: 7.550 Ah, 13591 s; c_e min/max over space and time 4/3380 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)
+   c2 discharge: 7.472 Ah, 5380 s; c_e min/max over space and time 19/3614 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)
+   c2 charge: 7.514 Ah, 13525 s; c_e min/max over space and time 22/3370 mol/m3; X-averaged negative electrode porosity start/end 0.204/0.204; Loss of lithium to lithium plating [mol]: n/a (KeyError)

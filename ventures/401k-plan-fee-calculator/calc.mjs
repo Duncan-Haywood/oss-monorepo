@@ -4,6 +4,27 @@
 // 408(b)(2) service-provider disclosures are where the numbers come from. There is no legal safe-harbor percentage; the
 // benchmark table below is an illustrative planning aid the visitor can edit, not a standard.
 
+// Comma-separated, with spreadsheet-style double quotes so an exported
+// "$1,200" or "Smith, LLC" stays one field ("" inside quotes is a quote).
+const splitCsvLine = (line) => {
+  if (!line.includes('"')) return line.split(",").map((s) => s.trim());
+  const out = [];
+  let cur = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i += 1; }
+      else if (ch === '"') quoted = false;
+      else cur += ch;
+    } else if (ch === '"' && cur.trim() === "") { quoted = true; cur = ""; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+};
+
 export const DEFAULT_BENCHMARK_TEXT = [
   "0-1000000: 1.35",
   "1000001-5000000: 1.05",
@@ -22,7 +43,7 @@ export function parseBenchmarks(text) {
   String(text ?? "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const m = /^\$?([\d,]+)\s*(?:-\s*\$?([\d,]+)|(\+))\s*:\s*([\d.]+)\s*%?$/.exec(line);
+    const m = /^\$?(\d{1,3}(?:,\d{3})+|\d+)\s*(?:-\s*\$?(\d{1,3}(?:,\d{3})+|\d+)|(\+))\s*:\s*(\d+(?:\.\d+)?|\.\d+)\s*%?$/.exec(line);
     if (!m) return errors.push(`Benchmark line ${i + 1}: use "min-max: percent" or "min+: percent".`);
     const min = Number(m[1].replace(/,/g, ""));
     const max = m[3] ? Infinity : Number(m[2].replace(/,/g, ""));
@@ -43,7 +64,7 @@ export function parseFunds(text) {
   String(text ?? "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const p = line.split(",").map((s) => s.trim());
+    const p = splitCsvLine(line);
     const bal = num(p[1]);
     const er = num(p[2]);
     if (!p[0] || !(p[1] ?? "") || !(p[2] ?? "") || !(bal >= 0) || !(er >= 0) || Number.isNaN(bal) || Number.isNaN(er)) {
@@ -93,7 +114,9 @@ export function plan(input) {
   // Participant projection: one person with the average balance, same gross return and contributions, at today's all-in
   // cost versus at the benchmark cost. Fees come out of return each year.
   const years = Math.min(50, Math.max(1, Math.round(num(input.years)) || 20));
-  const gross = num(input.grossReturn) || 6;
+  // Blank or unreadable means the 6% default; a typed 0 is a real (cautious) assumption, not a blank.
+  const grossIn = num(input.grossReturn);
+  const gross = String(input.grossReturn ?? "").trim() !== "" && Number.isFinite(grossIn) ? grossIn : 6;
   const contrib = num(input.annualContribution);
   const grow = (feePct) => {
     let bal = avgBalance;

@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free T-Shirt and Hoodie Size Finder, and a Size Run for Your First Order</title>
+  <meta name="description" content="Free size finder for t-shirts, long-sleeves, sweatshirts and hoodies: enter a chest measurement, pick how the garment is cut and the look you want, and see the size and the ease in every size. Brands also get a size run: how many of each size to order for their audience.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Size finder and size run for t-shirts and hoodies">
+  <meta property="og:description" content="Which size, and how many of each size to order. Free, in your browser.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Size finder and size run (Clothing Design Studio)","applicationCategory":"LifestyleApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"size recommendation from chest, waist, hip and height; ease per size; size run split for a production quantity from the audience chest mean and spread"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many of each size should a new clothing brand order?","acceptedAnswer":{"@type":"Answer","text":"Not an even split. Adult chest sizes follow a bell curve around the audience average, so the middle sizes sell most. The size run above splits a quantity from the audience's average chest and spread, and moves it toward bigger sizes when buyers want a looser look than the garment is cut for. Replace the typical chart with your factory's."}},{"@type":"Question","name":"What is ease?","acceptedAnswer":{"@type":"Answer","text":"How much bigger the finished garment is than the body, around the chest. About 6 cm is slim, 12 regular, 18 relaxed, 28 oversized for a t-shirt; sweatshirts and hoodies add 4 to 8 cm. These are typical trade values, not a standard."}},{"@type":"Question","name":"Is this a virtual try-on?","acceptedAnswer":{"@type":"Answer","text":"Part of one. The try-on panel draws the garment over a body built from your tape measurements, to scale in width, and compares the chest, waist and hem. It is geometry: no camera, no drape or stretch, so it shows where the room is, not how the fabric hangs."}}]}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="wardrobe.html">Wardrobe planner</a> · <a href="sunglasses.html">Sunglasses</a></p>
+  <h1>Which size, and how many of each size to make.</h1>
+  <p>Enter a chest measurement to see which size gives the fit you want, with the room (ease) in every size. If you are a brand, set your audience and get a size run for your first order instead of an even split.</p>
+  <p class="placeholder">The size table is typical adult unisex chest sizes, rounded, not any factory's chart. Type your factory's chart to replace it.</p>
+
+  <div class="grid">
+    <section>
+      <h2>Garment and fit</h2>
+      <div class="row">
+        <div><label for="garment">Garment</label><select id="garment"><option value="tee">T-shirt</option><option value="longsleeve">Long-sleeve tee</option><option value="crewneck">Crewneck sweatshirt</option><option value="hoodie">Hoodie</option></select></div>
+        <div><label for="cut">How it is cut</label><select id="cut"><option value="slim">Slim</option><option value="regular" selected>Regular</option><option value="relaxed">Relaxed</option><option value="oversized">Oversized</option></select></div>
+      </div>
+      <label for="want">The look the wearer wants</label>
+      <select id="want"><option value="">Same as the cut</option><option value="slim">Slim</option><option value="regular">Regular</option><option value="relaxed">Relaxed</option><option value="oversized">Oversized</option></select>
+      <h2>Your body (cm)</h2>
+      <div class="row">
+        <div><label for="chest">Chest, fullest part</label><input id="chest" type="number" min="60" max="170" step="0.5" value="100"></div>
+        <div><label for="waist">Waist (optional)</label><input id="waist" type="number" min="40" max="170" step="0.5"></div>
+      </div>
+      <div class="row">
+        <div><label for="hip">Hip (optional)</label><input id="hip" type="number" min="50" max="180" step="0.5"></div>
+        <div><label for="height">Height (optional)</label><input id="height" type="number" min="120" max="230" step="1"></div>
+        <div><label for="arm">Arm, shoulder point to wrist (optional)</label><input id="arm" type="number" min="40" max="100" step="0.5"></div>
+        <div><label for="fsleeve">Factory sleeve length at size M, shoulder point to cuff (optional)</label><input id="fsleeve" type="number" min="10" max="90" step="0.5"></div>
+      </div>
+      <h2>Brand: size run</h2>
+      <div class="row">
+        <div><label for="qty">Pieces to make</label><input id="qty" type="number" min="1" max="100000" step="1" value="200"></div>
+        <div><label for="mean">Audience average chest</label><input id="mean" type="number" min="60" max="170" step="1" value="100"></div>
+      </div>
+      <label for="sd">Spread (standard deviation)</label><input id="sd" type="number" min="2" max="30" step="1" value="9">
+      <label for="chart">Factory size chart (optional)</label>
+      <input id="chart" type="text" placeholder="S=96, M=104, L=112, XL=120 (body chest in cm)">
+      <p class="tag" id="chart-note"></p>
+      <h2>Brand: cloth and cost of the run</h2>
+      <div class="row">
+        <div><label for="fprice">Fabric per metre</label><input id="fprice" type="number" min="0" step="0.1" value="5"></div>
+        <div><label for="fm">Metres for a size M</label><input id="fm" type="number" min="0.1" step="0.05" value="1.2"></div>
+      </div>
+      <div class="row">
+        <div><label for="fwaste">Wastage %</label><input id="fwaste" type="number" min="0" max="50" step="1" value="8"></div>
+        <div><label for="fcs">Cut and sew per piece</label><input id="fcs" type="number" min="0" step="0.1" value="4"></div>
+      </div>
+      <label for="fother">Everything else per piece (print, trims, packing, freight)</label><input id="fother" type="number" min="0" step="0.1" value="3">
+      <div class="row"><div><label for="fwidth">Fabric width, usable, cm</label><input id="fwidth" type="number" min="60" max="300" step="1" value="150"></div>
+        <div><label for="fplies">Most plies per lay</label><input id="fplies" type="number" min="1" max="200" step="1" value="60"></div>
+        <div><label for="ftable">Cutting table, cm</label><input id="ftable" type="number" min="100" step="10" value="1000"></div>
+        <div><label for="fnest"><input id="fnest" type="checkbox"> Nest the real outlines (tee, long sleeve, crewneck; takes several seconds)</label></div>
+        <div><label for="frib">Rib hem and cuffs (crewneck, hoodie; needs nesting)</label> <select id="frib"><option value="">None (plain hem)</option><option value="self">Bands cut from the body cloth</option><option value="separate">Bands on a separate rib knit</option></select> <label for="fribw">rib knit width cm</label> <input id="fribw" type="number" value="150" min="30" max="300" style="width:5em"></div></div>
+      <label for="fplus">Factory surcharge per piece for XL and XXL (optional)</label><input id="fplus" type="number" min="0" step="0.1" value="0">
+    </section>
+
+    <div>
+      <section>
+        <h2>Result</h2>
+        <output id="results" aria-live="polite"></output>
+      </section>
+      <section>
+        <h2>Try it on (front view)</h2>
+        <div id="tryon" aria-live="polite"></div>
+      </section>
+      <section>
+        <h2>Size run</h2>
+        <div id="run" aria-live="polite"></div>
+      </section>
+      <section>
+        <h2>What the run costs</h2>
+        <div id="runcost" aria-live="polite"></div>
+      </section>
+    </div>
+  </div>
+
+  <section id="faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <h3>How many of each size should a new clothing brand order?</h3>
+    <p>Not an even split. Adult chest sizes follow a bell curve around the audience average, so the middle sizes sell most. The size run above splits a quantity from the audience&#x27;s average chest and spread, and moves it toward bigger sizes when buyers want a looser look than the garment is cut for. Replace the typical chart with your factory&#x27;s.</p>
+    <h3>What is ease?</h3>
+    <p>How much bigger the finished garment is than the body, around the chest. About 6 cm is slim, 12 regular, 18 relaxed, 28 oversized for a t-shirt; sweatshirts and hoodies add 4 to 8 cm. These are typical trade values, not a standard.</p>
+    <h3>Is this a virtual try-on?</h3>
+    <p>Part of one. The try-on panel draws the garment over a body built from your tape measurements, to scale in width, and compares the chest, waist and hem. It is geometry: no camera, no drape or stretch, so it shows where the room is, not how the fabric hangs.</p>
+  </section>  <!-- journey -->
+  <nav class="journey" aria-label="Launch path" style="margin-top:24px;padding:12px 14px;border:1px solid #ddd2c4;border-radius:12px;background:#fffdf9;font-size:.9rem;line-height:1.55">
+    <strong>1. Design the thing</strong> on the <a href="launch.html">launch path for a clothing line</a>.
+    <div>Also at this stage: <a href="./">Design studio: voice, typing or drag</a> · <a href="sunglasses.html">Sunglasses designer</a> · <a href="wardrobe.html">Capsule wardrobe planner</a> · <a href="camera.html">Try it on from a photo</a></div>
+    <div>Before: <a href="wardrobe.html">Capsule wardrobe planner</a> · Next: <a href="camera.html">Try it on from a photo</a></div>
+  </nav>
+  <!-- /journey -->
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional styling advice, and it does not replace a qualified professional. Its suggestions follow simple published rules (neutrals with one accent, pieces chosen by style, season and occasion), not anyone's taste. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+  <script type="module">
+    import { recommendSize, sizeRun, fitGap, BODY_CHEST_CM, FIT_LABELS } from "./fit.mjs";
+    import { tryOn } from "./tryon.mjs";
+    import { runCost } from "./runcost.mjs";
+    import { cuttingPlan, markerSvg, cutTicketCsv } from "./marker.mjs";
+    import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
+    import { newDesign } from "./design.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    function parseChart(text) {
+      const chart = {};
+      for (const m of String(text).matchAll(/\b(XXL|XL|XS|S|M|L)\s*[=:]\s*(\d+(?:\.\d+)?)/gi)) chart[m[1].toUpperCase()] = +m[2];
+      return Object.keys(chart).length >= 2 ? chart : null;
+    }
+    function render() {
+      const chart = parseChart($("#chart").value);
+      $("#chart-note").textContent = $("#chart").value.trim() ? (chart ? "Using your chart: " + Object.entries(chart).map(([k, v]) => k + " " + v).join(", ") + "." : "Could not read it. Write at least two sizes like S=96, M=104. Using the typical chart.") : "Using the typical chart: " + Object.entries(BODY_CHEST_CM).map(([k, v]) => k + " " + v).join(", ") + " cm.";
+      const garment = $("#garment").value, fit = $("#cut").value, want = $("#want").value || fit, sizeChart = chart || BODY_CHEST_CM;
+      const r = recommendSize({ chest: $("#chest").value, waist: $("#waist").value, hip: $("#hip").value, height: $("#height").value, arm: $("#arm").value }, { garment, fit, want, sizeChart });
+      if (!r.ok) $("#results").innerHTML = `<p class="notes">${esc(r.error)}</p>`;
+      else {
+        $("#results").innerHTML = `<p><span class="big">${esc(r.size)}</span> gives ${r.ease} cm of ease (the ${esc(FIT_LABELS[want].toLowerCase())} look needs ${r.intended}).</p>` +
+          `<table class="sz"><tr><th>Size</th><th class="num">Garment chest</th><th class="num">Flat width</th><th class="num">Length</th><th class="num">Ease</th><th>Reads as</th></tr>` +
+          r.rows.map(x => `<tr class="${x.size === r.size ? "hit" : ""}"><td>${esc(x.size)}</td><td class="num">${x.chest} cm</td><td class="num">${x.flatWidth} cm</td><td class="num">${x.length} cm</td><td class="num">${x.ease} cm</td><td>${esc(x.word)}</td></tr>`).join("") + `</table>` +
+          (r.notes.length ? `<p class="notes">${r.notes.map(esc).join("<br>")}</p>` : "") +
+          `<p class="tag">Flat width is half the garment chest, the number a factory tech pack lists. Measurements are typical, not a quote or a guarantee of fit.</p>`;
+      }
+      if (!r.ok) $("#tryon").innerHTML = "";
+      else {
+        const t = tryOn({ chest: $("#chest").value, waist: $("#waist").value, hip: $("#hip").value, height: $("#height").value, arm: $("#arm").value }, { garment, fit, size: r.size, sizeChart, sleeveCm: $("#fsleeve").value });
+        $("#tryon").innerHTML = !t.ok ? `<p class="notes">${esc(t.error)}</p>` :
+          `<div style="display:flex;gap:8px;max-width:520px;margin:auto"><div style="flex:1">${t.svg}</div><div style="flex:1">${t.side.svg}</div></div><p class="tag">Front view left, side view right (front-to-back room: ${t.side.depths.map(x => esc(x.where) + " +" + x.extra + " cm").join(", ")}).</p><p>Size <b>${esc(t.size)}</b>: ${esc(t.length.word)}. Sleeve (${t.sleeve.sleeveCm} cm from the shoulder): ${esc(t.sleeve.word)}.</p>` +
+          `<table><tr><th>Where</th><th class="num">Body</th><th class="num">Garment</th><th class="num">Ease</th><th>Reads as</th></tr>` +
+          t.checks.map(c => `<tr><td>${esc(c.where)}</td><td class="num">${c.body} cm</td><td class="num">${c.garment} cm</td><td class="num">${c.ease} cm</td><td>${esc(c.word)}</td></tr>`).join("") + `</table>` +
+          `<p class="notes">${t.notes.map(esc).join("<br>")}</p>` +
+          `<p class="tag">A body drawn to scale in width from your tape measurements; heights use average proportions of your height. Geometry only, not cloth: no drape or stretch, and not a promise of fit.</p>`;
+      }
+      const run = sizeRun($("#qty").value, { meanChest: $("#mean").value, sdChest: $("#sd").value, extraEase: fitGap(fit, want), sizeChart });
+      $("#run").innerHTML = !run.ok ? `<p class="notes">${esc(run.error)}</p>` :
+        `<table><tr><th>Size</th>${Object.keys(run.sharePct).map(s => `<th class="num">${esc(s)}</th>`).join("")}</tr><tr><td>Share</td>${Object.values(run.sharePct).map(v => `<td class="num">${v}%</td>`).join("")}</tr><tr><td>Pieces</td>${Object.keys(run.sharePct).map(s => `<td class="num"><b>${run.sizes[s]}</b></td>`).join("")}</tr></table>` +
+        `<p class="tag">A normal curve around the audience average chest. It assumes buyers know their size and the people you reach are roughly like your guess; a first order is a bet, so keep the small and large ends near the factory minimum and reorder from real sales.</p>`;
+      if (!run.ok) $("#runcost").innerHTML = "";
+      else {
+        const n = id => Math.max(0, Number($(id).value) || 0);
+        const sheet = { ...EXAMPLE_SUPPLIER, moq: 0, fabrics: { "cotton-jersey": n("#fprice") }, metresPerGarment: { [garment]: n("#fm") || 1 }, wastagePct: n("#fwaste"), cutAndSew: { [garment]: n("#fcs") }, trimsPerUnit: n("#fother"), packagingPerUnit: 0, freightPerUnit: 0, dutyPct: 0, methods: {} };
+        const plus = n("#fplus");
+        const rc = runCost(newDesign({ garment, fabric: "cotton-jersey", placements: [], quantity: Math.max(1, +$("#qty").value || 1) }), sheet, run.sizes, { fit, sizeChart, surcharge: { XL: plus, XXL: plus } });
+        $("#runcost").innerHTML = !rc.ok ? `<p class="notes">${esc(rc.error)}</p>` :
+          `<p>Buy about <span class="big">${rc.fabricMetresToBuy}</span> m of fabric. The run costs <b>${rc.runTotal}</b> in all, <b>${rc.blendedLanded}</b> a piece on average (${rc.differenceVsFlat >= 0 ? "+" : ""}${rc.differenceVsFlat} against pricing every piece as a size M).</p>` +
+          `<table><tr><th>Size</th><th class="num">Pieces</th><th class="num">Metres each</th><th class="num">Cost each</th><th class="num">Total</th></tr>` +
+          rc.rows.map(x => `<tr><td>${esc(x.size)}</td><td class="num">${x.pieces}</td><td class="num">${x.metres}</td><td class="num">${x.landed}</td><td class="num">${x.total}</td></tr>`).join("") + `</table>` +
+          `<p class="notes">${rc.notes.map(esc).join("<br>")}</p><p class="tag">Arithmetic on the prices you typed, in one currency. Not a quote: the factory's own cutting plan decides the real cloth use.</p>` + markerHtml(garment, run.sizes, fit, sizeChart, rc);
+      }
+    }
+    function markerHtml(garment, sizes, fit, sizeChart, rc) {
+      const mp = cuttingPlan(garment, sizes, { fit, sizeChart, fabricWidthCm: Math.max(60, Number($("#fwidth").value) || 150), maxPlies: Math.min(200, Math.max(1, Math.round(Number($("#fplies").value) || 60))), maxMarkerCm: Math.max(100, Number($("#ftable").value) || 1000), nested: $("#fnest").checked, searchSteps: $("#fnest").checked ? 60 : 0, rib: $("#frib").value || null, ribWidthCm: Number($("#fribw").value) || 150 });
+      if (!mp.ok) return `<h3>Cutting plan</h3><p class="notes">${esc(mp.error)}</p>`;
+      return `<h3>Cutting plan from the pattern pieces</h3><p>Packing the pieces of each size onto ${esc($("#fwidth").value)} cm cloth needs about <span class="big">${mp.metresToBuy}</span> m (${mp.metresPerPiece} m a piece, ${mp.utilisationPct}% of the cloth covered), against ${rc.fabricMetresToBuy} m from the area rule above.</p>` +
+        `<table><tr><th>Lay</th><th>Sizes (pieces per size in the marker)</th><th class="num">Lays x plies</th><th class="num">Marker</th><th class="num">Cloth</th></tr>` +
+        mp.groups.map((g, i) => `<tr><td>${i + 1}</td><td>${Object.entries(g.ratio).map(([s, r]) => `${esc(s)} x${r}`).join(", ")}</td><td class="num">${g.lays} x ${g.plies}</td><td class="num">${g.markerLengthCm} cm</td><td class="num">${g.metres} m</td></tr>`).join("") + `</table>` +
+        mp.groups.map((g, i) => `<details><summary>Lay ${i + 1} drawn to scale (${g.markerLengthCm} cm long)</summary><div style="overflow:auto;max-width:100%">${markerSvg(g)}</div>${g.nestingGainPct && !g.nested ? `<p class="tag">The drawing is the rectangle packing; the ${g.nestingGainPct}% nesting gain shortens the quoted length only.</p>` : ""}</details>`).join("") +
+        `<p><a download="cut-ticket.csv" href="data:text/csv;charset=utf-8,${encodeURIComponent(cutTicketCsv(mp))}">Download the cut ticket (CSV)</a></p>` +
+        `${mp.rib ? `<p><b>Rib knit to buy: ${mp.ribMetresToBuy} m</b> at ${mp.rib.widthCm} cm wide, besides the ${mp.metresToBuy} m of body cloth.</p>` : ""}<p class="notes">${mp.notes.map(esc).join("<br>")}</p><p class="tag">${mp.nested ? "Pieces are the drafted outlines (1 cm seams) laid on the grain by a raster nest with a 60-step search over the piece order." : "Pieces are drawn as rectangles on the grain with 1.5 cm seam allowance."} A factory's CAD marker nests the curves and will differ; type its figure into "metres per garment" when you have it.</p>`;
+    }
+    document.querySelectorAll("section select, section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("fit_calc"); }));
+    render(); recordUsage("fit_open");
+  </script>
+</body>
+</html>

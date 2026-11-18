@@ -43,7 +43,7 @@ export const money = (x) => {
   const sign = x < 0 ? "-" : "";
   return `${sign}$${Math.abs(Math.round(x)).toLocaleString("en-US")}`;
 };
-export const money2 = (x) => `${x < 0 ? "-" : ""}$${Math.abs(x).toFixed(2)}`;
+export const money2 = (x) => `${x < 0 && Math.abs(x).toFixed(2) !== "0.00" ? "-" : ""}$${Math.abs(x).toFixed(2)}`;
 export const pct = (x, d = 1) => `${(x * 100).toFixed(d)}%`;
 
 // All costs for a given GROSS hourly rate.

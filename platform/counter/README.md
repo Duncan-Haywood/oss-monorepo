@@ -95,8 +95,12 @@ and commit `portfolio/usage/site-visits.json` with its other work.
 **Live path (2026-10-24):** the deployed counter is the Cloudflare Worker in
 [`platform/edge/`](../edge/README.md), which runs `core.mjs`'s rules against D1
 and adds country, device and crawler breakdowns. The `site-usage-pull` workflow
-copies its counts into `portfolio/usage/site-visits.json` on `main` daily (the
-owner asked for that on 2026-10-20). The Node server here is the self-hosted
+copies its counts daily into `site-visits.json` on the `usage-data` branch
+(the owner asked for a daily copy on 2026-10-20; main's ruleset has refused the
+workflow's direct push since 2026-10-31). `node platform/counter/usage-data.mjs
+sync` copies the branch into `portfolio/usage/` for a PR
+([`portfolio/usage/README.md`](../../portfolio/usage/README.md), "Where the daily
+pull lands"). The Node server here is the self-hosted
 alternative and is not deployed.
 
 ## Tests

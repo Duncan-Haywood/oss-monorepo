@@ -144,7 +144,7 @@ node postmortem.mjs incident.txt --max-ttr 60m         # exit 1 if resolve took 
       els.reportCard.hidden = false;
       els.status.textContent = "";
       record("timeline_built");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

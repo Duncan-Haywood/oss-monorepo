@@ -1,3 +1,8 @@
+---
+kind: note
+date: 2026-10-25
+tagged: auto
+---
 # NLCIUS rules (2026-10-25)
 
 For the next run on `ventures/einvoice-preflight`. `plain/nlcius-ubl.json` is built by

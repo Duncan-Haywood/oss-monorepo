@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01EhTJVLiJXrYhxEZWpc918H",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled run: continue work on the repo (ventures, revenue products)",
+  "input_sha256": "eacca7109fcd1d56f02e49f33eff367087227f07e9fea631a39163e15c4cda21",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T18:59:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 1: wall-framing-takeoff framing nail calculator page",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13619",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/wall-framing-takeoff/ROADMAP.md",
+      "issue": "New calculator pages need a nav link added to every sibling page and entries in two page.test.mjs lists; no doc says so (same as the fireblock run)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-06-framing-nail-calculator.md",
+    "ventures/wall-framing-takeoff/ROADMAP.md"
+  ],
+  "goal": null,
+  "notes": "page.test.mjs 95 pass locally; page loaded in headless Chromium (output renders, bad JSON message). Venture-preflight and full suite not run. No revenue path: free lead-magnet page toward the takeoff tool.",
+  "corrections": [],
+  "redteam": null
+}

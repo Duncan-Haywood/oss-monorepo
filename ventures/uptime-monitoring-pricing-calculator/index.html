@@ -41,12 +41,13 @@
     input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
     .row { display: flex; gap: 18px; flex-wrap: wrap; }
   </style>
+<style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;overflow-x:auto}</style>
 </head>
 
 <body>
   <header>
     <p class="note">UPTIME MONITORING PRICING CALCULATOR · RUNS IN YOUR BROWSER</p>
-    <h1>What will uptime monitoring cost for your monitors and check interval, and who is cheapest?</h1>
+    <h1>What will uptime monitoring cost for your monitors, and who is cheapest?</h1>
     <p>Enter the <strong>number of monitors</strong>, how <strong>often they must be checked</strong> and whether you need a <strong>public status page</strong>. Get <strong>UptimeRobot, Better Stack, Hyperping, Pingdom and self-hosted Uptime Kuma</strong> priced side by side, the 12-month spend as you add monitors, and the <strong>monitor count where the cheapest option changes</strong> — before a tier jump surprises you.</p>
     <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and approximate plan prices you can edit. It never contacts your sites or the vendors.</p>
   </header>
@@ -161,7 +162,7 @@ node cli.mjs compare --monitors 60 --interval-sec 60 --prices prices.json --json
       $("#estimate").textContent = `${PRICES_AS_OF}. Monitors grow from ${monitors.toLocaleString("en-US")} to ${proj.endMonitors.toLocaleString("en-US")} over 12 months. Your numbers and editable prices; not a quote.`;
       $("#report-card").hidden = false;
       record("compare_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#calc").addEventListener("click", render);
 

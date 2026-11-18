@@ -7,7 +7,7 @@ after-hours/weekend/holiday differential, and a flag for when the setting
 and length suggest a two-interpreter team — plus a separate late-cancellation
 fee calculator. Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/sign-language-interpreter-rate-calculator/
+**Live tool:** https://marisstella.app/sign-language-interpreter-rate-calculator/
 
 After using this, you can now **turn an assignment request into a defensible
 fee, including travel and any after-hours differential, in seconds**, which
@@ -97,3 +97,12 @@ node --test calc.test.mjs usage.test.mjs page.test.mjs
 its test suite are done for both the assignment quote and the cancellation
 fee; no external user contact has happened yet — see `kill_criteria` in
 `VENTURE.yaml`.
+
+## Known gaps
+
+From the quality census of 2026-11-15 ([audit](../../portfolio/quality/audits/2026-11-15-sign-language-interpreter-rate-calculator.json)); the worst defect it found is fixed.
+
+- A booking minimum of 0 is reset to 2 hours (`calc.mjs`), so a no-minimum agency booking is overbilled.
+- The default mileage rate is the 2024 IRS figure; check the current rate before relying on it.
+- The team-interpreting prompt needs more than 2 hours *and* a legal, medical or mental-health setting; some court rules call for a team past one hour.
+- The RID two-hour attribution is uncited, and the cancellation tiers are described as adjustable but have no inputs.

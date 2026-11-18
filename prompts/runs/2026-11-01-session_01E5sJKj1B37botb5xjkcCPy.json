@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01E5sJKj1B37botb5xjkcCPy",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T22:19:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12423",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 points at the security-alerts branch, which does not exist (known: P061)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Routed to review but three open 'prompts: review' PRs already claim it; rerouted with --skip-review as instructed.",
+      "did": "Took ventures; small slice (fuzz test) rather than a milestone, no blog post",
+      "result": "merged"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Added foundation-fuzz.test.mjs (400 seeds); passes locally. No post: small test-only slice.",
+  "corrections": [],
+  "redteam": null
+}

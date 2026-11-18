@@ -1,0 +1,256 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/meta-ads-fatigue-analyzer",
+ "stratum": "venture",
+ "seed": "2026-11-13-r-1b81",
+ "drawn_by": "sample",
+ "round": 72,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior paid-social media buyer who manages Meta (Facebook/Instagram) campaigns for DTC brands; they check first that frequency, link CTR, CPM, cost per result and ROAS match Ads Manager's own definitions, that a fatigue call follows how practitioners diagnose it (the same ad's CTR falling and CPM/CPA rising as its cumulative frequency climbs, judged within comparable campaign types, not prospecting against retargeting), whether the thresholds are sourced or invented, and that a real export (period or daily breakdown, any locale) is read correctly",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the analyzer on its own synthetic Ads Manager export and recomputed every per-ad figure in Python (csv module, not the tool's parser) from Meta's definitions: frequency = impressions / reach (Meta Business Help Centre 'Frequency', en-gb.facebook.com/business/help/1546570362238584; the page body is script-rendered, so only the search-indexed text 'Frequency is calculated as impressions divided by reach' was readable), link CTR = link clicks / impressions, cost per result = spend / results, purchase ROAS = conversion value / spend. Command: `cd /tmp/claude-0/meta/s && node dump.mjs sample && python3 -I indep.py` vs `node dump.mjs x sample.csv`. All 13 ads match to 4 dp (e.g. Testimonial reel freq 4.6, CTR 0.5641%, CPA 195.54, ROAS 0.3273); totals 5,923.78 spend, 232 results, account CPA 25.5335; medians CTR 1.0618% and CPA 46.79; clicks-needed n = 79 for p = 232/6193 with (1-p)^n < 0.05; fatigue set identical (Testimonial reel, Static - bestseller (retargeting), Discount reminder, Old holiday promo); buckets reconcile to spend. Capped at 2 because two realistic inputs give wrong numbers: (1) a 28-day daily-breakdown export (daily frequency ~1.18 per row, as Meta reports per-day reach) shows the ad's 'Frequency' as 1.18, the impression-weighted mean of daily values (calc.mjs:216-222), not the period frequency, so the ad whose CTR fell 42% (trend.change -0.421) is never flagged (calc.mjs:270 gates every signal on freq >= 3); (2) a tab-delimited export with decimal commas (the UTF-16/Excel route the page advertises) reads 512,40 as 51240 and frequency 1,25 as 125, because decimalComma is set only when the delimiter is ';' (index.html:150).",
+  "completeness": "Claimed features exercised in node: alias header matching incl. 'Amount spent (USD)' currency suffix (pass), BOM/UTF-16/tab/semicolon (pass for dot decimals, fail for tab+decimal comma), unreadable rows listed with line numbers (test), missing-column messages (test), per-ad CPA/ROAS/CTR (pass), fatigue flags (pass on period exports), daily CTR-trend signal (works only in its own test whose rows carry an unrealistic daily frequency of 3.5; on a realistic daily export it never fires), no-result tiers proven/overspent/watch reconciling to spend (pass), scale candidates (pass: 4 in sample), by-campaign table, CSV download (adsCsv, tested), worked example (pass). Served page https://marisstella.app/meta-ads-fatigue-analyzer/ loads (200, 36,634 bytes) and served calc.mjs is byte-identical to source. No TODOs or stubs. About 10 of 11 claimed features work end to end.",
+  "verification": "cd ventures/meta-ads-fatigue-analyzer && node --test '*.test.mjs': 29 tests, 29 pass (85 ms); README's `node --test` also 29/29 on Node 22.23.4. Seven mutations with platform/ci/quality_mutate.py: 3 caught (clicksNeeded +1, freqWeighted unweighted, scale CPA 0.8 -> 0.95), 4 survived, every one a fatigue threshold: freq >= -> > (calc.mjs:270), CTR 0.8 -> 0.6 of median (calc.mjs:271), CPA 1.25 -> 2x median (calc.mjs:272), daily trend -25% -> -50% (calc.mjs:274). The fatigue fixtures sit far from every boundary, so the headline feature's thresholds are untested. The daily test uses daily Frequency 3.5, which hides the per-day frequency defect.",
+  "craft": "Read calc.mjs (361 lines, pure, no DOM/network), index.html module script (lines 139-204), calc.test.mjs, page.test.mjs, usage.mjs. Output is escaped before innerHTML; storage access guarded. Defects: decimal-comma detection is a property of the delimiter, decided in the page (index.html:150) where no test reaches it, instead of being sniffed from the data in calc.mjs; `ignored` is returned but never incremented (calc.mjs:151,186); the CTR column is matched by alias (calc.mjs:15) but never read or cross-checked against clicks/impressions; the `clicks` alias falls back to bare 'clicks', so a file with only 'Clicks (all)' silently treats all clicks as link clicks (calc.mjs:14) with CTR mislabelled; many dense one-line functions (analyze findings, groupBy). Otherwise clean and readable for its size.",
+  "claims": "Backed: no-upload (page.test asserts no fetch/XHR/sendBeacon; usage.mjs writes localStorage only), DNT/GPC honoured (usage.mjs:34), opt-out button deletes counts (usage.mjs:73), independence-of-Meta and no-warranty text, 'Reconciles' (verified), model description matches code (thresholds 3, 80%, 125%, 25%, 20%). Not backed: 'comma, tab and semicolon files ... thousands separators' (index.html:62,123) fails for tab files with decimal commas; the daily-export CTR-trend signal (index.html:107, README) is described as a fatigue signal but cannot fire on a real daily export because daily frequency stays near 1. The page's frequency note (index.html:105) is honest about the averaging but presents the result as 'Frequency' compared with a period threshold. README and VENTURE.yaml disclose that column names are from memory and no real export was tried; the page does not. Source llms.txt points at github.io but the served llms.txt points at marisstella.app (build rewrite, source-only, not filed). README's competitor framing (Motion, Triple Whale, Madgicx require ad-account access) is plausible and not a number.",
+  "fitness": "Walked the media buyer's job: export the ad-level report for the last 28 days without a breakdown, drop it in, read which creatives to refresh and which no-result spend to cut. On that path the tool works and the per-ad table, tiers and CSV are useful in minutes. First-hour hits: the buyer who adds a Day breakdown to see decline (the classic fatigue check) gets per-day frequencies near 1 and no flags; retargeting ads (frequency 4-7 by design) are judged against a median dominated by prospecting, so every retargeting ad in the sample is flagged while a prospecting ad at CPA 118 (2.5x median, freq 1.7) is not mentioned; no CPM column, so rising CPM, the auction-side half of the fatigue diagnosis, is invisible; an EU account's tab export is misread 100x. Usable as a quick cross-sectional triage, not as a fatigue diagnosis.",
+  "domain": "Compared against Meta's own guidance (Business Help Centre reach-and-frequency pages, search-indexed text: 'If performance begins to drop as your frequency numbers rise, your target audience may be experiencing ad fatigue'; frequency 'may average one to two' depending on budget, audience and schedule) and common practitioner method (the same ad's CTR falling and CPM/CPA rising over time as cumulative frequency climbs, segmented by prospecting vs retargeting). The tool's primary signal is cross-sectional (ad vs pooled account median, calc.mjs:263-264), which detects underperformance at high frequency, not fatigue; its only time-based signal is gated on a frequency threshold daily data cannot reach. Thresholds 3, 0.8x, 1.25x, -25%, 0.8x are uncited constants (frequency 3 is a widespread rule of thumb, Meta itself says it depends). 'Spent one result's cost with no results' is listed as a fatigue reason though it is a conversion problem. The no-result evidence tiers ((1-p)^n < 0.05 at the account click-to-result rate) are a sound, well-stated test. A senior buyer would not sign off the fatigue method as is."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "per-ad frequency, link CTR, cost per result, ROAS for all 13 sample ads",
+   "method": "Meta definitions (frequency = impressions/reach per Meta Help Centre 'Frequency'; CTR = link clicks/impressions; CPA = spend/results; ROAS = value/spend), recomputed in Python csv, independent of calc.mjs",
+   "command": "cd /tmp/claude-0/meta/s && node dump.mjs sample && python3 -I indep.py",
+   "expected": "Testimonial reel 4.6000 / 0.5641% / 195.54 / 0.3273; UGC unboxing v1 1.3 / 2.2765% / 9.8542 / 6.4947",
+   "observed": "identical for all 13 ads to 4 dp",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "account totals and medians",
+   "method": "hand arithmetic in Python from the CSV",
+   "command": "cd /tmp/claude-0/meta/s && node dump.mjs sample && python3 -I indep.py",
+   "expected": "spend 5923.78, results 232, CPA 25.5335, median CTR 1.0618%, median CPA 46.79",
+   "observed": "5923.78, 232, 25.5335, 1.0618%, 46.79",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "clicks needed for 'proven' no-result spend",
+   "method": "smallest n with (1-p)^n < 0.05, p = 232/6193, brute force",
+   "command": "cd /tmp/claude-0/meta/s && node dump.mjs sample && python3 -I indep.py",
+   "expected": "79",
+   "observed": "needed 79; Long-form review (84 clicks) proven",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "fatigue set on the sample using the documented rule",
+   "method": "rule re-implemented from the page text in indep.py",
+   "command": "cd /tmp/claude-0/meta/s && node dump.mjs sample && python3 -I indep.py",
+   "expected": "Testimonial reel, Static - bestseller (retargeting), Discount reminder, Old holiday promo",
+   "observed": "same four",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "frequency and fatigue on a realistic 28-day daily-breakdown export (daily freq ~1.18, CTR 2.0% -> 0.9%)",
+   "method": "Meta: frequency = impressions/reach over the period, reach deduplicated across days; Meta: performance dropping as frequency rises = fatigue",
+   "command": "cd /tmp/claude-0/meta/s && node dump.mjs x daily.csv",
+   "expected": "period frequency above 1.18 (not derivable from daily rows; tool should say so) and the decaying ad flagged or warned",
+   "observed": "Hero video freq 1.18, trend change -0.421, fatigued false, no warning",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "tab-delimited export with decimal commas (EU locale)",
+   "method": "by hand: 512,40 EUR = 512.40; frequency 1,26 = 1.26",
+   "command": "cd /tmp/claude-0/meta/s && node dump.mjs x eu.tsv",
+   "expected": "spend 512.40, freq 1.26",
+   "observed": "spend 51240, freq 126 (semicolon file eu.csv reads correctly)",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/meta-ads-fatigue-analyzer && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "29/29 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "fatigue thresholds covered by tests",
+   "method": "4 quality_mutate.py mutants on calc.mjs:270-274",
+   "command": "python3 platform/ci/quality_mutate.py ventures/meta-ads-fatigue-analyzer/calc.mjs --old 'a.ctr < 0.8 * medCtr' --new 'a.ctr < 0.6 * medCtr' -- node --test '*.test.mjs'",
+   "expected": "caught",
+   "observed": "all 4 survived",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "no upload / no network",
+   "method": "page.test.mjs + grep usage.mjs",
+   "command": "grep -n 'fetch\\|sendBeacon\\|localStorage' ventures/meta-ads-fatigue-analyzer/usage.mjs",
+   "expected": "localStorage only",
+   "observed": "localStorage only; page test asserts no fetch/XHR",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'comma, tab and semicolon files ... thousands separators' (index.html:62,123)",
+   "method": "eu.tsv and eu.csv runs",
+   "command": "cd /tmp/claude-0/meta/s && node dump.mjs x eu.tsv",
+   "expected": "all three delimiters read in either number locale",
+   "observed": "tab + decimal comma misread 100x",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "daily-export CTR-trend fatigue signal (index.html:107, README Model)",
+   "method": "realistic daily export",
+   "command": "cd /tmp/claude-0/meta/s && node dump.mjs x daily.csv",
+   "expected": "signal can fire",
+   "observed": "gated by freq >= 3, daily freq ~1.2: never fires",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page and llms.txt",
+   "method": "curl served page, llms.txt, cmp calc.mjs",
+   "command": "curl -sS https://marisstella.app/meta-ads-fatigue-analyzer/calc.mjs | cmp - ventures/meta-ads-fatigue-analyzer/calc.mjs",
+   "expected": "200, identical, marisstella.app links",
+   "observed": "200 (36,634 B), identical, llms.txt rewritten to marisstella.app",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "fatigue method vs Meta guidance and practitioner diagnosis",
+   "method": "Meta Help Centre reach-and-frequency text (performance drops as frequency rises); practitioner practice of per-ad time trend, segmented by campaign type, with CPM",
+   "command": "cd /tmp/claude-0/meta/s && node dump.mjs sample && python3 -I indep.py",
+   "expected": "time-based decline per ad, segmented medians, CPM considered, sourced thresholds",
+   "observed": "pooled cross-sectional medians (all 4 flags are retargeting), no CPM, uncited thresholds",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "media buyer's 28-day period export job",
+   "method": "walk-through on sample",
+   "command": "cd /tmp/claude-0/meta/s && node dump.mjs x sample.csv",
+   "expected": "usable triage table and flags",
+   "observed": "works; prospecting ad at CPA 118 (2.5x median) unflagged, retargeting all flagged",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:270",
+   "change": "a.freq >= freqThreshold -> a.freq > freqThreshold",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:271",
+   "change": "a.ctr < 0.8 * medCtr -> a.ctr < 0.6 * medCtr",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:272",
+   "change": "a.cpa > 1.25 * medCpa -> a.cpa > 2 * medCpa",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:274",
+   "change": "a.trend.change <= -0.25 -> a.trend.change <= -0.5",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:296",
+   "change": "a.cpa <= 0.8 * medCpa -> a.cpa <= 0.95 * medCpa",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:198",
+   "change": "ceil(log(1-c)/log(1-p)) -> ceil(log(1-c)/log(1-p) + 1)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:216",
+   "change": "a.freqWeighted += r.freq * r.impr -> a.freqWeighted += r.freq",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "In a daily-breakdown export each row's Frequency is that day's (Meta reports per-day reach, ~1-1.5), and the tool averages them by impressions (calc.mjs:216-222) and gates every fatigue signal on freq >= 3 (calc.mjs:270). On a realistic 28-day daily export an ad whose CTR fell 42% shows 'Frequency 1.2' and is not flagged; the advertised daily CTR-trend signal effectively never fires. The only test uses an unrealistic daily frequency of 3.5.",
+   "where": "ventures/meta-ads-fatigue-analyzer/calc.mjs:270",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Decimal-comma parsing is enabled only for ';' files (index.html:150). A tab-delimited export (the UTF-16/Excel route the page advertises) from a decimal-comma locale reads spend 512,40 as 51240 and frequency 1,25 as 125, so every ad crosses the frequency gate and CPAs are 100x.",
+   "where": "ventures/meta-ads-fatigue-analyzer/index.html:150",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Fatigue is judged against a median pooled across all campaigns (calc.mjs:263-264). Retargeting runs high frequency and lower CTR by design, so in the sample every flag is a retargeting ad while a prospecting ad at 2.5x median CPA is not mentioned. Practitioners diagnose fatigue as the same ad's decline over time, segmented by campaign type, with CPM; CPM is not computed at all.",
+   "where": "ventures/meta-ads-fatigue-analyzer/calc.mjs:263",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "All four fatigue thresholds survive mutation (freq >= vs >, CTR 0.8 -> 0.6, CPA 1.25 -> 2, trend -0.25 -> -0.5): the fixtures sit far from every boundary.",
+   "where": "ventures/meta-ads-fatigue-analyzer/calc.test.mjs:97",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Fatigue thresholds (frequency 3, 0.8x CTR, 1.25x CPA, -25% trend) are uncited constants; Meta's own guidance says typical frequency depends on budget, audience and schedule.",
+   "where": "ventures/meta-ads-fatigue-analyzer/calc.mjs:249",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Page claims 'comma, tab or semicolon files' with thousands separators are read, which fails for tab files with decimal commas, and does not say (as README and VENTURE.yaml do) that column names are from memory and no real export was tried.",
+   "where": "ventures/meta-ads-fatigue-analyzer/index.html:62",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "`clicks` alias falls back to bare 'clicks', so an export with only 'Clicks (all)' is silently treated as link clicks; the matched CTR column is never read or cross-checked; `ignored` is returned but never incremented.",
+   "where": "ventures/meta-ads-fatigue-analyzer/calc.mjs:14",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15600"
+ ],
+ "verdict": "The arithmetic is right on the standard path: every per-ad frequency, link CTR, cost per result and ROAS I recomputed from Meta's definitions matches to 4 dp, the medians, the 79-click evidence threshold and the no-result tiers reconcile, the documented fatigue rule reproduces exactly, and the page is honest, private and disclaimed. It does not meet the bar. The fatigue method is a cross-sectional comparison against a pooled account median, so it flags retargeting for being retargeting, ignores CPM, and uses uncited thresholds; its one time-based signal is gated on a frequency that a real daily export never reaches, because daily rows carry per-day frequency, which the tool averages and labels 'Frequency'. A tab-delimited export with decimal commas is read 100x too large. Four of seven seeded mutations survive, all on the fatigue thresholds. Correctness, verification, claims, fitness and domain 2; completeness and craft 3."
+}

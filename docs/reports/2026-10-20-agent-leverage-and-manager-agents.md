@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-20
+tagged: auto
+---
 # Agent leverage, and whether the fleet needs a manager agent
 
 **Date:** 2026-10-20. **Asked by:** the owner, in a session that began with

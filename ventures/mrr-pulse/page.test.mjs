@@ -97,3 +97,14 @@ test("footer links rev-rec and trial-converter", () => {
   assert.match(html, /href="\.\.\/rev-rec\/"/);
   assert.match(html, /href="\.\.\/trial-converter\/"/);
 });
+
+test("dashboard labels NRR as monthly and the quick ratio includes reactivation; clone command names this repo", async () => {
+  const { renderDashboard } = await import("./page.mjs");
+  const summary = { mrr: 1000, arr: 12000, customers: 1, arpa: 1000, netNew: 0, month: "2026-11", growthPct: null,
+    rates: { nrr: 1, logoChurn: 0, quickRatio: 1, basis: "2026-10" } };
+  const html = renderDashboard({ company: "X", summary, months: [], currency: "usd", lastSyncAt: null, skipped: 0 });
+  assert.match(html, /Net revenue retention \(monthly\)/);
+  assert.match(html, /\(new\+expansion\+reactivation\) ÷ \(churn\+contraction\)/);
+  assert.match(page("index.html"), /git clone https:\/\/github\.com\/Duncan-Haywood\/oss-monorepo /);
+  assert.doesNotMatch(page("index.html"), /fp-monorepo/);
+});

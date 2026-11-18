@@ -170,7 +170,7 @@
       $("#plan").innerHTML = r.options.budget ? `<div class="warn">Budget plan: ${r.plan.length ? `replace ${esc(r.plan.join(", "))} for ${money(r.planSpent)} of your ${money(r.options.budget)}.` : "nothing the verdicts call for fits the budget."}</div>` : "";
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

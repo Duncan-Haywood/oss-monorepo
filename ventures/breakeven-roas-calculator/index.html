@@ -249,7 +249,7 @@
       record("report_downloaded");
     }
 
-    $("#calc").addEventListener("click", () => { if (run()) { record("calc_run"); report.scrollIntoView({ behavior: "smooth", block: "start" }); } });
+    $("#calc").addEventListener("click", () => { if (run()) { record("calc_run"); report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); } });
     $("#load-example").addEventListener("click", () => {
       const ex = exampleInputs();
       for (const k of KEYS) $("#" + k).value = String(ex[k]);
