@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyc2KtecC6BLkhSQsSh",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T18:39:11Z",
+  "ended": "2026-11-18T18:59:46Z",
+  "wall_minutes": 20.82,
+  "tokens_in": 4737647,
+  "tokens_out": 25090,
+  "cost_usd": 2.3666,
+  "tool_calls": 48,
+  "task": "heavy-hydraulics milestone 7p: leak test of 7n's own-pick oracle",
+  "projects": [
+    "research/heavy-hydraulics"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17391",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first draft of a test used 0.8013 as a value nearest 0.80 on the 0.0025 grid; it is nearer 0.8025",
+      "fix": "test value changed to 0.8009 before results were generated"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "says the first python env install can take 2+ minutes; here pyenv.py found /usr/bin/python3.13 with numpy and h5py at once, so the background start was harmless but unnecessary"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-the-gear-pump-own-pick-oracle-leaked-a-third-of-its-gain.md",
+    "research/heavy-hydraulics/LOG.md (7p)"
+  ],
+  "goal": "Advance the heavy-hydraulics programme one milestone with a pre-registered test",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed research, pick_track drew heavy-hydraulics. 7n's results reproduced byte for byte (13.6 min, caches rebuilt from Hugging Face). 7p: leak-free own picks give owdm 0.0047 in (A) against oracle 0.0042 and two-price 0.0056; B1 0.0049. 3 of 6 predictions held. Local checks: project tests 169 passed 4 skipped; check_numbers manuscript 132 claims 0 missing; build.py ok; check_md_links ok; check_posts ok; research_live_links no change.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "175aaa7b-8d68-5928-8de8-614de2cf9dd5",
+    "transcripts": 1,
+    "first": "2026-11-18T18:39:11Z",
+    "last": "2026-11-18T19:00:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 85,
+        "output": 25090,
+        "thinking": 4191,
+        "cache_read": 4620011,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117551,
+        "api_equivalent_usd": 2.3666,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 85,
+      "output": 25090,
+      "thinking": 4191,
+      "cache_read": 4620011,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117551,
+      "api_equivalent_usd": 2.3666,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 43,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.82,
+      "active_minutes": 20.82,
+      "model_minutes": 4.61,
+      "tool_minutes": 16.21,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, code and run a pre-registered leakage test on an existing model, write up results and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 253.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
