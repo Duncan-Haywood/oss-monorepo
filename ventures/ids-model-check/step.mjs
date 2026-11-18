@@ -26,12 +26,25 @@ function quotedBySolidusS(t, q) {
   return n % 2 === 0;
 }
 
+// Plain runs are copied as one slice each. Appending a character at a time
+// left every decoded string over 12 characters as a chain of one-character
+// V8 cons strings, about 32 bytes a character, kept for as long as the
+// entity's arguments are: 20 MB on HHS MEP, flattened only if something
+// happened to run a regular expression over the string
+// (eval/attribute-shape-2026-11-18.md).
 export function decodeStepString(s) {
+  if (s.indexOf("'") < 0 && s.indexOf("\\") < 0) return s;
   let out = "";
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (c === "'" && s[i + 1] === "'") { out += "'"; i++; continue; }
-    if (c !== "\\") { out += c; continue; }
+    if (c !== "\\") {
+      let j = i + 1;
+      while (j < s.length && s[j] !== "'" && s[j] !== "\\") j++;
+      out += s.slice(i, j);
+      i = j - 1;
+      continue;
+    }
     if (s[i + 1] === "\\") { out += "\\"; i++; continue; }
     if (s.startsWith("\\X2\\", i)) {
       const end = s.indexOf("\\X0\\", i + 4);

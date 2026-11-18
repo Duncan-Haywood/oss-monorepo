@@ -517,8 +517,34 @@ export class AttributeFacet {
     }
     return { ok: true };
   }
+  // The part of test() that does not depend on the value, as one shape code
+  // (SHAPE_*): which attributes the name takes, which are set, empty, or not
+  // comparable by value. Specifications that test `attribute (any) = X` on
+  // every entity with several values X share it (attributeVerdict).
+  shape(e, model) {
+    const S = model.schema;
+    let byType = this._hits;
+    if (!byType || this._hitsSchema !== S) { byType = this._hits = new Map(); this._hitsSchema = S; }
+    let hits = byType.get(e.type);
+    if (!hits) byType.set(e.type, (hits = S.attrs(e.type).map((a, i) => [a, i]).filter(([a]) => this.name.matchString(a.name))));
+    if (!hits.length) return SHAPE_NO_ATTR;
+    const args = e.shallowArgs || e.args;
+    let set = 0, uncomparable = false;
+    for (const [a, i] of hits) {
+      const v = args[i];
+      if (a.derived || isNull(v)) continue;
+      set++;
+      if (isEmpty(v)) return SHAPE_EMPTY;
+      if (a.aggregate || Array.isArray(v) || (v && (v.ref !== undefined || v.typed))) uncomparable = true;
+      else { const prim = S.prim(a.type); if (prim === "entity" || prim === "select" || prim === "aggregate" || prim === "binary") uncomparable = true; }
+    }
+    if (!set) return SHAPE_UNSET;
+    return uncomparable ? SHAPE_UNCOMPARABLE : SHAPE_SCALARS;
+  }
   describe() { return `attribute ${this.name}${this.value.present ? " = " + this.value : ""}`; }
 }
+// AttributeFacet.shape codes (non-zero: 0 marks "not yet read" in a cache).
+const SHAPE_NO_ATTR = 1, SHAPE_UNSET = 2, SHAPE_EMPTY = 3, SHAPE_UNCOMPARABLE = 4, SHAPE_SCALARS = 5;
 
 const fmt = (v) => (v && v.enum ? "." + v.enum + "." : JSON.stringify(v));
 
@@ -980,7 +1006,7 @@ export function facetsKey(facets) {
 function appliesCacheFor(model, ctx) {
   const c = model._appliesCache;
   if (c && c.typeMap === ctx.typeMap && c.measureUnits === model.measureUnits) return c;
-  return (model._appliesCache = { typeMap: ctx.typeMap, measureUnits: model.measureUnits, map: new Map(), budget: model.entities.size, verdicts: new Map() });
+  return (model._appliesCache = { typeMap: ctx.typeMap, measureUnits: model.measureUnits, map: new Map(), budget: model.entities.size, verdicts: new Map(), byName: new Map() });
 }
 
 // Every entity in file order but those at the (ascending) positions given.
@@ -1063,17 +1089,58 @@ function verdictSlot(f, model, ctx, size) {
   let slot = c.verdicts.get(key);
   if (slot) c.verdicts.delete(key); // re-set below: the Map's order is least recently used first
   else {
-    if (c.verdicts.size >= VERDICT_SLOTS) c.verdicts.delete(c.verdicts.keys().next().value);
-    slot = { bytes: new Uint8Array(model.entities.size), ord: fileOrder(model) };
+    if (c.verdicts.size >= VERDICT_SLOTS) {
+      const old = c.verdicts.get(c.verdicts.keys().next().value);
+      c.verdicts.delete(c.verdicts.keys().next().value);
+      if (old.nameKey) c.byName.get(old.nameKey).delete(old);
+    }
+    slot = { bytes: new Uint8Array(model.entities.size), ord: fileOrder(model), nameKey: null };
+    if (f.kind === "attribute") {
+      slot.nameKey = attributeNameKey(f);
+      let sibs = c.byName.get(slot.nameKey);
+      if (!sibs) c.byName.set(slot.nameKey, (sibs = new Set()));
+      sibs.add(slot);
+    }
   }
   c.verdicts.set(key, slot);
   return slot;
 }
+// A slot's byte holds the verdict in its low two bits; an attribute facet's
+// slot also holds the entity's shape (AttributeFacet.shape) above them.
 function verdict(slot, f, e, model, ctx) {
   const i = slot.ord(e);
   let v = slot.bytes[i];
-  if (!v) { const r = f.test(e, model, ctx); slot.bytes[i] = v = r.ok ? OK : r.absent ? ABSENT : FAIL; }
-  return v;
+  if (!v) slot.bytes[i] = v = slot.nameKey ? attributeVerdict(f, e, i, slot, model, ctx) : verdictCode(f.test(e, model, ctx));
+  return v & 3;
+}
+const verdictCode = (r) => (r.ok ? OK : r.absent ? ABSENT : FAIL);
+
+// An attribute facet's verdict byte (verdict | shape << 2). Facets that differ
+// only in their value share the shape: it is read from the byte of any other
+// kept slot with the same attribute name, and found from the entity's
+// arguments only when none has it. Only an entity whose set attributes are all
+// comparable scalars, and only for a facet with a value, runs the full test.
+// On HHS MEP the OpenAEC fixture's `attribute (any)` facets with three values
+// and none read each entity's arguments once instead of once per facet; the
+// shape costs no memory beyond the verdict slots (an array per name tipped the
+// 219 MB federated run over a 1 GB heap; eval/attribute-shape-2026-11-18.md).
+function attributeVerdict(f, e, i, slot, model, ctx) {
+  let sh = 0;
+  for (const s of appliesCacheFor(model, ctx).byName.get(slot.nameKey)) if (s !== slot && (sh = s.bytes[i] >> 2)) break;
+  if (!sh) sh = f.shape(e, model);
+  let v;
+  if (sh === SHAPE_NO_ATTR || sh === SHAPE_UNSET) v = ABSENT;
+  else if (sh === SHAPE_EMPTY) v = FAIL;
+  else if (!f.value.present) v = OK;
+  else if (sh === SHAPE_UNCOMPARABLE) v = FAIL;
+  else v = verdictCode(f.test(e, model, ctx));
+  return v | (sh << 2);
+}
+const attributeNameKey = (f) => f._nameKey || (f._nameKey = JSON.stringify(f.name, (k, v) => (k.startsWith("_") || k === "regexes" ? undefined : v)));
+// For tests: a facet's verdict (OK, ABSENT, FAIL) through the verdict cache.
+export function cachedVerdict(f, e, model, ctx) {
+  const slot = verdictSlot(f, model, ctx, model.entities.size);
+  return slot ? verdict(slot, f, e, model, ctx) : verdictCode(f.test(e, model, ctx));
 }
 // checkRequirement's pass, from a cached verdict.
 function passFromVerdict(f, v) {
