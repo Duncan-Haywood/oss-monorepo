@@ -148,6 +148,10 @@ export function parseRule(text) {
     const eq = raw.indexOf("=");
     const name = (eq < 0 ? raw : raw.slice(0, eq)).trim().toUpperCase();
     const value = eq < 0 ? "" : raw.slice(eq + 1).trim();
+    if (eq >= 0 && !name) {
+      findings.push(finding("error", "bad-part", `"${raw.trim()}" has no part name`, "Each rule part is NAME=value, separated by semicolons, such as COUNT=10."));
+      continue;
+    }
     if (eq < 0 || !value) {
       findings.push(finding("error", "bad-part", `"${raw.trim()}" has no value`, "Each rule part is NAME=value, separated by semicolons."));
       continue;
@@ -771,6 +775,12 @@ const ord = (n) => {
   if (n < 0) return `${a}${suf} from last`;
   return `${a}${suf}`;
 };
+// "days 100 and 200", or with a negative value "day 1 and the last day",
+// "the 2nd from last week": a negative BYYEARDAY or BYWEEKNO counts from the year's end.
+const fromEnd = (xs, noun) =>
+  xs.every((x) => x > 0)
+    ? `${noun}${xs.length > 1 ? "s" : ""} ${list(xs.map(String))}`
+    : list(xs.map((x) => (x > 0 ? `${noun} ${x}` : `the ${ord(x)} ${noun}`)));
 const list = (xs) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
 const UNIT = { YEARLY: "year", MONTHLY: "month", WEEKLY: "week", DAILY: "day", HOURLY: "hour", MINUTELY: "minute", SECONDLY: "second" };
 
@@ -779,8 +789,8 @@ export function describe(rule, start, tzid = null) {
   const r = normalize(rule, start);
   const unit = Object.hasOwn(UNIT, r.freq) ? UNIT[r.freq] : "period";
   const bits = [r.interval === 1 ? `Every ${unit}` : `Every ${r.interval} ${unit}s`];
-  if (r.byweekno.length) bits.push(`in week${r.byweekno.length > 1 ? "s" : ""} ${list(r.byweekno.map((w) => (w < 0 ? ord(w) : String(w))))} of the year`);
-  if (r.byyearday.length) bits.push(`on day ${list(r.byyearday.map((d) => (d < 0 ? ord(d) : String(d))))} of the year`);
+  if (r.byweekno.length) bits.push(`in ${fromEnd(r.byweekno, "week")} of the year`);
+  if (r.byyearday.length) bits.push(`on ${fromEnd(r.byyearday, "day")} of the year`);
   const days = [];
   for (const x of r.byday) days.push(x.n && (r.freq === "MONTHLY" || r.freq === "YEARLY") ? `the ${ord(x.n)} ${DAY_NAMES[x.wd]}` : DAY_NAMES[x.wd]);
   if (r.bymonthday.length) {

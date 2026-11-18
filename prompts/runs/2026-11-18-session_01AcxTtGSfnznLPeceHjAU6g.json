@@ -1,0 +1,449 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtGSfnznLPeceHjAU6g",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T11:07:00Z",
+  "ended": "2026-11-18T11:09:32Z",
+  "wall_minutes": 13.89,
+  "tokens_in": 4025947,
+  "tokens_out": 23159,
+  "cost_usd": 1.9879,
+  "tool_calls": 49,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17279",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "second campaign (--seed 7) had a looping mutant at line 565 that ran to the 300 s timeout, pushing the foreground call into the background",
+      "impact": "~5 min wait"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix every open entry first, but all 11 are control-plane and already have owner-approval PRs waiting (#14612, #15945, #12926, #14698, #15561, #15728...). `redteam.py open` could print the waiting PR next to each so runs don't re-check them by search."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "A suite that is 5 s per mutant can still blow the 300 s foreground limit when one mutant loops (default per-mutant timeout 300 s); suggest run_in_background for every campaign, or a --timeout of ~10x baseline by default."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-redteam-on-day-last-of-the-year.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/rrule-explainer/rrule.mjs, two campaigns of 10 (default seed, seed 7). 14/20 caught; 3 gaps tested; 3 equivalent. Step 0: 11 open entries, all control-plane with waiting PRs; none reproduced-and-fixed here. Guard added: ventures/rrule-explainer/rrule.wording.test.mjs (property test over 1,600 fixture rules + hostile parts); on the pre-fix code it failed both tests (66 fixture rules with 'day last'-type wording), green after. Verification: run_venture_tests.py rrule-explainer ok, 66 tests, 5.3 s.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/rrule-explainer/rrule.mjs",
+        "test": "node --test ventures/rrule-explainer/**/*.test.mjs  (in .)",
+        "seed": 743210961,
+        "commit": "d5a79af54",
+        "sites": 1091,
+        "baseline_seconds": 5.7,
+        "mutants": [
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 37,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "const yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365);",
+            "after": "const yoe = Math.floor((doe - Math.floor(doe / 1461) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365);",
+            "line_text": "  const yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365);",
+            "caught": true,
+            "seconds": 5.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 82,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "const m = /^(\\d{4})(\\d{2})(\\d{2})(?:T(\\d{2})(\\d{2})(\\d{2})(Z?))?$/.exec(String(text).trim());",
+            "after": "const m = /^(\\d{4})(\\d{2})(\\d{2})(?:T(\\d{3})(\\d{2})(\\d{2})(Z?))?$/.exec(String(text).trim());",
+            "line_text": "  const m = /^(\\d{4})(\\d{2})(\\d{2})(?:T(\\d{2})(\\d{2})(\\d{2})(Z?))?$/.exec(String(text).trim());",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 128,
+            "col": 21,
+            "operator": "true-to-false",
+            "before": "BYSETPOS: [1, 366, true],",
+            "after": "BYSETPOS: [1, 366, false],",
+            "line_text": "  BYSETPOS: [1, 366, true],",
+            "caught": true,
+            "seconds": 5.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 150,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "const value = eq < 0 ? \"\" : raw.slice(eq + 1).trim();",
+            "after": "const value = eq < 1 ? \"\" : raw.slice(eq + 1).trim();",
+            "line_text": "    const value = eq < 0 ? \"\" : raw.slice(eq + 1).trim();",
+            "caught": false,
+            "seconds": 5.9,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "eq<1 differs from eq<0 only at eq=0 (a part like '=X'). After the real-defect fix, a part with an empty name is reported as 'has no part name' before value is read, so value at eq=0 is never used. Before the fix this was a gap (the message changed from unknown-part to bad-part)."
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 202,
+            "col": 16,
+            "operator": "or-to-and",
+            "before": "if (!ok || Math.abs(n) < lo || Math.abs(n) > hi || (!signed && n < 0)) {",
+            "after": "if (!ok && Math.abs(n) < lo || Math.abs(n) > hi || (!signed && n < 0)) {",
+            "line_text": "        if (!ok || Math.abs(n) < lo || Math.abs(n) > hi || (!signed && n < 0)) {",
+            "caught": true,
+            "seconds": 5.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 369,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "r.mdNeg = new Set(r.bymonthday.filter((x) => x < 0));",
+            "after": "r.mdNeg = new Set(r.bymonthday.filter((x) => x < 1));",
+            "line_text": "  r.mdNeg = new Set(r.bymonthday.filter((x) => x < 0));",
+            "caught": false,
+            "seconds": 5.8,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "x<1 also admits 0, but BYMONTHDAY=0 is rejected in parseRule (RANGES lo=1) and normalize only ever sets the start's own day (1..31), so 0 never reaches mdNeg."
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 748,
+            "col": 50,
+            "operator": "gt-to-ge",
+            "before": "if (wallToInstant(d, w - d * 86400, tz).t > until.instant) return null;",
+            "after": "if (wallToInstant(d, w - d * 86400, tz).t >= until.instant) return null;",
+            "line_text": "        if (wallToInstant(d, w - d * 86400, tz).t > until.instant) return null;",
+            "caught": true,
+            "seconds": 4.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 769,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "const suf = a % 100 >= 11 && a % 100 <= 13 ? \"th\" : [\"th\", \"st\", \"nd\", \"rd\"][a % 10] ?? \"th\";",
+            "after": "const suf = a % 100 >= 12 && a % 100 <= 13 ? \"th\" : [\"th\", \"st\", \"nd\", \"rd\"][a % 10] ?? \"th\";",
+            "line_text": "  const suf = a % 100 >= 11 && a % 100 <= 13 ? \"th\" : [\"th\", \"st\", \"nd\", \"rd\"][a % 10] ?? \"th\";",
+            "caught": false,
+            "seconds": 4.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "ord(11) printed '11st': new test of BYMONTHDAY 11..13 and 21..23 wording."
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 855,
+            "col": 58,
+            "operator": "neq-flip",
+            "before": "if (rule.byday.some((x) => x.n) && f !== \"MONTHLY\" && f !== \"YEARLY\") F(\"error\", \"forbidden-part\", `An ordinal BYDAY (like ${rule.byday.find((x) => x.n).n}${WEEKDAYS[rule.byday.find((x) => x.n).wd]}) needs FREQ=MONTHLY or YEARLY`, \"With other frequencies the RFC forbids the number; this tool, like python-dateutil, drops it and uses the plain weekday.\");",
+            "after": "if (rule.byday.some((x) => x.n) && f !== \"MONTHLY\" && f === \"YEARLY\") F(\"error\", \"forbidden-part\", `An ordinal BYDAY (like ${rule.byday.find((x) => x.n).n}${WEEKDAYS[rule.byday.find((x) => x.n).wd]}) needs FREQ=MONTHLY or YEARLY`, \"With other frequencies the RFC forbids the number; this tool, like python-dateutil, drops it and uses the plain weekday.\");",
+            "line_text": "  if (rule.byday.some((x) => x.n) && f !== \"MONTHLY\" && f !== \"YEARLY\") F(\"error\", \"forbidden-part\", `An ordinal BYDAY (like ${rule.byday.find((x) => x.n).n}${WEEKDAYS[rule.byday.find((x) => x.n).wd]}) needs FREQ=MONTHLY or YEARLY`, \"With other frequencies the RFC forbids the number; this tool, like python-dateutil, drops it and uses the plain weekday.\");",
+            "caught": true,
+            "seconds": 5.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 979,
+            "col": 77,
+            "operator": "ge-to-gt",
+            "before": "const usable = parsed.dtstart.date ? rules.filter((r) => FREQ_RANK[r.freq] >= FREQ_RANK.DAILY) : rules;",
+            "after": "const usable = parsed.dtstart.date ? rules.filter((r) => FREQ_RANK[r.freq] > FREQ_RANK.DAILY) : rules;",
+            "line_text": "  const usable = parsed.dtstart.date ? rules.filter((r) => FREQ_RANK[r.freq] >= FREQ_RANK.DAILY) : rules;",
+            "caught": true,
+            "seconds": 4.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/rrule-explainer/rrule.mjs",
+        "test": "node --test ventures/rrule-explainer/**/*.test.mjs  (in .)",
+        "seed": 7,
+        "commit": "d5a79af54",
+        "sites": 1091,
+        "baseline_seconds": 5.0,
+        "mutants": [
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 47,
+            "col": 46,
+            "operator": "neq-flip",
+            "before": "const isLeap = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;",
+            "after": "const isLeap = (y) => (y % 4 === 0 && y % 100 === 0) || y % 400 === 0;",
+            "line_text": "const isLeap = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 48,
+            "col": 91,
+            "operator": "const-plus-one",
+            "before": "export const daysInMonth = (y, m) => [31, isLeap(y) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];",
+            "after": "export const daysInMonth = (y, m) => [31, isLeap(y) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 32, 30, 31][m - 1];",
+            "line_text": "export const daysInMonth = (y, m) => [31, isLeap(y) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];",
+            "caught": true,
+            "seconds": 4.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 73,
+            "col": 44,
+            "operator": "minus-to-plus",
+            "before": "return { weekYear: y, week: Math.floor((n - start) / 7) + 1, weeks };",
+            "after": "return { weekYear: y, week: Math.floor((n + start) / 7) + 1, weeks };",
+            "line_text": "  return { weekYear: y, week: Math.floor((n - start) / 7) + 1, weeks };",
+            "caught": true,
+            "seconds": 5.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 89,
+            "col": 56,
+            "operator": "times-to-div",
+            "before": "return { day: dayNumber(y, mo, d), sec: h * 3600 + mi * 60 + Math.min(s, 59), date: false, utc: m[7] === \"Z\" };",
+            "after": "return { day: dayNumber(y, mo, d), sec: h * 3600 + mi / 60 + Math.min(s, 59), date: false, utc: m[7] === \"Z\" };",
+            "line_text": "  return { day: dayNumber(y, mo, d), sec: h * 3600 + mi * 60 + Math.min(s, 59), date: false, utc: m[7] === \"Z\" };",
+            "caught": true,
+            "seconds": 4.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 231,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < s.length; i++) {",
+            "after": "for (let i = 1; i < s.length; i++) {",
+            "line_text": "  for (let i = 0; i < s.length; i++) {",
+            "caught": false,
+            "seconds": 4.5,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "indexOfUnquoted skipping index 0 only changes lines that start with ':' or '\"'; both give a property name of '' or one starting with a quote, which matches no property parseInput reads, so the line is ignored either way."
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 397,
+            "col": 68,
+            "operator": "eq-flip",
+            "before": "ok = r.nthDays.some((x) => x.wd === wd && (x.n === fwd || x.n === back));",
+            "after": "ok = r.nthDays.some((x) => x.wd === wd && (x.n === fwd || x.n !== back));",
+            "line_text": "      ok = r.nthDays.some((x) => x.wd === wd && (x.n === fwd || x.n === back));",
+            "caught": true,
+            "seconds": 4.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 565,
+            "col": 76,
+            "operator": "times-to-div",
+            "before": "first = start.day - ((weekday(start.day) - r.wkst + 7) % 7) + i * 7 * k;",
+            "after": "first = start.day - ((weekday(start.day) - r.wkst + 7) % 7) + i * 7 / k;",
+            "line_text": "        first = start.day - ((weekday(start.day) - r.wkst + 7) % 7) + i * 7 * k;",
+            "caught": true,
+            "seconds": 300.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 625,
+            "col": 61,
+            "operator": "times-to-div",
+            "before": "else if (unit === 60) set = sWithinMinute.map((t) => n * 86400 + h * 3600 + mi * 60 + t);",
+            "after": "else if (unit === 60) set = sWithinMinute.map((t) => n / 86400 + h * 3600 + mi * 60 + t);",
+            "line_text": "      else if (unit === 60) set = sWithinMinute.map((t) => n * 86400 + h * 3600 + mi * 60 + t);",
+            "caught": true,
+            "seconds": 10.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 687,
+            "col": 41,
+            "operator": "lt-to-le",
+            "before": "if (ri < rdates.length && rdates[ri] < best) (best = rdates[ri]), (src = \"rdate\");",
+            "after": "if (ri < rdates.length && rdates[ri] <= best) (best = rdates[ri]), (src = \"rdate\");",
+            "line_text": "    if (ri < rdates.length && rdates[ri] < best) (best = rdates[ri]), (src = \"rdate\");",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "An RDATE equal to a rule date was labelled 'From RDATE': new test pins the source column."
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 910,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "if (rule.count === null && !rule.until) F(\"info\", \"no-end\", \"The rule has no end\", \"Without COUNT or UNTIL it repeats forever. That is valid; calendar apps show it indefinitely.\");",
+            "after": "if (rule.count === null || !rule.until) F(\"info\", \"no-end\", \"The rule has no end\", \"Without COUNT or UNTIL it repeats forever. That is valid; calendar apps show it indefinitely.\");",
+            "line_text": "  if (rule.count === null && !rule.until) F(\"info\", \"no-end\", \"The rule has no end\", \"Without COUNT or UNTIL it repeats forever. That is valid; calendar apps show it indefinitely.\");",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no-end was reported on rules with COUNT: new test with COUNT and UNTIL."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/rrule-explainer/rrule.mjs",
+        "issue": "describe() read negative BYYEARDAY and BYWEEKNO as 'on day last of the year', 'on day 366th from last of the year', 'in week last of the year'. Reproduced with describe(parseRule('FREQ=YEARLY;BYYEARDAY=-1')). Fixed: fromEnd() gives 'on the last day of the year', 'day 1 and the last day', 'in the 2nd from last week'.",
+        "patched": true
+      },
+      {
+        "file": "ventures/rrule-explainer/rrule.mjs",
+        "issue": "A rule part with no name ('FREQ=DAILY;=WEEKLY') gave the error 'Unknown rule part ' with a blank name. Fixed: '\"=WEEKLY\" has no part name' (bad-part).",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3e23bde6-0bf5-5603-8321-f0901ee749e1",
+    "transcripts": 1,
+    "first": "2026-11-18T11:07:00Z",
+    "last": "2026-11-18T11:20:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 94,
+        "output": 23159,
+        "thinking": 4742,
+        "cache_read": 3933652,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92201,
+        "api_equivalent_usd": 1.9879,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 94,
+      "output": 23159,
+      "thinking": 4742,
+      "cache_read": 3933652,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92201,
+      "api_equivalent_usd": 1.9879,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 2,
+      "Monitor": 1,
+      "Write": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.89,
+      "active_minutes": 13.89,
+      "model_minutes": 4.57,
+      "tool_minutes": 9.31,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "seed and triage 20 mutants, find and fix two wording bugs, write a property test and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 150.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
