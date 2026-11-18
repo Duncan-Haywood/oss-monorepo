@@ -63,6 +63,11 @@ export function decodeStepString(s) {
   return out;
 }
 
+// Stand-ins for a nested list that a shallow read stepped over (see
+// StepEntity.shallowArgs): frozen, shared, and only ever compared by length.
+export const EMPTY_LIST = Object.freeze([]);
+export const SKIPPED_LIST = Object.freeze([undefined]);
+
 class Reader {
   constructor(text, pos) { this.t = text; this.p = pos; }
   ws() {
@@ -140,6 +145,60 @@ class Reader {
     }
     throw new Error(`unexpected '${c}' at ${this.p}`);
   }
+  // The argument list with every nested list left unread: an empty one is
+  // EMPTY_LIST, any other SKIPPED_LIST (one placeholder item, so it is a
+  // non-empty array). Everything else is read as list() reads it.
+  shallowList() {
+    this.ws();
+    if (this.t[this.p] !== "(") throw new Error(`expected ( at ${this.p}`);
+    this.p++;
+    const out = [];
+    this.ws();
+    if (this.t[this.p] === ")") { this.p++; return out; }
+    for (;;) {
+      if (this.t[this.p] === "(") out.push(this.skipList());
+      else out.push(this.value());
+      this.ws();
+      const c = this.t[this.p++];
+      if (c === ",") continue;
+      if (c === ")") return out;
+      throw new Error(`expected , or ) at ${this.p - 1}`);
+    }
+  }
+  // Steps over a list, strings and comments included, to just past its ")".
+  skipList() {
+    const t = this.t;
+    const n = t.length;
+    let depth = 0, items = false;
+    for (let i = this.p; i < n; i++) {
+      const c = t.charCodeAt(i);
+      if (c === 40) { if (depth) items = true; depth++; continue; } // (
+      if (c === 41) { // )
+        if (--depth === 0) { this.p = i + 1; return items ? SKIPPED_LIST : EMPTY_LIST; }
+        continue;
+      }
+      if (c === 32 || c === 9 || c === 10 || c === 13) continue;
+      if (c === 47 && t.charCodeAt(i + 1) === 42) { // /*
+        const e = t.indexOf("*/", i + 2);
+        if (e < 0) break;
+        i = e + 1;
+        continue;
+      }
+      if (c === 59) break; // ; : the record ended inside the list
+      items = true;
+      if (c === 39) { // '
+        for (;;) {
+          const q = t.indexOf("'", i + 1);
+          if (q < 0) throw new Error("unterminated string");
+          if (quotedBySolidusS(t, q)) { i = q; continue; }
+          if (t.charCodeAt(q + 1) === 39) { i = q + 1; continue; }
+          i = q;
+          break;
+        }
+      }
+    }
+    throw new Error(`unclosed list at ${this.p}`);
+  }
   list() {
     this.ws();
     if (this.t[this.p] !== "(") throw new Error(`expected ( at ${this.p}`);
@@ -214,6 +273,22 @@ function entityClass(text, errors, policy) {
       return a;
     }
     set args(v) { this._a = v; }
+    // The arguments with nested lists left unread (EMPTY_LIST or
+    // SKIPPED_LIST), for a test that asks only whether a list attribute is
+    // set and empty: the attribute facet with a value, whose verdict on a list
+    // is "IDS cannot compare its value" whatever it holds. Used for the types
+    // whose full arguments are not kept (geometry), where a specification
+    // applying to every entity would otherwise read every point's coordinates
+    // once per facet (eval/attribute-any-geometry-2026-11-18.md). A record the
+    // shallow read cannot read is read in full, so its error is recorded.
+    get shallowArgs() {
+      if (this._a !== undefined || policy.keep(this.type)) return this.args;
+      try {
+        return new Reader(text, this._p).shallowList();
+      } catch {
+        return this.args;
+      }
+    }
     toJSON() { return { id: this.id, type: this.type, args: this.args }; }
   };
 }

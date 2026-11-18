@@ -492,13 +492,16 @@ export class AttributeFacet {
     const attrs = S.attrs(e.type);
     const hits = attrs.map((a, i) => [a, i]).filter(([a]) => this.name.matchString(a.name));
     if (!hits.length) return { ok: false, absent: true, why: `has no attribute ${this.name}` };
-    const set = hits.filter(([a, i]) => !a.derived && !isNull(e.args[i]));
+    // Nothing below reads inside a list (only whether it is empty), so a lazy
+    // STEP entity may hand over its arguments with nested lists unread.
+    const args = e.shallowArgs || e.args;
+    const set = hits.filter(([a, i]) => !a.derived && !isNull(args[i]));
     if (!set.length) return { ok: false, absent: true, why: `attribute ${this.name} is not set` };
-    const present = set.filter(([, i]) => !isEmpty(e.args[i]));
+    const present = set.filter(([, i]) => !isEmpty(args[i]));
     if (present.length < set.length) return { ok: false, why: `attribute ${this.name} is empty or unknown` };
     if (!this.value.present) return { ok: true };
     for (const [a, i] of present) {
-      const v = e.args[i];
+      const v = args[i];
       const prim = S.prim(a.type);
       if (a.aggregate || Array.isArray(v)) return { ok: false, why: `${a.name} is a list; IDS cannot compare its value` };
       if (v && (v.ref !== undefined || v.typed)) return { ok: false, why: `${a.name} refers to an object or a select; IDS cannot compare its value` };

@@ -466,6 +466,16 @@ and 111 s on the 219 MB federated model, where they took 515 s. Every report
 is identical. The 4.7 GB peak that run showed was garbage not yet collected:
 with a 2 GB heap it finishes, before and after this change.
 
+Since 2026-11-18 (`eval/attribute-any-geometry-2026-11-18.md`) an attribute
+facet reads geometry's arguments shallow: each nested list is stepped over
+and kept only as "empty" or "not empty", which is all the attribute test asks
+of a list. A file whose attribute facets match every name (OpenAEC's NL-BIM
+Basis ILS fixture) takes 4.7 s on the HHS MEP export, where it took 10.2 s.
+The 68 files take 8.3 s there, where they took 13.3 s, at 646 MB RSS, down from
+1,024 MB. On the 219 MB federated model they take 67.5 s, where they took
+114.3 s, and they now finish under a 1 GB heap, where main ran out of memory.
+Every report is identical.
+
 ## How it was checked
 
 1. **buildingSMART's test suite.** `eval/fetch-testcases.sh` sparse-clones
@@ -755,11 +765,10 @@ faster than IfcTester; its point is needing no install.
   are not kept (2026-11-17, `eval/heap-200mb-2026-11-17.md`). A 219 MB
   federated model built from seven real exports peaks at about 1 GB with the
   starter IDS files, where reading every argument up front took 2.5 GB, and
-  with all 68 public and starter IDS files it finishes under a 2 GB heap
-  (`eval/no-entity-facet-2026-11-17.md`; the 4.7 GB peak without a cap was
-  uncollected garbage), not under 1 GB. A requirement on
-  attribute values by a name pattern still reads every entity's values,
-  geometry included. Models well past 500 MB may need the command line with
+  with all 68 public and starter IDS files it finishes under a 1 GB heap
+  (since 2026-11-18, when attribute facets began reading geometry's arguments
+  with nested lists unread, `eval/attribute-any-geometry-2026-11-18.md`; it
+  needed 2 GB before, `eval/no-entity-facet-2026-11-17.md`). Models well past 500 MB may need the command line with
   `--max-old-space-size`. The ifcXML reader still reads everything up front.
 - The IDS audit does not validate the file against the IDS XML schema
   (cardinality attributes, element order); the IDS-Audit-tool does. Property
