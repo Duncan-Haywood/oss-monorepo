@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import subprocess
 import sys
@@ -24,6 +25,13 @@ BASE = "https://raw.pixls.us/data/"
 ROW = re.compile(r'<a href="([^"?/][^"]*)">[^<]*</a></td><td[^>]*>[^<]*</td><td[^>]*>\s*([0-9.]+[KMG]?)\s*</td>')
 DIR = re.compile(r'<a href="([^"?/][^"]*/)">')
 SKIP = (".jpg", ".jpeg", ".txt", ".md", ".xmp", ".pp3", ".json", ".html", ".png", ".tif", ".tiff")
+
+
+def finite_pos(text: str) -> float:
+    value = float(text)
+    if not math.isfinite(value) or value <= 0:
+        raise argparse.ArgumentTypeError(f"must be a finite number > 0, got {text!r}")
+    return value
 
 
 def get(url: str) -> str:
@@ -43,7 +51,7 @@ def main(argv=None) -> int:
     ap.add_argument("--exclude", action="append", default=[])
     ap.add_argument("--min-files", type=int, default=3)
     ap.add_argument("--per-body", type=int, default=5)
-    ap.add_argument("--max-mb", type=float, default=40.0)
+    ap.add_argument("--max-mb", type=finite_pos, default=40.0)
     args = ap.parse_args(argv)
     seen = {m["body"] for path in args.exclude for s in json.load(open(path)).values() for m in s}
     out = []
