@@ -160,7 +160,37 @@ PARAM_MUTANTS = {
     "Do Not Track ignored": ("globalThis.navigator?.doNotTrack === '1' || ", ""),
     "opt-out keeps counters": (
         "try { storage.removeItem('mini-split-bid-usage'); } catch { /* storage is optional */ }", ""),
+    # 2026-11-18: escaped graphql-introspection-exposure-check's suite and the
+    # contract; the stamp read "2026-11-18T".
+    "a malformed day stamp": (
+        "new Date().toISOString().slice(0, 10)", "new Date().toISOString().slice(0, 11)"),
+    "a timestamp where a day belongs": (
+        "new Date().toISOString().slice(0, 10)", "new Date().toISOString()"),
 }
+
+class DayStamp(unittest.TestCase):
+    """dayStampProblems, called on fixed values (not today's clock)."""
+
+    def problems(self, value):
+        import json, subprocess
+        js = ("import { dayStampProblems } from './platform/ci/usage_contract.mjs';"
+              f"console.log(JSON.stringify(dayStampProblems({json.dumps(value)}, new Date('2026-11-18T12:00:00Z'))));")
+        out = subprocess.run(["node", "--input-type=module", "-e", js], cwd=Path(__file__).resolve().parents[2],
+                             capture_output=True, text=True, check=True).stdout
+        return json.loads(out)
+
+    def test_today_passes(self):
+        self.assertEqual(self.problems({"run": 2, "last_day": "2026-11-18", "days": {"2026-11-18": 1}}), [])
+
+    def test_bad_stamps_fail(self):
+        for bad in ["2026-11-18T", "2026-11-18T12:00:00.000Z", "2026-11-1", "2026-11-17", ""]:
+            with self.subTest(bad):
+                self.assertEqual(len(self.problems({"last_day": bad})), 1)
+        self.assertEqual(len(self.problems({"days": {"2026-11-18T": 1}})), 1)
+
+    def test_counts_and_other_strings_are_ignored(self):
+        self.assertEqual(self.problems({"run": 3, "last_event": "check_run"}), [])
+
 
 class Contract(unittest.TestCase):
     def tree(self, d, src, name="a"):
