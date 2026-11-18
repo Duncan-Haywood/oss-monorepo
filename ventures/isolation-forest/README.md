@@ -28,7 +28,7 @@ node cli.mjs orders.csv --csv > scores.csv                   # every row: score,
 node ../../platform/agents/tools.mjs call isolation-forest analyze --input '{"csv":"...","contamination":0.05}'
 ```
 
-Input is a CSV (comma, tab or semicolon) with a header row; a headerless
+Input is a CSV (comma, tab or semicolon; a semicolon file reads `1,5` as one and a half, the European export) with a header row; a headerless
 numeric table gets columns `c1`, `c2`, .... Every numeric column is a feature
 unless it looks like an ID (a name such as `id` or `customer_id`, or strictly
 increasing integers) or a code with three or fewer integer values; text

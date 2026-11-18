@@ -548,9 +548,16 @@ export function energyTest(X, Y, { permutations = 199, seed = 42 } = {}) {
 // --------------------------------------------------------------------- CSV
 
 const isMissing = (s) => /^\s*(|na|n\/a|nan|null|none|\?|-)\s*$/i.test(String(s ?? ""));
-const numText = (s) => String(s).trim().replace(/^\((.*)\)$/, "-$1").replace(/[$€£,%\s]/g, "");
-const isNum = (s) => {
-  const t = numText(s);
+// A semicolon file is a decimal-comma export (Excel in most of Europe): there
+// "1,5" is one and a half and "1.234,5" has a thousands dot, so a comma
+// followed by digits is the decimal point. Elsewhere a comma groups thousands.
+const numText = (s, decimalComma = false) => {
+  let t = String(s).trim().replace(/^\((.*)\)$/, "-$1").replace(/[$€£%\s]/g, "");
+  if (decimalComma && /^[-+]?(\d{1,3}(\.\d{3})+|\d*),\d+$/.test(t)) t = t.replace(/\./g, "").replace(",", ".");
+  return t.replace(/,/g, "");
+};
+const isNum = (s, decimalComma = false) => {
+  const t = numText(s, decimalComma);
   return t !== "" && Number.isFinite(Number(t));
 };
 
@@ -590,7 +597,7 @@ export function parseCsv(text) {
     rows.push(cells[i]);
   }
   if (!rows.length) return { error: "The CSV has a header but no data rows." };
-  return { columns, rows, delimiter: delim };
+  return { columns, rows, delimiter: delim, decimalComma: delim === ";" };
 }
 
 /** Describe each column: numeric or not, and its distinct values (a group column has few). */
@@ -598,7 +605,7 @@ export function profileColumns(parsed) {
   return parsed.columns.map((name, j) => {
     const cells = parsed.rows.map((r) => r[j]);
     const present = cells.filter((c) => !isMissing(c));
-    const numeric = present.length > 0 && present.every(isNum);
+    const numeric = present.length > 0 && present.every((c) => isNum(c, parsed.decimalComma));
     const values = [...new Set(present)];
     const dateLike = present.length > 0 && present.slice(0, 50).every((c) => /^\d{4}-\d{2}-\d{2}/.test(c));
     return { name, numeric, missing: cells.length - present.length, distinct: values.length, values: values.slice(0, 50), dateLike };
@@ -692,7 +699,7 @@ export function analyze(input = {}) {
     const g = groups.indexOf(r[gi]);
     if (g < 0) continue;
     if (fi.some((j) => isMissing(r[j]))) { dropped++; continue; }
-    pts[g].push(fi.map((j) => Number(numText(r[j]))));
+    pts[g].push(fi.map((j) => Number(numText(r[j], parsed.decimalComma))));
   }
   if (dropped) warnings.push(`${dropped.toLocaleString("en-US")} row${dropped === 1 ? " has" : "s have"} a missing value in a chosen column and ${dropped === 1 ? "was" : "were"} left out.`);
   for (let g = 0; g < 2; g++) if (pts[g].length < 2) return { error: `Group "${groups[g]}" has ${pts[g].length} complete row${pts[g].length === 1 ? "" : "s"}; at least 2 are needed.` };

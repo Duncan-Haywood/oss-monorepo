@@ -31,7 +31,7 @@ node cli.mjs runs.csv --csv > shift.csv                         # the per-column
 node ../../platform/agents/tools.mjs call wasserstein-distance analyze --input '{"csv":"...","group":"period"}'
 ```
 
-Input is a CSV (comma, tab or semicolon) with a header row. The group column
+Input is a CSV (comma, tab or semicolon; a semicolon file reads `1,5` as one and a half, the European export) with a header row. The group column
 is guessed (a text column with 2 to 12 values) unless named; the two groups
 compared are the first two values seen unless named. Every other numeric
 column is compared unless `--columns` names some. Rows missing a chosen value

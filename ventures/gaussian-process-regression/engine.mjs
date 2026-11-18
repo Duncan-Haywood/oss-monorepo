@@ -768,9 +768,16 @@ export function leaveOneOut(name, theta, x, y, { jitter = DEFAULTS.jitter } = {}
 // ---------- CSV and dates ----------
 
 const isMissing = (s) => /^\s*(|na|n\/a|nan|null|none|\?|-)\s*$/i.test(String(s ?? ""));
-const numText = (s) => String(s).trim().replace(/^\((.*)\)$/, "-$1").replace(/[$€£,%\s]/g, "");
-const isNum = (s) => {
-  const t = numText(s);
+// A semicolon file is a decimal-comma export (Excel in most of Europe): there
+// "1,5" is one and a half and "1.234,5" has a thousands dot, so a comma
+// followed by digits is the decimal point. Elsewhere a comma groups thousands.
+const numText = (s, decimalComma = false) => {
+  let t = String(s).trim().replace(/^\((.*)\)$/, "-$1").replace(/[$€£%\s]/g, "");
+  if (decimalComma && /^[-+]?(\d{1,3}(\.\d{3})+|\d*),\d+$/.test(t)) t = t.replace(/\./g, "").replace(",", ".");
+  return t.replace(/,/g, "");
+};
+const isNum = (s, decimalComma = false) => {
+  const t = numText(s, decimalComma);
   return t !== "" && Number.isFinite(Number(t));
 };
 const DATE = /^(\d{4})-(\d{1,2})(?:-(\d{1,2}))?$/;
@@ -824,7 +831,7 @@ export function parseCsv(text) {
   const delim = ["\t", ";", ","].map((dl) => [dl, splitLine(lines[0], dl).length]).sort((a, b) => b[1] - a[1])[0][0];
   const cells = lines.map((l) => splitLine(l, delim));
   let columns, start = 1;
-  const valueLike = (c) => isNum(c) || isMissing(c) || DATE.test(c);
+  const valueLike = (c) => isNum(c, delim === ";") || isMissing(c) || DATE.test(c);
   if (cells[0].every(valueLike)) {
     columns = cells[0].length === 2 ? ["x", "y"] : cells[0].map((_, i) => `c${i + 1}`);
     start = 0;
@@ -838,7 +845,7 @@ export function parseCsv(text) {
     rows.push({ line: i + 1, cells: cells[i] });
   }
   if (!rows.length) return { error: "The CSV has a header but no data rows." };
-  return { columns, rows };
+  return { columns, rows, decimalComma: delim === ";" };
 }
 
 export const fmt = (v, digits = 3) => {
@@ -918,7 +925,7 @@ export function analyze(input = {}) {
     const kinds = columns.map((_, j) => {
       const present = rows.map((r) => r.cells[j]).filter((c) => !isMissing(c));
       if (present.length && present.every((c) => DATE.test(c))) return "date";
-      if (present.length && present.every(isNum)) return "num";
+      if (present.length && present.every((c) => isNum(c, parsed.decimalComma))) return "num";
       return "text";
     });
     const firstUsable = kinds.findIndex((k) => k !== "text");
@@ -935,9 +942,9 @@ export function analyze(input = {}) {
     for (const r of rows) {
       const cx = r.cells[xi], cy = r.cells[yi];
       if (isMissing(cx) || isMissing(cy)) { skipped++; continue; }
-      const xv = dateMode ? decimalYear(cx) : Number(numText(cx));
+      const xv = dateMode ? decimalYear(cx) : Number(numText(cx, parsed.decimalComma));
       if (!Number.isFinite(xv)) { skipped++; continue; }
-      xs.push(xv); ys.push(Number(numText(cy))); lines.push(r.line);
+      xs.push(xv); ys.push(Number(numText(cy, parsed.decimalComma))); lines.push(r.line);
     }
     if (skipped) warnings.push(`Skipped ${plural(skipped, "row")} with a missing or unreadable x or y.`);
     const others = columns.filter((_, j) => j !== xi && j !== yi && kinds[j] === "num");

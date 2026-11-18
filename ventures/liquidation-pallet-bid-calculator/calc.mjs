@@ -112,6 +112,10 @@ function splitRows(text, delim) {
   return rows;
 }
 
+// In a semicolon file (a European export) "1,5" is one and a half and "1.234,50"
+// has a thousands dot, so its decimal-comma numbers are rewritten with a point
+// before any number parsing strips commas as thousands separators.
+const decimalCommaCell = (c) => c.replace(/^(\s*[-+(]?\s*[$€£]?\s*-?)(\d{1,3}(?:\.\d{3})+|\d+),(\d+)(\s*[%)$€£]?\s*)$/, (_, a, i, f, b) => `${a}${i.replace(/\./g, "")}.${f}${b}`);
 function num(s) {
   if (s === undefined || s === null) return NaN;
   const t = String(s).replace(/[$£€,\s]/g, "").replace(/^\((.*)\)$/, "-$1");
@@ -133,7 +137,7 @@ export function parseManifest(text) {
   const first = src.split(/\r?\n/, 1)[0];
   const counts = [["\t", (first.match(/\t/g) || []).length], [";", (first.match(/;/g) || []).length], [",", (first.match(/,/g) || []).length]].sort((x, y) => y[1] - x[1]);
   const delim = counts[0][1] > 0 ? counts[0][0] : ",";
-  const rows = splitRows(src, delim);
+  const rows = splitRows(src, delim).map((r) => (delim === ";" ? r.map(decimalCommaCell) : r));
   if (!rows.length) return { error: "No rows found." };
   const head = rows[0].map((c) => c.trim().replace(/[_-]+/g, " ").replace(/\s+/g, " "));
   const hasHeader = head.some((c) => Object.values(HEADERS).some((re) => re.test(c)) ) && !head.some((c) => num(c) > 0 && /^[\d.,$ ]+$/.test(c));

@@ -58,6 +58,10 @@ function parseDate(s) {
 
 const weekStart = (ms) => { const dow = (new Date(ms).getUTCDay() + 6) % 7; return ms - dow * DAY; };
 const isoDay = (ms) => new Date(ms).toISOString().slice(0, 10);
+// In a semicolon file (a European export) "1,5" is one and a half and "1.234,50"
+// has a thousands dot, so its decimal-comma numbers are rewritten with a point
+// before any number parsing strips commas as thousands separators.
+const decimalCommaCell = (c) => c.replace(/^(\s*[-+(]?\s*[$€£]?\s*-?)(\d{1,3}(?:\.\d{3})+|\d+),(\d+)(\s*[%)$€£]?\s*)$/, (_, a, i, f, b) => `${a}${i.replace(/\./g, "")}.${f}${b}`);
 const cleanNumber = (s) => {
   const t = String(s).trim().replace(/[$€£,\s]/g, "").replace(/^\((.*)\)$/, "-$1");
   if (t === "" || !/^-?\d*\.?\d+$/.test(t)) return null;
@@ -78,7 +82,7 @@ export function parseSales(text) {
       else cur += ch;
     }
     out.push(cur.trim());
-    return out;
+    return delim === ";" ? out.map(decimalCommaCell) : out;
   };
   let cols = { date: 0, price: 1, units: 2 };
   let start = 0;

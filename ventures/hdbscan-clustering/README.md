@@ -29,7 +29,7 @@ node cli.mjs customers.csv --csv > clusters.csv               # every row: clust
 node ../../platform/agents/tools.mjs call hdbscan-clustering analyze --input '{"csv":"...","minClusterSize":10}'
 ```
 
-Input is a CSV (comma, tab or semicolon) with a header row; a headerless
+Input is a CSV (comma, tab or semicolon; a semicolon file reads `1,5` as one and a half, the European export) with a header row; a headerless
 numeric table gets columns `c1`, `c2`, .... Every numeric column is clustered
 on unless it looks like an ID or a year (a name such as `id`, `customer_id`
 or `year`, or strictly increasing integers) or is a code with three or fewer

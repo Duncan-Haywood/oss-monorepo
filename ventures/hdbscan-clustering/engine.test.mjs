@@ -175,3 +175,10 @@ test("PAPERS cite each method with a DOI, what was implemented and the deviation
     assert.ok(p.implemented.length > 80 && p.deviations.length > 40);
   }
 });
+
+test("a semicolon CSV reads decimal commas as decimals, not thousands", () => {
+  const rows = Array.from({ length: 12 }, (_, k) => `${k + 1},5;${k % 3},25`);
+  const r = analyze({ csv: ["x;y", ...rows].join("\n") });
+  assert.ok(!r.error, r.error);
+  assert.deepEqual(r.matrix.slice(0, 3), [[1.5, 0.25], [2.5, 1.25], [3.5, 2.25]]);
+});

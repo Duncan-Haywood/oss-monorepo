@@ -194,9 +194,16 @@ export function auc(scores, labels) {
 // --------------------------------------------------------------------- CSV
 
 const isMissing = (s) => /^\s*(|na|n\/a|nan|null|none|\?|-)\s*$/i.test(String(s ?? ""));
-const numText = (s) => String(s).trim().replace(/^\((.*)\)$/, "-$1").replace(/[$€£,%\s]/g, "");
-const isNum = (s) => {
-  const t = numText(s);
+// A semicolon file is a decimal-comma export (Excel in most of Europe): there
+// "1,5" is one and a half and "1.234,5" has a thousands dot, so a comma
+// followed by digits is the decimal point. Elsewhere a comma groups thousands.
+const numText = (s, decimalComma = false) => {
+  let t = String(s).trim().replace(/^\((.*)\)$/, "-$1").replace(/[$€£%\s]/g, "");
+  if (decimalComma && /^[-+]?(\d{1,3}(\.\d{3})+|\d*),\d+$/.test(t)) t = t.replace(/\./g, "").replace(",", ".");
+  return t.replace(/,/g, "");
+};
+const isNum = (s, decimalComma = false) => {
+  const t = numText(s, decimalComma);
   return t !== "" && Number.isFinite(Number(t));
 };
 
@@ -225,7 +232,7 @@ export function parseCsv(text) {
   const delim = ["\t", ";", ","].map((dl) => [dl, splitLine(lines[0], dl).length]).sort((a, b) => b[1] - a[1])[0][0];
   const cells = lines.map((l) => splitLine(l, delim));
   let columns, start = 1, headerless = false;
-  if (cells[0].every((c) => isNum(c) || isMissing(c))) {
+  if (cells[0].every((c) => isNum(c, delim === ";") || isMissing(c))) {
     columns = cells[0].map((_, i) => `c${i + 1}`);
     start = 0;
     headerless = true;
@@ -243,7 +250,7 @@ export function parseCsv(text) {
     rows.push(cells[i]);
   }
   if (!rows.length) return { error: "The CSV has a header but no data rows." };
-  return { columns, rows, headerless, delimiter: delim };
+  return { columns, rows, headerless, delimiter: delim, decimalComma: delim === ";" };
 }
 
 const ID_NAME = /^(#|id|.*[ _-]id|index|row|row ?number|record)$/i;
@@ -253,8 +260,8 @@ export function profileColumns(parsed) {
   return parsed.columns.map((name, j) => {
     const cells = parsed.rows.map((r) => r[j]);
     const present = cells.filter((c) => !isMissing(c));
-    const numeric = present.length > 0 && present.every(isNum);
-    const values = numeric ? present.map((c) => Number(numText(c))) : [];
+    const numeric = present.length > 0 && present.every((c) => isNum(c, parsed.decimalComma));
+    const values = numeric ? present.map((c) => Number(numText(c, parsed.decimalComma))) : [];
     const distinct = new Set(numeric ? values : present).size;
     const integer = numeric && values.every(Number.isInteger);
     const increasing = integer && values.length > 2 && values.every((v, i) => i === 0 || v > values[i - 1]);
@@ -354,7 +361,7 @@ export function analyze(input = {}) {
     const vals = [];
     for (let i = 0; i < n; i++) {
       const c = parsed.rows[i][j];
-      const v = isMissing(c) ? NaN : Number(numText(c));
+      const v = isMissing(c) ? NaN : Number(numText(c, parsed.decimalComma));
       X[i][f] = v;
       if (Number.isFinite(v)) vals.push(v);
     }

@@ -259,3 +259,9 @@ test("formatting helpers", () => {
   assert.equal(money(NaN), "n/a");
   assert.equal(money(-0.11), "$0");
 });
+
+test("a semicolon manifest reads decimal commas as decimals, not cents", () => {
+  const m = parseManifest("item;qty;retail\nLamp;2;19,99\nChair;1;€1.249,00");
+  assert.deepEqual(m.lines.map((l) => l.unitRetail), [19.99, 1249]);
+  assert.deepEqual(parseManifest('item,qty,retail\nLamp,2,"1,249.00"').lines.map((l) => l.unitRetail), [1249]);
+});
