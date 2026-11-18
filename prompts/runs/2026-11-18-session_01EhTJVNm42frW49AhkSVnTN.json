@@ -48,6 +48,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "`pkill -f '[c]ull_group_timing'` was refused because the same word appeared later in the command line; the hook message explains it, but CLAUDE.md's note only says to bracket the first letter."
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "Two sessions claimed the same photo-editing cull item within minutes (#17257 'cull 10% pans', #17258 'cull finer window grid for 6% and 10% pans'); the item names differed, so neither claim check flagged the other and both built a fix."
     }
   ],
   "deviations": [
@@ -62,6 +66,12 @@
       "why": "Pick rule (highest tune recall within +2 false merges) chose (6,8,40); took (5,8,44): 0.0001 lower recall, one fewer false merge, same threshold/gate as the other window passes. Chosen before held-out scoring.",
       "did": "FINE_MAX_DISTANCE 5, FINE_MIN_GAIN 8, gate 44",
       "result": "held-out false merges 26 -> 26"
+    },
+    {
+      "file": "CLAUDE.md (Duplicate PRs)",
+      "why": "PR #17258 (another session, claimed minutes after this one, both saw the item free) merged a different fix for the same item first. Measured both on the same frames: fine offsets alone 0.9983 held vs its 0.9946; it added 0.0001 on top of fine for +1 tune false merge and 1.8x grouping time.",
+      "did": "Merged main in; the cull runs the fine pass only; the other pass's frame_analysis helpers, tool and eval kept for reproducibility; comparison table in eval/cull-fine-offsets-2026-11-18.md",
+      "result": "held-out 0.9983, false merges 26"
     }
   ],
   "writeups": [
@@ -69,7 +79,7 @@
     "ventures/photo-editing/eval/cull-fine-offsets-2026-11-18.md"
   ],
   "goal": "Deepen a flagship: burst grouping recall on pans between the window grid's steps",
-  "notes": "Diagnosis: every missed 10% pan had 3%-grid windows 6-11 bits apart but whole-percent windows 0-2 (29/33 tune). Fine pass: 24 more windows, 544 packed lanes, exact index (one table of 49 windows). Tune 0.9829->0.9976 (FM 14->14); held 0.9822->0.9983 (FM 26->26); 7-10% pans 0.78-0.95 -> 0.99-1.00. Cost: grouping 2,000 frames 2.9->7.7 s, 10,000 frames 36->101 s; index starts at 200 frames. Local checks: tests.test_cull + tests.test_frame_analysis (unittest) OK; run_venture_tests.py photo-editing: ok (1341 tests, 252 s); venture-preflight.mjs photo-editing: clean; tools/cull_crop_grouping_eval.py end to end: tune 0.998/14 FM, held 0.998/26 FM; cull_showcase.py unchanged (5 groups, 5 keepers, 6 alternates, 2 rejects).",
+  "notes": "Diagnosis: every missed 10% pan had 3%-grid windows 6-11 bits apart but whole-percent windows 0-2 (29/33 tune). Fine pass: 24 more windows, 544 packed lanes, exact index (one table of 49 windows). Tune 0.9829->0.9976 (FM 14->14); held 0.9822->0.9983 (FM 26->26); 7-10% pans 0.78-0.95 -> 0.99-1.00. Cost: grouping 2,000 frames 2.9->7.7 s, 10,000 frames 36->101 s; index starts at 200 frames. Local checks: tests.test_cull + tests.test_frame_analysis (unittest) OK; run_venture_tests.py photo-editing: ok (1341 tests, 252 s); venture-preflight.mjs photo-editing: clean; tools/cull_crop_grouping_eval.py end to end: tune 0.998/14 FM, held 0.998/26 FM; cull_showcase.py unchanged (5 groups, 5 keepers, 6 alternates, 2 rejects). Merge with main after #17258: both passes measured on the same frames (table in the eval note); unittest test_cull+test_frame_analysis 72 OK after the merge.",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -120,3 +120,21 @@ The index now starts at 200 frames instead of 500 (150 frames: index 0.26 s, pla
 
 `tools/cull_showcase.py`: 5 groups for 5 scenes, 5 keepers, 6 alternates, 2 rejects, every photo in the same
 group as before, so `site/cull-report.webp` stands.
+
+## Against the every-other-pair pass (merged the same day, eval/cull-pan-all-pairs-2026-11-18.md)
+
+Another session took the same item at the same time and shipped a different fix first: every window pair at the
+wide-pan offsets, not only the one nearest the middle (held out 0.991 to 0.995; its note judged a finer grid
+would not help, which holds for an even 2% grid but not for the sparse ruler here). Scored on the same frames
+and halves as above, each pass on top of everything shipped before either:
+
+| passes added | tune recall | tune false merges | held recall | held false merges |
+| --- | --- | --- | --- | --- |
+| neither | 0.9829 | 14 | 0.9822 | 26 |
+| every other pair (5, gain 10) | 0.9925 | 15 | 0.9946 | 26 |
+| fine offsets (5, gain 8) | 0.9976 | 14 | 0.9983 | 26 |
+| both | 0.9978 | 15 | 0.9984 | 26 |
+
+With the fine pass in, the other pass adds 0.0001-0.0002 recall for one tune false merge and about 1.8x the
+grouping time (its own note), so the cull runs the fine pass alone. `pan_other_distance`, `other_pack` and
+`other_within` stay in `frame_analysis` so `tools/cull_pan_other_tune.py` and its note can be rerun.

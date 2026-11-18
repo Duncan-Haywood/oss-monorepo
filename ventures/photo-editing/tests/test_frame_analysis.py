@@ -20,6 +20,7 @@ from shootflow.frame_analysis import (
     metrics_from_frames,
     noise_sigma_from_frame,
     pan_distance,
+    pan_other_distance,
     tilt_from_frame,
     zoom_dhashes,
     zoom_distance,
@@ -348,7 +349,7 @@ class FineOffsetTests(unittest.TestCase):
 
 class PackedWindowTests(unittest.TestCase):
     def test_packed_check_agrees_with_both_distances(self) -> None:
-        from shootflow.frame_analysis import window_pack, windows_within
+        from shootflow.frame_analysis import other_pack, other_within, window_pack, windows_within
 
         rng = random.Random(11)
         for _ in range(1500):
@@ -356,11 +357,28 @@ class PackedWindowTests(unittest.TestCase):
             # Some windows of b sit a few bits from windows of a, so both kinds come near their limits.
             b = tuple(a[rng.randrange(25)] ^ rng.getrandbits(64) & rng.getrandbits(64) & rng.getrandbits(64)
                       for _ in range(25))
-            crop, pan = crop_distance(a, b), pan_distance(a, b)
+            crop, pan, other = crop_distance(a, b), pan_distance(a, b), pan_other_distance(a, b)
             pa, pb = window_pack(a), window_pack(b)
             for cl, pl in ((crop, -1), (crop - 1, -1), (-1, pan), (-1, pan - 1), (crop - 1, pan - 1), (crop, pan), (63, -5)):
                 want = (cl >= 0 and crop <= cl) or (pl >= 0 and pan <= pl)
                 self.assertEqual(windows_within(pa, pb, cl, pl), want, (crop, pan, cl, pl))
+            oa, ob = other_pack(a), other_pack(b)
+            for ol in (other, other - 1, -1, 63, 70):
+                self.assertEqual(other_within(oa, ob, ol), ol >= 0 and other <= ol, (other, ol))
+
+    def test_other_pan_pairs_fill_every_far_offset(self) -> None:
+        from shootflow.frame_analysis import _PAN_OTHER_PAIRS, _PAN_PAIRS, CROP_STEPS
+
+        n, c = CROP_STEPS, CROP_STEPS // 2
+        both = set(_PAN_PAIRS) | set(_PAN_OTHER_PAIRS)
+        self.assertEqual(len(both), len(_PAN_PAIRS) + len(_PAN_OTHER_PAIRS))
+        want = {
+            (ay * n + ax, by * n + bx)
+            for ay in range(n) for ax in range(n) for by in range(n) for bx in range(n)
+            if abs(ax - bx) > c or abs(ay - by) > c
+        }
+        self.assertEqual(both, want)
+        self.assertEqual(len(both), 264)
 
     def test_missing_crops_never_match_packed(self) -> None:
         from shootflow.frame_analysis import window_pack, windows_within

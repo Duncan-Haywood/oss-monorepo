@@ -118,12 +118,13 @@ flagships:
       RapidOCR's total unless arithmetic confirms the majority, CORD train 542/583;
       page SRD 190/196 (port as lead), page CORD taxes kept (train 205/267),
       WildReceipt held out 360/405, tax 209/272, Russian slips 203/230, 202/221
-      (RapidOCR), SROIE 84.6%, US 79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD
-      photos val 71.4%, train 62.2%, test 57.9%, tax 16/41; open: OCR-bound); (6)
-      payroll (README): two journal layouts read; open: a real Gusto or ADP export;
-      (7) IRIS NEC and MISC rents files on IRS TY2025 guidelines (HISTORY): open: a
-      real upload, TY2026 template. A run that lands a slice replaces its item here;
-      keep this under 2,000 characters. More open items: NEXT.md.
+      (RapidOCR), SROIE 84.6%, five readings 96.5% held out, dates 94.1% (was
+      69.1%), US 79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos val 71.4%,
+      train 62.2%, test 57.9%, tax 16/41; open: OCR-bound); (6) payroll (README):
+      two journal layouts read; open: a real Gusto or ADP export; (7) IRIS NEC and
+      MISC rents files on IRS TY2025 guidelines (HISTORY): open: a real upload,
+      TY2026 template. A run that lands a slice replaces its item here; keep this
+      under 2,000 characters. More open items: NEXT.md.
     buildable: >-
       Receipts, item (5): WildReceipt (eval/wildreceipt.py, Hugging Face
       kaydee/wildreceipt; Apache-2.0), SRD (eval/srd-fetch.mjs), CORD
@@ -132,7 +133,8 @@ flagships:
       (cdek-ocr/receipt-ocr-ru, eval/receipt-ocr-ru-2026-11-18.md): all shards read
       (eval/receipt-ocr-ru-train2-2026-11-18.md); rus+eng tesseract adds nothing
       (eval/receipt-ocr-ru-rus-vote-2026-11-18.md); next: a Cyrillic RapidOCR model.
-      CORD leftovers: train-28, 1009 (eval/cord-shard0-lead-2026-11-17.md).
+      SROIE (zzzDavid/ICDAR-2019-SROIE) merchants:
+      eval/sroie-five-readings-2026-11-18
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
@@ -190,22 +192,21 @@ flagships:
       GitHub Actions (real shop, README "A real shop's daily series": weekly line
       ships; next revenue deaf at Quiet, one-day closures); (a) ar1 + floor 2 failed
       on 5 fresh bee dances (0.244 vs 0.337, README; muted note ships); update-rate
-      check: date a documented collection change. Stale feeds: clumped LR shipped;
-      next a real documented carry-forward. joint drift (measured, not offered) and
-      its 2x penalty on fresh multi-column labelled data. Open: (0) drift model:
-      t-walk increments, biweight on fresh data, why it absorbs seat belts and
-      quality control 4, its AR(1) term; two covariates: harmless one's warning 0 of
-      170 false finds, 1.27x bias (bar failed); slope and pulse shocks 2026-11-18:
-      warning holds 42 of 43 false finds (README "Shocks that are not steps");
-      anticipation 2026-11-18: --anticipation N ships (power 25-40% to 54-55%
-      backdated), warning holds 4 of 8 when a covariate moves 4 early (README "A
-      shock before the date"); the note quotes it; two shocked donors 2026-11-18
-      (README "Two shocked donors"): 54-56% to 27-28%, both left out 53-56%, one
-      35%; notes quote it; donor slope or pulse 2026-11-18 (README "A donor's own
-      event that is not a step"): pulse 12-14%, slope 29-35%, step 37-40%; gapShape
-      word on listed units (pulse faded 90%, 20% false); on West Germany 12 of 16
-      placebos grew (note says so); next a real deployer's panel. More open items:
-      NEXT.md.
+      check on 7 documented pegs 2026-11-18 (README "Currency pegs"): 4 dated within
+      6-11 rows, D1 failed (bands, early float); next a labelled set of feed
+      changes. Stale feeds: clumped LR shipped; next a real documented
+      carry-forward. joint drift (measured, not offered) and its 2x penalty on fresh
+      multi-column labelled data. Open: (0) drift model: t-walk increments, biweight
+      on fresh data, why it absorbs seat belts and quality control 4, its AR(1)
+      term; two covariates: harmless one's warning 0 of 170 false finds, 1.27x bias
+      (bar failed); slope and pulse shocks 2026-11-18: warning holds 42 of 43 false
+      finds (README "Shocks that are not steps"); anticipation 2026-11-18:
+      --anticipation N ships (power 25-40% to 54-55% backdated), warning holds 4 of
+      8 when a covariate moves 4 early (README "A shock before the date"); the note
+      quotes it; two shocked donors 2026-11-18 (README "Two shocked donors"): 54-56%
+      to 27-28%, both left out 53-56%, one 35%; notes quote it; donor slope or pulse
+      2026-11-18 (README "A donor's own event that is not a step"): pulse 12-14%,
+      slope 29-35%, step 37-40%. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
@@ -398,9 +399,9 @@ flagships:
       eval/bowling-bound-proof.txt). Lane limits (team avoids a pair, hard;
       eval/bowling-lane-avoid.txt). Limits per shape
       (eval/bowling-avoid-shapes.txt), on other slots and symmetry-broken
-      (eval/bowling-avoid-slots.txt): 112 of 112 hard, 139 of 142 limit grid. Next,
-      most valuable first: 6x32 two teams, slots 0,4 open; 6x26 random limits on
-      other slots; shapes of 5+ limited teams. More open items: NEXT.md.
+      (eval/bowling-avoid-slots.txt): 112 of 112 hard, 139 of 142 limit grid. 6x32 2
+      teams, 6x26 random: UNSAT every dealing (eval/bowling-count-model.py); 16x40,
+      24x35 stored. Next: 5+ limited teams. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
@@ -521,5 +522,7 @@ flagships:
       (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 7.9 to 4.6 s, same
       reports); file-order candidate lists 2026-11-18
       (eval/file-order-candidates-2026-11-18.md: pooled specs 2.9x on HHS MEP, same
-      reports); next: lazy ifcXML, a facet-result cache across specs that apply to
-      most of a model. More open items: NEXT.md.
+      reports); facet-result cache 2026-11-18 (eval/applies-cache-2026-11-18.md: 68
+      IDS on HHS MEP 11.4M facet tests to 3.7M, 6.3-7.0 to 5.0-5.3 s; 219 MB 60.4 to
+      43.1 s, fits 1 GB); next: lazy ifcXML, attribute value tests on every entity.
+      More open items: NEXT.md.

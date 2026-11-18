@@ -489,9 +489,45 @@ def _pan_pairs() -> tuple[tuple[int, int], ...]:
 
 
 _PAN_PAIRS = _pan_pairs()
+
+
+def _pan_other_pairs() -> tuple[tuple[int, int], ...]:
+    """Every other (window of a, window of b) at the offsets ``_PAN_PAIRS`` covers with one pair.
+
+    A 10% pan moves the content 11.1%, between the grid's 9% and 12% offsets,
+    and the one pair nearest the middle often sits a few bits too far apart
+    while another pair at the same offset lines up (eval/cull-pan-all-pairs-2026-11-18.md).
+    """
+
+    n, c = CROP_STEPS, CROP_STEPS // 2
+    chosen = set(_PAN_PAIRS)
+    out = []
+    for dy in range(1 - n, n):
+        for dx in range(1 - n, n):
+            if abs(dx) <= c and abs(dy) <= c:
+                continue
+            out += [
+                pair
+                for ay in range(n)
+                for ax in range(n)
+                if 0 <= ay - dy < n and 0 <= ax - dx < n
+                and (pair := (ay * n + ax, (ay - dy) * n + (ax - dx))) not in chosen
+            ]
+    return tuple(out)
+
+
+_PAN_OTHER_PAIRS = _pan_other_pairs()
 # itemgetter and map keep the comparison in C: the cull runs it for most pairs.
 _PAN_A = operator.itemgetter(*(x for x, _ in _PAN_PAIRS))
 _PAN_B = operator.itemgetter(*(y for _, y in _PAN_PAIRS))
+
+
+def pan_other_distance(crops_a: Sequence[int], crops_b: Sequence[int]) -> int:
+    """Smallest Hamming distance over ``_PAN_OTHER_PAIRS``; 64 when either frame has no crop hashes."""
+
+    if len(crops_a) != CROP_STEPS * CROP_STEPS or len(crops_b) != len(crops_a):
+        return 64
+    return min((crops_a[x] ^ crops_b[y]).bit_count() for x, y in _PAN_OTHER_PAIRS)
 
 
 def pan_distance(crops_a: Sequence[int], crops_b: Sequence[int]) -> int:
@@ -622,6 +658,43 @@ def windows_within(packed_a: tuple[int, ...], packed_b: tuple[int, ...], crop_li
     # shift-and-adds on these 6,720-bit integers.
     x = ((x * 0x0101010101010101) >> 56) & _W_LOW
     return (x + bias) & _W_HIGH != _W_HIGH
+
+
+# The other wide-pan pairs (2026-11-18, eval/cull-pan-all-pairs-2026-11-18.md)
+# packed on their own: 208 lanes, checked only for the pairs the cull's index
+# finds within their limit, so most pairs never pay for the bigger integers.
+_OTHER_LANES = len(_PAN_OTHER_PAIRS)
+_OTHER_A = operator.itemgetter(*(x for x, _ in _PAN_OTHER_PAIRS))
+_OTHER_B = operator.itemgetter(*(y for _, y in _PAN_OTHER_PAIRS))
+_O_BYTES = 8 * _OTHER_LANES
+_OM1, _OM2, _OM4 = (int.from_bytes(bytes([b]) * _O_BYTES, "little") for b in (0x55, 0x33, 0x0F))
+_O_LOW = sum(0xFF << (64 * k) for k in range(_OTHER_LANES))
+_O_ONE = _O_LOW // 0xFF
+_O_HIGH = _O_ONE * 0x80
+
+
+def other_pack(crops: Sequence[int]) -> tuple[int, ...]:
+    """(a side, b side) of a frame's crop hashes packed for ``other_within``; () when incomplete."""
+
+    if len(crops) != CROP_STEPS * CROP_STEPS:
+        return ()
+    return (_pack(_OTHER_A(crops)), _pack(_OTHER_B(crops)))
+
+
+def other_within(packed_a: tuple[int, ...], packed_b: tuple[int, ...], limit: int) -> bool:
+    """Whether ``pan_other_distance`` is at most ``limit``, from ``other_pack`` of each frame.
+
+    False when either frame has no crop hashes or ``limit`` is below 0.
+    """
+
+    if not packed_a or not packed_b or limit < 0:
+        return False
+    x = packed_a[0] ^ packed_b[1]
+    x -= (x >> 1) & _OM1
+    x = (x & _OM2) + ((x >> 2) & _OM2)
+    x = (x + (x >> 4)) & _OM4
+    x = ((x * 0x0101010101010101) >> 56) & _O_LOW
+    return (x + _O_ONE * (127 - min(63, limit))) & _O_HIGH != _O_HIGH
 
 
 # Fine offsets (2026-11-18, eval/cull-fine-offsets-2026-11-18.md). The crop

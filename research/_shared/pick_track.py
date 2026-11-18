@@ -457,16 +457,30 @@ def claim_check(slug, hours=6):
         lines += [f"CLAIM CHECK: open PR names this programme (take a different milestone or help land it): {p}"
                   for p in prs]
         if recent and not prs:
-            lines.append(f"CLAIM CHECK: no open PR names {slug} (none of {len(titles)}), so nothing is in flight "
-                         "that this check can see; a sibling that has not pushed yet is invisible to it")
+            lines.append(f"CLAIM CHECK: no open PR names {slug} (none of {len(titles)})")
         if not recent and not prs and age is not None and age <= hours:
             if history_covers(hours):
-                lines.append(f"CLAIM CHECK: clear (no origin/main commit in {hours}h; no other open PR of {len(titles)} names {slug}); "
-                             f"after opening your draft PR, `python3 portfolio/router/claim_check.py {slug}` says who keeps it if a sibling opened one too")
+                lines.append(f"CLAIM CHECK: clear (no origin/main commit in {hours}h; no other open PR of {len(titles)} names {slug})")
             else:
                 lines.append(f"CLAIM CHECK: no commit in this clone's history and no open PR names {slug}, but the shallow "
                              f"history is shorter than {hours}h; run `git fetch --shallow-since='{hours + 1} hours ago' origin main`, then re-run")
+        if not prs:
+            lines.append(race_line(slug))
     return lines
+
+
+def race_line(slug):
+    """What to do about a sibling that drew the same programme in the same minute. No
+    open-PR check can see it: of the 338 research run records 2026-11-11..18 that name one
+    programme, the 7 same-programme pairs whose sessions overlapped all started 0-2 minutes
+    apart (scheduled sessions launch in batches). Until 2026-11-18 this pointer was printed
+    only on the 'clear' path, so a draw of an active programme (recent commits) never got it,
+    and the aerolog-scaling pair (#16842, #16843) found the clash at merge time."""
+    return (f"CLAIM RACE: a sibling started this same minute is invisible to the checks above "
+            f"(all 7 same-programme overlaps in a week of research runs started 0-2 min apart). "
+            f"Open your draft PR (title naming {slug}) before any real work, then run "
+            f"`python3 portfolio/router/claim_check.py {slug}`; on YIELD, redraw with "
+            f"`python3 research/_shared/pick_track.py --new`")
 
 
 def programmes():

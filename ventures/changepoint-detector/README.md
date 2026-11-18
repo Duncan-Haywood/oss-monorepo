@@ -6668,3 +6668,68 @@ the confirmatory file and re-checks every bar.
 label less reliably), two non-step shapes, independent loadings, one shocked donor. **Next:** a real deployer's panel
 of stores or regions (short after-periods, where the word should help); a slope or pulse on two donors; a shape word
 read against the panel's own trend (detrended thirds) for long compounding series.
+
+## Currency pegs: the update-rate check against documented dates (2026-11-18, pre-registered; D1 fails, a hang fixed)
+
+The update-rate check ("When a series starts updating less often") had only ever been scored in
+simulation; on real series it was descriptive, because nothing labelled when a real feed began or
+stopped repeating. A currency peg is a public, dated change in how often a price moves: while a
+central bank holds the rate, the Federal Reserve's daily noon quote repeats; when the peg ends it
+moves. `eval/update-rate-pegs.mjs` (header committed in 72a54cb22 before the script first ran on the
+data) wrote down seven peg dates from the historical record, before any series was looked at, and
+ran the shipped check, unchanged, on the H.10 daily rates (via FRED, repackaged under the PDDL by
+github.com/datasets/exchange-rates; `sh eval/fx-pegs-fetch.sh fx-data`, not committed, 7.6 MB). An
+event counts as dated when a change in the stated direction has a date range within 10 trading
+days of it. Bars: D1, at least 5 of 7 dated; D2, median range width at most 60 rows.
+
+| event | documented | the check (`eval/update-rate-pegs.out.txt`) |
+|---|---|---|
+| E1 China, peg ends | 2005-07-21 | **dated** 2005-07-22, range 07-14 to 07-29 (11 rows), repeats 88% to 6% |
+| E2 China, re-peg near 6.83 | mid-2008 | missed |
+| E3 China, re-peg ends | 2010-06-21 | missed |
+| E4 Malaysia, peg at 3.80 | 1998-09-02 | **dated** 1998-09-09, range 08-31 to 09-10 (8 rows), 2% to 91% |
+| E5 Malaysia, peg ends | 2005-07-21 | **dated** 2005-07-22, range 07-19 to 07-27 (6 rows), 91% to 7% |
+| E6 Venezuela, fixed rate | 2003-02-05 | **dated** 2003-01-23, range 01-14 to 01-27 (9 rows), 8% to 91% |
+| E7 Thailand, baht floated | 1997-07-02 | missed (a change on 1997-04-24, range to 05-27) |
+
+**Verdict: D1 fails (4 of 7), D2 passes (median width 8.5 rows).** Nothing in the check changes on
+this file. Where a peg froze the quote, the check dated it to within one to two weeks, and the
+ranges held the date three times of four (E6's documented date, 2003-02-05, is when the fixed rate
+was set; trading had been suspended on 2003-01-22, inside the range).
+
+**Why the three misses** (post hoc, looked at after the verdict, deciding nothing):
+
+- **E2, E3.** From mid-2008 to mid-2010 the yuan was held near 6.83, but the New York noon quote kept
+  moving by a few hundredths every day (6.8215, 6.8429, 6.8510 in the first days of 2008-09): 0 to 6
+  repeats a month before, during and after. In this record the second peg did not change how often the
+  quote repeated, so silence is the right answer for an update-rate check; the event list assumed a
+  peg means repeats, and for a band held by intervention it does not. A level or volatility model is
+  the tool for that one.
+- **E7.** The baht left its basket in practice before the announcement: speculative attacks from May
+  1997 and a two-tier market from 1997-05-15 made the quote move daily (25.37 on 05-15, 22.75 on
+  06-17). The check's change is dated 1997-04-24 with a range to 05-27, which holds the attacks, not
+  the float. The record is right; the documented date is not when the quote changed.
+- **The changes no event names** (D3, descriptive) are mostly real too: the yuan's 1994-02-15 change
+  (61% to 12%) follows the 1994-01-01 unification of its official and swap rates; the Australian
+  dollar's 1972-01 to 1974-12 stretch of 85% repeats is its fixed US dollar link from the Smithsonian
+  agreement to the trade-weighted basket of 1974-09-25 (dated late, 1974-12-24, range from 10-31). The
+  other floating currencies' changes are all in the 1970s, where repeats fell from 4-24% to 1-6%,
+  consistent with quotes gaining precision; nothing here labels them.
+
+**A hang, found and fixed.** Cut to its 1998-1999 window, the ringgit series made the check run for
+hours (the whole 55-year series escaped only because its pegged stretch, 1998-09 to 2005-07, has a
+median move of 4.5 ticks, so the one-tick test never ran on it; the first six months move 1 tick). One day of the peg reads
+3.8950 among a hundred 3.8000s, 950 ticks off. The pegged stretch moves mostly one tick, so the
+one-tick stale-feed likelihood ran on it, and its grid's kernel spans the stretch's largest move: the
+work grows roughly with that move's square (on 120 steps, 16 s at 5 ticks, about a minute at 20 to 40),
+so a pasted pegged-currency series would hang the CLI and the page's worker. `staleLRMarkov` now has
+`maxJump: 50`: a stretch with a move over 50 ticks is not a slow walk, so the test is not run (null),
+as for a stretch too short or too long, and the median-move test alone decides "rounding". Every
+simulated series in the threshold's calibration and the pre-registered rounds (seeds 6, 31, 20261216,
+20261217, all cells) moves at most 45 ticks anywhere, so no committed verdict moves; the peg run's
+output is byte-identical with and without the cap. Test: `update-rate-pegs.test.mjs` (the 1998 window
+dated and finishing in milliseconds, Venezuela 2003, the cap, the committed verdict).
+
+Next: an update-rate check that can be wrong about a band, not only a fixed quote, needs a fresh
+labelled set of documented feed changes (a provider's announced switch from daily to weekly
+publication, a sensor's logged firmware change), not more pegs.
