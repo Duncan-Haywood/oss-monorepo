@@ -32,7 +32,8 @@ An open first-principles method, every step in `load.mjs` and on
   different hours); room airflow is shared by each room's own peak.
 
 It is **not ACCA Manual J** and uses none of ACCA's tables. Simplifications
-(no overhang shading, no basements or skylights, instant window gain) are
+(no side fins, trees or neighbours' shade, no basements or skylights, instant
+window gain) are
 listed on the how-it-works page.
 
 ## Use
@@ -41,8 +42,29 @@ listed on the how-it-works page.
   Import and export the house as JSON; download the room table as CSV.
 - CLI: `node cli.mjs house.json` (the same JSON the page exports) or
   `node cli.mjs --example --json`.
-- Tests: `node --test load.test.mjs page.test.mjs duct.test.mjs` (hand-calculated U-values,
+- Tests: `node --test load.test.mjs page.test.mjs duct.test.mjs overhang.test.mjs` (hand-calculated U-values,
   solar geometry, psychrometrics, room heating sums, diversity, validation).
+
+## Overhangs (added 2026-11-18)
+
+Each outside wall can carry an overhang: its depth, the gap from the window
+head up to its underside, and the window height. For every hour of the design
+day the engine finds how far the shadow edge drops below the overhang,
+depth × tan(altitude) / cos(sun azimuth − wall azimuth) (the profile angle),
+and cuts the window's beam sun by the shaded share of its height. Diffuse and
+ground-reflected sun are left in full (the overhang does hide some sky, so this
+slightly overstates the load). The overhang is taken to run well past both
+sides of the window; no end effects. Heating is unchanged. Hand-worked cases
+are in `overhang.test.mjs`.
+
+What it does on the example ranch (`node eval/overhang-example.mjs`, output in
+`eval/overhang-example.txt`): a 2 ft eave 1 ft above every 5 ft window cuts
+the sun through windows at the house's 3 pm peak from 3,946 to 3,346 Btu/h
+and the sensible peak from 19,732 to 19,072 (3.3%; 2.19 to 2.14 tons). The
+south rooms fall more: kitchen/dining 4,276 to 3,959 (7%), bedroom 3 1,615 to
+1,398 (13%), and their peak hour moves from noon to 1 pm. The west-facing
+rooms barely move, because the afternoon sun is low enough to pass under a
+2 ft eave. A 3 ft eave takes the house to 18,690 (5.3%).
 
 ## Duct sizing
 

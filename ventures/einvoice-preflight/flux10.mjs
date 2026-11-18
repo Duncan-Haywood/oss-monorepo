@@ -28,7 +28,7 @@ const path = (node, ...names) => names.reduce((n, name) => kid(n, name), node);
 
 // Root element Report whose first child is ReportDocument (comments and the prolog allowed before).
 export const looksLikeFlux10 = (source) =>
-  /^(?:﻿)?\s*(?:<\?[\s\S]*?\?>\s*|<!--[\s\S]*?-->\s*)*<Report\b[^>]*>\s*(?:<!--[\s\S]*?-->\s*)*<ReportDocument\b/.test(String(source).slice(0, 8192));
+  /^(?:\uFEFF)?\s*(?:<(?:\?[^?]*(?:\?(?!>)[^?]*)*\?>|!--[^-]*(?:-(?!->)[^-]*)*-->)\s*)*<Report\b[^>]*>\s*(?:<!--[^-]*(?:-(?!->)[^-]*)*-->\s*)*<ReportDocument\b/.test(String(source).slice(0, 8192));
 
 const num = (s) => (s === "" || s == null || !/^-?\d+(?:\.\d+)?$/.test(String(s).trim()) ? null : Number(s));
 const party = (p) => p && { id: text(kid(p, "Id")), scheme: kid(p, "Id")?.attrs?.schemeId || "", name: text(kid(p, "Name")), role: text(kid(p, "RoleCode")) };

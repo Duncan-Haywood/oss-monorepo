@@ -342,6 +342,12 @@ LOOP_THROUGH_CHANGE = False
 # 6 ms half-sine take read 0.98% (sd) about the true drop as a step and 0.19% with its contact time here; a build's
 # contact time is unknown until a real tach log or a survey of the fits' misses (tests/take_fit.py) names it.
 LOOP_TAKE = ()
+# Revolutions after the ball's anchor the record's own drop fit reads (2026-11-18, README "The record's drop fit and its
+# window"; `drop_from_commands_steps`' default is 8). On the simulator the longer window averages a jittery tach: held
+# out (tests/record_fit_window.py, 8 builds, wheel lags 0.45 / 0.55 s) the tach-3-us builds' rms about the true drop
+# fell from 0.62% to 0.47% and the worst wheel from 2.49% to 1.79%; noise-free builds moved 0.01 points or less. A fit
+# has about 29 rows instead of 13, so each of its steps does about 2.2 times the arithmetic.
+LOOP_FIT_AFTER = 24
 # The ESC-lag survey (2026-11-16, README "The ESC lag surveyed on the board"): after each launched stroke's record, every
 # turning wheel's snapshot is refitted with the commands through each of these ESC lags (esc_lagged_ticks) and the fit's
 # squared residual rms is summed per lag over the balls; the least is the build's lag. The Pi reads the sums from the
@@ -358,6 +364,15 @@ ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 150000, 200000, 400000)
 # (tests/esc_misfit_trace.py); a deeper t0 search alone changed nothing. 36 steps a fit, not 15, so a survey outlasts
 # the gap between balls: SURVEY_QUEUE.
 ESC_SURVEY_REFINE = 5
+# Revolutions after the ball's anchor that each ESC-lag survey refit reads (2026-11-18, README "Long ESC lags: the
+# survey read too little of the recovery"). It read drop_from_commands_steps' default 8, about 0.16 s at 3,000 rpm,
+# where the wheel's own lag is 0.3-0.6 s: an ESC of 165 ms or more fitted almost as well at any lag from 100 to 400 ms,
+# and the pick was 20-60% off on 11 of 24 such design drills while the halves of the drill agreed (a bias of the short
+# window, not noise, so no rms band could flag it). The snapshot to the verdict already holds 28-118 revolutions.
+# With 16: 42 of 42 design drills and 28 of 28 held-out drills (ESC 0-230 ms, wheel lags 0.35-0.6 s) within 15%
+# (tests/esc_survey_window.py; 8: 31 and 21). Each refit row costs the same, so a refit is about 1.6 times the work.
+# Short lags read a little low with it (40 ms: 36-37, 50 ms: 44-47), still within 15%. The record's own fit keeps 8.
+ESC_SURVEY_AFTER = 16
 # Surveys waiting their turn (2026-11-18, same section). A new stroke used to cut the last ball's survey; now it only
 # pauses it (no survey step runs while a stroke is under way or a record's fit is pending), and the surveys queue, run
 # between strokes and after the drill. The oldest waiting beyond this many is dropped (`survey_cut`). Each holds one
@@ -1854,7 +1869,7 @@ class LaunchCheck:
                 continue
             e0 = edges0[k]
             tk = esc_lagged_ticks(snap[k], [(c - e0, us, u) for c, us, u in ticks[k]], self.esc_tau_us)
-            for item in drop_from_commands_steps(snap[k], tk, take=self.take()):
+            for item in drop_from_commands_steps(snap[k], tk, after=LOOP_FIT_AFTER, take=self.take()):
                 if item is None:
                     yield None
                 else:
@@ -1940,7 +1955,7 @@ class LaunchCheck:
             for g in self.survey:
                 fit = None
                 for item in drop_from_commands_steps(snap[k], esc_lagged_ticks(snap[k], raw, g),
-                                                     refine=ESC_SURVEY_REFINE):
+                                                     after=ESC_SURVEY_AFTER, refine=ESC_SURVEY_REFINE):
                     if item is None:
                         yield None
                     else:

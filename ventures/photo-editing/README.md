@@ -366,7 +366,17 @@ This repo currently contains the first testable core utilities:
   camera panned or zoomed a few percent through stays one group; on burst-like
   pairs cut from 166 held-out real photos, pair recall 0.40 to 0.72 for 2 more
   false merges in 13,695 pairs of distinct photos,
-  `eval/cull-crop-grouping-2026-11-17.md`), keeps the best frame per group as the
+  `eval/cull-crop-grouping-2026-11-17.md`; since 2026-11-18 also a zoom match:
+  frames up to 28 apart group when one frame's whole hash is within 6 of a
+  90-96% window of the other (4 sizes x 5 x 5 positions) and at least 6 closer
+  than the whole frames, so a frame zoomed 3-10% tighter stays in its burst;
+  held-out pair recall 0.72 to 0.91, zooms 0.36-0.64 to 0.98-1.00 at 10%, for 2
+  more false merges in 13,695, `eval/cull-zoom-windows-2026-11-18.md`; and a wide-pan match the same day:
+  frames up to 44 apart group when two 88% windows offset further than the centre
+  window reaches (9-12% of the frame) are within 5 and at least 6 closer than the
+  whole frames, so a burst panned 8-10% stays together; held-out pair recall 0.91
+  to 0.985, those pans 0.07-0.77 to 0.86-1.00, for 1 more false merge in 13,695,
+  `eval/cull-pan-windows-2026-11-18.md`), keeps the best frame per group as the
   keeper, and rejects blurred, badly exposed or (with `SHOOTFLOW_FACE_DETECTOR`)
   closed-eye frames. It writes `cull_report.json` and `cull_report.html`, and
   with `--write-xmp` a Lightroom/Bridge sidecar per photo (keeper 4 stars,

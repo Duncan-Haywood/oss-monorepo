@@ -95,6 +95,8 @@ test("analyze on the example: the raw comparison is negative, the adjusted ones 
   const r = analyze({ csv: EXAMPLE_CSV, ...EXAMPLE_SPEC });
   assert.equal(r.n.total, 2000);
   assert.equal(r.n.treated, 727);
+  assert.equal(r.n.control, 1273);
+  assert.ok(r.summary.includes("of 1273 controls"));
   assert.ok(r.naive.estimate < -3);
   for (const m of ["ipw", "ra", "aipw"]) {
     const e = r.estimates.ate[m];
@@ -134,4 +136,20 @@ test("analyze: input errors are explained", () => {
 test("papers are complete and the defaults are what the page shows", () => {
   for (const p of PAPERS) for (const k of ["authors", "title", "venue", "year", "url", "implemented", "deviations"]) assert.ok(p[k], `${p.title} ${k}`);
   assert.deepEqual(DEFAULTS, { estimand: "ate", trim: "none", caliper: 0.2, replace: true, alpha: 0.05 });
+});
+
+// Red team 2026-11-18: guards for mutants that escaped the suite.
+test("normalQuantile is accurate in the upper tail (alpha = 0.01 and smaller)", () => {
+  assert.ok(Math.abs(normalQuantile(0.995) - 2.5758293035489004) < 1e-12);
+  assert.ok(Math.abs(normalQuantile(0.999) - 3.090232306167813) < 1e-12);
+  assert.ok(Math.abs(normalQuantile(0.999999) - 4.753424308822899) < 1e-9);
+  assert.ok(Math.abs(normalQuantile(1e-6) + 4.753424308822899) < 1e-9);
+});
+
+test("matching with replacement gives a standard error from two pairs (Abadie-Imbens, no reuse)", () => {
+  const m = matchNearest({ ps: [0.6, 0.4, 0.6, 0.4], d: [1, 1, 0, 0], y: [10, 7, 9, 5], estimand: "att", caliper: 0 });
+  assert.equal(m.matched, 2);
+  assert.equal(m.estimate, 1.5);
+  // V = sum((diff - tau)^2) / N^2 = (0.25 + 0.25) / 4
+  assert.ok(Math.abs(m.se - Math.sqrt(0.5) / 2) < 1e-12);
 });

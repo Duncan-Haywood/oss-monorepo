@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVM6S3HfxwYNPSRv49c",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompt.md)",
+  "input_sha256": "e7710cfbf7593885a44c98515fb38155574d91e862caf0f63f8c83124ca0298e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T04:32:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing (flagship 7): cull groups zoomed burst frames with scaled windows",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": 17167,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "GitHub MCP server disconnected after a worker restart mid-run",
+      "fix": "reloaded the tools"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-burst-grouping-that-survives-a-zoom.md",
+    "ventures/photo-editing/eval/cull-zoom-windows-2026-11-18.md"
+  ],
+  "goal": "cull: 4-10% zooms stay in their burst",
+  "notes": "Zoom windows (96/94/92/90% x 5x5) picked on the tune half of 331 real photos; held-out pair recall 0.720 -> 0.914, zooms 3-10% 0.98-1.00 (incl. off-grid and off-size zooms added before held-out scoring), false merges 23 -> 25 of 13,695. Exact medoid/radius block pruning keeps grouping cost 2.8 s on 1,986 hard frames (6.5 s without), eval output identical. Showcase 6 -> 5 groups; site screenshot re-shot. Local: run_venture_tests photo-editing ok (1318 tests, 142.7 s); check_posts ok; validate.py ok; venture-preflight see PR.",
+  "corrections": [],
+  "redteam": null
+}

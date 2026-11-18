@@ -5,7 +5,7 @@
 import { parseColumns } from './multivariate.mjs';
 import { synthControlTest, synthLeadRange, covariateBalance } from './synth-control.mjs';
 import { splitLine, numCell } from './engine.mjs';
-import { LEAD_RANGE_NOTE } from './synth-view.mjs';
+import { LEAD_RANGE_NOTE, fewDonorsNote, aboveNote } from './synth-view.mjs';
 
 // Covariates file: one row per unit, the unit's column name first, then one number per covariate; a header row names
 // them (`unit,ln income,price`). Units the fit does not use are ignored. Read like the data CSV (engine.mjs splitLine
@@ -83,6 +83,8 @@ export function synthResult({ csv, column, labelColumn = null, date, donors = []
     donors: r.donors, weights: r.weights, preRmspe: r.preRmspe, postRmspe: r.postRmspe, effectAverage: r.effectAverage, effectAtEnd: r.effectAtEnd,
     statistic: r.statistic, rank: r.rank, p: r.p, minP: r.minP, tests: r.tests, preFitShare: r.preFitShare, fitWarning: r.fitWarning,
     labels, treatedSeries: y, synthetic: r.synth, gap: r.gap,
+    // Placebos whose statistic is at least the treated unit's, largest first (README "Few donors"): describes the rank.
+    above: placebosAbove(r),
   };
   if (lr) {
     out.leadRange = {
@@ -97,6 +99,13 @@ export function synthResult({ csv, column, labelColumn = null, date, donors = []
     out.balance = covariateBalance(r, { treated: get(out.treated), donors: Object.fromEntries(names.map((s) => [s, get(s)])) }, { names: cv.names });
   }
   return out;
+}
+
+// The placebos counted in the rank (statistic at least the treated unit's, with synthControlTest's tolerance).
+export function placebosAbove(r) {
+  const val = (q) => (r.statistic === 'post' ? q.postRmspe : q[r.statistic]), own = r.tests[r.statistic].value;
+  return r.placebos.filter((q) => val(q) >= own - 1e-12 * Math.abs(own)).sort((a, b) => val(b) - val(a))
+    .map((q) => ({ name: q.name, statistic: val(q), preRmspe: q.preRmspe, postRmspe: q.postRmspe }));
 }
 
 const f = (v, d = 2) => Number(v).toFixed(d), g = (v) => Number(v).toPrecision(3);
@@ -115,6 +124,9 @@ export function synthText(h) {
   L.push(`  Fit before the date: RMSPE ${g(h.preRmspe)}; ${f(100 * h.preFitShare, 0)}% of the donors' own synthetic controls fit better${h.fitWarning ? '. FIT WARNING: the treated series is fitted worse than 80% of the placebos, so its gap after the date is hard to read (often it sits outside the donors\' range)' : ''}`);
   L.push(`  Gap after the date (${h.treated} minus synthetic): ${g(h.effectAverage)} on average, ${g(h.effectAtEnd)} at the last point`);
   L.push(`  Placebo test (each donor given the same date; the after-gap over the before-gap, floored at the median before-gap): rank ${h.rank} of ${h.donors + 1}, p ${f(h.p, 3)} (the smallest p ${h.donors + 1} units allow is ${f(h.minP, 3)}); the paper's plain ratio gives rank ${h.tests.ratio.rank}, p ${f(h.tests.ratio.p, 3)}`);
+  const few = fewDonorsNote(h), above = aboveNote(h);
+  if (few) L.push(`  FEW DONORS: ${few}`);
+  if (above) L.push(`  ${above}`);
   if (h.balance) {
     L.push('  Covariate balance (a description of the fit, not a test; it changes no p):');
     const w = Math.max(9, ...h.balance.map((c) => c.name.length));
