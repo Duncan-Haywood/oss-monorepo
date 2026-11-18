@@ -1,0 +1,26 @@
+# Milestone 11am post hoc: altitude-estimate error bounds on the 17 usable flights' qualifying samples (Mission, level, en route); per-flight linear trend removed from each sensor difference
+  id                                    FTE_rms  EKF_epv  GNSS_acc  EKF-GNSS  baro-GNSS   (m)
+  31b9d755-79a3-450f-bfce-98e398b87ab7   0.038    0.200    0.000     0.104     1.188
+  978118a8-1288-4235-9ed7-d6f2075ca0f5   0.029    0.197    0.000     0.076     1.336
+  30d16c49-af56-4058-b4b0-af8c3fb0555e   0.035    0.201    0.035     0.051     0.900
+  d73346e3-2c74-4dc3-b7dc-9be5010b5e0d   0.024    0.196    0.000     0.058     1.563
+  90aa5a72-8cb2-4256-a417-7b55a7b1c65a   0.026    0.200    0.027     0.035     0.405
+  738eaa09-e925-4609-88f1-fe0c87a375f1   0.050    0.446    0.565     0.535     0.704
+  74577c3e-9222-45ba-b0f2-9a3022c3092b   0.043    0.613    0.481     1.340     1.261
+  1b984717-6ef0-40b4-b1dc-043ed33fbee8   0.038    0.167    0.694     0.490     1.100
+  9a4f5a03-f5b3-4094-8ec1-da1bc81cf1b1   0.047    0.235    1.052     0.089     0.452
+  f7da8309-7acd-4085-b3f8-c227fe19503b   0.046    0.186    0.743     0.307     0.942
+  9cbfa2ad-be1d-4877-afc6-52ebdf0d59b5   0.065    0.292    1.818     0.316     3.604
+  37072de3-1523-46c0-9928-65f572a1084c   0.058    0.271    1.766     0.149     0.605
+  0a2ab068-b387-45ac-afea-0b99c0f4057a   0.050    0.182    0.783     0.043     0.537
+  0f387afc-733c-4a14-b49e-c735fd135a91   0.036    0.180    0.349     0.082     0.329
+  d32d5fc5-a98c-4473-b6f6-6d845b239f40   0.034    0.325    1.417     0.196     0.516
+  3d552044-12aa-4b10-919d-2bdfa037425a   0.051    0.477    1.267     0.145     1.883
+  178e9d06-379b-4fb5-91f5-6e537a478333   0.050    0.176    0.486     0.643       nan
+
+  FTE RMS                                median 0.043  (p25 0.035, p75 0.050, max 0.065; 17 flights); sqrt(mean sq) 0.044
+  EKF-reported vertical sd (epv)         median 0.200  (p25 0.186, p75 0.292, max 0.613; 17 flights); sqrt(mean sq) 0.295
+  receiver-reported vertical accuracy    median 0.565  (p25 0.035, p75 1.052, max 1.818; 17 flights); sqrt(mean sq) 0.898
+  EKF - GNSS detrended RMS               median 0.145  (p25 0.076, p75 0.316, max 1.340; 17 flights); sqrt(mean sq) 0.424
+  baro - GNSS detrended RMS              median 0.921  (p25 0.532, p75 1.280, max 3.604; 16 flights); sqrt(mean sq) 1.336
+  check: FTE RMS recomputed here equals the committed value in 17 of 17 flights (to 1 mm)
