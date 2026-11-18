@@ -411,6 +411,11 @@ test("string values keep their whitespace, as in the STEP file", () => {
   const xml = IFC2X3_XML.replace("<Name>Basic Wall</Name>", "<Name> Basic Wall </Name>");
   const p = parseIfcXml(xml, schemas.IFC2X3);
   assert.equal([...p.entities.values()].find((e) => e.xmlId === "i7").args[2], " Basic Wall ");
+  // An all-white-space string is two spaces, as IFCLABEL('  ') is in STEP.
+  const blank = parseIfcXml(IFC2X3_XML.replace("<Name>Basic Wall</Name>", "<Name>  </Name>"), schemas.IFC2X3);
+  assert.equal([...blank.entities.values()].find((e) => e.xmlId === "i7").args[2], "  ");
+  const empty = parseIfcXml(IFC2X3_XML.replace("<Name>Basic Wall</Name>", "<Name></Name>"), schemas.IFC2X3);
+  assert.equal([...empty.entities.values()].find((e) => e.xmlId === "i7").args[2], "");
 });
 
 // The nested IFC4 layout at scale (eval/ifc4-layout-scale-2026-11-18.md):

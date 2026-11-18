@@ -52,6 +52,8 @@
     .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 14px 0; }
     .fact { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--card); }
     .fact b { display: block; font-size: 1.3rem; }
+    fieldset.word-class { border: 1px solid var(--line, #ccc); border-radius: 6px; margin: 0 0 12px; padding: 8px 12px; }
+    fieldset.word-class label { display: block; margin: 4px 0; }
   </style>
 </head>
 <body>
@@ -93,7 +95,7 @@
   <section aria-labelledby="what">
     <h2 id="what">What it checks</h2>
     <p>An IDS lists <em>specifications</em>. Each says which elements it applies to (for example every <code>IFCWALL</code> with <code>Pset_WallCommon.IsExternal = true</code>) and what those elements must have (a <code>FireRating</code>, a Uniclass code, a material, a place on a storey). The checker reads both files, finds the elements each specification applies to, and tests every requirement on each, following the IDS 1.0 rules for required, optional and prohibited facets, value restrictions (enumerations, patterns, ranges, lengths), floating-point tolerance and unit conversion to SI.</p>
-    <p>Before any model is read, the IDS itself is audited against the IFC schema its specifications name: class names that do not exist or are not upper case, attributes a class does not have (or has only as derived or inverse attributes), values compared with lists, objects or selects, numbers written with a decimal comma, integers written as <code>42.0</code>, booleans written <code>FALSE</code>, patterns on numbers, unknown data types, and prohibited specifications that carry requirements. Such a specification is reported as <strong>INVALID</strong>, with the reason, instead of failing every element. Standard sets are checked too: <code>Pset_WallComon</code>, <code>Qto_DuctSegmentBaseQuantities.Lenght</code> or <code>IsExternal</code> typed <code>IFCTEXT</code> each get the standard name or type back. Those are still run against the model and shown as a warning, since a project's model can carry exactly what its IDS asks for. The file's own structure is checked against buildingSMART's <code>ids.xsd</code> as well, with the line of each fault: elements out of order, an attribute in the wrong place (IDS 0.9's <code>minOccurs</code> on <code>&lt;specification&gt;</code>), a <code>cardinality</code> or <code>ifcVersion</code> value IDS 1.0 does not have. Tools that validate first refuse such a file whole; 12 of 65 IDS files published on GitHub do. Where a fault has one right answer (IDS 0.9's <code>minOccurs</code>, <code>IFC4X3</code> for <code>IFC4X3_ADD2</code>, the wrong namespace, values missing their <code>&lt;simpleValue&gt;</code>), the audit offers the repaired file to download, with your comments and layout kept. Patterns are read as XML Schema regular expressions, as IDS specifies and IfcTester does: a <code>(?:...)</code> group or a lazy <code>*?</code> is an error (IfcTester stops on it), and <code>^IFC.*SYSTEM</code> is flagged because in XML Schema <code>^</code> is a plain character, so the pattern matches nothing; the repaired file drops the anchors. Writing an IDS? Drop it alone and press <em>Audit the IDS only</em>.</p>
+    <p>Before any model is read, the IDS itself is audited against the IFC schema its specifications name: class names that do not exist or are not upper case, attributes a class does not have (or has only as derived or inverse attributes), values compared with lists, objects or selects, numbers written with a decimal comma, integers written as <code>42.0</code>, booleans written <code>FALSE</code>, patterns on numbers, unknown data types, and prohibited specifications that carry requirements. Such a specification is reported as <strong>INVALID</strong>, with the reason, instead of failing every element. Standard sets are checked too: <code>Pset_WallComon</code>, <code>Qto_DuctSegmentBaseQuantities.Lenght</code> or <code>IsExternal</code> typed <code>IFCTEXT</code> each get the standard name or type back. Those are still run against the model and shown as a warning, since a project's model can carry exactly what its IDS asks for. The file's own structure is checked against buildingSMART's <code>ids.xsd</code> as well, with the line of each fault: elements out of order, an attribute in the wrong place (IDS 0.9's <code>minOccurs</code> on <code>&lt;specification&gt;</code>), a <code>cardinality</code> or <code>ifcVersion</code> value IDS 1.0 does not have. Tools that validate first refuse such a file whole; 12 of 65 IDS files published on GitHub do. Where a fault has one right answer (IDS 0.9's <code>minOccurs</code>, <code>IFC4X3</code> for <code>IFC4X3_ADD2</code>, the wrong namespace, values missing their <code>&lt;simpleValue&gt;</code>), the audit offers the repaired file to download, with your comments and layout kept. Patterns are read as XML Schema regular expressions, as IDS specifies and IfcTester does: a <code>(?:...)</code> group or a lazy <code>*?</code> is an error (IfcTester stops on it), and <code>^IFC.*SYSTEM</code> is flagged because in XML Schema <code>^</code> is a plain character, so the pattern matches nothing; the repaired file drops the anchors. A bare <code>\w</code> or <code>\s</code> means one thing in the standard and another in IfcTester (the standard's <code>\w</code> leaves out <code>_</code>; IfcTester's <code>\s</code> takes a no-break space), so the repair asks which you meant and spells it out so every checker agrees. Writing an IDS? Drop it alone and press <em>Audit the IDS only</em>.</p>
     <p>Starting from scratch? The <a href="samples/coordination-basics.ids.xml">starter IDS</a> asks for what most coordinators want before a model is shared: walls marked external and load-bearing, a material on every wall, named doors and windows on a storey, named spaces, and no building element proxies. For bridges, roads, rail, earthworks, ducts and pipes in IFC 4.3, the <a href="samples/infrastructure-and-mep.ids.xml">infrastructure and services starter</a> gives the same verdicts as IfcTester on all 180 results over buildingSMART's ten IFC 4.3 sample models. Edit either in any text editor, or write your own in the <a href="editor.html">IDS editor</a>, which offers each class's standard property sets with their data types and audits every specification as you write it. Open your model in the editor and it offers the classes and property sets that model actually carries, a project's own sets (Revit's PSet_Revit_*) included, and each property's values: one click allows exactly the values the model holds, or its range, rounded outward because IDS ranges take no tolerance.</p>
   </section>
 
@@ -245,16 +247,38 @@
         h += `</ul>`;
       } else h += `<p>No problems found. Add a model to check it against this IDS.</p>`;
       // ids.xsd faults with one right answer (fix.mjs): offer the repaired file.
-      const fx = a.issues.some((x) => x.structure || /^pattern-/.test(x.code)) ? fixStructure(state.ids) : null;
-      if (fx && fx.fixes.length && !fx.error) {
-        h += `<details class="spec" open><summary><span class="tag pass">FIX</span><span><strong>${fx.fixes.length} fault${fx.fixes.length > 1 ? "s" : ""} can be repaired for you</strong> <span class="muted">${fx.remaining.length ? `${fx.remaining.length} left that need a person` : "the repaired file breaks ids.xsd nowhere"}</span></span></summary><div class="body">`;
-        h += `<p>Small edits to your own text: comments, indentation and everything else stay as written, and this checker reads the same specifications from the repaired file${fx.fixes.some((x) => x.code === "pattern-xsd") ? " (a pattern rewritten in XML Schema regex now means what its author wrote, in every checker)" : ""}. Audit the downloaded file again to confirm.</p><ul class="issues">`;
-        for (const x of fx.fixes.slice(0, 200)) h += `<li><span class="muted">line ${x.line}</span> ${esc(x.message)}</li>`;
-        if (fx.fixes.length > 200) h += `<li class="muted">and ${fx.fixes.length - 200} more</li>`;
-        h += `</ul><div class="row"><button class="ghost" id="dl-fixed" type="button">Download repaired IDS</button></div></div></details>`;
+      // A bare \w or \s has two (eval/word-class-2026-11-18.md), so the person picks one.
+      const word = a.issues.some((x) => x.code === "pattern-word-class" || x.code === "pattern-space-class");
+      const fixWith = (wordClass) => fixStructure(state.ids, wordClass ? { wordClass } : {});
+      let fx = a.issues.some((x) => x.structure || /^pattern-/.test(x.code)) ? fixWith(null) : null;
+      const fixBody = (fx) => {
+        let b = `<p>Small edits to your own text: comments, indentation and everything else stay as written, and this checker reads the same specifications from the repaired file${fx.fixes.some((x) => x.code === "pattern-xsd") ? " (a pattern rewritten in XML Schema regex now means what its author wrote, in every checker)" : ""}. Audit the downloaded file again to confirm.</p><ul class="issues">`;
+        for (const x of fx.fixes.slice(0, 200)) b += `<li><span class="muted">line ${x.line}</span> ${esc(x.message)}</li>`;
+        if (fx.fixes.length > 200) b += `<li class="muted">and ${fx.fixes.length - 200} more</li>`;
+        if (!fx.fixes.length) b += `<li class="muted">nothing yet: choose what \\w and \\s mean above</li>`;
+        return b + `</ul>`;
+      };
+      if (fx && !fx.error && (fx.fixes.length || word)) {
+        h += `<details class="spec" open><summary><span class="tag pass">FIX</span><span><strong>${fx.fixes.length ? `${fx.fixes.length} fault${fx.fixes.length > 1 ? "s" : ""} can be repaired for you` : "A bare \\w or \\s can be spelled out for you"}</strong> <span class="muted">${fx.remaining.length ? `${fx.remaining.length} left that need a person` : "the repaired file breaks ids.xsd nowhere"}</span></span></summary><div class="body">`;
+        if (word) h += `<fieldset class="word-class"><legend>A bare <code>\\w</code> or <code>\\s</code> in a pattern means different things in different checkers. Spell it out so they all agree:</legend>
+          <label><input type="radio" name="word-class" value="" checked> Leave it as written (the warning stays)</label>
+          <label><input type="radio" name="word-class" value="letters"> As IfcTester reads it: <code>\\w</code> letters, digits and underscore <code>[\\p{L}\\p{Nd}_]</code>; <code>\\s</code> any space, no-break space included <code>[\\s\\p{Z}]</code></label>
+          <label><input type="radio" name="word-class" value="xsd"> As the IDS standard says: <code>\\w</code> anything but punctuation, spaces and control characters, so <code>+</code>, <code>€</code> and <code>°</code> pass too <code>[^\\p{P}\\p{Z}\\p{C}]</code>; <code>\\s</code> space, tab and line breaks only <code>[\\s]</code></label></fieldset>`;
+        h += `<div id="fix-body">${fixBody(fx)}</div><div class="row"><button class="ghost" id="dl-fixed" type="button">Download repaired IDS</button></div></div></details>`;
       }
       $("out").innerHTML = h;
-      if (fx && fx.fixes.length && !fx.error) $("dl-fixed").onclick = () => { record("ids_fixed_downloaded"); download((state.idsName || "spec.ids").replace(/(\.ids|\.xml)?$/i, "-fixed.ids"), fx.text, "application/xml"); };
+      if (fx && !fx.error && (fx.fixes.length || word)) {
+        let choice = "";
+        const btn = $("dl-fixed");
+        btn.disabled = !fx.fixes.length;
+        for (const r of document.querySelectorAll('input[name="word-class"]')) r.onchange = () => {
+          choice = r.value;
+          fx = fixWith(choice || null);
+          $("fix-body").innerHTML = fixBody(fx);
+          btn.disabled = !fx.fixes.length;
+        };
+        btn.onclick = () => { record("ids_fixed_downloaded"); if (choice) record("ids_word_class_" + choice); download((state.idsName || "spec.ids").replace(/(\.ids|\.xml)?$/i, "-fixed.ids"), fx.text, "application/xml"); };
+      }
     };
     worker.postMessage({ ids: state.ids, auditOnly: true });
   }

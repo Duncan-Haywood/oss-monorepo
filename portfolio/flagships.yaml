@@ -529,9 +529,8 @@ flagships:
       MB ifcXML now checks). xs:pattern as XML Schema regex 2026-11-18
       (eval/xsd-regex-2026-11-18.md: same verdict as elementpath on 78 of 78 corpus
       patterns; anchors, (?: and \/ flagged and repaired; 4 of 65 public IDS read
-      differently per tool). XML white space skipped 2026-11-18
-      (eval/xml-whitespace-2026-11-18.md: heap 40-106 to 2-4 MB). Editor repairs a
-      file on open 2026-11-18 (eval/editor-open-repair-2026-11-18.md: 9 to 0 pattern
-      findings written back, 65 public IDS). next: IfcTester's narrower bare \w;
-      ifcXML all-space strings read as "" (STEP keeps them). More open items:
-      NEXT.md.
+      differently per tool). Editor repairs a file on open 2026-11-18
+      (eval/editor-open-repair-2026-11-18.md: 9 to 0 pattern findings written back,
+      65 public IDS). Bare \w/\s 2026-11-18 (eval/word-class-2026-11-18.md: page
+      asks IfcTester's or the standard's meaning; 1,500 of 1,500 patterns then read
+      alike). next: an RVB/ILS author on \s. More open items: NEXT.md.
