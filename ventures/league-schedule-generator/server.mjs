@@ -11,10 +11,11 @@
 import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
-import { readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseResults, parsePointSystem, standings, playoffBracket, leaguePageHtml, scheduleIcs, sampleFields, WEEKDAYS } from "./calc.mjs";
+import { readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseResults, parsePointSystem, standings, playoffBracket, leaguePageHtml, scheduleIcs, sampleFields, WEEKDAYS, dayLabel } from "./calc.mjs";
 import { pathToFileURL } from "node:url";
 import { upcomingGames, parseAvailability, recordAvailability, availabilityHtml, shortTeamsHtml, dayNumber, parseRosters, parseContacts, availabilityCsv, remindersDue, EMAIL, REMINDER_DAYS } from "./availability.mjs";
 import { smtpConfig, sendMail } from "./mailer.mjs";
+import { parseSubOffer, recordSub, placeSub, subsHtml, placeButtonsHtml, freeSubsLine } from "./subs.mjs";
 import { regSettings, closedReason, parseRegistration, namesInUse, addRegistration, allowSignup, approveRegistration, declineRegistration, togglePaid, registrationsCsv, registerFormHtml, registeredHtml, adminRegistrationsHtml, signupEmail } from "./registration.mjs";
 
 const MAX_BODY = 64 * 1024;
@@ -25,7 +26,7 @@ const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(Strin
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:6rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://marisstella.app/league-schedule-generator/">League Schedule Generator</a> (MIT). Check dates and venues with your organiser.</p></body></html>`;
 
-export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], availability: {}, remindersSent: {}, registrations: [], approvedSignups: [], regSeq: 0 }; }
+export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], availability: {}, subs: {}, remindersSent: {}, registrations: [], approvedSignups: [], regSeq: 0 }; }
 
 const MAX_PENDING = 100;
 /** A score a team captain sends from the league page, as a pending request: team indexes and goals, nothing free-form. */
@@ -95,8 +96,10 @@ function leaguePage(state, token, base = null, today = dayNumber(Date.now())) {
   const opts = out.schedule.teams.map((n, i) => `<option value="${i}">${esc(n)}</option>`).join("");
   const form = `<h2>Report a score</h2><form method="post" action="/league/result?t=${esc(token)}"><label>Home <select name="home">${opts}</select></label> <input name="hs" type="number" min="0" max="999" required style="width:5rem" aria-label="Home score"> - <input name="as" type="number" min="0" max="999" required style="width:5rem" aria-label="Away score"> <label>Away <select name="away">${opts}</select></label> <button>Send to organiser</button></form><p class="note">The organiser checks every score before it reaches the table.</p>`;
   const rosters = parseRosters(state.fields.rosters, out.schedule.teams).rosters;
-  const avail = availabilityHtml(state.availability || {}, upcomingGames(out.schedule, today), { token, minPlayers: state.fields.minPlayers, rosters });
-  return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("<footer>", `${avail}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
+  const games = upcomingGames(out.schedule, today);
+  const avail = availabilityHtml(state.availability || {}, games, { token, minPlayers: state.fields.minPlayers, rosters });
+  const subs = subsHtml(state.subs || {}, games, { token });
+  return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("<footer>", `${avail}${subs}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
 }
 
 function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = process.env) {
@@ -104,7 +107,8 @@ function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = p
   const built = buildLeague(f), names = built.schedule?.teams ?? [];
   const rp = parseRosters(f.rosters, names), cp = parseContacts(f.contacts, names);
   const games = built.schedule && state.published ? upcomingGames(built.schedule, today) : [];
-  const short = games.length ? shortTeamsHtml(state.availability || {}, games, f.minPlayers, rp.rosters) : "";
+  const av = state.availability || {}, pool = state.subs || {};
+  const short = games.length ? shortTeamsHtml(av, games, f.minPlayers, rp.rosters, { extra: (r) => placeButtonsHtml(pool, av, games, r, key), subsLine: (r) => freeSubsLine(pool, av, games, r.day) }) : "";
   const csv = games.length ? `<p><a href="/admin/availability.csv?key=${k}">Download everyone's answers (CSV)</a> for the next games, with roster players who have not answered.</p>` : "";
   const smtp = smtpConfig(env);
   const mailNote = !smtp ? "Reminder emails are off: set SMTP_HOST, SMTP_FROM (and SMTP_USER, SMTP_PASS) on the server to send them from your own mail account." : smtp.error ? `Reminder emails are off: ${smtp.error}.` : `Reminder emails are on: a team still short ${REMINDER_DAYS} days out gets one email at these addresses${EMAIL.test(env.REMINDER_TO || "") ? ", copied to " + env.REMINDER_TO : ""}. ${Object.keys(state.remindersSent || {}).length} sent for the next games.`;
@@ -227,6 +231,26 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
         const g = games.find((x) => x.fixture === r.req.fixture);
         return send(200, page("Answer saved", `<p class="ok">${w.replaced ? "Changed" : "Saved"}: ${esc(r.req.name)} is ${esc(r.req.status === "in" ? "in" : r.req.status === "out" ? "out" : "a maybe")} for ${esc(r.req.team)} v ${esc(r.req.team === g.homeName ? g.awayName : g.homeName)}.</p>${back}`));
       }
+      if (req.method === "POST" && url.pathname === "/league/sub") {
+        const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
+        if (out.error) return send(404, "not found\n", "text/plain");
+        const body = await readForm(req);
+        if (!body) return send(413, "too large\n", "text/plain");
+        const games = upcomingGames(out.schedule, dayNumber(clock()));
+        const back = `<p><a href="/league?t=${esc(t)}">Back to the league</a></p>`;
+        const r = parseSubOffer(body, games);
+        if (r.error) return send(400, page("Not saved", `<p class="err">${esc(r.error)}</p>${back}`));
+        state.subs = state.subs || {};
+        state.availability = state.availability || {};
+        const w = recordSub(state.subs, state.availability, r.req, games, clock());
+        if (w.error) return send(r.req.act === "withdraw" ? 404 : 429, page("Not saved", `<p class="err">${esc(w.error)}</p>${back}`));
+        save();
+        const when = dayLabel(r.req.day);
+        const msg = r.req.act === "withdraw"
+          ? `${r.req.name} is off the sub list for ${when}.${w.placed ? ` You were placed with ${w.placed.team}: they show one fewer In now, so tell the organiser.` : ""}`
+          : w.already ? `${r.req.name} is already on the sub list for ${when}${w.placed ? `, placed with ${w.placed.team}` : ""}.` : `${r.req.name} is on the sub list for ${when}. The organiser places subs with teams that are short.`;
+        return send(200, page("Sub list", `<p class="ok">${esc(msg)}</p>${back}`));
+      }
       return send(404, "not found\n", "text/plain");
     }
     let form = new URLSearchParams();
@@ -281,6 +305,17 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
       }
       return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(note)}` });
     }
+    if (req.method === "POST" && url.pathname === "/admin/sub") {
+      const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
+      if (out.error) return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent("Publish the league first.")}` });
+      const games = upcomingGames(out.schedule, dayNumber(clock()));
+      state.subs = state.subs || {};
+      state.availability = state.availability || {};
+      const p = placeSub(state.subs, state.availability, { fixture: String(form.get("fixture") ?? ""), teamIndex: Number(form.get("team")), name: String(form.get("name") ?? "") }, games, clock());
+      if (p.ok) save();
+      const note = p.error || `${p.name} placed with ${p.team} for ${dayLabel(p.game.day)}; they now count as In (sub). Let them know.`;
+      return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(note)}` });
+    }
     if (req.method === "POST" && url.pathname === "/admin/result") {
       const i = Number(form.get("i")), r = (state.pending || [])[i];
       if (!Number.isInteger(i) || !r) return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent("That score is no longer waiting.")}` });
@@ -319,6 +354,7 @@ export async function runReminders(state, save, env = process.env, clock = Date.
     minPlayers: state.fields.minPlayers, today, sent: state.remindersSent,
     contacts: parseContacts(state.fields.contacts, out.schedule.teams).contacts,
     rosters: parseRosters(state.fields.rosters, out.schedule.teams).rosters,
+    subsLine: (r) => freeSubsLine(state.subs || {}, state.availability || {}, games, r.day),
     organiser: EMAIL.test(env.REMINDER_TO || "") ? env.REMINDER_TO : "",
     leagueUrl: base && env.LEAGUE_TOKEN ? `${base}/league?t=${encodeURIComponent(env.LEAGUE_TOKEN)}` : "",
   });

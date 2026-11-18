@@ -79,9 +79,10 @@ export function recordAvailability(store, req, games, now = Date.now()) {
   const list = ownOrSet(byTeam, req.team, () => []);
   const key = req.name.toLocaleLowerCase();
   const at = list.findIndex((e) => e.name.toLocaleLowerCase() === key);
-  if (at >= 0) { list[at] = { name: req.name, status: req.status, at: now }; return { ok: true, replaced: true }; }
+  const entry = { name: req.name, status: req.status, at: now, ...(req.sub ? { sub: true } : {}) };
+  if (at >= 0) { list[at] = entry; return { ok: true, replaced: true }; }
   if (list.length >= MAX_NAMES) return { error: `This team already has ${MAX_NAMES} answers for that game; ask the organiser.` };
-  list.push({ name: req.name, status: req.status, at: now });
+  list.push(entry);
   return { ok: true, replaced: false };
 }
 
@@ -89,7 +90,7 @@ export function recordAvailability(store, req, games, now = Date.now()) {
 export function teamAnswers(store, fixture, teamName) {
   const out = { in: [], maybe: [], out: [] };
   const list = own(own(store, fixture), teamName);
-  for (const e of Array.isArray(list) ? list : []) if (STATUSES.includes(e?.status)) out[e.status].push(e.name);
+  for (const e of Array.isArray(list) ? list : []) if (STATUSES.includes(e?.status)) out[e.status].push(e.sub ? `${e.name} (sub)` : e.name);
   return out;
 }
 
@@ -131,20 +132,20 @@ export function availabilityHtml(store, games, { token = "", minPlayers = 0, ros
 }
 
 /** The admin-page section: the teams short of players for the next games, with a copy-ready nudge each. */
-export function shortTeamsHtml(store, games, minPlayers, rosters = {}) {
+export function shortTeamsHtml(store, games, minPlayers, rosters = {}, { extra = () => "", subsLine = () => "" } = {}) {
   const need = Math.trunc(Number(minPlayers) || 0);
   if (need <= 0) return "";
   const rows = shortTeams(store, games, need);
   if (!rows.length) return games.length ? `<h2>Players for the next games</h2><p class="ok">Every team has ${need} or more players in.</p>` : "";
-  const items = rows.map((r) => `<li><strong>${esc(r.team)}</strong> (${dayLabel(r.day)}${r.time ? " " + esc(r.time) : ""} v ${esc(r.opponent)}): ${r.in} in, short ${r.short}; ${r.maybe} maybe, ${r.out} out. <input readonly onfocus="this.select()" aria-label="Message for ${esc(r.team)}" value="${esc(nudgeText(r, need, notAnswered(store, r.fixture, r.team, rosters)))}"></li>`).join("");
+  const items = rows.map((r) => `<li><strong>${esc(r.team)}</strong> (${dayLabel(r.day)}${r.time ? " " + esc(r.time) : ""} v ${esc(r.opponent)}): ${r.in} in, short ${r.short}; ${r.maybe} maybe, ${r.out} out. <input readonly onfocus="this.select()" aria-label="Message for ${esc(r.team)}" value="${esc(nudgeText(r, need, notAnswered(store, r.fixture, r.team, rosters), subsLine(r)))}">${extra(r)}</li>`).join("");
   return `<h2>Teams short of players</h2><ul>${items}</ul><p class="note">Counts only the players who answered on the league page. Copy a message into the team's chat.</p>`;
 }
 
 /** The message an organiser pastes into a short team's chat. */
-export function nudgeText(r, need, quiet = []) {
+export function nudgeText(r, need, quiet = [], subs = "") {
   const maybes = r.maybe ? ` ${r.maybe} said maybe: can you confirm?` : "";
   const silent = quiet.length ? ` Not heard from: ${quiet.join(", ")}.` : "";
-  return `${r.team}: ${r.in} of ${need} players are in for ${dayLabel(r.day)}${r.time ? " " + r.time : ""} v ${r.opponent}.${maybes}${silent} Answer on the league page, or find a sub, so the game is not forfeited.`;
+  return `${r.team}: ${r.in} of ${need} players are in for ${dayLabel(r.day)}${r.time ? " " + r.time : ""} v ${r.opponent}.${maybes}${silent}${subs ? " " + subs : ""} Answer on the league page, or find a sub, so the game is not forfeited.`;
 }
 
 // ---- Rosters, the organiser's CSV and reminders (2026-11-18) ----
@@ -211,7 +212,7 @@ const isoDay = (day) => new Date(day * 86400000).toISOString().slice(0, 10);
 export function availabilityCsv(store, games, rosters = {}) {
   const rows = [["date", "time", "court", "team", "opponent", "player", "answer", "answered_at"]];
   for (const g of games) for (const [team, opp] of [[g.homeName, g.awayName], [g.awayName, g.homeName]]) {
-    for (const e of ownList(own(store, g.fixture), team)) rows.push([isoDay(g.day), g.time, g.court, team, opp, e.name, e.status, e.at ? new Date(e.at).toISOString() : ""]);
+    for (const e of ownList(own(store, g.fixture), team)) rows.push([isoDay(g.day), g.time, g.court, team, opp, e.name, e.sub ? `${e.status} (sub)` : e.status, e.at ? new Date(e.at).toISOString() : ""]);
     for (const n of notAnswered(store, g.fixture, team, rosters)) rows.push([isoDay(g.day), g.time, g.court, team, opp, n, "no answer", ""]);
   }
   return rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
@@ -249,7 +250,7 @@ export const REMINDER_DAYS = 2;
  * ("fixture|team"); the caller adds a key once the mail is accepted. A team with no contact and no
  * organiser address gets no reminder. Pure: nothing is sent here.
  */
-export function remindersDue(store, games, { minPlayers = 0, today, daysAhead = REMINDER_DAYS, sent = {}, contacts = {}, organiser = "", rosters = {}, leagueUrl = "" } = {}) {
+export function remindersDue(store, games, { minPlayers = 0, today, daysAhead = REMINDER_DAYS, sent = {}, contacts = {}, organiser = "", rosters = {}, leagueUrl = "", subsLine = () => "" } = {}) {
   const need = Math.trunc(Number(minPlayers) || 0);
   if (need <= 0) return [];
   const out = [];
@@ -266,6 +267,7 @@ export function remindersDue(store, games, { minPlayers = 0, today, daysAhead = 
       `${r.team} has ${r.in} of ${need} players in for ${when} v ${r.opponent}.`,
       r.maybe ? `${r.maybe} said maybe: can they confirm?` : "",
       quiet.length ? `Not heard from yet: ${quiet.join(", ")}.` : "",
+      subsLine(r),
       `Please answer on the league page${leagueUrl ? ` (${leagueUrl})` : ""}, or find a sub, so the game is not forfeited.`,
       "",
       "Sent once by the league's own server because the team was short two days out. Reply to the organiser to stop these.",
