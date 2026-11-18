@@ -11,6 +11,8 @@
 // team whose upcoming games moved, were cancelled or were added one email listing only those games.
 // Captain links (confirm.mjs): /league?t=LEAGUE_TOKEN&c=KEY, one key per team (an HMAC of its name under
 // ADMIN_KEY). Two captains who report the same score put the result in the table without the organiser.
+// Move requests (reschedule.mjs): a captain asks to move a game later, the other captain agrees, the
+// organiser approves and the Rainouts line is written for them.
 // Team sign-ups (registration.mjs): /register is public while the organiser has sign-ups open in /admin.
 import http from "node:http";
 import fs from "node:fs";
@@ -22,6 +24,7 @@ import { smtpConfig, sendMail } from "./mailer.mjs";
 import { parseSubOffer, recordSub, placeSub, subsHtml, placeButtonsHtml, freeSubsLine } from "./subs.mjs";
 import { scheduleChanges, changeEmails, changeSummary } from "./changes.mjs";
 import { captainKey, captainTeam, reportableGames, parseReport, recordReport, reportLine, settle, openReports, adminReportsHtml, captainLinksHtml, captainHtml, captainLinkEmail } from "./confirm.mjs";
+import { movableGames, tryMove, parseMoveRequest, recordMove, pruneMoves, openMoves, adminMovesHtml, captainMovesHtml, moveAskedEmail } from "./reschedule.mjs";
 import { regSettings, closedReason, parseRegistration, namesInUse, addRegistration, allowSignup, approveRegistration, declineRegistration, togglePaid, registrationsCsv, registerFormHtml, registeredHtml, adminRegistrationsHtml, signupEmail } from "./registration.mjs";
 
 const MAX_BODY = 64 * 1024;
@@ -32,7 +35,7 @@ const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(Strin
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:6rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://marisstella.app/league-schedule-generator/">League Schedule Generator</a> (MIT). Check dates and venues with your organiser.</p></body></html>`;
 
-export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], reports: {}, availability: {}, subs: {}, remindersSent: {}, registrations: [], approvedSignups: [], regSeq: 0 }; }
+export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], reports: {}, moves: {}, availability: {}, subs: {}, remindersSent: {}, registrations: [], approvedSignups: [], regSeq: 0 }; }
 
 const MAX_PENDING = 100;
 /** A score a team captain sends from the league page, as a pending request: team indexes and goals, nothing free-form. */
@@ -105,7 +108,7 @@ function leaguePage(state, token, base = null, today = dayNumber(Date.now()), ca
   const games = upcomingGames(out.schedule, today);
   const avail = availabilityHtml(state.availability || {}, games, { token, minPlayers: state.fields.minPlayers, rosters });
   const subs = subsHtml(state.subs || {}, games, { token });
-  const cap = captain ? captainHtml(state.reports || {}, reportableGames(out.schedule, today), captain.team, out.schedule.teams, { token, cap: captain.key }) : "";
+  const cap = captain ? captainHtml(state.reports || {}, reportableGames(out.schedule, today), captain.team, out.schedule.teams, { token, cap: captain.key }) + captainMovesHtml(state.moves || {}, movableGames(out.schedule, today), captain.team, { token, cap: captain.key }) : "";
   return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("<footer>", `${cap}${avail}${subs}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
 }
 
@@ -121,7 +124,7 @@ function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = p
   const mailNote = !smtp ? "Reminder emails are off: set SMTP_HOST, SMTP_FROM (and SMTP_USER, SMTP_PASS) on the server to send them from your own mail account." : smtp.error ? `Reminder emails are off: ${smtp.error}.` : `Reminder emails are on: a team still short ${REMINDER_DAYS} days out gets one email at these addresses${EMAIL.test(env.REMINDER_TO || "") ? ", copied to " + env.REMINDER_TO : ""}. ${Object.keys(state.remindersSent || {}).length} sent for the next games.`;
   const parseNotes = [...rp.errors, ...cp.errors].slice(0, 8).map((e) => `<li>${esc(e)}</li>`).join("");
   const pending = (state.pending || []).map((r, i) => names[r.a] === undefined || names[r.b] === undefined ? "" : `<li>${esc(resultLine(names, r))} <form method="post" action="/admin/result?key=${k}" style="display:inline"><input type="hidden" name="i" value="${i}"><button name="act" value="approve">Approve</button><button name="act" value="decline">Decline</button></form></li>`).join("");
-  const waiting = (pending ? `<h2>Scores waiting for you</h2><ul>${pending}</ul>` : "") + (built.schedule && state.published ? adminReportsHtml(openReports(state.reports || {}, built.schedule), key) : "");
+  const waiting = (pending ? `<h2>Scores waiting for you</h2><ul>${pending}</ul>` : "") + (built.schedule && state.published ? adminReportsHtml(openReports(state.reports || {}, built.schedule), key) + adminMovesHtml(openMoves(state.moves || {}, built.schedule), key) : "");
   const token = env.LEAGUE_TOKEN || "", capBase = base;
   const capLinks = names.length && token ? captainLinksHtml(names, key, token, capBase) + (smtp && !smtp.error ? `<form method="post" action="/admin/captain-links?key=${k}"><button>Email each team its captain link</button> <span class="note">to the team's contacts below</span></form>` : "") : "";
   const area = (name, label) => `<label>${label}<textarea name="${name}">${esc(f[name] ?? "")}</textarea></label>`;
@@ -239,6 +242,44 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
         } else if (w.status === "disputed") msg = `Sent: ${line}. The other captain sent a different score, so the organiser will decide. If yours was a typo, send it again.`;
         save();
         return send(200, page(w.status === "confirmed" ? "Result in the table" : "Score sent", `<p class="${w.status === "disputed" ? "err" : "ok"}">${esc(msg)}</p>${back}`));
+      }
+      if (req.method === "POST" && url.pathname === "/league/move") {
+        if (!captain) return send(401, "captain link required\n", "text/plain");
+        const out = buildLeague(state.fields), day = dayNumber(clock());
+        const body = await readForm(req);
+        if (!body) return send(413, "too large\n", "text/plain");
+        const back = `<p><a href="/league?t=${esc(encodeURIComponent(t))}&amp;c=${esc(encodeURIComponent(c))}#moves">Back to your team's page</a></p>`;
+        const games = movableGames(out.schedule, day);
+        const r = parseMoveRequest(body, games, captain.team, day);
+        if (r.error) return send(400, page("Not sent", `<p class="err">${esc(r.error)}</p>${back}`));
+        state.moves = state.moves || {};
+        pruneMoves(state.moves, out.schedule, day);
+        const g = games.find((x) => x.fixture === r.req.fixture);
+        let fit = null;
+        if (r.req.act === "ask") {
+          fit = tryMove(state.fields, buildLeague, r.req.fixture, r.req.to);
+          if (fit.error) return send(409, page("Date does not fit", `<p class="err">${esc(fit.error)}</p><p>Try another date.</p>${back}`));
+        }
+        const w = recordMove(state.moves, r.req, clock());
+        if (w.error) return send(409, page("Not sent", `<p class="err">${esc(w.error)}</p>${back}`));
+        save();
+        const other = r.req.side === "home" ? g.awayName : g.homeName;
+        const msgs = {
+          asked: `Asked: ${g.homeName} v ${g.awayName} on ${dayLabel(r.req.to ?? 0)}${fit ? ` (${fit.game.time ? fit.game.time + ", " : ""}${fit.game.court})` : ""}. ${other}'s captain answers from their link; then the organiser approves.`,
+          agreed: `Agreed. The organiser approves the move, then the league page and calendars follow.`,
+          declined: `Declined. The game stays where it is.`,
+          withdrawn: `Withdrawn. The game stays where it is.`,
+        };
+        const cfg = smtpConfig(env), base = publicBase(req, env);
+        if (w.status === "asked" && cfg && !cfg.error) {
+          const contacts = parseContacts(state.fields.contacts, out.schedule.teams).contacts;
+          const to = Object.prototype.hasOwnProperty.call(contacts, other) && Array.isArray(contacts[other]) ? contacts[other] : [];
+          if (to.length) {
+            const msg = moveAskedEmail(g, state.moves[g.fixture], to, base ? `${base}/league?t=${encodeURIComponent(token)}&c=${captainKey(adminKey, other)}#moves` : "");
+            Promise.resolve().then(() => mail(cfg, msg)).catch((err) => console.error(`move request email for ${other} not sent: ${err.message}`));
+          }
+        }
+        return send(200, page("Move request", `<p class="${w.status === "declined" || w.status === "withdrawn" ? "note" : "ok"}">${esc(msgs[w.status])}</p>${back}`));
       }
       if (req.method === "GET" && url.pathname === "/league/ics") {
         const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
@@ -398,6 +439,34 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
       settle(state.reports, fixture, line);
       save();
       return go(`Added to results: ${line}`);
+    }
+    if (req.method === "POST" && url.pathname === "/admin/move") {
+      const fixture = String(form.get("fixture") ?? ""), act = String(form.get("act") ?? "");
+      const go = (n) => send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(n)}` });
+      const prev = buildLeague(state.fields);
+      state.moves = state.moves || {};
+      if (prev.error) return go(`Fix the league first: ${prev.error}`);
+      pruneMoves(state.moves, prev.schedule, dayNumber(clock()));
+      const e = state.moves[fixture];
+      if (!e || (e.status !== "asked" && e.status !== "agreed")) { save(); return go("That move request is no longer open."); }
+      if (act === "refuse") { e.status = "refused"; save(); return go("Move refused; both captains see it on their page. The game stays where it is."); }
+      if (act !== "approve" || e.status !== "agreed") return go("Only a move both captains agreed can be approved.");
+      const fit = tryMove(state.fields, buildLeague, fixture, e.to);
+      if (fit.error) { e.status = "refused"; save(); return go(`Not moved: ${fit.error} The request is closed; the captains can ask for another date.`); }
+      state.fields = fit.fields;
+      delete state.moves[fixture];
+      save();
+      const g = fit.game;
+      let note = `Moved ${g.homeName} v ${g.awayName} to ${dayLabel(g.day)}${g.time ? " " + g.time : ""}, ${g.court}. Rainouts now ends with that line.`;
+      const changes = scheduleChanges(prev.schedule, buildLeague(state.fields).schedule, dayNumber(clock()));
+      const cfg = smtpConfig(env);
+      if (state.published && changes.length && cfg && !cfg.error) {
+        const base = publicBase(req, env);
+        const emails = changeEmails(changes, { contacts: parseContacts(state.fields.contacts, prev.schedule.teams).contacts, organiser: EMAIL.test(env.REMINDER_TO || "") ? env.REMINDER_TO : "", leagueUrl: base ? `${base}/league?t=${encodeURIComponent(token)}` : "" });
+        note += ` Emailing ${emails.length} team${emails.length === 1 ? "" : "s"}.`;
+        for (const m of emails) Promise.resolve().then(() => mail(cfg, m)).catch((err) => console.error(`change email for ${m.team} not sent: ${err.message}`));
+      }
+      return go(note);
     }
     if (req.method === "POST" && url.pathname === "/admin/captain-links") {
       const out = buildLeague(state.fields), cfg = smtpConfig(env);
