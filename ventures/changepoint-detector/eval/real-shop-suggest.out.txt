@@ -1,0 +1,291 @@
+
+######## no period ########
+
+== orders (poisson); watch starts 2011-02-13; suggested: quiet at 2/100, quiet at 1/month
+  quiet (bocpd): 37 alerts, 12.3 per 100 checks
+    change dated 2011-02-14 (Mon), sent 2011-02-18; 28-day mean 37.3 -> 41.7
+    change dated 2011-02-21 (Mon), sent 2011-02-25; 28-day mean 39.5 -> 43.3
+    change dated 2011-02-28 (Mon), sent 2011-03-04; 28-day mean 39.5 -> 44.5
+    change dated 2011-03-07 (Mon), sent 2011-03-11; 28-day mean 39.1 -> 47.1
+    change dated 2011-03-14 (Mon), sent 2011-03-18; 28-day mean 41.7 -> 47.9
+    change dated 2011-03-20 (Sun), sent 2011-03-24; 28-day mean 42.1 -> 49.6
+    change dated 2011-03-28 (Mon), sent 2011-04-01; 28-day mean 44.5 -> 47.0
+    change dated 2011-04-04 (Mon), sent 2011-04-08; 28-day mean 47.1 -> 41.8
+    change dated 2011-04-11 (Mon), sent 2011-04-15; 28-day mean 47.9 -> 43.4
+    change dated 2011-04-17 (Sun), sent 2011-04-21; 28-day mean 49.6 -> 46.2
+    change dated 2011-05-08 (Sun), sent 2011-05-12; 28-day mean 42.3 -> 53.5
+    change dated 2011-05-16 (Mon), sent 2011-05-20; 28-day mean 45.8 -> 52.6
+    change dated 2011-05-22 (Sun), sent 2011-05-26; 28-day mean 50.3 -> 49.7
+    change dated 2011-06-05 (Sun), sent 2011-06-09; 28-day mean 53.5 -> 51.6
+    change dated 2011-06-13 (Mon), sent 2011-06-17; 28-day mean 52.6 -> 48.4
+    change dated 2011-06-19 (Sun), sent 2011-06-23; 28-day mean 49.7 -> 47.2
+    change dated 2011-06-27 (Mon), sent 2011-07-01; 28-day mean 49.1 -> 47.9
+    change dated 2011-07-04 (Mon), sent 2011-07-08; 28-day mean 50.1 -> 50.0
+    change dated 2011-07-11 (Mon), sent 2011-07-15; 28-day mean 48.4 -> 48.4
+    change dated 2011-07-17 (Sun), sent 2011-07-21; 28-day mean 47.2 -> 47.5
+    change dated 2011-07-24 (Sun), sent 2011-07-28; 28-day mean 46.8 -> 45.5
+    change dated 2011-08-08 (Mon), sent 2011-08-12; 28-day mean 48.4 -> 44.5
+    change dated 2011-08-15 (Mon), sent 2011-08-19; 28-day mean 46.6 -> 48.8
+    change dated 2011-08-22 (Mon), sent 2011-08-26; 28-day mean 44.9 -> 50.4
+    change dated 2011-09-04 (Sun), sent 2011-09-08; 28-day mean 43.8 -> 60.3
+    change dated 2011-09-11 (Sun), sent 2011-09-15; 28-day mean 47.0 -> 64.5
+    change dated 2011-09-19 (Mon), sent 2011-09-23; 28-day mean 50.4 -> 66.5
+    change dated 2011-09-25 (Sun), sent 2011-09-29; 28-day mean 52.8 -> 67.2
+    change dated 2011-10-03 (Mon), sent 2011-10-07; 28-day mean 59.7 -> 69.0
+    change dated 2011-10-10 (Mon), sent 2011-10-14; 28-day mean 63.2 -> 70.4
+    change dated 2011-10-17 (Mon), sent 2011-10-21; 28-day mean 66.5 -> 77.0
+    change dated 2011-10-24 (Mon), sent 2011-10-28; 28-day mean 66.0 -> 85.5
+    change dated 2011-10-30 (Sun), sent 2011-11-03; 28-day mean 66.9 -> 90.1
+    change dated 2011-11-06 (Sun), sent 2011-11-10; 28-day mean 68.2 -> 94.7
+    change dated 2011-11-13 (Sun), sent 2011-11-17; 28-day mean 75.2 -> 95.3
+    change dated 2011-11-20 (Sun), sent 2011-11-24; 28-day mean 83.4 -> 94.8
+    change dated 2011-11-28 (Mon), sent 2011-12-02; 28-day mean 88.7 -> 98.1
+  eager (pelt): 42 alerts, 14.0 per 100 checks
+    change dated 2011-02-14 (Mon), sent 2011-02-18; 28-day mean 37.3 -> 41.7
+    change dated 2011-02-21 (Mon), sent 2011-02-25; 28-day mean 39.5 -> 43.3
+    change dated 2011-02-28 (Mon), sent 2011-03-04; 28-day mean 39.5 -> 44.5
+    change dated 2011-03-07 (Mon), sent 2011-03-11; 28-day mean 39.1 -> 47.1
+    change dated 2011-03-14 (Mon), sent 2011-03-18; 28-day mean 41.7 -> 47.9
+    change dated 2011-03-21 (Mon), sent 2011-03-25; 28-day mean 43.3 -> 49.0
+    change dated 2011-03-28 (Mon), sent 2011-04-01; 28-day mean 44.5 -> 47.0
+    change dated 2011-04-04 (Mon), sent 2011-04-08; 28-day mean 47.1 -> 41.8
+    change dated 2011-04-11 (Mon), sent 2011-04-15; 28-day mean 47.9 -> 43.4
+    change dated 2011-04-18 (Mon), sent 2011-04-22; 28-day mean 49.0 -> 45.8
+    change dated 2011-04-26 (Tue), sent 2011-04-30; 28-day mean 44.8 -> 54.9  <- within 1 day of a bank holiday
+    change dated 2011-05-03 (Tue), sent 2011-05-07; 28-day mean 39.6 -> 57.5  <- within 1 day of a bank holiday
+    change dated 2011-05-09 (Mon), sent 2011-05-13; 28-day mean 43.4 -> 53.7
+    change dated 2011-05-16 (Mon), sent 2011-05-20; 28-day mean 45.8 -> 52.6
+    change dated 2011-05-23 (Mon), sent 2011-05-27; 28-day mean 52.5 -> 49.6
+    change dated 2011-05-31 (Tue), sent 2011-06-04; 28-day mean 57.5 -> 50.7  <- within 1 day of a bank holiday
+    change dated 2011-06-11 (Sat), sent 2011-06-15; 28-day mean 52.4 -> 48.9
+    change dated 2011-06-17 (Fri), sent 2011-06-21; 28-day mean 50.4 -> 47.5
+    change dated 2011-06-25 (Sat), sent 2011-06-29; 28-day mean 49.0 -> 46.8
+    change dated 2011-07-02 (Sat), sent 2011-07-06; 28-day mean 51.6 -> 49.4
+    change dated 2011-07-09 (Sat), sent 2011-07-13; 28-day mean 48.9 -> 48.2
+    change dated 2011-07-15 (Fri), sent 2011-07-19; 28-day mean 47.5 -> 47.2
+    change dated 2011-07-22 (Fri), sent 2011-07-26; 28-day mean 47.0 -> 45.1
+    change dated 2011-07-30 (Sat), sent 2011-08-03; 28-day mean 49.4 -> 45.6
+    change dated 2011-08-06 (Sat), sent 2011-08-10; 28-day mean 48.2 -> 43.8
+    change dated 2011-08-13 (Sat), sent 2011-08-17; 28-day mean 47.5 -> 47.0
+    change dated 2011-08-20 (Sat), sent 2011-08-24; 28-day mean 45.5 -> 50.8
+    change dated 2011-08-27 (Sat), sent 2011-08-31; 28-day mean 45.6 -> 52.8
+    change dated 2011-09-03 (Sat), sent 2011-09-07; 28-day mean 43.8 -> 60.3
+    change dated 2011-09-09 (Fri), sent 2011-09-13; 28-day mean 46.6 -> 63.5
+    change dated 2011-09-17 (Sat), sent 2011-09-21; 28-day mean 50.8 -> 66.2
+    change dated 2011-09-23 (Fri), sent 2011-09-27; 28-day mean 52.1 -> 67.2
+    change dated 2011-10-01 (Sat), sent 2011-10-05; 28-day mean 60.3 -> 66.9
+    change dated 2011-10-08 (Sat), sent 2011-10-12; 28-day mean 64.5 -> 68.2
+    change dated 2011-10-15 (Sat), sent 2011-10-19; 28-day mean 66.2 -> 75.2
+    change dated 2011-10-22 (Sat), sent 2011-10-26; 28-day mean 67.2 -> 83.4
+    change dated 2011-10-28 (Fri), sent 2011-11-01; 28-day mean 66.7 -> 89.9
+    change dated 2011-11-04 (Fri), sent 2011-11-08; 28-day mean 68.0 -> 93.8
+    change dated 2011-11-12 (Sat), sent 2011-11-16; 28-day mean 75.2 -> 91.9
+    change dated 2011-11-19 (Sat), sent 2011-11-23; 28-day mean 83.4 -> 90.3
+    change dated 2011-11-26 (Sat), sent 2011-11-30; 28-day mean 90.1 -> 88.1
+    change dated 2011-12-03 (Sat), sent 2011-12-07; 28-day mean 94.7 -> 82.6
+
+== revenue (mean); watch starts 2011-02-13; suggested: middle at 2/100, eager at 1/month
+  quiet (bocpd-ar1-window): 0 alerts, 0.0 per 100 checks
+  middle (bocpd): 0 alerts, 0.0 per 100 checks
+  eager (pelt): 8 alerts, 2.7 per 100 checks
+    change dated 2011-04-22 (Fri), sent 2011-05-01; 28-day mean 23537.9 -> 21795.6  <- within 1 day of a bank holiday
+    change dated 2011-03-29 (Tue), sent 2011-05-05; 28-day mean 20739.5 -> 21258.9
+    change dated 2011-05-03 (Tue), sent 2011-05-11; 28-day mean 17104.2 -> 26458.9  <- within 1 day of a bank holiday
+    change dated 2011-05-28 (Sat), sent 2011-06-01; 28-day mean 26443.8 -> 23759.2
+    change dated 2011-06-07 (Tue), sent 2011-06-13; 28-day mean 25088.7 -> 25440.6
+    change dated 2011-09-19 (Mon), sent 2011-09-23; 28-day mean 26494.2 -> 39262.0
+    change dated 2011-10-03 (Mon), sent 2011-10-07; 28-day mean 34764.7 -> 38784.8
+    change dated 2011-11-07 (Mon), sent 2011-11-11; 28-day mean 38138.8 -> 49980.4
+
+== cancellations (poisson); watch starts 2011-02-13; suggested: quiet at 2/100, quiet at 1/month
+  quiet (bocpd): 20 alerts, 6.7 per 100 checks
+    change dated 2011-02-12 (Sat), sent 2011-02-16; 28-day mean 9.4 -> 8.6
+    change dated 2011-02-25 (Fri), sent 2011-03-01; 28-day mean 8.8 -> 8.8
+    change dated 2011-03-11 (Fri), sent 2011-03-15; 28-day mean 9.9 -> 8.9
+    change dated 2011-03-27 (Sun), sent 2011-04-02; 28-day mean 9.0 -> 9.8
+    change dated 2011-05-16 (Mon), sent 2011-05-20; 28-day mean 8.0 -> 11.1
+    change dated 2011-05-23 (Mon), sent 2011-05-27; 28-day mean 8.8 -> 10.7
+    change dated 2011-06-06 (Mon), sent 2011-06-10; 28-day mean 11.0 -> 10.3
+    change dated 2011-06-13 (Mon), sent 2011-06-17; 28-day mean 11.1 -> 10.0
+    change dated 2011-06-22 (Wed), sent 2011-06-26; 28-day mean 10.3 -> 9.0
+    change dated 2011-07-18 (Mon), sent 2011-07-22; 28-day mean 9.3 -> 9.6
+    change dated 2011-08-12 (Fri), sent 2011-08-16; 28-day mean 9.5 -> 7.6
+    change dated 2011-08-19 (Fri), sent 2011-08-23; 28-day mean 8.5 -> 9.3
+    change dated 2011-08-26 (Fri), sent 2011-08-30; 28-day mean 8.3 -> 10.1
+    change dated 2011-09-01 (Thu), sent 2011-09-05; 28-day mean 8.6 -> 11.1
+    change dated 2011-09-12 (Mon), sent 2011-09-16; 28-day mean 8.1 -> 13.1
+    change dated 2011-09-19 (Mon), sent 2011-09-23; 28-day mean 9.4 -> 12.9
+    change dated 2011-10-10 (Mon), sent 2011-10-14; 28-day mean 13.1 -> 12.1
+    change dated 2011-10-17 (Mon), sent 2011-10-21; 28-day mean 12.9 -> 13.1
+    change dated 2011-11-07 (Mon), sent 2011-11-11; 28-day mean 12.1 -> 14.9
+    change dated 2011-11-14 (Mon), sent 2011-11-18; 28-day mean 13.1 -> 15.2
+  eager (pelt): 41 alerts, 13.7 per 100 checks
+    change dated 2011-02-12 (Sat), sent 2011-02-16; 28-day mean 9.4 -> 8.6
+    change dated 2011-02-19 (Sat), sent 2011-02-23; 28-day mean 9.3 -> 9.0
+    change dated 2011-02-25 (Fri), sent 2011-03-01; 28-day mean 8.8 -> 8.8
+    change dated 2011-03-04 (Fri), sent 2011-03-08; 28-day mean 8.5 -> 9.7
+    change dated 2011-03-10 (Thu), sent 2011-03-14; 28-day mean 9.8 -> 9.5
+    change dated 2011-03-17 (Thu), sent 2011-03-21; 28-day mean 8.5 -> 9.6
+    change dated 2011-03-27 (Sun), sent 2011-04-01; 28-day mean 9.0 -> 9.8
+    change dated 2011-04-02 (Sat), sent 2011-04-06; 28-day mean 10.1 -> 8.1
+    change dated 2011-04-09 (Sat), sent 2011-04-13; 28-day mean 9.0 -> 8.1
+    change dated 2011-04-15 (Fri), sent 2011-04-19; 28-day mean 9.5 -> 8.1
+    change dated 2011-04-22 (Fri), sent 2011-04-26; 28-day mean 10.1 -> 8.3  <- within 1 day of a bank holiday
+    change dated 2011-04-29 (Fri), sent 2011-05-03; 28-day mean 8.6 -> 10.3  <- within 1 day of a bank holiday
+    change dated 2011-05-07 (Sat), sent 2011-05-11; 28-day mean 8.1 -> 11.0
+    change dated 2011-05-13 (Fri), sent 2011-05-17; 28-day mean 8.1 -> 10.6
+    change dated 2011-05-21 (Sat), sent 2011-05-25; 28-day mean 8.7 -> 10.6
+    change dated 2011-05-28 (Sat), sent 2011-06-01; 28-day mean 10.9 -> 9.9
+    change dated 2011-06-03 (Fri), sent 2011-06-07; 28-day mean 11.2 -> 10.1
+    change dated 2011-06-11 (Sat), sent 2011-06-15; 28-day mean 11.0 -> 9.9
+    change dated 2011-06-17 (Fri), sent 2011-06-21; 28-day mean 10.8 -> 9.3
+    change dated 2011-07-02 (Sat), sent 2011-07-06; 28-day mean 10.3 -> 9.2
+    change dated 2011-07-16 (Sat), sent 2011-07-20; 28-day mean 9.4 -> 9.2
+    change dated 2011-07-22 (Fri), sent 2011-07-26; 28-day mean 9.6 -> 8.5
+    change dated 2011-07-29 (Fri), sent 2011-08-02; 28-day mean 9.5 -> 8.3
+    change dated 2011-08-04 (Thu), sent 2011-08-08; 28-day mean 9.5 -> 8.6
+    change dated 2011-08-12 (Fri), sent 2011-08-16; 28-day mean 9.5 -> 7.6
+    change dated 2011-08-19 (Fri), sent 2011-08-23; 28-day mean 8.5 -> 9.3
+    change dated 2011-08-26 (Fri), sent 2011-08-30; 28-day mean 8.3 -> 10.1
+    change dated 2011-09-01 (Thu), sent 2011-09-05; 28-day mean 8.6 -> 11.1
+    change dated 2011-09-08 (Thu), sent 2011-09-14; 28-day mean 7.9 -> 11.5
+    change dated 2011-09-17 (Sat), sent 2011-09-21; 28-day mean 9.5 -> 12.8
+    change dated 2011-09-24 (Sat), sent 2011-09-28; 28-day mean 10.7 -> 12.0
+    change dated 2011-10-01 (Sat), sent 2011-10-05; 28-day mean 11.3 -> 12.6
+    change dated 2011-10-08 (Sat), sent 2011-10-12; 28-day mean 13.1 -> 12.1
+    change dated 2011-10-14 (Fri), sent 2011-10-18; 28-day mean 12.9 -> 12.9
+    change dated 2011-10-21 (Fri), sent 2011-10-25; 28-day mean 12.6 -> 13.4
+    change dated 2011-10-29 (Sat), sent 2011-11-02; 28-day mean 12.6 -> 13.9
+    change dated 2011-11-05 (Sat), sent 2011-11-09; 28-day mean 12.1 -> 14.9
+    change dated 2011-11-11 (Fri), sent 2011-11-15; 28-day mean 12.9 -> 14.5
+    change dated 2011-11-19 (Sat), sent 2011-11-23; 28-day mean 14.8 -> 13.3
+    change dated 2011-11-25 (Fri), sent 2011-11-29; 28-day mean 14.2 -> 14.0
+    change dated 2011-12-02 (Fri), sent 2011-12-06; 28-day mean 15.9 -> 12.4
+
+== new_customers (poisson); watch starts 2011-02-13; suggested: quiet at 2/100, quiet at 1/month
+  quiet (bocpd): 4 alerts, 1.3 per 100 checks
+    change dated 2011-04-22 (Fri), sent 2011-04-26; 28-day mean 12.6 -> 8.3  <- within 1 day of a bank holiday
+    change dated 2011-05-03 (Tue), sent 2011-05-07; 28-day mean 9.6 -> 9.6  <- within 1 day of a bank holiday
+    change dated 2011-05-13 (Fri), sent 2011-05-17; 28-day mean 9.1 -> 8.1
+    change dated 2011-09-11 (Sun), sent 2011-09-15; 28-day mean 5.3 -> 12.0
+  eager (pelt): 19 alerts, 6.3 per 100 checks
+    change dated 2011-02-14 (Mon), sent 2011-02-18; 28-day mean 13.6 -> 14.4
+    change dated 2011-02-21 (Mon), sent 2011-02-25; 28-day mean 13.8 -> 15.1
+    change dated 2011-02-28 (Mon), sent 2011-03-04; 28-day mean 13.4 -> 14.6
+    change dated 2011-03-07 (Mon), sent 2011-03-11; 28-day mean 13.3 -> 13.7
+    change dated 2011-03-14 (Mon), sent 2011-03-18; 28-day mean 14.4 -> 13.6
+    change dated 2011-03-26 (Sat), sent 2011-03-30; 28-day mean 14.8 -> 12.2
+    change dated 2011-04-02 (Sat), sent 2011-04-06; 28-day mean 13.9 -> 10.1
+    change dated 2011-04-09 (Sat), sent 2011-04-13; 28-day mean 13.4 -> 9.3
+    change dated 2011-04-15 (Fri), sent 2011-04-19; 28-day mean 14.0 -> 9.1
+    change dated 2011-04-22 (Fri), sent 2011-04-26; 28-day mean 12.6 -> 8.3  <- within 1 day of a bank holiday
+    change dated 2011-04-29 (Fri), sent 2011-05-03; 28-day mean 10.7 -> 9.3  <- within 1 day of a bank holiday
+    change dated 2011-05-13 (Fri), sent 2011-05-17; 28-day mean 9.1 -> 8.1
+    change dated 2011-05-28 (Sat), sent 2011-06-10; 28-day mean 9.6 -> 8.2
+    change dated 2011-06-17 (Fri), sent 2011-06-21; 28-day mean 8.3 -> 6.4
+    change dated 2011-06-24 (Fri), sent 2011-06-28; 28-day mean 8.4 -> 5.7
+    change dated 2011-08-27 (Sat), sent 2011-08-31; 28-day mean 5.8 -> 8.0
+    change dated 2011-09-11 (Sun), sent 2011-09-15; 28-day mean 5.3 -> 12.0
+    change dated 2011-10-01 (Sat), sent 2011-10-07; 28-day mean 10.1 -> 11.9
+    change dated 2011-11-26 (Sat), sent 2011-12-02; 28-day mean 11.2 -> 5.4
+
+######## --period 7 ########
+
+== orders (poisson); watch starts 2011-02-13; suggested: quiet at 2/100, quiet at 1/month
+  quiet (bocpd): 4 alerts, 1.3 per 100 checks
+    change dated 2011-05-03 (Tue), sent 2011-05-07; 28-day mean 39.6 -> 57.5  <- within 1 day of a bank holiday
+    change dated 2011-05-31 (Tue), sent 2011-06-04; 28-day mean 57.5 -> 50.7  <- within 1 day of a bank holiday
+    change dated 2011-06-10 (Fri), sent 2011-06-15; 28-day mean 53.2 -> 48.4
+    change dated 2011-09-01 (Thu), sent 2011-09-05; 28-day mean 43.3 -> 59.2
+  eager (pelt): 12 alerts, 4.0 per 100 checks
+    change dated 2011-02-11 (Fri), sent 2011-02-18; 28-day mean 37.5 -> 41.6
+    change dated 2011-03-18 (Fri), sent 2011-03-23; 28-day mean 41.2 -> 49.9
+    change dated 2011-04-22 (Fri), sent 2011-04-26; 28-day mean 50.1 -> 47.8  <- within 1 day of a bank holiday
+    change dated 2011-04-29 (Fri), sent 2011-05-03; 28-day mean 44.5 -> 55.0  <- within 1 day of a bank holiday
+    change dated 2011-05-28 (Sat), sent 2011-06-01; 28-day mean 57.3 -> 49.0
+    change dated 2011-06-05 (Sun), sent 2011-06-09; 28-day mean 53.5 -> 51.6
+    change dated 2011-06-24 (Fri), sent 2011-07-02; 28-day mean 49.5 -> 47.0
+    change dated 2011-08-06 (Sat), sent 2011-08-10; 28-day mean 48.2 -> 43.8
+    change dated 2011-08-29 (Mon), sent 2011-09-02; 28-day mean 45.5 -> 54.1  <- within 1 day of a bank holiday
+    change dated 2011-09-22 (Thu), sent 2011-09-26; 28-day mean 50.8 -> 68.0
+    change dated 2011-10-29 (Sat), sent 2011-11-02; 28-day mean 66.9 -> 90.1
+    change dated 2011-11-04 (Fri), sent 2011-11-08; 28-day mean 68.0 -> 93.8
+
+== revenue (mean); watch starts 2011-02-13; suggested: middle at 2/100, middle at 1/month
+  quiet (bocpd-ar1-window): 2 alerts, 0.7 per 100 checks
+    change dated 2011-03-30 (Wed), sent 2011-04-05; 28-day mean 22323.7 -> 19842.4
+    change dated 2011-04-18 (Mon), sent 2011-08-16; 28-day mean 22372.6 -> 20965.8
+  middle (bocpd): 1 alerts, 0.3 per 100 checks
+    change dated 2011-03-30 (Wed), sent 2011-11-05; 28-day mean 22323.7 -> 19842.4
+  eager (pelt): 12 alerts, 4.0 per 100 checks
+    change dated 2011-03-29 (Tue), sent 2011-04-02; 28-day mean 20739.5 -> 21258.9
+    change dated 2011-04-22 (Fri), sent 2011-04-26; 28-day mean 23537.9 -> 21795.6  <- within 1 day of a bank holiday
+    change dated 2011-05-03 (Tue), sent 2011-05-07; 28-day mean 17104.2 -> 26458.9  <- within 1 day of a bank holiday
+    change dated 2011-05-28 (Sat), sent 2011-06-02; 28-day mean 26443.8 -> 23759.2
+    change dated 2011-06-08 (Wed), sent 2011-06-12; 28-day mean 24736.5 -> 25540.6
+    change dated 2011-08-11 (Thu), sent 2011-08-19; 28-day mean 25044.1 -> 25190.0
+    change dated 2011-08-17 (Wed), sent 2011-08-21; 28-day mean 24766.3 -> 26288.9
+    change dated 2011-09-11 (Sun), sent 2011-09-16; 28-day mean 23497.3 -> 40131.6
+    change dated 2011-09-19 (Mon), sent 2011-09-23; 28-day mean 26494.2 -> 39262.0
+    change dated 2011-10-03 (Mon), sent 2011-10-07; 28-day mean 34764.7 -> 38784.8
+    change dated 2011-11-06 (Sun), sent 2011-11-10; 28-day mean 37052.3 -> 50634.8
+    change dated 2011-11-12 (Sat), sent 2011-11-16; 28-day mean 42753.4 -> 55992.3
+
+== cancellations (poisson); watch starts 2011-02-13; suggested: quiet at 2/100, quiet at 1/month
+  quiet (bocpd): 14 alerts, 4.7 per 100 checks
+    change dated 2011-02-12 (Sat), sent 2011-02-16; 28-day mean 9.4 -> 8.6
+    change dated 2011-03-02 (Wed), sent 2011-03-06; 28-day mean 7.5 -> 9.9
+    change dated 2011-02-23 (Wed), sent 2011-03-08; 28-day mean 9.5 -> 8.7
+    change dated 2011-03-08 (Tue), sent 2011-03-16; 28-day mean 9.7 -> 9.1
+    change dated 2011-04-21 (Thu), sent 2011-04-25; 28-day mean 10.1 -> 7.9  <- within 1 day of a bank holiday
+    change dated 2011-05-03 (Tue), sent 2011-05-07; 28-day mean 7.6 -> 10.8  <- within 1 day of a bank holiday
+    change dated 2011-06-01 (Wed), sent 2011-06-05; 28-day mean 10.5 -> 10.9
+    change dated 2011-08-26 (Fri), sent 2011-08-30; 28-day mean 8.3 -> 10.1
+    change dated 2011-09-01 (Thu), sent 2011-09-05; 28-day mean 8.6 -> 11.1
+    change dated 2011-09-09 (Fri), sent 2011-09-13; 28-day mean 7.6 -> 13.6
+    change dated 2011-10-06 (Thu), sent 2011-10-10; 28-day mean 11.5 -> 13.0
+    change dated 2011-10-25 (Tue), sent 2011-10-29; 28-day mean 13.3 -> 13.9
+    change dated 2011-11-24 (Thu), sent 2011-11-28; 28-day mean 14.8 -> 13.8
+    change dated 2011-11-30 (Wed), sent 2011-12-04; 28-day mean 13.9 -> 18.2
+  eager (pelt): 21 alerts, 7.0 per 100 checks
+    change dated 2011-02-11 (Fri), sent 2011-02-15; 28-day mean 8.1 -> 9.9
+    change dated 2011-02-18 (Fri), sent 2011-02-22; 28-day mean 9.4 -> 9.3
+    change dated 2011-03-02 (Wed), sent 2011-03-06; 28-day mean 7.5 -> 9.9
+    change dated 2011-03-08 (Tue), sent 2011-03-12; 28-day mean 9.7 -> 9.1
+    change dated 2011-03-22 (Tue), sent 2011-03-28; 28-day mean 8.9 -> 9.3
+    change dated 2011-03-28 (Mon), sent 2011-04-01; 28-day mean 9.4 -> 9.3
+    change dated 2011-04-21 (Thu), sent 2011-04-26; 28-day mean 10.1 -> 7.9  <- within 1 day of a bank holiday
+    change dated 2011-04-29 (Fri), sent 2011-05-04; 28-day mean 8.6 -> 10.3  <- within 1 day of a bank holiday
+    change dated 2011-05-13 (Fri), sent 2011-05-17; 28-day mean 8.1 -> 10.6
+    change dated 2011-05-28 (Sat), sent 2011-06-01; 28-day mean 10.9 -> 9.9
+    change dated 2011-08-13 (Sat), sent 2011-08-17; 28-day mean 9.2 -> 8.4
+    change dated 2011-08-26 (Fri), sent 2011-08-30; 28-day mean 8.3 -> 10.1
+    change dated 2011-09-01 (Thu), sent 2011-09-05; 28-day mean 8.6 -> 11.1
+    change dated 2011-09-09 (Fri), sent 2011-09-13; 28-day mean 7.6 -> 13.6
+    change dated 2011-09-29 (Thu), sent 2011-10-04; 28-day mean 11.1 -> 12.1
+    change dated 2011-10-06 (Thu), sent 2011-10-10; 28-day mean 11.5 -> 13.0
+    change dated 2011-10-23 (Sun), sent 2011-10-27; 28-day mean 12.0 -> 14.8
+    change dated 2011-11-04 (Fri), sent 2011-11-08; 28-day mean 11.2 -> 15.9
+    change dated 2011-11-18 (Fri), sent 2011-11-22; 28-day mean 13.4 -> 14.7
+    change dated 2011-11-24 (Thu), sent 2011-11-28; 28-day mean 14.8 -> 13.8
+    change dated 2011-11-30 (Wed), sent 2011-12-04; 28-day mean 13.9 -> 18.2
+
+== new_customers (poisson); watch starts 2011-02-13; suggested: quiet at 2/100, eager at 1/month
+  quiet (bocpd): 2 alerts, 0.7 per 100 checks
+    change dated 2011-04-22 (Fri), sent 2011-04-26; 28-day mean 12.6 -> 8.3  <- within 1 day of a bank holiday
+    change dated 2011-05-04 (Wed), sent 2011-05-08; 28-day mean 9.5 -> 9.7
+  eager (pelt): 9 alerts, 3.0 per 100 checks
+    change dated 2011-02-15 (Tue), sent 2011-02-25; 28-day mean 13.4 -> 14.4
+    change dated 2011-03-12 (Sat), sent 2011-03-16; 28-day mean 14.5 -> 13.4
+    change dated 2011-04-22 (Fri), sent 2011-04-26; 28-day mean 12.6 -> 8.3  <- within 1 day of a bank holiday
+    change dated 2011-04-29 (Fri), sent 2011-05-03; 28-day mean 10.7 -> 9.3  <- within 1 day of a bank holiday
+    change dated 2011-05-23 (Mon), sent 2011-05-31; 28-day mean 9.2 -> 7.9
+    change dated 2011-05-13 (Fri), sent 2011-06-11; 28-day mean 9.1 -> 8.1
+    change dated 2011-06-24 (Fri), sent 2011-07-01; 28-day mean 8.4 -> 5.7
+    change dated 2011-09-11 (Sun), sent 2011-09-15; 28-day mean 5.3 -> 12.0
+    change dated 2011-11-30 (Wed), sent 2011-12-04; 28-day mean 11.0 -> 4.6
+
+######## Bars ########
+B1 (Quiet <= 2 per 100 checks on each column, no period): orders 12.3, revenue 0.0, cancellations 6.7, new_customers 1.3 -> FAIL
+B2 (period 7: Quiet's sum falls >= 25%, no column rises): 61 -> 22 (-64%); rises: revenue 0 -> 2 -> FAIL
+B3 (no alert within 1 day of a one-day bank holiday at the suggested setting): 0|revenue|1/month: 2; 0|new_customers|2/100: 2; 0|new_customers|1/month: 2; 7|orders|2/100: 2; 7|orders|1/month: 2; 7|cancellations|2/100: 2; 7|cancellations|1/month: 2; 7|new_customers|2/100: 1; 7|new_customers|1/month: 2 -> FAIL

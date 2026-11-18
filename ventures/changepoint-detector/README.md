@@ -3537,6 +3537,87 @@ succeeded payments. The quiet is optimistic: these shops have no weekly cycle, p
 real shop has and which the watch's own history replay (`--suggest`) is there to measure. Next: a real shop's
 daily Stripe series (a deployer's, or a public one) through `--suggest`, and a weekly cycle (`--period 7`) per column.
 
+## A real shop's daily series through `--suggest` (2026-11-18, pre-registered; all three bars fail; a weekly-cycle line ships)
+
+The Stripe section above ended on "Next: a real shop's daily series (a deployer's, or a public one) through
+`--suggest`, and a weekly cycle (`--period 7`) per column". No deployer's account exists yet, so this uses a public
+one: **UCI Online Retail** (Chen, Sain and Guo 2012, CC BY 4.0), every invoice line of a UK online gift shop from
+2010-12-01 to 2011-12-09. `eval/real-shop-daily.py` turns its 541,909 lines into `data/online-retail-daily.csv` in
+the shape `stripe-metrics.mjs` writes: one row per calendar day, zeros on days with nothing, with `orders`,
+`revenue` (GBP), `cancellations` and `new_customers`. The shop never trades on a Saturday. It was also shut for
+Christmas (2010-12-24 to 2011-01-03) and on six one-day UK bank holidays.
+
+The bars were written and committed before any watch ran (`eval/real-shop-suggest.prereg.md`). The run was
+`eval/real-shop-suggest.mjs`, output in `eval/real-shop-suggest.out.txt`, which lists every alert with its date and the
+28-day mean before and after it. The watch starts at day 74 (2011-02-13) and then makes 300 daily checks. Columns use the
+Stripe workflow's models (counts Poisson, revenue mean).
+
+| column | Quiet, no period | Quiet, `--period 7` | Eager, no period | Eager, `--period 7` |
+|---|---|---|---|---|
+| orders | 37 | 4 | 42 | 12 |
+| revenue | 0 | 2 | 8 | 12 |
+| cancellations | 20 | 14 | 41 | 21 |
+| new_customers | 4 | 2 | 19 | 9 |
+
+- **B1 fails** (Quiet at most 2 per 100 checks on every column, no period): orders 12.3, cancellations 6.7.
+- **B2 fails** (`--period 7` cuts Quiet's sum by 25% or more and no column rises). The sum fell from 61 to 22
+  (-64%), but revenue rose from 0 to 2, and both of those alerts are poor: a March dip, and an April change that was
+  only sent in August.
+- **B3 fails** (no alert within a day of a one-day bank holiday at the suggested setting). Nine of the sixteen
+  column, period and budget cells have one or two, chiefly Easter (2011-04-22/25) and the early May holiday (2011-05-02).
+
+What the alerts show:
+
+- **The weekly cycle is the whole of the orders problem.** Without a period, all 37 of Quiet's order alerts are
+  dated on a Sunday or a Monday. Every week the zero Saturday reads as a step down and Monday's orders as a step back
+  up. With `--period 7` four remain: the two around the May bank holidays, one in June, and **2011-09-01**, sent
+  2011-09-05 (28-day mean 43 to 59 orders a day). That last one is the start of the Christmas build-up, which is the
+  change a shop owner would want to hear about.
+- **Revenue at Quiet and Middle is deaf to the build-up.** Daily revenue went from about £26k to £39k (September) and
+  then £50k (November), and neither setting alerted with or without a period. Only Eager (PELT) heard it, on
+  2011-09-19 and 2011-11-07, at 2.7 to 4.0 alerts per 100 checks. Revenue here has heavy tails (single wholesale
+  orders), and the AR(1) default reads the slow climb as sticky noise. This is unfixed and written down as the next
+  item.
+- **One-day closures still alert, even with the cycle removed.** A closed weekday is a single-point outlier that the
+  count model cannot absorb. A deployer whose shop closes on holidays should expect an alert around each one.
+
+**What ships: a weekly-cycle line in `--suggest`** (watch-core.mjs `weekdayBunching`, `weekdayEffect`; also on the
+page, which prints the same `eagernessText`). It applies when the labels are consecutive calendar days and no period
+is given. If a setting's replayed alerts fall on one pair of adjacent weekdays far more often than chance, the replay
+adds: "Weekly cycle: 37 of these 37 alerts are dated on a Sunday or Monday ... Replay with --period 7."
+The test has two parts:
+
+1. The alert dates: the most-hit adjacent weekday pair against Binomial(n, 2/7), Bonferroni over the 7 pairs, p < 0.01,
+   with at least 6 alerts.
+2. The history itself: a weekday effect at p < 0.001. Each day less its centred 7-day mean, ranked, then
+   Kruskal-Wallis across the weekdays (chi-square with 6 df).
+
+The alert test alone was not enough. On synthetic series with no weekly cycle, a busy watch spaces its alerts about a
+week apart (confirm 5, tolerance 5), so half of them landed on one weekday pair by chance and the alert test fired on 4
+of 60 replays. Adding part 2 fixed that. The rule was set on one seed set and then checked on fresh seeds
+(`eval/weekday-bunching.mjs`, output `eval/weekday-bunching.out.txt`; 300-day clumpy Poisson series on a wandering
+level, both settings replayed):
+
+| series | seeds | replays | alert-date test alone | the shipped line (both parts) |
+|---|---|---|---|---|
+| no weekly cycle | design (20261118) | 60 | 4 | **0** |
+| closed every Saturday | design | 60 | 53 | **53** |
+| no weekly cycle | fresh (777) | 200 | 6 | **0** |
+| closed every Saturday | fresh | 200 | 180 | **180** |
+| weekend 30% lower | fresh | 200 | 14 | **14** |
+
+So on fresh series it raised no false warnings and caught a closed day in 9 of 10 replays. A mild weekend dip is
+mostly missed (14 of 200), because a 30% dip in noisy counts rarely moves the alerts onto fixed weekdays. The line is
+a check for the case seen on the real shop, not a general seasonality test.
+
+**Checked:** `real-shop.test.mjs` (4 tests). The CSV's zero Saturdays and Christmas closure; orders without a period
+give 37 Quiet alerts, all on Sunday or Monday, and the line; with `--period 7` there are 4 alerts and no line; and the
+test's guards (dates only, at least 6 alerts, no line when the history has no weekday effect).
+
+Next: revenue's deafness to a slow seasonal climb at Quiet and Middle (a heavy-tailed column; try `--log` and a
+pre-registered bar on a second shop); one-day closures (a `--closed` list of dates treated as missing, pre-registered,
+on a second shop); a deployer's real Stripe series.
+
 ## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other
