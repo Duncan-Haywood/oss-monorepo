@@ -68,7 +68,7 @@ test('page: the donor and covariate boxes, the example button and the counted ru
 
 test('page: the points-seen-coming box backdates the fit, as the CLI\'s --anticipation does', () => {
   const html = read('./index.html');
-  assert.match(html, /<input id="anticipation" type="number" min="0"/);
+  assert.match(html, /<input id="anticipation" type="text" value="0" pattern=/);
   assert.match(html, /anticipation: \$\("#anticipation"\)\.value\.trim\(\) \|\| 0 \}/);
   const h = analyzeJob({ kind: 'one', opts: { csv: PROP99_CSV, column: 'CA' }, synth: { ...synth, anticipation: '1' } }).result.synth;
   assert.equal(h.fitEnd, '1987');
@@ -81,4 +81,15 @@ test('page: the points-seen-coming box backdates the fit, as the CLI\'s --antici
   assert.match(synthHtml(h0), /Points people saw it coming/);
   const bad = analyzeJob({ kind: 'one', opts: { csv: PROP99_CSV, column: 'CA' }, synth: { ...synth, anticipation: '40' } });
   assert.match(bad.result.synthError, /--anticipation 40/);
+});
+
+test('page: a range of leads shows every lead in a table and the range p (README "An uncertain lead")', () => {
+  const h = analyzeJob({ kind: 'one', opts: { csv: PROP99_CSV, column: 'CA' }, synth: { ...synth, covariatesCsv: null, anticipation: '0-1' } }).result.synth;
+  assert.equal(h.leadRange.leads.length, 2);
+  const html = synthHtml(h);
+  assert.match(html, /<table id="synth-leads">/);
+  assert.match(html, /Range test: p 0\.\d{3}\./);
+  assert.doesNotMatch(html, /set &ldquo;Points people saw it coming&rdquo;/);
+  assert.doesNotMatch(html, /@@/);
+  assert.doesNotMatch(synthHtml({ ...h, leadRange: undefined }), /synth-leads/);
 });

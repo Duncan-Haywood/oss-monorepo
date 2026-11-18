@@ -6305,3 +6305,54 @@ before the named date, reads the gap and the placebo test from there, keeps the 
 Without it the CLI and the page print one line on when to use it. **Limits.** One panel shape (N1), step effects and
 step covariate shocks, the lead known exactly. **Next:** a real deployer's panel; a lead that is uncertain (a range of
 backdates reported together without picking the best p).
+
+### An uncertain lead: a range of backdates with one p, `--anticipation 0-4` (2026-11-18, pre-registered; all four bars passed)
+
+"A shock before the date" shipped `--anticipation N` for a lead known exactly and ended "Next: a lead that is
+uncertain (a range of backdates reported together without picking the best p)". `synthLeadRange(y, donors, k, leads)`
+in `synth-control.mjs` fits the synthetic control at every backdate in the range and reads three range statistics,
+each a placebo test that ranks the treated unit's value among all units' values computed the same way, so no lead is
+picked: **max-scaled** (each unit's largest floored statistic over the leads, each lead's divided by its median over
+all units), **mean** (the floored statistic averaged over the leads) and **min-p** (the Westfall-Young permutation
+min-p of the per-lead placebo p's). `eval/synth-lead-range-sim.mjs` (pre-registration
+`eval/synth-lead-range-prereg-2026-11-18.md`, committed after two exploratory runs at bases 81000 and 82000,
+`eval/synth-lead-range-explore.out.txt`, and before the confirmatory run): the anticipation panels (N1, 39 units, 19
+points before the stated date, 12 after), leads 0 to 4. The exploration dropped min-p as a candidate: with 39 units
+p <= 0.05 means rank 1, and some placebo is nearly always rank 1 at one of five leads. Confirmatory, base 83000, 400
+panels a cell (`eval/synth-lead-range-confirm.out.txt`), p <= 0.05 shares:
+
+| cell | stated date | oracle (true lead) | smallest p of 5 | min-p | mean | **max-scaled** | Bonferroni | largest p |
+|---|---|---|---|---|---|---|---|---|
+| A0 nothing | 2.0% | 2.0% | 5.3% | 0.8% | 3.5% | **3.8%** | 0.0% | 0.8% |
+| A4 covariate shock 4 early, no effect | 2.0% | 3.3% | 7.8% | 0.0% | 2.5% | **3.3%** | 0.0% | 0.0% |
+| E0 effect -1 at the date | 59.0% | 59.0% | 64.0% | 36.3% | 53.5% | **53.5%** | 0.0% | 36.3% |
+| E2 effect -1, 2 points early | 34.8% | 56.8% | 66.3% | 26.8% | 50.0% | **54.8%** | 0.0% | 26.8% |
+| E4 effect -1, 4 points early | 27.8% | 59.3% | 64.3% | 23.0% | 48.3% | **55.5%** | 0.0% | 23.0% |
+
+Bars (max-scaled): (1) size at most 10% in A0 and A4: 3.8% and 3.3%, holds. (2) E2 and E4 at least 10 points above the
+stated date: +20.0 and +27.7, holds. (3) E0 at most 15 points below the stated date: -5.5, holds. (4) E2 and E4 within
+10 points of the oracle: -2.0 and -3.8, holds. (5) Reported: keeping the smallest of the five p's raised the
+no-effect share from 2.0% to 5.3% (A0) and 7.8% (A4); the smallest p sat at lead 0 in 41% of A0 panels and at lead 4
+in 20%.
+
+**What it says.**
+- **Not knowing the lead costs little.** Read over leads 0-4, an effect that began 2 or 4 points early was found
+  nearly as often as with the true lead known (55% and 56% against 57% and 59%) and twice as often as at the stated
+  date (35% and 28%). When nothing was anticipated the range cost 5.5 points, less than backdating by a fixed 2 (9.8)
+  or 4 (18.5) did in "A shock before the date".
+- **Trying leads and keeping the smallest p is the trap it replaces.** It found more (64-66%) because it also found
+  more where there was nothing: 5.3% and 7.8% of no-effect panels against 2.0%. Bonferroni over five leads is useless
+  here: with 39 units its smallest possible p is 5/39 = 0.128, so it never reaches 0.05.
+- **Size.** The range test's no-effect share (3.8%) sits above the single-date test's (2.0%) and above the 2.6% a
+  rank-1 cut gives under exact exchangeability, within the sampling error of 400 panels (about 1 point). It is under
+  the 5% people read p 0.05 as.
+- **On Proposition 99** (an illustration, not part of the bars): `--anticipation 0-2` gives California p 0.026 at
+  each lead (gaps from 1989 on -19.5, -19.7, -18.5) and a range p of 0.026.
+
+**Ships.** `node cli.mjs panel.csv --column CA --known-date 1989 --donors all --anticipation 0-4` prints every
+lead's fit end, mean gap from the named date and placebo p in a table, then the max-scaled range p as the one to read,
+with the line that the table's smallest p is not a test (`--json`: `leadRange`). The main fit shown is the range's
+shortest backdate. The page's "Points people saw it coming" box takes the same `a-b` range and shows the table.
+**Limits.** One panel shape (N1), step effects, leads 0-4 only, an effect of one size; a range wider than the lead
+costs power that was not measured beyond 4. **Next:** a real deployer's panel; a range on a series whose donors are
+few (fewer than 20 units).
