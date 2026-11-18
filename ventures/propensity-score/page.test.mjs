@@ -120,5 +120,5 @@ test("robots, sitemap, README, LICENSE, VENTURE.yaml and llms.txt exist", () => 
 
 test("footer links sibling causal and research tools", () => {
   const html = page("index.html");
-  for (const s of ["regression-discontinuity", "difference-in-differences", "synthetic-control", "meta-analysis"]) assert.match(html, new RegExp(`href="\\.\\./${s}/"`));
+  for (const s of ["regression-discontinuity", "difference-in-differences", "synthetic-control", "instrumental-variables", "meta-analysis"]) assert.match(html, new RegExp(`href="\\.\\./${s}/"`));
 });
