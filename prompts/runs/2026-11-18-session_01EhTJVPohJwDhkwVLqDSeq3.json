@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 3,
   "outcome": "success",
@@ -52,7 +52,7 @@
     "ventures/photo-editing/eval/cull-grouping-index-2026-11-18.md"
   ],
   "goal": "Make the cull's burst grouping sub-quadratic without changing a single group.",
-  "notes": "cull._group now builds exact pigeonhole chunk indexes (whole r8, crop windows r6, zoom windows r6, pan windows grouped by a-side window r5) from 500 frames up and runs each pass's unchanged check only on its own candidates. Identical partitions to the all-pairs scan at 500/1,000/2,000/5,000/10,000 frames on the eval corpus; 10.0 to 3.6 s at 2,000, 251 to 42 s at 10,000 (eval/cull-grouping-index-2026-11-18.txt, tools/cull_group_timing.py --compare). A pivot bound was tried first and pruned ~2% (recorded). GroupingIndexTest: 3 tests; two seeded faults both caught. Verification: run_venture_tests.py photo-editing ok (1337 tests, 194 s); mypy clean on cull.py; local ruff (newer than CI's pinned 0.15.8) flags only pre-existing lines; venture-preflight.mjs photo-editing clean. main_health.py at start: 268/268.",
+  "notes": "cull._group now builds exact pigeonhole chunk indexes (whole r8, crop windows r6, zoom windows r6, pan windows grouped by a-side window r5) from 500 frames up and runs each pass's unchanged check only on its own candidates. Identical partitions to the all-pairs scan at 500/1,000/2,000/5,000/10,000 frames on the eval corpus; 10.0 to 3.6 s at 2,000, 251 to 42 s at 10,000 (eval/cull-grouping-index-2026-11-18.txt, tools/cull_group_timing.py --compare). A pivot bound was tried first and pruned ~2% (recorded). GroupingIndexTest: 3 tests; two seeded faults both caught. Verification: run_venture_tests.py photo-editing ok (1337 tests, 194 s); mypy clean on cull.py; local ruff (newer than CI's pinned 0.15.8) flags only pre-existing lines; venture-preflight.mjs photo-editing clean. main_health.py at start: 268/268. CI's changed-ventures job was red on check_hidden_unicode from main (a literal U+FEFF in ventures/conjoint-analysis/engine.mjs, PR #17202); fixed in this PR by writing it as \\uFEFF (conjoint tests pass).",
   "corrections": [],
   "redteam": null
 }
