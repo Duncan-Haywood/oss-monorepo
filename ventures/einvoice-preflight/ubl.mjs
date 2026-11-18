@@ -3,6 +3,7 @@
 // entity declarations are rejected so a dropped file cannot expand entities.
 import { parseDecimal } from "./numbers.mjs";
 import { decodeXmlRefs, unreadableLeaves } from "./xmlvalues.mjs";
+import { normalizeDocumentType } from "./document.mjs";
 
 function localName(tag) {
   const trimmed = tag.replace(/^\/+/, "").split(/[\s>/]/, 1)[0];
@@ -575,7 +576,10 @@ export function parseUblInvoice(source) {
     issue_date: textOf(root, "IssueDate"),
     ...(dueDate ? { due_date: dueDate } : {}),
     source_format: "ubl",
-    document_type: kind.type,
+    // UBL 2.1's EN 16931 binding has no DebitNote document: a debit note (383, or Self-Billing's
+    // 527, self-billed debit note) travels as an Invoice, so the type code says what it is
+    // and INV-034 does not call the pair a mismatch (2026-11-18).
+    document_type: kind.type === "invoice" && normalizeDocumentType(typeCode) === "debit_note" ? "debit_note" : kind.type,
     ...(typeCode ? { document_code: typeCode } : {}),
     ...(original ? { original_invoice: original } : {}),
     ...(reasons.length ? { credit_reason_codes: reasons } : {}),

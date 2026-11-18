@@ -203,15 +203,17 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: Peppol BIS 3.1.0 preview, new findings
-      marked, 1,138/1,138 unit asserts; fontoxpath format-integer padding fixed,
-      ZATCA BR-CO-17/BR-S-09 (eval/peppol-bis-3.1.0-2026-11-18.md); open: a real
-      sender's files through eval/peppol-next-diff.mjs; the browser's official rules
-      read whitespace as Saxon does, 161 of 528 to 0 vs SaxonC-HE, XML-VALUE-01 on
-      160 of 160 Saxon aborts (eval/xml-whitespace-crosscheck-2026-11-17.md);
-      INV-041 endpoint ids as OpenPeppol's PEPPOL-COMMON rules check them, 0 of
-      21,264 off (eval/endpoint-peppol-differential-2026-11-17.md); Peppol's
-      warning-level IT/NL id formats as INV-061 warnings, 0 of 23,999 off
+      History: README and git (latest: Peppol BIS Self-Billing 3.0.2/3.1.0 rules in
+      place of Billing's (eval/peppol-self-billing-2026-11-18.md); Peppol BIS 3.1.0
+      preview, new findings marked, 1,138/1,138 unit asserts; fontoxpath
+      format-integer padding fixed, ZATCA BR-CO-17/BR-S-09
+      (eval/peppol-bis-3.1.0-2026-11-18.md); open: a real sender's files through
+      eval/peppol-next-diff.mjs; the browser's official rules read whitespace as
+      Saxon does, 161 of 528 to 0 vs SaxonC-HE, XML-VALUE-01 on 160 of 160 Saxon
+      aborts (eval/xml-whitespace-crosscheck-2026-11-17.md); INV-041 endpoint ids as
+      OpenPeppol's PEPPOL-COMMON rules check them, 0 of 21,264 off
+      (eval/endpoint-peppol-differential-2026-11-17.md); Peppol's warning-level
+      IT/NL id formats as INV-061 warnings, 0 of 23,999 off
       (eval/endpoint-peppol-warnings-2026-11-17.md); INV-062/063: the same rules on
       PartyIdentification/CompanyID, GlobalID/legal org ID
       (eval/party-id-peppol-differential-2026-11-17.md); France Flux 10 e-reporting,
@@ -231,8 +233,8 @@ flagships:
       OpenPeppol's branch 2026-Q4-QA2 at 90f078a, 1,138/1,138 unit asserts
       (eval/peppol-bis-3.1.0-2026-11-18.md). After 2026-11-23: rebuild peppol-next-*
       from the 3.1.0 tag on master (EINVOICE_PEPPOL_NEXT_BRANCH,
-      build-plain-rules.mjs) and diff; Peppol self-billing 3.1.0 (branch
-      selfbilling-2026-Q4-QA2) the same way if the checker reads self-billing. Every
+      build-plain-rules.mjs) and diff; peppol-sb-next likewise (Self-Billing, branch
+      selfbilling-2026-Q4-QA2; eval/peppol-self-billing-2026-11-18.md). Every
       plain-only set already matches SaxonC on whitespace and CASTABLE
       (eval/datetime-leaves-2026-11-18.md). No network beyond PyPI, Maven and
       GitHub.
