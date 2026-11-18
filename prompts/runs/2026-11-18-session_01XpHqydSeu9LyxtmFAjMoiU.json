@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqydSeu9LyxtmFAjMoiU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T18:37:55Z",
+  "ended": "2026-11-18T18:42:55Z",
+  "wall_minutes": 67.23,
+  "tokens_in": 5680681,
+  "tokens_out": 29349,
+  "cost_usd": 2.6046,
+  "tool_calls": 50,
+  "task": "changepoint-detector flagship: day-of-week repeat cost for the short-returns pass (README 'Short returns' Next)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17388",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "The first eval run used the default 30-min background limit and was killed during confirmation; rerun with a 2 h limit (deterministic seeds; calibration output byte-identical)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Hook rule on pgrep -f also rejects a bracketed pattern if the name appears elsewhere in the command line (e.g. in a file path); used kill -0 <pid> instead."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Long commands: run_in_background defaults to a 30-min limit; a pre-registered eval over 30 min needs an explicit timeout, which cost one 30-min rerun."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "why": "llms.txt and marketing page not touched: the round failed its bar, so nothing user-facing changed.",
+      "did": "Left both as they were.",
+      "result": "No stale claims; the README and post record the negative result."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-changepoint-weekday-cost-short-returns.md",
+    "ventures/changepoint-detector/README.md#short-returns-with-the-day-of-the-week"
+  ],
+  "goal": null,
+  "notes": "Pre-registered round 3 of the update-rate short-returns pass (header cc37d9d05 before any cell ran). Calibration: 'dow' finds 199/200 60-day returns at m 3 but fails the null budget on clumpy Markov nulls (M60 0.020 at m 6); 'dowchain' chosen at m 5 (R60 123). Confirmation: R1 pass (0 false), R3 pass, R2 FAIL 116 < 120. Not offered; JHU real check did not run. Local tests: update-rate-returns-dow/returns/update-rate tests 18 pass; full venture suite via run_venture_tests.py (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a73549e1-2aea-50b2-bdfa-dcfac5856d8a",
+    "transcripts": 1,
+    "first": "2026-11-18T18:37:55Z",
+    "last": "2026-11-18T19:45:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 114,
+        "output": 29349,
+        "thinking": 8124,
+        "cache_read": 5567611,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112956,
+        "api_equivalent_usd": 2.6046,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 114,
+      "output": 29349,
+      "thinking": 8124,
+      "cache_read": 5567611,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112956,
+      "api_equivalent_usd": 2.6046,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 42,
+      "Monitor": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 67.23,
+      "active_minutes": 7.74,
+      "model_minutes": 5.54,
+      "tool_minutes": 2.2,
+      "waiting_on_human_minutes": 59.49,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "designing, pre-registering and running a two-cost simulation round and writing it up, as a statistician would",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 230.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

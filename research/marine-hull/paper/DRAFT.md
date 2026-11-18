@@ -1,6 +1,6 @@
 # Draft: which hull carries a small survey boat furthest per kWh, and how much of the answer is the drag model?
 
-Status: **milestone 7b (section 2.5 updated by 6p; section 2.7 added by 6zzq, extended by 6zzr, 6zzs, 6zzt, 6zzu, 6zzv, 6zzw, 6zzx, 6zzy, 6zzz and 6zzzb): introduction, model and results-table drafted, not submittable.** Every number below is copied from
+Status: **milestone 7b, with the hull-ranking core (sections 1, 2.1 to 2.3, tank checks, threats) set in IEEE format as [`main.tex`](main.tex) by milestone 7s (section 2.5 updated by 6p; section 2.7 added by 6zzq, extended by 6zzr, 6zzs, 6zzt, 6zzu, 6zzv, 6zzw, 6zzx, 6zzy, 6zzz and 6zzzb): introduction, model and results-table drafted, not submittable.** Every number below is copied from
 [`../LOG.md`](../LOG.md) and the `experiments/results_*.txt` file named beside it. Nothing is new
 in this file. Target: OCEANS (IEEE/MTS), 6 to 10 pages. The hull constants are unvalidated against
 tank data (milestone 3 is open), and that gap decides what the paper can claim, as section 5 says.

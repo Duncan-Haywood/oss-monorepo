@@ -1,0 +1,155 @@
+patch check: aware lag39c150 corners [33.0, 39.1, 150.0] ms; training plant lag 39.1-150.0 ms over 4096 draws; rho at x=0.5 1.0297
+
+Milestone 7aa: lever-aware arm trained at 39.1 ms x plant U(1, 3.836) (ceiling 150 ms), certificate at 33, 39.1 and 150 ms; held-out 8 episodes, seed 4242.
+
+== stress (7x's held-out set; dead = L2-45 diverged flights summed over seeds; cap on) ==
+
+[above, aware lag39] D 0.115 m; L 0.119 m; mass 1.375 kg (1.362, 1.387); pos kp 19.86
+   inherited 15 ms D^1.5 (margin 1/2, max rho 1.0001): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.760
+            id 33 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.781
+           mid 36 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.803
+          id 39.1 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   1  | 45_2 [0, 0]; J45_1 median -1.841
+        stress 45 ms D^0 (margin 1/2, max rho 1.0005): 45_1_cap   3; 20_2_cap   3; 45_2_cap   4; 20_3_cap   5  | 45_2 [4, 0]; J45_1 median -9.975
+        stress 52 ms D^0 (margin 1/2, max rho 1.0021): 45_1_cap   4; 20_2_cap   6; 45_2_cap   8; 20_3_cap   9  | 45_2 [5, 3]; J45_1 median -13.594
+        stress 60 ms D^0 (margin 0/2, max rho 1.0041): 45_1_cap  10; 20_2_cap   9; 45_2_cap  10; 20_3_cap  12  | 45_2 [6, 4]; J45_1 median -29.400
+        stress 75 ms D^0 (margin 0/2, max rho 1.0067): 45_1_cap  13; 20_2_cap  14; 45_2_cap  14; 20_3_cap  15  | 45_2 [8, 6]; J45_1 median -38.362
+
+[above, aware lag39c150] D 0.117 m; L 0.126 m; mass 10.361 kg (0.722, 20.000); pos kp 0.18; rejected 0.97 of training candidates
+   inherited 15 ms D^1.5 (margin 2/2, max rho 0.9999): 45_1_cap   7; 20_2_cap   7; 45_2_cap   7; 20_3_cap   8  | 45_2 [0, 7]; J45_1 median -81.497
+            id 33 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap  14; 20_2_cap  15; 45_2_cap  15; 20_3_cap  15  | 45_2 [7, 8]; J45_1 median -79.486
+           mid 36 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap  15; 20_2_cap  14; 45_2_cap  14; 20_3_cap  16  | 45_2 [6, 8]; J45_1 median -76.539
+          id 39.1 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap  16; 20_2_cap  16; 45_2_cap  16; 20_3_cap  16  | 45_2 [8, 8]; J45_1 median -77.579
+        stress 45 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap  16; 20_2_cap  16; 45_2_cap  16; 20_3_cap  16  | 45_2 [8, 8]; J45_1 median -76.298
+        stress 52 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap  16; 20_2_cap  16; 45_2_cap  16; 20_3_cap  16  | 45_2 [8, 8]; J45_1 median -74.505
+        stress 60 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap  16; 20_2_cap  16; 45_2_cap  16; 20_3_cap  16  | 45_2 [8, 8]; J45_1 median -73.842
+        stress 75 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap  16; 20_2_cap  16; 45_2_cap  16; 20_3_cap  16  | 45_2 [8, 8]; J45_1 median -72.009
+
+[above, aware lag60] D 0.113 m; L 0.136 m; mass 1.486 kg (1.483, 1.489); pos kp 21.69
+   inherited 15 ms D^1.5 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.938
+            id 33 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.959
+           mid 36 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.961
+          id 39.1 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.963
+        stress 45 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.968
+        stress 52 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   3  | 45_2 [0, 0]; J45_1 median -1.980
+        stress 60 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   2; 45_2_cap   2; 20_3_cap   3  | 45_2 [2, 0]; J45_1 median -2.052
+        stress 75 ms D^0 (margin 0/2, max rho 1.0010): 45_1_cap   7; 20_2_cap   8; 45_2_cap   8; 20_3_cap  10  | 45_2 [4, 4]; J45_1 median -16.514
+
+[above, aware lag75] D 0.084 m; L 0.135 m; mass 1.448 kg (1.434, 1.463); pos kp 18.95
+   inherited 15 ms D^1.5 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -2.059
+            id 33 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -2.102
+           mid 36 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -2.103
+          id 39.1 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -2.105
+        stress 45 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -2.111
+        stress 52 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -2.122
+        stress 60 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -2.154
+        stress 75 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   2; 45_2_cap   2; 20_3_cap   8  | 45_2 [2, 0]; J45_1 median -2.267
+
+[below, aware lag39] D 0.106 m; L 0.121 m; mass 1.277 kg (1.203, 1.351); pos kp 22.07
+   inherited 15 ms D^1.5 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.709
+            id 33 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.740
+           mid 36 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   1  | 45_2 [0, 0]; J45_1 median -1.751
+          id 39.1 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.768
+        stress 45 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   1; 20_2_cap   4; 45_2_cap   3; 20_3_cap   6  | 45_2 [3, 0]; J45_1 median -3.464
+        stress 52 ms D^0 (margin 0/2, max rho 1.0013): 45_1_cap   6; 20_2_cap   8; 45_2_cap   8; 20_3_cap  10  | 45_2 [4, 4]; J45_1 median -17.698
+        stress 60 ms D^0 (margin 0/2, max rho 1.0028): 45_1_cap   9; 20_2_cap  10; 45_2_cap  11; 20_3_cap  14  | 45_2 [7, 4]; J45_1 median -25.806
+        stress 75 ms D^0 (margin 0/2, max rho 1.0047): 45_1_cap  15; 20_2_cap  16; 45_2_cap  16; 20_3_cap  16  | 45_2 [8, 8]; J45_1 median -42.945
+
+[below, aware lag39c150] D 0.117 m; L 0.126 m; mass 10.361 kg (0.722, 20.000); pos kp 0.18; rejected 0.97 of training candidates
+   inherited 15 ms D^1.5 (margin 2/2, max rho 0.9999): 45_1_cap   6; 20_2_cap   7; 45_2_cap   7; 20_3_cap   8  | 45_2 [1, 6]; J45_1 median -80.198
+            id 33 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap  15; 20_2_cap  15; 45_2_cap  15; 20_3_cap  15  | 45_2 [7, 8]; J45_1 median -82.520
+           mid 36 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap  16; 20_2_cap  16; 45_2_cap  16; 20_3_cap  16  | 45_2 [8, 8]; J45_1 median -80.114
+          id 39.1 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap  16; 20_2_cap  15; 45_2_cap  15; 20_3_cap  16  | 45_2 [7, 8]; J45_1 median -76.466
+        stress 45 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap  16; 20_2_cap  16; 45_2_cap  16; 20_3_cap  16  | 45_2 [8, 8]; J45_1 median -76.039
+        stress 52 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap  16; 20_2_cap  16; 45_2_cap  16; 20_3_cap  16  | 45_2 [8, 8]; J45_1 median -75.427
+        stress 60 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap  16; 20_2_cap  16; 45_2_cap  16; 20_3_cap  16  | 45_2 [8, 8]; J45_1 median -73.256
+        stress 75 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap  16; 20_2_cap  16; 45_2_cap  16; 20_3_cap  16  | 45_2 [8, 8]; J45_1 median -71.695
+
+[below, aware lag60] D 0.115 m; L 0.122 m; mass 1.417 kg (1.462, 1.371); pos kp 17.85
+   inherited 15 ms D^1.5 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.802
+            id 33 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.838
+           mid 36 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.843
+          id 39.1 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.848
+        stress 45 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.861
+        stress 52 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.876
+        stress 60 ms D^0 (margin 2/2, max rho 1.0000): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   5  | 45_2 [0, 0]; J45_1 median -1.919
+        stress 75 ms D^0 (margin 0/2, max rho 1.0009): 45_1_cap   7; 20_2_cap   7; 45_2_cap   8; 20_3_cap  13  | 45_2 [4, 4]; J45_1 median -15.055
+
+[below, aware lag75] D 0.096 m; L 0.146 m; mass 1.421 kg (1.397, 1.445); pos kp 15.60
+   inherited 15 ms D^1.5 (margin 2/2, max rho 0.9999): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.980
+            id 33 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -2.009
+           mid 36 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.998
+          id 39.1 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -1.999
+        stress 45 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -2.008
+        stress 52 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -2.010
+        stress 60 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap   0; 20_2_cap   0; 45_2_cap   0; 20_3_cap   0  | 45_2 [0, 0]; J45_1 median -2.024
+        stress 75 ms D^0 (margin 2/2, max rho 0.9999): 45_1_cap   0; 20_2_cap   1; 45_2_cap   3; 20_3_cap   6  | 45_2 [0, 3]; J45_1 median -2.070
+
+Milestone 7y: lever 1, 45 deg, cap, integrator feed-forward, plant 'wide', 8 episodes, seed 4242; no turbulence, no yaw steps. Per set and geometry: the median over seeds of each design's median over episodes; dead summed.
+
+== step ==
+     id 33 ms D^0 above aware lag39: settle 2.100 s (per seed 2.04, 2.16); rise90 1.712 s; overshoot 4.4 cm; rms 0.353 m; unsettled 0; dead 0
+     id 33 ms D^0 above aware lag39c150: settle nan s (per seed nan, nan); rise90 0.000 s; overshoot 18.4 cm; rms 0.758 m; unsettled 8; dead 8
+     id 33 ms D^0 above aware lag75: settle 2.223 s (per seed 2.00, 2.44); rise90 2.084 s; overshoot 2.8 cm; rms 0.382 m; unsettled 0; dead 0
+     id 33 ms D^0 below aware lag39: settle 1.796 s (per seed nan, 1.80); rise90 1.466 s; overshoot 10.5 cm; rms 0.340 m; unsettled 8; dead 0
+     id 33 ms D^0 below aware lag39c150: settle nan s (per seed nan, nan); rise90 0.000 s; overshoot 18.4 cm; rms 0.758 m; unsettled 8; dead 8
+     id 33 ms D^0 below aware lag75: settle 3.631 s (per seed 4.79, 2.47); rise90 2.036 s; overshoot 5.1 cm; rms 0.382 m; unsettled 0; dead 0
+
+    mid 36 ms D^0 above aware lag39: settle 2.100 s (per seed 2.04, 2.16); rise90 1.712 s; overshoot 4.3 cm; rms 0.353 m; unsettled 0; dead 0
+    mid 36 ms D^0 above aware lag39c150: settle nan s (per seed nan, nan); rise90 0.000 s; overshoot 24.2 cm; rms 0.751 m; unsettled 8; dead 8
+    mid 36 ms D^0 above aware lag75: settle 2.223 s (per seed 2.00, 2.44); rise90 2.084 s; overshoot 2.8 cm; rms 0.382 m; unsettled 0; dead 0
+    mid 36 ms D^0 below aware lag39: settle 1.796 s (per seed nan, 1.80); rise90 1.465 s; overshoot 10.5 cm; rms 0.340 m; unsettled 8; dead 0
+    mid 36 ms D^0 below aware lag39c150: settle nan s (per seed nan, nan); rise90 0.000 s; overshoot 24.2 cm; rms 0.751 m; unsettled 8; dead 8
+    mid 36 ms D^0 below aware lag75: settle 3.630 s (per seed 4.79, 2.47); rise90 2.036 s; overshoot 5.1 cm; rms 0.382 m; unsettled 0; dead 0
+
+   id 39.1 ms D^0 above aware lag39: settle 2.100 s (per seed 2.04, 2.16); rise90 1.711 s; overshoot 4.3 cm; rms 0.353 m; unsettled 0; dead 0
+   id 39.1 ms D^0 above aware lag39c150: settle nan s (per seed nan, nan); rise90 0.000 s; overshoot 18.4 cm; rms 0.763 m; unsettled 8; dead 8
+   id 39.1 ms D^0 above aware lag75: settle 2.223 s (per seed 2.00, 2.44); rise90 2.084 s; overshoot 2.8 cm; rms 0.382 m; unsettled 0; dead 0
+   id 39.1 ms D^0 below aware lag39: settle 1.796 s (per seed nan, 1.80); rise90 1.465 s; overshoot 10.4 cm; rms 0.340 m; unsettled 8; dead 0
+   id 39.1 ms D^0 below aware lag39c150: settle nan s (per seed nan, nan); rise90 0.000 s; overshoot 18.4 cm; rms 0.763 m; unsettled 8; dead 8
+   id 39.1 ms D^0 below aware lag75: settle 3.627 s (per seed 4.78, 2.47); rise90 2.036 s; overshoot 5.1 cm; rms 0.382 m; unsettled 0; dead 0
+
+== wind3 ==
+     id 33 ms D^0 above aware lag39: peak 1.0 cm (per seed 1.0, 0.9); rms 0.6 cm; resid 0.7 cm; dead 0
+     id 33 ms D^0 above aware lag39c150: peak 78.4 cm (per seed 73.2, 83.6); rms 29.8 cm; resid 63.7 cm; dead 8
+     id 33 ms D^0 above aware lag75: peak 1.1 cm (per seed 1.0, 1.3); rms 0.7 cm; resid 0.7 cm; dead 0
+     id 33 ms D^0 below aware lag39: peak 0.8 cm (per seed 0.8, 0.8); rms 0.5 cm; resid 0.5 cm; dead 0
+     id 33 ms D^0 below aware lag39c150: peak 73.7 cm (per seed 71.0, 76.4); rms 27.5 cm; resid 61.6 cm; dead 8
+     id 33 ms D^0 below aware lag75: peak 0.8 cm (per seed 0.7, 0.9); rms 0.4 cm; resid 0.5 cm; dead 0
+
+    mid 36 ms D^0 above aware lag39: peak 1.0 cm (per seed 1.0, 0.9); rms 0.6 cm; resid 0.7 cm; dead 0
+    mid 36 ms D^0 above aware lag39c150: peak 66.0 cm (per seed 78.1, 54.0); rms 26.8 cm; resid 68.7 cm; dead 8
+    mid 36 ms D^0 above aware lag75: peak 1.1 cm (per seed 1.0, 1.3); rms 0.7 cm; resid 0.7 cm; dead 0
+    mid 36 ms D^0 below aware lag39: peak 0.8 cm (per seed 0.8, 0.8); rms 0.5 cm; resid 0.5 cm; dead 0
+    mid 36 ms D^0 below aware lag39c150: peak 57.0 cm (per seed 61.0, 53.0); rms 23.4 cm; resid 52.6 cm; dead 8
+    mid 36 ms D^0 below aware lag75: peak 0.8 cm (per seed 0.7, 0.9); rms 0.4 cm; resid 0.5 cm; dead 0
+
+   id 39.1 ms D^0 above aware lag39: peak 0.9 cm (per seed 1.0, 0.9); rms 0.6 cm; resid 0.7 cm; dead 0
+   id 39.1 ms D^0 above aware lag39c150: peak 63.5 cm (per seed 72.8, 54.3); rms 26.4 cm; resid 62.4 cm; dead 8
+   id 39.1 ms D^0 above aware lag75: peak 1.1 cm (per seed 1.0, 1.3); rms 0.7 cm; resid 0.7 cm; dead 0
+   id 39.1 ms D^0 below aware lag39: peak 0.8 cm (per seed 0.8, 0.8); rms 0.5 cm; resid 0.5 cm; dead 0
+   id 39.1 ms D^0 below aware lag39c150: peak 65.6 cm (per seed 73.5, 57.7); rms 26.0 cm; resid 63.3 cm; dead 8
+   id 39.1 ms D^0 below aware lag75: peak 0.8 cm (per seed 0.7, 0.9); rms 0.4 cm; resid 0.5 cm; dead 0
+
+== wind6 ==
+     id 33 ms D^0 above aware lag39: peak 2.5 cm (per seed 2.9, 2.2); rms 1.9 cm; resid 2.3 cm; dead 0
+     id 33 ms D^0 above aware lag39c150: peak 197.4 cm (per seed 302.0, 92.8); rms 88.5 cm; resid 263.5 cm; dead 9
+     id 33 ms D^0 above aware lag75: peak 2.9 cm (per seed 2.4, 3.5); rms 2.2 cm; resid 2.4 cm; dead 0
+     id 33 ms D^0 below aware lag39: peak 1.9 cm (per seed 2.0, 1.9); rms 1.3 cm; resid 1.4 cm; dead 0
+     id 33 ms D^0 below aware lag39c150: peak 171.9 cm (per seed 271.6, 72.3); rms 80.1 cm; resid 243.3 cm; dead 10
+     id 33 ms D^0 below aware lag75: peak 2.0 cm (per seed 1.7, 2.3); rms 1.4 cm; resid 1.7 cm; dead 0
+
+    mid 36 ms D^0 above aware lag39: peak 2.5 cm (per seed 2.9, 2.2); rms 1.9 cm; resid 2.3 cm; dead 0
+    mid 36 ms D^0 above aware lag39c150: peak 180.6 cm (per seed 308.3, 52.8); rms 87.0 cm; resid 278.4 cm; dead 10
+    mid 36 ms D^0 above aware lag75: peak 2.9 cm (per seed 2.4, 3.5); rms 2.2 cm; resid 2.4 cm; dead 0
+    mid 36 ms D^0 below aware lag39: peak 1.9 cm (per seed 2.0, 1.9); rms 1.3 cm; resid 1.4 cm; dead 0
+    mid 36 ms D^0 below aware lag39c150: peak 152.6 cm (per seed 247.8, 57.4); rms 69.7 cm; resid 215.2 cm; dead 11
+    mid 36 ms D^0 below aware lag75: peak 2.0 cm (per seed 1.7, 2.3); rms 1.3 cm; resid 1.7 cm; dead 0
+
+   id 39.1 ms D^0 above aware lag39: peak 2.5 cm (per seed 2.9, 2.2); rms 1.9 cm; resid 2.3 cm; dead 0
+   id 39.1 ms D^0 above aware lag39c150: peak 186.1 cm (per seed 318.2, 54.0); rms 81.2 cm; resid 258.3 cm; dead 11
+   id 39.1 ms D^0 above aware lag75: peak 2.9 cm (per seed 2.4, 3.5); rms 2.2 cm; resid 2.4 cm; dead 0
+   id 39.1 ms D^0 below aware lag39: peak 1.9 cm (per seed 2.0, 1.9); rms 1.3 cm; resid 1.4 cm; dead 0
+   id 39.1 ms D^0 below aware lag39c150: peak 172.1 cm (per seed 280.1, 64.1); rms 79.6 cm; resid 248.5 cm; dead 9
+   id 39.1 ms D^0 below aware lag75: peak 2.0 cm (per seed 1.7, 2.3); rms 1.3 cm; resid 1.7 cm; dead 0
+
+wall time 188 s (training 12 s, stress 145 s)

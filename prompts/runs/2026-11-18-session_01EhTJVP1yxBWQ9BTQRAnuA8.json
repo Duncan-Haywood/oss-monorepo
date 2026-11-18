@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVP1yxBWQ9BTQRAnuA8",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T19:18:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/cell-fidelity milestone 5zy: held-out test of node-gain profiles on a fresh 32-design DFN pool",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": 17392,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "Ai2020 j=30 DFN run killed for memory with 3 workers; finished on a single-worker retry",
+    "rounding bench.jsonl to 7 significant digits moved Chen2020 medians by up to 0.6 points; re-ran the bench at full precision (reproduced the first report exactly) and committed that"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/cell-fidelity/experiments/average/run.py",
+      "issue": "uses Python 3.12-only nested-quote f-strings, so tests/test_average.py and tests/test_location.py fail to import on the container's python3.11; unrelated to this run, left alone"
+    },
+    {
+      "file": "research/cell-fidelity/experiments/depth/run.py",
+      "issue": "5zk rounded its committed bench.jsonl to 7 significant digits; steps that difference cumulative totals are sensitive to that rounding (found in 5zy)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "the CHAIN note suggested a paper section after 50 sub-steps; took instead the held-out DFN test that 5zx named as its next step, since PyBaMM installed from PyPI here and a held-out test was what every 5zv-5zx result lacked",
+      "did": "ran 32 fresh DFN designs",
+      "result": "the in-sample gains replicate partly out of sample; the pre-registered gate under-fired"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-a-battery-forecast-trick-on-designs-it-never-saw.md"
+  ],
+  "goal": null,
+  "notes": "PyBaMM 26.10.1.1 installed into a venv from PyPI (about 2 min). Bench 32 DFN runs about 5 min on 3 workers, re-run on 2 workers at full precision, identical report. Checks: tests/test_freshnode.py 6 pass; full cell-fidelity suite 342 pass under the venv with pytest, 2 pre-existing import errors from Python 3.12-only syntax in experiments/average/run.py; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; check_posts ok.",
+  "corrections": [],
+  "redteam": null
+}

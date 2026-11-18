@@ -3061,3 +3061,57 @@ from that model, and a real ESC's step response may bend it differently. Next: a
 the take survey's pick between its contact times has the same lean.
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/esc_survey_spline.py --score eval/esc-survey-spline-heldout-rows-2026-11-18.jsonl.gz
+
+## The take survey's pick between contact times (2026-11-18, after "The ESC-lag survey's pick between grid lags"; the parabola kept by its pre-registered rule)
+
+**The item.** The section above found that the ESC-lag survey's three-point parabola read a lopsided V-shaped residual
+curve off its least, and shipped a natural cubic spline. The take survey (`ResidualSurvey.report`) still draws the
+parabola through its least sum and two neighbours on the grid 0, 2, 3, 4, 5, 6 and 8 ms. Does it lean the same way?
+No stored take capture could say: every one had its true take on a grid point (0, 3, 4 and 6 ms).
+
+**How it was checked.** `tests/take_survey_pick.py` captures survey drills (the calibration drill with SURVEY_TAKE on,
+the board's grid, depth, window, trim and blind rule) with half-sine takes between grid points (1, 2.5, 3.5, 4.5, 5.5
+and 7 ms), with 3 and 6 ms on the grid as a check, and with an instant take. Each runs on the MCPWM capture tach at
+1/8 us and on the board's default jittery tach at 0.5 us, for each of the three launchers. It keeps every surveyed
+wheel's periods and ticks and refits each wheel offline every 0.25 ms from 0 to 8 ms with the board's own fit. The
+"dense least" is the candidate whose sum over the wheels the board kept is least: where the survey's own residual
+curve bottoms out. The picks come from the board's seven grid sums.
+
+**What it found.** Between interior grid points the pick barely leans. The fit itself reads high:
+
+| off-grid takes (18 a tach) | dense least - true | parabola - dense least | spline - dense least | within 0.5 ms of true: dense / parabola / spline |
+| --- | --- | --- | --- | --- |
+| design (lag 0.45 s, seed 29), capture | +0.38 ms | -0.13 | +0.01 | 16 / 12 / 11 |
+| design, jittery 0.5 us | +0.78 | -0.28 | -0.21 | 13 / 9 / 9 |
+| held out (lag 0.6 s, seed 31), capture | +0.31 | -0.22 | -0.10 | 18 / 12 / 11 |
+| held out, jittery 0.5 us | +0.21 | -0.14 | -0.03 | 17 / 12 / 11 |
+
+The spline follows the residual curve's own least more closely, as it did for the ESC lag. But the take fit's least
+sits 0.2-0.4 ms above the true take: four parts stand in for the simulator's continuous half-sine (section "Take-blind
+rows traced"). The parabola's small low lean happens to offset that, so the spline is no closer to the truth. Seven
+grids of seven to nine points were scored offline from the same dense refits (`--grids`). On the Pi's own test (the
+pick rounded to 0.5 ms, within 1 ms) every grid scored 46-47 of 53 on the design set, and none advised an instant build.
+
+The larger error is at the grid's ends. Every 7 ms take read 8.0 on both sets: the least grid sum is at 8, and there
+is no candidate above 8 to refine against. At 1 ms, 11 of 12 builds read 0. There the step candidate wins, and the
+share sits at 1.00, so no contact time is advised. Both errors are exactly 1 ms, the edge of the Pi's tolerance.
+
+**Held out.** The prediction and decision rule were committed before the capture ran (commit 759ce4dea, in
+`tests/take_survey_pick.py`'s docstring). The prediction held on all three clauses:
+(a) on the capture tach the spline sat -0.10 ms from the dense least (predicted within +-0.15), with the parabola
+below it at -0.22; (b) the dense least read high on both tachs; (c) the spline was within 1 ms of the true take on 53
+builds of 54 and the parabola on 54. By the rule (the spline needs more within 1 ms) the parabola stays. The nine-point
+grid (0 to 8 ms by 1) against the shipped one, both with the parabola: within 1 ms 53 against 54, so it fails the
+rule's first clause and the shipped grid stays. It did name and advise 37 of 48 spread takes against 35, and put 52
+within 0.5 ms against 41; a tighter tolerance than the Pi's would choose differently (eval/take-survey-pick-2026-11-18.md).
+
+**What shipped.** No firmware change. The Pi's advice now treats the grid's last contact time as the ESC-lag advice
+treats its last lag. When the survey picks 8 ms, `host.take_survey_advice` says the contact lasts about 7 ms or
+longer and that the survey cannot name it more closely, and still sets `TAKE_US = 8000` (`tests/test_host.py`).
+
+**Not known.** All simulated, one seed per set, an assumed half-sine profile. The fit's 0.2-0.4 ms high reading is
+consistent across sets, but nothing here shows that it carries to a real ball. Next: whether a take model with more
+parts, or a continuous one, removes that reading. Without that, a finer grid only sharpens a biased least.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-survey-pick-heldout-rows-2026-11-18.jsonl.gz
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-survey-pick-heldout-rows-2026-11-18.jsonl.gz --grids "0,2,3,4,5,6,8;0,1,2,3,4,5,6,7,8"

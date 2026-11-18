@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-18 · Milestone 11 paper step: draft v0 of the altitude-layer paper (11ah to 11an; no new simulation)
+- Why: pick_track flagged 40 sub-steps of milestone 11 and 48 LOG entries since a paper step; 11ah to 11an answer one question (how far apart should delivery-drone layers be, and which altitude error sets it) that had no write-up beyond the LOG.
+- What: `paper/airspace_layers.md`, a second paper draft (abstract, model, a question table, results by milestone, a planner's rules, limitations, a before-submission list); `paper/check_airspace_numbers.py` checks 62 quoted numbers against the `experiments/hub_airspace/*_results.txt` files and that each appears in the draft (62 of 62 pass); `paper/airspace_figures.py` draws Figure A1 (median F/F_1 against band count, 11ai post hoc) and Figure A2 (the sourced error terms of 11ak to 11an) as stdlib SVG from those files; `tests/test_airspace_paper.py` runs both (2 tests).
+- Synthesis, not a new result: at Z = 25 ft the chosen stack is 5 bands at 13.33 m whenever the differential error is near 1 m, which is what every sourced error model since 11ak gave once the error between two drones (not each drone's drift) is used; the planning rule h - Z >= 3 sigma_gap reproduces the search's choice across 11ai's sweep (2.2 to 4.9 sd).
+- Citations: Doole et al. (DICUAM 2021), Reich (1966) and ICAO Doc 9574 are cited as unopened and listed under "Before submission"; Crossref and OpenAlex were refused from this session (403), so no new DOI was checked. PX4 (Meier et al. 2015) and ISD (Smith et al. 2011) were checked on 2026-11-18 (`cite_check.json`).
+- Next: open the layered-airspace and UTM vertical-spacing literature before any novelty claim goes out; the open data steps in 11an's "Next" (barometric-referenced fleets with RTK logged, a dense pressure network, a second city, BlueSky with resolution).
+
 ## 2026-11-18 · Tooling: 11ai's inputs are committed (`experiments/hub_airspace/leak_inputs.json.gz`)
 - Why: every milestone since 11ai (11aj to 11an) rebuilt the same 48-layout cache first, 1 h 20 min to 2 h 20 min on 4 cores each time (this log; run-record friction 2026-11-17 and 2026-11-18).
 - What: `leak_inputs.py` writes the cache as gzipped JSON with exact floats (466 KB; round trip checked bit for bit), and `level_leak_run.build()` seeds itself from it, so `LEAK_CACHE=leak.pkl python3 level_leak_run.py --build` takes 0.15 s. `LEAK_REBUILD=1` recomputes; `leak_inputs.py --verify N` rebuilds a seeded sample and compares.

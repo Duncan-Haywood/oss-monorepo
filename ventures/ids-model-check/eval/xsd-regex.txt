@@ -1,0 +1,20 @@
+seed 20261118, 3000 random patterns; truth: elementpath translate_pattern as IfcTester calls it
+repair: 10 patterns, same verdict 10, same verdict and every probe answer 10 (610 probe strings on valid ones); originals JavaScript cannot read, compared with elementpath only: ["^Ambienti|Servizi|Terziario|Parti comuni${1}"]
+corpus: 78 patterns, same verdict 78, same verdict and every probe answer 77 (2920 probe strings on valid ones)
+random: 3000 patterns, same verdict 2933, same verdict and every probe answer 2902 (48920 probe strings on valid ones)
+disagreements by cause: {"elementpath: bare \\w/\\W read as Python's \\w":32,"elementpath: a range from a multi-character escape":67}
+
+corpus: 78 distinct patterns in 123 files
+{"p":"[Name","files":1,"xsd":"\"[\" is not closed with \"]\"","notes":"","fix":null,"oldDiffers":false,"where":"InvalidIfcEntityPattern.ids"}
+{"p":"^Ambienti|Servizi|Terziario|Parti comuni${1}","files":1,"xsd":"valid","notes":"pattern-anchor","fix":"Ambienti|Servizi|Terziario|Parti comuni${1}","oldDiffers":null,"where":"Issue 08 - Regex pattern.ids"}
+{"p":"[Some","files":1,"xsd":"\"[\" is not closed with \"]\"","notes":"","fix":null,"oldDiffers":false,"where":"Issue 08 - Regex pattern.ids"}
+{"p":"^\\d{2}\\.\\d{2}\\.\\d{3}$","files":1,"xsd":"valid","notes":"pattern-anchor","fix":"\\d{2}\\.\\d{2}\\.\\d{3}","oldDiffers":true,"where":"IDS - TEST for Architectural Requriements.ids"}
+{"p":"^(?:10\\.1 - Soverom|10\\.2 - Hybel|10\\.3 - Internat|11\\.0 - Oppholds...","files":1,"xsd":"\"(?\" (a non-capturing group, lookaround or flag) is not XSD; write a plain \"(...)\"","notes":"pattern-anchor","fix":"(10\\.1 - Soverom|10\\.2 - Hybel|10\\.3 - Internat...","oldDiffers":false,"where":"IDS - TEST for Architectural Requriements.ids"}
+{"p":"^(?:123 - UU-toalett|211 - Kontor|221 - Verksted|241 - Spiserom|251...","files":1,"xsd":"\"(?\" (a non-capturing group, lookaround or flag) is not XSD; write a plain \"(...)\"","notes":"pattern-anchor","fix":"(123 - UU-toalett|211 - Kontor|221 - Verksted|2...","oldDiffers":false,"where":"IDS - TEST for Architectural Requriements.ids"}
+{"p":"^IFC.*SYSTEM","files":1,"xsd":"valid","notes":"pattern-anchor","fix":"IFC.*SYSTEM","oldDiffers":true,"where":"IDS - TEST for Mechanical Requirements.ids"}
+{"p":"^2[ab]","files":2,"xsd":"valid","notes":"pattern-anchor","fix":"2[ab]","oldDiffers":true,"where":"BIM2SIM__bim2sim-test-resources__ids_check_2LSB.ids; BIM2SIM__bim2sim__bim2sim_plugins_PluginIFCCheck_bim2sim_ifccheck_ifc_bps.ids"}
+{"p":"^did:web:[a-zA-Z0-9.-]+:id:01:[0-9]{8,14}(:10:[a-zA-Z0-9]{1,20})?(:...","files":1,"xsd":"valid","notes":"pattern-anchor","fix":"did:web:[a-zA-Z0-9.-]+:id:01:[0-9]{8,14}(:10:[a...","oldDiffers":true,"where":"Blue-Room-Innovation__digital-nexus-ontology__BIM_Casa Martirana.ids"}
+{"p":"[^n].*|n([^/].*)?|n\\/([^a].*)?|n\\/a.+","files":1,"xsd":"valid","notes":"pattern-escape","fix":"[^n].*|n([^/].*)?|n/([^a].*)?|n/a.+","oldDiffers":false,"where":"DFE-EducationEstates__InformationModelAssurance__Grouped_Stage_5_5_08_17-18-Object.ids"}
+{"p":"20\\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])(?:T(?:[01][0-9...","files":1,"xsd":"\"(?\" (a non-capturing group, lookaround or flag) is not XSD; write a plain \"(...)\"","notes":"","fix":"20\\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]...","oldDiffers":false,"where":"DFE-EducationEstates__InformationModelAssurance__Grouped_Stage_5_5_08_17-18-Object.ids"}
+{"p":"\\w+","files":16,"xsd":"valid","notes":"pattern-word-class","fix":null,"oldDiffers":true,"where":"fail-a_classification_facet_with_no_data_matches_any_classification_1_2.ids; fail-a_prohibited_facet_returns_the_opposite_of_a_required_facet.ids"}
+{"p":"(-|[0-9]{2,3})\\/(-|[0-9]{2,3})\\/(-|[0-9]{2,3})","files":1,"xsd":"valid","notes":"pattern-escape","fix":"(-|[0-9]{2,3})/(-|[0-9]{2,3})/(-|[0-9]{2,3})","oldDiffers":false,"where":"fail-properties_can_be_associated_to_relevant_object_types.ids"}
