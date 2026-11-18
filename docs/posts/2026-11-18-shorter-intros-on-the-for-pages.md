@@ -3,7 +3,7 @@ title: "Shorter intros put the tools on the first screen"
 seo_title: "Audience pages: cutting 85-word intros so the tools show on a phone"
 date: 2026-11-18
 tags: [polish, platform]
-description: "Four of the site's 31 'for' pages opened with intros of 66 to 85 words that listed every tool. On a phone, the first tool started below the screen. Cutting them to 42 to 50 words fixed it."
+description: "Four audience pages opened with 66 to 85-word intros that listed every tool, pushing the tools below a phone screen. Shorter intros fixed it."
 ---
 
 The site's "for" pages group tools by who uses them: roofers, Etsy sellers, landlords and,
