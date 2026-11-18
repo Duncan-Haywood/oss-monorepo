@@ -108,3 +108,47 @@ test("a done marker of \"false\" or \"no\" is not done", () => {
   for (const v of ["false", "no", "0", ""]) assert.equal(run({ epr: v }).timeline.find((t) => t.id === "epr").done, false, v);
   assert.equal(run({ epr: "1" }).timeline.find((t) => t.id === "epr").done, true);
 });
+
+// 2026-11-17 quality audit, defects 0, 2, 3, 5, 6 (portfolio/quality/audits/2026-11-17-eu-packaging-regulation-checker.json).
+test("reuse targets reach e-commerce packaging and the online sellers and fulfilment providers who use it", () => {
+  const r = run({});
+  const reuse = r.timeline.find((t) => t.id === "reuse");
+  assert.ok(reuse, "the worked example (non-EU seller, plastic mailers) carries the reuse duty");
+  assert.equal(reuse.from, "2030-01-01");
+  assert.match(reuse.label, /40 percent/);
+  assert.match(reuse.label, /10 percent of grouped/);
+  assert.ok(ids(run({ role: "fulfilment", location: "eu" })).includes("reuse"));
+  assert.ok(ids(run({ category: "transport", material: "wood", role: "distributor", location: "eu" })).includes("reuse"));
+});
+
+test("cardboard boxes are outside the reuse targets", () => {
+  assert.ok(!ids(run({ category: "transport", material: "paper", role: "producer", location: "eu" })).includes("reuse"));
+  assert.ok(!ids(run({ category: "ecommerce", material: "paper" })).includes("reuse"));
+});
+
+test("deposit return covers plastic bottles and metal cans, not glass", () => {
+  const b = { category: "beverage", role: "producer", location: "eu" };
+  assert.ok(ids(run({ ...b, material: "metal" })).includes("drs"));
+  assert.ok(!ids(run({ ...b, material: "glass" })).includes("drs"));
+  assert.ok(!ids(run({ ...b, material: "paper" })).includes("drs"));
+});
+
+test("label, recycled-content and empty-space dates move with the Commission act", () => {
+  const r = run({ role: "producer", location: "eu", today: "2030-06-01" });
+  const by = Object.fromEntries(r.timeline.map((t) => [t.id, t]));
+  for (const id of ["label", "recycled", "emptyspace"]) {
+    assert.equal(by[id].state, "pending", id);
+    assert.ok(by[id].laterOf, id);
+  }
+  assert.equal(by.recyclable.state, "applies");
+  assert.ok(r.findings.some((f) => f.title.includes("Check whether the act is in force")));
+  assert.match(summaryText(r), /date set by a Commission act/);
+});
+
+test("unknown option values are rejected; blank takes the default", () => {
+  assert.ok(run({ micro: "maybe" }).errors.some((e) => e.includes("Microenterprise")));
+  assert.ok(run({ sellsEu: "perhaps" }).errors.some((e) => e.includes("Sells")));
+  assert.ok(run({ euOperator: "x" }).errors.some((e) => e.includes("operator")));
+  assert.ok(!run({ micro: "" }).errors);
+  assert.ok(run({ epr: "false" }).open.some((t) => t.id === "epr"));
+});
