@@ -13,6 +13,17 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
 revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
 
+**Milestone 3q headline** (after the rolling-shutter term, is TUM's leftover focal error a bias or scatter? 53 real windows,
+no new solves, scored against three calibrations of the same cameras): **scatter, not bias, on the Kinect.** The windows' median
+focal length (524.1 px on fr1/desk, 517.9 on fr1/xyz) sits inside the 1.6% that the board, the dataset authors' published
+calibration and a target-free anchor disagree by, while single windows scatter by a robust 2&ndash;6%. Where a window lands tracks
+its own k<sub>1</sub> (Spearman +0.58 on the Kinect, +0.44 to +0.72 within each sequence) and its principal point (+0.42), much
+more than its solver sd (+0.29), and a k<sub>1</sub> correction learned on one session helps the other in only one direction
+(ratio 0.54 one way, 1.66 the other). The Xtion's median stays 1.3&ndash;2.5% high against every reference. Four of seven
+predictions held. [Log](LOG.md).
+
+![TUM windows after the shutter term: focal length per window against three references, and focal error against the window's k1](experiments/m3q_residual/residual.png)
+
 **Milestone 3p headline** (what is left of TUM's focal error after the rolling-shutter term: the camera's translation, or a
 timing offset? the real TUM RGB-D video, 53 windows, with the motion-capture linear velocity entered as a known input and the
 mocap&ndash;camera offset free): **neither moves the focal length, but the offset is real.** The true velocity fits the images
@@ -1194,6 +1205,12 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3q: on the Kinect the leftover error is window-to-window scatter along the f&ndash;k<sub>1</sub>&ndash;principal-point
+ridge, inside the references' own 1.6% disagreement; the Xtion keeps a 1.3&ndash;2.5% high median. Next: a prior on k<sub>1</sub> and
+the principal point drawn from the camera's earlier windows (not a fixed board value, which milestones 3f&ndash;3j showed hurts) to
+see whether it narrows the scatter; a second board calibration of the Xtion to tell whether its high median is the window or the
+reference; longer windows (2&ndash;4 s).
 
 After milestone 3p: on TUM the mocap velocity fits but does not move f, and the mocap&ndash;image offset is about +5 ms on both
 cameras whether or not the velocity is modelled; freeing it moves f about 0.5% either way. The 1.9&ndash;4.0% left after the shutter

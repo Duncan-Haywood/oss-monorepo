@@ -92,7 +92,7 @@
 
   <section class="card" id="drills">
     <h2>Drill builder: plan a session and export it to the machine</h2>
-    <p>Tap the court to add balls, set each one's speed, spin and pause, and the builder checks every ball against the machine: the head's range (−15° to 45° up, ±30° across), the wheels' 500–7,000 rpm window and the net. It also estimates how long the machine needs between balls (the shuttle, turning, tilting and the wheels changing speed), so you can see which pauses it may not keep. Save the drill as <code>drill.json</code> and run it with <code>tennisbots run drill.json</code> on the feeder's Raspberry Pi.</p>
+    <p>Tap the court to add balls, set each one's speed, spin and pause, and the builder checks every ball against the machine: the head's range (−15° to 45° up, ±30° across), the wheels' 500–7,000 rpm window and the net. It also estimates how long the machine needs between balls (the shuttle, turning, tilting and the wheels changing speed), so you can see which pauses it may not keep. Save the drill as <code>drill.json</code> and run it with <code>tennisbots run drill.json</code> on the feeder's Raspberry Pi, or run <code>tennisbots serve</code> there once and send drills straight to it from this page.</p>
     <div class="grid">
       <div><label for="dpreset">Start from</label><select id="dpreset"></select></div>
       <div><label for="dmy">Machine position, m left of centre</label><input id="dmy" type="number" step="0.1" min="-4" max="4" value="0"></div>
@@ -113,6 +113,11 @@
     <button class="secondary" id="dcopy">Copy share link</button>
     <button class="secondary" id="dclear">Clear</button>
     <label for="dfile">Open a drill.json</label><input id="dfile" type="file" accept="application/json,.json">
+    <div class="grid" id="dsendrow">
+      <div><label for="dpi">Your machine's address (where <code>tennisbots serve</code> runs on its Pi)</label><input id="dpi" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="raspberrypi.local:8080"></div>
+    </div>
+    <button class="secondary" id="dsend">Send to my machine</button>
+    <p class="note">"Send to my machine" opens your Pi's own page with this drill in the link (<code>http://your-pi:8080/#drill=...</code>): it is checked again by the runner's planner there, and you start it with the key the Pi printed. The drill goes from your browser to your machine on your own network; nothing passes through this site. A page served over HTTPS cannot call a plain-HTTP address at home directly, which is why it opens the Pi's page instead. The physical e-stop is the safety stop.</p>
     <p class="note">The pause counts from one ball leaving to the next feed, as <code>tennisbots run</code> does; the machine never feeds early, so a pause it cannot keep just runs late. The timing is an estimate from the firmware's own limits, checked on the project's simulated feeder (within 0.3 s on 25 of 42 random gaps, at most 0.34 s short, often up to 0.65 s long), not on a built machine. Your drill stays in this page and in the link you copy; nothing is uploaded.</p>
   </section>
 
@@ -206,7 +211,7 @@
   <script type="module">
     import { aim, defaultOrigin, wheelRpm, RPM, COURT, collectRoute } from "./sim.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
-    import { PRESETS, parseDrill, planDrill, drillSummary, drillJson, encodeDrill, decodeDrill } from "./drill.mjs";
+    import { PRESETS, parseDrill, planDrill, drillSummary, drillJson, encodeDrill, decodeDrill, piDrillUrl } from "./drill.mjs";
 
     const NS = "http://www.w3.org/2000/svg";
     const $ = (id) => document.getElementById(id);
@@ -420,6 +425,17 @@
       setTimeout(() => { $("dcopy").textContent = "Copy share link"; }, 2500);
       record("drill_shared");
     });
+    {
+      const KEYPI = "open-tennis-robots-pi";
+      try { $("dpi").value = localStorage.getItem(KEYPI) || ""; } catch { /* storage blocked: type it each time */ }
+      $("dsend").addEventListener("click", () => {
+        const url = piDrillUrl($("dpi").value || $("dpi").placeholder, encodeDrill(drill));
+        if (!url) { $("dsummary").innerHTML = `<p class="warn">Type your Pi's address, such as raspberrypi.local:8080 or 192.168.1.20:8080.</p>`; return; }
+        try { localStorage.setItem(KEYPI, $("dpi").value.trim()); } catch { /* not remembered */ }
+        record("drill_sent");
+        window.open(url, "_blank", "noopener");
+      });
+    }
     $("dfile").addEventListener("change", () => {
       const f = $("dfile").files[0];
       if (!f) return;

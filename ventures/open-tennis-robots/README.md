@@ -123,6 +123,9 @@ tennisbots collect --balls 60 --practice
 # On the feeder's Raspberry Pi: run a drill on the machine over its serial port
 pip install "tennisbots[serial]"   # or pip install pyserial
 tennisbots run drill.example.json --port /dev/ttyAMA0
+
+# ...or serve a page on the Pi and send drills to it from the drill builder on a phone
+tennisbots serve --port /dev/ttyAMA0     # prints the page's address and the key that starts a drill
 ```
 
 Coordinates are metres. The origin is the centre of the net, x points
@@ -211,6 +214,44 @@ the ball hits the net; just above, it lands past the target), so a short, fast
 shot across the court from an offset machine (for example 1 m past the net at
 65-80 km/h from 4 m left) showed "Cannot read properties of undefined". It now
 gives `launcher.aim`'s message, and `sim.test.mjs` checks three such shots.
+
+## Running a drill from the page (2026-11-18)
+
+`tennisbots serve` (`src/tennisbots/remote.py`) runs a small web server on the feeder's
+Pi (Python's standard library, nothing to install past pyserial). The drill builder's
+**Send to my machine** button opens that server's page with the drill in the link's
+fragment (`http://raspberrypi.local:8080/#drill=...`, the same code as a share link).
+A page served over HTTPS cannot call a plain-HTTP address on a home network, so the
+builder hands the drill over by opening the Pi's own page rather than calling it, and
+the drill never touches this site's server.
+
+The Pi's page re-checks the drill with `host.plan_drill` (the runner's own planner) and
+shows each ball's aim and wheel speeds, then runs it with `host.run_drill` on a thread:
+the same aim, settle, feed and release-confirm loop as `tennisbots run`, the same aborts,
+the same calibration-drill hold and shot log (`--shot-log`). It shows a live runner log
+and the result, including the ESC-lag and contact-time survey advice.
+
+- **Stop needs nothing.** Anyone who can open the page can stop the machine. Stop makes
+  the runner's next tick raise its abort, so it sends `ESTOP` (wheels halted, a queued ball
+  dropped). The stop stays latched; **Clear stop** sends `CLEAR_ESTOP`, which the firmware
+  refuses while the physical e-stop or the fob is down, and the page says so.
+- **Start needs a key.** The server makes a random key at start-up and prints it on the
+  Pi's terminal; the page asks for it once. `--no-key` turns that off for a bench with
+  nobody else on the network.
+- **Other web pages cannot drive it.** POSTs must be `application/json` (a cross-site page
+  cannot send that without a CORS pre-flight, which the server never grants), an `Origin`
+  must be the server's own, and the `Host` must be an IP address, `localhost`, a `.local`
+  name or one given with `--allow-host` (which stops DNS rebinding). The page has a strict
+  content security policy.
+
+Tested against the firmware on the simulated feeder (`tests/test_remote.py`, 9 tests): a
+page drill runs clean (4 of 4 balls); Stop after the first ball sends `ESTOP`, no queued
+ball leaves in the next 3 s, Clear is refused with the button held and accepted after,
+and the drill then runs again; a silent board aborts with "no telemetry"; and over real
+HTTP, a missing or wrong key (401), `text/plain` (415), a foreign `Origin` (403) and a
+foreign `Host` (421) each start nothing, while Stop works without the key. Checked in a
+browser against that simulated feeder at phone width. Not yet run on a built machine.
+The physical e-stop and the fob remain the safety stop; this page is a convenience.
 
 ## Running a drill on the machine (2026-11-11)
 
