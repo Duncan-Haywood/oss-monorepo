@@ -43,3 +43,28 @@ builds advised at 1.5 no more than off; (c) picks within 1 ms at 1.5 no fewer th
 DECISION RULE: if (a), (b) and (c) hold on both sets, `controller.TAKE_SURVEY_BLIND = 1.5` ships as the take survey's
 default. If (b) fails on either set, it ships off (1), whatever (a) says: the filter must not invent takes. If (b)
 holds and (a) or (c) fails, it ships off and the README reports the miss.
+
+## Held out (run after the pre-registration was committed, 5314d04f5)
+
+Captured with tests/take_survey_jitter.py from a frozen copy of 5314d04f5's tree (the capture's workers re-import the
+code per drill, so the working tree's edits could not leak in), lag 0.6 s, seed 19, 72 drills each; scored with
+tests/take_survey_blind.py --blinds 1,1.5. Rows: eval/take-survey-blind-heldout-capture-sub8-2026-11-18.jsonl.gz (A)
+and eval/take-survey-blind-heldout-jitter-2026-11-18.jsonl.gz (B).
+
+| set | blind | named and advised (of 54) | instant advised (of 18) | within 1 ms (of 72) | mean share | wheels left out |
+| --- | --- | --- | --- | --- | --- | --- |
+| A capture 1/8 us | 1 (off) | 54 | 0 | 72 | 0.20 | 0 of 1584 |
+| A capture 1/8 us | 1.5 | 54 | 0 | 72 | 0.20 | 200 of 1584 |
+| B jittery tach | 1 (off) | 12 | 0 | 68 | 0.75 | 0 of 1584 |
+| B jittery tach | 1.5 | 26 | 0 | 68 | 0.59 | 1149 of 1584 |
+
+B per jitter (0, 0.5, 1, 1.5, 2, 3 us; named and advised of 9, off -> 1.5): 8 -> 9, 3 -> 8, 1 -> 6, 0 -> 1, 0 -> 1,
+0 -> 1. No instant build advised at any jitter either way.
+
+Verdict by the rule: (a) holds on both (54 = 54, 26 > 12), (b) holds on both (0 and 0), (c) holds on both (72 = 72,
+68 = 68). `controller.TAKE_SURVEY_BLIND = 1.5` ships. Set A sat at its ceiling (every spread take named and advised
+without the filter, the easiest set yet at the longest lag), so it shows the filter does no harm there and nothing more;
+the gain is set B's, the board's default tach, and it is at 0.5 to 1 us of jitter: at 1.5 us and above the survey is
+still close to blind (1 of 9 per jitter).
+
+Simulated only: the simulator's first-order wheel, one seed per set, an assumed take profile.
