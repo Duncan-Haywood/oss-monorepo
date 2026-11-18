@@ -1,0 +1,429 @@
+{
+ "corner": "ff_n40C_1v95",
+ "util": 40,
+ "liberty_sha256": "fb61d91c55a7f85b1989e8149d040b13ba5e7f5478f5bf0c3c16c5da30720139",
+ "tools": {
+  "yosys": "Yosys 0.71+post (git sha1 v0.71, Release, GNU /nix/store/ii6p6kc1brz3vycqg88q4zb4xd2dmqwp-gcc-wrapper-16.2.0/bin/g++ 16.2.0)",
+  "openroad": "26Q3"
+ },
+ "base_period_ns": {
+  "csum14": 18.17,
+  "csum18": 21.17,
+  "wsum6w32": 7.47,
+  "wsum10w32": 6.74,
+  "sad8": 11.45,
+  "sad12": 15.22,
+  "avg32": 5.66,
+  "dot24r": 6.32,
+  "csum2": 8.65,
+  "csum7": 12.63,
+  "wsum3": 7.09,
+  "sad2": 10.37,
+  "sad4": 12.69,
+  "avg8": 7.52,
+  "dot3r": 6.63,
+  "dot7r": 7.22,
+  "div13r": 32.14,
+  "clamp7r": 28.53,
+  "clamp10r": 35.73,
+  "rng14r": 21.07,
+  "max8": 20.75,
+  "max14": 25.0,
+  "amin14": 22.43,
+  "mod12": 16.78,
+  "rng2r": 10.69,
+  "rng3r": 11.45,
+  "max2": 10.9,
+  "max3": 19.06,
+  "max4": 19.28,
+  "amin3": 10.43,
+  "clamp1r": 17.62,
+  "div5r": 20.28,
+  "mod8": 23.61
+ },
+ "band": {
+  "csum14": "SLOW",
+  "csum18": "SLOW",
+  "wsum6w32": "FAST",
+  "wsum10w32": "FAST",
+  "sad8": "FAST",
+  "sad12": null,
+  "avg32": "FAST",
+  "dot24r": "FAST",
+  "csum2": "FAST",
+  "csum7": "FAST",
+  "wsum3": "FAST",
+  "sad2": "FAST",
+  "sad4": "FAST",
+  "avg8": "FAST",
+  "dot3r": "FAST",
+  "dot7r": "FAST",
+  "div13r": "SLOW",
+  "clamp7r": "SLOW",
+  "clamp10r": "SLOW",
+  "rng14r": "SLOW",
+  "max8": "SLOW",
+  "max14": "SLOW",
+  "amin14": "SLOW",
+  "mod12": "SLOW",
+  "rng2r": "FAST",
+  "rng3r": "FAST",
+  "max2": "FAST",
+  "max3": "SLOW",
+  "max4": "SLOW",
+  "amin3": "FAST",
+  "clamp1r": "SLOW",
+  "div5r": "SLOW",
+  "mod8": "SLOW"
+ },
+ "cells": {
+  "ADD-FAST": [
+   "sad4",
+   "avg32",
+   "csum2",
+   "wsum10w32",
+   "dot24r"
+  ],
+  "ADD-SLOW": [
+   "csum14",
+   "csum18"
+  ],
+  "CTRL-FAST": [
+   "amin3",
+   "rng2r",
+   "max2",
+   "rng3r"
+  ],
+  "CTRL-SLOW": [
+   "amin14",
+   "rng14r",
+   "mod12",
+   "div13r",
+   "max3"
+  ]
+ },
+ "clock": {
+  "sad4": "tight",
+  "avg32": "relaxed",
+  "csum2": "tight",
+  "wsum10w32": "relaxed",
+  "dot24r": "tight",
+  "csum14": "tight",
+  "csum18": "relaxed",
+  "amin3": "tight",
+  "rng2r": "relaxed",
+  "max2": "tight",
+  "rng3r": "relaxed",
+  "amin14": "tight",
+  "rng14r": "relaxed",
+  "mod12": "tight",
+  "div13r": "relaxed",
+  "max3": "tight"
+ },
+ "order": [
+  "sad4",
+  "csum14",
+  "amin3",
+  "amin14",
+  "avg32",
+  "csum18",
+  "rng2r",
+  "rng14r",
+  "csum2",
+  "max2",
+  "mod12",
+  "wsum10w32",
+  "rng3r",
+  "div13r",
+  "dot24r",
+  "max3"
+ ],
+ "struct": {
+  "sad4": "ADD",
+  "csum14": "ADD",
+  "amin3": "CTRL",
+  "amin14": "CTRL",
+  "avg32": "ADD",
+  "csum18": "ADD",
+  "rng2r": "CTRL",
+  "rng14r": "CTRL",
+  "csum2": "ADD",
+  "max2": "CTRL",
+  "mod12": "CTRL",
+  "wsum10w32": "ADD",
+  "rng3r": "CTRL",
+  "div13r": "CTRL",
+  "dot24r": "ADD",
+  "max3": "CTRL"
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "order_seed": 146,
+ "designs": {
+  "sad4": [
+   "sadsh_w",
+   "sadsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 4
+   },
+   ""
+  ],
+  "csum14": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 14
+   },
+   ""
+  ],
+  "amin3": [
+   "argminsh_w",
+   "argminsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 3,
+    "NB": 6
+   },
+   ""
+  ],
+  "amin14": [
+   "argminsh_w",
+   "argminsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 14,
+    "NB": 6
+   },
+   ""
+  ],
+  "avg32": [
+   "avgsh_w",
+   "avgsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NB": 32
+   },
+   ""
+  ],
+  "csum18": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 18
+   },
+   ""
+  ],
+  "rng2r": [
+   "rngsh_w",
+   "rngsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 2,
+    "NB": 8,
+    "R": 1
+   },
+   ""
+  ],
+  "rng14r": [
+   "rngsh_w",
+   "rngsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 14,
+    "NB": 8,
+    "R": 1
+   },
+   ""
+  ],
+  "csum2": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 2
+   },
+   ""
+  ],
+  "max2": [
+   "maxsh_w",
+   "maxsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 2
+   },
+   ""
+  ],
+  "mod12": [
+   "modsh_w",
+   "modsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NA": 12,
+    "M": 97
+   },
+   ""
+  ],
+  "wsum10w32": [
+   "wsumsh_w",
+   "wsumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "OW": 32,
+    "K": 10
+   },
+   ""
+  ],
+  "rng3r": [
+   "rngsh_w",
+   "rngsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 3,
+    "NB": 8,
+    "R": 1
+   },
+   ""
+  ],
+  "div13r": [
+   "divsh_w",
+   "divsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NA": 13,
+    "NB": 4,
+    "R": 1
+   },
+   ""
+  ],
+  "dot24r": [
+   "dotsh_w",
+   "dotsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 24,
+    "R": 1
+   },
+   ""
+  ],
+  "max3": [
+   "maxsh_w",
+   "maxsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 3
+   },
+   ""
+  ]
+ },
+ "batch2": {
+  "base_period_ns": {
+   "csum12": 16.47,
+   "csum16": 19.58,
+   "csum20": 22.84,
+   "csum24": 26.14,
+   "sad16": 8.02,
+   "sad20": 13.7,
+   "amin2": 5.14,
+   "amin4": 9.91,
+   "rng2n4": 10.48
+  },
+  "band": {
+   "csum12": null,
+   "csum16": "SLOW",
+   "csum20": "SLOW",
+   "csum24": "SLOW",
+   "sad16": "FAST",
+   "sad20": "FAST",
+   "amin2": "FAST",
+   "amin4": "FAST",
+   "rng2n4": "FAST"
+  },
+  "cells": {
+   "ADD-FAST": [],
+   "ADD-SLOW": [
+    "csum24",
+    "csum16",
+    "csum20"
+   ],
+   "CTRL-FAST": [
+    "rng2n4"
+   ],
+   "CTRL-SLOW": []
+  },
+  "clock": {
+   "csum24": "tight",
+   "csum16": "relaxed",
+   "csum20": "tight",
+   "rng2n4": "tight"
+  },
+  "order": [
+   "csum24",
+   "rng2n4",
+   "csum16",
+   "csum20"
+  ],
+  "designs": {
+   "csum24": [
+    "csumsh_w",
+    "csumsh_w",
+    {
+     "W": 128,
+     "SW": 7,
+     "K": 24
+    },
+    ""
+   ],
+   "rng2n4": [
+    "rngsh_w",
+    "rngsh_w",
+    {
+     "W": 128,
+     "SW": 7,
+     "N": 2,
+     "NB": 4,
+     "R": 1
+    },
+    ""
+   ],
+   "csum16": [
+    "csumsh_w",
+    "csumsh_w",
+    {
+     "W": 128,
+     "SW": 7,
+     "K": 16
+    },
+    ""
+   ],
+   "csum20": [
+    "csumsh_w",
+    "csumsh_w",
+    {
+     "W": 128,
+     "SW": 7,
+     "K": 20
+    },
+    ""
+   ]
+  }
+ }
+}

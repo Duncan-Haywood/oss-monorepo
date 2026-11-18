@@ -1,0 +1,140 @@
+# Milestone 147: add-chain structure against mapped delay at SKY130 ff_n40C_1v95, a blind 2 x 2 (flow run)
+
+theta = 3; bands FAST <= 15.0 ns, SLOW >= 16.5 ns; up to 5 designs a cell
+
+tools: {'yosys': 'Yosys 0.71+post (git sha1 v0.71, Release, GNU /nix/store/ii6p6kc1brz3vycqg88q4zb4xd2dmqwp-gcc-wrapper-16.2.0/bin/g++ 16.2.0)', 'openroad': '26Q3'}
+
+## Candidates and their measured bands (the selection rule in run.py, applied to these)
+
+candidate | structure | base period ns | band | selected
+avg32 | ADD | 5.660 | FAST | yes
+dot24r | ADD | 6.320 | FAST | yes
+dot3r | ADD | 6.630 | FAST | no
+wsum10w32 | ADD | 6.740 | FAST | yes
+wsum3 | ADD | 7.090 | FAST | no
+dot7r | ADD | 7.220 | FAST | no
+wsum6w32 | ADD | 7.470 | FAST | no
+avg8 | ADD | 7.520 | FAST | no
+csum2 | ADD | 8.650 | FAST | yes
+sad2 | ADD | 10.370 | FAST | no
+sad8 | ADD | 11.450 | FAST | no
+csum7 | ADD | 12.630 | FAST | no
+sad4 | ADD | 12.690 | FAST | yes
+sad12 | ADD | 15.220 | None | no
+csum14 | ADD | 18.170 | SLOW | yes
+csum18 | ADD | 21.170 | SLOW | yes
+amin3 | CTRL | 10.430 | FAST | yes
+rng2r | CTRL | 10.690 | FAST | yes
+max2 | CTRL | 10.900 | FAST | yes
+rng3r | CTRL | 11.450 | FAST | yes
+mod12 | CTRL | 16.780 | SLOW | yes
+clamp1r | CTRL | 17.620 | SLOW | no
+max3 | CTRL | 19.060 | SLOW | yes
+max4 | CTRL | 19.280 | SLOW | no
+div5r | CTRL | 20.280 | SLOW | no
+max8 | CTRL | 20.750 | SLOW | no
+rng14r | CTRL | 21.070 | SLOW | yes
+amin14 | CTRL | 22.430 | SLOW | yes
+mod8 | CTRL | 23.610 | SLOW | no
+max14 | CTRL | 25.000 | SLOW | no
+clamp7r | CTRL | 28.530 | SLOW | no
+div13r | CTRL | 32.140 | SLOW | yes
+clamp10r | CTRL | 35.730 | SLOW | no
+
+cells: ADD-FAST 5 (sad4, avg32, csum2, wsum10w32, dot24r); ADD-SLOW 2 (csum14, csum18); CTRL-FAST 4 (amin3, rng2r, max2, rng3r); CTRL-SLOW 5 (amin14, rng14r, mod12, div13r, max3)
+complete designs (order prefix): 16 of 16
+
+design | structure | band | clock | base period ns | routed/r2 | tau-b r2 vs routed | random % | SWC % | d
+csum2 | ADD | FAST | tight | 8.650 | 5.23 | 0.117 | 41.97 | 0.00 | -41.97
+wsum10w32 | ADD | FAST | relaxed | 6.740 | 7.61 | 0.370 | 8.66 | 0.00 | -8.66
+avg32 | ADD | FAST | relaxed | 5.660 | 5.52 | 0.363 | 8.09 | 0.00 | -8.09
+sad4 | ADD | FAST | tight | 12.690 | 5.19 | 0.439 | 2.66 | 0.00 | -2.66
+dot24r | ADD | FAST | tight | 6.320 | 4.45 | 0.272 | 1.98 | 5.49 | +3.50
+csum18 | ADD | SLOW | relaxed | 21.170 | 5.33 | 0.296 | 10.28 | 0.00 | -10.28
+csum14 | ADD | SLOW | tight | 18.170 | 5.90 | 0.517 | 2.83 | 0.00 | -2.83
+rng2r | CTRL | FAST | relaxed | 10.690 | 6.13 | 0.395 | 7.82 | 0.00 | -7.82
+amin3 | CTRL | FAST | tight | 10.430 | 2.39 | 0.553 | 5.44 | 5.44 | +0.00
+rng3r | CTRL | FAST | relaxed | 11.450 | 6.58 | 0.525 | 3.71 | 4.07 | +0.36
+max2 | CTRL | FAST | tight | 10.900 | 5.07 | 0.141 | 11.67 | 22.87 | +11.20
+max3 | CTRL | SLOW | tight | 19.060 | 5.31 | 0.111 | 26.15 | 0.00 | -26.15
+div13r | CTRL | SLOW | relaxed | 32.140 | 4.47 | 0.176 | 8.09 | 0.00 | -8.09
+rng14r | CTRL | SLOW | relaxed | 21.070 | 7.70 | 0.597 | 5.56 | 0.00 | -5.56
+amin14 | CTRL | SLOW | tight | 22.430 | 4.89 | 0.496 | 4.87 | 0.00 | -4.87
+mod12 | CTRL | SLOW | tight | 16.780 | 2.27 | 0.410 | 3.84 | 3.84 | +0.00
+
+## Cells
+
+cell | designs | mean regret SWC % | random % | mean d | SWC better / worse / tied | median tau-b
+ADD-FAST | 5 | 1.10 | 12.67 | -11.57 | 4 / 1 / 0 | 0.363
+ADD-SLOW | 2 | 0.00 | 6.55 | -6.55 | 2 / 0 / 0 | 0.407
+CTRL-FAST | 4 | 8.09 | 7.16 | +0.93 | 1 / 2 / 1 | 0.460
+CTRL-SLOW | 5 | 0.77 | 9.70 | -8.93 | 4 / 0 / 1 | 0.410
+
+structure effect S (ADD - CTRL within band, averaged): -5.06 points; stratified permutation p = 0.4570
+delay effect D (FAST - SLOW within structure, averaged): +2.42 points; stratified permutation p = 0.7530
+within SLOW: ADD -6.55, CTRL -8.93; within FAST: ADD -11.57, CTRL +0.93
+interaction (S in FAST - S in SLOW): -14.89 points (descriptive)
+all: SWC better on 11, worse on 3, tied on 2; sign p = 0.0574; mean regret SWC 2.61%, random 9.60%
+mean d by clock: tight -7.09, relaxed -6.88
+ladder branch: 14 of 16 (lowest routed/r2 2.27)
+
+## Descriptive pool with milestone 145 (its designs banded by the same thresholds; not a test)
+
+cell sizes: ADD-FAST 15, ADD-SLOW 2, CTRL-FAST 4, CTRL-SLOW 15
+S = -1.76 points (p = 0.6477); D = +5.72 points (p = 0.2114)
+
+## Secondary: batch 2 (topped-up cells, fixed before any sequence result was read)
+
+batch-2 designs complete: 4 of 4
+
+design | structure | band | clock | base period ns | routed/r2 | tau-b r2 vs routed | random % | SWC % | d
+csum24 | ADD | SLOW | tight | 26.140 | 12.02 | 0.526 | 4.49 | 0.00 | -4.49
+rng2n4 | CTRL | FAST | tight | 10.480 | 4.73 | 0.477 | 20.43 | 0.00 | -20.43
+csum16 | ADD | SLOW | relaxed | 19.580 | 5.23 | 0.314 | 3.74 | 0.00 | -3.74
+csum20 | ADD | SLOW | tight | 22.840 | 9.15 | 0.441 | 7.65 | 0.00 | -7.65
+
+batch 1 + batch 2: cell sizes ADD-FAST 5, ADD-SLOW 5, CTRL-FAST 5, CTRL-SLOW 5
+cell means of d: ADD-FAST -11.57, ADD-SLOW -5.80, CTRL-FAST -3.34, CTRL-SLOW -8.93
+S = -2.55 points (p = 0.6620); D = -0.09 points (p = 0.9867)
+all 20: SWC better on 15, worse on 3, tied on 2; sign p = 0.0075; mean regret SWC 2.09%, random 9.50%
+(2b) on batch 1 + batch 2, S > 0 with p < 0.05: False
+
+## Post hoc: milestone 146 (PR #17222, landed during this run; not a test)
+
+same design, sequence and clock in both runs: 515 routed points identical, 0 different (amin3, csum18, csum24, max2, rng2r)
+milestone 146 designs not run here, banded by this run's thresholds: amin4 CTRL-FAST +0.00, amin5 CTRL-FAST -3.64, amin6 CTRL-FAST -5.29, csum32 ADD-SLOW -8.95, csum40 ADD-SLOW -5.93, div4r CTRL-FAST -6.78
+fresh only, 146 + 147: ADD-FAST 5 designs -11.57, ADD-SLOW 7 designs -6.27, CTRL-FAST 9 designs -3.60, CTRL-SLOW 5 designs -8.93
+  S = -2.65 points (p = 0.5354); D = +0.01 points (p = 0.9974)
+all three, 145 + 146 + 147: ADD-FAST 15 designs -4.91, ADD-SLOW 7 designs -6.27, CTRL-FAST 9 designs -3.60, CTRL-SLOW 15 designs -8.87
+  S = +0.65 points (p = 0.8176); D = +3.31 points (p = 0.2636)
+
+## Failed points
+
+design | usable points | failed
+sad4 | 103 | 17
+csum14 | 103 | 17
+amin3 | 103 | 17
+amin14 | 103 | 17
+avg32 | 103 | 17
+csum18 | 103 | 17
+rng2r | 103 | 17
+rng14r | 103 | 17
+csum2 | 103 | 17
+max2 | 103 | 17
+mod12 | 103 | 17
+wsum10w32 | 103 | 17
+rng3r | 103 | 17
+div13r | 103 | 17
+dot24r | 103 | 17
+max3 | 103 | 17
+
+## Predictions
+
+(1) every cell on the ladder branch: False (14 of 16)
+(2) PRIMARY: S > 0 with p < 0.05: False (S = -5.06, p = 0.4570)
+(3) D > 0 with p < 0.05: False (D = +2.42, p = 0.7530)
+(4) within SLOW, ADD > CTRL: True (-6.55 against -8.93)
+(5) within FAST, ADD > CTRL: False (-11.57 against +0.93)
+(6) median tau-b lower on FAST than SLOW: True (0.370 against 0.410)
+(7) SWC better on more designs than worse overall: True (11 to 3)
+(8) mean d tight > relaxed: False (-7.09 against -6.88)
