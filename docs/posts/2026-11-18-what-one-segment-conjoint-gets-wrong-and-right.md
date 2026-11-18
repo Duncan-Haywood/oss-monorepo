@@ -1,9 +1,9 @@
 ---
 title: "What a one-segment conjoint gets wrong, and what it still gets right"
-seo_title: "Free choice-based conjoint tool: design, part-worths, willingness to pay"
+seo_title: "Free choice-based conjoint tool: part-worths and willingness to pay"
 date: 2026-11-18
 tags: [conjoint-analysis, pricing, market-research, discrete-choice, research-algorithms, browser]
-description: "A free CBC tool, tested on simulated buyers with known tastes: aggregate logit shrank the price coefficient by 15%, yet willingness to pay landed within 10 cents."
+description: "A free CBC tool tested on simulated buyers with known tastes: aggregate logit shrank the price coefficient 15%, yet willingness to pay landed within 10 cents."
 ---
 
 Choice-based conjoint is how product teams find out what a feature is worth.
