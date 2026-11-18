@@ -1,6 +1,6 @@
 ---
 title: "A date that does not exist moves your revenue: strict CSV import in Rev Rec and MRR Pulse"
-seo_title: "Why a CSV importer should refuse 30 February (Stripe MRR and deferred revenue)"
+seo_title: "Why a Stripe CSV importer should refuse 30 February"
 date: 2026-11-18
 tags: [ventures, rev-rec, mrr-pulse, redteam]
 description: "JavaScript reads 2026-02-30 as 2 March and '€ 1.000' as one euro. Two of our Stripe finance tools now skip those rows with a reason instead of guessing."
