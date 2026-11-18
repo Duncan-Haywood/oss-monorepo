@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23475569'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Formwork Pressure Calculator | Concrete Lateral Pressure on Wall and Column Forms (ACI 347R)</title>
+  <meta name="description" content="Free formwork pressure calculator: design lateral pressure of fresh concrete on wall and column forms by the ACI 347R equations, with the pressure envelope, resultant force, tie spacing and the fastest pour rate your forms allow. Runs in your browser.">
+  <meta property="og:title" content="Formwork Pressure Calculator">
+  <meta property="og:description" content="Pour height, rate and concrete temperature in; design lateral pressure, envelope, resultant, tie spacing and the fastest safe pour rate out. ACI 347R equations, US or metric units.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Formwork Pressure Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Design lateral pressure of fresh concrete on wall and column forms by the ACI 347R equations; unit weight and chemistry coefficients; 600 Cw minimum and full liquid head cap; pressure envelope chart; resultant force and its height; tie spacing from a tie's safe working load; fastest rate of placement for a form's rated pressure; rate of placement from the delivery rate; US and metric units; command-line version"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How is the lateral pressure of concrete on formwork calculated?","acceptedAnswer":{"@type":"Answer","text":"Fresh concrete pushes on a form like a liquid until it starts to stiffen. ACI 347R gives equations for the design pressure from the rate of placement R (feet of rise per hour) and the concrete temperature T: for columns, and for walls placed under 7 ft/h no more than 14 ft high, p = Cw·Cc·(150 + 9000R/T) psf; for taller walls and walls placed at 7 to 15 ft/h, p = Cw·Cc·(150 + 43,400/T + 2800R/T). The result is never less than 600·Cw psf and never more than the full liquid head w·h."}},{"@type":"Question","name":"When must forms be designed for full liquid head?","acceptedAnswer":{"@type":"Answer","text":"When the equations' conditions are not met: concrete with a slump over 7 inches, self-consolidating concrete, concrete pumped in from the base of the form, forms with external vibrators, internal vibration deeper than 4 ft below the surface, and walls placed faster than 15 ft per hour. Then the pressure is the unit weight times the depth, w·h."}},{"@type":"Question","name":"What are Cw and Cc?","acceptedAnswer":{"@type":"Answer","text":"Cw adjusts for unit weight: 1.0 for 140 to 150 lb/ft³ concrete, w/145 above that, and 0.5(1 + w/145) but at least 0.80 below 140. Cc adjusts for cement chemistry: 1.0 for Type I, II or III cement without a retarder, 1.2 with a retarder or for other cements and moderate slag or fly ash blends, and 1.4 for those blends with a retarder or for mixes with 70% or more slag or 40% or more fly ash."}},{"@type":"Question","name":"How do I get tie spacing from the pressure?","acceptedAnswer":{"@type":"Answer","text":"Each tie holds the pressure acting on its share of the form. Divide the tie's safe working load by the design pressure to get the area each tie may carry, then divide that by the horizontal spacing to get the largest vertical spacing. Walers, studs and sheathing need their own checks."}},{"@type":"Question","name":"Is anything uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every calculation runs in your browser and nothing is sent anywhere. An optional anonymous counter in this browser's local storage records only that a calculation was run and the day."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2125; background: #e9ebee; --accent: #334155; --hot: #b45309; --ink2: #555c63; --line: #c6cbd2; --panel: #fbfbfc; }
+    body { max-width: 1160px; margin: 0 auto; padding: 32px 16px; }
+    header { max-width: 780px; margin-bottom: 24px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3rem); line-height: 1.02; margin: 0 0 12px; letter-spacing: -.04em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; color: var(--hot); margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+    section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+    h2 { margin: 0 0 10px; font-size: 1.1rem; }
+    h3 { margin: 14px 0 6px; font-size: .98rem; }
+    .hint { font-size: .83rem; color: var(--ink2); margin: -4px 0 12px; }
+    .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .wide { grid-column: 1 / -1; }
+    label { display: grid; gap: 5px; font-size: .86rem; font-weight: 650; }
+    label.check { display: flex; gap: 8px; align-items: flex-start; font-weight: 500; }
+    label.check input { width: auto; margin-top: 3px; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #aeb5bf; border-radius: 7px; padding: 9px; font: inherit; background: #fff; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #aeb5bf; background: #eef0f3; padding: 9px 13px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e0e4ea; }
+    .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .primary:hover { background: #1e293b; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+    .muted { color: var(--ink2); font-size: .84rem; }
+    .big { font-size: 2.4rem; font-weight: 750; letter-spacing: -.03em; font-variant-numeric: tabular-nums; margin: 2px 0; }
+    .row { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: .88rem; font-variant-numeric: tabular-nums; }
+    .warn { font-size: .84rem; background: #fff4e5; border-left: 3px solid #d97706; padding: 6px 9px; margin: 8px 0 0; border-radius: 4px; }
+    .err { color: #b42318; font-size: .9rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .86rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e1e4e8; }
+    svg { width: 100%; height: auto; display: block; }
+    details { margin-top: 12px; }
+    footer { margin-top: 24px; font-size: .82rem; color: var(--ink2); }
+    footer a, header a { color: #92400e; }
+    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 520px) { .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR CONCRETE CONTRACTORS, FORMWORK FOREMEN AND SITE ENGINEERS</p>
+    <h1>How hard will this pour push on the forms?</h1>
+    <p>Enter the lift height, how fast the concrete will rise and how warm it is. The page works out the design lateral pressure on wall or column forms by the ACI 347R equations, draws the pressure envelope, and turns it into the force on the form, the tie spacing and the fastest pour rate your forms are rated for. Everything runs in your browser.</p>
+    <p><a href="./formwork-pressure-explained.html">Formwork pressure explained, with a worked example</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>1. The placement</h2>
+        <div class="fields">
+          <label>Units
+            <select id="units"><option value="us">US (ft, °F, lb)</option><option value="si">Metric (m, °C, kN)</option></select>
+          </label>
+          <label class="wide">Element
+            <select id="element"><option value="wall">Wall (a plan dimension over 6.5 ft / 2 m)</option><option value="column">Column (no plan dimension over 6.5 ft / 2 m)</option></select>
+          </label>
+          <label><span>Placement height <span class="u-len">ft</span></span><input id="height" type="number" inputmode="decimal" min="0" step="any" value="10"></label>
+          <label><span>Rate of placement <span class="u-len">ft</span>/h</span><input id="rate" type="number" inputmode="decimal" min="0" step="any" value="5"></label>
+          <label><span>Concrete temperature <span class="u-temp">°F</span></span><input id="temp" type="number" inputmode="decimal" step="any" value="70"></label>
+          <label><span>Unit weight <span class="u-wt">lb/ft³</span></span><input id="unitWeight" type="number" inputmode="decimal" min="0" step="any" value="150"></label>
+          <label class="wide">Cement and admixtures
+            <select id="chemistry">
+              <option value="plain">Type I, II or III cement, no retarder (Cc 1.0)</option>
+              <option value="plainRetarded">Type I, II or III cement, with a retarder (Cc 1.2)</option>
+              <option value="blend">Other cement, or a blend under 70% slag and 40% fly ash, no retarder (Cc 1.2)</option>
+              <option value="blendRetarded">Other cement, or a blend under 70% slag and 40% fly ash, with a retarder (Cc 1.4)</option>
+              <option value="highScm">A blend with 70%+ slag or 40%+ fly ash (Cc 1.4)</option>
+            </select>
+          </label>
+          <label class="check wide"><input id="hydrostatic" type="checkbox"> Self-consolidating concrete, slump over 7 in (175 mm), pumped in from the base, external form vibrators, or internal vibration deeper than 4 ft (1.2 m): design for full liquid head</label>
+        </div>
+        <p class="muted">"Retarder" means any admixture that delays set, including retarding water reducers and set-delaying superplasticizers.</p>
+        <details>
+          <summary>Work out the rate from the delivery rate</summary>
+          <div class="fields" style="margin-top:10px">
+            <label><span>Concrete delivered per hour <span class="u-vol">yd³</span></span><input id="delivery" type="number" inputmode="decimal" min="0" step="any" placeholder="30"></label>
+            <label><span>Form plan area <span class="u-len">ft</span>²</span><input id="planArea" type="number" inputmode="decimal" min="0" step="any" placeholder="wall length × thickness"></label>
+          </div>
+          <div class="actions"><button id="useDelivery" type="button">Use this rate</button><span class="muted" id="deliveryNote"></span></div>
+        </details>
+      </section>
+
+      <section>
+        <h2>2. Your forms (optional)</h2>
+        <div class="fields">
+          <label><span>Tie safe working load <span class="u-force">lb</span></span><input id="tie" type="number" inputmode="decimal" min="0" step="any" placeholder="3000"></label>
+          <label><span>Horizontal tie spacing <span class="u-len">ft</span></span><input id="tieAcross" type="number" inputmode="decimal" min="0" step="any" placeholder="2"></label>
+          <label class="wide"><span>Form system rated pressure <span class="u-p">psf</span></span><input id="rated" type="number" inputmode="decimal" min="0" step="any" placeholder="from the form supplier's data"></label>
+        </div>
+        <p class="muted">Use the supplier's published safe working load and pressure rating. Walers, studs, sheathing and bracing need their own checks.</p>
+        <div class="actions">
+          <button id="calc" class="primary" type="button">Calculate</button>
+          <button id="example" type="button">Load the worked example</button>
+        </div>
+      </section>
+    </div>
+
+    <div>
+      <section aria-live="polite">
+        <h2>Design lateral pressure</h2>
+        <p class="err" id="error" hidden></p>
+        <div id="result" hidden>
+          <p class="big" id="pressure"></p>
+          <p id="governs"></p>
+          <p class="muted" id="reason"></p>
+          <div class="row" id="coeffs"></div>
+          <svg id="chart" viewBox="0 0 360 260" role="img" aria-labelledby="chartTitle"><title id="chartTitle">Pressure envelope: pressure against depth below the top of the placement</title></svg>
+          <table>
+            <tbody>
+              <tr><th scope="row">Equation value</th><td id="formula"></td></tr>
+              <tr><th scope="row">Minimum (600·Cw)</th><td id="minimum"></td></tr>
+              <tr><th scope="row">Full liquid head (w·h)</th><td id="hydro"></td></tr>
+              <tr><th scope="row">Depth where it peaks</th><td id="headDepth"></td></tr>
+              <tr><th scope="row">Resultant force</th><td id="force"></td></tr>
+              <tr><th scope="row">Resultant height above base</th><td id="arm"></td></tr>
+              <tr id="tieRow" hidden><th scope="row">Form area per tie</th><td id="tieArea"></td></tr>
+              <tr id="tieUpRow" hidden><th scope="row">Largest vertical tie spacing</th><td id="tieUp"></td></tr>
+              <tr id="rateRow" hidden><th scope="row">Fastest pour for the form rating</th><td id="maxRate"></td></tr>
+            </tbody>
+          </table>
+          <div id="warnings"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <section id="faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <h3>How is the lateral pressure of concrete on formwork calculated?</h3>
+    <p>Fresh concrete pushes on a form like a liquid until it starts to stiffen. ACI 347R gives equations for the design pressure from the rate of placement R (feet of rise per hour) and the concrete temperature T: for columns, and for walls placed under 7 ft/h no more than 14 ft high, p = Cw·Cc·(150 + 9000R/T) psf; for taller walls and walls placed at 7 to 15 ft/h, p = Cw·Cc·(150 + 43,400/T + 2800R/T). The result is never less than 600·Cw psf and never more than the full liquid head w·h.</p>
+    <h3>When must forms be designed for full liquid head?</h3>
+    <p>When the equations' conditions are not met: concrete with a slump over 7 inches, self-consolidating concrete, concrete pumped in from the base of the form, forms with external vibrators, internal vibration deeper than 4 ft below the surface, and walls placed faster than 15 ft per hour. Then the pressure is the unit weight times the depth, w·h.</p>
+    <h3>What are Cw and Cc?</h3>
+    <p>Cw adjusts for unit weight: 1.0 for 140 to 150 lb/ft³ concrete, w/145 above that, and 0.5(1 + w/145) but at least 0.80 below 140. Cc adjusts for cement chemistry: 1.0 for Type I, II or III cement without a retarder, 1.2 with a retarder or for other cements and moderate slag or fly ash blends, and 1.4 for those blends with a retarder or for mixes with 70% or more slag or 40% or more fly ash.</p>
+    <h3>How do I get tie spacing from the pressure?</h3>
+    <p>Each tie holds the pressure acting on its share of the form. Divide the tie's safe working load by the design pressure to get the area each tie may carry, then divide that by the horizontal spacing to get the largest vertical spacing. Walers, studs and sheathing need their own checks.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. Every calculation runs in your browser and nothing is sent anywhere. An optional anonymous counter in this browser's local storage records only that a calculation was run and the day.</p>
+  </section>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is provided as-is, without warranty of any kind. It is not engineering, structural, construction, legal or financial advice, and it does not replace the formwork designer, the form supplier's data or the engineer of record. It does not design ties, walers, studs, sheathing, bracing or shores. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number you type is calculated on this device and never uploaded. We don't have accounts, tracking cookies or an analytics vendor. An anonymous counter in this browser's local storage records that a calculation was run and the day, never a pressure, a dimension or a project name; the box above turns it off.</p>
+    <p>Checking when those forms can come off? <a href="../concrete-maturity/">Concrete maturity calculator</a> estimates in-place strength from a temperature logger.</p>
+    <p>Free and open source: the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> (<a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/formwork-pressure" rel="noopener">source</a>, with a command-line version). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { designPressure, tieLayout, maxRate, rateFromDelivery, fromSI, toSI, envelope, EXAMPLE, FT, LBF_TO_KN, PSF_TO_KPA } from './pressure.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
+
+    const el = id => document.getElementById(id);
+    const fmt = (n, d = 0) => n.toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: d });
+    const SVGNS = 'http://www.w3.org/2000/svg';
+    const val = id => { const s = el(id).value.trim(); return s === '' ? undefined : s; };
+
+    function unitLabels() {
+      const si = el('units').value === 'si';
+      const set = (cls, text) => document.querySelectorAll(cls).forEach(n => { n.textContent = text; });
+      set('.u-len', si ? 'm' : 'ft'); set('.u-temp', si ? '°C' : '°F'); set('.u-wt', si ? 'kg/m³' : 'lb/ft³');
+      set('.u-force', si ? 'kN' : 'lb'); set('.u-p', si ? 'kPa' : 'psf'); set('.u-vol', si ? 'm³' : 'yd³');
+    }
+
+    function switchUnits() {
+      const si = el('units').value === 'si';
+      const conv = (id, toSi, toUs) => { const v = val(id); if (v !== undefined && Number.isFinite(Number(v))) el(id).value = String(+(si ? toSi(Number(v)) : toUs(Number(v))).toFixed(si ? 3 : 2)); };
+      conv('height', x => x * FT, x => x / FT); conv('rate', x => x * FT, x => x / FT);
+      conv('temp', x => (x - 32) / 1.8, x => x * 1.8 + 32); conv('unitWeight', x => x * 16.01846, x => x / 16.01846);
+      conv('tie', x => x * LBF_TO_KN, x => x / LBF_TO_KN); conv('tieAcross', x => x * FT, x => x / FT);
+      conv('rated', x => x * PSF_TO_KPA, x => x / PSF_TO_KPA);
+      conv('delivery', x => x * 0.764555, x => x / 0.764555); conv('planArea', x => x * FT * FT, x => x / FT / FT);
+      unitLabels();
+      if (!el('result').hidden) calculate();
+    }
+
+    function input() {
+      const si = el('units').value === 'si';
+      const raw = { element: el('element').value, height: val('height'), rate: val('rate'), temp: val('temp'), unitWeight: val('unitWeight') ?? (si ? 2400 : 150), chemistry: el('chemistry').value, conditionsMet: !el('hydrostatic').checked };
+      for (const k of ['height', 'rate', 'temp']) if (raw[k] === undefined) throw new RangeError(`Enter the ${k === 'temp' ? 'concrete temperature' : k === 'rate' ? 'rate of placement' : 'placement height'}`);
+      return si ? fromSI(raw) : raw;
+    }
+
+    function drawChart(us, si) {
+      const svg = el('chart');
+      while (svg.lastChild && svg.lastChild.nodeName !== 'title') svg.removeChild(svg.lastChild);
+      const add = (name, attrs, text) => { const n = document.createElementNS(SVGNS, name); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); if (text !== undefined) n.textContent = text; svg.appendChild(n); return n; };
+      const x0 = 46, y0 = 22, W = 290, H = 210;
+      const pMax = Math.max(us.hydrostatic, us.pressure);
+      const X = p => x0 + (p / pMax) * W, Y = z => y0 + (z / us.height) * H;
+      add('rect', { x: x0, y: y0, width: W, height: H, fill: '#fff', stroke: '#c6cbd2' });
+      add('line', { x1: X(0), y1: Y(0), x2: X(us.hydrostatic), y2: Y(us.height), stroke: '#94a3b8', 'stroke-dasharray': '4 4' });
+      const pts = envelope(us, 40).map(p => `${X(p.pressure).toFixed(1)},${Y(p.depth).toFixed(1)}`);
+      add('polygon', { points: `${X(0)},${Y(0)} ${pts.join(' ')} ${X(0)},${Y(us.height)}`, fill: 'rgba(180,83,9,.18)', stroke: '#b45309', 'stroke-width': 2 });
+      const P = p => si ? `${fmt(p * PSF_TO_KPA, 1)} kPa` : `${fmt(p)} psf`;
+      const Lf = z => si ? `${fmt(z * FT, 2)} m` : `${fmt(z, 1)} ft`;
+      add('text', { x: X(us.pressure) - 4, y: Y(us.height) - 6, 'text-anchor': 'end', 'font-size': 11, fill: '#92400e' }, P(us.pressure));
+      add('text', { x: x0 + W - 4, y: y0 + 14, 'text-anchor': 'end', 'font-size': 10, fill: '#64748b' }, 'dashed: full liquid head');
+      add('text', { x: x0 - 4, y: Y(0) + 4, 'text-anchor': 'end', 'font-size': 10, fill: '#555c63' }, '0');
+      add('text', { x: x0 - 4, y: Y(us.height) + 4, 'text-anchor': 'end', 'font-size': 10, fill: '#555c63' }, Lf(us.height));
+      if (us.headDepth < us.height) add('text', { x: x0 - 4, y: Y(us.headDepth) + 4, 'text-anchor': 'end', 'font-size': 10, fill: '#555c63' }, Lf(us.headDepth));
+      add('text', { x: x0, y: 14, 'font-size': 10, fill: '#555c63' }, 'pressure →   depth below top ↓');
+    }
+
+    function calculate() {
+      const si = el('units').value === 'si';
+      el('error').hidden = true;
+      try {
+        const inp = input();
+        const us = designPressure(inp);
+        const v = si ? toSI(us) : us;
+        const P = si ? 'kPa' : 'psf', L = si ? 'm' : 'ft', pd = si ? 1 : 0;
+        el('pressure').textContent = `${fmt(v.pressure, pd)} ${P}`;
+        el('governs').textContent = us.governs === 'formula' ? 'The ACI 347R equation governs.' : us.governs === 'minimum' ? 'The 600·Cw minimum governs: the equation gives less.' : 'Full liquid head governs: design the form as if it held a liquid of the concrete\'s weight.';
+        el('reason').textContent = us.reason;
+        el('coeffs').textContent = `Cw ${fmt(us.Cw, 3)} · Cc ${fmt(us.Cc, 1)}`;
+        el('formula').textContent = v.formula === null ? 'not used' : `${fmt(v.formula, pd)} ${P}`;
+        el('minimum').textContent = `${fmt(v.minimum, pd)} ${P}`;
+        el('hydro').textContent = `${fmt(v.hydrostatic, pd)} ${P}`;
+        el('headDepth').textContent = `${fmt(v.headDepth, 2)} ${L} below the top`;
+        el('force').textContent = si ? `${fmt(v.forcePerFoot, 1)} kN per m of form` : `${fmt(v.forcePerFoot)} lb per ft of form`;
+        el('arm').textContent = `${fmt(v.resultantAboveBase, 2)} ${L}`;
+        const tie = val('tie');
+        el('tieRow').hidden = el('tieUpRow').hidden = true;
+        if (tie !== undefined) {
+          const across = val('tieAcross');
+          const t = tieLayout(us.pressure, si ? Number(tie) / LBF_TO_KN : Number(tie), across === undefined ? undefined : (si ? Number(across) / FT : Number(across)));
+          el('tieArea').textContent = si ? `${fmt(t.areaPerTie * FT * FT, 2)} m²` : `${fmt(t.areaPerTie, 2)} ft²`;
+          el('tieRow').hidden = false;
+          if (t.maxVerticalSpacing !== undefined) {
+            el('tieUp').textContent = si ? `${fmt(t.maxVerticalSpacing * FT, 2)} m` : `${fmt(t.maxVerticalSpacing, 2)} ft (${fmt(t.maxVerticalSpacing * 12, 1)} in)`;
+            el('tieUpRow').hidden = false;
+          }
+        }
+        const rated = val('rated');
+        el('rateRow').hidden = true;
+        if (rated !== undefined) {
+          const m = maxRate(inp, si ? Number(rated) / PSF_TO_KPA : Number(rated));
+          el('maxRate').textContent = `${m.rate === Infinity ? 'no limit' : `${fmt(si ? m.rate * FT : m.rate, 2)} ${L}/h`}. ${m.limitedBy}`;
+          el('rateRow').hidden = false;
+        }
+        const box = el('warnings');
+        box.replaceChildren(...us.warnings.map(w => { const p = document.createElement('p'); p.className = 'warn'; p.textContent = w; return p; }));
+        drawChart(us, si);
+        el('result').hidden = false;
+        recordUsage(usageStorage(), el('usageOptOut').checked, 'pressure_calculated');
+      } catch (e) {
+        el('result').hidden = true;
+        el('error').textContent = e.message;
+        el('error').hidden = false;
+      }
+    }
+
+    el('calc').addEventListener('click', calculate);
+    el('units').addEventListener('change', switchUnits);
+    el('example').addEventListener('click', () => {
+      el('units').value = 'us'; unitLabels();
+      el('element').value = EXAMPLE.element; el('height').value = EXAMPLE.height; el('rate').value = EXAMPLE.rate;
+      el('temp').value = EXAMPLE.temp; el('unitWeight').value = EXAMPLE.unitWeight; el('chemistry').value = EXAMPLE.chemistry;
+      el('hydrostatic').checked = false; el('tie').value = 3000; el('tieAcross').value = 2; el('rated').value = '';
+      calculate();
+    });
+    el('useDelivery').addEventListener('click', () => {
+      const si = el('units').value === 'si';
+      try {
+        const q = val('delivery'), a = val('planArea');
+        // rateFromDelivery works in yd³/h and ft²; metric is m³/h over m², which is m/h directly.
+        const r = si ? Number(q) / Number(a) : rateFromDelivery(q, a);
+        if (!(r > 0) || !Number.isFinite(r)) throw new RangeError('Enter a delivery rate and a plan area greater than zero');
+        el('rate').value = String(+r.toFixed(2));
+        el('deliveryNote').textContent = `${fmt(r, 2)} ${si ? 'm' : 'ft'}/h`;
+        calculate();
+      } catch (e) { el('deliveryNote').textContent = e.message; }
+    });
+    for (const id of ['height', 'rate', 'temp', 'unitWeight', 'tie', 'tieAcross', 'rated']) el(id).addEventListener('keydown', e => { if (e.key === 'Enter') calculate(); });
+    try {
+      const u = el('usageOptOut');
+      u.checked = readOptOut(usageStorage());
+      u.addEventListener('change', () => writeOptOut(usageStorage(), u.checked));
+    } catch { /* storage is optional */ }
+    calculate();
+  </script>
+</body>
+</html>

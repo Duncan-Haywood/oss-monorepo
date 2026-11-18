@@ -27,6 +27,7 @@ test('every page carries the no-warranty clause, the privacy line and a link hom
   assert.match(markup, /Do not keep anonymous local usage counts/);
   assert.match(markup, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(markup, /href="LICENSE"/);
+  assert.match(markup, /href="\.\.\/formwork-pressure\/"/);
 });
 
 test('sitemap lists every published page', () => {
