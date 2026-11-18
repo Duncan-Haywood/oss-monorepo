@@ -107,8 +107,10 @@ if __name__ == "__main__":
     lines.append(f"wall time {time.time() - t0:.0f} s (training {t_train:.0f} s, stress {t_stress:.0f} s)")
     sfx = "_smoke" if SMOKE else ""
     open(os.path.join(HERE, f"results{sfx}.txt"), "w").write("\n".join(lines) + "\n")
-    json.dump(Y.rnd(dict(laws=U.LAWS, keys=U.KEYS, budget=R.BUDGET, test_ep=M7.TEST_EP, test_seed=M7.TEST_SEED,
-                         train=[dict(arm=t[0], geom=t[1], seed=t[2], start=t[3], best=t[4], x=t[5], rejected=t[6]) for t in tr],
-                         designs=designs, runs=out, resp_tests=Y.TESTS, resp_ep=Y.EP, resp_seed=Y.SEED, resp=resp)),
+    # only the per-episode response lists are rounded (7y's rnd); designs and stress runs keep full precision, because the
+    # margin test is strict (rho < 1) and certified designs sit at rho 0.99999x, which 5-digit rounding turns into 1.0
+    json.dump(dict(laws=U.LAWS, keys=U.KEYS, budget=R.BUDGET, test_ep=M7.TEST_EP, test_seed=M7.TEST_SEED,
+                   train=[dict(arm=t[0], geom=t[1], seed=t[2], start=t[3], best=t[4], x=t[5], rejected=t[6]) for t in tr],
+                   designs=designs, runs=out, resp_tests=Y.TESTS, resp_ep=Y.EP, resp_seed=Y.SEED, resp=Y.rnd(resp)),
               open(os.path.join(HERE, f"results{sfx}.json"), "w"), separators=(",", ":"))
     print("\n".join(lines))

@@ -1,0 +1,25 @@
+Milestone 7z, post hoc (not predicted): per-seed Mann-Whitney U (two-sided), lag75 against lag60, on (a) L2-45 crashes per design at each identified law and (b) each design's median rise time, overshoot and 6 m/s peak drift at the 36 ms law; (c) designs that never settle within 5 cm on most flights, with their last-second distance and position kp.
+
+(a) L2-45     id 33 ms D^0 above: lag75 [1, 1, 1, 1, 1, 3] vs lag60 [1, 1, 1, 1, 1, 3], p = 1.000
+(a) L2-45     id 33 ms D^0 below: lag75 [1, 1, 1, 1, 3, 3] vs lag60 [1, 1, 2, 2, 3, 3], p = 0.541
+(a) L2-45    mid 36 ms D^0 above: lag75 [1, 1, 1, 1, 2, 4] vs lag60 [1, 1, 2, 2, 2, 3], p = 0.485
+(a) L2-45    mid 36 ms D^0 below: lag75 [1, 1, 1, 2, 3, 3] vs lag60 [1, 2, 3, 3, 3, 4], p = 0.203
+(a) L2-45   id 39.1 ms D^0 above: lag75 [1, 1, 1, 2, 2, 4] vs lag60 [2, 2, 3, 3, 3, 4], p = 0.097
+(a) L2-45   id 39.1 ms D^0 below: lag75 [1, 1, 2, 2, 3, 3] vs lag60 [2, 3, 3, 4, 5, 6], p = 0.040
+(a) L2-45 stress 60 ms D^0 above: lag75 [4, 5, 6, 7, 13, 14] vs lag60 [10, 11, 17, 18, 21, 28], p = 0.026
+(a) L2-45 stress 60 ms D^0 below: lag75 [5, 6, 7, 8, 9, 10] vs lag60 [6, 7, 10, 14, 22, 24], p = 0.147
+(a) L2-45 stress 75 ms D^0 above: lag75 [13, 16, 16, 18, 25, 29] vs lag60 [22, 25, 33, 37, 37, 39], p = 0.024
+(a) L2-45 stress 75 ms D^0 below: lag75 [10, 11, 18, 19, 20, 25] vs lag60 [22, 25, 32, 33, 36, 40], p = 0.010
+
+(b) step rise above: lag75 median 1.9830 vs lag60 1.7370, p = 0.818
+(b) step rise below: lag75 median 1.8600 vs lag60 1.7710, p = 0.240
+(b) step over above: lag75 median 0.0484 vs lag60 0.0317, p = 0.818
+(b) step over below: lag75 median 0.0319 vs lag60 0.0266, p = 0.589
+(b) wind6 peak above: lag75 median 0.0329 vs lag60 0.0276, p = 0.394
+(b) wind6 peak below: lag75 median 0.0222 vs lag60 0.0236, p = 0.818
+
+(c) aware lag60 above seed 4: unsettled 48/64; last-second distance median 5.4 cm, x peak-to-peak median 0.5 cm; pos kp 5.7; dead 0
+(c) aware lag60 above seed 5: unsettled 64/64; last-second distance median 5.9 cm, x peak-to-peak median 0.7 cm; pos kp 4.5; dead 0
+(c) aware lag60 below seed 5: unsettled 64/64; last-second distance median 6.7 cm, x peak-to-peak median 2.0 cm; pos kp 5.9; dead 0
+(c) aware lag75 above seed 3: unsettled 64/64; last-second distance median 4.3 cm, x peak-to-peak median 4.5 cm; pos kp 5.4; dead 0
+(c) aware lag75 above seed 5: unsettled 64/64; last-second distance median 8.3 cm, x peak-to-peak median 2.1 cm; pos kp 7.5; dead 0
