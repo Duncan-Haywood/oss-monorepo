@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVM8gisQVJhWMnxL61z",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market revenue-generating products)",
+  "input_sha256": "1029c338fc4b2e4cebd5c9dfc1614d6156f93b215e67fe5db8beeb896c4e337c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T21:15:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: new venture rebar-schedule (bar bending schedule + cutting-stock optimiser)",
+  "projects": [
+    "rebar-schedule"
+  ],
+  "pr": 17429,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 33,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Catch-all section cap (5) forces a CATEGORY_RULES edit in build.mjs for each new venture outside a named section; fine, but only discovered at preflight."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/runs (model field)",
+      "why": "Left model null: session instructions forbid model identifiers in pushed artifacts."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Idea: rebar bar bending schedule tool (BS 8666 cut lengths 00/11/21/51 + 90-degree geometry, weights, cutting-stock plan by column generation with a proven lower bound). Checks: venture tests pass; venture-preflight clean incl. build; 2 seeded mutants caught; headless Chromium 1280/390 no errors or scroll. Results: optimal 150/150 small random vs exhaustive; proven optimal 197/200 generated schedules, FFD ~1.0% more steel. BS 8666 text is paywalled and fabricator chart hosts were unreachable; formulas/radii taken from search-corroborated chart copies and pinned against geometry.",
+  "corrections": [],
+  "redteam": null
+}
