@@ -6733,3 +6733,68 @@ dated and finishing in milliseconds, Venezuela 2003, the cap, the committed verd
 Next: an update-rate check that can be wrong about a band, not only a fixed quote, needs a fresh
 labelled set of documented feed changes (a provider's announced switch from daily to weekly
 publication, a sensor's logged firmware change), not more pegs.
+
+## A provider's own schedule changes: US states moving to weekly COVID-19 reporting (2026-11-18, pre-registered; D1 and D2 pass)
+
+The peg round above asked for "a fresh labelled set of documented feed changes (a provider's announced
+switch from daily to weekly publication)". Johns Hopkins CSSE's COVID-19 repository keeps exactly that:
+its README's "Irregular Update Schedules" section records, state by state, when each health department
+moved to publishing fewer days a week ("Minnesota: Providing data once per week (Thursdays) (as of June
+30, 2022). ~~Providing data Monday-Friday.~~"). In JHU's daily time series a day with no publication
+repeats the day before, so Monday-Friday reporting repeats on about 2 days in 7 and weekly reporting on 6.
+
+`eval/update-rate-covid-schedules.mjs` (header committed in 6579a37ec before the script first ran on the
+series; only the README had been read) wrote down 27 primary events, every US line giving a dated switch
+to once a week *and* naming the more frequent schedule it replaced, and 19 secondary schedule changes,
+with the rules for leaving lines out (weekly to weekly, no prior schedule, state and county figures on
+different schedules, undated, too close to the series' end). It ran the shipped check, unchanged, on each
+state's cumulative confirmed cases (county rows summed, 2020-01-22 to 2023-03-09, 1,143 days;
+`sh eval/covid-schedules-fetch.sh covid-data`, 17.8 MB, not committed). Same scoring as the pegs: an event
+is dated when a change in the stated direction has a range within 10 days of it. Bars: D1, at least 19 of
+27 dated; D2, median range width at most 60 rows.
+
+**Verdict: D1 passes (20 of 27), D2 passes (median width 13.5 days)** (`eval/update-rate-covid-schedules.out.txt`).
+Sixteen of the twenty are dated within three days of the README's date (all within ten), most with repeats
+rising from 30-35% to 82-86%; the switches from a sparser schedule (Monday/Wednesday/Friday, Monday-Saturday;
+mostly about 60% repeats) to weekly are dated with wider ranges (17-31 days against 8-16), as the smaller jump predicts.
+Nothing in the check changes on this file.
+
+| | events | dated | typical move in repeats |
+|---|---|---|---|
+| Mon-Fri or daily to weekly (or Thursdays only) | 19 | 14 | 30% to 85% |
+| Mon/Wed/Fri, Tue+Fri or Mon-Sat to weekly | 8 | 6 | 59% to 84% |
+
+**The seven misses** (post hoc, read after the verdict, deciding nothing):
+
+- **The schedule never reached JHU's numbers (4).** California and Texas repeat on 0% of days through 2022
+  (the series moves every day, so whatever the state's own schedule, JHU's figures for it kept changing
+  daily, presumably from county sources; the README does not say); Missouri and New Hampshire stay at 22-47% repeats a
+  month, a Monday-Friday pattern, until 2023. The record has no switch to date, so silence is the right answer,
+  as for the yuan's 2008 re-peg.
+- **The record switched at another time (2).** District of Columbia and Kentucky rose to 55-74% repeats in
+  March-April 2022, then fell back to 20-55% for months; the lasting weekly pattern starts in October 2022, and
+  the check dates it there (DC 2022-10-14, Kentucky 2022-09-20).
+- **Two days outside the window (1).** South Dakota is weekly in the record from mid-March 2022; the check dates
+  2022-03-18 with a range to 03-31, the window opens on 04-02 (README date 04-12).
+
+**Secondary changes (D3, descriptive).** Moves to fewer days that are not weekly: 5 of 11 dated (Indiana and
+Idaho to Monday/Wednesday/Friday within six days; Alaska 2021-12; Oregon to Monday-Friday 2021-07, early
+by a week). Moves back to more days: **0 of 8**. They were short and small: Vermont, Arkansas and Alabama
+returned to daily publication in late summer 2021 (Delta) and repeats fell from 13-32% to 0% for a few months.
+At the shipped penalty (2 x 2 log n per cut, about 28 here) two cuts around a two-month stretch with no
+repeats inside a stretch averaging about 20% do not pay for themselves, so the check stays quiet. That is the
+cost of the setting chosen for 0.010 false changes a series in simulation: it dates large, lasting changes in
+how often a feed publishes and misses brief, modest ones.
+
+**Changes no event names (D4, descriptive).** On 16 of the 27 primary states the check dates a rise in repeats
+between 2021-04 and 2021-07 (six of them at 2021-07-02 to 07-04), mostly from 0-4% to about 30%. That is a
+Monday-Friday pattern starting in spring and summer 2021, six of them on the July 4 weekend, when many states stopped weekend reporting;
+the README lists most of those states as "Monday-Friday" without a date, so nothing here scores it.
+
+Test: `update-rate-covid.test.mjs` on `data/covid-schedules.csv` (six states, every day; CC BY 4.0, JHU CSSE,
+`data/SOURCE.md`): Minnesota, Utah and Vermont dated to the committed days; South Dakota's change two days
+before the window; California's empty 2022; Kentucky's autumn change; the committed verdict.
+
+Next: a moving-back check (more often) needs either a lower penalty for that direction, which would have
+to be pre-registered on simulated short returns first, or a set where publication resumes for longer than
+a few months.

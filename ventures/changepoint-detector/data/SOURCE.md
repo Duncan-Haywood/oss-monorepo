@@ -794,3 +794,17 @@ averaged 1981-89, schooling 1980 and 1985, investment 1980-84 and GDP per head 1
   model-based customer segmentation using data mining. *J. Database Marketing and Customer Strategy Management* 19(3),
   197-208. doi:10.1057/dbm.2012.17.
 - **Used by:** `eval/real-shop-suggest.mjs`, `real-shop.test.mjs` (README "A real shop's daily series").
+
+## covid-schedules.csv
+
+- **Source:** Johns Hopkins University CSSE COVID-19 Data Repository, github.com/CSSEGISandData/COVID-19, CC BY 4.0:
+  `csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv` (cumulative confirmed cases per
+  county, 2020-01-22 to 2023-03-09; fetched 2026-11-18, sha256 `e8fe5837b1a7ce09e6187ef778bf69fdcfa9fcd7015b1ba597f248b0736d8cf3`).
+- **Reshaped** by `readStates` in `eval/update-rate-covid-schedules.mjs`: each state's rows summed per day. Six states
+  kept (Minnesota, Utah, Vermont, South Dakota, California, Kentucky), every day.
+- **Labels:** the repository README's "Irregular Update Schedules" section, which gives each state's documented
+  reporting schedule and the date it changed (e.g. "Minnesota: Providing data once per week (Thursdays) (as of June 30, 2022)").
+- **Cite:** Dong, E., Du, H. and Gardner, L. (2020). An interactive web-based dashboard to track COVID-19 in real time.
+  *Lancet Infectious Diseases* 20(5), 533-534. doi:10.1016/S1473-3099(20)30120-1.
+- **Used by:** `eval/update-rate-covid-schedules.mjs` (full file via `eval/covid-schedules-fetch.sh`),
+  `update-rate-covid.test.mjs` (README "A provider's own schedule changes").

@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKjYBqvFUzFGYA1sD5N",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T15:18:09Z",
+  "ended": "2026-11-18T15:25:30Z",
+  "wall_minutes": 7.62,
+  "tokens_in": 4916528,
+  "tokens_out": 32333,
+  "cost_usd": 2.5468,
+  "tool_calls": 48,
+  "task": "Flagship row 2 (changepoint-detector): the next item 'a labelled set of feed changes' for the update-rate check",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17341",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "README draft first overstated two descriptive counts (D4 '19 states, most on July 4' was 16 and 6; 'twelve within three days' was 16; sparse-schedule events 7/4 were 8/6); caught by recounting from the .out.txt before commit"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "6,700+ lines; finding the update-rate check's API and the peg round's scoring took grep on headings plus reading eval/update-rate-pegs.mjs; a short index of eval scripts by README section would save time"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-changepoint-covid-weekly-reporting-dates.md",
+    "ventures/changepoint-detector/README.md section 'A provider's own schedule changes'"
+  ],
+  "goal": "Score the shipped update-rate check on a provider-labelled set of real feed-schedule changes",
+  "notes": "Pre-registered header committed (6579a37ec) before the script ran on the series; only JHU's README (the labels) was read first. Verdict: D1 20/27 pass (bar 19), D2 median width 13.5 pass (bar 60); D3 less-often 5/11, more-often 0/8 (penalty too high for brief returns). No code change to the check. Local checks: node --test update-rate-covid/pegs/update-rate tests 19/19 pass; check_posts ok; validate.py ok; run_venture_tests.py changepoint-detector: ok, 883 tests, 0 failed (174.9 s) plus site page checks ok; venture-preflight: clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2d427d92-8dde-58ed-a95e-8d60636d7f07",
+    "transcripts": 1,
+    "first": "2026-11-18T15:18:09Z",
+    "last": "2026-11-18T15:25:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 87,
+        "output": 32333,
+        "thinking": 9733,
+        "cache_read": 4798941,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117500,
+        "api_equivalent_usd": 2.5468,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 87,
+      "output": 32333,
+      "thinking": 9733,
+      "cache_read": 4798941,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117500,
+      "api_equivalent_usd": 2.5468,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 44,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.62,
+      "active_minutes": 7.62,
+      "model_minutes": 5.04,
+      "tool_minutes": 2.59,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "find a labelled dataset, pre-register 46 events, run, analyse misses, write README section, test and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 235.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
