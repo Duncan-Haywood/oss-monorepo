@@ -131,7 +131,7 @@ def main():
               f"C10 {six[('hi84', 0.10, d)]:5.1f}   C10-C02 {six[('hi84', 0.10, d)] - six[('hi84', 0.02, d)]:+6.1f}"
               f"  C05-C02 {six[('hi84', 0.05, d)] - six[('hi84', 0.02, d)]:+6.1f}")
 
-    print("\nhi84 failure modes, summed over the 10 sets and 5 years (km only / dark only / both; of 700 cells):")
+    print("\nhi84 failure modes, summed over the 10 sets and 5 years (km only / dark only / both; of 4200 cells):")
     M = {}
     for h in WIDTHS:
         for d in DS:
