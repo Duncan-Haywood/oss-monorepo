@@ -44,10 +44,17 @@ RAN_TOTALS = (
 )
 
 
-def resolve(target, root=ROOT):
-    """(directory, venture slug or None) for a slug, `ventures/<slug>/` or a path."""
+def resolve(target, root=ROOT, cwd=None):
+    """(directory, venture slug or None) for a slug, `ventures/<slug>/` or a path.
+
+    A relative path means what it means in the shell first: `.` run from inside
+    a venture is that venture. It used to resolve against the repository root
+    only, so `.` silently timed the whole repository (perf friction 2026-11-18).
+    Then the root, then `ventures/<target>`."""
     p = Path(target)
-    for cand in (p if p.is_absolute() else root / p, root / "ventures" / target.strip("/")):
+    here = Path(cwd) if cwd is not None else Path.cwd()
+    tries = [p] if p.is_absolute() else [here / p, root / p]
+    for cand in (*tries, root / "ventures" / target.strip("/")):
         if cand.is_dir():
             cand = cand.resolve()
             slug = cand.name if cand.parent == (root / "ventures").resolve() else None
