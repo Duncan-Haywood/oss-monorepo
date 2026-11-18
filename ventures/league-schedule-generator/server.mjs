@@ -9,6 +9,7 @@ import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseResults, parsePointSystem, standings, playoffBracket, leaguePageHtml, scheduleIcs, sampleFields, WEEKDAYS } from "./calc.mjs";
 import { pathToFileURL } from "node:url";
+import { upcomingGames, parseAvailability, recordAvailability, availabilityHtml, shortTeamsHtml, dayNumber } from "./availability.mjs";
 
 const MAX_BODY = 64 * 1024;
 const TEXT_FIELDS = ["teams", "start", "skip", "blackouts", "courts", "times", "timeLimits", "courtLimits", "results", "rainouts", "withdrawals", "lateTeams", "scoring"];
@@ -18,7 +19,7 @@ const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(Strin
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:6rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://marisstella.app/league-schedule-generator/">League Schedule Generator</a> (MIT). Check dates and venues with your organiser.</p></body></html>`;
 
-export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [] }; }
+export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], availability: {} }; }
 
 const MAX_PENDING = 100;
 /** A score a team captain sends from the league page, as a pending request: team indexes and goals, nothing free-form. */
@@ -79,7 +80,7 @@ export function calendarLinks(base, token, team) {
   return `<a href="${esc(webcal)}">subscribe</a> · <a href="${esc(google)}" rel="noopener">Google Calendar</a> · ${dl} · <input readonly value="${esc(feed)}" aria-label="Calendar address" style="width:auto;min-width:16rem;font-size:.8rem" onfocus="this.select()">`;
 }
 
-function leaguePage(state, token, base = null) {
+function leaguePage(state, token, base = null, today = dayNumber(Date.now())) {
   const out = buildLeague(state.fields);
   if (out.error) return page("League", `<p>The organiser has not published a valid league yet.</p>`);
   const html = leaguePageHtml(out.schedule, { title: "League schedule", table: out.table, bracket: out.bracket });
@@ -87,20 +88,23 @@ function leaguePage(state, token, base = null) {
   const calNote = `<p class="note">Subscribe once and your calendar app re-reads this feed on its own schedule (each app decides how often), so a rained-out game moves without anyone re-sending anything. A downloaded file is a copy: after a change, download it again and re-import it. Every game keeps the same event id all season, so an app that matches events by id, as the iCalendar standard expects, updates the moved games instead of adding copies. Anyone with the calendar address can read the schedule, the same as this page.</p>`;
   const opts = out.schedule.teams.map((n, i) => `<option value="${i}">${esc(n)}</option>`).join("");
   const form = `<h2>Report a score</h2><form method="post" action="/league/result?t=${esc(token)}"><label>Home <select name="home">${opts}</select></label> <input name="hs" type="number" min="0" max="999" required style="width:5rem" aria-label="Home score"> - <input name="as" type="number" min="0" max="999" required style="width:5rem" aria-label="Away score"> <label>Away <select name="away">${opts}</select></label> <button>Send to organiser</button></form><p class="note">The organiser checks every score before it reaches the table.</p>`;
-  return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("<footer>", `<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
+  const avail = availabilityHtml(state.availability || {}, upcomingGames(out.schedule, today), { token, minPlayers: state.fields.minPlayers });
+  return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("<footer>", `${avail}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
 }
 
-function adminPage(state, key, note = "") {
+function adminPage(state, key, note = "", today = dayNumber(Date.now())) {
   const f = state.fields, k = esc(key);
-  const names = buildLeague(f).schedule?.teams ?? [];
+  const built = buildLeague(f), names = built.schedule?.teams ?? [];
+  const short = built.schedule && state.published ? shortTeamsHtml(state.availability || {}, upcomingGames(built.schedule, today), f.minPlayers) : "";
   const pending = (state.pending || []).map((r, i) => names[r.a] === undefined || names[r.b] === undefined ? "" : `<li>${esc(resultLine(names, r))} <form method="post" action="/admin/result?key=${k}" style="display:inline"><input type="hidden" name="i" value="${i}"><button name="act" value="approve">Approve</button><button name="act" value="decline">Decline</button></form></li>`).join("");
   const waiting = pending ? `<h2>Scores waiting for you</h2><ul>${pending}</ul>` : "";
   const area = (name, label) => `<label>${label}<textarea name="${name}">${esc(f[name] ?? "")}</textarea></label>`;
-  return page("League admin", `${note}${waiting}
+  return page("League admin", `${note}${waiting}${short}
 <form method="post" action="/admin/save?key=${k}">
 <label>Season start (YYYY-MM-DD)<input name="start" value="${esc(f.start)}"></label>
 <label>Weekdays, comma separated (${WEEKDAYS.join(" ")})<input name="weekdays" value="${esc((f.weekdays || []).join(", "))}"></label>
 <label>Play-off spots (0 for none)<input name="playoff" value="${esc(f.playoff ?? 0)}"></label>
+<label>Players a team needs on the night (0 = do not flag short teams)<input name="minPlayers" inputmode="numeric" value="${esc(f.minPlayers ?? 0)}"></label>
 <label><input type="checkbox" name="double" value="1" style="width:auto" ${f.double ? "checked" : ""}> Double round robin</label>
 ${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}${area("times", "Time slots, e.g. 18:00, 19:00")}${area("skip", "Skip dates")}${area("blackouts", "Blackouts, e.g. Team: 2026-10-20")}${area("rainouts", "Rainouts")}${area("withdrawals", "Withdrawals")}${area("lateTeams", "Late teams")}${area("results", "Results, e.g. Hawks 3 - 2 Owls")}
 <button name="act" value="save">Save</button><button name="act" value="publish">Save and publish</button></form>
@@ -113,7 +117,7 @@ async function readForm(req) {
   return new URLSearchParams(Buffer.concat(chunks).toString("utf8"));
 }
 
-export function handler(state, save, env = process.env) {
+export function handler(state, save, env = process.env, clock = Date.now) {
   const adminKey = env.ADMIN_KEY || "", token = env.LEAGUE_TOKEN || "";
   // Throttle guessing of the two URL secrets: MAX_FAILS wrong links from one address in WINDOW_MS locks it out for the rest of the window.
   const MAX_FAILS = 10, WINDOW_MS = 15 * 60 * 1000, fails = new Map();
@@ -137,7 +141,7 @@ export function handler(state, save, env = process.env) {
     }
     const t = url.searchParams.get("t");
     if (isLeague) {
-      if (req.method === "GET" && url.pathname === "/league") return send(200, state.published ? leaguePage(state, t, publicBase(req, env)) : page("League", "<p>No schedule has been published yet.</p>"));
+      if (req.method === "GET" && url.pathname === "/league") return send(200, state.published ? leaguePage(state, t, publicBase(req, env), dayNumber(clock())) : page("League", "<p>No schedule has been published yet.</p>"));
       if (req.method === "GET" && url.pathname === "/league/ics") {
         const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
         const raw = url.searchParams.get("team"), all = raw === "all", i = Number(raw);
@@ -158,6 +162,22 @@ export function handler(state, save, env = process.env) {
         save();
         return send(200, page("Score sent", `<p class="ok">Sent: ${esc(resultLine(out.schedule.teams, r.req))}. It shows in the table once the organiser approves it.</p><p><a href="/league?t=${esc(t)}">Back to the league</a></p>`));
       }
+      if (req.method === "POST" && url.pathname === "/league/available") {
+        const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
+        if (out.error) return send(404, "not found\n", "text/plain");
+        const body = await readForm(req);
+        if (!body) return send(413, "too large\n", "text/plain");
+        const games = upcomingGames(out.schedule, dayNumber(clock()));
+        const back = `<p><a href="/league?t=${esc(t)}">Back to the league</a></p>`;
+        const r = parseAvailability(body, games, out.schedule.teams);
+        if (r.error) return send(400, page("Answer not saved", `<p class="err">${esc(r.error)}</p>${back}`));
+        state.availability = state.availability || {};
+        const w = recordAvailability(state.availability, r.req, games, clock());
+        if (w.error) return send(429, page("Answer not saved", `<p class="err">${esc(w.error)}</p>${back}`));
+        save();
+        const g = games.find((x) => x.fixture === r.req.fixture);
+        return send(200, page("Answer saved", `<p class="ok">${w.replaced ? "Changed" : "Saved"}: ${esc(r.req.name)} is ${esc(r.req.status === "in" ? "in" : r.req.status === "out" ? "out" : "a maybe")} for ${esc(r.req.team)} v ${esc(r.req.team === g.homeName ? g.awayName : g.homeName)}.</p>${back}`));
+      }
       return send(404, "not found\n", "text/plain");
     }
     let form = new URLSearchParams();
@@ -168,7 +188,7 @@ export function handler(state, save, env = process.env) {
     const here = `/admin?key=${encodeURIComponent(adminKey)}`;
     if (req.method === "GET" && url.pathname === "/admin") {
       const note = url.searchParams.get("note");
-      return send(200, adminPage(state, adminKey, note ? `<p class="ok">${esc(note)}</p>` : ""));
+      return send(200, adminPage(state, adminKey, note ? `<p class="ok">${esc(note)}</p>` : "", dayNumber(clock())));
     }
     if (req.method === "POST" && url.pathname === "/admin/save") {
       const f = { ...state.fields };
@@ -176,10 +196,11 @@ export function handler(state, save, env = process.env) {
       f.weekdays = String(form.get("weekdays") || "").split(/[\s,]+/).filter((d) => WEEKDAYS.includes(d));
       f.double = form.get("double") === "1";
       f.playoff = Math.trunc(Number(form.get("playoff")) || 0);
+      f.minPlayers = Math.min(99, Math.max(0, Math.trunc(Number(form.get("minPlayers")) || 0)));
       state.fields = f;
       const out = buildLeague(f);
       if (form.get("act") === "publish") {
-        if (out.error) { save(); return send(400, adminPage(state, adminKey, `<p class="err">${esc(out.error)}</p>`)); }
+        if (out.error) { save(); return send(400, adminPage(state, adminKey, `<p class="err">${esc(out.error)}</p>`, dayNumber(clock()))); }
         state.published = true;
       }
       save();
