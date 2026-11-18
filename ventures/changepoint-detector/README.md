@@ -6207,3 +6207,46 @@ covariates (C2) the two warnings fire together on half their panels (11.5 of 22-
 failed bar 2,** the CLI's warning text now says the warned covariate need not be the one that moved the outcome, and
 that correlated covariates share warnings. **Next:** the balance table on the page; covariates with shocks that are
 not steps (a slope from the date).
+
+### Shocks that are not steps: a slope from the date and a pulse that fades (2026-11-18, pre-registered; all four bars passed)
+
+The balance rounds calibrated the warning on covariates whose shock is a step at the date and listed "their shocks
+need not be steps" as a limit; "Two covariates" ended "covariates with shocks that are not steps (a slope from the
+date)". `eval/synth-shape-sim.mjs` (pre-registration `eval/synth-shape-prereg-2026-11-18.md`, committed after an
+exploratory run at base 61000 and before the confirmatory run): the same N1 panels; each unit has Z, which moves every
+unit by beta x Z x shape(h) at h = 0..11 points after the date, and W, which moves nothing. Both shapes average 1 over
+the 12 points, so beta means what it meant for steps. **Slope**: (h + 1) / 6.5, from 0.15 at the first point to 1.85
+at the last. **Pulse**: 3 for four points, then 0. No true effect, so every gap is bias. Confirmatory, base 63000,
+400 panels a cell (`eval/synth-shape-confirm.out.txt`):
+
+| cell | p <= 0.05 | Z warns | p <= 0.05: Z warned / not | mean abs. bias: Z warned / not | abs. gap at the last point: Z warned / not | p <= 0.05: W alone / neither |
+|---|---|---|---|---|---|---|
+| S0 beta 0 | 2.8% | 18.5% | 1.4% / 3.1% | 0.32 / 0.32 | 0.60 / 0.63 | 2.7% / 3.2% |
+| S1 slope 0.5 | 1.8% | 18.3% | **8.2% / 0.3%** | **0.96 / 0.44** | 1.93 / 0.78 | 0.0% / 0.4% |
+| S2 slope 1.0 | 2.5% | 19.8% | **12.7% / 0.0%** | **1.88 / 0.70** | 3.55 / 1.34 | 0.0% / 0.0% |
+| P1 pulse 0.5 | 2.8% | 22.3% | **12.4% / 0.0%** | **1.05 / 0.48** | 0.58 / 0.62 | 0.0% / 0.0% |
+| P2 pulse 1.0 | 3.8% | 19.8% | **19.0% / 0.0%** | **1.98 / 0.74** | 0.50 / 0.59 | 0.0% / 0.0% |
+
+Bars: (1) Z's warning fires in 10-30% of S0 (18.5%) and size is at most 10% everywhere (1.8-3.8%): holds. (2) Slopes:
+Z-warned bias 2.2x and 2.7x the unwarned, p <= 0.05 share +7.9 and +12.7 points: holds. (3) Pulses: (a) bias 2.2x and
+2.7x, (b) +12.4 and +19.0 points: holds. (4) W warned alone vs neither, S2 and P2: 0.0% vs 0.0% both: holds.
+
+**What it says.**
+- **The warning's calibration carries over.** For a covariate that moves the outcome gradually from the date, or
+  briefly after it, of the 43 false p <= 0.05 in the four shock cells (1,600 panels), 42 sat in a panel carrying the
+  warning on that covariate (the other: S1, 1 of 327 unwarned), and warned panels' gaps were 2.2-2.7x as biased, as for steps (2.0-2.5x). The base rate
+  with nothing wrong is unchanged (18.5% against 21%), and the harmless covariate's warning alone held no false
+  finding in any cell (0 of 253).
+- **A pulse fools the test as easily as a step, then leaves no trace at the end.** In P2 19% of warned panels reach
+  p <= 0.05 with no effect, more than in any step cell, yet the gap at the last point is no larger in warned panels
+  (0.50) than in the rest (0.59): the ratio test reads the whole after-period, so a short covariate shock right after
+  the date can pass as an effect that "wore off". Read a significant gap that fades with the balance table in view.
+- **A slope's bias grows.** In S2 the warned panels' gap at the last point is 3.55, about twice their average gap,
+  so `effectAtEnd` overstates a slope-driven bias more than `effectAverage` does.
+- The exploratory run's P2 had no false finds in 13 warned panels; 400 a cell gave 15 of 79. Fifty a cell was too few
+  to say anything about rare events, as the pre-registration's wording assumed.
+
+**As pre-registered for bars 1-3 holding,** the CLI's warning text and the page's note now say the calibration holds
+for a shock that is a slope from the date or a pulse that fades, citing this file. Real states are not refitted.
+**Limits.** Two shapes, one panel shape (N1), independent covariates. **Next:** a shock that starts before the date
+(anticipation), and a real deployer's panel.
