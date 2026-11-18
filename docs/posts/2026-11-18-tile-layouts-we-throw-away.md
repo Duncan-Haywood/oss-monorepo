@@ -1,9 +1,9 @@
 ---
 title: "Most of the tile layouts we score get thrown away, so we stopped building them in full"
-seo_title: "Speeding up a tile layout optimizer by evaluating discarded candidates lean"
+seo_title: "Speeding up a tile layout search by scoring discarded layouts lean"
 date: 2026-11-18
 tags: [tile-layout-optimizer, perf, algorithms]
-description: "The tile layout search scored about 2,000 grid starts per tile and kept only their ranking. Counting whole tiles instead of building them cut an Optimise click on the sample from about 740 ms to 470 ms, plans unchanged."
+description: "A tile layout search scored ~2,000 layouts per tile only to rank them. Counting whole tiles instead cut a click from ~740 ms to ~470 ms, plans unchanged."
 ---
 
 The [tile layout optimizer](https://marisstella.app/tile-layout-optimizer/)
